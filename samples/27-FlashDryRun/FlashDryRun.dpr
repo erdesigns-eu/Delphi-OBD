@@ -14,7 +14,7 @@
 //  this with sample 25-CodingDryRun.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
+//  Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
 //  License     : MIT — see LICENSE
 //
 //  History     :

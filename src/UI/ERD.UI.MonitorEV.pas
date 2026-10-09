@@ -1,42 +1,42 @@
-//------------------------------------------------------------------------------
-//  ERD.UI.MonitorEV
+﻿// ------------------------------------------------------------------------------
+// ERD.UI.MonitorEV
 //
-//  Emissions / EV diagnostic visuals for the A2 inventory:
+// Emissions / EV diagnostic visuals for the A2 inventory:
 //
-//    TOBDReadinessGrid      17-row OS-native list view bound
-//                           to a TOBDMonitorReadiness array.
-//                           Host calls Refresh from their
-//                           OnReadiness handler.
-//    TOBDDriveCycleProgress current-step description + ETA +
-//                           progress bar. Host calls
-//                           UpdateProgress from OnStep.
-//    TOBDCellVoltageHeatmap colour-coded EV cell grid. Cold
-//                           (blue) = high voltage, hot (red) =
-//                           low voltage. Tooltip-friendly hit
-//                           testing via CellAt(X, Y).
-//    TOBDChargingFlow       animated charger → pack → motor
-//                           power-flow diagram. Direction
-//                           inferred from signed power; flow
-//                           particles slide along the arrows.
+// TOBDReadinessGrid      17-row OS-native list view bound
+// to a TOBDMonitorReadiness array.
+// Host calls Refresh from their
+// OnReadiness handler.
+// TOBDDriveCycleProgress current-step description + ETA +
+// progress bar. Host calls
+// UpdateProgress from OnStep.
+// TOBDCellVoltageHeatmap colour-coded EV cell grid. Cold
+// (blue) = high voltage, hot (red) =
+// low voltage. Tooltip-friendly hit
+// testing via CellAt(X, Y).
+// TOBDChargingFlow       animated charger → pack → motor
+// power-flow diagram. Direction
+// inferred from signed power; flow
+// particles slide along the arrows.
 //
-//  All four inherit theme / HiDPI / VCL-Style awareness from
-//  TOBDCustomControl or TListView, route state mutations
-//  through TBindings.Notify, and guard timers + subscriptions
-//  with csDesigning so the IDE Designer stays responsive.
+// All four inherit theme / HiDPI / VCL-Style awareness from
+// TOBDCustomControl or TListView, route state mutations
+// through TBindings.Notify, and guard timers + subscriptions
+// with csDesigning so the IDE Designer stays responsive.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.UI.MonitorEV;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -46,9 +46,9 @@ uses
   Winapi.Windows,
   Winapi.GDIPAPI,
   Winapi.GDIPOBJ,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
   System.Bindings.Helper, Data.Bind.Components,
   Vcl.Controls,
   Vcl.Graphics,
@@ -85,8 +85,7 @@ type
     /// <summary>Re-renders every row from
     /// <paramref name="AReadiness"/>. Missing monitors fall
     /// back to "not reported".</summary>
-    procedure Refresh(
-      const AReadiness: TArray<TOBDMonitorReadiness>);
+    procedure Refresh(const AReadiness: TArray<TOBDMonitorReadiness>);
     /// <summary>Convenience: pulls the latest from the bound
     /// advisor via a synchronous <c>ReadReadiness</c>. Raises
     /// when <c>Advisor</c> is nil or its <c>Protocol</c> is
@@ -96,8 +95,7 @@ type
     /// <summary>Optional bound advisor. Used by
     /// <see cref="RefreshFromAdvisor"/>; nil = host calls
     /// <see cref="Refresh"/> directly.</summary>
-    property Advisor: TOBDDriveCycleAdvisor
-      read FAdvisor write SetAdvisor;
+    property Advisor: TOBDDriveCycleAdvisor read FAdvisor write SetAdvisor;
 
     property Align;
     property Anchors;
@@ -117,38 +115,36 @@ type
   /// </summary>
   TOBDDriveCycleProgress = class(TOBDCustomControl)
   strict private
-    FStep:        TOBDDriveCycleStep;
-    FElapsedSec:  Cardinal;
-    FTotalSec:    Cardinal;
-    FStepIndex:   Integer;
-    FStepCount:   Integer;
+    FStep: TOBDDriveCycleStep;
+    FElapsedSec: Cardinal;
+    FTotalSec: Cardinal;
+    FStepIndex: Integer;
+    FStepCount: Integer;
     FCaptionFont: TFont;
-    FBodyFont:    TFont;
+    FBodyFont: TFont;
     procedure SetCaptionFont(AValue: TFont);
     procedure SetBodyFont(AValue: TFont);
     procedure HandleFontChange(Sender: TObject);
     procedure NotifyBindings;
-    function  FormatSecs(ASec: Cardinal): string;
+    function FormatSecs(ASec: Cardinal): string;
   protected
     procedure PaintControl(ACanvas: TCanvas); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
     /// <summary>Updates the displayed step + progress. Pass
     /// <paramref name="ATotalSteps"/> = 0 to leave the step
     /// counter at its previous value (useful when the host
     /// only knows the current step).</summary>
     procedure UpdateProgress(const AStep: TOBDDriveCycleStep;
-      AElapsedSec, ATotalSec: Cardinal;
-      ATotalSteps: Integer = 0);
+      AElapsedSec, ATotalSec: Cardinal; ATotalSteps: Integer = 0);
     /// <summary>Currently-shown step record.</summary>
     property Step: TOBDDriveCycleStep read FStep;
     property ElapsedSec: Cardinal read FElapsedSec;
-    property TotalSec:   Cardinal read FTotalSec;
+    property TotalSec: Cardinal read FTotalSec;
   published
     /// <summary>Caption / "Step N of M" font.</summary>
-    property CaptionFont: TFont
-      read FCaptionFont write SetCaptionFont;
+    property CaptionFont: TFont read FCaptionFont write SetCaptionFont;
     /// <summary>Body / instruction font.</summary>
     property BodyFont: TFont read FBodyFont write SetBodyFont;
   end;
@@ -161,12 +157,12 @@ type
   /// outside the range clamp to the edge colour.</summary>
   TOBDCellVoltageHeatmap = class(TOBDCustomControl)
   strict private
-    FVoltages:   TArray<Single>;
-    FColumns:    Integer;
+    FVoltages: TArray<Single>;
+    FColumns: Integer;
     FMinVoltage: Single;
     FMaxVoltage: Single;
-    FShowText:   Boolean;
-    FCellFont:   TFont;
+    FShowText: Boolean;
+    FCellFont: TFont;
     procedure SetColumns(AValue: Integer);
     procedure SetMinVoltage(AValue: Single);
     procedure SetMaxVoltage(AValue: Single);
@@ -174,12 +170,12 @@ type
     procedure SetCellFont(AValue: TFont);
     procedure HandleFontChange(Sender: TObject);
     procedure NotifyBindings;
-    function  CellColor(AVoltage: Single): TColor;
+    function CellColor(AVoltage: Single): TColor;
   protected
     procedure PaintControl(ACanvas: TCanvas); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
     /// <summary>Replaces every cell. Pass an empty array to
     /// clear.</summary>
     procedure SetVoltages(const AValues: TArray<Single>);
@@ -189,27 +185,23 @@ type
     /// <summary>Returns the cell index at the supplied client
     /// coordinate, or -1 when the point isn't on a cell.
     /// </summary>
-    function  CellAt(X, Y: Integer): Integer;
+    function CellAt(X, Y: Integer): Integer;
     /// <summary>Snapshot of the stored voltages.</summary>
-    function  Voltages: TArray<Single>;
+    function Voltages: TArray<Single>;
     /// <summary>Cell count.</summary>
-    function  CellCount: Integer;
+    function CellCount: Integer;
   published
     /// <summary>Cells per row. Default 12.</summary>
-    property Columns: Integer
-      read FColumns write SetColumns default 12;
+    property Columns: Integer read FColumns write SetColumns default 12;
     /// <summary>Bottom of the colour scale (volts).
     /// Default 3.0.</summary>
-    property MinVoltage: Single
-      read FMinVoltage write SetMinVoltage;
+    property MinVoltage: Single read FMinVoltage write SetMinVoltage;
     /// <summary>Top of the colour scale (volts).
     /// Default 4.2.</summary>
-    property MaxVoltage: Single
-      read FMaxVoltage write SetMaxVoltage;
+    property MaxVoltage: Single read FMaxVoltage write SetMaxVoltage;
     /// <summary>Print each cell's voltage inside its tile.
     /// Default False (clutter-free heatmap look).</summary>
-    property ShowText: Boolean
-      read FShowText write SetShowText default False;
+    property ShowText: Boolean read FShowText write SetShowText default False;
     /// <summary>Cell-text font when <see cref="ShowText"/> is
     /// True.</summary>
     property CellFont: TFont read FCellFont write SetCellFont;
@@ -225,8 +217,7 @@ type
     /// <summary>Pack → motor (drive).</summary>
     fdDriving,
     /// <summary>Motor → pack (regenerative braking).</summary>
-    fdRegen
-  );
+    fdRegen);
 
   /// <summary>Animated charger ↔ pack ↔ motor power-flow
   /// diagram. Host sets <see cref="ChargePowerKw"/> (charger →
@@ -236,39 +227,35 @@ type
   /// animates particles along the active arrows.</summary>
   TOBDChargingFlow = class(TOBDCustomControl)
   strict private
-    FChargeKw:    Double;
-    FDriveKw:     Double;
-    FAnimPhase:   Single;
-    FTimer:       TTimer;
-    FBodyFont:    TFont;
+    FChargeKw: Double;
+    FDriveKw: Double;
+    FAnimPhase: Single;
+    FTimer: TTimer;
+    FBodyFont: TFont;
     procedure SetChargeKw(AValue: Double);
     procedure SetDriveKw(AValue: Double);
     procedure SetBodyFont(AValue: TFont);
     procedure HandleFontChange(Sender: TObject);
     procedure HandleTick(Sender: TObject);
     procedure NotifyBindings;
-    function  Direction: TOBDFlowDirection;
+    function Direction: TOBDFlowDirection;
     procedure PaintBlock(ACanvas: TCanvas; AGraphics: TGPGraphics;
-      const ARect: TGPRectF; const ALabel, AValue: string;
-      AAccent: TColor);
-    procedure PaintArrow(AGraphics: TGPGraphics;
-      AX1, AY, AX2: Single; AActive: Boolean;
-      AReverse: Boolean; AColor: TColor);
+      const ARect: TGPRectF; const ALabel, AValue: string; AAccent: TColor);
+    procedure PaintArrow(AGraphics: TGPGraphics; AX1, AY, AX2: Single;
+      AActive: Boolean; AReverse: Boolean; AColor: TColor);
   protected
     procedure Loaded; override;
     procedure PaintControl(ACanvas: TCanvas); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
   published
     /// <summary>Charger → pack power (kW). Positive while
     /// plugged in and charging; zero when unplugged.</summary>
-    property ChargePowerKw: Double
-      read FChargeKw write SetChargeKw;
+    property ChargePowerKw: Double read FChargeKw write SetChargeKw;
     /// <summary>Pack ↔ motor power (kW). Positive = motor is
     /// drawing, negative = regenerating.</summary>
-    property DrivePowerKw: Double
-      read FDriveKw write SetDriveKw;
+    property DrivePowerKw: Double read FDriveKw write SetDriveKw;
     /// <summary>Label font.</summary>
     property BodyFont: TFont read FBodyFont write SetBodyFont;
   end;
@@ -278,30 +265,46 @@ implementation
 function MonitorDisplay(AMonitor: TOBDMonitor): string;
 begin
   case AMonitor of
-    omMisfire:             Result := 'Misfire';
-    omFuelSystem:          Result := 'Fuel system';
-    omComprehensive:       Result := 'Comprehensive components';
-    omCatalyst:            Result := 'Catalyst';
-    omHeatedCatalyst:      Result := 'Heated catalyst';
-    omEvaporativeSystem:   Result := 'Evaporative system';
-    omSecondaryAirSystem:  Result := 'Secondary air system';
-    omACRefrigerant:       Result := 'A/C refrigerant';
-    omOxygenSensor:        Result := 'Oxygen sensor';
-    omOxygenSensorHeater:  Result := 'Oxygen sensor heater';
-    omEGRSystem:           Result := 'EGR system';
-    omNMHCCatalyst:        Result := 'NMHC catalyst';
-    omNOxAftertreatment:   Result := 'NOx aftertreatment';
-    omBoostPressureSystem: Result := 'Boost pressure';
-    omExhaustGasSensor:    Result := 'Exhaust gas sensor';
-    omPMFilter:            Result := 'Particulate filter';
-    omEGRorVVTSystem:      Result := 'EGR / VVT';
+    omMisfire:
+      Result := 'Misfire';
+    omFuelSystem:
+      Result := 'Fuel system';
+    omComprehensive:
+      Result := 'Comprehensive components';
+    omCatalyst:
+      Result := 'Catalyst';
+    omHeatedCatalyst:
+      Result := 'Heated catalyst';
+    omEvaporativeSystem:
+      Result := 'Evaporative system';
+    omSecondaryAirSystem:
+      Result := 'Secondary air system';
+    omACRefrigerant:
+      Result := 'A/C refrigerant';
+    omOxygenSensor:
+      Result := 'Oxygen sensor';
+    omOxygenSensorHeater:
+      Result := 'Oxygen sensor heater';
+    omEGRSystem:
+      Result := 'EGR system';
+    omNMHCCatalyst:
+      Result := 'NMHC catalyst';
+    omNOxAftertreatment:
+      Result := 'NOx aftertreatment';
+    omBoostPressureSystem:
+      Result := 'Boost pressure';
+    omExhaustGasSensor:
+      Result := 'Exhaust gas sensor';
+    omPMFilter:
+      Result := 'Particulate filter';
+    omEGRorVVTSystem:
+      Result := 'EGR / VVT';
   else
     Result := 'Unknown';
   end;
 end;
 
-procedure ConfigureColumns(AListView: TListView;
-  const ANames: array of string;
+procedure ConfigureColumns(AListView: TListView; const ANames: array of string;
   const AWidths: array of Integer);
 var
   I: Integer;
@@ -314,7 +317,7 @@ begin
     begin
       Col := AListView.Columns.Add;
       Col.Caption := ANames[I];
-      Col.Width   := AWidths[I];
+      Col.Width := AWidths[I];
     end;
   finally
     AListView.Columns.EndUpdate;
@@ -326,10 +329,10 @@ end;
 constructor TOBDReadinessGrid.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  ViewStyle  := vsReport;
-  RowSelect  := True;
-  ReadOnly   := True;
-  GridLines  := True;
+  ViewStyle := vsReport;
+  RowSelect := True;
+  ReadOnly := True;
+  GridLines := True;
   HideSelection := False;
   ShowColumnHeaders := True;
 end;
@@ -338,9 +341,7 @@ procedure TOBDReadinessGrid.CreateWnd;
 begin
   inherited;
   if Columns.Count = 0 then
-    ConfigureColumns(Self,
-      ['Monitor', 'Supported', 'Complete'],
-      [220, 90, 90]);
+    ConfigureColumns(Self, ['Monitor', 'Supported', 'Complete'], [220, 90, 90]);
   EnsureRows;
 end;
 
@@ -354,7 +355,8 @@ end;
 
 procedure TOBDReadinessGrid.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -363,10 +365,13 @@ end;
 
 procedure TOBDReadinessGrid.SetAdvisor(AValue: TOBDDriveCycleAdvisor);
 begin
-  if FAdvisor = AValue then Exit;
-  if FAdvisor <> nil then FAdvisor.RemoveFreeNotification(Self);
+  if FAdvisor = AValue then
+    Exit;
+  if FAdvisor <> nil then
+    FAdvisor.RemoveFreeNotification(Self);
   FAdvisor := AValue;
-  if FAdvisor <> nil then FAdvisor.FreeNotification(Self);
+  if FAdvisor <> nil then
+    FAdvisor.FreeNotification(Self);
 end;
 
 procedure TOBDReadinessGrid.EnsureRows;
@@ -374,7 +379,8 @@ var
   M: TOBDMonitor;
   Item: TListItem;
 begin
-  if Items.Count = Ord(High(TOBDMonitor)) + 1 then Exit;
+  if Items.Count = Ord(High(TOBDMonitor)) + 1 then
+    Exit;
   Items.BeginUpdate;
   try
     Items.Clear;
@@ -391,8 +397,8 @@ begin
   end;
 end;
 
-procedure TOBDReadinessGrid.Refresh(
-  const AReadiness: TArray<TOBDMonitorReadiness>);
+procedure TOBDReadinessGrid.Refresh(const AReadiness
+  : TArray<TOBDMonitorReadiness>);
 var
   R: TOBDMonitorReadiness;
   I: Integer;
@@ -417,9 +423,12 @@ begin
           Item := Items[I];
           Break;
         end;
-      if Item = nil then Continue;
-      if R.Supported then Item.SubItems[0] := 'yes'
-      else                Item.SubItems[0] := 'no';
+      if Item = nil then
+        Continue;
+      if R.Supported then
+        Item.SubItems[0] := 'yes'
+      else
+        Item.SubItems[0] := 'no';
       if not R.Supported then
         Item.SubItems[1] := '-'
       else if R.Complete then
@@ -436,8 +445,8 @@ end;
 procedure TOBDReadinessGrid.RefreshFromAdvisor;
 begin
   if FAdvisor = nil then
-    raise EInvalidOperation.Create(
-      'TOBDReadinessGrid.RefreshFromAdvisor: Advisor not assigned');
+    raise EInvalidOperation.Create
+      ('TOBDReadinessGrid.RefreshFromAdvisor: Advisor not assigned');
   Refresh(FAdvisor.ReadReadiness);
 end;
 
@@ -446,7 +455,7 @@ end;
 constructor TOBDDriveCycleProgress.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 360;
+  Width := 360;
   Height := 90;
   FCaptionFont := TFont.Create;
   FCaptionFont.Name := 'Segoe UI';
@@ -468,7 +477,8 @@ end;
 
 procedure TOBDDriveCycleProgress.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -490,15 +500,15 @@ begin
   FBodyFont.Assign(AValue);
 end;
 
-procedure TOBDDriveCycleProgress.UpdateProgress(
-  const AStep: TOBDDriveCycleStep;
+procedure TOBDDriveCycleProgress.UpdateProgress(const AStep: TOBDDriveCycleStep;
   AElapsedSec, ATotalSec: Cardinal; ATotalSteps: Integer);
 begin
-  FStep       := AStep;
+  FStep := AStep;
   FElapsedSec := AElapsedSec;
-  FTotalSec   := ATotalSec;
-  FStepIndex  := AStep.Index;
-  if ATotalSteps > 0 then FStepCount := ATotalSteps;
+  FTotalSec := ATotalSec;
+  FStepIndex := AStep.Index;
+  if ATotalSteps > 0 then
+    FStepCount := ATotalSteps;
   NotifyBindings;
   Repaint;
 end;
@@ -516,7 +526,7 @@ procedure TOBDDriveCycleProgress.PaintControl(ACanvas: TCanvas);
 var
   Graphics: TGPGraphics;
   Brush: TGPSolidBrush;
-  Pen:   TGPPen;
+  Pen: TGPPen;
   Pad, BarH, BarY: Integer;
   Track, Fill: TGPRectF;
   HeaderText, EtaText: string;
@@ -529,19 +539,17 @@ begin
   ACanvas.Font := FCaptionFont;
   ACanvas.Font.Color := EffectiveAccent;
   if FStepCount > 0 then
-    HeaderText := Format('Step %d of %d',
-      [System.Math.Max(1, FStepIndex), FStepCount])
+    HeaderText := Format('Step %d of %d', [System.Math.Max(1, FStepIndex),
+      FStepCount])
   else
-    HeaderText := Format('Step %d',
-      [System.Math.Max(1, FStepIndex)]);
+    HeaderText := Format('Step %d', [System.Math.Max(1, FStepIndex)]);
   ACanvas.TextOut(Pad, Pad, HeaderText);
 
   // Body: free-text instruction.
   ACanvas.Font := FBodyFont;
   ACanvas.Font.Color := EffectiveForeground;
   if FStep.Description <> '' then
-    ACanvas.TextOut(Pad,
-      Pad + ACanvas.TextHeight('Mg') * 2 - ScaleValue(2),
+    ACanvas.TextOut(Pad, Pad + ACanvas.TextHeight('Mg') * 2 - ScaleValue(2),
       FStep.Description);
 
   // Progress bar at the bottom.
@@ -549,7 +557,7 @@ begin
   BarY := Height - Pad - BarH;
   Track.X := Pad;
   Track.Y := BarY;
-  Track.Width  := Width - 2 * Pad - ScaleValue(80);
+  Track.Width := Width - 2 * Pad - ScaleValue(80);
   Track.Height := BarH;
 
   Graphics := TGPGraphics.Create(ACanvas.Handle);
@@ -588,8 +596,8 @@ begin
   // ETA readout on the right.
   ACanvas.Font := FBodyFont;
   ACanvas.Font.Color := EffectiveForeground;
-  EtaText := Format('%s / %s',
-    [FormatSecs(FElapsedSec), FormatSecs(FTotalSec)]);
+  EtaText := Format('%s / %s', [FormatSecs(FElapsedSec),
+    FormatSecs(FTotalSec)]);
   ACanvas.TextOut(Width - Pad - ACanvas.TextWidth(EtaText),
     BarY - ScaleValue(2), EtaText);
 end;
@@ -599,7 +607,7 @@ end;
 constructor TOBDCellVoltageHeatmap.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 320;
+  Width := 320;
   Height := 200;
   FColumns := 12;
   FMinVoltage := 3.0;
@@ -619,7 +627,8 @@ end;
 
 procedure TOBDCellVoltageHeatmap.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -633,32 +642,42 @@ end;
 
 procedure TOBDCellVoltageHeatmap.SetColumns(AValue: Integer);
 begin
-  if AValue < 1 then AValue := 1;
-  if AValue > 256 then AValue := 256;
-  if FColumns = AValue then Exit;
-  FColumns := AValue; Repaint;
+  if AValue < 1 then
+    AValue := 1;
+  if AValue > 256 then
+    AValue := 256;
+  if FColumns = AValue then
+    Exit;
+  FColumns := AValue;
+  Repaint;
 end;
 
 procedure TOBDCellVoltageHeatmap.SetMinVoltage(AValue: Single);
 begin
   if IsNan(AValue) or IsInfinite(AValue) then
     raise EArgumentException.Create('MinVoltage must be finite');
-  if SameValue(FMinVoltage, AValue) then Exit;
-  FMinVoltage := AValue; Repaint;
+  if SameValue(FMinVoltage, AValue) then
+    Exit;
+  FMinVoltage := AValue;
+  Repaint;
 end;
 
 procedure TOBDCellVoltageHeatmap.SetMaxVoltage(AValue: Single);
 begin
   if IsNan(AValue) or IsInfinite(AValue) then
     raise EArgumentException.Create('MaxVoltage must be finite');
-  if SameValue(FMaxVoltage, AValue) then Exit;
-  FMaxVoltage := AValue; Repaint;
+  if SameValue(FMaxVoltage, AValue) then
+    Exit;
+  FMaxVoltage := AValue;
+  Repaint;
 end;
 
 procedure TOBDCellVoltageHeatmap.SetShowText(AValue: Boolean);
 begin
-  if FShowText = AValue then Exit;
-  FShowText := AValue; Repaint;
+  if FShowText = AValue then
+    Exit;
+  FShowText := AValue;
+  Repaint;
 end;
 
 procedure TOBDCellVoltageHeatmap.SetCellFont(AValue: TFont);
@@ -666,21 +685,21 @@ begin
   FCellFont.Assign(AValue);
 end;
 
-procedure TOBDCellVoltageHeatmap.SetVoltages(
-  const AValues: TArray<Single>);
+procedure TOBDCellVoltageHeatmap.SetVoltages(const AValues: TArray<Single>);
 begin
   FVoltages := Copy(AValues);
   NotifyBindings;
   Repaint;
 end;
 
-procedure TOBDCellVoltageHeatmap.SetCell(AIndex: Integer;
-  AVoltage: Single);
+procedure TOBDCellVoltageHeatmap.SetCell(AIndex: Integer; AVoltage: Single);
 begin
-  if (AIndex < 0) or (AIndex >= Length(FVoltages)) then Exit;
-  if not (IsNan(FVoltages[AIndex]) or IsInfinite(FVoltages[AIndex]) or
-          IsNan(AVoltage) or IsInfinite(AVoltage)) then
-    if SameValue(FVoltages[AIndex], AVoltage) then Exit;
+  if (AIndex < 0) or (AIndex >= Length(FVoltages)) then
+    Exit;
+  if not(IsNan(FVoltages[AIndex]) or IsInfinite(FVoltages[AIndex]) or
+    IsNan(AVoltage) or IsInfinite(AVoltage)) then
+    if SameValue(FVoltages[AIndex], AVoltage) then
+      Exit;
   FVoltages[AIndex] := AVoltage;
   NotifyBindings;
   Repaint;
@@ -698,9 +717,9 @@ end;
 
 function TOBDCellVoltageHeatmap.CellColor(AVoltage: Single): TColor;
 var
-  T:        Single;
-  Span:     Single;
-  R, G, B:  Byte;
+  T: Single;
+  Span: Single;
+  R, G, B: Byte;
 begin
   if IsNan(AVoltage) or IsInfinite(AVoltage) or (AVoltage <= 0) then
     Exit(Palette.Subtle);
@@ -709,14 +728,16 @@ begin
     T := 0.5
   else
     T := (AVoltage - FMinVoltage) / Span;
-  if T < 0 then T := 0;
-  if T > 1 then T := 1;
+  if T < 0 then
+    T := 0;
+  if T > 1 then
+    T := 1;
   // Red (low) → amber → green (high). Three-stop gradient
   // gives a clean "low / medium / healthy" read.
   if T < 0.5 then
   begin
     R := 220;
-    G := Round(50 + (T * 2.0) * (170 - 50));   // 50..170
+    G := Round(50 + (T * 2.0) * (170 - 50)); // 50..170
     B := 60;
   end
   else
@@ -734,27 +755,34 @@ var
   Col, Row: Integer;
 begin
   Result := -1;
-  if Length(FVoltages) = 0 then Exit;
+  if Length(FVoltages) = 0 then
+    Exit;
   Pad := ScaleValue(4);
-  if (X < Pad) or (Y < Pad) then Exit;
+  if (X < Pad) or (Y < Pad) then
+    Exit;
   RowCount := (Length(FVoltages) + FColumns - 1) div FColumns;
-  if RowCount = 0 then Exit;
-  CellW := (Width  - 2 * Pad) div FColumns;
+  if RowCount = 0 then
+    Exit;
+  CellW := (Width - 2 * Pad) div FColumns;
   CellH := (Height - 2 * Pad) div RowCount;
-  if (CellW <= 0) or (CellH <= 0) then Exit;
+  if (CellW <= 0) or (CellH <= 0) then
+    Exit;
   Col := (X - Pad) div CellW;
   Row := (Y - Pad) div CellH;
-  if (Col < 0) or (Col >= FColumns) then Exit;
-  if (Row < 0) or (Row >= RowCount) then Exit;
+  if (Col < 0) or (Col >= FColumns) then
+    Exit;
+  if (Row < 0) or (Row >= RowCount) then
+    Exit;
   Result := Row * FColumns + Col;
-  if Result >= Length(FVoltages) then Result := -1;
+  if Result >= Length(FVoltages) then
+    Result := -1;
 end;
 
 procedure TOBDCellVoltageHeatmap.PaintControl(ACanvas: TCanvas);
 var
   Graphics: TGPGraphics;
   Brush: TGPSolidBrush;
-  Pen:   TGPPen;
+  Pen: TGPPen;
   Pad, RowCount, CellW, CellH, I, Col, Row: Integer;
   Cell: TGPRectF;
   V: Single;
@@ -771,10 +799,12 @@ begin
   end;
   Pad := ScaleValue(4);
   RowCount := (Length(FVoltages) + FColumns - 1) div FColumns;
-  if RowCount = 0 then Exit;
-  CellW := (Width  - 2 * Pad) div FColumns;
+  if RowCount = 0 then
+    Exit;
+  CellW := (Width - 2 * Pad) div FColumns;
   CellH := (Height - 2 * Pad) div RowCount;
-  if (CellW <= 0) or (CellH <= 0) then Exit;
+  if (CellW <= 0) or (CellH <= 0) then
+    Exit;
 
   Graphics := TGPGraphics.Create(ACanvas.Handle);
   try
@@ -785,7 +815,7 @@ begin
       Col := I mod FColumns;
       Cell.X := Pad + Col * CellW;
       Cell.Y := Pad + Row * CellH;
-      Cell.Width  := CellW - 1;
+      Cell.Width := CellW - 1;
       Cell.Height := CellH - 1;
       V := FVoltages[I];
       Brush := TGPSolidBrush.Create(ColorToARGB(CellColor(V)));
@@ -814,7 +844,8 @@ begin
     begin
       Row := I div FColumns;
       Col := I mod FColumns;
-      if IsNan(FVoltages[I]) or IsInfinite(FVoltages[I]) or (FVoltages[I] <= 0) then
+      if IsNan(FVoltages[I]) or IsInfinite(FVoltages[I]) or (FVoltages[I] <= 0)
+      then
       begin
         Lab := 'N/A';
         ACanvas.Font.Color := EffectiveForeground;
@@ -826,10 +857,8 @@ begin
       end;
       TextW := ACanvas.TextWidth(Lab);
       TextH := ACanvas.TextHeight(Lab);
-      ACanvas.TextOut(
-        Pad + Col * CellW + (CellW - TextW) div 2,
-        Pad + Row * CellH + (CellH - TextH) div 2,
-        Lab);
+      ACanvas.TextOut(Pad + Col * CellW + (CellW - TextW) div 2,
+        Pad + Row * CellH + (CellH - TextH) div 2, Lab);
     end;
   end;
 end;
@@ -839,19 +868,19 @@ end;
 constructor TOBDChargingFlow.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 360;
+  Width := 360;
   Height := 140;
   FChargeKw := 0;
-  FDriveKw  := 0;
+  FDriveKw := 0;
   FAnimPhase := 0;
   FBodyFont := TFont.Create;
   FBodyFont.Name := 'Segoe UI';
   FBodyFont.Size := 9;
   FBodyFont.OnChange := HandleFontChange;
   FTimer := TTimer.Create(Self);
-  FTimer.Enabled  := False;
+  FTimer.Enabled := False;
   FTimer.Interval := 60;
-  FTimer.OnTimer  := HandleTick;
+  FTimer.OnTimer := HandleTick;
 end;
 
 destructor TOBDChargingFlow.Destroy;
@@ -864,12 +893,13 @@ end;
 procedure TOBDChargingFlow.Loaded;
 begin
   inherited;
-  FTimer.Enabled := not (csDesigning in ComponentState);
+  FTimer.Enabled := not(csDesigning in ComponentState);
 end;
 
 procedure TOBDChargingFlow.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -884,13 +914,16 @@ end;
 procedure TOBDChargingFlow.HandleTick(Sender: TObject);
 begin
   FAnimPhase := FAnimPhase + 0.06;
-  if FAnimPhase > 1 then FAnimPhase := FAnimPhase - 1;
-  if Direction <> fdIdle then Repaint;
+  if FAnimPhase > 1 then
+    FAnimPhase := FAnimPhase - 1;
+  if Direction <> fdIdle then
+    Repaint;
 end;
 
 procedure TOBDChargingFlow.SetChargeKw(AValue: Double);
 begin
-  if SameValue(FChargeKw, AValue) then Exit;
+  if SameValue(FChargeKw, AValue) then
+    Exit;
   FChargeKw := AValue;
   NotifyBindings;
   Repaint;
@@ -898,7 +931,8 @@ end;
 
 procedure TOBDChargingFlow.SetDriveKw(AValue: Double);
 begin
-  if SameValue(FDriveKw, AValue) then Exit;
+  if SameValue(FDriveKw, AValue) then
+    Exit;
   FDriveKw := AValue;
   NotifyBindings;
   Repaint;
@@ -911,18 +945,21 @@ end;
 
 function TOBDChargingFlow.Direction: TOBDFlowDirection;
 begin
-  if FChargeKw > 0.1 then        Result := fdCharging
-  else if FDriveKw < -0.1 then   Result := fdRegen
-  else if FDriveKw >  0.1 then   Result := fdDriving
-  else                           Result := fdIdle;
+  if FChargeKw > 0.1 then
+    Result := fdCharging
+  else if FDriveKw < -0.1 then
+    Result := fdRegen
+  else if FDriveKw > 0.1 then
+    Result := fdDriving
+  else
+    Result := fdIdle;
 end;
 
-procedure TOBDChargingFlow.PaintBlock(ACanvas: TCanvas;
-  AGraphics: TGPGraphics; const ARect: TGPRectF;
-  const ALabel, AValue: string; AAccent: TColor);
+procedure TOBDChargingFlow.PaintBlock(ACanvas: TCanvas; AGraphics: TGPGraphics;
+  const ARect: TGPRectF; const ALabel, AValue: string; AAccent: TColor);
 var
   Brush: TGPSolidBrush;
-  Pen:   TGPPen;
+  Pen: TGPPen;
 begin
   Brush := TGPSolidBrush.Create(ColorToARGB(Palette.NeutralLight));
   try
@@ -940,28 +977,23 @@ begin
   ACanvas.Brush.Style := bsClear;
   ACanvas.Font := FBodyFont;
   ACanvas.Font.Color := EffectiveForeground;
-  ACanvas.TextOut(
-    Round(ARect.X + (ARect.Width - ACanvas.TextWidth(ALabel)) / 2),
-    Round(ARect.Y + ScaleValue(4)),
-    ALabel);
+  ACanvas.TextOut(Round(ARect.X + (ARect.Width - ACanvas.TextWidth(ALabel)) /
+    2), Round(ARect.Y + ScaleValue(4)), ALabel);
   ACanvas.Font.Style := [fsBold];
   ACanvas.Font.Color := AAccent;
-  ACanvas.TextOut(
-    Round(ARect.X + (ARect.Width - ACanvas.TextWidth(AValue)) / 2),
-    Round(ARect.Y + ARect.Height -
-      ACanvas.TextHeight(AValue) - ScaleValue(4)),
-    AValue);
+  ACanvas.TextOut(Round(ARect.X + (ARect.Width - ACanvas.TextWidth(AValue)) /
+    2), Round(ARect.Y + ARect.Height - ACanvas.TextHeight(AValue) -
+    ScaleValue(4)), AValue);
   ACanvas.Font.Style := [];
 end;
 
 procedure TOBDChargingFlow.PaintArrow(AGraphics: TGPGraphics;
-  AX1, AY, AX2: Single; AActive: Boolean; AReverse: Boolean;
-  AColor: TColor);
+  AX1, AY, AX2: Single; AActive: Boolean; AReverse: Boolean; AColor: TColor);
 var
-  Pen:   TGPPen;
+  Pen: TGPPen;
   Brush: TGPSolidBrush;
   HeadX, HeadY, P: Single;
-  Pts: array[0..2] of TGPPointF;
+  Pts: array [0 .. 2] of TGPPointF;
   ParticleX: Single;
   ParticleR: Single;
   Dir: Integer;
@@ -969,8 +1001,7 @@ begin
   if AActive then
     Pen := TGPPen.Create(ColorToARGB(AColor), ScaleValue(3))
   else
-    Pen := TGPPen.Create(ColorToARGB(Palette.NeutralLight),
-      ScaleValue(2));
+    Pen := TGPPen.Create(ColorToARGB(Palette.NeutralLight), ScaleValue(2));
   try
     AGraphics.DrawLine(Pen, AX1, AY, AX2, AY);
   finally
@@ -978,8 +1009,14 @@ begin
   end;
 
   // Arrowhead.
-  if AReverse then Dir := -1 else Dir := 1;
-  if AReverse then HeadX := AX1 else HeadX := AX2;
+  if AReverse then
+    Dir := -1
+  else
+    Dir := 1;
+  if AReverse then
+    HeadX := AX1
+  else
+    HeadX := AX2;
   HeadY := AY;
   Pts[0].X := HeadX;
   Pts[0].Y := HeadY;
@@ -997,7 +1034,8 @@ begin
     Brush.Free;
   end;
 
-  if not AActive then Exit;
+  if not AActive then
+    Exit;
 
   // Flow particle — slides along the arrow.
   P := FAnimPhase;
@@ -1008,8 +1046,7 @@ begin
     ParticleX := AX1 + P * (AX2 - AX1);
   Brush := TGPSolidBrush.Create(ColorToARGB(AColor));
   try
-    AGraphics.FillEllipse(Brush,
-      ParticleX - ParticleR, AY - ParticleR,
+    AGraphics.FillEllipse(Brush, ParticleX - ParticleR, AY - ParticleR,
       ParticleR * 2, ParticleR * 2);
   finally
     Brush.Free;
@@ -1027,28 +1064,28 @@ var
 begin
   BlockW := Round(Width * 0.22);
   BlockH := Round(Height * 0.55);
-  GapW   := (Width - 3 * BlockW) div 2;
-  BodyY  := (Height - BlockH) div 2;
+  GapW := (Width - 3 * BlockW) div 2;
+  BodyY := (Height - BlockH) div 2;
 
   Charger.X := 0;
   Charger.Y := BodyY;
-  Charger.Width  := BlockW;
+  Charger.Width := BlockW;
   Charger.Height := BlockH;
 
   Pack.X := BlockW + GapW;
   Pack.Y := BodyY;
-  Pack.Width  := BlockW;
+  Pack.Width := BlockW;
   Pack.Height := BlockH;
 
   Motor.X := 2 * (BlockW + GapW);
   Motor.Y := BodyY;
-  Motor.Width  := BlockW;
+  Motor.Width := BlockW;
   Motor.Height := BlockH;
 
   Dir := Direction;
   ChargerActive := Dir = fdCharging;
-  DriveActive   := (Dir = fdDriving) or (Dir = fdRegen);
-  DriveReverse  := Dir = fdRegen;
+  DriveActive := (Dir = fdDriving) or (Dir = fdRegen);
+  DriveReverse := Dir = fdRegen;
   if Dir = fdRegen then
     DriveColor := Palette.Success
   else
@@ -1058,34 +1095,27 @@ begin
   try
     Graphics.SetSmoothingMode(SmoothingModeAntiAlias);
 
-    PaintBlock(ACanvas, Graphics,Charger, 'Charger',
-      Format('%.1f kW', [FChargeKw]),
-      Palette.Accent);
+    PaintBlock(ACanvas, Graphics, Charger, 'Charger',
+      Format('%.1f kW', [FChargeKw]), Palette.Accent);
     // Battery block reads the magnitude of the dominant flow
     // — gives a glanceable "how busy is the pack" value
     // without needing the host to wire a separate voltage
     // property.
-    PaintBlock(ACanvas, Graphics,Pack, 'Battery',
-      Format('%.1f kW',
-        [System.Math.Max(Abs(FChargeKw), Abs(FDriveKw))]),
+    PaintBlock(ACanvas, Graphics, Pack, 'Battery',
+      Format('%.1f kW', [System.Math.Max(Abs(FChargeKw), Abs(FDriveKw))]),
       Palette.Accent);
-    PaintBlock(ACanvas, Graphics,Motor, 'Motor',
-      Format('%.1f kW', [FDriveKw]),
+    PaintBlock(ACanvas, Graphics, Motor, 'Motor', Format('%.1f kW', [FDriveKw]),
       DriveColor);
 
     // Charger → Pack arrow.
-    PaintArrow(Graphics,
-      Charger.X + Charger.Width  + ScaleValue(2),
-      Charger.Y + Charger.Height / 2,
-      Pack.X - ScaleValue(2),
-      ChargerActive, False, Palette.Accent);
+    PaintArrow(Graphics, Charger.X + Charger.Width + ScaleValue(2),
+      Charger.Y + Charger.Height / 2, Pack.X - ScaleValue(2), ChargerActive,
+      False, Palette.Accent);
 
     // Pack ↔ Motor arrow.
-    PaintArrow(Graphics,
-      Pack.X + Pack.Width + ScaleValue(2),
-      Pack.Y + Pack.Height / 2,
-      Motor.X - ScaleValue(2),
-      DriveActive, DriveReverse, DriveColor);
+    PaintArrow(Graphics, Pack.X + Pack.Width + ScaleValue(2),
+      Pack.Y + Pack.Height / 2, Motor.X - ScaleValue(2), DriveActive,
+      DriveReverse, DriveColor);
   finally
     Graphics.Free;
   end;

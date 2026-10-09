@@ -1,7 +1,6 @@
 object OBDLiveTestDlg: TOBDLiveTestDlg
   Left = 0
   Top = 0
-  BorderStyle = bsSizeable
   Caption = 'Delphi-OBD - live test'
   ClientHeight = 380
   ClientWidth = 600
@@ -31,8 +30,8 @@ object OBDLiveTestDlg: TOBDLiveTestDlg
       AlignWithMargins = True
       Left = 16
       Top = 12
-      Width = 568
-      Height = 18
+      Width = 64
+      Height = 19
       Margins.Left = 0
       Margins.Top = 0
       Margins.Right = 0
@@ -50,7 +49,7 @@ object OBDLiveTestDlg: TOBDLiveTestDlg
       AlignWithMargins = True
       Left = 16
       Top = 34
-      Width = 568
+      Width = 39
       Height = 15
       Margins.Left = 0
       Margins.Top = 0
@@ -71,7 +70,7 @@ object OBDLiveTestDlg: TOBDLiveTestDlg
     Left = 16
     Top = 68
     Width = 568
-    Height = 244
+    Height = 260
     Margins.Left = 16
     Margins.Top = 4
     Margins.Right = 16
@@ -87,6 +86,7 @@ object OBDLiveTestDlg: TOBDLiveTestDlg
     ScrollBars = ssBoth
     TabOrder = 1
     WordWrap = False
+    ExplicitHeight = 244
   end
   object pnlFooter: TPanel
     Left = 0
@@ -114,8 +114,8 @@ object OBDLiveTestDlg: TOBDLiveTestDlg
       object lblStatus: TLabel
         Left = 0
         Top = 0
-        Width = 240
-        Height = 28
+        Width = 19
+        Height = 15
         Align = alClient
         Alignment = taCenter
         Caption = 'Idle'

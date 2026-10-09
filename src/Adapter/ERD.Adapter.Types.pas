@@ -1,53 +1,53 @@
-//------------------------------------------------------------------------------
-//  ERD.Adapter.Types
+﻿// ------------------------------------------------------------------------------
+// ERD.Adapter.Types
 //
-//  Adapter-layer types: capability bits, identity record, command kind
-//  enum, command record, command-result record, event signatures.
+// Adapter-layer types: capability bits, identity record, command kind
+// enum, command record, command-result record, event signatures.
 //
-//  Has no dependencies beyond ERD.Types and the System RTL. The
-//  TOBDAdapterFamily enum lives in ERD.Types because it is shared with
-//  the connection layer; everything else specific to the adapter is
-//  here.
+// Has no dependencies beyond ERD.Types and the System RTL. The
+// TOBDAdapterFamily enum lives in ERD.Types because it is shared with
+// the connection layer; everything else specific to the adapter is
+// here.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - ELM327 datasheet (Elm Electronics)
-//    - OBDLink ST command reference
-//    - SAE J2534 PassThru spec
+// References  :
+// - ELM327 datasheet (Elm Electronics)
+// - OBDLink ST command reference
+// - SAE J2534 PassThru spec
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation: capability set, identity record,
-//                     command kind enum, command record, AT/OBD-frame
-//                     events.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation: capability set, identity record,
+// command kind enum, command record, AT/OBD-frame
+// events.
+// ------------------------------------------------------------------------------
 
 unit ERD.Adapter.Types;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   ERD.Types;
 
 type
   /// <summary>
-  ///   Capabilities a chip / adapter may declare.
+  /// Capabilities a chip / adapter may declare.
   /// </summary>
   /// <remarks>
-  ///   Stable enum order — values appear in JSON catalogues. Append at
-  ///   the end; never reorder existing members.
+  /// Stable enum order — values appear in JSON catalogues. Append at
+  /// the end; never reorder existing members.
   /// </remarks>
   TOBDAdapterCapability = (
     /// <summary>11/29-bit CAN at standard rates (250 / 500 kbps).</summary>
@@ -79,20 +79,19 @@ type
     /// <summary>Programmable headers (ATSH / equivalent).</summary>
     acProgrammableHeaders,
     /// <summary>Adapter-side multi-frame ISO-TP assembly.</summary>
-    acAdapterMultiFrame
-  );
+    acAdapterMultiFrame);
 
   /// <summary>Set of <see cref="TOBDAdapterCapability"/>.</summary>
   TOBDAdapterCapabilities = set of TOBDAdapterCapability;
 
   /// <summary>
-  ///   Snapshot of an adapter's identity, populated by
-  ///   <c>TOBDAdapter.Detect</c>.
+  /// Snapshot of an adapter's identity, populated by
+  /// <c>TOBDAdapter.Detect</c>.
   /// </summary>
   /// <remarks>
-  ///   Strings are normalised: trimmed, single-line, no leading
-  ///   <c>></c> prompt. Fields that the adapter did not report are
-  ///   empty.
+  /// Strings are normalised: trimmed, single-line, no leading
+  /// <c>></c> prompt. Fields that the adapter did not report are
+  /// empty.
   /// </remarks>
   TOBDAdapterIdentity = record
     /// <summary>Detected family (or <c>afELM327</c> as a fallback).</summary>
@@ -121,7 +120,7 @@ type
   end;
 
   /// <summary>
-  ///   Kind of command sent to the adapter.
+  /// Kind of command sent to the adapter.
   /// </summary>
   TOBDAdapterCommandKind = (
     /// <summary>ELM327-style <c>AT</c> command (e.g. <c>ATZ</c>,
@@ -133,11 +132,10 @@ type
     /// <summary>OBD-II hex command (e.g. <c>'01 0C'</c>).</summary>
     ckOBD,
     /// <summary>Raw bytes sent verbatim, no prefix or framing.</summary>
-    ckRaw
-  );
+    ckRaw);
 
   /// <summary>
-  ///   Static description of a command in the adapter command catalogue.
+  /// Static description of a command in the adapter command catalogue.
   /// </summary>
   TOBDAdapterCommand = record
     /// <summary>Command kind — selects whether the verb is sent
@@ -154,7 +152,7 @@ type
   end;
 
   /// <summary>
-  ///   Result of a single command exchange.
+  /// Result of a single command exchange.
   /// </summary>
   TOBDAdapterResponse = record
     /// <summary>The command that was sent (after parameter
@@ -178,7 +176,7 @@ type
   end;
 
   /// <summary>
-  ///   Event raised when a command response arrives.
+  /// Event raised when a command response arrives.
   /// </summary>
   /// <param name="Sender">Adapter instance.</param>
   /// <param name="AResponse">Parsed response.</param>
@@ -187,7 +185,7 @@ type
     const AResponse: TOBDAdapterResponse) of object;
 
   /// <summary>
-  ///   Event raised when adapter identity has been (re-)detected.
+  /// Event raised when adapter identity has been (re-)detected.
   /// </summary>
   /// <param name="Sender">Adapter instance.</param>
   /// <param name="AIdentity">Newly resolved identity.</param>
@@ -196,21 +194,21 @@ type
     const AIdentity: TOBDAdapterIdentity) of object;
 
   /// <summary>
-  ///   Adapter-level configuration error (e.g. command sent without an
-  ///   active connection, command requires an unsupported capability).
+  /// Adapter-level configuration error (e.g. command sent without an
+  /// active connection, command requires an unsupported capability).
   /// </summary>
   EOBDAdapter = class(EOBDError);
 
-/// <summary>
-///   Returns the canonical adapter-key for a family enum value
-///   (e.g. <c>'elm327'</c> for <c>afELM327</c>).
-/// </summary>
-/// <param name="AFamily">Family enum value.</param>
-/// <returns>Canonical lower-case identifier.</returns>
+  /// <summary>
+  /// Returns the canonical adapter-key for a family enum value
+  /// (e.g. <c>'elm327'</c> for <c>afELM327</c>).
+  /// </summary>
+  /// <param name="AFamily">Family enum value.</param>
+  /// <returns>Canonical lower-case identifier.</returns>
 function AdapterFamilyKey(AFamily: TOBDAdapterFamily): string;
 
 /// <summary>
-///   Parses a capability key (case-insensitive) to its enum value.
+/// Parses a capability key (case-insensitive) to its enum value.
 /// </summary>
 /// <param name="AKey">Capability key as it appears in JSON
 /// (<c>'CAN'</c>, <c>'ISO-TP'</c>, <c>'KLine'</c>, …).</param>
@@ -221,7 +219,7 @@ function TryParseCapability(const AKey: string;
   out ACap: TOBDAdapterCapability): Boolean;
 
 /// <summary>
-///   Returns an empty <see cref="TOBDAdapterIdentity"/>.
+/// Returns an empty <see cref="TOBDAdapterIdentity"/>.
 /// </summary>
 /// <returns>Identity record with <c>Family = afELM327</c> and all
 /// strings empty.</returns>
@@ -232,10 +230,14 @@ implementation
 function AdapterFamilyKey(AFamily: TOBDAdapterFamily): string;
 begin
   case AFamily of
-    afELM327:  Result := 'elm327';
-    afOBDLink: Result := 'obdlink';
-    afJ2534:   Result := 'j2534';
-    afDoIP:    Result := 'doip';
+    afELM327:
+      Result := 'elm327';
+    afOBDLink:
+      Result := 'obdlink';
+    afJ2534:
+      Result := 'j2534';
+    afDoIP:
+      Result := 'doip';
   else
     Result := 'unknown';
   end;
@@ -246,29 +248,41 @@ function TryParseCapability(const AKey: string;
 var
   Norm: string;
 begin
-  Norm := UpperCase(StringReplace(StringReplace(Trim(AKey),
-    '-', '', [rfReplaceAll]), '_', '', [rfReplaceAll]));
+  Norm := UpperCase(StringReplace(StringReplace(Trim(AKey), '-', '',
+    [rfReplaceAll]), '_', '', [rfReplaceAll]));
   Result := True;
-  if      Norm = 'CAN'                  then ACap := acCAN
-  else if Norm = 'CANFD'                then ACap := acCANFD
-  else if Norm = 'ISOTP'                then ACap := acISOTP
-  else if (Norm = 'ISOTPLF') or (Norm = 'ISOTPLONGFRAME')
-                                        then ACap := acISOTPLongFrame
-  else if Norm = 'DOIP'                 then ACap := acDoIP
-  else if Norm = 'J1939'                then ACap := acJ1939
-  else if (Norm = 'KLINE') or (Norm = 'KL')
-                                        then ACap := acKLine
-  else if (Norm = 'VOLTAGEMONITOR') or (Norm = 'BATTERYVOLTAGE')
-                                        then ACap := acVoltageMonitor
-  else if Norm = 'SECUREONBOARD'        then ACap := acSecureOnboard
-  else if Norm = 'J2534'                then ACap := acJ2534
-  else if Norm = 'J2534V2'              then ACap := acJ2534v2
-  else if (Norm = 'STCOMMANDS') or (Norm = 'ST')
-                                        then ACap := acSTCommands
-  else if Norm = 'MESSAGEFILTERS'       then ACap := acMessageFilters
-  else if Norm = 'PROGRAMMABLEHEADERS'  then ACap := acProgrammableHeaders
-  else if Norm = 'ADAPTERMULTIFRAME'    then ACap := acAdapterMultiFrame
-  else Result := False;
+  if Norm = 'CAN' then
+    ACap := acCAN
+  else if Norm = 'CANFD' then
+    ACap := acCANFD
+  else if Norm = 'ISOTP' then
+    ACap := acISOTP
+  else if (Norm = 'ISOTPLF') or (Norm = 'ISOTPLONGFRAME') then
+    ACap := acISOTPLongFrame
+  else if Norm = 'DOIP' then
+    ACap := acDoIP
+  else if Norm = 'J1939' then
+    ACap := acJ1939
+  else if (Norm = 'KLINE') or (Norm = 'KL') then
+    ACap := acKLine
+  else if (Norm = 'VOLTAGEMONITOR') or (Norm = 'BATTERYVOLTAGE') then
+    ACap := acVoltageMonitor
+  else if Norm = 'SECUREONBOARD' then
+    ACap := acSecureOnboard
+  else if Norm = 'J2534' then
+    ACap := acJ2534
+  else if Norm = 'J2534V2' then
+    ACap := acJ2534v2
+  else if (Norm = 'STCOMMANDS') or (Norm = 'ST') then
+    ACap := acSTCommands
+  else if Norm = 'MESSAGEFILTERS' then
+    ACap := acMessageFilters
+  else if Norm = 'PROGRAMMABLEHEADERS' then
+    ACap := acProgrammableHeaders
+  else if Norm = 'ADAPTERMULTIFRAME' then
+    ACap := acAdapterMultiFrame
+  else
+    Result := False;
 end;
 
 function MakeAdapterIdentity: TOBDAdapterIdentity;

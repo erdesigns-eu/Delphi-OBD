@@ -1,61 +1,61 @@
-//------------------------------------------------------------------------------
-//  ERD.Diagnostics.KWP.Routine
+﻿// ------------------------------------------------------------------------------
+// ERD.Diagnostics.KWP.Routine
 //
-//  TOBDKWPRoutine — non-visual component for the KWP2000 routine-
-//  control trio:
+// TOBDKWPRoutine — non-visual component for the KWP2000 routine-
+// control trio:
 //
-//    Service 0x31 — StartRoutineByLocalIdentifier
-//    Service 0x32 — StopRoutineByLocalIdentifier
-//    Service 0x33 — RequestRoutineResultsByLocalIdentifier
+// Service 0x31 — StartRoutineByLocalIdentifier
+// Service 0x32 — StopRoutineByLocalIdentifier
+// Service 0x33 — RequestRoutineResultsByLocalIdentifier
 //
-//  A diagnostic routine is started with 0x31, may be polled for
-//  intermediate results with 0x33, and explicitly halted with 0x32.
-//  Routines drive hardware (injector tests, leak checks, learn
-//  procedures, …) and are destructive — the component ships with
-//  AutoExecute = False default.
+// A diagnostic routine is started with 0x31, may be polled for
+// intermediate results with 0x33, and explicitly halted with 0x32.
+// Routines drive hardware (injector tests, leak checks, learn
+// procedures, …) and are destructive — the component ships with
+// AutoExecute = False default.
 //
-//  Wire format per ISO 14230-3:1999 §6.11:
+// Wire format per ISO 14230-3:1999 §6.11:
 //
-//    Start    request : 31 <LocalRoutineId> [<params>]
-//    Start    response: 71 <LocalRoutineId>
+// Start    request : 31 <LocalRoutineId> [<params>]
+// Start    response: 71 <LocalRoutineId>
 //
-//    Stop     request : 32 <LocalRoutineId>
-//    Stop     response: 72 <LocalRoutineId>
+// Stop     request : 32 <LocalRoutineId>
+// Stop     response: 72 <LocalRoutineId>
 //
-//    Results  request : 33 <LocalRoutineId>
-//    Results  response: 73 <LocalRoutineId> <results...>
+// Results  request : 33 <LocalRoutineId>
+// Results  response: 73 <LocalRoutineId> <results...>
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - ISO 14230-3:1999 §6.11 (Routine control services)
+// References  :
+// - ISO 14230-3:1999 §6.11 (Routine control services)
 //
-//  History     :
-//    2026-05-11  ERD  Initial implementation.
-//    2026-10-08  ERD  Add owned async operations and cancellation cleanup.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-11  ERD  Initial implementation.
+// 2026-10-08  ERD  Add owned async operations and cancellation cleanup.
+// ------------------------------------------------------------------------------
 
 unit ERD.Diagnostics.KWP.Routine;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
   ERD.Connection,
-  {$IFDEF FPC}ERD.Compat.Functions,{$ENDIF}
+{$IFDEF FPC}ERD.Compat.Functions, {$ENDIF}
   ERD.Connection.Types,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
   ERD.Types,
   ERD.Protocol.Types,
   ERD.Protocol.KWP2000,
@@ -69,22 +69,20 @@ type
     /// <summary>Just stopped (Service 0x32).</summary>
     rpStopped,
     /// <summary>Results received (Service 0x33).</summary>
-    rpResults
-  );
+    rpResults);
 
   /// <summary>Fires after a successful response. Main thread.</summary>
-  TOBDKWPRoutineEvent = procedure(Sender: TObject;
-    APhase: TOBDKWPRoutinePhase; ALocalID: Byte;
-    const AData: TBytes) of object;
+  TOBDKWPRoutineEvent = procedure(Sender: TObject; APhase: TOBDKWPRoutinePhase;
+    ALocalID: Byte; const AData: TBytes) of object;
 
   /// <summary>
-  ///   KWP2000 routine-control component.
+  /// KWP2000 routine-control component.
   /// </summary>
   /// <remarks>
-  ///   Drop on a form, assign <c>Protocol</c>, set
-  ///   <c>AutoExecute := True</c> after operator consent, then
-  ///   call <see cref="Start"/>, optionally <see cref="RequestResults"/>,
-  ///   and finally <see cref="Stop"/>.
+  /// Drop on a form, assign <c>Protocol</c>, set
+  /// <c>AutoExecute := True</c> after operator consent, then
+  /// call <see cref="Start"/>, optionally <see cref="RequestResults"/>,
+  /// and finally <see cref="Stop"/>.
   /// </remarks>
   TOBDKWPRoutine = class(TComponent)
   strict private
@@ -120,48 +118,47 @@ type
     destructor Destroy; override;
 
     /// <summary>
-    ///   Service 0x31 — StartRoutineByLocalIdentifier.
+    /// Service 0x31 — StartRoutineByLocalIdentifier.
     /// </summary>
     /// <param name="ALocalID">1-byte routine local identifier.</param>
     /// <param name="AParams">Optional parameter bytes.</param>
     /// <returns>Response payload after the LocalID echo.</returns>
     /// <exception cref="EOBDConfig">
-    ///   <c>Protocol</c> is not assigned or <c>AutoExecute</c> is
-    ///   <c>False</c>.
+    /// <c>Protocol</c> is not assigned or <c>AutoExecute</c> is
+    /// <c>False</c>.
     /// </exception>
     /// <exception cref="EOBDProtocolErr">
-    ///   ECU returned a negative response or the LocalID echo did
-    ///   not match.
+    /// ECU returned a negative response or the LocalID echo did
+    /// not match.
     /// </exception>
-    function Start(ALocalID: Byte;
-      const AParams: TBytes = nil): TBytes;
+    function Start(ALocalID: Byte; const AParams: TBytes = nil): TBytes;
 
     /// <summary>
-    ///   Service 0x32 — StopRoutineByLocalIdentifier.
+    /// Service 0x32 — StopRoutineByLocalIdentifier.
     /// </summary>
     /// <param name="ALocalID">1-byte routine local identifier.</param>
     /// <returns>Response payload after the LocalID echo.</returns>
     /// <exception cref="EOBDConfig">
-    ///   <c>Protocol</c> is not assigned or <c>AutoExecute</c> is
-    ///   <c>False</c>.
+    /// <c>Protocol</c> is not assigned or <c>AutoExecute</c> is
+    /// <c>False</c>.
     /// </exception>
     /// <exception cref="EOBDProtocolErr">
-    ///   ECU returned a negative response or the LocalID echo did
-    ///   not match.
+    /// ECU returned a negative response or the LocalID echo did
+    /// not match.
     /// </exception>
     function Stop(ALocalID: Byte): TBytes;
 
     /// <summary>
-    ///   Service 0x33 — RequestRoutineResultsByLocalIdentifier.
+    /// Service 0x33 — RequestRoutineResultsByLocalIdentifier.
     /// </summary>
     /// <param name="ALocalID">1-byte routine local identifier.</param>
     /// <returns>Result bytes (excluding the LocalID echo).</returns>
     /// <exception cref="EOBDConfig">
-    ///   <c>Protocol</c> is not assigned.
+    /// <c>Protocol</c> is not assigned.
     /// </exception>
     /// <exception cref="EOBDProtocolErr">
-    ///   ECU returned a negative response or the LocalID echo did
-    ///   not match.
+    /// ECU returned a negative response or the LocalID echo did
+    /// not match.
     /// </exception>
     function RequestResults(ALocalID: Byte): TBytes;
     /// <summary>Asynchronous Start; results and errors use main-thread events.</summary>
@@ -195,8 +192,7 @@ type
       default False;
 
     /// <summary>Fires after every successful phase. Main thread.</summary>
-    property OnRoutine: TOBDKWPRoutineEvent read FOnRoutine
-      write FOnRoutine;
+    property OnRoutine: TOBDKWPRoutineEvent read FOnRoutine write FOnRoutine;
     /// <summary>Fires on transient I/O errors. Main thread.</summary>
     property OnError: TOBDConnectionErrorEvent read FOnError write FOnError;
   end;
@@ -253,8 +249,7 @@ begin
     TThread.Queue(TThread.CurrentThread,
       procedure
       begin
-        if not IsAsyncCancelled and
-          Assigned(FOnProgress) then
+        if not IsAsyncCancelled and Assigned(FOnProgress) then
           FOnProgress(Self, Step);
       end);
 end;
@@ -308,7 +303,8 @@ begin
   if FWorker = nil then
     Exit;
   if TThread.CurrentThread.ThreadID <> MainThreadID then
-    raise EOBDConfig.Create('TOBDKWPRoutine: async lifecycle requires main thread');
+    raise EOBDConfig.Create
+      ('TOBDKWPRoutine: async lifecycle requires main thread');
   TInterlocked.Exchange(FCancelled, 1);
   FWorker.Terminate;
   // WaitFor pumps Synchronize on the main thread. Consent checks observe
@@ -345,7 +341,7 @@ begin
 end;
 
 function TOBDKWPRoutine.DoSend(AService: Byte; ALocalID: Byte;
-  const AParams: TBytes): TBytes;
+const AParams: TBytes): TBytes;
 var
   Req: TBytes;
   Resp: TOBDResponse;
@@ -362,15 +358,15 @@ begin
   FireProgress(1, 'Request');
   Resp := FProtocol.Request(AService, Req);
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt(
-      'KWP routine (SID 0x%.2x LocalID 0x%.2x) negative: %s',
+    raise EOBDProtocolErr.CreateFmt
+      ('KWP routine (SID 0x%.2x LocalID 0x%.2x) negative: %s',
       [AService, ALocalID, Resp.NRCText]);
   if Length(Resp.Data) < 1 then
-    raise EOBDProtocolErr.CreateFmt(
-      'KWP routine (SID 0x%.2x): short response', [AService]);
+    raise EOBDProtocolErr.CreateFmt('KWP routine (SID 0x%.2x): short response',
+      [AService]);
   if Resp.Data[0] <> ALocalID then
-    raise EOBDProtocolErr.CreateFmt(
-      'KWP routine echo mismatch: requested LocalID 0x%.2x, got 0x%.2x',
+    raise EOBDProtocolErr.CreateFmt
+      ('KWP routine echo mismatch: requested LocalID 0x%.2x, got 0x%.2x',
       [ALocalID, Resp.Data[0]]);
 
   if Length(Resp.Data) > 1 then
@@ -380,12 +376,11 @@ begin
   FireProgress(2, 'Response');
 end;
 
-function TOBDKWPRoutine.Start(ALocalID: Byte;
-  const AParams: TBytes): TBytes;
+function TOBDKWPRoutine.Start(ALocalID: Byte; const AParams: TBytes): TBytes;
 begin
   if not FAutoExecute then
-    raise EOBDConfig.Create(
-      'TOBDKWPRoutine.Start: AutoExecute is False — set it before starting');
+    raise EOBDConfig.Create
+      ('TOBDKWPRoutine.Start: AutoExecute is False — set it before starting');
   Result := DoSend(KWP_SID_StartRoutineByLocalID, ALocalID, AParams);
   FireRoutine(rpStarted, ALocalID, Result);
 end;
@@ -393,8 +388,8 @@ end;
 function TOBDKWPRoutine.Stop(ALocalID: Byte): TBytes;
 begin
   if not FAutoExecute then
-    raise EOBDConfig.Create(
-      'TOBDKWPRoutine.Stop: AutoExecute is False — set it before stopping');
+    raise EOBDConfig.Create
+      ('TOBDKWPRoutine.Stop: AutoExecute is False — set it before stopping');
   Result := DoSend(KWP_SID_StopRoutineByLocalID, ALocalID, nil);
   FireRoutine(rpStopped, ALocalID, Result);
 end;
@@ -436,7 +431,7 @@ begin
 end;
 
 procedure TOBDKWPRoutine.FireRoutine(APhase: TOBDKWPRoutinePhase;
-  ALocalID: Byte; const AData: TBytes);
+ALocalID: Byte; const AData: TBytes);
 var
   Self_: TOBDKWPRoutine;
   Phase: TOBDKWPRoutinePhase;
@@ -462,7 +457,7 @@ begin
 end;
 
 procedure TOBDKWPRoutine.FireError(ACode: TOBDErrorCode;
-  const AMessage: string);
+const AMessage: string);
 var
   Self_: TOBDKWPRoutine;
   Code: TOBDErrorCode;

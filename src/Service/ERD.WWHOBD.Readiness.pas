@@ -1,39 +1,39 @@
-//------------------------------------------------------------------------------
-//  ERD.WWHOBD.Readiness
+﻿// ------------------------------------------------------------------------------
+// ERD.WWHOBD.Readiness
 //
-//  TOBDWWHReadiness — WWH-OBD monitor-completion reporting per
-//  ISO 27145-3:2012. Walks the readiness DIDs and reports a
-//  structured snapshot: which monitor groups are supported, which
-//  have completed at least one full evaluation since the last DTC
-//  clear, and the OBD-monitoring-conditions encountered ratio
-//  (numerator / denominator) per supported group.
+// TOBDWWHReadiness — WWH-OBD monitor-completion reporting per
+// ISO 27145-3:2012. Walks the readiness DIDs and reports a
+// structured snapshot: which monitor groups are supported, which
+// have completed at least one full evaluation since the last DTC
+// clear, and the OBD-monitoring-conditions encountered ratio
+// (numerator / denominator) per supported group.
 //
-//  DIDs walked:
-//    0xF411 — Major group readiness summary (supported / complete)
-//    0xF412 — Per-group readiness completion flags (optional)
-//    0xF40C — Monitoring-conditions encountered counters (each
-//              entry: <groupId> <numerator-hi/lo> <denominator-hi/lo>)
+// DIDs walked:
+// 0xF411 — Major group readiness summary (supported / complete)
+// 0xF412 — Per-group readiness completion flags (optional)
+// 0xF40C — Monitoring-conditions encountered counters (each
+// entry: <groupId> <numerator-hi/lo> <denominator-hi/lo>)
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - ISO 27145-3:2012 § 7 (Common message dictionary — readiness)
-//    - SAE J1939-73 Appendix B (group ID reference)
+// References  :
+// - ISO 27145-3:2012 § 7 (Common message dictionary — readiness)
+// - SAE J1939-73 Appendix B (group ID reference)
 //
-//  History     :
-//    2026-05-11  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-11  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.WWHOBD.Readiness;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -41,10 +41,10 @@ interface
 uses
   ERD.Async.Task,
   ERD.Connection,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.Types,
   ERD.Protocol.Types,
   ERD.Protocol.UDS,
@@ -53,7 +53,7 @@ uses
 
 type
   /// <summary>
-  ///   Per-monitor-group readiness entry.
+  /// Per-monitor-group readiness entry.
   /// </summary>
   TOBDWWHGroupReadiness = record
     /// <summary>ISO 27145-3 functional-group ID.</summary>
@@ -73,7 +73,7 @@ type
   end;
 
   /// <summary>
-  ///   Readiness snapshot returned by <see cref="TOBDWWHReadiness.Read"/>.
+  /// Readiness snapshot returned by <see cref="TOBDWWHReadiness.Read"/>.
   /// </summary>
   TOBDWWHReadinessSnapshot = record
     /// <summary>16-bit "supported" major-group bitmap (bit set
@@ -95,19 +95,19 @@ type
     const ASnapshot: TOBDWWHReadinessSnapshot) of object;
 
   /// <summary>
-  ///   WWH-OBD readiness component.
+  /// WWH-OBD readiness component.
   /// </summary>
   /// <remarks>
-  ///   Drop the component on a form and assign <c>Protocol</c> to a
-  ///   connected, UDS-capable <see cref="TOBDProtocol"/>. Call
-  ///   <see cref="Read"/> (sync) or <see cref="ReadAsync"/> (non-
-  ///   blocking) to obtain a structured snapshot.
+  /// Drop the component on a form and assign <c>Protocol</c> to a
+  /// connected, UDS-capable <see cref="TOBDProtocol"/>. Call
+  /// <see cref="Read"/> (sync) or <see cref="ReadAsync"/> (non-
+  /// blocking) to obtain a structured snapshot.
   ///
-  ///   The component degrades gracefully: if the major-group DID
-  ///   is rejected, <c>Read</c> returns a snapshot with
-  ///   <c>Valid = False</c>; if the per-group DIDs are rejected,
-  ///   <c>Groups</c> is empty but the major-group bitmaps remain
-  ///   populated.
+  /// The component degrades gracefully: if the major-group DID
+  /// is rejected, <c>Read</c> returns a snapshot with
+  /// <c>Valid = False</c>; if the per-group DIDs are rejected,
+  /// <c>Groups</c> is empty but the major-group bitmaps remain
+  /// populated.
   /// </remarks>
   TOBDWWHReadiness = class(TComponent)
   strict private
@@ -135,7 +135,7 @@ type
     destructor Destroy; override;
 
     /// <summary>
-    ///   Reads the WWH-OBD readiness snapshot.
+    /// Reads the WWH-OBD readiness snapshot.
     /// </summary>
     /// <returns>A snapshot with <c>Valid = True</c> when at least
     /// DID 0xF411 was readable. Per-group detail is populated when
@@ -143,19 +143,19 @@ type
     /// <remarks>Blocks. From GUI code prefer
     /// <see cref="ReadAsync"/>.</remarks>
     /// <exception cref="EOBDConfig">
-    ///   <c>Protocol</c> is not assigned.
+    /// <c>Protocol</c> is not assigned.
     /// </exception>
     function Read: TOBDWWHReadinessSnapshot;
 
     /// <summary>Non-blocking <see cref="Read"/>.</summary>
     /// <remarks>
-    ///   Spawns a worker thread; reports completion via
-    ///   <c>OnSnapshot</c> or failure via <c>OnError</c> on the
-    ///   main thread. Only one async read may be in flight at a
-    ///   time.
+    /// Spawns a worker thread; reports completion via
+    /// <c>OnSnapshot</c> or failure via <c>OnError</c> on the
+    /// main thread. Only one async read may be in flight at a
+    /// time.
     /// </remarks>
     /// <exception cref="EOBDConfig">
-    ///   Another async read is already in flight.
+    /// Another async read is already in flight.
     /// </exception>
     procedure ReadAsync;
   published
@@ -179,7 +179,8 @@ end;
 
 destructor TOBDWWHReadiness.Destroy;
 begin
-  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  if FOwnedTask <> nil then
+    FOwnedTask.Cancel;
   FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
@@ -202,7 +203,8 @@ begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
   begin
-    if FOwnedTask <> nil then FOwnedTask.Quiesce;
+    if FOwnedTask <> nil then
+      FOwnedTask.Quiesce;
     FProtocol := nil;
   end;
 end;
@@ -243,11 +245,10 @@ begin
   Req[1] := Byte(ADID and $FF);
   Resp := FProtocol.Request(UDS_SID_ReadDataByIdentifier, Req);
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt(
-      'ReadDID 0x%.4x negative: %s', [ADID, Resp.NRCText]);
+    raise EOBDProtocolErr.CreateFmt('ReadDID 0x%.4x negative: %s',
+      [ADID, Resp.NRCText]);
   if Length(Resp.Data) < 2 then
-    raise EOBDProtocolErr.CreateFmt(
-      'ReadDID 0x%.4x: short response', [ADID]);
+    raise EOBDProtocolErr.CreateFmt('ReadDID 0x%.4x: short response', [ADID]);
   Result := Copy(Resp.Data, 2, Length(Resp.Data) - 2);
 end;
 
@@ -263,16 +264,16 @@ var
   Pair: TPair<Byte, TOBDWWHGroupReadiness>;
   Tmp: TList<TOBDWWHGroupReadiness>;
 begin
-  Result := Default(TOBDWWHReadinessSnapshot);
+  Result := Default (TOBDWWHReadinessSnapshot);
 
   try
     MajorBody := ReadDID(WWHOBD_DID_MajorGroupReady);
     if Length(MajorBody) >= 4 then
     begin
-      Result.MajorGroupSupported :=
-        (UInt16(MajorBody[0]) shl 8) or UInt16(MajorBody[1]);
-      Result.MajorGroupComplete :=
-        (UInt16(MajorBody[2]) shl 8) or UInt16(MajorBody[3]);
+      Result.MajorGroupSupported := (UInt16(MajorBody[0]) shl 8) or
+        UInt16(MajorBody[1]);
+      Result.MajorGroupComplete := (UInt16(MajorBody[2]) shl 8) or
+        UInt16(MajorBody[3]);
       Result.Valid := True;
     end;
   except
@@ -294,9 +295,9 @@ begin
       Off := 0;
       while Off + 2 <= Length(GroupBody) do
       begin
-    FOwnedTask.CheckCancelled;
+        FOwnedTask.CheckCancelled;
         GroupId := GroupBody[Off];
-        G := Default(TOBDWWHGroupReadiness);
+        G := Default (TOBDWWHGroupReadiness);
         G.GroupId := GroupId;
         G.Supported := (GroupBody[Off + 1] and $01) <> 0;
         G.Complete := (GroupBody[Off + 1] and $02) <> 0;
@@ -316,18 +317,18 @@ begin
       Off := 0;
       while Off + 5 <= Length(CondBody) do
       begin
-    FOwnedTask.CheckCancelled;
+        FOwnedTask.CheckCancelled;
         GroupId := CondBody[Off];
         if not GroupMap.TryGetValue(GroupId, G) then
         begin
-          G := Default(TOBDWWHGroupReadiness);
+          G := Default (TOBDWWHGroupReadiness);
           G.GroupId := GroupId;
           G.Supported := True;
         end;
         G.Numerator := (UInt16(CondBody[Off + 1]) shl 8) or
-                        UInt16(CondBody[Off + 2]);
+          UInt16(CondBody[Off + 2]);
         G.Denominator := (UInt16(CondBody[Off + 3]) shl 8) or
-                          UInt16(CondBody[Off + 4]);
+          UInt16(CondBody[Off + 4]);
         GroupMap.AddOrSetValue(GroupId, G);
         Inc(Off, 5);
       end;
@@ -381,8 +382,8 @@ begin
   end;
 end;
 
-procedure TOBDWWHReadiness.FireSnapshot(
-  const ASnapshot: TOBDWWHReadinessSnapshot);
+procedure TOBDWWHReadiness.FireSnapshot(const ASnapshot
+  : TOBDWWHReadinessSnapshot);
 var
   Self_: TOBDWWHReadiness;
   Snap: TOBDWWHReadinessSnapshot;
@@ -403,7 +404,7 @@ begin
 end;
 
 procedure TOBDWWHReadiness.FireError(ACode: TOBDErrorCode;
-  const AMessage: string);
+const AMessage: string);
 var
   Self_: TOBDWWHReadiness;
   Code: TOBDErrorCode;

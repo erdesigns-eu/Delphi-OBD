@@ -1,69 +1,69 @@
-//------------------------------------------------------------------------------
-//  ERD.Protocol.SecOC.Freshness
+﻿// ------------------------------------------------------------------------------
+// ERD.Protocol.SecOC.Freshness
 //
-//  SecOC freshness counter manager. AUTOSAR SecOC sends a truncated
-//  Freshness Value (FV) on the wire — typically 4..24 bits — while
-//  the MAC is computed over the full 32- / 64-bit FV. Sender and
-//  receiver maintain a per-Data-ID counter; the receiver
-//  reconstructs the full FV from the truncated bits using its own
-//  last-seen value plus a tolerance window for in-flight messages.
+// SecOC freshness counter manager. AUTOSAR SecOC sends a truncated
+// Freshness Value (FV) on the wire — typically 4..24 bits — while
+// the MAC is computed over the full 32- / 64-bit FV. Sender and
+// receiver maintain a per-Data-ID counter; the receiver
+// reconstructs the full FV from the truncated bits using its own
+// last-seen value plus a tolerance window for in-flight messages.
 //
-//  This unit ships an in-memory implementation. Hosts that persist
-//  freshness across power-cycles wrap it (or implement
-//  IOBDSecOCFreshnessProvider externally) so the counter survives
-//  ignition-off — losing freshness across a power-cycle is a
-//  classic SecOC pitfall.
+// This unit ships an in-memory implementation. Hosts that persist
+// freshness across power-cycles wrap it (or implement
+// IOBDSecOCFreshnessProvider externally) so the counter survives
+// ignition-off — losing freshness across a power-cycle is a
+// classic SecOC pitfall.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - AUTOSAR SecOC SWS §7.5 (Freshness handling)
+// References  :
+// - AUTOSAR SecOC SWS §7.5 (Freshness handling)
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Protocol.SecOC.Freshness;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.Types;
 
 type
   /// <summary>
-  ///   Provider contract for the per-Data-ID freshness counter.
-  ///   Hosts back this with NVM / EEPROM to survive power-cycles.
+  /// Provider contract for the per-Data-ID freshness counter.
+  /// Hosts back this with NVM / EEPROM to survive power-cycles.
   /// </summary>
   IOBDSecOCFreshnessProvider = interface
     ['{C39A1F2E-77B4-4D4D-A0AB-90F1E2D5C6AB}']
     /// <summary>
-    ///   Increments and returns the next freshness value to send
-    ///   for <c>ADataID</c>. The returned value is the new full
-    ///   counter — the codec truncates the wire portion itself.
+    /// Increments and returns the next freshness value to send
+    /// for <c>ADataID</c>. The returned value is the new full
+    /// counter — the codec truncates the wire portion itself.
     /// </summary>
     /// <param name="ADataID">SecOC Data ID.</param>
     /// <returns>Next 64-bit FV.</returns>
     function NextTx(ADataID: Word): UInt64;
 
     /// <summary>
-    ///   Reconstructs the full FV from <c>ATruncatedFV</c> using the
-    ///   receiver's last-seen value plus tolerance window. Updates
-    ///   the receiver-side counter when the message is accepted.
+    /// Reconstructs the full FV from <c>ATruncatedFV</c> using the
+    /// receiver's last-seen value plus tolerance window. Updates
+    /// the receiver-side counter when the message is accepted.
     /// </summary>
     /// <param name="ADataID">SecOC Data ID.</param>
     /// <param name="ATruncatedFV">Low <c>AFreshnessBits</c> of the
@@ -81,9 +81,9 @@ type
   end;
 
   /// <summary>
-  ///   Default in-memory freshness provider. Per-Data-ID 64-bit
-  ///   counter, monotonic, with a configurable maximum allowed jump
-  ///   to limit acceptance of "from the future" replays. Thread-safe.
+  /// Default in-memory freshness provider. Per-Data-ID 64-bit
+  /// counter, monotonic, with a configurable maximum allowed jump
+  /// to limit acceptance of "from the future" replays. Thread-safe.
   /// </summary>
   TOBDSecOCFreshness = class(TInterfacedObject, IOBDSecOCFreshnessProvider)
   strict private
@@ -204,7 +204,8 @@ var
 begin
   Result := False;
   AReconstructed := 0;
-  if (AFreshnessBits = 0) or (AFreshnessBits > 64) then Exit;
+  if (AFreshnessBits = 0) or (AFreshnessBits > 64) then
+    Exit;
 
   if AFreshnessBits >= 64 then
     Mask := UInt64(-1)

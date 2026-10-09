@@ -1,35 +1,35 @@
-//------------------------------------------------------------------------------
-//  ERD.OEM.KeyAdaptation.HMG
+// ------------------------------------------------------------------------------
+// ERD.OEM.KeyAdaptation.HMG
 //
-//  Hyundai / Kia / Genesis SMK (Smart Key Module) adaptation.
-//  Drives the documented GDS-style procedure: enter the
-//  4 / 6-digit PIN -> SecurityAccess seed/key on the SMK ECU
-//  -> routine 0x0202 (clear keys) / 0x0201 (add key in
-//  learning mode) at the SMK / immobiliser ECU.
+// Hyundai / Kia / Genesis SMK (Smart Key Module) adaptation.
+// Drives the documented GDS-style procedure: enter the
+// 4 / 6-digit PIN -> SecurityAccess seed/key on the SMK ECU
+// -> routine 0x0202 (clear keys) / 0x0201 (add key in
+// learning mode) at the SMK / immobiliser ECU.
 //
-//  Routine IDs sourced from public GDS-Mobile traces and
-//  hyundai-gds.com / mhhauto.com community decode notes.
+// Routine IDs sourced from public GDS-Mobile traces and
+// hyundai-gds.com / mhhauto.com community decode notes.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT - see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT - see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.OEM.KeyAdaptation.HMG;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   ERD.Protocol.Types,
   ERD.OEM.KeyAdaptation.Types,
   ERD.OEM.KeyAdaptation.Base;
@@ -52,10 +52,10 @@ uses
   ERD.Protocol;
 
 const
-  ROUTINE_HMG_ADD_KEY    = $0201;
+  ROUTINE_HMG_ADD_KEY = $0201;
   ROUTINE_HMG_CLEAR_KEYS = $0202;
   // SMK reads the slot-fill bitmap via DID 0xF18C.
-  DID_HMG_SLOT_BITMAP    = $F18C;
+  DID_HMG_SLOT_BITMAP = $F18C;
 
 function TOBDKeyAdaptationHMG.RequiresChassisCode: Boolean;
 begin
@@ -64,22 +64,20 @@ end;
 
 function TOBDKeyAdaptationHMG.DoListSlots: TOBDKeyAdaptResult;
 var
-  Req:  TOBDRequest;
+  Req: TOBDRequest;
   Resp: TOBDResponse;
-  I:    Integer;
+  I: Integer;
   Bitmap: Byte;
 begin
-  Result := Default(TOBDKeyAdaptResult);
+  Result := Default (TOBDKeyAdaptResult);
   try
     Req := MakeOBDRequest;
     Req.ServiceID := $22;
-    Req.Data := TBytes.Create(Hi(DID_HMG_SLOT_BITMAP),
-                              Lo(DID_HMG_SLOT_BITMAP));
+    Req.Data := TBytes.Create(Hi(DID_HMG_SLOT_BITMAP), Lo(DID_HMG_SLOT_BITMAP));
     Resp := RequireProtocol.Send(Req);
     if Resp.IsNegative then
     begin
-      Result.Message := Format('SMK NRC 0x%.2X - %s',
-        [Resp.NRC, Resp.NRCText]);
+      Result.Message := Format('SMK NRC 0x%.2X - %s', [Resp.NRC, Resp.NRCText]);
       Exit;
     end;
     if Length(Resp.Data) < 1 then
@@ -92,7 +90,7 @@ begin
     SetLength(Result.Slots, 4);
     for I := 0 to 3 do
     begin
-      Result.Slots[I].Index  := I + 1;
+      Result.Slots[I].Index := I + 1;
       Result.Slots[I].Filled := (Bitmap and (1 shl I)) <> 0;
     end;
     Result.Success := True;
@@ -104,11 +102,11 @@ end;
 
 function TOBDKeyAdaptationHMG.DoAddKey: TOBDKeyAdaptResult;
 var
-  Req:  TOBDRequest;
+  Req: TOBDRequest;
   Resp: TOBDResponse;
   PinBytes: TBytes;
 begin
-  Result := Default(TOBDKeyAdaptResult);
+  Result := Default (TOBDKeyAdaptResult);
   if PIN = '' then
   begin
     Result.Message := 'PIN required';
@@ -119,11 +117,8 @@ begin
   try
     Req := MakeOBDRequest;
     Req.ServiceID := $31;
-    Req.Data := TBytes.Create(
-      $01,
-      Hi(ROUTINE_HMG_ADD_KEY),
-      Lo(ROUTINE_HMG_ADD_KEY)
-    ) + PinBytes;
+    Req.Data := TBytes.Create($01, Hi(ROUTINE_HMG_ADD_KEY),
+      Lo(ROUTINE_HMG_ADD_KEY)) + PinBytes;
     Resp := RequireProtocol.Send(Req);
     if Resp.IsNegative then
     begin
@@ -138,10 +133,10 @@ begin
   end;
 end;
 
-function TOBDKeyAdaptationHMG.DoClearOneSlot(
-  ASlotIndex: Byte): TOBDKeyAdaptResult;
+function TOBDKeyAdaptationHMG.DoClearOneSlot(ASlotIndex: Byte)
+  : TOBDKeyAdaptResult;
 begin
-  Result := Default(TOBDKeyAdaptResult);
+  Result := Default (TOBDKeyAdaptResult);
   Result.SlotIndex := ASlotIndex;
   Result.Message :=
     'HMG SMK does not expose per-slot delete - use ClearAllKeys';
@@ -149,18 +144,15 @@ end;
 
 function TOBDKeyAdaptationHMG.DoClearAllKeys: TOBDKeyAdaptResult;
 var
-  Req:  TOBDRequest;
+  Req: TOBDRequest;
   Resp: TOBDResponse;
 begin
-  Result := Default(TOBDKeyAdaptResult);
+  Result := Default (TOBDKeyAdaptResult);
   try
     Req := MakeOBDRequest;
     Req.ServiceID := $31;
-    Req.Data := TBytes.Create(
-      $01,
-      Hi(ROUTINE_HMG_CLEAR_KEYS),
-      Lo(ROUTINE_HMG_CLEAR_KEYS)
-    ) + TEncoding.ASCII.GetBytes(PIN);
+    Req.Data := TBytes.Create($01, Hi(ROUTINE_HMG_CLEAR_KEYS),
+      Lo(ROUTINE_HMG_CLEAR_KEYS)) + TEncoding.ASCII.GetBytes(PIN);
     Resp := RequireProtocol.Send(Req);
     if Resp.IsNegative then
     begin
@@ -177,16 +169,15 @@ end;
 
 function TOBDKeyAdaptationHMG.DoCheckPin: TOBDKeyAdaptResult;
 begin
-  Result := Default(TOBDKeyAdaptResult);
+  Result := Default (TOBDKeyAdaptResult);
   if PIN = '' then
   begin
     Result.Message := 'PIN required';
     Exit;
   end;
-  if not ((Length(PIN) = 4) or (Length(PIN) = 6)) then
+  if not((Length(PIN) = 4) or (Length(PIN) = 6)) then
   begin
-    Result.Message :=
-      'HMG PIN must be 4 or 6 digits (got ' +
+    Result.Message := 'HMG PIN must be 4 or 6 digits (got ' +
       IntToStr(Length(PIN)) + ')';
     Exit;
   end;

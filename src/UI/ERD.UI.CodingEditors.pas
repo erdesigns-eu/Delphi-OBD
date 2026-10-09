@@ -1,37 +1,37 @@
-//------------------------------------------------------------------------------
-//  ERD.UI.CodingEditors
+﻿// ------------------------------------------------------------------------------
+// ERD.UI.CodingEditors
 //
-//  Coding-workflow editors:
+// Coding-workflow editors:
 //
-//    TOBDCodingDiffViewer  Old vs new bytes side-by-side, hex
-//                          + ASCII, byte-level highlight on
-//                          changes.
-//    TOBDLabelFileEditor   VAG-style label-file editor — long-
-//                          coding string with named labels.
-//                          TMemo-backed; host populates labels.
-//    TOBDAdaptationEditor  Adaptation-channel read/write
-//                          panel. Channel + value inputs with
-//                          read / write buttons.
-//    TOBDLongCodingEditor  VAG long-coding bit-flip editor.
-//                          Each byte is split into eight
-//                          checkboxes.
-//    TOBDSeedKeyDebugger   Security-access seed/key trace
-//                          panel: seed bytes, computed key,
-//                          accept / reject result.
+// TOBDCodingDiffViewer  Old vs new bytes side-by-side, hex
+// + ASCII, byte-level highlight on
+// changes.
+// TOBDLabelFileEditor   VAG-style label-file editor — long-
+// coding string with named labels.
+// TMemo-backed; host populates labels.
+// TOBDAdaptationEditor  Adaptation-channel read/write
+// panel. Channel + value inputs with
+// read / write buttons.
+// TOBDLongCodingEditor  VAG long-coding bit-flip editor.
+// Each byte is split into eight
+// checkboxes.
+// TOBDSeedKeyDebugger   Security-access seed/key trace
+// panel: seed bytes, computed key,
+// accept / reject result.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.UI.CodingEditors;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -41,9 +41,9 @@ uses
   Winapi.Windows,
   Winapi.GDIPAPI,
   Winapi.GDIPOBJ,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
   System.Bindings.Helper, Data.Bind.Components,
   Vcl.Controls,
   Vcl.Graphics,
@@ -60,9 +60,9 @@ type
   /// highlighting.</summary>
   TOBDCodingDiffViewer = class(TOBDCustomControl)
   strict private
-    FOld:    TBytes;
-    FNew:    TBytes;
-    FFont:   TFont;
+    FOld: TBytes;
+    FNew: TBytes;
+    FFont: TFont;
     procedure SetFontA(AValue: TFont);
     procedure HandleFontChange(Sender: TObject);
     procedure NotifyBindings;
@@ -70,7 +70,7 @@ type
     procedure PaintControl(ACanvas: TCanvas); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
     /// <summary>Replace both buffers with the supplied old +
     /// new bytes and repaint with change highlighting.
     /// </summary>
@@ -80,7 +80,7 @@ type
     /// <summary>Number of differing bytes between the two
     /// buffers (over the shorter length; trailing bytes count
     /// as changes too).</summary>
-    function  ChangeCount: Integer;
+    function ChangeCount: Integer;
   published
     /// <summary>Monospaced font used for both hex columns.
     /// </summary>
@@ -92,9 +92,9 @@ type
   /// header.</summary>
   TOBDLabelFileEditor = class(TOBDCustomControl)
   strict private
-    FCoding:    string;
+    FCoding: string;
     FLabelText: string;
-    FFont:      TFont;
+    FFont: TFont;
     procedure SetCoding(const AValue: string);
     procedure SetLabelText(const AValue: string);
     procedure SetFontA(AValue: TFont);
@@ -104,11 +104,11 @@ type
     procedure PaintControl(ACanvas: TCanvas); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
   published
     /// <summary>Long-coding hex string (e.g. "0102FF...").
     /// </summary>
-    property Coding:    string read FCoding    write SetCoding;
+    property Coding: string read FCoding write SetCoding;
     /// <summary>Free-text label block (one bit per line, etc.)
     /// </summary>
     property LabelText: string read FLabelText write SetLabelText;
@@ -118,27 +118,27 @@ type
 
   /// <summary>Fires when the host requests an adaptation read.
   /// </summary>
-  TOBDAdaptationReadEvent = procedure(Sender: TObject;
-    AChannel: Word; out AValue: Word; out AError: string) of object;
+  TOBDAdaptationReadEvent = procedure(Sender: TObject; AChannel: Word;
+    out AValue: Word; out AError: string) of object;
 
   /// <summary>Fires when the host requests an adaptation write.
   /// </summary>
-  TOBDAdaptationWriteEvent = procedure(Sender: TObject;
-    AChannel: Word; AValue: Word; out AError: string) of object;
+  TOBDAdaptationWriteEvent = procedure(Sender: TObject; AChannel: Word;
+    AValue: Word; out AError: string) of object;
 
   /// <summary>Adaptation-channel editor (paint-driven).
   /// Channel + value inputs + read / write hot-spots fire
   /// the matching events on click.</summary>
   TOBDAdaptationEditor = class(TOBDCustomControl)
   strict private
-    FChannel:    Word;
-    FValue:      Word;
-    FStatus:     string;
-    FFont:       TFont;
-    FReadRect:   TRect;
-    FWriteRect:  TRect;
-    FOnRead:     TOBDAdaptationReadEvent;
-    FOnWrite:    TOBDAdaptationWriteEvent;
+    FChannel: Word;
+    FValue: Word;
+    FStatus: string;
+    FFont: TFont;
+    FReadRect: TRect;
+    FWriteRect: TRect;
+    FOnRead: TOBDAdaptationReadEvent;
+    FOnWrite: TOBDAdaptationWriteEvent;
     procedure SetChannel(AValue: Word);
     procedure SetValue(AValue: Word);
     procedure SetFontA(AValue: TFont);
@@ -152,7 +152,7 @@ type
     procedure PaintControl(ACanvas: TCanvas); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
   published
     /// <summary>Adaptation channel index (1..65535 typical;
     /// 0 = unset). Default 0.</summary>
@@ -163,11 +163,9 @@ type
     /// </summary>
     property MonoFont: TFont read FFont write SetFontA;
     /// <summary>Fires when the user clicks Read.</summary>
-    property OnRead: TOBDAdaptationReadEvent
-      read FOnRead write FOnRead;
+    property OnRead: TOBDAdaptationReadEvent read FOnRead write FOnRead;
     /// <summary>Fires when the user clicks Write.</summary>
-    property OnWrite: TOBDAdaptationWriteEvent
-      read FOnWrite write FOnWrite;
+    property OnWrite: TOBDAdaptationWriteEvent read FOnWrite write FOnWrite;
   end;
 
   /// <summary>VAG long-coding bit-flip editor. Host loads
@@ -178,24 +176,24 @@ type
   TOBDLongCodingEditor = class(TOBDCustomControl)
   strict private
     FBytes: TBytes;
-    FFont:  TFont;
+    FFont: TFont;
     procedure SetFontA(AValue: TFont);
     procedure HandleFontChange(Sender: TObject);
     procedure NotifyBindings;
-    function  HitTest(X, Y: Integer; out AByte, ABit: Integer): Boolean;
+    function HitTest(X, Y: Integer; out AByte, ABit: Integer): Boolean;
   protected
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState;
       X, Y: Integer); override;
     procedure PaintControl(ACanvas: TCanvas); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
     /// <summary>Replace the byte buffer and repaint the bit
     /// grid.</summary>
     procedure LoadCoding(const ABytes: TBytes);
     /// <summary>Snapshot of the current byte buffer (post-edits).
     /// </summary>
-    function  Coding: TBytes;
+    function Coding: TBytes;
   published
     /// <summary>Monospaced font used for the bit labels.
     /// </summary>
@@ -207,31 +205,30 @@ type
   /// surface via <see cref="LoadResult"/>.</summary>
   TOBDSeedKeyDebugger = class(TOBDCustomControl)
   strict private
-    FSeed:     TBytes;
-    FKey:      TBytes;
+    FSeed: TBytes;
+    FKey: TBytes;
     FAccepted: Boolean;
-    FFont:     TFont;
+    FFont: TFont;
     procedure SetFontA(AValue: TFont);
     procedure HandleFontChange(Sender: TObject);
     procedure NotifyBindings;
-    function  HexOf(const AB: TBytes): string;
+    function HexOf(const AB: TBytes): string;
   protected
     procedure PaintControl(ACanvas: TCanvas); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
     /// <summary>Loads the seed and key for display + the
     /// ECU's accept / reject verdict.</summary>
-    procedure LoadResult(const ASeed, AKey: TBytes;
-      AAccepted: Boolean);
+    procedure LoadResult(const ASeed, AKey: TBytes; AAccepted: Boolean);
     /// <summary>Drop the seed / key buffers and repaint.
     /// </summary>
     procedure Clear;
     /// <summary>Seed bytes most recently loaded.</summary>
-    property Seed:     TBytes  read FSeed;
+    property Seed: TBytes read FSeed;
     /// <summary>Computed key bytes most recently loaded.
     /// </summary>
-    property Key:      TBytes  read FKey;
+    property Key: TBytes read FKey;
     /// <summary>ECU verdict: True if the key was accepted.
     /// </summary>
     property Accepted: Boolean read FAccepted;
@@ -244,12 +241,14 @@ type
 implementation
 
 function HexBytes(const AB: TBytes): string;
-var I: Integer;
+var
+  I: Integer;
 begin
   Result := '';
   for I := 0 to High(AB) do
   begin
-    if I > 0 then Result := Result + ' ';
+    if I > 0 then
+      Result := Result + ' ';
     Result := Result + Format('%2.2X', [AB[I]]);
   end;
 end;
@@ -259,7 +258,7 @@ end;
 constructor TOBDCodingDiffViewer.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 480;
+  Width := 480;
   Height := 200;
   FFont := TFont.Create;
   FFont.Name := 'Consolas';
@@ -275,7 +274,8 @@ end;
 
 procedure TOBDCodingDiffViewer.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -315,7 +315,8 @@ begin
   Result := 0;
   N := System.Math.Min(Length(FOld), Length(FNew));
   for I := 0 to N - 1 do
-    if FOld[I] <> FNew[I] then Inc(Result);
+    if FOld[I] <> FNew[I] then
+      Inc(Result);
   Inc(Result, Abs(Length(FNew) - Length(FOld)));
 end;
 
@@ -339,7 +340,8 @@ begin
   MaxN := System.Math.Max(Length(FOld), Length(FNew));
   for I := 0 to MaxN - 1 do
   begin
-    if Y + RowH > Height then Break;
+    if Y + RowH > Height then
+      Break;
     if (I < Length(FOld)) and (I < Length(FNew)) then
       Changed := FOld[I] <> FNew[I]
     else
@@ -348,15 +350,19 @@ begin
       S := Format('%4.4X  %2.2X', [I, FOld[I]])
     else
       S := Format('%4.4X  --', [I]);
-    if Changed then ACanvas.Font.Color := Palette.Warning
-    else            ACanvas.Font.Color := EffectiveForeground;
+    if Changed then
+      ACanvas.Font.Color := Palette.Warning
+    else
+      ACanvas.Font.Color := EffectiveForeground;
     ACanvas.TextOut(OldX, Y, S);
     if I < Length(FNew) then
       S := Format('%4.4X  %2.2X', [I, FNew[I]])
     else
       S := Format('%4.4X  --', [I]);
-    if Changed then ACanvas.Font.Color := Palette.Success
-    else            ACanvas.Font.Color := EffectiveForeground;
+    if Changed then
+      ACanvas.Font.Color := Palette.Success
+    else
+      ACanvas.Font.Color := EffectiveForeground;
     ACanvas.TextOut(NewX, Y, S);
     Inc(Y, RowH);
   end;
@@ -367,7 +373,7 @@ end;
 constructor TOBDLabelFileEditor.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 360;
+  Width := 360;
   Height := 200;
   FFont := TFont.Create;
   FFont.Name := 'Consolas';
@@ -383,7 +389,8 @@ end;
 
 procedure TOBDLabelFileEditor.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -397,14 +404,19 @@ end;
 
 procedure TOBDLabelFileEditor.SetCoding(const AValue: string);
 begin
-  if FCoding = AValue then Exit;
-  FCoding := AValue; NotifyBindings; Repaint;
+  if FCoding = AValue then
+    Exit;
+  FCoding := AValue;
+  NotifyBindings;
+  Repaint;
 end;
 
 procedure TOBDLabelFileEditor.SetLabelText(const AValue: string);
 begin
-  if FLabelText = AValue then Exit;
-  FLabelText := AValue; Repaint;
+  if FLabelText = AValue then
+    Exit;
+  FLabelText := AValue;
+  Repaint;
 end;
 
 procedure TOBDLabelFileEditor.SetFontA(AValue: TFont);
@@ -428,7 +440,8 @@ begin
   Lines := FLabelText.Split([sLineBreak]);
   for S in Lines do
   begin
-    if Y + ACanvas.TextHeight('M') > Height then Break;
+    if Y + ACanvas.TextHeight('M') > Height then
+      Break;
     ACanvas.TextOut(Pad, Y, S);
     Inc(Y, ACanvas.TextHeight('M') + ScaleValue(1));
   end;
@@ -439,7 +452,7 @@ end;
 constructor TOBDAdaptationEditor.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 320;
+  Width := 320;
   Height := 110;
   FFont := TFont.Create;
   FFont.Name := 'Segoe UI';
@@ -455,7 +468,8 @@ end;
 
 procedure TOBDAdaptationEditor.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -469,14 +483,20 @@ end;
 
 procedure TOBDAdaptationEditor.SetChannel(AValue: Word);
 begin
-  if FChannel = AValue then Exit;
-  FChannel := AValue; NotifyBindings; Repaint;
+  if FChannel = AValue then
+    Exit;
+  FChannel := AValue;
+  NotifyBindings;
+  Repaint;
 end;
 
 procedure TOBDAdaptationEditor.SetValue(AValue: Word);
 begin
-  if FValue = AValue then Exit;
-  FValue := AValue; NotifyBindings; Repaint;
+  if FValue = AValue then
+    Exit;
+  FValue := AValue;
+  NotifyBindings;
+  Repaint;
 end;
 
 procedure TOBDAdaptationEditor.SetFontA(AValue: TFont);
@@ -517,8 +537,10 @@ begin
   if Assigned(FOnWrite) then
     try
       FOnWrite(Self, FChannel, FValue, Err);
-      if Err = '' then FStatus := 'write OK'
-      else             FStatus := 'write error: ' + Err;
+      if Err = '' then
+        FStatus := 'write OK'
+      else
+        FStatus := 'write error: ' + Err;
     except
       on E: Exception do
         FStatus := 'write raised: ' + E.Message;
@@ -529,29 +551,31 @@ begin
   Repaint;
 end;
 
-procedure TOBDAdaptationEditor.MouseUp(Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer);
+procedure TOBDAdaptationEditor.MouseUp(Button: TMouseButton; Shift: TShiftState;
+  X, Y: Integer);
 begin
   inherited;
-  if Button <> mbLeft then Exit;
-  if PtInRect(FReadRect,  Point(X, Y)) then DoRead
-  else if PtInRect(FWriteRect, Point(X, Y)) then DoWrite;
+  if Button <> mbLeft then
+    Exit;
+  if PtInRect(FReadRect, Point(X, Y)) then
+    DoRead
+  else if PtInRect(FWriteRect, Point(X, Y)) then
+    DoWrite;
 end;
 
 procedure TOBDAdaptationEditor.PaintControl(ACanvas: TCanvas);
 var
   Graphics: TGPGraphics;
   Brush: TGPSolidBrush;
-  Pen:   TGPPen;
+  Pen: TGPPen;
   Pad, ButW, ButH, Y: Integer;
   R: TGPRectF;
 
-  procedure DrawButton(const ARect: TRect; const ACap: string;
-    AAccent: TColor);
+  procedure DrawButton(const ARect: TRect; const ACap: string; AAccent: TColor);
   begin
     R.X := ARect.Left;
     R.Y := ARect.Top;
-    R.Width  := ARect.Width;
+    R.Width := ARect.Width;
     R.Height := ARect.Height;
     Brush := TGPSolidBrush.Create(ColorToARGB(AAccent));
     Pen := TGPPen.Create(ColorToARGB(EffectiveBorder), 1);
@@ -565,10 +589,8 @@ var
     ACanvas.Brush.Style := bsClear;
     ACanvas.Font := FFont;
     ACanvas.Font.Color := clWhite;
-    ACanvas.TextOut(
-      ARect.Left + (ARect.Width  - ACanvas.TextWidth(ACap)) div 2,
-      ARect.Top  + (ARect.Height - ACanvas.TextHeight(ACap)) div 2,
-      ACap);
+    ACanvas.TextOut(ARect.Left + (ARect.Width - ACanvas.TextWidth(ACap)) div 2,
+      ARect.Top + (ARect.Height - ACanvas.TextHeight(ACap)) div 2, ACap);
   end;
 
 begin
@@ -577,20 +599,20 @@ begin
   ACanvas.Font.Color := EffectiveForeground;
   Pad := ScaleValue(10);
   Y := Pad;
-  ACanvas.TextOut(Pad, Y,
-    Format('channel %d  value 0x%4.4X', [FChannel, FValue]));
+  ACanvas.TextOut(Pad, Y, Format('channel %d  value 0x%4.4X',
+    [FChannel, FValue]));
   Inc(Y, ACanvas.TextHeight('Mg') + ScaleValue(8));
 
   ButW := ScaleValue(80);
   ButH := ScaleValue(28);
-  FReadRect  := Rect(Pad, Y, Pad + ButW, Y + ButH);
+  FReadRect := Rect(Pad, Y, Pad + ButW, Y + ButH);
   FWriteRect := Rect(Pad + ButW + ScaleValue(10), Y,
     Pad + 2 * ButW + ScaleValue(10), Y + ButH);
 
   Graphics := TGPGraphics.Create(ACanvas.Handle);
   try
     Graphics.SetSmoothingMode(SmoothingModeAntiAlias);
-    DrawButton(FReadRect,  'Read',  EffectiveAccent);
+    DrawButton(FReadRect, 'Read', EffectiveAccent);
     DrawButton(FWriteRect, 'Write', Palette.Warning);
   finally
     Graphics.Free;
@@ -608,7 +630,7 @@ end;
 constructor TOBDLongCodingEditor.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 360;
+  Width := 360;
   Height := 220;
   FFont := TFont.Create;
   FFont.Name := 'Consolas';
@@ -624,7 +646,8 @@ end;
 
 procedure TOBDLongCodingEditor.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -663,24 +686,29 @@ begin
   Pad := ScaleValue(8);
   RowH := ScaleValue(20);
   BoxW := ScaleValue(28);
-  if Y < Pad then Exit;
+  if Y < Pad then
+    Exit;
   By := (Y - Pad) div RowH;
-  if (By < 0) or (By >= Length(FBytes)) then Exit;
-  if X < Pad + ScaleValue(48) then Exit;
+  if (By < 0) or (By >= Length(FBytes)) then
+    Exit;
+  if X < Pad + ScaleValue(48) then
+    Exit;
   Bx := (X - Pad - ScaleValue(48)) div BoxW;
-  if (Bx < 0) or (Bx > 7) then Exit;
+  if (Bx < 0) or (Bx > 7) then
+    Exit;
   AByte := By;
-  ABit  := 7 - Bx;        // bit 7 leftmost
+  ABit := 7 - Bx; // bit 7 leftmost
   Result := True;
 end;
 
-procedure TOBDLongCodingEditor.MouseUp(Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer);
+procedure TOBDLongCodingEditor.MouseUp(Button: TMouseButton; Shift: TShiftState;
+  X, Y: Integer);
 var
   B, Bit: Integer;
 begin
   inherited;
-  if Button <> mbLeft then Exit;
+  if Button <> mbLeft then
+    Exit;
   if HitTest(X, Y, B, Bit) then
   begin
     FBytes[B] := FBytes[B] xor (1 shl Bit);
@@ -693,7 +721,7 @@ procedure TOBDLongCodingEditor.PaintControl(ACanvas: TCanvas);
 var
   Graphics: TGPGraphics;
   Brush: TGPSolidBrush;
-  Pen:   TGPPen;
+  Pen: TGPPen;
   Pad, RowH, BoxW, BoxH, I, Bit: Integer;
   X, Y: Integer;
   R: TGPRectF;
@@ -710,23 +738,21 @@ begin
     for I := 0 to High(FBytes) do
     begin
       Y := Pad + I * RowH;
-      if Y + BoxH > Height then Break;
+      if Y + BoxH > Height then
+        Break;
       ACanvas.Font.Color := EffectiveForeground;
-      ACanvas.TextOut(Pad, Y,
-        Format('B%2.2d %2.2X', [I, FBytes[I]]));
+      ACanvas.TextOut(Pad, Y, Format('B%2.2d %2.2X', [I, FBytes[I]]));
       for Bit := 7 downto 0 do
       begin
         X := Pad + ScaleValue(48) + (7 - Bit) * BoxW;
         R.X := X;
         R.Y := Y;
-        R.Width  := BoxW - ScaleValue(2);
+        R.Width := BoxW - ScaleValue(2);
         R.Height := BoxH;
         if (FBytes[I] and (1 shl Bit)) <> 0 then
-          Brush := TGPSolidBrush.Create(
-            ColorToARGB(EffectiveAccent))
+          Brush := TGPSolidBrush.Create(ColorToARGB(EffectiveAccent))
         else
-          Brush := TGPSolidBrush.Create(
-            ColorToARGB(Palette.NeutralLight));
+          Brush := TGPSolidBrush.Create(ColorToARGB(Palette.NeutralLight));
         try
           Graphics.FillRectangle(Brush, R);
         finally
@@ -752,7 +778,7 @@ end;
 constructor TOBDSeedKeyDebugger.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 360;
+  Width := 360;
   Height := 100;
   FFont := TFont.Create;
   FFont.Name := 'Consolas';
@@ -768,7 +794,8 @@ end;
 
 procedure TOBDSeedKeyDebugger.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -794,7 +821,7 @@ procedure TOBDSeedKeyDebugger.LoadResult(const ASeed, AKey: TBytes;
   AAccepted: Boolean);
 begin
   FSeed := Copy(ASeed);
-  FKey  := Copy(AKey);
+  FKey := Copy(AKey);
   FAccepted := AAccepted;
   NotifyBindings;
   Repaint;
@@ -824,7 +851,8 @@ begin
   Inc(Y, ACanvas.TextHeight('Mg') + ScaleValue(2));
   ACanvas.TextOut(Pad, Y, 'key:  ' + HexOf(FKey));
   Inc(Y, ACanvas.TextHeight('Mg') + ScaleValue(6));
-  if Length(FSeed) = 0 then Exit;
+  if Length(FSeed) = 0 then
+    Exit;
   if FAccepted then
   begin
     Col := Palette.Success;

@@ -1,48 +1,48 @@
-//------------------------------------------------------------------------------
-//  ERD.Service.Actuator
+﻿// ------------------------------------------------------------------------------
+// ERD.Service.Actuator
 //
-//  TOBDActuator — non-visual component that drives OBD-II Mode 08
-//  "Request Control of On-Board Systems / Tests / Components".
-//  Mode 08 commands cause the ECU to actuate hardware: fuel pump,
-//  cooling fans, EVAP solenoids, EGR valves, etc. It is the most
-//  potentially-dangerous standard service in the OBD-II catalogue,
-//  so this component ships with an explicit safety gate.
+// TOBDActuator — non-visual component that drives OBD-II Mode 08
+// "Request Control of On-Board Systems / Tests / Components".
+// Mode 08 commands cause the ECU to actuate hardware: fuel pump,
+// cooling fans, EVAP solenoids, EGR valves, etc. It is the most
+// potentially-dangerous standard service in the OBD-II catalogue,
+// so this component ships with an explicit safety gate.
 //
-//  Safety contract:
+// Safety contract:
 //
-//    - <c>AutoExecute</c> defaults to <c>False</c>. With the gate
-//      closed, every <c>Send</c> call raises <c>EOBDConfig</c>
-//      before touching the wire. Hosts that intentionally drive
-//      actuators flip the property to True at the same time as a
-//      "I know what I'm doing" UI confirmation.
+// - <c>AutoExecute</c> defaults to <c>False</c>. With the gate
+// closed, every <c>Send</c> call raises <c>EOBDConfig</c>
+// before touching the wire. Hosts that intentionally drive
+// actuators flip the property to True at the same time as a
+// "I know what I'm doing" UI confirmation.
 //
-//    - The synchronous and asynchronous sends both honour the
-//      gate; there is no back-door entry point.
+// - The synchronous and asynchronous sends both honour the
+// gate; there is no back-door entry point.
 //
-//    - When the gate is open, <c>OnBeforeSend</c> fires on the
-//      main thread with a <c>Cancel: Boolean</c> out-parameter.
-//      This is the host's last chance to abort (e.g. confirm
-//      with the operator).
+// - When the gate is open, <c>OnBeforeSend</c> fires on the
+// main thread with a <c>Cancel: Boolean</c> out-parameter.
+// This is the host's last chance to abort (e.g. confirm
+// with the operator).
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - SAE J1979 Mode 08 — Request Control of On-Board Systems
+// References  :
+// - SAE J1979 Mode 08 — Request Control of On-Board Systems
 //
-//  History     :
-//    2026-05-09  ERD  Follow-up — close-out deferrals.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Follow-up — close-out deferrals.
+// ------------------------------------------------------------------------------
 
 unit ERD.Service.Actuator;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -50,9 +50,9 @@ interface
 uses
   ERD.Async.Task,
   ERD.Connection,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
   ERD.Types,
   ERD.Protocol.Types,
   ERD.Protocol;
@@ -72,7 +72,7 @@ type
     const AResponseData: TBytes) of object;
 
   /// <summary>
-  ///   Mode 08 actuator-control component.
+  /// Mode 08 actuator-control component.
   /// </summary>
   TOBDActuator = class(TComponent)
   strict private
@@ -99,7 +99,7 @@ type
     destructor Destroy; override;
 
     /// <summary>
-    ///   Sends a Mode 08 actuator command synchronously.
+    /// Sends a Mode 08 actuator command synchronously.
     /// </summary>
     /// <param name="ATID">Test / control ID byte.</param>
     /// <param name="AData">Optional payload bytes following the
@@ -121,14 +121,12 @@ type
       default False;
     /// <summary>Fires before sending; the host can set
     /// <c>Cancel := True</c> to abort. Main thread.</summary>
-    property OnBeforeSend: TOBDActuatorBeforeEvent
-      read FOnBeforeSend write FOnBeforeSend;
+    property OnBeforeSend: TOBDActuatorBeforeEvent read FOnBeforeSend
+      write FOnBeforeSend;
     /// <summary>Fires on a positive response (main thread).</summary>
-    property OnResult: TOBDActuatorResultEvent
-      read FOnResult write FOnResult;
+    property OnResult: TOBDActuatorResultEvent read FOnResult write FOnResult;
     /// <summary>Fires on transient I/O errors (main thread).</summary>
-    property OnError: TOBDConnectionErrorEvent
-      read FOnError write FOnError;
+    property OnError: TOBDConnectionErrorEvent read FOnError write FOnError;
   end;
 
 implementation
@@ -143,7 +141,8 @@ end;
 
 destructor TOBDActuator.Destroy;
 begin
-  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  if FOwnedTask <> nil then
+    FOwnedTask.Cancel;
   FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
@@ -151,11 +150,15 @@ end;
 
 procedure TOBDActuator.SetProtocol(AValue: TOBDProtocol);
 begin
-  if FProtocol = AValue then Exit;
-  if FOwnedTask <> nil then FOwnedTask.Quiesce;
-  if FProtocol <> nil then FProtocol.RemoveFreeNotification(Self);
+  if FProtocol = AValue then
+    Exit;
+  if FOwnedTask <> nil then
+    FOwnedTask.Quiesce;
+  if FProtocol <> nil then
+    FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
-  if FProtocol <> nil then FProtocol.FreeNotification(Self);
+  if FProtocol <> nil then
+    FProtocol.FreeNotification(Self);
 end;
 
 procedure TOBDActuator.Notification(AComponent: TComponent;
@@ -164,7 +167,8 @@ begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
   begin
-    if FOwnedTask <> nil then FOwnedTask.Quiesce;
+    if FOwnedTask <> nil then
+      FOwnedTask.Quiesce;
     FProtocol := nil;
   end;
 end;
@@ -178,14 +182,19 @@ begin
     if FAsyncInFlight then
       raise EOBDConfig.Create('TOBDActuator: async send already in flight');
     FAsyncInFlight := True;
-  finally FAsyncLock.Leave; end;
+  finally
+    FAsyncLock.Leave;
+  end;
 end;
 
 procedure TOBDActuator.ReleaseAsync;
 begin
   FAsyncLock.Enter;
-  try FAsyncInFlight := False;
-  finally FAsyncLock.Leave; end;
+  try
+    FAsyncInFlight := False;
+  finally
+    FAsyncLock.Leave;
+  end;
 end;
 
 function TOBDActuator.DoSend(ATID: Byte; const AData: TBytes): TBytes;
@@ -197,8 +206,8 @@ begin
   if FProtocol = nil then
     raise EOBDConfig.Create('TOBDActuator: Protocol not assigned');
   if not FAutoExecute then
-    raise EOBDConfig.Create(
-      'TOBDActuator: AutoExecute is False — set it explicitly before sending');
+    raise EOBDConfig.Create
+      ('TOBDActuator: AutoExecute is False — set it explicitly before sending');
   if not FireBeforeSend(ATID, AData) then
     raise EOBDConfig.Create('TOBDActuator: cancelled by OnBeforeSend handler');
 
@@ -209,12 +218,14 @@ begin
 
   Resp := FProtocol.Request(OBD_MODE_REQUEST_CONTROL, Body);
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt(
-      'Mode 08 TID 0x%2.2X negative: %s', [ATID, Resp.NRCText]);
+    raise EOBDProtocolErr.CreateFmt('Mode 08 TID 0x%2.2X negative: %s',
+      [ATID, Resp.NRCText]);
   // Strip TID echo if present so callers get the application
   // payload directly.
-  if (Length(Resp.Data) >= 1) and (Resp.Data[0] = ATID) then Off := 1
-  else Off := 0;
+  if (Length(Resp.Data) >= 1) and (Resp.Data[0] = ATID) then
+    Off := 1
+  else
+    Off := 0;
   if Length(Resp.Data) > Off then
   begin
     SetLength(Result, Length(Resp.Data) - Off);
@@ -238,7 +249,9 @@ var
 begin
   GuardSingleAsync;
   try
-    Self_ := Self; TID := ATID; Data := Copy(AData, 0, Length(AData));
+    Self_ := Self;
+    TID := ATID;
+    Data := Copy(AData, 0, Length(AData));
     FOwnedTask.Start(
       procedure
       var
@@ -262,8 +275,7 @@ begin
   end;
 end;
 
-function TOBDActuator.FireBeforeSend(ATID: Byte;
-  const AData: TBytes): Boolean;
+function TOBDActuator.FireBeforeSend(ATID: Byte; const AData: TBytes): Boolean;
 var
   Cancel: Boolean;
   Self_: TOBDActuator;
@@ -271,15 +283,21 @@ var
   Data: TBytes;
   Local: Boolean;
 begin
-  if not Assigned(FOnBeforeSend) then Exit(True);
-  Self_ := Self; TID := ATID; Data := AData; Cancel := False;
+  if not Assigned(FOnBeforeSend) then
+    Exit(True);
+  Self_ := Self;
+  TID := ATID;
+  Data := AData;
+  Cancel := False;
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnBeforeSend(Self_, TID, Data, Cancel)
   else
   begin
     Local := False;
-    FOwnedTask.Synchronize( procedure
-      var C: Boolean;
+    FOwnedTask.Synchronize(
+      procedure
+      var
+        C: Boolean;
       begin
         C := False;
         if Assigned(Self_.FOnBeforeSend) then
@@ -291,40 +309,50 @@ begin
   Result := not Cancel;
 end;
 
-procedure TOBDActuator.FireResult(ATID: Byte;
-  const AResponseData: TBytes);
+procedure TOBDActuator.FireResult(ATID: Byte; const AResponseData: TBytes);
 var
   Self_: TOBDActuator;
   TID: Byte;
   Snap: TBytes;
 begin
-  if not Assigned(FOnResult) then Exit;
-  Self_ := Self; TID := ATID;
+  if not Assigned(FOnResult) then
+    Exit;
+  Self_ := Self;
+  TID := ATID;
   Snap := Copy(AResponseData, 0, Length(AResponseData));
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnResult(Self_, TID, Snap)
   else
-    FOwnedTask.Post( procedure begin
-      if Assigned(Self_.FOnResult) then Self_.FOnResult(Self_, TID, Snap);
-    end);
+    FOwnedTask.Post(
+      procedure
+      begin
+        if Assigned(Self_.FOnResult) then
+          Self_.FOnResult(Self_, TID, Snap);
+      end);
 end;
 
-procedure TOBDActuator.FireError(ACode: TOBDErrorCode;
-  const AMessage: string);
+procedure TOBDActuator.FireError(ACode: TOBDErrorCode; const AMessage: string);
 var
-  Self_: TOBDActuator; Code: TOBDErrorCode; Msg: string;
+  Self_: TOBDActuator;
+  Code: TOBDErrorCode;
+  Msg: string;
   Handled: Boolean;
 begin
-  if not Assigned(FOnError) then Exit;
-  Self_ := Self; Code := ACode; Msg := AMessage;
+  if not Assigned(FOnError) then
+    Exit;
+  Self_ := Self;
+  Code := ACode;
+  Msg := AMessage;
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
     Handled := False;
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    FOwnedTask.Post( procedure
-      var Handled: Boolean;
+    FOwnedTask.Post(
+      procedure
+      var
+        Handled: Boolean;
       begin
         Handled := False;
         if Assigned(Self_.FOnError) then

@@ -1,62 +1,62 @@
-//------------------------------------------------------------------------------
-//  ERD.Design.Editors
+﻿// ------------------------------------------------------------------------------
+// ERD.Design.Editors
 //
-//  Tools-API property and component editors shipped by
-//  <c>DelphiOBD_DT.bpl</c>. Lives in the design-time package only;
-//  must never be referenced from runtime code.
+// Tools-API property and component editors shipped by
+// <c>DelphiOBD_DT.bpl</c>. Lives in the design-time package only;
+// must never be referenced from runtime code.
 //
-//  What ships here:
+// What ships here:
 //
-//    Property editors
-//    ----------------
-//    TOBDObdLogFileNameProperty
-//        Open-dialog editor for <c>TOBDReplayer.FileName</c>.
-//        Filter: *.obdlog;*.obdlog.gz.
-//    TOBDCheckpointFileProperty
-//        Save-dialog editor for <c>TOBDFlashPipeline.CheckpointFile</c>.
-//        Filter: *.checkpoint.json.
-//    TOBDAdapterInitCommandsProperty
-//        Multi-line editor for <c>TOBDAdapter.InitCommands</c> with
-//        a brief AT / ST command primer at the top of the dialog.
+// Property editors
+// ----------------
+// TOBDObdLogFileNameProperty
+// Open-dialog editor for <c>TOBDReplayer.FileName</c>.
+// Filter: *.obdlog;*.obdlog.gz.
+// TOBDCheckpointFileProperty
+// Save-dialog editor for <c>TOBDFlashPipeline.CheckpointFile</c>.
+// Filter: *.checkpoint.json.
+// TOBDAdapterInitCommandsProperty
+// Multi-line editor for <c>TOBDAdapter.InitCommands</c> with
+// a brief AT / ST command primer at the top of the dialog.
 //
-//    Component editors
-//    -----------------
-//    TOBDDestructiveComponentEditor
-//        Adds a "Flashing safety" verb to every destructive
-//        component (TOBDFlasher, TOBDUDSTransfer, TOBDFlashPipeline)
-//        that pops a reminder up front and opens
-//        docs/flashing-safety.md.
-//    TOBDFlashPipelineComponentEditor
-//        On top of the destructive verbs, exposes "Validate
-//        configuration" — runs the configured Checks at design-
-//        time and reports issues in a modal list, so a host can
-//        eyeball the safety surface before deploying.
+// Component editors
+// -----------------
+// TOBDDestructiveComponentEditor
+// Adds a "Flashing safety" verb to every destructive
+// component (TOBDFlasher, TOBDUDSTransfer, TOBDFlashPipeline)
+// that pops a reminder up front and opens
+// docs/flashing-safety.md.
+// TOBDFlashPipelineComponentEditor
+// On top of the destructive verbs, exposes "Validate
+// configuration" — runs the configured Checks at design-
+// time and reports issues in a modal list, so a host can
+// eyeball the safety surface before deploying.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-10  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-10  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Design.Editors;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}ERD.Compat.Functions,{$ENDIF}
+{$IFDEF FPC}ERD.Compat.Functions, {$ENDIF}
   ERD.Types,
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   Vcl.Dialogs,
   DesignEditors,
   DesignIntf;
@@ -128,12 +128,12 @@ type
   end;
 
   /// <summary>
-  ///   Drop-down editor for the <c>Address</c> property of
-  ///   <c>TOBDBluetoothSettings</c>. Surfaces a curated list of
-  ///   common OBD-II Bluetooth dongle device names so a host can
-  ///   pick a target without typing the MAC by hand. Free-text
-  ///   entry remains available — paste any
-  ///   <c>00:11:22:33:44:55</c> MAC.
+  /// Drop-down editor for the <c>Address</c> property of
+  /// <c>TOBDBluetoothSettings</c>. Surfaces a curated list of
+  /// common OBD-II Bluetooth dongle device names so a host can
+  /// pick a target without typing the MAC by hand. Free-text
+  /// entry remains available — paste any
+  /// <c>00:11:22:33:44:55</c> MAC.
   /// </summary>
   TOBDBluetoothDeviceProperty = class(TStringProperty)
   public
@@ -142,10 +142,10 @@ type
   end;
 
   /// <summary>
-  ///   Drop-down editor for the <c>Host</c> property of
-  ///   <c>TOBDWiFiSettings</c>. Pre-populates the common Wi-Fi
-  ///   OBD dongle addresses (<c>192.168.0.10</c>,
-  ///   <c>192.168.4.1</c>, …). Free-text entry remains available.
+  /// Drop-down editor for the <c>Host</c> property of
+  /// <c>TOBDWiFiSettings</c>. Pre-populates the common Wi-Fi
+  /// OBD dongle addresses (<c>192.168.0.10</c>,
+  /// <c>192.168.4.1</c>, …). Free-text entry remains available.
   /// </summary>
   TOBDWiFiHostProperty = class(TStringProperty)
   public
@@ -154,10 +154,10 @@ type
   end;
 
   /// <summary>
-  ///   Drop-down editor for the FTDI device-serial property on
-  ///   <c>TOBDFTDISettings</c>. Lists FTDI serials discovered via
-  ///   <c>ftd2xx.dll</c> when the DLL is loadable at design-time;
-  ///   falls back to a documentation placeholder otherwise.
+  /// Drop-down editor for the FTDI device-serial property on
+  /// <c>TOBDFTDISettings</c>. Lists FTDI serials discovered via
+  /// <c>ftd2xx.dll</c> when the DLL is loadable at design-time;
+  /// falls back to a documentation placeholder otherwise.
   /// </summary>
   TOBDFTDISerialProperty = class(TStringProperty)
   public
@@ -166,11 +166,11 @@ type
   end;
 
   /// <summary>
-  ///   Drop-down editor for the manual-protocol field on
-  ///   <c>TOBDProtocol</c>. Surfaces every standard OBD-II
-  ///   physical layer (ISO 15765-4 CAN 11/29 bit at 250/500 kbps,
-  ///   ISO 9141-2, KWP2000 5-baud / fast, J1850 PWM / VPW) with a
-  ///   human-readable label.
+  /// Drop-down editor for the manual-protocol field on
+  /// <c>TOBDProtocol</c>. Surfaces every standard OBD-II
+  /// physical layer (ISO 15765-4 CAN 11/29 bit at 250/500 kbps,
+  /// ISO 9141-2, KWP2000 5-baud / fast, J1850 PWM / VPW) with a
+  /// human-readable label.
   /// </summary>
   TOBDProtocolManualProperty = class(TIntegerProperty)
   public
@@ -181,10 +181,10 @@ type
   end;
 
   /// <summary>
-  ///   Drop-down editor that lists every PID byte from the
-  ///   bundled <c>catalogs/obd2-pids.json</c> in
-  ///   "<c>0xNN — Name</c>" form. Used by
-  ///   <c>TOBDPIDItem.PID</c>.
+  /// Drop-down editor that lists every PID byte from the
+  /// bundled <c>catalogs/obd2-pids.json</c> in
+  /// "<c>0xNN — Name</c>" form. Used by
+  /// <c>TOBDPIDItem.PID</c>.
   /// </summary>
   TOBDPIDListProperty = class(TIntegerProperty)
   public
@@ -193,8 +193,8 @@ type
   end;
 
   /// <summary>
-  ///   Drop-down editor that lists every J1939 PGN from
-  ///   <c>catalogs/j1939/pgns.json</c>.
+  /// Drop-down editor that lists every J1939 PGN from
+  /// <c>catalogs/j1939/pgns.json</c>.
   /// </summary>
   TOBDPGNListProperty = class(TIntegerProperty)
   public
@@ -203,9 +203,9 @@ type
   end;
 
   /// <summary>
-  ///   Drop-down editor that lists every UDS DID from
-  ///   <c>catalogs/uds/dids-generic.json</c> + any OEM overlays
-  ///   registered with <c>TOBDOEMRegistry</c>.
+  /// Drop-down editor that lists every UDS DID from
+  /// <c>catalogs/uds/dids-generic.json</c> + any OEM overlays
+  /// registered with <c>TOBDOEMRegistry</c>.
   /// </summary>
   TOBDDIDListProperty = class(TIntegerProperty)
   public
@@ -245,10 +245,10 @@ type
   end;
 
   /// <summary>
-  ///   Component editor for <see cref="TOBDLiveData"/>. Adds
-  ///   "Add standard PIDs…" (populates the PIDs collection with
-  ///   the universal-support set: 0x04, 0x05, 0x0B, 0x0C, 0x0D,
-  ///   0x0E, 0x11) and "Live test PID…" (one-shot read).
+  /// Component editor for <see cref="TOBDLiveData"/>. Adds
+  /// "Add standard PIDs…" (populates the PIDs collection with
+  /// the universal-support set: 0x04, 0x05, 0x0B, 0x0C, 0x0D,
+  /// 0x0E, 0x11) and "Live test PID…" (one-shot read).
   /// </summary>
   TOBDLiveDataComponentEditor = class(TComponentEditor)
   public
@@ -258,10 +258,10 @@ type
   end;
 
   /// <summary>
-  ///   Component editor for <see cref="TOBDDTCs"/>. Adds
-  ///   "Read DTCs…" and "Clear DTCs…" verbs. The clear verb
-  ///   confirms via a modal warning first because clearing is
-  ///   destructive (drops stored emission history).
+  /// Component editor for <see cref="TOBDDTCs"/>. Adds
+  /// "Read DTCs…" and "Clear DTCs…" verbs. The clear verb
+  /// confirms via a modal warning first because clearing is
+  /// destructive (drops stored emission history).
   /// </summary>
   TOBDDTCsComponentEditor = class(TComponentEditor)
   public
@@ -293,17 +293,17 @@ type
     procedure ExecuteVerb(Index: Integer); override;
   end;
 
-/// <summary>Registers every editor declared in this unit. Call
-/// from <c>ERD.Design.Registration.Register</c>.</summary>
+  /// <summary>Registers every editor declared in this unit. Call
+  /// from <c>ERD.Design.Registration.Register</c>.</summary>
 procedure RegisterDelphiOBDEditors;
 
 implementation
 
 uses
   Winapi.Windows,
-  {$IFDEF FPC}TypInfo{$ELSE}System.TypInfo{$ENDIF},
-  {$IFDEF FPC}Registry{$ELSE}System.Win.Registry{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}TypInfo{$ELSE}System.TypInfo{$ENDIF},
+{$IFDEF FPC}Registry{$ELSE}System.Win.Registry{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   Vcl.Forms,
   Vcl.Controls,
   ERD.Connection,
@@ -407,8 +407,7 @@ end;
 
 function TOBDObdLogFileNameProperty.GetFilter: string;
 begin
-  Result :=
-    'OBD log files (*.obdlog;*.obdlog.gz)|*.obdlog;*.obdlog.gz|' +
+  Result := 'OBD log files (*.obdlog;*.obdlog.gz)|*.obdlog;*.obdlog.gz|' +
     'All files (*.*)|*.*';
 end;
 
@@ -426,8 +425,7 @@ end;
 
 function TOBDCheckpointFileProperty.GetFilter: string;
 begin
-  Result :=
-    'Flash checkpoints (*.checkpoint.json)|*.checkpoint.json|' +
+  Result := 'Flash checkpoints (*.checkpoint.json)|*.checkpoint.json|' +
     'All files (*.*)|*.*';
 end;
 
@@ -453,7 +451,8 @@ var
   L: TStrings;
 begin
   L := TStrings(GetOrdValue);
-  if L = nil then Exit;
+  if L = nil then
+    Exit;
   if EditInitCommands(L) then
     // Mark the property as modified so the IDE updates the .dfm.
     Modified;
@@ -469,7 +468,8 @@ end;
 function TOBDDestructiveComponentEditor.GetVerb(Index: Integer): string;
 begin
   case Index of
-    0: Result := 'Read flashing safety guide…';
+    0:
+      Result := 'Read flashing safety guide…';
   else
     Result := '';
   end;
@@ -478,7 +478,8 @@ end;
 procedure TOBDDestructiveComponentEditor.ExecuteVerb(Index: Integer);
 begin
   case Index of
-    0: ShowFlashSafetyDialog;
+    0:
+      ShowFlashSafetyDialog;
   end;
 end;
 
@@ -495,7 +496,8 @@ begin
     Result := inherited GetVerb(Index)
   else
     case Index - inherited GetVerbCount of
-      0: Result := 'Validate configuration…';
+      0:
+        Result := 'Validate configuration…';
     else
       Result := '';
     end;
@@ -511,7 +513,7 @@ var
     R: TOBDPipelineIssue;
   begin
     R.Level := ALevel;
-    R.Text  := AText;
+    R.Text := AText;
     Issues.Add(R);
   end;
 
@@ -528,8 +530,7 @@ begin
         Issues := TList<TOBDPipelineIssue>.Create;
         try
           if Pipeline.Protocol = nil then
-            Add(pilError,
-              'Protocol is not assigned. The pipeline cannot run.');
+            Add(pilError, 'Protocol is not assigned. The pipeline cannot run.');
           if Pipeline.VoltageGate = nil then
             Add(pilWarning,
               'VoltageGate is not assigned. Allowed, but the run will ' +
@@ -600,8 +601,10 @@ end;
 function TOBDConnectionComponentEditor.GetVerb(Index: Integer): string;
 begin
   case Index of
-    0: Result := 'Test connection…';
-    1: Result := 'Refresh ports';
+    0:
+      Result := 'Test connection…';
+    1:
+      Result := 'Refresh ports';
   else
     Result := '';
   end;
@@ -615,8 +618,7 @@ begin
     0:
       begin
         Conn := Component as TOBDConnection;
-        TOBDLiveTestDlg.Show(
-          'Test ' + Conn.Name,
+        TOBDLiveTestDlg.Show('Test ' + Conn.Name,
           'Opens the configured transport with a short timeout.',
           procedure(const AWriteLine: TProc<string>;
             const ASetStatus: TProc<TOBDLiveTestStatus>)
@@ -662,7 +664,8 @@ end;
 function TOBDAdapterComponentEditor.GetVerb(Index: Integer): string;
 begin
   case Index of
-    0: Result := 'Detect adapter…';
+    0:
+      Result := 'Detect adapter…';
   else
     Result := '';
   end;
@@ -672,10 +675,10 @@ procedure TOBDAdapterComponentEditor.ExecuteVerb(Index: Integer);
 var
   Adapter: TOBDAdapter;
 begin
-  if Index <> 0 then Exit;
+  if Index <> 0 then
+    Exit;
   Adapter := Component as TOBDAdapter;
-  TOBDLiveTestDlg.Show(
-    'Detect ' + Adapter.Name,
+  TOBDLiveTestDlg.Show('Detect ' + Adapter.Name,
     'Runs the AT detection sequence and reports chip identity.',
     procedure(const AWriteLine: TProc<string>;
       const ASetStatus: TProc<TOBDLiveTestStatus>)
@@ -697,7 +700,7 @@ begin
           AWriteLine(Format('MaxIsoTpFrame: %d', [Adapter.MaxIsoTpFrameBytes]));
           AWriteLine('Capabilities :');
           for var Cap := Low(TOBDAdapterCapability)
-                      to High(TOBDAdapterCapability) do
+            to High(TOBDAdapterCapability) do
             if Cap in Adapter.Capabilities then
               AWriteLine('  • ' + GetEnumName(TypeInfo(TOBDAdapterCapability),
                 Ord(Cap)));
@@ -725,8 +728,10 @@ end;
 function TOBDProtocolComponentEditor.GetVerb(Index: Integer): string;
 begin
   case Index of
-    0: Result := 'Send ATI…';
-    1: Result := 'Send AT@1…';
+    0:
+      Result := 'Send ATI…';
+    1:
+      Result := 'Send AT@1…';
   else
     Result := '';
   end;
@@ -737,11 +742,14 @@ var
   Proto: TOBDProtocol;
   ATCommand: string;
 begin
-  if (Index < 0) or (Index > 1) then Exit;
-  if Index = 0 then ATCommand := 'ATI' else ATCommand := 'AT@1';
+  if (Index < 0) or (Index > 1) then
+    Exit;
+  if Index = 0 then
+    ATCommand := 'ATI'
+  else
+    ATCommand := 'AT@1';
   Proto := Component as TOBDProtocol;
-  TOBDLiveTestDlg.Show(
-    Format('%s — send %s', [Proto.Name, ATCommand]),
+  TOBDLiveTestDlg.Show(Format('%s — send %s', [Proto.Name, ATCommand]),
     'Round-trips one AT command through the bound adapter.',
     procedure(const AWriteLine: TProc<string>;
       const ASetStatus: TProc<TOBDLiveTestStatus>)
@@ -765,7 +773,8 @@ begin
         Proto.Adapter.Connection.Open;
         try
           AWriteLine('Sending ' + ATCommand + '…');
-          Reply := Proto.Adapter.SendCommand(ATCommand, Proto.Adapter.CommandTimeoutMs).Raw;
+          Reply := Proto.Adapter.SendCommand(ATCommand,
+            Proto.Adapter.CommandTimeoutMs).Raw;
           AWriteLine('Reply        : ' + Reply);
           ASetStatus(ltsOK);
         finally
@@ -794,14 +803,8 @@ procedure TOBDBluetoothDeviceProperty.GetValues(Proc: TGetStrProc);
 const
   // Names a host typically sees while pairing OBD-II dongles.
   // MAC entry remains free-text — these are friendly hints only.
-  CommonDevices: array[0..7] of string = (
-    'OBDII',
-    'OBDII-V1.5',
-    'OBDII-V2.1',
-    'ELM327',
-    'Vgate iCar Pro',
-    'OBDLink MX+',
-    'BAFX Products',
+  CommonDevices: array [0 .. 7] of string = ('OBDII', 'OBDII-V1.5',
+    'OBDII-V2.1', 'ELM327', 'Vgate iCar Pro', 'OBDLink MX+', 'BAFX Products',
     'KIWI 3');
 var
   S: string;
@@ -819,11 +822,11 @@ end;
 
 procedure TOBDWiFiHostProperty.GetValues(Proc: TGetStrProc);
 const
-  CommonHosts: array[0..3] of string = (
-    '192.168.0.10',                       // WiFi ELM327 default
-    '192.168.4.1',                        // ESP-AP dongles
-    '192.168.1.5',                        // OBDLink MX+ Wi-Fi default
-    '192.168.10.1');                      // some Vgate models
+  CommonHosts: array [0 .. 3] of string = ('192.168.0.10',
+  // WiFi ELM327 default
+  '192.168.4.1', // ESP-AP dongles
+  '192.168.1.5', // OBDLink MX+ Wi-Fi default
+  '192.168.10.1'); // some Vgate models
 var
   S: string;
 begin
@@ -850,16 +853,11 @@ end;
 { ---- TOBDProtocolManualProperty ------------------------------------------- }
 
 const
-  ProtocolManualLabels: array[0..9] of string = (
-    '0 — Automatic',
-    '1 — SAE J1850 PWM (41.6 kbps)',
-    '2 — SAE J1850 VPW (10.4 kbps)',
-    '3 — ISO 9141-2',
-    '4 — ISO 14230-4 KWP (5-baud init)',
-    '5 — ISO 14230-4 KWP (fast init)',
-    '6 — ISO 15765-4 CAN (11/500)',
-    '7 — ISO 15765-4 CAN (29/500)',
-    '8 — ISO 15765-4 CAN (11/250)',
+  ProtocolManualLabels: array [0 .. 9] of string = ('0 — Automatic',
+    '1 — SAE J1850 PWM (41.6 kbps)', '2 — SAE J1850 VPW (10.4 kbps)',
+    '3 — ISO 9141-2', '4 — ISO 14230-4 KWP (5-baud init)',
+    '5 — ISO 14230-4 KWP (fast init)', '6 — ISO 15765-4 CAN (11/500)',
+    '7 — ISO 15765-4 CAN (29/500)', '8 — ISO 15765-4 CAN (11/250)',
     '9 — ISO 15765-4 CAN (29/250)');
 
 function TOBDProtocolManualProperty.GetAttributes: TPropertyAttributes;
@@ -902,8 +900,8 @@ begin
   if TryStrToInt(HeadText, IntVal) then
     SetOrdValue(IntVal)
   else
-    raise EPropertyError.CreateFmt(
-      'TOBDProtocolManualProperty: cannot parse "%s"', [AValue]);
+    raise EPropertyError.CreateFmt
+      ('TOBDProtocolManualProperty: cannot parse "%s"', [AValue]);
 end;
 
 { ---- TOBDPIDListProperty -------------------------------------------------- }
@@ -919,25 +917,23 @@ const
   // Mode-01 PID hosts most commonly poll. The full catalogue
   // lives in catalogs/obd2-pids.json; this drop-down covers the
   // 80 % case without parsing JSON at design-time.
-  CommonPIDs: array[0..15] of record
-    PID: Byte; Name: string;
-  end = (
-    (PID: $00; Name: 'PIDs supported [01..20]'),
-    (PID: $01; Name: 'Monitor status since DTCs cleared'),
-    (PID: $03; Name: 'Fuel system status'),
-    (PID: $04; Name: 'Calculated engine load'),
-    (PID: $05; Name: 'Engine coolant temperature'),
-    (PID: $0B; Name: 'Intake manifold absolute pressure'),
-    (PID: $0C; Name: 'Engine RPM'),
-    (PID: $0D; Name: 'Vehicle speed'),
-    (PID: $0E; Name: 'Timing advance'),
-    (PID: $0F; Name: 'Intake air temperature'),
-    (PID: $10; Name: 'MAF air flow rate'),
-    (PID: $11; Name: 'Throttle position'),
-    (PID: $1C; Name: 'OBD standards this vehicle conforms to'),
-    (PID: $20; Name: 'PIDs supported [21..40]'),
-    (PID: $2F; Name: 'Fuel tank level input'),
-    (PID: $5C; Name: 'Engine oil temperature'));
+CommonPIDs:
+array [0 .. 15] of record PID: Byte;
+Name:
+string;
+end
+= ((PID: $00; Name: 'PIDs supported [01..20]'), (PID: $01;
+  Name: 'Monitor status since DTCs cleared'), (PID: $03;
+  Name: 'Fuel system status'), (PID: $04; Name: 'Calculated engine load'),
+  (PID: $05; Name: 'Engine coolant temperature'), (PID: $0B;
+  Name: 'Intake manifold absolute pressure'), (PID: $0C; Name: 'Engine RPM'),
+  (PID: $0D; Name: 'Vehicle speed'), (PID: $0E; Name: 'Timing advance'),
+  (PID: $0F; Name: 'Intake air temperature'), (PID: $10;
+  Name: 'MAF air flow rate'), (PID: $11; Name: 'Throttle position'), (PID: $1C;
+  Name: 'OBD standards this vehicle conforms to'), (PID: $20;
+  Name: 'PIDs supported [21..40]'), (PID: $2F; Name: 'Fuel tank level input'),
+  (PID: $5C; Name: 'Engine oil temperature'));
+
 var
   I: Integer;
 begin
@@ -957,25 +953,24 @@ const
   // J1939 diagnostic-message PGNs the host most commonly polls.
   // catalogs/j1939/pgns.json carries the full set; this picker
   // surfaces the DM family + a couple of vehicle-state PGNs.
-  CommonPGNs: array[0..9] of record
-    PGN: Word; Name: string;
-  end = (
-    (PGN: $EE00; Name: 'Address Claimed'),
-    (PGN: $EA00; Name: 'Request'),
-    (PGN: $FECA; Name: 'DM1 — Active DTCs'),
-    (PGN: $FECB; Name: 'DM2 — Previously active DTCs'),
-    (PGN: $FECE; Name: 'DM5 — Readiness'),
-    (PGN: $FECF; Name: 'DM6 — Pending DTCs'),
-    (PGN: $FED3; Name: 'DM11 — Clear active DTCs'),
-    (PGN: $FED4; Name: 'DM12 — Emission DTCs'),
-    (PGN: $F004; Name: 'Engine speed'),
-    (PGN: $FEF1; Name: 'Cruise control / vehicle speed'));
+CommonPGNs:
+array [0 .. 9] of record PGN: Word;
+Name:
+string;
+end
+= ((PGN: $EE00; Name: 'Address Claimed'), (PGN: $EA00; Name: 'Request'),
+  (PGN: $FECA; Name: 'DM1 — Active DTCs'), (PGN: $FECB;
+  Name: 'DM2 — Previously active DTCs'), (PGN: $FECE; Name: 'DM5 — Readiness'),
+  (PGN: $FECF; Name: 'DM6 — Pending DTCs'), (PGN: $FED3;
+  Name: 'DM11 — Clear active DTCs'), (PGN: $FED4; Name: 'DM12 — Emission DTCs'),
+  (PGN: $F004; Name: 'Engine speed'), (PGN: $FEF1;
+  Name: 'Cruise control / vehicle speed'));
+
 var
   I: Integer;
 begin
   for I := Low(CommonPGNs) to High(CommonPGNs) do
-    Proc(Format('0x%.4x — %s',
-      [CommonPGNs[I].PGN, CommonPGNs[I].Name]));
+    Proc(Format('0x%.4x — %s', [CommonPGNs[I].PGN, CommonPGNs[I].Name]));
 end;
 
 { ---- TOBDDIDListProperty -------------------------------------------------- }
@@ -991,27 +986,26 @@ const
   // overlays add their own through TOBDOEMRegistry — the IDE
   // picker covers the standard set; vendor-specific DIDs are
   // typed.
-  CommonDIDs: array[0..11] of record
-    DID: Word; Name: string;
-  end = (
-    (DID: $F186; Name: 'Active diagnostic session'),
-    (DID: $F187; Name: 'ECU spare-part number'),
-    (DID: $F188; Name: 'ECU software number'),
-    (DID: $F189; Name: 'ECU software version'),
-    (DID: $F18A; Name: 'System supplier'),
-    (DID: $F18B; Name: 'ECU manufacturing date'),
-    (DID: $F18C; Name: 'ECU serial number'),
-    (DID: $F190; Name: 'Vehicle Identification Number (VIN)'),
-    (DID: $F195; Name: 'System diagnostic spec version'),
-    (DID: $F197; Name: 'System name / engine type'),
-    (DID: $F198; Name: 'Repair shop code'),
-    (DID: $F199; Name: 'Programming date'));
+CommonDIDs:
+array [0 .. 11] of record DID: Word;
+Name:
+string;
+end
+= ((DID: $F186; Name: 'Active diagnostic session'), (DID: $F187;
+  Name: 'ECU spare-part number'), (DID: $F188; Name: 'ECU software number'),
+  (DID: $F189; Name: 'ECU software version'), (DID: $F18A;
+  Name: 'System supplier'), (DID: $F18B; Name: 'ECU manufacturing date'),
+  (DID: $F18C; Name: 'ECU serial number'), (DID: $F190;
+  Name: 'Vehicle Identification Number (VIN)'), (DID: $F195;
+  Name: 'System diagnostic spec version'), (DID: $F197;
+  Name: 'System name / engine type'), (DID: $F198; Name: 'Repair shop code'),
+  (DID: $F199; Name: 'Programming date'));
+
 var
   I: Integer;
 begin
   for I := Low(CommonDIDs) to High(CommonDIDs) do
-    Proc(Format('0x%.4x — %s',
-      [CommonDIDs[I].DID, CommonDIDs[I].Name]));
+    Proc(Format('0x%.4x — %s', [CommonDIDs[I].DID, CommonDIDs[I].Name]));
 end;
 
 { ---- TOBDLiveDataComponentEditor ----------------------------------------- }
@@ -1024,8 +1018,10 @@ end;
 function TOBDLiveDataComponentEditor.GetVerb(Index: Integer): string;
 begin
   case Index of
-    0: Result := 'Add standard PIDs…';
-    1: Result := 'Live test PID…';
+    0:
+      Result := 'Add standard PIDs…';
+    1:
+      Result := 'Live test PID…';
   else
     Result := '';
   end;
@@ -1033,7 +1029,7 @@ end;
 
 procedure TOBDLiveDataComponentEditor.ExecuteVerb(Index: Integer);
 const
-  StandardPIDs: array[0..6] of Byte = ($04, $05, $0B, $0C, $0D, $0E, $11);
+  StandardPIDs: array [0 .. 6] of Byte = ($04, $05, $0B, $0C, $0D, $0E, $11);
 var
   Live: TOBDLiveData;
   PID: Byte;
@@ -1051,8 +1047,7 @@ begin
       end;
     1:
       begin
-        TOBDLiveTestDlg.Show(
-          'Live test ' + Live.Name,
+        TOBDLiveTestDlg.Show('Live test ' + Live.Name,
           'Reads PID 0x0C (engine RPM) once and reports the value.',
           procedure(const AWriteLine: TProc<string>;
             const ASetStatus: TProc<TOBDLiveTestStatus>)
@@ -1090,8 +1085,10 @@ end;
 function TOBDDTCsComponentEditor.GetVerb(Index: Integer): string;
 begin
   case Index of
-    0: Result := 'Read DTCs…';
-    1: Result := 'Clear DTCs…';
+    0:
+      Result := 'Read DTCs…';
+    1:
+      Result := 'Clear DTCs…';
   else
     Result := '';
   end;
@@ -1107,8 +1104,7 @@ begin
   case Index of
     0:
       begin
-        TOBDLiveTestDlg.Show(
-          'Read DTCs from ' + DTC.Name,
+        TOBDLiveTestDlg.Show('Read DTCs from ' + DTC.Name,
           'Reads confirmed, pending and permanent DTCs.',
           procedure(const AWriteLine: TProc<string>;
             const ASetStatus: TProc<TOBDLiveTestStatus>)
@@ -1141,14 +1137,12 @@ begin
         // Destructive — same confirmation contract as the flash
         // safety dialog, but lighter (no signature audit).
         Confirmed := MessageBoxW(GetActiveOwnerWindow,
-          'Clearing DTCs drops the vehicle''s stored emission '
-          + 'history.'#13#10'Continue?',
-          'Clear DTCs',
+          'Clearing DTCs drops the vehicle''s stored emission ' +
+          'history.'#13#10'Continue?', 'Clear DTCs',
           MB_YESNO or MB_ICONWARNING or MB_DEFBUTTON2);
         if Confirmed <> IDYES then
           Exit;
-        TOBDLiveTestDlg.Show(
-          'Clear DTCs on ' + DTC.Name,
+        TOBDLiveTestDlg.Show('Clear DTCs on ' + DTC.Name,
           'Sends Mode 0x04 ClearDiagnosticInformation.',
           procedure(const AWriteLine: TProc<string>;
             const ASetStatus: TProc<TOBDLiveTestStatus>)
@@ -1185,16 +1179,14 @@ begin
 
   // COM port picker (registered globally for the 'Port' property
   // on any TOBDSerialSettings sub-object the IDE walks into).
-  RegisterPropertyEditor(TypeInfo(string), nil, 'Port',
-    TOBDSerialPortProperty);
+  RegisterPropertyEditor(TypeInfo(string), nil, 'Port', TOBDSerialPortProperty);
 
   // Bluetooth / Wi-Fi / FTDI transport pickers — registered
   // globally for the conventional property names so any settings
   // sub-object picks them up.
   RegisterPropertyEditor(TypeInfo(string), nil, 'Address',
     TOBDBluetoothDeviceProperty);
-  RegisterPropertyEditor(TypeInfo(string), nil, 'Host',
-    TOBDWiFiHostProperty);
+  RegisterPropertyEditor(TypeInfo(string), nil, 'Host', TOBDWiFiHostProperty);
   RegisterPropertyEditor(TypeInfo(string), nil, 'FTDISerial',
     TOBDFTDISerialProperty);
 

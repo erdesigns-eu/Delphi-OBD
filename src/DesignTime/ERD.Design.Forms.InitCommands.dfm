@@ -1,7 +1,6 @@
 object OBDInitCommandsDlg: TOBDInitCommandsDlg
   Left = 0
   Top = 0
-  BorderStyle = bsSizeable
   Caption = 'TOBDAdapter - InitCommands'
   ClientHeight = 460
   ClientWidth = 760
@@ -16,6 +15,13 @@ object OBDInitCommandsDlg: TOBDInitCommandsDlg
   Position = poOwnerFormCenter
   OnCreate = FormCreate
   TextHeight = 15
+  object splPane: TSplitter
+    Left = 280
+    Top = 0
+    Width = 6
+    Height = 412
+    Beveled = True
+  end
   object pnlPalette: TPanel
     Left = 0
     Top = 0
@@ -32,7 +38,7 @@ object OBDInitCommandsDlg: TOBDInitCommandsDlg
       AlignWithMargins = True
       Left = 12
       Top = 12
-      Width = 262
+      Width = 281
       Height = 15
       Margins.Left = 0
       Margins.Top = 0
@@ -63,13 +69,6 @@ object OBDInitCommandsDlg: TOBDInitCommandsDlg
       OnDblClick = lstPaletteDblClick
     end
   end
-  object splPane: TSplitter
-    Left = 280
-    Top = 0
-    Width = 6
-    Height = 412
-    Beveled = True
-  end
   object pnlEditor: TPanel
     Left = 286
     Top = 0
@@ -86,14 +85,16 @@ object OBDInitCommandsDlg: TOBDInitCommandsDlg
       AlignWithMargins = True
       Left = 6
       Top = 12
-      Width = 456
+      Width = 397
       Height = 15
       Margins.Left = 0
       Margins.Top = 0
       Margins.Right = 0
       Margins.Bottom = 4
       Align = alTop
-      Caption = 'Init script - one command per line. Lines starting with // or ; are comments.'
+      Caption = 
+        'Init script - one command per line. Lines starting with // or ; ' +
+        'are comments.'
     end
     object memScript: TMemo
       AlignWithMargins = True

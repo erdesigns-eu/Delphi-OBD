@@ -1,42 +1,42 @@
-//------------------------------------------------------------------------------
-//  ERD.UI.Control
+﻿// ------------------------------------------------------------------------------
+// ERD.UI.Control
 //
-//  Custom-paint base classes every visual derives from.
+// Custom-paint base classes every visual derives from.
 //
-//    TOBDCustomControl    windowed control (focusable, accepts
-//                         keyboard input). Use for lists,
-//                         interactive widgets, anything that
-//                         needs Tab focus.
-//    TOBDGraphicControl   lightweight non-windowed control.
-//                         Use for indicator lamps, badges,
-//                         sparklines — anything that can sit
-//                         inside another control's client area
-//                         transparently.
+// TOBDCustomControl    windowed control (focusable, accepts
+// keyboard input). Use for lists,
+// interactive widgets, anything that
+// needs Tab focus.
+// TOBDGraphicControl   lightweight non-windowed control.
+// Use for indicator lamps, badges,
+// sparklines — anything that can sit
+// inside another control's client area
+// transparently.
 //
-//  Both bases satisfy the universal quality bar:
-//    - Theme-aware (auto-bind via TOBDTheme.FindOnOwner,
-//      explicit Theme property, per-component Style overrides,
-//      resolution chain with VCL Style fallback and brand
-//      default).
-//    - HiDPI-aware (ScaleValue helper, ChangeScale override
-//      that invalidates on DPI change, geometry uses MulDiv).
-//    - Production-ready (double-buffered paint pipeline,
-//      thread-safe Value setter on subclasses, csDesigning /
-//      csLoading safe).
+// Both bases satisfy the universal quality bar:
+// - Theme-aware (auto-bind via TOBDTheme.FindOnOwner,
+// explicit Theme property, per-component Style overrides,
+// resolution chain with VCL Style fallback and brand
+// default).
+// - HiDPI-aware (ScaleValue helper, ChangeScale override
+// that invalidates on DPI change, geometry uses MulDiv).
+// - Production-ready (double-buffered paint pipeline,
+// thread-safe Value setter on subclasses, csDesigning /
+// csLoading safe).
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.UI.Control;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -45,9 +45,9 @@ uses
   Winapi.Windows,
   Winapi.Messages,
   System.UITypes,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
   Vcl.Controls,
   Vcl.Graphics,
   Vcl.Themes,
@@ -62,19 +62,19 @@ type
   /// scaling.</summary>
   TOBDCustomControl = class(TCustomControl, IOBDThemeAware)
   strict private
-    FTheme:         TOBDTheme;
-    FStyle:         TOBDVisualStyle;
+    FTheme: TOBDTheme;
+    FStyle: TOBDVisualStyle;
     FResolvedTheme: TOBDTheme;
-    FBuffer:        TBitmap;
-    FBufferDirty:   Boolean;
-    FDesignPPI:     Integer;
+    FBuffer: TBitmap;
+    FBufferDirty: Boolean;
+    FDesignPPI: Integer;
     procedure SetTheme(AValue: TOBDTheme);
     procedure ResolveTheme;
     procedure DetachFromTheme;
-    function  GetStyleBackground: TColor;
-    function  GetStyleForeground: TColor;
-    function  GetStyleAccent:     TColor;
-    function  GetStyleBorder:     TColor;
+    function GetStyleBackground: TColor;
+    function GetStyleForeground: TColor;
+    function GetStyleAccent: TColor;
+    function GetStyleBorder: TColor;
     procedure SetStyleBackground(AValue: TColor);
     procedure SetStyleForeground(AValue: TColor);
     procedure SetStyleAccent(AValue: TColor);
@@ -100,8 +100,8 @@ type
     /// resolution.</summary>
     function EffectiveBackground: TColor;
     function EffectiveForeground: TColor;
-    function EffectiveAccent:     TColor;
-    function EffectiveBorder:     TColor;
+    function EffectiveAccent: TColor;
+    function EffectiveBorder: TColor;
 
     procedure Paint; override;
     procedure Resize; override;
@@ -112,8 +112,8 @@ type
     procedure CMStyleChanged(var Message: TMessage); message CM_STYLECHANGED;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
-    procedure ThemeChanged;   //  IOBDThemeAware
+    destructor Destroy; override;
+    procedure ThemeChanged; // IOBDThemeAware
     /// <summary>Force a repaint at the next idle cycle (the
     /// double-buffer is invalidated; <c>Paint</c> redraws on
     /// next WM_PAINT).</summary>
@@ -128,10 +128,10 @@ type
       write SetStyleBackground default clDefault;
     property StyleForeground: TColor read GetStyleForeground
       write SetStyleForeground default clDefault;
-    property StyleAccent:     TColor read GetStyleAccent
-      write SetStyleAccent default clDefault;
-    property StyleBorder:     TColor read GetStyleBorder
-      write SetStyleBorder default clDefault;
+    property StyleAccent: TColor read GetStyleAccent write SetStyleAccent
+      default clDefault;
+    property StyleBorder: TColor read GetStyleBorder write SetStyleBorder
+      default clDefault;
 
     // Re-publish the bits a host typically wants.
     property Align;
@@ -183,29 +183,29 @@ type
   /// other windowed control.</summary>
   TOBDGraphicControl = class(TGraphicControl, IOBDThemeAware)
   strict private
-    FTheme:      TOBDTheme;
-    FStyle:      TOBDVisualStyle;
+    FTheme: TOBDTheme;
+    FStyle: TOBDVisualStyle;
     FResolvedTheme: TOBDTheme;
-    FDesignPPI:  Integer;
+    FDesignPPI: Integer;
     procedure SetTheme(AValue: TOBDTheme);
     procedure ResolveTheme;
     procedure DetachFromTheme;
-    function  GetStyleBackground: TColor;
-    function  GetStyleForeground: TColor;
-    function  GetStyleAccent:     TColor;
-    function  GetStyleBorder:     TColor;
+    function GetStyleBackground: TColor;
+    function GetStyleForeground: TColor;
+    function GetStyleAccent: TColor;
+    function GetStyleBorder: TColor;
     procedure SetStyleBackground(AValue: TColor);
     procedure SetStyleForeground(AValue: TColor);
     procedure SetStyleAccent(AValue: TColor);
     procedure SetStyleBorder(AValue: TColor);
   protected
     procedure PaintControl(ACanvas: TCanvas); virtual; abstract;
-    function  Palette: TOBDThemePalette;
-    function  ScaleValue(N: Integer): Integer; inline;
-    function  EffectiveBackground: TColor;
-    function  EffectiveForeground: TColor;
-    function  EffectiveAccent:     TColor;
-    function  EffectiveBorder:     TColor;
+    function Palette: TOBDThemePalette;
+    function ScaleValue(N: Integer): Integer; inline;
+    function EffectiveBackground: TColor;
+    function EffectiveForeground: TColor;
+    function EffectiveAccent: TColor;
+    function EffectiveBorder: TColor;
 
     procedure Paint; override;
     procedure ChangeScale(M, D: Integer; isDpiChange: Boolean); override;
@@ -214,7 +214,7 @@ type
     procedure Loaded; override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
     procedure ThemeChanged;
   published
     property Theme: TOBDTheme read FTheme write SetTheme;
@@ -222,10 +222,10 @@ type
       write SetStyleBackground default clDefault;
     property StyleForeground: TColor read GetStyleForeground
       write SetStyleForeground default clDefault;
-    property StyleAccent:     TColor read GetStyleAccent
-      write SetStyleAccent default clDefault;
-    property StyleBorder:     TColor read GetStyleBorder
-      write SetStyleBorder default clDefault;
+    property StyleAccent: TColor read GetStyleAccent write SetStyleAccent
+      default clDefault;
+    property StyleBorder: TColor read GetStyleBorder write SetStyleBorder
+      default clDefault;
 
     property Align;
     property AlignWithMargins;
@@ -250,11 +250,11 @@ implementation
 const
   DESIGN_PPI = 96;
 
-/// <summary>Paints a designer-only fallback when a subclass'
-/// <c>PaintControl</c> raises during csDesigning. Dashed rect
-/// with the class name + the exception message so the host
-/// sees something useful in the IDE form designer instead of
-/// a black hole.</summary>
+  /// <summary>Paints a designer-only fallback when a subclass'
+  /// <c>PaintControl</c> raises during csDesigning. Dashed rect
+  /// with the class name + the exception message so the host
+  /// sees something useful in the IDE form designer instead of
+  /// a black hole.</summary>
 procedure DrawDesignPlaceholder(ACanvas: TCanvas);
 var
   E: Exception;
@@ -299,7 +299,8 @@ end;
 
 procedure TOBDCustomControl.SetTheme(AValue: TOBDTheme);
 begin
-  if FTheme = AValue then Exit;
+  if FTheme = AValue then
+    Exit;
   if FResolvedTheme <> nil then
     FResolvedTheme.Detach(Self);
   if FTheme <> nil then
@@ -325,8 +326,10 @@ begin
   // Explicit Theme wins. Auto-find on Owner ancestry next.
   // Process-wide default last. nil = use VCL Style + brand.
   Candidate := FTheme;
-  if Candidate = nil then Candidate := TOBDTheme.FindOnOwner(Self);
-  if Candidate = nil then Candidate := TOBDTheme.GetDefault;
+  if Candidate = nil then
+    Candidate := TOBDTheme.FindOnOwner(Self);
+  if Candidate = nil then
+    Candidate := TOBDTheme.GetDefault;
   FResolvedTheme := Candidate;
   if FResolvedTheme <> nil then
     FResolvedTheme.Attach(Self);
@@ -353,8 +356,10 @@ begin
   inherited;
   if Operation = opRemove then
   begin
-    if AComponent = FTheme then FTheme := nil;
-    if AComponent = FResolvedTheme then FResolvedTheme := nil;
+    if AComponent = FTheme then
+      FTheme := nil;
+    if AComponent = FResolvedTheme then
+      FResolvedTheme := nil;
   end;
 end;
 
@@ -363,11 +368,13 @@ begin
   if FResolvedTheme <> nil then
     Exit(FResolvedTheme.Palette);
   // No theme — synthesize one from VCL Style + brand default.
-  if VCLStyleIsDark then Result := BRAND_PALETTE_DARK
-  else                   Result := BRAND_PALETTE_LIGHT;
+  if VCLStyleIsDark then
+    Result := BRAND_PALETTE_DARK
+  else
+    Result := BRAND_PALETTE_LIGHT;
   if TStyleManager.IsCustomStyleActive then
   begin
-    Result.Background     := StyleColor(scWindow,     Result.Background);
+    Result.Background := StyleColor(scWindow, Result.Background);
     Result.ForegroundText := StyleServices.GetSystemColor(clWindowText);
   end;
 end;
@@ -377,11 +384,11 @@ begin
   // CurrentPPI is the modern Delphi (10.4+) per-control DPI. In
   // older Delphi we fall back to Screen.PixelsPerInch which is
   // the form's design-time PPI.
-  {$IF CompilerVersion >= 35}
+{$IF CompilerVersion >= 35}
   Result := MulDiv(N, Self.CurrentPPI, FDesignPPI);
-  {$ELSE}
+{$ELSE}
   Result := MulDiv(N, Self.Font.PixelsPerInch, FDesignPPI);
-  {$ENDIF}
+{$ENDIF}
 end;
 
 function TOBDCustomControl.EffectiveBackground: TColor;
@@ -406,9 +413,9 @@ end;
 
 procedure TOBDCustomControl.Paint;
 begin
-  if (Width <= 0) or (Height <= 0) then Exit;
-  if FBufferDirty or (FBuffer.Width <> Width) or
-     (FBuffer.Height <> Height) then
+  if (Width <= 0) or (Height <= 0) then
+    Exit;
+  if FBufferDirty or (FBuffer.Width <> Width) or (FBuffer.Height <> Height) then
   begin
     FBuffer.SetSize(Width, Height);
     // Fill the buffer with the resolved background so subclass
@@ -464,37 +471,60 @@ begin
   Invalidate;
 end;
 
-function TOBDCustomControl.GetStyleBackground: TColor; begin Result := FStyle.Background; end;
-function TOBDCustomControl.GetStyleForeground: TColor; begin Result := FStyle.Foreground; end;
-function TOBDCustomControl.GetStyleAccent:     TColor; begin Result := FStyle.Accent;     end;
-function TOBDCustomControl.GetStyleBorder:     TColor; begin Result := FStyle.Border;     end;
+function TOBDCustomControl.GetStyleBackground: TColor;
+begin
+  Result := FStyle.Background;
+end;
+
+function TOBDCustomControl.GetStyleForeground: TColor;
+begin
+  Result := FStyle.Foreground;
+end;
+
+function TOBDCustomControl.GetStyleAccent: TColor;
+begin
+  Result := FStyle.Accent;
+end;
+
+function TOBDCustomControl.GetStyleBorder: TColor;
+begin
+  Result := FStyle.Border;
+end;
 
 procedure TOBDCustomControl.SetStyleBackground(AValue: TColor);
 begin
-  if FStyle.Background = AValue then Exit;
+  if FStyle.Background = AValue then
+    Exit;
   FStyle.Background := AValue;
-  FBufferDirty := True; Invalidate;
+  FBufferDirty := True;
+  Invalidate;
 end;
 
 procedure TOBDCustomControl.SetStyleForeground(AValue: TColor);
 begin
-  if FStyle.Foreground = AValue then Exit;
+  if FStyle.Foreground = AValue then
+    Exit;
   FStyle.Foreground := AValue;
-  FBufferDirty := True; Invalidate;
+  FBufferDirty := True;
+  Invalidate;
 end;
 
 procedure TOBDCustomControl.SetStyleAccent(AValue: TColor);
 begin
-  if FStyle.Accent = AValue then Exit;
+  if FStyle.Accent = AValue then
+    Exit;
   FStyle.Accent := AValue;
-  FBufferDirty := True; Invalidate;
+  FBufferDirty := True;
+  Invalidate;
 end;
 
 procedure TOBDCustomControl.SetStyleBorder(AValue: TColor);
 begin
-  if FStyle.Border = AValue then Exit;
+  if FStyle.Border = AValue then
+    Exit;
   FStyle.Border := AValue;
-  FBufferDirty := True; Invalidate;
+  FBufferDirty := True;
+  Invalidate;
 end;
 
 { ---- TOBDGraphicControl ---------------------------------------------------- }
@@ -514,11 +544,15 @@ end;
 
 procedure TOBDGraphicControl.SetTheme(AValue: TOBDTheme);
 begin
-  if FTheme = AValue then Exit;
-  if FResolvedTheme <> nil then FResolvedTheme.Detach(Self);
-  if FTheme <> nil then FTheme.RemoveFreeNotification(Self);
+  if FTheme = AValue then
+    Exit;
+  if FResolvedTheme <> nil then
+    FResolvedTheme.Detach(Self);
+  if FTheme <> nil then
+    FTheme.RemoveFreeNotification(Self);
   FTheme := AValue;
-  if FTheme <> nil then FTheme.FreeNotification(Self);
+  if FTheme <> nil then
+    FTheme.FreeNotification(Self);
   ResolveTheme;
   Invalidate;
 end;
@@ -533,8 +567,10 @@ begin
     FResolvedTheme := nil;
   end;
   Candidate := FTheme;
-  if Candidate = nil then Candidate := TOBDTheme.FindOnOwner(Self);
-  if Candidate = nil then Candidate := TOBDTheme.GetDefault;
+  if Candidate = nil then
+    Candidate := TOBDTheme.FindOnOwner(Self);
+  if Candidate = nil then
+    Candidate := TOBDTheme.GetDefault;
   FResolvedTheme := Candidate;
   if FResolvedTheme <> nil then
     FResolvedTheme.Attach(Self);
@@ -561,8 +597,10 @@ begin
   inherited;
   if Operation = opRemove then
   begin
-    if AComponent = FTheme then FTheme := nil;
-    if AComponent = FResolvedTheme then FResolvedTheme := nil;
+    if AComponent = FTheme then
+      FTheme := nil;
+    if AComponent = FResolvedTheme then
+      FResolvedTheme := nil;
   end;
 end;
 
@@ -570,34 +608,45 @@ function TOBDGraphicControl.Palette: TOBDThemePalette;
 begin
   if FResolvedTheme <> nil then
     Exit(FResolvedTheme.Palette);
-  if VCLStyleIsDark then Result := BRAND_PALETTE_DARK
-  else                   Result := BRAND_PALETTE_LIGHT;
+  if VCLStyleIsDark then
+    Result := BRAND_PALETTE_DARK
+  else
+    Result := BRAND_PALETTE_LIGHT;
 end;
 
 function TOBDGraphicControl.ScaleValue(N: Integer): Integer;
 begin
-  {$IF CompilerVersion >= 35}
+{$IF CompilerVersion >= 35}
   Result := MulDiv(N, Self.CurrentPPI, FDesignPPI);
-  {$ELSE}
+{$ELSE}
   Result := MulDiv(N, Self.Font.PixelsPerInch, FDesignPPI);
-  {$ENDIF}
+{$ENDIF}
 end;
 
 function TOBDGraphicControl.EffectiveBackground: TColor;
-begin Result := PickColor(FStyle.Background, Palette.Background); end;
+begin
+  Result := PickColor(FStyle.Background, Palette.Background);
+end;
 
 function TOBDGraphicControl.EffectiveForeground: TColor;
-begin Result := PickColor(FStyle.Foreground, Palette.ForegroundText); end;
+begin
+  Result := PickColor(FStyle.Foreground, Palette.ForegroundText);
+end;
 
 function TOBDGraphicControl.EffectiveAccent: TColor;
-begin Result := PickColor(FStyle.Accent, Palette.Accent); end;
+begin
+  Result := PickColor(FStyle.Accent, Palette.Accent);
+end;
 
 function TOBDGraphicControl.EffectiveBorder: TColor;
-begin Result := PickColor(FStyle.Border, Palette.Subtle); end;
+begin
+  Result := PickColor(FStyle.Border, Palette.Subtle);
+end;
 
 procedure TOBDGraphicControl.Paint;
 begin
-  if (Width <= 0) or (Height <= 0) then Exit;
+  if (Width <= 0) or (Height <= 0) then
+    Exit;
   if csDesigning in ComponentState then
     try
       PaintControl(Canvas);
@@ -619,21 +668,60 @@ begin
   Invalidate;
 end;
 
-function TOBDGraphicControl.GetStyleBackground: TColor; begin Result := FStyle.Background; end;
-function TOBDGraphicControl.GetStyleForeground: TColor; begin Result := FStyle.Foreground; end;
-function TOBDGraphicControl.GetStyleAccent:     TColor; begin Result := FStyle.Accent;     end;
-function TOBDGraphicControl.GetStyleBorder:     TColor; begin Result := FStyle.Border;     end;
+function TOBDGraphicControl.GetStyleBackground: TColor;
+begin
+  Result := FStyle.Background;
+end;
+
+function TOBDGraphicControl.GetStyleForeground: TColor;
+begin
+  Result := FStyle.Foreground;
+end;
+
+function TOBDGraphicControl.GetStyleAccent: TColor;
+begin
+  Result := FStyle.Accent;
+end;
+
+function TOBDGraphicControl.GetStyleBorder: TColor;
+begin
+  Result := FStyle.Border;
+end;
 
 procedure TOBDGraphicControl.SetStyleBackground(AValue: TColor);
-begin if FStyle.Background <> AValue then begin FStyle.Background := AValue; Invalidate; end; end;
+begin
+  if FStyle.Background <> AValue then
+  begin
+    FStyle.Background := AValue;
+    Invalidate;
+  end;
+end;
 
 procedure TOBDGraphicControl.SetStyleForeground(AValue: TColor);
-begin if FStyle.Foreground <> AValue then begin FStyle.Foreground := AValue; Invalidate; end; end;
+begin
+  if FStyle.Foreground <> AValue then
+  begin
+    FStyle.Foreground := AValue;
+    Invalidate;
+  end;
+end;
 
 procedure TOBDGraphicControl.SetStyleAccent(AValue: TColor);
-begin if FStyle.Accent     <> AValue then begin FStyle.Accent     := AValue; Invalidate; end; end;
+begin
+  if FStyle.Accent <> AValue then
+  begin
+    FStyle.Accent := AValue;
+    Invalidate;
+  end;
+end;
 
 procedure TOBDGraphicControl.SetStyleBorder(AValue: TColor);
-begin if FStyle.Border     <> AValue then begin FStyle.Border     := AValue; Invalidate; end; end;
+begin
+  if FStyle.Border <> AValue then
+  begin
+    FStyle.Border := AValue;
+    Invalidate;
+  end;
+end;
 
 end.

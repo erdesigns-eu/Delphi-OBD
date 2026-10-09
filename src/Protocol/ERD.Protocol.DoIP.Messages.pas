@@ -1,79 +1,79 @@
-//------------------------------------------------------------------------------
-//  ERD.Protocol.DoIP.Messages
+﻿// ------------------------------------------------------------------------------
+// ERD.Protocol.DoIP.Messages
 //
-//  Per-payload-type encoders and decoders. Each DoIP payload type
-//  defined in ISO 13400-2 Table 17 has a record + Encode + Decode.
-//  The header itself is in ERD.Protocol.DoIP.Header.
+// Per-payload-type encoders and decoders. Each DoIP payload type
+// defined in ISO 13400-2 Table 17 has a record + Encode + Decode.
+// The header itself is in ERD.Protocol.DoIP.Header.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - ISO 13400-2:2019 §7 (Payload formats)
-//    - ISO 13400-2:2019 Tables 19..40 (per-payload field layouts)
+// References  :
+// - ISO 13400-2:2019 §7 (Payload formats)
+// - ISO 13400-2:2019 Tables 19..40 (per-payload field layouts)
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation. All 15 standard payload
-//                     types covered.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation. All 15 standard payload
+// types covered.
+// ------------------------------------------------------------------------------
 
 unit ERD.Protocol.DoIP.Messages;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   ERD.Types,
   ERD.Protocol.Types,
   ERD.Protocol.DoIP.Header;
 
 const
   // ---- Routing-activation request types (Table 21) ----
-  DOIP_RA_TYPE_DEFAULT          = $00;
-  DOIP_RA_TYPE_WWHOBD           = $01;
+  DOIP_RA_TYPE_DEFAULT = $00;
+  DOIP_RA_TYPE_WWHOBD = $01;
   DOIP_RA_TYPE_CENTRAL_SECURITY = $E0;
 
   // ---- Routing-activation response codes (Table 23) ----
-  DOIP_RA_RESP_DeniedUnknownSA              = $00;
-  DOIP_RA_RESP_DeniedAllSocketsRegistered   = $01;
-  DOIP_RA_RESP_DeniedSAMismatch             = $02;
-  DOIP_RA_RESP_DeniedSAAlreadyActive        = $03;
-  DOIP_RA_RESP_DeniedAuthMissing            = $04;
-  DOIP_RA_RESP_DeniedConfirmationRejected   = $05;
-  DOIP_RA_RESP_DeniedUnsupportedType        = $06;
-  DOIP_RA_RESP_DeniedTLSRequired            = $07;
-  DOIP_RA_RESP_Activated                    = $10;
-  DOIP_RA_RESP_PendingConfirmation          = $11;
+  DOIP_RA_RESP_DeniedUnknownSA = $00;
+  DOIP_RA_RESP_DeniedAllSocketsRegistered = $01;
+  DOIP_RA_RESP_DeniedSAMismatch = $02;
+  DOIP_RA_RESP_DeniedSAAlreadyActive = $03;
+  DOIP_RA_RESP_DeniedAuthMissing = $04;
+  DOIP_RA_RESP_DeniedConfirmationRejected = $05;
+  DOIP_RA_RESP_DeniedUnsupportedType = $06;
+  DOIP_RA_RESP_DeniedTLSRequired = $07;
+  DOIP_RA_RESP_Activated = $10;
+  DOIP_RA_RESP_PendingConfirmation = $11;
 
   // ---- Diagnostic-message NACK codes (Table 39) ----
-  DOIP_DM_NACK_InvalidSourceAddress  = $02;
-  DOIP_DM_NACK_UnknownTargetAddress  = $03;
-  DOIP_DM_NACK_DiagnosticTooLarge    = $04;
-  DOIP_DM_NACK_OutOfMemory           = $05;
-  DOIP_DM_NACK_TargetUnreachable     = $06;
-  DOIP_DM_NACK_UnknownNetwork        = $07;
-  DOIP_DM_NACK_TransportProtocolErr  = $08;
+  DOIP_DM_NACK_InvalidSourceAddress = $02;
+  DOIP_DM_NACK_UnknownTargetAddress = $03;
+  DOIP_DM_NACK_DiagnosticTooLarge = $04;
+  DOIP_DM_NACK_OutOfMemory = $05;
+  DOIP_DM_NACK_TargetUnreachable = $06;
+  DOIP_DM_NACK_UnknownNetwork = $07;
+  DOIP_DM_NACK_TransportProtocolErr = $08;
 
   // ---- Power-mode codes (Table 36) ----
-  DOIP_POWER_NotReady     = $00;
-  DOIP_POWER_Ready        = $01;
+  DOIP_POWER_NotReady = $00;
+  DOIP_POWER_Ready = $01;
   DOIP_POWER_NotSupported = $02;
 
   // ---- Node types (Table 33) ----
   DOIP_NODE_TYPE_GATEWAY = $00;
-  DOIP_NODE_TYPE_NODE    = $01;
+  DOIP_NODE_TYPE_NODE = $01;
 
   // ---- "Further action required" (Table 19) ----
-  DOIP_FAR_NoFurtherAction       = $00;
+  DOIP_FAR_NoFurtherAction = $00;
   DOIP_FAR_RoutingActivationReqd = $10;
 
 type
@@ -118,9 +118,9 @@ type
     /// <summary>Logical address of the responding entity.</summary>
     LogicalAddress: Word;
     /// <summary>Entity ID (6 bytes; typically MAC of the gateway).</summary>
-    EID: array[0..5] of Byte;
+    EID: array [0 .. 5] of Byte;
     /// <summary>Group ID (6 bytes).</summary>
-    GID: array[0..5] of Byte;
+    GID: array [0 .. 5] of Byte;
     /// <summary>Further-action-required code (Table 19).</summary>
     FurtherAction: Byte;
     /// <summary>GID sync status (protocol v0x03+; 0 = sync,
@@ -134,7 +134,7 @@ type
   /// <summary>Vehicle ID request (EID-specific) payload 0x0002.</summary>
   TOBDDoIPVehicleIDRequestEID = record
     /// <summary>Entity ID to look up (6 bytes).</summary>
-    EID: array[0..5] of Byte;
+    EID: array [0 .. 5] of Byte;
   end;
 
   /// <summary>Vehicle ID request (VIN-specific) payload 0x0003.</summary>
@@ -205,12 +205,11 @@ type
     /// 0x0005).</summary>
     /// <param name="ARequest">Request record.</param>
     /// <returns>Wire bytes (header + payload).</returns>
-    class function EncodeRoutingActivationRequest(
-      const ARequest: TOBDDoIPRoutingActivationRequest): TBytes; static;
+    class function EncodeRoutingActivationRequest(const ARequest
+      : TOBDDoIPRoutingActivationRequest): TBytes; static;
     /// <summary>Decodes a routing-activation response payload
     /// (without the 8-byte header).</summary>
-    class function DecodeRoutingActivationResponse(
-      const APayload: TBytes;
+    class function DecodeRoutingActivationResponse(const APayload: TBytes;
       out AResponse: TOBDDoIPRoutingActivationResponse): Boolean; static;
 
     // ---- Vehicle ID ----
@@ -219,12 +218,12 @@ type
     class function EncodeVehicleIDRequest: TBytes; static;
     /// <summary>Encodes a vehicle ID request by EID
     /// (payload 0x0002).</summary>
-    class function EncodeVehicleIDRequestEID(
-      const ARequest: TOBDDoIPVehicleIDRequestEID): TBytes; static;
+    class function EncodeVehicleIDRequestEID(const ARequest
+      : TOBDDoIPVehicleIDRequestEID): TBytes; static;
     /// <summary>Encodes a vehicle ID request by VIN
     /// (payload 0x0003).</summary>
-    class function EncodeVehicleIDRequestVIN(
-      const ARequest: TOBDDoIPVehicleIDRequestVIN): TBytes; static;
+    class function EncodeVehicleIDRequestVIN(const ARequest
+      : TOBDDoIPVehicleIDRequestVIN): TBytes; static;
     /// <summary>Decodes a vehicle announcement (payload 0x0004).</summary>
     class function DecodeVehicleAnnouncement(const APayload: TBytes;
       out AResponse: TOBDDoIPVehicleAnnouncement): Boolean; static;
@@ -257,8 +256,8 @@ type
 
     // ---- Diagnostic message ----
     /// <summary>Encodes a diagnostic message (payload 0x8001).</summary>
-    class function EncodeDiagnosticMessage(
-      const AMessage: TOBDDoIPDiagnosticMessage): TBytes; static;
+    class function EncodeDiagnosticMessage(const AMessage
+      : TOBDDoIPDiagnosticMessage): TBytes; static;
     /// <summary>Decodes a diagnostic message (payload 0x8001).</summary>
     class function DecodeDiagnosticMessage(const APayload: TBytes;
       out AMessage: TOBDDoIPDiagnosticMessage): Boolean; static;
@@ -277,8 +276,8 @@ type
     /// <param name="APayloadType">Payload-type code.</param>
     /// <param name="APayload">Payload bytes (may be empty).</param>
     /// <returns>Wire bytes ready to send.</returns>
-    class function PackMessage(APayloadType: Word;
-      const APayload: TBytes): TBytes; static;
+    class function PackMessage(APayloadType: Word; const APayload: TBytes)
+      : TBytes; static;
 
     /// <summary>Splits a buffer into header + payload. Returns False
     /// when the buffer is incomplete or the header fails validation.</summary>
@@ -288,8 +287,7 @@ type
     /// header).</param>
     /// <returns>True when a complete message is present.</returns>
     class function UnpackMessage(const ABuffer: TBytes;
-      out AHeader: TOBDDoIPHeader;
-      out APayload: TBytes): Boolean; static;
+      out AHeader: TOBDDoIPHeader; out APayload: TBytes): Boolean; static;
   end;
 
 implementation
@@ -305,7 +303,7 @@ end;
 procedure WriteCardinalBE(var ABytes: TBytes; AOffset: Integer;
   AValue: Cardinal);
 begin
-  ABytes[AOffset]     := Byte((AValue shr 24) and $FF);
+  ABytes[AOffset] := Byte((AValue shr 24) and $FF);
   ABytes[AOffset + 1] := Byte((AValue shr 16) and $FF);
   ABytes[AOffset + 2] := Byte((AValue shr 8) and $FF);
   ABytes[AOffset + 3] := Byte(AValue and $FF);
@@ -319,9 +317,8 @@ end;
 function ReadCardinalBE(const ABytes: TBytes; AOffset: Integer): Cardinal;
 begin
   Result := (Cardinal(ABytes[AOffset]) shl 24) or
-            (Cardinal(ABytes[AOffset + 1]) shl 16) or
-            (Cardinal(ABytes[AOffset + 2]) shl 8) or
-            Cardinal(ABytes[AOffset + 3]);
+    (Cardinal(ABytes[AOffset + 1]) shl 16) or
+    (Cardinal(ABytes[AOffset + 2]) shl 8) or Cardinal(ABytes[AOffset + 3]);
 end;
 
 procedure CopyToASCIIBytes(const AText: string; var ABytes: TBytes;
@@ -363,7 +360,8 @@ class function TOBDDoIPCodec.UnpackMessage(const ABuffer: TBytes;
   out AHeader: TOBDDoIPHeader; out APayload: TBytes): Boolean;
 begin
   Result := False;
-  if not DecodeDoIPHeader(ABuffer, AHeader) then Exit;
+  if not DecodeDoIPHeader(ABuffer, AHeader) then
+    Exit;
   if Cardinal(Length(ABuffer) - DOIP_HEADER_LENGTH) < AHeader.PayloadLength then
     Exit; // incomplete
   SetLength(APayload, AHeader.PayloadLength);
@@ -372,13 +370,16 @@ begin
   Result := True;
 end;
 
-class function TOBDDoIPCodec.EncodeRoutingActivationRequest(
-  const ARequest: TOBDDoIPRoutingActivationRequest): TBytes;
+class function TOBDDoIPCodec.EncodeRoutingActivationRequest(const ARequest
+  : TOBDDoIPRoutingActivationRequest): TBytes;
 var
   Body: TBytes;
   BodyLen: Integer;
 begin
-  if ARequest.HasOEMData then BodyLen := 11 else BodyLen := 7;
+  if ARequest.HasOEMData then
+    BodyLen := 11
+  else
+    BodyLen := 7;
   SetLength(Body, BodyLen);
   WriteWordBE(Body, 0, ARequest.SourceAddress);
   Body[2] := ARequest.ActivationType;
@@ -388,13 +389,13 @@ begin
   Result := PackMessage(DOIP_PT_RoutingActivationRequest, Body);
 end;
 
-class function TOBDDoIPCodec.DecodeRoutingActivationResponse(
-  const APayload: TBytes;
-  out AResponse: TOBDDoIPRoutingActivationResponse): Boolean;
+class function TOBDDoIPCodec.DecodeRoutingActivationResponse(const APayload
+  : TBytes; out AResponse: TOBDDoIPRoutingActivationResponse): Boolean;
 begin
   Result := False;
-  AResponse := Default(TOBDDoIPRoutingActivationResponse);
-  if Length(APayload) < 9 then Exit;
+  AResponse := Default (TOBDDoIPRoutingActivationResponse);
+  if Length(APayload) < 9 then
+    Exit;
   AResponse.TesterAddress := ReadWordBE(APayload, 0);
   AResponse.EntityAddress := ReadWordBE(APayload, 2);
   AResponse.ResponseCode := APayload[4];
@@ -412,8 +413,8 @@ begin
   Result := PackMessage(DOIP_PT_VehicleIDRequest, nil);
 end;
 
-class function TOBDDoIPCodec.EncodeVehicleIDRequestEID(
-  const ARequest: TOBDDoIPVehicleIDRequestEID): TBytes;
+class function TOBDDoIPCodec.EncodeVehicleIDRequestEID(const ARequest
+  : TOBDDoIPVehicleIDRequestEID): TBytes;
 var
   Body: TBytes;
   I: Integer;
@@ -424,8 +425,8 @@ begin
   Result := PackMessage(DOIP_PT_VehicleIDRequestEID, Body);
 end;
 
-class function TOBDDoIPCodec.EncodeVehicleIDRequestVIN(
-  const ARequest: TOBDDoIPVehicleIDRequestVIN): TBytes;
+class function TOBDDoIPCodec.EncodeVehicleIDRequestVIN(const ARequest
+  : TOBDDoIPVehicleIDRequestVIN): TBytes;
 var
   Body: TBytes;
 begin
@@ -434,16 +435,16 @@ begin
   Result := PackMessage(DOIP_PT_VehicleIDRequestVIN, Body);
 end;
 
-class function TOBDDoIPCodec.DecodeVehicleAnnouncement(
-  const APayload: TBytes;
+class function TOBDDoIPCodec.DecodeVehicleAnnouncement(const APayload: TBytes;
   out AResponse: TOBDDoIPVehicleAnnouncement): Boolean;
 var
   I: Integer;
   VinBytes: TBytes;
 begin
   Result := False;
-  AResponse := Default(TOBDDoIPVehicleAnnouncement);
-  if Length(APayload) < 32 then Exit;
+  AResponse := Default (TOBDDoIPVehicleAnnouncement);
+  if Length(APayload) < 32 then
+    Exit;
   SetLength(VinBytes, 17);
   Move(APayload[0], VinBytes[0], 17);
   AResponse.VIN := TEncoding.ASCII.GetString(VinBytes);
@@ -466,13 +467,13 @@ begin
   Result := PackMessage(DOIP_PT_AliveCheckRequest, nil);
 end;
 
-class function TOBDDoIPCodec.DecodeAliveCheckResponse(
-  const APayload: TBytes;
+class function TOBDDoIPCodec.DecodeAliveCheckResponse(const APayload: TBytes;
   out AResponse: TOBDDoIPAliveCheckResponse): Boolean;
 begin
   Result := False;
-  AResponse := Default(TOBDDoIPAliveCheckResponse);
-  if Length(APayload) < 2 then Exit;
+  AResponse := Default (TOBDDoIPAliveCheckResponse);
+  if Length(APayload) < 2 then
+    Exit;
   AResponse.SourceAddress := ReadWordBE(APayload, 0);
   Result := True;
 end;
@@ -482,13 +483,13 @@ begin
   Result := PackMessage(DOIP_PT_EntityStatusRequest, nil);
 end;
 
-class function TOBDDoIPCodec.DecodeEntityStatusResponse(
-  const APayload: TBytes;
+class function TOBDDoIPCodec.DecodeEntityStatusResponse(const APayload: TBytes;
   out AResponse: TOBDDoIPEntityStatusResponse): Boolean;
 begin
   Result := False;
-  AResponse := Default(TOBDDoIPEntityStatusResponse);
-  if Length(APayload) < 3 then Exit;
+  AResponse := Default (TOBDDoIPEntityStatusResponse);
+  if Length(APayload) < 3 then
+    Exit;
   AResponse.NodeType := APayload[0];
   AResponse.MaxConcurrentSockets := APayload[1];
   AResponse.CurrentlyOpenSockets := APayload[2];
@@ -505,19 +506,19 @@ begin
   Result := PackMessage(DOIP_PT_PowerModeInfoRequest, nil);
 end;
 
-class function TOBDDoIPCodec.DecodePowerModeResponse(
-  const APayload: TBytes;
+class function TOBDDoIPCodec.DecodePowerModeResponse(const APayload: TBytes;
   out AResponse: TOBDDoIPPowerModeResponse): Boolean;
 begin
   Result := False;
-  AResponse := Default(TOBDDoIPPowerModeResponse);
-  if Length(APayload) < 1 then Exit;
+  AResponse := Default (TOBDDoIPPowerModeResponse);
+  if Length(APayload) < 1 then
+    Exit;
   AResponse.PowerMode := APayload[0];
   Result := True;
 end;
 
-class function TOBDDoIPCodec.EncodeDiagnosticMessage(
-  const AMessage: TOBDDoIPDiagnosticMessage): TBytes;
+class function TOBDDoIPCodec.EncodeDiagnosticMessage(const AMessage
+  : TOBDDoIPDiagnosticMessage): TBytes;
 var
   Body: TBytes;
   UserLen: Integer;
@@ -531,13 +532,13 @@ begin
   Result := PackMessage(DOIP_PT_DiagnosticMessage, Body);
 end;
 
-class function TOBDDoIPCodec.DecodeDiagnosticMessage(
-  const APayload: TBytes;
+class function TOBDDoIPCodec.DecodeDiagnosticMessage(const APayload: TBytes;
   out AMessage: TOBDDoIPDiagnosticMessage): Boolean;
 begin
   Result := False;
-  AMessage := Default(TOBDDoIPDiagnosticMessage);
-  if Length(APayload) < 4 then Exit;
+  AMessage := Default (TOBDDoIPDiagnosticMessage);
+  if Length(APayload) < 4 then
+    Exit;
   AMessage.SourceAddress := ReadWordBE(APayload, 0);
   AMessage.TargetAddress := ReadWordBE(APayload, 2);
   if Length(APayload) > 4 then
@@ -552,8 +553,9 @@ class function TOBDDoIPCodec.DecodeDiagnosticAck(const APayload: TBytes;
   out AAck: TOBDDoIPDiagnosticAck): Boolean;
 begin
   Result := False;
-  AAck := Default(TOBDDoIPDiagnosticAck);
-  if Length(APayload) < 5 then Exit;
+  AAck := Default (TOBDDoIPDiagnosticAck);
+  if Length(APayload) < 5 then
+    Exit;
   AAck.SourceAddress := ReadWordBE(APayload, 0);
   AAck.TargetAddress := ReadWordBE(APayload, 2);
   AAck.AckCode := APayload[4];

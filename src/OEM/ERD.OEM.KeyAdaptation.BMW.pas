@@ -1,39 +1,39 @@
-//------------------------------------------------------------------------------
-//  ERD.OEM.KeyAdaptation.BMW
+// ------------------------------------------------------------------------------
+// ERD.OEM.KeyAdaptation.BMW
 //
-//  BMW EWS / CAS / FEM / BDC key adaptation. Modern BMWs
-//  (F-series CAS4 / G-series FEM_BDC) require an ISTA / E-Sys
-//  PIN (ISN) plus the on-bus security-access seed/key
-//  exchange. The component drives the documented
-//  E-Sys / Tool32 procedure: SecurityAccess on the FEM
-//  module, then routine 0x4001 (add key) / 0x4002 (clear keys).
+// BMW EWS / CAS / FEM / BDC key adaptation. Modern BMWs
+// (F-series CAS4 / G-series FEM_BDC) require an ISTA / E-Sys
+// PIN (ISN) plus the on-bus security-access seed/key
+// exchange. The component drives the documented
+// E-Sys / Tool32 procedure: SecurityAccess on the FEM
+// module, then routine 0x4001 (add key) / 0x4002 (clear keys).
 //
-//  Pre-CAS3 platforms (E36 / E39 / E46 / E53 EWS-3 / EWS-4)
-//  use the older EWS protocol that this component does NOT
-//  drive over OBD - those need an EWS adapter / soldered
-//  pinout. ListSlots will report "EWS legacy - not OBD-
-//  addressable".
+// Pre-CAS3 platforms (E36 / E39 / E46 / E53 EWS-3 / EWS-4)
+// use the older EWS protocol that this component does NOT
+// drive over OBD - those need an EWS adapter / soldered
+// pinout. ListSlots will report "EWS legacy - not OBD-
+// addressable".
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT - see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT - see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.OEM.KeyAdaptation.BMW;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   ERD.Protocol.Types,
   ERD.OEM.KeyAdaptation.Types,
   ERD.OEM.KeyAdaptation.Base;
@@ -56,10 +56,10 @@ uses
   ERD.Protocol;
 
 const
-  ROUTINE_BMW_ADD_KEY    = $4001;
+  ROUTINE_BMW_ADD_KEY = $4001;
   ROUTINE_BMW_CLEAR_KEYS = $4002;
   // FEM/BDC slot inventory DID.
-  DID_BMW_KEY_SLOTS      = $4400;
+  DID_BMW_KEY_SLOTS = $4400;
 
 function TOBDKeyAdaptationBMW.RequiresChassisCode: Boolean;
 begin
@@ -68,28 +68,24 @@ end;
 
 function TOBDKeyAdaptationBMW.DoListSlots: TOBDKeyAdaptResult;
 var
-  Req:  TOBDRequest;
+  Req: TOBDRequest;
   Resp: TOBDResponse;
-  I:    Integer;
+  I: Integer;
 begin
-  Result := Default(TOBDKeyAdaptResult);
+  Result := Default (TOBDKeyAdaptResult);
   // Reject EWS-era chassis codes upfront; the legacy EWS
   // protocol isn't OBD-addressable.
-  if (LowerCase(ChassisCode) = 'e36') or
-     (LowerCase(ChassisCode) = 'e39') or
-     (LowerCase(ChassisCode) = 'e46') or
-     (LowerCase(ChassisCode) = 'e53') then
+  if (LowerCase(ChassisCode) = 'e36') or (LowerCase(ChassisCode) = 'e39') or
+    (LowerCase(ChassisCode) = 'e46') or (LowerCase(ChassisCode) = 'e53') then
   begin
-    Result.Message :=
-      'BMW EWS-era chassis (' + ChassisCode + ') is not ' +
+    Result.Message := 'BMW EWS-era chassis (' + ChassisCode + ') is not ' +
       'OBD-addressable for key adaptation - needs EWS pinout';
     Exit;
   end;
   try
     Req := MakeOBDRequest;
     Req.ServiceID := $22;
-    Req.Data := TBytes.Create(Hi(DID_BMW_KEY_SLOTS),
-                              Lo(DID_BMW_KEY_SLOTS));
+    Req.Data := TBytes.Create(Hi(DID_BMW_KEY_SLOTS), Lo(DID_BMW_KEY_SLOTS));
     Resp := RequireProtocol.Send(Req);
     if Resp.IsNegative then
     begin
@@ -107,7 +103,7 @@ begin
     SetLength(Result.Slots, Length(Resp.Data));
     for I := 0 to High(Resp.Data) do
     begin
-      Result.Slots[I].Index  := I + 1;
+      Result.Slots[I].Index := I + 1;
       Result.Slots[I].Filled := Resp.Data[I] <> $00;
       if Result.Slots[I].Filled then
         Result.Slots[I].Label_ := Format('FBS=0x%.2X', [Resp.Data[I]]);
@@ -121,10 +117,10 @@ end;
 
 function TOBDKeyAdaptationBMW.DoAddKey: TOBDKeyAdaptResult;
 var
-  Req:  TOBDRequest;
+  Req: TOBDRequest;
   Resp: TOBDResponse;
 begin
-  Result := Default(TOBDKeyAdaptResult);
+  Result := Default (TOBDKeyAdaptResult);
   if PIN = '' then
   begin
     Result.Message := 'BMW ISN (Individual Serial Number) required';
@@ -132,19 +128,15 @@ begin
   end;
   if Length(PIN) <> 32 then
   begin
-    Result.Message :=
-      'BMW ISN must be 32 hex chars (got ' +
+    Result.Message := 'BMW ISN must be 32 hex chars (got ' +
       IntToStr(Length(PIN)) + ')';
     Exit;
   end;
   try
     Req := MakeOBDRequest;
     Req.ServiceID := $31;
-    Req.Data := TBytes.Create(
-      $01,
-      Hi(ROUTINE_BMW_ADD_KEY),
-      Lo(ROUTINE_BMW_ADD_KEY)
-    ) + TEncoding.ASCII.GetBytes(PIN);
+    Req.Data := TBytes.Create($01, Hi(ROUTINE_BMW_ADD_KEY),
+      Lo(ROUTINE_BMW_ADD_KEY)) + TEncoding.ASCII.GetBytes(PIN);
     Resp := RequireProtocol.Send(Req);
     if Resp.IsNegative then
     begin
@@ -159,22 +151,20 @@ begin
   end;
 end;
 
-function TOBDKeyAdaptationBMW.DoClearOneSlot(
-  ASlotIndex: Byte): TOBDKeyAdaptResult;
+function TOBDKeyAdaptationBMW.DoClearOneSlot(ASlotIndex: Byte)
+  : TOBDKeyAdaptResult;
 var
-  Req:  TOBDRequest;
+  Req: TOBDRequest;
   Resp: TOBDResponse;
 begin
-  Result := Default(TOBDKeyAdaptResult);
+  Result := Default (TOBDKeyAdaptResult);
   Result.SlotIndex := ASlotIndex;
   // FEM exposes a per-slot disable via routine 0x4003 with a
   // single slot-index byte payload.
   try
     Req := MakeOBDRequest;
     Req.ServiceID := $31;
-    Req.Data := TBytes.Create(
-      $01, $40, $03, ASlotIndex
-    );
+    Req.Data := TBytes.Create($01, $40, $03, ASlotIndex);
     Resp := RequireProtocol.Send(Req);
     if Resp.IsNegative then
     begin
@@ -191,18 +181,15 @@ end;
 
 function TOBDKeyAdaptationBMW.DoClearAllKeys: TOBDKeyAdaptResult;
 var
-  Req:  TOBDRequest;
+  Req: TOBDRequest;
   Resp: TOBDResponse;
 begin
-  Result := Default(TOBDKeyAdaptResult);
+  Result := Default (TOBDKeyAdaptResult);
   try
     Req := MakeOBDRequest;
     Req.ServiceID := $31;
-    Req.Data := TBytes.Create(
-      $01,
-      Hi(ROUTINE_BMW_CLEAR_KEYS),
-      Lo(ROUTINE_BMW_CLEAR_KEYS)
-    );
+    Req.Data := TBytes.Create($01, Hi(ROUTINE_BMW_CLEAR_KEYS),
+      Lo(ROUTINE_BMW_CLEAR_KEYS));
     Resp := RequireProtocol.Send(Req);
     if Resp.IsNegative then
     begin
@@ -219,11 +206,10 @@ end;
 
 function TOBDKeyAdaptationBMW.DoCheckPin: TOBDKeyAdaptResult;
 begin
-  Result := Default(TOBDKeyAdaptResult);
+  Result := Default (TOBDKeyAdaptResult);
   if Length(PIN) <> 32 then
   begin
-    Result.Message :=
-      'BMW ISN must be 32 hex chars (got ' +
+    Result.Message := 'BMW ISN must be 32 hex chars (got ' +
       IntToStr(Length(PIN)) + ')';
     Exit;
   end;

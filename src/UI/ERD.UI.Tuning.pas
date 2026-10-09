@@ -1,32 +1,32 @@
-//------------------------------------------------------------------------------
-//  ERD.UI.Tuning
+﻿// ------------------------------------------------------------------------------
+// ERD.UI.Tuning
 //
-//  Tuning / calibration visuals:
+// Tuning / calibration visuals:
 //
-//    TOBDXYHeatmap     One PID vs another as a 2D colour-coded
-//                      density map. Push samples in pairs; the
-//                      grid auto-bins.
-//    TOBDTorqueRPMMap  RPM × load → torque output map. 2D
-//                      colour grid for now (3D surface a
-//                      future enhancement).
-//    TOBDRunRecorder   Event-windowed capture (1 s pre / 5 s
-//                      post). Pairs with TOBDDragRun to capture
-//                      a sliding-window of samples around the
-//                      arming moment.
+// TOBDXYHeatmap     One PID vs another as a 2D colour-coded
+// density map. Push samples in pairs; the
+// grid auto-bins.
+// TOBDTorqueRPMMap  RPM × load → torque output map. 2D
+// colour grid for now (3D surface a
+// future enhancement).
+// TOBDRunRecorder   Event-windowed capture (1 s pre / 5 s
+// post). Pairs with TOBDDragRun to capture
+// a sliding-window of samples around the
+// arming moment.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.UI.Tuning;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -36,10 +36,10 @@ uses
   Winapi.Windows,
   Winapi.GDIPAPI,
   Winapi.GDIPOBJ,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   System.Bindings.Helper, Data.Bind.Components,
   Vcl.Controls,
   Vcl.Graphics,
@@ -54,13 +54,13 @@ type
   /// cell by hit count.</summary>
   TOBDXYHeatmap = class(TOBDCustomControl)
   strict private
-    FBins:    array of array of Integer;
-    FBinsX:   Integer;
-    FBinsY:   Integer;
-    FXMin:    Double;
-    FXMax:    Double;
-    FYMin:    Double;
-    FYMax:    Double;
+    FBins: array of array of Integer;
+    FBinsX: Integer;
+    FBinsY: Integer;
+    FXMin: Double;
+    FXMax: Double;
+    FYMin: Double;
+    FYMax: Double;
     FMaxHits: Integer;
     procedure ResizeBins;
     procedure SetBinsX(AValue: Integer);
@@ -82,11 +82,9 @@ type
     procedure Reset;
   published
     /// <summary>Horizontal bin count. Default 32.</summary>
-    property BinsX: Integer
-      read FBinsX write SetBinsX default 32;
+    property BinsX: Integer read FBinsX write SetBinsX default 32;
     /// <summary>Vertical bin count. Default 24.</summary>
-    property BinsY: Integer
-      read FBinsY write SetBinsY default 24;
+    property BinsY: Integer read FBinsY write SetBinsY default 24;
     /// <summary>Lower bound on the X axis (sample units).
     /// </summary>
     property XMin: Double read FXMin write SetXMin;
@@ -103,8 +101,8 @@ type
 
   /// <summary>Torque map cell.</summary>
   TOBDTorqueCell = record
-    RPM:      Double;
-    Load:     Double;
+    RPM: Double;
+    Load: Double;
     TorqueNm: Double;
   end;
 
@@ -113,8 +111,8 @@ type
   /// </summary>
   TOBDTorqueRPMMap = class(TOBDCustomControl)
   strict private
-    FCells:    TList<TOBDTorqueCell>;
-    FRPMMin, FRPMMax:   Double;
+    FCells: TList<TOBDTorqueCell>;
+    FRPMMin, FRPMMax: Double;
     FLoadMin, FLoadMax: Double;
     FMaxTorque: Double;
     procedure NotifyBindings;
@@ -122,7 +120,7 @@ type
     procedure PaintControl(ACanvas: TCanvas); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
     /// <summary>Replace the cell list with the supplied array
     /// and repaint. Auto-updates the internal max-torque
     /// watermark used to scale colour intensity.</summary>
@@ -130,18 +128,18 @@ type
     /// <summary>Remove all cells and repaint.</summary>
     procedure Clear;
     /// <summary>Number of cells currently stored.</summary>
-    function  CellCount: Integer;
+    function CellCount: Integer;
   published
     /// <summary>Lower bound of the RPM axis.</summary>
-    property RPMMin:    Double read FRPMMin    write FRPMMin;
+    property RPMMin: Double read FRPMMin write FRPMMin;
     /// <summary>Upper bound of the RPM axis.</summary>
-    property RPMMax:    Double read FRPMMax    write FRPMMax;
+    property RPMMax: Double read FRPMMax write FRPMMax;
     /// <summary>Lower bound of the load axis (typically 0..100 %).
     /// </summary>
-    property LoadMin:   Double read FLoadMin   write FLoadMin;
+    property LoadMin: Double read FLoadMin write FLoadMin;
     /// <summary>Upper bound of the load axis (typically 0..100 %).
     /// </summary>
-    property LoadMax:   Double read FLoadMax   write FLoadMax;
+    property LoadMax: Double read FLoadMax write FLoadMax;
     /// <summary>Reference torque (Nm) used to scale cell
     /// colours. 0 = auto-derive from the loaded cells.</summary>
     property MaxTorque: Double read FMaxTorque write FMaxTorque;
@@ -151,7 +149,7 @@ type
   /// </summary>
   TOBDRunSample = record
     TimeMs: Cardinal;
-    Value:  Double;
+    Value: Double;
   end;
 
   /// <summary>Sliding-window event recorder. Maintains a
@@ -161,12 +159,12 @@ type
   /// the captured slice via <see cref="Samples"/>.</summary>
   TOBDRunRecorder = class(TOBDCustomControl)
   strict private
-    FPreMs:      Cardinal;
-    FPostMs:     Cardinal;
-    FBuffer:     TList<TOBDRunSample>;
-    FTriggered:  Boolean;
-    FTriggerMs:  Cardinal;
-    FFinished:   Boolean;
+    FPreMs: Cardinal;
+    FPostMs: Cardinal;
+    FBuffer: TList<TOBDRunSample>;
+    FTriggered: Boolean;
+    FTriggerMs: Cardinal;
+    FFinished: Boolean;
     procedure SetPreMs(AValue: Cardinal);
     procedure SetPostMs(AValue: Cardinal);
     procedure NotifyBindings;
@@ -175,7 +173,7 @@ type
     procedure PaintControl(ACanvas: TCanvas); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
     /// <summary>Pushes one (time, value) sample. Triggers the
     /// post-window timer transparently if pre-trigger has
     /// fired.</summary>
@@ -188,17 +186,17 @@ type
     procedure Reset;
     /// <summary>Captured slice (pre + post window). Empty
     /// until <see cref="Finished"/> goes True.</summary>
-    function  Samples: TArray<TOBDRunSample>;
+    function Samples: TArray<TOBDRunSample>;
     /// <summary>True once <see cref="Trigger"/> has fired and
     /// the post-window is still filling.</summary>
     property Triggered: Boolean read FTriggered;
     /// <summary>True once the post-window has elapsed and
     /// <see cref="Samples"/> is final.</summary>
-    property Finished:  Boolean read FFinished;
+    property Finished: Boolean read FFinished;
   published
     /// <summary>Pre-trigger window in milliseconds. Default
     /// 1000 ms.</summary>
-    property PreMs:  Cardinal read FPreMs  write SetPreMs default 1000;
+    property PreMs: Cardinal read FPreMs write SetPreMs default 1000;
     /// <summary>Post-trigger window in milliseconds. Default
     /// 5000 ms.</summary>
     property PostMs: Cardinal read FPostMs write SetPostMs default 5000;
@@ -211,8 +209,10 @@ var
   R, G, B: Byte;
 begin
   // Cold (blue) → warm (red) gradient via three stops.
-  if T < 0 then T := 0;
-  if T > 1 then T := 1;
+  if T < 0 then
+    T := 0;
+  if T > 1 then
+    T := 1;
   if T < 0.5 then
   begin
     R := Round(40 + (T * 2.0) * 200);
@@ -233,18 +233,21 @@ end;
 constructor TOBDXYHeatmap.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 320;
+  Width := 320;
   Height := 200;
   FBinsX := 32;
   FBinsY := 24;
-  FXMin  := 0; FXMax := 100;
-  FYMin  := 0; FYMax := 100;
+  FXMin := 0;
+  FXMax := 100;
+  FYMin := 0;
+  FYMax := 100;
   ResizeBins;
 end;
 
 procedure TOBDXYHeatmap.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -252,7 +255,8 @@ begin
 end;
 
 procedure TOBDXYHeatmap.ResizeBins;
-var I: Integer;
+var
+  I: Integer;
 begin
   SetLength(FBins, FBinsX);
   for I := 0 to FBinsX - 1 do
@@ -262,42 +266,60 @@ end;
 
 procedure TOBDXYHeatmap.SetBinsX(AValue: Integer);
 begin
-  if AValue < 4 then AValue := 4;
-  if AValue > 512 then AValue := 512;
-  if FBinsX = AValue then Exit;
-  FBinsX := AValue; ResizeBins; Repaint;
+  if AValue < 4 then
+    AValue := 4;
+  if AValue > 512 then
+    AValue := 512;
+  if FBinsX = AValue then
+    Exit;
+  FBinsX := AValue;
+  ResizeBins;
+  Repaint;
 end;
 
 procedure TOBDXYHeatmap.SetBinsY(AValue: Integer);
 begin
-  if AValue < 4 then AValue := 4;
-  if AValue > 512 then AValue := 512;
-  if FBinsY = AValue then Exit;
-  FBinsY := AValue; ResizeBins; Repaint;
+  if AValue < 4 then
+    AValue := 4;
+  if AValue > 512 then
+    AValue := 512;
+  if FBinsY = AValue then
+    Exit;
+  FBinsY := AValue;
+  ResizeBins;
+  Repaint;
 end;
 
 procedure TOBDXYHeatmap.SetXMin(AValue: Double);
 begin
-  if SameValue(FXMin, AValue) then Exit;
-  FXMin := AValue; Repaint;
+  if SameValue(FXMin, AValue) then
+    Exit;
+  FXMin := AValue;
+  Repaint;
 end;
 
 procedure TOBDXYHeatmap.SetXMax(AValue: Double);
 begin
-  if SameValue(FXMax, AValue) then Exit;
-  FXMax := AValue; Repaint;
+  if SameValue(FXMax, AValue) then
+    Exit;
+  FXMax := AValue;
+  Repaint;
 end;
 
 procedure TOBDXYHeatmap.SetYMin(AValue: Double);
 begin
-  if SameValue(FYMin, AValue) then Exit;
-  FYMin := AValue; Repaint;
+  if SameValue(FYMin, AValue) then
+    Exit;
+  FYMin := AValue;
+  Repaint;
 end;
 
 procedure TOBDXYHeatmap.SetYMax(AValue: Double);
 begin
-  if SameValue(FYMax, AValue) then Exit;
-  FYMax := AValue; Repaint;
+  if SameValue(FYMax, AValue) then
+    Exit;
+  FYMax := AValue;
+  Repaint;
 end;
 
 procedure TOBDXYHeatmap.PushSample(AX, AY: Double);
@@ -305,20 +327,25 @@ var
   Bx, By: Integer;
   Hits: Integer;
 begin
-  if (FXMax <= FXMin) or (FYMax <= FYMin) then Exit;
+  if (FXMax <= FXMin) or (FYMax <= FYMin) then
+    Exit;
   Bx := Trunc((AX - FXMin) / (FXMax - FXMin) * FBinsX);
   By := Trunc((AY - FYMin) / (FYMax - FYMin) * FBinsY);
-  if (Bx < 0) or (Bx >= FBinsX) then Exit;
-  if (By < 0) or (By >= FBinsY) then Exit;
+  if (Bx < 0) or (Bx >= FBinsX) then
+    Exit;
+  if (By < 0) or (By >= FBinsY) then
+    Exit;
   Inc(FBins[Bx, By]);
   Hits := FBins[Bx, By];
-  if Hits > FMaxHits then FMaxHits := Hits;
+  if Hits > FMaxHits then
+    FMaxHits := Hits;
   NotifyBindings;
   Repaint;
 end;
 
 procedure TOBDXYHeatmap.Reset;
-var I, J: Integer;
+var
+  I, J: Integer;
 begin
   for I := 0 to FBinsX - 1 do
     for J := 0 to FBinsY - 1 do
@@ -338,10 +365,12 @@ var
   Cell: TGPRectF;
   T: Single;
 begin
-  if (FBinsX <= 0) or (FBinsY <= 0) then Exit;
-  if FMaxHits <= 0 then Exit;
+  if (FBinsX <= 0) or (FBinsY <= 0) then
+    Exit;
+  if FMaxHits <= 0 then
+    Exit;
   Pad := ScaleValue(4);
-  CellW := (Width  - 2 * Pad) / FBinsX;
+  CellW := (Width - 2 * Pad) / FBinsX;
   CellH := (Height - 2 * Pad) / FBinsY;
 
   Graphics := TGPGraphics.Create(ACanvas.Handle);
@@ -350,12 +379,13 @@ begin
     for I := 0 to FBinsX - 1 do
       for J := 0 to FBinsY - 1 do
       begin
-        if FBins[I, J] = 0 then Continue;
+        if FBins[I, J] = 0 then
+          Continue;
         T := FBins[I, J] / FMaxHits;
         Cell.X := Pad + I * CellW;
         // Y is inverted so high values render at the top.
         Cell.Y := Pad + (FBinsY - 1 - J) * CellH;
-        Cell.Width  := CellW;
+        Cell.Width := CellW;
         Cell.Height := CellH;
         Brush := TGPSolidBrush.Create(ColorToARGB(HeatColor(T)));
         try
@@ -374,11 +404,13 @@ end;
 constructor TOBDTorqueRPMMap.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 320;
+  Width := 320;
   Height := 200;
   FCells := TList<TOBDTorqueCell>.Create;
-  FRPMMin := 800;  FRPMMax := 7000;
-  FLoadMin := 0;   FLoadMax := 100;
+  FRPMMin := 800;
+  FRPMMax := 7000;
+  FLoadMin := 0;
+  FLoadMax := 100;
   FMaxTorque := 500;
 end;
 
@@ -390,19 +422,21 @@ end;
 
 procedure TOBDTorqueRPMMap.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
   end;
 end;
 
-procedure TOBDTorqueRPMMap.SetCells(
-  const ACells: array of TOBDTorqueCell);
-var I: Integer;
+procedure TOBDTorqueRPMMap.SetCells(const ACells: array of TOBDTorqueCell);
+var
+  I: Integer;
 begin
   FCells.Clear;
-  for I := 0 to High(ACells) do FCells.Add(ACells[I]);
+  for I := 0 to High(ACells) do
+    FCells.Add(ACells[I]);
   NotifyBindings;
   Repaint;
 end;
@@ -429,26 +463,29 @@ var
   X, Y, W, H: Single;
   T: Single;
 begin
-  if FCells.Count = 0 then Exit;
-  if FMaxTorque <= 0 then Exit;
+  if FCells.Count = 0 then
+    Exit;
+  if FMaxTorque <= 0 then
+    Exit;
   Pad := ScaleValue(8);
   PlotW := Width - 2 * Pad;
   PlotH := Height - 2 * Pad;
-  if (PlotW <= 0) or (PlotH <= 0) then Exit;
+  if (PlotW <= 0) or (PlotH <= 0) then
+    Exit;
 
-  W := PlotW / 16;     // assumed grid size for rendering size
+  W := PlotW / 16; // assumed grid size for rendering size
   H := PlotH / 12;
 
   Graphics := TGPGraphics.Create(ACanvas.Handle);
   try
     for C in FCells do
     begin
-      if FRPMMax <= FRPMMin then Continue;
-      if FLoadMax <= FLoadMin then Continue;
-      X := Pad + (C.RPM  - FRPMMin)  /
-             (FRPMMax - FRPMMin)   * (PlotW - W);
-      Y := Pad + (FLoadMax - C.Load) /
-             (FLoadMax - FLoadMin) * (PlotH - H);
+      if FRPMMax <= FRPMMin then
+        Continue;
+      if FLoadMax <= FLoadMin then
+        Continue;
+      X := Pad + (C.RPM - FRPMMin) / (FRPMMax - FRPMMin) * (PlotW - W);
+      Y := Pad + (FLoadMax - C.Load) / (FLoadMax - FLoadMin) * (PlotH - H);
       T := Single(C.TorqueNm / FMaxTorque);
       Brush := TGPSolidBrush.Create(ColorToARGB(HeatColor(T)));
       try
@@ -467,10 +504,10 @@ end;
 constructor TOBDRunRecorder.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 320;
+  Width := 320;
   Height := 80;
   FBuffer := TList<TOBDRunSample>.Create;
-  FPreMs  := 1000;
+  FPreMs := 1000;
   FPostMs := 5000;
 end;
 
@@ -482,7 +519,8 @@ end;
 
 procedure TOBDRunRecorder.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -491,15 +529,19 @@ end;
 
 procedure TOBDRunRecorder.SetPreMs(AValue: Cardinal);
 begin
-  if AValue < 100 then AValue := 100;
-  if FPreMs = AValue then Exit;
+  if AValue < 100 then
+    AValue := 100;
+  if FPreMs = AValue then
+    Exit;
   FPreMs := AValue;
 end;
 
 procedure TOBDRunRecorder.SetPostMs(AValue: Cardinal);
 begin
-  if AValue < 100 then AValue := 100;
-  if FPostMs = AValue then Exit;
+  if AValue < 100 then
+    AValue := 100;
+  if FPostMs = AValue then
+    Exit;
   FPostMs := AValue;
 end;
 
@@ -507,20 +549,20 @@ procedure TOBDRunRecorder.TrimPreWindow(ATimeMs: Cardinal);
 var
   Cutoff: Int64;
 begin
-  if FTriggered then Exit;
+  if FTriggered then
+    Exit;
   Cutoff := Int64(ATimeMs) - Int64(FPreMs);
   while (FBuffer.Count > 0) and
-        (FBuffer[0].TimeMs < Cardinal(System.Math.Max(Cutoff, 0))) do
+    (FBuffer[0].TimeMs < Cardinal(System.Math.Max(Cutoff, 0))) do
     FBuffer.Delete(0);
 end;
 
-procedure TOBDRunRecorder.PushSample(ATimeMs: Cardinal;
-  AValue: Double);
+procedure TOBDRunRecorder.PushSample(ATimeMs: Cardinal; AValue: Double);
 var
   S: TOBDRunSample;
 begin
   S.TimeMs := ATimeMs;
-  S.Value  := AValue;
+  S.Value := AValue;
   FBuffer.Add(S);
   TrimPreWindow(ATimeMs);
   if FTriggered and not FFinished then
@@ -536,7 +578,8 @@ end;
 
 procedure TOBDRunRecorder.Trigger;
 begin
-  if FTriggered then Exit;
+  if FTriggered then
+    Exit;
   FTriggered := True;
   if FBuffer.Count > 0 then
     FTriggerMs := FBuffer[FBuffer.Count - 1].TimeMs
@@ -550,7 +593,7 @@ procedure TOBDRunRecorder.Reset;
 begin
   FBuffer.Clear;
   FTriggered := False;
-  FFinished  := False;
+  FFinished := False;
   FTriggerMs := 0;
   NotifyBindings;
   Repaint;

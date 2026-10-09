@@ -1,39 +1,39 @@
-//------------------------------------------------------------------------------
-//  ERD.OEM.KeyAdaptation.Toyota
+// ------------------------------------------------------------------------------
+// ERD.OEM.KeyAdaptation.Toyota
 //
-//  Toyota / Lexus smart-key (SKID / SmartKey ECU) adaptation.
+// Toyota / Lexus smart-key (SKID / SmartKey ECU) adaptation.
 //
-//  Two procedures:
-//    - Master-key timing dance (older platforms; pre-2016
-//      Auris / Camry / RAV4 etc.) - the host needs the
-//      "all-keys-lost" master key to authorise.
-//    - PIN-required smart-key add via SK ECU routine 0x0301
-//      (post-2016 Lexus / Toyota with smart key).
+// Two procedures:
+// - Master-key timing dance (older platforms; pre-2016
+// Auris / Camry / RAV4 etc.) - the host needs the
+// "all-keys-lost" master key to authorise.
+// - PIN-required smart-key add via SK ECU routine 0x0301
+// (post-2016 Lexus / Toyota with smart key).
 //
-//  Routine IDs sourced from Techstream / OPCOM-Toyota community
-//  decode notes. ChassisCode lookup against
-//  catalogs/key-platforms-toyota.json picks the variant.
+// Routine IDs sourced from Techstream / OPCOM-Toyota community
+// decode notes. ChassisCode lookup against
+// catalogs/key-platforms-toyota.json picks the variant.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT - see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT - see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.OEM.KeyAdaptation.Toyota;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   ERD.Protocol.Types,
   ERD.OEM.KeyAdaptation.Types,
   ERD.OEM.KeyAdaptation.Base;
@@ -56,10 +56,10 @@ uses
   ERD.Protocol;
 
 const
-  ROUTINE_SK_ADD          = $0301;
-  ROUTINE_SK_DELETE_ALL   = $0302;
+  ROUTINE_SK_ADD = $0301;
+  ROUTINE_SK_DELETE_ALL = $0302;
   // Smart-key slot-fill bitmap.
-  DID_SK_SLOT_BITMAP      = $A101;
+  DID_SK_SLOT_BITMAP = $A101;
 
 function TOBDKeyAdaptationToyota.RequiresChassisCode: Boolean;
 begin
@@ -68,22 +68,20 @@ end;
 
 function TOBDKeyAdaptationToyota.DoListSlots: TOBDKeyAdaptResult;
 var
-  Req:  TOBDRequest;
+  Req: TOBDRequest;
   Resp: TOBDResponse;
-  I:    Integer;
+  I: Integer;
   Bitmap: Byte;
 begin
-  Result := Default(TOBDKeyAdaptResult);
+  Result := Default (TOBDKeyAdaptResult);
   try
     Req := MakeOBDRequest;
     Req.ServiceID := $22;
-    Req.Data := TBytes.Create(Hi(DID_SK_SLOT_BITMAP),
-                              Lo(DID_SK_SLOT_BITMAP));
+    Req.Data := TBytes.Create(Hi(DID_SK_SLOT_BITMAP), Lo(DID_SK_SLOT_BITMAP));
     Resp := RequireProtocol.Send(Req);
     if Resp.IsNegative then
     begin
-      Result.Message := Format('SK NRC 0x%.2X - %s',
-        [Resp.NRC, Resp.NRCText]);
+      Result.Message := Format('SK NRC 0x%.2X - %s', [Resp.NRC, Resp.NRCText]);
       Exit;
     end;
     if Length(Resp.Data) < 1 then
@@ -96,7 +94,7 @@ begin
     SetLength(Result.Slots, 6);
     for I := 0 to 5 do
     begin
-      Result.Slots[I].Index  := I + 1;
+      Result.Slots[I].Index := I + 1;
       Result.Slots[I].Filled := (Bitmap and (1 shl I)) <> 0;
     end;
     Result.Success := True;
@@ -108,10 +106,10 @@ end;
 
 function TOBDKeyAdaptationToyota.DoAddKey: TOBDKeyAdaptResult;
 var
-  Req:  TOBDRequest;
+  Req: TOBDRequest;
   Resp: TOBDResponse;
 begin
-  Result := Default(TOBDKeyAdaptResult);
+  Result := Default (TOBDKeyAdaptResult);
   if PIN = '' then
   begin
     Result.Message := 'PIN (master / smart-key seed) required';
@@ -120,11 +118,8 @@ begin
   try
     Req := MakeOBDRequest;
     Req.ServiceID := $31;
-    Req.Data := TBytes.Create(
-      $01,
-      Hi(ROUTINE_SK_ADD),
-      Lo(ROUTINE_SK_ADD)
-    ) + TEncoding.ASCII.GetBytes(PIN);
+    Req.Data := TBytes.Create($01, Hi(ROUTINE_SK_ADD), Lo(ROUTINE_SK_ADD)) +
+      TEncoding.ASCII.GetBytes(PIN);
     Resp := RequireProtocol.Send(Req);
     if Resp.IsNegative then
     begin
@@ -139,10 +134,10 @@ begin
   end;
 end;
 
-function TOBDKeyAdaptationToyota.DoClearOneSlot(
-  ASlotIndex: Byte): TOBDKeyAdaptResult;
+function TOBDKeyAdaptationToyota.DoClearOneSlot(ASlotIndex: Byte)
+  : TOBDKeyAdaptResult;
 begin
-  Result := Default(TOBDKeyAdaptResult);
+  Result := Default (TOBDKeyAdaptResult);
   Result.SlotIndex := ASlotIndex;
   Result.Message :=
     'Toyota SK does not expose per-slot delete - use ClearAllKeys';
@@ -150,18 +145,15 @@ end;
 
 function TOBDKeyAdaptationToyota.DoClearAllKeys: TOBDKeyAdaptResult;
 var
-  Req:  TOBDRequest;
+  Req: TOBDRequest;
   Resp: TOBDResponse;
 begin
-  Result := Default(TOBDKeyAdaptResult);
+  Result := Default (TOBDKeyAdaptResult);
   try
     Req := MakeOBDRequest;
     Req.ServiceID := $31;
-    Req.Data := TBytes.Create(
-      $01,
-      Hi(ROUTINE_SK_DELETE_ALL),
-      Lo(ROUTINE_SK_DELETE_ALL)
-    ) + TEncoding.ASCII.GetBytes(PIN);
+    Req.Data := TBytes.Create($01, Hi(ROUTINE_SK_DELETE_ALL),
+      Lo(ROUTINE_SK_DELETE_ALL)) + TEncoding.ASCII.GetBytes(PIN);
     Resp := RequireProtocol.Send(Req);
     if Resp.IsNegative then
     begin
@@ -178,7 +170,7 @@ end;
 
 function TOBDKeyAdaptationToyota.DoCheckPin: TOBDKeyAdaptResult;
 begin
-  Result := Default(TOBDKeyAdaptResult);
+  Result := Default (TOBDKeyAdaptResult);
   if PIN = '' then
   begin
     Result.Message := 'PIN required';
@@ -186,7 +178,7 @@ begin
   end;
   // Toyota master-key seed is typically 8 hex chars; smart-key
   // certificate is 16. Accept either.
-  if not ((Length(PIN) = 8) or (Length(PIN) = 16)) then
+  if not((Length(PIN) = 8) or (Length(PIN) = 16)) then
   begin
     Result.Message :=
       'Toyota PIN must be 8 (master-key) or 16 (smart-key cert) ' +

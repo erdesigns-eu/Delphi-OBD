@@ -1,41 +1,41 @@
-//------------------------------------------------------------------------------
-//  ERD.Protocol.ISO9141
+﻿// ------------------------------------------------------------------------------
+// ERD.Protocol.ISO9141
 //
-//  ISO 9141-2 K-line foundation. The wire-init dance (5-baud
-//  initialisation, key bytes 08 08 / 94 94, address inversion) lives
-//  on the adapter; this unit only formats the request bytes (3-byte
-//  header + service + data + checksum) and parses the response.
+// ISO 9141-2 K-line foundation. The wire-init dance (5-baud
+// initialisation, key bytes 08 08 / 94 94, address inversion) lives
+// on the adapter; this unit only formats the request bytes (3-byte
+// header + service + data + checksum) and parses the response.
 //
-//  Most modern OBD-II vehicles have moved to ISO 15765 (CAN); ISO
-//  9141 is included for legacy diesel and pre-2008 vehicles.
+// Most modern OBD-II vehicles have moved to ISO 15765 (CAN); ISO
+// 9141 is included for legacy diesel and pre-2008 vehicles.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - ISO 9141-2 Road vehicles - Diagnostic systems - CARB
-//      requirements for interchange of digital information.
+// References  :
+// - ISO 9141-2 Road vehicles - Diagnostic systems - CARB
+// requirements for interchange of digital information.
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation: header build + checksum +
-//                     parse helpers. Adapter handles the wire init.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation: header build + checksum +
+// parse helpers. Adapter handles the wire init.
+// ------------------------------------------------------------------------------
 
 unit ERD.Protocol.ISO9141;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   ERD.Types,
   ERD.Protocol.Types;
 
@@ -50,12 +50,12 @@ const
 
 type
   /// <summary>
-  ///   Stateless ISO 9141 codec.
+  /// Stateless ISO 9141 codec.
   /// </summary>
   TOBDIso9141Codec = class
   public
     /// <summary>
-    ///   Builds the 3-byte ISO 9141 header.
+    /// Builds the 3-byte ISO 9141 header.
     /// </summary>
     /// <param name="ATargetAddr">Destination address (default
     /// 0x6A = ECM).</param>
@@ -66,16 +66,16 @@ type
       ASourceAddr: Byte = ISO9141_TESTER_ADDR): TBytes; static;
 
     /// <summary>
-    ///   Computes the ISO 9141 checksum (sum of all preceding bytes
-    ///   modulo 256).
+    /// Computes the ISO 9141 checksum (sum of all preceding bytes
+    /// modulo 256).
     /// </summary>
     /// <param name="ABytes">Bytes to checksum.</param>
     /// <returns>Checksum byte.</returns>
     class function Checksum(const ABytes: TBytes): Byte; static;
 
     /// <summary>
-    ///   Encodes a request into a full ISO 9141 frame
-    ///   (header + service + data + checksum).
+    /// Encodes a request into a full ISO 9141 frame
+    /// (header + service + data + checksum).
     /// </summary>
     /// <param name="ARequest">Request to encode.</param>
     /// <returns>Hex string suitable for the adapter's

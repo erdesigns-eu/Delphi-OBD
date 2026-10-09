@@ -1,47 +1,47 @@
-//------------------------------------------------------------------------------
-//  ERD.Coding.Flasher
+﻿// ------------------------------------------------------------------------------
+// ERD.Coding.Flasher
 //
-//  TOBDFlasher — non-visual component that drives the ISO 14229-1
-//  data-transfer trio:
+// TOBDFlasher — non-visual component that drives the ISO 14229-1
+// data-transfer trio:
 //
-//    - 0x34 RequestDownload    (negotiate target memory + size)
-//    - 0x36 TransferData       (chunked image upload, BSC-counted)
-//    - 0x37 RequestTransferExit (finalize)
+// - 0x34 RequestDownload    (negotiate target memory + size)
+// - 0x36 TransferData       (chunked image upload, BSC-counted)
+// - 0x37 RequestTransferExit (finalize)
 //
-//  Writing a new firmware image to an ECU is the most-destructive
-//  action in this entire package. The component therefore:
+// Writing a new firmware image to an ECU is the most-destructive
+// action in this entire package. The component therefore:
 //
-//    - defaults <c>AutoExecute</c> to <c>False</c>; <c>Flash</c>
-//      raises <c>EOBDConfig</c> until the host explicitly opts in.
-//    - fires <c>OnBeforeFlash</c> on the main thread with a
-//      <c>Cancel: Boolean</c> out-parameter so a UI can pop a
-//      "are you absolutely sure" confirmation.
-//    - fires <c>OnProgress</c> per-chunk with the BSC, byte
-//      offset, and total size — drives a progress bar without
-//      polling.
-//    - guards single-in-flight via <c>GuardSingleAsync</c>.
+// - defaults <c>AutoExecute</c> to <c>False</c>; <c>Flash</c>
+// raises <c>EOBDConfig</c> until the host explicitly opts in.
+// - fires <c>OnBeforeFlash</c> on the main thread with a
+// <c>Cancel: Boolean</c> out-parameter so a UI can pop a
+// "are you absolutely sure" confirmation.
+// - fires <c>OnProgress</c> per-chunk with the BSC, byte
+// offset, and total size — drives a progress bar without
+// polling.
+// - guards single-in-flight via <c>GuardSingleAsync</c>.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - ISO 14229-1:2020 § 14.2 (RequestDownload)
-//    - ISO 14229-1:2020 § 14.5 (TransferData)
-//    - ISO 14229-1:2020 § 14.6 (RequestTransferExit)
+// References  :
+// - ISO 14229-1:2020 § 14.2 (RequestDownload)
+// - ISO 14229-1:2020 § 14.5 (TransferData)
+// - ISO 14229-1:2020 § 14.6 (RequestTransferExit)
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Coding.Flasher;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -50,9 +50,9 @@ uses
   ERD.Async.Task,
   ERD.Connection,
   ERD.Connection.Types,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
   ERD.Types,
   ERD.Protocol.Types,
   ERD.Protocol.UDS,
@@ -60,16 +60,15 @@ uses
 
 type
   /// <summary>Argument record for <c>OnBeforeFlash</c>.</summary>
-  TOBDFlasherBeforeEvent = procedure(Sender: TObject;
-    AAddress: UInt64; ASize: UInt32;
-    var ACancel: Boolean) of object;
+  TOBDFlasherBeforeEvent = procedure(Sender: TObject; AAddress: UInt64;
+    ASize: UInt32; var ACancel: Boolean) of object;
 
   /// <summary>Argument record for <c>OnFlashComplete</c>.</summary>
-  TOBDFlasherCompleteEvent = procedure(Sender: TObject;
-    AAddress: UInt64; ASize: UInt32) of object;
+  TOBDFlasherCompleteEvent = procedure(Sender: TObject; AAddress: UInt64;
+    ASize: UInt32) of object;
 
   /// <summary>
-  ///   ISO 14229-1 firmware-flash component.
+  /// ISO 14229-1 firmware-flash component.
   /// </summary>
   TOBDFlasher = class(TComponent)
   strict private
@@ -113,8 +112,8 @@ type
     destructor Destroy; override;
 
     /// <summary>
-    ///   Flashes <c>AImage</c> into ECU memory starting at
-    ///   <c>AAddress</c>. Synchronous.
+    /// Flashes <c>AImage</c> into ECU memory starting at
+    /// <c>AAddress</c>. Synchronous.
     /// </summary>
     /// <param name="AAddress">Target memory address.</param>
     /// <param name="AImage">Firmware bytes.</param>
@@ -150,8 +149,8 @@ type
       write FMaxPendingRetries default 10;
     /// <summary>Sleep between pending-retransmissions, in ms.
     /// Default 50.</summary>
-    property PendingDelayMs: Cardinal read FPendingDelayMs
-      write FPendingDelayMs default 50;
+    property PendingDelayMs: Cardinal read FPendingDelayMs write FPendingDelayMs
+      default 50;
     /// <summary>Maximum number of times a single TransferData chunk
     /// is re-sent on a non-pending negative response. Default 3.
     /// 0 disables retry — the first failure aborts the flash.</summary>
@@ -164,12 +163,11 @@ type
     property OnBeforeFlash: TOBDFlasherBeforeEvent read FOnBeforeFlash
       write FOnBeforeFlash;
     /// <summary>Fires on a successful completion.</summary>
-    property OnFlashComplete: TOBDFlasherCompleteEvent
-      read FOnFlashComplete write FOnFlashComplete;
+    property OnFlashComplete: TOBDFlasherCompleteEvent read FOnFlashComplete
+      write FOnFlashComplete;
     property OnError: TOBDConnectionErrorEvent read FOnError write FOnError;
     /// <summary>Per-chunk progress (main thread).</summary>
-    property OnProgress: TOBDProgressEvent read FOnProgress
-      write FOnProgress;
+    property OnProgress: TOBDProgressEvent read FOnProgress write FOnProgress;
   end;
 
 implementation
@@ -191,7 +189,8 @@ end;
 
 destructor TOBDFlasher.Destroy;
 begin
-  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  if FOwnedTask <> nil then
+    FOwnedTask.Cancel;
   FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
@@ -199,11 +198,15 @@ end;
 
 procedure TOBDFlasher.SetProtocol(AValue: TOBDProtocol);
 begin
-  if FProtocol = AValue then Exit;
-  if FOwnedTask <> nil then FOwnedTask.Quiesce;
-  if FProtocol <> nil then FProtocol.RemoveFreeNotification(Self);
+  if FProtocol = AValue then
+    Exit;
+  if FOwnedTask <> nil then
+    FOwnedTask.Quiesce;
+  if FProtocol <> nil then
+    FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
-  if FProtocol <> nil then FProtocol.FreeNotification(Self);
+  if FProtocol <> nil then
+    FProtocol.FreeNotification(Self);
 end;
 
 procedure TOBDFlasher.Notification(AComponent: TComponent;
@@ -212,7 +215,8 @@ begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
   begin
-    if FOwnedTask <> nil then FOwnedTask.Quiesce;
+    if FOwnedTask <> nil then
+      FOwnedTask.Quiesce;
     FProtocol := nil;
   end;
 end;
@@ -226,18 +230,23 @@ begin
     if FAsyncInFlight then
       raise EOBDConfig.Create('TOBDFlasher: flash already in flight');
     FAsyncInFlight := True;
-  finally FAsyncLock.Leave; end;
+  finally
+    FAsyncLock.Leave;
+  end;
 end;
 
 procedure TOBDFlasher.ReleaseAsync;
 begin
   FAsyncLock.Enter;
-  try FAsyncInFlight := False;
-  finally FAsyncLock.Leave; end;
+  try
+    FAsyncInFlight := False;
+  finally
+    FAsyncLock.Leave;
+  end;
 end;
 
-function TOBDFlasher.RequestWithPending(ASid: Byte;
-  const ABody: TBytes; const AContext: string): TOBDResponse;
+function TOBDFlasher.RequestWithPending(ASid: Byte; const ABody: TBytes;
+  const AContext: string): TOBDResponse;
 var
   PendingTries: Integer;
 begin
@@ -246,12 +255,14 @@ begin
   begin
     FOwnedTask.CheckCancelled;
     Result := FProtocol.Request(ASid, ABody);
-    if not Result.IsNegative then Exit;
-    if Result.NRC <> UDS_NRC_ResponsePending then Exit;
+    if not Result.IsNegative then
+      Exit;
+    if Result.NRC <> UDS_NRC_ResponsePending then
+      Exit;
     Inc(PendingTries);
     if PendingTries > FMaxPendingRetries then
-      raise EOBDProtocolErr.CreateFmt(
-        '%s: NRC 0x78 exceeded %d pending retries',
+      raise EOBDProtocolErr.CreateFmt
+        ('%s: NRC 0x78 exceeded %d pending retries',
         [AContext, FMaxPendingRetries]);
     FOwnedTask.Delay(FPendingDelayMs);
   end;
@@ -262,14 +273,14 @@ var
   I: Integer;
 begin
   if (ABytes = 0) or (ABytes > 8) then
-    raise EOBDConfig.CreateFmt('TOBDFlasher: bad format byte count %d', [ABytes]);
+    raise EOBDConfig.CreateFmt('TOBDFlasher: bad format byte count %d',
+      [ABytes]);
   SetLength(Result, ABytes);
   for I := 0 to ABytes - 1 do
     Result[I] := Byte((AValue shr (8 * (ABytes - 1 - I))) and $FF);
 end;
 
-function TOBDFlasher.RequestDownload(AAddress: UInt64;
-  ASize: UInt32): UInt32;
+function TOBDFlasher.RequestDownload(AAddress: UInt64; ASize: UInt32): UInt32;
 var
   Body: TBytes;
   Resp: TOBDResponse;
@@ -280,45 +291,44 @@ var
   MaxBlock: UInt64;
 begin
   AddrBytes := EncodeMSB(AAddress, FAddressFormatBytes);
-  LenBytes  := EncodeMSB(ASize,    FLengthFormatBytes);
+  LenBytes := EncodeMSB(ASize, FLengthFormatBytes);
   // addressAndLengthFormatIdentifier: high nibble = length-of-memorySize,
   // low nibble = length-of-memoryAddress.
   AddrAndLenFmt := Byte((FLengthFormatBytes shl 4) or
-                        (FAddressFormatBytes and $0F));
+    (FAddressFormatBytes and $0F));
 
   SetLength(Body, 2 + Length(AddrBytes) + Length(LenBytes));
   Body[0] := FDataFormatIdentifier;
   Body[1] := AddrAndLenFmt;
   Move(AddrBytes[0], Body[2], Length(AddrBytes));
-  Move(LenBytes[0],  Body[2 + Length(AddrBytes)], Length(LenBytes));
+  Move(LenBytes[0], Body[2 + Length(AddrBytes)], Length(LenBytes));
 
-  Resp := RequestWithPending(UDS_SID_RequestDownload, Body,
-    'RequestDownload');
+  Resp := RequestWithPending(UDS_SID_RequestDownload, Body, 'RequestDownload');
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt(
-      'RequestDownload negative: %s', [Resp.NRCText]);
+    raise EOBDProtocolErr.CreateFmt('RequestDownload negative: %s',
+      [Resp.NRCText]);
 
   // Response: lengthFormatIdentifier (high nibble) + maxNumberOfBlockLength.
   if Length(Resp.Data) < 1 then
     raise EOBDProtocolErr.Create('RequestDownload: empty response');
   LenLen := (Resp.Data[0] shr 4) and $0F;
-  if (LenLen = 0) or (LenLen > 4) or
-     (Length(Resp.Data) < 1 + Integer(LenLen)) then
-    raise EOBDProtocolErr.Create(
-      'RequestDownload: malformed maxNumberOfBlockLength');
+  if (LenLen = 0) or (LenLen > 4) or (Length(Resp.Data) < 1 + Integer(LenLen))
+  then
+    raise EOBDProtocolErr.Create
+      ('RequestDownload: malformed maxNumberOfBlockLength');
   MaxBlock := 0;
   for I := 0 to LenLen - 1 do
     MaxBlock := (MaxBlock shl 8) or Resp.Data[1 + I];
   // ISO 14229-1 maxNumberOfBlockLength includes the SID + BSC bytes
   // (overhead = 2 bytes). Subtract before chunking.
   if MaxBlock < 3 then
-    raise EOBDProtocolErr.CreateFmt(
-      'RequestDownload: maxNumberOfBlockLength %d too small', [MaxBlock]);
+    raise EOBDProtocolErr.CreateFmt
+      ('RequestDownload: maxNumberOfBlockLength %d too small', [MaxBlock]);
   Result := UInt32(MaxBlock - 2);
 end;
 
-procedure TOBDFlasher.TransferChunks(AAddress: UInt64;
-  const AImage: TBytes; AMaxBlock: UInt32);
+procedure TOBDFlasher.TransferChunks(AAddress: UInt64; const AImage: TBytes;
+  AMaxBlock: UInt32);
 var
   Off: Integer;
   ChunkSize: Integer;
@@ -330,16 +340,19 @@ var
   ChunkAttempt: Integer;
 begin
   Total := Length(AImage);
-  if Total = 0 then Exit;
+  if Total = 0 then
+    Exit;
   Bsc := 1;
   Off := 0;
-  ChunkCount := Cardinal((Total + Integer(AMaxBlock) - 1) div Integer(AMaxBlock));
+  ChunkCount := Cardinal((Total + Integer(AMaxBlock) - 1)
+    div Integer(AMaxBlock));
   ChunkIdx := 0;
   while Off < Total do
   begin
     FOwnedTask.CheckCancelled;
     ChunkSize := Total - Off;
-    if ChunkSize > Integer(AMaxBlock) then ChunkSize := Integer(AMaxBlock);
+    if ChunkSize > Integer(AMaxBlock) then
+      ChunkSize := Integer(AMaxBlock);
     SetLength(Body, 1 + ChunkSize);
     Body[0] := Bsc;
     Move(AImage[Off], Body[1], ChunkSize);
@@ -347,31 +360,33 @@ begin
     ChunkAttempt := 0;
     while True do
     begin
-    FOwnedTask.CheckCancelled;
+      FOwnedTask.CheckCancelled;
       Resp := RequestWithPending(UDS_SID_TransferData, Body,
         Format('TransferData BSC %d', [Bsc]));
-      if not Resp.IsNegative then Break;
+      if not Resp.IsNegative then
+        Break;
       Inc(ChunkAttempt);
       if ChunkAttempt > FMaxChunkRetries then
-        raise EOBDProtocolErr.CreateFmt(
-          'TransferData BSC %d failed after %d retries: %s',
+        raise EOBDProtocolErr.CreateFmt
+          ('TransferData BSC %d failed after %d retries: %s',
           [Bsc, FMaxChunkRetries, Resp.NRCText]);
       FireProgress(ChunkIdx, ChunkCount, 'TransferData',
-        Format('BSC=%d retry %d/%d (%s)',
-          [Bsc, ChunkAttempt, FMaxChunkRetries, Resp.NRCText]));
+        Format('BSC=%d retry %d/%d (%s)', [Bsc, ChunkAttempt, FMaxChunkRetries,
+        Resp.NRCText]));
       FOwnedTask.Delay(FChunkRetryDelayMs);
     end;
     // Response echoes BSC; refuse on mismatch.
     if (Length(Resp.Data) >= 1) and (Resp.Data[0] <> Bsc) then
-      raise EOBDProtocolErr.CreateFmt(
-        'TransferData: BSC echo mismatch (sent %d, got %d)',
+      raise EOBDProtocolErr.CreateFmt
+        ('TransferData: BSC echo mismatch (sent %d, got %d)',
         [Bsc, Resp.Data[0]]);
 
     Inc(Off, ChunkSize);
     Inc(ChunkIdx);
     FireProgress(ChunkIdx, ChunkCount, 'TransferData',
       Format('BSC=%d offset=0x%x', [Bsc, Off]));
-    Bsc := Byte((Integer(Bsc) + 1) and $FF); // ISO 14229 counter wraps FF -> 00.
+    Bsc := Byte((Integer(Bsc) + 1) and $FF);
+    // ISO 14229 counter wraps FF -> 00.
   end;
 end;
 
@@ -382,8 +397,8 @@ begin
   Resp := RequestWithPending(UDS_SID_RequestTransferExit, nil,
     'RequestTransferExit');
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt(
-      'RequestTransferExit negative: %s', [Resp.NRCText]);
+    raise EOBDProtocolErr.CreateFmt('RequestTransferExit negative: %s',
+      [Resp.NRCText]);
 end;
 
 procedure TOBDFlasher.DoFlash(AAddress: UInt64; const AImage: TBytes);
@@ -394,8 +409,8 @@ begin
   if FProtocol = nil then
     raise EOBDConfig.Create('TOBDFlasher: Protocol not assigned');
   if not FAutoExecute then
-    raise EOBDConfig.Create(
-      'TOBDFlasher: AutoExecute is False — set it before flashing');
+    raise EOBDConfig.Create
+      ('TOBDFlasher: AutoExecute is False — set it before flashing');
   if Length(AImage) = 0 then
     raise EOBDConfig.Create('TOBDFlasher: empty image');
   Size := UInt32(Length(AImage));
@@ -428,7 +443,8 @@ var
 begin
   GuardSingleAsync;
   try
-    Self_ := Self; Addr := AAddress;
+    Self_ := Self;
+    Addr := AAddress;
     Img := Copy(AImage, 0, Length(AImage));
     FOwnedTask.Start(
       procedure
@@ -437,7 +453,8 @@ begin
           try
             Self_.DoFlash(Addr, Img);
           except
-            on E: Exception do Self_.FireError(oeIO, E.Message);
+            on E: Exception do
+              Self_.FireError(oeIO, E.Message);
           end;
         finally
           Self_.ReleaseAsync;
@@ -449,8 +466,7 @@ begin
   end;
 end;
 
-function TOBDFlasher.FireBeforeFlash(AAddress: UInt64;
-  ASize: UInt32): Boolean;
+function TOBDFlasher.FireBeforeFlash(AAddress: UInt64; ASize: UInt32): Boolean;
 var
   Cancel: Boolean;
   Self_: TOBDFlasher;
@@ -458,15 +474,21 @@ var
   Sz: UInt32;
   Local: Boolean;
 begin
-  if not Assigned(FOnBeforeFlash) then Exit(True);
-  Self_ := Self; Addr := AAddress; Sz := ASize; Cancel := False;
+  if not Assigned(FOnBeforeFlash) then
+    Exit(True);
+  Self_ := Self;
+  Addr := AAddress;
+  Sz := ASize;
+  Cancel := False;
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnBeforeFlash(Self_, Addr, Sz, Cancel)
   else
   begin
     Local := False;
-    FOwnedTask.Synchronize( procedure
-      var C: Boolean;
+    FOwnedTask.Synchronize(
+      procedure
+      var
+        C: Boolean;
       begin
         C := False;
         if Assigned(Self_.FOnBeforeFlash) then
@@ -484,33 +506,44 @@ var
   Addr: UInt64;
   Sz: UInt32;
 begin
-  if not Assigned(FOnFlashComplete) then Exit;
-  Self_ := Self; Addr := AAddress; Sz := ASize;
+  if not Assigned(FOnFlashComplete) then
+    Exit;
+  Self_ := Self;
+  Addr := AAddress;
+  Sz := ASize;
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnFlashComplete(Self_, Addr, Sz)
   else
-    FOwnedTask.Post( procedure begin
-      if Assigned(Self_.FOnFlashComplete) then
-        Self_.FOnFlashComplete(Self_, Addr, Sz);
-    end);
+    FOwnedTask.Post(
+      procedure
+      begin
+        if Assigned(Self_.FOnFlashComplete) then
+          Self_.FOnFlashComplete(Self_, Addr, Sz);
+      end);
 end;
 
-procedure TOBDFlasher.FireError(ACode: TOBDErrorCode;
-  const AMessage: string);
+procedure TOBDFlasher.FireError(ACode: TOBDErrorCode; const AMessage: string);
 var
-  Self_: TOBDFlasher; Code: TOBDErrorCode; Msg: string;
+  Self_: TOBDFlasher;
+  Code: TOBDErrorCode;
+  Msg: string;
   Handled: Boolean;
 begin
-  if not Assigned(FOnError) then Exit;
-  Self_ := Self; Code := ACode; Msg := AMessage;
+  if not Assigned(FOnError) then
+    Exit;
+  Self_ := Self;
+  Code := ACode;
+  Msg := AMessage;
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
     Handled := False;
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    FOwnedTask.Post( procedure
-      var Handled: Boolean;
+    FOwnedTask.Post(
+      procedure
+      var
+        Handled: Boolean;
       begin
         Handled := False;
         if Assigned(Self_.FOnError) then
@@ -519,20 +552,24 @@ begin
 end;
 
 procedure TOBDFlasher.FireProgress(AIndex, ACount: Cardinal;
-  const AName, ADetail: string);
+const AName, ADetail: string);
 var
   Self_: TOBDFlasher;
   Step: TOBDProgressStep;
 begin
-  if not Assigned(FOnProgress) then Exit;
+  if not Assigned(FOnProgress) then
+    Exit;
   Self_ := Self;
   Step := TOBDProgressStep.MakeStep(AIndex, ACount, AName, ADetail);
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnProgress(Self_, Step)
   else
-    FOwnedTask.Post( procedure begin
-      if Assigned(Self_.FOnProgress) then Self_.FOnProgress(Self_, Step);
-    end);
+    FOwnedTask.Post(
+      procedure
+      begin
+        if Assigned(Self_.FOnProgress) then
+          Self_.FOnProgress(Self_, Step);
+      end);
 end;
 
 end.

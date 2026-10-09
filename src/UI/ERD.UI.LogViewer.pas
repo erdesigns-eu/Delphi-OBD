@@ -1,60 +1,60 @@
-//------------------------------------------------------------------------------
-//  ERD.UI.LogViewer
+﻿// ------------------------------------------------------------------------------
+// ERD.UI.LogViewer
 //
-//  TOBDLogViewer — descends from <see cref="TOBDTerminal"/> and
-//  prefixes every line with a severity tag. Wires through the
-//  Terminal's direction-coloured paint pipeline (info / error
-//  rows already get the right foreground) and adds a Trace /
-//  Warn alias on top.
+// TOBDLogViewer — descends from <see cref="TOBDTerminal"/> and
+// prefixes every line with a severity tag. Wires through the
+// Terminal's direction-coloured paint pipeline (info / error
+// rows already get the right foreground) and adds a Trace /
+// Warn alias on top.
 //
-//  Implements <see cref="IOBDLogSink"/> so it can be registered
-//  with <c>TOBDLogger.Instance.RegisterSink</c> and receive
-//  every <c>TOBDLogger.Log</c> call automatically. As a
-//  <c>TComponent</c> the viewer is not reference-counted; the
-//  inherited interface methods leave ownership with the form
-//  rather than freeing the control when a sink reference is released.
+// Implements <see cref="IOBDLogSink"/> so it can be registered
+// with <c>TOBDLogger.Instance.RegisterSink</c> and receive
+// every <c>TOBDLogger.Log</c> call automatically. As a
+// <c>TComponent</c> the viewer is not reference-counted; the
+// inherited interface methods leave ownership with the form
+// rather than freeing the control when a sink reference is released.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-11  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-11  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.UI.LogViewer;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   Vcl.Graphics,
   ERD.UI.Terminal,
   ERD.Logger.Sinks;
 
 type
   /// <summary>
-  ///   In-app log viewer.
+  /// In-app log viewer.
   /// </summary>
   /// <remarks>
-  ///   Each call to <see cref="WriteLog"/> appends a row in the
-  ///   form <c>[LEVEL] text</c> (the <c>[LEVEL]</c> prefix is
-  ///   suppressed when <see cref="ShowLevelTag"/> is <c>False</c>).
-  ///   The row's direction tag is derived from the severity, so
-  ///   the underlying Terminal paint colours each level cleanly.
+  /// Each call to <see cref="WriteLog"/> appends a row in the
+  /// form <c>[LEVEL] text</c> (the <c>[LEVEL]</c> prefix is
+  /// suppressed when <see cref="ShowLevelTag"/> is <c>False</c>).
+  /// The row's direction tag is derived from the severity, so
+  /// the underlying Terminal paint colours each level cleanly.
   ///
-  ///   Implements <see cref="IOBDLogSink"/> — register the
-  ///   instance with the process-wide <c>TOBDLogger</c> to mirror
-  ///   every logged event into the form.
+  /// Implements <see cref="IOBDLogSink"/> — register the
+  /// instance with the process-wide <c>TOBDLogger</c> to mirror
+  /// every logged event into the form.
   /// </remarks>
   TOBDLogViewer = class(TOBDTerminal, IOBDLogSink)
   strict private
@@ -70,7 +70,7 @@ type
     constructor Create(AOwner: TComponent); override;
 
     /// <summary>
-    ///   Appends one log row.
+    /// Appends one log row.
     /// </summary>
     /// <param name="ALevel">Severity level.</param>
     /// <param name="AText">Row text (the level tag is prefixed
@@ -103,15 +103,15 @@ type
     procedure Flush;
   published
     /// <summary>
-    ///   Prefix every row with a <c>[DEBUG] / [INFO] / [WARN] /
-    ///   [ERROR] / [FATAL]</c> tag. Default <c>True</c>.
+    /// Prefix every row with a <c>[DEBUG] / [INFO] / [WARN] /
+    /// [ERROR] / [FATAL]</c> tag. Default <c>True</c>.
     /// </summary>
-    property ShowLevelTag: Boolean read FShowLevelTag
-      write SetShowLevelTag default True;
+    property ShowLevelTag: Boolean read FShowLevelTag write SetShowLevelTag
+      default True;
 
     /// <summary>
-    ///   Foreground colour for <c>olWarning</c> rows. Default
-    ///   amber (<c>$0000A5FF</c>).
+    /// Foreground colour for <c>olWarning</c> rows. Default
+    /// amber (<c>$0000A5FF</c>).
     /// </summary>
     property WarnColor: TColor read FWarnColor write FWarnColor
       default TColor($0000A5FF);
@@ -134,12 +134,14 @@ begin
   Invalidate;
 end;
 
-function TOBDLogViewer.DirectionFor(
-  ALevel: TOBDLogLevel): TOBDTerminalDirection;
+function TOBDLogViewer.DirectionFor(ALevel: TOBDLogLevel)
+  : TOBDTerminalDirection;
 begin
   case ALevel of
-    olDebug, olInfo, olWarning: Result := tdInfo;
-    olError, olCritical:        Result := tdError;
+    olDebug, olInfo, olWarning:
+      Result := tdInfo;
+    olError, olCritical:
+      Result := tdError;
   else
     Result := tdInfo;
   end;
@@ -150,18 +152,22 @@ begin
   if not FShowLevelTag then
     Exit('');
   case ALevel of
-    olDebug:    Result := '[DEBUG] ';
-    olInfo:     Result := '[INFO]  ';
-    olWarning:  Result := '[WARN]  ';
-    olError:    Result := '[ERROR] ';
-    olCritical: Result := '[FATAL] ';
+    olDebug:
+      Result := '[DEBUG] ';
+    olInfo:
+      Result := '[INFO]  ';
+    olWarning:
+      Result := '[WARN]  ';
+    olError:
+      Result := '[ERROR] ';
+    olCritical:
+      Result := '[FATAL] ';
   else
     Result := '';
   end;
 end;
 
-procedure TOBDLogViewer.WriteLog(ALevel: TOBDLogLevel;
-  const AText: string);
+procedure TOBDLogViewer.WriteLog(ALevel: TOBDLogLevel; const AText: string);
 var
   PrevInfo: TColor;
 begin

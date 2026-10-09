@@ -1,95 +1,88 @@
-//------------------------------------------------------------------------------
-//  ERD.Protocol.TP20
+// ------------------------------------------------------------------------------
+// ERD.Protocol.TP20
 //
-//  VW Transport Protocol 2.0 ("TP 2.0") - the session-layer
-//  protocol VAG used between roughly 2003 and 2010 to carry
-//  KWP1281 / KWP2000 payloads over CAN. TP2.0 sits on top of
-//  raw CAN frames and provides:
+// VW Transport Protocol 2.0 ("TP 2.0") - the session-layer
+// protocol VAG used between roughly 2003 and 2010 to carry
+// KWP1281 / KWP2000 payloads over CAN. TP2.0 sits on top of
+// raw CAN frames and provides:
 //
-//    - Channel setup (request / accept on broadcast ID 0x200)
-//    - Per-direction RX / TX CAN IDs negotiated during setup
-//    - Segmentation / reassembly with sequence numbers and
-//      flow control (CTS / WT / not-ready)
-//    - Keep-alive / connection-test heartbeat (op codes A1/A3)
-//    - Disconnect (A8) and Break-out (A4)
+// - Channel setup (request / accept on broadcast ID 0x200)
+// - Per-direction RX / TX CAN IDs negotiated during setup
+// - Segmentation / reassembly with sequence numbers and
+// flow control (CTS / WT / not-ready)
+// - Keep-alive / connection-test heartbeat (op codes A1/A3)
+// - Disconnect (A8) and Break-out (A4)
 //
-//  Reference :
-//    "VW Transport Protocol 2.0", Bosch / VAG specification
-//    document; the public summary in J. Christ Hagman's
-//    AutoMotorCAN docs is a good open-source reference.
+// Reference :
+// "VW Transport Protocol 2.0", Bosch / VAG specification
+// document; the public summary in J. Christ Hagman's
+// AutoMotorCAN docs is a good open-source reference.
 //
-//  Surface in this unit:
+// Surface in this unit:
 //
-//    - <see cref="TTP20Codec"/>          the channel state machine
-//    - <see cref="ETP20Error"/> et al.   exception hierarchy
-//    - Channel-setup / disconnect / segmented send / segmented
-//      recv / keep-alive scheduling
+// - <see cref="TTP20Codec"/>          the channel state machine
+// - <see cref="ETP20Error"/> et al.   exception hierarchy
+// - Channel-setup / disconnect / segmented send / segmented
+// recv / keep-alive scheduling
 //
-//  Layered on top: <c>ERD.Protocol.KWP1281.Transport.TP20</c>
-//  adapts a connected TP2.0 channel to the IKWP1281Transport
-//  contract by faking the per-byte semantics on top of
-//  segmented blocks.
+// Layered on top: <c>ERD.Protocol.KWP1281.Transport.TP20</c>
+// adapts a connected TP2.0 channel to the IKWP1281Transport
+// contract by faking the per-byte semantics on top of
+// segmented blocks.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT - see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT - see LICENSE
 //
-//  History     :
-//    2026-05-10  ERD  Initial implementation. Verified against
-//                     the test vectors in the AutoMotorCAN
-//                     reference notes.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-10  ERD  Initial implementation. Verified against
+// the test vectors in the AutoMotorCAN
+// reference notes.
+// ------------------------------------------------------------------------------
 
 unit ERD.Protocol.TP20;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.Protocol.Types,
   ERD.Protocol.CAN;
 
 type
-  ETP20Error      = class(Exception);
-  ETP20Timeout    = class(ETP20Error);
-  ETP20BadFrame   = class(ETP20Error);
+  ETP20Error = class(Exception);
+  ETP20Timeout = class(ETP20Error);
+  ETP20BadFrame = class(ETP20Error);
   ETP20Disconnect = class(ETP20Error);
 
   /// <summary>VAG diagnostic application identifier on the bus.
   /// Most familiar values:</summary>
-  TTP20AppId = (
-    apEngine            = $01,
-    apTransmission      = $02,
-    apABS               = $03,
-    apAirbag            = $15,
-    apInstruments       = $17,
-    apCentralElectronic = $46,
-    apRadio             = $56,
-    apNavigation        = $7C
-  );
+  TTP20AppId = (apEngine = $01, apTransmission = $02, apABS = $03,
+    apAirbag = $15, apInstruments = $17, apCentralElectronic = $46,
+    apRadio = $56, apNavigation = $7C);
 
   /// <summary>Channel-setup frame on broadcast ID 0x200.
   /// Layout: dest_id, $C0, hi(rx_id), lo(rx_id), hi(tx_id),
   /// lo(tx_id), $01, app_id.</summary>
   TTP20SetupFrame = packed record
-    DestId:  Byte;
-    Opcode:  Byte;       // $C0 = setup request, $D0 = setup ack
-    RxIdLo:  Byte;
-    RxIdHi:  Byte;
-    TxIdLo:  Byte;
-    TxIdHi:  Byte;
+    DestId: Byte;
+    Opcode: Byte; // $C0 = setup request, $D0 = setup ack
+    RxIdLo: Byte;
+    RxIdHi: Byte;
+    TxIdLo: Byte;
+    TxIdHi: Byte;
     Reserved: Byte;
-    AppId:   Byte;
+    AppId: Byte;
   end;
 
   /// <summary>One reassembled application-layer block (a full
@@ -103,27 +96,27 @@ type
   /// owns this and serialises access.</summary>
   TTP20Codec = class
   strict private
-    FCAN:           ICANTransport;
-    FConnected:     Boolean;
-    FRxId:          Cardinal;          // CAN ID we listen on
-    FTxId:          Cardinal;          // CAN ID we transmit on
-    FAppId:         Byte;
-    FDestId:        Byte;
-    FTxSeq:         Byte;              // next outbound sequence (0..15)
-    FRxSeq:         Byte;              // expected inbound sequence
-    FBlockSize:     Byte;              // negotiated block size (T1 ack rate)
-    FT1Ms:          Word;              // ack timeout
-    FT3Ms:          Word;              // keep-alive interval
+    FCAN: ICANTransport;
+    FConnected: Boolean;
+    FRxId: Cardinal; // CAN ID we listen on
+    FTxId: Cardinal; // CAN ID we transmit on
+    FAppId: Byte;
+    FDestId: Byte;
+    FTxSeq: Byte; // next outbound sequence (0..15)
+    FRxSeq: Byte; // expected inbound sequence
+    FBlockSize: Byte; // negotiated block size (T1 ack rate)
+    FT1Ms: Word; // ack timeout
+    FT3Ms: Word; // keep-alive interval
     FByteTimeoutMs: Integer;
     procedure SendCAN(const APayload: TBytes);
-    function  RecvCAN: TBytes;
+    function RecvCAN: TBytes;
     procedure SendParameterRequest;
     procedure WaitParameterResponse;
     procedure SendAck(ASeq: Byte);
   public
     constructor Create(const ACAN: ICANTransport;
-                       AByteTimeoutMs: Integer = 1000);
-    destructor  Destroy; override;
+      AByteTimeoutMs: Integer = 1000);
+    destructor Destroy; override;
 
     /// <summary>Run the channel-setup dance for the given
     /// application-id. Sends the setup request on $200, waits
@@ -148,48 +141,47 @@ type
 
     /// <summary>Receives one application-layer block. Reassembles
     /// across CAN frames, sends ACKs as required.</summary>
-    function  ReceiveBlock(ATimeoutMs: Integer): TTP20Block;
+    function ReceiveBlock(ATimeoutMs: Integer): TTP20Block;
 
-    property Connected:     Boolean  read FConnected;
-    property RxId:          Cardinal read FRxId;
-    property TxId:          Cardinal read FTxId;
-    property AppId:         Byte     read FAppId;
-    property BlockSize:     Byte     read FBlockSize;
-    property T1Ms:          Word     read FT1Ms;
-    property T3Ms:          Word     read FT3Ms;
-    property ByteTimeoutMs: Integer  read FByteTimeoutMs
-                                    write FByteTimeoutMs;
+    property Connected: Boolean read FConnected;
+    property RxId: Cardinal read FRxId;
+    property TxId: Cardinal read FTxId;
+    property AppId: Byte read FAppId;
+    property BlockSize: Byte read FBlockSize;
+    property T1Ms: Word read FT1Ms;
+    property T3Ms: Word read FT3Ms;
+    property ByteTimeoutMs: Integer read FByteTimeoutMs write FByteTimeoutMs;
   end;
 
 const
-  TP20_BROADCAST_ID  = $200;
+  TP20_BROADCAST_ID = $200;
 
   // TPCI op codes (TPCI = Transport-Protocol Control Info, the
   // first nibble of the first CAN payload byte).
-  TP20_OP_DT_NEXT    = $00;  // data, more to follow, no ack required
-  TP20_OP_DT_NEXT_AK = $10;  // data, more to follow, ack required
-  TP20_OP_DT_LAST    = $20;  // data, last frame, no ack required
-  TP20_OP_DT_LAST_AK = $30;  // data, last frame, ack required
-  TP20_OP_ACK_OK     = $B0;  // ack: ready for next block (CTS)
-  TP20_OP_ACK_NACK   = $90;  // not ready yet (WT)
-  TP20_OP_ACK_BAD    = $80;  // bad sequence
+  TP20_OP_DT_NEXT = $00; // data, more to follow, no ack required
+  TP20_OP_DT_NEXT_AK = $10; // data, more to follow, ack required
+  TP20_OP_DT_LAST = $20; // data, last frame, no ack required
+  TP20_OP_DT_LAST_AK = $30; // data, last frame, ack required
+  TP20_OP_ACK_OK = $B0; // ack: ready for next block (CTS)
+  TP20_OP_ACK_NACK = $90; // not ready yet (WT)
+  TP20_OP_ACK_BAD = $80; // bad sequence
 
-  TP20_OP_SETUP_REQ  = $C0;  // channel setup request (ID 0x200)
-  TP20_OP_SETUP_ACK  = $D0;  // channel setup positive response
-  TP20_OP_SETUP_NACK = $D6;  // channel setup negative response
+  TP20_OP_SETUP_REQ = $C0; // channel setup request (ID 0x200)
+  TP20_OP_SETUP_ACK = $D0; // channel setup positive response
+  TP20_OP_SETUP_NACK = $D6; // channel setup negative response
 
-  TP20_OP_PARAM_REQ  = $A0;  // negotiate parameters
-  TP20_OP_PARAM_RSP  = $A1;  // parameter response
-  TP20_OP_CONN_TEST  = $A3;  // keep-alive
-  TP20_OP_BREAK      = $A4;  // break - cancel current TX
-  TP20_OP_DISCONNECT = $A8;  // tear channel down
+  TP20_OP_PARAM_REQ = $A0; // negotiate parameters
+  TP20_OP_PARAM_RSP = $A1; // parameter response
+  TP20_OP_CONN_TEST = $A3; // keep-alive
+  TP20_OP_BREAK = $A4; // break - cancel current TX
+  TP20_OP_DISCONNECT = $A8; // tear channel down
 
 implementation
 
 uses
-  {$IFDEF FPC}DateUtils{$ELSE}System.DateUtils{$ENDIF};
+{$IFDEF FPC}DateUtils{$ELSE}System.DateUtils{$ENDIF};
 
-{ TTP20Codec ------------------------------------------------------------------}
+{ TTP20Codec ------------------------------------------------------------------ }
 
 constructor TTP20Codec.Create(const ACAN: ICANTransport;
   AByteTimeoutMs: Integer);
@@ -199,43 +191,48 @@ begin
   FByteTimeoutMs := AByteTimeoutMs;
   // Defaults until parameter negotiation completes.
   FBlockSize := 15;
-  FT1Ms      := 100;
-  FT3Ms      := 500;
+  FT1Ms := 100;
+  FT3Ms := 500;
 end;
 
 destructor TTP20Codec.Destroy;
 begin
   if FConnected then
-    try Disconnect; except end;
+    try
+      Disconnect;
+    except
+    end;
   FCAN := nil;
   inherited;
 end;
 
 procedure TTP20Codec.SendCAN(const APayload: TBytes);
-var F: TOBDFrame;
+var
+  F: TOBDFrame;
 begin
-  F := Default(TOBDFrame);
-  F.Id      := FTxId;
+  F := Default (TOBDFrame);
+  F.Id := FTxId;
   F.Payload := APayload;
   FCAN.SendFrame(F, FByteTimeoutMs);
 end;
 
 function TTP20Codec.RecvCAN: TBytes;
-var F: TOBDFrame;
+var
+  F: TOBDFrame;
 begin
   F := FCAN.ReceiveFrame(FByteTimeoutMs);
   if F.Id <> FRxId then
-    raise ETP20BadFrame.CreateFmt(
-      'TP2.0: expected frame on $%.3X, got $%.3X',
+    raise ETP20BadFrame.CreateFmt('TP2.0: expected frame on $%.3X, got $%.3X',
       [FRxId, F.Id]);
   Result := F.Payload;
 end;
 
 procedure TTP20Codec.SendParameterRequest;
-var Pl: TBytes;
+var
+  Pl: TBytes;
 begin
   // A0 + 5 bytes of parameter values. The standard payload:
-  //   $A0, blocksize, $0F, T1, $FF, T3, $FF
+  // $A0, blocksize, $0F, T1, $FF, T3, $FF
   // T1 and T3 are encoded with the high nibble carrying the
   // multiplier (0=100us, 1=1ms, 2=10ms, 3=100ms) and the low
   // nibble carrying the count. Defaults: blocksize=$0F, T1=$0A
@@ -245,12 +242,12 @@ begin
 end;
 
 procedure TTP20Codec.WaitParameterResponse;
-var Reply: TBytes;
+var
+  Reply: TBytes;
 begin
   Reply := RecvCAN;
   if (Length(Reply) < 1) or (Reply[0] <> TP20_OP_PARAM_RSP) then
-    raise ETP20BadFrame.Create(
-      'TP2.0: expected parameter-response (A1)');
+    raise ETP20BadFrame.Create('TP2.0: expected parameter-response (A1)');
   if Length(Reply) >= 6 then
   begin
     FBlockSize := Reply[1];
@@ -260,27 +257,23 @@ end;
 
 procedure TTP20Codec.Connect(AAppId: TTP20AppId);
 var
-  Setup:   TBytes;
-  Reply:   TOBDFrame;
-  Op:      Byte;
+  Setup: TBytes;
+  Reply: TOBDFrame;
+  Op: Byte;
 begin
   FConnected := False;
-  FAppId  := Byte(AAppId);
-  FDestId := FAppId;       // VAG dest id mirrors app id for K-line
-  FTxId   := TP20_BROADCAST_ID;
+  FAppId := Byte(AAppId);
+  FDestId := FAppId; // VAG dest id mirrors app id for K-line
+  FTxId := TP20_BROADCAST_ID;
 
   // Channel-setup request on broadcast ID. Our preferred RX id
   // is encoded little-endian; we pick 0x300 + AppId by
   // convention - the ECU is free to override in its setup-ack.
   FRxId := $300 + FAppId;
 
-  Setup := TBytes.Create(
-    FDestId,
-    TP20_OP_SETUP_REQ,
-    Lo(FRxId), Hi(FRxId),
-    $00, $00,                // tx_id placeholder (ECU fills)
-    $01,
-    FAppId);
+  Setup := TBytes.Create(FDestId, TP20_OP_SETUP_REQ, Lo(FRxId), Hi(FRxId), $00,
+    $00, // tx_id placeholder (ECU fills)
+    $01, FAppId);
 
   // Listen on our chosen RX id and on the broadcast for the
   // setup ack.
@@ -291,13 +284,11 @@ begin
   // Setup-ack frame layout: dest_id, $D0, hi(rx_for_us),
   // lo(rx_for_us), hi(tx_for_us), lo(tx_for_us), $01, app_id.
   Reply := FCAN.ReceiveFrame(FByteTimeoutMs * 2);
-  if (Length(Reply.Payload) < 8) or
-     (Reply.Payload[1] <> TP20_OP_SETUP_ACK) then
+  if (Length(Reply.Payload) < 8) or (Reply.Payload[1] <> TP20_OP_SETUP_ACK) then
   begin
-    if (Length(Reply.Payload) > 1) and
-       (Reply.Payload[1] = TP20_OP_SETUP_NACK) then
-      raise ETP20Error.Create(
-        'TP2.0: ECU rejected channel setup (D6 NACK)');
+    if (Length(Reply.Payload) > 1) and (Reply.Payload[1] = TP20_OP_SETUP_NACK)
+    then
+      raise ETP20Error.Create('TP2.0: ECU rejected channel setup (D6 NACK)');
     raise ETP20BadFrame.Create('TP2.0: expected setup-ack (D0)');
   end;
   FRxId := (Reply.Payload[3] shl 8) or Reply.Payload[2];
@@ -313,12 +304,14 @@ begin
   FConnected := True;
   // Suppress unused warning on Op when block above didn't
   // assign it.
-  Op := 0; if Op = 0 then ;
+  Op := 0;
+  if Op = 0 then;
 end;
 
 procedure TTP20Codec.Disconnect;
 begin
-  if not FConnected then Exit;
+  if not FConnected then
+    Exit;
   try
     SendCAN(TBytes.Create(TP20_OP_DISCONNECT));
   except
@@ -328,14 +321,16 @@ begin
 end;
 
 procedure TTP20Codec.KeepAlive;
-var Reply: TBytes;
+var
+  Reply: TBytes;
 begin
-  if not FConnected then Exit;
+  if not FConnected then
+    Exit;
   SendCAN(TBytes.Create(TP20_OP_CONN_TEST));
   Reply := RecvCAN;
   if (Length(Reply) < 1) or (Reply[0] <> TP20_OP_PARAM_RSP) then
-    raise ETP20BadFrame.Create(
-      'TP2.0: keep-alive (A3) got no parameter-response');
+    raise ETP20BadFrame.Create
+      ('TP2.0: keep-alive (A3) got no parameter-response');
 end;
 
 procedure TTP20Codec.SendAck(ASeq: Byte);
@@ -356,7 +351,8 @@ begin
     raise ETP20Error.Create('TP2.0: not connected');
 
   Total := Length(ABlock.Data);
-  if Total = 0 then Exit;
+  if Total = 0 then
+    Exit;
 
   // First two payload bytes after TPCI carry the total length
   // (big-endian) for first segment; subsequent segments carry
@@ -370,21 +366,22 @@ begin
     begin
       // First frame: 5 bytes payload after the 2-byte length.
       Chunk := FrameLen;
-      if Chunk > 5 then Chunk := 5;
+      if Chunk > 5 then
+        Chunk := 5;
       IsLast := (Chunk = FrameLen);
     end
     else
     begin
       Chunk := FrameLen;
-      if Chunk > 6 then Chunk := 6;
+      if Chunk > 6 then
+        Chunk := 6;
       IsLast := (Chunk = FrameLen);
     end;
 
     Inc(AckCounter);
     if IsLast then
       Op := TP20_OP_DT_LAST_AK
-    else if (FBlockSize > 0) and
-            (AckCounter mod FBlockSize = 0) then
+    else if (FBlockSize > 0) and (AckCounter mod FBlockSize = 0) then
       Op := TP20_OP_DT_NEXT_AK
     else
       Op := TP20_OP_DT_NEXT;
@@ -411,10 +408,9 @@ begin
     if (Op = TP20_OP_DT_NEXT_AK) or (Op = TP20_OP_DT_LAST_AK) then
     begin
       AckReply := RecvCAN;
-      if (Length(AckReply) < 1) or
-         ((AckReply[0] and $F0) <> TP20_OP_ACK_OK) then
-        raise ETP20Error.CreateFmt(
-          'TP2.0: expected CTS ($Bx), got $%.2X',
+      if (Length(AckReply) < 1) or ((AckReply[0] and $F0) <> TP20_OP_ACK_OK)
+      then
+        raise ETP20Error.CreateFmt('TP2.0: expected CTS ($Bx), got $%.2X',
           [AckReply[0]]);
     end;
   end;
@@ -438,20 +434,19 @@ begin
     begin
       if Length(Pl) < 1 then
         raise ETP20BadFrame.Create('TP2.0: empty CAN payload');
-      Op  := Pl[0] and $F0;
+      Op := Pl[0] and $F0;
       Seq := Pl[0] and $0F;
       // Validate sequence.
       if Seq <> FRxSeq then
-        raise ETP20BadFrame.CreateFmt(
-          'TP2.0: rx seq drift (got %d expected %d)',
-          [Seq, FRxSeq]);
+        raise ETP20BadFrame.CreateFmt
+          ('TP2.0: rx seq drift (got %d expected %d)', [Seq, FRxSeq]);
       FRxSeq := (FRxSeq + 1) and $0F;
 
       if Total < 0 then
       begin
         if Length(Pl) < 3 then
-          raise ETP20BadFrame.Create(
-            'TP2.0: first frame too short for length header');
+          raise ETP20BadFrame.Create
+            ('TP2.0: first frame too short for length header');
         Total := (Pl[1] shl 8) or Pl[2];
         Acc.Write(Pl[3], Length(Pl) - 3);
         Got := Length(Pl) - 3;
@@ -463,20 +458,17 @@ begin
       end;
 
       // ACK if requested or if last frame.
-      if (Op = TP20_OP_DT_LAST_AK) or
-         (Op = TP20_OP_DT_NEXT_AK) then
+      if (Op = TP20_OP_DT_LAST_AK) or (Op = TP20_OP_DT_NEXT_AK) then
         SendAck(FRxSeq);
 
-      if (Op = TP20_OP_DT_LAST) or
-         (Op = TP20_OP_DT_LAST_AK) then
+      if (Op = TP20_OP_DT_LAST) or (Op = TP20_OP_DT_LAST_AK) then
         Break;
 
       Pl := FCAN.ReceiveFrame(ATimeoutMs).Payload;
     end;
     if Got <> Total then
-      raise ETP20BadFrame.CreateFmt(
-        'TP2.0: reassembled %d bytes, header announced %d',
-        [Got, Total]);
+      raise ETP20BadFrame.CreateFmt
+        ('TP2.0: reassembled %d bytes, header announced %d', [Got, Total]);
     Result.Data := Acc.Bytes;
     SetLength(Result.Data, Total);
   finally

@@ -1,38 +1,38 @@
-//------------------------------------------------------------------------------
-//  ERD.UI.Gauges.Specialised
+﻿// ------------------------------------------------------------------------------
+// ERD.UI.Gauges.Specialised
 //
-//  Domain-specific gauges layered on top of the dial / bar
-//  primitives. Each ships with sensible defaults so a host
-//  drops one on a form, sets one or two properties, and gets
-//  a production-looking widget out of the box:
+// Domain-specific gauges layered on top of the dial / bar
+// primitives. Each ships with sensible defaults so a host
+// drops one on a form, sets one or two properties, and gets
+// a production-looking widget out of the box:
 //
-//    TOBDBoostGauge        centre-zero dial. Vacuum (blue) on
-//                          the left, boost (red) on the right.
-//                          Default range -1.0..+2.0 bar.
-//    TOBDAFRGauge          AFR dial with stoich centre line and
-//                          lean / rich amber zones. Default
-//                          range 10..18, stoich 14.7.
-//    TOBDStateOfChargeBar  horizontal SOC bar with a charging
-//                          arrow + time-to-full readout. Bound
-//                          to <see cref="TOBDEVBattery"/> at
-//                          host-glue level.
-//    TOBDRegenIndicator    vertical centre-zero power flow bar.
-//                          Positive = regen (up, green),
-//                          negative = power draw (down, blue).
+// TOBDBoostGauge        centre-zero dial. Vacuum (blue) on
+// the left, boost (red) on the right.
+// Default range -1.0..+2.0 bar.
+// TOBDAFRGauge          AFR dial with stoich centre line and
+// lean / rich amber zones. Default
+// range 10..18, stoich 14.7.
+// TOBDStateOfChargeBar  horizontal SOC bar with a charging
+// arrow + time-to-full readout. Bound
+// to <see cref="TOBDEVBattery"/> at
+// host-glue level.
+// TOBDRegenIndicator    vertical centre-zero power flow bar.
+// Positive = regen (up, green),
+// negative = power draw (down, blue).
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.UI.Gauges.Specialised;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -42,9 +42,9 @@ uses
   Winapi.Windows,
   Winapi.GDIPAPI,
   Winapi.GDIPOBJ,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
   System.Bindings.Helper, Data.Bind.Components,
   Vcl.Controls,
   Vcl.Graphics,
@@ -64,8 +64,8 @@ type
   /// +2.0 bar boost with a 1.5 bar warning band.</summary>
   TOBDBoostGauge = class(TOBDCircularGauge)
   strict private
-    FVacuumColor:  TColor;
-    FBoostColor:   TColor;
+    FVacuumColor: TColor;
+    FBoostColor: TColor;
     FWarningStart: Double;
     procedure SetVacuumColor(AValue: TColor);
     procedure SetBoostColor(AValue: TColor);
@@ -76,18 +76,17 @@ type
   published
     /// <summary>Vacuum-side zone colour (Min..0).
     /// Default blue.</summary>
-    property VacuumColor: TColor
-      read FVacuumColor write SetVacuumColor default $00C08040;
+    property VacuumColor: TColor read FVacuumColor write SetVacuumColor
+      default $00C08040;
     /// <summary>Boost-side zone colour (0..WarningStart).
     /// Default amber.</summary>
-    property BoostColor: TColor
-      read FBoostColor write SetBoostColor default $0000A8FF;
+    property BoostColor: TColor read FBoostColor write SetBoostColor
+      default $0000A8FF;
     /// <summary>Boost value at which the warning band starts;
     /// the band runs from <c>WarningStart</c> to
     /// <c>Max</c> in <see cref="BoostColor"/>'s red sibling.
     /// Default 1.5 bar.</summary>
-    property WarningStart: Double
-      read FWarningStart write SetWarningStart;
+    property WarningStart: Double read FWarningStart write SetWarningStart;
   end;
 
   /// <summary>Air-fuel-ratio dial. Centred on
@@ -95,7 +94,7 @@ type
   /// lean and rich warning bands at the dial extremes.</summary>
   TOBDAFRGauge = class(TOBDCircularGauge)
   strict private
-    FStoich:    Double;
+    FStoich: Double;
     FLeanStart: Double;
     FRichStart: Double;
     FLeanColor: TColor;
@@ -134,13 +133,13 @@ type
   /// top-of-dashboard SOC indicator on an EV cluster.</summary>
   TOBDStateOfChargeBar = class(TOBDCustomControl)
   strict private
-    FSOC:           Double;
-    FCharging:      Boolean;
-    FTimeToFullMs:  Int64;
-    FShowReadout:   Boolean;
-    FLowThreshold:  Double;
-    FCaptionFont:   TFont;
-    FValueFont:     TFont;
+    FSOC: Double;
+    FCharging: Boolean;
+    FTimeToFullMs: Int64;
+    FShowReadout: Boolean;
+    FLowThreshold: Double;
+    FCaptionFont: TFont;
+    FValueFont: TFont;
     procedure SetSOC(AValue: Double);
     procedure SetCharging(AValue: Boolean);
     procedure SetTimeToFullMs(AValue: Int64);
@@ -150,37 +149,33 @@ type
     procedure SetValueFont(AValue: TFont);
     procedure HandleFontChange(Sender: TObject);
     procedure NotifyBindings;
-    function  FormatTimeToFull: string;
+    function FormatTimeToFull: string;
   protected
     procedure PaintControl(ACanvas: TCanvas); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
   published
     /// <summary>State of charge in percent (0..100). Clamped.
     /// </summary>
     property SOC: Double read FSOC write SetSOC;
     /// <summary>True while the pack is charging. Drives the
     /// charging arrow + time-to-full visibility.</summary>
-    property Charging: Boolean
-      read FCharging write SetCharging default False;
+    property Charging: Boolean read FCharging write SetCharging default False;
     /// <summary>Estimated milliseconds until 100 %. 0 hides the
     /// readout.</summary>
-    property TimeToFullMs: Int64
-      read FTimeToFullMs write SetTimeToFullMs;
+    property TimeToFullMs: Int64 read FTimeToFullMs write SetTimeToFullMs;
     /// <summary>Show the percent / time-to-full readout next
     /// to the bar. Default True.</summary>
-    property ShowReadout: Boolean
-      read FShowReadout write SetShowReadout default True;
+    property ShowReadout: Boolean read FShowReadout write SetShowReadout
+      default True;
     /// <summary>SOC at which the bar turns the warning colour.
     /// Default 20 %.</summary>
-    property LowThreshold: Double
-      read FLowThreshold write SetLowThreshold;
+    property LowThreshold: Double read FLowThreshold write SetLowThreshold;
     /// <summary>Big SOC-percent font.</summary>
     property ValueFont: TFont read FValueFont write SetValueFont;
     /// <summary>Caption + time-to-full font.</summary>
-    property CaptionFont: TFont
-      read FCaptionFont write SetCaptionFont;
+    property CaptionFont: TFont read FCaptionFont write SetCaptionFont;
   end;
 
   /// <summary>Vertical centre-zero power-flow bar. Positive
@@ -189,11 +184,11 @@ type
   /// downward in the discharge colour (blue).</summary>
   TOBDRegenIndicator = class(TOBDCustomControl)
   strict private
-    FPower:       Double;
-    FMaxPower:    Double;
-    FMaxRegen:    Double;
-    FRegenColor:  TColor;
-    FDrawColor:   TColor;
+    FPower: Double;
+    FMaxPower: Double;
+    FMaxRegen: Double;
+    FRegenColor: TColor;
+    FDrawColor: TColor;
     procedure SetPower(AValue: Double);
     procedure SetMaxPower(AValue: Double);
     procedure SetMaxRegen(AValue: Double);
@@ -215,11 +210,11 @@ type
     /// show. Default 80.</summary>
     property MaxRegen: Double read FMaxRegen write SetMaxRegen;
     /// <summary>Regen colour. Default green.</summary>
-    property RegenColor: TColor
-      read FRegenColor write SetRegenColor default clDefault;
+    property RegenColor: TColor read FRegenColor write SetRegenColor
+      default clDefault;
     /// <summary>Discharge colour. Default theme accent.</summary>
-    property DischargeColor: TColor
-      read FDrawColor write SetDrawColor default clDefault;
+    property DischargeColor: TColor read FDrawColor write SetDrawColor
+      default clDefault;
   end;
 
 implementation
@@ -227,60 +222,69 @@ implementation
 { ---- TOBDBoostGauge ------------------------------------------------------ }
 
 constructor TOBDBoostGauge.Create(AOwner: TComponent);
-var Cfg: TOBDGaugeTickConfig;
+var
+  Cfg: TOBDGaugeTickConfig;
 begin
   inherited Create(AOwner);
   Min := -1.0;
-  Max :=  2.0;
+  Max := 2.0;
   &Unit := 'bar';
   Caption := 'Boost';
   Decimals := 1;
-  FVacuumColor  := $00C08040;       // BGR-blue
-  FBoostColor   := $0000A8FF;       // BGR-amber
+  FVacuumColor := $00C08040; // BGR-blue
+  FBoostColor := $0000A8FF; // BGR-amber
   FWarningStart := 1.5;
   Cfg := DefaultTickConfig;
-  Cfg.MajorInterval      := 0.5;
+  Cfg.MajorInterval := 0.5;
   Cfg.MinorTicksPerMajor := 4;
-  Cfg.LabelDecimals      := 1;
+  Cfg.LabelDecimals := 1;
   SetTickConfig(Cfg);
   RebuildZones;
 end;
 
 procedure TOBDBoostGauge.SetVacuumColor(AValue: TColor);
 begin
-  if FVacuumColor = AValue then Exit;
-  FVacuumColor := AValue; RebuildZones;
+  if FVacuumColor = AValue then
+    Exit;
+  FVacuumColor := AValue;
+  RebuildZones;
 end;
 
 procedure TOBDBoostGauge.SetBoostColor(AValue: TColor);
 begin
-  if FBoostColor = AValue then Exit;
-  FBoostColor := AValue; RebuildZones;
+  if FBoostColor = AValue then
+    Exit;
+  FBoostColor := AValue;
+  RebuildZones;
 end;
 
 procedure TOBDBoostGauge.SetWarningStart(AValue: Double);
 begin
-  if SameValue(FWarningStart, AValue) then Exit;
-  FWarningStart := AValue; RebuildZones;
+  if SameValue(FWarningStart, AValue) then
+    Exit;
+  FWarningStart := AValue;
+  RebuildZones;
 end;
 
 procedure TOBDBoostGauge.RebuildZones;
-var Z: TOBDGaugeZones;
+var
+  Z: TOBDGaugeZones;
 begin
   // Three coloured bands: vacuum, boost OK, boost warning. The
   // red warning band uses the danger palette colour so a host
   // theme switch keeps the warning recognisable.
   SetLength(Z, 3);
-  Z[0] := MakeGaugeZone(Min,            0,             FVacuumColor);
-  Z[1] := MakeGaugeZone(0,              FWarningStart, FBoostColor);
-  Z[2] := MakeGaugeZone(FWarningStart,  Max,           Palette.Danger);
+  Z[0] := MakeGaugeZone(Min, 0, FVacuumColor);
+  Z[1] := MakeGaugeZone(0, FWarningStart, FBoostColor);
+  Z[2] := MakeGaugeZone(FWarningStart, Max, Palette.Danger);
   SetZones(Z);
 end;
 
 { ---- TOBDAFRGauge -------------------------------------------------------- }
 
 constructor TOBDAFRGauge.Create(AOwner: TComponent);
-var Cfg: TOBDGaugeTickConfig;
+var
+  Cfg: TOBDGaugeTickConfig;
 begin
   inherited Create(AOwner);
   Min := 10.0;
@@ -288,58 +292,69 @@ begin
   &Unit := 'AFR';
   Caption := 'AFR';
   Decimals := 1;
-  FStoich    := 14.7;
+  FStoich := 14.7;
   FLeanStart := 16.0;
   FRichStart := 13.0;
   FLeanColor := $0000A8FF;
   FRichColor := $003C3CFF;
   Cfg := DefaultTickConfig;
-  Cfg.MajorInterval      := 1.0;
+  Cfg.MajorInterval := 1.0;
   Cfg.MinorTicksPerMajor := 4;
-  Cfg.LabelDecimals      := 0;
+  Cfg.LabelDecimals := 0;
   SetTickConfig(Cfg);
   RebuildZones;
 end;
 
 procedure TOBDAFRGauge.SetStoich(AValue: Double);
 begin
-  if SameValue(FStoich, AValue) then Exit;
-  FStoich := AValue; RebuildZones;
+  if SameValue(FStoich, AValue) then
+    Exit;
+  FStoich := AValue;
+  RebuildZones;
 end;
 
 procedure TOBDAFRGauge.SetLeanStart(AValue: Double);
 begin
-  if SameValue(FLeanStart, AValue) then Exit;
-  FLeanStart := AValue; RebuildZones;
+  if SameValue(FLeanStart, AValue) then
+    Exit;
+  FLeanStart := AValue;
+  RebuildZones;
 end;
 
 procedure TOBDAFRGauge.SetRichStart(AValue: Double);
 begin
-  if SameValue(FRichStart, AValue) then Exit;
-  FRichStart := AValue; RebuildZones;
+  if SameValue(FRichStart, AValue) then
+    Exit;
+  FRichStart := AValue;
+  RebuildZones;
 end;
 
 procedure TOBDAFRGauge.SetLeanColor(AValue: TColor);
 begin
-  if FLeanColor = AValue then Exit;
-  FLeanColor := AValue; RebuildZones;
+  if FLeanColor = AValue then
+    Exit;
+  FLeanColor := AValue;
+  RebuildZones;
 end;
 
 procedure TOBDAFRGauge.SetRichColor(AValue: TColor);
 begin
-  if FRichColor = AValue then Exit;
-  FRichColor := AValue; RebuildZones;
+  if FRichColor = AValue then
+    Exit;
+  FRichColor := AValue;
+  RebuildZones;
 end;
 
 procedure TOBDAFRGauge.RebuildZones;
-var Z: TOBDGaugeZones;
+var
+  Z: TOBDGaugeZones;
 begin
   SetLength(Z, 2);
   // Below RichStart = rich, above LeanStart = lean. The middle
   // band is intentionally left unzoned (gauge face colour) so
   // the stoich centre reads as the "OK" target.
-  Z[0] := MakeGaugeZone(Min,        FRichStart, FRichColor);
-  Z[1] := MakeGaugeZone(FLeanStart, Max,        FLeanColor);
+  Z[0] := MakeGaugeZone(Min, FRichStart, FRichColor);
+  Z[1] := MakeGaugeZone(FLeanStart, Max, FLeanColor);
   SetZones(Z);
 end;
 
@@ -348,12 +363,12 @@ end;
 constructor TOBDStateOfChargeBar.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 320;
+  Width := 320;
   Height := 56;
-  FSOC          := 0;
-  FCharging     := False;
+  FSOC := 0;
+  FCharging := False;
   FTimeToFullMs := 0;
-  FShowReadout  := True;
+  FShowReadout := True;
   FLowThreshold := 20.0;
   FValueFont := TFont.Create;
   FValueFont.Name := 'Segoe UI';
@@ -375,7 +390,8 @@ end;
 
 procedure TOBDStateOfChargeBar.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -389,9 +405,12 @@ end;
 
 procedure TOBDStateOfChargeBar.SetSOC(AValue: Double);
 begin
-  if AValue < 0   then AValue := 0;
-  if AValue > 100 then AValue := 100;
-  if SameValue(FSOC, AValue) then Exit;
+  if AValue < 0 then
+    AValue := 0;
+  if AValue > 100 then
+    AValue := 100;
+  if SameValue(FSOC, AValue) then
+    Exit;
   FSOC := AValue;
   NotifyBindings;
   Repaint;
@@ -399,7 +418,8 @@ end;
 
 procedure TOBDStateOfChargeBar.SetCharging(AValue: Boolean);
 begin
-  if FCharging = AValue then Exit;
+  if FCharging = AValue then
+    Exit;
   FCharging := AValue;
   NotifyBindings;
   Repaint;
@@ -407,8 +427,10 @@ end;
 
 procedure TOBDStateOfChargeBar.SetTimeToFullMs(AValue: Int64);
 begin
-  if AValue < 0 then AValue := 0;
-  if FTimeToFullMs = AValue then Exit;
+  if AValue < 0 then
+    AValue := 0;
+  if FTimeToFullMs = AValue then
+    Exit;
   FTimeToFullMs := AValue;
   NotifyBindings;
   Repaint;
@@ -416,16 +438,22 @@ end;
 
 procedure TOBDStateOfChargeBar.SetShowReadout(AValue: Boolean);
 begin
-  if FShowReadout = AValue then Exit;
-  FShowReadout := AValue; Repaint;
+  if FShowReadout = AValue then
+    Exit;
+  FShowReadout := AValue;
+  Repaint;
 end;
 
 procedure TOBDStateOfChargeBar.SetLowThreshold(AValue: Double);
 begin
-  if AValue < 0   then AValue := 0;
-  if AValue > 100 then AValue := 100;
-  if SameValue(FLowThreshold, AValue) then Exit;
-  FLowThreshold := AValue; Repaint;
+  if AValue < 0 then
+    AValue := 0;
+  if AValue > 100 then
+    AValue := 100;
+  if SameValue(FLowThreshold, AValue) then
+    Exit;
+  FLowThreshold := AValue;
+  Repaint;
 end;
 
 procedure TOBDStateOfChargeBar.SetValueFont(AValue: TFont);
@@ -442,14 +470,15 @@ function TOBDStateOfChargeBar.FormatTimeToFull: string;
 var
   Mins, Hours: Int64;
 begin
-  if FTimeToFullMs <= 0 then Exit('');
+  if FTimeToFullMs <= 0 then
+    Exit('');
   Mins := FTimeToFullMs div 60000;
   if Mins < 60 then
     Result := Format('%d min to full', [Mins])
   else
   begin
     Hours := Mins div 60;
-    Mins  := Mins mod 60;
+    Mins := Mins mod 60;
     Result := Format('%dh %dmin to full', [Hours, Mins]);
   end;
 end;
@@ -458,7 +487,7 @@ procedure TOBDStateOfChargeBar.PaintControl(ACanvas: TCanvas);
 var
   Graphics: TGPGraphics;
   Brush: TGPSolidBrush;
-  Pen:   TGPPen;
+  Pen: TGPPen;
   Track, Fill: TGPRectF;
   Pad, BarH, ReadoutW: Integer;
   BarCol: TColor;
@@ -475,9 +504,10 @@ begin
   BarH := System.Math.Min(Height - 2 * Pad, ScaleValue(24));
   Track.X := Pad;
   Track.Y := (Height - BarH) / 2;
-  Track.Width  := Width - 2 * Pad - ReadoutW;
+  Track.Width := Width - 2 * Pad - ReadoutW;
   Track.Height := BarH;
-  if Track.Width < 1 then Exit;
+  if Track.Width < 1 then
+    Exit;
 
   if FSOC <= FLowThreshold then
     BarCol := Palette.Danger
@@ -527,9 +557,12 @@ begin
       ArrowY3 := Track.Y + Track.Height * 0.25;
       Brush := TGPSolidBrush.Create(ColorToARGB(clWhite, 220));
       try
-        var Pts: array[0..2] of TGPPointF;
-        Pts[0].X := ArrowX1;  Pts[0].Y := ArrowY1;
-        Pts[1].X := ArrowX2;  Pts[1].Y := ArrowY2;
+        var
+          Pts: array [0 .. 2] of TGPPointF;
+        Pts[0].X := ArrowX1;
+        Pts[0].Y := ArrowY1;
+        Pts[1].X := ArrowX2;
+        Pts[1].Y := ArrowY2;
         Pts[2].X := Track.X + Track.Width * 0.5;
         Pts[2].Y := ArrowY3;
         Graphics.FillPolygon(Brush, PGPPointF(@Pts[0]), 3);
@@ -548,9 +581,7 @@ begin
     ACanvas.Font.Color := EffectiveForeground;
     PercentText := Format('%.0f %%', [FSOC]);
     TextY := (Height - ACanvas.TextHeight(PercentText)) div 2;
-    ACanvas.TextOut(
-      Width - ReadoutW + ScaleValue(4),
-      TextY - ScaleValue(6),
+    ACanvas.TextOut(Width - ReadoutW + ScaleValue(4), TextY - ScaleValue(6),
       PercentText);
     if FCharging then
     begin
@@ -558,10 +589,8 @@ begin
       ACanvas.Font.Color := Palette.Success;
       EtaText := FormatTimeToFull;
       if EtaText <> '' then
-        ACanvas.TextOut(
-          Width - ReadoutW + ScaleValue(4),
-          TextY + ACanvas.TextHeight(PercentText) - ScaleValue(2),
-          EtaText);
+        ACanvas.TextOut(Width - ReadoutW + ScaleValue(4),
+          TextY + ACanvas.TextHeight(PercentText) - ScaleValue(2), EtaText);
     end;
   end;
 end;
@@ -571,18 +600,19 @@ end;
 constructor TOBDRegenIndicator.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 40;
+  Width := 40;
   Height := 160;
-  FPower      := 0;
-  FMaxPower   := 200;
-  FMaxRegen   := 80;
+  FPower := 0;
+  FMaxPower := 200;
+  FMaxRegen := 80;
   FRegenColor := clDefault;
-  FDrawColor  := clDefault;
+  FDrawColor := clDefault;
 end;
 
 procedure TOBDRegenIndicator.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -591,7 +621,8 @@ end;
 
 procedure TOBDRegenIndicator.SetPower(AValue: Double);
 begin
-  if SameValue(FPower, AValue) then Exit;
+  if SameValue(FPower, AValue) then
+    Exit;
   FPower := AValue;
   NotifyBindings;
   Repaint;
@@ -599,35 +630,45 @@ end;
 
 procedure TOBDRegenIndicator.SetMaxPower(AValue: Double);
 begin
-  if AValue < 1 then AValue := 1;
-  if SameValue(FMaxPower, AValue) then Exit;
-  FMaxPower := AValue; Repaint;
+  if AValue < 1 then
+    AValue := 1;
+  if SameValue(FMaxPower, AValue) then
+    Exit;
+  FMaxPower := AValue;
+  Repaint;
 end;
 
 procedure TOBDRegenIndicator.SetMaxRegen(AValue: Double);
 begin
-  if AValue < 1 then AValue := 1;
-  if SameValue(FMaxRegen, AValue) then Exit;
-  FMaxRegen := AValue; Repaint;
+  if AValue < 1 then
+    AValue := 1;
+  if SameValue(FMaxRegen, AValue) then
+    Exit;
+  FMaxRegen := AValue;
+  Repaint;
 end;
 
 procedure TOBDRegenIndicator.SetRegenColor(AValue: TColor);
 begin
-  if FRegenColor = AValue then Exit;
-  FRegenColor := AValue; Repaint;
+  if FRegenColor = AValue then
+    Exit;
+  FRegenColor := AValue;
+  Repaint;
 end;
 
 procedure TOBDRegenIndicator.SetDrawColor(AValue: TColor);
 begin
-  if FDrawColor = AValue then Exit;
-  FDrawColor := AValue; Repaint;
+  if FDrawColor = AValue then
+    Exit;
+  FDrawColor := AValue;
+  Repaint;
 end;
 
 procedure TOBDRegenIndicator.PaintControl(ACanvas: TCanvas);
 var
   Graphics: TGPGraphics;
   Brush: TGPSolidBrush;
-  Pen:   TGPPen;
+  Pen: TGPPen;
   Track, Fill: TGPRectF;
   Pad: Integer;
   CenterY: Single;
@@ -637,9 +678,10 @@ begin
   Pad := ScaleValue(4);
   Track.X := Pad;
   Track.Y := Pad;
-  Track.Width  := Width  - 2 * Pad;
+  Track.Width := Width - 2 * Pad;
   Track.Height := Height - 2 * Pad;
-  if (Track.Width < 1) or (Track.Height < 1) then Exit;
+  if (Track.Width < 1) or (Track.Height < 1) then
+    Exit;
   CenterY := Track.Y + Track.Height / 2;
 
   Graphics := TGPGraphics.Create(ACanvas.Handle);
@@ -658,27 +700,27 @@ begin
     if FPower > 0 then
     begin
       Col := ResolveColor(FRegenColor, Palette.Success);
-      FillH := System.Math.Min(FPower / FMaxRegen, 1.0) *
-                 (Track.Height / 2);
+      FillH := System.Math.Min(FPower / FMaxRegen, 1.0) * (Track.Height / 2);
       Fill.X := Track.X;
       Fill.Y := CenterY - FillH;
-      Fill.Width  := Track.Width;
+      Fill.Width := Track.Width;
       Fill.Height := FillH;
     end
     else if FPower < 0 then
     begin
       Col := ResolveColor(FDrawColor, EffectiveAccent);
       FillH := System.Math.Min(Abs(FPower) / FMaxPower, 1.0) *
-                 (Track.Height / 2);
+        (Track.Height / 2);
       Fill.X := Track.X;
       Fill.Y := CenterY;
-      Fill.Width  := Track.Width;
+      Fill.Width := Track.Width;
       Fill.Height := FillH;
     end
     else
     begin
       Col := EffectiveAccent;
-      Fill.Width := 0; Fill.Height := 0;
+      Fill.Width := 0;
+      Fill.Height := 0;
     end;
 
     if Fill.Height > 0 then
@@ -694,9 +736,7 @@ begin
     // Centre line.
     Pen := TGPPen.Create(ColorToARGB(EffectiveBorder), ScaleValue(1));
     try
-      Graphics.DrawLine(Pen,
-        Track.X,  CenterY,
-        Track.X + Track.Width, CenterY);
+      Graphics.DrawLine(Pen, Track.X, CenterY, Track.X + Track.Width, CenterY);
     finally
       Pen.Free;
     end;

@@ -1,42 +1,42 @@
-//------------------------------------------------------------------------------
-//  ERD.Logger.Sinks
+﻿// ------------------------------------------------------------------------------
+// ERD.Logger.Sinks
 //
-//  Log-sink interface + the small "ships with the package" sink
-//  set: console (stdout / stderr split by severity), file (with
-//  optional rotation), and an in-memory ring buffer useful for
-//  test fixtures.
+// Log-sink interface + the small "ships with the package" sink
+// set: console (stdout / stderr split by severity), file (with
+// optional rotation), and an in-memory ring buffer useful for
+// test fixtures.
 //
-//  Hosts wire their own sinks by implementing
-//  <see cref="IOBDLogSink"/> and registering through
-//  <c>TOBDLogger.RegisterSink</c>. The visual TOBDLogViewer in
-//  <c>ERD.UI.LogViewer</c> implements the same interface so a
-//  drop-on-form log viewer can be added without extra glue.
+// Hosts wire their own sinks by implementing
+// <see cref="IOBDLogSink"/> and registering through
+// <c>TOBDLogger.RegisterSink</c>. The visual TOBDLogViewer in
+// <c>ERD.UI.LogViewer</c> implements the same interface so a
+// drop-on-form log viewer can be added without extra glue.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-11  ERD  Initial port from v1 ERD.Logger.Sinks.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-11  ERD  Initial port from v1 ERD.Logger.Sinks.
+// ------------------------------------------------------------------------------
 
 unit ERD.Logger.Sinks;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF};
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF};
 
 type
   /// <summary>Log severity level.</summary>
@@ -50,8 +50,7 @@ type
     /// <summary>Error — single-operation failure.</summary>
     olError,
     /// <summary>Critical — fatal / shutdown-worthy.</summary>
-    olCritical
-  );
+    olCritical);
 
   /// <summary>One log event passed to every registered sink.</summary>
   TOBDLogEvent = record
@@ -67,16 +66,16 @@ type
   end;
 
   /// <summary>
-  ///   Sink contract — any host-supplied target that accepts log
-  ///   events.
+  /// Sink contract — any host-supplied target that accepts log
+  /// events.
   /// </summary>
   /// <remarks>
-  ///   Implementations may be reference-counted (e.g.
-  ///   <c>TInterfacedObject</c> sinks) or component-attached
-  ///   (e.g. a <c>TComponent</c> that exposes a no-op
-  ///   <c>_AddRef</c> / <c>_Release</c>). The logger holds
-  ///   interface references so RAII rules apply on the sink
-  ///   side.
+  /// Implementations may be reference-counted (e.g.
+  /// <c>TInterfacedObject</c> sinks) or component-attached
+  /// (e.g. a <c>TComponent</c> that exposes a no-op
+  /// <c>_AddRef</c> / <c>_Release</c>). The logger holds
+  /// interface references so RAII rules apply on the sink
+  /// side.
   /// </remarks>
   IOBDLogSink = interface
     ['{4DAA1F1B-9D2B-4A28-9B0F-2C8C5F5C7D60}']
@@ -89,8 +88,8 @@ type
   end;
 
   /// <summary>
-  ///   Routes events to stdout (debug / info) and stderr
-  ///   (warning / error / critical).
+  /// Routes events to stdout (debug / info) and stderr
+  /// (warning / error / critical).
   /// </summary>
   TOBDLogConsoleSink = class(TInterfacedObject, IOBDLogSink)
   strict private
@@ -109,10 +108,10 @@ type
   end;
 
   /// <summary>
-  ///   Appends events to a UTF-8 text file, one line per event.
-  ///   When <see cref="MaxBytes"/> is non-zero the file is
-  ///   rotated to <c>&lt;name&gt;.1</c>, <c>&lt;name&gt;.2</c>
-  ///   …, dropping the oldest beyond <see cref="MaxBackups"/>.
+  /// Appends events to a UTF-8 text file, one line per event.
+  /// When <see cref="MaxBytes"/> is non-zero the file is
+  /// rotated to <c>&lt;name&gt;.1</c>, <c>&lt;name&gt;.2</c>
+  /// …, dropping the oldest beyond <see cref="MaxBackups"/>.
   /// </summary>
   TOBDLogFileSink = class(TInterfacedObject, IOBDLogSink)
   strict private
@@ -129,8 +128,7 @@ type
     /// <param name="AMaxBytes">Rotation threshold (0 = no
     /// rotation; default 10 MiB).</param>
     /// <param name="AMaxBackups">Backup-file count (default 5).</param>
-    constructor Create(const APath: string;
-      AMaxBytes: Int64 = 10 * 1024 * 1024;
+    constructor Create(const APath: string; AMaxBytes: Int64 = 10 * 1024 * 1024;
       AMaxBackups: Integer = 5);
     /// <summary>Closes the file and frees state.</summary>
     destructor Destroy; override;
@@ -146,9 +144,9 @@ type
   end;
 
   /// <summary>
-  ///   Holds the last <c>Capacity</c> events in memory. Useful
-  ///   from test fixtures and for "show me the last N log
-  ///   lines" host UIs.
+  /// Holds the last <c>Capacity</c> events in memory. Useful
+  /// from test fixtures and for "show me the last N log
+  /// lines" host UIs.
   /// </summary>
   TOBDLogMemorySink = class(TInterfacedObject, IOBDLogSink)
   strict private
@@ -174,12 +172,12 @@ type
     function Count: Integer;
   end;
 
-/// <summary>
-///   Formats <c>AEvent</c> as a single text line
-///   (<c>HH:MM:SS.zzz [LEVEL] [category] message</c>).
-/// </summary>
-/// <param name="AEvent">Event to format.</param>
-/// <returns>Formatted line (no trailing newline).</returns>
+  /// <summary>
+  /// Formats <c>AEvent</c> as a single text line
+  /// (<c>HH:MM:SS.zzz [LEVEL] [category] message</c>).
+  /// </summary>
+  /// <param name="AEvent">Event to format.</param>
+  /// <returns>Formatted line (no trailing newline).</returns>
 function FormatLogLine(const AEvent: TOBDLogEvent): string;
 
 /// <summary>Returns the short uppercase tag for a level
@@ -193,16 +191,21 @@ implementation
 
 uses
   System.IOUtils,
-  {$IFDEF FPC}DateUtils{$ELSE}System.DateUtils{$ENDIF};
+{$IFDEF FPC}DateUtils{$ELSE}System.DateUtils{$ENDIF};
 
 function LogLevelTag(ALevel: TOBDLogLevel): string;
 begin
   case ALevel of
-    olDebug:    Result := 'DEBUG';
-    olInfo:     Result := 'INFO ';
-    olWarning:  Result := 'WARN ';
-    olError:    Result := 'ERROR';
-    olCritical: Result := 'FATAL';
+    olDebug:
+      Result := 'DEBUG';
+    olInfo:
+      Result := 'INFO ';
+    olWarning:
+      Result := 'WARN ';
+    olError:
+      Result := 'ERROR';
+    olCritical:
+      Result := 'FATAL';
   else
     Result := '?????';
   end;
@@ -216,11 +219,9 @@ begin
     Cat := ' [' + AEvent.Category + ']'
   else
     Cat := '';
-  Result := Format('%s [%s]%s %s', [
-    FormatDateTime('hh:nn:ss.zzz', AEvent.Timestamp),
-    LogLevelTag(AEvent.Level),
-    Cat,
-    AEvent.Message]);
+  Result := Format('%s [%s]%s %s',
+    [FormatDateTime('hh:nn:ss.zzz', AEvent.Timestamp),
+    LogLevelTag(AEvent.Level), Cat, AEvent.Message]);
 end;
 
 { ---- TOBDLogConsoleSink --------------------------------------------------- }
@@ -260,8 +261,8 @@ end;
 
 { ---- TOBDLogFileSink ------------------------------------------------------ }
 
-constructor TOBDLogFileSink.Create(const APath: string;
-  AMaxBytes: Int64; AMaxBackups: Integer);
+constructor TOBDLogFileSink.Create(const APath: string; AMaxBytes: Int64;
+  AMaxBackups: Integer);
 begin
   inherited Create;
   FPath := APath;

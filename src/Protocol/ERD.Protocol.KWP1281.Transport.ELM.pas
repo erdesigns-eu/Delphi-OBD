@@ -1,74 +1,74 @@
-//------------------------------------------------------------------------------
-//  ERD.Protocol.KWP1281.Transport.ELM
+// ------------------------------------------------------------------------------
+// ERD.Protocol.KWP1281.Transport.ELM
 //
-//  TKWP1281ELMTransport - IKWP1281Transport implementation on
-//  top of any byte-oriented transport that talks to an ELM327
-//  (or ELM-compatible: STN11xx, OBDLink MX, Tactrix Openport in
-//  ELM mode, etc.) via AT-style commands.
+// TKWP1281ELMTransport - IKWP1281Transport implementation on
+// top of any byte-oriented transport that talks to an ELM327
+// (or ELM-compatible: STN11xx, OBDLink MX, Tactrix Openport in
+// ELM mode, etc.) via AT-style commands.
 //
-//  Honest reality check on ELM + KWP1281:
+// Honest reality check on ELM + KWP1281:
 //
-//    ELM327 was designed for OBD-II protocols (ISO 9141, KWP2000,
-//    J1850, CAN). KWP1281 is older and lower-level - it expects
-//    the client to do per-byte complement-ACK at strict timing.
-//    ELM327 does not expose a "raw KWP1281" mode and its built-
-//    in protocol handlers do not implement the per-byte ACK that
-//    radios and pre-2000 VW ECUs need.
+// ELM327 was designed for OBD-II protocols (ISO 9141, KWP2000,
+// J1850, CAN). KWP1281 is older and lower-level - it expects
+// the client to do per-byte complement-ACK at strict timing.
+// ELM327 does not expose a "raw KWP1281" mode and its built-
+// in protocol handlers do not implement the per-byte ACK that
+// radios and pre-2000 VW ECUs need.
 //
-//    What this transport CAN do reliably:
-//      - 5-baud init via AT IIA <addr> + AT SI - returns KW1/KW2
-//        on most modern ELM clones (v1.4+).
-//      - Detect ELM firmware version via AT I and dispatch
-//        between auto (ATSI) and manual (bit-bang via AT BRT
-//        + AT MA) init paths.
+// What this transport CAN do reliably:
+// - 5-baud init via AT IIA <addr> + AT SI - returns KW1/KW2
+// on most modern ELM clones (v1.4+).
+// - Detect ELM firmware version via AT I and dispatch
+// between auto (ATSI) and manual (bit-bang via AT BRT
+// + AT MA) init paths.
 //
-//    What this transport CANNOT do reliably:
-//      - Per-byte complement-ACK at sub-10 ms latency. Most ELM
-//        clones add 50-200 ms of AT-command overhead per byte,
-//        which exceeds the KWP1281 W4 timeout (50 ms after the
-//        ECU sends a byte) on real radios. SendByte / ReceiveByte
-//        will work in lab conditions and against tolerant ECUs
-//        but should not be expected to drive a real VW radio's
-//        SAFE-EEPROM read sequence.
+// What this transport CANNOT do reliably:
+// - Per-byte complement-ACK at sub-10 ms latency. Most ELM
+// clones add 50-200 ms of AT-command overhead per byte,
+// which exceeds the KWP1281 W4 timeout (50 ms after the
+// ECU sends a byte) on real radios. SendByte / ReceiveByte
+// will work in lab conditions and against tolerant ECUs
+// but should not be expected to drive a real VW radio's
+// SAFE-EEPROM read sequence.
 //
-//    Recommended path for Volkswagen radios:
-//      Use <see cref="ERD.Protocol.KWP1281.Transport.Serial"/>
-//      with a USB-serial adapter (FTDI or PL2303) that supports
-//      sub-10 ms RTS / break control. This unit is provided for
-//      hosts with ELM-only hardware that want to attempt SAFE
-//      recovery under the understanding that it may not work.
+// Recommended path for Volkswagen radios:
+// Use <see cref="ERD.Protocol.KWP1281.Transport.Serial"/>
+// with a USB-serial adapter (FTDI or PL2303) that supports
+// sub-10 ms RTS / break control. This unit is provided for
+// hosts with ELM-only hardware that want to attempt SAFE
+// recovery under the understanding that it may not work.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT - see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT - see LICENSE
 //
-//  History     :
-//    2026-05-10  ERD  Initial implementation - 5-baud init via
-//                     ATSI on v1.4+, manual bit-bang fallback on
-//                     older firmware. Per-byte send/recv via
-//                     direct write + line-buffered read with
-//                     prompt-detection (ELM ends every reply
-//                     with "\r>").
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-10  ERD  Initial implementation - 5-baud init via
+// ATSI on v1.4+, manual bit-bang fallback on
+// older firmware. Per-byte send/recv via
+// direct write + line-buffered read with
+// prompt-detection (ELM ends every reply
+// with "\r>").
+// ------------------------------------------------------------------------------
 
 unit ERD.Protocol.KWP1281.Transport.ELM;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
   ERD.Collections.ThreadedQueue,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.Connection.Types,
   ERD.Connection.Transport.Base,
   ERD.Protocol.KWP1281;
@@ -85,8 +85,7 @@ type
     /// <summary>Host bit-bangs by toggling AT IB10 + AT BD with
     /// 200 ms sleeps. Works on every ELM version but slow and
     /// fragile.</summary>
-    imManualBitBang
-  );
+    imManualBitBang);
 
   /// <summary>KWP1281 transport on top of a byte-oriented
   /// transport that speaks ELM AT commands.
@@ -96,64 +95,62 @@ type
   /// the IKWP1281Transport contract to the codec.</para></summary>
   TKWP1281ELMTransport = class(TInterfacedObject, IKWP1281Transport)
   strict private
-    FUnderlying:   IOBDConnectionTransport;
-    FRxLine:       TOBDThreadedQueue<Byte>;
-    FInitMode:     TKWP1281ELMInitMode;
-    FElmVersion:   string;
-    FByteTimeout:  Integer;
+    FUnderlying: IOBDConnectionTransport;
+    FRxLine: TOBDThreadedQueue<Byte>;
+    FInitMode: TKWP1281ELMInitMode;
+    FElmVersion: string;
+    FByteTimeout: Integer;
     procedure HandleBytes(Sender: TObject; const ABytes: TBytes);
     procedure DrainQueue;
-    function  ReadUntilPrompt(ATimeoutMs: Integer): string;
-    function  SendAt(const ACmd: string; ATimeoutMs: Integer): string;
+    function ReadUntilPrompt(ATimeoutMs: Integer): string;
+    function SendAt(const ACmd: string; ATimeoutMs: Integer): string;
     procedure DetectVersionIfNeeded;
-    function  ParseHexBytes(const ALine: string): TBytes;
-    procedure FiveBaudInit_AtSi(AAddress: Byte;
-      out AKW1, AKW2: Byte; ATimeoutMs: Integer);
-    procedure FiveBaudInit_Manual(AAddress: Byte;
-      out AKW1, AKW2: Byte; ATimeoutMs: Integer);
+    function ParseHexBytes(const ALine: string): TBytes;
+    procedure FiveBaudInit_AtSi(AAddress: Byte; out AKW1, AKW2: Byte;
+      ATimeoutMs: Integer);
+    procedure FiveBaudInit_Manual(AAddress: Byte; out AKW1, AKW2: Byte;
+      ATimeoutMs: Integer);
   public
     /// <summary>Wraps <c>AUnderlying</c> (kept alive by the
     /// interface ref-count). Hooks the underlying transport's
     /// OnDataReceived to feed an internal byte queue.</summary>
     constructor Create(const AUnderlying: IOBDConnectionTransport;
-                       AInitMode: TKWP1281ELMInitMode = imAuto);
+      AInitMode: TKWP1281ELMInitMode = imAuto);
 
     destructor Destroy; override;
 
     // ---- IKWP1281Transport -------------------------------------
     procedure SendByte(AByte: Byte; ATimeoutMs: Integer);
-    function  ReceiveByte(ATimeoutMs: Integer): Byte;
-    procedure FiveBaudInit(AAddress: Byte;
-      out AKW1, AKW2: Byte; ATimeoutMs: Integer);
+    function ReceiveByte(ATimeoutMs: Integer): Byte;
+    procedure FiveBaudInit(AAddress: Byte; out AKW1, AKW2: Byte;
+      ATimeoutMs: Integer);
     procedure Hangup;
 
     /// <summary>Detected ELM firmware version (e.g. "ELM327
     /// v1.5"). Empty until the first AT command runs.</summary>
     property ElmVersion: string read FElmVersion;
 
-    property InitMode: TKWP1281ELMInitMode
-      read FInitMode write FInitMode;
+    property InitMode: TKWP1281ELMInitMode read FInitMode write FInitMode;
   end;
 
 implementation
 
 uses
-  {$IFDEF FPC}StrUtils{$ELSE}System.StrUtils{$ENDIF};
+{$IFDEF FPC}StrUtils{$ELSE}System.StrUtils{$ENDIF};
 
 const
-  PROMPT       = '>';
-  CR           = #13;
-  LF           = #10;
+  PROMPT = '>';
+  CR = #13;
+  LF = #10;
 
-{ TKWP1281ELMTransport --------------------------------------------------------}
+  { TKWP1281ELMTransport -------------------------------------------------------- }
 
-constructor TKWP1281ELMTransport.Create(
-  const AUnderlying: IOBDConnectionTransport;
-  AInitMode: TKWP1281ELMInitMode);
+constructor TKWP1281ELMTransport.Create(const AUnderlying
+  : IOBDConnectionTransport; AInitMode: TKWP1281ELMInitMode);
 begin
   inherited Create;
-  FUnderlying  := AUnderlying;
-  FInitMode    := AInitMode;
+  FUnderlying := AUnderlying;
+  FInitMode := AInitMode;
   FByteTimeout := 1000;
   FRxLine := TOBDThreadedQueue<Byte>.Create(8192, INFINITE, 0);
   FUnderlying.OnDataReceived := HandleBytes;
@@ -166,24 +163,26 @@ begin
   inherited;
 end;
 
-procedure TKWP1281ELMTransport.HandleBytes(Sender: TObject; const ABytes: TBytes);
-var I: Integer;
+procedure TKWP1281ELMTransport.HandleBytes(Sender: TObject;
+  const ABytes: TBytes);
+var
+  I: Integer;
 begin
   for I := 0 to Length(ABytes) - 1 do
     FRxLine.PushItem(ABytes[I]);
 end;
 
 procedure TKWP1281ELMTransport.DrainQueue;
-var Dummy: Byte;
+var
+  Dummy: Byte;
 begin
-  while FRxLine.PopItem(Dummy, 0) = wrSignaled do
-    ;
+  while FRxLine.PopItem(Dummy, 0) = wrSignaled do;
 end;
 
 function TKWP1281ELMTransport.ReadUntilPrompt(ATimeoutMs: Integer): string;
 var
-  B:        Byte;
-  Sw:       TDateTime;
+  B: Byte;
+  Sw: TDateTime;
   ElapsedMs: Integer;
 begin
   Result := '';
@@ -194,18 +193,19 @@ begin
     if FRxLine.PopItem(B, 50) = wrSignaled then
     begin
       Result := Result + Char(B);
-      if Char(B) = PROMPT then Exit;
+      if Char(B) = PROMPT then
+        Exit;
     end;
     ElapsedMs := Round((Now - Sw) * 86400 * 1000);
   end;
-  raise EKWP1281Timeout.Create(
-    'ELM transport: no ">" prompt within ' +
+  raise EKWP1281Timeout.Create('ELM transport: no ">" prompt within ' +
     IntToStr(ATimeoutMs) + ' ms');
 end;
 
 function TKWP1281ELMTransport.SendAt(const ACmd: string;
   ATimeoutMs: Integer): string;
-var Bytes: TBytes;
+var
+  Bytes: TBytes;
 begin
   DrainQueue;
   Bytes := TEncoding.ASCII.GetBytes(ACmd + CR);
@@ -214,9 +214,11 @@ begin
 end;
 
 procedure TKWP1281ELMTransport.DetectVersionIfNeeded;
-var Reply: string;
+var
+  Reply: string;
 begin
-  if FElmVersion <> '' then Exit;
+  if FElmVersion <> '' then
+    Exit;
   Reply := SendAt('ATI', 2000);
   // Strip echo / CR / LF; reply usually contains "ELM327 v1.5"
   // somewhere on a single line.
@@ -228,14 +230,14 @@ end;
 
 function TKWP1281ELMTransport.ParseHexBytes(const ALine: string): TBytes;
 var
-  L:   TStringList;
-  S:   string;
+  L: TStringList;
+  S: string;
   Acc: TList<Byte>;
   Tok: string;
-  I:   Integer;
+  I: Integer;
 begin
   Acc := TList<Byte>.Create;
-  L   := TStringList.Create;
+  L := TStringList.Create;
   try
     S := ALine;
     S := StringReplace(S, CR, ' ', [rfReplaceAll]);
@@ -261,8 +263,7 @@ begin
   end;
 end;
 
-procedure TKWP1281ELMTransport.SendByte(AByte: Byte;
-  ATimeoutMs: Integer);
+procedure TKWP1281ELMTransport.SendByte(AByte: Byte; ATimeoutMs: Integer);
 begin
   // Single hex pair followed by CR. ELM echoes the command and
   // terminates with the prompt - we drain that and let the next
@@ -272,8 +273,8 @@ end;
 
 function TKWP1281ELMTransport.ReceiveByte(ATimeoutMs: Integer): Byte;
 var
-  B:         Byte;
-  Sw:        TDateTime;
+  B: Byte;
+  Sw: TDateTime;
   ElapsedMs: Integer;
 begin
   // Pop one byte from the queue. Skip ASCII 0x0D / 0x0A / '>'
@@ -289,29 +290,29 @@ begin
     end;
     ElapsedMs := Round((Now - Sw) * 86400 * 1000);
   end;
-  raise EKWP1281Timeout.CreateFmt(
-    'ELM transport: no byte within %d ms', [ATimeoutMs]);
+  raise EKWP1281Timeout.CreateFmt('ELM transport: no byte within %d ms',
+    [ATimeoutMs]);
 end;
 
 procedure TKWP1281ELMTransport.FiveBaudInit_AtSi(AAddress: Byte;
   out AKW1, AKW2: Byte; ATimeoutMs: Integer);
-var Reply: string; Bytes: TBytes;
+var
+  Reply: string;
+  Bytes: TBytes;
 begin
   // Set the init address, then run slow init. ATSI returns the
   // sync byte ($55) plus KW1, KW2 as a hex line.
   SendAt(Format('AT IIA %.2X', [AAddress]), 2000);
-  SendAt('AT KW0', 2000);  // disable KW check (we'll validate ourselves)
+  SendAt('AT KW0', 2000); // disable KW check (we'll validate ourselves)
   Reply := SendAt('AT SI', ATimeoutMs);
   Bytes := ParseHexBytes(Reply);
   if Length(Bytes) < 3 then
-    raise EKWP1281Error.CreateFmt(
-      'ELM transport: ATSI returned %d hex bytes (expected at ' +
-      'least 3 - sync, KW1, KW2). Raw reply: %s',
-      [Length(Bytes), Reply]);
+    raise EKWP1281Error.CreateFmt
+      ('ELM transport: ATSI returned %d hex bytes (expected at ' +
+      'least 3 - sync, KW1, KW2). Raw reply: %s', [Length(Bytes), Reply]);
   if Bytes[0] <> $55 then
-    raise EKWP1281Error.CreateFmt(
-      'ELM transport: ATSI sync byte is $%.2X (expected $55)',
-      [Bytes[0]]);
+    raise EKWP1281Error.CreateFmt
+      ('ELM transport: ATSI sync byte is $%.2X (expected $55)', [Bytes[0]]);
   AKW1 := Bytes[1];
   AKW2 := Bytes[2];
 end;
@@ -319,11 +320,11 @@ end;
 procedure TKWP1281ELMTransport.FiveBaudInit_Manual(AAddress: Byte;
   out AKW1, AKW2: Byte; ATimeoutMs: Integer);
 var
-  I:    Integer;
-  Bit:  Integer;
-  Sw:   TDateTime;
-  B:    Byte;
-  Got:  Boolean;
+  I: Integer;
+  Bit: Integer;
+  Sw: TDateTime;
+  B: Byte;
+  Got: Boolean;
   ElapsedMs: Integer;
 begin
   // Manual bit-bang fallback. ELM doesn't expose break-line
@@ -337,11 +338,11 @@ begin
   // or switch to the Serial transport. We document the failure
   // mode explicitly rather than silently producing garbage.
 
-  SendAt('AT WS', 2000);     // warm reset to known state
-  SendAt('AT E0', 2000);     // echo off
-  SendAt('AT L0', 2000);     // linefeeds off
-  SendAt('AT IB10', 2000);   // initialise baud
-  SendAt('AT KW0', 2000);    // KW check off
+  SendAt('AT WS', 2000); // warm reset to known state
+  SendAt('AT E0', 2000); // echo off
+  SendAt('AT L0', 2000); // linefeeds off
+  SendAt('AT IB10', 2000); // initialise baud
+  SendAt('AT KW0', 2000); // KW check off
 
   // Start bit: send a $00 byte, then wait 200 ms.
   SendAt('00', 2000);
@@ -349,8 +350,10 @@ begin
   for I := 0 to 6 do
   begin
     Bit := (AAddress shr I) and 1;
-    if Bit = 1 then SendAt('FF', 2000)
-               else SendAt('00', 2000);
+    if Bit = 1 then
+      SendAt('FF', 2000)
+    else
+      SendAt('00', 2000);
     Sleep(200);
   end;
   // Stop bit
@@ -372,15 +375,16 @@ begin
     ElapsedMs := Round((Now - Sw) * 86400 * 1000);
   end;
   if not Got then
-    raise EKWP1281Timeout.Create(
-      'ELM transport (manual init): sync byte $55 not seen');
+    raise EKWP1281Timeout.Create
+      ('ELM transport (manual init): sync byte $55 not seen');
   AKW1 := ReceiveByte(ATimeoutMs);
   AKW2 := ReceiveByte(ATimeoutMs);
 end;
 
 procedure TKWP1281ELMTransport.FiveBaudInit(AAddress: Byte;
   out AKW1, AKW2: Byte; ATimeoutMs: Integer);
-var Mode: TKWP1281ELMInitMode;
+var
+  Mode: TKWP1281ELMInitMode;
 begin
   DetectVersionIfNeeded;
   Mode := FInitMode;
@@ -390,15 +394,16 @@ begin
     // for ATSI; older v1.0/v1.1/v1.2/v1.3 work but report it
     // anyway, so accept ATSI as the default and only fall
     // back if FElmVersion looks empty / weird.
-    if (FElmVersion = '') or
-       (Pos('ELM327', UpperCase(FElmVersion)) = 0) then
+    if (FElmVersion = '') or (Pos('ELM327', UpperCase(FElmVersion)) = 0) then
       Mode := imManualBitBang
     else
       Mode := imAtSi;
   end;
   case Mode of
-    imAtSi:          FiveBaudInit_AtSi(AAddress, AKW1, AKW2, ATimeoutMs);
-    imManualBitBang: FiveBaudInit_Manual(AAddress, AKW1, AKW2, ATimeoutMs);
+    imAtSi:
+      FiveBaudInit_AtSi(AAddress, AKW1, AKW2, ATimeoutMs);
+    imManualBitBang:
+      FiveBaudInit_Manual(AAddress, AKW1, AKW2, ATimeoutMs);
   end;
 end;
 
@@ -406,7 +411,10 @@ procedure TKWP1281ELMTransport.Hangup;
 begin
   // Best-effort: tell the ELM to drop the bus. AT PC (protocol
   // close) is supported on most v1.3+ clones.
-  try SendAt('AT PC', 2000); except end;
+  try
+    SendAt('AT PC', 2000);
+  except
+  end;
 end;
 
 end.

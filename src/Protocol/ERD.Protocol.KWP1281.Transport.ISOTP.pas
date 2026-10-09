@@ -1,39 +1,39 @@
-//------------------------------------------------------------------------------
-//  ERD.Protocol.KWP1281.Transport.ISOTP
+// ------------------------------------------------------------------------------
+// ERD.Protocol.KWP1281.Transport.ISOTP
 //
-//  TKWP1281ISOTPTransport - adapts an ICANTransport + ISO 15765-2
-//  reassembler to the IKWP1281Transport contract for cars that
-//  gateway K-line traffic to CAN via ISO-TP rather than via
-//  TP2.0. Uncommon in production but ships some BMW / Audi
-//  retrofit gateways and many test rigs.
+// TKWP1281ISOTPTransport - adapts an ICANTransport + ISO 15765-2
+// reassembler to the IKWP1281Transport contract for cars that
+// gateway K-line traffic to CAN via ISO-TP rather than via
+// TP2.0. Uncommon in production but ships some BMW / Audi
+// retrofit gateways and many test rigs.
 //
-//  Like the TP2.0 variant: byte-level KWP1281 semantics are
-//  emulated on top of block-shaped ISO-TP messages. SendByte
-//  buffers until the codec emits 0x03 (block end), then flushes
-//  one ISO-TP message; ReceiveByte refills from the next
-//  reassembled message.
+// Like the TP2.0 variant: byte-level KWP1281 semantics are
+// emulated on top of block-shaped ISO-TP messages. SendByte
+// buffers until the codec emits 0x03 (block end), then flushes
+// one ISO-TP message; ReceiveByte refills from the next
+// reassembled message.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT - see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT - see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.Protocol.KWP1281.Transport.ISOTP;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.Protocol.Types,
   ERD.Protocol.CAN,
   ERD.Protocol.ISO15765,
@@ -42,17 +42,17 @@ uses
 type
   TKWP1281ISOTPTransport = class(TInterfacedObject, IKWP1281Transport)
   strict private
-    FCAN:        ICANTransport;
-    FTxId:       Cardinal;
-    FRxId:       Cardinal;
-    FFlowId:     Cardinal;
+    FCAN: ICANTransport;
+    FTxId: Cardinal;
+    FRxId: Cardinal;
+    FFlowId: Cardinal;
     FReassembler: TOBDIso15765Reassembler;
-    FTxBuf:       TList<Byte>;
-    FRxBuf:       TQueue<Byte>;
-    FAckEcho:     TQueue<Byte>;
+    FTxBuf: TList<Byte>;
+    FRxBuf: TQueue<Byte>;
+    FAckEcho: TQueue<Byte>;
     FFakeKW1, FFakeKW2: Byte;
-    FBlockSize:   Byte;
-    FStMin:       Byte;
+    FBlockSize: Byte;
+    FStMin: Byte;
     procedure FlushAsIsoTpMessage(const AData: TBytes);
     procedure RefillFromIsoTp;
     procedure SendFlowControl;
@@ -64,14 +64,14 @@ type
     /// <param name="AFlowId">CAN ID for flow-control frames we
     /// send back when receiving multi-frame messages.</param>
     constructor Create(const ACAN: ICANTransport;
-                       ATxId, ARxId, AFlowId: Cardinal);
+      ATxId, ARxId, AFlowId: Cardinal);
 
     destructor Destroy; override;
 
     procedure SendByte(AByte: Byte; ATimeoutMs: Integer);
-    function  ReceiveByte(ATimeoutMs: Integer): Byte;
-    procedure FiveBaudInit(AAddress: Byte;
-      out AKW1, AKW2: Byte; ATimeoutMs: Integer);
+    function ReceiveByte(ATimeoutMs: Integer): Byte;
+    procedure FiveBaudInit(AAddress: Byte; out AKW1, AKW2: Byte;
+      ATimeoutMs: Integer);
     procedure Hangup;
 
     /// <summary>ISO-TP block size for our flow-control frames
@@ -87,22 +87,22 @@ implementation
 const
   KWP1281_BLOCK_END = $03;
 
-{ TKWP1281ISOTPTransport ------------------------------------------------------}
+  { TKWP1281ISOTPTransport ------------------------------------------------------ }
 
 constructor TKWP1281ISOTPTransport.Create(const ACAN: ICANTransport;
   ATxId, ARxId, AFlowId: Cardinal);
 begin
   inherited Create;
-  FCAN          := ACAN;
-  FTxId         := ATxId;
-  FRxId         := ARxId;
-  FFlowId       := AFlowId;
-  FReassembler  := TOBDIso15765Reassembler.Create;
-  FTxBuf        := TList<Byte>.Create;
-  FRxBuf        := TQueue<Byte>.Create;
-  FAckEcho      := TQueue<Byte>.Create;
-  FFakeKW1      := $01;
-  FFakeKW2      := $8A;
+  FCAN := ACAN;
+  FTxId := ATxId;
+  FRxId := ARxId;
+  FFlowId := AFlowId;
+  FReassembler := TOBDIso15765Reassembler.Create;
+  FTxBuf := TList<Byte>.Create;
+  FRxBuf := TQueue<Byte>.Create;
+  FAckEcho := TQueue<Byte>.Create;
+  FFakeKW1 := $01;
+  FFakeKW2 := $8A;
   FCAN.SetAcceptanceFilter([FRxId]);
 end;
 
@@ -117,49 +117,48 @@ begin
 end;
 
 procedure TKWP1281ISOTPTransport.SendFlowControl;
-var F: TOBDFrame;
+var
+  F: TOBDFrame;
 begin
-  F := Default(TOBDFrame);
-  F.Id      := FFlowId;
-  F.Payload := TOBDIso15765Reassembler.EncodeFlowControlFrame(
-                 0, FBlockSize, FStMin);
+  F := Default (TOBDFrame);
+  F.Id := FFlowId;
+  F.Payload := TOBDIso15765Reassembler.EncodeFlowControlFrame(0,
+    FBlockSize, FStMin);
   FCAN.SendFrame(F, 1000);
 end;
 
-procedure TKWP1281ISOTPTransport.FlushAsIsoTpMessage(
-  const AData: TBytes);
+procedure TKWP1281ISOTPTransport.FlushAsIsoTpMessage(const AData: TBytes);
 var
   Frames: TArray<TBytes>;
-  I:      Integer;
-  F:      TOBDFrame;
-  Seq:    Byte;
-  Off:    Integer;
-  Reply:  TOBDFrame;
-  Pl:     TBytes;
+  I: Integer;
+  F: TOBDFrame;
+  Seq: Byte;
+  Off: Integer;
+  Reply: TOBDFrame;
+  Pl: TBytes;
   ChunkLen: Integer;
 begin
   if Length(AData) <= 7 then
   begin
-    F := Default(TOBDFrame);
-    F.Id      := FTxId;
+    F := Default (TOBDFrame);
+    F.Id := FTxId;
     F.Payload := TOBDIso15765Reassembler.EncodeSingleFrame(AData);
     FCAN.SendFrame(F, 1000);
     Exit;
   end;
 
   // First frame.
-  F := Default(TOBDFrame);
-  F.Id      := FTxId;
-  F.Payload := TOBDIso15765Reassembler.EncodeFirstFrame(
-                 Cardinal(Length(AData)), Copy(AData, 0, 6));
+  F := Default (TOBDFrame);
+  F.Id := FTxId;
+  F.Payload := TOBDIso15765Reassembler.EncodeFirstFrame(Cardinal(Length(AData)),
+    Copy(AData, 0, 6));
   FCAN.SendFrame(F, 1000);
 
   // Wait for flow-control from the receiver.
   Reply := FCAN.ReceiveFrame(1000);
-  if (Length(Reply.Payload) < 1) or
-     ((Reply.Payload[0] and $F0) <> $30) then
-    raise EKWP1281Error.Create(
-      'KWP1281ISOTPTransport: expected flow-control frame');
+  if (Length(Reply.Payload) < 1) or ((Reply.Payload[0] and $F0) <> $30) then
+    raise EKWP1281Error.Create
+      ('KWP1281ISOTPTransport: expected flow-control frame');
 
   // Consecutive frames.
   Off := 6;
@@ -167,11 +166,12 @@ begin
   while Off < Length(AData) do
   begin
     ChunkLen := Length(AData) - Off;
-    if ChunkLen > 7 then ChunkLen := 7;
-    Pl := TOBDIso15765Reassembler.EncodeConsecutiveFrame(
-            Seq, Copy(AData, Off, ChunkLen));
-    F := Default(TOBDFrame);
-    F.Id      := FTxId;
+    if ChunkLen > 7 then
+      ChunkLen := 7;
+    Pl := TOBDIso15765Reassembler.EncodeConsecutiveFrame(Seq,
+      Copy(AData, Off, ChunkLen));
+    F := Default (TOBDFrame);
+    F.Id := FTxId;
     F.Payload := Pl;
     FCAN.SendFrame(F, 1000);
     Off := Off + ChunkLen;
@@ -180,15 +180,17 @@ begin
 
   // Compiler-stub for unused locals when single-frame branch
   // taken (Frames / I).
-  Frames := nil; if Length(Frames) = 0 then ;
-  I := 0; if I = 0 then ;
+  Frames := nil;
+  if Length(Frames) = 0 then;
+  I := 0;
+  if I = 0 then;
 end;
 
 procedure TKWP1281ISOTPTransport.RefillFromIsoTp;
 var
-  F:    TOBDFrame;
+  F: TOBDFrame;
   Out_: TBytes;
-  I:    Integer;
+  I: Integer;
   GotFlow: Boolean;
 begin
   GotFlow := False;
@@ -225,9 +227,9 @@ begin
   end;
 end;
 
-procedure TKWP1281ISOTPTransport.SendByte(AByte: Byte;
-  ATimeoutMs: Integer);
-var Block: TBytes;
+procedure TKWP1281ISOTPTransport.SendByte(AByte: Byte; ATimeoutMs: Integer);
+var
+  Block: TBytes;
 begin
   FTxBuf.Add(AByte);
   if AByte = KWP1281_BLOCK_END then
@@ -244,12 +246,13 @@ end;
 
 function TKWP1281ISOTPTransport.ReceiveByte(ATimeoutMs: Integer): Byte;
 begin
-  if FAckEcho.Count > 0 then Exit(FAckEcho.Dequeue);
+  if FAckEcho.Count > 0 then
+    Exit(FAckEcho.Dequeue);
   if FRxBuf.Count = 0 then
     RefillFromIsoTp;
   if FRxBuf.Count = 0 then
-    raise EKWP1281Timeout.Create(
-      'KWP1281ISOTPTransport: nothing buffered after refill');
+    raise EKWP1281Timeout.Create
+      ('KWP1281ISOTPTransport: nothing buffered after refill');
   Result := FRxBuf.Dequeue;
 end;
 

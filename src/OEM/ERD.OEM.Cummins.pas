@@ -1,33 +1,33 @@
-//------------------------------------------------------------------------------
-//  ERD.OEM.Cummins
+﻿// ------------------------------------------------------------------------------
+// ERD.OEM.Cummins
 //
-//  Cummins Inc. OEM extension (engine supplier — appears in
-//  Ram heavy-duty pickups, Iveco / IH commercials, marine /
-//  industrial gensets). Catalogue + DTC overlay in
-//  <c>catalogs/cummins.json</c> + <c>catalogs/dtc-cummins.json</c>.
+// Cummins Inc. OEM extension (engine supplier — appears in
+// Ram heavy-duty pickups, Iveco / IH commercials, marine /
+// industrial gensets). Catalogue + DTC overlay in
+// <c>catalogs/cummins.json</c> + <c>catalogs/dtc-cummins.json</c>.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-12  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-12  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.OEM.Cummins;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   ERD.OEM,
   ERD.OEM.Session,
   ERD.OEM.SeedKey,
@@ -41,22 +41,20 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
-    procedure BuildExtendedCatalog(
-      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+    procedure BuildExtendedCatalog(var CodingBlocks: TArray<TOBDOEMCodingBlock>;
       var Adaptations: TArray<TOBDOEMAdaptation>;
       var ActuatorTests: TArray<TOBDOEMActuatorTest>;
       var LivePIDs: TArray<TOBDOEMLivePID>;
       var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
-    procedure SeedDefaultSeedKeyAlgorithms(
-      Reg: TOBDSeedKeyRegistry); override;
+    procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
     function DtcCatalogFileName: string; override;
   public
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
     function ApplicableToVIN(const VIN: string): Boolean; override;
-    function DecodeDID(const DID: Word;
-      const Payload: TBytes): string; override;
+    function DecodeDID(const DID: Word; const Payload: TBytes): string;
+      override;
   end;
 
 implementation
@@ -76,41 +74,37 @@ begin
   Result := 'Cummins Inc. (engine OEM)';
 end;
 
-function TOBDOEMExtensionCummins.ApplicableToVIN(
-  const VIN: string): Boolean;
+function TOBDOEMExtensionCummins.ApplicableToVIN(const VIN: string): Boolean;
 begin
   Result := VINMatchesCatalog('cummins.json', VIN);
 end;
 
-procedure TOBDOEMExtensionCummins.BuildCatalog(
-  var DIDs: TArray<TOBDOEMDataIdentifier>;
-  var Routines: TArray<TOBDOEMRoutine>;
-  var ECUs: TArray<TOBDOEMECU>);
+procedure TOBDOEMExtensionCummins.BuildCatalog
+  (var DIDs: TArray<TOBDOEMDataIdentifier>;
+  var Routines: TArray<TOBDOEMRoutine>; var ECUs: TArray<TOBDOEMECU>);
 begin
   MergeCatalogJSON('cummins.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
-procedure TOBDOEMExtensionCummins.BuildExtendedCatalog(
-  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
-  var Adaptations: TArray<TOBDOEMAdaptation>;
+procedure TOBDOEMExtensionCummins.BuildExtendedCatalog(var CodingBlocks
+  : TArray<TOBDOEMCodingBlock>; var Adaptations: TArray<TOBDOEMAdaptation>;
   var ActuatorTests: TArray<TOBDOEMActuatorTest>;
   var LivePIDs: TArray<TOBDOEMLivePID>;
   var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
 begin
-  MergeExtendedCatalogJSON('cummins.json',
-    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+  MergeExtendedCatalogJSON('cummins.json', CodingBlocks, Adaptations,
+    ActuatorTests, LivePIDs, DtcExtended);
 end;
 
-procedure TOBDOEMExtensionCummins.SeedDefaultSeedKeyAlgorithms(
-  Reg: TOBDSeedKeyRegistry);
+procedure TOBDOEMExtensionCummins.SeedDefaultSeedKeyAlgorithms
+  (Reg: TOBDSeedKeyRegistry);
 begin
   Reg.RegisterAlgorithm($01,
     IOBDSeedKeyAlgorithm(TOBDSeedKeyKWP2000TwosComplement.Create()));
 end;
 
-procedure TOBDOEMExtensionCummins.SeedDefaultDtcCatalog(
-  Cat: TOBDDtcCatalog);
+procedure TOBDOEMExtensionCummins.SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog);
 begin
   inherited;
   MergeDtcCatalog('dtc-iso-15031.json', Cat);
@@ -145,6 +139,7 @@ begin
 end;
 
 initialization
-  TOBDOEMRegistry.RegisterExtension(TOBDOEMExtensionCummins.Create);
+
+TOBDOEMRegistry.RegisterExtension(TOBDOEMExtensionCummins.Create);
 
 end.

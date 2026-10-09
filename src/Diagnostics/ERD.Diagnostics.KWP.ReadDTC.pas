@@ -1,57 +1,57 @@
-//------------------------------------------------------------------------------
-//  ERD.Diagnostics.KWP.ReadDTC
+﻿// ------------------------------------------------------------------------------
+// ERD.Diagnostics.KWP.ReadDTC
 //
-//  TOBDKWPReadDTC — non-visual component for the KWP2000 read-DTC
-//  services:
+// TOBDKWPReadDTC — non-visual component for the KWP2000 read-DTC
+// services:
 //
-//    Service 0x18 — ReadDTCByStatus    (selective read by status
-//                                       byte + DTC-group word)
-//    Service 0x19 — ReadStatusOfDTC    (status query for one DTC)
+// Service 0x18 — ReadDTCByStatus    (selective read by status
+// byte + DTC-group word)
+// Service 0x19 — ReadStatusOfDTC    (status query for one DTC)
 //
-//  Wire format per ISO 14230-3:1999 §6.6:
+// Wire format per ISO 14230-3:1999 §6.6:
 //
-//    ReadDTCByStatus  request : 18 <statusByte> <group-hi> <group-lo>
-//    ReadDTCByStatus  response: 58 <count> [<DTC-hi> <DTC-lo> <status>]*
+// ReadDTCByStatus  request : 18 <statusByte> <group-hi> <group-lo>
+// ReadDTCByStatus  response: 58 <count> [<DTC-hi> <DTC-lo> <status>]*
 //
-//    ReadStatusOfDTC  request : 19 <DTC-hi> <DTC-lo>
-//    ReadStatusOfDTC  response: 59 <DTC-hi> <DTC-lo> <status>
+// ReadStatusOfDTC  request : 19 <DTC-hi> <DTC-lo>
+// ReadStatusOfDTC  response: 59 <DTC-hi> <DTC-lo> <status>
 //
-//  The component decodes the 16-bit raw DTC into J2012 P/C/B/U
-//  format identically to the UDS ReadDTC component.
+// The component decodes the 16-bit raw DTC into J2012 P/C/B/U
+// format identically to the UDS ReadDTC component.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - ISO 14230-3:1999 §6.6 (Read fault information services)
-//    - ISO 15031-5 § 7 (J2012 DTC encoding)
+// References  :
+// - ISO 14230-3:1999 §6.6 (Read fault information services)
+// - ISO 15031-5 § 7 (J2012 DTC encoding)
 //
-//  History     :
-//    2026-05-11  ERD  Initial implementation.
-//    2026-10-08  ERD  Own, cancel and reap async request workers.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-11  ERD  Initial implementation.
+// 2026-10-08  ERD  Own, cancel and reap async request workers.
+// ------------------------------------------------------------------------------
 
 unit ERD.Diagnostics.KWP.ReadDTC;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
   ERD.Connection,
-  {$IFDEF FPC}ERD.Compat.Functions,{$ENDIF}
+{$IFDEF FPC}ERD.Compat.Functions, {$ENDIF}
   ERD.Connection.Types,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.Types,
   ERD.Protocol.Types,
   ERD.Protocol.KWP2000,
@@ -67,7 +67,7 @@ const
 
 type
   /// <summary>
-  ///   One decoded KWP DTC entry.
+  /// One decoded KWP DTC entry.
   /// </summary>
   TOBDKWPDtcEntry = record
     /// <summary>5-character J2012 DTC code (e.g. P0420).</summary>
@@ -84,12 +84,12 @@ type
     const AEntries: TArray<TOBDKWPDtcEntry>) of object;
 
   /// <summary>
-  ///   KWP2000 ReadDTC component.
+  /// KWP2000 ReadDTC component.
   /// </summary>
   /// <remarks>
-  ///   Drop on a form, assign <c>Protocol</c>, call
-  ///   <see cref="ReadByStatus"/> for a bulk sweep or
-  ///   <see cref="ReadStatusOf"/> for a single-DTC status query.
+  /// Drop on a form, assign <c>Protocol</c>, call
+  /// <see cref="ReadByStatus"/> for a bulk sweep or
+  /// <see cref="ReadStatusOf"/> for a single-DTC status query.
   /// </remarks>
   TOBDKWPReadDTC = class(TComponent)
   strict private
@@ -107,8 +107,8 @@ type
     procedure FinishAsync;
     procedure GuardSingleAsync;
     procedure ReleaseAsync;
-    function DoReadByStatus(AStatus: Byte;
-      AGroup: Word): TArray<TOBDKWPDtcEntry>;
+    function DoReadByStatus(AStatus: Byte; AGroup: Word)
+      : TArray<TOBDKWPDtcEntry>;
     function DoReadStatusOf(ADTC: Word): TOBDKWPDtcEntry;
     procedure FireRead(const AEntries: TArray<TOBDKWPDtcEntry>);
     procedure FireError(ACode: TOBDErrorCode; const AMessage: string);
@@ -124,7 +124,7 @@ type
     destructor Destroy; override;
 
     /// <summary>
-    ///   Decodes a 16-bit raw DTC into the J2012 5-character form.
+    /// Decodes a 16-bit raw DTC into the J2012 5-character form.
     /// </summary>
     /// <param name="AHi">High DTC byte.</param>
     /// <param name="ALo">Low DTC byte.</param>
@@ -132,7 +132,7 @@ type
     class function DecodeJ2012(AHi: Byte; ALo: Byte): string; static;
 
     /// <summary>
-    ///   Service 0x18 — ReadDTCByStatus.
+    /// Service 0x18 — ReadDTCByStatus.
     /// </summary>
     /// <param name="AStatus">Status-byte filter (e.g.
     /// <c>KWP_DTC_STATUS_ALL</c>).</param>
@@ -140,25 +140,25 @@ type
     /// <c>KWP_DTC_GROUP_ALL</c>).</param>
     /// <returns>Decoded DTC entries.</returns>
     /// <exception cref="EOBDConfig">
-    ///   <c>Protocol</c> is not assigned.
+    /// <c>Protocol</c> is not assigned.
     /// </exception>
     /// <exception cref="EOBDProtocolErr">
-    ///   ECU returned a negative or truncated response.
+    /// ECU returned a negative or truncated response.
     /// </exception>
     function ReadByStatus(AStatus: Byte = KWP_DTC_STATUS_ALL;
       AGroup: Word = KWP_DTC_GROUP_ALL): TArray<TOBDKWPDtcEntry>;
 
     /// <summary>
-    ///   Service 0x19 — ReadStatusOfDTC.
+    /// Service 0x19 — ReadStatusOfDTC.
     /// </summary>
     /// <param name="ADTC">2-byte DTC value to query.</param>
     /// <returns>Decoded entry with the current status byte.</returns>
     /// <exception cref="EOBDConfig">
-    ///   <c>Protocol</c> is not assigned.
+    /// <c>Protocol</c> is not assigned.
     /// </exception>
     /// <exception cref="EOBDProtocolErr">
-    ///   ECU returned a negative or short response, or the DTC
-    ///   echo did not match.
+    /// ECU returned a negative or short response, or the DTC
+    /// echo did not match.
     /// </exception>
     function ReadStatusOf(ADTC: Word): TOBDKWPDtcEntry;
 
@@ -166,7 +166,7 @@ type
     /// <param name="AStatus">Status-byte filter.</param>
     /// <param name="AGroup">DTC-group word.</param>
     /// <exception cref="EOBDConfig">
-    ///   Another async read is already in flight.
+    /// Another async read is already in flight.
     /// </exception>
     procedure ReadByStatusAsync(AStatus: Byte = KWP_DTC_STATUS_ALL;
       AGroup: Word = KWP_DTC_GROUP_ALL);
@@ -237,8 +237,7 @@ begin
     TThread.Queue(TThread.CurrentThread,
       procedure
       begin
-        if not IsAsyncCancelled and
-          Assigned(FOnProgress) then
+        if not IsAsyncCancelled and Assigned(FOnProgress) then
           FOnProgress(Self, Step);
       end);
 end;
@@ -292,7 +291,8 @@ begin
   if FWorker = nil then
     Exit;
   if TThread.CurrentThread.ThreadID <> MainThreadID then
-    raise EOBDConfig.Create('TOBDKWPReadDTC: async lifecycle requires main thread');
+    raise EOBDConfig.Create
+      ('TOBDKWPReadDTC: async lifecycle requires main thread');
   TInterlocked.Exchange(FCancelled, 1);
   FWorker.Terminate;
   // Joining may pump main-thread callbacks. Cancellation suppresses their
@@ -330,20 +330,18 @@ end;
 
 class function TOBDKWPReadDTC.DecodeJ2012(AHi: Byte; ALo: Byte): string;
 const
-  Prefix: array[0..3] of Char = ('P', 'C', 'B', 'U');
+  Prefix: array [0 .. 3] of Char = ('P', 'C', 'B', 'U');
 var
   PrefixIdx: Integer;
 begin
   PrefixIdx := (AHi shr 6) and $03;
-  Result := Prefix[PrefixIdx] +
-            IntToHex((AHi shr 4) and $03, 1) +
-            IntToHex(AHi and $0F, 1) +
-            IntToHex((ALo shr 4) and $0F, 1) +
-            IntToHex(ALo and $0F, 1);
+  Result := Prefix[PrefixIdx] + IntToHex((AHi shr 4) and $03, 1) +
+    IntToHex(AHi and $0F, 1) + IntToHex((ALo shr 4) and $0F, 1) +
+    IntToHex(ALo and $0F, 1);
 end;
 
-function TOBDKWPReadDTC.DoReadByStatus(AStatus: Byte;
-  AGroup: Word): TArray<TOBDKWPDtcEntry>;
+function TOBDKWPReadDTC.DoReadByStatus(AStatus: Byte; AGroup: Word)
+  : TArray<TOBDKWPDtcEntry>;
 var
   Req: TBytes;
   Resp: TOBDResponse;
@@ -363,11 +361,11 @@ begin
   FireProgress(1, 'Request');
   Resp := FProtocol.Request(KWP_SID_ReadDTCByStatus, Req);
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt(
-      'ReadDTCByStatus negative: %s', [Resp.NRCText]);
+    raise EOBDProtocolErr.CreateFmt('ReadDTCByStatus negative: %s',
+      [Resp.NRCText]);
   if Length(Resp.Data) < 1 then
-    raise EOBDProtocolErr.Create(
-      'ReadDTCByStatus: response missing count byte');
+    raise EOBDProtocolErr.Create
+      ('ReadDTCByStatus: response missing count byte');
 
   // Response: <count> [<DTC-hi> <DTC-lo> <status>]*
   Acc := TList<TOBDKWPDtcEntry>.Create;
@@ -375,7 +373,7 @@ begin
     Off := 1;
     while Off + 3 <= Length(Resp.Data) do
     begin
-      E := Default(TOBDKWPDtcEntry);
+      E := Default (TOBDKWPDtcEntry);
       E.Code := DecodeJ2012(Resp.Data[Off], Resp.Data[Off + 1]);
       E.Status := Resp.Data[Off + 2];
       E.Raw := Copy(Resp.Data, Off, 3);
@@ -405,27 +403,27 @@ begin
   FireProgress(1, 'Request');
   Resp := FProtocol.Request(KWP_SID_ReadStatusOfDTC, Req);
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt(
-      'ReadStatusOfDTC (0x%.4x) negative: %s', [ADTC, Resp.NRCText]);
+    raise EOBDProtocolErr.CreateFmt('ReadStatusOfDTC (0x%.4x) negative: %s',
+      [ADTC, Resp.NRCText]);
   if Length(Resp.Data) < 3 then
-    raise EOBDProtocolErr.CreateFmt(
-      'ReadStatusOfDTC (0x%.4x): short response', [ADTC]);
+    raise EOBDProtocolErr.CreateFmt
+      ('ReadStatusOfDTC (0x%.4x): short response', [ADTC]);
 
   EchoDTC := (Word(Resp.Data[0]) shl 8) or Word(Resp.Data[1]);
   if EchoDTC <> ADTC then
-    raise EOBDProtocolErr.CreateFmt(
-      'ReadStatusOfDTC echo mismatch: requested 0x%.4x, got 0x%.4x',
+    raise EOBDProtocolErr.CreateFmt
+      ('ReadStatusOfDTC echo mismatch: requested 0x%.4x, got 0x%.4x',
       [ADTC, EchoDTC]);
 
-  Result := Default(TOBDKWPDtcEntry);
+  Result := Default (TOBDKWPDtcEntry);
   Result.Code := DecodeJ2012(Resp.Data[0], Resp.Data[1]);
   Result.Status := Resp.Data[2];
   Result.Raw := Copy(Resp.Data, 0, 3);
   FireProgress(2, 'Response');
 end;
 
-function TOBDKWPReadDTC.ReadByStatus(AStatus: Byte;
-  AGroup: Word): TArray<TOBDKWPDtcEntry>;
+function TOBDKWPReadDTC.ReadByStatus(AStatus: Byte; AGroup: Word)
+  : TArray<TOBDKWPDtcEntry>;
 begin
   Result := DoReadByStatus(AStatus, AGroup);
   FireRead(Result);
@@ -441,8 +439,7 @@ begin
   FireRead(One);
 end;
 
-procedure TOBDKWPReadDTC.ReadByStatusAsync(AStatus: Byte;
-  AGroup: Word);
+procedure TOBDKWPReadDTC.ReadByStatusAsync(AStatus: Byte; AGroup: Word);
 begin
   BeginAsync(
     procedure
@@ -473,7 +470,7 @@ begin
 end;
 
 procedure TOBDKWPReadDTC.FireError(ACode: TOBDErrorCode;
-  const AMessage: string);
+const AMessage: string);
 var
   Self_: TOBDKWPReadDTC;
   Code: TOBDErrorCode;

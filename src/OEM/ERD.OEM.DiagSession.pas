@@ -1,46 +1,46 @@
-//------------------------------------------------------------------------------
-//  ERD.OEM.DiagSession
+﻿// ------------------------------------------------------------------------------
+// ERD.OEM.DiagSession
 //
-//  High-level diagnostic-session wrapper. Stitches the OEM
-//  session negotiator, seed-key registry, DID catalogue and
-//  RoutineControl framework into one stateful workflow with the
-//  failure modes a tool builder actually cares about.
+// High-level diagnostic-session wrapper. Stitches the OEM
+// session negotiator, seed-key registry, DID catalogue and
+// RoutineControl framework into one stateful workflow with the
+// failure modes a tool builder actually cares about.
 //
-//  The wrapper owns the tester-present heartbeat thread so
-//  callers do not have to remember Stop + Free lifecycles. Each
-//  high-level call returns a boolean for the simple case and
-//  exposes the last detailed error via <see cref="LastError"/>
-//  when the boolean is <c>False</c>.
+// The wrapper owns the tester-present heartbeat thread so
+// callers do not have to remember Stop + Free lifecycles. Each
+// high-level call returns a boolean for the simple case and
+// exposes the last detailed error via <see cref="LastError"/>
+// when the boolean is <c>False</c>.
 //
-//  SecurityAccess is delegated to
-//  <see cref="TOBDSecurityAccessClient"/> so the timing / NRC
-//  / retry policy is shared with hosts that drive the dance
-//  directly.
+// SecurityAccess is delegated to
+// <see cref="TOBDSecurityAccessClient"/> so the timing / NRC
+// / retry policy is shared with hosts that drive the dance
+// directly.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-12  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-12  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.OEM.DiagSession;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
   ERD.Protocol,
   ERD.Protocol.Types,
   ERD.OEM,
@@ -130,19 +130,16 @@ type
     /// payload (everything past <c>62 hi lo</c>). Negative
     /// replies populate <see cref="LastError"/> and return
     /// <c>False</c>.</summary>
-    function ReadDID(ADID: Word;
-      out APayload: TBytes): Boolean; overload;
+    function ReadDID(ADID: Word; out APayload: TBytes): Boolean; overload;
 
     /// <summary>ReadDID + OEM <c>DecodeDID</c> in one
     /// call.</summary>
-    function ReadDID(ADID: Word;
-      out ADecoded: string): Boolean; overload;
+    function ReadDID(ADID: Word; out ADecoded: string): Boolean; overload;
 
     /// <summary>RoutineControl 31 01 with optional input
     /// data. Returns the status payload (everything past
     /// <c>71 01 RID</c>).</summary>
-    function StartRoutine(ARID: Word;
-      const AInputData: TBytes;
+    function StartRoutine(ARID: Word; const AInputData: TBytes;
       out AStatus: TBytes): Boolean;
 
     /// <summary>RoutineControl 31 02 — stop the named
@@ -151,8 +148,7 @@ type
 
     /// <summary>RoutineControl 31 03 — request the routine's
     /// results.</summary>
-    function RequestRoutineResults(ARID: Word;
-      out AStatus: TBytes): Boolean;
+    function RequestRoutineResults(ARID: Word; out AStatus: TBytes): Boolean;
 
     /// <summary>Current state.</summary>
     function State: TOBDDiagSessionState;
@@ -176,17 +172,17 @@ constructor TOBDDiagSession.Create(AProtocol: TOBDProtocol;
   const AExtension: IOBDOEMExtension);
 begin
   if AProtocol = nil then
-    raise EOBDDiagSessionError.Create(
-      'TOBDDiagSession requires a non-nil protocol');
+    raise EOBDDiagSessionError.Create
+      ('TOBDDiagSession requires a non-nil protocol');
   if AExtension = nil then
-    raise EOBDDiagSessionError.Create(
-      'TOBDDiagSession requires a non-nil OEM extension');
+    raise EOBDDiagSessionError.Create
+      ('TOBDDiagSession requires a non-nil OEM extension');
   inherited Create;
   FProtocol := AProtocol;
   FOEM := AExtension;
   FRunner := TOBDSessionRunner.Create(AProtocol);
-  FSecurity := TOBDSecurityAccessClient.Create(
-    AProtocol, AExtension.SeedKeyRegistry);
+  FSecurity := TOBDSecurityAccessClient.Create(AProtocol,
+    AExtension.SeedKeyRegistry);
   FState := dssIdle;
   FActiveSession := sstDefault;
   FLock := TCriticalSection.Create;
@@ -226,16 +222,14 @@ function TOBDDiagSession.CheckResponse(const Resp: TOBDResponse;
 begin
   if Resp.IsNegative then
   begin
-    FLastError := Format('%s rejected: %s',
-      [Operation, FormatNRC(Resp.NRC)]);
+    FLastError := Format('%s rejected: %s', [Operation, FormatNRC(Resp.NRC)]);
     Exit(False);
   end;
   FLastError := '';
   Result := True;
 end;
 
-function TOBDDiagSession.BeginSession(
-  ASessionType: TOBDSessionType;
+function TOBDDiagSession.BeginSession(ASessionType: TOBDSessionType;
   AEcuAddress: Word): Boolean;
 var
   Plan: TOBDSessionPlan;
@@ -244,19 +238,16 @@ begin
   FLock.Enter;
   try
     if (FState in [dssActive, dssActiveUnlocked]) and
-       (FActiveSession = ASessionType) and
-       (FActiveECU = AEcuAddress) then
+      (FActiveSession = ASessionType) and (FActiveECU = AEcuAddress) then
       Exit(True);
     StopHeartbeat;
 
-    Plan := FOEM.SessionNegotiator.BeginSessionPlan(
-      ASessionType, AEcuAddress);
+    Plan := FOEM.SessionNegotiator.BeginSessionPlan(ASessionType, AEcuAddress);
     RunResult := FRunner.Execute(Plan);
     if not RunResult.Success then
     begin
       if Length(RunResult.Steps) > 0 then
-        FLastError :=
-          RunResult.Steps[High(RunResult.Steps)].ErrorMessage
+        FLastError := RunResult.Steps[High(RunResult.Steps)].ErrorMessage
       else
         FLastError := 'BeginSession failed before any step ran';
       Exit(False);
@@ -297,8 +288,7 @@ begin
     FUnlockedLevel := 0;
     Result := RunResult.Success;
     if not Result and (Length(RunResult.Steps) > 0) then
-      FLastError :=
-        RunResult.Steps[High(RunResult.Steps)].ErrorMessage
+      FLastError := RunResult.Steps[High(RunResult.Steps)].ErrorMessage
     else if Result then
       FLastError := '';
   finally
@@ -314,7 +304,7 @@ var
 begin
   FLock.Enter;
   try
-    if not (FState in [dssActive, dssActiveUnlocked]) then
+    if not(FState in [dssActive, dssActiveUnlocked]) then
     begin
       FLastError :=
         'UnlockSecurityAccess requires an active non-default session';
@@ -353,8 +343,7 @@ begin
   end;
 end;
 
-function TOBDDiagSession.ReadDID(ADID: Word;
-  out APayload: TBytes): Boolean;
+function TOBDDiagSession.ReadDID(ADID: Word; out APayload: TBytes): Boolean;
 var
   Resp: TOBDResponse;
 begin
@@ -362,18 +351,16 @@ begin
   try
     APayload := nil;
     try
-      Resp := FProtocol.Request($22,
-        TBytes.Create(Byte(ADID shr 8), Byte(ADID and $FF)));
+      Resp := FProtocol.Request($22, TBytes.Create(Byte(ADID shr 8),
+        Byte(ADID and $FF)));
     except
       on E: Exception do
       begin
-        FLastError := Format('ReadDID 0x%.4X: %s',
-          [ADID, E.Message]);
+        FLastError := Format('ReadDID 0x%.4X: %s', [ADID, E.Message]);
         Exit(False);
       end;
     end;
-    if not CheckResponse(Resp,
-        Format('ReadDID 0x%.4X', [ADID])) then
+    if not CheckResponse(Resp, Format('ReadDID 0x%.4X', [ADID])) then
       Exit(False);
     // The protocol decoder strips the SID and echoed DID, so
     // Data is the payload directly.
@@ -384,8 +371,7 @@ begin
   end;
 end;
 
-function TOBDDiagSession.ReadDID(ADID: Word;
-  out ADecoded: string): Boolean;
+function TOBDDiagSession.ReadDID(ADID: Word; out ADecoded: string): Boolean;
 var
   Bytes: TBytes;
 begin
@@ -395,8 +381,8 @@ begin
     ADecoded := FOEM.DecodeDID(ADID, Bytes);
 end;
 
-function TOBDDiagSession.StartRoutine(ARID: Word;
-  const AInputData: TBytes; out AStatus: TBytes): Boolean;
+function TOBDDiagSession.StartRoutine(ARID: Word; const AInputData: TBytes;
+  out AStatus: TBytes): Boolean;
 var
   Request, ReplyBytes: TBytes;
   Resp: TOBDResponse;
@@ -415,13 +401,11 @@ begin
     except
       on E: Exception do
       begin
-        FLastError := Format('StartRoutine 0x%.4X: %s',
-          [ARID, E.Message]);
+        FLastError := Format('StartRoutine 0x%.4X: %s', [ARID, E.Message]);
         Exit(False);
       end;
     end;
-    if not CheckResponse(Resp,
-        Format('StartRoutine 0x%.4X', [ARID])) then
+    if not CheckResponse(Resp, Format('StartRoutine 0x%.4X', [ARID])) then
       Exit(False);
     // ParseRoutineResponse expects the on-wire frame with the
     // positive-response SID — reassemble [71 SF hi lo data…].
@@ -459,13 +443,11 @@ begin
     except
       on E: Exception do
       begin
-        FLastError := Format('StopRoutine 0x%.4X: %s',
-          [ARID, E.Message]);
+        FLastError := Format('StopRoutine 0x%.4X: %s', [ARID, E.Message]);
         Exit(False);
       end;
     end;
-    if not CheckResponse(Resp,
-        Format('StopRoutine 0x%.4X', [ARID])) then
+    if not CheckResponse(Resp, Format('StopRoutine 0x%.4X', [ARID])) then
       Exit(False);
     SetLength(ReplyBytes, 1 + Length(Resp.Data));
     ReplyBytes[0] := Resp.ServiceID;
@@ -509,16 +491,15 @@ begin
         Exit(False);
       end;
     end;
-    if not CheckResponse(Resp,
-        Format('RequestRoutineResults 0x%.4X', [ARID])) then
+    if not CheckResponse(Resp, Format('RequestRoutineResults 0x%.4X', [ARID]))
+    then
       Exit(False);
     SetLength(ReplyBytes, 1 + Length(Resp.Data));
     ReplyBytes[0] := Resp.ServiceID;
     if Length(Resp.Data) > 0 then
       Move(Resp.Data[0], ReplyBytes[1], Length(Resp.Data));
     try
-      AStatus := ParseRoutineResponse(ReplyBytes,
-        rcRequestResults, ARID);
+      AStatus := ParseRoutineResponse(ReplyBytes, rcRequestResults, ARID);
       Result := True;
     except
       on E: Exception do

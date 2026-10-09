@@ -1,79 +1,79 @@
-//------------------------------------------------------------------------------
-//  ERD.Calibration.CCP
+﻿// ------------------------------------------------------------------------------
+// ERD.Calibration.CCP
 //
-//  TOBDCCP — non-visual ASAP1a CCP (CAN Calibration Protocol) master.
+// TOBDCCP — non-visual ASAP1a CCP (CAN Calibration Protocol) master.
 //
-//  CCP is the legacy predecessor of XCP and lives only on classic
-//  CAN. Each command is 8 bytes: PID + counter + 6 parameter bytes.
-//  Responses are also 8 bytes and carry a 2-byte CRO/CRM counter
-//  echo for matching.
+// CCP is the legacy predecessor of XCP and lives only on classic
+// CAN. Each command is 8 bytes: PID + counter + 6 parameter bytes.
+// Responses are also 8 bytes and carry a 2-byte CRO/CRM counter
+// echo for matching.
 //
-//  v1 covers:
+// v1 covers:
 //
-//    - CONNECT / DISCONNECT
-//    - GET_CCP_VERSION
-//    - EXCHANGE_ID
-//    - SET_MTA / DNLOAD / UPLOAD
-//    - GET_SEED / UNLOCK
-//    - SELECT_CAL_PAGE
-//    - DTM_SET_DAQ_PTR / DTM_WRITE_DAQ / DTM_START_STOP
+// - CONNECT / DISCONNECT
+// - GET_CCP_VERSION
+// - EXCHANGE_ID
+// - SET_MTA / DNLOAD / UPLOAD
+// - GET_SEED / UNLOCK
+// - SELECT_CAL_PAGE
+// - DTM_SET_DAQ_PTR / DTM_WRITE_DAQ / DTM_START_STOP
 //
-//  Like the XCP master, CCP rides on top of an IOBDXCPTransport
-//  implementation. CCP doesn't need an XCP-specific contract — the
-//  same raw-byte send/receive surface works.
+// Like the XCP master, CCP rides on top of an IOBDXCPTransport
+// implementation. CCP doesn't need an XCP-specific contract — the
+// same raw-byte send/receive surface works.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - ASAP1a CCP v2.1 (CAN Calibration Protocol)
+// References  :
+// - ASAP1a CCP v2.1 (CAN Calibration Protocol)
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Calibration.CCP;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
   ERD.Protocol.Types,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   ERD.Types,
   ERD.Calibration.XCP.Transport;
 
 const
   // ---- CCP command codes ----
-  CCP_CMD_CONNECT          = $01;
-  CCP_CMD_GET_CCP_VERSION  = $1B;
-  CCP_CMD_EXCHANGE_ID      = $17;
-  CCP_CMD_GET_SEED         = $12;
-  CCP_CMD_UNLOCK           = $13;
-  CCP_CMD_SET_MTA          = $02;
-  CCP_CMD_DNLOAD           = $03;
-  CCP_CMD_UPLOAD           = $04;
-  CCP_CMD_DISCONNECT       = $07;
-  CCP_CMD_SELECT_CAL_PAGE  = $11;
-  CCP_CMD_GET_DAQ_SIZE     = $14;
-  CCP_CMD_SET_DAQ_PTR      = $15;
-  CCP_CMD_WRITE_DAQ        = $16;
-  CCP_CMD_START_STOP       = $06;
-  CCP_CMD_START_STOP_ALL   = $08;
+  CCP_CMD_CONNECT = $01;
+  CCP_CMD_GET_CCP_VERSION = $1B;
+  CCP_CMD_EXCHANGE_ID = $17;
+  CCP_CMD_GET_SEED = $12;
+  CCP_CMD_UNLOCK = $13;
+  CCP_CMD_SET_MTA = $02;
+  CCP_CMD_DNLOAD = $03;
+  CCP_CMD_UPLOAD = $04;
+  CCP_CMD_DISCONNECT = $07;
+  CCP_CMD_SELECT_CAL_PAGE = $11;
+  CCP_CMD_GET_DAQ_SIZE = $14;
+  CCP_CMD_SET_DAQ_PTR = $15;
+  CCP_CMD_WRITE_DAQ = $16;
+  CCP_CMD_START_STOP = $06;
+  CCP_CMD_START_STOP_ALL = $08;
 
   // CCP packet IDs in the slave response.
-  CCP_RES_OK    = $FF;
+  CCP_RES_OK = $FF;
   CCP_RES_EVENT = $FE;
-  CCP_RES_DATA  = $FD;
+  CCP_RES_DATA = $FD;
 
 type
   /// <summary>CCP master component.</summary>
@@ -162,8 +162,10 @@ begin
   Result[1] := FCounter;
   Inc(FCounter); // CCP wraps naturally
   N := Length(AArgs);
-  if N > 6 then N := 6;
-  if N > 0 then Move(AArgs[0], Result[2], N);
+  if N > 6 then
+    N := 6;
+  if N > 0 then
+    Move(AArgs[0], Result[2], N);
 end;
 
 function TOBDCCP.Exchange(ACmd: Byte; const AArgs: TBytes): TBytes;
@@ -192,7 +194,8 @@ var
 begin
   if FTransport = nil then
     raise EOBDConfig.Create('TOBDCCP: Transport not assigned');
-  if not FTransport.IsConnected then FTransport.Connect;
+  if not FTransport.IsConnected then
+    FTransport.Connect;
   // Args: stationAddrLo, stationAddrHi, padding x4 (CCP §6.1.2).
   SetLength(Args, 6);
   Args[0] := Byte(AStationAddress and $FF);
@@ -206,9 +209,13 @@ procedure TOBDCCP.Disconnect(APermanent: Boolean);
 var
   Args: TBytes;
 begin
-  if not FConnected then Exit;
+  if not FConnected then
+    Exit;
   SetLength(Args, 4);
-  if APermanent then Args[0] := $00 else Args[0] := $01;
+  if APermanent then
+    Args[0] := $00
+  else
+    Args[0] := $01;
   Args[1] := $00;
   Args[2] := Byte(FStationAddress and $FF);
   Args[3] := Byte((FStationAddress shr 8) and $FF);
@@ -218,7 +225,8 @@ begin
     // best-effort
   end;
   FConnected := False;
-  if FTransport <> nil then FTransport.Disconnect;
+  if FTransport <> nil then
+    FTransport.Disconnect;
 end;
 
 function TOBDCCP.IsConnected: Boolean;
@@ -246,8 +254,11 @@ var
   N: Integer;
 begin
   SetLength(Args, 6);
-  N := Length(AMasterID); if N > 6 then N := 6;
-  if N > 0 then Move(AMasterID[0], Args[0], N);
+  N := Length(AMasterID);
+  if N > 6 then
+    N := 6;
+  if N > 0 then
+    Move(AMasterID[0], Args[0], N);
   Resp := Exchange(CCP_CMD_EXCHANGE_ID, Args);
   if Length(Resp) < 4 then
     raise EOBDProtocolErr.Create('CCP EXCHANGE_ID: short response');
@@ -266,9 +277,11 @@ begin
   if Length(Resp) < 4 then
     raise EOBDProtocolErr.Create('CCP GET_SEED: short response');
   N := Length(Resp) - 4;
-  if N < 0 then N := 0;
+  if N < 0 then
+    N := 0;
   SetLength(Result, N);
-  if N > 0 then Move(Resp[4], Result[0], N);
+  if N > 0 then
+    Move(Resp[4], Result[0], N);
 end;
 
 procedure TOBDCCP.Unlock(const AKey: TBytes);
@@ -276,9 +289,12 @@ var
   Args: TBytes;
   N: Integer;
 begin
-  N := Length(AKey); if N > 6 then N := 6;
+  N := Length(AKey);
+  if N > 6 then
+    N := 6;
   SetLength(Args, N);
-  if N > 0 then Move(AKey[0], Args[0], N);
+  if N > 0 then
+    Move(AKey[0], Args[0], N);
   Exchange(CCP_CMD_UNLOCK, Args);
 end;
 
@@ -356,7 +372,7 @@ begin
   Args[1] := 0;
   Args[2] := Byte((ACanID shr 24) and $FF);
   Args[3] := Byte((ACanID shr 16) and $FF);
-  Args[4] := Byte((ACanID shr 8)  and $FF);
+  Args[4] := Byte((ACanID shr 8) and $FF);
   Args[5] := Byte(ACanID and $FF);
   Resp := Exchange(CCP_CMD_GET_DAQ_SIZE, Args);
   // Resp: PID, ERR, CTR, DAQListSize, FirstPID
@@ -386,7 +402,7 @@ begin
   Args[1] := AAddressExt;
   Args[2] := Byte((AAddress shr 24) and $FF);
   Args[3] := Byte((AAddress shr 16) and $FF);
-  Args[4] := Byte((AAddress shr 8)  and $FF);
+  Args[4] := Byte((AAddress shr 8) and $FF);
   Args[5] := Byte(AAddress and $FF);
   Exchange(CCP_CMD_WRITE_DAQ, Args);
 end;
@@ -396,7 +412,10 @@ var
   Args: TBytes;
 begin
   SetLength(Args, 1);
-  if AStart then Args[0] := $01 else Args[0] := $00;
+  if AStart then
+    Args[0] := $01
+  else
+    Args[0] := $00;
   Exchange(CCP_CMD_START_STOP_ALL, Args);
 end;
 

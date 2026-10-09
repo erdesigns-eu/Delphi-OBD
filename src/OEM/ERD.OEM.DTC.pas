@@ -1,57 +1,57 @@
-//------------------------------------------------------------------------------
-//  ERD.OEM.DTC
+﻿// ------------------------------------------------------------------------------
+// ERD.OEM.DTC
 //
-//  TOBDDtcCatalog — DTC code → human-readable entry lookup
-//  bound to one OEM extension. Hosts populate the catalogue
-//  through <c>RegisterEntry</c>, optionally seeding from the
-//  shipped <c>catalogs/dtc-iso-15031.json</c> generic P0xxx
-//  baseline overlay.
+// TOBDDtcCatalog — DTC code → human-readable entry lookup
+// bound to one OEM extension. Hosts populate the catalogue
+// through <c>RegisterEntry</c>, optionally seeding from the
+// shipped <c>catalogs/dtc-iso-15031.json</c> generic P0xxx
+// baseline overlay.
 //
-//  Reentrant; safe to call from any thread.
+// Reentrant; safe to call from any thread.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-11  ERD  Initial implementation.
-//    2026-05-12  ERD  LoadFromFile reads every catalogue field
-//                     (severity, possible_causes, symptoms,
-//                     repair_guidance, monitor_type,
-//                     freeze_frame_relevant, related_dids,
-//                     related_routines, oem_bulletin, source,
-//                     verified) plus file-level default_source.
-//                     Added the J2012 helper functions
-//                     (FormatDtc / EncodeDtc / ParseDtcSystem /
-//                     IsManufacturerDtc / ParseSeverity /
-//                     ParseMonitorType + format inverses) and
-//                     EOBDDtcError.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-11  ERD  Initial implementation.
+// 2026-05-12  ERD  LoadFromFile reads every catalogue field
+// (severity, possible_causes, symptoms,
+// repair_guidance, monitor_type,
+// freeze_frame_relevant, related_dids,
+// related_routines, oem_bulletin, source,
+// verified) plus file-level default_source.
+// Added the J2012 helper functions
+// (FormatDtc / EncodeDtc / ParseDtcSystem /
+// IsManufacturerDtc / ParseSeverity /
+// ParseMonitorType + format inverses) and
+// EOBDDtcError.
+// ------------------------------------------------------------------------------
 
 unit ERD.OEM.DTC;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   System.IOUtils,
   System.JSON,
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.OEM.Types;
 
 type
   /// <summary>
-  ///   Per-OEM DTC catalogue.
+  /// Per-OEM DTC catalogue.
   /// </summary>
   TOBDDtcCatalog = class
   strict private
@@ -99,15 +99,15 @@ type
     function Snapshot: TArray<TOBDDtcCatalogEntry>;
 
     /// <summary>
-    ///   Merges entries from a JSON catalogue file. The file is a
-    ///   top-level object with an optional <c>default_source</c>
-    ///   string and a <c>dtcs</c> array of entry objects. Every
-    ///   field in the v2 DTC schema (severity, possible_causes,
-    ///   verified, symptoms, repair_guidance, monitor_type,
-    ///   freeze_frame_relevant, related_dids, related_routines,
-    ///   oem_bulletin, source) is read into the matching field on
-    ///   <see cref="TOBDDtcCatalogEntry"/>. Existing codes are
-    ///   replaced; new codes are appended.
+    /// Merges entries from a JSON catalogue file. The file is a
+    /// top-level object with an optional <c>default_source</c>
+    /// string and a <c>dtcs</c> array of entry objects. Every
+    /// field in the v2 DTC schema (severity, possible_causes,
+    /// verified, symptoms, repair_guidance, monitor_type,
+    /// freeze_frame_relevant, related_dids, related_routines,
+    /// oem_bulletin, source) is read into the matching field on
+    /// <see cref="TOBDDtcCatalogEntry"/>. Existing codes are
+    /// replaced; new codes are appended.
     /// </summary>
     /// <param name="FilePath">Absolute path to the JSON file.</param>
     /// <exception cref="EOBDDtcCatalog">File missing or
@@ -123,11 +123,11 @@ type
   /// input.</summary>
   EOBDDtcError = class(Exception);
 
-/// <summary>Decodes a two-byte ISO 15031-5 DTC into its
-/// 5-character form (e.g. <c>$03 $01</c> → <c>P0301</c>).</summary>
-/// <param name="High">First byte (system + group + first
-/// nibble).</param>
-/// <param name="Low">Second byte (last two nibbles).</param>
+  /// <summary>Decodes a two-byte ISO 15031-5 DTC into its
+  /// 5-character form (e.g. <c>$03 $01</c> → <c>P0301</c>).</summary>
+  /// <param name="High">First byte (system + group + first
+  /// nibble).</param>
+  /// <param name="Low">Second byte (last two nibbles).</param>
 function FormatDtc(const High, Low: Byte): string; overload;
 /// <summary>Same as the two-byte form, reading the first two
 /// bytes of <c>Bytes</c>.</summary>
@@ -293,11 +293,10 @@ var
   DefaultSource: string;
 begin
   if not TFile.Exists(FilePath) then
-    raise EOBDDtcCatalog.CreateFmt(
-      'DTC catalog file %s not found', [FilePath]);
+    raise EOBDDtcCatalog.CreateFmt('DTC catalog file %s not found', [FilePath]);
   Text := TFile.ReadAllText(FilePath, TEncoding.UTF8);
   Value := TJSONObject.ParseJSONValue(Text);
-  if not (Value is TJSONObject) then
+  if not(Value is TJSONObject) then
   begin
     Value.Free;
     raise EOBDDtcCatalog.Create('DTC catalog root must be a JSON object');
@@ -310,13 +309,12 @@ begin
       Exit;
     for I := 0 to Arr.Count - 1 do
     begin
-      if not (Arr.Items[I] is TJSONObject) then
+      if not(Arr.Items[I] is TJSONObject) then
         Continue;
       Item := TJSONObject(Arr.Items[I]);
-      Entry := Default(TOBDDtcCatalogEntry);
+      Entry := Default (TOBDDtcCatalogEntry);
       Entry.Code := Item.GetValue<string>('code', '');
-      Entry.Severity := ParseSeverity(
-        Item.GetValue<string>('severity', ''));
+      Entry.Severity := ParseSeverity(Item.GetValue<string>('severity', ''));
       Entry.Description := Item.GetValue<string>('description', '');
       Entry.PossibleCauses := ReadStringArray(Item, 'possible_causes');
       Entry.RepairHints := Item.GetValue<string>('repair_hints', '');
@@ -325,10 +323,10 @@ begin
       Entry.Verified := Item.GetValue<Boolean>('verified', False);
       Entry.Symptoms := ReadStringArray(Item, 'symptoms');
       Entry.RepairGuidance := ReadStringArray(Item, 'repair_guidance');
-      Entry.MonitorType := ParseMonitorType(
-        Item.GetValue<string>('monitor_type', ''));
-      Entry.FreezeFrameRelevant :=
-        Item.GetValue<Boolean>('freeze_frame_relevant', False);
+      Entry.MonitorType := ParseMonitorType
+        (Item.GetValue<string>('monitor_type', ''));
+      Entry.FreezeFrameRelevant := Item.GetValue<Boolean>
+        ('freeze_frame_relevant', False);
       Entry.RelatedDIDs := ReadStringArray(Item, 'related_dids');
       Entry.RelatedRoutines := ReadStringArray(Item, 'related_routines');
       Entry.OemBulletin := Item.GetValue<string>('oem_bulletin', '');
@@ -344,23 +342,30 @@ end;
 function ParseDtcSystem(const C: Char): TOBDDtcSystem;
 begin
   case UpCase(C) of
-    'P': Result := dtcPowertrain;
-    'C': Result := dtcChassis;
-    'B': Result := dtcBody;
-    'U': Result := dtcNetwork;
+    'P':
+      Result := dtcPowertrain;
+    'C':
+      Result := dtcChassis;
+    'B':
+      Result := dtcBody;
+    'U':
+      Result := dtcNetwork;
   else
-    raise EOBDDtcError.CreateFmt(
-      'Unknown DTC system letter: %s', [C]);
+    raise EOBDDtcError.CreateFmt('Unknown DTC system letter: %s', [C]);
   end;
 end;
 
 function FormatDtcSystem(const Sys: TOBDDtcSystem): Char;
 begin
   case Sys of
-    dtcPowertrain: Result := 'P';
-    dtcChassis:    Result := 'C';
-    dtcBody:       Result := 'B';
-    dtcNetwork:    Result := 'U';
+    dtcPowertrain:
+      Result := 'P';
+    dtcChassis:
+      Result := 'C';
+    dtcBody:
+      Result := 'B';
+    dtcNetwork:
+      Result := 'U';
   else
     Result := '?';
   end;
@@ -368,21 +373,18 @@ end;
 
 function FormatDtc(const High, Low: Byte): string;
 const
-  SYSTEMS: array[0..3] of Char = ('P', 'C', 'B', 'U');
+  SYSTEMS: array [0 .. 3] of Char = ('P', 'C', 'B', 'U');
 var
   SysIdx, GroupBit, D2: Integer;
 begin
   // Bits 7-6 of the high byte = system letter.
   // Bit 5 = code group (0: SAE, 1: manufacturer).
   // Digit 1 := 2 * GroupBit + D2 (SAE = 0/2, MFR = 1/3).
-  SysIdx   := (High shr 6) and $03;
+  SysIdx := (High shr 6) and $03;
   GroupBit := (High shr 5) and $01;
-  D2       := (High shr 4) and $01;
-  Result := Format('%s%d%d%.2X', [
-    SYSTEMS[SysIdx],
-    GroupBit * 2 + D2,
-    High and $0F,
-    Low]);
+  D2 := (High shr 4) and $01;
+  Result := Format('%s%d%d%.2X', [SYSTEMS[SysIdx], GroupBit * 2 + D2,
+    High and $0F, Low]);
 end;
 
 function FormatDtc(const Bytes: TBytes): string;
@@ -395,8 +397,10 @@ end;
 function HexCharToNibble(C: Char): Byte;
 begin
   case UpCase(C) of
-    '0'..'9': Result := Byte(Ord(C) - Ord('0'));
-    'A'..'F': Result := Byte(Ord(UpCase(C)) - Ord('A') + 10);
+    '0' .. '9':
+      Result := Byte(Ord(C) - Ord('0'));
+    'A' .. 'F':
+      Result := Byte(Ord(UpCase(C)) - Ord('A') + 10);
   else
     raise EOBDDtcError.CreateFmt('Not a hex digit: %s', [C]);
   end;
@@ -414,25 +418,28 @@ begin
     raise EOBDDtcError.CreateFmt('Malformed DTC: %s', [Code]);
   Sys := ParseDtcSystem(S[1]);
   case Sys of
-    dtcPowertrain: SysBits := $00;
-    dtcChassis:    SysBits := $01;
-    dtcBody:       SysBits := $02;
-    dtcNetwork:    SysBits := $03;
+    dtcPowertrain:
+      SysBits := $00;
+    dtcChassis:
+      SysBits := $01;
+    dtcBody:
+      SysBits := $02;
+    dtcNetwork:
+      SysBits := $03;
   else
     SysBits := $00;
   end;
   FirstDigit := HexCharToNibble(S[2]);
   if FirstDigit > 3 then
-    raise EOBDDtcError.CreateFmt(
-      'DTC first digit must be 0..3 (got %s)', [Code]);
+    raise EOBDDtcError.CreateFmt
+      ('DTC first digit must be 0..3 (got %s)', [Code]);
   GroupBit := FirstDigit shr 1;
   D1 := FirstDigit and $01;
   D2 := HexCharToNibble(S[3]);
   D3 := HexCharToNibble(S[4]);
   D4 := HexCharToNibble(S[5]);
   SetLength(Result, 2);
-  Result[0] := (SysBits shl 6) or (GroupBit shl 5) or
-               (D1 shl 4) or D2;
+  Result[0] := (SysBits shl 6) or (GroupBit shl 5) or (D1 shl 4) or D2;
   Result[1] := (D3 shl 4) or D4;
 end;
 
@@ -441,9 +448,8 @@ var
   S: string;
 begin
   S := UpperCase(Trim(Code));
-  Result := (Length(S) = 5)
-        and CharInSet(S[1], ['P', 'C', 'B', 'U'])
-        and CharInSet(S[2], ['1', '3']);
+  Result := (Length(S) = 5) and CharInSet(S[1], ['P', 'C', 'B', 'U']) and
+    CharInSet(S[2], ['1', '3']);
 end;
 
 function ParseSeverity(const S: string): TOBDDtcSeverity;
@@ -451,18 +457,25 @@ var
   T: string;
 begin
   T := LowerCase(Trim(S));
-  if T = 'info'     then Result := dtcSeverityInfo
-  else if T = 'warning'  then Result := dtcSeverityWarning
-  else if T = 'critical' then Result := dtcSeverityCritical
-  else                   Result := dtcSeverityUnknown;
+  if T = 'info' then
+    Result := dtcSeverityInfo
+  else if T = 'warning' then
+    Result := dtcSeverityWarning
+  else if T = 'critical' then
+    Result := dtcSeverityCritical
+  else
+    Result := dtcSeverityUnknown;
 end;
 
 function FormatSeverity(const Severity: TOBDDtcSeverity): string;
 begin
   case Severity of
-    dtcSeverityInfo:     Result := 'info';
-    dtcSeverityWarning:  Result := 'warning';
-    dtcSeverityCritical: Result := 'critical';
+    dtcSeverityInfo:
+      Result := 'info';
+    dtcSeverityWarning:
+      Result := 'warning';
+    dtcSeverityCritical:
+      Result := 'critical';
   else
     Result := '';
   end;
@@ -486,9 +499,12 @@ end;
 function FormatMonitorType(const Mt: TOBDDtcMonitorType): string;
 begin
   case Mt of
-    dmtContinuous:              Result := 'continuous';
-    dmtNonContinuous:           Result := 'non_continuous';
-    dmtComprehensiveComponent:  Result := 'comprehensive_component';
+    dmtContinuous:
+      Result := 'continuous';
+    dmtNonContinuous:
+      Result := 'non_continuous';
+    dmtComprehensiveComponent:
+      Result := 'comprehensive_component';
   else
     Result := '';
   end;

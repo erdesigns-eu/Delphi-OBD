@@ -1,80 +1,80 @@
-//------------------------------------------------------------------------------
-//  ERD.Speciality.IsoBus.VT
+﻿// ------------------------------------------------------------------------------
+// ERD.Speciality.IsoBus.VT
 //
-//  TOBDIsoBusVT — IsoBus Virtual Terminal client (ISO 11783-6).
-//  The VT is the implement-controller's display + soft-key surface
-//  on agricultural machinery; an ECU uploads an Object Pool to the
-//  VT and then exchanges commands to drive the UI.
+// TOBDIsoBusVT — IsoBus Virtual Terminal client (ISO 11783-6).
+// The VT is the implement-controller's display + soft-key surface
+// on agricultural machinery; an ECU uploads an Object Pool to the
+// VT and then exchanges commands to drive the UI.
 //
-//  v1 ships the request/response framing for the load-bearing
-//  commands every IsoBus implement needs:
+// v1 ships the request/response framing for the load-bearing
+// commands every IsoBus implement needs:
 //
-//    - Get_Versions                 (which object-pool versions the VT has)
-//    - Load_Version                 (instruct the VT to load a stored pool)
-//    - Store_Version                (ask the VT to save the pool)
-//    - Delete_Version
-//    - Object_Pool_Transfer Begin / Chunk / End
-//    - Soft_Key_Activation          (inbound: user pressed a key)
-//    - VT_Status                    (inbound: heartbeat with active mask)
-//    - Audio_Signal                 (beep)
-//    - Change_Active_Mask
-//    - End_Of_Object_Pool
+// - Get_Versions                 (which object-pool versions the VT has)
+// - Load_Version                 (instruct the VT to load a stored pool)
+// - Store_Version                (ask the VT to save the pool)
+// - Delete_Version
+// - Object_Pool_Transfer Begin / Chunk / End
+// - Soft_Key_Activation          (inbound: user pressed a key)
+// - VT_Status                    (inbound: heartbeat with active mask)
+// - Audio_Signal                 (beep)
+// - Change_Active_Mask
+// - End_Of_Object_Pool
 //
-//  Each method returns the 8-byte payload that the host wires onto
-//  a J1939 PGN 0xE700 (VT-to-ECU) / 0xE600 (ECU-to-VT) frame.
+// Each method returns the 8-byte payload that the host wires onto
+// a J1939 PGN 0xE700 (VT-to-ECU) / 0xE600 (ECU-to-VT) frame.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - ISO 11783-6:2018 (Virtual Terminal)
+// References  :
+// - ISO 11783-6:2018 (Virtual Terminal)
 //
-//  History     :
-//    2026-05-09  ERD  Follow-up.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Follow-up.
+// ------------------------------------------------------------------------------
 
 unit ERD.Speciality.IsoBus.VT;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   ERD.Types;
 
 const
   /// <summary>VT-to-ECU PGN.</summary>
-  ISOBUS_VT_PGN_TO_ECU   = $00E700;
+  ISOBUS_VT_PGN_TO_ECU = $00E700;
   /// <summary>ECU-to-VT PGN.</summary>
-  ISOBUS_VT_PGN_TO_VT    = $00E600;
+  ISOBUS_VT_PGN_TO_VT = $00E600;
 
   // ---- VT command function bytes (ISO 11783-6 Annex A) ----
-  VT_FN_SOFT_KEY_ACTIVATION       = $00;
-  VT_FN_BUTTON_ACTIVATION         = $01;
-  VT_FN_POINTING_EVENT            = $02;
-  VT_FN_VT_SELECT_INPUT_OBJECT    = $03;
-  VT_FN_VT_ESC                    = $04;
-  VT_FN_VT_CHANGE_NUMERIC_VALUE   = $05;
-  VT_FN_VT_CHANGE_ACTIVE_MASK     = $06;
-  VT_FN_VT_CHANGE_SOFT_KEY_MASK   = $07;
-  VT_FN_VT_CHANGE_STRING_VALUE    = $08;
-  VT_FN_VT_GET_MEMORY             = $C0;
-  VT_FN_VT_GET_VERSIONS           = $E0;
-  VT_FN_VT_LOAD_VERSION           = $D1;
-  VT_FN_VT_STORE_VERSION          = $D0;
-  VT_FN_VT_DELETE_VERSION         = $D4;
-  VT_FN_VT_END_OF_OBJECT_POOL     = $C2;
-  VT_FN_VT_AUDIO_SIGNAL           = $C3;
+  VT_FN_SOFT_KEY_ACTIVATION = $00;
+  VT_FN_BUTTON_ACTIVATION = $01;
+  VT_FN_POINTING_EVENT = $02;
+  VT_FN_VT_SELECT_INPUT_OBJECT = $03;
+  VT_FN_VT_ESC = $04;
+  VT_FN_VT_CHANGE_NUMERIC_VALUE = $05;
+  VT_FN_VT_CHANGE_ACTIVE_MASK = $06;
+  VT_FN_VT_CHANGE_SOFT_KEY_MASK = $07;
+  VT_FN_VT_CHANGE_STRING_VALUE = $08;
+  VT_FN_VT_GET_MEMORY = $C0;
+  VT_FN_VT_GET_VERSIONS = $E0;
+  VT_FN_VT_LOAD_VERSION = $D1;
+  VT_FN_VT_STORE_VERSION = $D0;
+  VT_FN_VT_DELETE_VERSION = $D4;
+  VT_FN_VT_END_OF_OBJECT_POOL = $C2;
+  VT_FN_VT_AUDIO_SIGNAL = $C3;
   VT_FN_VT_CHANGE_ACTIVE_MASK_OUT = $92;
-  VT_FN_VT_STATUS                 = $FE;
+  VT_FN_VT_STATUS = $FE;
 
 type
   /// <summary>Decoded soft-key activation event.</summary>
@@ -125,7 +125,8 @@ type
     class function BuildAudioSignal(ABeeps: Byte; AFrequencyHz: Word;
       AOnMs, AOffMs: Word): TBytes; static;
     /// <summary>Builds a Change_Active_Mask frame.</summary>
-    class function BuildChangeActiveMask(AWorkingSet, AMaskID: Word): TBytes; static;
+    class function BuildChangeActiveMask(AWorkingSet, AMaskID: Word)
+      : TBytes; static;
 
     /// <summary>Decodes an inbound PGN-0xE700 frame into a soft-key
     /// activation event (function 0x00). Returns False when the
@@ -141,13 +142,13 @@ implementation
 
 procedure WriteWord(var AOut: TBytes; AOffset: Integer; AValue: Word);
 begin
-  AOut[AOffset    ] := Byte(AValue and $FF);
+  AOut[AOffset] := Byte(AValue and $FF);
   AOut[AOffset + 1] := Byte((AValue shr 8) and $FF);
 end;
 
 procedure WriteCardinal(var AOut: TBytes; AOffset: Integer; AValue: Cardinal);
 begin
-  AOut[AOffset    ] := Byte(AValue and $FF);
+  AOut[AOffset] := Byte(AValue and $FF);
   AOut[AOffset + 1] := Byte((AValue shr 8) and $FF);
   AOut[AOffset + 2] := Byte((AValue shr 16) and $FF);
   AOut[AOffset + 3] := Byte((AValue shr 24) and $FF);
@@ -169,7 +170,8 @@ var
 begin
   SetLength(Result, 8);
   Result[0] := VT_FN_VT_GET_VERSIONS;
-  for I := 1 to 7 do Result[I] := $FF;
+  for I := 1 to 7 do
+    Result[I] := $FF;
 end;
 
 procedure WriteLabel(var AOut: TBytes; const ALabel: TBytes; AOffset: Integer);
@@ -177,9 +179,12 @@ var
   I, Len: Integer;
 begin
   Len := Length(ALabel);
-  if Len > 7 then Len := 7;
-  for I := 0 to Len - 1 do AOut[AOffset + I] := ALabel[I];
-  for I := Len to 6 do AOut[AOffset + I] := $20; // pad with spaces
+  if Len > 7 then
+    Len := 7;
+  for I := 0 to Len - 1 do
+    AOut[AOffset + I] := ALabel[I];
+  for I := Len to 6 do
+    AOut[AOffset + I] := $20; // pad with spaces
 end;
 
 class function TOBDIsoBusVT.BuildLoadVersion(const ALabel7: TBytes): TBytes;
@@ -209,7 +214,8 @@ var
 begin
   SetLength(Result, 8);
   Result[0] := VT_FN_VT_END_OF_OBJECT_POOL;
-  for I := 1 to 7 do Result[I] := $FF;
+  for I := 1 to 7 do
+    Result[I] := $FF;
 end;
 
 class function TOBDIsoBusVT.BuildAudioSignal(ABeeps: Byte;
@@ -230,33 +236,39 @@ begin
   Result[0] := VT_FN_VT_CHANGE_ACTIVE_MASK_OUT;
   WriteWord(Result, 1, AWorkingSet);
   WriteWord(Result, 3, AMaskID);
-  Result[5] := $FF; Result[6] := $FF; Result[7] := $FF;
+  Result[5] := $FF;
+  Result[6] := $FF;
+  Result[7] := $FF;
 end;
 
 class function TOBDIsoBusVT.DecodeSoftKey(const APayload: TBytes;
   out AKey: TOBDIsoBusVTSoftKey): Boolean;
 begin
-  AKey := Default(TOBDIsoBusVTSoftKey);
-  if Length(APayload) < 8 then Exit(False);
-  if APayload[0] <> VT_FN_SOFT_KEY_ACTIVATION then Exit(False);
-  AKey.State        := APayload[1];
-  AKey.ObjectID     := (Word(APayload[3]) shl 8) or APayload[2];
+  AKey := Default (TOBDIsoBusVTSoftKey);
+  if Length(APayload) < 8 then
+    Exit(False);
+  if APayload[0] <> VT_FN_SOFT_KEY_ACTIVATION then
+    Exit(False);
+  AKey.State := APayload[1];
+  AKey.ObjectID := (Word(APayload[3]) shl 8) or APayload[2];
   AKey.ParentMaskID := (Word(APayload[5]) shl 8) or APayload[4];
-  AKey.KeyCode      := APayload[6];
+  AKey.KeyCode := APayload[6];
   Result := True;
 end;
 
 class function TOBDIsoBusVT.DecodeVTStatus(const APayload: TBytes;
   out AStatus: TOBDIsoBusVTStatus): Boolean;
 begin
-  AStatus := Default(TOBDIsoBusVTStatus);
-  if Length(APayload) < 8 then Exit(False);
-  if APayload[0] <> VT_FN_VT_STATUS then Exit(False);
+  AStatus := Default (TOBDIsoBusVTStatus);
+  if Length(APayload) < 8 then
+    Exit(False);
+  if APayload[0] <> VT_FN_VT_STATUS then
+    Exit(False);
   AStatus.WorkingSetMasterAddress := APayload[1];
-  AStatus.ActiveMaskID            := (Word(APayload[3]) shl 8) or APayload[2];
-  AStatus.ActiveSoftKeyMaskID     := (Word(APayload[5]) shl 8) or APayload[4];
-  AStatus.BusyCodes               := APayload[6];
-  AStatus.FunctionCode            := APayload[7];
+  AStatus.ActiveMaskID := (Word(APayload[3]) shl 8) or APayload[2];
+  AStatus.ActiveSoftKeyMaskID := (Word(APayload[5]) shl 8) or APayload[4];
+  AStatus.BusyCodes := APayload[6];
+  AStatus.FunctionCode := APayload[7];
   Result := True;
 end;
 

@@ -4,7 +4,7 @@
 //  J1939 ID encode / decode + DM PGN catalogue coverage.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
+//  Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
 //  License     : MIT — see LICENSE
 //
 //  History     :

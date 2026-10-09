@@ -1,35 +1,35 @@
-//------------------------------------------------------------------------------
-//  ERD.Protocol.CAN
+// ------------------------------------------------------------------------------
+// ERD.Protocol.CAN
 //
-//  Minimal CAN-frame transport contract used by every higher-
-//  level transport that needs to exchange raw CAN frames
-//  (TP2.0, ISO-TP, J1939, J2534, ...). Concrete CAN drivers
-//  (J2534 device, SocketCAN, PCAN, Vector XL, ...) implement
-//  this interface; protocol layers consume it.
+// Minimal CAN-frame transport contract used by every higher-
+// level transport that needs to exchange raw CAN frames
+// (TP2.0, ISO-TP, J1939, J2534, ...). Concrete CAN drivers
+// (J2534 device, SocketCAN, PCAN, Vector XL, ...) implement
+// this interface; protocol layers consume it.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT - see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT - see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.Protocol.CAN;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   ERD.Protocol.Types;
 
 type
-  EOBDCANError   = class(Exception);
+  EOBDCANError = class(Exception);
   EOBDCANTimeout = class(EOBDCANError);
 
   /// <summary>Direction of a CAN-frame I/O operation. Used by
@@ -39,8 +39,8 @@ type
   /// <summary>Optional callback fired on every frame the host
   /// transmits or receives via this transport. Hosts use it
   /// for trace logging and live displays.</summary>
-  TCANFrameEvent = procedure(Sender: TObject;
-    ADirection: TCANDirection; const AFrame: TOBDFrame) of object;
+  TCANFrameEvent = procedure(Sender: TObject; ADirection: TCANDirection;
+    const AFrame: TOBDFrame) of object;
 
   /// <summary>CAN-bus transport contract. Concrete drivers
   /// (J2534, SocketCAN, PCAN, Vector, ...) implement this; the
@@ -56,22 +56,21 @@ type
     /// <summary>Receives one CAN frame matching one of the IDs
     /// the host has installed via SetAcceptanceFilter. Raises
     /// EOBDCANTimeout if no frame arrives.</summary>
-    function  ReceiveFrame(ATimeoutMs: Integer): TOBDFrame;
+    function ReceiveFrame(ATimeoutMs: Integer): TOBDFrame;
 
     /// <summary>Replaces the current acceptance-filter set with
     /// AIds. Empty array = receive everything (promiscuous).</summary>
     procedure SetAcceptanceFilter(const AIds: TArray<Cardinal>;
-                                  AExtended: Boolean = False);
+      AExtended: Boolean = False);
 
     /// <summary>Drops everything in the RX buffer.</summary>
     procedure DrainRx;
 
     /// <summary>Optional trace hook. Implementations should fire
     /// it for both TX and RX frames. nil = no tracing.</summary>
-    function  GetOnFrame: TCANFrameEvent;
+    function GetOnFrame: TCANFrameEvent;
     procedure SetOnFrame(const AValue: TCANFrameEvent);
-    property  OnFrame: TCANFrameEvent
-      read GetOnFrame write SetOnFrame;
+    property OnFrame: TCANFrameEvent read GetOnFrame write SetOnFrame;
   end;
 
 implementation

@@ -1,7 +1,6 @@
 object OBDPipelineValidateDlg: TOBDPipelineValidateDlg
   Left = 0
   Top = 0
-  BorderStyle = bsSizeable
   Caption = 'Delphi-OBD - flash pipeline configuration'
   ClientHeight = 360
   ClientWidth = 600
@@ -31,8 +30,8 @@ object OBDPipelineValidateDlg: TOBDPipelineValidateDlg
       AlignWithMargins = True
       Left = 16
       Top = 12
-      Width = 568
-      Height = 15
+      Width = 130
+      Height = 17
       Margins.Left = 0
       Margins.Top = 0
       Margins.Right = 0
@@ -50,7 +49,7 @@ object OBDPipelineValidateDlg: TOBDPipelineValidateDlg
       AlignWithMargins = True
       Left = 16
       Top = 31
-      Width = 568
+      Width = 70
       Height = 15
       Margins.Left = 0
       Margins.Top = 0
@@ -71,7 +70,7 @@ object OBDPipelineValidateDlg: TOBDPipelineValidateDlg
     Left = 16
     Top = 68
     Width = 568
-    Height = 224
+    Height = 240
     Margins.Left = 16
     Margins.Top = 4
     Margins.Right = 16

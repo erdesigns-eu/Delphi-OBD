@@ -1,35 +1,35 @@
-//------------------------------------------------------------------------------
-//  ERD.Design.Forms.PipelineValidate
+﻿// ------------------------------------------------------------------------------
+// ERD.Design.Forms.PipelineValidate
 //
-//  TOBDPipelineValidateDlg — modal report shown by the
-//  <c>TOBDFlashPipeline</c> component editor's "Validate
-//  configuration" verb. Renders a list of design-time issues
-//  (missing protocol, missing voltage gate, AutoExecute true,
-//  missing audit log) and offers to open the safety guide.
+// TOBDPipelineValidateDlg — modal report shown by the
+// <c>TOBDFlashPipeline</c> component editor's "Validate
+// configuration" verb. Renders a list of design-time issues
+// (missing protocol, missing voltage gate, AutoExecute true,
+// missing audit log) and offers to open the safety guide.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-10  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-10  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Design.Forms.PipelineValidate;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   Vcl.Controls,
   Vcl.Forms,
   Vcl.StdCtrls,
@@ -57,9 +57,9 @@ type
     Text: string;
   end;
 
-/// <summary>Show the validation report for a pipeline component
-/// against <c>AIssues</c>. <c>AComponentName</c> is shown in the
-/// header.</summary>
+  /// <summary>Show the validation report for a pipeline component
+  /// against <c>AIssues</c>. <c>AComponentName</c> is shown in the
+  /// header.</summary>
 procedure ShowPipelineValidation(const AComponentName: string;
   const AIssues: array of TOBDPipelineIssue);
 
@@ -81,10 +81,7 @@ end;
 procedure ShowPipelineValidation(const AComponentName: string;
   const AIssues: array of TOBDPipelineIssue);
 const
-  PREFIX: array[TOBDPipelineIssueLevel] of string = (
-    '   ',
-    '!  ',
-    'X  ');
+  PREFIX: array [TOBDPipelineIssueLevel] of string = ('   ', '!  ', 'X  ');
 var
   Dlg: TOBDPipelineValidateDlg;
   I: Integer;
@@ -99,8 +96,7 @@ begin
         Dlg.lstIssues.Items.Add('   No configuration issues detected.')
       else
         for I := Low(AIssues) to High(AIssues) do
-          Dlg.lstIssues.Items.Add(
-            PREFIX[AIssues[I].Level] + AIssues[I].Text);
+          Dlg.lstIssues.Items.Add(PREFIX[AIssues[I].Level] + AIssues[I].Text);
     finally
       Dlg.lstIssues.Items.EndUpdate;
     end;

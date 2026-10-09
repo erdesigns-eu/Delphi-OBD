@@ -1,46 +1,46 @@
-//------------------------------------------------------------------------------
-//  ERD.Adapter.Capabilities
+﻿// ------------------------------------------------------------------------------
+// ERD.Adapter.Capabilities
 //
-//  Adapter-capability registry. Maps an adapter-key (e.g. <c>'elm327'</c>,
-//  <c>'obdlink_mx'</c>) to a <see cref="TOBDAdapterCapabilities"/> set
-//  and a <c>MaxIsoTpFrameBytes</c> hint. Loads from
-//  <c>catalogs/adapter/capabilities.json</c> with a small in-source
-//  fallback for offline / no-catalogue deployments.
+// Adapter-capability registry. Maps an adapter-key (e.g. <c>'elm327'</c>,
+// <c>'obdlink_mx'</c>) to a <see cref="TOBDAdapterCapabilities"/> set
+// and a <c>MaxIsoTpFrameBytes</c> hint. Loads from
+// <c>catalogs/adapter/capabilities.json</c> with a small in-source
+// fallback for offline / no-catalogue deployments.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation: registry + JSON loader + built-in
-//                     fallback rows for ELM327 / OBDLink MX / OBDLink EX /
-//                     J2534 / DoIP.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation: registry + JSON loader + built-in
+// fallback rows for ELM327 / OBDLink MX / OBDLink EX /
+// J2534 / DoIP.
+// ------------------------------------------------------------------------------
 
 unit ERD.Adapter.Capabilities;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   System.JSON,
   System.IOUtils,
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.Types,
   ERD.Adapter.Types;
 
 type
   /// <summary>
-  ///   Single row in the adapter-capability registry.
+  /// Single row in the adapter-capability registry.
   /// </summary>
   TOBDAdapterCapabilityEntry = record
     /// <summary>Stable lower-case identifier (catalogue key).</summary>
@@ -58,16 +58,17 @@ type
   end;
 
   /// <summary>
-  ///   Process-wide adapter-capability registry.
+  /// Process-wide adapter-capability registry.
   /// </summary>
   /// <remarks>
-  ///   Lookup is case-insensitive on <c>AdapterKey</c>. Built-in
-  ///   entries are seeded in this unit's initialisation; additional
-  ///   entries can be loaded from JSON via <see cref="LoadFromJSON"/>.
+  /// Lookup is case-insensitive on <c>AdapterKey</c>. Built-in
+  /// entries are seeded in this unit's initialisation; additional
+  /// entries can be loaded from JSON via <see cref="LoadFromJSON"/>.
   /// </remarks>
   TOBDAdapterCapabilityRegistry = class
   strict private
-    class var FInstance: TOBDAdapterCapabilityRegistry;
+  class var
+    FInstance: TOBDAdapterCapabilityRegistry;
     FEntries: TList<TOBDAdapterCapabilityEntry>;
     procedure SeedBuiltins;
     function FamilyForKey(const AKey: string): TOBDAdapterFamily;
@@ -84,7 +85,7 @@ type
     class procedure ReleaseDefault;
 
     /// <summary>
-    ///   Loads or merges entries from a JSON catalogue file.
+    /// Loads or merges entries from a JSON catalogue file.
     /// </summary>
     /// <param name="AFileName">Path to <c>capabilities.json</c>.</param>
     /// <returns>Number of entries loaded.</returns>
@@ -115,7 +116,7 @@ implementation
 const
   CAPABILITY_JSON_TYPE = 'adapter-capabilities';
 
-{ ---- TOBDAdapterCapabilityRegistry ------------------------------------------- }
+  { ---- TOBDAdapterCapabilityRegistry ------------------------------------------- }
 
 constructor TOBDAdapterCapabilityRegistry.Create;
 begin
@@ -130,7 +131,8 @@ begin
   inherited;
 end;
 
-class function TOBDAdapterCapabilityRegistry.Default: TOBDAdapterCapabilityRegistry;
+class function TOBDAdapterCapabilityRegistry.Default
+  : TOBDAdapterCapabilityRegistry;
 begin
   if FInstance = nil then
     FInstance := TOBDAdapterCapabilityRegistry.Create;
@@ -152,14 +154,14 @@ begin
   Result := FEntries.Count;
 end;
 
-function TOBDAdapterCapabilityRegistry.GetEntry(
-  AIndex: Integer): TOBDAdapterCapabilityEntry;
+function TOBDAdapterCapabilityRegistry.GetEntry(AIndex: Integer)
+  : TOBDAdapterCapabilityEntry;
 begin
   Result := FEntries[AIndex];
 end;
 
-function TOBDAdapterCapabilityRegistry.FamilyForKey(
-  const AKey: string): TOBDAdapterFamily;
+function TOBDAdapterCapabilityRegistry.FamilyForKey(const AKey: string)
+  : TOBDAdapterFamily;
 var
   Lower: string;
 begin
@@ -173,8 +175,8 @@ begin
   Result := afELM327;
 end;
 
-procedure TOBDAdapterCapabilityRegistry.Register(
-  const AEntry: TOBDAdapterCapabilityEntry);
+procedure TOBDAdapterCapabilityRegistry.Register(const AEntry
+  : TOBDAdapterCapabilityEntry);
 var
   I: Integer;
   Norm: TOBDAdapterCapabilityEntry;
@@ -218,40 +220,32 @@ procedure TOBDAdapterCapabilityRegistry.SeedBuiltins;
     E.MaxIsoTpFrameBytes := AMaxIsoTp;
     Register(E);
   end;
+
 begin
-  Add('elm327',     'ELM327',     afELM327,
-    [acCAN, acISOTP, acKLine, acVoltageMonitor, acProgrammableHeaders],
-    7);
-  Add('obdlink_mx', 'OBDLink MX', afOBDLink,
-    [acCAN, acISOTP, acKLine, acVoltageMonitor, acProgrammableHeaders,
-     acSTCommands, acMessageFilters, acAdapterMultiFrame],
-    7);
-  Add('obdlink_ex', 'OBDLink EX', afOBDLink,
-    [acCAN, acISOTP, acKLine, acVoltageMonitor, acProgrammableHeaders,
-     acSTCommands, acMessageFilters, acAdapterMultiFrame, acJ1939],
-    7);
-  Add('obdlink_cx', 'OBDLink CX', afOBDLink,
-    [acCAN, acCANFD, acISOTP, acISOTPLongFrame, acKLine, acVoltageMonitor,
-     acProgrammableHeaders, acSTCommands, acMessageFilters,
-     acAdapterMultiFrame, acJ1939],
-    62);
-  Add('j2534',      'SAE J2534 PassThru', afJ2534,
-    [acCAN, acISOTP, acISOTPLongFrame, acJ1939, acKLine, acJ2534,
-     acMessageFilters, acAdapterMultiFrame],
-    62);
-  Add('j2534v2',    'SAE J2534-2 PassThru', afJ2534,
-    [acCAN, acCANFD, acISOTP, acISOTPLongFrame, acJ1939, acKLine,
-     acJ2534, acJ2534v2, acMessageFilters, acAdapterMultiFrame],
-    62);
-  Add('doip',       'Diagnostics over IP gateway', afDoIP,
-    [acDoIP, acISOTPLongFrame, acAdapterMultiFrame],
-    1500);
+  Add('elm327', 'ELM327', afELM327, [acCAN, acISOTP, acKLine, acVoltageMonitor,
+    acProgrammableHeaders], 7);
+  Add('obdlink_mx', 'OBDLink MX', afOBDLink, [acCAN, acISOTP, acKLine,
+    acVoltageMonitor, acProgrammableHeaders, acSTCommands, acMessageFilters,
+    acAdapterMultiFrame], 7);
+  Add('obdlink_ex', 'OBDLink EX', afOBDLink, [acCAN, acISOTP, acKLine,
+    acVoltageMonitor, acProgrammableHeaders, acSTCommands, acMessageFilters,
+    acAdapterMultiFrame, acJ1939], 7);
+  Add('obdlink_cx', 'OBDLink CX', afOBDLink, [acCAN, acCANFD, acISOTP,
+    acISOTPLongFrame, acKLine, acVoltageMonitor, acProgrammableHeaders,
+    acSTCommands, acMessageFilters, acAdapterMultiFrame, acJ1939], 62);
+  Add('j2534', 'SAE J2534 PassThru', afJ2534, [acCAN, acISOTP, acISOTPLongFrame,
+    acJ1939, acKLine, acJ2534, acMessageFilters, acAdapterMultiFrame], 62);
+  Add('j2534v2', 'SAE J2534-2 PassThru', afJ2534, [acCAN, acCANFD, acISOTP,
+    acISOTPLongFrame, acJ1939, acKLine, acJ2534, acJ2534v2, acMessageFilters,
+    acAdapterMultiFrame], 62);
+  Add('doip', 'Diagnostics over IP gateway', afDoIP, [acDoIP, acISOTPLongFrame,
+    acAdapterMultiFrame], 1500);
 end;
 
-function TOBDAdapterCapabilityRegistry.LoadFromJSON(
-  const AFileName: string): Integer;
+function TOBDAdapterCapabilityRegistry.LoadFromJSON(const AFileName
+  : string): Integer;
 var
-  Json: string;
+  JSON: string;
   Doc: TJSONValue;
   Root: TJSONObject;
   EntriesArr: TJSONArray;
@@ -269,14 +263,14 @@ begin
     raise EOBDConfig.CreateFmt('Adapter capability file not found: %s',
       [AFileName]);
 
-  Json := TFile.ReadAllText(AFileName, TEncoding.UTF8);
-  Doc := TJSONObject.ParseJSONValue(Json);
+  JSON := TFile.ReadAllText(AFileName, TEncoding.UTF8);
+  Doc := TJSONObject.ParseJSONValue(JSON);
   if Doc = nil then
     raise EOBDConfig.CreateFmt('%s: invalid JSON', [AFileName]);
 
   Result := 0;
   try
-    if not (Doc is TJSONObject) then
+    if not(Doc is TJSONObject) then
       raise EOBDConfig.CreateFmt('%s: root is not an object', [AFileName]);
     Root := Doc as TJSONObject;
 
@@ -298,14 +292,13 @@ begin
       raise EOBDConfig.CreateFmt('%s: type "%s" is not "%s"',
         [AFileName, TypeStr, CAPABILITY_JSON_TYPE]);
 
-    if not (Root.GetValue('entries') is TJSONArray) then
-      raise EOBDConfig.CreateFmt('%s: "entries" must be an array',
-        [AFileName]);
+    if not(Root.GetValue('entries') is TJSONArray) then
+      raise EOBDConfig.CreateFmt('%s: "entries" must be an array', [AFileName]);
     EntriesArr := Root.GetValue('entries') as TJSONArray;
 
     for I := 0 to EntriesArr.Count - 1 do
     begin
-      if not (EntriesArr.Items[I] is TJSONObject) then
+      if not(EntriesArr.Items[I] is TJSONObject) then
         raise EOBDConfig.CreateFmt('%s: entries[%d] is not an object',
           [AFileName, I]);
       EntryObj := EntriesArr.Items[I] as TJSONObject;
@@ -316,14 +309,17 @@ begin
       E.MaxIsoTpFrameBytes := 0;
 
       KeyVal := EntryObj.GetValue('adapter_key');
-      if KeyVal <> nil then E.AdapterKey := KeyVal.Value;
+      if KeyVal <> nil then
+        E.AdapterKey := KeyVal.Value;
       if Trim(E.AdapterKey) = '' then
         raise EOBDConfig.CreateFmt('%s: entries[%d].adapter_key is empty',
           [AFileName, I]);
 
       KeyVal := EntryObj.GetValue('display_name');
-      if KeyVal <> nil then E.DisplayName := KeyVal.Value;
-      if E.DisplayName = '' then E.DisplayName := E.AdapterKey;
+      if KeyVal <> nil then
+        E.DisplayName := KeyVal.Value;
+      if E.DisplayName = '' then
+        E.DisplayName := E.AdapterKey;
 
       KeyVal := EntryObj.GetValue('max_iso_tp_frame_bytes');
       if (KeyVal <> nil) and (KeyVal is TJSONNumber) then
@@ -353,6 +349,7 @@ end;
 initialization
 
 finalization
-  TOBDAdapterCapabilityRegistry.ReleaseDefault;
+
+TOBDAdapterCapabilityRegistry.ReleaseDefault;
 
 end.

@@ -1,42 +1,42 @@
-//------------------------------------------------------------------------------
-//  ERD.UI.FlashDashboards
+﻿// ------------------------------------------------------------------------------
+// ERD.UI.FlashDashboards
 //
-//  Flash-control dashboards for the A2 inventory:
+// Flash-control dashboards for the A2 inventory:
 //
-//    TOBDFlashSafetyDashboard  Pre-flight checklist. Each row
-//                              is a named gate with Pass /
-//                              Warn / Fail state. The "Arm"
-//                              button only enables when every
-//                              required gate is green.
-//    TOBDFlashCheckpointTimeline Horizontal timeline of
-//                              checkpoint events: created /
-//                              restored / rolled-back.
-//                              Markers along a baseline; host
-//                              pushes events via PushEvent.
-//    TOBDFlashAuditTail        TListView tail of the most
-//                              recent audit entries (kind +
-//                              target + message + timestamp).
-//                              Capped capacity; overflow drops
-//                              the oldest row.
+// TOBDFlashSafetyDashboard  Pre-flight checklist. Each row
+// is a named gate with Pass /
+// Warn / Fail state. The "Arm"
+// button only enables when every
+// required gate is green.
+// TOBDFlashCheckpointTimeline Horizontal timeline of
+// checkpoint events: created /
+// restored / rolled-back.
+// Markers along a baseline; host
+// pushes events via PushEvent.
+// TOBDFlashAuditTail        TListView tail of the most
+// recent audit entries (kind +
+// target + message + timestamp).
+// Capped capacity; overflow drops
+// the oldest row.
 //
-//  Theme- / HiDPI- / VCL-Style-aware via TOBDCustomControl
-//  and TListView. Every state mutation routes through
-//  TBindings.Notify; csDesigning guards the event-driven
-//  paths.
+// Theme- / HiDPI- / VCL-Style-aware via TOBDCustomControl
+// and TListView. Every state mutation routes through
+// TBindings.Notify; csDesigning guards the event-driven
+// paths.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.UI.FlashDashboards;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -47,11 +47,11 @@ uses
   Winapi.Windows,
   Winapi.GDIPAPI,
   Winapi.GDIPOBJ,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
-  {$IFDEF FPC}DateUtils{$ELSE}System.DateUtils{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}DateUtils{$ELSE}System.DateUtils{$ENDIF},
   System.Bindings.Helper, Data.Bind.Components,
   Vcl.Controls,
   Vcl.Graphics,
@@ -72,18 +72,17 @@ type
     /// <summary>Amber — soft warning, gate still met.</summary>
     fgsWarning,
     /// <summary>Red — gate failed; arming blocked.</summary>
-    fgsFail
-  );
+    fgsFail);
 
   /// <summary>One pre-flight gate.</summary>
   TOBDFlashGate = record
     /// <summary>Short name shown on the dashboard row.</summary>
-    Name:     string;
+    Name: string;
     /// <summary>Free-text description / value (e.g.
     /// <c>"12.6 V"</c> for the voltage gate).</summary>
-    Detail:   string;
+    Detail: string;
     /// <summary>Current state. Default <c>fgsUnknown</c>.</summary>
-    State:    TOBDFlashGateState;
+    State: TOBDFlashGateState;
     /// <summary>True when the gate must pass for arming. False
     /// turns the gate into an info-only row.</summary>
     Required: Boolean;
@@ -102,32 +101,31 @@ type
   /// <c>fgsPass</c>.</summary>
   TOBDFlashSafetyDashboard = class(TOBDCustomControl)
   strict private
-    FGates:        TList<TOBDFlashGate>;
-    FArmRect:      TRect;
-    FHoverArm:     Boolean;
-    FCaptionFont:  TFont;
-    FValueFont:    TFont;
-    FOnArm:        TOBDFlashArmEvent;
+    FGates: TList<TOBDFlashGate>;
+    FArmRect: TRect;
+    FHoverArm: Boolean;
+    FCaptionFont: TFont;
+    FValueFont: TFont;
+    FOnArm: TOBDFlashArmEvent;
     procedure SetCaptionFont(AValue: TFont);
     procedure SetValueFont(AValue: TFont);
     procedure HandleFontChange(Sender: TObject);
     procedure NotifyBindings;
     procedure SeedDefaults;
-    function  ArmEnabled: Boolean;
-    function  IndexOfGate(const AName: string): Integer;
+    function ArmEnabled: Boolean;
+    function IndexOfGate(const AName: string): Integer;
   protected
     procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState;
       X, Y: Integer); override;
-    procedure CMMouseLeave(var Message: TMessage);
-      message CM_MOUSELEAVE;
+    procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
     procedure PaintControl(ACanvas: TCanvas); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
     /// <summary>Adds (or replaces by name) a gate.</summary>
-    procedure AddGate(const AName, ADetail: string;
-      AState: TOBDFlashGateState; ARequired: Boolean = True);
+    procedure AddGate(const AName, ADetail: string; AState: TOBDFlashGateState;
+      ARequired: Boolean = True);
     /// <summary>Updates a gate's state and detail. Adds it if
     /// no gate with that name exists yet.</summary>
     procedure UpdateGate(const AName, ADetail: string;
@@ -135,32 +133,26 @@ type
     /// <summary>Removes every gate.</summary>
     procedure ClearGates;
     /// <summary>Snapshot of the current gate list.</summary>
-    function  Gates: TArray<TOBDFlashGate>;
+    function Gates: TArray<TOBDFlashGate>;
     /// <summary>True when every required gate is in
     /// <c>fgsPass</c>.</summary>
     property Armed: Boolean read ArmEnabled;
   published
-    property CaptionFont: TFont
-      read FCaptionFont write SetCaptionFont;
-    property ValueFont: TFont
-      read FValueFont write SetValueFont;
+    property CaptionFont: TFont read FCaptionFont write SetCaptionFont;
+    property ValueFont: TFont read FValueFont write SetValueFont;
     /// <summary>Fires on Arm-button click when
     /// <see cref="Armed"/> is True.</summary>
     property OnArm: TOBDFlashArmEvent read FOnArm write FOnArm;
   end;
 
   /// <summary>Checkpoint event kind.</summary>
-  TOBDCheckpointKind = (
-    ckCreated,
-    ckRestored,
-    ckRolledBack
-  );
+  TOBDCheckpointKind = (ckCreated, ckRestored, ckRolledBack);
 
   /// <summary>One checkpoint event for the timeline.</summary>
   TOBDCheckpointEvent = record
     Timestamp: TDateTime;
-    Kind:      TOBDCheckpointKind;
-    Label_:    string;
+    Kind: TOBDCheckpointKind;
+    Label_: string;
   end;
 
   /// <summary>Horizontal timeline of checkpoint events.
@@ -168,36 +160,33 @@ type
   /// right (newest); shape + colour reflect the kind.</summary>
   TOBDFlashCheckpointTimeline = class(TOBDCustomControl)
   strict private
-    FEvents:      TList<TOBDCheckpointEvent>;
-    FCapacity:    Integer;
+    FEvents: TList<TOBDCheckpointEvent>;
+    FCapacity: Integer;
     FCaptionFont: TFont;
     procedure SetCaptionFont(AValue: TFont);
     procedure SetCapacity(AValue: Integer);
     procedure HandleFontChange(Sender: TObject);
     procedure NotifyBindings;
-    function  KindColor(AKind: TOBDCheckpointKind): TColor;
+    function KindColor(AKind: TOBDCheckpointKind): TColor;
   protected
     procedure PaintControl(ACanvas: TCanvas); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
     /// <summary>Appends one event. Old events drop when the
     /// ring fills.</summary>
-    procedure PushEvent(AKind: TOBDCheckpointKind;
-      const ALabel: string);
+    procedure PushEvent(AKind: TOBDCheckpointKind; const ALabel: string);
     /// <summary>Clears every event.</summary>
     procedure ClearEvents;
     /// <summary>Snapshot of the stored events.</summary>
-    function  Events: TArray<TOBDCheckpointEvent>;
+    function Events: TArray<TOBDCheckpointEvent>;
     /// <summary>Number of events currently stored.</summary>
-    function  EventCount: Integer;
+    function EventCount: Integer;
   published
     /// <summary>Maximum events kept on the timeline. Default
     /// 64.</summary>
-    property Capacity: Integer
-      read FCapacity write SetCapacity default 64;
-    property CaptionFont: TFont
-      read FCaptionFont write SetCaptionFont;
+    property Capacity: Integer read FCapacity write SetCapacity default 64;
+    property CaptionFont: TFont read FCaptionFont write SetCaptionFont;
   end;
 
   /// <summary>TListView tail of the most recent audit
@@ -210,7 +199,7 @@ type
     FMaxRows: Integer;
     procedure SetMaxRows(AValue: Integer);
     procedure NotifyBindings;
-    function  KindText(AKind: TOBDAuditKind): string;
+    function KindText(AKind: TOBDAuditKind): string;
   protected
     procedure CreateWnd; override;
   public
@@ -222,8 +211,7 @@ type
     procedure ClearTail;
   published
     /// <summary>Row cap. Default 200.</summary>
-    property MaxRows: Integer
-      read FMaxRows write SetMaxRows default 200;
+    property MaxRows: Integer read FMaxRows write SetMaxRows default 200;
 
     property Align;
     property Anchors;
@@ -239,8 +227,7 @@ type
 
 implementation
 
-procedure ConfigureColumns(AListView: TListView;
-  const ANames: array of string;
+procedure ConfigureColumns(AListView: TListView; const ANames: array of string;
   const AWidths: array of Integer);
 var
   I: Integer;
@@ -253,7 +240,7 @@ begin
     begin
       Col := AListView.Columns.Add;
       Col.Caption := ANames[I];
-      Col.Width   := AWidths[I];
+      Col.Width := AWidths[I];
     end;
   finally
     AListView.Columns.EndUpdate;
@@ -265,7 +252,7 @@ end;
 constructor TOBDFlashSafetyDashboard.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 360;
+  Width := 360;
   Height := 220;
   FGates := TList<TOBDFlashGate>.Create;
   FCaptionFont := TFont.Create;
@@ -290,7 +277,8 @@ end;
 
 procedure TOBDFlashSafetyDashboard.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -318,9 +306,9 @@ procedure TOBDFlashSafetyDashboard.SeedDefaults;
   var
     Gate: TOBDFlashGate;
   begin
-    Gate.Name     := AName;
-    Gate.Detail   := '';
-    Gate.State    := fgsUnknown;
+    Gate.Name := AName;
+    Gate.Detail := '';
+    Gate.State := fgsUnknown;
     Gate.Required := True;
     FGates.Add(Gate);
   end;
@@ -333,13 +321,13 @@ begin
   G('Signature');
 end;
 
-function TOBDFlashSafetyDashboard.IndexOfGate(
-  const AName: string): Integer;
+function TOBDFlashSafetyDashboard.IndexOfGate(const AName: string): Integer;
 var
   I: Integer;
 begin
   for I := 0 to FGates.Count - 1 do
-    if SameText(FGates[I].Name, AName) then Exit(I);
+    if SameText(FGates[I].Name, AName) then
+      Exit(I);
   Result := -1;
 end;
 
@@ -354,8 +342,10 @@ begin
   Gate.State := AState;
   Gate.Required := ARequired;
   Idx := IndexOfGate(AName);
-  if Idx >= 0 then FGates[Idx] := Gate
-  else             FGates.Add(Gate);
+  if Idx >= 0 then
+    FGates[Idx] := Gate
+  else
+    FGates.Add(Gate);
   NotifyBindings;
   Repaint;
 end;
@@ -396,31 +386,35 @@ function TOBDFlashSafetyDashboard.ArmEnabled: Boolean;
 var
   I: Integer;
 begin
-  if FGates.Count = 0 then Exit(False);
+  if FGates.Count = 0 then
+    Exit(False);
   for I := 0 to FGates.Count - 1 do
     if FGates[I].Required and (FGates[I].State <> fgsPass) then
       Exit(False);
   Result := True;
 end;
 
-procedure TOBDFlashSafetyDashboard.MouseMove(Shift: TShiftState;
-  X, Y: Integer);
+procedure TOBDFlashSafetyDashboard.MouseMove(Shift: TShiftState; X, Y: Integer);
 var
   WasHover: Boolean;
 begin
   inherited;
   WasHover := FHoverArm;
   FHoverArm := PtInRect(FArmRect, Point(X, Y));
-  if WasHover <> FHoverArm then Repaint;
+  if WasHover <> FHoverArm then
+    Repaint;
 end;
 
 procedure TOBDFlashSafetyDashboard.MouseUp(Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   inherited;
-  if Button <> mbLeft then Exit;
-  if not ArmEnabled then Exit;
-  if not PtInRect(FArmRect, Point(X, Y)) then Exit;
+  if Button <> mbLeft then
+    Exit;
+  if not ArmEnabled then
+    Exit;
+  if not PtInRect(FArmRect, Point(X, Y)) then
+    Exit;
   if Assigned(FOnArm) then
     try
       FOnArm(Self);
@@ -442,12 +436,12 @@ procedure TOBDFlashSafetyDashboard.PaintControl(ACanvas: TCanvas);
 var
   Graphics: TGPGraphics;
   Brush: TGPSolidBrush;
-  Pen:   TGPPen;
+  Pen: TGPPen;
   Pad, RowH, Y, I: Integer;
   Gate: TOBDFlashGate;
   LampColor, BodyCol: TColor;
   LampSize: Integer;
-  Lamp:   TGPRectF;
+  Lamp: TGPRectF;
   ButtonRect: TGPRectF;
   ArmCaption: string;
 begin
@@ -464,15 +458,18 @@ begin
     begin
       Gate := FGates[I];
       case Gate.State of
-        fgsPass:    LampColor := Palette.Success;
-        fgsWarning: LampColor := Palette.Warning;
-        fgsFail:    LampColor := Palette.Danger;
+        fgsPass:
+          LampColor := Palette.Success;
+        fgsWarning:
+          LampColor := Palette.Warning;
+        fgsFail:
+          LampColor := Palette.Danger;
       else
         LampColor := Palette.NeutralLight;
       end;
       Lamp.X := Pad;
       Lamp.Y := Y + (RowH - LampSize) div 2;
-      Lamp.Width  := LampSize;
+      Lamp.Width := LampSize;
       Lamp.Height := LampSize;
       Brush := TGPSolidBrush.Create(ColorToARGB(LampColor));
       try
@@ -490,16 +487,13 @@ begin
       ACanvas.Font := FValueFont;
       ACanvas.Font.Color := EffectiveForeground;
       ACanvas.TextOut(Pad + LampSize + ScaleValue(8),
-        Y + (RowH - ACanvas.TextHeight('Mg')) div 2,
-        Gate.Name);
+        Y + (RowH - ACanvas.TextHeight('Mg')) div 2, Gate.Name);
 
       ACanvas.Font := FCaptionFont;
       ACanvas.Font.Color := EffectiveForeground;
       if Gate.Detail <> '' then
-        ACanvas.TextOut(Width - Pad -
-          ACanvas.TextWidth(Gate.Detail),
-          Y + (RowH - ACanvas.TextHeight(Gate.Detail)) div 2,
-          Gate.Detail);
+        ACanvas.TextOut(Width - Pad - ACanvas.TextWidth(Gate.Detail),
+          Y + (RowH - ACanvas.TextHeight(Gate.Detail)) div 2, Gate.Detail);
 
       Y := Y + RowH;
     end;
@@ -507,10 +501,9 @@ begin
     // Arm button.
     ButtonRect.X := Pad;
     ButtonRect.Y := Height - Pad - ScaleValue(36);
-    ButtonRect.Width  := Width - 2 * Pad;
+    ButtonRect.Width := Width - 2 * Pad;
     ButtonRect.Height := ScaleValue(32);
-    FArmRect := Rect(
-      Round(ButtonRect.X), Round(ButtonRect.Y),
+    FArmRect := Rect(Round(ButtonRect.X), Round(ButtonRect.Y),
       Round(ButtonRect.X + ButtonRect.Width),
       Round(ButtonRect.Y + ButtonRect.Height));
 
@@ -534,17 +527,19 @@ begin
       Pen.Free;
     end;
 
-    if ArmEnabled then ArmCaption := 'ARM'
-    else                ArmCaption := 'arm (gates pending)';
+    if ArmEnabled then
+      ArmCaption := 'ARM'
+    else
+      ArmCaption := 'arm (gates pending)';
     ACanvas.Font := FValueFont;
-    if ArmEnabled then ACanvas.Font.Color := clWhite
-    else                ACanvas.Font.Color := EffectiveForeground;
-    ACanvas.TextOut(
-      Round(ButtonRect.X + (ButtonRect.Width  -
-        ACanvas.TextWidth(ArmCaption)) / 2),
-      Round(ButtonRect.Y + (ButtonRect.Height -
-        ACanvas.TextHeight(ArmCaption)) / 2),
-      ArmCaption);
+    if ArmEnabled then
+      ACanvas.Font.Color := clWhite
+    else
+      ACanvas.Font.Color := EffectiveForeground;
+    ACanvas.TextOut(Round(ButtonRect.X + (ButtonRect.Width -
+      ACanvas.TextWidth(ArmCaption)) / 2),
+      Round(ButtonRect.Y + (ButtonRect.Height - ACanvas.TextHeight(ArmCaption))
+      / 2), ArmCaption);
   finally
     Graphics.Free;
   end;
@@ -555,7 +550,7 @@ end;
 constructor TOBDFlashCheckpointTimeline.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 420;
+  Width := 420;
   Height := 80;
   FEvents := TList<TOBDCheckpointEvent>.Create;
   FCapacity := 64;
@@ -574,7 +569,8 @@ end;
 
 procedure TOBDFlashCheckpointTimeline.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -593,24 +589,29 @@ end;
 
 procedure TOBDFlashCheckpointTimeline.SetCapacity(AValue: Integer);
 begin
-  if AValue < 4 then AValue := 4;
-  if AValue > 4096 then AValue := 4096;
-  if FCapacity = AValue then Exit;
+  if AValue < 4 then
+    AValue := 4;
+  if AValue > 4096 then
+    AValue := 4096;
+  if FCapacity = AValue then
+    Exit;
   FCapacity := AValue;
-  while FEvents.Count > FCapacity do FEvents.Delete(0);
+  while FEvents.Count > FCapacity do
+    FEvents.Delete(0);
   Repaint;
 end;
 
-procedure TOBDFlashCheckpointTimeline.PushEvent(
-  AKind: TOBDCheckpointKind; const ALabel: string);
+procedure TOBDFlashCheckpointTimeline.PushEvent(AKind: TOBDCheckpointKind;
+  const ALabel: string);
 var
   Ev: TOBDCheckpointEvent;
 begin
   Ev.Timestamp := Now;
-  Ev.Kind      := AKind;
-  Ev.Label_    := ALabel;
+  Ev.Kind := AKind;
+  Ev.Label_ := ALabel;
   FEvents.Add(Ev);
-  while FEvents.Count > FCapacity do FEvents.Delete(0);
+  while FEvents.Count > FCapacity do
+    FEvents.Delete(0);
   NotifyBindings;
   Repaint;
 end;
@@ -632,13 +633,16 @@ begin
   Result := FEvents.Count;
 end;
 
-function TOBDFlashCheckpointTimeline.KindColor(
-  AKind: TOBDCheckpointKind): TColor;
+function TOBDFlashCheckpointTimeline.KindColor
+  (AKind: TOBDCheckpointKind): TColor;
 begin
   case AKind of
-    ckCreated:    Result := Palette.Success;
-    ckRestored:   Result := EffectiveAccent;
-    ckRolledBack: Result := Palette.Warning;
+    ckCreated:
+      Result := Palette.Success;
+    ckRestored:
+      Result := EffectiveAccent;
+    ckRolledBack:
+      Result := Palette.Warning;
   else
     Result := EffectiveForeground;
   end;
@@ -647,7 +651,7 @@ end;
 procedure TOBDFlashCheckpointTimeline.PaintControl(ACanvas: TCanvas);
 var
   Graphics: TGPGraphics;
-  Pen:   TGPPen;
+  Pen: TGPPen;
   Brush: TGPSolidBrush;
   Pad: Integer;
   BaselineY: Integer;
@@ -662,7 +666,8 @@ begin
   BaselineY := Height div 2;
   PlotX := Pad;
   PlotW := Width - 2 * Pad;
-  if PlotW < 1 then Exit;
+  if PlotW < 1 then
+    Exit;
 
   Graphics := TGPGraphics.Create(ACanvas.Handle);
   try
@@ -670,14 +675,14 @@ begin
     // Baseline.
     Pen := TGPPen.Create(ColorToARGB(EffectiveBorder), ScaleValue(1));
     try
-      Graphics.DrawLine(Pen,
-        Single(PlotX), Single(BaselineY),
+      Graphics.DrawLine(Pen, Single(PlotX), Single(BaselineY),
         Single(PlotX + PlotW), Single(BaselineY));
     finally
       Pen.Free;
     end;
 
-    if FEvents.Count = 0 then Exit;
+    if FEvents.Count = 0 then
+      Exit;
 
     for I := 0 to FEvents.Count - 1 do
     begin
@@ -687,10 +692,9 @@ begin
         X := PlotX + PlotW / 2;
       Marker.X := X - ScaleValue(5);
       Marker.Y := BaselineY - ScaleValue(5);
-      Marker.Width  := ScaleValue(10);
+      Marker.Width := ScaleValue(10);
       Marker.Height := ScaleValue(10);
-      Brush := TGPSolidBrush.Create(
-        ColorToARGB(KindColor(FEvents[I].Kind)));
+      Brush := TGPSolidBrush.Create(ColorToARGB(KindColor(FEvents[I].Kind)));
       try
         Graphics.FillEllipse(Brush, Marker);
       finally
@@ -698,9 +702,8 @@ begin
       end;
 
       // Print the latest few labels alternately above / below.
-      if (I = FEvents.Count - 1) or
-         (I = FEvents.Count - 2) or
-         (I = FEvents.Count - 3) then
+      if (I = FEvents.Count - 1) or (I = FEvents.Count - 2) or
+        (I = FEvents.Count - 3) then
       begin
         Lab := FEvents[I].Label_;
         if Lab = '' then
@@ -708,12 +711,10 @@ begin
         ACanvas.Font := FCaptionFont;
         ACanvas.Font.Color := KindColor(FEvents[I].Kind);
         if I mod 2 = 0 then
-          ACanvas.TextOut(Round(X) -
-            ACanvas.TextWidth(Lab) div 2,
+          ACanvas.TextOut(Round(X) - ACanvas.TextWidth(Lab) div 2,
             BaselineY - ScaleValue(20), Lab)
         else
-          ACanvas.TextOut(Round(X) -
-            ACanvas.TextWidth(Lab) div 2,
+          ACanvas.TextOut(Round(X) - ACanvas.TextWidth(Lab) div 2,
             BaselineY + ScaleValue(8), Lab);
       end;
     end;
@@ -729,7 +730,7 @@ begin
   inherited Create(AOwner);
   ViewStyle := vsReport;
   RowSelect := True;
-  ReadOnly  := True;
+  ReadOnly := True;
   GridLines := True;
   ShowColumnHeaders := True;
   FMaxRows := 200;
@@ -739,14 +740,14 @@ procedure TOBDFlashAuditTail.CreateWnd;
 begin
   inherited;
   if Columns.Count = 0 then
-    ConfigureColumns(Self,
-      ['Time', 'Kind', 'Target', 'Message'],
+    ConfigureColumns(Self, ['Time', 'Kind', 'Target', 'Message'],
       [80, 70, 140, 240]);
 end;
 
 procedure TOBDFlashAuditTail.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -755,9 +756,12 @@ end;
 
 procedure TOBDFlashAuditTail.SetMaxRows(AValue: Integer);
 begin
-  if AValue < 10 then AValue := 10;
-  if AValue > 100000 then AValue := 100000;
-  if FMaxRows = AValue then Exit;
+  if AValue < 10 then
+    AValue := 10;
+  if AValue > 100000 then
+    AValue := 100000;
+  if FMaxRows = AValue then
+    Exit;
   FMaxRows := AValue;
   while Items.Count > FMaxRows do
     Items.Delete(0);
@@ -766,12 +770,18 @@ end;
 function TOBDFlashAuditTail.KindText(AKind: TOBDAuditKind): string;
 begin
   case AKind of
-    akInfo:        Result := 'info';
-    akSnapshot:    Result := 'snapshot';
-    akWrite:        Result := 'write';
-    akVerify:       Result := 'verify';
-    akRollback:     Result := 'rollback';
-    akError:        Result := 'error';
+    akInfo:
+      Result := 'info';
+    akSnapshot:
+      Result := 'snapshot';
+    akWrite:
+      Result := 'write';
+    akVerify:
+      Result := 'verify';
+    akRollback:
+      Result := 'rollback';
+    akError:
+      Result := 'error';
   else
     Result := 'event';
   end;

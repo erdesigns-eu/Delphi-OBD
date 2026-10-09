@@ -1,40 +1,40 @@
-//------------------------------------------------------------------------------
-//  ERD.UI.Connection
+﻿// ------------------------------------------------------------------------------
+// ERD.UI.Connection
 //
-//  Connection-state visuals for the A2 inventory:
+// Connection-state visuals for the A2 inventory:
 //
-//    TOBDConnectionStateLamp  Round lamp tracking
-//                             TOBDConnectionState. Colours:
-//                             closed=neutral, opening=warning
-//                             (pulsing), open=success,
-//                             closing=warning, error=danger.
-//    TOBDDoIPStatusPanel      Target EID / activation type /
-//                             heartbeat age strip.
-//    TOBDSecurityAccessLamp   Locked / level-N badge with
-//                             optional lockout countdown
-//                             (TTimer-driven).
-//    TOBDSecOCStatusLamp      Freshness (ok / warn / expired)
-//                             plus key health (green / amber /
-//                             red) two-lamp strip.
+// TOBDConnectionStateLamp  Round lamp tracking
+// TOBDConnectionState. Colours:
+// closed=neutral, opening=warning
+// (pulsing), open=success,
+// closing=warning, error=danger.
+// TOBDDoIPStatusPanel      Target EID / activation type /
+// heartbeat age strip.
+// TOBDSecurityAccessLamp   Locked / level-N badge with
+// optional lockout countdown
+// (TTimer-driven).
+// TOBDSecOCStatusLamp      Freshness (ok / warn / expired)
+// plus key health (green / amber /
+// red) two-lamp strip.
 //
-//  All four inherit theme / HiDPI / VCL-Style awareness from
-//  TOBDCustomControl, route state mutations through
-//  TBindings.Notify, and guard their timers with csDesigning
-//  so the IDE Designer stays responsive.
+// All four inherit theme / HiDPI / VCL-Style awareness from
+// TOBDCustomControl, route state mutations through
+// TBindings.Notify, and guard their timers with csDesigning
+// so the IDE Designer stays responsive.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.UI.Connection;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -44,9 +44,9 @@ uses
   Winapi.Windows,
   Winapi.GDIPAPI,
   Winapi.GDIPOBJ,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
   System.Bindings.Helper, Data.Bind.Components,
   Vcl.Controls,
   Vcl.Graphics,
@@ -66,11 +66,11 @@ type
   /// <see cref="State"/> directly.</summary>
   TOBDConnectionStateLamp = class(TOBDCustomControl)
   strict private
-    FConnection:  TOBDConnection;
-    FState:       TOBDConnectionState;
+    FConnection: TOBDConnection;
+    FState: TOBDConnectionState;
     FShowCaption: Boolean;
-    FPulseTimer:  TTimer;
-    FPulseOn:     Boolean;
+    FPulseTimer: TTimer;
+    FPulseOn: Boolean;
     FCaptionFont: TFont;
     procedure SetConnection(AValue: TOBDConnection);
     procedure SetState(AValue: TOBDConnectionState);
@@ -80,8 +80,8 @@ type
     procedure HandlePulseTick(Sender: TObject);
     procedure NotifyBindings;
     procedure UpdatePulser;
-    function  StateColor: TColor;
-    function  StateText: string;
+    function StateColor: TColor;
+    function StateText: string;
   protected
     procedure Loaded; override;
     procedure Notification(AComponent: TComponent;
@@ -89,7 +89,7 @@ type
     procedure PaintControl(ACanvas: TCanvas); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
     /// <summary>Re-reads <c>State</c> from the bound
     /// <see cref="Connection"/>. No-op if <c>Connection</c>
     /// is nil.</summary>
@@ -97,18 +97,16 @@ type
   published
     /// <summary>Bound connection. Optional — hosts may set
     /// <see cref="State"/> directly.</summary>
-    property Connection: TOBDConnection
-      read FConnection write SetConnection;
+    property Connection: TOBDConnection read FConnection write SetConnection;
     /// <summary>Displayed state. Default <c>csClosed</c>.
     /// </summary>
-    property State: TOBDConnectionState
-      read FState write SetState default csClosed;
+    property State: TOBDConnectionState read FState write SetState
+      default csClosed;
     /// <summary>Show the text caption beside the lamp.
     /// Default True.</summary>
-    property ShowCaption: Boolean
-      read FShowCaption write SetShowCaption default True;
-    property CaptionFont: TFont
-      read FCaptionFont write SetCaptionFont;
+    property ShowCaption: Boolean read FShowCaption write SetShowCaption
+      default True;
+    property CaptionFont: TFont read FCaptionFont write SetCaptionFont;
   end;
 
   /// <summary>DoIP target status strip — Entity ID, activation
@@ -116,13 +114,13 @@ type
   /// events.</summary>
   TOBDDoIPStatusPanel = class(TOBDCustomControl)
   strict private
-    FTargetEID:       Word;
-    FActivationType:  Byte;
-    FActivationName:  string;
-    FHeartbeatAgeMs:  Int64;
+    FTargetEID: Word;
+    FActivationType: Byte;
+    FActivationName: string;
+    FHeartbeatAgeMs: Int64;
     FHeartbeatStaleMs: Int64;
-    FCaptionFont:     TFont;
-    FValueFont:       TFont;
+    FCaptionFont: TFont;
+    FValueFont: TFont;
     procedure SetTargetEID(AValue: Word);
     procedure SetActivationType(AValue: Byte);
     procedure SetActivationName(const AValue: string);
@@ -136,35 +134,31 @@ type
     procedure PaintControl(ACanvas: TCanvas); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
   published
     /// <summary>16-bit DoIP logical address.</summary>
-    property TargetEID: Word
-      read FTargetEID write SetTargetEID default 0;
+    property TargetEID: Word read FTargetEID write SetTargetEID default 0;
     /// <summary>Routing-activation type byte (ISO 13400-2
     /// table 47).</summary>
-    property ActivationType: Byte
-      read FActivationType write SetActivationType default 0;
+    property ActivationType: Byte read FActivationType write SetActivationType
+      default 0;
     /// <summary>Human description of
     /// <see cref="ActivationType"/> (e.g. "default", "WWH-OBD",
     /// "central security"). Hosts that want the auto-mapping
     /// can set this themselves; the panel just renders the
     /// string.</summary>
-    property ActivationName: string
-      read FActivationName write SetActivationName;
+    property ActivationName: string read FActivationName
+      write SetActivationName;
     /// <summary>Time since the last heartbeat (ms).</summary>
-    property HeartbeatAgeMs: Int64
-      read FHeartbeatAgeMs write SetHeartbeatAgeMs default 0;
+    property HeartbeatAgeMs: Int64 read FHeartbeatAgeMs write SetHeartbeatAgeMs
+      default 0;
     /// <summary>Age threshold (ms) past which the heartbeat
     /// row paints in the warning colour. Default 5000.
     /// </summary>
-    property HeartbeatStaleMs: Int64
-      read FHeartbeatStaleMs write SetHeartbeatStaleMs
-      default 5000;
-    property CaptionFont: TFont
-      read FCaptionFont write SetCaptionFont;
-    property ValueFont: TFont
-      read FValueFont write SetValueFont;
+    property HeartbeatStaleMs: Int64 read FHeartbeatStaleMs
+      write SetHeartbeatStaleMs default 5000;
+    property CaptionFont: TFont read FCaptionFont write SetCaptionFont;
+    property ValueFont: TFont read FValueFont write SetValueFont;
   end;
 
   /// <summary>UDS security-access lamp. Three visual states:
@@ -172,12 +166,12 @@ type
   /// countdown (amber, ticking).</summary>
   TOBDSecurityAccessLamp = class(TOBDCustomControl)
   strict private
-    FUnlocked:    Boolean;
-    FLevel:       Byte;
-    FLockoutMs:   Int64;
-    FTimer:       TTimer;
+    FUnlocked: Boolean;
+    FLevel: Byte;
+    FLockoutMs: Int64;
+    FTimer: TTimer;
     FCaptionFont: TFont;
-    FValueFont:   TFont;
+    FValueFont: TFont;
     procedure SetUnlocked(AValue: Boolean);
     procedure SetLevel(AValue: Byte);
     procedure SetLockoutMs(AValue: Int64);
@@ -191,24 +185,20 @@ type
     procedure PaintControl(ACanvas: TCanvas); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
   published
     /// <summary>True when security access has been granted
     /// at <see cref="Level"/>.</summary>
-    property Unlocked: Boolean
-      read FUnlocked write SetUnlocked default False;
+    property Unlocked: Boolean read FUnlocked write SetUnlocked default False;
     /// <summary>UDS security level (0x01, 0x03, ...). 0 when
     /// locked or unknown.</summary>
     property Level: Byte read FLevel write SetLevel default 0;
     /// <summary>Lockout countdown (ms). Non-zero hides the
     /// unlocked lamp and shows the amber timer instead.
     /// Ticks down via an internal 250 ms timer.</summary>
-    property LockoutMs: Int64
-      read FLockoutMs write SetLockoutMs default 0;
-    property CaptionFont: TFont
-      read FCaptionFont write SetCaptionFont;
-    property ValueFont: TFont
-      read FValueFont write SetValueFont;
+    property LockoutMs: Int64 read FLockoutMs write SetLockoutMs default 0;
+    property CaptionFont: TFont read FCaptionFont write SetCaptionFont;
+    property ValueFont: TFont read FValueFont write SetValueFont;
   end;
 
   /// <summary>SecOC freshness state.</summary>
@@ -221,79 +211,73 @@ type
     sfWarning,
     /// <summary>Out of sync; messages will fail
     /// authentication.</summary>
-    sfExpired
-  );
+    sfExpired);
 
   /// <summary>SecOC key health.</summary>
-  TOBDSecOCKeyHealth = (
-    khUnknown,
+  TOBDSecOCKeyHealth = (khUnknown,
     /// <summary>Loaded and within validity window.</summary>
     khHealthy,
     /// <summary>Within rotation window — refresh recommended.
     /// </summary>
     khRotateSoon,
     /// <summary>Expired or missing.</summary>
-    khStale
-  );
+    khStale);
 
   /// <summary>Two-lamp SecOC status strip: freshness on the
   /// left, key health on the right. Each lamp + label uses
   /// the green / amber / red palette.</summary>
   TOBDSecOCStatusLamp = class(TOBDCustomControl)
   strict private
-    FFreshness:    TOBDSecOCFreshness;
-    FKeyHealth:    TOBDSecOCKeyHealth;
-    FCaptionFont:  TFont;
-    FValueFont:    TFont;
+    FFreshness: TOBDSecOCFreshness;
+    FKeyHealth: TOBDSecOCKeyHealth;
+    FCaptionFont: TFont;
+    FValueFont: TFont;
     procedure SetFreshness(AValue: TOBDSecOCFreshness);
     procedure SetKeyHealth(AValue: TOBDSecOCKeyHealth);
     procedure SetCaptionFont(AValue: TFont);
     procedure SetValueFont(AValue: TFont);
     procedure HandleFontChange(Sender: TObject);
     procedure NotifyBindings;
-    function  FreshnessColor: TColor;
-    function  KeyHealthColor: TColor;
-    function  FreshnessText:  string;
-    function  KeyHealthText:  string;
+    function FreshnessColor: TColor;
+    function KeyHealthColor: TColor;
+    function FreshnessText: string;
+    function KeyHealthText: string;
   protected
     procedure PaintControl(ACanvas: TCanvas); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
   published
     /// <summary>Freshness state. Default <c>sfUnknown</c>.
     /// </summary>
-    property Freshness: TOBDSecOCFreshness
-      read FFreshness write SetFreshness default sfUnknown;
+    property Freshness: TOBDSecOCFreshness read FFreshness write SetFreshness
+      default sfUnknown;
     /// <summary>Key health. Default <c>khUnknown</c>.</summary>
-    property KeyHealth: TOBDSecOCKeyHealth
-      read FKeyHealth write SetKeyHealth default khUnknown;
-    property CaptionFont: TFont
-      read FCaptionFont write SetCaptionFont;
-    property ValueFont: TFont
-      read FValueFont write SetValueFont;
+    property KeyHealth: TOBDSecOCKeyHealth read FKeyHealth write SetKeyHealth
+      default khUnknown;
+    property CaptionFont: TFont read FCaptionFont write SetCaptionFont;
+    property ValueFont: TFont read FValueFont write SetValueFont;
   end;
 
 implementation
 
 procedure DrawLamp(ACanvas: TCanvas; AGraphics: TGPGraphics;
-  AX, AY, ASize: Single; AColor, ABorder: TColor;
-  AHalo: Boolean);
+  AX, AY, ASize: Single; AColor, ABorder: TColor; AHalo: Boolean);
 var
   Brush: TGPSolidBrush;
-  Pen:   TGPPen;
+  Pen: TGPPen;
   Body, Halo: TGPRectF;
 begin
   Body.X := AX;
   Body.Y := AY;
-  Body.Width  := ASize;
+  Body.Width := ASize;
   Body.Height := ASize;
   if AHalo then
   begin
     Halo := Body;
     Halo.X := Halo.X - ASize * 0.2;
     Halo.Y := Halo.Y - ASize * 0.2;
-    Halo.Width  := Halo.Width  + ASize * 0.4;
+    Halo.Width := Halo.Width + ASize * 0.4;
     Halo.Height := Halo.Height + ASize * 0.4;
     Brush := TGPSolidBrush.Create(ColorToARGB(AColor, 48));
     try
@@ -321,7 +305,7 @@ end;
 constructor TOBDConnectionStateLamp.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 140;
+  Width := 140;
   Height := 26;
   FState := csClosed;
   FShowCaption := True;
@@ -330,9 +314,9 @@ begin
   FCaptionFont.Size := 9;
   FCaptionFont.OnChange := HandleFontChange;
   FPulseTimer := TTimer.Create(Self);
-  FPulseTimer.Enabled  := False;
+  FPulseTimer.Enabled := False;
   FPulseTimer.Interval := 320;
-  FPulseTimer.OnTimer  := HandlePulseTick;
+  FPulseTimer.OnTimer := HandlePulseTick;
 end;
 
 destructor TOBDConnectionStateLamp.Destroy;
@@ -344,7 +328,8 @@ end;
 
 procedure TOBDConnectionStateLamp.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -374,8 +359,8 @@ end;
 procedure TOBDConnectionStateLamp.UpdatePulser;
 begin
   // Pulse only during transient open / close.
-  if (FState in [csOpening, csClosing]) and
-     not (csDesigning in ComponentState) then
+  if (FState in [csOpening, csClosing]) and not(csDesigning in ComponentState)
+  then
     FPulseTimer.Enabled := True
   else
   begin
@@ -397,16 +382,23 @@ end;
 
 procedure TOBDConnectionStateLamp.SetConnection(AValue: TOBDConnection);
 begin
-  if FConnection = AValue then Exit;
-  if FConnection <> nil then FConnection.RemoveFreeNotification(Self);
+  if FConnection = AValue then
+    Exit;
+  if FConnection <> nil then
+    FConnection.RemoveFreeNotification(Self);
   FConnection := AValue;
-  if FConnection <> nil then FConnection.FreeNotification(Self);
-  if FConnection <> nil then Refresh else SetState(csClosed);
+  if FConnection <> nil then
+    FConnection.FreeNotification(Self);
+  if FConnection <> nil then
+    Refresh
+  else
+    SetState(csClosed);
 end;
 
 procedure TOBDConnectionStateLamp.SetState(AValue: TOBDConnectionState);
 begin
-  if FState = AValue then Exit;
+  if FState = AValue then
+    Exit;
   FState := AValue;
   UpdatePulser;
   NotifyBindings;
@@ -415,8 +407,10 @@ end;
 
 procedure TOBDConnectionStateLamp.SetShowCaption(AValue: Boolean);
 begin
-  if FShowCaption = AValue then Exit;
-  FShowCaption := AValue; Repaint;
+  if FShowCaption = AValue then
+    Exit;
+  FShowCaption := AValue;
+  Repaint;
 end;
 
 procedure TOBDConnectionStateLamp.SetCaptionFont(AValue: TFont);
@@ -433,11 +427,16 @@ end;
 function TOBDConnectionStateLamp.StateColor: TColor;
 begin
   case FState of
-    csClosed:   Result := Palette.NeutralLight;
-    csOpening:  Result := Palette.Warning;
-    csOpen:     Result := Palette.Success;
-    csClosing:  Result := Palette.Warning;
-    csError:    Result := Palette.Danger;
+    csClosed:
+      Result := Palette.NeutralLight;
+    csOpening:
+      Result := Palette.Warning;
+    csOpen:
+      Result := Palette.Success;
+    csClosing:
+      Result := Palette.Warning;
+    csError:
+      Result := Palette.Danger;
   else
     Result := Palette.NeutralLight;
   end;
@@ -446,11 +445,16 @@ end;
 function TOBDConnectionStateLamp.StateText: string;
 begin
   case FState of
-    csClosed:   Result := 'disconnected';
-    csOpening:  Result := 'connecting';
-    csOpen:     Result := 'connected';
-    csClosing:  Result := 'disconnecting';
-    csError:    Result := 'error';
+    csClosed:
+      Result := 'disconnected';
+    csOpening:
+      Result := 'connecting';
+    csOpen:
+      Result := 'connected';
+    csClosing:
+      Result := 'disconnecting';
+    csError:
+      Result := 'error';
   else
     Result := '';
   end;
@@ -464,7 +468,8 @@ var
 begin
   ACanvas.Brush.Style := bsClear;
   LampSize := System.Math.Min(Height - ScaleValue(8), ScaleValue(14));
-  if LampSize < 8 then LampSize := 8;
+  if LampSize < 8 then
+    LampSize := 8;
   Col := StateColor;
   // Dim the colour on the pulse-off tick to show transient
   // activity.
@@ -474,12 +479,8 @@ begin
   Graphics := TGPGraphics.Create(ACanvas.Handle);
   try
     Graphics.SetSmoothingMode(SmoothingModeAntiAlias);
-    DrawLamp(ACanvas, Graphics,
-      ScaleValue(6),
-      (Height - LampSize) / 2,
-      LampSize,
-      Col, EffectiveBorder,
-      FState = csOpen);
+    DrawLamp(ACanvas, Graphics, ScaleValue(6), (Height - LampSize) / 2,
+      LampSize, Col, EffectiveBorder, FState = csOpen);
   finally
     Graphics.Free;
   end;
@@ -488,10 +489,8 @@ begin
   begin
     ACanvas.Font := FCaptionFont;
     ACanvas.Font.Color := EffectiveForeground;
-    ACanvas.TextOut(
-      Round(ScaleValue(6) + LampSize + ScaleValue(8)),
-      (Height - ACanvas.TextHeight('Mg')) div 2,
-      StateText);
+    ACanvas.TextOut(Round(ScaleValue(6) + LampSize + ScaleValue(8)),
+      (Height - ACanvas.TextHeight('Mg')) div 2, StateText);
   end;
 end;
 
@@ -500,7 +499,7 @@ end;
 constructor TOBDDoIPStatusPanel.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 280;
+  Width := 280;
   Height := 90;
   FTargetEID := 0;
   FActivationType := 0;
@@ -527,7 +526,8 @@ end;
 
 procedure TOBDDoIPStatusPanel.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -541,34 +541,50 @@ end;
 
 procedure TOBDDoIPStatusPanel.SetTargetEID(AValue: Word);
 begin
-  if FTargetEID = AValue then Exit;
-  FTargetEID := AValue; NotifyBindings; Repaint;
+  if FTargetEID = AValue then
+    Exit;
+  FTargetEID := AValue;
+  NotifyBindings;
+  Repaint;
 end;
 
 procedure TOBDDoIPStatusPanel.SetActivationType(AValue: Byte);
 begin
-  if FActivationType = AValue then Exit;
-  FActivationType := AValue; NotifyBindings; Repaint;
+  if FActivationType = AValue then
+    Exit;
+  FActivationType := AValue;
+  NotifyBindings;
+  Repaint;
 end;
 
 procedure TOBDDoIPStatusPanel.SetActivationName(const AValue: string);
 begin
-  if FActivationName = AValue then Exit;
-  FActivationName := AValue; NotifyBindings; Repaint;
+  if FActivationName = AValue then
+    Exit;
+  FActivationName := AValue;
+  NotifyBindings;
+  Repaint;
 end;
 
 procedure TOBDDoIPStatusPanel.SetHeartbeatAgeMs(AValue: Int64);
 begin
-  if AValue < 0 then AValue := 0;
-  if FHeartbeatAgeMs = AValue then Exit;
-  FHeartbeatAgeMs := AValue; NotifyBindings; Repaint;
+  if AValue < 0 then
+    AValue := 0;
+  if FHeartbeatAgeMs = AValue then
+    Exit;
+  FHeartbeatAgeMs := AValue;
+  NotifyBindings;
+  Repaint;
 end;
 
 procedure TOBDDoIPStatusPanel.SetHeartbeatStaleMs(AValue: Int64);
 begin
-  if AValue < 0 then AValue := 0;
-  if FHeartbeatStaleMs = AValue then Exit;
-  FHeartbeatStaleMs := AValue; Repaint;
+  if AValue < 0 then
+    AValue := 0;
+  if FHeartbeatStaleMs = AValue then
+    Exit;
+  FHeartbeatStaleMs := AValue;
+  Repaint;
 end;
 
 procedure TOBDDoIPStatusPanel.SetCaptionFont(AValue: TFont);
@@ -602,21 +618,17 @@ begin
   ACanvas.Brush.Style := bsClear;
   Pad := ScaleValue(10);
   RowH := Round(FValueFont.Size * 2);
-  if RowH < ScaleValue(20) then RowH := ScaleValue(20);
+  if RowH < ScaleValue(20) then
+    RowH := ScaleValue(20);
   Y := Pad;
 
-  Row('Target EID',
-    Format('0x%4.4X', [FTargetEID]),
-    EffectiveAccent);
+  Row('Target EID', Format('0x%4.4X', [FTargetEID]), EffectiveAccent);
 
   if FActivationName <> '' then
-    Row('Activation',
-      Format('%s (0x%2.2X)', [FActivationName, FActivationType]),
-      EffectiveAccent)
+    Row('Activation', Format('%s (0x%2.2X)', [FActivationName, FActivationType]
+      ), EffectiveAccent)
   else
-    Row('Activation',
-      Format('0x%2.2X', [FActivationType]),
-      EffectiveAccent);
+    Row('Activation', Format('0x%2.2X', [FActivationType]), EffectiveAccent);
 
   HBStr := Format('%d ms', [FHeartbeatAgeMs]);
   if FHeartbeatAgeMs >= FHeartbeatStaleMs then
@@ -633,10 +645,10 @@ end;
 constructor TOBDSecurityAccessLamp.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 180;
+  Width := 180;
   Height := 32;
-  FUnlocked  := False;
-  FLevel     := 0;
+  FUnlocked := False;
+  FLevel := 0;
   FLockoutMs := 0;
   FCaptionFont := TFont.Create;
   FCaptionFont.Name := 'Segoe UI';
@@ -648,9 +660,9 @@ begin
   FValueFont.Style := [fsBold];
   FValueFont.OnChange := HandleFontChange;
   FTimer := TTimer.Create(Self);
-  FTimer.Enabled  := False;
+  FTimer.Enabled := False;
   FTimer.Interval := 250;
-  FTimer.OnTimer  := HandleTick;
+  FTimer.OnTimer := HandleTick;
 end;
 
 destructor TOBDSecurityAccessLamp.Destroy;
@@ -663,7 +675,8 @@ end;
 
 procedure TOBDSecurityAccessLamp.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -677,7 +690,7 @@ end;
 
 procedure TOBDSecurityAccessLamp.UpdateTimer;
 begin
-  if (FLockoutMs > 0) and not (csDesigning in ComponentState) then
+  if (FLockoutMs > 0) and not(csDesigning in ComponentState) then
     FTimer.Enabled := True
   else
     FTimer.Enabled := False;
@@ -697,20 +710,28 @@ end;
 
 procedure TOBDSecurityAccessLamp.SetUnlocked(AValue: Boolean);
 begin
-  if FUnlocked = AValue then Exit;
-  FUnlocked := AValue; NotifyBindings; Repaint;
+  if FUnlocked = AValue then
+    Exit;
+  FUnlocked := AValue;
+  NotifyBindings;
+  Repaint;
 end;
 
 procedure TOBDSecurityAccessLamp.SetLevel(AValue: Byte);
 begin
-  if FLevel = AValue then Exit;
-  FLevel := AValue; NotifyBindings; Repaint;
+  if FLevel = AValue then
+    Exit;
+  FLevel := AValue;
+  NotifyBindings;
+  Repaint;
 end;
 
 procedure TOBDSecurityAccessLamp.SetLockoutMs(AValue: Int64);
 begin
-  if AValue < 0 then AValue := 0;
-  if FLockoutMs = AValue then Exit;
+  if AValue < 0 then
+    AValue := 0;
+  if FLockoutMs = AValue then
+    Exit;
   FLockoutMs := AValue;
   UpdateTimer;
   NotifyBindings;
@@ -737,7 +758,8 @@ var
 begin
   ACanvas.Brush.Style := bsClear;
   LampSize := System.Math.Min(Height - ScaleValue(8), ScaleValue(14));
-  if LampSize < 8 then LampSize := 8;
+  if LampSize < 8 then
+    LampSize := 8;
 
   if FLockoutMs > 0 then
   begin
@@ -763,21 +785,16 @@ begin
   Graphics := TGPGraphics.Create(ACanvas.Handle);
   try
     Graphics.SetSmoothingMode(SmoothingModeAntiAlias);
-    DrawLamp(ACanvas, Graphics,
-      ScaleValue(6),
-      (Height - LampSize) / 2,
-      LampSize,
-      Col, EffectiveBorder, FUnlocked);
+    DrawLamp(ACanvas, Graphics, ScaleValue(6), (Height - LampSize) / 2,
+      LampSize, Col, EffectiveBorder, FUnlocked);
   finally
     Graphics.Free;
   end;
 
   ACanvas.Font := FValueFont;
   ACanvas.Font.Color := Col;
-  ACanvas.TextOut(
-    Round(ScaleValue(6) + LampSize + ScaleValue(8)),
-    (Height - ACanvas.TextHeight(Caption)) div 2,
-    Caption);
+  ACanvas.TextOut(Round(ScaleValue(6) + LampSize + ScaleValue(8)),
+    (Height - ACanvas.TextHeight(Caption)) div 2, Caption);
 end;
 
 { ---- TOBDSecOCStatusLamp ------------------------------------------------ }
@@ -785,7 +802,7 @@ end;
 constructor TOBDSecOCStatusLamp.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 260;
+  Width := 260;
   Height := 36;
   FFreshness := sfUnknown;
   FKeyHealth := khUnknown;
@@ -809,7 +826,8 @@ end;
 
 procedure TOBDSecOCStatusLamp.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -823,14 +841,20 @@ end;
 
 procedure TOBDSecOCStatusLamp.SetFreshness(AValue: TOBDSecOCFreshness);
 begin
-  if FFreshness = AValue then Exit;
-  FFreshness := AValue; NotifyBindings; Repaint;
+  if FFreshness = AValue then
+    Exit;
+  FFreshness := AValue;
+  NotifyBindings;
+  Repaint;
 end;
 
 procedure TOBDSecOCStatusLamp.SetKeyHealth(AValue: TOBDSecOCKeyHealth);
 begin
-  if FKeyHealth = AValue then Exit;
-  FKeyHealth := AValue; NotifyBindings; Repaint;
+  if FKeyHealth = AValue then
+    Exit;
+  FKeyHealth := AValue;
+  NotifyBindings;
+  Repaint;
 end;
 
 procedure TOBDSecOCStatusLamp.SetCaptionFont(AValue: TFont);
@@ -846,9 +870,12 @@ end;
 function TOBDSecOCStatusLamp.FreshnessColor: TColor;
 begin
   case FFreshness of
-    sfOK:      Result := Palette.Success;
-    sfWarning: Result := Palette.Warning;
-    sfExpired: Result := Palette.Danger;
+    sfOK:
+      Result := Palette.Success;
+    sfWarning:
+      Result := Palette.Warning;
+    sfExpired:
+      Result := Palette.Danger;
   else
     Result := Palette.NeutralLight;
   end;
@@ -857,9 +884,12 @@ end;
 function TOBDSecOCStatusLamp.KeyHealthColor: TColor;
 begin
   case FKeyHealth of
-    khHealthy:    Result := Palette.Success;
-    khRotateSoon: Result := Palette.Warning;
-    khStale:      Result := Palette.Danger;
+    khHealthy:
+      Result := Palette.Success;
+    khRotateSoon:
+      Result := Palette.Warning;
+    khStale:
+      Result := Palette.Danger;
   else
     Result := Palette.NeutralLight;
   end;
@@ -868,9 +898,12 @@ end;
 function TOBDSecOCStatusLamp.FreshnessText: string;
 begin
   case FFreshness of
-    sfOK:      Result := 'fresh';
-    sfWarning: Result := 'drift';
-    sfExpired: Result := 'expired';
+    sfOK:
+      Result := 'fresh';
+    sfWarning:
+      Result := 'drift';
+    sfExpired:
+      Result := 'expired';
   else
     Result := 'unknown';
   end;
@@ -879,9 +912,12 @@ end;
 function TOBDSecOCStatusLamp.KeyHealthText: string;
 begin
   case FKeyHealth of
-    khHealthy:    Result := 'healthy';
-    khRotateSoon: Result := 'rotate soon';
-    khStale:      Result := 'stale';
+    khHealthy:
+      Result := 'healthy';
+    khRotateSoon:
+      Result := 'rotate soon';
+    khStale:
+      Result := 'stale';
   else
     Result := 'unknown';
   end;
@@ -896,7 +932,8 @@ var
 begin
   ACanvas.Brush.Style := bsClear;
   LampSize := System.Math.Min(Height - ScaleValue(6), ScaleValue(12));
-  if LampSize < 6 then LampSize := 6;
+  if LampSize < 6 then
+    LampSize := 6;
   HalfW := Width div 2;
 
   Graphics := TGPGraphics.Create(ACanvas.Handle);
@@ -904,42 +941,32 @@ begin
     Graphics.SetSmoothingMode(SmoothingModeAntiAlias);
 
     // Freshness lamp (left half).
-    DrawLamp(ACanvas, Graphics,
-      ScaleValue(6),
-      (Height - LampSize) / 2,
-      LampSize, FreshnessColor, EffectiveBorder,
-      FFreshness = sfOK);
+    DrawLamp(ACanvas, Graphics, ScaleValue(6), (Height - LampSize) / 2,
+      LampSize, FreshnessColor, EffectiveBorder, FFreshness = sfOK);
 
     // Key-health lamp (right half).
-    DrawLamp(ACanvas, Graphics,
-      HalfW + ScaleValue(6),
-      (Height - LampSize) / 2,
-      LampSize, KeyHealthColor, EffectiveBorder,
-      FKeyHealth = khHealthy);
+    DrawLamp(ACanvas, Graphics, HalfW + ScaleValue(6), (Height - LampSize) / 2,
+      LampSize, KeyHealthColor, EffectiveBorder, FKeyHealth = khHealthy);
   finally
     Graphics.Free;
   end;
 
   ACanvas.Font := FCaptionFont;
   ACanvas.Font.Color := EffectiveForeground;
-  ACanvas.TextOut(
-    Round(ScaleValue(6) + LampSize + ScaleValue(4)),
+  ACanvas.TextOut(Round(ScaleValue(6) + LampSize + ScaleValue(4)),
     ScaleValue(2), 'freshness');
-  ACanvas.TextOut(
-    HalfW + Round(ScaleValue(6) + LampSize + ScaleValue(4)),
+  ACanvas.TextOut(HalfW + Round(ScaleValue(6) + LampSize + ScaleValue(4)),
     ScaleValue(2), 'key');
 
   ACanvas.Font := FValueFont;
   ACanvas.Font.Color := FreshnessColor;
   Cap := FreshnessText;
-  ACanvas.TextOut(
-    Round(ScaleValue(6) + LampSize + ScaleValue(4)),
+  ACanvas.TextOut(Round(ScaleValue(6) + LampSize + ScaleValue(4)),
     ScaleValue(2) + ACanvas.TextHeight('Mg'), Cap);
 
   ACanvas.Font.Color := KeyHealthColor;
   Cap := KeyHealthText;
-  ACanvas.TextOut(
-    HalfW + Round(ScaleValue(6) + LampSize + ScaleValue(4)),
+  ACanvas.TextOut(HalfW + Round(ScaleValue(6) + LampSize + ScaleValue(4)),
     ScaleValue(2) + ACanvas.TextHeight('Mg'), Cap);
 end;
 

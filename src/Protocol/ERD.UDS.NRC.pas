@@ -1,43 +1,43 @@
-//------------------------------------------------------------------------------
-//  ERD.UDS.NRC
+﻿// ------------------------------------------------------------------------------
+// ERD.UDS.NRC
 //
-//  ISO 14229-1 UDS negative-response-code catalogue. Loads
-//  <c>catalogs/uds-nrc.json</c> on init and exposes:
+// ISO 14229-1 UDS negative-response-code catalogue. Loads
+// <c>catalogs/uds-nrc.json</c> on init and exposes:
 //
-//    - <see cref="DescribeNRC"/>: typed lookup (returns a
-//      synthetic record for unknown / manufacturer-specific
-//      codes instead of raising).
-//    - <see cref="FormatNRC"/>: one-line log formatter.
-//    - <see cref="IsTransientNRC"/>: classifier for the
-//      retry-friendly codes (busy / repeat-request /
-//      conditions-not-correct).
+// - <see cref="DescribeNRC"/>: typed lookup (returns a
+// synthetic record for unknown / manufacturer-specific
+// codes instead of raising).
+// - <see cref="FormatNRC"/>: one-line log formatter.
+// - <see cref="IsTransientNRC"/>: classifier for the
+// retry-friendly codes (busy / repeat-request /
+// conditions-not-correct).
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - ISO 14229-1 Annex A Negative Response Codes
+// References  :
+// - ISO 14229-1 Annex A Negative Response Codes
 //
-//  History     :
-//    2026-05-12  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-12  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.UDS.NRC;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF};
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF};
 
 type
   /// <summary>Coarse NRC category — derived from the
@@ -75,10 +75,10 @@ type
     Category: TOBDUDSNrcCategory;
   end;
 
-/// <summary>Looks up an NRC. Unknown / reserved codes return
-/// a synthetic record with category=<c>nrcReserved</c> and a
-/// formatted description; never raises.</summary>
-/// <param name="NRC">NRC byte.</param>
+  /// <summary>Looks up an NRC. Unknown / reserved codes return
+  /// a synthetic record with category=<c>nrcReserved</c> and a
+  /// formatted description; never raises.</summary>
+  /// <param name="NRC">NRC byte.</param>
 function DescribeNRC(NRC: Byte): TOBDUDSNrcInfo;
 
 /// <summary>One-line formatter for log lines and exception
@@ -102,7 +102,7 @@ function NRCCatalogCount: Integer;
 implementation
 
 uses
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   System.JSON,
   ERD.OEM.Catalog.Loader;
 
@@ -114,11 +114,16 @@ var
 
 function CategoryFromString(const S: string): TOBDUDSNrcCategory;
 begin
-  if SameText(S, 'general')      then Exit(nrcGeneral);
-  if SameText(S, 'security')     then Exit(nrcSecurity);
-  if SameText(S, 'request_data') then Exit(nrcRequestData);
-  if SameText(S, 'condition')    then Exit(nrcCondition);
-  if SameText(S, 'server')       then Exit(nrcServer);
+  if SameText(S, 'general') then
+    Exit(nrcGeneral);
+  if SameText(S, 'security') then
+    Exit(nrcSecurity);
+  if SameText(S, 'request_data') then
+    Exit(nrcRequestData);
+  if SameText(S, 'condition') then
+    Exit(nrcCondition);
+  if SameText(S, 'server') then
+    Exit(nrcServer);
   Result := nrcReserved;
 end;
 
@@ -157,7 +162,7 @@ begin
     Stream.Free;
   end;
   Doc := TJSONObject.ParseJSONValue(Raw);
-  if not (Doc is TJSONObject) then
+  if not(Doc is TJSONObject) then
   begin
     Doc.Free;
     Exit;
@@ -168,7 +173,7 @@ begin
       Exit;
     for Item in Arr do
     begin
-      if not (Item is TJSONObject) then
+      if not(Item is TJSONObject) then
         Continue;
       Obj := Item as TJSONObject;
       if not ParseHexByte(Obj.GetValue<string>('code', ''), Code) then
@@ -176,8 +181,8 @@ begin
       Info.Code := Code;
       Info.ShortName := Obj.GetValue<string>('short', '');
       Info.Description := Obj.GetValue<string>('description', '');
-      Info.Category := CategoryFromString(
-        Obj.GetValue<string>('category', 'reserved'));
+      Info.Category := CategoryFromString(Obj.GetValue<string>('category',
+        'reserved'));
       GMap.AddOrSetValue(Code, Info);
     end;
   finally
@@ -191,8 +196,8 @@ begin
     Exit;
   Result.Code := NRC;
   Result.ShortName := Format('NRC_0x%.2x', [NRC]);
-  Result.Description := Format(
-    'reserved or manufacturer-specific NRC 0x%.2x', [NRC]);
+  Result.Description :=
+    Format('reserved or manufacturer-specific NRC 0x%.2x', [NRC]);
   Result.Category := nrcReserved;
 end;
 
@@ -201,14 +206,13 @@ var
   Info: TOBDUDSNrcInfo;
 begin
   Info := DescribeNRC(NRC);
-  Result := Format('NRC 0x%.2x (%s: %s)',
-    [NRC, Info.ShortName, Info.Description]);
+  Result := Format('NRC 0x%.2x (%s: %s)', [NRC, Info.ShortName,
+    Info.Description]);
 end;
 
 function IsTransientNRC(NRC: Byte): Boolean;
 begin
-  Result := (NRC = $21) or (NRC = $22)
-         or (NRC = $78) or (NRC = $94);
+  Result := (NRC = $21) or (NRC = $22) or (NRC = $78) or (NRC = $94);
 end;
 
 function NRCCatalogCount: Integer;
@@ -220,10 +224,12 @@ begin
 end;
 
 initialization
-  GMap := TDictionary<Byte, TOBDUDSNrcInfo>.Create;
-  LoadCatalog;
+
+GMap := TDictionary<Byte, TOBDUDSNrcInfo>.Create;
+LoadCatalog;
 
 finalization
-  GMap.Free;
+
+GMap.Free;
 
 end.

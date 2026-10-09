@@ -1,35 +1,35 @@
-//------------------------------------------------------------------------------
-//  ERD.Coding.Diff
+﻿// ------------------------------------------------------------------------------
+// ERD.Coding.Diff
 //
-//  TOBDCodingDiff — byte-array diff and patch utilities tailored
-//  for coding workflows. The diff is byte-level, two-sided
-//  (before / after), and emits per-byte change records that
-//  drive snapshot ↔ apply ↔ rollback flows.
+// TOBDCodingDiff — byte-array diff and patch utilities tailored
+// for coding workflows. The diff is byte-level, two-sided
+// (before / after), and emits per-byte change records that
+// drive snapshot ↔ apply ↔ rollback flows.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Coding.Diff;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.Types;
 
 type
@@ -60,7 +60,8 @@ type
     /// <c>AAfter</c>. When the lengths differ, every byte from
     /// <c>min(LenBefore, LenAfter)</c> onward is emitted as a
     /// change.</summary>
-    class function Compute(const ABefore, AAfter: TBytes): TOBDCodingDiffResult; static;
+    class function Compute(const ABefore, AAfter: TBytes)
+      : TOBDCodingDiffResult; static;
     /// <summary>Applies <c>ADiff</c> forward to <c>ABefore</c>,
     /// returning a buffer that equals the original
     /// <c>AAfter</c>.</summary>
@@ -76,23 +77,24 @@ type
     /// <summary>Returns the same change set with offsets-in-order
     /// guaranteed to be ascending. Callers normally don't need this
     /// — Compute already returns sorted output.</summary>
-    class function Sort(const ADiff: TOBDCodingDiffResult): TOBDCodingDiffResult; static;
+    class function Sort(const ADiff: TOBDCodingDiffResult)
+      : TOBDCodingDiffResult; static;
   end;
 
 implementation
 
 uses
-  {$IFDEF FPC}Generics.Defaults{$ELSE}System.Generics.Defaults{$ENDIF};
+{$IFDEF FPC}Generics.Defaults{$ELSE}System.Generics.Defaults{$ENDIF};
 
-class function TOBDCodingDiff.Compute(
-  const ABefore, AAfter: TBytes): TOBDCodingDiffResult;
+class function TOBDCodingDiff.Compute(const ABefore, AAfter: TBytes)
+  : TOBDCodingDiffResult;
 var
   I, MinLen, MaxLen: Integer;
   Acc: TList<TOBDCodingChange>;
   Change: TOBDCodingChange;
   B, A: Byte;
 begin
-  Result := Default(TOBDCodingDiffResult);
+  Result := Default (TOBDCodingDiffResult);
   Result.OldLength := Length(ABefore);
   Result.NewLength := Length(AAfter);
   if Result.OldLength <= Result.NewLength then
@@ -112,7 +114,7 @@ begin
       begin
         Change.Offset := I;
         Change.Before := ABefore[I];
-        Change.After  := AAfter[I];
+        Change.After := AAfter[I];
         Acc.Add(Change);
       end;
     end;
@@ -120,13 +122,19 @@ begin
     // tail. The "missing" side is reported as 0x00.
     for I := MinLen to MaxLen - 1 do
     begin
-      if I < Result.OldLength then B := ABefore[I] else B := 0;
-      if I < Result.NewLength then A := AAfter[I]  else A := 0;
+      if I < Result.OldLength then
+        B := ABefore[I]
+      else
+        B := 0;
+      if I < Result.NewLength then
+        A := AAfter[I]
+      else
+        A := 0;
       if B <> A then
       begin
         Change.Offset := I;
         Change.Before := B;
-        Change.After  := A;
+        Change.After := A;
         Acc.Add(Change);
       end;
     end;
@@ -143,8 +151,8 @@ var
   Change: TOBDCodingChange;
 begin
   if Length(ABefore) <> ADiff.OldLength then
-    raise EOBDProtocol.CreateFmt(
-      'TOBDCodingDiff.Apply: source length %d does not match diff.OldLength %d',
+    raise EOBDProtocol.CreateFmt
+      ('TOBDCodingDiff.Apply: source length %d does not match diff.OldLength %d',
       [Length(ABefore), ADiff.OldLength]);
   SetLength(Result, ADiff.NewLength);
   // Copy unchanged prefix / overlap.
@@ -166,12 +174,13 @@ begin
     if (Change.Offset < 0) or (Change.Offset >= ADiff.NewLength) then
     begin
       // Trailing change of a shrinking buffer — already truncated by SetLength.
-      if Change.Offset < ADiff.OldLength then Continue;
+      if Change.Offset < ADiff.OldLength then
+        Continue;
     end;
     if (Change.Offset < ADiff.OldLength) and
-       (ABefore[Change.Offset] <> Change.Before) then
-      raise EOBDProtocol.CreateFmt(
-        'TOBDCodingDiff.Apply: source byte at 0x%x is 0x%2.2X, expected 0x%2.2X',
+      (ABefore[Change.Offset] <> Change.Before) then
+      raise EOBDProtocol.CreateFmt
+        ('TOBDCodingDiff.Apply: source byte at 0x%x is 0x%2.2X, expected 0x%2.2X',
         [Change.Offset, ABefore[Change.Offset], Change.Before]);
     if Change.Offset < ADiff.NewLength then
       Result[Change.Offset] := Change.After;
@@ -193,29 +202,34 @@ begin
     Change := ADiff.Changes[I];
     Inverse.Changes[I].Offset := Change.Offset;
     Inverse.Changes[I].Before := Change.After;
-    Inverse.Changes[I].After  := Change.Before;
+    Inverse.Changes[I].After := Change.Before;
   end;
   Result := Apply(AAfter, Inverse);
 end;
 
-class function TOBDCodingDiff.Sort(
-  const ADiff: TOBDCodingDiffResult): TOBDCodingDiffResult;
-var Changes: TList<TOBDCodingChange>;
+class function TOBDCodingDiff.Sort(const ADiff: TOBDCodingDiffResult)
+  : TOBDCodingDiffResult;
+var
+  Changes: TList<TOBDCodingChange>;
 begin
   Result := ADiff;
   Changes := TList<TOBDCodingChange>.Create;
   try
     Changes.AddRange(ADiff.Changes);
-    Changes.Sort(
-    TComparer<TOBDCodingChange>.Construct(
+    Changes.Sort(TComparer<TOBDCodingChange>.Construct(
       function(const L, R: TOBDCodingChange): Integer
       begin
-        if L.Offset < R.Offset then Result := -1
-        else if L.Offset > R.Offset then Result := 1
-        else Result := 0;
+        if L.Offset < R.Offset then
+          Result := -1
+        else if L.Offset > R.Offset then
+          Result := 1
+        else
+          Result := 0;
       end));
     Result.Changes := Changes.ToArray;
-  finally Changes.Free end;
+  finally
+    Changes.Free
+  end;
 end;
 
 end.

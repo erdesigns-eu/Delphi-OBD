@@ -1,45 +1,45 @@
-//------------------------------------------------------------------------------
-//  ERD.UI.LiveGrids
+﻿// ------------------------------------------------------------------------------
+// ERD.UI.LiveGrids
 //
-//  OS-native grid visuals for live + freeze-frame data:
+// OS-native grid visuals for live + freeze-frame data:
 //
-//    TOBDMultiPidGrid     TListView in report mode showing N
-//                         PIDs and their live values. Auto-
-//                         subscribes to a TOBDLiveData per
-//                         row; each dispatch updates the
-//                         matching cell on the main thread.
-//    TOBDFreezeFrameTable TListView in report mode populated
-//                         from a TOBDFreezeFrame snapshot.
-//                         Host calls Refresh to read the
-//                         configured PID list from the ECU
-//                         and re-render the table.
+// TOBDMultiPidGrid     TListView in report mode showing N
+// PIDs and their live values. Auto-
+// subscribes to a TOBDLiveData per
+// row; each dispatch updates the
+// matching cell on the main thread.
+// TOBDFreezeFrameTable TListView in report mode populated
+// from a TOBDFreezeFrame snapshot.
+// Host calls Refresh to read the
+// configured PID list from the ECU
+// and re-render the table.
 //
-//  Both descend from TListView so they pick up Windows visual
-//  styles + VCL Styles for free; only the per-row data + the
-//  PID subscription glue lives on the descendant.
+// Both descend from TListView so they pick up Windows visual
+// styles + VCL Styles for free; only the per-row data + the
+// PID subscription glue lives on the descendant.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.UI.LiveGrids;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
   Winapi.Windows,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   System.Bindings.Helper, Data.Bind.Components,
   Vcl.Controls,
   Vcl.Graphics,
@@ -57,21 +57,19 @@ type
   /// the value cell on every dispatch.</summary>
   TOBDMultiPidGrid = class(TListView)
   strict private
-    FLiveData:    TOBDLiveData;
-    FPIDs:        TStrings;
-    FSubscribed:  TList<Byte>;
-    FUpdating:    Boolean;
+    FLiveData: TOBDLiveData;
+    FPIDs: TStrings;
+    FSubscribed: TList<Byte>;
+    FUpdating: Boolean;
     procedure SetLiveData(AValue: TOBDLiveData);
     procedure SetPIDs(AValue: TStrings);
     procedure HandlePIDsChange(Sender: TObject);
     procedure UnsubscribeAll;
     procedure SubscribeAll;
     procedure RebuildRows;
-    procedure HandleLiveValue(Sender: TObject;
-      const AValue: TOBDPIDValue);
-    function  ParsePID(const AText: string;
-      out APID: Byte): Boolean;
-    function  FindRow(APID: Byte): TListItem;
+    procedure HandleLiveValue(Sender: TObject; const AValue: TOBDPIDValue);
+    function ParsePID(const AText: string; out APID: Byte): Boolean;
+    function FindRow(APID: Byte): TListItem;
     procedure NotifyBindings;
   protected
     procedure CreateWnd; override;
@@ -80,7 +78,7 @@ type
       Operation: TOperation); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
     /// <summary>Re-reads PIDs and rebuilds rows. Called
     /// internally whenever PIDs / LiveData change; hosts that
     /// edit the PID list at runtime call it to apply.</summary>
@@ -88,8 +86,7 @@ type
   published
     /// <summary>Source service. nil = grid is read-only display
     /// updated only via host calls.</summary>
-    property LiveData: TOBDLiveData
-      read FLiveData write SetLiveData;
+    property LiveData: TOBDLiveData read FLiveData write SetLiveData;
     /// <summary>One PID per line. Hex (<c>0x0C</c>,
     /// <c>$0C</c>) or decimal (<c>12</c>) both accepted.
     /// </summary>
@@ -120,14 +117,13 @@ type
   TOBDFreezeFrameTable = class(TListView)
   strict private
     FFreezeFrame: TOBDFreezeFrame;
-    FFrameIndex:  Byte;
-    FPIDs:        TStrings;
+    FFrameIndex: Byte;
+    FPIDs: TStrings;
     procedure SetFreezeFrame(AValue: TOBDFreezeFrame);
     procedure SetFrameIndex(AValue: Byte);
     procedure SetPIDs(AValue: TStrings);
     procedure HandlePIDsChange(Sender: TObject);
-    function  ParsePID(const AText: string;
-      out APID: Byte): Boolean;
+    function ParsePID(const AText: string; out APID: Byte): Boolean;
     procedure NotifyBindings;
   protected
     procedure CreateWnd; override;
@@ -135,7 +131,7 @@ type
       Operation: TOperation); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
     /// <summary>Re-reads every PID from the configured frame
     /// and re-renders the table. Raises if no
     /// <c>FreezeFrame</c> is wired.</summary>
@@ -143,13 +139,12 @@ type
   published
     /// <summary>Bound freeze-frame service. nil disables
     /// <see cref="Refresh"/>.</summary>
-    property FreezeFrame: TOBDFreezeFrame
-      read FFreezeFrame write SetFreezeFrame;
+    property FreezeFrame: TOBDFreezeFrame read FFreezeFrame
+      write SetFreezeFrame;
     /// <summary>Frame index to read. OBD-II historically only
     /// surfaces frame 0; some manufacturers expose more.
     /// Default 0.</summary>
-    property FrameIndex: Byte
-      read FFrameIndex write SetFrameIndex default 0;
+    property FrameIndex: Byte read FFrameIndex write SetFrameIndex default 0;
     /// <summary>One PID per line; same parsing as
     /// <see cref="TOBDMultiPidGrid.PIDs"/>.</summary>
     property PIDs: TStrings read FPIDs write SetPIDs;
@@ -169,7 +164,7 @@ type
 implementation
 
 uses
-  {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF};
+{$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF};
 
 function ParseHexOrDec(const AText: string; out AValue: Byte): Boolean;
 var
@@ -178,11 +173,11 @@ var
 begin
   Result := False;
   Trimmed := Trim(AText);
-  if Trimmed = '' then Exit;
+  if Trimmed = '' then
+    Exit;
   // Accept "0x0C", "$0C", "0C" (hex assumption when 2 chars),
   // and plain decimal.
-  if (Length(Trimmed) > 2) and
-     (Copy(Trimmed, 1, 2).ToLower = '0x') then
+  if (Length(Trimmed) > 2) and (Copy(Trimmed, 1, 2).ToLower = '0x') then
     Trimmed := '$' + Copy(Trimmed, 3, MaxInt);
   if TryStrToInt(Trimmed, V) then
     if (V >= 0) and (V <= $FF) then
@@ -196,15 +191,13 @@ function PIDDisplayName(APID: Byte): string;
 var
   Info: TOBDPIDInfo;
 begin
-  if TOBDServiceCatalog.Default.TryGetPID(APID, Info) and
-     (Info.Name <> '') then
+  if TOBDServiceCatalog.Default.TryGetPID(APID, Info) and (Info.Name <> '') then
     Result := Info.Name
   else
     Result := '';
 end;
 
-procedure ConfigureColumns(AListView: TListView;
-  const ANames: array of string;
+procedure ConfigureColumns(AListView: TListView; const ANames: array of string;
   const AWidths: array of Integer);
 var
   I: Integer;
@@ -217,7 +210,7 @@ begin
     begin
       Col := AListView.Columns.Add;
       Col.Caption := ANames[I];
-      Col.Width   := AWidths[I];
+      Col.Width := AWidths[I];
     end;
   finally
     AListView.Columns.EndUpdate;
@@ -229,10 +222,10 @@ end;
 constructor TOBDMultiPidGrid.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  ViewStyle  := vsReport;
-  RowSelect  := True;
-  ReadOnly   := True;
-  GridLines  := True;
+  ViewStyle := vsReport;
+  RowSelect := True;
+  ReadOnly := True;
+  GridLines := True;
   HideSelection := False;
   ShowColumnHeaders := True;
   FPIDs := TStringList.Create;
@@ -254,8 +247,7 @@ begin
   // Columns are set up the first time the window is created
   // so VCL Styles + theme picked up the standard headers.
   if Columns.Count = 0 then
-    ConfigureColumns(Self,
-      ['PID', 'Name', 'Value', 'Unit'],
+    ConfigureColumns(Self, ['PID', 'Name', 'Value', 'Unit'],
       [60, 200, 100, 60]);
 end;
 
@@ -278,7 +270,8 @@ end;
 
 procedure TOBDMultiPidGrid.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -287,11 +280,14 @@ end;
 
 procedure TOBDMultiPidGrid.SetLiveData(AValue: TOBDLiveData);
 begin
-  if FLiveData = AValue then Exit;
+  if FLiveData = AValue then
+    Exit;
   UnsubscribeAll;
-  if FLiveData <> nil then FLiveData.RemoveFreeNotification(Self);
+  if FLiveData <> nil then
+    FLiveData.RemoveFreeNotification(Self);
   FLiveData := AValue;
-  if FLiveData <> nil then FLiveData.FreeNotification(Self);
+  if FLiveData <> nil then
+    FLiveData.FreeNotification(Self);
   ApplyChanges;
 end;
 
@@ -302,12 +298,13 @@ end;
 
 procedure TOBDMultiPidGrid.HandlePIDsChange(Sender: TObject);
 begin
-  if FUpdating then Exit;
+  if FUpdating then
+    Exit;
   ApplyChanges;
 end;
 
-function TOBDMultiPidGrid.ParsePID(const AText: string;
-  out APID: Byte): Boolean;
+function TOBDMultiPidGrid.ParsePID(const AText: string; out APID: Byte)
+  : Boolean;
 begin
   Result := ParseHexOrDec(AText, APID);
 end;
@@ -331,7 +328,8 @@ var
   I: Integer;
   PIDByte: Byte;
 begin
-  if (FLiveData = nil) or (csDesigning in ComponentState) then Exit;
+  if (FLiveData = nil) or (csDesigning in ComponentState) then
+    Exit;
   for I := 0 to FPIDs.Count - 1 do
     if ParsePID(FPIDs[I], PIDByte) then
       if FSubscribed.IndexOf(PIDByte) < 0 then
@@ -353,12 +351,13 @@ begin
     Items.Clear;
     for I := 0 to FPIDs.Count - 1 do
     begin
-      if not ParsePID(FPIDs[I], PIDByte) then Continue;
+      if not ParsePID(FPIDs[I], PIDByte) then
+        Continue;
       Item := Items.Add;
       Item.Caption := Format('0x%2.2X', [PIDByte]);
       Item.SubItems.Add(PIDDisplayName(PIDByte));
-      Item.SubItems.Add('-');             // value placeholder
-      Item.SubItems.Add('');              // unit placeholder
+      Item.SubItems.Add('-'); // value placeholder
+      Item.SubItems.Add(''); // unit placeholder
       Item.Data := Pointer(NativeInt(PIDByte));
     end;
   finally
@@ -369,7 +368,8 @@ end;
 
 procedure TOBDMultiPidGrid.ApplyChanges;
 begin
-  if csDestroying in ComponentState then Exit;
+  if csDestroying in ComponentState then
+    Exit;
   if HandleAllocated then
   begin
     UnsubscribeAll;
@@ -402,7 +402,8 @@ var
   FS: TFormatSettings;
 begin
   Item := FindRow(AValue.PID);
-  if Item = nil then Exit;
+  if Item = nil then
+    Exit;
   FS := TFormatSettings.Create('en-US');
   if System.Math.IsNan(AValue.Value) then
     Item.SubItems[1] := '-'
@@ -417,10 +418,10 @@ end;
 constructor TOBDFreezeFrameTable.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  ViewStyle  := vsReport;
-  RowSelect  := True;
-  ReadOnly   := True;
-  GridLines  := True;
+  ViewStyle := vsReport;
+  RowSelect := True;
+  ReadOnly := True;
+  GridLines := True;
   ShowColumnHeaders := True;
   FFrameIndex := 0;
   FPIDs := TStringList.Create;
@@ -437,8 +438,7 @@ procedure TOBDFreezeFrameTable.CreateWnd;
 begin
   inherited;
   if Columns.Count = 0 then
-    ConfigureColumns(Self,
-      ['PID', 'Name', 'Value', 'Unit'],
+    ConfigureColumns(Self, ['PID', 'Name', 'Value', 'Unit'],
       [60, 200, 100, 60]);
 end;
 
@@ -452,7 +452,8 @@ end;
 
 procedure TOBDFreezeFrameTable.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -461,7 +462,8 @@ end;
 
 procedure TOBDFreezeFrameTable.SetFreezeFrame(AValue: TOBDFreezeFrame);
 begin
-  if FFreezeFrame = AValue then Exit;
+  if FFreezeFrame = AValue then
+    Exit;
   if FFreezeFrame <> nil then
     FFreezeFrame.RemoveFreeNotification(Self);
   FFreezeFrame := AValue;
@@ -471,7 +473,8 @@ end;
 
 procedure TOBDFreezeFrameTable.SetFrameIndex(AValue: Byte);
 begin
-  if FFrameIndex = AValue then Exit;
+  if FFrameIndex = AValue then
+    Exit;
   FFrameIndex := AValue;
 end;
 
@@ -488,7 +491,8 @@ begin
   Items.BeginUpdate;
   try
     Items.Clear;
-    if not HandleAllocated then Exit;
+    if not HandleAllocated then
+      Exit;
   finally
     Items.EndUpdate;
   end;
@@ -508,14 +512,16 @@ var
   V: TOBDPIDValue;
   FS: TFormatSettings;
 begin
-  if FFreezeFrame = nil then Exit;
+  if FFreezeFrame = nil then
+    Exit;
   FS := TFormatSettings.Create('en-US');
   Items.BeginUpdate;
   try
     Items.Clear;
     for I := 0 to FPIDs.Count - 1 do
     begin
-      if not ParsePID(FPIDs[I], PIDByte) then Continue;
+      if not ParsePID(FPIDs[I], PIDByte) then
+        Continue;
       Item := Items.Add;
       Item.Caption := Format('0x%2.2X', [PIDByte]);
       Item.SubItems.Add(PIDDisplayName(PIDByte));

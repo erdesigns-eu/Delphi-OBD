@@ -1,80 +1,76 @@
-//------------------------------------------------------------------------------
-//  ERD.OEM.Types
+﻿// ------------------------------------------------------------------------------
+// ERD.OEM.Types
 //
-//  Shared record types for the OEM-extension framework. Defines
-//  the catalogue rows every vendor extension publishes:
-//    - DID + Routine + ECU descriptors (the baseline catalogue)
-//    - Coding blocks + adaptations + actuator tests (extended
-//      writeable-coding schema)
-//    - Live PID descriptors (Service 0x01 + Service 0x22 PIDs
-//      hosts can poll)
-//    - DTC extended-data records (UDS Service 0x19 sub 0x06)
+// Shared record types for the OEM-extension framework. Defines
+// the catalogue rows every vendor extension publishes:
+// - DID + Routine + ECU descriptors (the baseline catalogue)
+// - Coding blocks + adaptations + actuator tests (extended
+// writeable-coding schema)
+// - Live PID descriptors (Service 0x01 + Service 0x22 PIDs
+// hosts can poll)
+// - DTC extended-data records (UDS Service 0x19 sub 0x06)
 //
-//  Vendor extensions return these records from
-//  <see cref="IOBDOEMExtension"/> in ERD.OEM.Extensions; tooling
-//  consumes them to render coding forms, diagnostic dashboards
-//  and DTC viewers.
+// Vendor extensions return these records from
+// <see cref="IOBDOEMExtension"/> in ERD.OEM.Extensions; tooling
+// consumes them to render coding forms, diagnostic dashboards
+// and DTC viewers.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-11  ERD  Initial implementation.
-//    2026-05-12  ERD  TOBDDtcCatalogEntry carries the full
-//                     v2 DTC schema — severity, possible_causes,
-//                     symptoms, repair guidance, monitor type,
-//                     freeze-frame relevance, related DIDs /
-//                     routines, OEM bulletin, source, verified.
-//                     Added TOBDDtcSeverity / TOBDDtcSystem /
-//                     TOBDDtcMonitorType enums.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-11  ERD  Initial implementation.
+// 2026-05-12  ERD  TOBDDtcCatalogEntry carries the full
+// v2 DTC schema — severity, possible_causes,
+// symptoms, repair guidance, monitor type,
+// freeze-frame relevance, related DIDs /
+// routines, OEM bulletin, source, verified.
+// Added TOBDDtcSeverity / TOBDDtcSystem /
+// TOBDDtcMonitorType enums.
+// ------------------------------------------------------------------------------
 
 unit ERD.OEM.Types;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF};
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF};
 
 type
   /// <summary>Decoder kinds shared between live-PID and DTC
   /// extended-data records.</summary>
-  TOBDOEMDecoderKind = (
-    dkUnknown, dkAscii, dkHex, dkUInt8, dkUInt16BE, dkUInt32BE,
-    dkInt16BE, dkInt32BE, dkBcdDate, dkEnum, dkBitmask, dkSeconds);
+  TOBDOEMDecoderKind = (dkUnknown, dkAscii, dkHex, dkUInt8, dkUInt16BE,
+    dkUInt32BE, dkInt16BE, dkInt32BE, dkBcdDate, dkEnum, dkBitmask, dkSeconds);
 
   /// <summary>Field-type tag inside a writeable coding block.</summary>
-  TOBDCodingFieldKind = (
-    cfkUnknown, cfkBit, cfkUInt8, cfkUInt16BE, cfkUInt32BE,
+  TOBDCodingFieldKind = (cfkUnknown, cfkBit, cfkUInt8, cfkUInt16BE, cfkUInt32BE,
     cfkInt16BE, cfkInt32BE, cfkAscii, cfkEnum, cfkBitmask, cfkInt8);
 
   /// <summary>Adaptation-channel value kind (VAG-style).</summary>
-  TOBDAdaptationKind = (
-    adkUnknown, adkUInt8, adkUInt16BE, adkUInt32BE,
+  TOBDAdaptationKind = (adkUnknown, adkUInt8, adkUInt16BE, adkUInt32BE,
     adkInt16BE, adkInt32BE, adkEnum, adkInt8, adkBytes, adkBool);
 
   /// <summary>Expected response shape of an actuator test.</summary>
-  TOBDActuatorResponseKind = (
-    arkNone, arkBoolean, arkUInt8, arkUInt16BE, arkAscii);
+  TOBDActuatorResponseKind = (arkNone, arkBoolean, arkUInt8, arkUInt16BE,
+    arkAscii);
 
   /// <summary>Live-PID service family.</summary>
   TOBDLivePIDMode = (lpmUnknown, lpmService01, lpmService22);
 
   /// <summary>DTC extended-data record kind.</summary>
-  TOBDDtcExtendedDataKind = (
-    xdkUnknown, xdkOccurrenceCounter, xdkAgingCounter,
-    xdkMilesSinceCleared, xdkFreezeFrameTemplate,
-    xdkOemStatusByte, xdkEnvironmentalData);
+  TOBDDtcExtendedDataKind = (xdkUnknown, xdkOccurrenceCounter, xdkAgingCounter,
+    xdkMilesSinceCleared, xdkFreezeFrameTemplate, xdkOemStatusByte,
+    xdkEnvironmentalData);
 
   /// <summary>Decoder spec carried by every catalogue entry
   /// that ships a <c>decoder</c> sub-object — DIDs, live PIDs,

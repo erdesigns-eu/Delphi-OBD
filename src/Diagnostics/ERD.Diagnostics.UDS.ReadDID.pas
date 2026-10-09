@@ -1,48 +1,48 @@
-//------------------------------------------------------------------------------
-//  ERD.Diagnostics.UDS.ReadDID
+﻿// ------------------------------------------------------------------------------
+// ERD.Diagnostics.UDS.ReadDID
 //
-//  TOBDUDSReadDID — non-visual component for the UDS
-//  ReadDataByIdentifier service (SID 0x22) and ReadScalingDataBy-
-//  Identifier (SID 0x24). Reads one or more 16-bit DIDs in a
-//  single request and returns the response bytes per DID.
+// TOBDUDSReadDID — non-visual component for the UDS
+// ReadDataByIdentifier service (SID 0x22) and ReadScalingDataBy-
+// Identifier (SID 0x24). Reads one or more 16-bit DIDs in a
+// single request and returns the response bytes per DID.
 //
-//  Distinct from the bundled TOBDDataIdentifierIO (which combines
-//  read + write into one component). This component is read-only
-//  so a host can drop a single-purpose reader on a form without
-//  bringing in the safety-gated write surface.
+// Distinct from the bundled TOBDDataIdentifierIO (which combines
+// read + write into one component). This component is read-only
+// so a host can drop a single-purpose reader on a form without
+// bringing in the safety-gated write surface.
 //
-//  Wire format per ISO 14229-1 §10.2:
+// Wire format per ISO 14229-1 §10.2:
 //
-//    Request : 22 <DID1-hi> <DID1-lo> [<DID2-hi> <DID2-lo> ...]
-//    Response: 62 <DID1-hi> <DID1-lo> <data1...>
-//                  [<DID2-hi> <DID2-lo> <data2...>]
+// Request : 22 <DID1-hi> <DID1-lo> [<DID2-hi> <DID2-lo> ...]
+// Response: 62 <DID1-hi> <DID1-lo> <data1...>
+// [<DID2-hi> <DID2-lo> <data2...>]
 //
-//  Because the response is variable-length per DID the component
-//  needs to know the expected length of each DID; callers pass an
-//  explicit per-DID length array. The bundled
-//  catalogs/uds/dids-generic.json is the recommended source for
-//  those lengths.
+// Because the response is variable-length per DID the component
+// needs to know the expected length of each DID; callers pass an
+// explicit per-DID length array. The bundled
+// catalogs/uds/dids-generic.json is the recommended source for
+// those lengths.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - ISO 14229-1:2020 §10.2 (ReadDataByIdentifier)
-//    - ISO 14229-1:2020 §10.4 (ReadScalingDataByIdentifier)
+// References  :
+// - ISO 14229-1:2020 §10.2 (ReadDataByIdentifier)
+// - ISO 14229-1:2020 §10.4 (ReadScalingDataByIdentifier)
 //
-//  History     :
-//    2026-05-11  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-11  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Diagnostics.UDS.ReadDID;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -50,10 +50,10 @@ interface
 uses
   ERD.Async.Task,
   ERD.Connection,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.Types,
   ERD.Protocol.Types,
   ERD.Protocol.UDS,
@@ -61,7 +61,7 @@ uses
 
 type
   /// <summary>
-  ///   One decoded DID value returned by <see cref="TOBDUDSReadDID"/>.
+  /// One decoded DID value returned by <see cref="TOBDUDSReadDID"/>.
   /// </summary>
   TOBDUDSDIDValue = record
     /// <summary>The 16-bit DID requested.</summary>
@@ -72,21 +72,21 @@ type
   end;
 
   /// <summary>
-  ///   Fires after a successful multi-DID read. Main thread.
+  /// Fires after a successful multi-DID read. Main thread.
   /// </summary>
   TOBDUDSReadDIDsEvent = procedure(Sender: TObject;
     const AValues: TArray<TOBDUDSDIDValue>) of object;
 
   /// <summary>
-  ///   UDS ReadDataByIdentifier component.
+  /// UDS ReadDataByIdentifier component.
   /// </summary>
   /// <remarks>
-  ///   Drop the component on a form and assign <c>Protocol</c> to a
-  ///   connected <see cref="TOBDProtocol"/>. Call
-  ///   <see cref="Read"/> with one or more DIDs and matching expected
-  ///   lengths; the component encodes the multi-DID request and
-  ///   splits the variable-length response back into per-DID
-  ///   buckets.
+  /// Drop the component on a form and assign <c>Protocol</c> to a
+  /// connected <see cref="TOBDProtocol"/>. Call
+  /// <see cref="Read"/> with one or more DIDs and matching expected
+  /// lengths; the component encodes the multi-DID request and
+  /// splits the variable-length response back into per-DID
+  /// buckets.
   /// </remarks>
   TOBDUDSReadDID = class(TComponent)
   strict private
@@ -114,7 +114,7 @@ type
     destructor Destroy; override;
 
     /// <summary>
-    ///   Reads one or more DIDs in a single UDS request.
+    /// Reads one or more DIDs in a single UDS request.
     /// </summary>
     /// <param name="ADIDs">DIDs to read.</param>
     /// <param name="ALengths">Expected response byte count per
@@ -122,22 +122,22 @@ type
     /// <returns>Decoded per-DID values in request order.</returns>
     /// <remarks>Blocks. Fires <c>OnRead</c> on success.</remarks>
     /// <exception cref="EOBDConfig">
-    ///   <c>Protocol</c> is not assigned, <c>ADIDs</c> is empty,
-    ///   or the length array doesn't match.
+    /// <c>Protocol</c> is not assigned, <c>ADIDs</c> is empty,
+    /// or the length array doesn't match.
     /// </exception>
     /// <exception cref="EOBDProtocolErr">
-    ///   ECU returned a negative response, the response was
-    ///   truncated, or a DID echo did not match the requested
-    ///   order.
+    /// ECU returned a negative response, the response was
+    /// truncated, or a DID echo did not match the requested
+    /// order.
     /// </exception>
-    function Read(const ADIDs: array of Word;
-      const ALengths: array of Integer): TArray<TOBDUDSDIDValue>;
+    function Read(const ADIDs: array of Word; const ALengths: array of Integer)
+      : TArray<TOBDUDSDIDValue>;
 
     /// <summary>Non-blocking <see cref="Read"/>.</summary>
     /// <param name="ADIDs">DIDs to read.</param>
     /// <param name="ALengths">Expected response byte counts.</param>
     /// <exception cref="EOBDConfig">
-    ///   Another async read is already in flight.
+    /// Another async read is already in flight.
     /// </exception>
     procedure ReadAsync(const ADIDs: array of Word;
       const ALengths: array of Integer);
@@ -161,7 +161,8 @@ end;
 
 destructor TOBDUDSReadDID.Destroy;
 begin
-  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  if FOwnedTask <> nil then
+    FOwnedTask.Cancel;
   FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
@@ -184,7 +185,8 @@ begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
   begin
-    if FOwnedTask <> nil then FOwnedTask.Quiesce;
+    if FOwnedTask <> nil then
+      FOwnedTask.Quiesce;
     FProtocol := nil;
   end;
 end;
@@ -230,20 +232,20 @@ begin
   if Length(ADIDs) = 0 then
     raise EOBDConfig.Create('TOBDUDSReadDID: no DIDs requested');
   if Length(ALengths) <> Length(ADIDs) then
-    raise EOBDConfig.Create(
-      'TOBDUDSReadDID: length array size does not match DID count');
+    raise EOBDConfig.Create
+      ('TOBDUDSReadDID: length array size does not match DID count');
 
   SetLength(Req, 2 * Length(ADIDs));
   for I := 0 to High(ADIDs) do
   begin
-    Req[2 * I]     := Byte((ADIDs[I] shr 8) and $FF);
+    Req[2 * I] := Byte((ADIDs[I] shr 8) and $FF);
     Req[2 * I + 1] := Byte(ADIDs[I] and $FF);
   end;
 
   Resp := FProtocol.Request(UDS_SID_ReadDataByIdentifier, Req);
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt(
-      'ReadDataByIdentifier negative: %s', [Resp.NRCText]);
+    raise EOBDProtocolErr.CreateFmt('ReadDataByIdentifier negative: %s',
+      [Resp.NRCText]);
 
   Acc := TList<TOBDUDSDIDValue>.Create;
   try
@@ -252,18 +254,15 @@ begin
     begin
       Want := ALengths[I];
       if Off + 2 + Want > Length(Resp.Data) then
-        raise EOBDProtocolErr.CreateFmt(
-          'ReadDataByIdentifier: truncated at DID 0x%.4x (offset %d, '
-          + 'wanted %d more bytes)',
-          [ADIDs[I], Off, 2 + Want]);
+        raise EOBDProtocolErr.CreateFmt
+          ('ReadDataByIdentifier: truncated at DID 0x%.4x (offset %d, ' +
+          'wanted %d more bytes)', [ADIDs[I], Off, 2 + Want]);
 
-      EchoDID := (Word(Resp.Data[Off]) shl 8) or
-                  Word(Resp.Data[Off + 1]);
+      EchoDID := (Word(Resp.Data[Off]) shl 8) or Word(Resp.Data[Off + 1]);
       if EchoDID <> ADIDs[I] then
-        raise EOBDProtocolErr.CreateFmt(
-          'ReadDataByIdentifier echo mismatch at slot %d: ' +
-          'requested 0x%.4x, got 0x%.4x',
-          [I, ADIDs[I], EchoDID]);
+        raise EOBDProtocolErr.CreateFmt
+          ('ReadDataByIdentifier echo mismatch at slot %d: ' +
+          'requested 0x%.4x, got 0x%.4x', [I, ADIDs[I], EchoDID]);
 
       V.DID := EchoDID;
       V.Data := Copy(Resp.Data, Off + 2, Want);
@@ -345,7 +344,7 @@ begin
 end;
 
 procedure TOBDUDSReadDID.FireError(ACode: TOBDErrorCode;
-  const AMessage: string);
+const AMessage: string);
 var
   Self_: TOBDUDSReadDID;
   Code: TOBDErrorCode;

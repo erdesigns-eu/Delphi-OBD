@@ -1,54 +1,54 @@
-//------------------------------------------------------------------------------
-//  ERD.OEM.Session
+﻿// ------------------------------------------------------------------------------
+// ERD.OEM.Session
 //
-//  OEM session-negotiation contract. Vendors express their
-//  diagnostic-session entry/exit choreography as a
-//  <see cref="TOBDSessionPlan"/> — an ordered list of adapter
-//  (AT/ST) commands and raw UDS frames, plus the tester-present
-//  heartbeat the OEM expects. Plans are pure data; the runner in
-//  <c>ERD.OEM.Session.Runner</c> executes them against a live
-//  connection so this unit stays free of async / transport deps.
+// OEM session-negotiation contract. Vendors express their
+// diagnostic-session entry/exit choreography as a
+// <see cref="TOBDSessionPlan"/> — an ordered list of adapter
+// (AT/ST) commands and raw UDS frames, plus the tester-present
+// heartbeat the OEM expects. Plans are pure data; the runner in
+// <c>ERD.OEM.Session.Runner</c> executes them against a live
+// connection so this unit stays free of async / transport deps.
 //
-//  Every <see cref="IOBDOEMExtension"/> publishes an
-//  <see cref="IOBDSessionNegotiator"/>; vendors that follow plain
-//  ISO 14229-1 inherit <see cref="TOBDStandardSessionNegotiator"/>
-//  and override only what they need to (typically just
-//  <c>BeginSessionPlan</c> to layer in their pre-trigger AT
-//  commands or vendor-specific keep-alive cadence).
+// Every <see cref="IOBDOEMExtension"/> publishes an
+// <see cref="IOBDSessionNegotiator"/>; vendors that follow plain
+// ISO 14229-1 inherit <see cref="TOBDStandardSessionNegotiator"/>
+// and override only what they need to (typically just
+// <c>BeginSessionPlan</c> to layer in their pre-trigger AT
+// commands or vendor-specific keep-alive cadence).
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-11  ERD  Initial implementation (open/close shape).
-//    2026-05-12  ERD  Plan/step model with tester-present heartbeat.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-11  ERD  Initial implementation (open/close shape).
+// 2026-05-12  ERD  Plan/step model with tester-present heartbeat.
+// ------------------------------------------------------------------------------
 
 unit ERD.OEM.Session;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF};
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF};
 
 type
   /// <summary>Raised on session-negotiation errors.</summary>
   EOBDSession = class(Exception);
 
   /// <summary>
-  ///   ISO 14229-1 session sub-functions plus two reserved slots
-  ///   for OEM-specific session types that don't fit the standard
-  ///   four (BMW E-Sys, Mercedes XENTRY, etc.).
+  /// ISO 14229-1 session sub-functions plus two reserved slots
+  /// for OEM-specific session types that don't fit the standard
+  /// four (BMW E-Sys, Mercedes XENTRY, etc.).
   /// </summary>
   TOBDSessionType = (
     /// <summary>Default diagnostic session (sub 0x01).</summary>
@@ -76,19 +76,19 @@ type
     /// <summary>Step kind.</summary>
     Kind: TOBDSessionStepKind;
     /// <summary>
-    ///   Adapter command without the leading <c>AT</c> prefix
-    ///   (e.g. <c>SH 7E0</c>, <c>CRA 7E8</c>). Only used when
-    ///   <c>Kind = sskATCommand</c>.
+    /// Adapter command without the leading <c>AT</c> prefix
+    /// (e.g. <c>SH 7E0</c>, <c>CRA 7E8</c>). Only used when
+    /// <c>Kind = sskATCommand</c>.
     /// </summary>
     AdapterCmd: string;
     /// <summary>
-    ///   Raw UDS request bytes. Only used when
-    ///   <c>Kind = sskUDSRequest</c>.
+    /// Raw UDS request bytes. Only used when
+    /// <c>Kind = sskUDSRequest</c>.
     /// </summary>
     UDS: TBytes;
     /// <summary>
-    ///   Optional positive-response prefix; an empty array means
-    ///   any positive response is acceptable.
+    /// Optional positive-response prefix; an empty array means
+    /// any positive response is acceptable.
     /// </summary>
     ExpectedResponse: TBytes;
     /// <summary>Per-step timeout in ms; 0 = runner default.</summary>
@@ -98,13 +98,13 @@ type
   end;
 
   /// <summary>
-  ///   Complete session-transition plan.
+  /// Complete session-transition plan.
   /// </summary>
   /// <remarks>
-  ///   <para><c>Steps</c> are executed in order; the tester-present
-  ///   heartbeat starts after the final step settles and continues
-  ///   until <see cref="IOBDSessionNegotiator.EndSessionPlan"/>
-  ///   runs.</para>
+  /// <para><c>Steps</c> are executed in order; the tester-present
+  /// heartbeat starts after the final step settles and continues
+  /// until <see cref="IOBDSessionNegotiator.EndSessionPlan"/>
+  /// runs.</para>
   /// </remarks>
   TOBDSessionPlan = record
     /// <summary>Plan steps in execution order.</summary>
@@ -112,39 +112,39 @@ type
     /// <summary>Tester-present interval (ms); 0 = no heartbeat.</summary>
     TesterPresentMs: Cardinal;
     /// <summary>
-    ///   Bytes sent for tester-present; ISO 14229 default is
-    ///   <c>$3E $80</c> (suppress positive response).
+    /// Bytes sent for tester-present; ISO 14229 default is
+    /// <c>$3E $80</c> (suppress positive response).
     /// </summary>
     TesterPresentRequest: TBytes;
   end;
 
   /// <summary>
-  ///   Manufacturer session-negotiation contract.
+  /// Manufacturer session-negotiation contract.
   /// </summary>
   /// <remarks>
-  ///   <para>Each OEM extension publishes one of these. The
-  ///   negotiator only builds plans — it never talks to the
-  ///   connection. The plan runner in
-  ///   <c>ERD.OEM.Session.Runner</c> executes the plan against the
-  ///   live transport.</para>
+  /// <para>Each OEM extension publishes one of these. The
+  /// negotiator only builds plans — it never talks to the
+  /// connection. The plan runner in
+  /// <c>ERD.OEM.Session.Runner</c> executes the plan against the
+  /// live transport.</para>
   /// </remarks>
   IOBDSessionNegotiator = interface
     ['{F4D5C8A1-3E7B-4D9F-8C2A-7B1E9F4D6C8A}']
     /// <summary>
-    ///   Plan to enter <c>ASessionType</c> on <c>AEcuAddress</c>.
+    /// Plan to enter <c>ASessionType</c> on <c>AEcuAddress</c>.
     /// </summary>
     /// <param name="ASessionType">Target session.</param>
     /// <param name="AEcuAddress">CAN-ID (0 = use current header).</param>
     function BeginSessionPlan(ASessionType: TOBDSessionType;
       const AEcuAddress: Word): TOBDSessionPlan;
     /// <summary>
-    ///   Plan to leave the active session and return to default.
+    /// Plan to leave the active session and return to default.
     /// </summary>
     /// <param name="AEcuAddress">CAN-ID (0 = use current header).</param>
     function EndSessionPlan(const AEcuAddress: Word): TOBDSessionPlan;
     /// <summary>
-    ///   <c>True</c> if entering <c>ASessionType</c> requires a
-    ///   SecurityAccess (SID 0x27) exchange.
+    /// <c>True</c> if entering <c>ASessionType</c> requires a
+    /// SecurityAccess (SID 0x27) exchange.
     /// </summary>
     /// <param name="ASessionType">Target session.</param>
     function RequiresSecurityAccess(ASessionType: TOBDSessionType): Boolean;
@@ -156,17 +156,17 @@ type
   end;
 
   /// <summary>
-  ///   Pure ISO 14229-1 reference negotiator. Vendor negotiators
-  ///   typically inherit from this and override only
-  ///   <c>BeginSessionPlan</c> (to inject pre-trigger AT commands
-  ///   or tweak tester-present) and <c>DisplayName</c>.
+  /// Pure ISO 14229-1 reference negotiator. Vendor negotiators
+  /// typically inherit from this and override only
+  /// <c>BeginSessionPlan</c> (to inject pre-trigger AT commands
+  /// or tweak tester-present) and <c>DisplayName</c>.
   /// </summary>
   TOBDStandardSessionNegotiator = class(TInterfacedObject,
     IOBDSessionNegotiator)
   protected
     /// <summary>
-    ///   Helper: prepend an <c>AT SH &lt;hex&gt;</c> step when
-    ///   <c>AEcuAddress &lt;&gt; 0</c>.
+    /// Helper: prepend an <c>AT SH &lt;hex&gt;</c> step when
+    /// <c>AEcuAddress &lt;&gt; 0</c>.
     /// </summary>
     /// <param name="ASteps">Inner steps.</param>
     /// <param name="AEcuAddress">CAN-ID (0 = no header step).</param>
@@ -175,10 +175,9 @@ type
   public
     function BeginSessionPlan(ASessionType: TOBDSessionType;
       const AEcuAddress: Word): TOBDSessionPlan; virtual;
-    function EndSessionPlan(
-      const AEcuAddress: Word): TOBDSessionPlan; virtual;
-    function RequiresSecurityAccess(
-      ASessionType: TOBDSessionType): Boolean; virtual;
+    function EndSessionPlan(const AEcuAddress: Word): TOBDSessionPlan; virtual;
+    function RequiresSecurityAccess(ASessionType: TOBDSessionType)
+      : Boolean; virtual;
     function DefaultTesterPresentMs: Cardinal; virtual;
     function DisplayName: string; virtual;
   end;
@@ -187,27 +186,27 @@ const
   /// <summary>UDS DiagnosticSessionControl SID.</summary>
   UDS_SID_DIAGNOSTIC_SESSION_CONTROL = $10;
   /// <summary>UDS positive-response offset.</summary>
-  UDS_POSITIVE_RESPONSE_OFFSET       = $40;
+  UDS_POSITIVE_RESPONSE_OFFSET = $40;
   /// <summary>UDS TesterPresent SID.</summary>
-  UDS_SID_TESTER_PRESENT             = $3E;
+  UDS_SID_TESTER_PRESENT = $3E;
 
-/// <summary>Builds an adapter (AT/ST) step.</summary>
-/// <param name="ACmd">Command body, no leading <c>AT</c>.</param>
-/// <param name="ADescription">Log label.</param>
+  /// <summary>Builds an adapter (AT/ST) step.</summary>
+  /// <param name="ACmd">Command body, no leading <c>AT</c>.</param>
+  /// <param name="ADescription">Log label.</param>
 function ATStep(const ACmd, ADescription: string): TOBDSessionStep; overload;
 /// <summary>Builds an adapter (AT/ST) step with an explicit
 /// timeout.</summary>
 /// <param name="ACmd">Command body, no leading <c>AT</c>.</param>
 /// <param name="ADescription">Log label.</param>
 /// <param name="ATimeoutMs">Per-step timeout in ms.</param>
-function ATStep(const ACmd, ADescription: string;
-  ATimeoutMs: Cardinal): TOBDSessionStep; overload;
+function ATStep(const ACmd, ADescription: string; ATimeoutMs: Cardinal)
+  : TOBDSessionStep; overload;
 
 /// <summary>Builds a UDS step.</summary>
 /// <param name="ABytes">Raw UDS request bytes.</param>
 /// <param name="ADescription">Log label.</param>
-function UDSStep(const ABytes: TBytes;
-  const ADescription: string): TOBDSessionStep; overload;
+function UDSStep(const ABytes: TBytes; const ADescription: string)
+  : TOBDSessionStep; overload;
 /// <summary>Builds a UDS step with an expected positive-response
 /// prefix.</summary>
 /// <param name="ABytes">Raw UDS request bytes.</param>
@@ -239,12 +238,18 @@ end;
 function SessionTypeByte(ASessionType: TOBDSessionType): Byte;
 begin
   case ASessionType of
-    sstDefault:            Result := $01;
-    sstProgramming:        Result := $02;
-    sstExtendedDiagnostic: Result := $03;
-    sstSafetySystem:       Result := $04;
-    sstOEMSpecific1:       Result := $40;
-    sstOEMSpecific2:       Result := $60;
+    sstDefault:
+      Result := $01;
+    sstProgramming:
+      Result := $02;
+    sstExtendedDiagnostic:
+      Result := $03;
+    sstSafetySystem:
+      Result := $04;
+    sstOEMSpecific1:
+      Result := $40;
+    sstOEMSpecific2:
+      Result := $60;
   else
     Result := $03;
   end;
@@ -252,23 +257,23 @@ end;
 
 function ATStep(const ACmd, ADescription: string): TOBDSessionStep;
 begin
-  Result := Default(TOBDSessionStep);
+  Result := Default (TOBDSessionStep);
   Result.Kind := sskATCommand;
   Result.AdapterCmd := ACmd;
   Result.Description := ADescription;
 end;
 
-function ATStep(const ACmd, ADescription: string;
-  ATimeoutMs: Cardinal): TOBDSessionStep;
+function ATStep(const ACmd, ADescription: string; ATimeoutMs: Cardinal)
+  : TOBDSessionStep;
 begin
   Result := ATStep(ACmd, ADescription);
   Result.TimeoutMs := ATimeoutMs;
 end;
 
-function UDSStep(const ABytes: TBytes;
-  const ADescription: string): TOBDSessionStep;
+function UDSStep(const ABytes: TBytes; const ADescription: string)
+  : TOBDSessionStep;
 begin
-  Result := Default(TOBDSessionStep);
+  Result := Default (TOBDSessionStep);
   Result.Kind := sskUDSRequest;
   Result.UDS := ABytes;
   Result.Description := ADescription;
@@ -283,34 +288,29 @@ end;
 
 { TOBDStandardSessionNegotiator }
 
-function TOBDStandardSessionNegotiator.PrependHeaderStep(
-  const ASteps: TArray<TOBDSessionStep>;
-  const AEcuAddress: Word): TArray<TOBDSessionStep>;
+function TOBDStandardSessionNegotiator.PrependHeaderStep
+  (const ASteps: TArray<TOBDSessionStep>; const AEcuAddress: Word)
+  : TArray<TOBDSessionStep>;
 begin
   if AEcuAddress = 0 then
     Exit(ASteps);
-  Result := [
-    ATStep('SH ' + FormatHeader(AEcuAddress),
-      Format('Set request header to 0x%s',
-        [FormatHeader(AEcuAddress)]))
-  ] + ASteps;
+  Result := [ATStep('SH ' + FormatHeader(AEcuAddress),
+    Format('Set request header to 0x%s', [FormatHeader(AEcuAddress)]))]
+    + ASteps;
 end;
 
-function TOBDStandardSessionNegotiator.BeginSessionPlan(
-  ASessionType: TOBDSessionType;
-  const AEcuAddress: Word): TOBDSessionPlan;
+function TOBDStandardSessionNegotiator.BeginSessionPlan
+  (ASessionType: TOBDSessionType; const AEcuAddress: Word): TOBDSessionPlan;
 var
   Sub: Byte;
 begin
-  Result := Default(TOBDSessionPlan);
+  Result := Default (TOBDSessionPlan);
   Sub := SessionTypeByte(ASessionType);
-  Result.Steps := PrependHeaderStep(
-    [UDSStep(
-      TBytes.Create(UDS_SID_DIAGNOSTIC_SESSION_CONTROL, Sub),
-      TBytes.Create(UDS_SID_DIAGNOSTIC_SESSION_CONTROL +
-        UDS_POSITIVE_RESPONSE_OFFSET, Sub),
-      Format('DiagnosticSessionControl 0x%.2X', [Sub]))],
-    AEcuAddress);
+  Result.Steps := PrependHeaderStep
+    ([UDSStep(TBytes.Create(UDS_SID_DIAGNOSTIC_SESSION_CONTROL, Sub),
+    TBytes.Create(UDS_SID_DIAGNOSTIC_SESSION_CONTROL +
+    UDS_POSITIVE_RESPONSE_OFFSET, Sub),
+    Format('DiagnosticSessionControl 0x%.2X', [Sub]))], AEcuAddress);
   if ASessionType = sstDefault then
     Result.TesterPresentMs := 0
   else
@@ -318,23 +318,21 @@ begin
   Result.TesterPresentRequest := TBytes.Create(UDS_SID_TESTER_PRESENT, $80);
 end;
 
-function TOBDStandardSessionNegotiator.EndSessionPlan(
-  const AEcuAddress: Word): TOBDSessionPlan;
+function TOBDStandardSessionNegotiator.EndSessionPlan(const AEcuAddress: Word)
+  : TOBDSessionPlan;
 begin
-  Result := Default(TOBDSessionPlan);
-  Result.Steps := PrependHeaderStep(
-    [UDSStep(
-      TBytes.Create(UDS_SID_DIAGNOSTIC_SESSION_CONTROL, $01),
-      TBytes.Create(UDS_SID_DIAGNOSTIC_SESSION_CONTROL +
-        UDS_POSITIVE_RESPONSE_OFFSET, $01),
-      'Return to default session')],
+  Result := Default (TOBDSessionPlan);
+  Result.Steps := PrependHeaderStep
+    ([UDSStep(TBytes.Create(UDS_SID_DIAGNOSTIC_SESSION_CONTROL, $01),
+    TBytes.Create(UDS_SID_DIAGNOSTIC_SESSION_CONTROL +
+    UDS_POSITIVE_RESPONSE_OFFSET, $01), 'Return to default session')],
     AEcuAddress);
   Result.TesterPresentMs := 0;
   Result.TesterPresentRequest := TBytes.Create(UDS_SID_TESTER_PRESENT, $80);
 end;
 
-function TOBDStandardSessionNegotiator.RequiresSecurityAccess(
-  ASessionType: TOBDSessionType): Boolean;
+function TOBDStandardSessionNegotiator.RequiresSecurityAccess
+  (ASessionType: TOBDSessionType): Boolean;
 begin
   Result := ASessionType = sstProgramming;
 end;

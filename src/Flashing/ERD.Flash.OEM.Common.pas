@@ -1,44 +1,44 @@
-//------------------------------------------------------------------------------
-//  ERD.Flash.OEM.Common
+﻿// ------------------------------------------------------------------------------
+// ERD.Flash.OEM.Common
 //
-//  IOBDFlashHandshake — shared contract every OEM bootloader-
-//  handshake unit implements. Hosts plug a concrete vendor
-//  handshake into TOBDFlashPipeline.OnEnterProgramming via a thin
-//  closure:
+// IOBDFlashHandshake — shared contract every OEM bootloader-
+// handshake unit implements. Hosts plug a concrete vendor
+// handshake into TOBDFlashPipeline.OnEnterProgramming via a thin
+// closure:
 //
-//    Pipeline.OnEnterProgramming :=
-//      procedure begin Handshake.Run; end;
+// Pipeline.OnEnterProgramming :=
+// procedure begin Handshake.Run; end;
 //
-//  Each vendor's pre-flash sequence has its own session levels,
-//  security-access level, optional anti-theft pin, and a
-//  vendor-specific "prepare for flash" routine ID. The contract
-//  unifies them behind a single Run() method while the per-OEM
-//  units expose vendor-specific properties (e.g. VAG SCN code,
-//  BMW programming-session sub-function, Ford CSE strategy).
+// Each vendor's pre-flash sequence has its own session levels,
+// security-access level, optional anti-theft pin, and a
+// vendor-specific "prepare for flash" routine ID. The contract
+// unifies them behind a single Run() method while the per-OEM
+// units expose vendor-specific properties (e.g. VAG SCN code,
+// BMW programming-session sub-function, Ford CSE strategy).
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Flash.OEM.Common;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   ERD.Types,
   ERD.Protocol.Types,
   ERD.Protocol.UDS,
@@ -71,12 +71,12 @@ type
   end;
 
   /// <summary>
-  ///   Abstract base for the per-OEM units. Children supply the
-  ///   vendor-specific properties + override <c>DoRun</c>.
+  /// Abstract base for the per-OEM units. Children supply the
+  /// vendor-specific properties + override <c>DoRun</c>.
   /// </summary>
   TOBDFlashHandshake = class abstract(TComponent, IOBDFlashHandshake)
-  strict private
-    [Weak] FProtocol: TOBDProtocol;
+  strict private[Weak]
+    FProtocol: TOBDProtocol;
     FSecurity: TOBDSecurityAccess;
     FRoutines: TOBDRoutineControl;
     FAutoExecute: Boolean;
@@ -106,18 +106,16 @@ type
     procedure Run;
     procedure Leave;
 
-    procedure SetUp(AProtocol: TOBDProtocol;
-      ASecurity: TOBDSecurityAccess; ARoutines: TOBDRoutineControl);
+    procedure SetUp(AProtocol: TOBDProtocol; ASecurity: TOBDSecurityAccess;
+      ARoutines: TOBDRoutineControl);
 
   published
     /// <summary>Bound protocol component.</summary>
     property ProtocolComp: TOBDProtocol read FProtocol write SetProtocol;
     /// <summary>Bound security-access component.</summary>
-    property SecurityComp: TOBDSecurityAccess read FSecurity
-      write SetSecurity;
+    property SecurityComp: TOBDSecurityAccess read FSecurity write SetSecurity;
     /// <summary>Bound routine-control component.</summary>
-    property RoutinesComp: TOBDRoutineControl read FRoutines
-      write SetRoutines;
+    property RoutinesComp: TOBDRoutineControl read FRoutines write SetRoutines;
     /// <summary>Safety gate. Default <c>False</c>.</summary>
     property AutoExecute: Boolean read FAutoExecute write FAutoExecute
       default False;
@@ -127,26 +125,35 @@ implementation
 
 procedure TOBDFlashHandshake.SetProtocol(AValue: TOBDProtocol);
 begin
-  if FProtocol = AValue then Exit;
-  if FProtocol <> nil then FProtocol.RemoveFreeNotification(Self);
+  if FProtocol = AValue then
+    Exit;
+  if FProtocol <> nil then
+    FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
-  if FProtocol <> nil then FProtocol.FreeNotification(Self);
+  if FProtocol <> nil then
+    FProtocol.FreeNotification(Self);
 end;
 
 procedure TOBDFlashHandshake.SetSecurity(AValue: TOBDSecurityAccess);
 begin
-  if FSecurity = AValue then Exit;
-  if FSecurity <> nil then FSecurity.RemoveFreeNotification(Self);
+  if FSecurity = AValue then
+    Exit;
+  if FSecurity <> nil then
+    FSecurity.RemoveFreeNotification(Self);
   FSecurity := AValue;
-  if FSecurity <> nil then FSecurity.FreeNotification(Self);
+  if FSecurity <> nil then
+    FSecurity.FreeNotification(Self);
 end;
 
 procedure TOBDFlashHandshake.SetRoutines(AValue: TOBDRoutineControl);
 begin
-  if FRoutines = AValue then Exit;
-  if FRoutines <> nil then FRoutines.RemoveFreeNotification(Self);
+  if FRoutines = AValue then
+    Exit;
+  if FRoutines <> nil then
+    FRoutines.RemoveFreeNotification(Self);
   FRoutines := AValue;
-  if FRoutines <> nil then FRoutines.FreeNotification(Self);
+  if FRoutines <> nil then
+    FRoutines.FreeNotification(Self);
 end;
 
 procedure TOBDFlashHandshake.Notification(AComponent: TComponent;
@@ -155,9 +162,12 @@ begin
   inherited;
   if Operation = opRemove then
   begin
-    if AComponent = FProtocol then FProtocol := nil;
-    if AComponent = FSecurity then FSecurity := nil;
-    if AComponent = FRoutines then FRoutines := nil;
+    if AComponent = FProtocol then
+      FProtocol := nil;
+    if AComponent = FSecurity then
+      FSecurity := nil;
+    if AComponent = FRoutines then
+      FRoutines := nil;
   end;
 end;
 
@@ -177,8 +187,8 @@ begin
     raise EOBDConfig.Create('Flash handshake: Protocol not assigned');
   Resp := FProtocol.Request($10, TBytes.Create(ASubFunction));
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt(
-      'DiagnosticSessionControl 0x%2.2X negative: %s',
+    raise EOBDProtocolErr.CreateFmt
+      ('DiagnosticSessionControl 0x%2.2X negative: %s',
       [ASubFunction, Resp.NRCText]);
 end;
 
@@ -186,11 +196,11 @@ procedure TOBDFlashHandshake.ResetECU(ASubFunction: Byte);
 var
   Resp: TOBDResponse;
 begin
-  if FProtocol = nil then Exit;
+  if FProtocol = nil then
+    Exit;
   Resp := FProtocol.Request($11, TBytes.Create(ASubFunction));
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt(
-      'ECUReset 0x%2.2X negative: %s',
+    raise EOBDProtocolErr.CreateFmt('ECUReset 0x%2.2X negative: %s',
       [ASubFunction, Resp.NRCText]);
 end;
 
@@ -198,11 +208,12 @@ procedure TOBDFlashHandshake.TesterPresent;
 var
   Resp: TOBDResponse;
 begin
-  if FProtocol = nil then Exit;
+  if FProtocol = nil then
+    Exit;
   Resp := FProtocol.Request($3E, TBytes.Create($00));
   // TesterPresent NRC is rare and non-fatal; we surface but
   // do not abort.
-  if Resp.IsNegative then ;
+  if Resp.IsNegative then;
 end;
 
 function TOBDFlashHandshake.VendorName: string;
@@ -213,8 +224,8 @@ end;
 procedure TOBDFlashHandshake.Run;
 begin
   if not FAutoExecute then
-    raise EOBDConfig.CreateFmt(
-      '%s flash handshake: AutoExecute is False — set it explicitly',
+    raise EOBDConfig.CreateFmt
+      ('%s flash handshake: AutoExecute is False — set it explicitly',
       [GetVendorName]);
   if FProtocol = nil then
     raise EOBDConfig.Create('Flash handshake: Protocol not assigned');
@@ -223,7 +234,10 @@ end;
 
 procedure TOBDFlashHandshake.Leave;
 begin
-  try DoLeave; except end;
+  try
+    DoLeave;
+  except
+  end;
 end;
 
 procedure TOBDFlashHandshake.DoLeave;

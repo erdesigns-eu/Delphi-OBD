@@ -1,34 +1,34 @@
-//------------------------------------------------------------------------------
-//  ERD.Flash.OEM.Ford
+﻿// ------------------------------------------------------------------------------
+// ERD.Flash.OEM.Ford
 //
-//  TOBDFlashHandshakeFord — Ford / Lincoln / Mercury bootloader
-//  handshake. Ford uses CSE (Calibration Software Environment) on
-//  modern PCMs and TCMs; the IDS / FDRS sequence is:
+// TOBDFlashHandshakeFord — Ford / Lincoln / Mercury bootloader
+// handshake. Ford uses CSE (Calibration Software Environment) on
+// modern PCMs and TCMs; the IDS / FDRS sequence is:
 //
-//    1. 10 02 — programming session
-//    2. 27 01 — Ford CSE level-1 security access
-//    3. 31 01 FF 00 — erase pre-flash routine
+// 1. 10 02 — programming session
+// 2. 27 01 — Ford CSE level-1 security access
+// 3. 31 01 FF 00 — erase pre-flash routine
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.Flash.OEM.Ford;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   ERD.Types,
   ERD.Coding.SecurityAccess,
   ERD.Flash.OEM.Common;
@@ -48,8 +48,8 @@ type
   published
     property SecurityLevel: Byte read FSecurityLevel write FSecurityLevel
       default $01;
-    property EraseRoutineID: Word read FEraseRoutineID
-      write FEraseRoutineID default $FF00;
+    property EraseRoutineID: Word read FEraseRoutineID write FEraseRoutineID
+      default $FF00;
     property SeedToKey: TOBDSeedToKeyFunc read FSeedToKey write FSeedToKey;
   end;
 

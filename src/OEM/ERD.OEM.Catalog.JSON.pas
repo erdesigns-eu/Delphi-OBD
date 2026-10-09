@@ -1,46 +1,46 @@
-//------------------------------------------------------------------------------
-//  ERD.OEM.Catalog.JSON
+﻿// ------------------------------------------------------------------------------
+// ERD.OEM.Catalog.JSON
 //
-//  JSON-driven OEM catalogue loader. Reads DIDs, routines, ECUs,
-//  DTC ranges, coding blocks, adaptations, actuator tests, live
-//  PIDs and DTC extended-data records from a vendor catalogue
-//  file, carrying provenance (<c>source</c>) and verification
-//  (<c>verified</c>) metadata so callers can filter unverified
-//  entries out of production-critical paths.
+// JSON-driven OEM catalogue loader. Reads DIDs, routines, ECUs,
+// DTC ranges, coding blocks, adaptations, actuator tests, live
+// PIDs and DTC extended-data records from a vendor catalogue
+// file, carrying provenance (<c>source</c>) and verification
+// (<c>verified</c>) metadata so callers can filter unverified
+// entries out of production-critical paths.
 //
-//  Hex literals are accepted as <c>0xNNNN</c>, <c>$NNNN</c> or
-//  plain decimal. Each catalogue file is one top-level JSON
-//  object — see <c>docs/CATALOG_FORMAT.md</c> for the schema.
+// Hex literals are accepted as <c>0xNNNN</c>, <c>$NNNN</c> or
+// plain decimal. Each catalogue file is one top-level JSON
+// object — see <c>docs/CATALOG_FORMAT.md</c> for the schema.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-12  ERD  Initial implementation.
-//    2026-10-08  Validate string values read from catalogue maps.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-12  ERD  Initial implementation.
+// 2026-10-08  Validate string values read from catalogue maps.
+// ------------------------------------------------------------------------------
 
 unit ERD.OEM.Catalog.JSON;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
   ERD.JSON,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   System.IOUtils,
   System.JSON,
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
-  {$IFDEF FPC}Generics.Defaults{$ELSE}System.Generics.Defaults{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}Generics.Defaults{$ELSE}System.Generics.Defaults{$ENDIF},
   ERD.OEM.Types,
   ERD.OEM.Extensions;
 
@@ -49,30 +49,19 @@ type
   EOBDCatalogError = class(Exception);
 
   /// <summary>
-  ///   Decoder kinds the JSON catalogue can describe. Mirrors
-  ///   <see cref="TOBDOEMDecoderKind"/> but lives on the JSON
-  ///   parser side so the public schema stays free of parsing
-  ///   concerns.
+  /// Decoder kinds the JSON catalogue can describe. Mirrors
+  /// <see cref="TOBDOEMDecoderKind"/> but lives on the JSON
+  /// parser side so the public schema stays free of parsing
+  /// concerns.
   /// </summary>
-  TOBDDecoderKind = (
-    dkUnknown,
-    dkAscii,
-    dkHex,
-    dkUInt8,
-    dkUInt16BE,
-    dkUInt32BE,
-    dkInt16BE,
-    dkInt32BE,
-    dkBcdDate,
-    dkEnum,
-    dkBitmask,
-    dkSeconds);
+  TOBDDecoderKind = (dkUnknown, dkAscii, dkHex, dkUInt8, dkUInt16BE, dkUInt32BE,
+    dkInt16BE, dkInt32BE, dkBcdDate, dkEnum, dkBitmask, dkSeconds);
 
   /// <summary>
-  ///   Compiled form of a <c>decoder</c> sub-object.
-  ///   <c>EnumValues</c> and <c>BitNames</c> hold their lookup
-  ///   maps for fast decode and are owned by the parent
-  ///   catalogue.
+  /// Compiled form of a <c>decoder</c> sub-object.
+  /// <c>EnumValues</c> and <c>BitNames</c> hold their lookup
+  /// maps for fast decode and are owned by the parent
+  /// catalogue.
   /// </summary>
   TOBDDecoderSpec = record
     /// <summary>Decoder kind.</summary>
@@ -249,8 +238,8 @@ type
   end;
 
   /// <summary>
-  ///   A complete catalogue as loaded from one JSON file. Owned
-  ///   by the caller; entries can be freely walked.
+  /// A complete catalogue as loaded from one JSON file. Owned
+  /// by the caller; entries can be freely walked.
   /// </summary>
   TOBDOEMJSONCatalog = class
   strict private
@@ -271,10 +260,10 @@ type
     FDtcExtended: TList<TOBDDtcExtendedDataEntry>;
     function ParseHexOrInt(const S: string): Cardinal;
     function ParseDecoder(Obj: TJSONObject): TOBDDecoderSpec;
-    function ParseEnumValues(Obj: TJSONObject;
-      const Key: string): TArray<TPair<Integer, string>>;
-    function ParseBitNames(Obj: TJSONObject;
-      const Key: string): TArray<TPair<Integer, string>>;
+    function ParseEnumValues(Obj: TJSONObject; const Key: string)
+      : TArray<TPair<Integer, string>>;
+    function ParseBitNames(Obj: TJSONObject; const Key: string)
+      : TArray<TPair<Integer, string>>;
     procedure LoadFromJSON(Root: TJSONObject);
     procedure LoadDIDs(Arr: TJSONArray);
     procedure LoadRoutines(Arr: TJSONArray);
@@ -294,7 +283,8 @@ type
     constructor Create(const FilePath: string; ASourceIsText: Boolean = False);
     /// <summary>Loads a catalogue from in-memory JSON text.</summary>
     /// <param name="JsonText">JSON object source.</param>
-    class function CreateFromText(const JsonText: string): TOBDOEMJSONCatalog; static;
+    class function CreateFromText(const JsonText: string)
+      : TOBDOEMJSONCatalog; static;
     /// <summary>Frees state.</summary>
     destructor Destroy; override;
 
@@ -309,20 +299,18 @@ type
     function AsBaseECUs: TArray<TOBDOEMECU>;
 
     /// <summary>
-    ///   Applies the decoder for <c>DID</c> (if any) to
-    ///   <c>Payload</c>. Returns the formatted string, or empty
-    ///   when no decoder is bound or the payload is too short.
+    /// Applies the decoder for <c>DID</c> (if any) to
+    /// <c>Payload</c>. Returns the formatted string, or empty
+    /// when no decoder is bound or the payload is too short.
     /// </summary>
     /// <param name="DID">DID being decoded.</param>
     /// <param name="Payload">Response bytes.</param>
-    function DecodePayload(const DID: Word;
-      const Payload: TBytes): string;
+    function DecodePayload(const DID: Word; const Payload: TBytes): string;
 
     /// <summary>Looks up a DID.</summary>
     /// <param name="DID">DID value.</param>
     /// <param name="Entry">Out: matching entry on success.</param>
-    function FindDID(const DID: Word;
-      out Entry: TOBDOEMDIDEntry): Boolean;
+    function FindDID(const DID: Word; out Entry: TOBDOEMDIDEntry): Boolean;
 
     /// <summary>Schema version.</summary>
     property Version: Integer read FVersion;
@@ -359,9 +347,9 @@ type
     function DtcExtended(Index: Integer): TOBDDtcExtendedDataEntry;
   end;
 
-/// <summary>Maps the JSON decoder-kind string to
-/// <see cref="TOBDOEMDecoderKind"/>.</summary>
-/// <param name="S">JSON tag.</param>
+  /// <summary>Maps the JSON decoder-kind string to
+  /// <see cref="TOBDOEMDecoderKind"/>.</summary>
+  /// <param name="S">JSON tag.</param>
 function ParseOEMDecoderKind(const S: string): TOBDOEMDecoderKind;
 /// <summary>Maps the JSON coding-field-kind string to
 /// <see cref="TOBDCodingFieldKind"/>.</summary>
@@ -374,8 +362,7 @@ function ParseAdaptationKind(const S: string): TOBDAdaptationKind;
 /// <summary>Maps the JSON actuator-response-kind string to
 /// <see cref="TOBDActuatorResponseKind"/>.</summary>
 /// <param name="S">JSON tag.</param>
-function ParseActuatorResponseKind(
-  const S: string): TOBDActuatorResponseKind;
+function ParseActuatorResponseKind(const S: string): TOBDActuatorResponseKind;
 /// <summary>Maps the JSON live-PID mode string to
 /// <see cref="TOBDLivePIDMode"/>.</summary>
 /// <param name="S">JSON tag.</param>
@@ -383,24 +370,25 @@ function ParseLivePIDMode(const S: string): TOBDLivePIDMode;
 /// <summary>Maps the JSON DTC-extended-data-kind string to
 /// <see cref="TOBDDtcExtendedDataKind"/>.</summary>
 /// <param name="S">JSON tag.</param>
-function ParseDtcExtendedKind(
-  const S: string): TOBDDtcExtendedDataKind;
+function ParseDtcExtendedKind(const S: string): TOBDDtcExtendedDataKind;
 
 implementation
 
 uses
-  {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
+{$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
   System.NetEncoding;
 
 type
   TIntegerStringPairList = TList<TPair<Integer, string>>;
 
-class function TOBDOEMJSONCatalog.CreateFromText(const JsonText: string): TOBDOEMJSONCatalog;
+class function TOBDOEMJSONCatalog.CreateFromText(const JsonText: string)
+  : TOBDOEMJSONCatalog;
 begin
   Result := TOBDOEMJSONCatalog.Create(JsonText, True);
 end;
 
-constructor TOBDOEMJSONCatalog.Create(const FilePath: string; ASourceIsText: Boolean);
+constructor TOBDOEMJSONCatalog.Create(const FilePath: string;
+  ASourceIsText: Boolean);
 var
   Value: TJSONValue;
   JsonText: string;
@@ -425,7 +413,7 @@ begin
     JsonText := TFile.ReadAllText(FilePath, TEncoding.UTF8);
   end;
   Value := TJSONObject.ParseJSONValue(JsonText);
-  if not (Value is TJSONObject) then
+  if not(Value is TJSONObject) then
   begin
     Value.Free;
     raise EOBDCatalogError.Create('Catalog root must be a JSON object');
@@ -466,36 +454,33 @@ var
 begin
   Trimmed := Trim(S);
   if Trimmed.StartsWith('0x', True) or Trimmed.StartsWith('$') then
-    Result := StrToInt('$' + Trimmed
-      .Replace('0x', '', [rfIgnoreCase])
+    Result := StrToInt('$' + Trimmed.Replace('0x', '', [rfIgnoreCase])
       .Replace('$', ''))
   else
     Result := StrToInt(Trimmed);
 end;
 
-function TOBDOEMJSONCatalog.ParseDecoder(
-  Obj: TJSONObject): TOBDDecoderSpec;
+function TOBDOEMJSONCatalog.ParseDecoder(Obj: TJSONObject): TOBDDecoderSpec;
 const
-  KindMap: array[0..10] of
-    record Tag: string; Kind: TOBDDecoderKind end = (
-    (Tag: 'ascii';     Kind: dkAscii),
-    (Tag: 'hex';       Kind: dkHex),
-    (Tag: 'uint8';     Kind: dkUInt8),
-    (Tag: 'uint16_be'; Kind: dkUInt16BE),
-    (Tag: 'uint32_be'; Kind: dkUInt32BE),
-    (Tag: 'int16_be';  Kind: dkInt16BE),
-    (Tag: 'int32_be';  Kind: dkInt32BE),
-    (Tag: 'bcd_date';  Kind: dkBcdDate),
-    (Tag: 'enum';      Kind: dkEnum),
-    (Tag: 'bitmask';   Kind: dkBitmask),
-    (Tag: 'seconds';   Kind: dkSeconds));
+KindMap:
+array [0 .. 10] of record Tag: string;
+Kind:
+TOBDDecoderKind
+end
+= ((Tag: 'ascii'; Kind: dkAscii), (Tag: 'hex'; Kind: dkHex), (Tag: 'uint8';
+  Kind: dkUInt8), (Tag: 'uint16_be'; Kind: dkUInt16BE), (Tag: 'uint32_be';
+  Kind: dkUInt32BE), (Tag: 'int16_be'; Kind: dkInt16BE), (Tag: 'int32_be';
+  Kind: dkInt32BE), (Tag: 'bcd_date'; Kind: dkBcdDate), (Tag: 'enum';
+  Kind: dkEnum), (Tag: 'bitmask'; Kind: dkBitmask), (Tag: 'seconds';
+  Kind: dkSeconds));
+
 var
   KindStr: string;
   I: Integer;
   ValuesObj, BitsObj: TJSONObject;
   Pair: TJSONPair;
 begin
-  Result := Default(TOBDDecoderSpec);
+  Result := Default (TOBDDecoderSpec);
   Result.Kind := dkUnknown;
   Result.Scale := 1.0;
   if Obj = nil then
@@ -520,8 +505,7 @@ begin
     ValuesObj := Obj.GetValue<TJSONObject>('values');
     if Assigned(ValuesObj) then
       for Pair in ValuesObj do
-        Result.EnumValues.AddOrSetValue(
-          ParseHexOrInt(Pair.JsonString.Value),
+        Result.EnumValues.AddOrSetValue(ParseHexOrInt(Pair.JsonString.Value),
           RequireOBDJSONString(Pair.JsonValue));
   end;
 
@@ -531,8 +515,7 @@ begin
     BitsObj := Obj.GetValue<TJSONObject>('bits');
     if Assigned(BitsObj) then
       for Pair in BitsObj do
-        Result.BitNames.AddOrSetValue(
-          StrToInt(Pair.JsonString.Value),
+        Result.BitNames.AddOrSetValue(StrToInt(Pair.JsonString.Value),
           RequireOBDJSONString(Pair.JsonValue));
   end;
 end;
@@ -549,8 +532,8 @@ begin
   FDefaultSource := Root.GetValue<string>('default_source', '');
   FDefaultEcuAddress := 0;
   if Assigned(Root.GetValue('default_ecu_address')) then
-    FDefaultEcuAddress := ParseHexOrInt(
-      Root.GetValue<string>('default_ecu_address', '0'));
+    FDefaultEcuAddress :=
+      ParseHexOrInt(Root.GetValue<string>('default_ecu_address', '0'));
 
   WMIArr := Root.GetValue<TJSONArray>('applicable_wmis', nil);
   if Assigned(WMIArr) then
@@ -606,10 +589,10 @@ var
 begin
   for I := 0 to Arr.Count - 1 do
   begin
-    if not (Arr.Items[I] is TJSONObject) then
+    if not(Arr.Items[I] is TJSONObject) then
       Continue;
     Item := TJSONObject(Arr.Items[I]);
-    Entry := Default(TOBDOEMDIDEntry);
+    Entry := Default (TOBDOEMDIDEntry);
     Entry.DID := ParseHexOrInt(Item.GetValue<string>('did', '0'));
     Entry.Name := Item.GetValue<string>('name', '');
     Entry.Description := Item.GetValue<string>('description', '');
@@ -634,10 +617,10 @@ var
 begin
   for I := 0 to Arr.Count - 1 do
   begin
-    if not (Arr.Items[I] is TJSONObject) then
+    if not(Arr.Items[I] is TJSONObject) then
       Continue;
     Item := TJSONObject(Arr.Items[I]);
-    Entry := Default(TOBDOEMRoutineEntry);
+    Entry := Default (TOBDOEMRoutineEntry);
     Entry.Identifier := ParseHexOrInt(Item.GetValue<string>('id', '0'));
     Entry.Name := Item.GetValue<string>('name', '');
     Entry.Description := Item.GetValue<string>('description', '');
@@ -660,10 +643,10 @@ var
 begin
   for I := 0 to Arr.Count - 1 do
   begin
-    if not (Arr.Items[I] is TJSONObject) then
+    if not(Arr.Items[I] is TJSONObject) then
       Continue;
     Item := TJSONObject(Arr.Items[I]);
-    Entry := Default(TOBDOEMECUEntry);
+    Entry := Default (TOBDOEMECUEntry);
     Entry.Address := ParseHexOrInt(Item.GetValue<string>('address', '0'));
     Entry.Name := Item.GetValue<string>('name', '');
     Entry.CommonName := Item.GetValue<string>('common_name', Entry.Name);
@@ -679,10 +662,10 @@ var
 begin
   for I := 0 to Arr.Count - 1 do
   begin
-    if not (Arr.Items[I] is TJSONObject) then
+    if not(Arr.Items[I] is TJSONObject) then
       Continue;
     Item := TJSONObject(Arr.Items[I]);
-    Entry := Default(TOBDOEMDtcRange);
+    Entry := Default (TOBDOEMDtcRange);
     Entry.StartCode := Item.GetValue<string>('start', '');
     Entry.EndCode := Item.GetValue<string>('end', '');
     Entry.Source := Item.GetValue<string>('source', FDefaultSource);
@@ -692,19 +675,23 @@ end;
 
 function ParseOEMDecoderKind(const S: string): TOBDOEMDecoderKind;
 const
-  Map: array[0..10] of
-    record Tag: string; Kind: TOBDOEMDecoderKind end = (
-    (Tag: 'ascii';     Kind: TOBDOEMDecoderKind.dkAscii),
-    (Tag: 'hex';       Kind: TOBDOEMDecoderKind.dkHex),
-    (Tag: 'uint8';     Kind: TOBDOEMDecoderKind.dkUInt8),
-    (Tag: 'uint16_be'; Kind: TOBDOEMDecoderKind.dkUInt16BE),
-    (Tag: 'uint32_be'; Kind: TOBDOEMDecoderKind.dkUInt32BE),
-    (Tag: 'int16_be';  Kind: TOBDOEMDecoderKind.dkInt16BE),
-    (Tag: 'int32_be';  Kind: TOBDOEMDecoderKind.dkInt32BE),
-    (Tag: 'bcd_date';  Kind: TOBDOEMDecoderKind.dkBcdDate),
-    (Tag: 'enum';      Kind: TOBDOEMDecoderKind.dkEnum),
-    (Tag: 'bitmask';   Kind: TOBDOEMDecoderKind.dkBitmask),
-    (Tag: 'seconds';   Kind: TOBDOEMDecoderKind.dkSeconds));
+Map:
+array [0 .. 10] of record Tag: string;
+Kind:
+TOBDOEMDecoderKind
+end
+= ((Tag: 'ascii'; Kind: TOBDOEMDecoderKind.dkAscii), (Tag: 'hex';
+  Kind: TOBDOEMDecoderKind.dkHex), (Tag: 'uint8';
+  Kind: TOBDOEMDecoderKind.dkUInt8), (Tag: 'uint16_be';
+  Kind: TOBDOEMDecoderKind.dkUInt16BE), (Tag: 'uint32_be';
+  Kind: TOBDOEMDecoderKind.dkUInt32BE), (Tag: 'int16_be';
+  Kind: TOBDOEMDecoderKind.dkInt16BE), (Tag: 'int32_be';
+  Kind: TOBDOEMDecoderKind.dkInt32BE), (Tag: 'bcd_date';
+  Kind: TOBDOEMDecoderKind.dkBcdDate), (Tag: 'enum';
+  Kind: TOBDOEMDecoderKind.dkEnum), (Tag: 'bitmask';
+  Kind: TOBDOEMDecoderKind.dkBitmask), (Tag: 'seconds';
+  Kind: TOBDOEMDecoderKind.dkSeconds));
+
 var
   I: Integer;
   Lower: string;
@@ -718,18 +705,17 @@ end;
 
 function ParseCodingFieldKind(const S: string): TOBDCodingFieldKind;
 const
-  Map: array[0..9] of
-    record Tag: string; Kind: TOBDCodingFieldKind end = (
-    (Tag: 'bit';       Kind: cfkBit),
-    (Tag: 'uint8';     Kind: cfkUInt8),
-    (Tag: 'uint16_be'; Kind: cfkUInt16BE),
-    (Tag: 'uint32_be'; Kind: cfkUInt32BE),
-    (Tag: 'int16_be';  Kind: cfkInt16BE),
-    (Tag: 'int32_be';  Kind: cfkInt32BE),
-    (Tag: 'ascii';     Kind: cfkAscii),
-    (Tag: 'enum';      Kind: cfkEnum),
-    (Tag: 'bitmask';   Kind: cfkBitmask),
-    (Tag: 'int8';      Kind: cfkInt8));
+Map:
+array [0 .. 9] of record Tag: string;
+Kind:
+TOBDCodingFieldKind
+end
+= ((Tag: 'bit'; Kind: cfkBit), (Tag: 'uint8'; Kind: cfkUInt8),
+  (Tag: 'uint16_be'; Kind: cfkUInt16BE), (Tag: 'uint32_be'; Kind: cfkUInt32BE),
+  (Tag: 'int16_be'; Kind: cfkInt16BE), (Tag: 'int32_be'; Kind: cfkInt32BE),
+  (Tag: 'ascii'; Kind: cfkAscii), (Tag: 'enum'; Kind: cfkEnum), (Tag: 'bitmask';
+  Kind: cfkBitmask), (Tag: 'int8'; Kind: cfkInt8));
+
 var
   I: Integer;
   Lower: string;
@@ -743,17 +729,17 @@ end;
 
 function ParseAdaptationKind(const S: string): TOBDAdaptationKind;
 const
-  Map: array[0..8] of
-    record Tag: string; Kind: TOBDAdaptationKind end = (
-    (Tag: 'uint8';     Kind: adkUInt8),
-    (Tag: 'uint16_be'; Kind: adkUInt16BE),
-    (Tag: 'uint32_be'; Kind: adkUInt32BE),
-    (Tag: 'int16_be';  Kind: adkInt16BE),
-    (Tag: 'int32_be';  Kind: adkInt32BE),
-    (Tag: 'enum';      Kind: adkEnum),
-    (Tag: 'int8';      Kind: adkInt8),
-    (Tag: 'bytes';     Kind: adkBytes),
-    (Tag: 'bool';      Kind: adkBool));
+Map:
+array [0 .. 8] of record Tag: string;
+Kind:
+TOBDAdaptationKind
+end
+= ((Tag: 'uint8'; Kind: adkUInt8), (Tag: 'uint16_be'; Kind: adkUInt16BE),
+  (Tag: 'uint32_be'; Kind: adkUInt32BE), (Tag: 'int16_be'; Kind: adkInt16BE),
+  (Tag: 'int32_be'; Kind: adkInt32BE), (Tag: 'enum'; Kind: adkEnum),
+  (Tag: 'int8'; Kind: adkInt8), (Tag: 'bytes'; Kind: adkBytes), (Tag: 'bool';
+  Kind: adkBool));
+
 var
   I: Integer;
   Lower: string;
@@ -765,16 +751,19 @@ begin
   Result := adkUnknown;
 end;
 
-function ParseActuatorResponseKind(
-  const S: string): TOBDActuatorResponseKind;
+function ParseActuatorResponseKind(const S: string): TOBDActuatorResponseKind;
 var
   Lower: string;
 begin
   Lower := LowerCase(S);
-  if Lower = 'boolean'   then Exit(arkBoolean);
-  if Lower = 'uint8'     then Exit(arkUInt8);
-  if Lower = 'uint16_be' then Exit(arkUInt16BE);
-  if Lower = 'ascii'     then Exit(arkAscii);
+  if Lower = 'boolean' then
+    Exit(arkBoolean);
+  if Lower = 'uint8' then
+    Exit(arkUInt8);
+  if Lower = 'uint16_be' then
+    Exit(arkUInt16BE);
+  if Lower = 'ascii' then
+    Exit(arkAscii);
   Result := arkNone;
 end;
 
@@ -783,22 +772,27 @@ var
   Lower: string;
 begin
   Lower := LowerCase(S);
-  if Lower = 'service01' then Exit(lpmService01);
-  if Lower = 'service22' then Exit(lpmService22);
+  if Lower = 'service01' then
+    Exit(lpmService01);
+  if Lower = 'service22' then
+    Exit(lpmService22);
   Result := lpmUnknown;
 end;
 
-function ParseDtcExtendedKind(
-  const S: string): TOBDDtcExtendedDataKind;
+function ParseDtcExtendedKind(const S: string): TOBDDtcExtendedDataKind;
 const
-  Map: array[0..5] of
-    record Tag: string; Kind: TOBDDtcExtendedDataKind end = (
-    (Tag: 'occurrence_counter';    Kind: xdkOccurrenceCounter),
-    (Tag: 'aging_counter';         Kind: xdkAgingCounter),
-    (Tag: 'miles_since_cleared';   Kind: xdkMilesSinceCleared),
-    (Tag: 'freeze_frame_template'; Kind: xdkFreezeFrameTemplate),
-    (Tag: 'oem_status_byte';       Kind: xdkOemStatusByte),
-    (Tag: 'environmental_data';    Kind: xdkEnvironmentalData));
+Map:
+array [0 .. 5] of record Tag: string;
+Kind:
+TOBDDtcExtendedDataKind
+end
+= ((Tag: 'occurrence_counter'; Kind: xdkOccurrenceCounter),
+  (Tag: 'aging_counter'; Kind: xdkAgingCounter), (Tag: 'miles_since_cleared';
+  Kind: xdkMilesSinceCleared), (Tag: 'freeze_frame_template';
+  Kind: xdkFreezeFrameTemplate), (Tag: 'oem_status_byte';
+  Kind: xdkOemStatusByte), (Tag: 'environmental_data';
+  Kind: xdkEnvironmentalData));
+
 var
   I: Integer;
   Lower: string;
@@ -810,8 +804,8 @@ begin
   Result := xdkUnknown;
 end;
 
-function TOBDOEMJSONCatalog.ParseEnumValues(Obj: TJSONObject;
-  const Key: string): TArray<TPair<Integer, string>>;
+function TOBDOEMJSONCatalog.ParseEnumValues(Obj: TJSONObject; const Key: string)
+  : TArray<TPair<Integer, string>>;
 var
   ValuesObj: TJSONObject;
   Pair: TJSONPair;
@@ -826,8 +820,8 @@ begin
   Acc := TIntegerStringPairList.Create;
   try
     for Pair in ValuesObj do
-      Acc.Add(TPair<Integer, string>.Create(
-        Integer(ParseHexOrInt(Pair.JsonString.Value)),
+      Acc.Add(TPair<Integer, string>.Create
+        (Integer(ParseHexOrInt(Pair.JsonString.Value)),
         RequireOBDJSONString(Pair.JsonValue)));
     Result := Acc.ToArray;
   finally
@@ -835,8 +829,8 @@ begin
   end;
 end;
 
-function TOBDOEMJSONCatalog.ParseBitNames(Obj: TJSONObject;
-  const Key: string): TArray<TPair<Integer, string>>;
+function TOBDOEMJSONCatalog.ParseBitNames(Obj: TJSONObject; const Key: string)
+  : TArray<TPair<Integer, string>>;
 var
   BitsObj: TJSONObject;
   Pair: TJSONPair;
@@ -855,9 +849,8 @@ begin
   Acc := TIntegerStringPairList.Create;
   try
     for Pair in BitsObj do
-      Acc.Add(TPair<Integer, string>.Create(
-        StrToIntDef(Pair.JsonString.Value, -1),
-        RequireOBDJSONString(Pair.JsonValue)));
+      Acc.Add(TPair<Integer, string>.Create(StrToIntDef(Pair.JsonString.Value,
+        -1), RequireOBDJSONString(Pair.JsonValue)));
     Result := Acc.ToArray;
   finally
     Acc.Free;
@@ -875,10 +868,10 @@ var
 begin
   for I := 0 to Arr.Count - 1 do
   begin
-    if not (Arr.Items[I] is TJSONObject) then
+    if not(Arr.Items[I] is TJSONObject) then
       Continue;
     Item := TJSONObject(Arr.Items[I]);
-    Entry := Default(TOBDCodingBlockEntry);
+    Entry := Default (TOBDCodingBlockEntry);
     Entry.DataIdentifier := ParseHexOrInt(Item.GetValue<string>('did', '0'));
     Entry.Name := Item.GetValue<string>('name', '');
     Entry.Description := Item.GetValue<string>('description', '');
@@ -897,10 +890,10 @@ begin
       SetLength(Entry.Fields, FieldsArr.Count);
       for J := 0 to FieldsArr.Count - 1 do
       begin
-        if not (FieldsArr.Items[J] is TJSONObject) then
+        if not(FieldsArr.Items[J] is TJSONObject) then
           Continue;
         FieldItem := TJSONObject(FieldsArr.Items[J]);
-        Field := Default(TOBDCodingFieldEntry);
+        Field := Default (TOBDCodingFieldEntry);
         Field.Name := FieldItem.GetValue<string>('name', '');
         Field.Label_ := FieldItem.GetValue<string>('label', Field.Name);
         Field.Description := FieldItem.GetValue<string>('description', '');
@@ -930,10 +923,10 @@ var
 begin
   for I := 0 to Arr.Count - 1 do
   begin
-    if not (Arr.Items[I] is TJSONObject) then
+    if not(Arr.Items[I] is TJSONObject) then
       Continue;
     Item := TJSONObject(Arr.Items[I]);
-    Entry := Default(TOBDAdaptationEntry);
+    Entry := Default (TOBDAdaptationEntry);
     Entry.Channel := ParseHexOrInt(Item.GetValue<string>('channel', '0'));
     Entry.Name := Item.GetValue<string>('name', '');
     Entry.Description := Item.GetValue<string>('description', '');
@@ -963,10 +956,10 @@ var
 begin
   for I := 0 to Arr.Count - 1 do
   begin
-    if not (Arr.Items[I] is TJSONObject) then
+    if not(Arr.Items[I] is TJSONObject) then
       Continue;
     Item := TJSONObject(Arr.Items[I]);
-    Entry := Default(TOBDActuatorTestEntry);
+    Entry := Default (TOBDActuatorTestEntry);
     Entry.Identifier := ParseHexOrInt(Item.GetValue<string>('id', '0'));
     Entry.Name := Item.GetValue<string>('name', '');
     Entry.Description := Item.GetValue<string>('description', '');
@@ -979,10 +972,8 @@ begin
       Entry.EcuAddress := FDefaultEcuAddress;
     Entry.DurationMs := Item.GetValue<Cardinal>('duration_ms', 0);
     Entry.SafetyWarning := Item.GetValue<string>('safety_warning', '');
-    Entry.ExpectedResponseKind :=
-      Item.GetValue<string>('response_kind', '');
-    Entry.ExpectedResponseLabel :=
-      Item.GetValue<string>('response_label', '');
+    Entry.ExpectedResponseKind := Item.GetValue<string>('response_kind', '');
+    Entry.ExpectedResponseLabel := Item.GetValue<string>('response_label', '');
     FActuatorTests.Add(Entry);
   end;
 end;
@@ -997,10 +988,10 @@ var
 begin
   for I := 0 to Arr.Count - 1 do
   begin
-    if not (Arr.Items[I] is TJSONObject) then
+    if not(Arr.Items[I] is TJSONObject) then
       Continue;
     Item := TJSONObject(Arr.Items[I]);
-    Entry := Default(TOBDLivePIDEntry);
+    Entry := Default (TOBDLivePIDEntry);
     Entry.Mode := Item.GetValue<string>('mode', 'service22');
     Entry.PID := ParseHexOrInt(Item.GetValue<string>('pid', '0'));
     Entry.Name := Item.GetValue<string>('name', '');
@@ -1039,13 +1030,13 @@ var
 begin
   for I := 0 to Arr.Count - 1 do
   begin
-    if not (Arr.Items[I] is TJSONObject) then
+    if not(Arr.Items[I] is TJSONObject) then
       Continue;
     Item := TJSONObject(Arr.Items[I]);
-    Entry := Default(TOBDDtcExtendedDataEntry);
+    Entry := Default (TOBDDtcExtendedDataEntry);
     Entry.DtcCode := Item.GetValue<string>('code', '');
-    Entry.RecordNumber := Byte(ParseHexOrInt(
-      Item.GetValue<string>('record', '0')));
+    Entry.RecordNumber :=
+      Byte(ParseHexOrInt(Item.GetValue<string>('record', '0')));
     Entry.KindStr := Item.GetValue<string>('kind', '');
     Entry.Description := Item.GetValue<string>('description', '');
     Entry.Source := Item.GetValue<string>('source', FDefaultSource);
@@ -1067,8 +1058,8 @@ begin
   end;
 end;
 
-function DictionaryToPairs(D: TDictionary<Cardinal, string>):
-  TArray<TPair<Integer, string>>;
+function DictionaryToPairs(D: TDictionary<Cardinal, string>)
+  : TArray<TPair<Integer, string>>;
 var
   Pair: TPair<Cardinal, string>;
   Acc: TList<TPair<Integer, string>>;
@@ -1078,16 +1069,15 @@ begin
   Acc := TIntegerStringPairList.Create;
   try
     for Pair in D do
-      Acc.Add(TPair<Integer, string>.Create(
-        Integer(Pair.Key), Pair.Value));
+      Acc.Add(TPair<Integer, string>.Create(Integer(Pair.Key), Pair.Value));
     Result := Acc.ToArray;
   finally
     Acc.Free;
   end;
 end;
 
-function BitsDictionaryToPairs(D: TDictionary<Integer, string>):
-  TArray<TPair<Integer, string>>;
+function BitsDictionaryToPairs(D: TDictionary<Integer, string>)
+  : TArray<TPair<Integer, string>>;
 var
   Pair: TPair<Integer, string>;
   Acc: TList<TPair<Integer, string>>;
@@ -1104,19 +1094,20 @@ begin
   end;
 end;
 
-function ToOEMDecoderSpec(
-  const Spec: TOBDDecoderSpec): TOBDOEMDecoderSpec;
+function ToOEMDecoderSpec(const Spec: TOBDDecoderSpec): TOBDOEMDecoderSpec;
 const
   // The internal TOBDDecoderKind and the public
   // TOBDOEMDecoderKind enums share their member layout (same
   // ordinal positions) so a straight Ord-cast carries the
   // mapping without an explicit lookup table.
   // Drift here will be caught by Tests.ERD.OEM.CatalogLoader.
-  PUBLIC_KIND: array[TOBDDecoderKind] of TOBDOEMDecoderKind = (
-    ERD.OEM.Types.dkUnknown, ERD.OEM.Types.dkAscii, ERD.OEM.Types.dkHex, ERD.OEM.Types.dkUInt8, ERD.OEM.Types.dkUInt16BE, ERD.OEM.Types.dkUInt32BE,
-    ERD.OEM.Types.dkInt16BE, ERD.OEM.Types.dkInt32BE, ERD.OEM.Types.dkBcdDate, ERD.OEM.Types.dkEnum, ERD.OEM.Types.dkBitmask, ERD.OEM.Types.dkSeconds);
+  PUBLIC_KIND: array [TOBDDecoderKind] of TOBDOEMDecoderKind =
+    (ERD.OEM.Types.dkUnknown, ERD.OEM.Types.dkAscii, ERD.OEM.Types.dkHex,
+    ERD.OEM.Types.dkUInt8, ERD.OEM.Types.dkUInt16BE, ERD.OEM.Types.dkUInt32BE,
+    ERD.OEM.Types.dkInt16BE, ERD.OEM.Types.dkInt32BE, ERD.OEM.Types.dkBcdDate,
+    ERD.OEM.Types.dkEnum, ERD.OEM.Types.dkBitmask, ERD.OEM.Types.dkSeconds);
 begin
-  Result := Default(TOBDOEMDecoderSpec);
+  Result := Default (TOBDOEMDecoderSpec);
   Result.Kind := PUBLIC_KIND[Spec.Kind];
   Result.Size := Spec.Size;
   Result.Scale := Spec.Scale;
@@ -1134,7 +1125,7 @@ begin
   SetLength(Result, FDIDs.Count);
   for I := 0 to FDIDs.Count - 1 do
   begin
-    Out_ := Default(TOBDOEMDataIdentifier);
+    Out_ := Default (TOBDOEMDataIdentifier);
     Out_.DID := FDIDs[I].DID;
     Out_.Name := FDIDs[I].Name;
     Out_.Description := FDIDs[I].Description;
@@ -1154,7 +1145,7 @@ begin
   SetLength(Result, FRoutines.Count);
   for I := 0 to FRoutines.Count - 1 do
   begin
-    Out_ := Default(TOBDOEMRoutine);
+    Out_ := Default (TOBDOEMRoutine);
     Out_.Identifier := FRoutines[I].Identifier;
     Out_.Name := FRoutines[I].Name;
     Out_.Description := FRoutines[I].Description;
@@ -1280,8 +1271,8 @@ begin
         Result := FormatNumeric(ReadInt(Payload, 4), Spec);
     dkBcdDate:
       if Length(Payload) >= 3 then
-        Result := Format('20%.2x-%.2x-%.2x',
-          [Payload[0], Payload[1], Payload[2]]);
+        Result := Format('20%.2x-%.2x-%.2x', [Payload[0], Payload[1],
+          Payload[2]]);
     dkSeconds:
       if Length(Payload) >= 4 then
       begin
@@ -1294,8 +1285,8 @@ begin
         if Length(Payload) < Spec.Size then
           Exit;
         N := ReadUInt(Payload, Spec.Size);
-        if Assigned(Spec.EnumValues) and
-           Spec.EnumValues.TryGetValue(N, Lookup) then
+        if Assigned(Spec.EnumValues) and Spec.EnumValues.TryGetValue(N, Lookup)
+        then
           Result := Lookup
         else
           Result := Format('0x%.*x', [Spec.Size * 2, N]);
@@ -1368,8 +1359,7 @@ begin
   Result := FCodingBlocks.Count;
 end;
 
-function TOBDOEMJSONCatalog.CodingBlock(
-  Index: Integer): TOBDCodingBlockEntry;
+function TOBDOEMJSONCatalog.CodingBlock(Index: Integer): TOBDCodingBlockEntry;
 begin
   Result := FCodingBlocks[Index];
 end;
@@ -1379,8 +1369,7 @@ begin
   Result := FAdaptations.Count;
 end;
 
-function TOBDOEMJSONCatalog.Adaptation(
-  Index: Integer): TOBDAdaptationEntry;
+function TOBDOEMJSONCatalog.Adaptation(Index: Integer): TOBDAdaptationEntry;
 begin
   Result := FAdaptations[Index];
 end;
@@ -1390,8 +1379,7 @@ begin
   Result := FActuatorTests.Count;
 end;
 
-function TOBDOEMJSONCatalog.ActuatorTest(
-  Index: Integer): TOBDActuatorTestEntry;
+function TOBDOEMJSONCatalog.ActuatorTest(Index: Integer): TOBDActuatorTestEntry;
 begin
   Result := FActuatorTests[Index];
 end;
@@ -1411,8 +1399,8 @@ begin
   Result := FDtcExtended.Count;
 end;
 
-function TOBDOEMJSONCatalog.DtcExtended(
-  Index: Integer): TOBDDtcExtendedDataEntry;
+function TOBDOEMJSONCatalog.DtcExtended(Index: Integer)
+  : TOBDDtcExtendedDataEntry;
 begin
   Result := FDtcExtended[Index];
 end;

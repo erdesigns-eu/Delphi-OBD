@@ -1,41 +1,41 @@
-//------------------------------------------------------------------------------
-//  ERD.Diagnostics.UDS.IOControl
+﻿// ------------------------------------------------------------------------------
+// ERD.Diagnostics.UDS.IOControl
 //
-//  TOBDUDSIOControl — non-visual component for the UDS
-//  InputOutputControlByIdentifier service (SID 0x2F). Forces an
-//  I/O DID into a host-driven state — used during diagnostics to
-//  drive actuators directly, freeze sensors at fixed values, or
-//  release a forced state back to ECU control.
+// TOBDUDSIOControl — non-visual component for the UDS
+// InputOutputControlByIdentifier service (SID 0x2F). Forces an
+// I/O DID into a host-driven state — used during diagnostics to
+// drive actuators directly, freeze sensors at fixed values, or
+// release a forced state back to ECU control.
 //
-//  Wire format per ISO 14229-1 §10.6:
+// Wire format per ISO 14229-1 §10.6:
 //
-//    Request : 2F <DID-hi> <DID-lo> <IOControlParam> [<state>] [<mask>]
-//    Response: 6F <DID-hi> <DID-lo> <IOControlParam> [<state>]
+// Request : 2F <DID-hi> <DID-lo> <IOControlParam> [<state>] [<mask>]
+// Response: 6F <DID-hi> <DID-lo> <IOControlParam> [<state>]
 //
-//  IOControl is destructive: it actively drives ECU outputs. The
-//  component ships with AutoExecute = False default and a
-//  TOBDActuator-style OnBeforeSend hook so the host UI can present
-//  a final confirmation.
+// IOControl is destructive: it actively drives ECU outputs. The
+// component ships with AutoExecute = False default and a
+// TOBDActuator-style OnBeforeSend hook so the host UI can present
+// a final confirmation.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - ISO 14229-1:2020 §10.6 (InputOutputControlByIdentifier)
+// References  :
+// - ISO 14229-1:2020 §10.6 (InputOutputControlByIdentifier)
 //
-//  History     :
-//    2026-05-11  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-11  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Diagnostics.UDS.IOControl;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -43,9 +43,9 @@ interface
 uses
   ERD.Async.Task,
   ERD.Connection,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
   ERD.Types,
   ERD.Protocol.Types,
   ERD.Protocol.UDS,
@@ -55,41 +55,40 @@ const
   /// <summary>Return the I/O DID to ECU control.</summary>
   UDS_IOCTL_RETURN_CONTROL_TO_ECU = $00;
   /// <summary>Reset the I/O DID to its default value.</summary>
-  UDS_IOCTL_RESET_TO_DEFAULT      = $01;
+  UDS_IOCTL_RESET_TO_DEFAULT = $01;
   /// <summary>Freeze the current ECU-reported value.</summary>
-  UDS_IOCTL_FREEZE_CURRENT_STATE  = $02;
+  UDS_IOCTL_FREEZE_CURRENT_STATE = $02;
   /// <summary>Apply a host-supplied state vector.</summary>
   UDS_IOCTL_SHORT_TERM_ADJUSTMENT = $03;
 
 type
   /// <summary>
-  ///   Pre-send confirmation hook.
+  /// Pre-send confirmation hook.
   /// </summary>
   /// <remarks>
-  ///   Fired on the main thread just before the wire request is
-  ///   sent. Set <c>ACancel := True</c> to abort the operation;
-  ///   it then raises <c>EOBDConfig</c> in the caller.
+  /// Fired on the main thread just before the wire request is
+  /// sent. Set <c>ACancel := True</c> to abort the operation;
+  /// it then raises <c>EOBDConfig</c> in the caller.
   /// </remarks>
   TOBDUDSIOControlBeforeEvent = procedure(Sender: TObject; ADID: Word;
-    AControlParam: Byte; const AState: TBytes;
-    var ACancel: Boolean) of object;
+    AControlParam: Byte; const AState: TBytes; var ACancel: Boolean) of object;
 
   /// <summary>
-  ///   Fires after a successful IOControl response. Main thread.
+  /// Fires after a successful IOControl response. Main thread.
   /// </summary>
   TOBDUDSIOControlResultEvent = procedure(Sender: TObject; ADID: Word;
     AControlParam: Byte; const AResponseState: TBytes) of object;
 
   /// <summary>
-  ///   UDS InputOutputControlByIdentifier component.
+  /// UDS InputOutputControlByIdentifier component.
   /// </summary>
   /// <remarks>
-  ///   Drop the component on a form and assign <c>Protocol</c> to a
-  ///   connected <see cref="TOBDProtocol"/>. Set
-  ///   <c>AutoExecute := True</c> after operator consent, then
-  ///   call <see cref="Send"/> with the target DID,
-  ///   control-parameter byte (one of the <c>UDS_IOCTL_*</c>
-  ///   constants), and optional state / mask bytes.
+  /// Drop the component on a form and assign <c>Protocol</c> to a
+  /// connected <see cref="TOBDProtocol"/>. Set
+  /// <c>AutoExecute := True</c> after operator consent, then
+  /// call <see cref="Send"/> with the target DID,
+  /// control-parameter byte (one of the <c>UDS_IOCTL_*</c>
+  /// constants), and optional state / mask bytes.
   /// </remarks>
   TOBDUDSIOControl = class(TComponent)
   strict private
@@ -103,8 +102,8 @@ type
     FOnError: TOBDConnectionErrorEvent;
     procedure GuardSingleAsync;
     procedure ReleaseAsync;
-    function DoSend(ADID: Word; AControlParam: Byte;
-      const AState: TBytes; const AControlMask: TBytes): TBytes;
+    function DoSend(ADID: Word; AControlParam: Byte; const AState: TBytes;
+      const AControlMask: TBytes): TBytes;
     function FireBeforeSend(ADID: Word; AControlParam: Byte;
       const AState: TBytes): Boolean;
     procedure FireResult(ADID: Word; AControlParam: Byte;
@@ -122,7 +121,7 @@ type
     destructor Destroy; override;
 
     /// <summary>
-    ///   Sends an IOControl request synchronously.
+    /// Sends an IOControl request synchronously.
     /// </summary>
     /// <param name="ADID">Target I/O DID.</param>
     /// <param name="AControlParam">Control-parameter byte
@@ -135,15 +134,14 @@ type
     /// echo).</returns>
     /// <remarks>Blocks. Fires <c>OnResult</c> on success.</remarks>
     /// <exception cref="EOBDConfig">
-    ///   <c>Protocol</c> is not assigned, <c>AutoExecute</c> is
-    ///   <c>False</c>, or <c>OnBeforeSend</c> cancelled.
+    /// <c>Protocol</c> is not assigned, <c>AutoExecute</c> is
+    /// <c>False</c>, or <c>OnBeforeSend</c> cancelled.
     /// </exception>
     /// <exception cref="EOBDProtocolErr">
-    ///   ECU returned a negative or short response, or the DID
-    ///   echo did not match.
+    /// ECU returned a negative or short response, or the DID
+    /// echo did not match.
     /// </exception>
-    function Send(ADID: Word; AControlParam: Byte;
-      const AState: TBytes = nil;
+    function Send(ADID: Word; AControlParam: Byte; const AState: TBytes = nil;
       const AControlMask: TBytes = nil): TBytes;
 
     /// <summary>Non-blocking <see cref="Send"/>.</summary>
@@ -152,34 +150,32 @@ type
     /// <param name="AState">Optional state vector.</param>
     /// <param name="AControlMask">Optional control-mask bytes.</param>
     /// <exception cref="EOBDConfig">
-    ///   Another async send is already in flight.
+    /// Another async send is already in flight.
     /// </exception>
     procedure SendAsync(ADID: Word; AControlParam: Byte;
-      const AState: TBytes = nil;
-      const AControlMask: TBytes = nil);
+      const AState: TBytes = nil; const AControlMask: TBytes = nil);
   published
     /// <summary>Protocol stack. Required.</summary>
     property Protocol: TOBDProtocol read FProtocol write SetProtocol;
 
     /// <summary>
-    ///   Safety gate. Default <c>False</c>.
+    /// Safety gate. Default <c>False</c>.
     /// </summary>
     property AutoExecute: Boolean read FAutoExecute write FAutoExecute
       default False;
 
     /// <summary>
-    ///   Pre-send confirmation hook. Main thread.
+    /// Pre-send confirmation hook. Main thread.
     /// </summary>
-    property OnBeforeSend: TOBDUDSIOControlBeforeEvent
-      read FOnBeforeSend write FOnBeforeSend;
+    property OnBeforeSend: TOBDUDSIOControlBeforeEvent read FOnBeforeSend
+      write FOnBeforeSend;
 
     /// <summary>Fires on success. Main thread.</summary>
-    property OnResult: TOBDUDSIOControlResultEvent
-      read FOnResult write FOnResult;
+    property OnResult: TOBDUDSIOControlResultEvent read FOnResult
+      write FOnResult;
 
     /// <summary>Fires on transient I/O errors. Main thread.</summary>
-    property OnError: TOBDConnectionErrorEvent
-      read FOnError write FOnError;
+    property OnError: TOBDConnectionErrorEvent read FOnError write FOnError;
   end;
 
 implementation
@@ -193,7 +189,8 @@ end;
 
 destructor TOBDUDSIOControl.Destroy;
 begin
-  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  if FOwnedTask <> nil then
+    FOwnedTask.Cancel;
   FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
@@ -216,7 +213,8 @@ begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
   begin
-    if FOwnedTask <> nil then FOwnedTask.Quiesce;
+    if FOwnedTask <> nil then
+      FOwnedTask.Quiesce;
     FProtocol := nil;
   end;
 end;
@@ -256,8 +254,8 @@ begin
   if FProtocol = nil then
     raise EOBDConfig.Create('TOBDUDSIOControl: Protocol not assigned');
   if not FAutoExecute then
-    raise EOBDConfig.Create(
-      'TOBDUDSIOControl: AutoExecute is False — set it before sending');
+    raise EOBDConfig.Create
+      ('TOBDUDSIOControl: AutoExecute is False — set it before sending');
   if not FireBeforeSend(ADID, AControlParam, AState) then
     raise EOBDConfig.Create('TOBDUDSIOControl: cancelled by OnBeforeSend');
 
@@ -276,21 +274,21 @@ begin
 
   Resp := FProtocol.Request(UDS_SID_InputOutputControlByIdentifier, Req);
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt(
-      'IOControl DID 0x%.4x param 0x%.2x negative: %s',
+    raise EOBDProtocolErr.CreateFmt
+      ('IOControl DID 0x%.4x param 0x%.2x negative: %s',
       [ADID, AControlParam, Resp.NRCText]);
   if Length(Resp.Data) < 3 then
-    raise EOBDProtocolErr.CreateFmt(
-      'IOControl DID 0x%.4x: response too short', [ADID]);
+    raise EOBDProtocolErr.CreateFmt
+      ('IOControl DID 0x%.4x: response too short', [ADID]);
 
   EchoDID := (Word(Resp.Data[0]) shl 8) or Word(Resp.Data[1]);
   if EchoDID <> ADID then
-    raise EOBDProtocolErr.CreateFmt(
-      'IOControl echo mismatch: requested 0x%.4x, got 0x%.4x',
+    raise EOBDProtocolErr.CreateFmt
+      ('IOControl echo mismatch: requested 0x%.4x, got 0x%.4x',
       [ADID, EchoDID]);
   if Resp.Data[2] <> AControlParam then
-    raise EOBDProtocolErr.CreateFmt(
-      'IOControl param echo mismatch: requested 0x%.2x, got 0x%.2x',
+    raise EOBDProtocolErr.CreateFmt
+      ('IOControl param echo mismatch: requested 0x%.2x, got 0x%.2x',
       [AControlParam, Resp.Data[2]]);
 
   if Length(Resp.Data) > 3 then
@@ -346,7 +344,7 @@ begin
 end;
 
 function TOBDUDSIOControl.FireBeforeSend(ADID: Word; AControlParam: Byte;
-  const AState: TBytes): Boolean;
+const AState: TBytes): Boolean;
 var
   Self_: TOBDUDSIOControl;
   DIDValue: Word;
@@ -377,7 +375,7 @@ begin
 end;
 
 procedure TOBDUDSIOControl.FireResult(ADID: Word; AControlParam: Byte;
-  const AResponseState: TBytes);
+const AResponseState: TBytes);
 var
   Self_: TOBDUDSIOControl;
   DIDValue: Word;
@@ -402,7 +400,7 @@ begin
 end;
 
 procedure TOBDUDSIOControl.FireError(ACode: TOBDErrorCode;
-  const AMessage: string);
+const AMessage: string);
 var
   Self_: TOBDUDSIOControl;
   Code: TOBDErrorCode;

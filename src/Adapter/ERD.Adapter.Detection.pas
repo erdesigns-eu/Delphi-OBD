@@ -1,52 +1,52 @@
-//------------------------------------------------------------------------------
-//  ERD.Adapter.Detection
+﻿// ------------------------------------------------------------------------------
+// ERD.Adapter.Detection
 //
-//  Chip-family detection routine. Sends a small fixed sequence of AT
-//  / ST identification commands to whatever implements
-//  IOBDAdapterCommandSender, parses the responses, and produces a
-//  populated TOBDAdapterIdentity.
+// Chip-family detection routine. Sends a small fixed sequence of AT
+// / ST identification commands to whatever implements
+// IOBDAdapterCommandSender, parses the responses, and produces a
+// populated TOBDAdapterIdentity.
 //
-//  The detector is decoupled from TOBDAdapter so it can be exercised
-//  in unit tests with a scripted command-sender that does not need a
-//  real connection.
+// The detector is decoupled from TOBDAdapter so it can be exercised
+// in unit tests with a scripted command-sender that does not need a
+// real connection.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation: ATZ → ATE0 → ATI → AT@1 → AT@2
-//                     → optional STI sequence with clone-signature
-//                     heuristic.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation: ATZ → ATE0 → ATI → AT@1 → AT@2
+// → optional STI sequence with clone-signature
+// heuristic.
+// ------------------------------------------------------------------------------
 
 unit ERD.Adapter.Detection;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   System.RegularExpressions,
   ERD.Types,
   ERD.Adapter.Types;
 
 type
   /// <summary>
-  ///   Minimal contract a detection consumer implements. Sends a
-  ///   command to the adapter and returns the parsed response.
+  /// Minimal contract a detection consumer implements. Sends a
+  /// command to the adapter and returns the parsed response.
   /// </summary>
   /// <remarks>
-  ///   Implemented by <c>TOBDAdapter</c> (production) and by test
-  ///   doubles (unit tests).
+  /// Implemented by <c>TOBDAdapter</c> (production) and by test
+  /// doubles (unit tests).
   /// </remarks>
   IOBDAdapterCommandSender = interface
     ['{2A7F4C0E-3D5E-4F1A-9C7B-8D6E5F4A3B2C}']
@@ -54,38 +54,38 @@ type
     /// <param name="ACommand">Command verb (already formatted).</param>
     /// <param name="ATimeoutMs">Timeout in milliseconds.</param>
     /// <returns>Parsed response.</returns>
-    function SendCommand(const ACommand: string;
-      ATimeoutMs: Cardinal): TOBDAdapterResponse;
+    function SendCommand(const ACommand: string; ATimeoutMs: Cardinal)
+      : TOBDAdapterResponse;
   end;
 
   /// <summary>
-  ///   Optional progress reporter used by the detector. The adapter
-  ///   wires its own <c>FireProgress</c> here so detection phases
-  ///   surface on <c>OnProgress</c>.
+  /// Optional progress reporter used by the detector. The adapter
+  /// wires its own <c>FireProgress</c> here so detection phases
+  /// surface on <c>OnProgress</c>.
   /// </summary>
   TOBDDetectionProgress = reference to procedure(AIndex, ACount: Cardinal;
     const AName, ADetail: string);
 
   /// <summary>
-  ///   Stateless chip-family detector.
+  /// Stateless chip-family detector.
   /// </summary>
   /// <remarks>
-  ///   Detection sequence (six phases):
-  ///   <list type="number">
-  ///     <item><c>1/6 Resetting</c> — sends <c>ATZ</c>.</item>
-  ///     <item><c>2/6 Echo off</c> — sends <c>ATE0</c>.</item>
-  ///     <item><c>3/6 Reading ATI</c> — primary identity string.</item>
-  ///     <item><c>4/6 Reading AT@1</c> — device description.</item>
-  ///     <item><c>5/6 Reading AT@2</c> — device identifier.</item>
-  ///     <item><c>6/6 Reading STI</c> — OBDLink-specific (skipped for
-  ///         ELM327-only chips).</item>
-  ///   </list>
+  /// Detection sequence (six phases):
+  /// <list type="number">
+  /// <item><c>1/6 Resetting</c> — sends <c>ATZ</c>.</item>
+  /// <item><c>2/6 Echo off</c> — sends <c>ATE0</c>.</item>
+  /// <item><c>3/6 Reading ATI</c> — primary identity string.</item>
+  /// <item><c>4/6 Reading AT@1</c> — device description.</item>
+  /// <item><c>5/6 Reading AT@2</c> — device identifier.</item>
+  /// <item><c>6/6 Reading STI</c> — OBDLink-specific (skipped for
+  /// ELM327-only chips).</item>
+  /// </list>
   /// </remarks>
   TOBDAdapterDetector = class
   public
     /// <summary>
-    ///   Runs the detection sequence and populates an identity
-    ///   record.
+    /// Runs the detection sequence and populates an identity
+    /// record.
     /// </summary>
     /// <param name="ASender">Command sender. Must not be
     /// <c>nil</c>.</param>
@@ -101,15 +101,15 @@ type
     /// still carries the raw response and the family stays at the
     /// fallback <c>afELM327</c>.</returns>
     /// <remarks>
-    ///   Phases <c>4/6 AT@1</c> and <c>5/6 AT@2</c> are
-    ///   <b>best-effort</b>: clones often respond <c>?</c> or time
-    ///   out, in which case the corresponding identity field stays
-    ///   empty. The <see cref="LooksLikeClone"/> heuristic uses
-    ///   empty description / identifier on a v1.5 chip as a clone
-    ///   signal.
+    /// Phases <c>4/6 AT@1</c> and <c>5/6 AT@2</c> are
+    /// <b>best-effort</b>: clones often respond <c>?</c> or time
+    /// out, in which case the corresponding identity field stays
+    /// empty. The <see cref="LooksLikeClone"/> heuristic uses
+    /// empty description / identifier on a v1.5 chip as a clone
+    /// signal.
     ///
-    ///   Phase <c>6/6 STI</c> is skipped on non-OBDLink chips to
-    ///   avoid the <c>?</c> noise from ELM327-only adapters.
+    /// Phase <c>6/6 STI</c> is skipped on non-OBDLink chips to
+    /// avoid the <c>?</c> noise from ELM327-only adapters.
     /// </remarks>
     /// <exception cref="EOBDAdapter"><c>ASender</c> is <c>nil</c>.</exception>
     class function Detect(const ASender: IOBDAdapterCommandSender;
@@ -118,26 +118,25 @@ type
       ATimeoutMs: Cardinal = 5000): Boolean; static;
 
     /// <summary>
-    ///   Parses the verbatim text of an <c>ATI</c> response into
-    ///   family + firmware version.
+    /// Parses the verbatim text of an <c>ATI</c> response into
+    /// family + firmware version.
     /// </summary>
     /// <param name="AInfoLine">Raw <c>ATI</c> response (one line).</param>
     /// <param name="AFamily">Output family.</param>
     /// <param name="AVersion">Output version string.</param>
     /// <returns>True when a known signature was matched.</returns>
     class function ParseInfoLine(const AInfoLine: string;
-      out AFamily: TOBDAdapterFamily;
-      out AVersion: string): Boolean; static;
+      out AFamily: TOBDAdapterFamily; out AVersion: string): Boolean; static;
 
     /// <summary>
-    ///   Heuristic clone detector. Returns True if the assembled
-    ///   identity has signs of being a clone (1.5 firmware reporting
-    ///   newer features, identifier string is a vendor-spoof, …).
+    /// Heuristic clone detector. Returns True if the assembled
+    /// identity has signs of being a clone (1.5 firmware reporting
+    /// newer features, identifier string is a vendor-spoof, …).
     /// </summary>
     /// <param name="AIdentity">Identity to inspect.</param>
     /// <returns>True when likely a clone.</returns>
-    class function LooksLikeClone(
-      const AIdentity: TOBDAdapterIdentity): Boolean; static;
+    class function LooksLikeClone(const AIdentity: TOBDAdapterIdentity)
+      : Boolean; static;
   end;
 
 implementation
@@ -213,8 +212,8 @@ begin
   // ELM-compatible chip with empty version.
 end;
 
-class function TOBDAdapterDetector.LooksLikeClone(
-  const AIdentity: TOBDAdapterIdentity): Boolean;
+class function TOBDAdapterDetector.LooksLikeClone(const AIdentity
+  : TOBDAdapterIdentity): Boolean;
 var
   V: string;
   Identifier: string;
@@ -222,25 +221,23 @@ var
 begin
   Identifier := UpperCase(AIdentity.DeviceIdentifier);
   ContainsClone := (Pos('CLONE', Identifier) > 0) or
-                   (Pos('SCANTOOL', UpperCase(AIdentity.Description)) > 0) and
-                   (AIdentity.Family = afELM327);
+    (Pos('SCANTOOL', UpperCase(AIdentity.Description)) > 0) and
+    (AIdentity.Family = afELM327);
 
   V := AIdentity.FirmwareVersion;
   // Genuine ELM327 firmware caps at 2.x; 1.5 / 1.5a clones are
   // common. The 1.5 figure alone is a hint, not proof — we couple it
   // with absent AT@1 / AT@2 fields and identifier heuristics.
   if (AIdentity.Family = afELM327) and (V = '1.5') and
-     ((AIdentity.Description = '') or (AIdentity.DeviceIdentifier = '')) then
+    ((AIdentity.Description = '') or (AIdentity.DeviceIdentifier = '')) then
     Exit(True);
 
   Result := ContainsClone;
 end;
 
-class function TOBDAdapterDetector.Detect(
-  const ASender: IOBDAdapterCommandSender;
-  out AIdentity: TOBDAdapterIdentity;
-  const AOnProgress: TOBDDetectionProgress;
-  ATimeoutMs: Cardinal): Boolean;
+class function TOBDAdapterDetector.Detect(const ASender
+  : IOBDAdapterCommandSender; out AIdentity: TOBDAdapterIdentity;
+  const AOnProgress: TOBDDetectionProgress; ATimeoutMs: Cardinal): Boolean;
 var
   Resp: TOBDAdapterResponse;
   InfoLine: string;
@@ -273,8 +270,8 @@ begin
   InfoLine := FirstNonEmptyLine(Resp.Lines);
   if InfoLine = '' then
     InfoLine := AIdentity.InfoResponse;
-  ATIRecognised := ParseInfoLine(InfoLine,
-    AIdentity.Family, AIdentity.FirmwareVersion);
+  ATIRecognised := ParseInfoLine(InfoLine, AIdentity.Family,
+    AIdentity.FirmwareVersion);
 
   // 4/6 Description.
   //
@@ -317,20 +314,26 @@ begin
 
   // Adapter key — best-effort canonicalisation.
   case AIdentity.Family of
-    afELM327: AIdentity.AdapterKey := 'elm327';
+    afELM327:
+      AIdentity.AdapterKey := 'elm327';
     afOBDLink:
       begin
-        if Pos('MX', UpperCase(AIdentity.STInfo + AIdentity.Description)) > 0 then
+        if Pos('MX', UpperCase(AIdentity.STInfo + AIdentity.Description)) > 0
+        then
           AIdentity.AdapterKey := 'obdlink_mx'
-        else if Pos('EX', UpperCase(AIdentity.STInfo + AIdentity.Description)) > 0 then
+        else if Pos('EX', UpperCase(AIdentity.STInfo + AIdentity.Description)) > 0
+        then
           AIdentity.AdapterKey := 'obdlink_ex'
-        else if Pos('CX', UpperCase(AIdentity.STInfo + AIdentity.Description)) > 0 then
+        else if Pos('CX', UpperCase(AIdentity.STInfo + AIdentity.Description)) > 0
+        then
           AIdentity.AdapterKey := 'obdlink_cx'
         else
           AIdentity.AdapterKey := 'obdlink_mx';
       end;
-    afJ2534:  AIdentity.AdapterKey := 'j2534';
-    afDoIP:   AIdentity.AdapterKey := 'doip';
+    afJ2534:
+      AIdentity.AdapterKey := 'j2534';
+    afDoIP:
+      AIdentity.AdapterKey := 'doip';
   end;
 
   // Display name — Description if present, else InfoResponse, else key.

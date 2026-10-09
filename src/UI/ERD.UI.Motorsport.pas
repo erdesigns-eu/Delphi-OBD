@@ -1,30 +1,30 @@
-//------------------------------------------------------------------------------
-//  ERD.UI.Motorsport
+﻿// ------------------------------------------------------------------------------
+// ERD.UI.Motorsport
 //
-//  Motorsport / track visuals:
+// Motorsport / track visuals:
 //
-//    TOBDLapTrackMap      Track outline + current-position
-//                         marker + start/finish line.
-//    TOBDHUDOverlay       Borderless layered always-on-top
-//                         overlay window for HUD displays.
-//    TOBDPredictiveLap    Predicted lap time vs personal-best
-//                         delta readout.
-//    TOBDGForceVisualiser XY g-vector with traction-circle
-//                         trail of the last N samples.
+// TOBDLapTrackMap      Track outline + current-position
+// marker + start/finish line.
+// TOBDHUDOverlay       Borderless layered always-on-top
+// overlay window for HUD displays.
+// TOBDPredictiveLap    Predicted lap time vs personal-best
+// delta readout.
+// TOBDGForceVisualiser XY g-vector with traction-circle
+// trail of the last N samples.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.UI.Motorsport;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -35,10 +35,10 @@ uses
   Winapi.Windows,
   Winapi.GDIPAPI,
   Winapi.GDIPOBJ,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   System.Bindings.Helper, Data.Bind.Components,
   Vcl.Forms,
   Vcl.Controls,
@@ -51,7 +51,7 @@ uses
 type
   /// <summary>One waypoint on the track polyline.</summary>
   TOBDTrackPoint = record
-    X, Y: Single;     // normalised 0..1
+    X, Y: Single; // normalised 0..1
   end;
 
   /// <summary>Track outline + position marker + start line.
@@ -60,8 +60,8 @@ type
   /// along the lap.</summary>
   TOBDLapTrackMap = class(TOBDCustomControl)
   strict private
-    FTrack:    TArray<TOBDTrackPoint>;
-    FPosition: Single;       // 0..1
+    FTrack: TArray<TOBDTrackPoint>;
+    FPosition: Single; // 0..1
     procedure SetPositionFraction(AValue: Single);
     procedure NotifyBindings;
   protected
@@ -72,8 +72,7 @@ type
     procedure Clear;
   published
     /// <summary>Position along the lap (0..1, wraps).</summary>
-    property PositionFraction: Single
-      read FPosition write SetPositionFraction;
+    property PositionFraction: Single read FPosition write SetPositionFraction;
   end;
 
   /// <summary>Borderless always-on-top transparent host window
@@ -92,12 +91,12 @@ type
     constructor Create(AOwner: TComponent); override;
   published
     /// <summary>Window opacity 0..255. Default 220.</summary>
-    property OverlayOpacity: Byte
-      read FOpacity write SetOpacityValue default 220;
+    property OverlayOpacity: Byte read FOpacity write SetOpacityValue
+      default 220;
     /// <summary>When True (default) the form re-asserts its
     /// always-on-top status if the host clobbers it.</summary>
-    property LockedTopmost: Boolean
-      read FLockedTopmost write SetLockedTopmost default True;
+    property LockedTopmost: Boolean read FLockedTopmost write SetLockedTopmost
+      default True;
   end;
 
   /// <summary>Predictive lap-time widget. Current lap timer +
@@ -105,12 +104,12 @@ type
   /// </summary>
   TOBDPredictiveLap = class(TOBDCustomControl)
   strict private
-    FCurrentMs:   Cardinal;
+    FCurrentMs: Cardinal;
     FPredictedMs: Cardinal;
-    FBestMs:      Cardinal;
-    FDeltaMs:     Integer;
+    FBestMs: Cardinal;
+    FDeltaMs: Integer;
     FCaptionFont: TFont;
-    FValueFont:   TFont;
+    FValueFont: TFont;
     procedure SetCurrentMs(AValue: Cardinal);
     procedure SetPredictedMs(AValue: Cardinal);
     procedure SetBestMs(AValue: Cardinal);
@@ -123,15 +122,15 @@ type
     procedure PaintControl(ACanvas: TCanvas); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
     procedure UpdateSample(ACurrentMs, APredictedMs: Cardinal);
     property DeltaMs: Integer read FDeltaMs;
   published
-    property CurrentMs:   Cardinal read FCurrentMs   write SetCurrentMs;
+    property CurrentMs: Cardinal read FCurrentMs write SetCurrentMs;
     property PredictedMs: Cardinal read FPredictedMs write SetPredictedMs;
-    property BestMs:      Cardinal read FBestMs      write SetBestMs;
+    property BestMs: Cardinal read FBestMs write SetBestMs;
     property CaptionFont: TFont read FCaptionFont write SetCaptionFont;
-    property ValueFont:   TFont read FValueFont write SetValueFont;
+    property ValueFont: TFont read FValueFont write SetValueFont;
   end;
 
   /// <summary>XY g-vector visualiser with a fading trail of
@@ -140,10 +139,10 @@ type
   /// a dot.</summary>
   TOBDGForceVisualiser = class(TOBDCustomControl)
   strict private
-    FXg, FYg:        Double;
-    FMaxG:           Double;
-    FTrail:          TList<TPointF>;
-    FTrailCapacity:  Integer;
+    FXg, FYg: Double;
+    FMaxG: Double;
+    FTrail: TList<TPointF>;
+    FTrailCapacity: Integer;
     procedure SetXg(AValue: Double);
     procedure SetYg(AValue: Double);
     procedure SetMaxG(AValue: Double);
@@ -153,7 +152,7 @@ type
     procedure PaintControl(ACanvas: TCanvas); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
     /// <summary>Pushes one (lateral g, longitudinal g) sample.
     /// </summary>
     procedure PushSample(AXg, AYg: Double);
@@ -167,8 +166,8 @@ type
     /// <summary>Traction-circle radius in g. Default 1.4.
     /// </summary>
     property MaxG: Double read FMaxG write SetMaxG;
-    property TrailCapacity: Integer
-      read FTrailCapacity write SetTrailCapacity default 60;
+    property TrailCapacity: Integer read FTrailCapacity write SetTrailCapacity
+      default 60;
   end;
 
 implementation
@@ -178,13 +177,14 @@ implementation
 constructor TOBDLapTrackMap.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 280;
+  Width := 280;
   Height := 200;
 end;
 
 procedure TOBDLapTrackMap.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -193,20 +193,24 @@ end;
 
 procedure TOBDLapTrackMap.SetPositionFraction(AValue: Single);
 begin
-  if AValue < 0 then AValue := AValue - Trunc(AValue);
-  while AValue >= 1.0 do AValue := AValue - 1.0;
-  if SameValue(FPosition, AValue) then Exit;
+  if AValue < 0 then
+    AValue := AValue - Trunc(AValue);
+  while AValue >= 1.0 do
+    AValue := AValue - 1.0;
+  if SameValue(FPosition, AValue) then
+    Exit;
   FPosition := AValue;
   NotifyBindings;
   Repaint;
 end;
 
-procedure TOBDLapTrackMap.LoadTrack(
-  const APoints: array of TOBDTrackPoint);
-var I: Integer;
+procedure TOBDLapTrackMap.LoadTrack(const APoints: array of TOBDTrackPoint);
+var
+  I: Integer;
 begin
   SetLength(FTrack, Length(APoints));
-  for I := 0 to High(APoints) do FTrack[I] := APoints[I];
+  for I := 0 to High(APoints) do
+    FTrack[I] := APoints[I];
   NotifyBindings;
   Repaint;
 end;
@@ -229,9 +233,10 @@ var
   I, MarkIdx: Integer;
   MarkX, MarkY: Single;
 begin
-  if Length(FTrack) < 2 then Exit;
+  if Length(FTrack) < 2 then
+    Exit;
   Pad := ScaleValue(8);
-  PlotW := Width  - 2 * Pad;
+  PlotW := Width - 2 * Pad;
   PlotH := Height - 2 * Pad;
   SetLength(Pts, Length(FTrack));
   for I := 0 to High(FTrack) do
@@ -247,16 +252,15 @@ begin
     Graphics.SetSmoothingMode(SmoothingModeAntiAlias);
     Graphics.DrawLines(Pen, PGPPointF(@Pts[0]), Length(Pts));
 
-    MarkIdx := System.Math.Min(
-      Trunc(FPosition * (Length(FTrack) - 1)),
+    MarkIdx := System.Math.Min(Trunc(FPosition * (Length(FTrack) - 1)),
       Length(FTrack) - 1);
-    if MarkIdx < 0 then MarkIdx := 0;
+    if MarkIdx < 0 then
+      MarkIdx := 0;
     MarkX := Pts[MarkIdx].X;
     MarkY := Pts[MarkIdx].Y;
     Brush := TGPSolidBrush.Create(ColorToARGB(Palette.Danger));
     try
-      Graphics.FillEllipse(Brush,
-        MarkX - ScaleValue(6), MarkY - ScaleValue(6),
+      Graphics.FillEllipse(Brush, MarkX - ScaleValue(6), MarkY - ScaleValue(6),
         ScaleValue(12), ScaleValue(12));
     finally
       Brush.Free;
@@ -280,25 +284,25 @@ begin
   // handle case before AlphaBlend has run its own attribute
   // application — also gives us WS_EX_TOOLWINDOW so the
   // overlay doesn't appear in the taskbar.
-  BorderStyle   := bsNone;
-  FormStyle     := fsStayOnTop;
-  AlphaBlend    := True;
-  FOpacity      := 220;
+  BorderStyle := bsNone;
+  FormStyle := fsStayOnTop;
+  AlphaBlend := True;
+  FOpacity := 220;
   AlphaBlendValue := FOpacity;
   FLockedTopmost := True;
-  Color         := clBlack;
+  Color := clBlack;
 end;
 
 procedure TOBDHUDOverlay.CreateParams(var Params: TCreateParams);
 begin
   inherited;
-  Params.ExStyle := Params.ExStyle or WS_EX_LAYERED or
-    WS_EX_TOOLWINDOW;
+  Params.ExStyle := Params.ExStyle or WS_EX_LAYERED or WS_EX_TOOLWINDOW;
 end;
 
 procedure TOBDHUDOverlay.SetOpacityValue(AValue: Byte);
 begin
-  if FOpacity = AValue then Exit;
+  if FOpacity = AValue then
+    Exit;
   FOpacity := AValue;
   // AlphaBlendValue setter re-applies the Win32 layered
   // attributes when the handle exists; safe to set before the
@@ -308,10 +312,13 @@ end;
 
 procedure TOBDHUDOverlay.SetLockedTopmost(AValue: Boolean);
 begin
-  if FLockedTopmost = AValue then Exit;
+  if FLockedTopmost = AValue then
+    Exit;
   FLockedTopmost := AValue;
-  if FLockedTopmost then FormStyle := fsStayOnTop
-  else                   FormStyle := fsNormal;
+  if FLockedTopmost then
+    FormStyle := fsStayOnTop
+  else
+    FormStyle := fsNormal;
 end;
 
 { ---- TOBDPredictiveLap ------------------------------------------------- }
@@ -319,7 +326,7 @@ end;
 constructor TOBDPredictiveLap.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 260;
+  Width := 260;
   Height := 100;
   FCaptionFont := TFont.Create;
   FCaptionFont.Name := 'Segoe UI';
@@ -341,7 +348,8 @@ end;
 
 procedure TOBDPredictiveLap.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -363,13 +371,17 @@ end;
 
 procedure TOBDPredictiveLap.SetCurrentMs(AValue: Cardinal);
 begin
-  if FCurrentMs = AValue then Exit;
-  FCurrentMs := AValue; NotifyBindings; Repaint;
+  if FCurrentMs = AValue then
+    Exit;
+  FCurrentMs := AValue;
+  NotifyBindings;
+  Repaint;
 end;
 
 procedure TOBDPredictiveLap.SetPredictedMs(AValue: Cardinal);
 begin
-  if FPredictedMs = AValue then Exit;
+  if FPredictedMs = AValue then
+    Exit;
   FPredictedMs := AValue;
   RecomputeDelta;
   NotifyBindings;
@@ -378,7 +390,8 @@ end;
 
 procedure TOBDPredictiveLap.SetBestMs(AValue: Cardinal);
 begin
-  if FBestMs = AValue then Exit;
+  if FBestMs = AValue then
+    Exit;
   FBestMs := AValue;
   RecomputeDelta;
   NotifyBindings;
@@ -395,10 +408,9 @@ begin
   FValueFont.Assign(AValue);
 end;
 
-procedure TOBDPredictiveLap.UpdateSample(
-  ACurrentMs, APredictedMs: Cardinal);
+procedure TOBDPredictiveLap.UpdateSample(ACurrentMs, APredictedMs: Cardinal);
 begin
-  FCurrentMs   := ACurrentMs;
+  FCurrentMs := ACurrentMs;
   FPredictedMs := APredictedMs;
   RecomputeDelta;
   NotifyBindings;
@@ -427,25 +439,25 @@ begin
 
   ACanvas.Font := FCaptionFont;
   ACanvas.Font.Color := EffectiveForeground;
-  ACanvas.TextOut(Pad, Pad, Format('current %s',
-    [FormatLapTime(FCurrentMs)]));
+  ACanvas.TextOut(Pad, Pad, Format('current %s', [FormatLapTime(FCurrentMs)]));
 
   ACanvas.Font := FValueFont;
   Pred := 'predicted ' + FormatLapTime(FPredictedMs);
   ACanvas.Font.Color := EffectiveAccent;
-  ACanvas.TextOut(Pad,
-    Pad + ACanvas.TextHeight('Mg') + ScaleValue(2), Pred);
+  ACanvas.TextOut(Pad, Pad + ACanvas.TextHeight('Mg') + ScaleValue(2), Pred);
 
   if FDeltaMs <> 0 then
   begin
-    if FDeltaMs < 0 then Col := Palette.Success
-    else                 Col := Palette.Danger;
     if FDeltaMs < 0 then
-      DeltaCap := Format('-%d.%2.2d',
-        [Abs(FDeltaMs) div 1000, (Abs(FDeltaMs) mod 1000) div 10])
+      Col := Palette.Success
     else
-      DeltaCap := Format('+%d.%2.2d',
-        [FDeltaMs div 1000, (FDeltaMs mod 1000) div 10]);
+      Col := Palette.Danger;
+    if FDeltaMs < 0 then
+      DeltaCap := Format('-%d.%2.2d', [Abs(FDeltaMs) div 1000,
+        (Abs(FDeltaMs) mod 1000) div 10])
+    else
+      DeltaCap := Format('+%d.%2.2d', [FDeltaMs div 1000,
+        (FDeltaMs mod 1000) div 10]);
     ACanvas.Font := FValueFont;
     ACanvas.Font.Color := Col;
     Cap := 'Δ ' + DeltaCap;
@@ -459,7 +471,7 @@ end;
 constructor TOBDGForceVisualiser.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 200;
+  Width := 200;
   Height := 200;
   FMaxG := 1.4;
   FTrail := TList<TPointF>.Create;
@@ -474,7 +486,8 @@ end;
 
 procedure TOBDGForceVisualiser.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -483,42 +496,57 @@ end;
 
 procedure TOBDGForceVisualiser.SetXg(AValue: Double);
 begin
-  if SameValue(FXg, AValue) then Exit;
-  FXg := AValue; NotifyBindings; Repaint;
+  if SameValue(FXg, AValue) then
+    Exit;
+  FXg := AValue;
+  NotifyBindings;
+  Repaint;
 end;
 
 procedure TOBDGForceVisualiser.SetYg(AValue: Double);
 begin
-  if SameValue(FYg, AValue) then Exit;
-  FYg := AValue; NotifyBindings; Repaint;
+  if SameValue(FYg, AValue) then
+    Exit;
+  FYg := AValue;
+  NotifyBindings;
+  Repaint;
 end;
 
 procedure TOBDGForceVisualiser.SetMaxG(AValue: Double);
 begin
-  if AValue <= 0 then Exit;
-  if SameValue(FMaxG, AValue) then Exit;
-  FMaxG := AValue; Repaint;
+  if AValue <= 0 then
+    Exit;
+  if SameValue(FMaxG, AValue) then
+    Exit;
+  FMaxG := AValue;
+  Repaint;
 end;
 
 procedure TOBDGForceVisualiser.SetTrailCapacity(AValue: Integer);
 begin
-  if AValue < 0 then AValue := 0;
-  if AValue > 4096 then AValue := 4096;
-  if FTrailCapacity = AValue then Exit;
+  if AValue < 0 then
+    AValue := 0;
+  if AValue > 4096 then
+    AValue := 4096;
+  if FTrailCapacity = AValue then
+    Exit;
   FTrailCapacity := AValue;
-  while FTrail.Count > FTrailCapacity do FTrail.Delete(0);
+  while FTrail.Count > FTrailCapacity do
+    FTrail.Delete(0);
   Repaint;
 end;
 
 procedure TOBDGForceVisualiser.PushSample(AXg, AYg: Double);
-var P: TPointF;
+var
+  P: TPointF;
 begin
   FXg := AXg;
   FYg := AYg;
   P.X := AXg;
   P.Y := AYg;
   FTrail.Add(P);
-  while FTrail.Count > FTrailCapacity do FTrail.Delete(0);
+  while FTrail.Count > FTrailCapacity do
+    FTrail.Delete(0);
   NotifyBindings;
   Repaint;
 end;
@@ -539,10 +567,11 @@ var
   X, Y: Single;
   Alpha: Byte;
 begin
-  Cx := Width  / 2;
+  Cx := Width / 2;
   Cy := Height / 2;
-  R  := System.Math.Min(Width, Height) / 2 - ScaleValue(8);
-  if R <= 0 then Exit;
+  R := System.Math.Min(Width, Height) / 2 - ScaleValue(8);
+  if R <= 0 then
+    Exit;
 
   Graphics := TGPGraphics.Create(ACanvas.Handle);
   try
@@ -563,11 +592,9 @@ begin
       X := Cx + Single(FTrail[I].X / FMaxG) * R;
       Y := Cy - Single(FTrail[I].Y / FMaxG) * R;
       Alpha := Byte(40 + Round(180 * I / System.Math.Max(FTrail.Count - 1, 1)));
-      Brush := TGPSolidBrush.Create(
-        ColorToARGB(EffectiveAccent, Alpha));
+      Brush := TGPSolidBrush.Create(ColorToARGB(EffectiveAccent, Alpha));
       try
-        Graphics.FillEllipse(Brush,
-          X - 2, Y - 2, 4, 4);
+        Graphics.FillEllipse(Brush, X - 2, Y - 2, 4, 4);
       finally
         Brush.Free;
       end;
@@ -576,18 +603,15 @@ begin
     // Live vector.
     X := Cx + Single(FXg / FMaxG) * R;
     Y := Cy - Single(FYg / FMaxG) * R;
-    Pen := TGPPen.Create(ColorToARGB(Palette.Danger),
-      ScaleValue(2));
+    Pen := TGPPen.Create(ColorToARGB(Palette.Danger), ScaleValue(2));
     try
       Graphics.DrawLine(Pen, Cx, Cy, X, Y);
     finally
       Pen.Free;
     end;
-    Brush := TGPSolidBrush.Create(
-      ColorToARGB(Palette.Danger));
+    Brush := TGPSolidBrush.Create(ColorToARGB(Palette.Danger));
     try
-      Graphics.FillEllipse(Brush,
-        X - 4, Y - 4, 8, 8);
+      Graphics.FillEllipse(Brush, X - 4, Y - 4, 8, 8);
     finally
       Brush.Free;
     end;

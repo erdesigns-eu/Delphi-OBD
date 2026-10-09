@@ -1,36 +1,36 @@
-//------------------------------------------------------------------------------
-//  ERD.OEM.Mitsubishi
+﻿// ------------------------------------------------------------------------------
+// ERD.OEM.Mitsubishi
 //
-//  Mitsubishi Motors Corporation OEM extension. Catalogue + DTC
-//  overlay in <c>catalogs/mitsubishi.json</c> +
-//  <c>catalogs/dtc-mitsubishi.json</c>.
+// Mitsubishi Motors Corporation OEM extension. Catalogue + DTC
+// overlay in <c>catalogs/mitsubishi.json</c> +
+// <c>catalogs/dtc-mitsubishi.json</c>.
 //
-//  Seed-key starter is the KWP2000 two's-complement accepted by
-//  legacy MUT-III ECUs; production callers register the modern
-//  NDA implementation via RegisterAlgorithm.
+// Seed-key starter is the KWP2000 two's-complement accepted by
+// legacy MUT-III ECUs; production callers register the modern
+// NDA implementation via RegisterAlgorithm.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-12  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-12  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.OEM.Mitsubishi;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   ERD.OEM,
   ERD.OEM.Session,
   ERD.OEM.SeedKey,
@@ -43,22 +43,20 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
-    procedure BuildExtendedCatalog(
-      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+    procedure BuildExtendedCatalog(var CodingBlocks: TArray<TOBDOEMCodingBlock>;
       var Adaptations: TArray<TOBDOEMAdaptation>;
       var ActuatorTests: TArray<TOBDOEMActuatorTest>;
       var LivePIDs: TArray<TOBDOEMLivePID>;
       var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
-    procedure SeedDefaultSeedKeyAlgorithms(
-      Reg: TOBDSeedKeyRegistry); override;
+    procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
     function DtcCatalogFileName: string; override;
   public
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
     function ApplicableToVIN(const VIN: string): Boolean; override;
-    function DecodeDID(const DID: Word;
-      const Payload: TBytes): string; override;
+    function DecodeDID(const DID: Word; const Payload: TBytes): string;
+      override;
   end;
 
 implementation
@@ -78,41 +76,37 @@ begin
   Result := 'Mitsubishi Motors Corp.';
 end;
 
-function TOBDOEMExtensionMitsubishi.ApplicableToVIN(
-  const VIN: string): Boolean;
+function TOBDOEMExtensionMitsubishi.ApplicableToVIN(const VIN: string): Boolean;
 begin
   Result := VINMatchesCatalog('mitsubishi.json', VIN);
 end;
 
-procedure TOBDOEMExtensionMitsubishi.BuildCatalog(
-  var DIDs: TArray<TOBDOEMDataIdentifier>;
-  var Routines: TArray<TOBDOEMRoutine>;
-  var ECUs: TArray<TOBDOEMECU>);
+procedure TOBDOEMExtensionMitsubishi.BuildCatalog
+  (var DIDs: TArray<TOBDOEMDataIdentifier>;
+  var Routines: TArray<TOBDOEMRoutine>; var ECUs: TArray<TOBDOEMECU>);
 begin
   MergeCatalogJSON('mitsubishi.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
-procedure TOBDOEMExtensionMitsubishi.BuildExtendedCatalog(
-  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
-  var Adaptations: TArray<TOBDOEMAdaptation>;
+procedure TOBDOEMExtensionMitsubishi.BuildExtendedCatalog(var CodingBlocks
+  : TArray<TOBDOEMCodingBlock>; var Adaptations: TArray<TOBDOEMAdaptation>;
   var ActuatorTests: TArray<TOBDOEMActuatorTest>;
   var LivePIDs: TArray<TOBDOEMLivePID>;
   var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
 begin
-  MergeExtendedCatalogJSON('mitsubishi.json',
-    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+  MergeExtendedCatalogJSON('mitsubishi.json', CodingBlocks, Adaptations,
+    ActuatorTests, LivePIDs, DtcExtended);
 end;
 
-procedure TOBDOEMExtensionMitsubishi.SeedDefaultSeedKeyAlgorithms(
-  Reg: TOBDSeedKeyRegistry);
+procedure TOBDOEMExtensionMitsubishi.SeedDefaultSeedKeyAlgorithms
+  (Reg: TOBDSeedKeyRegistry);
 begin
   Reg.RegisterAlgorithm($01,
     IOBDSeedKeyAlgorithm(TOBDSeedKeyKWP2000TwosComplement.Create()));
 end;
 
-procedure TOBDOEMExtensionMitsubishi.SeedDefaultDtcCatalog(
-  Cat: TOBDDtcCatalog);
+procedure TOBDOEMExtensionMitsubishi.SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog);
 begin
   inherited;
   MergeDtcCatalog('dtc-iso-15031.json', Cat);
@@ -133,16 +127,17 @@ begin
     $F190:
       if Length(Payload) > 0 then
       begin
-        Result := Format('vin = %s',
-          [TEncoding.ASCII.GetString(Payload)]);
+        Result := Format('vin = %s', [TEncoding.ASCII.GetString(Payload)]);
         Exit;
       end;
     $F1A0, $F1B0:
       if Length(Payload) > 0 then
       begin
         case DID of
-          $F1A0: FieldName := 'mitsu_chassis_code';
-          $F1B0: FieldName := 'mitsu_market_code';
+          $F1A0:
+            FieldName := 'mitsu_chassis_code';
+          $F1B0:
+            FieldName := 'mitsu_market_code';
         else
           FieldName := 'unknown';
         end;
@@ -155,6 +150,7 @@ begin
 end;
 
 initialization
-  TOBDOEMRegistry.RegisterExtension(TOBDOEMExtensionMitsubishi.Create);
+
+TOBDOEMRegistry.RegisterExtension(TOBDOEMExtensionMitsubishi.Create);
 
 end.

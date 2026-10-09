@@ -1,34 +1,34 @@
-//------------------------------------------------------------------------------
-//  ERD.UI.Charts
+﻿// ------------------------------------------------------------------------------
+// ERD.UI.Charts
 //
-//  Chart visuals for the A2 inventory:
+// Chart visuals for the A2 inventory:
 //
-//    TOBDStripChart       Single-trace rolling chart. Lightweight.
-//    TOBDLiveGridChart    N-trace rolling chart with per-trace
-//                         colour / scale.
-//    TOBDDynoChart        Dual-axis rolling chart (HP + torque)
-//                         with optional redline marker.
-//    TOBDPowerCurveGraph  Static XY plot of HP/torque vs RPM —
-//                         the end-of-run shape from a
-//                         TOBDPowerCurve sweep.
+// TOBDStripChart       Single-trace rolling chart. Lightweight.
+// TOBDLiveGridChart    N-trace rolling chart with per-trace
+// colour / scale.
+// TOBDDynoChart        Dual-axis rolling chart (HP + torque)
+// with optional redline marker.
+// TOBDPowerCurveGraph  Static XY plot of HP/torque vs RPM —
+// the end-of-run shape from a
+// TOBDPowerCurve sweep.
 //
-//  Every chart inherits theme / HiDPI / VCL-Style awareness
-//  from TOBDCustomControl and routes state mutations through
-//  TBindings.Notify.
+// Every chart inherits theme / HiDPI / VCL-Style awareness
+// from TOBDCustomControl and routes state mutations through
+// TBindings.Notify.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.UI.Charts;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -38,10 +38,10 @@ uses
   Winapi.Windows,
   Winapi.GDIPAPI,
   Winapi.GDIPOBJ,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   System.Bindings.Helper, Data.Bind.Components,
   Vcl.Controls,
   Vcl.Graphics,
@@ -57,13 +57,13 @@ type
   /// </summary>
   TOBDStripChart = class(TOBDCustomControl)
   strict private
-    FBuffer:   TArray<Double>;
+    FBuffer: TArray<Double>;
     FCapacity: Integer;
-    FCount:    Integer;
-    FNext:     Integer;
-    FAutoFit:  Boolean;
-    FMinY:     Double;
-    FMaxY:     Double;
+    FCount: Integer;
+    FNext: Integer;
+    FAutoFit: Boolean;
+    FMinY: Double;
+    FMaxY: Double;
     FLineColor: TColor;
     procedure SetCapacity(AValue: Integer);
     procedure SetAutoFit(AValue: Boolean);
@@ -77,43 +77,40 @@ type
     constructor Create(AOwner: TComponent); override;
     procedure PushSample(AValue: Double);
     procedure Reset;
-    function  SampleCount: Integer;
+    function SampleCount: Integer;
   published
-    property Capacity: Integer
-      read FCapacity write SetCapacity default 256;
-    property AutoFit: Boolean
-      read FAutoFit write SetAutoFit default True;
+    property Capacity: Integer read FCapacity write SetCapacity default 256;
+    property AutoFit: Boolean read FAutoFit write SetAutoFit default True;
     property MinY: Double read FMinY write SetMinY;
     property MaxY: Double read FMaxY write SetMaxY;
-    property LineColor: TColor
-      read FLineColor write SetLineColor default clDefault;
+    property LineColor: TColor read FLineColor write SetLineColor
+      default clDefault;
   end;
 
   /// <summary>One trace definition for
   /// <see cref="TOBDLiveGridChart"/>.</summary>
   TOBDLiveTrace = class
   strict private
-    FName:     string;
-    FColor:    TColor;
-    FUnits:    string;
-    FMin:      Double;
-    FMax:      Double;
-    FSamples:  TArray<Double>;
-    FCount:    Integer;
-    FNext:     Integer;
+    FName: string;
+    FColor: TColor;
+    FUnits: string;
+    FMin: Double;
+    FMax: Double;
+    FSamples: TArray<Double>;
+    FCount: Integer;
+    FNext: Integer;
     FCapacity: Integer;
   public
-    constructor Create(const AName: string; AColor: TColor;
-      ACapacity: Integer);
+    constructor Create(const AName: string; AColor: TColor; ACapacity: Integer);
     procedure Push(AValue: Double);
     procedure Reset;
-    function  Sample(AIndex: Integer): Double;
-    property Name:    string  read FName  write FName;
-    property Color:   TColor  read FColor write FColor;
-    property Units:   string  read FUnits write FUnits;
-    property MinY:    Double  read FMin   write FMin;
-    property MaxY:    Double  read FMax   write FMax;
-    property Count:   Integer read FCount;
+    function Sample(AIndex: Integer): Double;
+    property Name: string read FName write FName;
+    property Color: TColor read FColor write FColor;
+    property Units: string read FUnits write FUnits;
+    property MinY: Double read FMin write FMin;
+    property MaxY: Double read FMax write FMax;
+    property Count: Integer read FCount;
     property Capacity: Integer read FCapacity;
   end;
 
@@ -122,7 +119,7 @@ type
   /// renders each as a polyline using its own scale.</summary>
   TOBDLiveGridChart = class(TOBDCustomControl)
   strict private
-    FTraces:   TObjectList<TOBDLiveTrace>;
+    FTraces: TObjectList<TOBDLiveTrace>;
     FCapacity: Integer;
     FShowLegend: Boolean;
     FCaptionFont: TFont;
@@ -135,21 +132,19 @@ type
     procedure PaintControl(ACanvas: TCanvas); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
     function AddTrace(const AName: string; AColor: TColor;
-      const AUnits: string = ''; AMinY: Double = 0;
-      AMaxY: Double = 100): TOBDLiveTrace;
+      const AUnits: string = ''; AMinY: Double = 0; AMaxY: Double = 100)
+      : TOBDLiveTrace;
     procedure PushSample(const ATraceName: string; AValue: Double);
     procedure ResetAll;
-    function  TraceCount: Integer;
-    function  Trace(AIndex: Integer): TOBDLiveTrace;
+    function TraceCount: Integer;
+    function Trace(AIndex: Integer): TOBDLiveTrace;
   published
-    property Capacity: Integer
-      read FCapacity write SetCapacity default 256;
-    property ShowLegend: Boolean
-      read FShowLegend write SetShowLegend default True;
-    property CaptionFont: TFont
-      read FCaptionFont write SetCaptionFont;
+    property Capacity: Integer read FCapacity write SetCapacity default 256;
+    property ShowLegend: Boolean read FShowLegend write SetShowLegend
+      default True;
+    property CaptionFont: TFont read FCaptionFont write SetCaptionFont;
   end;
 
   /// <summary>Dual-axis rolling HP + torque chart. Host
@@ -158,15 +153,15 @@ type
   /// polylines with independent Y axes.</summary>
   TOBDDynoChart = class(TOBDCustomControl)
   strict private
-    FCapacity:    Integer;
-    FCount:       Integer;
-    FRPM:         TArray<Double>;
-    FHP:          TArray<Double>;
-    FTorque:      TArray<Double>;
-    FMaxHP:       Double;
-    FMaxTorque:   Double;
-    FRedlineRPM:  Double;
-    FHPColor:     TColor;
+    FCapacity: Integer;
+    FCount: Integer;
+    FRPM: TArray<Double>;
+    FHP: TArray<Double>;
+    FTorque: TArray<Double>;
+    FMaxHP: Double;
+    FMaxTorque: Double;
+    FRedlineRPM: Double;
+    FHPColor: TColor;
     FTorqueColor: TColor;
     procedure SetCapacity(AValue: Integer);
     procedure SetMaxHP(AValue: Double);
@@ -181,19 +176,15 @@ type
     constructor Create(AOwner: TComponent); override;
     procedure PushSample(ARPM, AHP, ATorqueNm: Double);
     procedure Reset;
-    function  SampleCount: Integer;
+    function SampleCount: Integer;
   published
-    property Capacity: Integer
-      read FCapacity write SetCapacity default 360;
+    property Capacity: Integer read FCapacity write SetCapacity default 360;
     property MaxHP: Double read FMaxHP write SetMaxHP;
-    property MaxTorqueNm: Double
-      read FMaxTorque write SetMaxTorque;
-    property RedlineRPM: Double
-      read FRedlineRPM write SetRedlineRPM;
-    property HPColor: TColor
-      read FHPColor write SetHPColor default clDefault;
-    property TorqueColor: TColor
-      read FTorqueColor write SetTorqueColor default clDefault;
+    property MaxTorqueNm: Double read FMaxTorque write SetMaxTorque;
+    property RedlineRPM: Double read FRedlineRPM write SetRedlineRPM;
+    property HPColor: TColor read FHPColor write SetHPColor default clDefault;
+    property TorqueColor: TColor read FTorqueColor write SetTorqueColor
+      default clDefault;
   end;
 
   /// <summary>Static XY plot of HP/torque vs RPM from a
@@ -202,8 +193,8 @@ type
   /// </summary>
   TOBDPowerCurveGraph = class(TOBDCustomControl)
   strict private
-    FCurve:       TArray<TOBDDynoPoint>;
-    FHPColor:     TColor;
+    FCurve: TArray<TOBDDynoPoint>;
+    FHPColor: TColor;
     FTorqueColor: TColor;
     procedure SetHPColor(AValue: TColor);
     procedure SetTorqueColor(AValue: TColor);
@@ -214,12 +205,11 @@ type
     constructor Create(AOwner: TComponent); override;
     procedure LoadCurve(const APoints: TArray<TOBDDynoPoint>);
     procedure Clear;
-    function  PointCount: Integer;
+    function PointCount: Integer;
   published
-    property HPColor: TColor
-      read FHPColor write SetHPColor default clDefault;
-    property TorqueColor: TColor
-      read FTorqueColor write SetTorqueColor default clDefault;
+    property HPColor: TColor read FHPColor write SetHPColor default clDefault;
+    property TorqueColor: TColor read FTorqueColor write SetTorqueColor
+      default clDefault;
   end;
 
 implementation
@@ -229,7 +219,7 @@ implementation
 constructor TOBDStripChart.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 240;
+  Width := 240;
   Height := 80;
   FCapacity := 256;
   SetLength(FBuffer, FCapacity);
@@ -241,7 +231,8 @@ end;
 
 procedure TOBDStripChart.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -250,9 +241,12 @@ end;
 
 procedure TOBDStripChart.SetCapacity(AValue: Integer);
 begin
-  if AValue < 8 then AValue := 8;
-  if AValue > 16384 then AValue := 16384;
-  if FCapacity = AValue then Exit;
+  if AValue < 8 then
+    AValue := 8;
+  if AValue > 16384 then
+    AValue := 16384;
+  if FCapacity = AValue then
+    Exit;
   FCapacity := AValue;
   SetLength(FBuffer, FCapacity);
   FCount := 0;
@@ -262,33 +256,42 @@ end;
 
 procedure TOBDStripChart.SetAutoFit(AValue: Boolean);
 begin
-  if FAutoFit = AValue then Exit;
-  FAutoFit := AValue; Repaint;
+  if FAutoFit = AValue then
+    Exit;
+  FAutoFit := AValue;
+  Repaint;
 end;
 
 procedure TOBDStripChart.SetMinY(AValue: Double);
 begin
-  if SameValue(FMinY, AValue) then Exit;
-  FMinY := AValue; Repaint;
+  if SameValue(FMinY, AValue) then
+    Exit;
+  FMinY := AValue;
+  Repaint;
 end;
 
 procedure TOBDStripChart.SetMaxY(AValue: Double);
 begin
-  if SameValue(FMaxY, AValue) then Exit;
-  FMaxY := AValue; Repaint;
+  if SameValue(FMaxY, AValue) then
+    Exit;
+  FMaxY := AValue;
+  Repaint;
 end;
 
 procedure TOBDStripChart.SetLineColor(AValue: TColor);
 begin
-  if FLineColor = AValue then Exit;
-  FLineColor := AValue; Repaint;
+  if FLineColor = AValue then
+    Exit;
+  FLineColor := AValue;
+  Repaint;
 end;
 
 procedure TOBDStripChart.PushSample(AValue: Double);
 begin
   FBuffer[FNext] := AValue;
   FNext := (FNext + 1) mod FCapacity;
-  if FCount < FCapacity then Inc(FCount);
+  if FCount < FCapacity then
+    Inc(FCount);
   NotifyBindings;
   Repaint;
 end;
@@ -296,7 +299,7 @@ end;
 procedure TOBDStripChart.Reset;
 begin
   FCount := 0;
-  FNext  := 0;
+  FNext := 0;
   NotifyBindings;
   Repaint;
 end;
@@ -309,22 +312,26 @@ end;
 procedure TOBDStripChart.PaintControl(ACanvas: TCanvas);
 var
   Graphics: TGPGraphics;
-  Pen:   TGPPen;
-  Pad:   Integer;
+  Pen: TGPPen;
+  Pad: Integer;
   PlotX, PlotY, PlotW, PlotH: Integer;
   Pts: array of TGPPointF;
   Start, I, Idx: Integer;
   Lo, Hi, Span, V: Double;
   Col: TColor;
 begin
-  Pad   := ScaleValue(4);
+  Pad := ScaleValue(4);
   PlotX := Pad;
   PlotY := Pad;
-  PlotW := Width  - 2 * Pad;
+  PlotW := Width - 2 * Pad;
   PlotH := Height - 2 * Pad;
-  if (PlotW <= 0) or (PlotH <= 0) or (FCount < 2) then Exit;
+  if (PlotW <= 0) or (PlotH <= 0) or (FCount < 2) then
+    Exit;
 
-  if FCount < FCapacity then Start := 0 else Start := FNext;
+  if FCount < FCapacity then
+    Start := 0
+  else
+    Start := FNext;
 
   if FAutoFit then
   begin
@@ -334,8 +341,10 @@ begin
     begin
       Idx := (Start + I) mod FCapacity;
       V := FBuffer[Idx];
-      if V < Lo then Lo := V;
-      if V > Hi then Hi := V;
+      if V < Lo then
+        Lo := V;
+      if V > Hi then
+        Hi := V;
     end;
     if SameValue(Lo, Hi) then
     begin
@@ -347,7 +356,8 @@ begin
   begin
     Lo := FMinY;
     Hi := FMaxY;
-    if Hi <= Lo then Hi := Lo + 1;
+    if Hi <= Lo then
+      Hi := Lo + 1;
   end;
   Span := Hi - Lo;
 
@@ -356,8 +366,7 @@ begin
   begin
     Idx := (Start + I) mod FCapacity;
     Pts[I].X := PlotX + I / (FCount - 1) * PlotW;
-    Pts[I].Y := PlotY + PlotH -
-      Single((FBuffer[Idx] - Lo) / Span) * PlotH;
+    Pts[I].Y := PlotY + PlotH - Single((FBuffer[Idx] - Lo) / Span) * PlotH;
   end;
 
   Col := ResolveColor(FLineColor, EffectiveAccent);
@@ -377,8 +386,8 @@ end;
 
 { ---- TOBDLiveTrace ------------------------------------------------------ }
 
-constructor TOBDLiveTrace.Create(const AName: string;
-  AColor: TColor; ACapacity: Integer);
+constructor TOBDLiveTrace.Create(const AName: string; AColor: TColor;
+  ACapacity: Integer);
 begin
   inherited Create;
   FName := AName;
@@ -393,19 +402,24 @@ procedure TOBDLiveTrace.Push(AValue: Double);
 begin
   FSamples[FNext] := AValue;
   FNext := (FNext + 1) mod FCapacity;
-  if FCount < FCapacity then Inc(FCount);
+  if FCount < FCapacity then
+    Inc(FCount);
 end;
 
 procedure TOBDLiveTrace.Reset;
 begin
   FCount := 0;
-  FNext  := 0;
+  FNext := 0;
 end;
 
 function TOBDLiveTrace.Sample(AIndex: Integer): Double;
-var Start: Integer;
+var
+  Start: Integer;
 begin
-  if FCount < FCapacity then Start := 0 else Start := FNext;
+  if FCount < FCapacity then
+    Start := 0
+  else
+    Start := FNext;
   Result := FSamples[(Start + AIndex) mod FCapacity];
 end;
 
@@ -414,7 +428,7 @@ end;
 constructor TOBDLiveGridChart.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 360;
+  Width := 360;
   Height := 200;
   FTraces := TObjectList<TOBDLiveTrace>.Create(True);
   FCapacity := 256;
@@ -434,7 +448,8 @@ end;
 
 procedure TOBDLiveGridChart.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -448,9 +463,12 @@ end;
 
 procedure TOBDLiveGridChart.SetCapacity(AValue: Integer);
 begin
-  if AValue < 8 then AValue := 8;
-  if AValue > 16384 then AValue := 16384;
-  if FCapacity = AValue then Exit;
+  if AValue < 8 then
+    AValue := 8;
+  if AValue > 16384 then
+    AValue := 16384;
+  if FCapacity = AValue then
+    Exit;
   FCapacity := AValue;
   // Note: existing traces keep their original capacity; new
   // traces honour the new default.
@@ -459,8 +477,10 @@ end;
 
 procedure TOBDLiveGridChart.SetShowLegend(AValue: Boolean);
 begin
-  if FShowLegend = AValue then Exit;
-  FShowLegend := AValue; Repaint;
+  if FShowLegend = AValue then
+    Exit;
+  FShowLegend := AValue;
+  Repaint;
 end;
 
 procedure TOBDLiveGridChart.SetCaptionFont(AValue: TFont);
@@ -468,14 +488,13 @@ begin
   FCaptionFont.Assign(AValue);
 end;
 
-function TOBDLiveGridChart.AddTrace(const AName: string;
-  AColor: TColor; const AUnits: string;
-  AMinY, AMaxY: Double): TOBDLiveTrace;
+function TOBDLiveGridChart.AddTrace(const AName: string; AColor: TColor;
+  const AUnits: string; AMinY, AMaxY: Double): TOBDLiveTrace;
 begin
   Result := TOBDLiveTrace.Create(AName, AColor, FCapacity);
   Result.Units := AUnits;
-  Result.MinY  := AMinY;
-  Result.MaxY  := AMaxY;
+  Result.MinY := AMinY;
+  Result.MaxY := AMaxY;
   FTraces.Add(Result);
   NotifyBindings;
   Repaint;
@@ -497,9 +516,11 @@ begin
 end;
 
 procedure TOBDLiveGridChart.ResetAll;
-var I: Integer;
+var
+  I: Integer;
 begin
-  for I := 0 to FTraces.Count - 1 do FTraces[I].Reset;
+  for I := 0 to FTraces.Count - 1 do
+    FTraces[I].Reset;
   NotifyBindings;
   Repaint;
 end;
@@ -529,10 +550,12 @@ begin
   Pad := ScaleValue(8);
   PlotX := Pad;
   PlotY := Pad;
-  PlotW := Width  - 2 * Pad;
+  PlotW := Width - 2 * Pad;
   PlotH := Height - 2 * Pad;
-  if FShowLegend then PlotH := PlotH - ScaleValue(18);
-  if (PlotW <= 0) or (PlotH <= 0) then Exit;
+  if FShowLegend then
+    PlotH := PlotH - ScaleValue(18);
+  if (PlotW <= 0) or (PlotH <= 0) then
+    Exit;
 
   Graphics := TGPGraphics.Create(ACanvas.Handle);
   try
@@ -540,9 +563,8 @@ begin
 
     Pen := TGPPen.Create(ColorToARGB(EffectiveBorder), 1);
     try
-      Graphics.DrawRectangle(Pen,
-        Single(PlotX), Single(PlotY),
-        Single(PlotW), Single(PlotH));
+      Graphics.DrawRectangle(Pen, Single(PlotX), Single(PlotY), Single(PlotW),
+        Single(PlotH));
     finally
       Pen.Free;
     end;
@@ -550,14 +572,15 @@ begin
     for I := 0 to FTraces.Count - 1 do
     begin
       T := FTraces[I];
-      if T.Count < 2 then Continue;
+      if T.Count < 2 then
+        Continue;
       SetLength(Pts, T.Count);
       for S := 0 to T.Count - 1 do
       begin
         Pts[S].X := PlotX + S / (T.Count - 1) * PlotW;
         Pts[S].Y := PlotY + PlotH -
-          Single((T.Sample(S) - T.MinY) /
-                 System.Math.Max(T.MaxY - T.MinY, 1e-9)) * PlotH;
+          Single((T.Sample(S) - T.MinY) / System.Math.Max(T.MaxY - T.MinY,
+          1E-9)) * PlotH;
       end;
       Pen := TGPPen.Create(ColorToARGB(T.Color), ScaleValue(2));
       Pen.SetLineJoin(LineJoinRound);
@@ -590,22 +613,23 @@ end;
 constructor TOBDDynoChart.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 480;
+  Width := 480;
   Height := 240;
   FCapacity := 360;
-  SetLength(FRPM,    FCapacity);
-  SetLength(FHP,     FCapacity);
+  SetLength(FRPM, FCapacity);
+  SetLength(FHP, FCapacity);
   SetLength(FTorque, FCapacity);
-  FMaxHP     := 300;
+  FMaxHP := 300;
   FMaxTorque := 500;
   FRedlineRPM := 7000;
-  FHPColor     := clDefault;
+  FHPColor := clDefault;
   FTorqueColor := clDefault;
 end;
 
 procedure TOBDDynoChart.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -614,12 +638,15 @@ end;
 
 procedure TOBDDynoChart.SetCapacity(AValue: Integer);
 begin
-  if AValue < 16 then AValue := 16;
-  if AValue > 16384 then AValue := 16384;
-  if FCapacity = AValue then Exit;
+  if AValue < 16 then
+    AValue := 16;
+  if AValue > 16384 then
+    AValue := 16384;
+  if FCapacity = AValue then
+    Exit;
   FCapacity := AValue;
-  SetLength(FRPM,    FCapacity);
-  SetLength(FHP,     FCapacity);
+  SetLength(FRPM, FCapacity);
+  SetLength(FHP, FCapacity);
   SetLength(FTorque, FCapacity);
   FCount := 0;
   Repaint;
@@ -627,35 +654,48 @@ end;
 
 procedure TOBDDynoChart.SetMaxHP(AValue: Double);
 begin
-  if AValue <= 0 then Exit;
-  if SameValue(FMaxHP, AValue) then Exit;
-  FMaxHP := AValue; Repaint;
+  if AValue <= 0 then
+    Exit;
+  if SameValue(FMaxHP, AValue) then
+    Exit;
+  FMaxHP := AValue;
+  Repaint;
 end;
 
 procedure TOBDDynoChart.SetMaxTorque(AValue: Double);
 begin
-  if AValue <= 0 then Exit;
-  if SameValue(FMaxTorque, AValue) then Exit;
-  FMaxTorque := AValue; Repaint;
+  if AValue <= 0 then
+    Exit;
+  if SameValue(FMaxTorque, AValue) then
+    Exit;
+  FMaxTorque := AValue;
+  Repaint;
 end;
 
 procedure TOBDDynoChart.SetRedlineRPM(AValue: Double);
 begin
-  if AValue < 0 then AValue := 0;
-  if SameValue(FRedlineRPM, AValue) then Exit;
-  FRedlineRPM := AValue; Repaint;
+  if AValue < 0 then
+    AValue := 0;
+  if SameValue(FRedlineRPM, AValue) then
+    Exit;
+  FRedlineRPM := AValue;
+  Repaint;
 end;
 
 procedure TOBDDynoChart.SetHPColor(AValue: TColor);
 begin
-  if FHPColor = AValue then Exit;
-  FHPColor := AValue; Repaint;
+  if FHPColor = AValue then
+    Exit;
+  FHPColor := AValue;
+  Repaint;
 end;
 
 procedure TOBDDynoChart.SetTorqueColor(AValue: TColor);
 begin
-  if FTorqueColor = AValue then Exit;
-  FTorqueColor := AValue; Repaint;
+  if FTorqueColor = AValue then
+    Exit;
+  FTorqueColor := AValue;
+  Repaint;
 end;
 
 procedure TOBDDynoChart.PushSample(ARPM, AHP, ATorqueNm: Double);
@@ -669,11 +709,11 @@ begin
   end
   else
   begin
-    Move(FRPM[1],    FRPM[0],    (FCapacity - 1) * SizeOf(Double));
-    Move(FHP[1],     FHP[0],     (FCapacity - 1) * SizeOf(Double));
+    Move(FRPM[1], FRPM[0], (FCapacity - 1) * SizeOf(Double));
+    Move(FHP[1], FHP[0], (FCapacity - 1) * SizeOf(Double));
     Move(FTorque[1], FTorque[0], (FCapacity - 1) * SizeOf(Double));
-    FRPM[FCapacity - 1]    := ARPM;
-    FHP[FCapacity - 1]     := AHP;
+    FRPM[FCapacity - 1] := ARPM;
+    FHP[FCapacity - 1] := AHP;
     FTorque[FCapacity - 1] := ATorqueNm;
   end;
   NotifyBindings;
@@ -705,9 +745,10 @@ begin
   Pad := ScaleValue(8);
   PlotX := Pad;
   PlotY := Pad;
-  PlotW := Width  - 2 * Pad;
+  PlotW := Width - 2 * Pad;
   PlotH := Height - 2 * Pad;
-  if (PlotW <= 0) or (PlotH <= 0) or (FCount < 2) then Exit;
+  if (PlotW <= 0) or (PlotH <= 0) or (FCount < 2) then
+    Exit;
 
   HpCol := ResolveColor(FHPColor, Palette.Accent);
   TqCol := ResolveColor(FTorqueColor, Palette.Success);
@@ -717,11 +758,9 @@ begin
   for I := 0 to FCount - 1 do
   begin
     HPPts[I].X := PlotX + I / (FCount - 1) * PlotW;
-    HPPts[I].Y := PlotY + PlotH -
-      Single(FHP[I] / FMaxHP) * PlotH;
+    HPPts[I].Y := PlotY + PlotH - Single(FHP[I] / FMaxHP) * PlotH;
     TqPts[I].X := HPPts[I].X;
-    TqPts[I].Y := PlotY + PlotH -
-      Single(FTorque[I] / FMaxTorque) * PlotH;
+    TqPts[I].Y := PlotY + PlotH - Single(FTorque[I] / FMaxTorque) * PlotH;
   end;
 
   Graphics := TGPGraphics.Create(ACanvas.Handle);
@@ -730,9 +769,8 @@ begin
 
     Pen := TGPPen.Create(ColorToARGB(EffectiveBorder), 1);
     try
-      Graphics.DrawRectangle(Pen,
-        Single(PlotX), Single(PlotY),
-        Single(PlotW), Single(PlotH));
+      Graphics.DrawRectangle(Pen, Single(PlotX), Single(PlotY), Single(PlotW),
+        Single(PlotH));
     finally
       Pen.Free;
     end;
@@ -752,16 +790,13 @@ begin
 
     // Redline marker — vertical dashed line at the RPM
     // closest to FRedlineRPM in the latest sample.
-    if (FRedlineRPM > 0) and
-       (FRPM[FCount - 1] >= FRedlineRPM) then
+    if (FRedlineRPM > 0) and (FRPM[FCount - 1] >= FRedlineRPM) then
     begin
-      Pen := TGPPen.Create(ColorToARGB(Palette.Danger),
-        ScaleValue(1));
+      Pen := TGPPen.Create(ColorToARGB(Palette.Danger), ScaleValue(1));
       Pen.SetDashStyle(DashStyleDash);
       try
         // Mark the last sample.
-        Graphics.DrawLine(Pen,
-          HPPts[FCount - 1].X, Single(PlotY),
+        Graphics.DrawLine(Pen, HPPts[FCount - 1].X, Single(PlotY),
           HPPts[FCount - 1].X, Single(PlotY + PlotH));
       finally
         Pen.Free;
@@ -777,7 +812,7 @@ end;
 constructor TOBDPowerCurveGraph.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 480;
+  Width := 480;
   Height := 240;
   FHPColor := clDefault;
   FTorqueColor := clDefault;
@@ -785,7 +820,8 @@ end;
 
 procedure TOBDPowerCurveGraph.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -794,18 +830,21 @@ end;
 
 procedure TOBDPowerCurveGraph.SetHPColor(AValue: TColor);
 begin
-  if FHPColor = AValue then Exit;
-  FHPColor := AValue; Repaint;
+  if FHPColor = AValue then
+    Exit;
+  FHPColor := AValue;
+  Repaint;
 end;
 
 procedure TOBDPowerCurveGraph.SetTorqueColor(AValue: TColor);
 begin
-  if FTorqueColor = AValue then Exit;
-  FTorqueColor := AValue; Repaint;
+  if FTorqueColor = AValue then
+    Exit;
+  FTorqueColor := AValue;
+  Repaint;
 end;
 
-procedure TOBDPowerCurveGraph.LoadCurve(
-  const APoints: TArray<TOBDDynoPoint>);
+procedure TOBDPowerCurveGraph.LoadCurve(const APoints: TArray<TOBDDynoPoint>);
 begin
   FCurve := Copy(APoints);
   NotifyBindings;
@@ -838,24 +877,32 @@ begin
   Pad := ScaleValue(8);
   PlotX := Pad;
   PlotY := Pad;
-  PlotW := Width  - 2 * Pad;
+  PlotW := Width - 2 * Pad;
   PlotH := Height - 2 * Pad;
-  if (PlotW <= 0) or (PlotH <= 0) or (Length(FCurve) < 2) then Exit;
+  if (PlotW <= 0) or (PlotH <= 0) or (Length(FCurve) < 2) then
+    Exit;
 
   MinRPM := FCurve[0].RPM;
   MaxRPM := MinRPM;
-  MaxHP  := FCurve[0].HP;
-  MaxTq  := FCurve[0].TorqueNm;
+  MaxHP := FCurve[0].HP;
+  MaxTq := FCurve[0].TorqueNm;
   for I := 1 to High(FCurve) do
   begin
-    if FCurve[I].RPM      < MinRPM then MinRPM := FCurve[I].RPM;
-    if FCurve[I].RPM      > MaxRPM then MaxRPM := FCurve[I].RPM;
-    if FCurve[I].HP       > MaxHP  then MaxHP  := FCurve[I].HP;
-    if FCurve[I].TorqueNm > MaxTq  then MaxTq  := FCurve[I].TorqueNm;
+    if FCurve[I].RPM < MinRPM then
+      MinRPM := FCurve[I].RPM;
+    if FCurve[I].RPM > MaxRPM then
+      MaxRPM := FCurve[I].RPM;
+    if FCurve[I].HP > MaxHP then
+      MaxHP := FCurve[I].HP;
+    if FCurve[I].TorqueNm > MaxTq then
+      MaxTq := FCurve[I].TorqueNm;
   end;
-  if MaxRPM <= MinRPM then MaxRPM := MinRPM + 1;
-  if MaxHP  <= 0      then MaxHP  := 1;
-  if MaxTq  <= 0      then MaxTq  := 1;
+  if MaxRPM <= MinRPM then
+    MaxRPM := MinRPM + 1;
+  if MaxHP <= 0 then
+    MaxHP := 1;
+  if MaxTq <= 0 then
+    MaxTq := 1;
 
   HpCol := ResolveColor(FHPColor, Palette.Accent);
   TqCol := ResolveColor(FTorqueColor, Palette.Success);
@@ -864,13 +911,10 @@ begin
   SetLength(TqPts, Length(FCurve));
   for I := 0 to High(FCurve) do
   begin
-    HPPts[I].X := PlotX + (FCurve[I].RPM - MinRPM) /
-                   (MaxRPM - MinRPM) * PlotW;
-    HPPts[I].Y := PlotY + PlotH -
-      Single(FCurve[I].HP / MaxHP) * PlotH;
+    HPPts[I].X := PlotX + (FCurve[I].RPM - MinRPM) / (MaxRPM - MinRPM) * PlotW;
+    HPPts[I].Y := PlotY + PlotH - Single(FCurve[I].HP / MaxHP) * PlotH;
     TqPts[I].X := HPPts[I].X;
-    TqPts[I].Y := PlotY + PlotH -
-      Single(FCurve[I].TorqueNm / MaxTq) * PlotH;
+    TqPts[I].Y := PlotY + PlotH - Single(FCurve[I].TorqueNm / MaxTq) * PlotH;
   end;
 
   Graphics := TGPGraphics.Create(ACanvas.Handle);
@@ -879,23 +923,20 @@ begin
 
     Pen := TGPPen.Create(ColorToARGB(EffectiveBorder), 1);
     try
-      Graphics.DrawRectangle(Pen,
-        Single(PlotX), Single(PlotY),
-        Single(PlotW), Single(PlotH));
+      Graphics.DrawRectangle(Pen, Single(PlotX), Single(PlotY), Single(PlotW),
+        Single(PlotH));
     finally
       Pen.Free;
     end;
     Pen := TGPPen.Create(ColorToARGB(TqCol), ScaleValue(2));
     try
-      Graphics.DrawLines(Pen, PGPPointF(@TqPts[0]),
-        Length(FCurve));
+      Graphics.DrawLines(Pen, PGPPointF(@TqPts[0]), Length(FCurve));
     finally
       Pen.Free;
     end;
     Pen := TGPPen.Create(ColorToARGB(HpCol), ScaleValue(2));
     try
-      Graphics.DrawLines(Pen, PGPPointF(@HPPts[0]),
-        Length(FCurve));
+      Graphics.DrawLines(Pen, PGPPointF(@HPPts[0]), Length(FCurve));
     finally
       Pen.Free;
     end;

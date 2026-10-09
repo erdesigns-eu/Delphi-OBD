@@ -1,49 +1,49 @@
-//------------------------------------------------------------------------------
-//  ERD.Recorder.Redactor
+﻿// ------------------------------------------------------------------------------
+// ERD.Recorder.Redactor
 //
-//  TOBDLogRedactor — streams a `.obdlog` (plain or gzip) through
-//  a host-supplied callback and writes a redacted copy. Use when
-//  a captured session needs to be shared (bug report, support
-//  ticket, fixture in a public repo) but contains data that
-//  should not leave the device:
-//    - VIN bytes (0x09 PID 02, UDS DID F190).
-//    - SecOC keys / freshness counters.
-//    - Personally identifying information that ended up in
-//      info-class entries (operator name, location).
+// TOBDLogRedactor — streams a `.obdlog` (plain or gzip) through
+// a host-supplied callback and writes a redacted copy. Use when
+// a captured session needs to be shared (bug report, support
+// ticket, fixture in a public repo) but contains data that
+// should not leave the device:
+// - VIN bytes (0x09 PID 02, UDS DID F190).
+// - SecOC keys / freshness counters.
+// - Personally identifying information that ended up in
+// info-class entries (operator name, location).
 //
-//  Redaction is line-by-line at the JSON-record level, so the
-//  output remains a valid `.obdlog` and replays cleanly through
-//  TOBDReplayer.
+// Redaction is line-by-line at the JSON-record level, so the
+// output remains a valid `.obdlog` and replays cleanly through
+// TOBDReplayer.
 //
-//  Two redaction strategies the host can mix and match in one
-//  callback:
-//    - Drop the whole entry  → set <c>AKeep := False</c>.
-//    - Mutate the entry      → edit fields in-place and leave
-//                              <c>AKeep := True</c>.
+// Two redaction strategies the host can mix and match in one
+// callback:
+// - Drop the whole entry  → set <c>AKeep := False</c>.
+// - Mutate the entry      → edit fields in-place and leave
+// <c>AKeep := True</c>.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-10  ERD  Follow-up: shareable captures.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-10  ERD  Follow-up: shareable captures.
+// ------------------------------------------------------------------------------
 
 unit ERD.Recorder.Redactor;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   ERD.Recorder,
   ERD.Replayer;
 
@@ -51,8 +51,8 @@ type
   /// <summary>Host-supplied filter callback. Set <c>AKeep</c> to
   /// False to drop the entry; mutate <c>AEntry</c> to rewrite
   /// it.</summary>
-  TOBDRedactFilter = reference to procedure(
-    var AEntry: TOBDLogEntry; var AKeep: Boolean);
+  TOBDRedactFilter = reference to procedure(var AEntry: TOBDLogEntry;
+    var AKeep: Boolean);
 
   /// <summary>Streaming `.obdlog` redactor. Reads
   /// <c>ASource</c> (plain or `.gz`), runs each record through
@@ -69,8 +69,8 @@ type
     /// <c>service_id</c> matches one of <c>AServiceIDs</c>.
     /// Useful for stripping VIN reads, key material, etc.
     /// without dropping the call/response pair.</summary>
-    class function MakeServiceIDPayloadWiper(
-      const AServiceIDs: array of Byte): TOBDRedactFilter; static;
+    class function MakeServiceIDPayloadWiper(const AServiceIDs: array of Byte)
+      : TOBDRedactFilter; static;
   end;
 
 implementation
@@ -86,8 +86,8 @@ var
   Keep: Boolean;
 begin
   if not Assigned(AFilter) then
-    raise EArgumentNilException.Create(
-      'TOBDLogRedactor.Redact: AFilter required');
+    raise EArgumentNilException.Create
+      ('TOBDLogRedactor.Redact: AFilter required');
   Result := 0;
   Replayer := TOBDReplayer.Create(nil);
   Recorder := TOBDRecorder.Create(nil);
@@ -98,7 +98,8 @@ begin
       try
         for I := 0 to Lines.Count - 1 do
         begin
-          if not Replayer.ParseLine(Lines[I], Entry) then Continue;
+          if not Replayer.ParseLine(Lines[I], Entry) then
+            Continue;
           Keep := True;
           AFilter(Entry, Keep);
           if Keep then
@@ -119,8 +120,8 @@ begin
   end;
 end;
 
-class function TOBDLogRedactor.MakeServiceIDPayloadWiper(
-  const AServiceIDs: array of Byte): TOBDRedactFilter;
+class function TOBDLogRedactor.MakeServiceIDPayloadWiper(const AServiceIDs
+  : array of Byte): TOBDRedactFilter;
 var
   Sids: TBytes;
   I: Integer;
@@ -128,13 +129,13 @@ begin
   SetLength(Sids, Length(AServiceIDs));
   for I := 0 to High(AServiceIDs) do
     Sids[I] := AServiceIDs[I];
-  Result :=
-    procedure(var AEntry: TOBDLogEntry; var AKeep: Boolean)
+  Result := procedure(var AEntry: TOBDLogEntry; var AKeep: Boolean)
     var
       J: Integer;
     begin
       AKeep := True;
-      if not AEntry.HasServiceID then Exit;
+      if not AEntry.HasServiceID then
+        Exit;
       for J := 0 to High(Sids) do
         if Sids[J] = AEntry.ServiceID then
         begin

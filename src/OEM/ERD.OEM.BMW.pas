@@ -1,41 +1,41 @@
-//------------------------------------------------------------------------------
-//  ERD.OEM.BMW
+﻿// ------------------------------------------------------------------------------
+// ERD.OEM.BMW
 //
-//  Bayerische Motoren Werke OEM extension. Wires the BMW
-//  catalogue (<c>catalogs/bmw.json</c>) and DTC overlay
-//  (<c>catalogs/dtc-bmw.json</c>) into the base framework and
-//  publishes the BMW E-Sys / ISTA session negotiator.
+// Bayerische Motoren Werke OEM extension. Wires the BMW
+// catalogue (<c>catalogs/bmw.json</c>) and DTC overlay
+// (<c>catalogs/dtc-bmw.json</c>) into the base framework and
+// publishes the BMW E-Sys / ISTA session negotiator.
 //
-//  E-Sys / ISTA choreography requires SecurityAccess after the
-//  session-control reply for any coding or programming write.
-//  This negotiator declares the requirement for the extended,
-//  programming and both OEM-specific session types; the actual
-//  seed/key dance lives in the seed-key registry. Tester-present
-//  cadence is 1500 ms — E-series DMEs drop sessions at the
-//  default 2000 ms.
+// E-Sys / ISTA choreography requires SecurityAccess after the
+// session-control reply for any coding or programming write.
+// This negotiator declares the requirement for the extended,
+// programming and both OEM-specific session types; the actual
+// seed/key dance lives in the seed-key registry. Tester-present
+// cadence is 1500 ms — E-series DMEs drop sessions at the
+// default 2000 ms.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-12  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-12  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.OEM.BMW;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   ERD.OEM,
   ERD.OEM.Session,
   ERD.OEM.SeedKey,
@@ -49,8 +49,8 @@ type
   public
     /// <summary><c>True</c> for extended / programming / OEM-
     /// specific sessions.</summary>
-    function RequiresSecurityAccess(
-      ASessionType: TOBDSessionType): Boolean; override;
+    function RequiresSecurityAccess(ASessionType: TOBDSessionType)
+      : Boolean; override;
     /// <summary>1500 ms heartbeat.</summary>
     function DefaultTesterPresentMs: Cardinal; override;
     /// <summary>Display label.</summary>
@@ -63,23 +63,21 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
-    procedure BuildExtendedCatalog(
-      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+    procedure BuildExtendedCatalog(var CodingBlocks: TArray<TOBDOEMCodingBlock>;
       var Adaptations: TArray<TOBDOEMAdaptation>;
       var ActuatorTests: TArray<TOBDOEMActuatorTest>;
       var LivePIDs: TArray<TOBDOEMLivePID>;
       var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
     function CreateSessionNegotiator: IOBDSessionNegotiator; override;
-    procedure SeedDefaultSeedKeyAlgorithms(
-      Reg: TOBDSeedKeyRegistry); override;
+    procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
     function DtcCatalogFileName: string; override;
   public
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
     function ApplicableToVIN(const VIN: string): Boolean; override;
-    function DecodeDID(const DID: Word;
-      const Payload: TBytes): string; override;
+    function DecodeDID(const DID: Word; const Payload: TBytes): string;
+      override;
   end;
 
 implementation
@@ -91,11 +89,11 @@ uses
 
 { TOBDBMWSessionNegotiator }
 
-function TOBDBMWSessionNegotiator.RequiresSecurityAccess(
-  ASessionType: TOBDSessionType): Boolean;
+function TOBDBMWSessionNegotiator.RequiresSecurityAccess
+  (ASessionType: TOBDSessionType): Boolean;
 begin
   Result := ASessionType in [sstExtendedDiagnostic, sstProgramming,
-                             sstOEMSpecific1, sstOEMSpecific2];
+    sstOEMSpecific1, sstOEMSpecific2];
 end;
 
 function TOBDBMWSessionNegotiator.DefaultTesterPresentMs: Cardinal;
@@ -117,26 +115,25 @@ begin
   Result := TOBDBMWSessionNegotiator.Create;
 end;
 
-procedure TOBDOEMExtensionBMW.SeedDefaultSeedKeyAlgorithms(
-  Reg: TOBDSeedKeyRegistry);
+procedure TOBDOEMExtensionBMW.SeedDefaultSeedKeyAlgorithms
+  (Reg: TOBDSeedKeyRegistry);
 const
   // Public placeholder XOR mask used by the bimmer-utility
   // tutorial flow against a simulated DME. Real E-Sys algorithms
   // ship inside ISTA and are NDA-protected; production users
   // replace this registration via RegisterAlgorithm.
-  PUBLIC_MASK: array[0..3] of Byte = ($A5, $5A, $C3, $3C);
+  PUBLIC_MASK: array [0 .. 3] of Byte = ($A5, $5A, $C3, $3C);
 var
   Mask: TBytes;
 begin
   SetLength(Mask, Length(PUBLIC_MASK));
   Move(PUBLIC_MASK[0], Mask[0], Length(PUBLIC_MASK));
-  Reg.RegisterAlgorithm($01, IOBDSeedKeyAlgorithm(TOBDSeedKeyXorMask.Create(Mask,
-    'BMW community XOR-mask placeholder',
-    'community-pr', False)));
+  Reg.RegisterAlgorithm($01,
+    IOBDSeedKeyAlgorithm(TOBDSeedKeyXorMask.Create(Mask,
+    'BMW community XOR-mask placeholder', 'community-pr', False)));
 end;
 
-procedure TOBDOEMExtensionBMW.SeedDefaultDtcCatalog(
-  Cat: TOBDDtcCatalog);
+procedure TOBDOEMExtensionBMW.SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog);
 begin
   inherited;
   MergeDtcCatalog('dtc-iso-15031.json', Cat);
@@ -163,24 +160,22 @@ begin
   Result := VINMatchesCatalog('bmw.json', VIN);
 end;
 
-procedure TOBDOEMExtensionBMW.BuildCatalog(
-  var DIDs: TArray<TOBDOEMDataIdentifier>;
-  var Routines: TArray<TOBDOEMRoutine>;
-  var ECUs: TArray<TOBDOEMECU>);
+procedure TOBDOEMExtensionBMW.BuildCatalog
+  (var DIDs: TArray<TOBDOEMDataIdentifier>;
+  var Routines: TArray<TOBDOEMRoutine>; var ECUs: TArray<TOBDOEMECU>);
 begin
   MergeCatalogJSON('bmw.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
-procedure TOBDOEMExtensionBMW.BuildExtendedCatalog(
-  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
-  var Adaptations: TArray<TOBDOEMAdaptation>;
+procedure TOBDOEMExtensionBMW.BuildExtendedCatalog(var CodingBlocks
+  : TArray<TOBDOEMCodingBlock>; var Adaptations: TArray<TOBDOEMAdaptation>;
   var ActuatorTests: TArray<TOBDOEMActuatorTest>;
   var LivePIDs: TArray<TOBDOEMLivePID>;
   var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
 begin
-  MergeExtendedCatalogJSON('bmw.json',
-    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+  MergeExtendedCatalogJSON('bmw.json', CodingBlocks, Adaptations, ActuatorTests,
+    LivePIDs, DtcExtended);
 end;
 
 function TOBDOEMExtensionBMW.DecodeDID(const DID: Word;
@@ -194,25 +189,22 @@ begin
       if Length(Payload) >= 2 then
       begin
         Voltage := (Payload[0] shl 8) or Payload[1];
-        Result := Format('battery_voltage = %.3f V',
-          [Voltage / 1000.0]);
+        Result := Format('battery_voltage = %.3f V', [Voltage / 1000.0]);
         Exit;
       end;
     $D050:
       if Length(Payload) >= 4 then
       begin
         Mileage := (Cardinal(Payload[0]) shl 24) or
-                   (Cardinal(Payload[1]) shl 16) or
-                   (Cardinal(Payload[2]) shl 8) or
-                    Cardinal(Payload[3]);
+          (Cardinal(Payload[1]) shl 16) or (Cardinal(Payload[2]) shl 8) or
+          Cardinal(Payload[3]);
         Result := Format('mileage = %d km', [Mileage]);
         Exit;
       end;
     $F190:
       if Length(Payload) > 0 then
       begin
-        Result := Format('vin = %s',
-          [TEncoding.ASCII.GetString(Payload)]);
+        Result := Format('vin = %s', [TEncoding.ASCII.GetString(Payload)]);
         Exit;
       end;
   end;
@@ -220,6 +212,7 @@ begin
 end;
 
 initialization
-  TOBDOEMRegistry.RegisterExtension(TOBDOEMExtensionBMW.Create);
+
+TOBDOEMRegistry.RegisterExtension(TOBDOEMExtensionBMW.Create);
 
 end.

@@ -1,55 +1,55 @@
-//------------------------------------------------------------------------------
-//  ERD.Protocol.KWP1281.Session
+// ------------------------------------------------------------------------------
+// ERD.Protocol.KWP1281.Session
 //
-//  TOBDKWP1281Session - non-visual component wrapping
-//  TKWP1281Codec. Drop one on a form / data module, wire the
-//  Transport in code (the K-line / TP2.0 / ISO-TP / J2534
-//  transports are interfaces - not design-time-wirable - so
-//  the host hands them in via SetTransport before Connect).
+// TOBDKWP1281Session - non-visual component wrapping
+// TKWP1281Codec. Drop one on a form / data module, wire the
+// Transport in code (the K-line / TP2.0 / ISO-TP / J2534
+// transports are interfaces - not design-time-wirable - so
+// the host hands them in via SetTransport before Connect).
 //
-//  Forwards every codec method as a published method on the
-//  component so the IDE Object Inspector shows the API.
+// Forwards every codec method as a published method on the
+// component so the IDE Object Inspector shows the API.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT - see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT - see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.Protocol.KWP1281.Session;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}ERD.Compat.Functions,{$ENDIF}
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}ERD.Compat.Functions, {$ENDIF}
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   ERD.Protocol.KWP1281;
 
 type
-  TOBDKWP1281SessionLogEvent = procedure(Sender: TObject;
-    const ALine: string) of object;
+  TOBDKWP1281SessionLogEvent = procedure(Sender: TObject; const ALine: string)
+    of object;
 
   TOBDKWP1281Session = class(TComponent)
   strict private
-    FCodec:        TKWP1281Codec;
-    FTransport:    IKWP1281Transport;
+    FCodec: TKWP1281Codec;
+    FTransport: IKWP1281Transport;
     FByteTimeoutMs: Integer;
-    FAddress:      Byte;
+    FAddress: Byte;
     FStrictCounter: Boolean;
-    FOnLog:        TOBDKWP1281SessionLogEvent;
+    FOnLog: TOBDKWP1281SessionLogEvent;
     procedure EnsureCodec;
     procedure HandleCodecLog(Sender: TObject; const ALine: string);
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
 
     /// <summary>Hand over the K-line / CAN transport before
     /// calling <see cref="Connect"/>. Setting this releases
@@ -59,10 +59,10 @@ type
     // ---- session ------------------------------------------
     procedure Connect;
     procedure Disconnect;
-    function  Connected: Boolean;
-    function  KW1: Byte;
-    function  KW2: Byte;
-    function  Counter: Byte;
+    function Connected: Boolean;
+    function KW1: Byte;
+    function KW2: Byte;
+    function Counter: Byte;
 
     // ---- generic exchange + ACK pump ---------------------
     function Exchange(const ABlock: TKWP1281Block): TKWP1281Block;
@@ -85,8 +85,7 @@ type
     function Login(const ASecret: TBytes): TKWP1281Block;
     function LoginLong(const ASecret: TBytes): TKWP1281Block;
     function RequestSeed(ASeedTitle: Byte = $2C): TBytes;
-    function SendKey(const AKey: TBytes;
-      AKeyTitle: Byte = $2D): TKWP1281Block;
+    function SendKey(const AKey: TBytes; AKeyTitle: Byte = $2D): TKWP1281Block;
     function SecurityAccess(AAlgo: TFunc<TBytes, TBytes>;
       ASeedTitle: Byte = $2C; AKeyTitle: Byte = $2D): TKWP1281Block;
     function Recode(const ACoding: TBytes): TKWP1281Block;
@@ -103,18 +102,17 @@ type
 
     /// <summary>Per-byte timeout in ms. Default 1000. Affects
     /// every TX / RX call on the transport.</summary>
-    property ByteTimeoutMs: Integer
-      read FByteTimeoutMs write FByteTimeoutMs default 1000;
+    property ByteTimeoutMs: Integer read FByteTimeoutMs write FByteTimeoutMs
+      default 1000;
 
     /// <summary>True (default) raises on counter drift; False
     /// swallows drift on buggy radio firmware.</summary>
-    property StrictCounter: Boolean
-      read FStrictCounter write FStrictCounter default True;
+    property StrictCounter: Boolean read FStrictCounter write FStrictCounter
+      default True;
 
     /// <summary>Per-line on-wire trace. Wire to capture for
     /// offline analysis.</summary>
-    property OnLog: TOBDKWP1281SessionLogEvent
-      read FOnLog write FOnLog;
+    property OnLog: TOBDKWP1281SessionLogEvent read FOnLog write FOnLog;
   end;
 
 implementation
@@ -122,7 +120,7 @@ implementation
 constructor TOBDKWP1281Session.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  FAddress       := $56;
+  FAddress := $56;
   FByteTimeoutMs := 1000;
   FStrictCounter := True;
 end;
@@ -139,8 +137,8 @@ begin
   if FCodec = nil then
   begin
     if FTransport = nil then
-      raise EKWP1281Error.Create(
-        'TOBDKWP1281Session: SetTransport must be called before ' +
+      raise EKWP1281Error.Create
+        ('TOBDKWP1281Session: SetTransport must be called before ' +
         'Connect / any block call.');
     FCodec := TKWP1281Codec.Create(FTransport, FByteTimeoutMs);
     FCodec.StrictCounter := FStrictCounter;
@@ -151,12 +149,14 @@ end;
 procedure TOBDKWP1281Session.HandleCodecLog(Sender: TObject;
   const ALine: string);
 begin
-  if Assigned(FOnLog) then FOnLog(Self, ALine);
+  if Assigned(FOnLog) then
+    FOnLog(Self, ALine);
 end;
 
 procedure TOBDKWP1281Session.SetTransport(const ATransport: IKWP1281Transport);
 begin
-  if FCodec <> nil then FreeAndNil(FCodec);
+  if FCodec <> nil then
+    FreeAndNil(FCodec);
   FTransport := ATransport;
 end;
 
@@ -168,78 +168,171 @@ end;
 
 procedure TOBDKWP1281Session.Disconnect;
 begin
-  if FCodec <> nil then FCodec.Disconnect;
+  if FCodec <> nil then
+    FCodec.Disconnect;
 end;
 
-function TOBDKWP1281Session.Connected:     Boolean; begin if FCodec <> nil then Result := FCodec.Connected else Result := False; end;
-function TOBDKWP1281Session.KW1:           Byte;    begin if FCodec <> nil then Result := FCodec.KW1 else Result := 0; end;
-function TOBDKWP1281Session.KW2:           Byte;    begin if FCodec <> nil then Result := FCodec.KW2 else Result := 0; end;
-function TOBDKWP1281Session.Counter:       Byte;    begin if FCodec <> nil then Result := FCodec.Counter else Result := 0; end;
+function TOBDKWP1281Session.Connected: Boolean;
+begin
+  if FCodec <> nil then
+    Result := FCodec.Connected
+  else
+    Result := False;
+end;
 
-function TOBDKWP1281Session.Exchange(const ABlock: TKWP1281Block): TKWP1281Block;
-begin EnsureCodec; Result := FCodec.Exchange(ABlock); end;
+function TOBDKWP1281Session.KW1: Byte;
+begin
+  if FCodec <> nil then
+    Result := FCodec.KW1
+  else
+    Result := 0;
+end;
+
+function TOBDKWP1281Session.KW2: Byte;
+begin
+  if FCodec <> nil then
+    Result := FCodec.KW2
+  else
+    Result := 0;
+end;
+
+function TOBDKWP1281Session.Counter: Byte;
+begin
+  if FCodec <> nil then
+    Result := FCodec.Counter
+  else
+    Result := 0;
+end;
+
+function TOBDKWP1281Session.Exchange(const ABlock: TKWP1281Block)
+  : TKWP1281Block;
+begin
+  EnsureCodec;
+  Result := FCodec.Exchange(ABlock);
+end;
 
 function TOBDKWP1281Session.SendAck: TKWP1281Block;
-begin EnsureCodec; Result := FCodec.SendAck; end;
+begin
+  EnsureCodec;
+  Result := FCodec.SendAck;
+end;
 
 function TOBDKWP1281Session.PumpUntil(AStopTitle: Byte): TArray<TKWP1281Block>;
-begin EnsureCodec; Result := FCodec.PumpUntil(AStopTitle); end;
+begin
+  EnsureCodec;
+  Result := FCodec.PumpUntil(AStopTitle);
+end;
 
 function TOBDKWP1281Session.InitialBlocks: TArray<TKWP1281Block>;
-begin EnsureCodec; Result := FCodec.InitialBlocks; end;
+begin
+  EnsureCodec;
+  Result := FCodec.InitialBlocks;
+end;
 
 function TOBDKWP1281Session.ReadDTCs: TArray<TKWP1281Block>;
-begin EnsureCodec; Result := FCodec.ReadDTCs; end;
+begin
+  EnsureCodec;
+  Result := FCodec.ReadDTCs;
+end;
 
 function TOBDKWP1281Session.ClearDTCs: TKWP1281Block;
-begin EnsureCodec; Result := FCodec.ClearDTCs; end;
+begin
+  EnsureCodec;
+  Result := FCodec.ClearDTCs;
+end;
 
 function TOBDKWP1281Session.ReadRAM(AAddress: Word; ALength: Byte): TBytes;
-begin EnsureCodec; Result := FCodec.ReadRAM(AAddress, ALength); end;
+begin
+  EnsureCodec;
+  Result := FCodec.ReadRAM(AAddress, ALength);
+end;
 
 function TOBDKWP1281Session.ReadROM(AAddress: Word; ALength: Byte): TBytes;
-begin EnsureCodec; Result := FCodec.ReadROM(AAddress, ALength); end;
+begin
+  EnsureCodec;
+  Result := FCodec.ReadROM(AAddress, ALength);
+end;
 
 function TOBDKWP1281Session.ReadEEPROM(AAddress: Word; ALength: Byte;
   ATitle: Byte): TBytes;
-begin EnsureCodec; Result := FCodec.ReadEEPROM(AAddress, ALength, ATitle); end;
+begin
+  EnsureCodec;
+  Result := FCodec.ReadEEPROM(AAddress, ALength, ATitle);
+end;
 
 function TOBDKWP1281Session.ReadGroup(AGroup: Byte): TBytes;
-begin EnsureCodec; Result := FCodec.ReadGroup(AGroup); end;
+begin
+  EnsureCodec;
+  Result := FCodec.ReadGroup(AGroup);
+end;
 
 function TOBDKWP1281Session.ReadSingleValue(AChannel: Byte): TBytes;
-begin EnsureCodec; Result := FCodec.ReadSingleValue(AChannel); end;
+begin
+  EnsureCodec;
+  Result := FCodec.ReadSingleValue(AChannel);
+end;
 
 function TOBDKWP1281Session.ReadAdaptation(AChannel: Byte): TBytes;
-begin EnsureCodec; Result := FCodec.ReadAdaptation(AChannel); end;
+begin
+  EnsureCodec;
+  Result := FCodec.ReadAdaptation(AChannel);
+end;
 
-function TOBDKWP1281Session.WriteAdaptation(AChannel: Byte; AValue: Word): TBytes;
-begin EnsureCodec; Result := FCodec.WriteAdaptation(AChannel, AValue); end;
+function TOBDKWP1281Session.WriteAdaptation(AChannel: Byte;
+  AValue: Word): TBytes;
+begin
+  EnsureCodec;
+  Result := FCodec.WriteAdaptation(AChannel, AValue);
+end;
 
 function TOBDKWP1281Session.SaveAdaptation: TKWP1281Block;
-begin EnsureCodec; Result := FCodec.SaveAdaptation; end;
+begin
+  EnsureCodec;
+  Result := FCodec.SaveAdaptation;
+end;
 
 function TOBDKWP1281Session.Login(const ASecret: TBytes): TKWP1281Block;
-begin EnsureCodec; Result := FCodec.Login(ASecret); end;
+begin
+  EnsureCodec;
+  Result := FCodec.Login(ASecret);
+end;
 
 function TOBDKWP1281Session.LoginLong(const ASecret: TBytes): TKWP1281Block;
-begin EnsureCodec; Result := FCodec.LoginLong(ASecret); end;
+begin
+  EnsureCodec;
+  Result := FCodec.LoginLong(ASecret);
+end;
 
 function TOBDKWP1281Session.RequestSeed(ASeedTitle: Byte): TBytes;
-begin EnsureCodec; Result := FCodec.RequestSeed(ASeedTitle); end;
+begin
+  EnsureCodec;
+  Result := FCodec.RequestSeed(ASeedTitle);
+end;
 
-function TOBDKWP1281Session.SendKey(const AKey: TBytes;
-  AKeyTitle: Byte): TKWP1281Block;
-begin EnsureCodec; Result := FCodec.SendKey(AKey, AKeyTitle); end;
+function TOBDKWP1281Session.SendKey(const AKey: TBytes; AKeyTitle: Byte)
+  : TKWP1281Block;
+begin
+  EnsureCodec;
+  Result := FCodec.SendKey(AKey, AKeyTitle);
+end;
 
 function TOBDKWP1281Session.SecurityAccess(AAlgo: TFunc<TBytes, TBytes>;
   ASeedTitle: Byte; AKeyTitle: Byte): TKWP1281Block;
-begin EnsureCodec; Result := FCodec.SecurityAccess(AAlgo, ASeedTitle, AKeyTitle); end;
+begin
+  EnsureCodec;
+  Result := FCodec.SecurityAccess(AAlgo, ASeedTitle, AKeyTitle);
+end;
 
 function TOBDKWP1281Session.Recode(const ACoding: TBytes): TKWP1281Block;
-begin EnsureCodec; Result := FCodec.Recode(ACoding); end;
+begin
+  EnsureCodec;
+  Result := FCodec.Recode(ACoding);
+end;
 
 function TOBDKWP1281Session.ActuatorTest: TKWP1281Block;
-begin EnsureCodec; Result := FCodec.ActuatorTest; end;
+begin
+  EnsureCodec;
+  Result := FCodec.ActuatorTest;
+end;
 
 end.

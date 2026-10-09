@@ -1,36 +1,36 @@
-//------------------------------------------------------------------------------
-//  ERD.OEM.Dacia
+﻿// ------------------------------------------------------------------------------
+// ERD.OEM.Dacia
 //
-//  Automobile Dacia SA (Renault Group, Romania) OEM extension.
-//  Catalogue + DTC overlay in <c>catalogs/dacia.json</c> +
-//  <c>catalogs/dtc-dacia.json</c>.
+// Automobile Dacia SA (Renault Group, Romania) OEM extension.
+// Catalogue + DTC overlay in <c>catalogs/dacia.json</c> +
+// <c>catalogs/dtc-dacia.json</c>.
 //
-//  Seed-key starter inherits the Renault CLIP-community 'RNLT'
-//  XOR-mask matching the shared platform; production callers
-//  register the modern CLIP algorithm via RegisterAlgorithm.
+// Seed-key starter inherits the Renault CLIP-community 'RNLT'
+// XOR-mask matching the shared platform; production callers
+// register the modern CLIP algorithm via RegisterAlgorithm.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-12  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-12  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.OEM.Dacia;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   ERD.OEM,
   ERD.OEM.Session,
   ERD.OEM.SeedKey,
@@ -43,22 +43,20 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
-    procedure BuildExtendedCatalog(
-      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+    procedure BuildExtendedCatalog(var CodingBlocks: TArray<TOBDOEMCodingBlock>;
       var Adaptations: TArray<TOBDOEMAdaptation>;
       var ActuatorTests: TArray<TOBDOEMActuatorTest>;
       var LivePIDs: TArray<TOBDOEMLivePID>;
       var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
-    procedure SeedDefaultSeedKeyAlgorithms(
-      Reg: TOBDSeedKeyRegistry); override;
+    procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
     function DtcCatalogFileName: string; override;
   public
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
     function ApplicableToVIN(const VIN: string): Boolean; override;
-    function DecodeDID(const DID: Word;
-      const Payload: TBytes): string; override;
+    function DecodeDID(const DID: Word; const Payload: TBytes): string;
+      override;
   end;
 
 implementation
@@ -78,36 +76,33 @@ begin
   Result := 'Automobile Dacia SA (Renault Group)';
 end;
 
-function TOBDOEMExtensionDacia.ApplicableToVIN(
-  const VIN: string): Boolean;
+function TOBDOEMExtensionDacia.ApplicableToVIN(const VIN: string): Boolean;
 begin
   Result := VINMatchesCatalog('dacia.json', VIN);
 end;
 
-procedure TOBDOEMExtensionDacia.BuildCatalog(
-  var DIDs: TArray<TOBDOEMDataIdentifier>;
-  var Routines: TArray<TOBDOEMRoutine>;
-  var ECUs: TArray<TOBDOEMECU>);
+procedure TOBDOEMExtensionDacia.BuildCatalog
+  (var DIDs: TArray<TOBDOEMDataIdentifier>;
+  var Routines: TArray<TOBDOEMRoutine>; var ECUs: TArray<TOBDOEMECU>);
 begin
   MergeCatalogJSON('dacia.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
-procedure TOBDOEMExtensionDacia.BuildExtendedCatalog(
-  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
-  var Adaptations: TArray<TOBDOEMAdaptation>;
+procedure TOBDOEMExtensionDacia.BuildExtendedCatalog(var CodingBlocks
+  : TArray<TOBDOEMCodingBlock>; var Adaptations: TArray<TOBDOEMAdaptation>;
   var ActuatorTests: TArray<TOBDOEMActuatorTest>;
   var LivePIDs: TArray<TOBDOEMLivePID>;
   var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
 begin
-  MergeExtendedCatalogJSON('dacia.json',
-    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+  MergeExtendedCatalogJSON('dacia.json', CodingBlocks, Adaptations,
+    ActuatorTests, LivePIDs, DtcExtended);
 end;
 
-procedure TOBDOEMExtensionDacia.SeedDefaultSeedKeyAlgorithms(
-  Reg: TOBDSeedKeyRegistry);
+procedure TOBDOEMExtensionDacia.SeedDefaultSeedKeyAlgorithms
+  (Reg: TOBDSeedKeyRegistry);
 const
-  MASK: array[0..3] of Byte = ($52, $4E, $4C, $54);  // 'RNLT'
+  MASK: array [0 .. 3] of Byte = ($52, $4E, $4C, $54); // 'RNLT'
 var
   M: TBytes;
 begin
@@ -117,12 +112,10 @@ begin
   SetLength(M, Length(MASK));
   Move(MASK[0], M[0], Length(MASK));
   Reg.RegisterAlgorithm($01, IOBDSeedKeyAlgorithm(TOBDSeedKeyXorMask.Create(M,
-    'Dacia (Renault-lineage) XOR-mask placeholder',
-    'community-pr', False)));
+    'Dacia (Renault-lineage) XOR-mask placeholder', 'community-pr', False)));
 end;
 
-procedure TOBDOEMExtensionDacia.SeedDefaultDtcCatalog(
-  Cat: TOBDDtcCatalog);
+procedure TOBDOEMExtensionDacia.SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog);
 begin
   inherited;
   MergeDtcCatalog('dtc-iso-15031.json', Cat);
@@ -141,8 +134,7 @@ begin
     $F190:
       if Length(Payload) > 0 then
       begin
-        Result := Format('vin = %s',
-          [TEncoding.ASCII.GetString(Payload)]);
+        Result := Format('vin = %s', [TEncoding.ASCII.GetString(Payload)]);
         Exit;
       end;
     $F1A0, $F1A2, $F1A4, $F1A6:
@@ -157,6 +149,7 @@ begin
 end;
 
 initialization
-  TOBDOEMRegistry.RegisterExtension(TOBDOEMExtensionDacia.Create);
+
+TOBDOEMRegistry.RegisterExtension(TOBDOEMExtensionDacia.Create);
 
 end.

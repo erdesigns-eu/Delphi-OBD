@@ -1,44 +1,44 @@
-//------------------------------------------------------------------------------
-//  ERD.Flash.OEM.Catalog
+﻿// ------------------------------------------------------------------------------
+// ERD.Flash.OEM.Catalog
 //
-//  TOBDFlashOEMCatalog — loader for per-platform overrides on
-//  the OEM bootloader handshakes. Schema lives in
-//  <c>data/schemas/oem-flash-handshake-catalog.schema.json</c>.
+// TOBDFlashOEMCatalog — loader for per-platform overrides on
+// the OEM bootloader handshakes. Schema lives in
+// <c>data/schemas/oem-flash-handshake-catalog.schema.json</c>.
 //
-//  Hosts populate the catalogue from their own ground-truth
-//  sources (ISTA / ODX / vendor service docs) and call
-//  <see cref="ApplyTo"/> against a vendor-specific
-//  <c>TOBDFlashHandshakeXxx</c> instance to overlay the platform's
-//  session sub-function, security level, RIDs and addressing
-//  format bytes before <c>Run</c>.
+// Hosts populate the catalogue from their own ground-truth
+// sources (ISTA / ODX / vendor service docs) and call
+// <see cref="ApplyTo"/> against a vendor-specific
+// <c>TOBDFlashHandshakeXxx</c> instance to overlay the platform's
+// session sub-function, security level, RIDs and addressing
+// format bytes before <c>Run</c>.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-09  ERD  Follow-up.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Follow-up.
+// ------------------------------------------------------------------------------
 
 unit ERD.Flash.OEM.Catalog;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   System.IOUtils,
   System.JSON,
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.Types,
   ERD.Flash.OEM.Common,
   ERD.Flash.OEM.VAG,
@@ -85,7 +85,8 @@ type
   /// Thread-safe.</summary>
   TOBDFlashOEMCatalog = class
   strict private
-    class var FInstance: TOBDFlashOEMCatalog;
+  class var
+    FInstance: TOBDFlashOEMCatalog;
     FLock: TCriticalSection;
     FDocs: TList<TOBDOEMCatalogDoc>;
     procedure ParseDocument(const ARoot: TJSONObject;
@@ -128,12 +129,12 @@ function ParseUIntJSON(AVal: TJSONValue; ADefault: Int64): Int64;
 var
   S: string;
 begin
-  if AVal is TJSONNumber then Exit(TJSONNumber(AVal).AsInt64);
+  if AVal is TJSONNumber then
+    Exit(TJSONNumber(AVal).AsInt64);
   if AVal is TJSONString then
   begin
     S := Trim(TJSONString(AVal).Value);
-    if (Length(S) >= 2) and (S[1] = '0') and
-       CharInSet(S[2], ['x', 'X']) then
+    if (Length(S) >= 2) and (S[1] = '0') and CharInSet(S[2], ['x', 'X']) then
       Exit(StrToInt64('$' + Copy(S, 3, MaxInt)));
     Exit(StrToInt64(S));
   end;
@@ -145,39 +146,54 @@ var
   V: TJSONValue;
 begin
   V := AObj.GetValue(AKey);
-  if V is TJSONString then Result := V.Value else Result := ADef;
+  if V is TJSONString then
+    Result := V.Value
+  else
+    Result := ADef;
 end;
 
-function ReadBool(AObj: TJSONObject; const AKey: string;
-  ADef: Boolean; out AHas: Boolean): Boolean;
+function ReadBool(AObj: TJSONObject; const AKey: string; ADef: Boolean;
+  out AHas: Boolean): Boolean;
 var
   V: TJSONValue;
 begin
   AHas := False;
   V := AObj.GetValue(AKey);
-  if V is TJSONBool then begin AHas := True; Exit(TJSONBool(V).AsBoolean); end;
+  if V is TJSONBool then
+  begin
+    AHas := True;
+    Exit(TJSONBool(V).AsBoolean);
+  end;
   Result := ADef;
 end;
 
-function ReadByte(AObj: TJSONObject; const AKey: string;
-  ADef: Byte; out AHas: Boolean): Byte;
+function ReadByte(AObj: TJSONObject; const AKey: string; ADef: Byte;
+  out AHas: Boolean): Byte;
 var
   V: TJSONValue;
 begin
   AHas := False;
   V := AObj.GetValue(AKey);
-  if V <> nil then begin AHas := True; Exit(Byte(ParseUIntJSON(V, ADef))); end;
+  if V <> nil then
+  begin
+    AHas := True;
+    Exit(Byte(ParseUIntJSON(V, ADef)));
+  end;
   Result := ADef;
 end;
 
-function ReadWord(AObj: TJSONObject; const AKey: string;
-  ADef: Word; out AHas: Boolean): Word;
+function ReadWord(AObj: TJSONObject; const AKey: string; ADef: Word;
+  out AHas: Boolean): Word;
 var
   V: TJSONValue;
 begin
   AHas := False;
   V := AObj.GetValue(AKey);
-  if V <> nil then begin AHas := True; Exit(Word(ParseUIntJSON(V, ADef))); end;
+  if V <> nil then
+  begin
+    AHas := True;
+    Exit(Word(ParseUIntJSON(V, ADef)));
+  end;
   Result := ADef;
 end;
 
@@ -197,7 +213,8 @@ end;
 
 class function TOBDFlashOEMCatalog.Default: TOBDFlashOEMCatalog;
 begin
-  if FInstance = nil then FInstance := TOBDFlashOEMCatalog.Create;
+  if FInstance = nil then
+    FInstance := TOBDFlashOEMCatalog.Create;
   Result := FInstance;
 end;
 
@@ -209,15 +226,21 @@ end;
 procedure TOBDFlashOEMCatalog.Clear;
 begin
   FLock.Enter;
-  try FDocs.Clear;
-  finally FLock.Leave; end;
+  try
+    FDocs.Clear;
+  finally
+    FLock.Leave;
+  end;
 end;
 
 function TOBDFlashOEMCatalog.Count: Integer;
 begin
   FLock.Enter;
-  try Result := FDocs.Count;
-  finally FLock.Leave; end;
+  try
+    Result := FDocs.Count;
+  finally
+    FLock.Leave;
+  end;
 end;
 
 procedure TOBDFlashOEMCatalog.ParseDocument(const ARoot: TJSONObject;
@@ -233,28 +256,30 @@ var
 begin
   ADoc := System.Default(TOBDOEMCatalogDoc);
   V := ARoot.GetValue('version');
-  if not (V is TJSONNumber) or (TJSONNumber(V).AsInt64 <> 1) then
+  if not(V is TJSONNumber) or (TJSONNumber(V).AsInt64 <> 1) then
     raise EOBDProtocol.Create('OEM handshake catalogue: version must be 1');
-  ADoc.Vendor        := ReadString(ARoot, 'vendor', '');
+  ADoc.Vendor := ReadString(ARoot, 'vendor', '');
   ADoc.VendorDisplay := ReadString(ARoot, 'vendor_display', '');
-  ADoc.Source        := ReadString(ARoot, 'source', '');
+  ADoc.Source := ReadString(ARoot, 'source', '');
   if ADoc.Vendor = '' then
     raise EOBDProtocol.Create('OEM handshake catalogue: vendor required');
 
   V := ARoot.GetValue('platforms');
-  if not (V is TJSONArray) then
-    raise EOBDProtocol.Create(
-      'OEM handshake catalogue: platforms must be an array');
+  if not(V is TJSONArray) then
+    raise EOBDProtocol.Create
+      ('OEM handshake catalogue: platforms must be an array');
   Arr := V as TJSONArray;
   Acc := TList<TOBDOEMPlatform>.Create;
   try
     for I := 0 to Arr.Count - 1 do
     begin
-      if not (Arr.Items[I] is TJSONObject) then Continue;
+      if not(Arr.Items[I] is TJSONObject) then
+        Continue;
       PlatObj := Arr.Items[I] as TJSONObject;
       Plat := System.Default(TOBDOEMPlatform);
       Plat.Name := ReadString(PlatObj, 'name', '');
-      if Plat.Name = '' then Continue;
+      if Plat.Name = '' then
+        Continue;
       Plat.EcuFamily := ReadString(PlatObj, 'ecu_family', '');
       Plat.SessionSubFunction := ReadByte(PlatObj, 'session_subfunction', 0,
         Plat.HasSessionSubFunction);
@@ -274,7 +299,8 @@ begin
         0, Plat.HasDataFormatIdentifier);
       Plat.Notes := ReadString(PlatObj, 'notes', '');
       Acc.Add(Plat);
-      Has := False; if Has then ; // suppress warning
+      Has := False;
+      if Has then; // suppress warning
     end;
     ADoc.Platforms := Acc.ToArray;
   finally
@@ -284,21 +310,22 @@ end;
 
 procedure TOBDFlashOEMCatalog.LoadFile(const AFileName: string);
 var
-  Json: string;
+  JSON: string;
   Doc: TJSONValue;
   Loaded: TOBDOEMCatalogDoc;
   I: Integer;
 begin
   if not TFile.Exists(AFileName) then
-    raise EOBDProtocol.CreateFmt(
-      'OEM handshake catalogue not found: %s', [AFileName]);
-  Json := TFile.ReadAllText(AFileName, TEncoding.UTF8);
-  Doc := TJSONObject.ParseJSONValue(Json);
-  if not (Doc is TJSONObject) then
+    raise EOBDProtocol.CreateFmt('OEM handshake catalogue not found: %s',
+      [AFileName]);
+  JSON := TFile.ReadAllText(AFileName, TEncoding.UTF8);
+  Doc := TJSONObject.ParseJSONValue(JSON);
+  if not(Doc is TJSONObject) then
   begin
-    if Doc <> nil then Doc.Free;
-    raise EOBDProtocol.CreateFmt(
-      'OEM handshake catalogue: %s root not an object', [AFileName]);
+    if Doc <> nil then
+      Doc.Free;
+    raise EOBDProtocol.CreateFmt
+      ('OEM handshake catalogue: %s root not an object', [AFileName]);
   end;
   try
     ParseDocument(Doc as TJSONObject, Loaded);
@@ -343,59 +370,72 @@ end;
 class procedure TOBDFlashOEMCatalog.ApplyTo(AHandshake: TOBDFlashHandshakeVAG;
   const APlatform: TOBDOEMPlatform);
 begin
-  if APlatform.HasSecurityLevel  then AHandshake.SecurityLevel  := APlatform.SecurityLevel;
-  if APlatform.HasEraseRoutineID then AHandshake.EraseRoutineID := APlatform.EraseRoutineID;
+  if APlatform.HasSecurityLevel then
+    AHandshake.SecurityLevel := APlatform.SecurityLevel;
+  if APlatform.HasEraseRoutineID then
+    AHandshake.EraseRoutineID := APlatform.EraseRoutineID;
 end;
 
 class procedure TOBDFlashOEMCatalog.ApplyTo(AHandshake: TOBDFlashHandshakeBMW;
   const APlatform: TOBDOEMPlatform);
 begin
-  if APlatform.HasExtendedFirst   then AHandshake.ExtendedFirst  := APlatform.ExtendedFirst;
-  if APlatform.HasSecurityLevel   then AHandshake.SecurityLevel  := APlatform.SecurityLevel;
-  if APlatform.HasEraseRoutineID  then AHandshake.EraseRoutineID := APlatform.EraseRoutineID;
+  if APlatform.HasExtendedFirst then
+    AHandshake.ExtendedFirst := APlatform.ExtendedFirst;
+  if APlatform.HasSecurityLevel then
+    AHandshake.SecurityLevel := APlatform.SecurityLevel;
+  if APlatform.HasEraseRoutineID then
+    AHandshake.EraseRoutineID := APlatform.EraseRoutineID;
 end;
 
 class procedure TOBDFlashOEMCatalog.ApplyTo(AHandshake: TOBDFlashHandshakeFord;
   const APlatform: TOBDOEMPlatform);
 begin
-  if APlatform.HasSecurityLevel  then AHandshake.SecurityLevel  := APlatform.SecurityLevel;
-  if APlatform.HasEraseRoutineID then AHandshake.EraseRoutineID := APlatform.EraseRoutineID;
+  if APlatform.HasSecurityLevel then
+    AHandshake.SecurityLevel := APlatform.SecurityLevel;
+  if APlatform.HasEraseRoutineID then
+    AHandshake.EraseRoutineID := APlatform.EraseRoutineID;
 end;
 
 class procedure TOBDFlashOEMCatalog.ApplyTo(AHandshake: TOBDFlashHandshakeHMG;
   const APlatform: TOBDOEMPlatform);
 begin
-  if APlatform.HasSecurityLevel  then AHandshake.SecurityLevel  := APlatform.SecurityLevel;
-  if APlatform.HasEraseRoutineID then AHandshake.EraseRoutineID := APlatform.EraseRoutineID;
+  if APlatform.HasSecurityLevel then
+    AHandshake.SecurityLevel := APlatform.SecurityLevel;
+  if APlatform.HasEraseRoutineID then
+    AHandshake.EraseRoutineID := APlatform.EraseRoutineID;
 end;
 
-class procedure TOBDFlashOEMCatalog.ApplyTo(
-  AHandshake: TOBDFlashHandshakeMercedes;
-  const APlatform: TOBDOEMPlatform);
+class procedure TOBDFlashOEMCatalog.ApplyTo(AHandshake
+  : TOBDFlashHandshakeMercedes; const APlatform: TOBDOEMPlatform);
 begin
-  if APlatform.HasSecurityLevel  then AHandshake.SecurityLevel  := APlatform.SecurityLevel;
-  if APlatform.HasEraseRoutineID then AHandshake.EraseRoutineID := APlatform.EraseRoutineID;
+  if APlatform.HasSecurityLevel then
+    AHandshake.SecurityLevel := APlatform.SecurityLevel;
+  if APlatform.HasEraseRoutineID then
+    AHandshake.EraseRoutineID := APlatform.EraseRoutineID;
 end;
 
-class procedure TOBDFlashOEMCatalog.ApplyTo(
-  AHandshake: TOBDFlashHandshakeStellantis;
-  const APlatform: TOBDOEMPlatform);
+class procedure TOBDFlashOEMCatalog.ApplyTo(AHandshake
+  : TOBDFlashHandshakeStellantis; const APlatform: TOBDOEMPlatform);
 begin
-  if APlatform.HasSecurityLevel  then AHandshake.SecurityLevel  := APlatform.SecurityLevel;
-  if APlatform.HasEraseRoutineID then AHandshake.EraseRoutineID := APlatform.EraseRoutineID;
+  if APlatform.HasSecurityLevel then
+    AHandshake.SecurityLevel := APlatform.SecurityLevel;
+  if APlatform.HasEraseRoutineID then
+    AHandshake.EraseRoutineID := APlatform.EraseRoutineID;
 end;
 
-class procedure TOBDFlashOEMCatalog.ApplyTo(
-  AHandshake: TOBDFlashHandshakeToyota;
-  const APlatform: TOBDOEMPlatform);
+class procedure TOBDFlashOEMCatalog.ApplyTo(AHandshake
+  : TOBDFlashHandshakeToyota; const APlatform: TOBDOEMPlatform);
 begin
-  if APlatform.HasSecurityLevel  then AHandshake.SecurityLevel  := APlatform.SecurityLevel;
-  if APlatform.HasEraseRoutineID then AHandshake.EraseRoutineID := APlatform.EraseRoutineID;
+  if APlatform.HasSecurityLevel then
+    AHandshake.SecurityLevel := APlatform.SecurityLevel;
+  if APlatform.HasEraseRoutineID then
+    AHandshake.EraseRoutineID := APlatform.EraseRoutineID;
 end;
 
 initialization
 
 finalization
-  TOBDFlashOEMCatalog.ReleaseDefault;
+
+TOBDFlashOEMCatalog.ReleaseDefault;
 
 end.

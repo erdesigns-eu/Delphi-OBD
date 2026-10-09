@@ -1,42 +1,42 @@
-//------------------------------------------------------------------------------
-//  ERD.Design.Forms.LiveTest
+﻿// ------------------------------------------------------------------------------
+// ERD.Design.Forms.LiveTest
 //
-//  TOBDLiveTestDlg — modal "test something at design time" dialog
-//  shared by the connection, adapter and protocol component
-//  editors. Header text identifies what the host is testing; the
-//  body memo collects log lines emitted by the test action; the
-//  footer shows a status banner ("Running…", "OK", "Failed").
+// TOBDLiveTestDlg — modal "test something at design time" dialog
+// shared by the connection, adapter and protocol component
+// editors. Header text identifies what the host is testing; the
+// body memo collects log lines emitted by the test action; the
+// footer shows a status banner ("Running…", "OK", "Failed").
 //
-//  The dialog is intentionally generic — each component editor
-//  passes a callback that performs the test and writes lines to
-//  the dialog. Threading is inside the callback (tests typically
-//  run async and signal completion through the supplied write
-//  routine).
+// The dialog is intentionally generic — each component editor
+// passes a callback that performs the test and writes lines to
+// the dialog. Threading is inside the callback (tests typically
+// run async and signal completion through the supplied write
+// routine).
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-10  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-10  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Design.Forms.LiveTest;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}ERD.Compat.Functions,{$ENDIF}
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}ERD.Compat.Functions, {$ENDIF}
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   Vcl.Controls,
   Vcl.Forms,
   Vcl.StdCtrls,
@@ -51,8 +51,7 @@ type
   /// <para>The action receives a <c>WriteLine</c> callback for
   /// streaming log messages and a <c>SetStatus</c> callback for
   /// flipping the footer banner.</para></summary>
-  TOBDLiveTestAction = reference to procedure(
-    const AWriteLine: TProc<string>;
+  TOBDLiveTestAction = reference to procedure(const AWriteLine: TProc<string>;
     const ASetStatus: TProc<TOBDLiveTestStatus>);
 
   /// <summary>Modal live-test dialog.</summary>
@@ -86,7 +85,6 @@ type
 implementation
 
 {$R *.dfm}
-
 { ---- TOBDLiveTestDlg --------------------------------------------------------- }
 
 constructor TOBDLiveTestDlg.Create(AOwner: TComponent);
@@ -103,18 +101,25 @@ end;
 
 /// <summary>Callbacks can be retained by an action after the dialog closes.
 /// Check the captured token without touching the former dialog first.</summary>
-procedure PostLiveTest(const AToken: IOBDDispatchLifetime; const AAction: TProc);
-var Token: IOBDDispatchLifetime; ActionCopy: TProc;
+procedure PostLiveTest(const AToken: IOBDDispatchLifetime;
+  const AAction: TProc);
+var
+  Token: IOBDDispatchLifetime;
+  ActionCopy: TProc;
 begin
   Token := AToken;
   ActionCopy := AAction;
-  if Token.IsCancelled then Exit;
-  if TThread.CurrentThread.ThreadID = MainThreadID then ActionCopy()
-  else TThread.Queue(nil,
-    procedure
-    begin
-      if not Token.IsCancelled then ActionCopy();
-    end);
+  if Token.IsCancelled then
+    Exit;
+  if TThread.CurrentThread.ThreadID = MainThreadID then
+    ActionCopy()
+  else
+    TThread.Queue(nil,
+      procedure
+      begin
+        if not Token.IsCancelled then
+          ActionCopy();
+      end);
 end;
 
 procedure TOBDLiveTestDlg.ApplyStatus(AStatus: TOBDLiveTestStatus);
@@ -127,21 +132,24 @@ begin
       end;
     ltsOK:
       begin
-        pnlStatus.Color := $00B5DEAA;  // soft green
+        pnlStatus.Color := $00B5DEAA; // soft green
         lblStatus.Caption := 'OK';
       end;
     ltsFail:
       begin
-        pnlStatus.Color := $00A2A2DE;  // soft red
+        pnlStatus.Color := $00A2A2DE; // soft red
         lblStatus.Caption := 'Failed';
       end;
   end;
 end;
 
 procedure TOBDLiveTestDlg.btnRunClick(Sender: TObject);
-var Token: IOBDDispatchLifetime; ActionCopy: TOBDLiveTestAction;
+var
+  Token: IOBDDispatchLifetime;
+  ActionCopy: TOBDLiveTestAction;
 begin
-  if not Assigned(FAction) then Exit;
+  if not Assigned(FAction) then
+    Exit;
   Token := FDispatch.Lifetime;
   ActionCopy := FAction;
   btnRun.Enabled := False;
@@ -166,12 +174,13 @@ begin
           end);
       end);
   finally
-    if not Token.IsCancelled then btnRun.Enabled := True;
+    if not Token.IsCancelled then
+      btnRun.Enabled := True;
   end;
 end;
 
 class procedure TOBDLiveTestDlg.Show(const ATitle, ATarget: string;
-  const AAction: TOBDLiveTestAction);
+const AAction: TOBDLiveTestAction);
 var
   Dlg: TOBDLiveTestDlg;
 begin

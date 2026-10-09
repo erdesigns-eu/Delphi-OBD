@@ -1,47 +1,47 @@
-//------------------------------------------------------------------------------
-//  ERD.Recorder.ProtocolMock
+﻿// ------------------------------------------------------------------------------
+// ERD.Recorder.ProtocolMock
 //
-//  TOBDProtocolMock — a non-component class that exposes the
-//  same event surface as <see cref="ERD.Protocol.TOBDProtocol"/>
-//  (<c>OnFrame</c> / <c>OnResponse</c> / <c>OnNRC</c> /
-//  <c>OnError</c>) but drives those events from a recorded
-//  <c>.obdlog</c> instead of a live ECU. Hosts wire their
-//  integration tests against the mock the same way they wire to
-//  a real protocol; flip a constant and the test runs against a
-//  capture from the bench.
+// TOBDProtocolMock — a non-component class that exposes the
+// same event surface as <see cref="ERD.Protocol.TOBDProtocol"/>
+// (<c>OnFrame</c> / <c>OnResponse</c> / <c>OnNRC</c> /
+// <c>OnError</c>) but drives those events from a recorded
+// <c>.obdlog</c> instead of a live ECU. Hosts wire their
+// integration tests against the mock the same way they wire to
+// a real protocol; flip a constant and the test runs against a
+// capture from the bench.
 //
-//  Designed for end-to-end host-side tests:
-//    - Capture a session against a live car with TOBDRecorder.
-//    - Ship the .obdlog as a fixture.
-//    - In CI: load the fixture into TOBDProtocolMock and replay.
+// Designed for end-to-end host-side tests:
+// - Capture a session against a live car with TOBDRecorder.
+// - Ship the .obdlog as a fixture.
+// - In CI: load the fixture into TOBDProtocolMock and replay.
 //
-//  This class is intentionally not registered on the palette —
-//  it is a test helper.
+// This class is intentionally not registered on the palette —
+// it is a test helper.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-10  ERD  Follow-up: end-to-end capture replay.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-10  ERD  Follow-up: end-to-end capture replay.
+// ------------------------------------------------------------------------------
 
 unit ERD.Recorder.ProtocolMock;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
   ERD.Connection,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   ERD.Types,
   ERD.Protocol.Types,
   ERD.Recorder,
@@ -90,8 +90,8 @@ type
     /// <summary>Mirrors <c>TOBDProtocol.OnFrame</c>.</summary>
     property OnFrame: TOBDProtocolFrameEvent read FOnFrame write FOnFrame;
     /// <summary>Mirrors <c>TOBDProtocol.OnResponse</c>.</summary>
-    property OnResponse: TOBDProtocolResponseEvent
-      read FOnResponse write FOnResponse;
+    property OnResponse: TOBDProtocolResponseEvent read FOnResponse
+      write FOnResponse;
     /// <summary>Mirrors <c>TOBDProtocol.OnNRC</c>.</summary>
     property OnNRC: TOBDProtocolNRCEvent read FOnNRC write FOnNRC;
     /// <summary>Mirrors <c>TOBDProtocol.OnError</c>.</summary>
@@ -106,9 +106,9 @@ constructor TOBDProtocolMock.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FReplayer := TOBDReplayer.Create(Self);
-  FReplayer.OnEntry    := HandleEntry;
+  FReplayer.OnEntry := HandleEntry;
   FReplayer.OnComplete := HandleComplete;
-  FReplayer.OnError    := HandleError;
+  FReplayer.OnError := HandleError;
 end;
 
 destructor TOBDProtocolMock.Destroy;
@@ -165,7 +165,7 @@ begin
     leFrame:
       if Assigned(FOnFrame) then
       begin
-        Frame := Default(TOBDFrame);
+        Frame := Default (TOBDFrame);
         Frame.Id := AEntry.FrameID;
         Frame.IsExtendedId := AEntry.Extended;
         Frame.Payload := AEntry.Raw;
@@ -179,8 +179,8 @@ begin
       begin
         Resp := MakeOBDResponse;
         Resp.ServiceID := AEntry.ServiceID;
-        Resp.Data      := AEntry.Raw;
-        Resp.Elapsed   := AEntry.ElapsedMs;
+        Resp.Data := AEntry.Raw;
+        Resp.Elapsed := AEntry.ElapsedMs;
         FOnResponse(Self, Resp);
       end;
 
@@ -206,14 +206,15 @@ end;
 
 procedure TOBDProtocolMock.HandleComplete(Sender: TObject);
 begin
-  if Assigned(FOnComplete) then FOnComplete(Self);
+  if Assigned(FOnComplete) then
+    FOnComplete(Self);
 end;
 
-procedure TOBDProtocolMock.HandleError(Sender: TObject;
-  ACode: TOBDErrorCode; const AMessage: string;
-  var AHandled: Boolean);
+procedure TOBDProtocolMock.HandleError(Sender: TObject; ACode: TOBDErrorCode;
+  const AMessage: string; var AHandled: Boolean);
 begin
-  if Assigned(FOnError) then FOnError(Self, ACode, AMessage, AHandled);
+  if Assigned(FOnError) then
+    FOnError(Self, ACode, AMessage, AHandled);
 end;
 
 end.

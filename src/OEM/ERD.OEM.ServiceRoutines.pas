@@ -1,45 +1,45 @@
-//------------------------------------------------------------------------------
-//  ERD.OEM.ServiceRoutines
+﻿// ------------------------------------------------------------------------------
+// ERD.OEM.ServiceRoutines
 //
-//  Workshop service-routine registry. Loads
-//  <c>catalogs/service-routines.json</c> into a process-wide
-//  read-only registry of <see cref="TOBDServiceRoutine"/>
-//  records and exposes lookup by key / category / OEM. Each
-//  entry knows its UDS Service 0x31 sub-function +
-//  RoutineIdentifier + option record, plus workshop-side
-//  metadata: required session type, safety pre-conditions,
-//  citation.
+// Workshop service-routine registry. Loads
+// <c>catalogs/service-routines.json</c> into a process-wide
+// read-only registry of <see cref="TOBDServiceRoutine"/>
+// records and exposes lookup by key / category / OEM. Each
+// entry knows its UDS Service 0x31 sub-function +
+// RoutineIdentifier + option record, plus workshop-side
+// metadata: required session type, safety pre-conditions,
+// citation.
 //
-//  <see cref="BuildRoutineControlFrame"/> renders the on-wire
-//  bytes (<c>31 SF RID-hi RID-lo OptionRecord...</c>) so callers
-//  can drive a routine directly through TOBDProtocol.Request.
+// <see cref="BuildRoutineControlFrame"/> renders the on-wire
+// bytes (<c>31 SF RID-hi RID-lo OptionRecord...</c>) so callers
+// can drive a routine directly through TOBDProtocol.Request.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - ISO 14229-1 §13 RoutineControl
+// References  :
+// - ISO 14229-1 §13 RoutineControl
 //
-//  History     :
-//    2026-05-12  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-12  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.OEM.ServiceRoutines;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF};
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF};
 
 type
   /// <summary>Raised on registry / frame-build errors.</summary>
@@ -115,13 +115,12 @@ type
     Citation: string;
   end;
 
-/// <summary>Builds the UDS 0x31 RoutineControl request frame
-/// (<c>31 SF RID-hi RID-lo [OptionRecord]</c>).</summary>
-/// <param name="Routine">Routine to encode.</param>
-/// <exception cref="EOBDServiceRoutine">Invalid sub-function
-/// (must be 0x01 / 0x02 / 0x03).</exception>
-function BuildRoutineControlFrame(
-  const Routine: TOBDServiceRoutine): TBytes;
+  /// <summary>Builds the UDS 0x31 RoutineControl request frame
+  /// (<c>31 SF RID-hi RID-lo [OptionRecord]</c>).</summary>
+  /// <param name="Routine">Routine to encode.</param>
+  /// <exception cref="EOBDServiceRoutine">Invalid sub-function
+  /// (must be 0x01 / 0x02 / 0x03).</exception>
+function BuildRoutineControlFrame(const Routine: TOBDServiceRoutine): TBytes;
 
 type
   /// <summary>Process-wide routine registry. Loads
@@ -131,7 +130,8 @@ type
   /// <see cref="FreeInstance"/>.</summary>
   TOBDServiceRoutineRegistry = class
   strict private
-    class var FInstance: TOBDServiceRoutineRegistry;
+  class var
+    FInstance: TOBDServiceRoutineRegistry;
     FRoutines: TList<TOBDServiceRoutine>;
     FByKey: TDictionary<string, Integer>;
     procedure LoadFromCatalog;
@@ -156,8 +156,7 @@ type
     /// <param name="Routine">Out: matching routine on
     /// success.</param>
     /// <returns><c>True</c> when found.</returns>
-    function Find(const Key: string;
-      out Routine: TOBDServiceRoutine): Boolean;
+    function Find(const Key: string; out Routine: TOBDServiceRoutine): Boolean;
     /// <summary>Returns every routine in a category.</summary>
     procedure GetByCategory(Category: TOBDServiceRoutineCategory;
       out Routines: TArray<TOBDServiceRoutine>);
@@ -171,21 +170,20 @@ type
 implementation
 
 uses
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   System.JSON,
   ERD.OEM.Catalog.Loader;
 
 const
   CatalogFileName = 'service-routines.json';
 
-function BuildRoutineControlFrame(
-  const Routine: TOBDServiceRoutine): TBytes;
+function BuildRoutineControlFrame(const Routine: TOBDServiceRoutine): TBytes;
 var
   OptLen: Integer;
 begin
-  if not (Routine.SubFunction in [$01, $02, $03]) then
-    raise EOBDServiceRoutine.CreateFmt(
-      'Invalid sub-function 0x%.2x; expected 0x01/0x02/0x03',
+  if not(Routine.SubFunction in [$01, $02, $03]) then
+    raise EOBDServiceRoutine.CreateFmt
+      ('Invalid sub-function 0x%.2x; expected 0x01/0x02/0x03',
       [Routine.SubFunction]);
   OptLen := Length(Routine.OptionRecord);
   SetLength(Result, 4 + OptLen);
@@ -199,25 +197,39 @@ end;
 
 function CategoryFromString(const S: string): TOBDServiceRoutineCategory;
 begin
-  if SameText(S, 'maintenance')        then Exit(srcMaintenance);
-  if SameText(S, 'steering_brakes')    then Exit(srcSteeringBrakes);
-  if SameText(S, 'powertrain')         then Exit(srcPowertrain);
-  if SameText(S, 'comfort')            then Exit(srcComfort);
-  if SameText(S, 'battery_electrical') then Exit(srcBatteryElectrical);
-  if SameText(S, 'tpms')               then Exit(srcTPMS);
-  if SameText(S, 'emissions')          then Exit(srcEmissions);
+  if SameText(S, 'maintenance') then
+    Exit(srcMaintenance);
+  if SameText(S, 'steering_brakes') then
+    Exit(srcSteeringBrakes);
+  if SameText(S, 'powertrain') then
+    Exit(srcPowertrain);
+  if SameText(S, 'comfort') then
+    Exit(srcComfort);
+  if SameText(S, 'battery_electrical') then
+    Exit(srcBatteryElectrical);
+  if SameText(S, 'tpms') then
+    Exit(srcTPMS);
+  if SameText(S, 'emissions') then
+    Exit(srcEmissions);
   Result := srcMaintenance;
 end;
 
 function SafetyFromString(const S: string): TOBDServiceRoutineSafety;
 begin
-  if SameText(S, 'none')                       then Exit(srsNone);
-  if SameText(S, 'engine_must_be_running')     then Exit(srsEngineMustBeRunning);
-  if SameText(S, 'engine_must_be_off')         then Exit(srsEngineMustBeOff);
-  if SameText(S, 'vehicle_must_be_stationary') then Exit(srsVehicleMustBeStationary);
-  if SameText(S, 'vehicle_may_move')           then Exit(srsVehicleMayMove);
-  if SameText(S, 'battery_min_12v5')           then Exit(srsBatteryMin12V5);
-  if SameText(S, 'requires_workshop_login')    then Exit(srsRequiresWorkshopLogin);
+  if SameText(S, 'none') then
+    Exit(srsNone);
+  if SameText(S, 'engine_must_be_running') then
+    Exit(srsEngineMustBeRunning);
+  if SameText(S, 'engine_must_be_off') then
+    Exit(srsEngineMustBeOff);
+  if SameText(S, 'vehicle_must_be_stationary') then
+    Exit(srsVehicleMustBeStationary);
+  if SameText(S, 'vehicle_may_move') then
+    Exit(srsVehicleMayMove);
+  if SameText(S, 'battery_min_12v5') then
+    Exit(srsBatteryMin12V5);
+  if SameText(S, 'requires_workshop_login') then
+    Exit(srsRequiresWorkshopLogin);
   Result := srsNone;
 end;
 
@@ -265,8 +277,7 @@ begin
   inherited;
 end;
 
-class function TOBDServiceRoutineRegistry.Instance:
-  TOBDServiceRoutineRegistry;
+class function TOBDServiceRoutineRegistry.Instance: TOBDServiceRoutineRegistry;
 begin
   if FInstance = nil then
     FInstance := TOBDServiceRoutineRegistry.Create;
@@ -283,8 +294,7 @@ begin
   Result := FRoutines.Count;
 end;
 
-function TOBDServiceRoutineRegistry.Get(
-  Index: Integer): TOBDServiceRoutine;
+function TOBDServiceRoutineRegistry.Get(Index: Integer): TOBDServiceRoutine;
 begin
   Result := FRoutines[Index];
 end;
@@ -299,8 +309,8 @@ begin
     Routine := FRoutines[Idx];
 end;
 
-procedure TOBDServiceRoutineRegistry.GetByCategory(
-  Category: TOBDServiceRoutineCategory;
+procedure TOBDServiceRoutineRegistry.GetByCategory
+  (Category: TOBDServiceRoutineCategory;
   out Routines: TArray<TOBDServiceRoutine>);
 var
   R: TOBDServiceRoutine;
@@ -317,8 +327,7 @@ begin
   end;
 end;
 
-procedure TOBDServiceRoutineRegistry.GetByOEM(
-  const OEMKey: string;
+procedure TOBDServiceRoutineRegistry.GetByOEM(const OEMKey: string;
   out Routines: TArray<TOBDServiceRoutine>);
 var
   Needle: string;
@@ -360,7 +369,7 @@ begin
     Stream.Free;
   end;
   Doc := TJSONObject.ParseJSONValue(Raw);
-  if not (Doc is TJSONObject) then
+  if not(Doc is TJSONObject) then
   begin
     Doc.Free;
     Exit;
@@ -371,27 +380,26 @@ begin
       Exit;
     for Item in Arr do
     begin
-      if not (Item is TJSONObject) then
+      if not(Item is TJSONObject) then
         Continue;
       Obj := Item as TJSONObject;
-      R := Default(TOBDServiceRoutine);
+      R := Default (TOBDServiceRoutine);
       R.Key := LowerCase(Obj.GetValue<string>('key', ''));
       if R.Key = '' then
         Continue;
       R.DisplayName := Obj.GetValue<string>('display_name', '');
-      R.Category := CategoryFromString(
-        Obj.GetValue<string>('category', ''));
+      R.Category := CategoryFromString(Obj.GetValue<string>('category', ''));
       R.Applicability := Obj.GetValue<string>('applicability', '');
-      R.RoutineIdentifier := Word(ParseHexInt(
-        Obj.GetValue<string>('routine_identifier', '0'), 0));
-      R.SubFunction := Byte(ParseHexInt(
-        Obj.GetValue<string>('sub_function', '0x01'), $01));
-      R.OptionRecord := HexStringToBytes(
-        Obj.GetValue<string>('option_record_hex', ''));
-      R.RequiredSessionType := Byte(ParseHexInt(
-        Obj.GetValue<string>('required_session_type', '0x03'), $03));
-      R.Safety := SafetyFromString(
-        Obj.GetValue<string>('safety', 'none'));
+      R.RoutineIdentifier :=
+        Word(ParseHexInt(Obj.GetValue<string>('routine_identifier', '0'), 0));
+      R.SubFunction := Byte(ParseHexInt(Obj.GetValue<string>('sub_function',
+        '0x01'), $01));
+      R.OptionRecord := HexStringToBytes
+        (Obj.GetValue<string>('option_record_hex', ''));
+      R.RequiredSessionType :=
+        Byte(ParseHexInt(Obj.GetValue<string>('required_session_type',
+        '0x03'), $03));
+      R.Safety := SafetyFromString(Obj.GetValue<string>('safety', 'none'));
       R.PreConditions := Obj.GetValue<string>('pre_conditions', '');
       R.PostConditions := Obj.GetValue<string>('post_conditions', '');
       R.Citation := Obj.GetValue<string>('citation', '');
@@ -406,6 +414,7 @@ end;
 initialization
 
 finalization
-  TOBDServiceRoutineRegistry.FreeInstance;
+
+TOBDServiceRoutineRegistry.FreeInstance;
 
 end.

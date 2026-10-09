@@ -1,38 +1,38 @@
-//------------------------------------------------------------------------------
-//  ERD.Service.VIN
+﻿// ------------------------------------------------------------------------------
+// ERD.Service.VIN
 //
-//  TOBDVIN — non-visual component that reads the Vehicle
-//  Identification Number from the ECU. Supports both:
+// TOBDVIN — non-visual component that reads the Vehicle
+// Identification Number from the ECU. Supports both:
 //
-//    - OBD-II Service 09 PID 02 (legacy / OBD-II path)
-//    - UDS Service 22 DID 0xF190 (UDS / KWP path)
+// - OBD-II Service 09 PID 02 (legacy / OBD-II path)
+// - UDS Service 22 DID 0xF190 (UDS / KWP path)
 //
-//  Validates the result with <c>TOBDVINValidator</c> (ISO 3779
-//  check digit). Hosts that
-//  prefer to disable the check digit (older / non-NA vehicles)
-//  can read <c>RawVIN</c> instead of <c>VIN</c>.
+// Validates the result with <c>TOBDVINValidator</c> (ISO 3779
+// check digit). Hosts that
+// prefer to disable the check digit (older / non-NA vehicles)
+// can read <c>RawVIN</c> instead of <c>VIN</c>.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - SAE J1979 Service 09 PID 02
-//    - ISO 14229-1 § 11.4 (UDS ReadDataByIdentifier)
-//    - ISO 3779 (VIN check-digit)
+// References  :
+// - SAE J1979 Service 09 PID 02
+// - ISO 14229-1 § 11.4 (UDS ReadDataByIdentifier)
+// - ISO 3779 (VIN check-digit)
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Service.VIN;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -40,10 +40,10 @@ interface
 uses
   ERD.Async.Task,
   ERD.Connection,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
-  {$IFNDEF FPC}Data.Bind.Components, System.Bindings.Helper,{$ENDIF}
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFNDEF FPC}Data.Bind.Components, System.Bindings.Helper, {$ENDIF}
   ERD.Types,
   ERD.Protocol.Types,
   ERD.Protocol.UDS,
@@ -56,10 +56,10 @@ const
   /// <summary>OBD-II Service 09 — Request Vehicle Information.</summary>
   OBD_MODE_VEHICLE_INFO = $09;
   /// <summary>Service 09 PID 0x02 — VIN message count + VIN.</summary>
-  OBD_PID_VIN           = $02;
+  OBD_PID_VIN = $02;
   /// <summary>UDS DID for the Vehicle Identification Number
   /// (ISO 14229-1 § 11.4.7).</summary>
-  UDS_DID_VIN           = $F190;
+  UDS_DID_VIN = $F190;
 
 type
   /// <summary>Selector for the read path.</summary>
@@ -67,8 +67,7 @@ type
     /// <summary>OBD-II Service 09 PID 02.</summary>
     vsOBDII,
     /// <summary>UDS Service 22 DID 0xF190.</summary>
-    vsUDS
-  );
+    vsUDS);
 
   /// <summary>VIN read result.</summary>
   TOBDVINResult = record
@@ -81,8 +80,8 @@ type
   end;
 
   /// <summary>Fires when a VIN read completes.</summary>
-  TOBDVINEvent = procedure(Sender: TObject;
-    const AResult: TOBDVINResult) of object;
+  TOBDVINEvent = procedure(Sender: TObject; const AResult: TOBDVINResult)
+    of object;
 
   /// <summary>VIN service component.</summary>
   TOBDVIN = class(TComponent)
@@ -118,8 +117,7 @@ type
     /// <see cref="ERD.Service.VINDecoder.TOBDVINDecoder.Decode"/>.
     /// Convenience wrapper for hosts that want the full WMI / VDS
     /// / VIS breakdown alongside the raw read.</summary>
-    function ReadAndDecode(
-      ASource: TOBDVINSource = vsOBDII): TOBDVINInfo;
+    function ReadAndDecode(ASource: TOBDVINSource = vsOBDII): TOBDVINInfo;
   published
     property Protocol: TOBDProtocol read FProtocol write SetProtocol;
     /// <summary>Fires for each successful read (main thread).</summary>
@@ -139,7 +137,8 @@ end;
 
 destructor TOBDVIN.Destroy;
 begin
-  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  if FOwnedTask <> nil then
+    FOwnedTask.Cancel;
   FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
@@ -162,7 +161,8 @@ end;
 procedure TOBDVIN.ReleaseAsync;
 begin
   FAsyncLock.Enter;
-  try FAsyncInFlight := False;
+  try
+    FAsyncInFlight := False;
   finally
     FAsyncLock.Leave;
   end;
@@ -170,20 +170,24 @@ end;
 
 procedure TOBDVIN.SetProtocol(AValue: TOBDProtocol);
 begin
-  if FProtocol = AValue then Exit;
-  if FOwnedTask <> nil then FOwnedTask.Quiesce;
-  if FProtocol <> nil then FProtocol.RemoveFreeNotification(Self);
+  if FProtocol = AValue then
+    Exit;
+  if FOwnedTask <> nil then
+    FOwnedTask.Quiesce;
+  if FProtocol <> nil then
+    FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
-  if FProtocol <> nil then FProtocol.FreeNotification(Self);
+  if FProtocol <> nil then
+    FProtocol.FreeNotification(Self);
 end;
 
-procedure TOBDVIN.Notification(AComponent: TComponent;
-  Operation: TOperation);
+procedure TOBDVIN.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
   begin
-    if FOwnedTask <> nil then FOwnedTask.Quiesce;
+    if FOwnedTask <> nil then
+      FOwnedTask.Quiesce;
     FProtocol := nil;
   end;
 end;
@@ -191,7 +195,7 @@ end;
 function TOBDVIN.ReadOBDII: TOBDVINResult;
 var
   Resp: TOBDResponse;
-  Vin: string;
+  VIN: string;
   Bytes: TBytes;
   Start: Integer;
 begin
@@ -199,13 +203,13 @@ begin
     raise EOBDConfig.Create('TOBDVIN: Protocol not assigned');
   Resp := FProtocol.Request(OBD_MODE_VEHICLE_INFO, TBytes.Create(OBD_PID_VIN));
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt(
-      'Service 09 PID 02 negative: %s', [Resp.NRCText]);
+    raise EOBDProtocolErr.CreateFmt('Service 09 PID 02 negative: %s',
+      [Resp.NRCText]);
   // Response Data: <PID echo 0x02> <NODI / message count> <VIN ASCII…>
   // Some controllers strip the PID echo; some return only the VIN.
   Bytes := Resp.Data;
   if (Length(Bytes) >= 2) and (Bytes[0] = OBD_PID_VIN) then
-    Start := 2  // skip PID echo + message count
+    Start := 2 // skip PID echo + message count
   else if Length(Bytes) >= 1 then
     Start := 1
   else
@@ -213,44 +217,44 @@ begin
   if Length(Bytes) > Start then
   begin
     SetLength(Bytes, Length(Bytes));
-    Vin := TEncoding.ASCII.GetString(
-      Copy(Bytes, Start, Length(Bytes) - Start));
+    VIN := TEncoding.ASCII.GetString(Copy(Bytes, Start, Length(Bytes) - Start));
   end
   else
-    Vin := '';
-  Result.RawVIN := Trim(Vin);
+    VIN := '';
+  Result.RawVIN := Trim(VIN);
   Result.Source := vsOBDII;
-  Result.Valid  := TOBDVINValidator.IsValid(Result.RawVIN);
+  Result.Valid := TOBDVINValidator.IsValid(Result.RawVIN);
 end;
 
 function TOBDVIN.ReadUDS: TOBDVINResult;
 var
   Resp: TOBDResponse;
   Bytes: TBytes;
-  Vin: string;
+  VIN: string;
 begin
   if FProtocol = nil then
     raise EOBDConfig.Create('TOBDVIN: Protocol not assigned');
   Resp := FProtocol.Request(UDS_SID_ReadDataByIdentifier,
     TBytes.Create(Hi(UDS_DID_VIN), Lo(UDS_DID_VIN)));
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt(
-      'UDS RDBI 0xF190 negative: %s', [Resp.NRCText]);
+    raise EOBDProtocolErr.CreateFmt('UDS RDBI 0xF190 negative: %s',
+      [Resp.NRCText]);
   // Response Data: <DID HI> <DID LO> <VIN ASCII…>
   Bytes := Resp.Data;
   if Length(Bytes) >= 2 then
-    Vin := TEncoding.ASCII.GetString(Copy(Bytes, 2, Length(Bytes) - 2))
+    VIN := TEncoding.ASCII.GetString(Copy(Bytes, 2, Length(Bytes) - 2))
   else
-    Vin := '';
-  Result.RawVIN := Trim(Vin);
+    VIN := '';
+  Result.RawVIN := Trim(VIN);
   Result.Source := vsUDS;
-  Result.Valid  := TOBDVINValidator.IsValid(Result.RawVIN);
+  Result.Valid := TOBDVINValidator.IsValid(Result.RawVIN);
 end;
 
 function TOBDVIN.Read(ASource: TOBDVINSource): TOBDVINResult;
 begin
   case ASource of
-    vsUDS:    Result := ReadUDS;
+    vsUDS:
+      Result := ReadUDS;
   else
     Result := ReadOBDII;
   end;
@@ -272,7 +276,8 @@ var
 begin
   GuardSingleAsync;
   try
-    Self_ := Self; Source := ASource;
+    Self_ := Self;
+    Source := ASource;
     FOwnedTask.Start(
       procedure
       var
@@ -281,7 +286,8 @@ begin
         try
           try
             case Source of
-              vsUDS:    R := Self_.ReadUDS;
+              vsUDS:
+                R := Self_.ReadUDS;
             else
               R := Self_.ReadOBDII;
             end;
@@ -305,41 +311,52 @@ var
   Self_: TOBDVIN;
   Snap: TOBDVINResult;
 begin
-  Self_ := Self; Snap := AResult;
+  Self_ := Self;
+  Snap := AResult;
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
     try
-      {$IFNDEF FPC}TBindings.Notify(Self_, '');{$ENDIF}
+{$IFNDEF FPC}TBindings.Notify(Self_, ''); {$ENDIF}
     except
     end;
-    if Assigned(FOnVIN) then FOnVIN(Self_, Snap);
+    if Assigned(FOnVIN) then
+      FOnVIN(Self_, Snap);
   end
   else
-    FOwnedTask.Post( procedure begin
-      try
-        {$IFNDEF FPC}TBindings.Notify(Self_, '');{$ENDIF}
-      except
-      end;
-      if Assigned(Self_.FOnVIN) then Self_.FOnVIN(Self_, Snap);
-    end);
+    FOwnedTask.Post(
+      procedure
+      begin
+        try
+{$IFNDEF FPC}TBindings.Notify(Self_, ''); {$ENDIF}
+        except
+        end;
+        if Assigned(Self_.FOnVIN) then
+          Self_.FOnVIN(Self_, Snap);
+      end);
 end;
 
-procedure TOBDVIN.FireError(ACode: TOBDErrorCode;
-  const AMessage: string);
+procedure TOBDVIN.FireError(ACode: TOBDErrorCode; const AMessage: string);
 var
-  Self_: TOBDVIN; Code: TOBDErrorCode; Msg: string;
+  Self_: TOBDVIN;
+  Code: TOBDErrorCode;
+  Msg: string;
   Handled: Boolean;
 begin
-  if not Assigned(FOnError) then Exit;
-  Self_ := Self; Code := ACode; Msg := AMessage;
+  if not Assigned(FOnError) then
+    Exit;
+  Self_ := Self;
+  Code := ACode;
+  Msg := AMessage;
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
     Handled := False;
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    FOwnedTask.Post( procedure
-      var Handled: Boolean;
+    FOwnedTask.Post(
+      procedure
+      var
+        Handled: Boolean;
       begin
         Handled := False;
         if Assigned(Self_.FOnError) then

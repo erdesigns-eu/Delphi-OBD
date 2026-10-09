@@ -1,37 +1,37 @@
-//------------------------------------------------------------------------------
-//  ERD.UI.Telltales
+﻿// ------------------------------------------------------------------------------
+// ERD.UI.Telltales
 //
-//  Dashboard telltales — the small glyph lamps a real cluster
-//  uses to surface emissions / safety / system status:
+// Dashboard telltales — the small glyph lamps a real cluster
+// uses to surface emissions / safety / system status:
 //
-//    TOBDMILLamp        check-engine. Off / on / flashing.
-//    TOBDDTCBadge       circular count badge with pulse on
-//                       arrival. Drops next to a label.
-//    TOBDReadinessLamp  per-monitor "supported / complete /
-//                       incomplete" tri-state icon.
-//    TOBDDashLamp       one component, many glyphs — Glyph enum
-//                       picks the symbol (oil / battery / fuel
-//                       / ABS / seatbelt / airbag / TPMS / ESP
-//                       / ...). State is off / on / flashing.
+// TOBDMILLamp        check-engine. Off / on / flashing.
+// TOBDDTCBadge       circular count badge with pulse on
+// arrival. Drops next to a label.
+// TOBDReadinessLamp  per-monitor "supported / complete /
+// incomplete" tri-state icon.
+// TOBDDashLamp       one component, many glyphs — Glyph enum
+// picks the symbol (oil / battery / fuel
+// / ABS / seatbelt / airbag / TPMS / ESP
+// / ...). State is off / on / flashing.
 //
-//  All four inherit theme / HiDPI / VCL-Style behaviour from
-//  TOBDGraphicControl. Every state mutation routes through
-//  TBindings.Notify so a host that wired a LiveBinding sees
-//  the refresh.
+// All four inherit theme / HiDPI / VCL-Style behaviour from
+// TOBDGraphicControl. Every state mutation routes through
+// TBindings.Notify so a host that wired a LiveBinding sees
+// the refresh.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.UI.Telltales;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -41,9 +41,9 @@ uses
   Winapi.Windows,
   Winapi.GDIPAPI,
   Winapi.GDIPOBJ,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
   System.Bindings.Helper, Data.Bind.Components,
   Vcl.Controls,
   Vcl.Graphics,
@@ -66,24 +66,22 @@ type
     /// the test.</summary>
     rsIncomplete,
     /// <summary>Supported and the test has completed.</summary>
-    rsComplete
-  );
+    rsComplete);
 
   /// <summary>Symbol identifier for <see cref="TOBDDashLamp"/>.
   /// Maps to a built-in vector glyph. Extend by adding a new
   /// enum member and a paint case below.</summary>
-  TOBDDashGlyph = (
-    dgOil,        // engine oil-can
-    dgBattery,    // battery / charging
-    dgFuel,       // pump
-    dgABS,        // ABS lozenge
-    dgSeatbelt,   // seatbelt figure
-    dgAirbag,     // airbag passenger
-    dgTPMS,       // tyre pressure horseshoe
-    dgESP,        // stability control
+  TOBDDashGlyph = (dgOil, // engine oil-can
+    dgBattery, // battery / charging
+    dgFuel, // pump
+    dgABS, // ABS lozenge
+    dgSeatbelt, // seatbelt figure
+    dgAirbag, // airbag passenger
+    dgTPMS, // tyre pressure horseshoe
+    dgESP, // stability control
     dgEngineTemp, // coolant thermometer
-    dgHandbrake   // handbrake bracket
-  );
+    dgHandbrake // handbrake bracket
+    );
 
   /// <summary>Common lamp base — paints a rounded body in the
   /// state colour, owns the flash timer, exposes a virtual
@@ -91,12 +89,12 @@ type
   /// </summary>
   TOBDTelltaleBase = class(TOBDGraphicControl)
   strict private
-    FState:         TOBDTelltaleState;
-    FOnColor:       TColor;
-    FOffColor:      TColor;
+    FState: TOBDTelltaleState;
+    FOnColor: TColor;
+    FOffColor: TColor;
     FFlashPeriodMs: Cardinal;
-    FFlashOn:       Boolean;
-    FTimer:         TTimer;
+    FFlashOn: Boolean;
+    FTimer: TTimer;
     procedure SetState(AValue: TOBDTelltaleState);
     procedure SetOnColor(AValue: TColor);
     procedure SetOffColor(AValue: TColor);
@@ -108,42 +106,40 @@ type
     /// (already inset for the bezel). <paramref name="AColor"/>
     /// is the glyph stroke / fill colour the subclass should
     /// use.</summary>
-    procedure PaintGlyph(AGraphics: TGPGraphics;
-      const ABounds: TGPRectF; AColor: TColor); virtual;
+    procedure PaintGlyph(AGraphics: TGPGraphics; const ABounds: TGPRectF;
+      AColor: TColor); virtual;
     /// <summary>Returns the colour the lamp body should paint
     /// in based on State + theme fallback.</summary>
-    function  EffectiveLitColor: TColor; virtual;
+    function EffectiveLitColor: TColor; virtual;
     /// <summary>True when the lamp is currently showing the lit
     /// glyph (On, or Flashing+visible-tick).</summary>
-    function  IsLit: Boolean;
+    function IsLit: Boolean;
     procedure PaintControl(ACanvas: TCanvas); override;
     procedure NotifyBindings;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
   published
     /// <summary>Off / On / Flashing. Default <c>tsOff</c>.</summary>
-    property State: TOBDTelltaleState read FState write SetState
-      default tsOff;
+    property State: TOBDTelltaleState read FState write SetState default tsOff;
     /// <summary>Body colour when lit. Default uses theme.
     /// </summary>
-    property OnColor:  TColor read FOnColor  write SetOnColor
-      default clDefault;
+    property OnColor: TColor read FOnColor write SetOnColor default clDefault;
     /// <summary>Body colour when dark. Default uses theme.
     /// </summary>
     property OffColor: TColor read FOffColor write SetOffColor
       default clDefault;
     /// <summary>Full flash cycle (on+off). Default 600 ms.
     /// </summary>
-    property FlashPeriodMs: Cardinal
-      read FFlashPeriodMs write SetFlashPeriodMs default 600;
+    property FlashPeriodMs: Cardinal read FFlashPeriodMs write SetFlashPeriodMs
+      default 600;
   end;
 
   /// <summary>Malfunction Indicator Lamp. Off / On / Flashing.
   /// Host code typically maps the lamp's <c>State</c> from the
   /// MIL status read via <c>TOBDVehicleHealth</c>:
   /// <code>
-  ///   MIL.State := IfThen(Status.MILOn, tsOn, tsOff);
+  /// MIL.State := IfThen(Status.MILOn, tsOn, tsOff);
   /// </code>
   /// Flashing isn't reported by Mode 01 PID 01 itself; hosts
   /// that want the catalyst-damage flash convention can set
@@ -151,8 +147,8 @@ type
   /// <c>MILOn</c>.</summary>
   TOBDMILLamp = class(TOBDTelltaleBase)
   protected
-    procedure PaintGlyph(AGraphics: TGPGraphics;
-      const ABounds: TGPRectF; AColor: TColor); override;
+    procedure PaintGlyph(AGraphics: TGPGraphics; const ABounds: TGPRectF;
+      AColor: TColor); override;
   public
     constructor Create(AOwner: TComponent); override;
   end;
@@ -163,12 +159,12 @@ type
   /// OnDTCs handler.</summary>
   TOBDDTCBadge = class(TOBDGraphicControl)
   strict private
-    FCount:           Integer;
-    FPulseOnChange:   Boolean;
-    FBadgeColor:      TColor;
-    FFont:            TFont;
-    FPulseTimer:      TTimer;
-    FPulseFrame:      Integer;
+    FCount: Integer;
+    FPulseOnChange: Boolean;
+    FBadgeColor: TColor;
+    FFont: TFont;
+    FPulseTimer: TTimer;
+    FPulseFrame: Integer;
     procedure SetCount(AValue: Integer);
     procedure SetPulseOnChange(AValue: Boolean);
     procedure SetBadgeColor(AValue: TColor);
@@ -180,7 +176,7 @@ type
     procedure PaintControl(ACanvas: TCanvas); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
   published
     /// <summary>Number shown inside the badge. Negative values
     /// hide the badge entirely (lets a host represent "unknown".)
@@ -188,12 +184,12 @@ type
     property Count: Integer read FCount write SetCount default 0;
     /// <summary>Pulse animation on each Count change. Default
     /// True.</summary>
-    property PulseOnChange: Boolean
-      read FPulseOnChange write SetPulseOnChange default True;
+    property PulseOnChange: Boolean read FPulseOnChange write SetPulseOnChange
+      default True;
     /// <summary>Badge fill colour. Default theme danger
     /// (typically red).</summary>
-    property BadgeColor: TColor
-      read FBadgeColor write SetBadgeColor default clDefault;
+    property BadgeColor: TColor read FBadgeColor write SetBadgeColor
+      default clDefault;
     /// <summary>Font for the count number.</summary>
     property NumberFont: TFont read FFont write SetFont;
   end;
@@ -203,7 +199,7 @@ type
   /// monitor row alongside its label.</summary>
   TOBDReadinessLamp = class(TOBDGraphicControl)
   strict private
-    FState:    TOBDReadinessState;
+    FState: TOBDReadinessState;
     procedure SetState(AValue: TOBDReadinessState);
     procedure NotifyBindings;
   protected
@@ -225,14 +221,13 @@ type
     FGlyph: TOBDDashGlyph;
     procedure SetGlyph(AValue: TOBDDashGlyph);
   protected
-    procedure PaintGlyph(AGraphics: TGPGraphics;
-      const ABounds: TGPRectF; AColor: TColor); override;
+    procedure PaintGlyph(AGraphics: TGPGraphics; const ABounds: TGPRectF;
+      AColor: TColor); override;
   public
     constructor Create(AOwner: TComponent); override;
   published
     /// <summary>Symbol shown inside the lamp body.</summary>
-    property Glyph: TOBDDashGlyph read FGlyph write SetGlyph
-      default dgOil;
+    property Glyph: TOBDDashGlyph read FGlyph write SetGlyph default dgOil;
   end;
 
 implementation
@@ -242,15 +237,11 @@ implementation
 procedure DrawCheckMark(AGraphics: TGPGraphics; APen: TGPPen;
   const ABounds: TGPRectF);
 begin
-  AGraphics.DrawLine(APen,
-    ABounds.X + ABounds.Width * 0.25,
-    ABounds.Y + ABounds.Height * 0.55,
-    ABounds.X + ABounds.Width * 0.45,
+  AGraphics.DrawLine(APen, ABounds.X + ABounds.Width * 0.25,
+    ABounds.Y + ABounds.Height * 0.55, ABounds.X + ABounds.Width * 0.45,
     ABounds.Y + ABounds.Height * 0.75);
-  AGraphics.DrawLine(APen,
-    ABounds.X + ABounds.Width * 0.45,
-    ABounds.Y + ABounds.Height * 0.75,
-    ABounds.X + ABounds.Width * 0.75,
+  AGraphics.DrawLine(APen, ABounds.X + ABounds.Width * 0.45,
+    ABounds.Y + ABounds.Height * 0.75, ABounds.X + ABounds.Width * 0.75,
     ABounds.Y + ABounds.Height * 0.30);
 end;
 
@@ -259,13 +250,13 @@ end;
 constructor TOBDTelltaleBase.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 32;
+  Width := 32;
   Height := 32;
-  FState         := tsOff;
-  FOnColor       := clDefault;
-  FOffColor      := clDefault;
+  FState := tsOff;
+  FOnColor := clDefault;
+  FOffColor := clDefault;
   FFlashPeriodMs := 600;
-  FFlashOn       := True;
+  FFlashOn := True;
   FTimer := TTimer.Create(Self);
   FTimer.Enabled := False;
   FTimer.OnTimer := HandleTimer;
@@ -279,7 +270,8 @@ end;
 
 procedure TOBDTelltaleBase.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -288,10 +280,11 @@ end;
 
 procedure TOBDTelltaleBase.SetState(AValue: TOBDTelltaleState);
 begin
-  if FState = AValue then Exit;
+  if FState = AValue then
+    Exit;
   FState := AValue;
   FTimer.Enabled := (FState = tsFlashing) and
-                    not (csDesigning in ComponentState);
+    not(csDesigning in ComponentState);
   if FTimer.Enabled then
     FTimer.Interval := System.Math.Max(50, FFlashPeriodMs div 2);
   FFlashOn := True;
@@ -301,20 +294,26 @@ end;
 
 procedure TOBDTelltaleBase.SetOnColor(AValue: TColor);
 begin
-  if FOnColor = AValue then Exit;
-  FOnColor := AValue; Repaint;
+  if FOnColor = AValue then
+    Exit;
+  FOnColor := AValue;
+  Repaint;
 end;
 
 procedure TOBDTelltaleBase.SetOffColor(AValue: TColor);
 begin
-  if FOffColor = AValue then Exit;
-  FOffColor := AValue; Repaint;
+  if FOffColor = AValue then
+    Exit;
+  FOffColor := AValue;
+  Repaint;
 end;
 
 procedure TOBDTelltaleBase.SetFlashPeriodMs(AValue: Cardinal);
 begin
-  if AValue < 100 then AValue := 100;
-  if FFlashPeriodMs = AValue then Exit;
+  if AValue < 100 then
+    AValue := 100;
+  if FFlashPeriodMs = AValue then
+    Exit;
   FFlashPeriodMs := AValue;
   if FTimer.Enabled then
     FTimer.Interval := FFlashPeriodMs div 2;
@@ -328,14 +327,15 @@ end;
 
 function TOBDTelltaleBase.IsLit: Boolean;
 begin
-  Result := (FState = tsOn) or
-            ((FState = tsFlashing) and FFlashOn);
+  Result := (FState = tsOn) or ((FState = tsFlashing) and FFlashOn);
 end;
 
 function TOBDTelltaleBase.EffectiveLitColor: TColor;
 begin
-  if FOnColor <> clDefault then Result := FOnColor
-  else                         Result := Palette.Warning;
+  if FOnColor <> clDefault then
+    Result := FOnColor
+  else
+    Result := Palette.Warning;
 end;
 
 procedure TOBDTelltaleBase.PaintGlyph(AGraphics: TGPGraphics;
@@ -347,19 +347,21 @@ end;
 procedure TOBDTelltaleBase.PaintControl(ACanvas: TCanvas);
 var
   Graphics: TGPGraphics;
-  Pen:   TGPPen;
+  Pen: TGPPen;
   Brush: TGPSolidBrush;
-  Body:  TGPRectF;
+  Body: TGPRectF;
   Inner: TGPRectF;
   BodyCol, BorderCol, GlyphCol, OffCol: TColor;
   Pad: Single;
 begin
-  if FOffColor <> clDefault then OffCol := FOffColor
-  else                           OffCol := Palette.NeutralLight;
+  if FOffColor <> clDefault then
+    OffCol := FOffColor
+  else
+    OffCol := Palette.NeutralLight;
   BorderCol := EffectiveBorder;
   if IsLit then
   begin
-    BodyCol  := EffectiveLitColor;
+    BodyCol := EffectiveLitColor;
     // The lit glyph is shown against the body — pick a glyph
     // colour that contrasts. Black on amber / red is the
     // industry-standard reading.
@@ -367,14 +369,14 @@ begin
   end
   else
   begin
-    BodyCol  := OffCol;
+    BodyCol := OffCol;
     GlyphCol := EffectiveForeground;
   end;
 
   Pad := ScaleValue(2);
   Body.X := Pad;
   Body.Y := Pad;
-  Body.Width  := Width  - 2 * Pad;
+  Body.Width := Width - 2 * Pad;
   Body.Height := Height - 2 * Pad;
 
   Graphics := TGPGraphics.Create(ACanvas.Handle);
@@ -400,9 +402,9 @@ begin
 
     // Glyph paint area — inset slightly so the symbol doesn't
     // clip the bezel.
-    Inner.X := Body.X + Body.Width  * 0.18;
+    Inner.X := Body.X + Body.Width * 0.18;
     Inner.Y := Body.Y + Body.Height * 0.18;
-    Inner.Width  := Body.Width  * 0.64;
+    Inner.Width := Body.Width * 0.64;
     Inner.Height := Body.Height * 0.64;
     PaintGlyph(Graphics, Inner, GlyphCol);
   finally
@@ -415,7 +417,7 @@ end;
 constructor TOBDMILLamp.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 40;
+  Width := 40;
   Height := 32;
 end;
 
@@ -433,10 +435,10 @@ var
 begin
   // Engine outline + ignition mark — the ISO 2575 check-engine
   // glyph in a single stroke.
-  Cx := ABounds.X + ABounds.Width  / 2;
+  Cx := ABounds.X + ABounds.Width / 2;
   Cy := ABounds.Y + ABounds.Height / 2;
-  W  := ABounds.Width  * 0.85;
-  H  := ABounds.Height * 0.55;
+  W := ABounds.Width * 0.85;
+  H := ABounds.Height * 0.55;
   Pen := TGPPen.Create(ColorToARGB(AColor), ScaleValue(2));
   Pen.SetStartCap(LineCapRound);
   Pen.SetEndCap(LineCapRound);
@@ -445,23 +447,19 @@ begin
     // Rounded engine block.
     Path.AddRectangle(RectF(Cx - W / 2, Cy - H / 2, W, H));
     // Crank-bump on top.
-    Path.AddRectangle(
-      RectF(Cx - W * 0.15, Cy - H / 2 - H * 0.25, W * 0.30, H * 0.25));
+    Path.AddRectangle(RectF(Cx - W * 0.15, Cy - H / 2 - H * 0.25, W * 0.30,
+      H * 0.25));
     // Output shaft.
-    Path.AddRectangle(
-      RectF(Cx + W / 2, Cy - H * 0.18, W * 0.12, H * 0.36));
+    Path.AddRectangle(RectF(Cx + W / 2, Cy - H * 0.18, W * 0.12, H * 0.36));
     AGraphics.DrawPath(Pen, Path);
 
     // Lightning bolt — stylised, three line segments inside.
-    AGraphics.DrawLine(Pen,
-      Cx - W * 0.05, Cy - H * 0.10,
-      Cx - W * 0.20, Cy + H * 0.05);
-    AGraphics.DrawLine(Pen,
-      Cx - W * 0.20, Cy + H * 0.05,
-      Cx + W * 0.00, Cy + H * 0.05);
-    AGraphics.DrawLine(Pen,
-      Cx + W * 0.00, Cy + H * 0.05,
-      Cx - W * 0.10, Cy + H * 0.20);
+    AGraphics.DrawLine(Pen, Cx - W * 0.05, Cy - H * 0.10, Cx - W * 0.20,
+      Cy + H * 0.05);
+    AGraphics.DrawLine(Pen, Cx - W * 0.20, Cy + H * 0.05, Cx + W * 0.00,
+      Cy + H * 0.05);
+    AGraphics.DrawLine(Pen, Cx + W * 0.00, Cy + H * 0.05, Cx - W * 0.10,
+      Cy + H * 0.20);
   finally
     Path.Free;
     Pen.Free;
@@ -473,7 +471,7 @@ end;
 constructor TOBDDTCBadge.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 32;
+  Width := 32;
   Height := 32;
   FCount := 0;
   FPulseOnChange := True;
@@ -500,7 +498,8 @@ end;
 
 procedure TOBDDTCBadge.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -509,11 +508,12 @@ end;
 
 procedure TOBDDTCBadge.SetCount(AValue: Integer);
 begin
-  if FCount = AValue then Exit;
+  if FCount = AValue then
+    Exit;
   FCount := AValue;
   NotifyBindings;
   // Trigger pulse animation if requested and not at design-time.
-  if FPulseOnChange and not (csDesigning in ComponentState) then
+  if FPulseOnChange and not(csDesigning in ComponentState) then
   begin
     FPulseFrame := 0;
     FPulseTimer.Enabled := True;
@@ -523,7 +523,8 @@ end;
 
 procedure TOBDDTCBadge.SetPulseOnChange(AValue: Boolean);
 begin
-  if FPulseOnChange = AValue then Exit;
+  if FPulseOnChange = AValue then
+    Exit;
   FPulseOnChange := AValue;
   if not FPulseOnChange then
   begin
@@ -535,8 +536,10 @@ end;
 
 procedure TOBDDTCBadge.SetBadgeColor(AValue: TColor);
 begin
-  if FBadgeColor = AValue then Exit;
-  FBadgeColor := AValue; Repaint;
+  if FBadgeColor = AValue then
+    Exit;
+  FBadgeColor := AValue;
+  Repaint;
 end;
 
 procedure TOBDDTCBadge.SetFont(AValue: TFont);
@@ -573,14 +576,17 @@ var
   Scale: Single;
   W: Integer;
 begin
-  if FCount < 0 then Exit;                 // hidden state
-  if FBadgeColor <> clDefault then Col := FBadgeColor
-  else                              Col := Palette.Danger;
+  if FCount < 0 then
+    Exit; // hidden state
+  if FBadgeColor <> clDefault then
+    Col := FBadgeColor
+  else
+    Col := Palette.Danger;
 
   Pad := ScaleValue(2);
   Body.X := Pad;
   Body.Y := Pad;
-  Body.Width  := Width  - 2 * Pad;
+  Body.Width := Width - 2 * Pad;
   Body.Height := Height - 2 * Pad;
 
   // Pulse halo: scale a translucent disc up + down over the
@@ -592,13 +598,12 @@ begin
 
     if FPulseTimer.Enabled then
     begin
-      Scale := 1.0 + 0.5 *
-        (1.0 - Abs(FPulseFrame / 10.0 - 0.5) * 2.0);
+      Scale := 1.0 + 0.5 * (1.0 - Abs(FPulseFrame / 10.0 - 0.5) * 2.0);
       Brush := TGPSolidBrush.Create(ColorToARGB(Col, 64));
       try
-        Halo.X := Body.X - Body.Width  * (Scale - 1.0) / 2;
+        Halo.X := Body.X - Body.Width * (Scale - 1.0) / 2;
         Halo.Y := Body.Y - Body.Height * (Scale - 1.0) / 2;
-        Halo.Width  := Body.Width  * Scale;
+        Halo.Width := Body.Width * Scale;
         Halo.Height := Body.Height * Scale;
         Graphics.FillEllipse(Brush, Halo);
       finally
@@ -622,10 +627,8 @@ begin
   ACanvas.Brush.Style := bsClear;
   ACanvas.Font := FFont;
   W := ACanvas.TextWidth(S);
-  ACanvas.TextOut(
-    (Width  - W) div 2,
-    (Height - ACanvas.TextHeight('0')) div 2,
-    S);
+  ACanvas.TextOut((Width - W) div 2, (Height - ACanvas.TextHeight('0'))
+    div 2, S);
 end;
 
 { ---- TOBDReadinessLamp ---------------------------------------------------- }
@@ -633,14 +636,15 @@ end;
 constructor TOBDReadinessLamp.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 24;
+  Width := 24;
   Height := 24;
   FState := rsNotSupported;
 end;
 
 procedure TOBDReadinessLamp.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -649,7 +653,8 @@ end;
 
 procedure TOBDReadinessLamp.SetState(AValue: TOBDReadinessState);
 begin
-  if FState = AValue then Exit;
+  if FState = AValue then
+    Exit;
   FState := AValue;
   NotifyBindings;
   Repaint;
@@ -667,13 +672,16 @@ begin
   Pad := ScaleValue(2);
   Body.X := Pad;
   Body.Y := Pad;
-  Body.Width  := Width  - 2 * Pad;
+  Body.Width := Width - 2 * Pad;
   Body.Height := Height - 2 * Pad;
 
   case FState of
-    rsNotSupported: Col := Palette.NeutralLight;
-    rsIncomplete:   Col := Palette.Warning;
-    rsComplete:     Col := Palette.Success;
+    rsNotSupported:
+      Col := Palette.NeutralLight;
+    rsIncomplete:
+      Col := Palette.Warning;
+    rsComplete:
+      Col := Palette.Success;
   else
     Col := Palette.NeutralLight;
   end;
@@ -709,18 +717,18 @@ begin
           end;
         rsIncomplete:
           begin
-            Graphics.DrawLine(Pen,
-              Body.X + Body.Width  * 0.30, Body.Y + Body.Height * 0.50,
-              Body.X + Body.Width  * 0.70, Body.Y + Body.Height * 0.50);
+            Graphics.DrawLine(Pen, Body.X + Body.Width * 0.30,
+              Body.Y + Body.Height * 0.50, Body.X + Body.Width * 0.70,
+              Body.Y + Body.Height * 0.50);
           end;
         rsNotSupported:
           begin
-            Graphics.DrawLine(Pen,
-              Body.X + Body.Width  * 0.30, Body.Y + Body.Height * 0.30,
-              Body.X + Body.Width  * 0.70, Body.Y + Body.Height * 0.70);
-            Graphics.DrawLine(Pen,
-              Body.X + Body.Width  * 0.70, Body.Y + Body.Height * 0.30,
-              Body.X + Body.Width  * 0.30, Body.Y + Body.Height * 0.70);
+            Graphics.DrawLine(Pen, Body.X + Body.Width * 0.30,
+              Body.Y + Body.Height * 0.30, Body.X + Body.Width * 0.70,
+              Body.Y + Body.Height * 0.70);
+            Graphics.DrawLine(Pen, Body.X + Body.Width * 0.70,
+              Body.Y + Body.Height * 0.30, Body.X + Body.Width * 0.30,
+              Body.Y + Body.Height * 0.70);
           end;
       end;
     finally
@@ -736,14 +744,15 @@ end;
 constructor TOBDDashLamp.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 36;
+  Width := 36;
   Height := 32;
   FGlyph := dgOil;
 end;
 
 procedure TOBDDashLamp.SetGlyph(AValue: TOBDDashGlyph);
 begin
-  if FGlyph = AValue then Exit;
+  if FGlyph = AValue then
+    Exit;
   FGlyph := AValue;
   NotifyBindings;
   Repaint;
@@ -756,10 +765,10 @@ var
   Brush: TGPSolidBrush;
   Cx, Cy, W, H: Single;
 begin
-  Cx := ABounds.X + ABounds.Width  / 2;
+  Cx := ABounds.X + ABounds.Width / 2;
   Cy := ABounds.Y + ABounds.Height / 2;
-  W  := ABounds.Width;
-  H  := ABounds.Height;
+  W := ABounds.Width;
+  H := ABounds.Height;
 
   Pen := TGPPen.Create(ColorToARGB(AColor), ScaleValue(2));
   Pen.SetStartCap(LineCapRound);
@@ -770,105 +779,94 @@ begin
       dgOil:
         begin
           // Oil-can spout + drip.
-          AGraphics.DrawLine(Pen, Cx - W * 0.35, Cy,
-                                   Cx + W * 0.05, Cy);
-          AGraphics.DrawLine(Pen, Cx + W * 0.05, Cy,
-                                   Cx + W * 0.35, Cy - H * 0.20);
-          AGraphics.DrawArc(Pen,
-            RectF(Cx - W * 0.10, Cy - H * 0.10, W * 0.20, H * 0.40),
-            0, 180);
+          AGraphics.DrawLine(Pen, Cx - W * 0.35, Cy, Cx + W * 0.05, Cy);
+          AGraphics.DrawLine(Pen, Cx + W * 0.05, Cy, Cx + W * 0.35,
+            Cy - H * 0.20);
+          AGraphics.DrawArc(Pen, RectF(Cx - W * 0.10, Cy - H * 0.10, W * 0.20,
+            H * 0.40), 0, 180);
           // Drip.
-          AGraphics.FillEllipse(Brush,
-            Cx + W * 0.32, Cy + H * 0.10, W * 0.10, H * 0.15);
+          AGraphics.FillEllipse(Brush, Cx + W * 0.32, Cy + H * 0.10, W * 0.10,
+            H * 0.15);
         end;
       dgBattery:
         begin
-          AGraphics.DrawRectangle(Pen,
-            RectF(Cx - W * 0.40, Cy - H * 0.25, W * 0.80, H * 0.50));
-          AGraphics.DrawLine(Pen,
-            Cx - W * 0.20, Cy, Cx - W * 0.05, Cy);
-          AGraphics.DrawLine(Pen, Cx + W * 0.10, Cy - H * 0.08,
-                                   Cx + W * 0.10, Cy + H * 0.08);
+          AGraphics.DrawRectangle(Pen, RectF(Cx - W * 0.40, Cy - H * 0.25,
+            W * 0.80, H * 0.50));
+          AGraphics.DrawLine(Pen, Cx - W * 0.20, Cy, Cx - W * 0.05, Cy);
+          AGraphics.DrawLine(Pen, Cx + W * 0.10, Cy - H * 0.08, Cx + W * 0.10,
+            Cy + H * 0.08);
           AGraphics.DrawLine(Pen, Cx + W * 0.02, Cy, Cx + W * 0.18, Cy);
         end;
       dgFuel:
         begin
-          AGraphics.DrawRectangle(Pen,
-            RectF(Cx - W * 0.30, Cy - H * 0.40, W * 0.50, H * 0.80));
-          AGraphics.DrawLine(Pen, Cx + W * 0.20, Cy - H * 0.15,
-                                   Cx + W * 0.35, Cy - H * 0.05);
-          AGraphics.DrawLine(Pen, Cx + W * 0.35, Cy - H * 0.05,
-                                   Cx + W * 0.35, Cy + H * 0.10);
+          AGraphics.DrawRectangle(Pen, RectF(Cx - W * 0.30, Cy - H * 0.40,
+            W * 0.50, H * 0.80));
+          AGraphics.DrawLine(Pen, Cx + W * 0.20, Cy - H * 0.15, Cx + W * 0.35,
+            Cy - H * 0.05);
+          AGraphics.DrawLine(Pen, Cx + W * 0.35, Cy - H * 0.05, Cx + W * 0.35,
+            Cy + H * 0.10);
         end;
       dgABS:
         begin
-          AGraphics.DrawEllipse(Pen,
-            RectF(Cx - W * 0.40, Cy - H * 0.40, W * 0.80, H * 0.80));
+          AGraphics.DrawEllipse(Pen, RectF(Cx - W * 0.40, Cy - H * 0.40,
+            W * 0.80, H * 0.80));
           // Letters approximated as three short bars.
-          AGraphics.DrawLine(Pen, Cx - W * 0.20, Cy - H * 0.10,
-                                   Cx - W * 0.20, Cy + H * 0.10);
-          AGraphics.DrawLine(Pen, Cx + W * 0.00, Cy - H * 0.10,
-                                   Cx + W * 0.00, Cy + H * 0.10);
-          AGraphics.DrawLine(Pen, Cx + W * 0.20, Cy - H * 0.10,
-                                   Cx + W * 0.20, Cy + H * 0.10);
+          AGraphics.DrawLine(Pen, Cx - W * 0.20, Cy - H * 0.10, Cx - W * 0.20,
+            Cy + H * 0.10);
+          AGraphics.DrawLine(Pen, Cx + W * 0.00, Cy - H * 0.10, Cx + W * 0.00,
+            Cy + H * 0.10);
+          AGraphics.DrawLine(Pen, Cx + W * 0.20, Cy - H * 0.10, Cx + W * 0.20,
+            Cy + H * 0.10);
         end;
       dgSeatbelt:
         begin
           // Belt-and-figure simplified to a chevron.
-          AGraphics.DrawLine(Pen, Cx - W * 0.30, Cy - H * 0.30,
-                                   Cx + W * 0.05, Cy + H * 0.30);
-          AGraphics.DrawLine(Pen, Cx + W * 0.30, Cy - H * 0.30,
-                                   Cx + W * 0.05, Cy + H * 0.30);
+          AGraphics.DrawLine(Pen, Cx - W * 0.30, Cy - H * 0.30, Cx + W * 0.05,
+            Cy + H * 0.30);
+          AGraphics.DrawLine(Pen, Cx + W * 0.30, Cy - H * 0.30, Cx + W * 0.05,
+            Cy + H * 0.30);
         end;
       dgAirbag:
         begin
-          AGraphics.FillEllipse(Brush,
-            Cx, Cy - H * 0.05, W * 0.25, H * 0.25);
-          AGraphics.DrawArc(Pen,
-            RectF(Cx - W * 0.30, Cy - H * 0.10, W * 0.20, H * 0.40),
-            -45, 90);
+          AGraphics.FillEllipse(Brush, Cx, Cy - H * 0.05, W * 0.25, H * 0.25);
+          AGraphics.DrawArc(Pen, RectF(Cx - W * 0.30, Cy - H * 0.10, W * 0.20,
+            H * 0.40), -45, 90);
         end;
       dgTPMS:
         begin
           // Horseshoe + exclamation.
-          AGraphics.DrawArc(Pen,
-            RectF(Cx - W * 0.40, Cy - H * 0.30, W * 0.80, H * 0.60),
-            45, 270);
-          AGraphics.DrawLine(Pen, Cx, Cy - H * 0.05,
-                                   Cx, Cy + H * 0.15);
-          AGraphics.FillEllipse(Brush,
-            Cx - W * 0.04, Cy + H * 0.20, W * 0.08, W * 0.08);
+          AGraphics.DrawArc(Pen, RectF(Cx - W * 0.40, Cy - H * 0.30, W * 0.80,
+            H * 0.60), 45, 270);
+          AGraphics.DrawLine(Pen, Cx, Cy - H * 0.05, Cx, Cy + H * 0.15);
+          AGraphics.FillEllipse(Brush, Cx - W * 0.04, Cy + H * 0.20, W * 0.08,
+            W * 0.08);
         end;
       dgESP:
         begin
-          AGraphics.DrawEllipse(Pen,
-            RectF(Cx - W * 0.20, Cy - H * 0.20, W * 0.40, H * 0.40));
-          AGraphics.DrawArc(Pen,
-            RectF(Cx - W * 0.40, Cy - H * 0.35, W * 0.30, H * 0.70),
-            -30, 60);
-          AGraphics.DrawArc(Pen,
-            RectF(Cx + W * 0.10, Cy - H * 0.35, W * 0.30, H * 0.70),
-            150, 60);
+          AGraphics.DrawEllipse(Pen, RectF(Cx - W * 0.20, Cy - H * 0.20,
+            W * 0.40, H * 0.40));
+          AGraphics.DrawArc(Pen, RectF(Cx - W * 0.40, Cy - H * 0.35, W * 0.30,
+            H * 0.70), -30, 60);
+          AGraphics.DrawArc(Pen, RectF(Cx + W * 0.10, Cy - H * 0.35, W * 0.30,
+            H * 0.70), 150, 60);
         end;
       dgEngineTemp:
         begin
           // Thermometer.
-          AGraphics.DrawLine(Pen, Cx, Cy - H * 0.35,
-                                   Cx, Cy + H * 0.15);
-          AGraphics.FillEllipse(Brush,
-            Cx - W * 0.12, Cy + H * 0.10, W * 0.24, W * 0.24);
+          AGraphics.DrawLine(Pen, Cx, Cy - H * 0.35, Cx, Cy + H * 0.15);
+          AGraphics.FillEllipse(Brush, Cx - W * 0.12, Cy + H * 0.10, W * 0.24,
+            W * 0.24);
           // Wavy water at the base.
-          AGraphics.DrawLine(Pen, Cx - W * 0.40, Cy + H * 0.35,
-                                   Cx + W * 0.40, Cy + H * 0.35);
+          AGraphics.DrawLine(Pen, Cx - W * 0.40, Cy + H * 0.35, Cx + W * 0.40,
+            Cy + H * 0.35);
         end;
       dgHandbrake:
         begin
-          AGraphics.DrawEllipse(Pen,
-            RectF(Cx - W * 0.40, Cy - H * 0.40, W * 0.80, H * 0.80));
-          AGraphics.DrawLine(Pen, Cx, Cy - H * 0.10,
-                                   Cx, Cy + H * 0.20);
-          AGraphics.DrawLine(Pen, Cx - W * 0.20, Cy + H * 0.05,
-                                   Cx + W * 0.20, Cy + H * 0.05);
+          AGraphics.DrawEllipse(Pen, RectF(Cx - W * 0.40, Cy - H * 0.40,
+            W * 0.80, H * 0.80));
+          AGraphics.DrawLine(Pen, Cx, Cy - H * 0.10, Cx, Cy + H * 0.20);
+          AGraphics.DrawLine(Pen, Cx - W * 0.20, Cy + H * 0.05, Cx + W * 0.20,
+            Cy + H * 0.05);
         end;
     end;
   finally

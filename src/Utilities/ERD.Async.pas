@@ -1,59 +1,59 @@
-//------------------------------------------------------------------------------
-//  ERD.Async
+﻿// ------------------------------------------------------------------------------
+// ERD.Async
 //
-//  Lightweight async primitives: <see cref="IOBDFuture{T}"/>,
-//  <see cref="IOBDPromise{T}"/>, <see cref="IOBDCancellationToken"/>.
+// Lightweight async primitives: <see cref="IOBDFuture{T}"/>,
+// <see cref="IOBDPromise{T}"/>, <see cref="IOBDCancellationToken"/>.
 //
-//  Producers create a promise, hand the future facet to
-//  consumers, and call <c>SetResult</c> / <c>SetError</c> /
-//  <c>Cancel</c> exactly once. Consumers can <c>Await(timeout)</c>,
-//  poll <c>IsCompleted</c>, or attach an <c>OnComplete</c>
-//  handler that runs immediately if the future is already
-//  settled. Cancellation tokens are shared between producer and
-//  consumer so a single <c>Cancel</c> call propagates to every
-//  in-flight future that observes the token.
+// Producers create a promise, hand the future facet to
+// consumers, and call <c>SetResult</c> / <c>SetError</c> /
+// <c>Cancel</c> exactly once. Consumers can <c>Await(timeout)</c>,
+// poll <c>IsCompleted</c>, or attach an <c>OnComplete</c>
+// handler that runs immediately if the future is already
+// settled. Cancellation tokens are shared between producer and
+// consumer so a single <c>Cancel</c> call propagates to every
+// in-flight future that observes the token.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-12  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-12  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 unit ERD.Async;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}ERD.Compat.Functions,{$ENDIF}
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF}, {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF}, {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF};
+{$IFDEF FPC}ERD.Compat.Functions, {$ENDIF}
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF}, {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF}, {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF};
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // CANCELLATION TOKEN
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 type
   /// <summary>
-  ///   Cancellation token shared between producer and consumer. Multiple
-  ///   futures can share one token so a single <c>Cancel</c> call
-  ///   propagates to a whole batch of in-flight async operations.
+  /// Cancellation token shared between producer and consumer. Multiple
+  /// futures can share one token so a single <c>Cancel</c> call
+  /// propagates to a whole batch of in-flight async operations.
   /// </summary>
   IOBDCancellationToken = interface
     ['{A98A5DA0-3C20-4F44-8DE7-5C7C5F5B0C7A}']
     /// <summary>
-    ///   Cancel the operation. Idempotent.
+    /// Cancel the operation. Idempotent.
     /// </summary>
     procedure Cancel;
     /// <summary>
-    ///   True after <c>Cancel</c> has been called.
+    /// True after <c>Cancel</c> has been called.
     /// </summary>
     function IsCancelled: Boolean;
   end;
@@ -66,59 +66,60 @@ type
     function IsCancelled: Boolean;
   end;
 
-//------------------------------------------------------------------------------
-// FUTURE / PROMISE
-//------------------------------------------------------------------------------
+  // ------------------------------------------------------------------------------
+  // FUTURE / PROMISE
+  // ------------------------------------------------------------------------------
 type
   TOBDFutureState = (fsPending, fsCompleted, fsFaulted, fsCancelled);
 
   /// <summary>
-  ///   Read-only future facet handed to consumers.
+  /// Read-only future facet handed to consumers.
   /// </summary>
   IOBDFuture<T> = interface
     function GetState: TOBDFutureState;
     /// <summary>
-    ///   Block until the future is settled or the timeout elapses. Throws
-    ///   the captured exception if the future faulted, or
-    ///   <c>EOperationCancelled</c> if it was cancelled.
+    /// Block until the future is settled or the timeout elapses. Throws
+    /// the captured exception if the future faulted, or
+    /// <c>EOperationCancelled</c> if it was cancelled.
     /// </summary>
     function Await(TimeoutMs: Cardinal = INFINITE): T;
     /// <summary>
-    ///   True if settled (regardless of outcome).
+    /// True if settled (regardless of outcome).
     /// </summary>
     function IsCompleted: Boolean;
     function IsFaulted: Boolean;
     function IsCancelled: Boolean;
     /// <summary>
-    ///   Attach a handler that runs once when the future settles. If the
-    ///   future is already settled the handler runs synchronously inside
-    ///   this call.
+    /// Attach a handler that runs once when the future settles. If the
+    /// future is already settled the handler runs synchronously inside
+    /// this call.
     /// </summary>
-    function OnComplete(const Handler: TProc<IOBDFuture<T>>): IOBDFuture<T>;
+    function OnComplete(const Handler: TProc < IOBDFuture < T >> )
+      : IOBDFuture<T>;
     function CancellationToken: IOBDCancellationToken;
     property State: TOBDFutureState read GetState;
   end;
 
   /// <summary>
-  ///   Producer-side handle. Can also be passed around as IOBDFuture&lt;T&gt;.
+  /// Producer-side handle. Can also be passed around as IOBDFuture&lt;T&gt;.
   /// </summary>
   IOBDPromise<T> = interface(IOBDFuture<T>)
     /// <summary>
-    ///   Settle the future with a value. Call once.
+    /// Settle the future with a value. Call once.
     /// </summary>
     procedure SetResult(const Value: T);
     /// <summary>
-    ///   Settle the future with an error. Takes ownership of <c>E</c>.
+    /// Settle the future with an error. Takes ownership of <c>E</c>.
     /// </summary>
     procedure SetError(E: Exception);
     /// <summary>
-    ///   Settle the future as cancelled.
+    /// Settle the future as cancelled.
     /// </summary>
     procedure SignalCancelled;
   end;
 
   /// <summary>
-  ///   Reference implementation of <see cref="IOBDPromise{T}"/>.
+  /// Reference implementation of <see cref="IOBDPromise{T}"/>.
   /// </summary>
   TOBDPromise<T> = class(TInterfacedObject, IOBDFuture<T>, IOBDPromise<T>)
   private type
@@ -142,7 +143,8 @@ type
     function IsCompleted: Boolean;
     function IsFaulted: Boolean;
     function IsCancelled: Boolean;
-    function OnComplete(const Handler: TProc<IOBDFuture<T>>): IOBDFuture<T>;
+    function OnComplete(const Handler: TProc < IOBDFuture < T >> )
+      : IOBDFuture<T>;
     function CancellationToken: IOBDCancellationToken;
     // IOBDPromise<T>
     procedure SetResult(const Value: T);
@@ -150,28 +152,30 @@ type
     procedure SignalCancelled;
   end;
 
-//------------------------------------------------------------------------------
-// EXCEPTIONS
-//------------------------------------------------------------------------------
+  // ------------------------------------------------------------------------------
+  // EXCEPTIONS
+  // ------------------------------------------------------------------------------
 type
   /// <summary>
-  ///   Raised by <c>Await</c> when the future was cancelled.
+  /// Raised by <c>Await</c> when the future was cancelled.
   /// </summary>
   EOBDOperationCancelled = class(Exception);
   /// <summary>
-  ///   Raised by <c>Await</c> when the timeout elapses.
+  /// Raised by <c>Await</c> when the timeout elapses.
   /// </summary>
   EOBDFutureTimeout = class(Exception);
 
-//------------------------------------------------------------------------------
-// FACTORIES
-//------------------------------------------------------------------------------
+  // ------------------------------------------------------------------------------
+  // FACTORIES
+  // ------------------------------------------------------------------------------
 function NewCancellationToken: IOBDCancellationToken;
+
 type
   /// <summary>Generic future factories shared by Delphi and FPC.</summary>
   TOBDAsync = class
   public
-    class function NewPromise<T>(const Token: IOBDCancellationToken = nil): IOBDPromise<T>; static;
+    class function NewPromise<T>(const Token: IOBDCancellationToken = nil)
+      : IOBDPromise<T>; static;
     /// <summary>Future already completed with the given value.</summary>
     class function FromResult<T>(const Value: T): IOBDFuture<T>; static;
     /// <summary>Future already faulted with the given exception.</summary>
@@ -180,46 +184,46 @@ type
 
 implementation
 
-//==============================================================================
+// ==============================================================================
 // TOBDCancellationToken
-//==============================================================================
+// ==============================================================================
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // CANCEL
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 procedure TOBDCancellationToken.Cancel;
 begin
   TInterlocked.Exchange(FCancelled, 1);
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // IS CANCELLED
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function TOBDCancellationToken.IsCancelled: Boolean;
 begin
   Result := TInterlocked.CompareExchange(FCancelled, 0, 0) <> 0;
 end;
 
-//==============================================================================
+// ==============================================================================
 // TOBDPromise<T>
-//==============================================================================
+// ==============================================================================
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // TOBDPROMISE
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 constructor TOBDPromise<T>.Create(const AToken: IOBDCancellationToken);
 begin
   inherited Create;
   FLock := TCriticalSection.Create;
-  FEvent := TEvent.Create(nil, True {manual reset}, False, '');
+  FEvent := TEvent.Create(nil, True { manual reset } , False, '');
   FHandlers := TCompletionHandlers.Create;
   FState := fsPending;
   FToken := AToken;
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // TOBDPROMISE
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 destructor TOBDPromise<T>.Destroy;
 begin
   FHandlers.Free;
@@ -229,50 +233,54 @@ begin
   inherited;
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // TOBDPROMISE
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function TOBDPromise<T>.GetState: TOBDFutureState;
 begin
   FLock.Enter;
-  try Result := FState; finally FLock.Leave; end;
+  try
+    Result := FState;
+  finally
+    FLock.Leave;
+  end;
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // TOBDPROMISE
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function TOBDPromise<T>.IsCompleted: Boolean;
 begin
   Result := GetState <> fsPending;
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // TOBDPROMISE
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function TOBDPromise<T>.IsFaulted: Boolean;
 begin
   Result := GetState = fsFaulted;
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // TOBDPROMISE
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function TOBDPromise<T>.IsCancelled: Boolean;
 begin
   Result := GetState = fsCancelled;
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // TOBDPROMISE
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function TOBDPromise<T>.CancellationToken: IOBDCancellationToken;
 begin
   Result := FToken;
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // TOBDPROMISE
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 procedure TOBDPromise<T>.FireHandlers;
 var
   Snapshot: TArray<TProc<IOBDFuture<T>>>;
@@ -290,17 +298,21 @@ begin
   end;
   Self_ := Self;
   for H in Snapshot do
-    try H(Self_); except {swallow handler errors so one bad listener can't kill the others} end;
+    try
+      H(Self_);
+    except { swallow handler errors so one bad listener can't kill the others }
+    end;
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // TOBDPROMISE
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 procedure TOBDPromise<T>.SetResult(const Value: T);
 begin
   FLock.Enter;
   try
-    if FState <> fsPending then Exit;
+    if FState <> fsPending then
+      Exit;
     FResult := Value;
     FState := fsCompleted;
     FEvent.SetEvent;
@@ -310,9 +322,9 @@ begin
   FireHandlers;
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // TOBDPROMISE
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 procedure TOBDPromise<T>.SetError(E: Exception);
 begin
   FLock.Enter;
@@ -333,14 +345,15 @@ begin
   FireHandlers;
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // TOBDPROMISE
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 procedure TOBDPromise<T>.SignalCancelled;
 begin
   FLock.Enter;
   try
-    if FState <> fsPending then Exit;
+    if FState <> fsPending then
+      Exit;
     FState := fsCancelled;
     FEvent.SetEvent;
   finally
@@ -349,9 +362,9 @@ begin
   FireHandlers;
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // TOBDPROMISE
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function TOBDPromise<T>.Await(TimeoutMs: Cardinal): T;
 var
   WaitRes: TWaitResult;
@@ -363,8 +376,10 @@ begin
         FLock.Enter;
         try
           case FState of
-            fsCompleted: Result := FResult;
-            fsCancelled: raise EOBDOperationCancelled.Create('Operation was cancelled');
+            fsCompleted:
+              Result := FResult;
+            fsCancelled:
+              raise EOBDOperationCancelled.Create('Operation was cancelled');
             fsFaulted:
               if Assigned(FError) then
                 raise Exception.Create(FError.Message)
@@ -384,11 +399,11 @@ begin
   end;
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // TOBDPROMISE
-//------------------------------------------------------------------------------
-function TOBDPromise<T>.OnComplete(
-  const Handler: TProc<IOBDFuture<T>>): IOBDFuture<T>;
+// ------------------------------------------------------------------------------
+function TOBDPromise<T>.OnComplete(const Handler: TProc < IOBDFuture < T >> )
+  : IOBDFuture<T>;
 var
   RunNow: Boolean;
   Self_: IOBDFuture<T>;
@@ -407,33 +422,37 @@ begin
   if RunNow then
   begin
     Self_ := Self;
-    try Handler(Self_); except end;
+    try
+      Handler(Self_);
+    except
+    end;
   end;
 end;
 
-//==============================================================================
+// ==============================================================================
 // FACTORIES
-//==============================================================================
+// ==============================================================================
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // NEW CANCELLATION TOKEN
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function NewCancellationToken: IOBDCancellationToken;
 begin
   Result := TOBDCancellationToken.Create;
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // NEW PROMISE
-//------------------------------------------------------------------------------
-class function TOBDAsync.NewPromise<T>(const Token: IOBDCancellationToken): IOBDPromise<T>;
+// ------------------------------------------------------------------------------
+class function TOBDAsync.NewPromise<T>(const Token: IOBDCancellationToken)
+  : IOBDPromise<T>;
 begin
   Result := TOBDPromise<T>.Create(Token);
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // FROM RESULT
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 class function TOBDAsync.FromResult<T>(const Value: T): IOBDFuture<T>;
 var
   Promise: IOBDPromise<T>;
@@ -443,9 +462,9 @@ begin
   Result := Promise;
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // FROM ERROR
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 class function TOBDAsync.FromError<T>(E: Exception): IOBDFuture<T>;
 var
   Promise: IOBDPromise<T>;

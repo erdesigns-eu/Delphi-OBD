@@ -1,40 +1,40 @@
-//------------------------------------------------------------------------------
-//  ERD.Signature.BCrypt
+﻿// ------------------------------------------------------------------------------
+// ERD.Signature.BCrypt
 //
-//  Windows Cryptography Next Generation (CNG / BCrypt) signature
-//  verifier. Supports RSA-PSS, RSA-PKCS#1, ECDSA-P256, ECDSA-P384,
-//  Ed25519 (Win 11 24H2 +). Public-key bytes are passed in the
-//  CNG public-key blob format
-//  (BCRYPT_RSAPUBLIC_BLOB / BCRYPT_ECCPUBLIC_BLOB).
+// Windows Cryptography Next Generation (CNG / BCrypt) signature
+// verifier. Supports RSA-PSS, RSA-PKCS#1, ECDSA-P256, ECDSA-P384,
+// Ed25519 (Win 11 24H2 +). Public-key bytes are passed in the
+// CNG public-key blob format
+// (BCRYPT_RSAPUBLIC_BLOB / BCRYPT_ECCPUBLIC_BLOB).
 //
-//  Dynamic-loads bcrypt.dll on first use; raises a descriptive
-//  EOBDError if the DLL is unavailable (e.g. on a Windows version
-//  without CNG, or on a non-Windows host).
+// Dynamic-loads bcrypt.dll on first use; raises a descriptive
+// EOBDError if the DLL is unavailable (e.g. on a Windows version
+// without CNG, or on a non-Windows host).
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Signature.BCrypt;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
 {$IFDEF MSWINDOWS}
   Winapi.Windows,
 {$ENDIF}
@@ -58,18 +58,19 @@ type
 implementation
 
 {$IFDEF MSWINDOWS}
+
 const
-  BCRYPT_LIB              = 'bcrypt.dll';
-  BCRYPT_RSA_ALGORITHM    = 'RSA';
-  BCRYPT_ECDSA_P256_ALG   = 'ECDSA_P256';
-  BCRYPT_ECDSA_P384_ALG   = 'ECDSA_P384';
-  BCRYPT_RSAPUBLIC_BLOB   = 'RSAPUBLICBLOB';
-  BCRYPT_ECCPUBLIC_BLOB   = 'ECCPUBLICBLOB';
-  BCRYPT_PAD_PSS          = $00000008;
-  BCRYPT_PAD_PKCS1        = $00000002;
+  BCRYPT_LIB = 'bcrypt.dll';
+  BCRYPT_RSA_ALGORITHM = 'RSA';
+  BCRYPT_ECDSA_P256_ALG = 'ECDSA_P256';
+  BCRYPT_ECDSA_P384_ALG = 'ECDSA_P384';
+  BCRYPT_RSAPUBLIC_BLOB = 'RSAPUBLICBLOB';
+  BCRYPT_ECCPUBLIC_BLOB = 'ECCPUBLICBLOB';
+  BCRYPT_PAD_PSS = $00000008;
+  BCRYPT_PAD_PKCS1 = $00000002;
   BCRYPT_SHA256_ALGORITHM = 'SHA256';
   BCRYPT_SHA384_ALGORITHM = 'SHA384';
-  STATUS_SUCCESS          = 0;
+  STATUS_SUCCESS = 0;
   STATUS_INVALID_SIGNATURE = NativeInt($C000A000);
 
 type
@@ -77,6 +78,7 @@ type
     pszAlgId: LPCWSTR;
     cbSalt: ULONG;
   end;
+
   BCRYPT_PKCS1_PADDING_INFO = record
     pszAlgId: LPCWSTR;
   end;
@@ -86,23 +88,22 @@ type
   TBCryptCloseAlgorithmProvider = function(hAlgorithm: NativeUInt;
     dwFlags: DWORD): NativeInt; stdcall;
   TBCryptImportKeyPair = function(hAlgorithm, hImportKey: NativeUInt;
-    pszBlobType: LPCWSTR; out phKey: NativeUInt;
-    pbInput: PByte; cbInput: ULONG; dwFlags: DWORD): NativeInt; stdcall;
+    pszBlobType: LPCWSTR; out phKey: NativeUInt; pbInput: PByte; cbInput: ULONG;
+    dwFlags: DWORD): NativeInt; stdcall;
   TBCryptDestroyKey = function(hKey: NativeUInt): NativeInt; stdcall;
-  TBCryptHashData = function(hHash: NativeUInt; pbInput: PByte;
-    cbInput: ULONG; dwFlags: DWORD): NativeInt; stdcall;
-  TBCryptCreateHash = function(hAlgorithm: NativeUInt;
-    out phHash: NativeUInt; pbHashObject: PByte; cbHashObject: ULONG;
-    pbSecret: PByte; cbSecret: ULONG; dwFlags: DWORD): NativeInt; stdcall;
+  TBCryptHashData = function(hHash: NativeUInt; pbInput: PByte; cbInput: ULONG;
+    dwFlags: DWORD): NativeInt; stdcall;
+  TBCryptCreateHash = function(hAlgorithm: NativeUInt; out phHash: NativeUInt;
+    pbHashObject: PByte; cbHashObject: ULONG; pbSecret: PByte; cbSecret: ULONG;
+    dwFlags: DWORD): NativeInt; stdcall;
   TBCryptFinishHash = function(hHash: NativeUInt; pbOutput: PByte;
     cbOutput, dwFlags: ULONG): NativeInt; stdcall;
   TBCryptDestroyHash = function(hHash: NativeUInt): NativeInt; stdcall;
   TBCryptGetProperty = function(hObject: NativeUInt; pszProperty: LPCWSTR;
-    pbOutput: PByte; cbOutput: ULONG; out pcbResult: ULONG;
-    dwFlags: DWORD): NativeInt; stdcall;
-  TBCryptVerifySignature = function(hKey: NativeUInt;
-    pPaddingInfo: Pointer; pbHash: PByte; cbHash: ULONG;
-    pbSignature: PByte; cbSignature: ULONG;
+    pbOutput: PByte; cbOutput: ULONG; out pcbResult: ULONG; dwFlags: DWORD)
+    : NativeInt; stdcall;
+  TBCryptVerifySignature = function(hKey: NativeUInt; pPaddingInfo: Pointer;
+    pbHash: PByte; cbHash: ULONG; pbSignature: PByte; cbSignature: ULONG;
     dwFlags: DWORD): NativeInt; stdcall;
 
 var
@@ -124,33 +125,39 @@ procedure DoLoad;
   begin
     Pointer(P) := GetProcAddress(GLib, PAnsiChar(AName));
     if Pointer(P) = nil then
-      raise EOBDError.CreateFmt(
-        'bcrypt.dll missing symbol "%s"', [string(AName)]);
+      raise EOBDError.CreateFmt('bcrypt.dll missing symbol "%s"',
+        [string(AName)]);
   end;
+
 begin
-  if GLib <> 0 then Exit;
+  if GLib <> 0 then
+    Exit;
   GLib := LoadLibrary(PChar(BCRYPT_LIB));
   if GLib = 0 then
-    raise EOBDError.Create(
-      'bcrypt.dll could not be loaded — host is not Windows or CNG missing');
-  NeedProc(BCryptOpenAlgorithmProvider_F,  'BCryptOpenAlgorithmProvider');
+    raise EOBDError.Create
+      ('bcrypt.dll could not be loaded — host is not Windows or CNG missing');
+  NeedProc(BCryptOpenAlgorithmProvider_F, 'BCryptOpenAlgorithmProvider');
   NeedProc(BCryptCloseAlgorithmProvider_F, 'BCryptCloseAlgorithmProvider');
-  NeedProc(BCryptImportKeyPair_F,          'BCryptImportKeyPair');
-  NeedProc(BCryptDestroyKey_F,             'BCryptDestroyKey');
-  NeedProc(BCryptCreateHash_F,             'BCryptCreateHash');
-  NeedProc(BCryptHashData_F,               'BCryptHashData');
-  NeedProc(BCryptFinishHash_F,             'BCryptFinishHash');
-  NeedProc(BCryptDestroyHash_F,            'BCryptDestroyHash');
-  NeedProc(BCryptGetProperty_F,            'BCryptGetProperty');
-  NeedProc(BCryptVerifySignature_F,        'BCryptVerifySignature');
+  NeedProc(BCryptImportKeyPair_F, 'BCryptImportKeyPair');
+  NeedProc(BCryptDestroyKey_F, 'BCryptDestroyKey');
+  NeedProc(BCryptCreateHash_F, 'BCryptCreateHash');
+  NeedProc(BCryptHashData_F, 'BCryptHashData');
+  NeedProc(BCryptFinishHash_F, 'BCryptFinishHash');
+  NeedProc(BCryptDestroyHash_F, 'BCryptDestroyHash');
+  NeedProc(BCryptGetProperty_F, 'BCryptGetProperty');
+  NeedProc(BCryptVerifySignature_F, 'BCryptVerifySignature');
 end;
 
 procedure EnsureLoaded;
 begin
-  if GLib <> 0 then Exit;
+  if GLib <> 0 then
+    Exit;
   GLoadLock.Enter;
-  try DoLoad;
-  finally GLoadLock.Leave; end;
+  try
+    DoLoad;
+  finally
+    GLoadLock.Leave;
+  end;
 end;
 {$ENDIF}
 
@@ -173,13 +180,13 @@ begin
   Result := 'BCrypt (Windows CNG)';
 end;
 
-function TOBDSignatureBCrypt.DoSupports(
-  AAlgorithm: TOBDSignatureAlgorithm): Boolean;
+function TOBDSignatureBCrypt.DoSupports(AAlgorithm
+  : TOBDSignatureAlgorithm): Boolean;
 begin
 {$IFDEF MSWINDOWS}
   case AAlgorithm of
-    saRSA_PSS_SHA256, saRSA_PKCS1_SHA256,
-    saECDSA_P256_SHA256, saECDSA_P384_SHA384:
+    saRSA_PSS_SHA256, saRSA_PKCS1_SHA256, saECDSA_P256_SHA256,
+      saECDSA_P384_SHA384:
       Result := True;
   else
     Result := False;
@@ -189,8 +196,8 @@ begin
 {$ENDIF}
 end;
 
-function TOBDSignatureBCrypt.DoVerify(
-  const AArgs: TOBDSignatureVerifyArgs): Boolean;
+function TOBDSignatureBCrypt.DoVerify(const AArgs
+  : TOBDSignatureVerifyArgs): Boolean;
 {$IFDEF MSWINDOWS}
 var
   AlgID, BlobType, HashAlgID: string;
@@ -229,17 +236,18 @@ begin
     raise EOBDConfig.Create('BCrypt: algorithm not supported');
   end;
 
-  AlgHandle := 0; KeyHandle := 0;
-  HashAlgHandle := 0; HashHandle := 0;
+  AlgHandle := 0;
+  KeyHandle := 0;
+  HashAlgHandle := 0;
+  HashHandle := 0;
   try
-    RC := BCryptOpenAlgorithmProvider_F(AlgHandle,
-      PWideChar(AlgID), nil, 0);
+    RC := BCryptOpenAlgorithmProvider_F(AlgHandle, PWideChar(AlgID), nil, 0);
     if RC <> STATUS_SUCCESS then
-      raise EOBDError.CreateFmt('BCryptOpenAlgorithmProvider failed (0x%.8X)', [RC]);
+      raise EOBDError.CreateFmt
+        ('BCryptOpenAlgorithmProvider failed (0x%.8X)', [RC]);
 
-    RC := BCryptImportKeyPair_F(AlgHandle, 0, PWideChar(BlobType),
-      KeyHandle, PByte(@AArgs.PublicKey[0]),
-      ULONG(Length(AArgs.PublicKey)), 0);
+    RC := BCryptImportKeyPair_F(AlgHandle, 0, PWideChar(BlobType), KeyHandle,
+      PByte(@AArgs.PublicKey[0]), ULONG(Length(AArgs.PublicKey)), 0);
     if RC <> STATUS_SUCCESS then
       raise EOBDError.CreateFmt('BCryptImportKeyPair failed (0x%.8X)', [RC]);
 
@@ -248,28 +256,28 @@ begin
       PWideChar(HashAlgID), nil, 0);
     if RC <> STATUS_SUCCESS then
       raise EOBDError.CreateFmt('Hash provider open failed (0x%.8X)', [RC]);
-    RC := BCryptGetProperty_F(HashAlgHandle, 'ObjectLength',
-      nil, 0, ResultLen, 0);
+    RC := BCryptGetProperty_F(HashAlgHandle, 'ObjectLength', nil, 0,
+      ResultLen, 0);
     if RC = STATUS_SUCCESS then
     begin
-      var ObjLen: ULONG;
-      RC := BCryptGetProperty_F(HashAlgHandle, 'ObjectLength',
-        @ObjLen, SizeOf(ObjLen), ResultLen, 0);
+      var
+        ObjLen: ULONG;
+      RC := BCryptGetProperty_F(HashAlgHandle, 'ObjectLength', @ObjLen,
+        SizeOf(ObjLen), ResultLen, 0);
       if RC = STATUS_SUCCESS then
         SetLength(HashObjBuf, ObjLen);
     end;
-    RC := BCryptGetProperty_F(HashAlgHandle, 'HashLength',
-      @HashLen, SizeOf(HashLen), ResultLen, 0);
+    RC := BCryptGetProperty_F(HashAlgHandle, 'HashLength', @HashLen,
+      SizeOf(HashLen), ResultLen, 0);
     if RC <> STATUS_SUCCESS then
       raise EOBDError.CreateFmt('Hash length probe failed (0x%.8X)', [RC]);
     SetLength(HashBuf, HashLen);
 
     if Length(HashObjBuf) > 0 then
-      RC := BCryptCreateHash_F(HashAlgHandle, HashHandle,
-        PByte(@HashObjBuf[0]), ULONG(Length(HashObjBuf)), nil, 0, 0)
+      RC := BCryptCreateHash_F(HashAlgHandle, HashHandle, PByte(@HashObjBuf[0]),
+        ULONG(Length(HashObjBuf)), nil, 0, 0)
     else
-      RC := BCryptCreateHash_F(HashAlgHandle, HashHandle,
-        nil, 0, nil, 0, 0);
+      RC := BCryptCreateHash_F(HashAlgHandle, HashHandle, nil, 0, nil, 0, 0);
     if RC <> STATUS_SUCCESS then
       raise EOBDError.CreateFmt('BCryptCreateHash failed (0x%.8X)', [RC]);
 
@@ -290,31 +298,32 @@ begin
           PSSInfo.cbSalt := HashLen;
           PaddingInfo := @PSSInfo;
           RC := BCryptVerifySignature_F(KeyHandle, PaddingInfo,
-            PByte(@HashBuf[0]), HashLen,
-            PByte(@AArgs.Signature[0]), ULONG(Length(AArgs.Signature)),
-            BCRYPT_PAD_PSS);
+            PByte(@HashBuf[0]), HashLen, PByte(@AArgs.Signature[0]),
+            ULONG(Length(AArgs.Signature)), BCRYPT_PAD_PSS);
         end;
       saRSA_PKCS1_SHA256:
         begin
           PKCSInfo.pszAlgId := PWideChar(HashAlgID);
           PaddingInfo := @PKCSInfo;
           RC := BCryptVerifySignature_F(KeyHandle, PaddingInfo,
-            PByte(@HashBuf[0]), HashLen,
-            PByte(@AArgs.Signature[0]), ULONG(Length(AArgs.Signature)),
-            BCRYPT_PAD_PKCS1);
+            PByte(@HashBuf[0]), HashLen, PByte(@AArgs.Signature[0]),
+            ULONG(Length(AArgs.Signature)), BCRYPT_PAD_PKCS1);
         end;
     else
-      RC := BCryptVerifySignature_F(KeyHandle, nil,
-        PByte(@HashBuf[0]), HashLen,
+      RC := BCryptVerifySignature_F(KeyHandle, nil, PByte(@HashBuf[0]), HashLen,
         PByte(@AArgs.Signature[0]), ULONG(Length(AArgs.Signature)), 0);
     end;
 
-    if RC = STATUS_SUCCESS then Exit(True);
-    if RC = STATUS_INVALID_SIGNATURE then Exit(False);
+    if RC = STATUS_SUCCESS then
+      Exit(True);
+    if RC = STATUS_INVALID_SIGNATURE then
+      Exit(False);
     raise EOBDError.CreateFmt('BCryptVerifySignature failed (0x%.8X)', [RC]);
   finally
-    if HashHandle <> 0 then BCryptDestroyHash_F(HashHandle);
-    if KeyHandle  <> 0 then BCryptDestroyKey_F(KeyHandle);
+    if HashHandle <> 0 then
+      BCryptDestroyHash_F(HashHandle);
+    if KeyHandle <> 0 then
+      BCryptDestroyKey_F(KeyHandle);
     if HashAlgHandle <> 0 then
       BCryptCloseAlgorithmProvider_F(HashAlgHandle, 0);
     if AlgHandle <> 0 then
@@ -326,15 +335,18 @@ begin
 end;
 
 initialization
+
 {$IFDEF MSWINDOWS}
   GLoadLock := TCriticalSection.Create;
 {$ENDIF}
 
 finalization
+
 {$IFDEF MSWINDOWS}
-  if GLib <> 0 then FreeLibrary(GLib);
-  GLib := 0;
-  GLoadLock.Free;
+if GLib <> 0 then
+  FreeLibrary(GLib);
+GLib := 0;
+GLoadLock.Free;
 {$ENDIF}
 
 end.

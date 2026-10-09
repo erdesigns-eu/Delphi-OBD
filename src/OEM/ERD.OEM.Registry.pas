@@ -1,63 +1,63 @@
-//------------------------------------------------------------------------------
-//  ERD.OEM.Registry
+﻿// ------------------------------------------------------------------------------
+// ERD.OEM.Registry
 //
-//  TOBDOEMRegistry — process-wide singleton that resolves DID,
-//  PID, DTC and SPN identifiers to human-readable names against
-//  any number of OEM overlays. The generic service-mode and
-//  diagnostics components (TOBDDataIdentifierIO, TOBDDTCs,
-//  TOBDUDSReadDID, TOBDJ1939DM, …) consult the registry whenever
-//  they have raw numeric input and want a friendly label.
+// TOBDOEMRegistry — process-wide singleton that resolves DID,
+// PID, DTC and SPN identifiers to human-readable names against
+// any number of OEM overlays. The generic service-mode and
+// diagnostics components (TOBDDataIdentifierIO, TOBDDTCs,
+// TOBDUDSReadDID, TOBDJ1939DM, …) consult the registry whenever
+// they have raw numeric input and want a friendly label.
 //
-//  Overlays are layered: a registered overlay either contains a
-//  name for a given identifier or it doesn't. The registry walks
-//  overlays in registration order until one resolves the lookup,
-//  returning a sensible "<kind> 0xNNNN" fallback when nothing
-//  matches. <c>TOBDOEMCatalog</c> (sibling unit) reads JSON
-//  files into <c>TOBDOEMOverlay</c> records and pushes them into
-//  the registry.
+// Overlays are layered: a registered overlay either contains a
+// name for a given identifier or it doesn't. The registry walks
+// overlays in registration order until one resolves the lookup,
+// returning a sensible "<kind> 0xNNNN" fallback when nothing
+// matches. <c>TOBDOEMCatalog</c> (sibling unit) reads JSON
+// files into <c>TOBDOEMOverlay</c> records and pushes them into
+// the registry.
 //
-//  The registry is intentionally narrow — it solves "byte 0xF190
-//  → 'Vehicle Identification Number'", not full property
-//  decoding. Components that decode bytes into typed values
-//  (scaling, units, ranges) still own that logic.
+// The registry is intentionally narrow — it solves "byte 0xF190
+// → 'Vehicle Identification Number'", not full property
+// decoding. Components that decode bytes into typed values
+// (scaling, units, ranges) still own that logic.
 //
-//  Threading
+// Threading
 //
-//    The registry is reentrant via an internal critical section.
-//    Overlay registration and lookup are safe from any thread.
-//    Components that walk the registry on a worker should treat
-//    returned strings as immutable snapshots.
+// The registry is reentrant via an internal critical section.
+// Overlay registration and lookup are safe from any thread.
+// Components that walk the registry on a worker should treat
+// returned strings as immutable snapshots.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-11  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-11  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.OEM.Registry;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF};
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF};
 
 type
   /// <summary>
-  ///   Identifier kind. Determines which overlay table the
-  ///   registry searches.
+  /// Identifier kind. Determines which overlay table the
+  /// registry searches.
   /// </summary>
   TOBDOEMIdentifierKind = (
     /// <summary>UDS / KWP Data Identifier (16-bit).</summary>
@@ -71,13 +71,12 @@ type
     /// <summary>J1939 Failure Mode Identifier (5-bit).</summary>
     ikFMI,
     /// <summary>J1939 Parameter Group Number (18-bit).</summary>
-    ikPGN
-  );
+    ikPGN);
 
   /// <summary>
-  ///   One overlay record. Owned by the caller (typically a
-  ///   <c>TOBDOEMCatalog</c>) — the registry holds a reference
-  ///   only and never frees it.
+  /// One overlay record. Owned by the caller (typically a
+  /// <c>TOBDOEMCatalog</c>) — the registry holds a reference
+  /// only and never frees it.
   /// </summary>
   TOBDOEMOverlay = class
   strict private
@@ -119,9 +118,9 @@ type
     /// <param name="AName">Human-readable name.</param>
     procedure AddPGN(APGN: Cardinal; const AName: string);
     /// <summary>
-    ///   Adds (or replaces) a Mode-PID composite entry. The high
-    ///   byte of the key is the mode, the low byte is the PID
-    ///   (so Mode 01 PID 0x0C → 0x010C).
+    /// Adds (or replaces) a Mode-PID composite entry. The high
+    /// byte of the key is the mode, the low byte is the PID
+    /// (so Mode 01 PID 0x0C → 0x010C).
     /// </summary>
     /// <param name="AMode">OBD service / mode byte.</param>
     /// <param name="APID">PID byte.</param>
@@ -132,7 +131,7 @@ type
     function OEM: string;
 
     /// <summary>
-    ///   Looks up an identifier; returns <c>True</c> when found.
+    /// Looks up an identifier; returns <c>True</c> when found.
     /// </summary>
     /// <param name="AKind">Identifier kind.</param>
     /// <param name="AKey">Identifier key as a <c>Cardinal</c>
@@ -147,12 +146,11 @@ type
     /// <param name="ACode">5-character DTC code.</param>
     /// <param name="AName">Out: resolved name.</param>
     /// <returns><c>True</c> if found.</returns>
-    function LookupDTC(const ACode: string;
-      out AName: string): Boolean;
+    function LookupDTC(const ACode: string; out AName: string): Boolean;
   end;
 
   /// <summary>
-  ///   Process-wide OEM registry singleton.
+  /// Process-wide OEM registry singleton.
   /// </summary>
   TOBDOEMRegistry = class
   strict private
@@ -177,8 +175,8 @@ type
     class procedure ReleaseInstance; static;
 
     /// <summary>
-    ///   Registers an overlay. The registry keeps a reference
-    ///   only; the caller frees the overlay when finished.
+    /// Registers an overlay. The registry keeps a reference
+    /// only; the caller frees the overlay when finished.
     /// </summary>
     /// <param name="AOverlay">Overlay to add.</param>
     procedure Register(AOverlay: TOBDOEMOverlay);
@@ -187,16 +185,15 @@ type
     procedure Unregister(AOverlay: TOBDOEMOverlay);
 
     /// <summary>
-    ///   Resolves a numeric identifier by walking the registered
-    ///   overlays in registration order.
+    /// Resolves a numeric identifier by walking the registered
+    /// overlays in registration order.
     /// </summary>
     /// <param name="AKind">Identifier kind.</param>
     /// <param name="AKey">Identifier key (mode-PID composites
     /// use <c>(mode shl 8) or PID</c>).</param>
     /// <returns>Resolved name, or a generic
     /// <c>'&lt;kind&gt; 0xNNNN'</c> fallback when nothing matches.</returns>
-    function Resolve(AKind: TOBDOEMIdentifierKind;
-      AKey: Cardinal): string;
+    function Resolve(AKind: TOBDOEMIdentifierKind; AKey: Cardinal): string;
     /// <summary>String-keyed DTC resolve.</summary>
     /// <param name="ACode">5-character DTC code.</param>
     /// <returns>Resolved name or the code itself when no
@@ -259,8 +256,7 @@ begin
   FPGNs.AddOrSetValue(APGN, AName);
 end;
 
-procedure TOBDOEMOverlay.AddPID(AMode: Byte; APID: Byte;
-  const AName: string);
+procedure TOBDOEMOverlay.AddPID(AMode: Byte; APID: Byte; const AName: string);
 begin
   FPIDs.AddOrSetValue((Word(AMode) shl 8) or APID, AName);
 end;
@@ -270,8 +266,8 @@ begin
   Result := FOEM;
 end;
 
-function TOBDOEMOverlay.Lookup(AKind: TOBDOEMIdentifierKind;
-  AKey: Cardinal; out AName: string): Boolean;
+function TOBDOEMOverlay.Lookup(AKind: TOBDOEMIdentifierKind; AKey: Cardinal;
+  out AName: string): Boolean;
 begin
   case AKind of
     ikDID:
@@ -372,12 +368,17 @@ begin
   else
   begin
     case AKind of
-      ikDID: Result := Format('DID 0x%.4x', [AKey and $FFFF]);
-      ikSPN: Result := Format('SPN %u', [AKey]);
-      ikFMI: Result := Format('FMI %u', [AKey and $FF]);
-      ikPGN: Result := Format('PGN 0x%.4x', [AKey]);
-      ikPID: Result := Format('Mode 0x%.2x PID 0x%.2x',
-                              [(AKey shr 8) and $FF, AKey and $FF]);
+      ikDID:
+        Result := Format('DID 0x%.4x', [AKey and $FFFF]);
+      ikSPN:
+        Result := Format('SPN %u', [AKey]);
+      ikFMI:
+        Result := Format('FMI %u', [AKey and $FF]);
+      ikPGN:
+        Result := Format('PGN 0x%.4x', [AKey]);
+      ikPID:
+        Result := Format('Mode 0x%.2x PID 0x%.2x',
+          [(AKey shr 8) and $FF, AKey and $FF]);
     else
       Result := Format('Identifier 0x%x', [AKey]);
     end;
@@ -421,6 +422,7 @@ end;
 initialization
 
 finalization
-  TOBDOEMRegistry.ReleaseInstance;
+
+TOBDOEMRegistry.ReleaseInstance;
 
 end.

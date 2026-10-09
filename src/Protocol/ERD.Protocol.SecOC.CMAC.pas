@@ -1,35 +1,35 @@
-//------------------------------------------------------------------------------
-//  ERD.Protocol.SecOC.CMAC
+﻿// ------------------------------------------------------------------------------
+// ERD.Protocol.SecOC.CMAC
 //
-//  CMAC-AES128 per RFC 4493 / NIST SP 800-38B. Used by SecOC to
-//  authenticate Original PDU || Data ID || Full Freshness Value.
+// CMAC-AES128 per RFC 4493 / NIST SP 800-38B. Used by SecOC to
+// authenticate Original PDU || Data ID || Full Freshness Value.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - RFC 4493 (The AES-CMAC Algorithm)
-//    - NIST SP 800-38B
+// References  :
+// - RFC 4493 (The AES-CMAC Algorithm)
+// - NIST SP 800-38B
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Protocol.SecOC.CMAC;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   ERD.Types,
   ERD.Protocol.SecOC.AES;
 
@@ -38,19 +38,19 @@ type
   TOBDCMACAES = class
   public
     /// <summary>
-    ///   Computes the full 128-bit CMAC tag of <c>AMessage</c>
-    ///   under <c>AKey</c>.
+    /// Computes the full 128-bit CMAC tag of <c>AMessage</c>
+    /// under <c>AKey</c>.
     /// </summary>
     /// <param name="AKey">128-bit AES key.</param>
     /// <param name="AMessage">Bytes to authenticate. May be empty.</param>
     /// <returns>16-byte tag.</returns>
-    class function Compute(const AKey: TAES128Key;
-      const AMessage: TBytes): TAESBlock; static;
+    class function Compute(const AKey: TAES128Key; const AMessage: TBytes)
+      : TAESBlock; static;
 
     /// <summary>
-    ///   Computes a truncated CMAC tag (<c>ATagBits</c> bits, big-
-    ///   endian, taken from the most-significant end of the full
-    ///   tag).
+    /// Computes a truncated CMAC tag (<c>ATagBits</c> bits, big-
+    /// endian, taken from the most-significant end of the full
+    /// tag).
     /// </summary>
     /// <param name="AKey">128-bit AES key.</param>
     /// <param name="AMessage">Bytes to authenticate. May be empty.</param>

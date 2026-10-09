@@ -1,62 +1,62 @@
-//------------------------------------------------------------------------------
-//  ERD.SecureSettings
+﻿// ------------------------------------------------------------------------------
+// ERD.SecureSettings
 //
-//  TOBDSecureSettings — Windows-DPAPI-backed name/value
-//  configuration store. Each (Key, Value) is persisted into a
-//  DPAPI-protected blob; the host picks the scope at construction
-//  time:
+// TOBDSecureSettings — Windows-DPAPI-backed name/value
+// configuration store. Each (Key, Value) is persisted into a
+// DPAPI-protected blob; the host picks the scope at construction
+// time:
 //
-//    - ssCurrentUser: encrypted under the current Windows user
-//      profile. Other accounts on the same machine cannot read
-//      the file even when they have NTFS access to it.
-//    - ssLocalMachine: encrypted under the machine key. Every
-//      account on this machine can read; portability is broken
-//      (the file does not decrypt on a different machine).
+// - ssCurrentUser: encrypted under the current Windows user
+// profile. Other accounts on the same machine cannot read
+// the file even when they have NTFS access to it.
+// - ssLocalMachine: encrypted under the machine key. Every
+// account on this machine can read; portability is broken
+// (the file does not decrypt on a different machine).
 //
-//  Use ssCurrentUser for per-user tool preferences (API keys,
-//  OEM tokens, security-access seeds bound to a workshop
-//  technician). Use ssLocalMachine for shared workstation
-//  setups where multiple operators must share one cached
-//  configuration on the same physical PC.
+// Use ssCurrentUser for per-user tool preferences (API keys,
+// OEM tokens, security-access seeds bound to a workshop
+// technician). Use ssLocalMachine for shared workstation
+// setups where multiple operators must share one cached
+// configuration on the same physical PC.
 //
-//  Storage path defaults to
-//  <c>%LOCALAPPDATA%\&lt;AppName&gt;\settings.dat</c> for the
-//  current-user scope and to
-//  <c>%PROGRAMDATA%\&lt;AppName&gt;\settings.dat</c> for the
-//  machine scope; both can be overridden by the explicit-path
-//  constructor.
+// Storage path defaults to
+// <c>%LOCALAPPDATA%\&lt;AppName&gt;\settings.dat</c> for the
+// current-user scope and to
+// <c>%PROGRAMDATA%\&lt;AppName&gt;\settings.dat</c> for the
+// machine scope; both can be overridden by the explicit-path
+// constructor.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - Microsoft Docs: CryptProtectData / CryptUnprotectData
-//      (CRYPTPROTECT_LOCAL_MACHINE flag for the machine scope)
+// References  :
+// - Microsoft Docs: CryptProtectData / CryptUnprotectData
+// (CRYPTPROTECT_LOCAL_MACHINE flag for the machine scope)
 //
-//  History     :
-//    2026-05-11  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-11  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.SecureSettings;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   System.JSON,
   System.IOUtils,
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF};
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF};
 
 type
   /// <summary>Raised on storage / DPAPI errors.</summary>
@@ -70,16 +70,15 @@ type
     /// <summary>Encrypt under the local machine key. Every
     /// account on this PC can decrypt; the file does not
     /// decrypt on a different machine.</summary>
-    ssLocalMachine
-  );
+    ssLocalMachine);
 
   /// <summary>
-  ///   Encrypted name/value configuration store.
+  /// Encrypted name/value configuration store.
   /// </summary>
   /// <remarks>
-  ///   Construct once per host application. Reads / writes are
-  ///   reentrant. <see cref="Save"/> persists to disk; the
-  ///   store auto-loads on first access.
+  /// Construct once per host application. Reads / writes are
+  /// reentrant. <see cref="Save"/> persists to disk; the
+  /// store auto-loads on first access.
   /// </remarks>
   TOBDSecureSettings = class
   strict private
@@ -93,19 +92,21 @@ type
     function UnprotectBlob(const ACipherText: TBytes): TBytes;
   public
     /// <summary>
-    ///   Constructs a store backed by the default per-scope path.
+    /// Constructs a store backed by the default per-scope path.
     /// </summary>
     /// <param name="AAppName">Application name, or full path when AExplicitPath is True.</param>
     /// <param name="AExplicitPath">False uses the default store path; True uses AAppName as a path.</param>
     /// <param name="AScope">DPAPI scope. Default
     /// <c>ssCurrentUser</c>.</param>
     constructor Create(const AAppName: string;
-      AScope: TOBDSecureSettingsScope = ssCurrentUser; AExplicitPath: Boolean = False);
+      AScope: TOBDSecureSettingsScope = ssCurrentUser;
+      AExplicitPath: Boolean = False);
     /// <summary>Constructs a store at the explicit path.</summary>
     /// <param name="AFilePath">Storage file path.</param>
     /// <param name="AScope">DPAPI scope.</param>
     class function CreateAt(const AFilePath: string;
-      AScope: TOBDSecureSettingsScope = ssCurrentUser): TOBDSecureSettings; static;
+      AScope: TOBDSecureSettingsScope = ssCurrentUser)
+      : TOBDSecureSettings; static;
     /// <summary>Frees state without writing — call
     /// <see cref="Save"/> first to persist.</summary>
     destructor Destroy; override;
@@ -115,8 +116,7 @@ type
     /// <param name="AKey">Setting key.</param>
     /// <param name="ADefault">Fallback value.</param>
     /// <returns>The stored value or <c>ADefault</c>.</returns>
-    function Read(const AKey: string;
-      const ADefault: string = ''): string;
+    function Read(const AKey: string; const ADefault: string = ''): string;
     /// <summary>Writes a value (in-memory; call
     /// <see cref="Save"/> to persist).</summary>
     /// <param name="AKey">Setting key.</param>
@@ -138,8 +138,8 @@ type
     /// <summary>Persists the current in-memory state to disk
     /// under the configured DPAPI scope.</summary>
     /// <exception cref="EOBDSecureSettings">
-    ///   DPAPI returned an error or the destination is
-    ///   unwritable.
+    /// DPAPI returned an error or the destination is
+    /// unwritable.
     /// </exception>
     procedure Save;
 
@@ -156,30 +156,30 @@ type
 implementation
 
 {$IFDEF MSWINDOWS}
+
 uses
   Winapi.Windows;
 
 const
   CRYPTPROTECT_LOCAL_MACHINE = $00000004;
-  CRYPTPROTECT_UI_FORBIDDEN  = $00000001;
+  CRYPTPROTECT_UI_FORBIDDEN = $00000001;
 
 type
   DATA_BLOB = record
     cbData: DWORD;
     pbData: PByte;
   end;
+
   PDATA_BLOB = ^DATA_BLOB;
 
 function CryptProtectData(pDataIn: PDATA_BLOB; szDataDescr: PWideChar;
-  pOptionalEntropy: PDATA_BLOB; pvReserved: Pointer;
-  pPromptStruct: Pointer; dwFlags: DWORD;
-  pDataOut: PDATA_BLOB): BOOL; stdcall;
+  pOptionalEntropy: PDATA_BLOB; pvReserved: Pointer; pPromptStruct: Pointer;
+  dwFlags: DWORD; pDataOut: PDATA_BLOB): BOOL; stdcall;
   external 'Crypt32.dll' name 'CryptProtectData';
 
-function CryptUnprotectData(pDataIn: PDATA_BLOB;
-  szDataDescr: PPWideChar; pOptionalEntropy: PDATA_BLOB;
-  pvReserved: Pointer; pPromptStruct: Pointer; dwFlags: DWORD;
-  pDataOut: PDATA_BLOB): BOOL; stdcall;
+function CryptUnprotectData(pDataIn: PDATA_BLOB; szDataDescr: PPWideChar;
+  pOptionalEntropy: PDATA_BLOB; pvReserved: Pointer; pPromptStruct: Pointer;
+  dwFlags: DWORD; pDataOut: PDATA_BLOB): BOOL; stdcall;
   external 'Crypt32.dll' name 'CryptUnprotectData';
 
 function FlagsForScope(AScope: TOBDSecureSettingsScope): DWORD;
@@ -199,10 +199,10 @@ begin
     In_.pbData := @APlain[0]
   else
     In_.pbData := nil;
-  if not CryptProtectData(@In_, nil, nil, nil, nil,
-                          FlagsForScope(AScope), @Out_) then
-    raise EOBDSecureSettings.CreateFmt(
-      'CryptProtectData failed: %d', [GetLastError]);
+  if not CryptProtectData(@In_, nil, nil, nil, nil, FlagsForScope(AScope), @Out_)
+  then
+    raise EOBDSecureSettings.CreateFmt('CryptProtectData failed: %d',
+      [GetLastError]);
   try
     SetLength(Result, Out_.cbData);
     if Out_.cbData > 0 then
@@ -223,10 +223,10 @@ begin
     In_.pbData := @ACipher[0]
   else
     In_.pbData := nil;
-  if not CryptUnprotectData(@In_, nil, nil, nil, nil,
-                            FlagsForScope(AScope), @Out_) then
-    raise EOBDSecureSettings.CreateFmt(
-      'CryptUnprotectData failed: %d', [GetLastError]);
+  if not CryptUnprotectData(@In_, nil, nil, nil, nil, FlagsForScope(AScope),
+    @Out_) then
+    raise EOBDSecureSettings.CreateFmt('CryptUnprotectData failed: %d',
+      [GetLastError]);
   try
     SetLength(Result, Out_.cbData);
     if Out_.cbData > 0 then
@@ -237,18 +237,17 @@ begin
   end;
 end;
 {$ELSE}
+
 function DPAPIProtect(const APlain: TBytes;
   AScope: TOBDSecureSettingsScope): TBytes;
 begin
-  raise EOBDSecureSettings.Create(
-    'TOBDSecureSettings: DPAPI is Windows-only');
+  raise EOBDSecureSettings.Create('TOBDSecureSettings: DPAPI is Windows-only');
 end;
 
 function DPAPIUnprotect(const ACipher: TBytes;
   AScope: TOBDSecureSettingsScope): TBytes;
 begin
-  raise EOBDSecureSettings.Create(
-    'TOBDSecureSettings: DPAPI is Windows-only');
+  raise EOBDSecureSettings.Create('TOBDSecureSettings: DPAPI is Windows-only');
 end;
 {$ENDIF}
 
@@ -258,7 +257,7 @@ var
   Base: string;
   EnvVar: string;
 begin
-  {$IFDEF MSWINDOWS}
+{$IFDEF MSWINDOWS}
   if AScope = ssLocalMachine then
     EnvVar := 'PROGRAMDATA'
   else
@@ -266,9 +265,9 @@ begin
   Base := GetEnvironmentVariable(EnvVar);
   if Base = '' then
     Base := TPath.GetHomePath;
-  {$ELSE}
+{$ELSE}
   Base := TPath.GetHomePath;
-  {$ENDIF}
+{$ENDIF}
   Result := TPath.Combine(TPath.Combine(Base, AAppName), 'settings.dat');
 end;
 
@@ -331,24 +330,22 @@ begin
     PlainText := TEncoding.UTF8.GetString(PlainBytes);
   except
     on E: Exception do
-      raise EOBDSecureSettings.CreateFmt(
-        'TOBDSecureSettings: cannot decrypt "%s": %s',
-        [FFilePath, E.Message]);
+      raise EOBDSecureSettings.CreateFmt
+        ('TOBDSecureSettings: cannot decrypt "%s": %s', [FFilePath, E.Message]);
   end;
   Root := TJSONObject.ParseJSONValue(PlainText);
-  if not (Root is TJSONObject) then
+  if not(Root is TJSONObject) then
   begin
     Root.Free;
-    raise EOBDSecureSettings.CreateFmt(
-      'TOBDSecureSettings: malformed JSON in "%s"', [FFilePath]);
+    raise EOBDSecureSettings.CreateFmt
+      ('TOBDSecureSettings: malformed JSON in "%s"', [FFilePath]);
   end;
   Obj := Root as TJSONObject;
   try
     for I := 0 to Obj.Count - 1 do
     begin
       Pair := Obj.Pairs[I];
-      FCache.AddOrSetValue(Pair.JsonString.Value,
-        Pair.JsonValue.Value);
+      FCache.AddOrSetValue(Pair.JsonString.Value, Pair.JsonValue.Value);
     end;
   finally
     Root.Free;
@@ -368,8 +365,7 @@ begin
   end;
 end;
 
-procedure TOBDSecureSettings.Write(const AKey: string;
-  const AValue: string);
+procedure TOBDSecureSettings.Write(const AKey: string; const AValue: string);
 begin
   FLock.Enter;
   try

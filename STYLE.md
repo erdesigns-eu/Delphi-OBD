@@ -32,7 +32,7 @@ mandatory; copy the template and fill them in.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Co-authors  : <Name>, <Name>
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
+//  Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
 //  License     : MIT — see LICENSE
 //
 //  References  :

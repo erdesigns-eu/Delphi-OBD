@@ -1,46 +1,46 @@
-//------------------------------------------------------------------------------
-//  ERD.Coding.FlashSession
+﻿// ------------------------------------------------------------------------------
+// ERD.Coding.FlashSession
 //
-//  TOBDFlashSession — high-level orchestrator that wraps the
-//  classic UDS reflash choreography into a single call:
+// TOBDFlashSession — high-level orchestrator that wraps the
+// classic UDS reflash choreography into a single call:
 //
-//    1. DiagnosticSessionControl  (0x10) → programmingSession (0x02)
-//    2. SecurityAccess            (0x27) — via TOBDSecurityAccess
-//    3. RoutineControl Erase      (0x31 0x01 ERASE_RID + memRange)
-//    4. Flasher.Flash             (0x34/0x36/0x37)
-//    5. RoutineControl CheckSum   (0x31 0x01 VERIFY_RID + checksum)
-//    6. ECUReset                  (0x11 0x01 hardReset)
+// 1. DiagnosticSessionControl  (0x10) → programmingSession (0x02)
+// 2. SecurityAccess            (0x27) — via TOBDSecurityAccess
+// 3. RoutineControl Erase      (0x31 0x01 ERASE_RID + memRange)
+// 4. Flasher.Flash             (0x34/0x36/0x37)
+// 5. RoutineControl CheckSum   (0x31 0x01 VERIFY_RID + checksum)
+// 6. ECUReset                  (0x11 0x01 hardReset)
 //
-//  Every step is configurable by property; hosts can disable
-//  individual steps (e.g. set <c>VerifyRoutineID = 0</c> to skip
-//  the verify routine).
+// Every step is configurable by property; hosts can disable
+// individual steps (e.g. set <c>VerifyRoutineID = 0</c> to skip
+// the verify routine).
 //
-//  Like its underlying components, the orchestrator defaults
-//  <c>AutoExecute</c> to <c>False</c> and propagates the gate to
-//  every write-side child component before calling them.
+// Like its underlying components, the orchestrator defaults
+// <c>AutoExecute</c> to <c>False</c> and propagates the gate to
+// every write-side child component before calling them.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - ISO 14229-1:2020 § 9.2 (Session control)
-//    - ISO 14229-1:2020 § 9.3 (ECUReset)
-//    - ISO 14229-1:2020 § 12.7 (RoutineControl)
-//    - ISO 14229-1:2020 § 14.2 (RequestDownload)
+// References  :
+// - ISO 14229-1:2020 § 9.2 (Session control)
+// - ISO 14229-1:2020 § 9.3 (ECUReset)
+// - ISO 14229-1:2020 § 12.7 (RoutineControl)
+// - ISO 14229-1:2020 § 14.2 (RequestDownload)
 //
-//  History     :
-//    2026-05-09  ERD  Follow-up.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Follow-up.
+// ------------------------------------------------------------------------------
 
 unit ERD.Coding.FlashSession;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -49,9 +49,9 @@ uses
   ERD.Async.Task,
   ERD.Connection,
   ERD.Connection.Types,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
   ERD.Types,
   ERD.Protocol.Types,
   ERD.Protocol.UDS,
@@ -72,13 +72,13 @@ const
 
 type
   /// <summary>Argument record for <c>OnBeforeSession</c>.</summary>
-  TOBDFlashSessionBeforeEvent = procedure(Sender: TObject;
-    AAddress: UInt64; ASize: UInt32; var ACancel: Boolean) of object;
+  TOBDFlashSessionBeforeEvent = procedure(Sender: TObject; AAddress: UInt64;
+    ASize: UInt32; var ACancel: Boolean) of object;
 
   /// <summary>
-  ///   Composite session orchestrator. Holds (and lazily creates)
-  ///   the child components — security access, routine control,
-  ///   flasher — bound to the same protocol.
+  /// Composite session orchestrator. Holds (and lazily creates)
+  /// the child components — security access, routine control,
+  /// flasher — bound to the same protocol.
   /// </summary>
   TOBDFlashSession = class(TComponent)
   strict private
@@ -124,8 +124,8 @@ type
     destructor Destroy; override;
 
     /// <summary>
-    ///   Runs the full reflash choreography: programming session →
-    ///   security access → erase → flash → verify → reset.
+    /// Runs the full reflash choreography: programming session →
+    /// security access → erase → flash → verify → reset.
     /// </summary>
     /// <param name="AAddress">Target memory address.</param>
     /// <param name="AImage">Firmware bytes.</param>
@@ -156,12 +156,12 @@ type
       default $01;
     /// <summary>RoutineID used for the erase step. <c>0</c>
     /// disables erase. Default <c>0xFF00</c> (vendor-typical).</summary>
-    property EraseRoutineID: Word read FEraseRoutineID
-      write FEraseRoutineID default $FF00;
+    property EraseRoutineID: Word read FEraseRoutineID write FEraseRoutineID
+      default $FF00;
     /// <summary>RoutineID used for the verify-checksum step.
     /// <c>0</c> disables verify. Default <c>0xFF01</c>.</summary>
-    property VerifyRoutineID: Word read FVerifyRoutineID
-      write FVerifyRoutineID default $FF01;
+    property VerifyRoutineID: Word read FVerifyRoutineID write FVerifyRoutineID
+      default $FF01;
     /// <summary>Send <c>ECUReset hardReset</c> as the final
     /// step. Default <c>True</c>.</summary>
     property ResetAfterFlash: Boolean read FResetAfterFlash
@@ -169,15 +169,14 @@ type
     /// <summary>Run a <c>0x10 0x02</c> programming-session switch
     /// at the start. Default <c>True</c>. Disable when the host
     /// already manages the session externally.</summary>
-    property SessionAtStart: Boolean read FSessionAtStart
-      write FSessionAtStart default True;
+    property SessionAtStart: Boolean read FSessionAtStart write FSessionAtStart
+      default True;
 
-    property OnBeforeSession: TOBDFlashSessionBeforeEvent
-      read FOnBeforeSession write FOnBeforeSession;
+    property OnBeforeSession: TOBDFlashSessionBeforeEvent read FOnBeforeSession
+      write FOnBeforeSession;
     property OnComplete: TNotifyEvent read FOnComplete write FOnComplete;
     property OnError: TOBDConnectionErrorEvent read FOnError write FOnError;
-    property OnProgress: TOBDProgressEvent read FOnProgress
-      write FOnProgress;
+    property OnProgress: TOBDProgressEvent read FOnProgress write FOnProgress;
   end;
 
 implementation
@@ -197,7 +196,8 @@ end;
 
 destructor TOBDFlashSession.Destroy;
 begin
-  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  if FOwnedTask <> nil then
+    FOwnedTask.Cancel;
   FFlasher.Free;
   FRoutines.Free;
   FSecurity.Free;
@@ -208,14 +208,21 @@ end;
 
 procedure TOBDFlashSession.SetProtocol(AValue: TOBDProtocol);
 begin
-  if FProtocol = AValue then Exit;
-  if FOwnedTask <> nil then FOwnedTask.Quiesce;
-  if FProtocol <> nil then FProtocol.RemoveFreeNotification(Self);
+  if FProtocol = AValue then
+    Exit;
+  if FOwnedTask <> nil then
+    FOwnedTask.Quiesce;
+  if FProtocol <> nil then
+    FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
-  if FProtocol <> nil then FProtocol.FreeNotification(Self);
-  if FSecurity <> nil then FSecurity.Protocol := AValue;
-  if FRoutines <> nil then FRoutines.Protocol := AValue;
-  if FFlasher  <> nil then FFlasher.Protocol  := AValue;
+  if FProtocol <> nil then
+    FProtocol.FreeNotification(Self);
+  if FSecurity <> nil then
+    FSecurity.Protocol := AValue;
+  if FRoutines <> nil then
+    FRoutines.Protocol := AValue;
+  if FFlasher <> nil then
+    FFlasher.Protocol := AValue;
 end;
 
 procedure TOBDFlashSession.Notification(AComponent: TComponent;
@@ -224,7 +231,8 @@ begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
   begin
-    if FOwnedTask <> nil then FOwnedTask.Quiesce;
+    if FOwnedTask <> nil then
+      FOwnedTask.Quiesce;
     FProtocol := nil;
   end;
 end;
@@ -238,14 +246,19 @@ begin
     if FAsyncInFlight then
       raise EOBDConfig.Create('TOBDFlashSession: flash already in flight');
     FAsyncInFlight := True;
-  finally FAsyncLock.Leave; end;
+  finally
+    FAsyncLock.Leave;
+  end;
 end;
 
 procedure TOBDFlashSession.ReleaseAsync;
 begin
   FAsyncLock.Enter;
-  try FAsyncInFlight := False;
-  finally FAsyncLock.Leave; end;
+  try
+    FAsyncInFlight := False;
+  finally
+    FAsyncLock.Leave;
+  end;
 end;
 
 procedure TOBDFlashSession.EnsureChildren;
@@ -258,9 +271,9 @@ begin
     FFlasher := TOBDFlasher.Create(Self);
   FSecurity.Protocol := FProtocol;
   FRoutines.Protocol := FProtocol;
-  FFlasher.Protocol  := FProtocol;
+  FFlasher.Protocol := FProtocol;
   FRoutines.AutoExecute := FAutoExecute;
-  FFlasher.AutoExecute  := FAutoExecute;
+  FFlasher.AutoExecute := FAutoExecute;
   FSecurity.SeedToKey := FSeedToKey;
 end;
 
@@ -270,8 +283,8 @@ var
 begin
   Resp := FProtocol.Request(UDS_SID_SESSION, TBytes.Create(ASubFunction));
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt(
-      'DiagnosticSessionControl 0x%2.2X negative: %s',
+    raise EOBDProtocolErr.CreateFmt
+      ('DiagnosticSessionControl 0x%2.2X negative: %s',
       [ASubFunction, Resp.NRCText]);
 end;
 
@@ -281,37 +294,41 @@ var
 begin
   Resp := FProtocol.Request(UDS_SID_ECURESET, TBytes.Create(UDS_RESET_HARD));
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt(
-      'ECUReset hardReset negative: %s', [Resp.NRCText]);
+    raise EOBDProtocolErr.CreateFmt('ECUReset hardReset negative: %s',
+      [Resp.NRCText]);
 end;
 
-procedure TOBDFlashSession.DoFlash(AAddress: UInt64;
-  const AImage: TBytes; const AVerifyChecksum: TBytes);
+procedure TOBDFlashSession.DoFlash(AAddress: UInt64; const AImage: TBytes;
+  const AVerifyChecksum: TBytes);
 var
   TotalSteps, Step: Cardinal;
 begin
   if FProtocol = nil then
     raise EOBDConfig.Create('TOBDFlashSession: Protocol not assigned');
   if not FAutoExecute then
-    raise EOBDConfig.Create(
-      'TOBDFlashSession: AutoExecute is False — set it before flashing');
+    raise EOBDConfig.Create
+      ('TOBDFlashSession: AutoExecute is False — set it before flashing');
   if Length(AImage) = 0 then
     raise EOBDConfig.Create('TOBDFlashSession: empty image');
   if not FireBeforeSession(AAddress, UInt32(Length(AImage))) then
-    raise EOBDConfig.Create(
-      'TOBDFlashSession: cancelled by OnBeforeSession handler');
+    raise EOBDConfig.Create
+      ('TOBDFlashSession: cancelled by OnBeforeSession handler');
 
   EnsureChildren;
 
   // Walk the choreography. Step count is decided up-front so the
   // progress bar is monotonic.
   TotalSteps := 0;
-  if FSessionAtStart    then Inc(TotalSteps);
-  Inc(TotalSteps);                              // security access
-  if FEraseRoutineID  <> 0 then Inc(TotalSteps); // erase
-  Inc(TotalSteps);                              // flash
-  if FVerifyRoutineID <> 0 then Inc(TotalSteps); // verify
-  if FResetAfterFlash then Inc(TotalSteps);      // reset
+  if FSessionAtStart then
+    Inc(TotalSteps);
+  Inc(TotalSteps); // security access
+  if FEraseRoutineID <> 0 then
+    Inc(TotalSteps); // erase
+  Inc(TotalSteps); // flash
+  if FVerifyRoutineID <> 0 then
+    Inc(TotalSteps); // verify
+  if FResetAfterFlash then
+    Inc(TotalSteps); // reset
 
   Step := 0;
 
@@ -329,8 +346,8 @@ begin
   if FEraseRoutineID <> 0 then
   begin
     Inc(Step);
-    FireProgress(Step, TotalSteps, 'Flash session',
-      Format('erase RID 0x%4.4X', [FEraseRoutineID]));
+    FireProgress(Step, TotalSteps, 'Flash session', Format('erase RID 0x%4.4X',
+      [FEraseRoutineID]));
     FRoutines.Start(FEraseRoutineID, nil);
   end;
 
@@ -341,8 +358,8 @@ begin
   if FVerifyRoutineID <> 0 then
   begin
     Inc(Step);
-    FireProgress(Step, TotalSteps, 'Flash session',
-      Format('verify RID 0x%4.4X', [FVerifyRoutineID]));
+    FireProgress(Step, TotalSteps, 'Flash session', Format('verify RID 0x%4.4X',
+      [FVerifyRoutineID]));
     FRoutines.Start(FVerifyRoutineID, AVerifyChecksum);
   end;
 
@@ -356,14 +373,14 @@ begin
   FireComplete;
 end;
 
-procedure TOBDFlashSession.Flash(AAddress: UInt64;
-  const AImage: TBytes; const AVerifyChecksum: TBytes);
+procedure TOBDFlashSession.Flash(AAddress: UInt64; const AImage: TBytes;
+  const AVerifyChecksum: TBytes);
 begin
   DoFlash(AAddress, AImage, AVerifyChecksum);
 end;
 
-procedure TOBDFlashSession.FlashAsync(AAddress: UInt64;
-  const AImage: TBytes; const AVerifyChecksum: TBytes);
+procedure TOBDFlashSession.FlashAsync(AAddress: UInt64; const AImage: TBytes;
+  const AVerifyChecksum: TBytes);
 var
   Self_: TOBDFlashSession;
   Addr: UInt64;
@@ -371,9 +388,10 @@ var
 begin
   GuardSingleAsync;
   try
-    Self_ := Self; Addr := AAddress;
+    Self_ := Self;
+    Addr := AAddress;
     Img := Copy(AImage, 0, Length(AImage));
-    Vc  := Copy(AVerifyChecksum, 0, Length(AVerifyChecksum));
+    Vc := Copy(AVerifyChecksum, 0, Length(AVerifyChecksum));
     FOwnedTask.Start(
       procedure
       begin
@@ -381,7 +399,8 @@ begin
           try
             Self_.DoFlash(Addr, Img, Vc);
           except
-            on E: Exception do Self_.FireError(oeIO, E.Message);
+            on E: Exception do
+              Self_.FireError(oeIO, E.Message);
           end;
         finally
           Self_.ReleaseAsync;
@@ -394,7 +413,7 @@ begin
 end;
 
 function TOBDFlashSession.FireBeforeSession(AAddress: UInt64;
-  ASize: UInt32): Boolean;
+ASize: UInt32): Boolean;
 var
   Cancel: Boolean;
   Self_: TOBDFlashSession;
@@ -402,15 +421,21 @@ var
   Sz: UInt32;
   Local: Boolean;
 begin
-  if not Assigned(FOnBeforeSession) then Exit(True);
-  Self_ := Self; Addr := AAddress; Sz := ASize; Cancel := False;
+  if not Assigned(FOnBeforeSession) then
+    Exit(True);
+  Self_ := Self;
+  Addr := AAddress;
+  Sz := ASize;
+  Cancel := False;
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnBeforeSession(Self_, Addr, Sz, Cancel)
   else
   begin
     Local := False;
-    FOwnedTask.Synchronize( procedure
-      var C: Boolean;
+    FOwnedTask.Synchronize(
+      procedure
+      var
+        C: Boolean;
       begin
         C := False;
         if Assigned(Self_.FOnBeforeSession) then
@@ -426,32 +451,43 @@ procedure TOBDFlashSession.FireComplete;
 var
   Self_: TOBDFlashSession;
 begin
-  if not Assigned(FOnComplete) then Exit;
+  if not Assigned(FOnComplete) then
+    Exit;
   Self_ := Self;
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnComplete(Self_)
   else
-    FOwnedTask.Post( procedure begin
-      if Assigned(Self_.FOnComplete) then Self_.FOnComplete(Self_);
-    end);
+    FOwnedTask.Post(
+      procedure
+      begin
+        if Assigned(Self_.FOnComplete) then
+          Self_.FOnComplete(Self_);
+      end);
 end;
 
 procedure TOBDFlashSession.FireError(ACode: TOBDErrorCode;
-  const AMessage: string);
+const AMessage: string);
 var
-  Self_: TOBDFlashSession; Code: TOBDErrorCode; Msg: string;
+  Self_: TOBDFlashSession;
+  Code: TOBDErrorCode;
+  Msg: string;
   Handled: Boolean;
 begin
-  if not Assigned(FOnError) then Exit;
-  Self_ := Self; Code := ACode; Msg := AMessage;
+  if not Assigned(FOnError) then
+    Exit;
+  Self_ := Self;
+  Code := ACode;
+  Msg := AMessage;
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
     Handled := False;
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    FOwnedTask.Post( procedure
-      var Handled: Boolean;
+    FOwnedTask.Post(
+      procedure
+      var
+        Handled: Boolean;
       begin
         Handled := False;
         if Assigned(Self_.FOnError) then
@@ -460,20 +496,24 @@ begin
 end;
 
 procedure TOBDFlashSession.FireProgress(AIndex, ACount: Cardinal;
-  const AName, ADetail: string);
+const AName, ADetail: string);
 var
   Self_: TOBDFlashSession;
   Step: TOBDProgressStep;
 begin
-  if not Assigned(FOnProgress) then Exit;
+  if not Assigned(FOnProgress) then
+    Exit;
   Self_ := Self;
   Step := TOBDProgressStep.MakeStep(AIndex, ACount, AName, ADetail);
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnProgress(Self_, Step)
   else
-    FOwnedTask.Post( procedure begin
-      if Assigned(Self_.FOnProgress) then Self_.FOnProgress(Self_, Step);
-    end);
+    FOwnedTask.Post(
+      procedure
+      begin
+        if Assigned(Self_.FOnProgress) then
+          Self_.FOnProgress(Self_, Step);
+      end);
 end;
 
 end.

@@ -1,78 +1,76 @@
-//------------------------------------------------------------------------------
-//  ERD.Flash.Phases
+﻿// ------------------------------------------------------------------------------
+// ERD.Flash.Phases
 //
-//  Flash-pipeline phase enum + pre-condition / post-condition
-//  check primitives. <see cref="TOBDFlashPipeline"/> walks the
-//  phases in order and runs the checks attached to each gate.
+// Flash-pipeline phase enum + pre-condition / post-condition
+// check primitives. <see cref="TOBDFlashPipeline"/> walks the
+// phases in order and runs the checks attached to each gate.
 //
-//  Pre-conditions before a flash:
-//    - Engine off
-//    - Battery support / external charger connected
-//    - Ambient temperature within range
-//    - Ignition on (key in Run, engine not cranking)
-//    - Voltage stable (TOBDVoltageGate already running)
-//    - Image signature verified
-//    - User confirmed the destructive action
+// Pre-conditions before a flash:
+// - Engine off
+// - Battery support / external charger connected
+// - Ambient temperature within range
+// - Ignition on (key in Run, engine not cranking)
+// - Voltage stable (TOBDVoltageGate already running)
+// - Image signature verified
+// - User confirmed the destructive action
 //
-//  Post-conditions after a flash:
-//    - Verify routine reports success
-//    - ECU reset acknowledged
-//    - Audit log finalised
+// Post-conditions after a flash:
+// - Verify routine reports success
+// - ECU reset acknowledged
+// - Audit log finalised
 //
-//  This unit ships:
-//    - <see cref="TOBDFlashPhase"/> enum
-//    - <see cref="TOBDFlashCheck"/> record carrying a name +
-//      callback + severity
-//    - <see cref="TOBDFlashCheckList"/> collection that orders
-//      checks by phase
-//    - <see cref="TOBDFlashChecks"/> static helpers wrapping the
-//      common checks (engine-off, voltage-floor, temperature)
+// This unit ships:
+// - <see cref="TOBDFlashPhase"/> enum
+// - <see cref="TOBDFlashCheck"/> record carrying a name +
+// callback + severity
+// - <see cref="TOBDFlashCheckList"/> collection that orders
+// checks by phase
+// - <see cref="TOBDFlashChecks"/> static helpers wrapping the
+// common checks (engine-off, voltage-floor, temperature)
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Flash.Phases;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}ERD.Compat.Functions,{$ENDIF}
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}ERD.Compat.Functions, {$ENDIF}
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.Types;
 
 type
   /// <summary>Flash-pipeline phase.</summary>
-  TOBDFlashPhase = (
-    fpPreflight,         // pre-condition checks
-    fpVerifyImage,       // signature / hash checks on the image
-    fpEnterProgramming,  // 0x10/02 + 0x27 + erase routine
-    fpTransfer,          // 0x34/0x36/0x37 (TOBDUDSTransfer)
-    fpVerify,            // verify routine
-    fpReset,             // 0x11/01 ECUReset
-    fpFinalise           // post-condition checks, audit close
-  );
+  TOBDFlashPhase = (fpPreflight, // pre-condition checks
+    fpVerifyImage, // signature / hash checks on the image
+    fpEnterProgramming, // 0x10/02 + 0x27 + erase routine
+    fpTransfer, // 0x34/0x36/0x37 (TOBDUDSTransfer)
+    fpVerify, // verify routine
+    fpReset, // 0x11/01 ECUReset
+    fpFinalise // post-condition checks, audit close
+    );
 
   /// <summary>Severity of a check.</summary>
-  TOBDCheckSeverity = (
-    csInfo,              // log-only; never aborts
-    csWarning,           // log-only; never aborts
-    csError              // aborts the pipeline when it fails
-  );
+  TOBDCheckSeverity = (csInfo, // log-only; never aborts
+    csWarning, // log-only; never aborts
+    csError // aborts the pipeline when it fails
+    );
 
   /// <summary>Result of one check evaluation.</summary>
   TOBDCheckResult = record
@@ -85,8 +83,7 @@ type
 
   /// <summary>Functional check callback. Return False on
   /// failure; populate <c>AMessage</c> with the reason.</summary>
-  TOBDFlashCheckFunc = reference to function(
-    out AMessage: string): Boolean;
+  TOBDFlashCheckFunc = reference to function(out AMessage: string): Boolean;
 
   /// <summary>Check definition.</summary>
   TOBDFlashCheck = record
@@ -120,8 +117,7 @@ type
     /// <c>csError</c>-severity result (if any) by reference;
     /// the boolean tells the caller whether to abort.</summary>
     /// <returns>True when no <c>csError</c> failed.</returns>
-    function RunPhase(APhase: TOBDFlashPhase;
-      out AFirstError: TOBDCheckResult;
+    function RunPhase(APhase: TOBDFlashPhase; out AFirstError: TOBDCheckResult;
       const AVisitor: TProc<TOBDCheckResult> = nil): Boolean;
   end;
 
@@ -131,21 +127,19 @@ type
   public
     /// <summary>Builds an "engine off" check from a host-supplied
     /// RPM source. The check passes when RPM &lt; 50.</summary>
-    class function EngineOff(
-      const ARPMSource: TFunc<Double>): TOBDFlashCheckFunc; static;
+    class function EngineOff(const ARPMSource: TFunc<Double>)
+      : TOBDFlashCheckFunc; static;
     /// <summary>Voltage-floor check. Returns False when the
     /// supplied source returns less than <c>AMinVolts</c>.</summary>
-    class function VoltageFloor(
-      const AVoltageSource: TFunc<Double>;
+    class function VoltageFloor(const AVoltageSource: TFunc<Double>;
       AMinVolts: Double): TOBDFlashCheckFunc; static;
     /// <summary>Ambient temperature within range (°C).</summary>
-    class function AmbientTemperature(
-      const ATempSource: TFunc<Double>;
+    class function AmbientTemperature(const ATempSource: TFunc<Double>;
       AMinC, AMaxC: Double): TOBDFlashCheckFunc; static;
     /// <summary>Ignition on (key in Run, but engine not
     /// cranking).</summary>
-    class function IgnitionOn(
-      const AIgnitionSource: TFunc<Boolean>): TOBDFlashCheckFunc; static;
+    class function IgnitionOn(const AIgnitionSource: TFunc<Boolean>)
+      : TOBDFlashCheckFunc; static;
   end;
 
 implementation
@@ -193,7 +187,8 @@ var
 begin
   Result := 0;
   for I := 0 to FItems.Count - 1 do
-    if FItems[I].Phase = APhase then Inc(Result);
+    if FItems[I].Phase = APhase then
+      Inc(Result);
 end;
 
 function TOBDFlashCheckList.RunPhase(APhase: TOBDFlashPhase;
@@ -206,12 +201,13 @@ var
   Msg: string;
 begin
   Result := True;
-  AFirstError := Default(TOBDCheckResult);
+  AFirstError := Default (TOBDCheckResult);
   for I := 0 to FItems.Count - 1 do
   begin
     Check := FItems[I];
-    if Check.Phase <> APhase then Continue;
-    Outcome := Default(TOBDCheckResult);
+    if Check.Phase <> APhase then
+      Continue;
+    Outcome := Default (TOBDCheckResult);
     Outcome.Phase := APhase;
     Outcome.Name := Check.Name;
     Outcome.Severity := Check.Severity;
@@ -226,7 +222,8 @@ begin
       end;
     end;
     Outcome.Message := Msg;
-    if Assigned(AVisitor) then AVisitor(Outcome);
+    if Assigned(AVisitor) then
+      AVisitor(Outcome);
     if (not Outcome.Passed) and (Check.Severity = csError) and Result then
     begin
       AFirstError := Outcome;
@@ -237,11 +234,10 @@ end;
 
 { ---- TOBDFlashChecks ------------------------------------------------------- }
 
-class function TOBDFlashChecks.EngineOff(
-  const ARPMSource: TFunc<Double>): TOBDFlashCheckFunc;
+class function TOBDFlashChecks.EngineOff(const ARPMSource: TFunc<Double>)
+  : TOBDFlashCheckFunc;
 begin
-  Result :=
-    function(out AMessage: string): Boolean
+  Result := function(out AMessage: string): Boolean
     var
       Rpm: Double;
     begin
@@ -256,11 +252,10 @@ begin
     end;
 end;
 
-class function TOBDFlashChecks.VoltageFloor(
-  const AVoltageSource: TFunc<Double>; AMinVolts: Double): TOBDFlashCheckFunc;
+class function TOBDFlashChecks.VoltageFloor(const AVoltageSource: TFunc<Double>;
+  AMinVolts: Double): TOBDFlashCheckFunc;
 begin
-  Result :=
-    function(out AMessage: string): Boolean
+  Result := function(out AMessage: string): Boolean
     var
       V: Double;
     begin
@@ -269,19 +264,16 @@ begin
       V := AVoltageSource();
       Result := V >= AMinVolts;
       if not Result then
-        AMessage := Format('Voltage %.2f V below floor %.2f V',
-          [V, AMinVolts])
+        AMessage := Format('Voltage %.2f V below floor %.2f V', [V, AMinVolts])
       else
         AMessage := '';
     end;
 end;
 
-class function TOBDFlashChecks.AmbientTemperature(
-  const ATempSource: TFunc<Double>;
-  AMinC, AMaxC: Double): TOBDFlashCheckFunc;
+class function TOBDFlashChecks.AmbientTemperature(const ATempSource
+  : TFunc<Double>; AMinC, AMaxC: Double): TOBDFlashCheckFunc;
 begin
-  Result :=
-    function(out AMessage: string): Boolean
+  Result := function(out AMessage: string): Boolean
     var
       T: Double;
     begin
@@ -297,11 +289,10 @@ begin
     end;
 end;
 
-class function TOBDFlashChecks.IgnitionOn(
-  const AIgnitionSource: TFunc<Boolean>): TOBDFlashCheckFunc;
+class function TOBDFlashChecks.IgnitionOn(const AIgnitionSource: TFunc<Boolean>)
+  : TOBDFlashCheckFunc;
 begin
-  Result :=
-    function(out AMessage: string): Boolean
+  Result := function(out AMessage: string): Boolean
     begin
       if not Assigned(AIgnitionSource) then
         raise EOBDConfig.Create('IgnitionOn: source missing');

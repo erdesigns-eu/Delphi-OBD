@@ -1,56 +1,56 @@
-//------------------------------------------------------------------------------
-//  ERD.Connection.Transport.Base
+﻿// ------------------------------------------------------------------------------
+// ERD.Connection.Transport.Base
 //
-//  Abstract base for concrete transports. Owns the boilerplate every
-//  transport repeats: lock, lifecycle state, event-handler fields,
-//  thread-safe firing helpers, IOBDConnectionTransport accessor /
-//  mutator implementations.
+// Abstract base for concrete transports. Owns the boilerplate every
+// transport repeats: lock, lifecycle state, event-handler fields,
+// thread-safe firing helpers, IOBDConnectionTransport accessor /
+// mutator implementations.
 //
-//  Concrete transports (Serial, Wi-Fi, UDP, Bluetooth, BLE, FTDI,
-//  Mock) inherit from this class and implement only their transport-
-//  specific Open(ASettings: …), Close, and WriteBytes.
+// Concrete transports (Serial, Wi-Fi, UDP, Bluetooth, BLE, FTDI,
+// Mock) inherit from this class and implement only their transport-
+// specific Open(ASettings: …), Close, and WriteBytes.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-09  ERD  Extract common transport boilerplate so the
-//                     net runtime drops by ~480 lines and progress
-//                     wiring is centralised.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Extract common transport boilerplate so the
+// net runtime drops by ~480 lines and progress
+// wiring is centralised.
+// ------------------------------------------------------------------------------
 
 unit ERD.Connection.Transport.Base;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
   ERD.Types,
   ERD.Connection.Types;
 
 type
   /// <summary>
-  ///   Abstract base implementing <see cref="IOBDConnectionTransport"/>.
+  /// Abstract base implementing <see cref="IOBDConnectionTransport"/>.
   /// </summary>
   /// <remarks>
-  ///   Reference-counted (descends from <c>TInterfacedObject</c>);
-  ///   hold concrete transports via the interface so the lifetime
-  ///   matches the connection.
+  /// Reference-counted (descends from <c>TInterfacedObject</c>);
+  /// hold concrete transports via the interface so the lifetime
+  /// matches the connection.
   ///
-  ///   Subclasses override <see cref="Close"/> and
-  ///   <see cref="WriteBytes"/>, and add a transport-specific
-  ///   <c>Open(ASettings: TOBDxxxSettings)</c>.
+  /// Subclasses override <see cref="Close"/> and
+  /// <see cref="WriteBytes"/>, and add a transport-specific
+  /// <c>Open(ASettings: TOBDxxxSettings)</c>.
   /// </remarks>
   TOBDBaseTransport = class abstract(TInterfacedObject, IOBDConnectionTransport)
   strict protected
@@ -69,40 +69,40 @@ type
     FOnProgress: TOBDProgressEvent;
 
     /// <summary>
-    ///   Updates <c>FState</c> and fires <c>OnStateChanged</c> if the
-    ///   value actually changed. Safe to call from any thread.
+    /// Updates <c>FState</c> and fires <c>OnStateChanged</c> if the
+    /// value actually changed. Safe to call from any thread.
     /// </summary>
     /// <param name="ANewState">Target state.</param>
     procedure SetState(ANewState: TOBDConnectionState);
 
     /// <summary>
-    ///   Fires <c>OnDataReceived</c>. Should be called from the
-    ///   transport's worker thread.
+    /// Fires <c>OnDataReceived</c>. Should be called from the
+    /// transport's worker thread.
     /// </summary>
     /// <param name="ABytes">Newly received bytes.</param>
     procedure FireBytes(const ABytes: TBytes);
 
     /// <summary>
-    ///   Fires <c>OnTransportError</c> and transitions to
-    ///   <c>csError</c>.
+    /// Fires <c>OnTransportError</c> and transitions to
+    /// <c>csError</c>.
     /// </summary>
     /// <param name="ACode">Coded error.</param>
     /// <param name="AMessage">Human-readable message.</param>
     procedure FireError(ACode: TOBDErrorCode; const AMessage: string);
 
     /// <summary>
-    ///   Fires <c>OnProgress</c> with a step-style snapshot.
+    /// Fires <c>OnProgress</c> with a step-style snapshot.
     /// </summary>
     /// <param name="AIndex">1-based step index.</param>
     /// <param name="ACount">Total expected steps; 0 = unknown.</param>
     /// <param name="AName">Phase name (required).</param>
     /// <param name="ADetail">Optional sub-detail. Pass empty if
     /// none.</param>
-    procedure FireProgress(AIndex, ACount: Cardinal;
-      const AName: string; const ADetail: string = '');
+    procedure FireProgress(AIndex, ACount: Cardinal; const AName: string;
+      const ADetail: string = '');
 
     /// <summary>
-    ///   Fires <c>OnProgress</c> with a transfer-style snapshot.
+    /// Fires <c>OnProgress</c> with a transfer-style snapshot.
     /// </summary>
     /// <param name="ABytesDone">Bytes transferred so far.</param>
     /// <param name="ABytesTotal">Total bytes to transfer; 0 =
@@ -164,7 +164,8 @@ var
 begin
   FLock.Enter;
   try
-    if FState = ANewState then Exit;
+    if FState = ANewState then
+      Exit;
     FState := ANewState;
     Handler := FOnStateChanged;
   finally
@@ -201,7 +202,8 @@ var
   Step: TOBDProgressStep;
 begin
   Handler := FOnProgress;
-  if not Assigned(Handler) then Exit;
+  if not Assigned(Handler) then
+    Exit;
   Step := TOBDProgressStep.MakeStep(AIndex, ACount, AName, ADetail);
   Handler(Self, Step);
 end;
@@ -213,7 +215,8 @@ var
   Step: TOBDProgressStep;
 begin
   Handler := FOnProgress;
-  if not Assigned(Handler) then Exit;
+  if not Assigned(Handler) then
+    Exit;
   Step := TOBDProgressStep.MakeBytes(ABytesDone, ABytesTotal, AName);
   Handler(Self, Step);
 end;
@@ -258,8 +261,8 @@ begin
   Result := FOnTransportError;
 end;
 
-procedure TOBDBaseTransport.SetOnTransportError(
-  const AValue: TOBDTransportErrorEvent);
+procedure TOBDBaseTransport.SetOnTransportError(const AValue
+  : TOBDTransportErrorEvent);
 begin
   FOnTransportError := AValue;
 end;

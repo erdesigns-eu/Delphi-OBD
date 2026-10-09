@@ -1,55 +1,55 @@
-//------------------------------------------------------------------------------
-//  ERD.RadioCode.EuropeanPremium
+﻿// ------------------------------------------------------------------------------
+// ERD.RadioCode.EuropeanPremium
 //
-//  Vendor radio-code calculator components for the German /
-//  European premium brands:
+// Vendor radio-code calculator components for the German /
+// European premium brands:
 //
-//    TOBDRadioCodeVW            Volkswagen group radios
-//                               (Gamma / Beta / Alpha / RCD / RNS)
-//    TOBDRadioCodeAudiConcert   Audi Concert / Symphony
-//    TOBDRadioCodeBMW           BMW Business CD / Professional /
-//                               Navigation / Modern
-//    TOBDRadioCodeMercedes      Mercedes-Benz factory radios
-//    TOBDRadioCodeMini          MINI (BMW group, 7-digit serial)
-//    TOBDRadioCodePorsche       Porsche factory radios (PCM)
-//    TOBDRadioCodeSEAT          SEAT (VW group, SEZ / VWZ prefix)
-//    TOBDRadioCodeSkoda         Skoda (VW group, SKZ / VWZ prefix)
-//    TOBDRadioCodeSmart         Smart (Mercedes, alphanumeric)
+// TOBDRadioCodeVW            Volkswagen group radios
+// (Gamma / Beta / Alpha / RCD / RNS)
+// TOBDRadioCodeAudiConcert   Audi Concert / Symphony
+// TOBDRadioCodeBMW           BMW Business CD / Professional /
+// Navigation / Modern
+// TOBDRadioCodeMercedes      Mercedes-Benz factory radios
+// TOBDRadioCodeMini          MINI (BMW group, 7-digit serial)
+// TOBDRadioCodePorsche       Porsche factory radios (PCM)
+// TOBDRadioCodeSEAT          SEAT (VW group, SEZ / VWZ prefix)
+// TOBDRadioCodeSkoda         Skoda (VW group, SKZ / VWZ prefix)
+// TOBDRadioCodeSmart         Smart (Mercedes, alphanumeric)
 //
-//  IMPORTANT: production radio-code algorithms for these vendors
-//  are proprietary and licensed; this open-source distribution
-//  does NOT bundle them. Each component validates the input
-//  shape (length / prefix / character set per vendor) and then
-//  fires <c>OnCalculate</c> for the host to supply the
-//  calculation. Wire your own implementation, a licensed
-//  code-service round-trip, or a network call.
+// IMPORTANT: production radio-code algorithms for these vendors
+// are proprietary and licensed; this open-source distribution
+// does NOT bundle them. Each component validates the input
+// shape (length / prefix / character set per vendor) and then
+// fires <c>OnCalculate</c> for the host to supply the
+// calculation. Wire your own implementation, a licensed
+// code-service round-trip, or a network call.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-10  ERD  Initial implementation. Input validation
-//                     re-derived from v1's vendor units; algorithm
-//                     bodies intentionally not bundled (see note
-//                     above).
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-10  ERD  Initial implementation. Input validation
+// re-derived from v1's vendor units; algorithm
+// bodies intentionally not bundled (see note
+// above).
+// ------------------------------------------------------------------------------
 
 unit ERD.RadioCode.EuropeanPremium;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   ERD.RadioCode.Types,
   ERD.RadioCode;
 
@@ -61,10 +61,10 @@ type
   /// serial.</summary>
   TOBDRadioCodeVW = class(TOBDRadioCode)
   protected
-    function DoValidate(const AInput: string;
-      out AReason: string): Boolean; override;
+    function DoValidate(const AInput: string; out AReason: string)
+      : Boolean; override;
   public
-    function BrandKey:    string; override;
+    function BrandKey: string; override;
     function DisplayName: string; override;
     function Description: string; override;
   end;
@@ -73,10 +73,10 @@ type
   /// alphanumeric</c> (14 total).</summary>
   TOBDRadioCodeAudiConcert = class(TOBDRadioCode)
   protected
-    function DoValidate(const AInput: string;
-      out AReason: string): Boolean; override;
+    function DoValidate(const AInput: string; out AReason: string)
+      : Boolean; override;
   public
-    function BrandKey:    string; override;
+    function BrandKey: string; override;
     function DisplayName: string; override;
     function Description: string; override;
   end;
@@ -85,10 +85,10 @@ type
   /// Navigation / Modern). Serial: 7 digits.</summary>
   TOBDRadioCodeBMW = class(TOBDRadioCode)
   protected
-    function DoValidate(const AInput: string;
-      out AReason: string): Boolean; override;
+    function DoValidate(const AInput: string; out AReason: string)
+      : Boolean; override;
   public
-    function BrandKey:    string; override;
+    function BrandKey: string; override;
     function DisplayName: string; override;
     function Description: string; override;
   end;
@@ -97,10 +97,10 @@ type
   /// characters, leading letter (A / B / L / …).</summary>
   TOBDRadioCodeMercedes = class(TOBDRadioCode)
   protected
-    function DoValidate(const AInput: string;
-      out AReason: string): Boolean; override;
+    function DoValidate(const AInput: string; out AReason: string)
+      : Boolean; override;
   public
-    function BrandKey:    string; override;
+    function BrandKey: string; override;
     function DisplayName: string; override;
     function Description: string; override;
   end;
@@ -109,10 +109,10 @@ type
   /// standard.</summary>
   TOBDRadioCodeMini = class(TOBDRadioCode)
   protected
-    function DoValidate(const AInput: string;
-      out AReason: string): Boolean; override;
+    function DoValidate(const AInput: string; out AReason: string)
+      : Boolean; override;
   public
-    function BrandKey:    string; override;
+    function BrandKey: string; override;
     function DisplayName: string; override;
     function Description: string; override;
   end;
@@ -121,10 +121,10 @@ type
   /// alphanumeric</c> (14 total).</summary>
   TOBDRadioCodePorsche = class(TOBDRadioCode)
   protected
-    function DoValidate(const AInput: string;
-      out AReason: string): Boolean; override;
+    function DoValidate(const AInput: string; out AReason: string)
+      : Boolean; override;
   public
-    function BrandKey:    string; override;
+    function BrandKey: string; override;
     function DisplayName: string; override;
     function Description: string; override;
   end;
@@ -133,10 +133,10 @@ type
   /// + 11 alphanumeric (14 total).</summary>
   TOBDRadioCodeSEAT = class(TOBDRadioCode)
   protected
-    function DoValidate(const AInput: string;
-      out AReason: string): Boolean; override;
+    function DoValidate(const AInput: string; out AReason: string)
+      : Boolean; override;
   public
-    function BrandKey:    string; override;
+    function BrandKey: string; override;
     function DisplayName: string; override;
     function Description: string; override;
   end;
@@ -145,10 +145,10 @@ type
   /// + 11 alphanumeric (14 total).</summary>
   TOBDRadioCodeSkoda = class(TOBDRadioCode)
   protected
-    function DoValidate(const AInput: string;
-      out AReason: string): Boolean; override;
+    function DoValidate(const AInput: string; out AReason: string)
+      : Boolean; override;
   public
-    function BrandKey:    string; override;
+    function BrandKey: string; override;
     function DisplayName: string; override;
     function Description: string; override;
   end;
@@ -157,10 +157,10 @@ type
   /// characters.</summary>
   TOBDRadioCodeSmart = class(TOBDRadioCode)
   protected
-    function DoValidate(const AInput: string;
-      out AReason: string): Boolean; override;
+    function DoValidate(const AInput: string; out AReason: string)
+      : Boolean; override;
   public
-    function BrandKey:    string; override;
+    function BrandKey: string; override;
     function DisplayName: string; override;
     function Description: string; override;
   end;
@@ -177,14 +177,14 @@ begin
     AReason := Format('Serial must start with %s', [APrefix]);
 end;
 
-function ValidateAlphanumericRange(const AInput: string;
-  AStart, AEnd: Integer; out AReason: string): Boolean;
+function ValidateAlphanumericRange(const AInput: string; AStart, AEnd: Integer;
+  out AReason: string): Boolean;
 var
   I: Integer;
 begin
   AReason := '';
   for I := AStart to AEnd do
-    if not CharInSet(AInput[I], ['0'..'9', 'A'..'Z']) then
+    if not CharInSet(AInput[I], ['0' .. '9', 'A' .. 'Z']) then
     begin
       AReason := Format('Character %d must be alphanumeric', [I]);
       Exit(False);
@@ -192,14 +192,14 @@ begin
   Result := True;
 end;
 
-function ValidateDigitRange(const AInput: string;
-  AStart, AEnd: Integer; out AReason: string): Boolean;
+function ValidateDigitRange(const AInput: string; AStart, AEnd: Integer;
+  out AReason: string): Boolean;
 var
   I: Integer;
 begin
   AReason := '';
   for I := AStart to AEnd do
-    if not CharInSet(AInput[I], ['0'..'9']) then
+    if not CharInSet(AInput[I], ['0' .. '9']) then
     begin
       AReason := Format('Character %d must be a digit', [I]);
       Exit(False);
@@ -209,12 +209,19 @@ end;
 
 { ---- TOBDRadioCodeVW ------------------------------------------------------- }
 
-function TOBDRadioCodeVW.BrandKey: string; begin Result := 'volkswagen'; end;
-function TOBDRadioCodeVW.DisplayName: string; begin Result := 'Volkswagen group'; end;
+function TOBDRadioCodeVW.BrandKey: string;
+begin
+  Result := 'volkswagen';
+end;
+
+function TOBDRadioCodeVW.DisplayName: string;
+begin
+  Result := 'Volkswagen group';
+end;
+
 function TOBDRadioCodeVW.Description: string;
 begin
-  Result :=
-    'Volkswagen factory radios (Gamma / Beta / Alpha / RCD / RNS). ' +
+  Result := 'Volkswagen factory radios (Gamma / Beta / Alpha / RCD / RNS). ' +
     'Input: 14-character serial starting with VWZ. Algorithm not ' +
     'bundled — wire OnCalculate.';
 end;
@@ -222,18 +229,25 @@ end;
 function TOBDRadioCodeVW.DoValidate(const AInput: string;
   out AReason: string): Boolean;
 begin
-  Result := ValidateLength(AInput, 14, AReason)
-       and  ValidatePrefix(AInput, 'VWZ', AReason);
+  Result := ValidateLength(AInput, 14, AReason) and
+    ValidatePrefix(AInput, 'VWZ', AReason);
 end;
 
 { ---- TOBDRadioCodeAudiConcert ---------------------------------------------- }
 
-function TOBDRadioCodeAudiConcert.BrandKey: string; begin Result := 'audi-concert'; end;
-function TOBDRadioCodeAudiConcert.DisplayName: string; begin Result := 'Audi Concert / Symphony'; end;
+function TOBDRadioCodeAudiConcert.BrandKey: string;
+begin
+  Result := 'audi-concert';
+end;
+
+function TOBDRadioCodeAudiConcert.DisplayName: string;
+begin
+  Result := 'Audi Concert / Symphony';
+end;
+
 function TOBDRadioCodeAudiConcert.Description: string;
 begin
-  Result :=
-    'Audi Concert / Symphony factory radios. Input: 14-character ' +
+  Result := 'Audi Concert / Symphony factory radios. Input: 14-character ' +
     'serial starting with AUZ; characters 4-5 must be digits. ' +
     'Algorithm not bundled — wire OnCalculate.';
 end;
@@ -241,19 +255,26 @@ end;
 function TOBDRadioCodeAudiConcert.DoValidate(const AInput: string;
   out AReason: string): Boolean;
 begin
-  Result := ValidateLength(AInput, 14, AReason)
-       and  ValidatePrefix(AInput, 'AUZ', AReason)
-       and  ValidateDigitRange(AInput, 4, 5, AReason);
+  Result := ValidateLength(AInput, 14, AReason) and
+    ValidatePrefix(AInput, 'AUZ', AReason) and ValidateDigitRange(AInput, 4,
+    5, AReason);
 end;
 
 { ---- TOBDRadioCodeBMW ------------------------------------------------------ }
 
-function TOBDRadioCodeBMW.BrandKey: string; begin Result := 'bmw'; end;
-function TOBDRadioCodeBMW.DisplayName: string; begin Result := 'BMW'; end;
+function TOBDRadioCodeBMW.BrandKey: string;
+begin
+  Result := 'bmw';
+end;
+
+function TOBDRadioCodeBMW.DisplayName: string;
+begin
+  Result := 'BMW';
+end;
+
 function TOBDRadioCodeBMW.Description: string;
 begin
-  Result :=
-    'BMW factory radios (Business CD / Professional / Navigation / ' +
+  Result := 'BMW factory radios (Business CD / Professional / Navigation / ' +
     'Modern). Input: 7-digit serial. Algorithm not bundled — wire ' +
     'OnCalculate.';
 end;
@@ -261,18 +282,25 @@ end;
 function TOBDRadioCodeBMW.DoValidate(const AInput: string;
   out AReason: string): Boolean;
 begin
-  Result := ValidateLength(AInput, 7, AReason)
-       and  ValidateAllDigits(AInput, AReason);
+  Result := ValidateLength(AInput, 7, AReason) and
+    ValidateAllDigits(AInput, AReason);
 end;
 
 { ---- TOBDRadioCodeMercedes ------------------------------------------------- }
 
-function TOBDRadioCodeMercedes.BrandKey: string; begin Result := 'mercedes'; end;
-function TOBDRadioCodeMercedes.DisplayName: string; begin Result := 'Mercedes-Benz'; end;
+function TOBDRadioCodeMercedes.BrandKey: string;
+begin
+  Result := 'mercedes';
+end;
+
+function TOBDRadioCodeMercedes.DisplayName: string;
+begin
+  Result := 'Mercedes-Benz';
+end;
+
 function TOBDRadioCodeMercedes.Description: string;
 begin
-  Result :=
-    'Mercedes-Benz factory radios. Input: 14 alphanumeric characters ' +
+  Result := 'Mercedes-Benz factory radios. Input: 14 alphanumeric characters ' +
     'starting with a letter (A / B / L / ...). Algorithm not bundled ' +
     '— wire OnCalculate.';
 end;
@@ -281,8 +309,9 @@ function TOBDRadioCodeMercedes.DoValidate(const AInput: string;
   out AReason: string): Boolean;
 begin
   Result := ValidateLength(AInput, 14, AReason);
-  if not Result then Exit;
-  if not CharInSet(AInput[1], ['A'..'Z']) then
+  if not Result then
+    Exit;
+  if not CharInSet(AInput[1], ['A' .. 'Z']) then
   begin
     AReason := 'First character must be a letter';
     Exit(False);
@@ -292,51 +321,72 @@ end;
 
 { ---- TOBDRadioCodeMini ----------------------------------------------------- }
 
-function TOBDRadioCodeMini.BrandKey: string; begin Result := 'mini'; end;
-function TOBDRadioCodeMini.DisplayName: string; begin Result := 'MINI (BMW group)'; end;
+function TOBDRadioCodeMini.BrandKey: string;
+begin
+  Result := 'mini';
+end;
+
+function TOBDRadioCodeMini.DisplayName: string;
+begin
+  Result := 'MINI (BMW group)';
+end;
+
 function TOBDRadioCodeMini.Description: string;
 begin
-  Result :=
-    'MINI factory radios. Input: 7-digit serial (BMW Group standard). ' +
-    'Algorithm not bundled — wire OnCalculate.';
+  Result := 'MINI factory radios. Input: 7-digit serial (BMW Group standard). '
+    + 'Algorithm not bundled — wire OnCalculate.';
 end;
 
 function TOBDRadioCodeMini.DoValidate(const AInput: string;
   out AReason: string): Boolean;
 begin
-  Result := ValidateLength(AInput, 7, AReason)
-       and  ValidateAllDigits(AInput, AReason);
+  Result := ValidateLength(AInput, 7, AReason) and
+    ValidateAllDigits(AInput, AReason);
 end;
 
 { ---- TOBDRadioCodePorsche -------------------------------------------------- }
 
-function TOBDRadioCodePorsche.BrandKey: string; begin Result := 'porsche'; end;
-function TOBDRadioCodePorsche.DisplayName: string; begin Result := 'Porsche (PCM)'; end;
+function TOBDRadioCodePorsche.BrandKey: string;
+begin
+  Result := 'porsche';
+end;
+
+function TOBDRadioCodePorsche.DisplayName: string;
+begin
+  Result := 'Porsche (PCM)';
+end;
+
 function TOBDRadioCodePorsche.Description: string;
 begin
-  Result :=
-    'Porsche factory radios (PCM). Input: 14-character serial starting ' +
-    'with PO; remaining 12 alphanumeric. Algorithm not bundled — wire ' +
+  Result := 'Porsche factory radios (PCM). Input: 14-character serial starting '
+    + 'with PO; remaining 12 alphanumeric. Algorithm not bundled — wire ' +
     'OnCalculate.';
 end;
 
 function TOBDRadioCodePorsche.DoValidate(const AInput: string;
   out AReason: string): Boolean;
 begin
-  Result := ValidateLength(AInput, 14, AReason)
-       and  ValidatePrefix(AInput, 'PO', AReason)
-       and  ValidateAlphanumericRange(AInput, 3, 14, AReason);
+  Result := ValidateLength(AInput, 14, AReason) and
+    ValidatePrefix(AInput, 'PO', AReason) and ValidateAlphanumericRange(AInput,
+    3, 14, AReason);
 end;
 
 { ---- TOBDRadioCodeSEAT ----------------------------------------------------- }
 
-function TOBDRadioCodeSEAT.BrandKey: string; begin Result := 'seat'; end;
-function TOBDRadioCodeSEAT.DisplayName: string; begin Result := 'SEAT (VW group)'; end;
+function TOBDRadioCodeSEAT.BrandKey: string;
+begin
+  Result := 'seat';
+end;
+
+function TOBDRadioCodeSEAT.DisplayName: string;
+begin
+  Result := 'SEAT (VW group)';
+end;
+
 function TOBDRadioCodeSEAT.Description: string;
 begin
-  Result :=
-    'SEAT factory radios. Input: 14-character serial starting with SEZ ' +
-    'or VWZ; characters 4-5 must be digits. Algorithm not bundled — ' +
+  Result := 'SEAT factory radios. Input: 14-character serial starting with SEZ '
+    + 'or VWZ; characters 4-5 must be digits. Algorithm not bundled — ' +
     'wire OnCalculate.';
 end;
 
@@ -344,7 +394,8 @@ function TOBDRadioCodeSEAT.DoValidate(const AInput: string;
   out AReason: string): Boolean;
 begin
   Result := ValidateLength(AInput, 14, AReason);
-  if not Result then Exit;
+  if not Result then
+    Exit;
   if (Copy(AInput, 1, 3) <> 'SEZ') and (Copy(AInput, 1, 3) <> 'VWZ') then
   begin
     AReason := 'Serial must start with SEZ or VWZ';
@@ -355,13 +406,20 @@ end;
 
 { ---- TOBDRadioCodeSkoda ---------------------------------------------------- }
 
-function TOBDRadioCodeSkoda.BrandKey: string; begin Result := 'skoda'; end;
-function TOBDRadioCodeSkoda.DisplayName: string; begin Result := 'Skoda (VW group)'; end;
+function TOBDRadioCodeSkoda.BrandKey: string;
+begin
+  Result := 'skoda';
+end;
+
+function TOBDRadioCodeSkoda.DisplayName: string;
+begin
+  Result := 'Skoda (VW group)';
+end;
+
 function TOBDRadioCodeSkoda.Description: string;
 begin
-  Result :=
-    'Skoda factory radios. Input: 14-character serial starting with SKZ ' +
-    'or VWZ; characters 4-5 must be digits. Algorithm not bundled — ' +
+  Result := 'Skoda factory radios. Input: 14-character serial starting with SKZ '
+    + 'or VWZ; characters 4-5 must be digits. Algorithm not bundled — ' +
     'wire OnCalculate.';
 end;
 
@@ -369,7 +427,8 @@ function TOBDRadioCodeSkoda.DoValidate(const AInput: string;
   out AReason: string): Boolean;
 begin
   Result := ValidateLength(AInput, 14, AReason);
-  if not Result then Exit;
+  if not Result then
+    Exit;
   if (Copy(AInput, 1, 3) <> 'SKZ') and (Copy(AInput, 1, 3) <> 'VWZ') then
   begin
     AReason := 'Serial must start with SKZ or VWZ';
@@ -380,33 +439,41 @@ end;
 
 { ---- TOBDRadioCodeSmart ---------------------------------------------------- }
 
-function TOBDRadioCodeSmart.BrandKey: string; begin Result := 'smart'; end;
-function TOBDRadioCodeSmart.DisplayName: string; begin Result := 'Smart (Mercedes)'; end;
+function TOBDRadioCodeSmart.BrandKey: string;
+begin
+  Result := 'smart';
+end;
+
+function TOBDRadioCodeSmart.DisplayName: string;
+begin
+  Result := 'Smart (Mercedes)';
+end;
+
 function TOBDRadioCodeSmart.Description: string;
 begin
-  Result :=
-    'Smart factory radios (Mercedes platform). Input: 14 alphanumeric ' +
-    'characters. Algorithm not bundled — wire OnCalculate.';
+  Result := 'Smart factory radios (Mercedes platform). Input: 14 alphanumeric '
+    + 'characters. Algorithm not bundled — wire OnCalculate.';
 end;
 
 function TOBDRadioCodeSmart.DoValidate(const AInput: string;
   out AReason: string): Boolean;
 begin
-  Result := ValidateLength(AInput, 14, AReason)
-       and  ValidateAlphanumericRange(AInput, 1, 14, AReason);
+  Result := ValidateLength(AInput, 14, AReason) and
+    ValidateAlphanumericRange(AInput, 1, 14, AReason);
 end;
 
 { ---- registration ---------------------------------------------------------- }
 
 initialization
-  TOBDRadioCodeRegistry.Default.RegisterClass(TOBDRadioCodeVW);
-  TOBDRadioCodeRegistry.Default.RegisterClass(TOBDRadioCodeAudiConcert);
-  TOBDRadioCodeRegistry.Default.RegisterClass(TOBDRadioCodeBMW);
-  TOBDRadioCodeRegistry.Default.RegisterClass(TOBDRadioCodeMercedes);
-  TOBDRadioCodeRegistry.Default.RegisterClass(TOBDRadioCodeMini);
-  TOBDRadioCodeRegistry.Default.RegisterClass(TOBDRadioCodePorsche);
-  TOBDRadioCodeRegistry.Default.RegisterClass(TOBDRadioCodeSEAT);
-  TOBDRadioCodeRegistry.Default.RegisterClass(TOBDRadioCodeSkoda);
-  TOBDRadioCodeRegistry.Default.RegisterClass(TOBDRadioCodeSmart);
+
+TOBDRadioCodeRegistry.Default.RegisterClass(TOBDRadioCodeVW);
+TOBDRadioCodeRegistry.Default.RegisterClass(TOBDRadioCodeAudiConcert);
+TOBDRadioCodeRegistry.Default.RegisterClass(TOBDRadioCodeBMW);
+TOBDRadioCodeRegistry.Default.RegisterClass(TOBDRadioCodeMercedes);
+TOBDRadioCodeRegistry.Default.RegisterClass(TOBDRadioCodeMini);
+TOBDRadioCodeRegistry.Default.RegisterClass(TOBDRadioCodePorsche);
+TOBDRadioCodeRegistry.Default.RegisterClass(TOBDRadioCodeSEAT);
+TOBDRadioCodeRegistry.Default.RegisterClass(TOBDRadioCodeSkoda);
+TOBDRadioCodeRegistry.Default.RegisterClass(TOBDRadioCodeSmart);
 
 end.

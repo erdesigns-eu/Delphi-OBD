@@ -1,29 +1,29 @@
-//------------------------------------------------------------------------------
-//  ERD.UI.SessionInspect
+﻿// ------------------------------------------------------------------------------
+// ERD.UI.SessionInspect
 //
-//  Session / transport inspectors:
+// Session / transport inspectors:
 //
-//    TOBDKWP1281SessionInspector  Counter / block count / kw1
-//                                 / kw2 / last-block-title.
-//    TOBDJ2534DeviceList          TListView enumerating
-//                                 PassThru devices.
-//    TOBDTP20ChannelPanel         TP2.0 channel state panel.
-//    TOBDDoIPNodePicker           DoIP vehicle-identification
-//                                 node picker.
+// TOBDKWP1281SessionInspector  Counter / block count / kw1
+// / kw2 / last-block-title.
+// TOBDJ2534DeviceList          TListView enumerating
+// PassThru devices.
+// TOBDTP20ChannelPanel         TP2.0 channel state panel.
+// TOBDDoIPNodePicker           DoIP vehicle-identification
+// node picker.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.UI.SessionInspect;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -32,9 +32,9 @@ uses
   Winapi.Windows,
   Winapi.GDIPAPI,
   Winapi.GDIPOBJ,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
   System.Bindings.Helper, Data.Bind.Components,
   Vcl.Controls,
   Vcl.Graphics,
@@ -47,12 +47,12 @@ type
   /// <summary>KWP1281 session counters.</summary>
   TOBDKWP1281SessionInspector = class(TOBDCustomControl)
   strict private
-    FCounter:        Byte;
-    FBlockCount:     Cardinal;
-    FKW1:            Byte;
-    FKW2:            Byte;
+    FCounter: Byte;
+    FBlockCount: Cardinal;
+    FKW1: Byte;
+    FKW2: Byte;
     FLastBlockTitle: string;
-    FFont:           TFont;
+    FFont: TFont;
     procedure SetCounter(AValue: Byte);
     procedure SetBlockCount(AValue: Cardinal);
     procedure SetKW1(AValue: Byte);
@@ -65,15 +65,15 @@ type
     procedure PaintControl(ACanvas: TCanvas); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
   published
     /// <summary>KWP1281 block counter (0..255). Default 0.
     /// </summary>
     property Counter: Byte read FCounter write SetCounter default 0;
     /// <summary>Total blocks exchanged this session. Default 0.
     /// </summary>
-    property BlockCount: Cardinal
-      read FBlockCount write SetBlockCount default 0;
+    property BlockCount: Cardinal read FBlockCount write SetBlockCount
+      default 0;
     /// <summary>First keyword byte from the init sequence.
     /// Default 0.</summary>
     property KW1: Byte read FKW1 write SetKW1 default 0;
@@ -82,8 +82,8 @@ type
     property KW2: Byte read FKW2 write SetKW2 default 0;
     /// <summary>Human-readable title of the most recent block.
     /// </summary>
-    property LastBlockTitle: string
-      read FLastBlockTitle write SetLastBlockTitle;
+    property LastBlockTitle: string read FLastBlockTitle
+      write SetLastBlockTitle;
     /// <summary>Monospaced font used for the counters readout.
     /// </summary>
     property MonoFont: TFont read FFont write SetFontA;
@@ -91,9 +91,9 @@ type
 
   /// <summary>One enumerated J2534 device.</summary>
   TOBDJ2534DeviceInfo = record
-    Name:     string;
-    Vendor:   string;
-    DLL:      string;
+    Name: string;
+    Vendor: string;
+    DLL: string;
     Protocols: string;
   end;
 
@@ -106,10 +106,9 @@ type
     constructor Create(AOwner: TComponent); override;
     /// <summary>Replace the displayed rows with the supplied
     /// device list.</summary>
-    procedure   LoadDevices(
-      const ADevices: TArray<TOBDJ2534DeviceInfo>);
+    procedure LoadDevices(const ADevices: TArray<TOBDJ2534DeviceInfo>);
     /// <summary>Remove all rows.</summary>
-    procedure   ClearDevices;
+    procedure ClearDevices;
   protected
     procedure CreateWnd; override;
   published
@@ -127,11 +126,11 @@ type
   /// <summary>TP2.0 channel state panel.</summary>
   TOBDTP20ChannelPanel = class(TOBDCustomControl)
   strict private
-    FRxId:          Word;
-    FTxId:          Word;
-    FKeepAliveMs:   Integer;
-    FLastSendMs:    Int64;
-    FFont:          TFont;
+    FRxId: Word;
+    FTxId: Word;
+    FKeepAliveMs: Integer;
+    FLastSendMs: Int64;
+    FFont: TFont;
     procedure SetRxId(AValue: Word);
     procedure SetTxId(AValue: Word);
     procedure SetKeepAliveMs(AValue: Integer);
@@ -143,7 +142,7 @@ type
     procedure PaintControl(ACanvas: TCanvas); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
   published
     /// <summary>Rx CAN identifier. Default 0.</summary>
     property RxId: Word read FRxId write SetRxId default 0;
@@ -151,12 +150,11 @@ type
     property TxId: Word read FTxId write SetTxId default 0;
     /// <summary>Channel keep-alive interval in milliseconds.
     /// Default 0 (disabled).</summary>
-    property KeepAliveMs: Integer
-      read FKeepAliveMs write SetKeepAliveMs default 0;
+    property KeepAliveMs: Integer read FKeepAliveMs write SetKeepAliveMs
+      default 0;
     /// <summary>Milliseconds since the last successful send.
     /// Hosts update this from a tick handler.</summary>
-    property LastSendMs: Int64
-      read FLastSendMs write SetLastSendMs default 0;
+    property LastSendMs: Int64 read FLastSendMs write SetLastSendMs default 0;
     /// <summary>Monospaced font used for the channel readout.
     /// </summary>
     property MonoFont: TFont read FFont write SetFontA;
@@ -165,11 +163,11 @@ type
   /// <summary>One enumerated DoIP node from a vehicle-
   /// identification broadcast.</summary>
   TOBDDoIPNodeInfo = record
-    EID:       Word;
-    GID:       Word;
-    VIN:       string;
-    Hostname:  string;
-    Address:   string;
+    EID: Word;
+    GID: Word;
+    VIN: string;
+    Hostname: string;
+    Address: string;
   end;
 
   /// <summary>DoIP node picker. Host calls
@@ -181,9 +179,9 @@ type
     constructor Create(AOwner: TComponent); override;
     /// <summary>Replace the displayed rows with the supplied
     /// node list.</summary>
-    procedure   LoadNodes(const ANodes: TArray<TOBDDoIPNodeInfo>);
+    procedure LoadNodes(const ANodes: TArray<TOBDDoIPNodeInfo>);
     /// <summary>Remove all rows.</summary>
-    procedure   ClearNodes;
+    procedure ClearNodes;
   protected
     procedure CreateWnd; override;
   published
@@ -201,8 +199,7 @@ type
 
 implementation
 
-procedure ConfigureCols(AListView: TListView;
-  const ANames: array of string;
+procedure ConfigureCols(AListView: TListView; const ANames: array of string;
   const AWidths: array of Integer);
 var
   I: Integer;
@@ -227,7 +224,7 @@ end;
 constructor TOBDKWP1281SessionInspector.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 320;
+  Width := 320;
   Height := 110;
   FFont := TFont.Create;
   FFont.Name := 'Consolas';
@@ -243,7 +240,8 @@ end;
 
 procedure TOBDKWP1281SessionInspector.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -262,33 +260,47 @@ end;
 
 procedure TOBDKWP1281SessionInspector.SetCounter(AValue: Byte);
 begin
-  if FCounter = AValue then Exit;
-  FCounter := AValue; NotifyBindings; Repaint;
+  if FCounter = AValue then
+    Exit;
+  FCounter := AValue;
+  NotifyBindings;
+  Repaint;
 end;
 
 procedure TOBDKWP1281SessionInspector.SetBlockCount(AValue: Cardinal);
 begin
-  if FBlockCount = AValue then Exit;
-  FBlockCount := AValue; NotifyBindings; Repaint;
+  if FBlockCount = AValue then
+    Exit;
+  FBlockCount := AValue;
+  NotifyBindings;
+  Repaint;
 end;
 
 procedure TOBDKWP1281SessionInspector.SetKW1(AValue: Byte);
 begin
-  if FKW1 = AValue then Exit;
-  FKW1 := AValue; NotifyBindings; Repaint;
+  if FKW1 = AValue then
+    Exit;
+  FKW1 := AValue;
+  NotifyBindings;
+  Repaint;
 end;
 
 procedure TOBDKWP1281SessionInspector.SetKW2(AValue: Byte);
 begin
-  if FKW2 = AValue then Exit;
-  FKW2 := AValue; NotifyBindings; Repaint;
+  if FKW2 = AValue then
+    Exit;
+  FKW2 := AValue;
+  NotifyBindings;
+  Repaint;
 end;
 
-procedure TOBDKWP1281SessionInspector.SetLastBlockTitle(
-  const AValue: string);
+procedure TOBDKWP1281SessionInspector.SetLastBlockTitle(const AValue: string);
 begin
-  if FLastBlockTitle = AValue then Exit;
-  FLastBlockTitle := AValue; NotifyBindings; Repaint;
+  if FLastBlockTitle = AValue then
+    Exit;
+  FLastBlockTitle := AValue;
+  NotifyBindings;
+  Repaint;
 end;
 
 procedure TOBDKWP1281SessionInspector.PaintControl(ACanvas: TCanvas);
@@ -310,10 +322,10 @@ begin
   Pad := ScaleValue(8);
   RowH := ACanvas.TextHeight('Mg') + ScaleValue(2);
   Y := Pad;
-  Row('counter',         IntToStr(FCounter));
-  Row('block count',     IntToStr(FBlockCount));
-  Row('kw1 / kw2',       Format('0x%2.2X / 0x%2.2X', [FKW1, FKW2]));
-  Row('last block',      FLastBlockTitle);
+  Row('counter', IntToStr(FCounter));
+  Row('block count', IntToStr(FBlockCount));
+  Row('kw1 / kw2', Format('0x%2.2X / 0x%2.2X', [FKW1, FKW2]));
+  Row('last block', FLastBlockTitle);
 end;
 
 { ---- TOBDJ2534DeviceList ---------------------------------------- }
@@ -323,7 +335,7 @@ begin
   inherited Create(AOwner);
   ViewStyle := vsReport;
   RowSelect := True;
-  ReadOnly  := True;
+  ReadOnly := True;
   GridLines := True;
   ShowColumnHeaders := True;
 end;
@@ -332,13 +344,12 @@ procedure TOBDJ2534DeviceList.CreateWnd;
 begin
   inherited;
   if Columns.Count = 0 then
-    ConfigureCols(Self,
-      ['Name', 'Vendor', 'DLL', 'Protocols'],
+    ConfigureCols(Self, ['Name', 'Vendor', 'DLL', 'Protocols'],
       [180, 120, 240, 120]);
 end;
 
-procedure TOBDJ2534DeviceList.LoadDevices(
-  const ADevices: TArray<TOBDJ2534DeviceInfo>);
+procedure TOBDJ2534DeviceList.LoadDevices(const ADevices
+  : TArray<TOBDJ2534DeviceInfo>);
 var
   D: TOBDJ2534DeviceInfo;
   Item: TListItem;
@@ -369,7 +380,7 @@ end;
 constructor TOBDTP20ChannelPanel.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 320;
+  Width := 320;
   Height := 110;
   FFont := TFont.Create;
   FFont.Name := 'Consolas';
@@ -385,7 +396,8 @@ end;
 
 procedure TOBDTP20ChannelPanel.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -404,26 +416,37 @@ end;
 
 procedure TOBDTP20ChannelPanel.SetRxId(AValue: Word);
 begin
-  if FRxId = AValue then Exit;
-  FRxId := AValue; NotifyBindings; Repaint;
+  if FRxId = AValue then
+    Exit;
+  FRxId := AValue;
+  NotifyBindings;
+  Repaint;
 end;
 
 procedure TOBDTP20ChannelPanel.SetTxId(AValue: Word);
 begin
-  if FTxId = AValue then Exit;
-  FTxId := AValue; NotifyBindings; Repaint;
+  if FTxId = AValue then
+    Exit;
+  FTxId := AValue;
+  NotifyBindings;
+  Repaint;
 end;
 
 procedure TOBDTP20ChannelPanel.SetKeepAliveMs(AValue: Integer);
 begin
-  if FKeepAliveMs = AValue then Exit;
-  FKeepAliveMs := AValue; NotifyBindings; Repaint;
+  if FKeepAliveMs = AValue then
+    Exit;
+  FKeepAliveMs := AValue;
+  NotifyBindings;
+  Repaint;
 end;
 
 procedure TOBDTP20ChannelPanel.SetLastSendMs(AValue: Int64);
 begin
-  if FLastSendMs = AValue then Exit;
-  FLastSendMs := AValue; Repaint;
+  if FLastSendMs = AValue then
+    Exit;
+  FLastSendMs := AValue;
+  Repaint;
 end;
 
 procedure TOBDTP20ChannelPanel.PaintControl(ACanvas: TCanvas);
@@ -446,15 +469,14 @@ begin
   Pad := ScaleValue(8);
   RowH := ACanvas.TextHeight('Mg') + ScaleValue(2);
   Y := Pad;
-  Row('rx id',  Format('0x%4.4X', [FRxId]),  EffectiveAccent);
-  Row('tx id',  Format('0x%4.4X', [FTxId]),  EffectiveAccent);
+  Row('rx id', Format('0x%4.4X', [FRxId]), EffectiveAccent);
+  Row('tx id', Format('0x%4.4X', [FTxId]), EffectiveAccent);
   if (FKeepAliveMs > 0) and (FLastSendMs > FKeepAliveMs) then
     KeepCol := Palette.Danger
   else
     KeepCol := EffectiveAccent;
   Row('keep alive', Format('%d ms', [FKeepAliveMs]), KeepCol);
-  Row('last send',  Format('%d ms ago', [FLastSendMs]),
-    KeepCol);
+  Row('last send', Format('%d ms ago', [FLastSendMs]), KeepCol);
 end;
 
 { ---- TOBDDoIPNodePicker ---------------------------------------- }
@@ -464,7 +486,7 @@ begin
   inherited Create(AOwner);
   ViewStyle := vsReport;
   RowSelect := True;
-  ReadOnly  := True;
+  ReadOnly := True;
   GridLines := True;
   ShowColumnHeaders := True;
 end;
@@ -473,13 +495,11 @@ procedure TOBDDoIPNodePicker.CreateWnd;
 begin
   inherited;
   if Columns.Count = 0 then
-    ConfigureCols(Self,
-      ['EID', 'GID', 'VIN', 'Host', 'Address'],
+    ConfigureCols(Self, ['EID', 'GID', 'VIN', 'Host', 'Address'],
       [60, 60, 200, 140, 120]);
 end;
 
-procedure TOBDDoIPNodePicker.LoadNodes(
-  const ANodes: TArray<TOBDDoIPNodeInfo>);
+procedure TOBDDoIPNodePicker.LoadNodes(const ANodes: TArray<TOBDDoIPNodeInfo>);
 var
   N: TOBDDoIPNodeInfo;
   Item: TListItem;

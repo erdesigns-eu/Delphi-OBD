@@ -1,48 +1,48 @@
-//------------------------------------------------------------------------------
-//  ERD.Protocol.SecOC
+﻿// ------------------------------------------------------------------------------
+// ERD.Protocol.SecOC
 //
-//  AUTOSAR SecOC wrap / unwrap codec. Composes the AES-128 + CMAC
-//  primitive with the key store and the freshness manager to
-//  produce / verify Authentic PDUs:
+// AUTOSAR SecOC wrap / unwrap codec. Composes the AES-128 + CMAC
+// primitive with the key store and the freshness manager to
+// produce / verify Authentic PDUs:
 //
-//    | Original PDU | Truncated FV (BE) | Truncated MAC |
+// | Original PDU | Truncated FV (BE) | Truncated MAC |
 //
-//  The MAC is computed over (DataID-16-BE || Original PDU || Full
-//  FV-64-BE) as required by AUTOSAR SecOC SWS §7.2.
+// The MAC is computed over (DataID-16-BE || Original PDU || Full
+// FV-64-BE) as required by AUTOSAR SecOC SWS §7.2.
 //
-//  This v1 codec restricts both the truncated-MAC and truncated-FV
-//  lengths to multiples of 8 bits. Sub-byte truncation (e.g. 4-bit
-//  FV on a 64-bit CAN frame) requires bit-packing on the wire and
-//  is out of scope for v1 — every production OBD use case
-//  (UDS, J1939, DoIP) carries 8/16/24/64-bit lengths.
+// This v1 codec restricts both the truncated-MAC and truncated-FV
+// lengths to multiples of 8 bits. Sub-byte truncation (e.g. 4-bit
+// FV on a 64-bit CAN frame) requires bit-packing on the wire and
+// is out of scope for v1 — every production OBD use case
+// (UDS, J1939, DoIP) carries 8/16/24/64-bit lengths.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - AUTOSAR SecOC SWS R23-11
-//    - NIST SP 800-38B (CMAC)
+// References  :
+// - AUTOSAR SecOC SWS R23-11
+// - NIST SP 800-38B (CMAC)
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Protocol.SecOC;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   ERD.Types,
   ERD.Protocol.SecOC.AES,
   ERD.Protocol.SecOC.CMAC,
@@ -66,17 +66,17 @@ type
   end;
 
   /// <summary>
-  ///   Stateless SecOC wrap / unwrap codec. Holds a key provider and
-  ///   a freshness provider; the rest is per-call.
+  /// Stateless SecOC wrap / unwrap codec. Holds a key provider and
+  /// a freshness provider; the rest is per-call.
   /// </summary>
   /// <remarks>
-  ///   The codec is component-friendly (descends from
-  ///   <c>TComponent</c>) so a host can drop it on a form, point
-  ///   <c>Keys</c> at a <c>TOBDSecOCKeyStore</c> and
-  ///   <c>Freshness</c> at a <c>TOBDSecOCFreshness</c>, and call
-  ///   <c>Wrap</c> / <c>Unwrap</c> from anywhere — including from
-  ///   a worker thread. Both providers are guaranteed thread-safe
-  ///   by the unit-level implementations.
+  /// The codec is component-friendly (descends from
+  /// <c>TComponent</c>) so a host can drop it on a form, point
+  /// <c>Keys</c> at a <c>TOBDSecOCKeyStore</c> and
+  /// <c>Freshness</c> at a <c>TOBDSecOCFreshness</c>, and call
+  /// <c>Wrap</c> / <c>Unwrap</c> from anywhere — including from
+  /// a worker thread. Both providers are guaranteed thread-safe
+  /// by the unit-level implementations.
   /// </remarks>
   TOBDSecOCCodec = class(TComponent)
   strict private
@@ -91,10 +91,10 @@ type
     constructor Create(AOwner: TComponent); override;
 
     /// <summary>
-    ///   Authenticates <c>AOriginalPDU</c> under the key bound to
-    ///   <c>ADataID</c>, advances the freshness counter, and returns
-    ///   the Authentic PDU (Original || Truncated FV || Truncated
-    ///   MAC).
+    /// Authenticates <c>AOriginalPDU</c> under the key bound to
+    /// <c>ADataID</c>, advances the freshness counter, and returns
+    /// the Authentic PDU (Original || Truncated FV || Truncated
+    /// MAC).
     /// </summary>
     /// <param name="ADataID">Data ID resolved at the application
     /// layer (UDS DID, CAN ID, J1939 PGN — host-defined).</param>
@@ -108,8 +108,8 @@ type
     function Wrap(ADataID: Word; const AOriginalPDU: TBytes): TBytes;
 
     /// <summary>
-    ///   Verifies an Authentic PDU and returns the original bytes
-    ///   plus the reconstructed freshness counter.
+    /// Verifies an Authentic PDU and returns the original bytes
+    /// plus the reconstructed freshness counter.
     /// </summary>
     /// <param name="ADataID">Data ID expected for this binding.</param>
     /// <param name="AAuthenticPDU">Wire bytes (Original || Trunc FV
@@ -117,8 +117,8 @@ type
     /// <returns>Verification result.</returns>
     /// <exception cref="EOBDSecOCError">PDU too short, freshness
     /// rejected (replay / out-of-window) or MAC mismatch.</exception>
-    function Unwrap(ADataID: Word;
-      const AAuthenticPDU: TBytes): TOBDSecOCVerification;
+    function Unwrap(ADataID: Word; const AAuthenticPDU: TBytes)
+      : TOBDSecOCVerification;
 
     /// <summary>Bound key provider. Must be assigned before
     /// <c>Wrap</c> / <c>Unwrap</c>.</summary>
@@ -143,15 +143,15 @@ begin
   if FFreshness = nil then
     raise EOBDConfig.Create('TOBDSecOCCodec: Freshness provider not assigned');
   if not FKeys.TryGet(ADataID, Result) then
-    raise EOBDSecOCError.CreateFmt(
-      'SecOC: no binding for Data ID 0x%4.4X', [ADataID]);
+    raise EOBDSecOCError.CreateFmt('SecOC: no binding for Data ID 0x%4.4X',
+      [ADataID]);
   if (Result.TagBits mod 8) <> 0 then
-    raise EOBDSecOCError.CreateFmt(
-      'SecOC v1: TagBits %d must be a multiple of 8 (Data ID 0x%4.4X)',
+    raise EOBDSecOCError.CreateFmt
+      ('SecOC v1: TagBits %d must be a multiple of 8 (Data ID 0x%4.4X)',
       [Result.TagBits, ADataID]);
   if (Result.FreshnessBits mod 8) <> 0 then
-    raise EOBDSecOCError.CreateFmt(
-      'SecOC v1: FreshnessBits %d must be a multiple of 8 (Data ID 0x%4.4X)',
+    raise EOBDSecOCError.CreateFmt
+      ('SecOC v1: FreshnessBits %d must be a multiple of 8 (Data ID 0x%4.4X)',
       [Result.FreshnessBits, ADataID]);
 end;
 
@@ -172,22 +172,19 @@ begin
     Move(AOriginal[0], Aad[2], OrigLen);
   // Full FV — 64-bit big-endian.
   for I := 0 to 7 do
-    Aad[2 + OrigLen + I] :=
-      Byte((AFV shr (8 * (7 - I))) and $FF);
+    Aad[2 + OrigLen + I] := Byte((AFV shr (8 * (7 - I))) and $FF);
 
-  FullTag := TOBDCMACAES.ComputeTruncated(ABinding.Key, Aad,
-    ABinding.TagBits);
+  FullTag := TOBDCMACAES.ComputeTruncated(ABinding.Key, Aad, ABinding.TagBits);
   // ComputeTruncated already sized to ceil(TagBits/8); for byte-
   // aligned tags this matches ATagBytes exactly.
   if Length(FullTag) <> ATagBytes then
-    raise EOBDInternal.CreateFmt(
-      'SecOC: tag length mismatch (got %d, expected %d)',
+    raise EOBDInternal.CreateFmt
+      ('SecOC: tag length mismatch (got %d, expected %d)',
       [Length(FullTag), ATagBytes]);
   Result := FullTag;
 end;
 
-function TOBDSecOCCodec.Wrap(ADataID: Word;
-  const AOriginalPDU: TBytes): TBytes;
+function TOBDSecOCCodec.Wrap(ADataID: Word; const AOriginalPDU: TBytes): TBytes;
 var
   Binding: TOBDSecOCBinding;
   FV: UInt64;
@@ -199,8 +196,8 @@ begin
   FV := FFreshness.NextTx(ADataID);
 
   TagBytes := Binding.TagBits div 8;
-  FvBytes  := Binding.FreshnessBits div 8;
-  OrigLen  := Length(AOriginalPDU);
+  FvBytes := Binding.FreshnessBits div 8;
+  OrigLen := Length(AOriginalPDU);
 
   // Truncated FV — low <FreshnessBits> bits, big-endian.
   SetLength(TruncFV, FvBytes);
@@ -218,8 +215,8 @@ begin
     Move(Tag[0], Result[OrigLen + FvBytes], TagBytes);
 end;
 
-function TOBDSecOCCodec.Unwrap(ADataID: Word;
-  const AAuthenticPDU: TBytes): TOBDSecOCVerification;
+function TOBDSecOCCodec.Unwrap(ADataID: Word; const AAuthenticPDU: TBytes)
+  : TOBDSecOCVerification;
 var
   Binding: TOBDSecOCBinding;
   TagBytes, FvBytes, OrigLen, TotalLen: Integer;
@@ -231,11 +228,11 @@ begin
   Binding := ResolveBinding(ADataID);
 
   TagBytes := Binding.TagBits div 8;
-  FvBytes  := Binding.FreshnessBits div 8;
+  FvBytes := Binding.FreshnessBits div 8;
   TotalLen := Length(AAuthenticPDU);
   if TotalLen < TagBytes + FvBytes then
-    raise EOBDSecOCError.Create(
-      'SecOC unwrap: Authentic PDU shorter than FV + tag');
+    raise EOBDSecOCError.Create
+      ('SecOC unwrap: Authentic PDU shorter than FV + tag');
   OrigLen := TotalLen - FvBytes - TagBytes;
 
   SetLength(Original, OrigLen);
@@ -246,10 +243,10 @@ begin
   for I := 0 to FvBytes - 1 do
     TruncFV := (TruncFV shl 8) or AAuthenticPDU[OrigLen + I];
 
-  if not FFreshness.TryAccept(ADataID, TruncFV,
-    Binding.FreshnessBits, ReconFV) then
-    raise EOBDSecOCError.CreateFmt(
-      'SecOC unwrap: freshness rejected (Data ID 0x%4.4X)', [ADataID]);
+  if not FFreshness.TryAccept(ADataID, TruncFV, Binding.FreshnessBits, ReconFV)
+  then
+    raise EOBDSecOCError.CreateFmt
+      ('SecOC unwrap: freshness rejected (Data ID 0x%4.4X)', [ADataID]);
 
   SetLength(ReceivedTag, TagBytes);
   if TagBytes > 0 then
@@ -266,12 +263,12 @@ begin
     for I := 0 to J - 1 do
       Diff := Diff or (ReceivedTag[I] xor ExpectedTag[I]);
   if Diff <> 0 then
-    raise EOBDSecOCError.CreateFmt(
-      'SecOC unwrap: MAC verification failed (Data ID 0x%4.4X)', [ADataID]);
+    raise EOBDSecOCError.CreateFmt
+      ('SecOC unwrap: MAC verification failed (Data ID 0x%4.4X)', [ADataID]);
 
-  Result.OriginalPDU    := Original;
+  Result.OriginalPDU := Original;
   Result.FreshnessValue := ReconFV;
-  Result.DataID         := ADataID;
+  Result.DataID := ADataID;
 end;
 
 end.

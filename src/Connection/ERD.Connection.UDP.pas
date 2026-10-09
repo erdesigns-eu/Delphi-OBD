@@ -1,38 +1,38 @@
-//------------------------------------------------------------------------------
-//  ERD.Connection.UDP
+﻿// ------------------------------------------------------------------------------
+// ERD.Connection.UDP
 //
-//  UDP transport. Primary use cases: DoIP UDP discovery (ISO 13400-2)
-//  and broadcast vehicle-announcement messages.
+// UDP transport. Primary use cases: DoIP UDP discovery (ISO 13400-2)
+// and broadcast vehicle-announcement messages.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//    2026-05-09  ERD  Follow-up: rebased onto TOBDBaseTransport
-//                     and instrumented with step-progress events.
-//    2026-10-09  ERD  Route native socket options through the shared wrapper.
-//    2026-10-09  ERD  Adapt UDP I/O and IPv4 endpoints for both compilers.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// 2026-05-09  ERD  Follow-up: rebased onto TOBDBaseTransport
+// and instrumented with step-progress events.
+// 2026-10-09  ERD  Route native socket options through the shared wrapper.
+// 2026-10-09  ERD  Adapt UDP I/O and IPv4 endpoints for both compilers.
+// ------------------------------------------------------------------------------
 
 unit ERD.Connection.UDP;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}ERD.Compat.Functions,{$ENDIF}
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}ERD.Compat.Functions, {$ENDIF}
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
   ERD.Compat.Socket,
   ERD.Types,
   ERD.Connection.Types,
@@ -54,8 +54,7 @@ type
     /// <param name="ASocket">UDP <c>TSocket</c>.</param>
     /// <param name="AOnBytes">Inbound-bytes callback. Required.</param>
     /// <param name="AOnError">Error callback. Optional.</param>
-    constructor Create(ASocket: TSocket;
-      const AOnBytes: TProc<TBytes>;
+    constructor Create(ASocket: TSocket; const AOnBytes: TProc<TBytes>;
       const AOnError: TProc<TOBDErrorCode, string>);
   end;
 
@@ -73,13 +72,13 @@ type
     destructor Destroy; override;
 
     /// <summary>
-    ///   Creates the UDP socket, optionally binds a local port, and
-    ///   stores the remote endpoint.
+    /// Creates the UDP socket, optionally binds a local port, and
+    /// stores the remote endpoint.
     /// </summary>
     /// <param name="ASettings">Host, port, bind / broadcast flags.</param>
     /// <remarks>
-    ///   Synchronous. Fires two step-progress events:
-    ///   <c>1/2 Binding</c>, <c>2/2 Ready</c>.
+    /// Synchronous. Fires two step-progress events:
+    /// <c>1/2 Binding</c>, <c>2/2 Ready</c>.
     /// </remarks>
     /// <exception cref="EOBDConfig"><c>ASettings</c> is <c>nil</c>.</exception>
     /// <exception cref="EOBDError">Bind or DNS lookup failed.</exception>
@@ -99,8 +98,7 @@ implementation
 { ---- TOBDUDPReadThread ------------------------------------------------------- }
 
 constructor TOBDUDPReadThread.Create(ASocket: TSocket;
-  const AOnBytes: TProc<TBytes>;
-  const AOnError: TProc<TOBDErrorCode, string>);
+  const AOnBytes: TProc<TBytes>; const AOnError: TProc<TOBDErrorCode, string>);
 begin
   inherited Create(True);
   FreeOnTerminate := False;
@@ -121,7 +119,8 @@ begin
   begin
     try
       Got := FSocket.ReceiveDatagram(Buffer, ChunkSize);
-      if Terminated then Break;
+      if Terminated then
+        Break;
       if Got > 0 then
       begin
         if Assigned(FOnBytes) then
@@ -162,12 +161,11 @@ begin
   SetState(csOpening);
   FSocket := TSocket.Create(TSocketType.UDP, TEncoding.ASCII);
   try
-    FireProgress(1, 2, 'Binding',
-      Format('local-port=%d', [ASettings.LocalPort]));
+    FireProgress(1, 2, 'Binding', Format('local-port=%d',
+      [ASettings.LocalPort]));
     if ASettings.BindLocal then
     begin
-      Local := TOBDDatagramEndpoint.Create('',
-        ASettings.LocalPort);
+      Local := TOBDDatagramEndpoint.Create('', ASettings.LocalPort);
       FSocket.BindDatagram(Local);
     end;
     if ASettings.Broadcast then
@@ -175,8 +173,7 @@ begin
     if Trim(ASettings.Host) <> '' then
       FRemote := TOBDDatagramEndpoint.Create(ASettings.Host, ASettings.Port)
     else
-      FRemote := TOBDDatagramEndpoint.Create('',
-        ASettings.Port);
+      FRemote := TOBDDatagramEndpoint.Create('', ASettings.Port);
   except
     on E: Exception do
     begin
@@ -187,8 +184,14 @@ begin
   end;
 
   FReader := TOBDUDPReadThread.Create(FSocket,
-    procedure(Bytes: TBytes) begin FireBytes(Bytes); end,
-    procedure(Code: TOBDErrorCode; Msg: string) begin FireError(Code, Msg); end);
+    procedure(Bytes: TBytes)
+    begin
+      FireBytes(Bytes);
+    end,
+    procedure(Code: TOBDErrorCode; Msg: string)
+    begin
+      FireError(Code, Msg);
+    end);
   FReader.Start;
 
   FireProgress(2, 2, 'Ready', '');
@@ -201,7 +204,8 @@ var
 begin
   FLock.Enter;
   try
-    if FState in [csClosed, csClosing] then Exit;
+    if FState in [csClosed, csClosing] then
+      Exit;
     SetState(csClosing);
     Local := FSocket;
     FSocket := nil;
@@ -213,7 +217,10 @@ begin
   begin
     FReader.Terminate;
     if Assigned(Local) then
-      try Local.Close; except end;
+      try
+        Local.Close;
+      except
+      end;
     FReader.WaitFor;
     FreeAndNil(FReader);
   end;

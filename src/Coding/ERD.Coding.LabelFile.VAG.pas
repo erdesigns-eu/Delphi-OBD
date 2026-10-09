@@ -1,68 +1,63 @@
-//------------------------------------------------------------------------------
-//  ERD.Coding.LabelFile.VAG
+﻿// ------------------------------------------------------------------------------
+// ERD.Coding.LabelFile.VAG
 //
-//  TOBDLabelFileVAG — parser for the VAG ".LBL" label-file format
-//  used by VCDS, VCP, OBDeleven and similar VAG diagnostic tools.
-//  An .LBL file describes a control unit's coding bytes in human
-//  terms:
+// TOBDLabelFileVAG — parser for the VAG ".LBL" label-file format
+// used by VCDS, VCP, OBDeleven and similar VAG diagnostic tools.
+// An .LBL file describes a control unit's coding bytes in human
+// terms:
 //
-//    7,0,Front Fog Light Assist active
-//    7,1,Cornering Light active
-//    7,2-3,(0=Off, 1=Position Light, 2=Side Marker)
-//    8,B0,Daytime Running Lights        ; byte 8, single byte field
-//    Adp;1;Idle Speed Setpoint           ; adaptation channel 1
+// 7,0,Front Fog Light Assist active
+// 7,1,Cornering Light active
+// 7,2-3,(0=Off, 1=Position Light, 2=Side Marker)
+// 8,B0,Daytime Running Lights        ; byte 8, single byte field
+// Adp;1;Idle Speed Setpoint           ; adaptation channel 1
 //
-//  The format is line-oriented; each line is one of:
+// The format is line-oriented; each line is one of:
 //
-//    - Bit-position label:  byte,bit,description
-//    - Bit-range label:     byte,bit-bit,description (or with values
-//      "(0=Off, 1=On)" mixed in)
-//    - Whole-byte label:    byte,Bx,description (value-table follows)
-//    - Adaptation channel:  Adp;channel;description
-//    - Comment:             ;...
+// - Bit-position label:  byte,bit,description
+// - Bit-range label:     byte,bit-bit,description (or with values
+// "(0=Off, 1=On)" mixed in)
+// - Whole-byte label:    byte,Bx,description (value-table follows)
+// - Adaptation channel:  Adp;channel;description
+// - Comment:             ;...
 //
-//  This unit produces a flat array of TOBDVAGLabelEntry records;
-//  hosts feed them into TOBDCodingVAG to drive a coding-edit UI.
+// This unit produces a flat array of TOBDVAGLabelEntry records;
+// hosts feed them into TOBDCodingVAG to drive a coding-edit UI.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - Ross-Tech "VAG-COM Label File Format" technical note
+// References  :
+// - Ross-Tech "VAG-COM Label File Format" technical note
 //
-//  History     :
-//    2026-05-09  ERD  Follow-up.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Follow-up.
+// ------------------------------------------------------------------------------
 
 unit ERD.Coding.LabelFile.VAG;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   System.IOUtils,
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.Types;
 
 type
   /// <summary>Label entry kind.</summary>
-  TOBDVAGLabelKind = (
-    lkBitField,
-    lkByteField,
-    lkAdaptationChannel,
-    lkLongCodingHelper,
-    lkComment
-  );
+  TOBDVAGLabelKind = (lkBitField, lkByteField, lkAdaptationChannel,
+    lkLongCodingHelper, lkComment);
 
   /// <summary>Decoded label entry.</summary>
   TOBDVAGLabelEntry = record
@@ -101,13 +96,13 @@ type
 implementation
 
 uses
-  {$IFDEF FPC}StrUtils{$ELSE}System.StrUtils{$ENDIF};
+{$IFDEF FPC}StrUtils{$ELSE}System.StrUtils{$ENDIF};
 
 type
   TLabelValuePairs = TList<TPair<Integer, string>>;
 
 function TryParseInline(const AText: string;
-  out AValues: TArray<TPair<Integer, string>>): Boolean;
+  out AValues: TArray < TPair < Integer, string >> ): Boolean;
 var
   Open, Close: Integer;
   Inner, Pair: string;
@@ -120,7 +115,8 @@ begin
   AValues := nil;
   Open := Pos('(', AText);
   Close := Pos(')', AText);
-  if (Open = 0) or (Close <= Open + 1) then Exit;
+  if (Open = 0) or (Close <= Open + 1) then
+    Exit;
   Inner := Copy(AText, Open + 1, Close - Open - 1);
   Tokens := SplitString(Inner, ',');
   Acc := TLabelValuePairs.Create;
@@ -128,10 +124,12 @@ begin
     for Pair in Tokens do
     begin
       EqPos := Pos('=', Pair);
-      if EqPos = 0 then Continue;
-      if not TryStrToInt(Trim(Copy(Pair, 1, EqPos - 1)), Raw) then Continue;
-      Acc.Add(TPair<Integer, string>.Create(
-        Raw, Trim(Copy(Pair, EqPos + 1, MaxInt))));
+      if EqPos = 0 then
+        Continue;
+      if not TryStrToInt(Trim(Copy(Pair, 1, EqPos - 1)), Raw) then
+        Continue;
+      Acc.Add(TPair<Integer, string>.Create(Raw,
+        Trim(Copy(Pair, EqPos + 1, MaxInt))));
     end;
     AValues := Acc.ToArray;
     Result := Length(AValues) > 0;
@@ -148,17 +146,20 @@ var
   DashPos, EndPos: Integer;
 begin
   Result := False;
-  AOut := Default(TOBDVAGLabelEntry);
+  AOut := Default (TOBDVAGLabelEntry);
   Trimmed := TrimLeft(ARaw);
-  if Trimmed = '' then Exit;
+  if Trimmed = '' then
+    Exit;
 
   // Adaptation channel: "Adp;<channel>;<desc>"
   if StartsText('Adp', Trimmed) then
   begin
     Tokens := SplitString(Trimmed, ';');
-    if Length(Tokens) < 3 then Exit;
+    if Length(Tokens) < 3 then
+      Exit;
     AOut.Kind := lkAdaptationChannel;
-    if not TryStrToInt(Trim(Tokens[1]), AOut.Channel) then Exit;
+    if not TryStrToInt(Trim(Tokens[1]), AOut.Channel) then
+      Exit;
     AOut.Description := Trim(Tokens[2]);
     Exit(True);
   end;
@@ -167,10 +168,13 @@ begin
   if StartsText('LC,', Trimmed) then
   begin
     Tokens := SplitString(Trimmed, ',');
-    if Length(Tokens) < 4 then Exit;
+    if Length(Tokens) < 4 then
+      Exit;
     AOut.Kind := lkLongCodingHelper;
-    if not TryStrToInt(Trim(Tokens[1]), AOut.Byte_) then Exit;
-    if not TryStrToInt(Trim(Tokens[2]), AOut.BitStart) then Exit;
+    if not TryStrToInt(Trim(Tokens[1]), AOut.Byte_) then
+      Exit;
+    if not TryStrToInt(Trim(Tokens[2]), AOut.BitStart) then
+      Exit;
     AOut.BitEnd := AOut.BitStart;
     AOut.Description := Trim(Tokens[3]);
     Exit(True);
@@ -178,12 +182,14 @@ begin
 
   // Standard line: byte,bit-or-Bx,description
   Tokens := SplitString(Trimmed, ',');
-  if Length(Tokens) < 3 then Exit;
+  if Length(Tokens) < 3 then
+    Exit;
 
   ByteToken := Trim(Tokens[0]);
-  BitToken  := Trim(Tokens[1]);
+  BitToken := Trim(Tokens[1]);
 
-  if not TryStrToInt(ByteToken, AOut.Byte_) then Exit;
+  if not TryStrToInt(ByteToken, AOut.Byte_) then
+    Exit;
 
   if (Length(BitToken) > 0) and CharInSet(BitToken[1], ['B', 'b']) then
   begin
@@ -198,12 +204,15 @@ begin
     DashPos := Pos('-', BitToken);
     if DashPos > 0 then
     begin
-      if not TryStrToInt(Copy(BitToken, 1, DashPos - 1), AOut.BitStart) then Exit;
-      if not TryStrToInt(Copy(BitToken, DashPos + 1, MaxInt), AOut.BitEnd) then Exit;
+      if not TryStrToInt(Copy(BitToken, 1, DashPos - 1), AOut.BitStart) then
+        Exit;
+      if not TryStrToInt(Copy(BitToken, DashPos + 1, MaxInt), AOut.BitEnd) then
+        Exit;
     end
     else
     begin
-      if not TryStrToInt(BitToken, AOut.BitStart) then Exit;
+      if not TryStrToInt(BitToken, AOut.BitStart) then
+        Exit;
       AOut.BitEnd := AOut.BitStart;
     end;
   end;
@@ -214,19 +223,20 @@ begin
   RestOfLine := '';
   for I := 2 to High(Tokens) do
   begin
-    if I > 2 then RestOfLine := RestOfLine + ',';
+    if I > 2 then
+      RestOfLine := RestOfLine + ',';
     RestOfLine := RestOfLine + Tokens[I];
   end;
   EndPos := Pos(';', RestOfLine);
-  if EndPos > 0 then RestOfLine := Copy(RestOfLine, 1, EndPos - 1);
+  if EndPos > 0 then
+    RestOfLine := Copy(RestOfLine, 1, EndPos - 1);
 
   AOut.Description := Trim(RestOfLine);
   TryParseInline(RestOfLine, AOut.Values);
   Result := True;
 end;
 
-class function TOBDLabelFileVAG.Parse(
-  const ASource: string): TOBDVAGLabelFile;
+class function TOBDLabelFileVAG.Parse(const ASource: string): TOBDVAGLabelFile;
 var
   Lines: TArray<string>;
   Line: string;
@@ -235,15 +245,17 @@ var
   Entry: TOBDVAGLabelEntry;
   HeaderLines: TStringList;
 begin
-  Result := Default(TOBDVAGLabelFile);
-  Lines := SplitString(StringReplace(ASource, #13#10, #10, [rfReplaceAll]), #10);
+  Result := Default (TOBDVAGLabelFile);
+  Lines := SplitString(StringReplace(ASource, #13#10, #10,
+    [rfReplaceAll]), #10);
   Acc := TList<TOBDVAGLabelEntry>.Create;
   HeaderLines := TStringList.Create;
   try
     for Line in Lines do
     begin
       Trimmed := TrimLeft(Line);
-      if Trimmed = '' then Continue;
+      if Trimmed = '' then
+        Continue;
       if (Length(Trimmed) > 0) and (Trimmed[1] = ';') then
       begin
         // Header lines / comments at the top of the file.
@@ -262,8 +274,8 @@ begin
   end;
 end;
 
-class function TOBDLabelFileVAG.ParseFile(
-  const AFileName: string): TOBDVAGLabelFile;
+class function TOBDLabelFileVAG.ParseFile(const AFileName: string)
+  : TOBDVAGLabelFile;
 begin
   Result := Parse(TFile.ReadAllText(AFileName, TEncoding.UTF8));
 end;

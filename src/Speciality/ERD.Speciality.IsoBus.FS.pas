@@ -1,70 +1,70 @@
-//------------------------------------------------------------------------------
-//  ERD.Speciality.IsoBus.FS
+﻿// ------------------------------------------------------------------------------
+// ERD.Speciality.IsoBus.FS
 //
-//  TOBDIsoBusFS — IsoBus File Server framing helpers
-//  (ISO 11783-13). The File Server is the on-bus filesystem
-//  endpoint that receives recorded process data, log files and
-//  configuration blobs from agricultural implements.
+// TOBDIsoBusFS — IsoBus File Server framing helpers
+// (ISO 11783-13). The File Server is the on-bus filesystem
+// endpoint that receives recorded process data, log files and
+// configuration blobs from agricultural implements.
 //
-//  v1 ships the request frames every host needs:
+// v1 ships the request frames every host needs:
 //
-//    - Get_File_Server_Properties          (function 0x00)
-//    - Open_File                           (0x20)
-//    - Seek_File                           (0x21)
-//    - Read_File                           (0x22)
-//    - Write_File                          (0x23)
-//    - Close_File                          (0x24)
-//    - Get_Current_Directory               (0x10)
-//    - Change_Current_Directory            (0x11)
+// - Get_File_Server_Properties          (function 0x00)
+// - Open_File                           (0x20)
+// - Seek_File                           (0x21)
+// - Read_File                           (0x22)
+// - Write_File                          (0x23)
+// - Close_File                          (0x24)
+// - Get_Current_Directory               (0x10)
+// - Change_Current_Directory            (0x11)
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - ISO 11783-13:2011 (File Server)
+// References  :
+// - ISO 11783-13:2011 (File Server)
 //
-//  History     :
-//    2026-05-09  ERD  Follow-up.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Follow-up.
+// ------------------------------------------------------------------------------
 
 unit ERD.Speciality.IsoBus.FS;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   ERD.Types;
 
 const
-  ISOBUS_FS_PGN_TO_FS  = $00AA00;
-  ISOBUS_FS_PGN_FROM_FS= $00AB00;
+  ISOBUS_FS_PGN_TO_FS = $00AA00;
+  ISOBUS_FS_PGN_FROM_FS = $00AB00;
 
   // ---- File Server function codes ----
   FS_FN_GET_PROPERTIES = $00;
-  FS_FN_GET_CWD        = $10;
-  FS_FN_CHANGE_CWD     = $11;
-  FS_FN_OPEN_FILE      = $20;
-  FS_FN_SEEK_FILE      = $21;
-  FS_FN_READ_FILE      = $22;
-  FS_FN_WRITE_FILE     = $23;
-  FS_FN_CLOSE_FILE     = $24;
+  FS_FN_GET_CWD = $10;
+  FS_FN_CHANGE_CWD = $11;
+  FS_FN_OPEN_FILE = $20;
+  FS_FN_SEEK_FILE = $21;
+  FS_FN_READ_FILE = $22;
+  FS_FN_WRITE_FILE = $23;
+  FS_FN_CLOSE_FILE = $24;
 
   // ---- Open-flags ----
-  FS_OPEN_READ_ONLY        = $00;
-  FS_OPEN_WRITE_REPLACE    = $01;
-  FS_OPEN_WRITE_APPEND     = $02;
-  FS_OPEN_READ_WRITE       = $03;
-  FS_OPEN_TARGET_FILE_BIT  = $00;
-  FS_OPEN_TARGET_DIR_BIT   = $40;
+  FS_OPEN_READ_ONLY = $00;
+  FS_OPEN_WRITE_REPLACE = $01;
+  FS_OPEN_WRITE_APPEND = $02;
+  FS_OPEN_READ_WRITE = $03;
+  FS_OPEN_TARGET_FILE_BIT = $00;
+  FS_OPEN_TARGET_DIR_BIT = $40;
 
 type
   /// <summary>IsoBus File Server framing helpers (stateless).</summary>
@@ -89,12 +89,13 @@ type
     class function BuildSeekFile(ATransactionID, AHandle, AOrigin: Byte;
       AOffset: Int32): TBytes; static;
     /// <summary>Builds a Close_File frame.</summary>
-    class function BuildCloseFile(ATransactionID, AHandle: Byte): TBytes; static;
+    class function BuildCloseFile(ATransactionID, AHandle: Byte)
+      : TBytes; static;
     /// <summary>Builds a Get_Current_Directory frame.</summary>
     class function BuildGetCWD(ATransactionID: Byte): TBytes; static;
     /// <summary>Builds a Change_Current_Directory frame.</summary>
-    class function BuildChangeCWD(ATransactionID: Byte;
-      const APath: string): TBytes; static;
+    class function BuildChangeCWD(ATransactionID: Byte; const APath: string)
+      : TBytes; static;
   end;
 
 implementation
@@ -106,7 +107,8 @@ begin
   SetLength(Result, 8);
   Result[0] := FS_FN_GET_PROPERTIES;
   Result[1] := ATransactionID;
-  for I := 2 to 7 do Result[I] := $FF;
+  for I := 2 to 7 do
+    Result[I] := $FF;
 end;
 
 class function TOBDIsoBusFS.BuildOpenFile(ATransactionID, AOpenFlags: Byte;
@@ -123,7 +125,8 @@ begin
   Result[2] := AOpenFlags;
   Result[3] := Byte(Len and $FF);
   Result[4] := Byte((Len shr 8) and $FF);
-  for I := 0 to Len - 1 do Result[5 + I] := PathBytes[I];
+  for I := 0 to Len - 1 do
+    Result[5 + I] := PathBytes[I];
 end;
 
 class function TOBDIsoBusFS.BuildReadFile(ATransactionID, AHandle: Byte;
@@ -137,7 +140,8 @@ begin
   Result[2] := AHandle;
   Result[3] := Byte(ACount and $FF);
   Result[4] := Byte((ACount shr 8) and $FF);
-  for I := 5 to 7 do Result[I] := $FF;
+  for I := 5 to 7 do
+    Result[I] := $FF;
 end;
 
 class function TOBDIsoBusFS.BuildWriteFile(ATransactionID, AHandle: Byte;
@@ -152,7 +156,8 @@ begin
   Result[2] := AHandle;
   Result[3] := Byte(Len and $FF);
   Result[4] := Byte((Len shr 8) and $FF);
-  for I := 0 to Len - 1 do Result[5 + I] := AData[I];
+  for I := 0 to Len - 1 do
+    Result[5 + I] := AData[I];
 end;
 
 class function TOBDIsoBusFS.BuildSeekFile(ATransactionID, AHandle,
@@ -181,7 +186,8 @@ begin
   Result[0] := FS_FN_CLOSE_FILE;
   Result[1] := ATransactionID;
   Result[2] := AHandle;
-  for I := 3 to 7 do Result[I] := $FF;
+  for I := 3 to 7 do
+    Result[I] := $FF;
 end;
 
 class function TOBDIsoBusFS.BuildGetCWD(ATransactionID: Byte): TBytes;
@@ -191,7 +197,8 @@ begin
   SetLength(Result, 8);
   Result[0] := FS_FN_GET_CWD;
   Result[1] := ATransactionID;
-  for I := 2 to 7 do Result[I] := $FF;
+  for I := 2 to 7 do
+    Result[I] := $FF;
 end;
 
 class function TOBDIsoBusFS.BuildChangeCWD(ATransactionID: Byte;
@@ -207,7 +214,8 @@ begin
   Result[1] := ATransactionID;
   Result[2] := Byte(Len and $FF);
   Result[3] := Byte((Len shr 8) and $FF);
-  for I := 0 to Len - 1 do Result[4 + I] := PathBytes[I];
+  for I := 0 to Len - 1 do
+    Result[4 + I] := PathBytes[I];
 end;
 
 end.

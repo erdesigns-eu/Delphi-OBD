@@ -1,47 +1,46 @@
-//------------------------------------------------------------------------------
-//  ERD.Connection.Serial
+﻿// ------------------------------------------------------------------------------
+// ERD.Connection.Serial
 //
-//  Win32 serial-port transport. Opens a COM port via CreateFile, drives
-//  configuration through SetCommState / SetCommTimeouts, runs a worker
-//  thread that reads in non-overlapped 256-byte chunks and pushes them
-//  to the receive callback.
+// Win32 serial-port transport. Opens a COM port via CreateFile, drives
+// configuration through SetCommState / SetCommTimeouts, runs a worker
+// thread that reads in non-overlapped 256-byte chunks and pushes them
+// to the receive callback.
 //
-//  Cross-platform note: this unit is Windows-only. A POSIX
-//  transport (termios via /dev/tty*) is out of scope for v1; the
-//  IOBDConnectionTransport contract is platform-neutral so a POSIX
-//  implementation slots in later without changing the public API.
+// Cross-platform note: this unit is Windows-only. A POSIX
+// transport (termios via /dev/tty*) is out of scope for v1; the
+// IOBDConnectionTransport contract is platform-neutral so a POSIX
+// implementation slots in later without changing the public API.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - MS Communication Resources docs
-//      (https://learn.microsoft.com/windows/win32/devio/communications-resources)
+// References  :
+// - MS Communication Resources docs
+// (https://learn.microsoft.com/windows/win32/devio/communications-resources)
 //
-//  History     :
-//    2026-05-09  ERD  Initial Win32 implementation.
-//    2026-05-09  ERD  Rebase onto TOBDBaseTransport and add
-//                     step-progress events.
-//    2026-10-09  ERD  Match reader callbacks to TProc value parameters.
-//    2026-10-09  ERD  Configure parity, DTR and RTS handshake flags correctly.
+// History     :
+// 2026-05-09  ERD  Initial Win32 implementation.
+// 2026-05-09  ERD  Rebase onto TOBDBaseTransport and add
+// step-progress events.
+// 2026-10-09  ERD  Match reader callbacks to TProc value parameters.
+// 2026-10-09  ERD  Configure parity, DTR and RTS handshake flags correctly.
 //
-//  Future work :
-//    - POSIX backend (Linux / macOS) using termios.
-//    - Dynamic enumeration of available ports for the design-time
-//      property editor.
-//------------------------------------------------------------------------------
+// Future work :
+// - POSIX backend (Linux / macOS) using termios.
+// - Dynamic enumeration of available ports for the design-time
+// property editor.
+// ------------------------------------------------------------------------------
 
 unit ERD.Connection.Serial;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
 {$ENDIF}
-
+{$ENDIF}
 {$IFNDEF MSWINDOWS}
 {$MESSAGE FATAL 'ERD.Connection.Serial currently supports Windows only.'}
 {$ENDIF}
@@ -49,11 +48,11 @@ unit ERD.Connection.Serial;
 interface
 
 uses
-  {$IFDEF FPC}ERD.Compat.Functions,{$ENDIF}
+{$IFDEF FPC}ERD.Compat.Functions, {$ENDIF}
   Winapi.Windows,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
   ERD.Types,
   ERD.Connection.Types,
   ERD.Connection.Settings,
@@ -61,12 +60,12 @@ uses
 
 type
   /// <summary>
-  ///   Worker thread that loops on <c>ReadFile</c> and pushes bytes
-  ///   into the parent transport's receive callback.
+  /// Worker thread that loops on <c>ReadFile</c> and pushes bytes
+  /// into the parent transport's receive callback.
   /// </summary>
   /// <remarks>
-  ///   Lifetime is owned by the parent transport. Terminated and
-  ///   joined inside <see cref="TOBDSerialTransport.Close"/>.
+  /// Lifetime is owned by the parent transport. Terminated and
+  /// joined inside <see cref="TOBDSerialTransport.Close"/>.
   /// </remarks>
   TOBDSerialReadThread = class(TThread)
   strict private
@@ -85,8 +84,7 @@ type
     /// Required.</param>
     /// <param name="AOnError">Callback for unrecoverable I/O errors.
     /// Optional.</param>
-    constructor Create(AHandle: THandle;
-      const AOnBytes: TProc<TBytes>;
+    constructor Create(AHandle: THandle; const AOnBytes: TProc<TBytes>;
       const AOnError: TProc<TOBDErrorCode, string>);
   end;
 
@@ -103,14 +101,14 @@ type
     destructor Destroy; override;
 
     /// <summary>
-    ///   Opens the configured COM port and starts the read thread.
+    /// Opens the configured COM port and starts the read thread.
     /// </summary>
     /// <param name="ASettings">Port name, baud rate, framing,
     /// timeouts. <c>Port</c> must be non-empty.</param>
     /// <remarks>
-    ///   Synchronous. Fires three step-progress events:
-    ///   <c>1/3 Opening port</c>, <c>2/3 Configuring</c>,
-    ///   <c>3/3 Ready</c>.
+    /// Synchronous. Fires three step-progress events:
+    /// <c>1/3 Opening port</c>, <c>2/3 Configuring</c>,
+    /// <c>3/3 Ready</c>.
     /// </remarks>
     /// <exception cref="EOBDConfig"><c>ASettings</c> is <c>nil</c> or
     /// <c>Port</c> is empty.</exception>
@@ -148,9 +146,12 @@ implementation
 function StopBitsToWin(AValue: TOBDStopBits): Byte;
 begin
   case AValue of
-    sb1:   Result := ONESTOPBIT;
-    sb1_5: Result := ONE5STOPBITS;
-    sb2:   Result := TWOSTOPBITS;
+    sb1:
+      Result := ONESTOPBIT;
+    sb1_5:
+      Result := ONE5STOPBITS;
+    sb2:
+      Result := TWOSTOPBITS;
   else
     Result := ONESTOPBIT;
   end;
@@ -159,11 +160,16 @@ end;
 function ParityToWin(AValue: TOBDParity): Byte;
 begin
   case AValue of
-    paNone:  Result := NOPARITY;
-    paOdd:   Result := ODDPARITY;
-    paEven:  Result := EVENPARITY;
-    paMark:  Result := MARKPARITY;
-    paSpace: Result := SPACEPARITY;
+    paNone:
+      Result := NOPARITY;
+    paOdd:
+      Result := ODDPARITY;
+    paEven:
+      Result := EVENPARITY;
+    paMark:
+      Result := MARKPARITY;
+    paSpace:
+      Result := SPACEPARITY;
   else
     Result := NOPARITY;
   end;
@@ -173,7 +179,7 @@ function PortPath(const APort: string): string;
 begin
   // CreateFile requires the \\.\COMx form for COM10 and above.
   if (Length(APort) >= 4) and (UpperCase(Copy(APort, 1, 3)) = 'COM') and
-     (Length(APort) > 4) then
+    (Length(APort) > 4) then
     Result := '\\.\' + APort
   else
     Result := APort;
@@ -182,8 +188,7 @@ end;
 { ---- TOBDSerialReadThread ---------------------------------------------------- }
 
 constructor TOBDSerialReadThread.Create(AHandle: THandle;
-  const AOnBytes: TProc<TBytes>;
-  const AOnError: TProc<TOBDErrorCode, string>);
+  const AOnBytes: TProc<TBytes>; const AOnError: TProc<TOBDErrorCode, string>);
 begin
   inherited Create(False); // start running
   FreeOnTerminate := False;
@@ -196,7 +201,7 @@ procedure TOBDSerialReadThread.Execute;
 const
   ChunkSize = 256;
 var
-  Buf: array[0..ChunkSize - 1] of Byte;
+  Buf: array [0 .. ChunkSize - 1] of Byte;
   Read: DWORD;
   Slice: TBytes;
   ErrCode: DWORD;
@@ -207,8 +212,8 @@ begin
     if not ReadFile(FHandle, Buf, ChunkSize, Read, nil) then
     begin
       ErrCode := GetLastError;
-      if (ErrCode = ERROR_OPERATION_ABORTED) or
-         (ErrCode = ERROR_INVALID_HANDLE) then
+      if (ErrCode = ERROR_OPERATION_ABORTED) or (ErrCode = ERROR_INVALID_HANDLE)
+      then
         Break;
       if Assigned(FOnError) then
         FOnError(oeIO, SysErrorMessage(ErrCode));
@@ -238,8 +243,8 @@ begin
   inherited;
 end;
 
-procedure TOBDSerialTransport.ApplySettings(
-  const ASettings: TOBDSerialSettings);
+procedure TOBDSerialTransport.ApplySettings(const ASettings
+  : TOBDSerialSettings);
 var
   DCB: TDCB;
   Timeouts: TCommTimeouts;
@@ -251,33 +256,32 @@ begin
 
   DCB.BaudRate := OBDBaudRateValue(ASettings.BaudRate);
   DCB.ByteSize := ASettings.DataBits;
-  DCB.Parity   := ParityToWin(ASettings.Parity);
+  DCB.Parity := ParityToWin(ASettings.Parity);
   DCB.StopBits := StopBitsToWin(ASettings.StopBits);
 
   DCB.Flags := 0;
-  DCB.Flags := $00000001                     // fBinary
-               or (1 shl 4)                 // fDtrControl = ENABLE
-               or (1 shl 12);               // fRtsControl = ENABLE
+  DCB.Flags := $00000001 // fBinary
+    or (1 shl 4) // fDtrControl = ENABLE
+    or (1 shl 12); // fRtsControl = ENABLE
   if ASettings.Parity <> paNone then
-    DCB.Flags := DCB.Flags or $00000002;      // fParity
+    DCB.Flags := DCB.Flags or $00000002; // fParity
   if ASettings.FlowControl = fcHardware then
-    DCB.Flags := (DCB.Flags and not (3 shl 12))
-                 or $00000004               // fOutxCtsFlow
-                 or (2 shl 12);             // fRtsControl = HANDSHAKE
+    DCB.Flags := (DCB.Flags and not(3 shl 12)) or $00000004 // fOutxCtsFlow
+      or (2 shl 12); // fRtsControl = HANDSHAKE
   if ASettings.FlowControl = fcSoftware then
-    DCB.Flags := DCB.Flags or $00000100        // fOutX
-                            or $00000200;      // fInX
-  DCB.XonChar  := AnsiChar(17);
+    DCB.Flags := DCB.Flags or $00000100 // fOutX
+      or $00000200; // fInX
+  DCB.XonChar := AnsiChar(17);
   DCB.XoffChar := AnsiChar(19);
 
   if not SetCommState(FHandle, DCB) then
     RaiseLastOSError;
 
-  Timeouts.ReadIntervalTimeout         := MAXDWORD;
-  Timeouts.ReadTotalTimeoutMultiplier  := 0;
-  Timeouts.ReadTotalTimeoutConstant    := ASettings.ReadTimeout;
+  Timeouts.ReadIntervalTimeout := MAXDWORD;
+  Timeouts.ReadTotalTimeoutMultiplier := 0;
+  Timeouts.ReadTotalTimeoutConstant := ASettings.ReadTimeout;
   Timeouts.WriteTotalTimeoutMultiplier := 0;
-  Timeouts.WriteTotalTimeoutConstant   := ASettings.WriteTimeout;
+  Timeouts.WriteTotalTimeoutConstant := ASettings.WriteTimeout;
   if not SetCommTimeouts(FHandle, Timeouts) then
     RaiseLastOSError;
 
@@ -338,7 +342,8 @@ var
 begin
   FLock.Enter;
   try
-    if FState in [csClosed, csClosing] then Exit;
+    if FState in [csClosed, csClosing] then
+      Exit;
     SetState(csClosing);
     H := FHandle;
     FHandle := INVALID_HANDLE_VALUE;

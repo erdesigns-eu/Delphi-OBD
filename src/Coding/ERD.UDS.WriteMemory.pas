@@ -1,40 +1,40 @@
-//------------------------------------------------------------------------------
-//  ERD.UDS.WriteMemory
+﻿// ------------------------------------------------------------------------------
+// ERD.UDS.WriteMemory
 //
-//  TOBDUDSWriteMemory — non-visual component for ISO 14229-1
-//  WriteMemoryByAddress (SID 0x3D). Distinct from
-//  WriteDataByIdentifier (0x2E, covered by TOBDDataIdentifierIO):
-//  WriteMemoryByAddress targets a raw memory region without a DID
-//  catalogue, which is the path used for byte-level coding patches
-//  on some controllers and for write-after-erase during flashing.
+// TOBDUDSWriteMemory — non-visual component for ISO 14229-1
+// WriteMemoryByAddress (SID 0x3D). Distinct from
+// WriteDataByIdentifier (0x2E, covered by TOBDDataIdentifierIO):
+// WriteMemoryByAddress targets a raw memory region without a DID
+// catalogue, which is the path used for byte-level coding patches
+// on some controllers and for write-after-erase during flashing.
 //
-//  Wire format per ISO 14229-1 §11.7:
+// Wire format per ISO 14229-1 §11.7:
 //
-//    Request : 3D <addrAndLengthFmt> <memoryAddress> <memorySize> <data...>
-//    Response: 7D <addrAndLengthFmt> <memoryAddress> <memorySize>
+// Request : 3D <addrAndLengthFmt> <memoryAddress> <memorySize> <data...>
+// Response: 7D <addrAndLengthFmt> <memoryAddress> <memorySize>
 //
-//  AutoExecute = False default — every write raises EOBDConfig
-//  before any wire access until the host explicitly opts in.
+// AutoExecute = False default — every write raises EOBDConfig
+// before any wire access until the host explicitly opts in.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - ISO 14229-1:2020 § 11.7 (WriteMemoryByAddress)
+// References  :
+// - ISO 14229-1:2020 § 11.7 (WriteMemoryByAddress)
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.UDS.WriteMemory;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -42,9 +42,9 @@ interface
 uses
   ERD.Async.Task,
   ERD.Connection,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
   ERD.Types,
   ERD.Protocol.Types,
   ERD.Protocol.UDS,
@@ -113,7 +113,8 @@ end;
 
 destructor TOBDUDSWriteMemory.Destroy;
 begin
-  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  if FOwnedTask <> nil then
+    FOwnedTask.Cancel;
   FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
@@ -121,11 +122,15 @@ end;
 
 procedure TOBDUDSWriteMemory.SetProtocol(AValue: TOBDProtocol);
 begin
-  if FProtocol = AValue then Exit;
-  if FOwnedTask <> nil then FOwnedTask.Quiesce;
-  if FProtocol <> nil then FProtocol.RemoveFreeNotification(Self);
+  if FProtocol = AValue then
+    Exit;
+  if FOwnedTask <> nil then
+    FOwnedTask.Quiesce;
+  if FProtocol <> nil then
+    FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
-  if FProtocol <> nil then FProtocol.FreeNotification(Self);
+  if FProtocol <> nil then
+    FProtocol.FreeNotification(Self);
 end;
 
 procedure TOBDUDSWriteMemory.Notification(AComponent: TComponent;
@@ -134,7 +139,8 @@ begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
   begin
-    if FOwnedTask <> nil then FOwnedTask.Quiesce;
+    if FOwnedTask <> nil then
+      FOwnedTask.Quiesce;
     FProtocol := nil;
   end;
 end;
@@ -148,14 +154,19 @@ begin
     if FAsyncInFlight then
       raise EOBDConfig.Create('TOBDUDSWriteMemory: async already in flight');
     FAsyncInFlight := True;
-  finally FAsyncLock.Leave; end;
+  finally
+    FAsyncLock.Leave;
+  end;
 end;
 
 procedure TOBDUDSWriteMemory.ReleaseAsync;
 begin
   FAsyncLock.Enter;
-  try FAsyncInFlight := False;
-  finally FAsyncLock.Leave; end;
+  try
+    FAsyncInFlight := False;
+  finally
+    FAsyncLock.Leave;
+  end;
 end;
 
 function TOBDUDSWriteMemory.EncodeMSB(AValue: UInt64; ABytes: Byte): TBytes;
@@ -163,15 +174,14 @@ var
   I: Integer;
 begin
   if (ABytes = 0) or (ABytes > 8) then
-    raise EOBDConfig.CreateFmt(
-      'TOBDUDSWriteMemory: bad format byte count %d', [ABytes]);
+    raise EOBDConfig.CreateFmt('TOBDUDSWriteMemory: bad format byte count %d',
+      [ABytes]);
   SetLength(Result, ABytes);
   for I := 0 to ABytes - 1 do
     Result[I] := Byte((AValue shr (8 * (ABytes - 1 - I))) and $FF);
 end;
 
-procedure TOBDUDSWriteMemory.DoWrite(AAddress: UInt64;
-  const AData: TBytes);
+procedure TOBDUDSWriteMemory.DoWrite(AAddress: UInt64; const AData: TBytes);
 var
   Body: TBytes;
   AddrBytes, LenBytes: TBytes;
@@ -182,15 +192,15 @@ begin
   if FProtocol = nil then
     raise EOBDConfig.Create('TOBDUDSWriteMemory: Protocol not assigned');
   if not FAutoExecute then
-    raise EOBDConfig.Create(
-      'TOBDUDSWriteMemory: AutoExecute is False — set it before writing');
+    raise EOBDConfig.Create
+      ('TOBDUDSWriteMemory: AutoExecute is False — set it before writing');
   if Length(AData) = 0 then
     raise EOBDConfig.Create('TOBDUDSWriteMemory: empty data');
 
   AddrBytes := EncodeMSB(AAddress, FAddressFormatBytes);
-  LenBytes  := EncodeMSB(UInt64(Length(AData)), FLengthFormatBytes);
+  LenBytes := EncodeMSB(UInt64(Length(AData)), FLengthFormatBytes);
   AddrAndLenFmt := Byte((FLengthFormatBytes shl 4) or
-                        (FAddressFormatBytes and $0F));
+    (FAddressFormatBytes and $0F));
 
   SetLength(Body, 1 + Length(AddrBytes) + Length(LenBytes) + Length(AData));
   Body[0] := AddrAndLenFmt;
@@ -203,8 +213,8 @@ begin
 
   Resp := FProtocol.Request(UDS_SID_WriteMemoryByAddress, Body);
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt(
-      'WriteMemoryByAddress 0x%x negative: %s', [AAddress, Resp.NRCText]);
+    raise EOBDProtocolErr.CreateFmt('WriteMemoryByAddress 0x%x negative: %s',
+      [AAddress, Resp.NRCText]);
 end;
 
 procedure TOBDUDSWriteMemory.Write(AAddress: UInt64; const AData: TBytes);
@@ -213,8 +223,7 @@ begin
   FireWrite;
 end;
 
-procedure TOBDUDSWriteMemory.WriteAsync(AAddress: UInt64;
-  const AData: TBytes);
+procedure TOBDUDSWriteMemory.WriteAsync(AAddress: UInt64; const AData: TBytes);
 var
   Self_: TOBDUDSWriteMemory;
   Addr: UInt64;
@@ -222,7 +231,8 @@ var
 begin
   GuardSingleAsync;
   try
-    Self_ := Self; Addr := AAddress;
+    Self_ := Self;
+    Addr := AAddress;
     Data := Copy(AData, 0, Length(AData));
     FOwnedTask.Start(
       procedure
@@ -232,7 +242,8 @@ begin
             Self_.DoWrite(Addr, Data);
             Self_.FireWrite;
           except
-            on E: Exception do Self_.FireError(oeIO, E.Message);
+            on E: Exception do
+              Self_.FireError(oeIO, E.Message);
           end;
         finally
           Self_.ReleaseAsync;
@@ -248,32 +259,43 @@ procedure TOBDUDSWriteMemory.FireWrite;
 var
   Self_: TOBDUDSWriteMemory;
 begin
-  if not Assigned(FOnWrite) then Exit;
+  if not Assigned(FOnWrite) then
+    Exit;
   Self_ := Self;
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnWrite(Self_)
   else
-    FOwnedTask.Post( procedure begin
-      if Assigned(Self_.FOnWrite) then Self_.FOnWrite(Self_);
-    end);
+    FOwnedTask.Post(
+      procedure
+      begin
+        if Assigned(Self_.FOnWrite) then
+          Self_.FOnWrite(Self_);
+      end);
 end;
 
 procedure TOBDUDSWriteMemory.FireError(ACode: TOBDErrorCode;
-  const AMessage: string);
+const AMessage: string);
 var
-  Self_: TOBDUDSWriteMemory; Code: TOBDErrorCode; Msg: string;
+  Self_: TOBDUDSWriteMemory;
+  Code: TOBDErrorCode;
+  Msg: string;
   Handled: Boolean;
 begin
-  if not Assigned(FOnError) then Exit;
-  Self_ := Self; Code := ACode; Msg := AMessage;
+  if not Assigned(FOnError) then
+    Exit;
+  Self_ := Self;
+  Code := ACode;
+  Msg := AMessage;
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
     Handled := False;
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    FOwnedTask.Post( procedure
-      var Handled: Boolean;
+    FOwnedTask.Post(
+      procedure
+      var
+        Handled: Boolean;
       begin
         Handled := False;
         if Assigned(Self_.FOnError) then

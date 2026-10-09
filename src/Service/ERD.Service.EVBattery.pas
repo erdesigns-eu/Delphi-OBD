@@ -1,30 +1,30 @@
-//------------------------------------------------------------------------------
-//  ERD.Service.EVBattery
+﻿// ------------------------------------------------------------------------------
+// ERD.Service.EVBattery
 //
-//  TOBDEVBattery - non-visual component that polls the
-//  high-voltage battery management system on supported BEV /
-//  PHEV platforms and decodes the per-vendor DID / PID set
-//  into a TOBDEVBatterySnapshot.
+// TOBDEVBattery - non-visual component that polls the
+// high-voltage battery management system on supported BEV /
+// PHEV platforms and decodes the per-vendor DID / PID set
+// into a TOBDEVBatterySnapshot.
 //
-//  The vendor-specific decode rules live in
-//  catalogs/ev-battery/<vendor>.json (see
-//  ERD.Service.EVBattery.Catalog). Set Vendor to the matching
-//  key, wire Protocol, call ReadSnapshot for a one-shot read
-//  or Start to drive the polling thread.
+// The vendor-specific decode rules live in
+// catalogs/ev-battery/<vendor>.json (see
+// ERD.Service.EVBattery.Catalog). Set Vendor to the matching
+// key, wire Protocol, call ReadSnapshot for a one-shot read
+// or Start to drive the polling thread.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT - see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT - see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.Service.EVBattery;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -32,11 +32,11 @@ interface
 uses
   ERD.Connection,
   ERD.Service.EVBattery.Request,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
-  {$IFNDEF FPC}Data.Bind.Components, System.Bindings.Helper,{$ENDIF}
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFNDEF FPC}Data.Bind.Components, System.Bindings.Helper, {$ENDIF}
   ERD.Errors,
   ERD.Types,
   ERD.Binary.Value,
@@ -54,13 +54,13 @@ type
 
   TOBDEVBattery = class(TComponent)
   private
-    FProtocol:        TOBDProtocol;
-    FVendor:          string;
+    FProtocol: TOBDProtocol;
+    FVendor: string;
     FModelYear: Integer;
-    FPollIntervalMs:  Cardinal;
-    FThread:          TOBDEVBatteryPollThread;
-    FOnSnapshot:      TOBDEVBatterySnapshotEvent;
-    FOnError:         TOBDConnectionErrorEvent;
+    FPollIntervalMs: Cardinal;
+    FThread: TOBDEVBatteryPollThread;
+    FOnSnapshot: TOBDEVBatterySnapshotEvent;
+    FOnError: TOBDConnectionErrorEvent;
     procedure ReportError(ACode: TOBDErrorCode; const AMessage: string);
     procedure SetProtocol(AValue: TOBDProtocol);
   protected
@@ -75,12 +75,11 @@ type
 
     /// <summary>Decodes <c>AData</c> per <c>ARule</c> and stores
     /// the result on <c>ASnapshot</c>.</summary>
-    procedure ApplyDecoded(const ARule: TOBDEVBatteryRule;
-      const AData: TBytes;
+    procedure ApplyDecoded(const ARule: TOBDEVBatteryRule; const AData: TBytes;
       var ASnapshot: TOBDEVBatterySnapshot);
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
 
     /// <summary>One-shot read: walks every rule in the loaded
     /// vendor catalogue, populates a snapshot, returns it.
@@ -98,8 +97,7 @@ type
     function Running: Boolean;
   published
     /// <summary>Required - source of the bus reads.</summary>
-    property Protocol: TOBDProtocol
-      read FProtocol write SetProtocol;
+    property Protocol: TOBDProtocol read FProtocol write SetProtocol;
 
     /// <summary>Vendor catalogue key (e.g. <c>"hmg"</c>,
     /// <c>"nissan-leaf"</c>, <c>"bmw-i"</c>). Pre-shipped keys
@@ -109,18 +107,17 @@ type
     property Vendor: string read FVendor write FVendor;
 
     /// <summary>Live-mode poll interval. Default 2000 ms.</summary>
-    property PollIntervalMs: Cardinal
-      read FPollIntervalMs write FPollIntervalMs default 2000;
+    property PollIntervalMs: Cardinal read FPollIntervalMs write FPollIntervalMs
+      default 2000;
 
-    property OnSnapshot: TOBDEVBatterySnapshotEvent
-      read FOnSnapshot write FOnSnapshot;
-    property OnError: TOBDConnectionErrorEvent
-      read FOnError write FOnError;
+    property OnSnapshot: TOBDEVBatterySnapshotEvent read FOnSnapshot
+      write FOnSnapshot;
+    property OnError: TOBDConnectionErrorEvent read FOnError write FOnError;
   end;
 
   TOBDEVBatteryPollThread = class(TThread)
   strict private
-    FOwner:     TOBDEVBattery;
+    FOwner: TOBDEVBattery;
     FStopEvent: TEvent;
     procedure FireSnapshotSync(const A: TOBDEVBatterySnapshot);
     procedure FireErrorSync(C: TOBDErrorCode; M: string);
@@ -128,13 +125,13 @@ type
     procedure Execute; override;
   public
     constructor Create(AOwner: TOBDEVBattery);
-    destructor  Destroy; override;
-    procedure   Stop;
+    destructor Destroy; override;
+    procedure Stop;
   end;
 
 implementation
 
-{ ---- helpers ----------------------------------------------------------------}
+{ ---- helpers ---------------------------------------------------------------- }
 
 function SliceUInt(const AData: TBytes; AOffset, ALen: Integer;
   out AOk: Boolean): Int64;
@@ -145,7 +142,8 @@ begin
     Result := DecodeIntegerBE(AData, AOffset, ALen, False);
     AOk := True;
   except
-    on E: EOBDConfig do AOk := False;
+    on E: EOBDConfig do
+      AOk := False;
   end;
 end;
 
@@ -158,11 +156,12 @@ begin
     Result := DecodeIntegerBE(AData, AOffset, ALen, True);
     AOk := True;
   except
-    on E: EOBDConfig do AOk := False;
+    on E: EOBDConfig do
+      AOk := False;
   end;
 end;
 
-{ ---- TOBDEVBattery ---------------------------------------------------------}
+{ ---- TOBDEVBattery --------------------------------------------------------- }
 
 constructor TOBDEVBattery.Create(AOwner: TComponent);
 begin
@@ -178,10 +177,13 @@ end;
 
 procedure TOBDEVBattery.SetProtocol(AValue: TOBDProtocol);
 begin
-  if FProtocol = AValue then Exit;
-  if FProtocol <> nil then FProtocol.RemoveFreeNotification(Self);
+  if FProtocol = AValue then
+    Exit;
+  if FProtocol <> nil then
+    FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
-  if FProtocol <> nil then FProtocol.FreeNotification(Self);
+  if FProtocol <> nil then
+    FProtocol.FreeNotification(Self);
 end;
 
 procedure TOBDEVBattery.Notification(AComponent: TComponent;
@@ -192,24 +194,27 @@ begin
     FProtocol := nil;
 end;
 
-procedure TOBDEVBattery.ReportError(ACode: TOBDErrorCode; const AMessage: string);
+procedure TOBDEVBattery.ReportError(ACode: TOBDErrorCode;
+  const AMessage: string);
 var
   MessageCopy: string;
 begin
   MessageCopy := AMessage;
   TThread.Synchronize(nil,
     procedure
-    var Handled: Boolean;
+    var
+      Handled: Boolean;
     begin
       Handled := False;
-      if Assigned(FOnError) then FOnError(Self, ACode, MessageCopy, Handled);
+      if Assigned(FOnError) then
+        FOnError(Self, ACode, MessageCopy, Handled);
     end);
 end;
 
 function TOBDEVBattery.ReadOne(const ARule: TOBDEVBatteryRule;
-  out AError: string): TBytes;
+out AError: string): TBytes;
 var
-  Req:  TOBDRequest;
+  Req: TOBDRequest;
   Resp: TOBDResponse;
 begin
   Result := nil;
@@ -230,45 +235,49 @@ begin
 end;
 
 procedure TOBDEVBattery.ApplyDecoded(const ARule: TOBDEVBatteryRule;
-  const AData: TBytes; var ASnapshot: TOBDEVBatterySnapshot);
+const AData: TBytes; var ASnapshot: TOBDEVBatterySnapshot);
 var
-  Ok:    Boolean;
-  Raw:   Int64;
-  Phys:  Double;
-  Arr:   TArray<Single>;
-  I, N:  Integer;
-  Cnt:   Integer;
+  Ok: Boolean;
+  Raw: Int64;
+  Phys: Double;
+  Arr: TArray<Single>;
+  I, N: Integer;
+  Cnt: Integer;
   Decoded: TOBDEVDecodedField;
 
   procedure SaveDecoded;
-  var Index: Integer;
+  var
+    Index: Integer;
   begin
     Index := Length(ASnapshot.DecodedFields);
     SetLength(ASnapshot.DecodedFields, Index + 1);
     ASnapshot.DecodedFields[Index] := Decoded;
   end;
+
 begin
-  Decoded := Default(TOBDEVDecodedField);
+  Decoded := Default (TOBDEVDecodedField);
   Decoded.Name := ARule.FieldName;
   Decoded.Unit_ := ARule.Unit_;
   if ARule.IsArray then
   begin
-    if (ARule.ElementSize <= 0) or (ARule.Offset < 0) or
-      (ARule.Length <= 0) or (ARule.Offset > Length(AData)) or
+    if (ARule.ElementSize <= 0) or (ARule.Offset < 0) or (ARule.Length <= 0) or
+      (ARule.Offset > Length(AData)) or
       (ARule.Length > Length(AData) - ARule.Offset) or
       (ARule.Length mod ARule.ElementSize <> 0) then
-      raise EOBDProtocolErr.Create('EV array payload is truncated or misaligned');
+      raise EOBDProtocolErr.Create
+        ('EV array payload is truncated or misaligned');
     Cnt := ARule.Length div ARule.ElementSize;
-    if Cnt <= 0 then raise EOBDProtocolErr.Create('EV array payload is truncated');
+    if Cnt <= 0 then
+      raise EOBDProtocolErr.Create('EV array payload is truncated');
     SetLength(Arr, Cnt);
     for I := 0 to Cnt - 1 do
     begin
       if ARule.Signed then
         Raw := SliceSignInt(AData, ARule.Offset + I * ARule.ElementSize,
-                            ARule.ElementSize, Ok)
+          ARule.ElementSize, Ok)
       else
         Raw := SliceUInt(AData, ARule.Offset + I * ARule.ElementSize,
-                         ARule.ElementSize, Ok);
+          ARule.ElementSize, Ok);
       if Ok then
         Arr[I] := Raw * ARule.Scale + ARule.OffsetVal;
     end;
@@ -329,44 +338,128 @@ begin
     Raw := SliceSignInt(AData, ARule.Offset, ARule.Length, Ok)
   else
     Raw := SliceUInt(AData, ARule.Offset, ARule.Length, Ok);
-  if not Ok then raise EOBDProtocolErr.Create('EV scalar payload is truncated or outside integer range');
+  if not Ok then
+    raise EOBDProtocolErr.Create
+      ('EV scalar payload is truncated or outside integer range');
   Phys := Raw * ARule.Scale + ARule.OffsetVal;
   Decoded.Value := Phys;
   SaveDecoded;
 
   case ARule.Field of
-    efkCapacityRemainingAh:  begin ASnapshot.HasCapacityRemainingAh := True; ASnapshot.CapacityRemainingAh := Phys; end;
-    efkSOC:                  begin ASnapshot.HasSOC := True;               ASnapshot.SOC := Phys; end;
-    efkSOH:                  begin ASnapshot.HasSOH := True;               ASnapshot.SOH := Phys; end;
-    efkPackVoltage:          begin ASnapshot.HasPackVoltage := True;       ASnapshot.PackVoltage := Phys; end;
-    efkPackCurrent:          begin ASnapshot.HasPackCurrent := True;       ASnapshot.PackCurrent := Phys; end;
-    efkPackPower:            begin ASnapshot.HasPackPower := True;         ASnapshot.PackPower := Phys; end;
-    efkCapacityRemainingKwh: begin ASnapshot.HasCapacityRemaining := True; ASnapshot.CapacityRemainingKwh := Phys; end;
-    efkCapacityNominalKwh:   begin ASnapshot.HasCapacityNominal := True;   ASnapshot.CapacityNominalKwh := Phys; end;
-    efkCellVoltageMin:       begin ASnapshot.HasCellVoltageMin := True;    ASnapshot.CellVoltageMin := Phys; end;
-    efkCellVoltageMax:       begin ASnapshot.HasCellVoltageMax := True;    ASnapshot.CellVoltageMax := Phys; end;
-    efkCellVoltageAvg:       begin ASnapshot.HasCellVoltageAvg := True;    ASnapshot.CellVoltageAvg := Phys; end;
-    efkPackTempMin:          begin ASnapshot.HasPackTempMin := True;       ASnapshot.PackTempMinC := Phys; end;
-    efkPackTempMax:          begin ASnapshot.HasPackTempMax := True;       ASnapshot.PackTempMaxC := Phys; end;
-    efkInletCoolantTemp:     begin ASnapshot.HasInletCoolant := True;      ASnapshot.InletCoolantTempC := Phys; end;
-    efkOutletCoolantTemp:    begin ASnapshot.HasOutletCoolant := True;     ASnapshot.OutletCoolantTempC := Phys; end;
-    efkRangeKm:              begin ASnapshot.HasRangeKm := True;           ASnapshot.RangeKm := Phys; end;
-    efkOdometerKm:           begin ASnapshot.HasOdometerKm := True;        ASnapshot.OdometerKm := Cardinal(Round(Phys)); end;
+    efkCapacityRemainingAh:
+      begin
+        ASnapshot.HasCapacityRemainingAh := True;
+        ASnapshot.CapacityRemainingAh := Phys;
+      end;
+    efkSOC:
+      begin
+        ASnapshot.HasSOC := True;
+        ASnapshot.SOC := Phys;
+      end;
+    efkSOH:
+      begin
+        ASnapshot.HasSOH := True;
+        ASnapshot.SOH := Phys;
+      end;
+    efkPackVoltage:
+      begin
+        ASnapshot.HasPackVoltage := True;
+        ASnapshot.PackVoltage := Phys;
+      end;
+    efkPackCurrent:
+      begin
+        ASnapshot.HasPackCurrent := True;
+        ASnapshot.PackCurrent := Phys;
+      end;
+    efkPackPower:
+      begin
+        ASnapshot.HasPackPower := True;
+        ASnapshot.PackPower := Phys;
+      end;
+    efkCapacityRemainingKwh:
+      begin
+        ASnapshot.HasCapacityRemaining := True;
+        ASnapshot.CapacityRemainingKwh := Phys;
+      end;
+    efkCapacityNominalKwh:
+      begin
+        ASnapshot.HasCapacityNominal := True;
+        ASnapshot.CapacityNominalKwh := Phys;
+      end;
+    efkCellVoltageMin:
+      begin
+        ASnapshot.HasCellVoltageMin := True;
+        ASnapshot.CellVoltageMin := Phys;
+      end;
+    efkCellVoltageMax:
+      begin
+        ASnapshot.HasCellVoltageMax := True;
+        ASnapshot.CellVoltageMax := Phys;
+      end;
+    efkCellVoltageAvg:
+      begin
+        ASnapshot.HasCellVoltageAvg := True;
+        ASnapshot.CellVoltageAvg := Phys;
+      end;
+    efkPackTempMin:
+      begin
+        ASnapshot.HasPackTempMin := True;
+        ASnapshot.PackTempMinC := Phys;
+      end;
+    efkPackTempMax:
+      begin
+        ASnapshot.HasPackTempMax := True;
+        ASnapshot.PackTempMaxC := Phys;
+      end;
+    efkInletCoolantTemp:
+      begin
+        ASnapshot.HasInletCoolant := True;
+        ASnapshot.InletCoolantTempC := Phys;
+      end;
+    efkOutletCoolantTemp:
+      begin
+        ASnapshot.HasOutletCoolant := True;
+        ASnapshot.OutletCoolantTempC := Phys;
+      end;
+    efkRangeKm:
+      begin
+        ASnapshot.HasRangeKm := True;
+        ASnapshot.RangeKm := Phys;
+      end;
+    efkOdometerKm:
+      begin
+        ASnapshot.HasOdometerKm := True;
+        ASnapshot.OdometerKm := Cardinal(Round(Phys));
+      end;
     efkChargeState:
       begin
         ASnapshot.HasChargeState := True;
         // Numeric mode: 0=idle, 1=AC, 2=DC, 3=drive, 4=regen.
         case Round(Phys) of
-          0: ASnapshot.ChargeState := csIdle;
-          1: ASnapshot.ChargeState := csACCharging;
-          2: ASnapshot.ChargeState := csDCFastCharging;
-          3: ASnapshot.ChargeState := csDriving;
-          4: ASnapshot.ChargeState := csRegenBraking;
-        else ASnapshot.ChargeState := csUnknown;
+          0:
+            ASnapshot.ChargeState := csIdle;
+          1:
+            ASnapshot.ChargeState := csACCharging;
+          2:
+            ASnapshot.ChargeState := csDCFastCharging;
+          3:
+            ASnapshot.ChargeState := csDriving;
+          4:
+            ASnapshot.ChargeState := csRegenBraking;
+        else
+          ASnapshot.ChargeState := csUnknown;
         end;
       end;
-    efkChargePortTemp:       begin ASnapshot.HasChargePortTemp := True;    ASnapshot.ChargePortTempC := Phys; end;
-    efkChargingPowerKw:      begin ASnapshot.HasChargingPower := True;     ASnapshot.ChargingPowerKw := Phys; end;
+    efkChargePortTemp:
+      begin
+        ASnapshot.HasChargePortTemp := True;
+        ASnapshot.ChargePortTempC := Phys;
+      end;
+    efkChargingPowerKw:
+      begin
+        ASnapshot.HasChargingPower := True;
+        ASnapshot.ChargingPowerKw := Phys;
+      end;
 
     // Per-module / per-pack scalar temps land here when the
     // catalogue ships them as one rule per module rather than
@@ -380,37 +473,60 @@ begin
       end;
 
     // Auxiliary / extended fields.
-    efkAuxBatteryVoltage:             begin ASnapshot.HasAuxBatteryVoltage       := True; ASnapshot.AuxBatteryVoltage        := Phys; end;
-    efkAvailableChargePowerKw:        begin ASnapshot.HasAvailableChargePower    := True; ASnapshot.AvailableChargePowerKw   := Phys; end;
-    efkAvailableDischargePowerKw:     begin ASnapshot.HasAvailableDischargePower := True; ASnapshot.AvailableDischargePowerKw:= Phys; end;
-    efkCumulativeEnergyChargedKwh:    begin ASnapshot.HasCumulativeChargedKwh    := True; ASnapshot.CumulativeChargedKwh     := Phys; end;
-    efkCumulativeEnergyDischargedKwh: begin ASnapshot.HasCumulativeDischargedKwh := True; ASnapshot.CumulativeDischargedKwh  := Phys; end;
+    efkAuxBatteryVoltage:
+      begin
+        ASnapshot.HasAuxBatteryVoltage := True;
+        ASnapshot.AuxBatteryVoltage := Phys;
+      end;
+    efkAvailableChargePowerKw:
+      begin
+        ASnapshot.HasAvailableChargePower := True;
+        ASnapshot.AvailableChargePowerKw := Phys;
+      end;
+    efkAvailableDischargePowerKw:
+      begin
+        ASnapshot.HasAvailableDischargePower := True;
+        ASnapshot.AvailableDischargePowerKw := Phys;
+      end;
+    efkCumulativeEnergyChargedKwh:
+      begin
+        ASnapshot.HasCumulativeChargedKwh := True;
+        ASnapshot.CumulativeChargedKwh := Phys;
+      end;
+    efkCumulativeEnergyDischargedKwh:
+      begin
+        ASnapshot.HasCumulativeDischargedKwh := True;
+        ASnapshot.CumulativeDischargedKwh := Phys;
+      end;
   end;
 end;
 
 function TOBDEVBattery.ReadSnapshot: TOBDEVBatterySnapshot;
 var
-  Cat:    TOBDEVBatteryVendorCatalog;
-  Rule:   TOBDEVBatteryRule;
-  Data:   TBytes;
-  Err:    string;
-  Errs:   TList<string>;
+  Cat: TOBDEVBatteryVendorCatalog;
+  Rule: TOBDEVBatteryRule;
+  Data: TBytes;
+  Err: string;
+  Errs: TList<string>;
 begin
-  Result := Default(TOBDEVBatterySnapshot);
+  Result := Default (TOBDEVBatterySnapshot);
   Result.Timestamp := Now;
-  Result.Vendor    := FVendor;
+  Result.Vendor := FVendor;
   if not TOBDEVBatteryCatalog.TryGet(FVendor, Cat) then
-    raise EOBDConfig.CreateFmt(
-      'TOBDEVBattery: vendor catalogue "%s" not loaded - check ' +
+    raise EOBDConfig.CreateFmt
+      ('TOBDEVBattery: vendor catalogue "%s" not loaded - check ' +
       'catalogs/ev-battery/<vendor>.json', [FVendor]);
   for Rule in Cat.Rules do
-    if ((Rule.MinModelYear > 0) or (Rule.MaxModelYear > 0)) and (FModelYear = 0) then
-      raise EOBDConfig.Create('Set ModelYear before reading model-dependent EV rules');
+    if ((Rule.MinModelYear > 0) or (Rule.MaxModelYear > 0)) and (FModelYear = 0)
+    then
+      raise EOBDConfig.Create
+        ('Set ModelYear before reading model-dependent EV rules');
   Errs := TList<string>.Create;
   try
     for Rule in Cat.Rules do
     begin
-      if not EVBatteryRuleApplies(Rule, FModelYear) then Continue;
+      if not EVBatteryRuleApplies(Rule, FModelYear) then
+        Continue;
       Data := ReadOne(Rule, Err);
       if Err <> '' then
       begin
@@ -438,26 +554,26 @@ begin
   // here so a TLinkPropertyToField bound to one of the snapshot
   // fields picks up the new state.
   try
-    {$IFNDEF FPC}TBindings.Notify(Self, '');{$ENDIF}
+{$IFNDEF FPC}TBindings.Notify(Self, ''); {$ENDIF}
   except
   end;
 end;
 
 procedure TOBDEVBattery.Start;
 begin
-  if FThread <> nil then Exit;
+  if FThread <> nil then
+    Exit;
   if FProtocol = nil then
-    raise EOBDConfig.Create(
-      'TOBDEVBattery.Start: Protocol not assigned');
+    raise EOBDConfig.Create('TOBDEVBattery.Start: Protocol not assigned');
   if FVendor = '' then
-    raise EOBDConfig.Create(
-      'TOBDEVBattery.Start: Vendor not set');
+    raise EOBDConfig.Create('TOBDEVBattery.Start: Vendor not set');
   FThread := TOBDEVBatteryPollThread.Create(Self);
 end;
 
 procedure TOBDEVBattery.Stop;
 begin
-  if FThread = nil then Exit;
+  if FThread = nil then
+    Exit;
   FThread.Stop;
   FThread.WaitFor;
   FreeAndNil(FThread);
@@ -468,11 +584,11 @@ begin
   Result := FThread <> nil;
 end;
 
-{ TOBDEVBatteryPollThread ----------------------------------------------------}
+{ TOBDEVBatteryPollThread ---------------------------------------------------- }
 
 constructor TOBDEVBatteryPollThread.Create(AOwner: TOBDEVBattery);
 begin
-  FOwner     := AOwner;
+  FOwner := AOwner;
   FStopEvent := TEvent.Create(nil, True, False, '');
   inherited Create(False);
 end;
@@ -489,28 +605,29 @@ begin
   FStopEvent.SetEvent;
 end;
 
-procedure TOBDEVBatteryPollThread.FireSnapshotSync(
-  const A: TOBDEVBatterySnapshot);
+procedure TOBDEVBatteryPollThread.FireSnapshotSync
+  (const A: TOBDEVBatterySnapshot);
 begin
-  Synchronize(procedure
-  begin
-    try
-      {$IFNDEF FPC}TBindings.Notify(FOwner, '');{$ENDIF}
-    except
-    end;
-    if Assigned(FOwner.FOnSnapshot) then
-      FOwner.FOnSnapshot(FOwner, A);
-  end);
+  Synchronize(
+    procedure
+    begin
+      try
+{$IFNDEF FPC}TBindings.Notify(FOwner, ''); {$ENDIF}
+      except
+      end;
+      if Assigned(FOwner.FOnSnapshot) then
+        FOwner.FOnSnapshot(FOwner, A);
+    end);
 end;
 
-procedure TOBDEVBatteryPollThread.FireErrorSync(C: TOBDErrorCode;
-  M: string);
+procedure TOBDEVBatteryPollThread.FireErrorSync(C: TOBDErrorCode; M: string);
 begin
   if Assigned(FOwner.FOnError) then
-    Synchronize(procedure
-    begin
-      FOwner.ReportError(C, M);
-    end);
+    Synchronize(
+      procedure
+      begin
+        FOwner.ReportError(C, M);
+      end);
 end;
 
 procedure TOBDEVBatteryPollThread.Execute;

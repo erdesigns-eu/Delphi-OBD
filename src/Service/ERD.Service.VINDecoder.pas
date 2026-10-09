@@ -1,68 +1,68 @@
-//------------------------------------------------------------------------------
-//  ERD.Service.VINDecoder
+﻿// ------------------------------------------------------------------------------
+// ERD.Service.VINDecoder
 //
-//  TOBDVINDecoder — static class that decodes a 17-character VIN
-//  into a fully populated <see cref="TOBDVINInfo"/>.
+// TOBDVINDecoder — static class that decodes a 17-character VIN
+// into a fully populated <see cref="TOBDVINInfo"/>.
 //
-//  Algorithm (per ISO 3779 / ISO 3780 / SAE J853):
+// Algorithm (per ISO 3779 / ISO 3780 / SAE J853):
 //
-//    Position 1 .. 3   World Manufacturer Identifier (WMI)
-//      [1]              first WMI char  -> region
-//      [1..2]           first two chars -> country
-//      [1..3]           full WMI        -> manufacturer
-//    Position 4 .. 9   Vehicle Descriptor Section (VDS)
-//      [9]              ISO 3779 transliteration check digit
-//                       (mandatory for North-American VINs;
-//                       filler character on most other markets)
-//    Position 10..17  Vehicle Identifier Section (VIS)
-//      [10]             year code -> 30-year cycle, two
-//                       candidates per code over a 60-year window
-//                       starting 1980
-//      [11]             plant code -> per-WMI plant lookup
-//      [12..17]         sequential production serial
+// Position 1 .. 3   World Manufacturer Identifier (WMI)
+// [1]              first WMI char  -> region
+// [1..2]           first two chars -> country
+// [1..3]           full WMI        -> manufacturer
+// Position 4 .. 9   Vehicle Descriptor Section (VDS)
+// [9]              ISO 3779 transliteration check digit
+// (mandatory for North-American VINs;
+// filler character on most other markets)
+// Position 10..17  Vehicle Identifier Section (VIS)
+// [10]             year code -> 30-year cycle, two
+// candidates per code over a 60-year window
+// starting 1980
+// [11]             plant code -> per-WMI plant lookup
+// [12..17]         sequential production serial
 //
-//  VIN-permitted alphabet excludes I, O, Q to avoid confusion
-//  with 1, 0. Lengths are checked up front; parsing aborts on
-//  an invalid character with <c>Valid := False</c> and
-//  <c>InvalidReason</c> populated.
+// VIN-permitted alphabet excludes I, O, Q to avoid confusion
+// with 1, 0. Lengths are checked up front; parsing aborts on
+// an invalid character with <c>Valid := False</c> and
+// <c>InvalidReason</c> populated.
 //
-//  Data tables (regions, countries, WMIs, plants) are loaded
-//  from the JSON catalogues under <c>catalogs/vin/</c> on first
-//  use. The loader is lazy and process-wide (single instance);
-//  hosts can preload via <c>LoadCatalogs(ABaseDir)</c>.
+// Data tables (regions, countries, WMIs, plants) are loaded
+// from the JSON catalogues under <c>catalogs/vin/</c> on first
+// use. The loader is lazy and process-wide (single instance);
+// hosts can preload via <c>LoadCatalogs(ABaseDir)</c>.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-10  ERD  Initial implementation.
-//    2026-10-08  ERD  Match extended low-volume WMIs and manufacturer prefixes. Algorithm
-//                     re-derived from ISO 3779 / 3780 / SAE J853;
-//                     spec-defined data tables imported from the
-//                     v1 JSON catalogues.
-//    2026-10-08  Validate catalogue JSON shapes before reading objects.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-10  ERD  Initial implementation.
+// 2026-10-08  ERD  Match extended low-volume WMIs and manufacturer prefixes. Algorithm
+// re-derived from ISO 3779 / 3780 / SAE J853;
+// spec-defined data tables imported from the
+// v1 JSON catalogues.
+// 2026-10-08  Validate catalogue JSON shapes before reading objects.
+// ------------------------------------------------------------------------------
 
 unit ERD.Service.VINDecoder;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
   ERD.JSON,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}DateUtils{$ELSE}System.DateUtils{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}DateUtils{$ELSE}System.DateUtils{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.Service.VINDecoder.Types;
 
 type
@@ -70,31 +70,32 @@ type
   /// thread-safe after the catalogues have been loaded once.</summary>
   TOBDVINDecoder = class
   strict private
-    class var FRegions:       TArray<TOBDVINRegion>;
-    class var FCountries:     TArray<TOBDVINCountry>;
+    class var FRegions: TArray<TOBDVINRegion>;
+    class var FCountries: TArray<TOBDVINCountry>;
     class var FManufacturers: TDictionary<string, TOBDVINManufacturer>;
-    class var FPlants:        TDictionary<string, TOBDVINPlantLocation>;
-    class var FVDSSchemas:    TArray<TOBDVINVDSSchema>;
+    class var FPlants: TDictionary<string, TOBDVINPlantLocation>;
+    class var FVDSSchemas: TArray<TOBDVINVDSSchema>;
     /// <summary>WMI -> indexes into FVDSSchemas. Built at load
     /// time so DetectFeatures doesn't have to scan all 24K
     /// vPIC schemas per VIN.</summary>
-    class var FVDSWMIIndex:   TDictionary<string, TList<Integer>>;
+    class var FVDSWMIIndex: TDictionary<string, TList<Integer>>;
     class var FCatalogsLoaded: Boolean;
-    class var FCatalogLock:    TCriticalSection;
+    class var FCatalogLock: TCriticalSection;
 
     class procedure EnsureCatalogsLoaded; static;
-    class function  ReadCatalogText(const AFile: string): string; static;
+    class function ReadCatalogText(const AFile: string): string; static;
     class procedure LoadRegions(const ABaseDir: string); static;
     class procedure LoadCountries(const ABaseDir: string); static;
     class procedure LoadManufacturers(const ABaseDir: string); static;
     class procedure LoadPlants(const ABaseDir: string); static;
     class procedure LoadVDSRules(const ABaseDir: string); static;
-    class function  CharMatchesClass(AChar: Char;
-      const AClass: string): Boolean; static;
-    class function  KeysMatchVDS(const AKeys, AVDS: string): Boolean; static;
-    class function  SchemaApplies(const ASchema: TOBDVINVDSSchema;
+    class function CharMatchesClass(AChar: Char; const AClass: string)
+      : Boolean; static;
+    class function KeysMatchVDS(const AKeys, AVDS: string): Boolean; static;
+    class function SchemaApplies(const ASchema: TOBDVINVDSSchema;
       const AWMI: string; AYear: Word): Boolean; static;
-    class function  ParseVehicleType(const AText: string): TOBDVINVehicleType; static;
+    class function ParseVehicleType(const AText: string)
+      : TOBDVINVehicleType; static;
     class procedure ApplyVPICField(const AField, AValue: string;
       var AOut: TOBDVINFeatures); static;
   public
@@ -142,8 +143,8 @@ type
     /// <summary>Picks the closer of two year candidates against
     /// <c>AReferenceYear</c> (defaults to the current calendar
     /// year). Returns 0 when the year code is unknown.</summary>
-    class function MostLikelyYear(AYearCode: Char;
-      AReferenceYear: Word = 0): Word; static;
+    class function MostLikelyYear(AYearCode: Char; AReferenceYear: Word = 0)
+      : Word; static;
 
     /// <summary>Looks up the region for the first WMI
     /// character.</summary>
@@ -151,18 +152,20 @@ type
 
     /// <summary>Looks up the country for the first two WMI
     /// characters.</summary>
-    class function ResolveCountry(const AFirstTwo: string): TOBDVINCountry; static;
+    class function ResolveCountry(const AFirstTwo: string)
+      : TOBDVINCountry; static;
 
     /// <summary>Looks up an exact three-character WMI, then falls back to
     /// a catalogued two-character manufacturer prefix.</summary>
     /// <param name="AWMI">Three-character WMI.</param>
     /// <returns>Manufacturer match or an empty record.</returns>
-    class function ResolveManufacturer(const AWMI: string): TOBDVINManufacturer; static;
+    class function ResolveManufacturer(const AWMI: string)
+      : TOBDVINManufacturer; static;
 
     /// <summary>Looks up the assembly plant for a WMI + plant
     /// code (4-char composite key).</summary>
-    class function ResolvePlant(const AWMI: string;
-      APlantCode: Char): TOBDVINPlantLocation; static;
+    class function ResolvePlant(const AWMI: string; APlantCode: Char)
+      : TOBDVINPlantLocation; static;
 
     /// <summary>Best-effort feature decode using VDS catalog rules. For
     /// low-volume manufacturers, positions 12–14 extend a WMI ending in 9;
@@ -182,35 +185,34 @@ implementation
 uses
   System.IOUtils,
   System.JSON,
-  {$IFDEF FPC}StrUtils{$ELSE}System.StrUtils{$ENDIF};
+{$IFDEF FPC}StrUtils{$ELSE}System.StrUtils{$ENDIF};
 
 const
   /// <summary>Position weights for the ISO 3779 check digit
   /// transliteration (positions 1..17, weight at index 8 is
   /// zero — the check digit's own slot).</summary>
-  CHECK_DIGIT_WEIGHTS: array[1..17] of Byte = (
-    8, 7, 6, 5, 4, 3, 2, 10, 0, 9, 8, 7, 6, 5, 4, 3, 2);
+  CHECK_DIGIT_WEIGHTS: array [1 .. 17] of Byte = (8, 7, 6, 5, 4, 3, 2, 10, 0, 9,
+    8, 7, 6, 5, 4, 3, 2);
 
   /// <summary>VIN year-code alphabet, two cycles of 30. The
   /// catalogue covers a 60-year window starting in 1980.</summary>
-  YEAR_ALPHABET: array[0..29] of Char = (
-    'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N',
-    'P', 'R', 'S', 'T', 'V', 'W', 'X', 'Y', '1', '2', '3', '4', '5',
-    '6', '7', '8', '9');
+  YEAR_ALPHABET: array [0 .. 29] of Char = ('A', 'B', 'C', 'D', 'E', 'F', 'G',
+    'H', 'J', 'K', 'L', 'M', 'N', 'P', 'R', 'S', 'T', 'V', 'W', 'X', 'Y', '1',
+    '2', '3', '4', '5', '6', '7', '8', '9');
 
   YEAR_BASE = 1980;
 
-{ ---- helpers ---------------------------------------------------------------- }
+  { ---- helpers ---------------------------------------------------------------- }
 
 function TransliterationValue(AChar: Char): Integer;
 const
   // ISO 3779 check-digit letter values. I, O, Q are not in the
   // alphabet so they map to -1 (rejected).
-  LETTER_VALUE: array['A'..'Z'] of ShortInt = (
-    {A} 1, {B} 2, {C} 3, {D} 4, {E} 5, {F} 6, {G} 7, {H} 8,
-    {I} -1, {J} 1, {K} 2, {L} 3, {M} 4, {N} 5, {O} -1, {P} 7,
-    {Q} -1, {R} 9, {S} 2, {T} 3, {U} 4, {V} 5, {W} 6, {X} 7,
-    {Y} 8, {Z} 9);
+  LETTER_VALUE: array ['A' .. 'Z'] of ShortInt = (
+    { A } 1, { B } 2, { C } 3, { D } 4, { E } 5, { F } 6, { G } 7, { H } 8,
+    { I } -1, { J } 1, { K } 2, { L } 3, { M } 4, { N } 5, { O } -1, { P } 7,
+    { Q } -1, { R } 9, { S } 2, { T } 3, { U } 4, { V } 5, { W } 6, { X } 7,
+    { Y } 8, { Z } 9);
 begin
   if (AChar >= '0') and (AChar <= '9') then
     Exit(Ord(AChar) - Ord('0'));
@@ -224,18 +226,19 @@ end;
 class constructor TOBDVINDecoder.Create;
 begin
   FCatalogLock := TCriticalSection.Create;
-  CatalogDir := TPath.Combine(
-    TPath.GetDirectoryName(ParamStr(0)), 'catalogs');
+  CatalogDir := TPath.Combine(TPath.GetDirectoryName(ParamStr(0)), 'catalogs');
 end;
 
 class destructor TOBDVINDecoder.Destroy;
-var L: TList<Integer>;
+var
+  L: TList<Integer>;
 begin
   FreeAndNil(FManufacturers);
   FreeAndNil(FPlants);
   if FVDSWMIIndex <> nil then
   begin
-    for L in FVDSWMIIndex.Values do L.Free;
+    for L in FVDSWMIIndex.Values do
+      L.Free;
     FreeAndNil(FVDSWMIIndex);
   end;
   FreeAndNil(FCatalogLock);
@@ -245,17 +248,19 @@ class function TOBDVINDecoder.IsVINChar(AChar: Char): Boolean;
 begin
   // I, O, Q excluded; full alphabet otherwise.
   Result := ((AChar >= '0') and (AChar <= '9')) or
-            ((AChar >= 'A') and (AChar <= 'Z') and
-             (AChar <> 'I') and (AChar <> 'O') and (AChar <> 'Q'));
+    ((AChar >= 'A') and (AChar <= 'Z') and (AChar <> 'I') and (AChar <> 'O') and
+    (AChar <> 'Q'));
 end;
 
 class function TOBDVINDecoder.IsValidShape(const AVIN: string): Boolean;
 var
   C: Char;
 begin
-  if Length(AVIN) <> 17 then Exit(False);
+  if Length(AVIN) <> 17 then
+    Exit(False);
   for C in AVIN do
-    if not IsVINChar(C) then Exit(False);
+    if not IsVINChar(C) then
+      Exit(False);
   Result := True;
 end;
 
@@ -263,13 +268,16 @@ class function TOBDVINDecoder.ComputeCheckDigit(const AVIN: string): Char;
 var
   Sum, Idx, Value: Integer;
 begin
-  if not IsValidShape(AVIN) then Exit(#0);
+  if not IsValidShape(AVIN) then
+    Exit(#0);
   Sum := 0;
   for Idx := 1 to 17 do
   begin
-    if Idx = 9 then Continue;
+    if Idx = 9 then
+      Continue;
     Value := TransliterationValue(AVIN[Idx]);
-    if Value < 0 then Exit(#0);
+    if Value < 0 then
+      Exit(#0);
     Sum := Sum + Value * CHECK_DIGIT_WEIGHTS[Idx];
   end;
   Sum := Sum mod 11;
@@ -287,8 +295,8 @@ begin
   Result := (Computed <> #0) and (AVIN[9] = Computed);
 end;
 
-class function TOBDVINDecoder.YearCandidates(
-  AYearCode: Char): TArray<TOBDVINYear>;
+class function TOBDVINDecoder.YearCandidates(AYearCode: Char)
+  : TArray<TOBDVINYear>;
 var
   I: Integer;
   Candidates: TList<TOBDVINYear>;
@@ -320,9 +328,10 @@ var
   Ref: Integer;
 begin
   Cands := YearCandidates(AYearCode);
-  if Length(Cands) = 0 then Exit(0);
+  if Length(Cands) = 0 then
+    Exit(0);
   if AReferenceYear = 0 then
-    Ref := YearOf(Now) + 1   // build year is often a year ahead of cal year
+    Ref := YearOf(Now) + 1 // build year is often a year ahead of cal year
   else
     Ref := AReferenceYear;
   Result := Cands[0].Year;
@@ -333,59 +342,61 @@ begin
     if Delta < BestDelta then
     begin
       BestDelta := Delta;
-      Result    := Cands[I].Year;
+      Result := Cands[I].Year;
     end;
   end;
 end;
 
-class function TOBDVINDecoder.ResolveRegion(
-  AFirstChar: Char): TOBDVINRegion;
+class function TOBDVINDecoder.ResolveRegion(AFirstChar: Char): TOBDVINRegion;
 var
   R: TOBDVINRegion;
 begin
   EnsureCatalogsLoaded;
-  Result := Default(TOBDVINRegion);
+  Result := Default (TOBDVINRegion);
   for R in FRegions do
     if (AFirstChar >= R.RangeStart) and (AFirstChar <= R.RangeEnd) then
       Exit(R);
 end;
 
-class function TOBDVINDecoder.ResolveCountry(
-  const AFirstTwo: string): TOBDVINCountry;
+class function TOBDVINDecoder.ResolveCountry(const AFirstTwo: string)
+  : TOBDVINCountry;
 var
   C: TOBDVINCountry;
 begin
   EnsureCatalogsLoaded;
-  Result := Default(TOBDVINCountry);
-  if Length(AFirstTwo) <> 2 then Exit;
+  Result := Default (TOBDVINCountry);
+  if Length(AFirstTwo) <> 2 then
+    Exit;
   for C in FCountries do
     if (AFirstTwo >= C.RangeStart) and (AFirstTwo <= C.RangeEnd) then
       Exit(C);
 end;
 
-class function TOBDVINDecoder.ResolveManufacturer(
-  const AWMI: string): TOBDVINManufacturer;
+class function TOBDVINDecoder.ResolveManufacturer(const AWMI: string)
+  : TOBDVINManufacturer;
 begin
   EnsureCatalogsLoaded;
-  Result := Default(TOBDVINManufacturer);
-  if Length(AWMI) <> 3 then Exit;
+  Result := Default (TOBDVINManufacturer);
+  if Length(AWMI) <> 3 then
+    Exit;
   if FManufacturers.TryGetValue(UpperCase(AWMI), Result) then
     Exit;
   if not FManufacturers.TryGetValue(UpperCase(Copy(AWMI, 1, 2)), Result) then
-    Result := Default(TOBDVINManufacturer);
+    Result := Default (TOBDVINManufacturer);
 end;
 
-class function TOBDVINDecoder.ResolvePlant(const AWMI: string;
-  APlantCode: Char): TOBDVINPlantLocation;
+class function TOBDVINDecoder.ResolvePlant(const AWMI: string; APlantCode: Char)
+  : TOBDVINPlantLocation;
 var
   Key: string;
 begin
   EnsureCatalogsLoaded;
-  Result := Default(TOBDVINPlantLocation);
-  if Length(AWMI) <> 3 then Exit;
+  Result := Default (TOBDVINPlantLocation);
+  if Length(AWMI) <> 3 then
+    Exit;
   Key := UpperCase(AWMI) + APlantCode;
   if not FPlants.TryGetValue(Key, Result) then
-    Result := Default(TOBDVINPlantLocation);
+    Result := Default (TOBDVINPlantLocation);
 end;
 
 class function TOBDVINDecoder.CharMatchesClass(AChar: Char;
@@ -408,7 +419,8 @@ begin
   begin
     Body := Copy(AClass, 2, Length(AClass) - 2);
     Negate := (Body <> '') and (Body[1] = '^');
-    if Negate then Body := Copy(Body, 2, MaxInt);
+    if Negate then
+      Body := Copy(Body, 2, MaxInt);
     HitInClass := False;
     I := 1;
     while I <= Length(Body) do
@@ -417,19 +429,22 @@ begin
       if (I + 2 <= Length(Body)) and (Body[I + 1] = '-') then
       begin
         RangeStart := Body[I];
-        RangeEnd   := Body[I + 2];
+        RangeEnd := Body[I + 2];
         if (AChar >= RangeStart) and (AChar <= RangeEnd) then
           HitInClass := True;
         Inc(I, 3);
       end
       else
       begin
-        if Body[I] = AChar then HitInClass := True;
+        if Body[I] = AChar then
+          HitInClass := True;
         Inc(I);
       end;
     end;
-    if Negate then Result := not HitInClass
-    else            Result := HitInClass;
+    if Negate then
+      Result := not HitInClass
+    else
+      Result := HitInClass;
     Exit;
   end;
   // Multi-char literal: match each char as a sequence (rare in
@@ -437,8 +452,7 @@ begin
   Result := False;
 end;
 
-class function TOBDVINDecoder.KeysMatchVDS(
-  const AKeys, AVDS: string): Boolean;
+class function TOBDVINDecoder.KeysMatchVDS(const AKeys, AVDS: string): Boolean;
 var
   KeyIdx, VdsIdx: Integer;
   ClassEnd: Integer;
@@ -462,14 +476,17 @@ begin
     if AKeys[KeyIdx] = '[' then
     begin
       ClassEnd := PosEx(']', AKeys, KeyIdx + 1);
-      if ClassEnd <= 0 then Exit(False);
+      if ClassEnd <= 0 then
+        Exit(False);
       Cls := Copy(AKeys, KeyIdx, ClassEnd - KeyIdx + 1);
-      if not CharMatchesClass(AVDS[VdsIdx], Cls) then Exit(False);
+      if not CharMatchesClass(AVDS[VdsIdx], Cls) then
+        Exit(False);
       KeyIdx := ClassEnd + 1;
       Inc(VdsIdx);
       Continue;
     end;
-    if AKeys[KeyIdx] <> AVDS[VdsIdx] then Exit(False);
+    if AKeys[KeyIdx] <> AVDS[VdsIdx] then
+      Exit(False);
     Inc(KeyIdx);
     Inc(VdsIdx);
   end;
@@ -478,8 +495,7 @@ begin
   Result := KeyIdx > Length(AKeys);
 end;
 
-class function TOBDVINDecoder.SchemaApplies(
-  const ASchema: TOBDVINVDSSchema;
+class function TOBDVINDecoder.SchemaApplies(const ASchema: TOBDVINVDSSchema;
   const AWMI: string; AYear: Word): Boolean;
 var
   W: TOBDVINVDSSchemaWMI;
@@ -488,50 +504,56 @@ begin
   begin
     if SameText(W.WMI, AWMI) then
     begin
-      if (W.YearFrom <> 0) and (AYear <> 0) and
-         (AYear < W.YearFrom) then Continue;
-      if (W.YearTo   <> 0) and (AYear <> 0) and
-         (AYear > W.YearTo)   then Continue;
+      if (W.YearFrom <> 0) and (AYear <> 0) and (AYear < W.YearFrom) then
+        Continue;
+      if (W.YearTo <> 0) and (AYear <> 0) and (AYear > W.YearTo) then
+        Continue;
       Exit(True);
     end;
   end;
   Result := False;
 end;
 
-class function TOBDVINDecoder.ParseVehicleType(
-  const AText: string): TOBDVINVehicleType;
-var Lower: string;
+class function TOBDVINDecoder.ParseVehicleType(const AText: string)
+  : TOBDVINVehicleType;
+var
+  Lower: string;
 begin
   Lower := LowerCase(Trim(AText));
   // vPIC BodyClass values + common synonyms.
-  if (Lower = 'passenger') or (Lower = 'passenger_car') or
-     (Lower = 'car')       or (Lower = 'sedan/saloon') or
-     (Lower = 'sedan')     or (Lower = 'coupe') or
-     (Lower = 'hatchback') or (Lower = 'wagon')   then Exit(vtPassengerCar);
-  if (Lower = 'truck')     or (Lower = 'pickup') or
-     (Lower = 'truck-tractor') then Exit(vtTruck);
-  if (Lower = 'suv')       or (Lower = 'crossover') or
-     (Lower = 'sport utility vehicle (suv)/multi-purpose vehicle (mpv)')
-                                                  then Exit(vtSUV);
-  if (Lower = 'van')       or (Lower = 'minivan') or
-     (Lower = 'cargo van') then Exit(vtVan);
-  if (Lower = 'bus') or (Lower = 'motorcoach')    then Exit(vtBus);
-  if (Lower = 'motorcycle') then Exit(vtMotorcycle);
+  if (Lower = 'passenger') or (Lower = 'passenger_car') or (Lower = 'car') or
+    (Lower = 'sedan/saloon') or (Lower = 'sedan') or (Lower = 'coupe') or
+    (Lower = 'hatchback') or (Lower = 'wagon') then
+    Exit(vtPassengerCar);
+  if (Lower = 'truck') or (Lower = 'pickup') or (Lower = 'truck-tractor') then
+    Exit(vtTruck);
+  if (Lower = 'suv') or (Lower = 'crossover') or
+    (Lower = 'sport utility vehicle (suv)/multi-purpose vehicle (mpv)') then
+    Exit(vtSUV);
+  if (Lower = 'van') or (Lower = 'minivan') or (Lower = 'cargo van') then
+    Exit(vtVan);
+  if (Lower = 'bus') or (Lower = 'motorcoach') then
+    Exit(vtBus);
+  if (Lower = 'motorcycle') then
+    Exit(vtMotorcycle);
   // ElectrificationLevel takes precedence: BEV / EV / HEV / PHEV
-  if (Lower = 'electric') or (Lower = 'ev') or (Lower = 'bev')
-                                                  then Exit(vtElectric);
+  if (Lower = 'electric') or (Lower = 'ev') or (Lower = 'bev') then
+    Exit(vtElectric);
   if (Lower = 'hybrid') or (Lower = 'phev') or (Lower = 'hev') or
-     (Lower = 'mhev')                             then Exit(vtHybrid);
+    (Lower = 'mhev') then
+    Exit(vtHybrid);
   Result := vtUnknown;
 end;
 
-class procedure TOBDVINDecoder.ApplyVPICField(
-  const AField, AValue: string; var AOut: TOBDVINFeatures);
-var Key, Trimmed: string;
+class procedure TOBDVINDecoder.ApplyVPICField(const AField, AValue: string;
+  var AOut: TOBDVINFeatures);
+var
+  Key, Trimmed: string;
 begin
-  Key     := LowerCase(Trim(AField));
+  Key := LowerCase(Trim(AField));
   Trimmed := Trim(AValue);
-  if Trimmed = '' then Exit;
+  if Trimmed = '' then
+    Exit;
 
   // Map vPIC element names onto TOBDVINFeatures fields.
   if (Key = 'bodyclass') or (Key = 'body_class') then
@@ -547,21 +569,19 @@ begin
     if AOut.VehicleType = vtUnknown then
       AOut.VehicleType := ParseVehicleType(Trimmed);
   end
-  else if (Key = 'electrificationlevel') or
-          (Key = 'electrification_level') or
-          (Key = 'fueltypeprimary') or
-          (Key = 'fuel_type_primary') then
+  else if (Key = 'electrificationlevel') or (Key = 'electrification_level') or
+    (Key = 'fueltypeprimary') or (Key = 'fuel_type_primary') then
   begin
     case ParseVehicleType(Trimmed) of
-      vtElectric: AOut.VehicleType := vtElectric;
+      vtElectric:
+        AOut.VehicleType := vtElectric;
       vtHybrid:
         if AOut.VehicleType <> vtElectric then
           AOut.VehicleType := vtHybrid;
     end;
   end
-  else if (Key = 'displacementl') or
-          (Key = 'engine_displacement') or
-          (Key = 'displacement_l') then
+  else if (Key = 'displacementl') or (Key = 'engine_displacement') or
+    (Key = 'displacement_l') then
   begin
     if AOut.EngineDisplacement = '' then
       AOut.EngineDisplacement := Trimmed + 'L';
@@ -572,8 +592,7 @@ begin
       AOut.EngineDisplacement := Trimmed + 'cc';
   end
   else if (Key = 'enginemodel') or (Key = 'engine_model') or
-          (Key = 'engineconfiguration') or
-          (Key = 'engine_configuration') then
+    (Key = 'engineconfiguration') or (Key = 'engine_configuration') then
   begin
     if AOut.EngineType = '' then
       AOut.EngineType := Trimmed;
@@ -584,49 +603,51 @@ begin
       AOut.DriveType := Trimmed;
   end
   else if (Key = 'transmissionstyle') or (Key = 'transmission_style') or
-          (Key = 'transmissionspeeds') or (Key = 'transmission_speeds') then
+    (Key = 'transmissionspeeds') or (Key = 'transmission_speeds') then
   begin
     if AOut.Transmission = '' then
       AOut.Transmission := Trimmed;
   end
   else if (Key = 'airbaglocfront') or (Key = 'airbag_loc_front') or
-          (Key = 'airbaglocside')  or (Key = 'airbag_loc_side') or
-          (Key = 'restraint')      or (Key = 'restraint_system') then
+    (Key = 'airbaglocside') or (Key = 'airbag_loc_side') or (Key = 'restraint')
+    or (Key = 'restraint_system') then
   begin
     if AOut.RestraintSystem = '' then
       AOut.RestraintSystem := Trimmed
     else
       AOut.RestraintSystem := AOut.RestraintSystem + '; ' + Trimmed;
   end
-  else if (Key = 'gvwr')      or (Key = 'commercial') then
+  else if (Key = 'gvwr') or (Key = 'commercial') then
   begin
     // Heuristic: GVWR class > 10000 lb or explicit "commercial"
     // string -> commercial flag set.
     if SameText(Trimmed, 'true') or SameText(Trimmed, 'yes') or
-       Trimmed.Contains('Class') and not Trimmed.StartsWith('Class 1') then
+      Trimmed.Contains('Class') and not Trimmed.StartsWith('Class 1') then
       AOut.IsCommercial := True;
   end;
 end;
 
-class function TOBDVINDecoder.DetectFeatures(
-  const AVIN: string): TOBDVINFeatures;
+class function TOBDVINDecoder.DetectFeatures(const AVIN: string)
+  : TOBDVINFeatures;
 var
   WMI, VDS, Key: string;
   Keys: TArray<string>;
-  Schema:   TOBDVINVDSSchema;
-  Pat:      TOBDVINVDSPattern;
-  Year:     Word;
-  Bucket:   TList<Integer>;
-  Si:       Integer;
+  Schema: TOBDVINVDSSchema;
+  Pat: TOBDVINVDSPattern;
+  Year: Word;
+  Bucket: TList<Integer>;
+  Si: Integer;
 begin
-  Result := Default(TOBDVINFeatures);
+  Result := Default (TOBDVINFeatures);
   Result.VehicleType := vtUnknown;
-  if Length(AVIN) < 11 then Exit;
+  if Length(AVIN) < 11 then
+    Exit;
   EnsureCatalogsLoaded;
-  if (Length(FVDSSchemas) = 0) or (FVDSWMIIndex = nil) then Exit;
+  if (Length(FVDSSchemas) = 0) or (FVDSWMIIndex = nil) then
+    Exit;
 
-  WMI  := UpperCase(Copy(AVIN, 1, 3));
-  VDS  := UpperCase(Copy(AVIN, 4, 6));
+  WMI := UpperCase(Copy(AVIN, 1, 3));
+  VDS := UpperCase(Copy(AVIN, 4, 6));
   Year := MostLikelyYear(AVIN[10]);
 
   SetLength(Keys, 1);
@@ -639,14 +660,17 @@ begin
   end;
   for Key in Keys do
   begin
-    if not FVDSWMIIndex.TryGetValue(Key, Bucket) then Continue;
+    if not FVDSWMIIndex.TryGetValue(Key, Bucket) then
+      Continue;
     for Si in Bucket do
     begin
       Schema := FVDSSchemas[Si];
-      if not SchemaApplies(Schema, Key, Year) then Continue;
+      if not SchemaApplies(Schema, Key, Year) then
+        Continue;
       for Pat in Schema.Patterns do
       begin
-        if not KeysMatchVDS(Pat.Keys, VDS) then Continue;
+        if not KeysMatchVDS(Pat.Keys, VDS) then
+          Continue;
         ApplyVPICField(Pat.Field, Pat.Value, Result);
       end;
     end;
@@ -657,7 +681,7 @@ class function TOBDVINDecoder.Decode(const AVIN: string): TOBDVINInfo;
 var
   Normalised: string;
 begin
-  Result := Default(TOBDVINInfo);
+  Result := Default (TOBDVINInfo);
   Normalised := UpperCase(Trim(AVIN));
   Result.VIN := Normalised;
   if Length(Normalised) = 0 then
@@ -679,25 +703,25 @@ begin
     Exit;
   end;
 
-  Result.WMI := Copy(Normalised, 1,  3);
-  Result.VDS := Copy(Normalised, 4,  6);
+  Result.WMI := Copy(Normalised, 1, 3);
+  Result.VDS := Copy(Normalised, 4, 6);
   Result.VIS := Copy(Normalised, 10, 8);
 
-  Result.Region       := ResolveRegion(Normalised[1]);
-  Result.Country      := ResolveCountry(Copy(Normalised, 1, 2));
+  Result.Region := ResolveRegion(Normalised[1]);
+  Result.Country := ResolveCountry(Copy(Normalised, 1, 2));
   Result.Manufacturer := ResolveManufacturer(Result.WMI);
 
-  Result.CheckDigit      := Normalised[9];
+  Result.CheckDigit := Normalised[9];
   Result.CheckDigitValid := IsCheckDigitValid(Normalised);
 
-  Result.YearCode       := Normalised[10];
+  Result.YearCode := Normalised[10];
   Result.YearCandidates := YearCandidates(Result.YearCode);
-  Result.ModelYear      := MostLikelyYear(Result.YearCode);
+  Result.ModelYear := MostLikelyYear(Result.YearCode);
 
   Result.PlantCode := Normalised[11];
-  Result.Plant     := ResolvePlant(Result.WMI, Result.PlantCode);
+  Result.Plant := ResolvePlant(Result.WMI, Result.PlantCode);
 
-  Result.Serial   := Copy(Normalised, 12, 6);
+  Result.Serial := Copy(Normalised, 12, 6);
   Result.Features := DetectFeatures(Normalised);
 
   Result.Valid := True;
@@ -722,7 +746,8 @@ end;
 
 class procedure TOBDVINDecoder.EnsureCatalogsLoaded;
 begin
-  if FCatalogsLoaded then Exit;
+  if FCatalogsLoaded then
+    Exit;
   LoadCatalogs(CatalogDir);
 end;
 
@@ -742,9 +767,9 @@ var
   Acc: TList<TOBDVINRegion>;
   I: Integer;
 begin
-  Doc := ParseOBDJSONObject(
-    ReadCatalogText(TPath.Combine(TPath.Combine(ABaseDir, 'vin'),
-      'regions.json')));
+  Doc := ParseOBDJSONObject
+    (ReadCatalogText(TPath.Combine(TPath.Combine(ABaseDir, 'vin'),
+    'regions.json')));
   Acc := TList<TOBDVINRegion>.Create;
   try
     Arr := Doc.GetValue<TJSONArray>('entries');
@@ -752,8 +777,8 @@ begin
     begin
       Item := RequireOBDJSONObject(Arr.Items[I]);
       R.RangeStart := Item.GetValue<string>('range_start')[1];
-      R.RangeEnd   := Item.GetValue<string>('range_end')[1];
-      R.Name       := Item.GetValue<string>('name');
+      R.RangeEnd := Item.GetValue<string>('range_end')[1];
+      R.Name := Item.GetValue<string>('name');
       Acc.Add(R);
     end;
     FRegions := Acc.ToArray;
@@ -772,9 +797,9 @@ var
   Acc: TList<TOBDVINCountry>;
   I: Integer;
 begin
-  Doc := ParseOBDJSONObject(
-    ReadCatalogText(TPath.Combine(TPath.Combine(ABaseDir, 'vin'),
-      'countries.json')));
+  Doc := ParseOBDJSONObject
+    (ReadCatalogText(TPath.Combine(TPath.Combine(ABaseDir, 'vin'),
+    'countries.json')));
   Acc := TList<TOBDVINCountry>.Create;
   try
     Arr := Doc.GetValue<TJSONArray>('entries');
@@ -782,9 +807,9 @@ begin
     begin
       Item := RequireOBDJSONObject(Arr.Items[I]);
       C.RangeStart := Item.GetValue<string>('range_start');
-      C.RangeEnd   := Item.GetValue<string>('range_end');
-      C.Name       := Item.GetValue<string>('name');
-      C.ISOCode    := '';
+      C.RangeEnd := Item.GetValue<string>('range_end');
+      C.Name := Item.GetValue<string>('name');
+      C.ISOCode := '';
       if Item.GetValue('iso_code') <> nil then
         C.ISOCode := Item.GetValue<string>('iso_code');
       Acc.Add(C);
@@ -807,15 +832,15 @@ begin
   if FManufacturers = nil then
     FManufacturers := TDictionary<string, TOBDVINManufacturer>.Create;
   FManufacturers.Clear;
-  Doc := ParseOBDJSONObject(
-    ReadCatalogText(TPath.Combine(TPath.Combine(ABaseDir, 'vin'),
-      'wmi.json')));
+  Doc := ParseOBDJSONObject
+    (ReadCatalogText(TPath.Combine(TPath.Combine(ABaseDir, 'vin'),
+    'wmi.json')));
   try
     Arr := Doc.GetValue<TJSONArray>('entries');
     for I := 0 to Arr.Count - 1 do
     begin
       Item := RequireOBDJSONObject(Arr.Items[I]);
-      M.WMI  := UpperCase(Item.GetValue<string>('wmi'));
+      M.WMI := UpperCase(Item.GetValue<string>('wmi'));
       M.Name := Item.GetValue<string>('name');
       FManufacturers.AddOrSetValue(M.WMI, M);
     end;
@@ -835,18 +860,18 @@ begin
   if FPlants = nil then
     FPlants := TDictionary<string, TOBDVINPlantLocation>.Create;
   FPlants.Clear;
-  Doc := ParseOBDJSONObject(
-    ReadCatalogText(TPath.Combine(TPath.Combine(ABaseDir, 'vin'),
-      'plants.json')));
+  Doc := ParseOBDJSONObject
+    (ReadCatalogText(TPath.Combine(TPath.Combine(ABaseDir, 'vin'),
+    'plants.json')));
   try
     Arr := Doc.GetValue<TJSONArray>('entries');
     for I := 0 to Arr.Count - 1 do
     begin
       Item := RequireOBDJSONObject(Arr.Items[I]);
-      P.Key     := UpperCase(Item.GetValue<string>('key'));
-      P.Code    := Item.GetValue<string>('code')[1];
-      P.Name    := Item.GetValue<string>('name');
-      P.City    := '';
+      P.Key := UpperCase(Item.GetValue<string>('key'));
+      P.Code := Item.GetValue<string>('code')[1];
+      P.Name := Item.GetValue<string>('name');
+      P.City := '';
       P.Country := '';
       if Item.GetValue('city') <> nil then
         P.City := Item.GetValue<string>('city');
@@ -861,21 +886,21 @@ end;
 
 class procedure TOBDVINDecoder.LoadVDSRules(const ABaseDir: string);
 var
-  Path:        string;
-  Doc:         TJSONObject;
-  SchemasObj:  TJSONObject;
-  Acc:         TList<TOBDVINVDSSchema>;
-  Pair:        TJSONPair;
-  SchemaObj:   TJSONObject;
-  Schema:      TOBDVINVDSSchema;
+  Path: string;
+  Doc: TJSONObject;
+  SchemasObj: TJSONObject;
+  Acc: TList<TOBDVINVDSSchema>;
+  Pair: TJSONPair;
+  SchemaObj: TJSONObject;
+  Schema: TOBDVINVDSSchema;
   WmiArr, PatArr: TJSONArray;
   WmiObj, PatObj: TJSONObject;
-  WmiList:     TList<TOBDVINVDSSchemaWMI>;
-  WmiEntry:    TOBDVINVDSSchemaWMI;
-  PatList:     TList<TOBDVINVDSPattern>;
-  Pat:         TOBDVINVDSPattern;
-  V:           TJSONValue;
-  J:           Integer;
+  WmiList: TList<TOBDVINVDSSchemaWMI>;
+  WmiEntry: TOBDVINVDSSchemaWMI;
+  PatList: TList<TOBDVINVDSPattern>;
+  Pat: TOBDVINVDSPattern;
+  V: TJSONValue;
+  J: Integer;
   L, Bucket: TList<Integer>;
   Si, Wi: Integer;
   Key: string;
@@ -885,15 +910,13 @@ begin
   // schema id; each schema lists applicable WMIs (with optional
   // year ranges) and the per-offset patterns that decode the
   // VDS into named feature fields.
-  Path := TPath.Combine(TPath.Combine(ABaseDir, 'vin'),
-    'vds-rules.json');
+  Path := TPath.Combine(TPath.Combine(ABaseDir, 'vin'), 'vds-rules.json');
   if not TFile.Exists(Path) then
   begin
     SetLength(FVDSSchemas, 0);
     Exit;
   end;
-  Doc := ParseOBDJSONObject(
-    ReadCatalogText(Path));
+  Doc := ParseOBDJSONObject(ReadCatalogText(Path));
   if Doc = nil then
   begin
     SetLength(FVDSSchemas, 0);
@@ -909,7 +932,7 @@ begin
     end;
     for Pair in SchemasObj do
     begin
-      Schema := Default(TOBDVINVDSSchema);
+      Schema := Default (TOBDVINVDSSchema);
       Schema.Id := Pair.JsonString.Value;
       SchemaObj := RequireOBDJSONObject(Pair.JsonValue);
 
@@ -920,12 +943,14 @@ begin
           for J := 0 to WmiArr.Count - 1 do
           begin
             WmiObj := RequireOBDJSONObject(WmiArr.Items[J]);
-            WmiEntry := Default(TOBDVINVDSSchemaWMI);
+            WmiEntry := Default (TOBDVINVDSSchemaWMI);
             WmiEntry.WMI := UpperCase(WmiObj.GetValue<string>('wmi'));
             V := WmiObj.GetValue('yearFrom');
-            if V <> nil then WmiEntry.YearFrom := StrToIntDef(V.Value, 0);
+            if V <> nil then
+              WmiEntry.YearFrom := StrToIntDef(V.Value, 0);
             V := WmiObj.GetValue('yearTo');
-            if V <> nil then WmiEntry.YearTo   := StrToIntDef(V.Value, 0);
+            if V <> nil then
+              WmiEntry.YearTo := StrToIntDef(V.Value, 0);
             if (Length(WmiEntry.WMI) = 3) or
               ((Length(WmiEntry.WMI) = 6) and (WmiEntry.WMI[3] = '9')) then
               WmiList.Add(WmiEntry);
@@ -942,13 +967,16 @@ begin
           for J := 0 to PatArr.Count - 1 do
           begin
             PatObj := RequireOBDJSONObject(PatArr.Items[J]);
-            Pat := Default(TOBDVINVDSPattern);
+            Pat := Default (TOBDVINVDSPattern);
             V := PatObj.GetValue('keys');
-            if V <> nil then Pat.Keys := V.Value;
+            if V <> nil then
+              Pat.Keys := V.Value;
             V := PatObj.GetValue('field');
-            if V <> nil then Pat.Field := V.Value;
+            if V <> nil then
+              Pat.Field := V.Value;
             V := PatObj.GetValue('value');
-            if V <> nil then Pat.Value := V.Value;
+            if V <> nil then
+              Pat.Value := V.Value;
             if (Pat.Field <> '') and (Pat.Keys <> '') then
               PatList.Add(Pat);
           end;
@@ -965,10 +993,11 @@ begin
     // Rebuild the WMI -> schema-index dictionary.
     if FVDSWMIIndex <> nil then
     begin
-      for L in FVDSWMIIndex.Values do L.Free;
+      for L in FVDSWMIIndex.Values do
+        L.Free;
       FVDSWMIIndex.Free;
     end;
-    FVDSWMIIndex := TDictionary<string, TList<Integer>>.Create;
+    FVDSWMIIndex := TDictionary < string, TList < Integer >>.Create;
     for Si := 0 to High(FVDSSchemas) do
       for Wi := 0 to High(FVDSSchemas[Si].WMIs) do
       begin

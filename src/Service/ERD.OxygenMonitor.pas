@@ -1,47 +1,47 @@
-//------------------------------------------------------------------------------
-//  ERD.OxygenMonitor
+﻿// ------------------------------------------------------------------------------
+// ERD.OxygenMonitor
 //
-//  TOBDOxygenMonitor — OBD-II Service 0x05 oxygen-sensor monitoring
-//  test results. Service 0x05 is the legacy non-CAN counterpart of
-//  Service 0x06 (TOBDOnBoardMonitor): on ISO 9141-2 / KWP2000 and
-//  J1850 PWM/VPW the ECU reports oxygen-sensor monitor test results
-//  by 2-byte Test-ID + 1-byte Component-ID, returning Test Value,
-//  Min Limit and Max Limit (1 byte each).
+// TOBDOxygenMonitor — OBD-II Service 0x05 oxygen-sensor monitoring
+// test results. Service 0x05 is the legacy non-CAN counterpart of
+// Service 0x06 (TOBDOnBoardMonitor): on ISO 9141-2 / KWP2000 and
+// J1850 PWM/VPW the ECU reports oxygen-sensor monitor test results
+// by 2-byte Test-ID + 1-byte Component-ID, returning Test Value,
+// Min Limit and Max Limit (1 byte each).
 //
-//  Vehicles using ISO 15765-4 (CAN) carry oxygen-sensor monitors
-//  inside Mode 0x06 (MID/TID structure) and report ZERO supported
-//  test IDs here — that is the expected, spec-compliant behaviour
-//  on a CAN car, NOT an error. TOBDOnBoardMonitor covers them.
+// Vehicles using ISO 15765-4 (CAN) carry oxygen-sensor monitors
+// inside Mode 0x06 (MID/TID structure) and report ZERO supported
+// test IDs here — that is the expected, spec-compliant behaviour
+// on a CAN car, NOT an error. TOBDOnBoardMonitor covers them.
 //
-//  Wire format per ISO 15031-5 § 7.7:
-//    Request : 05 <TID> [<O2-Sensor>]
-//    Response: 45 <TID> <O2-Sensor> <Test> <Min> <Max>
+// Wire format per ISO 15031-5 § 7.7:
+// Request : 05 <TID> [<O2-Sensor>]
+// Response: 45 <TID> <O2-Sensor> <Test> <Min> <Max>
 //
-//  Supported-TID discovery walks the same bitmap convention as
-//  Mode 0x01 / Mode 0x06: 0x00, 0x20, 0x40 — each request returns
-//  a 4-byte mask where bit (32 - N) selects TID N + 1, plus bit 0
-//  (LSB) signalling "the next bank is supported".
+// Supported-TID discovery walks the same bitmap convention as
+// Mode 0x01 / Mode 0x06: 0x00, 0x20, 0x40 — each request returns
+// a 4-byte mask where bit (32 - N) selects TID N + 1, plus bit 0
+// (LSB) signalling "the next bank is supported".
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - ISO 15031-5 § 7.7 (Service $05 oxygen-sensor monitoring)
-//    - SAE J1979 Appendix A (Service $05 test-ID catalogue)
+// References  :
+// - ISO 15031-5 § 7.7 (Service $05 oxygen-sensor monitoring)
+// - SAE J1979 Appendix A (Service $05 test-ID catalogue)
 //
-//  History     :
-//    2026-05-11  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-11  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.OxygenMonitor;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -49,10 +49,10 @@ interface
 uses
   ERD.Async.Task,
   ERD.Connection,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.Types,
   ERD.Protocol.Types,
   ERD.Protocol;
@@ -65,26 +65,26 @@ const
 
 type
   /// <summary>
-  ///   One oxygen-sensor test result.
+  /// One oxygen-sensor test result.
   /// </summary>
   /// <remarks>
-  ///   <c>Pass</c> is a derived field — <c>True</c> iff
-  ///   <c>TestValue</c> falls inside <c>[MinLimit, MaxLimit]</c>.
+  /// <c>Pass</c> is a derived field — <c>True</c> iff
+  /// <c>TestValue</c> falls inside <c>[MinLimit, MaxLimit]</c>.
   /// </remarks>
   TOBDOxygenMonitorResult = record
     /// <summary>Test-ID byte per SAE J1979 Appendix A.</summary>
-    TestID:    Byte;
+    TestID: Byte;
     /// <summary>O2-sensor number (0x01..0x08 per ISO 15031-5);
     /// 0x00 when the ECU did not address a specific sensor.</summary>
-    O2Sensor:  Byte;
+    O2Sensor: Byte;
     /// <summary>Measured test value.</summary>
     TestValue: Byte;
     /// <summary>Allowed minimum.</summary>
-    MinLimit:  Byte;
+    MinLimit: Byte;
     /// <summary>Allowed maximum.</summary>
-    MaxLimit:  Byte;
+    MaxLimit: Byte;
     /// <summary>Derived pass flag (in-range check).</summary>
-    Pass:      Boolean;
+    Pass: Boolean;
   end;
 
   /// <summary>Fires after a bulk read. Main thread.</summary>
@@ -96,18 +96,18 @@ type
     const ATIDs: TArray<Byte>) of object;
 
   /// <summary>
-  ///   OBD-II Mode 0x05 oxygen-sensor monitoring component.
+  /// OBD-II Mode 0x05 oxygen-sensor monitoring component.
   /// </summary>
   /// <remarks>
-  ///   Drop the component on a form and assign <c>Protocol</c> to a
-  ///   connected <see cref="TOBDProtocol"/>. <see cref="ReadAll"/>
-  ///   walks the supported-TID bitmap and returns every available
-  ///   monitor; <see cref="Read"/> reads one specific (TID, sensor)
-  ///   pair.
+  /// Drop the component on a form and assign <c>Protocol</c> to a
+  /// connected <see cref="TOBDProtocol"/>. <see cref="ReadAll"/>
+  /// walks the supported-TID bitmap and returns every available
+  /// monitor; <see cref="Read"/> reads one specific (TID, sensor)
+  /// pair.
   ///
-  ///   On CAN cars every call returns an empty result set because
-  ///   oxygen monitors are reported under Mode 0x06 instead. That
-  ///   is correct, spec-compliant behaviour.
+  /// On CAN cars every call returns an empty result set because
+  /// oxygen monitors are reported under Mode 0x06 instead. That
+  /// is correct, spec-compliant behaviour.
   /// </remarks>
   TOBDOxygenMonitor = class(TComponent)
   strict private
@@ -137,7 +137,7 @@ type
     destructor Destroy; override;
 
     /// <summary>
-    ///   Reads one test result.
+    /// Reads one test result.
     /// </summary>
     /// <param name="ATID">Test-ID byte per SAE J1979.</param>
     /// <param name="AO2Sensor">O2-sensor number (0x01..0x08), or
@@ -147,60 +147,60 @@ type
     /// <remarks>Blocks. From GUI code use the
     /// <see cref="ReadAllAsync"/> sweep instead.</remarks>
     /// <exception cref="EOBDConfig">
-    ///   <c>Protocol</c> is not assigned.
+    /// <c>Protocol</c> is not assigned.
     /// </exception>
     /// <exception cref="EOBDProtocolErr">
-    ///   ECU returned a negative or truncated response.
+    /// ECU returned a negative or truncated response.
     /// </exception>
     function Read(ATID: Byte; AO2Sensor: Byte = 0): TOBDOxygenMonitorResult;
 
     /// <summary>
-    ///   Reads every supported (TID, sensor) pair.
+    /// Reads every supported (TID, sensor) pair.
     /// </summary>
     /// <returns>Decoded results in TID order; empty on CAN cars.</returns>
     /// <remarks>
-    ///   Walks the supported-TID bitmap then issues one read per
-    ///   supported TID. A single TID failure is logged and
-    ///   skipped — the sweep continues. Fires
-    ///   <c>OnResults</c> on completion.
+    /// Walks the supported-TID bitmap then issues one read per
+    /// supported TID. A single TID failure is logged and
+    /// skipped — the sweep continues. Fires
+    /// <c>OnResults</c> on completion.
     /// </remarks>
     /// <exception cref="EOBDConfig">
-    ///   <c>Protocol</c> is not assigned.
+    /// <c>Protocol</c> is not assigned.
     /// </exception>
     function ReadAll: TArray<TOBDOxygenMonitorResult>;
 
     /// <summary>
-    ///   Discovers the supported-TID set.
+    /// Discovers the supported-TID set.
     /// </summary>
     /// <returns>TID bytes the ECU advertises as supported.</returns>
     /// <remarks>
-    ///   Walks the 0x00, 0x20, 0x40 supported-bitmap blocks until
-    ///   the chain terminator bit clears. Fires
-    ///   <c>OnSupported</c> on completion.
+    /// Walks the 0x00, 0x20, 0x40 supported-bitmap blocks until
+    /// the chain terminator bit clears. Fires
+    /// <c>OnSupported</c> on completion.
     /// </remarks>
     /// <exception cref="EOBDConfig">
-    ///   <c>Protocol</c> is not assigned.
+    /// <c>Protocol</c> is not assigned.
     /// </exception>
     function ReadSupportedTIDs: TArray<Byte>;
 
     /// <summary>
-    ///   Non-blocking <see cref="ReadAll"/>.
+    /// Non-blocking <see cref="ReadAll"/>.
     /// </summary>
     /// <remarks>
-    ///   Spawns a worker thread; reports completion via
-    ///   <c>OnResults</c> or failure via <c>OnError</c> on the main
-    ///   thread. Only one async sweep may be in flight at a time.
+    /// Spawns a worker thread; reports completion via
+    /// <c>OnResults</c> or failure via <c>OnError</c> on the main
+    /// thread. Only one async sweep may be in flight at a time.
     /// </remarks>
     /// <exception cref="EOBDConfig">
-    ///   Another async sweep is already in flight.
+    /// Another async sweep is already in flight.
     /// </exception>
     procedure ReadAllAsync;
 
     /// <summary>
-    ///   Non-blocking <see cref="ReadSupportedTIDs"/>.
+    /// Non-blocking <see cref="ReadSupportedTIDs"/>.
     /// </summary>
     /// <exception cref="EOBDConfig">
-    ///   Another async sweep is already in flight.
+    /// Another async sweep is already in flight.
     /// </exception>
     procedure ReadSupportedTIDsAsync;
   published
@@ -227,7 +227,8 @@ end;
 
 destructor TOBDOxygenMonitor.Destroy;
 begin
-  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  if FOwnedTask <> nil then
+    FOwnedTask.Cancel;
   FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
@@ -250,7 +251,8 @@ begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
   begin
-    if FOwnedTask <> nil then FOwnedTask.Quiesce;
+    if FOwnedTask <> nil then
+      FOwnedTask.Quiesce;
     FProtocol := nil;
   end;
 end;
@@ -279,8 +281,8 @@ begin
   end;
 end;
 
-function TOBDOxygenMonitor.DoReadOne(ATID: Byte;
-  AO2Sensor: Byte): TOBDOxygenMonitorResult;
+function TOBDOxygenMonitor.DoReadOne(ATID: Byte; AO2Sensor: Byte)
+  : TOBDOxygenMonitorResult;
 var
   Req: TBytes;
   Resp: TOBDResponse;
@@ -301,20 +303,20 @@ begin
 
   Resp := FProtocol.Request(OBD_MODE_O2_MONITOR, Req);
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt(
-      'Mode 05 TID 0x%.2x negative: %s', [ATID, Resp.NRCText]);
+    raise EOBDProtocolErr.CreateFmt('Mode 05 TID 0x%.2x negative: %s',
+      [ATID, Resp.NRCText]);
   if Length(Resp.Data) < 5 then
-    raise EOBDProtocolErr.CreateFmt(
-      'Mode 05 TID 0x%.2x: short response (%d bytes)',
+    raise EOBDProtocolErr.CreateFmt
+      ('Mode 05 TID 0x%.2x: short response (%d bytes)',
       [ATID, Length(Resp.Data)]);
 
-  Result.TestID    := Resp.Data[0];
-  Result.O2Sensor  := Resp.Data[1];
+  Result.TestID := Resp.Data[0];
+  Result.O2Sensor := Resp.Data[1];
   Result.TestValue := Resp.Data[2];
-  Result.MinLimit  := Resp.Data[3];
-  Result.MaxLimit  := Resp.Data[4];
+  Result.MinLimit := Resp.Data[3];
+  Result.MaxLimit := Resp.Data[4];
   Result.Pass := (Result.TestValue >= Result.MinLimit) and
-                 (Result.TestValue <= Result.MaxLimit);
+    (Result.TestValue <= Result.MaxLimit);
 end;
 
 function TOBDOxygenMonitor.DoReadSupported: TArray<Byte>;
@@ -333,7 +335,7 @@ begin
     Block := OBD_O2_TID_SUPPORTED_BLOCK;
     while True do
     begin
-    FOwnedTask.CheckCancelled;
+      FOwnedTask.CheckCancelled;
       SetLength(Req, 1);
       Req[0] := Byte(Block);
       Resp := FProtocol.Request(OBD_MODE_O2_MONITOR, Req);
@@ -344,15 +346,11 @@ begin
       // requested TID + sensor byte (5 bytes total); others drop
       // the sensor and emit only 4 bytes. Accept both shapes.
       if Length(Resp.Data) >= 5 then
-        Mask := (UInt32(Resp.Data[1]) shl 24) or
-                (UInt32(Resp.Data[2]) shl 16) or
-                (UInt32(Resp.Data[3]) shl 8) or
-                 UInt32(Resp.Data[4])
+        Mask := (UInt32(Resp.Data[1]) shl 24) or (UInt32(Resp.Data[2]) shl 16)
+          or (UInt32(Resp.Data[3]) shl 8) or UInt32(Resp.Data[4])
       else
-        Mask := (UInt32(Resp.Data[0]) shl 24) or
-                (UInt32(Resp.Data[1]) shl 16) or
-                (UInt32(Resp.Data[2]) shl 8) or
-                 UInt32(Resp.Data[3]);
+        Mask := (UInt32(Resp.Data[0]) shl 24) or (UInt32(Resp.Data[1]) shl 16)
+          or (UInt32(Resp.Data[2]) shl 8) or UInt32(Resp.Data[3]);
 
       for BitIdx := 1 to 31 do
         if (Mask and (UInt32(1) shl (32 - BitIdx))) <> 0 then
@@ -369,8 +367,8 @@ begin
   end;
 end;
 
-function TOBDOxygenMonitor.Read(ATID: Byte;
-  AO2Sensor: Byte): TOBDOxygenMonitorResult;
+function TOBDOxygenMonitor.Read(ATID: Byte; AO2Sensor: Byte)
+  : TOBDOxygenMonitorResult;
 begin
   Result := DoReadOne(ATID, AO2Sensor);
 end;
@@ -467,8 +465,8 @@ begin
   end;
 end;
 
-procedure TOBDOxygenMonitor.FireResults(
-  const AResults: TArray<TOBDOxygenMonitorResult>);
+procedure TOBDOxygenMonitor.FireResults(const AResults
+  : TArray<TOBDOxygenMonitorResult>);
 var
   Self_: TOBDOxygenMonitor;
   Snap: TArray<TOBDOxygenMonitorResult>;
@@ -509,7 +507,7 @@ begin
 end;
 
 procedure TOBDOxygenMonitor.FireError(ACode: TOBDErrorCode;
-  const AMessage: string);
+const AMessage: string);
 var
   Self_: TOBDOxygenMonitor;
   Code: TOBDErrorCode;

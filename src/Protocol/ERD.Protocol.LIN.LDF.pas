@@ -1,42 +1,42 @@
-//------------------------------------------------------------------------------
-//  ERD.Protocol.LIN.LDF
+﻿// ------------------------------------------------------------------------------
+// ERD.Protocol.LIN.LDF
 //
-//  Parser for the LIN Description File (LDF). LDF is the static
-//  configuration carrier for a LIN cluster — it lists nodes,
-//  signals, frames and schedule tables, plus signal encoding /
-//  diagnostic info. This parser covers the structural sections that
-//  drive the runtime (Nodes, Signals, Frames, Schedule_tables) and
-//  skips unknown sections so a future spec extension does not break
-//  parsing.
+// Parser for the LIN Description File (LDF). LDF is the static
+// configuration carrier for a LIN cluster — it lists nodes,
+// signals, frames and schedule tables, plus signal encoding /
+// diagnostic info. This parser covers the structural sections that
+// drive the runtime (Nodes, Signals, Frames, Schedule_tables) and
+// skips unknown sections so a future spec extension does not break
+// parsing.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - LIN Specification 2.2A § 9 (LIN Description File)
-//    - ISO 17987-1:2016 Annex B
+// References  :
+// - LIN Specification 2.2A § 9 (LIN Description File)
+// - ISO 17987-1:2016 Annex B
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Protocol.LIN.LDF;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.Types;
 
 type
@@ -129,13 +129,9 @@ type
 implementation
 
 type
-  TTokenKind = (
-    tkEOF,
-    tkIdent,
-    tkNumber,
-    tkString,
-    tkSymbol     // single-character punctuation: { } ; , : =
-  );
+  TTokenKind = (tkEOF, tkIdent, tkNumber, tkString, tkSymbol
+    // single-character punctuation: { } ; , : =
+    );
 
   TToken = record
     Kind: TTokenKind;
@@ -171,26 +167,42 @@ procedure TLDFLexer.SkipWhitespaceAndComments;
 begin
   while FPos <= Length(FSource) do
   begin
-    if FSource[FPos] = #10 then begin Inc(FLine); Inc(FPos); Continue; end;
-    if FSource[FPos] = #13 then begin Inc(FPos); Continue; end;
-    if CharInSet(FSource[FPos], [' ', #9]) then begin Inc(FPos); Continue; end;
-    if (FPos + 1 <= Length(FSource)) and (FSource[FPos] = '/') and
-       (FSource[FPos + 1] = '/') then
+    if FSource[FPos] = #10 then
     begin
-      while (FPos <= Length(FSource)) and (FSource[FPos] <> #10) do Inc(FPos);
+      Inc(FLine);
+      Inc(FPos);
+      Continue;
+    end;
+    if FSource[FPos] = #13 then
+    begin
+      Inc(FPos);
+      Continue;
+    end;
+    if CharInSet(FSource[FPos], [' ', #9]) then
+    begin
+      Inc(FPos);
       Continue;
     end;
     if (FPos + 1 <= Length(FSource)) and (FSource[FPos] = '/') and
-       (FSource[FPos + 1] = '*') then
+      (FSource[FPos + 1] = '/') then
+    begin
+      while (FPos <= Length(FSource)) and (FSource[FPos] <> #10) do
+        Inc(FPos);
+      Continue;
+    end;
+    if (FPos + 1 <= Length(FSource)) and (FSource[FPos] = '/') and
+      (FSource[FPos + 1] = '*') then
     begin
       Inc(FPos, 2);
       while (FPos + 1 <= Length(FSource)) and
-            not ((FSource[FPos] = '*') and (FSource[FPos + 1] = '/')) do
+        not((FSource[FPos] = '*') and (FSource[FPos + 1] = '/')) do
       begin
-        if FSource[FPos] = #10 then Inc(FLine);
+        if FSource[FPos] = #10 then
+          Inc(FLine);
         Inc(FPos);
       end;
-      if FPos + 1 <= Length(FSource) then Inc(FPos, 2);
+      if FPos + 1 <= Length(FSource) then
+        Inc(FPos, 2);
       Continue;
     end;
     Break;
@@ -218,36 +230,36 @@ begin
   end;
   C := FSource[FPos];
   // Identifier or keyword.
-  if CharInSet(C, ['A'..'Z', 'a'..'z', '_']) then
+  if CharInSet(C, ['A' .. 'Z', 'a' .. 'z', '_']) then
   begin
     StartPos := FPos;
     Inc(FPos);
-    while (FPos <= Length(FSource)) and
-          CharInSet(FSource[FPos], ['A'..'Z', 'a'..'z', '0'..'9', '_']) do
+    while (FPos <= Length(FSource)) and CharInSet(FSource[FPos],
+      ['A' .. 'Z', 'a' .. 'z', '0' .. '9', '_']) do
       Inc(FPos);
     Result.Kind := tkIdent;
     Result.Text := Copy(FSource, StartPos, FPos - StartPos);
     Exit;
   end;
   // Number (decimal / hex).
-  if CharInSet(C, ['0'..'9']) or
-     ((C = '-') and (FPos < Length(FSource)) and
-      CharInSet(FSource[FPos + 1], ['0'..'9'])) then
+  if CharInSet(C, ['0' .. '9']) or ((C = '-') and (FPos < Length(FSource)) and
+    CharInSet(FSource[FPos + 1], ['0' .. '9'])) then
   begin
     StartPos := FPos;
-    if C = '-' then Inc(FPos);
+    if C = '-' then
+      Inc(FPos);
     if (FPos + 1 <= Length(FSource)) and (FSource[FPos] = '0') and
-       (CharInSet(FSource[FPos + 1], ['x', 'X'])) then
+      (CharInSet(FSource[FPos + 1], ['x', 'X'])) then
     begin
       Inc(FPos, 2);
-      while (FPos <= Length(FSource)) and
-            CharInSet(FSource[FPos], ['0'..'9', 'A'..'F', 'a'..'f']) do
+      while (FPos <= Length(FSource)) and CharInSet(FSource[FPos],
+        ['0' .. '9', 'A' .. 'F', 'a' .. 'f']) do
         Inc(FPos);
     end
     else
     begin
-      while (FPos <= Length(FSource)) and
-            CharInSet(FSource[FPos], ['0'..'9', '.']) do
+      while (FPos <= Length(FSource)) and CharInSet(FSource[FPos],
+        ['0' .. '9', '.']) do
         Inc(FPos);
     end;
     Result.Kind := tkNumber;
@@ -261,12 +273,14 @@ begin
     StartPos := FPos;
     while (FPos <= Length(FSource)) and (FSource[FPos] <> '"') do
     begin
-      if FSource[FPos] = #10 then Inc(FLine);
+      if FSource[FPos] = #10 then
+        Inc(FLine);
       Inc(FPos);
     end;
     Result.Kind := tkString;
     Result.Text := Copy(FSource, StartPos, FPos - StartPos);
-    if FPos <= Length(FSource) then Inc(FPos); // skip closing quote
+    if FPos <= Length(FSource) then
+      Inc(FPos); // skip closing quote
     Exit;
   end;
   // Single-character symbol.
@@ -287,18 +301,18 @@ end;
 
 procedure Expect(const ATok: TToken; AKind: TTokenKind; const AText: string);
 begin
-  if (ATok.Kind <> AKind) or
-     ((AText <> '') and (not SameText(ATok.Text, AText))) then
-    raise EOBDProtocol.CreateFmt(
-      'LDF parse error at line %d: expected "%s", got "%s"',
+  if (ATok.Kind <> AKind) or ((AText <> '') and (not SameText(ATok.Text, AText)))
+  then
+    raise EOBDProtocol.CreateFmt
+      ('LDF parse error at line %d: expected "%s", got "%s"',
       [ATok.Line, AText, ATok.Text]);
 end;
 
 procedure ExpectSymbol(const ATok: TToken; AChar: Char);
 begin
   if (ATok.Kind <> tkSymbol) or (ATok.Text <> string(AChar)) then
-    raise EOBDProtocol.CreateFmt(
-      'LDF parse error at line %d: expected "%s", got "%s"',
+    raise EOBDProtocol.CreateFmt
+      ('LDF parse error at line %d: expected "%s", got "%s"',
       [ATok.Line, AChar, ATok.Text]);
 end;
 
@@ -309,13 +323,15 @@ var
 begin
   Cleaned := AText;
   Negative := (Length(Cleaned) > 0) and (Cleaned[1] = '-');
-  if Negative then Cleaned := Copy(Cleaned, 2, MaxInt);
+  if Negative then
+    Cleaned := Copy(Cleaned, 2, MaxInt);
   if (Length(Cleaned) >= 2) and (Cleaned[1] = '0') and
-     CharInSet(Cleaned[2], ['x', 'X']) then
+    CharInSet(Cleaned[2], ['x', 'X']) then
     Result := StrToInt64('$' + Copy(Cleaned, 3, MaxInt))
   else
     Result := StrToInt64(Cleaned);
-  if Negative then Result := -Result;
+  if Negative then
+    Result := -Result;
 end;
 
 function ParseFloatGeneric(const AText: string): Double;
@@ -337,8 +353,10 @@ begin
     Tok := ALex.Next;
     if Tok.Kind = tkEOF then
       raise EOBDProtocol.Create('LDF parse error: unbalanced "{"');
-    if (Tok.Kind = tkSymbol) and (Tok.Text = '{') then Inc(Depth)
-    else if (Tok.Kind = tkSymbol) and (Tok.Text = '}') then Dec(Depth);
+    if (Tok.Kind = tkSymbol) and (Tok.Text = '{') then
+      Inc(Depth)
+    else if (Tok.Kind = tkSymbol) and (Tok.Text = '}') then
+      Dec(Depth);
   end;
 end;
 
@@ -349,8 +367,10 @@ begin
   while True do
   begin
     Tok := ALex.Next;
-    if Tok.Kind = tkEOF then Exit;
-    if (Tok.Kind = tkSymbol) and (Tok.Text = ';') then Exit;
+    if Tok.Kind = tkEOF then
+      Exit;
+    if (Tok.Kind = tkSymbol) and (Tok.Text = ';') then
+      Exit;
   end;
 end;
 
@@ -364,47 +384,51 @@ begin
   if (Tok.Kind = tkIdent) and SameText(Tok.Text, 'LIN_description_file') then
   begin
     ALex.Next;
-    Tok := ALex.Next; ExpectSymbol(Tok, ';');
+    Tok := ALex.Next;
+    ExpectSymbol(Tok, ';');
   end;
   while True do
   begin
     Tok := ALex.Peek;
-    if Tok.Kind = tkEOF then Exit;
-    if (Tok.Kind = tkIdent) and
-       (SameText(Tok.Text, 'Nodes') or
-        SameText(Tok.Text, 'Signals') or
-        SameText(Tok.Text, 'Diagnostic_signals') or
-        SameText(Tok.Text, 'Frames') or
-        SameText(Tok.Text, 'Sporadic_frames') or
-        SameText(Tok.Text, 'Event_triggered_frames') or
-        SameText(Tok.Text, 'Diagnostic_frames') or
-        SameText(Tok.Text, 'Node_attributes') or
-        SameText(Tok.Text, 'Schedule_tables') or
-        SameText(Tok.Text, 'Signal_encoding_types') or
-        SameText(Tok.Text, 'Signal_representation')) then
+    if Tok.Kind = tkEOF then
+      Exit;
+    if (Tok.Kind = tkIdent) and (SameText(Tok.Text, 'Nodes') or
+      SameText(Tok.Text, 'Signals') or SameText(Tok.Text, 'Diagnostic_signals')
+      or SameText(Tok.Text, 'Frames') or SameText(Tok.Text, 'Sporadic_frames')
+      or SameText(Tok.Text, 'Event_triggered_frames') or SameText(Tok.Text,
+      'Diagnostic_frames') or SameText(Tok.Text, 'Node_attributes') or
+      SameText(Tok.Text, 'Schedule_tables') or SameText(Tok.Text,
+      'Signal_encoding_types') or SameText(Tok.Text, 'Signal_representation'))
+    then
       Exit;
     ALex.Next;
     if (Tok.Kind = tkIdent) and SameText(Tok.Text, 'LIN_protocol_version') then
     begin
-      Tok := ALex.Next; ExpectSymbol(Tok, '=');
       Tok := ALex.Next;
-      if Tok.Kind = tkString then ACluster.ProtocolVersion := Tok.Text;
+      ExpectSymbol(Tok, '=');
+      Tok := ALex.Next;
+      if Tok.Kind = tkString then
+        ACluster.ProtocolVersion := Tok.Text;
       SkipUntilSemicolon(ALex);
     end
-    else if (Tok.Kind = tkIdent) and
-            SameText(Tok.Text, 'LIN_language_version') then
+    else if (Tok.Kind = tkIdent) and SameText(Tok.Text, 'LIN_language_version')
+    then
     begin
-      Tok := ALex.Next; ExpectSymbol(Tok, '=');
       Tok := ALex.Next;
-      if Tok.Kind = tkString then ACluster.LanguageVersion := Tok.Text;
+      ExpectSymbol(Tok, '=');
+      Tok := ALex.Next;
+      if Tok.Kind = tkString then
+        ACluster.LanguageVersion := Tok.Text;
       SkipUntilSemicolon(ALex);
     end
     else if (Tok.Kind = tkIdent) and SameText(Tok.Text, 'LIN_speed') then
     begin
-      Tok := ALex.Next; ExpectSymbol(Tok, '=');
+      Tok := ALex.Next;
+      ExpectSymbol(Tok, '=');
       Tok := ALex.Next;
       Speed := 0;
-      if Tok.Kind = tkNumber then Speed := ParseFloatGeneric(Tok.Text);
+      if Tok.Kind = tkNumber then
+        Speed := ParseFloatGeneric(Tok.Text);
       // Optional unit "kbps".
       Tok := ALex.Peek;
       if (Tok.Kind = tkIdent) and SameText(Tok.Text, 'kbps') then
@@ -418,7 +442,8 @@ begin
     end
     else if (Tok.Kind = tkIdent) and SameText(Tok.Text, 'Channel_name') then
     begin
-      Tok := ALex.Next; ExpectSymbol(Tok, '=');
+      Tok := ALex.Next;
+      ExpectSymbol(Tok, '=');
       SkipUntilSemicolon(ALex);
     end
     else
@@ -431,32 +456,41 @@ var
   Tok: TToken;
   Slaves: TList<string>;
 begin
-  Tok := ALex.Next; Expect(Tok, tkIdent, 'Nodes');
-  Tok := ALex.Next; ExpectSymbol(Tok, '{');
+  Tok := ALex.Next;
+  Expect(Tok, tkIdent, 'Nodes');
+  Tok := ALex.Next;
+  ExpectSymbol(Tok, '{');
   Slaves := TList<string>.Create;
   try
     while True do
     begin
       Tok := ALex.Next;
-      if (Tok.Kind = tkSymbol) and (Tok.Text = '}') then Break;
+      if (Tok.Kind = tkSymbol) and (Tok.Text = '}') then
+        Break;
       if Tok.Kind = tkEOF then
         raise EOBDProtocol.Create('LDF: unterminated Nodes block');
       if (Tok.Kind = tkIdent) and SameText(Tok.Text, 'Master') then
       begin
-        Tok := ALex.Next; ExpectSymbol(Tok, ':');
-        Tok := ALex.Next; Expect(Tok, tkIdent, '');
+        Tok := ALex.Next;
+        ExpectSymbol(Tok, ':');
+        Tok := ALex.Next;
+        Expect(Tok, tkIdent, '');
         ACluster.Master := Tok.Text;
         SkipUntilSemicolon(ALex);
       end
       else if (Tok.Kind = tkIdent) and SameText(Tok.Text, 'Slaves') then
       begin
-        Tok := ALex.Next; ExpectSymbol(Tok, ':');
+        Tok := ALex.Next;
+        ExpectSymbol(Tok, ':');
         while True do
         begin
           Tok := ALex.Next;
-          if (Tok.Kind = tkSymbol) and (Tok.Text = ';') then Break;
-          if (Tok.Kind = tkSymbol) and (Tok.Text = ',') then Continue;
-          if Tok.Kind = tkIdent then Slaves.Add(Tok.Text);
+          if (Tok.Kind = tkSymbol) and (Tok.Text = ';') then
+            Break;
+          if (Tok.Kind = tkSymbol) and (Tok.Text = ',') then
+            Continue;
+          if Tok.Kind = tkIdent then
+            Slaves.Add(Tok.Text);
           if Tok.Kind = tkEOF then
             raise EOBDProtocol.Create('LDF: unterminated Slaves entry');
         end;
@@ -478,24 +512,30 @@ var
   Sigs: TList<TOBDLDFSignal>;
 begin
   Tok := ALex.Next; // "Signals"
-  Tok := ALex.Next; ExpectSymbol(Tok, '{');
+  Tok := ALex.Next;
+  ExpectSymbol(Tok, '{');
   Sigs := TList<TOBDLDFSignal>.Create;
   Subs := TList<string>.Create;
   try
     while True do
     begin
       Tok := ALex.Next;
-      if (Tok.Kind = tkSymbol) and (Tok.Text = '}') then Break;
+      if (Tok.Kind = tkSymbol) and (Tok.Text = '}') then
+        Break;
       if Tok.Kind = tkEOF then
         raise EOBDProtocol.Create('LDF: unterminated Signals block');
-      if Tok.Kind <> tkIdent then Continue;
+      if Tok.Kind <> tkIdent then
+        Continue;
 
-      Sig := Default(TOBDLDFSignal);
+      Sig := Default (TOBDLDFSignal);
       Sig.Name := Tok.Text;
-      Tok := ALex.Next; ExpectSymbol(Tok, ':');
-      Tok := ALex.Next; Expect(Tok, tkNumber, '');
+      Tok := ALex.Next;
+      ExpectSymbol(Tok, ':');
+      Tok := ALex.Next;
+      Expect(Tok, tkNumber, '');
       Sig.SizeBits := Integer(ParseInt64(Tok.Text));
-      Tok := ALex.Next; ExpectSymbol(Tok, ',');
+      Tok := ALex.Next;
+      ExpectSymbol(Tok, ',');
       Tok := ALex.Next;
       if Tok.Kind = tkNumber then
         Sig.InitValue := ParseInt64(Tok.Text)
@@ -504,17 +544,22 @@ begin
         // array initialiser; skip to closing brace
         SkipBalancedBraces(ALex);
       end;
-      Tok := ALex.Next; ExpectSymbol(Tok, ',');
-      Tok := ALex.Next; Expect(Tok, tkIdent, '');
+      Tok := ALex.Next;
+      ExpectSymbol(Tok, ',');
+      Tok := ALex.Next;
+      Expect(Tok, tkIdent, '');
       Sig.Publisher := Tok.Text;
 
       Subs.Clear;
       while True do
       begin
         Tok := ALex.Next;
-        if (Tok.Kind = tkSymbol) and (Tok.Text = ';') then Break;
-        if (Tok.Kind = tkSymbol) and (Tok.Text = ',') then Continue;
-        if Tok.Kind = tkIdent then Subs.Add(Tok.Text);
+        if (Tok.Kind = tkSymbol) and (Tok.Text = ';') then
+          Break;
+        if (Tok.Kind = tkSymbol) and (Tok.Text = ',') then
+          Continue;
+        if Tok.Kind = tkIdent then
+          Subs.Add(Tok.Text);
         if Tok.Kind = tkEOF then
           raise EOBDProtocol.Create('LDF: unterminated signal entry');
       end;
@@ -537,42 +582,56 @@ var
   Places: TList<TOBDLDFSignalPlacement>;
 begin
   Tok := ALex.Next; // "Frames"
-  Tok := ALex.Next; ExpectSymbol(Tok, '{');
+  Tok := ALex.Next;
+  ExpectSymbol(Tok, '{');
   Frames := TList<TOBDLDFFrame>.Create;
   Places := TList<TOBDLDFSignalPlacement>.Create;
   try
     while True do
     begin
       Tok := ALex.Next;
-      if (Tok.Kind = tkSymbol) and (Tok.Text = '}') then Break;
+      if (Tok.Kind = tkSymbol) and (Tok.Text = '}') then
+        Break;
       if Tok.Kind = tkEOF then
         raise EOBDProtocol.Create('LDF: unterminated Frames block');
-      if Tok.Kind <> tkIdent then Continue;
+      if Tok.Kind <> tkIdent then
+        Continue;
 
-      Frame := Default(TOBDLDFFrame);
+      Frame := Default (TOBDLDFFrame);
       Frame.Name := Tok.Text;
-      Tok := ALex.Next; ExpectSymbol(Tok, ':');
-      Tok := ALex.Next; Expect(Tok, tkNumber, '');
+      Tok := ALex.Next;
+      ExpectSymbol(Tok, ':');
+      Tok := ALex.Next;
+      Expect(Tok, tkNumber, '');
       Frame.FrameID := Byte(ParseInt64(Tok.Text));
-      Tok := ALex.Next; ExpectSymbol(Tok, ',');
-      Tok := ALex.Next; Expect(Tok, tkIdent, '');
+      Tok := ALex.Next;
+      ExpectSymbol(Tok, ',');
+      Tok := ALex.Next;
+      Expect(Tok, tkIdent, '');
       Frame.Publisher := Tok.Text;
-      Tok := ALex.Next; ExpectSymbol(Tok, ',');
-      Tok := ALex.Next; Expect(Tok, tkNumber, '');
+      Tok := ALex.Next;
+      ExpectSymbol(Tok, ',');
+      Tok := ALex.Next;
+      Expect(Tok, tkNumber, '');
       Frame.SizeBytes := Byte(ParseInt64(Tok.Text));
-      Tok := ALex.Next; ExpectSymbol(Tok, '{');
+      Tok := ALex.Next;
+      ExpectSymbol(Tok, '{');
 
       Places.Clear;
       while True do
       begin
         Tok := ALex.Next;
-        if (Tok.Kind = tkSymbol) and (Tok.Text = '}') then Break;
+        if (Tok.Kind = tkSymbol) and (Tok.Text = '}') then
+          Break;
         if Tok.Kind = tkEOF then
           raise EOBDProtocol.Create('LDF: unterminated frame body');
-        if Tok.Kind <> tkIdent then Continue;
+        if Tok.Kind <> tkIdent then
+          Continue;
         Place.SignalName := Tok.Text;
-        Tok := ALex.Next; ExpectSymbol(Tok, ',');
-        Tok := ALex.Next; Expect(Tok, tkNumber, '');
+        Tok := ALex.Next;
+        ExpectSymbol(Tok, ',');
+        Tok := ALex.Next;
+        Expect(Tok, tkNumber, '');
         Place.OffsetBits := Integer(ParseInt64(Tok.Text));
         SkipUntilSemicolon(ALex);
         Places.Add(Place);
@@ -597,31 +656,37 @@ var
   DelayMs: Double;
 begin
   Tok := ALex.Next; // "Schedule_tables"
-  Tok := ALex.Next; ExpectSymbol(Tok, '{');
+  Tok := ALex.Next;
+  ExpectSymbol(Tok, '{');
   Scheds := TList<TOBDLDFSchedule>.Create;
   Entries := TList<TOBDLDFScheduleEntry>.Create;
   try
     while True do
     begin
       Tok := ALex.Next;
-      if (Tok.Kind = tkSymbol) and (Tok.Text = '}') then Break;
+      if (Tok.Kind = tkSymbol) and (Tok.Text = '}') then
+        Break;
       if Tok.Kind = tkEOF then
         raise EOBDProtocol.Create('LDF: unterminated Schedule_tables block');
-      if Tok.Kind <> tkIdent then Continue;
+      if Tok.Kind <> tkIdent then
+        Continue;
 
-      Sched := Default(TOBDLDFSchedule);
+      Sched := Default (TOBDLDFSchedule);
       Sched.Name := Tok.Text;
-      Tok := ALex.Next; ExpectSymbol(Tok, '{');
+      Tok := ALex.Next;
+      ExpectSymbol(Tok, '{');
 
       Entries.Clear;
       while True do
       begin
         Tok := ALex.Next;
-        if (Tok.Kind = tkSymbol) and (Tok.Text = '}') then Break;
+        if (Tok.Kind = tkSymbol) and (Tok.Text = '}') then
+          Break;
         if Tok.Kind = tkEOF then
           raise EOBDProtocol.Create('LDF: unterminated schedule body');
-        if Tok.Kind <> tkIdent then Continue;
-        Entry := Default(TOBDLDFScheduleEntry);
+        if Tok.Kind <> tkIdent then
+          Continue;
+        Entry := Default (TOBDLDFScheduleEntry);
         Entry.FrameName := Tok.Text;
         // Expect "delay <ms> ms ;"
         Tok := ALex.Next;
@@ -629,7 +694,8 @@ begin
         begin
           Tok := ALex.Next;
           DelayMs := 0;
-          if Tok.Kind = tkNumber then DelayMs := ParseFloatGeneric(Tok.Text);
+          if Tok.Kind = tkNumber then
+            DelayMs := ParseFloatGeneric(Tok.Text);
           // Optional unit "ms"
           Tok := ALex.Peek;
           if (Tok.Kind = tkIdent) and SameText(Tok.Text, 'ms') then
@@ -656,29 +722,35 @@ var
   Lex: TLDFLexer;
   Tok: TToken;
 begin
-  Result := Default(TOBDLDFCluster);
+  Result := Default (TOBDLDFCluster);
   Lex := TLDFLexer.Create(ASource);
   try
     ParseHeader(Lex, Result);
     while True do
     begin
       Tok := Lex.Peek;
-      if Tok.Kind = tkEOF then Break;
-      if Tok.Kind <> tkIdent then begin Lex.Next; Continue; end;
+      if Tok.Kind = tkEOF then
+        Break;
+      if Tok.Kind <> tkIdent then
+      begin
+        Lex.Next;
+        Continue;
+      end;
 
       if SameText(Tok.Text, 'Nodes') then
         ParseNodes(Lex, Result)
       else if SameText(Tok.Text, 'Signals') or
-              SameText(Tok.Text, 'Diagnostic_signals') then
+        SameText(Tok.Text, 'Diagnostic_signals') then
       begin
         if SameText(Tok.Text, 'Diagnostic_signals') then
-          // skip diagnostic signals block — same shape but separate table
-          begin
-            Lex.Next;
-            Tok := Lex.Next; ExpectSymbol(Tok, '{');
-            SkipBalancedBraces(Lex);
-            Continue;
-          end;
+        // skip diagnostic signals block — same shape but separate table
+        begin
+          Lex.Next;
+          Tok := Lex.Next;
+          ExpectSymbol(Tok, '{');
+          SkipBalancedBraces(Lex);
+          Continue;
+        end;
         ParseSignals(Lex, Result);
       end
       else if SameText(Tok.Text, 'Frames') then
@@ -704,8 +776,7 @@ begin
   end;
 end;
 
-class function TOBDLDFParser.ParseFile(
-  const AFileName: string): TOBDLDFCluster;
+class function TOBDLDFParser.ParseFile(const AFileName: string): TOBDLDFCluster;
 var
   SL: TStringList;
 begin

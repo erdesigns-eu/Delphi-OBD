@@ -1,29 +1,29 @@
-//------------------------------------------------------------------------------
-//  ERD.CAN.Route
+﻿// ------------------------------------------------------------------------------
+// ERD.CAN.Route
 //
-//  Validated ELM CAN routing command plans shared by protocol and adapter.
+// Validated ELM CAN routing command plans shared by protocol and adapter.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-10-08  ERD  Atomic request routing and extended-address plans.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-10-08  ERD  Atomic request routing and extended-address plans.
+// ------------------------------------------------------------------------------
 unit ERD.CAN.Route;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF}, ERD.Types;
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF}, ERD.Types;
 
 /// <summary>Format an 11-bit or 29-bit CAN identifier for ELM commands.</summary>
 /// <param name="AID">CAN identifier, at most 29 bits.</param>
@@ -49,8 +49,10 @@ function CANHeader(AID: Cardinal): string;
 begin
   if AID > $1FFFFFFF then
     raise EOBDConfig.Create('CAN identifier exceeds 29 bits');
-  if AID <= $7FF then Result := IntToHex(AID, 3)
-  else Result := IntToHex(AID, 8);
+  if AID <= $7FF then
+    Result := IntToHex(AID, 3)
+  else
+    Result := IntToHex(AID, 8);
 end;
 
 function NormaliseHeader(const AValue: string): string;
@@ -59,11 +61,12 @@ var
   C: Char;
 begin
   Result := UpperCase(Trim(AValue));
-  if Result = '' then Exit;
+  if Result = '' then
+    Exit;
   if (Length(Result) <> 3) and (Length(Result) <> 8) then
     raise EOBDConfig.Create('CAN header requires three or eight hex digits');
   for C in Result do
-    if not CharInSet(C, ['0'..'9', 'A'..'F']) then
+    if not CharInSet(C, ['0' .. '9', 'A' .. 'F']) then
       raise EOBDConfig.Create('Invalid hexadecimal CAN header');
   if not TryStrToInt64('$' + Result, Value) then
     raise EOBDConfig.Create('Invalid CAN identifier');
@@ -81,16 +84,20 @@ var
     Result[Count] := ACommand;
     Inc(Count);
   end;
+
 begin
   Header := NormaliseHeader(AHeader);
   Filter := NormaliseHeader(AFilter);
   Result := nil;
-  if (Header = '') and (Filter = '') and not AExtended then Exit;
+  if (Header = '') and (Filter = '') and not AExtended then
+    Exit;
   if AExtended and ((Header = '') or (Filter = '')) then
-    raise EOBDConfig.Create('Extended CAN addressing requires transmit and receive IDs');
+    raise EOBDConfig.Create
+      ('Extended CAN addressing requires transmit and receive IDs');
   SetLength(Result, 4);
   Count := 0;
-  if Header <> '' then Add('ATSH' + Header);
+  if Header <> '' then
+    Add('ATSH' + Header);
   Add('ATCRA' + Filter);
   if AExtended then
   begin

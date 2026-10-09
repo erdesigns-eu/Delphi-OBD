@@ -1,24 +1,24 @@
-//------------------------------------------------------------------------------
-//  ERD.UI.GDIP
+﻿// ------------------------------------------------------------------------------
+// ERD.UI.GDIP
 //
-//  Shared GDI+ helpers used by every Delphi-OBD visual that
-//  custom-paints with TGPGraphics. Extracted from the per-unit
-//  copies that were duplicated across 26 paint units in the
-//  P-A2 surface.
+// Shared GDI+ helpers used by every Delphi-OBD visual that
+// custom-paints with TGPGraphics. Extracted from the per-unit
+// copies that were duplicated across 26 paint units in the
+// P-A2 surface.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.UI.GDIP;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -27,7 +27,7 @@ uses
   System.UITypes,
   Winapi.Windows,
   Winapi.GDIPAPI,
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   Vcl.Graphics;
 
 /// <summary>Converts a VCL <c>TColor</c> to the GDI+ <c>ARGB</c>
@@ -53,22 +53,23 @@ var
   Rgb: Cardinal;
 begin
   Rgb := ColorToRGB(AColor);
-  Result := MakeColor(AAlpha,
-    GetRValue(Rgb), GetGValue(Rgb), GetBValue(Rgb));
+  Result := MakeColor(AAlpha, GetRValue(Rgb), GetGValue(Rgb), GetBValue(Rgb));
 end;
 
 function RectF(AX, AY, AW, AH: Single): TGPRectF;
 begin
-  Result.X      := AX;
-  Result.Y      := AY;
-  Result.Width  := AW;
+  Result.X := AX;
+  Result.Y := AY;
+  Result.Width := AW;
   Result.Height := AH;
 end;
 
 function ResolveColor(ASlot, AFallback: TColor): TColor;
 begin
-  if ASlot <> clDefault then Result := ASlot
-  else                       Result := AFallback;
+  if ASlot <> clDefault then
+    Result := ASlot
+  else
+    Result := AFallback;
 end;
 
 end.

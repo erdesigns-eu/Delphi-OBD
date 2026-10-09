@@ -1,29 +1,29 @@
-//------------------------------------------------------------------------------
-//  ERD.UI.Gauges.Types
+﻿// ------------------------------------------------------------------------------
+// ERD.UI.Gauges.Types
 //
-//  Shared records used across the gauge family: zone-coloured
-//  value bands, tick configuration, gauge events.
+// Shared records used across the gauge family: zone-coloured
+// value bands, tick configuration, gauge events.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.UI.Gauges.Types;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   Vcl.Graphics;
 
 type
@@ -34,8 +34,8 @@ type
   /// on top.</summary>
   TOBDGaugeZone = record
     StartValue: Double;
-    EndValue:   Double;
-    Color:      TColor;
+    EndValue: Double;
+    Color: TColor;
   end;
 
   TOBDGaugeZones = TArray<TOBDGaugeZone>;
@@ -46,30 +46,29 @@ type
   TOBDGaugeTickConfig = record
     /// <summary>Value units between major ticks
     /// (e.g. 1000 for an RPM scale 0..8000).</summary>
-    MajorInterval:      Double;
+    MajorInterval: Double;
     /// <summary>Minor ticks drawn per major span. 0 to skip.</summary>
     MinorTicksPerMajor: Byte;
     /// <summary>Print numeric labels at major ticks.</summary>
-    ShowLabels:         Boolean;
+    ShowLabels: Boolean;
     /// <summary>Decimal places on labels.</summary>
-    LabelDecimals:      Byte;
+    LabelDecimals: Byte;
   end;
 
   /// <summary>Fired on every committed value change (after
   /// clamping to <c>Min..Max</c>). Hosts using direct LiveData
   /// binding don't see this event; it's for hosts driving
   /// <c>Value</c> by hand.</summary>
-  TOBDGaugeValueEvent = procedure(Sender: TObject;
-    AValue: Double) of object;
+  TOBDGaugeValueEvent = procedure(Sender: TObject; AValue: Double) of object;
 
-/// <summary>Builds a one-element zone array (helper).</summary>
+  /// <summary>Builds a one-element zone array (helper).</summary>
 function MakeGaugeZone(AStart, AEnd: Double; AColor: TColor): TOBDGaugeZone;
 
 /// <summary>Returns the zone covering <c>AValue</c>, or the
 /// zero zone (Start = End = 0) when no zone covers the
 /// value. Zones tested in order; first match wins.</summary>
-function ResolveZone(const AZones: TOBDGaugeZones;
-  AValue: Double): TOBDGaugeZone;
+function ResolveZone(const AZones: TOBDGaugeZones; AValue: Double)
+  : TOBDGaugeZone;
 
 /// <summary>Linear-interpolate <c>AValue</c> (clamped to
 /// <c>AMin..AMax</c>) onto the unit interval 0..1.</summary>
@@ -85,34 +84,38 @@ uses {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF};
 function MakeGaugeZone(AStart, AEnd: Double; AColor: TColor): TOBDGaugeZone;
 begin
   Result.StartValue := AStart;
-  Result.EndValue   := AEnd;
-  Result.Color      := AColor;
+  Result.EndValue := AEnd;
+  Result.Color := AColor;
 end;
 
-function ResolveZone(const AZones: TOBDGaugeZones;
-  AValue: Double): TOBDGaugeZone;
-var Z: TOBDGaugeZone;
+function ResolveZone(const AZones: TOBDGaugeZones; AValue: Double)
+  : TOBDGaugeZone;
+var
+  Z: TOBDGaugeZone;
 begin
   for Z in AZones do
     if (AValue >= Z.StartValue) and (AValue <= Z.EndValue) then
       Exit(Z);
-  Result := Default(TOBDGaugeZone);
+  Result := Default (TOBDGaugeZone);
 end;
 
 function NormaliseValue(AMin, AMax, AValue: Double): Double;
 begin
-  if SameValue(AMin, AMax) then Exit(0);
+  if SameValue(AMin, AMax) then
+    Exit(0);
   Result := (AValue - AMin) / (AMax - AMin);
-  if Result < 0 then Result := 0
-  else if Result > 1 then Result := 1;
+  if Result < 0 then
+    Result := 0
+  else if Result > 1 then
+    Result := 1;
 end;
 
 function DefaultTickConfig: TOBDGaugeTickConfig;
 begin
-  Result.MajorInterval      := 10;
+  Result.MajorInterval := 10;
   Result.MinorTicksPerMajor := 5;
-  Result.ShowLabels         := True;
-  Result.LabelDecimals      := 0;
+  Result.ShowLabels := True;
+  Result.LabelDecimals := 0;
 end;
 
 end.

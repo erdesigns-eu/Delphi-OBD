@@ -1,39 +1,39 @@
-//------------------------------------------------------------------------------
-//  ERD.Coding.Session
+﻿// ------------------------------------------------------------------------------
+// ERD.Coding.Session
 //
-//  TOBDCodingSession — orchestrator that wraps a coding apply
-//  into a hardware-recoverable transaction:
+// TOBDCodingSession — orchestrator that wraps a coding apply
+// into a hardware-recoverable transaction:
 //
-//    1. Snapshot — read current value(s)
-//    2. Write — apply new value(s)
-//    3. Verify — read back and compare
-//    4. Rollback — on verify-fail or write-fail, write the
-//                       snapshot back
+// 1. Snapshot — read current value(s)
+// 2. Write — apply new value(s)
+// 3. Verify — read back and compare
+// 4. Rollback — on verify-fail or write-fail, write the
+// snapshot back
 //
-//  Hosts feed the orchestrator a list of (DID, NewBytes) tuples.
-//  Every step writes an audit-log entry when an
-//  <see cref="AuditLog"/> is attached.
+// Hosts feed the orchestrator a list of (DID, NewBytes) tuples.
+// Every step writes an audit-log entry when an
+// <see cref="AuditLog"/> is attached.
 //
-//  Like every write-side component in this package, the session
-//  defaults <c>AutoExecute = False</c> and propagates the gate to
-//  the underlying TOBDDataIdentifierIO.
+// Like every write-side component in this package, the session
+// defaults <c>AutoExecute = False</c> and propagates the gate to
+// the underlying TOBDDataIdentifierIO.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Coding.Session;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -41,11 +41,11 @@ interface
 uses
   ERD.Async.Task,
   ERD.Connection,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
-  {$IFDEF FPC}DateUtils{$ELSE}System.DateUtils{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}DateUtils{$ELSE}System.DateUtils{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.Types,
   ERD.Protocol.Types,
   ERD.Protocol,
@@ -64,13 +64,11 @@ type
   end;
 
   /// <summary>Outcome bucket for one session.</summary>
-  TOBDCodingOutcome = (
-    coNotStarted, coCommitted, coRolledBack, coFailed
-  );
+  TOBDCodingOutcome = (coNotStarted, coCommitted, coRolledBack, coFailed);
 
   /// <summary>Fires per step.</summary>
-  TOBDCodingStepEvent = procedure(Sender: TObject;
-    AIndex, ACount: Integer; const AStep: TOBDCodingStep) of object;
+  TOBDCodingStepEvent = procedure(Sender: TObject; AIndex, ACount: Integer;
+    const AStep: TOBDCodingStep) of object;
 
   /// <summary>Coding-session orchestrator.</summary>
   TOBDCodingSession = class(TComponent)
@@ -95,10 +93,8 @@ type
     procedure DoApply(var ASteps: TArray<TOBDCodingStep>);
     procedure SnapshotStep(var AStep: TOBDCodingStep;
       AIO: TOBDDataIdentifierIO);
-    procedure WriteStep(var AStep: TOBDCodingStep;
-      AIO: TOBDDataIdentifierIO);
-    procedure VerifyStep(var AStep: TOBDCodingStep;
-      AIO: TOBDDataIdentifierIO);
+    procedure WriteStep(var AStep: TOBDCodingStep; AIO: TOBDDataIdentifierIO);
+    procedure VerifyStep(var AStep: TOBDCodingStep; AIO: TOBDDataIdentifierIO);
     procedure RollbackStep(const AStep: TOBDCodingStep;
       AIO: TOBDDataIdentifierIO);
     procedure WriteAudit(AKind: TOBDAuditKind; ATarget: string;
@@ -138,8 +134,8 @@ type
       default False;
     /// <summary>Rollback automatically when verify fails. Default
     /// <c>True</c>.</summary>
-    property RollbackOnFail: Boolean read FRollbackOnFail
-      write FRollbackOnFail default True;
+    property RollbackOnFail: Boolean read FRollbackOnFail write FRollbackOnFail
+      default True;
     /// <summary>Run the read-back / compare step. Default
     /// <c>True</c>.</summary>
     property VerifyAfterWrite: Boolean read FVerifyAfterWrite
@@ -155,8 +151,7 @@ type
       write FOnStepWritten;
     property OnStepVerified: TOBDCodingStepEvent read FOnStepVerified
       write FOnStepVerified;
-    property OnRollback: TOBDCodingStepEvent read FOnRollback
-      write FOnRollback;
+    property OnRollback: TOBDCodingStepEvent read FOnRollback write FOnRollback;
     property OnComplete: TNotifyEvent read FOnComplete write FOnComplete;
     property OnError: TOBDConnectionErrorEvent read FOnError write FOnError;
   end;
@@ -174,7 +169,8 @@ end;
 
 destructor TOBDCodingSession.Destroy;
 begin
-  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  if FOwnedTask <> nil then
+    FOwnedTask.Cancel;
   FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
@@ -182,19 +178,26 @@ end;
 
 procedure TOBDCodingSession.SetProtocol(AValue: TOBDProtocol);
 begin
-  if FProtocol = AValue then Exit;
-  if FOwnedTask <> nil then FOwnedTask.Quiesce;
-  if FProtocol <> nil then FProtocol.RemoveFreeNotification(Self);
+  if FProtocol = AValue then
+    Exit;
+  if FOwnedTask <> nil then
+    FOwnedTask.Quiesce;
+  if FProtocol <> nil then
+    FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
-  if FProtocol <> nil then FProtocol.FreeNotification(Self);
+  if FProtocol <> nil then
+    FProtocol.FreeNotification(Self);
 end;
 
 procedure TOBDCodingSession.SetAuditLog(AValue: TOBDCodingAuditLog);
 begin
-  if FAuditLog = AValue then Exit;
-  if FAuditLog <> nil then FAuditLog.RemoveFreeNotification(Self);
+  if FAuditLog = AValue then
+    Exit;
+  if FAuditLog <> nil then
+    FAuditLog.RemoveFreeNotification(Self);
   FAuditLog := AValue;
-  if FAuditLog <> nil then FAuditLog.FreeNotification(Self);
+  if FAuditLog <> nil then
+    FAuditLog.FreeNotification(Self);
 end;
 
 procedure TOBDCodingSession.Notification(AComponent: TComponent;
@@ -203,8 +206,10 @@ begin
   inherited;
   if Operation = opRemove then
   begin
-    if AComponent = FProtocol then FProtocol := nil;
-    if AComponent = FAuditLog then FAuditLog := nil;
+    if AComponent = FProtocol then
+      FProtocol := nil;
+    if AComponent = FAuditLog then
+      FAuditLog := nil;
   end;
 end;
 
@@ -217,23 +222,29 @@ begin
     if FAsyncInFlight then
       raise EOBDConfig.Create('TOBDCodingSession: apply already in flight');
     FAsyncInFlight := True;
-  finally FAsyncLock.Leave; end;
+  finally
+    FAsyncLock.Leave;
+  end;
 end;
 
 procedure TOBDCodingSession.ReleaseAsync;
 begin
   FAsyncLock.Enter;
-  try FAsyncInFlight := False;
-  finally FAsyncLock.Leave; end;
+  try
+    FAsyncInFlight := False;
+  finally
+    FAsyncLock.Leave;
+  end;
 end;
 
-procedure TOBDCodingSession.WriteAudit(AKind: TOBDAuditKind;
-  ATarget: string; const ABefore, AAfter: TBytes; const AMessage: string);
+procedure TOBDCodingSession.WriteAudit(AKind: TOBDAuditKind; ATarget: string;
+  const ABefore, AAfter: TBytes; const AMessage: string);
 var
   Entry: TOBDAuditEntry;
 begin
-  if FAuditLog = nil then Exit;
-  Entry := Default(TOBDAuditEntry);
+  if FAuditLog = nil then
+    Exit;
+  Entry := Default (TOBDAuditEntry);
   Entry.Timestamp := Now;
   Entry.SessionID := FAuditLog.SessionID;
   Entry.Kind := AKind;
@@ -266,8 +277,8 @@ begin
     AIO.Write(AStep.DID, AStep.NewValue);
     Note := '';
   end;
-  WriteAudit(akWrite, Format('0x%4.4X', [AStep.DID]),
-    AStep.OldValue, AStep.NewValue, Note);
+  WriteAudit(akWrite, Format('0x%4.4X', [AStep.DID]), AStep.OldValue,
+    AStep.NewValue, Note);
 end;
 
 procedure TOBDCodingSession.VerifyStep(var AStep: TOBDCodingStep;
@@ -278,33 +289,34 @@ var
 begin
   if FDryRun then
   begin
-    WriteAudit(akVerify, Format('0x%4.4X', [AStep.DID]),
-      nil, AStep.NewValue, 'dry-run (verify skipped)');
+    WriteAudit(akVerify, Format('0x%4.4X', [AStep.DID]), nil, AStep.NewValue,
+      'dry-run (verify skipped)');
     Exit;
   end;
   ReadBack := AIO.ReadOne(AStep.DID);
   Diff := TOBDCodingDiff.Compute(ReadBack, AStep.NewValue);
   if Length(Diff.Changes) <> 0 then
-    raise EOBDProtocolErr.CreateFmt(
-      'Coding verify failed for DID 0x%4.4X (%d byte(s) differ)',
+    raise EOBDProtocolErr.CreateFmt
+      ('Coding verify failed for DID 0x%4.4X (%d byte(s) differ)',
       [AStep.DID, Length(Diff.Changes)]);
-  WriteAudit(akVerify, Format('0x%4.4X', [AStep.DID]),
-    nil, ReadBack, 'verified');
+  WriteAudit(akVerify, Format('0x%4.4X', [AStep.DID]), nil, ReadBack,
+    'verified');
 end;
 
 procedure TOBDCodingSession.RollbackStep(const AStep: TOBDCodingStep;
   AIO: TOBDDataIdentifierIO);
 begin
-  if Length(AStep.OldValue) = 0 then Exit;
+  if Length(AStep.OldValue) = 0 then
+    Exit;
   if FDryRun then
   begin
-    WriteAudit(akRollback, Format('0x%4.4X', [AStep.DID]),
-      AStep.NewValue, AStep.OldValue, 'dry-run (no wire access)');
+    WriteAudit(akRollback, Format('0x%4.4X', [AStep.DID]), AStep.NewValue,
+      AStep.OldValue, 'dry-run (no wire access)');
     Exit;
   end;
   AIO.Write(AStep.DID, AStep.OldValue);
-  WriteAudit(akRollback, Format('0x%4.4X', [AStep.DID]),
-    AStep.NewValue, AStep.OldValue, 'restored');
+  WriteAudit(akRollback, Format('0x%4.4X', [AStep.DID]), AStep.NewValue,
+    AStep.OldValue, 'restored');
 end;
 
 procedure TOBDCodingSession.DoApply(var ASteps: TArray<TOBDCodingStep>);
@@ -317,8 +329,8 @@ begin
   if FProtocol = nil then
     raise EOBDConfig.Create('TOBDCodingSession: Protocol not assigned');
   if not FAutoExecute then
-    raise EOBDConfig.Create(
-      'TOBDCodingSession: AutoExecute is False — set it explicitly');
+    raise EOBDConfig.Create
+      ('TOBDCodingSession: AutoExecute is False — set it explicitly');
   if Length(ASteps) = 0 then
     raise EOBDConfig.Create('TOBDCodingSession: empty step list');
 
@@ -330,7 +342,7 @@ begin
     IO.AutoExecute := True;
 
     // 1. Snapshot every step first so a write-failure mid-batch
-    //    can roll back even the steps we never reached.
+    // can roll back even the steps we never reached.
     for I := 0 to High(ASteps) do
       SnapshotStep(ASteps[I], IO);
 
@@ -372,8 +384,7 @@ begin
               FireRollback(J + 1, Length(ASteps), ASteps[J]);
             except
               on E2: Exception do
-                WriteAudit(akError,
-                  Format('rollback 0x%4.4X', [ASteps[J].DID]),
+                WriteAudit(akError, Format('rollback 0x%4.4X', [ASteps[J].DID]),
                   nil, nil, E2.Message);
             end;
           end;
@@ -404,7 +415,8 @@ begin
   try
     Self_ := Self;
     SetLength(StepsCopy, Length(ASteps));
-    for I := 0 to High(ASteps) do StepsCopy[I] := ASteps[I];
+    for I := 0 to High(ASteps) do
+      StepsCopy[I] := ASteps[I];
     FOwnedTask.Start(
       procedure
       begin
@@ -413,7 +425,8 @@ begin
             Self_.FOutcome := coNotStarted;
             Self_.DoApply(StepsCopy);
           except
-            on E: Exception do Self_.FireError(oeIO, E.Message);
+            on E: Exception do
+              Self_.FireError(oeIO, E.Message);
           end;
         finally
           Self_.ReleaseAsync;
@@ -426,83 +439,118 @@ begin
 end;
 
 procedure TOBDCodingSession.FireStepWritten(AIndex, ACount: Integer;
-  const AStep: TOBDCodingStep);
+const AStep: TOBDCodingStep);
 var
-  Self_: TOBDCodingSession; I, C: Integer; S: TOBDCodingStep;
+  Self_: TOBDCodingSession;
+  I, C: Integer;
+  S: TOBDCodingStep;
 begin
-  if not Assigned(FOnStepWritten) then Exit;
-  Self_ := Self; I := AIndex; C := ACount; S := AStep;
+  if not Assigned(FOnStepWritten) then
+    Exit;
+  Self_ := Self;
+  I := AIndex;
+  C := ACount;
+  S := AStep;
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnStepWritten(Self_, I, C, S)
   else
-    FOwnedTask.Post( procedure begin
-      if Assigned(Self_.FOnStepWritten) then
-        Self_.FOnStepWritten(Self_, I, C, S);
-    end);
+    FOwnedTask.Post(
+      procedure
+      begin
+        if Assigned(Self_.FOnStepWritten) then
+          Self_.FOnStepWritten(Self_, I, C, S);
+      end);
 end;
 
 procedure TOBDCodingSession.FireStepVerified(AIndex, ACount: Integer;
-  const AStep: TOBDCodingStep);
+const AStep: TOBDCodingStep);
 var
-  Self_: TOBDCodingSession; I, C: Integer; S: TOBDCodingStep;
+  Self_: TOBDCodingSession;
+  I, C: Integer;
+  S: TOBDCodingStep;
 begin
-  if not Assigned(FOnStepVerified) then Exit;
-  Self_ := Self; I := AIndex; C := ACount; S := AStep;
+  if not Assigned(FOnStepVerified) then
+    Exit;
+  Self_ := Self;
+  I := AIndex;
+  C := ACount;
+  S := AStep;
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnStepVerified(Self_, I, C, S)
   else
-    FOwnedTask.Post( procedure begin
-      if Assigned(Self_.FOnStepVerified) then
-        Self_.FOnStepVerified(Self_, I, C, S);
-    end);
+    FOwnedTask.Post(
+      procedure
+      begin
+        if Assigned(Self_.FOnStepVerified) then
+          Self_.FOnStepVerified(Self_, I, C, S);
+      end);
 end;
 
 procedure TOBDCodingSession.FireRollback(AIndex, ACount: Integer;
-  const AStep: TOBDCodingStep);
+const AStep: TOBDCodingStep);
 var
-  Self_: TOBDCodingSession; I, C: Integer; S: TOBDCodingStep;
+  Self_: TOBDCodingSession;
+  I, C: Integer;
+  S: TOBDCodingStep;
 begin
-  if not Assigned(FOnRollback) then Exit;
-  Self_ := Self; I := AIndex; C := ACount; S := AStep;
+  if not Assigned(FOnRollback) then
+    Exit;
+  Self_ := Self;
+  I := AIndex;
+  C := ACount;
+  S := AStep;
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnRollback(Self_, I, C, S)
   else
-    FOwnedTask.Post( procedure begin
-      if Assigned(Self_.FOnRollback) then
-        Self_.FOnRollback(Self_, I, C, S);
-    end);
+    FOwnedTask.Post(
+      procedure
+      begin
+        if Assigned(Self_.FOnRollback) then
+          Self_.FOnRollback(Self_, I, C, S);
+      end);
 end;
 
 procedure TOBDCodingSession.FireComplete;
 var
   Self_: TOBDCodingSession;
 begin
-  if not Assigned(FOnComplete) then Exit;
+  if not Assigned(FOnComplete) then
+    Exit;
   Self_ := Self;
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnComplete(Self_)
   else
-    FOwnedTask.Post( procedure begin
-      if Assigned(Self_.FOnComplete) then Self_.FOnComplete(Self_);
-    end);
+    FOwnedTask.Post(
+      procedure
+      begin
+        if Assigned(Self_.FOnComplete) then
+          Self_.FOnComplete(Self_);
+      end);
 end;
 
 procedure TOBDCodingSession.FireError(ACode: TOBDErrorCode;
-  const AMessage: string);
+const AMessage: string);
 var
-  Self_: TOBDCodingSession; Code: TOBDErrorCode; Msg: string;
+  Self_: TOBDCodingSession;
+  Code: TOBDErrorCode;
+  Msg: string;
   Handled: Boolean;
 begin
-  if not Assigned(FOnError) then Exit;
-  Self_ := Self; Code := ACode; Msg := AMessage;
+  if not Assigned(FOnError) then
+    Exit;
+  Self_ := Self;
+  Code := ACode;
+  Msg := AMessage;
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
     Handled := False;
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    FOwnedTask.Post( procedure
-      var Handled: Boolean;
+    FOwnedTask.Post(
+      procedure
+      var
+        Handled: Boolean;
       begin
         Handled := False;
         if Assigned(Self_.FOnError) then

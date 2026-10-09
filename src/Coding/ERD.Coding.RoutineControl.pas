@@ -1,41 +1,41 @@
-//------------------------------------------------------------------------------
-//  ERD.Coding.RoutineControl
+﻿// ------------------------------------------------------------------------------
+// ERD.Coding.RoutineControl
 //
-//  TOBDRoutineControl — non-visual component that drives the
-//  ISO 14229-1 § 12.7 RoutineControl service (SID 0x31).
+// TOBDRoutineControl — non-visual component that drives the
+// ISO 14229-1 § 12.7 RoutineControl service (SID 0x31).
 //
-//  Routines are vendor-specific high-level diagnostic actions
-//  identified by a 16-bit Routine Identifier (RID). This component
-//  exposes the three sub-functions:
+// Routines are vendor-specific high-level diagnostic actions
+// identified by a 16-bit Routine Identifier (RID). This component
+// exposes the three sub-functions:
 //
-//    - 0x01 startRoutine
-//    - 0x02 stopRoutine
-//    - 0x03 requestRoutineResults
+// - 0x01 startRoutine
+// - 0x02 stopRoutine
+// - 0x03 requestRoutineResults
 //
-//  Start / stop are gated by <c>AutoExecute</c> (default
-//  <c>False</c>) because they often kick off destructive actions
-//  (clear adaptations, learn key, format flash). Results queries
-//  are read-only and not gated.
+// Start / stop are gated by <c>AutoExecute</c> (default
+// <c>False</c>) because they often kick off destructive actions
+// (clear adaptations, learn key, format flash). Results queries
+// are read-only and not gated.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - ISO 14229-1:2020 § 12.7 (RoutineControl)
+// References  :
+// - ISO 14229-1:2020 § 12.7 (RoutineControl)
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Coding.RoutineControl;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -43,9 +43,9 @@ interface
 uses
   ERD.Async.Task,
   ERD.Connection,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
   ERD.Types,
   ERD.Protocol.Types,
   ERD.Protocol.UDS,
@@ -53,9 +53,9 @@ uses
 
 const
   /// <summary>RoutineControl sub-function: start.</summary>
-  UDS_RC_START   = $01;
+  UDS_RC_START = $01;
   /// <summary>RoutineControl sub-function: stop.</summary>
-  UDS_RC_STOP    = $02;
+  UDS_RC_STOP = $02;
   /// <summary>RoutineControl sub-function: requestResults.</summary>
   UDS_RC_RESULTS = $03;
 
@@ -83,8 +83,8 @@ type
     FOnError: TOBDConnectionErrorEvent;
     procedure GuardSingleAsync;
     procedure ReleaseAsync;
-    function DoCall(ASubFunction: Byte; ARoutineID: Word;
-      const AParams: TBytes): TOBDRoutineResult;
+    function DoCall(ASubFunction: Byte; ARoutineID: Word; const AParams: TBytes)
+      : TOBDRoutineResult;
     procedure FireRoutine(const AResult: TOBDRoutineResult);
     procedure FireError(ACode: TOBDErrorCode; const AMessage: string);
     procedure SetProtocol(AValue: TOBDProtocol);
@@ -97,19 +97,17 @@ type
 
     /// <summary>Starts a routine. Requires
     /// <c>AutoExecute = True</c>.</summary>
-    function Start(ARoutineID: Word;
-      const AParams: TBytes = nil): TOBDRoutineResult;
+    function Start(ARoutineID: Word; const AParams: TBytes = nil)
+      : TOBDRoutineResult;
     /// <summary>Non-blocking <see cref="Start"/>.</summary>
-    procedure StartAsync(ARoutineID: Word;
-      const AParams: TBytes = nil);
+    procedure StartAsync(ARoutineID: Word; const AParams: TBytes = nil);
 
     /// <summary>Stops a routine. Requires
     /// <c>AutoExecute = True</c>.</summary>
-    function Stop(ARoutineID: Word;
-      const AParams: TBytes = nil): TOBDRoutineResult;
+    function Stop(ARoutineID: Word; const AParams: TBytes = nil)
+      : TOBDRoutineResult;
     /// <summary>Non-blocking <see cref="Stop"/>.</summary>
-    procedure StopAsync(ARoutineID: Word;
-      const AParams: TBytes = nil);
+    procedure StopAsync(ARoutineID: Word; const AParams: TBytes = nil);
 
     /// <summary>Requests routine results. Read-only — not
     /// gated.</summary>
@@ -138,7 +136,8 @@ end;
 
 destructor TOBDRoutineControl.Destroy;
 begin
-  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  if FOwnedTask <> nil then
+    FOwnedTask.Cancel;
   FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
@@ -146,11 +145,15 @@ end;
 
 procedure TOBDRoutineControl.SetProtocol(AValue: TOBDProtocol);
 begin
-  if FProtocol = AValue then Exit;
-  if FOwnedTask <> nil then FOwnedTask.Quiesce;
-  if FProtocol <> nil then FProtocol.RemoveFreeNotification(Self);
+  if FProtocol = AValue then
+    Exit;
+  if FOwnedTask <> nil then
+    FOwnedTask.Quiesce;
+  if FProtocol <> nil then
+    FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
-  if FProtocol <> nil then FProtocol.FreeNotification(Self);
+  if FProtocol <> nil then
+    FProtocol.FreeNotification(Self);
 end;
 
 procedure TOBDRoutineControl.Notification(AComponent: TComponent;
@@ -159,7 +162,8 @@ begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
   begin
-    if FOwnedTask <> nil then FOwnedTask.Quiesce;
+    if FOwnedTask <> nil then
+      FOwnedTask.Quiesce;
     FProtocol := nil;
   end;
 end;
@@ -173,14 +177,19 @@ begin
     if FAsyncInFlight then
       raise EOBDConfig.Create('TOBDRoutineControl: async already in flight');
     FAsyncInFlight := True;
-  finally FAsyncLock.Leave; end;
+  finally
+    FAsyncLock.Leave;
+  end;
 end;
 
 procedure TOBDRoutineControl.ReleaseAsync;
 begin
   FAsyncLock.Enter;
-  try FAsyncInFlight := False;
-  finally FAsyncLock.Leave; end;
+  try
+    FAsyncInFlight := False;
+  finally
+    FAsyncLock.Leave;
+  end;
 end;
 
 function TOBDRoutineControl.DoCall(ASubFunction: Byte; ARoutineID: Word;
@@ -193,8 +202,8 @@ begin
   if FProtocol = nil then
     raise EOBDConfig.Create('TOBDRoutineControl: Protocol not assigned');
   if (ASubFunction in [UDS_RC_START, UDS_RC_STOP]) and not FAutoExecute then
-    raise EOBDConfig.Create(
-      'TOBDRoutineControl: AutoExecute is False — set it before start/stop');
+    raise EOBDConfig.Create
+      ('TOBDRoutineControl: AutoExecute is False — set it before start/stop');
 
   SetLength(Body, 3 + Length(AParams));
   Body[0] := ASubFunction;
@@ -205,12 +214,12 @@ begin
 
   Resp := FProtocol.Request(UDS_SID_RoutineControl, Body);
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt(
-      'RoutineControl sub 0x%2.2X RID 0x%4.4X negative: %s',
+    raise EOBDProtocolErr.CreateFmt
+      ('RoutineControl sub 0x%2.2X RID 0x%4.4X negative: %s',
       [ASubFunction, ARoutineID, Resp.NRCText]);
 
   // Response: <subFunc echo> <RID HI LO> [data...]
-  Result := Default(TOBDRoutineResult);
+  Result := Default (TOBDRoutineResult);
   Result.SubFunction := ASubFunction;
   Result.RoutineID := ARoutineID;
   if Length(Resp.Data) >= 3 then
@@ -222,22 +231,21 @@ begin
   end;
 end;
 
-function TOBDRoutineControl.Start(ARoutineID: Word;
-  const AParams: TBytes): TOBDRoutineResult;
+function TOBDRoutineControl.Start(ARoutineID: Word; const AParams: TBytes)
+  : TOBDRoutineResult;
 begin
   Result := DoCall(UDS_RC_START, ARoutineID, AParams);
   FireRoutine(Result);
 end;
 
-function TOBDRoutineControl.Stop(ARoutineID: Word;
-  const AParams: TBytes): TOBDRoutineResult;
+function TOBDRoutineControl.Stop(ARoutineID: Word; const AParams: TBytes)
+  : TOBDRoutineResult;
 begin
   Result := DoCall(UDS_RC_STOP, ARoutineID, AParams);
   FireRoutine(Result);
 end;
 
-function TOBDRoutineControl.RequestResults(
-  ARoutineID: Word): TOBDRoutineResult;
+function TOBDRoutineControl.RequestResults(ARoutineID: Word): TOBDRoutineResult;
 begin
   Result := DoCall(UDS_RC_RESULTS, ARoutineID, nil);
   FireRoutine(Result);
@@ -246,22 +254,27 @@ end;
 procedure TOBDRoutineControl.StartAsync(ARoutineID: Word;
   const AParams: TBytes);
 var
-  Self_: TOBDRoutineControl; RID: Word; Params: TBytes;
+  Self_: TOBDRoutineControl;
+  RID: Word;
+  Params: TBytes;
 begin
   GuardSingleAsync;
   try
-    Self_ := Self; RID := ARoutineID;
+    Self_ := Self;
+    RID := ARoutineID;
     Params := Copy(AParams, 0, Length(AParams));
     FOwnedTask.Start(
       procedure
-      var R: TOBDRoutineResult;
+      var
+        R: TOBDRoutineResult;
       begin
         try
           try
             R := Self_.DoCall(UDS_RC_START, RID, Params);
             Self_.FireRoutine(R);
           except
-            on E: Exception do Self_.FireError(oeIO, E.Message);
+            on E: Exception do
+              Self_.FireError(oeIO, E.Message);
           end;
         finally
           Self_.ReleaseAsync;
@@ -273,25 +286,29 @@ begin
   end;
 end;
 
-procedure TOBDRoutineControl.StopAsync(ARoutineID: Word;
-  const AParams: TBytes);
+procedure TOBDRoutineControl.StopAsync(ARoutineID: Word; const AParams: TBytes);
 var
-  Self_: TOBDRoutineControl; RID: Word; Params: TBytes;
+  Self_: TOBDRoutineControl;
+  RID: Word;
+  Params: TBytes;
 begin
   GuardSingleAsync;
   try
-    Self_ := Self; RID := ARoutineID;
+    Self_ := Self;
+    RID := ARoutineID;
     Params := Copy(AParams, 0, Length(AParams));
     FOwnedTask.Start(
       procedure
-      var R: TOBDRoutineResult;
+      var
+        R: TOBDRoutineResult;
       begin
         try
           try
             R := Self_.DoCall(UDS_RC_STOP, RID, Params);
             Self_.FireRoutine(R);
           except
-            on E: Exception do Self_.FireError(oeIO, E.Message);
+            on E: Exception do
+              Self_.FireError(oeIO, E.Message);
           end;
         finally
           Self_.ReleaseAsync;
@@ -305,21 +322,25 @@ end;
 
 procedure TOBDRoutineControl.RequestResultsAsync(ARoutineID: Word);
 var
-  Self_: TOBDRoutineControl; RID: Word;
+  Self_: TOBDRoutineControl;
+  RID: Word;
 begin
   GuardSingleAsync;
   try
-    Self_ := Self; RID := ARoutineID;
+    Self_ := Self;
+    RID := ARoutineID;
     FOwnedTask.Start(
       procedure
-      var R: TOBDRoutineResult;
+      var
+        R: TOBDRoutineResult;
       begin
         try
           try
             R := Self_.DoCall(UDS_RC_RESULTS, RID, nil);
             Self_.FireRoutine(R);
           except
-            on E: Exception do Self_.FireError(oeIO, E.Message);
+            on E: Exception do
+              Self_.FireError(oeIO, E.Message);
           end;
         finally
           Self_.ReleaseAsync;
@@ -336,32 +357,44 @@ var
   Self_: TOBDRoutineControl;
   Snap: TOBDRoutineResult;
 begin
-  if not Assigned(FOnRoutine) then Exit;
-  Self_ := Self; Snap := AResult;
+  if not Assigned(FOnRoutine) then
+    Exit;
+  Self_ := Self;
+  Snap := AResult;
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnRoutine(Self_, Snap)
   else
-    FOwnedTask.Post( procedure begin
-      if Assigned(Self_.FOnRoutine) then Self_.FOnRoutine(Self_, Snap);
-    end);
+    FOwnedTask.Post(
+      procedure
+      begin
+        if Assigned(Self_.FOnRoutine) then
+          Self_.FOnRoutine(Self_, Snap);
+      end);
 end;
 
 procedure TOBDRoutineControl.FireError(ACode: TOBDErrorCode;
-  const AMessage: string);
+const AMessage: string);
 var
-  Self_: TOBDRoutineControl; Code: TOBDErrorCode; Msg: string;
+  Self_: TOBDRoutineControl;
+  Code: TOBDErrorCode;
+  Msg: string;
   Handled: Boolean;
 begin
-  if not Assigned(FOnError) then Exit;
-  Self_ := Self; Code := ACode; Msg := AMessage;
+  if not Assigned(FOnError) then
+    Exit;
+  Self_ := Self;
+  Code := ACode;
+  Msg := AMessage;
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
     Handled := False;
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    FOwnedTask.Post( procedure
-      var Handled: Boolean;
+    FOwnedTask.Post(
+      procedure
+      var
+        Handled: Boolean;
       begin
         Handled := False;
         if Assigned(Self_.FOnError) then

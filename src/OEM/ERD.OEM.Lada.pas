@@ -1,41 +1,41 @@
-//------------------------------------------------------------------------------
-//  ERD.OEM.Lada
+﻿// ------------------------------------------------------------------------------
+// ERD.OEM.Lada
 //
-//  AvtoVAZ / Lada OEM extension. AO AvtoVAZ — Tolyatti (XTA) +
-//  Izhevsk (XTC) + Bronto special-vehicles. Engines are the
-//  VAZ-2126x (Granta / Vesta) and VAZ-2123x (Niva / Niva
-//  Travel) families with Bosch ME17.9.7 / EDC17 ECMs.
-//  Catalogue covers Granta + Vesta + Niva (Legend + Travel) +
-//  Largus (Logan-derived) in <c>catalogs/lada.json</c> +
-//  <c>catalogs/dtc-lada.json</c>.
+// AvtoVAZ / Lada OEM extension. AO AvtoVAZ — Tolyatti (XTA) +
+// Izhevsk (XTC) + Bronto special-vehicles. Engines are the
+// VAZ-2126x (Granta / Vesta) and VAZ-2123x (Niva / Niva
+// Travel) families with Bosch ME17.9.7 / EDC17 ECMs.
+// Catalogue covers Granta + Vesta + Niva (Legend + Travel) +
+// Largus (Logan-derived) in <c>catalogs/lada.json</c> +
+// <c>catalogs/dtc-lada.json</c>.
 //
-//  Seed-key starter is the textbook KWP2000 two's-complement
-//  matching the Bosch ME17 / EDC17 lineage; production callers
-//  register the Russian dealer-tool implementation via
-//  RegisterAlgorithm.
+// Seed-key starter is the textbook KWP2000 two's-complement
+// matching the Bosch ME17 / EDC17 lineage; production callers
+// register the Russian dealer-tool implementation via
+// RegisterAlgorithm.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-12  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-12  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.OEM.Lada;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   ERD.OEM,
   ERD.OEM.Session,
   ERD.OEM.SeedKey,
@@ -48,22 +48,20 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
-    procedure BuildExtendedCatalog(
-      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+    procedure BuildExtendedCatalog(var CodingBlocks: TArray<TOBDOEMCodingBlock>;
       var Adaptations: TArray<TOBDOEMAdaptation>;
       var ActuatorTests: TArray<TOBDOEMActuatorTest>;
       var LivePIDs: TArray<TOBDOEMLivePID>;
       var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
-    procedure SeedDefaultSeedKeyAlgorithms(
-      Reg: TOBDSeedKeyRegistry); override;
+    procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
     function DtcCatalogFileName: string; override;
   public
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
     function ApplicableToVIN(const VIN: string): Boolean; override;
-    function DecodeDID(const DID: Word;
-      const Payload: TBytes): string; override;
+    function DecodeDID(const DID: Word; const Payload: TBytes): string;
+      override;
   end;
 
 implementation
@@ -83,41 +81,37 @@ begin
   Result := 'AvtoVAZ (Lada)';
 end;
 
-function TOBDOEMExtensionLada.ApplicableToVIN(
-  const VIN: string): Boolean;
+function TOBDOEMExtensionLada.ApplicableToVIN(const VIN: string): Boolean;
 begin
   Result := VINMatchesCatalog('lada.json', VIN);
 end;
 
-procedure TOBDOEMExtensionLada.BuildCatalog(
-  var DIDs: TArray<TOBDOEMDataIdentifier>;
-  var Routines: TArray<TOBDOEMRoutine>;
-  var ECUs: TArray<TOBDOEMECU>);
+procedure TOBDOEMExtensionLada.BuildCatalog
+  (var DIDs: TArray<TOBDOEMDataIdentifier>;
+  var Routines: TArray<TOBDOEMRoutine>; var ECUs: TArray<TOBDOEMECU>);
 begin
   MergeCatalogJSON('lada.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
-procedure TOBDOEMExtensionLada.BuildExtendedCatalog(
-  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
-  var Adaptations: TArray<TOBDOEMAdaptation>;
+procedure TOBDOEMExtensionLada.BuildExtendedCatalog(var CodingBlocks
+  : TArray<TOBDOEMCodingBlock>; var Adaptations: TArray<TOBDOEMAdaptation>;
   var ActuatorTests: TArray<TOBDOEMActuatorTest>;
   var LivePIDs: TArray<TOBDOEMLivePID>;
   var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
 begin
-  MergeExtendedCatalogJSON('lada.json',
-    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+  MergeExtendedCatalogJSON('lada.json', CodingBlocks, Adaptations,
+    ActuatorTests, LivePIDs, DtcExtended);
 end;
 
-procedure TOBDOEMExtensionLada.SeedDefaultSeedKeyAlgorithms(
-  Reg: TOBDSeedKeyRegistry);
+procedure TOBDOEMExtensionLada.SeedDefaultSeedKeyAlgorithms
+  (Reg: TOBDSeedKeyRegistry);
 begin
   Reg.RegisterAlgorithm($01,
     IOBDSeedKeyAlgorithm(TOBDSeedKeyKWP2000TwosComplement.Create()));
 end;
 
-procedure TOBDOEMExtensionLada.SeedDefaultDtcCatalog(
-  Cat: TOBDDtcCatalog);
+procedure TOBDOEMExtensionLada.SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog);
 begin
   inherited;
   MergeDtcCatalog('dtc-iso-15031.json', Cat);
@@ -136,8 +130,7 @@ begin
     $F190:
       if Length(Payload) > 0 then
       begin
-        Result := Format('vin = %s',
-          [TEncoding.ASCII.GetString(Payload)]);
+        Result := Format('vin = %s', [TEncoding.ASCII.GetString(Payload)]);
         Exit;
       end;
     $F1A0, $F1A2, $F1A4, $F1A6:
@@ -152,6 +145,7 @@ begin
 end;
 
 initialization
-  TOBDOEMRegistry.RegisterExtension(TOBDOEMExtensionLada.Create);
+
+TOBDOEMRegistry.RegisterExtension(TOBDOEMExtensionLada.Create);
 
 end.

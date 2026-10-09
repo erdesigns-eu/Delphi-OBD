@@ -1,33 +1,33 @@
-//------------------------------------------------------------------------------
-//  ERD.OEM.KeyAdaptation.Base
+// ------------------------------------------------------------------------------
+// ERD.OEM.KeyAdaptation.Base
 //
-//  Abstract base TComponent for every per-vendor key-adaptation
-//  unit. Owns the safety scaffold (AutoExecute / OnConfirm
-//  Execute / standard event firing); subclasses implement
-//  DoListSlots / DoAddKey / DoClearOneSlot / DoClearAllKeys /
-//  DoCheckPin against their vendor's UDS routines + DIDs.
+// Abstract base TComponent for every per-vendor key-adaptation
+// unit. Owns the safety scaffold (AutoExecute / OnConfirm
+// Execute / standard event firing); subclasses implement
+// DoListSlots / DoAddKey / DoClearOneSlot / DoClearAllKeys /
+// DoCheckPin against their vendor's UDS routines + DIDs.
 //
-//  Every public destructive op:
-//    1. raises EOBDConfig if AutoExecute is False
-//    2. fires OnConfirmExecute - must return ACanProceed=True
-//       or the op aborts with Result.Message="Host rejected
-//       confirmation"
-//    3. delegates to the abstract DoXxx method
-//    4. fires OnResult with the outcome
+// Every public destructive op:
+// 1. raises EOBDConfig if AutoExecute is False
+// 2. fires OnConfirmExecute - must return ACanProceed=True
+// or the op aborts with Result.Message="Host rejected
+// confirmation"
+// 3. delegates to the abstract DoXxx method
+// 4. fires OnResult with the outcome
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT - see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT - see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.OEM.KeyAdaptation.Base;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -35,8 +35,8 @@ interface
 uses
   ERD.Connection,
   ERD.Types,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   ERD.Errors,
   ERD.Connection.Types,
   ERD.Protocol,
@@ -45,16 +45,15 @@ uses
 type
   TOBDKeyAdaptationBase = class abstract(TComponent)
   strict private
-    FProtocol:        TOBDProtocol;
-    FAutoExecute:     Boolean;
-    FChassisCode:     string;
-    FPin:             string;
-    FOnConfirm:       TOBDKeyAdaptConfirmEvent;
-    FOnResult:        TOBDKeyAdaptResultEvent;
-    FOnError:         TOBDConnectionErrorEvent;
+    FProtocol: TOBDProtocol;
+    FAutoExecute: Boolean;
+    FChassisCode: string;
+    FPin: string;
+    FOnConfirm: TOBDKeyAdaptConfirmEvent;
+    FOnResult: TOBDKeyAdaptResultEvent;
+    FOnError: TOBDConnectionErrorEvent;
     procedure SetProtocol(AValue: TOBDProtocol);
-    function  Confirm(AOp: TOBDKeyAdaptOp;
-      ASlotIndex: Byte): Boolean;
+    function Confirm(AOp: TOBDKeyAdaptOp; ASlotIndex: Byte): Boolean;
   protected
     procedure Notification(AComponent: TComponent;
       Operation: TOperation); override;
@@ -66,8 +65,8 @@ type
     // routine IDs / DID writes.
     function DoListSlots: TOBDKeyAdaptResult; virtual; abstract;
     function DoAddKey: TOBDKeyAdaptResult; virtual; abstract;
-    function DoClearOneSlot(ASlotIndex: Byte):
-      TOBDKeyAdaptResult; virtual; abstract;
+    function DoClearOneSlot(ASlotIndex: Byte): TOBDKeyAdaptResult;
+      virtual; abstract;
     function DoClearAllKeys: TOBDKeyAdaptResult; virtual; abstract;
     function DoCheckPin: TOBDKeyAdaptResult; virtual; abstract;
 
@@ -103,21 +102,19 @@ type
     function CheckPin: TOBDKeyAdaptResult;
   published
     /// <summary>Required - source of the bus reads / writes.</summary>
-    property Protocol: TOBDProtocol
-      read FProtocol write SetProtocol;
+    property Protocol: TOBDProtocol read FProtocol write SetProtocol;
 
     /// <summary>Master safety gate. Must be True for any
     /// destructive op (AddKey / ClearOne / ClearAll). Off by
     /// default - hosts have to opt in explicitly.</summary>
-    property AutoExecute: Boolean
-      read FAutoExecute write FAutoExecute default False;
+    property AutoExecute: Boolean read FAutoExecute write FAutoExecute
+      default False;
 
     /// <summary>Vendor chassis / platform key (e.g. "p552"
     /// for Ford F-150, "rb" for Hyundai i20). Used by the
     /// vendor unit to pick the right routine variant. Look up
     /// the keys in catalogs/key-platforms-<vendor>.json.</summary>
-    property ChassisCode: string
-      read FChassisCode write FChassisCode;
+    property ChassisCode: string read FChassisCode write FChassisCode;
 
     /// <summary>4 / 5 / 6 / 8-digit dealer PIN or CS code.
     /// Some platforms accept it as decimal text, others as
@@ -127,18 +124,16 @@ type
     /// <summary>Required for every destructive op. Host
     /// returns ACanProceed=True (typically after a modal
     /// confirmation dialog).</summary>
-    property OnConfirmExecute: TOBDKeyAdaptConfirmEvent
-      read FOnConfirm write FOnConfirm;
+    property OnConfirmExecute: TOBDKeyAdaptConfirmEvent read FOnConfirm
+      write FOnConfirm;
 
-    property OnResult: TOBDKeyAdaptResultEvent
-      read FOnResult write FOnResult;
-    property OnError: TOBDConnectionErrorEvent
-      read FOnError write FOnError;
+    property OnResult: TOBDKeyAdaptResultEvent read FOnResult write FOnResult;
+    property OnError: TOBDConnectionErrorEvent read FOnError write FOnError;
   end;
 
 implementation
 
-{ TOBDKeyAdaptationBase -------------------------------------------------------}
+{ TOBDKeyAdaptationBase ------------------------------------------------------- }
 
 constructor TOBDKeyAdaptationBase.Create(AOwner: TComponent);
 begin
@@ -148,10 +143,13 @@ end;
 
 procedure TOBDKeyAdaptationBase.SetProtocol(AValue: TOBDProtocol);
 begin
-  if FProtocol = AValue then Exit;
-  if FProtocol <> nil then FProtocol.RemoveFreeNotification(Self);
+  if FProtocol = AValue then
+    Exit;
+  if FProtocol <> nil then
+    FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
-  if FProtocol <> nil then FProtocol.FreeNotification(Self);
+  if FProtocol <> nil then
+    FProtocol.FreeNotification(Self);
 end;
 
 procedure TOBDKeyAdaptationBase.Notification(AComponent: TComponent;
@@ -165,15 +163,14 @@ end;
 procedure TOBDKeyAdaptationBase.GuardExecute;
 begin
   if not FAutoExecute then
-    raise EOBDConfig.Create(
-      ClassName + ': AutoExecute is False - destructive key ' +
+    raise EOBDConfig.Create(ClassName +
+      ': AutoExecute is False - destructive key ' +
       'adaptation refused. Set AutoExecute=True only after the ' +
       'host has confirmed the operation.');
   if not Assigned(FOnConfirm) then
-    raise EOBDConfig.Create(
-      ClassName + ': OnConfirmExecute is not assigned - the ' +
-      'host must wire a confirmation handler before any ' +
-      'destructive op.');
+    raise EOBDConfig.Create(ClassName +
+      ': OnConfirmExecute is not assigned - the ' +
+      'host must wire a confirmation handler before any ' + 'destructive op.');
 end;
 
 function TOBDKeyAdaptationBase.Confirm(AOp: TOBDKeyAdaptOp;
@@ -187,15 +184,14 @@ end;
 function TOBDKeyAdaptationBase.RequireProtocol: TOBDProtocol;
 begin
   if FProtocol = nil then
-    raise EOBDConfig.Create(
-      ClassName + ': Protocol not assigned');
+    raise EOBDConfig.Create(ClassName + ': Protocol not assigned');
   Result := FProtocol;
 end;
 
-procedure TOBDKeyAdaptationBase.FireResult(
-  const AResult: TOBDKeyAdaptResult);
+procedure TOBDKeyAdaptationBase.FireResult(const AResult: TOBDKeyAdaptResult);
 begin
-  if Assigned(FOnResult) then FOnResult(Self, AResult);
+  if Assigned(FOnResult) then
+    FOnResult(Self, AResult);
 end;
 
 procedure TOBDKeyAdaptationBase.FireError(ACode: TOBDErrorCode;
@@ -204,7 +200,8 @@ var
   Handled: Boolean;
 begin
   Handled := False;
-  if Assigned(FOnError) then FOnError(Self, ACode, AMessage, Handled);
+  if Assigned(FOnError) then
+    FOnError(Self, ACode, AMessage, Handled);
 end;
 
 function TOBDKeyAdaptationBase.RequiresChassisCode: Boolean;
@@ -225,7 +222,7 @@ begin
   GuardExecute;
   if RequiresChassisCode and (FChassisCode = '') then
   begin
-    Result := Default(TOBDKeyAdaptResult);
+    Result := Default (TOBDKeyAdaptResult);
     Result.Op := kaoAddKey;
     Result.Message := ClassName + ': ChassisCode is required';
     FireResult(Result);
@@ -233,7 +230,7 @@ begin
   end;
   if not Confirm(kaoAddKey, 0) then
   begin
-    Result := Default(TOBDKeyAdaptResult);
+    Result := Default (TOBDKeyAdaptResult);
     Result.Op := kaoAddKey;
     Result.Message := 'Host rejected confirmation';
     FireResult(Result);
@@ -244,13 +241,13 @@ begin
   FireResult(Result);
 end;
 
-function TOBDKeyAdaptationBase.ClearOneSlot(
-  ASlotIndex: Byte): TOBDKeyAdaptResult;
+function TOBDKeyAdaptationBase.ClearOneSlot(ASlotIndex: Byte)
+  : TOBDKeyAdaptResult;
 begin
   GuardExecute;
   if not Confirm(kaoClearOneSlot, ASlotIndex) then
   begin
-    Result := Default(TOBDKeyAdaptResult);
+    Result := Default (TOBDKeyAdaptResult);
     Result.Op := kaoClearOneSlot;
     Result.SlotIndex := ASlotIndex;
     Result.Message := 'Host rejected confirmation';
@@ -268,7 +265,7 @@ begin
   GuardExecute;
   if not Confirm(kaoClearAllKeys, 0) then
   begin
-    Result := Default(TOBDKeyAdaptResult);
+    Result := Default (TOBDKeyAdaptResult);
     Result.Op := kaoClearAllKeys;
     Result.Message := 'Host rejected confirmation';
     FireResult(Result);

@@ -1,42 +1,42 @@
-//------------------------------------------------------------------------------
-//  ERD.UDS.WriteDID
+﻿// ------------------------------------------------------------------------------
+// ERD.UDS.WriteDID
 //
-//  TOBDUDSWriteDID — non-visual component for ISO 14229-1
-//  WriteDataByIdentifier (SID 0x2E). Distinct from
-//  WriteMemoryByAddress (SID 0x3D, covered by TOBDUDSWriteMemory):
-//  WriteDataByIdentifier targets a 16-bit DID and writes raw or
-//  catalogue-shaped bytes. The DID-IO surface (read + write via
-//  TOBDDataIdentifierIO) covers the same wire path; this component
-//  exists as a focused single-purpose helper so coding orchestrators
-//  can wire one component per service when that fits their design.
+// TOBDUDSWriteDID — non-visual component for ISO 14229-1
+// WriteDataByIdentifier (SID 0x2E). Distinct from
+// WriteMemoryByAddress (SID 0x3D, covered by TOBDUDSWriteMemory):
+// WriteDataByIdentifier targets a 16-bit DID and writes raw or
+// catalogue-shaped bytes. The DID-IO surface (read + write via
+// TOBDDataIdentifierIO) covers the same wire path; this component
+// exists as a focused single-purpose helper so coding orchestrators
+// can wire one component per service when that fits their design.
 //
-//  Wire format per ISO 14229-1 §11.6:
+// Wire format per ISO 14229-1 §11.6:
 //
-//    Request : 2E <DID-hi> <DID-lo> <data...>
-//    Response: 6E <DID-hi> <DID-lo>
+// Request : 2E <DID-hi> <DID-lo> <data...>
+// Response: 6E <DID-hi> <DID-lo>
 //
-//  AutoExecute = False default — every Write raises EOBDConfig
-//  before any wire access until the host explicitly opts in.
+// AutoExecute = False default — every Write raises EOBDConfig
+// before any wire access until the host explicitly opts in.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - ISO 14229-1:2020 § 11.6 (WriteDataByIdentifier)
+// References  :
+// - ISO 14229-1:2020 § 11.6 (WriteDataByIdentifier)
 //
-//  History     :
-//    2026-05-11  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-11  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.UDS.WriteDID;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -44,9 +44,9 @@ interface
 uses
   ERD.Async.Task,
   ERD.Connection,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
   ERD.Types,
   ERD.Protocol.Types,
   ERD.Protocol.UDS,
@@ -58,27 +58,27 @@ const
 
 type
   /// <summary>
-  ///   Fired after a successful write of <c>ADID</c>.
+  /// Fired after a successful write of <c>ADID</c>.
   /// </summary>
   /// <remarks>
-  ///   Always fires on the main thread, even when triggered from
-  ///   <see cref="TOBDUDSWriteDID.WriteAsync"/>.
+  /// Always fires on the main thread, even when triggered from
+  /// <see cref="TOBDUDSWriteDID.WriteAsync"/>.
   /// </remarks>
   TOBDUDSWriteDIDEvent = procedure(Sender: TObject; ADID: Word) of object;
 
   /// <summary>
-  ///   Single-purpose UDS WriteDataByIdentifier (SID 0x2E) component.
+  /// Single-purpose UDS WriteDataByIdentifier (SID 0x2E) component.
   /// </summary>
   /// <remarks>
-  ///   Drop the component on a form, assign <c>Protocol</c> to a
-  ///   connected <see cref="TOBDProtocol"/>, set
-  ///   <c>AutoExecute := True</c> once the host has consented, then
-  ///   call <see cref="Write"/> (sync) or <see cref="WriteAsync"/>
-  ///   (non-blocking).
+  /// Drop the component on a form, assign <c>Protocol</c> to a
+  /// connected <see cref="TOBDProtocol"/>, set
+  /// <c>AutoExecute := True</c> once the host has consented, then
+  /// call <see cref="Write"/> (sync) or <see cref="WriteAsync"/>
+  /// (non-blocking).
   ///
-  ///   The component validates the response: the ECU must echo the
-  ///   16-bit DID in the positive response; a missing or mismatched
-  ///   echo raises <c>EOBDProtocolErr</c>.
+  /// The component validates the response: the ECU must echo the
+  /// 16-bit DID in the positive response; a missing or mismatched
+  /// echo raises <c>EOBDProtocolErr</c>.
   /// </remarks>
   TOBDUDSWriteDID = class(TComponent)
   strict private
@@ -106,43 +106,43 @@ type
     destructor Destroy; override;
 
     /// <summary>
-    ///   Writes <c>AData</c> to <c>ADID</c> synchronously.
+    /// Writes <c>AData</c> to <c>ADID</c> synchronously.
     /// </summary>
     /// <param name="ADID">16-bit Data Identifier per ISO 14229-1
     /// §10.2.</param>
     /// <param name="AData">Payload bytes to write. Must not be
     /// empty.</param>
     /// <remarks>
-    ///   Blocks the caller until the ECU response arrives or the
-    ///   protocol times out. From GUI code prefer
-    ///   <see cref="WriteAsync"/>.
+    /// Blocks the caller until the ECU response arrives or the
+    /// protocol times out. From GUI code prefer
+    /// <see cref="WriteAsync"/>.
     /// </remarks>
     /// <exception cref="EOBDConfig">
-    ///   <c>Protocol</c> is not assigned; or <c>AutoExecute</c> is
-    ///   <c>False</c>; or <c>AData</c> is empty.
+    /// <c>Protocol</c> is not assigned; or <c>AutoExecute</c> is
+    /// <c>False</c>; or <c>AData</c> is empty.
     /// </exception>
     /// <exception cref="EOBDProtocolErr">
-    ///   ECU returned a negative response, a truncated positive
-    ///   response, or a DID echo that does not match
-    ///   <c>ADID</c>.
+    /// ECU returned a negative response, a truncated positive
+    /// response, or a DID echo that does not match
+    /// <c>ADID</c>.
     /// </exception>
     procedure Write(ADID: Word; const AData: TBytes);
 
     /// <summary>
-    ///   Writes <c>AData</c> to <c>ADID</c> without blocking.
+    /// Writes <c>AData</c> to <c>ADID</c> without blocking.
     /// </summary>
     /// <param name="ADID">16-bit Data Identifier.</param>
     /// <param name="AData">Payload bytes (deep-copied for the
     /// worker thread).</param>
     /// <remarks>
-    ///   Spawns a worker thread; reports completion via
-    ///   <c>OnWrite</c> or failure via <c>OnError</c> on the main
-    ///   thread. Only one <c>WriteAsync</c> may be in flight at a
-    ///   time — overlapping calls raise <c>EOBDConfig</c> from
-    ///   the calling thread before the worker is started.
+    /// Spawns a worker thread; reports completion via
+    /// <c>OnWrite</c> or failure via <c>OnError</c> on the main
+    /// thread. Only one <c>WriteAsync</c> may be in flight at a
+    /// time — overlapping calls raise <c>EOBDConfig</c> from
+    /// the calling thread before the worker is started.
     /// </remarks>
     /// <exception cref="EOBDConfig">
-    ///   Another async write is already in flight.
+    /// Another async write is already in flight.
     /// </exception>
     procedure WriteAsync(ADID: Word; const AData: TBytes);
   published
@@ -150,12 +150,12 @@ type
     property Protocol: TOBDProtocol read FProtocol write SetProtocol;
 
     /// <summary>
-    ///   Safety gate. Default <c>False</c>.
+    /// Safety gate. Default <c>False</c>.
     /// </summary>
     /// <remarks>
-    ///   Every <c>Write</c> raises <c>EOBDConfig</c> while this is
-    ///   <c>False</c>. The host flips it to <c>True</c> once the
-    ///   operator has explicitly consented to the write.
+    /// Every <c>Write</c> raises <c>EOBDConfig</c> while this is
+    /// <c>False</c>. The host flips it to <c>True</c> once the
+    /// operator has explicitly consented to the write.
     /// </remarks>
     property AutoExecute: Boolean read FAutoExecute write FAutoExecute
       default False;
@@ -178,7 +178,8 @@ end;
 
 destructor TOBDUDSWriteDID.Destroy;
 begin
-  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  if FOwnedTask <> nil then
+    FOwnedTask.Cancel;
   FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
@@ -201,7 +202,8 @@ begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
   begin
-    if FOwnedTask <> nil then FOwnedTask.Quiesce;
+    if FOwnedTask <> nil then
+      FOwnedTask.Quiesce;
     FProtocol := nil;
   end;
 end;
@@ -239,8 +241,8 @@ begin
   if FProtocol = nil then
     raise EOBDConfig.Create('TOBDUDSWriteDID: Protocol not assigned');
   if not FAutoExecute then
-    raise EOBDConfig.Create(
-      'TOBDUDSWriteDID: AutoExecute is False — set it before writing');
+    raise EOBDConfig.Create
+      ('TOBDUDSWriteDID: AutoExecute is False — set it before writing');
   if Length(AData) = 0 then
     raise EOBDConfig.Create('TOBDUDSWriteDID: empty data');
 
@@ -251,15 +253,15 @@ begin
 
   Resp := FProtocol.Request(UDS_SID_WriteDataByIdentifier, Body);
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt(
-      'WriteDataByIdentifier 0x%.4x negative: %s', [ADID, Resp.NRCText]);
+    raise EOBDProtocolErr.CreateFmt('WriteDataByIdentifier 0x%.4x negative: %s',
+      [ADID, Resp.NRCText]);
   if Length(Resp.Data) < 2 then
-    raise EOBDProtocolErr.CreateFmt(
-      'WriteDataByIdentifier 0x%.4x: response too short', [ADID]);
+    raise EOBDProtocolErr.CreateFmt
+      ('WriteDataByIdentifier 0x%.4x: response too short', [ADID]);
   EchoDID := (Word(Resp.Data[0]) shl 8) or Word(Resp.Data[1]);
   if EchoDID <> ADID then
-    raise EOBDProtocolErr.CreateFmt(
-      'WriteDataByIdentifier echo mismatch: requested 0x%.4x, got 0x%.4x',
+    raise EOBDProtocolErr.CreateFmt
+      ('WriteDataByIdentifier echo mismatch: requested 0x%.4x, got 0x%.4x',
       [ADID, EchoDID]);
 end;
 
@@ -322,7 +324,7 @@ begin
 end;
 
 procedure TOBDUDSWriteDID.FireError(ACode: TOBDErrorCode;
-  const AMessage: string);
+const AMessage: string);
 var
   Self_: TOBDUDSWriteDID;
   Code: TOBDErrorCode;

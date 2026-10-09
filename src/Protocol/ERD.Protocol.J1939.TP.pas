@@ -1,96 +1,96 @@
-//------------------------------------------------------------------------------
-//  ERD.Protocol.J1939.TP
+﻿// ------------------------------------------------------------------------------
+// ERD.Protocol.J1939.TP
 //
-//  J1939 transport layer (SAE J1939-21). Implements the multi-packet
-//  Transport Protocol — TP.CM (PGN 0xEC00) + TP.DT (PGN 0xEB00) for
-//  9..1785-byte messages, plus the Extended Transport Protocol —
-//  ETP.CM (PGN 0xC800) + ETP.DT (PGN 0xC700) for messages larger
-//  than 1785 bytes (up to 117,440,505 bytes).
+// J1939 transport layer (SAE J1939-21). Implements the multi-packet
+// Transport Protocol — TP.CM (PGN 0xEC00) + TP.DT (PGN 0xEB00) for
+// 9..1785-byte messages, plus the Extended Transport Protocol —
+// ETP.CM (PGN 0xC800) + ETP.DT (PGN 0xC700) for messages larger
+// than 1785 bytes (up to 117,440,505 bytes).
 //
-//  Two flow patterns:
-//    - BAM (Broadcast Announce Message): 9..1785 bytes, broadcast,
-//      no flow control. CM is followed by DT chunks at fixed
-//      cadence.
-//    - RTS-CTS (Peer-to-peer): 9..1785 bytes (TP) or > 1785
-//      (ETP), unicast, full flow control.
+// Two flow patterns:
+// - BAM (Broadcast Announce Message): 9..1785 bytes, broadcast,
+// no flow control. CM is followed by DT chunks at fixed
+// cadence.
+// - RTS-CTS (Peer-to-peer): 9..1785 bytes (TP) or > 1785
+// (ETP), unicast, full flow control.
 //
-//  This unit ships:
-//    - All TP.CM / TP.DT control-message encoders + decoders.
-//    - All ETP.CM / ETP.DT control-message encoders + decoders.
-//    - <see cref="TOBDJ1939SessionManager"/> — concurrent RX +
-//      TX sessions keyed by (SA, DA, PGN); drives BAM and
-//      RTS-CTS state machines including timeouts and abort.
-//    - <see cref="TOBDJ1939Transmitter"/> — high-level TX
-//      driver that splits a payload into the right frame
-//      sequence and surfaces per-frame send callbacks the host
-//      wires to its CAN bus driver.
+// This unit ships:
+// - All TP.CM / TP.DT control-message encoders + decoders.
+// - All ETP.CM / ETP.DT control-message encoders + decoders.
+// - <see cref="TOBDJ1939SessionManager"/> — concurrent RX +
+// TX sessions keyed by (SA, DA, PGN); drives BAM and
+// RTS-CTS state machines including timeouts and abort.
+// - <see cref="TOBDJ1939Transmitter"/> — high-level TX
+// driver that splits a payload into the right frame
+// sequence and surfaces per-frame send callbacks the host
+// wires to its CAN bus driver.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - SAE J1939-21:2024 §5.10 (Transport Protocol)
-//    - SAE J1939-21 Appendix B (state diagrams)
+// References  :
+// - SAE J1939-21:2024 §5.10 (Transport Protocol)
+// - SAE J1939-21 Appendix B (state diagrams)
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation: full TP / ETP implementation
-//                     with concurrent session manager.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation: full TP / ETP implementation
+// with concurrent session manager.
+// ------------------------------------------------------------------------------
 
 unit ERD.Protocol.J1939.TP;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
-  {$IFDEF FPC}DateUtils{$ELSE}System.DateUtils{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}DateUtils{$ELSE}System.DateUtils{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.Types,
   ERD.Protocol.Types,
   ERD.Protocol.J1939;
 
 const
   // ---- TP.CM control bytes (J1939-21 §5.10.4) ----
-  J1939_TPCM_RTS    = $10;
-  J1939_TPCM_CTS    = $11;
-  J1939_TPCM_EOMA   = $13;
-  J1939_TPCM_BAM    = $20;
-  J1939_TPCM_ABORT  = $FF;
+  J1939_TPCM_RTS = $10;
+  J1939_TPCM_CTS = $11;
+  J1939_TPCM_EOMA = $13;
+  J1939_TPCM_BAM = $20;
+  J1939_TPCM_ABORT = $FF;
 
   // ---- ETP.CM control bytes (J1939-21 §5.10.5) ----
-  J1939_ETPCM_RTS   = $14;
-  J1939_ETPCM_CTS   = $15;
-  J1939_ETPCM_DPO   = $16;
-  J1939_ETPCM_EOMA  = $17;
+  J1939_ETPCM_RTS = $14;
+  J1939_ETPCM_CTS = $15;
+  J1939_ETPCM_DPO = $16;
+  J1939_ETPCM_EOMA = $17;
   J1939_ETPCM_ABORT = $FF;
 
   // ---- Limits (J1939-21 §5.10.3) ----
-  J1939_TP_MIN_BYTES   = 9;     // 8 bytes still fits in a single CAN frame
-  J1939_TP_MAX_BYTES   = 1785;  // 255 packets × 7 bytes
-  J1939_ETP_MIN_BYTES  = 1786;
-  J1939_ETP_MAX_BYTES  = 117_440_505; // 16,777,215 × 7
+  J1939_TP_MIN_BYTES = 9; // 8 bytes still fits in a single CAN frame
+  J1939_TP_MAX_BYTES = 1785; // 255 packets × 7 bytes
+  J1939_ETP_MIN_BYTES = 1786;
+  J1939_ETP_MAX_BYTES = 117_440_505; // 16,777,215 × 7
 
   // ---- Standard J1939-21 timing constants (milliseconds) ----
-  J1939_T1_MS = 750;   // Time between TP.CM and first TP.DT (BAM)
-  J1939_T2_MS = 1250;  // Receiver timeout waiting for next TP.DT
-  J1939_T3_MS = 1250;  // Sender timeout waiting for CTS/EOMA
-  J1939_T4_MS = 1050;  // Time between consecutive CTSes
-  J1939_TR_MS = 200;   // Inter-frame timing for BAM / DT bursts
+  J1939_T1_MS = 750; // Time between TP.CM and first TP.DT (BAM)
+  J1939_T2_MS = 1250; // Receiver timeout waiting for next TP.DT
+  J1939_T3_MS = 1250; // Sender timeout waiting for CTS/EOMA
+  J1939_T4_MS = 1050; // Time between consecutive CTSes
+  J1939_TR_MS = 200; // Inter-frame timing for BAM / DT bursts
 
 type
   /// <summary>
-  ///   Connection-abort reason codes (J1939-21 §5.10.6).
+  /// Connection-abort reason codes (J1939-21 §5.10.6).
   /// </summary>
   TJ1939AbortReason = (
     /// <summary>Already in one or more connection-managed sessions
@@ -125,8 +125,7 @@ type
     /// <summary>Unspecified abort.</summary>
     arOther = 250,
     /// <summary>Synthetic — host code timed out the session.</summary>
-    arHostTimeout = 251
-  );
+    arHostTimeout = 251);
 
   /// <summary>State of a single connection-managed session.</summary>
   TJ1939SessionState = (
@@ -147,14 +146,13 @@ type
     /// <summary>Session completed successfully.</summary>
     ssCompleted,
     /// <summary>Session aborted (peer-initiated or host timeout).</summary>
-    ssAborted
-  );
+    ssAborted);
 
   /// <summary>Direction tag.</summary>
   TJ1939SessionDirection = (sdReceive, sdTransmit);
 
   /// <summary>
-  ///   Snapshot of a transport session.
+  /// Snapshot of a transport session.
   /// </summary>
   TJ1939Session = record
     /// <summary>Source address (the originator of the multi-packet
@@ -190,8 +188,8 @@ type
   end;
 
   /// <summary>
-  ///   Callback the manager invokes when a session completes
-  ///   successfully.
+  /// Callback the manager invokes when a session completes
+  /// successfully.
   /// </summary>
   /// <param name="ASession">Final session record.</param>
   /// <param name="APayload">Reassembled application payload (RX) or
@@ -205,21 +203,21 @@ type
     AReason: TJ1939AbortReason) of object;
 
   /// <summary>
-  ///   Callback the transmitter invokes for each frame it wants to
-  ///   put on the bus. The host wires this to its CAN driver
-  ///   (J2534 / DoIP / raw-CAN). The frame's <c>Id</c> field carries
-  ///   the assembled 29-bit J1939 ID; <c>Payload</c> is exactly 8
-  ///   bytes.
+  /// Callback the transmitter invokes for each frame it wants to
+  /// put on the bus. The host wires this to its CAN driver
+  /// (J2534 / DoIP / raw-CAN). The frame's <c>Id</c> field carries
+  /// the assembled 29-bit J1939 ID; <c>Payload</c> is exactly 8
+  /// bytes.
   /// </summary>
   TJ1939FrameSendEvent = procedure(const AFrame: TOBDFrame) of object;
 
   /// <summary>
-  ///   Stateless TP / ETP control-message encoders and decoders.
+  /// Stateless TP / ETP control-message encoders and decoders.
   /// </summary>
   /// <remarks>
-  ///   The 8-byte payload of every TP.CM / ETP.CM frame is built or
-  ///   parsed by these helpers. PGN is little-endian in the trailing
-  ///   3 bytes for both TP and ETP.
+  /// The 8-byte payload of every TP.CM / ETP.CM frame is built or
+  /// parsed by these helpers. PGN is little-endian in the trailing
+  /// 3 bytes for both TP and ETP.
   /// </remarks>
   TOBDJ1939TPCodec = class
   public
@@ -241,47 +239,46 @@ type
     /// <param name="ANextPacket">1-based sequence number the sender
     /// should resume at.</param>
     /// <returns>8-byte payload.</returns>
-    class function EncodeCTS(APGN: Cardinal; APackets,
-      ANextPacket: Byte): TBytes; static;
+    class function EncodeCTS(APGN: Cardinal; APackets, ANextPacket: Byte)
+      : TBytes; static;
 
     /// <summary>Encodes an EndOfMsgAck frame.</summary>
     /// <param name="APGN">Embedded PGN.</param>
     /// <param name="ASize">Total message size.</param>
     /// <param name="APackets">Total packets received.</param>
     /// <returns>8-byte payload.</returns>
-    class function EncodeEOMA(APGN: Cardinal; ASize: Word;
-      APackets: Byte): TBytes; static;
+    class function EncodeEOMA(APGN: Cardinal; ASize: Word; APackets: Byte)
+      : TBytes; static;
 
     /// <summary>Encodes a BAM control frame.</summary>
     /// <param name="APGN">Embedded PGN.</param>
     /// <param name="ASize">Total message size 9..1785.</param>
     /// <param name="APackets">Total packets.</param>
     /// <returns>8-byte payload.</returns>
-    class function EncodeBAM(APGN: Cardinal; ASize: Word;
-      APackets: Byte): TBytes; static;
+    class function EncodeBAM(APGN: Cardinal; ASize: Word; APackets: Byte)
+      : TBytes; static;
 
     /// <summary>Encodes a connection-abort frame.</summary>
     /// <param name="APGN">PGN of the aborted session.</param>
     /// <param name="AReason">Abort reason byte.</param>
     /// <returns>8-byte payload.</returns>
-    class function EncodeAbort(APGN: Cardinal;
-      AReason: Byte): TBytes; static;
+    class function EncodeAbort(APGN: Cardinal; AReason: Byte): TBytes; static;
 
     /// <summary>Encodes a TP.DT data frame.</summary>
     /// <param name="ASequence">1-based sequence number 1..255.</param>
     /// <param name="AChunk">Up to 7 bytes of payload. Padded with
     /// 0xFF to 7 bytes when shorter.</param>
     /// <returns>8-byte payload.</returns>
-    class function EncodeDT(ASequence: Byte;
-      const AChunk: TBytes): TBytes; static;
+    class function EncodeDT(ASequence: Byte; const AChunk: TBytes)
+      : TBytes; static;
 
     // ---- ETP.CM ----
     /// <summary>Encodes an ETP RTS frame.</summary>
     /// <param name="APGN">Embedded PGN.</param>
     /// <param name="ASize">Total message size > 1785.</param>
     /// <returns>8-byte payload.</returns>
-    class function EncodeETPRTS(APGN: Cardinal;
-      ASize: Cardinal): TBytes; static;
+    class function EncodeETPRTS(APGN: Cardinal; ASize: Cardinal)
+      : TBytes; static;
 
     /// <summary>Encodes an ETP CTS frame.</summary>
     /// <param name="APGN">Embedded PGN.</param>
@@ -304,16 +301,16 @@ type
     /// <param name="APGN">Embedded PGN.</param>
     /// <param name="ASize">Total bytes received.</param>
     /// <returns>8-byte payload.</returns>
-    class function EncodeETPEOMA(APGN: Cardinal;
-      ASize: Cardinal): TBytes; static;
+    class function EncodeETPEOMA(APGN: Cardinal; ASize: Cardinal)
+      : TBytes; static;
 
     /// <summary>Encodes an ETP.DT data frame.</summary>
     /// <param name="ASequence">1-based per-burst sequence
     /// number.</param>
     /// <param name="AChunk">Up to 7 bytes; padded with 0xFF.</param>
     /// <returns>8-byte payload.</returns>
-    class function EncodeETPDT(ASequence: Byte;
-      const AChunk: TBytes): TBytes; static;
+    class function EncodeETPDT(ASequence: Byte; const AChunk: TBytes)
+      : TBytes; static;
 
     /// <summary>Reads the embedded PGN from a TP / ETP control
     /// payload (last 3 bytes, little-endian).</summary>
@@ -323,24 +320,24 @@ type
   end;
 
   /// <summary>
-  ///   Concurrent J1939 transport session manager.
+  /// Concurrent J1939 transport session manager.
   /// </summary>
   /// <remarks>
-  ///   Owns one record per active session keyed by
-  ///   <c>(SA, DA, PGN)</c>. Feed inbound TP.CM / TP.DT / ETP.CM
-  ///   / ETP.DT frames via the <c>FeedXxx</c> methods; the manager
-  ///   advances each session and fires <see cref="OnComplete"/> or
-  ///   <see cref="OnAbort"/> as appropriate.
+  /// Owns one record per active session keyed by
+  /// <c>(SA, DA, PGN)</c>. Feed inbound TP.CM / TP.DT / ETP.CM
+  /// / ETP.DT frames via the <c>FeedXxx</c> methods; the manager
+  /// advances each session and fires <see cref="OnComplete"/> or
+  /// <see cref="OnAbort"/> as appropriate.
   ///
-  ///   For TX sessions started via
-  ///   <see cref="TOBDJ1939Transmitter.BeginTransmit"/>, the
-  ///   manager is also responsible for emitting the right control
-  ///   frames in response to peer CTS / EOMA frames.
+  /// For TX sessions started via
+  /// <see cref="TOBDJ1939Transmitter.BeginTransmit"/>, the
+  /// manager is also responsible for emitting the right control
+  /// frames in response to peer CTS / EOMA frames.
   ///
-  ///   Thread-safe: methods may be called from any thread; the
-  ///   internal lock serialises access. Event callbacks fire on
-  ///   the calling thread (typically the bus rx thread). Higher
-  ///   layers should marshal to the main thread if needed.
+  /// Thread-safe: methods may be called from any thread; the
+  /// internal lock serialises access. Event callbacks fire on
+  /// the calling thread (typically the bus rx thread). Higher
+  /// layers should marshal to the main thread if needed.
   /// </remarks>
   TOBDJ1939SessionManager = class
   strict private
@@ -362,8 +359,8 @@ type
 
     function FindIndex(ASA, ADA: Byte; APGN: Cardinal): Integer;
     procedure UpdateSession(AIndex: Integer; const ASession: TJ1939Session);
-    function CommitDT(AIndex: Integer; ASequence: Byte;
-      const AChunk: TBytes; out ACompleted: Boolean): Boolean;
+    function CommitDT(AIndex: Integer; ASequence: Byte; const AChunk: TBytes;
+      out ACompleted: Boolean): Boolean;
     procedure FireComplete(const ASession: TJ1939Session;
       const APayload: TBytes);
     procedure FireAbort(const ASession: TJ1939Session;
@@ -384,7 +381,7 @@ type
     function GetSession(AIndex: Integer): TJ1939Session;
 
     /// <summary>
-    ///   Feeds an inbound TP.CM frame.
+    /// Feeds an inbound TP.CM frame.
     /// </summary>
     /// <param name="ASA">Source address (frame originator).</param>
     /// <param name="ADA">Destination address (us, or 0xFF for
@@ -435,71 +432,70 @@ type
       const APayload: TBytes);
 
     /// <summary>Fires when a session reassembles successfully.</summary>
-    property OnComplete: TJ1939SessionCompleteEvent
-      read FOnComplete write FOnComplete;
+    property OnComplete: TJ1939SessionCompleteEvent read FOnComplete
+      write FOnComplete;
     /// <summary>Fires when a session aborts (peer-initiated or
     /// host-timed-out).</summary>
-    property OnAbort: TJ1939SessionAbortEvent
-      read FOnAbort write FOnAbort;
+    property OnAbort: TJ1939SessionAbortEvent read FOnAbort write FOnAbort;
     /// <summary>Wired by the host to its bus driver. The manager
     /// emits each outbound CAN frame here.</summary>
-    property OnFrameSend: TJ1939FrameSendEvent
-      read FOnFrameSend write FOnFrameSend;
+    property OnFrameSend: TJ1939FrameSendEvent read FOnFrameSend
+      write FOnFrameSend;
     /// <summary>J1939 priority bits used when emitting outbound
     /// frames. Default 6.</summary>
     property TxPriority: Byte read FTxPriority write FTxPriority;
 
     /// <summary>
-    ///   Inter-frame pace in milliseconds. When > 0, the manager
-    ///   sleeps for this duration between consecutive
-    ///   <c>SendOutbound</c> calls inside a TX burst (BAM cadence,
-    ///   CTS-driven DT burst). Default <c>0</c> — no pacing.
+    /// Inter-frame pace in milliseconds. When > 0, the manager
+    /// sleeps for this duration between consecutive
+    /// <c>SendOutbound</c> calls inside a TX burst (BAM cadence,
+    /// CTS-driven DT burst). Default <c>0</c> — no pacing.
     /// </summary>
     /// <remarks>
-    ///   The manager releases its internal lock during the sleep so
-    ///   other threads can still feed frames or query session
-    ///   state. J1939-21 §5.10.4 conventional value is 50 ms (Tr).
+    /// The manager releases its internal lock during the sleep so
+    /// other threads can still feed frames or query session
+    /// state. J1939-21 §5.10.4 conventional value is 50 ms (Tr).
     /// </remarks>
     property InterFramePaceMs: Cardinal read FInterFramePaceMs
       write FInterFramePaceMs default 0;
 
     /// <summary>
-    ///   Per-session inactivity timeout in milliseconds. A session
-    ///   whose <c>LastActivity</c> is older than this is aborted by
-    ///   the next <see cref="SweepTimeouts"/> call. Default
-    ///   <c>1250</c> (J1939-21 T2).
+    /// Per-session inactivity timeout in milliseconds. A session
+    /// whose <c>LastActivity</c> is older than this is aborted by
+    /// the next <see cref="SweepTimeouts"/> call. Default
+    /// <c>1250</c> (J1939-21 T2).
     /// </summary>
     property TimeoutMs: Cardinal read FTimeoutMs write FTimeoutMs
       default J1939_T2_MS;
 
     /// <summary>
-    ///   When True, the manager spawns an internal thread that
-    ///   calls <see cref="SweepTimeouts"/> every
-    ///   <see cref="SweepIntervalMs"/> milliseconds. When False,
-    ///   the host is responsible for invoking SweepTimeouts on its
-    ///   own timer. Default False.
+    /// When True, the manager spawns an internal thread that
+    /// calls <see cref="SweepTimeouts"/> every
+    /// <see cref="SweepIntervalMs"/> milliseconds. When False,
+    /// the host is responsible for invoking SweepTimeouts on its
+    /// own timer. Default False.
     /// </summary>
     /// <remarks>
-    ///   Setting to True spawns a single background thread with
-    ///   FreeOnTerminate := False. Setting to False stops and
-    ///   joins the thread before returning. The destructor also
-    ///   stops the thread.
+    /// Setting to True spawns a single background thread with
+    /// FreeOnTerminate := False. Setting to False stops and
+    /// joins the thread before returning. The destructor also
+    /// stops the thread.
     /// </remarks>
     property AutoSweepEnabled: Boolean read FAutoSweepEnabled
       write SetAutoSweepEnabled default False;
 
     /// <summary>
-    ///   Interval between automatic sweep calls when
-    ///   <see cref="AutoSweepEnabled"/> is True. Default
-    ///   <c>250</c> ms.
+    /// Interval between automatic sweep calls when
+    /// <see cref="AutoSweepEnabled"/> is True. Default
+    /// <c>250</c> ms.
     /// </summary>
     property SweepIntervalMs: Cardinal read FSweepIntervalMs
       write FSweepIntervalMs default 250;
   end;
 
   /// <summary>
-  ///   Convenience wrapper around <see cref="TOBDJ1939SessionManager"/>
-  ///   for transmit-only callers.
+  /// Convenience wrapper around <see cref="TOBDJ1939SessionManager"/>
+  /// for transmit-only callers.
   /// </summary>
   TOBDJ1939Transmitter = class
   strict private
@@ -523,8 +519,7 @@ type
     /// <param name="ADA">Destination (0xFF for broadcast).</param>
     /// <param name="APGN">Embedded PGN.</param>
     /// <param name="APayload">Application payload.</param>
-    procedure Send(ASA, ADA: Byte; APGN: Cardinal;
-      const APayload: TBytes);
+    procedure Send(ASA, ADA: Byte; APGN: Cardinal; const APayload: TBytes);
 
     /// <summary>The shared / owned manager.</summary>
     property Manager: TOBDJ1939SessionManager read FManager;
@@ -533,12 +528,12 @@ type
 implementation
 
 uses
-  {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF};
+{$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF};
 
 const
   PADDING_BYTE = $FF;
 
-{ ---- helpers ----------------------------------------------------------------- }
+  { ---- helpers ----------------------------------------------------------------- }
 
 function PadToEight(const AChunk: TBytes; AOffsetIntoFrame: Integer): TBytes;
 var
@@ -555,7 +550,7 @@ end;
 
 procedure WritePGN(var ABytes: TBytes; AOffset: Integer; APGN: Cardinal);
 begin
-  ABytes[AOffset]     := Byte(APGN and $FF);
+  ABytes[AOffset] := Byte(APGN and $FF);
   ABytes[AOffset + 1] := Byte((APGN shr 8) and $FF);
   ABytes[AOffset + 2] := Byte((APGN shr 16) and $FF);
 end;
@@ -567,17 +562,15 @@ end;
 
 function ReadLEU24(const ABytes: TBytes; AOffset: Integer): Cardinal;
 begin
-  Result := Cardinal(ABytes[AOffset]) or
-            (Cardinal(ABytes[AOffset + 1]) shl 8) or
-            (Cardinal(ABytes[AOffset + 2]) shl 16);
+  Result := Cardinal(ABytes[AOffset]) or (Cardinal(ABytes[AOffset + 1]) shl 8)
+    or (Cardinal(ABytes[AOffset + 2]) shl 16);
 end;
 
 function ReadLEU32(const ABytes: TBytes; AOffset: Integer): Cardinal;
 begin
-  Result := Cardinal(ABytes[AOffset]) or
-            (Cardinal(ABytes[AOffset + 1]) shl 8) or
-            (Cardinal(ABytes[AOffset + 2]) shl 16) or
-            (Cardinal(ABytes[AOffset + 3]) shl 24);
+  Result := Cardinal(ABytes[AOffset]) or (Cardinal(ABytes[AOffset + 1]) shl 8)
+    or (Cardinal(ABytes[AOffset + 2]) shl 16) or
+    (Cardinal(ABytes[AOffset + 3]) shl 24);
 end;
 
 function NowMs: UInt64;
@@ -599,8 +592,8 @@ begin
   WritePGN(Result, 5, APGN);
 end;
 
-class function TOBDJ1939TPCodec.EncodeCTS(APGN: Cardinal; APackets,
-  ANextPacket: Byte): TBytes;
+class function TOBDJ1939TPCodec.EncodeCTS(APGN: Cardinal;
+  APackets, ANextPacket: Byte): TBytes;
 begin
   SetLength(Result, 8);
   Result[0] := J1939_TPCM_CTS;
@@ -666,8 +659,8 @@ begin
   WritePGN(Result, 5, APGN);
 end;
 
-class function TOBDJ1939TPCodec.EncodeETPCTS(APGN: Cardinal;
-  APackets: Byte; ANextOffset: Cardinal): TBytes;
+class function TOBDJ1939TPCodec.EncodeETPCTS(APGN: Cardinal; APackets: Byte;
+  ANextOffset: Cardinal): TBytes;
 begin
   SetLength(Result, 8);
   Result[0] := J1939_ETPCM_CTS;
@@ -678,8 +671,8 @@ begin
   WritePGN(Result, 5, APGN);
 end;
 
-class function TOBDJ1939TPCodec.EncodeETPDPO(APGN: Cardinal;
-  APackets: Byte; AOffset: Cardinal): TBytes;
+class function TOBDJ1939TPCodec.EncodeETPDPO(APGN: Cardinal; APackets: Byte;
+  AOffset: Cardinal): TBytes;
 begin
   SetLength(Result, 8);
   Result[0] := J1939_ETPCM_DPO;
@@ -711,7 +704,8 @@ end;
 
 class function TOBDJ1939TPCodec.ExtractPGN(const ABytes: TBytes): Cardinal;
 begin
-  if Length(ABytes) < 8 then Exit(0);
+  if Length(ABytes) < 8 then
+    Exit(0);
   Result := ReadLEU24(ABytes, 5);
 end;
 
@@ -739,7 +733,8 @@ end;
 
 procedure TOBDJ1939SessionManager.SetAutoSweepEnabled(AValue: Boolean);
 begin
-  if FAutoSweepEnabled = AValue then Exit;
+  if FAutoSweepEnabled = AValue then
+    Exit;
   FAutoSweepEnabled := AValue;
   if FAutoSweepEnabled then
     StartSweeper
@@ -751,7 +746,8 @@ procedure TOBDJ1939SessionManager.StartSweeper;
 var
   Self_: TOBDJ1939SessionManager;
 begin
-  if FSweepThread <> nil then Exit;
+  if FSweepThread <> nil then
+    Exit;
   FSweepStop.ResetEvent;
   Self_ := Self;
   FSweepThread := TThread.CreateAnonymousThread(
@@ -776,7 +772,8 @@ var
 begin
   Worker := FSweepThread;
   FSweepThread := nil;
-  if Worker = nil then Exit;
+  if Worker = nil then
+    Exit;
   FSweepStop.SetEvent;
   Worker.WaitFor;
   Worker.Free;
@@ -803,7 +800,7 @@ begin
 end;
 
 function TOBDJ1939SessionManager.FindIndex(ASA, ADA: Byte;
-  APGN: Cardinal): Integer;
+APGN: Cardinal): Integer;
 var
   I: Integer;
   S: TJ1939Session;
@@ -819,33 +816,34 @@ begin
 end;
 
 procedure TOBDJ1939SessionManager.UpdateSession(AIndex: Integer;
-  const ASession: TJ1939Session);
+const ASession: TJ1939Session);
 begin
   // Caller holds FLock.
   FSessions[AIndex] := ASession;
 end;
 
 procedure TOBDJ1939SessionManager.FireComplete(const ASession: TJ1939Session;
-  const APayload: TBytes);
+const APayload: TBytes);
 begin
   if Assigned(FOnComplete) then
     FOnComplete(ASession, APayload);
 end;
 
 procedure TOBDJ1939SessionManager.FireAbort(const ASession: TJ1939Session;
-  AReason: TJ1939AbortReason);
+AReason: TJ1939AbortReason);
 begin
   if Assigned(FOnAbort) then
     FOnAbort(ASession, AReason);
 end;
 
-procedure TOBDJ1939SessionManager.SendOutbound(ASA, ADA: Byte;
-  APGN: Cardinal; const APayload: TBytes);
+procedure TOBDJ1939SessionManager.SendOutbound(ASA, ADA: Byte; APGN: Cardinal;
+const APayload: TBytes);
 var
   Frame: TOBDFrame;
 begin
-  if not Assigned(FOnFrameSend) then Exit;
-  Frame := Default(TOBDFrame);
+  if not Assigned(FOnFrameSend) then
+    Exit;
+  Frame := Default (TOBDFrame);
   Frame.Id := TOBDJ1939Codec.EncodeId(FTxPriority, APGN, ADA, ASA);
   Frame.IsExtendedId := True;
   Frame.Payload := Copy(APayload);
@@ -855,7 +853,7 @@ begin
 end;
 
 function TOBDJ1939SessionManager.CommitDT(AIndex: Integer; ASequence: Byte;
-  const AChunk: TBytes; out ACompleted: Boolean): Boolean;
+const AChunk: TBytes; out ACompleted: Boolean): Boolean;
 var
   S: TJ1939Session;
   StartOff: Integer;
@@ -904,7 +902,7 @@ begin
 end;
 
 function TOBDJ1939SessionManager.FeedTPCM(ASA, ADA: Byte;
-  const ABytes: TBytes): Boolean;
+const ABytes: TBytes): Boolean;
 var
   Control: Byte;
   PGN: Cardinal;
@@ -914,7 +912,8 @@ var
   Reason: Byte;
   Payload: TBytes;
 begin
-  if Length(ABytes) < 8 then Exit(False);
+  if Length(ABytes) < 8 then
+    Exit(False);
   Control := ABytes[0];
   PGN := TOBDJ1939TPCodec.ExtractPGN(ABytes);
   Result := False;
@@ -927,7 +926,7 @@ begin
           Idx := FindIndex(ASA, ADA, PGN);
           if Idx >= 0 then
             FSessions.Delete(Idx);
-          S := Default(TJ1939Session);
+          S := Default (TJ1939Session);
           S.SA := ASA;
           S.DA := ADA;
           S.PGN := PGN;
@@ -949,7 +948,7 @@ begin
           Idx := FindIndex(ASA, ADA, PGN);
           if Idx >= 0 then
             FSessions.Delete(Idx);
-          S := Default(TJ1939Session);
+          S := Default (TJ1939Session);
           S.SA := ASA;
           S.DA := ADA;
           S.PGN := PGN;
@@ -968,9 +967,11 @@ begin
         begin
           // TX-side: peer is granting us a window of packets.
           Idx := FindIndex(ADA, ASA, PGN);
-          if Idx < 0 then Exit(False);
+          if Idx < 0 then
+            Exit(False);
           S := FSessions[Idx];
-          if S.Direction <> sdTransmit then Exit(False);
+          if S.Direction <> sdTransmit then
+            Exit(False);
           Packets := ABytes[1];
           S.NextPacket := ABytes[2];
           S.LastActivity := Now;
@@ -983,8 +984,7 @@ begin
           // the manager.
           while (S.NextPacket <= S.TotalPackets) and (Packets > 0) do
           begin
-            Payload := Copy(S.Buffer,
-              Integer(S.NextPacket - 1) * 7,
+            Payload := Copy(S.Buffer, Integer(S.NextPacket - 1) * 7,
               Min(7, Integer(S.TotalSize) - Integer(S.NextPacket - 1) * 7));
             SendOutbound(ADA, ASA, J1939_PGN_TP_DT,
               TOBDJ1939TPCodec.EncodeDT(Byte(S.NextPacket), Payload));
@@ -1001,7 +1001,8 @@ begin
               end;
               // Re-resolve in case the session list mutated.
               Idx := FindIndex(ADA, ASA, PGN);
-              if Idx < 0 then Break;
+              if Idx < 0 then
+                Break;
               S := FSessions[Idx];
             end;
           end;
@@ -1013,7 +1014,8 @@ begin
       J1939_TPCM_EOMA:
         begin
           Idx := FindIndex(ADA, ASA, PGN);
-          if Idx < 0 then Exit(False);
+          if Idx < 0 then
+            Exit(False);
           S := FSessions[Idx];
           S.State := ssCompleted;
           Payload := Copy(S.Buffer);
@@ -1027,7 +1029,8 @@ begin
           Idx := FindIndex(ASA, ADA, PGN);
           if Idx < 0 then
             Idx := FindIndex(ADA, ASA, PGN);
-          if Idx < 0 then Exit(False);
+          if Idx < 0 then
+            Exit(False);
           S := FSessions[Idx];
           S.State := ssAborted;
           FSessions.Delete(Idx);
@@ -1041,7 +1044,7 @@ begin
 end;
 
 function TOBDJ1939SessionManager.FeedTPDT(ASA, ADA: Byte;
-  const ABytes: TBytes): Boolean;
+const ABytes: TBytes): Boolean;
 var
   I: Integer;
   Idx: Integer;
@@ -1051,7 +1054,8 @@ var
   Completed: Boolean;
 begin
   Result := False;
-  if Length(ABytes) < 8 then Exit;
+  if Length(ABytes) < 8 then
+    Exit;
   Sequence := ABytes[0];
   Chunk := Copy(ABytes, 1, 7);
 
@@ -1066,16 +1070,16 @@ begin
       for I := 0 to FSessions.Count - 1 do
       begin
         S := FSessions[I];
-        if (S.SA = ASA) and (S.DA = ADA) and
-           (S.Direction = sdReceive) and
-           (S.State in [ssReceivingBAM, ssReceivingRTS]) then
+        if (S.SA = ASA) and (S.DA = ADA) and (S.Direction = sdReceive) and
+          (S.State in [ssReceivingBAM, ssReceivingRTS]) then
         begin
           Idx := I;
           Break;
         end;
       end;
     end;
-    if Idx < 0 then Exit(False);
+    if Idx < 0 then
+      Exit(False);
     if not CommitDT(Idx, Sequence, Chunk, Completed) then
     begin
       S := FSessions[Idx];
@@ -1093,7 +1097,7 @@ begin
 end;
 
 function TOBDJ1939SessionManager.FeedETPCM(ASA, ADA: Byte;
-  const ABytes: TBytes): Boolean;
+const ABytes: TBytes): Boolean;
 var
   SeqByte, P: Byte;
   StartOff, Take: Integer;
@@ -1107,7 +1111,8 @@ var
   NextOffset: Cardinal;
 begin
   Result := False;
-  if Length(ABytes) < 8 then Exit;
+  if Length(ABytes) < 8 then
+    Exit;
   Control := ABytes[0];
   PGN := TOBDJ1939TPCodec.ExtractPGN(ABytes);
 
@@ -1119,7 +1124,7 @@ begin
           Idx := FindIndex(ASA, ADA, PGN);
           if Idx >= 0 then
             FSessions.Delete(Idx);
-          S := Default(TJ1939Session);
+          S := Default (TJ1939Session);
           S.SA := ASA;
           S.DA := ADA;
           S.PGN := PGN;
@@ -1143,9 +1148,11 @@ begin
       J1939_ETPCM_DPO:
         begin
           Idx := FindIndex(ASA, ADA, PGN);
-          if Idx < 0 then Exit(False);
+          if Idx < 0 then
+            Exit(False);
           S := FSessions[Idx];
-          if not S.IsETP then Exit(False);
+          if not S.IsETP then
+            Exit(False);
           S.ETPOffset := ReadLEU24(ABytes, 2);
           S.NextPacket := 1; // packets in this DPO start at sequence 1
           S.LastActivity := Now;
@@ -1155,9 +1162,11 @@ begin
       J1939_ETPCM_CTS:
         begin
           Idx := FindIndex(ADA, ASA, PGN);
-          if Idx < 0 then Exit(False);
+          if Idx < 0 then
+            Exit(False);
           S := FSessions[Idx];
-          if S.Direction <> sdTransmit then Exit(False);
+          if S.Direction <> sdTransmit then
+            Exit(False);
           Packets := ABytes[1];
           NextOffset := ReadLEU24(ABytes, 2);
           S.ETPOffset := NextOffset;
@@ -1169,11 +1178,12 @@ begin
           begin
             SeqByte := P + 1;
             StartOff := Integer(NextOffset - 1 + P) * 7;
-            if StartOff >= Length(S.Buffer) then Break;
+            if StartOff >= Length(S.Buffer) then
+              Break;
             Take := Min(7, Length(S.Buffer) - StartOff);
             SendOutbound(ADA, ASA, J1939_PGN_ETP_DT,
               TOBDJ1939TPCodec.EncodeETPDT(SeqByte,
-                Copy(S.Buffer, StartOff, Take)));
+              Copy(S.Buffer, StartOff, Take)));
           end;
           UpdateSession(Idx, S);
           Result := True;
@@ -1181,7 +1191,8 @@ begin
       J1939_ETPCM_EOMA:
         begin
           Idx := FindIndex(ADA, ASA, PGN);
-          if Idx < 0 then Exit(False);
+          if Idx < 0 then
+            Exit(False);
           S := FSessions[Idx];
           S.State := ssCompleted;
           Payload := Copy(S.Buffer);
@@ -1195,7 +1206,8 @@ begin
           Idx := FindIndex(ASA, ADA, PGN);
           if Idx < 0 then
             Idx := FindIndex(ADA, ASA, PGN);
-          if Idx < 0 then Exit(False);
+          if Idx < 0 then
+            Exit(False);
           S := FSessions[Idx];
           FSessions.Delete(Idx);
           FireAbort(S, TJ1939AbortReason(Reason));
@@ -1208,7 +1220,7 @@ begin
 end;
 
 function TOBDJ1939SessionManager.FeedETPDT(ASA, ADA: Byte;
-  const ABytes: TBytes): Boolean;
+const ABytes: TBytes): Boolean;
 var
   Idx: Integer;
   S: TJ1939Session;
@@ -1218,7 +1230,8 @@ var
   I: Integer;
 begin
   Result := False;
-  if Length(ABytes) < 8 then Exit;
+  if Length(ABytes) < 8 then
+    Exit;
   Sequence := ABytes[0];
   Chunk := Copy(ABytes, 1, 7);
   FLock.Enter;
@@ -1227,14 +1240,15 @@ begin
     for I := 0 to FSessions.Count - 1 do
     begin
       S := FSessions[I];
-      if S.IsETP and (S.SA = ASA) and (S.DA = ADA) and
-         (S.Direction = sdReceive) then
+      if S.IsETP and (S.SA = ASA) and (S.DA = ADA) and (S.Direction = sdReceive)
+      then
       begin
         Idx := I;
         Break;
       end;
     end;
-    if Idx < 0 then Exit(False);
+    if Idx < 0 then
+      Exit(False);
     if not CommitDT(Idx, Sequence, Chunk, Completed) then
     begin
       S := FSessions[Idx];
@@ -1258,8 +1272,8 @@ begin
   end;
 end;
 
-procedure TOBDJ1939SessionManager.AbortSession(ASA, ADA: Byte;
-  APGN: Cardinal; AReason: TJ1939AbortReason);
+procedure TOBDJ1939SessionManager.AbortSession(ASA, ADA: Byte; APGN: Cardinal;
+AReason: TJ1939AbortReason);
 var
   Idx: Integer;
   S: TJ1939Session;
@@ -1268,14 +1282,15 @@ begin
   FLock.Enter;
   try
     Idx := FindIndex(ASA, ADA, APGN);
-    if Idx < 0 then Exit;
+    if Idx < 0 then
+      Exit;
     S := FSessions[Idx];
     if S.IsETP then
       CMpgn := J1939_PGN_ETP_CM
     else
       CMpgn := J1939_PGN_TP_CM;
-    SendOutbound(ASA, ADA, CMpgn,
-      TOBDJ1939TPCodec.EncodeAbort(APGN, Byte(AReason)));
+    SendOutbound(ASA, ADA, CMpgn, TOBDJ1939TPCodec.EncodeAbort(APGN,
+      Byte(AReason)));
     FSessions.Delete(Idx);
     FireAbort(S, AReason);
   finally
@@ -1299,10 +1314,12 @@ begin
       AgeMs := MilliSecondsBetween(Now, S.LastActivity);
       if AgeMs > FTimeoutMs then
       begin
-        if S.IsETP then CMpgn := J1939_PGN_ETP_CM
-        else CMpgn := J1939_PGN_TP_CM;
-        SendOutbound(S.DA, S.SA, CMpgn,
-          TOBDJ1939TPCodec.EncodeAbort(S.PGN, Byte(arHostTimeout)));
+        if S.IsETP then
+          CMpgn := J1939_PGN_ETP_CM
+        else
+          CMpgn := J1939_PGN_TP_CM;
+        SendOutbound(S.DA, S.SA, CMpgn, TOBDJ1939TPCodec.EncodeAbort(S.PGN,
+          Byte(arHostTimeout)));
         FSessions.Delete(I);
         FireAbort(S, arHostTimeout);
       end
@@ -1314,8 +1331,8 @@ begin
   end;
 end;
 
-procedure TOBDJ1939SessionManager.BeginTransmit(ASA, ADA: Byte;
-  APGN: Cardinal; const APayload: TBytes);
+procedure TOBDJ1939SessionManager.BeginTransmit(ASA, ADA: Byte; APGN: Cardinal;
+const APayload: TBytes);
 var
   S: TJ1939Session;
   IsBroadcast: Boolean;
@@ -1328,15 +1345,15 @@ var
 begin
   Size := Length(APayload);
   if (Size < J1939_TP_MIN_BYTES) or (Size > J1939_ETP_MAX_BYTES) then
-    raise EOBDProtocolErr.CreateFmt(
-      'BeginTransmit: payload size %d out of range (%d..%d)',
+    raise EOBDProtocolErr.CreateFmt
+      ('BeginTransmit: payload size %d out of range (%d..%d)',
       [Size, J1939_TP_MIN_BYTES, J1939_ETP_MAX_BYTES]);
 
   IsBroadcast := ADA = $FF;
   IsETP := Size > J1939_TP_MAX_BYTES;
   if IsBroadcast and IsETP then
-    raise EOBDProtocolErr.Create(
-      'BeginTransmit: ETP cannot be broadcast (payload > 1785 bytes)');
+    raise EOBDProtocolErr.Create
+      ('BeginTransmit: ETP cannot be broadcast (payload > 1785 bytes)');
 
   Packets := (Size + 6) div 7;
 
@@ -1346,7 +1363,7 @@ begin
     if Idx >= 0 then
       FSessions.Delete(Idx);
 
-    S := Default(TJ1939Session);
+    S := Default (TJ1939Session);
     S.SA := ASA;
     S.DA := ADA;
     S.PGN := APGN;
@@ -1365,8 +1382,8 @@ begin
       S.State := ssSendingBAM;
       FSessions.Add(S);
       // Send BAM CM.
-      SendOutbound(ASA, ADA, J1939_PGN_TP_CM,
-        TOBDJ1939TPCodec.EncodeBAM(APGN, Word(Size), Byte(Packets)));
+      SendOutbound(ASA, ADA, J1939_PGN_TP_CM, TOBDJ1939TPCodec.EncodeBAM(APGN,
+        Word(Size), Byte(Packets)));
       if FInterFramePaceMs > 0 then
       begin
         FLock.Leave;
@@ -1384,8 +1401,7 @@ begin
         StartOff := Integer(P - 1) * 7;
         Take := Min(7, Integer(Size) - StartOff);
         SendOutbound(ASA, ADA, J1939_PGN_TP_DT,
-          TOBDJ1939TPCodec.EncodeDT(Byte(P),
-            Copy(S.Buffer, StartOff, Take)));
+          TOBDJ1939TPCodec.EncodeDT(Byte(P), Copy(S.Buffer, StartOff, Take)));
         if (P < Packets) and (FInterFramePaceMs > 0) then
         begin
           FLock.Leave;
@@ -1400,7 +1416,8 @@ begin
       // BAM has no EOMA; complete the session immediately.
       FireComplete(S, S.Buffer);
       Idx := FindIndex(ASA, ADA, APGN);
-      if Idx >= 0 then FSessions.Delete(Idx);
+      if Idx >= 0 then
+        FSessions.Delete(Idx);
     end
     else if IsETP then
     begin
@@ -1413,8 +1430,8 @@ begin
     begin
       S.State := ssAwaitingCTS;
       FSessions.Add(S);
-      SendOutbound(ASA, ADA, J1939_PGN_TP_CM,
-        TOBDJ1939TPCodec.EncodeRTS(APGN, Word(Size), Byte(Packets), $FF));
+      SendOutbound(ASA, ADA, J1939_PGN_TP_CM, TOBDJ1939TPCodec.EncodeRTS(APGN,
+        Word(Size), Byte(Packets), $FF));
     end;
   finally
     FLock.Leave;
@@ -1445,7 +1462,7 @@ begin
 end;
 
 procedure TOBDJ1939Transmitter.Send(ASA, ADA: Byte; APGN: Cardinal;
-  const APayload: TBytes);
+const APayload: TBytes);
 begin
   FManager.BeginTransmit(ASA, ADA, APGN, APayload);
 end;

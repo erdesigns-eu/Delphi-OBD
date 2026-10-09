@@ -1,50 +1,50 @@
-//------------------------------------------------------------------------------
-//  ERD.Protocol.DoIP.Transport
+﻿// ------------------------------------------------------------------------------
+// ERD.Protocol.DoIP.Transport
 //
-//  Transport abstraction for the DoIP client. Two implementations
-//  ship in v1:
+// Transport abstraction for the DoIP client. Two implementations
+// ship in v1:
 //
-//    TOBDDoIPPlainTransport — wraps a TOBDConnection (TCP, the
-//                              Wi-Fi transport). Used for
-//                              unencrypted DoIP-on-port-13400.
+// TOBDDoIPPlainTransport — wraps a TOBDConnection (TCP, the
+// Wi-Fi transport). Used for
+// unencrypted DoIP-on-port-13400.
 //
-//    TOBDDoIPOpenSSLTransport — drop-in OpenSSL 3.x plug. Lives in
-//                              ERD.Protocol.DoIP.TLS.OpenSSL. Same
-//                              IOBDDoIPTransport contract, full TLS
-//                              1.2 / 1.3 handshake, used for
-//                              port-3496 DoIP-over-TLS.
+// TOBDDoIPOpenSSLTransport — drop-in OpenSSL 3.x plug. Lives in
+// ERD.Protocol.DoIP.TLS.OpenSSL. Same
+// IOBDDoIPTransport contract, full TLS
+// 1.2 / 1.3 handshake, used for
+// port-3496 DoIP-over-TLS.
 //
-//  Hosts that prefer a different TLS library (Indy / SChannel /
-//  custom) implement IOBDDoIPTransport themselves and pass the
-//  instance to the client. The client itself never touches a TLS
-//  library directly.
+// Hosts that prefer a different TLS library (Indy / SChannel /
+// custom) implement IOBDDoIPTransport themselves and pass the
+// instance to the client. The client itself never touches a TLS
+// library directly.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Protocol.DoIP.Transport;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
   System.Diagnostics,
-  {$IFDEF FPC}ERD.Compat.Socket{$ELSE}System.Net.Socket{$ENDIF},
+{$IFDEF FPC}ERD.Compat.Socket{$ELSE}System.Net.Socket{$ENDIF},
   ERD.Types,
   ERD.Connection.Types,
   ERD.Connection.Settings,
@@ -52,14 +52,14 @@ uses
 
 type
   /// <summary>
-  ///   Common transport contract for DoIP. Implemented by both the
-  ///   plain and TLS variants.
+  /// Common transport contract for DoIP. Implemented by both the
+  /// plain and TLS variants.
   /// </summary>
   /// <remarks>
-  ///   The client owns the transport lifetime; <c>Disconnect</c>
-  ///   must be safe to call multiple times. Implementations are
-  ///   thread-safe in the sense that <c>Send</c> and
-  ///   <c>Receive</c> may run concurrently from different threads.
+  /// The client owns the transport lifetime; <c>Disconnect</c>
+  /// must be safe to call multiple times. Implementations are
+  /// thread-safe in the sense that <c>Send</c> and
+  /// <c>Receive</c> may run concurrently from different threads.
   /// </remarks>
   IOBDDoIPTransport = interface
     ['{B8D4F5A7-3E29-4C71-AC42-9F8B1E2D5C7A}']
@@ -68,8 +68,7 @@ type
     /// <param name="AHost">DNS name or IP.</param>
     /// <param name="APort">TCP port.</param>
     /// <param name="ATimeoutMs">Connect-timeout budget.</param>
-    procedure Connect(const AHost: string; APort: Word;
-      ATimeoutMs: Cardinal);
+    procedure Connect(const AHost: string; APort: Word; ATimeoutMs: Cardinal);
     /// <summary>Tears down the socket and any cryptographic state.</summary>
     procedure Disconnect;
     /// <summary>True when the transport is open.</summary>
@@ -84,13 +83,12 @@ type
     /// <param name="AMaxBytes">Buffer ceiling.</param>
     /// <param name="ATimeoutMs">Read-timeout budget.</param>
     /// <returns>Received bytes (length may be 0 on timeout).</returns>
-    function Receive(AMaxBytes: Integer;
-      ATimeoutMs: Cardinal): TBytes;
+    function Receive(AMaxBytes: Integer; ATimeoutMs: Cardinal): TBytes;
   end;
 
   /// <summary>
-  ///   Plain (unencrypted) DoIP transport built on the Wi-Fi
-  ///   connection. Suitable for port 13400 on a trusted LAN.
+  /// Plain (unencrypted) DoIP transport built on the Wi-Fi
+  /// connection. Suitable for port 13400 on a trusted LAN.
   /// </summary>
   TOBDDoIPPlainTransport = class(TInterfacedObject, IOBDDoIPTransport)
   strict private
@@ -114,13 +112,11 @@ type
     /// applicable).</summary>
     destructor Destroy; override;
 
-    procedure Connect(const AHost: string; APort: Word;
-      ATimeoutMs: Cardinal);
+    procedure Connect(const AHost: string; APort: Word; ATimeoutMs: Cardinal);
     procedure Disconnect;
     function IsConnected: Boolean;
     function Send(const ABytes: TBytes): Integer;
-    function Receive(AMaxBytes: Integer;
-      ATimeoutMs: Cardinal): TBytes;
+    function Receive(AMaxBytes: Integer; ATimeoutMs: Cardinal): TBytes;
   end;
 
 implementation
@@ -162,7 +158,8 @@ procedure TOBDDoIPPlainTransport.HandleRawBytes(Sender: TObject;
 var
   StartLen: Integer;
 begin
-  if Length(ABytes) = 0 then Exit;
+  if Length(ABytes) = 0 then
+    Exit;
   FRxLock.Enter;
   try
     StartLen := Length(FRxBuffer);
@@ -188,7 +185,8 @@ end;
 
 procedure TOBDDoIPPlainTransport.Disconnect;
 begin
-  if FConnection = nil then Exit;
+  if FConnection = nil then
+    Exit;
   if FConnection.Active then
     FConnection.Close;
 end;

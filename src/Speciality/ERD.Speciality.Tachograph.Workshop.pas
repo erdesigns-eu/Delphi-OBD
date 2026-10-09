@@ -1,54 +1,54 @@
-//------------------------------------------------------------------------------
-//  ERD.Speciality.Tachograph.Workshop
+﻿// ------------------------------------------------------------------------------
+// ERD.Speciality.Tachograph.Workshop
 //
-//  Workshop-card calibration operations for the EU digital
-//  tachograph per Regulation (EU) 165/2014 + Implementing Reg
-//  (EU) 2016/799. Carries the wire encoders / decoders for the
-//  records a workshop technician sends to the Vehicle Unit (VU)
-//  through an authenticated session — UTC sync, K/L/W factors,
-//  tyre circumference, VIN update, VRP plate update, speed-
-//  source pulses-per-revolution, sealed-state activation.
+// Workshop-card calibration operations for the EU digital
+// tachograph per Regulation (EU) 165/2014 + Implementing Reg
+// (EU) 2016/799. Carries the wire encoders / decoders for the
+// records a workshop technician sends to the Vehicle Unit (VU)
+// through an authenticated session — UTC sync, K/L/W factors,
+// tyre circumference, VIN update, VRP plate update, speed-
+// source pulses-per-revolution, sealed-state activation.
 //
-//  This unit is pure codec — the actual UDS / KWP exchange with
-//  the VU is the host's responsibility (typically through
-//  TOBDProtocol or a dedicated tachograph diagnostic channel).
+// This unit is pure codec — the actual UDS / KWP exchange with
+// the VU is the host's responsibility (typically through
+// TOBDProtocol or a dedicated tachograph diagnostic channel).
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - EU 2016/799 Annex 1C Appendix 1 (Data dictionary, TimeReal)
-//    - EU 2016/799 Annex 1C Appendix 11 (Common Security Mechanisms)
-//    - EU 2016/799 Annex 1C Appendix 8 (Calibration data)
+// References  :
+// - EU 2016/799 Annex 1C Appendix 1 (Data dictionary, TimeReal)
+// - EU 2016/799 Annex 1C Appendix 11 (Common Security Mechanisms)
+// - EU 2016/799 Annex 1C Appendix 8 (Calibration data)
 //
-//  History     :
-//    2026-05-11  ERD  Initial port from v1 ERD.Tachograph.Workshop.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-11  ERD  Initial port from v1 ERD.Tachograph.Workshop.
+// ------------------------------------------------------------------------------
 
 unit ERD.Speciality.Tachograph.Workshop;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}DateUtils{$ELSE}System.DateUtils{$ENDIF};
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}DateUtils{$ELSE}System.DateUtils{$ENDIF};
 
 type
   /// <summary>Raised on encoder / decoder errors.</summary>
   EOBDTachoWorkshop = class(Exception);
 
   /// <summary>
-  ///   UTC clock-sync command — only an authenticated workshop
-  ///   card may step the VU clock.
+  /// UTC clock-sync command — only an authenticated workshop
+  /// card may step the VU clock.
   /// </summary>
   TOBDTachoUTCSync = record
     /// <summary>Seconds since 1970-01-01 00:00:00 UTC (Annex 1C
@@ -60,10 +60,10 @@ type
   end;
 
   /// <summary>
-  ///   Speed-source K / L / W factors. <c>K</c> is the canonical
-  ///   pulses-per-kilometre figure the technician adjusts during
-  ///   calibration; <c>L</c> and <c>W</c> are derived from the
-  ///   drivetrain geometry.
+  /// Speed-source K / L / W factors. <c>K</c> is the canonical
+  /// pulses-per-kilometre figure the technician adjusts during
+  /// calibration; <c>L</c> and <c>W</c> are derived from the
+  /// drivetrain geometry.
   /// </summary>
   TOBDTachoKLWFactors = record
     /// <summary>Pulses per kilometre (VU input scaling — typical
@@ -116,22 +116,22 @@ type
     PostSealNote: string;
   end;
 
-/// <summary>
-///   Encodes a <see cref="TOBDTachoUTCSync"/> to the 20-byte wire
-///   form (4 bytes timestamp BE + 16 bytes card id).
-/// </summary>
-/// <param name="AOp">Source record.</param>
-/// <returns>20-byte buffer.</returns>
-/// <exception cref="EOBDTachoWorkshop">
-///   <c>WorkshopCardId</c> is not exactly 16 bytes.
-/// </exception>
+  /// <summary>
+  /// Encodes a <see cref="TOBDTachoUTCSync"/> to the 20-byte wire
+  /// form (4 bytes timestamp BE + 16 bytes card id).
+  /// </summary>
+  /// <param name="AOp">Source record.</param>
+  /// <returns>20-byte buffer.</returns>
+  /// <exception cref="EOBDTachoWorkshop">
+  /// <c>WorkshopCardId</c> is not exactly 16 bytes.
+  /// </exception>
 function EncodeUTCSync(const AOp: TOBDTachoUTCSync): TBytes;
 
 /// <summary>Decodes a 20-byte UTC-sync wire record.</summary>
 /// <param name="ABytes">Source bytes.</param>
 /// <returns>Decoded record.</returns>
 /// <exception cref="EOBDTachoWorkshop">
-///   Source is shorter than 20 bytes.
+/// Source is shorter than 20 bytes.
 /// </exception>
 function DecodeUTCSync(const ABytes: TBytes): TOBDTachoUTCSync;
 
@@ -144,7 +144,7 @@ function EncodeKLW(const AOp: TOBDTachoKLWFactors): TBytes;
 /// <param name="ABytes">Source bytes.</param>
 /// <returns>Decoded factors.</returns>
 /// <exception cref="EOBDTachoWorkshop">
-///   Source is shorter than 6 bytes.
+/// Source is shorter than 6 bytes.
 /// </exception>
 function DecodeKLW(const ABytes: TBytes): TOBDTachoKLWFactors;
 
@@ -157,7 +157,7 @@ function EncodeTyreSize(const AOp: TOBDTachoTyreSize): TBytes;
 /// <param name="ABytes">Source bytes.</param>
 /// <returns>Decoded tyre size.</returns>
 /// <exception cref="EOBDTachoWorkshop">
-///   Source is shorter than 2 bytes.
+/// Source is shorter than 2 bytes.
 /// </exception>
 function DecodeTyreSize(const ABytes: TBytes): TOBDTachoTyreSize;
 
@@ -166,7 +166,7 @@ function DecodeTyreSize(const ABytes: TBytes): TOBDTachoTyreSize;
 /// <param name="AOp">Source VIN record.</param>
 /// <returns>17-byte buffer.</returns>
 /// <exception cref="EOBDTachoWorkshop">
-///   VIN is not exactly 17 characters.
+/// VIN is not exactly 17 characters.
 /// </exception>
 function EncodeVIN(const AOp: TOBDTachoVINUpdate): TBytes;
 
@@ -174,7 +174,7 @@ function EncodeVIN(const AOp: TOBDTachoVINUpdate): TBytes;
 /// <param name="ABytes">Source bytes.</param>
 /// <returns>Decoded VIN.</returns>
 /// <exception cref="EOBDTachoWorkshop">
-///   Source is shorter than 17 bytes.
+/// Source is shorter than 17 bytes.
 /// </exception>
 function DecodeVIN(const ABytes: TBytes): TOBDTachoVINUpdate;
 
@@ -183,7 +183,7 @@ function DecodeVIN(const ABytes: TBytes): TOBDTachoVINUpdate;
 /// <param name="AOp">Source plate record.</param>
 /// <returns>(2 + Length(PlateText))-byte buffer.</returns>
 /// <exception cref="EOBDTachoWorkshop">
-///   Plate text exceeds 13 characters.
+/// Plate text exceeds 13 characters.
 /// </exception>
 function EncodeVRPlate(const AOp: TOBDTachoVRPlate): TBytes;
 
@@ -191,7 +191,7 @@ function EncodeVRPlate(const AOp: TOBDTachoVRPlate): TBytes;
 /// <param name="ABytes">Source bytes.</param>
 /// <returns>Decoded plate record.</returns>
 /// <exception cref="EOBDTachoWorkshop">
-///   Source is too short or declared length runs past the end.
+/// Source is too short or declared length runs past the end.
 /// </exception>
 function DecodeVRPlate(const ABytes: TBytes): TOBDTachoVRPlate;
 
@@ -201,15 +201,15 @@ function DecodeVRPlate(const ABytes: TBytes): TOBDTachoVRPlate;
 function EncodeSpeedSource(const AOp: TOBDTachoSpeedSource): TBytes;
 
 /// <summary>
-///   Encodes a sealed-state activation record: 4 bytes
-///   timestamp + 16 bytes card id + 2-byte length prefix +
-///   UTF-8 note.
+/// Encodes a sealed-state activation record: 4 bytes
+/// timestamp + 16 bytes card id + 2-byte length prefix +
+/// UTF-8 note.
 /// </summary>
 /// <param name="AOp">Source record.</param>
 /// <returns>Variable-length buffer.</returns>
 /// <exception cref="EOBDTachoWorkshop">
-///   <c>WorkshopCardId</c> is not exactly 16 bytes or the note
-///   encodes to more than 65535 bytes.
+/// <c>WorkshopCardId</c> is not exactly 16 bytes or the note
+/// encodes to more than 65535 bytes.
 /// </exception>
 function EncodeSealedActivation(const AOp: TOBDTachoSealedActivation): TBytes;
 
@@ -228,7 +228,7 @@ function TimeRealToDateTime(ATimeReal: UInt32): TDateTime;
 implementation
 
 uses
-  {$IFDEF FPC}SysConst{$ELSE}System.SysConst{$ENDIF};
+{$IFDEF FPC}SysConst{$ELSE}System.SysConst{$ENDIF};
 
 function DateTimeToTimeReal(const ADT: TDateTime): UInt32;
 begin
@@ -240,17 +240,15 @@ begin
   Result := IncSecond(EncodeDate(1970, 1, 1), Integer(ATimeReal));
 end;
 
-procedure WriteUInt16BE(var ABuf: TBytes; ACursor: Integer;
-  AValue: UInt16);
+procedure WriteUInt16BE(var ABuf: TBytes; ACursor: Integer; AValue: UInt16);
 begin
-  ABuf[ACursor]     := Byte(AValue shr 8);
+  ABuf[ACursor] := Byte(AValue shr 8);
   ABuf[ACursor + 1] := Byte(AValue and $FF);
 end;
 
-procedure WriteUInt32BE(var ABuf: TBytes; ACursor: Integer;
-  AValue: UInt32);
+procedure WriteUInt32BE(var ABuf: TBytes; ACursor: Integer; AValue: UInt32);
 begin
-  ABuf[ACursor]     := Byte(AValue shr 24);
+  ABuf[ACursor] := Byte(AValue shr 24);
   ABuf[ACursor + 1] := Byte(AValue shr 16);
   ABuf[ACursor + 2] := Byte(AValue shr 8);
   ABuf[ACursor + 3] := Byte(AValue and $FF);
@@ -263,17 +261,15 @@ end;
 
 function ReadUInt32BE(const ABuf: TBytes; AOffset: Integer): UInt32;
 begin
-  Result := (UInt32(ABuf[AOffset    ]) shl 24) or
-            (UInt32(ABuf[AOffset + 1]) shl 16) or
-            (UInt32(ABuf[AOffset + 2]) shl  8) or
-             UInt32(ABuf[AOffset + 3]);
+  Result := (UInt32(ABuf[AOffset]) shl 24) or (UInt32(ABuf[AOffset + 1]) shl 16)
+    or (UInt32(ABuf[AOffset + 2]) shl 8) or UInt32(ABuf[AOffset + 3]);
 end;
 
 function EncodeUTCSync(const AOp: TOBDTachoUTCSync): TBytes;
 begin
   if Length(AOp.WorkshopCardId) <> 16 then
-    raise EOBDTachoWorkshop.CreateFmt(
-      'WorkshopCardId must be 16 bytes (got %d)',
+    raise EOBDTachoWorkshop.CreateFmt
+      ('WorkshopCardId must be 16 bytes (got %d)',
       [Length(AOp.WorkshopCardId)]);
   SetLength(Result, 20);
   WriteUInt32BE(Result, 0, AOp.UTCTimestamp);
@@ -283,9 +279,9 @@ end;
 function DecodeUTCSync(const ABytes: TBytes): TOBDTachoUTCSync;
 begin
   if Length(ABytes) < 20 then
-    raise EOBDTachoWorkshop.CreateFmt(
-      'UTC-sync record needs 20 bytes (got %d)', [Length(ABytes)]);
-  Result := Default(TOBDTachoUTCSync);
+    raise EOBDTachoWorkshop.CreateFmt('UTC-sync record needs 20 bytes (got %d)',
+      [Length(ABytes)]);
+  Result := Default (TOBDTachoUTCSync);
   Result.UTCTimestamp := ReadUInt32BE(ABytes, 0);
   SetLength(Result.WorkshopCardId, 16);
   Move(ABytes[4], Result.WorkshopCardId[0], 16);
@@ -302,9 +298,9 @@ end;
 function DecodeKLW(const ABytes: TBytes): TOBDTachoKLWFactors;
 begin
   if Length(ABytes) < 6 then
-    raise EOBDTachoWorkshop.CreateFmt(
-      'K/L/W record needs 6 bytes (got %d)', [Length(ABytes)]);
-  Result := Default(TOBDTachoKLWFactors);
+    raise EOBDTachoWorkshop.CreateFmt('K/L/W record needs 6 bytes (got %d)',
+      [Length(ABytes)]);
+  Result := Default (TOBDTachoKLWFactors);
   Result.K := ReadUInt16BE(ABytes, 0);
   Result.L := ReadUInt16BE(ABytes, 2);
   Result.W := ReadUInt16BE(ABytes, 4);
@@ -319,9 +315,9 @@ end;
 function DecodeTyreSize(const ABytes: TBytes): TOBDTachoTyreSize;
 begin
   if Length(ABytes) < 2 then
-    raise EOBDTachoWorkshop.CreateFmt(
-      'Tyre-size record needs 2 bytes (got %d)', [Length(ABytes)]);
-  Result := Default(TOBDTachoTyreSize);
+    raise EOBDTachoWorkshop.CreateFmt('Tyre-size record needs 2 bytes (got %d)',
+      [Length(ABytes)]);
+  Result := Default (TOBDTachoTyreSize);
   Result.CircumferenceMm := ReadUInt16BE(ABytes, 0);
 end;
 
@@ -330,8 +326,8 @@ var
   I: Integer;
 begin
   if Length(AOp.VIN) <> 17 then
-    raise EOBDTachoWorkshop.CreateFmt(
-      'VIN must be 17 characters (got %d)', [Length(AOp.VIN)]);
+    raise EOBDTachoWorkshop.CreateFmt('VIN must be 17 characters (got %d)',
+      [Length(AOp.VIN)]);
   SetLength(Result, 17);
   for I := 1 to 17 do
     Result[I - 1] := Byte(Ord(AOp.VIN[I]));
@@ -342,9 +338,9 @@ var
   I: Integer;
 begin
   if Length(ABytes) < 17 then
-    raise EOBDTachoWorkshop.CreateFmt(
-      'VIN record needs 17 bytes (got %d)', [Length(ABytes)]);
-  Result := Default(TOBDTachoVINUpdate);
+    raise EOBDTachoWorkshop.CreateFmt('VIN record needs 17 bytes (got %d)',
+      [Length(ABytes)]);
+  Result := Default (TOBDTachoVINUpdate);
   SetLength(Result.VIN, 17);
   for I := 0 to 16 do
     Result.VIN[I + 1] := Char(ABytes[I]);
@@ -357,8 +353,8 @@ var
 begin
   Len := Length(AOp.PlateText);
   if Len > 13 then
-    raise EOBDTachoWorkshop.CreateFmt(
-      'VRP plate text exceeds 13 characters (got %d)', [Len]);
+    raise EOBDTachoWorkshop.CreateFmt
+      ('VRP plate text exceeds 13 characters (got %d)', [Len]);
   SetLength(Result, 2 + Len);
   Result[0] := Byte(Len);
   for I := 1 to Len do
@@ -372,13 +368,12 @@ var
   I: Integer;
 begin
   if Length(ABytes) < 2 then
-    raise EOBDTachoWorkshop.Create(
-      'VRP record needs at least 2 bytes');
+    raise EOBDTachoWorkshop.Create('VRP record needs at least 2 bytes');
   Len := ABytes[0];
   if 1 + Len + 1 > Length(ABytes) then
-    raise EOBDTachoWorkshop.CreateFmt(
-      'VRP record declared length %d runs past end of buffer', [Len]);
-  Result := Default(TOBDTachoVRPlate);
+    raise EOBDTachoWorkshop.CreateFmt
+      ('VRP record declared length %d runs past end of buffer', [Len]);
+  Result := Default (TOBDTachoVRPlate);
   SetLength(Result.PlateText, Len);
   for I := 1 to Len do
     Result.PlateText[I] := Char(ABytes[I]);
@@ -391,8 +386,7 @@ begin
   WriteUInt16BE(Result, 0, AOp.PulsesPerRevolution);
 end;
 
-function EncodeSealedActivation(
-  const AOp: TOBDTachoSealedActivation): TBytes;
+function EncodeSealedActivation(const AOp: TOBDTachoSealedActivation): TBytes;
 var
   NoteBytes: TBytes;
   NoteLen: Integer;
@@ -400,15 +394,14 @@ var
   Utf8: RawByteString;
 begin
   if Length(AOp.WorkshopCardId) <> 16 then
-    raise EOBDTachoWorkshop.CreateFmt(
-      'WorkshopCardId must be 16 bytes (got %d)',
+    raise EOBDTachoWorkshop.CreateFmt
+      ('WorkshopCardId must be 16 bytes (got %d)',
       [Length(AOp.WorkshopCardId)]);
   Utf8 := UTF8Encode(AOp.PostSealNote);
   NoteLen := Length(Utf8);
   if NoteLen > $FFFF then
-    raise EOBDTachoWorkshop.CreateFmt(
-      'PostSealNote encodes to %d UTF-8 bytes (max 65535)',
-      [NoteLen]);
+    raise EOBDTachoWorkshop.CreateFmt
+      ('PostSealNote encodes to %d UTF-8 bytes (max 65535)', [NoteLen]);
   SetLength(NoteBytes, NoteLen);
   if NoteLen > 0 then
     Move(Utf8[1], NoteBytes[0], NoteLen);

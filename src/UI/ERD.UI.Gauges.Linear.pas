@@ -1,24 +1,24 @@
-//------------------------------------------------------------------------------
-//  ERD.UI.Gauges.Linear
+﻿// ------------------------------------------------------------------------------
+// ERD.UI.Gauges.Linear
 //
-//  TOBDLinearGauge — horizontal or vertical bar gauge. Same
-//  value / range / zone / animation contract as the dial
-//  family; paints a filled bar with optional tick marks +
-//  caption + numeric readout.
+// TOBDLinearGauge — horizontal or vertical bar gauge. Same
+// value / range / zone / animation contract as the dial
+// family; paints a filled bar with optional tick marks +
+// caption + numeric readout.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.UI.Gauges.Linear;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -28,9 +28,9 @@ uses
   Winapi.Windows,
   Winapi.GDIPAPI,
   Winapi.GDIPOBJ,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
   Vcl.Graphics,
   Vcl.Controls,
   ERD.UI.Types,
@@ -55,12 +55,12 @@ type
     constructor Create(AOwner: TComponent); override;
   published
     /// <summary>Bar orientation. Default horizontal.</summary>
-    property Orientation: TOBDLinearOrientation
-      read FOrientation write SetOrientation default loHorizontal;
+    property Orientation: TOBDLinearOrientation read FOrientation
+      write SetOrientation default loHorizontal;
     /// <summary>Print the numeric value + unit beside the bar.
     /// Default True.</summary>
-    property ShowValueText: Boolean
-      read FShowValueText write SetShowValueText default True;
+    property ShowValueText: Boolean read FShowValueText write SetShowValueText
+      default True;
   end;
 
 implementation
@@ -68,7 +68,7 @@ implementation
 constructor TOBDLinearGauge.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 220;
+  Width := 220;
   Height := 60;
   FOrientation := loHorizontal;
   FShowValueText := True;
@@ -76,32 +76,36 @@ end;
 
 procedure TOBDLinearGauge.SetOrientation(AValue: TOBDLinearOrientation);
 begin
-  if FOrientation = AValue then Exit;
-  FOrientation := AValue; Repaint;
+  if FOrientation = AValue then
+    Exit;
+  FOrientation := AValue;
+  Repaint;
 end;
 
 procedure TOBDLinearGauge.SetShowValueText(AValue: Boolean);
 begin
-  if FShowValueText = AValue then Exit;
-  FShowValueText := AValue; Repaint;
+  if FShowValueText = AValue then
+    Exit;
+  FShowValueText := AValue;
+  Repaint;
 end;
 
 procedure TOBDLinearGauge.PaintControl(ACanvas: TCanvas);
 var
   Graphics: TGPGraphics;
   Track, Fill: TGPRectF;
-  TrackPen:   TGPPen;
+  TrackPen: TGPPen;
   TrackBrush, FillBrush: TGPSolidBrush;
-  ClientPad:  Integer;
-  CapHeight:  Integer;
-  ValHeight:  Integer;
+  ClientPad: Integer;
+  CapHeight: Integer;
+  ValHeight: Integer;
   TrackThick: Integer;
-  Norm:       Single;
-  ColorVal:   TColor;
-  ValStr:     string;
+  Norm: Single;
+  ColorVal: TColor;
+  ValStr: string;
   X1, Y1, X2, Y2: Integer;
-  Z:          TOBDGaugeZone;
-  ZRect:      TGPRectF;
+  Z: TOBDGaugeZone;
+  ZRect: TGPRectF;
 begin
   ClientPad := ScaleValue(8);
   CapHeight := IfThen(Caption <> '', ACanvas.TextHeight('Mg'), 0);
@@ -129,36 +133,35 @@ begin
 
       Track.X := X1;
       Track.Y := Y1;
-      Track.Width  := X2 - X1;
+      Track.Width := X2 - X1;
       Track.Height := TrackThick;
 
       // Track background.
-      TrackBrush := TGPSolidBrush.Create(
-        ColorToARGB(Palette.NeutralLight));
-      TrackPen := TGPPen.Create(ColorToARGB(EffectiveBorder),
-        ScaleValue(1));
+      TrackBrush := TGPSolidBrush.Create(ColorToARGB(Palette.NeutralLight));
+      TrackPen := TGPPen.Create(ColorToARGB(EffectiveBorder), ScaleValue(1));
       try
         Graphics.FillRectangle(TrackBrush, Track);
         Graphics.DrawRectangle(TrackPen, Track);
       finally
-        TrackPen.Free; TrackBrush.Free;
+        TrackPen.Free;
+        TrackBrush.Free;
       end;
 
       // Zone strips (drawn on top of track background).
       for Z in Zones do
       begin
-        if (Z.EndValue <= Min) or (Z.StartValue >= Max) then Continue;
-        ZRect.X := Track.X +
-          Single(NormaliseValue(Min, Max, System.Math.Max(Min, Z.StartValue))) *
-          Track.Width;
+        if (Z.EndValue <= Min) or (Z.StartValue >= Max) then
+          Continue;
+        ZRect.X := Track.X + Single(NormaliseValue(Min, Max,
+          System.Math.Max(Min, Z.StartValue))) * Track.Width;
         ZRect.Y := Track.Y;
-        ZRect.Width :=
-          Single(NormaliseValue(Min, Max, System.Math.Min(Max, Z.EndValue))) *
-          Track.Width - (ZRect.X - Track.X);
+        ZRect.Width := Single(NormaliseValue(Min, Max, System.Math.Min(Max,
+          Z.EndValue))) * Track.Width - (ZRect.X - Track.X);
         ZRect.Height := Track.Height;
-        var ZBrush := TGPSolidBrush.Create(
-          ColorToARGB(Z.Color, 96));
-        try Graphics.FillRectangle(ZBrush, ZRect);
+        var
+        ZBrush := TGPSolidBrush.Create(ColorToARGB(Z.Color, 96));
+        try
+          Graphics.FillRectangle(ZBrush, ZRect);
         finally
           ZBrush.Free;
         end;
@@ -169,9 +172,11 @@ begin
       Fill := Track;
       Fill.Width := Norm * Track.Width;
       ColorVal := CurrentZoneColor;
-      if ColorVal = clNone then ColorVal := Palette.Accent;
+      if ColorVal = clNone then
+        ColorVal := Palette.Accent;
       FillBrush := TGPSolidBrush.Create(ColorToARGB(ColorVal));
-      try Graphics.FillRectangle(FillBrush, Fill);
+      try
+        Graphics.FillRectangle(FillBrush, Fill);
       finally
         FillBrush.Free;
       end;
@@ -180,10 +185,8 @@ begin
       if FShowValueText then
       begin
         ValStr := FormatValue(DisplayValue);
-        ACanvas.TextOut(
-          Round(Track.X + Track.Width) + ScaleValue(8),
-          Round(Track.Y) - ScaleValue(2),
-          ValStr);
+        ACanvas.TextOut(Round(Track.X + Track.Width) + ScaleValue(8),
+          Round(Track.Y) - ScaleValue(2), ValStr);
       end;
     end
     else
@@ -203,31 +206,35 @@ begin
       Track.Width := TrackThick;
       Track.Height := Y2 - Y1;
 
-      TrackBrush := TGPSolidBrush.Create(
-        ColorToARGB(Palette.NeutralLight));
-      TrackPen := TGPPen.Create(ColorToARGB(EffectiveBorder),
-        ScaleValue(1));
+      TrackBrush := TGPSolidBrush.Create(ColorToARGB(Palette.NeutralLight));
+      TrackPen := TGPPen.Create(ColorToARGB(EffectiveBorder), ScaleValue(1));
       try
         Graphics.FillRectangle(TrackBrush, Track);
         Graphics.DrawRectangle(TrackPen, Track);
       finally
-        TrackPen.Free; TrackBrush.Free;
+        TrackPen.Free;
+        TrackBrush.Free;
       end;
 
       // Zones (vertical strips).
       for Z in Zones do
       begin
-        if (Z.EndValue <= Min) or (Z.StartValue >= Max) then Continue;
-        var TopNorm := Single(NormaliseValue(Min, Max,
-          System.Math.Min(Max, Z.EndValue)));
-        var BotNorm := Single(NormaliseValue(Min, Max,
-          System.Math.Max(Min, Z.StartValue)));
+        if (Z.EndValue <= Min) or (Z.StartValue >= Max) then
+          Continue;
+        var
+        TopNorm := Single(NormaliseValue(Min, Max, System.Math.Min(Max,
+          Z.EndValue)));
+        var
+        BotNorm := Single(NormaliseValue(Min, Max, System.Math.Max(Min,
+          Z.StartValue)));
         ZRect.X := Track.X;
         ZRect.Width := Track.Width;
         ZRect.Y := Track.Y + (1 - TopNorm) * Track.Height;
         ZRect.Height := (TopNorm - BotNorm) * Track.Height;
-        var ZBrush := TGPSolidBrush.Create(ColorToARGB(Z.Color, 96));
-        try Graphics.FillRectangle(ZBrush, ZRect);
+        var
+        ZBrush := TGPSolidBrush.Create(ColorToARGB(Z.Color, 96));
+        try
+          Graphics.FillRectangle(ZBrush, ZRect);
         finally
           ZBrush.Free;
         end;
@@ -239,9 +246,11 @@ begin
       Fill.Y := Track.Y + (1 - Norm) * Track.Height;
       Fill.Height := Norm * Track.Height;
       ColorVal := CurrentZoneColor;
-      if ColorVal = clNone then ColorVal := Palette.Accent;
+      if ColorVal = clNone then
+        ColorVal := Palette.Accent;
       FillBrush := TGPSolidBrush.Create(ColorToARGB(ColorVal));
-      try Graphics.FillRectangle(FillBrush, Fill);
+      try
+        Graphics.FillRectangle(FillBrush, Fill);
       finally
         FillBrush.Free;
       end;
@@ -250,10 +259,8 @@ begin
       if FShowValueText then
       begin
         ValStr := FormatValue(DisplayValue);
-        ACanvas.TextOut(
-          Round(Width / 2 - ACanvas.TextWidth(ValStr) / 2),
-          Round(Track.Y + Track.Height) + ScaleValue(4),
-          ValStr);
+        ACanvas.TextOut(Round(Width / 2 - ACanvas.TextWidth(ValStr) / 2),
+          Round(Track.Y + Track.Height) + ScaleValue(4), ValStr);
       end;
     end;
   finally

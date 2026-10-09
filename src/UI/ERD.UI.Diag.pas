@@ -1,30 +1,30 @@
-//------------------------------------------------------------------------------
-//  ERD.UI.Diag
+﻿// ------------------------------------------------------------------------------
+// ERD.UI.Diag
 //
-//  Advanced diagnostics panels:
+// Advanced diagnostics panels:
 //
-//    TOBDMode06Viewer            On-board monitor results
-//                                table.
-//    TOBDMode07Viewer            Pending DTC viewer.
-//    TOBDMode0AViewer            Permanent DTC viewer.
-//    TOBDMode04Confirm           Clear DTCs button + confirm.
-//    TOBDRoutineControlLauncher  UDS routine launcher (0x31).
-//    TOBDActuatorTestPanel       Sequenced actuator test
-//                                runner.
+// TOBDMode06Viewer            On-board monitor results
+// table.
+// TOBDMode07Viewer            Pending DTC viewer.
+// TOBDMode0AViewer            Permanent DTC viewer.
+// TOBDMode04Confirm           Clear DTCs button + confirm.
+// TOBDRoutineControlLauncher  UDS routine launcher (0x31).
+// TOBDActuatorTestPanel       Sequenced actuator test
+// runner.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.UI.Diag;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -34,10 +34,10 @@ uses
   Winapi.Windows,
   Winapi.GDIPAPI,
   Winapi.GDIPOBJ,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   System.Bindings.Helper, Data.Bind.Components,
   Vcl.Controls,
   Vcl.Graphics,
@@ -51,13 +51,13 @@ uses
 type
   /// <summary>One result row for the Mode-06 viewer.</summary>
   TOBDMode06Row = record
-    MID:     Byte;
-    TID:     Byte;
-    Name:    string;
-    Value:   Double;
-    Min:     Double;
-    Max:     Double;
-    Passed:  Boolean;
+    MID: Byte;
+    TID: Byte;
+    Name: string;
+    Value: Double;
+    Min: Double;
+    Max: Double;
+    Passed: Boolean;
   end;
 
   /// <summary>Mode-06 on-board-monitor results table.</summary>
@@ -66,12 +66,12 @@ type
     constructor Create(AOwner: TComponent); override;
     /// <summary>Idempotently set up the columns. Safe to call
     /// before or after the handle exists.</summary>
-    procedure   ConfigureColumnsIfNeeded;
+    procedure ConfigureColumnsIfNeeded;
     /// <summary>Replace the displayed rows with the supplied
     /// array.</summary>
-    procedure   Refresh(const ARows: TArray<TOBDMode06Row>);
+    procedure Refresh(const ARows: TArray<TOBDMode06Row>);
     /// <summary>Remove all rows.</summary>
-    procedure   ClearRows;
+    procedure ClearRows;
   protected
     procedure CreateWnd; override;
   published
@@ -89,9 +89,9 @@ type
   /// <summary>One DTC row for Mode-07 / Mode-0A viewers.
   /// </summary>
   TOBDDTCRow = record
-    Code:        string;
+    Code: string;
     Description: string;
-    Status:      string;
+    Status: string;
   end;
 
   /// <summary>Pending DTC viewer (Mode 07).</summary>
@@ -100,9 +100,9 @@ type
     constructor Create(AOwner: TComponent); override;
     /// <summary>Replace the displayed rows with the supplied
     /// array.</summary>
-    procedure   Refresh(const ARows: TArray<TOBDDTCRow>);
+    procedure Refresh(const ARows: TArray<TOBDDTCRow>);
     /// <summary>Remove all rows.</summary>
-    procedure   ClearRows;
+    procedure ClearRows;
   protected
     procedure CreateWnd; override;
   published
@@ -123,9 +123,9 @@ type
     constructor Create(AOwner: TComponent); override;
     /// <summary>Replace the displayed rows with the supplied
     /// array.</summary>
-    procedure   Refresh(const ARows: TArray<TOBDDTCRow>);
+    procedure Refresh(const ARows: TArray<TOBDDTCRow>);
     /// <summary>Remove all rows.</summary>
-    procedure   ClearRows;
+    procedure ClearRows;
   protected
     procedure CreateWnd; override;
   published
@@ -150,8 +150,8 @@ type
   TOBDMode04Confirm = class(TOBDCustomControl)
   strict private
     FConfirmText: string;
-    FOnClear:     TOBDClearDTCsEvent;
-    FFont:        TFont;
+    FOnClear: TOBDClearDTCsEvent;
+    FFont: TFont;
     procedure SetFontA(AValue: TFont);
     procedure SetConfirmText(const AValue: string);
     procedure HandleFontChange(Sender: TObject);
@@ -162,25 +162,22 @@ type
     procedure PaintControl(ACanvas: TCanvas); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
   published
     /// <summary>Confirm dialog body. Default warns about the
     /// emissions readiness loss.</summary>
-    property ConfirmText: string
-      read FConfirmText write SetConfirmText;
+    property ConfirmText: string read FConfirmText write SetConfirmText;
     /// <summary>Font used for the button caption.</summary>
     property LabelFont: TFont read FFont write SetFontA;
     /// <summary>Fires once the user has confirmed the clear.
     /// </summary>
-    property OnClear: TOBDClearDTCsEvent
-      read FOnClear write FOnClear;
+    property OnClear: TOBDClearDTCsEvent read FOnClear write FOnClear;
   end;
 
   /// <summary>Fires when the user clicks the launch button.
   /// </summary>
-  TOBDRoutineLaunchEvent = procedure(Sender: TObject;
-    ARoutineId: Word; const AArgs: TBytes;
-    out AResultText: string) of object;
+  TOBDRoutineLaunchEvent = procedure(Sender: TObject; ARoutineId: Word;
+    const AArgs: TBytes; out AResultText: string) of object;
 
   /// <summary>UDS routine launcher (0x31). Host wires the
   /// routine-id + argument hex; click fires
@@ -188,30 +185,29 @@ type
   TOBDRoutineControlLauncher = class(TOBDCustomControl)
   strict private
     FRoutineId: Word;
-    FArgsHex:   string;
-    FResult:    string;
+    FArgsHex: string;
+    FResult: string;
     FButtonRect: TRect;
-    FFont:      TFont;
-    FOnLaunch:  TOBDRoutineLaunchEvent;
+    FFont: TFont;
+    FOnLaunch: TOBDRoutineLaunchEvent;
     procedure SetRoutineId(AValue: Word);
     procedure SetArgsHex(const AValue: string);
     procedure SetFontA(AValue: TFont);
     procedure HandleFontChange(Sender: TObject);
     procedure NotifyBindings;
     procedure DoLaunch;
-    function  ParseArgs: TBytes;
+    function ParseArgs: TBytes;
   protected
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState;
       X, Y: Integer); override;
     procedure PaintControl(ACanvas: TCanvas); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
   published
     /// <summary>UDS routine identifier (16-bit). Default 0.
     /// </summary>
-    property RoutineId: Word
-      read FRoutineId write SetRoutineId default 0;
+    property RoutineId: Word read FRoutineId write SetRoutineId default 0;
     /// <summary>Routine arguments as a hex string (whitespace
     /// permitted), e.g. <c>"01 0A FF"</c>.</summary>
     property ArgsHex: string read FArgsHex write SetArgsHex;
@@ -220,22 +216,21 @@ type
     property MonoFont: TFont read FFont write SetFontA;
     /// <summary>Fires when the host should execute the routine.
     /// </summary>
-    property OnLaunch: TOBDRoutineLaunchEvent
-      read FOnLaunch write FOnLaunch;
+    property OnLaunch: TOBDRoutineLaunchEvent read FOnLaunch write FOnLaunch;
   end;
 
   /// <summary>One step in an actuator-test sequence.</summary>
   TOBDActuatorStep = record
-    Name:    string;
+    Name: string;
     PIDByte: Byte;
-    Status:  string;     // populated as the runner progresses
+    Status: string; // populated as the runner progresses
   end;
 
   /// <summary>Fires for each step the host should execute.
   /// </summary>
-  TOBDActuatorStepEvent = procedure(Sender: TObject;
-    AStepIndex: Integer; const AStep: TOBDActuatorStep;
-    out AStatus: string; out AAbort: Boolean) of object;
+  TOBDActuatorStepEvent = procedure(Sender: TObject; AStepIndex: Integer;
+    const AStep: TOBDActuatorStep; out AStatus: string; out AAbort: Boolean)
+    of object;
 
   /// <summary>Sequenced actuator-test runner. Host loads a
   /// step list and clicks Run; the panel fires
@@ -244,12 +239,12 @@ type
   /// </summary>
   TOBDActuatorTestPanel = class(TOBDCustomControl)
   strict private
-    FSteps:    TList<TOBDActuatorStep>;
-    FRunning:  Boolean;
-    FCurrent:  Integer;
-    FRunRect:  TRect;
-    FFont:     TFont;
-    FOnStep:   TOBDActuatorStepEvent;
+    FSteps: TList<TOBDActuatorStep>;
+    FRunning: Boolean;
+    FCurrent: Integer;
+    FRunRect: TRect;
+    FFont: TFont;
+    FOnStep: TOBDActuatorStepEvent;
     procedure SetFontA(AValue: TFont);
     procedure HandleFontChange(Sender: TObject);
     procedure NotifyBindings;
@@ -260,7 +255,7 @@ type
     procedure PaintControl(ACanvas: TCanvas); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
     /// <summary>Replace the step list with the supplied array.
     /// </summary>
     procedure LoadSteps(const ASteps: array of TOBDActuatorStep);
@@ -268,7 +263,7 @@ type
     procedure ClearSteps;
     /// <summary>Snapshot of the current step list including
     /// per-step status text.</summary>
-    function  Steps: TArray<TOBDActuatorStep>;
+    function Steps: TArray<TOBDActuatorStep>;
     /// <summary>True while a sequence is executing.</summary>
     property Running: Boolean read FRunning;
   published
@@ -277,14 +272,12 @@ type
     property LabelFont: TFont read FFont write SetFontA;
     /// <summary>Fires for each step the host must execute.
     /// </summary>
-    property OnStep: TOBDActuatorStepEvent
-      read FOnStep write FOnStep;
+    property OnStep: TOBDActuatorStepEvent read FOnStep write FOnStep;
   end;
 
 implementation
 
-procedure ConfigureCols(AListView: TListView;
-  const ANames: array of string;
+procedure ConfigureCols(AListView: TListView; const ANames: array of string;
   const AWidths: array of Integer);
 var
   I: Integer;
@@ -297,7 +290,7 @@ begin
     begin
       Col := AListView.Columns.Add;
       Col.Caption := ANames[I];
-      Col.Width   := AWidths[I];
+      Col.Width := AWidths[I];
     end;
   finally
     AListView.Columns.EndUpdate;
@@ -311,7 +304,7 @@ begin
   inherited Create(AOwner);
   ViewStyle := vsReport;
   RowSelect := True;
-  ReadOnly  := True;
+  ReadOnly := True;
   GridLines := True;
   ShowColumnHeaders := True;
 end;
@@ -325,13 +318,11 @@ end;
 procedure TOBDMode06Viewer.ConfigureColumnsIfNeeded;
 begin
   if Columns.Count = 0 then
-    ConfigureCols(Self,
-      ['MID', 'TID', 'Name', 'Value', 'Min', 'Max', 'Pass'],
+    ConfigureCols(Self, ['MID', 'TID', 'Name', 'Value', 'Min', 'Max', 'Pass'],
       [50, 50, 200, 80, 80, 80, 50]);
 end;
 
-procedure TOBDMode06Viewer.Refresh(
-  const ARows: TArray<TOBDMode06Row>);
+procedure TOBDMode06Viewer.Refresh(const ARows: TArray<TOBDMode06Row>);
 var
   R: TOBDMode06Row;
   Item: TListItem;
@@ -348,8 +339,10 @@ begin
       Item.SubItems.Add(Format('%g', [R.Value]));
       Item.SubItems.Add(Format('%g', [R.Min]));
       Item.SubItems.Add(Format('%g', [R.Max]));
-      if R.Passed then Item.SubItems.Add('yes')
-      else             Item.SubItems.Add('no');
+      if R.Passed then
+        Item.SubItems.Add('yes')
+      else
+        Item.SubItems.Add('no');
     end;
   finally
     Items.EndUpdate;
@@ -368,7 +361,7 @@ begin
   inherited Create(AOwner);
   ViewStyle := vsReport;
   RowSelect := True;
-  ReadOnly  := True;
+  ReadOnly := True;
   GridLines := True;
   ShowColumnHeaders := True;
 end;
@@ -377,9 +370,7 @@ procedure TOBDMode07Viewer.CreateWnd;
 begin
   inherited;
   if Columns.Count = 0 then
-    ConfigureCols(Self,
-      ['Code', 'Description', 'Status'],
-      [80, 280, 100]);
+    ConfigureCols(Self, ['Code', 'Description', 'Status'], [80, 280, 100]);
 end;
 
 procedure TOBDMode07Viewer.Refresh(const ARows: TArray<TOBDDTCRow>);
@@ -412,7 +403,7 @@ begin
   inherited Create(AOwner);
   ViewStyle := vsReport;
   RowSelect := True;
-  ReadOnly  := True;
+  ReadOnly := True;
   GridLines := True;
   ShowColumnHeaders := True;
 end;
@@ -421,9 +412,7 @@ procedure TOBDMode0AViewer.CreateWnd;
 begin
   inherited;
   if Columns.Count = 0 then
-    ConfigureCols(Self,
-      ['Code', 'Description', 'Status'],
-      [80, 280, 100]);
+    ConfigureCols(Self, ['Code', 'Description', 'Status'], [80, 280, 100]);
 end;
 
 procedure TOBDMode0AViewer.Refresh(const ARows: TArray<TOBDDTCRow>);
@@ -456,10 +445,9 @@ end;
 constructor TOBDMode04Confirm.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 220;
+  Width := 220;
   Height := 48;
-  FConfirmText :=
-    'Clearing DTCs also clears Mode-01 readiness flags. ' +
+  FConfirmText := 'Clearing DTCs also clears Mode-01 readiness flags. ' +
     'Continue?';
   FFont := TFont.Create;
   FFont.Name := 'Segoe UI';
@@ -477,7 +465,8 @@ end;
 
 procedure TOBDMode04Confirm.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -496,18 +485,21 @@ end;
 
 procedure TOBDMode04Confirm.SetConfirmText(const AValue: string);
 begin
-  if FConfirmText = AValue then Exit;
+  if FConfirmText = AValue then
+    Exit;
   FConfirmText := AValue;
 end;
 
-procedure TOBDMode04Confirm.MouseUp(Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer);
+procedure TOBDMode04Confirm.MouseUp(Button: TMouseButton; Shift: TShiftState;
+  X, Y: Integer);
 begin
   inherited;
-  if Button <> mbLeft then Exit;
-  if csDesigning in ComponentState then Exit;
-  if MessageDlg(FConfirmText, mtWarning, [mbYes, mbNo], 0) <> mrYes
-  then Exit;
+  if Button <> mbLeft then
+    Exit;
+  if csDesigning in ComponentState then
+    Exit;
+  if MessageDlg(FConfirmText, mtWarning, [mbYes, mbNo], 0) <> mrYes then
+    Exit;
   if Assigned(FOnClear) then
     try
       FOnClear(Self);
@@ -543,10 +535,8 @@ begin
   ACanvas.Brush.Style := bsClear;
   ACanvas.Font := FFont;
   S := 'Clear DTCs';
-  ACanvas.TextOut(
-    Round(R.X + (R.Width  - ACanvas.TextWidth(S)) / 2),
-    Round(R.Y + (R.Height - ACanvas.TextHeight(S)) / 2),
-    S);
+  ACanvas.TextOut(Round(R.X + (R.Width - ACanvas.TextWidth(S)) / 2),
+    Round(R.Y + (R.Height - ACanvas.TextHeight(S)) / 2), S);
 end;
 
 { ---- TOBDRoutineControlLauncher ---------------------------------- }
@@ -554,7 +544,7 @@ end;
 constructor TOBDRoutineControlLauncher.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 360;
+  Width := 360;
   Height := 110;
   FFont := TFont.Create;
   FFont.Name := 'Consolas';
@@ -570,7 +560,8 @@ end;
 
 procedure TOBDRoutineControlLauncher.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -584,14 +575,20 @@ end;
 
 procedure TOBDRoutineControlLauncher.SetRoutineId(AValue: Word);
 begin
-  if FRoutineId = AValue then Exit;
-  FRoutineId := AValue; NotifyBindings; Repaint;
+  if FRoutineId = AValue then
+    Exit;
+  FRoutineId := AValue;
+  NotifyBindings;
+  Repaint;
 end;
 
 procedure TOBDRoutineControlLauncher.SetArgsHex(const AValue: string);
 begin
-  if FArgsHex = AValue then Exit;
-  FArgsHex := AValue; NotifyBindings; Repaint;
+  if FArgsHex = AValue then
+    Exit;
+  FArgsHex := AValue;
+  NotifyBindings;
+  Repaint;
 end;
 
 procedure TOBDRoutineControlLauncher.SetFontA(AValue: TFont);
@@ -605,9 +602,9 @@ var
   I: Integer;
   V: Integer;
 begin
-  Trimmed := StringReplace(FArgsHex, ' ', '',
-    [rfReplaceAll]);
-  if (Length(Trimmed) mod 2) <> 0 then Exit(nil);
+  Trimmed := StringReplace(FArgsHex, ' ', '', [rfReplaceAll]);
+  if (Length(Trimmed) mod 2) <> 0 then
+    Exit(nil);
   SetLength(Result, Length(Trimmed) div 2);
   for I := 0 to High(Result) do
     if TryStrToInt('$' + Copy(Trimmed, I * 2 + 1, 2), V) then
@@ -653,7 +650,7 @@ var
   Pad, Y, ButW, ButH: Integer;
   Graphics: TGPGraphics;
   Brush: TGPSolidBrush;
-  Pen:   TGPPen;
+  Pen: TGPPen;
   R: TGPRectF;
   S: string;
 begin
@@ -662,8 +659,8 @@ begin
   ACanvas.Font.Color := EffectiveForeground;
   Pad := ScaleValue(8);
   Y := Pad;
-  ACanvas.TextOut(Pad, Y,
-    Format('routine 0x%4.4X  args [%s]', [FRoutineId, FArgsHex]));
+  ACanvas.TextOut(Pad, Y, Format('routine 0x%4.4X  args [%s]',
+    [FRoutineId, FArgsHex]));
   Inc(Y, ACanvas.TextHeight('Mg') + ScaleValue(8));
 
   ButW := ScaleValue(120);
@@ -675,7 +672,7 @@ begin
   R.Height := ButH;
   Graphics := TGPGraphics.Create(ACanvas.Handle);
   Brush := TGPSolidBrush.Create(ColorToARGB(EffectiveAccent));
-  Pen   := TGPPen.Create(ColorToARGB(EffectiveBorder), 1);
+  Pen := TGPPen.Create(ColorToARGB(EffectiveBorder), 1);
   try
     Graphics.SetSmoothingMode(SmoothingModeAntiAlias);
     Graphics.FillRectangle(Brush, R);
@@ -687,16 +684,13 @@ begin
   end;
   ACanvas.Font.Color := clWhite;
   S := 'Launch (0x31)';
-  ACanvas.TextOut(
-    FButtonRect.Left + (ButW - ACanvas.TextWidth(S)) div 2,
-    FButtonRect.Top  + (ButH - ACanvas.TextHeight(S)) div 2,
-    S);
+  ACanvas.TextOut(FButtonRect.Left + (ButW - ACanvas.TextWidth(S)) div 2,
+    FButtonRect.Top + (ButH - ACanvas.TextHeight(S)) div 2, S);
 
   if FResult <> '' then
   begin
     ACanvas.Font.Color := EffectiveForeground;
-    ACanvas.TextOut(Pad, Y + ButH + ScaleValue(6),
-      'result: ' + FResult);
+    ACanvas.TextOut(Pad, Y + ButH + ScaleValue(6), 'result: ' + FResult);
   end;
 end;
 
@@ -705,7 +699,7 @@ end;
 constructor TOBDActuatorTestPanel.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 360;
+  Width := 360;
   Height := 200;
   FSteps := TList<TOBDActuatorStep>.Create;
   FCurrent := -1;
@@ -724,7 +718,8 @@ end;
 
 procedure TOBDActuatorTestPanel.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -741,12 +736,14 @@ begin
   FFont.Assign(AValue);
 end;
 
-procedure TOBDActuatorTestPanel.LoadSteps(
-  const ASteps: array of TOBDActuatorStep);
-var I: Integer;
+procedure TOBDActuatorTestPanel.LoadSteps(const ASteps
+  : array of TOBDActuatorStep);
+var
+  I: Integer;
 begin
   FSteps.Clear;
-  for I := 0 to High(ASteps) do FSteps.Add(ASteps[I]);
+  for I := 0 to High(ASteps) do
+    FSteps.Add(ASteps[I]);
   FCurrent := -1;
   NotifyBindings;
   Repaint;
@@ -772,7 +769,8 @@ var
   Status: string;
   AbortReq: Boolean;
 begin
-  if FRunning then Exit;
+  if FRunning then
+    Exit;
   FRunning := True;
   try
     for I := 0 to FSteps.Count - 1 do
@@ -796,7 +794,8 @@ begin
       else
         Step.Status := 'no OnStep handler';
       FSteps[I] := Step;
-      if AbortReq then Break;
+      if AbortReq then
+        Break;
     end;
   finally
     FRunning := False;
@@ -810,7 +809,8 @@ procedure TOBDActuatorTestPanel.MouseUp(Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   inherited;
-  if Button <> mbLeft then Exit;
+  if Button <> mbLeft then
+    Exit;
   if PtInRect(FRunRect, Point(X, Y)) and not FRunning then
     RunSequence;
 end;
@@ -819,7 +819,7 @@ procedure TOBDActuatorTestPanel.PaintControl(ACanvas: TCanvas);
 var
   Graphics: TGPGraphics;
   Brush: TGPSolidBrush;
-  Pen:   TGPPen;
+  Pen: TGPPen;
   Pad, ButW, ButH, RowH, Y, I: Integer;
   R: TGPRectF;
   S: string;
@@ -850,21 +850,21 @@ begin
   end;
   ACanvas.Font.Color := clWhite;
   S := 'Run';
-  ACanvas.TextOut(
-    FRunRect.Left + (ButW - ACanvas.TextWidth(S)) div 2,
-    FRunRect.Top  + (ButH - ACanvas.TextHeight(S)) div 2,
-    S);
+  ACanvas.TextOut(FRunRect.Left + (ButW - ACanvas.TextWidth(S)) div 2,
+    FRunRect.Top + (ButH - ACanvas.TextHeight(S)) div 2, S);
 
   RowH := ScaleValue(18);
   Y := Pad + ButH + ScaleValue(8);
   for I := 0 to FSteps.Count - 1 do
   begin
-    if Y + RowH > Height then Break;
-    if I = FCurrent then ACanvas.Font.Color := Palette.Warning
-    else                 ACanvas.Font.Color := EffectiveForeground;
-    ACanvas.TextOut(Pad, Y,
-      Format('%2.2d. %s — %s',
-        [I + 1, FSteps[I].Name, FSteps[I].Status]));
+    if Y + RowH > Height then
+      Break;
+    if I = FCurrent then
+      ACanvas.Font.Color := Palette.Warning
+    else
+      ACanvas.Font.Color := EffectiveForeground;
+    ACanvas.TextOut(Pad, Y, Format('%2.2d. %s — %s', [I + 1, FSteps[I].Name,
+      FSteps[I].Status]));
     Inc(Y, RowH);
   end;
 end;

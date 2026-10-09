@@ -1,34 +1,34 @@
-//------------------------------------------------------------------------------
-//  ERD.Protocol
+﻿// ------------------------------------------------------------------------------
+// ERD.Protocol
 //
-//  TOBDProtocol — non-visual component that sits between TOBDAdapter
-//  and the application code (service-mode components, UDS / KWP /
-//  J1939 helpers, etc.). Encodes a TOBDRequest via the right codec,
-//  pushes it to the adapter via WriteOBDCommand, parses the textual
-//  hex response back into a TOBDResponse, and fires events on the
-//  main thread.
+// TOBDProtocol — non-visual component that sits between TOBDAdapter
+// and the application code (service-mode components, UDS / KWP /
+// J1939 helpers, etc.). Encodes a TOBDRequest via the right codec,
+// pushes it to the adapter via WriteOBDCommand, parses the textual
+// hex response back into a TOBDResponse, and fires events on the
+// main thread.
 //
-//  Honours the dual-method + main-thread + progress rule:
-//  Send / SendAsync, Request / RequestAsync. Only one async op of the
-//  same kind may be in flight per instance; cancellation flows through
-//  Close on the bound adapter.
+// Honours the dual-method + main-thread + progress rule:
+// Send / SendAsync, Request / RequestAsync. Only one async op of the
+// same kind may be in flight per instance; cancellation flows through
+// Close on the bound adapter.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Protocol;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -37,11 +37,11 @@ uses
   ERD.Async.Task,
   ERD.Connection,
   ERD.Connection.Types,
-  {$IFDEF FPC}StrUtils{$ELSE}System.StrUtils{$ENDIF},
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}StrUtils{$ELSE}System.StrUtils{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.Types,
   ERD.Catalog,
   ERD.Adapter.Types,
@@ -55,34 +55,33 @@ uses
 
 type
   /// <summary>
-  ///   Selection mode for the wire protocol.
+  /// Selection mode for the wire protocol.
   /// </summary>
   TOBDProtocolMode = (
     /// <summary>Adapter chooses (<c>ATSP0</c>) — the most common
     /// configuration.</summary>
     pmAuto,
     /// <summary>Force the protocol to <c>Manual</c>.</summary>
-    pmManual
-  );
+    pmManual);
 
   /// <summary>
-  ///   Non-visual protocol component bound to a <c>TOBDAdapter</c>.
+  /// Non-visual protocol component bound to a <c>TOBDAdapter</c>.
   /// </summary>
   /// <remarks>
-  ///   Drop on a form, point <c>Adapter</c> at a configured
-  ///   <c>TOBDAdapter</c>, optionally set <c>Mode := pmManual</c> and
-  ///   <c>Manual := pidISO15765_4_CAN_11_500</c>, then call
-  ///   <c>Send</c> / <c>Request</c> from code (or use a
-  ///   service-mode component like <c>TOBDLiveData</c> that drives
-  ///   the protocol behind the scenes).
+  /// Drop on a form, point <c>Adapter</c> at a configured
+  /// <c>TOBDAdapter</c>, optionally set <c>Mode := pmManual</c> and
+  /// <c>Manual := pidISO15765_4_CAN_11_500</c>, then call
+  /// <c>Send</c> / <c>Request</c> from code (or use a
+  /// service-mode component like <c>TOBDLiveData</c> that drives
+  /// the protocol behind the scenes).
   ///
-  ///   <c>Send</c> takes a fully populated <c>TOBDRequest</c>;
-  ///   <c>Request</c> is a one-call shortcut that builds the request
-  ///   from a service ID and payload bytes.
+  /// <c>Send</c> takes a fully populated <c>TOBDRequest</c>;
+  /// <c>Request</c> is a one-call shortcut that builds the request
+  /// from a service ID and payload bytes.
   ///
-  ///   Both ship in synchronous and asynchronous forms; async fires
-  ///   <c>OnResponse</c> on success and <c>OnNRC</c> / <c>OnError</c>
-  ///   on failure, all on the main thread.
+  /// Both ship in synchronous and asynchronous forms; async fires
+  /// <c>OnResponse</c> on success and <c>OnNRC</c> / <c>OnError</c>
+  /// on failure, all on the main thread.
   /// </remarks>
   TOBDProtocol = class(TComponent)
   strict private
@@ -108,24 +107,24 @@ type
     // handlers AND service-component glue (Recorder, Replayer,
     // bus loggers) registers as listeners — neither path clobbers
     // the other.
-    FListeners:       TDictionary<Integer, TOBDProtocolListener>;
-    FListenerLock:    TCriticalSection;
-    FNextListenerId:  Integer;
+    FListeners: TDictionary<Integer, TOBDProtocolListener>;
+    FListenerLock: TCriticalSection;
+    FNextListenerId: Integer;
 
     procedure SetAdapter(AValue: TOBDAdapter);
     procedure WaitForAsync;
 
     procedure DispatchFrameListeners(const AFrame: TOBDFrame);
     procedure DispatchResponseListeners(const AResponse: TOBDResponse);
-    procedure DispatchNRCListeners(const ARequest: TOBDRequest;
-      ANRC: Byte; const AText: string);
+    procedure DispatchNRCListeners(const ARequest: TOBDRequest; ANRC: Byte;
+      const AText: string);
     procedure DispatchErrorListeners(ACode: TOBDErrorCode;
       const AMessage: string);
-    function  SnapshotListeners: TArray<TOBDProtocolListener>;
+    function SnapshotListeners: TArray<TOBDProtocolListener>;
 
     function EncodeRequest(const ARequest: TOBDRequest): string;
-    function DecodeResponse(const ARequest: TOBDRequest;
-      const ARawHex: string; AElapsedMs: Cardinal): TOBDResponse;
+    function DecodeResponse(const ARequest: TOBDRequest; const ARawHex: string;
+      AElapsedMs: Cardinal): TOBDResponse;
 
     procedure FireOnResponse(const AResponse: TOBDResponse);
     procedure FireOnNRC(const ARequest: TOBDRequest; ANRC: Byte;
@@ -148,8 +147,8 @@ type
     destructor Destroy; override;
 
     /// <summary>
-    ///   Encodes a request and sends it through the bound adapter,
-    ///   blocking until the response arrives.
+    /// Encodes a request and sends it through the bound adapter,
+    /// blocking until the response arrives.
     /// </summary>
     /// <param name="ARequest">Fully populated request.</param>
     /// <returns>Decoded response.</returns>
@@ -168,8 +167,8 @@ type
     procedure SendAsync(const ARequest: TOBDRequest);
 
     /// <summary>
-    ///   Convenience: build and send a request from a service ID and
-    ///   payload bytes. Equivalent to <c>Send(MakeRequest(...))</c>.
+    /// Convenience: build and send a request from a service ID and
+    /// payload bytes. Equivalent to <c>Send(MakeRequest(...))</c>.
     /// </summary>
     /// <param name="AServiceID">Application protocol SID
     /// (e.g. 0x09 for OBD-II Mode 09, 0x22 for UDS
@@ -202,8 +201,7 @@ type
     /// <c>TOBDRecorder</c> or custom bus logger. Returns an
     /// integer tag the caller passes to
     /// <see cref="RemoveListener"/> later. Thread-safe.</summary>
-    function AddListener(
-      const AListener: TOBDProtocolListener): Integer;
+    function AddListener(const AListener: TOBDProtocolListener): Integer;
     /// <summary>Removes the listener registered under
     /// <paramref name="AListenerId"/>. Silently ignored when the
     /// tag isn't found (already removed / never registered).
@@ -215,8 +213,7 @@ type
     /// <summary>Auto / manual selector.</summary>
     property Mode: TOBDProtocolMode read FMode write FMode default pmAuto;
     /// <summary>Manual protocol when <c>Mode = pmManual</c>.</summary>
-    property Manual: TOBDProtocolID read FManual write FManual
-      default pidAuto;
+    property Manual: TOBDProtocolID read FManual write FManual default pidAuto;
     /// <summary>Application-protocol shape used by the codec
     /// (UDS / KWP / OBD-II / J1939 / WWH-OBD / DoIP).</summary>
     property Application: TOBDApplicationProtocol read FApplication
@@ -243,25 +240,23 @@ type
     property OnProgress: TOBDProgressEvent read FOnProgress write FOnProgress;
   end;
 
-/// <summary>
-///   Helper that builds a fully populated <c>TOBDRequest</c> from a
-///   service ID + payload bytes.
-/// </summary>
-/// <param name="AProtocol">Application protocol shape.</param>
-/// <param name="AServiceID">Service / SID byte.</param>
-/// <param name="AData">Payload bytes after the SID.</param>
-/// <param name="ATimeoutMs">Optional per-request timeout (0 = use
-/// component default).</param>
-/// <returns>Fully populated request record.</returns>
-function MakeRequest(AProtocol: TOBDApplicationProtocol;
-  AServiceID: Byte; const AData: TBytes;
-  ATimeoutMs: Cardinal = 0): TOBDRequest;
+  /// <summary>
+  /// Helper that builds a fully populated <c>TOBDRequest</c> from a
+  /// service ID + payload bytes.
+  /// </summary>
+  /// <param name="AProtocol">Application protocol shape.</param>
+  /// <param name="AServiceID">Service / SID byte.</param>
+  /// <param name="AData">Payload bytes after the SID.</param>
+  /// <param name="ATimeoutMs">Optional per-request timeout (0 = use
+  /// component default).</param>
+  /// <returns>Fully populated request record.</returns>
+function MakeRequest(AProtocol: TOBDApplicationProtocol; AServiceID: Byte;
+  const AData: TBytes; ATimeoutMs: Cardinal = 0): TOBDRequest;
 
 implementation
 
-function MakeRequest(AProtocol: TOBDApplicationProtocol;
-  AServiceID: Byte; const AData: TBytes;
-  ATimeoutMs: Cardinal): TOBDRequest;
+function MakeRequest(AProtocol: TOBDApplicationProtocol; AServiceID: Byte;
+  const AData: TBytes; ATimeoutMs: Cardinal): TOBDRequest;
 begin
   Result := MakeOBDRequest;
   Result.Protocol := AProtocol;
@@ -288,7 +283,8 @@ end;
 
 destructor TOBDProtocol.Destroy;
 begin
-  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  if FOwnedTask <> nil then
+    FOwnedTask.Cancel;
   WaitForAsync;
   // inherited Destroy fires opRemove notifications on every
   // component that registered FreeNotification — including
@@ -315,7 +311,8 @@ end;
 
 procedure TOBDProtocol.SetAdapter(AValue: TOBDAdapter);
 begin
-  if FAdapter = AValue then Exit;
+  if FAdapter = AValue then
+    Exit;
   // Drain any in-flight async worker before swapping the adapter
   // — the worker reads FAdapter without locking, so swapping it
   // mid-flight would race. WaitForAsync is a no-op when no
@@ -329,8 +326,8 @@ begin
     FAdapter.FreeNotification(Self);
 end;
 
-function TOBDProtocol.AddListener(
-  const AListener: TOBDProtocolListener): Integer;
+function TOBDProtocol.AddListener(const AListener
+  : TOBDProtocolListener): Integer;
 begin
   FListenerLock.Enter;
   try
@@ -388,8 +385,7 @@ begin
       end;
 end;
 
-procedure TOBDProtocol.DispatchResponseListeners(
-  const AResponse: TOBDResponse);
+procedure TOBDProtocol.DispatchResponseListeners(const AResponse: TOBDResponse);
 var
   Snap: TArray<TOBDProtocolListener>;
   L: TOBDProtocolListener;
@@ -444,7 +440,8 @@ begin
   finally
     FAsyncLock.Leave;
   end;
-  if Worker = nil then Exit;
+  if Worker = nil then
+    Exit;
   Worker.WaitFor;
   Worker.Free;
 end;
@@ -485,7 +482,8 @@ begin
   Snapshot := AResponse;
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
-    if Assigned(FOnResponse) then FOnResponse(Self, Snapshot);
+    if Assigned(FOnResponse) then
+      FOnResponse(Self, Snapshot);
     DispatchResponseListeners(Snapshot);
   end
   else
@@ -498,8 +496,8 @@ begin
       end);
 end;
 
-procedure TOBDProtocol.FireOnNRC(const ARequest: TOBDRequest;
-  ANRC: Byte; const AText: string);
+procedure TOBDProtocol.FireOnNRC(const ARequest: TOBDRequest; ANRC: Byte;
+const AText: string);
 var
   ReqCopy: TOBDRequest;
   TextCopy: string;
@@ -510,7 +508,8 @@ begin
   NRCCopy := ANRC;
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
-    if Assigned(FOnNRC) then FOnNRC(Self, ReqCopy, NRCCopy, TextCopy);
+    if Assigned(FOnNRC) then
+      FOnNRC(Self, ReqCopy, NRCCopy, TextCopy);
     DispatchNRCListeners(ReqCopy, NRCCopy, TextCopy);
   end
   else
@@ -524,7 +523,7 @@ begin
 end;
 
 procedure TOBDProtocol.FireOnError(ACode: TOBDErrorCode;
-  const AMessage: string);
+const AMessage: string);
 var
   Handled: Boolean;
   Code: TOBDErrorCode;
@@ -544,7 +543,8 @@ begin
   else
     FOwnedTask.Post(
       procedure
-      var Handled: Boolean;
+      var
+        Handled: Boolean;
       begin
         if Assigned(FOnError) then
         begin
@@ -556,11 +556,12 @@ begin
 end;
 
 procedure TOBDProtocol.FireOnProgress(AIndex, ACount: Cardinal;
-  const AName, ADetail: string);
+const AName, ADetail: string);
 var
   Step: TOBDProgressStep;
 begin
-  if not Assigned(FOnProgress) then Exit;
+  if not Assigned(FOnProgress) then
+    Exit;
   Step := TOBDProgressStep.MakeStep(AIndex, ACount, AName, ADetail);
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnProgress(Self, Step)
@@ -580,7 +581,8 @@ begin
   Snapshot := AFrame;
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
-    if Assigned(FOnFrame) then FOnFrame(Self, Snapshot);
+    if Assigned(FOnFrame) then
+      FOnFrame(Self, Snapshot);
     DispatchFrameListeners(Snapshot);
   end
   else
@@ -618,9 +620,10 @@ begin
   for I := 0 to High(Lines) do
   begin
     Trimmed := Trim(Lines[I]);
-    if Trimmed = '' then Continue;
+    if Trimmed = '' then
+      Continue;
 
-    Frame := Default(TOBDFrame);
+    Frame := Default (TOBDFrame);
     Frame.Timestamp := Now;
     Frame.Kind := fkRaw;
     Frame.Id := 0;
@@ -657,12 +660,13 @@ var
   Effective: Cardinal;
   ExpectedSID: Byte;
 begin
-  if (FAdapter = nil) or (FAdapter.Connection = nil) or
-     not FAdapter.Connection.Active then
+  if (FAdapter = nil) or (FAdapter.Connection = nil) or not FAdapter.Connection.Active
+  then
     raise EOBDNotConnected.Create('TOBDProtocol: Adapter is not active');
 
   Effective := ARequest.TimeoutMs;
-  if Effective = 0 then Effective := FDefaultTimeoutMs;
+  if Effective = 0 then
+    Effective := FDefaultTimeoutMs;
 
   FireOnProgress(1, 3, 'Encoding', '');
   Hex := EncodeRequest(ARequest);
@@ -683,8 +687,8 @@ begin
     Result := MakeOBDResponse;
     Result.Request := ARequest;
     Result.Elapsed := AdapterResp.Elapsed;
-    FireOnError(oeAdapterFault,
-      Format('Adapter rejected request: %s', [AdapterResp.ErrorKeyword]));
+    FireOnError(oeAdapterFault, Format('Adapter rejected request: %s',
+      [AdapterResp.ErrorKeyword]));
     Exit;
   end;
   Result := DecodeResponse(ARequest, AdapterResp.Raw, AdapterResp.Elapsed);
@@ -699,14 +703,15 @@ begin
     // response.
     case ARequest.Protocol of
       apKWP2000:
-        ExpectedSID := TOBDKWPCodec.ExpectedPositiveResponse(ARequest.ServiceID);
+        ExpectedSID := TOBDKWPCodec.ExpectedPositiveResponse
+          (ARequest.ServiceID);
     else
       ExpectedSID := TOBDUDSCodec.ExpectedPositiveResponse(ARequest.ServiceID);
     end;
     if (Result.ServiceID <> 0) and (Result.ServiceID <> ExpectedSID) then
       FireOnError(oeUnexpectedFrame,
         Format('Unexpected response SID 0x%2.2X (expected 0x%2.2X for request 0x%2.2X)',
-          [Result.ServiceID, ExpectedSID, ARequest.ServiceID]));
+        [Result.ServiceID, ExpectedSID, ARequest.ServiceID]));
     FireOnResponse(Result);
   end;
 end;
@@ -722,8 +727,8 @@ var
   Self_: TOBDProtocol;
   RequestCopy: TOBDRequest;
 begin
-  if (FAdapter = nil) or (FAdapter.Connection = nil) or
-     not FAdapter.Connection.Active then
+  if (FAdapter = nil) or (FAdapter.Connection = nil) or not FAdapter.Connection.Active
+  then
     raise EOBDNotConnected.Create('TOBDProtocol.SendAsync: Adapter inactive');
   FAsyncLock.Enter;
   try
@@ -772,13 +777,13 @@ begin
 end;
 
 function TOBDProtocol.Request(AServiceID: Byte; const AData: TBytes;
-  ATimeoutMs: Cardinal): TOBDResponse;
+ATimeoutMs: Cardinal): TOBDResponse;
 begin
   Result := Send(MakeRequest(FApplication, AServiceID, AData, ATimeoutMs));
 end;
 
 procedure TOBDProtocol.RequestAsync(AServiceID: Byte; const AData: TBytes;
-  ATimeoutMs: Cardinal);
+ATimeoutMs: Cardinal);
 begin
   SendAsync(MakeRequest(FApplication, AServiceID, AData, ATimeoutMs));
 end;

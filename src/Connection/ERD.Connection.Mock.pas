@@ -1,52 +1,52 @@
-//------------------------------------------------------------------------------
-//  ERD.Connection.Mock
+﻿// ------------------------------------------------------------------------------
+// ERD.Connection.Mock
 //
-//  In-memory mock transport used by the test suite. Lets a test feed
-//  scripted bytes "from the wire" and inspect bytes that were written
-//  by the system under test, without any real I/O. Implements the same
-//  IOBDConnectionTransport contract as the real transports so any code
-//  that talks to a transport can be exercised against this.
+// In-memory mock transport used by the test suite. Lets a test feed
+// scripted bytes "from the wire" and inspect bytes that were written
+// by the system under test, without any real I/O. Implements the same
+// IOBDConnectionTransport contract as the real transports so any code
+// that talks to a transport can be exercised against this.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//    2026-05-09  ERD  Follow-up: rebased onto TOBDBaseTransport.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// 2026-05-09  ERD  Follow-up: rebased onto TOBDBaseTransport.
+// ------------------------------------------------------------------------------
 
 unit ERD.Connection.Mock;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
   ERD.Types,
   ERD.Connection.Types,
   ERD.Connection.Transport.Base;
 
 type
   /// <summary>
-  ///   Mock transport for tests. Feed bytes via <c>FeedBytes</c> /
-  ///   <c>FeedString</c>, inspect captured writes via
-  ///   <c>Written</c> / <c>WrittenString</c>.
+  /// Mock transport for tests. Feed bytes via <c>FeedBytes</c> /
+  /// <c>FeedString</c>, inspect captured writes via
+  /// <c>Written</c> / <c>WrittenString</c>.
   /// </summary>
   /// <remarks>
-  ///   No internal worker thread; receive callbacks fire on whichever
-  ///   thread called <c>FeedBytes</c>. Tests that exercise the main-
-  ///   thread marshalling in <c>TOBDConnection</c> should call
-  ///   <c>FeedBytes</c> from a worker thread.
+  /// No internal worker thread; receive callbacks fire on whichever
+  /// thread called <c>FeedBytes</c>. Tests that exercise the main-
+  /// thread marshalling in <c>TOBDConnection</c> should call
+  /// <c>FeedBytes</c> from a worker thread.
   /// </remarks>
   TOBDMockTransport = class(TOBDBaseTransport)
   strict private
@@ -85,8 +85,8 @@ type
     /// <param name="ACount">Total expected steps.</param>
     /// <param name="AName">Phase name.</param>
     /// <param name="ADetail">Optional sub-detail.</param>
-    procedure SimulateProgress(AIndex, ACount: Cardinal;
-      const AName: string; const ADetail: string = '');
+    procedure SimulateProgress(AIndex, ACount: Cardinal; const AName: string;
+      const ADetail: string = '');
 
     /// <summary>Snapshot of bytes captured by <see cref="WriteBytes"/>
     /// since the last <see cref="ClearWritten"/>.</summary>

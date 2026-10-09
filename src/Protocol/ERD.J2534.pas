@@ -1,59 +1,58 @@
-//------------------------------------------------------------------------------
-//  ERD.J2534
+// ------------------------------------------------------------------------------
+// ERD.J2534
 //
-//  SAE J2534 PassThru host stack. Loads a vendor PassThru DLL
-//  at runtime, enumerates devices, opens / connects channels,
-//  reads / writes messages, and maps J2534 error codes to
-//  Delphi exceptions.
+// SAE J2534 PassThru host stack. Loads a vendor PassThru DLL
+// at runtime, enumerates devices, opens / connects channels,
+// reads / writes messages, and maps J2534 error codes to
+// Delphi exceptions.
 //
-//  Supports the union of J2534 v04.04 and v05.00 entry points:
+// Supports the union of J2534 v04.04 and v05.00 entry points:
 //
-//    v04.04 (universally implemented):
-//      PassThruOpen, PassThruClose, PassThruConnect,
-//      PassThruDisconnect, PassThruReadMsgs, PassThruWriteMsgs,
-//      PassThruStartPeriodicMsg, PassThruStopPeriodicMsg,
-//      PassThruStartMsgFilter, PassThruStopMsgFilter,
-//      PassThruSetProgrammingVoltage, PassThruReadVersion,
-//      PassThruGetLastError, PassThruIoctl
+// v04.04 (universally implemented):
+// PassThruOpen, PassThruClose, PassThruConnect,
+// PassThruDisconnect, PassThruReadMsgs, PassThruWriteMsgs,
+// PassThruStartPeriodicMsg, PassThruStopPeriodicMsg,
+// PassThruStartMsgFilter, PassThruStopMsgFilter,
+// PassThruSetProgrammingVoltage, PassThruReadVersion,
+// PassThruGetLastError, PassThruIoctl
 //
-//    v05.00 additions (best-effort - missing symbols silently
-//    disabled at load time, host queries with HasV05):
-//      PassThruScanForDevices, PassThruGetNextDevice,
-//      PassThruLogicalConnect, PassThruLogicalDisconnect,
-//      PassThruSelect, PassThruQueueMsgs
+// v05.00 additions (best-effort - missing symbols silently
+// disabled at load time, host queries with HasV05):
+// PassThruScanForDevices, PassThruGetNextDevice,
+// PassThruLogicalConnect, PassThruLogicalDisconnect,
+// PassThruSelect, PassThruQueueMsgs
 //
-//  Device discovery:
-//    Windows: enumerate HKLM\Software\PassThruSupport.04.04 and
-//             HKLM\Software\WOW6432Node\PassThruSupport.04.04 to
-//             find each installed vendor's DLL path.
-//    POSIX  : scan a configurable list of directories for *.so
-//             files matching the J2534 ABI (best-effort - no
-//             standard registry equivalent on Linux / macOS).
+// Device discovery:
+// Windows: enumerate HKLM\Software\PassThruSupport.04.04 and
+// HKLM\Software\WOW6432Node\PassThruSupport.04.04 to
+// find each installed vendor's DLL path.
+// POSIX  : scan a configurable list of directories for *.so
+// files matching the J2534 ABI (best-effort - no
+// standard registry equivalent on Linux / macOS).
 //
-//  Threading:
-//    The DLL functions are blocking. The host should drive each
-//    channel from a single thread or wrap the calls in an
-//    application-level mutex.
+// Threading:
+// The DLL functions are blocking. The host should drive each
+// channel from a single thread or wrap the calls in an
+// application-level mutex.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT - see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT - see LICENSE
 //
-//  History     :
-//    2026-05-10  ERD  Initial v04.04 + v05.00 implementation.
-//    2026-10-09  ERD  Match PassThru DLL exports to the Windows stdcall ABI.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-10  ERD  Initial v04.04 + v05.00 implementation.
+// 2026-10-09  ERD  Match PassThru DLL exports to the Windows stdcall ABI.
+// ------------------------------------------------------------------------------
 
 unit ERD.J2534;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
 {$ENDIF}
-
+{$ENDIF}
 {$IFNDEF MSWINDOWS}
 {$MESSAGE FATAL 'ERD.J2534 currently supports Windows only - POSIX support is a follow-up.'}
 {$ENDIF}
@@ -62,13 +61,13 @@ unit ERD.J2534;
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   System.IOUtils,
-  {$IFDEF FPC}Types{$ELSE}System.Types{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}Types{$ELSE}System.Types{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   Winapi.Windows,
-  {$IFDEF FPC}Registry{$ELSE}System.Win.Registry{$ENDIF};
+{$IFDEF FPC}Registry{$ELSE}System.Win.Registry{$ENDIF};
 
 type
   EOBDJ2534Error = class(Exception)
@@ -83,7 +82,7 @@ type
   /// host.</summary>
   TJ2534DeviceInfo = record
     VendorName: string;
-    DllPath:    string;
+    DllPath: string;
     /// <summary>Free-form description from the registry / file
     /// metadata.</summary>
     Description: string;
@@ -91,38 +90,29 @@ type
 
   /// <summary>One J2534 protocol selector. The numeric values
   /// match the SAE J2534 spec.</summary>
-  TJ2534Protocol = (
-    jpJ1850VPW         = 1,
-    jpJ1850PWM         = 2,
-    jpISO9141          = 3,
-    jpISO14230         = 4,
-    jpCAN              = 5,
-    jpISO15765         = 6,
-    jpSCI_A_ENGINE     = 7,
-    jpSCI_A_TRANS      = 8,
-    jpSCI_B_ENGINE     = 9,
-    jpSCI_B_TRANS      = 10,
+  TJ2534Protocol = (jpJ1850VPW = 1, jpJ1850PWM = 2, jpISO9141 = 3,
+    jpISO14230 = 4, jpCAN = 5, jpISO15765 = 6, jpSCI_A_ENGINE = 7,
+    jpSCI_A_TRANS = 8, jpSCI_B_ENGINE = 9, jpSCI_B_TRANS = 10,
     // v05 additions:
-    jpSWCAN_PS         = $00008000,
-    jpSWCAN_ISO15765   = $00009000
-  );
+    jpSWCAN_PS = $00008000, jpSWCAN_ISO15765 = $00009000);
 
   /// <summary>One J2534 message. Mirrors PASSTHRU_MSG.</summary>
   TJ2534Msg = packed record
-    ProtocolID:    Cardinal;
-    RxStatus:      Cardinal;
-    TxFlags:       Cardinal;
-    Timestamp:     Cardinal;
-    DataSize:      Cardinal;
-    ExtraDataIdx:  Cardinal;
-    Data:          array[0..4127] of Byte;
+    ProtocolID: Cardinal;
+    RxStatus: Cardinal;
+    TxFlags: Cardinal;
+    Timestamp: Cardinal;
+    DataSize: Cardinal;
+    ExtraDataIdx: Cardinal;
+    Data: array [0 .. 4127] of Byte;
   end;
+
   PJ2534Msg = ^TJ2534Msg;
 
   /// <summary>v05.00 SDEVICE structure for ScanForDevices /
   /// GetNextDevice.</summary>
   TJ2534SDevice = packed record
-    DeviceName: array[0..79] of AnsiChar;
+    DeviceName: array [0 .. 79] of AnsiChar;
     DeviceAvailable: Cardinal;
     DeviceDLLFWStatus: Cardinal;
     DeviceConnectMedia: Cardinal;
@@ -130,56 +120,57 @@ type
     DeviceSignalQuality: Cardinal;
     DeviceSignalStrength: Cardinal;
   end;
+
   PJ2534SDevice = ^TJ2534SDevice;
 
-  TJ2534DeviceId  = Cardinal;
+  TJ2534DeviceId = Cardinal;
   TJ2534ChannelId = Cardinal;
-  TJ2534FilterId  = Cardinal;
+  TJ2534FilterId = Cardinal;
 
   // ---- DLL function pointer types (subset shown - full set
   // declared in TJ2534Driver) ---------------------------------
-  TPassThruOpen          = function(pName: PAnsiChar;
-    var pDeviceID: TJ2534DeviceId): Integer; stdcall;
-  TPassThruClose         = function(DeviceID: TJ2534DeviceId): Integer; stdcall;
-  TPassThruConnect       = function(DeviceID: TJ2534DeviceId;
-    ProtocolID, Flags, BaudRate: Cardinal;
-    var pChannelID: TJ2534ChannelId): Integer; stdcall;
-  TPassThruDisconnect    = function(ChannelID: TJ2534ChannelId): Integer; stdcall;
-  TPassThruReadMsgs      = function(ChannelID: TJ2534ChannelId;
-    pMsg: PJ2534Msg; var pNumMsgs: Cardinal;
-    Timeout: Cardinal): Integer; stdcall;
-  TPassThruWriteMsgs     = function(ChannelID: TJ2534ChannelId;
-    pMsg: PJ2534Msg; var pNumMsgs: Cardinal;
-    Timeout: Cardinal): Integer; stdcall;
+  TPassThruOpen = function(pName: PAnsiChar; var pDeviceID: TJ2534DeviceId)
+    : Integer; stdcall;
+  TPassThruClose = function(DeviceID: TJ2534DeviceId): Integer; stdcall;
+  TPassThruConnect = function(DeviceID: TJ2534DeviceId;
+    ProtocolID, Flags, BaudRate: Cardinal; var pChannelID: TJ2534ChannelId)
+    : Integer; stdcall;
+  TPassThruDisconnect = function(ChannelID: TJ2534ChannelId): Integer; stdcall;
+  TPassThruReadMsgs = function(ChannelID: TJ2534ChannelId; pMsg: PJ2534Msg;
+    var pNumMsgs: Cardinal; Timeout: Cardinal): Integer; stdcall;
+  TPassThruWriteMsgs = function(ChannelID: TJ2534ChannelId; pMsg: PJ2534Msg;
+    var pNumMsgs: Cardinal; Timeout: Cardinal): Integer; stdcall;
   TPassThruStartPeriodicMsg = function(ChannelID: TJ2534ChannelId;
-    pMsg: PJ2534Msg; var pMsgID: Cardinal;
-    TimeInterval: Cardinal): Integer; stdcall;
-  TPassThruStopPeriodicMsg  = function(ChannelID: TJ2534ChannelId;
+    pMsg: PJ2534Msg; var pMsgID: Cardinal; TimeInterval: Cardinal)
+    : Integer; stdcall;
+  TPassThruStopPeriodicMsg = function(ChannelID: TJ2534ChannelId;
     MsgID: Cardinal): Integer; stdcall;
-  TPassThruStartMsgFilter   = function(ChannelID: TJ2534ChannelId;
-    FilterType: Cardinal;
-    pMaskMsg, pPatternMsg, pFlowControlMsg: PJ2534Msg;
+  TPassThruStartMsgFilter = function(ChannelID: TJ2534ChannelId;
+    FilterType: Cardinal; pMaskMsg, pPatternMsg, pFlowControlMsg: PJ2534Msg;
     var pFilterID: TJ2534FilterId): Integer; stdcall;
-  TPassThruStopMsgFilter    = function(ChannelID: TJ2534ChannelId;
+  TPassThruStopMsgFilter = function(ChannelID: TJ2534ChannelId;
     FilterID: TJ2534FilterId): Integer; stdcall;
   TPassThruSetProgrammingVoltage = function(DeviceID: TJ2534DeviceId;
     PinNumber, Voltage: Cardinal): Integer; stdcall;
-  TPassThruReadVersion   = function(DeviceID: TJ2534DeviceId;
+  TPassThruReadVersion = function(DeviceID: TJ2534DeviceId;
     pFirmwareVersion, pDLLVersion, pAPIVersion: PAnsiChar): Integer; stdcall;
-  TPassThruGetLastError  = function(pErrorDescription: PAnsiChar): Integer; stdcall;
-  TPassThruIoctl         = function(ChannelID: TJ2534ChannelId;
-    IoctlID: Cardinal; pInput, pOutput: Pointer): Integer; stdcall;
+  TPassThruGetLastError = function(pErrorDescription: PAnsiChar)
+    : Integer; stdcall;
+  TPassThruIoctl = function(ChannelID: TJ2534ChannelId; IoctlID: Cardinal;
+    pInput, pOutput: Pointer): Integer; stdcall;
   // v05 additions
-  TPassThruScanForDevices  = function(var pDeviceCount: Cardinal): Integer; stdcall;
-  TPassThruGetNextDevice   = function(pDevice: PJ2534SDevice): Integer; stdcall;
-  TPassThruLogicalConnect  = function(PhysicalChannelID: TJ2534ChannelId;
+  TPassThruScanForDevices = function(var pDeviceCount: Cardinal)
+    : Integer; stdcall;
+  TPassThruGetNextDevice = function(pDevice: PJ2534SDevice): Integer; stdcall;
+  TPassThruLogicalConnect = function(PhysicalChannelID: TJ2534ChannelId;
     ProtocolID, Flags: Cardinal; pDescriptor: Pointer;
     var pChannelID: TJ2534ChannelId): Integer; stdcall;
-  TPassThruLogicalDisconnect = function(ChannelID: TJ2534ChannelId): Integer; stdcall;
-  TPassThruSelect          = function(pSChannelSet: Pointer;
-    SelectType: Cardinal; Timeout: Cardinal): Integer; stdcall;
-  TPassThruQueueMsgs       = function(ChannelID: TJ2534ChannelId;
-    pMsg: PJ2534Msg; var pNumMsgs: Cardinal): Integer; stdcall;
+  TPassThruLogicalDisconnect = function(ChannelID: TJ2534ChannelId)
+    : Integer; stdcall;
+  TPassThruSelect = function(pSChannelSet: Pointer; SelectType: Cardinal;
+    Timeout: Cardinal): Integer; stdcall;
+  TPassThruQueueMsgs = function(ChannelID: TJ2534ChannelId; pMsg: PJ2534Msg;
+    var pNumMsgs: Cardinal): Integer; stdcall;
 
   /// <summary>Wraps a vendor PassThru DLL. One instance per
   /// loaded DLL; multiple devices per instance via
@@ -187,34 +178,33 @@ type
   TJ2534Driver = class
   strict private
     FDllPath: string;
-    FHandle:  THandle;
-    FOpen:    TPassThruOpen;
-    FClose:   TPassThruClose;
+    FHandle: THandle;
+    FOpen: TPassThruOpen;
+    FClose: TPassThruClose;
     FConnect: TPassThruConnect;
     FDisconnect: TPassThruDisconnect;
-    FReadMsgs:   TPassThruReadMsgs;
-    FWriteMsgs:  TPassThruWriteMsgs;
+    FReadMsgs: TPassThruReadMsgs;
+    FWriteMsgs: TPassThruWriteMsgs;
     FStartPeriodic: TPassThruStartPeriodicMsg;
-    FStopPeriodic:  TPassThruStopPeriodicMsg;
-    FStartFilter:   TPassThruStartMsgFilter;
-    FStopFilter:    TPassThruStopMsgFilter;
+    FStopPeriodic: TPassThruStopPeriodicMsg;
+    FStartFilter: TPassThruStartMsgFilter;
+    FStopFilter: TPassThruStopMsgFilter;
     FSetProgVoltage: TPassThruSetProgrammingVoltage;
-    FReadVersion:    TPassThruReadVersion;
-    FGetLastError:   TPassThruGetLastError;
-    FIoctl:          TPassThruIoctl;
+    FReadVersion: TPassThruReadVersion;
+    FGetLastError: TPassThruGetLastError;
+    FIoctl: TPassThruIoctl;
     FScanForDevices: TPassThruScanForDevices;
-    FGetNextDevice:  TPassThruGetNextDevice;
+    FGetNextDevice: TPassThruGetNextDevice;
     FLogicalConnect: TPassThruLogicalConnect;
     FLogicalDisconnect: TPassThruLogicalDisconnect;
-    FSelect:         TPassThruSelect;
-    FQueueMsgs:      TPassThruQueueMsgs;
-    FHasV05:         Boolean;
-    function  Resolve(const AName: string;
-      ARequired: Boolean = True): Pointer;
+    FSelect: TPassThruSelect;
+    FQueueMsgs: TPassThruQueueMsgs;
+    FHasV05: Boolean;
+    function Resolve(const AName: string; ARequired: Boolean = True): Pointer;
     procedure CheckError(ARC: Integer; const AContext: string);
   public
     constructor Create(const ADllPath: string);
-    destructor  Destroy; override;
+    destructor Destroy; override;
 
     /// <summary>True when the loaded DLL exports at least one
     /// v05.00 entry point.</summary>
@@ -225,22 +215,19 @@ type
     // errors. Hosts usually use TJ2534Channel rather than these.
     function Open(const APortName: string): TJ2534DeviceId;
     procedure Close(ADeviceId: TJ2534DeviceId);
-    function Connect(ADeviceId: TJ2534DeviceId;
-      AProtocol: TJ2534Protocol; AFlags, ABaud: Cardinal): TJ2534ChannelId;
+    function Connect(ADeviceId: TJ2534DeviceId; AProtocol: TJ2534Protocol;
+      AFlags, ABaud: Cardinal): TJ2534ChannelId;
     procedure Disconnect(AChannelId: TJ2534ChannelId);
-    function ReadMsgs(AChannelId: TJ2534ChannelId;
-      AMsgs: PJ2534Msg; var ANumMsgs: Cardinal;
-      ATimeoutMs: Cardinal): Boolean;
-    procedure WriteMsgs(AChannelId: TJ2534ChannelId;
-      AMsgs: PJ2534Msg; var ANumMsgs: Cardinal;
-      ATimeoutMs: Cardinal);
-    function StartFilter(AChannelId: TJ2534ChannelId;
-      AFilterType: Cardinal;
+    function ReadMsgs(AChannelId: TJ2534ChannelId; AMsgs: PJ2534Msg;
+      var ANumMsgs: Cardinal; ATimeoutMs: Cardinal): Boolean;
+    procedure WriteMsgs(AChannelId: TJ2534ChannelId; AMsgs: PJ2534Msg;
+      var ANumMsgs: Cardinal; ATimeoutMs: Cardinal);
+    function StartFilter(AChannelId: TJ2534ChannelId; AFilterType: Cardinal;
       AMaskMsg, APatternMsg, AFlowControlMsg: PJ2534Msg): TJ2534FilterId;
     procedure StopFilter(AChannelId: TJ2534ChannelId;
       AFilterId: TJ2534FilterId);
-    procedure SetProgrammingVoltage(ADeviceId: TJ2534DeviceId;
-      APin: Cardinal; AVolts: Cardinal);
+    procedure SetProgrammingVoltage(ADeviceId: TJ2534DeviceId; APin: Cardinal;
+      AVolts: Cardinal);
     function GetLastErrorText: string;
     procedure Ioctl(AChannelId: TJ2534ChannelId; AIoctlId: Cardinal;
       AInput, AOutput: Pointer);
@@ -255,79 +242,75 @@ type
   /// driver functions that owns the device + channel lifetime.</summary>
   TJ2534Channel = class
   strict private
-    FDriver:    TJ2534Driver;
-    FDeviceId:  TJ2534DeviceId;
+    FDriver: TJ2534Driver;
+    FDeviceId: TJ2534DeviceId;
     FChannelId: TJ2534ChannelId;
-    FProtocol:  TJ2534Protocol;
-    FFilters:   TList<TJ2534FilterId>;
+    FProtocol: TJ2534Protocol;
+    FFilters: TList<TJ2534FilterId>;
   public
-    constructor Open(ADriver: TJ2534Driver;
-      AProtocol: TJ2534Protocol;
-      ABaud: Cardinal;
-      AFlags: Cardinal = 0;
-      const APortName: string = '');
+    constructor Open(ADriver: TJ2534Driver; AProtocol: TJ2534Protocol;
+      ABaud: Cardinal; AFlags: Cardinal = 0; const APortName: string = '');
     destructor Destroy; override;
 
     /// <summary>Sends one message; returns when the DLL
     /// reports it queued.</summary>
-    procedure WriteMsg(const AData: TBytes;
-      ATxFlags: Cardinal = 0; ATimeoutMs: Cardinal = 1000);
+    procedure WriteMsg(const AData: TBytes; ATxFlags: Cardinal = 0;
+      ATimeoutMs: Cardinal = 1000);
 
     /// <summary>Reads up to one message. Returns @True with
     /// AData populated, or @False on timeout.</summary>
-    function TryReadMsg(out AData: TBytes;
-      ATimeoutMs: Cardinal = 1000): Boolean;
+    function TryReadMsg(out AData: TBytes; ATimeoutMs: Cardinal = 1000)
+      : Boolean;
 
     /// <summary>Installs a pass-filter for AId. Stops the
     /// filter at channel close.</summary>
-    procedure InstallPassFilter(AId: Cardinal;
-      AExtended: Boolean = False);
+    procedure InstallPassFilter(AId: Cardinal; AExtended: Boolean = False);
 
-    property Driver:    TJ2534Driver  read FDriver;
-    property Protocol:  TJ2534Protocol read FProtocol;
-    property ChannelId: TJ2534ChannelId read FChannelId;
-    property DeviceId:  TJ2534DeviceId  read FDeviceId;
+    property Driver: TJ2534Driver read FDriver;
+    property Protocol: TJ2534Protocol read FProtocol;
+    property ChannelID: TJ2534ChannelId read FChannelId;
+    property DeviceID: TJ2534DeviceId read FDeviceId;
   end;
 
-/// <summary>Scans the host for installed PassThru DLLs.
-/// Windows uses the registry; POSIX scans the supplied
-/// directories.</summary>
-function EnumeratePassThruDevices(
-  const AExtraDirs: TArray<string> = nil): TArray<TJ2534DeviceInfo>;
+  /// <summary>Scans the host for installed PassThru DLLs.
+  /// Windows uses the registry; POSIX scans the supplied
+  /// directories.</summary>
+function EnumeratePassThruDevices(const AExtraDirs: TArray<string> = nil)
+  : TArray<TJ2534DeviceInfo>;
 
 const
   // J2534 error codes (subset)
-  J2534_STATUS_NOERROR              = $00;
-  J2534_ERR_NOT_SUPPORTED           = $01;
-  J2534_ERR_INVALID_CHANNEL_ID      = $02;
-  J2534_ERR_INVALID_PROTOCOL_ID     = $03;
-  J2534_ERR_NULL_PARAMETER          = $04;
-  J2534_ERR_INVALID_IOCTL_VALUE     = $05;
-  J2534_ERR_INVALID_FLAGS           = $06;
-  J2534_ERR_FAILED                  = $07;
-  J2534_ERR_DEVICE_NOT_CONNECTED    = $08;
-  J2534_ERR_TIMEOUT                 = $09;
-  J2534_ERR_INVALID_MSG             = $0A;
-  J2534_ERR_INVALID_TIME_INTERVAL   = $0B;
-  J2534_ERR_EXCEEDED_LIMIT          = $0C;
-  J2534_ERR_INVALID_MSG_ID          = $0D;
-  J2534_ERR_DEVICE_IN_USE           = $0E;
-  J2534_ERR_INVALID_IOCTL_ID        = $0F;
-  J2534_ERR_BUFFER_EMPTY            = $10;
-  J2534_ERR_BUFFER_FULL             = $11;
-  J2534_ERR_BUFFER_OVERFLOW         = $12;
-  J2534_ERR_PIN_INVALID             = $13;
-  J2534_ERR_CHANNEL_IN_USE          = $14;
-  J2534_ERR_MSG_PROTOCOL_ID         = $15;
-  J2534_ERR_INVALID_FILTER_ID       = $16;
-  J2534_ERR_NO_FLOW_CONTROL         = $17;
-  J2534_ERR_NOT_UNIQUE              = $18;
-  J2534_ERR_INVALID_BAUDRATE        = $19;
-  J2534_ERR_INVALID_DEVICE_ID       = $1A;
+  J2534_STATUS_NOERROR = $00;
+  J2534_ERR_NOT_SUPPORTED = $01;
+  J2534_ERR_INVALID_CHANNEL_ID = $02;
+  J2534_ERR_INVALID_PROTOCOL_ID = $03;
+  J2534_ERR_NULL_PARAMETER = $04;
+  J2534_ERR_INVALID_IOCTL_VALUE = $05;
+  J2534_ERR_INVALID_FLAGS = $06;
+  J2534_ERR_FAILED = $07;
+  J2534_ERR_DEVICE_NOT_CONNECTED = $08;
+  J2534_ERR_TIMEOUT = $09;
+  J2534_ERR_INVALID_MSG = $0A;
+  J2534_ERR_INVALID_TIME_INTERVAL = $0B;
+  J2534_ERR_EXCEEDED_LIMIT = $0C;
+  J2534_ERR_INVALID_MSG_ID = $0D;
+  J2534_ERR_DEVICE_IN_USE = $0E;
+  J2534_ERR_INVALID_IOCTL_ID = $0F;
+  J2534_ERR_BUFFER_EMPTY = $10;
+  J2534_ERR_BUFFER_FULL = $11;
+  J2534_ERR_BUFFER_OVERFLOW = $12;
+  J2534_ERR_PIN_INVALID = $13;
+  J2534_ERR_CHANNEL_IN_USE = $14;
+  J2534_ERR_MSG_PROTOCOL_ID = $15;
+  J2534_ERR_INVALID_FILTER_ID = $16;
+  J2534_ERR_NO_FLOW_CONTROL = $17;
+  J2534_ERR_NOT_UNIQUE = $18;
+  J2534_ERR_INVALID_BAUDRATE = $19;
+  J2534_ERR_INVALID_DEVICE_ID = $1A;
 
   // Filter types
-  J2534_FILTER_PASS    = 1;
-  J2534_FILTER_BLOCK   = 2;
+  J2534_FILTER_PASS = 1;
+  J2534_FILTER_BLOCK = 2;
   J2534_FILTER_FLOW_CONTROL = 3;
 
   // TX flag bits
@@ -336,7 +319,7 @@ const
 
 implementation
 
-{ EOBDJ2534Error --------------------------------------------------------------}
+{ EOBDJ2534Error -------------------------------------------------------------- }
 
 constructor EOBDJ2534Error.Create(AErrorCode: Integer; const AMsg: string);
 begin
@@ -344,40 +327,46 @@ begin
   FErrorCode := AErrorCode;
 end;
 
-{ TJ2534Driver ----------------------------------------------------------------}
+{ TJ2534Driver ---------------------------------------------------------------- }
 
 constructor TJ2534Driver.Create(const ADllPath: string);
 begin
   inherited Create;
   FDllPath := ADllPath;
-  FHandle  := LoadLibrary(PChar(ADllPath));
+  FHandle := LoadLibrary(PChar(ADllPath));
   if FHandle = 0 then
     raise EOBDJ2534Error.Create(-1,
       'TJ2534Driver: could not load PassThru DLL "' + ADllPath + '"');
 
-  FOpen          := TPassThruOpen(Resolve('PassThruOpen'));
-  FClose         := TPassThruClose(Resolve('PassThruClose'));
-  FConnect       := TPassThruConnect(Resolve('PassThruConnect'));
-  FDisconnect    := TPassThruDisconnect(Resolve('PassThruDisconnect'));
-  FReadMsgs      := TPassThruReadMsgs(Resolve('PassThruReadMsgs'));
-  FWriteMsgs     := TPassThruWriteMsgs(Resolve('PassThruWriteMsgs'));
-  FStartPeriodic := TPassThruStartPeriodicMsg(Resolve('PassThruStartPeriodicMsg', False));
-  FStopPeriodic  := TPassThruStopPeriodicMsg(Resolve('PassThruStopPeriodicMsg', False));
-  FStartFilter   := TPassThruStartMsgFilter(Resolve('PassThruStartMsgFilter'));
-  FStopFilter    := TPassThruStopMsgFilter(Resolve('PassThruStopMsgFilter'));
-  FSetProgVoltage := TPassThruSetProgrammingVoltage(Resolve('PassThruSetProgrammingVoltage', False));
-  FReadVersion   := TPassThruReadVersion(Resolve('PassThruReadVersion', False));
-  FGetLastError  := TPassThruGetLastError(Resolve('PassThruGetLastError'));
-  FIoctl         := TPassThruIoctl(Resolve('PassThruIoctl', False));
+  FOpen := TPassThruOpen(Resolve('PassThruOpen'));
+  FClose := TPassThruClose(Resolve('PassThruClose'));
+  FConnect := TPassThruConnect(Resolve('PassThruConnect'));
+  FDisconnect := TPassThruDisconnect(Resolve('PassThruDisconnect'));
+  FReadMsgs := TPassThruReadMsgs(Resolve('PassThruReadMsgs'));
+  FWriteMsgs := TPassThruWriteMsgs(Resolve('PassThruWriteMsgs'));
+  FStartPeriodic := TPassThruStartPeriodicMsg
+    (Resolve('PassThruStartPeriodicMsg', False));
+  FStopPeriodic := TPassThruStopPeriodicMsg
+    (Resolve('PassThruStopPeriodicMsg', False));
+  FStartFilter := TPassThruStartMsgFilter(Resolve('PassThruStartMsgFilter'));
+  FStopFilter := TPassThruStopMsgFilter(Resolve('PassThruStopMsgFilter'));
+  FSetProgVoltage := TPassThruSetProgrammingVoltage
+    (Resolve('PassThruSetProgrammingVoltage', False));
+  FReadVersion := TPassThruReadVersion(Resolve('PassThruReadVersion', False));
+  FGetLastError := TPassThruGetLastError(Resolve('PassThruGetLastError'));
+  FIoctl := TPassThruIoctl(Resolve('PassThruIoctl', False));
 
-  FScanForDevices := TPassThruScanForDevices(Resolve('PassThruScanForDevices', False));
-  FGetNextDevice  := TPassThruGetNextDevice(Resolve('PassThruGetNextDevice',  False));
-  FLogicalConnect := TPassThruLogicalConnect(Resolve('PassThruLogicalConnect', False));
-  FLogicalDisconnect := TPassThruLogicalDisconnect(Resolve('PassThruLogicalDisconnect', False));
-  FSelect         := TPassThruSelect(Resolve('PassThruSelect',         False));
-  FQueueMsgs      := TPassThruQueueMsgs(Resolve('PassThruQueueMsgs',      False));
-  FHasV05 := Assigned(FScanForDevices) or
-             Assigned(FLogicalConnect);
+  FScanForDevices := TPassThruScanForDevices
+    (Resolve('PassThruScanForDevices', False));
+  FGetNextDevice := TPassThruGetNextDevice
+    (Resolve('PassThruGetNextDevice', False));
+  FLogicalConnect := TPassThruLogicalConnect
+    (Resolve('PassThruLogicalConnect', False));
+  FLogicalDisconnect := TPassThruLogicalDisconnect
+    (Resolve('PassThruLogicalDisconnect', False));
+  FSelect := TPassThruSelect(Resolve('PassThruSelect', False));
+  FQueueMsgs := TPassThruQueueMsgs(Resolve('PassThruQueueMsgs', False));
+  FHasV05 := Assigned(FScanForDevices) or Assigned(FLogicalConnect);
 end;
 
 destructor TJ2534Driver.Destroy;
@@ -387,19 +376,20 @@ begin
   inherited;
 end;
 
-function TJ2534Driver.Resolve(const AName: string;
-  ARequired: Boolean): Pointer;
+function TJ2534Driver.Resolve(const AName: string; ARequired: Boolean): Pointer;
 begin
   Result := GetProcAddress(FHandle, PAnsiChar(AnsiString(AName)));
   if (Result = nil) and ARequired then
-    raise EOBDJ2534Error.Create(-1,
-      'TJ2534Driver: required export "' + AName + '" missing in DLL');
+    raise EOBDJ2534Error.Create(-1, 'TJ2534Driver: required export "' + AName +
+      '" missing in DLL');
 end;
 
 procedure TJ2534Driver.CheckError(ARC: Integer; const AContext: string);
-var Msg: string;
+var
+  Msg: string;
 begin
-  if ARC = J2534_STATUS_NOERROR then Exit;
+  if ARC = J2534_STATUS_NOERROR then
+    Exit;
   Msg := AContext + ' failed (J2534 rc=' + IntToStr(ARC) + ')';
   if Assigned(FGetLastError) then
     Msg := Msg + ': ' + GetLastErrorText;
@@ -407,9 +397,11 @@ begin
 end;
 
 function TJ2534Driver.GetLastErrorText: string;
-var Buf: array[0..255] of AnsiChar;
+var
+  Buf: array [0 .. 255] of AnsiChar;
 begin
-  if not Assigned(FGetLastError) then Exit('');
+  if not Assigned(FGetLastError) then
+    Exit('');
   FillChar(Buf, SizeOf(Buf), 0);
   if FGetLastError(@Buf[0]) = J2534_STATUS_NOERROR then
     Result := string(AnsiString(Buf))
@@ -423,7 +415,10 @@ var
   P: PAnsiChar;
 begin
   Name := AnsiString(APortName);
-  if Name = '' then P := nil else P := PAnsiChar(Name);
+  if Name = '' then
+    P := nil
+  else
+    P := PAnsiChar(Name);
   CheckError(FOpen(P, Result), 'PassThruOpen');
 end;
 
@@ -444,32 +439,31 @@ begin
   CheckError(FDisconnect(AChannelId), 'PassThruDisconnect');
 end;
 
-function TJ2534Driver.ReadMsgs(AChannelId: TJ2534ChannelId;
-  AMsgs: PJ2534Msg; var ANumMsgs: Cardinal;
-  ATimeoutMs: Cardinal): Boolean;
-var RC: Integer;
+function TJ2534Driver.ReadMsgs(AChannelId: TJ2534ChannelId; AMsgs: PJ2534Msg;
+  var ANumMsgs: Cardinal; ATimeoutMs: Cardinal): Boolean;
+var
+  RC: Integer;
 begin
   RC := FReadMsgs(AChannelId, AMsgs, ANumMsgs, ATimeoutMs);
-  if RC = J2534_ERR_BUFFER_EMPTY then Exit(False);
+  if RC = J2534_ERR_BUFFER_EMPTY then
+    Exit(False);
   CheckError(RC, 'PassThruReadMsgs');
   Result := True;
 end;
 
-procedure TJ2534Driver.WriteMsgs(AChannelId: TJ2534ChannelId;
-  AMsgs: PJ2534Msg; var ANumMsgs: Cardinal;
-  ATimeoutMs: Cardinal);
+procedure TJ2534Driver.WriteMsgs(AChannelId: TJ2534ChannelId; AMsgs: PJ2534Msg;
+  var ANumMsgs: Cardinal; ATimeoutMs: Cardinal);
 begin
   CheckError(FWriteMsgs(AChannelId, AMsgs, ANumMsgs, ATimeoutMs),
     'PassThruWriteMsgs');
 end;
 
 function TJ2534Driver.StartFilter(AChannelId: TJ2534ChannelId;
-  AFilterType: Cardinal;
-  AMaskMsg, APatternMsg, AFlowControlMsg: PJ2534Msg): TJ2534FilterId;
+  AFilterType: Cardinal; AMaskMsg, APatternMsg, AFlowControlMsg: PJ2534Msg)
+  : TJ2534FilterId;
 begin
-  CheckError(FStartFilter(AChannelId, AFilterType,
-    AMaskMsg, APatternMsg, AFlowControlMsg, Result),
-    'PassThruStartMsgFilter');
+  CheckError(FStartFilter(AChannelId, AFilterType, AMaskMsg, APatternMsg,
+    AFlowControlMsg, Result), 'PassThruStartMsgFilter');
 end;
 
 procedure TJ2534Driver.StopFilter(AChannelId: TJ2534ChannelId;
@@ -488,22 +482,21 @@ begin
     'PassThruSetProgrammingVoltage');
 end;
 
-procedure TJ2534Driver.Ioctl(AChannelId: TJ2534ChannelId;
-  AIoctlId: Cardinal; AInput, AOutput: Pointer);
+procedure TJ2534Driver.Ioctl(AChannelId: TJ2534ChannelId; AIoctlId: Cardinal;
+  AInput, AOutput: Pointer);
 begin
   if not Assigned(FIoctl) then
     raise EOBDJ2534Error.Create(J2534_ERR_NOT_SUPPORTED,
       'TJ2534Driver: PassThruIoctl not exported');
-  CheckError(FIoctl(AChannelId, AIoctlId, AInput, AOutput),
-    'PassThruIoctl');
+  CheckError(FIoctl(AChannelId, AIoctlId, AInput, AOutput), 'PassThruIoctl');
 end;
 
 function TJ2534Driver.ScanForDevices: TArray<TJ2534SDevice>;
 var
   Count: Cardinal;
-  Acc:   TList<TJ2534SDevice>;
-  Dev:   TJ2534SDevice;
-  I:     Integer;
+  Acc: TList<TJ2534SDevice>;
+  Dev: TJ2534SDevice;
+  I: Integer;
 begin
   if not Assigned(FScanForDevices) then
     raise EOBDJ2534Error.Create(J2534_ERR_NOT_SUPPORTED,
@@ -524,38 +517,47 @@ begin
   end;
 end;
 
-{ TJ2534Channel ---------------------------------------------------------------}
+{ TJ2534Channel --------------------------------------------------------------- }
 
-constructor TJ2534Channel.Open(ADriver: TJ2534Driver;
-  AProtocol: TJ2534Protocol; ABaud: Cardinal; AFlags: Cardinal;
-  const APortName: string);
+constructor TJ2534Channel.Open(ADriver: TJ2534Driver; AProtocol: TJ2534Protocol;
+  ABaud: Cardinal; AFlags: Cardinal; const APortName: string);
 begin
   inherited Create;
-  FDriver    := ADriver;
-  FProtocol  := AProtocol;
-  FFilters   := TList<TJ2534FilterId>.Create;
-  FDeviceId  := FDriver.Open(APortName);
+  FDriver := ADriver;
+  FProtocol := AProtocol;
+  FFilters := TList<TJ2534FilterId>.Create;
+  FDeviceId := FDriver.Open(APortName);
   FChannelId := FDriver.Connect(FDeviceId, AProtocol, AFlags, ABaud);
 end;
 
 destructor TJ2534Channel.Destroy;
-var Id: TJ2534FilterId;
+var
+  Id: TJ2534FilterId;
 begin
   if Assigned(FFilters) then
   begin
     for Id in FFilters do
-      try FDriver.StopFilter(FChannelId, Id); except end;
+      try
+        FDriver.StopFilter(FChannelId, Id);
+      except
+      end;
     FFilters.Free;
   end;
   if FChannelId <> 0 then
-    try FDriver.Disconnect(FChannelId); except end;
+    try
+      FDriver.Disconnect(FChannelId);
+    except
+    end;
   if FDeviceId <> 0 then
-    try FDriver.Close(FDeviceId); except end;
+    try
+      FDriver.Close(FDeviceId);
+    except
+    end;
   inherited;
 end;
 
-procedure TJ2534Channel.WriteMsg(const AData: TBytes;
-  ATxFlags: Cardinal; ATimeoutMs: Cardinal);
+procedure TJ2534Channel.WriteMsg(const AData: TBytes; ATxFlags: Cardinal;
+  ATimeoutMs: Cardinal);
 var
   M: TJ2534Msg;
   N: Cardinal;
@@ -565,8 +567,8 @@ begin
       'TJ2534Channel.WriteMsg: payload exceeds 4128 bytes');
   FillChar(M, SizeOf(M), 0);
   M.ProtocolID := Cardinal(FProtocol);
-  M.TxFlags    := ATxFlags;
-  M.DataSize   := Cardinal(Length(AData));
+  M.TxFlags := ATxFlags;
+  M.DataSize := Cardinal(Length(AData));
   if Length(AData) > 0 then
     Move(AData[0], M.Data[0], Length(AData));
   N := 1;
@@ -583,10 +585,12 @@ begin
   FillChar(M, SizeOf(M), 0);
   N := 1;
   Result := FDriver.ReadMsgs(FChannelId, @M, N, ATimeoutMs);
-  if not Result then Exit;
-  if N = 0 then Exit(False);
+  if not Result then
+    Exit;
+  if N = 0 then
+    Exit(False);
   if (N <> 1) or (M.DataSize > Cardinal(SizeOf(M.Data))) or
-     (M.ExtraDataIdx > M.DataSize) then
+    (M.ExtraDataIdx > M.DataSize) then
     raise EOBDJ2534Error.Create(J2534_ERR_INVALID_MSG,
       'PassThruReadMsgs returned invalid message bounds');
   SetLength(AData, M.DataSize);
@@ -594,44 +598,48 @@ begin
     Move(M.Data[0], AData[0], M.DataSize);
 end;
 
-procedure TJ2534Channel.InstallPassFilter(AId: Cardinal;
-  AExtended: Boolean);
+procedure TJ2534Channel.InstallPassFilter(AId: Cardinal; AExtended: Boolean);
 var
   Mask, Pattern: TJ2534Msg;
   Fid: TJ2534FilterId;
   IdSize: Integer;
   TxFlags: Cardinal;
 begin
-  if AExtended then IdSize := 4 else IdSize := 4;  // same wire shape
+  if AExtended then
+    IdSize := 4
+  else
+    IdSize := 4; // same wire shape
   TxFlags := 0;
-  if AExtended then TxFlags := TxFlags or J2534_TX_ISO15765_CAN_29BIT;
+  if AExtended then
+    TxFlags := TxFlags or J2534_TX_ISO15765_CAN_29BIT;
 
   FillChar(Mask, SizeOf(Mask), 0);
   Mask.ProtocolID := Cardinal(FProtocol);
-  Mask.TxFlags    := TxFlags;
-  Mask.DataSize   := IdSize;
-  Mask.Data[0]    := $FF;
-  Mask.Data[1]    := $FF;
-  Mask.Data[2]    := $FF;
-  Mask.Data[3]    := $FF;
+  Mask.TxFlags := TxFlags;
+  Mask.DataSize := IdSize;
+  Mask.Data[0] := $FF;
+  Mask.Data[1] := $FF;
+  Mask.Data[2] := $FF;
+  Mask.Data[3] := $FF;
 
   FillChar(Pattern, SizeOf(Pattern), 0);
   Pattern.ProtocolID := Cardinal(FProtocol);
-  Pattern.TxFlags    := TxFlags;
-  Pattern.DataSize   := IdSize;
-  Pattern.Data[0]    := Byte(AId shr 24);
-  Pattern.Data[1]    := Byte(AId shr 16);
-  Pattern.Data[2]    := Byte(AId shr 8);
-  Pattern.Data[3]    := Byte(AId);
+  Pattern.TxFlags := TxFlags;
+  Pattern.DataSize := IdSize;
+  Pattern.Data[0] := Byte(AId shr 24);
+  Pattern.Data[1] := Byte(AId shr 16);
+  Pattern.Data[2] := Byte(AId shr 8);
+  Pattern.Data[3] := Byte(AId);
 
-  Fid := FDriver.StartFilter(FChannelId, J2534_FILTER_PASS,
-    @Mask, @Pattern, nil);
+  Fid := FDriver.StartFilter(FChannelId, J2534_FILTER_PASS, @Mask,
+    @Pattern, nil);
   FFilters.Add(Fid);
 end;
 
-{ Device discovery ------------------------------------------------------------}
+{ Device discovery ------------------------------------------------------------ }
 
 {$IFDEF J2534_REGISTRY}
+
 procedure ScanRegistry(AReg: TRegistry; const ARoot: string;
   AOut: TList<TJ2534DeviceInfo>);
 var
@@ -639,7 +647,8 @@ var
   Sub: string;
   Info: TJ2534DeviceInfo;
 begin
-  if not AReg.OpenKeyReadOnly(ARoot) then Exit;
+  if not AReg.OpenKeyReadOnly(ARoot) then
+    Exit;
   Names := TStringList.Create;
   try
     AReg.GetKeyNames(Names);
@@ -647,20 +656,20 @@ begin
     for Sub in Names do
     begin
       if AReg.OpenKeyReadOnly(ARoot + '\' + Sub) then
-      try
-        Info := Default(TJ2534DeviceInfo);
-        Info.VendorName  := AReg.ReadString('Vendor');
-        Info.DllPath     := AReg.ReadString('FunctionLibrary');
         try
-          Info.Description := AReg.ReadString('Name');
-        except
-          Info.Description := Sub;
+          Info := Default (TJ2534DeviceInfo);
+          Info.VendorName := AReg.ReadString('Vendor');
+          Info.DllPath := AReg.ReadString('FunctionLibrary');
+          try
+            Info.Description := AReg.ReadString('Name');
+          except
+            Info.Description := Sub;
+          end;
+          if Info.DllPath <> '' then
+            AOut.Add(Info);
+        finally
+          AReg.CloseKey;
         end;
-        if Info.DllPath <> '' then
-          AOut.Add(Info);
-      finally
-        AReg.CloseKey;
-      end;
     end;
   finally
     Names.Free;
@@ -668,8 +677,8 @@ begin
 end;
 {$ENDIF}
 
-function EnumeratePassThruDevices(
-  const AExtraDirs: TArray<string>): TArray<TJ2534DeviceInfo>;
+function EnumeratePassThruDevices(const AExtraDirs: TArray<string>)
+  : TArray<TJ2534DeviceInfo>;
 var
   Acc: TList<TJ2534DeviceInfo>;
   Reg: TRegistry;
@@ -684,9 +693,8 @@ begin
       Reg.RootKey := HKEY_LOCAL_MACHINE;
       ScanRegistry(Reg, 'SOFTWARE\PassThruSupport.04.04', Acc);
       Reg.RootKey := HKEY_LOCAL_MACHINE;
-      Reg.Access  := KEY_READ or KEY_WOW64_32KEY;
-      ScanRegistry(Reg,
-        'SOFTWARE\WOW6432Node\PassThruSupport.04.04', Acc);
+      Reg.Access := KEY_READ or KEY_WOW64_32KEY;
+      ScanRegistry(Reg, 'SOFTWARE\WOW6432Node\PassThruSupport.04.04', Acc);
     finally
       Reg.Free;
     end;
@@ -695,13 +703,14 @@ begin
     // registered).
     for Dir in AExtraDirs do
     begin
-      if not TDirectory.Exists(Dir) then Continue;
+      if not TDirectory.Exists(Dir) then
+        Continue;
       Files := TDirectory.GetFiles(Dir, '*.dll');
       for F in Files do
       begin
-        Info := Default(TJ2534DeviceInfo);
-        Info.VendorName  := 'Unknown';
-        Info.DllPath     := F;
+        Info := Default (TJ2534DeviceInfo);
+        Info.VendorName := 'Unknown';
+        Info.DllPath := F;
         Info.Description := TPath.GetFileNameWithoutExtension(F);
         Acc.Add(Info);
       end;

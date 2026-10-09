@@ -1,39 +1,39 @@
-//------------------------------------------------------------------------------
-//  ERD.Design.Forms.FlashSafety
+﻿// ------------------------------------------------------------------------------
+// ERD.Design.Forms.FlashSafety
 //
-//  TOBDFlashSafetyDlg — modal warning dialog shown by the
-//  destructive component editors (Flasher, UDSTransfer,
-//  FlashPipeline). Reminds the host of the safety contract
-//  before they wire one of these onto a form, and offers to open
-//  <c>docs/flashing-safety.md</c> in the host's default browser.
+// TOBDFlashSafetyDlg — modal warning dialog shown by the
+// destructive component editors (Flasher, UDSTransfer,
+// FlashPipeline). Reminds the host of the safety contract
+// before they wire one of these onto a form, and offers to open
+// <c>docs/flashing-safety.md</c> in the host's default browser.
 //
-//  This form is never registered on the palette — it is owned by
-//  the design-time package and only constructed from a component
-//  editor verb.
+// This form is never registered on the palette — it is owned by
+// the design-time package and only constructed from a component
+// editor verb.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-10  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-10  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Design.Forms.FlashSafety;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   Vcl.Controls,
   Vcl.Forms,
   Vcl.StdCtrls,
@@ -51,7 +51,7 @@ type
     procedure btnOpenGuideClick(Sender: TObject);
   end;
 
-/// <summary>Convenience launcher.</summary>
+  /// <summary>Convenience launcher.</summary>
 procedure ShowFlashSafetyDialog;
 
 implementation

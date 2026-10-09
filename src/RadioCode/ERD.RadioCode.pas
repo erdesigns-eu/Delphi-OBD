@@ -1,63 +1,63 @@
-//------------------------------------------------------------------------------
-//  ERD.RadioCode
+﻿// ------------------------------------------------------------------------------
+// ERD.RadioCode
 //
-//  Foundation for the Delphi-OBD radio-code subsystem:
+// Foundation for the Delphi-OBD radio-code subsystem:
 //
-//    - <see cref="TOBDRadioCode"/> — abstract <c>TComponent</c>
-//      base every vendor calculator inherits from. Drop a vendor
-//      component on a form, set <c>Input</c>, call
-//      <c>Calculate</c>, read <c>Result_</c>.
+// - <see cref="TOBDRadioCode"/> — abstract <c>TComponent</c>
+// base every vendor calculator inherits from. Drop a vendor
+// component on a form, set <c>Input</c>, call
+// <c>Calculate</c>, read <c>Result_</c>.
 //
-//    - <see cref="TOBDRadioCodeRegistry"/> — process-wide
-//      registry of vendor classes (not instances). Vendor units
-//      register their class at unit initialization so the
-//      starter wizard and the VIN resolver can enumerate or pick
-//      a calculator without a hard-coded list.
+// - <see cref="TOBDRadioCodeRegistry"/> — process-wide
+// registry of vendor classes (not instances). Vendor units
+// register their class at unit initialization so the
+// starter wizard and the VIN resolver can enumerate or pick
+// a calculator without a hard-coded list.
 //
-//  Per-vendor calculators live in <c>ERD.RadioCode.&lt;Vendor&gt;.pas</c>
-//  and each is its own palette component.
+// Per-vendor calculators live in <c>ERD.RadioCode.&lt;Vendor&gt;.pas</c>
+// and each is its own palette component.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-10  ERD  Initial implementation. Component-first
-//                     redesign: each vendor is a TComponent
-//                     subclass, registered on the 'OBD Radio'
-//                     palette tab. The class registry holds
-//                     metaclasses so hosts (the wizard, the VIN
-//                     resolver) can discover available vendors
-//                     without instantiating them.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-10  ERD  Initial implementation. Component-first
+// redesign: each vendor is a TComponent
+// subclass, registered on the 'OBD Radio'
+// palette tab. The class registry holds
+// metaclasses so hosts (the wizard, the VIN
+// resolver) can discover available vendors
+// without instantiating them.
+// ------------------------------------------------------------------------------
 
 unit ERD.RadioCode;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}Generics.Defaults{$ELSE}System.Generics.Defaults{$ENDIF},
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}Generics.Defaults{$ELSE}System.Generics.Defaults{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.RadioCode.Types;
 
 type
   /// <summary>Fires from <c>DoCalculate</c> for vendor components
   /// whose proprietary algorithm is not bundled in this
   /// distribution. The host supplies the calculation.</summary>
-  TOBDRadioCodeCalcEvent = procedure(Sender: TObject;
-    const AInput: string; const AContext: TOBDRadioCodeContext;
-    var AResult: TOBDRadioCodeResult) of object;
+  TOBDRadioCodeCalcEvent = procedure(Sender: TObject; const AInput: string;
+    const AContext: TOBDRadioCodeContext; var AResult: TOBDRadioCodeResult)
+    of object;
 
   /// <summary>Abstract base for every vendor radio-code
   /// calculator component. Vendors inherit, override
@@ -77,11 +77,11 @@ type
   /// "algorithm not bundled" message.</para></summary>
   TOBDRadioCode = class abstract(TComponent)
   strict private
-    FInput:       string;
-    FVIN:         string;
-    FModelHint:   string;
-    FRegion:      TOBDRadioCodeRegion;
-    FResult:      TOBDRadioCodeResult;
+    FInput: string;
+    FVIN: string;
+    FModelHint: string;
+    FRegion: TOBDRadioCodeRegion;
+    FResult: TOBDRadioCodeResult;
     FOnCalculate: TOBDRadioCodeCalcEvent;
   protected
     /// <summary>Trim + uppercase. Vendors override for
@@ -91,8 +91,8 @@ type
 
     /// <summary>Helper: input must be exactly <c>AExpected</c>
     /// characters. Sets <c>AReason</c> on failure.</summary>
-    function ValidateLength(const AInput: string;
-      AExpected: Integer; out AReason: string): Boolean;
+    function ValidateLength(const AInput: string; AExpected: Integer;
+      out AReason: string): Boolean;
     /// <summary>Helper: input must be all decimal digits.</summary>
     function ValidateAllDigits(const AInput: string;
       out AReason: string): Boolean;
@@ -100,8 +100,7 @@ type
     function ValidateAllAlpha(const AInput: string;
       out AReason: string): Boolean;
     /// <summary>Helper: input must be all hex digits.</summary>
-    function ValidateHex(const AInput: string;
-      out AReason: string): Boolean;
+    function ValidateHex(const AInput: string; out AReason: string): Boolean;
     /// <summary>Helper: input must start with <c>APrefix</c>.</summary>
     function ValidatePrefix(const AInput, APrefix: string;
       out AReason: string): Boolean;
@@ -111,13 +110,13 @@ type
       AStart, AEnd: Integer; out AReason: string): Boolean;
     /// <summary>Helper: characters in the closed range
     /// <c>AStart..AEnd</c> must all be decimal digits.</summary>
-    function ValidateDigitRange(const AInput: string;
-      AStart, AEnd: Integer; out AReason: string): Boolean;
+    function ValidateDigitRange(const AInput: string; AStart, AEnd: Integer;
+      out AReason: string): Boolean;
 
     /// <summary>Vendor-supplied input check. Default: accept any
     /// non-empty string.</summary>
-    function DoValidate(const AInput: string;
-      out AReason: string): Boolean; virtual;
+    function DoValidate(const AInput: string; out AReason: string)
+      : Boolean; virtual;
 
     /// <summary>Vendor-supplied calculation. <c>AInput</c> has
     /// already been sanitised and validated. Default
@@ -128,8 +127,7 @@ type
     /// algorithm. Vendors that do ship a real algorithm
     /// (database lookup, public spec) override this method.</summary>
     function DoCalculate(const AInput: string;
-      const AContext: TOBDRadioCodeContext): TOBDRadioCodeResult;
-      virtual;
+      const AContext: TOBDRadioCodeContext): TOBDRadioCodeResult; virtual;
   public
     constructor Create(AOwner: TComponent); override;
 
@@ -143,8 +141,7 @@ type
 
     /// <summary>Validates <c>AInput</c> through the vendor's
     /// rules.</summary>
-    function Validate(const AInput: string;
-      out AReason: string): Boolean;
+    function Validate(const AInput: string; out AReason: string): Boolean;
 
     /// <summary>Sanitises + validates <c>Input</c>, calls
     /// <c>DoCalculate</c>, stores + returns the result. Hosts
@@ -176,8 +173,8 @@ type
     /// <c>Variant</c>); leave <c>BrandKey</c> alone — the base
     /// fills it. Vendors with a built-in algorithm (database
     /// lookup, public spec) ignore this event.</summary>
-    property OnCalculate: TOBDRadioCodeCalcEvent
-      read FOnCalculate write FOnCalculate;
+    property OnCalculate: TOBDRadioCodeCalcEvent read FOnCalculate
+      write FOnCalculate;
   end;
 
   /// <summary>Metaclass for runtime instantiation by
@@ -189,9 +186,10 @@ type
   /// reads after population.</summary>
   TOBDRadioCodeRegistry = class
   strict private
-    class var FInstance: TOBDRadioCodeRegistry;
+  class var
+    FInstance: TOBDRadioCodeRegistry;
     FByBrandKey: TDictionary<string, TOBDRadioCodeClass>;
-    FLock:       TCriticalSection;
+    FLock: TCriticalSection;
   public
     constructor Create;
     destructor Destroy; override;
@@ -233,8 +231,8 @@ begin
   Result := UpperCase(Trim(AInput));
 end;
 
-function TOBDRadioCode.ValidateLength(const AInput: string;
-  AExpected: Integer; out AReason: string): Boolean;
+function TOBDRadioCode.ValidateLength(const AInput: string; AExpected: Integer;
+  out AReason: string): Boolean;
 begin
   AReason := '';
   Result := Length(AInput) = AExpected;
@@ -250,7 +248,7 @@ var
 begin
   AReason := '';
   for C in AInput do
-    if not CharInSet(C, ['0'..'9']) then
+    if not CharInSet(C, ['0' .. '9']) then
     begin
       AReason := 'Input must contain only digits';
       Exit(False);
@@ -265,7 +263,7 @@ var
 begin
   AReason := '';
   for C in AInput do
-    if not CharInSet(C, ['A'..'Z', 'a'..'z']) then
+    if not CharInSet(C, ['A' .. 'Z', 'a' .. 'z']) then
     begin
       AReason := 'Input must contain only letters';
       Exit(False);
@@ -280,7 +278,7 @@ var
 begin
   AReason := '';
   for C in AInput do
-    if not CharInSet(C, ['0'..'9', 'A'..'F', 'a'..'f']) then
+    if not CharInSet(C, ['0' .. '9', 'A' .. 'F', 'a' .. 'f']) then
     begin
       AReason := 'Input must contain only hex digits';
       Exit(False);
@@ -315,7 +313,7 @@ var
 begin
   AReason := '';
   for I := AStart to AEnd do
-    if not CharInSet(AInput[I], ['0'..'9', 'A'..'Z']) then
+    if not CharInSet(AInput[I], ['0' .. '9', 'A' .. 'Z']) then
     begin
       AReason := Format('Character %d must be alphanumeric', [I]);
       Exit(False);
@@ -330,7 +328,7 @@ var
 begin
   AReason := '';
   for I := AStart to AEnd do
-    if not CharInSet(AInput[I], ['0'..'9']) then
+    if not CharInSet(AInput[I], ['0' .. '9']) then
     begin
       AReason := Format('Character %d must be a digit', [I]);
       Exit(False);
@@ -347,7 +345,7 @@ end;
 function TOBDRadioCode.DoCalculate(const AInput: string;
   const AContext: TOBDRadioCodeContext): TOBDRadioCodeResult;
 begin
-  Result := Default(TOBDRadioCodeResult);
+  Result := Default (TOBDRadioCodeResult);
   Result.BrandKey := BrandKey;
   if Assigned(FOnCalculate) then
   begin
@@ -360,10 +358,9 @@ begin
     Result.Success := False;
     Result.Message :=
       Format('Algorithm for "%s" is not bundled in this open-source ' +
-             'distribution. Wire OnCalculate to supply your own ' +
-             '(reverse-engineered, licensed, or network-service) ' +
-             'implementation.',
-             [DisplayName]);
+      'distribution. Wire OnCalculate to supply your own ' +
+      '(reverse-engineered, licensed, or network-service) ' + 'implementation.',
+      [DisplayName]);
   end;
 end;
 
@@ -372,14 +369,13 @@ begin
   Result := Calculate(FInput);
 end;
 
-function TOBDRadioCode.Calculate(
-  const AInput: string): TOBDRadioCodeResult;
+function TOBDRadioCode.Calculate(const AInput: string): TOBDRadioCodeResult;
 var
   Sanitised: string;
-  Reason:    string;
-  Ctx:       TOBDRadioCodeContext;
+  Reason: string;
+  Ctx: TOBDRadioCodeContext;
 begin
-  FResult := Default(TOBDRadioCodeResult);
+  FResult := Default (TOBDRadioCodeResult);
   FResult.BrandKey := BrandKey;
   Sanitised := SanitizeInput(AInput);
   if not DoValidate(Sanitised, Reason) then
@@ -388,10 +384,10 @@ begin
     Result := FResult;
     Exit;
   end;
-  Ctx := Default(TOBDRadioCodeContext);
-  Ctx.BrandKey       := BrandKey;
-  Ctx.VIN            := FVIN;
-  Ctx.ModelHint      := FModelHint;
+  Ctx := Default (TOBDRadioCodeContext);
+  Ctx.BrandKey := BrandKey;
+  Ctx.VIN := FVIN;
+  Ctx.ModelHint := FModelHint;
   Ctx.RegionOverride := FRegion;
   FResult := DoCalculate(Sanitised, Ctx);
   // Defensive — vendors may forget to fill BrandKey.
@@ -428,15 +424,14 @@ begin
   FreeAndNil(FInstance);
 end;
 
-procedure TOBDRadioCodeRegistry.RegisterClass(
-  AClass: TOBDRadioCodeClass);
+procedure TOBDRadioCodeRegistry.RegisterClass(AClass: TOBDRadioCodeClass);
 var
   Probe: TOBDRadioCode;
-  Key:   string;
+  Key: string;
 begin
   if AClass = nil then
-    raise EArgumentNilException.Create(
-      'TOBDRadioCodeRegistry.RegisterClass: nil class');
+    raise EArgumentNilException.Create
+      ('TOBDRadioCodeRegistry.RegisterClass: nil class');
   // One throw-away instance to read the brand key — no real
   // state populated yet so the cost is trivial.
   Probe := AClass.Create(nil);
@@ -473,8 +468,8 @@ end;
 
 function TOBDRadioCodeRegistry.All: TArray<TOBDRadioCodeClass>;
 var
-  Acc:   TList<TOBDRadioCodeClass>;
-  Cls:   TOBDRadioCodeClass;
+  Acc: TList<TOBDRadioCodeClass>;
+  Cls: TOBDRadioCodeClass;
   Probe: TOBDRadioCode;
   Names: TDictionary<TOBDRadioCodeClass, string>;
 begin

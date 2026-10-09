@@ -1,52 +1,52 @@
-//------------------------------------------------------------------------------
-//  ERD.Signature.HSM.PKCS11
+﻿// ------------------------------------------------------------------------------
+// ERD.Signature.HSM.PKCS11
 //
-//  TOBDSignaturePKCS11 — concrete PKCS#11 v3.0 vendor shim that
-//  drives any PKCS#11 driver through the standard
-//  C_GetFunctionList → C_Initialize → C_OpenSession → C_Login →
-//  C_FindObjects → C_VerifyInit → C_Verify → C_Logout →
-//  C_CloseSession → C_Finalize sequence.
+// TOBDSignaturePKCS11 — concrete PKCS#11 v3.0 vendor shim that
+// drives any PKCS#11 driver through the standard
+// C_GetFunctionList → C_Initialize → C_OpenSession → C_Login →
+// C_FindObjects → C_VerifyInit → C_Verify → C_Logout →
+// C_CloseSession → C_Finalize sequence.
 //
-//  Tested against SoftHSM 2.x; the same code drives Vector,
-//  Thales, Utimaco, AWS CloudHSM, and YubiHSM2 with their own
-//  PKCS#11 drivers — only <c>LibraryPath</c> changes.
+// Tested against SoftHSM 2.x; the same code drives Vector,
+// Thales, Utimaco, AWS CloudHSM, and YubiHSM2 with their own
+// PKCS#11 drivers — only <c>LibraryPath</c> changes.
 //
-//  Hosts assign:
-//    LibraryPath  := 'C:\Program Files\SoftHSM2\lib\softhsm2.dll'
-//    SlotID       := 0;
-//    PinFunc      := function: string begin Result := '1234'; end;
-//    KeyLabelOrID := <CKA_LABEL or CKA_ID of the public key>
+// Hosts assign:
+// LibraryPath  := 'C:\Program Files\SoftHSM2\lib\softhsm2.dll'
+// SlotID       := 0;
+// PinFunc      := function: string begin Result := '1234'; end;
+// KeyLabelOrID := <CKA_LABEL or CKA_ID of the public key>
 //
-//  The bound public-key handle is found via CKA_LABEL (when the
-//  string is non-numeric) or CKA_ID (when it parses as hex).
+// The bound public-key handle is found via CKA_LABEL (when the
+// string is non-numeric) or CKA_ID (when it parses as hex).
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - PKCS#11 v3.0 (OASIS)
+// References  :
+// - PKCS#11 v3.0 (OASIS)
 //
-//  History     :
-//    2026-05-09  ERD  Follow-up.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Follow-up.
+// ------------------------------------------------------------------------------
 
 unit ERD.Signature.HSM.PKCS11;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
 {$IFDEF MSWINDOWS}
   Winapi.Windows,
 {$ENDIF}
@@ -90,31 +90,31 @@ implementation
 
 const
   // ---- PKCS#11 return codes ----
-  CKR_OK                = 0;
-  CKR_FUNCTION_FAILED   = $00000006;
+  CKR_OK = 0;
+  CKR_FUNCTION_FAILED = $00000006;
 
   // ---- Object class ----
-  CKO_PUBLIC_KEY        = $00000002;
+  CKO_PUBLIC_KEY = $00000002;
 
   // ---- Attribute IDs ----
-  CKA_CLASS             = $00000000;
-  CKA_LABEL             = $00000003;
-  CKA_ID                = $00000102;
+  CKA_CLASS = $00000000;
+  CKA_LABEL = $00000003;
+  CKA_ID = $00000102;
 
   // ---- Mechanisms ----
-  CKM_SHA256_RSA_PKCS_PKCS11   = $00000040;
-  CKM_RSA_PKCS_PSS_PKCS11      = $0000000D;
-  CKM_ECDSA_SHA256_PKCS11      = $00001044;
-  CKM_ECDSA_SHA384_PKCS11      = $00001045;
-  CKM_EDDSA_PKCS11             = $00001057;
-  CKM_SHA256_RSA_PKCS_PSS      = $00000043;
+  CKM_SHA256_RSA_PKCS_PKCS11 = $00000040;
+  CKM_RSA_PKCS_PSS_PKCS11 = $0000000D;
+  CKM_ECDSA_SHA256_PKCS11 = $00001044;
+  CKM_ECDSA_SHA384_PKCS11 = $00001045;
+  CKM_EDDSA_PKCS11 = $00001057;
+  CKM_SHA256_RSA_PKCS_PSS = $00000043;
 
   // ---- Login user types ----
-  CKU_USER              = 1;
+  CKU_USER = 1;
 
   // ---- Session flags ----
-  CKF_RW_SESSION        = $00000002;
-  CKF_SERIAL_SESSION    = $00000004;
+  CKF_RW_SESSION = $00000002;
+  CKF_SERIAL_SESSION = $00000004;
 
 type
   CK_RV = NativeUInt;
@@ -131,6 +131,7 @@ type
     pValue: Pointer;
     ulValueLen: NativeUInt;
   end;
+
   PCK_ATTRIBUTE = ^CK_ATTRIBUTE;
 
   CK_MECHANISM = record
@@ -141,8 +142,9 @@ type
 
   // PKCS#11 v3.0 standard function-pointer table.
   CK_FUNCTION_LIST_PTR = ^CK_FUNCTION_LIST;
+
   CK_FUNCTION_LIST = record
-    version: array[0..1] of Byte;
+    version: array [0 .. 1] of Byte;
     C_Initialize: Pointer;
     C_Finalize: Pointer;
     C_GetInfo: Pointer;
@@ -198,12 +200,13 @@ type
     // ... (further pointers omitted; we don't call them)
   end;
 
-  TC_GetFunctionList = function(out ppFunctionList: CK_FUNCTION_LIST_PTR): CK_RV; cdecl;
+  TC_GetFunctionList = function(out ppFunctionList: CK_FUNCTION_LIST_PTR)
+    : CK_RV; cdecl;
   TC_Initialize = function(pInitArgs: Pointer): CK_RV; cdecl;
   TC_Finalize = function(pReserved: Pointer): CK_RV; cdecl;
   TC_OpenSession = function(slot: CK_SLOT_ID; flags: CK_FLAGS;
-    appCallback: Pointer; notify: CK_NOTIFY;
-    out hSession: CK_SESSION_HANDLE): CK_RV; cdecl;
+    appCallback: Pointer; notify: CK_NOTIFY; out hSession: CK_SESSION_HANDLE)
+    : CK_RV; cdecl;
   TC_CloseSession = function(hSession: CK_SESSION_HANDLE): CK_RV; cdecl;
   TC_Login = function(hSession: CK_SESSION_HANDLE; userType: CK_USER_TYPE;
     pPin: PAnsiChar; ulPinLen: CK_ULONG): CK_RV; cdecl;
@@ -211,14 +214,13 @@ type
   TC_FindObjectsInit = function(hSession: CK_SESSION_HANDLE;
     pTemplate: PCK_ATTRIBUTE; ulCount: CK_ULONG): CK_RV; cdecl;
   TC_FindObjects = function(hSession: CK_SESSION_HANDLE;
-    var phObject: CK_OBJECT_HANDLE; ulMax: CK_ULONG;
-    out pulCount: CK_ULONG): CK_RV; cdecl;
+    var phObject: CK_OBJECT_HANDLE; ulMax: CK_ULONG; out pulCount: CK_ULONG)
+    : CK_RV; cdecl;
   TC_FindObjectsFinal = function(hSession: CK_SESSION_HANDLE): CK_RV; cdecl;
-  TC_VerifyInit = function(hSession: CK_SESSION_HANDLE;
-    pMechanism: Pointer; hKey: CK_OBJECT_HANDLE): CK_RV; cdecl;
-  TC_Verify = function(hSession: CK_SESSION_HANDLE;
-    pData: Pointer; ulDataLen: CK_ULONG;
-    pSignature: Pointer; ulSigLen: CK_ULONG): CK_RV; cdecl;
+  TC_VerifyInit = function(hSession: CK_SESSION_HANDLE; pMechanism: Pointer;
+    hKey: CK_OBJECT_HANDLE): CK_RV; cdecl;
+  TC_Verify = function(hSession: CK_SESSION_HANDLE; pData: Pointer;
+    ulDataLen: CK_ULONG; pSignature: Pointer; ulSigLen: CK_ULONG): CK_RV; cdecl;
 
 constructor TOBDSignaturePKCS11.Create;
 begin
@@ -236,7 +238,8 @@ end;
 procedure TOBDSignaturePKCS11.Unload;
 begin
 {$IFDEF MSWINDOWS}
-  if FLib <> 0 then FreeLibrary(FLib);
+  if FLib <> 0 then
+    FreeLibrary(FLib);
 {$ENDIF}
   FLib := 0;
   FFuncList := nil;
@@ -247,18 +250,19 @@ var
   GetFuncList: TC_GetFunctionList;
   RC: CK_RV;
 begin
-  if FFuncList <> nil then Exit;
+  if FFuncList <> nil then
+    Exit;
   FLoadLock.Enter;
   try
-    if FFuncList <> nil then Exit;
+    if FFuncList <> nil then
+      Exit;
     if FLibraryPath = '' then
       raise EOBDConfig.Create('PKCS#11: LibraryPath not set');
 {$IFDEF MSWINDOWS}
     FLib := LoadLibrary(PChar(FLibraryPath));
 {$ENDIF}
     if FLib = 0 then
-      raise EOBDError.CreateFmt(
-        'PKCS#11: failed to load "%s"', [FLibraryPath]);
+      raise EOBDError.CreateFmt('PKCS#11: failed to load "%s"', [FLibraryPath]);
 {$IFDEF MSWINDOWS}
     @GetFuncList := GetProcAddress(FLib, 'C_GetFunctionList');
 {$ENDIF}
@@ -266,8 +270,8 @@ begin
       raise EOBDError.Create('PKCS#11: C_GetFunctionList missing');
     RC := GetFuncList(CK_FUNCTION_LIST_PTR(FFuncList));
     if RC <> CKR_OK then
-      raise EOBDError.CreateFmt('PKCS#11: C_GetFunctionList failed (0x%.8X)',
-        [RC]);
+      raise EOBDError.CreateFmt
+        ('PKCS#11: C_GetFunctionList failed (0x%.8X)', [RC]);
   finally
     FLoadLock.Leave;
   end;
@@ -275,8 +279,10 @@ end;
 
 function TOBDSignaturePKCS11.IsAvailable: Boolean;
 begin
-  if FLibraryPath = '' then Exit(False);
-  if not FileExists(FLibraryPath) then Exit(False);
+  if FLibraryPath = '' then
+    Exit(False);
+  if not FileExists(FLibraryPath) then
+    Exit(False);
   try
     EnsureLoaded;
     Result := FFuncList <> nil;
@@ -290,13 +296,12 @@ begin
   Result := 'PKCS#11 v3.0 (vendor shim)';
 end;
 
-function TOBDSignaturePKCS11.DoSupports(
-  AAlgorithm: TOBDSignatureAlgorithm): Boolean;
+function TOBDSignaturePKCS11.DoSupports(AAlgorithm
+  : TOBDSignatureAlgorithm): Boolean;
 begin
   case AAlgorithm of
-    saRSA_PSS_SHA256, saRSA_PKCS1_SHA256,
-    saECDSA_P256_SHA256, saECDSA_P384_SHA384,
-    saED25519:
+    saRSA_PSS_SHA256, saRSA_PKCS1_SHA256, saECDSA_P256_SHA256,
+      saECDSA_P384_SHA384, saED25519:
       Result := True;
   else
     Result := False;
@@ -309,7 +314,8 @@ var
   S: string;
 begin
   S := UpperCase(StringReplace(AHex, ' ', '', [rfReplaceAll]));
-  if Odd(Length(S)) then Exit(nil);
+  if Odd(Length(S)) then
+    Exit(nil);
   SetLength(Result, Length(S) div 2);
   for I := 0 to High(Result) do
     Result[I] := StrToInt('$' + Copy(S, I * 2 + 1, 2));
@@ -318,18 +324,23 @@ end;
 function MechanismFor(AAlgorithm: TOBDSignatureAlgorithm): NativeUInt;
 begin
   case AAlgorithm of
-    saRSA_PKCS1_SHA256:    Result := CKM_SHA256_RSA_PKCS_PKCS11;
-    saRSA_PSS_SHA256:      Result := CKM_SHA256_RSA_PKCS_PSS;
-    saECDSA_P256_SHA256:   Result := CKM_ECDSA_SHA256_PKCS11;
-    saECDSA_P384_SHA384:   Result := CKM_ECDSA_SHA384_PKCS11;
-    saED25519:             Result := CKM_EDDSA_PKCS11;
+    saRSA_PKCS1_SHA256:
+      Result := CKM_SHA256_RSA_PKCS_PKCS11;
+    saRSA_PSS_SHA256:
+      Result := CKM_SHA256_RSA_PKCS_PSS;
+    saECDSA_P256_SHA256:
+      Result := CKM_ECDSA_SHA256_PKCS11;
+    saECDSA_P384_SHA384:
+      Result := CKM_ECDSA_SHA384_PKCS11;
+    saED25519:
+      Result := CKM_EDDSA_PKCS11;
   else
     Result := 0;
   end;
 end;
 
-function TOBDSignaturePKCS11.DoVerify(
-  const AArgs: TOBDSignatureVerifyArgs): Boolean;
+function TOBDSignaturePKCS11.DoVerify(const AArgs
+  : TOBDSignatureVerifyArgs): Boolean;
 var
   FuncList: CK_FUNCTION_LIST_PTR;
   Init_F: TC_Initialize;
@@ -347,10 +358,10 @@ var
   KeyHandle: CK_OBJECT_HANDLE;
   Found: CK_ULONG;
   RC: CK_RV;
-  Template: array[0..2] of CK_ATTRIBUTE;
+  Template: array [0 .. 2] of CK_ATTRIBUTE;
   TemplateCount: Integer;
   ObjClass: NativeUInt;
-  Mechanism: CK_MECHANISM;
+  mechanism: CK_MECHANISM;
   PIN: AnsiString;
   KeyID: TBytes;
   LabelStr: AnsiString;
@@ -358,17 +369,17 @@ begin
   EnsureLoaded;
   FuncList := CK_FUNCTION_LIST_PTR(FFuncList);
 
-  @Init_F     := FuncList^.C_Initialize;
-  @Final_F    := FuncList^.C_Finalize;
-  @Open_F     := FuncList^.C_OpenSession;
-  @Close_F    := FuncList^.C_CloseSession;
-  @Login_F    := FuncList^.C_Login;
-  @Logout_F   := FuncList^.C_Logout;
+  @Init_F := FuncList^.C_Initialize;
+  @Final_F := FuncList^.C_Finalize;
+  @Open_F := FuncList^.C_OpenSession;
+  @Close_F := FuncList^.C_CloseSession;
+  @Login_F := FuncList^.C_Login;
+  @Logout_F := FuncList^.C_Logout;
   @FindInit_F := FuncList^.C_FindObjectsInit;
-  @Find_F     := FuncList^.C_FindObjects;
-  @FindFin_F  := FuncList^.C_FindObjectsFinal;
+  @Find_F := FuncList^.C_FindObjects;
+  @FindFin_F := FuncList^.C_FindObjectsFinal;
   @VerifyInit_F := FuncList^.C_VerifyInit;
-  @Verify_F   := FuncList^.C_Verify;
+  @Verify_F := FuncList^.C_Verify;
 
   RC := Init_F(nil);
   if RC <> CKR_OK then
@@ -393,8 +404,8 @@ begin
       end;
 
       // Find the key. Build a 2- or 3-attribute template:
-      //   CKA_CLASS = CKO_PUBLIC_KEY (always)
-      //   CKA_LABEL = <ASCII> or CKA_ID = <bytes>
+      // CKA_CLASS = CKO_PUBLIC_KEY (always)
+      // CKA_LABEL = <ASCII> or CKA_ID = <bytes>
       ObjClass := CKO_PUBLIC_KEY;
       Template[0].type_ := CKA_CLASS;
       Template[0].pValue := @ObjClass;
@@ -402,8 +413,8 @@ begin
 
       KeyID := ParseHexBytes(FKeyLabelOrID);
       if (Length(KeyID) > 0) and
-         (Length(KeyID) * 2 = Length(StringReplace(
-           FKeyLabelOrID, ' ', '', [rfReplaceAll]))) then
+        (Length(KeyID) * 2 = Length(StringReplace(FKeyLabelOrID, ' ', '',
+        [rfReplaceAll]))) then
       begin
         Template[1].type_ := CKA_ID;
         Template[1].pValue := @KeyID[0];
@@ -427,24 +438,23 @@ begin
         if RC <> CKR_OK then
           raise EOBDError.CreateFmt('C_FindObjects failed (0x%.8X)', [RC]);
         if Found = 0 then
-          raise EOBDError.CreateFmt(
-            'PKCS#11: no public key matches "%s" in slot %d',
+          raise EOBDError.CreateFmt
+            ('PKCS#11: no public key matches "%s" in slot %d',
             [FKeyLabelOrID, FSlotID]);
       finally
         FindFin_F(Session);
       end;
 
-      Mechanism := Default(CK_MECHANISM);
-      Mechanism.mechanism := MechanismFor(AArgs.Algorithm);
-      if Mechanism.mechanism = 0 then
+      mechanism := Default (CK_MECHANISM);
+      mechanism.mechanism := MechanismFor(AArgs.Algorithm);
+      if mechanism.mechanism = 0 then
         raise EOBDConfig.Create('PKCS#11: algorithm not supported');
 
-      RC := VerifyInit_F(Session, @Mechanism, KeyHandle);
+      RC := VerifyInit_F(Session, @mechanism, KeyHandle);
       if RC <> CKR_OK then
         raise EOBDError.CreateFmt('C_VerifyInit failed (0x%.8X)', [RC]);
 
-      RC := Verify_F(Session,
-        @AArgs.Message[0], Length(AArgs.Message),
+      RC := Verify_F(Session, @AArgs.Message[0], Length(AArgs.Message),
         @AArgs.Signature[0], Length(AArgs.Signature));
       Result := RC = CKR_OK;
 

@@ -1,45 +1,45 @@
-//------------------------------------------------------------------------------
-//  ERD.Protocol.DoIP.Client
+﻿// ------------------------------------------------------------------------------
+// ERD.Protocol.DoIP.Client
 //
-//  TOBDDoIPClient — non-visual DoIP client component. Sits on top of
-//  any IOBDDoIPTransport (plain TCP for port 13400, OpenSSL TLS for
-//  port 3496, or a host-supplied implementation) and exposes the
-//  common DoIP exchanges:
+// TOBDDoIPClient — non-visual DoIP client component. Sits on top of
+// any IOBDDoIPTransport (plain TCP for port 13400, OpenSSL TLS for
+// port 3496, or a host-supplied implementation) and exposes the
+// common DoIP exchanges:
 //
-//    - Routing activation
-//    - Alive check
-//    - Vehicle-identification request (over TCP after connect)
-//    - Entity-status request
-//    - Diagnostic-power-mode request
-//    - Diagnostic message (UDS payload in / response out)
+// - Routing activation
+// - Alive check
+// - Vehicle-identification request (over TCP after connect)
+// - Entity-status request
+// - Diagnostic-power-mode request
+// - Diagnostic message (UDS payload in / response out)
 //
-//  Honours the dual-method + main-thread + progress rule (PLAN §3.7):
-//  every blocking method ships a synchronous Foo and a non-blocking
-//  FooAsync. Only one diagnostic request may be in flight per
-//  client; the read pump matches responses to the pending request
-//  by source/target address.
+// Honours the dual-method + main-thread + progress rule (PLAN §3.7):
+// every blocking method ships a synchronous Foo and a non-blocking
+// FooAsync. Only one diagnostic request may be in flight per
+// client; the read pump matches responses to the pending request
+// by source/target address.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - ISO 13400-2:2019 §7.1 (Generic header), §7.2 (Connection
-//      establishment / routing activation), §7.5 (Diagnostic
-//      message handling)
+// References  :
+// - ISO 13400-2:2019 §7.1 (Generic header), §7.2 (Connection
+// establishment / routing activation), §7.5 (Diagnostic
+// message handling)
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Protocol.DoIP.Client;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -48,9 +48,9 @@ uses
   ERD.Async.Task,
   ERD.Connection,
   ERD.Connection.Types,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
   System.Diagnostics,
   ERD.Types,
   ERD.Protocol.Types,
@@ -60,8 +60,8 @@ uses
 
 type
   /// <summary>
-  ///   Standard DoIP tester address ranges (ISO 13400-2 §8.1.4):
-  ///   external testers use 0x0E80..0x0EFF.
+  /// Standard DoIP tester address ranges (ISO 13400-2 §8.1.4):
+  /// external testers use 0x0E80..0x0EFF.
   /// </summary>
   TOBDDoIPClientStatus = (
     /// <summary>Transport closed.</summary>
@@ -71,8 +71,7 @@ type
     csConnected,
     /// <summary>Routing activation succeeded; ready to exchange
     /// diagnostic messages.</summary>
-    csActivated
-  );
+    csActivated);
 
   /// <summary>Argument record for <c>OnVehicleAnnouncement</c>.</summary>
   TOBDDoIPVehicleEvent = procedure(Sender: TObject;
@@ -91,23 +90,23 @@ type
     const AAck: TOBDDoIPDiagnosticAck) of object;
 
   /// <summary>Fires when a Generic NACK arrives (payload 0x0000).</summary>
-  TOBDDoIPGenericNAckEvent = procedure(Sender: TObject;
-    AReason: Byte; const AReasonText: string) of object;
+  TOBDDoIPGenericNAckEvent = procedure(Sender: TObject; AReason: Byte;
+    const AReasonText: string) of object;
 
   /// <summary>
-  ///   Non-visual DoIP client component.
+  /// Non-visual DoIP client component.
   /// </summary>
   /// <remarks>
-  ///   Drop on a form, assign <c>Transport</c> (e.g. a
-  ///   <c>TOBDDoIPPlainTransport</c> or
-  ///   <c>TOBDDoIPOpenSSLTransport</c>), set <c>SourceAddress</c> +
-  ///   <c>TargetAddress</c>, and call <c>Connect</c> followed by
-  ///   <c>ActivateRouting</c>. After that <c>SendDiagnostic</c> /
-  ///   <c>SendDiagnosticAsync</c> shuttle UDS / OBD-II payloads to
-  ///   the ECU.
+  /// Drop on a form, assign <c>Transport</c> (e.g. a
+  /// <c>TOBDDoIPPlainTransport</c> or
+  /// <c>TOBDDoIPOpenSSLTransport</c>), set <c>SourceAddress</c> +
+  /// <c>TargetAddress</c>, and call <c>Connect</c> followed by
+  /// <c>ActivateRouting</c>. After that <c>SendDiagnostic</c> /
+  /// <c>SendDiagnosticAsync</c> shuttle UDS / OBD-II payloads to
+  /// the ECU.
   ///
-  ///   Owns a background read-pump thread for the entire lifetime
-  ///   of an open connection. All events fire on the main thread.
+  /// Owns a background read-pump thread for the entire lifetime
+  /// of an open connection. All events fire on the main thread.
   /// </remarks>
   TOBDDoIPClient = class(TComponent)
   strict private
@@ -126,7 +125,7 @@ type
     FRxThread: TThread;
     FRxStop: Boolean;
 
-    FOpLock: TCriticalSection;       // serialise sync exchanges
+    FOpLock: TCriticalSection; // serialise sync exchanges
     FAsyncLock: TCriticalSection;
     FAsyncThread: TThread;
 
@@ -189,8 +188,7 @@ type
 
     procedure GuardSingleAsync;
     function DoActivateRouting(ATimeoutMs: Cardinal): Boolean;
-    function DoSendDiagnostic(const AUserData: TBytes;
-      ATimeoutMs: Cardinal;
+    function DoSendDiagnostic(const AUserData: TBytes; ATimeoutMs: Cardinal;
       AExpectsResponse: Boolean): TOBDDoIPDiagnosticMessage;
   public
     /// <summary>Creates the component. <c>Transport</c> must be set
@@ -200,8 +198,8 @@ type
     destructor Destroy; override;
 
     /// <summary>
-    ///   Connects the bound transport to <c>AHost:APort</c>. Does not
-    ///   activate routing.
+    /// Connects the bound transport to <c>AHost:APort</c>. Does not
+    /// activate routing.
     /// </summary>
     /// <param name="AHost">DoIP entity DNS name or IP.</param>
     /// <param name="APort">TCP port. Use <c>DOIP_TCP_DATA_PORT</c>
@@ -248,8 +246,7 @@ type
     /// <c>csActivated</c>.</exception>
     /// <exception cref="EOBDProtocolErr">Diagnostic NACK or
     /// timeout.</exception>
-    function SendDiagnostic(const AUserData: TBytes;
-      ATimeoutMs: Cardinal = 0;
+    function SendDiagnostic(const AUserData: TBytes; ATimeoutMs: Cardinal = 0;
       AExpectsResponse: Boolean = True): TOBDDoIPDiagnosticMessage;
 
     /// <summary>Non-blocking <see cref="SendDiagnostic"/>. Fires
@@ -258,8 +255,7 @@ type
     /// soon as the positive ACK is received and is meant for fire-
     /// and-forget services such as TesterPresent.</summary>
     procedure SendDiagnosticAsync(const AUserData: TBytes;
-      ATimeoutMs: Cardinal = 0;
-      AExpectsResponse: Boolean = True);
+      ATimeoutMs: Cardinal = 0; AExpectsResponse: Boolean = True);
 
     /// <summary>Sends an alive-check request and blocks until the
     /// peer replies. Returns the source address echoed by the
@@ -269,14 +265,14 @@ type
     procedure AliveCheckAsync(ATimeoutMs: Cardinal = 0);
 
     /// <summary>Requests entity-status info.</summary>
-    function RequestEntityStatus(
-      ATimeoutMs: Cardinal = 0): TOBDDoIPEntityStatusResponse;
+    function RequestEntityStatus(ATimeoutMs: Cardinal = 0)
+      : TOBDDoIPEntityStatusResponse;
     /// <summary>Non-blocking <see cref="RequestEntityStatus"/>.</summary>
     procedure RequestEntityStatusAsync(ATimeoutMs: Cardinal = 0);
 
     /// <summary>Requests diagnostic-power-mode info.</summary>
-    function RequestPowerMode(
-      ATimeoutMs: Cardinal = 0): TOBDDoIPPowerModeResponse;
+    function RequestPowerMode(ATimeoutMs: Cardinal = 0)
+      : TOBDDoIPPowerModeResponse;
     /// <summary>Non-blocking <see cref="RequestPowerMode"/>.</summary>
     procedure RequestPowerModeAsync(ATimeoutMs: Cardinal = 0);
 
@@ -285,8 +281,8 @@ type
     /// arrives. Note: ISO 13400 also defines UDP discovery on port
     /// 13400; this method covers the TCP path that works after
     /// <c>Connect</c>.</summary>
-    function RequestVehicleID(
-      ATimeoutMs: Cardinal = 0): TOBDDoIPVehicleAnnouncement;
+    function RequestVehicleID(ATimeoutMs: Cardinal = 0)
+      : TOBDDoIPVehicleAnnouncement;
     /// <summary>Non-blocking <see cref="RequestVehicleID"/>.</summary>
     procedure RequestVehicleIDAsync(ATimeoutMs: Cardinal = 0);
 
@@ -330,8 +326,8 @@ type
     /// thread).</summary>
     property OnStatus: TNotifyEvent read FOnStatus write FOnStatus;
     /// <summary>Fires when a routing-activation response is received.</summary>
-    property OnRoutingActivated: TOBDDoIPRoutingEvent
-      read FOnRoutingActivated write FOnRoutingActivated;
+    property OnRoutingActivated: TOBDDoIPRoutingEvent read FOnRoutingActivated
+      write FOnRoutingActivated;
     /// <summary>Fires for a vehicle announcement / ID response.</summary>
     property OnVehicleAnnouncement: TOBDDoIPVehicleEvent
       read FOnVehicleAnnouncement write FOnVehicleAnnouncement;
@@ -348,8 +344,8 @@ type
     property OnDiagnosticNegAck: TOBDDoIPDiagnosticNAckEvent
       read FOnDiagnosticNegAck write FOnDiagnosticNegAck;
     /// <summary>Fires for a Generic NACK (payload 0x0000).</summary>
-    property OnGenericNAck: TOBDDoIPGenericNAckEvent
-      read FOnGenericNAck write FOnGenericNAck;
+    property OnGenericNAck: TOBDDoIPGenericNAckEvent read FOnGenericNAck
+      write FOnGenericNAck;
     /// <summary>Fires for transient I/O errors (main thread).</summary>
     property OnError: TOBDConnectionErrorEvent read FOnError write FOnError;
     /// <summary>Fires per phase during async operations (main
@@ -373,22 +369,23 @@ begin
   FActivationTimeoutMs := 2000;
   FAliveCheckIntervalMs := 5000;
 
-  FRxLock    := TCriticalSection.Create;
-  FOpLock    := TCriticalSection.Create;
+  FRxLock := TCriticalSection.Create;
+  FOpLock := TCriticalSection.Create;
   FAsyncLock := TCriticalSection.Create;
 
-  FPendingDiag         := TEvent.Create(nil, True, False, '');
+  FPendingDiag := TEvent.Create(nil, True, False, '');
   FPendingDiagAckEvent := TEvent.Create(nil, True, False, '');
-  FPendingRouting      := TEvent.Create(nil, True, False, '');
-  FPendingAlive   := TEvent.Create(nil, True, False, '');
-  FPendingEntity  := TEvent.Create(nil, True, False, '');
-  FPendingPower   := TEvent.Create(nil, True, False, '');
+  FPendingRouting := TEvent.Create(nil, True, False, '');
+  FPendingAlive := TEvent.Create(nil, True, False, '');
+  FPendingEntity := TEvent.Create(nil, True, False, '');
+  FPendingPower := TEvent.Create(nil, True, False, '');
   FPendingVehicle := TEvent.Create(nil, True, False, '');
 end;
 
 destructor TOBDDoIPClient.Destroy;
 begin
-  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  if FOwnedTask <> nil then
+    FOwnedTask.Cancel;
   Disconnect;
   WaitForAsync;
   FPendingDiag.Free;
@@ -407,7 +404,8 @@ end;
 
 procedure TOBDDoIPClient.SetStatus(AValue: TOBDDoIPClientStatus);
 begin
-  if FStatus = AValue then Exit;
+  if FStatus = AValue then
+    Exit;
   FStatus := AValue;
   FireStatus;
 end;
@@ -441,7 +439,8 @@ begin
     raise EOBDConfig.Create('TOBDDoIPClient: already connected');
 
   Effective := ATimeoutMs;
-  if Effective = 0 then Effective := FDefaultTimeoutMs;
+  if Effective = 0 then
+    Effective := FDefaultTimeoutMs;
 
   FRxLock.Enter;
   try
@@ -465,7 +464,8 @@ end;
 
 procedure TOBDDoIPClient.Disconnect;
 begin
-  if (FStatus = csDisconnected) and (FRxThread = nil) then Exit;
+  if (FStatus = csDisconnected) and (FRxThread = nil) then
+    Exit;
   StopReadPump;
   if FTransport <> nil then
   begin
@@ -480,15 +480,16 @@ end;
 
 function TOBDDoIPClient.IsConnected: Boolean;
 begin
-  Result := (FTransport <> nil) and FTransport.IsConnected
-    and (FStatus <> csDisconnected);
+  Result := (FTransport <> nil) and FTransport.IsConnected and
+    (FStatus <> csDisconnected);
 end;
 
 { ---- read pump -------------------------------------------------------------- }
 
 procedure TOBDDoIPClient.StartReadPump;
 begin
-  if FRxThread <> nil then Exit;
+  if FRxThread <> nil then
+    Exit;
   FRxStop := False;
   FRxThread := TThread.CreateAnonymousThread(ReadPumpProc);
   FRxThread.FreeOnTerminate := False;
@@ -549,11 +550,13 @@ begin
     // Drain complete messages out of the buffer.
     while True do
     begin
-      if Length(FRxBuffer) < DOIP_HEADER_LENGTH then Break;
+      if Length(FRxBuffer) < DOIP_HEADER_LENGTH then
+        Break;
       if not DecodeDoIPHeader(FRxBuffer, Header) then
       begin
         // Header invalid — drop one byte and resync.
-        if Length(FRxBuffer) <= 1 then SetLength(FRxBuffer, 0)
+        if Length(FRxBuffer) <= 1 then
+          SetLength(FRxBuffer, 0)
         else
         begin
           Move(FRxBuffer[1], FRxBuffer[0], Length(FRxBuffer) - 1);
@@ -562,7 +565,8 @@ begin
         Continue;
       end;
       Total := DOIP_HEADER_LENGTH + Integer(Header.PayloadLength);
-      if Length(FRxBuffer) < Total then Break;
+      if Length(FRxBuffer) < Total then
+        Break;
 
       SetLength(Payload, Header.PayloadLength);
       if Header.PayloadLength > 0 then
@@ -605,102 +609,107 @@ var
 begin
   case APayloadType of
     DOIP_PT_GenericNACK:
-    begin
-      if Length(APayload) >= 1 then Reason := APayload[0] else Reason := $FF;
-      FireGenericNAck(Reason);
-      // Fail any pending op so callers don't hang.
-      FPendingDiagGotResponse := False;
-      FPendingDiag.SetEvent;
-      FPendingDiagAckEvent.SetEvent;
-      FPendingRoutingOK := False;
-      FPendingRouting.SetEvent;
-    end;
-
-    DOIP_PT_RoutingActivationResponse:
-    begin
-      if TOBDDoIPCodec.DecodeRoutingActivationResponse(APayload, RoutingResp) then
       begin
-        FPendingRoutingResp := RoutingResp;
-        FPendingRoutingOK := RoutingResp.ResponseCode = DOIP_RA_RESP_Activated;
-        if FPendingRoutingOK then
-          SetStatus(csActivated);
-        FireRouting(RoutingResp);
-        FPendingRouting.SetEvent;
-      end;
-    end;
-
-    DOIP_PT_VehicleAnnouncement:
-    begin
-      if TOBDDoIPCodec.DecodeVehicleAnnouncement(APayload, Vehicle) then
-      begin
-        FPendingVehicleResp := Vehicle;
-        FireVehicle(Vehicle);
-        FPendingVehicle.SetEvent;
-      end;
-    end;
-
-    DOIP_PT_AliveCheckResponse:
-    begin
-      if TOBDDoIPCodec.DecodeAliveCheckResponse(APayload, Alive) then
-      begin
-        FPendingAliveResp := Alive;
-        FPendingAlive.SetEvent;
-      end;
-    end;
-
-    DOIP_PT_EntityStatusResponse:
-    begin
-      if TOBDDoIPCodec.DecodeEntityStatusResponse(APayload, Entity) then
-      begin
-        FPendingEntityResp := Entity;
-        FPendingEntity.SetEvent;
-      end;
-    end;
-
-    DOIP_PT_PowerModeInfoResponse:
-    begin
-      if TOBDDoIPCodec.DecodePowerModeResponse(APayload, Power) then
-      begin
-        FPendingPowerResp := Power;
-        FPendingPower.SetEvent;
-      end;
-    end;
-
-    DOIP_PT_DiagnosticMessage:
-    begin
-      if TOBDDoIPCodec.DecodeDiagnosticMessage(APayload, DiagMsg) then
-      begin
-        FPendingDiagResult := DiagMsg;
-        FPendingDiagGotResponse := True;
-        FireDiagMessage(DiagMsg);
-        FPendingDiag.SetEvent;
-      end;
-    end;
-
-    DOIP_PT_DiagnosticMessagePosAck:
-    begin
-      if TOBDDoIPCodec.DecodeDiagnosticAck(APayload, Ack) then
-      begin
-        FPendingDiagAck := Ack;
-        FPendingDiagAckOK := True;
-        FireDiagPosAck(Ack);
-        FPendingDiagAckEvent.SetEvent;
-      end;
-    end;
-
-    DOIP_PT_DiagnosticMessageNegAck:
-    begin
-      if TOBDDoIPCodec.DecodeDiagnosticAck(APayload, Ack) then
-      begin
-        FPendingDiagAck := Ack;
-        FPendingDiagAckNeg := True;
-        FireDiagNegAck(Ack);
-        // Negative ACK ends the exchange: no positive response will come.
+        if Length(APayload) >= 1 then
+          Reason := APayload[0]
+        else
+          Reason := $FF;
+        FireGenericNAck(Reason);
+        // Fail any pending op so callers don't hang.
         FPendingDiagGotResponse := False;
         FPendingDiag.SetEvent;
         FPendingDiagAckEvent.SetEvent;
+        FPendingRoutingOK := False;
+        FPendingRouting.SetEvent;
       end;
-    end;
+
+    DOIP_PT_RoutingActivationResponse:
+      begin
+        if TOBDDoIPCodec.DecodeRoutingActivationResponse(APayload, RoutingResp)
+        then
+        begin
+          FPendingRoutingResp := RoutingResp;
+          FPendingRoutingOK :=
+            RoutingResp.ResponseCode = DOIP_RA_RESP_Activated;
+          if FPendingRoutingOK then
+            SetStatus(csActivated);
+          FireRouting(RoutingResp);
+          FPendingRouting.SetEvent;
+        end;
+      end;
+
+    DOIP_PT_VehicleAnnouncement:
+      begin
+        if TOBDDoIPCodec.DecodeVehicleAnnouncement(APayload, Vehicle) then
+        begin
+          FPendingVehicleResp := Vehicle;
+          FireVehicle(Vehicle);
+          FPendingVehicle.SetEvent;
+        end;
+      end;
+
+    DOIP_PT_AliveCheckResponse:
+      begin
+        if TOBDDoIPCodec.DecodeAliveCheckResponse(APayload, Alive) then
+        begin
+          FPendingAliveResp := Alive;
+          FPendingAlive.SetEvent;
+        end;
+      end;
+
+    DOIP_PT_EntityStatusResponse:
+      begin
+        if TOBDDoIPCodec.DecodeEntityStatusResponse(APayload, Entity) then
+        begin
+          FPendingEntityResp := Entity;
+          FPendingEntity.SetEvent;
+        end;
+      end;
+
+    DOIP_PT_PowerModeInfoResponse:
+      begin
+        if TOBDDoIPCodec.DecodePowerModeResponse(APayload, Power) then
+        begin
+          FPendingPowerResp := Power;
+          FPendingPower.SetEvent;
+        end;
+      end;
+
+    DOIP_PT_DiagnosticMessage:
+      begin
+        if TOBDDoIPCodec.DecodeDiagnosticMessage(APayload, DiagMsg) then
+        begin
+          FPendingDiagResult := DiagMsg;
+          FPendingDiagGotResponse := True;
+          FireDiagMessage(DiagMsg);
+          FPendingDiag.SetEvent;
+        end;
+      end;
+
+    DOIP_PT_DiagnosticMessagePosAck:
+      begin
+        if TOBDDoIPCodec.DecodeDiagnosticAck(APayload, Ack) then
+        begin
+          FPendingDiagAck := Ack;
+          FPendingDiagAckOK := True;
+          FireDiagPosAck(Ack);
+          FPendingDiagAckEvent.SetEvent;
+        end;
+      end;
+
+    DOIP_PT_DiagnosticMessageNegAck:
+      begin
+        if TOBDDoIPCodec.DecodeDiagnosticAck(APayload, Ack) then
+        begin
+          FPendingDiagAck := Ack;
+          FPendingDiagAckNeg := True;
+          FireDiagNegAck(Ack);
+          // Negative ACK ends the exchange: no positive response will come.
+          FPendingDiagGotResponse := False;
+          FPendingDiag.SetEvent;
+          FPendingDiagAckEvent.SetEvent;
+        end;
+      end;
   end;
 end;
 
@@ -715,9 +724,10 @@ begin
   if not IsConnected then
     raise EOBDNotConnected.Create('DoIP client not connected');
   Effective := ATimeoutMs;
-  if Effective = 0 then Effective := FActivationTimeoutMs;
+  if Effective = 0 then
+    Effective := FActivationTimeoutMs;
 
-  Req := Default(TOBDDoIPRoutingActivationRequest);
+  Req := Default (TOBDDoIPRoutingActivationRequest);
   Req.SourceAddress := FSourceAddress;
   Req.ActivationType := FActivationType;
   Req.HasOEMData := False;
@@ -734,10 +744,10 @@ begin
       raise EOBDProtocolErr.Create('DoIP routing-activation timeout');
     Result := FPendingRoutingOK;
     if not Result then
-      raise EOBDProtocolErr.CreateFmt(
-        'DoIP routing activation refused: %s (code 0x%2.2X)',
+      raise EOBDProtocolErr.CreateFmt
+        ('DoIP routing activation refused: %s (code 0x%2.2X)',
         [RoutingResponseText(FPendingRoutingResp.ResponseCode),
-         FPendingRoutingResp.ResponseCode]);
+        FPendingRoutingResp.ResponseCode]);
   finally
     FOpLock.Leave;
   end;
@@ -770,7 +780,8 @@ begin
       finally
         FOwnedTask.Post(
           procedure
-          var Worker: TThread;
+          var
+            Worker: TThread;
           begin
             Self_.FAsyncLock.Enter;
             try
@@ -805,23 +816,23 @@ begin
 end;
 
 function TOBDDoIPClient.DoSendDiagnostic(const AUserData: TBytes;
-  ATimeoutMs: Cardinal;
-  AExpectsResponse: Boolean): TOBDDoIPDiagnosticMessage;
+ATimeoutMs: Cardinal; AExpectsResponse: Boolean): TOBDDoIPDiagnosticMessage;
 var
   Req: TOBDDoIPDiagnosticMessage;
   Bytes: TBytes;
   Effective: Cardinal;
 begin
   if FStatus <> csActivated then
-    raise EOBDNotConnected.Create(
-      'DoIP client not activated — call ActivateRouting first');
+    raise EOBDNotConnected.Create
+      ('DoIP client not activated — call ActivateRouting first');
   if Length(AUserData) = 0 then
     raise EOBDConfig.Create('DoIP diagnostic message: empty payload');
 
   Effective := ATimeoutMs;
-  if Effective = 0 then Effective := FDefaultTimeoutMs;
+  if Effective = 0 then
+    Effective := FDefaultTimeoutMs;
 
-  Req := Default(TOBDDoIPDiagnosticMessage);
+  Req := Default (TOBDDoIPDiagnosticMessage);
   Req.SourceAddress := FSourceAddress;
   Req.TargetAddress := FTargetAddress;
   Req.UserData := AUserData;
@@ -846,8 +857,8 @@ begin
         raise EOBDProtocolErr.Create('DoIP diagnostic-message timeout');
 
       if FPendingDiagAckNeg then
-        raise EOBDProtocolErr.CreateFmt(
-          'DoIP diagnostic NACK 0x%2.2X', [FPendingDiagAck.AckCode]);
+        raise EOBDProtocolErr.CreateFmt('DoIP diagnostic NACK 0x%2.2X',
+          [FPendingDiagAck.AckCode]);
 
       if not FPendingDiagGotResponse then
         raise EOBDProtocolErr.Create('DoIP diagnostic exchange aborted');
@@ -859,9 +870,9 @@ begin
       if FPendingDiagAckEvent.WaitFor(Effective) <> wrSignaled then
         raise EOBDProtocolErr.Create('DoIP diagnostic-ACK timeout');
       if FPendingDiagAckNeg then
-        raise EOBDProtocolErr.CreateFmt(
-          'DoIP diagnostic NACK 0x%2.2X', [FPendingDiagAck.AckCode]);
-      Result := Default(TOBDDoIPDiagnosticMessage);
+        raise EOBDProtocolErr.CreateFmt('DoIP diagnostic NACK 0x%2.2X',
+          [FPendingDiagAck.AckCode]);
+      Result := Default (TOBDDoIPDiagnosticMessage);
       Result.SourceAddress := FPendingDiagAck.SourceAddress;
       Result.TargetAddress := FPendingDiagAck.TargetAddress;
       FireProgress(3, 3, 'Diagnostic message', 'ack');
@@ -876,16 +887,14 @@ begin
 end;
 
 function TOBDDoIPClient.SendDiagnostic(const AUserData: TBytes;
-  ATimeoutMs: Cardinal;
-  AExpectsResponse: Boolean): TOBDDoIPDiagnosticMessage;
+ATimeoutMs: Cardinal; AExpectsResponse: Boolean): TOBDDoIPDiagnosticMessage;
 begin
   WaitForAsync;
   Result := DoSendDiagnostic(AUserData, ATimeoutMs, AExpectsResponse);
 end;
 
 procedure TOBDDoIPClient.SendDiagnosticAsync(const AUserData: TBytes;
-  ATimeoutMs: Cardinal;
-  AExpectsResponse: Boolean);
+ATimeoutMs: Cardinal; AExpectsResponse: Boolean);
 var
   Self_: TOBDDoIPClient;
   DataCopy: TBytes;
@@ -910,7 +919,8 @@ begin
       finally
         FOwnedTask.Post(
           procedure
-          var Worker: TThread;
+          var
+            Worker: TThread;
           begin
             Self_.FAsyncLock.Enter;
             try
@@ -940,7 +950,8 @@ begin
   if not IsConnected then
     raise EOBDNotConnected.Create('DoIP client not connected');
   Effective := ATimeoutMs;
-  if Effective = 0 then Effective := FDefaultTimeoutMs;
+  if Effective = 0 then
+    Effective := FDefaultTimeoutMs;
 
   FOpLock.Enter;
   try
@@ -960,22 +971,36 @@ var
   Eff: Cardinal;
 begin
   GuardSingleAsync;
-  Self_ := Self; Eff := ATimeoutMs;
+  Self_ := Self;
+  Eff := ATimeoutMs;
   FAsyncThread := TThread.CreateAnonymousThread(
     procedure
     begin
       try
-        try Self_.AliveCheck(Eff);
-        except on E: Exception do Self_.FireError(oeIO, E.Message); end;
+        try
+          Self_.AliveCheck(Eff);
+        except
+          on E: Exception do
+            Self_.FireError(oeIO, E.Message);
+        end;
       finally
         FOwnedTask.Post(
           procedure
-          var W: TThread;
+          var
+            W: TThread;
           begin
             Self_.FAsyncLock.Enter;
-            try W := Self_.FAsyncThread; Self_.FAsyncThread := nil;
-            finally Self_.FAsyncLock.Leave; end;
-            if W <> nil then begin W.WaitFor; W.Free; end;
+            try
+              W := Self_.FAsyncThread;
+              Self_.FAsyncThread := nil;
+            finally
+              Self_.FAsyncLock.Leave;
+            end;
+            if W <> nil then
+            begin
+              W.WaitFor;
+              W.Free;
+            end;
           end);
       end;
     end);
@@ -983,15 +1008,16 @@ begin
   FAsyncThread.Start;
 end;
 
-function TOBDDoIPClient.RequestEntityStatus(
-  ATimeoutMs: Cardinal): TOBDDoIPEntityStatusResponse;
+function TOBDDoIPClient.RequestEntityStatus(ATimeoutMs: Cardinal)
+  : TOBDDoIPEntityStatusResponse;
 var
   Effective: Cardinal;
 begin
   if not IsConnected then
     raise EOBDNotConnected.Create('DoIP client not connected');
   Effective := ATimeoutMs;
-  if Effective = 0 then Effective := FDefaultTimeoutMs;
+  if Effective = 0 then
+    Effective := FDefaultTimeoutMs;
   FOpLock.Enter;
   try
     FPendingEntity.ResetEvent;
@@ -1006,25 +1032,40 @@ end;
 
 procedure TOBDDoIPClient.RequestEntityStatusAsync(ATimeoutMs: Cardinal);
 var
-  Self_: TOBDDoIPClient; Eff: Cardinal;
+  Self_: TOBDDoIPClient;
+  Eff: Cardinal;
 begin
   GuardSingleAsync;
-  Self_ := Self; Eff := ATimeoutMs;
+  Self_ := Self;
+  Eff := ATimeoutMs;
   FAsyncThread := TThread.CreateAnonymousThread(
     procedure
     begin
       try
-        try Self_.RequestEntityStatus(Eff);
-        except on E: Exception do Self_.FireError(oeIO, E.Message); end;
+        try
+          Self_.RequestEntityStatus(Eff);
+        except
+          on E: Exception do
+            Self_.FireError(oeIO, E.Message);
+        end;
       finally
         FOwnedTask.Post(
           procedure
-          var W: TThread;
+          var
+            W: TThread;
           begin
             Self_.FAsyncLock.Enter;
-            try W := Self_.FAsyncThread; Self_.FAsyncThread := nil;
-            finally Self_.FAsyncLock.Leave; end;
-            if W <> nil then begin W.WaitFor; W.Free; end;
+            try
+              W := Self_.FAsyncThread;
+              Self_.FAsyncThread := nil;
+            finally
+              Self_.FAsyncLock.Leave;
+            end;
+            if W <> nil then
+            begin
+              W.WaitFor;
+              W.Free;
+            end;
           end);
       end;
     end);
@@ -1032,15 +1073,16 @@ begin
   FAsyncThread.Start;
 end;
 
-function TOBDDoIPClient.RequestPowerMode(
-  ATimeoutMs: Cardinal): TOBDDoIPPowerModeResponse;
+function TOBDDoIPClient.RequestPowerMode(ATimeoutMs: Cardinal)
+  : TOBDDoIPPowerModeResponse;
 var
   Effective: Cardinal;
 begin
   if not IsConnected then
     raise EOBDNotConnected.Create('DoIP client not connected');
   Effective := ATimeoutMs;
-  if Effective = 0 then Effective := FDefaultTimeoutMs;
+  if Effective = 0 then
+    Effective := FDefaultTimeoutMs;
   FOpLock.Enter;
   try
     FPendingPower.ResetEvent;
@@ -1055,25 +1097,40 @@ end;
 
 procedure TOBDDoIPClient.RequestPowerModeAsync(ATimeoutMs: Cardinal);
 var
-  Self_: TOBDDoIPClient; Eff: Cardinal;
+  Self_: TOBDDoIPClient;
+  Eff: Cardinal;
 begin
   GuardSingleAsync;
-  Self_ := Self; Eff := ATimeoutMs;
+  Self_ := Self;
+  Eff := ATimeoutMs;
   FAsyncThread := TThread.CreateAnonymousThread(
     procedure
     begin
       try
-        try Self_.RequestPowerMode(Eff);
-        except on E: Exception do Self_.FireError(oeIO, E.Message); end;
+        try
+          Self_.RequestPowerMode(Eff);
+        except
+          on E: Exception do
+            Self_.FireError(oeIO, E.Message);
+        end;
       finally
         FOwnedTask.Post(
           procedure
-          var W: TThread;
+          var
+            W: TThread;
           begin
             Self_.FAsyncLock.Enter;
-            try W := Self_.FAsyncThread; Self_.FAsyncThread := nil;
-            finally Self_.FAsyncLock.Leave; end;
-            if W <> nil then begin W.WaitFor; W.Free; end;
+            try
+              W := Self_.FAsyncThread;
+              Self_.FAsyncThread := nil;
+            finally
+              Self_.FAsyncLock.Leave;
+            end;
+            if W <> nil then
+            begin
+              W.WaitFor;
+              W.Free;
+            end;
           end);
       end;
     end);
@@ -1081,15 +1138,16 @@ begin
   FAsyncThread.Start;
 end;
 
-function TOBDDoIPClient.RequestVehicleID(
-  ATimeoutMs: Cardinal): TOBDDoIPVehicleAnnouncement;
+function TOBDDoIPClient.RequestVehicleID(ATimeoutMs: Cardinal)
+  : TOBDDoIPVehicleAnnouncement;
 var
   Effective: Cardinal;
 begin
   if not IsConnected then
     raise EOBDNotConnected.Create('DoIP client not connected');
   Effective := ATimeoutMs;
-  if Effective = 0 then Effective := FDefaultTimeoutMs;
+  if Effective = 0 then
+    Effective := FDefaultTimeoutMs;
   FOpLock.Enter;
   try
     FPendingVehicle.ResetEvent;
@@ -1104,25 +1162,40 @@ end;
 
 procedure TOBDDoIPClient.RequestVehicleIDAsync(ATimeoutMs: Cardinal);
 var
-  Self_: TOBDDoIPClient; Eff: Cardinal;
+  Self_: TOBDDoIPClient;
+  Eff: Cardinal;
 begin
   GuardSingleAsync;
-  Self_ := Self; Eff := ATimeoutMs;
+  Self_ := Self;
+  Eff := ATimeoutMs;
   FAsyncThread := TThread.CreateAnonymousThread(
     procedure
     begin
       try
-        try Self_.RequestVehicleID(Eff);
-        except on E: Exception do Self_.FireError(oeIO, E.Message); end;
+        try
+          Self_.RequestVehicleID(Eff);
+        except
+          on E: Exception do
+            Self_.FireError(oeIO, E.Message);
+        end;
       finally
         FOwnedTask.Post(
           procedure
-          var W: TThread;
+          var
+            W: TThread;
           begin
             Self_.FAsyncLock.Enter;
-            try W := Self_.FAsyncThread; Self_.FAsyncThread := nil;
-            finally Self_.FAsyncLock.Leave; end;
-            if W <> nil then begin W.WaitFor; W.Free; end;
+            try
+              W := Self_.FAsyncThread;
+              Self_.FAsyncThread := nil;
+            finally
+              Self_.FAsyncLock.Leave;
+            end;
+            if W <> nil then
+            begin
+              W.WaitFor;
+              W.Free;
+            end;
           end);
       end;
     end);
@@ -1138,91 +1211,124 @@ end;
 { ---- event fan-out (main thread) -------------------------------------------- }
 
 procedure TOBDDoIPClient.FireStatus;
-var Self_: TOBDDoIPClient;
+var
+  Self_: TOBDDoIPClient;
 begin
-  if not Assigned(FOnStatus) then Exit;
+  if not Assigned(FOnStatus) then
+    Exit;
   Self_ := Self;
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnStatus(Self_)
   else
-    FOwnedTask.Post( procedure begin
-      if Assigned(Self_.FOnStatus) then Self_.FOnStatus(Self_);
-    end);
+    FOwnedTask.Post(
+      procedure
+      begin
+        if Assigned(Self_.FOnStatus) then
+          Self_.FOnStatus(Self_);
+      end);
 end;
 
-procedure TOBDDoIPClient.FireRouting(
-  const AResponse: TOBDDoIPRoutingActivationResponse);
+procedure TOBDDoIPClient.FireRouting(const AResponse
+  : TOBDDoIPRoutingActivationResponse);
 var
   Self_: TOBDDoIPClient;
   Snap: TOBDDoIPRoutingActivationResponse;
 begin
-  if not Assigned(FOnRoutingActivated) then Exit;
-  Self_ := Self; Snap := AResponse;
+  if not Assigned(FOnRoutingActivated) then
+    Exit;
+  Self_ := Self;
+  Snap := AResponse;
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnRoutingActivated(Self_, Snap)
   else
-    FOwnedTask.Post( procedure begin
-      if Assigned(Self_.FOnRoutingActivated) then
-        Self_.FOnRoutingActivated(Self_, Snap);
-    end);
+    FOwnedTask.Post(
+      procedure
+      begin
+        if Assigned(Self_.FOnRoutingActivated) then
+          Self_.FOnRoutingActivated(Self_, Snap);
+      end);
 end;
 
-procedure TOBDDoIPClient.FireVehicle(
-  const AAnnouncement: TOBDDoIPVehicleAnnouncement);
-var Self_: TOBDDoIPClient; Snap: TOBDDoIPVehicleAnnouncement;
+procedure TOBDDoIPClient.FireVehicle(const AAnnouncement
+  : TOBDDoIPVehicleAnnouncement);
+var
+  Self_: TOBDDoIPClient;
+  Snap: TOBDDoIPVehicleAnnouncement;
 begin
-  if not Assigned(FOnVehicleAnnouncement) then Exit;
-  Self_ := Self; Snap := AAnnouncement;
+  if not Assigned(FOnVehicleAnnouncement) then
+    Exit;
+  Self_ := Self;
+  Snap := AAnnouncement;
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnVehicleAnnouncement(Self_, Snap)
   else
-    FOwnedTask.Post( procedure begin
-      if Assigned(Self_.FOnVehicleAnnouncement) then
-        Self_.FOnVehicleAnnouncement(Self_, Snap);
-    end);
+    FOwnedTask.Post(
+      procedure
+      begin
+        if Assigned(Self_.FOnVehicleAnnouncement) then
+          Self_.FOnVehicleAnnouncement(Self_, Snap);
+      end);
 end;
 
-procedure TOBDDoIPClient.FireDiagMessage(
-  const AMessage: TOBDDoIPDiagnosticMessage);
-var Self_: TOBDDoIPClient; Snap: TOBDDoIPDiagnosticMessage;
+procedure TOBDDoIPClient.FireDiagMessage(const AMessage
+  : TOBDDoIPDiagnosticMessage);
+var
+  Self_: TOBDDoIPClient;
+  Snap: TOBDDoIPDiagnosticMessage;
 begin
-  if not Assigned(FOnDiagnosticMessage) then Exit;
-  Self_ := Self; Snap := AMessage;
+  if not Assigned(FOnDiagnosticMessage) then
+    Exit;
+  Self_ := Self;
+  Snap := AMessage;
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnDiagnosticMessage(Self_, Snap)
   else
-    FOwnedTask.Post( procedure begin
-      if Assigned(Self_.FOnDiagnosticMessage) then
-        Self_.FOnDiagnosticMessage(Self_, Snap);
-    end);
+    FOwnedTask.Post(
+      procedure
+      begin
+        if Assigned(Self_.FOnDiagnosticMessage) then
+          Self_.FOnDiagnosticMessage(Self_, Snap);
+      end);
 end;
 
 procedure TOBDDoIPClient.FireDiagPosAck(const AAck: TOBDDoIPDiagnosticAck);
-var Self_: TOBDDoIPClient; Snap: TOBDDoIPDiagnosticAck;
+var
+  Self_: TOBDDoIPClient;
+  Snap: TOBDDoIPDiagnosticAck;
 begin
-  if not Assigned(FOnDiagnosticPosAck) then Exit;
-  Self_ := Self; Snap := AAck;
+  if not Assigned(FOnDiagnosticPosAck) then
+    Exit;
+  Self_ := Self;
+  Snap := AAck;
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnDiagnosticPosAck(Self_, Snap)
   else
-    FOwnedTask.Post( procedure begin
-      if Assigned(Self_.FOnDiagnosticPosAck) then
-        Self_.FOnDiagnosticPosAck(Self_, Snap);
-    end);
+    FOwnedTask.Post(
+      procedure
+      begin
+        if Assigned(Self_.FOnDiagnosticPosAck) then
+          Self_.FOnDiagnosticPosAck(Self_, Snap);
+      end);
 end;
 
 procedure TOBDDoIPClient.FireDiagNegAck(const AAck: TOBDDoIPDiagnosticAck);
-var Self_: TOBDDoIPClient; Snap: TOBDDoIPDiagnosticAck;
+var
+  Self_: TOBDDoIPClient;
+  Snap: TOBDDoIPDiagnosticAck;
 begin
-  if not Assigned(FOnDiagnosticNegAck) then Exit;
-  Self_ := Self; Snap := AAck;
+  if not Assigned(FOnDiagnosticNegAck) then
+    Exit;
+  Self_ := Self;
+  Snap := AAck;
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnDiagnosticNegAck(Self_, Snap)
   else
-    FOwnedTask.Post( procedure begin
-      if Assigned(Self_.FOnDiagnosticNegAck) then
-        Self_.FOnDiagnosticNegAck(Self_, Snap);
-    end);
+    FOwnedTask.Post(
+      procedure
+      begin
+        if Assigned(Self_.FOnDiagnosticNegAck) then
+          Self_.FOnDiagnosticNegAck(Self_, Snap);
+      end);
 end;
 
 procedure TOBDDoIPClient.FireGenericNAck(AReason: Byte);
@@ -1231,35 +1337,45 @@ var
   R: Byte;
   Txt: string;
 begin
-  if not Assigned(FOnGenericNAck) then Exit;
-  Self_ := Self; R := AReason; Txt := GenericNAckText(AReason);
+  if not Assigned(FOnGenericNAck) then
+    Exit;
+  Self_ := Self;
+  R := AReason;
+  Txt := GenericNAckText(AReason);
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnGenericNAck(Self_, R, Txt)
   else
-    FOwnedTask.Post( procedure begin
-      if Assigned(Self_.FOnGenericNAck) then
-        Self_.FOnGenericNAck(Self_, R, Txt);
-    end);
+    FOwnedTask.Post(
+      procedure
+      begin
+        if Assigned(Self_.FOnGenericNAck) then
+          Self_.FOnGenericNAck(Self_, R, Txt);
+      end);
 end;
 
 procedure TOBDDoIPClient.FireError(ACode: TOBDErrorCode;
-  const AMessage: string);
+const AMessage: string);
 var
   Self_: TOBDDoIPClient;
   Code: TOBDErrorCode;
   Msg: string;
   Handled: Boolean;
 begin
-  if not Assigned(FOnError) then Exit;
-  Self_ := Self; Code := ACode; Msg := AMessage;
+  if not Assigned(FOnError) then
+    Exit;
+  Self_ := Self;
+  Code := ACode;
+  Msg := AMessage;
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
     Handled := False;
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    FOwnedTask.Post( procedure
-      var Handled: Boolean;
+    FOwnedTask.Post(
+      procedure
+      var
+        Handled: Boolean;
       begin
         Handled := False;
         if Assigned(Self_.FOnError) then
@@ -1268,20 +1384,24 @@ begin
 end;
 
 procedure TOBDDoIPClient.FireProgress(AIndex, ACount: Cardinal;
-  const AName, ADetail: string);
+const AName, ADetail: string);
 var
   Self_: TOBDDoIPClient;
   Step: TOBDProgressStep;
 begin
-  if not Assigned(FOnProgress) then Exit;
+  if not Assigned(FOnProgress) then
+    Exit;
   Self_ := Self;
   Step := TOBDProgressStep.MakeStep(AIndex, ACount, AName, ADetail);
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnProgress(Self_, Step)
   else
-    FOwnedTask.Post( procedure begin
-      if Assigned(Self_.FOnProgress) then Self_.FOnProgress(Self_, Step);
-    end);
+    FOwnedTask.Post(
+      procedure
+      begin
+        if Assigned(Self_.FOnProgress) then
+          Self_.FOnProgress(Self_, Step);
+      end);
 end;
 
 { ---- text helpers ----------------------------------------------------------- }
@@ -1289,11 +1409,16 @@ end;
 function TOBDDoIPClient.GenericNAckText(AReason: Byte): string;
 begin
   case AReason of
-    DOIP_NACK_IncorrectPattern:    Result := 'Incorrect pattern';
-    DOIP_NACK_UnknownPayloadType:  Result := 'Unknown payload type';
-    DOIP_NACK_MessageTooLarge:     Result := 'Message too large';
-    DOIP_NACK_OutOfMemory:         Result := 'Out of memory';
-    DOIP_NACK_InvalidPayloadLen:   Result := 'Invalid payload length';
+    DOIP_NACK_IncorrectPattern:
+      Result := 'Incorrect pattern';
+    DOIP_NACK_UnknownPayloadType:
+      Result := 'Unknown payload type';
+    DOIP_NACK_MessageTooLarge:
+      Result := 'Message too large';
+    DOIP_NACK_OutOfMemory:
+      Result := 'Out of memory';
+    DOIP_NACK_InvalidPayloadLen:
+      Result := 'Invalid payload length';
   else
     Result := Format('Reason 0x%2.2X', [AReason]);
   end;
@@ -1302,16 +1427,26 @@ end;
 function TOBDDoIPClient.RoutingResponseText(ACode: Byte): string;
 begin
   case ACode of
-    DOIP_RA_RESP_DeniedUnknownSA:           Result := 'Unknown source address';
-    DOIP_RA_RESP_DeniedAllSocketsRegistered:Result := 'All sockets registered';
-    DOIP_RA_RESP_DeniedSAMismatch:          Result := 'Source-address mismatch';
-    DOIP_RA_RESP_DeniedSAAlreadyActive:     Result := 'Source address already active';
-    DOIP_RA_RESP_DeniedAuthMissing:         Result := 'Authentication missing';
-    DOIP_RA_RESP_DeniedConfirmationRejected:Result := 'Confirmation rejected';
-    DOIP_RA_RESP_DeniedUnsupportedType:     Result := 'Unsupported activation type';
-    DOIP_RA_RESP_DeniedTLSRequired:         Result := 'TLS required';
-    DOIP_RA_RESP_Activated:                 Result := 'Activated';
-    DOIP_RA_RESP_PendingConfirmation:       Result := 'Pending confirmation';
+    DOIP_RA_RESP_DeniedUnknownSA:
+      Result := 'Unknown source address';
+    DOIP_RA_RESP_DeniedAllSocketsRegistered:
+      Result := 'All sockets registered';
+    DOIP_RA_RESP_DeniedSAMismatch:
+      Result := 'Source-address mismatch';
+    DOIP_RA_RESP_DeniedSAAlreadyActive:
+      Result := 'Source address already active';
+    DOIP_RA_RESP_DeniedAuthMissing:
+      Result := 'Authentication missing';
+    DOIP_RA_RESP_DeniedConfirmationRejected:
+      Result := 'Confirmation rejected';
+    DOIP_RA_RESP_DeniedUnsupportedType:
+      Result := 'Unsupported activation type';
+    DOIP_RA_RESP_DeniedTLSRequired:
+      Result := 'TLS required';
+    DOIP_RA_RESP_Activated:
+      Result := 'Activated';
+    DOIP_RA_RESP_PendingConfirmation:
+      Result := 'Pending confirmation';
   else
     Result := Format('Code 0x%2.2X', [ACode]);
   end;

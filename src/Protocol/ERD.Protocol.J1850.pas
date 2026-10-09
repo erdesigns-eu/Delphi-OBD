@@ -1,38 +1,38 @@
-//------------------------------------------------------------------------------
-//  ERD.Protocol.J1850
+﻿// ------------------------------------------------------------------------------
+// ERD.Protocol.J1850
 //
-//  SAE J1850 PWM (Ford) / VPW (GM) foundation. Both flavours share
-//  the same application-layer frame shape: a 3-byte header
-//  (priority/type + target + source) + service + data + 1-byte CRC.
-//  The wire-level differences (PWM vs VPW symbol encoding) are the
-//  adapter's responsibility.
+// SAE J1850 PWM (Ford) / VPW (GM) foundation. Both flavours share
+// the same application-layer frame shape: a 3-byte header
+// (priority/type + target + source) + service + data + 1-byte CRC.
+// The wire-level differences (PWM vs VPW symbol encoding) are the
+// adapter's responsibility.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - SAE J1850-2015 (Class B Data Communications Network Interface)
+// References  :
+// - SAE J1850-2015 (Class B Data Communications Network Interface)
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation: header build + CRC8 +
-//                     encode helper.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation: header build + CRC8 +
+// encode helper.
+// ------------------------------------------------------------------------------
 
 unit ERD.Protocol.J1850;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   ERD.Types,
   ERD.Protocol.Types;
 
@@ -56,7 +56,7 @@ type
     class function CRC8(const ABytes: TBytes): Byte; static;
 
     /// <summary>
-    ///   Encodes a request into a full J1850 frame as a hex string.
+    /// Encodes a request into a full J1850 frame as a hex string.
     /// </summary>
     /// <param name="ARequest">Request.</param>
     /// <returns>Hex string suitable for an ELM327 J1850-mode write.</returns>

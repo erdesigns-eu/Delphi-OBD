@@ -1,30 +1,30 @@
-//------------------------------------------------------------------------------
-//  ERD.Service.FreezeFrame
+﻿// ------------------------------------------------------------------------------
+// ERD.Service.FreezeFrame
 //
-//  TOBDFreezeFrame — non-visual component that reads OBD-II Mode 02
-//  freeze-frame data. Mode 02 mirrors Mode 01 but every request
-//  carries a frame index byte after the PID. Index 0 is the most
-//  recent stored snapshot.
+// TOBDFreezeFrame — non-visual component that reads OBD-II Mode 02
+// freeze-frame data. Mode 02 mirrors Mode 01 but every request
+// carries a frame index byte after the PID. Index 0 is the most
+// recent stored snapshot.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - SAE J1979 Mode 02 (Freeze frame data)
+// References  :
+// - SAE J1979 Mode 02 (Freeze frame data)
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Service.FreezeFrame;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -32,10 +32,10 @@ interface
 uses
   ERD.Async.Task,
   ERD.Connection,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
-  {$IFNDEF FPC}Data.Bind.Components, System.Bindings.Helper,{$ENDIF}
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFNDEF FPC}Data.Bind.Components, System.Bindings.Helper, {$ENDIF}
   ERD.Types,
   ERD.Protocol.Types,
   ERD.Protocol,
@@ -47,8 +47,8 @@ const
 
 type
   /// <summary>Fires when a freeze-frame PID read completes.</summary>
-  TOBDFreezeFrameEvent = procedure(Sender: TObject;
-    AFrameIndex: Byte; const AValue: TOBDPIDValue) of object;
+  TOBDFreezeFrameEvent = procedure(Sender: TObject; AFrameIndex: Byte;
+    const AValue: TOBDPIDValue) of object;
 
   /// <summary>Mode 02 freeze-frame service component.</summary>
   TOBDFreezeFrame = class(TComponent)
@@ -76,8 +76,7 @@ type
     /// <c>AFrameIndex</c>.</summary>
     /// <param name="APID">Mode 01 PID byte.</param>
     /// <param name="AFrameIndex">Frame index (0 = most recent).</param>
-    function Read(APID: Byte;
-      AFrameIndex: Byte = 0): TOBDPIDValue;
+    function Read(APID: Byte; AFrameIndex: Byte = 0): TOBDPIDValue;
     /// <summary>Non-blocking <see cref="Read"/>.</summary>
     procedure ReadAsync(APID: Byte; AFrameIndex: Byte = 0);
   published
@@ -89,7 +88,7 @@ type
 implementation
 
 uses
-  {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF};
+{$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF};
 
 constructor TOBDFreezeFrame.Create(AOwner: TComponent);
 begin
@@ -100,7 +99,8 @@ end;
 
 destructor TOBDFreezeFrame.Destroy;
 begin
-  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  if FOwnedTask <> nil then
+    FOwnedTask.Cancel;
   FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
@@ -123,7 +123,8 @@ end;
 procedure TOBDFreezeFrame.ReleaseAsync;
 begin
   FAsyncLock.Enter;
-  try FAsyncInFlight := False;
+  try
+    FAsyncInFlight := False;
   finally
     FAsyncLock.Leave;
   end;
@@ -131,11 +132,15 @@ end;
 
 procedure TOBDFreezeFrame.SetProtocol(AValue: TOBDProtocol);
 begin
-  if FProtocol = AValue then Exit;
-  if FOwnedTask <> nil then FOwnedTask.Quiesce;
-  if FProtocol <> nil then FProtocol.RemoveFreeNotification(Self);
+  if FProtocol = AValue then
+    Exit;
+  if FOwnedTask <> nil then
+    FOwnedTask.Quiesce;
+  if FProtocol <> nil then
+    FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
-  if FProtocol <> nil then FProtocol.FreeNotification(Self);
+  if FProtocol <> nil then
+    FProtocol.FreeNotification(Self);
 end;
 
 procedure TOBDFreezeFrame.Notification(AComponent: TComponent;
@@ -144,7 +149,8 @@ begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
   begin
-    if FOwnedTask <> nil then FOwnedTask.Quiesce;
+    if FOwnedTask <> nil then
+      FOwnedTask.Quiesce;
     FProtocol := nil;
   end;
 end;
@@ -156,8 +162,7 @@ end;
 // engineering value can copy the Raw bytes into a fresh
 // TOBDPIDValue and feed them through their preferred decoder.
 
-function TOBDFreezeFrame.DoRead(APID: Byte;
-  AFrameIndex: Byte): TOBDPIDValue;
+function TOBDFreezeFrame.DoRead(APID: Byte; AFrameIndex: Byte): TOBDPIDValue;
 var
   Resp: TOBDResponse;
   Raw: TBytes;
@@ -168,19 +173,20 @@ begin
   Resp := FProtocol.Request(OBD_MODE_FREEZE_FRAME,
     TBytes.Create(APID, AFrameIndex));
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt(
-      'Mode 02 PID 0x%2.2X (frame %d) negative: %s',
+    raise EOBDProtocolErr.CreateFmt
+      ('Mode 02 PID 0x%2.2X (frame %d) negative: %s',
       [APID, AFrameIndex, Resp.NRCText]);
 
   // Response Data: [PID echo, frame index echo, value bytes…].
   N := Length(Resp.Data);
-  Result := Default(TOBDPIDValue);
+  Result := Default (TOBDPIDValue);
   Result.PID := APID;
   Result.Value := NaN;
   if (N >= 2) and (Resp.Data[0] = APID) and (Resp.Data[1] = AFrameIndex) then
   begin
     SetLength(Raw, N - 2);
-    if N > 2 then Move(Resp.Data[2], Raw[0], N - 2);
+    if N > 2 then
+      Move(Resp.Data[2], Raw[0], N - 2);
   end
   else
     Raw := Copy(Resp.Data, 0, N);
@@ -200,7 +206,9 @@ var
 begin
   GuardSingleAsync;
   try
-    Self_ := Self; PID := APID; Frame := AFrameIndex;
+    Self_ := Self;
+    PID := APID;
+    Frame := AFrameIndex;
     FOwnedTask.Start(
       procedure
       var
@@ -225,47 +233,60 @@ begin
 end;
 
 procedure TOBDFreezeFrame.FireValue(AFrameIndex: Byte;
-  const AValue: TOBDPIDValue);
+const AValue: TOBDPIDValue);
 var
   Self_: TOBDFreezeFrame;
   Frame: Byte;
   Snap: TOBDPIDValue;
 begin
-  Self_ := Self; Frame := AFrameIndex; Snap := AValue;
+  Self_ := Self;
+  Frame := AFrameIndex;
+  Snap := AValue;
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
     try
-      {$IFNDEF FPC}TBindings.Notify(Self_, '');{$ENDIF}
+{$IFNDEF FPC}TBindings.Notify(Self_, ''); {$ENDIF}
     except
     end;
-    if Assigned(FOnValue) then FOnValue(Self_, Frame, Snap);
+    if Assigned(FOnValue) then
+      FOnValue(Self_, Frame, Snap);
   end
   else
-    FOwnedTask.Post( procedure begin
-      try
-        {$IFNDEF FPC}TBindings.Notify(Self_, '');{$ENDIF}
-      except
-      end;
-      if Assigned(Self_.FOnValue) then Self_.FOnValue(Self_, Frame, Snap);
-    end);
+    FOwnedTask.Post(
+      procedure
+      begin
+        try
+{$IFNDEF FPC}TBindings.Notify(Self_, ''); {$ENDIF}
+        except
+        end;
+        if Assigned(Self_.FOnValue) then
+          Self_.FOnValue(Self_, Frame, Snap);
+      end);
 end;
 
 procedure TOBDFreezeFrame.FireError(ACode: TOBDErrorCode;
-  const AMessage: string);
+const AMessage: string);
 var
-  Self_: TOBDFreezeFrame; Code: TOBDErrorCode; Msg: string;
+  Self_: TOBDFreezeFrame;
+  Code: TOBDErrorCode;
+  Msg: string;
   Handled: Boolean;
 begin
-  if not Assigned(FOnError) then Exit;
-  Self_ := Self; Code := ACode; Msg := AMessage;
+  if not Assigned(FOnError) then
+    Exit;
+  Self_ := Self;
+  Code := ACode;
+  Msg := AMessage;
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
     Handled := False;
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    FOwnedTask.Post( procedure
-      var Handled: Boolean;
+    FOwnedTask.Post(
+      procedure
+      var
+        Handled: Boolean;
       begin
         Handled := False;
         if Assigned(Self_.FOnError) then

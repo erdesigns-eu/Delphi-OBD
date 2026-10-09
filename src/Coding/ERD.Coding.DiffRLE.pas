@@ -1,44 +1,44 @@
-//------------------------------------------------------------------------------
-//  ERD.Coding.DiffRLE
+﻿// ------------------------------------------------------------------------------
+// ERD.Coding.DiffRLE
 //
-//  TOBDCodingDiffRLE — run-length-encoded diff for firmware-scale
-//  buffers. The byte-level <see cref="TOBDCodingDiff"/> emits one
-//  record per changed byte, which is fine for sub-100-byte coding
-//  payloads but explodes for 64KB+ flash images.
+// TOBDCodingDiffRLE — run-length-encoded diff for firmware-scale
+// buffers. The byte-level <see cref="TOBDCodingDiff"/> emits one
+// record per changed byte, which is fine for sub-100-byte coding
+// payloads but explodes for 64KB+ flash images.
 //
-//  This unit emits one record per *contiguous run* of changed
-//  bytes:
+// This unit emits one record per *contiguous run* of changed
+// bytes:
 //
-//    Offset, Before-bytes, After-bytes
+// Offset, Before-bytes, After-bytes
 //
-//  Apply / Revert mirror the byte-level helpers; the host typically
-//  uses RLE diffs as the input to a flasher's chunked transfer
-//  loop (one TransferData chunk per run).
+// Apply / Revert mirror the byte-level helpers; the host typically
+// uses RLE diffs as the input to a flasher's chunked transfer
+// loop (one TransferData chunk per run).
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-09  ERD  Follow-up.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Follow-up.
+// ------------------------------------------------------------------------------
 
 unit ERD.Coding.DiffRLE;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.Types;
 
 type
@@ -68,8 +68,8 @@ type
     /// inside a run before splitting (default 0 = strict — every
     /// equal byte ends the run; raise to merge nearby runs into
     /// fewer, larger transfers).</summary>
-    class function Compute(const ABefore, AAfter: TBytes;
-      AGap: Integer = 0): TOBDCodingDiffRLEResult; static;
+    class function Compute(const ABefore, AAfter: TBytes; AGap: Integer = 0)
+      : TOBDCodingDiffRLEResult; static;
     /// <summary>Applies the diff forward.</summary>
     class function Apply(const ABefore: TBytes;
       const ADiff: TOBDCodingDiffRLEResult): TBytes; static;
@@ -79,7 +79,8 @@ type
       const ADiff: TOBDCodingDiffRLEResult): TBytes; static;
     /// <summary>Total bytes that need to be transferred when
     /// applying this diff (sum of run lengths).</summary>
-    class function TransferSize(const ADiff: TOBDCodingDiffRLEResult): Integer; static;
+    class function TransferSize(const ADiff: TOBDCodingDiffRLEResult)
+      : Integer; static;
   end;
 
 implementation
@@ -97,21 +98,22 @@ var
   var
     Len, K: Integer;
   begin
-    if not InRun then Exit;
+    if not InRun then
+      Exit;
     // Trim trailing matching tail when a gap was present.
     Len := AEndExclusive - RunStart;
     while Len > 0 do
     begin
       K := RunStart + Len - 1;
       if (K < Length(ABefore)) and (K < Length(AAfter)) and
-         (ABefore[K] = AAfter[K]) then
+        (ABefore[K] = AAfter[K]) then
         Dec(Len)
       else
         Break;
     end;
     if Len > 0 then
     begin
-      Run := Default(TOBDCodingRun);
+      Run := Default (TOBDCodingRun);
       Run.Offset := RunStart;
       SetLength(Run.Before, Len);
       SetLength(Run.After, Len);
@@ -132,14 +134,19 @@ var
   end;
 
 begin
-  Result := Default(TOBDCodingDiffRLEResult);
+  Result := Default (TOBDCodingDiffRLEResult);
   Result.OldLength := Length(ABefore);
   Result.NewLength := Length(AAfter);
-  if Result.OldLength <= Result.NewLength then MinLen := Result.OldLength
-  else MinLen := Result.NewLength;
-  if Result.OldLength >= Result.NewLength then MaxLen := Result.OldLength
-  else MaxLen := Result.NewLength;
-  if AGap < 0 then AGap := 0;
+  if Result.OldLength <= Result.NewLength then
+    MinLen := Result.OldLength
+  else
+    MinLen := Result.NewLength;
+  if Result.OldLength >= Result.NewLength then
+    MaxLen := Result.OldLength
+  else
+    MaxLen := Result.NewLength;
+  if AGap < 0 then
+    AGap := 0;
 
   Runs := TList<TOBDCodingRun>.Create;
   try
@@ -148,8 +155,14 @@ begin
     RunStart := 0;
     for I := 0 to MaxLen - 1 do
     begin
-      if I < Length(ABefore) then B := ABefore[I] else B := 0;
-      if I < Length(AAfter)  then A := AAfter[I]  else A := 0;
+      if I < Length(ABefore) then
+        B := ABefore[I]
+      else
+        B := 0;
+      if I < Length(AAfter) then
+        A := AAfter[I]
+      else
+        A := 0;
       if (I >= MinLen) or (B <> A) then
       begin
         if not InRun then
@@ -185,8 +198,8 @@ var
   Run: TOBDCodingRun;
 begin
   if Length(ABefore) <> ADiff.OldLength then
-    raise EOBDProtocol.CreateFmt(
-      'TOBDCodingDiffRLE.Apply: source length %d does not match diff.OldLength %d',
+    raise EOBDProtocol.CreateFmt
+      ('TOBDCodingDiffRLE.Apply: source length %d does not match diff.OldLength %d',
       [Length(ABefore), ADiff.OldLength]);
   SetLength(Result, ADiff.NewLength);
   // Copy the unchanged baseline.
@@ -203,13 +216,13 @@ begin
     RunLen := Length(Run.After);
     for J := 0 to RunLen - 1 do
     begin
-      if Run.Offset + J >= ADiff.NewLength then Break;
+      if Run.Offset + J >= ADiff.NewLength then
+        Break;
       // Optional sanity check: pre-image byte must match.
-      if (Run.Offset + J < ADiff.OldLength) and
-         (J < Length(Run.Before)) and
-         (ABefore[Run.Offset + J] <> Run.Before[J]) then
-        raise EOBDProtocol.CreateFmt(
-          'TOBDCodingDiffRLE.Apply: pre-image mismatch at 0x%x ' +
+      if (Run.Offset + J < ADiff.OldLength) and (J < Length(Run.Before)) and
+        (ABefore[Run.Offset + J] <> Run.Before[J]) then
+        raise EOBDProtocol.CreateFmt
+          ('TOBDCodingDiffRLE.Apply: pre-image mismatch at 0x%x ' +
           '(buffer=0x%2.2X, run=0x%2.2X)',
           [Run.Offset + J, ABefore[Run.Offset + J], Run.Before[J]]);
       Result[Run.Offset + J] := Run.After[J];
@@ -223,7 +236,7 @@ var
   Inverse: TOBDCodingDiffRLEResult;
   I: Integer;
 begin
-  Inverse := Default(TOBDCodingDiffRLEResult);
+  Inverse := Default (TOBDCodingDiffRLEResult);
   Inverse.OldLength := ADiff.NewLength;
   Inverse.NewLength := ADiff.OldLength;
   SetLength(Inverse.Runs, Length(ADiff.Runs));
@@ -231,13 +244,13 @@ begin
   begin
     Inverse.Runs[I].Offset := ADiff.Runs[I].Offset;
     Inverse.Runs[I].Before := ADiff.Runs[I].After;
-    Inverse.Runs[I].After  := ADiff.Runs[I].Before;
+    Inverse.Runs[I].After := ADiff.Runs[I].Before;
   end;
   Result := Apply(AAfter, Inverse);
 end;
 
-class function TOBDCodingDiffRLE.TransferSize(
-  const ADiff: TOBDCodingDiffRLEResult): Integer;
+class function TOBDCodingDiffRLE.TransferSize(const ADiff
+  : TOBDCodingDiffRLEResult): Integer;
 var
   I: Integer;
 begin

@@ -1,33 +1,33 @@
-//------------------------------------------------------------------------------
-//  ERD.Flash.OEM.Toyota
+﻿// ------------------------------------------------------------------------------
+// ERD.Flash.OEM.Toyota
 //
-//  TOBDFlashHandshakeToyota — Toyota / Lexus / Daihatsu bootloader
-//  handshake. Toyota Techstream sequence:
+// TOBDFlashHandshakeToyota — Toyota / Lexus / Daihatsu bootloader
+// handshake. Toyota Techstream sequence:
 //
-//    1. 10 02 — programming session
-//    2. 27 01 — Toyota security access
-//    3. 31 01 FF 00 — erase pre-flash routine
+// 1. 10 02 — programming session
+// 2. 27 01 — Toyota security access
+// 3. 31 01 FF 00 — erase pre-flash routine
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.Flash.OEM.Toyota;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   ERD.Types,
   ERD.Coding.SecurityAccess,
   ERD.Flash.OEM.Common;
@@ -47,8 +47,8 @@ type
   published
     property SecurityLevel: Byte read FSecurityLevel write FSecurityLevel
       default $01;
-    property EraseRoutineID: Word read FEraseRoutineID
-      write FEraseRoutineID default $FF00;
+    property EraseRoutineID: Word read FEraseRoutineID write FEraseRoutineID
+      default $FF00;
     property SeedToKey: TOBDSeedToKeyFunc read FSeedToKey write FSeedToKey;
   end;
 
@@ -69,9 +69,11 @@ end;
 procedure TOBDFlashHandshakeToyota.DoRun;
 begin
   if Security = nil then
-    raise EOBDConfig.Create('Toyota handshake: Security component not assigned');
+    raise EOBDConfig.Create
+      ('Toyota handshake: Security component not assigned');
   if Routines = nil then
-    raise EOBDConfig.Create('Toyota handshake: Routines component not assigned');
+    raise EOBDConfig.Create
+      ('Toyota handshake: Routines component not assigned');
   SwitchSession(UDS_SESSION_PROGRAMMING_OEM);
   Security.SeedToKey := FSeedToKey;
   Security.Unlock(FSecurityLevel);

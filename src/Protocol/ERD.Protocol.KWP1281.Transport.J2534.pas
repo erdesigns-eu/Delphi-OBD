@@ -1,43 +1,42 @@
-//------------------------------------------------------------------------------
-//  ERD.Protocol.KWP1281.Transport.J2534
+// ------------------------------------------------------------------------------
+// ERD.Protocol.KWP1281.Transport.J2534
 //
-//  J2534-based transports for KWP1281:
+// J2534-based transports for KWP1281:
 //
-//    TJ2534CANTransport       - implements ICANTransport over a
-//                               TJ2534Channel (jpCAN protocol). Plugs
-//                               under the TP2.0 / ISO-TP transports
-//                               so they can run on a J2534 device
-//                               instead of a custom CAN driver.
+// TJ2534CANTransport       - implements ICANTransport over a
+// TJ2534Channel (jpCAN protocol). Plugs
+// under the TP2.0 / ISO-TP transports
+// so they can run on a J2534 device
+// instead of a custom CAN driver.
 //
-//    TKWP1281J2534Transport   - implements IKWP1281Transport via a
-//                               TJ2534Channel opened on jpISO9141
-//                               (the closest J2534 protocol to raw
-//                               KWP1281 K-line traffic). 5-baud init
-//                               is delegated to the device via the
-//                               documented FAST_INIT / SLOW_INIT
-//                               IOCTLs (one of the few real-world
-//                               places the IOCTL gets used outside
-//                               of advanced scripting).
+// TKWP1281J2534Transport   - implements IKWP1281Transport via a
+// TJ2534Channel opened on jpISO9141
+// (the closest J2534 protocol to raw
+// KWP1281 K-line traffic). 5-baud init
+// is delegated to the device via the
+// documented FAST_INIT / SLOW_INIT
+// IOCTLs (one of the few real-world
+// places the IOCTL gets used outside
+// of advanced scripting).
 //
-//  Caveat: not all J2534 DLLs implement SLOW_INIT correctly for
-//  arbitrary addresses. The transport falls back to a raw
-//  byte-level send/receive if the IOCTL returns NOT_SUPPORTED.
+// Caveat: not all J2534 DLLs implement SLOW_INIT correctly for
+// arbitrary addresses. The transport falls back to a raw
+// byte-level send/receive if the IOCTL returns NOT_SUPPORTED.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT - see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT - see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.Protocol.KWP1281.Transport.J2534;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
 {$ENDIF}
-
+{$ENDIF}
 {$IFNDEF MSWINDOWS}
 {$MESSAGE FATAL 'ERD.Protocol.KWP1281.Transport.J2534 is Windows-only.'}
 {$ENDIF}
@@ -45,9 +44,9 @@ unit ERD.Protocol.KWP1281.Transport.J2534;
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.Protocol.Types,
   ERD.Protocol.CAN,
   ERD.Protocol.KWP1281,
@@ -60,17 +59,17 @@ type
     FOwnsChannel: Boolean;
     FOnFrame: TCANFrameEvent;
     FExtended: Boolean;
-    function  GetOnFrame: TCANFrameEvent;
+    function GetOnFrame: TCANFrameEvent;
     procedure SetOnFrame(const AValue: TCANFrameEvent);
   public
     constructor Wrap(AChannel: TJ2534Channel);
-    destructor  Destroy; override;
+    destructor Destroy; override;
     procedure SendFrame(const AFrame: TOBDFrame; ATimeoutMs: Integer);
-    function  ReceiveFrame(ATimeoutMs: Integer): TOBDFrame;
+    function ReceiveFrame(ATimeoutMs: Integer): TOBDFrame;
     procedure SetAcceptanceFilter(const AIds: TArray<Cardinal>;
       AExtended: Boolean = False);
     procedure DrainRx;
-    property  OnFrame: TCANFrameEvent read GetOnFrame write SetOnFrame;
+    property OnFrame: TCANFrameEvent read GetOnFrame write SetOnFrame;
   end;
 
   /// <summary>KWP1281 transport on a J2534 device using
@@ -82,28 +81,28 @@ type
   strict private
     FChannel: TJ2534Channel;
     FOwnsChannel: Boolean;
-    FRxBuf:   TQueue<Byte>;
+    FRxBuf: TQueue<Byte>;
     procedure RefillRx(ATimeoutMs: Integer);
   public
     constructor Wrap(AChannel: TJ2534Channel);
     destructor Destroy; override;
     procedure SendByte(AByte: Byte; ATimeoutMs: Integer);
-    function  ReceiveByte(ATimeoutMs: Integer): Byte;
-    procedure FiveBaudInit(AAddress: Byte;
-      out AKW1, AKW2: Byte; ATimeoutMs: Integer);
+    function ReceiveByte(ATimeoutMs: Integer): Byte;
+    procedure FiveBaudInit(AAddress: Byte; out AKW1, AKW2: Byte;
+      ATimeoutMs: Integer);
     procedure Hangup;
   end;
 
 const
   // J2534 IOCTL ids (subset)
   J2534_IOCTL_FIVE_BAUD_INIT = $05;
-  J2534_IOCTL_FAST_INIT      = $06;
+  J2534_IOCTL_FAST_INIT = $06;
   J2534_IOCTL_CLEAR_TX_BUFFER = $07;
   J2534_IOCTL_CLEAR_RX_BUFFER = $08;
 
 implementation
 
-{ TJ2534CANTransport ----------------------------------------------------------}
+{ TJ2534CANTransport ---------------------------------------------------------- }
 
 constructor TJ2534CANTransport.Wrap(AChannel: TJ2534Channel);
 begin
@@ -114,7 +113,8 @@ end;
 
 destructor TJ2534CANTransport.Destroy;
 begin
-  if FOwnsChannel then FChannel.Free;
+  if FOwnsChannel then
+    FChannel.Free;
   inherited;
 end;
 
@@ -156,16 +156,14 @@ var
   Buf: TBytes;
 begin
   if not FChannel.TryReadMsg(Buf, Cardinal(ATimeoutMs)) then
-    raise EOBDCANTimeout.CreateFmt(
-      'J2534 CAN: no frame within %d ms', [ATimeoutMs]);
+    raise EOBDCANTimeout.CreateFmt('J2534 CAN: no frame within %d ms',
+      [ATimeoutMs]);
   if Length(Buf) < 4 then
-    raise EOBDCANError.Create(
-      'J2534 CAN: truncated frame (need at least 4 bytes for ID)');
-  Result := Default(TOBDFrame);
-  Result.Id := (Cardinal(Buf[0]) shl 24) or
-               (Cardinal(Buf[1]) shl 16) or
-               (Cardinal(Buf[2]) shl 8)  or
-                Cardinal(Buf[3]);
+    raise EOBDCANError.Create
+      ('J2534 CAN: truncated frame (need at least 4 bytes for ID)');
+  Result := Default (TOBDFrame);
+  Result.Id := (Cardinal(Buf[0]) shl 24) or (Cardinal(Buf[1]) shl 16) or
+    (Cardinal(Buf[2]) shl 8) or Cardinal(Buf[3]);
   Result.IsExtendedId := FExtended;
   if Length(Buf) > 4 then
   begin
@@ -176,9 +174,10 @@ begin
     FOnFrame(Self, cdRx, Result);
 end;
 
-procedure TJ2534CANTransport.SetAcceptanceFilter(
-  const AIds: TArray<Cardinal>; AExtended: Boolean);
-var Id: Cardinal;
+procedure TJ2534CANTransport.SetAcceptanceFilter(const AIds: TArray<Cardinal>;
+  AExtended: Boolean);
+var
+  Id: Cardinal;
 begin
   FExtended := AExtended;
   for Id in AIds do
@@ -186,29 +185,33 @@ begin
 end;
 
 procedure TJ2534CANTransport.DrainRx;
-var Dummy: TBytes;
+var
+  Dummy: TBytes;
 begin
-  while FChannel.TryReadMsg(Dummy, 0) do ;
+  while FChannel.TryReadMsg(Dummy, 0) do;
 end;
 
-{ TKWP1281J2534Transport ------------------------------------------------------}
+{ TKWP1281J2534Transport ------------------------------------------------------ }
 
 constructor TKWP1281J2534Transport.Wrap(AChannel: TJ2534Channel);
 begin
   inherited Create;
   FChannel := AChannel;
-  FRxBuf   := TQueue<Byte>.Create;
+  FRxBuf := TQueue<Byte>.Create;
 end;
 
 destructor TKWP1281J2534Transport.Destroy;
 begin
   FRxBuf.Free;
-  if FOwnsChannel then FChannel.Free;
+  if FOwnsChannel then
+    FChannel.Free;
   inherited;
 end;
 
 procedure TKWP1281J2534Transport.RefillRx(ATimeoutMs: Integer);
-var Buf: TBytes; I: Integer;
+var
+  Buf: TBytes;
+  I: Integer;
 begin
   if not FChannel.TryReadMsg(Buf, Cardinal(ATimeoutMs)) then
     Exit;
@@ -216,8 +219,7 @@ begin
     FRxBuf.Enqueue(Buf[I]);
 end;
 
-procedure TKWP1281J2534Transport.SendByte(AByte: Byte;
-  ATimeoutMs: Integer);
+procedure TKWP1281J2534Transport.SendByte(AByte: Byte; ATimeoutMs: Integer);
 begin
   FChannel.WriteMsg(TBytes.Create(AByte), 0, Cardinal(ATimeoutMs));
 end;
@@ -227,33 +229,33 @@ begin
   if FRxBuf.Count = 0 then
     RefillRx(ATimeoutMs);
   if FRxBuf.Count = 0 then
-    raise EKWP1281Timeout.CreateFmt(
-      'TKWP1281J2534Transport: no byte within %d ms',
-      [ATimeoutMs]);
+    raise EKWP1281Timeout.CreateFmt
+      ('TKWP1281J2534Transport: no byte within %d ms', [ATimeoutMs]);
   Result := FRxBuf.Dequeue;
 end;
 
 procedure TKWP1281J2534Transport.FiveBaudInit(AAddress: Byte;
   out AKW1, AKW2: Byte; ATimeoutMs: Integer);
 var
-  InBuf:  array[0..0] of Cardinal;
-  OutBuf: array[0..2] of Cardinal;
+  InBuf: array [0 .. 0] of Cardinal;
+  OutBuf: array [0 .. 2] of Cardinal;
 begin
   InBuf[0] := AAddress;
   FillChar(OutBuf, SizeOf(OutBuf), 0);
   try
-    FChannel.Driver.Ioctl(FChannel.ChannelId,
-      J2534_IOCTL_FIVE_BAUD_INIT, @InBuf, @OutBuf);
+    FChannel.Driver.Ioctl(FChannel.ChannelId, J2534_IOCTL_FIVE_BAUD_INIT,
+      @InBuf, @OutBuf);
     AKW1 := Byte(OutBuf[1]);
     AKW2 := Byte(OutBuf[2]);
   except
     on E: EOBDJ2534Error do
       if E.ErrorCode = J2534_ERR_NOT_SUPPORTED then
-        raise EKWP1281Error.Create(
-          'TKWP1281J2534Transport: this DLL does not support ' +
+        raise EKWP1281Error.Create
+          ('TKWP1281J2534Transport: this DLL does not support ' +
           'IOCTL FIVE_BAUD_INIT - host must script the init ' +
           'sequence manually')
-      else raise;
+      else
+        raise;
   end;
 end;
 

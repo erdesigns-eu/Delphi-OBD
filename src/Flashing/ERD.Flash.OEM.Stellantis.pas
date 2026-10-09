@@ -1,38 +1,38 @@
-//------------------------------------------------------------------------------
-//  ERD.Flash.OEM.Stellantis
+﻿// ------------------------------------------------------------------------------
+// ERD.Flash.OEM.Stellantis
 //
-//  TOBDFlashHandshakeStellantis — FCA / PSA / DS bootloader
-//  handshake. Stellantis ECUs sit behind a Secure Gateway on
-//  modern vehicles; the SGW unlock runs through
-//  ERD.OEM.ComponentProtection.Stellantis BEFORE this handshake.
+// TOBDFlashHandshakeStellantis — FCA / PSA / DS bootloader
+// handshake. Stellantis ECUs sit behind a Secure Gateway on
+// modern vehicles; the SGW unlock runs through
+// ERD.OEM.ComponentProtection.Stellantis BEFORE this handshake.
 //
-//  Sequence:
+// Sequence:
 //
-//    1. SGW unlock (host wires this separately)
-//    2. 10 02 — programming session
-//    3. 27 01 — security access
-//    4. 31 01 FF 00 — erase routine
+// 1. SGW unlock (host wires this separately)
+// 2. 10 02 — programming session
+// 3. 27 01 — security access
+// 4. 31 01 FF 00 — erase routine
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.Flash.OEM.Stellantis;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   ERD.Types,
   ERD.Coding.SecurityAccess,
   ERD.Flash.OEM.Common;
@@ -52,8 +52,8 @@ type
   published
     property SecurityLevel: Byte read FSecurityLevel write FSecurityLevel
       default $01;
-    property EraseRoutineID: Word read FEraseRoutineID
-      write FEraseRoutineID default $FF00;
+    property EraseRoutineID: Word read FEraseRoutineID write FEraseRoutineID
+      default $FF00;
     property SeedToKey: TOBDSeedToKeyFunc read FSeedToKey write FSeedToKey;
   end;
 
@@ -74,9 +74,11 @@ end;
 procedure TOBDFlashHandshakeStellantis.DoRun;
 begin
   if Security = nil then
-    raise EOBDConfig.Create('Stellantis handshake: Security component not assigned');
+    raise EOBDConfig.Create
+      ('Stellantis handshake: Security component not assigned');
   if Routines = nil then
-    raise EOBDConfig.Create('Stellantis handshake: Routines component not assigned');
+    raise EOBDConfig.Create
+      ('Stellantis handshake: Routines component not assigned');
   SwitchSession(UDS_SESSION_PROGRAMMING_OEM);
   Security.SeedToKey := FSeedToKey;
   Security.Unlock(FSecurityLevel);

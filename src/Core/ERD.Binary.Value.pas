@@ -1,25 +1,27 @@
-//------------------------------------------------------------------------------
-//  ERD.Binary.Value
+﻿// ------------------------------------------------------------------------------
+// ERD.Binary.Value
 //
-//  Checked integer packing for catalog-driven diagnostics and coding.
+// Checked integer packing for catalog-driven diagnostics and coding.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-10-08  ERD  Integer width, signedness and big-endian validation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-10-08  ERD  Integer width, signedness and big-endian validation.
+// ------------------------------------------------------------------------------
 unit ERD.Binary.Value;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
 {$ENDIF}
+{$ENDIF}
+
 interface
+
 uses {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF}, ERD.Types;
 
 /// <summary>Encode an integer after validating its physical representation.</summary>
@@ -28,7 +30,8 @@ uses {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF}, ERD.Types;
 /// <param name="ASigned">Use two's-complement signed representation.</param>
 /// <returns>Big-endian bytes.</returns>
 /// <exception cref="EOBDConfig">Invalid width or value outside its physical range.</exception>
-function EncodeIntegerBE(AValue: Int64; ABytes: Integer; ASigned: Boolean): TBytes;
+function EncodeIntegerBE(AValue: Int64; ABytes: Integer;
+  ASigned: Boolean): TBytes;
 
 /// <summary>Sign-extend an integer bit pattern.</summary>
 /// <param name="AValue">Raw bits.</param>
@@ -46,10 +49,14 @@ function SignExtendBits(AValue: UInt64; ABits: Integer): Int64;
 /// <exception cref="EOBDConfig">Invalid width, offset, or truncated slice.</exception>
 function DecodeIntegerBE(const AData: TBytes; AOffset, ABytes: Integer;
   ASigned: Boolean): Int64;
+
 implementation
 
-function EncodeIntegerBE(AValue: Int64; ABytes: Integer; ASigned: Boolean): TBytes;
-var I, Bits: Integer; Bound: Int64;
+function EncodeIntegerBE(AValue: Int64; ABytes: Integer;
+  ASigned: Boolean): TBytes;
+var
+  I, Bits: Integer;
+  Bound: Int64;
 begin
   if (ABytes < 1) or (ABytes > 8) then
     raise EOBDConfig.Create('Integer byte width must be 1..8');
@@ -86,14 +93,19 @@ end;
 
 function DecodeIntegerBE(const AData: TBytes; AOffset, ABytes: Integer;
   ASigned: Boolean): Int64;
-var I: Integer; Value: UInt64;
+var
+  I: Integer;
+  Value: UInt64;
 begin
-  if (ABytes < 1) or (ABytes > 8) or (AOffset < 0) or
-    (AOffset > Length(AData)) or (ABytes > Length(AData) - AOffset) then
-    raise EOBDConfig.Create('Integer slice exceeds payload or has invalid width');
+  if (ABytes < 1) or (ABytes > 8) or (AOffset < 0) or (AOffset > Length(AData))
+    or (ABytes > Length(AData) - AOffset) then
+    raise EOBDConfig.Create
+      ('Integer slice exceeds payload or has invalid width');
   Value := 0;
-  for I := 0 to ABytes - 1 do Value := (Value shl 8) or AData[AOffset + I];
-  if ASigned then Result := SignExtendBits(Value, ABytes * 8)
+  for I := 0 to ABytes - 1 do
+    Value := (Value shl 8) or AData[AOffset + I];
+  if ASigned then
+    Result := SignExtendBits(Value, ABytes * 8)
   else
   begin
     if Value > UInt64(High(Int64)) then
@@ -101,4 +113,5 @@ begin
     Result := Int64(Value);
   end;
 end;
+
 end.

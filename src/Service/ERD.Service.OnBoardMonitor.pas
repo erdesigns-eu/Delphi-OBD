@@ -1,39 +1,39 @@
-//------------------------------------------------------------------------------
-//  ERD.Service.OnBoardMonitor
+﻿// ------------------------------------------------------------------------------
+// ERD.Service.OnBoardMonitor
 //
-//  TOBDOnBoardMonitor — non-visual component that reads OBD-II
-//  Mode 06 on-board monitoring test results.
+// TOBDOnBoardMonitor — non-visual component that reads OBD-II
+// Mode 06 on-board monitoring test results.
 //
-//  Mode 06 returns one or more (TID, ComponentID, UnitAndScale,
-//  TestValue, Min, Max) tuples per Monitor ID (MID). On CAN
-//  controllers each tuple is 9 bytes wide:
+// Mode 06 returns one or more (TID, ComponentID, UnitAndScale,
+// TestValue, Min, Max) tuples per Monitor ID (MID). On CAN
+// controllers each tuple is 9 bytes wide:
 //
-//    TID (1) | CID (1) | Unit/Scale (1) | TestValue (2 BE)
-//                                       | Min (2 BE) | Max (2 BE)
+// TID (1) | CID (1) | Unit/Scale (1) | TestValue (2 BE)
+// | Min (2 BE) | Max (2 BE)
 //
-//  The component returns a flat list of TOBDMonitorResult records;
-//  hosts decide whether each entry passed (Min ≤ Value ≤ Max).
+// The component returns a flat list of TOBDMonitorResult records;
+// hosts decide whether each entry passed (Min ≤ Value ≤ Max).
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - SAE J1979 Mode 06 — On-board monitoring test results
-//    - SAE J1979-2 Annex B (CAN-specific Mode 06 layout)
+// References  :
+// - SAE J1979 Mode 06 — On-board monitoring test results
+// - SAE J1979-2 Annex B (CAN-specific Mode 06 layout)
 //
-//  History     :
-//    2026-05-09  ERD  Follow-up — close-out deferrals.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Follow-up — close-out deferrals.
+// ------------------------------------------------------------------------------
 
 unit ERD.Service.OnBoardMonitor;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -41,10 +41,10 @@ interface
 uses
   ERD.Async.Task,
   ERD.Connection,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
-  {$IFNDEF FPC}Data.Bind.Components, System.Bindings.Helper,{$ENDIF}
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFNDEF FPC}Data.Bind.Components, System.Bindings.Helper, {$ENDIF}
   ERD.Types,
   ERD.Protocol.Types,
   ERD.Protocol;
@@ -123,7 +123,8 @@ end;
 
 destructor TOBDOnBoardMonitor.Destroy;
 begin
-  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  if FOwnedTask <> nil then
+    FOwnedTask.Cancel;
   FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
@@ -131,11 +132,15 @@ end;
 
 procedure TOBDOnBoardMonitor.SetProtocol(AValue: TOBDProtocol);
 begin
-  if FProtocol = AValue then Exit;
-  if FOwnedTask <> nil then FOwnedTask.Quiesce;
-  if FProtocol <> nil then FProtocol.RemoveFreeNotification(Self);
+  if FProtocol = AValue then
+    Exit;
+  if FOwnedTask <> nil then
+    FOwnedTask.Quiesce;
+  if FProtocol <> nil then
+    FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
-  if FProtocol <> nil then FProtocol.FreeNotification(Self);
+  if FProtocol <> nil then
+    FProtocol.FreeNotification(Self);
 end;
 
 procedure TOBDOnBoardMonitor.Notification(AComponent: TComponent;
@@ -144,7 +149,8 @@ begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
   begin
-    if FOwnedTask <> nil then FOwnedTask.Quiesce;
+    if FOwnedTask <> nil then
+      FOwnedTask.Quiesce;
     FProtocol := nil;
   end;
 end;
@@ -166,7 +172,8 @@ end;
 procedure TOBDOnBoardMonitor.ReleaseAsync;
 begin
   FAsyncLock.Enter;
-  try FAsyncInFlight := False;
+  try
+    FAsyncInFlight := False;
   finally
     FAsyncLock.Leave;
   end;
@@ -183,29 +190,32 @@ begin
     raise EOBDConfig.Create('TOBDOnBoardMonitor: Protocol not assigned');
   Resp := FProtocol.Request(OBD_MODE_ON_BOARD_MONITORING, TBytes.Create(AMID));
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt(
-      'Mode 06 MID 0x%2.2X negative: %s', [AMID, Resp.NRCText]);
+    raise EOBDProtocolErr.CreateFmt('Mode 06 MID 0x%2.2X negative: %s',
+      [AMID, Resp.NRCText]);
 
   // Response Data: <MID echo> [TID CID UnitScale Val(2) Min(2) Max(2)]+
-  if Length(Resp.Data) < 1 then Exit(nil);
+  if Length(Resp.Data) < 1 then
+    Exit(nil);
   Off := 0;
-  if Resp.Data[0] = AMID then Off := 1;
+  if Resp.Data[0] = AMID then
+    Off := 1;
   N := (Length(Resp.Data) - Off) div 9;
-  if N <= 0 then Exit(nil);
+  if N <= 0 then
+    Exit(nil);
   SetLength(Acc, N);
   for I := 0 to N - 1 do
   begin
-    Entry := Default(TOBDMonitorResult);
-    Entry.MID          := AMID;
-    Entry.TID          := Resp.Data[Off + 0];
-    Entry.ComponentID  := Resp.Data[Off + 1];
+    Entry := Default (TOBDMonitorResult);
+    Entry.MID := AMID;
+    Entry.TID := Resp.Data[Off + 0];
+    Entry.ComponentID := Resp.Data[Off + 1];
     Entry.UnitAndScale := Resp.Data[Off + 2];
-    Entry.TestValue := SmallInt(
-      (Word(Resp.Data[Off + 3]) shl 8) or Word(Resp.Data[Off + 4]));
-    Entry.MinLimit  := SmallInt(
-      (Word(Resp.Data[Off + 5]) shl 8) or Word(Resp.Data[Off + 6]));
-    Entry.MaxLimit  := SmallInt(
-      (Word(Resp.Data[Off + 7]) shl 8) or Word(Resp.Data[Off + 8]));
+    Entry.TestValue := SmallInt((Word(Resp.Data[Off + 3]) shl 8) or
+      Word(Resp.Data[Off + 4]));
+    Entry.MinLimit := SmallInt((Word(Resp.Data[Off + 5]) shl 8) or
+      Word(Resp.Data[Off + 6]));
+    Entry.MaxLimit := SmallInt((Word(Resp.Data[Off + 7]) shl 8) or
+      Word(Resp.Data[Off + 8]));
     Acc[I] := Entry;
     Inc(Off, 9);
   end;
@@ -225,7 +235,8 @@ var
 begin
   GuardSingleAsync;
   try
-    Self_ := Self; MID := AMID;
+    Self_ := Self;
+    MID := AMID;
     FOwnedTask.Start(
       procedure
       var
@@ -250,48 +261,60 @@ begin
 end;
 
 procedure TOBDOnBoardMonitor.FireResults(AMID: Byte;
-  const AResults: TArray<TOBDMonitorResult>);
+const AResults: TArray<TOBDMonitorResult>);
 var
   Self_: TOBDOnBoardMonitor;
   MID: Byte;
   Snap: TArray<TOBDMonitorResult>;
 begin
-  Self_ := Self; MID := AMID; Snap := Copy(AResults, 0, Length(AResults));
+  Self_ := Self;
+  MID := AMID;
+  Snap := Copy(AResults, 0, Length(AResults));
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
     try
-      {$IFNDEF FPC}TBindings.Notify(Self_, '');{$ENDIF}
+{$IFNDEF FPC}TBindings.Notify(Self_, ''); {$ENDIF}
     except
     end;
-    if Assigned(FOnResults) then FOnResults(Self_, MID, Snap);
+    if Assigned(FOnResults) then
+      FOnResults(Self_, MID, Snap);
   end
   else
-    FOwnedTask.Post( procedure begin
-      try
-        {$IFNDEF FPC}TBindings.Notify(Self_, '');{$ENDIF}
-      except
-      end;
-      if Assigned(Self_.FOnResults) then
-        Self_.FOnResults(Self_, MID, Snap);
-    end);
+    FOwnedTask.Post(
+      procedure
+      begin
+        try
+{$IFNDEF FPC}TBindings.Notify(Self_, ''); {$ENDIF}
+        except
+        end;
+        if Assigned(Self_.FOnResults) then
+          Self_.FOnResults(Self_, MID, Snap);
+      end);
 end;
 
 procedure TOBDOnBoardMonitor.FireError(ACode: TOBDErrorCode;
-  const AMessage: string);
+const AMessage: string);
 var
-  Self_: TOBDOnBoardMonitor; Code: TOBDErrorCode; Msg: string;
+  Self_: TOBDOnBoardMonitor;
+  Code: TOBDErrorCode;
+  Msg: string;
   Handled: Boolean;
 begin
-  if not Assigned(FOnError) then Exit;
-  Self_ := Self; Code := ACode; Msg := AMessage;
+  if not Assigned(FOnError) then
+    Exit;
+  Self_ := Self;
+  Code := ACode;
+  Msg := AMessage;
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
     Handled := False;
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    FOwnedTask.Post( procedure
-      var Handled: Boolean;
+    FOwnedTask.Post(
+      procedure
+      var
+        Handled: Boolean;
       begin
         Handled := False;
         if Assigned(Self_.FOnError) then

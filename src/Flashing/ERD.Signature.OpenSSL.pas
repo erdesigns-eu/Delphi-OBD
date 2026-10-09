@@ -1,39 +1,39 @@
-//------------------------------------------------------------------------------
-//  ERD.Signature.OpenSSL
+﻿// ------------------------------------------------------------------------------
+// ERD.Signature.OpenSSL
 //
-//  OpenSSL 3.x signature verifier. Re-uses the dynamic-load
-//  pattern from ERD.Protocol.DoIP.TLS.OpenSSL — same DLL family
-//  (libssl-3 / libcrypto-3) but a different symbol set.
+// OpenSSL 3.x signature verifier. Re-uses the dynamic-load
+// pattern from ERD.Protocol.DoIP.TLS.OpenSSL — same DLL family
+// (libssl-3 / libcrypto-3) but a different symbol set.
 //
-//  Supports RSA-PSS, RSA-PKCS#1, ECDSA-P256, ECDSA-P384, Ed25519.
-//  Public-key bytes are passed as PEM (PKIX SubjectPublicKeyInfo)
-//  or DER; the unit accepts either by sniffing the leading bytes
-//  of the buffer.
+// Supports RSA-PSS, RSA-PKCS#1, ECDSA-P256, ECDSA-P384, Ed25519.
+// Public-key bytes are passed as PEM (PKIX SubjectPublicKeyInfo)
+// or DER; the unit accepts either by sniffing the leading bytes
+// of the buffer.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Signature.OpenSSL;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
 {$IFDEF MSWINDOWS}
   Winapi.Windows,
 {$ENDIF}
@@ -53,36 +53,40 @@ type
   end;
 
 implementation
+
 {$IFNDEF MSWINDOWS}
+
 uses {$IFDEF FPC}DynLibs{$ELSE}Posix.Dlfcn{$ENDIF};
-type HMODULE = NativeUInt;
+
+type
+  HMODULE = NativeUInt;
 {$ENDIF}
 
 const
 {$IFDEF MSWINDOWS}
-  CRYPTO_LIB_PRIMARY  = 'libcrypto-3-x64.dll';
+  CRYPTO_LIB_PRIMARY = 'libcrypto-3-x64.dll';
   CRYPTO_LIB_FALLBACK = 'libcrypto-3.dll';
 {$ELSE}
-  CRYPTO_LIB_PRIMARY  = 'libcrypto.so.3';
+  CRYPTO_LIB_PRIMARY = 'libcrypto.so.3';
   CRYPTO_LIB_FALLBACK = 'libcrypto.so';
 {$ENDIF}
-
   // OpenSSL EVP_PKEY type identifiers.
-  EVP_PKEY_RSA   = 6;
-  EVP_PKEY_EC    = 408;
+  EVP_PKEY_RSA = 6;
+  EVP_PKEY_EC = 408;
   EVP_PKEY_ED25519 = 1087;
 
   // EVP_PKEY_CTX_set_rsa_padding flags
-  RSA_PKCS1_PADDING        = 1;
-  RSA_PKCS1_PSS_PADDING    = 6;
+  RSA_PKCS1_PADDING = 1;
+  RSA_PKCS1_PSS_PADDING = 6;
 
 type
   // Delphi has PByte, but does not define FPC's PPByte alias.
   TOBDPPByte = ^PByte;
   TBIO_new_mem_buf = function(buf: Pointer; len: Integer): Pointer; cdecl;
-  TBIO_free       = function(b: Pointer): Integer; cdecl;
+  TBIO_free = function(b: Pointer): Integer; cdecl;
   TPEM_read_bio_PUBKEY = function(bp, x, cb, u: Pointer): Pointer; cdecl;
-  Td2i_PUBKEY    = function(a: PPointer; const pp: TOBDPPByte; len: Integer): Pointer; cdecl;
+  Td2i_PUBKEY = function(a: PPointer; const pp: TOBDPPByte; len: Integer)
+    : Pointer; cdecl;
   TEVP_PKEY_free = procedure(pkey: Pointer); cdecl;
   TEVP_MD_CTX_new = function: Pointer; cdecl;
   TEVP_MD_CTX_free = procedure(ctx: Pointer); cdecl;
@@ -97,10 +101,10 @@ type
   TEVP_sha256 = function: Pointer; cdecl;
   TEVP_sha384 = function: Pointer; cdecl;
   TEVP_PKEY_get_id = function(pkey: Pointer): Integer; cdecl;
-  TEVP_PKEY_CTX_set_rsa_padding = function(ctx: Pointer;
-    pad: Integer): Integer; cdecl;
-  TEVP_PKEY_CTX_set_rsa_pss_saltlen = function(ctx: Pointer;
-    saltlen: Integer): Integer; cdecl;
+  TEVP_PKEY_CTX_set_rsa_padding = function(ctx: Pointer; pad: Integer)
+    : Integer; cdecl;
+  TEVP_PKEY_CTX_set_rsa_pss_saltlen = function(ctx: Pointer; saltlen: Integer)
+    : Integer; cdecl;
 
 var
   GLib: HMODULE = 0;
@@ -124,12 +128,13 @@ var
 
 function TryLoadLib(const AName: string): HMODULE;
 begin
-  if AName = '' then Exit(0);
+  if AName = '' then
+    Exit(0);
 {$IFDEF MSWINDOWS}
   Result := LoadLibrary(PChar(AName));
 {$ELSE}
-  {$IFDEF FPC}Result := DynLibs.LoadLibrary(AName);{$ELSE}
-  Result := HMODULE(dlopen(PAnsiChar(AnsiString(AName)), RTLD_NOW));{$ENDIF}
+{$IFDEF FPC}Result := DynLibs.LoadLibrary(AName); {$ELSE}
+  Result := HMODULE(dlopen(PAnsiChar(AnsiString(AName)), RTLD_NOW)); {$ENDIF}
 {$ENDIF}
 end;
 
@@ -139,52 +144,62 @@ procedure DoLoad;
 {$IFDEF MSWINDOWS}
     Pointer(P) := GetProcAddress(GLib, PAnsiChar(AName));
 {$ELSE}
-    {$IFDEF FPC}Pointer(P) := DynLibs.GetProcedureAddress(GLib, AName);{$ELSE}
-    Pointer(P) := dlsym(Pointer(GLib), PAnsiChar(AName));{$ENDIF}
+{$IFDEF FPC}Pointer(P) := DynLibs.GetProcedureAddress(GLib, AName); {$ELSE}
+    Pointer(P) := dlsym(Pointer(GLib), PAnsiChar(AName)); {$ENDIF}
 {$ENDIF}
     if Pointer(P) = nil then
-      raise EOBDError.CreateFmt(
-        'libcrypto missing symbol "%s"', [string(AName)]);
+      raise EOBDError.CreateFmt('libcrypto missing symbol "%s"',
+        [string(AName)]);
   end;
+
 begin
-  if GLib <> 0 then Exit;
+  if GLib <> 0 then
+    Exit;
   GLib := TryLoadLib(CRYPTO_LIB_PRIMARY);
-  if GLib = 0 then GLib := TryLoadLib(CRYPTO_LIB_FALLBACK);
   if GLib = 0 then
-    raise EOBDError.CreateFmt(
-      'OpenSSL libcrypto could not be loaded (%s / %s) — drop the OpenSSL 3.x DLLs next to the host EXE',
+    GLib := TryLoadLib(CRYPTO_LIB_FALLBACK);
+  if GLib = 0 then
+    raise EOBDError.CreateFmt
+      ('OpenSSL libcrypto could not be loaded (%s / %s) — drop the OpenSSL 3.x DLLs next to the host EXE',
       [CRYPTO_LIB_PRIMARY, CRYPTO_LIB_FALLBACK]);
-  NeedProc(BIO_new_mem_buf_F,                    'BIO_new_mem_buf');
-  NeedProc(BIO_free_F,                           'BIO_free');
-  NeedProc(PEM_read_bio_PUBKEY_F,                'PEM_read_bio_PUBKEY');
-  NeedProc(d2i_PUBKEY_F,                         'd2i_PUBKEY');
-  NeedProc(EVP_PKEY_free_F,                      'EVP_PKEY_free');
-  NeedProc(EVP_MD_CTX_new_F,                     'EVP_MD_CTX_new');
-  NeedProc(EVP_MD_CTX_free_F,                    'EVP_MD_CTX_free');
-  NeedProc(EVP_DigestVerifyInit_F,               'EVP_DigestVerifyInit');
-  NeedProc(EVP_DigestVerifyUpdate_F,             'EVP_DigestVerifyUpdate');
-  NeedProc(EVP_DigestVerifyFinal_F,              'EVP_DigestVerifyFinal');
-  NeedProc(EVP_DigestVerify_F,                   'EVP_DigestVerify');
-  NeedProc(EVP_sha256_F,                         'EVP_sha256');
-  NeedProc(EVP_sha384_F,                         'EVP_sha384');
-  NeedProc(EVP_PKEY_get_id_F,                    'EVP_PKEY_get_id');
-  NeedProc(EVP_PKEY_CTX_set_rsa_padding_F,       'EVP_PKEY_CTX_set_rsa_padding');
-  NeedProc(EVP_PKEY_CTX_set_rsa_pss_saltlen_F,   'EVP_PKEY_CTX_set_rsa_pss_saltlen');
+  NeedProc(BIO_new_mem_buf_F, 'BIO_new_mem_buf');
+  NeedProc(BIO_free_F, 'BIO_free');
+  NeedProc(PEM_read_bio_PUBKEY_F, 'PEM_read_bio_PUBKEY');
+  NeedProc(d2i_PUBKEY_F, 'd2i_PUBKEY');
+  NeedProc(EVP_PKEY_free_F, 'EVP_PKEY_free');
+  NeedProc(EVP_MD_CTX_new_F, 'EVP_MD_CTX_new');
+  NeedProc(EVP_MD_CTX_free_F, 'EVP_MD_CTX_free');
+  NeedProc(EVP_DigestVerifyInit_F, 'EVP_DigestVerifyInit');
+  NeedProc(EVP_DigestVerifyUpdate_F, 'EVP_DigestVerifyUpdate');
+  NeedProc(EVP_DigestVerifyFinal_F, 'EVP_DigestVerifyFinal');
+  NeedProc(EVP_DigestVerify_F, 'EVP_DigestVerify');
+  NeedProc(EVP_sha256_F, 'EVP_sha256');
+  NeedProc(EVP_sha384_F, 'EVP_sha384');
+  NeedProc(EVP_PKEY_get_id_F, 'EVP_PKEY_get_id');
+  NeedProc(EVP_PKEY_CTX_set_rsa_padding_F, 'EVP_PKEY_CTX_set_rsa_padding');
+  NeedProc(EVP_PKEY_CTX_set_rsa_pss_saltlen_F,
+    'EVP_PKEY_CTX_set_rsa_pss_saltlen');
 end;
 
 procedure EnsureLoaded;
 begin
   GLoadLock.Enter;
   try
-    try DoLoad
+    try
+      DoLoad
     except
-      {$IFDEF MSWINDOWS}if GLib <> 0 then FreeLibrary(GLib);{$ELSE}
-      {$IFDEF FPC}if GLib <> 0 then DynLibs.UnloadLibrary(GLib);{$ELSE}
-      if GLib <> 0 then dlclose(Pointer(GLib));{$ENDIF}{$ENDIF}
+{$IFDEF MSWINDOWS} if GLib <> 0 then
+        FreeLibrary(GLib); {$ELSE}
+{$IFDEF FPC} if GLib <> 0 then
+        DynLibs.UnloadLibrary(GLib); {$ELSE}
+      if GLib <> 0 then
+        dlclose(Pointer(GLib)); {$ENDIF}{$ENDIF}
       GLib := 0;
       raise;
     end;
-  finally GLoadLock.Leave end;
+  finally
+    GLoadLock.Leave
+  end;
 end;
 
 class function TOBDSignatureOpenSSL.IsAvailable: Boolean;
@@ -202,13 +217,12 @@ begin
   Result := 'OpenSSL';
 end;
 
-function TOBDSignatureOpenSSL.DoSupports(
-  AAlgorithm: TOBDSignatureAlgorithm): Boolean;
+function TOBDSignatureOpenSSL.DoSupports(AAlgorithm
+  : TOBDSignatureAlgorithm): Boolean;
 begin
   case AAlgorithm of
-    saRSA_PSS_SHA256, saRSA_PKCS1_SHA256,
-    saECDSA_P256_SHA256, saECDSA_P384_SHA384,
-    saED25519:
+    saRSA_PSS_SHA256, saRSA_PKCS1_SHA256, saECDSA_P256_SHA256,
+      saECDSA_P384_SHA384, saED25519:
       Result := IsAvailable;
   else
     Result := False;
@@ -222,9 +236,11 @@ var
   Idx: Integer;
 begin
   Result := False;
-  if Length(AKey) < Length(Marker) then Exit;
+  if Length(AKey) < Length(Marker) then
+    Exit;
   for Idx := 1 to Length(Marker) do
-    if AKey[Idx - 1] <> Byte(Marker[Idx]) then Exit;
+    if AKey[Idx - 1] <> Byte(Marker[Idx]) then
+      Exit;
   Result := True;
 end;
 
@@ -232,7 +248,7 @@ function ImportPubKey(const AKeyBytes: TBytes): Pointer;
 var
   Bio: Pointer;
   P: PByte;
-  Len: Integer;
+  len: Integer;
 begin
   if LooksLikePEM(AKeyBytes) then
   begin
@@ -250,21 +266,21 @@ begin
   else
   begin
     P := PByte(@AKeyBytes[0]);
-    Len := Length(AKeyBytes);
-    Result := d2i_PUBKEY_F(nil, @P, Len);
+    len := Length(AKeyBytes);
+    Result := d2i_PUBKEY_F(nil, @P, len);
     if Result = nil then
       raise EOBDError.Create('OpenSSL: d2i_PUBKEY failed (DER input)');
   end;
 end;
 
-function TOBDSignatureOpenSSL.DoVerify(
-  const AArgs: TOBDSignatureVerifyArgs): Boolean;
+function TOBDSignatureOpenSSL.DoVerify(const AArgs
+  : TOBDSignatureVerifyArgs): Boolean;
 var
-  Pkey, MdCtx, MdHandle, KeyCtx: Pointer;
+  pkey, MdCtx, MdHandle, KeyCtx: Pointer;
   RC: Integer;
 begin
   EnsureLoaded;
-  Pkey := ImportPubKey(AArgs.PublicKey);
+  pkey := ImportPubKey(AArgs.PublicKey);
   MdCtx := nil;
   try
     MdCtx := EVP_MD_CTX_new_F;
@@ -283,7 +299,7 @@ begin
     end;
 
     KeyCtx := nil;
-    RC := EVP_DigestVerifyInit_F(MdCtx, @KeyCtx, MdHandle, nil, Pkey);
+    RC := EVP_DigestVerifyInit_F(MdCtx, @KeyCtx, MdHandle, nil, pkey);
     if RC <> 1 then
       raise EOBDError.Create('OpenSSL: EVP_DigestVerifyInit failed');
 
@@ -302,37 +318,43 @@ begin
 
     if AArgs.Algorithm = saED25519 then
     begin
-      RC := EVP_DigestVerify_F(MdCtx,
-        @AArgs.Signature[0], Length(AArgs.Signature),
-        @AArgs.Message[0],   Length(AArgs.Message));
+      RC := EVP_DigestVerify_F(MdCtx, @AArgs.Signature[0],
+        Length(AArgs.Signature), @AArgs.Message[0], Length(AArgs.Message));
     end
     else
     begin
-      RC := EVP_DigestVerifyUpdate_F(MdCtx,
-        @AArgs.Message[0], Length(AArgs.Message));
+      RC := EVP_DigestVerifyUpdate_F(MdCtx, @AArgs.Message[0],
+        Length(AArgs.Message));
       if RC <> 1 then
         raise EOBDError.Create('OpenSSL: EVP_DigestVerifyUpdate failed');
-      RC := EVP_DigestVerifyFinal_F(MdCtx,
-        @AArgs.Signature[0], Length(AArgs.Signature));
+      RC := EVP_DigestVerifyFinal_F(MdCtx, @AArgs.Signature[0],
+        Length(AArgs.Signature));
     end;
     Result := RC = 1;
   finally
-    if MdCtx <> nil then EVP_MD_CTX_free_F(MdCtx);
-    if Pkey  <> nil then EVP_PKEY_free_F(Pkey);
+    if MdCtx <> nil then
+      EVP_MD_CTX_free_F(MdCtx);
+    if pkey <> nil then
+      EVP_PKEY_free_F(pkey);
   end;
 end;
 
 initialization
-  GLoadLock := TCriticalSection.Create;
+
+GLoadLock := TCriticalSection.Create;
 
 finalization
+
 {$IFDEF MSWINDOWS}
-  if GLib <> 0 then FreeLibrary(GLib);
+if GLib <> 0 then
+  FreeLibrary(GLib);
 {$ELSE}
-  {$IFDEF FPC}if GLib <> 0 then DynLibs.UnloadLibrary(GLib);{$ELSE}
-  if GLib <> 0 then dlclose(Pointer(GLib));{$ENDIF}
+{$IFDEF FPC} if GLib <> 0 then
+  DynLibs.UnloadLibrary(GLib); {$ELSE}
+if GLib <> 0 then
+  dlclose(Pointer(GLib)); {$ENDIF}
 {$ENDIF}
-  GLib := 0;
-  GLoadLock.Free;
+GLib := 0;
+GLoadLock.Free;
 
 end.

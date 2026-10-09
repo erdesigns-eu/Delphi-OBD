@@ -1,56 +1,56 @@
-//------------------------------------------------------------------------------
-//  ERD.Security.AttemptCounter
+﻿// ------------------------------------------------------------------------------
+// ERD.Security.AttemptCounter
 //
-//  TOBDAttemptCounter — sliding-window failed-attempt tracker.
-//  Useful for security-access loops (UDS 0x27) that lock out
-//  after N bad seed-key answers, or for any host-side rate-
-//  limited workflow.
+// TOBDAttemptCounter — sliding-window failed-attempt tracker.
+// Useful for security-access loops (UDS 0x27) that lock out
+// after N bad seed-key answers, or for any host-side rate-
+// limited workflow.
 //
-//  Each call to <see cref="RegisterFailure"/> records a failure
-//  with the current timestamp. The counter rolls older entries
-//  out of the configured <see cref="WindowSeconds"/> window so
-//  the count reflects only recent failures. A successful
-//  attempt resets the counter to zero.
+// Each call to <see cref="RegisterFailure"/> records a failure
+// with the current timestamp. The counter rolls older entries
+// out of the configured <see cref="WindowSeconds"/> window so
+// the count reflects only recent failures. A successful
+// attempt resets the counter to zero.
 //
-//  Reentrant; safe to call from any thread.
+// Reentrant; safe to call from any thread.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-11  ERD  Initial port from v1 ERD.Security.AttemptCounter.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-11  ERD  Initial port from v1 ERD.Security.AttemptCounter.
+// ------------------------------------------------------------------------------
 
 unit ERD.Security.AttemptCounter;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
-  {$IFDEF FPC}DateUtils{$ELSE}System.DateUtils{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF};
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}DateUtils{$ELSE}System.DateUtils{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF};
 
 type
   /// <summary>
-  ///   Sliding-window failed-attempt counter.
+  /// Sliding-window failed-attempt counter.
   /// </summary>
   /// <remarks>
-  ///   Construct with the maximum failure count and the window
-  ///   length in seconds. Call <see cref="RegisterFailure"/> on
-  ///   every bad attempt, <see cref="RegisterSuccess"/> on a
-  ///   good one, and <see cref="IsLockedOut"/> before allowing
-  ///   the next attempt.
+  /// Construct with the maximum failure count and the window
+  /// length in seconds. Call <see cref="RegisterFailure"/> on
+  /// every bad attempt, <see cref="RegisterSuccess"/> on a
+  /// good one, and <see cref="IsLockedOut"/> before allowing
+  /// the next attempt.
   /// </remarks>
   TOBDAttemptCounter = class
   strict private

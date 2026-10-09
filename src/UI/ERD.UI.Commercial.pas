@@ -1,30 +1,30 @@
-//------------------------------------------------------------------------------
-//  ERD.UI.Commercial
+﻿// ------------------------------------------------------------------------------
+// ERD.UI.Commercial
 //
-//  Commercial / heavy-duty visuals:
+// Commercial / heavy-duty visuals:
 //
-//    TOBDMarineTach    High-RPM single tach (0..6000 default)
-//                      with hours-meter readout.
-//    TOBDPTOMeter      PTO speed gauge (rpm) with 540 / 1000
-//                      reference markers (agricultural).
-//    TOBDDPFStatus     Diesel particulate filter soot load %
-//                      bar + regen-active lamp.
-//    TOBDAdBlueLevel   DEF tank fill bar with low-warning
-//                      threshold.
+// TOBDMarineTach    High-RPM single tach (0..6000 default)
+// with hours-meter readout.
+// TOBDPTOMeter      PTO speed gauge (rpm) with 540 / 1000
+// reference markers (agricultural).
+// TOBDDPFStatus     Diesel particulate filter soot load %
+// bar + regen-active lamp.
+// TOBDAdBlueLevel   DEF tank fill bar with low-warning
+// threshold.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.UI.Commercial;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -35,9 +35,9 @@ uses
   Winapi.Windows,
   Winapi.GDIPAPI,
   Winapi.GDIPOBJ,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
   System.Bindings.Helper, Data.Bind.Components,
   Vcl.Controls,
   Vcl.Graphics,
@@ -65,12 +65,11 @@ type
       const ABounds: TRectF); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
   published
     /// <summary>Total run-time in hours. Default 0.</summary>
     property Hours: Double read FHours write SetHours;
-    property CaptionFont: TFont
-      read FCaptionFont write SetCaptionFont;
+    property CaptionFont: TFont read FCaptionFont write SetCaptionFont;
   end;
 
   /// <summary>PTO speed gauge with reference markers at 540
@@ -90,7 +89,7 @@ type
     FSootPercent: Double;
     FRegenActive: Boolean;
     FCaptionFont: TFont;
-    FValueFont:   TFont;
+    FValueFont: TFont;
     procedure SetSootPercent(AValue: Double);
     procedure SetRegenActive(AValue: Boolean);
     procedure SetCaptionFont(AValue: TFont);
@@ -101,18 +100,15 @@ type
     procedure PaintControl(ACanvas: TCanvas); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
   published
     /// <summary>Soot load %. Clamped 0..100.</summary>
-    property SootPercent: Double
-      read FSootPercent write SetSootPercent;
+    property SootPercent: Double read FSootPercent write SetSootPercent;
     /// <summary>True while a regen cycle is running.</summary>
-    property RegenActive: Boolean
-      read FRegenActive write SetRegenActive default False;
-    property CaptionFont: TFont
-      read FCaptionFont write SetCaptionFont;
-    property ValueFont: TFont
-      read FValueFont write SetValueFont;
+    property RegenActive: Boolean read FRegenActive write SetRegenActive
+      default False;
+    property CaptionFont: TFont read FCaptionFont write SetCaptionFont;
+    property ValueFont: TFont read FValueFont write SetValueFont;
   end;
 
   /// <summary>DEF / AdBlue tank gauge. Vertical bar with a
@@ -121,8 +117,8 @@ type
   strict private
     FLevelPercent: Double;
     FLowThreshold: Double;
-    FCaptionFont:  TFont;
-    FValueFont:    TFont;
+    FCaptionFont: TFont;
+    FValueFont: TFont;
     procedure SetLevelPercent(AValue: Double);
     procedure SetLowThreshold(AValue: Double);
     procedure SetCaptionFont(AValue: TFont);
@@ -133,18 +129,14 @@ type
     procedure PaintControl(ACanvas: TCanvas); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
   published
     /// <summary>Fill % (0..100).</summary>
-    property LevelPercent: Double
-      read FLevelPercent write SetLevelPercent;
+    property LevelPercent: Double read FLevelPercent write SetLevelPercent;
     /// <summary>Warning threshold (%). Default 15.</summary>
-    property LowThreshold: Double
-      read FLowThreshold write SetLowThreshold;
-    property CaptionFont: TFont
-      read FCaptionFont write SetCaptionFont;
-    property ValueFont: TFont
-      read FValueFont write SetValueFont;
+    property LowThreshold: Double read FLowThreshold write SetLowThreshold;
+    property CaptionFont: TFont read FCaptionFont write SetCaptionFont;
+    property ValueFont: TFont read FValueFont write SetValueFont;
   end;
 
 implementation
@@ -152,7 +144,8 @@ implementation
 { ---- TOBDMarineTach --------------------------------------------------- }
 
 constructor TOBDMarineTach.Create(AOwner: TComponent);
-var Cfg: TOBDGaugeTickConfig;
+var
+  Cfg: TOBDGaugeTickConfig;
 begin
   inherited Create(AOwner);
   Min := 0;
@@ -188,8 +181,10 @@ end;
 
 procedure TOBDMarineTach.SetHours(AValue: Double);
 begin
-  if AValue < 0 then AValue := 0;
-  if SameValue(FHours, AValue) then Exit;
+  if AValue < 0 then
+    AValue := 0;
+  if SameValue(FHours, AValue) then
+    Exit;
   FHours := AValue;
   Repaint;
 end;
@@ -207,16 +202,15 @@ begin
   C.Font.Color := EffectiveForeground;
   S := Format('%.1f h', [FHours]);
   W := C.TextWidth(S);
-  C.TextOut(
-    Round(ABounds.Left + (ABounds.Width  - W) / 2),
-    Round(ABounds.Top + ABounds.Height * 0.78),
-    S);
+  C.TextOut(Round(ABounds.Left + (ABounds.Width - W) / 2),
+    Round(ABounds.Top + ABounds.Height * 0.78), S);
 end;
 
 { ---- TOBDPTOMeter ----------------------------------------------------- }
 
 constructor TOBDPTOMeter.Create(AOwner: TComponent);
-var Cfg: TOBDGaugeTickConfig;
+var
+  Cfg: TOBDGaugeTickConfig;
 begin
   inherited Create(AOwner);
   Min := 0;
@@ -232,7 +226,8 @@ begin
 end;
 
 procedure TOBDPTOMeter.SeedZones;
-var Z: TOBDGaugeZones;
+var
+  Z: TOBDGaugeZones;
 begin
   // 540 and 1000 rpm reference bands (each ±10 rpm wide).
   SetLength(Z, 2);
@@ -246,7 +241,7 @@ end;
 constructor TOBDDPFStatus.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 280;
+  Width := 280;
   Height := 90;
   FCaptionFont := TFont.Create;
   FCaptionFont.Name := 'Segoe UI';
@@ -268,7 +263,8 @@ end;
 
 procedure TOBDDPFStatus.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -282,16 +278,24 @@ end;
 
 procedure TOBDDPFStatus.SetSootPercent(AValue: Double);
 begin
-  if AValue < 0 then AValue := 0;
-  if AValue > 100 then AValue := 100;
-  if SameValue(FSootPercent, AValue) then Exit;
-  FSootPercent := AValue; NotifyBindings; Repaint;
+  if AValue < 0 then
+    AValue := 0;
+  if AValue > 100 then
+    AValue := 100;
+  if SameValue(FSootPercent, AValue) then
+    Exit;
+  FSootPercent := AValue;
+  NotifyBindings;
+  Repaint;
 end;
 
 procedure TOBDDPFStatus.SetRegenActive(AValue: Boolean);
 begin
-  if FRegenActive = AValue then Exit;
-  FRegenActive := AValue; NotifyBindings; Repaint;
+  if FRegenActive = AValue then
+    Exit;
+  FRegenActive := AValue;
+  NotifyBindings;
+  Repaint;
 end;
 
 procedure TOBDDPFStatus.SetCaptionFont(AValue: TFont);
@@ -308,7 +312,7 @@ procedure TOBDDPFStatus.PaintControl(ACanvas: TCanvas);
 var
   Graphics: TGPGraphics;
   Brush: TGPSolidBrush;
-  Pen:   TGPPen;
+  Pen: TGPPen;
   Pad: Integer;
   Track, Fill: TGPRectF;
   Col: TColor;
@@ -322,12 +326,15 @@ begin
 
   Track.X := Pad;
   Track.Y := Pad + ACanvas.TextHeight('Mg') + ScaleValue(4);
-  Track.Width  := Width - 2 * Pad - ScaleValue(80);
+  Track.Width := Width - 2 * Pad - ScaleValue(80);
   Track.Height := ScaleValue(14);
 
-  if FSootPercent > 80 then Col := Palette.Danger
-  else if FSootPercent > 60 then Col := Palette.Warning
-  else Col := Palette.Success;
+  if FSootPercent > 80 then
+    Col := Palette.Danger
+  else if FSootPercent > 60 then
+    Col := Palette.Warning
+  else
+    Col := Palette.Success;
 
   Graphics := TGPGraphics.Create(ACanvas.Handle);
   try
@@ -357,9 +364,8 @@ begin
     begin
       Brush := TGPSolidBrush.Create(ColorToARGB(Palette.Warning));
       try
-        Graphics.FillEllipse(Brush,
-          Width - Pad - ScaleValue(60),
-          Track.Y, ScaleValue(14), ScaleValue(14));
+        Graphics.FillEllipse(Brush, Width - Pad - ScaleValue(60), Track.Y,
+          ScaleValue(14), ScaleValue(14));
       finally
         Brush.Free;
       end;
@@ -378,8 +384,8 @@ begin
   begin
     ACanvas.Font := FCaptionFont;
     ACanvas.Font.Color := Palette.Warning;
-    ACanvas.TextOut(Pad, Height - Pad -
-      ACanvas.TextHeight('Mg'), 'regen active');
+    ACanvas.TextOut(Pad, Height - Pad - ACanvas.TextHeight('Mg'),
+      'regen active');
   end;
 end;
 
@@ -388,7 +394,7 @@ end;
 constructor TOBDAdBlueLevel.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 60;
+  Width := 60;
   Height := 180;
   FLevelPercent := 100;
   FLowThreshold := 15;
@@ -412,7 +418,8 @@ end;
 
 procedure TOBDAdBlueLevel.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -426,18 +433,27 @@ end;
 
 procedure TOBDAdBlueLevel.SetLevelPercent(AValue: Double);
 begin
-  if AValue < 0 then AValue := 0;
-  if AValue > 100 then AValue := 100;
-  if SameValue(FLevelPercent, AValue) then Exit;
-  FLevelPercent := AValue; NotifyBindings; Repaint;
+  if AValue < 0 then
+    AValue := 0;
+  if AValue > 100 then
+    AValue := 100;
+  if SameValue(FLevelPercent, AValue) then
+    Exit;
+  FLevelPercent := AValue;
+  NotifyBindings;
+  Repaint;
 end;
 
 procedure TOBDAdBlueLevel.SetLowThreshold(AValue: Double);
 begin
-  if AValue < 0 then AValue := 0;
-  if AValue > 100 then AValue := 100;
-  if SameValue(FLowThreshold, AValue) then Exit;
-  FLowThreshold := AValue; Repaint;
+  if AValue < 0 then
+    AValue := 0;
+  if AValue > 100 then
+    AValue := 100;
+  if SameValue(FLowThreshold, AValue) then
+    Exit;
+  FLowThreshold := AValue;
+  Repaint;
 end;
 
 procedure TOBDAdBlueLevel.SetCaptionFont(AValue: TFont);
@@ -454,7 +470,7 @@ procedure TOBDAdBlueLevel.PaintControl(ACanvas: TCanvas);
 var
   Graphics: TGPGraphics;
   Brush: TGPSolidBrush;
-  Pen:   TGPPen;
+  Pen: TGPPen;
   Pad: Integer;
   Track, Fill: TGPRectF;
   Col: TColor;
@@ -471,8 +487,10 @@ begin
   Track.Width := Width - 2 * Pad;
   Track.Height := Height - Track.Y - ScaleValue(28) - Pad;
 
-  if FLevelPercent <= FLowThreshold then Col := Palette.Danger
-  else Col := Palette.Success;
+  if FLevelPercent <= FLowThreshold then
+    Col := Palette.Danger
+  else
+    Col := Palette.Success;
 
   Graphics := TGPGraphics.Create(ACanvas.Handle);
   try
@@ -505,10 +523,8 @@ begin
   Val := Format('%.0f %%', [FLevelPercent]);
   ACanvas.Font := FValueFont;
   ACanvas.Font.Color := Col;
-  ACanvas.TextOut(
-    (Width - ACanvas.TextWidth(Val)) div 2,
-    Height - Pad - ACanvas.TextHeight(Val),
-    Val);
+  ACanvas.TextOut((Width - ACanvas.TextWidth(Val)) div 2,
+    Height - Pad - ACanvas.TextHeight(Val), Val);
 end;
 
 end.

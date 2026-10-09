@@ -1,29 +1,30 @@
-//------------------------------------------------------------------------------
-//  ERD.Service.EVBattery.Request
+﻿// ------------------------------------------------------------------------------
+// ERD.Service.EVBattery.Request
 //
-//  Portable construction and response validation for EV battery reads.
+// Portable construction and response validation for EV battery reads.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-10-08  ERD  Route field reads and validate/strip identifier echoes.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-10-08  ERD  Route field reads and validate/strip identifier echoes.
+// ------------------------------------------------------------------------------
 unit ERD.Service.EVBattery.Request;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF}, ERD.Types, ERD.CAN.Route, ERD.Protocol.Types,
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF}, ERD.Types, ERD.CAN.Route,
+  ERD.Protocol.Types,
   ERD.Service.EVBattery.Types;
 
 /// <summary>Construct a routed EV diagnostic request from a resolved rule.</summary>
@@ -53,8 +54,10 @@ implementation
 function EVBatteryRuleApplies(const ARule: TOBDEVBatteryRule;
   AModelYear: Integer): Boolean;
 begin
-  if ((ARule.MinModelYear > 0) or (ARule.MaxModelYear > 0)) and (AModelYear = 0) then
-    raise EOBDConfig.Create('Set ModelYear before reading model-dependent EV rules');
+  if ((ARule.MinModelYear > 0) or (ARule.MaxModelYear > 0)) and (AModelYear = 0)
+  then
+    raise EOBDConfig.Create
+      ('Set ModelYear before reading model-dependent EV rules');
   Result := ((ARule.MinModelYear = 0) or (AModelYear >= ARule.MinModelYear)) and
     ((ARule.MaxModelYear = 0) or (AModelYear <= ARule.MaxModelYear));
 end;
@@ -73,14 +76,17 @@ begin
       begin
         if ARule.DIDOrPID > $FF then
           raise EOBDConfig.Create('Mode 01/21 PID exceeds one byte');
-        if ARule.Service = $21 then Result.Protocol := apKWP2000;
+        if ARule.Service = $21 then
+          Result.Protocol := apKWP2000;
         Result.Data := TBytes.Create(Lo(ARule.DIDOrPID));
       end;
   else
     raise EOBDConfig.Create('Unsupported EV battery read service');
   end;
-  if ARule.RequestId <> 0 then Result.HeaderOverride := CANHeader(ARule.RequestId);
-  if ARule.ResponseId <> 0 then Result.ResponseHeaderOverride := CANHeader(ARule.ResponseId);
+  if ARule.RequestId <> 0 then
+    Result.HeaderOverride := CANHeader(ARule.RequestId);
+  if ARule.ResponseId <> 0 then
+    Result.ResponseHeaderOverride := CANHeader(ARule.ResponseId);
   Result.UseExtendedAddressing := ARule.UseExtendedAddressing;
   Result.ExtendedTarget := ARule.ExtendedTarget;
   Result.ExtendedTester := ARule.ExtendedTester;
@@ -99,11 +105,14 @@ begin
     raise EOBDProtocolErr.Create('EV battery response service mismatch');
   Echo := MakeEVBatteryRequest(ARule).Data;
   if Length(AResponse.Data) < Length(Echo) then
-    raise EOBDProtocolErr.Create('EV battery response identifier echo is truncated');
+    raise EOBDProtocolErr.Create
+      ('EV battery response identifier echo is truncated');
   for I := 0 to High(Echo) do
     if AResponse.Data[I] <> Echo[I] then
-      raise EOBDProtocolErr.Create('EV battery response identifier echo mismatch');
-  Result := Copy(AResponse.Data, Length(Echo), Length(AResponse.Data) - Length(Echo));
+      raise EOBDProtocolErr.Create
+        ('EV battery response identifier echo mismatch');
+  Result := Copy(AResponse.Data, Length(Echo), Length(AResponse.Data) -
+    Length(Echo));
 end;
 
 end.

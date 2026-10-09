@@ -1,56 +1,55 @@
-//------------------------------------------------------------------------------
-//  ERD.Protocol.DoIP.TLS.OpenSSL
+﻿// ------------------------------------------------------------------------------
+// ERD.Protocol.DoIP.TLS.OpenSSL
 //
-//  Drop-in OpenSSL 3.x TLS plug for the DoIP transport contract.
-//  Implements IOBDDoIPTransport on top of a raw Winsock TCP socket
-//  wrapped with an OpenSSL TLS 1.2 / 1.3 session. Designed for
-//  port-3496 DoIP-over-TLS (ISO 13400-2:2019 §7.2.4).
+// Drop-in OpenSSL 3.x TLS plug for the DoIP transport contract.
+// Implements IOBDDoIPTransport on top of a raw Winsock TCP socket
+// wrapped with an OpenSSL TLS 1.2 / 1.3 session. Designed for
+// port-3496 DoIP-over-TLS (ISO 13400-2:2019 §7.2.4).
 //
-//  No compile-time dependency on OpenSSL: libssl-3.dll and
-//  libcrypto-3.dll are loaded dynamically the first time the unit
-//  is used. Ship the two DLLs alongside the host EXE (the official
-//  Win64 OpenSSL build from <https://slproweb.com/products/Win32OpenSSL.html>
-//  or <https://wiki.openssl.org/> is the reference). On Linux the
-//  DLL names map to <c>libssl.so.3</c> and <c>libcrypto.so.3</c>.
+// No compile-time dependency on OpenSSL: libssl-3.dll and
+// libcrypto-3.dll are loaded dynamically the first time the unit
+// is used. Ship the two DLLs alongside the host EXE (the official
+// Win64 OpenSSL build from <https://slproweb.com/products/Win32OpenSSL.html>
+// or <https://wiki.openssl.org/> is the reference). On Linux the
+// DLL names map to <c>libssl.so.3</c> and <c>libcrypto.so.3</c>.
 //
-//  This unit is intentionally self-contained — no Indy, no SChannel,
-//  no Synapse — so a host can drop OpenSSL DLLs into its bin folder
-//  and have a working TLS DoIP transport without any extra package.
+// This unit is intentionally self-contained — no Indy, no SChannel,
+// no Synapse — so a host can drop OpenSSL DLLs into its bin folder
+// and have a working TLS DoIP transport without any extra package.
 //
-//  Hosts that prefer a different TLS library implement
-//  <c>IOBDDoIPTransport</c> themselves.
+// Hosts that prefer a different TLS library implement
+// <c>IOBDDoIPTransport</c> themselves.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - ISO 13400-2:2019 §7.2.4 (DoIP-over-TLS)
-//    - RFC 5246 (TLS 1.2), RFC 8446 (TLS 1.3)
-//    - OpenSSL 3.0 manual: SSL_CTX_new, SSL_connect, SSL_read,
-//      SSL_write, SSL_set1_host, SSL_set_tlsext_host_name
+// References  :
+// - ISO 13400-2:2019 §7.2.4 (DoIP-over-TLS)
+// - RFC 5246 (TLS 1.2), RFC 8446 (TLS 1.3)
+// - OpenSSL 3.0 manual: SSL_CTX_new, SSL_connect, SSL_read,
+// SSL_write, SSL_set1_host, SSL_set_tlsext_host_name
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Protocol.DoIP.TLS.OpenSSL;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
 {$ENDIF}
-
+{$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
   System.Diagnostics,
 {$IFDEF MSWINDOWS}
   Winapi.Windows,
@@ -61,30 +60,26 @@ uses
 
 type
   /// <summary>
-  ///   Verification policy for the server certificate.
+  /// Verification policy for the server certificate.
   /// </summary>
   /// <remarks>
-  ///   <list type="bullet">
-  ///   <item><c>vmRequire</c> — fail the handshake if the
-  ///   certificate does not chain to a trusted root <i>and</i> the
-  ///   hostname does not match. Default. Production setting.</item>
-  ///   <item><c>vmAllowSelfSigned</c> — accept a valid self-signed leaf
-  ///   certificate but still require the hostname to match the
-  ///   subject / SAN. Useful for in-vehicle ECUs that ship with a
-  ///   self-signed leaf.</item>
-  ///   <item><c>vmInsecureNone</c> — accept anything. <b>Never</b>
-  ///   use against an untrusted network; provided for bring-up
-  ///   only.</item>
-  ///   </list>
+  /// <list type="bullet">
+  /// <item><c>vmRequire</c> — fail the handshake if the
+  /// certificate does not chain to a trusted root <i>and</i> the
+  /// hostname does not match. Default. Production setting.</item>
+  /// <item><c>vmAllowSelfSigned</c> — accept a valid self-signed leaf
+  /// certificate but still require the hostname to match the
+  /// subject / SAN. Useful for in-vehicle ECUs that ship with a
+  /// self-signed leaf.</item>
+  /// <item><c>vmInsecureNone</c> — accept anything. <b>Never</b>
+  /// use against an untrusted network; provided for bring-up
+  /// only.</item>
+  /// </list>
   /// </remarks>
-  TOBDDoIPTLSVerifyMode = (
-    vmRequire,
-    vmAllowSelfSigned,
-    vmInsecureNone
-  );
+  TOBDDoIPTLSVerifyMode = (vmRequire, vmAllowSelfSigned, vmInsecureNone);
 
   /// <summary>
-  ///   Configuration for the OpenSSL DoIP transport.
+  /// Configuration for the OpenSSL DoIP transport.
   /// </summary>
   TOBDDoIPTLSOptions = record
     /// <summary>Verification policy for the server certificate.
@@ -114,23 +109,23 @@ type
   end;
 
   /// <summary>
-  ///   OpenSSL-backed implementation of <c>IOBDDoIPTransport</c>.
-  ///   Suitable for DoIP-over-TLS on port 3496.
+  /// OpenSSL-backed implementation of <c>IOBDDoIPTransport</c>.
+  /// Suitable for DoIP-over-TLS on port 3496.
   /// </summary>
   /// <remarks>
-  ///   The implementation owns the raw TCP socket and the SSL
-  ///   session. Send and Receive are guarded by separate critical
-  ///   sections so a reader and a writer thread can operate
-  ///   concurrently — OpenSSL itself is not thread-safe across
-  ///   simultaneous I/O on the same SSL handle without external
-  ///   locking, so all SSL_read / SSL_write calls go through these
-  ///   locks.
+  /// The implementation owns the raw TCP socket and the SSL
+  /// session. Send and Receive are guarded by separate critical
+  /// sections so a reader and a writer thread can operate
+  /// concurrently — OpenSSL itself is not thread-safe across
+  /// simultaneous I/O on the same SSL handle without external
+  /// locking, so all SSL_read / SSL_write calls go through these
+  /// locks.
   /// </remarks>
   TOBDDoIPOpenSSLTransport = class(TInterfacedObject, IOBDDoIPTransport)
   strict private
     FOptions: TOBDDoIPTLSOptions;
-    FCtx: Pointer;          // SSL_CTX*
-    FSsl: Pointer;          // SSL*
+    FCtx: Pointer; // SSL_CTX*
+    FSsl: Pointer; // SSL*
 {$IFDEF MSWINDOWS}
     FSocket: Winapi.Winsock2.TSocket;
 {$ELSE}
@@ -157,33 +152,32 @@ type
     constructor Create(const AOptions: TOBDDoIPTLSOptions); overload;
     destructor Destroy; override;
 
-    procedure Connect(const AHost: string; APort: Word;
-      ATimeoutMs: Cardinal);
+    procedure Connect(const AHost: string; APort: Word; ATimeoutMs: Cardinal);
     procedure Disconnect;
     function IsConnected: Boolean;
     function Send(const ABytes: TBytes): Integer;
-    function Receive(AMaxBytes: Integer;
-      ATimeoutMs: Cardinal): TBytes;
+    function Receive(AMaxBytes: Integer; ATimeoutMs: Cardinal): TBytes;
   end;
 
-/// <summary>
-///   Returns a default-initialised <see cref="TOBDDoIPTLSOptions"/>
-///   record (full verification, OpenSSL system roots, no client
-///   certificate).
-/// </summary>
+  /// <summary>
+  /// Returns a default-initialised <see cref="TOBDDoIPTLSOptions"/>
+  /// record (full verification, OpenSSL system roots, no client
+  /// certificate).
+  /// </summary>
 function DefaultDoIPTLSOptions: TOBDDoIPTLSOptions;
 
 /// <summary>
-///   Forces the OpenSSL libraries to be loaded now and raises a
-///   descriptive exception when the DLLs are missing. Hosts can
-///   call this at startup to fail fast rather than during the first
-///   <c>Connect</c>.
+/// Forces the OpenSSL libraries to be loaded now and raises a
+/// descriptive exception when the DLLs are missing. Hosts can
+/// call this at startup to fail fast rather than during the first
+/// <c>Connect</c>.
 /// </summary>
 procedure EnsureOpenSSLLoaded;
 
 implementation
 
 {$IFNDEF MSWINDOWS}
+
 uses
 {$IFDEF FPC}
   DynLibs, BaseUnix, Sockets, NetDB, ERD.Compat.Socket;
@@ -193,49 +187,49 @@ uses
   Posix.Fcntl;
 {$ENDIF}
 {$ENDIF}
-
 {$IFNDEF MSWINDOWS}
-type HMODULE = NativeUInt;
+
+type
+  HMODULE = NativeUInt;
 {$ENDIF}
 
 const
 {$IFDEF MSWINDOWS}
-  LIBSSL_NAME    = 'libssl-3-x64.dll';     // primary
+  LIBSSL_NAME = 'libssl-3-x64.dll'; // primary
   LIBSSL_FALLBACK1 = 'libssl-3.dll';
-  LIBSSL_FALLBACK2 = 'ssleay32.dll';       // 1.0.x legacy — only as last resort
+  LIBSSL_FALLBACK2 = 'ssleay32.dll'; // 1.0.x legacy — only as last resort
   LIBCRYPTO_NAME = 'libcrypto-3-x64.dll';
   LIBCRYPTO_FALLBACK1 = 'libcrypto-3.dll';
   LIBCRYPTO_FALLBACK2 = 'libeay32.dll';
 {$ELSE}
-  LIBSSL_NAME    = 'libssl.so.3';
+  LIBSSL_NAME = 'libssl.so.3';
   LIBSSL_FALLBACK1 = 'libssl.so';
   LIBSSL_FALLBACK2 = '';
   LIBCRYPTO_NAME = 'libcrypto.so.3';
   LIBCRYPTO_FALLBACK1 = 'libcrypto.so';
   LIBCRYPTO_FALLBACK2 = '';
 {$ENDIF}
-
   // ---- OpenSSL constants we depend on ----
   TLS1_2_VERSION = $0303;
   TLS1_3_VERSION = $0304;
 
-  SSL_CTRL_SET_TLSEXT_HOSTNAME    = 55;
-  SSL_CTRL_SET_MIN_PROTO_VERSION  = 123;
-  SSL_CTRL_SET_MAX_PROTO_VERSION  = 124;
+  SSL_CTRL_SET_TLSEXT_HOSTNAME = 55;
+  SSL_CTRL_SET_MIN_PROTO_VERSION = 123;
+  SSL_CTRL_SET_MAX_PROTO_VERSION = 124;
 
   TLSEXT_NAMETYPE_host_name = 0;
 
-  SSL_VERIFY_NONE                 = $00;
-  SSL_VERIFY_PEER                 = $01;
+  SSL_VERIFY_NONE = $00;
+  SSL_VERIFY_PEER = $01;
   SSL_VERIFY_FAIL_IF_NO_PEER_CERT = $02;
 
   SSL_FILETYPE_PEM = 1;
 
-  SSL_ERROR_NONE        = 0;
-  SSL_ERROR_SSL         = 1;
-  SSL_ERROR_WANT_READ   = 2;
-  SSL_ERROR_WANT_WRITE  = 3;
-  SSL_ERROR_SYSCALL     = 5;
+  SSL_ERROR_NONE = 0;
+  SSL_ERROR_SSL = 1;
+  SSL_ERROR_WANT_READ = 2;
+  SSL_ERROR_WANT_WRITE = 3;
+  SSL_ERROR_SYSCALL = 5;
   SSL_ERROR_ZERO_RETURN = 6;
 
   X509_V_OK = 0;
@@ -247,36 +241,49 @@ type
   TTLS_client_method = function: Pointer; cdecl;
   TSSL_CTX_new = function(method: Pointer): Pointer; cdecl;
   TSSL_CTX_free = procedure(ctx: Pointer); cdecl;
-  TSSL_CTX_ctrl = function(ctx: Pointer; cmd: Integer; larg: NativeInt; parg: Pointer): NativeInt; cdecl;
+  TSSL_CTX_ctrl = function(ctx: Pointer; cmd: Integer; larg: NativeInt;
+    parg: Pointer): NativeInt; cdecl;
   TSSL_CTX_set_default_verify_paths = function(ctx: Pointer): Integer; cdecl;
-  TSSL_CTX_load_verify_locations = function(ctx: Pointer; CAfile, CApath: PAnsiChar): Integer; cdecl;
-  TSSL_CTX_set_verify = procedure(ctx: Pointer; mode: Integer; cb: Pointer); cdecl;
-  TSSL_CTX_use_certificate_file = function(ctx: Pointer; FileName: PAnsiChar; FileType: Integer): Integer; cdecl;
-  TSSL_CTX_use_PrivateKey_file  = function(ctx: Pointer; FileName: PAnsiChar; FileType: Integer): Integer; cdecl;
-  TSSL_CTX_check_private_key    = function(ctx: Pointer): Integer; cdecl;
-  TSSL_CTX_set_cipher_list      = function(ctx: Pointer; const Str: PAnsiChar): Integer; cdecl;
-  TSSL_CTX_set_ciphersuites     = function(ctx: Pointer; const Str: PAnsiChar): Integer; cdecl;
+  TSSL_CTX_load_verify_locations = function(ctx: Pointer;
+    CAFile, CAPath: PAnsiChar): Integer; cdecl;
+  TSSL_CTX_set_verify = procedure(ctx: Pointer; mode: Integer;
+    cb: Pointer); cdecl;
+  TSSL_CTX_use_certificate_file = function(ctx: Pointer; FileName: PAnsiChar;
+    FileType: Integer): Integer; cdecl;
+  TSSL_CTX_use_PrivateKey_file = function(ctx: Pointer; FileName: PAnsiChar;
+    FileType: Integer): Integer; cdecl;
+  TSSL_CTX_check_private_key = function(ctx: Pointer): Integer; cdecl;
+  TSSL_CTX_set_cipher_list = function(ctx: Pointer; const Str: PAnsiChar)
+    : Integer; cdecl;
+  TSSL_CTX_set_ciphersuites = function(ctx: Pointer; const Str: PAnsiChar)
+    : Integer; cdecl;
 
-  TSSL_new                      = function(ctx: Pointer): Pointer; cdecl;
-  TSSL_free                     = procedure(ssl: Pointer); cdecl;
-  TSSL_set_fd                   = function(ssl: Pointer; fd: Integer): Integer; cdecl;
-  TSSL_ctrl                     = function(ssl: Pointer; cmd: Integer; larg: NativeInt; parg: Pointer): NativeInt; cdecl;
-  TSSL_set1_host                = function(ssl: Pointer; const hostname: PAnsiChar): Integer; cdecl;
-  TSSL_connect                  = function(ssl: Pointer): Integer; cdecl;
-  TSSL_shutdown                 = function(ssl: Pointer): Integer; cdecl;
-  TSSL_read                     = function(ssl: Pointer; buf: Pointer; num: Integer): Integer; cdecl;
-  TSSL_write                    = function(ssl: Pointer; const buf: Pointer; num: Integer): Integer; cdecl;
-  TSSL_get_error                = function(ssl: Pointer; ret: Integer): Integer; cdecl;
-  TSSL_pending                  = function(ssl: Pointer): Integer; cdecl;
-  TSSL_get_verify_result        = function(ssl: Pointer): NativeInt; cdecl;
+  TSSL_new = function(ctx: Pointer): Pointer; cdecl;
+  TSSL_free = procedure(ssl: Pointer); cdecl;
+  TSSL_set_fd = function(ssl: Pointer; fd: Integer): Integer; cdecl;
+  TSSL_ctrl = function(ssl: Pointer; cmd: Integer; larg: NativeInt;
+    parg: Pointer): NativeInt; cdecl;
+  TSSL_set1_host = function(ssl: Pointer; const hostname: PAnsiChar)
+    : Integer; cdecl;
+  TSSL_connect = function(ssl: Pointer): Integer; cdecl;
+  TSSL_shutdown = function(ssl: Pointer): Integer; cdecl;
+  TSSL_read = function(ssl: Pointer; buf: Pointer; num: Integer)
+    : Integer; cdecl;
+  TSSL_write = function(ssl: Pointer; const buf: Pointer; num: Integer)
+    : Integer; cdecl;
+  TSSL_get_error = function(ssl: Pointer; ret: Integer): Integer; cdecl;
+  TSSL_pending = function(ssl: Pointer): Integer; cdecl;
+  TSSL_get_verify_result = function(ssl: Pointer): NativeInt; cdecl;
 
   TX509_STORE_CTX_get_error = function(ctx: Pointer): Integer; cdecl;
   TX509_STORE_CTX_get_error_depth = function(ctx: Pointer): Integer; cdecl;
   TSSL_get0_param = function(ssl: Pointer): Pointer; cdecl;
-  TX509_VERIFY_PARAM_set1_ip_asc = function(param: Pointer; ip: PAnsiChar): Integer; cdecl;
+  TX509_VERIFY_PARAM_set1_ip_asc = function(param: Pointer; ip: PAnsiChar)
+    : Integer; cdecl;
 
-  TERR_get_error                = function: NativeUInt; cdecl;
-  TERR_error_string_n           = procedure(e: NativeUInt; buf: PAnsiChar; len: NativeUInt); cdecl;
+  TERR_get_error = function: NativeUInt; cdecl;
+  TERR_error_string_n = procedure(e: NativeUInt; buf: PAnsiChar;
+    len: NativeUInt); cdecl;
 
 var
   GLibSSLLoaded: Boolean = False;
@@ -351,64 +358,75 @@ procedure NeedProc(ALib: HMODULE; var P; const AName: AnsiString;
 begin
   Pointer(P) := ResolveProc(ALib, AName);
   if Pointer(P) = nil then
-    raise EOBDError.CreateFmt(
-      '%s missing OpenSSL symbol "%s" — DLL is too old or stripped',
+    raise EOBDError.CreateFmt
+      ('%s missing OpenSSL symbol "%s" — DLL is too old or stripped',
       [ALibLabel, string(AName)]);
 end;
 
 procedure DoLoadOpenSSL;
 begin
-  if GLibSSLLoaded then Exit;
+  if GLibSSLLoaded then
+    Exit;
 
   GLibCrypto := TryLoadLib(LIBCRYPTO_NAME);
   if GLibCrypto = 0 then
     GLibCrypto := TryLoadLib(LIBCRYPTO_FALLBACK1);
   if GLibCrypto = 0 then
-    raise EOBDError.CreateFmt(
-      'OpenSSL libcrypto could not be loaded (%s / %s) — drop the OpenSSL 3.x DLLs next to the host EXE',
+    raise EOBDError.CreateFmt
+      ('OpenSSL libcrypto could not be loaded (%s / %s) — drop the OpenSSL 3.x DLLs next to the host EXE',
       [LIBCRYPTO_NAME, LIBCRYPTO_FALLBACK1]);
 
   GLibSSL := TryLoadLib(LIBSSL_NAME);
   if GLibSSL = 0 then
     GLibSSL := TryLoadLib(LIBSSL_FALLBACK1);
   if GLibSSL = 0 then
-    raise EOBDError.CreateFmt(
-      'OpenSSL libssl could not be loaded (%s / %s) — drop the OpenSSL 3.x DLLs next to the host EXE',
+    raise EOBDError.CreateFmt
+      ('OpenSSL libssl could not be loaded (%s / %s) — drop the OpenSSL 3.x DLLs next to the host EXE',
       [LIBSSL_NAME, LIBSSL_FALLBACK1]);
 
-  NeedProc(GLibSSL, OPENSSL_init_ssl,                    'OPENSSL_init_ssl', 'libssl');
-  NeedProc(GLibSSL, TLS_client_method,                   'TLS_client_method', 'libssl');
-  NeedProc(GLibSSL, SSL_CTX_new_F,                       'SSL_CTX_new', 'libssl');
-  NeedProc(GLibSSL, SSL_CTX_free_F,                      'SSL_CTX_free', 'libssl');
-  NeedProc(GLibSSL, SSL_CTX_ctrl_F,                      'SSL_CTX_ctrl', 'libssl');
-  NeedProc(GLibSSL, SSL_CTX_set_default_verify_paths_F,  'SSL_CTX_set_default_verify_paths', 'libssl');
-  NeedProc(GLibSSL, SSL_CTX_load_verify_locations_F,     'SSL_CTX_load_verify_locations', 'libssl');
-  NeedProc(GLibSSL, SSL_CTX_set_verify_F,                'SSL_CTX_set_verify', 'libssl');
-  NeedProc(GLibSSL, SSL_CTX_use_certificate_file_F,      'SSL_CTX_use_certificate_file', 'libssl');
-  NeedProc(GLibSSL, SSL_CTX_use_PrivateKey_file_F,       'SSL_CTX_use_PrivateKey_file', 'libssl');
-  NeedProc(GLibSSL, SSL_CTX_check_private_key_F,         'SSL_CTX_check_private_key', 'libssl');
-  NeedProc(GLibSSL, SSL_CTX_set_cipher_list_F,           'SSL_CTX_set_cipher_list', 'libssl');
-  NeedProc(GLibSSL, SSL_CTX_set_ciphersuites_F,          'SSL_CTX_set_ciphersuites', 'libssl');
+  NeedProc(GLibSSL, OPENSSL_init_ssl, 'OPENSSL_init_ssl', 'libssl');
+  NeedProc(GLibSSL, TLS_client_method, 'TLS_client_method', 'libssl');
+  NeedProc(GLibSSL, SSL_CTX_new_F, 'SSL_CTX_new', 'libssl');
+  NeedProc(GLibSSL, SSL_CTX_free_F, 'SSL_CTX_free', 'libssl');
+  NeedProc(GLibSSL, SSL_CTX_ctrl_F, 'SSL_CTX_ctrl', 'libssl');
+  NeedProc(GLibSSL, SSL_CTX_set_default_verify_paths_F,
+    'SSL_CTX_set_default_verify_paths', 'libssl');
+  NeedProc(GLibSSL, SSL_CTX_load_verify_locations_F,
+    'SSL_CTX_load_verify_locations', 'libssl');
+  NeedProc(GLibSSL, SSL_CTX_set_verify_F, 'SSL_CTX_set_verify', 'libssl');
+  NeedProc(GLibSSL, SSL_CTX_use_certificate_file_F,
+    'SSL_CTX_use_certificate_file', 'libssl');
+  NeedProc(GLibSSL, SSL_CTX_use_PrivateKey_file_F,
+    'SSL_CTX_use_PrivateKey_file', 'libssl');
+  NeedProc(GLibSSL, SSL_CTX_check_private_key_F, 'SSL_CTX_check_private_key',
+    'libssl');
+  NeedProc(GLibSSL, SSL_CTX_set_cipher_list_F, 'SSL_CTX_set_cipher_list',
+    'libssl');
+  NeedProc(GLibSSL, SSL_CTX_set_ciphersuites_F, 'SSL_CTX_set_ciphersuites',
+    'libssl');
 
-  NeedProc(GLibSSL, SSL_new_F,                'SSL_new', 'libssl');
-  NeedProc(GLibSSL, SSL_free_F,               'SSL_free', 'libssl');
-  NeedProc(GLibSSL, SSL_set_fd_F,             'SSL_set_fd', 'libssl');
-  NeedProc(GLibSSL, SSL_ctrl_F,               'SSL_ctrl', 'libssl');
-  NeedProc(GLibSSL, SSL_set1_host_F,          'SSL_set1_host', 'libssl');
-  NeedProc(GLibSSL, SSL_connect_F,            'SSL_connect', 'libssl');
-  NeedProc(GLibSSL, SSL_shutdown_F,           'SSL_shutdown', 'libssl');
-  NeedProc(GLibSSL, SSL_read_F,               'SSL_read', 'libssl');
-  NeedProc(GLibSSL, SSL_write_F,              'SSL_write', 'libssl');
-  NeedProc(GLibSSL, SSL_get_error_F,          'SSL_get_error', 'libssl');
-  NeedProc(GLibSSL, SSL_pending_F,            'SSL_pending', 'libssl');
-  NeedProc(GLibSSL, SSL_get_verify_result_F,  'SSL_get_verify_result', 'libssl');
+  NeedProc(GLibSSL, SSL_new_F, 'SSL_new', 'libssl');
+  NeedProc(GLibSSL, SSL_free_F, 'SSL_free', 'libssl');
+  NeedProc(GLibSSL, SSL_set_fd_F, 'SSL_set_fd', 'libssl');
+  NeedProc(GLibSSL, SSL_ctrl_F, 'SSL_ctrl', 'libssl');
+  NeedProc(GLibSSL, SSL_set1_host_F, 'SSL_set1_host', 'libssl');
+  NeedProc(GLibSSL, SSL_connect_F, 'SSL_connect', 'libssl');
+  NeedProc(GLibSSL, SSL_shutdown_F, 'SSL_shutdown', 'libssl');
+  NeedProc(GLibSSL, SSL_read_F, 'SSL_read', 'libssl');
+  NeedProc(GLibSSL, SSL_write_F, 'SSL_write', 'libssl');
+  NeedProc(GLibSSL, SSL_get_error_F, 'SSL_get_error', 'libssl');
+  NeedProc(GLibSSL, SSL_pending_F, 'SSL_pending', 'libssl');
+  NeedProc(GLibSSL, SSL_get_verify_result_F, 'SSL_get_verify_result', 'libssl');
 
-  NeedProc(GLibCrypto, X509_STORE_CTX_get_error_F, 'X509_STORE_CTX_get_error', 'libcrypto');
-  NeedProc(GLibCrypto, X509_STORE_CTX_get_error_depth_F, 'X509_STORE_CTX_get_error_depth', 'libcrypto');
+  NeedProc(GLibCrypto, X509_STORE_CTX_get_error_F, 'X509_STORE_CTX_get_error',
+    'libcrypto');
+  NeedProc(GLibCrypto, X509_STORE_CTX_get_error_depth_F,
+    'X509_STORE_CTX_get_error_depth', 'libcrypto');
   NeedProc(GLibSSL, SSL_get0_param_F, 'SSL_get0_param', 'libssl');
-  NeedProc(GLibCrypto, X509_VERIFY_PARAM_set1_ip_asc_F, 'X509_VERIFY_PARAM_set1_ip_asc', 'libcrypto');
-  NeedProc(GLibCrypto, ERR_get_error_F,       'ERR_get_error', 'libcrypto');
-  NeedProc(GLibCrypto, ERR_error_string_n_F,  'ERR_error_string_n', 'libcrypto');
+  NeedProc(GLibCrypto, X509_VERIFY_PARAM_set1_ip_asc_F,
+    'X509_VERIFY_PARAM_set1_ip_asc', 'libcrypto');
+  NeedProc(GLibCrypto, ERR_get_error_F, 'ERR_get_error', 'libcrypto');
+  NeedProc(GLibCrypto, ERR_error_string_n_F, 'ERR_error_string_n', 'libcrypto');
 
   // Initialise the library (idempotent in OpenSSL 3.x).
   OPENSSL_init_ssl(0, nil);
@@ -418,7 +436,8 @@ end;
 
 procedure EnsureOpenSSLLoaded;
 begin
-  if GLibSSLLoaded then Exit;
+  if GLibSSLLoaded then
+    Exit;
   GLoadLock.Enter;
   try
     DoLoadOpenSSL;
@@ -429,13 +448,13 @@ end;
 
 function DefaultDoIPTLSOptions: TOBDDoIPTLSOptions;
 begin
-  Result.VerifyMode      := vmRequire;
-  Result.CAFile          := '';
-  Result.CAPath          := '';
-  Result.ClientCertFile  := '';
-  Result.ClientKeyFile   := '';
-  Result.CipherList      := '';
-  Result.Ciphersuites    := '';
+  Result.VerifyMode := vmRequire;
+  Result.CAFile := '';
+  Result.CAPath := '';
+  Result.ClientCertFile := '';
+  Result.ClientKeyFile := '';
+  Result.CipherList := '';
+  Result.Ciphersuites := '';
 end;
 
 { ---- TOBDDoIPOpenSSLTransport ----------------------------------------------- }
@@ -449,8 +468,8 @@ constructor TOBDDoIPOpenSSLTransport.Create(const AOptions: TOBDDoIPTLSOptions);
 begin
   inherited Create;
   FOptions := AOptions;
-  FRxLock  := TCriticalSection.Create;
-  FTxLock  := TCriticalSection.Create;
+  FRxLock := TCriticalSection.Create;
+  FTxLock := TCriticalSection.Create;
 {$IFDEF MSWINDOWS}
   FSocket := INVALID_SOCKET;
 {$ELSE}
@@ -471,7 +490,7 @@ procedure TOBDDoIPOpenSSLTransport.RaiseSSL(const AContext: string;
   AReturn: Integer);
 var
   Err: NativeUInt;
-  Buf: array[0..255] of AnsiChar;
+  buf: array [0 .. 255] of AnsiChar;
   Detail: string;
   SslErr: Integer;
 begin
@@ -484,9 +503,9 @@ begin
   Err := ERR_get_error_F();
   if Err <> 0 then
   begin
-    FillChar(Buf, SizeOf(Buf), 0);
-    ERR_error_string_n_F(Err, @Buf[0], SizeOf(Buf) - 1);
-    Detail := Detail + ' ' + string(AnsiString(Buf));
+    FillChar(buf, SizeOf(buf), 0);
+    ERR_error_string_n_F(Err, @buf[0], SizeOf(buf) - 1);
+    Detail := Detail + ' ' + string(AnsiString(buf));
   end;
   raise EOBDError.CreateFmt('OpenSSL: %s%s', [AContext, Detail]);
 end;
@@ -529,50 +548,63 @@ begin
 {$ENDIF}
 end;
 
-function VerifySelfSignedLeaf(APreverified: Integer; AStore: Pointer): Integer; cdecl;
+function VerifySelfSignedLeaf(APreverified: Integer; AStore: Pointer)
+  : Integer; cdecl;
 begin
   Result := APreverified;
-  if (Result = 0) and
-     (X509_STORE_CTX_get_error_F(AStore) = X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT) and
-     (X509_STORE_CTX_get_error_depth_F(AStore) = 0) then Result := 1;
+  if (Result = 0) and (X509_STORE_CTX_get_error_F(AStore)
+    = X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT) and
+    (X509_STORE_CTX_get_error_depth_F(AStore) = 0) then
+    Result := 1;
 end;
 
 function IsIPv4Literal(const AHost: string): Boolean;
-var Parts: TArray<string>; Part: string; Value: Integer; C: Char;
+var
+  Parts: TArray<string>;
+  Part: string;
+  Value: Integer;
+  C: Char;
 begin
   Result := False;
   Parts := AHost.Split(['.']);
-  if Length(Parts) <> 4 then Exit;
+  if Length(Parts) <> 4 then
+    Exit;
   for Part in Parts do
   begin
-    if Part = '' then Exit;
-    for C in Part do if not CharInSet(C, ['0'..'9']) then Exit;
-    if not TryStrToInt(Part, Value) or (Value < 0) or (Value > 255) then Exit;
+    if Part = '' then
+      Exit;
+    for C in Part do
+      if not CharInSet(C, ['0' .. '9']) then
+        Exit;
+    if not TryStrToInt(Part, Value) or (Value < 0) or (Value > 255) then
+      Exit;
   end;
   Result := True;
 end;
 
 procedure TOBDDoIPOpenSSLTransport.ConfigureContext(const AHost: string);
 var
-  Method: Pointer;
+  method: Pointer;
   VerifyMode: Integer;
   CA, CAP: AnsiString;
   CAPointer, CAPathPointer: PAnsiChar;
   CertFile, KeyFile: AnsiString;
   Cipher: AnsiString;
 begin
-  Method := TLS_client_method();
-  if Method = nil then
+  method := TLS_client_method();
+  if method = nil then
     RaiseSSL('TLS_client_method returned nil', 0);
 
-  FCtx := SSL_CTX_new_F(Method);
+  FCtx := SSL_CTX_new_F(method);
   if FCtx = nil then
     RaiseSSL('SSL_CTX_new failed', 0);
 
   // TLS 1.2 minimum, TLS 1.3 maximum.
-  if SSL_CTX_ctrl_F(FCtx, SSL_CTRL_SET_MIN_PROTO_VERSION, TLS1_2_VERSION, nil) <> 1 then
+  if SSL_CTX_ctrl_F(FCtx, SSL_CTRL_SET_MIN_PROTO_VERSION, TLS1_2_VERSION,
+    nil) <> 1 then
     RaiseSSL('SSL_CTX_set_min_proto_version(TLS1.2) failed', 0);
-  if SSL_CTX_ctrl_F(FCtx, SSL_CTRL_SET_MAX_PROTO_VERSION, TLS1_3_VERSION, nil) <> 1 then
+  if SSL_CTX_ctrl_F(FCtx, SSL_CTRL_SET_MAX_PROTO_VERSION, TLS1_3_VERSION,
+    nil) <> 1 then
     RaiseSSL('SSL_CTX_set_max_proto_version(TLS1.3) failed', 0);
 
   case FOptions.VerifyMode of
@@ -587,17 +619,21 @@ begin
   end;
   if FOptions.VerifyMode = vmAllowSelfSigned then
     SSL_CTX_set_verify_F(FCtx, VerifyMode, @VerifySelfSignedLeaf)
-  else SSL_CTX_set_verify_F(FCtx, VerifyMode, nil);
+  else
+    SSL_CTX_set_verify_F(FCtx, VerifyMode, nil);
 
   // CA roots — always populate, even when not strictly verifying,
   // so a host that switches policy doesn't have to re-init.
   if (FOptions.CAFile <> '') or (FOptions.CAPath <> '') then
   begin
-    CA  := AnsiString(FOptions.CAFile);
+    CA := AnsiString(FOptions.CAFile);
     CAP := AnsiString(FOptions.CAPath);
-    CAPointer := nil; CAPathPointer := nil;
-    if CA <> '' then CAPointer := PAnsiChar(CA);
-    if CAP <> '' then CAPathPointer := PAnsiChar(CAP);
+    CAPointer := nil;
+    CAPathPointer := nil;
+    if CA <> '' then
+      CAPointer := PAnsiChar(CA);
+    if CAP <> '' then
+      CAPathPointer := PAnsiChar(CAP);
     if SSL_CTX_load_verify_locations_F(FCtx, CAPointer, CAPathPointer) <> 1 then
       RaiseSSL('SSL_CTX_load_verify_locations failed', 0);
   end
@@ -635,22 +671,26 @@ begin
   end;
 
   // Suppress unused warning when host is only used by the SSL layer.
-  if AHost = '' then ; // no-op
+  if AHost = '' then; // no-op
 end;
 
 function IfThenStr(ACond: Boolean; const AT, AF: AnsiString): AnsiString;
 begin
-  if ACond then Result := AT else Result := AF;
+  if ACond then
+    Result := AT
+  else
+    Result := AF;
 end;
 
 {$IFDEF MSWINDOWS}
+
 procedure TOBDDoIPOpenSSLTransport.DoTcpConnect(const AHost: string;
   APort: Word; ATimeoutMs: Cardinal);
 var
   Hints: TAddrInfoW;
   Res, Cur: PAddrInfoW;
   RC: Integer;
-  Mode: u_long;
+  mode: u_long;
   WS: TWSAData;
   FdSet: TFDSet;
   TV: TTimeVal;
@@ -662,7 +702,7 @@ begin
     raise EOBDError.Create('WSAStartup failed');
 
   FillChar(Hints, SizeOf(Hints), 0);
-  Hints.ai_family   := AF_UNSPEC;
+  Hints.ai_family := AF_UNSPEC;
   Hints.ai_socktype := SOCK_STREAM;
   Hints.ai_protocol := IPPROTO_TCP;
 
@@ -677,18 +717,19 @@ begin
     FSocket := INVALID_SOCKET;
     while Cur <> nil do
     begin
-      FSocket := socket(Cur.ai_family, Cur.ai_socktype, Cur.ai_protocol);
+      FSocket := Socket(Cur.ai_family, Cur.ai_socktype, Cur.ai_protocol);
       if FSocket <> INVALID_SOCKET then
       begin
         // Non-blocking for connect timeout.
-        Mode := 1;
-        ioctlsocket(FSocket, DWORD($8004667E), Mode);
+        mode := 1;
+        ioctlsocket(FSocket, DWORD($8004667E), mode);
 
-        if Winapi.Winsock2.connect(FSocket, Cur.ai_addr^, Cur.ai_addrlen) = 0 then
+        if Winapi.Winsock2.Connect(FSocket, Cur.ai_addr^, Cur.ai_addrlen) = 0
+        then
         begin
           // immediate connect
-          Mode := 0;
-          ioctlsocket(FSocket, DWORD($8004667E), Mode);
+          mode := 0;
+          ioctlsocket(FSocket, DWORD($8004667E), mode);
           Break;
         end;
 
@@ -697,19 +738,19 @@ begin
           FillChar(FdSet, SizeOf(FdSet), 0);
           FdSet.fd_count := 1;
           FdSet.fd_array[0] := FSocket;
-          TV.tv_sec  := Integer(ATimeoutMs div 1000);
+          TV.tv_sec := Integer(ATimeoutMs div 1000);
           TV.tv_usec := Integer((ATimeoutMs mod 1000) * 1000);
           RC := select(0, nil, @FdSet, nil, @TV);
           if RC > 0 then
           begin
             SoErr := 0;
             SoErrLen := SizeOf(SoErr);
-            getsockopt(FSocket, SOL_SOCKET, SO_ERROR,
-              PAnsiChar(@SoErr), SoErrLen);
+            getsockopt(FSocket, SOL_SOCKET, SO_ERROR, PAnsiChar(@SoErr),
+              SoErrLen);
             if SoErr = 0 then
             begin
-              Mode := 0;
-              ioctlsocket(FSocket, DWORD($8004667E), Mode);
+              mode := 0;
+              ioctlsocket(FSocket, DWORD($8004667E), mode);
               Break;
             end;
           end;
@@ -721,35 +762,41 @@ begin
       Cur := Cur.ai_next;
     end;
   finally
-    if Res <> nil then FreeAddrInfoW(Res^);
+    if Res <> nil then
+      FreeAddrInfoW(Res^);
   end;
 
   if FSocket = INVALID_SOCKET then
-    raise EOBDError.CreateFmt('DoIP TLS: TCP connect to %s:%d timed out / refused',
-      [AHost, APort]);
+    raise EOBDError.CreateFmt
+      ('DoIP TLS: TCP connect to %s:%d timed out / refused', [AHost, APort]);
 
   // Apply send/recv timeouts so SSL_read / SSL_write surface as
   // SSL_ERROR_WANT_READ / SSL_ERROR_SYSCALL on inactivity.
-  setsockopt(FSocket, SOL_SOCKET, SO_RCVTIMEO,
-    PAnsiChar(@ATimeoutMs), SizeOf(ATimeoutMs));
-  setsockopt(FSocket, SOL_SOCKET, SO_SNDTIMEO,
-    PAnsiChar(@ATimeoutMs), SizeOf(ATimeoutMs));
+  setsockopt(FSocket, SOL_SOCKET, SO_RCVTIMEO, PAnsiChar(@ATimeoutMs),
+    SizeOf(ATimeoutMs));
+  setsockopt(FSocket, SOL_SOCKET, SO_SNDTIMEO, PAnsiChar(@ATimeoutMs),
+    SizeOf(ATimeoutMs));
 end;
 {$ELSE}
+
 procedure TOBDDoIPOpenSSLTransport.DoTcpConnect(const AHost: string;
   APort: Word; ATimeoutMs: Cardinal);
-{$IFDEF FPC}var Native: ERD.Compat.Socket.TSocket;{$ENDIF}
+{$IFDEF FPC}var
+  Native: ERD.Compat.Socket.TSocket; {$ENDIF}
 begin
 {$IFDEF FPC}
   Native := ERD.Compat.Socket.TSocket.Create(TSocketType.TCP);
   try
-    Native.Connect(TNetEndpoint.Create(TIPAddress.LookupName(AHost), APort), ATimeoutMs);
+    Native.Connect(TNetEndpoint.Create(TIPAddress.LookupName(AHost), APort),
+      ATimeoutMs);
     Native.SetTimeouts(ATimeoutMs);
     FSocket := Native.DetachHandle;
-  finally Native.Free end;
+  finally
+    Native.Free
+  end;
 {$ELSE}
-  raise EOBDError.Create(
-    'DoIP TLS: non-Windows TCP path not implemented in this build');
+  raise EOBDError.Create
+    ('DoIP TLS: non-Windows TCP path not implemented in this build');
 {$ENDIF}
 end;
 {$ENDIF}
@@ -769,8 +816,8 @@ begin
   HostA := AnsiString(AHost);
 
   // SNI — required for any modern TLS endpoint.
-  if SSL_ctrl_F(FSsl, SSL_CTRL_SET_TLSEXT_HOSTNAME,
-    TLSEXT_NAMETYPE_host_name, PAnsiChar(HostA)) <> 1 then
+  if SSL_ctrl_F(FSsl, SSL_CTRL_SET_TLSEXT_HOSTNAME, TLSEXT_NAMETYPE_host_name,
+    PAnsiChar(HostA)) <> 1 then
     RaiseSSL('SSL_set_tlsext_host_name failed', 0);
 
   // Hostname verification — covers vmRequire and vmAllowSelfSigned.
@@ -778,7 +825,8 @@ begin
   begin
     if IsIPv4Literal(AHost) then
     begin
-      if X509_VERIFY_PARAM_set1_ip_asc_F(SSL_get0_param_F(FSsl), PAnsiChar(HostA)) <> 1 then
+      if X509_VERIFY_PARAM_set1_ip_asc_F(SSL_get0_param_F(FSsl),
+        PAnsiChar(HostA)) <> 1 then
         RaiseSSL('IP certificate verification setup failed', 0);
     end
     else if SSL_set1_host_F(FSsl, PAnsiChar(HostA)) <> 1 then
@@ -795,8 +843,7 @@ begin
     if RC = 1 then
       Break;
     ErrCode := SSL_get_error_F(FSsl, RC);
-    if (ErrCode = SSL_ERROR_WANT_READ) or
-       (ErrCode = SSL_ERROR_WANT_WRITE) then
+    if (ErrCode = SSL_ERROR_WANT_READ) or (ErrCode = SSL_ERROR_WANT_WRITE) then
     begin
       if Cardinal(Sw.ElapsedMilliseconds) >= ATimeoutMs then
         raise EOBDError.Create('DoIP TLS: handshake timed out');
@@ -812,13 +859,13 @@ begin
   if FOptions.VerifyMode = vmRequire then
   begin
     if SSL_get_verify_result_F(FSsl) <> X509_V_OK then
-      raise EOBDError.Create(
-        'DoIP TLS: server certificate verification failed');
+      raise EOBDError.Create
+        ('DoIP TLS: server certificate verification failed');
   end;
 end;
 
-procedure TOBDDoIPOpenSSLTransport.Connect(const AHost: string;
-  APort: Word; ATimeoutMs: Cardinal);
+procedure TOBDDoIPOpenSSLTransport.Connect(const AHost: string; APort: Word;
+  ATimeoutMs: Cardinal);
 begin
   if FConnected then
     raise EOBDConfig.Create('DoIP TLS: already connected');
@@ -838,7 +885,8 @@ end;
 
 procedure TOBDDoIPOpenSSLTransport.Disconnect;
 begin
-  if not FConnected and (FSsl = nil) and (FCtx = nil) then Exit;
+  if not FConnected and (FSsl = nil) and (FCtx = nil) then
+    Exit;
   FTxLock.Enter;
   try
     FRxLock.Enter;
@@ -866,7 +914,8 @@ begin
   if not IsConnected then
     raise EOBDNotConnected.Create('DoIP TLS transport not connected');
   Total := Length(ABytes);
-  if Total = 0 then Exit(0);
+  if Total = 0 then
+    Exit(0);
 
   Written := 0;
   FTxLock.Enter;
@@ -880,8 +929,8 @@ begin
         Continue;
       end;
       ErrCode := SSL_get_error_F(FSsl, RC);
-      if (ErrCode = SSL_ERROR_WANT_READ) or
-         (ErrCode = SSL_ERROR_WANT_WRITE) then
+      if (ErrCode = SSL_ERROR_WANT_READ) or (ErrCode = SSL_ERROR_WANT_WRITE)
+      then
       begin
         Sleep(5);
         Continue;
@@ -899,23 +948,23 @@ function TOBDDoIPOpenSSLTransport.Receive(AMaxBytes: Integer;
 var
   Sw: TStopwatch;
   RC, ErrCode: Integer;
-  Cap: Integer;
+  CAP: Integer;
 begin
   if not IsConnected then
     raise EOBDNotConnected.Create('DoIP TLS transport not connected');
 
   if AMaxBytes <= 0 then
-    Cap := 16 * 1024
+    CAP := 16 * 1024
   else
-    Cap := AMaxBytes;
+    CAP := AMaxBytes;
 
-  SetLength(Result, Cap);
+  SetLength(Result, CAP);
   Sw := TStopwatch.StartNew;
   FRxLock.Enter;
   try
     while True do
     begin
-      RC := SSL_read_F(FSsl, @Result[0], Cap);
+      RC := SSL_read_F(FSsl, @Result[0], CAP);
       if RC > 0 then
       begin
         SetLength(Result, RC);
@@ -924,21 +973,21 @@ begin
       ErrCode := SSL_get_error_F(FSsl, RC);
       case ErrCode of
         SSL_ERROR_ZERO_RETURN:
-        begin
-          // Clean shutdown from peer.
-          SetLength(Result, 0);
-          Exit;
-        end;
-        SSL_ERROR_WANT_READ, SSL_ERROR_WANT_WRITE:
-        begin
-          if Cardinal(Sw.ElapsedMilliseconds) >= ATimeoutMs then
           begin
+            // Clean shutdown from peer.
             SetLength(Result, 0);
             Exit;
           end;
-          Sleep(10);
-          Continue;
-        end;
+        SSL_ERROR_WANT_READ, SSL_ERROR_WANT_WRITE:
+          begin
+            if Cardinal(Sw.ElapsedMilliseconds) >= ATimeoutMs then
+            begin
+              SetLength(Result, 0);
+              Exit;
+            end;
+            Sleep(10);
+            Continue;
+          end;
       else
         if Cardinal(Sw.ElapsedMilliseconds) >= ATimeoutMs then
         begin
@@ -955,25 +1004,29 @@ begin
 end;
 
 initialization
-  GLoadLock := TCriticalSection.Create;
+
+GLoadLock := TCriticalSection.Create;
 
 finalization
-  if GLibSSL <> 0 then
-  begin
+
+if GLibSSL <> 0 then
+begin
 {$IFDEF MSWINDOWS}
-    FreeLibrary(GLibSSL);
+  FreeLibrary(GLibSSL);
 {$ENDIF}
-    {$IFDEF FPC}{$IFNDEF MSWINDOWS}DynLibs.UnloadLibrary(GLibSSL);{$ENDIF}{$ENDIF}
-    GLibSSL := 0;
-  end;
-  if GLibCrypto <> 0 then
-  begin
+{$IFDEF FPC}{$IFNDEF MSWINDOWS}DynLibs.UnloadLibrary(GLibSSL);
+  {$ENDIF}{$ENDIF}
+  GLibSSL := 0;
+end;
+if GLibCrypto <> 0 then
+begin
 {$IFDEF MSWINDOWS}
-    FreeLibrary(GLibCrypto);
+  FreeLibrary(GLibCrypto);
 {$ENDIF}
-    {$IFDEF FPC}{$IFNDEF MSWINDOWS}DynLibs.UnloadLibrary(GLibCrypto);{$ENDIF}{$ENDIF}
-    GLibCrypto := 0;
-  end;
-  GLoadLock.Free;
+{$IFDEF FPC}{$IFNDEF MSWINDOWS}DynLibs.UnloadLibrary(GLibCrypto);
+  {$ENDIF}{$ENDIF}
+  GLibCrypto := 0;
+end;
+GLoadLock.Free;
 
 end.

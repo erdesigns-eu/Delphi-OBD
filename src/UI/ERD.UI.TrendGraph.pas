@@ -1,45 +1,45 @@
-//------------------------------------------------------------------------------
-//  ERD.UI.TrendGraph
+﻿// ------------------------------------------------------------------------------
+// ERD.UI.TrendGraph
 //
-//  TOBDTrendGraph — live multi-series time-series plot. Each
-//  series owns a ring buffer of up to <see cref="MaxSamples"/>
-//  values; calling <see cref="PushValue"/> appends a new sample
-//  and self-invalidates so the buffer scrolls left-to-right.
+// TOBDTrendGraph — live multi-series time-series plot. Each
+// series owns a ring buffer of up to <see cref="MaxSamples"/>
+// values; calling <see cref="PushValue"/> appends a new sample
+// and self-invalidates so the buffer scrolls left-to-right.
 //
-//  Each series is normalised against its own <c>Min</c> /
-//  <c>Max</c> range so series with wildly different units
-//  (engine RPM vs throttle %) coexist on one plot.
+// Each series is normalised against its own <c>Min</c> /
+// <c>Max</c> range so series with wildly different units
+// (engine RPM vs throttle %) coexist on one plot.
 //
-//  Built on <c>TCustomControl</c> with native VCL
-//  <c>TCanvas</c> painting (no third-party renderer).
+// Built on <c>TCustomControl</c> with native VCL
+// <c>TCanvas</c> painting (no third-party renderer).
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-11  ERD  Initial port from v1 ERD.TrendGraph.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-11  ERD  Initial port from v1 ERD.TrendGraph.
+// ------------------------------------------------------------------------------
 
 unit ERD.UI.TrendGraph;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
-  {$IFDEF FPC}Types{$ELSE}System.Types{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}Types{$ELSE}System.Types{$ENDIF},
   System.UITypes,
-  {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
+{$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
   Vcl.Controls,
   Vcl.Graphics,
   Winapi.Windows,
@@ -47,30 +47,30 @@ uses
 
 const
   /// <summary>Default ring-buffer length per series.</summary>
-  TG_DEFAULT_MAX_SAMPLES   = 200;
+  TG_DEFAULT_MAX_SAMPLES = 200;
   /// <summary>Default chart-area background colour.</summary>
-  TG_DEFAULT_BACKGROUND    = TColor($00181818);
+  TG_DEFAULT_BACKGROUND = TColor($00181818);
   /// <summary>Default grid-line colour.</summary>
-  TG_DEFAULT_GRID_COLOR    = TColor($002A2A2A);
+  TG_DEFAULT_GRID_COLOR = TColor($002A2A2A);
   /// <summary>Default border / axis colour.</summary>
-  TG_DEFAULT_BORDER_COLOR  = TColor($00404040);
+  TG_DEFAULT_BORDER_COLOR = TColor($00404040);
   /// <summary>Default text colour for the legend.</summary>
-  TG_DEFAULT_TEXT_COLOR    = clWhite;
+  TG_DEFAULT_TEXT_COLOR = clWhite;
   /// <summary>Inner padding around the chart area.</summary>
-  TG_DEFAULT_PADDING       = 8;
+  TG_DEFAULT_PADDING = 8;
   /// <summary>Legend strip height.</summary>
   TG_DEFAULT_LEGEND_HEIGHT = 18;
   /// <summary>Polyline stroke width.</summary>
-  TG_DEFAULT_STROKE_WIDTH  = 2;
+  TG_DEFAULT_STROKE_WIDTH = 2;
 
 type
   /// <summary>
-  ///   One named series.
+  /// One named series.
   /// </summary>
   /// <remarks>
-  ///   Owned by a <see cref="TOBDTrendGraph"/>; the host does
-  ///   not free instances directly. The ring buffer overwrites
-  ///   the oldest sample once full.
+  /// Owned by a <see cref="TOBDTrendGraph"/>; the host does
+  /// not free instances directly. The ring buffer overwrites
+  /// the oldest sample once full.
   /// </remarks>
   TOBDTrendSeries = class
   strict private
@@ -89,8 +89,8 @@ type
     /// <param name="AMin">Normalisation minimum.</param>
     /// <param name="AMax">Normalisation maximum.</param>
     /// <param name="ACapacity">Ring-buffer capacity.</param>
-    constructor Create(const AName: string; AColor: TColor;
-      AMin: Single; AMax: Single; ACapacity: Integer);
+    constructor Create(const AName: string; AColor: TColor; AMin: Single;
+      AMax: Single; ACapacity: Integer);
 
     /// <summary>Appends a sample; oldest is dropped when
     /// full.</summary>
@@ -116,7 +116,7 @@ type
   end;
 
   /// <summary>
-  ///   Live multi-series time-series plot.
+  /// Live multi-series time-series plot.
   /// </summary>
   TOBDTrendGraph = class(TCustomControl)
   strict private
@@ -147,15 +147,15 @@ type
     destructor Destroy; override;
 
     /// <summary>
-    ///   Adds a series and returns the new instance.
+    /// Adds a series and returns the new instance.
     /// </summary>
     /// <param name="AName">Display name.</param>
     /// <param name="AColor">Polyline colour.</param>
     /// <param name="AMin">Normalisation minimum.</param>
     /// <param name="AMax">Normalisation maximum.</param>
     /// <returns>The newly-added series (owned by the graph).</returns>
-    function AddSeries(const AName: string; AColor: TColor;
-      AMin: Single; AMax: Single): TOBDTrendSeries;
+    function AddSeries(const AName: string; AColor: TColor; AMin: Single;
+      AMax: Single): TOBDTrendSeries;
 
     /// <summary>Pushes a value onto a series and repaints.</summary>
     /// <param name="ASeriesIndex">Series index.</param>
@@ -183,8 +183,8 @@ type
     property GridColor: TColor index 1 read FGridColor write SetColor
       default TG_DEFAULT_GRID_COLOR;
     /// <summary>Border / axis colour.</summary>
-    property BorderColor: TColor index 2 read FBorderColor
-      write SetColor default TG_DEFAULT_BORDER_COLOR;
+    property BorderColor: TColor index 2 read FBorderColor write SetColor
+      default TG_DEFAULT_BORDER_COLOR;
     /// <summary>Legend text colour.</summary>
     property TextColor: TColor index 3 read FTextColor write SetColor
       default TG_DEFAULT_TEXT_COLOR;
@@ -192,8 +192,7 @@ type
     property ShowLegend: Boolean read FShowLegend write SetShowLegend
       default True;
     /// <summary>Show grid lines. Default <c>True</c>.</summary>
-    property ShowGrid: Boolean read FShowGrid write SetShowGrid
-      default True;
+    property ShowGrid: Boolean read FShowGrid write SetShowGrid default True;
     /// <summary>Polyline stroke width. Default <c>2</c>.</summary>
     property StrokeWidth: Integer read FStrokeWidth write SetStrokeWidth
       default TG_DEFAULT_STROKE_WIDTH;
@@ -235,8 +234,8 @@ var
   Physical: Integer;
 begin
   if (ALogicalIndex < 0) or (ALogicalIndex >= FCount) then
-    raise EArgumentOutOfRangeException.CreateFmt(
-      'TOBDTrendSeries: logical index %d out of range', [ALogicalIndex]);
+    raise EArgumentOutOfRangeException.CreateFmt
+      ('TOBDTrendSeries: logical index %d out of range', [ALogicalIndex]);
   if FCount < Length(FValues) then
     Physical := ALogicalIndex
   else
@@ -317,10 +316,14 @@ end;
 procedure TOBDTrendGraph.SetColor(AIndex: Integer; AValue: TColor);
 begin
   case AIndex of
-    0: FBackgroundColor := AValue;
-    1: FGridColor := AValue;
-    2: FBorderColor := AValue;
-    3: FTextColor := AValue;
+    0:
+      FBackgroundColor := AValue;
+    1:
+      FGridColor := AValue;
+    2:
+      FBorderColor := AValue;
+    3:
+      FTextColor := AValue;
   end;
   Invalidate;
 end;
@@ -354,8 +357,7 @@ end;
 function TOBDTrendGraph.AddSeries(const AName: string; AColor: TColor;
   AMin: Single; AMax: Single): TOBDTrendSeries;
 begin
-  Result := TOBDTrendSeries.Create(AName, AColor, AMin, AMax,
-    FMaxSamples);
+  Result := TOBDTrendSeries.Create(AName, AColor, AMin, AMax, FMaxSamples);
   FSeries.Add(Result);
   Invalidate;
 end;
@@ -363,8 +365,8 @@ end;
 procedure TOBDTrendGraph.PushValue(ASeriesIndex: Integer; AValue: Single);
 begin
   if (ASeriesIndex < 0) or (ASeriesIndex >= FSeries.Count) then
-    raise EArgumentOutOfRangeException.CreateFmt(
-      'TOBDTrendGraph: series index %d out of range', [ASeriesIndex]);
+    raise EArgumentOutOfRangeException.CreateFmt
+      ('TOBDTrendGraph: series index %d out of range', [ASeriesIndex]);
   FSeries[ASeriesIndex].Push(AValue);
   Invalidate;
 end;

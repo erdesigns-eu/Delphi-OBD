@@ -1,50 +1,50 @@
-//------------------------------------------------------------------------------
-//  ERD.Speciality.IsoBus.GNSS
+﻿// ------------------------------------------------------------------------------
+// ERD.Speciality.IsoBus.GNSS
 //
-//  TOBDIsoBusGNSS — IsoBus GNSS / NMEA 2000 PGN decoders. The
-//  IsoBus base layer carries vehicle-position information via a
-//  small set of NMEA 2000 PGNs republished onto the agricultural
-//  network:
+// TOBDIsoBusGNSS — IsoBus GNSS / NMEA 2000 PGN decoders. The
+// IsoBus base layer carries vehicle-position information via a
+// small set of NMEA 2000 PGNs republished onto the agricultural
+// network:
 //
-//    PGN 0x01F801 / 129025 — Position, Rapid Update (lat/lon)
-//    PGN 0x01F802 / 129026 — COG & SOG, Rapid Update
-//    PGN 0x01F805 / 129029 — GNSS Position Data (full fix)
+// PGN 0x01F801 / 129025 — Position, Rapid Update (lat/lon)
+// PGN 0x01F802 / 129026 — COG & SOG, Rapid Update
+// PGN 0x01F805 / 129029 — GNSS Position Data (full fix)
 //
-//  v1 ships decoders for the three rapid-update / position PGNs;
-//  encoders are not in scope (the implement is a consumer of GNSS
-//  data, not a publisher).
+// v1 ships decoders for the three rapid-update / position PGNs;
+// encoders are not in scope (the implement is a consumer of GNSS
+// data, not a publisher).
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - NMEA 2000 (ISO 11783-7)
+// References  :
+// - NMEA 2000 (ISO 11783-7)
 //
-//  History     :
-//    2026-05-09  ERD  Follow-up.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Follow-up.
+// ------------------------------------------------------------------------------
 
 unit ERD.Speciality.IsoBus.GNSS;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   ERD.Types;
 
 const
   ISOBUS_PGN_POSITION_RAPID = 129025;
-  ISOBUS_PGN_COG_SOG        = 129026;
-  ISOBUS_PGN_GNSS_POSITION  = 129029;
+  ISOBUS_PGN_COG_SOG = 129026;
+  ISOBUS_PGN_GNSS_POSITION = 129029;
 
 type
   /// <summary>Decoded "Position, Rapid Update" PGN payload.</summary>
@@ -104,13 +104,13 @@ type
 implementation
 
 uses
-  {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF};
+{$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF};
 
 function ReadInt32LE(const A: TBytes; AOff: Integer): Int32; inline;
 begin
-  Result := Int32(
-    (Cardinal(A[AOff + 3]) shl 24) or (Cardinal(A[AOff + 2]) shl 16) or
-    (Cardinal(A[AOff + 1]) shl 8)  or Cardinal(A[AOff]));
+  Result := Int32((Cardinal(A[AOff + 3]) shl 24) or
+    (Cardinal(A[AOff + 2]) shl 16) or (Cardinal(A[AOff + 1]) shl 8) or
+    Cardinal(A[AOff]));
 end;
 
 function ReadUInt16LE(const A: TBytes; AOff: Integer): Word; inline;
@@ -134,15 +134,20 @@ class function TOBDIsoBusGNSS.DecodePositionRapid(const APayload: TBytes;
 var
   Lat, Lon: Int32;
 begin
-  APos := Default(TOBDGNSSPositionRapid);
-  if Length(APayload) < 8 then Exit(False);
+  APos := Default (TOBDGNSSPositionRapid);
+  if Length(APayload) < 8 then
+    Exit(False);
   Lat := ReadInt32LE(APayload, 0);
   Lon := ReadInt32LE(APayload, 4);
   // Resolution: 1e-7 degrees per LSB.
-  if Cardinal(Lat) = $7FFFFFFF then APos.LatitudeDeg := NaN
-  else APos.LatitudeDeg := Lat * 1e-7;
-  if Cardinal(Lon) = $7FFFFFFF then APos.LongitudeDeg := NaN
-  else APos.LongitudeDeg := Lon * 1e-7;
+  if Cardinal(Lat) = $7FFFFFFF then
+    APos.LatitudeDeg := NaN
+  else
+    APos.LatitudeDeg := Lat * 1E-7;
+  if Cardinal(Lon) = $7FFFFFFF then
+    APos.LongitudeDeg := NaN
+  else
+    APos.LongitudeDeg := Lon * 1E-7;
   Result := True;
 end;
 
@@ -151,18 +156,23 @@ class function TOBDIsoBusGNSS.DecodeCogSog(const APayload: TBytes;
 var
   Cog, Sog: Word;
 begin
-  ACogSog := Default(TOBDGNSSCogSog);
-  if Length(APayload) < 8 then Exit(False);
+  ACogSog := Default (TOBDGNSSCogSog);
+  if Length(APayload) < 8 then
+    Exit(False);
   ACogSog.SequenceID := APayload[0];
-  ACogSog.Reference  := APayload[1] and $03;
+  ACogSog.Reference := APayload[1] and $03;
   Cog := ReadUInt16LE(APayload, 2);
   Sog := ReadUInt16LE(APayload, 4);
   // COG: 0.0001 rad / LSB; convert to degrees.
-  if Cog = $FFFF then ACogSog.CourseOverGroundDeg := NaN
-  else ACogSog.CourseOverGroundDeg := Cog * 0.0001 * 180.0 / Pi;
+  if Cog = $FFFF then
+    ACogSog.CourseOverGroundDeg := NaN
+  else
+    ACogSog.CourseOverGroundDeg := Cog * 0.0001 * 180.0 / Pi;
   // SOG: 0.01 m/s / LSB.
-  if Sog = $FFFF then ACogSog.SpeedOverGroundMs := NaN
-  else ACogSog.SpeedOverGroundMs := Sog * 0.01;
+  if Sog = $FFFF then
+    ACogSog.SpeedOverGroundMs := NaN
+  else
+    ACogSog.SpeedOverGroundMs := Sog * 0.01;
   Result := True;
 end;
 
@@ -171,24 +181,24 @@ class function TOBDIsoBusGNSS.DecodePosition(const APayload: TBytes;
 var
   Lat, Lon, Alt: Int64;
 begin
-  APos := Default(TOBDGNSSPosition);
-  if Length(APayload) < 43 then Exit(False);
+  APos := Default (TOBDGNSSPosition);
+  if Length(APayload) < 43 then
+    Exit(False);
   // Sequence ID skipped; layout per NMEA 2000 PGN 129029.
   APos.DaysSinceEpoch := ReadUInt16LE(APayload, 1);
   // Time of day: 32-bit unsigned * 1e-4 seconds.
   APos.SecondsOfDay := Cardinal((Cardinal(APayload[6]) shl 24) or
-                                (Cardinal(APayload[5]) shl 16) or
-                                (Cardinal(APayload[4]) shl 8)  or
-                                 Cardinal(APayload[3])) * 1e-4;
+    (Cardinal(APayload[5]) shl 16) or (Cardinal(APayload[4]) shl 8) or
+    Cardinal(APayload[3])) * 1E-4;
   // Latitude / Longitude as 64-bit signed * 1e-16 degrees.
   Lat := ReadInt64LE(APayload, 7);
   Lon := ReadInt64LE(APayload, 15);
   Alt := ReadInt64LE(APayload, 23);
-  APos.LatitudeDeg  := Lat * 1e-16;
-  APos.LongitudeDeg := Lon * 1e-16;
+  APos.LatitudeDeg := Lat * 1E-16;
+  APos.LongitudeDeg := Lon * 1E-16;
   // Altitude: 64-bit signed * 1e-6 metres.
-  APos.AltitudeM    := Alt * 1e-6;
-  APos.FixType        := APayload[31] and $0F;
+  APos.AltitudeM := Alt * 1E-6;
+  APos.FixType := APayload[31] and $0F;
   APos.SatelliteCount := APayload[33];
   Result := True;
 end;

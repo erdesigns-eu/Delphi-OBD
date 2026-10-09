@@ -1,48 +1,48 @@
-//------------------------------------------------------------------------------
-//  ERD.UI.Anim
+// ------------------------------------------------------------------------------
+// ERD.UI.Anim
 //
-//  Lightweight animation helpers used by every visual that
-//  needs smoothed value transitions (gauge needles sweeping
-//  to a new value, sparkline scrolls, charging-flow arrows).
+// Lightweight animation helpers used by every visual that
+// needs smoothed value transitions (gauge needles sweeping
+// to a new value, sparkline scrolls, charging-flow arrows).
 //
-//  All zero-allocation in steady state and TTimer-based - no
-//  external dependencies, no SDK requirements beyond stock VCL.
+// All zero-allocation in steady state and TTimer-based - no
+// external dependencies, no SDK requirements beyond stock VCL.
 //
-//  Use:
+// Use:
 //
-//    FAnim := TOBDValueAnim.Create;
-//    FAnim.Easing := emSpring;
-//    FAnim.DurationMs := 300;
-//    FAnim.OnFrame := HandleFrame;
-//    FAnim.Animate(FromValue, ToValue);
+// FAnim := TOBDValueAnim.Create;
+// FAnim.Easing := emSpring;
+// FAnim.DurationMs := 300;
+// FAnim.OnFrame := HandleFrame;
+// FAnim.Animate(FromValue, ToValue);
 //
-//    procedure THost.HandleFrame(Sender: TObject; AValue: Double);
-//    begin
-//      FNeedleAngle := AValue;
-//      Invalidate;
-//    end;
+// procedure THost.HandleFrame(Sender: TObject; AValue: Double);
+// begin
+// FNeedleAngle := AValue;
+// Invalidate;
+// end;
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT - see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT - see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.UI.Anim;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
   System.Diagnostics,
   Vcl.ExtCtrls;
 
@@ -50,24 +50,20 @@ type
   /// <summary>Easing function family. Spring (slight overshoot
   /// then settle) is the default for gauge needles; linear /
   /// ease-in-out for everything else.</summary>
-  TOBDEasingMode = (
-    emLinear,
-    emEaseIn,         // x^2 - slow start, fast finish
-    emEaseOut,        // 1 - (1-x)^2 - fast start, slow finish
-    emEaseInOut,      // cubic in-out
-    emSpring          // mild overshoot then settle
-  );
+  TOBDEasingMode = (emLinear, emEaseIn, // x^2 - slow start, fast finish
+    emEaseOut, // 1 - (1-x)^2 - fast start, slow finish
+    emEaseInOut, // cubic in-out
+    emSpring // mild overshoot then settle
+    );
 
   /// <summary>Fired on each animation step. <c>AValue</c> is
   /// the interpolated value at the current frame.</summary>
-  TOBDAnimFrameEvent = procedure(Sender: TObject;
-    AValue: Double) of object;
+  TOBDAnimFrameEvent = procedure(Sender: TObject; AValue: Double) of object;
 
   /// <summary>Fired once when the animation completes (or is
   /// stopped). <c>AFinal</c> is the value that was being
   /// animated towards.</summary>
-  TOBDAnimDoneEvent = procedure(Sender: TObject;
-    AFinal: Double) of object;
+  TOBDAnimDoneEvent = procedure(Sender: TObject; AFinal: Double) of object;
 
   /// <summary>One scalar value animation. Drive it with
   /// <c>Animate(From, To)</c>; the timer ticks
@@ -75,23 +71,23 @@ type
   /// elapses or <see cref="Stop"/> is called.</summary>
   TOBDValueAnim = class
   strict private
-    FTimer:       TTimer;
-    FStopwatch:   TStopwatch;
-    FFrom:        Double;
-    FTo:          Double;
-    FCurrent:     Double;
-    FDurationMs:  Cardinal;
-    FEasing:      TOBDEasingMode;
-    FFPS:         Byte;
-    FOnFrame:     TOBDAnimFrameEvent;
-    FOnDone:      TOBDAnimDoneEvent;
-    FActive:      Boolean;
+    FTimer: TTimer;
+    FStopwatch: TStopwatch;
+    FFrom: Double;
+    FTo: Double;
+    FCurrent: Double;
+    FDurationMs: Cardinal;
+    FEasing: TOBDEasingMode;
+    FFPS: Byte;
+    FOnFrame: TOBDAnimFrameEvent;
+    FOnDone: TOBDAnimDoneEvent;
+    FActive: Boolean;
     procedure TimerTick(Sender: TObject);
     procedure SetFPS(AValue: Byte);
-    function  Ease(T: Double): Double;
+    function Ease(T: Double): Double;
   public
     constructor Create;
-    destructor  Destroy; override;
+    destructor Destroy; override;
 
     /// <summary>Start animating from <c>AFrom</c> to <c>ATo</c>
     /// over <see cref="DurationMs"/>. If an animation is in
@@ -106,13 +102,13 @@ type
     /// <summary>Snap to a target without animating.</summary>
     procedure SnapTo(AValue: Double);
 
-    property Active:     Boolean             read FActive;
-    property Current:    Double              read FCurrent;
-    property DurationMs: Cardinal            read FDurationMs write FDurationMs;
-    property Easing:     TOBDEasingMode      read FEasing     write FEasing;
-    property FPS:        Byte                read FFPS        write SetFPS;
-    property OnFrame:    TOBDAnimFrameEvent  read FOnFrame    write FOnFrame;
-    property OnDone:     TOBDAnimDoneEvent   read FOnDone     write FOnDone;
+    property Active: Boolean read FActive;
+    property Current: Double read FCurrent;
+    property DurationMs: Cardinal read FDurationMs write FDurationMs;
+    property Easing: TOBDEasingMode read FEasing write FEasing;
+    property FPS: Byte read FFPS write SetFPS;
+    property OnFrame: TOBDAnimFrameEvent read FOnFrame write FOnFrame;
+    property OnDone: TOBDAnimDoneEvent read FOnDone write FOnDone;
   end;
 
 implementation
@@ -139,8 +135,10 @@ end;
 
 procedure TOBDValueAnim.SetFPS(AValue: Byte);
 begin
-  if AValue < 5 then AValue := 5;
-  if AValue > 120 then AValue := 120;
+  if AValue < 5 then
+    AValue := 5;
+  if AValue > 120 then
+    AValue := 120;
   FFPS := AValue;
   FTimer.Interval := 1000 div FFPS;
 end;
@@ -159,13 +157,16 @@ procedure TOBDValueAnim.Stop;
 var
   FinalVal: Double;
 begin
-  if not FActive then Exit;
+  if not FActive then
+    Exit;
   FTimer.Enabled := False;
   FActive := False;
   FCurrent := FTo;
   FinalVal := FTo;
-  if Assigned(FOnFrame) then FOnFrame(Self, FCurrent);
-  if Assigned(FOnDone)  then FOnDone(Self, FinalVal);
+  if Assigned(FOnFrame) then
+    FOnFrame(Self, FCurrent);
+  if Assigned(FOnDone) then
+    FOnDone(Self, FinalVal);
 end;
 
 procedure TOBDValueAnim.SnapTo(AValue: Double);
@@ -173,21 +174,29 @@ begin
   FTimer.Enabled := False;
   FActive := False;
   FCurrent := AValue;
-  if Assigned(FOnFrame) then FOnFrame(Self, FCurrent);
+  if Assigned(FOnFrame) then
+    FOnFrame(Self, FCurrent);
 end;
 
 function TOBDValueAnim.Ease(T: Double): Double;
 begin
   // T expected in [0, 1].
-  if T < 0 then T := 0;
-  if T > 1 then T := 1;
+  if T < 0 then
+    T := 0;
+  if T > 1 then
+    T := 1;
   case FEasing of
-    emLinear:    Result := T;
-    emEaseIn:    Result := T * T;
-    emEaseOut:   Result := 1 - Sqr(1 - T);
+    emLinear:
+      Result := T;
+    emEaseIn:
+      Result := T * T;
+    emEaseOut:
+      Result := 1 - Sqr(1 - T);
     emEaseInOut:
-      if T < 0.5 then Result := 4 * T * T * T
-      else            Result := 1 - Power(-2 * T + 2, 3) / 2;
+      if T < 0.5 then
+        Result := 4 * T * T * T
+      else
+        Result := 1 - Power(-2 * T + 2, 3) / 2;
     emSpring:
       // Lightly damped spring - overshoots by ~10% then settles.
       // Closed-form approximation: 1 - e^(-6t) * cos(8t).

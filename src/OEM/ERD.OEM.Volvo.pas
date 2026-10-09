@@ -1,40 +1,40 @@
-//------------------------------------------------------------------------------
-//  ERD.OEM.Volvo
+﻿// ------------------------------------------------------------------------------
+// ERD.OEM.Volvo
 //
-//  Volvo Cars (Geely) OEM extension. Covers Volvo + Polestar
-//  legacy SPA / SPA2 platforms. Catalogue + DTC overlay in
-//  <c>catalogs/volvo.json</c> + <c>catalogs/dtc-volvo.json</c>.
+// Volvo Cars (Geely) OEM extension. Covers Volvo + Polestar
+// legacy SPA / SPA2 platforms. Catalogue + DTC overlay in
+// <c>catalogs/volvo.json</c> + <c>catalogs/dtc-volvo.json</c>.
 //
-//  TOBDVolvoSessionNegotiator picks a 5000 ms tester-present
-//  cadence — Volvo VIDA / DiCE keep extended sessions alive at
-//  that interval.
+// TOBDVolvoSessionNegotiator picks a 5000 ms tester-present
+// cadence — Volvo VIDA / DiCE keep extended sessions alive at
+// that interval.
 //
-//  Seed-key starter is the KWP2000 two's-complement accepted by
-//  pre-SPA2 ECUs; modern VIDA uses NDA crypto which production
-//  callers register via RegisterAlgorithm.
+// Seed-key starter is the KWP2000 two's-complement accepted by
+// pre-SPA2 ECUs; modern VIDA uses NDA crypto which production
+// callers register via RegisterAlgorithm.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-12  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-12  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.OEM.Volvo;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   ERD.OEM,
   ERD.OEM.Session,
   ERD.OEM.SeedKey,
@@ -56,23 +56,21 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
-    procedure BuildExtendedCatalog(
-      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+    procedure BuildExtendedCatalog(var CodingBlocks: TArray<TOBDOEMCodingBlock>;
       var Adaptations: TArray<TOBDOEMAdaptation>;
       var ActuatorTests: TArray<TOBDOEMActuatorTest>;
       var LivePIDs: TArray<TOBDOEMLivePID>;
       var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
     function CreateSessionNegotiator: IOBDSessionNegotiator; override;
-    procedure SeedDefaultSeedKeyAlgorithms(
-      Reg: TOBDSeedKeyRegistry); override;
+    procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
     function DtcCatalogFileName: string; override;
   public
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
     function ApplicableToVIN(const VIN: string): Boolean; override;
-    function DecodeDID(const DID: Word;
-      const Payload: TBytes): string; override;
+    function DecodeDID(const DID: Word; const Payload: TBytes): string;
+      override;
   end;
 
 implementation
@@ -106,47 +104,42 @@ begin
   Result := 'Volvo Cars (Geely)';
 end;
 
-function TOBDOEMExtensionVolvo.ApplicableToVIN(
-  const VIN: string): Boolean;
+function TOBDOEMExtensionVolvo.ApplicableToVIN(const VIN: string): Boolean;
 begin
   Result := VINMatchesCatalog('volvo.json', VIN);
 end;
 
-function TOBDOEMExtensionVolvo.CreateSessionNegotiator:
-  IOBDSessionNegotiator;
+function TOBDOEMExtensionVolvo.CreateSessionNegotiator: IOBDSessionNegotiator;
 begin
   Result := TOBDVolvoSessionNegotiator.Create;
 end;
 
-procedure TOBDOEMExtensionVolvo.BuildCatalog(
-  var DIDs: TArray<TOBDOEMDataIdentifier>;
-  var Routines: TArray<TOBDOEMRoutine>;
-  var ECUs: TArray<TOBDOEMECU>);
+procedure TOBDOEMExtensionVolvo.BuildCatalog
+  (var DIDs: TArray<TOBDOEMDataIdentifier>;
+  var Routines: TArray<TOBDOEMRoutine>; var ECUs: TArray<TOBDOEMECU>);
 begin
   MergeCatalogJSON('volvo.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
-procedure TOBDOEMExtensionVolvo.BuildExtendedCatalog(
-  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
-  var Adaptations: TArray<TOBDOEMAdaptation>;
+procedure TOBDOEMExtensionVolvo.BuildExtendedCatalog(var CodingBlocks
+  : TArray<TOBDOEMCodingBlock>; var Adaptations: TArray<TOBDOEMAdaptation>;
   var ActuatorTests: TArray<TOBDOEMActuatorTest>;
   var LivePIDs: TArray<TOBDOEMLivePID>;
   var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
 begin
-  MergeExtendedCatalogJSON('volvo.json',
-    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+  MergeExtendedCatalogJSON('volvo.json', CodingBlocks, Adaptations,
+    ActuatorTests, LivePIDs, DtcExtended);
 end;
 
-procedure TOBDOEMExtensionVolvo.SeedDefaultSeedKeyAlgorithms(
-  Reg: TOBDSeedKeyRegistry);
+procedure TOBDOEMExtensionVolvo.SeedDefaultSeedKeyAlgorithms
+  (Reg: TOBDSeedKeyRegistry);
 begin
   Reg.RegisterAlgorithm($01,
     IOBDSeedKeyAlgorithm(TOBDSeedKeyKWP2000TwosComplement.Create()));
 end;
 
-procedure TOBDOEMExtensionVolvo.SeedDefaultDtcCatalog(
-  Cat: TOBDDtcCatalog);
+procedure TOBDOEMExtensionVolvo.SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog);
 begin
   inherited;
   MergeDtcCatalog('dtc-iso-15031.json', Cat);
@@ -167,17 +160,19 @@ begin
     $F190:
       if Length(Payload) > 0 then
       begin
-        Result := Format('vin = %s',
-          [TEncoding.ASCII.GetString(Payload)]);
+        Result := Format('vin = %s', [TEncoding.ASCII.GetString(Payload)]);
         Exit;
       end;
     $F1A0, $F1A2, $F1B0:
       if Length(Payload) > 0 then
       begin
         case DID of
-          $F1A0: FieldName := 'volvo_struct_week';
-          $F1A2: FieldName := 'volvo_factory_code';
-          $F1B0: FieldName := 'volvo_pno_code';
+          $F1A0:
+            FieldName := 'volvo_struct_week';
+          $F1A2:
+            FieldName := 'volvo_factory_code';
+          $F1B0:
+            FieldName := 'volvo_pno_code';
         else
           FieldName := 'unknown';
         end;
@@ -190,6 +185,7 @@ begin
 end;
 
 initialization
-  TOBDOEMRegistry.RegisterExtension(TOBDOEMExtensionVolvo.Create);
+
+TOBDOEMRegistry.RegisterExtension(TOBDOEMExtensionVolvo.Create);
 
 end.

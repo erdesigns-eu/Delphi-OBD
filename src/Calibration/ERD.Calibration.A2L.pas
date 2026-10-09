@@ -1,82 +1,73 @@
-//------------------------------------------------------------------------------
-//  ERD.Calibration.A2L
+﻿// ------------------------------------------------------------------------------
+// ERD.Calibration.A2L
 //
-//  A2L (ASAM MCD-2 MC) parser. Consumes the variable / characteristic
-//  description files produced by every modern ECU build pipeline
-//  (Vector ASAP2, ETAS INCA, dSPACE, etc.) and exposes them to the
-//  XCP / CCP master so a host can refer to ECU memory by symbol
-//  rather than by address.
+// A2L (ASAM MCD-2 MC) parser. Consumes the variable / characteristic
+// description files produced by every modern ECU build pipeline
+// (Vector ASAP2, ETAS INCA, dSPACE, etc.) and exposes them to the
+// XCP / CCP master so a host can refer to ECU memory by symbol
+// rather than by address.
 //
-//  This subset covers the three sections that drive measurement +
-//  calibration:
+// This subset covers the three sections that drive measurement +
+// calibration:
 //
-//    /begin MEASUREMENT  name desc datatype conv lower upper
-//        ECU_ADDRESS / ECU_ADDRESS_EXTENSION / FORMAT / UNIT / ...
-//    /end MEASUREMENT
+// /begin MEASUREMENT  name desc datatype conv lower upper
+// ECU_ADDRESS / ECU_ADDRESS_EXTENSION / FORMAT / UNIT / ...
+// /end MEASUREMENT
 //
-//    /begin CHARACTERISTIC  name desc kind ecu_addr deposit max_diff
-//                            conv lower upper
-//        ...
-//    /end CHARACTERISTIC
+// /begin CHARACTERISTIC  name desc kind ecu_addr deposit max_diff
+// conv lower upper
+// ...
+// /end CHARACTERISTIC
 //
-//    /begin COMPU_METHOD  name desc kind format unit
-//        COEFFS a b c d e f
-//    /end COMPU_METHOD
+// /begin COMPU_METHOD  name desc kind format unit
+// COEFFS a b c d e f
+// /end COMPU_METHOD
 //
-//  Other sections (RECORD_LAYOUT, AXIS_PTS, FUNCTION, GROUP, etc.)
-//  are tolerated and skipped so a future expansion can extend the
-//  parser without breaking existing files.
+// Other sections (RECORD_LAYOUT, AXIS_PTS, FUNCTION, GROUP, etc.)
+// are tolerated and skipped so a future expansion can extend the
+// parser without breaking existing files.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - ASAM MCD-2 MC v1.7 (A2L specification)
+// References  :
+// - ASAM MCD-2 MC v1.7 (A2L specification)
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Calibration.A2L;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   System.IOUtils,
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.Types;
 
 type
   /// <summary>A2L data type (verbatim ASAM MCD-2 MC enum).</summary>
-  TOBDA2LDataType = (
-    a2lUByte, a2lSByte,
-    a2lUWord, a2lSWord,
-    a2lULong, a2lSLong,
-    a2lAUInt64, a2lAInt64,
-    a2lFloat32, a2lFloat64
-  );
+  TOBDA2LDataType = (a2lUByte, a2lSByte, a2lUWord, a2lSWord, a2lULong, a2lSLong,
+    a2lAUInt64, a2lAInt64, a2lFloat32, a2lFloat64);
 
   /// <summary>Characteristic kind.</summary>
-  TOBDA2LCharKind = (
-    ckValue, ckCurve, ckMap, ckCuboid, ckAscii, ckUnknown
-  );
+  TOBDA2LCharKind = (ckValue, ckCurve, ckMap, ckCuboid, ckAscii, ckUnknown);
 
   /// <summary>Conversion method kind.</summary>
-  TOBDA2LCompuKind = (
-    cmIdentity, cmLinear, cmRatFunc, cmTabIntp, cmTabNointp, cmTabVerb,
-    cmFormula, cmUnknown
-  );
+  TOBDA2LCompuKind = (cmIdentity, cmLinear, cmRatFunc, cmTabIntp, cmTabNointp,
+    cmTabVerb, cmFormula, cmUnknown);
 
   /// <summary>Linear / RAT_FUNC coefficients (a..f). For LINEAR only
   /// (a, b) are meaningful; for RAT_FUNC: physical = (a*x^2 + b*x + c)/
@@ -199,18 +190,18 @@ type
     /// phys = (a*r^2 + b*r + c) / (d*r^2 + e*r + f); TAB_INTP:
     /// linear interpolation between sorted Raw/Phys pairs;
     /// TAB_NOINTP: nearest-lower lookup).</summary>
-    class function Convert(const ACompu: TOBDA2LCompuMethod;
-      ARaw: Double): Double; static;
+    class function Convert(const ACompu: TOBDA2LCompuMethod; ARaw: Double)
+      : Double; static;
     /// <summary>Resolves a verbal-table entry (TAB_VERB).
     /// Returns False when the raw value has no entry.</summary>
-    class function ConvertVerbal(const ACompu: TOBDA2LCompuMethod;
-      ARaw: Int64; out AText: string): Boolean; static;
+    class function ConvertVerbal(const ACompu: TOBDA2LCompuMethod; ARaw: Int64;
+      out AText: string): Boolean; static;
   end;
 
 implementation
 
 uses
-  {$IFDEF FPC}StrUtils{$ELSE}System.StrUtils{$ENDIF}, {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF};
+{$IFDEF FPC}StrUtils{$ELSE}System.StrUtils{$ENDIF}, {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF};
 
 { ---- token stream ----------------------------------------------------------- }
 
@@ -249,25 +240,37 @@ procedure TA2LLexer.SkipWhitespaceAndComments;
 begin
   while FPos <= Length(FSource) do
   begin
-    if FSource[FPos] = #10 then begin Inc(FLine); Inc(FPos); Continue; end;
-    if CharInSet(FSource[FPos], [#13, ' ', #9]) then begin Inc(FPos); Continue; end;
-    if (FPos + 1 <= Length(FSource)) and (FSource[FPos] = '/') and
-       (FSource[FPos + 1] = '/') then
+    if FSource[FPos] = #10 then
     begin
-      while (FPos <= Length(FSource)) and (FSource[FPos] <> #10) do Inc(FPos);
+      Inc(FLine);
+      Inc(FPos);
+      Continue;
+    end;
+    if CharInSet(FSource[FPos], [#13, ' ', #9]) then
+    begin
+      Inc(FPos);
       Continue;
     end;
     if (FPos + 1 <= Length(FSource)) and (FSource[FPos] = '/') and
-       (FSource[FPos + 1] = '*') then
+      (FSource[FPos + 1] = '/') then
+    begin
+      while (FPos <= Length(FSource)) and (FSource[FPos] <> #10) do
+        Inc(FPos);
+      Continue;
+    end;
+    if (FPos + 1 <= Length(FSource)) and (FSource[FPos] = '/') and
+      (FSource[FPos + 1] = '*') then
     begin
       Inc(FPos, 2);
       while (FPos + 1 <= Length(FSource)) and
-            not ((FSource[FPos] = '*') and (FSource[FPos + 1] = '/')) do
+        not((FSource[FPos] = '*') and (FSource[FPos + 1] = '/')) do
       begin
-        if FSource[FPos] = #10 then Inc(FLine);
+        if FSource[FPos] = #10 then
+          Inc(FLine);
         Inc(FPos);
       end;
-      if FPos + 1 <= Length(FSource) then Inc(FPos, 2);
+      if FPos + 1 <= Length(FSource) then
+        Inc(FPos, 2);
       Continue;
     end;
     Break;
@@ -299,8 +302,8 @@ begin
   begin
     Start := FPos;
     Inc(FPos);
-    while (FPos <= Length(FSource)) and
-          CharInSet(FSource[FPos], ['A'..'Z', 'a'..'z']) do
+    while (FPos <= Length(FSource)) and CharInSet(FSource[FPos],
+      ['A' .. 'Z', 'a' .. 'z']) do
       Inc(FPos);
     Result.Kind := atSlashKw;
     Result.Text := Copy(FSource, Start, FPos - Start);
@@ -313,33 +316,35 @@ begin
     Start := FPos;
     while (FPos <= Length(FSource)) and (FSource[FPos] <> '"') do
     begin
-      if FSource[FPos] = #10 then Inc(FLine);
+      if FSource[FPos] = #10 then
+        Inc(FLine);
       Inc(FPos);
     end;
     Result.Kind := atString;
     Result.Text := Copy(FSource, Start, FPos - Start);
-    if FPos <= Length(FSource) then Inc(FPos);
+    if FPos <= Length(FSource) then
+      Inc(FPos);
     Exit;
   end;
   // Number / negative number
-  if CharInSet(C, ['0'..'9']) or
-     ((C = '-') and (FPos < Length(FSource)) and
-      CharInSet(FSource[FPos + 1], ['0'..'9'])) then
+  if CharInSet(C, ['0' .. '9']) or ((C = '-') and (FPos < Length(FSource)) and
+    CharInSet(FSource[FPos + 1], ['0' .. '9'])) then
   begin
     Start := FPos;
-    if C = '-' then Inc(FPos);
+    if C = '-' then
+      Inc(FPos);
     if (FPos + 1 <= Length(FSource)) and (FSource[FPos] = '0') and
-       CharInSet(FSource[FPos + 1], ['x', 'X']) then
+      CharInSet(FSource[FPos + 1], ['x', 'X']) then
     begin
       Inc(FPos, 2);
-      while (FPos <= Length(FSource)) and
-            CharInSet(FSource[FPos], ['0'..'9', 'A'..'F', 'a'..'f']) do
+      while (FPos <= Length(FSource)) and CharInSet(FSource[FPos],
+        ['0' .. '9', 'A' .. 'F', 'a' .. 'f']) do
         Inc(FPos);
     end
     else
     begin
-      while (FPos <= Length(FSource)) and
-            CharInSet(FSource[FPos], ['0'..'9', '.', 'e', 'E', '+', '-']) do
+      while (FPos <= Length(FSource)) and CharInSet(FSource[FPos],
+        ['0' .. '9', '.', 'e', 'E', '+', '-']) do
         Inc(FPos);
     end;
     Result.Kind := atNumber;
@@ -347,12 +352,12 @@ begin
     Exit;
   end;
   // Identifier / keyword
-  if CharInSet(C, ['A'..'Z', 'a'..'z', '_', '.']) then
+  if CharInSet(C, ['A' .. 'Z', 'a' .. 'z', '_', '.']) then
   begin
     Start := FPos;
     Inc(FPos);
-    while (FPos <= Length(FSource)) and
-          CharInSet(FSource[FPos], ['A'..'Z', 'a'..'z', '0'..'9', '_', '.']) do
+    while (FPos <= Length(FSource)) and CharInSet(FSource[FPos],
+      ['A' .. 'Z', 'a' .. 'z', '0' .. '9', '_', '.']) do
       Inc(FPos);
     Result.Kind := atIdent;
     Result.Text := Copy(FSource, Start, FPos - Start);
@@ -384,18 +389,21 @@ var
 begin
   Cleaned := AText;
   Negative := (Length(Cleaned) > 0) and (Cleaned[1] = '-');
-  if Negative then Cleaned := Copy(Cleaned, 2, MaxInt);
+  if Negative then
+    Cleaned := Copy(Cleaned, 2, MaxInt);
   if (Length(Cleaned) >= 2) and (Cleaned[1] = '0') and
-     CharInSet(Cleaned[2], ['x', 'X']) then
+    CharInSet(Cleaned[2], ['x', 'X']) then
   begin
     Result := StrToInt64('$' + Copy(Cleaned, 3, MaxInt));
-    if Negative then Result := -Result;
+    if Negative then
+      Result := -Result;
   end
   else
   begin
     Fmt := TFormatSettings.Invariant;
     Result := StrToFloat(Cleaned, Fmt);
-    if Negative then Result := -Result;
+    if Negative then
+      Result := -Result;
   end;
 end;
 
@@ -405,7 +413,7 @@ var
 begin
   Cleaned := AText;
   if (Length(Cleaned) >= 2) and (Cleaned[1] = '0') and
-     CharInSet(Cleaned[2], ['x', 'X']) then
+    CharInSet(Cleaned[2], ['x', 'X']) then
     Result := StrToInt64('$' + Copy(Cleaned, 3, MaxInt))
   else
     Result := StrToInt64(Cleaned);
@@ -413,40 +421,64 @@ end;
 
 class function TOBDA2L.ParseDataType(const AText: string): TOBDA2LDataType;
 begin
-  if SameText(AText, 'UBYTE')   then Result := a2lUByte
-  else if SameText(AText, 'SBYTE')   then Result := a2lSByte
-  else if SameText(AText, 'UWORD')   then Result := a2lUWord
-  else if SameText(AText, 'SWORD')   then Result := a2lSWord
-  else if SameText(AText, 'ULONG')   then Result := a2lULong
-  else if SameText(AText, 'SLONG')   then Result := a2lSLong
-  else if SameText(AText, 'A_UINT64') then Result := a2lAUInt64
-  else if SameText(AText, 'A_INT64')  then Result := a2lAInt64
-  else if SameText(AText, 'FLOAT32_IEEE') then Result := a2lFloat32
-  else if SameText(AText, 'FLOAT64_IEEE') then Result := a2lFloat64
+  if SameText(AText, 'UBYTE') then
+    Result := a2lUByte
+  else if SameText(AText, 'SBYTE') then
+    Result := a2lSByte
+  else if SameText(AText, 'UWORD') then
+    Result := a2lUWord
+  else if SameText(AText, 'SWORD') then
+    Result := a2lSWord
+  else if SameText(AText, 'ULONG') then
+    Result := a2lULong
+  else if SameText(AText, 'SLONG') then
+    Result := a2lSLong
+  else if SameText(AText, 'A_UINT64') then
+    Result := a2lAUInt64
+  else if SameText(AText, 'A_INT64') then
+    Result := a2lAInt64
+  else if SameText(AText, 'FLOAT32_IEEE') then
+    Result := a2lFloat32
+  else if SameText(AText, 'FLOAT64_IEEE') then
+    Result := a2lFloat64
   else
     raise EOBDProtocol.CreateFmt('A2L: unknown DATA_TYPE "%s"', [AText]);
 end;
 
 function ParseCharKind(const AText: string): TOBDA2LCharKind;
 begin
-  if      SameText(AText, 'VALUE')   then Result := ckValue
-  else if SameText(AText, 'CURVE')   then Result := ckCurve
-  else if SameText(AText, 'MAP')     then Result := ckMap
-  else if SameText(AText, 'CUBOID')  then Result := ckCuboid
-  else if SameText(AText, 'ASCII')   then Result := ckAscii
-  else                                    Result := ckUnknown;
+  if SameText(AText, 'VALUE') then
+    Result := ckValue
+  else if SameText(AText, 'CURVE') then
+    Result := ckCurve
+  else if SameText(AText, 'MAP') then
+    Result := ckMap
+  else if SameText(AText, 'CUBOID') then
+    Result := ckCuboid
+  else if SameText(AText, 'ASCII') then
+    Result := ckAscii
+  else
+    Result := ckUnknown;
 end;
 
 function ParseCompuKind(const AText: string): TOBDA2LCompuKind;
 begin
-  if      SameText(AText, 'IDENTICAL')   then Result := cmIdentity
-  else if SameText(AText, 'LINEAR')      then Result := cmLinear
-  else if SameText(AText, 'RAT_FUNC')    then Result := cmRatFunc
-  else if SameText(AText, 'TAB_INTP')    then Result := cmTabIntp
-  else if SameText(AText, 'TAB_NOINTP')  then Result := cmTabNointp
-  else if SameText(AText, 'TAB_VERB')    then Result := cmTabVerb
-  else if SameText(AText, 'FORM')        then Result := cmFormula
-  else                                        Result := cmUnknown;
+  if SameText(AText, 'IDENTICAL') then
+    Result := cmIdentity
+  else if SameText(AText, 'LINEAR') then
+    Result := cmLinear
+  else if SameText(AText, 'RAT_FUNC') then
+    Result := cmRatFunc
+  else if SameText(AText, 'TAB_INTP') then
+    Result := cmTabIntp
+  else if SameText(AText, 'TAB_NOINTP') then
+    Result := cmTabNointp
+  else if SameText(AText, 'TAB_VERB') then
+    Result := cmTabVerb
+  else if SameText(AText, 'FORM') then
+    Result := cmFormula
+  else
+    Result := cmUnknown;
 end;
 
 procedure SkipBlock(ALex: TA2LLexer; const ABlockName: string);
@@ -459,8 +491,7 @@ begin
   begin
     Tok := ALex.Next;
     if Tok.Kind = atEOF then
-      raise EOBDProtocol.CreateFmt(
-        'A2L: unterminated /begin %s', [ABlockName]);
+      raise EOBDProtocol.CreateFmt('A2L: unterminated /begin %s', [ABlockName]);
     if (Tok.Kind = atSlashKw) and SameText(Tok.Text, '/begin') then
       Inc(Depth)
     else if (Tok.Kind = atSlashKw) and SameText(Tok.Text, '/end') then
@@ -482,16 +513,22 @@ procedure ParseMeasurement(ALex: TA2LLexer; out AOut: TOBDA2LMeasurement);
 var
   Tok: TA2LToken;
 begin
-  AOut := Default(TOBDA2LMeasurement);
+  AOut := Default (TOBDA2LMeasurement);
   // Header: name desc datatype conv lower upper
-  Tok := ALex.Next; AOut.Name := Tok.Text;
-  Tok := ALex.Next; AOut.Description := Tok.Text;
-  Tok := ALex.Next; AOut.DataType := TOBDA2L.ParseDataType(Tok.Text);
-  Tok := ALex.Next; AOut.ConvName := Tok.Text;
+  Tok := ALex.Next;
+  AOut.Name := Tok.Text;
+  Tok := ALex.Next;
+  AOut.Description := Tok.Text;
+  Tok := ALex.Next;
+  AOut.DataType := TOBDA2L.ParseDataType(Tok.Text);
+  Tok := ALex.Next;
+  AOut.ConvName := Tok.Text;
   Tok := ALex.Next; // resolution (ignored)
   Tok := ALex.Next; // accuracy (ignored)
-  Tok := ALex.Next; AOut.LowerLimit := ParseDouble(Tok.Text);
-  Tok := ALex.Next; AOut.UpperLimit := ParseDouble(Tok.Text);
+  Tok := ALex.Next;
+  AOut.LowerLimit := ParseDouble(Tok.Text);
+  Tok := ALex.Next;
+  AOut.UpperLimit := ParseDouble(Tok.Text);
 
   while True do
   begin
@@ -514,8 +551,8 @@ begin
       Tok := ALex.Next;
       AOut.EcuAddress := ParseUInt64(Tok.Text);
     end
-    else if (Tok.Kind = atIdent) and
-            SameText(Tok.Text, 'ECU_ADDRESS_EXTENSION') then
+    else if (Tok.Kind = atIdent) and SameText(Tok.Text, 'ECU_ADDRESS_EXTENSION')
+    then
     begin
       Tok := ALex.Next;
       AOut.EcuAddressExtension := UInt32(ParseUInt64(Tok.Text));
@@ -523,21 +560,29 @@ begin
   end;
 end;
 
-procedure ParseCharacteristic(ALex: TA2LLexer;
-  out AOut: TOBDA2LCharacteristic);
+procedure ParseCharacteristic(ALex: TA2LLexer; out AOut: TOBDA2LCharacteristic);
 var
   Tok: TA2LToken;
 begin
-  AOut := Default(TOBDA2LCharacteristic);
-  Tok := ALex.Next; AOut.Name := Tok.Text;
-  Tok := ALex.Next; AOut.Description := Tok.Text;
-  Tok := ALex.Next; AOut.Kind := ParseCharKind(Tok.Text);
-  Tok := ALex.Next; AOut.EcuAddress := ParseUInt64(Tok.Text);
-  Tok := ALex.Next; AOut.Deposit := Tok.Text;
-  Tok := ALex.Next; AOut.MaxDiff := ParseDouble(Tok.Text);
-  Tok := ALex.Next; AOut.ConvName := Tok.Text;
-  Tok := ALex.Next; AOut.LowerLimit := ParseDouble(Tok.Text);
-  Tok := ALex.Next; AOut.UpperLimit := ParseDouble(Tok.Text);
+  AOut := Default (TOBDA2LCharacteristic);
+  Tok := ALex.Next;
+  AOut.Name := Tok.Text;
+  Tok := ALex.Next;
+  AOut.Description := Tok.Text;
+  Tok := ALex.Next;
+  AOut.Kind := ParseCharKind(Tok.Text);
+  Tok := ALex.Next;
+  AOut.EcuAddress := ParseUInt64(Tok.Text);
+  Tok := ALex.Next;
+  AOut.Deposit := Tok.Text;
+  Tok := ALex.Next;
+  AOut.MaxDiff := ParseDouble(Tok.Text);
+  Tok := ALex.Next;
+  AOut.ConvName := Tok.Text;
+  Tok := ALex.Next;
+  AOut.LowerLimit := ParseDouble(Tok.Text);
+  Tok := ALex.Next;
+  AOut.UpperLimit := ParseDouble(Tok.Text);
 
   while True do
   begin
@@ -565,21 +610,26 @@ var
   Entry: TOBDA2LCompuVTabEntry;
   I: Integer;
 begin
-  AOut := Default(TOBDA2LCompuMethod);
+  AOut := Default (TOBDA2LCompuMethod);
   AOut.Kind := cmTabVerb;
   // Header: name desc count
-  Tok := ALex.Next; AOut.Name := Tok.Text;
-  Tok := ALex.Next; AOut.Description := Tok.Text;
-  Tok := ALex.Next; Count := Integer(ParseUInt64(Tok.Text));
+  Tok := ALex.Next;
+  AOut.Name := Tok.Text;
+  Tok := ALex.Next;
+  AOut.Description := Tok.Text;
+  Tok := ALex.Next;
+  Count := Integer(ParseUInt64(Tok.Text));
   Entries := TList<TOBDA2LCompuVTabEntry>.Create;
   try
     for I := 0 to Count - 1 do
     begin
       Tok := ALex.Next;
-      if Tok.Kind = atEOF then Break;
+      if Tok.Kind = atEOF then
+        Break;
       Entry.Raw := Round(ParseDouble(Tok.Text));
       Tok := ALex.Next;
-      if Tok.Kind = atEOF then Break;
+      if Tok.Kind = atEOF then
+        Break;
       Entry.Text := Tok.Text;
       Entries.Add(Entry);
     end;
@@ -592,7 +642,8 @@ begin
   while True do
   begin
     Tok := ALex.Next;
-    if Tok.Kind = atEOF then Exit;
+    if Tok.Kind = atEOF then
+      Exit;
     if (Tok.Kind = atSlashKw) and SameText(Tok.Text, '/end') then
     begin
       ALex.Next;
@@ -609,24 +660,33 @@ var
   Entry: TOBDA2LCompuTabEntry;
   ConvType: string;
 begin
-  AOut := Default(TOBDA2LCompuMethod);
+  AOut := Default (TOBDA2LCompuMethod);
   // Header: name desc conv count
-  Tok := ALex.Next; AOut.Name := Tok.Text;
-  Tok := ALex.Next; AOut.Description := Tok.Text;
-  Tok := ALex.Next; ConvType := Tok.Text;
-  if SameText(ConvType, 'TAB_INTP') then AOut.Kind := cmTabIntp
-  else if SameText(ConvType, 'TAB_NOINTP') then AOut.Kind := cmTabNointp
-  else AOut.Kind := cmTabIntp;
-  Tok := ALex.Next; Count := Integer(ParseUInt64(Tok.Text));
+  Tok := ALex.Next;
+  AOut.Name := Tok.Text;
+  Tok := ALex.Next;
+  AOut.Description := Tok.Text;
+  Tok := ALex.Next;
+  ConvType := Tok.Text;
+  if SameText(ConvType, 'TAB_INTP') then
+    AOut.Kind := cmTabIntp
+  else if SameText(ConvType, 'TAB_NOINTP') then
+    AOut.Kind := cmTabNointp
+  else
+    AOut.Kind := cmTabIntp;
+  Tok := ALex.Next;
+  Count := Integer(ParseUInt64(Tok.Text));
   Entries := TList<TOBDA2LCompuTabEntry>.Create;
   try
     for I := 0 to Count - 1 do
     begin
       Tok := ALex.Next;
-      if Tok.Kind = atEOF then Break;
+      if Tok.Kind = atEOF then
+        Break;
       Entry.Raw := ParseDouble(Tok.Text);
       Tok := ALex.Next;
-      if Tok.Kind = atEOF then Break;
+      if Tok.Kind = atEOF then
+        Break;
       Entry.Phys := ParseDouble(Tok.Text);
       Entries.Add(Entry);
     end;
@@ -638,7 +698,8 @@ begin
   while True do
   begin
     Tok := ALex.Next;
-    if Tok.Kind = atEOF then Exit;
+    if Tok.Kind = atEOF then
+      Exit;
     if (Tok.Kind = atSlashKw) and SameText(Tok.Text, '/end') then
     begin
       ALex.Next;
@@ -657,10 +718,12 @@ begin
   while True do
   begin
     Tok := ALex.Next;
-    if Tok.Kind = atEOF then Exit;
+    if Tok.Kind = atEOF then
+      Exit;
     if (Tok.Kind = atSlashKw) and SameText(Tok.Text, '/end') then
     begin
-      ALex.Next; Exit;
+      ALex.Next;
+      Exit;
     end;
     if (Tok.Kind = atSlashKw) and SameText(Tok.Text, '/begin') then
     begin
@@ -668,14 +731,17 @@ begin
       SkipBlock(ALex, Tok.Text);
       Continue;
     end;
-    if Tok.Kind <> atIdent then Continue;
+    if Tok.Kind <> atIdent then
+      Continue;
     if SameText(Tok.Text, 'DEPOSIT') then
     begin
-      Tok := ALex.Next; ACluster.Common.Deposit := Tok.Text;
+      Tok := ALex.Next;
+      ACluster.Common.Deposit := Tok.Text;
     end
     else if SameText(Tok.Text, 'BYTE_ORDER') then
     begin
-      Tok := ALex.Next; ACluster.Common.ByteOrder := Tok.Text;
+      Tok := ALex.Next;
+      ACluster.Common.ByteOrder := Tok.Text;
     end
     else if SameText(Tok.Text, 'ALIGNMENT_BYTE') then
     begin
@@ -720,10 +786,12 @@ begin
   while True do
   begin
     Tok := ALex.Next;
-    if Tok.Kind = atEOF then Exit;
+    if Tok.Kind = atEOF then
+      Exit;
     if (Tok.Kind = atSlashKw) and SameText(Tok.Text, '/end') then
     begin
-      ALex.Next; Exit;
+      ALex.Next;
+      Exit;
     end;
     if (Tok.Kind = atSlashKw) and SameText(Tok.Text, '/begin') then
     begin
@@ -731,24 +799,28 @@ begin
       SkipBlock(ALex, Tok.Text);
       Continue;
     end;
-    if Tok.Kind <> atIdent then Continue;
+    if Tok.Kind <> atIdent then
+      Continue;
     if SameText(Tok.Text, 'EPK') then
     begin
-      Tok := ALex.Next; ACluster.Par.EpkValue := Tok.Text;
+      Tok := ALex.Next;
+      ACluster.Par.EpkValue := Tok.Text;
     end
     else if SameText(Tok.Text, 'ADDR_EPK') then
     begin
       Tok := ALex.Next;
       ACluster.Par.EpkAddress := ParseUInt64(Tok.Text);
     end
-    else if SameText(Tok.Text, 'CUSTOMER') or
-            SameText(Tok.Text, 'CUSTOMER_NO') then
+    else if SameText(Tok.Text, 'CUSTOMER') or SameText(Tok.Text, 'CUSTOMER_NO')
+    then
     begin
-      Tok := ALex.Next; ACluster.Par.Customer := Tok.Text;
+      Tok := ALex.Next;
+      ACluster.Par.Customer := Tok.Text;
     end
     else if SameText(Tok.Text, 'VERSION') then
     begin
-      Tok := ALex.Next; ACluster.Par.Version := Tok.Text;
+      Tok := ALex.Next;
+      ACluster.Par.Version := Tok.Text;
     end;
   end;
 end;
@@ -757,12 +829,17 @@ procedure ParseCompuMethod(ALex: TA2LLexer; out AOut: TOBDA2LCompuMethod);
 var
   Tok: TA2LToken;
 begin
-  AOut := Default(TOBDA2LCompuMethod);
-  Tok := ALex.Next; AOut.Name := Tok.Text;
-  Tok := ALex.Next; AOut.Description := Tok.Text;
-  Tok := ALex.Next; AOut.Kind := ParseCompuKind(Tok.Text);
-  Tok := ALex.Next; AOut.Format := Tok.Text;
-  Tok := ALex.Next; AOut.Unit_ := Tok.Text;
+  AOut := Default (TOBDA2LCompuMethod);
+  Tok := ALex.Next;
+  AOut.Name := Tok.Text;
+  Tok := ALex.Next;
+  AOut.Description := Tok.Text;
+  Tok := ALex.Next;
+  AOut.Kind := ParseCompuKind(Tok.Text);
+  Tok := ALex.Next;
+  AOut.Format := Tok.Text;
+  Tok := ALex.Next;
+  AOut.Unit_ := Tok.Text;
 
   while True do
   begin
@@ -782,18 +859,26 @@ begin
     end;
     if (Tok.Kind = atIdent) and SameText(Tok.Text, 'COEFFS') then
     begin
-      Tok := ALex.Next; AOut.Coeffs.A := ParseDouble(Tok.Text);
-      Tok := ALex.Next; AOut.Coeffs.B := ParseDouble(Tok.Text);
-      Tok := ALex.Next; AOut.Coeffs.C := ParseDouble(Tok.Text);
-      Tok := ALex.Next; AOut.Coeffs.D := ParseDouble(Tok.Text);
-      Tok := ALex.Next; AOut.Coeffs.E := ParseDouble(Tok.Text);
-      Tok := ALex.Next; AOut.Coeffs.F := ParseDouble(Tok.Text);
+      Tok := ALex.Next;
+      AOut.Coeffs.A := ParseDouble(Tok.Text);
+      Tok := ALex.Next;
+      AOut.Coeffs.B := ParseDouble(Tok.Text);
+      Tok := ALex.Next;
+      AOut.Coeffs.C := ParseDouble(Tok.Text);
+      Tok := ALex.Next;
+      AOut.Coeffs.D := ParseDouble(Tok.Text);
+      Tok := ALex.Next;
+      AOut.Coeffs.E := ParseDouble(Tok.Text);
+      Tok := ALex.Next;
+      AOut.Coeffs.F := ParseDouble(Tok.Text);
     end
     else if (Tok.Kind = atIdent) and SameText(Tok.Text, 'COEFFS_LINEAR') then
     begin
       // LINEAR uses A, B; phys = A * raw + B per ASAM MCD-2.
-      Tok := ALex.Next; AOut.Coeffs.A := ParseDouble(Tok.Text);
-      Tok := ALex.Next; AOut.Coeffs.B := ParseDouble(Tok.Text);
+      Tok := ALex.Next;
+      AOut.Coeffs.A := ParseDouble(Tok.Text);
+      Tok := ALex.Next;
+      AOut.Coeffs.B := ParseDouble(Tok.Text);
     end;
   end;
 end;
@@ -810,7 +895,7 @@ var
   Compu: TOBDA2LCompuMethod;
   BlockName: string;
 begin
-  Result := Default(TOBDA2LCluster);
+  Result := Default (TOBDA2LCluster);
   Measurements := TList<TOBDA2LMeasurement>.Create;
   Characteristics := TList<TOBDA2LCharacteristic>.Create;
   CompuMethods := TList<TOBDA2LCompuMethod>.Create;
@@ -819,7 +904,8 @@ begin
     while True do
     begin
       Tok := Lex.Next;
-      if Tok.Kind = atEOF then Break;
+      if Tok.Kind = atEOF then
+        Break;
       if (Tok.Kind = atSlashKw) and SameText(Tok.Text, '/begin') then
       begin
         Tok := Lex.Next;
@@ -840,7 +926,7 @@ begin
           CompuMethods.Add(Compu);
         end
         else if SameText(BlockName, 'COMPU_VTAB') or
-                SameText(BlockName, 'COMPU_VTAB_RANGE') then
+          SameText(BlockName, 'COMPU_VTAB_RANGE') then
         begin
           ParseCompuVTab(Lex, Compu);
           CompuMethods.Add(Compu);
@@ -856,13 +942,15 @@ begin
           ParseModPar(Lex, Result)
         else if SameText(BlockName, 'PROJECT') then
         begin
-          Tok := Lex.Next; Result.Project := Tok.Text;
+          Tok := Lex.Next;
+          Result.Project := Tok.Text;
           // skip until /end PROJECT
           SkipBlock(Lex, BlockName);
         end
         else if SameText(BlockName, 'MODULE') then
         begin
-          Tok := Lex.Next; Result.Module := Tok.Text;
+          Tok := Lex.Next;
+          Result.Module := Tok.Text;
           // Continue parsing inside the module — don't skip.
         end
         else
@@ -885,17 +973,20 @@ begin
   Result := Parse(TFile.ReadAllText(AFileName, TEncoding.UTF8));
 end;
 
-function InterpTable(const ATab: TArray<TOBDA2LCompuTabEntry>;
-  ARaw: Double; AInterp: Boolean): Double;
+function InterpTable(const ATab: TArray<TOBDA2LCompuTabEntry>; ARaw: Double;
+  AInterp: Boolean): Double;
 var
   I: Integer;
   T: Double;
 begin
-  if Length(ATab) = 0 then Exit(NaN);
+  if Length(ATab) = 0 then
+    Exit(NaN);
   // Below the lowest point: clamp.
-  if ARaw <= ATab[0].Raw then Exit(ATab[0].Phys);
+  if ARaw <= ATab[0].Raw then
+    Exit(ATab[0].Phys);
   // Above the highest: clamp.
-  if ARaw >= ATab[High(ATab)].Raw then Exit(ATab[High(ATab)].Phys);
+  if ARaw >= ATab[High(ATab)].Raw then
+    Exit(ATab[High(ATab)].Phys);
   for I := 0 to High(ATab) - 1 do
   begin
     if (ARaw >= ATab[I].Raw) and (ARaw <= ATab[I + 1].Raw) then
@@ -918,19 +1009,25 @@ var
   Num, Den: Double;
 begin
   case ACompu.Kind of
-    cmIdentity: Result := ARaw;
-    cmLinear:   Result := ACompu.Coeffs.A * ARaw + ACompu.Coeffs.B;
+    cmIdentity:
+      Result := ARaw;
+    cmLinear:
+      Result := ACompu.Coeffs.A * ARaw + ACompu.Coeffs.B;
     cmRatFunc:
-    begin
-      Den := ACompu.Coeffs.D * ARaw * ARaw + ACompu.Coeffs.E * ARaw +
-             ACompu.Coeffs.F;
-      Num := ACompu.Coeffs.A * ARaw * ARaw + ACompu.Coeffs.B * ARaw +
-             ACompu.Coeffs.C;
-      if Den = 0 then Result := NaN
-      else Result := Num / Den;
-    end;
-    cmTabIntp:   Result := InterpTable(ACompu.NumericTable, ARaw, True);
-    cmTabNointp: Result := InterpTable(ACompu.NumericTable, ARaw, False);
+      begin
+        Den := ACompu.Coeffs.D * ARaw * ARaw + ACompu.Coeffs.E * ARaw +
+          ACompu.Coeffs.F;
+        Num := ACompu.Coeffs.A * ARaw * ARaw + ACompu.Coeffs.B * ARaw +
+          ACompu.Coeffs.C;
+        if Den = 0 then
+          Result := NaN
+        else
+          Result := Num / Den;
+      end;
+    cmTabIntp:
+      Result := InterpTable(ACompu.NumericTable, ARaw, True);
+    cmTabNointp:
+      Result := InterpTable(ACompu.NumericTable, ARaw, False);
   else
     Result := ARaw;
   end;

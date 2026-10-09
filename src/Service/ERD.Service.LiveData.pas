@@ -1,40 +1,40 @@
-//------------------------------------------------------------------------------
-//  ERD.Service.LiveData
+﻿// ------------------------------------------------------------------------------
+// ERD.Service.LiveData
 //
-//  TOBDLiveData — non-visual component that sits on top of a
-//  TOBDProtocol and exposes the OBD-II Mode 01 (Show current data)
-//  service: support-bitmaps, single-PID reads, periodic polling.
+// TOBDLiveData — non-visual component that sits on top of a
+// TOBDProtocol and exposes the OBD-II Mode 01 (Show current data)
+// service: support-bitmaps, single-PID reads, periodic polling.
 //
-//  Owns a small built-in PID decoder dictionary covering the
-//  classic SAE J1979 PIDs (RPM, vehicle speed, throttle position,
-//  coolant temperature, intake-air temperature, MAF, fuel level,
-//  control-module voltage, distance with MIL on, ambient temp,
-//  oil temperature). Hosts that need extra PIDs subscribe to
-//  <c>OnRaw</c> and decode the bytes themselves.
+// Owns a small built-in PID decoder dictionary covering the
+// classic SAE J1979 PIDs (RPM, vehicle speed, throttle position,
+// coolant temperature, intake-air temperature, MAF, fuel level,
+// control-module voltage, distance with MIL on, ambient temp,
+// oil temperature). Hosts that need extra PIDs subscribe to
+// <c>OnRaw</c> and decode the bytes themselves.
 //
-//  Honours the dual-method + main-thread + progress rule:
-//  Read / ReadAsync, Poll / PollStop, OnValue / OnRaw / OnError.
+// Honours the dual-method + main-thread + progress rule:
+// Read / ReadAsync, Poll / PollStop, OnValue / OnRaw / OnError.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - SAE J1979 (E/E Diagnostic Test Modes, Mode 01 PID catalogue)
-//    - ISO 15031-5 (OBD-II diagnostic services)
+// References  :
+// - SAE J1979 (E/E Diagnostic Test Modes, Mode 01 PID catalogue)
+// - ISO 15031-5 (OBD-II diagnostic services)
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Service.LiveData;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -42,10 +42,10 @@ interface
 uses
   ERD.Async.Task,
   ERD.Connection,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.Types,
   ERD.Protocol.Types,
   ERD.Protocol,
@@ -80,24 +80,24 @@ type
 
   /// <summary>Fires for every successful PID read with the decoded
   /// value snapshot.</summary>
-  TOBDPIDValueEvent = procedure(Sender: TObject;
-    const AValue: TOBDPIDValue) of object;
+  TOBDPIDValueEvent = procedure(Sender: TObject; const AValue: TOBDPIDValue)
+    of object;
 
   /// <summary>Fires alongside <c>OnValue</c> with the raw bytes
   /// before decoding. Useful for unsupported / OEM PIDs.</summary>
-  TOBDPIDRawEvent = procedure(Sender: TObject; APID: Byte;
-    const ARaw: TBytes) of object;
+  TOBDPIDRawEvent = procedure(Sender: TObject; APID: Byte; const ARaw: TBytes)
+    of object;
 
   /// <summary>
-  ///   Mode 01 service component.
+  /// Mode 01 service component.
   /// </summary>
   /// <remarks>
-  ///   Drop on a form, point <c>Protocol</c> at a configured
-  ///   <c>TOBDProtocol</c>, then call <c>Read(0x0C)</c> for engine
-  ///   RPM or <c>ReadAsync(0x0D)</c> for vehicle speed. Use
-  ///   <c>SupportedPIDs</c> to discover which PIDs the ECU
-  ///   advertises before calling them. <c>Poll</c> drives a list of
-  ///   PIDs at a fixed interval until <c>PollStop</c>.
+  /// Drop on a form, point <c>Protocol</c> at a configured
+  /// <c>TOBDProtocol</c>, then call <c>Read(0x0C)</c> for engine
+  /// RPM or <c>ReadAsync(0x0D)</c> for vehicle speed. Use
+  /// <c>SupportedPIDs</c> to discover which PIDs the ECU
+  /// advertises before calling them. <c>Poll</c> drives a list of
+  /// PIDs at a fixed interval until <c>PollStop</c>.
   /// </remarks>
   TOBDLiveData = class(TComponent)
   strict private
@@ -127,13 +127,11 @@ type
     procedure GuardSingleAsync;
     procedure ReleaseAsync;
     function DoRead(APID: Byte): TOBDPIDValue;
-    procedure DispatchValue(const AValue: TOBDPIDValue;
-      const ARaw: TBytes);
+    procedure DispatchValue(const AValue: TOBDPIDValue; const ARaw: TBytes);
     procedure FireValue(const AValue: TOBDPIDValue);
     procedure FireRaw(APID: Byte; const ARaw: TBytes);
     procedure FireError(ACode: TOBDErrorCode; const AMessage: string);
-    procedure DispatchSubscribers(APID: Byte;
-      const AValue: TOBDPIDValue);
+    procedure DispatchSubscribers(APID: Byte; const AValue: TOBDPIDValue);
     procedure SetProtocol(AValue: TOBDProtocol);
   protected
     procedure Notification(AComponent: TComponent;
@@ -145,8 +143,8 @@ type
     destructor Destroy; override;
 
     /// <summary>
-    ///   Reads a single Mode 01 PID synchronously and returns the
-    ///   decoded value (or raw bytes when no decoder applies).
+    /// Reads a single Mode 01 PID synchronously and returns the
+    /// decoded value (or raw bytes when no decoder applies).
     /// </summary>
     /// <param name="APID">Mode 01 PID byte (0x00..0xFF).</param>
     /// <returns>Decoded value snapshot.</returns>
@@ -159,10 +157,10 @@ type
     procedure ReadAsync(APID: Byte);
 
     /// <summary>
-    ///   Returns the set of supported Mode 01 PIDs by walking the
-    ///   support-bitmap PIDs (0x00 → 0x20 → 0x40 → 0x60 → 0x80 →
-    ///   0xA0 → 0xC0 → 0xE0). Stops as soon as a bitmap response
-    ///   indicates that no further bitmap is supported.
+    /// Returns the set of supported Mode 01 PIDs by walking the
+    /// support-bitmap PIDs (0x00 → 0x20 → 0x40 → 0x60 → 0x80 →
+    /// 0xA0 → 0xC0 → 0xE0). Stops as soon as a bitmap response
+    /// indicates that no further bitmap is supported.
     /// </summary>
     /// <returns>Sorted PID bytes.</returns>
     function SupportedPIDs: TBytes;
@@ -214,12 +212,12 @@ type
 implementation
 
 uses
-  {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF};
+{$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF};
 
 { ---- built-in PID decoders -------------------------------------------------- }
 
-function DecodePID(APID: Byte; const A: TBytes;
-  out AValue: Double; out AUnit, ADescription: string): Boolean;
+function DecodePID(APID: Byte; const A: TBytes; out AValue: Double;
+  out AUnit, ADescription: string): Boolean;
 begin
   Result := True;
   AValue := NaN;
@@ -227,113 +225,149 @@ begin
   ADescription := '';
   case APID of
     $04: // calculated engine load
-    begin
-      if Length(A) < 1 then Exit(False);
-      AValue := A[0] * 100.0 / 255.0;
-      AUnit := '%'; ADescription := 'Engine load';
-    end;
+      begin
+        if Length(A) < 1 then
+          Exit(False);
+        AValue := A[0] * 100.0 / 255.0;
+        AUnit := '%';
+        ADescription := 'Engine load';
+      end;
     $05: // coolant temperature
-    begin
-      if Length(A) < 1 then Exit(False);
-      AValue := A[0] - 40;
-      AUnit := '°C'; ADescription := 'Engine coolant temperature';
-    end;
+      begin
+        if Length(A) < 1 then
+          Exit(False);
+        AValue := A[0] - 40;
+        AUnit := '°C';
+        ADescription := 'Engine coolant temperature';
+      end;
     $0A: // fuel pressure
-    begin
-      if Length(A) < 1 then Exit(False);
-      AValue := A[0] * 3;
-      AUnit := 'kPa'; ADescription := 'Fuel pressure';
-    end;
+      begin
+        if Length(A) < 1 then
+          Exit(False);
+        AValue := A[0] * 3;
+        AUnit := 'kPa';
+        ADescription := 'Fuel pressure';
+      end;
     $0B: // intake manifold pressure
-    begin
-      if Length(A) < 1 then Exit(False);
-      AValue := A[0];
-      AUnit := 'kPa'; ADescription := 'Intake manifold pressure';
-    end;
+      begin
+        if Length(A) < 1 then
+          Exit(False);
+        AValue := A[0];
+        AUnit := 'kPa';
+        ADescription := 'Intake manifold pressure';
+      end;
     $0C: // engine RPM
-    begin
-      if Length(A) < 2 then Exit(False);
-      AValue := ((A[0] * 256) + A[1]) / 4.0;
-      AUnit := 'rpm'; ADescription := 'Engine RPM';
-    end;
+      begin
+        if Length(A) < 2 then
+          Exit(False);
+        AValue := ((A[0] * 256) + A[1]) / 4.0;
+        AUnit := 'rpm';
+        ADescription := 'Engine RPM';
+      end;
     $0D: // vehicle speed
-    begin
-      if Length(A) < 1 then Exit(False);
-      AValue := A[0];
-      AUnit := 'km/h'; ADescription := 'Vehicle speed';
-    end;
+      begin
+        if Length(A) < 1 then
+          Exit(False);
+        AValue := A[0];
+        AUnit := 'km/h';
+        ADescription := 'Vehicle speed';
+      end;
     $0E: // timing advance
-    begin
-      if Length(A) < 1 then Exit(False);
-      AValue := (A[0] / 2.0) - 64.0;
-      AUnit := '°'; ADescription := 'Timing advance';
-    end;
+      begin
+        if Length(A) < 1 then
+          Exit(False);
+        AValue := (A[0] / 2.0) - 64.0;
+        AUnit := '°';
+        ADescription := 'Timing advance';
+      end;
     $0F: // intake air temperature
-    begin
-      if Length(A) < 1 then Exit(False);
-      AValue := A[0] - 40;
-      AUnit := '°C'; ADescription := 'Intake air temperature';
-    end;
+      begin
+        if Length(A) < 1 then
+          Exit(False);
+        AValue := A[0] - 40;
+        AUnit := '°C';
+        ADescription := 'Intake air temperature';
+      end;
     $10: // MAF air flow rate
-    begin
-      if Length(A) < 2 then Exit(False);
-      AValue := ((A[0] * 256) + A[1]) / 100.0;
-      AUnit := 'g/s'; ADescription := 'Mass air flow';
-    end;
+      begin
+        if Length(A) < 2 then
+          Exit(False);
+        AValue := ((A[0] * 256) + A[1]) / 100.0;
+        AUnit := 'g/s';
+        ADescription := 'Mass air flow';
+      end;
     $11: // throttle position
-    begin
-      if Length(A) < 1 then Exit(False);
-      AValue := A[0] * 100.0 / 255.0;
-      AUnit := '%'; ADescription := 'Throttle position';
-    end;
+      begin
+        if Length(A) < 1 then
+          Exit(False);
+        AValue := A[0] * 100.0 / 255.0;
+        AUnit := '%';
+        ADescription := 'Throttle position';
+      end;
     $1F: // run time since engine start
-    begin
-      if Length(A) < 2 then Exit(False);
-      AValue := (A[0] * 256) + A[1];
-      AUnit := 's'; ADescription := 'Run time since engine start';
-    end;
+      begin
+        if Length(A) < 2 then
+          Exit(False);
+        AValue := (A[0] * 256) + A[1];
+        AUnit := 's';
+        ADescription := 'Run time since engine start';
+      end;
     $21: // distance with MIL on
-    begin
-      if Length(A) < 2 then Exit(False);
-      AValue := (A[0] * 256) + A[1];
-      AUnit := 'km'; ADescription := 'Distance with MIL on';
-    end;
+      begin
+        if Length(A) < 2 then
+          Exit(False);
+        AValue := (A[0] * 256) + A[1];
+        AUnit := 'km';
+        ADescription := 'Distance with MIL on';
+      end;
     $2F: // fuel tank level
-    begin
-      if Length(A) < 1 then Exit(False);
-      AValue := A[0] * 100.0 / 255.0;
-      AUnit := '%'; ADescription := 'Fuel tank level';
-    end;
+      begin
+        if Length(A) < 1 then
+          Exit(False);
+        AValue := A[0] * 100.0 / 255.0;
+        AUnit := '%';
+        ADescription := 'Fuel tank level';
+      end;
     $33: // barometric pressure
-    begin
-      if Length(A) < 1 then Exit(False);
-      AValue := A[0];
-      AUnit := 'kPa'; ADescription := 'Barometric pressure';
-    end;
+      begin
+        if Length(A) < 1 then
+          Exit(False);
+        AValue := A[0];
+        AUnit := 'kPa';
+        ADescription := 'Barometric pressure';
+      end;
     $42: // control module voltage
-    begin
-      if Length(A) < 2 then Exit(False);
-      AValue := ((A[0] * 256) + A[1]) / 1000.0;
-      AUnit := 'V'; ADescription := 'Control module voltage';
-    end;
+      begin
+        if Length(A) < 2 then
+          Exit(False);
+        AValue := ((A[0] * 256) + A[1]) / 1000.0;
+        AUnit := 'V';
+        ADescription := 'Control module voltage';
+      end;
     $46: // ambient air temperature
-    begin
-      if Length(A) < 1 then Exit(False);
-      AValue := A[0] - 40;
-      AUnit := '°C'; ADescription := 'Ambient air temperature';
-    end;
+      begin
+        if Length(A) < 1 then
+          Exit(False);
+        AValue := A[0] - 40;
+        AUnit := '°C';
+        ADescription := 'Ambient air temperature';
+      end;
     $5C: // engine oil temperature
-    begin
-      if Length(A) < 1 then Exit(False);
-      AValue := A[0] - 40;
-      AUnit := '°C'; ADescription := 'Engine oil temperature';
-    end;
+      begin
+        if Length(A) < 1 then
+          Exit(False);
+        AValue := A[0] - 40;
+        AUnit := '°C';
+        ADescription := 'Engine oil temperature';
+      end;
     $5E: // engine fuel rate
-    begin
-      if Length(A) < 2 then Exit(False);
-      AValue := ((A[0] * 256) + A[1]) * 0.05;
-      AUnit := 'L/h'; ADescription := 'Engine fuel rate';
-    end;
+      begin
+        if Length(A) < 2 then
+          Exit(False);
+        AValue := ((A[0] * 256) + A[1]) * 0.05;
+        AUnit := 'L/h';
+        ADescription := 'Engine fuel rate';
+      end;
   else
     Result := False;
   end;
@@ -352,15 +386,19 @@ begin
 end;
 
 destructor TOBDLiveData.Destroy;
-var L: TList<TMethod>;
+var
+  L: TList<TMethod>;
 begin
   FPollStop := True;
-  if FPollWake <> nil then FPollWake.SetEvent;
-  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  if FPollWake <> nil then
+    FPollWake.SetEvent;
+  if FOwnedTask <> nil then
+    FOwnedTask.Cancel;
   PollStop;
   if FSubscribers <> nil then
   begin
-    for L in FSubscribers.Values do L.Free;
+    for L in FSubscribers.Values do
+      L.Free;
     FSubscribers.Free;
   end;
   FSubscribersLock.Free;
@@ -397,9 +435,11 @@ end;
 
 procedure TOBDLiveData.SetProtocol(AValue: TOBDProtocol);
 begin
-  if FProtocol = AValue then Exit;
+  if FProtocol = AValue then
+    Exit;
   PollStop;
-  if FOwnedTask <> nil then FOwnedTask.Quiesce;
+  if FOwnedTask <> nil then
+    FOwnedTask.Quiesce;
   if FProtocol <> nil then
     FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
@@ -414,7 +454,8 @@ begin
   if (Operation = opRemove) and (AComponent = FProtocol) then
   begin
     PollStop;
-    if FOwnedTask <> nil then FOwnedTask.Quiesce;
+    if FOwnedTask <> nil then
+      FOwnedTask.Quiesce;
     FProtocol := nil;
   end;
 end;
@@ -432,8 +473,8 @@ begin
     raise EOBDConfig.Create('TOBDLiveData: Protocol not assigned');
   Resp := FProtocol.Request(OBD_MODE_CURRENT_DATA, TBytes.Create(APID));
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt(
-      'Mode 01 PID 0x%2.2X negative: %s', [APID, Resp.NRCText]);
+    raise EOBDProtocolErr.CreateFmt('Mode 01 PID 0x%2.2X negative: %s',
+      [APID, Resp.NRCText]);
 
   // Response Data carries [PID echo, value bytes...]. Some adapters
   // strip the PID echo on broadcast IDs; tolerate either layout.
@@ -441,12 +482,13 @@ begin
   if (N >= 1) and (Resp.Data[0] = APID) then
   begin
     SetLength(Raw, N - 1);
-    if N > 1 then Move(Resp.Data[1], Raw[0], N - 1);
+    if N > 1 then
+      Move(Resp.Data[1], Raw[0], N - 1);
   end
   else
     Raw := Copy(Resp.Data, 0, N);
 
-  Result := Default(TOBDPIDValue);
+  Result := Default (TOBDPIDValue);
   Result.PID := APID;
   Result.Raw := Raw;
   Result.Value := NaN;
@@ -457,7 +499,8 @@ begin
   if TOBDServiceCatalog.Default.TryGetPID(APID, CatInfo) then
   begin
     Result.Description := CatInfo.Description;
-    if CatInfo.Description = '' then Result.Description := CatInfo.Name;
+    if CatInfo.Description = '' then
+      Result.Description := CatInfo.Name;
     Result.Unit_ := CatInfo.Decoder.Unit_;
     if EvaluatePIDDecoder(CatInfo.Decoder, Raw, V) then
       Result.Value := V;
@@ -511,17 +554,19 @@ begin
 end;
 
 procedure TOBDLiveData.DispatchValue(const AValue: TOBDPIDValue;
-  const ARaw: TBytes);
-var Token: IOBDDispatchLifetime;
+const ARaw: TBytes);
+var
+  Token: IOBDDispatchLifetime;
 begin
   Token := FOwnedTask.Lifetime;
   FireValue(AValue);
-  if not Token.IsCancelled then FireRaw(AValue.PID, ARaw);
+  if not Token.IsCancelled then
+    FireRaw(AValue.PID, ARaw);
 end;
 
 function TOBDLiveData.SupportedPIDs: TBytes;
 const
-  Bases: array[0..7] of Byte = ($00, $20, $40, $60, $80, $A0, $C0, $E0);
+  Bases: array [0 .. 7] of Byte = ($00, $20, $40, $60, $80, $A0, $C0, $E0);
 var
   List: TList<Byte>;
   Resp: TOBDResponse;
@@ -538,18 +583,17 @@ begin
     begin
       Base := Bases[I];
       Resp := FProtocol.Request(OBD_MODE_CURRENT_DATA, TBytes.Create(Base));
-      if Resp.IsNegative then Break;
+      if Resp.IsNegative then
+        Break;
       // Expect [PID echo, 4 bytes bitmap] or just 4 bytes.
       if (Length(Resp.Data) >= 5) and (Resp.Data[0] = Base) then
         Bitmap := (Cardinal(Resp.Data[1]) shl 24) or
-                  (Cardinal(Resp.Data[2]) shl 16) or
-                  (Cardinal(Resp.Data[3]) shl 8) or
-                  Cardinal(Resp.Data[4])
+          (Cardinal(Resp.Data[2]) shl 16) or (Cardinal(Resp.Data[3]) shl 8) or
+          Cardinal(Resp.Data[4])
       else if Length(Resp.Data) >= 4 then
         Bitmap := (Cardinal(Resp.Data[0]) shl 24) or
-                  (Cardinal(Resp.Data[1]) shl 16) or
-                  (Cardinal(Resp.Data[2]) shl 8) or
-                  Cardinal(Resp.Data[3])
+          (Cardinal(Resp.Data[1]) shl 16) or (Cardinal(Resp.Data[2]) shl 8) or
+          Cardinal(Resp.Data[3])
       else
         Break;
 
@@ -560,7 +604,8 @@ begin
 
       // The lowest bit of each bitmap signals "next bitmap supported".
       HasNextBitmap := (Bitmap and 1) <> 0;
-      if not HasNextBitmap then Break;
+      if not HasNextBitmap then
+        Break;
     end;
     Result := List.ToArray;
   finally
@@ -594,10 +639,11 @@ begin
     begin
       while not Self_.FPollStop do
       begin
-    FOwnedTask.CheckCancelled;
+        FOwnedTask.CheckCancelled;
         for I := 0 to High(PIDCopy) do
         begin
-          if Self_.FPollStop then Break;
+          if Self_.FPollStop then
+            Break;
           try
             V := Self_.DoRead(PIDCopy[I]);
             Self_.DispatchValue(V, V.Raw);
@@ -606,8 +652,10 @@ begin
               Self_.FireError(oeIO, E.Message);
           end;
         end;
-        if Self_.FPollStop then Break;
-        if Self_.FPollWake.WaitFor(Interval) = wrSignaled then Break;
+        if Self_.FPollStop then
+          Break;
+        if Self_.FPollWake.WaitFor(Interval) = wrSignaled then
+          Break;
       end;
     end);
   FPollThread.FreeOnTerminate := False;
@@ -619,7 +667,8 @@ var
   T: TThread;
 begin
   FPollStop := True;
-  if FPollWake <> nil then FPollWake.SetEvent;
+  if FPollWake <> nil then
+    FPollWake.SetEvent;
   T := FPollThread;
   FPollThread := nil;
   if T <> nil then
@@ -636,8 +685,8 @@ end;
 
 procedure TOBDLiveData.FireValue(const AValue: TOBDPIDValue);
 var
-  Self_:   TOBDLiveData;
-  Snap:    TOBDPIDValue;
+  Self_: TOBDLiveData;
+  Snap: TOBDPIDValue;
   PIDByte: Byte;
   Token: IOBDDispatchLifetime;
 begin
@@ -646,24 +695,29 @@ begin
   // boilerplate. FOnValue may not be wired, but subscribers may
   // be - hence the unconditional dispatch path.
   Token := FOwnedTask.Lifetime;
-  Self_   := Self;
-  Snap    := AValue;
+  Self_ := Self;
+  Snap := AValue;
   PIDByte := AValue.PID;
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
-    if Assigned(FOnValue) then FOnValue(Self_, Snap);
-    if not Token.IsCancelled then DispatchSubscribers(PIDByte, Snap);
+    if Assigned(FOnValue) then
+      FOnValue(Self_, Snap);
+    if not Token.IsCancelled then
+      DispatchSubscribers(PIDByte, Snap);
   end
   else
-    FOwnedTask.Post( procedure
-    begin
-      if Assigned(Self_.FOnValue) then Self_.FOnValue(Self_, Snap);
-      if not Token.IsCancelled then Self_.DispatchSubscribers(PIDByte, Snap);
-    end);
+    FOwnedTask.Post(
+      procedure
+      begin
+        if Assigned(Self_.FOnValue) then
+          Self_.FOnValue(Self_, Snap);
+        if not Token.IsCancelled then
+          Self_.DispatchSubscribers(PIDByte, Snap);
+      end);
 end;
 
 procedure TOBDLiveData.DispatchSubscribers(APID: Byte;
-  const AValue: TOBDPIDValue);
+const AValue: TOBDPIDValue);
 var
   L: TList<TMethod>;
   M: TMethod;
@@ -672,20 +726,23 @@ var
   Token: IOBDDispatchLifetime;
 begin
   Token := FOwnedTask.Lifetime;
-  if FSubscribers = nil then Exit;
+  if FSubscribers = nil then
+    Exit;
   // Snapshot the list under the lock so subscribers that
   // re-entrantly subscribe / unsubscribe during dispatch
   // don't corrupt iteration.
   FSubscribersLock.Enter;
   try
-    if not FSubscribers.TryGetValue(APID, L) then Exit;
+    if not FSubscribers.TryGetValue(APID, L) then
+      Exit;
     Snapshot := L.ToArray;
   finally
     FSubscribersLock.Leave;
   end;
   for M in Snapshot do
   begin
-    if Token.IsCancelled then Exit;
+    if Token.IsCancelled then
+      Exit;
     Cb := TOBDPIDValueEvent(M);
     try
       Cb(Self, AValue);
@@ -695,18 +752,18 @@ begin
   end;
 end;
 
-procedure TOBDLiveData.Subscribe(APID: Byte;
-  AHandler: TOBDPIDValueEvent);
+procedure TOBDLiveData.Subscribe(APID: Byte; AHandler: TOBDPIDValueEvent);
 var
   L: TList<TMethod>;
   M: TMethod;
 begin
-  if not Assigned(AHandler) then Exit;
+  if not Assigned(AHandler) then
+    Exit;
   M := TMethod(AHandler);
   FSubscribersLock.Enter;
   try
     if FSubscribers = nil then
-      FSubscribers := TDictionary<Byte, TList<TMethod>>.Create;
+      FSubscribers := TDictionary < Byte, TList < TMethod >>.Create;
     if not FSubscribers.TryGetValue(APID, L) then
     begin
       L := TList<TMethod>.Create;
@@ -719,14 +776,14 @@ begin
   end;
 end;
 
-procedure TOBDLiveData.Unsubscribe(APID: Byte;
-  AHandler: TOBDPIDValueEvent);
+procedure TOBDLiveData.Unsubscribe(APID: Byte; AHandler: TOBDPIDValueEvent);
 var
   L: TList<TMethod>;
 begin
   FSubscribersLock.Enter;
   try
-    if FSubscribers = nil then Exit;
+    if FSubscribers = nil then
+      Exit;
     if FSubscribers.TryGetValue(APID, L) then
       L.Remove(TMethod(AHandler));
   finally
@@ -736,34 +793,48 @@ end;
 
 procedure TOBDLiveData.FireRaw(APID: Byte; const ARaw: TBytes);
 var
-  Self_: TOBDLiveData; PID: Byte; Snap: TBytes;
+  Self_: TOBDLiveData;
+  PID: Byte;
+  Snap: TBytes;
 begin
-  if not Assigned(FOnRaw) then Exit;
-  Self_ := Self; PID := APID; Snap := Copy(ARaw, 0, Length(ARaw));
+  if not Assigned(FOnRaw) then
+    Exit;
+  Self_ := Self;
+  PID := APID;
+  Snap := Copy(ARaw, 0, Length(ARaw));
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnRaw(Self_, PID, Snap)
   else
-    FOwnedTask.Post( procedure begin
-      if Assigned(Self_.FOnRaw) then Self_.FOnRaw(Self_, PID, Snap);
-    end);
+    FOwnedTask.Post(
+      procedure
+      begin
+        if Assigned(Self_.FOnRaw) then
+          Self_.FOnRaw(Self_, PID, Snap);
+      end);
 end;
 
-procedure TOBDLiveData.FireError(ACode: TOBDErrorCode;
-  const AMessage: string);
+procedure TOBDLiveData.FireError(ACode: TOBDErrorCode; const AMessage: string);
 var
-  Self_: TOBDLiveData; Code: TOBDErrorCode; Msg: string;
+  Self_: TOBDLiveData;
+  Code: TOBDErrorCode;
+  Msg: string;
   Handled: Boolean;
 begin
-  if not Assigned(FOnError) then Exit;
-  Self_ := Self; Code := ACode; Msg := AMessage;
+  if not Assigned(FOnError) then
+    Exit;
+  Self_ := Self;
+  Code := ACode;
+  Msg := AMessage;
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
     Handled := False;
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    FOwnedTask.Post( procedure
-      var Handled: Boolean;
+    FOwnedTask.Post(
+      procedure
+      var
+        Handled: Boolean;
       begin
         Handled := False;
         if Assigned(Self_.FOnError) then

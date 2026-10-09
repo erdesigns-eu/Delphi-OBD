@@ -1,41 +1,41 @@
-//------------------------------------------------------------------------------
-//  ERD.Diagnostics.UDS.ReadMemory
+﻿// ------------------------------------------------------------------------------
+// ERD.Diagnostics.UDS.ReadMemory
 //
-//  TOBDUDSReadMemory — non-visual component for the UDS
-//  ReadMemoryByAddress service (SID 0x23). Reads a raw memory
-//  region from the ECU by (address, length); the host is
-//  responsible for knowing what those bytes mean.
+// TOBDUDSReadMemory — non-visual component for the UDS
+// ReadMemoryByAddress service (SID 0x23). Reads a raw memory
+// region from the ECU by (address, length); the host is
+// responsible for knowing what those bytes mean.
 //
-//  Wire format per ISO 14229-1 §10.3:
+// Wire format per ISO 14229-1 §10.3:
 //
-//    Request : 23 <addrAndLengthFmt> <memoryAddress> <memorySize>
-//    Response: 63 <data...>
+// Request : 23 <addrAndLengthFmt> <memoryAddress> <memorySize>
+// Response: 63 <data...>
 //
-//  Read is not destructive but it can leak proprietary content
-//  (e.g. firmware regions) — most ECUs gate it behind an extended
-//  diagnostic session, and many gate it behind Security Access as
-//  well. The component does not enforce a gate; callers wire the
-//  session hub + security-access component themselves.
+// Read is not destructive but it can leak proprietary content
+// (e.g. firmware regions) — most ECUs gate it behind an extended
+// diagnostic session, and many gate it behind Security Access as
+// well. The component does not enforce a gate; callers wire the
+// session hub + security-access component themselves.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - ISO 14229-1:2020 §10.3 (ReadMemoryByAddress)
+// References  :
+// - ISO 14229-1:2020 §10.3 (ReadMemoryByAddress)
 //
-//  History     :
-//    2026-05-11  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-11  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Diagnostics.UDS.ReadMemory;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -43,9 +43,9 @@ interface
 uses
   ERD.Async.Task,
   ERD.Connection,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
   ERD.Types,
   ERD.Protocol.Types,
   ERD.Protocol.UDS,
@@ -53,26 +53,26 @@ uses
 
 type
   /// <summary>
-  ///   Fires after a successful read. Main thread.
+  /// Fires after a successful read. Main thread.
   /// </summary>
   /// <remarks>
-  ///   <c>AAddress</c> echoes the requested address;
-  ///   <c>AData</c> carries the returned bytes (a fresh copy
-  ///   safe to retain past the handler).
+  /// <c>AAddress</c> echoes the requested address;
+  /// <c>AData</c> carries the returned bytes (a fresh copy
+  /// safe to retain past the handler).
   /// </remarks>
-  TOBDUDSReadMemoryEvent = procedure(Sender: TObject;
-    AAddress: UInt64; const AData: TBytes) of object;
+  TOBDUDSReadMemoryEvent = procedure(Sender: TObject; AAddress: UInt64;
+    const AData: TBytes) of object;
 
   /// <summary>
-  ///   UDS ReadMemoryByAddress component.
+  /// UDS ReadMemoryByAddress component.
   /// </summary>
   /// <remarks>
-  ///   Drop the component on a form and assign <c>Protocol</c> to a
-  ///   connected <see cref="TOBDProtocol"/>. Tune
-  ///   <see cref="AddressFormatBytes"/> and
-  ///   <see cref="LengthFormatBytes"/> to match the target ECU's
-  ///   addressing model (most modern ECUs are 4 / 4, some legacy
-  ///   16-bit cores are 2 / 2).
+  /// Drop the component on a form and assign <c>Protocol</c> to a
+  /// connected <see cref="TOBDProtocol"/>. Tune
+  /// <see cref="AddressFormatBytes"/> and
+  /// <see cref="LengthFormatBytes"/> to match the target ECU's
+  /// addressing model (most modern ECUs are 4 / 4, some legacy
+  /// 16-bit cores are 2 / 2).
   /// </remarks>
   TOBDUDSReadMemory = class(TComponent)
   strict private
@@ -103,7 +103,7 @@ type
     destructor Destroy; override;
 
     /// <summary>
-    ///   Reads <c>ALength</c> bytes starting at <c>AAddress</c>.
+    /// Reads <c>ALength</c> bytes starting at <c>AAddress</c>.
     /// </summary>
     /// <param name="AAddress">Source memory address.</param>
     /// <param name="ALength">Byte count to read.</param>
@@ -111,12 +111,12 @@ type
     /// <remarks>Blocks. From GUI code prefer
     /// <see cref="ReadAsync"/>.</remarks>
     /// <exception cref="EOBDConfig">
-    ///   <c>Protocol</c> is not assigned, or
-    ///   <c>AddressFormatBytes</c> / <c>LengthFormatBytes</c> are
-    ///   out of range (0 or > 8).
+    /// <c>Protocol</c> is not assigned, or
+    /// <c>AddressFormatBytes</c> / <c>LengthFormatBytes</c> are
+    /// out of range (0 or > 8).
     /// </exception>
     /// <exception cref="EOBDProtocolErr">
-    ///   ECU returned a negative response.
+    /// ECU returned a negative response.
     /// </exception>
     function Read(AAddress: UInt64; ALength: Cardinal): TBytes;
 
@@ -124,7 +124,7 @@ type
     /// <param name="AAddress">Source memory address.</param>
     /// <param name="ALength">Byte count to read.</param>
     /// <exception cref="EOBDConfig">
-    ///   Another async read is already in flight.
+    /// Another async read is already in flight.
     /// </exception>
     procedure ReadAsync(AAddress: UInt64; ALength: Cardinal);
   published
@@ -132,17 +132,17 @@ type
     property Protocol: TOBDProtocol read FProtocol write SetProtocol;
 
     /// <summary>
-    ///   Address-field width on the wire. Default <c>4</c>; range
-    ///   <c>1..8</c>. Sets the low nibble of the
-    ///   <c>addressAndLengthFormatIdentifier</c> byte.
+    /// Address-field width on the wire. Default <c>4</c>; range
+    /// <c>1..8</c>. Sets the low nibble of the
+    /// <c>addressAndLengthFormatIdentifier</c> byte.
     /// </summary>
     property AddressFormatBytes: Byte read FAddressFormatBytes
       write FAddressFormatBytes default 4;
 
     /// <summary>
-    ///   Length-field width on the wire. Default <c>4</c>; range
-    ///   <c>1..8</c>. Sets the high nibble of the
-    ///   <c>addressAndLengthFormatIdentifier</c> byte.
+    /// Length-field width on the wire. Default <c>4</c>; range
+    /// <c>1..8</c>. Sets the high nibble of the
+    /// <c>addressAndLengthFormatIdentifier</c> byte.
     /// </summary>
     property LengthFormatBytes: Byte read FLengthFormatBytes
       write FLengthFormatBytes default 4;
@@ -166,7 +166,8 @@ end;
 
 destructor TOBDUDSReadMemory.Destroy;
 begin
-  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  if FOwnedTask <> nil then
+    FOwnedTask.Cancel;
   FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
@@ -189,7 +190,8 @@ begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
   begin
-    if FOwnedTask <> nil then FOwnedTask.Quiesce;
+    if FOwnedTask <> nil then
+      FOwnedTask.Quiesce;
     FProtocol := nil;
   end;
 end;
@@ -223,15 +225,14 @@ var
   I: Integer;
 begin
   if (ABytes = 0) or (ABytes > 8) then
-    raise EOBDConfig.CreateFmt(
-      'TOBDUDSReadMemory: bad format byte count %d', [ABytes]);
+    raise EOBDConfig.CreateFmt('TOBDUDSReadMemory: bad format byte count %d',
+      [ABytes]);
   SetLength(Result, ABytes);
   for I := 0 to ABytes - 1 do
     Result[I] := Byte((AValue shr (8 * (ABytes - 1 - I))) and $FF);
 end;
 
-function TOBDUDSReadMemory.DoRead(AAddress: UInt64;
-  ALength: Cardinal): TBytes;
+function TOBDUDSReadMemory.DoRead(AAddress: UInt64; ALength: Cardinal): TBytes;
 var
   Body: TBytes;
   AddrBytes: TBytes;
@@ -248,7 +249,7 @@ begin
   AddrBytes := EncodeMSB(AAddress, FAddressFormatBytes);
   LenBytes := EncodeMSB(UInt64(ALength), FLengthFormatBytes);
   AddrAndLenFmt := Byte((FLengthFormatBytes shl 4) or
-                        (FAddressFormatBytes and $0F));
+    (FAddressFormatBytes and $0F));
 
   SetLength(Body, 1 + Length(AddrBytes) + Length(LenBytes));
   Body[0] := AddrAndLenFmt;
@@ -259,21 +260,18 @@ begin
 
   Resp := FProtocol.Request(UDS_SID_ReadMemoryByAddress, Body);
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt(
-      'ReadMemoryByAddress (0x%x) negative: %s',
+    raise EOBDProtocolErr.CreateFmt('ReadMemoryByAddress (0x%x) negative: %s',
       [AAddress, Resp.NRCText]);
   Result := Copy(Resp.Data, 0, Length(Resp.Data));
 end;
 
-function TOBDUDSReadMemory.Read(AAddress: UInt64;
-  ALength: Cardinal): TBytes;
+function TOBDUDSReadMemory.Read(AAddress: UInt64; ALength: Cardinal): TBytes;
 begin
   Result := DoRead(AAddress, ALength);
   FireRead(AAddress, Result);
 end;
 
-procedure TOBDUDSReadMemory.ReadAsync(AAddress: UInt64;
-  ALength: Cardinal);
+procedure TOBDUDSReadMemory.ReadAsync(AAddress: UInt64; ALength: Cardinal);
 var
   Self_: TOBDUDSReadMemory;
   Addr: UInt64;
@@ -307,8 +305,7 @@ begin
   end;
 end;
 
-procedure TOBDUDSReadMemory.FireRead(AAddress: UInt64;
-  const AData: TBytes);
+procedure TOBDUDSReadMemory.FireRead(AAddress: UInt64; const AData: TBytes);
 var
   Self_: TOBDUDSReadMemory;
   Addr: UInt64;
@@ -331,7 +328,7 @@ begin
 end;
 
 procedure TOBDUDSReadMemory.FireError(ACode: TOBDErrorCode;
-  const AMessage: string);
+const AMessage: string);
 var
   Self_: TOBDUDSReadMemory;
   Code: TOBDErrorCode;

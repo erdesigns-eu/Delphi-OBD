@@ -1,41 +1,41 @@
-//------------------------------------------------------------------------------
-//  ERD.Diagnostics.UDS.DynamicDID
+﻿// ------------------------------------------------------------------------------
+// ERD.Diagnostics.UDS.DynamicDID
 //
-//  TOBDUDSDynamicDID — non-visual component for the UDS
-//  DynamicallyDefineDataIdentifier service (SID 0x2C). Lets a host
-//  build a synthetic DID by concatenating slices of existing DIDs
-//  or raw memory regions, then read that synthetic DID through the
-//  normal 0x22 surface. Useful for batching many small values into
-//  one ReadDataByIdentifier round-trip.
+// TOBDUDSDynamicDID — non-visual component for the UDS
+// DynamicallyDefineDataIdentifier service (SID 0x2C). Lets a host
+// build a synthetic DID by concatenating slices of existing DIDs
+// or raw memory regions, then read that synthetic DID through the
+// normal 0x22 surface. Useful for batching many small values into
+// one ReadDataByIdentifier round-trip.
 //
-//  Wire format per ISO 14229-1 §10.7:
+// Wire format per ISO 14229-1 §10.7:
 //
-//    Define by DID :  2C 01 <dynDID-hi> <dynDID-lo>
-//                       [<src-DID-hi> <src-DID-lo> <off> <len>]+
-//    Define by mem :  2C 02 <dynDID-hi> <dynDID-lo>
-//                       <addrAndLenFmt> [<addr>...] [<len>...]
-//    Clear         :  2C 03 [<dynDID-hi> <dynDID-lo>]
-//    Response      :  6C <subFunction> <dynDID-hi> <dynDID-lo>
+// Define by DID :  2C 01 <dynDID-hi> <dynDID-lo>
+// [<src-DID-hi> <src-DID-lo> <off> <len>]+
+// Define by mem :  2C 02 <dynDID-hi> <dynDID-lo>
+// <addrAndLenFmt> [<addr>...] [<len>...]
+// Clear         :  2C 03 [<dynDID-hi> <dynDID-lo>]
+// Response      :  6C <subFunction> <dynDID-hi> <dynDID-lo>
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - ISO 14229-1:2020 §10.7 (DynamicallyDefineDataIdentifier)
+// References  :
+// - ISO 14229-1:2020 §10.7 (DynamicallyDefineDataIdentifier)
 //
-//  History     :
-//    2026-05-11  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-11  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Diagnostics.UDS.DynamicDID;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -43,9 +43,9 @@ interface
 uses
   ERD.Async.Task,
   ERD.Connection,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
   ERD.Types,
   ERD.Protocol.Types,
   ERD.Protocol.UDS,
@@ -53,15 +53,15 @@ uses
 
 const
   /// <summary>0x01 defineByIdentifier (compose from other DIDs).</summary>
-  UDS_DDD_SUB_DefineByDID    = $01;
+  UDS_DDD_SUB_DefineByDID = $01;
   /// <summary>0x02 defineByMemoryAddress.</summary>
   UDS_DDD_SUB_DefineByMemory = $02;
   /// <summary>0x03 clearDynamicallyDefinedDataIdentifier.</summary>
-  UDS_DDD_SUB_Clear          = $03;
+  UDS_DDD_SUB_Clear = $03;
 
 type
   /// <summary>
-  ///   One source-DID slice in a "define by DID" request.
+  /// One source-DID slice in a "define by DID" request.
   /// </summary>
   TOBDUDSDDDSlice = record
     /// <summary>Source 16-bit DID to read from.</summary>
@@ -74,21 +74,21 @@ type
   end;
 
   /// <summary>
-  ///   Fires after a successful define / clear. Main thread.
+  /// Fires after a successful define / clear. Main thread.
   /// </summary>
-  TOBDUDSDynamicDIDEvent = procedure(Sender: TObject;
-    ASubFunction: Byte; ADynamicDID: Word) of object;
+  TOBDUDSDynamicDIDEvent = procedure(Sender: TObject; ASubFunction: Byte;
+    ADynamicDID: Word) of object;
 
   /// <summary>
-  ///   UDS DynamicallyDefineDataIdentifier component.
+  /// UDS DynamicallyDefineDataIdentifier component.
   /// </summary>
   /// <remarks>
-  ///   Drop the component on a form and assign <c>Protocol</c> to a
-  ///   connected <see cref="TOBDProtocol"/>. Use
-  ///   <see cref="DefineByDID"/> to compose a synthetic DID from
-  ///   slices of existing DIDs, <see cref="ClearDynamic"/> to drop
-  ///   one (or all). Once defined, read the synthetic DID through
-  ///   the normal ReadDataByIdentifier surface.
+  /// Drop the component on a form and assign <c>Protocol</c> to a
+  /// connected <see cref="TOBDProtocol"/>. Use
+  /// <see cref="DefineByDID"/> to compose a synthetic DID from
+  /// slices of existing DIDs, <see cref="ClearDynamic"/> to drop
+  /// one (or all). Once defined, read the synthetic DID through
+  /// the normal ReadDataByIdentifier surface.
   /// </remarks>
   TOBDUDSDynamicDID = class(TComponent)
   strict private
@@ -115,8 +115,8 @@ type
     destructor Destroy; override;
 
     /// <summary>
-    ///   Defines a dynamic DID by composing slices of existing
-    ///   DIDs.
+    /// Defines a dynamic DID by composing slices of existing
+    /// DIDs.
     /// </summary>
     /// <param name="ADynamicDID">Synthetic 16-bit DID number to
     /// define (must be in the OEM-defined dynamic range).</param>
@@ -125,24 +125,24 @@ type
     /// <remarks>Blocks. Fires <c>OnDefined</c> with
     /// <c>UDS_DDD_SUB_DefineByDID</c> on success.</remarks>
     /// <exception cref="EOBDConfig">
-    ///   <c>Protocol</c> is not assigned or no slices supplied.
+    /// <c>Protocol</c> is not assigned or no slices supplied.
     /// </exception>
     /// <exception cref="EOBDProtocolErr">
-    ///   ECU returned a negative response.
+    /// ECU returned a negative response.
     /// </exception>
     procedure DefineByDID(ADynamicDID: Word;
       const ASlices: array of TOBDUDSDDDSlice);
 
     /// <summary>
-    ///   Clears a single dynamic DID, or every dynamic DID when
-    ///   <c>ADynamicDID = 0</c>.
+    /// Clears a single dynamic DID, or every dynamic DID when
+    /// <c>ADynamicDID = 0</c>.
     /// </summary>
     /// <param name="ADynamicDID">DID to clear, or 0 for clear-all.</param>
     /// <exception cref="EOBDConfig">
-    ///   <c>Protocol</c> is not assigned.
+    /// <c>Protocol</c> is not assigned.
     /// </exception>
     /// <exception cref="EOBDProtocolErr">
-    ///   ECU returned a negative response.
+    /// ECU returned a negative response.
     /// </exception>
     procedure ClearDynamic(ADynamicDID: Word = 0);
 
@@ -150,7 +150,7 @@ type
     /// <param name="ADynamicDID">Synthetic DID.</param>
     /// <param name="ASlices">Source slices.</param>
     /// <exception cref="EOBDConfig">
-    ///   Another async send is already in flight.
+    /// Another async send is already in flight.
     /// </exception>
     procedure DefineByDIDAsync(ADynamicDID: Word;
       const ASlices: array of TOBDUDSDDDSlice);
@@ -158,8 +158,7 @@ type
     /// <summary>Protocol stack. Required.</summary>
     property Protocol: TOBDProtocol read FProtocol write SetProtocol;
     /// <summary>Fires after a successful define / clear. Main thread.</summary>
-    property OnDefined: TOBDUDSDynamicDIDEvent read FOnDefined
-      write FOnDefined;
+    property OnDefined: TOBDUDSDynamicDIDEvent read FOnDefined write FOnDefined;
     /// <summary>Fires on transient I/O errors. Main thread.</summary>
     property OnError: TOBDConnectionErrorEvent read FOnError write FOnError;
   end;
@@ -175,7 +174,8 @@ end;
 
 destructor TOBDUDSDynamicDID.Destroy;
 begin
-  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  if FOwnedTask <> nil then
+    FOwnedTask.Cancel;
   FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
@@ -198,7 +198,8 @@ begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
   begin
-    if FOwnedTask <> nil then FOwnedTask.Quiesce;
+    if FOwnedTask <> nil then
+      FOwnedTask.Quiesce;
     FProtocol := nil;
   end;
 end;
@@ -227,8 +228,7 @@ begin
   end;
 end;
 
-procedure TOBDUDSDynamicDID.DoSend(ASubFunction: Byte;
-  const ABody: TBytes);
+procedure TOBDUDSDynamicDID.DoSend(ASubFunction: Byte; const ABody: TBytes);
 var
   Req: TBytes;
   Resp: TOBDResponse;
@@ -242,8 +242,8 @@ begin
 
   Resp := FProtocol.Request(UDS_SID_DynamicallyDefineDataIdentifier, Req);
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt(
-      'DynamicallyDefineDataIdentifier (sub 0x%.2x) negative: %s',
+    raise EOBDProtocolErr.CreateFmt
+      ('DynamicallyDefineDataIdentifier (sub 0x%.2x) negative: %s',
       [ASubFunction, Resp.NRCText]);
 end;
 
@@ -255,18 +255,18 @@ var
   Off: Integer;
 begin
   if Length(ASlices) = 0 then
-    raise EOBDConfig.Create(
-      'TOBDUDSDynamicDID.DefineByDID: at least one slice required');
+    raise EOBDConfig.Create
+      ('TOBDUDSDynamicDID.DefineByDID: at least one slice required');
 
   // Body layout: <dynDID-hi> <dynDID-lo>
-  //              [<srcDID-hi> <srcDID-lo> <pos> <len>]+
+  // [<srcDID-hi> <srcDID-lo> <pos> <len>]+
   SetLength(Body, 2 + 4 * Length(ASlices));
   Body[0] := Byte((ADynamicDID shr 8) and $FF);
   Body[1] := Byte(ADynamicDID and $FF);
   Off := 2;
   for I := 0 to High(ASlices) do
   begin
-    Body[Off]     := Byte((ASlices[I].SourceDID shr 8) and $FF);
+    Body[Off] := Byte((ASlices[I].SourceDID shr 8) and $FF);
     Body[Off + 1] := Byte(ASlices[I].SourceDID and $FF);
     Body[Off + 2] := ASlices[I].Position;
     Body[Off + 3] := ASlices[I].MemorySize;
@@ -329,8 +329,7 @@ begin
   end;
 end;
 
-procedure TOBDUDSDynamicDID.FireDefined(ASubFunction: Byte;
-  ADynamicDID: Word);
+procedure TOBDUDSDynamicDID.FireDefined(ASubFunction: Byte; ADynamicDID: Word);
 var
   Self_: TOBDUDSDynamicDID;
   Sub: Byte;
@@ -353,7 +352,7 @@ begin
 end;
 
 procedure TOBDUDSDynamicDID.FireError(ACode: TOBDErrorCode;
-  const AMessage: string);
+const AMessage: string);
 var
   Self_: TOBDUDSDynamicDID;
   Code: TOBDErrorCode;

@@ -1,41 +1,41 @@
-//------------------------------------------------------------------------------
-//  ERD.OEM
+﻿// ------------------------------------------------------------------------------
+// ERD.OEM
 //
-//  Umbrella unit that publishes the full OEM-extension surface
-//  (records, enums, the <see cref="IOBDOEMExtension"/> contract,
-//  the convenience base class and the vendor registry) under a
-//  single import. A vendor unit can keep its imports compact:
+// Umbrella unit that publishes the full OEM-extension surface
+// (records, enums, the <see cref="IOBDOEMExtension"/> contract,
+// the convenience base class and the vendor registry) under a
+// single import. A vendor unit can keep its imports compact:
 //
-//    uses {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF}, ERD.OEM, ERD.OEM.Session,
-//      ERD.OEM.SeedKey, ERD.OEM.DTC;
+// uses {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF}, ERD.OEM, ERD.OEM.Session,
+// ERD.OEM.SeedKey, ERD.OEM.DTC;
 //
-//  The detailed declarations live in <see cref="ERD.OEM.Types"/>
-//  (records / enums) and <see cref="ERD.OEM.Extensions"/> (the
-//  contract, base class and registry). This unit re-exports them
-//  by aliasing.
+// The detailed declarations live in <see cref="ERD.OEM.Types"/>
+// (records / enums) and <see cref="ERD.OEM.Extensions"/> (the
+// contract, base class and registry). This unit re-exports them
+// by aliasing.
 //
-//  Note on the registry name. <see cref="TOBDOEMRegistry"/> is
-//  the vendor registry that <c>RegisterExtension</c> targets. The
-//  unrelated runtime overlay resolver of the same nominal role
-//  lives in <c>ERD.OEM.Registry</c> as
-//  <c>TOBDOEMOverlayRegistry</c>; do not confuse the two.
+// Note on the registry name. <see cref="TOBDOEMRegistry"/> is
+// the vendor registry that <c>RegisterExtension</c> targets. The
+// unrelated runtime overlay resolver of the same nominal role
+// lives in <c>ERD.OEM.Registry</c> as
+// <c>TOBDOEMOverlayRegistry</c>; do not confuse the two.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-12  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-12  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.OEM;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface

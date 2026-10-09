@@ -1,55 +1,55 @@
-//------------------------------------------------------------------------------
-//  ERD.Replayer
+﻿// ------------------------------------------------------------------------------
+// ERD.Replayer
 //
-//  TOBDReplayer — reads a `.obdlog` file written by
-//  <see cref="ERD.Recorder.TOBDRecorder"/> and replays the
-//  recorded events back through the same event interface a
-//  bound application code subscribed to during the live capture.
+// TOBDReplayer — reads a `.obdlog` file written by
+// <see cref="ERD.Recorder.TOBDRecorder"/> and replays the
+// recorded events back through the same event interface a
+// bound application code subscribed to during the live capture.
 //
-//  Two playback modes:
+// Two playback modes:
 //
-//    rmAsFastAsPossible — emit every entry back-to-back. Useful
-//                         for headless reprocessing / unit tests.
-//    rmRealTime — match the wall-clock gaps between the
-//                         original timestamps. Useful for
-//                         demoing a captured session in a UI.
+// rmAsFastAsPossible — emit every entry back-to-back. Useful
+// for headless reprocessing / unit tests.
+// rmRealTime — match the wall-clock gaps between the
+// original timestamps. Useful for
+// demoing a captured session in a UI.
 //
-//  Async playback runs on a worker thread; events fire on the
-//  main thread.
+// Async playback runs on a worker thread; events fire on the
+// main thread.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Replayer;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
   ERD.Async.Task,
-  {$IFDEF FPC}ERD.Compat.Functions,{$ENDIF}
+{$IFDEF FPC}ERD.Compat.Functions, {$ENDIF}
   ERD.Connection,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
-  {$IFDEF FPC}DateUtils{$ELSE}System.DateUtils{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}DateUtils{$ELSE}System.DateUtils{$ENDIF},
   System.IOUtils,
   System.JSON,
   System.NetEncoding,
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
-  {$IFDEF FPC}ZStream{$ELSE}System.ZLib{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}ZStream{$ELSE}System.ZLib{$ENDIF},
   ERD.Types,
   ERD.Protocol.Types,
   ERD.Recorder;
@@ -59,8 +59,8 @@ type
   TOBDReplayMode = (rmAsFastAsPossible, rmRealTime);
 
   /// <summary>Fires for each replayed entry.</summary>
-  TOBDReplayEntryEvent = procedure(Sender: TObject;
-    const AEntry: TOBDLogEntry) of object;
+  TOBDReplayEntryEvent = procedure(Sender: TObject; const AEntry: TOBDLogEntry)
+    of object;
 
   /// <summary>Replayer component. Drop on a form, point
   /// <c>FileName</c> at a <c>.obdlog</c>, hook
@@ -82,7 +82,8 @@ type
     FOnEntry: TOBDReplayEntryEvent;
     FOnComplete: TNotifyEvent;
     FOnError: TOBDConnectionErrorEvent;
-    procedure ScanLines(const APath: string; const AConsumer: TProc<string>; ARespectStop: Boolean);
+    procedure ScanLines(const APath: string; const AConsumer: TProc<string>;
+      ARespectStop: Boolean);
     procedure GuardSingleAsync;
     procedure ReleaseAsync;
     procedure FireEntry(const AEntry: TOBDLogEntry);
@@ -106,7 +107,8 @@ type
     /// <summary>Loads every entry into a flat array. Useful for
     /// offline analysis without going through the event
     /// interface.</summary>
-    class function LoadAll(const AFileName: string): TArray<TOBDLogEntry>; static;
+    class function LoadAll(const AFileName: string)
+      : TArray<TOBDLogEntry>; static;
 
     /// <summary>Reads a `.obdlog` (plain or `.gz`) into a
     /// <c>TStringList</c>. Caller owns the returned list.
@@ -117,11 +119,11 @@ type
     /// <c>TOBDLogEntry</c>. Returns False on blank lines or
     /// malformed JSON. Public for the same reason as
     /// <c>LoadLines</c>.</summary>
-    function ParseLine(const ALine: string;
-      out AEntry: TOBDLogEntry): Boolean;
+    function ParseLine(const ALine: string; out AEntry: TOBDLogEntry): Boolean;
   published
     /// <summary>Maximum decompressed bytes (default 256 MiB); bounded for plain and gzip logs.</summary>
-    property MaxDecodedBytes: Int64 read FMaxDecodedBytes write FMaxDecodedBytes;
+    property MaxDecodedBytes: Int64 read FMaxDecodedBytes
+      write FMaxDecodedBytes;
     /// <summary>Maximum bytes per JSONL line (default 1 MiB).</summary>
     property MaxLineBytes: Integer read FMaxLineBytes write FMaxLineBytes;
     /// <summary>Maximum nonblank input lines (default one million).</summary>
@@ -135,8 +137,7 @@ type
     /// <c>rmRealTime</c> playback, in ms. A captured pause longer
     /// than this is collapsed to the cap so a UI replay never
     /// stalls. Default 60000 (one minute).</summary>
-    property MaxGapMs: Cardinal read FMaxGapMs write FMaxGapMs
-      default 60000;
+    property MaxGapMs: Cardinal read FMaxGapMs write FMaxGapMs default 60000;
     /// <summary>Fires per replayed entry on the main thread.</summary>
     property OnEntry: TOBDReplayEntryEvent read FOnEntry write FOnEntry;
     /// <summary>Fires when playback finishes (main thread).</summary>
@@ -162,7 +163,8 @@ end;
 destructor TOBDReplayer.Destroy;
 begin
   Stop;
-  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  if FOwnedTask <> nil then
+    FOwnedTask.Cancel;
   FreeAndNil(FOwnedTask);
   FStopEvent.Free;
   FAsyncLock.Free;
@@ -178,20 +180,26 @@ begin
     if FAsyncInFlight then
       raise EOBDConfig.Create('TOBDReplayer: playback already in flight');
     FAsyncInFlight := True;
-  finally FAsyncLock.Leave; end;
+  finally
+    FAsyncLock.Leave;
+  end;
 end;
 
 procedure TOBDReplayer.ReleaseAsync;
 begin
   FAsyncLock.Enter;
-  try FAsyncInFlight := False;
-  finally FAsyncLock.Leave; end;
+  try
+    FAsyncInFlight := False;
+  finally
+    FAsyncLock.Leave;
+  end;
 end;
 
 procedure TOBDReplayer.Stop;
 begin
   FStop := True;
-  if FStopEvent <> nil then FStopEvent.SetEvent;
+  if FStopEvent <> nil then
+    FStopEvent.SetEvent;
 end;
 
 function ParseHexNumber(const AText: string): UInt64;
@@ -207,25 +215,35 @@ end;
 
 procedure TOBDReplayer.ScanLines(const APath: string;
   const AConsumer: TProc<string>; ARespectStop: Boolean);
-var FileStream: TFileStream; Input: TStream; Bytes, LineBytes: TBytes;
-  Count, I, Used, Entries, LineLimit, EntryLimit: Integer; Total, ByteLimit: Int64;
+var
+  FileStream: TFileStream;
+  Input: TStream;
+  Bytes, LineBytes: TBytes;
+  Count, I, Used, Entries, LineLimit, EntryLimit: Integer;
+  Total, ByteLimit: Int64;
   Token: IOBDDispatchLifetime;
   procedure DeliverLine;
-  var Text: string;
+  var
+    Text: string;
   begin
-    if (Used > 0) and (LineBytes[Used - 1] = 13) then Dec(Used);
+    if (Used > 0) and (LineBytes[Used - 1] = 13) then
+      Dec(Used);
     Text := TEncoding.UTF8.GetString(LineBytes, 0, Used);
     if Trim(Text) <> '' then
     begin
       Inc(Entries);
-      if Entries > EntryLimit then raise EOBDProtocolErr.Create('Replay entry limit exceeded');
+      if Entries > EntryLimit then
+        raise EOBDProtocolErr.Create('Replay entry limit exceeded');
       AConsumer(Text);
     end;
     Used := 0;
   end;
+
 begin
   Token := FOwnedTask.Lifetime;
-  LineLimit := FMaxLineBytes; EntryLimit := FMaxEntries; ByteLimit := FMaxDecodedBytes;
+  LineLimit := FMaxLineBytes;
+  EntryLimit := FMaxEntries;
+  ByteLimit := FMaxDecodedBytes;
   if (LineLimit < 1) or (EntryLimit < 1) or (ByteLimit < 1) then
     raise EOBDConfig.Create('Replay limits must be positive');
   FileStream := TFileStream.Create(APath, fmOpenRead or fmShareDenyWrite);
@@ -238,41 +256,66 @@ begin
       Input := TZDecompressionStream.Create(FileStream, 31);
 {$ENDIF}
     try
-      SetLength(Bytes, 16384); SetLength(LineBytes, LineLimit);
-      Used := 0; Entries := 0; Total := 0;
+      SetLength(Bytes, 16384);
+      SetLength(LineBytes, LineLimit);
+      Used := 0;
+      Entries := 0;
+      Total := 0;
       repeat
-        if ARespectStop and (Token.IsCancelled or FStop) then Break;
+        if ARespectStop and (Token.IsCancelled or FStop) then
+          Break;
         Count := Input.Read(Bytes[0], Length(Bytes));
         Inc(Total, Count);
-        if Total > ByteLimit then raise EOBDProtocolErr.Create('Replay decompressed byte limit exceeded');
+        if Total > ByteLimit then
+          raise EOBDProtocolErr.Create
+            ('Replay decompressed byte limit exceeded');
         for I := 0 to Count - 1 do
         begin
-          if ARespectStop and (Token.IsCancelled or FStop) then Break;
-          if Bytes[I] = 10 then DeliverLine
+          if ARespectStop and (Token.IsCancelled or FStop) then
+            Break;
+          if Bytes[I] = 10 then
+            DeliverLine
           else
           begin
-            if Used = LineLimit then raise EOBDProtocolErr.Create('Replay line limit exceeded');
-            LineBytes[Used] := Bytes[I]; Inc(Used);
+            if Used = LineLimit then
+              raise EOBDProtocolErr.Create('Replay line limit exceeded');
+            LineBytes[Used] := Bytes[I];
+            Inc(Used);
           end;
         end;
       until Count = 0;
-      if (Used > 0) and not Token.IsCancelled and not (ARespectStop and FStop) then DeliverLine;
-    finally if Input <> FileStream then Input.Free end;
-  finally FileStream.Free end;
+      if (Used > 0) and not Token.IsCancelled and not(ARespectStop and FStop)
+      then
+        DeliverLine;
+    finally
+      if Input <> FileStream then
+        Input.Free
+    end;
+  finally
+    FileStream.Free
+  end;
 end;
 
 function TOBDReplayer.LoadLines(const APath: string): TStringList;
-var Lines: TStringList;
+var
+  Lines: TStringList;
 begin
   Lines := TStringList.Create;
   try
-    ScanLines(APath, procedure(Line: string) begin Lines.Add(Line) end, False);
+    ScanLines(APath,
+      procedure(Line: string)
+      begin
+        Lines.Add(Line)
+      end, False);
     Result := Lines;
-  except Lines.Free; raise end;
+  except
+    Lines.Free;
+    raise
+  end;
 end;
 
 function TOBDReplayer.ParseLine(const ALine: string;
-  out AEntry: TOBDLogEntry): Boolean;
+out AEntry: TOBDLogEntry): Boolean;
 var
   Doc: TJSONValue;
   Obj: TJSONObject;
@@ -280,16 +323,19 @@ var
   KindStr: string;
 begin
   Result := False;
-  AEntry := Default(TOBDLogEntry);
-  if Trim(ALine) = '' then Exit;
+  AEntry := Default (TOBDLogEntry);
+  if Trim(ALine) = '' then
+    Exit;
   try
     Doc := TJSONObject.ParseJSONValue(ALine, True, True);
   except
-    on E: Exception do Exit(False);
+    on E: Exception do
+      Exit(False);
   end;
-  if not (Doc is TJSONObject) then
+  if not(Doc is TJSONObject) then
   begin
-    if Doc <> nil then Doc.Free;
+    if Doc <> nil then
+      Doc.Free;
     Exit;
   end;
   try
@@ -299,12 +345,18 @@ begin
       AEntry.Timestamp := ISO8601ToDate(V.Value);
     KindStr := '';
     V := Obj.GetValue('kind');
-    if V is TJSONString then KindStr := V.Value;
-    if      SameText(KindStr, 'frame')    then AEntry.Kind := leFrame
-    else if SameText(KindStr, 'response') then AEntry.Kind := leResponse
-    else if SameText(KindStr, 'nrc')      then AEntry.Kind := leNRC
-    else if SameText(KindStr, 'error')    then AEntry.Kind := leError
-    else                                       AEntry.Kind := leInfo;
+    if V is TJSONString then
+      KindStr := V.Value;
+    if SameText(KindStr, 'frame') then
+      AEntry.Kind := leFrame
+    else if SameText(KindStr, 'response') then
+      AEntry.Kind := leResponse
+    else if SameText(KindStr, 'nrc') then
+      AEntry.Kind := leNRC
+    else if SameText(KindStr, 'error') then
+      AEntry.Kind := leError
+    else
+      AEntry.Kind := leInfo;
 
     V := Obj.GetValue('elapsed_ms');
     if V is TJSONNumber then
@@ -329,7 +381,8 @@ begin
     end;
 
     V := Obj.GetValue('extended');
-    if V is TJSONBool then AEntry.Extended := TJSONBool(V).AsBoolean;
+    if V is TJSONBool then
+      AEntry.Extended := TJSONBool(V).AsBoolean;
 
     V := Obj.GetValue('nrc');
     if V is TJSONString then
@@ -339,10 +392,12 @@ begin
     end;
 
     V := Obj.GetValue('nrc_text');
-    if V is TJSONString then AEntry.NRCText := V.Value;
+    if V is TJSONString then
+      AEntry.NRCText := V.Value;
 
     V := Obj.GetValue('message');
-    if V is TJSONString then AEntry.Message := V.Value;
+    if V is TJSONString then
+      AEntry.Message := V.Value;
 
     Result := True;
   finally
@@ -351,30 +406,46 @@ begin
 end;
 
 procedure TOBDReplayer.Play;
-var Prev: TOBDLogEntry; HasPrev: Boolean; Token: IOBDDispatchLifetime;
+var
+  Prev: TOBDLogEntry;
+  HasPrev: Boolean;
+  Token: IOBDDispatchLifetime;
 begin
-  if FFileName = '' then raise EOBDConfig.Create('Replayer FileName not set');
+  if FFileName = '' then
+    raise EOBDConfig.Create('Replayer FileName not set');
   Token := FOwnedTask.Lifetime;
   if TThread.CurrentThread.ThreadID = MainThreadID then
-  begin FStop := False; FStopEvent.ResetEvent end;
-  if FStop then Exit;
+  begin
+    FStop := False;
+    FStopEvent.ResetEvent
+  end;
+  if FStop then
+    Exit;
   HasPrev := False;
   ScanLines(FFileName,
     procedure(Line: string)
-    var Entry: TOBDLogEntry; Gap: Int64;
+    var
+      Entry: TOBDLogEntry;
+      Gap: Int64;
     begin
-      if not ParseLine(Line, Entry) then raise EOBDProtocolErr.Create('Replay contains malformed JSONL entry');
+      if not ParseLine(Line, Entry) then
+        raise EOBDProtocolErr.Create('Replay contains malformed JSONL entry');
       if (FMode = rmRealTime) and HasPrev then
       begin
         Gap := MilliSecondsBetween(Entry.Timestamp, Prev.Timestamp);
-        if Gap > Int64(FMaxGapMs) then Gap := FMaxGapMs;
-        if (Gap > 0) and (FStopEvent.WaitFor(Cardinal(Gap)) = wrSignaled) then Exit;
+        if Gap > Int64(FMaxGapMs) then
+          Gap := FMaxGapMs;
+        if (Gap > 0) and (FStopEvent.WaitFor(Cardinal(Gap)) = wrSignaled) then
+          Exit;
       end;
       FireEntry(Entry);
-      if Token.IsCancelled then Exit;
-      Prev := Entry; HasPrev := True;
+      if Token.IsCancelled then
+        Exit;
+      Prev := Entry;
+      HasPrev := True;
     end, True);
-  if not Token.IsCancelled and not FStop then FireComplete;
+  if not Token.IsCancelled and not FStop then
+    FireComplete;
 end;
 
 procedure TOBDReplayer.PlayAsync;
@@ -393,7 +464,8 @@ begin
           try
             Self_.Play;
           except
-            on E: Exception do Self_.FireError(oeIO, E.Message);
+            on E: Exception do
+              Self_.FireError(oeIO, E.Message);
           end;
         finally
           Self_.ReleaseAsync;
@@ -405,8 +477,11 @@ begin
   end;
 end;
 
-class function TOBDReplayer.LoadAll(const AFileName: string): TArray<TOBDLogEntry>;
-var Replayer: TOBDReplayer; Acc: TList<TOBDLogEntry>;
+class function TOBDReplayer.LoadAll(const AFileName: string)
+  : TArray<TOBDLogEntry>;
+var
+  Replayer: TOBDReplayer;
+  Acc: TList<TOBDLogEntry>;
 begin
   Replayer := TOBDReplayer.Create(nil);
   try
@@ -414,15 +489,21 @@ begin
     try
       Replayer.ScanLines(AFileName,
         procedure(Line: string)
-        var Entry: TOBDLogEntry;
+        var
+          Entry: TOBDLogEntry;
         begin
           if not Replayer.ParseLine(Line, Entry) then
-            raise EOBDProtocolErr.Create('Replay contains malformed JSONL entry');
+            raise EOBDProtocolErr.Create
+              ('Replay contains malformed JSONL entry');
           Acc.Add(Entry);
         end, False);
       Result := Acc.ToArray;
-    finally Acc.Free end;
-  finally Replayer.Free end;
+    finally
+      Acc.Free
+    end;
+  finally
+    Replayer.Free
+  end;
 end;
 
 procedure TOBDReplayer.FireEntry(const AEntry: TOBDLogEntry);
@@ -430,46 +511,61 @@ var
   Self_: TOBDReplayer;
   E: TOBDLogEntry;
 begin
-  if not Assigned(FOnEntry) then Exit;
-  Self_ := Self; E := AEntry;
+  if not Assigned(FOnEntry) then
+    Exit;
+  Self_ := Self;
+  E := AEntry;
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnEntry(Self_, E)
   else
-    FOwnedTask.Post( procedure begin
-      if Assigned(Self_.FOnEntry) then Self_.FOnEntry(Self_, E);
-    end);
+    FOwnedTask.Post(
+      procedure
+      begin
+        if Assigned(Self_.FOnEntry) then
+          Self_.FOnEntry(Self_, E);
+      end);
 end;
 
 procedure TOBDReplayer.FireComplete;
 var
   Self_: TOBDReplayer;
 begin
-  if not Assigned(FOnComplete) then Exit;
+  if not Assigned(FOnComplete) then
+    Exit;
   Self_ := Self;
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnComplete(Self_)
   else
-    FOwnedTask.Post( procedure begin
-      if Assigned(Self_.FOnComplete) then Self_.FOnComplete(Self_);
-    end);
+    FOwnedTask.Post(
+      procedure
+      begin
+        if Assigned(Self_.FOnComplete) then
+          Self_.FOnComplete(Self_);
+      end);
 end;
 
-procedure TOBDReplayer.FireError(ACode: TOBDErrorCode;
-  const AMessage: string);
+procedure TOBDReplayer.FireError(ACode: TOBDErrorCode; const AMessage: string);
 var
-  Self_: TOBDReplayer; Code: TOBDErrorCode; Msg: string;
+  Self_: TOBDReplayer;
+  Code: TOBDErrorCode;
+  Msg: string;
   Handled: Boolean;
 begin
-  if not Assigned(FOnError) then Exit;
-  Self_ := Self; Code := ACode; Msg := AMessage;
+  if not Assigned(FOnError) then
+    Exit;
+  Self_ := Self;
+  Code := ACode;
+  Msg := AMessage;
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
     Handled := False;
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    FOwnedTask.Post( procedure
-      var Handled: Boolean;
+    FOwnedTask.Post(
+      procedure
+      var
+        Handled: Boolean;
       begin
         Handled := False;
         if Assigned(Self_.FOnError) then

@@ -1,31 +1,31 @@
-//------------------------------------------------------------------------------
-//  ERD.Version
+﻿// ------------------------------------------------------------------------------
+// ERD.Version
 //
-//  Compile-time version constants for the Delphi-OBD package.
+// Compile-time version constants for the Delphi-OBD package.
 //
-//  Single source of truth for the package version string. Bumped at every
-//  tag (see CHANGELOG.md). Components that need to surface the version
-//  read it from here.
+// Single source of truth for the package version string. Bumped at every
+// tag (see CHANGELOG.md). Components that need to surface the version
+// read it from here.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - https://semver.org/
+// References  :
+// - https://semver.org/
 //
-//  History     :
-//    2026-05-09  ERD  Initial version constants.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial version constants.
+// ------------------------------------------------------------------------------
 
 unit ERD.Version;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -50,7 +50,7 @@ const
   OBD_VERSION = '2.0.0-alpha.0';
 
   /// <summary>Human-readable copyright line surfaced in About boxes.</summary>
-  OBD_COPYRIGHT = '(c) 2026 ERDesigns and Delphi-OBD contributors';
+  OBD_COPYRIGHT = '(c) 2024-2026 ERDesigns';
 
   /// <summary>Project home page URL.</summary>
   OBD_HOMEPAGE = 'https://github.com/erdesigns-eu/Delphi-OBD';

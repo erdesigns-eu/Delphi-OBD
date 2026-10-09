@@ -1,39 +1,39 @@
-//------------------------------------------------------------------------------
-//  ERD.OEM.RollsRoyce
+﻿// ------------------------------------------------------------------------------
+// ERD.OEM.RollsRoyce
 //
-//  Rolls-Royce Motor Cars Ltd. (Goodwood, England) OEM
-//  extension. BMW Group sub-brand; uses the BMW E-Sys / ISTA
-//  stack with Rolls-Royce-specific extensions. Catalogue covers
-//  Phantom (RR1 / 8th-gen) + Ghost (RR21) + Cullinan (RR31) +
-//  Spectre (RR23 EV) + Black Badge trims.
+// Rolls-Royce Motor Cars Ltd. (Goodwood, England) OEM
+// extension. BMW Group sub-brand; uses the BMW E-Sys / ISTA
+// stack with Rolls-Royce-specific extensions. Catalogue covers
+// Phantom (RR1 / 8th-gen) + Ghost (RR21) + Cullinan (RR31) +
+// Spectre (RR23 EV) + Black Badge trims.
 //
-//  Catalogue + DTC overlay live in
-//  <c>catalogs/rolls-royce.json</c> and
-//  <c>catalogs/dtc-rolls-royce.json</c> on top of the ISO
-//  15031-6 baseline.
+// Catalogue + DTC overlay live in
+// <c>catalogs/rolls-royce.json</c> and
+// <c>catalogs/dtc-rolls-royce.json</c> on top of the ISO
+// 15031-6 baseline.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-12  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-12  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.OEM.RollsRoyce;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   ERD.OEM,
   ERD.OEM.Session,
   ERD.OEM.SeedKey,
@@ -46,8 +46,8 @@ type
   public
     /// <summary><c>True</c> for extended / programming
     /// sessions.</summary>
-    function RequiresSecurityAccess(
-      ASessionType: TOBDSessionType): Boolean; override;
+    function RequiresSecurityAccess(ASessionType: TOBDSessionType)
+      : Boolean; override;
     /// <summary>1500 ms heartbeat.</summary>
     function DefaultTesterPresentMs: Cardinal; override;
     /// <summary>Display label.</summary>
@@ -60,23 +60,21 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
-    procedure BuildExtendedCatalog(
-      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+    procedure BuildExtendedCatalog(var CodingBlocks: TArray<TOBDOEMCodingBlock>;
       var Adaptations: TArray<TOBDOEMAdaptation>;
       var ActuatorTests: TArray<TOBDOEMActuatorTest>;
       var LivePIDs: TArray<TOBDOEMLivePID>;
       var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
     function CreateSessionNegotiator: IOBDSessionNegotiator; override;
-    procedure SeedDefaultSeedKeyAlgorithms(
-      Reg: TOBDSeedKeyRegistry); override;
+    procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
     function DtcCatalogFileName: string; override;
   public
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
     function ApplicableToVIN(const VIN: string): Boolean; override;
-    function DecodeDID(const DID: Word;
-      const Payload: TBytes): string; override;
+    function DecodeDID(const DID: Word; const Payload: TBytes): string;
+      override;
   end;
 
 implementation
@@ -88,11 +86,11 @@ uses
 
 { TOBDRRSessionNegotiator }
 
-function TOBDRRSessionNegotiator.RequiresSecurityAccess(
-  ASessionType: TOBDSessionType): Boolean;
+function TOBDRRSessionNegotiator.RequiresSecurityAccess
+  (ASessionType: TOBDSessionType): Boolean;
 begin
   Result := ASessionType in [sstExtendedDiagnostic, sstProgramming,
-                             sstOEMSpecific1, sstOEMSpecific2];
+    sstOEMSpecific1, sstOEMSpecific2];
 end;
 
 function TOBDRRSessionNegotiator.DefaultTesterPresentMs: Cardinal;
@@ -117,42 +115,39 @@ begin
   Result := 'Rolls-Royce Motor Cars Ltd.';
 end;
 
-function TOBDOEMExtensionRollsRoyce.ApplicableToVIN(
-  const VIN: string): Boolean;
+function TOBDOEMExtensionRollsRoyce.ApplicableToVIN(const VIN: string): Boolean;
 begin
   Result := VINMatchesCatalog('rolls-royce.json', VIN);
 end;
 
-function TOBDOEMExtensionRollsRoyce.CreateSessionNegotiator:
-  IOBDSessionNegotiator;
+function TOBDOEMExtensionRollsRoyce.CreateSessionNegotiator
+  : IOBDSessionNegotiator;
 begin
   Result := TOBDRRSessionNegotiator.Create;
 end;
 
-procedure TOBDOEMExtensionRollsRoyce.BuildCatalog(
-  var DIDs: TArray<TOBDOEMDataIdentifier>;
-  var Routines: TArray<TOBDOEMRoutine>;
-  var ECUs: TArray<TOBDOEMECU>);
+procedure TOBDOEMExtensionRollsRoyce.BuildCatalog
+  (var DIDs: TArray<TOBDOEMDataIdentifier>;
+  var Routines: TArray<TOBDOEMRoutine>; var ECUs: TArray<TOBDOEMECU>);
 begin
   MergeCatalogJSON('rolls-royce.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
-procedure TOBDOEMExtensionRollsRoyce.BuildExtendedCatalog(
-  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
-  var Adaptations: TArray<TOBDOEMAdaptation>;
+procedure TOBDOEMExtensionRollsRoyce.BuildExtendedCatalog(var CodingBlocks
+  : TArray<TOBDOEMCodingBlock>; var Adaptations: TArray<TOBDOEMAdaptation>;
   var ActuatorTests: TArray<TOBDOEMActuatorTest>;
   var LivePIDs: TArray<TOBDOEMLivePID>;
   var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
 begin
-  MergeExtendedCatalogJSON('rolls-royce.json',
-    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+  MergeExtendedCatalogJSON('rolls-royce.json', CodingBlocks, Adaptations,
+    ActuatorTests, LivePIDs, DtcExtended);
 end;
 
-procedure TOBDOEMExtensionRollsRoyce.SeedDefaultSeedKeyAlgorithms(
-  Reg: TOBDSeedKeyRegistry);
+procedure TOBDOEMExtensionRollsRoyce.SeedDefaultSeedKeyAlgorithms
+  (Reg: TOBDSeedKeyRegistry);
 const
-  PUBLIC_MASK: array[0..3] of Byte = ($A5, $5A, $C3, $3C);
+  PUBLIC_MASK: array [0 .. 3] of Byte = ($A5, $5A, $C3, $3C);
 var
   Mask: TBytes;
 begin
@@ -161,13 +156,13 @@ begin
   // RegisterAlgorithm.
   SetLength(Mask, Length(PUBLIC_MASK));
   Move(PUBLIC_MASK[0], Mask[0], Length(PUBLIC_MASK));
-  Reg.RegisterAlgorithm($01, IOBDSeedKeyAlgorithm(TOBDSeedKeyXorMask.Create(Mask,
+  Reg.RegisterAlgorithm($01,
+    IOBDSeedKeyAlgorithm(TOBDSeedKeyXorMask.Create(Mask,
     'Rolls-Royce (BMW E-Sys lineage) XOR-mask placeholder',
     'community-pr', False)));
 end;
 
-procedure TOBDOEMExtensionRollsRoyce.SeedDefaultDtcCatalog(
-  Cat: TOBDDtcCatalog);
+procedure TOBDOEMExtensionRollsRoyce.SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog);
 begin
   inherited;
   MergeDtcCatalog('dtc-iso-15031.json', Cat);
@@ -186,8 +181,7 @@ begin
     $F190:
       if Length(Payload) > 0 then
       begin
-        Result := Format('vin = %s',
-          [TEncoding.ASCII.GetString(Payload)]);
+        Result := Format('vin = %s', [TEncoding.ASCII.GetString(Payload)]);
         Exit;
       end;
     $F1A0, $F1A2, $F1A4, $F1A6:
@@ -202,6 +196,7 @@ begin
 end;
 
 initialization
-  TOBDOEMRegistry.RegisterExtension(TOBDOEMExtensionRollsRoyce.Create);
+
+TOBDOEMRegistry.RegisterExtension(TOBDOEMExtensionRollsRoyce.Create);
 
 end.

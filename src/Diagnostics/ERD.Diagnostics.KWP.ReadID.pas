@@ -1,59 +1,59 @@
-//------------------------------------------------------------------------------
-//  ERD.Diagnostics.KWP.ReadID
+﻿// ------------------------------------------------------------------------------
+// ERD.Diagnostics.KWP.ReadID
 //
-//  TOBDKWPReadID — non-visual component for the KWP2000 read-side
-//  identifier services:
+// TOBDKWPReadID — non-visual component for the KWP2000 read-side
+// identifier services:
 //
-//    Service 0x1A — ReadECUIdentification        (1-byte ID)
-//    Service 0x21 — ReadDataByLocalIdentifier    (1-byte LocalID)
-//    Service 0x22 — ReadDataByCommonIdentifier   (2-byte DID)
+// Service 0x1A — ReadECUIdentification        (1-byte ID)
+// Service 0x21 — ReadDataByLocalIdentifier    (1-byte LocalID)
+// Service 0x22 — ReadDataByCommonIdentifier   (2-byte DID)
 //
-//  Each service returns the requested identifier's bytes verbatim.
-//  The component does NOT decode them — the host owns the
-//  vendor-specific record layouts.
+// Each service returns the requested identifier's bytes verbatim.
+// The component does NOT decode them — the host owns the
+// vendor-specific record layouts.
 //
-//  Wire format per ISO 14230-3:1999 §6.7:
+// Wire format per ISO 14230-3:1999 §6.7:
 //
-//    ReadECUId   request : 1A <id>
-//    ReadECUId   response: 5A <id> <data...>
+// ReadECUId   request : 1A <id>
+// ReadECUId   response: 5A <id> <data...>
 //
-//    ReadByLocal request : 21 <localId>
-//    ReadByLocal response: 61 <localId> <data...>
+// ReadByLocal request : 21 <localId>
+// ReadByLocal response: 61 <localId> <data...>
 //
-//    ReadByCommon request : 22 <commonId-hi> <commonId-lo>
-//    ReadByCommon response: 62 <commonId-hi> <commonId-lo> <data...>
+// ReadByCommon request : 22 <commonId-hi> <commonId-lo>
+// ReadByCommon response: 62 <commonId-hi> <commonId-lo> <data...>
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - ISO 14230-3:1999 §6.7 (Read identification services)
+// References  :
+// - ISO 14230-3:1999 §6.7 (Read identification services)
 //
-//  History     :
-//    2026-05-11  ERD  Initial implementation.
-//    2026-10-08  ERD  Own, cancel and reap async request workers.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-11  ERD  Initial implementation.
+// 2026-10-08  ERD  Own, cancel and reap async request workers.
+// ------------------------------------------------------------------------------
 
 unit ERD.Diagnostics.KWP.ReadID;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
   ERD.Connection,
-  {$IFDEF FPC}ERD.Compat.Functions,{$ENDIF}
+{$IFDEF FPC}ERD.Compat.Functions, {$ENDIF}
   ERD.Connection.Types,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
   ERD.Types,
   ERD.Protocol.Types,
   ERD.Protocol.KWP2000,
@@ -61,23 +61,23 @@ uses
 
 type
   /// <summary>
-  ///   Fires after a successful read.
+  /// Fires after a successful read.
   /// </summary>
   /// <remarks>
-  ///   <c>AKind</c> echoes the service-ID byte requested
-  ///   (0x1A / 0x21 / 0x22). <c>AID</c> is the read identifier
-  ///   value (the high byte is 0 for 1-byte services). Main thread.
+  /// <c>AKind</c> echoes the service-ID byte requested
+  /// (0x1A / 0x21 / 0x22). <c>AID</c> is the read identifier
+  /// value (the high byte is 0 for 1-byte services). Main thread.
   /// </remarks>
-  TOBDKWPReadIDEvent = procedure(Sender: TObject; AKind: Byte;
-    AID: Word; const AData: TBytes) of object;
+  TOBDKWPReadIDEvent = procedure(Sender: TObject; AKind: Byte; AID: Word;
+    const AData: TBytes) of object;
 
   /// <summary>
-  ///   KWP2000 read-identifier component.
+  /// KWP2000 read-identifier component.
   /// </summary>
   /// <remarks>
-  ///   Drop the component on a form, assign <c>Protocol</c>, and
-  ///   call one of <see cref="ReadECUID"/>,
-  ///   <see cref="ReadByLocalID"/> or <see cref="ReadByCommonID"/>.
+  /// Drop the component on a form, assign <c>Protocol</c>, and
+  /// call one of <see cref="ReadECUID"/>,
+  /// <see cref="ReadByLocalID"/> or <see cref="ReadByCommonID"/>.
   /// </remarks>
   TOBDKWPReadID = class(TComponent)
   strict private
@@ -97,8 +97,7 @@ type
     procedure ReleaseAsync;
     function DoRead(AService: Byte; const AReq: TBytes;
       AEchoBytes: Integer): TBytes;
-    procedure FireRead(AKind: Byte; AID: Word;
-      const AData: TBytes);
+    procedure FireRead(AKind: Byte; AID: Word; const AData: TBytes);
     procedure FireError(ACode: TOBDErrorCode; const AMessage: string);
     procedure SetProtocol(AValue: TOBDProtocol);
   protected
@@ -112,65 +111,65 @@ type
     destructor Destroy; override;
 
     /// <summary>
-    ///   Service 0x1A — ReadECUIdentification.
+    /// Service 0x1A — ReadECUIdentification.
     /// </summary>
     /// <param name="AID">1-byte identifier value.</param>
     /// <returns>Identifier payload bytes.</returns>
     /// <exception cref="EOBDConfig">
-    ///   <c>Protocol</c> is not assigned.
+    /// <c>Protocol</c> is not assigned.
     /// </exception>
     /// <exception cref="EOBDProtocolErr">
-    ///   ECU returned a negative or short response, or the echoed
-    ///   identifier did not match.
+    /// ECU returned a negative or short response, or the echoed
+    /// identifier did not match.
     /// </exception>
     function ReadECUID(AID: Byte): TBytes;
 
     /// <summary>
-    ///   Service 0x21 — ReadDataByLocalIdentifier.
+    /// Service 0x21 — ReadDataByLocalIdentifier.
     /// </summary>
     /// <param name="ALocalID">1-byte local identifier.</param>
     /// <returns>Identifier payload bytes.</returns>
     /// <exception cref="EOBDConfig">
-    ///   <c>Protocol</c> is not assigned.
+    /// <c>Protocol</c> is not assigned.
     /// </exception>
     /// <exception cref="EOBDProtocolErr">
-    ///   ECU returned a negative or short response, or the echoed
-    ///   identifier did not match.
+    /// ECU returned a negative or short response, or the echoed
+    /// identifier did not match.
     /// </exception>
     function ReadByLocalID(ALocalID: Byte): TBytes;
 
     /// <summary>
-    ///   Service 0x22 — ReadDataByCommonIdentifier.
+    /// Service 0x22 — ReadDataByCommonIdentifier.
     /// </summary>
     /// <param name="ACommonID">2-byte common identifier.</param>
     /// <returns>Identifier payload bytes.</returns>
     /// <exception cref="EOBDConfig">
-    ///   <c>Protocol</c> is not assigned.
+    /// <c>Protocol</c> is not assigned.
     /// </exception>
     /// <exception cref="EOBDProtocolErr">
-    ///   ECU returned a negative or short response, or the echoed
-    ///   identifier did not match.
+    /// ECU returned a negative or short response, or the echoed
+    /// identifier did not match.
     /// </exception>
     function ReadByCommonID(ACommonID: Word): TBytes;
 
     /// <summary>Non-blocking <see cref="ReadECUID"/>.</summary>
     /// <param name="AID">1-byte identifier.</param>
     /// <exception cref="EOBDConfig">
-    ///   Another async read is already in flight.
+    /// Another async read is already in flight.
     /// </exception>
     procedure ReadECUIDAsync(AID: Byte);
 
     /// <summary>Non-blocking <see cref="ReadByLocalID"/>.</summary>
     /// <param name="ALocalID">1-byte local identifier.</param>
     /// <exception cref="EOBDConfig">
-    ///   Another async read is already in flight.
+    /// Another async read is already in flight.
     /// </exception>
     procedure ReadByLocalIDAsync(ALocalID: Byte);
 
     /// <summary>Non-blocking <see cref="ReadByCommonID"/>.</summary>
     /// <param name="ACommonID">2-byte common identifier.</param>
     /// <exception cref="EOBDConfig">
-    ///   Another async read is already in flight.
+    /// Another async read is already in flight.
     /// </exception>
     procedure ReadByCommonIDAsync(ACommonID: Word);
     /// <summary>Cancel delivery and join the request worker. Active work
@@ -240,8 +239,7 @@ begin
     TThread.Queue(TThread.CurrentThread,
       procedure
       begin
-        if not IsAsyncCancelled and
-          Assigned(FOnProgress) then
+        if not IsAsyncCancelled and Assigned(FOnProgress) then
           FOnProgress(Self, Step);
       end);
 end;
@@ -295,7 +293,8 @@ begin
   if FWorker = nil then
     Exit;
   if TThread.CurrentThread.ThreadID <> MainThreadID then
-    raise EOBDConfig.Create('TOBDKWPReadID: async lifecycle requires main thread');
+    raise EOBDConfig.Create
+      ('TOBDKWPReadID: async lifecycle requires main thread');
   TInterlocked.Exchange(FCancelled, 1);
   FWorker.Terminate;
   // Joining may pump main-thread callbacks. Cancellation suppresses their
@@ -332,7 +331,7 @@ begin
 end;
 
 function TOBDKWPReadID.DoRead(AService: Byte; const AReq: TBytes;
-  AEchoBytes: Integer): TBytes;
+AEchoBytes: Integer): TBytes;
 var
   Resp: TOBDResponse;
 begin
@@ -343,22 +342,21 @@ begin
   FireProgress(1, 'Request');
   Resp := FProtocol.Request(AService, AReq);
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt(
-      'KWP service 0x%.2x negative: %s', [AService, Resp.NRCText]);
+    raise EOBDProtocolErr.CreateFmt('KWP service 0x%.2x negative: %s',
+      [AService, Resp.NRCText]);
   if Length(Resp.Data) < AEchoBytes then
-    raise EOBDProtocolErr.CreateFmt(
-      'KWP service 0x%.2x: response too short', [AService]);
+    raise EOBDProtocolErr.CreateFmt('KWP service 0x%.2x: response too short',
+      [AService]);
   // Verify the echo bytes match the request body — KWP services
   // always echo the requested identifier in the response.
   if AEchoBytes > 0 then
   begin
     if not CompareMem(@AReq[0], @Resp.Data[0], AEchoBytes) then
-      raise EOBDProtocolErr.CreateFmt(
-        'KWP service 0x%.2x: identifier echo mismatch', [AService]);
+      raise EOBDProtocolErr.CreateFmt
+        ('KWP service 0x%.2x: identifier echo mismatch', [AService]);
   end;
   if Length(Resp.Data) > AEchoBytes then
-    Result := Copy(Resp.Data, AEchoBytes,
-                    Length(Resp.Data) - AEchoBytes)
+    Result := Copy(Resp.Data, AEchoBytes, Length(Resp.Data) - AEchoBytes)
   else
     SetLength(Result, 0);
   FireProgress(2, 'Response');
@@ -422,8 +420,7 @@ begin
     end);
 end;
 
-procedure TOBDKWPReadID.FireRead(AKind: Byte; AID: Word;
-  const AData: TBytes);
+procedure TOBDKWPReadID.FireRead(AKind: Byte; AID: Word; const AData: TBytes);
 var
   Self_: TOBDKWPReadID;
   Kind: Byte;
@@ -448,8 +445,7 @@ begin
       end);
 end;
 
-procedure TOBDKWPReadID.FireError(ACode: TOBDErrorCode;
-  const AMessage: string);
+procedure TOBDKWPReadID.FireError(ACode: TOBDErrorCode; const AMessage: string);
 var
   Self_: TOBDKWPReadID;
   Code: TOBDErrorCode;

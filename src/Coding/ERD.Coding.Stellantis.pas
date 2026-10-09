@@ -1,39 +1,39 @@
-//------------------------------------------------------------------------------
-//  ERD.Coding.Stellantis
+﻿// ------------------------------------------------------------------------------
+// ERD.Coding.Stellantis
 //
-//  TOBDCodingStellantis — FCA / Stellantis "Proxi alignment"
-//  helpers. Proxi is the per-vehicle configuration map distributed
-//  across modules: when a module is replaced, the new ECU runs an
-//  alignment routine to learn the vehicle's Proxi parameters.
+// TOBDCodingStellantis — FCA / Stellantis "Proxi alignment"
+// helpers. Proxi is the per-vehicle configuration map distributed
+// across modules: when a module is replaced, the new ECU runs an
+// alignment routine to learn the vehicle's Proxi parameters.
 //
-//  Proxi parameters are addressed as (parameter ID, byte buffer)
-//  pairs. The host reads the parameter list, edits values, and
-//  writes them back via UDS WriteDataByIdentifier.
+// Proxi parameters are addressed as (parameter ID, byte buffer)
+// pairs. The host reads the parameter list, edits values, and
+// writes them back via UDS WriteDataByIdentifier.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Coding.Stellantis;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.Types;
 
 type
@@ -55,20 +55,21 @@ type
   public
     /// <summary>Walks a Proxi block: <c>ID(2 BE) Length(1) Value</c>
     /// records back-to-back.</summary>
-    class function ParseProxi(const ABuffer: TBytes): TArray<TOBDStellantisProxi>; static;
+    class function ParseProxi(const ABuffer: TBytes)
+      : TArray<TOBDStellantisProxi>; static;
     /// <summary>Reads the value of <c>AID</c>.</summary>
-    class function GetParam(const ABuffer: TBytes;
-      AID: Word; out AValue: TBytes): Boolean; static;
+    class function GetParam(const ABuffer: TBytes; AID: Word;
+      out AValue: TBytes): Boolean; static;
     /// <summary>Writes <c>AValue</c> in place. Length must match
     /// the existing entry length.</summary>
-    class procedure SetParam(var ABuffer: TBytes;
-      AID: Word; const AValue: TBytes); static;
+    class procedure SetParam(var ABuffer: TBytes; AID: Word;
+      const AValue: TBytes); static;
   end;
 
 implementation
 
-class function TOBDCodingStellantis.ParseProxi(
-  const ABuffer: TBytes): TArray<TOBDStellantisProxi>;
+class function TOBDCodingStellantis.ParseProxi(const ABuffer: TBytes)
+  : TArray<TOBDStellantisProxi>;
 var
   Off: Integer;
   Acc: TList<TOBDStellantisProxi>;
@@ -79,11 +80,12 @@ begin
     Off := 0;
     while Off + 3 <= Length(ABuffer) do
     begin
-      Entry := Default(TOBDStellantisProxi);
+      Entry := Default (TOBDStellantisProxi);
       Entry.ID := (Word(ABuffer[Off]) shl 8) or ABuffer[Off + 1];
       Entry.Length_ := ABuffer[Off + 2];
       Entry.DataOffset := Off + 3;
-      if Entry.DataOffset + Entry.Length_ > Length(ABuffer) then Break;
+      if Entry.DataOffset + Entry.Length_ > Length(ABuffer) then
+        Break;
       SetLength(Entry.Value, Entry.Length_);
       if Entry.Length_ > 0 then
         Move(ABuffer[Entry.DataOffset], Entry.Value[0], Entry.Length_);
@@ -96,8 +98,8 @@ begin
   end;
 end;
 
-class function TOBDCodingStellantis.GetParam(const ABuffer: TBytes;
-  AID: Word; out AValue: TBytes): Boolean;
+class function TOBDCodingStellantis.GetParam(const ABuffer: TBytes; AID: Word;
+  out AValue: TBytes): Boolean;
 var
   Entries: TArray<TOBDStellantisProxi>;
   I: Integer;
@@ -113,8 +115,8 @@ begin
   Result := False;
 end;
 
-class procedure TOBDCodingStellantis.SetParam(var ABuffer: TBytes;
-  AID: Word; const AValue: TBytes);
+class procedure TOBDCodingStellantis.SetParam(var ABuffer: TBytes; AID: Word;
+  const AValue: TBytes);
 var
   Entries: TArray<TOBDStellantisProxi>;
   I: Integer;
@@ -126,15 +128,15 @@ begin
     begin
       Entry := Entries[I];
       if Length(AValue) <> Entry.Length_ then
-        raise EOBDProtocol.CreateFmt(
-          'TOBDCodingStellantis.SetParam: param 0x%4.4X width %d, got %d',
+        raise EOBDProtocol.CreateFmt
+          ('TOBDCodingStellantis.SetParam: param 0x%4.4X width %d, got %d',
           [AID, Entry.Length_, Length(AValue)]);
       if Length(AValue) > 0 then
         Move(AValue[0], ABuffer[Entry.DataOffset], Length(AValue));
       Exit;
     end;
-  raise EOBDProtocol.CreateFmt(
-    'TOBDCodingStellantis: parameter ID 0x%4.4X not present', [AID]);
+  raise EOBDProtocol.CreateFmt
+    ('TOBDCodingStellantis: parameter ID 0x%4.4X not present', [AID]);
 end;
 
 end.

@@ -1,42 +1,42 @@
-//------------------------------------------------------------------------------
-//  ERD.OEM.Stellantis
+﻿// ------------------------------------------------------------------------------
+// ERD.OEM.Stellantis
 //
-//  Stellantis (FCA + PSA) OEM extension. Covers the Fiat,
-//  Chrysler, Jeep, Dodge, RAM, Alfa Romeo, Lancia, Maserati,
-//  Peugeot, Citroën, DS, Opel and Vauxhall WMIs.
+// Stellantis (FCA + PSA) OEM extension. Covers the Fiat,
+// Chrysler, Jeep, Dodge, RAM, Alfa Romeo, Lancia, Maserati,
+// Peugeot, Citroën, DS, Opel and Vauxhall WMIs.
 //
-//  Session negotiator extends the inherited plan with an
-//  optional DID 0xF198 workshop-code probe — PSA DiagBox always
-//  reads it; FCA modules may NACK. The expected-response prefix
-//  is left empty so a negative <c>7F 22 31</c> from an FCA ECU
-//  does not fail the plan.
+// Session negotiator extends the inherited plan with an
+// optional DID 0xF198 workshop-code probe — PSA DiagBox always
+// reads it; FCA modules may NACK. The expected-response prefix
+// is left empty so a negative <c>7F 22 31</c> from an FCA ECU
+// does not fail the plan.
 //
-//  Catalogue + DTC overlay live in
-//  <c>catalogs/stellantis.json</c> and
-//  <c>catalogs/dtc-stellantis.json</c>.
+// Catalogue + DTC overlay live in
+// <c>catalogs/stellantis.json</c> and
+// <c>catalogs/dtc-stellantis.json</c>.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-12  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-12  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.OEM.Stellantis;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   ERD.OEM,
   ERD.OEM.Session,
   ERD.OEM.SeedKey,
@@ -45,8 +45,7 @@ uses
 type
   /// <summary>Stellantis DiagBox / wiTech session
   /// negotiator.</summary>
-  TOBDStellantisSessionNegotiator =
-    class(TOBDStandardSessionNegotiator)
+  TOBDStellantisSessionNegotiator = class(TOBDStandardSessionNegotiator)
   public
     /// <summary>Builds the entry plan. For non-default sessions,
     /// appends the optional F198 workshop-code probe.</summary>
@@ -62,23 +61,21 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
-    procedure BuildExtendedCatalog(
-      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+    procedure BuildExtendedCatalog(var CodingBlocks: TArray<TOBDOEMCodingBlock>;
       var Adaptations: TArray<TOBDOEMAdaptation>;
       var ActuatorTests: TArray<TOBDOEMActuatorTest>;
       var LivePIDs: TArray<TOBDOEMLivePID>;
       var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
     function CreateSessionNegotiator: IOBDSessionNegotiator; override;
-    procedure SeedDefaultSeedKeyAlgorithms(
-      Reg: TOBDSeedKeyRegistry); override;
+    procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
     function DtcCatalogFileName: string; override;
   public
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
     function ApplicableToVIN(const VIN: string): Boolean; override;
-    function DecodeDID(const DID: Word;
-      const Payload: TBytes): string; override;
+    function DecodeDID(const DID: Word; const Payload: TBytes): string;
+      override;
   end;
 
 implementation
@@ -90,9 +87,8 @@ uses
 
 { TOBDStellantisSessionNegotiator }
 
-function TOBDStellantisSessionNegotiator.BeginSessionPlan(
-  ASessionType: TOBDSessionType;
-  const AEcuAddress: Word): TOBDSessionPlan;
+function TOBDStellantisSessionNegotiator.BeginSessionPlan
+  (ASessionType: TOBDSessionType; const AEcuAddress: Word): TOBDSessionPlan;
 begin
   Result := inherited BeginSessionPlan(ASessionType, AEcuAddress);
   if ASessionType = sstDefault then
@@ -100,10 +96,8 @@ begin
   // PSA DiagBox always probes F198 after 10 03. Expected-response
   // prefix is left empty so FCA's 7F 22 31 negative-response does
   // not fail the plan.
-  Result.Steps := Result.Steps + [
-    UDSStep(TBytes.Create($22, $F1, $98),
-      'Stellantis workshop-code probe (PSA — FCA may NACK)')
-  ];
+  Result.Steps := Result.Steps + [UDSStep(TBytes.Create($22, $F1, $98),
+    'Stellantis workshop-code probe (PSA — FCA may NACK)')];
 end;
 
 function TOBDStellantisSessionNegotiator.DisplayName: string;
@@ -113,14 +107,14 @@ end;
 
 { TOBDOEMExtensionStellantis }
 
-function TOBDOEMExtensionStellantis.CreateSessionNegotiator:
-  IOBDSessionNegotiator;
+function TOBDOEMExtensionStellantis.CreateSessionNegotiator
+  : IOBDSessionNegotiator;
 begin
   Result := TOBDStellantisSessionNegotiator.Create;
 end;
 
-procedure TOBDOEMExtensionStellantis.SeedDefaultSeedKeyAlgorithms(
-  Reg: TOBDSeedKeyRegistry);
+procedure TOBDOEMExtensionStellantis.SeedDefaultSeedKeyAlgorithms
+  (Reg: TOBDSeedKeyRegistry);
 begin
   // PSA legacy BSI + FCA legacy Body Computer modules accepted
   // the KWP2000 two's-complement at Level 1. Modern DiagBox /
@@ -130,8 +124,7 @@ begin
     IOBDSeedKeyAlgorithm(TOBDSeedKeyKWP2000TwosComplement.Create()));
 end;
 
-procedure TOBDOEMExtensionStellantis.SeedDefaultDtcCatalog(
-  Cat: TOBDDtcCatalog);
+procedure TOBDOEMExtensionStellantis.SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog);
 begin
   inherited;
   MergeDtcCatalog('dtc-iso-15031.json', Cat);
@@ -153,30 +146,27 @@ begin
   Result := 'Stellantis (FCA + PSA)';
 end;
 
-function TOBDOEMExtensionStellantis.ApplicableToVIN(
-  const VIN: string): Boolean;
+function TOBDOEMExtensionStellantis.ApplicableToVIN(const VIN: string): Boolean;
 begin
   Result := VINMatchesCatalog('stellantis.json', VIN);
 end;
 
-procedure TOBDOEMExtensionStellantis.BuildCatalog(
-  var DIDs: TArray<TOBDOEMDataIdentifier>;
-  var Routines: TArray<TOBDOEMRoutine>;
-  var ECUs: TArray<TOBDOEMECU>);
+procedure TOBDOEMExtensionStellantis.BuildCatalog
+  (var DIDs: TArray<TOBDOEMDataIdentifier>;
+  var Routines: TArray<TOBDOEMRoutine>; var ECUs: TArray<TOBDOEMECU>);
 begin
   MergeCatalogJSON('stellantis.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
-procedure TOBDOEMExtensionStellantis.BuildExtendedCatalog(
-  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
-  var Adaptations: TArray<TOBDOEMAdaptation>;
+procedure TOBDOEMExtensionStellantis.BuildExtendedCatalog(var CodingBlocks
+  : TArray<TOBDOEMCodingBlock>; var Adaptations: TArray<TOBDOEMAdaptation>;
   var ActuatorTests: TArray<TOBDOEMActuatorTest>;
   var LivePIDs: TArray<TOBDOEMLivePID>;
   var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
 begin
-  MergeExtendedCatalogJSON('stellantis.json',
-    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+  MergeExtendedCatalogJSON('stellantis.json', CodingBlocks, Adaptations,
+    ActuatorTests, LivePIDs, DtcExtended);
 end;
 
 function TOBDOEMExtensionStellantis.DecodeDID(const DID: Word;
@@ -188,25 +178,22 @@ begin
     $F190:
       if Length(Payload) > 0 then
       begin
-        Result := Format('vin = %s',
-          [TEncoding.ASCII.GetString(Payload)]);
+        Result := Format('vin = %s', [TEncoding.ASCII.GetString(Payload)]);
         Exit;
       end;
     $F199:
       if Length(Payload) >= 3 then
       begin
         // BCD-encoded YY MM DD.
-        Result := Format(
-          'programming_date = 20%.2x-%.2x-%.2x',
+        Result := Format('programming_date = 20%.2x-%.2x-%.2x',
           [Payload[0], Payload[1], Payload[2]]);
         Exit;
       end;
     $1A02:
       if Length(Payload) >= 3 then
       begin
-        Mileage := (Cardinal(Payload[0]) shl 16) or
-                   (Cardinal(Payload[1]) shl 8) or
-                    Cardinal(Payload[2]);
+        Mileage := (Cardinal(Payload[0]) shl 16) or (Cardinal(Payload[1]) shl 8)
+          or Cardinal(Payload[2]);
         Result := Format('mileage = %d km', [Mileage]);
         Exit;
       end;
@@ -220,9 +207,8 @@ begin
       if Length(Payload) >= 4 then
       begin
         Seconds := (Cardinal(Payload[0]) shl 24) or
-                   (Cardinal(Payload[1]) shl 16) or
-                   (Cardinal(Payload[2]) shl 8) or
-                    Cardinal(Payload[3]);
+          (Cardinal(Payload[1]) shl 16) or (Cardinal(Payload[2]) shl 8) or
+          Cardinal(Payload[3]);
         Result := Format('engine_run_time = %d s', [Seconds]);
         Exit;
       end;
@@ -230,8 +216,7 @@ begin
       if Length(Payload) >= 2 then
       begin
         Voltage := (Cardinal(Payload[0]) shl 8) or Payload[1];
-        Result := Format('battery_voltage = %.3f V',
-          [Voltage / 1000.0]);
+        Result := Format('battery_voltage = %.3f V', [Voltage / 1000.0]);
         Exit;
       end;
   end;
@@ -239,6 +224,7 @@ begin
 end;
 
 initialization
-  TOBDOEMRegistry.RegisterExtension(TOBDOEMExtensionStellantis.Create);
+
+TOBDOEMRegistry.RegisterExtension(TOBDOEMExtensionStellantis.Create);
 
 end.

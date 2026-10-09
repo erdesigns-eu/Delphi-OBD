@@ -1,56 +1,56 @@
-//------------------------------------------------------------------------------
-//  ERD.OEM.KeyAdaptation.Platforms
+﻿// ------------------------------------------------------------------------------
+// ERD.OEM.KeyAdaptation.Platforms
 //
-//  Loads the OEM key-adaptation chassis / platform applicability
-//  catalogues — <c>catalogs/key-platforms-ford.json</c>,
-//  <c>catalogs/key-platforms-hmg.json</c>,
-//  <c>catalogs/key-platforms-toyota.json</c> — and exposes a
-//  per-OEM lookup so a host can decide whether a given chassis
-//  can be unlocked over OBD, requires a PIN, or is gateway-
-//  locked behind a dealer tool.
+// Loads the OEM key-adaptation chassis / platform applicability
+// catalogues — <c>catalogs/key-platforms-ford.json</c>,
+// <c>catalogs/key-platforms-hmg.json</c>,
+// <c>catalogs/key-platforms-toyota.json</c> — and exposes a
+// per-OEM lookup so a host can decide whether a given chassis
+// can be unlocked over OBD, requires a PIN, or is gateway-
+// locked behind a dealer tool.
 //
-//  Each catalogue entry carries:
-//    - <c>chassis_key</c> / <c>platform_key</c>   short identifier
-//    - <c>display_name</c>                        human label
-//    - <c>access</c>                              one of the
-//                                                 OEM-specific
-//                                                 access enums
-//    - <c>notes</c>                               free-form text
+// Each catalogue entry carries:
+// - <c>chassis_key</c> / <c>platform_key</c>   short identifier
+// - <c>display_name</c>                        human label
+// - <c>access</c>                              one of the
+// OEM-specific
+// access enums
+// - <c>notes</c>                               free-form text
 //
-//  Lookup is case-insensitive on the platform key. Unknown
-//  platforms return a "gateway-locked / certificate-required"
-//  fail-safe so callers default to refusing destructive
-//  operations.
+// Lookup is case-insensitive on the platform key. Unknown
+// platforms return a "gateway-locked / certificate-required"
+// fail-safe so callers default to refusing destructive
+// operations.
 //
-//  Catalogues are loaded once at unit initialisation. They are
-//  optional: missing or malformed files leave the registries
-//  empty (production deployments lint the catalogues at build
-//  time).
+// Catalogues are loaded once at unit initialisation. They are
+// optional: missing or malformed files leave the registries
+// empty (production deployments lint the catalogues at build
+// time).
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-12  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-12  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.OEM.KeyAdaptation.Platforms;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}ERD.Compat.Functions,{$ENDIF}
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF};
+{$IFDEF FPC}ERD.Compat.Functions, {$ENDIF}
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF};
 
 type
   /// <summary>Ford chassis access classification.</summary>
@@ -130,11 +130,11 @@ type
     Notes: string;
   end;
 
-/// <summary>Looks up a Ford chassis. Returns the entry from
-/// the catalogue when known; otherwise a synthetic
-/// <c>fpaGatewayLocked</c> default so callers fail safe on
-/// unknown chassis.</summary>
-/// <param name="ChassisKey">Chassis key (case-insensitive).</param>
+  /// <summary>Looks up a Ford chassis. Returns the entry from
+  /// the catalogue when known; otherwise a synthetic
+  /// <c>fpaGatewayLocked</c> default so callers fail safe on
+  /// unknown chassis.</summary>
+  /// <param name="ChassisKey">Chassis key (case-insensitive).</param>
 function FindFordPlatform(const ChassisKey: string): TFordPlatformInfo;
 
 /// <summary>Looks up an HMG platform. Unknown platforms get a
@@ -146,8 +146,7 @@ function FindHMGPlatform(const PlatformKey: string): THMGPlatformInfo;
 /// <summary>Looks up a Toyota chassis. Unknown chassis get a
 /// synthetic <c>tpaCertificateRequired</c> default.</summary>
 /// <param name="ChassisKey">Chassis key (case-insensitive).</param>
-function FindToyotaPlatform(
-  const ChassisKey: string): TToyotaPlatformInfo;
+function FindToyotaPlatform(const ChassisKey: string): TToyotaPlatformInfo;
 
 /// <summary>Drops the cached catalogues and reloads from disk.
 /// Use after replacing a catalogue file at runtime; the
@@ -157,20 +156,22 @@ procedure ReloadKeyPlatformCatalogues;
 implementation
 
 uses
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   System.JSON,
   System.IOUtils,
   ERD.OEM.Catalog.Loader;
 
 var
-  GFordPlatforms:   TDictionary<string, TFordPlatformInfo>   = nil;
-  GHMGPlatforms:    TDictionary<string, THMGPlatformInfo>    = nil;
+  GFordPlatforms: TDictionary<string, TFordPlatformInfo> = nil;
+  GHMGPlatforms: TDictionary<string, THMGPlatformInfo> = nil;
   GToyotaPlatforms: TDictionary<string, TToyotaPlatformInfo> = nil;
 
 function FordAccessFromString(const S: string): TFordPlatformAccess;
 begin
-  if SameText(S, 'open')         then Exit(fpaOpen);
-  if SameText(S, 'pin_required') then Exit(fpaPinRequired);
+  if SameText(S, 'open') then
+    Exit(fpaOpen);
+  if SameText(S, 'pin_required') then
+    Exit(fpaPinRequired);
   // Anything else (incl. 'gateway_locked' and unknown values) is
   // treated as gateway-locked — fail-safe default that prevents
   // a host from issuing destructive routines blindly.
@@ -179,20 +180,23 @@ end;
 
 function HMGAccessFromString(const S: string): THMGPlatformAccess;
 begin
-  if SameText(S, 'open_with_pin')                then Exit(hpaOpenWithPIN);
-  if SameText(S, 'gateway_locked_post_my2020')   then Exit(hpaGatewayLockedPostMY2020);
+  if SameText(S, 'open_with_pin') then
+    Exit(hpaOpenWithPIN);
+  if SameText(S, 'gateway_locked_post_my2020') then
+    Exit(hpaGatewayLockedPostMY2020);
   Result := hpaCertificateRequired;
 end;
 
 function ToyotaAccessFromString(const S: string): TToyotaPlatformAccess;
 begin
-  if SameText(S, 'master_key') then Exit(tpaMasterKey);
-  if SameText(S, 'pin')        then Exit(tpaPin);
+  if SameText(S, 'master_key') then
+    Exit(tpaMasterKey);
+  if SameText(S, 'pin') then
+    Exit(tpaPin);
   Result := tpaCertificateRequired;
 end;
 
-procedure ReadEntriesArray(const FileName: string;
-  Visit: TProc<TJSONObject>);
+procedure ReadEntriesArray(const FileName: string; Visit: TProc<TJSONObject>);
 var
   Path, Raw: string;
   Doc: TJSONValue;
@@ -205,7 +209,7 @@ begin
   try
     Raw := TFile.ReadAllText(Path, TEncoding.UTF8);
     Doc := TJSONObject.ParseJSONValue(Raw);
-    if not (Doc is TJSONObject) then
+    if not(Doc is TJSONObject) then
     begin
       Doc.Free;
       Exit;
@@ -235,14 +239,13 @@ begin
     var
       Info: TFordPlatformInfo;
     begin
-      Info := Default(TFordPlatformInfo);
+      Info := Default (TFordPlatformInfo);
       Info.Key := LowerCase(Obj.GetValue<string>('chassis_key', ''));
       if Info.Key = '' then
         Exit;
       Info.DisplayName := Obj.GetValue<string>('display_name', '');
-      Info.Access      := FordAccessFromString(
-                            Obj.GetValue<string>('access', ''));
-      Info.Notes       := Obj.GetValue<string>('notes', '');
+      Info.Access := FordAccessFromString(Obj.GetValue<string>('access', ''));
+      Info.Notes := Obj.GetValue<string>('notes', '');
       GFordPlatforms.AddOrSetValue(Info.Key, Info);
     end);
 end;
@@ -255,14 +258,13 @@ begin
     var
       Info: THMGPlatformInfo;
     begin
-      Info := Default(THMGPlatformInfo);
+      Info := Default (THMGPlatformInfo);
       Info.Key := LowerCase(Obj.GetValue<string>('platform_key', ''));
       if Info.Key = '' then
         Exit;
       Info.DisplayName := Obj.GetValue<string>('display_name', '');
-      Info.Access      := HMGAccessFromString(
-                            Obj.GetValue<string>('access', ''));
-      Info.Notes       := Obj.GetValue<string>('notes', '');
+      Info.Access := HMGAccessFromString(Obj.GetValue<string>('access', ''));
+      Info.Notes := Obj.GetValue<string>('notes', '');
       GHMGPlatforms.AddOrSetValue(Info.Key, Info);
     end);
 end;
@@ -275,14 +277,13 @@ begin
     var
       Info: TToyotaPlatformInfo;
     begin
-      Info := Default(TToyotaPlatformInfo);
+      Info := Default (TToyotaPlatformInfo);
       Info.Key := LowerCase(Obj.GetValue<string>('chassis_key', ''));
       if Info.Key = '' then
         Exit;
       Info.DisplayName := Obj.GetValue<string>('display_name', '');
-      Info.Access      := ToyotaAccessFromString(
-                            Obj.GetValue<string>('access', ''));
-      Info.Notes       := Obj.GetValue<string>('notes', '');
+      Info.Access := ToyotaAccessFromString(Obj.GetValue<string>('access', ''));
+      Info.Notes := Obj.GetValue<string>('notes', '');
       GToyotaPlatforms.AddOrSetValue(Info.Key, Info);
     end);
 end;
@@ -292,10 +293,9 @@ var
   Lookup: string;
 begin
   Lookup := LowerCase(ChassisKey);
-  if (GFordPlatforms <> nil)
-     and GFordPlatforms.TryGetValue(Lookup, Result) then
+  if (GFordPlatforms <> nil) and GFordPlatforms.TryGetValue(Lookup, Result) then
     Exit;
-  Result := Default(TFordPlatformInfo);
+  Result := Default (TFordPlatformInfo);
   Result.Key := Lookup;
   Result.DisplayName := ChassisKey;
   Result.Access := fpaGatewayLocked;
@@ -307,26 +307,24 @@ var
   Lookup: string;
 begin
   Lookup := LowerCase(PlatformKey);
-  if (GHMGPlatforms <> nil)
-     and GHMGPlatforms.TryGetValue(Lookup, Result) then
+  if (GHMGPlatforms <> nil) and GHMGPlatforms.TryGetValue(Lookup, Result) then
     Exit;
-  Result := Default(THMGPlatformInfo);
+  Result := Default (THMGPlatformInfo);
   Result.Key := Lookup;
   Result.DisplayName := PlatformKey;
   Result.Access := hpaCertificateRequired;
   Result.Notes := 'Unknown platform; assume certificate-required.';
 end;
 
-function FindToyotaPlatform(
-  const ChassisKey: string): TToyotaPlatformInfo;
+function FindToyotaPlatform(const ChassisKey: string): TToyotaPlatformInfo;
 var
   Lookup: string;
 begin
   Lookup := LowerCase(ChassisKey);
-  if (GToyotaPlatforms <> nil)
-     and GToyotaPlatforms.TryGetValue(Lookup, Result) then
+  if (GToyotaPlatforms <> nil) and GToyotaPlatforms.TryGetValue(Lookup, Result)
+  then
     Exit;
-  Result := Default(TToyotaPlatformInfo);
+  Result := Default (TToyotaPlatformInfo);
   Result.Key := Lookup;
   Result.DisplayName := ChassisKey;
   Result.Access := tpaCertificateRequired;
@@ -341,14 +339,16 @@ begin
 end;
 
 initialization
-  GFordPlatforms   := TDictionary<string, TFordPlatformInfo>.Create;
-  GHMGPlatforms    := TDictionary<string, THMGPlatformInfo>.Create;
-  GToyotaPlatforms := TDictionary<string, TToyotaPlatformInfo>.Create;
-  ReloadKeyPlatformCatalogues;
+
+GFordPlatforms := TDictionary<string, TFordPlatformInfo>.Create;
+GHMGPlatforms := TDictionary<string, THMGPlatformInfo>.Create;
+GToyotaPlatforms := TDictionary<string, TToyotaPlatformInfo>.Create;
+ReloadKeyPlatformCatalogues;
 
 finalization
-  GFordPlatforms.Free;
-  GHMGPlatforms.Free;
-  GToyotaPlatforms.Free;
+
+GFordPlatforms.Free;
+GHMGPlatforms.Free;
+GToyotaPlatforms.Free;
 
 end.

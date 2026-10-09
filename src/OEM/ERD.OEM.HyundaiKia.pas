@@ -1,40 +1,40 @@
-//------------------------------------------------------------------------------
-//  ERD.OEM.HyundaiKia
+﻿// ------------------------------------------------------------------------------
+// ERD.OEM.HyundaiKia
 //
-//  Hyundai Motor Group OEM extension. Covers Hyundai + Kia +
-//  Genesis WMIs. Catalogue + DTC overlay in
-//  <c>catalogs/hmg.json</c> + <c>catalogs/dtc-hmg.json</c>.
+// Hyundai Motor Group OEM extension. Covers Hyundai + Kia +
+// Genesis WMIs. Catalogue + DTC overlay in
+// <c>catalogs/hmg.json</c> + <c>catalogs/dtc-hmg.json</c>.
 //
-//  TOBDHyundaiKiaSessionNegotiator runs the inherited plan but
-//  picks a 1500 ms tester-present cadence — GDS / KDS keep the
-//  extended session alive at that rate on K-line and CAN ECUs.
+// TOBDHyundaiKiaSessionNegotiator runs the inherited plan but
+// picks a 1500 ms tester-present cadence — GDS / KDS keep the
+// extended session alive at that rate on K-line and CAN ECUs.
 //
-//  Seed-key starter is the community XOR-mask placeholder using
-//  the HMC marker bytes; production callers register the GDS
-//  algorithm via RegisterAlgorithm.
+// Seed-key starter is the community XOR-mask placeholder using
+// the HMC marker bytes; production callers register the GDS
+// algorithm via RegisterAlgorithm.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-12  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-12  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.OEM.HyundaiKia;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   ERD.OEM,
   ERD.OEM.Session,
   ERD.OEM.SeedKey,
@@ -42,8 +42,7 @@ uses
 
 type
   /// <summary>Hyundai/Kia GDS / KDS session negotiator.</summary>
-  TOBDHyundaiKiaSessionNegotiator =
-    class(TOBDStandardSessionNegotiator)
+  TOBDHyundaiKiaSessionNegotiator = class(TOBDStandardSessionNegotiator)
   public
     /// <summary>1500 ms heartbeat.</summary>
     function DefaultTesterPresentMs: Cardinal; override;
@@ -57,23 +56,21 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
-    procedure BuildExtendedCatalog(
-      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+    procedure BuildExtendedCatalog(var CodingBlocks: TArray<TOBDOEMCodingBlock>;
       var Adaptations: TArray<TOBDOEMAdaptation>;
       var ActuatorTests: TArray<TOBDOEMActuatorTest>;
       var LivePIDs: TArray<TOBDOEMLivePID>;
       var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
     function CreateSessionNegotiator: IOBDSessionNegotiator; override;
-    procedure SeedDefaultSeedKeyAlgorithms(
-      Reg: TOBDSeedKeyRegistry); override;
+    procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
     function DtcCatalogFileName: string; override;
   public
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
     function ApplicableToVIN(const VIN: string): Boolean; override;
-    function DecodeDID(const DID: Word;
-      const Payload: TBytes): string; override;
+    function DecodeDID(const DID: Word; const Payload: TBytes): string;
+      override;
   end;
 
 implementation
@@ -107,54 +104,50 @@ begin
   Result := 'Hyundai Motor Group (Hyundai / Kia / Genesis)';
 end;
 
-function TOBDOEMExtensionHyundaiKia.ApplicableToVIN(
-  const VIN: string): Boolean;
+function TOBDOEMExtensionHyundaiKia.ApplicableToVIN(const VIN: string): Boolean;
 begin
   Result := VINMatchesCatalog('hmg.json', VIN);
 end;
 
-function TOBDOEMExtensionHyundaiKia.CreateSessionNegotiator:
-  IOBDSessionNegotiator;
+function TOBDOEMExtensionHyundaiKia.CreateSessionNegotiator
+  : IOBDSessionNegotiator;
 begin
   Result := TOBDHyundaiKiaSessionNegotiator.Create;
 end;
 
-procedure TOBDOEMExtensionHyundaiKia.BuildCatalog(
-  var DIDs: TArray<TOBDOEMDataIdentifier>;
-  var Routines: TArray<TOBDOEMRoutine>;
-  var ECUs: TArray<TOBDOEMECU>);
+procedure TOBDOEMExtensionHyundaiKia.BuildCatalog
+  (var DIDs: TArray<TOBDOEMDataIdentifier>;
+  var Routines: TArray<TOBDOEMRoutine>; var ECUs: TArray<TOBDOEMECU>);
 begin
   MergeCatalogJSON('hmg.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
-procedure TOBDOEMExtensionHyundaiKia.BuildExtendedCatalog(
-  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
-  var Adaptations: TArray<TOBDOEMAdaptation>;
+procedure TOBDOEMExtensionHyundaiKia.BuildExtendedCatalog(var CodingBlocks
+  : TArray<TOBDOEMCodingBlock>; var Adaptations: TArray<TOBDOEMAdaptation>;
   var ActuatorTests: TArray<TOBDOEMActuatorTest>;
   var LivePIDs: TArray<TOBDOEMLivePID>;
   var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
 begin
-  MergeExtendedCatalogJSON('hmg.json',
-    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+  MergeExtendedCatalogJSON('hmg.json', CodingBlocks, Adaptations, ActuatorTests,
+    LivePIDs, DtcExtended);
 end;
 
-procedure TOBDOEMExtensionHyundaiKia.SeedDefaultSeedKeyAlgorithms(
-  Reg: TOBDSeedKeyRegistry);
+procedure TOBDOEMExtensionHyundaiKia.SeedDefaultSeedKeyAlgorithms
+  (Reg: TOBDSeedKeyRegistry);
 const
-  PUBLIC_MASK: array[0..3] of Byte = ($48, $4D, $43, $00);  // 'HMC'
+  PUBLIC_MASK: array [0 .. 3] of Byte = ($48, $4D, $43, $00); // 'HMC'
 var
   Mask: TBytes;
 begin
   SetLength(Mask, Length(PUBLIC_MASK));
   Move(PUBLIC_MASK[0], Mask[0], Length(PUBLIC_MASK));
-  Reg.RegisterAlgorithm($01, IOBDSeedKeyAlgorithm(TOBDSeedKeyXorMask.Create(Mask,
-    'HMG community XOR-mask placeholder',
-    'community-pr', False)));
+  Reg.RegisterAlgorithm($01,
+    IOBDSeedKeyAlgorithm(TOBDSeedKeyXorMask.Create(Mask,
+    'HMG community XOR-mask placeholder', 'community-pr', False)));
 end;
 
-procedure TOBDOEMExtensionHyundaiKia.SeedDefaultDtcCatalog(
-  Cat: TOBDDtcCatalog);
+procedure TOBDOEMExtensionHyundaiKia.SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog);
 begin
   inherited;
   MergeDtcCatalog('dtc-iso-15031.json', Cat);
@@ -175,17 +168,19 @@ begin
     $F190:
       if Length(Payload) > 0 then
       begin
-        Result := Format('vin = %s',
-          [TEncoding.ASCII.GetString(Payload)]);
+        Result := Format('vin = %s', [TEncoding.ASCII.GetString(Payload)]);
         Exit;
       end;
     $F193, $F1A0, $F1B0:
       if Length(Payload) > 0 then
       begin
         case DID of
-          $F193: FieldName := 'hmg_rom_id';
-          $F1A0: FieldName := 'hmg_calibration_id';
-          $F1B0: FieldName := 'hmg_vehicle_option_code';
+          $F193:
+            FieldName := 'hmg_rom_id';
+          $F1A0:
+            FieldName := 'hmg_calibration_id';
+          $F1B0:
+            FieldName := 'hmg_vehicle_option_code';
         else
           FieldName := 'unknown';
         end;
@@ -198,6 +193,7 @@ begin
 end;
 
 initialization
-  TOBDOEMRegistry.RegisterExtension(TOBDOEMExtensionHyundaiKia.Create);
+
+TOBDOEMRegistry.RegisterExtension(TOBDOEMExtensionHyundaiKia.Create);
 
 end.

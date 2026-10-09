@@ -1,35 +1,35 @@
-//------------------------------------------------------------------------------
-//  ERD.Flash.OEM.BMW
+﻿// ------------------------------------------------------------------------------
+// ERD.Flash.OEM.BMW
 //
-//  TOBDFlashHandshakeBMW — BMW (E / F / G / U series) bootloader
-//  handshake. BMW programming uses ISTA's UDS profile:
+// TOBDFlashHandshakeBMW — BMW (E / F / G / U series) bootloader
+// handshake. BMW programming uses ISTA's UDS profile:
 //
-//    1. 10 02 — programming session (some F-series
-//                          require 10 03 first)
-//    2. 27 03 / 27 09 — security access (level 3 dev,
-//                          level 9 programming on G-series)
-//    3. 31 01 FF 00 — erase boot block routine
+// 1. 10 02 — programming session (some F-series
+// require 10 03 first)
+// 2. 27 03 / 27 09 — security access (level 3 dev,
+// level 9 programming on G-series)
+// 3. 31 01 FF 00 — erase boot block routine
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.Flash.OEM.BMW;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   ERD.Types,
   ERD.Coding.SecurityAccess,
   ERD.Flash.OEM.Common;
@@ -51,15 +51,15 @@ type
     /// <summary>Send 0x10 0x03 (extended) before 0x10 0x02
     /// (programming). F-series ZGW gateways require this; G/U-series
     /// don't. Default <c>True</c>.</summary>
-    property ExtendedFirst: Boolean read FExtendedFirst
-      write FExtendedFirst default True;
+    property ExtendedFirst: Boolean read FExtendedFirst write FExtendedFirst
+      default True;
     /// <summary>Security level. G-series uses 0x09; legacy
     /// platforms 0x03. Default 0x09.</summary>
     property SecurityLevel: Byte read FSecurityLevel write FSecurityLevel
       default $09;
     /// <summary>Erase routine. Default 0xFF00.</summary>
-    property EraseRoutineID: Word read FEraseRoutineID
-      write FEraseRoutineID default $FF00;
+    property EraseRoutineID: Word read FEraseRoutineID write FEraseRoutineID
+      default $FF00;
     property SeedToKey: TOBDSeedToKeyFunc read FSeedToKey write FSeedToKey;
   end;
 
@@ -84,7 +84,8 @@ begin
     raise EOBDConfig.Create('BMW handshake: Security component not assigned');
   if Routines = nil then
     raise EOBDConfig.Create('BMW handshake: Routines component not assigned');
-  if FExtendedFirst then SwitchSession(UDS_SESSION_EXTENDED_OEM);
+  if FExtendedFirst then
+    SwitchSession(UDS_SESSION_EXTENDED_OEM);
   SwitchSession(UDS_SESSION_PROGRAMMING_OEM);
   Security.SeedToKey := FSeedToKey;
   Security.Unlock(FSecurityLevel);

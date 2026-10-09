@@ -1,66 +1,66 @@
-//------------------------------------------------------------------------------
-//  ERD.Diagnostics.UDS
+﻿// ------------------------------------------------------------------------------
+// ERD.Diagnostics.UDS
 //
-//  TOBDUDS — non-visual UDS session-hub component. Owns the
-//  diagnostic-session lifecycle (Service 0x10
-//  DiagnosticSessionControl) and the tester-present keep-alive
-//  (Service 0x3E TesterPresent). Sits on top of
-//  <see cref="TOBDProtocol"/> and below the focused per-service
-//  components (TOBDUDSReadDID, TOBDUDSReadMemory, TOBDUDSReset,
-//  TOBDUDSIOControl, …).
+// TOBDUDS — non-visual UDS session-hub component. Owns the
+// diagnostic-session lifecycle (Service 0x10
+// DiagnosticSessionControl) and the tester-present keep-alive
+// (Service 0x3E TesterPresent). Sits on top of
+// <see cref="TOBDProtocol"/> and below the focused per-service
+// components (TOBDUDSReadDID, TOBDUDSReadMemory, TOBDUDSReset,
+// TOBDUDSIOControl, …).
 //
-//  The hub is OPTIONAL for hosts that only need read-only access
-//  in the default session — every focused component talks to its
-//  TOBDProtocol directly and works without a session hub. The hub
-//  is required when:
+// The hub is OPTIONAL for hosts that only need read-only access
+// in the default session — every focused component talks to its
+// TOBDProtocol directly and works without a session hub. The hub
+// is required when:
 //
-//    - The host needs the extended session (0x10 sub 0x03) for
-//      writes or routines.
-//    - The host needs the programming session (0x10 sub 0x02) for
-//      flashing or downloads.
-//    - The session timeout is short enough that the ECU drops out
-//      of the chosen session without periodic tester-present.
+// - The host needs the extended session (0x10 sub 0x03) for
+// writes or routines.
+// - The host needs the programming session (0x10 sub 0x02) for
+// flashing or downloads.
+// - The session timeout is short enough that the ECU drops out
+// of the chosen session without periodic tester-present.
 //
-//  Threading
+// Threading
 //
-//    - Sync methods (<see cref="TOBDUDS.Open"/>,
-//      <see cref="TOBDUDS.Close"/>) block until the ECU response
-//      arrives or the protocol times out.
-//    - Async variants spawn a worker thread and report
-//      <c>OnSessionChanged</c> on the main thread.
-//    - <see cref="TOBDUDS.KeepAlive"/> uses a TThread-managed
-//      timer that fires <c>OnTesterPresent</c> on the main thread.
+// - Sync methods (<see cref="TOBDUDS.Open"/>,
+// <see cref="TOBDUDS.Close"/>) block until the ECU response
+// arrives or the protocol times out.
+// - Async variants spawn a worker thread and report
+// <c>OnSessionChanged</c> on the main thread.
+// - <see cref="TOBDUDS.KeepAlive"/> uses a TThread-managed
+// timer that fires <c>OnTesterPresent</c> on the main thread.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - ISO 14229-1:2020 §9.2 (DiagnosticSessionControl 0x10)
-//    - ISO 14229-1:2020 §9.4 (TesterPresent 0x3E)
-//    - ISO 14229-1:2020 §9.5 (AccessTimingParameter 0x83)
-//    - ISO 14229-1:2020 §9.6 (SecuredDataTransmission 0x84)
-//    - ISO 14229-1:2020 §9.7 (CommunicationControl 0x28)
-//    - ISO 14229-1:2020 §9.10 (Authentication 0x29)
+// References  :
+// - ISO 14229-1:2020 §9.2 (DiagnosticSessionControl 0x10)
+// - ISO 14229-1:2020 §9.4 (TesterPresent 0x3E)
+// - ISO 14229-1:2020 §9.5 (AccessTimingParameter 0x83)
+// - ISO 14229-1:2020 §9.6 (SecuredDataTransmission 0x84)
+// - ISO 14229-1:2020 §9.7 (CommunicationControl 0x28)
+// - ISO 14229-1:2020 §9.10 (Authentication 0x29)
 //
-//  History     :
-//    2026-05-11  ERD  Initial implementation.
+// History     :
+// 2026-05-11  ERD  Initial implementation.
 //
-//  Future work :
-//    - Authentication (0x29) sub-function helpers (auth roles,
-//      challenge / response). Currently the hub forwards raw
-//      bytes only.
-//    - LinkControl (0x87) baud-rate switching for K-line buses.
-//------------------------------------------------------------------------------
+// Future work :
+// - Authentication (0x29) sub-function helpers (auth roles,
+// challenge / response). Currently the hub forwards raw
+// bytes only.
+// - LinkControl (0x87) baud-rate switching for K-line buses.
+// ------------------------------------------------------------------------------
 
 unit ERD.Diagnostics.UDS;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -68,9 +68,9 @@ interface
 uses
   ERD.Async.Task,
   ERD.Connection,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
   ERD.Types,
   ERD.Protocol.Types,
   ERD.Protocol.UDS,
@@ -79,47 +79,46 @@ uses
 const
   /// <summary>Default session — every ECU comes up in this one
   /// after reset.</summary>
-  UDS_SESSION_DEFAULT         = $01;
+  UDS_SESSION_DEFAULT = $01;
   /// <summary>Programming session — required for flashing.</summary>
-  UDS_SESSION_PROGRAMMING     = $02;
+  UDS_SESSION_PROGRAMMING = $02;
   /// <summary>Extended diagnostic session — required for writes
   /// and most routines.</summary>
-  UDS_SESSION_EXTENDED        = $03;
+  UDS_SESSION_EXTENDED = $03;
   /// <summary>Safety-system diagnostic session.</summary>
-  UDS_SESSION_SAFETY_SYSTEM   = $04;
+  UDS_SESSION_SAFETY_SYSTEM = $04;
 
   /// <summary>TesterPresent sub-function — response required.</summary>
-  UDS_TP_RESPONSE_REQUIRED    = $00;
+  UDS_TP_RESPONSE_REQUIRED = $00;
   /// <summary>TesterPresent sub-function — suppress positive
   /// response (the wire-efficient form).</summary>
   UDS_TP_SUPPRESS_POS_RESPONSE = $80;
 
 type
   /// <summary>
-  ///   Fires when the session changes.
+  /// Fires when the session changes.
   /// </summary>
   /// <remarks>
-  ///   <c>ANewSession</c> is the sub-function byte just confirmed
-  ///   by the ECU. Main thread.
+  /// <c>ANewSession</c> is the sub-function byte just confirmed
+  /// by the ECU. Main thread.
   /// </remarks>
-  TOBDUDSSessionEvent = procedure(Sender: TObject;
-    ANewSession: Byte) of object;
+  TOBDUDSSessionEvent = procedure(Sender: TObject; ANewSession: Byte) of object;
 
   /// <summary>
-  ///   Fires after every TesterPresent tick. Main thread.
+  /// Fires after every TesterPresent tick. Main thread.
   /// </summary>
   TOBDUDSTesterPresentEvent = procedure(Sender: TObject) of object;
 
   /// <summary>
-  ///   UDS session-hub component.
+  /// UDS session-hub component.
   /// </summary>
   /// <remarks>
-  ///   Drop the component on a form and assign <c>Protocol</c> to a
-  ///   connected <see cref="TOBDProtocol"/>. Call <see cref="Open"/>
-  ///   with the desired session sub-function; set
-  ///   <c>KeepAlive := True</c> for sessions with short timeouts.
-  ///   Call <see cref="Close"/> (or simply destroy the hub) to drop
-  ///   back to the default session.
+  /// Drop the component on a form and assign <c>Protocol</c> to a
+  /// connected <see cref="TOBDProtocol"/>. Call <see cref="Open"/>
+  /// with the desired session sub-function; set
+  /// <c>KeepAlive := True</c> for sessions with short timeouts.
+  /// Call <see cref="Close"/> (or simply destroy the hub) to drop
+  /// back to the default session.
   /// </remarks>
   TOBDUDS = class(TComponent)
   strict private
@@ -161,45 +160,45 @@ type
     destructor Destroy; override;
 
     /// <summary>
-    ///   Opens a UDS session by sub-function byte.
+    /// Opens a UDS session by sub-function byte.
     /// </summary>
     /// <param name="ASubFunction">Session sub-function (one of
     /// the <c>UDS_SESSION_*</c> constants).</param>
     /// <remarks>Blocks. Fires <c>OnSessionChanged</c> on success.
     /// From GUI code prefer <see cref="OpenAsync"/>.</remarks>
     /// <exception cref="EOBDConfig">
-    ///   <c>Protocol</c> is not assigned.
+    /// <c>Protocol</c> is not assigned.
     /// </exception>
     /// <exception cref="EOBDProtocolErr">
-    ///   ECU returned a negative response.
+    /// ECU returned a negative response.
     /// </exception>
     procedure Open(ASubFunction: Byte);
 
     /// <summary>Non-blocking <see cref="Open"/>.</summary>
     /// <param name="ASubFunction">Session sub-function.</param>
     /// <exception cref="EOBDConfig">
-    ///   Another async session call is already in flight.
+    /// Another async session call is already in flight.
     /// </exception>
     procedure OpenAsync(ASubFunction: Byte);
 
     /// <summary>
-    ///   Drops back to the default session (sub 0x01).
+    /// Drops back to the default session (sub 0x01).
     /// </summary>
     /// <remarks>
-    ///   Stops the keep-alive thread before sending. Useful as
-    ///   an explicit "exit extended session" step prior to
-    ///   disconnect.
+    /// Stops the keep-alive thread before sending. Useful as
+    /// an explicit "exit extended session" step prior to
+    /// disconnect.
     /// </remarks>
     /// <exception cref="EOBDConfig">
-    ///   <c>Protocol</c> is not assigned.
+    /// <c>Protocol</c> is not assigned.
     /// </exception>
     /// <exception cref="EOBDProtocolErr">
-    ///   ECU returned a negative response.
+    /// ECU returned a negative response.
     /// </exception>
     procedure Close;
 
     /// <summary>
-    ///   Sends one TesterPresent message.
+    /// Sends one TesterPresent message.
     /// </summary>
     /// <param name="ASuppressPositive">When <c>True</c>, the
     /// sub-function byte sets the wire-efficient
@@ -207,16 +206,16 @@ type
     /// immediately without waiting for an ECU reply (the standard
     /// pattern for periodic keep-alives).</param>
     /// <exception cref="EOBDConfig">
-    ///   <c>Protocol</c> is not assigned.
+    /// <c>Protocol</c> is not assigned.
     /// </exception>
     /// <exception cref="EOBDProtocolErr">
-    ///   ECU returned a negative response (suppress-positive form
-    ///   never sees one).
+    /// ECU returned a negative response (suppress-positive form
+    /// never sees one).
     /// </exception>
     procedure TesterPresent(ASuppressPositive: Boolean = True);
 
     /// <summary>
-    ///   Sends a CommunicationControl (Service 0x28) request.
+    /// Sends a CommunicationControl (Service 0x28) request.
     /// </summary>
     /// <param name="AControlType">CommunicationControl sub-function
     /// (e.g. 0x00 enableRxAndTx, 0x01 enableRxAndDisableTx,
@@ -224,26 +223,26 @@ type
     /// <param name="ACommunicationType">Communication-type bit-mask
     /// (e.g. 0x01 normal-comm, 0x02 network-management-comm).</param>
     /// <exception cref="EOBDConfig">
-    ///   <c>Protocol</c> is not assigned.
+    /// <c>Protocol</c> is not assigned.
     /// </exception>
     /// <exception cref="EOBDProtocolErr">
-    ///   ECU returned a negative response.
+    /// ECU returned a negative response.
     /// </exception>
     procedure CommunicationControl(AControlType: Byte;
       ACommunicationType: Byte);
 
     /// <summary>
-    ///   Sends a raw AccessTimingParameter (Service 0x83) request.
+    /// Sends a raw AccessTimingParameter (Service 0x83) request.
     /// </summary>
     /// <param name="ASubFunction">Sub-function byte (e.g. 0x01
     /// readDefaultTimingParameters).</param>
     /// <param name="AData">Optional payload bytes.</param>
     /// <returns>Response payload (excluding the SID echo).</returns>
     /// <exception cref="EOBDConfig">
-    ///   <c>Protocol</c> is not assigned.
+    /// <c>Protocol</c> is not assigned.
     /// </exception>
     /// <exception cref="EOBDProtocolErr">
-    ///   ECU returned a negative response.
+    /// ECU returned a negative response.
     /// </exception>
     function AccessTimingParameter(ASubFunction: Byte;
       const AData: TBytes): TBytes;
@@ -255,46 +254,45 @@ type
     property CurrentSession: Byte read FCurrentSession;
 
     /// <summary>
-    ///   Enable / disable the TesterPresent keep-alive thread.
+    /// Enable / disable the TesterPresent keep-alive thread.
     /// </summary>
     /// <remarks>
-    ///   Setting <c>True</c> spawns a worker that fires a
-    ///   suppress-positive TesterPresent every
-    ///   <see cref="KeepAliveIntervalMs"/>. Setting back to
-    ///   <c>False</c> stops and joins the worker cleanly.
+    /// Setting <c>True</c> spawns a worker that fires a
+    /// suppress-positive TesterPresent every
+    /// <see cref="KeepAliveIntervalMs"/>. Setting back to
+    /// <c>False</c> stops and joins the worker cleanly.
     /// </remarks>
     property KeepAlive: Boolean read FKeepAlive write SetKeepAlive
       default False;
 
     /// <summary>
-    ///   Period between TesterPresent ticks in milliseconds.
-    ///   Default 2000 ms (half the ISO 14229-1 S3_server timeout
-    ///   of 5 s).
+    /// Period between TesterPresent ticks in milliseconds.
+    /// Default 2000 ms (half the ISO 14229-1 S3_server timeout
+    /// of 5 s).
     /// </summary>
     property KeepAliveIntervalMs: Cardinal read FKeepAliveIntervalMs
       write FKeepAliveIntervalMs default 2000;
 
     /// <summary>Fires after a successful session change. Main thread.</summary>
-    property OnSessionChanged: TOBDUDSSessionEvent
-      read FOnSessionChanged write FOnSessionChanged;
+    property OnSessionChanged: TOBDUDSSessionEvent read FOnSessionChanged
+      write FOnSessionChanged;
 
     /// <summary>Fires after every TesterPresent tick. Main thread.</summary>
-    property OnTesterPresent: TOBDUDSTesterPresentEvent
-      read FOnTesterPresent write FOnTesterPresent;
+    property OnTesterPresent: TOBDUDSTesterPresentEvent read FOnTesterPresent
+      write FOnTesterPresent;
 
     /// <summary>Fires on transient I/O errors. Main thread.</summary>
-    property OnError: TOBDConnectionErrorEvent
-      read FOnError write FOnError;
+    property OnError: TOBDConnectionErrorEvent read FOnError write FOnError;
   end;
 
 implementation
 
 type
   /// <summary>
-  ///   Internal keep-alive worker. Sleeps on <c>FStop</c> for the
-  ///   configured interval and fires a suppress-positive
-  ///   TesterPresent each tick. Exits when <c>FStop</c> is
-  ///   signalled.
+  /// Internal keep-alive worker. Sleeps on <c>FStop</c> for the
+  /// configured interval and fires a suppress-positive
+  /// TesterPresent each tick. Exits when <c>FStop</c> is
+  /// signalled.
   /// </summary>
   TOBDUDSKeepAliveThread = class(TThread)
   strict private
@@ -304,8 +302,7 @@ type
   protected
     procedure Execute; override;
   public
-    constructor Create(AHub: TOBDUDS; AStop: TEvent;
-      AIntervalMs: Cardinal);
+    constructor Create(AHub: TOBDUDS; AStop: TEvent; AIntervalMs: Cardinal);
   end;
 
 constructor TOBDUDSKeepAliveThread.Create(AHub: TOBDUDS; AStop: TEvent;
@@ -348,7 +345,8 @@ end;
 
 destructor TOBDUDS.Destroy;
 begin
-  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  if FOwnedTask <> nil then
+    FOwnedTask.Cancel;
   StopKeepAliveThread;
   FKeepAliveStop.Free;
   FreeAndNil(FOwnedTask);
@@ -367,8 +365,7 @@ begin
     FProtocol.FreeNotification(Self);
 end;
 
-procedure TOBDUDS.Notification(AComponent: TComponent;
-  Operation: TOperation);
+procedure TOBDUDS.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
@@ -446,8 +443,8 @@ begin
   Req[0] := ASubFunction;
   Resp := FProtocol.Request(UDS_SID_DiagnosticSessionControl, Req);
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt(
-      'DiagnosticSessionControl (0x%.2x) negative: %s',
+    raise EOBDProtocolErr.CreateFmt
+      ('DiagnosticSessionControl (0x%.2x) negative: %s',
       [ASubFunction, Resp.NRCText]);
   FCurrentSession := ASubFunction;
 end;
@@ -518,8 +515,8 @@ begin
   // a negative one is still possible (e.g. service not supported)
   // and must surface.
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt(
-      'TesterPresent (0x%.2x) negative: %s', [SubFunc, Resp.NRCText]);
+    raise EOBDProtocolErr.CreateFmt('TesterPresent (0x%.2x) negative: %s',
+      [SubFunc, Resp.NRCText]);
 end;
 
 procedure TOBDUDS.TesterPresent(ASuppressPositive: Boolean);
@@ -528,7 +525,7 @@ begin
 end;
 
 procedure TOBDUDS.CommunicationControl(AControlType: Byte;
-  ACommunicationType: Byte);
+ACommunicationType: Byte);
 var
   Req: TBytes;
   Resp: TOBDResponse;
@@ -540,13 +537,13 @@ begin
   Req[1] := ACommunicationType;
   Resp := FProtocol.Request(UDS_SID_CommunicationControl, Req);
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt(
-      'CommunicationControl (0x%.2x / 0x%.2x) negative: %s',
+    raise EOBDProtocolErr.CreateFmt
+      ('CommunicationControl (0x%.2x / 0x%.2x) negative: %s',
       [AControlType, ACommunicationType, Resp.NRCText]);
 end;
 
 function TOBDUDS.AccessTimingParameter(ASubFunction: Byte;
-  const AData: TBytes): TBytes;
+const AData: TBytes): TBytes;
 var
   Req: TBytes;
   Resp: TOBDResponse;
@@ -559,8 +556,8 @@ begin
     Move(AData[0], Req[1], Length(AData));
   Resp := FProtocol.Request(UDS_SID_AccessTimingParameter, Req);
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt(
-      'AccessTimingParameter (0x%.2x) negative: %s',
+    raise EOBDProtocolErr.CreateFmt
+      ('AccessTimingParameter (0x%.2x) negative: %s',
       [ASubFunction, Resp.NRCText]);
   Result := Copy(Resp.Data, 0, Length(Resp.Data));
 end;
@@ -603,8 +600,7 @@ begin
       end);
 end;
 
-procedure TOBDUDS.FireError(ACode: TOBDErrorCode;
-  const AMessage: string);
+procedure TOBDUDS.FireError(ACode: TOBDErrorCode; const AMessage: string);
 var
   Self_: TOBDUDS;
   Code: TOBDErrorCode;

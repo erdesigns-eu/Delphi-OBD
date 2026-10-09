@@ -1,30 +1,30 @@
-//------------------------------------------------------------------------------
-//  ERD.Service.DriveCycle.Catalog.Component
+// ------------------------------------------------------------------------------
+// ERD.Service.DriveCycle.Catalog.Component
 //
-//  TOBDDriveCycleCatalogComp - non-visual component wrapping
-//  the static TOBDDriveCycleCatalog. CatalogDir + AutoLoad
-//  published; Reload + RegisteredMonitors exposed.
+// TOBDDriveCycleCatalogComp - non-visual component wrapping
+// the static TOBDDriveCycleCatalog. CatalogDir + AutoLoad
+// published; Reload + RegisteredMonitors exposed.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT - see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT - see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.Service.DriveCycle.Catalog.Component;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   ERD.Service.DriveCycle.Types,
   ERD.Service.DriveCycle.Catalog;
 
@@ -34,7 +34,7 @@ type
   TOBDDriveCycleCatalogComp = class(TComponent)
   strict private
     FCatalogDir: string;
-    FAutoLoad:   Boolean;
+    FAutoLoad: Boolean;
     FOnReloaded: TOBDDriveCycleCatalogReloadedEvent;
     procedure SetCatalogDir(const AValue: string);
   protected
@@ -48,12 +48,10 @@ type
       out AOut: TOBDDriveCycle): Boolean;
     procedure RegisterCycle(const ACycle: TOBDDriveCycle);
   published
-    property CatalogDir: string
-      read FCatalogDir write SetCatalogDir;
-    property AutoLoad: Boolean
-      read FAutoLoad write FAutoLoad default True;
-    property OnReloaded: TOBDDriveCycleCatalogReloadedEvent
-      read FOnReloaded write FOnReloaded;
+    property CatalogDir: string read FCatalogDir write SetCatalogDir;
+    property AutoLoad: Boolean read FAutoLoad write FAutoLoad default True;
+    property OnReloaded: TOBDDriveCycleCatalogReloadedEvent read FOnReloaded
+      write FOnReloaded;
   end;
 
 implementation
@@ -74,14 +72,15 @@ end;
 procedure TOBDDriveCycleCatalogComp.Loaded;
 begin
   inherited;
-  if FAutoLoad and not (csDesigning in ComponentState) then
+  if FAutoLoad and not(csDesigning in ComponentState) then
     Reload;
 end;
 
 procedure TOBDDriveCycleCatalogComp.Reload;
 begin
   TOBDDriveCycleCatalog.Reload;
-  if Assigned(FOnReloaded) then FOnReloaded(Self);
+  if Assigned(FOnReloaded) then
+    FOnReloaded(Self);
 end;
 
 function TOBDDriveCycleCatalogComp.RegisteredMonitors: TArray<TOBDMonitor>;
@@ -95,8 +94,7 @@ begin
   Result := TOBDDriveCycleCatalog.TryGetCycle(AMonitor, AOut);
 end;
 
-procedure TOBDDriveCycleCatalogComp.RegisterCycle(
-  const ACycle: TOBDDriveCycle);
+procedure TOBDDriveCycleCatalogComp.RegisterCycle(const ACycle: TOBDDriveCycle);
 begin
   TOBDDriveCycleCatalog.RegisterCycle(ACycle);
 end;

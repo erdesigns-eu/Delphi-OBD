@@ -1,26 +1,26 @@
-//------------------------------------------------------------------------------
-//  ERD.UI.Logger
+﻿// ------------------------------------------------------------------------------
+// ERD.UI.Logger
 //
-//  Logger UI:
+// Logger UI:
 //
-//    TOBDLoggerControl   Start / stop logging buttons +
-//                        storage status (file + free space).
-//    TOBDLoggerExplorer  TListView of saved .obdlog files
-//                        with metadata columns.
+// TOBDLoggerControl   Start / stop logging buttons +
+// storage status (file + free space).
+// TOBDLoggerExplorer  TListView of saved .obdlog files
+// with metadata columns.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.UI.Logger;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -30,9 +30,9 @@ uses
   Winapi.Windows,
   Winapi.GDIPAPI,
   Winapi.GDIPOBJ,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
   System.IOUtils,
   System.Bindings.Helper, Data.Bind.Components,
   Vcl.Controls,
@@ -46,8 +46,8 @@ uses
 type
   /// <summary>Fires when the user clicks Start / Stop.
   /// </summary>
-  TOBDLoggerCommandEvent = procedure(Sender: TObject;
-    AStart: Boolean) of object;
+  TOBDLoggerCommandEvent = procedure(Sender: TObject; AStart: Boolean)
+    of object;
 
   /// <summary>Logger control panel. Paint-driven Start +
   /// Stop hot-spots; clicks fire <see cref="OnCommand"/>.
@@ -55,50 +55,46 @@ type
   /// </summary>
   TOBDLoggerControl = class(TOBDCustomControl)
   strict private
-    FRunning:        Boolean;
-    FFileName:       string;
-    FFreeBytes:      Int64;
-    FStartRect:      TRect;
-    FStopRect:       TRect;
-    FFont:           TFont;
-    FOnCommand:      TOBDLoggerCommandEvent;
+    FRunning: Boolean;
+    FFileName: string;
+    FFreeBytes: Int64;
+    FStartRect: TRect;
+    FStopRect: TRect;
+    FFont: TFont;
+    FOnCommand: TOBDLoggerCommandEvent;
     procedure SetRunning(AValue: Boolean);
     procedure SetFileName(const AValue: string);
     procedure SetFreeBytes(AValue: Int64);
     procedure SetFontA(AValue: TFont);
     procedure HandleFontChange(Sender: TObject);
     procedure NotifyBindings;
-    procedure DrawButton(ACanvas: TCanvas;
-      AGraphics: TGPGraphics; const ARect: TRect;
-      const ACaption: string; AAccent: TColor; AEnabled: Boolean);
-    function  FormatBytes(AVal: Int64): string;
+    procedure DrawButton(ACanvas: TCanvas; AGraphics: TGPGraphics;
+      const ARect: TRect; const ACaption: string; AAccent: TColor;
+      AEnabled: Boolean);
+    function FormatBytes(AVal: Int64): string;
   protected
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState;
       X, Y: Integer); override;
     procedure PaintControl(ACanvas: TCanvas); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
   published
     /// <summary>Logging-active flag. Drives the Start / Stop
     /// enabled state. Default False.</summary>
-    property Running: Boolean
-      read FRunning write SetRunning default False;
+    property Running: Boolean read FRunning write SetRunning default False;
     /// <summary>Active log file path (display only).</summary>
-    property FileName: string
-      read FFileName write SetFileName;
+    property FileName: string read FFileName write SetFileName;
     /// <summary>Free space on the storage volume in bytes;
     /// rendered with auto KB/MB/GB suffix. Default 0.</summary>
-    property FreeBytes: Int64
-      read FFreeBytes write SetFreeBytes default 0;
+    property FreeBytes: Int64 read FFreeBytes write SetFreeBytes default 0;
     /// <summary>Font used for the captions and storage line.
     /// </summary>
     property LabelFont: TFont read FFont write SetFontA;
     /// <summary>Fires when the user clicks Start
     /// (<c>AStart = True</c>) or Stop (<c>AStart = False</c>).
     /// </summary>
-    property OnCommand: TOBDLoggerCommandEvent
-      read FOnCommand write FOnCommand;
+    property OnCommand: TOBDLoggerCommandEvent read FOnCommand write FOnCommand;
   end;
 
   /// <summary>One log-file entry shown by
@@ -107,7 +103,7 @@ type
     FileName: string;
     Modified: TDateTime;
     SizeBytes: Int64;
-    Note:     string;
+    Note: string;
   end;
 
   /// <summary>TListView of saved .obdlog files. Host scans
@@ -119,10 +115,9 @@ type
     constructor Create(AOwner: TComponent); override;
     /// <summary>Replace the displayed rows with the supplied
     /// file descriptors.</summary>
-    procedure   LoadFiles(
-      const AFiles: TArray<TOBDLoggerFileInfo>);
+    procedure LoadFiles(const AFiles: TArray<TOBDLoggerFileInfo>);
     /// <summary>Remove all rows.</summary>
-    procedure   ClearFiles;
+    procedure ClearFiles;
   protected
     procedure CreateWnd; override;
   published
@@ -140,8 +135,7 @@ type
 
 implementation
 
-procedure ConfigureCols(AListView: TListView;
-  const ANames: array of string;
+procedure ConfigureCols(AListView: TListView; const ANames: array of string;
   const AWidths: array of Integer);
 var
   I: Integer;
@@ -166,7 +160,7 @@ end;
 constructor TOBDLoggerControl.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 360;
+  Width := 360;
   Height := 90;
   FFont := TFont.Create;
   FFont.Name := 'Segoe UI';
@@ -182,7 +176,8 @@ end;
 
 procedure TOBDLoggerControl.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -196,21 +191,31 @@ end;
 
 procedure TOBDLoggerControl.SetRunning(AValue: Boolean);
 begin
-  if FRunning = AValue then Exit;
-  FRunning := AValue; NotifyBindings; Repaint;
+  if FRunning = AValue then
+    Exit;
+  FRunning := AValue;
+  NotifyBindings;
+  Repaint;
 end;
 
 procedure TOBDLoggerControl.SetFileName(const AValue: string);
 begin
-  if FFileName = AValue then Exit;
-  FFileName := AValue; NotifyBindings; Repaint;
+  if FFileName = AValue then
+    Exit;
+  FFileName := AValue;
+  NotifyBindings;
+  Repaint;
 end;
 
 procedure TOBDLoggerControl.SetFreeBytes(AValue: Int64);
 begin
-  if AValue < 0 then AValue := 0;
-  if FFreeBytes = AValue then Exit;
-  FFreeBytes := AValue; NotifyBindings; Repaint;
+  if AValue < 0 then
+    AValue := 0;
+  if FFreeBytes = AValue then
+    Exit;
+  FFreeBytes := AValue;
+  NotifyBindings;
+  Repaint;
 end;
 
 procedure TOBDLoggerControl.SetFontA(AValue: TFont);
@@ -227,25 +232,26 @@ begin
   else if AVal < Int64(1024) * 1024 * 1024 then
     Result := Format('%.1f MiB', [AVal / (1024 * 1024)])
   else
-    Result := Format('%.1f GiB',
-      [AVal / (1024 * 1024 * 1024)]);
+    Result := Format('%.1f GiB', [AVal / (1024 * 1024 * 1024)]);
 end;
 
-procedure TOBDLoggerControl.DrawButton(ACanvas: TCanvas;
-  AGraphics: TGPGraphics; const ARect: TRect;
-  const ACaption: string; AAccent: TColor; AEnabled: Boolean);
+procedure TOBDLoggerControl.DrawButton(ACanvas: TCanvas; AGraphics: TGPGraphics;
+  const ARect: TRect; const ACaption: string; AAccent: TColor;
+  AEnabled: Boolean);
 var
   Brush: TGPSolidBrush;
-  Pen:   TGPPen;
+  Pen: TGPPen;
   R: TGPRectF;
   Col: TColor;
 begin
   R.X := ARect.Left;
   R.Y := ARect.Top;
-  R.Width  := ARect.Width;
+  R.Width := ARect.Width;
   R.Height := ARect.Height;
-  if AEnabled then Col := AAccent
-  else             Col := Palette.NeutralLight;
+  if AEnabled then
+    Col := AAccent
+  else
+    Col := Palette.NeutralLight;
   Brush := TGPSolidBrush.Create(ColorToARGB(Col));
   Pen := TGPPen.Create(ColorToARGB(EffectiveBorder), 1);
   try
@@ -257,19 +263,21 @@ begin
   end;
   ACanvas.Brush.Style := bsClear;
   ACanvas.Font := FFont;
-  if AEnabled then ACanvas.Font.Color := clWhite
-  else             ACanvas.Font.Color := EffectiveForeground;
-  ACanvas.TextOut(
-    ARect.Left + (ARect.Width  - ACanvas.TextWidth(ACaption)) div 2,
-    ARect.Top  + (ARect.Height - ACanvas.TextHeight(ACaption)) div 2,
+  if AEnabled then
+    ACanvas.Font.Color := clWhite
+  else
+    ACanvas.Font.Color := EffectiveForeground;
+  ACanvas.TextOut(ARect.Left + (ARect.Width - ACanvas.TextWidth(ACaption))
+    div 2, ARect.Top + (ARect.Height - ACanvas.TextHeight(ACaption)) div 2,
     ACaption);
 end;
 
-procedure TOBDLoggerControl.MouseUp(Button: TMouseButton;
-  Shift: TShiftState; X, Y: Integer);
+procedure TOBDLoggerControl.MouseUp(Button: TMouseButton; Shift: TShiftState;
+  X, Y: Integer);
 begin
   inherited;
-  if Button <> mbLeft then Exit;
+  if Button <> mbLeft then
+    Exit;
   if PtInRect(FStartRect, Point(X, Y)) and not FRunning then
   begin
     if Assigned(FOnCommand) then
@@ -299,16 +307,15 @@ begin
   ButW := ScaleValue(80);
   ButH := ScaleValue(28);
   FStartRect := Rect(Pad, Pad, Pad + ButW, Pad + ButH);
-  FStopRect  := Rect(Pad + ButW + ScaleValue(10), Pad,
+  FStopRect := Rect(Pad + ButW + ScaleValue(10), Pad,
     Pad + 2 * ButW + ScaleValue(10), Pad + ButH);
 
   Graphics := TGPGraphics.Create(ACanvas.Handle);
   try
     Graphics.SetSmoothingMode(SmoothingModeAntiAlias);
-    DrawButton(ACanvas, Graphics, FStartRect, 'Start',
-      Palette.Success, not FRunning);
-    DrawButton(ACanvas, Graphics, FStopRect,  'Stop',
-      Palette.Danger,  FRunning);
+    DrawButton(ACanvas, Graphics, FStartRect, 'Start', Palette.Success,
+      not FRunning);
+    DrawButton(ACanvas, Graphics, FStopRect, 'Stop', Palette.Danger, FRunning);
   finally
     Graphics.Free;
   end;
@@ -330,7 +337,7 @@ begin
   inherited Create(AOwner);
   ViewStyle := vsReport;
   RowSelect := True;
-  ReadOnly  := True;
+  ReadOnly := True;
   GridLines := True;
   ShowColumnHeaders := True;
 end;
@@ -339,13 +346,12 @@ procedure TOBDLoggerExplorer.CreateWnd;
 begin
   inherited;
   if Columns.Count = 0 then
-    ConfigureCols(Self,
-      ['File', 'Modified', 'Size', 'Note'],
+    ConfigureCols(Self, ['File', 'Modified', 'Size', 'Note'],
       [200, 130, 80, 200]);
 end;
 
-procedure TOBDLoggerExplorer.LoadFiles(
-  const AFiles: TArray<TOBDLoggerFileInfo>);
+procedure TOBDLoggerExplorer.LoadFiles(const AFiles
+  : TArray<TOBDLoggerFileInfo>);
 var
   F: TOBDLoggerFileInfo;
   Item: TListItem;
@@ -357,14 +363,11 @@ begin
     begin
       Item := Items.Add;
       Item.Caption := ExtractFileName(F.FileName);
-      Item.SubItems.Add(
-        FormatDateTime('yyyy-mm-dd hh:nn', F.Modified));
+      Item.SubItems.Add(FormatDateTime('yyyy-mm-dd hh:nn', F.Modified));
       if F.SizeBytes < 1024 * 1024 then
-        Item.SubItems.Add(Format('%.1f KiB',
-          [F.SizeBytes / 1024]))
+        Item.SubItems.Add(Format('%.1f KiB', [F.SizeBytes / 1024]))
       else
-        Item.SubItems.Add(Format('%.1f MiB',
-          [F.SizeBytes / (1024 * 1024)]));
+        Item.SubItems.Add(Format('%.1f MiB', [F.SizeBytes / (1024 * 1024)]));
       Item.SubItems.Add(F.Note);
     end;
   finally

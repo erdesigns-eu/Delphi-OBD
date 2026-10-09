@@ -1,55 +1,55 @@
-//------------------------------------------------------------------------------
-//  ERD.Protocol.ISO15765
+﻿// ------------------------------------------------------------------------------
+// ERD.Protocol.ISO15765
 //
-//  Helpers for the ISO 15765-2 (CAN-TP) wire format. When the bound
-//  adapter is an ELM327 / OBDLink (the v1 default path), the chip
-//  performs SF / FF / CF / FC framing on its own — the protocol layer
-//  only needs to drive the chip's command set and reassemble the
-//  text-mode response. When the bound adapter is a J2534 PassThru or
-//  a raw-CAN device, the framing happens here.
+// Helpers for the ISO 15765-2 (CAN-TP) wire format. When the bound
+// adapter is an ELM327 / OBDLink (the v1 default path), the chip
+// performs SF / FF / CF / FC framing on its own — the protocol layer
+// only needs to drive the chip's command set and reassemble the
+// text-mode response. When the bound adapter is a J2534 PassThru or
+// a raw-CAN device, the framing happens here.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - ISO 15765-2:2024 Network layer services
-//    - ELM327 datasheet rev 2.3 §6 (auto-formatting / multi-frame)
+// References  :
+// - ISO 15765-2:2024 Network layer services
+// - ELM327 datasheet rev 2.3 §6 (auto-formatting / multi-frame)
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation: SF / FF / CF / FC encoders +
-//                     decoders + multi-frame reassembler.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation: SF / FF / CF / FC encoders +
+// decoders + multi-frame reassembler.
+// ------------------------------------------------------------------------------
 
 unit ERD.Protocol.ISO15765;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   ERD.Types,
   ERD.Protocol.Types;
 
 type
   /// <summary>
-  ///   Reassembles ISO-TP multi-frame responses observed as raw CAN
-  ///   frames. ELM327 adapters with <c>ATAL</c> / <c>ATCAF1</c>
-  ///   already do this on-chip; the reassembler is for the
-  ///   J2534 / DoIP path where the host sees raw frames.
+  /// Reassembles ISO-TP multi-frame responses observed as raw CAN
+  /// frames. ELM327 adapters with <c>ATAL</c> / <c>ATCAF1</c>
+  /// already do this on-chip; the reassembler is for the
+  /// J2534 / DoIP path where the host sees raw frames.
   /// </summary>
   /// <remarks>
-  ///   One reassembler instance per <c>(rx-id)</c>. Concurrent
-  ///   transactions on different IDs need separate instances.
-  ///   Not thread-safe.
+  /// One reassembler instance per <c>(rx-id)</c>. Concurrent
+  /// transactions on different IDs need separate instances.
+  /// Not thread-safe.
   /// </remarks>
   TOBDIso15765Reassembler = class
   strict private
@@ -63,7 +63,7 @@ type
     constructor Create;
 
     /// <summary>
-    ///   Feeds a single CAN payload (the bytes after the CAN ID).
+    /// Feeds a single CAN payload (the bytes after the CAN ID).
     /// </summary>
     /// <param name="ABytes">Frame payload, 8 bytes for classic CAN
     /// or up to 64 for CAN-FD.</param>
@@ -84,9 +84,9 @@ type
     class function EncodeSingleFrame(const AData: TBytes): TBytes; static;
 
     /// <summary>
-    ///   Encodes a first-frame ISO-TP frame. Caller is responsible
-    ///   for the consecutive frames; use the reassembler / a higher
-    ///   layer to drive transmission.
+    /// Encodes a first-frame ISO-TP frame. Caller is responsible
+    /// for the consecutive frames; use the reassembler / a higher
+    /// layer to drive transmission.
     /// </summary>
     /// <param name="ATotalLen">Total application length.</param>
     /// <param name="AFirstChunk">First chunk (must be 6 bytes for
@@ -101,8 +101,8 @@ type
     /// <param name="ASequence">Sequence number 0..15 (low nibble).</param>
     /// <param name="AChunk">Up to 7 payload bytes.</param>
     /// <returns>Consecutive-frame payload bytes.</returns>
-    class function EncodeConsecutiveFrame(ASequence: Byte;
-      const AChunk: TBytes): TBytes; static;
+    class function EncodeConsecutiveFrame(ASequence: Byte; const AChunk: TBytes)
+      : TBytes; static;
 
     /// <summary>Encodes a flow-control frame.</summary>
     /// <param name="AFlow">0 = ContinueToSend, 1 = Wait, 2 =
@@ -110,11 +110,11 @@ type
     /// <param name="ABlockSize">Block size (0 = no chunking).</param>
     /// <param name="ASTmin">Separation time min (0 = none).</param>
     /// <returns>Flow-control payload bytes.</returns>
-    class function EncodeFlowControlFrame(AFlow, ABlockSize,
-      ASTmin: Byte): TBytes; static;
+    class function EncodeFlowControlFrame(AFlow, ABlockSize, ASTmin: Byte)
+      : TBytes; static;
 
     /// <summary>
-    ///   Categorises an inbound CAN payload.
+    /// Categorises an inbound CAN payload.
     /// </summary>
     /// <param name="ABytes">Frame payload.</param>
     /// <returns>Frame kind. Returns <c>fkRaw</c> when the leading
@@ -122,16 +122,16 @@ type
     class function ClassifyFrame(const ABytes: TBytes): TOBDFrameKind; static;
   end;
 
-/// <summary>
-///   Standard OBD-II tester CAN ID. <c>0x7DF</c> is the broadcast
-///   request ID used when no specific ECU header has been set.
-/// </summary>
+  /// <summary>
+  /// Standard OBD-II tester CAN ID. <c>0x7DF</c> is the broadcast
+  /// request ID used when no specific ECU header has been set.
+  /// </summary>
 const
-  ISO15765_OBDII_BROADCAST_ID    = $7DF;
+  ISO15765_OBDII_BROADCAST_ID = $7DF;
   /// <summary>OBD-II ECU response ID range start (0x7E8..0x7EF).</summary>
-  ISO15765_OBDII_RESPONSE_BASE   = $7E8;
+  ISO15765_OBDII_RESPONSE_BASE = $7E8;
   /// <summary>OBD-II ECU response ID range end.</summary>
-  ISO15765_OBDII_RESPONSE_LAST   = $7EF;
+  ISO15765_OBDII_RESPONSE_LAST = $7EF;
 
 implementation
 
@@ -142,7 +142,7 @@ const
   PCI_CF = $2;
   PCI_FC = $3;
 
-{ ---- TOBDIso15765Reassembler ------------------------------------------------- }
+  { ---- TOBDIso15765Reassembler ------------------------------------------------- }
 
 constructor TOBDIso15765Reassembler.Create;
 begin
@@ -174,7 +174,8 @@ var
 begin
   Result := False;
   AOut := nil;
-  if Length(ABytes) = 0 then Exit;
+  if Length(ABytes) = 0 then
+    Exit;
   Pci := (ABytes[0] shr 4) and $0F;
 
   case Pci of
@@ -182,7 +183,8 @@ begin
       begin
         Reset;
         Len := ABytes[0] and $0F;
-        if Len = 0 then Exit; // ignore malformed
+        if Len = 0 then
+          Exit; // ignore malformed
         if Len > Length(ABytes) - 1 then
           Len := Length(ABytes) - 1;
         SetLength(AOut, Len);
@@ -193,9 +195,11 @@ begin
     PCI_FF:
       begin
         Reset;
-        if Length(ABytes) < 2 then Exit;
+        if Length(ABytes) < 2 then
+          Exit;
         FExpected := ((ABytes[0] and $0F) shl 8) or ABytes[1];
-        if FExpected = 0 then Exit;
+        if FExpected = 0 then
+          Exit;
         StartOff := 2;
         Take := Length(ABytes) - StartOff;
         if Take > FExpected then
@@ -208,7 +212,8 @@ begin
       end;
     PCI_CF:
       begin
-        if not FInFlight then Exit;
+        if not FInFlight then
+          Exit;
         Seq := ABytes[0] and $0F;
         if Seq <> FNextSeq then
         begin
@@ -236,21 +241,21 @@ begin
       end;
     PCI_FC:
       ; // Flow control frames are not consumed here; the sender
-        // side honours them. Caller may still see them via OnFrame.
+    // side honours them. Caller may still see them via OnFrame.
   else
     // fkRaw — leave alone.
   end;
 end;
 
-class function TOBDIso15765Reassembler.EncodeSingleFrame(
-  const AData: TBytes): TBytes;
+class function TOBDIso15765Reassembler.EncodeSingleFrame
+  (const AData: TBytes): TBytes;
 var
   Len: Integer;
 begin
   Len := Length(AData);
   if Len > 7 then
-    raise EOBDProtocolErr.CreateFmt(
-      'EncodeSingleFrame: %d bytes exceeds classic-CAN single-frame limit (7).',
+    raise EOBDProtocolErr.CreateFmt
+      ('EncodeSingleFrame: %d bytes exceeds classic-CAN single-frame limit (7).',
       [Len]);
   SetLength(Result, Len + 1);
   Result[0] := (PCI_SF shl 4) or Byte(Len);
@@ -258,14 +263,14 @@ begin
     Move(AData[0], Result[1], Len);
 end;
 
-class function TOBDIso15765Reassembler.EncodeFirstFrame(
-  ATotalLen: Cardinal; const AFirstChunk: TBytes): TBytes;
+class function TOBDIso15765Reassembler.EncodeFirstFrame(ATotalLen: Cardinal;
+  const AFirstChunk: TBytes): TBytes;
 var
   Take: Integer;
 begin
   if ATotalLen > $0FFF then
-    raise EOBDProtocolErr.CreateFmt(
-      'EncodeFirstFrame: %d bytes exceeds classic-CAN long-frame limit (4095).',
+    raise EOBDProtocolErr.CreateFmt
+      ('EncodeFirstFrame: %d bytes exceeds classic-CAN long-frame limit (4095).',
       [ATotalLen]);
   Take := Length(AFirstChunk);
   if Take > 6 then
@@ -277,21 +282,22 @@ begin
     Move(AFirstChunk[0], Result[2], Take);
 end;
 
-class function TOBDIso15765Reassembler.EncodeConsecutiveFrame(
-  ASequence: Byte; const AChunk: TBytes): TBytes;
+class function TOBDIso15765Reassembler.EncodeConsecutiveFrame(ASequence: Byte;
+  const AChunk: TBytes): TBytes;
 var
   Take: Integer;
 begin
   Take := Length(AChunk);
-  if Take > 7 then Take := 7;
+  if Take > 7 then
+    Take := 7;
   SetLength(Result, 1 + Take);
   Result[0] := (PCI_CF shl 4) or (ASequence and $0F);
   if Take > 0 then
     Move(AChunk[0], Result[1], Take);
 end;
 
-class function TOBDIso15765Reassembler.EncodeFlowControlFrame(
-  AFlow, ABlockSize, ASTmin: Byte): TBytes;
+class function TOBDIso15765Reassembler.EncodeFlowControlFrame(AFlow, ABlockSize,
+  ASTmin: Byte): TBytes;
 begin
   SetLength(Result, 3);
   Result[0] := (PCI_FC shl 4) or (AFlow and $0F);
@@ -299,15 +305,20 @@ begin
   Result[2] := ASTmin;
 end;
 
-class function TOBDIso15765Reassembler.ClassifyFrame(
-  const ABytes: TBytes): TOBDFrameKind;
+class function TOBDIso15765Reassembler.ClassifyFrame(const ABytes: TBytes)
+  : TOBDFrameKind;
 begin
-  if Length(ABytes) = 0 then Exit(fkRaw);
+  if Length(ABytes) = 0 then
+    Exit(fkRaw);
   case (ABytes[0] shr 4) and $0F of
-    PCI_SF: Result := fkSingle;
-    PCI_FF: Result := fkFirst;
-    PCI_CF: Result := fkConsecutive;
-    PCI_FC: Result := fkFlowControl;
+    PCI_SF:
+      Result := fkSingle;
+    PCI_FF:
+      Result := fkFirst;
+    PCI_CF:
+      Result := fkConsecutive;
+    PCI_FC:
+      Result := fkFlowControl;
   else
     Result := fkRaw;
   end;

@@ -1,47 +1,47 @@
-//------------------------------------------------------------------------------
-//  ERD.PIDList
+﻿// ------------------------------------------------------------------------------
+// ERD.PIDList
 //
-//  TOBDPIDItem + TOBDPIDList — design-time-editable collection of
-//  OBD-II PIDs that can be wired to a TOBDLiveData or TOBDFreezeFrame.
-//  Designed for the Object Inspector: drop a collection on a form,
-//  add each PID by Mode + PID number + display name, ship.
+// TOBDPIDItem + TOBDPIDList — design-time-editable collection of
+// OBD-II PIDs that can be wired to a TOBDLiveData or TOBDFreezeFrame.
+// Designed for the Object Inspector: drop a collection on a form,
+// add each PID by Mode + PID number + display name, ship.
 //
-//  Components that consume this list iterate it at runtime to drive
-//  Subscribe / Read calls. The collection itself is data-only: it
-//  does not own a Protocol or talk to a vehicle.
+// Components that consume this list iterate it at runtime to drive
+// Subscribe / Read calls. The collection itself is data-only: it
+// does not own a Protocol or talk to a vehicle.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-11  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-11  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.PIDList;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF};
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF};
 
 type
   /// <summary>
-  ///   One PID entry in a <see cref="TOBDPIDList"/>.
+  /// One PID entry in a <see cref="TOBDPIDList"/>.
   /// </summary>
   /// <remarks>
-  ///   Owned by the parent <see cref="TOBDPIDList"/>; the host does
-  ///   not free items directly. Editable from the Object Inspector
-  ///   on the parent collection.
+  /// Owned by the parent <see cref="TOBDPIDList"/>; the host does
+  /// not free items directly. Editable from the Object Inspector
+  /// on the parent collection.
   /// </remarks>
   TOBDPIDItem = class(TCollectionItem)
   strict private
@@ -62,8 +62,8 @@ type
     procedure Assign(ASource: TPersistent); override;
   published
     /// <summary>
-    ///   OBD service / mode byte. Default <c>0x01</c> (current
-    ///   data).
+    /// OBD service / mode byte. Default <c>0x01</c> (current
+    /// data).
     /// </summary>
     property Mode: Byte read FMode write FMode default $01;
 
@@ -71,35 +71,35 @@ type
     property PID: Byte read FPID write FPID default $00;
 
     /// <summary>
-    ///   Optional human-readable display name. Informational only;
-    ///   consumed by the Object-Inspector display name and any
-    ///   host-supplied UI.
+    /// Optional human-readable display name. Informational only;
+    /// consumed by the Object-Inspector display name and any
+    /// host-supplied UI.
     /// </summary>
     property Name: string read FName write FName;
 
     /// <summary>
-    ///   Whether the consumer should include this entry. Default
-    ///   <c>True</c>. Disabled entries are returned by
-    ///   <see cref="TOBDPIDList.Find"/> but skipped by
-    ///   <see cref="TOBDPIDList.EnabledFor"/>.
+    /// Whether the consumer should include this entry. Default
+    /// <c>True</c>. Disabled entries are returned by
+    /// <see cref="TOBDPIDList.Find"/> but skipped by
+    /// <see cref="TOBDPIDList.EnabledFor"/>.
     /// </summary>
     property Enabled: Boolean read FEnabled write FEnabled default True;
 
     /// <summary>
-    ///   Per-PID poll-interval override in milliseconds.
-    ///   <c>0</c> (the default) means "use the host component's
-    ///   default poll interval".
+    /// Per-PID poll-interval override in milliseconds.
+    /// <c>0</c> (the default) means "use the host component's
+    /// default poll interval".
     /// </summary>
-    property PollIntervalMs: Cardinal read FPollIntervalMs
-      write FPollIntervalMs default 0;
+    property PollIntervalMs: Cardinal read FPollIntervalMs write FPollIntervalMs
+      default 0;
   end;
 
   /// <summary>
-  ///   Owned collection of <see cref="TOBDPIDItem"/>.
+  /// Owned collection of <see cref="TOBDPIDItem"/>.
   /// </summary>
   /// <remarks>
-  ///   Owned by a parent component (typically a
-  ///   <c>TOBDLiveData</c>); freed alongside the parent.
+  /// Owned by a parent component (typically a
+  /// <c>TOBDLiveData</c>); freed alongside the parent.
   /// </remarks>
   TOBDPIDList = class(TOwnedCollection)
   public
@@ -108,7 +108,7 @@ type
     constructor Create(AOwner: TPersistent);
 
     /// <summary>
-    ///   Adds a PID and returns the new item.
+    /// Adds a PID and returns the new item.
     /// </summary>
     /// <param name="AMode">OBD mode byte.</param>
     /// <param name="APID">PID byte.</param>
@@ -120,7 +120,7 @@ type
       AEnabled: Boolean = True): TOBDPIDItem; reintroduce;
 
     /// <summary>
-    ///   Finds the item with (<c>AMode</c>, <c>APID</c>).
+    /// Finds the item with (<c>AMode</c>, <c>APID</c>).
     /// </summary>
     /// <param name="AMode">OBD mode byte.</param>
     /// <param name="APID">PID byte.</param>
@@ -128,7 +128,7 @@ type
     function Find(AMode: Byte; APID: Byte): TOBDPIDItem;
 
     /// <summary>
-    ///   Returns every enabled PID byte for <c>AMode</c>.
+    /// Returns every enabled PID byte for <c>AMode</c>.
     /// </summary>
     /// <param name="AMode">OBD mode byte to filter on.</param>
     /// <returns>PID bytes in collection order.</returns>

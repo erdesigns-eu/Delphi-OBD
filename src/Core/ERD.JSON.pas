@@ -1,23 +1,23 @@
-//------------------------------------------------------------------------------
-//  ERD.JSON
+﻿// ------------------------------------------------------------------------------
+// ERD.JSON
 //
-//  Checked JSON shape conversions for catalog readers.
+// Checked JSON shape conversions for catalog readers.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-10-08  Add checked conversions with explicit ownership.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-10-08  Add checked conversions with explicit ownership.
+// ------------------------------------------------------------------------------
 unit ERD.JSON;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -50,14 +50,14 @@ uses {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF};
 
 function RequireOBDJSONObject(AValue: TJSONValue): TJSONObject;
 begin
-  if not (AValue is TJSONObject) then
+  if not(AValue is TJSONObject) then
     raise EOBDConfig.Create('Catalogue JSON: expected an object');
   Result := TJSONObject(AValue);
 end;
 
 function RequireOBDJSONString(AValue: TJSONValue): string;
 begin
-  if not (AValue is TJSONString) then
+  if not(AValue is TJSONString) then
     raise EOBDConfig.Create('Catalogue JSON: expected a string');
   Result := TJSONString(AValue).Value;
 end;

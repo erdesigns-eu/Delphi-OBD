@@ -1,34 +1,34 @@
-//------------------------------------------------------------------------------
-//  ERD.Connection.Settings
+﻿// ------------------------------------------------------------------------------
+// ERD.Connection.Settings
 //
-//  Per-transport TPersistent sub-objects exposed by the TOBDConnection
-//  component. Each sub-object is shown conditionally in the Object
-//  Inspector based on the parent's Transport enum (see PLAN §3.4).
+// Per-transport TPersistent sub-objects exposed by the TOBDConnection
+// component. Each sub-object is shown conditionally in the Object
+// Inspector based on the parent's Transport enum (see PLAN §3.4).
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation: Serial, Bluetooth, BLE, Wi-Fi,
-//                     UDP, FTDI settings.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation: Serial, Bluetooth, BLE, Wi-Fi,
+// UDP, FTDI settings.
+// ------------------------------------------------------------------------------
 
 unit ERD.Connection.Settings;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   ERD.Types,
   ERD.Connection.Types;
 
@@ -66,8 +66,8 @@ type
     /// <summary>Stop bits.</summary>
     property StopBits: TOBDStopBits read FStopBits write FStopBits default sb1;
     /// <summary>Flow control.</summary>
-    property FlowControl: TOBDFlowControl read FFlowControl
-      write FFlowControl default fcNone;
+    property FlowControl: TOBDFlowControl read FFlowControl write FFlowControl
+      default fcNone;
     /// <summary>Read timeout (milliseconds).</summary>
     property ReadTimeout: Cardinal read FReadTimeout write FReadTimeout
       default 1000;
@@ -100,8 +100,8 @@ type
     /// Profile).</summary>
     property ServiceUUID: string read FServiceUUID write FServiceUUID;
     /// <summary>Connect timeout in milliseconds.</summary>
-    property ConnectTimeout: Cardinal read FConnectTimeout
-      write FConnectTimeout default 10000;
+    property ConnectTimeout: Cardinal read FConnectTimeout write FConnectTimeout
+      default 10000;
   end;
 
   /// <summary>Settings for Bluetooth Low Energy (GATT).</summary>
@@ -134,8 +134,8 @@ type
     /// Default <c>FFE1</c>.</summary>
     property NotifyCharUUID: string read FNotifyCharUUID write FNotifyCharUUID;
     /// <summary>Connect timeout in milliseconds.</summary>
-    property ConnectTimeout: Cardinal read FConnectTimeout
-      write FConnectTimeout default 15000;
+    property ConnectTimeout: Cardinal read FConnectTimeout write FConnectTimeout
+      default 15000;
   end;
 
   /// <summary>Settings for a TCP transport.</summary>
@@ -160,8 +160,8 @@ type
     /// <summary>TCP port. Default 35000 (common ELM327 Wi-Fi clone).</summary>
     property Port: Word read FPort write FPort default 35000;
     /// <summary>Connect timeout in milliseconds.</summary>
-    property ConnectTimeout: Cardinal read FConnectTimeout
-      write FConnectTimeout default 5000;
+    property ConnectTimeout: Cardinal read FConnectTimeout write FConnectTimeout
+      default 5000;
     /// <summary>Enable TCP keepalive at the socket layer.</summary>
     property KeepAlive: Boolean read FKeepAlive write FKeepAlive default True;
   end;
@@ -198,8 +198,8 @@ type
 
   /// <summary>Settings for an FTDI USB-serial adapter via D2XX.</summary>
   /// <remarks>
-  ///   The D2XX driver bypasses the COM stack — useful on Windows where
-  ///   COM-port enumeration is unreliable for FT232 family chips.
+  /// The D2XX driver bypasses the COM stack — useful on Windows where
+  /// COM-port enumeration is unreliable for FT232 family chips.
   /// </remarks>
   TOBDFTDISettings = class(TOBDTransportSettings)
   strict private
@@ -310,8 +310,8 @@ constructor TOBDBLESettings.Create;
 begin
   inherited;
   // Common ELM327-BLE clone profile (FFE0 / FFE1).
-  FServiceUUID    := '0000FFE0-0000-1000-8000-00805F9B34FB';
-  FWriteCharUUID  := '0000FFE1-0000-1000-8000-00805F9B34FB';
+  FServiceUUID := '0000FFE0-0000-1000-8000-00805F9B34FB';
+  FWriteCharUUID := '0000FFE1-0000-1000-8000-00805F9B34FB';
   FNotifyCharUUID := '0000FFE1-0000-1000-8000-00805F9B34FB';
   FConnectTimeout := 15000;
 end;

@@ -1,42 +1,42 @@
-//------------------------------------------------------------------------------
-//  ERD.UI.Pickers
+﻿// ------------------------------------------------------------------------------
+// ERD.UI.Pickers
 //
-//  Input pickers descending from the stock VCL edit / combo
-//  controls so they inherit Windows visual styles + VCL Styles
-//  for free:
+// Input pickers descending from the stock VCL edit / combo
+// controls so they inherit Windows visual styles + VCL Styles
+// for free:
 //
-//    TOBDVINEdit     17-char VIN editor with shape + check-
-//                    digit validation + a small valid lamp on
-//                    the right edge.
-//    TOBDPidPicker   PID combo-box pulling names from the
-//                    service catalog. Drop-down hosts PID hex
-//                    + display name; the underlying byte
-//                    surfaces via the SelectedPID property.
-//    TOBDOEMPicker   Combo of known OEMs (VAG / BMW / Ford /
-//                    HMG / Honda / Mercedes / Stellantis /
-//                    Toyota). Drives the matching coding /
-//                    flashing component class selection.
-//    TOBDCANIdEdit   Hex CAN-ID editor with 11 / 29-bit toggle
-//                    and clamped validation.
+// TOBDVINEdit     17-char VIN editor with shape + check-
+// digit validation + a small valid lamp on
+// the right edge.
+// TOBDPidPicker   PID combo-box pulling names from the
+// service catalog. Drop-down hosts PID hex
+// + display name; the underlying byte
+// surfaces via the SelectedPID property.
+// TOBDOEMPicker   Combo of known OEMs (VAG / BMW / Ford /
+// HMG / Honda / Mercedes / Stellantis /
+// Toyota). Drives the matching coding /
+// flashing component class selection.
+// TOBDCANIdEdit   Hex CAN-ID editor with 11 / 29-bit toggle
+// and clamped validation.
 //
-//  All four are theme- / HiDPI- / VCL-Style-aware through the
-//  stock VCL bases they descend from, route every state
-//  change through TBindings.Notify, and guard the catalogue
-//  lookup paths with csDesigning.
+// All four are theme- / HiDPI- / VCL-Style-aware through the
+// stock VCL bases they descend from, route every state
+// change through TBindings.Notify, and guard the catalogue
+// lookup paths with csDesigning.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.UI.Pickers;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -45,8 +45,8 @@ uses
   System.Math,
   Winapi.Windows,
   Winapi.Messages,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   System.Bindings.Helper, Data.Bind.Components,
   Vcl.Controls,
   Vcl.Graphics,
@@ -69,8 +69,7 @@ type
     vvShapeOnly,
     /// <summary>Less than 17 characters or contains illegal
     /// characters.</summary>
-    vvInvalid
-  );
+    vvInvalid);
 
   /// <summary>17-character VIN input. Filters illegal
   /// characters at <c>KeyPress</c>, caps the input at 17,
@@ -79,8 +78,8 @@ type
   /// area.</summary>
   TOBDVINEdit = class(TCustomEdit)
   strict private
-    FValidity:     TOBDVINValidity;
-    FShowLamp:     Boolean;
+    FValidity: TOBDVINValidity;
+    FShowLamp: Boolean;
     FAutoUppercase: Boolean;
     procedure RecomputeValidity;
     procedure NotifyBindings;
@@ -104,12 +103,11 @@ type
   published
     /// <summary>Show the small valid-state lamp on the right
     /// edge of the editor. Default True.</summary>
-    property ShowLamp: Boolean
-      read FShowLamp write FShowLamp default True;
+    property ShowLamp: Boolean read FShowLamp write FShowLamp default True;
     /// <summary>Force-uppercase user input (VINs are always
     /// upper-case). Default True.</summary>
-    property AutoUppercase: Boolean
-      read FAutoUppercase write FAutoUppercase default True;
+    property AutoUppercase: Boolean read FAutoUppercase write FAutoUppercase
+      default True;
 
     property Align;
     property Anchors;
@@ -165,7 +163,7 @@ type
   TOBDPidPicker = class(TCustomComboBox)
   strict private
     FSelected: Byte;
-    FHaveSel:  Boolean;
+    FHaveSel: Boolean;
     procedure HandleChange(Sender: TObject);
     procedure NotifyBindings;
     procedure RebuildFromCatalog;
@@ -220,17 +218,8 @@ type
 
   /// <summary>Known OEM identifier. Matches the keys used by
   /// the coding / flashing helpers.</summary>
-  TOBDOEM = (
-    oemNone,
-    oemVAG,
-    oemBMW,
-    oemFord,
-    oemHMG,
-    oemHonda,
-    oemMercedes,
-    oemStellantis,
-    oemToyota
-  );
+  TOBDOEM = (oemNone, oemVAG, oemBMW, oemFord, oemHMG, oemHonda, oemMercedes,
+    oemStellantis, oemToyota);
 
   /// <summary>OEM combo-box. Lists every entry in
   /// <see cref="TOBDOEM"/>; host reads
@@ -242,7 +231,7 @@ type
     procedure HandleChange(Sender: TObject);
     procedure NotifyBindings;
     procedure RebuildItems;
-    function  TextFor(AOEM: TOBDOEM): string;
+    function TextFor(AOEM: TOBDOEM): string;
   protected
     procedure CreateWnd; override;
   public
@@ -285,12 +274,12 @@ type
   TOBDCANIdEdit = class(TCustomEdit)
   strict private
     FExtendedId: Boolean;
-    FCanId:      Cardinal;
-    FInUpdate:   Boolean;
+    FCanId: Cardinal;
+    FInUpdate: Boolean;
     procedure SetExtendedId(AValue: Boolean);
     procedure SetCanId(AValue: Cardinal);
     procedure RecomputeFromText;
-    function  MaxIdValue: Cardinal;
+    function MaxIdValue: Cardinal;
     procedure NotifyBindings;
   protected
     procedure KeyPress(var Key: Char); override;
@@ -304,8 +293,8 @@ type
   published
     /// <summary>11-bit (False, default) or 29-bit (True) CAN
     /// ID space.</summary>
-    property ExtendedId: Boolean
-      read FExtendedId write SetExtendedId default False;
+    property ExtendedId: Boolean read FExtendedId write SetExtendedId
+      default False;
     /// <summary>Current parsed CAN ID. Setting this updates
     /// the Text in canonical <c>0xNNN</c> / <c>0xNNNNNNNN</c>
     /// form.</summary>
@@ -353,9 +342,9 @@ constructor TOBDVINEdit.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   Width := 200;
-  CharCase  := ecUpperCase;
+  CharCase := ecUpperCase;
   MaxLength := 17;
-  FShowLamp     := True;
+  FShowLamp := True;
   FAutoUppercase := True;
   FValidity := vvEmpty;
 end;
@@ -375,7 +364,8 @@ end;
 
 procedure TOBDVINEdit.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -410,8 +400,9 @@ begin
   // Allow control codes (backspace, tab, etc.) untouched.
   if Key >= #32 then
   begin
-    if FAutoUppercase then Key := UpCase(Key);
-    if not (TOBDVINDecoder.IsVINChar(Key) or (Key = ' ')) then
+    if FAutoUppercase then
+      Key := UpCase(Key);
+    if not(TOBDVINDecoder.IsVINChar(Key) or (Key = ' ')) then
     begin
       Key := #0;
       Exit;
@@ -440,27 +431,35 @@ end;
 
 procedure TOBDVINEdit.PaintLamp;
 var
-  DC:        HDC;
-  R:         TRect;
-  Brush:     HBRUSH;
-  OldBrush:  HBRUSH;
+  DC: HDC;
+  R: TRect;
+  Brush: HBRUSH;
+  OldBrush: HBRUSH;
   LampColor: TColor;
-  D, X, Y:   Integer;
+  D, X, Y: Integer;
 begin
-  if not FShowLamp then Exit;
-  if not HandleAllocated then Exit;
+  if not FShowLamp then
+    Exit;
+  if not HandleAllocated then
+    Exit;
   DC := GetDC(Handle);
   try
     R := ClientRect;
     case FValidity of
-      vvValid:     LampColor := clGreen;
-      vvShapeOnly: LampColor := $0000A8FF;     // amber (BGR)
-      vvInvalid:   LampColor := clRed;
-    else           LampColor := clGray;
+      vvValid:
+        LampColor := clGreen;
+      vvShapeOnly:
+        LampColor := $0000A8FF; // amber (BGR)
+      vvInvalid:
+        LampColor := clRed;
+    else
+      LampColor := clGray;
     end;
     D := R.Height - 6;
-    if D < 6  then D := 6;
-    if D > 14 then D := 14;
+    if D < 6 then
+      D := 6;
+    if D > 14 then
+      D := 14;
     X := R.Right - D - 2;
     Y := R.Top + (R.Height - D) div 2;
     Brush := CreateSolidBrush(ColorToRGB(LampColor));
@@ -490,28 +489,29 @@ begin
   Width := 220;
   Style := csDropDownList;
   DropDownCount := 16;
-  AutoComplete  := True;
-  AutoDropDown  := True;
-  OnChange      := HandleChange;
+  AutoComplete := True;
+  AutoDropDown := True;
+  OnChange := HandleChange;
 end;
 
 procedure TOBDPidPicker.Loaded;
 begin
   inherited;
-  if not (csDesigning in ComponentState) then
+  if not(csDesigning in ComponentState) then
     RebuildFromCatalog;
 end;
 
 procedure TOBDPidPicker.CreateWnd;
 begin
   inherited;
-  if (Items.Count = 0) and not (csDesigning in ComponentState) then
+  if (Items.Count = 0) and not(csDesigning in ComponentState) then
     RebuildFromCatalog;
 end;
 
 procedure TOBDPidPicker.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -523,12 +523,12 @@ begin
   if ItemIndex >= 0 then
   begin
     FSelected := Byte(NativeInt(Items.Objects[ItemIndex]));
-    FHaveSel  := True;
+    FHaveSel := True;
   end
   else
   begin
     FSelected := 0;
-    FHaveSel  := False;
+    FHaveSel := False;
   end;
 end;
 
@@ -540,7 +540,7 @@ end;
 
 procedure TOBDPidPicker.RebuildFromCatalog;
 var
-  I:    Integer;
+  I: Integer;
   Info: TOBDPIDInfo;
   Line: string;
 begin
@@ -571,7 +571,7 @@ end;
 
 procedure TOBDPidPicker.SetPIDs(const APIDs: TArray<Byte>);
 var
-  B:    Byte;
+  B: Byte;
   Info: TOBDPIDInfo;
   Line: string;
 begin
@@ -580,8 +580,8 @@ begin
     Items.Clear;
     for B in APIDs do
     begin
-      if TOBDServiceCatalog.Default.TryGetPID(B, Info) and
-         (Info.Name <> '') then
+      if TOBDServiceCatalog.Default.TryGetPID(B, Info) and (Info.Name <> '')
+      then
         Line := Format('0x%2.2X — %s', [B, Info.Name])
       else
         Line := Format('0x%2.2X', [B]);
@@ -600,21 +600,23 @@ begin
   Width := 180;
   Style := csDropDownList;
   DropDownCount := 16;
-  AutoComplete  := True;
-  AutoDropDown  := True;
-  OnChange      := HandleChange;
+  AutoComplete := True;
+  AutoDropDown := True;
+  OnChange := HandleChange;
   FSelected := oemNone;
 end;
 
 procedure TOBDOEMPicker.CreateWnd;
 begin
   inherited;
-  if Items.Count = 0 then RebuildItems;
+  if Items.Count = 0 then
+    RebuildItems;
 end;
 
 procedure TOBDOEMPicker.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -624,15 +626,24 @@ end;
 function TOBDOEMPicker.TextFor(AOEM: TOBDOEM): string;
 begin
   case AOEM of
-    oemNone:       Result := '(none)';
-    oemVAG:        Result := 'VAG';
-    oemBMW:        Result := 'BMW';
-    oemFord:       Result := 'Ford';
-    oemHMG:        Result := 'Hyundai-Kia';
-    oemHonda:      Result := 'Honda';
-    oemMercedes:   Result := 'Mercedes-Benz';
-    oemStellantis: Result := 'Stellantis';
-    oemToyota:     Result := 'Toyota';
+    oemNone:
+      Result := '(none)';
+    oemVAG:
+      Result := 'VAG';
+    oemBMW:
+      Result := 'BMW';
+    oemFord:
+      Result := 'Ford';
+    oemHMG:
+      Result := 'Hyundai-Kia';
+    oemHonda:
+      Result := 'Honda';
+    oemMercedes:
+      Result := 'Mercedes-Benz';
+    oemStellantis:
+      Result := 'Stellantis';
+    oemToyota:
+      Result := 'Toyota';
   else
     Result := '';
   end;
@@ -665,7 +676,8 @@ procedure TOBDOEMPicker.Select(AOEM: TOBDOEM);
 var
   I: Integer;
 begin
-  if Items.Count = 0 then RebuildItems;
+  if Items.Count = 0 then
+    RebuildItems;
   for I := 0 to Items.Count - 1 do
     if TOBDOEM(NativeInt(Items.Objects[I])) = AOEM then
     begin
@@ -683,14 +695,15 @@ begin
   inherited Create(AOwner);
   Width := 160;
   FExtendedId := False;
-  FCanId      := 0;
-  MaxLength   := 10;     // "0x" + 8 hex digits
-  Text        := '0x000';
+  FCanId := 0;
+  MaxLength := 10; // "0x" + 8 hex digits
+  Text := '0x000';
 end;
 
 procedure TOBDCANIdEdit.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -699,16 +712,21 @@ end;
 
 function TOBDCANIdEdit.MaxIdValue: Cardinal;
 begin
-  if FExtendedId then Result := $1FFFFFFF
-  else                Result := $7FF;
+  if FExtendedId then
+    Result := $1FFFFFFF
+  else
+    Result := $7FF;
 end;
 
 procedure TOBDCANIdEdit.SetExtendedId(AValue: Boolean);
 begin
-  if FExtendedId = AValue then Exit;
+  if FExtendedId = AValue then
+    Exit;
   FExtendedId := AValue;
-  if FExtendedId then MaxLength := 10
-  else                MaxLength := 5;
+  if FExtendedId then
+    MaxLength := 10
+  else
+    MaxLength := 5;
   // Re-clamp + re-format in the active bit width.
   SetCanId(System.Math.Min(FCanId, MaxIdValue));
   NotifyBindings;
@@ -716,7 +734,8 @@ end;
 
 procedure TOBDCANIdEdit.SetCanId(AValue: Cardinal);
 begin
-  if AValue > MaxIdValue then AValue := MaxIdValue;
+  if AValue > MaxIdValue then
+    AValue := MaxIdValue;
   FCanId := AValue;
   FInUpdate := True;
   try
@@ -741,7 +760,7 @@ begin
   Key := UpCase(Key);
   // Accept hex digits, the prefix characters ($ / x / X), and
   // the leading zero of "0x".
-  if not (CharInSet(Key, ['0'..'9', 'A'..'F', '$', 'X'])) then
+  if not(CharInSet(Key, ['0' .. '9', 'A' .. 'F', '$', 'X'])) then
   begin
     Key := #0;
     Exit;
@@ -751,8 +770,8 @@ end;
 
 procedure TOBDCANIdEdit.RecomputeFromText;
 var
-  T:  string;
-  V:  Integer;
+  T: string;
+  V: Integer;
 begin
   T := Trim(Text);
   if T = '' then
@@ -772,7 +791,8 @@ end;
 procedure TOBDCANIdEdit.Change;
 begin
   inherited;
-  if FInUpdate then Exit;
+  if FInUpdate then
+    Exit;
   RecomputeFromText;
   NotifyBindings;
 end;
@@ -791,11 +811,11 @@ var
   V: Integer;
 begin
   T := Trim(Text);
-  if T = '' then Exit(False);
+  if T = '' then
+    Exit(False);
   if (Length(T) > 2) and (Copy(T, 1, 2).ToLower = '0x') then
     T := '$' + Copy(T, 3, MaxInt);
-  Result := TryStrToInt(T, V) and (V >= 0) and
-            (Cardinal(V) <= MaxIdValue);
+  Result := TryStrToInt(T, V) and (V >= 0) and (Cardinal(V) <= MaxIdValue);
 end;
 
 end.

@@ -1,50 +1,50 @@
-//------------------------------------------------------------------------------
-//  ERD.Connection.Retry
+﻿// ------------------------------------------------------------------------------
+// ERD.Connection.Retry
 //
-//  TOBDRetryPolicy — TPersistent sub-object on TOBDConnection that
-//  controls automatic retry of an Open() call when the underlying
-//  transport fails transiently (target busy, network glitch, dialled
-//  Bluetooth not yet ready).
+// TOBDRetryPolicy — TPersistent sub-object on TOBDConnection that
+// controls automatic retry of an Open() call when the underlying
+// transport fails transiently (target busy, network glitch, dialled
+// Bluetooth not yet ready).
 //
-//  Implements exponential backoff with optional jitter:
-//     delay(n) = min(MaxDelay, InitialDelay * (Multiplier ^ n))
+// Implements exponential backoff with optional jitter:
+// delay(n) = min(MaxDelay, InitialDelay * (Multiplier ^ n))
 //
-//  Adapter / detection retry (the AT-level handshake) is a separate
-//  concern and lives on <see cref="TOBDAdapter"/>.
+// Adapter / detection retry (the AT-level handshake) is a separate
+// concern and lives on <see cref="TOBDAdapter"/>.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation: TPersistent policy + delay
-//                     calculator + tests-friendly seedable jitter.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation: TPersistent policy + delay
+// calculator + tests-friendly seedable jitter.
+// ------------------------------------------------------------------------------
 
 unit ERD.Connection.Retry;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF};
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF};
 
 type
   /// <summary>
-  ///   Auto-reopen policy for a transport.
+  /// Auto-reopen policy for a transport.
   /// </summary>
   /// <remarks>
-  ///   Defaults: 3 attempts, 200 ms initial delay, ×2 multiplier capped
-  ///   at 5 s, 10 % jitter. Set <c>MaxAttempts := 0</c> to disable
-  ///   retry entirely (the first failure raises / surfaces directly).
+  /// Defaults: 3 attempts, 200 ms initial delay, ×2 multiplier capped
+  /// at 5 s, 10 % jitter. Set <c>MaxAttempts := 0</c> to disable
+  /// retry entirely (the first failure raises / surfaces directly).
   /// </remarks>
   TOBDRetryPolicy = class(TPersistent)
   strict private
@@ -60,18 +60,18 @@ type
     procedure Assign(Source: TPersistent); override;
 
     /// <summary>
-    ///   Computes the delay for the n-th retry (1-based). Applies the
-    ///   exponential curve and clamps to <c>MaxDelayMs</c>.
+    /// Computes the delay for the n-th retry (1-based). Applies the
+    /// exponential curve and clamps to <c>MaxDelayMs</c>.
     /// </summary>
     /// <param name="AAttempt">1-based attempt index. Must be ≥ 1.</param>
     /// <returns>Delay in milliseconds, including jitter.</returns>
     /// <exception cref="EArgumentOutOfRangeException">
-    ///   <c>AAttempt</c> is zero.</exception>
+    /// <c>AAttempt</c> is zero.</exception>
     function DelayForAttempt(AAttempt: Cardinal): Cardinal;
 
     /// <summary>
-    ///   Seeds the internal jitter RNG. Call from tests for repeatable
-    ///   delay values; do not call from production code.
+    /// Seeds the internal jitter RNG. Call from tests for repeatable
+    /// delay values; do not call from production code.
     /// </summary>
     procedure SeedJitter(ASeed: Cardinal);
   published
@@ -84,8 +84,8 @@ type
       default 3;
     /// <summary>Delay before the first retry (after the first failure)
     /// in milliseconds.</summary>
-    property InitialDelayMs: Cardinal read FInitialDelayMs
-      write FInitialDelayMs default 200;
+    property InitialDelayMs: Cardinal read FInitialDelayMs write FInitialDelayMs
+      default 200;
     /// <summary>Cap on per-attempt delay in milliseconds.</summary>
     property MaxDelayMs: Cardinal read FMaxDelayMs write FMaxDelayMs
       default 5000;
@@ -146,8 +146,8 @@ var
   Multiplier: Double;
 begin
   if AAttempt = 0 then
-    raise EArgumentOutOfRangeException.Create(
-      'DelayForAttempt: AAttempt must be >= 1');
+    raise EArgumentOutOfRangeException.Create
+      ('DelayForAttempt: AAttempt must be >= 1');
 
   Base := FInitialDelayMs;
   Multiplier := FMultiplier;

@@ -1,44 +1,44 @@
-//------------------------------------------------------------------------------
-//  ERD.Protocol.SecOC.Keys
+﻿// ------------------------------------------------------------------------------
+// ERD.Protocol.SecOC.Keys
 //
-//  In-memory SecOC key store. AUTOSAR SecOC binds keys to a Data ID
-//  (16-bit identifier carried implicitly by the underlying message
-//  layer; on UDS this is typically the SID + DID, on CAN it's the
-//  CAN ID). Each binding carries:
+// In-memory SecOC key store. AUTOSAR SecOC binds keys to a Data ID
+// (16-bit identifier carried implicitly by the underlying message
+// layer; on UDS this is typically the SID + DID, on CAN it's the
+// CAN ID). Each binding carries:
 //
-//    - The 128-bit AES key.
-//    - The truncated-MAC length on the wire (in bits).
-//    - The truncated-freshness-value length on the wire (in bits).
+// - The 128-bit AES key.
+// - The truncated-MAC length on the wire (in bits).
+// - The truncated-freshness-value length on the wire (in bits).
 //
-//  Hosts that want a hardware-backed key store (HSM / TPM) implement
-//  IOBDSecOCKeyProvider externally and pass the instance to the
-//  codec.
+// Hosts that want a hardware-backed key store (HSM / TPM) implement
+// IOBDSecOCKeyProvider externally and pass the instance to the
+// codec.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Protocol.SecOC.Keys;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.Types,
   ERD.Protocol.SecOC.AES;
 
@@ -58,20 +58,19 @@ type
   end;
 
   /// <summary>
-  ///   Provider contract for SecOC bindings. Implement this
-  ///   interface to back the codec with a hardware key store
-  ///   (TPM / HSM / vehicle key fob).
+  /// Provider contract for SecOC bindings. Implement this
+  /// interface to back the codec with a hardware key store
+  /// (TPM / HSM / vehicle key fob).
   /// </summary>
   IOBDSecOCKeyProvider = interface
     ['{6F1A2D3B-9C4E-4FA1-8C39-7B2A5D6E1F90}']
     /// <summary>
-    ///   Resolves the binding for a Data ID. Returns False when
-    ///   the Data ID is unknown.
+    /// Resolves the binding for a Data ID. Returns False when
+    /// the Data ID is unknown.
     /// </summary>
     /// <param name="ADataID">Data ID to look up.</param>
     /// <param name="ABinding">Output binding. Untouched on miss.</param>
-    function TryGet(ADataID: Word;
-      out ABinding: TOBDSecOCBinding): Boolean;
+    function TryGet(ADataID: Word; out ABinding: TOBDSecOCBinding): Boolean;
   end;
 
   /// <summary>In-memory implementation of
@@ -86,8 +85,8 @@ type
     destructor Destroy; override;
 
     /// <summary>
-    ///   Registers a binding. Replaces any existing entry for the
-    ///   same Data ID.
+    /// Registers a binding. Replaces any existing entry for the
+    /// same Data ID.
     /// </summary>
     /// <param name="ABinding">Fully populated binding.</param>
     /// <exception cref="EOBDConfig">Tag or freshness bit length out
@@ -95,7 +94,7 @@ type
     procedure Register(const ABinding: TOBDSecOCBinding);
 
     /// <summary>
-    ///   Convenience: register a Data ID + key + lengths.
+    /// Convenience: register a Data ID + key + lengths.
     /// </summary>
     /// <param name="ADataID">16-bit Data ID.</param>
     /// <param name="AKey">128-bit AES key.</param>
@@ -115,8 +114,7 @@ type
     /// <summary>Number of registered bindings.</summary>
     function Count: Integer;
 
-    function TryGet(ADataID: Word;
-      out ABinding: TOBDSecOCBinding): Boolean;
+    function TryGet(ADataID: Word; out ABinding: TOBDSecOCBinding): Boolean;
   end;
 
 implementation
@@ -138,22 +136,22 @@ end;
 procedure TOBDSecOCKeyStore.Register(const ABinding: TOBDSecOCBinding);
 begin
   if (ABinding.TagBits < 8) or (ABinding.TagBits > 128) then
-    raise EOBDConfig.CreateFmt(
-      'SecOC binding (Data ID 0x%4.4X): TagBits %d out of [8..128]',
+    raise EOBDConfig.CreateFmt
+      ('SecOC binding (Data ID 0x%4.4X): TagBits %d out of [8..128]',
       [ABinding.DataID, ABinding.TagBits]);
   if (ABinding.FreshnessBits < 1) or (ABinding.FreshnessBits > 32) then
-    raise EOBDConfig.CreateFmt(
-      'SecOC binding (Data ID 0x%4.4X): FreshnessBits %d out of [1..32]',
+    raise EOBDConfig.CreateFmt
+      ('SecOC binding (Data ID 0x%4.4X): FreshnessBits %d out of [1..32]',
       [ABinding.DataID, ABinding.FreshnessBits]);
   // v1 codec only supports byte-aligned truncation. Reject early
   // to keep the diagnostic local to registration.
   if (ABinding.TagBits mod 8) <> 0 then
-    raise EOBDConfig.CreateFmt(
-      'SecOC binding (Data ID 0x%4.4X): TagBits %d must be a multiple of 8',
+    raise EOBDConfig.CreateFmt
+      ('SecOC binding (Data ID 0x%4.4X): TagBits %d must be a multiple of 8',
       [ABinding.DataID, ABinding.TagBits]);
   if (ABinding.FreshnessBits mod 8) <> 0 then
-    raise EOBDConfig.CreateFmt(
-      'SecOC binding (Data ID 0x%4.4X): FreshnessBits %d must be a multiple of 8',
+    raise EOBDConfig.CreateFmt
+      ('SecOC binding (Data ID 0x%4.4X): FreshnessBits %d must be a multiple of 8',
       [ABinding.DataID, ABinding.FreshnessBits]);
   FLock.Enter;
   try
@@ -163,8 +161,8 @@ begin
   end;
 end;
 
-procedure TOBDSecOCKeyStore.RegisterKey(ADataID: Word;
-  const AKey: TAES128Key; ATagBits, AFreshnessBits: Byte);
+procedure TOBDSecOCKeyStore.RegisterKey(ADataID: Word; const AKey: TAES128Key;
+  ATagBits, AFreshnessBits: Byte);
 var
   B: TOBDSecOCBinding;
 begin

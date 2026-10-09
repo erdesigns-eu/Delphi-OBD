@@ -1,46 +1,46 @@
-//------------------------------------------------------------------------------
-//  ERD.Diagnostics.UDS.ReadDTC
+﻿// ------------------------------------------------------------------------------
+// ERD.Diagnostics.UDS.ReadDTC
 //
-//  TOBDUDSReadDTC — non-visual component for the UDS
-//  ReadDTCInformation service (SID 0x19). Distinct from
-//  TOBDDTCs.ReadUDS (which only exposes sub-function 0x02
-//  reportDTCByStatusMask): this component handles every sub-function
-//  the host might need, returning the response payload verbatim
-//  for sub-functions whose record shape is OEM-defined.
+// TOBDUDSReadDTC — non-visual component for the UDS
+// ReadDTCInformation service (SID 0x19). Distinct from
+// TOBDDTCs.ReadUDS (which only exposes sub-function 0x02
+// reportDTCByStatusMask): this component handles every sub-function
+// the host might need, returning the response payload verbatim
+// for sub-functions whose record shape is OEM-defined.
 //
-//  Wire format per ISO 14229-1 §11.3:
+// Wire format per ISO 14229-1 §11.3:
 //
-//    Request : 19 <subFunction> [<status mask | DTC | …>]
-//    Response: 59 <subFunction> [<DTCStatusAvailMask>] [<records>]
+// Request : 19 <subFunction> [<status mask | DTC | …>]
+// Response: 59 <subFunction> [<DTCStatusAvailMask>] [<records>]
 //
-//  Three convenience methods cover the common cases:
-//    - ReadByStatusMask (sub 0x02) — every DTC matching a mask
-//    - ReadSupportedDTCs (sub 0x0A) — every supported DTC
-//    - ReadByDTCNumber (sub 0x06) — extended data record by DTC
+// Three convenience methods cover the common cases:
+// - ReadByStatusMask (sub 0x02) — every DTC matching a mask
+// - ReadSupportedDTCs (sub 0x0A) — every supported DTC
+// - ReadByDTCNumber (sub 0x06) — extended data record by DTC
 //
-//  Plus the universal Send(subFunction, body) escape hatch for
-//  any sub-function not covered by a convenience helper.
+// Plus the universal Send(subFunction, body) escape hatch for
+// any sub-function not covered by a convenience helper.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - ISO 14229-1:2020 §11.3 (ReadDTCInformation)
-//    - ISO 15031-5 § 7 — J2012 DTC encoding (P/C/B/U)
+// References  :
+// - ISO 14229-1:2020 §11.3 (ReadDTCInformation)
+// - ISO 15031-5 § 7 — J2012 DTC encoding (P/C/B/U)
 //
-//  History     :
-//    2026-05-11  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-11  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Diagnostics.UDS.ReadDTC;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -48,10 +48,10 @@ interface
 uses
   ERD.Async.Task,
   ERD.Connection,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.Types,
   ERD.Protocol.Types,
   ERD.Protocol.UDS,
@@ -59,21 +59,21 @@ uses
 
 const
   /// <summary>0x01 reportNumberOfDTCByStatusMask.</summary>
-  UDS_RDTC_SUB_NumberByStatusMask        = $01;
+  UDS_RDTC_SUB_NumberByStatusMask = $01;
   /// <summary>0x02 reportDTCByStatusMask.</summary>
-  UDS_RDTC_SUB_ByStatusMask              = $02;
+  UDS_RDTC_SUB_ByStatusMask = $02;
   /// <summary>0x03 reportDTCSnapshotIdentification.</summary>
-  UDS_RDTC_SUB_SnapshotIdentification    = $03;
+  UDS_RDTC_SUB_SnapshotIdentification = $03;
   /// <summary>0x04 reportDTCSnapshotRecordByDTCNumber.</summary>
   UDS_RDTC_SUB_SnapshotRecordByDTCNumber = $04;
   /// <summary>0x06 reportDTCExtDataRecordByDTCNumber.</summary>
-  UDS_RDTC_SUB_ExtDataRecordByDTCNumber  = $06;
+  UDS_RDTC_SUB_ExtDataRecordByDTCNumber = $06;
   /// <summary>0x0A reportSupportedDTC.</summary>
-  UDS_RDTC_SUB_SupportedDTC              = $0A;
+  UDS_RDTC_SUB_SupportedDTC = $0A;
 
 type
   /// <summary>
-  ///   One decoded DTC entry.
+  /// One decoded DTC entry.
   /// </summary>
   TOBDUDSDtcEntry = record
     /// <summary>5-character J2012 DTC code (e.g. P0420).</summary>
@@ -86,29 +86,28 @@ type
   end;
 
   /// <summary>
-  ///   Fires after a successful DTC sweep. Main thread.
+  /// Fires after a successful DTC sweep. Main thread.
   /// </summary>
-  TOBDUDSReadDTCEvent = procedure(Sender: TObject;
-    ASubFunction: Byte;
+  TOBDUDSReadDTCEvent = procedure(Sender: TObject; ASubFunction: Byte;
     const AEntries: TArray<TOBDUDSDtcEntry>) of object;
 
   /// <summary>
-  ///   Fires after a raw sub-function send. Main thread.
+  /// Fires after a raw sub-function send. Main thread.
   /// </summary>
-  TOBDUDSReadDTCRawEvent = procedure(Sender: TObject;
-    ASubFunction: Byte; const AData: TBytes) of object;
+  TOBDUDSReadDTCRawEvent = procedure(Sender: TObject; ASubFunction: Byte;
+    const AData: TBytes) of object;
 
   /// <summary>
-  ///   UDS ReadDTCInformation component.
+  /// UDS ReadDTCInformation component.
   /// </summary>
   /// <remarks>
-  ///   Drop the component on a form and assign <c>Protocol</c> to a
-  ///   connected <see cref="TOBDProtocol"/>. Use one of the
-  ///   convenience helpers (<see cref="ReadByStatusMask"/>,
-  ///   <see cref="ReadSupportedDTCs"/>,
-  ///   <see cref="ReadByDTCNumber"/>) for the common sub-functions,
-  ///   or <see cref="Send"/> for anything else (the raw payload
-  ///   surfaces via <c>OnRaw</c>).
+  /// Drop the component on a form and assign <c>Protocol</c> to a
+  /// connected <see cref="TOBDProtocol"/>. Use one of the
+  /// convenience helpers (<see cref="ReadByStatusMask"/>,
+  /// <see cref="ReadSupportedDTCs"/>,
+  /// <see cref="ReadByDTCNumber"/>) for the common sub-functions,
+  /// or <see cref="Send"/> for anything else (the raw payload
+  /// surfaces via <c>OnRaw</c>).
   /// </remarks>
   TOBDUDSReadDTC = class(TComponent)
   strict private
@@ -121,10 +120,9 @@ type
     FOnError: TOBDConnectionErrorEvent;
     procedure GuardSingleAsync;
     procedure ReleaseAsync;
-    function DoSend(ASubFunction: Byte;
-      const ABody: TBytes): TBytes;
-    function DecodeDtcRecords(
-      const AData: TBytes; AStart: Integer): TArray<TOBDUDSDtcEntry>;
+    function DoSend(ASubFunction: Byte; const ABody: TBytes): TBytes;
+    function DecodeDtcRecords(const AData: TBytes; AStart: Integer)
+      : TArray<TOBDUDSDtcEntry>;
     procedure FireRead(ASubFunction: Byte;
       const AEntries: TArray<TOBDUDSDtcEntry>);
     procedure FireRaw(ASubFunction: Byte; const AData: TBytes);
@@ -141,7 +139,7 @@ type
     destructor Destroy; override;
 
     /// <summary>
-    ///   Decodes a 2-byte raw DTC into the J2012 5-character form.
+    /// Decodes a 2-byte raw DTC into the J2012 5-character form.
     /// </summary>
     /// <param name="AHi">High DTC byte.</param>
     /// <param name="ALo">Low DTC byte.</param>
@@ -149,35 +147,35 @@ type
     class function DecodeJ2012(AHi: Byte; ALo: Byte): string; static;
 
     /// <summary>
-    ///   Reads every DTC whose status byte intersects <c>AMask</c>
-    ///   (sub-function 0x02).
+    /// Reads every DTC whose status byte intersects <c>AMask</c>
+    /// (sub-function 0x02).
     /// </summary>
     /// <param name="AMask">DTC-status bitmask.</param>
     /// <returns>Decoded entries.</returns>
     /// <exception cref="EOBDConfig">
-    ///   <c>Protocol</c> is not assigned.
+    /// <c>Protocol</c> is not assigned.
     /// </exception>
     /// <exception cref="EOBDProtocolErr">
-    ///   ECU returned a negative or short response.
+    /// ECU returned a negative or short response.
     /// </exception>
     function ReadByStatusMask(AMask: Byte = $FF): TArray<TOBDUDSDtcEntry>;
 
     /// <summary>
-    ///   Reads every supported DTC (sub-function 0x0A).
+    /// Reads every supported DTC (sub-function 0x0A).
     /// </summary>
     /// <returns>Decoded entries. Each entry's status byte is the
     /// reported DTCStatus.</returns>
     /// <exception cref="EOBDConfig">
-    ///   <c>Protocol</c> is not assigned.
+    /// <c>Protocol</c> is not assigned.
     /// </exception>
     /// <exception cref="EOBDProtocolErr">
-    ///   ECU returned a negative or short response.
+    /// ECU returned a negative or short response.
     /// </exception>
     function ReadSupportedDTCs: TArray<TOBDUDSDtcEntry>;
 
     /// <summary>
-    ///   Reads the extended data record for one DTC
-    ///   (sub-function 0x06).
+    /// Reads the extended data record for one DTC
+    /// (sub-function 0x06).
     /// </summary>
     /// <param name="ADtcHi">High DTC byte.</param>
     /// <param name="ADtcMid">Mid DTC byte.</param>
@@ -187,39 +185,39 @@ type
     /// <returns>Raw response payload (sub-function + DTC + status
     /// + records).</returns>
     /// <exception cref="EOBDConfig">
-    ///   <c>Protocol</c> is not assigned.
+    /// <c>Protocol</c> is not assigned.
     /// </exception>
     /// <exception cref="EOBDProtocolErr">
-    ///   ECU returned a negative response.
+    /// ECU returned a negative response.
     /// </exception>
     function ReadByDTCNumber(ADtcHi: Byte; ADtcMid: Byte; ADtcLo: Byte;
       AExtDataRecordNumber: Byte = $FF): TBytes;
 
     /// <summary>
-    ///   Universal raw sub-function send.
+    /// Universal raw sub-function send.
     /// </summary>
     /// <param name="ASubFunction">Sub-function byte.</param>
     /// <param name="ABody">Optional payload after the sub-function
     /// byte.</param>
     /// <returns>Response payload after the sub-function byte.</returns>
     /// <exception cref="EOBDConfig">
-    ///   <c>Protocol</c> is not assigned.
+    /// <c>Protocol</c> is not assigned.
     /// </exception>
     /// <exception cref="EOBDProtocolErr">
-    ///   ECU returned a negative response.
+    /// ECU returned a negative response.
     /// </exception>
     function Send(ASubFunction: Byte; const ABody: TBytes = nil): TBytes;
 
     /// <summary>Non-blocking <see cref="ReadByStatusMask"/>.</summary>
     /// <param name="AMask">DTC-status bitmask.</param>
     /// <exception cref="EOBDConfig">
-    ///   Another async read is already in flight.
+    /// Another async read is already in flight.
     /// </exception>
     procedure ReadByStatusMaskAsync(AMask: Byte = $FF);
 
     /// <summary>Non-blocking <see cref="ReadSupportedDTCs"/>.</summary>
     /// <exception cref="EOBDConfig">
-    ///   Another async read is already in flight.
+    /// Another async read is already in flight.
     /// </exception>
     procedure ReadSupportedDTCsAsync;
   published
@@ -244,7 +242,8 @@ end;
 
 destructor TOBDUDSReadDTC.Destroy;
 begin
-  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  if FOwnedTask <> nil then
+    FOwnedTask.Cancel;
   FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
@@ -267,7 +266,8 @@ begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
   begin
-    if FOwnedTask <> nil then FOwnedTask.Quiesce;
+    if FOwnedTask <> nil then
+      FOwnedTask.Quiesce;
     FProtocol := nil;
   end;
 end;
@@ -298,20 +298,18 @@ end;
 
 class function TOBDUDSReadDTC.DecodeJ2012(AHi: Byte; ALo: Byte): string;
 const
-  Prefix: array[0..3] of Char = ('P', 'C', 'B', 'U');
+  Prefix: array [0 .. 3] of Char = ('P', 'C', 'B', 'U');
 var
   PrefixIdx: Integer;
 begin
   PrefixIdx := (AHi shr 6) and $03;
-  Result := Prefix[PrefixIdx] +
-            IntToHex((AHi shr 4) and $03, 1) +
-            IntToHex(AHi and $0F, 1) +
-            IntToHex((ALo shr 4) and $0F, 1) +
-            IntToHex(ALo and $0F, 1);
+  Result := Prefix[PrefixIdx] + IntToHex((AHi shr 4) and $03, 1) +
+    IntToHex(AHi and $0F, 1) + IntToHex((ALo shr 4) and $0F, 1) +
+    IntToHex(ALo and $0F, 1);
 end;
 
-function TOBDUDSReadDTC.DecodeDtcRecords(const AData: TBytes;
-  AStart: Integer): TArray<TOBDUDSDtcEntry>;
+function TOBDUDSReadDTC.DecodeDtcRecords(const AData: TBytes; AStart: Integer)
+  : TArray<TOBDUDSDtcEntry>;
 var
   Off: Integer;
   Acc: TList<TOBDUDSDtcEntry>;
@@ -323,8 +321,8 @@ begin
     // Each record: <DTChi> <DTCmid> <DTClo> <statusOfDTC> — 4 bytes.
     while Off + 4 <= Length(AData) do
     begin
-    FOwnedTask.CheckCancelled;
-      E := Default(TOBDUDSDtcEntry);
+      FOwnedTask.CheckCancelled;
+      E := Default (TOBDUDSDtcEntry);
       E.Code := DecodeJ2012(AData[Off], AData[Off + 1]);
       E.Status := AData[Off + 3];
       E.Raw := Copy(AData, Off, 4);
@@ -337,8 +335,7 @@ begin
   end;
 end;
 
-function TOBDUDSReadDTC.DoSend(ASubFunction: Byte;
-  const ABody: TBytes): TBytes;
+function TOBDUDSReadDTC.DoSend(ASubFunction: Byte; const ABody: TBytes): TBytes;
 var
   Req: TBytes;
   Resp: TOBDResponse;
@@ -352,8 +349,8 @@ begin
 
   Resp := FProtocol.Request(UDS_SID_ReadDTCInformation, Req);
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt(
-      'ReadDTCInformation (sub 0x%.2x) negative: %s',
+    raise EOBDProtocolErr.CreateFmt
+      ('ReadDTCInformation (sub 0x%.2x) negative: %s',
       [ASubFunction, Resp.NRCText]);
   // Response is <subFunction> + payload — return payload verbatim.
   Result := Copy(Resp.Data, 0, Length(Resp.Data));
@@ -368,7 +365,7 @@ begin
   Body[0] := AMask;
   Raw := DoSend(UDS_RDTC_SUB_ByStatusMask, Body);
   // Response per ISO 14229-1 §11.3.5.4:
-  //   <subFunction> <DTCStatusAvailMask> [<DTC hi mid lo> <status>]*
+  // <subFunction> <DTCStatusAvailMask> [<DTC hi mid lo> <status>]*
   // DoSend strips the leading sub-function byte echo from the
   // returned payload — the next byte is DTCStatusAvailMask, then
   // the records start at offset 1.
@@ -385,7 +382,7 @@ var
 begin
   Raw := DoSend(UDS_RDTC_SUB_SupportedDTC, nil);
   // Response: <subFunction echo> <DTCStatusAvailMask>
-  //           [<DTC hi mid lo> <status>]*
+  // [<DTC hi mid lo> <status>]*
   if Length(Raw) >= 1 then
     Result := DecodeDtcRecords(Raw, 1)
   else
@@ -407,8 +404,7 @@ begin
   FireRaw(UDS_RDTC_SUB_ExtDataRecordByDTCNumber, Result);
 end;
 
-function TOBDUDSReadDTC.Send(ASubFunction: Byte;
-  const ABody: TBytes): TBytes;
+function TOBDUDSReadDTC.Send(ASubFunction: Byte; const ABody: TBytes): TBytes;
 begin
   Result := DoSend(ASubFunction, ABody);
   FireRaw(ASubFunction, Result);
@@ -471,7 +467,7 @@ begin
 end;
 
 procedure TOBDUDSReadDTC.FireRead(ASubFunction: Byte;
-  const AEntries: TArray<TOBDUDSDtcEntry>);
+const AEntries: TArray<TOBDUDSDtcEntry>);
 var
   Self_: TOBDUDSReadDTC;
   Sub: Byte;
@@ -516,7 +512,7 @@ begin
 end;
 
 procedure TOBDUDSReadDTC.FireError(ACode: TOBDErrorCode;
-  const AMessage: string);
+const AMessage: string);
 var
   Self_: TOBDUDSReadDTC;
   Code: TOBDErrorCode;

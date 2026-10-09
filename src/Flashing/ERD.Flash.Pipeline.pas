@@ -1,50 +1,50 @@
-//------------------------------------------------------------------------------
-//  ERD.Flash.Pipeline
+﻿// ------------------------------------------------------------------------------
+// ERD.Flash.Pipeline
 //
-//  TOBDFlashPipeline — production-grade ECU reflash orchestrator.
-//  Composes the flashing building blocks into one safe-by-default
-//  end-to-end run:
+// TOBDFlashPipeline — production-grade ECU reflash orchestrator.
+// Composes the flashing building blocks into one safe-by-default
+// end-to-end run:
 //
-//    1. fpPreflight — host-supplied checks (engine off,
-//                            voltage floor, ambient temp, ignition,
-//                            user confirmation)
-//    2. fpVerifyImage — image hash / signature verification
-//    3. fpEnterProgramming — host-supplied entry routine (session
-//                            switch + security-access + erase)
-//    4. fpTransfer — TOBDUDSTransfer
-//    5. fpVerify — host-supplied verify routine
-//    6. fpReset — ECUReset hardReset
-//    7. fpFinalise — close audit log
+// 1. fpPreflight — host-supplied checks (engine off,
+// voltage floor, ambient temp, ignition,
+// user confirmation)
+// 2. fpVerifyImage — image hash / signature verification
+// 3. fpEnterProgramming — host-supplied entry routine (session
+// switch + security-access + erase)
+// 4. fpTransfer — TOBDUDSTransfer
+// 5. fpVerify — host-supplied verify routine
+// 6. fpReset — ECUReset hardReset
+// 7. fpFinalise — close audit log
 //
-//  SAFETY — BRICK RISK ----------------------------------------------------
-//  This is the dangerous one. Defaults <c>AutoExecute = False</c>;
-//  fires <c>OnConfirmExecute(var Allow)</c> on the main thread;
-//  a missing handler with <c>AutoExecute = False</c> aborts the
-//  flash with <c>EOBDConfig</c>.
+// SAFETY — BRICK RISK ----------------------------------------------------
+// This is the dangerous one. Defaults <c>AutoExecute = False</c>;
+// fires <c>OnConfirmExecute(var Allow)</c> on the main thread;
+// a missing handler with <c>AutoExecute = False</c> aborts the
+// flash with <c>EOBDConfig</c>.
 //
-//  A pipeline with no <c>VoltageGate</c> assigned logs a WARN-
-//  severity audit-log entry at start-of-flash but proceeds — by
-//  design, the package surfaces the safety primitive but does
-//  not force it on you. Wire one. Read docs/flashing-safety.md
-//  before integrating.
-//  ------------------------------------------------------------------------
+// A pipeline with no <c>VoltageGate</c> assigned logs a WARN-
+// severity audit-log entry at start-of-flash but proceeds — by
+// design, the package surfaces the safety primitive but does
+// not force it on you. Wire one. Read docs/flashing-safety.md
+// before integrating.
+// ------------------------------------------------------------------------
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Flash.Pipeline;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -52,10 +52,10 @@ interface
 uses
   ERD.Async.Task,
   ERD.Connection,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
-  {$IFDEF FPC}DateUtils{$ELSE}System.DateUtils{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}DateUtils{$ELSE}System.DateUtils{$ENDIF},
   ERD.Types,
   ERD.Protocol.Types,
   ERD.Protocol,
@@ -67,12 +67,12 @@ uses
 
 type
   /// <summary>Argument record for <c>OnConfirmExecute</c>.</summary>
-  TOBDFlashConfirmEvent = procedure(Sender: TObject;
-    AAddress: UInt64; ASize: UInt32; var AAllow: Boolean) of object;
+  TOBDFlashConfirmEvent = procedure(Sender: TObject; AAddress: UInt64;
+    ASize: UInt32; var AAllow: Boolean) of object;
 
   /// <summary>Argument record for <c>OnPhaseChange</c>.</summary>
-  TOBDFlashPhaseEvent = procedure(Sender: TObject;
-    APhase: TOBDFlashPhase) of object;
+  TOBDFlashPhaseEvent = procedure(Sender: TObject; APhase: TOBDFlashPhase)
+    of object;
 
   /// <summary>Argument record for <c>OnCheckResult</c>.</summary>
   TOBDFlashCheckResultEvent = procedure(Sender: TObject;
@@ -82,8 +82,8 @@ type
   TOBDFlashStepFunc = reference to procedure;
 
   /// <summary>
-  ///   Orchestrator that drives a UDS reflash through the full
-  ///   safety pipeline.
+  /// Orchestrator that drives a UDS reflash through the full
+  /// safety pipeline.
   /// </summary>
   TOBDFlashPipeline = class(TComponent)
   strict private
@@ -127,20 +127,21 @@ type
     procedure FireError(ACode: TOBDErrorCode; const AMessage: string);
     function FireConfirm(AAddress: UInt64; ASize: UInt32): Boolean;
     procedure RunChecks(APhase: TOBDFlashPhase);
-    procedure HandleVoltageAbort(Sender: TObject;
-      AVoltage: Double; AReason: string);
+    procedure HandleVoltageAbort(Sender: TObject; AVoltage: Double;
+      AReason: string);
     procedure DoFlash(AAddress: UInt64; const AImage: TBytes);
-    procedure WriteCheckpointSafe(AAddress: UInt64;
-      const AImage: TBytes; const ACursor: TOBDTransferCursor);
+    procedure WriteCheckpointSafe(AAddress: UInt64; const AImage: TBytes;
+      const ACursor: TOBDTransferCursor);
     procedure HandleBeforeRequest(Sender: TObject);
     procedure HandleProgress(Sender: TObject;
       const ACursor: TOBDTransferCursor);
     function FCurrentImage: TBytes; // for the progress hook
     function FCurrentAddress: UInt64;
-    var
-      FSavedImage: TBytes;
-      FSavedImageHash: TBytes;
-      FSavedAddress: UInt64;
+
+  var
+    FSavedImage: TBytes;
+    FSavedImageHash: TBytes;
+    FSavedAddress: UInt64;
   protected
     procedure Notification(AComponent: TComponent;
       Operation: TOperation); override;
@@ -155,8 +156,9 @@ type
     procedure Flash(AAddress: UInt64; const AImage: TBytes);
     /// <summary>Non-blocking <see cref="Flash"/>.</summary>
     /// <summary>Resume with full preflight and image checks, without restarting programming/download. Host confirms the ECU is still in the saved transfer.</summary>
-    procedure ResumeFromCheckpoint(const AFileName: string; const AImage: TBytes;
-      const ASessionID: string; const AConfirmECU: TOBDResumeValidator);
+    procedure ResumeFromCheckpoint(const AFileName: string;
+      const AImage: TBytes; const ASessionID: string;
+      const AConfirmECU: TOBDResumeValidator);
     procedure FlashAsync(AAddress: UInt64; const AImage: TBytes);
 
     /// <summary>The check list. Hosts populate it before
@@ -165,12 +167,12 @@ type
     /// <summary>Called between fpEnterProgramming entry and
     /// fpTransfer. Hosts wire their session-switch + security-
     /// access + erase routine here.</summary>
-    property OnEnterProgramming: TOBDFlashStepFunc
-      read FEnterProgramming write FEnterProgramming;
+    property OnEnterProgramming: TOBDFlashStepFunc read FEnterProgramming
+      write FEnterProgramming;
     /// <summary>Called during fpVerify. Hosts wire their
     /// post-flash verify routine here.</summary>
-    property OnVerifyRoutine: TOBDFlashStepFunc
-      read FVerifyStep write FVerifyStep;
+    property OnVerifyRoutine: TOBDFlashStepFunc read FVerifyStep
+      write FVerifyStep;
   published
     property Protocol: TOBDProtocol read FProtocol write SetProtocol;
     property AuditLog: TOBDCodingAuditLog read FAuditLog write SetAuditLog;
@@ -185,8 +187,7 @@ type
     property TargetVendor: string read FTargetVendor write FTargetVendor;
     property TargetModule: string read FTargetModule write FTargetModule;
     property ECUIdentity: string read FECUIdentity write FECUIdentity;
-    property CheckpointFile: string read FCheckpointFile
-      write FCheckpointFile;
+    property CheckpointFile: string read FCheckpointFile write FCheckpointFile;
     /// <summary>Send ECUReset hardReset as the final step.
     /// Default <c>True</c>.</summary>
     property ResetAfterFlash: Boolean read FResetAfterFlash
@@ -197,12 +198,12 @@ type
       write FLengthFormatBytes default 4;
 
     /// <summary>Fires before any wire access (main thread).</summary>
-    property OnConfirmExecute: TOBDFlashConfirmEvent
-      read FOnConfirmExecute write FOnConfirmExecute;
-    property OnPhaseChange: TOBDFlashPhaseEvent
-      read FOnPhaseChange write FOnPhaseChange;
-    property OnCheckResult: TOBDFlashCheckResultEvent
-      read FOnCheckResult write FOnCheckResult;
+    property OnConfirmExecute: TOBDFlashConfirmEvent read FOnConfirmExecute
+      write FOnConfirmExecute;
+    property OnPhaseChange: TOBDFlashPhaseEvent read FOnPhaseChange
+      write FOnPhaseChange;
+    property OnCheckResult: TOBDFlashCheckResultEvent read FOnCheckResult
+      write FOnCheckResult;
     property OnComplete: TNotifyEvent read FOnComplete write FOnComplete;
     property OnError: TOBDConnectionErrorEvent read FOnError write FOnError;
   end;
@@ -210,7 +211,7 @@ type
 implementation
 
 uses
-  {$IFDEF FPC}TypInfo{$ELSE}System.TypInfo{$ENDIF},
+{$IFDEF FPC}TypInfo{$ELSE}System.TypInfo{$ENDIF},
   ERD.Protocol.UDS;
 
 constructor TOBDFlashPipeline.Create(AOwner: TComponent);
@@ -227,8 +228,10 @@ end;
 
 destructor TOBDFlashPipeline.Destroy;
 begin
-  if FTransfer <> nil then FTransfer.Cancel;
-  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  if FTransfer <> nil then
+    FTransfer.Cancel;
+  if FOwnedTask <> nil then
+    FOwnedTask.Cancel;
   FChecks.Free;
   FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
@@ -237,29 +240,41 @@ end;
 
 procedure TOBDFlashPipeline.SetProtocol(AValue: TOBDProtocol);
 begin
-  if FProtocol = AValue then Exit;
-  if FOwnedTask <> nil then FOwnedTask.Quiesce;
-  if FProtocol <> nil then FProtocol.RemoveFreeNotification(Self);
+  if FProtocol = AValue then
+    Exit;
+  if FOwnedTask <> nil then
+    FOwnedTask.Quiesce;
+  if FProtocol <> nil then
+    FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
-  if FProtocol <> nil then FProtocol.FreeNotification(Self);
+  if FProtocol <> nil then
+    FProtocol.FreeNotification(Self);
 end;
 
 procedure TOBDFlashPipeline.SetAuditLog(AValue: TOBDCodingAuditLog);
 begin
-  if FAuditLog = AValue then Exit;
-  if FOwnedTask <> nil then FOwnedTask.Quiesce;
-  if FAuditLog <> nil then FAuditLog.RemoveFreeNotification(Self);
+  if FAuditLog = AValue then
+    Exit;
+  if FOwnedTask <> nil then
+    FOwnedTask.Quiesce;
+  if FAuditLog <> nil then
+    FAuditLog.RemoveFreeNotification(Self);
   FAuditLog := AValue;
-  if FAuditLog <> nil then FAuditLog.FreeNotification(Self);
+  if FAuditLog <> nil then
+    FAuditLog.FreeNotification(Self);
 end;
 
 procedure TOBDFlashPipeline.SetVoltageGate(AValue: TOBDVoltageGate);
 begin
-  if FVoltageGate = AValue then Exit;
-  if FOwnedTask <> nil then FOwnedTask.Quiesce;
-  if FVoltageGate <> nil then FVoltageGate.RemoveFreeNotification(Self);
+  if FVoltageGate = AValue then
+    Exit;
+  if FOwnedTask <> nil then
+    FOwnedTask.Quiesce;
+  if FVoltageGate <> nil then
+    FVoltageGate.RemoveFreeNotification(Self);
   FVoltageGate := AValue;
-  if FVoltageGate <> nil then FVoltageGate.FreeNotification(Self);
+  if FVoltageGate <> nil then
+    FVoltageGate.FreeNotification(Self);
 end;
 
 procedure TOBDFlashPipeline.Notification(AComponent: TComponent;
@@ -268,11 +283,16 @@ begin
   inherited;
   if Operation = opRemove then
   begin
-    if (AComponent = FProtocol) or (AComponent = FAuditLog) or (AComponent = FVoltageGate) then
-      if FOwnedTask <> nil then FOwnedTask.Quiesce;
-    if AComponent = FProtocol     then FProtocol     := nil;
-    if AComponent = FAuditLog     then FAuditLog     := nil;
-    if AComponent = FVoltageGate  then FVoltageGate  := nil;
+    if (AComponent = FProtocol) or (AComponent = FAuditLog) or
+      (AComponent = FVoltageGate) then
+      if FOwnedTask <> nil then
+        FOwnedTask.Quiesce;
+    if AComponent = FProtocol then
+      FProtocol := nil;
+    if AComponent = FAuditLog then
+      FAuditLog := nil;
+    if AComponent = FVoltageGate then
+      FVoltageGate := nil;
   end;
 end;
 
@@ -285,14 +305,19 @@ begin
     if FAsyncInFlight then
       raise EOBDConfig.Create('TOBDFlashPipeline: flash already in flight');
     FAsyncInFlight := True;
-  finally FAsyncLock.Leave; end;
+  finally
+    FAsyncLock.Leave;
+  end;
 end;
 
 procedure TOBDFlashPipeline.ReleaseAsync;
 begin
   FAsyncLock.Enter;
-  try FAsyncInFlight := False;
-  finally FAsyncLock.Leave; end;
+  try
+    FAsyncInFlight := False;
+  finally
+    FAsyncLock.Leave;
+  end;
 end;
 
 function TOBDFlashPipeline.GetChecks: TOBDFlashCheckList;
@@ -301,13 +326,13 @@ begin
 end;
 
 procedure TOBDFlashPipeline.WriteAudit(AKind: TOBDAuditKind;
-  const ATarget, AMessage: string;
-  const ABefore, AAfter: TBytes);
+  const ATarget, AMessage: string; const ABefore, AAfter: TBytes);
 var
   Entry: TOBDAuditEntry;
 begin
-  if FAuditLog = nil then Exit;
-  Entry := Default(TOBDAuditEntry);
+  if FAuditLog = nil then
+    Exit;
+  Entry := Default (TOBDAuditEntry);
   Entry.Timestamp := Now;
   Entry.SessionID := FAuditLog.SessionID;
   Entry.Kind := AKind;
@@ -323,15 +348,19 @@ var
   Self_: TOBDFlashPipeline;
   P: TOBDFlashPhase;
 begin
-  if not Assigned(FOnPhaseChange) then Exit;
-  Self_ := Self; P := APhase;
+  if not Assigned(FOnPhaseChange) then
+    Exit;
+  Self_ := Self;
+  P := APhase;
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnPhaseChange(Self_, P)
   else
-    FOwnedTask.Post( procedure begin
-      if Assigned(Self_.FOnPhaseChange) then
-        Self_.FOnPhaseChange(Self_, P);
-    end);
+    FOwnedTask.Post(
+      procedure
+      begin
+        if Assigned(Self_.FOnPhaseChange) then
+          Self_.FOnPhaseChange(Self_, P);
+      end);
 end;
 
 procedure TOBDFlashPipeline.FireCheckResult(const AResult: TOBDCheckResult);
@@ -339,47 +368,62 @@ var
   Self_: TOBDFlashPipeline;
   R: TOBDCheckResult;
 begin
-  if not Assigned(FOnCheckResult) then Exit;
-  Self_ := Self; R := AResult;
+  if not Assigned(FOnCheckResult) then
+    Exit;
+  Self_ := Self;
+  R := AResult;
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnCheckResult(Self_, R)
   else
-    FOwnedTask.Post( procedure begin
-      if Assigned(Self_.FOnCheckResult) then
-        Self_.FOnCheckResult(Self_, R);
-    end);
+    FOwnedTask.Post(
+      procedure
+      begin
+        if Assigned(Self_.FOnCheckResult) then
+          Self_.FOnCheckResult(Self_, R);
+      end);
 end;
 
 procedure TOBDFlashPipeline.FireComplete;
 var
   Self_: TOBDFlashPipeline;
 begin
-  if not Assigned(FOnComplete) then Exit;
+  if not Assigned(FOnComplete) then
+    Exit;
   Self_ := Self;
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnComplete(Self_)
   else
-    FOwnedTask.Post( procedure begin
-      if Assigned(Self_.FOnComplete) then Self_.FOnComplete(Self_);
-    end);
+    FOwnedTask.Post(
+      procedure
+      begin
+        if Assigned(Self_.FOnComplete) then
+          Self_.FOnComplete(Self_);
+      end);
 end;
 
 procedure TOBDFlashPipeline.FireError(ACode: TOBDErrorCode;
-  const AMessage: string);
+const AMessage: string);
 var
-  Self_: TOBDFlashPipeline; Code: TOBDErrorCode; Msg: string;
+  Self_: TOBDFlashPipeline;
+  Code: TOBDErrorCode;
+  Msg: string;
   Handled: Boolean;
 begin
-  if not Assigned(FOnError) then Exit;
-  Self_ := Self; Code := ACode; Msg := AMessage;
+  if not Assigned(FOnError) then
+    Exit;
+  Self_ := Self;
+  Code := ACode;
+  Msg := AMessage;
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
     Handled := False;
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    FOwnedTask.Post( procedure
-      var Handled: Boolean;
+    FOwnedTask.Post(
+      procedure
+      var
+        Handled: Boolean;
       begin
         Handled := False;
         if Assigned(Self_.FOnError) then
@@ -387,8 +431,8 @@ begin
       end);
 end;
 
-function TOBDFlashPipeline.FireConfirm(AAddress: UInt64;
-  ASize: UInt32): Boolean;
+function TOBDFlashPipeline.FireConfirm(AAddress: UInt64; ASize: UInt32)
+  : Boolean;
 var
   Allow: Boolean;
   Self_: TOBDFlashPipeline;
@@ -402,14 +446,19 @@ begin
     Result := FAutoExecute;
     Exit;
   end;
-  Self_ := Self; Addr := AAddress; Sz := ASize; Allow := False;
+  Self_ := Self;
+  Addr := AAddress;
+  Sz := ASize;
+  Allow := False;
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnConfirmExecute(Self_, Addr, Sz, Allow)
   else
   begin
     Local := False;
-    FOwnedTask.Synchronize( procedure
-      var L: Boolean;
+    FOwnedTask.Synchronize(
+      procedure
+      var
+        L: Boolean;
       begin
         L := False;
         if Assigned(Self_.FOnConfirmExecute) then
@@ -433,21 +482,20 @@ begin
     procedure(R: TOBDCheckResult)
     begin
       Self_.FireCheckResult(R);
-      Self_.WriteAudit(akInfo,
-        Format('%s/%s', [
-          GetEnumName(TypeInfo(TOBDFlashPhase), Ord(R.Phase)),
-          R.Name]),
+      Self_.WriteAudit(akInfo, Format('%s/%s',
+        [GetEnumName(TypeInfo(TOBDFlashPhase), Ord(R.Phase)), R.Name]),
         R.Message);
     end) then
-    raise EOBDProtocolErr.CreateFmt(
-      'Pre-condition "%s" failed: %s', [Err.Name, Err.Message]);
+    raise EOBDProtocolErr.CreateFmt('Pre-condition "%s" failed: %s',
+      [Err.Name, Err.Message]);
 end;
 
 procedure TOBDFlashPipeline.HandleVoltageAbort(Sender: TObject;
-  AVoltage: Double; AReason: string);
+AVoltage: Double; AReason: string);
 begin
   TInterlocked.Exchange(FVoltageGateAborted, 1);
-  if FTransfer <> nil then FTransfer.Cancel;
+  if FTransfer <> nil then
+    FTransfer.Cancel;
   WriteAudit(akError, 'voltage-gate', AReason);
 end;
 
@@ -462,12 +510,13 @@ begin
 end;
 
 procedure TOBDFlashPipeline.WriteCheckpointSafe(AAddress: UInt64;
-  const AImage: TBytes; const ACursor: TOBDTransferCursor);
+const AImage: TBytes; const ACursor: TOBDTransferCursor);
 var
   Info: TOBDFlashCheckpointInfo;
 begin
-  if FCheckpointFile = '' then Exit;
-  Info := Default(TOBDFlashCheckpointInfo);
+  if FCheckpointFile = '' then
+    Exit;
+  Info := Default (TOBDFlashCheckpointInfo);
   Info.SessionID := FSessionID;
   Info.Vendor := FTargetVendor;
   Info.Module := FTargetModule;
@@ -479,7 +528,8 @@ begin
   except
     on E: Exception do
     begin
-      WriteAudit(akError, 'checkpoint', 'Checkpoint write failed: ' + E.Message);
+      WriteAudit(akError, 'checkpoint', 'Checkpoint write failed: ' +
+        E.Message);
       raise;
     end;
   end;
@@ -493,7 +543,7 @@ begin
 end;
 
 procedure TOBDFlashPipeline.HandleProgress(Sender: TObject;
-  const ACursor: TOBDTransferCursor);
+const ACursor: TOBDTransferCursor);
 begin
   if TInterlocked.CompareExchange(FVoltageGateAborted, 0, 0) <> 0 then
     FTransfer.Cancel;
@@ -512,14 +562,19 @@ begin
   if not FAutoExecute then
   begin
     if not FireConfirm(AAddress, UInt32(Length(AImage))) then
-      raise EOBDConfig.Create(
-        'TOBDFlashPipeline: cancelled by OnConfirmExecute / AutoExecute');
+      raise EOBDConfig.Create
+        ('TOBDFlashPipeline: cancelled by OnConfirmExecute / AutoExecute');
   end;
 
   if not FResuming then
   begin
-    if FAuditLog <> nil then FSessionID := FAuditLog.SessionID
-    else begin CreateGUID(SessionGUID); FSessionID := GUIDToString(SessionGUID) end;
+    if FAuditLog <> nil then
+      FSessionID := FAuditLog.SessionID
+    else
+    begin
+      CreateGUID(SessionGUID);
+      FSessionID := GUIDToString(SessionGUID)
+    end;
   end;
   FSavedImage := Copy(AImage);
   FSavedImageHash := TOBDFlashCheckpoint.ComputeImageHash(FSavedImage);
@@ -535,8 +590,8 @@ begin
     FVoltageGate.Start;
   end;
 
-  WriteAudit(akInfo, 'flash',
-    Format('start address=0x%x size=%d', [AAddress, Length(AImage)]));
+  WriteAudit(akInfo, 'flash', Format('start address=0x%x size=%d',
+    [AAddress, Length(AImage)]));
 
   try
     FirePhase(fpPreflight);
@@ -547,7 +602,8 @@ begin
 
     FirePhase(fpEnterProgramming);
     RunChecks(fpEnterProgramming);
-    if not FResuming and Assigned(FEnterProgramming) then FEnterProgramming();
+    if not FResuming and Assigned(FEnterProgramming) then
+      FEnterProgramming();
 
     FTransfer.Protocol := FProtocol;
     FTransfer.AutoExecute := True;
@@ -563,19 +619,21 @@ begin
         FTargetVendor, FTargetModule, FECUIdentity, FResumeValidator);
       FTransfer.Resume(FResumeInfo.Cursor, FSavedImage);
     end
-    else FTransfer.Run(AAddress, FSavedImage);
+    else
+      FTransfer.Run(AAddress, FSavedImage);
 
     FirePhase(fpVerify);
     RunChecks(fpVerify);
-    if Assigned(FVerifyStep) then FVerifyStep();
+    if Assigned(FVerifyStep) then
+      FVerifyStep();
 
     if FResetAfterFlash then
     begin
       FirePhase(fpReset);
       Resp := FProtocol.Request($11, TBytes.Create($01));
       if Resp.IsNegative then
-        raise EOBDProtocolErr.CreateFmt(
-          'ECUReset hardReset negative: %s', [Resp.NRCText]);
+        raise EOBDProtocolErr.CreateFmt('ECUReset hardReset negative: %s',
+          [Resp.NRCText]);
     end;
 
     FirePhase(fpFinalise);
@@ -605,7 +663,8 @@ begin
 end;
 
 procedure TOBDFlashPipeline.ResumeFromCheckpoint(const AFileName: string;
-  const AImage: TBytes; const ASessionID: string; const AConfirmECU: TOBDResumeValidator);
+const AImage: TBytes; const ASessionID: string;
+const AConfirmECU: TOBDResumeValidator);
 begin
   if FAsyncInFlight or FResuming then
     raise EOBDConfig.Create('Flash pipeline already in flight');
@@ -613,17 +672,21 @@ begin
   // Local checks must finish before preflight can perform any wire access.
   TOBDFlashCheckpoint.ValidateResumeLocal(FResumeInfo, AImage, ASessionID,
     FTargetVendor, FTargetModule, FECUIdentity);
-  if not Assigned(AConfirmECU) then raise EOBDConfig.Create('Resume requires ECU state confirmation');
+  if not Assigned(AConfirmECU) then
+    raise EOBDConfig.Create('Resume requires ECU state confirmation');
   FCheckpointFile := AFileName;
   FSessionID := ASessionID;
   FResumeValidator := AConfirmECU;
   FResuming := True;
-  try Flash(FResumeInfo.Cursor.Address, AImage)
-  finally FResuming := False; FResumeValidator := nil end;
+  try
+    Flash(FResumeInfo.Cursor.Address, AImage)
+  finally
+    FResuming := False;
+    FResumeValidator := nil
+  end;
 end;
 
-procedure TOBDFlashPipeline.FlashAsync(AAddress: UInt64;
-  const AImage: TBytes);
+procedure TOBDFlashPipeline.FlashAsync(AAddress: UInt64; const AImage: TBytes);
 var
   Self_: TOBDFlashPipeline;
   Addr: UInt64;
@@ -631,7 +694,8 @@ var
 begin
   GuardSingleAsync;
   try
-    Self_ := Self; Addr := AAddress;
+    Self_ := Self;
+    Addr := AAddress;
     Img := Copy(AImage, 0, Length(AImage));
     FOwnedTask.Start(
       procedure
@@ -640,7 +704,8 @@ begin
           try
             Self_.Flash(Addr, Img);
           except
-            on E: Exception do Self_.FireError(oeIO, E.Message);
+            on E: Exception do
+              Self_.FireError(oeIO, E.Message);
           end;
         finally
           Self_.ReleaseAsync;

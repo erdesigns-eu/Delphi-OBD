@@ -1,75 +1,66 @@
-//------------------------------------------------------------------------------
-//  ERD.Coding.OptionCatalog
+﻿// ------------------------------------------------------------------------------
+// ERD.Coding.OptionCatalog
 //
-//  TOBDCodingOptionCatalog — loader for OEM coding-option name
-//  catalogues. The package ships only the schema document
-//  (data/schemas/oem-coding-catalog.schema.json); option content
-//  is dealer / workshop-database material that hosts populate
-//  themselves and load through this unit.
+// TOBDCodingOptionCatalog — loader for OEM coding-option name
+// catalogues. The package ships only the schema document
+// (data/schemas/oem-coding-catalog.schema.json); option content
+// is dealer / workshop-database material that hosts populate
+// themselves and load through this unit.
 //
-//  Schema kinds covered:
+// Schema kinds covered:
 //
-//    byte_bit — VAG / Mercedes single-bit options
-//    byte_field — Mercedes sub-byte fields
-//    byte_range — VAG multi-byte ranges
-//    tlv_id — BMW CAFD / Stellantis Proxi entries
-//    config_word — HMG / Toyota id-width-value records
-//    asbuilt_section — Ford AsBuilt named sections
-//    menu_index — Honda flat-array indices
+// byte_bit — VAG / Mercedes single-bit options
+// byte_field — Mercedes sub-byte fields
+// byte_range — VAG multi-byte ranges
+// tlv_id — BMW CAFD / Stellantis Proxi entries
+// config_word — HMG / Toyota id-width-value records
+// asbuilt_section — Ford AsBuilt named sections
+// menu_index — Honda flat-array indices
 //
-//  The loader validates each entry against the schema's
-//  per-kind rules. Hosts query the catalogue by vendor + name
-//  and feed the resulting addressing record into the matching
-//  per-OEM coder unit (TOBDCodingVAG, TOBDCodingBMW, …).
+// The loader validates each entry against the schema's
+// per-kind rules. Hosts query the catalogue by vendor + name
+// and feed the resulting addressing record into the matching
+// per-OEM coder unit (TOBDCodingVAG, TOBDCodingBMW, …).
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-09  ERD  Follow-up.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Follow-up.
+// ------------------------------------------------------------------------------
 
 unit ERD.Coding.OptionCatalog;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   System.IOUtils,
   System.JSON,
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.Types;
 
 type
   /// <summary>Vendor key (matches the unit suffix of the OEM
   /// coder this catalogue applies to).</summary>
-  TOBDOEMVendor = (
-    ovVAG, ovBMW, ovFord, ovHMG, ovHonda,
-    ovMercedes, ovStellantis, ovToyota
-  );
+  TOBDOEMVendor = (ovVAG, ovBMW, ovFord, ovHMG, ovHonda, ovMercedes,
+    ovStellantis, ovToyota);
 
   /// <summary>Addressing kind. Matches the schema's
   /// <c>addressing.kind</c> enum verbatim.</summary>
-  TOBDOptionAddressing = (
-    oaByteBit,
-    oaByteField,
-    oaByteRange,
-    oaTlvID,
-    oaConfigWord,
-    oaAsBuiltSection,
-    oaMenuIndex
-  );
+  TOBDOptionAddressing = (oaByteBit, oaByteField, oaByteRange, oaTlvID,
+    oaConfigWord, oaAsBuiltSection, oaMenuIndex);
 
   /// <summary>Endianness selector for byte-range addressing.</summary>
   TOBDOptionEndian = (oeBig, oeLittle);
@@ -126,11 +117,12 @@ type
   /// safe.</summary>
   TOBDCodingOptionCatalog = class
   strict private
-    class var FInstance: TOBDCodingOptionCatalog;
+  class var
+    FInstance: TOBDCodingOptionCatalog;
     FLock: TCriticalSection;
     FDocs: TList<TOBDCodingOptionDoc>;
-    procedure ParseDocument(const ARoot: TJSONObject;
-      const AFileName: string; out ADoc: TOBDCodingOptionDoc);
+    procedure ParseDocument(const ARoot: TJSONObject; const AFileName: string;
+      out ADoc: TOBDCodingOptionDoc);
     procedure ParseAddressing(const AObj: TJSONObject;
       var AInfo: TOBDOptionAddressingInfo);
     procedure ParseValues(const AArr: TJSONArray;
@@ -169,11 +161,11 @@ type
     /// <summary>Returns the value label for <c>ARaw</c> within an
     /// entry. Empty when the entry has no enumerated values or
     /// none match.</summary>
-    class function LookupLabel(const AEntry: TOBDOptionEntry;
-      ARaw: UInt32): string; static;
+    class function LookupLabel(const AEntry: TOBDOptionEntry; ARaw: UInt32)
+      : string; static;
   end;
 
-/// <summary>Maps the schema's vendor string to the enum.</summary>
+  /// <summary>Maps the schema's vendor string to the enum.</summary>
 function ParseVendor(const AText: string): TOBDOEMVendor;
 
 implementation
@@ -183,17 +175,25 @@ var
   Lower: string;
 begin
   Lower := LowerCase(Trim(AText));
-  if      Lower = 'vag'        then Result := ovVAG
-  else if Lower = 'bmw'        then Result := ovBMW
-  else if Lower = 'ford'       then Result := ovFord
-  else if Lower = 'hmg'        then Result := ovHMG
-  else if Lower = 'honda'      then Result := ovHonda
-  else if Lower = 'mercedes'   then Result := ovMercedes
-  else if Lower = 'stellantis' then Result := ovStellantis
-  else if Lower = 'toyota'     then Result := ovToyota
+  if Lower = 'vag' then
+    Result := ovVAG
+  else if Lower = 'bmw' then
+    Result := ovBMW
+  else if Lower = 'ford' then
+    Result := ovFord
+  else if Lower = 'hmg' then
+    Result := ovHMG
+  else if Lower = 'honda' then
+    Result := ovHonda
+  else if Lower = 'mercedes' then
+    Result := ovMercedes
+  else if Lower = 'stellantis' then
+    Result := ovStellantis
+  else if Lower = 'toyota' then
+    Result := ovToyota
   else
-    raise EOBDConfig.CreateFmt(
-      'OEM coding catalogue: vendor "%s" not in schema enum', [AText]);
+    raise EOBDConfig.CreateFmt
+      ('OEM coding catalogue: vendor "%s" not in schema enum', [AText]);
 end;
 
 function ParseAddrKind(const AText: string): TOBDOptionAddressing;
@@ -201,17 +201,23 @@ var
   Lower: string;
 begin
   Lower := LowerCase(Trim(AText));
-  if      Lower = 'byte_bit'         then Result := oaByteBit
-  else if Lower = 'byte_field'       then Result := oaByteField
-  else if Lower = 'byte_range'       then Result := oaByteRange
-  else if Lower = 'tlv_id'           then Result := oaTlvID
-  else if Lower = 'config_word'      then Result := oaConfigWord
-  else if Lower = 'asbuilt_section'  then Result := oaAsBuiltSection
-  else if Lower = 'menu_index'       then Result := oaMenuIndex
+  if Lower = 'byte_bit' then
+    Result := oaByteBit
+  else if Lower = 'byte_field' then
+    Result := oaByteField
+  else if Lower = 'byte_range' then
+    Result := oaByteRange
+  else if Lower = 'tlv_id' then
+    Result := oaTlvID
+  else if Lower = 'config_word' then
+    Result := oaConfigWord
+  else if Lower = 'asbuilt_section' then
+    Result := oaAsBuiltSection
+  else if Lower = 'menu_index' then
+    Result := oaMenuIndex
   else
-    raise EOBDConfig.CreateFmt(
-      'OEM coding catalogue: addressing.kind "%s" not in schema',
-      [AText]);
+    raise EOBDConfig.CreateFmt
+      ('OEM coding catalogue: addressing.kind "%s" not in schema', [AText]);
 end;
 
 function GetJSONStr(AObj: TJSONObject; const AKey, ADefault: string): string;
@@ -219,8 +225,10 @@ var
   V: TJSONValue;
 begin
   V := AObj.GetValue(AKey);
-  if V is TJSONString then Result := TJSONString(V).Value
-  else Result := ADefault;
+  if V is TJSONString then
+    Result := TJSONString(V).Value
+  else
+    Result := ADefault;
 end;
 
 function GetJSONInt(AObj: TJSONObject; const AKey: string;
@@ -229,8 +237,10 @@ var
   V: TJSONValue;
 begin
   V := AObj.GetValue(AKey);
-  if V is TJSONNumber then Result := TJSONNumber(V).AsInt64
-  else Result := ADefault;
+  if V is TJSONNumber then
+    Result := TJSONNumber(V).AsInt64
+  else
+    Result := ADefault;
 end;
 
 function HasJSON(AObj: TJSONObject; const AKey: string): Boolean;
@@ -269,15 +279,21 @@ end;
 procedure TOBDCodingOptionCatalog.Clear;
 begin
   FLock.Enter;
-  try FDocs.Clear;
-  finally FLock.Leave; end;
+  try
+    FDocs.Clear;
+  finally
+    FLock.Leave;
+  end;
 end;
 
 function TOBDCodingOptionCatalog.Count: Integer;
 begin
   FLock.Enter;
-  try Result := FDocs.Count;
-  finally FLock.Leave; end;
+  try
+    Result := FDocs.Count;
+  finally
+    FLock.Leave;
+  end;
 end;
 
 procedure TOBDCodingOptionCatalog.ParseValues(const AArr: TJSONArray;
@@ -290,9 +306,9 @@ begin
   SetLength(AValues, AArr.Count);
   for I := 0 to AArr.Count - 1 do
   begin
-    if not (AArr.Items[I] is TJSONObject) then
-      raise EOBDConfig.CreateFmt(
-        'OEM coding catalogue: values[%d] is not an object', [I]);
+    if not(AArr.Items[I] is TJSONObject) then
+      raise EOBDConfig.CreateFmt
+        ('OEM coding catalogue: values[%d] is not an object', [I]);
     Obj := AArr.Items[I] as TJSONObject;
     Entry := System.Default(TOBDOptionValueLabel);
     if not HasJSON(Obj, 'raw') then
@@ -323,10 +339,9 @@ begin
     oaByteBit:
       begin
         if not HasJSON(AObj, 'byte') or not HasJSON(AObj, 'bit') then
-          raise EOBDConfig.Create(
-            'byte_bit requires both "byte" and "bit"');
+          raise EOBDConfig.Create('byte_bit requires both "byte" and "bit"');
         AInfo.Byte_ := GetJSONInt(AObj, 'byte', 0);
-        AInfo.Bit   := GetJSONInt(AObj, 'bit', 0);
+        AInfo.Bit := GetJSONInt(AObj, 'bit', 0);
         if (AInfo.Bit < 0) or (AInfo.Bit > 7) then
           raise EOBDConfig.CreateFmt('byte_bit.bit %d out of range',
             [AInfo.Bit]);
@@ -334,32 +349,33 @@ begin
     oaByteField:
       begin
         if not HasJSON(AObj, 'byte') or not HasJSON(AObj, 'shift') or
-           not HasJSON(AObj, 'width') then
-          raise EOBDConfig.Create(
-            'byte_field requires "byte", "shift", "width"');
+          not HasJSON(AObj, 'width') then
+          raise EOBDConfig.Create
+            ('byte_field requires "byte", "shift", "width"');
         AInfo.Byte_ := GetJSONInt(AObj, 'byte', 0);
         AInfo.Shift := GetJSONInt(AObj, 'shift', 0);
         AInfo.Width := GetJSONInt(AObj, 'width', 1);
-        if (AInfo.Shift < 0) or (AInfo.Shift > 7) or
-           (AInfo.Width < 1) or (AInfo.Width > 8) or
-           (AInfo.Shift + AInfo.Width > 8) then
-          raise EOBDConfig.CreateFmt(
-            'byte_field shift=%d width=%d invalid', [AInfo.Shift, AInfo.Width]);
+        if (AInfo.Shift < 0) or (AInfo.Shift > 7) or (AInfo.Width < 1) or
+          (AInfo.Width > 8) or (AInfo.Shift + AInfo.Width > 8) then
+          raise EOBDConfig.CreateFmt('byte_field shift=%d width=%d invalid',
+            [AInfo.Shift, AInfo.Width]);
       end;
     oaByteRange:
       begin
         if not HasJSON(AObj, 'offset') or not HasJSON(AObj, 'length') then
-          raise EOBDConfig.Create(
-            'byte_range requires "offset" and "length"');
-        AInfo.Offset  := GetJSONInt(AObj, 'offset', 0);
+          raise EOBDConfig.Create('byte_range requires "offset" and "length"');
+        AInfo.Offset := GetJSONInt(AObj, 'offset', 0);
         AInfo.Length_ := GetJSONInt(AObj, 'length', 0);
         if AInfo.Length_ < 1 then
           raise EOBDConfig.Create('byte_range.length must be ≥ 1');
         EndianStr := LowerCase(GetJSONStr(AObj, 'endian', 'big'));
-        if EndianStr = 'little' then AInfo.Endian := oeLittle
-        else if EndianStr = 'big' then AInfo.Endian := oeBig
-        else raise EOBDConfig.CreateFmt('byte_range.endian "%s" invalid',
-          [EndianStr]);
+        if EndianStr = 'little' then
+          AInfo.Endian := oeLittle
+        else if EndianStr = 'big' then
+          AInfo.Endian := oeBig
+        else
+          raise EOBDConfig.CreateFmt('byte_range.endian "%s" invalid',
+            [EndianStr]);
       end;
     oaTlvID:
       begin
@@ -374,21 +390,20 @@ begin
     oaConfigWord:
       begin
         if not HasJSON(AObj, 'id') or not HasJSON(AObj, 'width') then
-          raise EOBDConfig.Create(
-            'config_word requires "id" and "width"');
+          raise EOBDConfig.Create('config_word requires "id" and "width"');
         AInfo.ID := UInt32(GetJSONInt(AObj, 'id', 0));
         AInfo.Width := GetJSONInt(AObj, 'width', 1);
-        if not (AInfo.Width in [1, 2, 4]) then
+        if not(AInfo.Width in [1, 2, 4]) then
           raise EOBDConfig.CreateFmt('config_word.width %d not in {1,2,4}',
             [AInfo.Width]);
       end;
     oaAsBuiltSection:
       begin
         if not HasJSON(AObj, 'section') or not HasJSON(AObj, 'offset') then
-          raise EOBDConfig.Create(
-            'asbuilt_section requires "section" and "offset"');
+          raise EOBDConfig.Create
+            ('asbuilt_section requires "section" and "offset"');
         AInfo.Section := GetJSONStr(AObj, 'section', '');
-        AInfo.Offset  := GetJSONInt(AObj, 'offset', 0);
+        AInfo.Offset := GetJSONInt(AObj, 'offset', 0);
         if HasJSON(AObj, 'bit') then
           AInfo.Bit := GetJSONInt(AObj, 'bit', 0)
         else
@@ -428,9 +443,8 @@ begin
   ADoc.Source := GetJSONStr(ARoot, 'source', '');
 
   V := ARoot.GetValue('options');
-  if not (V is TJSONArray) then
-    raise EOBDConfig.CreateFmt('%s: "options" must be an array',
-      [AFileName]);
+  if not(V is TJSONArray) then
+    raise EOBDConfig.CreateFmt('%s: "options" must be an array', [AFileName]);
   Arr := V as TJSONArray;
   SetLength(ADoc.Options, Arr.Count);
 
@@ -438,7 +452,7 @@ begin
   try
     for I := 0 to Arr.Count - 1 do
     begin
-      if not (Arr.Items[I] is TJSONObject) then
+      if not(Arr.Items[I] is TJSONObject) then
         raise EOBDConfig.CreateFmt('%s: options[%d] not an object',
           [AFileName, I]);
       Obj := Arr.Items[I] as TJSONObject;
@@ -450,7 +464,7 @@ begin
       Entry.Description := GetJSONStr(Obj, 'description', '');
 
       V := Obj.GetValue('addressing');
-      if not (V is TJSONObject) then
+      if not(V is TJSONObject) then
         raise EOBDConfig.CreateFmt('%s: options[%d].addressing missing',
           [AFileName, I]);
       AddrObj := V as TJSONObject;
@@ -486,7 +500,7 @@ end;
 
 procedure TOBDCodingOptionCatalog.LoadFile(const AFileName: string);
 var
-  Json: string;
+  JSON: string;
   Doc: TJSONValue;
   Root: TJSONObject;
   Loaded: TOBDCodingOptionDoc;
@@ -495,12 +509,12 @@ begin
   if not TFile.Exists(AFileName) then
     raise EOBDConfig.CreateFmt('OEM coding catalogue not found: %s',
       [AFileName]);
-  Json := TFile.ReadAllText(AFileName, TEncoding.UTF8);
-  Doc := TJSONObject.ParseJSONValue(Json);
+  JSON := TFile.ReadAllText(AFileName, TEncoding.UTF8);
+  Doc := TJSONObject.ParseJSONValue(JSON);
   if Doc = nil then
     raise EOBDConfig.CreateFmt('%s: invalid JSON', [AFileName]);
   try
-    if not (Doc is TJSONObject) then
+    if not(Doc is TJSONObject) then
       raise EOBDConfig.CreateFmt('%s: root not an object', [AFileName]);
     Root := Doc as TJSONObject;
     ParseDocument(Root, AFileName, Loaded);
@@ -509,7 +523,7 @@ begin
       // Replace existing matching (vendor, module).
       for I := FDocs.Count - 1 downto 0 do
         if (FDocs[I].Vendor = Loaded.Vendor) and
-           SameText(FDocs[I].Module, Loaded.Module) then
+          SameText(FDocs[I].Module, Loaded.Module) then
           FDocs.Delete(I);
       FDocs.Add(Loaded);
     finally
@@ -528,8 +542,7 @@ begin
   Result := 0;
   if not TDirectory.Exists(ARoot) then
     raise EOBDConfig.CreateFmt('Catalogue directory not found: %s', [ARoot]);
-  Files := TDirectory.GetFiles(ARoot, '*.json',
-    TSearchOption.soAllDirectories);
+  Files := TDirectory.GetFiles(ARoot, '*.json', TSearchOption.soAllDirectories);
   for F in Files do
   begin
     LoadFile(F);
@@ -545,8 +558,7 @@ begin
   FLock.Enter;
   try
     for I := 0 to FDocs.Count - 1 do
-      if (FDocs[I].Vendor = AVendor) and
-         SameText(FDocs[I].Module, AModule) then
+      if (FDocs[I].Vendor = AVendor) and SameText(FDocs[I].Module, AModule) then
       begin
         ADoc := FDocs[I];
         Exit(True);
@@ -558,14 +570,14 @@ begin
 end;
 
 function TOBDCodingOptionCatalog.TryFindOption(AVendor: TOBDOEMVendor;
-  const AModule, AName: string;
-  out AEntry: TOBDOptionEntry): Boolean;
+  const AModule, AName: string; out AEntry: TOBDOptionEntry): Boolean;
 var
   Doc: TOBDCodingOptionDoc;
   I: Integer;
 begin
   Result := False;
-  if not TryGet(AVendor, AModule, Doc) then Exit;
+  if not TryGet(AVendor, AModule, Doc) then
+    Exit;
   for I := 0 to High(Doc.Options) do
     if SameText(Doc.Options[I].Name, AName) then
     begin
@@ -574,8 +586,8 @@ begin
     end;
 end;
 
-class function TOBDCodingOptionCatalog.LookupLabel(
-  const AEntry: TOBDOptionEntry; ARaw: UInt32): string;
+class function TOBDCodingOptionCatalog.LookupLabel(const AEntry
+  : TOBDOptionEntry; ARaw: UInt32): string;
 var
   I: Integer;
 begin
@@ -588,6 +600,7 @@ end;
 initialization
 
 finalization
-  TOBDCodingOptionCatalog.ReleaseDefault;
+
+TOBDCodingOptionCatalog.ReleaseDefault;
 
 end.

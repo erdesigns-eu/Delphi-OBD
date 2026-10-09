@@ -1,49 +1,49 @@
-//------------------------------------------------------------------------------
-//  ERD.UI.Gauges.Base
+﻿// ------------------------------------------------------------------------------
+// ERD.UI.Gauges.Base
 //
-//  TOBDGaugeBase — abstract base for every dial / bar gauge.
-//  Owns the value contract, range / clamp, animation, caption /
-//  unit text, zones, tick config, and the live-data binding
-//  stubs. Subclasses paint.
+// TOBDGaugeBase — abstract base for every dial / bar gauge.
+// Owns the value contract, range / clamp, animation, caption /
+// unit text, zones, tick config, and the live-data binding
+// stubs. Subclasses paint.
 //
-//  The base intentionally exposes BOTH ways of feeding values:
+// The base intentionally exposes BOTH ways of feeding values:
 //
-//    (a) Direct binding via LiveData + PID properties. Setting
-//        both auto-subscribes via TOBDLiveData.Subscribe; the
-//        dispatch arrives on the main thread (FireValue queues
-//        through TThread.Queue) and HandleLiveValue writes
-//        Value. DFM streaming order is irrelevant — Loaded
-//        re-subscribes once both properties are streamed.
+// (a) Direct binding via LiveData + PID properties. Setting
+// both auto-subscribes via TOBDLiveData.Subscribe; the
+// dispatch arrives on the main thread (FireValue queues
+// through TThread.Queue) and HandleLiveValue writes
+// Value. DFM streaming order is irrelevant — Loaded
+// re-subscribes once both properties are streamed.
 //
-//    (b) Decoupled — host writes Gauge.Value from its own
-//        OnValue handler. Both paths coexist on the same
-//        component; pick whichever fits the form.
+// (b) Decoupled — host writes Gauge.Value from its own
+// OnValue handler. Both paths coexist on the same
+// component; pick whichever fits the form.
 //
-//  LiveBindings: SetValue calls TBindings.Notify(Self, 'Value')
-//  so any TLinkPropertyToField / TLinkObservableProperty bound
-//  to the Value property refreshes automatically.
+// LiveBindings: SetValue calls TBindings.Notify(Self, 'Value')
+// so any TLinkPropertyToField / TLinkObservableProperty bound
+// to the Value property refreshes automatically.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.UI.Gauges.Base;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
   Vcl.Controls,
   Vcl.Graphics,
   System.Bindings.Helper, Data.Bind.Components,
@@ -57,20 +57,20 @@ uses
 type
   TOBDGaugeBase = class(TOBDCustomControl)
   strict private
-    FMin:                 Double;
-    FMax:                 Double;
-    FValue:               Double;
-    FDisplayValue:        Double;
-    FCaption:             string;
-    FUnit:                string;
-    FDecimals:            Byte;
+    FMin: Double;
+    FMax: Double;
+    FValue: Double;
+    FDisplayValue: Double;
+    FCaption: string;
+    FUnit: string;
+    FDecimals: Byte;
     FAnimateValueChanges: Boolean;
-    FAnim:                TOBDValueAnim;
-    FZones:               TOBDGaugeZones;
-    FTicks:               TOBDGaugeTickConfig;
-    FOnValueChanged:      TOBDGaugeValueEvent;
-    FLiveData:            TOBDLiveData;
-    FPID:                 Byte;
+    FAnim: TOBDValueAnim;
+    FZones: TOBDGaugeZones;
+    FTicks: TOBDGaugeTickConfig;
+    FOnValueChanged: TOBDGaugeValueEvent;
+    FLiveData: TOBDLiveData;
+    FPID: Byte;
     procedure SetMin(AValue: Double);
     procedure SetMax(AValue: Double);
     procedure SetValue(AValue: Double);
@@ -82,8 +82,7 @@ type
     procedure SetPID(AValue: Byte);
     procedure HandleAnimFrame(Sender: TObject; AValue: Double);
     procedure HandleAnimDone(Sender: TObject; AFinal: Double);
-    procedure HandleLiveValue(Sender: TObject;
-      const AValue: TOBDPIDValue);
+    procedure HandleLiveValue(Sender: TObject; const AValue: TOBDPIDValue);
     procedure SubscribeToLiveData;
     procedure UnsubscribeFromLiveData;
   protected
@@ -107,7 +106,7 @@ type
       Operation: TOperation); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
 
     /// <summary>Format a value as the gauge displays it
     /// (decimal places + unit suffix). Public so hosts can
@@ -117,11 +116,11 @@ type
 
     /// <summary>Replace the zone array. Triggers a repaint.</summary>
     procedure SetZones(const AZones: TOBDGaugeZones);
-    function  Zones: TOBDGaugeZones;
+    function Zones: TOBDGaugeZones;
 
     /// <summary>Replace the tick config. Triggers a repaint.</summary>
     procedure SetTickConfig(const ATicks: TOBDGaugeTickConfig);
-    function  TickConfig: TOBDGaugeTickConfig;
+    function TickConfig: TOBDGaugeTickConfig;
   published
     /// <summary>Minimum value on the scale.</summary>
     property Min: Double read FMin write SetMin;
@@ -142,9 +141,8 @@ type
     /// <summary>When True (default), needle / bar sweeps to
     /// the new value via <see cref="TOBDValueAnim"/>; when
     /// False, snaps instantly.</summary>
-    property AnimateValueChanges: Boolean
-      read FAnimateValueChanges write SetAnimateValueChanges
-      default True;
+    property AnimateValueChanges: Boolean read FAnimateValueChanges
+      write SetAnimateValueChanges default True;
     /// <summary>Source TOBDLiveData. When set together with
     /// <see cref="PID"/>, the gauge auto-subscribes via
     /// <c>TOBDLiveData.Subscribe</c> and <c>Value</c> updates
@@ -156,8 +154,8 @@ type
     /// the new PID and unsubscribes from the old.</summary>
     property PID: Byte read FPID write SetPID;
 
-    property OnValueChanged: TOBDGaugeValueEvent
-      read FOnValueChanged write FOnValueChanged;
+    property OnValueChanged: TOBDGaugeValueEvent read FOnValueChanged
+      write FOnValueChanged;
   end;
 
 implementation
@@ -165,7 +163,7 @@ implementation
 constructor TOBDGaugeBase.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 200;
+  Width := 200;
   Height := 200;
   FMin := 0;
   FMax := 100;
@@ -176,7 +174,7 @@ begin
   FTicks := DefaultTickConfig;
   FAnim := TOBDValueAnim.Create;
   FAnim.OnFrame := HandleAnimFrame;
-  FAnim.OnDone  := HandleAnimDone;
+  FAnim.OnDone := HandleAnimDone;
   FAnim.DurationMs := 300;
   FAnim.Easing := emSpring;
 end;
@@ -207,10 +205,14 @@ end;
 
 function TOBDGaugeBase.Clamp(AValue: Double): Double;
 begin
-  if SameValue(FMin, FMax) then Exit(FMin);
-  if AValue < FMin then Result := FMin
-  else if AValue > FMax then Result := FMax
-  else                       Result := AValue;
+  if SameValue(FMin, FMax) then
+    Exit(FMin);
+  if AValue < FMin then
+    Result := FMin
+  else if AValue > FMax then
+    Result := FMax
+  else
+    Result := AValue;
 end;
 
 function TOBDGaugeBase.NormalisedValue: Double;
@@ -224,7 +226,8 @@ begin
 end;
 
 function TOBDGaugeBase.CurrentZoneColor: TColor;
-var Z: TOBDGaugeZone;
+var
+  Z: TOBDGaugeZone;
 begin
   Z := ResolveZone(FZones, FDisplayValue);
   if (Z.EndValue > Z.StartValue) or (Z.Color <> 0) then
@@ -234,21 +237,22 @@ begin
 end;
 
 function TOBDGaugeBase.FormatValue(AValue: Double): string;
-var FS: TFormatSettings;
+var
+  FS: TFormatSettings;
 begin
   FS := TFormatSettings.Create('en-US');
   if FDecimals = 0 then
     Result := FormatFloat('0', AValue, FS)
   else
-    Result := FormatFloat('0.' + StringOfChar('0', FDecimals),
-      AValue, FS);
+    Result := FormatFloat('0.' + StringOfChar('0', FDecimals), AValue, FS);
   if FUnit <> '' then
     Result := Result + ' ' + FUnit;
 end;
 
 procedure TOBDGaugeBase.SetMin(AValue: Double);
 begin
-  if SameValue(FMin, AValue) then Exit;
+  if SameValue(FMin, AValue) then
+    Exit;
   FMin := AValue;
   FDisplayValue := Clamp(FDisplayValue);
   Repaint;
@@ -256,7 +260,8 @@ end;
 
 procedure TOBDGaugeBase.SetMax(AValue: Double);
 begin
-  if SameValue(FMax, AValue) then Exit;
+  if SameValue(FMax, AValue) then
+    Exit;
   FMax := AValue;
   FDisplayValue := Clamp(FDisplayValue);
   Repaint;
@@ -267,10 +272,11 @@ var
   Clamped: Double;
 begin
   Clamped := Clamp(AValue);
-  if SameValue(FValue, Clamped) then Exit;
+  if SameValue(FValue, Clamped) then
+    Exit;
   FValue := Clamped;
-  if FAnimateValueChanges and not (csLoading in ComponentState) and
-     not (csDesigning in ComponentState) then
+  if FAnimateValueChanges and not(csLoading in ComponentState) and
+    not(csDesigning in ComponentState) then
     FAnim.Animate(FDisplayValue, FValue)
   else
   begin
@@ -298,41 +304,52 @@ end;
 
 procedure TOBDGaugeBase.SetCaption(const AValue: string);
 begin
-  if FCaption = AValue then Exit;
-  FCaption := AValue; Repaint;
+  if FCaption = AValue then
+    Exit;
+  FCaption := AValue;
+  Repaint;
 end;
 
 procedure TOBDGaugeBase.SetUnit(const AValue: string);
 begin
-  if FUnit = AValue then Exit;
-  FUnit := AValue; Repaint;
+  if FUnit = AValue then
+    Exit;
+  FUnit := AValue;
+  Repaint;
 end;
 
 procedure TOBDGaugeBase.SetDecimals(AValue: Byte);
 begin
-  if FDecimals = AValue then Exit;
-  FDecimals := AValue; Repaint;
+  if FDecimals = AValue then
+    Exit;
+  FDecimals := AValue;
+  Repaint;
 end;
 
 procedure TOBDGaugeBase.SetAnimateValueChanges(AValue: Boolean);
 begin
-  if FAnimateValueChanges = AValue then Exit;
+  if FAnimateValueChanges = AValue then
+    Exit;
   FAnimateValueChanges := AValue;
 end;
 
 procedure TOBDGaugeBase.SetLiveData(AValue: TOBDLiveData);
 begin
-  if FLiveData = AValue then Exit;
+  if FLiveData = AValue then
+    Exit;
   UnsubscribeFromLiveData;
-  if FLiveData <> nil then FLiveData.RemoveFreeNotification(Self);
+  if FLiveData <> nil then
+    FLiveData.RemoveFreeNotification(Self);
   FLiveData := AValue;
-  if FLiveData <> nil then FLiveData.FreeNotification(Self);
+  if FLiveData <> nil then
+    FLiveData.FreeNotification(Self);
   SubscribeToLiveData;
 end;
 
 procedure TOBDGaugeBase.SetPID(AValue: Byte);
 begin
-  if FPID = AValue then Exit;
+  if FPID = AValue then
+    Exit;
   UnsubscribeFromLiveData;
   FPID := AValue;
   SubscribeToLiveData;
@@ -340,7 +357,7 @@ end;
 
 procedure TOBDGaugeBase.SubscribeToLiveData;
 begin
-  if (FLiveData <> nil) and not (csDesigning in ComponentState) then
+  if (FLiveData <> nil) and not(csDesigning in ComponentState) then
     FLiveData.Subscribe(FPID, HandleLiveValue);
 end;
 

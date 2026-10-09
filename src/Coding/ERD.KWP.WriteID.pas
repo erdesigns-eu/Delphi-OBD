@@ -1,37 +1,37 @@
-//------------------------------------------------------------------------------
-//  ERD.KWP.WriteID
+﻿// ------------------------------------------------------------------------------
+// ERD.KWP.WriteID
 //
-//  TOBDKWPWriteID — non-visual component for ISO 14230-3
-//  WriteDataByLocalIdentifier (SID 0x3B). The KWP write counterpart
-//  of UDS WriteDataByIdentifier; older European cars (VAG, BMW
-//  E-series, PSA EOBD) accept this on the K-line.
+// TOBDKWPWriteID — non-visual component for ISO 14230-3
+// WriteDataByLocalIdentifier (SID 0x3B). The KWP write counterpart
+// of UDS WriteDataByIdentifier; older European cars (VAG, BMW
+// E-series, PSA EOBD) accept this on the K-line.
 //
-//  Wire format per ISO 14230-3 §6.7:
+// Wire format per ISO 14230-3 §6.7:
 //
-//    Request : 3B <recordLocalIdentifier> <recordValue...>
-//    Response: 7B <recordLocalIdentifier>
+// Request : 3B <recordLocalIdentifier> <recordValue...>
+// Response: 7B <recordLocalIdentifier>
 //
-//  Local identifiers are 8-bit unlike UDS DIDs.
+// Local identifiers are 8-bit unlike UDS DIDs.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - ISO 14230-3:1999 § 6.7 (writeDataByLocalIdentifier)
+// References  :
+// - ISO 14230-3:1999 § 6.7 (writeDataByLocalIdentifier)
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.KWP.WriteID;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -39,9 +39,9 @@ interface
 uses
   ERD.Async.Task,
   ERD.Connection,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
   ERD.Types,
   ERD.Protocol.Types,
   ERD.Protocol.KWP2000,
@@ -100,7 +100,8 @@ end;
 
 destructor TOBDKWPWriteID.Destroy;
 begin
-  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  if FOwnedTask <> nil then
+    FOwnedTask.Cancel;
   FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
@@ -108,11 +109,15 @@ end;
 
 procedure TOBDKWPWriteID.SetProtocol(AValue: TOBDProtocol);
 begin
-  if FProtocol = AValue then Exit;
-  if FOwnedTask <> nil then FOwnedTask.Quiesce;
-  if FProtocol <> nil then FProtocol.RemoveFreeNotification(Self);
+  if FProtocol = AValue then
+    Exit;
+  if FOwnedTask <> nil then
+    FOwnedTask.Quiesce;
+  if FProtocol <> nil then
+    FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
-  if FProtocol <> nil then FProtocol.FreeNotification(Self);
+  if FProtocol <> nil then
+    FProtocol.FreeNotification(Self);
 end;
 
 procedure TOBDKWPWriteID.Notification(AComponent: TComponent;
@@ -121,7 +126,8 @@ begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
   begin
-    if FOwnedTask <> nil then FOwnedTask.Quiesce;
+    if FOwnedTask <> nil then
+      FOwnedTask.Quiesce;
     FProtocol := nil;
   end;
 end;
@@ -135,14 +141,19 @@ begin
     if FAsyncInFlight then
       raise EOBDConfig.Create('TOBDKWPWriteID: async already in flight');
     FAsyncInFlight := True;
-  finally FAsyncLock.Leave; end;
+  finally
+    FAsyncLock.Leave;
+  end;
 end;
 
 procedure TOBDKWPWriteID.ReleaseAsync;
 begin
   FAsyncLock.Enter;
-  try FAsyncInFlight := False;
-  finally FAsyncLock.Leave; end;
+  try
+    FAsyncInFlight := False;
+  finally
+    FAsyncLock.Leave;
+  end;
 end;
 
 procedure TOBDKWPWriteID.DoWrite(ALocalID: Byte; const AData: TBytes);
@@ -153,15 +164,16 @@ begin
   if FProtocol = nil then
     raise EOBDConfig.Create('TOBDKWPWriteID: Protocol not assigned');
   if not FAutoExecute then
-    raise EOBDConfig.Create(
-      'TOBDKWPWriteID: AutoExecute is False — set it before writing');
+    raise EOBDConfig.Create
+      ('TOBDKWPWriteID: AutoExecute is False — set it before writing');
   SetLength(Body, 1 + Length(AData));
   Body[0] := ALocalID;
-  if Length(AData) > 0 then Move(AData[0], Body[1], Length(AData));
+  if Length(AData) > 0 then
+    Move(AData[0], Body[1], Length(AData));
   Resp := FProtocol.Request(KWP_SID_WriteDataByLocalIdentifier, Body);
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt(
-      'KWP WriteDataByLocalIdentifier 0x%2.2X negative: %s',
+    raise EOBDProtocolErr.CreateFmt
+      ('KWP WriteDataByLocalIdentifier 0x%2.2X negative: %s',
       [ALocalID, Resp.NRCText]);
 end;
 
@@ -173,11 +185,14 @@ end;
 
 procedure TOBDKWPWriteID.WriteAsync(ALocalID: Byte; const AData: TBytes);
 var
-  Self_: TOBDKWPWriteID; LID: Byte; Data: TBytes;
+  Self_: TOBDKWPWriteID;
+  LID: Byte;
+  Data: TBytes;
 begin
   GuardSingleAsync;
   try
-    Self_ := Self; LID := ALocalID;
+    Self_ := Self;
+    LID := ALocalID;
     Data := Copy(AData, 0, Length(AData));
     FOwnedTask.Start(
       procedure
@@ -187,7 +202,8 @@ begin
             Self_.DoWrite(LID, Data);
             Self_.FireWrite;
           except
-            on E: Exception do Self_.FireError(oeIO, E.Message);
+            on E: Exception do
+              Self_.FireError(oeIO, E.Message);
           end;
         finally
           Self_.ReleaseAsync;
@@ -203,32 +219,43 @@ procedure TOBDKWPWriteID.FireWrite;
 var
   Self_: TOBDKWPWriteID;
 begin
-  if not Assigned(FOnWrite) then Exit;
+  if not Assigned(FOnWrite) then
+    Exit;
   Self_ := Self;
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnWrite(Self_)
   else
-    FOwnedTask.Post( procedure begin
-      if Assigned(Self_.FOnWrite) then Self_.FOnWrite(Self_);
-    end);
+    FOwnedTask.Post(
+      procedure
+      begin
+        if Assigned(Self_.FOnWrite) then
+          Self_.FOnWrite(Self_);
+      end);
 end;
 
 procedure TOBDKWPWriteID.FireError(ACode: TOBDErrorCode;
-  const AMessage: string);
+const AMessage: string);
 var
-  Self_: TOBDKWPWriteID; Code: TOBDErrorCode; Msg: string;
+  Self_: TOBDKWPWriteID;
+  Code: TOBDErrorCode;
+  Msg: string;
   Handled: Boolean;
 begin
-  if not Assigned(FOnError) then Exit;
-  Self_ := Self; Code := ACode; Msg := AMessage;
+  if not Assigned(FOnError) then
+    Exit;
+  Self_ := Self;
+  Code := ACode;
+  Msg := AMessage;
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
     Handled := False;
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    FOwnedTask.Post( procedure
-      var Handled: Boolean;
+    FOwnedTask.Post(
+      procedure
+      var
+        Handled: Boolean;
       begin
         Handled := False;
         if Assigned(Self_.FOnError) then

@@ -1,37 +1,37 @@
-//------------------------------------------------------------------------------
-//  ERD.OEM.Renault
+﻿// ------------------------------------------------------------------------------
+// ERD.OEM.Renault
 //
-//  Renault Group (Renault / Dacia / Alpine) OEM extension.
-//  Catalogue + DTC overlay in <c>catalogs/renault.json</c> +
-//  <c>catalogs/dtc-renault.json</c>.
+// Renault Group (Renault / Dacia / Alpine) OEM extension.
+// Catalogue + DTC overlay in <c>catalogs/renault.json</c> +
+// <c>catalogs/dtc-renault.json</c>.
 //
-//  Seed-key starter is the 'RNLT' XOR-mask documented in the
-//  CLIP community for pre-2014 EMS modules; modern CLIP uses
-//  NDA crypto which production callers register via
-//  RegisterAlgorithm.
+// Seed-key starter is the 'RNLT' XOR-mask documented in the
+// CLIP community for pre-2014 EMS modules; modern CLIP uses
+// NDA crypto which production callers register via
+// RegisterAlgorithm.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-12  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-12  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.OEM.Renault;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   ERD.OEM,
   ERD.OEM.Session,
   ERD.OEM.SeedKey,
@@ -44,22 +44,20 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
-    procedure BuildExtendedCatalog(
-      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+    procedure BuildExtendedCatalog(var CodingBlocks: TArray<TOBDOEMCodingBlock>;
       var Adaptations: TArray<TOBDOEMAdaptation>;
       var ActuatorTests: TArray<TOBDOEMActuatorTest>;
       var LivePIDs: TArray<TOBDOEMLivePID>;
       var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
-    procedure SeedDefaultSeedKeyAlgorithms(
-      Reg: TOBDSeedKeyRegistry); override;
+    procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
     function DtcCatalogFileName: string; override;
   public
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
     function ApplicableToVIN(const VIN: string): Boolean; override;
-    function DecodeDID(const DID: Word;
-      const Payload: TBytes): string; override;
+    function DecodeDID(const DID: Word; const Payload: TBytes): string;
+      override;
   end;
 
 implementation
@@ -79,36 +77,33 @@ begin
   Result := 'Renault Group (Renault / Dacia / Alpine)';
 end;
 
-function TOBDOEMExtensionRenault.ApplicableToVIN(
-  const VIN: string): Boolean;
+function TOBDOEMExtensionRenault.ApplicableToVIN(const VIN: string): Boolean;
 begin
   Result := VINMatchesCatalog('renault.json', VIN);
 end;
 
-procedure TOBDOEMExtensionRenault.BuildCatalog(
-  var DIDs: TArray<TOBDOEMDataIdentifier>;
-  var Routines: TArray<TOBDOEMRoutine>;
-  var ECUs: TArray<TOBDOEMECU>);
+procedure TOBDOEMExtensionRenault.BuildCatalog
+  (var DIDs: TArray<TOBDOEMDataIdentifier>;
+  var Routines: TArray<TOBDOEMRoutine>; var ECUs: TArray<TOBDOEMECU>);
 begin
   MergeCatalogJSON('renault.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
-procedure TOBDOEMExtensionRenault.BuildExtendedCatalog(
-  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
-  var Adaptations: TArray<TOBDOEMAdaptation>;
+procedure TOBDOEMExtensionRenault.BuildExtendedCatalog(var CodingBlocks
+  : TArray<TOBDOEMCodingBlock>; var Adaptations: TArray<TOBDOEMAdaptation>;
   var ActuatorTests: TArray<TOBDOEMActuatorTest>;
   var LivePIDs: TArray<TOBDOEMLivePID>;
   var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
 begin
-  MergeExtendedCatalogJSON('renault.json',
-    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+  MergeExtendedCatalogJSON('renault.json', CodingBlocks, Adaptations,
+    ActuatorTests, LivePIDs, DtcExtended);
 end;
 
-procedure TOBDOEMExtensionRenault.SeedDefaultSeedKeyAlgorithms(
-  Reg: TOBDSeedKeyRegistry);
+procedure TOBDOEMExtensionRenault.SeedDefaultSeedKeyAlgorithms
+  (Reg: TOBDSeedKeyRegistry);
 const
-  MASK: array[0..3] of Byte = ($52, $4E, $4C, $54);  // 'RNLT'
+  MASK: array [0 .. 3] of Byte = ($52, $4E, $4C, $54); // 'RNLT'
 var
   M: TBytes;
 begin
@@ -119,8 +114,7 @@ begin
     'community-pr', False)));
 end;
 
-procedure TOBDOEMExtensionRenault.SeedDefaultDtcCatalog(
-  Cat: TOBDDtcCatalog);
+procedure TOBDOEMExtensionRenault.SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog);
 begin
   inherited;
   MergeDtcCatalog('dtc-iso-15031.json', Cat);
@@ -141,16 +135,17 @@ begin
     $F190:
       if Length(Payload) > 0 then
       begin
-        Result := Format('vin = %s',
-          [TEncoding.ASCII.GetString(Payload)]);
+        Result := Format('vin = %s', [TEncoding.ASCII.GetString(Payload)]);
         Exit;
       end;
     $F1A0, $F1A2:
       if Length(Payload) > 0 then
       begin
         case DID of
-          $F1A0: FieldName := 'renault_calibration_id';
-          $F1A2: FieldName := 'renault_market_code';
+          $F1A0:
+            FieldName := 'renault_calibration_id';
+          $F1A2:
+            FieldName := 'renault_market_code';
         else
           FieldName := 'unknown';
         end;
@@ -163,6 +158,7 @@ begin
 end;
 
 initialization
-  TOBDOEMRegistry.RegisterExtension(TOBDOEMExtensionRenault.Create);
+
+TOBDOEMRegistry.RegisterExtension(TOBDOEMExtensionRenault.Create);
 
 end.

@@ -1,45 +1,45 @@
-//------------------------------------------------------------------------------
-//  ERD.Calibration.XCP.Loopback
+﻿// ------------------------------------------------------------------------------
+// ERD.Calibration.XCP.Loopback
 //
-//  TOBDXCPLoopbackTransport — reference implementation of
-//  IOBDXCPTransport that ships in-process, useful for:
+// TOBDXCPLoopbackTransport — reference implementation of
+// IOBDXCPTransport that ships in-process, useful for:
 //
-//    1. Wiring up tests for code that drives a TOBDXCP master.
-//    2. Hosts that talk to an in-process simulated slave (e.g. a
-//       host-side ECU model running in the same Delphi binary).
-//    3. Demonstrating the contract every host CAN driver
-//       implementation must satisfy.
+// 1. Wiring up tests for code that drives a TOBDXCP master.
+// 2. Hosts that talk to an in-process simulated slave (e.g. a
+// host-side ECU model running in the same Delphi binary).
+// 3. Demonstrating the contract every host CAN driver
+// implementation must satisfy.
 //
-//  The master sends packets via SendPacket; the host plug
-//  (typically a stub slave running in another thread) calls
-//  PostFromSlave to enqueue a response packet back to the master.
-//  Both directions are blocking up to a host-supplied timeout.
+// The master sends packets via SendPacket; the host plug
+// (typically a stub slave running in another thread) calls
+// PostFromSlave to enqueue a response packet back to the master.
+// Both directions are blocking up to a host-supplied timeout.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-09  ERD  Follow-up.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Follow-up.
+// ------------------------------------------------------------------------------
 
 unit ERD.Calibration.XCP.Loopback;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.Types,
   ERD.Calibration.XCP.Transport;
 
@@ -47,13 +47,13 @@ type
   /// <summary>Fires when the master sends a packet — gives the
   /// host a chance to compose a response synchronously without
   /// shipping a second thread.</summary>
-  TOBDXCPLoopbackEvent = procedure(Sender: TObject;
-    const APacket: TBytes) of object;
+  TOBDXCPLoopbackEvent = procedure(Sender: TObject; const APacket: TBytes)
+    of object;
 
   /// <summary>
-  ///   In-process IOBDXCPTransport implementation. Two FIFOs +
-  ///   two events: one for outbound (master → slave), one for
-  ///   inbound (slave → master).
+  /// In-process IOBDXCPTransport implementation. Two FIFOs +
+  /// two events: one for outbound (master → slave), one for
+  /// inbound (slave → master).
   /// </summary>
   TOBDXCPLoopbackTransport = class(TInterfacedObject, IOBDXCPTransport)
   strict private
@@ -83,8 +83,8 @@ type
     /// <summary>Fires (synchronously, on the calling thread) every
     /// time the master sends a packet. Hosts use this to compose a
     /// response inline without a worker thread.</summary>
-    property OnPacketSent: TOBDXCPLoopbackEvent
-      read FOnPacketSent write FOnPacketSent;
+    property OnPacketSent: TOBDXCPLoopbackEvent read FOnPacketSent
+      write FOnPacketSent;
   end;
 
 implementation
@@ -130,15 +130,15 @@ begin
     FOnPacketSent(Self, Snap);
 end;
 
-function TOBDXCPLoopbackTransport.ReceivePacket(
-  ATimeoutMs: Cardinal): TBytes;
+function TOBDXCPLoopbackTransport.ReceivePacket(ATimeoutMs: Cardinal): TBytes;
 begin
   FLock.Enter;
   try
     if FInbound.Count > 0 then
     begin
       Result := FInbound.Dequeue;
-      if FInbound.Count = 0 then FInboundEvent.ResetEvent;
+      if FInbound.Count = 0 then
+        FInboundEvent.ResetEvent;
       Exit;
     end;
   finally
@@ -155,7 +155,8 @@ begin
       Result := FInbound.Dequeue
     else
       SetLength(Result, 0);
-    if FInbound.Count = 0 then FInboundEvent.ResetEvent;
+    if FInbound.Count = 0 then
+      FInboundEvent.ResetEvent;
   finally
     FLock.Leave;
   end;
@@ -178,8 +179,11 @@ end;
 function TOBDXCPLoopbackTransport.PendingCount: Integer;
 begin
   FLock.Enter;
-  try Result := FInbound.Count;
-  finally FLock.Leave; end;
+  try
+    Result := FInbound.Count;
+  finally
+    FLock.Leave;
+  end;
 end;
 
 end.

@@ -1,50 +1,50 @@
-//------------------------------------------------------------------------------
-//  ERD.Adapter.Init
+﻿// ------------------------------------------------------------------------------
+// ERD.Adapter.Init
 //
-//  Per-family init sequence. Built-ins are baked into this unit so the
-//  adapter is functional without any catalogue file; sequences may be
-//  overridden via JSON for OEM-specific quirks.
+// Per-family init sequence. Built-ins are baked into this unit so the
+// adapter is functional without any catalogue file; sequences may be
+// overridden via JSON for OEM-specific quirks.
 //
-//  The initializer runs each AT/ST step through the same
-//  IOBDAdapterCommandSender abstraction the detector uses; a missing
-//  optional step (e.g. STM on a non-OBDLink chip) does not abort the
-//  sequence — only required steps do.
+// The initializer runs each AT/ST step through the same
+// IOBDAdapterCommandSender abstraction the detector uses; a missing
+// optional step (e.g. STM on a non-OBDLink chip) does not abort the
+// sequence — only required steps do.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation: built-in sequences for ELM327 /
-//                     OBDLink / J2534 / DoIP, JSON loader stub for
-//                     overrides.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation: built-in sequences for ELM327 /
+// OBDLink / J2534 / DoIP, JSON loader stub for
+// overrides.
+// ------------------------------------------------------------------------------
 
 unit ERD.Adapter.Init;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   System.IOUtils,
   System.JSON,
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.Types,
   ERD.Adapter.Types,
   ERD.Adapter.Detection;
 
 type
   /// <summary>
-  ///   Single step in an init sequence.
+  /// Single step in an init sequence.
   /// </summary>
   TOBDInitStep = record
     /// <summary>Command verb (already formatted; AT or ST).</summary>
@@ -62,14 +62,14 @@ type
   TOBDInitSequence = TArray<TOBDInitStep>;
 
   /// <summary>
-  ///   Stateless initializer.
+  /// Stateless initializer.
   /// </summary>
   /// <remarks>
-  ///   <c>Run</c> walks the sequence in order. Each step fires a
-  ///   step-progress event with <c>Index/Count</c> matching its
-  ///   position in the sequence. A required step that fails (timeout,
-  ///   error keyword in the response) raises
-  ///   <see cref="EOBDAdapter"/>.
+  /// <c>Run</c> walks the sequence in order. Each step fires a
+  /// step-progress event with <c>Index/Count</c> matching its
+  /// position in the sequence. A required step that fails (timeout,
+  /// error keyword in the response) raises
+  /// <see cref="EOBDAdapter"/>.
   /// </remarks>
   TOBDAdapterInitializer = class
   strict private
@@ -81,28 +81,28 @@ type
     class procedure ReleaseOverrides; static;
 
     /// <summary>
-    ///   Returns the resolved sequence for the given family. Falls
-    ///   back to the in-source built-in when no JSON override is
-    ///   registered.
+    /// Returns the resolved sequence for the given family. Falls
+    /// back to the in-source built-in when no JSON override is
+    /// registered.
     /// </summary>
     /// <param name="AFamily">Adapter family.</param>
     /// <returns>Array of steps. Empty for families that don't have an
     /// AT/ST init phase (J2534, DoIP).</returns>
-    class function ResolvedSequence(
-      AFamily: TOBDAdapterFamily): TOBDInitSequence; static;
+    class function ResolvedSequence(AFamily: TOBDAdapterFamily)
+      : TOBDInitSequence; static;
 
     /// <summary>
-    ///   Returns the in-source built-in sequence for the given
-    ///   family, ignoring any JSON overrides.
+    /// Returns the in-source built-in sequence for the given
+    /// family, ignoring any JSON overrides.
     /// </summary>
     /// <param name="AFamily">Adapter family.</param>
     /// <returns>Array of steps.</returns>
-    class function BuiltinSequence(
-      AFamily: TOBDAdapterFamily): TOBDInitSequence; static;
+    class function BuiltinSequence(AFamily: TOBDAdapterFamily)
+      : TOBDInitSequence; static;
 
     /// <summary>
-    ///   Replaces (or registers) the override sequence for a family.
-    ///   Pass an empty array to clear the override.
+    /// Replaces (or registers) the override sequence for a family.
+    /// Pass an empty array to clear the override.
     /// </summary>
     /// <param name="AFamily">Family to override.</param>
     /// <param name="ASequence">Sequence to use in place of the
@@ -111,11 +111,11 @@ type
       const ASequence: TOBDInitSequence); static;
 
     /// <summary>
-    ///   Loads override sequences from a JSON file (matching the
-    ///   <c>catalogs/adapter/init-sequences.json</c> schema). Each
-    ///   recognised family's array is registered as an override; the
-    ///   built-ins remain in place for families the file does not
-    ///   mention.
+    /// Loads override sequences from a JSON file (matching the
+    /// <c>catalogs/adapter/init-sequences.json</c> schema). Each
+    /// recognised family's array is registered as an override; the
+    /// built-ins remain in place for families the file does not
+    /// mention.
     /// </summary>
     /// <param name="AFileName">Path to the JSON file.</param>
     /// <returns>Number of family overrides registered.</returns>
@@ -124,8 +124,8 @@ type
     class function LoadFromJSON(const AFileName: string): Integer; static;
 
     /// <summary>
-    ///   Concatenates a base sequence with optional user-supplied
-    ///   commands (each treated as best-effort, name = the verb).
+    /// Concatenates a base sequence with optional user-supplied
+    /// commands (each treated as best-effort, name = the verb).
     /// </summary>
     /// <param name="ABase">Base sequence.</param>
     /// <param name="AExtra">Extra commands to append.</param>
@@ -134,7 +134,7 @@ type
       const AExtra: TStrings): TOBDInitSequence; static;
 
     /// <summary>
-    ///   Runs an init sequence through the supplied sender.
+    /// Runs an init sequence through the supplied sender.
     /// </summary>
     /// <param name="ASender">Command sender. Must not be
     /// <c>nil</c>.</param>
@@ -180,8 +180,8 @@ begin
   FreeAndNil(FOverrides);
 end;
 
-class procedure TOBDAdapterInitializer.RegisterOverride(
-  AFamily: TOBDAdapterFamily; const ASequence: TOBDInitSequence);
+class procedure TOBDAdapterInitializer.RegisterOverride
+  (AFamily: TOBDAdapterFamily; const ASequence: TOBDInitSequence);
 begin
   EnsureOverrides;
   if Length(ASequence) = 0 then
@@ -190,8 +190,8 @@ begin
     FOverrides.AddOrSetValue(AFamily, Copy(ASequence));
 end;
 
-class function TOBDAdapterInitializer.ResolvedSequence(
-  AFamily: TOBDAdapterFamily): TOBDInitSequence;
+class function TOBDAdapterInitializer.ResolvedSequence
+  (AFamily: TOBDAdapterFamily): TOBDInitSequence;
 var
   Seq: TOBDInitSequence;
 begin
@@ -208,17 +208,22 @@ var
 begin
   Norm := LowerCase(Trim(AKey));
   Result := True;
-  if      Norm = 'elm327'  then AFamily := afELM327
-  else if Norm = 'obdlink' then AFamily := afOBDLink
-  else if Norm = 'j2534'   then AFamily := afJ2534
-  else if Norm = 'doip'    then AFamily := afDoIP
-  else Result := False;
+  if Norm = 'elm327' then
+    AFamily := afELM327
+  else if Norm = 'obdlink' then
+    AFamily := afOBDLink
+  else if Norm = 'j2534' then
+    AFamily := afJ2534
+  else if Norm = 'doip' then
+    AFamily := afDoIP
+  else
+    Result := False;
 end;
 
-class function TOBDAdapterInitializer.LoadFromJSON(
-  const AFileName: string): Integer;
+class function TOBDAdapterInitializer.LoadFromJSON(const AFileName
+  : string): Integer;
 var
-  Json: string;
+  JSON: string;
   Doc: TJSONValue;
   Root, FamilyObj, StepObj: TJSONObject;
   Families, Steps: TJSONArray;
@@ -235,14 +240,14 @@ begin
     raise EOBDConfig.CreateFmt('Init-sequences file not found: %s',
       [AFileName]);
 
-  Json := TFile.ReadAllText(AFileName, TEncoding.UTF8);
-  Doc := TJSONObject.ParseJSONValue(Json);
+  JSON := TFile.ReadAllText(AFileName, TEncoding.UTF8);
+  Doc := TJSONObject.ParseJSONValue(JSON);
   if Doc = nil then
     raise EOBDConfig.CreateFmt('%s: invalid JSON', [AFileName]);
 
   Result := 0;
   try
-    if not (Doc is TJSONObject) then
+    if not(Doc is TJSONObject) then
       raise EOBDConfig.CreateFmt('%s: root is not an object', [AFileName]);
     Root := Doc as TJSONObject;
 
@@ -261,26 +266,25 @@ begin
     else
       TypeStr := 'adapter-init-sequences';
     if not SameText(TypeStr, 'adapter-init-sequences') then
-      raise EOBDConfig.CreateFmt(
-        '%s: type "%s" is not "adapter-init-sequences"',
-        [AFileName, TypeStr]);
+      raise EOBDConfig.CreateFmt
+        ('%s: type "%s" is not "adapter-init-sequences"', [AFileName, TypeStr]);
 
-    if not (Root.GetValue('families') is TJSONArray) then
+    if not(Root.GetValue('families') is TJSONArray) then
       raise EOBDConfig.CreateFmt('%s: "families" must be an array',
         [AFileName]);
     Families := Root.GetValue('families') as TJSONArray;
 
     for I := 0 to Families.Count - 1 do
     begin
-      if not (Families.Items[I] is TJSONObject) then
+      if not(Families.Items[I] is TJSONObject) then
         raise EOBDConfig.CreateFmt('%s: families[%d] is not an object',
           [AFileName, I]);
       FamilyObj := Families.Items[I] as TJSONObject;
 
       KeyVal := FamilyObj.GetValue('family');
       if KeyVal = nil then
-        raise EOBDConfig.CreateFmt(
-          '%s: families[%d].family missing', [AFileName, I]);
+        raise EOBDConfig.CreateFmt('%s: families[%d].family missing',
+          [AFileName, I]);
       FamilyKey := KeyVal.Value;
       if not FamilyFromString(FamilyKey, Family) then
         // Unknown family — skip silently rather than raise; lets
@@ -288,18 +292,17 @@ begin
         // older builds.
         Continue;
 
-      if not (FamilyObj.GetValue('steps') is TJSONArray) then
-        raise EOBDConfig.CreateFmt(
-          '%s: families[%d].steps must be an array', [AFileName, I]);
+      if not(FamilyObj.GetValue('steps') is TJSONArray) then
+        raise EOBDConfig.CreateFmt('%s: families[%d].steps must be an array',
+          [AFileName, I]);
       Steps := FamilyObj.GetValue('steps') as TJSONArray;
 
       SetLength(Sequence, 0);
       for J := 0 to Steps.Count - 1 do
       begin
-        if not (Steps.Items[J] is TJSONObject) then
-          raise EOBDConfig.CreateFmt(
-            '%s: families[%d].steps[%d] is not an object',
-            [AFileName, I, J]);
+        if not(Steps.Items[J] is TJSONObject) then
+          raise EOBDConfig.CreateFmt
+            ('%s: families[%d].steps[%d] is not an object', [AFileName, I, J]);
         StepObj := Steps.Items[J] as TJSONObject;
 
         Step.Verb := '';
@@ -307,15 +310,17 @@ begin
         Step.Required := False;
 
         KeyVal := StepObj.GetValue('verb');
-        if KeyVal <> nil then Step.Verb := KeyVal.Value;
+        if KeyVal <> nil then
+          Step.Verb := KeyVal.Value;
         if Trim(Step.Verb) = '' then
-          raise EOBDConfig.CreateFmt(
-            '%s: families[%d].steps[%d].verb is empty',
+          raise EOBDConfig.CreateFmt('%s: families[%d].steps[%d].verb is empty',
             [AFileName, I, J]);
 
         KeyVal := StepObj.GetValue('name');
-        if KeyVal <> nil then Step.Name := KeyVal.Value;
-        if Step.Name = '' then Step.Name := Step.Verb;
+        if KeyVal <> nil then
+          Step.Name := KeyVal.Value;
+        if Step.Name = '' then
+          Step.Name := Step.Verb;
 
         KeyVal := StepObj.GetValue('required');
         if (KeyVal <> nil) and (KeyVal is TJSONBool) then
@@ -333,29 +338,25 @@ begin
   end;
 end;
 
-class function TOBDAdapterInitializer.BuiltinSequence(
-  AFamily: TOBDAdapterFamily): TOBDInitSequence;
+class function TOBDAdapterInitializer.BuiltinSequence
+  (AFamily: TOBDAdapterFamily): TOBDInitSequence;
 begin
   case AFamily of
     afELM327:
-      Result := TOBDInitSequence.Create(
-        MakeStep('ATZ',   'Reset',                 True),
-        MakeStep('ATE0',  'Echo off',              True),
-        MakeStep('ATL0',  'Linefeeds off',         True),
-        MakeStep('ATS0',  'Spaces off',            False),
-        MakeStep('ATH0',  'Headers off',           False),
-        MakeStep('ATAT1', 'Adaptive timing on',    False),
-        MakeStep('ATSP0', 'Auto-protocol',         True));
+      Result := TOBDInitSequence.Create(MakeStep('ATZ', 'Reset', True),
+        MakeStep('ATE0', 'Echo off', True), MakeStep('ATL0', 'Linefeeds off',
+        True), MakeStep('ATS0', 'Spaces off', False),
+        MakeStep('ATH0', 'Headers off', False),
+        MakeStep('ATAT1', 'Adaptive timing on', False),
+        MakeStep('ATSP0', 'Auto-protocol', True));
     afOBDLink:
-      Result := TOBDInitSequence.Create(
-        MakeStep('ATZ',   'Reset',                 True),
-        MakeStep('ATE0',  'Echo off',              True),
-        MakeStep('ATL0',  'Linefeeds off',         True),
-        MakeStep('ATS0',  'Spaces off',            False),
-        MakeStep('ATH0',  'Headers off',           False),
-        MakeStep('STSR',  'Software reset (ST)',   False),
-        MakeStep('ATAT1', 'Adaptive timing on',    False),
-        MakeStep('ATSP0', 'Auto-protocol',         True));
+      Result := TOBDInitSequence.Create(MakeStep('ATZ', 'Reset', True),
+        MakeStep('ATE0', 'Echo off', True), MakeStep('ATL0', 'Linefeeds off',
+        True), MakeStep('ATS0', 'Spaces off', False),
+        MakeStep('ATH0', 'Headers off', False),
+        MakeStep('STSR', 'Software reset (ST)', False),
+        MakeStep('ATAT1', 'Adaptive timing on', False),
+        MakeStep('ATSP0', 'Auto-protocol', True));
     afJ2534:
       // J2534 has its own programmatic open via the PassThru API — the
       // AT/ST sequence is irrelevant. Sequence is empty; the adapter
@@ -368,26 +369,27 @@ begin
   end;
 end;
 
-class function TOBDAdapterInitializer.ExtendSequence(
-  const ABase: TOBDInitSequence; const AExtra: TStrings): TOBDInitSequence;
+class function TOBDAdapterInitializer.ExtendSequence
+  (const ABase: TOBDInitSequence; const AExtra: TStrings): TOBDInitSequence;
 var
   I: Integer;
   Step: TOBDInitStep;
 begin
   Result := Copy(ABase);
-  if AExtra = nil then Exit;
+  if AExtra = nil then
+    Exit;
   for I := 0 to AExtra.Count - 1 do
   begin
-    if Trim(AExtra[I]) = '' then Continue;
+    if Trim(AExtra[I]) = '' then
+      Continue;
     Step := MakeStep(Trim(AExtra[I]), 'Custom: ' + Trim(AExtra[I]), False);
     SetLength(Result, Length(Result) + 1);
     Result[High(Result)] := Step;
   end;
 end;
 
-class procedure TOBDAdapterInitializer.Run(
-  const ASender: IOBDAdapterCommandSender;
-  const ASequence: TOBDInitSequence;
+class procedure TOBDAdapterInitializer.Run(const ASender
+  : IOBDAdapterCommandSender; const ASequence: TOBDInitSequence;
   const AOnProgress: TOBDDetectionProgress; ATimeoutMs: Cardinal);
 var
   I: Integer;
@@ -404,15 +406,13 @@ begin
     try
       Resp := ASender.SendCommand(Step.Verb, ATimeoutMs);
       if Step.Required and Resp.IsError then
-        raise EOBDAdapter.CreateFmt(
-          'Init step %d (%s) failed: %s',
+        raise EOBDAdapter.CreateFmt('Init step %d (%s) failed: %s',
           [I + 1, Step.Verb, Resp.ErrorKeyword]);
     except
       on E: Exception do
       begin
         if Step.Required then
-          raise EOBDAdapter.CreateFmt(
-            'Init step %d (%s) failed: %s',
+          raise EOBDAdapter.CreateFmt('Init step %d (%s) failed: %s',
             [I + 1, Step.Verb, E.Message]);
         // Best-effort step: ignore and continue.
       end;
@@ -423,6 +423,7 @@ end;
 initialization
 
 finalization
-  TOBDAdapterInitializer.ReleaseOverrides;
+
+TOBDAdapterInitializer.ReleaseOverrides;
 
 end.

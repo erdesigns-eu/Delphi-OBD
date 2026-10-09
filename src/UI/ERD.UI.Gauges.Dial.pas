@@ -1,43 +1,43 @@
-//------------------------------------------------------------------------------
-//  ERD.UI.Gauges.Dial
+﻿// ------------------------------------------------------------------------------
+// ERD.UI.Gauges.Dial
 //
-//  Dial-shaped gauges: circular full-sweep, tachometer (with
-//  redline), partial-arc, and combo (dial + centred digital
-//  readout).
+// Dial-shaped gauges: circular full-sweep, tachometer (with
+// redline), partial-arc, and combo (dial + centred digital
+// readout).
 //
-//  All four share the same `DrawDialFrame` / `DrawNeedle`
-//  helpers from TOBDDialBase. Subclasses override:
-//    StartAngleDeg / SweepAngleDeg  scale-geometry hooks
-//    PaintExtras                    optional overlay paint
+// All four share the same `DrawDialFrame` / `DrawNeedle`
+// helpers from TOBDDialBase. Subclasses override:
+// StartAngleDeg / SweepAngleDeg  scale-geometry hooks
+// PaintExtras                    optional overlay paint
 //
-//  Anti-aliased paint via GDI+ for smooth arcs / needles;
-//  TCanvas for text + ticks (faster, sharper at small sizes).
+// Anti-aliased paint via GDI+ for smooth arcs / needles;
+// TCanvas for text + ticks (faster, sharper at small sizes).
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.UI.Gauges.Dial;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}Types{$ELSE}System.Types{$ENDIF},
+{$IFDEF FPC}Types{$ELSE}System.Types{$ENDIF},
   Winapi.Windows,
   Winapi.GDIPAPI,
   Winapi.GDIPOBJ,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
   Vcl.Graphics,
   Vcl.Controls,
   ERD.UI.Types,
@@ -65,14 +65,10 @@ type
     procedure PaintControl(ACanvas: TCanvas); override;
 
     function ValueToAngle(AValue: Double): Single;
-    procedure DrawDialFrame(AGraphics: TGPGraphics;
-      const ABounds: TRectF);
-    procedure DrawZones(AGraphics: TGPGraphics;
-      const ABounds: TRectF);
-    procedure DrawTicksAndLabels(ACanvas: TCanvas;
-      const ABounds: TRectF);
-    procedure DrawNeedle(AGraphics: TGPGraphics;
-      const ABounds: TRectF);
+    procedure DrawDialFrame(AGraphics: TGPGraphics; const ABounds: TRectF);
+    procedure DrawZones(AGraphics: TGPGraphics; const ABounds: TRectF);
+    procedure DrawTicksAndLabels(ACanvas: TCanvas; const ABounds: TRectF);
+    procedure DrawNeedle(AGraphics: TGPGraphics; const ABounds: TRectF);
     procedure DrawCaption(ACanvas: TCanvas; const ABounds: TRectF);
   end;
 
@@ -94,7 +90,7 @@ type
   /// <c>WarningStart</c> at runtime.</summary>
   TOBDTachometer = class(TOBDCircularGauge)
   strict private
-    FRedline:      Double;
+    FRedline: Double;
     FRedlineColor: TColor;
     FWarningStart: Double;
     FWarningColor: TColor;
@@ -108,14 +104,16 @@ type
   published
     /// <summary>Value above which the redline zone paints.
     /// Default 0.88 × Max.</summary>
-    property Redline:      Double read FRedline      write SetRedline;
+    property Redline: Double read FRedline write SetRedline;
     /// <summary>Redline zone colour. Default red.</summary>
-    property RedlineColor: TColor read FRedlineColor write SetRedlineColor default $003C3CFF;
+    property RedlineColor: TColor read FRedlineColor write SetRedlineColor
+      default $003C3CFF;
     /// <summary>Lower bound of the amber warning zone.
     /// Default 0.80 × Max.</summary>
     property WarningStart: Double read FWarningStart write SetWarningStart;
     /// <summary>Warning zone colour. Default amber.</summary>
-    property WarningColor: TColor read FWarningColor write SetWarningColor default $0000A8FF;
+    property WarningColor: TColor read FWarningColor write SetWarningColor
+      default $0000A8FF;
   end;
 
   /// <summary>Partial-arc dial — half-circle or 270° variant.
@@ -154,7 +152,7 @@ type
       const ABounds: TRectF); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
   published
     /// <summary>Font for the centre digital readout. Defaults
     /// to a 2x-scale headline.</summary>
@@ -174,7 +172,7 @@ const
   DEFAULT_DIAL_START = 135;
   DEFAULT_DIAL_SWEEP = 270;
 
-{ ---- TOBDDialBase --------------------------------------------------------- }
+  { ---- TOBDDialBase --------------------------------------------------------- }
 
 procedure TOBDDialBase.PaintExtras(AGraphics: TGPGraphics;
   const ABounds: TRectF);
@@ -184,21 +182,21 @@ end;
 
 function TOBDDialBase.ValueToAngle(AValue: Double): Single;
 begin
-  Result := StartAngleDeg +
-    Single(NormaliseValue(Min, Max, AValue)) * SweepAngleDeg;
+  Result := StartAngleDeg + Single(NormaliseValue(Min, Max, AValue)) *
+    SweepAngleDeg;
 end;
 
 procedure TOBDDialBase.PaintControl(ACanvas: TCanvas);
 var
   Graphics: TGPGraphics;
-  Bounds:   TRectF;
-  S:        Integer;
+  Bounds: TRectF;
+  S: Integer;
 begin
   // Compute a square bounds centred in the client rect.
   S := System.Math.Min(Width, Height);
-  Bounds.Left := (Width  - S) / 2;
+  Bounds.Left := (Width - S) / 2;
   Bounds.Top := (Height - S) / 2;
-  Bounds.Width  := S;
+  Bounds.Width := S;
   Bounds.Height := S;
 
   // Shrink inside for tick / label headroom.
@@ -223,13 +221,14 @@ end;
 procedure TOBDDialBase.DrawDialFrame(AGraphics: TGPGraphics;
   const ABounds: TRectF);
 var
-  Pen:    TGPPen;
-  Brush:  TGPSolidBrush;
+  Pen: TGPPen;
+  Brush: TGPSolidBrush;
   FaceCol, BorderCol: TColor;
-  Inner:  TGPRectF;
+  Inner: TGPRectF;
 begin
-  FaceCol   := Palette.GaugeFace;
-  if Self.StyleBackground <> clDefault then FaceCol := Self.StyleBackground;
+  FaceCol := Palette.GaugeFace;
+  if Self.StyleBackground <> clDefault then
+    FaceCol := Self.StyleBackground;
   BorderCol := EffectiveBorder;
 
   // Face fill.
@@ -237,7 +236,7 @@ begin
   try
     Inner.X := ABounds.Left;
     Inner.Y := ABounds.Top;
-    Inner.Width  := ABounds.Width;
+    Inner.Width := ABounds.Width;
     Inner.Height := ABounds.Height;
     AGraphics.FillEllipse(Brush, Inner);
   finally
@@ -253,28 +252,29 @@ begin
   end;
 end;
 
-procedure TOBDDialBase.DrawZones(AGraphics: TGPGraphics;
-  const ABounds: TRectF);
+procedure TOBDDialBase.DrawZones(AGraphics: TGPGraphics; const ABounds: TRectF);
 var
-  Z:       TOBDGaugeZone;
-  StartA:  Single;
-  SweepA:  Single;
-  Pen:     TGPPen;
-  Rect:    TGPRectF;
-  Inset:   Single;
+  Z: TOBDGaugeZone;
+  StartA: Single;
+  SweepA: Single;
+  Pen: TGPPen;
+  Rect: TGPRectF;
+  Inset: Single;
 begin
   // Zones paint as thin coloured arcs just inside the bezel.
-  if Length(Zones) = 0 then Exit;
+  if Length(Zones) = 0 then
+    Exit;
   Inset := ScaleValue(6);
   Rect.X := ABounds.Left + Inset;
   Rect.Y := ABounds.Top + Inset;
-  Rect.Width  := ABounds.Width  - Inset * 2;
+  Rect.Width := ABounds.Width - Inset * 2;
   Rect.Height := ABounds.Height - Inset * 2;
   for Z in Zones do
   begin
     StartA := ValueToAngle(Z.StartValue);
     SweepA := ValueToAngle(Z.EndValue) - StartA;
-    if SweepA <= 0 then Continue;
+    if SweepA <= 0 then
+      Continue;
     Pen := TGPPen.Create(ColorToARGB(Z.Color), ScaleValue(6));
     try
       AGraphics.DrawArc(Pen, Rect, StartA, SweepA);
@@ -287,8 +287,8 @@ end;
 procedure TOBDDialBase.DrawTicksAndLabels(ACanvas: TCanvas;
   const ABounds: TRectF);
 var
-  Cfg:    TOBDGaugeTickConfig;
-  V:      Double;
+  Cfg: TOBDGaugeTickConfig;
+  V: Double;
   AngleDeg, AngleRad: Single;
   Cx, Cy, R, RIn, ROut, RLbl: Single;
   X1, Y1, X2, Y2, Lx, Ly: Single;
@@ -296,21 +296,23 @@ var
   LabelColor: TColor;
   S: string;
   TextW, TextH: Integer;
-  Step:   Double;
-  M:      Integer;
+  Step: Double;
+  M: Integer;
 begin
   Cfg := TickConfig;
-  if Cfg.MajorInterval <= 0 then Exit;
-  if SameValue(Min, Max) then Exit;
+  if Cfg.MajorInterval <= 0 then
+    Exit;
+  if SameValue(Min, Max) then
+    Exit;
 
-  Cx := ABounds.Left + ABounds.Width  / 2;
+  Cx := ABounds.Left + ABounds.Width / 2;
   Cy := ABounds.Top + ABounds.Height / 2;
-  R  := System.Math.Min(ABounds.Width, ABounds.Height) / 2;
+  R := System.Math.Min(ABounds.Width, ABounds.Height) / 2;
   ROut := R - ScaleValue(10);
-  RIn  := R - ScaleValue(20);
+  RIn := R - ScaleValue(20);
   RLbl := R - ScaleValue(34);
 
-  TickColor  := Palette.GaugeTick;
+  TickColor := Palette.GaugeTick;
   LabelColor := Palette.GaugeLabel;
 
   ACanvas.Brush.Style := bsClear;
@@ -319,7 +321,7 @@ begin
   ACanvas.Font.Color := LabelColor;
 
   V := Min;
-  while V <= Max + 1e-9 do
+  while V <= Max + 1E-9 do
   begin
     AngleDeg := ValueToAngle(V);
     AngleRad := DegToRad(AngleDeg);
@@ -335,7 +337,8 @@ begin
     if Cfg.ShowLabels then
     begin
       S := FormatFloat('0.' + StringOfChar('0', Cfg.LabelDecimals), V);
-      if Cfg.LabelDecimals = 0 then S := FormatFloat('0', V);
+      if Cfg.LabelDecimals = 0 then
+        S := FormatFloat('0', V);
       TextW := ACanvas.TextWidth(S);
       TextH := ACanvas.TextHeight(S);
       Lx := Cx + RLbl * Cos(AngleRad) - TextW / 2;
@@ -344,7 +347,8 @@ begin
     end;
 
     // Minor ticks.
-    if (Cfg.MinorTicksPerMajor > 0) and (V + Cfg.MajorInterval <= Max + 1e-9) then
+    if (Cfg.MinorTicksPerMajor > 0) and (V + Cfg.MajorInterval <= Max + 1E-9)
+    then
     begin
       Step := Cfg.MajorInterval / (Cfg.MinorTicksPerMajor + 1);
       for M := 1 to Cfg.MinorTicksPerMajor do
@@ -370,23 +374,24 @@ procedure TOBDDialBase.DrawNeedle(AGraphics: TGPGraphics;
 var
   Cx, Cy, R: Single;
   Angle: Single;
-  Pen:   TGPPen;
+  Pen: TGPPen;
   Brush: TGPSolidBrush;
-  HubR:  Single;
+  HubR: Single;
   NX, NY, NLen: Single;
   Color: TColor;
-  Hub:   TGPRectF;
+  Hub: TGPRectF;
 begin
-  Cx := ABounds.Left + ABounds.Width  / 2;
+  Cx := ABounds.Left + ABounds.Width / 2;
   Cy := ABounds.Top + ABounds.Height / 2;
-  R  := System.Math.Min(ABounds.Width, ABounds.Height) / 2;
+  R := System.Math.Min(ABounds.Width, ABounds.Height) / 2;
   NLen := R - ScaleValue(18);
   Angle := DegToRad(ValueToAngle(DisplayValue));
   NX := Cx + NLen * Cos(Angle);
   NY := Cy + NLen * Sin(Angle);
 
   Color := CurrentZoneColor;
-  if Color = clNone then Color := Palette.GaugeNeedle;
+  if Color = clNone then
+    Color := Palette.GaugeNeedle;
 
   // Needle line.
   Pen := TGPPen.Create(ColorToARGB(Color), ScaleValue(3));
@@ -412,14 +417,14 @@ begin
   end;
 end;
 
-procedure TOBDDialBase.DrawCaption(ACanvas: TCanvas;
-  const ABounds: TRectF);
+procedure TOBDDialBase.DrawCaption(ACanvas: TCanvas; const ABounds: TRectF);
 var
   S: string;
   Cx, Cy: Integer;
   TextW: Integer;
 begin
-  if Caption = '' then Exit;
+  if Caption = '' then
+    Exit;
   S := Caption;
   ACanvas.Brush.Style := bsClear;
   ACanvas.Font := Self.Font;
@@ -451,52 +456,62 @@ end;
 { ---- TOBDTachometer ------------------------------------------------------- }
 
 constructor TOBDTachometer.Create(AOwner: TComponent);
-var Cfg: TOBDGaugeTickConfig;
+var
+  Cfg: TOBDGaugeTickConfig;
 begin
   inherited Create(AOwner);
   Min := 0;
   Max := 8000;
   &Unit := 'rpm';
   Caption := 'RPM';
-  FRedlineColor := $003C3CFF;     //  red BGR
-  FWarningColor := $0000A8FF;     //  amber BGR
-  FWarningStart := 6400;          //  0.80 × 8000
-  FRedline      := 7000;          //  0.88 × 8000
+  FRedlineColor := $003C3CFF; // red BGR
+  FWarningColor := $0000A8FF; // amber BGR
+  FWarningStart := 6400; // 0.80 × 8000
+  FRedline := 7000; // 0.88 × 8000
   // Override the inherited 0..100 tick config for an RPM scale.
   Cfg := DefaultTickConfig;
-  Cfg.MajorInterval      := 1000;
+  Cfg.MajorInterval := 1000;
   Cfg.MinorTicksPerMajor := 4;
-  Cfg.LabelDecimals      := 0;
+  Cfg.LabelDecimals := 0;
   SetTickConfig(Cfg);
   RebuildZones;
 end;
 
 procedure TOBDTachometer.SetRedline(AValue: Double);
 begin
-  if SameValue(FRedline, AValue) then Exit;
-  FRedline := AValue; RebuildZones;
+  if SameValue(FRedline, AValue) then
+    Exit;
+  FRedline := AValue;
+  RebuildZones;
 end;
 
 procedure TOBDTachometer.SetRedlineColor(AValue: TColor);
 begin
-  if FRedlineColor = AValue then Exit;
-  FRedlineColor := AValue; RebuildZones;
+  if FRedlineColor = AValue then
+    Exit;
+  FRedlineColor := AValue;
+  RebuildZones;
 end;
 
 procedure TOBDTachometer.SetWarningStart(AValue: Double);
 begin
-  if SameValue(FWarningStart, AValue) then Exit;
-  FWarningStart := AValue; RebuildZones;
+  if SameValue(FWarningStart, AValue) then
+    Exit;
+  FWarningStart := AValue;
+  RebuildZones;
 end;
 
 procedure TOBDTachometer.SetWarningColor(AValue: TColor);
 begin
-  if FWarningColor = AValue then Exit;
-  FWarningColor := AValue; RebuildZones;
+  if FWarningColor = AValue then
+    Exit;
+  FWarningColor := AValue;
+  RebuildZones;
 end;
 
 procedure TOBDTachometer.RebuildZones;
-var Z: TOBDGaugeZones;
+var
+  Z: TOBDGaugeZones;
 begin
   SetLength(Z, 2);
   Z[0] := MakeGaugeZone(FWarningStart, FRedline, FWarningColor);
@@ -525,14 +540,18 @@ end;
 
 procedure TOBDArcGauge.SetStartAngle(AValue: Single);
 begin
-  if SameValue(FStartAngle, AValue) then Exit;
-  FStartAngle := AValue; Repaint;
+  if SameValue(FStartAngle, AValue) then
+    Exit;
+  FStartAngle := AValue;
+  Repaint;
 end;
 
 procedure TOBDArcGauge.SetSweepAngle(AValue: Single);
 begin
-  if SameValue(FSweepAngle, AValue) then Exit;
-  FSweepAngle := AValue; Repaint;
+  if SameValue(FSweepAngle, AValue) then
+    Exit;
+  FSweepAngle := AValue;
+  Repaint;
 end;
 
 { ---- TOBDComboGauge ------------------------------------------------------- }
@@ -569,20 +588,24 @@ var
   S: string;
 begin
   // Draw the digital readout on the active GDI+ surface.
-  var FontFamily := TGPFontFamily.Create(FCenterFont.Name);
-  var GdiFont    := TGPFont.Create(FontFamily,
-    FCenterFont.Size, FontStyleBold, UnitPoint);
-  var Brush      := TGPSolidBrush.Create(
-    ColorToARGB(EffectiveForeground));
-  var Format     := TGPStringFormat.Create;
+  var
+  FontFamily := TGPFontFamily.Create(FCenterFont.Name);
+  var
+  GdiFont := TGPFont.Create(FontFamily, FCenterFont.Size, FontStyleBold,
+    UnitPoint);
+  var
+  Brush := TGPSolidBrush.Create(ColorToARGB(EffectiveForeground));
+  var
+  Format := TGPStringFormat.Create;
   try
     Format.SetAlignment(StringAlignmentCenter);
     Format.SetLineAlignment(StringAlignmentCenter);
     S := FormatValue(DisplayValue);
-    var R: TGPRectF;
+    var
+      R: TGPRectF;
     R.X := ABounds.Left;
     R.Y := ABounds.Top + ABounds.Height * 0.30;
-    R.Width  := ABounds.Width;
+    R.Width := ABounds.Width;
     R.Height := ABounds.Height * 0.30;
     AGraphics.DrawString(S, Length(S), GdiFont, R, Format, Brush);
   finally

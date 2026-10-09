@@ -1,40 +1,40 @@
-//------------------------------------------------------------------------------
-//  ERD.Service.DTCs
+﻿// ------------------------------------------------------------------------------
+// ERD.Service.DTCs
 //
-//  TOBDDTCs — non-visual component that reads stored / pending /
-//  permanent Diagnostic Trouble Codes from the ECU. Covers:
+// TOBDDTCs — non-visual component that reads stored / pending /
+// permanent Diagnostic Trouble Codes from the ECU. Covers:
 //
-//    - OBD-II Mode 03 — current (confirmed) DTCs
-//    - OBD-II Mode 07 — pending DTCs
-//    - OBD-II Mode 0A — permanent DTCs
-//    - UDS Service 0x19 — ReadDTCInformation (sub-function 0x02
-//      reportDTCByStatusMask)
+// - OBD-II Mode 03 — current (confirmed) DTCs
+// - OBD-II Mode 07 — pending DTCs
+// - OBD-II Mode 0A — permanent DTCs
+// - UDS Service 0x19 — ReadDTCInformation (sub-function 0x02
+// reportDTCByStatusMask)
 //
-//  Decodes the 2-byte raw codes into the SAE J2012 string form
-//  ("P0301", "C0123", …). Optionally resolves human-readable text
-//  via ERD.Catalog when a DTC catalogue is loaded.
+// Decodes the 2-byte raw codes into the SAE J2012 string form
+// ("P0301", "C0123", …). Optionally resolves human-readable text
+// via ERD.Catalog when a DTC catalogue is loaded.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - SAE J2012 (DTC nomenclature)
-//    - ISO 15031-6 (OBD-II diagnostic trouble codes)
-//    - ISO 14229-1 § 11.3.5 (UDS ReadDTCInformation)
+// References  :
+// - SAE J2012 (DTC nomenclature)
+// - ISO 15031-6 (OBD-II diagnostic trouble codes)
+// - ISO 14229-1 § 11.3.5 (UDS ReadDTCInformation)
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Service.DTCs;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -42,11 +42,11 @@ interface
 uses
   ERD.Async.Task,
   ERD.Connection,
-  {$IFDEF FPC}ERD.Compat.Functions,{$ENDIF}
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
-  {$IFNDEF FPC}Data.Bind.Components, System.Bindings.Helper,{$ENDIF}
+{$IFDEF FPC}ERD.Compat.Functions, {$ENDIF}
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFNDEF FPC}Data.Bind.Components, System.Bindings.Helper, {$ENDIF}
   ERD.Types,
   ERD.Catalog,
   ERD.Protocol.Types,
@@ -56,27 +56,26 @@ uses
 
 const
   /// <summary>OBD-II Mode 03 — current (confirmed) DTCs.</summary>
-  OBD_MODE_CURRENT_DTCS    = $03;
+  OBD_MODE_CURRENT_DTCS = $03;
   /// <summary>OBD-II Mode 07 — pending DTCs.</summary>
-  OBD_MODE_PENDING_DTCS    = $07;
+  OBD_MODE_PENDING_DTCS = $07;
   /// <summary>OBD-II Mode 0A — permanent DTCs.</summary>
-  OBD_MODE_PERMANENT_DTCS  = $0A;
+  OBD_MODE_PERMANENT_DTCS = $0A;
 
   /// <summary>UDS Service 0x19 sub-function: report DTC by status
   /// mask.</summary>
   UDS_DTC_REPORT_BY_STATUS_MASK = $02;
   /// <summary>UDS Service 0x19 sub-function: report DTC snapshot
   /// identification.</summary>
-  UDS_DTC_REPORT_SNAPSHOT_IDS   = $03;
+  UDS_DTC_REPORT_SNAPSHOT_IDS = $03;
 
 type
   /// <summary>Source bucket for a DTC entry.</summary>
-  TOBDDtcKind = (
-    dkConfirmed,    // Mode 03 / UDS confirmed
-    dkPending,      // Mode 07
-    dkPermanent,    // Mode 0A
+  TOBDDtcKind = (dkConfirmed, // Mode 03 / UDS confirmed
+    dkPending, // Mode 07
+    dkPermanent, // Mode 0A
     dkUDSStatusMask // UDS Service 0x19 / 0x02
-  );
+    );
 
   /// <summary>One decoded DTC entry.</summary>
   TOBDDtcEntry = record
@@ -97,12 +96,11 @@ type
   end;
 
   /// <summary>Fires when a DTC read completes.</summary>
-  TOBDDtcsEvent = procedure(Sender: TObject;
-    AKind: TOBDDtcKind;
+  TOBDDtcsEvent = procedure(Sender: TObject; AKind: TOBDDtcKind;
     const AEntries: TArray<TOBDDtcEntry>) of object;
 
   /// <summary>
-  ///   Diagnostic-Trouble-Codes service component.
+  /// Diagnostic-Trouble-Codes service component.
   /// </summary>
   TOBDDTCs = class(TComponent)
   strict private
@@ -118,7 +116,7 @@ type
     function ReadOBDMode(AMode: Byte; AKind: TOBDDtcKind): TArray<TOBDDtcEntry>;
     function ReadUDSStatusMask(AStatusMask: Byte): TArray<TOBDDtcEntry>;
     procedure DispatchAsync(AKind: TOBDDtcKind;
-      AImpl: TFunc<TArray<TOBDDtcEntry>>);
+      AImpl: TFunc < TArray < TOBDDtcEntry >> );
     procedure FireDTCs(AKind: TOBDDtcKind;
       const AEntries: TArray<TOBDDtcEntry>);
     procedure FireError(ACode: TOBDErrorCode; const AMessage: string);
@@ -146,8 +144,8 @@ type
     procedure ReadPermanentAsync;
 
     /// <summary>
-    ///   UDS Service 0x19 sub-function 0x02. Each entry carries
-    ///   <c>Status</c> + 3-byte raw code.
+    /// UDS Service 0x19 sub-function 0x02. Each entry carries
+    /// <c>Status</c> + 3-byte raw code.
     /// </summary>
     /// <param name="AStatusMask">Status bits the host wants
     /// (typical: <c>$FF</c> for "all DTCs").</param>
@@ -156,9 +154,9 @@ type
     procedure ReadUDSAsync(AStatusMask: Byte = $FF);
 
     /// <summary>
-    ///   Clears confirmed DTCs (OBD-II Mode 04 / UDS Service
-    ///   0x14 ClearDiagnosticInformation). Returns when the ECU
-    ///   acknowledges.
+    /// Clears confirmed DTCs (OBD-II Mode 04 / UDS Service
+    /// 0x14 ClearDiagnosticInformation). Returns when the ECU
+    /// acknowledges.
     /// </summary>
     /// <exception cref="EOBDProtocolErr">ECU refused or transient
     /// error.</exception>
@@ -176,7 +174,7 @@ type
 implementation
 
 const
-  CDtcLetters: array[0..3] of Char = ('P', 'C', 'B', 'U');
+  CDtcLetters: array [0 .. 3] of Char = ('P', 'C', 'B', 'U');
 
 constructor TOBDDTCs.Create(AOwner: TComponent);
 begin
@@ -187,7 +185,8 @@ end;
 
 destructor TOBDDTCs.Destroy;
 begin
-  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  if FOwnedTask <> nil then
+    FOwnedTask.Cancel;
   FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
@@ -210,7 +209,8 @@ end;
 procedure TOBDDTCs.ReleaseAsync;
 begin
   FAsyncLock.Enter;
-  try FAsyncInFlight := False;
+  try
+    FAsyncInFlight := False;
   finally
     FAsyncLock.Leave;
   end;
@@ -218,20 +218,24 @@ end;
 
 procedure TOBDDTCs.SetProtocol(AValue: TOBDProtocol);
 begin
-  if FProtocol = AValue then Exit;
-  if FOwnedTask <> nil then FOwnedTask.Quiesce;
-  if FProtocol <> nil then FProtocol.RemoveFreeNotification(Self);
+  if FProtocol = AValue then
+    Exit;
+  if FOwnedTask <> nil then
+    FOwnedTask.Quiesce;
+  if FProtocol <> nil then
+    FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
-  if FProtocol <> nil then FProtocol.FreeNotification(Self);
+  if FProtocol <> nil then
+    FProtocol.FreeNotification(Self);
 end;
 
-procedure TOBDDTCs.Notification(AComponent: TComponent;
-  Operation: TOperation);
+procedure TOBDDTCs.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
   begin
-    if FOwnedTask <> nil then FOwnedTask.Quiesce;
+    if FOwnedTask <> nil then
+      FOwnedTask.Quiesce;
     FProtocol := nil;
   end;
 end;
@@ -243,8 +247,8 @@ var
 begin
   Letter := CDtcLetters[(AHi shr 6) and $03];
   FirstDigit := (AHi shr 4) and $03;
-  Result := Letter + IntToStr(FirstDigit) +
-    IntToHex(AHi and $0F, 1) + IntToHex(ALo, 2);
+  Result := Letter + IntToStr(FirstDigit) + IntToHex(AHi and $0F, 1) +
+    IntToHex(ALo, 2);
 end;
 
 function ResolveDtcText(const ACode: string): string;
@@ -259,19 +263,26 @@ begin
   if TOBDServiceCatalog.Default.TryGetDTC(ACode, Info) then
   begin
     Result := Info.Description;
-    if Result <> '' then Exit;
+    if Result <> '' then
+      Exit;
   end;
   // 2. Legacy v1 schema catalogue. Encode the family letter in
-  //    the top byte so the catalogue can split P / C / B / U.
-  if Length(ACode) < 5 then Exit;
+  // the top byte so the catalogue can split P / C / B / U.
+  if Length(ACode) < 5 then
+    Exit;
   HexPart := Copy(ACode, 2, 4);
-  if not TryStrToInt('$' + HexPart, ParsedHex) then Exit;
+  if not TryStrToInt('$' + HexPart, ParsedHex) then
+    Exit;
   Numeric := Cardinal(ParsedHex);
   case ACode[1] of
-    'P': Numeric := Numeric or $00000000;
-    'C': Numeric := Numeric or $00010000;
-    'B': Numeric := Numeric or $00020000;
-    'U': Numeric := Numeric or $00030000;
+    'P':
+      Numeric := Numeric or $00000000;
+    'C':
+      Numeric := Numeric or $00010000;
+    'B':
+      Numeric := Numeric or $00020000;
+    'U':
+      Numeric := Numeric or $00030000;
   end;
   TOBDCatalogStore.Default.FindText(ckOBD2DTC, Numeric, Result);
 end;
@@ -284,11 +295,12 @@ var
   Acc: TArray<TOBDDtcEntry>;
 begin
   Count := (Length(AData) - AStart) div 2;
-  if Count <= 0 then Exit(nil);
+  if Count <= 0 then
+    Exit(nil);
   SetLength(Acc, Count);
   for I := 0 to Count - 1 do
   begin
-    Entry := Default(TOBDDtcEntry);
+    Entry := Default (TOBDDtcEntry);
     Entry.Kind := AKind;
     SetLength(Entry.Raw, 2);
     Entry.Raw[0] := AData[AStart + I * 2];
@@ -306,8 +318,8 @@ begin
   Result := Acc;
 end;
 
-function TOBDDTCs.ReadOBDMode(AMode: Byte;
-  AKind: TOBDDtcKind): TArray<TOBDDtcEntry>;
+function TOBDDTCs.ReadOBDMode(AMode: Byte; AKind: TOBDDtcKind)
+  : TArray<TOBDDtcEntry>;
 var
   Resp: TOBDResponse;
   Start: Integer;
@@ -316,8 +328,8 @@ begin
     raise EOBDConfig.Create('TOBDDTCs: Protocol not assigned');
   Resp := FProtocol.Request(AMode, nil);
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt(
-      'OBD Mode 0x%2.2X negative: %s', [AMode, Resp.NRCText]);
+    raise EOBDProtocolErr.CreateFmt('OBD Mode 0x%2.2X negative: %s',
+      [AMode, Resp.NRCText]);
   // Some controllers prepend a 1-byte count. Detect by parity:
   // an odd-length payload means there's a count byte first.
   if Odd(Length(Resp.Data)) then
@@ -327,8 +339,7 @@ begin
   Result := ParseTwoByteList(Resp.Data, Start, AKind);
 end;
 
-function TOBDDTCs.ReadUDSStatusMask(
-  AStatusMask: Byte): TArray<TOBDDtcEntry>;
+function TOBDDTCs.ReadUDSStatusMask(AStatusMask: Byte): TArray<TOBDDtcEntry>;
 var
   Resp: TOBDResponse;
   I, Off, N: Integer;
@@ -340,17 +351,18 @@ begin
   Resp := FProtocol.Request(UDS_SID_ReadDTCInformation,
     TBytes.Create(UDS_DTC_REPORT_BY_STATUS_MASK, AStatusMask));
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt(
-      'UDS 19 02 negative: %s', [Resp.NRCText]);
+    raise EOBDProtocolErr.CreateFmt('UDS 19 02 negative: %s', [Resp.NRCText]);
   // Response Data: <subFunc echo> <statusAvailMask> [DTC3 STATUS]*
-  if Length(Resp.Data) < 2 then Exit(nil);
+  if Length(Resp.Data) < 2 then
+    Exit(nil);
   Off := 2;
   N := (Length(Resp.Data) - Off) div 4;
-  if N <= 0 then Exit(nil);
+  if N <= 0 then
+    Exit(nil);
   SetLength(Acc, N);
   for I := 0 to N - 1 do
   begin
-    Entry := Default(TOBDDtcEntry);
+    Entry := Default (TOBDDtcEntry);
     Entry.Kind := dkUDSStatusMask;
     SetLength(Entry.Raw, 3);
     Entry.Raw[0] := Resp.Data[Off + I * 4];
@@ -363,8 +375,8 @@ begin
     // expands the 4-hex-digit code to 6 hex digits.
     Entry.Code := TOBDDTCs.DecodeJ2012(Entry.Raw[0], Entry.Raw[1]) +
       IntToHex(Entry.Raw[2], 2);
-    Entry.Description := ResolveDtcText(
-      TOBDDTCs.DecodeJ2012(Entry.Raw[0], Entry.Raw[1]));
+    Entry.Description := ResolveDtcText(TOBDDTCs.DecodeJ2012(Entry.Raw[0],
+      Entry.Raw[1]));
     Acc[I] := Entry;
   end;
   Result := Acc;
@@ -395,7 +407,7 @@ begin
 end;
 
 procedure TOBDDTCs.DispatchAsync(AKind: TOBDDtcKind;
-  AImpl: TFunc<TArray<TOBDDtcEntry>>);
+  AImpl: TFunc < TArray < TOBDDtcEntry >> );
 var
   Self_: TOBDDTCs;
   Kind: TOBDDtcKind;
@@ -403,7 +415,9 @@ var
 begin
   GuardSingleAsync;
   try
-    Self_ := Self; Kind := AKind; Impl := AImpl;
+    Self_ := Self;
+    Kind := AKind;
+    Impl := AImpl;
     FOwnedTask.Start(
       procedure
       var
@@ -476,25 +490,26 @@ begin
   // all groups). The OBD Mode 04 is the simpler universal path.
   Resp := FProtocol.Request($04, nil);
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt(
-      'Clear DTCs negative: %s', [Resp.NRCText]);
+    raise EOBDProtocolErr.CreateFmt('Clear DTCs negative: %s', [Resp.NRCText]);
   // Clear is a state-changing operation even though it returns
   // no DTC list — notify any host-bound observers so they can
   // refresh whatever they show next to "DTCs cleared".
   try
-    {$IFNDEF FPC}TBindings.Notify(Self, '');{$ENDIF}
+{$IFNDEF FPC}TBindings.Notify(Self, ''); {$ENDIF}
   except
   end;
 end;
 
 procedure TOBDDTCs.FireDTCs(AKind: TOBDDtcKind;
-  const AEntries: TArray<TOBDDtcEntry>);
+const AEntries: TArray<TOBDDtcEntry>);
 var
   Self_: TOBDDTCs;
   Kind: TOBDDtcKind;
   Snap: TArray<TOBDDtcEntry>;
 begin
-  Self_ := Self; Kind := AKind; Snap := Copy(AEntries, 0, Length(AEntries));
+  Self_ := Self;
+  Kind := AKind;
+  Snap := Copy(AEntries, 0, Length(AEntries));
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
     // LiveBindings refresh runs alongside the event dispatch so
@@ -502,37 +517,47 @@ begin
     // up the new DTC list even when the host has no OnDTCs
     // handler wired.
     try
-      {$IFNDEF FPC}TBindings.Notify(Self_, '');{$ENDIF}
+{$IFNDEF FPC}TBindings.Notify(Self_, ''); {$ENDIF}
     except
     end;
-    if Assigned(FOnDTCs) then FOnDTCs(Self_, Kind, Snap);
+    if Assigned(FOnDTCs) then
+      FOnDTCs(Self_, Kind, Snap);
   end
   else
-    FOwnedTask.Post( procedure begin
-      try
-        {$IFNDEF FPC}TBindings.Notify(Self_, '');{$ENDIF}
-      except
-      end;
-      if Assigned(Self_.FOnDTCs) then Self_.FOnDTCs(Self_, Kind, Snap);
-    end);
+    FOwnedTask.Post(
+      procedure
+      begin
+        try
+{$IFNDEF FPC}TBindings.Notify(Self_, ''); {$ENDIF}
+        except
+        end;
+        if Assigned(Self_.FOnDTCs) then
+          Self_.FOnDTCs(Self_, Kind, Snap);
+      end);
 end;
 
-procedure TOBDDTCs.FireError(ACode: TOBDErrorCode;
-  const AMessage: string);
+procedure TOBDDTCs.FireError(ACode: TOBDErrorCode; const AMessage: string);
 var
-  Self_: TOBDDTCs; Code: TOBDErrorCode; Msg: string;
+  Self_: TOBDDTCs;
+  Code: TOBDErrorCode;
+  Msg: string;
   Handled: Boolean;
 begin
-  if not Assigned(FOnError) then Exit;
-  Self_ := Self; Code := ACode; Msg := AMessage;
+  if not Assigned(FOnError) then
+    Exit;
+  Self_ := Self;
+  Code := ACode;
+  Msg := AMessage;
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
     Handled := False;
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    FOwnedTask.Post( procedure
-      var Handled: Boolean;
+    FOwnedTask.Post(
+      procedure
+      var
+        Handled: Boolean;
       begin
         Handled := False;
         if Assigned(Self_.FOnError) then

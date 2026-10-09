@@ -29,22 +29,20 @@ object OBDFlashSafetyDlg: TOBDFlashSafetyDlg
       AlignWithMargins = True
       Left = 24
       Top = 20
-      Width = 492
-      Height = 200
+      Width = 491
+      Height = 135
       Margins.Left = 0
       Margins.Top = 0
       Margins.Right = 0
       Margins.Bottom = 0
       Align = alClient
-      Caption =
-        'This component performs destructive ECU operations. Misuse can ' +
-        'permanently brick an ECU.'#13#10#13#10 +
-        'Before deploying:'#13#10 +
-        '   - Wire OnConfirmExecute on the host form.'#13#10 +
-        '   - Leave AutoExecute = False until you really mean it.'#13#10 +
-        '   - Provide a TOBDVoltageGate.'#13#10 +
-        '   - Read docs/flashing-safety.md before integrating.'#13#10#13#10 +
-        'Click "Open safety guide" to read the full document.'
+      Caption = 
+        'This component performs destructive ECU operations. Misuse can p' +
+        'ermanently brick an ECU.'#13#10#13#10'Before deploying:'#13#10'   - Wire OnConfi' +
+        'rmExecute on the host form.'#13#10'   - Leave AutoExecute = False unti' +
+        'l you really mean it.'#13#10'   - Provide a TOBDVoltageGate.'#13#10'   - Rea' +
+        'd docs/flashing-safety.md before integrating.'#13#10#13#10'Click "Open saf' +
+        'ety guide" to read the full document.'
       WordWrap = True
     end
   end

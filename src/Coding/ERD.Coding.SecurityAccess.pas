@@ -1,42 +1,42 @@
-//------------------------------------------------------------------------------
-//  ERD.Coding.SecurityAccess
+﻿// ------------------------------------------------------------------------------
+// ERD.Coding.SecurityAccess
 //
-//  TOBDSecurityAccess — non-visual component that drives the
-//  ISO 14229-1 § 9.4 SecurityAccess service (SID 0x27).
+// TOBDSecurityAccess — non-visual component that drives the
+// ISO 14229-1 § 9.4 SecurityAccess service (SID 0x27).
 //
-//  Workflow:
-//    1. Tester sends "27 SUBFUNC" requestSeed.
-//    2. ECU returns "67 SUBFUNC <seed bytes>".
-//    3. Tester computes key = f(seed) using the OEM secret.
-//    4. Tester sends "27 SUBFUNC+1 <key bytes>" sendKey.
-//    5. ECU returns "67 SUBFUNC+1" on success or NRC on failure.
+// Workflow:
+// 1. Tester sends "27 SUBFUNC" requestSeed.
+// 2. ECU returns "67 SUBFUNC <seed bytes>".
+// 3. Tester computes key = f(seed) using the OEM secret.
+// 4. Tester sends "27 SUBFUNC+1 <key bytes>" sendKey.
+// 5. ECU returns "67 SUBFUNC+1" on success or NRC on failure.
 //
-//  The seed → key transform is OEM- and level-specific. The
-//  component does not ship one; the host either:
-//    - registers a callback via <c>SeedToKey</c> (TFunc), or
-//    - subscribes to <c>OnComputeKey</c> for a procedural API.
+// The seed → key transform is OEM- and level-specific. The
+// component does not ship one; the host either:
+// - registers a callback via <c>SeedToKey</c> (TFunc), or
+// - subscribes to <c>OnComputeKey</c> for a procedural API.
 //
-//  Sync + Async + Progress per the dual-method rule.
+// Sync + Async + Progress per the dual-method rule.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - ISO 14229-1:2020 § 9.4 (SecurityAccess)
+// References  :
+// - ISO 14229-1:2020 § 9.4 (SecurityAccess)
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Coding.SecurityAccess;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -44,11 +44,11 @@ interface
 uses
   ERD.Async.Task,
   ERD.Connection,
-  {$IFDEF FPC}ERD.Compat.Functions,{$ENDIF}
+{$IFDEF FPC}ERD.Compat.Functions, {$ENDIF}
   ERD.Connection.Types,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
   ERD.Types,
   ERD.Protocol.Types,
   ERD.Protocol.UDS,
@@ -56,15 +56,15 @@ uses
 
 type
   /// <summary>Procedural seed → key transform.</summary>
-  TOBDSeedToKeyEvent = procedure(Sender: TObject;
-    ALevel: Byte; const ASeed: TBytes; var AKey: TBytes) of object;
+  TOBDSeedToKeyEvent = procedure(Sender: TObject; ALevel: Byte;
+    const ASeed: TBytes; var AKey: TBytes) of object;
 
   /// <summary>Functional seed → key transform.</summary>
   TOBDSeedToKeyFunc = reference to function(ALevel: Byte;
     const ASeed: TBytes): TBytes;
 
   /// <summary>
-  ///   ISO 14229-1 SecurityAccess (0x27) component.
+  /// ISO 14229-1 SecurityAccess (0x27) component.
   /// </summary>
   TOBDSecurityAccess = class(TComponent)
   strict private
@@ -95,8 +95,8 @@ type
     destructor Destroy; override;
 
     /// <summary>
-    ///   Runs the SecurityAccess sequence at <c>ALevel</c>
-    ///   (default <c>0x01</c>). Synchronous.
+    /// Runs the SecurityAccess sequence at <c>ALevel</c>
+    /// (default <c>0x01</c>). Synchronous.
     /// </summary>
     /// <param name="ALevel">requestSeed sub-function — must be
     /// odd (0x01, 0x03, 0x05, …); the sendKey sub-function is
@@ -139,13 +139,15 @@ type
 implementation
 
 uses
-  {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF};
+{$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF};
 
 function AllZero(const ABytes: TBytes): Boolean;
-var I: Integer;
+var
+  I: Integer;
 begin
   for I := 0 to High(ABytes) do
-    if ABytes[I] <> 0 then Exit(False);
+    if ABytes[I] <> 0 then
+      Exit(False);
   Result := True;
 end;
 
@@ -159,7 +161,8 @@ end;
 
 destructor TOBDSecurityAccess.Destroy;
 begin
-  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  if FOwnedTask <> nil then
+    FOwnedTask.Cancel;
   FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
@@ -167,11 +170,15 @@ end;
 
 procedure TOBDSecurityAccess.SetProtocol(AValue: TOBDProtocol);
 begin
-  if FProtocol = AValue then Exit;
-  if FOwnedTask <> nil then FOwnedTask.Quiesce;
-  if FProtocol <> nil then FProtocol.RemoveFreeNotification(Self);
+  if FProtocol = AValue then
+    Exit;
+  if FOwnedTask <> nil then
+    FOwnedTask.Quiesce;
+  if FProtocol <> nil then
+    FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
-  if FProtocol <> nil then FProtocol.FreeNotification(Self);
+  if FProtocol <> nil then
+    FProtocol.FreeNotification(Self);
 end;
 
 procedure TOBDSecurityAccess.Notification(AComponent: TComponent;
@@ -180,7 +187,8 @@ begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
   begin
-    if FOwnedTask <> nil then FOwnedTask.Quiesce;
+    if FOwnedTask <> nil then
+      FOwnedTask.Quiesce;
     FProtocol := nil;
   end;
 end;
@@ -194,14 +202,19 @@ begin
     if FAsyncInFlight then
       raise EOBDConfig.Create('TOBDSecurityAccess: async already in flight');
     FAsyncInFlight := True;
-  finally FAsyncLock.Leave; end;
+  finally
+    FAsyncLock.Leave;
+  end;
 end;
 
 procedure TOBDSecurityAccess.ReleaseAsync;
 begin
   FAsyncLock.Enter;
-  try FAsyncInFlight := False;
-  finally FAsyncLock.Leave; end;
+  try
+    FAsyncInFlight := False;
+  finally
+    FAsyncLock.Leave;
+  end;
 end;
 
 function TOBDSecurityAccess.ComputeKey(ALevel: Byte;
@@ -215,11 +228,11 @@ begin
     FOnComputeKey(Self, ALevel, ASeed, Result);
   end
   else
-    raise EOBDConfig.Create(
-      'TOBDSecurityAccess: SeedToKey / OnComputeKey not configured');
+    raise EOBDConfig.Create
+      ('TOBDSecurityAccess: SeedToKey / OnComputeKey not configured');
   if Length(Result) = 0 then
-    raise EOBDConfig.Create(
-      'TOBDSecurityAccess: seed → key transform returned no bytes');
+    raise EOBDConfig.Create
+      ('TOBDSecurityAccess: seed → key transform returned no bytes');
 end;
 
 function TOBDSecurityAccess.DoUnlock(ALevel: Byte): Boolean;
@@ -231,20 +244,22 @@ begin
   if FProtocol = nil then
     raise EOBDConfig.Create('TOBDSecurityAccess: Protocol not assigned');
   if (ALevel and $01) = 0 then
-    raise EOBDConfig.CreateFmt(
-      'TOBDSecurityAccess: requestSeed sub-function 0x%2.2X must be odd',
+    raise EOBDConfig.CreateFmt
+      ('TOBDSecurityAccess: requestSeed sub-function 0x%2.2X must be odd',
       [ALevel]);
 
   // 1. requestSeed
   FireProgress(1, 3, 'Security access', 'requestSeed');
   Resp := FProtocol.Request(UDS_SID_SecurityAccess, TBytes.Create(ALevel));
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt(
-      'SecurityAccess requestSeed (0x%2.2X) negative: %s',
+    raise EOBDProtocolErr.CreateFmt
+      ('SecurityAccess requestSeed (0x%2.2X) negative: %s',
       [ALevel, Resp.NRCText]);
   // Response: SUBFUNC echo + seed bytes.
-  if (Length(Resp.Data) >= 1) and (Resp.Data[0] = ALevel) then Off := 1
-  else Off := 0;
+  if (Length(Resp.Data) >= 1) and (Resp.Data[0] = ALevel) then
+    Off := 1
+  else
+    Off := 0;
   SetLength(Seed, Length(Resp.Data) - Off);
   if Length(Seed) > 0 then
     Move(Resp.Data[Off], Seed[0], Length(Seed));
@@ -272,8 +287,8 @@ begin
   Move(Key[0], Body[1], Length(Key));
   Resp := FProtocol.Request(UDS_SID_SecurityAccess, Body);
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt(
-      'SecurityAccess sendKey (0x%2.2X) negative: %s',
+    raise EOBDProtocolErr.CreateFmt
+      ('SecurityAccess sendKey (0x%2.2X) negative: %s',
       [ALevel + 1, Resp.NRCText]);
 
   Result := True;
@@ -292,7 +307,8 @@ var
 begin
   GuardSingleAsync;
   try
-    Self_ := Self; Level := ALevel;
+    Self_ := Self;
+    Level := ALevel;
     FOwnedTask.Start(
       procedure
       begin
@@ -317,32 +333,43 @@ procedure TOBDSecurityAccess.FireUnlocked;
 var
   Self_: TOBDSecurityAccess;
 begin
-  if not Assigned(FOnUnlocked) then Exit;
+  if not Assigned(FOnUnlocked) then
+    Exit;
   Self_ := Self;
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnUnlocked(Self_)
   else
-    FOwnedTask.Post( procedure begin
-      if Assigned(Self_.FOnUnlocked) then Self_.FOnUnlocked(Self_);
-    end);
+    FOwnedTask.Post(
+      procedure
+      begin
+        if Assigned(Self_.FOnUnlocked) then
+          Self_.FOnUnlocked(Self_);
+      end);
 end;
 
 procedure TOBDSecurityAccess.FireError(ACode: TOBDErrorCode;
-  const AMessage: string);
+const AMessage: string);
 var
-  Self_: TOBDSecurityAccess; Code: TOBDErrorCode; Msg: string;
+  Self_: TOBDSecurityAccess;
+  Code: TOBDErrorCode;
+  Msg: string;
   Handled: Boolean;
 begin
-  if not Assigned(FOnError) then Exit;
-  Self_ := Self; Code := ACode; Msg := AMessage;
+  if not Assigned(FOnError) then
+    Exit;
+  Self_ := Self;
+  Code := ACode;
+  Msg := AMessage;
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
     Handled := False;
     FOnError(Self_, Code, Msg, Handled);
   end
   else
-    FOwnedTask.Post( procedure
-      var Handled: Boolean;
+    FOwnedTask.Post(
+      procedure
+      var
+        Handled: Boolean;
       begin
         Handled := False;
         if Assigned(Self_.FOnError) then
@@ -351,20 +378,24 @@ begin
 end;
 
 procedure TOBDSecurityAccess.FireProgress(AIndex, ACount: Cardinal;
-  const AName, ADetail: string);
+const AName, ADetail: string);
 var
   Self_: TOBDSecurityAccess;
   Step: TOBDProgressStep;
 begin
-  if not Assigned(FOnProgress) then Exit;
+  if not Assigned(FOnProgress) then
+    Exit;
   Self_ := Self;
   Step := TOBDProgressStep.MakeStep(AIndex, ACount, AName, ADetail);
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnProgress(Self_, Step)
   else
-    FOwnedTask.Post( procedure begin
-      if Assigned(Self_.FOnProgress) then Self_.FOnProgress(Self_, Step);
-    end);
+    FOwnedTask.Post(
+      procedure
+      begin
+        if Assigned(Self_.FOnProgress) then
+          Self_.FOnProgress(Self_, Step);
+      end);
 end;
 
 end.

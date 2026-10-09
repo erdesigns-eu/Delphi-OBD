@@ -1,42 +1,42 @@
-//------------------------------------------------------------------------------
-//  ERD.OEM.GM
+﻿// ------------------------------------------------------------------------------
+// ERD.OEM.GM
 //
-//  General Motors OEM extension. Covers GMLAN ECUs across the
-//  Chevrolet / Buick / Cadillac / GMC / Holden / Opel-pre-2017
-//  WMIs. Catalogue + DTC overlay in <c>catalogs/gm.json</c> and
-//  <c>catalogs/dtc-gm.json</c>.
+// General Motors OEM extension. Covers GMLAN ECUs across the
+// Chevrolet / Buick / Cadillac / GMC / Holden / Opel-pre-2017
+// WMIs. Catalogue + DTC overlay in <c>catalogs/gm.json</c> and
+// <c>catalogs/dtc-gm.json</c>.
 //
-//  TOBDGMSessionNegotiator prepends an <c>AT SP 6</c> protocol
-//  lock so the adapter is on ISO 15765-4 11-bit / 500 kbps
-//  (GMLAN) regardless of any previous auto-protocol selection.
+// TOBDGMSessionNegotiator prepends an <c>AT SP 6</c> protocol
+// lock so the adapter is on ISO 15765-4 11-bit / 500 kbps
+// (GMLAN) regardless of any previous auto-protocol selection.
 //
-//  Seed-key starter is the documented GMLAN Class B "trial mode"
-//  constant key (four zero bytes), accepted by some pre-2010 body
-//  modules; modern GDS-2 / Tech 2 uses proprietary algorithms
-//  which production callers register via RegisterAlgorithm.
+// Seed-key starter is the documented GMLAN Class B "trial mode"
+// constant key (four zero bytes), accepted by some pre-2010 body
+// modules; modern GDS-2 / Tech 2 uses proprietary algorithms
+// which production callers register via RegisterAlgorithm.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-12  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-12  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.OEM.GM;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   ERD.OEM,
   ERD.OEM.Session,
   ERD.OEM.SeedKey,
@@ -60,23 +60,21 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
-    procedure BuildExtendedCatalog(
-      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+    procedure BuildExtendedCatalog(var CodingBlocks: TArray<TOBDOEMCodingBlock>;
       var Adaptations: TArray<TOBDOEMAdaptation>;
       var ActuatorTests: TArray<TOBDOEMActuatorTest>;
       var LivePIDs: TArray<TOBDOEMLivePID>;
       var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
     function CreateSessionNegotiator: IOBDSessionNegotiator; override;
-    procedure SeedDefaultSeedKeyAlgorithms(
-      Reg: TOBDSeedKeyRegistry); override;
+    procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
     function DtcCatalogFileName: string; override;
   public
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
     function ApplicableToVIN(const VIN: string): Boolean; override;
-    function DecodeDID(const DID: Word;
-      const Payload: TBytes): string; override;
+    function DecodeDID(const DID: Word; const Payload: TBytes): string;
+      override;
   end;
 
 implementation
@@ -88,17 +86,15 @@ uses
 
 { TOBDGMSessionNegotiator }
 
-function TOBDGMSessionNegotiator.BeginSessionPlan(
-  ASessionType: TOBDSessionType;
+function TOBDGMSessionNegotiator.BeginSessionPlan(ASessionType: TOBDSessionType;
   const AEcuAddress: Word): TOBDSessionPlan;
 begin
   Result := inherited BeginSessionPlan(ASessionType, AEcuAddress);
   if ASessionType = sstDefault then
     Exit;
-  Result.Steps := [
-    ATStep('SP 6',
-      'Lock ELM327 to ISO 15765-4 11-bit/500 kbps (GMLAN)')
-  ] + Result.Steps;
+  Result.Steps :=
+    [ATStep('SP 6', 'Lock ELM327 to ISO 15765-4 11-bit/500 kbps (GMLAN)')] +
+    Result.Steps;
 end;
 
 function TOBDGMSessionNegotiator.DisplayName: string;
@@ -108,31 +104,28 @@ end;
 
 { TOBDOEMExtensionGM }
 
-function TOBDOEMExtensionGM.CreateSessionNegotiator:
-  IOBDSessionNegotiator;
+function TOBDOEMExtensionGM.CreateSessionNegotiator: IOBDSessionNegotiator;
 begin
   Result := TOBDGMSessionNegotiator.Create;
 end;
 
-procedure TOBDOEMExtensionGM.SeedDefaultSeedKeyAlgorithms(
-  Reg: TOBDSeedKeyRegistry);
+procedure TOBDOEMExtensionGM.SeedDefaultSeedKeyAlgorithms
+  (Reg: TOBDSeedKeyRegistry);
 const
   // GMLAN Class B reference "trial mode" — some pre-2010 body
   // modules accept a fixed 4-byte zero key at Level 1. Production
   // callers replace via RegisterAlgorithm.
-  CONST_KEY: array[0..3] of Byte = ($00, $00, $00, $00);
+  CONST_KEY: array [0 .. 3] of Byte = ($00, $00, $00, $00);
 var
   K: TBytes;
 begin
   SetLength(K, Length(CONST_KEY));
   Move(CONST_KEY[0], K[0], Length(CONST_KEY));
   Reg.RegisterAlgorithm($01, IOBDSeedKeyAlgorithm(TOBDSeedKeyConstant.Create(K,
-    'GMLAN Class B trial-mode constant key',
-    'gmlan-public', False)));
+    'GMLAN Class B trial-mode constant key', 'gmlan-public', False)));
 end;
 
-procedure TOBDOEMExtensionGM.SeedDefaultDtcCatalog(
-  Cat: TOBDDtcCatalog);
+procedure TOBDOEMExtensionGM.SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog);
 begin
   inherited;
   MergeDtcCatalog('dtc-iso-15031.json', Cat);
@@ -154,30 +147,27 @@ begin
   Result := 'General Motors';
 end;
 
-function TOBDOEMExtensionGM.ApplicableToVIN(
-  const VIN: string): Boolean;
+function TOBDOEMExtensionGM.ApplicableToVIN(const VIN: string): Boolean;
 begin
   Result := VINMatchesCatalog('gm.json', VIN);
 end;
 
-procedure TOBDOEMExtensionGM.BuildCatalog(
-  var DIDs: TArray<TOBDOEMDataIdentifier>;
-  var Routines: TArray<TOBDOEMRoutine>;
-  var ECUs: TArray<TOBDOEMECU>);
+procedure TOBDOEMExtensionGM.BuildCatalog
+  (var DIDs: TArray<TOBDOEMDataIdentifier>;
+  var Routines: TArray<TOBDOEMRoutine>; var ECUs: TArray<TOBDOEMECU>);
 begin
   MergeCatalogJSON('gm.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
-procedure TOBDOEMExtensionGM.BuildExtendedCatalog(
-  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
-  var Adaptations: TArray<TOBDOEMAdaptation>;
+procedure TOBDOEMExtensionGM.BuildExtendedCatalog(var CodingBlocks
+  : TArray<TOBDOEMCodingBlock>; var Adaptations: TArray<TOBDOEMAdaptation>;
   var ActuatorTests: TArray<TOBDOEMActuatorTest>;
   var LivePIDs: TArray<TOBDOEMLivePID>;
   var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
 begin
-  MergeExtendedCatalogJSON('gm.json',
-    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+  MergeExtendedCatalogJSON('gm.json', CodingBlocks, Adaptations, ActuatorTests,
+    LivePIDs, DtcExtended);
 end;
 
 function TOBDOEMExtensionGM.DecodeDID(const DID: Word;
@@ -190,17 +180,15 @@ begin
     $F190:
       if Length(Payload) > 0 then
       begin
-        Result := Format('vin = %s',
-          [TEncoding.ASCII.GetString(Payload)]);
+        Result := Format('vin = %s', [TEncoding.ASCII.GetString(Payload)]);
         Exit;
       end;
     $1981:
       if Length(Payload) >= 4 then
       begin
         Mileage := (Cardinal(Payload[0]) shl 24) or
-                   (Cardinal(Payload[1]) shl 16) or
-                   (Cardinal(Payload[2]) shl 8) or
-                    Cardinal(Payload[3]);
+          (Cardinal(Payload[1]) shl 16) or (Cardinal(Payload[2]) shl 8) or
+          Cardinal(Payload[3]);
         Result := Format('mileage = %d km', [Mileage]);
         Exit;
       end;
@@ -208,9 +196,8 @@ begin
       if Length(Payload) >= 4 then
       begin
         Seconds := (Cardinal(Payload[0]) shl 24) or
-                   (Cardinal(Payload[1]) shl 16) or
-                   (Cardinal(Payload[2]) shl 8) or
-                    Cardinal(Payload[3]);
+          (Cardinal(Payload[1]) shl 16) or (Cardinal(Payload[2]) shl 8) or
+          Cardinal(Payload[3]);
         Result := Format('engine_run_time = %d s', [Seconds]);
         Exit;
       end;
@@ -218,16 +205,17 @@ begin
       if Length(Payload) >= 2 then
       begin
         Voltage := (Cardinal(Payload[0]) shl 8) or Payload[1];
-        Result := Format('battery_voltage = %.3f V',
-          [Voltage / 1000.0]);
+        Result := Format('battery_voltage = %.3f V', [Voltage / 1000.0]);
         Exit;
       end;
     $F1A0, $F1A4:
       if Length(Payload) > 0 then
       begin
         case DID of
-          $F1A0: FieldName := 'broadcast_code';
-          $F1A4: FieldName := 'engineering_part_number';
+          $F1A0:
+            FieldName := 'broadcast_code';
+          $F1A4:
+            FieldName := 'engineering_part_number';
         else
           FieldName := 'unknown';
         end;
@@ -240,6 +228,7 @@ begin
 end;
 
 initialization
-  TOBDOEMRegistry.RegisterExtension(TOBDOEMExtensionGM.Create);
+
+TOBDOEMRegistry.RegisterExtension(TOBDOEMExtensionGM.Create);
 
 end.

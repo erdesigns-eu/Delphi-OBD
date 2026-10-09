@@ -1,54 +1,54 @@
-//------------------------------------------------------------------------------
-//  ERD.KWP.Catalog
+﻿// ------------------------------------------------------------------------------
+// ERD.KWP.Catalog
 //
-//  Loads the shipped KWP2000 (ISO 14230-3) identifier catalogue
-//  (<c>catalogs/kwp/common-ids.json</c>) and exposes a typed
-//  lookup over the two well-known identifier families:
+// Loads the shipped KWP2000 (ISO 14230-3) identifier catalogue
+// (<c>catalogs/kwp/common-ids.json</c>) and exposes a typed
+// lookup over the two well-known identifier families:
 //
-//    - ECU-Identification (Service 0x1A) — the §6.7 block read
-//      from <c>0x80</c> upwards (configuration, manufacturing
-//      data, VIN, software banner, …).
-//    - Common-Identifiers (Service 0x22) — the F180..F199 range
-//      that overlays the equivalent ISO 14229 DIDs (boot software
-//      ID, application software ID, programming date, …).
+// - ECU-Identification (Service 0x1A) — the §6.7 block read
+// from <c>0x80</c> upwards (configuration, manufacturing
+// data, VIN, software banner, …).
+// - Common-Identifiers (Service 0x22) — the F180..F199 range
+// that overlays the equivalent ISO 14229 DIDs (boot software
+// ID, application software ID, programming date, …).
 //
-//  The catalogue is the seed; OEM-specific identifiers overlay
-//  it via the OEM extension framework. A tool that scans a KWP
-//  ECU's identifier table calls <see cref="FindKwpIdentifier"/>
-//  with the byte / word it received and gets back a typed
-//  <see cref="TOBDKwpIdentifier"/>. Unknown IDs return
-//  <c>False</c>.
+// The catalogue is the seed; OEM-specific identifiers overlay
+// it via the OEM extension framework. A tool that scans a KWP
+// ECU's identifier table calls <see cref="FindKwpIdentifier"/>
+// with the byte / word it received and gets back a typed
+// <see cref="TOBDKwpIdentifier"/>. Unknown IDs return
+// <c>False</c>.
 //
-//  The catalogue file is optional: a missing or malformed file
-//  leaves the registries empty. Build-time linting validates the
-//  shipped catalogue against
-//  <c>catalogs/_schema/text-catalog.schema.json</c>-style
-//  conventions; this loader is tolerant by design so application
-//  startup is never blocked.
+// The catalogue file is optional: a missing or malformed file
+// leaves the registries empty. Build-time linting validates the
+// shipped catalogue against
+// <c>catalogs/_schema/text-catalog.schema.json</c>-style
+// conventions; this loader is tolerant by design so application
+// startup is never blocked.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-12  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-12  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.KWP.Catalog;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF};
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF};
 
 type
   /// <summary>Which family of KWP identifier an entry came
@@ -86,14 +86,14 @@ type
     Notes: string;
   end;
 
-/// <summary>Looks up an identifier by family + numeric ID.
-/// </summary>
-/// <param name="Family">Which family to search.</param>
-/// <param name="Id">Identifier value.</param>
-/// <param name="Entry">Out: matching entry on success.</param>
-/// <returns><c>True</c> when the identifier is catalogued.</returns>
-function FindKwpIdentifier(Family: TOBDKwpIdentifierFamily;
-  Id: Word; out Entry: TOBDKwpIdentifier): Boolean;
+  /// <summary>Looks up an identifier by family + numeric ID.
+  /// </summary>
+  /// <param name="Family">Which family to search.</param>
+  /// <param name="Id">Identifier value.</param>
+  /// <param name="Entry">Out: matching entry on success.</param>
+  /// <returns><c>True</c> when the identifier is catalogued.</returns>
+function FindKwpIdentifier(Family: TOBDKwpIdentifierFamily; Id: Word;
+  out Entry: TOBDKwpIdentifier): Boolean;
 
 /// <summary>Returns every ECU-Identification entry, in
 /// ascending ID order.</summary>
@@ -111,13 +111,13 @@ procedure ReloadKwpCatalogue;
 implementation
 
 uses
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   System.JSON,
   System.IOUtils,
   ERD.OEM.Catalog.Loader;
 
 var
-  GEcuIds:    TDictionary<Word, TOBDKwpIdentifier> = nil;
+  GEcuIds: TDictionary<Word, TOBDKwpIdentifier> = nil;
   GCommonIds: TDictionary<Word, TOBDKwpIdentifier> = nil;
 
 function ParseHexOrInt(const S: string): Cardinal;
@@ -128,8 +128,7 @@ begin
   if T = '' then
     Exit(0);
   if T.StartsWith('0x', True) or T.StartsWith('$') then
-    Result := StrToInt('$' + T
-      .Replace('0x', '', [rfIgnoreCase])
+    Result := StrToInt('$' + T.Replace('0x', '', [rfIgnoreCase])
       .Replace('$', ''))
   else
     Result := StrToInt(T);
@@ -172,15 +171,14 @@ begin
     Exit;
   for ItemVal in Arr do
   begin
-    if not (ItemVal is TJSONObject) then
+    if not(ItemVal is TJSONObject) then
       Continue;
     Item := TJSONObject(ItemVal);
-    Entry := Default(TOBDKwpIdentifier);
+    Entry := Default (TOBDKwpIdentifier);
     Entry.Id := Word(ParseHexOrInt(Item.GetValue<string>('id', '0')));
     Entry.Name := Item.GetValue<string>('name', '');
     Entry.Family := Family;
-    Entry.Service := Byte(ParseHexOrInt(
-      Item.GetValue<string>('service', '0')));
+    Entry.Service := Byte(ParseHexOrInt(Item.GetValue<string>('service', '0')));
     ReadLength(Item, Entry.Length, Entry.LengthVariable);
     Entry.Notes := Item.GetValue<string>('notes', '');
     Target.AddOrSetValue(Entry.Id, Entry);
@@ -203,17 +201,15 @@ begin
   try
     Raw := TFile.ReadAllText(Path, TEncoding.UTF8);
     Doc := TJSONObject.ParseJSONValue(Raw);
-    if not (Doc is TJSONObject) then
+    if not(Doc is TJSONObject) then
     begin
       Doc.Free;
       Exit;
     end;
     try
       Root := TJSONObject(Doc);
-      LoadArray(Root, 'ecu_identification',
-        kifEcuIdentification, GEcuIds);
-      LoadArray(Root, 'common_identifiers',
-        kifCommonIdentifier, GCommonIds);
+      LoadArray(Root, 'ecu_identification', kifEcuIdentification, GEcuIds);
+      LoadArray(Root, 'common_identifiers', kifCommonIdentifier, GCommonIds);
     finally
       Doc.Free;
     end;
@@ -223,23 +219,21 @@ begin
   end;
 end;
 
-function FindKwpIdentifier(Family: TOBDKwpIdentifierFamily;
-  Id: Word; out Entry: TOBDKwpIdentifier): Boolean;
+function FindKwpIdentifier(Family: TOBDKwpIdentifierFamily; Id: Word;
+  out Entry: TOBDKwpIdentifier): Boolean;
 begin
   case Family of
     kifEcuIdentification:
-      Result := (GEcuIds <> nil)
-            and GEcuIds.TryGetValue(Id, Entry);
+      Result := (GEcuIds <> nil) and GEcuIds.TryGetValue(Id, Entry);
     kifCommonIdentifier:
-      Result := (GCommonIds <> nil)
-            and GCommonIds.TryGetValue(Id, Entry);
+      Result := (GCommonIds <> nil) and GCommonIds.TryGetValue(Id, Entry);
   else
     Result := False;
   end;
 end;
 
-function SortAscending(Source: TDictionary<Word, TOBDKwpIdentifier>):
-  TArray<TOBDKwpIdentifier>;
+function SortAscending(Source: TDictionary<Word, TOBDKwpIdentifier>)
+  : TArray<TOBDKwpIdentifier>;
 var
   Keys: TArray<Word>;
   I, J: Integer;
@@ -279,12 +273,14 @@ begin
 end;
 
 initialization
-  GEcuIds    := TDictionary<Word, TOBDKwpIdentifier>.Create;
-  GCommonIds := TDictionary<Word, TOBDKwpIdentifier>.Create;
-  ReloadKwpCatalogue;
+
+GEcuIds := TDictionary<Word, TOBDKwpIdentifier>.Create;
+GCommonIds := TDictionary<Word, TOBDKwpIdentifier>.Create;
+ReloadKwpCatalogue;
 
 finalization
-  GEcuIds.Free;
-  GCommonIds.Free;
+
+GEcuIds.Free;
+GCommonIds.Free;
 
 end.

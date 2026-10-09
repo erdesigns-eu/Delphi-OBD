@@ -1,67 +1,67 @@
-//------------------------------------------------------------------------------
-//  ERD.Catalog
+﻿// ------------------------------------------------------------------------------
+// ERD.Catalog
 //
-//  JSON catalogue loader and process-wide store. Catalogues describe
-//  PIDs (modes 01/02/05/06/09), DTC text mappings, NRC text mappings,
-//  J1939 PGNs/SPNs/FMIs, UDS DIDs, and OEM extensions. The runtime
-//  reads JSON files at startup; community contributions to add an entry
-//  are JSON-only edits.
+// JSON catalogue loader and process-wide store. Catalogues describe
+// PIDs (modes 01/02/05/06/09), DTC text mappings, NRC text mappings,
+// J1939 PGNs/SPNs/FMIs, UDS DIDs, and OEM extensions. The runtime
+// reads JSON files at startup; community contributions to add an entry
+// are JSON-only edits.
 //
-//  Schema (every catalogue file):
+// Schema (every catalogue file):
 //
-//    {
-//      "version": 1,
-//      "type":    "obd2-pid"  | "obd2-dtc"  | "uds-nrc" | …,
-//      "mode":    "01"        | …            (PID files only)
-//      "entries": [ { … }, … ]
-//    }
+// {
+// "version": 1,
+// "type":    "obd2-pid"  | "obd2-dtc"  | "uds-nrc" | …,
+// "mode":    "01"        | …            (PID files only)
+// "entries": [ { … }, … ]
+// }
 //
-//  The loader rejects malformed files with a clear diagnostic naming
-//  the offending file:line. Lookup is by <c>(type, mode, id)</c> tuple.
+// The loader rejects malformed files with a clear diagnostic naming
+// the offending file:line. Lookup is by <c>(type, mode, id)</c> tuple.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - https://www.json.org/
-//    - ../catalogs/_schema/  (machine-readable JSON Schema)
+// References  :
+// - https://www.json.org/
+// - ../catalogs/_schema/  (machine-readable JSON Schema)
 //
-//  History     :
-//    2026-05-09  ERD  Initial loader: PID descriptors, DTC text,
-//                     NRC text, in-memory store with case-insensitive
-//                     type lookup.
+// History     :
+// 2026-05-09  ERD  Initial loader: PID descriptors, DTC text,
+// NRC text, in-memory store with case-insensitive
+// type lookup.
 //
-//  Future work :
-//    - Resource-embedded fallback so the package works without loose
-//      JSON files at runtime.
-//    - Schema-driven validation (currently structural-only).
-//------------------------------------------------------------------------------
+// Future work :
+// - Resource-embedded fallback so the package works without loose
+// JSON files at runtime.
+// - Schema-driven validation (currently structural-only).
+// ------------------------------------------------------------------------------
 
 unit ERD.Catalog;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   System.JSON,
   System.IOUtils,
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.Types;
 
 type
   /// <summary>
-  ///   Logical catalogue family. Determined by the <c>type</c> field of
-  ///   the JSON file.
+  /// Logical catalogue family. Determined by the <c>type</c> field of
+  /// the JSON file.
   /// </summary>
   TOBDCatalogKind = (
     /// <summary>OBD-II PID definitions (Mode 01, 02, 05, 06, 09).</summary>
@@ -82,11 +82,10 @@ type
     ckAdapterCapabilities,
     /// <summary>Unrecognised type — file kept loaded but cannot be
     /// queried by typed accessor.</summary>
-    ckUnknown
-  );
+    ckUnknown);
 
   /// <summary>
-  ///   A simple <c>code → text</c> entry used by DTC and NRC catalogues.
+  /// A simple <c>code → text</c> entry used by DTC and NRC catalogues.
   /// </summary>
   TOBDCatalogTextEntry = record
     /// <summary>Numeric or hex code (e.g. <c>$22</c> for an NRC,
@@ -97,12 +96,12 @@ type
   end;
 
   /// <summary>
-  ///   A loaded JSON catalogue file.
+  /// A loaded JSON catalogue file.
   /// </summary>
   /// <remarks>
-  ///   Owned by the <see cref="TOBDCatalogStore"/> that loaded it.
-  ///   Consumers query the store via <c>FindPID</c> / <c>FindText</c>;
-  ///   they do not normally hold a <c>TOBDCatalog</c> reference.
+  /// Owned by the <see cref="TOBDCatalogStore"/> that loaded it.
+  /// Consumers query the store via <c>FindPID</c> / <c>FindText</c>;
+  /// they do not normally hold a <c>TOBDCatalog</c> reference.
   /// </remarks>
   TOBDCatalog = class
   strict private
@@ -135,17 +134,18 @@ type
   end;
 
   /// <summary>
-  ///   Process-wide store of loaded catalogues.
+  /// Process-wide store of loaded catalogues.
   /// </summary>
   /// <remarks>
-  ///   Components query the default instance to resolve a PID name to a
-  ///   descriptor or a DTC code to text. Loading is idempotent — calling
-  ///   <c>LoadFile</c> on an already-loaded path replaces the existing
-  ///   entry.
+  /// Components query the default instance to resolve a PID name to a
+  /// descriptor or a DTC code to text. Loading is idempotent — calling
+  /// <c>LoadFile</c> on an already-loaded path replaces the existing
+  /// entry.
   /// </remarks>
   TOBDCatalogStore = class
   strict private
-    class var FInstance: TOBDCatalogStore;
+  class var
+    FInstance: TOBDCatalogStore;
     FCatalogs: TObjectList<TOBDCatalog>;
   public
     constructor Create;
@@ -202,11 +202,11 @@ type
       out AText: string): Boolean;
   end;
 
-/// <summary>
-///   Maps a JSON <c>type</c> string to a <see cref="TOBDCatalogKind"/>.
-/// </summary>
-/// <param name="ATypeName">Verbatim string from the file.</param>
-/// <returns><see cref="ckUnknown"/> for unrecognised values.</returns>
+  /// <summary>
+  /// Maps a JSON <c>type</c> string to a <see cref="TOBDCatalogKind"/>.
+  /// </summary>
+  /// <param name="ATypeName">Verbatim string from the file.</param>
+  /// <returns><see cref="ckUnknown"/> for unrecognised values.</returns>
 function CatalogKindFromString(const ATypeName: string): TOBDCatalogKind;
 
 implementation
@@ -218,18 +218,28 @@ var
   Key: string;
 begin
   Key := LowerCase(Trim(ATypeName));
-  if      Key = 'obd2-pid'              then Result := ckOBD2PID
-  else if Key = 'obd2-dtc'              then Result := ckOBD2DTC
-  else if Key = 'uds-nrc'               then Result := ckUDSNRC
-  else if Key = 'j1939-pgn'             then Result := ckJ1939PGN
-  else if Key = 'j1939-spn'             then Result := ckJ1939SPN
-  else if Key = 'j1939-fmi'             then Result := ckJ1939FMI
-  else if Key = 'uds-did'               then Result := ckUDSDID
-  else if Key = 'adapter-capabilities'  then Result := ckAdapterCapabilities
-  else                                       Result := ckUnknown;
+  if Key = 'obd2-pid' then
+    Result := ckOBD2PID
+  else if Key = 'obd2-dtc' then
+    Result := ckOBD2DTC
+  else if Key = 'uds-nrc' then
+    Result := ckUDSNRC
+  else if Key = 'j1939-pgn' then
+    Result := ckJ1939PGN
+  else if Key = 'j1939-spn' then
+    Result := ckJ1939SPN
+  else if Key = 'j1939-fmi' then
+    Result := ckJ1939FMI
+  else if Key = 'uds-did' then
+    Result := ckUDSDID
+  else if Key = 'adapter-capabilities' then
+    Result := ckAdapterCapabilities
+  else
+    Result := ckUnknown;
 end;
 
-function GetJSONString(AObj: TJSONObject; const AName, ADefault: string): string;
+function GetJSONString(AObj: TJSONObject;
+  const AName, ADefault: string): string;
 var
   V: TJSONValue;
 begin
@@ -284,10 +294,10 @@ begin
   if (Length(S) > 2) and (S[1] = '0') and ((S[2] = 'x') or (S[2] = 'X')) then
     S := '$' + Copy(S, 3, MaxInt)
   else if (S[1] <> '$') and TryStrToInt64('$' + S, N) and
-          // Treat as hex if it looks hex (any letter present)
-          (Pos('A', UpperCase(S)) + Pos('B', UpperCase(S)) +
-           Pos('C', UpperCase(S)) + Pos('D', UpperCase(S)) +
-           Pos('E', UpperCase(S)) + Pos('F', UpperCase(S)) > 0) then
+  // Treat as hex if it looks hex (any letter present)
+    (Pos('A', UpperCase(S)) + Pos('B', UpperCase(S)) + Pos('C', UpperCase(S)) +
+    Pos('D', UpperCase(S)) + Pos('E', UpperCase(S)) + Pos('F', UpperCase(S)) > 0)
+  then
     S := '$' + S;
   if TryStrToInt64(S, N) then
   begin
@@ -370,7 +380,7 @@ var
 begin
   for I := 0 to AArr.Count - 1 do
   begin
-    if not (AArr.Items[I] is TJSONObject) then
+    if not(AArr.Items[I] is TJSONObject) then
       RaiseConfig(ACatalog.FileName,
         Format('entries[%d] is not an object', [I]));
     Entry := AArr.Items[I] as TJSONObject;
@@ -402,7 +412,7 @@ var
 begin
   for I := 0 to AArr.Count - 1 do
   begin
-    if not (AArr.Items[I] is TJSONObject) then
+    if not(AArr.Items[I] is TJSONObject) then
       RaiseConfig(ACatalog.FileName,
         Format('entries[%d] is not an object', [I]));
     Entry := AArr.Items[I] as TJSONObject;
@@ -418,7 +428,7 @@ end;
 
 function TOBDCatalogStore.LoadFile(const AFileName: string): TOBDCatalog;
 var
-  Json: string;
+  JSON: string;
   Doc: TJSONValue;
   Root: TJSONObject;
   EntriesArr: TJSONArray;
@@ -428,13 +438,13 @@ begin
   if not TFile.Exists(AFileName) then
     raise EOBDConfig.CreateFmt('Catalogue file not found: %s', [AFileName]);
 
-  Json := TFile.ReadAllText(AFileName, TEncoding.UTF8);
-  Doc := TJSONObject.ParseJSONValue(Json);
+  JSON := TFile.ReadAllText(AFileName, TEncoding.UTF8);
+  Doc := TJSONObject.ParseJSONValue(JSON);
   if Doc = nil then
     RaiseConfig(AFileName, 'invalid JSON');
 
   try
-    if not (Doc is TJSONObject) then
+    if not(Doc is TJSONObject) then
       RaiseConfig(AFileName, 'root is not an object');
     Root := Doc as TJSONObject;
 
@@ -444,22 +454,21 @@ begin
       if NewCat.Version <> 1 then
         RaiseConfig(AFileName,
           Format('unsupported schema version %d (expected 1)',
-            [NewCat.Version]));
+          [NewCat.Version]));
       NewCat.TypeName := GetJSONString(Root, 'type', '');
       if NewCat.TypeName = '' then
         RaiseConfig(AFileName, '"type" field is required');
       NewCat.Kind := CatalogKindFromString(NewCat.TypeName);
       NewCat.Mode := GetJSONString(Root, 'mode', '');
 
-      if not (Root.GetValue('entries') is TJSONArray) then
+      if not(Root.GetValue('entries') is TJSONArray) then
         RaiseConfig(AFileName, '"entries" must be an array');
       EntriesArr := Root.GetValue('entries') as TJSONArray;
 
       case NewCat.Kind of
         ckOBD2PID, ckUDSDID:
           ParsePIDEntries(NewCat, EntriesArr);
-        ckOBD2DTC, ckUDSNRC,
-        ckJ1939PGN, ckJ1939SPN, ckJ1939FMI:
+        ckOBD2DTC, ckUDSNRC, ckJ1939PGN, ckJ1939SPN, ckJ1939FMI:
           ParseTextEntries(NewCat, EntriesArr);
       else
         // Unknown / capabilities — store as text entries best-effort.
@@ -555,6 +564,7 @@ end;
 initialization
 
 finalization
-  TOBDCatalogStore.ReleaseDefault;
+
+TOBDCatalogStore.ReleaseDefault;
 
 end.

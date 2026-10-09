@@ -1,35 +1,35 @@
-//------------------------------------------------------------------------------
-//  ERD.OEM.Agricultural
+﻿// ------------------------------------------------------------------------------
+// ERD.OEM.Agricultural
 //
-//  OEM extensions for the agricultural / construction equipment
-//  brands. Most of these OEMs publish DTCs in J1939 SPN-FMI
-//  format and DIDs over UDS / J1939-21; catalogue content lives
-//  in <c>catalogs/agricultural/&lt;oem&gt;.json</c> and the
-//  matching <c>dtc-&lt;oem&gt;.json</c> files. The Pascal here
-//  is a thin registration shell on top of the shared base.
+// OEM extensions for the agricultural / construction equipment
+// brands. Most of these OEMs publish DTCs in J1939 SPN-FMI
+// format and DIDs over UDS / J1939-21; catalogue content lives
+// in <c>catalogs/agricultural/&lt;oem&gt;.json</c> and the
+// matching <c>dtc-&lt;oem&gt;.json</c> files. The Pascal here
+// is a thin registration shell on top of the shared base.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-12  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-12  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.OEM.Agricultural;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   ERD.OEM,
   ERD.OEM.Session,
   ERD.OEM.SeedKey,
@@ -47,14 +47,12 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
-    procedure BuildExtendedCatalog(
-      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+    procedure BuildExtendedCatalog(var CodingBlocks: TArray<TOBDOEMCodingBlock>;
       var Adaptations: TArray<TOBDOEMAdaptation>;
       var ActuatorTests: TArray<TOBDOEMActuatorTest>;
       var LivePIDs: TArray<TOBDOEMLivePID>;
       var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
-    procedure SeedDefaultSeedKeyAlgorithms(
-      Reg: TOBDSeedKeyRegistry); override;
+    procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
     function DtcCatalogFileName: string; override;
   public
@@ -145,34 +143,31 @@ uses
 
 { TOBDOEMAgriculturalBase }
 
-function TOBDOEMAgriculturalBase.ApplicableToVIN(
-  const VIN: string): Boolean;
+function TOBDOEMAgriculturalBase.ApplicableToVIN(const VIN: string): Boolean;
 begin
   Result := VINMatchesCatalog(JsonFilename, VIN);
 end;
 
-procedure TOBDOEMAgriculturalBase.BuildCatalog(
-  var DIDs: TArray<TOBDOEMDataIdentifier>;
-  var Routines: TArray<TOBDOEMRoutine>;
-  var ECUs: TArray<TOBDOEMECU>);
+procedure TOBDOEMAgriculturalBase.BuildCatalog
+  (var DIDs: TArray<TOBDOEMDataIdentifier>;
+  var Routines: TArray<TOBDOEMRoutine>; var ECUs: TArray<TOBDOEMECU>);
 begin
   MergeCatalogJSON(JsonFilename, DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
-procedure TOBDOEMAgriculturalBase.BuildExtendedCatalog(
-  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
-  var Adaptations: TArray<TOBDOEMAdaptation>;
+procedure TOBDOEMAgriculturalBase.BuildExtendedCatalog(var CodingBlocks
+  : TArray<TOBDOEMCodingBlock>; var Adaptations: TArray<TOBDOEMAdaptation>;
   var ActuatorTests: TArray<TOBDOEMActuatorTest>;
   var LivePIDs: TArray<TOBDOEMLivePID>;
   var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
 begin
-  MergeExtendedCatalogJSON(JsonFilename,
-    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+  MergeExtendedCatalogJSON(JsonFilename, CodingBlocks, Adaptations,
+    ActuatorTests, LivePIDs, DtcExtended);
 end;
 
-procedure TOBDOEMAgriculturalBase.SeedDefaultSeedKeyAlgorithms(
-  Reg: TOBDSeedKeyRegistry);
+procedure TOBDOEMAgriculturalBase.SeedDefaultSeedKeyAlgorithms
+  (Reg: TOBDSeedKeyRegistry);
 begin
   Reg.RegisterAlgorithm($01,
     IOBDSeedKeyAlgorithm(TOBDSeedKeyKWP2000TwosComplement.Create()));
@@ -183,8 +178,7 @@ begin
   Result := 'dtc-' + JsonFilename;
 end;
 
-procedure TOBDOEMAgriculturalBase.SeedDefaultDtcCatalog(
-  Cat: TOBDDtcCatalog);
+procedure TOBDOEMAgriculturalBase.SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog);
 begin
   MergeDtcCatalog('dtc-iso-15031.json', Cat);
   MergeDtcCatalog(DtcCatalogFileName, Cat);
@@ -314,13 +308,14 @@ begin
 end;
 
 initialization
-  TOBDOEMRegistry.RegisterExtension(TOBDOEMJohnDeere.Create);
-  TOBDOEMRegistry.RegisterExtension(TOBDOEMCnh.Create);
-  TOBDOEMRegistry.RegisterExtension(TOBDOEMCaterpillarAgri.Create);
-  TOBDOEMRegistry.RegisterExtension(TOBDOEMKomatsu.Create);
-  TOBDOEMRegistry.RegisterExtension(TOBDOEMKubota.Create);
-  TOBDOEMRegistry.RegisterExtension(TOBDOEMAgco.Create);
-  TOBDOEMRegistry.RegisterExtension(TOBDOEMClaas.Create);
-  TOBDOEMRegistry.RegisterExtension(TOBDOEMVolvoCe.Create);
+
+TOBDOEMRegistry.RegisterExtension(TOBDOEMJohnDeere.Create);
+TOBDOEMRegistry.RegisterExtension(TOBDOEMCnh.Create);
+TOBDOEMRegistry.RegisterExtension(TOBDOEMCaterpillarAgri.Create);
+TOBDOEMRegistry.RegisterExtension(TOBDOEMKomatsu.Create);
+TOBDOEMRegistry.RegisterExtension(TOBDOEMKubota.Create);
+TOBDOEMRegistry.RegisterExtension(TOBDOEMAgco.Create);
+TOBDOEMRegistry.RegisterExtension(TOBDOEMClaas.Create);
+TOBDOEMRegistry.RegisterExtension(TOBDOEMVolvoCe.Create);
 
 end.

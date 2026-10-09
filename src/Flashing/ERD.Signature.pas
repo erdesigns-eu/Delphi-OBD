@@ -1,77 +1,68 @@
-//------------------------------------------------------------------------------
-//  ERD.Signature
+﻿// ------------------------------------------------------------------------------
+// ERD.Signature
 //
-//  Abstract base + interface for firmware-signature verification.
-//  Ships four concrete backends:
+// Abstract base + interface for firmware-signature verification.
+// Ships four concrete backends:
 //
-//    ERD.Signature.BCrypt — Windows Cryptography Next Generation
-//    ERD.Signature.OpenSSL — OpenSSL 3.x (Posix + Windows)
-//    ERD.Signature.HSM — PKCS#11 (any HSM with a PKCS#11 driver)
-//    ERD.Signature.PQC — post-quantum (Dilithium / Falcon /
-//                              SPHINCS+) via liboqs
+// ERD.Signature.BCrypt — Windows Cryptography Next Generation
+// ERD.Signature.OpenSSL — OpenSSL 3.x (Posix + Windows)
+// ERD.Signature.HSM — PKCS#11 (any HSM with a PKCS#11 driver)
+// ERD.Signature.PQC — post-quantum (Dilithium / Falcon /
+// SPHINCS+) via liboqs
 //
-//  The abstract surface is deliberately tiny: hosts pick a backend
-//  at runtime by querying <see cref="TOBDSignatureRegistry"/>, the
-//  flash pipeline calls <c>Verify(image, signature)</c>, the
-//  registry returns the available backend that supports the chosen
-//  algorithm.
+// The abstract surface is deliberately tiny: hosts pick a backend
+// at runtime by querying <see cref="TOBDSignatureRegistry"/>, the
+// flash pipeline calls <c>Verify(image, signature)</c>, the
+// registry returns the available backend that supports the chosen
+// algorithm.
 //
-//  SAFETY — BRICK RISK ----------------------------------------------------
-//  A pipeline that flashes an UNSIGNED image is one cosmic ray
-//  away from bricking the ECU. <c>docs/flashing-safety.md</c>
-//  requires image-signature verification before <c>fpTransfer</c>
-//  for production flows. <see cref="TOBDFlashPipeline"/> exposes
-//  checks for <c>fpVerifyImage</c>; hosts wire a check that calls
-//  <see cref="TOBDSignatureRegistry.Verify"/> and fails the phase
-//  on signature mismatch.
-//  ------------------------------------------------------------------------
+// SAFETY — BRICK RISK ----------------------------------------------------
+// A pipeline that flashes an UNSIGNED image is one cosmic ray
+// away from bricking the ECU. <c>docs/flashing-safety.md</c>
+// requires image-signature verification before <c>fpTransfer</c>
+// for production flows. <see cref="TOBDFlashPipeline"/> exposes
+// checks for <c>fpVerifyImage</c>; hosts wire a check that calls
+// <see cref="TOBDSignatureRegistry.Verify"/> and fails the phase
+// on signature mismatch.
+// ------------------------------------------------------------------------
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Signature;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.Types;
 
 type
   /// <summary>Signature algorithm enum.</summary>
-  TOBDSignatureAlgorithm = (
-    saRSA_PSS_SHA256,
-    saRSA_PKCS1_SHA256,
-    saECDSA_P256_SHA256,
-    saECDSA_P384_SHA384,
-    saED25519,
+  TOBDSignatureAlgorithm = (saRSA_PSS_SHA256, saRSA_PKCS1_SHA256,
+    saECDSA_P256_SHA256, saECDSA_P384_SHA384, saED25519,
     /// <summary>NIST PQC FIPS 204 — ML-DSA / Dilithium.</summary>
-    saDilithium2,
-    saDilithium3,
-    saDilithium5,
+    saDilithium2, saDilithium3, saDilithium5,
     /// <summary>NIST PQC Falcon-512 / Falcon-1024.</summary>
-    saFalcon512,
-    saFalcon1024,
+    saFalcon512, saFalcon1024,
     /// <summary>NIST PQC FIPS 205 — SLH-DSA / SPHINCS+.</summary>
-    saSPHINCSPlusSHA2_128f,
-    saSPHINCSPlusSHA2_192f
-  );
+    saSPHINCSPlusSHA2_128f, saSPHINCSPlusSHA2_192f);
 
   /// <summary>One verification request.</summary>
   TOBDSignatureVerifyArgs = record
@@ -101,8 +92,8 @@ type
   end;
 
   /// <summary>
-  ///   Abstract base that handles registration / Supports gating
-  ///   so concrete backends only override <c>DoVerify</c>.
+  /// Abstract base that handles registration / Supports gating
+  /// so concrete backends only override <c>DoVerify</c>.
   /// </summary>
   TOBDSignatureVerifier = class abstract(TInterfacedObject,
     IOBDSignatureVerifier)
@@ -123,7 +114,8 @@ type
   /// registry by algorithm.</summary>
   TOBDSignatureRegistry = class
   strict private
-    class var FInstance: TOBDSignatureRegistry;
+  class var
+    FInstance: TOBDSignatureRegistry;
     FLock: TCriticalSection;
     FBackends: TList<IOBDSignatureVerifier>;
   public
@@ -153,7 +145,7 @@ type
     function Verify(const AArgs: TOBDSignatureVerifyArgs): Boolean;
   end;
 
-/// <summary>Returns a human-readable algorithm name.</summary>
+  /// <summary>Returns a human-readable algorithm name.</summary>
 function AlgorithmName(AAlgorithm: TOBDSignatureAlgorithm): string;
 
 implementation
@@ -161,18 +153,30 @@ implementation
 function AlgorithmName(AAlgorithm: TOBDSignatureAlgorithm): string;
 begin
   case AAlgorithm of
-    saRSA_PSS_SHA256:        Result := 'RSA-PSS-SHA256';
-    saRSA_PKCS1_SHA256:      Result := 'RSA-PKCS1-SHA256';
-    saECDSA_P256_SHA256:     Result := 'ECDSA-P256-SHA256';
-    saECDSA_P384_SHA384:     Result := 'ECDSA-P384-SHA384';
-    saED25519:               Result := 'Ed25519';
-    saDilithium2:            Result := 'Dilithium2 (ML-DSA-44)';
-    saDilithium3:            Result := 'Dilithium3 (ML-DSA-65)';
-    saDilithium5:            Result := 'Dilithium5 (ML-DSA-87)';
-    saFalcon512:             Result := 'Falcon-512';
-    saFalcon1024:            Result := 'Falcon-1024';
-    saSPHINCSPlusSHA2_128f:  Result := 'SLH-DSA-SHA2-128f';
-    saSPHINCSPlusSHA2_192f:  Result := 'SLH-DSA-SHA2-192f';
+    saRSA_PSS_SHA256:
+      Result := 'RSA-PSS-SHA256';
+    saRSA_PKCS1_SHA256:
+      Result := 'RSA-PKCS1-SHA256';
+    saECDSA_P256_SHA256:
+      Result := 'ECDSA-P256-SHA256';
+    saECDSA_P384_SHA384:
+      Result := 'ECDSA-P384-SHA384';
+    saED25519:
+      Result := 'Ed25519';
+    saDilithium2:
+      Result := 'Dilithium2 (ML-DSA-44)';
+    saDilithium3:
+      Result := 'Dilithium3 (ML-DSA-65)';
+    saDilithium5:
+      Result := 'Dilithium5 (ML-DSA-87)';
+    saFalcon512:
+      Result := 'Falcon-512';
+    saFalcon1024:
+      Result := 'Falcon-1024';
+    saSPHINCSPlusSHA2_128f:
+      Result := 'SLH-DSA-SHA2-128f';
+    saSPHINCSPlusSHA2_192f:
+      Result := 'SLH-DSA-SHA2-192f';
   else
     Result := 'unknown';
   end;
@@ -180,8 +184,8 @@ end;
 
 { ---- TOBDSignatureVerifier ------------------------------------------------- }
 
-function TOBDSignatureVerifier.Supports(
-  AAlgorithm: TOBDSignatureAlgorithm): Boolean;
+function TOBDSignatureVerifier.Supports(AAlgorithm
+  : TOBDSignatureAlgorithm): Boolean;
 begin
   Result := DoSupports(AAlgorithm);
 end;
@@ -191,8 +195,8 @@ begin
   Result := DoName;
 end;
 
-function TOBDSignatureVerifier.Verify(
-  const AArgs: TOBDSignatureVerifyArgs): Boolean;
+function TOBDSignatureVerifier.Verify(const AArgs
+  : TOBDSignatureVerifyArgs): Boolean;
 begin
   if Length(AArgs.Message) = 0 then
     raise EOBDConfig.Create('Signature verify: empty message');
@@ -201,8 +205,7 @@ begin
   if Length(AArgs.PublicKey) = 0 then
     raise EOBDConfig.Create('Signature verify: empty public key');
   if not DoSupports(AArgs.Algorithm) then
-    raise EOBDConfig.CreateFmt(
-      'Signature backend "%s" does not support %s',
+    raise EOBDConfig.CreateFmt('Signature backend "%s" does not support %s',
       [DoName, AlgorithmName(AArgs.Algorithm)]);
   Result := DoVerify(AArgs);
 end;
@@ -235,27 +238,36 @@ begin
   FreeAndNil(FInstance);
 end;
 
-procedure TOBDSignatureRegistry.Register(
-  const ABackend: IOBDSignatureVerifier);
+procedure TOBDSignatureRegistry.Register(const ABackend: IOBDSignatureVerifier);
 begin
-  if ABackend = nil then Exit;
+  if ABackend = nil then
+    Exit;
   FLock.Enter;
-  try FBackends.Add(ABackend);
-  finally FLock.Leave; end;
+  try
+    FBackends.Add(ABackend);
+  finally
+    FLock.Leave;
+  end;
 end;
 
 procedure TOBDSignatureRegistry.Clear;
 begin
   FLock.Enter;
-  try FBackends.Clear;
-  finally FLock.Leave; end;
+  try
+    FBackends.Clear;
+  finally
+    FLock.Leave;
+  end;
 end;
 
 function TOBDSignatureRegistry.Count: Integer;
 begin
   FLock.Enter;
-  try Result := FBackends.Count;
-  finally FLock.Leave; end;
+  try
+    Result := FBackends.Count;
+  finally
+    FLock.Leave;
+  end;
 end;
 
 function TOBDSignatureRegistry.Names: TArray<string>;
@@ -272,8 +284,8 @@ begin
   end;
 end;
 
-function TOBDSignatureRegistry.Supports(
-  AAlgorithm: TOBDSignatureAlgorithm): Boolean;
+function TOBDSignatureRegistry.Supports(AAlgorithm
+  : TOBDSignatureAlgorithm): Boolean;
 var
   I: Integer;
 begin
@@ -288,8 +300,8 @@ begin
   end;
 end;
 
-function TOBDSignatureRegistry.Verify(
-  const AArgs: TOBDSignatureVerifyArgs): Boolean;
+function TOBDSignatureRegistry.Verify(const AArgs
+  : TOBDSignatureVerifyArgs): Boolean;
 var
   I: Integer;
 begin
@@ -301,14 +313,14 @@ begin
   finally
     FLock.Leave;
   end;
-  raise EOBDConfig.CreateFmt(
-    'No signature backend registered that supports %s',
+  raise EOBDConfig.CreateFmt('No signature backend registered that supports %s',
     [AlgorithmName(AArgs.Algorithm)]);
 end;
 
 initialization
 
 finalization
-  TOBDSignatureRegistry.ReleaseDefault;
+
+TOBDSignatureRegistry.ReleaseDefault;
 
 end.

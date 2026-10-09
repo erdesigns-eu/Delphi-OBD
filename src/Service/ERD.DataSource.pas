@@ -1,45 +1,45 @@
-//------------------------------------------------------------------------------
-//  ERD.DataSource
+﻿// ------------------------------------------------------------------------------
+// ERD.DataSource
 //
-//  TOBDDataSource — non-visual bridge analogous to VCL's TDataSource.
-//  Sits between a service-mode component (TOBDLiveData / TOBDDTCs /
-//  TOBDVIN / TOBDFreezeFrame / TOBDOnBoardMonitor) and any number of
-//  consumers (visual or non-visual). Consumers wire OnDataChange /
-//  OnStateChange instead of subscribing to the underlying component
-//  directly — so the source can be swapped at runtime without every
-//  consumer having to re-subscribe, and a single underlying
-//  component serves many consumers without duplicate subscriptions.
+// TOBDDataSource — non-visual bridge analogous to VCL's TDataSource.
+// Sits between a service-mode component (TOBDLiveData / TOBDDTCs /
+// TOBDVIN / TOBDFreezeFrame / TOBDOnBoardMonitor) and any number of
+// consumers (visual or non-visual). Consumers wire OnDataChange /
+// OnStateChange instead of subscribing to the underlying component
+// directly — so the source can be swapped at runtime without every
+// consumer having to re-subscribe, and a single underlying
+// component serves many consumers without duplicate subscriptions.
 //
-//  The bridge intentionally only re-fires events; it does NOT
-//  cache values. Visual controls that need a last-known value
-//  pull it from the bound component or capture it from the
-//  OnDataChange payload.
+// The bridge intentionally only re-fires events; it does NOT
+// cache values. Visual controls that need a last-known value
+// pull it from the bound component or capture it from the
+// OnDataChange payload.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-11  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-11  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.DataSource;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
   ERD.Async.Task,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.Types,
   ERD.Service.LiveData,
   ERD.Service.DTCs,
@@ -49,12 +49,12 @@ uses
 
 type
   /// <summary>
-  ///   Source-kind tag derived from the bound component's class.
+  /// Source-kind tag derived from the bound component's class.
   /// </summary>
   /// <remarks>
-  ///   The actual source reference is held in
-  ///   <see cref="TOBDDataSource.Source"/>. Consumers that only
-  ///   need to dispatch on kind read this enum from the payload.
+  /// The actual source reference is held in
+  /// <see cref="TOBDDataSource.Source"/>. Consumers that only
+  /// need to dispatch on kind read this enum from the payload.
   /// </remarks>
   TOBDDataSourceKind = (
     /// <summary>No source bound.</summary>
@@ -68,17 +68,16 @@ type
     /// <summary>Source is a <c>TOBDOnBoardMonitor</c>.</summary>
     dsOnBoardMonitor,
     /// <summary>Source is a <c>TOBDVIN</c>.</summary>
-    dsVIN
-  );
+    dsVIN);
 
   /// <summary>
-  ///   Data-change notification payload.
+  /// Data-change notification payload.
   /// </summary>
   /// <remarks>
-  ///   Opaque carrier so the bridge can re-fire any service
-  ///   component's events without the source-kind leaking into
-  ///   consumers that don't care. Most fields are optional;
-  ///   <c>Kind</c> tells the consumer which ones are populated.
+  /// Opaque carrier so the bridge can re-fire any service
+  /// component's events without the source-kind leaking into
+  /// consumers that don't care. Most fields are optional;
+  /// <c>Kind</c> tells the consumer which ones are populated.
   /// </remarks>
   TOBDDataSourcePayload = record
     /// <summary>Source kind that produced this notification.</summary>
@@ -95,37 +94,37 @@ type
   end;
 
   /// <summary>
-  ///   Data-change event. Main thread.
+  /// Data-change event. Main thread.
   /// </summary>
   TOBDDataSourceEvent = procedure(Sender: TObject;
     const APayload: TOBDDataSourcePayload) of object;
 
   /// <summary>
-  ///   State-change event. Main thread.
+  /// State-change event. Main thread.
   /// </summary>
   /// <remarks>
-  ///   Fires when <c>Source</c> is assigned, cleared (by
-  ///   FreeNotification or explicit unset), or when
-  ///   <c>Active</c> toggles. <c>AActive</c> is <c>True</c> iff
-  ///   <c>Active</c> and a non-nil <c>Source</c> are both true.
+  /// Fires when <c>Source</c> is assigned, cleared (by
+  /// FreeNotification or explicit unset), or when
+  /// <c>Active</c> toggles. <c>AActive</c> is <c>True</c> iff
+  /// <c>Active</c> and a non-nil <c>Source</c> are both true.
   /// </remarks>
-  TOBDDataSourceStateEvent = procedure(Sender: TObject;
-    AActive: Boolean) of object;
+  TOBDDataSourceStateEvent = procedure(Sender: TObject; AActive: Boolean)
+    of object;
 
   /// <summary>
-  ///   TDataSource-style bridge.
+  /// TDataSource-style bridge.
   /// </summary>
   /// <remarks>
-  ///   Drop the bridge on a form, point <c>Source</c> at a Phase-5
-  ///   service component, then wire <c>OnDataChange</c> on each
-  ///   consumer. Toggling <c>Active</c> unsubscribes / re-subscribes
-  ///   without losing the source reference. Re-assigning
-  ///   <c>Source</c> automatically migrates subscribers.
+  /// Drop the bridge on a form, point <c>Source</c> at a Phase-5
+  /// service component, then wire <c>OnDataChange</c> on each
+  /// consumer. Toggling <c>Active</c> unsubscribes / re-subscribes
+  /// without losing the source reference. Re-assigning
+  /// <c>Source</c> automatically migrates subscribers.
   ///
-  ///   The bridge only knows the public event surface of the bound
-  ///   service component, so consumers that need more detail (e.g.
-  ///   the full decoded <c>TOBDPIDValue</c>) should still subscribe
-  ///   to that component directly.
+  /// The bridge only knows the public event surface of the bound
+  /// service component, so consumers that need more detail (e.g.
+  /// the full decoded <c>TOBDPIDValue</c>) should still subscribe
+  /// to that component directly.
   /// </remarks>
   TOBDDataSource = class(TComponent)
   strict private
@@ -141,16 +140,14 @@ type
     procedure Unwire;
     procedure FireData(const APayload: TOBDDataSourcePayload);
     procedure FireState;
-    procedure HandleLiveRaw(Sender: TObject; APID: Byte;
-      const ARaw: TBytes);
+    procedure HandleLiveRaw(Sender: TObject; APID: Byte; const ARaw: TBytes);
     procedure HandleDTCs(Sender: TObject; AKind: TOBDDtcKind;
       const AEntries: TArray<TOBDDtcEntry>);
     procedure HandleFreezeFrame(Sender: TObject; AFrameIndex: Byte;
       const AValue: TOBDPIDValue);
     procedure HandleMonitor(Sender: TObject; AMID: Byte;
       const AResults: TArray<TOBDMonitorResult>);
-    procedure HandleVIN(Sender: TObject;
-      const AResult: TOBDVINResult);
+    procedure HandleVIN(Sender: TObject; const AResult: TOBDVINResult);
   protected
     procedure Notification(AComponent: TComponent;
       Operation: TOperation); override;
@@ -163,37 +160,37 @@ type
     destructor Destroy; override;
 
     /// <summary>
-    ///   Pushes a data-change notification manually.
+    /// Pushes a data-change notification manually.
     /// </summary>
     /// <param name="APayload">Payload to forward to every wired
     /// <c>OnDataChange</c> handler.</param>
     /// <remarks>
-    ///   Useful for synthetic or mocked sources during tests.
+    /// Useful for synthetic or mocked sources during tests.
     /// </remarks>
     procedure Notify(const APayload: TOBDDataSourcePayload);
   published
     /// <summary>
-    ///   Bound service component (or <c>nil</c>).
+    /// Bound service component (or <c>nil</c>).
     /// </summary>
     /// <remarks>
-    ///   Assigning unsubscribes from the previous source and
-    ///   subscribes to the new one when <c>Active = True</c>.
-    ///   <c>FreeNotification</c> is wired so the bridge clears
-    ///   itself when the source is destroyed.
+    /// Assigning unsubscribes from the previous source and
+    /// subscribes to the new one when <c>Active = True</c>.
+    /// <c>FreeNotification</c> is wired so the bridge clears
+    /// itself when the source is destroyed.
     /// </remarks>
     property Source: TComponent read FSource write SetSource;
 
     /// <summary>
-    ///   Read-only kind derived from <c>Source</c>'s class.
+    /// Read-only kind derived from <c>Source</c>'s class.
     /// </summary>
     property Kind: TOBDDataSourceKind read FKind;
 
     /// <summary>
-    ///   Subscribe / unsubscribe gate. Default <c>True</c>.
+    /// Subscribe / unsubscribe gate. Default <c>True</c>.
     /// </summary>
     /// <remarks>
-    ///   Setting to <c>False</c> detaches every event handler from
-    ///   <c>Source</c>; setting back to <c>True</c> reattaches.
+    /// Setting to <c>False</c> detaches every event handler from
+    /// <c>Source</c>; setting back to <c>True</c> reattaches.
     /// </remarks>
     property Active: Boolean read FActive write SetActive default True;
 
@@ -217,7 +214,8 @@ end;
 
 destructor TOBDDataSource.Destroy;
 begin
-  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  if FOwnedTask <> nil then
+    FOwnedTask.Cancel;
   Unwire;
   FreeAndNil(FOwnedTask);
   inherited;
@@ -317,7 +315,7 @@ procedure TOBDDataSource.HandleLiveRaw(Sender: TObject; APID: Byte;
 var
   P: TOBDDataSourcePayload;
 begin
-  P := Default(TOBDDataSourcePayload);
+  P := Default (TOBDDataSourcePayload);
   P.Kind := dsLiveData;
   P.PID := APID;
   P.Raw := Copy(ARaw, 0, Length(ARaw));
@@ -330,18 +328,18 @@ procedure TOBDDataSource.HandleDTCs(Sender: TObject; AKind: TOBDDtcKind;
 var
   P: TOBDDataSourcePayload;
 begin
-  P := Default(TOBDDataSourcePayload);
+  P := Default (TOBDDataSourcePayload);
   P.Kind := dsDTCs;
   P.Caption := Format('DTCs (%d)', [Length(AEntries)]);
   FireData(P);
 end;
 
-procedure TOBDDataSource.HandleFreezeFrame(Sender: TObject;
-  AFrameIndex: Byte; const AValue: TOBDPIDValue);
+procedure TOBDDataSource.HandleFreezeFrame(Sender: TObject; AFrameIndex: Byte;
+  const AValue: TOBDPIDValue);
 var
   P: TOBDDataSourcePayload;
 begin
-  P := Default(TOBDDataSourcePayload);
+  P := Default (TOBDDataSourcePayload);
   P.Kind := dsFreezeFrame;
   P.PID := AFrameIndex;
   P.Caption := Format('Freeze frame %.2x', [AFrameIndex]);
@@ -353,7 +351,7 @@ procedure TOBDDataSource.HandleMonitor(Sender: TObject; AMID: Byte;
 var
   P: TOBDDataSourcePayload;
 begin
-  P := Default(TOBDDataSourcePayload);
+  P := Default (TOBDDataSourcePayload);
   P.Kind := dsOnBoardMonitor;
   P.PID := AMID;
   P.Caption := Format('Mode 06 MID %.2x (%d results)',
@@ -366,7 +364,7 @@ procedure TOBDDataSource.HandleVIN(Sender: TObject;
 var
   P: TOBDDataSourcePayload;
 begin
-  P := Default(TOBDDataSourcePayload);
+  P := Default (TOBDDataSourcePayload);
   P.Kind := dsVIN;
   if AResult.Valid then
     P.Caption := AResult.RawVIN

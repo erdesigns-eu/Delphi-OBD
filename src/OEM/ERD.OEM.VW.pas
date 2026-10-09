@@ -1,53 +1,53 @@
-//------------------------------------------------------------------------------
-//  ERD.OEM.VW
+﻿// ------------------------------------------------------------------------------
+// ERD.OEM.VW
 //
-//  VW Group (Volkswagen / Audi / SEAT / Škoda) OEM extension.
-//  Covers the four common WMIs in the VAG family; vehicle
-//  catalogue (DIDs, routines, ECUs, coding blocks, adaptations,
-//  actuator tests, live PIDs, DTC extended-data records) lives
-//  in <c>catalogs/vw.json</c>. The shipped UDS baseline overlay
-//  (<c>catalogs/uds-standard.json</c>) is layered on top so
-//  callers always have the J2012 / ISO 14229 generic DIDs even
-//  before the VAG-specific catalogue resolves.
+// VW Group (Volkswagen / Audi / SEAT / Škoda) OEM extension.
+// Covers the four common WMIs in the VAG family; vehicle
+// catalogue (DIDs, routines, ECUs, coding blocks, adaptations,
+// actuator tests, live PIDs, DTC extended-data records) lives
+// in <c>catalogs/vw.json</c>. The shipped UDS baseline overlay
+// (<c>catalogs/uds-standard.json</c>) is layered on top so
+// callers always have the J2012 / ISO 14229 generic DIDs even
+// before the VAG-specific catalogue resolves.
 //
-//  Session negotiator overrides
-//  <see cref="TOBDStandardSessionNegotiator.BeginSessionPlan"/>
-//  to prepend the <c>AT SH</c> + <c>AT CRA</c> handshake VCDS
-//  and ODIS issue before the UDS request — MQB-platform ECUs
-//  occasionally reject the session-control request when CRA is
-//  wrong. Tester-present cadence is 2000 ms (ODIS service mode 2).
+// Session negotiator overrides
+// <see cref="TOBDStandardSessionNegotiator.BeginSessionPlan"/>
+// to prepend the <c>AT SH</c> + <c>AT CRA</c> handshake VCDS
+// and ODIS issue before the UDS request — MQB-platform ECUs
+// occasionally reject the session-control request when CRA is
+// wrong. Tester-present cadence is 2000 ms (ODIS service mode 2).
 //
-//  Seed-key starter is the textbook KWP2000 two's-complement at
-//  Level 1; production users register their NDA algorithm via
-//  <see cref="TOBDSeedKeyRegistry.RegisterAlgorithm"/>.
+// Seed-key starter is the textbook KWP2000 two's-complement at
+// Level 1; production users register their NDA algorithm via
+// <see cref="TOBDSeedKeyRegistry.RegisterAlgorithm"/>.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - ISO 14229-1 §9 DiagnosticSessionControl
-//    - ISO 15765-4 (CAN-ID + 8 response convention)
-//    - VCDS / ODIS public service literature
+// References  :
+// - ISO 14229-1 §9 DiagnosticSessionControl
+// - ISO 15765-4 (CAN-ID + 8 response convention)
+// - VCDS / ODIS public service literature
 //
-//  History     :
-//    2026-05-12  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-12  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.OEM.VW;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   ERD.OEM,
   ERD.OEM.Session,
   ERD.OEM.SeedKey,
@@ -55,10 +55,10 @@ uses
 
 type
   /// <summary>
-  ///   VAG-specific session negotiator. Adds the
-  ///   <c>AT SH &lt;ECU&gt;</c> + <c>AT CRA &lt;ECU+8&gt;</c>
-  ///   handshake before the UDS DiagnosticSessionControl
-  ///   request.
+  /// VAG-specific session negotiator. Adds the
+  /// <c>AT SH &lt;ECU&gt;</c> + <c>AT CRA &lt;ECU+8&gt;</c>
+  /// handshake before the UDS DiagnosticSessionControl
+  /// request.
   /// </summary>
   TOBDVWSessionNegotiator = class(TOBDStandardSessionNegotiator)
   public
@@ -81,23 +81,21 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
-    procedure BuildExtendedCatalog(
-      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+    procedure BuildExtendedCatalog(var CodingBlocks: TArray<TOBDOEMCodingBlock>;
       var Adaptations: TArray<TOBDOEMAdaptation>;
       var ActuatorTests: TArray<TOBDOEMActuatorTest>;
       var LivePIDs: TArray<TOBDOEMLivePID>;
       var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
     function CreateSessionNegotiator: IOBDSessionNegotiator; override;
-    procedure SeedDefaultSeedKeyAlgorithms(
-      Reg: TOBDSeedKeyRegistry); override;
+    procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
     function DtcCatalogFileName: string; override;
   public
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
     function ApplicableToVIN(const VIN: string): Boolean; override;
-    function DecodeDID(const DID: Word;
-      const Payload: TBytes): string; override;
+    function DecodeDID(const DID: Word; const Payload: TBytes): string;
+      override;
   end;
 
 implementation
@@ -109,15 +107,14 @@ uses
 
 { TOBDVWSessionNegotiator }
 
-function TOBDVWSessionNegotiator.BeginSessionPlan(
-  ASessionType: TOBDSessionType;
+function TOBDVWSessionNegotiator.BeginSessionPlan(ASessionType: TOBDSessionType;
   const AEcuAddress: Word): TOBDSessionPlan;
 var
   Sub: Byte;
   Steps: TArray<TOBDSessionStep>;
   ResponseAddr: Word;
 begin
-  Result := Default(TOBDSessionPlan);
+  Result := Default (TOBDSessionPlan);
   Sub := SessionTypeByte(ASessionType);
   Steps := nil;
 
@@ -125,20 +122,14 @@ begin
   begin
     // ISO 15765-4: positive response CAN-ID = request + 8.
     ResponseAddr := AEcuAddress + 8;
-    Steps := Steps + [
-      ATStep('SH ' + FormatHeader(AEcuAddress),
-        Format('Set request header to 0x%s',
-          [FormatHeader(AEcuAddress)])),
+    Steps := Steps + [ATStep('SH ' + FormatHeader(AEcuAddress),
+      Format('Set request header to 0x%s', [FormatHeader(AEcuAddress)])),
       ATStep('CRA ' + FormatHeader(ResponseAddr),
-        Format('Filter response to 0x%s',
-          [FormatHeader(ResponseAddr)]))
-    ];
+      Format('Filter response to 0x%s', [FormatHeader(ResponseAddr)]))];
   end;
 
-  Steps := Steps + [
-    UDSStep(TBytes.Create($10, Sub), TBytes.Create($50, Sub),
-      Format('VAG DiagnosticSessionControl 0x%.2X', [Sub]))
-  ];
+  Steps := Steps + [UDSStep(TBytes.Create($10, Sub), TBytes.Create($50, Sub),
+    Format('VAG DiagnosticSessionControl 0x%.2X', [Sub]))];
 
   Result.Steps := Steps;
   if ASessionType = sstDefault then
@@ -160,8 +151,8 @@ begin
   Result := TOBDVWSessionNegotiator.Create;
 end;
 
-procedure TOBDOEMExtensionVW.SeedDefaultSeedKeyAlgorithms(
-  Reg: TOBDSeedKeyRegistry);
+procedure TOBDOEMExtensionVW.SeedDefaultSeedKeyAlgorithms
+  (Reg: TOBDSeedKeyRegistry);
 begin
   // Legacy VAG KWP2000 components (pre-2008 instrument clusters,
   // some MED9 ECMs) accept the textbook two's-complement at
@@ -198,24 +189,22 @@ begin
   Result := VINMatchesCatalog('vw.json', VIN);
 end;
 
-procedure TOBDOEMExtensionVW.BuildCatalog(
-  var DIDs: TArray<TOBDOEMDataIdentifier>;
-  var Routines: TArray<TOBDOEMRoutine>;
-  var ECUs: TArray<TOBDOEMECU>);
+procedure TOBDOEMExtensionVW.BuildCatalog
+  (var DIDs: TArray<TOBDOEMDataIdentifier>;
+  var Routines: TArray<TOBDOEMRoutine>; var ECUs: TArray<TOBDOEMECU>);
 begin
   MergeCatalogJSON('vw.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
-procedure TOBDOEMExtensionVW.BuildExtendedCatalog(
-  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
-  var Adaptations: TArray<TOBDOEMAdaptation>;
+procedure TOBDOEMExtensionVW.BuildExtendedCatalog(var CodingBlocks
+  : TArray<TOBDOEMCodingBlock>; var Adaptations: TArray<TOBDOEMAdaptation>;
   var ActuatorTests: TArray<TOBDOEMActuatorTest>;
   var LivePIDs: TArray<TOBDOEMLivePID>;
   var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
 begin
-  MergeExtendedCatalogJSON('vw.json',
-    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+  MergeExtendedCatalogJSON('vw.json', CodingBlocks, Adaptations, ActuatorTests,
+    LivePIDs, DtcExtended);
 end;
 
 function TOBDOEMExtensionVW.DecodeDID(const DID: Word;
@@ -232,8 +221,7 @@ begin
       if Length(Payload) >= 2 then
       begin
         Voltage := (Payload[0] shl 8) or Payload[1];
-        Result := Format('battery_voltage = %.3f V',
-          [Voltage / 1000.0]);
+        Result := Format('battery_voltage = %.3f V', [Voltage / 1000.0]);
         Exit;
       end;
     $F40D:
@@ -246,8 +234,7 @@ begin
     $F190:
       if Length(Payload) > 0 then
       begin
-        Result := Format('vin = %s',
-          [TEncoding.ASCII.GetString(Payload)]);
+        Result := Format('vin = %s', [TEncoding.ASCII.GetString(Payload)]);
         Exit;
       end;
   end;
@@ -255,6 +242,7 @@ begin
 end;
 
 initialization
-  TOBDOEMRegistry.RegisterExtension(TOBDOEMExtensionVW.Create);
+
+TOBDOEMRegistry.RegisterExtension(TOBDOEMExtensionVW.Create);
 
 end.

@@ -1,59 +1,59 @@
-//------------------------------------------------------------------------------
-//  ERD.Types
+﻿// ------------------------------------------------------------------------------
+// ERD.Types
 //
-//  Foundational types for the Delphi-OBD package.
+// Foundational types for the Delphi-OBD package.
 //
-//  Defines the enums, value carriers, and exception hierarchy that are
-//  used by every other layer. Has no dependencies beyond the System RTL.
+// Defines the enums, value carriers, and exception hierarchy that are
+// used by every other layer. Has no dependencies beyond the System RTL.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - ISO 15031-5 (OBD-II services 01..0A)
-//    - ISO 14229-1 (UDS)
-//    - ISO 14230   (KWP2000)
-//    - ISO 15765-4 (CAN-TP for OBD)
-//    - SAE J1939   (heavy-duty diagnostics)
-//    - ISO 13400   (DoIP)
+// References  :
+// - ISO 15031-5 (OBD-II services 01..0A)
+// - ISO 14229-1 (UDS)
+// - ISO 14230   (KWP2000)
+// - ISO 15765-4 (CAN-TP for OBD)
+// - SAE J1939   (heavy-duty diagnostics)
+// - ISO 13400   (DoIP)
 //
-//  History     :
-//    2026-05-09  ERD  Initial types: enums, TOBDValue, exception
-//                     hierarchy.
+// History     :
+// 2026-05-09  ERD  Initial types: enums, TOBDValue, exception
+// hierarchy.
 //
-//  Notes :
-//    - <c>TOBDProtocolID</c> covers only the adapter-selectable
-//      OBD-II protocols. LIN, FlexRay and MOST live in their own
-//      units (<c>ERD.Protocol.LIN.*</c>, <c>ERD.Protocol.FlexRay.*</c>,
-//      <c>ERD.Protocol.MOST.*</c>) and do not appear in this enum.
-//    - SecOC freshness types live in
-//      <c>ERD.Protocol.SecOC.Freshness</c>, not here.
-//------------------------------------------------------------------------------
+// Notes :
+// - <c>TOBDProtocolID</c> covers only the adapter-selectable
+// OBD-II protocols. LIN, FlexRay and MOST live in their own
+// units (<c>ERD.Protocol.LIN.*</c>, <c>ERD.Protocol.FlexRay.*</c>,
+// <c>ERD.Protocol.MOST.*</c>) and do not appear in this enum.
+// - SecOC freshness types live in
+// <c>ERD.Protocol.SecOC.Freshness</c>, not here.
+// ------------------------------------------------------------------------------
 
 unit ERD.Types;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Variants{$ELSE}System.Variants{$ENDIF};
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Variants{$ELSE}System.Variants{$ENDIF};
 
 type
   /// <summary>
-  ///   Physical transport between the host application and an OBD adapter.
+  /// Physical transport between the host application and an OBD adapter.
   /// </summary>
   /// <remarks>
-  ///   Stable enum order. Values are streamed in DFM and JSON catalogues;
-  ///   never reorder or remove members.
+  /// Stable enum order. Values are streamed in DFM and JSON catalogues;
+  /// never reorder or remove members.
   /// </remarks>
   TOBDTransport = (
     /// <summary>RS-232 / virtual serial port over USB.</summary>
@@ -67,15 +67,14 @@ type
     /// <summary>UDP — primarily for DoIP and discovery.</summary>
     otUDP,
     /// <summary>Direct FTDI D2XX driver (skips the COM stack).</summary>
-    otFTDI
-  );
+    otFTDI);
 
   /// <summary>
-  ///   Family of an OBD adapter / interface chip.
+  /// Family of an OBD adapter / interface chip.
   /// </summary>
   /// <remarks>
-  ///   Detected automatically by <c>TOBDAdapter</c> when the adapter
-  ///   identifies itself; can also be set manually for offline projects.
+  /// Detected automatically by <c>TOBDAdapter</c> when the adapter
+  /// identifies itself; can also be set manually for offline projects.
   /// </remarks>
   TOBDAdapterFamily = (
     /// <summary>ELM327 (Elm Electronics) and clones.</summary>
@@ -85,16 +84,15 @@ type
     /// <summary>SAE J2534 PassThru tool.</summary>
     afJ2534,
     /// <summary>DoIP gateway (no chip — the protocol is the adapter).</summary>
-    afDoIP
-  );
+    afDoIP);
 
   /// <summary>
-  ///   Wire protocol used between the OBD adapter and the vehicle bus.
+  /// Wire protocol used between the OBD adapter and the vehicle bus.
   /// </summary>
   /// <remarks>
-  ///   The numeric values match the <c>AT TP nn</c> / <c>AT SP nn</c>
-  ///   protocol numbers used by ELM327. New entries are appended after
-  ///   the existing last value and never inserted in the middle.
+  /// The numeric values match the <c>AT TP nn</c> / <c>AT SP nn</c>
+  /// protocol numbers used by ELM327. New entries are appended after
+  /// the existing last value and never inserted in the middle.
   /// </remarks>
   TOBDProtocolID = (
     /// <summary>Auto-detect — the adapter chooses.</summary>
@@ -122,16 +120,15 @@ type
     /// <summary>User-defined CAN, 11-bit ID, 125 kbps.</summary>
     pidUserCAN_11_125,
     /// <summary>User-defined CAN, 29-bit ID, 50 kbps.</summary>
-    pidUserCAN_29_50
-  );
+    pidUserCAN_29_50);
 
   /// <summary>
-  ///   Transient error condition surfaced via the <c>OnError</c> event on
-  ///   any component.
+  /// Transient error condition surfaced via the <c>OnError</c> event on
+  /// any component.
   /// </summary>
   /// <remarks>
-  ///   These never raise an exception. Exceptions are reserved for
-  ///   programmer / configuration errors (see <see cref="EOBDError"/>).
+  /// These never raise an exception. Exceptions are reserved for
+  /// programmer / configuration errors (see <see cref="EOBDError"/>).
   /// </remarks>
   TOBDErrorCode = (
     /// <summary>No error. Sentinel value, not normally fired.</summary>
@@ -159,11 +156,10 @@ type
     /// <summary>Unsolicited / unexpected frame received.</summary>
     oeUnexpectedFrame,
     /// <summary>Catch-all for transient I/O glitches.</summary>
-    oeIO
-  );
+    oeIO);
 
   /// <summary>
-  ///   Discriminator for the polymorphic value carried by <see cref="TOBDValue"/>.
+  /// Discriminator for the polymorphic value carried by <see cref="TOBDValue"/>.
   /// </summary>
   TOBDValueKind = (
     /// <summary>No value present (e.g. handler invoked with empty data).</summary>
@@ -179,24 +175,23 @@ type
     /// <summary>Bit field packed into <c>AsBitField</c>.</summary>
     vkBitField,
     /// <summary>Raw bytes only — no scaled interpretation.</summary>
-    vkRawOnly
-  );
+    vkRawOnly);
 
   /// <summary>
-  ///   Polymorphic value produced by a decoder when an ECU response is
-  ///   parsed.
+  /// Polymorphic value produced by a decoder when an ECU response is
+  /// parsed.
   /// </summary>
   /// <remarks>
-  ///   The contract is "raw bytes plus one decoded view". The decoded
-  ///   view is determined by <c>Kind</c>; consumers should switch on
-  ///   <c>Kind</c> rather than try every <c>AsXxx</c> field.
+  /// The contract is "raw bytes plus one decoded view". The decoded
+  /// view is determined by <c>Kind</c>; consumers should switch on
+  /// <c>Kind</c> rather than try every <c>AsXxx</c> field.
   ///
-  ///   Values are passed by value in events. Do not retain a pointer to
-  ///   <c>Raw</c> beyond the scope of the handler — copy if needed.
+  /// Values are passed by value in events. Do not retain a pointer to
+  /// <c>Raw</c> beyond the scope of the handler — copy if needed.
   ///
-  ///   <c>UnitName</c> uses SI units where applicable
-  ///   (<c>°C</c>, <c>kPa</c>, <c>%</c>, <c>rpm</c>, <c>km/h</c>) and is
-  ///   empty for unitless values.
+  /// <c>UnitName</c> uses SI units where applicable
+  /// (<c>°C</c>, <c>kPa</c>, <c>%</c>, <c>rpm</c>, <c>km/h</c>) and is
+  /// empty for unitless values.
   /// </remarks>
   TOBDValue = record
     /// <summary>Type of the decoded view; selects which <c>AsXxx</c>
@@ -225,14 +220,14 @@ type
   end;
 
   /// <summary>
-  ///   Static description of a single PID / DID / DM / DTC entry as
-  ///   loaded from a JSON catalogue.
+  /// Static description of a single PID / DID / DM / DTC entry as
+  /// loaded from a JSON catalogue.
   /// </summary>
   /// <remarks>
-  ///   Decoders consult this descriptor to scale raw bytes into a
-  ///   <see cref="TOBDValue"/>. <c>DecoderName</c> is the registry key in
-  ///   <c>ERD.Decoders</c>; <c>Scale</c>, <c>Offset</c>, <c>Min</c>,
-  ///   <c>Max</c> tune linear / clamped decoders.
+  /// Decoders consult this descriptor to scale raw bytes into a
+  /// <see cref="TOBDValue"/>. <c>DecoderName</c> is the registry key in
+  /// <c>ERD.Decoders</c>; <c>Scale</c>, <c>Offset</c>, <c>Min</c>,
+  /// <c>Max</c> tune linear / clamped decoders.
   /// </remarks>
   TOBDPIDDescriptor = record
     /// <summary>Numeric identifier of this entry within its mode/service.
@@ -262,72 +257,72 @@ type
   end;
 
   /// <summary>
-  ///   Base exception for all programmer / configuration errors raised
-  ///   by the Delphi-OBD package.
+  /// Base exception for all programmer / configuration errors raised
+  /// by the Delphi-OBD package.
   /// </summary>
   /// <remarks>
-  ///   Transient I/O issues (timeouts, NO-DATA, NRCs, bus errors) do
-  ///   <b>not</b> raise — they fire <c>OnError</c>. Only catch
-  ///   <see cref="EOBDError"/> if you want the bucket of misuse + assertion
-  ///   failures.
+  /// Transient I/O issues (timeouts, NO-DATA, NRCs, bus errors) do
+  /// <b>not</b> raise — they fire <c>OnError</c>. Only catch
+  /// <see cref="EOBDError"/> if you want the bucket of misuse + assertion
+  /// failures.
   /// </remarks>
   EOBDError = class(Exception);
 
   /// <summary>
-  ///   A configuration property is missing, contradictory, or invalid.
+  /// A configuration property is missing, contradictory, or invalid.
   /// </summary>
   /// <remarks>
-  ///   Examples: setting <c>Active := True</c> on <c>TOBDConnection</c>
-  ///   without choosing a transport; passing an empty PID list to a
-  ///   one-shot read; <c>AutoExecute = False</c> with no
-  ///   <c>OnConfirmExecute</c> handler.
+  /// Examples: setting <c>Active := True</c> on <c>TOBDConnection</c>
+  /// without choosing a transport; passing an empty PID list to a
+  /// one-shot read; <c>AutoExecute = False</c> with no
+  /// <c>OnConfirmExecute</c> handler.
   /// </remarks>
   EOBDConfig = class(EOBDError);
 
   /// <summary>
-  ///   Operation requires an active connection but the target is
-  ///   <c>nil</c> or inactive.
+  /// Operation requires an active connection but the target is
+  /// <c>nil</c> or inactive.
   /// </summary>
   EOBDNotConnected = class(EOBDError);
 
   /// <summary>
-  ///   The wire frame failed to parse and there is no reasonable way to
-  ///   continue. Indicates a programmer error in the layer below — log,
-  ///   capture the frame, and report the bug.
+  /// The wire frame failed to parse and there is no reasonable way to
+  /// continue. Indicates a programmer error in the layer below — log,
+  /// capture the frame, and report the bug.
   /// </summary>
   EOBDProtocol = class(EOBDError);
 
   /// <summary>
-  ///   The requested feature is not supported by the bound adapter,
-  ///   protocol, or ECU.
+  /// The requested feature is not supported by the bound adapter,
+  /// protocol, or ECU.
   /// </summary>
   /// <remarks>
-  ///   Different from <c>oeUnsupportedPID</c> — that is a transient
-  ///   per-PID condition the user can recover from. <c>EOBDUnsupported</c>
-  ///   is structural ("you cannot do UDS on a J1850 PWM bus").
+  /// Different from <c>oeUnsupportedPID</c> — that is a transient
+  /// per-PID condition the user can recover from. <c>EOBDUnsupported</c>
+  /// is structural ("you cannot do UDS on a J1850 PWM bus").
   /// </remarks>
   EOBDUnsupported = class(EOBDError);
 
   /// <summary>
-  ///   Internal invariant violation. If you see this in production,
-  ///   please file a bug report with the captured log.
+  /// Internal invariant violation. If you see this in production,
+  /// please file a bug report with the captured log.
   /// </summary>
   EOBDInternal = class(EOBDError);
 
-/// <summary>
-///   Returns an empty <see cref="TOBDValue"/> with <c>Kind = vkEmpty</c>
-///   and <c>Timestamp</c> set to <c>Now</c>.
-/// </summary>
-/// <remarks>
-///   Use this as a starting point when constructing a value from a
-///   decoder; populate <c>Kind</c>, the relevant <c>AsXxx</c> field,
-///   <c>Raw</c>, <c>UnitName</c>, and <c>Name</c> before returning.
-/// </remarks>
+  /// <summary>
+  /// Returns an empty <see cref="TOBDValue"/> with <c>Kind = vkEmpty</c>
+  /// and <c>Timestamp</c> set to <c>Now</c>.
+  /// </summary>
+  /// <remarks>
+  /// Use this as a starting point when constructing a value from a
+  /// decoder; populate <c>Kind</c>, the relevant <c>AsXxx</c> field,
+  /// <c>Raw</c>, <c>UnitName</c>, and <c>Name</c> before returning.
+  /// </remarks>
 function MakeOBDValue: TOBDValue;
 
 /// <summary>
-///   Returns the canonical lower-case decoder registry name for a
-///   descriptor. Trims whitespace and folds case.
+/// Returns the canonical lower-case decoder registry name for a
+/// descriptor. Trims whitespace and folds case.
 /// </summary>
 /// <param name="ADescriptor">Descriptor whose decoder name to canonicalise.</param>
 /// <returns>Lower-case trimmed decoder name; <c>'raw'</c> if absent.</returns>

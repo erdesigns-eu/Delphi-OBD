@@ -1,34 +1,34 @@
-//------------------------------------------------------------------------------
-//  ERD.Flash.OEM.VAG
+﻿// ------------------------------------------------------------------------------
+// ERD.Flash.OEM.VAG
 //
-//  TOBDFlashHandshakeVAG — VAG (VW / Audi / Skoda / Seat / Cupra)
-//  bootloader handshake. Sequence (UDS-CAN-on-K-line):
+// TOBDFlashHandshakeVAG — VAG (VW / Audi / Skoda / Seat / Cupra)
+// bootloader handshake. Sequence (UDS-CAN-on-K-line):
 //
-//    1. 10 02 — programming session
-//    2. 27 01 / 27 02 — security access (level 1 = service,
-//                          level 11 = programming on Mk7+)
-//    3. 31 01 FF 00 — erase flash routine (vendor RID)
+// 1. 10 02 — programming session
+// 2. 27 01 / 27 02 — security access (level 1 = service,
+// level 11 = programming on Mk7+)
+// 3. 31 01 FF 00 — erase flash routine (vendor RID)
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.Flash.OEM.VAG;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   ERD.Types,
   ERD.Coding.SecurityAccess,
   ERD.Flash.OEM.Common;
@@ -52,8 +52,8 @@ type
     property SecurityLevel: Byte read FSecurityLevel write FSecurityLevel
       default $11;
     /// <summary>Erase Routine ID. Default 0xFF00.</summary>
-    property EraseRoutineID: Word read FEraseRoutineID
-      write FEraseRoutineID default $FF00;
+    property EraseRoutineID: Word read FEraseRoutineID write FEraseRoutineID
+      default $FF00;
     /// <summary>Seed → key transform forwarded to the security
     /// component.</summary>
     property SeedToKey: TOBDSeedToKeyFunc read FSeedToKey write FSeedToKey;

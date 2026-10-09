@@ -1,35 +1,35 @@
-//------------------------------------------------------------------------------
-//  ERD.OEM.Subaru
+﻿// ------------------------------------------------------------------------------
+// ERD.OEM.Subaru
 //
-//  Subaru Corporation OEM extension. Catalogue + DTC overlay in
-//  <c>catalogs/subaru.json</c> + <c>catalogs/dtc-subaru.json</c>.
+// Subaru Corporation OEM extension. Catalogue + DTC overlay in
+// <c>catalogs/subaru.json</c> + <c>catalogs/dtc-subaru.json</c>.
 //
-//  Seed-key starter is the SSM-community byte-rotate placeholder
-//  (2-byte 'SB' mask, rotate 4); production callers register the
-//  modern Subaru Select Monitor algorithm via RegisterAlgorithm.
+// Seed-key starter is the SSM-community byte-rotate placeholder
+// (2-byte 'SB' mask, rotate 4); production callers register the
+// modern Subaru Select Monitor algorithm via RegisterAlgorithm.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-12  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-12  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.OEM.Subaru;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   ERD.OEM,
   ERD.OEM.Session,
   ERD.OEM.SeedKey,
@@ -42,22 +42,20 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
-    procedure BuildExtendedCatalog(
-      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+    procedure BuildExtendedCatalog(var CodingBlocks: TArray<TOBDOEMCodingBlock>;
       var Adaptations: TArray<TOBDOEMAdaptation>;
       var ActuatorTests: TArray<TOBDOEMActuatorTest>;
       var LivePIDs: TArray<TOBDOEMLivePID>;
       var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
-    procedure SeedDefaultSeedKeyAlgorithms(
-      Reg: TOBDSeedKeyRegistry); override;
+    procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
     function DtcCatalogFileName: string; override;
   public
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
     function ApplicableToVIN(const VIN: string): Boolean; override;
-    function DecodeDID(const DID: Word;
-      const Payload: TBytes): string; override;
+    function DecodeDID(const DID: Word; const Payload: TBytes): string;
+      override;
   end;
 
 implementation
@@ -77,36 +75,33 @@ begin
   Result := 'Subaru Corporation';
 end;
 
-function TOBDOEMExtensionSubaru.ApplicableToVIN(
-  const VIN: string): Boolean;
+function TOBDOEMExtensionSubaru.ApplicableToVIN(const VIN: string): Boolean;
 begin
   Result := VINMatchesCatalog('subaru.json', VIN);
 end;
 
-procedure TOBDOEMExtensionSubaru.BuildCatalog(
-  var DIDs: TArray<TOBDOEMDataIdentifier>;
-  var Routines: TArray<TOBDOEMRoutine>;
-  var ECUs: TArray<TOBDOEMECU>);
+procedure TOBDOEMExtensionSubaru.BuildCatalog
+  (var DIDs: TArray<TOBDOEMDataIdentifier>;
+  var Routines: TArray<TOBDOEMRoutine>; var ECUs: TArray<TOBDOEMECU>);
 begin
   MergeCatalogJSON('subaru.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
-procedure TOBDOEMExtensionSubaru.BuildExtendedCatalog(
-  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
-  var Adaptations: TArray<TOBDOEMAdaptation>;
+procedure TOBDOEMExtensionSubaru.BuildExtendedCatalog(var CodingBlocks
+  : TArray<TOBDOEMCodingBlock>; var Adaptations: TArray<TOBDOEMAdaptation>;
   var ActuatorTests: TArray<TOBDOEMActuatorTest>;
   var LivePIDs: TArray<TOBDOEMLivePID>;
   var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
 begin
-  MergeExtendedCatalogJSON('subaru.json',
-    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+  MergeExtendedCatalogJSON('subaru.json', CodingBlocks, Adaptations,
+    ActuatorTests, LivePIDs, DtcExtended);
 end;
 
-procedure TOBDOEMExtensionSubaru.SeedDefaultSeedKeyAlgorithms(
-  Reg: TOBDSeedKeyRegistry);
+procedure TOBDOEMExtensionSubaru.SeedDefaultSeedKeyAlgorithms
+  (Reg: TOBDSeedKeyRegistry);
 const
-  MASK_BYTES: array[0..1] of Byte = ($53, $42);  // 'SB'
+  MASK_BYTES: array [0 .. 1] of Byte = ($53, $42); // 'SB'
 var
   Mask: TBytes;
 begin
@@ -114,14 +109,12 @@ begin
   // Production callers replace via RegisterAlgorithm.
   SetLength(Mask, Length(MASK_BYTES));
   Move(MASK_BYTES[0], Mask[0], Length(MASK_BYTES));
-  Reg.RegisterAlgorithm($01, IOBDSeedKeyAlgorithm(TOBDSeedKeyByteRotate.Create(
-    1, 4, Mask,
-    'Subaru SSM community byte-rotate placeholder',
-    'community-pr', False)));
+  Reg.RegisterAlgorithm($01,
+    IOBDSeedKeyAlgorithm(TOBDSeedKeyByteRotate.Create(1, 4, Mask,
+    'Subaru SSM community byte-rotate placeholder', 'community-pr', False)));
 end;
 
-procedure TOBDOEMExtensionSubaru.SeedDefaultDtcCatalog(
-  Cat: TOBDDtcCatalog);
+procedure TOBDOEMExtensionSubaru.SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog);
 begin
   inherited;
   MergeDtcCatalog('dtc-iso-15031.json', Cat);
@@ -140,8 +133,7 @@ begin
     $F190:
       if Length(Payload) > 0 then
       begin
-        Result := Format('vin = %s',
-          [TEncoding.ASCII.GetString(Payload)]);
+        Result := Format('vin = %s', [TEncoding.ASCII.GetString(Payload)]);
         Exit;
       end;
     $F1A0:
@@ -156,6 +148,7 @@ begin
 end;
 
 initialization
-  TOBDOEMRegistry.RegisterExtension(TOBDOEMExtensionSubaru.Create);
+
+TOBDOEMRegistry.RegisterExtension(TOBDOEMExtensionSubaru.Create);
 
 end.

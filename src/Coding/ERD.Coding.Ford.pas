@@ -1,41 +1,41 @@
-//------------------------------------------------------------------------------
-//  ERD.Coding.Ford
+﻿// ------------------------------------------------------------------------------
+// ERD.Coding.Ford
 //
-//  TOBDCodingFord — helpers for Ford "AsBuilt" data. AsBuilt is a
-//  per-module hex-byte snapshot organised in named sections (e.g.
-//  "726-01-01", "DE-01-01") with a checksum at the end of each
-//  section. FORScan, IDS and similar tools edit these sections
-//  one at a time and write them back over UDS Mode 0x2E (or the
-//  equivalent KWP path on older PCMs).
+// TOBDCodingFord — helpers for Ford "AsBuilt" data. AsBuilt is a
+// per-module hex-byte snapshot organised in named sections (e.g.
+// "726-01-01", "DE-01-01") with a checksum at the end of each
+// section. FORScan, IDS and similar tools edit these sections
+// one at a time and write them back over UDS Mode 0x2E (or the
+// equivalent KWP path on older PCMs).
 //
-//  This unit ships AsBuilt parsing / formatting + checksum compute
-//  + section indexing helpers. The host wires the actual write via
-//  TOBDDataIdentifierIO.
+// This unit ships AsBuilt parsing / formatting + checksum compute
+// + section indexing helpers. The host wires the actual write via
+// TOBDDataIdentifierIO.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Coding.Ford;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.Types;
 
 type
@@ -55,17 +55,21 @@ type
     /// 02 00 00 00 00") into a section record. Whitespace and dash
     /// separators are tolerant.</summary>
     /// <exception cref="EOBDProtocol">Malformed input.</exception>
-    class function ParseSection(const ALine: string): TOBDFordAsBuiltSection; static;
+    class function ParseSection(const ALine: string)
+      : TOBDFordAsBuiltSection; static;
     /// <summary>Formats a section back to a single AsBuilt line
     /// using the canonical "<name> <hex pairs>" layout.</summary>
-    class function FormatSection(const ASection: TOBDFordAsBuiltSection): string; static;
+    class function FormatSection(const ASection: TOBDFordAsBuiltSection)
+      : string; static;
     /// <summary>Computes the Ford AsBuilt checksum byte: 8-bit
     /// two's-complement sum that makes the byte sum zero. The host
     /// stores this in the last data byte before write.</summary>
-    class function Checksum(const ASection: TOBDFordAsBuiltSection): Byte; static;
+    class function Checksum(const ASection: TOBDFordAsBuiltSection)
+      : Byte; static;
     /// <summary>Returns True when the section's last byte equals
     /// the computed checksum.</summary>
-    class function VerifyChecksum(const ASection: TOBDFordAsBuiltSection): Boolean; static;
+    class function VerifyChecksum(const ASection: TOBDFordAsBuiltSection)
+      : Boolean; static;
     /// <summary>Sets the checksum byte at the end of
     /// <c>ASection.Data</c> in place.</summary>
     class procedure SealChecksum(var ASection: TOBDFordAsBuiltSection); static;
@@ -81,19 +85,17 @@ type
       AOffset: Integer; AValue: Byte); static;
 
     /// <summary>Locates a section by name in a list.</summary>
-    class function FindSection(
-      const ASections: TArray<TOBDFordAsBuiltSection>;
-      const AName: string;
-      out AOut: TOBDFordAsBuiltSection): Boolean; static;
+    class function FindSection(const ASections: TArray<TOBDFordAsBuiltSection>;
+      const AName: string; out AOut: TOBDFordAsBuiltSection): Boolean; static;
   end;
 
 implementation
 
 uses
-  {$IFDEF FPC}StrUtils{$ELSE}System.StrUtils{$ENDIF};
+{$IFDEF FPC}StrUtils{$ELSE}System.StrUtils{$ENDIF};
 
-class function TOBDCodingFord.ParseSection(
-  const ALine: string): TOBDFordAsBuiltSection;
+class function TOBDCodingFord.ParseSection(const ALine: string)
+  : TOBDFordAsBuiltSection;
 var
   Trimmed: string;
   SpacePos, I: Integer;
@@ -104,23 +106,22 @@ begin
   Trimmed := Trim(ALine);
   SpacePos := Pos(' ', Trimmed);
   if SpacePos = 0 then
-    raise EOBDProtocol.CreateFmt(
-      'TOBDCodingFord: AsBuilt line "%s" has no whitespace', [ALine]);
+    raise EOBDProtocol.CreateFmt
+      ('TOBDCodingFord: AsBuilt line "%s" has no whitespace', [ALine]);
   Result.Name := Copy(Trimmed, 1, SpacePos - 1);
   HexPart := Copy(Trimmed, SpacePos + 1, MaxInt);
   Cleaned := UpperCase(StringReplace(HexPart, ' ', '', [rfReplaceAll]));
   Cleaned := StringReplace(Cleaned, #9, '', [rfReplaceAll]);
   if Odd(Length(Cleaned)) then
-    raise EOBDProtocol.Create(
-      'TOBDCodingFord: AsBuilt hex pairs are not even');
+    raise EOBDProtocol.Create('TOBDCodingFord: AsBuilt hex pairs are not even');
   Acc := TList<Byte>.Create;
   try
     for I := 0 to (Length(Cleaned) div 2) - 1 do
     begin
-      if not CharInSet(Cleaned[I * 2 + 1], ['0'..'9', 'A'..'F']) or
-         not CharInSet(Cleaned[I * 2 + 2], ['0'..'9', 'A'..'F']) then
-        raise EOBDProtocol.CreateFmt(
-          'TOBDCodingFord: invalid hex pair "%s" at offset %d',
+      if not CharInSet(Cleaned[I * 2 + 1], ['0' .. '9', 'A' .. 'F']) or
+        not CharInSet(Cleaned[I * 2 + 2], ['0' .. '9', 'A' .. 'F']) then
+        raise EOBDProtocol.CreateFmt
+          ('TOBDCodingFord: invalid hex pair "%s" at offset %d',
           [Copy(Cleaned, I * 2 + 1, 2), I]);
       Acc.Add(StrToInt('$' + Copy(Cleaned, I * 2 + 1, 2)));
     end;
@@ -130,8 +131,8 @@ begin
   end;
 end;
 
-class function TOBDCodingFord.FormatSection(
-  const ASection: TOBDFordAsBuiltSection): string;
+class function TOBDCodingFord.FormatSection(const ASection
+  : TOBDFordAsBuiltSection): string;
 var
   I: Integer;
 begin
@@ -140,8 +141,8 @@ begin
     Result := Result + ' ' + IntToHex(ASection.Data[I], 2);
 end;
 
-class function TOBDCodingFord.Checksum(
-  const ASection: TOBDFordAsBuiltSection): Byte;
+class function TOBDCodingFord.Checksum(const ASection
+  : TOBDFordAsBuiltSection): Byte;
 var
   Sum: Cardinal;
   I: Integer;
@@ -153,41 +154,43 @@ begin
   Result := Byte((not Sum + 1) and $FF); // two's-complement
 end;
 
-class function TOBDCodingFord.VerifyChecksum(
-  const ASection: TOBDFordAsBuiltSection): Boolean;
+class function TOBDCodingFord.VerifyChecksum(const ASection
+  : TOBDFordAsBuiltSection): Boolean;
 begin
-  if Length(ASection.Data) = 0 then Exit(False);
+  if Length(ASection.Data) = 0 then
+    Exit(False);
   Result := ASection.Data[High(ASection.Data)] = Checksum(ASection);
 end;
 
-class procedure TOBDCodingFord.SealChecksum(
-  var ASection: TOBDFordAsBuiltSection);
+class procedure TOBDCodingFord.SealChecksum(var ASection
+  : TOBDFordAsBuiltSection);
 begin
-  if Length(ASection.Data) = 0 then Exit;
+  if Length(ASection.Data) = 0 then
+    Exit;
   ASection.Data[High(ASection.Data)] := Checksum(ASection);
 end;
 
-class function TOBDCodingFord.GetByte(
-  const ASection: TOBDFordAsBuiltSection; AOffset: Integer): Byte;
+class function TOBDCodingFord.GetByte(const ASection: TOBDFordAsBuiltSection;
+  AOffset: Integer): Byte;
 begin
   if (AOffset < 0) or (AOffset >= Length(ASection.Data)) then
-    raise EOBDProtocol.CreateFmt(
-      'TOBDCodingFord.GetByte: offset %d out of range', [AOffset]);
+    raise EOBDProtocol.CreateFmt
+      ('TOBDCodingFord.GetByte: offset %d out of range', [AOffset]);
   Result := ASection.Data[AOffset];
 end;
 
-class procedure TOBDCodingFord.SetByte(
-  var ASection: TOBDFordAsBuiltSection; AOffset: Integer; AValue: Byte);
+class procedure TOBDCodingFord.SetByte(var ASection: TOBDFordAsBuiltSection;
+  AOffset: Integer; AValue: Byte);
 begin
   if (AOffset < 0) or (AOffset >= Length(ASection.Data)) then
-    raise EOBDProtocol.CreateFmt(
-      'TOBDCodingFord.SetByte: offset %d out of range', [AOffset]);
+    raise EOBDProtocol.CreateFmt
+      ('TOBDCodingFord.SetByte: offset %d out of range', [AOffset]);
   ASection.Data[AOffset] := AValue;
 end;
 
-class function TOBDCodingFord.FindSection(
-  const ASections: TArray<TOBDFordAsBuiltSection>;
-  const AName: string; out AOut: TOBDFordAsBuiltSection): Boolean;
+class function TOBDCodingFord.FindSection(const ASections
+  : TArray<TOBDFordAsBuiltSection>; const AName: string;
+  out AOut: TOBDFordAsBuiltSection): Boolean;
 var
   I: Integer;
 begin

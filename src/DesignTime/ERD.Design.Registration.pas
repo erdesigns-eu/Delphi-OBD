@@ -1,45 +1,45 @@
-//------------------------------------------------------------------------------
-//  ERD.Design.Registration
+﻿// ------------------------------------------------------------------------------
+// ERD.Design.Registration
 //
-//  Design-time registration entry point for the Delphi-OBD package.
+// Design-time registration entry point for the Delphi-OBD package.
 //
-//  This unit is linked into DelphiOBD_DT.bpl only; it must never be
-//  referenced from runtime code. The IDE calls <c>Register</c> when the
-//  design-time package is installed.
+// This unit is linked into DelphiOBD_DT.bpl only; it must never be
+// referenced from runtime code. The IDE calls <c>Register</c> when the
+// design-time package is installed.
 //
-//  Component categories used:
-//    - "OBD" — non-visual diagnostic and protocol components
-//    - "OBD OEM" — vendor-specific coding helpers
-//    - "OBD Visual" — Delphi VCL controls and dashboards
+// Component categories used:
+// - "OBD" — non-visual diagnostic and protocol components
+// - "OBD OEM" — vendor-specific coding helpers
+// - "OBD Visual" — Delphi VCL controls and dashboards
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-09  ERD  Initial empty registration.
-//    2026-05-09  ERD  Register the Connection / Adapter / Protocol
-//                     / DoIP / SecOC components.
-//    2026-05-10  ERD  Add splash + About-box registration via Tools API.
+// History     :
+// 2026-05-09  ERD  Initial empty registration.
+// 2026-05-09  ERD  Register the Connection / Adapter / Protocol
+// / DoIP / SecOC components.
+// 2026-05-10  ERD  Add splash + About-box registration via Tools API.
 //
-//    2026-10-08  ERD  Components/editors only; remove wizards and IDE branding.
-//------------------------------------------------------------------------------
+// 2026-10-08  ERD  Components/editors only; remove wizards and IDE branding.
+// ------------------------------------------------------------------------------
 
 unit ERD.Design.Registration;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 /// <summary>
-///   Called by the IDE when DelphiOBD_DT.bpl is installed. Registers
-///   every palette component shipped by Delphi-OBD on the "OBD" tab.
+/// Called by the IDE when DelphiOBD_DT.bpl is installed. Registers
+/// every palette component shipped by Delphi-OBD on the "OBD" tab.
 /// </summary>
 procedure Register;
 
@@ -48,8 +48,8 @@ implementation
 {$R ERD.Design.Icons.res}
 
 uses
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   ERD.Connection,
   ERD.Adapter,
   ERD.Protocol,
@@ -173,320 +173,138 @@ procedure Register;
 begin
   // Lower-level building blocks: connection, adapter, protocol,
   // network and security.
-  RegisterComponents('OBD', [
-    TOBDConnection,
-    TOBDAdapter,
-    TOBDProtocol,
-    TOBDDoIPClient,
-    TOBDSecOCCodec
-  ]);
+  RegisterComponents('OBD', [TOBDConnection, TOBDAdapter, TOBDProtocol,
+    TOBDDoIPClient, TOBDSecOCCodec]);
 
   // Service-mode: higher-level diagnostics that sit on top of
   // TOBDProtocol.
-  RegisterComponents('OBD Services', [
-    TOBDLiveData,
-    TOBDDTCs,
-    TOBDVIN,
-    TOBDVINInspector,
-    TOBDFreezeFrame,
-    TOBDOnBoardMonitor,
-    TOBDActuator,
-    TOBDVehicleHealth,
-    TOBDDriveCycleAdvisor,
-    TOBDEVBattery,
-    TOBDClearDTC,
-    TOBDOxygenMonitor,
-    TOBDDataSource,
-    TOBDWWHOBD,
-    TOBDWWHReadiness
-  ]);
+  RegisterComponents('OBD Services', [TOBDLiveData, TOBDDTCs, TOBDVIN,
+    TOBDVINInspector, TOBDFreezeFrame, TOBDOnBoardMonitor, TOBDActuator,
+    TOBDVehicleHealth, TOBDDriveCycleAdvisor, TOBDEVBattery, TOBDClearDTC,
+    TOBDOxygenMonitor, TOBDDataSource, TOBDWWHOBD, TOBDWWHReadiness]);
 
   // Advanced UDS / KWP / J1939 / OEM-overlay diagnostic components.
-  RegisterComponents('OBD Diagnostics', [
-    TOBDUDS,
-    TOBDUDSReset,
-    TOBDUDSReadMemory,
-    TOBDUDSIOControl,
-    TOBDUDSReadDID,
-    TOBDUDSReadDTC,
-    TOBDUDSReadByPeriodic,
-    TOBDUDSDynamicDID,
-    TOBDKWP,
-    TOBDKWPReadID,
-    TOBDKWPReadDTC,
-    TOBDKWPIOControl,
-    TOBDKWPRoutine,
-    TOBDJ1939,
-    TOBDJ1939DM,
-    TOBDOEMCatalog
-  ]);
+  RegisterComponents('OBD Diagnostics', [TOBDUDS, TOBDUDSReset,
+    TOBDUDSReadMemory, TOBDUDSIOControl, TOBDUDSReadDID, TOBDUDSReadDTC,
+    TOBDUDSReadByPeriodic, TOBDUDSDynamicDID, TOBDKWP, TOBDKWPReadID,
+    TOBDKWPReadDTC, TOBDKWPIOControl, TOBDKWPRoutine, TOBDJ1939, TOBDJ1939DM,
+    TOBDOEMCatalog]);
 
   // Coding & flashing: write-side UDS components. On their own
   // tab so a host can keep them visually separated from the
   // read-only service-mode components.
-  RegisterComponents('OBD Coding', [
-    TOBDSecurityAccess,
-    TOBDDataIdentifierIO,
-    TOBDRoutineControl,
-    TOBDFlasher,
-    TOBDUploader,
-    TOBDFlashSession
-  ]);
+  RegisterComponents('OBD Coding', [TOBDSecurityAccess, TOBDDataIdentifierIO,
+    TOBDRoutineControl, TOBDFlasher, TOBDUploader, TOBDFlashSession]);
 
   // Calibration + speciality buses. XCP and CCP need a transport
   // injected at runtime; IsoBus is component-friendly out of the
   // box.
-  RegisterComponents('OBD Calibration', [
-    TOBDXCP,
-    TOBDCCP,
-    TOBDIsoBus
-  ]);
+  RegisterComponents('OBD Calibration', [TOBDXCP, TOBDCCP, TOBDIsoBus]);
 
   // Extra write-side components and the session orchestrator.
-  RegisterComponents('OBD Coding', [
-    TOBDUDSWriteMemory,
-    TOBDUDSWriteDID,
-    TOBDKWPWriteID,
-    TOBDCodingAuditLog,
-    TOBDCodingSession,
-    TOBDComponentProtectionVAG,
-    TOBDComponentProtectionBMW,
-    TOBDComponentProtectionMercedes,
-    TOBDComponentProtectionStellantis,
-    TOBDKeyAdaptationFord,
-    TOBDKeyAdaptationHMG,
-    TOBDKeyAdaptationBMW,
-    TOBDKeyAdaptationToyota
-  ]);
+  RegisterComponents('OBD Coding', [TOBDUDSWriteMemory, TOBDUDSWriteDID,
+    TOBDKWPWriteID, TOBDCodingAuditLog, TOBDCodingSession,
+    TOBDComponentProtectionVAG, TOBDComponentProtectionBMW,
+    TOBDComponentProtectionMercedes, TOBDComponentProtectionStellantis,
+    TOBDKeyAdaptationFord, TOBDKeyAdaptationHMG, TOBDKeyAdaptationBMW,
+    TOBDKeyAdaptationToyota]);
 
   // Flashing components. WARNING — drop on a form, wire
   // OnConfirmExecute, leave AutoExecute = False until the host
   // really means it. Read docs/flashing-safety.md.
-  RegisterComponents('OBD Flashing', [
-    TOBDUDSTransfer,
-    TOBDVoltageGate,
-    TOBDFlashPipeline
-  ]);
+  RegisterComponents('OBD Flashing', [TOBDUDSTransfer, TOBDVoltageGate,
+    TOBDFlashPipeline]);
 
   // Recorder / replayer pair. Drop on a form, point at a
   // TOBDProtocol, capture the entire session for forensic /
   // offline analysis or replay for tests.
-  RegisterComponents('OBD', [
-    TOBDRecorder,
-    TOBDReplayer
-  ]);
+  RegisterComponents('OBD', [TOBDRecorder, TOBDReplayer]);
 
   // Session / transport components. Foundation for KWP1281,
   // TP2.0 and J2534 work without going through a higher-level
   // facade like TOBDVWRadioSAFE. Drop, wire, call.
-  RegisterComponents('OBD', [
-    TOBDKWP1281Session,
-    TOBDTP20Session,
-    TOBDJ2534Device,
-    TOBDJ2534Channel
-  ]);
+  RegisterComponents('OBD', [TOBDKWP1281Session, TOBDTP20Session,
+    TOBDJ2534Device, TOBDJ2534Channel]);
 
   // Catalogue manager components. Wrap the static catalogs so
   // hosts can configure CatalogDir / AutoLoad in the Object
   // Inspector instead of doing it in code.
-  RegisterComponents('OBD Catalogs', [
-    TOBDVINCatalog,
-    TOBDDriveCycleCatalogComp,
-    TOBDEVBatteryCatalogComp
-  ]);
+  RegisterComponents('OBD Catalogs', [TOBDVINCatalog, TOBDDriveCycleCatalogComp,
+    TOBDEVBatteryCatalogComp]);
 
   // Visual UI foundation. The TOBDTheme controller is the
   // anchor: drop one on a form / data-module and every
   // Delphi-OBD visual on the form auto-binds to it (the
   // visuals walk Owner ancestry at runtime). Sub-phases A2.2+
   // add the gauges / telltales / lists that consume the theme.
-  RegisterComponents('OBD Visual', [
-    TOBDTheme,
-    TOBDTerminal,
-    TOBDLogViewer,
-    TOBDDtcList,
-    TOBDKnob,
-    TOBDTrendGraph,
-    TOBDCircularGauge,
-    TOBDLinearGauge,
-    TOBDTachometer,
-    TOBDArcGauge,
-    TOBDComboGauge,
-    TOBDDigitalGauge,
-    TOBDBarSegmentGauge,
-    TOBDDeltaGauge,
-    TOBDSparkline,
-    TOBDDualNeedleGauge,
-    TOBDMinMaxGauge,
-    TOBDLED,
-    TOBDMatrixDisplay,
-    TOBDMILLamp,
-    TOBDDTCBadge,
-    TOBDReadinessLamp,
-    TOBDDashLamp,
-    TOBDShiftLight,
-    TOBDShiftLightBar,
-    TOBDGearIndicator,
-    TOBDDragTimer,
-    TOBDLapTimer,
-    TOBDAccelGraph,
-    TOBDBoostGauge,
-    TOBDAFRGauge,
-    TOBDStateOfChargeBar,
-    TOBDRegenIndicator,
-    TOBDPidPanel,
-    TOBDFuelTrimDisplay,
-    TOBDMultiPidGrid,
-    TOBDFreezeFrameTable,
-    TOBDVINCard,
-    TOBDAdapterPanel,
-    TOBDOdometer,
-    TOBDClock,
-    TOBDReadinessGrid,
-    TOBDDriveCycleProgress,
-    TOBDCellVoltageHeatmap,
-    TOBDChargingFlow,
-    TOBDFlashProgress,
-    TOBDCodingSessionPanel,
-    TOBDXCPProgressBar,
-    TOBDRecorderToolbar,
-    TOBDConnectionStateLamp,
-    TOBDDoIPStatusPanel,
-    TOBDSecurityAccessLamp,
-    TOBDSecOCStatusLamp,
-    TOBDVINEdit,
-    TOBDPidPicker,
-    TOBDOEMPicker,
-    TOBDCANIdEdit,
-    TOBDFlashSafetyDashboard,
-    TOBDFlashCheckpointTimeline,
-    TOBDFlashAuditTail,
-    TOBDStripChart,
-    TOBDLiveGridChart,
-    TOBDDynoChart,
-    TOBDPowerCurveGraph,
-    TOBDXYHeatmap,
-    TOBDTorqueRPMMap,
-    TOBDRunRecorder,
-    TOBDLapTrackMap,
-    TOBDPredictiveLap,
-    TOBDGForceVisualiser,
-    TOBDMarineTach,
-    TOBDPTOMeter,
-    TOBDDPFStatus,
-    TOBDAdBlueLevel,
-    TOBDChargePortIndicator,
-    TOBDMaintenanceCard,
-    TOBDServiceHistoryTimeline,
-    TOBDPlaybackScrubber,
-    TOBDPlaybackTimeline,
-    TOBDFrameInspector,
-    TOBDOEMBadge,
-    TOBDDigitalCluster,
-    TOBDBluetoothSignal,
-    TOBDWiFiSignal,
-    TOBDGPSAccuracy,
-    TOBDCodingDiffViewer,
-    TOBDLabelFileEditor,
-    TOBDAdaptationEditor,
-    TOBDLongCodingEditor,
-    TOBDSeedKeyDebugger,
-    TOBDMode06Viewer,
-    TOBDMode07Viewer,
-    TOBDMode0AViewer,
-    TOBDMode04Confirm,
-    TOBDRoutineControlLauncher,
-    TOBDActuatorTestPanel,
-    TOBDKWP1281SessionInspector,
-    TOBDJ2534DeviceList,
-    TOBDTP20ChannelPanel,
-    TOBDDoIPNodePicker,
-    TOBDDriverScoreWidget,
-    TOBDEcoScoreWidget,
-    TOBDTripSummaryCard,
-    TOBDLoggerControl,
-    TOBDLoggerExplorer
-  ]);
+  RegisterComponents('OBD Visual', [TOBDTheme, TOBDTerminal, TOBDLogViewer,
+    TOBDDtcList, TOBDKnob, TOBDTrendGraph, TOBDCircularGauge, TOBDLinearGauge,
+    TOBDTachometer, TOBDArcGauge, TOBDComboGauge, TOBDDigitalGauge,
+    TOBDBarSegmentGauge, TOBDDeltaGauge, TOBDSparkline, TOBDDualNeedleGauge,
+    TOBDMinMaxGauge, TOBDLED, TOBDMatrixDisplay, TOBDMILLamp, TOBDDTCBadge,
+    TOBDReadinessLamp, TOBDDashLamp, TOBDShiftLight, TOBDShiftLightBar,
+    TOBDGearIndicator, TOBDDragTimer, TOBDLapTimer, TOBDAccelGraph,
+    TOBDBoostGauge, TOBDAFRGauge, TOBDStateOfChargeBar, TOBDRegenIndicator,
+    TOBDPidPanel, TOBDFuelTrimDisplay, TOBDMultiPidGrid, TOBDFreezeFrameTable,
+    TOBDVINCard, TOBDAdapterPanel, TOBDOdometer, TOBDClock, TOBDReadinessGrid,
+    TOBDDriveCycleProgress, TOBDCellVoltageHeatmap, TOBDChargingFlow,
+    TOBDFlashProgress, TOBDCodingSessionPanel, TOBDXCPProgressBar,
+    TOBDRecorderToolbar, TOBDConnectionStateLamp, TOBDDoIPStatusPanel,
+    TOBDSecurityAccessLamp, TOBDSecOCStatusLamp, TOBDVINEdit, TOBDPidPicker,
+    TOBDOEMPicker, TOBDCANIdEdit, TOBDFlashSafetyDashboard,
+    TOBDFlashCheckpointTimeline, TOBDFlashAuditTail, TOBDStripChart,
+    TOBDLiveGridChart, TOBDDynoChart, TOBDPowerCurveGraph, TOBDXYHeatmap,
+    TOBDTorqueRPMMap, TOBDRunRecorder, TOBDLapTrackMap, TOBDPredictiveLap,
+    TOBDGForceVisualiser, TOBDMarineTach, TOBDPTOMeter, TOBDDPFStatus,
+    TOBDAdBlueLevel, TOBDChargePortIndicator, TOBDMaintenanceCard,
+    TOBDServiceHistoryTimeline, TOBDPlaybackScrubber, TOBDPlaybackTimeline,
+    TOBDFrameInspector, TOBDOEMBadge, TOBDDigitalCluster, TOBDBluetoothSignal,
+    TOBDWiFiSignal, TOBDGPSAccuracy, TOBDCodingDiffViewer, TOBDLabelFileEditor,
+    TOBDAdaptationEditor, TOBDLongCodingEditor, TOBDSeedKeyDebugger,
+    TOBDMode06Viewer, TOBDMode07Viewer, TOBDMode0AViewer, TOBDMode04Confirm,
+    TOBDRoutineControlLauncher, TOBDActuatorTestPanel,
+    TOBDKWP1281SessionInspector, TOBDJ2534DeviceList, TOBDTP20ChannelPanel,
+    TOBDDoIPNodePicker, TOBDDriverScoreWidget, TOBDEcoScoreWidget,
+    TOBDTripSummaryCard, TOBDLoggerControl, TOBDLoggerExplorer]);
   // Non-visual dyno math (own palette tab).
-  RegisterComponents('OBD Dyno', [
-    TOBDDynoCalculator,
-    TOBDPowerCurve,
-    TOBDDragRun,
-    TOBDDynoConditions,
-    TOBDFuelEconomyMeter,
-    TOBDEmissionsEstimator,
-    TOBDInertialBrake,
-    TOBDTorqueAtWheels
-  ]);
+  RegisterComponents('OBD Dyno', [TOBDDynoCalculator, TOBDPowerCurve,
+    TOBDDragRun, TOBDDynoConditions, TOBDFuelEconomyMeter,
+    TOBDEmissionsEstimator, TOBDInertialBrake, TOBDTorqueAtWheels]);
 
   // Radio-code calculators (one component per vendor). Each
   // validates the input shape; production algorithms are
   // proprietary / licensed and supplied by the host via the
   // OnCalculate event.
-  RegisterComponents('OBD Radio', [
-    TOBDRadioCodeVW,
-    TOBDRadioCodeAudiConcert,
-    TOBDRadioCodeBMW,
-    TOBDRadioCodeMercedes,
-    TOBDRadioCodeMini,
-    TOBDRadioCodePorsche,
-    TOBDRadioCodeSEAT,
-    TOBDRadioCodeSkoda,
-    TOBDRadioCodeSmart,
-    TOBDRadioCodeCitroen,
-    TOBDRadioCodePeugeot,
-    TOBDRadioCodeRenault,
-    TOBDRadioCodeFiatDaiichi,
-    TOBDRadioCodeFiatVP,
-    TOBDRadioCodeAlfaRomeo,
-    TOBDRadioCodeMaserati,
-    TOBDRadioCodeJaguar,
-    TOBDRadioCodeLandRover,
-    TOBDRadioCodeSaab,
-    TOBDRadioCodeOpel,
-    TOBDRadioCodeAcura,
-    TOBDRadioCodeHonda,
-    TOBDRadioCodeHyundai,
-    TOBDRadioCodeInfiniti,
-    TOBDRadioCodeLexus,
-    TOBDRadioCodeMazda,
-    TOBDRadioCodeMitsubishi,
-    TOBDRadioCodeNissan,
-    TOBDRadioCodeSubaru,
-    TOBDRadioCodeSuzuki,
-    TOBDRadioCodeToyota,
-    TOBDRadioCodeChrysler,
-    TOBDRadioCodeFordM,
-    TOBDRadioCodeGM,
-    TOBDRadioCodeVisteon,
-    TOBDRadioCodeAlpine,
-    TOBDRadioCodeBlaupunkt,
-    TOBDRadioCodeClarion,
-    TOBDRadioCodeBecker4,
-    TOBDRadioCodeBecker5,
-    TOBDRadioCodeVolvo,
-    TOBDRadioCodeFordV
-  ]);
+  RegisterComponents('OBD Radio', [TOBDRadioCodeVW, TOBDRadioCodeAudiConcert,
+    TOBDRadioCodeBMW, TOBDRadioCodeMercedes, TOBDRadioCodeMini,
+    TOBDRadioCodePorsche, TOBDRadioCodeSEAT, TOBDRadioCodeSkoda,
+    TOBDRadioCodeSmart, TOBDRadioCodeCitroen, TOBDRadioCodePeugeot,
+    TOBDRadioCodeRenault, TOBDRadioCodeFiatDaiichi, TOBDRadioCodeFiatVP,
+    TOBDRadioCodeAlfaRomeo, TOBDRadioCodeMaserati, TOBDRadioCodeJaguar,
+    TOBDRadioCodeLandRover, TOBDRadioCodeSaab, TOBDRadioCodeOpel,
+    TOBDRadioCodeAcura, TOBDRadioCodeHonda, TOBDRadioCodeHyundai,
+    TOBDRadioCodeInfiniti, TOBDRadioCodeLexus, TOBDRadioCodeMazda,
+    TOBDRadioCodeMitsubishi, TOBDRadioCodeNissan, TOBDRadioCodeSubaru,
+    TOBDRadioCodeSuzuki, TOBDRadioCodeToyota, TOBDRadioCodeChrysler,
+    TOBDRadioCodeFordM, TOBDRadioCodeGM, TOBDRadioCodeVisteon,
+    TOBDRadioCodeAlpine, TOBDRadioCodeBlaupunkt, TOBDRadioCodeClarion,
+    TOBDRadioCodeBecker4, TOBDRadioCodeBecker5, TOBDRadioCodeVolvo,
+    TOBDRadioCodeFordV]);
 
   // EEPROM-dump extractors. Different beast from the calculator
   // family above: the host pulls the radio's serial-EEPROM with
   // a chip programmer, hands the .bin to the matching component,
   // and the component reads the code out at a fixed offset. No
   // algorithm, no licensed service.
-  RegisterComponents('OBD EEPROM', [
-    TOBDRadioCodeEEPROM_VolvoHU,
-    TOBDRadioCodeEEPROM_OpelCD30,
-    TOBDRadioCodeEEPROM_MercedesBecker
-  ]);
+  RegisterComponents('OBD EEPROM', [TOBDRadioCodeEEPROM_VolvoHU,
+    TOBDRadioCodeEEPROM_OpelCD30, TOBDRadioCodeEEPROM_MercedesBecker]);
 
   // VW group SAFE-code recovery over the diagnostic bus
   // (KWP1281). Goes on the OBD Radio tab because the host-facing
   // shape is "give me the unlock code" - even though under the
   // hood it talks to the radio rather than running an algorithm
   // or reading a chip dump.
-  RegisterComponents('OBD Radio', [
-    TOBDVWRadioSAFE
-  ]);
+  RegisterComponents('OBD Radio', [TOBDVWRadioSAFE]);
 
   // Register only the property and component editors for palette components.
   RegisterDelphiOBDEditors;

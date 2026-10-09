@@ -1,58 +1,58 @@
-//------------------------------------------------------------------------------
-//  ERD.Logger
+﻿// ------------------------------------------------------------------------------
+// ERD.Logger
 //
-//  TOBDLogger — process-wide structured logger. Walks a list of
-//  registered <see cref="IOBDLogSink"/> instances on every
-//  <c>Log</c> call, applying a configurable minimum-level
-//  filter. Reentrant; safe to call from any thread.
+// TOBDLogger — process-wide structured logger. Walks a list of
+// registered <see cref="IOBDLogSink"/> instances on every
+// <c>Log</c> call, applying a configurable minimum-level
+// filter. Reentrant; safe to call from any thread.
 //
-//  Usage:
+// Usage:
 //
-//      var
-//        FileSink: IOBDLogSink;
-//      begin
-//        FileSink := TOBDLogFileSink.Create('app.log');
-//        TOBDLogger.Instance.RegisterSink(FileSink);
-//        TOBDLogger.Instance.Info('Started', 'app');
-//        ...
-//      end;
+// var
+// FileSink: IOBDLogSink;
+// begin
+// FileSink := TOBDLogFileSink.Create('app.log');
+// TOBDLogger.Instance.RegisterSink(FileSink);
+// TOBDLogger.Instance.Info('Started', 'app');
+// ...
+// end;
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-11  ERD  Initial port from v1 ERD.Logger.pas.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-11  ERD  Initial port from v1 ERD.Logger.pas.
+// ------------------------------------------------------------------------------
 
 unit ERD.Logger;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.Logger.Sinks;
 
 type
   /// <summary>
-  ///   Process-wide singleton logger.
+  /// Process-wide singleton logger.
   /// </summary>
   /// <remarks>
-  ///   The instance is lazy-constructed on first
-  ///   <c>Instance</c> call and freed at unit finalisation.
-  ///   Hosts that want a per-app instance can construct one
-  ///   directly via <c>TOBDLogger.Create</c>.
+  /// The instance is lazy-constructed on first
+  /// <c>Instance</c> call and freed at unit finalisation.
+  /// Hosts that want a per-app instance can construct one
+  /// directly via <c>TOBDLogger.Create</c>.
   /// </remarks>
   TOBDLogger = class
   strict private
@@ -101,28 +101,23 @@ type
     /// <summary>Shortcut for <c>Log(olDebug, ...)</c>.</summary>
     /// <param name="AMessage">Body.</param>
     /// <param name="ACategory">Optional category tag.</param>
-    procedure Debug(const AMessage: string;
-      const ACategory: string = '');
+    procedure Debug(const AMessage: string; const ACategory: string = '');
     /// <summary>Shortcut for <c>Log(olInfo, ...)</c>.</summary>
     /// <param name="AMessage">Body.</param>
     /// <param name="ACategory">Optional category tag.</param>
-    procedure Info(const AMessage: string;
-      const ACategory: string = '');
+    procedure Info(const AMessage: string; const ACategory: string = '');
     /// <summary>Shortcut for <c>Log(olWarning, ...)</c>.</summary>
     /// <param name="AMessage">Body.</param>
     /// <param name="ACategory">Optional category tag.</param>
-    procedure Warning(const AMessage: string;
-      const ACategory: string = '');
+    procedure Warning(const AMessage: string; const ACategory: string = '');
     /// <summary>Shortcut for <c>Log(olError, ...)</c>.</summary>
     /// <param name="AMessage">Body.</param>
     /// <param name="ACategory">Optional category tag.</param>
-    procedure Error(const AMessage: string;
-      const ACategory: string = '');
+    procedure Error(const AMessage: string; const ACategory: string = '');
     /// <summary>Shortcut for <c>Log(olCritical, ...)</c>.</summary>
     /// <param name="AMessage">Body.</param>
     /// <param name="ACategory">Optional category tag.</param>
-    procedure Critical(const AMessage: string;
-      const ACategory: string = '');
+    procedure Critical(const AMessage: string; const ACategory: string = '');
 
     /// <summary>Minimum severity that reaches the sinks. Events
     /// below this level are dropped before dispatch.</summary>
@@ -217,7 +212,7 @@ var
 begin
   if ALevel < FMinLevel then
     Exit;
-  Event := Default(TOBDLogEvent);
+  Event := Default (TOBDLogEvent);
   Event.Level := ALevel;
   Event.Timestamp := Now;
   Event.Category := ACategory;
@@ -241,32 +236,27 @@ begin
   end;
 end;
 
-procedure TOBDLogger.Debug(const AMessage: string;
-  const ACategory: string);
+procedure TOBDLogger.Debug(const AMessage: string; const ACategory: string);
 begin
   Log(olDebug, AMessage, ACategory);
 end;
 
-procedure TOBDLogger.Info(const AMessage: string;
-  const ACategory: string);
+procedure TOBDLogger.Info(const AMessage: string; const ACategory: string);
 begin
   Log(olInfo, AMessage, ACategory);
 end;
 
-procedure TOBDLogger.Warning(const AMessage: string;
-  const ACategory: string);
+procedure TOBDLogger.Warning(const AMessage: string; const ACategory: string);
 begin
   Log(olWarning, AMessage, ACategory);
 end;
 
-procedure TOBDLogger.Error(const AMessage: string;
-  const ACategory: string);
+procedure TOBDLogger.Error(const AMessage: string; const ACategory: string);
 begin
   Log(olError, AMessage, ACategory);
 end;
 
-procedure TOBDLogger.Critical(const AMessage: string;
-  const ACategory: string);
+procedure TOBDLogger.Critical(const AMessage: string; const ACategory: string);
 begin
   Log(olCritical, AMessage, ACategory);
 end;
@@ -274,6 +264,7 @@ end;
 initialization
 
 finalization
-  TOBDLogger.ReleaseInstance;
+
+TOBDLogger.ReleaseInstance;
 
 end.

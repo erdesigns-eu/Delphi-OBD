@@ -1,43 +1,43 @@
-//------------------------------------------------------------------------------
-//  ERD.UI.DtcList
+﻿// ------------------------------------------------------------------------------
+// ERD.UI.DtcList
 //
-//  TOBDDtcList — diagnostic-trouble-code grid built on the OS-
-//  native VCL TListView face (<c>vsReport</c> style, 4 columns:
-//  Code, Description, Severity, Status). Severity colour is
-//  applied via <c>OnCustomDrawItem</c> so rows stay theme-aware
-//  while keeping the per-severity foreground that v1 shipped.
+// TOBDDtcList — diagnostic-trouble-code grid built on the OS-
+// native VCL TListView face (<c>vsReport</c> style, 4 columns:
+// Code, Description, Severity, Status). Severity colour is
+// applied via <c>OnCustomDrawItem</c> so rows stay theme-aware
+// while keeping the per-severity foreground that v1 shipped.
 //
-//  Drop on a form, set <see cref="Items"/> from any DTC-producing
-//  component (TOBDDTCs, TOBDUDSReadDTC, TOBDKWPReadDTC, …) and
-//  wire <c>OnDtcSelected</c> + <c>OnDtcDoubleClick</c> to drive a
-//  host freeze-frame / extended-data viewer.
+// Drop on a form, set <see cref="Items"/> from any DTC-producing
+// component (TOBDDTCs, TOBDUDSReadDTC, TOBDKWPReadDTC, …) and
+// wire <c>OnDtcSelected</c> + <c>OnDtcDoubleClick</c> to drive a
+// host freeze-frame / extended-data viewer.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-11  ERD  Initial port from v1 ERD.DtcList.pas, redrawn
-//                     on top of the VCL TListView face per the v2
-//                     "OS-native control faces" rule.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-11  ERD  Initial port from v1 ERD.DtcList.pas, redrawn
+// on top of the VCL TListView face per the v2
+// "OS-native control faces" rule.
+// ------------------------------------------------------------------------------
 
 unit ERD.UI.DtcList;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   Vcl.Controls,
   Vcl.ComCtrls,
   Vcl.Graphics,
@@ -51,8 +51,7 @@ type
     /// <summary>Warning — amber foreground.</summary>
     dsWarning,
     /// <summary>Critical — red foreground.</summary>
-    dsCritical
-  );
+    dsCritical);
 
   /// <summary>DTC status — surfaced in the Status column.</summary>
   TOBDDtcStatus = (
@@ -64,8 +63,7 @@ type
     /// cycle proof).</summary>
     dtPermanent,
     /// <summary>History (previously stored).</summary>
-    dtHistory
-  );
+    dtHistory);
 
   /// <summary>One DTC row.</summary>
   TOBDDtcItem = record
@@ -84,18 +82,17 @@ type
   end;
 
   /// <summary>Selection / activation event.</summary>
-  TOBDDtcEvent = procedure(Sender: TObject;
-    AIndex: Integer) of object;
+  TOBDDtcEvent = procedure(Sender: TObject; AIndex: Integer) of object;
 
   /// <summary>
-  ///   Diagnostic-Trouble-Code list component.
+  /// Diagnostic-Trouble-Code list component.
   /// </summary>
   /// <remarks>
-  ///   Theme-aware via TListView's normal IDE-theming path. The
-  ///   per-row severity colour is painted from
-  ///   <c>OnCustomDrawItem</c>; hosts that want a different
-  ///   palette tweak the <c>InfoColor</c> / <c>WarningColor</c> /
-  ///   <c>CriticalColor</c> published properties.
+  /// Theme-aware via TListView's normal IDE-theming path. The
+  /// per-row severity colour is painted from
+  /// <c>OnCustomDrawItem</c>; hosts that want a different
+  /// palette tweak the <c>InfoColor</c> / <c>WarningColor</c> /
+  /// <c>CriticalColor</c> published properties.
   /// </remarks>
   TOBDDtcList = class(TListView)
   strict private
@@ -109,9 +106,8 @@ type
     function StatusText(AStatus: TOBDDtcStatus): string;
     function SeverityText(ASeverity: TOBDDtcSeverity): string;
     procedure RebuildView;
-    procedure HandleCustomDrawItem(Sender: TCustomListView;
-      Item: TListItem; State: TCustomDrawState;
-      var DefaultDraw: Boolean);
+    procedure HandleCustomDrawItem(Sender: TCustomListView; Item: TListItem;
+      State: TCustomDrawState; var DefaultDraw: Boolean);
     procedure HandleSelectItem(Sender: TObject; Item: TListItem;
       Selected: Boolean);
     procedure HandleDblClick(Sender: TObject);
@@ -140,10 +136,8 @@ type
     /// <param name="ASeverity">Severity tag (default
     /// <c>dsInfo</c>).</param>
     /// <param name="AStatus">Status (default <c>dtActive</c>).</param>
-    procedure AddDtcEx(const ACode: string;
-      const ADescription: string;
-      ASeverity: TOBDDtcSeverity = dsInfo;
-      AStatus: TOBDDtcStatus = dtActive);
+    procedure AddDtcEx(const ACode: string; const ADescription: string;
+      ASeverity: TOBDDtcSeverity = dsInfo; AStatus: TOBDDtcStatus = dtActive);
 
     /// <summary>Drops every row.</summary>
     procedure ClearDtcs;
@@ -159,20 +153,20 @@ type
   published
     /// <summary>Foreground colour for <c>dsInfo</c> rows.</summary>
     property InfoColor: TColor read FInfoColor write FInfoColor
-      default TColor($00FF9933);                  // BGR — light blue
+      default TColor($00FF9933); // BGR — light blue
     /// <summary>Foreground colour for <c>dsWarning</c> rows.</summary>
     property WarningColor: TColor read FWarningColor write FWarningColor
-      default TColor($0000A5FF);                  // BGR — amber
+      default TColor($0000A5FF); // BGR — amber
     /// <summary>Foreground colour for <c>dsCritical</c> rows.</summary>
     property CriticalColor: TColor read FCriticalColor write FCriticalColor
-      default TColor($003333E6);                  // BGR — red
+      default TColor($003333E6); // BGR — red
 
     /// <summary>Fires when the user selects a row. Main thread.</summary>
-    property OnDtcSelected: TOBDDtcEvent
-      read FOnDtcSelected write FOnDtcSelected;
+    property OnDtcSelected: TOBDDtcEvent read FOnDtcSelected
+      write FOnDtcSelected;
     /// <summary>Fires on row double-click. Main thread.</summary>
-    property OnDtcDoubleClick: TOBDDtcEvent
-      read FOnDtcDoubleClick write FOnDtcDoubleClick;
+    property OnDtcDoubleClick: TOBDDtcEvent read FOnDtcDoubleClick
+      write FOnDtcDoubleClick;
   end;
 
 implementation
@@ -227,9 +221,12 @@ end;
 function TOBDDtcList.SeverityColor(ASeverity: TOBDDtcSeverity): TColor;
 begin
   case ASeverity of
-    dsInfo:     Result := FInfoColor;
-    dsWarning:  Result := FWarningColor;
-    dsCritical: Result := FCriticalColor;
+    dsInfo:
+      Result := FInfoColor;
+    dsWarning:
+      Result := FWarningColor;
+    dsCritical:
+      Result := FCriticalColor;
   else
     Result := Font.Color;
   end;
@@ -238,10 +235,14 @@ end;
 function TOBDDtcList.StatusText(AStatus: TOBDDtcStatus): string;
 begin
   case AStatus of
-    dtActive:    Result := 'Active';
-    dtPending:   Result := 'Pending';
-    dtPermanent: Result := 'Permanent';
-    dtHistory:   Result := 'History';
+    dtActive:
+      Result := 'Active';
+    dtPending:
+      Result := 'Pending';
+    dtPermanent:
+      Result := 'Permanent';
+    dtHistory:
+      Result := 'History';
   else
     Result := '';
   end;
@@ -250,9 +251,12 @@ end;
 function TOBDDtcList.SeverityText(ASeverity: TOBDDtcSeverity): string;
 begin
   case ASeverity of
-    dsInfo:     Result := 'Info';
-    dsWarning:  Result := 'Warning';
-    dsCritical: Result := 'Critical';
+    dsInfo:
+      Result := 'Info';
+    dsWarning:
+      Result := 'Warning';
+    dsCritical:
+      Result := 'Critical';
   else
     Result := '';
   end;
@@ -300,8 +304,7 @@ begin
   RebuildView;
 end;
 
-procedure TOBDDtcList.AddDtcEx(const ACode: string;
-  const ADescription: string;
+procedure TOBDDtcList.AddDtcEx(const ACode: string; const ADescription: string;
   ASeverity: TOBDDtcSeverity; AStatus: TOBDDtcStatus);
 var
   Row: TOBDDtcItem;
@@ -332,8 +335,7 @@ begin
 end;
 
 procedure TOBDDtcList.HandleCustomDrawItem(Sender: TCustomListView;
-  Item: TListItem; State: TCustomDrawState;
-  var DefaultDraw: Boolean);
+  Item: TListItem; State: TCustomDrawState; var DefaultDraw: Boolean);
 var
   Idx: Integer;
 begin

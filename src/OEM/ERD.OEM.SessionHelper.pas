@@ -1,49 +1,49 @@
-//------------------------------------------------------------------------------
-//  ERD.OEM.SessionHelper
+﻿// ------------------------------------------------------------------------------
+// ERD.OEM.SessionHelper
 //
-//  One-call wrapper around a service-routine execution. Given a
-//  <see cref="TOBDServiceRoutine"/> and a bundle of callbacks
-//  the helper:
+// One-call wrapper around a service-routine execution. Given a
+// <see cref="TOBDServiceRoutine"/> and a bundle of callbacks
+// the helper:
 //
-//    1. Opens the required diagnostic session (e.g. extended /
-//       programming).
-//    2. Optionally consults the voltage gate when the routine
-//       demands it (<c>srsBatteryMin12V5</c>).
-//    3. Sends the UDS 0x31 RoutineControl request.
-//    4. Reads the routine result via the optional read-result
-//       callback.
-//    5. Always attempts to close the session, capturing close
-//       failure when the run had already succeeded.
+// 1. Opens the required diagnostic session (e.g. extended /
+// programming).
+// 2. Optionally consults the voltage gate when the routine
+// demands it (<c>srsBatteryMin12V5</c>).
+// 3. Sends the UDS 0x31 RoutineControl request.
+// 4. Reads the routine result via the optional read-result
+// callback.
+// 5. Always attempts to close the session, capturing close
+// failure when the run had already succeeded.
 //
-//  The helper itself is transport-agnostic: hosts wire each
-//  callback to their TOBDProtocol / TOBDDiagSession, tests inject
-//  lambdas. The voltage source is a
-//  <see cref="TOBDVoltageSourceFunc"/> matching the
-//  <c>ERD.Flash.VoltageGate</c> component's source signature so a
-//  caller can reuse the same function across both.
+// The helper itself is transport-agnostic: hosts wire each
+// callback to their TOBDProtocol / TOBDDiagSession, tests inject
+// lambdas. The voltage source is a
+// <see cref="TOBDVoltageSourceFunc"/> matching the
+// <c>ERD.Flash.VoltageGate</c> component's source signature so a
+// caller can reuse the same function across both.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-12  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-12  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.OEM.SessionHelper;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   ERD.OEM.ServiceRoutines,
   ERD.Flash.VoltageGate,
   ERD.UDS.NRC;
@@ -57,14 +57,8 @@ type
   /// aborted. On success the helper reports
   /// <c>reseSessionClose</c>; on failure it reports the failing
   /// stage.</summary>
-  TOBDRoutineExecutionStage = (
-    reseNotStarted,
-    reseSessionOpen,
-    reseVoltageGate,
-    reseRoutineStart,
-    reseRoutineWait,
-    reseResultRead,
-    reseSessionClose);
+  TOBDRoutineExecutionStage = (reseNotStarted, reseSessionOpen, reseVoltageGate,
+    reseRoutineStart, reseRoutineWait, reseResultRead, reseSessionClose);
 
   /// <summary>End-to-end routine-execution result.</summary>
   TOBDRoutineExecutionResult = record
@@ -91,13 +85,13 @@ type
   /// <c>SessionType</c> (e.g. <c>0x03</c> extended). Returns
   /// <c>True</c> on success; <c>NRC</c> carries the negative
   /// response byte on failure (0 if non-NRC error).</summary>
-  TOBDSessionOpenCallback = reference to function(
-    SessionType: Byte; out NRC: Byte): Boolean;
+  TOBDSessionOpenCallback = reference to function(SessionType: Byte;
+    out NRC: Byte): Boolean;
 
   /// <summary>Sends the pre-built UDS 0x31 RoutineControl
   /// frame. Returns <c>True</c> on positive response.</summary>
-  TOBDRoutineStartCallback = reference to function(
-    const Frame: TBytes; out NRC: Byte): Boolean;
+  TOBDRoutineStartCallback = reference to function(const Frame: TBytes;
+    out NRC: Byte): Boolean;
 
   /// <summary>Reads the routine result via 0x31 sub-function
   /// 0x03. Returns <c>True</c> + <c>ResultBytes</c> on positive
@@ -126,8 +120,7 @@ type
   strict private
     FMinimumVoltage: Double;
     procedure SetFailure(var Res: TOBDRoutineExecutionResult;
-      Stage: TOBDRoutineExecutionStage; NRC: Byte;
-      const Msg: string);
+      Stage: TOBDRoutineExecutionStage; NRC: Byte; const Msg: string);
     function ApplyVoltageGate(const Routine: TOBDServiceRoutine;
       const ReadVoltage: TOBDVoltageSourceFunc;
       var Res: TOBDRoutineExecutionResult): Boolean;
@@ -139,18 +132,15 @@ type
     constructor Create;
     /// <summary>Voltage threshold the helper enforces when a
     /// routine is tagged <c>srsBatteryMin12V5</c>.</summary>
-    property MinimumVoltage: Double
-      read FMinimumVoltage write FMinimumVoltage;
+    property MinimumVoltage: Double read FMinimumVoltage write FMinimumVoltage;
     /// <summary>Executes <c>Routine</c> end-to-end using
     /// <c>Callbacks</c>.</summary>
     /// <param name="Routine">Routine to run.</param>
     /// <param name="Callbacks">Transport callbacks.</param>
     /// <exception cref="EOBDOEMSessionHelper">Routine key is
     /// empty, or a required callback is unassigned.</exception>
-    function RunServiceRoutine(
-      const Routine: TOBDServiceRoutine;
-      const Callbacks: TOBDOEMSessionCallbacks):
-      TOBDRoutineExecutionResult;
+    function RunServiceRoutine(const Routine: TOBDServiceRoutine;
+      const Callbacks: TOBDOEMSessionCallbacks): TOBDRoutineExecutionResult;
   end;
 
 implementation
@@ -161,10 +151,8 @@ begin
   FMinimumVoltage := 12.5;
 end;
 
-procedure TOBDOEMSessionHelper.SetFailure(
-  var Res: TOBDRoutineExecutionResult;
-  Stage: TOBDRoutineExecutionStage; NRC: Byte;
-  const Msg: string);
+procedure TOBDOEMSessionHelper.SetFailure(var Res: TOBDRoutineExecutionResult;
+  Stage: TOBDRoutineExecutionStage; NRC: Byte; const Msg: string);
 begin
   Res.Success := False;
   Res.AbortStage := Stage;
@@ -175,9 +163,8 @@ begin
     Res.ErrorMessage := Msg;
 end;
 
-function TOBDOEMSessionHelper.ApplyVoltageGate(
-  const Routine: TOBDServiceRoutine;
-  const ReadVoltage: TOBDVoltageSourceFunc;
+function TOBDOEMSessionHelper.ApplyVoltageGate(const Routine
+  : TOBDServiceRoutine; const ReadVoltage: TOBDVoltageSourceFunc;
   var Res: TOBDRoutineExecutionResult): Boolean;
 var
   V: Double;
@@ -188,7 +175,7 @@ begin
   begin
     SetFailure(Res, reseVoltageGate, 0,
       Format('routine %s requires voltage check but no ' +
-        'ReadVoltage callback supplied', [Routine.Key]));
+      'ReadVoltage callback supplied', [Routine.Key]));
     Exit(False);
   end;
   V := ReadVoltage();
@@ -197,36 +184,32 @@ begin
   begin
     SetFailure(Res, reseVoltageGate, 0,
       Format('voltage gate failed: %.2f V < %.2f V minimum',
-        [V, FMinimumVoltage]));
+      [V, FMinimumVoltage]));
     Exit(False);
   end;
   Result := True;
 end;
 
-function TOBDOEMSessionHelper.RunServiceRoutine(
-  const Routine: TOBDServiceRoutine;
-  const Callbacks: TOBDOEMSessionCallbacks):
-  TOBDRoutineExecutionResult;
+function TOBDOEMSessionHelper.RunServiceRoutine(const Routine
+  : TOBDServiceRoutine; const Callbacks: TOBDOEMSessionCallbacks)
+  : TOBDRoutineExecutionResult;
 var
   Frame: TBytes;
   NRC: Byte;
   ResultBytes: TBytes;
 begin
-  Result := Default(TOBDRoutineExecutionResult);
+  Result := Default (TOBDRoutineExecutionResult);
   Result.RoutineKey := Routine.Key;
   Result.AbortStage := reseNotStarted;
 
   if Routine.Key = '' then
     raise EOBDOEMSessionHelper.Create('Routine has empty key');
   if not Assigned(Callbacks.OpenSession) then
-    raise EOBDOEMSessionHelper.Create(
-      'OpenSession callback required');
+    raise EOBDOEMSessionHelper.Create('OpenSession callback required');
   if not Assigned(Callbacks.StartRoutine) then
-    raise EOBDOEMSessionHelper.Create(
-      'StartRoutine callback required');
+    raise EOBDOEMSessionHelper.Create('StartRoutine callback required');
   if not Assigned(Callbacks.CloseSession) then
-    raise EOBDOEMSessionHelper.Create(
-      'CloseSession callback required');
+    raise EOBDOEMSessionHelper.Create('CloseSession callback required');
 
   // 1. Open the diagnostic session.
   NRC := 0;
@@ -234,14 +217,13 @@ begin
   begin
     SetFailure(Result, reseSessionOpen, NRC,
       Format('failed to open diagnostic session 0x%.2x',
-        [Routine.RequiredSessionType]));
+      [Routine.RequiredSessionType]));
     Exit;
   end;
 
   try
     // 2. Voltage gate (only when the routine demands it).
-    if not ApplyVoltageGate(Routine, Callbacks.ReadVoltage,
-                            Result) then
+    if not ApplyVoltageGate(Routine, Callbacks.ReadVoltage, Result) then
       Exit;
 
     // 3. Build and send the RoutineControl request.
@@ -259,12 +241,11 @@ begin
     if Assigned(Callbacks.ReadResult) then
     begin
       NRC := 0;
-      if not Callbacks.ReadResult(Routine.RoutineIdentifier,
-                                  ResultBytes, NRC) then
+      if not Callbacks.ReadResult(Routine.RoutineIdentifier, ResultBytes, NRC)
+      then
       begin
         SetFailure(Result, reseResultRead, NRC,
-          Format('routine %s result read failed',
-            [Routine.Key]));
+          Format('routine %s result read failed', [Routine.Key]));
         Exit;
       end;
       Result.ResultBytes := ResultBytes;
@@ -280,8 +261,7 @@ begin
       begin
         Result.Success := False;
         Result.AbortStage := reseSessionClose;
-        Result.ErrorMessage :=
-          'session close failed after successful routine';
+        Result.ErrorMessage := 'session close failed after successful routine';
       end;
   end;
 end;

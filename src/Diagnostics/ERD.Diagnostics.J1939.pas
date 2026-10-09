@@ -1,66 +1,66 @@
-//------------------------------------------------------------------------------
-//  ERD.Diagnostics.J1939
+﻿// ------------------------------------------------------------------------------
+// ERD.Diagnostics.J1939
 //
-//  TOBDJ1939 — non-visual J1939 (SAE J1939-21) bus-client
-//  component. Sits between the codec / transport layers (the
-//  <see cref="TOBDJ1939Codec"/> helpers and the
-//  <see cref="TOBDJ1939SessionManager"/> state machine) and the
-//  application, exposing:
+// TOBDJ1939 — non-visual J1939 (SAE J1939-21) bus-client
+// component. Sits between the codec / transport layers (the
+// <see cref="TOBDJ1939Codec"/> helpers and the
+// <see cref="TOBDJ1939SessionManager"/> state machine) and the
+// application, exposing:
 //
-//    - SourceAddress + NAME properties for address-claim
-//      broadcasts.
-//    - The owned TP / ETP / BAM session manager, accessible as
-//      a published sub-object so hosts can wire OnFrameSend to
-//      their preferred transmit path (TOBDProtocol's raw-frame
-//      hook, a J2534 channel, a direct CAN driver, …).
-//    - Convenience helpers that build the byte payloads for the
-//      Address Claimed and Request PGNs (PGN 0x00EE00 and
-//      PGN 0x00EA00).
-//    - DispatchInbound: route a received frame into the session
-//      manager and re-fire it through OnFrame after any TP / ETP
-//      reassembly completes.
+// - SourceAddress + NAME properties for address-claim
+// broadcasts.
+// - The owned TP / ETP / BAM session manager, accessible as
+// a published sub-object so hosts can wire OnFrameSend to
+// their preferred transmit path (TOBDProtocol's raw-frame
+// hook, a J2534 channel, a direct CAN driver, …).
+// - Convenience helpers that build the byte payloads for the
+// Address Claimed and Request PGNs (PGN 0x00EE00 and
+// PGN 0x00EA00).
+// - DispatchInbound: route a received frame into the session
+// manager and re-fire it through OnFrame after any TP / ETP
+// reassembly completes.
 //
-//  This component does NOT own a CAN transport. J1939 over ELM-
-//  style adapters is rarely a clean fit, so the integration point
-//  is intentionally explicit: the host wires
-//  <c>Sessions.OnFrameSend</c> to whatever moves the bytes out
-//  the door, and calls <see cref="DispatchInbound"/> for every
-//  inbound frame.
+// This component does NOT own a CAN transport. J1939 over ELM-
+// style adapters is rarely a clean fit, so the integration point
+// is intentionally explicit: the host wires
+// <c>Sessions.OnFrameSend</c> to whatever moves the bytes out
+// the door, and calls <see cref="DispatchInbound"/> for every
+// inbound frame.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - SAE J1939-21:2024 §5.4 (Address claim) — PGN 0x00EE00
-//    - SAE J1939-21:2024 §5.5 (Request) — PGN 0x00EA00
-//    - SAE J1939-21:2024 §5.10 (Transport protocol)
-//    - SAE J1939-81 (Network management — NAME field)
+// References  :
+// - SAE J1939-21:2024 §5.4 (Address claim) — PGN 0x00EE00
+// - SAE J1939-21:2024 §5.5 (Request) — PGN 0x00EA00
+// - SAE J1939-21:2024 §5.10 (Transport protocol)
+// - SAE J1939-81 (Network management — NAME field)
 //
-//  History     :
-//    2026-05-11  ERD  Initial implementation.
+// History     :
+// 2026-05-11  ERD  Initial implementation.
 //
-//  Future work :
-//    - Concurrent-address-claim arbitration helper (compare
-//      received NAMEs, drop to NULL_ADDRESS = 254 on loss).
-//------------------------------------------------------------------------------
+// Future work :
+// - Concurrent-address-claim arbitration helper (compare
+// received NAMEs, drop to NULL_ADDRESS = 254 on loss).
+// ------------------------------------------------------------------------------
 
 unit ERD.Diagnostics.J1939;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
   ERD.Async.Task,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   ERD.Types,
   ERD.Protocol.Types,
   ERD.Protocol.J1939,
@@ -69,50 +69,49 @@ uses
 const
   /// <summary>J1939 NULL address — host has not claimed an
   /// address yet.</summary>
-  J1939_NULL_ADDRESS         = $FE;
+  J1939_NULL_ADDRESS = $FE;
   /// <summary>J1939 GLOBAL destination — broadcast to all
   /// ECUs.</summary>
-  J1939_GLOBAL_ADDRESS       = $FF;
+  J1939_GLOBAL_ADDRESS = $FF;
   /// <summary>Address Claimed PGN.</summary>
-  J1939_PGN_ADDRESS_CLAIMED  = $00EE00;
+  J1939_PGN_ADDRESS_CLAIMED = $00EE00;
   /// <summary>Request PGN (used to request another PGN).</summary>
-  J1939_PGN_REQUEST          = $00EA00;
+  J1939_PGN_REQUEST = $00EA00;
   /// <summary>Maximum single-frame J1939 payload (8 bytes for
   /// classic CAN).</summary>
-  J1939_SINGLE_FRAME_LIMIT   = 8;
+  J1939_SINGLE_FRAME_LIMIT = 8;
 
 type
   /// <summary>
-  ///   Inbound J1939 frame event. Main thread.
+  /// Inbound J1939 frame event. Main thread.
   /// </summary>
   /// <remarks>
-  ///   Reassembled multi-frame messages are delivered as a
-  ///   single event — <c>AData</c> is the fully concatenated
-  ///   payload after the session manager finishes any
-  ///   TP / ETP / BAM reassembly. Single-frame messages fire
-  ///   immediately.
+  /// Reassembled multi-frame messages are delivered as a
+  /// single event — <c>AData</c> is the fully concatenated
+  /// payload after the session manager finishes any
+  /// TP / ETP / BAM reassembly. Single-frame messages fire
+  /// immediately.
   /// </remarks>
   TOBDJ1939FrameEvent = procedure(Sender: TObject; APriority: Byte;
-    APGN: Cardinal; ASA: Byte; ADA: Byte;
-    const AData: TBytes) of object;
+    APGN: Cardinal; ASA: Byte; ADA: Byte; const AData: TBytes) of object;
 
   /// <summary>
-  ///   J1939 bus-client component.
+  /// J1939 bus-client component.
   /// </summary>
   /// <remarks>
-  ///   Drop on a form, set <c>SourceAddress</c> and <c>NAME</c>,
-  ///   wire <c>Sessions.OnFrameSend</c> to your CAN transmit path
-  ///   and <c>Sessions.OnComplete</c> to a handler that calls
-  ///   <see cref="FireFrame"/> through this component (or just
-  ///   forward through <c>OnFrame</c> directly). Call
-  ///   <see cref="DispatchInbound"/> for every received J1939
-  ///   frame so multi-frame messages reassemble correctly.
+  /// Drop on a form, set <c>SourceAddress</c> and <c>NAME</c>,
+  /// wire <c>Sessions.OnFrameSend</c> to your CAN transmit path
+  /// and <c>Sessions.OnComplete</c> to a handler that calls
+  /// <see cref="FireFrame"/> through this component (or just
+  /// forward through <c>OnFrame</c> directly). Call
+  /// <see cref="DispatchInbound"/> for every received J1939
+  /// frame so multi-frame messages reassemble correctly.
   /// </remarks>
   TOBDJ1939 = class(TComponent)
   strict private
     FOwnedTask: TOBDOwnedTask;
     FSourceAddress: Byte;
-    FName: array[0..7] of Byte;
+    FName: array [0 .. 7] of Byte;
     FSessions: TOBDJ1939SessionManager;
     FOnFrame: TOBDJ1939FrameEvent;
     function GetNAMEByte(AIndex: Integer): Byte;
@@ -126,52 +125,50 @@ type
     destructor Destroy; override;
 
     /// <summary>
-    ///   Builds the 8-byte payload for an Address Claimed
-    ///   broadcast (PGN 0x00EE00). The caller is responsible for
-    ///   transmitting the frame.
+    /// Builds the 8-byte payload for an Address Claimed
+    /// broadcast (PGN 0x00EE00). The caller is responsible for
+    /// transmitting the frame.
     /// </summary>
     /// <returns>NAME bytes, big-endian (high byte first).</returns>
     function BuildAddressClaimedPayload: TBytes;
 
     /// <summary>
-    ///   Builds the 3-byte payload for a Request PGN (0x00EA00)
-    ///   asking for <c>ARequestedPGN</c>.
+    /// Builds the 3-byte payload for a Request PGN (0x00EA00)
+    /// asking for <c>ARequestedPGN</c>.
     /// </summary>
     /// <param name="ARequestedPGN">PGN to request.</param>
     /// <returns>3-byte little-endian PGN payload.</returns>
     function BuildRequestPayload(ARequestedPGN: Cardinal): TBytes;
 
     /// <summary>
-    ///   Encodes a 29-bit J1939 CAN identifier for sending
-    ///   <c>APGN</c> from <c>SourceAddress</c> to <c>ADA</c>.
+    /// Encodes a 29-bit J1939 CAN identifier for sending
+    /// <c>APGN</c> from <c>SourceAddress</c> to <c>ADA</c>.
     /// </summary>
     /// <param name="APriority">3-bit priority (0..7).</param>
     /// <param name="APGN">Parameter Group Number.</param>
     /// <param name="ADA">Destination address.</param>
     /// <returns>29-bit CAN identifier.</returns>
-    function EncodeId(APriority: Byte; APGN: Cardinal;
-      ADA: Byte): Cardinal;
+    function EncodeId(APriority: Byte; APGN: Cardinal; ADA: Byte): Cardinal;
 
     /// <summary>
-    ///   Routes an inbound J1939 frame into the session manager
-    ///   and fires <c>OnFrame</c> for single-frame messages.
+    /// Routes an inbound J1939 frame into the session manager
+    /// and fires <c>OnFrame</c> for single-frame messages.
     /// </summary>
     /// <param name="ACanId">29-bit CAN identifier of the
     /// inbound frame.</param>
     /// <param name="APayload">Up to 8 bytes of payload.</param>
     /// <remarks>
-    ///   Multi-frame TP / ETP / BAM segments are routed through
-    ///   the session manager; the host listens to
-    ///   <c>Sessions.OnComplete</c> for full-message events.
-    ///   Single-frame messages fire <c>OnFrame</c> immediately
-    ///   from this call (on the calling thread).
+    /// Multi-frame TP / ETP / BAM segments are routed through
+    /// the session manager; the host listens to
+    /// <c>Sessions.OnComplete</c> for full-message events.
+    /// Single-frame messages fire <c>OnFrame</c> immediately
+    /// from this call (on the calling thread).
     /// </remarks>
-    procedure DispatchInbound(ACanId: Cardinal;
-      const APayload: TBytes);
+    procedure DispatchInbound(ACanId: Cardinal; const APayload: TBytes);
 
     /// <summary>
-    ///   Public path used by <see cref="DispatchInbound"/> and by
-    ///   host code that wires <c>Sessions.OnComplete</c> directly.
+    /// Public path used by <see cref="DispatchInbound"/> and by
+    /// host code that wires <c>Sessions.OnComplete</c> directly.
     /// </summary>
     /// <param name="APriority">Decoded priority.</param>
     /// <param name="APGN">Reassembled PGN.</param>
@@ -179,12 +176,12 @@ type
     /// <param name="ADA">Destination address (or
     /// <c>J1939_GLOBAL_ADDRESS</c>).</param>
     /// <param name="AData">Reassembled payload bytes.</param>
-    procedure FireFrame(APriority: Byte; APGN: Cardinal; ASA: Byte;
-      ADA: Byte; const AData: TBytes);
+    procedure FireFrame(APriority: Byte; APGN: Cardinal; ASA: Byte; ADA: Byte;
+      const AData: TBytes);
 
     /// <summary>
-    ///   Sets the 8-byte NAME field used by Address Claimed
-    ///   broadcasts.
+    /// Sets the 8-byte NAME field used by Address Claimed
+    /// broadcasts.
     /// </summary>
     /// <param name="ANAME">Big-endian J1939 NAME — caller is
     /// responsible for packing the function / ECU instance / etc.
@@ -197,19 +194,19 @@ type
     property NAME[AIndex: Integer]: Byte read GetNAMEByte write SetNAMEByte;
 
     /// <summary>
-    ///   Underlying TP / ETP / BAM session manager. Host wires
-    ///   <c>OnFrameSend</c> here to a CAN transmit path and
-    ///   <c>OnComplete</c> to a handler that calls
-    ///   <see cref="FireFrame"/>.
+    /// Underlying TP / ETP / BAM session manager. Host wires
+    /// <c>OnFrameSend</c> here to a CAN transmit path and
+    /// <c>OnComplete</c> to a handler that calls
+    /// <see cref="FireFrame"/>.
     /// </summary>
     property Sessions: TOBDJ1939SessionManager read FSessions;
   published
     /// <summary>
-    ///   This node's 8-bit J1939 source address. Default
-    ///   <c>J1939_NULL_ADDRESS</c> (0xFE).
+    /// This node's 8-bit J1939 source address. Default
+    /// <c>J1939_NULL_ADDRESS</c> (0xFE).
     /// </summary>
-    property SourceAddress: Byte read FSourceAddress
-      write FSourceAddress default J1939_NULL_ADDRESS;
+    property SourceAddress: Byte read FSourceAddress write FSourceAddress
+      default J1939_NULL_ADDRESS;
 
     /// <summary>Fires on every inbound PGN. Main thread.</summary>
     property OnFrame: TOBDJ1939FrameEvent read FOnFrame write FOnFrame;
@@ -231,7 +228,8 @@ end;
 
 destructor TOBDJ1939.Destroy;
 begin
-  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  if FOwnedTask <> nil then
+    FOwnedTask.Cancel;
   FSessions.Free;
   FreeAndNil(FOwnedTask);
   inherited;
@@ -240,16 +238,16 @@ end;
 function TOBDJ1939.GetNAMEByte(AIndex: Integer): Byte;
 begin
   if (AIndex < 0) or (AIndex > 7) then
-    raise EOBDConfig.CreateFmt(
-      'TOBDJ1939.NAME: index %d out of range', [AIndex]);
+    raise EOBDConfig.CreateFmt('TOBDJ1939.NAME: index %d out of range',
+      [AIndex]);
   Result := FName[AIndex];
 end;
 
 procedure TOBDJ1939.SetNAMEByte(AIndex: Integer; AValue: Byte);
 begin
   if (AIndex < 0) or (AIndex > 7) then
-    raise EOBDConfig.CreateFmt(
-      'TOBDJ1939.NAME: index %d out of range', [AIndex]);
+    raise EOBDConfig.CreateFmt('TOBDJ1939.NAME: index %d out of range',
+      [AIndex]);
   FName[AIndex] := AValue;
 end;
 
@@ -281,19 +279,18 @@ begin
   // The Request PGN body is the requested PGN encoded LE in 3
   // bytes (J1939-21 §5.5).
   SetLength(Result, 3);
-  Result[0] := Byte( ARequestedPGN         and $FF);
-  Result[1] := Byte((ARequestedPGN shr  8) and $FF);
+  Result[0] := Byte(ARequestedPGN and $FF);
+  Result[1] := Byte((ARequestedPGN shr 8) and $FF);
   Result[2] := Byte((ARequestedPGN shr 16) and $FF);
 end;
 
-function TOBDJ1939.EncodeId(APriority: Byte; APGN: Cardinal;
-  ADA: Byte): Cardinal;
+function TOBDJ1939.EncodeId(APriority: Byte; APGN: Cardinal; ADA: Byte)
+  : Cardinal;
 begin
   Result := TOBDJ1939Codec.EncodeId(APriority, APGN, FSourceAddress, ADA);
 end;
 
-procedure TOBDJ1939.DispatchInbound(ACanId: Cardinal;
-  const APayload: TBytes);
+procedure TOBDJ1939.DispatchInbound(ACanId: Cardinal; const APayload: TBytes);
 var
   Id: TOBDJ1939Id;
   Routed: Boolean;

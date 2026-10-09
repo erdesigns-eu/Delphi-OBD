@@ -1,40 +1,40 @@
-//------------------------------------------------------------------------------
-//  ERD.UI.Knob
+﻿// ------------------------------------------------------------------------------
+// ERD.UI.Knob
 //
-//  TOBDKnob — rotary input control. Drag the knob clockwise to
-//  increase the value, counter-clockwise to decrease it. Mouse
-//  wheel steps by <c>Step</c>; double-click resets to <c>Default</c>.
+// TOBDKnob — rotary input control. Drag the knob clockwise to
+// increase the value, counter-clockwise to decrease it. Mouse
+// wheel steps by <c>Step</c>; double-click resets to <c>Default</c>.
 //
-//  Painted with the standard VCL <c>TCanvas</c> on top of
-//  <c>TCustomControl</c> — Windows owns the drawing surface, no
-//  third-party renderer in the chain.
+// Painted with the standard VCL <c>TCanvas</c> on top of
+// <c>TCustomControl</c> — Windows owns the drawing surface, no
+// third-party renderer in the chain.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-11  ERD  Initial port from v1 ERD.Knob.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-11  ERD  Initial port from v1 ERD.Knob.
+// ------------------------------------------------------------------------------
 
 unit ERD.UI.Knob;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}Types{$ELSE}System.Types{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Types{$ELSE}System.Types{$ENDIF},
   System.UITypes,
-  {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
+{$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
   Vcl.Controls,
   Vcl.Graphics,
   Winapi.Windows,
@@ -42,11 +42,11 @@ uses
 
 const
   /// <summary>Lowest value (default 0).</summary>
-  KNOB_DEFAULT_MIN         = 0.0;
+  KNOB_DEFAULT_MIN = 0.0;
   /// <summary>Highest value (default 100).</summary>
-  KNOB_DEFAULT_MAX         = 100.0;
+  KNOB_DEFAULT_MAX = 100.0;
   /// <summary>Step size for the mouse wheel (default 1).</summary>
-  KNOB_DEFAULT_STEP        = 1.0;
+  KNOB_DEFAULT_STEP = 1.0;
   /// <summary>Sweep start angle, degrees from north
   /// (default 135 — 7.30 on a clock face).</summary>
   KNOB_DEFAULT_START_ANGLE = 135;
@@ -56,17 +56,16 @@ const
 
 type
   /// <summary>Fires when the value changes. Main thread.</summary>
-  TOBDKnobChangeEvent = procedure(Sender: TObject;
-    AValue: Single) of object;
+  TOBDKnobChangeEvent = procedure(Sender: TObject; AValue: Single) of object;
 
   /// <summary>
-  ///   Drag-to-rotate input control.
+  /// Drag-to-rotate input control.
   /// </summary>
   /// <remarks>
-  ///   Set <c>Min</c> / <c>Max</c> / <c>Step</c>, optionally set
-  ///   <c>StartAngle</c> + <c>SweepAngle</c> for a partial arc.
-  ///   <c>Caption</c> and <c>ShowValue</c> drive the body text.
-  ///   <c>OnChange</c> fires whenever the value moves.
+  /// Set <c>Min</c> / <c>Max</c> / <c>Step</c>, optionally set
+  /// <c>StartAngle</c> + <c>SweepAngle</c> for a partial arc.
+  /// <c>Caption</c> and <c>ShowValue</c> drive the body text.
+  /// <c>OnChange</c> fires whenever the value moves.
   /// </remarks>
   TOBDKnob = class(TCustomControl)
   strict private
@@ -100,18 +99,15 @@ type
     function ClampValue(AValue: Single): Single;
     function ValueToAngle(AValue: Single): Single;
     function PointToAngle(const APoint: TPoint): Single;
-    procedure CMMouseEnter(var Message: TMessage);
-      message CM_MOUSEENTER;
-    procedure CMMouseLeave(var Message: TMessage);
-      message CM_MOUSELEAVE;
+    procedure CMMouseEnter(var Message: TMessage); message CM_MOUSEENTER;
+    procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
   protected
     procedure Paint; override;
-    procedure MouseDown(Button: TMouseButton; Shift: TShiftState;
-      X: Integer; Y: Integer); override;
-    procedure MouseMove(Shift: TShiftState; X: Integer;
+    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X: Integer;
       Y: Integer); override;
-    procedure MouseUp(Button: TMouseButton; Shift: TShiftState;
-      X: Integer; Y: Integer); override;
+    procedure MouseMove(Shift: TShiftState; X: Integer; Y: Integer); override;
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X: Integer;
+      Y: Integer); override;
     function DoMouseWheel(Shift: TShiftState; WheelDelta: Integer;
       MousePos: TPoint): Boolean; override;
     procedure DblClick; override;
@@ -150,16 +146,14 @@ type
     property ActiveRingColor: TColor index 2 read FActiveRingColor
       write SetColor;
     /// <summary>Pointer-line colour.</summary>
-    property IndicatorColor: TColor index 3 read FIndicatorColor
-      write SetColor;
+    property IndicatorColor: TColor index 3 read FIndicatorColor write SetColor;
     /// <summary>Caption / value text colour.</summary>
     property TextColor: TColor index 4 read FTextColor write SetColor;
     /// <summary>Optional caption (rendered above the value).</summary>
     property Caption: string read FCaption write SetCaption;
     /// <summary>Show the numeric value inside the knob. Default
     /// <c>True</c>.</summary>
-    property ShowValue: Boolean read FShowValue write SetShowValue
-      default True;
+    property ShowValue: Boolean read FShowValue write SetShowValue default True;
     /// <summary>Fires on every value change.</summary>
     property OnChange: TOBDKnobChangeEvent read FOnChange write FOnChange;
 
@@ -189,8 +183,7 @@ implementation
 constructor TOBDKnob.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  ControlStyle := ControlStyle + [csOpaque, csDoubleClicks,
-    csCaptureMouse];
+  ControlStyle := ControlStyle + [csOpaque, csDoubleClicks, csCaptureMouse];
   Width := 96;
   Height := 96;
   TabStop := True;
@@ -278,11 +271,16 @@ end;
 procedure TOBDKnob.SetColor(AIndex: Integer; AValue: TColor);
 begin
   case AIndex of
-    0: FBodyColor := AValue;
-    1: FRingColor := AValue;
-    2: FActiveRingColor := AValue;
-    3: FIndicatorColor := AValue;
-    4: FTextColor := AValue;
+    0:
+      FBodyColor := AValue;
+    1:
+      FRingColor := AValue;
+    2:
+      FActiveRingColor := AValue;
+    3:
+      FIndicatorColor := AValue;
+    4:
+      FTextColor := AValue;
   end;
   Invalidate;
 end;
@@ -336,7 +334,7 @@ begin
   Cy := Height / 2;
   Dx := APoint.X - Cx;
   Dy := APoint.Y - Cy;
-  RadAngle := ArcTan2(Dx, -Dy);                // 0 = north, +CW
+  RadAngle := ArcTan2(Dx, -Dy); // 0 = north, +CW
   Result := RadAngle * (180 / PI);
   if Result < 0 then
     Result := Result + 360;
@@ -373,26 +371,26 @@ begin
   Canvas.Brush.Style := bsClear;
   Canvas.Pen.Color := FRingColor;
   Canvas.Pen.Width := 4;
-  Canvas.Ellipse(CenterX - Radius, CenterY - Radius,
-                 CenterX + Radius, CenterY + Radius);
+  Canvas.Ellipse(CenterX - Radius, CenterY - Radius, CenterX + Radius,
+    CenterY + Radius);
 
   // Active sweep from StartAngle to PointerAngle.
   PointerAngle := ValueToAngle(FValue);
   StartRad := DegToRad(90 - FStartAngle);
   EndRad := DegToRad(90 - PointerAngle);
   Canvas.Pen.Color := FActiveRingColor;
-  ArcRect := Rect(CenterX - Radius, CenterY - Radius,
-                  CenterX + Radius, CenterY + Radius);
+  ArcRect := Rect(CenterX - Radius, CenterY - Radius, CenterX + Radius,
+    CenterY + Radius);
   StartX := CenterX + Round(Radius * Cos(StartRad));
   StartY := CenterY - Round(Radius * Sin(StartRad));
   EndX := CenterX + Round(Radius * Cos(EndRad));
   EndY := CenterY - Round(Radius * Sin(EndRad));
-  Canvas.Arc(ArcRect.Left, ArcRect.Top, ArcRect.Right, ArcRect.Bottom,
-             EndX, EndY, StartX, StartY);
+  Canvas.Arc(ArcRect.Left, ArcRect.Top, ArcRect.Right, ArcRect.Bottom, EndX,
+    EndY, StartX, StartY);
 
   // Knob body (filled circle inside the ring).
-  Body := Rect(CenterX - Radius + 6, CenterY - Radius + 6,
-               CenterX + Radius - 6, CenterY + Radius - 6);
+  Body := Rect(CenterX - Radius + 6, CenterY - Radius + 6, CenterX + Radius - 6,
+    CenterY + Radius - 6);
   Canvas.Brush.Color := FBodyColor;
   Canvas.Brush.Style := bsSolid;
   Canvas.Pen.Style := psClear;
@@ -416,15 +414,15 @@ begin
   if FCaption <> '' then
   begin
     CaptionR := Rect(R.Left, CenterY - 18, R.Right, CenterY - 4);
-    DrawText(Canvas.Handle, PChar(FCaption), Length(FCaption),
-      CaptionR, DT_CENTER or DT_VCENTER or DT_SINGLELINE);
+    DrawText(Canvas.Handle, PChar(FCaption), Length(FCaption), CaptionR,
+      DT_CENTER or DT_VCENTER or DT_SINGLELINE);
   end;
   if FShowValue then
   begin
     ValueR := Rect(R.Left, CenterY + 2, R.Right, CenterY + 22);
     ValueStr := FormatFloat('0.##', FValue);
-    DrawText(Canvas.Handle, PChar(ValueStr), Length(ValueStr),
-      ValueR, DT_CENTER or DT_VCENTER or DT_SINGLELINE);
+    DrawText(Canvas.Handle, PChar(ValueStr), Length(ValueStr), ValueR,
+      DT_CENTER or DT_VCENTER or DT_SINGLELINE);
   end;
 end;
 
@@ -441,8 +439,7 @@ begin
     SetFocus;
 end;
 
-procedure TOBDKnob.MouseMove(Shift: TShiftState; X: Integer;
-  Y: Integer);
+procedure TOBDKnob.MouseMove(Shift: TShiftState; X: Integer; Y: Integer);
 var
   CurrentAngle: Single;
   Delta: Single;
@@ -465,8 +462,8 @@ begin
   SetValue(NewValue);
 end;
 
-procedure TOBDKnob.MouseUp(Button: TMouseButton; Shift: TShiftState;
-  X: Integer; Y: Integer);
+procedure TOBDKnob.MouseUp(Button: TMouseButton; Shift: TShiftState; X: Integer;
+  Y: Integer);
 begin
   inherited;
   if Button = mbLeft then
@@ -493,10 +490,14 @@ procedure TOBDKnob.KeyDown(var Key: Word; Shift: TShiftState);
 begin
   inherited;
   case Key of
-    VK_LEFT, VK_DOWN: SetValue(FValue - FStep);
-    VK_RIGHT, VK_UP:  SetValue(FValue + FStep);
-    VK_HOME:          SetValue(FMin);
-    VK_END:           SetValue(FMax);
+    VK_LEFT, VK_DOWN:
+      SetValue(FValue - FStep);
+    VK_RIGHT, VK_UP:
+      SetValue(FValue + FStep);
+    VK_HOME:
+      SetValue(FMin);
+    VK_END:
+      SetValue(FMax);
   end;
 end;
 

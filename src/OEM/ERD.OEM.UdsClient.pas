@@ -1,41 +1,41 @@
-//------------------------------------------------------------------------------
-//  ERD.OEM.UdsClient
+﻿// ------------------------------------------------------------------------------
+// ERD.OEM.UdsClient
 //
-//  High-level catalog-driven UDS client. Given a JSON OEM
-//  catalogue and a transport that does ISO-TP request /
-//  response, exposes:
+// High-level catalog-driven UDS client. Given a JSON OEM
+// catalogue and a transport that does ISO-TP request /
+// response, exposes:
 //
-//    - <c>ReadDID(name)</c>             typed decoded value
-//    - <c>WriteAdaptation(channel, value)</c> with min/max
-//      validation
-//    - <c>ExecuteRoutine(name, args)</c>
-//    - <c>ReadCodingBlock / WriteCodingBlock</c> with bit-level
-//      pack/unpack + read-modify-write safety
-//    - <c>RunActuatorTest(name)</c> with a safety-warning gate
-//    - <c>ReadDtcs(statusMask)</c>      array of DTC instances
-//    - <c>StreamLivePIDs(names, callback)</c>
+// - <c>ReadDID(name)</c>             typed decoded value
+// - <c>WriteAdaptation(channel, value)</c> with min/max
+// validation
+// - <c>ExecuteRoutine(name, args)</c>
+// - <c>ReadCodingBlock / WriteCodingBlock</c> with bit-level
+// pack/unpack + read-modify-write safety
+// - <c>RunActuatorTest(name)</c> with a safety-warning gate
+// - <c>ReadDtcs(statusMask)</c>      array of DTC instances
+// - <c>StreamLivePIDs(names, callback)</c>
 //
-//  The transport (<see cref="IOBDDiagnosticTransport"/>) is an
-//  abstraction over CAN / DoIP / virtual / mock so the client
-//  itself does not depend on a wire protocol. Hosts driving a
-//  real <see cref="TOBDProtocol"/> wrap it in a thin transport
-//  adapter; tests inject in-memory mock transports.
+// The transport (<see cref="IOBDDiagnosticTransport"/>) is an
+// abstraction over CAN / DoIP / virtual / mock so the client
+// itself does not depend on a wire protocol. Hosts driving a
+// real <see cref="TOBDProtocol"/> wrap it in a thin transport
+// adapter; tests inject in-memory mock transports.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-12  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-12  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 unit ERD.OEM.UdsClient;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -44,44 +44,44 @@ uses
   ERD.Types,
   ERD.Binary.Value,
   ERD.OEM.Types,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF}, {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF}, {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF}, {$IFDEF FPC}DateUtils{$ELSE}System.DateUtils{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF}, {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF}, {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF}, {$IFDEF FPC}DateUtils{$ELSE}System.DateUtils{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.OEM, ERD.OEM.Catalog.JSON, ERD.OEM.DTC;
 
 type
-  EOBDUdsClientError       = class(Exception);
-  EOBDUdsNoSession         = class(EOBDUdsClientError);
-  EOBDUdsTransportError    = class(EOBDUdsClientError);
-  EOBDUdsActuatorSafety    = class(EOBDUdsClientError);
-  EOBDUdsValidation        = class(EOBDUdsClientError);
-  EOBDUdsCatalogMiss       = class(EOBDUdsClientError);
-  EOBDUdsNegativeResponse  = class(EOBDUdsClientError);
-  EOBDUdsCodingError       = class(EOBDUdsClientError);
+  EOBDUdsClientError = class(Exception);
+  EOBDUdsNoSession = class(EOBDUdsClientError);
+  EOBDUdsTransportError = class(EOBDUdsClientError);
+  EOBDUdsActuatorSafety = class(EOBDUdsClientError);
+  EOBDUdsValidation = class(EOBDUdsClientError);
+  EOBDUdsCatalogMiss = class(EOBDUdsClientError);
+  EOBDUdsNegativeResponse = class(EOBDUdsClientError);
+  EOBDUdsCodingError = class(EOBDUdsClientError);
 
   /// <summary>
-  ///   One round-trip diag message: caller passes the
-  ///   service+payload, transport returns the response payload (or
-  ///   raises). Decouples the client from CAN/DoIP wiring.
-  ///   <c>Request</c> begins with the service byte (0x22, 0x2E, 0x31,
-  ///   ...); transport prepends ISO-TP framing. Response begins with
-  ///   the positive-response byte (service+0x40); on a negative
-  ///   response (0x7F xx NRC), the transport raises
-  ///   <c>EOBDUdsNegativeResponse</c> with the NRC byte set.
+  /// One round-trip diag message: caller passes the
+  /// service+payload, transport returns the response payload (or
+  /// raises). Decouples the client from CAN/DoIP wiring.
+  /// <c>Request</c> begins with the service byte (0x22, 0x2E, 0x31,
+  /// ...); transport prepends ISO-TP framing. Response begins with
+  /// the positive-response byte (service+0x40); on a negative
+  /// response (0x7F xx NRC), the transport raises
+  /// <c>EOBDUdsNegativeResponse</c> with the NRC byte set.
   /// </summary>
   IOBDDiagnosticTransport = interface
     ['{F1A2B3C4-D5E6-4789-AB12-345678901234}']
-    function  SendReceive(const Request: TBytes;
-                          TimeoutMs: Cardinal = 1500): TBytes;
+    function SendReceive(const Request: TBytes;
+      TimeoutMs: Cardinal = 1500): TBytes;
     procedure SetTargetECU(Address: Word);
-    function  TargetECU: Word;
+    function TargetECU: Word;
   end;
 
   /// <summary>
-  ///   Decoded value tagged with its catalog metadata.
-  ///   Numeric kinds populate <c>AsFloat</c> after scale/offset;
-  ///   integer kinds populate <c>AsInteger</c>; text kinds populate
-  ///   <c>AsString</c>. <c>Formatted</c> is always set to a
-  ///   display-ready string ("23.5 °C", "ON", "0xAA BB").
+  /// Decoded value tagged with its catalog metadata.
+  /// Numeric kinds populate <c>AsFloat</c> after scale/offset;
+  /// integer kinds populate <c>AsInteger</c>; text kinds populate
+  /// <c>AsString</c>. <c>Formatted</c> is always set to a
+  /// display-ready string ("23.5 °C", "ON", "0xAA BB").
   /// </summary>
   TOBDDecodedValue = record
     Name: string;
@@ -96,7 +96,7 @@ type
   end;
 
   /// <summary>
-  ///   One sample emitted by the live-PID streamer.
+  /// One sample emitted by the live-PID streamer.
   /// </summary>
   TOBDLiveSample = record
     Name: string;
@@ -107,9 +107,9 @@ type
   TOBDLiveSampleEvent = reference to procedure(const Sample: TOBDLiveSample);
 
   /// <summary>
-  ///   One DTC reported by the ECU. <c>StatusByte</c> is the
-  ///   ISO 14229 §11.4 status byte; <c>Description</c> is filled
-  ///   from the catalog if known.
+  /// One DTC reported by the ECU. <c>StatusByte</c> is the
+  /// ISO 14229 §11.4 status byte; <c>Description</c> is filled
+  /// from the catalog if known.
   /// </summary>
   TOBDDtcInstance = record
     Code: string;
@@ -119,12 +119,12 @@ type
   end;
 
   /// <summary>
-  ///   Coding-block snapshot returned by <c>ReadCodingBlock</c>.
-  ///   Field name → typed value (Int64 for numeric/bit/enum; string
-  ///   for ASCII). Hand back to <c>WriteCodingBlock</c> after edits;
-  ///   the client repacks the modified payload bit-by-bit and writes
-  ///   it via Service 2E. Read-modify-write preserves bits not covered
-  ///   by the catalog block.
+  /// Coding-block snapshot returned by <c>ReadCodingBlock</c>.
+  /// Field name → typed value (Int64 for numeric/bit/enum; string
+  /// for ASCII). Hand back to <c>WriteCodingBlock</c> after edits;
+  /// the client repacks the modified payload bit-by-bit and writes
+  /// it via Service 2E. Read-modify-write preserves bits not covered
+  /// by the catalog block.
   /// </summary>
   TOBDCodingValues = class
   strict private
@@ -135,21 +135,21 @@ type
     constructor Create;
     destructor Destroy; override;
     procedure SetInt(const Name: string; Value: Int64);
-    function  GetInt(const Name: string): Int64;
+    function GetInt(const Name: string): Int64;
     procedure SetStr(const Name: string; const Value: string);
-    function  GetStr(const Name: string): string;
-    function  HasField(const Name: string): Boolean;
-    function  IntFields: TArray<TPair<string, Int64>>;
-    function  StrFields: TArray<TPair<string, string>>;
+    function GetStr(const Name: string): string;
+    function HasField(const Name: string): Boolean;
+    function IntFields: TArray<TPair<string, Int64>>;
+    function StrFields: TArray<TPair<string, string>>;
     /// <summary>
-    ///   The original payload as read from the ECU. Used by
-    ///   <c>WriteCodingBlock</c> to preserve uncovered bits.
+    /// The original payload as read from the ECU. Used by
+    /// <c>WriteCodingBlock</c> to preserve uncovered bits.
     /// </summary>
     property Raw: TBytes read FRaw write FRaw;
   end;
 
   /// <summary>
-  ///   Result of an actuator test or routine execution.
+  /// Result of an actuator test or routine execution.
   /// </summary>
   TOBDActuatorResult = record
     Status: Byte;
@@ -158,29 +158,27 @@ type
   end;
 
   /// <summary>
-  ///   Stream handle returned by <c>StreamLivePIDs</c>; call
-  ///   <c>Stop</c> to terminate the polling thread.
+  /// Stream handle returned by <c>StreamLivePIDs</c>; call
+  /// <c>Stop</c> to terminate the polling thread.
   /// </summary>
   IOBDStreamHandle = interface
     ['{B1C2D3E4-5F60-7890-1234-567890ABCDEF}']
     procedure Stop;
-    function  IsRunning: Boolean;
+    function IsRunning: Boolean;
   end;
 
   /// <summary>
-  ///   The high-level catalog-driven UDS client.
+  /// The high-level catalog-driven UDS client.
   /// </summary>
   IOBDUdsClient = interface
     ['{0A1B2C3D-4E5F-6789-ABCD-EF0123456789}']
     procedure OpenSession(const Catalog: TOBDOEMJSONCatalog;
-                          const Transport: IOBDDiagnosticTransport;
-                          ECUAddress: Word);
+      const Transport: IOBDDiagnosticTransport; ECUAddress: Word);
     procedure CloseSession;
-    function  IsOpen: Boolean;
+    function IsOpen: Boolean;
 
-    function  ReadDID(const NameOrHex: string): TOBDDecodedValue;
-    function  WriteAdaptation(const ChannelOrHex: string;
-                              Value: Int64): Boolean;
+    function ReadDID(const NameOrHex: string): TOBDDecodedValue;
+    function WriteAdaptation(const ChannelOrHex: string; Value: Int64): Boolean;
     /// <summary>Write a byte-valued adaptation using an exact payload.</summary>
     /// <param name="ChannelOrHex">Catalog channel name or hexadecimal DID.</param>
     /// <param name="Data">Nonempty byte payload.</param>
@@ -188,58 +186,54 @@ type
     /// <exception cref="EOBDUdsValidation">Wrong kind or empty data.</exception>
     function WriteAdaptationBytes(const ChannelOrHex: string;
       const Data: TBytes): Boolean;
-    function  ExecuteRoutine(const NameOrHex: string;
-                             const Args: TBytes;
-                             RoutineType: Byte = $01): TOBDActuatorResult;
+    function ExecuteRoutine(const NameOrHex: string; const Args: TBytes;
+      RoutineType: Byte = $01): TOBDActuatorResult;
 
-    function  ReadCodingBlock(const Name: string): TOBDCodingValues;
+    function ReadCodingBlock(const Name: string): TOBDCodingValues;
     procedure WriteCodingBlock(const Name: string;
-                               const Values: TOBDCodingValues);
+      const Values: TOBDCodingValues);
 
-    function  RunActuatorTest(const Name: string;
-                              AcknowledgeSafetyWarning: Boolean = False)
-                              : TOBDActuatorResult;
+    function RunActuatorTest(const Name: string;
+      AcknowledgeSafetyWarning: Boolean = False): TOBDActuatorResult;
 
-    function  ReadDtcs(StatusMask: Byte = $FF): TArray<TOBDDtcInstance>;
+    function ReadDtcs(StatusMask: Byte = $FF): TArray<TOBDDtcInstance>;
 
-    function  StreamLivePIDs(const Names: array of string;
-                             const OnSample: TOBDLiveSampleEvent;
-                             PollIntervalMs: Cardinal = 100)
-                             : IOBDStreamHandle;
+    function StreamLivePIDs(const Names: array of string;
+      const OnSample: TOBDLiveSampleEvent; PollIntervalMs: Cardinal = 100)
+      : IOBDStreamHandle;
   end;
 
-/// <summary>
-///   Construct a fresh UDS client. Call <c>OpenSession</c>
-///   before any other method.
-/// </summary>
+  /// <summary>
+  /// Construct a fresh UDS client. Call <c>OpenSession</c>
+  /// before any other method.
+  /// </summary>
 function CreateUdsClient: IOBDUdsClient;
 
 /// <summary>
-///   Decode a raw payload using a catalog DID's decoder spec.
-///   Exposed for unit tests; production callers go through
-///   <c>IOBDUdsClient.ReadDID</c>.
+/// Decode a raw payload using a catalog DID's decoder spec.
+/// Exposed for unit tests; production callers go through
+/// <c>IOBDUdsClient.ReadDID</c>.
 /// </summary>
-function DecodePayloadAs(const Catalog: TOBDOEMJSONCatalog;
-                        const DID: Word;
-                        const Payload: TBytes): TOBDDecodedValue;
+function DecodePayloadAs(const Catalog: TOBDOEMJSONCatalog; const DID: Word;
+  const Payload: TBytes): TOBDDecodedValue;
 
 implementation
 
 uses
-  {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF}, {$IFDEF FPC}Variants{$ELSE}System.Variants{$ENDIF}, {$IFDEF FPC}StrUtils{$ELSE}System.StrUtils{$ENDIF};
+{$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF}, {$IFDEF FPC}Variants{$ELSE}System.Variants{$ENDIF}, {$IFDEF FPC}StrUtils{$ELSE}System.StrUtils{$ENDIF};
 
-//==============================================================================
+// ==============================================================================
 // Helpers
-//==============================================================================
+// ==============================================================================
 
 /// <summary>
-///   Parse <c>"0xABCD"</c> or <c>"abcd"</c> or <c>"43981"</c>
-///   (decimal) into a Word. Raises on malformed input.
+/// Parse <c>"0xABCD"</c> or <c>"abcd"</c> or <c>"43981"</c>
+/// (decimal) into a Word. Raises on malformed input.
 /// </summary>
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // PARSE HEX OR DEC WORD
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function ParseHexOrDecWord(const S: string): Word;
 var
   Stripped: string;
@@ -249,7 +243,7 @@ begin
   if Stripped = '' then
     raise EOBDUdsValidation.Create('empty identifier');
   if (Length(Stripped) > 2) and (Stripped[1] = '0') and
-     ((Stripped[2] = 'x') or (Stripped[2] = 'X')) then
+    ((Stripped[2] = 'x') or (Stripped[2] = 'X')) then
     Big := StrToInt64('$' + Copy(Stripped, 3, MaxInt))
   else if not TryStrToInt64(Stripped, Big) then
     Big := StrToInt64('$' + Stripped);
@@ -259,20 +253,20 @@ begin
 end;
 
 /// <summary>
-///   Decode a 3-byte UDS DTC representation into the
-///   canonical 5-character "P/B/C/U" code per ISO 15031-5 / SAE
-///   J2012. Bits 15-14 of the first 16 bits select the system letter;
-///   the remaining 14 bits decode as 4 hex digits. The third byte is
-///   the failure-mode extension and is typically 0 for stored
-///   codes — it isn't part of the displayed code.
+/// Decode a 3-byte UDS DTC representation into the
+/// canonical 5-character "P/B/C/U" code per ISO 15031-5 / SAE
+/// J2012. Bits 15-14 of the first 16 bits select the system letter;
+/// the remaining 14 bits decode as 4 hex digits. The third byte is
+/// the failure-mode extension and is typically 0 for stored
+/// codes — it isn't part of the displayed code.
 /// </summary>
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // DECODE DTC CODE
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function DecodeDtcCode(const B0, B1, B2: Byte): string;
 const
-  Letters: array[0..3] of Char = ('P', 'C', 'B', 'U');
+  Letters: array [0 .. 3] of Char = ('P', 'C', 'B', 'U');
 var
   Letter: Char;
   Code14: Word;
@@ -283,17 +277,16 @@ begin
 end;
 
 /// <summary>
-///   Look up a DID by its <c>Name</c> (preferred) or hex
-///   identifier. Raises <c>EOBDUdsCatalogMiss</c> if neither resolves
-///   inside the supplied catalog.
+/// Look up a DID by its <c>Name</c> (preferred) or hex
+/// identifier. Raises <c>EOBDUdsCatalogMiss</c> if neither resolves
+/// inside the supplied catalog.
 /// </summary>
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // RESOLVE DID
-//------------------------------------------------------------------------------
-function ResolveDID(const Catalog: TOBDOEMJSONCatalog;
-                    const NameOrHex: string;
-                    out Entry: TOBDOEMDIDEntry): Word;
+// ------------------------------------------------------------------------------
+function ResolveDID(const Catalog: TOBDOEMJSONCatalog; const NameOrHex: string;
+  out Entry: TOBDOEMDIDEntry): Word;
 var
   I: Integer;
   Cur: TOBDOEMDIDEntry;
@@ -313,20 +306,19 @@ begin
   // Fall through to hex/decimal lookup.
   Result := ParseHexOrDecWord(Trimmed);
   if not Catalog.FindDID(Result, Entry) then
-    raise EOBDUdsCatalogMiss.CreateFmt(
-      'DID %s not present in catalog', [NameOrHex]);
+    raise EOBDUdsCatalogMiss.CreateFmt('DID %s not present in catalog',
+      [NameOrHex]);
 end;
 
 /// <summary>
-///   Look up an adaptation channel by name or hex.
+/// Look up an adaptation channel by name or hex.
 /// </summary>
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // RESOLVE ADAPTATION
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function ResolveAdaptation(const Catalog: TOBDOEMJSONCatalog;
-                           const NameOrHex: string;
-                           out Entry: TOBDAdaptationEntry): Word;
+  const NameOrHex: string; out Entry: TOBDAdaptationEntry): Word;
 var
   I: Integer;
   Cur: TOBDAdaptationEntry;
@@ -352,20 +344,19 @@ begin
       Exit;
     end;
   end;
-  raise EOBDUdsCatalogMiss.CreateFmt(
-    'Adaptation channel %s not in catalog', [NameOrHex]);
+  raise EOBDUdsCatalogMiss.CreateFmt('Adaptation channel %s not in catalog',
+    [NameOrHex]);
 end;
 
 /// <summary>
-///   Look up an actuator test by name or hex.
+/// Look up an actuator test by name or hex.
 /// </summary>
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // RESOLVE ACTUATOR
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function ResolveActuator(const Catalog: TOBDOEMJSONCatalog;
-                         const NameOrHex: string;
-                         out Entry: TOBDActuatorTestEntry): Word;
+  const NameOrHex: string; out Entry: TOBDActuatorTestEntry): Word;
 var
   I: Integer;
   Cur: TOBDActuatorTestEntry;
@@ -391,22 +382,21 @@ begin
       Exit;
     end;
   end;
-  raise EOBDUdsCatalogMiss.CreateFmt(
-    'Actuator test %s not in catalog', [NameOrHex]);
+  raise EOBDUdsCatalogMiss.CreateFmt('Actuator test %s not in catalog',
+    [NameOrHex]);
 end;
 
 /// <summary>
-///   Look up a coding block by name. (Coding blocks are
-///   always identified by name; the underlying DID can collide across
-///   blocks for very-different coding payloads.)
+/// Look up a coding block by name. (Coding blocks are
+/// always identified by name; the underlying DID can collide across
+/// blocks for very-different coding payloads.)
 /// </summary>
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // RESOLVE CODING BLOCK
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function ResolveCodingBlock(const Catalog: TOBDOEMJSONCatalog;
-                            const Name: string;
-                            out Entry: TOBDCodingBlockEntry): Boolean;
+  const Name: string; out Entry: TOBDCodingBlockEntry): Boolean;
 var
   I: Integer;
   Cur: TOBDCodingBlockEntry;
@@ -424,15 +414,14 @@ begin
 end;
 
 /// <summary>
-///   Look up a routine by name or hex.
+/// Look up a routine by name or hex.
 /// </summary>
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // RESOLVE ROUTINE
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function ResolveRoutine(const Catalog: TOBDOEMJSONCatalog;
-                        const NameOrHex: string;
-                        out Entry: TOBDOEMRoutineEntry): Word;
+  const NameOrHex: string; out Entry: TOBDOEMRoutineEntry): Word;
 var
   I: Integer;
   Cur: TOBDOEMRoutineEntry;
@@ -458,27 +447,27 @@ begin
       Exit;
     end;
   end;
-  raise EOBDUdsCatalogMiss.CreateFmt(
-    'Routine %s not in catalog', [NameOrHex]);
+  raise EOBDUdsCatalogMiss.CreateFmt('Routine %s not in catalog', [NameOrHex]);
 end;
 
-//==============================================================================
+// ==============================================================================
 // UDS request builders (kept here so the unit is self-contained — we
 // don't pull TUDSProtocol because we only need one-shot byte builders.)
-//==============================================================================
+// ==============================================================================
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // BUILD READ DATA BY IDENTIFIER
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function BuildReadDataByIdentifier(const DID: Word): TBytes;
 begin
   Result := [$22, Byte(DID shr 8), Byte(DID and $FF)];
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // BUILD WRITE DATA BY IDENTIFIER
-//------------------------------------------------------------------------------
-function BuildWriteDataByIdentifier(const DID: Word; const Data: TBytes): TBytes;
+// ------------------------------------------------------------------------------
+function BuildWriteDataByIdentifier(const DID: Word;
+  const Data: TBytes): TBytes;
 var
   I: Integer;
 begin
@@ -490,11 +479,11 @@ begin
     Result[3 + I] := Data[I];
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // BUILD ROUTINE CONTROL
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function BuildRoutineControl(const RoutineType: Byte; const RID: Word;
-                             const Args: TBytes): TBytes;
+  const Args: TBytes): TBytes;
 var
   I: Integer;
 begin
@@ -507,21 +496,21 @@ begin
     Result[4 + I] := Args[I];
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // BUILD READ DTC BY STATUS MASK
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function BuildReadDtcByStatusMask(const StatusMask: Byte): TBytes;
 begin
   Result := [$19, $02, StatusMask];
 end;
 
-//==============================================================================
+// ==============================================================================
 // Decoder dispatch (E.2)
-//==============================================================================
+// ==============================================================================
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // FORMAT NUMERIC
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function FormatNumeric(const Value: Double; const Unit_: string): string;
 begin
   if Frac(Value) = 0 then
@@ -532,44 +521,42 @@ begin
     Result := Result + ' ' + Unit_;
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // READ UINT16 BE
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function ReadUInt16BE(const B: TBytes; Offset: Integer): Word;
 begin
   Result := (Word(B[Offset]) shl 8) or B[Offset + 1];
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // READ INT16 BE
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function ReadInt16BE(const B: TBytes; Offset: Integer): SmallInt;
 begin
   Result := SmallInt((Word(B[Offset]) shl 8) or B[Offset + 1]);
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // READ UINT32 BE
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function ReadUInt32BE(const B: TBytes; Offset: Integer): Cardinal;
 begin
-  Result := (Cardinal(B[Offset]) shl 24) or
-            (Cardinal(B[Offset + 1]) shl 16) or
-            (Cardinal(B[Offset + 2]) shl 8) or
-            B[Offset + 3];
+  Result := (Cardinal(B[Offset]) shl 24) or (Cardinal(B[Offset + 1]) shl 16) or
+    (Cardinal(B[Offset + 2]) shl 8) or B[Offset + 3];
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // READ INT32 BE
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function ReadInt32BE(const B: TBytes; Offset: Integer): Integer;
 begin
   Result := Integer(ReadUInt32BE(B, Offset));
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // HEX DUMP
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function HexDump(const B: TBytes): string;
 var
   I: Integer;
@@ -577,17 +564,17 @@ begin
   Result := '';
   for I := 0 to High(B) do
   begin
-    if I > 0 then Result := Result + ' ';
+    if I > 0 then
+      Result := Result + ' ';
     Result := Result + IntToHex(B[I], 2);
   end;
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // DECODE PAYLOAD AS
-//------------------------------------------------------------------------------
-function DecodePayloadAs(const Catalog: TOBDOEMJSONCatalog;
-                        const DID: Word;
-                        const Payload: TBytes): TOBDDecodedValue;
+// ------------------------------------------------------------------------------
+function DecodePayloadAs(const Catalog: TOBDOEMJSONCatalog; const DID: Word;
+  const Payload: TBytes): TOBDDecodedValue;
 var
   Friendly: string;
   Entry: TOBDOEMDIDEntry;
@@ -595,7 +582,7 @@ var
   EnumKey: Cardinal;
   EnumLabel: string;
 begin
-  Result := Default(TOBDDecodedValue);
+  Result := Default (TOBDDecodedValue);
   Result.RawPayload := Payload;
 
   if not Catalog.FindDID(DID, Entry) then
@@ -620,7 +607,8 @@ begin
     ERD.OEM.Catalog.JSON.dkUInt8:
       begin
         Result.Kind := ERD.OEM.Types.dkUInt8;
-        if Length(Payload) < 1 then Exit;
+        if Length(Payload) < 1 then
+          Exit;
         Result.AsInteger := Payload[0];
         Result.AsFloat := (Result.AsInteger * Spec.Scale) + Spec.Offset;
         Result.Formatted := FormatNumeric(Result.AsFloat, Spec.Unit_);
@@ -628,7 +616,8 @@ begin
     ERD.OEM.Catalog.JSON.dkUInt16BE:
       begin
         Result.Kind := ERD.OEM.Types.dkUInt16BE;
-        if Length(Payload) < 2 then Exit;
+        if Length(Payload) < 2 then
+          Exit;
         Result.AsInteger := ReadUInt16BE(Payload, 0);
         Result.AsFloat := (Result.AsInteger * Spec.Scale) + Spec.Offset;
         Result.Formatted := FormatNumeric(Result.AsFloat, Spec.Unit_);
@@ -636,7 +625,8 @@ begin
     ERD.OEM.Catalog.JSON.dkUInt32BE:
       begin
         Result.Kind := ERD.OEM.Types.dkUInt32BE;
-        if Length(Payload) < 4 then Exit;
+        if Length(Payload) < 4 then
+          Exit;
         Result.AsInteger := ReadUInt32BE(Payload, 0);
         Result.AsFloat := (Result.AsInteger * Spec.Scale) + Spec.Offset;
         Result.Formatted := FormatNumeric(Result.AsFloat, Spec.Unit_);
@@ -644,7 +634,8 @@ begin
     ERD.OEM.Catalog.JSON.dkInt16BE:
       begin
         Result.Kind := ERD.OEM.Types.dkInt16BE;
-        if Length(Payload) < 2 then Exit;
+        if Length(Payload) < 2 then
+          Exit;
         Result.AsInteger := ReadInt16BE(Payload, 0);
         Result.AsFloat := (Result.AsInteger * Spec.Scale) + Spec.Offset;
         Result.Formatted := FormatNumeric(Result.AsFloat, Spec.Unit_);
@@ -652,7 +643,8 @@ begin
     ERD.OEM.Catalog.JSON.dkInt32BE:
       begin
         Result.Kind := ERD.OEM.Types.dkInt32BE;
-        if Length(Payload) < 4 then Exit;
+        if Length(Payload) < 4 then
+          Exit;
         Result.AsInteger := ReadInt32BE(Payload, 0);
         Result.AsFloat := (Result.AsInteger * Spec.Scale) + Spec.Offset;
         Result.Formatted := FormatNumeric(Result.AsFloat, Spec.Unit_);
@@ -681,8 +673,8 @@ begin
           Result.AsInteger := Payload[0];
         EnumKey := Cardinal(Result.AsInteger);
         Result.AsString := '';
-        if Assigned(Spec.EnumValues) and
-           Spec.EnumValues.TryGetValue(EnumKey, EnumLabel) then
+        if Assigned(Spec.EnumValues) and Spec.EnumValues.TryGetValue(EnumKey,
+          EnumLabel) then
           Result.AsString := EnumLabel;
         if Result.AsString = '' then
           Result.Formatted := Format('0x%s', [IntToHex(EnumKey, 2)])
@@ -708,9 +700,12 @@ begin
       begin
         Result.Kind := ERD.OEM.Types.dkSeconds;
         case Length(Payload) of
-          1: Result.AsInteger := Payload[0];
-          2: Result.AsInteger := ReadUInt16BE(Payload, 0);
-          4: Result.AsInteger := ReadUInt32BE(Payload, 0);
+          1:
+            Result.AsInteger := Payload[0];
+          2:
+            Result.AsInteger := ReadUInt16BE(Payload, 0);
+          4:
+            Result.AsInteger := ReadUInt32BE(Payload, 0);
         end;
         Result.AsFloat := Result.AsInteger;
         Result.Formatted := IntToStr(Result.AsInteger) + ' s';
@@ -731,13 +726,13 @@ begin
   end;
 end;
 
-//==============================================================================
+// ==============================================================================
 // TOBDCodingValues
-//==============================================================================
+// ==============================================================================
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // CREATE
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 constructor TOBDCodingValues.Create;
 begin
   inherited Create;
@@ -745,9 +740,9 @@ begin
   FStrs := TDictionary<string, string>.Create;
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // DESTROY
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 destructor TOBDCodingValues.Destroy;
 begin
   FInts.Free;
@@ -755,51 +750,51 @@ begin
   inherited;
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // SET INT
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 procedure TOBDCodingValues.SetInt(const Name: string; Value: Int64);
 begin
   FInts.AddOrSetValue(Name, Value);
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // GET INT
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function TOBDCodingValues.GetInt(const Name: string): Int64;
 begin
   if not FInts.TryGetValue(Name, Result) then
     raise EOBDUdsCodingError.CreateFmt('coding field not present: %s', [Name]);
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // SET STR
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 procedure TOBDCodingValues.SetStr(const Name: string; const Value: string);
 begin
   FStrs.AddOrSetValue(Name, Value);
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // GET STR
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function TOBDCodingValues.GetStr(const Name: string): string;
 begin
   if not FStrs.TryGetValue(Name, Result) then
     raise EOBDUdsCodingError.CreateFmt('coding field not present: %s', [Name]);
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // HAS FIELD
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function TOBDCodingValues.HasField(const Name: string): Boolean;
 begin
   Result := FInts.ContainsKey(Name) or FStrs.ContainsKey(Name);
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // INT FIELDS
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function TOBDCodingValues.IntFields: TArray<TPair<string, Int64>>;
 var
   I: Integer;
@@ -814,9 +809,9 @@ begin
   end;
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // STR FIELDS
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function TOBDCodingValues.StrFields: TArray<TPair<string, string>>;
 var
   I: Integer;
@@ -831,55 +826,63 @@ begin
   end;
 end;
 
-//==============================================================================
+// ==============================================================================
 // Coding-block bit-level pack / unpack (E.3)
-//==============================================================================
+// ==============================================================================
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // FIELD BIT WIDTH
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function FieldBitWidth(const Field: TOBDCodingFieldEntry): Integer;
 begin
   if Field.BitWidth > 0 then
     Exit(Field.BitWidth);
   case ParseCodingFieldKind(Field.KindStr) of
-    cfkBit:      Result := 1;
-    cfkUInt8, cfkInt8: Result := 8;
-    cfkUInt16BE: Result := 16;
-    cfkUInt32BE: Result := 32;
-    cfkInt16BE:  Result := 16;
-    cfkInt32BE:  Result := 32;
-    cfkEnum:     Result := 8;  // default
-    cfkBitmask:  Result := 8;
+    cfkBit:
+      Result := 1;
+    cfkUInt8, cfkInt8:
+      Result := 8;
+    cfkUInt16BE:
+      Result := 16;
+    cfkUInt32BE:
+      Result := 32;
+    cfkInt16BE:
+      Result := 16;
+    cfkInt32BE:
+      Result := 32;
+    cfkEnum:
+      Result := 8; // default
+    cfkBitmask:
+      Result := 8;
   else
     Result := 0;
   end;
 end;
 
 /// <summary>
-///   Read <c>BitWidth</c> bits starting at byte
-///   <c>ByteOffset</c>, bit <c>BitOffset</c> (LSB-first within the
-///   byte, big-endian across bytes for multi-byte fields).
+/// Read <c>BitWidth</c> bits starting at byte
+/// <c>ByteOffset</c>, bit <c>BitOffset</c> (LSB-first within the
+/// byte, big-endian across bytes for multi-byte fields).
 /// </summary>
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // UNPACK BITS
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function UnpackBits(const Payload: TBytes;
-                    ByteOffset, BitOffset, BitWidth: Integer): Int64;
+  ByteOffset, BitOffset, BitWidth: Integer): Int64;
 var
   AbsBit, EndBit, B: Int64;
   Bit: Boolean;
 begin
   Result := 0;
-  if (ByteOffset < 0) or (BitOffset < 0) or (BitOffset > 7) or
-    (BitWidth < 1) or (BitWidth > 64) then
+  if (ByteOffset < 0) or (BitOffset < 0) or (BitOffset > 7) or (BitWidth < 1) or
+    (BitWidth > 64) then
     raise EOBDUdsCodingError.Create('Invalid numeric coding field bounds');
   AbsBit := Int64(ByteOffset) * 8 + BitOffset;
   EndBit := AbsBit + BitWidth;
   if EndBit > Int64(Length(Payload)) * 8 then
-    raise EOBDUdsCodingError.CreateFmt(
-      'coding field exceeds payload (offset=%d.%d width=%d, payload=%d B)',
+    raise EOBDUdsCodingError.CreateFmt
+      ('coding field exceeds payload (offset=%d.%d width=%d, payload=%d B)',
       [ByteOffset, BitOffset, BitWidth, Length(Payload)]);
   for B := AbsBit to EndBit - 1 do
   begin
@@ -890,30 +893,29 @@ begin
 end;
 
 /// <summary>
-///   Pack <c>Value</c> into <c>BitWidth</c> bits starting at
-///   the given offset. Mutates <c>Payload</c> in place. Bits not
-///   covered by the field are preserved (read-modify-write
-///   safe).
+/// Pack <c>Value</c> into <c>BitWidth</c> bits starting at
+/// the given offset. Mutates <c>Payload</c> in place. Bits not
+/// covered by the field are preserved (read-modify-write
+/// safe).
 /// </summary>
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // PACK BITS
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 procedure PackBits(var Payload: TBytes;
-                   ByteOffset, BitOffset, BitWidth: Integer;
-                   Value: Int64);
+  ByteOffset, BitOffset, BitWidth: Integer; Value: Int64);
 var
   AbsBit, EndBit, B: Int64;
   Mask: Byte;
 begin
-  if (ByteOffset < 0) or (BitOffset < 0) or (BitOffset > 7) or
-    (BitWidth < 1) or (BitWidth > 64) then
+  if (ByteOffset < 0) or (BitOffset < 0) or (BitOffset > 7) or (BitWidth < 1) or
+    (BitWidth > 64) then
     raise EOBDUdsCodingError.Create('Invalid numeric coding field bounds');
   AbsBit := Int64(ByteOffset) * 8 + BitOffset;
   EndBit := AbsBit + BitWidth;
   if EndBit > Int64(Length(Payload)) * 8 then
-    raise EOBDUdsCodingError.CreateFmt(
-      'coding field exceeds payload (offset=%d.%d width=%d, payload=%d B)',
+    raise EOBDUdsCodingError.CreateFmt
+      ('coding field exceeds payload (offset=%d.%d width=%d, payload=%d B)',
       [ByteOffset, BitOffset, BitWidth, Length(Payload)]);
   for B := AbsBit to EndBit - 1 do
   begin
@@ -925,9 +927,9 @@ begin
   end;
 end;
 
-//==============================================================================
+// ==============================================================================
 // TStreamHandle / TStreamThread
-//==============================================================================
+// ==============================================================================
 
 type
   TUdsStreamThread = class;
@@ -939,7 +941,7 @@ type
     constructor Create(Thread: TUdsStreamThread);
     destructor Destroy; override;
     procedure Stop;
-    function  IsRunning: Boolean;
+    function IsRunning: Boolean;
   end;
 
   TUdsStreamThread = class(TThread)
@@ -953,20 +955,16 @@ type
     procedure Execute; override;
   public
     constructor Create(const ATransport: IOBDDiagnosticTransport;
-                       const ACatalog: TOBDOEMJSONCatalog;
-                       const APids: TArray<TOBDLivePIDEntry>;
-                       const AOnSample: TOBDLiveSampleEvent;
-                       AInterval: Cardinal);
+      const ACatalog: TOBDOEMJSONCatalog; const APids: TArray<TOBDLivePIDEntry>;
+      const AOnSample: TOBDLiveSampleEvent; AInterval: Cardinal);
   end;
 
-//------------------------------------------------------------------------------
-// CREATE
-//------------------------------------------------------------------------------
+  // ------------------------------------------------------------------------------
+  // CREATE
+  // ------------------------------------------------------------------------------
 constructor TUdsStreamThread.Create(const ATransport: IOBDDiagnosticTransport;
-                                    const ACatalog: TOBDOEMJSONCatalog;
-                                    const APids: TArray<TOBDLivePIDEntry>;
-                                    const AOnSample: TOBDLiveSampleEvent;
-                                    AInterval: Cardinal);
+  const ACatalog: TOBDOEMJSONCatalog; const APids: TArray<TOBDLivePIDEntry>;
+  const AOnSample: TOBDLiveSampleEvent; AInterval: Cardinal);
 begin
   inherited Create(True);
   FreeOnTerminate := False;
@@ -977,9 +975,9 @@ begin
   FInterval := AInterval;
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // EXECUTE
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 procedure TUdsStreamThread.Execute;
 var
   PID: TOBDLivePIDEntry;
@@ -994,7 +992,8 @@ begin
   begin
     for PID in FPids do
     begin
-      if Terminated then Break;
+      if Terminated then
+        Break;
       try
         // Service 22 read of the PID (we treat PID as a 16-bit DID).
         Req := BuildReadDataByIdentifier(PID.PID);
@@ -1032,27 +1031,27 @@ begin
   end;
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // CREATE
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 constructor TStreamHandle.Create(Thread: TUdsStreamThread);
 begin
   inherited Create;
   FThread := Thread;
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // DESTROY
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 destructor TStreamHandle.Destroy;
 begin
   Stop;
   inherited;
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // STOP
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 procedure TStreamHandle.Stop;
 begin
   if Assigned(FThread) then
@@ -1063,17 +1062,17 @@ begin
   end;
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // IS RUNNING
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function TStreamHandle.IsRunning: Boolean;
 begin
   Result := Assigned(FThread) and not FThread.Finished;
 end;
 
-//==============================================================================
+// ==============================================================================
 // TOBDUdsClient
-//==============================================================================
+// ==============================================================================
 
 type
   TOBDUdsClient = class(TInterfacedObject, IOBDUdsClient)
@@ -1084,18 +1083,16 @@ type
     FECUAddress: Word;
     FLock: TCriticalSection;
     procedure EnsureOpen;
-    function  StripDIDEcho(const Resp: TBytes; DID: Word): TBytes;
+    function StripDIDEcho(const Resp: TBytes; DID: Word): TBytes;
   public
     constructor Create;
-    destructor  Destroy; override;
+    destructor Destroy; override;
     procedure OpenSession(const Catalog: TOBDOEMJSONCatalog;
-                          const Transport: IOBDDiagnosticTransport;
-                          ECUAddress: Word);
+      const Transport: IOBDDiagnosticTransport; ECUAddress: Word);
     procedure CloseSession;
-    function  IsOpen: Boolean;
-    function  ReadDID(const NameOrHex: string): TOBDDecodedValue;
-    function  WriteAdaptation(const ChannelOrHex: string;
-                              Value: Int64): Boolean;
+    function IsOpen: Boolean;
+    function ReadDID(const NameOrHex: string): TOBDDecodedValue;
+    function WriteAdaptation(const ChannelOrHex: string; Value: Int64): Boolean;
     /// <summary>Write a byte-valued adaptation using an exact payload.</summary>
     /// <param name="ChannelOrHex">Catalog channel name or hexadecimal DID.</param>
     /// <param name="Data">Nonempty byte payload.</param>
@@ -1103,34 +1100,31 @@ type
     /// <exception cref="EOBDUdsValidation">Wrong kind or empty data.</exception>
     function WriteAdaptationBytes(const ChannelOrHex: string;
       const Data: TBytes): Boolean;
-    function  ExecuteRoutine(const NameOrHex: string;
-                             const Args: TBytes;
-                             RoutineType: Byte = $01): TOBDActuatorResult;
-    function  ReadCodingBlock(const Name: string): TOBDCodingValues;
+    function ExecuteRoutine(const NameOrHex: string; const Args: TBytes;
+      RoutineType: Byte = $01): TOBDActuatorResult;
+    function ReadCodingBlock(const Name: string): TOBDCodingValues;
     procedure WriteCodingBlock(const Name: string;
-                               const Values: TOBDCodingValues);
-    function  RunActuatorTest(const Name: string;
-                              AcknowledgeSafetyWarning: Boolean = False)
-                              : TOBDActuatorResult;
-    function  ReadDtcs(StatusMask: Byte = $FF): TArray<TOBDDtcInstance>;
-    function  StreamLivePIDs(const Names: array of string;
-                             const OnSample: TOBDLiveSampleEvent;
-                             PollIntervalMs: Cardinal = 100)
-                             : IOBDStreamHandle;
+      const Values: TOBDCodingValues);
+    function RunActuatorTest(const Name: string;
+      AcknowledgeSafetyWarning: Boolean = False): TOBDActuatorResult;
+    function ReadDtcs(StatusMask: Byte = $FF): TArray<TOBDDtcInstance>;
+    function StreamLivePIDs(const Names: array of string;
+      const OnSample: TOBDLiveSampleEvent; PollIntervalMs: Cardinal = 100)
+      : IOBDStreamHandle;
   end;
 
-//------------------------------------------------------------------------------
-// CREATE
-//------------------------------------------------------------------------------
+  // ------------------------------------------------------------------------------
+  // CREATE
+  // ------------------------------------------------------------------------------
 constructor TOBDUdsClient.Create;
 begin
   inherited Create;
   FLock := TCriticalSection.Create;
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // DESTROY
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 destructor TOBDUdsClient.Destroy;
 begin
   CloseSession;
@@ -1138,17 +1132,17 @@ begin
   inherited;
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // OPEN SESSION
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 procedure TOBDUdsClient.OpenSession(const Catalog: TOBDOEMJSONCatalog;
-                                   const Transport: IOBDDiagnosticTransport;
-                                   ECUAddress: Word);
+  const Transport: IOBDDiagnosticTransport; ECUAddress: Word);
 begin
   FLock.Enter;
   try
     if FOpen then
-      raise EOBDUdsClientError.Create('session already open; CloseSession first');
+      raise EOBDUdsClientError.Create
+        ('session already open; CloseSession first');
     if Catalog = nil then
       raise EOBDUdsValidation.Create('catalog is nil');
     if Transport = nil then
@@ -1163,9 +1157,9 @@ begin
   end;
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // CLOSE SESSION
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 procedure TOBDUdsClient.CloseSession;
 begin
   FLock.Enter;
@@ -1178,48 +1172,47 @@ begin
   end;
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // IS OPEN
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function TOBDUdsClient.IsOpen: Boolean;
 begin
   Result := FOpen;
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // ENSURE OPEN
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 procedure TOBDUdsClient.EnsureOpen;
 begin
   if not FOpen then
     raise EOBDUdsNoSession.Create('OpenSession must be called first');
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // STRIP DIDECHO
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function TOBDUdsClient.StripDIDEcho(const Resp: TBytes; DID: Word): TBytes;
 var
   I: Integer;
 begin
   if Length(Resp) < 3 then
-    raise EOBDUdsTransportError.CreateFmt(
-      'response too short (got %d bytes)', [Length(Resp)]);
+    raise EOBDUdsTransportError.CreateFmt('response too short (got %d bytes)',
+      [Length(Resp)]);
   if Resp[0] <> $62 then
-    raise EOBDUdsTransportError.CreateFmt(
-      'expected positive RDBI response (0x62), got 0x%s',
+    raise EOBDUdsTransportError.CreateFmt
+      ('expected positive RDBI response (0x62), got 0x%s',
       [IntToHex(Resp[0], 2)]);
   if (Word(Resp[1]) shl 8 or Resp[2]) <> DID then
-    raise EOBDUdsTransportError.Create(
-      'DID echo mismatch in RDBI response');
+    raise EOBDUdsTransportError.Create('DID echo mismatch in RDBI response');
   SetLength(Result, Length(Resp) - 3);
   for I := 0 to High(Result) do
     Result[I] := Resp[3 + I];
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // READ DID
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function TOBDUdsClient.ReadDID(const NameOrHex: string): TOBDDecodedValue;
 var
   Entry: TOBDOEMDIDEntry;
@@ -1228,24 +1221,24 @@ var
 begin
   EnsureOpen;
   DID := ResolveDID(FCatalog, NameOrHex, Entry);
-  if (Entry.EcuAddress <> 0) and (Entry.EcuAddress <> FECUAddress) then
-    FTransport.SetTargetECU(Entry.EcuAddress);
+  if (Entry.ECUAddress <> 0) and (Entry.ECUAddress <> FECUAddress) then
+    FTransport.SetTargetECU(Entry.ECUAddress);
   try
     Req := BuildReadDataByIdentifier(DID);
     Resp := FTransport.SendReceive(Req, 1500);
     Payload := StripDIDEcho(Resp, DID);
     Result := DecodePayloadAs(FCatalog, DID, Payload);
   finally
-    if (Entry.EcuAddress <> 0) and (Entry.EcuAddress <> FECUAddress) then
+    if (Entry.ECUAddress <> 0) and (Entry.ECUAddress <> FECUAddress) then
       FTransport.SetTargetECU(FECUAddress);
   end;
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // WRITE ADAPTATION
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function TOBDUdsClient.WriteAdaptation(const ChannelOrHex: string;
-                                       Value: Int64): Boolean;
+  Value: Int64): Boolean;
 var
   Entry: TOBDAdaptationEntry;
   Channel: Word;
@@ -1261,43 +1254,54 @@ begin
   // pinned to a single legal value) still gets enforced — closing
   // the gap left by the previous "skip when both are zero" check.
   if (Value < Entry.MinValue) or (Value > Entry.MaxValue) then
-    raise EOBDUdsValidation.CreateFmt(
-      'adaptation %s = %d outside [%d..%d]',
+    raise EOBDUdsValidation.CreateFmt('adaptation %s = %d outside [%d..%d]',
       [Entry.Name, Value, Entry.MinValue, Entry.MaxValue]);
   // Validate physical width as well as catalog bounds; never truncate.
   try
     case Kind of
-      adkUInt8, adkEnum: Data := EncodeIntegerBE(Value, 1, False);
+      adkUInt8, adkEnum:
+        Data := EncodeIntegerBE(Value, 1, False);
       adkBool:
         begin
           if (Value <> 0) and (Value <> 1) then
-            raise EOBDUdsValidation.Create('Boolean adaptation requires 0 or 1');
+            raise EOBDUdsValidation.Create
+              ('Boolean adaptation requires 0 or 1');
           Data := EncodeIntegerBE(Value, 1, False);
         end;
-      adkInt8: Data := EncodeIntegerBE(Value, 1, True);
-      adkUInt16BE: Data := EncodeIntegerBE(Value, 2, False);
-      adkInt16BE: Data := EncodeIntegerBE(Value, 2, True);
-      adkUInt32BE: Data := EncodeIntegerBE(Value, 4, False);
-      adkInt32BE: Data := EncodeIntegerBE(Value, 4, True);
-      adkBytes: raise EOBDUdsValidation.Create('Use WriteAdaptationBytes for byte-valued channels');
+      adkInt8:
+        Data := EncodeIntegerBE(Value, 1, True);
+      adkUInt16BE:
+        Data := EncodeIntegerBE(Value, 2, False);
+      adkInt16BE:
+        Data := EncodeIntegerBE(Value, 2, True);
+      adkUInt32BE:
+        Data := EncodeIntegerBE(Value, 4, False);
+      adkInt32BE:
+        Data := EncodeIntegerBE(Value, 4, True);
+      adkBytes:
+        raise EOBDUdsValidation.Create
+          ('Use WriteAdaptationBytes for byte-valued channels');
     else
-      raise EOBDUdsValidation.CreateFmt('unknown adaptation kind for %s', [Entry.Name]);
+      raise EOBDUdsValidation.CreateFmt('unknown adaptation kind for %s',
+        [Entry.Name]);
     end;
   except
-    on E: EOBDConfig do raise EOBDUdsValidation.Create(E.Message);
+    on E: EOBDConfig do
+      raise EOBDUdsValidation.Create(E.Message);
   end;
 
-  if (Entry.EcuAddress <> 0) and (Entry.EcuAddress <> FECUAddress) then
-    FTransport.SetTargetECU(Entry.EcuAddress);
+  if (Entry.ECUAddress <> 0) and (Entry.ECUAddress <> FECUAddress) then
+    FTransport.SetTargetECU(Entry.ECUAddress);
   try
     Req := BuildWriteDataByIdentifier(Channel, Data);
     Resp := FTransport.SendReceive(Req, 1500);
-    if (Length(Resp) < 3) or (Resp[0] <> $6E) or
-      (Resp[1] <> Hi(Channel)) or (Resp[2] <> Lo(Channel)) then
-      raise EOBDUdsTransportError.Create('Adaptation write response SID/DID mismatch');
+    if (Length(Resp) < 3) or (Resp[0] <> $6E) or (Resp[1] <> Hi(Channel)) or
+      (Resp[2] <> Lo(Channel)) then
+      raise EOBDUdsTransportError.Create
+        ('Adaptation write response SID/DID mismatch');
     Result := True;
   finally
-    if (Entry.EcuAddress <> 0) and (Entry.EcuAddress <> FECUAddress) then
+    if (Entry.ECUAddress <> 0) and (Entry.ECUAddress <> FECUAddress) then
       FTransport.SetTargetECU(FECUAddress);
   end;
 end;
@@ -1315,37 +1319,37 @@ begin
     raise EOBDUdsValidation.Create('Channel is not a byte-valued adaptation');
   if Length(Data) = 0 then
     raise EOBDUdsValidation.Create('Byte-valued adaptation payload is empty');
-  if (Entry.EcuAddress <> 0) and (Entry.EcuAddress <> FECUAddress) then
-    FTransport.SetTargetECU(Entry.EcuAddress);
+  if (Entry.ECUAddress <> 0) and (Entry.ECUAddress <> FECUAddress) then
+    FTransport.SetTargetECU(Entry.ECUAddress);
   try
     Req := BuildWriteDataByIdentifier(Channel, Data);
     Resp := FTransport.SendReceive(Req, 1500);
-    if (Length(Resp) < 3) or (Resp[0] <> $6E) or
-      (Resp[1] <> Hi(Channel)) or (Resp[2] <> Lo(Channel)) then
-      raise EOBDUdsTransportError.Create('Adaptation write response SID/DID mismatch');
+    if (Length(Resp) < 3) or (Resp[0] <> $6E) or (Resp[1] <> Hi(Channel)) or
+      (Resp[2] <> Lo(Channel)) then
+      raise EOBDUdsTransportError.Create
+        ('Adaptation write response SID/DID mismatch');
     Result := True;
   finally
-    if (Entry.EcuAddress <> 0) and (Entry.EcuAddress <> FECUAddress) then
+    if (Entry.ECUAddress <> 0) and (Entry.ECUAddress <> FECUAddress) then
       FTransport.SetTargetECU(FECUAddress);
   end;
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // EXECUTE ROUTINE
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function TOBDUdsClient.ExecuteRoutine(const NameOrHex: string;
-                                      const Args: TBytes;
-                                      RoutineType: Byte = $01): TOBDActuatorResult;
+  const Args: TBytes; RoutineType: Byte = $01): TOBDActuatorResult;
 var
   Entry: TOBDOEMRoutineEntry;
   RID: Word;
   Req, Resp: TBytes;
 begin
   EnsureOpen;
-  Result := Default(TOBDActuatorResult);
+  Result := Default (TOBDActuatorResult);
   RID := ResolveRoutine(FCatalog, NameOrHex, Entry);
-  if (Entry.EcuAddress <> 0) and (Entry.EcuAddress <> FECUAddress) then
-    FTransport.SetTargetECU(Entry.EcuAddress);
+  if (Entry.ECUAddress <> 0) and (Entry.ECUAddress <> FECUAddress) then
+    FTransport.SetTargetECU(Entry.ECUAddress);
   try
     Req := BuildRoutineControl(RoutineType, RID, Args);
     Resp := FTransport.SendReceive(Req, 5000);
@@ -1361,14 +1365,14 @@ begin
       Result.Message := 'unexpected routine response: ' + HexDump(Resp);
     end;
   finally
-    if (Entry.EcuAddress <> 0) and (Entry.EcuAddress <> FECUAddress) then
+    if (Entry.ECUAddress <> 0) and (Entry.ECUAddress <> FECUAddress) then
       FTransport.SetTargetECU(FECUAddress);
   end;
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // READ CODING BLOCK
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function TOBDUdsClient.ReadCodingBlock(const Name: string): TOBDCodingValues;
 var
   S: string;
@@ -1382,68 +1386,71 @@ var
 begin
   EnsureOpen;
   if not ResolveCodingBlock(FCatalog, Name, Block) then
-    raise EOBDUdsCatalogMiss.CreateFmt(
-      'coding block %s not in catalog', [Name]);
-  if (Block.EcuAddress <> 0) and (Block.EcuAddress <> FECUAddress) then
-    FTransport.SetTargetECU(Block.EcuAddress);
+    raise EOBDUdsCatalogMiss.CreateFmt
+      ('coding block %s not in catalog', [Name]);
+  if (Block.ECUAddress <> 0) and (Block.ECUAddress <> FECUAddress) then
+    FTransport.SetTargetECU(Block.ECUAddress);
   try
     Req := BuildReadDataByIdentifier(Block.DataIdentifier);
     Resp := FTransport.SendReceive(Req, 1500);
     Payload := StripDIDEcho(Resp, Block.DataIdentifier);
     if (Block.PayloadSize > 0) and (Length(Payload) < Block.PayloadSize) then
-      raise EOBDUdsCodingError.CreateFmt(
-        'coding block %s expected %d bytes, got %d',
+      raise EOBDUdsCodingError.CreateFmt
+        ('coding block %s expected %d bytes, got %d',
         [Block.Name, Block.PayloadSize, Length(Payload)]);
     Result := TOBDCodingValues.Create;
     try
       Result.Raw := Payload;
-    for I := 0 to High(Block.Fields) do
-    begin
-      Field := Block.Fields[I];
-      Kind := ParseCodingFieldKind(Field.KindStr);
-      if Kind = cfkAscii then
+      for I := 0 to High(Block.Fields) do
       begin
-        S := '';
-        if (Field.BitWidth <= 0) or (Field.BitWidth mod 8 <> 0) or
-          (Field.ByteOffset < 0) or
-          (Int64(Field.ByteOffset) + Field.BitWidth div 8 > Length(Payload)) then
-          raise EOBDUdsCodingError.Create('ASCII coding field exceeds payload or has invalid width');
-        for J := 0 to Field.BitWidth div 8 - 1 do
-          if (Field.ByteOffset + J) < Length(Payload) then
-            S := S + Char(Payload[Field.ByteOffset + J]);
-        Result.SetStr(Field.Name, Trim(S));
-      end
-      else
-      begin
-        Width := FieldBitWidth(Field);
-        if (Kind in [cfkUInt16BE, cfkUInt32BE, cfkInt16BE, cfkInt32BE]) and
-          (Field.BitOffset = 0) and (Width mod 8 = 0) then
-          Value := DecodeIntegerBE(Payload, Field.ByteOffset, Width div 8,
-            Kind in [cfkInt16BE, cfkInt32BE])
+        Field := Block.Fields[I];
+        Kind := ParseCodingFieldKind(Field.KindStr);
+        if Kind = cfkAscii then
+        begin
+          S := '';
+          if (Field.BitWidth <= 0) or (Field.BitWidth mod 8 <> 0) or
+            (Field.ByteOffset < 0) or
+            (Int64(Field.ByteOffset) + Field.BitWidth div 8 > Length(Payload))
+          then
+            raise EOBDUdsCodingError.Create
+              ('ASCII coding field exceeds payload or has invalid width');
+          for J := 0 to Field.BitWidth div 8 - 1 do
+            if (Field.ByteOffset + J) < Length(Payload) then
+              S := S + Char(Payload[Field.ByteOffset + J]);
+          Result.SetStr(Field.Name, Trim(S));
+        end
         else
         begin
-          Value := UnpackBits(Payload, Field.ByteOffset, Field.BitOffset, Width);
-          if Kind in [cfkInt8, cfkInt16BE, cfkInt32BE] then
-            Value := SignExtendBits(UInt64(Value), Width);
+          Width := FieldBitWidth(Field);
+          if (Kind in [cfkUInt16BE, cfkUInt32BE, cfkInt16BE, cfkInt32BE]) and
+            (Field.BitOffset = 0) and (Width mod 8 = 0) then
+            Value := DecodeIntegerBE(Payload, Field.ByteOffset, Width div 8,
+              Kind in [cfkInt16BE, cfkInt32BE])
+          else
+          begin
+            Value := UnpackBits(Payload, Field.ByteOffset,
+              Field.BitOffset, Width);
+            if Kind in [cfkInt8, cfkInt16BE, cfkInt32BE] then
+              Value := SignExtendBits(UInt64(Value), Width);
+          end;
+          Result.SetInt(Field.Name, Value);
         end;
-        Result.SetInt(Field.Name, Value);
       end;
-    end;
     except
       Result.Free;
       raise;
     end;
   finally
-    if (Block.EcuAddress <> 0) and (Block.EcuAddress <> FECUAddress) then
+    if (Block.ECUAddress <> 0) and (Block.ECUAddress <> FECUAddress) then
       FTransport.SetTargetECU(FECUAddress);
   end;
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // WRITE CODING BLOCK
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 procedure TOBDUdsClient.WriteCodingBlock(const Name: string;
-                                        const Values: TOBDCodingValues);
+  const Values: TOBDCodingValues);
 var
   C: Char;
   V: Int64;
@@ -1457,8 +1464,8 @@ var
 begin
   EnsureOpen;
   if not ResolveCodingBlock(FCatalog, Name, Block) then
-    raise EOBDUdsCatalogMiss.CreateFmt(
-      'coding block %s not in catalog', [Name]);
+    raise EOBDUdsCatalogMiss.CreateFmt
+      ('coding block %s not in catalog', [Name]);
   // Start from the as-read raw payload to preserve uncovered bits.
   Payload := Copy(Values.Raw, 0, Length(Values.Raw));
   if Length(Payload) < Block.PayloadSize then
@@ -1468,18 +1475,22 @@ begin
   for I := 0 to High(Block.Fields) do
   begin
     Field := Block.Fields[I];
-    if not Values.HasField(Field.Name) then Continue;
+    if not Values.HasField(Field.Name) then
+      Continue;
     if ParseCodingFieldKind(Field.KindStr) = cfkAscii then
     begin
       S := Values.GetStr(Field.Name);
       if (Field.BitWidth <= 0) or (Field.BitWidth mod 8 <> 0) or
         (Field.ByteOffset < 0) or
         (Int64(Field.ByteOffset) + Field.BitWidth div 8 > Length(Payload)) then
-        raise EOBDUdsCodingError.Create('ASCII coding field exceeds payload or has invalid width');
+        raise EOBDUdsCodingError.Create
+          ('ASCII coding field exceeds payload or has invalid width');
       if Length(S) > Field.BitWidth div 8 then
-        raise EOBDUdsValidation.Create('ASCII coding value exceeds field width');
+        raise EOBDUdsValidation.Create
+          ('ASCII coding value exceeds field width');
       for C in S do
-        if Ord(C) > 127 then raise EOBDUdsValidation.Create('Non-ASCII coding character');
+        if Ord(C) > 127 then
+          raise EOBDUdsValidation.Create('Non-ASCII coding character');
       for J := 0 to Field.BitWidth div 8 - 1 do
       begin
         if (Field.ByteOffset + J) < Length(Payload) then
@@ -1501,57 +1512,64 @@ begin
       // no-ops while explicit min=max=0 (e.g. a fixed bit) is
       // still enforced.
       if (V < Field.MinValue) or (V > Field.MaxValue) then
-        raise EOBDUdsValidation.CreateFmt(
-          'coding field %s = %d outside [%d..%d]',
+        raise EOBDUdsValidation.CreateFmt
+          ('coding field %s = %d outside [%d..%d]',
           [Field.Name, V, Field.MinValue, Field.MaxValue]);
-      if (ParseCodingFieldKind(Field.KindStr) in
-        [cfkUInt16BE, cfkUInt32BE, cfkInt16BE, cfkInt32BE]) and
-        (Field.BitOffset = 0) and (Width mod 8 = 0) then
+      if (ParseCodingFieldKind(Field.KindStr) in [cfkUInt16BE, cfkUInt32BE,
+        cfkInt16BE, cfkInt32BE]) and (Field.BitOffset = 0) and (Width mod 8 = 0)
+      then
       begin
         Encoded := EncodeIntegerBE(V, Width div 8,
           ParseCodingFieldKind(Field.KindStr) in [cfkInt16BE, cfkInt32BE]);
-        if (Field.ByteOffset < 0) or (Int64(Field.ByteOffset) + Length(Encoded) > Length(Payload)) then
-          raise EOBDUdsCodingError.Create('Numeric coding field exceeds payload');
+        if (Field.ByteOffset < 0) or
+          (Int64(Field.ByteOffset) + Length(Encoded) > Length(Payload)) then
+          raise EOBDUdsCodingError.Create
+            ('Numeric coding field exceeds payload');
         Move(Encoded[0], Payload[Field.ByteOffset], Length(Encoded));
       end
       else
       begin
         if (Width < 1) or (Width > 64) then
-          raise EOBDUdsCodingError.Create('Numeric coding width must be 1..64 bits');
-        if ParseCodingFieldKind(Field.KindStr) in [cfkInt8, cfkInt16BE, cfkInt32BE] then
+          raise EOBDUdsCodingError.Create
+            ('Numeric coding width must be 1..64 bits');
+        if ParseCodingFieldKind(Field.KindStr)
+          in [cfkInt8, cfkInt16BE, cfkInt32BE] then
         begin
           if (Width < 64) and ((V < -(Int64(1) shl (Width - 1))) or
             (V >= (Int64(1) shl (Width - 1)))) then
-            raise EOBDUdsValidation.Create('Signed coding value exceeds physical width');
+            raise EOBDUdsValidation.Create
+              ('Signed coding value exceeds physical width');
         end
-        else if (V < 0) or ((Width < 64) and (UInt64(V) >= (UInt64(1) shl Width))) then
-          raise EOBDUdsValidation.Create('Unsigned coding value exceeds physical width');
+        else if (V < 0) or
+          ((Width < 64) and (UInt64(V) >= (UInt64(1) shl Width))) then
+          raise EOBDUdsValidation.Create
+            ('Unsigned coding value exceeds physical width');
         PackBits(Payload, Field.ByteOffset, Field.BitOffset, Width, V);
       end;
     end;
   end;
-  if (Block.EcuAddress <> 0) and (Block.EcuAddress <> FECUAddress) then
-    FTransport.SetTargetECU(Block.EcuAddress);
+  if (Block.ECUAddress <> 0) and (Block.ECUAddress <> FECUAddress) then
+    FTransport.SetTargetECU(Block.ECUAddress);
   try
     Req := BuildWriteDataByIdentifier(Block.DataIdentifier, Payload);
     Resp := FTransport.SendReceive(Req, 3000);
     if (Length(Resp) < 3) or (Resp[0] <> $6E) or
       (Resp[1] <> Byte(Block.DataIdentifier shr 8)) or
       (Resp[2] <> Byte(Block.DataIdentifier and $FF)) then
-      raise EOBDUdsTransportError.CreateFmt(
-        'WriteDataByIdentifier rejected for coding block %s: %s',
+      raise EOBDUdsTransportError.CreateFmt
+        ('WriteDataByIdentifier rejected for coding block %s: %s',
         [Block.Name, HexDump(Resp)]);
   finally
-    if (Block.EcuAddress <> 0) and (Block.EcuAddress <> FECUAddress) then
+    if (Block.ECUAddress <> 0) and (Block.ECUAddress <> FECUAddress) then
       FTransport.SetTargetECU(FECUAddress);
   end;
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // RUN ACTUATOR TEST
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function TOBDUdsClient.RunActuatorTest(const Name: string;
-                                       AcknowledgeSafetyWarning: Boolean): TOBDActuatorResult;
+  AcknowledgeSafetyWarning: Boolean): TOBDActuatorResult;
 var
   Entry: TOBDActuatorTestEntry;
   RID: Word;
@@ -1559,19 +1577,19 @@ var
   Timeout: Cardinal;
 begin
   EnsureOpen;
-  Result := Default(TOBDActuatorResult);
+  Result := Default (TOBDActuatorResult);
   RID := ResolveActuator(FCatalog, Name, Entry);
   if (Entry.SafetyWarning <> '') and not AcknowledgeSafetyWarning then
-    raise EOBDUdsActuatorSafety.CreateFmt(
-      'actuator %s requires safety acknowledgement: %s',
+    raise EOBDUdsActuatorSafety.CreateFmt
+      ('actuator %s requires safety acknowledgement: %s',
       [Entry.Name, Entry.SafetyWarning]);
   // Default timeout = duration_ms + 2 s safety margin (or 5 s if unset).
   if Entry.DurationMs > 0 then
     Timeout := Entry.DurationMs + 2000
   else
     Timeout := 5000;
-  if (Entry.EcuAddress <> 0) and (Entry.EcuAddress <> FECUAddress) then
-    FTransport.SetTargetECU(Entry.EcuAddress);
+  if (Entry.ECUAddress <> 0) and (Entry.ECUAddress <> FECUAddress) then
+    FTransport.SetTargetECU(Entry.ECUAddress);
   try
     // Most actuators are RoutineControl start (0x31 0x01 RID-hi RID-lo).
     Req := BuildRoutineControl($01, RID, []);
@@ -1588,14 +1606,14 @@ begin
       Result.Message := 'unexpected actuator response: ' + HexDump(Resp);
     end;
   finally
-    if (Entry.EcuAddress <> 0) and (Entry.EcuAddress <> FECUAddress) then
+    if (Entry.ECUAddress <> 0) and (Entry.ECUAddress <> FECUAddress) then
       FTransport.SetTargetECU(FECUAddress);
   end;
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // READ DTCS
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function TOBDUdsClient.ReadDtcs(StatusMask: Byte): TArray<TOBDDtcInstance>;
 var
   Req, Resp: TBytes;
@@ -1625,12 +1643,12 @@ begin
   end;
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // STREAM LIVE PIDS
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function TOBDUdsClient.StreamLivePIDs(const Names: array of string;
-                                     const OnSample: TOBDLiveSampleEvent;
-                                     PollIntervalMs: Cardinal): IOBDStreamHandle;
+  const OnSample: TOBDLiveSampleEvent; PollIntervalMs: Cardinal)
+  : IOBDStreamHandle;
 var
   Pids: TArray<TOBDLivePIDEntry>;
   I, J: Integer;
@@ -1654,20 +1672,20 @@ begin
       end;
     end;
     if not Match then
-      raise EOBDUdsCatalogMiss.CreateFmt(
-        'live PID %s not in catalog', [Names[I]]);
+      raise EOBDUdsCatalogMiss.CreateFmt('live PID %s not in catalog',
+        [Names[I]]);
   end;
   if Length(Pids) = 0 then
     raise EOBDUdsValidation.Create('no PIDs to stream');
-  Thread := TUdsStreamThread.Create(FTransport, FCatalog, Pids,
-                                     OnSample, PollIntervalMs);
+  Thread := TUdsStreamThread.Create(FTransport, FCatalog, Pids, OnSample,
+    PollIntervalMs);
   Thread.Start;
   Result := TStreamHandle.Create(Thread);
 end;
 
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 // CREATE UDS CLIENT
-//------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
 function CreateUdsClient: IOBDUdsClient;
 begin
   Result := TOBDUdsClient.Create;

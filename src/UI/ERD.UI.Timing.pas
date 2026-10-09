@@ -1,34 +1,34 @@
-//------------------------------------------------------------------------------
-//  ERD.UI.Timing
+﻿// ------------------------------------------------------------------------------
+// ERD.UI.Timing
 //
-//  Performance-timing visuals for hot-laps and drag runs:
+// Performance-timing visuals for hot-laps and drag runs:
 //
-//    TOBDDragTimer  captures a 0 → TargetSpeed run. State
-//                   machine drives Idle → Armed → Capturing →
-//                   Done; tracks last + best time, formats
-//                   the readout as M:SS.HH.
-//    TOBDLapTimer   continuous lap stopwatch with best-lap +
-//                   delta-from-PB memory.
-//    TOBDAccelGraph speed-vs-time plot built up sample-by-
-//                   sample during a drag run.
+// TOBDDragTimer  captures a 0 → TargetSpeed run. State
+// machine drives Idle → Armed → Capturing →
+// Done; tracks last + best time, formats
+// the readout as M:SS.HH.
+// TOBDLapTimer   continuous lap stopwatch with best-lap +
+// delta-from-PB memory.
+// TOBDAccelGraph speed-vs-time plot built up sample-by-
+// sample during a drag run.
 //
-//  All three are theme- / HiDPI- / VCL-Style-aware via
-//  TOBDCustomControl and route every state change through
-//  TBindings.Notify.
+// All three are theme- / HiDPI- / VCL-Style-aware via
+// TOBDCustomControl and route every state change through
+// TBindings.Notify.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.UI.Timing;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -38,11 +38,11 @@ uses
   Winapi.Windows,
   Winapi.GDIPAPI,
   Winapi.GDIPOBJ,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}StrUtils{$ELSE}System.StrUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}StrUtils{$ELSE}System.StrUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   System.Diagnostics,
-  {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
+{$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
   System.Bindings.Helper, Data.Bind.Components,
   Vcl.Controls,
   Vcl.Graphics,
@@ -64,14 +64,13 @@ type
     dsCapturing,
     /// <summary>Hit <c>TargetSpeed</c>; the elapsed time is the
     /// captured run.</summary>
-    dsDone
-  );
+    dsDone);
 
   /// <summary>Fires when a run completes (state transitions to
   /// <c>dsDone</c>) — useful for hosts that want to log /
   /// announce / chart the result.</summary>
-  TOBDDragCompleteEvent = procedure(Sender: TObject;
-    AElapsedMs: Cardinal; ABestMs: Cardinal) of object;
+  TOBDDragCompleteEvent = procedure(Sender: TObject; AElapsedMs: Cardinal;
+    ABestMs: Cardinal) of object;
 
   /// <summary>0 → target speed run capture. Set
   /// <see cref="TargetSpeed"/>, feed <see cref="Speed"/> on
@@ -81,18 +80,18 @@ type
   /// </summary>
   TOBDDragTimer = class(TOBDCustomControl)
   strict private
-    FState:        TOBDDragState;
-    FSpeed:        Double;
-    FTargetSpeed:  Double;
-    FStartSpeed:   Double;
-    FElapsedMs:    Cardinal;
-    FLastMs:       Cardinal;
-    FBestMs:       Cardinal;
-    FStopwatch:    TStopwatch;
-    FTickTimer:    TTimer;
-    FCaptionFont:  TFont;
-    FValueFont:    TFont;
-    FOnComplete:   TOBDDragCompleteEvent;
+    FState: TOBDDragState;
+    FSpeed: Double;
+    FTargetSpeed: Double;
+    FStartSpeed: Double;
+    FElapsedMs: Cardinal;
+    FLastMs: Cardinal;
+    FBestMs: Cardinal;
+    FStopwatch: TStopwatch;
+    FTickTimer: TTimer;
+    FCaptionFont: TFont;
+    FValueFont: TFont;
+    FOnComplete: TOBDDragCompleteEvent;
     procedure SetSpeed(AValue: Double);
     procedure SetTargetSpeed(AValue: Double);
     procedure SetStartSpeed(AValue: Double);
@@ -106,7 +105,7 @@ type
     procedure PaintControl(ACanvas: TCanvas); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
     /// <summary>Arms the timer for a new run. Clears the last
     /// elapsed time but keeps the best. The clock starts as
     /// soon as <c>Speed</c> exceeds <c>StartSpeed</c>.</summary>
@@ -120,12 +119,12 @@ type
     /// drag-time string: <c>"M:SS.HH"</c>.</summary>
     class function FormatTime(AMs: Cardinal): string; static;
     /// <summary>Current state machine position.</summary>
-    property State:     TOBDDragState read FState;
+    property State: TOBDDragState read FState;
     /// <summary>Last completed-run elapsed (ms). 0 when no run
     /// captured yet.</summary>
-    property LastMs:    Cardinal read FLastMs;
+    property LastMs: Cardinal read FLastMs;
     /// <summary>Best run-elapsed seen so far (ms).</summary>
-    property BestMs:    Cardinal read FBestMs;
+    property BestMs: Cardinal read FBestMs;
     /// <summary>Live elapsed during a capturing run (ms).</summary>
     property ElapsedMs: Cardinal read FElapsedMs;
   published
@@ -134,21 +133,18 @@ type
     property Speed: Double read FSpeed write SetSpeed;
     /// <summary>Speed the run captures to. Default 100
     /// (km/h). Hosts that want 0-60 mph set 60 here.</summary>
-    property TargetSpeed: Double
-      read FTargetSpeed write SetTargetSpeed;
+    property TargetSpeed: Double read FTargetSpeed write SetTargetSpeed;
     /// <summary>Speed threshold that starts the clock. Default
     /// 0.5 (km/h). Bumping this above zero filters out noisy
     /// near-stop readings.</summary>
-    property StartSpeed: Double
-      read FStartSpeed write SetStartSpeed;
+    property StartSpeed: Double read FStartSpeed write SetStartSpeed;
     /// <summary>Font for the big elapsed-time readout.</summary>
     property ValueFont: TFont read FValueFont write SetValueFont;
     /// <summary>Font for the caption + best-time line.</summary>
-    property CaptionFont: TFont
-      read FCaptionFont write SetCaptionFont;
+    property CaptionFont: TFont read FCaptionFont write SetCaptionFont;
     /// <summary>Fires when the run completes.</summary>
-    property OnComplete: TOBDDragCompleteEvent
-      read FOnComplete write FOnComplete;
+    property OnComplete: TOBDDragCompleteEvent read FOnComplete
+      write FOnComplete;
   end;
 
   /// <summary>Lap timer with running clock + best-lap + delta.
@@ -157,16 +153,16 @@ type
   /// best, computes a delta-from-PB.</summary>
   TOBDLapTimer = class(TOBDCustomControl)
   strict private
-    FStopwatch:    TStopwatch;
-    FRunning:      Boolean;
-    FLapCount:     Integer;
-    FCurrentMs:    Cardinal;
-    FLastMs:       Cardinal;
-    FBestMs:       Cardinal;
-    FDeltaMs:      Integer;
-    FTickTimer:    TTimer;
-    FValueFont:    TFont;
-    FCaptionFont:  TFont;
+    FStopwatch: TStopwatch;
+    FRunning: Boolean;
+    FLapCount: Integer;
+    FCurrentMs: Cardinal;
+    FLastMs: Cardinal;
+    FBestMs: Cardinal;
+    FDeltaMs: Integer;
+    FTickTimer: TTimer;
+    FValueFont: TFont;
+    FCaptionFont: TFont;
     procedure HandleTick(Sender: TObject);
     procedure HandleFontChange(Sender: TObject);
     procedure SetValueFont(AValue: TFont);
@@ -176,7 +172,7 @@ type
     procedure PaintControl(ACanvas: TCanvas); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
     /// <summary>Begins (or restarts) lap-time accumulation. Use
     /// at the start line and at every subsequent crossing
     /// (i.e. <c>EndLap</c> implicitly chains to a new lap if
@@ -190,27 +186,26 @@ type
     /// <summary>Clears every accumulated lap.</summary>
     procedure Reset;
     /// <summary>True while the live clock is running.</summary>
-    property Running:   Boolean  read FRunning;
+    property Running: Boolean read FRunning;
     /// <summary>Number of laps completed (incremented on
     /// <c>EndLap</c>).</summary>
-    property LapCount:  Integer  read FLapCount;
+    property LapCount: Integer read FLapCount;
     /// <summary>Running elapsed of the current lap (ms).
     /// </summary>
     property CurrentMs: Cardinal read FCurrentMs;
     /// <summary>Most recently completed lap (ms).</summary>
-    property LastMs:    Cardinal read FLastMs;
+    property LastMs: Cardinal read FLastMs;
     /// <summary>Best lap so far (ms). 0 when none captured.
     /// </summary>
-    property BestMs:    Cardinal read FBestMs;
+    property BestMs: Cardinal read FBestMs;
     /// <summary>Signed difference of <c>LastMs - BestMs</c>.
     /// Negative = faster than PB.</summary>
-    property DeltaMs:   Integer  read FDeltaMs;
+    property DeltaMs: Integer read FDeltaMs;
   published
     /// <summary>Big lap-time readout font.</summary>
     property ValueFont: TFont read FValueFont write SetValueFont;
     /// <summary>Caption + best / delta line font.</summary>
-    property CaptionFont: TFont
-      read FCaptionFont write SetCaptionFont;
+    property CaptionFont: TFont read FCaptionFont write SetCaptionFont;
   end;
 
   /// <summary>One sample on the accel graph.</summary>
@@ -218,7 +213,7 @@ type
     /// <summary>Milliseconds since the run started.</summary>
     TimeMs: Cardinal;
     /// <summary>Speed at that instant.</summary>
-    Speed:  Double;
+    Speed: Double;
   end;
 
   /// <summary>Speed-vs-time plot. Push one sample per PID
@@ -228,12 +223,12 @@ type
   /// until the next <c>Reset</c>.</summary>
   TOBDAccelGraph = class(TOBDCustomControl)
   strict private
-    FSamples:    TArray<TOBDAccelSample>;
-    FCount:      Integer;
-    FCapacity:   Integer;
-    FMaxTimeMs:  Cardinal;
-    FMaxSpeed:   Double;
-    FLineColor:  TColor;
+    FSamples: TArray<TOBDAccelSample>;
+    FCount: Integer;
+    FCapacity: Integer;
+    FMaxTimeMs: Cardinal;
+    FMaxSpeed: Double;
+    FLineColor: TColor;
     procedure SetCapacity(AValue: Integer);
     procedure SetMaxTimeMs(AValue: Cardinal);
     procedure SetMaxSpeed(AValue: Double);
@@ -252,19 +247,17 @@ type
     function SampleCount: Integer;
   published
     /// <summary>Ring-buffer capacity. Default 512.</summary>
-    property Capacity: Integer
-      read FCapacity write SetCapacity default 512;
+    property Capacity: Integer read FCapacity write SetCapacity default 512;
     /// <summary>X-axis upper bound (ms). Default 10000 ms
     /// (covers a typical 0-100 km/h capture).</summary>
-    property MaxTimeMs: Cardinal
-      read FMaxTimeMs write SetMaxTimeMs default 10000;
+    property MaxTimeMs: Cardinal read FMaxTimeMs write SetMaxTimeMs
+      default 10000;
     /// <summary>Y-axis upper bound. Default 200 (km/h).
     /// </summary>
-    property MaxSpeed: Double
-      read FMaxSpeed write SetMaxSpeed;
+    property MaxSpeed: Double read FMaxSpeed write SetMaxSpeed;
     /// <summary>Trace colour. Default theme accent.</summary>
-    property LineColor: TColor
-      read FLineColor write SetLineColor default clDefault;
+    property LineColor: TColor read FLineColor write SetLineColor
+      default clDefault;
   end;
 
 implementation
@@ -274,20 +267,20 @@ implementation
 constructor TOBDDragTimer.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 220;
+  Width := 220;
   Height := 100;
-  FState        := dsIdle;
-  FSpeed        := 0;
-  FTargetSpeed  := 100;     // 0-100 km/h is the default capture
-  FStartSpeed   := 0.5;
-  FElapsedMs    := 0;
-  FLastMs       := 0;
-  FBestMs       := 0;
-  FStopwatch    := TStopwatch.Create;
+  FState := dsIdle;
+  FSpeed := 0;
+  FTargetSpeed := 100; // 0-100 km/h is the default capture
+  FStartSpeed := 0.5;
+  FElapsedMs := 0;
+  FLastMs := 0;
+  FBestMs := 0;
+  FStopwatch := TStopwatch.Create;
   FTickTimer := TTimer.Create(Self);
-  FTickTimer.Enabled  := False;
+  FTickTimer.Enabled := False;
   FTickTimer.Interval := 33;
-  FTickTimer.OnTimer  := HandleTick;
+  FTickTimer.OnTimer := HandleTick;
   FValueFont := TFont.Create;
   FValueFont.Name := 'Segoe UI';
   FValueFont.Size := 26;
@@ -309,7 +302,8 @@ end;
 
 procedure TOBDDragTimer.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -333,7 +327,8 @@ end;
 
 procedure TOBDDragTimer.GoToState(ANewState: TOBDDragState);
 begin
-  if FState = ANewState then Exit;
+  if FState = ANewState then
+    Exit;
   FState := ANewState;
   case FState of
     dsIdle, dsArmed:
@@ -345,7 +340,7 @@ begin
       begin
         FStopwatch := TStopwatch.StartNew;
         FElapsedMs := 0;
-        FTickTimer.Enabled := not (csDesigning in ComponentState);
+        FTickTimer.Enabled := not(csDesigning in ComponentState);
       end;
     dsDone:
       begin
@@ -376,29 +371,35 @@ end;
 
 procedure TOBDDragTimer.SetSpeed(AValue: Double);
 begin
-  if SameValue(FSpeed, AValue) then Exit;
+  if SameValue(FSpeed, AValue) then
+    Exit;
   FSpeed := AValue;
   // State transitions are driven by the speed crossings, not
   // by direct host method calls — that keeps the timer
   // tight against the PID update cadence.
   case FState of
     dsArmed:
-      if FSpeed > FStartSpeed then GoToState(dsCapturing);
+      if FSpeed > FStartSpeed then
+        GoToState(dsCapturing);
     dsCapturing:
-      if FSpeed >= FTargetSpeed then GoToState(dsDone);
+      if FSpeed >= FTargetSpeed then
+        GoToState(dsDone);
   end;
   Repaint;
 end;
 
 procedure TOBDDragTimer.SetTargetSpeed(AValue: Double);
 begin
-  if SameValue(FTargetSpeed, AValue) then Exit;
-  FTargetSpeed := AValue; Repaint;
+  if SameValue(FTargetSpeed, AValue) then
+    Exit;
+  FTargetSpeed := AValue;
+  Repaint;
 end;
 
 procedure TOBDDragTimer.SetStartSpeed(AValue: Double);
 begin
-  if SameValue(FStartSpeed, AValue) then Exit;
+  if SameValue(FStartSpeed, AValue) then
+    Exit;
   FStartSpeed := AValue;
 end;
 
@@ -410,7 +411,7 @@ end;
 
 procedure TOBDDragTimer.Reset;
 begin
-  FLastMs   := 0;
+  FLastMs := 0;
   FElapsedMs := 0;
   GoToState(dsIdle);
 end;
@@ -445,10 +446,14 @@ begin
   ACanvas.Font := FCaptionFont;
   ACanvas.Font.Color := EffectiveForeground;
   case FState of
-    dsIdle:      StateText := Format('0-%g  -  ready', [FTargetSpeed]);
-    dsArmed:     StateText := Format('0-%g  -  armed', [FTargetSpeed]);
-    dsCapturing: StateText := Format('0-%g  -  capturing', [FTargetSpeed]);
-    dsDone:      StateText := Format('0-%g  -  done', [FTargetSpeed]);
+    dsIdle:
+      StateText := Format('0-%g  -  ready', [FTargetSpeed]);
+    dsArmed:
+      StateText := Format('0-%g  -  armed', [FTargetSpeed]);
+    dsCapturing:
+      StateText := Format('0-%g  -  capturing', [FTargetSpeed]);
+    dsDone:
+      StateText := Format('0-%g  -  done', [FTargetSpeed]);
   end;
   ACanvas.TextOut(ScaleValue(8), ScaleValue(4), StateText);
 
@@ -460,10 +465,8 @@ begin
   else
     BigText := FormatTime(FElapsedMs);
   ValueH := ACanvas.TextHeight('0');
-  ACanvas.TextOut(
-    (R.Width - ACanvas.TextWidth(BigText)) div 2,
-    ScaleValue(4) + ACanvas.TextHeight('Mg') + ScaleValue(2),
-    BigText);
+  ACanvas.TextOut((R.Width - ACanvas.TextWidth(BigText)) div 2,
+    ScaleValue(4) + ACanvas.TextHeight('Mg') + ScaleValue(2), BigText);
 
   // Best line.
   ACanvas.Font := FCaptionFont;
@@ -472,11 +475,9 @@ begin
     BestText := 'best: ' + FormatTime(FBestMs)
   else
     BestText := 'best: -';
-  ACanvas.TextOut(
-    (R.Width - ACanvas.TextWidth(BestText)) div 2,
-    ScaleValue(4) + ACanvas.TextHeight('Mg') + ScaleValue(2) +
-      ValueH + ScaleValue(2),
-    BestText);
+  ACanvas.TextOut((R.Width - ACanvas.TextWidth(BestText)) div 2,
+    ScaleValue(4) + ACanvas.TextHeight('Mg') + ScaleValue(2) + ValueH +
+    ScaleValue(2), BestText);
 end;
 
 { ---- TOBDLapTimer -------------------------------------------------------- }
@@ -484,15 +485,15 @@ end;
 constructor TOBDLapTimer.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 220;
+  Width := 220;
   Height := 110;
   FStopwatch := TStopwatch.Create;
   FRunning := False;
   FLapCount := 0;
   FTickTimer := TTimer.Create(Self);
-  FTickTimer.Enabled  := False;
+  FTickTimer.Enabled := False;
   FTickTimer.Interval := 33;
-  FTickTimer.OnTimer  := HandleTick;
+  FTickTimer.OnTimer := HandleTick;
   FValueFont := TFont.Create;
   FValueFont.Name := 'Segoe UI';
   FValueFont.Size := 24;
@@ -514,7 +515,8 @@ end;
 
 procedure TOBDLapTimer.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -547,20 +549,22 @@ end;
 
 procedure TOBDLapTimer.StartLap;
 begin
-  if FRunning then EndLap;
+  if FRunning then
+    EndLap;
   FStopwatch := TStopwatch.StartNew;
   FCurrentMs := 0;
-  FRunning   := True;
-  FTickTimer.Enabled := not (csDesigning in ComponentState);
+  FRunning := True;
+  FTickTimer.Enabled := not(csDesigning in ComponentState);
   NotifyBindings;
   Repaint;
 end;
 
 procedure TOBDLapTimer.EndLap;
 begin
-  if not FRunning then Exit;
+  if not FRunning then
+    Exit;
   FCurrentMs := Cardinal(FStopwatch.ElapsedMilliseconds);
-  FLastMs    := FCurrentMs;
+  FLastMs := FCurrentMs;
   Inc(FLapCount);
   if (FBestMs = 0) or (FLastMs < FBestMs) then
   begin
@@ -577,12 +581,12 @@ end;
 
 procedure TOBDLapTimer.Reset;
 begin
-  FRunning   := False;
-  FLapCount  := 0;
+  FRunning := False;
+  FLapCount := 0;
   FCurrentMs := 0;
-  FLastMs    := 0;
-  FBestMs    := 0;
-  FDeltaMs   := 0;
+  FLastMs := 0;
+  FBestMs := 0;
+  FDeltaMs := 0;
   FTickTimer.Enabled := False;
   NotifyBindings;
   Repaint;
@@ -601,21 +605,21 @@ begin
   // Caption row.
   ACanvas.Font := FCaptionFont;
   ACanvas.Font.Color := EffectiveForeground;
-  ACanvas.TextOut(ScaleValue(8), ScaleValue(4),
-    Format('lap #%d  -  %s', [FLapCount,
-      IfThen(FRunning, 'running', 'stopped')]));
+  ACanvas.TextOut(ScaleValue(8), ScaleValue(4), Format('lap #%d  -  %s',
+    [FLapCount, IfThen(FRunning, 'running', 'stopped')]));
 
   // Big readout — either the live current lap, or the last
   // completed lap if we're stopped.
-  if FRunning then ShownMs := FCurrentMs else ShownMs := FLastMs;
+  if FRunning then
+    ShownMs := FCurrentMs
+  else
+    ShownMs := FLastMs;
   ACanvas.Font := FValueFont;
   ACanvas.Font.Color := EffectiveAccent;
   Big := TOBDDragTimer.FormatTime(ShownMs);
   ValueH := ACanvas.TextHeight('0');
-  ACanvas.TextOut(
-    (R.Width - ACanvas.TextWidth(Big)) div 2,
-    ScaleValue(4) + ACanvas.TextHeight('Mg') + ScaleValue(2),
-    Big);
+  ACanvas.TextOut((R.Width - ACanvas.TextWidth(Big)) div 2,
+    ScaleValue(4) + ACanvas.TextHeight('Mg') + ScaleValue(2), Big);
 
   // best / delta row.
   ACanvas.Font := FCaptionFont;
@@ -628,31 +632,27 @@ begin
     if FDeltaMs = 0 then
       Cap2 := 'PB!'
     else if FDeltaMs < 0 then
-      Cap2 := Format('-%d.%2.2d',
-        [Abs(FDeltaMs) div 1000, (Abs(FDeltaMs) mod 1000) div 10])
+      Cap2 := Format('-%d.%2.2d', [Abs(FDeltaMs) div 1000,
+        (Abs(FDeltaMs) mod 1000) div 10])
     else
-      Cap2 := Format('+%d.%2.2d',
-        [FDeltaMs div 1000, (FDeltaMs mod 1000) div 10]);
+      Cap2 := Format('+%d.%2.2d', [FDeltaMs div 1000,
+        (FDeltaMs mod 1000) div 10]);
   end
   else
     Cap2 := '';
 
   ACanvas.Font.Color := EffectiveForeground;
-  ACanvas.TextOut(ScaleValue(8),
-    ScaleValue(4) + ACanvas.TextHeight('Mg') + ScaleValue(2) +
-      ValueH + ScaleValue(2),
-    Cap1);
+  ACanvas.TextOut(ScaleValue(8), ScaleValue(4) + ACanvas.TextHeight('Mg') +
+    ScaleValue(2) + ValueH + ScaleValue(2), Cap1);
   if Cap2 <> '' then
   begin
     if FDeltaMs <= 0 then
       ACanvas.Font.Color := Palette.Success
     else
       ACanvas.Font.Color := Palette.Danger;
-    ACanvas.TextOut(
-      R.Width - ACanvas.TextWidth(Cap2) - ScaleValue(8),
-      ScaleValue(4) + ACanvas.TextHeight('Mg') + ScaleValue(2) +
-        ValueH + ScaleValue(2),
-      Cap2);
+    ACanvas.TextOut(R.Width - ACanvas.TextWidth(Cap2) - ScaleValue(8),
+      ScaleValue(4) + ACanvas.TextHeight('Mg') + ScaleValue(2) + ValueH +
+      ScaleValue(2), Cap2);
   end;
 end;
 
@@ -661,18 +661,19 @@ end;
 constructor TOBDAccelGraph.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 260;
+  Width := 260;
   Height := 140;
-  FCapacity  := 512;
+  FCapacity := 512;
   FMaxTimeMs := 10000;
-  FMaxSpeed  := 200;
+  FMaxSpeed := 200;
   FLineColor := clDefault;
   SetLength(FSamples, FCapacity);
 end;
 
 procedure TOBDAccelGraph.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -681,9 +682,12 @@ end;
 
 procedure TOBDAccelGraph.SetCapacity(AValue: Integer);
 begin
-  if AValue < 32 then AValue := 32;
-  if AValue > 16384 then AValue := 16384;
-  if FCapacity = AValue then Exit;
+  if AValue < 32 then
+    AValue := 32;
+  if AValue > 16384 then
+    AValue := 16384;
+  if FCapacity = AValue then
+    Exit;
   FCapacity := AValue;
   SetLength(FSamples, FCapacity);
   FCount := 0;
@@ -692,22 +696,30 @@ end;
 
 procedure TOBDAccelGraph.SetMaxTimeMs(AValue: Cardinal);
 begin
-  if AValue < 100 then AValue := 100;
-  if FMaxTimeMs = AValue then Exit;
-  FMaxTimeMs := AValue; Repaint;
+  if AValue < 100 then
+    AValue := 100;
+  if FMaxTimeMs = AValue then
+    Exit;
+  FMaxTimeMs := AValue;
+  Repaint;
 end;
 
 procedure TOBDAccelGraph.SetMaxSpeed(AValue: Double);
 begin
-  if SameValue(FMaxSpeed, AValue) then Exit;
-  if AValue < 1 then AValue := 1;
-  FMaxSpeed := AValue; Repaint;
+  if SameValue(FMaxSpeed, AValue) then
+    Exit;
+  if AValue < 1 then
+    AValue := 1;
+  FMaxSpeed := AValue;
+  Repaint;
 end;
 
 procedure TOBDAccelGraph.SetLineColor(AValue: TColor);
 begin
-  if FLineColor = AValue then Exit;
-  FLineColor := AValue; Repaint;
+  if FLineColor = AValue then
+    Exit;
+  FLineColor := AValue;
+  Repaint;
 end;
 
 procedure TOBDAccelGraph.PushSample(ATimeMs: Cardinal; ASpeed: Double);
@@ -715,7 +727,7 @@ begin
   if FCount < FCapacity then
   begin
     FSamples[FCount].TimeMs := ATimeMs;
-    FSamples[FCount].Speed  := ASpeed;
+    FSamples[FCount].Speed := ASpeed;
     Inc(FCount);
   end
   else
@@ -723,10 +735,9 @@ begin
     // Ring overflow: shift left by one sample. Drag runs end
     // before the ring fills at sensible capacities, so this
     // path is the safety net rather than the common case.
-    Move(FSamples[1], FSamples[0],
-      (FCapacity - 1) * SizeOf(TOBDAccelSample));
+    Move(FSamples[1], FSamples[0], (FCapacity - 1) * SizeOf(TOBDAccelSample));
     FSamples[FCapacity - 1].TimeMs := ATimeMs;
-    FSamples[FCapacity - 1].Speed  := ASpeed;
+    FSamples[FCapacity - 1].Speed := ASpeed;
   end;
   NotifyBindings;
   Repaint;
@@ -754,10 +765,11 @@ var
   PlotW, PlotH: Integer;
   Col: TColor;
 begin
-  Pad   := ScaleValue(8);
-  PlotW := Width  - 2 * Pad;
+  Pad := ScaleValue(8);
+  PlotW := Width - 2 * Pad;
   PlotH := Height - 2 * Pad;
-  if (PlotW <= 0) or (PlotH <= 0) then Exit;
+  if (PlotW <= 0) or (PlotH <= 0) then
+    Exit;
 
   Graphics := TGPGraphics.Create(ACanvas.Handle);
   try
@@ -766,30 +778,31 @@ begin
     // Axes.
     Pen := TGPPen.Create(ColorToARGB(EffectiveBorder), ScaleValue(1));
     try
-      Graphics.DrawLine(Pen,
-        Single(Pad), Single(Pad),
-        Single(Pad), Single(Pad + PlotH));
-      Graphics.DrawLine(Pen,
-        Single(Pad), Single(Pad + PlotH),
+      Graphics.DrawLine(Pen, Single(Pad), Single(Pad), Single(Pad),
+        Single(Pad + PlotH));
+      Graphics.DrawLine(Pen, Single(Pad), Single(Pad + PlotH),
         Single(Pad + PlotW), Single(Pad + PlotH));
     finally
       Pen.Free;
     end;
 
-    if FCount < 2 then Exit;
+    if FCount < 2 then
+      Exit;
 
     SetLength(Points, FCount);
     for I := 0 to FCount - 1 do
     begin
-      Points[I].X := Pad +
-        (FSamples[I].TimeMs / FMaxTimeMs) * PlotW;
+      Points[I].X := Pad + (FSamples[I].TimeMs / FMaxTimeMs) * PlotW;
       Points[I].Y := Pad + PlotH -
         Single(FSamples[I].Speed / FMaxSpeed) * PlotH;
       // Clamp inside the plot — out-of-range samples just sit
       // on the edge rather than disappearing entirely.
-      if Points[I].X > Pad + PlotW then Points[I].X := Pad + PlotW;
-      if Points[I].Y < Pad then Points[I].Y := Pad;
-      if Points[I].Y > Pad + PlotH then Points[I].Y := Pad + PlotH;
+      if Points[I].X > Pad + PlotW then
+        Points[I].X := Pad + PlotW;
+      if Points[I].Y < Pad then
+        Points[I].Y := Pad;
+      if Points[I].Y > Pad + PlotH then
+        Points[I].Y := Pad + PlotH;
     end;
 
     Col := ResolveColor(FLineColor, EffectiveAccent);

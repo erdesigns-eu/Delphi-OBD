@@ -1,35 +1,35 @@
-//------------------------------------------------------------------------------
-//  ERD.UI.LivePanels
+﻿// ------------------------------------------------------------------------------
+// ERD.UI.LivePanels
 //
-//  Card-style live-data visuals:
+// Card-style live-data visuals:
 //
-//    TOBDPidPanel        single-PID card. Caption (top), big
-//                        numeric value + unit (centre), tiny
-//                        spark trace (right). Auto-binds to
-//                        TOBDLiveData + PID just like the
-//                        gauge family.
-//    TOBDFuelTrimDisplay four-bar fuel-trim widget. Shows
-//                        STFT / LTFT for bank 1 + bank 2 with
-//                        healthy (-10..+10), lean (>10), and
-//                        rich (&lt; -10) coloured zones.
+// TOBDPidPanel        single-PID card. Caption (top), big
+// numeric value + unit (centre), tiny
+// spark trace (right). Auto-binds to
+// TOBDLiveData + PID just like the
+// gauge family.
+// TOBDFuelTrimDisplay four-bar fuel-trim widget. Shows
+// STFT / LTFT for bank 1 + bank 2 with
+// healthy (-10..+10), lean (>10), and
+// rich (&lt; -10) coloured zones.
 //
-//  Theme- / HiDPI- / VCL-Style-aware via TOBDCustomControl.
-//  Every state mutation calls TBindings.Notify so a host that
-//  wired a LiveBinding refreshes automatically.
+// Theme- / HiDPI- / VCL-Style-aware via TOBDCustomControl.
+// Every state mutation calls TBindings.Notify so a host that
+// wired a LiveBinding refreshes automatically.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.UI.LivePanels;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -39,9 +39,9 @@ uses
   Winapi.Windows,
   Winapi.GDIPAPI,
   Winapi.GDIPOBJ,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
   System.Bindings.Helper, Data.Bind.Components,
   Vcl.Controls,
   Vcl.Graphics,
@@ -63,19 +63,19 @@ type
   /// binding properties unset.</summary>
   TOBDPidPanel = class(TOBDCustomControl)
   strict private
-    FCaption:       string;
-    FValue:         Double;
-    FUnit:          string;
-    FDecimals:      Byte;
-    FLiveData:      TOBDLiveData;
-    FPID:           Byte;
-    FShowSpark:     Boolean;
-    FSparkBuffer:   TArray<Double>;
-    FSparkCount:    Integer;
+    FCaption: string;
+    FValue: Double;
+    FUnit: string;
+    FDecimals: Byte;
+    FLiveData: TOBDLiveData;
+    FPID: Byte;
+    FShowSpark: Boolean;
+    FSparkBuffer: TArray<Double>;
+    FSparkCount: Integer;
     FSparkCapacity: Integer;
-    FSparkNext:     Integer;
-    FCaptionFont:   TFont;
-    FValueFont:     TFont;
+    FSparkNext: Integer;
+    FCaptionFont: TFont;
+    FValueFont: TFont;
     procedure SetCaption(const AValue: string);
     procedure SetValue(AValue: Double);
     procedure SetUnit(const AValue: string);
@@ -87,13 +87,12 @@ type
     procedure SetCaptionFont(AValue: TFont);
     procedure SetValueFont(AValue: TFont);
     procedure HandleFontChange(Sender: TObject);
-    procedure HandleLiveValue(Sender: TObject;
-      const AValue: TOBDPIDValue);
+    procedure HandleLiveValue(Sender: TObject; const AValue: TOBDPIDValue);
     procedure SubscribeToLiveData;
     procedure UnsubscribeFromLiveData;
     procedure PushSparkSample(AValue: Double);
     procedure NotifyBindings;
-    function  FormatValue: string;
+    function FormatValue: string;
   protected
     procedure Loaded; override;
     procedure Notification(AComponent: TComponent;
@@ -101,7 +100,7 @@ type
     procedure PaintControl(ACanvas: TCanvas); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
     /// <summary>Clears the sparkline trace.</summary>
     procedure ResetSpark;
   published
@@ -114,30 +113,25 @@ type
     property &Unit: string read FUnit write SetUnit;
     /// <summary>Decimal places on the displayed value.
     /// Default 0.</summary>
-    property Decimals: Byte read FDecimals write SetDecimals
-      default 0;
+    property Decimals: Byte read FDecimals write SetDecimals default 0;
     /// <summary>Source service. When set together with
     /// <see cref="PID"/> the panel subscribes itself.</summary>
-    property LiveData: TOBDLiveData
-      read FLiveData write SetLiveData;
+    property LiveData: TOBDLiveData read FLiveData write SetLiveData;
     /// <summary>PID the panel subscribes to on
     /// <see cref="LiveData"/>.</summary>
     property PID: Byte read FPID write SetPID;
     /// <summary>Show the inline spark on the right of the
     /// card. Default True.</summary>
-    property ShowSpark: Boolean
-      read FShowSpark write SetShowSpark default True;
+    property ShowSpark: Boolean read FShowSpark write SetShowSpark default True;
     /// <summary>Ring-buffer capacity for the spark.
     /// Default 32.</summary>
-    property SparkCapacity: Integer
-      read FSparkCapacity write SetSparkCapacity default 32;
+    property SparkCapacity: Integer read FSparkCapacity write SetSparkCapacity
+      default 32;
     /// <summary>Caption font. Falls through to component
     /// <c>Font</c> when not set.</summary>
-    property CaptionFont: TFont
-      read FCaptionFont write SetCaptionFont;
+    property CaptionFont: TFont read FCaptionFont write SetCaptionFont;
     /// <summary>Big numeric-value font.</summary>
-    property ValueFont: TFont
-      read FValueFont write SetValueFont;
+    property ValueFont: TFont read FValueFont write SetValueFont;
   end;
 
   /// <summary>Four-bar fuel-trim display covering bank 1 +
@@ -152,10 +146,10 @@ type
     FSTFT2: Double;
     FLTFT2: Double;
     FHealthyLimit: Double;
-    FRange:        Double;
-    FShowBank2:    Boolean;
-    FCaptionFont:  TFont;
-    FValueFont:    TFont;
+    FRange: Double;
+    FShowBank2: Boolean;
+    FCaptionFont: TFont;
+    FValueFont: TFont;
     procedure SetSTFT1(AValue: Double);
     procedure SetLTFT1(AValue: Double);
     procedure SetSTFT2(AValue: Double);
@@ -173,7 +167,7 @@ type
     procedure PaintControl(ACanvas: TCanvas); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
   published
     /// <summary>Short-term fuel trim, bank 1 (%). Range
     /// <c>-Range..+Range</c>; values outside clamp to edges.
@@ -189,23 +183,19 @@ type
     /// <summary>Magnitude of the healthy band. Trims with
     /// <c>Abs(Value) &lt;= HealthyLimit</c> paint green.
     /// Default 10 (%).</summary>
-    property HealthyLimit: Double
-      read FHealthyLimit write SetHealthyLimit;
+    property HealthyLimit: Double read FHealthyLimit write SetHealthyLimit;
     /// <summary>Magnitude of the visible scale. Trims clamp at
     /// <c>±Range</c>. Default 25 (%).</summary>
     property Range: Double read FRange write SetRange;
     /// <summary>Show the bank-2 row. Default True. Single-bank
     /// engines should set this False to halve the height.
     /// </summary>
-    property ShowBank2: Boolean
-      read FShowBank2 write SetShowBank2 default True;
+    property ShowBank2: Boolean read FShowBank2 write SetShowBank2 default True;
     /// <summary>Caption font (bank / direction labels).</summary>
-    property CaptionFont: TFont
-      read FCaptionFont write SetCaptionFont;
+    property CaptionFont: TFont read FCaptionFont write SetCaptionFont;
     /// <summary>Value font (numeric readout under each bar).
     /// </summary>
-    property ValueFont: TFont
-      read FValueFont write SetValueFont;
+    property ValueFont: TFont read FValueFont write SetValueFont;
   end;
 
 implementation
@@ -215,17 +205,17 @@ implementation
 constructor TOBDPidPanel.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 160;
+  Width := 160;
   Height := 60;
-  FCaption  := '';
-  FValue    := 0;
-  FUnit     := '';
+  FCaption := '';
+  FValue := 0;
+  FUnit := '';
   FDecimals := 0;
   FShowSpark := True;
   FSparkCapacity := 32;
   SetLength(FSparkBuffer, FSparkCapacity);
   FSparkCount := 0;
-  FSparkNext  := 0;
+  FSparkNext := 0;
   FCaptionFont := TFont.Create;
   FCaptionFont.Name := 'Segoe UI';
   FCaptionFont.Size := 9;
@@ -261,7 +251,8 @@ end;
 
 procedure TOBDPidPanel.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -275,13 +266,16 @@ end;
 
 procedure TOBDPidPanel.SetCaption(const AValue: string);
 begin
-  if FCaption = AValue then Exit;
-  FCaption := AValue; Repaint;
+  if FCaption = AValue then
+    Exit;
+  FCaption := AValue;
+  Repaint;
 end;
 
 procedure TOBDPidPanel.SetValue(AValue: Double);
 begin
-  if SameValue(FValue, AValue) then Exit;
+  if SameValue(FValue, AValue) then
+    Exit;
   FValue := AValue;
   PushSparkSample(AValue);
   NotifyBindings;
@@ -290,29 +284,37 @@ end;
 
 procedure TOBDPidPanel.SetUnit(const AValue: string);
 begin
-  if FUnit = AValue then Exit;
-  FUnit := AValue; Repaint;
+  if FUnit = AValue then
+    Exit;
+  FUnit := AValue;
+  Repaint;
 end;
 
 procedure TOBDPidPanel.SetDecimals(AValue: Byte);
 begin
-  if FDecimals = AValue then Exit;
-  FDecimals := AValue; Repaint;
+  if FDecimals = AValue then
+    Exit;
+  FDecimals := AValue;
+  Repaint;
 end;
 
 procedure TOBDPidPanel.SetLiveData(AValue: TOBDLiveData);
 begin
-  if FLiveData = AValue then Exit;
+  if FLiveData = AValue then
+    Exit;
   UnsubscribeFromLiveData;
-  if FLiveData <> nil then FLiveData.RemoveFreeNotification(Self);
+  if FLiveData <> nil then
+    FLiveData.RemoveFreeNotification(Self);
   FLiveData := AValue;
-  if FLiveData <> nil then FLiveData.FreeNotification(Self);
+  if FLiveData <> nil then
+    FLiveData.FreeNotification(Self);
   SubscribeToLiveData;
 end;
 
 procedure TOBDPidPanel.SetPID(AValue: Byte);
 begin
-  if FPID = AValue then Exit;
+  if FPID = AValue then
+    Exit;
   UnsubscribeFromLiveData;
   FPID := AValue;
   SubscribeToLiveData;
@@ -320,19 +322,24 @@ end;
 
 procedure TOBDPidPanel.SetShowSpark(AValue: Boolean);
 begin
-  if FShowSpark = AValue then Exit;
-  FShowSpark := AValue; Repaint;
+  if FShowSpark = AValue then
+    Exit;
+  FShowSpark := AValue;
+  Repaint;
 end;
 
 procedure TOBDPidPanel.SetSparkCapacity(AValue: Integer);
 begin
-  if AValue < 4 then AValue := 4;
-  if AValue > 1024 then AValue := 1024;
-  if FSparkCapacity = AValue then Exit;
+  if AValue < 4 then
+    AValue := 4;
+  if AValue > 1024 then
+    AValue := 1024;
+  if FSparkCapacity = AValue then
+    Exit;
   FSparkCapacity := AValue;
   SetLength(FSparkBuffer, FSparkCapacity);
   FSparkCount := 0;
-  FSparkNext  := 0;
+  FSparkNext := 0;
   Repaint;
 end;
 
@@ -348,7 +355,7 @@ end;
 
 procedure TOBDPidPanel.SubscribeToLiveData;
 begin
-  if (FLiveData <> nil) and not (csDesigning in ComponentState) then
+  if (FLiveData <> nil) and not(csDesigning in ComponentState) then
     FLiveData.Subscribe(FPID, HandleLiveValue);
 end;
 
@@ -371,28 +378,30 @@ end;
 
 procedure TOBDPidPanel.PushSparkSample(AValue: Double);
 begin
-  if FSparkCapacity <= 0 then Exit;
+  if FSparkCapacity <= 0 then
+    Exit;
   FSparkBuffer[FSparkNext] := AValue;
   FSparkNext := (FSparkNext + 1) mod FSparkCapacity;
-  if FSparkCount < FSparkCapacity then Inc(FSparkCount);
+  if FSparkCount < FSparkCapacity then
+    Inc(FSparkCount);
 end;
 
 procedure TOBDPidPanel.ResetSpark;
 begin
   FSparkCount := 0;
-  FSparkNext  := 0;
+  FSparkNext := 0;
   Repaint;
 end;
 
 function TOBDPidPanel.FormatValue: string;
-var FS: TFormatSettings;
+var
+  FS: TFormatSettings;
 begin
   FS := TFormatSettings.Create('en-US');
   if FDecimals = 0 then
     Result := FormatFloat('0', FValue, FS)
   else
-    Result := FormatFloat('0.' + StringOfChar('0', FDecimals),
-      FValue, FS);
+    Result := FormatFloat('0.' + StringOfChar('0', FDecimals), FValue, FS);
   if FUnit <> '' then
     Result := Result + ' ' + FUnit;
 end;
@@ -412,7 +421,7 @@ var
   SMin, SMax, Span, V: Double;
   PlotX, PlotY, PlotW, PlotH: Integer;
 begin
-  R   := ClientRect;
+  R := ClientRect;
   Pad := ScaleValue(8);
   if FShowSpark and (FSparkCount >= 2) then
     SparkW := System.Math.Min(R.Width div 3, ScaleValue(80))
@@ -438,13 +447,15 @@ begin
   // Spark (right edge).
   if (SparkW > 0) and (FSparkCount >= 2) then
   begin
-    PlotX := R.Width  - SparkW - Pad;
+    PlotX := R.Width - SparkW - Pad;
     PlotY := Pad + ScaleValue(2);
     PlotW := SparkW;
     PlotH := R.Height - PlotY - Pad;
 
-    if FSparkCount < FSparkCapacity then Start := 0
-    else                                  Start := FSparkNext;
+    if FSparkCount < FSparkCapacity then
+      Start := 0
+    else
+      Start := FSparkNext;
     // Find range.
     Idx := (Start) mod FSparkCapacity;
     SMin := FSparkBuffer[Idx];
@@ -453,8 +464,10 @@ begin
     begin
       Idx := (Start + I) mod FSparkCapacity;
       V := FSparkBuffer[Idx];
-      if V < SMin then SMin := V;
-      if V > SMax then SMax := V;
+      if V < SMin then
+        SMin := V;
+      if V > SMax then
+        SMax := V;
     end;
     if SameValue(SMin, SMax) then
     begin
@@ -468,13 +481,12 @@ begin
     begin
       Idx := (Start + I) mod FSparkCapacity;
       Points[I].X := PlotX + I / (FSparkCount - 1) * PlotW;
-      Points[I].Y := PlotY + PlotH -
-        Single((FSparkBuffer[Idx] - SMin) / Span) * PlotH;
+      Points[I].Y := PlotY + PlotH - Single((FSparkBuffer[Idx] - SMin) /
+        Span) * PlotH;
     end;
 
     Graphics := TGPGraphics.Create(ACanvas.Handle);
-    Pen := TGPPen.Create(ColorToARGB(EffectiveAccent),
-      ScaleValue(2));
+    Pen := TGPPen.Create(ColorToARGB(EffectiveAccent), ScaleValue(2));
     Pen.SetStartCap(LineCapRound);
     Pen.SetEndCap(LineCapRound);
     Pen.SetLineJoin(LineJoinRound);
@@ -493,7 +505,7 @@ end;
 constructor TOBDFuelTrimDisplay.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 320;
+  Width := 320;
   Height := 140;
   FSTFT1 := 0;
   FLTFT1 := 0;
@@ -522,7 +534,8 @@ end;
 
 procedure TOBDFuelTrimDisplay.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -536,46 +549,66 @@ end;
 
 procedure TOBDFuelTrimDisplay.SetSTFT1(AValue: Double);
 begin
-  if SameValue(FSTFT1, AValue) then Exit;
-  FSTFT1 := AValue; NotifyBindings; Repaint;
+  if SameValue(FSTFT1, AValue) then
+    Exit;
+  FSTFT1 := AValue;
+  NotifyBindings;
+  Repaint;
 end;
 
 procedure TOBDFuelTrimDisplay.SetLTFT1(AValue: Double);
 begin
-  if SameValue(FLTFT1, AValue) then Exit;
-  FLTFT1 := AValue; NotifyBindings; Repaint;
+  if SameValue(FLTFT1, AValue) then
+    Exit;
+  FLTFT1 := AValue;
+  NotifyBindings;
+  Repaint;
 end;
 
 procedure TOBDFuelTrimDisplay.SetSTFT2(AValue: Double);
 begin
-  if SameValue(FSTFT2, AValue) then Exit;
-  FSTFT2 := AValue; NotifyBindings; Repaint;
+  if SameValue(FSTFT2, AValue) then
+    Exit;
+  FSTFT2 := AValue;
+  NotifyBindings;
+  Repaint;
 end;
 
 procedure TOBDFuelTrimDisplay.SetLTFT2(AValue: Double);
 begin
-  if SameValue(FLTFT2, AValue) then Exit;
-  FLTFT2 := AValue; NotifyBindings; Repaint;
+  if SameValue(FLTFT2, AValue) then
+    Exit;
+  FLTFT2 := AValue;
+  NotifyBindings;
+  Repaint;
 end;
 
 procedure TOBDFuelTrimDisplay.SetHealthyLimit(AValue: Double);
 begin
-  if AValue < 0 then AValue := 0;
-  if SameValue(FHealthyLimit, AValue) then Exit;
-  FHealthyLimit := AValue; Repaint;
+  if AValue < 0 then
+    AValue := 0;
+  if SameValue(FHealthyLimit, AValue) then
+    Exit;
+  FHealthyLimit := AValue;
+  Repaint;
 end;
 
 procedure TOBDFuelTrimDisplay.SetRange(AValue: Double);
 begin
-  if AValue < 1 then AValue := 1;
-  if SameValue(FRange, AValue) then Exit;
-  FRange := AValue; Repaint;
+  if AValue < 1 then
+    AValue := 1;
+  if SameValue(FRange, AValue) then
+    Exit;
+  FRange := AValue;
+  Repaint;
 end;
 
 procedure TOBDFuelTrimDisplay.SetShowBank2(AValue: Boolean);
 begin
-  if FShowBank2 = AValue then Exit;
-  FShowBank2 := AValue; Repaint;
+  if FShowBank2 = AValue then
+    Exit;
+  FShowBank2 := AValue;
+  Repaint;
 end;
 
 procedure TOBDFuelTrimDisplay.SetCaptionFont(AValue: TFont);
@@ -588,12 +621,12 @@ begin
   FValueFont.Assign(AValue);
 end;
 
-procedure TOBDFuelTrimDisplay.PaintBar(ACanvas: TCanvas;
-  const ARect: TRect; const ALabel: string; AValue: Double);
+procedure TOBDFuelTrimDisplay.PaintBar(ACanvas: TCanvas; const ARect: TRect;
+  const ALabel: string; AValue: Double);
 var
   Graphics: TGPGraphics;
   Brush: TGPSolidBrush;
-  Pen:   TGPPen;
+  Pen: TGPPen;
   Track, Fill, Healthy, Lean, Rich: TGPRectF;
   CenterX: Single;
   Clamped, Norm: Double;
@@ -610,30 +643,31 @@ begin
   PadX := ScaleValue(4);
   ACanvas.Font := FCaptionFont;
   ACanvas.Font.Color := EffectiveForeground;
-  LabelW := System.Math.Max(ScaleValue(40),
-    ACanvas.TextWidth(ALabel) + ScaleValue(4));
+  LabelW := System.Math.Max(ScaleValue(40), ACanvas.TextWidth(ALabel) +
+    ScaleValue(4));
 
   TrackTop := ARect.Top + (ARect.Height - ScaleValue(14)) div 2;
-  TrackH   := ScaleValue(14);
+  TrackH := ScaleValue(14);
 
-  ACanvas.TextOut(
-    ARect.Left + PadX,
-    ARect.Top + (ARect.Height - ACanvas.TextHeight('M')) div 2,
-    ALabel);
+  ACanvas.TextOut(ARect.Left + PadX,
+    ARect.Top + (ARect.Height - ACanvas.TextHeight('M')) div 2, ALabel);
 
   Track.X := ARect.Left + LabelW + PadX;
   Track.Y := TrackTop;
-  Track.Width  := ARect.Right - Track.X - ScaleValue(60) - PadX;
+  Track.Width := ARect.Right - Track.X - ScaleValue(60) - PadX;
   Track.Height := TrackH;
-  if Track.Width < 1 then Exit;
+  if Track.Width < 1 then
+    Exit;
 
   CenterX := Track.X + Track.Width / 2;
 
   // Clamp to ±Range.
   Clamped := AValue;
-  if Clamped >  FRange then Clamped :=  FRange;
-  if Clamped < -FRange then Clamped := -FRange;
-  Norm := Clamped / FRange;       // -1..+1
+  if Clamped > FRange then
+    Clamped := FRange;
+  if Clamped < -FRange then
+    Clamped := -FRange;
+  Norm := Clamped / FRange; // -1..+1
 
   Graphics := TGPGraphics.Create(ACanvas.Handle);
   try
@@ -642,20 +676,17 @@ begin
     // Zone backgrounds (rich-left, healthy-middle, lean-right).
     Rich.X := Track.X;
     Rich.Y := Track.Y;
-    Rich.Width  := Track.Width / 2 *
-      (1.0 - FHealthyLimit / FRange);
+    Rich.Width := Track.Width / 2 * (1.0 - FHealthyLimit / FRange);
     Rich.Height := Track.Height;
 
     Healthy.X := Rich.X + Rich.Width;
     Healthy.Y := Track.Y;
-    Healthy.Width  := Track.Width *
-      (FHealthyLimit / FRange);
+    Healthy.Width := Track.Width * (FHealthyLimit / FRange);
     Healthy.Height := Track.Height;
 
     Lean.X := Healthy.X + Healthy.Width;
     Lean.Y := Track.Y;
-    Lean.Width  := Track.Width / 2 *
-      (1.0 - FHealthyLimit / FRange);
+    Lean.Width := Track.Width / 2 * (1.0 - FHealthyLimit / FRange);
     Lean.Height := Track.Height;
 
     Brush := TGPSolidBrush.Create(ColorToARGB(Palette.Danger, 64));
@@ -689,14 +720,14 @@ begin
     begin
       Fill.X := CenterX;
       Fill.Y := Track.Y;
-      Fill.Width  := Single(Norm) * Track.Width / 2;
+      Fill.Width := Single(Norm) * Track.Width / 2;
       Fill.Height := Track.Height;
     end
     else
     begin
       Fill.X := CenterX + Single(Norm) * Track.Width / 2;
       Fill.Y := Track.Y;
-      Fill.Width  := -Single(Norm) * Track.Width / 2;
+      Fill.Width := -Single(Norm) * Track.Width / 2;
       Fill.Height := Track.Height;
     end;
 
@@ -710,9 +741,8 @@ begin
     // Centre line.
     Pen := TGPPen.Create(ColorToARGB(EffectiveBorder), ScaleValue(1));
     try
-      Graphics.DrawLine(Pen,
-        CenterX, Track.Y - 1,
-        CenterX, Track.Y + Track.Height + 1);
+      Graphics.DrawLine(Pen, CenterX, Track.Y - 1, CenterX,
+        Track.Y + Track.Height + 1);
     finally
       Pen.Free;
     end;
@@ -733,10 +763,8 @@ begin
   ACanvas.Font.Color := EffectiveForeground;
   ValStr := FormatFloat('+0.0;-0.0;+0.0', AValue) + ' %';
   ValW := ACanvas.TextWidth(ValStr);
-  ACanvas.TextOut(
-    ARect.Right - ValW - PadX,
-    ARect.Top + (ARect.Height - ACanvas.TextHeight(ValStr)) div 2,
-    ValStr);
+  ACanvas.TextOut(ARect.Right - ValW - PadX,
+    ARect.Top + (ARect.Height - ACanvas.TextHeight(ValStr)) div 2, ValStr);
 end;
 
 procedure TOBDFuelTrimDisplay.PaintControl(ACanvas: TCanvas);
@@ -746,19 +774,25 @@ var
 begin
   R := ClientRect;
   ACanvas.Brush.Style := bsClear;
-  if FShowBank2 then RowCount := 4 else RowCount := 2;
+  if FShowBank2 then
+    RowCount := 4
+  else
+    RowCount := 2;
   RowH := R.Height div RowCount;
 
   Row := R;
   Row.Bottom := Row.Top + RowH;
   PaintBar(ACanvas, Row, 'STFT B1', FSTFT1);
-  Row.Top := Row.Bottom; Row.Bottom := Row.Top + RowH;
+  Row.Top := Row.Bottom;
+  Row.Bottom := Row.Top + RowH;
   PaintBar(ACanvas, Row, 'LTFT B1', FLTFT1);
   if FShowBank2 then
   begin
-    Row.Top := Row.Bottom; Row.Bottom := Row.Top + RowH;
+    Row.Top := Row.Bottom;
+    Row.Bottom := Row.Top + RowH;
     PaintBar(ACanvas, Row, 'STFT B2', FSTFT2);
-    Row.Top := Row.Bottom; Row.Bottom := Row.Top + RowH;
+    Row.Top := Row.Bottom;
+    Row.Bottom := Row.Top + RowH;
     PaintBar(ACanvas, Row, 'LTFT B2', FLTFT2);
   end;
 end;

@@ -1,61 +1,62 @@
-//------------------------------------------------------------------------------
-//  ERD.Adapter.Commands
+﻿// ------------------------------------------------------------------------------
+// ERD.Adapter.Commands
 //
-//  Unified AT + ST command catalogue and the single FormatCommand
-//  helper. Replaces the v1 dual ERD.Adapter.ATCommands /
-//  ERD.Adapter.STCommands modules — a single TOBDAdapterCommand record
-//  shape covers both, distinguished only by the Kind field.
+// Unified AT + ST command catalogue and the single FormatCommand
+// helper. Replaces the v1 dual ERD.Adapter.ATCommands /
+// ERD.Adapter.STCommands modules — a single TOBDAdapterCommand record
+// shape covers both, distinguished only by the Kind field.
 //
-//  This unit ships the most-used built-in commands. OEM packages and
-//  user code may register additional commands via
-//  TOBDAdapterCommandCatalog.Register.
+// This unit ships the most-used built-in commands. OEM packages and
+// user code may register additional commands via
+// TOBDAdapterCommandCatalog.Register.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - ELM327 datasheet rev 2.3 (Elm Electronics)
-//    - OBDLink ST command reference (ScanTool / OBDSolutions)
+// References  :
+// - ELM327 datasheet rev 2.3 (Elm Electronics)
+// - OBDLink ST command reference (ScanTool / OBDSolutions)
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation: ~30 built-in AT commands, ~12 ST
-//                     commands, FormatCommand with %s/%d/%x/%xx
-//                     placeholders + capability gating.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation: ~30 built-in AT commands, ~12 ST
+// commands, FormatCommand with %s/%d/%x/%xx
+// placeholders + capability gating.
+// ------------------------------------------------------------------------------
 
 unit ERD.Adapter.Commands;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.Types,
   ERD.Adapter.Types;
 
 type
   /// <summary>
-  ///   Process-wide command catalogue. Entries are keyed by upper-case
-  ///   verb (e.g. <c>'ATZ'</c>, <c>'STI'</c>).
+  /// Process-wide command catalogue. Entries are keyed by upper-case
+  /// verb (e.g. <c>'ATZ'</c>, <c>'STI'</c>).
   /// </summary>
   /// <remarks>
-  ///   Built-in commands are seeded in this unit's initialisation.
-  ///   OEM packages may register additional commands (vendor-specific
-  ///   AT or ST verbs) via <see cref="Register"/>.
+  /// Built-in commands are seeded in this unit's initialisation.
+  /// OEM packages may register additional commands (vendor-specific
+  /// AT or ST verbs) via <see cref="Register"/>.
   /// </remarks>
   TOBDAdapterCommandCatalog = class
   strict private
-    class var FInstance: TOBDAdapterCommandCatalog;
+  class var
+    FInstance: TOBDAdapterCommandCatalog;
     FByVerb: TDictionary<string, TOBDAdapterCommand>;
     procedure SeedBuiltins;
   public
@@ -87,24 +88,24 @@ type
     function Count: Integer;
   end;
 
-/// <summary>
-///   Substitutes parameters into a command template.
-/// </summary>
-/// <param name="ATemplate">Template with placeholders. Supported:
-/// <c>%s</c> (string), <c>%d</c> (decimal integer), <c>%x</c> (hex
-/// digit, lowercase), <c>%X</c> (hex digit, uppercase), <c>%xx</c> /
-/// <c>%XX</c> (two hex digits zero-padded), <c>%xxxx</c> /
-/// <c>%XXXX</c> (four hex digits).</param>
-/// <param name="AParams">Parameter values; substituted in order.</param>
-/// <returns>Formatted command string.</returns>
-/// <exception cref="EOBDConfig">Template has more placeholders than
-/// <c>AParams</c> provides, or an unknown placeholder is present.</exception>
+  /// <summary>
+  /// Substitutes parameters into a command template.
+  /// </summary>
+  /// <param name="ATemplate">Template with placeholders. Supported:
+  /// <c>%s</c> (string), <c>%d</c> (decimal integer), <c>%x</c> (hex
+  /// digit, lowercase), <c>%X</c> (hex digit, uppercase), <c>%xx</c> /
+  /// <c>%XX</c> (two hex digits zero-padded), <c>%xxxx</c> /
+  /// <c>%XXXX</c> (four hex digits).</param>
+  /// <param name="AParams">Parameter values; substituted in order.</param>
+  /// <returns>Formatted command string.</returns>
+  /// <exception cref="EOBDConfig">Template has more placeholders than
+  /// <c>AParams</c> provides, or an unknown placeholder is present.</exception>
 function FormatCommand(const ATemplate: string;
   const AParams: array of const): string;
 
 /// <summary>
-///   Validates that an adapter with the given capability set can
-///   execute a command.
+/// Validates that an adapter with the given capability set can
+/// execute a command.
 /// </summary>
 /// <param name="ACommand">Command from the catalogue.</param>
 /// <param name="ACapabilities">Adapter capability set.</param>
@@ -112,13 +113,12 @@ function FormatCommand(const ATemplate: string;
 /// of the missing capability.</param>
 /// <returns>True when the adapter has all required capabilities.</returns>
 function CommandSupportedBy(const ACommand: TOBDAdapterCommand;
-  const ACapabilities: TOBDAdapterCapabilities;
-  out AMissing: string): Boolean;
+  const ACapabilities: TOBDAdapterCapabilities; out AMissing: string): Boolean;
 
 implementation
 
 uses
-  {$IFDEF FPC}TypInfo{$ELSE}System.TypInfo{$ENDIF};
+{$IFDEF FPC}TypInfo{$ELSE}System.TypInfo{$ENDIF};
 
 { ---- helpers ----------------------------------------------------------------- }
 
@@ -163,13 +163,13 @@ begin
       Inc(I);
     end;
     if Token = '' then
-      raise EOBDConfig.CreateFmt(
-        'FormatCommand: unknown placeholder near "%%%s"',
+      raise EOBDConfig.CreateFmt
+        ('FormatCommand: unknown placeholder near "%%%s"',
         [Copy(ATemplate, I, 1)]);
 
     if ParamIdx > High(AParams) then
-      raise EOBDConfig.CreateFmt(
-        'FormatCommand: too few parameters for template "%s"', [ATemplate]);
+      raise EOBDConfig.CreateFmt
+        ('FormatCommand: too few parameters for template "%s"', [ATemplate]);
 
     case Token[1] of
       's':
@@ -194,7 +194,7 @@ begin
         end;
       'x', 'X':
         begin
-          Width := Length(Token);  // %x = 1 hex digit, %xx = 2, %xxxx = 4
+          Width := Length(Token); // %x = 1 hex digit, %xx = 2, %xxxx = 4
           Lower := Token[1] = 'x';
           if AParams[ParamIdx].VType = vtInteger then
             Result := Result + IntToHex(AParams[ParamIdx].VInteger, Width)
@@ -211,14 +211,13 @@ begin
 end;
 
 function CommandSupportedBy(const ACommand: TOBDAdapterCommand;
-  const ACapabilities: TOBDAdapterCapabilities;
-  out AMissing: string): Boolean;
+  const ACapabilities: TOBDAdapterCapabilities; out AMissing: string): Boolean;
 var
   Cap: TOBDAdapterCapability;
 begin
   AMissing := '';
   for Cap := Low(TOBDAdapterCapability) to High(TOBDAdapterCapability) do
-    if (Cap in ACommand.RequiredCapabilities) and not (Cap in ACapabilities) then
+    if (Cap in ACommand.RequiredCapabilities) and not(Cap in ACapabilities) then
     begin
       AMissing := CapabilityName(Cap);
       Exit(False);
@@ -253,8 +252,8 @@ begin
   FreeAndNil(FInstance);
 end;
 
-procedure TOBDAdapterCommandCatalog.Register(
-  const ACommand: TOBDAdapterCommand);
+procedure TOBDAdapterCommandCatalog.Register(const ACommand
+  : TOBDAdapterCommand);
 var
   Key: string;
 begin
@@ -298,67 +297,66 @@ procedure TOBDAdapterCommandCatalog.SeedBuiltins;
     C.RequiredCapabilities := ARequired + [acSTCommands];
     Register(C);
   end;
+
 begin
   // ---- AT commands -------------------------------------------------
-  AddAT('ATZ',         'Reset all (warm reset).');
-  AddAT('AT WS',       'Warm soft reset.');
-  AddAT('ATD',         'Restore defaults.');
-  AddAT('ATE0',        'Echo off.');
-  AddAT('ATE1',        'Echo on.');
-  AddAT('ATL0',        'Linefeeds off.');
-  AddAT('ATL1',        'Linefeeds on.');
-  AddAT('ATH0',        'Headers off.');
-  AddAT('ATH1',        'Headers on.');
-  AddAT('ATS0',        'Spaces off (compact responses).');
-  AddAT('ATS1',        'Spaces on.');
-  AddAT('ATAT0',       'Adaptive timing off.');
-  AddAT('ATAT1',       'Adaptive timing 1 (default).');
-  AddAT('ATAT2',       'Adaptive timing 2 (aggressive).');
-  AddAT('ATSP%d',      'Set protocol (0=auto).');
-  AddAT('ATTP%d',      'Try protocol n (does not save).');
-  AddAT('ATSP A%d',    'Set protocol with auto fallback.');
-  AddAT('ATDPN',       'Display current protocol number.');
-  AddAT('ATDP',        'Display current protocol.');
-  AddAT('ATSH %xxxxxx','Set CAN/header. Use %xxxx for 11-bit / %xxxxxx for 29-bit.',
+  AddAT('ATZ', 'Reset all (warm reset).');
+  AddAT('AT WS', 'Warm soft reset.');
+  AddAT('ATD', 'Restore defaults.');
+  AddAT('ATE0', 'Echo off.');
+  AddAT('ATE1', 'Echo on.');
+  AddAT('ATL0', 'Linefeeds off.');
+  AddAT('ATL1', 'Linefeeds on.');
+  AddAT('ATH0', 'Headers off.');
+  AddAT('ATH1', 'Headers on.');
+  AddAT('ATS0', 'Spaces off (compact responses).');
+  AddAT('ATS1', 'Spaces on.');
+  AddAT('ATAT0', 'Adaptive timing off.');
+  AddAT('ATAT1', 'Adaptive timing 1 (default).');
+  AddAT('ATAT2', 'Adaptive timing 2 (aggressive).');
+  AddAT('ATSP%d', 'Set protocol (0=auto).');
+  AddAT('ATTP%d', 'Try protocol n (does not save).');
+  AddAT('ATSP A%d', 'Set protocol with auto fallback.');
+  AddAT('ATDPN', 'Display current protocol number.');
+  AddAT('ATDP', 'Display current protocol.');
+  AddAT('ATSH %xxxxxx',
+    'Set CAN/header. Use %xxxx for 11-bit / %xxxxxx for 29-bit.',
     [acProgrammableHeaders]);
-  AddAT('ATCRA %xxxx', 'Set CAN receive-address filter.',
-    [acMessageFilters]);
-  AddAT('ATCAF0',      'CAN auto-formatting off.', [acCAN]);
-  AddAT('ATCAF1',      'CAN auto-formatting on.', [acCAN]);
-  AddAT('ATSTM',       'Set max wait time multiplier.');
-  AddAT('ATST %xx',    'Set timeout (×4 ms).');
-  AddAT('ATAR',        'Auto receive on (default).');
-  AddAT('ATAL',        'Allow long messages (>7 bytes).',
-    [acAdapterMultiFrame]);
-  AddAT('ATR0',        'Responses off.');
-  AddAT('ATR1',        'Responses on.');
-  AddAT('ATRV',        'Read battery voltage.', [acVoltageMonitor]);
-  AddAT('ATI',         'Identify chip (e.g. "ELM327 v1.5").');
-  AddAT('AT@1',        'Display device description.');
-  AddAT('AT@2',        'Display device identifier.');
+  AddAT('ATCRA %xxxx', 'Set CAN receive-address filter.', [acMessageFilters]);
+  AddAT('ATCAF0', 'CAN auto-formatting off.', [acCAN]);
+  AddAT('ATCAF1', 'CAN auto-formatting on.', [acCAN]);
+  AddAT('ATSTM', 'Set max wait time multiplier.');
+  AddAT('ATST %xx', 'Set timeout (×4 ms).');
+  AddAT('ATAR', 'Auto receive on (default).');
+  AddAT('ATAL', 'Allow long messages (>7 bytes).', [acAdapterMultiFrame]);
+  AddAT('ATR0', 'Responses off.');
+  AddAT('ATR1', 'Responses on.');
+  AddAT('ATRV', 'Read battery voltage.', [acVoltageMonitor]);
+  AddAT('ATI', 'Identify chip (e.g. "ELM327 v1.5").');
+  AddAT('AT@1', 'Display device description.');
+  AddAT('AT@2', 'Display device identifier.');
   AddAT('ATPP %xx OFF', 'Disable a programmable parameter.');
-  AddAT('ATPP %xx ON',  'Enable a programmable parameter.');
+  AddAT('ATPP %xx ON', 'Enable a programmable parameter.');
   AddAT('ATPP %xx SV %xx', 'Set programmable parameter value.');
-  AddAT('ATBRD %xx',   'Switch baud rate (advanced).');
-  AddAT('ATPC',        'Protocol close.');
-  AddAT('ATBI',        'Bypass init sequence.');
+  AddAT('ATBRD %xx', 'Switch baud rate (advanced).');
+  AddAT('ATPC', 'Protocol close.');
+  AddAT('ATBI', 'Bypass init sequence.');
 
   // ---- ST commands (OBDLink) ---------------------------------------
-  AddST('STI',         'Identify device (OBDLink-specific).');
-  AddST('STDI',        'Display device hardware info.');
-  AddST('STSN',        'Display device serial number.');
-  AddST('STMFR',       'Display manufacturer.');
-  AddST('STSR',        'Software reset.');
-  AddST('STBR%d',      'Set UART baud rate (host side).');
-  AddST('STSLU',       'Sleep / low-power mode.');
-  AddST('STP %d',      'Set protocol (extended ST set).');
-  AddST('STPRS',       'Display current ST protocol.');
-  AddST('STM',         'Monitor for messages until stopped.');
-  AddST('STFAC',       'Filter add (CAN ID).', [acMessageFilters]);
-  AddST('STFAP %xxxx,%xxxx', 'Filter add pass (id, mask).',
-    [acMessageFilters]);
-  AddST('STFCB',       'Filter clear.', [acMessageFilters]);
-  AddST('STCSEGT %d',  'Set segment time (ISO-TP timing).',
+  AddST('STI', 'Identify device (OBDLink-specific).');
+  AddST('STDI', 'Display device hardware info.');
+  AddST('STSN', 'Display device serial number.');
+  AddST('STMFR', 'Display manufacturer.');
+  AddST('STSR', 'Software reset.');
+  AddST('STBR%d', 'Set UART baud rate (host side).');
+  AddST('STSLU', 'Sleep / low-power mode.');
+  AddST('STP %d', 'Set protocol (extended ST set).');
+  AddST('STPRS', 'Display current ST protocol.');
+  AddST('STM', 'Monitor for messages until stopped.');
+  AddST('STFAC', 'Filter add (CAN ID).', [acMessageFilters]);
+  AddST('STFAP %xxxx,%xxxx', 'Filter add pass (id, mask).', [acMessageFilters]);
+  AddST('STFCB', 'Filter clear.', [acMessageFilters]);
+  AddST('STCSEGT %d', 'Set segment time (ISO-TP timing).',
     [acAdapterMultiFrame]);
   AddST('STCFCP %xx,%xx,%xx', 'Set flow-control parameters.',
     [acAdapterMultiFrame]);
@@ -367,6 +365,7 @@ end;
 initialization
 
 finalization
-  TOBDAdapterCommandCatalog.ReleaseDefault;
+
+TOBDAdapterCommandCatalog.ReleaseDefault;
 
 end.

@@ -1,69 +1,63 @@
-//------------------------------------------------------------------------------
-//  ERD.Recorder
+﻿// ------------------------------------------------------------------------------
+// ERD.Recorder
 //
-//  TOBDRecorder — captures every protocol-level frame + response
-//  + error to an append-only `.obdlog` file. Hosts use this both
-//  as a forensic / audit trail and as the input for
-//  <see cref="TOBDReplayer"/> (run a captured session against a
-//  stub protocol stack for offline analysis).
+// TOBDRecorder — captures every protocol-level frame + response
+// + error to an append-only `.obdlog` file. Hosts use this both
+// as a forensic / audit trail and as the input for
+// <see cref="TOBDReplayer"/> (run a captured session against a
+// stub protocol stack for offline analysis).
 //
-//  File format (one entry per line, JSONL):
+// File format (one entry per line, JSONL):
 //
-//    {"ts":"2026-05-09T12:34:56.789Z",
-//     "kind":"frame|response|nrc|error|info",
-//     "elapsed_ms":42,
-//     "service_id":"0x22",
-//     "raw":"BASE64",
-//     "id":"0x7E0",
-//     "extended":false,
-//     "nrc":"0x33",
-//     "nrc_text":"Security access denied",
-//     "message":"..."}
+// {"ts":"2026-05-09T12:34:56.789Z",
+// "kind":"frame|response|nrc|error|info",
+// "elapsed_ms":42,
+// "service_id":"0x22",
+// "raw":"BASE64",
+// "id":"0x7E0",
+// "extended":false,
+// "nrc":"0x33",
+// "nrc_text":"Security access denied",
+// "message":"..."}
 //
-//  Schema is intentionally close to the v1 .obdlog format so a
-//  host can post-process either generation with the same tools.
+// Schema is intentionally close to the v1 .obdlog format so a
+// host can post-process either generation with the same tools.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Recorder;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
-  {$IFDEF FPC}DateUtils{$ELSE}System.DateUtils{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}DateUtils{$ELSE}System.DateUtils{$ENDIF},
   System.JSON,
   System.NetEncoding,
-  {$IFDEF FPC}ZStream{$ELSE}System.ZLib{$ENDIF},
+{$IFDEF FPC}ZStream{$ELSE}System.ZLib{$ENDIF},
   ERD.Types,
   ERD.Protocol.Types,
   ERD.Protocol;
 
 type
   /// <summary>One recorder entry kind.</summary>
-  TOBDLogEntryKind = (
-    leInfo,
-    leFrame,
-    leResponse,
-    leNRC,
-    leError
-  );
+  TOBDLogEntryKind = (leInfo, leFrame, leResponse, leNRC, leError);
 
   /// <summary>One log entry pre-serialisation.</summary>
   TOBDLogEntry = record
@@ -93,19 +87,18 @@ type
   strict private
     FProtocol: TOBDProtocol;
     FFileStream: TFileStream;
-    FStream: TStream;             // = FFileStream OR a gzip wrapper
+    FStream: TStream; // = FFileStream OR a gzip wrapper
     FOwnsStream: Boolean;
     FFileName: string;
     FCompressed: Boolean;
     FLock: TCriticalSection;
     FActive: Boolean;
-    FListenerId: Integer;         // 0 = not subscribed
+    FListenerId: Integer; // 0 = not subscribed
     procedure SetProtocol(AValue: TOBDProtocol);
     procedure Subscribe;
     procedure Unsubscribe;
     procedure HandleFrame(Sender: TObject; const AFrame: TOBDFrame);
-    procedure HandleResponse(Sender: TObject;
-      const AResponse: TOBDResponse);
+    procedure HandleResponse(Sender: TObject; const AResponse: TOBDResponse);
     procedure HandleNRC(Sender: TObject; const ARequest: TOBDRequest;
       ANRC: Byte; const AText: string);
     procedure HandleError(Sender: TObject; ACode: TOBDErrorCode;
@@ -144,7 +137,7 @@ type
 implementation
 
 uses
-  {$IFDEF FPC}TypInfo{$ELSE}System.TypInfo{$ENDIF};
+{$IFDEF FPC}TypInfo{$ELSE}System.TypInfo{$ENDIF};
 
 constructor TOBDRecorder.Create(AOwner: TComponent);
 begin
@@ -161,11 +154,14 @@ end;
 
 procedure TOBDRecorder.SetProtocol(AValue: TOBDProtocol);
 begin
-  if FProtocol = AValue then Exit;
+  if FProtocol = AValue then
+    Exit;
   Unsubscribe;
-  if FProtocol <> nil then FProtocol.RemoveFreeNotification(Self);
+  if FProtocol <> nil then
+    FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
-  if FProtocol <> nil then FProtocol.FreeNotification(Self);
+  if FProtocol <> nil then
+    FProtocol.FreeNotification(Self);
   Subscribe;
 end;
 
@@ -184,21 +180,23 @@ procedure TOBDRecorder.Subscribe;
 var
   Listener: TOBDProtocolListener;
 begin
-  if (FProtocol = nil) or not FActive or (FListenerId <> 0) then Exit;
+  if (FProtocol = nil) or not FActive or (FListenerId <> 0) then
+    Exit;
   // Multi-cast registration via TOBDProtocol.AddListener. Co-
   // exists with any single-cast OnXxx handler the host has
   // wired, so attaching a recorder no longer clobbers the
   // host's plumbing.
-  Listener.OnFrame    := HandleFrame;
+  Listener.OnFrame := HandleFrame;
   Listener.OnResponse := HandleResponse;
-  Listener.OnNRC      := HandleNRC;
-  Listener.OnError    := HandleError;
+  Listener.OnNRC := HandleNRC;
+  Listener.OnError := HandleError;
   FListenerId := FProtocol.AddListener(Listener);
 end;
 
 procedure TOBDRecorder.Unsubscribe;
 begin
-  if (FProtocol = nil) or (FListenerId = 0) then Exit;
+  if (FProtocol = nil) or (FListenerId = 0) then
+    Exit;
   FProtocol.RemoveListener(FListenerId);
   FListenerId := 0;
 end;
@@ -211,11 +209,16 @@ end;
 function TOBDRecorder.KindToText(AKind: TOBDLogEntryKind): string;
 begin
   case AKind of
-    leInfo:     Result := 'info';
-    leFrame:    Result := 'frame';
-    leResponse: Result := 'response';
-    leNRC:      Result := 'nrc';
-    leError:    Result := 'error';
+    leInfo:
+      Result := 'info';
+    leFrame:
+      Result := 'frame';
+    leResponse:
+      Result := 'response';
+    leNRC:
+      Result := 'nrc';
+    leError:
+      Result := 'error';
   else
     Result := 'info';
   end;
@@ -225,7 +228,8 @@ procedure TOBDRecorder.WriteLine(const ALine: string);
 var
   Bytes, NL: TBytes;
 begin
-  if FStream = nil then Exit;
+  if FStream = nil then
+    Exit;
   Bytes := TEncoding.UTF8.GetBytes(ALine);
   NL := TEncoding.UTF8.GetBytes(#10);
   FStream.WriteBuffer(Bytes[0], Length(Bytes));
@@ -234,7 +238,8 @@ end;
 
 procedure TOBDRecorder.Open(const AFileName: string);
 const
-  GZIP_WINDOW_BITS = 15 + 16; // {$IFDEF FPC}ZStream{$ELSE}System.ZLib{$ENDIF} magic — gzip wrapper
+  GZIP_WINDOW_BITS = 15 + 16;
+  // {$IFDEF FPC}ZStream{$ELSE}System.ZLib{$ENDIF} magic — gzip wrapper
 begin
   FLock.Enter;
   try
@@ -261,8 +266,8 @@ begin
     else
     begin
       if FileExists(AFileName) then
-        FFileStream := TFileStream.Create(AFileName,
-          fmOpenReadWrite or fmShareDenyWrite)
+        FFileStream := TFileStream.Create(AFileName, fmOpenReadWrite or
+          fmShareDenyWrite)
       else
         FFileStream := TFileStream.Create(AFileName,
           fmCreate or fmShareDenyWrite);
@@ -284,7 +289,8 @@ begin
   try
     // Free the wrapper first (if any) so the gzip footer flushes
     // before we close the underlying file.
-    if FOwnsStream and (FStream <> nil) then FStream.Free;
+    if FOwnsStream and (FStream <> nil) then
+      FStream.Free;
     FStream := nil;
     if FFileStream <> nil then
     begin
@@ -307,7 +313,8 @@ var
 begin
   FLock.Enter;
   try
-    if FStream = nil then Exit;
+    if FStream = nil then
+      Exit;
     Obj := TJSONObject.Create;
     try
       Obj.AddPair('ts', FormatTimestamp(AEntry.Timestamp));
@@ -317,8 +324,7 @@ begin
       if AEntry.HasServiceID then
         Obj.AddPair('service_id', '0x' + IntToHex(AEntry.ServiceID, 2));
       if Length(AEntry.Raw) > 0 then
-        Obj.AddPair('raw',
-          TNetEncoding.Base64.EncodeBytesToString(AEntry.Raw));
+        Obj.AddPair('raw', TNetEncoding.Base64.EncodeBytesToString(AEntry.Raw));
       if AEntry.HasFrameID then
       begin
         Obj.AddPair('id', '0x' + IntToHex(AEntry.FrameID, 0));
@@ -342,12 +348,11 @@ begin
   end;
 end;
 
-procedure TOBDRecorder.HandleFrame(Sender: TObject;
-  const AFrame: TOBDFrame);
+procedure TOBDRecorder.HandleFrame(Sender: TObject; const AFrame: TOBDFrame);
 var
   Entry: TOBDLogEntry;
 begin
-  Entry := Default(TOBDLogEntry);
+  Entry := Default (TOBDLogEntry);
   Entry.Timestamp := AFrame.Timestamp;
   Entry.Kind := leFrame;
   Entry.Raw := AFrame.Payload;
@@ -362,7 +367,7 @@ procedure TOBDRecorder.HandleResponse(Sender: TObject;
 var
   Entry: TOBDLogEntry;
 begin
-  Entry := Default(TOBDLogEntry);
+  Entry := Default (TOBDLogEntry);
   Entry.Timestamp := Now;
   Entry.Kind := leResponse;
   Entry.ElapsedMs := AResponse.Elapsed;
@@ -372,12 +377,12 @@ begin
   Append(Entry);
 end;
 
-procedure TOBDRecorder.HandleNRC(Sender: TObject;
-  const ARequest: TOBDRequest; ANRC: Byte; const AText: string);
+procedure TOBDRecorder.HandleNRC(Sender: TObject; const ARequest: TOBDRequest;
+  ANRC: Byte; const AText: string);
 var
   Entry: TOBDLogEntry;
 begin
-  Entry := Default(TOBDLogEntry);
+  Entry := Default (TOBDLogEntry);
   Entry.Timestamp := Now;
   Entry.Kind := leNRC;
   Entry.ServiceID := ARequest.ServiceID;
@@ -388,16 +393,16 @@ begin
   Append(Entry);
 end;
 
-procedure TOBDRecorder.HandleError(Sender: TObject;
-  ACode: TOBDErrorCode; const AMessage: string);
+procedure TOBDRecorder.HandleError(Sender: TObject; ACode: TOBDErrorCode;
+  const AMessage: string);
 var
   Entry: TOBDLogEntry;
 begin
-  Entry := Default(TOBDLogEntry);
+  Entry := Default (TOBDLogEntry);
   Entry.Timestamp := Now;
   Entry.Kind := leError;
-  Entry.Message := Format('[%s] %s',
-    [GetEnumName(TypeInfo(TOBDErrorCode), Ord(ACode)), AMessage]);
+  Entry.Message := Format('[%s] %s', [GetEnumName(TypeInfo(TOBDErrorCode),
+    Ord(ACode)), AMessage]);
   Append(Entry);
 end;
 

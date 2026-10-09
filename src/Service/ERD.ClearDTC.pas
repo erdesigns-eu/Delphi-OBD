@@ -1,45 +1,45 @@
-//------------------------------------------------------------------------------
-//  ERD.ClearDTC
+﻿// ------------------------------------------------------------------------------
+// ERD.ClearDTC
 //
-//  TOBDClearDTC — non-visual component for OBD-II Mode 0x04
-//  ClearDiagnosticInformation and the UDS Service 0x14 equivalent.
-//  Independent of TOBDDTCs (which still ships a convenience Clear
-//  method) so a host can drop a single-purpose clear button on a
-//  form without instantiating the full DTC-reader surface.
+// TOBDClearDTC — non-visual component for OBD-II Mode 0x04
+// ClearDiagnosticInformation and the UDS Service 0x14 equivalent.
+// Independent of TOBDDTCs (which still ships a convenience Clear
+// method) so a host can drop a single-purpose clear button on a
+// form without instantiating the full DTC-reader surface.
 //
-//  Three paths are covered:
+// Three paths are covered:
 //
-//    Mode 0x04 (OBD-II)        : request 0x04 with no data.
-//    Service 0x14 (UDS)        : request 0x14 with a 3-byte DTC
-//                                group (0xFFFFFF = all groups,
-//                                ISO 14229-1 §11.5).
-//    Service 0x14 (KWP2000)    : request 0x14 with a 2-byte DTC
-//                                group word (ISO 14230-3 §6.6.3).
+// Mode 0x04 (OBD-II)        : request 0x04 with no data.
+// Service 0x14 (UDS)        : request 0x14 with a 3-byte DTC
+// group (0xFFFFFF = all groups,
+// ISO 14229-1 §11.5).
+// Service 0x14 (KWP2000)    : request 0x14 with a 2-byte DTC
+// group word (ISO 14230-3 §6.6.3).
 //
-//  AutoExecute = False default — Clear is destructive (drops the
-//  vehicle's stored DTC history) and is gated behind the standard
-//  Delphi-OBD confirmation contract.
+// AutoExecute = False default — Clear is destructive (drops the
+// vehicle's stored DTC history) and is gated behind the standard
+// Delphi-OBD confirmation contract.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - ISO 15031-5 § 7.6 (Service $04 ClearDiagnosticInformation)
-//    - ISO 14229-1:2020 § 11.5 (ClearDiagnosticInformation 0x14)
+// References  :
+// - ISO 15031-5 § 7.6 (Service $04 ClearDiagnosticInformation)
+// - ISO 14229-1:2020 § 11.5 (ClearDiagnosticInformation 0x14)
 //
-//  History     :
-//    2026-05-11  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-11  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.ClearDTC;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -47,9 +47,9 @@ interface
 uses
   ERD.Async.Task,
   ERD.Connection,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
   ERD.Types,
   ERD.Protocol.Types,
   ERD.Protocol;
@@ -75,28 +75,27 @@ type
     /// <summary>UDS Service 0x14 with a 3-byte group selector.</summary>
     cdUDS,
     /// <summary>KWP2000 Service 0x14 with a 2-byte group word.</summary>
-    cdKWP
-  );
+    cdKWP);
 
   /// <summary>
-  ///   Fires after a successful clear. Main thread.
+  /// Fires after a successful clear. Main thread.
   /// </summary>
   TOBDClearDTCEvent = procedure(Sender: TObject) of object;
 
   /// <summary>
-  ///   Mode 0x04 / UDS 0x14 ClearDiagnosticInformation component.
+  /// Mode 0x04 / UDS 0x14 ClearDiagnosticInformation component.
   /// </summary>
   /// <remarks>
-  ///   Drop the component on a form, assign <c>Protocol</c> to a
-  ///   connected <see cref="TOBDProtocol"/>, set
-  ///   <c>AutoExecute := True</c> once the host has explicitly
-  ///   consented, then call <see cref="Clear"/> (sync) or
-  ///   <see cref="ClearAsync"/> (non-blocking).
+  /// Drop the component on a form, assign <c>Protocol</c> to a
+  /// connected <see cref="TOBDProtocol"/>, set
+  /// <c>AutoExecute := True</c> once the host has explicitly
+  /// consented, then call <see cref="Clear"/> (sync) or
+  /// <see cref="ClearAsync"/> (non-blocking).
   ///
-  ///   <c>Dialect</c> picks the wire path. <c>cdOBDII</c> is the
-  ///   universal fallback for any vehicle. <c>cdUDS</c> targets
-  ///   the broader UDS service and accepts a 24-bit
-  ///   <c>UDSGroup</c> selector.
+  /// <c>Dialect</c> picks the wire path. <c>cdOBDII</c> is the
+  /// universal fallback for any vehicle. <c>cdUDS</c> targets
+  /// the broader UDS service and accepts a 24-bit
+  /// <c>UDSGroup</c> selector.
   /// </remarks>
   TOBDClearDTC = class(TComponent)
   strict private
@@ -126,33 +125,33 @@ type
     destructor Destroy; override;
 
     /// <summary>
-    ///   Clears DTCs synchronously.
+    /// Clears DTCs synchronously.
     /// </summary>
     /// <remarks>
-    ///   Blocks the caller until the ECU response arrives or the
-    ///   protocol times out. From GUI code prefer
-    ///   <see cref="ClearAsync"/>.
+    /// Blocks the caller until the ECU response arrives or the
+    /// protocol times out. From GUI code prefer
+    /// <see cref="ClearAsync"/>.
     /// </remarks>
     /// <exception cref="EOBDConfig">
-    ///   <c>Protocol</c> is not assigned, <c>AutoExecute</c> is
-    ///   <c>False</c>, or <c>Dialect</c> is out of range.
+    /// <c>Protocol</c> is not assigned, <c>AutoExecute</c> is
+    /// <c>False</c>, or <c>Dialect</c> is out of range.
     /// </exception>
     /// <exception cref="EOBDProtocolErr">
-    ///   ECU returned a negative response.
+    /// ECU returned a negative response.
     /// </exception>
     procedure Clear;
 
     /// <summary>
-    ///   Clears DTCs without blocking.
+    /// Clears DTCs without blocking.
     /// </summary>
     /// <remarks>
-    ///   Spawns a worker thread; reports completion via
-    ///   <c>OnCleared</c> or failure via <c>OnError</c> on the
-    ///   main thread. Only one <c>ClearAsync</c> may be in flight
-    ///   at a time.
+    /// Spawns a worker thread; reports completion via
+    /// <c>OnCleared</c> or failure via <c>OnError</c> on the
+    /// main thread. Only one <c>ClearAsync</c> may be in flight
+    /// at a time.
     /// </remarks>
     /// <exception cref="EOBDConfig">
-    ///   Another async clear is already in flight.
+    /// Another async clear is already in flight.
     /// </exception>
     procedure ClearAsync;
   published
@@ -160,26 +159,26 @@ type
     property Protocol: TOBDProtocol read FProtocol write SetProtocol;
 
     /// <summary>
-    ///   Safety gate. Default <c>False</c>.
+    /// Safety gate. Default <c>False</c>.
     /// </summary>
     /// <remarks>
-    ///   Every <c>Clear</c> raises <c>EOBDConfig</c> while this is
-    ///   <c>False</c>. The host flips it to <c>True</c> once the
-    ///   operator has explicitly consented to the clear.
+    /// Every <c>Clear</c> raises <c>EOBDConfig</c> while this is
+    /// <c>False</c>. The host flips it to <c>True</c> once the
+    /// operator has explicitly consented to the clear.
     /// </remarks>
     property AutoExecute: Boolean read FAutoExecute write FAutoExecute
       default False;
 
     /// <summary>
-    ///   Which clear-path dialect. Default <c>cdOBDII</c>.
+    /// Which clear-path dialect. Default <c>cdOBDII</c>.
     /// </summary>
     property Dialect: TOBDClearDTCDialect read FDialect write FDialect
       default cdOBDII;
 
     /// <summary>
-    ///   24-bit group selector for <c>cdUDS</c>. Default
-    ///   <c>0xFFFFFF</c> (all groups). Ignored when
-    ///   <c>Dialect = cdOBDII</c>.
+    /// 24-bit group selector for <c>cdUDS</c>. Default
+    /// <c>0xFFFFFF</c> (all groups). Ignored when
+    /// <c>Dialect = cdOBDII</c>.
     /// </summary>
     property UDSGroup: Cardinal read FUDSGroup write FUDSGroup
       default UDS_DTC_GROUP_ALL;
@@ -204,7 +203,8 @@ end;
 
 destructor TOBDClearDTC.Destroy;
 begin
-  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  if FOwnedTask <> nil then
+    FOwnedTask.Cancel;
   FreeAndNil(FOwnedTask);
   FAsyncLock.Free;
   inherited;
@@ -227,7 +227,8 @@ begin
   inherited;
   if (Operation = opRemove) and (AComponent = FProtocol) then
   begin
-    if FOwnedTask <> nil then FOwnedTask.Quiesce;
+    if FOwnedTask <> nil then
+      FOwnedTask.Quiesce;
     FProtocol := nil;
   end;
 end;
@@ -265,8 +266,8 @@ begin
   if FProtocol = nil then
     raise EOBDConfig.Create('TOBDClearDTC: Protocol not assigned');
   if not FAutoExecute then
-    raise EOBDConfig.Create(
-      'TOBDClearDTC: AutoExecute is False — set it before clearing');
+    raise EOBDConfig.Create
+      ('TOBDClearDTC: AutoExecute is False — set it before clearing');
 
   case FDialect of
     cdOBDII:
@@ -280,8 +281,8 @@ begin
         // 3-byte big-endian DTC group selector.
         SetLength(Body, 3);
         Body[0] := Byte((FUDSGroup shr 16) and $FF);
-        Body[1] := Byte((FUDSGroup shr  8) and $FF);
-        Body[2] := Byte( FUDSGroup         and $FF);
+        Body[1] := Byte((FUDSGroup shr 8) and $FF);
+        Body[2] := Byte(FUDSGroup and $FF);
       end;
     cdKWP:
       begin
@@ -289,7 +290,7 @@ begin
         // KWP2000: 2-byte big-endian DTC group word.
         SetLength(Body, 2);
         Body[0] := Byte((FUDSGroup shr 8) and $FF);
-        Body[1] := Byte( FUDSGroup        and $FF);
+        Body[1] := Byte(FUDSGroup and $FF);
       end;
   else
     raise EOBDConfig.Create('TOBDClearDTC: unknown dialect');
@@ -297,8 +298,8 @@ begin
 
   Resp := FProtocol.Request(SID, Body);
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt(
-      'ClearDTC (SID 0x%.2x) negative: %s', [SID, Resp.NRCText]);
+    raise EOBDProtocolErr.CreateFmt('ClearDTC (SID 0x%.2x) negative: %s',
+      [SID, Resp.NRCText]);
 end;
 
 procedure TOBDClearDTC.Clear;
@@ -353,8 +354,7 @@ begin
       end);
 end;
 
-procedure TOBDClearDTC.FireError(ACode: TOBDErrorCode;
-  const AMessage: string);
+procedure TOBDClearDTC.FireError(ACode: TOBDErrorCode; const AMessage: string);
 var
   Self_: TOBDClearDTC;
   Code: TOBDErrorCode;

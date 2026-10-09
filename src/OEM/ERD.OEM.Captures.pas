@@ -1,43 +1,43 @@
-//------------------------------------------------------------------------------
-//  ERD.OEM.Captures
+﻿// ------------------------------------------------------------------------------
+// ERD.OEM.Captures
 //
-//  Replay-driven validation: walks a recorded <c>.obdlog</c>
-//  conversation, pairs Response / NRC entries with the matching
-//  preceding Frame entry, and runs each pair through an OEM
-//  extension's catalogue + DID decoder.
+// Replay-driven validation: walks a recorded <c>.obdlog</c>
+// conversation, pairs Response / NRC entries with the matching
+// preceding Frame entry, and runs each pair through an OEM
+// extension's catalogue + DID decoder.
 //
-//  v2's recorder produces typed <see cref="TOBDLogEntry"/>
-//  records (Frame / Response / NRC / Error) — pairing is by
-//  ServiceID match, not by line-direction guesswork. The
-//  validator surfaces every Service 0x22 ReadDataByIdentifier
-//  pair so a host can replay a real workshop capture against a
-//  catalogue and report which DIDs decoded cleanly, which were
-//  uncatalogued, and which fell back to a hex dump.
+// v2's recorder produces typed <see cref="TOBDLogEntry"/>
+// records (Frame / Response / NRC / Error) — pairing is by
+// ServiceID match, not by line-direction guesswork. The
+// validator surfaces every Service 0x22 ReadDataByIdentifier
+// pair so a host can replay a real workshop capture against a
+// catalogue and report which DIDs decoded cleanly, which were
+// uncatalogued, and which fell back to a hex dump.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-12  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-12  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.OEM.Captures;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.OEM,
   ERD.Recorder,
   ERD.Replayer;
@@ -91,21 +91,20 @@ type
     Display: string;
   end;
 
-/// <summary>Walks <c>AEntries</c> and emits one
-/// <see cref="TOBDCapturePair"/> per Frame → next-Response /
-/// next-NRC pair. Info / Error entries are skipped. Frame
-/// entries without a matching response before the next Frame
-/// emit a pair with <c>ResponseBytes</c> empty.</summary>
-function ExtractCapturePairs(
-  const AEntries: TArray<TOBDLogEntry>): TArray<TOBDCapturePair>;
+  /// <summary>Walks <c>AEntries</c> and emits one
+  /// <see cref="TOBDCapturePair"/> per Frame → next-Response /
+  /// next-NRC pair. Info / Error entries are skipped. Frame
+  /// entries without a matching response before the next Frame
+  /// emit a pair with <c>ResponseBytes</c> empty.</summary>
+function ExtractCapturePairs(const AEntries: TArray<TOBDLogEntry>)
+  : TArray<TOBDCapturePair>;
 
 /// <summary>Runs every <c>22 hi lo</c> pair through
 /// <c>AExtension.DecodeDID</c> and reports the
 /// results.</summary>
 /// <exception cref="EOBDCaptureError"><c>AExtension</c> is
 /// nil.</exception>
-function ValidateAgainstExtension(
-  const APairs: TArray<TOBDCapturePair>;
+function ValidateAgainstExtension(const APairs: TArray<TOBDCapturePair>;
   const AExtension: IOBDOEMExtension): TArray<TOBDCaptureDecoded>;
 
 /// <summary>Convenience: load <c>.obdlog</c>, extract pairs,
@@ -115,13 +114,12 @@ function ValidateCaptureFile(const AFileName: string;
 
 implementation
 
-function BuildPair(const AFrame: TOBDLogEntry;
-  const AResponse: TOBDLogEntry; AResponseValid: Boolean):
-  TOBDCapturePair;
+function BuildPair(const AFrame: TOBDLogEntry; const AResponse: TOBDLogEntry;
+  AResponseValid: Boolean): TOBDCapturePair;
 var
   ReqBytes, RespBytes: TBytes;
 begin
-  Result := Default(TOBDCapturePair);
+  Result := Default (TOBDCapturePair);
   Result.SentAt := AFrame.ElapsedMs;
   Result.RequestBytes := AFrame.Raw;
   ReqBytes := AFrame.Raw;
@@ -149,22 +147,19 @@ begin
   if RespBytes[0] = ReqBytes[0] + $40 then
   begin
     if (ReqBytes[0] = $22) and (Length(RespBytes) >= 3) and
-       (Length(ReqBytes) >= 3) and
-       (RespBytes[1] = ReqBytes[1]) and
-       (RespBytes[2] = ReqBytes[2]) then
-      Result.PayloadBytes :=
-        Copy(RespBytes, 3, Length(RespBytes) - 3)
+      (Length(ReqBytes) >= 3) and (RespBytes[1] = ReqBytes[1]) and
+      (RespBytes[2] = ReqBytes[2]) then
+      Result.PayloadBytes := Copy(RespBytes, 3, Length(RespBytes) - 3)
     else
-      Result.PayloadBytes :=
-        Copy(RespBytes, 1, Length(RespBytes) - 1);
+      Result.PayloadBytes := Copy(RespBytes, 1, Length(RespBytes) - 1);
   end
   else
     // Out-of-spec response — surface verbatim.
     Result.PayloadBytes := RespBytes;
 end;
 
-function ExtractCapturePairs(
-  const AEntries: TArray<TOBDLogEntry>): TArray<TOBDCapturePair>;
+function ExtractCapturePairs(const AEntries: TArray<TOBDLogEntry>)
+  : TArray<TOBDCapturePair>;
 var
   Acc: TList<TOBDCapturePair>;
   I: Integer;
@@ -173,9 +168,9 @@ var
   Empty: TOBDLogEntry;
 begin
   Acc := TList<TOBDCapturePair>.Create;
-  Pending := Default(TOBDLogEntry);
+  Pending := Default (TOBDLogEntry);
   HasPending := False;
-  Empty := Default(TOBDLogEntry);
+  Empty := Default (TOBDLogEntry);
   try
     for I := 0 to High(AEntries) do
     begin
@@ -193,7 +188,7 @@ begin
             Acc.Add(BuildPair(Pending, AEntries[I], True));
             HasPending := False;
           end;
-      // leInfo / leError do not pair.
+        // leInfo / leError do not pair.
       end;
     end;
     if HasPending then
@@ -204,8 +199,7 @@ begin
   end;
 end;
 
-function ValidateAgainstExtension(
-  const APairs: TArray<TOBDCapturePair>;
+function ValidateAgainstExtension(const APairs: TArray<TOBDCapturePair>;
   const AExtension: IOBDOEMExtension): TArray<TOBDCaptureDecoded>;
 var
   Acc: TList<TOBDCaptureDecoded>;
@@ -219,7 +213,7 @@ begin
   try
     for Pair in APairs do
     begin
-      Item := Default(TOBDCaptureDecoded);
+      Item := Default (TOBDCaptureDecoded);
       Item.Pair := Pair;
       if Pair.IsNegative or (Pair.ServiceID <> $22) then
       begin
@@ -229,8 +223,7 @@ begin
       Item.DidIsCatalogued := AExtension.FindDID(Pair.DID, Entry);
       if Item.DidIsCatalogued then
         Item.DidName := Entry.Name;
-      Item.Display := AExtension.DecodeDID(
-        Pair.DID, Pair.PayloadBytes);
+      Item.Display := AExtension.DecodeDID(Pair.DID, Pair.PayloadBytes);
       Acc.Add(Item);
     end;
     Result := Acc.ToArray;
@@ -245,8 +238,7 @@ var
   Entries: TArray<TOBDLogEntry>;
 begin
   Entries := TOBDReplayer.LoadAll(AFileName);
-  Result := ValidateAgainstExtension(
-    ExtractCapturePairs(Entries), AExtension);
+  Result := ValidateAgainstExtension(ExtractCapturePairs(Entries), AExtension);
 end;
 
 end.

@@ -1,82 +1,82 @@
-//------------------------------------------------------------------------------
-//  ERD.UI.Dyno
+﻿// ------------------------------------------------------------------------------
+// ERD.UI.Dyno
 //
-//  Non-visual dyno-math components. Each exposes a published
-//  set of inputs + an event that fires on every sample, so
-//  hosts wire one of these next to their PID handler and
-//  read computed power / torque / fuel-economy / emissions /
-//  etc. without rolling the math themselves.
+// Non-visual dyno-math components. Each exposes a published
+// set of inputs + an event that fires on every sample, so
+// hosts wire one of these next to their PID handler and
+// read computed power / torque / fuel-economy / emissions /
+// etc. without rolling the math themselves.
 //
-//  Components:
+// Components:
 //
-//    TOBDDynoCalculator    HP/kW + torque from speed / RPM /
-//                          weight / drag / rolling
-//                          coefficients. Sample-driven.
-//    TOBDPowerCurve        Sweep recorder. Captures
-//                          (RPM, HP, Torque) tuples between
-//                          Arm() and Stop(); exposes Curve.
-//    TOBDDragRun           0 → target speed run capture.
-//                          Fires OnFinished with elapsed,
-//                          peak HP, peak torque.
-//    TOBDDynoConditions    SAE J1349 correction factor from
-//                          ambient temp / pressure / humidity.
-//    TOBDFuelEconomyMeter  L/100 km or MPG from MAF
-//                          (or fuel-flow). Trip A / B.
-//    TOBDEmissionsEstimator CO₂ g/km from MAF × stoich.
-//    TOBDInertialBrake     Deceleration g-load from speed
-//                          delta over time.
-//    TOBDTorqueAtWheels    Engine vs wheel power split via a
-//                          host-provided OnDrivetrainLoss
-//                          callback.
+// TOBDDynoCalculator    HP/kW + torque from speed / RPM /
+// weight / drag / rolling
+// coefficients. Sample-driven.
+// TOBDPowerCurve        Sweep recorder. Captures
+// (RPM, HP, Torque) tuples between
+// Arm() and Stop(); exposes Curve.
+// TOBDDragRun           0 → target speed run capture.
+// Fires OnFinished with elapsed,
+// peak HP, peak torque.
+// TOBDDynoConditions    SAE J1349 correction factor from
+// ambient temp / pressure / humidity.
+// TOBDFuelEconomyMeter  L/100 km or MPG from MAF
+// (or fuel-flow). Trip A / B.
+// TOBDEmissionsEstimator CO₂ g/km from MAF × stoich.
+// TOBDInertialBrake     Deceleration g-load from speed
+// delta over time.
+// TOBDTorqueAtWheels    Engine vs wheel power split via a
+// host-provided OnDrivetrainLoss
+// callback.
 //
-//  All are TComponent descendants — they neither paint nor
-//  hold any UI state. Each routes its primary state through
-//  TBindings.Notify so a host that wired a LiveBinding sees
-//  the refresh.
+// All are TComponent descendants — they neither paint nor
+// hold any UI state. Each routes its primary state through
+// TBindings.Notify so a host that wired a LiveBinding sees
+// the refresh.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.UI.Dyno;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   System.Diagnostics,
   System.Bindings.Helper, Data.Bind.Components;
 
 type
   /// <summary>Fires per dyno sample with derived HP / torque.
   /// </summary>
-  TOBDDynoSampleEvent = procedure(Sender: TObject;
-    ATimeMs: Cardinal; AHP, ATorqueNm: Double) of object;
+  TOBDDynoSampleEvent = procedure(Sender: TObject; ATimeMs: Cardinal;
+    AHP, ATorqueNm: Double) of object;
 
   /// <summary>Engine + drivetrain inputs for the
   /// <see cref="TOBDDynoCalculator"/>.</summary>
   TOBDDynoCalculator = class(TComponent)
   strict private
-    FVehicleKg:     Double;
-    FCda:           Double;
-    FCrr:           Double;
-    FAirDensity:    Double;
-    FLastSpeedKmh:  Double;
-    FLastTimeMs:    Cardinal;
-    FHaveLast:      Boolean;
-    FOnSample:      TOBDDynoSampleEvent;
+    FVehicleKg: Double;
+    FCda: Double;
+    FCrr: Double;
+    FAirDensity: Double;
+    FLastSpeedKmh: Double;
+    FLastTimeMs: Cardinal;
+    FHaveLast: Boolean;
+    FOnSample: TOBDDynoSampleEvent;
     procedure SetVehicleKg(AValue: Double);
     procedure SetCda(AValue: Double);
     procedure SetCrr(AValue: Double);
@@ -92,8 +92,7 @@ type
     procedure Reset;
   published
     /// <summary>Vehicle mass in kg. Default 1500.</summary>
-    property VehicleKg: Double
-      read FVehicleKg write SetVehicleKg;
+    property VehicleKg: Double read FVehicleKg write SetVehicleKg;
     /// <summary>Aero drag coefficient × frontal area (Cd × A).
     /// Default 0.65 (typical compact).</summary>
     property CdA: Double read FCda write SetCda;
@@ -102,16 +101,14 @@ type
     property Crr: Double read FCrr write SetCrr;
     /// <summary>Air density (kg/m³). Default 1.225 (sea level
     /// / 15 °C).</summary>
-    property AirDensity: Double
-      read FAirDensity write SetAirDensity;
-    property OnSample: TOBDDynoSampleEvent
-      read FOnSample write FOnSample;
+    property AirDensity: Double read FAirDensity write SetAirDensity;
+    property OnSample: TOBDDynoSampleEvent read FOnSample write FOnSample;
   end;
 
   /// <summary>One sample of a power-curve sweep.</summary>
   TOBDDynoPoint = record
-    RPM:      Double;
-    HP:       Double;
+    RPM: Double;
+    HP: Double;
     TorqueNm: Double;
   end;
 
@@ -120,12 +117,12 @@ type
   /// <see cref="Stop"/>.</summary>
   TOBDPowerCurve = class(TComponent)
   strict private
-    FCurve:    TList<TOBDDynoPoint>;
-    FArmed:    Boolean;
+    FCurve: TList<TOBDDynoPoint>;
+    FArmed: Boolean;
     procedure NotifyBindings;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
     /// <summary>Starts capturing. Clears the previous run.
     /// </summary>
     procedure Arm;
@@ -136,28 +133,28 @@ type
     /// </summary>
     procedure PushPoint(ARPM, AHP, ATorqueNm: Double);
     /// <summary>Snapshot of the captured curve.</summary>
-    function  Curve: TArray<TOBDDynoPoint>;
+    function Curve: TArray<TOBDDynoPoint>;
     /// <summary>True between <c>Arm</c> and <c>Stop</c>.
     /// </summary>
     property Armed: Boolean read FArmed;
   end;
 
   /// <summary>Fires when the drag run completes.</summary>
-  TOBDDragRunCompleteEvent = procedure(Sender: TObject;
-    AElapsedMs: Cardinal; APeakHP, APeakTorqueNm: Double) of object;
+  TOBDDragRunCompleteEvent = procedure(Sender: TObject; AElapsedMs: Cardinal;
+    APeakHP, APeakTorqueNm: Double) of object;
 
   /// <summary>0 → target speed run. Hosts feed the current
   /// speed + dyno-computed HP/torque; the run state machine
   /// captures elapsed + peaks and fires OnFinished.</summary>
   TOBDDragRun = class(TComponent)
   strict private
-    FTargetKmh:  Double;
-    FStartKmh:   Double;
-    FSpeedKmh:   Double;
-    FArmed:      Boolean;
-    FRunning:    Boolean;
-    FStopwatch:  TStopwatch;
-    FPeakHP:     Double;
+    FTargetKmh: Double;
+    FStartKmh: Double;
+    FSpeedKmh: Double;
+    FArmed: Boolean;
+    FRunning: Boolean;
+    FStopwatch: TStopwatch;
+    FPeakHP: Double;
     FPeakTorque: Double;
     FOnFinished: TOBDDragRunCompleteEvent;
     procedure SetTargetKmh(AValue: Double);
@@ -171,23 +168,23 @@ type
     /// instantaneous power readings. Transitions
     /// running → done when speed crosses TargetKmh.</summary>
     procedure PushSample(ASpeedKmh, AHP, ATorqueNm: Double);
-    property Running:    Boolean  read FRunning;
-    property PeakHP:     Double   read FPeakHP;
-    property PeakTorque: Double   read FPeakTorque;
+    property Running: Boolean read FRunning;
+    property PeakHP: Double read FPeakHP;
+    property PeakTorque: Double read FPeakTorque;
   published
     property TargetKmh: Double read FTargetKmh write SetTargetKmh;
-    property StartKmh:  Double read FStartKmh  write SetStartKmh;
-    property OnFinished: TOBDDragRunCompleteEvent
-      read FOnFinished write FOnFinished;
+    property StartKmh: Double read FStartKmh write SetStartKmh;
+    property OnFinished: TOBDDragRunCompleteEvent read FOnFinished
+      write FOnFinished;
   end;
 
   /// <summary>SAE J1349 correction-factor calculator.
   /// </summary>
   TOBDDynoConditions = class(TComponent)
   strict private
-    FAmbientC:     Double;
-    FPressureKPa:  Double;
-    FRelHumidity:  Double;
+    FAmbientC: Double;
+    FPressureKPa: Double;
+    FRelHumidity: Double;
     procedure SetAmbientC(AValue: Double);
     procedure SetPressureKPa(AValue: Double);
     procedure SetRelHumidity(AValue: Double);
@@ -199,27 +196,24 @@ type
     /// </summary>
     function CorrectionFactor: Double;
   published
-    property AmbientC:    Double
-      read FAmbientC    write SetAmbientC;
-    property PressureKPa: Double
-      read FPressureKPa write SetPressureKPa;
-    property RelHumidity: Double
-      read FRelHumidity write SetRelHumidity;
+    property AmbientC: Double read FAmbientC write SetAmbientC;
+    property PressureKPa: Double read FPressureKPa write SetPressureKPa;
+    property RelHumidity: Double read FRelHumidity write SetRelHumidity;
   end;
 
   /// <summary>Fuel-economy meter. Computes L/100 km
   /// (metric) from MAF (g/s) + speed (km/h).</summary>
   TOBDFuelEconomyMeter = class(TComponent)
   strict private
-    FStoich:          Double;
-    FFuelDensity:     Double;
-    FInstantLp100km:  Double;
-    FTripADist:       Double;
-    FTripAFuel:       Double;
-    FTripBDist:       Double;
-    FTripBFuel:       Double;
-    FLastTimeMs:      Cardinal;
-    FHaveLast:        Boolean;
+    FStoich: Double;
+    FFuelDensity: Double;
+    FInstantLp100km: Double;
+    FTripADist: Double;
+    FTripAFuel: Double;
+    FTripBDist: Double;
+    FTripBFuel: Double;
+    FLastTimeMs: Cardinal;
+    FHaveLast: Boolean;
     procedure SetStoich(AValue: Double);
     procedure SetFuelDensity(AValue: Double);
     procedure NotifyBindings;
@@ -239,26 +233,25 @@ type
     /// <summary>Trip A distance (km).</summary>
     property TripADistanceKm: Double read FTripADist;
     /// <summary>Trip A fuel (L).</summary>
-    property TripAFuelL:      Double read FTripAFuel;
+    property TripAFuelL: Double read FTripAFuel;
     property TripBDistanceKm: Double read FTripBDist;
-    property TripBFuelL:      Double read FTripBFuel;
+    property TripBFuelL: Double read FTripBFuel;
   published
     /// <summary>Stoichiometric AFR. Default 14.7 (gasoline).
     /// </summary>
     property Stoich: Double read FStoich write SetStoich;
     /// <summary>Fuel density (kg/L). Default 0.745 (E10
     /// gasoline).</summary>
-    property FuelDensityKgPerL: Double
-      read FFuelDensity write SetFuelDensity;
+    property FuelDensityKgPerL: Double read FFuelDensity write SetFuelDensity;
   end;
 
   /// <summary>CO₂ g/km estimator from MAF + speed.</summary>
   TOBDEmissionsEstimator = class(TComponent)
   strict private
-    FCo2PerGFuel:  Double;
-    FFuelDensity:  Double;
-    FStoich:       Double;
-    FInstantGkm:   Double;
+    FCo2PerGFuel: Double;
+    FFuelDensity: Double;
+    FStoich: Double;
+    FInstantGkm: Double;
     procedure SetCo2PerGFuel(AValue: Double);
     procedure SetFuelDensity(AValue: Double);
     procedure SetStoich(AValue: Double);
@@ -273,10 +266,8 @@ type
   published
     /// <summary>CO₂ produced per gram of fuel. Default 3.17
     /// (gasoline).</summary>
-    property Co2PerGramOfFuel: Double
-      read FCo2PerGFuel write SetCo2PerGFuel;
-    property FuelDensityKgPerL: Double
-      read FFuelDensity write SetFuelDensity;
+    property Co2PerGramOfFuel: Double read FCo2PerGFuel write SetCo2PerGFuel;
+    property FuelDensityKgPerL: Double read FFuelDensity write SetFuelDensity;
     property Stoich: Double read FStoich write SetStoich;
   end;
 
@@ -284,10 +275,10 @@ type
   /// </summary>
   TOBDInertialBrake = class(TComponent)
   strict private
-    FLastKmh:    Double;
+    FLastKmh: Double;
     FLastTimeMs: Cardinal;
-    FHaveLast:   Boolean;
-    FGLoad:      Double;
+    FHaveLast: Boolean;
+    FGLoad: Double;
     procedure NotifyBindings;
   public
     constructor Create(AOwner: TComponent); override;
@@ -313,32 +304,32 @@ type
   /// 15 % loss assumption.</summary>
   TOBDTorqueAtWheels = class(TComponent)
   strict private
-    FEngineHP:        Double;
-    FEngineTorqueNm:  Double;
-    FWheelHP:         Double;
-    FWheelTorqueNm:   Double;
-    FOnLoss:          TOBDDrivetrainLossEvent;
+    FEngineHP: Double;
+    FEngineTorqueNm: Double;
+    FWheelHP: Double;
+    FWheelTorqueNm: Double;
+    FOnLoss: TOBDDrivetrainLossEvent;
     procedure NotifyBindings;
-    function  AskLoss: Double;
+    function AskLoss: Double;
   public
     constructor Create(AOwner: TComponent); override;
     /// <summary>Pushes one (engine HP, engine torque) sample.
     /// Updates the wheel-side fields.</summary>
     procedure PushSample(AEngineHP, AEngineTorqueNm: Double);
-    property EngineHP:       Double read FEngineHP;
+    property EngineHP: Double read FEngineHP;
     property EngineTorqueNm: Double read FEngineTorqueNm;
-    property WheelHP:        Double read FWheelHP;
-    property WheelTorqueNm:  Double read FWheelTorqueNm;
+    property WheelHP: Double read FWheelHP;
+    property WheelTorqueNm: Double read FWheelTorqueNm;
   published
-    property OnDrivetrainLoss: TOBDDrivetrainLossEvent
-      read FOnLoss write FOnLoss;
+    property OnDrivetrainLoss: TOBDDrivetrainLossEvent read FOnLoss
+      write FOnLoss;
   end;
 
 implementation
 
 const
-  WATT_PER_HP = 745.6998715823;     // mechanical HP
-  KMH_TO_MPS  = 1.0 / 3.6;
+  WATT_PER_HP = 745.6998715823; // mechanical HP
+  KMH_TO_MPS = 1.0 / 3.6;
 
 procedure NotifyOf(AInstance: TComponent);
 begin
@@ -353,9 +344,9 @@ end;
 constructor TOBDDynoCalculator.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  FVehicleKg  := 1500;
-  FCda        := 0.65;
-  FCrr        := 0.012;
+  FVehicleKg := 1500;
+  FCda := 0.65;
+  FCrr := 0.012;
   FAirDensity := 1.225;
 end;
 
@@ -366,30 +357,42 @@ end;
 
 procedure TOBDDynoCalculator.SetVehicleKg(AValue: Double);
 begin
-  if AValue <= 0 then Exit;
-  if SameValue(FVehicleKg, AValue) then Exit;
-  FVehicleKg := AValue; NotifyBindings;
+  if AValue <= 0 then
+    Exit;
+  if SameValue(FVehicleKg, AValue) then
+    Exit;
+  FVehicleKg := AValue;
+  NotifyBindings;
 end;
 
 procedure TOBDDynoCalculator.SetCda(AValue: Double);
 begin
-  if AValue < 0 then Exit;
-  if SameValue(FCda, AValue) then Exit;
-  FCda := AValue; NotifyBindings;
+  if AValue < 0 then
+    Exit;
+  if SameValue(FCda, AValue) then
+    Exit;
+  FCda := AValue;
+  NotifyBindings;
 end;
 
 procedure TOBDDynoCalculator.SetCrr(AValue: Double);
 begin
-  if AValue < 0 then Exit;
-  if SameValue(FCrr, AValue) then Exit;
-  FCrr := AValue; NotifyBindings;
+  if AValue < 0 then
+    Exit;
+  if SameValue(FCrr, AValue) then
+    Exit;
+  FCrr := AValue;
+  NotifyBindings;
 end;
 
 procedure TOBDDynoCalculator.SetAirDensity(AValue: Double);
 begin
-  if AValue <= 0 then Exit;
-  if SameValue(FAirDensity, AValue) then Exit;
-  FAirDensity := AValue; NotifyBindings;
+  if AValue <= 0 then
+    Exit;
+  if SameValue(FAirDensity, AValue) then
+    Exit;
+  FAirDensity := AValue;
+  NotifyBindings;
 end;
 
 procedure TOBDDynoCalculator.PushSample(ATimeMs: Cardinal;
@@ -399,7 +402,7 @@ var
   DtSec: Double;
   HP, TorqueNm: Double;
 begin
-  V := ASpeedKmh * KMH_TO_MPS;     // m/s
+  V := ASpeedKmh * KMH_TO_MPS; // m/s
   if not FHaveLast then
   begin
     FHaveLast := True;
@@ -408,17 +411,17 @@ begin
   else
   begin
     DtSec := (ATimeMs - FLastTimeMs) / 1000.0;
-    if DtSec <= 0 then DtSec := 0.001;
+    if DtSec <= 0 then
+      DtSec := 0.001;
     A := ((ASpeedKmh - FLastSpeedKmh) * KMH_TO_MPS) / DtSec;
   end;
   FLastSpeedKmh := ASpeedKmh;
-  FLastTimeMs   := ATimeMs;
+  FLastTimeMs := ATimeMs;
 
   // F = m*a + 0.5*rho*CdA*V^2 + Crr*m*g
-  F := FVehicleKg * A +
-       0.5 * FAirDensity * FCda * V * V +
-       FCrr * FVehicleKg * 9.80665;
-  P := F * V;                       // watts
+  F := FVehicleKg * A + 0.5 * FAirDensity * FCda * V * V + FCrr * FVehicleKg
+    * 9.80665;
+  P := F * V; // watts
   HP := P / WATT_PER_HP;
   if ARPM > 0 then
     TorqueNm := P / (ARPM * 2.0 * Pi / 60.0)
@@ -476,9 +479,10 @@ procedure TOBDPowerCurve.PushPoint(ARPM, AHP, ATorqueNm: Double);
 var
   P: TOBDDynoPoint;
 begin
-  if not FArmed then Exit;
+  if not FArmed then
+    Exit;
   P.RPM := ARPM;
-  P.HP  := AHP;
+  P.HP := AHP;
   P.TorqueNm := ATorqueNm;
   FCurve.Add(P);
   NotifyBindings;
@@ -495,7 +499,7 @@ constructor TOBDDragRun.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FTargetKmh := 100;
-  FStartKmh  := 0.5;
+  FStartKmh := 0.5;
 end;
 
 procedure TOBDDragRun.NotifyBindings;
@@ -505,15 +509,20 @@ end;
 
 procedure TOBDDragRun.SetTargetKmh(AValue: Double);
 begin
-  if AValue <= 0 then Exit;
-  if SameValue(FTargetKmh, AValue) then Exit;
-  FTargetKmh := AValue; NotifyBindings;
+  if AValue <= 0 then
+    Exit;
+  if SameValue(FTargetKmh, AValue) then
+    Exit;
+  FTargetKmh := AValue;
+  NotifyBindings;
 end;
 
 procedure TOBDDragRun.SetStartKmh(AValue: Double);
 begin
-  if AValue < 0 then Exit;
-  if SameValue(FStartKmh, AValue) then Exit;
+  if AValue < 0 then
+    Exit;
+  if SameValue(FStartKmh, AValue) then
+    Exit;
   FStartKmh := AValue;
 end;
 
@@ -540,17 +549,18 @@ begin
   FSpeedKmh := ASpeedKmh;
   if FRunning then
   begin
-    if AHP       > FPeakHP     then FPeakHP     := AHP;
-    if ATorqueNm > FPeakTorque then FPeakTorque := ATorqueNm;
+    if AHP > FPeakHP then
+      FPeakHP := AHP;
+    if ATorqueNm > FPeakTorque then
+      FPeakTorque := ATorqueNm;
     if FSpeedKmh >= FTargetKmh then
     begin
       FRunning := False;
-      FArmed   := False;
+      FArmed := False;
       if Assigned(FOnFinished) then
         try
-          FOnFinished(Self,
-            Cardinal(FStopwatch.ElapsedMilliseconds),
-            FPeakHP, FPeakTorque);
+          FOnFinished(Self, Cardinal(FStopwatch.ElapsedMilliseconds), FPeakHP,
+            FPeakTorque);
         except
         end;
     end;
@@ -568,8 +578,8 @@ end;
 constructor TOBDDynoConditions.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  FAmbientC    := 25;
-  FPressureKPa := 99;     // standard SAE J1349 reference
+  FAmbientC := 25;
+  FPressureKPa := 99; // standard SAE J1349 reference
   FRelHumidity := 0;
 end;
 
@@ -580,42 +590,50 @@ end;
 
 procedure TOBDDynoConditions.SetAmbientC(AValue: Double);
 begin
-  if SameValue(FAmbientC, AValue) then Exit;
-  FAmbientC := AValue; NotifyBindings;
+  if SameValue(FAmbientC, AValue) then
+    Exit;
+  FAmbientC := AValue;
+  NotifyBindings;
 end;
 
 procedure TOBDDynoConditions.SetPressureKPa(AValue: Double);
 begin
-  if AValue <= 0 then Exit;
-  if SameValue(FPressureKPa, AValue) then Exit;
-  FPressureKPa := AValue; NotifyBindings;
+  if AValue <= 0 then
+    Exit;
+  if SameValue(FPressureKPa, AValue) then
+    Exit;
+  FPressureKPa := AValue;
+  NotifyBindings;
 end;
 
 procedure TOBDDynoConditions.SetRelHumidity(AValue: Double);
 begin
-  if AValue < 0 then AValue := 0;
-  if AValue > 100 then AValue := 100;
-  if SameValue(FRelHumidity, AValue) then Exit;
-  FRelHumidity := AValue; NotifyBindings;
+  if AValue < 0 then
+    AValue := 0;
+  if AValue > 100 then
+    AValue := 100;
+  if SameValue(FRelHumidity, AValue) then
+    Exit;
+  FRelHumidity := AValue;
+  NotifyBindings;
 end;
 
 function TOBDDynoConditions.CorrectionFactor: Double;
 var
   Pa, T: Double;
-  PSat:  Double;
-  Pd:    Double;
+  PSat: Double;
+  Pd: Double;
 begin
   // SAE J1349 (2004): CF = 1.180 × (99 / Pd) × √((T+273)/298) - 0.180
   // where Pd = dry pressure (kPa).
   T := FAmbientC;
   // Magnus formula for water-vapour saturation pressure (kPa).
-  PSat := 0.6108 *
-    Exp((17.27 * T) / (T + 237.3));
+  PSat := 0.6108 * Exp((17.27 * T) / (T + 237.3));
   Pd := FPressureKPa - (FRelHumidity / 100.0) * PSat;
-  if Pd <= 0 then Exit(1.0);
+  if Pd <= 0 then
+    Exit(1.0);
   Pa := Pd;
-  Result := 1.180 * (99.0 / Pa) *
-            Sqrt((T + 273.15) / 298.15) - 0.180;
+  Result := 1.180 * (99.0 / Pa) * Sqrt((T + 273.15) / 298.15) - 0.180;
 end;
 
 { ---- TOBDFuelEconomyMeter ---------------------------------------------- }
@@ -623,7 +641,7 @@ end;
 constructor TOBDFuelEconomyMeter.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  FStoich      := 14.7;
+  FStoich := 14.7;
   FFuelDensity := 0.745;
 end;
 
@@ -634,16 +652,22 @@ end;
 
 procedure TOBDFuelEconomyMeter.SetStoich(AValue: Double);
 begin
-  if AValue <= 0 then Exit;
-  if SameValue(FStoich, AValue) then Exit;
-  FStoich := AValue; NotifyBindings;
+  if AValue <= 0 then
+    Exit;
+  if SameValue(FStoich, AValue) then
+    Exit;
+  FStoich := AValue;
+  NotifyBindings;
 end;
 
 procedure TOBDFuelEconomyMeter.SetFuelDensity(AValue: Double);
 begin
-  if AValue <= 0 then Exit;
-  if SameValue(FFuelDensity, AValue) then Exit;
-  FFuelDensity := AValue; NotifyBindings;
+  if AValue <= 0 then
+    Exit;
+  if SameValue(FFuelDensity, AValue) then
+    Exit;
+  FFuelDensity := AValue;
+  NotifyBindings;
 end;
 
 procedure TOBDFuelEconomyMeter.PushSample(ATimeMs: Cardinal;
@@ -651,8 +675,8 @@ procedure TOBDFuelEconomyMeter.PushSample(ATimeMs: Cardinal;
 var
   DtSec: Double;
   FuelGramsPerSec: Double;
-  FuelLPerSec:     Double;
-  DistKm:          Double;
+  FuelLPerSec: Double;
+  DistKm: Double;
 begin
   if not FHaveLast then
   begin
@@ -662,15 +686,15 @@ begin
   end;
   DtSec := (ATimeMs - FLastTimeMs) / 1000.0;
   FLastTimeMs := ATimeMs;
-  if DtSec <= 0 then DtSec := 0.001;
+  if DtSec <= 0 then
+    DtSec := 0.001;
 
   FuelGramsPerSec := AMAFGramsPerSecond / FStoich;
-  FuelLPerSec     := FuelGramsPerSec / 1000.0 / FFuelDensity;
-  DistKm          := ASpeedKmh / 3600.0 * DtSec;
+  FuelLPerSec := FuelGramsPerSec / 1000.0 / FFuelDensity;
+  DistKm := ASpeedKmh / 3600.0 * DtSec;
 
   if ASpeedKmh > 0.5 then
-    FInstantLp100km :=
-      (FuelLPerSec * 3600.0 / ASpeedKmh) * 100.0
+    FInstantLp100km := (FuelLPerSec * 3600.0 / ASpeedKmh) * 100.0
   else
     FInstantLp100km := 0;
 
@@ -700,9 +724,9 @@ end;
 constructor TOBDEmissionsEstimator.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  FCo2PerGFuel := 3.17;     // gasoline
+  FCo2PerGFuel := 3.17; // gasoline
   FFuelDensity := 0.745;
-  FStoich      := 14.7;
+  FStoich := 14.7;
 end;
 
 procedure TOBDEmissionsEstimator.NotifyBindings;
@@ -712,33 +736,42 @@ end;
 
 procedure TOBDEmissionsEstimator.SetCo2PerGFuel(AValue: Double);
 begin
-  if AValue <= 0 then Exit;
-  if SameValue(FCo2PerGFuel, AValue) then Exit;
-  FCo2PerGFuel := AValue; NotifyBindings;
+  if AValue <= 0 then
+    Exit;
+  if SameValue(FCo2PerGFuel, AValue) then
+    Exit;
+  FCo2PerGFuel := AValue;
+  NotifyBindings;
 end;
 
 procedure TOBDEmissionsEstimator.SetFuelDensity(AValue: Double);
 begin
-  if AValue <= 0 then Exit;
-  if SameValue(FFuelDensity, AValue) then Exit;
-  FFuelDensity := AValue; NotifyBindings;
+  if AValue <= 0 then
+    Exit;
+  if SameValue(FFuelDensity, AValue) then
+    Exit;
+  FFuelDensity := AValue;
+  NotifyBindings;
 end;
 
 procedure TOBDEmissionsEstimator.SetStoich(AValue: Double);
 begin
-  if AValue <= 0 then Exit;
-  if SameValue(FStoich, AValue) then Exit;
-  FStoich := AValue; NotifyBindings;
+  if AValue <= 0 then
+    Exit;
+  if SameValue(FStoich, AValue) then
+    Exit;
+  FStoich := AValue;
+  NotifyBindings;
 end;
 
-procedure TOBDEmissionsEstimator.PushSample(
-  AMAFGramsPerSecond, ASpeedKmh: Double);
+procedure TOBDEmissionsEstimator.PushSample(AMAFGramsPerSecond,
+  ASpeedKmh: Double);
 var
   FuelGramsPerSec: Double;
-  Co2GramsPerSec:  Double;
+  Co2GramsPerSec: Double;
 begin
   FuelGramsPerSec := AMAFGramsPerSecond / FStoich;
-  Co2GramsPerSec  := FuelGramsPerSec * FCo2PerGFuel;
+  Co2GramsPerSec := FuelGramsPerSec * FCo2PerGFuel;
   if ASpeedKmh > 0.5 then
     FInstantGkm := Co2GramsPerSec * 3600.0 / ASpeedKmh
   else
@@ -758,11 +791,10 @@ begin
   NotifyOf(Self);
 end;
 
-procedure TOBDInertialBrake.PushSample(ATimeMs: Cardinal;
-  ASpeedKmh: Double);
+procedure TOBDInertialBrake.PushSample(ATimeMs: Cardinal; ASpeedKmh: Double);
 var
   DtSec: Double;
-  Acc:   Double;
+  Acc: Double;
 begin
   if not FHaveLast then
   begin
@@ -772,7 +804,8 @@ begin
     Exit;
   end;
   DtSec := (ATimeMs - FLastTimeMs) / 1000.0;
-  if DtSec <= 0 then DtSec := 0.001;
+  if DtSec <= 0 then
+    DtSec := 0.001;
   Acc := ((FLastKmh - ASpeedKmh) * KMH_TO_MPS) / DtSec;
   FGLoad := Acc / 9.80665;
   FLastKmh := ASpeedKmh;
@@ -807,20 +840,21 @@ begin
       FOnLoss(Self, Result);
     except
     end;
-  if Result < 0 then Result := 0;
-  if Result > 0.9 then Result := 0.9;
+  if Result < 0 then
+    Result := 0;
+  if Result > 0.9 then
+    Result := 0.9;
 end;
 
-procedure TOBDTorqueAtWheels.PushSample(
-  AEngineHP, AEngineTorqueNm: Double);
+procedure TOBDTorqueAtWheels.PushSample(AEngineHP, AEngineTorqueNm: Double);
 var
   Loss: Double;
 begin
-  FEngineHP       := AEngineHP;
+  FEngineHP := AEngineHP;
   FEngineTorqueNm := AEngineTorqueNm;
   Loss := AskLoss;
-  FWheelHP        := AEngineHP        * (1.0 - Loss);
-  FWheelTorqueNm  := AEngineTorqueNm  * (1.0 - Loss);
+  FWheelHP := AEngineHP * (1.0 - Loss);
+  FWheelTorqueNm := AEngineTorqueNm * (1.0 - Loss);
   NotifyBindings;
 end;
 

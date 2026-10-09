@@ -1,40 +1,40 @@
-//------------------------------------------------------------------------------
-//  ERD.OEM.AstonMartin
+﻿// ------------------------------------------------------------------------------
+// ERD.OEM.AstonMartin
 //
-//  Aston Martin Lagonda Ltd. OEM extension. UK-built sports
-//  cars; Ford-derived powertrains pre-2018 (V8 Vantage, DB9 with
-//  Ford / Volvo V8) and AMG-derived post-2017 (DB11, DBX, V8
-//  Vantage 2018+). Catalogue + DTC overlay in
-//  <c>catalogs/aston-martin.json</c> +
-//  <c>catalogs/dtc-aston-martin.json</c>.
+// Aston Martin Lagonda Ltd. OEM extension. UK-built sports
+// cars; Ford-derived powertrains pre-2018 (V8 Vantage, DB9 with
+// Ford / Volvo V8) and AMG-derived post-2017 (DB11, DBX, V8
+// Vantage 2018+). Catalogue + DTC overlay in
+// <c>catalogs/aston-martin.json</c> +
+// <c>catalogs/dtc-aston-martin.json</c>.
 //
-//  Seed-key starter is the Ford-lineage byte-rotate placeholder
-//  matching pre-2018 Visteon PCM behaviour; AMG-era ECUs use
-//  Mercedes XENTRY seed-key which production callers register
-//  via RegisterAlgorithm.
+// Seed-key starter is the Ford-lineage byte-rotate placeholder
+// matching pre-2018 Visteon PCM behaviour; AMG-era ECUs use
+// Mercedes XENTRY seed-key which production callers register
+// via RegisterAlgorithm.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-12  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-12  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.OEM.AstonMartin;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   ERD.OEM,
   ERD.OEM.Session,
   ERD.OEM.SeedKey,
@@ -47,22 +47,20 @@ type
     procedure BuildCatalog(var DIDs: TArray<TOBDOEMDataIdentifier>;
       var Routines: TArray<TOBDOEMRoutine>;
       var ECUs: TArray<TOBDOEMECU>); override;
-    procedure BuildExtendedCatalog(
-      var CodingBlocks: TArray<TOBDOEMCodingBlock>;
+    procedure BuildExtendedCatalog(var CodingBlocks: TArray<TOBDOEMCodingBlock>;
       var Adaptations: TArray<TOBDOEMAdaptation>;
       var ActuatorTests: TArray<TOBDOEMActuatorTest>;
       var LivePIDs: TArray<TOBDOEMLivePID>;
       var DtcExtended: TArray<TOBDDtcExtendedDataRecord>); override;
-    procedure SeedDefaultSeedKeyAlgorithms(
-      Reg: TOBDSeedKeyRegistry); override;
+    procedure SeedDefaultSeedKeyAlgorithms(Reg: TOBDSeedKeyRegistry); override;
     procedure SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog); override;
     function DtcCatalogFileName: string; override;
   public
     function ManufacturerKey: string; override;
     function DisplayName: string; override;
     function ApplicableToVIN(const VIN: string): Boolean; override;
-    function DecodeDID(const DID: Word;
-      const Payload: TBytes): string; override;
+    function DecodeDID(const DID: Word; const Payload: TBytes): string;
+      override;
   end;
 
 implementation
@@ -82,36 +80,34 @@ begin
   Result := 'Aston Martin Lagonda Ltd.';
 end;
 
-function TOBDOEMExtensionAstonMartin.ApplicableToVIN(
-  const VIN: string): Boolean;
+function TOBDOEMExtensionAstonMartin.ApplicableToVIN(const VIN: string)
+  : Boolean;
 begin
   Result := VINMatchesCatalog('aston-martin.json', VIN);
 end;
 
-procedure TOBDOEMExtensionAstonMartin.BuildCatalog(
-  var DIDs: TArray<TOBDOEMDataIdentifier>;
-  var Routines: TArray<TOBDOEMRoutine>;
-  var ECUs: TArray<TOBDOEMECU>);
+procedure TOBDOEMExtensionAstonMartin.BuildCatalog
+  (var DIDs: TArray<TOBDOEMDataIdentifier>;
+  var Routines: TArray<TOBDOEMRoutine>; var ECUs: TArray<TOBDOEMECU>);
 begin
   MergeCatalogJSON('aston-martin.json', DIDs, Routines, ECUs);
   MergeCatalogJSON('uds-standard.json', DIDs, Routines, ECUs);
 end;
 
-procedure TOBDOEMExtensionAstonMartin.BuildExtendedCatalog(
-  var CodingBlocks: TArray<TOBDOEMCodingBlock>;
-  var Adaptations: TArray<TOBDOEMAdaptation>;
+procedure TOBDOEMExtensionAstonMartin.BuildExtendedCatalog(var CodingBlocks
+  : TArray<TOBDOEMCodingBlock>; var Adaptations: TArray<TOBDOEMAdaptation>;
   var ActuatorTests: TArray<TOBDOEMActuatorTest>;
   var LivePIDs: TArray<TOBDOEMLivePID>;
   var DtcExtended: TArray<TOBDDtcExtendedDataRecord>);
 begin
-  MergeExtendedCatalogJSON('aston-martin.json',
-    CodingBlocks, Adaptations, ActuatorTests, LivePIDs, DtcExtended);
+  MergeExtendedCatalogJSON('aston-martin.json', CodingBlocks, Adaptations,
+    ActuatorTests, LivePIDs, DtcExtended);
 end;
 
-procedure TOBDOEMExtensionAstonMartin.SeedDefaultSeedKeyAlgorithms(
-  Reg: TOBDSeedKeyRegistry);
+procedure TOBDOEMExtensionAstonMartin.SeedDefaultSeedKeyAlgorithms
+  (Reg: TOBDSeedKeyRegistry);
 const
-  MASK_BYTES: array[0..1] of Byte = ($EF, $CD);
+  MASK_BYTES: array [0 .. 1] of Byte = ($EF, $CD);
 var
   Mask: TBytes;
 begin
@@ -120,14 +116,14 @@ begin
   // production callers replace via RegisterAlgorithm.
   SetLength(Mask, Length(MASK_BYTES));
   Move(MASK_BYTES[0], Mask[0], Length(MASK_BYTES));
-  Reg.RegisterAlgorithm($01, IOBDSeedKeyAlgorithm(TOBDSeedKeyByteRotate.Create(
-    1, 3, Mask,
+  Reg.RegisterAlgorithm($01,
+    IOBDSeedKeyAlgorithm(TOBDSeedKeyByteRotate.Create(1, 3, Mask,
     'Aston Martin (Ford-lineage) byte-rotate placeholder',
     'forscan-community', False)));
 end;
 
-procedure TOBDOEMExtensionAstonMartin.SeedDefaultDtcCatalog(
-  Cat: TOBDDtcCatalog);
+procedure TOBDOEMExtensionAstonMartin.SeedDefaultDtcCatalog
+  (Cat: TOBDDtcCatalog);
 begin
   inherited;
   MergeDtcCatalog('dtc-iso-15031.json', Cat);
@@ -146,8 +142,7 @@ begin
     $F190:
       if Length(Payload) > 0 then
       begin
-        Result := Format('vin = %s',
-          [TEncoding.ASCII.GetString(Payload)]);
+        Result := Format('vin = %s', [TEncoding.ASCII.GetString(Payload)]);
         Exit;
       end;
     $F1A0, $F1A2, $F1A4, $F1A6, $F1A8:
@@ -162,6 +157,7 @@ begin
 end;
 
 initialization
-  TOBDOEMRegistry.RegisterExtension(TOBDOEMExtensionAstonMartin.Create);
+
+TOBDOEMRegistry.RegisterExtension(TOBDOEMExtensionAstonMartin.Create);
 
 end.

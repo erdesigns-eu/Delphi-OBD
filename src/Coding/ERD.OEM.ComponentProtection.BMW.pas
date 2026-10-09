@@ -1,65 +1,65 @@
-//------------------------------------------------------------------------------
-//  ERD.OEM.ComponentProtection.BMW
+﻿// ------------------------------------------------------------------------------
+// ERD.OEM.ComponentProtection.BMW
 //
-//  TOBDComponentProtectionBMW — BMW CAS / FEM / BDC component-
-//  protection unlock helper. The BMW immobiliser pairing flow is
-//  conceptually identical to VAG CP:
+// TOBDComponentProtectionBMW — BMW CAS / FEM / BDC component-
+// protection unlock helper. The BMW immobiliser pairing flow is
+// conceptually identical to VAG CP:
 //
-//    1. Read CP-status DID            (typical: 0xF1B0)
-//    2. Read CP-challenge DID         (typical: 0xF1B2)
-//    3. Compute authorisation         (vendor / dealer-side flow)
-//    4. Write authorisation DID       (typical: 0xF1B4)
-//    5. Re-read status to confirm
+// 1. Read CP-status DID            (typical: 0xF1B0)
+// 2. Read CP-challenge DID         (typical: 0xF1B2)
+// 3. Compute authorisation         (vendor / dealer-side flow)
+// 4. Write authorisation DID       (typical: 0xF1B4)
+// 5. Re-read status to confirm
 //
-//  Like the VAG variant, this unit ships the framing and a host
-//  callback hook for the challenge → authorisation transform; the
-//  transform itself requires dealer / ISTA tooling and is not
-//  shipped here.
+// Like the VAG variant, this unit ships the framing and a host
+// callback hook for the challenge → authorisation transform; the
+// transform itself requires dealer / ISTA tooling and is not
+// shipped here.
 //
-//  DID numbers vary across BMW platforms (E60 / E90 / F-series /
-//  G-series); the host can override them via the published
-//  properties before calling Unlock.
+// DID numbers vary across BMW platforms (E60 / E90 / F-series /
+// G-series); the host can override them via the published
+// properties before calling Unlock.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-09  ERD  Follow-up.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Follow-up.
+// ------------------------------------------------------------------------------
 
 unit ERD.OEM.ComponentProtection.BMW;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
   ERD.Protocol.Types,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   ERD.Types,
   ERD.Coding.DataIdentifierIO,
-  ERD.OEM.ComponentProtection.VAG;  // reuses TOBDCPAuthFunc
+  ERD.OEM.ComponentProtection.VAG; // reuses TOBDCPAuthFunc
 
 const
   /// <summary>BMW CP status DID (CAS / FEM / BDC default).</summary>
-  BMW_CP_DID_STATUS              = $F1B0;
+  BMW_CP_DID_STATUS = $F1B0;
   /// <summary>BMW CP challenge DID (CAS / FEM / BDC default).</summary>
-  BMW_CP_DID_CHALLENGE           = $F1B2;
+  BMW_CP_DID_CHALLENGE = $F1B2;
   /// <summary>BMW CP authorisation DID.</summary>
-  BMW_CP_DID_AUTHORISATION       = $F1B4;
+  BMW_CP_DID_AUTHORISATION = $F1B4;
 
-  BMW_CP_STATUS_OK               = $00;
-  BMW_CP_STATUS_LOCKED           = $01;
-  BMW_CP_STATUS_PENDING          = $02;
-  BMW_CP_STATUS_NOT_APPLICABLE   = $FF;
+  BMW_CP_STATUS_OK = $00;
+  BMW_CP_STATUS_LOCKED = $01;
+  BMW_CP_STATUS_PENDING = $02;
+  BMW_CP_STATUS_NOT_APPLICABLE = $FF;
 
 type
   /// <summary>BMW Component Protection helper component.</summary>
@@ -106,17 +106,21 @@ end;
 
 procedure TOBDComponentProtectionBMW.SetIO(AValue: TOBDDataIdentifierIO);
 begin
-  if FIO = AValue then Exit;
-  if FIO <> nil then FIO.RemoveFreeNotification(Self);
+  if FIO = AValue then
+    Exit;
+  if FIO <> nil then
+    FIO.RemoveFreeNotification(Self);
   FIO := AValue;
-  if FIO <> nil then FIO.FreeNotification(Self);
+  if FIO <> nil then
+    FIO.FreeNotification(Self);
 end;
 
 procedure TOBDComponentProtectionBMW.Notification(AComponent: TComponent;
   Operation: TOperation);
 begin
   inherited;
-  if (Operation = opRemove) and (AComponent = FIO) then FIO := nil;
+  if (Operation = opRemove) and (AComponent = FIO) then
+    FIO := nil;
 end;
 
 function TOBDComponentProtectionBMW.ReadStatus: Byte;
@@ -146,21 +150,21 @@ begin
   if FIO = nil then
     raise EOBDConfig.Create('TOBDComponentProtectionBMW: DataIO not assigned');
   if not Assigned(FAuthFunc) then
-    raise EOBDConfig.Create(
-      'TOBDComponentProtectionBMW: AuthFunc not configured ' +
+    raise EOBDConfig.Create
+      ('TOBDComponentProtectionBMW: AuthFunc not configured ' +
       '(provide an ISTA / dealer bridge)');
   Challenge := ReadChallenge;
   if Length(Challenge) = 0 then
     raise EOBDProtocolErr.Create('BMW CP challenge DID returned no bytes');
   Auth := FAuthFunc(Challenge);
   if Length(Auth) = 0 then
-    raise EOBDProtocolErr.Create(
-      'BMW CP authorisation transform returned empty');
+    raise EOBDProtocolErr.Create
+      ('BMW CP authorisation transform returned empty');
   FIO.Write(FAuthorisationDID, Auth);
   PostStatus := ReadStatus;
   if PostStatus <> BMW_CP_STATUS_OK then
-    raise EOBDProtocolErr.CreateFmt(
-      'BMW CP unlock did not clear the lock — post-status 0x%2.2X',
+    raise EOBDProtocolErr.CreateFmt
+      ('BMW CP unlock did not clear the lock — post-status 0x%2.2X',
       [PostStatus]);
   Result := PostStatus;
 end;

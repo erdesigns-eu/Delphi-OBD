@@ -1,68 +1,68 @@
-//------------------------------------------------------------------------------
-//  ERD.OEM.SecurityAccess
+﻿// ------------------------------------------------------------------------------
+// ERD.OEM.SecurityAccess
 //
-//  Drives the full UDS Service 0x27 SecurityAccess exchange so a
-//  caller only has to register the seed-key algorithm for their
-//  level. The client handles:
+// Drives the full UDS Service 0x27 SecurityAccess exchange so a
+// caller only has to register the seed-key algorithm for their
+// level. The client handles:
 //
-//    1. Sending the seed-request (<c>27 LL</c>) and parsing the
-//       <c>67 LL seed-bytes</c> response.
-//    2. Resolving the matching <see cref="IOBDSeedKeyAlgorithm"/>
-//       from a <see cref="TOBDSeedKeyRegistry"/> and computing
-//       the key.
-//    3. Sending the key (<c>27 (LL+1) key-bytes</c>) and parsing
-//       the <c>67 (LL+1)</c> reply.
-//    4. Honouring the ISO 14229 §10 negative-response rules:
-//         - <c>0x35 invalidKey</c>      → surface as failure.
-//         - <c>0x36 exceededNumberOfAttempts</c> → ECU has locked
-//           out; the client refuses further attempts (the lockout
-//           is the ECU's, not ours).
-//         - <c>0x37 requiredTimeDelayNotExpired</c> → wait the
-//           caller-configured delay then retry, up to a configured
-//           max-retry budget.
+// 1. Sending the seed-request (<c>27 LL</c>) and parsing the
+// <c>67 LL seed-bytes</c> response.
+// 2. Resolving the matching <see cref="IOBDSeedKeyAlgorithm"/>
+// from a <see cref="TOBDSeedKeyRegistry"/> and computing
+// the key.
+// 3. Sending the key (<c>27 (LL+1) key-bytes</c>) and parsing
+// the <c>67 (LL+1)</c> reply.
+// 4. Honouring the ISO 14229 §10 negative-response rules:
+// - <c>0x35 invalidKey</c>      → surface as failure.
+// - <c>0x36 exceededNumberOfAttempts</c> → ECU has locked
+// out; the client refuses further attempts (the lockout
+// is the ECU's, not ours).
+// - <c>0x37 requiredTimeDelayNotExpired</c> → wait the
+// caller-configured delay then retry, up to a configured
+// max-retry budget.
 //
-//  Algorithms stay user-supplied. Production callers register
-//  their OEM implementations through
-//  <see cref="TOBDSeedKeyRegistry.RegisterAlgorithm"/>; the client
-//  only sequences the protocol exchange around them.
+// Algorithms stay user-supplied. Production callers register
+// their OEM implementations through
+// <see cref="TOBDSeedKeyRegistry.RegisterAlgorithm"/>; the client
+// only sequences the protocol exchange around them.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - ISO 14229-1 §10 SecurityAccess
-//    - ISO 14229-1 Annex A Negative Response Code Definitions
+// References  :
+// - ISO 14229-1 §10 SecurityAccess
+// - ISO 14229-1 Annex A Negative Response Code Definitions
 //
-//  History     :
-//    2026-05-12  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-12  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.OEM.SecurityAccess;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
   ERD.Protocol,
   ERD.Protocol.Types,
   ERD.OEM.SeedKey;
 
 const
   /// <summary>NRC 0x35 — invalidKey.</summary>
-  NRC_INVALID_KEY                  = $35;
+  NRC_INVALID_KEY = $35;
   /// <summary>NRC 0x36 — exceededNumberOfAttempts.</summary>
-  NRC_EXCEEDED_ATTEMPTS             = $36;
+  NRC_EXCEEDED_ATTEMPTS = $36;
   /// <summary>NRC 0x37 — requiredTimeDelayNotExpired.</summary>
   NRC_REQUIRED_TIME_DELAY_NOT_EXPIRED = $37;
 
@@ -123,9 +123,9 @@ type
   EOBDSecurityAccess = class(Exception);
 
   /// <summary>
-  ///   Synchronous SecurityAccess client. Thread-safe — multiple
-  ///   instances bound to the same protocol or registry are
-  ///   independent.
+  /// Synchronous SecurityAccess client. Thread-safe — multiple
+  /// instances bound to the same protocol or registry are
+  /// independent.
   /// </summary>
   TOBDSecurityAccessClient = class
   strict private
@@ -142,34 +142,32 @@ type
     /// registry can be shared across levels.</param>
     /// <exception cref="EOBDSecurityAccess"><c>AProtocol</c> or
     /// <c>ARegistry</c> is nil.</exception>
-    constructor Create(AProtocol: TOBDProtocol;
-      ARegistry: TOBDSeedKeyRegistry);
+    constructor Create(AProtocol: TOBDProtocol; ARegistry: TOBDSeedKeyRegistry);
     /// <summary>UDS request timeout for the seed-request and
     /// key-send round trips. Defaults to 2000 ms.</summary>
-    property RequestTimeoutMs: Cardinal
-      read FRequestTimeoutMs write FRequestTimeoutMs;
+    property RequestTimeoutMs: Cardinal read FRequestTimeoutMs
+      write FRequestTimeoutMs;
     /// <summary>Delay between retries after
     /// <c>NRC 0x37 requiredTimeDelayNotExpired</c>. Defaults to
     /// 1000 ms.</summary>
-    property RetryDelayMs: Cardinal
-      read FRetryDelayMs write FRetryDelayMs;
+    property RetryDelayMs: Cardinal read FRetryDelayMs write FRetryDelayMs;
     /// <summary>Maximum number of times the client retries on
     /// <c>NRC 0x37</c> before giving up. Defaults to 5
     /// (~5 seconds at the default <see cref="RetryDelayMs"/>).
     /// Set to 0 to disable retries entirely.</summary>
-    property MaxDelayRetries: Integer
-      read FMaxDelayRetries write FMaxDelayRetries;
+    property MaxDelayRetries: Integer read FMaxDelayRetries
+      write FMaxDelayRetries;
     /// <summary>
-    ///   Runs the full seed → compute → send-key dance for
-    ///   <c>ALevel</c>. <c>ALevel</c> must be odd (the request-
-    ///   seed sub-function). The send-key sub-function (<c>ALevel
-    ///   + 1</c>) is computed automatically.
+    /// Runs the full seed → compute → send-key dance for
+    /// <c>ALevel</c>. <c>ALevel</c> must be odd (the request-
+    /// seed sub-function). The send-key sub-function (<c>ALevel
+    /// + 1</c>) is computed automatically.
     /// </summary>
     /// <param name="ALevel">Request-seed level
     /// (<c>0x01</c>, <c>0x03</c>, …).</param>
     /// <returns>Detailed outcome.</returns>
     /// <exception cref="EOBDSecurityAccess">
-    ///   <c>ALevel</c> is even (request-seed levels must be odd).
+    /// <c>ALevel</c> is even (request-seed levels must be odd).
     /// </exception>
     function Unlock(ALevel: Byte): TOBDSecurityAccessResult;
   end;
@@ -177,8 +175,8 @@ type
 implementation
 
 const
-  DEFAULT_TIMEOUT_MS       = 2000;
-  DEFAULT_RETRY_DELAY_MS   = 1000;
+  DEFAULT_TIMEOUT_MS = 2000;
+  DEFAULT_RETRY_DELAY_MS = 1000;
   DEFAULT_MAX_DELAY_RETRIES = 5;
 
 constructor TOBDSecurityAccessClient.Create(AProtocol: TOBDProtocol;
@@ -186,12 +184,11 @@ constructor TOBDSecurityAccessClient.Create(AProtocol: TOBDProtocol;
 begin
   inherited Create;
   if AProtocol = nil then
-    raise EOBDSecurityAccess.Create(
-      'TOBDSecurityAccessClient requires a non-nil TOBDProtocol');
+    raise EOBDSecurityAccess.Create
+      ('TOBDSecurityAccessClient requires a non-nil TOBDProtocol');
   if ARegistry = nil then
-    raise EOBDSecurityAccess.Create(
-      'TOBDSecurityAccessClient requires a non-nil ' +
-      'TOBDSeedKeyRegistry');
+    raise EOBDSecurityAccess.Create
+      ('TOBDSecurityAccessClient requires a non-nil ' + 'TOBDSeedKeyRegistry');
   FProtocol := AProtocol;
   FRegistry := ARegistry;
   FRequestTimeoutMs := DEFAULT_TIMEOUT_MS;
@@ -199,28 +196,28 @@ begin
   FMaxDelayRetries := DEFAULT_MAX_DELAY_RETRIES;
 end;
 
-function TOBDSecurityAccessClient.Unlock(
-  ALevel: Byte): TOBDSecurityAccessResult;
+function TOBDSecurityAccessClient.Unlock(ALevel: Byte)
+  : TOBDSecurityAccessResult;
 var
   Algo: IOBDSeedKeyAlgorithm;
   SeedResp, KeyResp: TOBDResponse;
   Retries: Integer;
   Stop: TEvent;
 begin
-  Result := Default(TOBDSecurityAccessResult);
+  Result := Default (TOBDSecurityAccessResult);
   Result.Level := ALevel;
   Result.Outcome := saoUnknown;
 
   if (ALevel and 1) = 0 then
-    raise EOBDSecurityAccess.CreateFmt(
-      'Request-seed levels must be odd (got 0x%.2X)', [ALevel]);
+    raise EOBDSecurityAccess.CreateFmt
+      ('Request-seed levels must be odd (got 0x%.2X)', [ALevel]);
 
   Algo := FRegistry.Find(ALevel);
   if Algo = nil then
   begin
     Result.Outcome := saoAlgorithmMissing;
-    Result.Message := Format(
-      'No seed-key algorithm registered for level 0x%.2X', [ALevel]);
+    Result.Message :=
+      Format('No seed-key algorithm registered for level 0x%.2X', [ALevel]);
     Exit;
   end;
 
@@ -244,8 +241,7 @@ begin
         on E: Exception do
         begin
           Result.Outcome := saoTransportError;
-          Result.Message := 'Seed request: ' + E.ClassName +
-            ': ' + E.Message;
+          Result.Message := 'Seed request: ' + E.ClassName + ': ' + E.Message;
           Exit;
         end;
       end;
@@ -260,8 +256,7 @@ begin
               if Retries > FMaxDelayRetries then
               begin
                 Result.Outcome := saoDelayNotExpired;
-                Result.Message :=
-                  'NRC 0x37 requiredTimeDelayNotExpired ' +
+                Result.Message := 'NRC 0x37 requiredTimeDelayNotExpired ' +
                   'persisted past the retry budget';
                 Exit;
               end;
@@ -273,15 +268,13 @@ begin
           NRC_EXCEEDED_ATTEMPTS:
             begin
               Result.Outcome := saoEcuLockedOut;
-              Result.Message :=
-                'NRC 0x36 exceededNumberOfAttempts — ECU is ' +
+              Result.Message := 'NRC 0x36 exceededNumberOfAttempts — ECU is ' +
                 'locked out; usually resets on ignition cycle';
               Exit;
             end;
         else
           Result.Outcome := saoTransportError;
-          Result.Message := Format(
-            'Seed request rejected: NRC 0x%.2X %s',
+          Result.Message := Format('Seed request rejected: NRC 0x%.2X %s',
             [SeedResp.NRC, SeedResp.NRCText]);
           Exit;
         end;
@@ -304,23 +297,20 @@ begin
         on E: Exception do
         begin
           Result.Outcome := saoTransportError;
-          Result.Message :=
-            'Algorithm raised while computing key: ' +
+          Result.Message := 'Algorithm raised while computing key: ' +
             E.ClassName + ': ' + E.Message;
           Exit;
         end;
       end;
 
       try
-        KeyResp := FProtocol.Request($27,
-          TBytes.Create(ALevel + 1) + Result.Key,
-          FRequestTimeoutMs);
+        KeyResp := FProtocol.Request($27, TBytes.Create(ALevel + 1) +
+          Result.Key, FRequestTimeoutMs);
       except
         on E: Exception do
         begin
           Result.Outcome := saoTransportError;
-          Result.Message := 'Send key: ' + E.ClassName +
-            ': ' + E.Message;
+          Result.Message := 'Send key: ' + E.ClassName + ': ' + E.Message;
           Exit;
         end;
       end;
@@ -332,16 +322,14 @@ begin
           NRC_INVALID_KEY:
             begin
               Result.Outcome := saoInvalidKey;
-              Result.Message :=
-                'NRC 0x35 invalidKey — algorithm produced the ' +
-                'wrong key for the registered level';
+              Result.Message := 'NRC 0x35 invalidKey — algorithm produced the '
+                + 'wrong key for the registered level';
               Exit;
             end;
           NRC_EXCEEDED_ATTEMPTS:
             begin
               Result.Outcome := saoEcuLockedOut;
-              Result.Message :=
-                'NRC 0x36 exceededNumberOfAttempts after key ' +
+              Result.Message := 'NRC 0x36 exceededNumberOfAttempts after key ' +
                 'send — ECU is locked out';
               Exit;
             end;
@@ -355,8 +343,7 @@ begin
               if Retries > FMaxDelayRetries then
               begin
                 Result.Outcome := saoDelayNotExpired;
-                Result.Message :=
-                  'NRC 0x37 on key send persisted past the ' +
+                Result.Message := 'NRC 0x37 on key send persisted past the ' +
                   'retry budget';
                 Exit;
               end;
@@ -365,8 +352,7 @@ begin
             end;
         else
           Result.Outcome := saoTransportError;
-          Result.Message := Format(
-            'Send key rejected: NRC 0x%.2X %s',
+          Result.Message := Format('Send key rejected: NRC 0x%.2X %s',
             [KeyResp.NRC, KeyResp.NRCText]);
           Exit;
         end;

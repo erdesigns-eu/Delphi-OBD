@@ -1,44 +1,44 @@
-//------------------------------------------------------------------------------
-//  ERD.Connection.BLE
+﻿// ------------------------------------------------------------------------------
+// ERD.Connection.BLE
 //
-//  Bluetooth Low Energy (GATT) transport for ELM327-BLE clones and
-//  similar adapters. Default profile FFE0 / FFE1 (write + notify on
-//  the same characteristic). Service / characteristic UUIDs are
-//  overridable via TOBDBLESettings.
+// Bluetooth Low Energy (GATT) transport for ELM327-BLE clones and
+// similar adapters. Default profile FFE0 / FFE1 (write + notify on
+// the same characteristic). Service / characteristic UUIDs are
+// overridable via TOBDBLESettings.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//    2026-05-09  ERD  Follow-up: rebased onto TOBDBaseTransport
-//                     and instrumented with step-progress events.
-//    2026-10-09  ERD  Use Delphi LE discovery and service characteristics.
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// 2026-05-09  ERD  Follow-up: rebased onto TOBDBaseTransport
+// and instrumented with step-progress events.
+// 2026-10-09  ERD  Use Delphi LE discovery and service characteristics.
 //
-//  Future work :
-//    - Connection-parameter tuning (interval / latency) for chips that
-//      support it.
-//    - Pairing-required adapters (e.g. some Nordic UART variants) via
-//      OnTransportError.
-//------------------------------------------------------------------------------
+// Future work :
+// - Connection-parameter tuning (interval / latency) for chips that
+// support it.
+// - Pairing-required adapters (e.g. some Nordic UART variants) via
+// OnTransportError.
+// ------------------------------------------------------------------------------
 
 unit ERD.Connection.BLE;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
   System.Bluetooth,
   Winapi.Windows,
   ERD.Types,
@@ -61,8 +61,8 @@ type
 
   /// <summary>Bluetooth Low Energy transport.</summary>
   /// <remarks>
-  ///   The BLE manager dispatches its events on the manager's own
-  ///   thread; we forward them to the parent transport's callbacks.
+  /// The BLE manager dispatches its events on the manager's own
+  /// thread; we forward them to the parent transport's callbacks.
   /// </remarks>
   TOBDBLETransport = class(TOBDBaseTransport)
   strict private
@@ -90,16 +90,16 @@ type
     destructor Destroy; override;
 
     /// <summary>
-    ///   Connects to the configured BLE device, locates GATT
-    ///   characteristics, and subscribes to notifications.
+    /// Connects to the configured BLE device, locates GATT
+    /// characteristics, and subscribes to notifications.
     /// </summary>
     /// <param name="ASettings">Device address, service UUID, write
     /// and notify characteristic UUIDs.</param>
     /// <remarks>
-    ///   Synchronous. Fires six step-progress events:
-    ///   <c>1/6 Adapter check</c>, <c>2/6 Locating device</c>,
-    ///   <c>3/6 Connecting</c>, <c>4/6 Discovering service</c>,
-    ///   <c>5/6 Subscribing notifications</c>, <c>6/6 Ready</c>.
+    /// Synchronous. Fires six step-progress events:
+    /// <c>1/6 Adapter check</c>, <c>2/6 Locating device</c>,
+    /// <c>3/6 Connecting</c>, <c>4/6 Discovering service</c>,
+    /// <c>5/6 Subscribing notifications</c>, <c>6/6 Ready</c>.
     /// </remarks>
     /// <exception cref="EOBDConfig"><c>ASettings</c> is <c>nil</c> or
     /// device address is empty, or connect timeout is zero.</exception>
@@ -144,8 +144,7 @@ begin
   if S = '' then
     raise EOBDConfig.Create('UUID is empty');
   if (Length(S) = 4) or (Length(S) = 8) then
-    S := Format('%s-0000-1000-8000-00805F9B34FB',
-      [S.PadLeft(8, '0')]);
+    S := Format('%s-0000-1000-8000-00805F9B34FB', [S.PadLeft(8, '0')]);
   if (Length(S) > 0) and (S[1] <> '{') then
     S := '{' + S + '}';
   Result := StringToGUID(S);
@@ -181,15 +180,15 @@ procedure TOBDBLETransport.HandleCharRead(const Sender: TObject;
   AGattStatus: TBluetoothGattStatus);
 begin
   if (FState <> csOpen) or (ACharacteristic <> FNotifyChar) or
-     (ACharacteristic = nil) then Exit;
+    (ACharacteristic = nil) then
+    Exit;
   if AGattStatus = TBluetoothGattStatus.Success then
   begin
     if Length(ACharacteristic.Value) > 0 then
       FireBytes(ACharacteristic.Value);
   end
   else
-    FireError(oeIO, Format('GATT read failed (status %d)',
-      [Ord(AGattStatus)]));
+    FireError(oeIO, Format('GATT read failed (status %d)', [Ord(AGattStatus)]));
 end;
 
 procedure TOBDBLETransport.Open(const ASettings: TOBDBLESettings);
@@ -213,8 +212,8 @@ begin
   Close;
 
   ServiceGuid := NormaliseUUID(ASettings.ServiceUUID);
-  WriteGuid   := NormaliseUUID(ASettings.WriteCharUUID);
-  NotifyGuid  := NormaliseUUID(ASettings.NotifyCharUUID);
+  WriteGuid := NormaliseUUID(ASettings.WriteCharUUID);
+  NotifyGuid := NormaliseUUID(ASettings.NotifyCharUUID);
 
   SetState(csOpening);
   try
@@ -226,8 +225,10 @@ begin
     FireProgress(2, 6, 'Locating device', ASettings.DeviceAddress);
     Deadline := GetTickCount64 + UInt64(ASettings.ConnectTimeout);
     ScanTime := ASettings.ConnectTimeout div 2;
-    if ScanTime = 0 then ScanTime := 1;
-    if ScanTime > 5000 then ScanTime := 5000;
+    if ScanTime = 0 then
+      ScanTime := 1;
+    if ScanTime > 5000 then
+      ScanTime := 5000;
     FDiscoveryDone.ResetEvent;
     PreviousDiscoveryEnd := FManager.OnDiscoveryEnd;
     FManager.OnDiscoveryEnd := HandleDiscoveryEnd;
@@ -249,14 +250,14 @@ begin
     FDevice := nil;
     for D in Devices do
       if (UpperCase(D.Address) = Needle) or
-         SameText(D.DeviceName, ASettings.DeviceAddress) then
+        SameText(D.DeviceName, ASettings.DeviceAddress) then
       begin
         FDevice := D;
         Break;
       end;
     if FDevice = nil then
-      raise EOBDError.CreateFmt(
-        'BLE device "%s" not found among discovered devices',
+      raise EOBDError.CreateFmt
+        ('BLE device "%s" not found among discovered devices',
         [ASettings.DeviceAddress]);
 
     FireProgress(3, 6, 'Connecting', '');
@@ -297,8 +298,8 @@ begin
     FDevice.OnCharacteristicRead := HandleCharRead;
     FReadHandlerInstalled := True;
     if not FDevice.SetCharacteristicNotification(FNotifyChar, True) then
-      raise EOBDError.Create(
-        'Failed to enable notifications on the notify characteristic');
+      raise EOBDError.Create
+        ('Failed to enable notifications on the notify characteristic');
   except
     on E: Exception do
     begin
@@ -316,9 +317,11 @@ procedure TOBDBLETransport.Close;
 begin
   FLock.Enter;
   try
-    if FState in [csClosed, csClosing] then Exit;
+    if FState in [csClosed, csClosing] then
+      Exit;
     SetState(csClosing);
-    if FReadHandlerInstalled and Assigned(FDevice) and Assigned(FNotifyChar) then
+    if FReadHandlerInstalled and Assigned(FDevice) and Assigned(FNotifyChar)
+    then
       try
         FDevice.SetCharacteristicNotification(FNotifyChar, False);
       except

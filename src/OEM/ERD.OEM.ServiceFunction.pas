@@ -1,52 +1,51 @@
-//------------------------------------------------------------------------------
-//  ERD.OEM.ServiceFunction
+﻿// ------------------------------------------------------------------------------
+// ERD.OEM.ServiceFunction
 //
-//  Unified service-function API. Maps the per-OEM routine names
-//  (<c>'oil_life_reset'</c> vs <c>'oil_maintenance_reset'</c> vs
-//  <c>'reset_service_indicator'</c>) to a canonical
-//  <see cref="TOBDServiceFunctionKind"/> enum so tools can write
-//  <c>FindServiceFunction(OEM, sfOilLifeReset)</c> once and have
-//  it work across every OEM extension that ships the routine.
+// Unified service-function API. Maps the per-OEM routine names
+// (<c>'oil_life_reset'</c> vs <c>'oil_maintenance_reset'</c> vs
+// <c>'reset_service_indicator'</c>) to a canonical
+// <see cref="TOBDServiceFunctionKind"/> enum so tools can write
+// <c>FindServiceFunction(OEM, sfOilLifeReset)</c> once and have
+// it work across every OEM extension that ships the routine.
 //
-//  Resolution is name-pattern based: each kind has a set of
-//  known substring tokens. The first routine whose name matches
-//  any of the kind's tokens wins.
+// Resolution is name-pattern based: each kind has a set of
+// known substring tokens. The first routine whose name matches
+// any of the kind's tokens wins.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-12  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-12  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.OEM.ServiceFunction;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.OEM.Types,
   ERD.OEM.Extensions,
   ERD.OEM.RoutineControl;
 
 type
   /// <summary>
-  ///   Canonical service-function kinds — the set of routines a
-  ///   dealer-style tool typically exposes as one-tap actions.
+  /// Canonical service-function kinds — the set of routines a
+  /// dealer-style tool typically exposes as one-tap actions.
   /// </summary>
-  TOBDServiceFunctionKind = (
-    sfUnknown,
+  TOBDServiceFunctionKind = (sfUnknown,
     /// <summary>Oil life monitor reset.</summary>
     sfOilLifeReset,
     /// <summary>Electronic parking brake service mode.</summary>
@@ -87,8 +86,8 @@ type
     sfFuelTrimReset);
 
   /// <summary>
-  ///   Resolved service function — one routine the OEM
-  ///   extension exposes that matches a canonical kind.
+  /// Resolved service function — one routine the OEM
+  /// extension exposes that matches a canonical kind.
   /// </summary>
   TOBDServiceFunction = record
     /// <summary>Canonical kind.</summary>
@@ -104,60 +103,58 @@ type
   end;
 
   /// <summary>
-  ///   Registry of canonical kind → name-token mappings. Tokens
-  ///   are matched as case-insensitive substrings against the
-  ///   routine name.
+  /// Registry of canonical kind → name-token mappings. Tokens
+  /// are matched as case-insensitive substrings against the
+  /// routine name.
   /// </summary>
   TOBDServiceFunctionRegistry = class
   strict private
-    class var FTokens:
-      TObjectDictionary<TOBDServiceFunctionKind, TList<string>>;
+    class var FTokens: TObjectDictionary<TOBDServiceFunctionKind,
+      TList<string>>;
     class procedure EnsureInitialized; static;
-    class procedure RegisterTokens(
-      const Kind: TOBDServiceFunctionKind;
+    class procedure RegisterTokens(const Kind: TOBDServiceFunctionKind;
       const Names: array of string); static;
   public
     /// <summary>
-    ///   <c>True</c> when <c>Name</c> matches any token for
-    ///   <c>Kind</c> (case-insensitive substring match).
+    /// <c>True</c> when <c>Name</c> matches any token for
+    /// <c>Kind</c> (case-insensitive substring match).
     /// </summary>
     class function NameMatchesKind(const Name: string;
       const Kind: TOBDServiceFunctionKind): Boolean; static;
     /// <summary>
-    ///   Best-guess canonical kind for an arbitrary routine
-    ///   name. Returns <c>sfUnknown</c> when no token matches.
+    /// Best-guess canonical kind for an arbitrary routine
+    /// name. Returns <c>sfUnknown</c> when no token matches.
     /// </summary>
-    class function ClassifyName(
-      const Name: string): TOBDServiceFunctionKind; static;
+    class function ClassifyName(const Name: string)
+      : TOBDServiceFunctionKind; static;
     /// <summary>Releases registry state. Safe to call multiple
     /// times.</summary>
     class procedure Shutdown; static;
   end;
 
-/// <summary>
-///   Finds the first routine in the OEM extension's catalogue
-///   that maps to <c>Kind</c>.
-/// </summary>
-/// <param name="Ext">OEM extension.</param>
-/// <param name="Kind">Canonical kind.</param>
-/// <param name="Func">Out: resolved function on success.</param>
+  /// <summary>
+  /// Finds the first routine in the OEM extension's catalogue
+  /// that maps to <c>Kind</c>.
+  /// </summary>
+  /// <param name="Ext">OEM extension.</param>
+  /// <param name="Kind">Canonical kind.</param>
+  /// <param name="Func">Out: resolved function on success.</param>
 function FindServiceFunction(const Ext: IOBDOEMExtension;
-  const Kind: TOBDServiceFunctionKind;
-  out Func: TOBDServiceFunction): Boolean;
+  const Kind: TOBDServiceFunctionKind; out Func: TOBDServiceFunction): Boolean;
 
 /// <summary>
-///   Discovers every supported service function on the OEM
-///   extension. Useful for populating a "Service" menu without
-///   hard-coding which OEMs support what.
+/// Discovers every supported service function on the OEM
+/// extension. Useful for populating a "Service" menu without
+/// hard-coding which OEMs support what.
 /// </summary>
 /// <param name="Ext">OEM extension.</param>
-function ListServiceFunctions(
-  const Ext: IOBDOEMExtension): TArray<TOBDServiceFunction>;
+function ListServiceFunctions(const Ext: IOBDOEMExtension)
+  : TArray<TOBDServiceFunction>;
 
 /// <summary>
-///   Builds the StartRoutine UDS frame for a service function.
-///   Caller-supplied <c>InputData</c> is appended past the RID;
-///   pass <c>nil</c> for routines that take no arguments.
+/// Builds the StartRoutine UDS frame for a service function.
+/// Caller-supplied <c>InputData</c> is appended past the RID;
+/// pass <c>nil</c> for routines that take no arguments.
 /// </summary>
 /// <param name="Func">Resolved function.</param>
 /// <param name="InputData">Optional input bytes.</param>
@@ -166,8 +163,7 @@ function BuildServiceFunctionFrame(const Func: TOBDServiceFunction;
 
 /// <summary>Display label for a service-function kind.</summary>
 /// <param name="Kind">Canonical kind.</param>
-function ServiceFunctionKindName(
-  const Kind: TOBDServiceFunctionKind): string;
+function ServiceFunctionKindName(const Kind: TOBDServiceFunctionKind): string;
 
 implementation
 
@@ -175,70 +171,51 @@ class procedure TOBDServiceFunctionRegistry.EnsureInitialized;
 begin
   if FTokens <> nil then
     Exit;
-  FTokens := TObjectDictionary<TOBDServiceFunctionKind,
-    TList<string>>.Create([doOwnsValues]);
-  RegisterTokens(sfOilLifeReset,
-    ['oil_life', 'oil_maintenance', 'service_indicator',
-     'oil_reset', 'engine_oil_reset', 'oil_change_reset']);
-  RegisterTokens(sfEPBService,
-    ['epb_service', 'parking_brake_service',
-     'electronic_parking_brake', 'park_brake_service']);
-  RegisterTokens(sfSASCalibration,
-    ['sas_calibration', 'sas_reset', 'steering_angle_reset',
-     'steering_calibration']);
-  RegisterTokens(sfBatteryRegistration,
-    ['battery_register', 'battery_registration', 'bms_register',
-     'register_battery']);
-  RegisterTokens(sfDPFRegen,
-    ['dpf_regen', 'dpf_force_regen', 'forced_dpf_regen',
-     'forced_regeneration', 'particulate_regen']);
-  RegisterTokens(sfTPMSRelearn,
-    ['tpms_relearn', 'rdc_relearn', 'tire_pressure_relearn']);
-  RegisterTokens(sfThrottleRelearn,
-    ['tps_relearn', 'throttle_relearn', 'throttle_pedal_learn',
-     'throttle_position_relearn']);
-  RegisterTokens(sfIdleRelearn,
-    ['idle_relearn', 'iac_relearn', 'idle_air_relearn',
-     'idle_volume_relearn']);
-  RegisterTokens(sfTransmissionRelearn,
-    ['cvt_relearn', 'auto_clutch_relearn', 'sst_dct_calibration',
-     'pdk_clutch_calibration', 'opticruise_calibration',
-     'tipmatic_calibration', 'eurotronic_calibration',
-     'ishift_clutch', 'i_shift_clutch_calibration',
-     'dt12_clutch_calibration', 'smoother_calibration',
-     'tcu_relearn', 'ferrari_dct_calibration']);
-  RegisterTokens(sfBrakeBleed,
-    ['brake_bleed', 'brake_bleed_cycle', 'jlr_brake_bleed',
-     'polestar_brake_bleed']);
-  RegisterTokens(sfAirSuspensionCalibration,
-    ['air_suspension_calibration', 'air_susp_calib',
-     'pasm_calibration']);
-  RegisterTokens(sfImmoRelearn,
-    ['kessy_relearn', 'cas_relearn', 'eis_relearn',
-     'sjb_relearn', 'pats_key_program', 'sas_key_program',
-     'smart_key_relearn', 'mini_cas_relearn',
-     'porsche_kessy_relearn', 'mb_eis_relearn']);
-  RegisterTokens(sfHybridBatteryTest,
-    ['hybrid_battery_test', 'battery_block_test']);
-  RegisterTokens(sfCrankRelearn,
-    ['crank_relearn']);
-  RegisterTokens(sfHaldexCalibration,
-    ['haldex_calibration']);
-  RegisterTokens(sfBasicSetting,
-    ['basic_setting']);
-  RegisterTokens(sfClearAdaptations,
-    ['reset_adaptations', 'reset_long_term_fuel_trim',
-     'fuel_trim_reset', 'kam_reset', 'pcm_kam_reset']);
-  RegisterTokens(sfDEFQualityTest,
-    ['def_quality_test', 'def_quality']);
-  RegisterTokens(sfFuelTrimReset,
-    ['fuel_trim_reset', 'reset_long_term_fuel_trim',
-     'fuel_trim_relearn']);
+  FTokens := TObjectDictionary < TOBDServiceFunctionKind,
+    TList < string >>.Create([doOwnsValues]);
+  RegisterTokens(sfOilLifeReset, ['oil_life', 'oil_maintenance',
+    'service_indicator', 'oil_reset', 'engine_oil_reset', 'oil_change_reset']);
+  RegisterTokens(sfEPBService, ['epb_service', 'parking_brake_service',
+    'electronic_parking_brake', 'park_brake_service']);
+  RegisterTokens(sfSASCalibration, ['sas_calibration', 'sas_reset',
+    'steering_angle_reset', 'steering_calibration']);
+  RegisterTokens(sfBatteryRegistration, ['battery_register',
+    'battery_registration', 'bms_register', 'register_battery']);
+  RegisterTokens(sfDPFRegen, ['dpf_regen', 'dpf_force_regen',
+    'forced_dpf_regen', 'forced_regeneration', 'particulate_regen']);
+  RegisterTokens(sfTPMSRelearn, ['tpms_relearn', 'rdc_relearn',
+    'tire_pressure_relearn']);
+  RegisterTokens(sfThrottleRelearn, ['tps_relearn', 'throttle_relearn',
+    'throttle_pedal_learn', 'throttle_position_relearn']);
+  RegisterTokens(sfIdleRelearn, ['idle_relearn', 'iac_relearn',
+    'idle_air_relearn', 'idle_volume_relearn']);
+  RegisterTokens(sfTransmissionRelearn, ['cvt_relearn', 'auto_clutch_relearn',
+    'sst_dct_calibration', 'pdk_clutch_calibration', 'opticruise_calibration',
+    'tipmatic_calibration', 'eurotronic_calibration', 'ishift_clutch',
+    'i_shift_clutch_calibration', 'dt12_clutch_calibration',
+    'smoother_calibration', 'tcu_relearn', 'ferrari_dct_calibration']);
+  RegisterTokens(sfBrakeBleed, ['brake_bleed', 'brake_bleed_cycle',
+    'jlr_brake_bleed', 'polestar_brake_bleed']);
+  RegisterTokens(sfAirSuspensionCalibration, ['air_suspension_calibration',
+    'air_susp_calib', 'pasm_calibration']);
+  RegisterTokens(sfImmoRelearn, ['kessy_relearn', 'cas_relearn', 'eis_relearn',
+    'sjb_relearn', 'pats_key_program', 'sas_key_program', 'smart_key_relearn',
+    'mini_cas_relearn', 'porsche_kessy_relearn', 'mb_eis_relearn']);
+  RegisterTokens(sfHybridBatteryTest, ['hybrid_battery_test',
+    'battery_block_test']);
+  RegisterTokens(sfCrankRelearn, ['crank_relearn']);
+  RegisterTokens(sfHaldexCalibration, ['haldex_calibration']);
+  RegisterTokens(sfBasicSetting, ['basic_setting']);
+  RegisterTokens(sfClearAdaptations, ['reset_adaptations',
+    'reset_long_term_fuel_trim', 'fuel_trim_reset', 'kam_reset',
+    'pcm_kam_reset']);
+  RegisterTokens(sfDEFQualityTest, ['def_quality_test', 'def_quality']);
+  RegisterTokens(sfFuelTrimReset, ['fuel_trim_reset',
+    'reset_long_term_fuel_trim', 'fuel_trim_relearn']);
 end;
 
-class procedure TOBDServiceFunctionRegistry.RegisterTokens(
-  const Kind: TOBDServiceFunctionKind;
-  const Names: array of string);
+class procedure TOBDServiceFunctionRegistry.RegisterTokens
+  (const Kind: TOBDServiceFunctionKind; const Names: array of string);
 var
   L: TList<string>;
   S: string;
@@ -249,8 +226,7 @@ begin
   FTokens.AddOrSetValue(Kind, L);
 end;
 
-class function TOBDServiceFunctionRegistry.NameMatchesKind(
-  const Name: string;
+class function TOBDServiceFunctionRegistry.NameMatchesKind(const Name: string;
   const Kind: TOBDServiceFunctionKind): Boolean;
 var
   Tokens: TList<string>;
@@ -266,8 +242,8 @@ begin
       Exit(True);
 end;
 
-class function TOBDServiceFunctionRegistry.ClassifyName(
-  const Name: string): TOBDServiceFunctionKind;
+class function TOBDServiceFunctionRegistry.ClassifyName(const Name: string)
+  : TOBDServiceFunctionKind;
 var
   Kind: TOBDServiceFunctionKind;
 begin
@@ -277,7 +253,7 @@ begin
   // sfOilLifeReset is checked before sfClearAdaptations because
   // 'reset' is in the Clear set.
   for Kind := Succ(Low(TOBDServiceFunctionKind))
-              to High(TOBDServiceFunctionKind) do
+    to High(TOBDServiceFunctionKind) do
     if NameMatchesKind(Name, Kind) then
       Exit(Kind);
   Result := sfUnknown;
@@ -288,58 +264,75 @@ begin
   FreeAndNil(FTokens);
 end;
 
-function ServiceFunctionKindName(
-  const Kind: TOBDServiceFunctionKind): string;
+function ServiceFunctionKindName(const Kind: TOBDServiceFunctionKind): string;
 begin
   case Kind of
-    sfOilLifeReset:             Result := 'Oil Life Reset';
-    sfEPBService:               Result := 'EPB Service Mode';
-    sfSASCalibration:           Result := 'Steering-Angle Sensor Calibration';
-    sfBatteryRegistration:      Result := 'Battery Registration';
-    sfDPFRegen:                 Result := 'DPF Regeneration';
-    sfTPMSRelearn:              Result := 'TPMS Sensor Relearn';
-    sfThrottleRelearn:          Result := 'Throttle Pedal Relearn';
-    sfIdleRelearn:              Result := 'Idle Air Control Relearn';
-    sfTransmissionRelearn:      Result := 'Transmission / Clutch Calibration';
-    sfBrakeBleed:               Result := 'Electronic Brake Bleed';
-    sfAirSuspensionCalibration: Result := 'Air-Suspension Calibration';
-    sfImmoRelearn:              Result := 'Immobilizer / Smart-Key Relearn';
-    sfHybridBatteryTest:        Result := 'Hybrid Battery Test';
-    sfCrankRelearn:             Result := 'Crankshaft Position Relearn';
-    sfHaldexCalibration:        Result := 'Haldex / 4MOTION Calibration';
-    sfBasicSetting:             Result := 'Basic Setting';
-    sfClearAdaptations:         Result := 'Reset Adaptations';
-    sfDEFQualityTest:           Result := 'DEF Quality Test';
-    sfFuelTrimReset:            Result := 'Fuel Trim Reset';
+    sfOilLifeReset:
+      Result := 'Oil Life Reset';
+    sfEPBService:
+      Result := 'EPB Service Mode';
+    sfSASCalibration:
+      Result := 'Steering-Angle Sensor Calibration';
+    sfBatteryRegistration:
+      Result := 'Battery Registration';
+    sfDPFRegen:
+      Result := 'DPF Regeneration';
+    sfTPMSRelearn:
+      Result := 'TPMS Sensor Relearn';
+    sfThrottleRelearn:
+      Result := 'Throttle Pedal Relearn';
+    sfIdleRelearn:
+      Result := 'Idle Air Control Relearn';
+    sfTransmissionRelearn:
+      Result := 'Transmission / Clutch Calibration';
+    sfBrakeBleed:
+      Result := 'Electronic Brake Bleed';
+    sfAirSuspensionCalibration:
+      Result := 'Air-Suspension Calibration';
+    sfImmoRelearn:
+      Result := 'Immobilizer / Smart-Key Relearn';
+    sfHybridBatteryTest:
+      Result := 'Hybrid Battery Test';
+    sfCrankRelearn:
+      Result := 'Crankshaft Position Relearn';
+    sfHaldexCalibration:
+      Result := 'Haldex / 4MOTION Calibration';
+    sfBasicSetting:
+      Result := 'Basic Setting';
+    sfClearAdaptations:
+      Result := 'Reset Adaptations';
+    sfDEFQualityTest:
+      Result := 'DEF Quality Test';
+    sfFuelTrimReset:
+      Result := 'Fuel Trim Reset';
   else
     Result := 'Unknown Service Function';
   end;
 end;
 
 function FindServiceFunction(const Ext: IOBDOEMExtension;
-  const Kind: TOBDServiceFunctionKind;
-  out Func: TOBDServiceFunction): Boolean;
+  const Kind: TOBDServiceFunctionKind; out Func: TOBDServiceFunction): Boolean;
 var
   R: TOBDOEMRoutine;
 begin
-  Func := Default(TOBDServiceFunction);
+  Func := Default (TOBDServiceFunction);
   Result := False;
   if Ext = nil then
     Exit;
   for R in Ext.Routines do
     if TOBDServiceFunctionRegistry.NameMatchesKind(R.Name, Kind) then
     begin
-      Func.Kind        := Kind;
-      Func.RoutineId   := R.Identifier;
+      Func.Kind := Kind;
+      Func.RoutineId := R.Identifier;
       Func.RoutineName := R.Name;
       Func.Description := R.Description;
-      Func.EcuAddress  := R.EcuAddress;
+      Func.EcuAddress := R.EcuAddress;
       Exit(True);
     end;
 end;
 
-function ListServiceFunctions(
-  const Ext: IOBDOEMExtension): TArray<TOBDServiceFunction>;
+function ListServiceFunctions(const Ext: IOBDOEMExtension)
+  : TArray<TOBDServiceFunction>;
 var
   R: TOBDOEMRoutine;
   Kind: TOBDServiceFunctionKind;
@@ -355,12 +348,12 @@ begin
       Kind := TOBDServiceFunctionRegistry.ClassifyName(R.Name);
       if Kind = sfUnknown then
         Continue;
-      Func := Default(TOBDServiceFunction);
-      Func.Kind        := Kind;
-      Func.RoutineId   := R.Identifier;
+      Func := Default (TOBDServiceFunction);
+      Func.Kind := Kind;
+      Func.RoutineId := R.Identifier;
       Func.RoutineName := R.Name;
       Func.Description := R.Description;
-      Func.EcuAddress  := R.EcuAddress;
+      Func.EcuAddress := R.EcuAddress;
       Acc.Add(Func);
     end;
     Result := Acc.ToArray;
@@ -369,8 +362,7 @@ begin
   end;
 end;
 
-function BuildServiceFunctionFrame(
-  const Func: TOBDServiceFunction;
+function BuildServiceFunctionFrame(const Func: TOBDServiceFunction;
   const InputData: TBytes): TBytes;
 begin
   Result := BuildStartRoutine(Func.RoutineId, InputData);
@@ -379,6 +371,7 @@ end;
 initialization
 
 finalization
-  TOBDServiceFunctionRegistry.Shutdown;
+
+TOBDServiceFunctionRegistry.Shutdown;
 
 end.

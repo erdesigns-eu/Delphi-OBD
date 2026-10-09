@@ -1,40 +1,40 @@
-//------------------------------------------------------------------------------
-//  ERD.Adapter
+﻿// ------------------------------------------------------------------------------
+// ERD.Adapter
 //
-//  TOBDAdapter — the second-tier non-visual component sitting between
-//  TOBDConnection (transport) and TOBDProtocol (wire protocol). Handles:
+// TOBDAdapter — the second-tier non-visual component sitting between
+// TOBDConnection (transport) and TOBDProtocol (wire protocol). Handles:
 //
-//    - sending AT / ST / OBD commands and collecting their responses
-//      against the ELM327 '>' prompt terminator,
-//    - chip-family detection (Detect / DetectAsync),
-//    - per-family initialisation (Init / InitAsync),
-//    - capability resolution from the catalogue,
-//    - event surface for response and identity changes.
+// - sending AT / ST / OBD commands and collecting their responses
+// against the ELM327 '>' prompt terminator,
+// - chip-family detection (Detect / DetectAsync),
+// - per-family initialisation (Init / InitAsync),
+// - capability resolution from the catalogue,
+// - event surface for response and identity changes.
 //
-//  Response collection runs on the connection's worker-thread raw hook
-//  so sync calls do not deadlock when invoked from the main thread —
-//  the producer (rx thread) is never the same as the consumer
-//  (caller).
+// Response collection runs on the connection's worker-thread raw hook
+// so sync calls do not deadlock when invoked from the main thread —
+// the producer (rx thread) is never the same as the consumer
+// (caller).
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation: TOBDAdapter component, sync +
-//                     async + progress for Detect / Init /
-//                     WriteATCommand / WriteSTCommand /
-//                     WriteOBDCommand.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation: TOBDAdapter component, sync +
+// async + progress for Detect / Init /
+// WriteATCommand / WriteSTCommand /
+// WriteOBDCommand.
+// ------------------------------------------------------------------------------
 
 unit ERD.Adapter;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -42,10 +42,10 @@ interface
 uses
   ERD.Async.Task,
   ERD.CAN.Route,
-  {$IFDEF FPC}StrUtils{$ELSE}System.StrUtils{$ENDIF},
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}StrUtils{$ELSE}System.StrUtils{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
   System.Diagnostics,
   ERD.Types,
   ERD.Connection.Types,
@@ -64,21 +64,21 @@ const
 
 type
   /// <summary>
-  ///   Non-visual adapter component bound to a <c>TOBDConnection</c>.
+  /// Non-visual adapter component bound to a <c>TOBDConnection</c>.
   /// </summary>
   /// <remarks>
-  ///   Drop on a form, point <c>Connection</c> at a configured
-  ///   <c>TOBDConnection</c>, set <c>Family</c> to your adapter's
-  ///   family (or leave <c>afELM327</c> and call <c>Detect</c>), then
-  ///   call <c>Init</c> to run the family's standard initialisation.
+  /// Drop on a form, point <c>Connection</c> at a configured
+  /// <c>TOBDConnection</c>, set <c>Family</c> to your adapter's
+  /// family (or leave <c>afELM327</c> and call <c>Detect</c>), then
+  /// call <c>Init</c> to run the family's standard initialisation.
   ///
-  ///   <c>Detect</c>, <c>Init</c> and the various <c>Write*Command</c>
-  ///   methods all ship in synchronous and asynchronous forms per the
-  ///   dual-method rule (PLAN §3.7); the async forms fire
-  ///   <c>OnReady</c> / <c>OnIdentityChanged</c> / <c>OnATResponse</c>
-  ///   / <c>OnError</c> on the main thread.
+  /// <c>Detect</c>, <c>Init</c> and the various <c>Write*Command</c>
+  /// methods all ship in synchronous and asynchronous forms per the
+  /// dual-method rule (PLAN §3.7); the async forms fire
+  /// <c>OnReady</c> / <c>OnIdentityChanged</c> / <c>OnATResponse</c>
+  /// / <c>OnError</c> on the main thread.
   ///
-  ///   Long-running ops fire <c>OnProgress</c> with named phases.
+  /// Long-running ops fire <c>OnProgress</c> with named phases.
   /// </remarks>
   TOBDAdapter = class(TComponent, IOBDAdapterCommandSender)
   strict private
@@ -118,8 +118,8 @@ type
     procedure HandleRawBytes(Sender: TObject; const ABytes: TBytes);
 
     function TerminatorIndex(const ABuffer: string): Integer;
-    function ParseResponse(const ARaw: string;
-      const ACommand: string; AElapsed: Cardinal): TOBDAdapterResponse;
+    function ParseResponse(const ARaw: string; const ACommand: string;
+      AElapsed: Cardinal): TOBDAdapterResponse;
     function BytesToWireString(const ABytes: TBytes): string;
     function StripLeadingEcho(const ABuffer, ACommand: string): string;
 
@@ -134,8 +134,8 @@ type
     procedure FireOnATResponse(const AResponse: TOBDAdapterResponse);
     procedure FireOnError(ACode: TOBDErrorCode; const AMessage: string);
 
-    function DoSendCommand(const ACommand: string;
-      ATimeoutMs: Cardinal): TOBDAdapterResponse;
+    function DoSendCommand(const ACommand: string; ATimeoutMs: Cardinal)
+      : TOBDAdapterResponse;
     procedure DoDetect;
     procedure DoInit;
   protected
@@ -143,8 +143,8 @@ type
     /// <param name="ACommand">Wire command without carriage return.</param>
     /// <param name="ATimeoutMs">Response timeout.</param>
     /// <returns>Adapter response.</returns>
-    function ExecuteCommand(const ACommand: string;
-      ATimeoutMs: Cardinal): TOBDAdapterResponse; virtual;
+    function ExecuteCommand(const ACommand: string; ATimeoutMs: Cardinal)
+      : TOBDAdapterResponse; virtual;
     procedure Notification(AComponent: TComponent;
       Operation: TOperation); override;
   public
@@ -164,30 +164,30 @@ type
     /// <exception cref="EOBDNotConnected">Connection not active.</exception>
     /// <exception cref="EOBDAdapter">Timeout, or operation cancelled
     /// via <see cref="Close"/>.</exception>
-    function SendCommand(const ACommand: string;
-      ATimeoutMs: Cardinal): TOBDAdapterResponse;
+    function SendCommand(const ACommand: string; ATimeoutMs: Cardinal)
+      : TOBDAdapterResponse;
 
     /// <summary>
-    ///   Cancels every in-flight sync / async operation, joins the
-    ///   async worker thread, and unsubscribes from the connection's
-    ///   raw byte hook.
+    /// Cancels every in-flight sync / async operation, joins the
+    /// async worker thread, and unsubscribes from the connection's
+    /// raw byte hook.
     /// </summary>
     /// <remarks>
-    ///   Safe to call from any thread. Sync calls already in their
-    ///   <c>WaitFor</c> loop wake within ~50 ms and raise
-    ///   <see cref="EOBDAdapter"/>; async calls fire <c>OnError</c>
-    ///   with <c>oeIO</c> and a "cancelled" message.
+    /// Safe to call from any thread. Sync calls already in their
+    /// <c>WaitFor</c> loop wake within ~50 ms and raise
+    /// <see cref="EOBDAdapter"/>; async calls fire <c>OnError</c>
+    /// with <c>oeIO</c> and a "cancelled" message.
     ///
-    ///   Equivalent to disconnecting the bound connection from the
-    ///   adapter's perspective; the connection itself is not closed.
-    ///   Set <c>Connection := nil</c> after this if you want to fully
-    ///   detach.
+    /// Equivalent to disconnecting the bound connection from the
+    /// adapter's perspective; the connection itself is not closed.
+    /// Set <c>Connection := nil</c> after this if you want to fully
+    /// detach.
     /// </remarks>
     procedure Close;
 
     /// <summary>
-    ///   Identifies the adapter chip and populates <c>Identity</c> +
-    ///   <c>Capabilities</c>.
+    /// Identifies the adapter chip and populates <c>Identity</c> +
+    /// <c>Capabilities</c>.
     /// </summary>
     /// <remarks>Synchronous. Fires <c>OnProgress</c> for each of six
     /// phases (see <c>TOBDAdapterDetector</c>) and
@@ -200,8 +200,8 @@ type
     procedure DetectAsync;
 
     /// <summary>
-    ///   Runs the family's initialisation sequence, optionally
-    ///   appending <c>InitCommands</c>.
+    /// Runs the family's initialisation sequence, optionally
+    /// appending <c>InitCommands</c>.
     /// </summary>
     /// <remarks>Synchronous. Fires <c>OnProgress</c> per step and
     /// <c>OnReady</c> on completion.</remarks>
@@ -219,8 +219,8 @@ type
     /// <c>CommandTimeoutMs</c>.</param>
     /// <returns>Parsed response.</returns>
     /// <exception cref="EOBDNotConnected">Connection not active.</exception>
-    function WriteATCommand(const ACommand: string;
-      ATimeoutMs: Cardinal = 0): TOBDAdapterResponse;
+    function WriteATCommand(const ACommand: string; ATimeoutMs: Cardinal = 0)
+      : TOBDAdapterResponse;
 
     /// <summary>Non-blocking variant. Result delivered via
     /// <c>OnATResponse</c>.</summary>
@@ -237,8 +237,8 @@ type
     /// <exception cref="EOBDNotConnected">Connection not active.</exception>
     /// <exception cref="EOBDUnsupported">Adapter lacks
     /// <c>acSTCommands</c>.</exception>
-    function WriteSTCommand(const ACommand: string;
-      ATimeoutMs: Cardinal = 0): TOBDAdapterResponse;
+    function WriteSTCommand(const ACommand: string; ATimeoutMs: Cardinal = 0)
+      : TOBDAdapterResponse;
 
     /// <summary>Non-blocking variant. Result delivered via
     /// <c>OnATResponse</c>.</summary>
@@ -255,8 +255,8 @@ type
     /// <param name="ATimeoutMs">Timeout. <c>0</c> uses default.</param>
     /// <returns>Parsed response.</returns>
     /// <exception cref="EOBDNotConnected">Connection not active.</exception>
-    function WriteOBDCommand(const ACommand: string;
-      ATimeoutMs: Cardinal = 0): TOBDAdapterResponse;
+    function WriteOBDCommand(const ACommand: string; ATimeoutMs: Cardinal = 0)
+      : TOBDAdapterResponse;
 
     /// <summary>Apply a CAN route and exchange the diagnostic command atomically.
     /// Routing settings remain the current adapter configuration afterwards.</summary>
@@ -288,13 +288,13 @@ type
     /// from the registry.</summary>
     property Capabilities: TOBDAdapterCapabilities read FCapabilities;
     /// <summary>
-    ///   Largest ISO-TP frame the adapter can carry (bytes).
+    /// Largest ISO-TP frame the adapter can carry (bytes).
     /// </summary>
     /// <remarks>
-    ///   Populated from the capability registry alongside
-    ///   <c>Capabilities</c> on a successful <c>Detect</c>. <c>0</c>
-    ///   when not yet detected. The protocol layer reads this to
-    ///   decide whether long-frame ISO-TP is available.
+    /// Populated from the capability registry alongside
+    /// <c>Capabilities</c> on a successful <c>Detect</c>. <c>0</c>
+    /// when not yet detected. The protocol layer reads this to
+    /// decide whether long-frame ISO-TP is available.
     /// </remarks>
     property MaxIsoTpFrameBytes: Cardinal read FMaxIsoTpFrameBytes;
   published
@@ -317,8 +317,8 @@ type
     property OnReady: TNotifyEvent read FOnReady write FOnReady;
     /// <summary>Fires after <c>Detect</c> populates
     /// <c>Identity</c> (main thread).</summary>
-    property OnIdentityChanged: TOBDAdapterIdentityEvent
-      read FOnIdentityChanged write FOnIdentityChanged;
+    property OnIdentityChanged: TOBDAdapterIdentityEvent read FOnIdentityChanged
+      write FOnIdentityChanged;
     /// <summary>Fires for each command response (main thread).</summary>
     property OnATResponse: TOBDAdapterResponseEvent read FOnATResponse
       write FOnATResponse;
@@ -335,22 +335,13 @@ implementation
 const
   // Known ELM327 / OBDLink error keywords. Stored uppercase; matched
   // case-insensitively against the response.
-  ERROR_KEYWORDS: array[0..11] of string = (
-    'NO DATA',
-    'BUS ERROR',
-    'CAN ERROR',
-    'BUS BUSY',
-    'BUS INIT',
-    'UNABLE TO CONNECT',
-    'BUFFER FULL',
-    'STOPPED',
-    'FB ERROR',
-    'DATA ERROR',
-    'ERR',
-    '?'   // generic invalid-command marker
-  );
+  ERROR_KEYWORDS: array [0 .. 11] of string = ('NO DATA', 'BUS ERROR',
+    'CAN ERROR', 'BUS BUSY', 'BUS INIT', 'UNABLE TO CONNECT', 'BUFFER FULL',
+    'STOPPED', 'FB ERROR', 'DATA ERROR', 'ERR', '?'
+    // generic invalid-command marker
+    );
 
-{ ---- TOBDAdapter ------------------------------------------------------------- }
+  { ---- TOBDAdapter ------------------------------------------------------------- }
 
 constructor TOBDAdapter.Create(AOwner: TComponent);
 begin
@@ -369,7 +360,8 @@ end;
 
 destructor TOBDAdapter.Destroy;
 begin
-  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  if FOwnedTask <> nil then
+    FOwnedTask.Cancel;
   // Signal cancel so any in-flight sync caller wakes and exits with
   // EOBDAdapter rather than blocking the destructor on its WaitFor.
   if Assigned(FCancelEvent) then
@@ -397,7 +389,8 @@ begin
   FCancelEvent.ResetEvent;
 end;
 
-procedure TOBDAdapter.Notification(AComponent: TComponent; Operation: TOperation);
+procedure TOBDAdapter.Notification(AComponent: TComponent;
+  Operation: TOperation);
 begin
   inherited;
   if (Operation = opRemove) and (AComponent = FConnection) then
@@ -409,7 +402,8 @@ end;
 
 procedure TOBDAdapter.SetConnection(AValue: TOBDConnection);
 begin
-  if FConnection = AValue then Exit;
+  if FConnection = AValue then
+    Exit;
   Close;
   UnsubscribeIfNeeded;
   if FConnection <> nil then
@@ -426,7 +420,8 @@ end;
 
 procedure TOBDAdapter.SubscribeIfNeeded;
 begin
-  if FAutoSubscribed or (FConnection = nil) then Exit;
+  if FAutoSubscribed or (FConnection = nil) then
+    Exit;
   FConnection.OnDataReceivedRaw := HandleRawBytes;
   FAutoSubscribed := True;
 end;
@@ -442,7 +437,8 @@ procedure TOBDAdapter.HandleRawBytes(Sender: TObject; const ABytes: TBytes);
 var
   Chunk: string;
 begin
-  if Length(ABytes) = 0 then Exit;
+  if Length(ABytes) = 0 then
+    Exit;
   // 1:1 byte-to-Char preservation. ELM327 / OBDLink chips are 7-bit
   // clean by spec but clones may emit 0x80+ bytes; preserving them
   // lets a higher layer distinguish "junk byte 0xFE" from '?'.
@@ -466,8 +462,7 @@ begin
     Result[I + 1] := Char(ABytes[I]);
 end;
 
-function TOBDAdapter.StripLeadingEcho(const ABuffer,
-  ACommand: string): string;
+function TOBDAdapter.StripLeadingEcho(const ABuffer, ACommand: string): string;
 var
   Trimmed: string;
   CmdNorm: string;
@@ -476,13 +471,13 @@ var
 begin
   Result := ABuffer;
   CmdNorm := Trim(ACommand);
-  if CmdNorm = '' then Exit;
+  if CmdNorm = '' then
+    Exit;
   Trimmed := Result;
 
   // Drop leading whitespace / CR / LF before checking.
   J := 1;
-  while (J <= Length(Trimmed)) and
-        CharInSet(Trimmed[J], [#9, #10, #13, ' ']) do
+  while (J <= Length(Trimmed)) and CharInSet(Trimmed[J], [#9, #10, #13, ' ']) do
     Inc(J);
   if J > 1 then
     Trimmed := Copy(Trimmed, J, MaxInt);
@@ -490,13 +485,12 @@ begin
   // Echo present only when the buffer starts with the command
   // (case-insensitive) followed by a separator.
   Len := Length(CmdNorm);
-  if (Length(Trimmed) >= Len) and
-     SameText(Copy(Trimmed, 1, Len), CmdNorm) then
+  if (Length(Trimmed) >= Len) and SameText(Copy(Trimmed, 1, Len), CmdNorm) then
   begin
     Idx := Len + 1;
     // Drop the terminator(s) that follow the echoed command.
-    while (Idx <= Length(Trimmed)) and
-          CharInSet(Trimmed[Idx], [#9, #10, #13, ' ']) do
+    while (Idx <= Length(Trimmed)) and CharInSet(Trimmed[Idx],
+      [#9, #10, #13, ' ']) do
       Inc(Idx);
     Result := Copy(Trimmed, Idx, MaxInt);
   end;
@@ -508,8 +502,8 @@ begin
   Result := Pos(OBD_ADAPTER_PROMPT, ABuffer);
 end;
 
-function TOBDAdapter.ParseResponse(const ARaw: string;
-  const ACommand: string; AElapsed: Cardinal): TOBDAdapterResponse;
+function TOBDAdapter.ParseResponse(const ARaw: string; const ACommand: string;
+  AElapsed: Cardinal): TOBDAdapterResponse;
 var
   Idx: Integer;
   Body: string;
@@ -544,9 +538,11 @@ begin
   for I := 0 to High(Lines) do
   begin
     Trimmed := Trim(Lines[I]);
-    if Trimmed = '' then Continue;
+    if Trimmed = '' then
+      Continue;
     // Belt-and-braces: a trailing per-line echo (rare) is still dropped.
-    if SameText(Trimmed, Trim(ACommand)) then Continue;
+    if SameText(Trimmed, Trim(ACommand)) then
+      Continue;
     SetLength(Result.Lines, Length(Result.Lines) + 1);
     Result.Lines[High(Result.Lines)] := Trimmed;
   end;
@@ -565,14 +561,14 @@ begin
   end;
 end;
 
-function TOBDAdapter.SendCommand(const ACommand: string;
-  ATimeoutMs: Cardinal): TOBDAdapterResponse;
+function TOBDAdapter.SendCommand(const ACommand: string; ATimeoutMs: Cardinal)
+  : TOBDAdapterResponse;
 begin
   Result := DoSendCommand(ACommand, ATimeoutMs);
 end;
 
-function TOBDAdapter.DoSendCommand(const ACommand: string;
-  ATimeoutMs: Cardinal): TOBDAdapterResponse;
+function TOBDAdapter.DoSendCommand(const ACommand: string; ATimeoutMs: Cardinal)
+  : TOBDAdapterResponse;
 begin
   FExchangeLock.Enter;
   try
@@ -590,22 +586,21 @@ var
   Effective: Cardinal;
 begin
   if (FConnection = nil) or not FConnection.Active then
-    raise EOBDNotConnected.Create(
-      'TOBDAdapter: Connection is not active');
+    raise EOBDNotConnected.Create('TOBDAdapter: Connection is not active');
   if Trim(ACommand) = '' then
     raise EOBDAdapter.Create('SendCommand: command is empty');
 
   SubscribeIfNeeded;
 
   Effective := ATimeoutMs;
-  if Effective = 0 then Effective := FCommandTimeoutMs;
+  if Effective = 0 then
+    Effective := FCommandTimeoutMs;
 
   // FCancelEvent's lifecycle is owned by Close / destructor — never
   // reset here. A cancel set between two commands of a Detect / Init
   // sequence must persist so the next SendCommand exits immediately.
   if FCancelEvent.WaitFor(0) = wrSignaled then
-    raise EOBDAdapter.Create(
-      'Adapter is cancelled (Close was called)');
+    raise EOBDAdapter.Create('Adapter is cancelled (Close was called)');
 
   FRxLock.Enter;
   try
@@ -627,15 +622,14 @@ begin
     if FRxComplete.WaitFor(50) = wrSignaled then
       Break;
     if FCancelEvent.WaitFor(0) = wrSignaled then
-      raise EOBDAdapter.CreateFmt(
-        'Operation cancelled while waiting for response to "%s"',
-        [ACommand]);
+      raise EOBDAdapter.CreateFmt
+        ('Operation cancelled while waiting for response to "%s"', [ACommand]);
     if Cardinal(Sw.ElapsedMilliseconds) >= Effective then
     begin
-      FireOnError(oeTimeout,
-        Format('Timeout waiting for response to "%s"', [ACommand]));
-      raise EOBDAdapter.CreateFmt(
-        'Timeout waiting for response to "%s"', [ACommand]);
+      FireOnError(oeTimeout, Format('Timeout waiting for response to "%s"',
+        [ACommand]));
+      raise EOBDAdapter.CreateFmt('Timeout waiting for response to "%s"',
+        [ACommand]);
     end;
   end;
 
@@ -660,7 +654,8 @@ begin
   finally
     FAsyncLock.Leave;
   end;
-  if Worker = nil then Exit;
+  if Worker = nil then
+    Exit;
   Worker.WaitFor;
   Worker.Free;
 end;
@@ -670,7 +665,8 @@ procedure TOBDAdapter.FireProgress(AIndex, ACount: Cardinal;
 var
   Step: TOBDProgressStep;
 begin
-  if not Assigned(FOnProgress) then Exit;
+  if not Assigned(FOnProgress) then
+    Exit;
   Step := TOBDProgressStep.MakeStep(AIndex, ACount, AName, ADetail);
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnProgress(Self, Step)
@@ -685,7 +681,8 @@ end;
 
 procedure TOBDAdapter.FireOnReady;
 begin
-  if not Assigned(FOnReady) then Exit;
+  if not Assigned(FOnReady) then
+    Exit;
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnReady(Self)
   else
@@ -697,13 +694,14 @@ begin
       end);
 end;
 
-procedure TOBDAdapter.FireOnIdentityChanged(
-  const AIdentity: TOBDAdapterIdentity);
+procedure TOBDAdapter.FireOnIdentityChanged(const AIdentity
+  : TOBDAdapterIdentity);
 var
   Snapshot: TOBDAdapterIdentity;
 begin
   Snapshot := AIdentity;
-  if not Assigned(FOnIdentityChanged) then Exit;
+  if not Assigned(FOnIdentityChanged) then
+    Exit;
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnIdentityChanged(Self, Snapshot)
   else
@@ -720,7 +718,8 @@ var
   Snapshot: TOBDAdapterResponse;
 begin
   Snapshot := AResponse;
-  if not Assigned(FOnATResponse) then Exit;
+  if not Assigned(FOnATResponse) then
+    Exit;
   if TThread.CurrentThread.ThreadID = MainThreadID then
     FOnATResponse(Self, Snapshot)
   else
@@ -732,8 +731,7 @@ begin
       end);
 end;
 
-procedure TOBDAdapter.FireOnError(ACode: TOBDErrorCode;
-  const AMessage: string);
+procedure TOBDAdapter.FireOnError(ACode: TOBDErrorCode; const AMessage: string);
 var
   Code: TOBDErrorCode;
   Msg: string;
@@ -741,7 +739,8 @@ var
 begin
   Code := ACode;
   Msg := AMessage;
-  if not Assigned(FOnError) then Exit;
+  if not Assigned(FOnError) then
+    Exit;
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
     Handled := False;
@@ -750,7 +749,8 @@ begin
   else
     FOwnedTask.Post(
       procedure
-      var Handled: Boolean;
+      var
+        Handled: Boolean;
       begin
         Handled := False;
         if Assigned(FOnError) then
@@ -765,7 +765,7 @@ var
   ProgressCb: TOBDDetectionProgress;
 begin
   ProgressCb :=
-    procedure(AIndex, ACount: Cardinal; const AName, ADetail: string)
+      procedure(AIndex, ACount: Cardinal; const AName, ADetail: string)
     begin
       FireProgress(AIndex, ACount, AName, ADetail);
     end;
@@ -774,7 +774,8 @@ begin
     ProgressCb, FCommandTimeoutMs);
 
   // Capability lookup
-  if TOBDAdapterCapabilityRegistry.Default.TryFind(Identity.AdapterKey, Entry) then
+  if TOBDAdapterCapabilityRegistry.Default.TryFind(Identity.AdapterKey, Entry)
+  then
   begin
     FCapabilities := Entry.Capabilities;
     FMaxIsoTpFrameBytes := Entry.MaxIsoTpFrameBytes;
@@ -800,12 +801,12 @@ begin
   Sequence := TOBDAdapterInitializer.ResolvedSequence(FFamily);
   Sequence := TOBDAdapterInitializer.ExtendSequence(Sequence, FInitCommands);
   ProgressCb :=
-    procedure(AIndex, ACount: Cardinal; const AName, ADetail: string)
+      procedure(AIndex, ACount: Cardinal; const AName, ADetail: string)
     begin
       FireProgress(AIndex, ACount, AName, ADetail);
     end;
-  TOBDAdapterInitializer.Run(Self as IOBDAdapterCommandSender,
-    Sequence, ProgressCb, FCommandTimeoutMs);
+  TOBDAdapterInitializer.Run(Self as IOBDAdapterCommandSender, Sequence,
+    ProgressCb, FCommandTimeoutMs);
   FInitialized := True;
   FireOnReady;
 end;
@@ -824,7 +825,8 @@ var
   Self_: TOBDAdapter;
 begin
   if (FConnection = nil) or not FConnection.Active then
-    raise EOBDNotConnected.Create('TOBDAdapter.DetectAsync: Connection inactive');
+    raise EOBDNotConnected.Create
+      ('TOBDAdapter.DetectAsync: Connection inactive');
   FAsyncLock.Enter;
   try
     if FAsyncThread <> nil then
@@ -931,14 +933,14 @@ begin
 end;
 
 function TOBDAdapter.WriteATCommand(const ACommand: string;
-  ATimeoutMs: Cardinal): TOBDAdapterResponse;
+ATimeoutMs: Cardinal): TOBDAdapterResponse;
 begin
   Result := DoSendCommand(ACommand, ATimeoutMs);
   FireOnATResponse(Result);
 end;
 
 procedure TOBDAdapter.WriteATCommandAsync(const ACommand: string;
-  ATimeoutMs: Cardinal);
+ATimeoutMs: Cardinal);
 var
   Self_: TOBDAdapter;
   CmdCopy: string;
@@ -995,26 +997,26 @@ begin
 end;
 
 function TOBDAdapter.WriteSTCommand(const ACommand: string;
-  ATimeoutMs: Cardinal): TOBDAdapterResponse;
+ATimeoutMs: Cardinal): TOBDAdapterResponse;
 begin
-  if not (acSTCommands in FCapabilities) then
-    raise EOBDUnsupported.Create(
-      'ST commands require an OBDLink-family adapter (acSTCommands)');
+  if not(acSTCommands in FCapabilities) then
+    raise EOBDUnsupported.Create
+      ('ST commands require an OBDLink-family adapter (acSTCommands)');
   Result := DoSendCommand(ACommand, ATimeoutMs);
   FireOnATResponse(Result);
 end;
 
 procedure TOBDAdapter.WriteSTCommandAsync(const ACommand: string;
-  ATimeoutMs: Cardinal);
+ATimeoutMs: Cardinal);
 begin
-  if not (acSTCommands in FCapabilities) then
-    raise EOBDUnsupported.Create(
-      'ST commands require an OBDLink-family adapter (acSTCommands)');
+  if not(acSTCommands in FCapabilities) then
+    raise EOBDUnsupported.Create
+      ('ST commands require an OBDLink-family adapter (acSTCommands)');
   WriteATCommandAsync(ACommand, ATimeoutMs);
 end;
 
 function TOBDAdapter.WriteOBDCommand(const ACommand: string;
-  ATimeoutMs: Cardinal): TOBDAdapterResponse;
+ATimeoutMs: Cardinal): TOBDAdapterResponse;
 begin
   Result := DoSendCommand(ACommand, ATimeoutMs);
   FireOnATResponse(Result);
@@ -1022,13 +1024,14 @@ end;
 
 function TOBDAdapter.WriteRoutedOBDCommand(const ACommand, AHeader,
   AFilter: string; AExtended: Boolean; ATxAddress, ARxAddress: Byte;
-  ATimeoutMs: Cardinal): TOBDAdapterResponse;
+ATimeoutMs: Cardinal): TOBDAdapterResponse;
 var
   Commands: TArray<string>;
   Command: string;
   Reply: TOBDAdapterResponse;
 begin
-  Commands := CANRouteCommands(AHeader, AFilter, AExtended, ATxAddress, ARxAddress);
+  Commands := CANRouteCommands(AHeader, AFilter, AExtended, ATxAddress,
+    ARxAddress);
   FExchangeLock.Enter;
   try
     for Command in Commands do
@@ -1046,7 +1049,7 @@ begin
 end;
 
 procedure TOBDAdapter.WriteOBDCommandAsync(const ACommand: string;
-  ATimeoutMs: Cardinal);
+ATimeoutMs: Cardinal);
 begin
   WriteATCommandAsync(ACommand, ATimeoutMs);
 end;

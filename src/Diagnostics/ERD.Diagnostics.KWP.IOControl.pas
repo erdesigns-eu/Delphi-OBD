@@ -1,59 +1,59 @@
-//------------------------------------------------------------------------------
-//  ERD.Diagnostics.KWP.IOControl
+﻿// ------------------------------------------------------------------------------
+// ERD.Diagnostics.KWP.IOControl
 //
-//  TOBDKWPIOControl — non-visual component for the KWP2000 I/O
-//  control services:
+// TOBDKWPIOControl — non-visual component for the KWP2000 I/O
+// control services:
 //
-//    Service 0x2F — InputOutputControlByLocalIdentifier
-//    Service 0x30 — InputOutputControlByCommonIdentifier
+// Service 0x2F — InputOutputControlByLocalIdentifier
+// Service 0x30 — InputOutputControlByCommonIdentifier
 //
-//  Forces an I/O identifier into a host-driven state (returnControl,
-//  reportControlState, shortTermAdjustment, longTermAdjustment, …).
-//  Destructive — the component ships with AutoExecute = False and a
-//  cancellable OnBeforeSend hook, matching the rest of the
-//  diagnostics safety contract.
+// Forces an I/O identifier into a host-driven state (returnControl,
+// reportControlState, shortTermAdjustment, longTermAdjustment, …).
+// Destructive — the component ships with AutoExecute = False and a
+// cancellable OnBeforeSend hook, matching the rest of the
+// diagnostics safety contract.
 //
-//  Wire format per ISO 14230-3:1999 §6.10:
+// Wire format per ISO 14230-3:1999 §6.10:
 //
-//    ByLocal  request : 2F <LocalId> <IO-Param> [<state>] [<mask>]
-//    ByLocal  response: 6F <LocalId> <IO-Param> [<state>]
+// ByLocal  request : 2F <LocalId> <IO-Param> [<state>] [<mask>]
+// ByLocal  response: 6F <LocalId> <IO-Param> [<state>]
 //
-//    ByCommon request : 30 <CommonId-hi> <CommonId-lo>
-//                       <IO-Param> [<state>] [<mask>]
-//    ByCommon response: 70 <CommonId-hi> <CommonId-lo>
-//                       <IO-Param> [<state>]
+// ByCommon request : 30 <CommonId-hi> <CommonId-lo>
+// <IO-Param> [<state>] [<mask>]
+// ByCommon response: 70 <CommonId-hi> <CommonId-lo>
+// <IO-Param> [<state>]
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - ISO 14230-3:1999 §6.10 (InputOutputControl)
+// References  :
+// - ISO 14230-3:1999 §6.10 (InputOutputControl)
 //
-//  History     :
-//    2026-05-11  ERD  Initial implementation.
-//    2026-10-08  ERD  Add owned async operations and cancellation cleanup.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-11  ERD  Initial implementation.
+// 2026-10-08  ERD  Add owned async operations and cancellation cleanup.
+// ------------------------------------------------------------------------------
 
 unit ERD.Diagnostics.KWP.IOControl;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
   ERD.Connection,
-  {$IFDEF FPC}ERD.Compat.Functions,{$ENDIF}
+{$IFDEF FPC}ERD.Compat.Functions, {$ENDIF}
   ERD.Connection.Types,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
   ERD.Types,
   ERD.Protocol.Types,
   ERD.Protocol.KWP2000,
@@ -63,25 +63,24 @@ const
   /// <summary>Return the I/O identifier to ECU control.</summary>
   KWP_IOCTL_RETURN_CONTROL_TO_ECU = $00;
   /// <summary>Report the current control state.</summary>
-  KWP_IOCTL_REPORT_CONTROL_STATE  = $01;
+  KWP_IOCTL_REPORT_CONTROL_STATE = $01;
   /// <summary>Apply a host-supplied short-term adjustment.</summary>
   KWP_IOCTL_SHORT_TERM_ADJUSTMENT = $07;
   /// <summary>Apply a host-supplied long-term adjustment.</summary>
-  KWP_IOCTL_LONG_TERM_ADJUSTMENT  = $08;
+  KWP_IOCTL_LONG_TERM_ADJUSTMENT = $08;
 
 type
   /// <summary>
-  ///   Which identifier dialect this control call targets.
+  /// Which identifier dialect this control call targets.
   /// </summary>
   TOBDKWPIOIdKind = (
     /// <summary>Service 0x2F — LocalIdentifier (1 byte).</summary>
     ikLocal,
     /// <summary>Service 0x30 — CommonIdentifier (2 bytes).</summary>
-    ikCommon
-  );
+    ikCommon);
 
   /// <summary>
-  ///   Pre-send confirmation hook. Main thread.
+  /// Pre-send confirmation hook. Main thread.
   /// </summary>
   TOBDKWPIOControlBeforeEvent = procedure(Sender: TObject;
     AKind: TOBDKWPIOIdKind; AID: Word; AControlParam: Byte;
@@ -93,13 +92,13 @@ type
     const AResponseState: TBytes) of object;
 
   /// <summary>
-  ///   KWP2000 InputOutputControl component.
+  /// KWP2000 InputOutputControl component.
   /// </summary>
   /// <remarks>
-  ///   Drop on a form, assign <c>Protocol</c>, set
-  ///   <c>AutoExecute := True</c> after operator consent. Use
-  ///   <see cref="SendLocal"/> for 1-byte LocalIdentifiers and
-  ///   <see cref="SendCommon"/> for 2-byte CommonIdentifiers.
+  /// Drop on a form, assign <c>Protocol</c>, set
+  /// <c>AutoExecute := True</c> after operator consent. Use
+  /// <see cref="SendLocal"/> for 1-byte LocalIdentifiers and
+  /// <see cref="SendCommon"/> for 2-byte CommonIdentifiers.
   /// </remarks>
   TOBDKWPIOControl = class(TComponent)
   strict private
@@ -119,13 +118,12 @@ type
     procedure FinishAsync;
     procedure GuardSingleAsync;
     procedure ReleaseAsync;
-    function DoSend(AKind: TOBDKWPIOIdKind; AID: Word;
-      AControlParam: Byte; const AState: TBytes;
-      const AControlMask: TBytes): TBytes;
+    function DoSend(AKind: TOBDKWPIOIdKind; AID: Word; AControlParam: Byte;
+      const AState: TBytes; const AControlMask: TBytes): TBytes;
     function FireBeforeSend(AKind: TOBDKWPIOIdKind; AID: Word;
       AControlParam: Byte; const AState: TBytes): Boolean;
-    procedure FireResult(AKind: TOBDKWPIOIdKind; AID: Word;
-      AControlParam: Byte; const AResponseState: TBytes);
+    procedure FireResult(AKind: TOBDKWPIOIdKind; AID: Word; AControlParam: Byte;
+      const AResponseState: TBytes);
     procedure FireError(ACode: TOBDErrorCode; const AMessage: string);
     procedure SetProtocol(AValue: TOBDProtocol);
   protected
@@ -139,7 +137,7 @@ type
     destructor Destroy; override;
 
     /// <summary>
-    ///   Service 0x2F — InputOutputControlByLocalIdentifier.
+    /// Service 0x2F — InputOutputControlByLocalIdentifier.
     /// </summary>
     /// <param name="ALocalID">1-byte local identifier.</param>
     /// <param name="AControlParam">I/O control parameter (one of
@@ -149,19 +147,18 @@ type
     /// <returns>Response state bytes (excluding the LocalID + param
     /// echo).</returns>
     /// <exception cref="EOBDConfig">
-    ///   <c>Protocol</c> is not assigned, <c>AutoExecute</c> is
-    ///   <c>False</c>, or <c>OnBeforeSend</c> cancelled.
+    /// <c>Protocol</c> is not assigned, <c>AutoExecute</c> is
+    /// <c>False</c>, or <c>OnBeforeSend</c> cancelled.
     /// </exception>
     /// <exception cref="EOBDProtocolErr">
-    ///   ECU returned a negative or short response, or the ID /
-    ///   param echo did not match.
+    /// ECU returned a negative or short response, or the ID /
+    /// param echo did not match.
     /// </exception>
     function SendLocal(ALocalID: Byte; AControlParam: Byte;
-      const AState: TBytes = nil;
-      const AControlMask: TBytes = nil): TBytes;
+      const AState: TBytes = nil; const AControlMask: TBytes = nil): TBytes;
 
     /// <summary>
-    ///   Service 0x30 — InputOutputControlByCommonIdentifier.
+    /// Service 0x30 — InputOutputControlByCommonIdentifier.
     /// </summary>
     /// <param name="ACommonID">2-byte common identifier.</param>
     /// <param name="AControlParam">I/O control parameter.</param>
@@ -170,16 +167,15 @@ type
     /// <returns>Response state bytes (excluding the ID + param
     /// echo).</returns>
     /// <exception cref="EOBDConfig">
-    ///   <c>Protocol</c> is not assigned, <c>AutoExecute</c> is
-    ///   <c>False</c>, or <c>OnBeforeSend</c> cancelled.
+    /// <c>Protocol</c> is not assigned, <c>AutoExecute</c> is
+    /// <c>False</c>, or <c>OnBeforeSend</c> cancelled.
     /// </exception>
     /// <exception cref="EOBDProtocolErr">
-    ///   ECU returned a negative or short response, or the ID /
-    ///   param echo did not match.
+    /// ECU returned a negative or short response, or the ID /
+    /// param echo did not match.
     /// </exception>
     function SendCommon(ACommonID: Word; AControlParam: Byte;
-      const AState: TBytes = nil;
-      const AControlMask: TBytes = nil): TBytes;
+      const AState: TBytes = nil; const AControlMask: TBytes = nil): TBytes;
     /// <summary>Send a local I/O request asynchronously; OnResult/OnError run
     /// on the main thread. Inputs are copied before returning.</summary>
     /// <param name="ALocalID">Local identifier.</param>
@@ -214,14 +210,13 @@ type
       default False;
 
     /// <summary>Pre-send confirmation hook. Main thread.</summary>
-    property OnBeforeSend: TOBDKWPIOControlBeforeEvent
-      read FOnBeforeSend write FOnBeforeSend;
+    property OnBeforeSend: TOBDKWPIOControlBeforeEvent read FOnBeforeSend
+      write FOnBeforeSend;
     /// <summary>Fires on success. Main thread.</summary>
-    property OnResult: TOBDKWPIOControlResultEvent
-      read FOnResult write FOnResult;
+    property OnResult: TOBDKWPIOControlResultEvent read FOnResult
+      write FOnResult;
     /// <summary>Fires on transient I/O errors. Main thread.</summary>
-    property OnError: TOBDConnectionErrorEvent
-      read FOnError write FOnError;
+    property OnError: TOBDConnectionErrorEvent read FOnError write FOnError;
   end;
 
 implementation
@@ -276,8 +271,7 @@ begin
     TThread.Queue(TThread.CurrentThread,
       procedure
       begin
-        if not IsAsyncCancelled and
-          Assigned(FOnProgress) then
+        if not IsAsyncCancelled and Assigned(FOnProgress) then
           FOnProgress(Self, Step);
       end);
 end;
@@ -331,7 +325,8 @@ begin
   if FWorker = nil then
     Exit;
   if TThread.CurrentThread.ThreadID <> MainThreadID then
-    raise EOBDConfig.Create('TOBDKWPIOControl: async lifecycle requires main thread');
+    raise EOBDConfig.Create
+      ('TOBDKWPIOControl: async lifecycle requires main thread');
   TInterlocked.Exchange(FCancelled, 1);
   FWorker.Terminate;
   // WaitFor pumps Synchronize on the main thread. Consent checks observe
@@ -345,7 +340,8 @@ end;
 procedure TOBDKWPIOControl.GuardSingleAsync;
 begin
   if TThread.CurrentThread.ThreadID <> MainThreadID then
-    raise EOBDConfig.Create('TOBDKWPIOControl: async start requires main thread');
+    raise EOBDConfig.Create
+      ('TOBDKWPIOControl: async start requires main thread');
   FAsyncLock.Enter;
   try
     if FAsyncInFlight then
@@ -368,8 +364,7 @@ begin
 end;
 
 function TOBDKWPIOControl.DoSend(AKind: TOBDKWPIOIdKind; AID: Word;
-  AControlParam: Byte; const AState: TBytes;
-  const AControlMask: TBytes): TBytes;
+AControlParam: Byte; const AState: TBytes; const AControlMask: TBytes): TBytes;
 var
   Req: TBytes;
   Resp: TOBDResponse;
@@ -380,11 +375,10 @@ begin
   if FProtocol = nil then
     raise EOBDConfig.Create('TOBDKWPIOControl: Protocol not assigned');
   if not FAutoExecute then
-    raise EOBDConfig.Create(
-      'TOBDKWPIOControl: AutoExecute is False — set it before sending');
+    raise EOBDConfig.Create
+      ('TOBDKWPIOControl: AutoExecute is False — set it before sending');
   if not FireBeforeSend(AKind, AID, AControlParam, AState) then
-    raise EOBDConfig.Create(
-      'TOBDKWPIOControl: cancelled by OnBeforeSend');
+    raise EOBDConfig.Create('TOBDKWPIOControl: cancelled by OnBeforeSend');
 
   case AKind of
     ikLocal:
@@ -424,56 +418,54 @@ begin
   FireProgress(1, 'Request');
   Resp := FProtocol.Request(SID, Req);
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt(
-      'KWP IOControl (SID 0x%.2x, ID 0x%.4x) negative: %s',
+    raise EOBDProtocolErr.CreateFmt
+      ('KWP IOControl (SID 0x%.2x, ID 0x%.4x) negative: %s',
       [SID, AID, Resp.NRCText]);
   if Length(Resp.Data) < IDBytes + 1 then
-    raise EOBDProtocolErr.CreateFmt(
-      'KWP IOControl (SID 0x%.2x): response too short', [SID]);
+    raise EOBDProtocolErr.CreateFmt
+      ('KWP IOControl (SID 0x%.2x): response too short', [SID]);
 
   // Verify echo bytes.
   if AKind = ikLocal then
   begin
     if Resp.Data[0] <> Byte(AID and $FF) then
-      raise EOBDProtocolErr.CreateFmt(
-        'KWP IOControl echo mismatch on LocalID 0x%.2x', [AID]);
+      raise EOBDProtocolErr.CreateFmt
+        ('KWP IOControl echo mismatch on LocalID 0x%.2x', [AID]);
   end
   else
   begin
     if ((Word(Resp.Data[0]) shl 8) or Word(Resp.Data[1])) <> AID then
-      raise EOBDProtocolErr.CreateFmt(
-        'KWP IOControl echo mismatch on CommonID 0x%.4x', [AID]);
+      raise EOBDProtocolErr.CreateFmt
+        ('KWP IOControl echo mismatch on CommonID 0x%.4x', [AID]);
   end;
   if Resp.Data[IDBytes] <> AControlParam then
-    raise EOBDProtocolErr.CreateFmt(
-      'KWP IOControl param echo mismatch: requested 0x%.2x, got 0x%.2x',
+    raise EOBDProtocolErr.CreateFmt
+      ('KWP IOControl param echo mismatch: requested 0x%.2x, got 0x%.2x',
       [AControlParam, Resp.Data[IDBytes]]);
 
   if Length(Resp.Data) > IDBytes + 1 then
-    Result := Copy(Resp.Data, IDBytes + 1,
-                   Length(Resp.Data) - IDBytes - 1)
+    Result := Copy(Resp.Data, IDBytes + 1, Length(Resp.Data) - IDBytes - 1)
   else
     SetLength(Result, 0);
   FireProgress(2, 'Response');
 end;
 
 function TOBDKWPIOControl.SendLocal(ALocalID: Byte; AControlParam: Byte;
-  const AState: TBytes; const AControlMask: TBytes): TBytes;
+const AState: TBytes; const AControlMask: TBytes): TBytes;
 begin
   Result := DoSend(ikLocal, ALocalID, AControlParam, AState, AControlMask);
   FireResult(ikLocal, ALocalID, AControlParam, Result);
 end;
 
 function TOBDKWPIOControl.SendCommon(ACommonID: Word; AControlParam: Byte;
-  const AState: TBytes; const AControlMask: TBytes): TBytes;
+const AState: TBytes; const AControlMask: TBytes): TBytes;
 begin
-  Result := DoSend(ikCommon, ACommonID, AControlParam, AState,
-                   AControlMask);
+  Result := DoSend(ikCommon, ACommonID, AControlParam, AState, AControlMask);
   FireResult(ikCommon, ACommonID, AControlParam, Result);
 end;
 
-procedure TOBDKWPIOControl.SendLocalAsync(ALocalID: Byte;
-  AControlParam: Byte; const AState: TBytes; const AControlMask: TBytes);
+procedure TOBDKWPIOControl.SendLocalAsync(ALocalID: Byte; AControlParam: Byte;
+const AState: TBytes; const AControlMask: TBytes);
 var
   State, Mask: TBytes;
 begin
@@ -486,8 +478,8 @@ begin
     end);
 end;
 
-procedure TOBDKWPIOControl.SendCommonAsync(ACommonID: Word;
-  AControlParam: Byte; const AState: TBytes; const AControlMask: TBytes);
+procedure TOBDKWPIOControl.SendCommonAsync(ACommonID: Word; AControlParam: Byte;
+const AState: TBytes; const AControlMask: TBytes);
 var
   State, Mask: TBytes;
 begin
@@ -500,8 +492,8 @@ begin
     end);
 end;
 
-function TOBDKWPIOControl.FireBeforeSend(AKind: TOBDKWPIOIdKind;
-  AID: Word; AControlParam: Byte; const AState: TBytes): Boolean;
+function TOBDKWPIOControl.FireBeforeSend(AKind: TOBDKWPIOIdKind; AID: Word;
+AControlParam: Byte; const AState: TBytes): Boolean;
 var
   Self_: TOBDKWPIOControl;
   Kind: TOBDKWPIOIdKind;
@@ -534,7 +526,7 @@ begin
 end;
 
 procedure TOBDKWPIOControl.FireResult(AKind: TOBDKWPIOIdKind; AID: Word;
-  AControlParam: Byte; const AResponseState: TBytes);
+AControlParam: Byte; const AResponseState: TBytes);
 var
   Self_: TOBDKWPIOControl;
   Kind: TOBDKWPIOIdKind;
@@ -562,7 +554,7 @@ begin
 end;
 
 procedure TOBDKWPIOControl.FireError(ACode: TOBDErrorCode;
-  const AMessage: string);
+const AMessage: string);
 var
   Self_: TOBDKWPIOControl;
   Code: TOBDErrorCode;

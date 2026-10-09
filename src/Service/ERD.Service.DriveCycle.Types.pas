@@ -1,28 +1,28 @@
-//------------------------------------------------------------------------------
-//  ERD.Service.DriveCycle.Types
+// ------------------------------------------------------------------------------
+// ERD.Service.DriveCycle.Types
 //
-//  Value types used by the drive-cycle advisor.
+// Value types used by the drive-cycle advisor.
 //
-//  TOBDMonitor mirrors the readiness-monitor set defined by
-//  SAE J1979 / ISO 15031-5 Mode 01 PID 01 plus the
-//  diesel-specific monitors from Table A2. The same enum is
-//  used for catalogue lookups (per-monitor cycle steps) and for
-//  decoding the supported / completed bitmaps in
-//  TOBDMILStatus.
+// TOBDMonitor mirrors the readiness-monitor set defined by
+// SAE J1979 / ISO 15031-5 Mode 01 PID 01 plus the
+// diesel-specific monitors from Table A2. The same enum is
+// used for catalogue lookups (per-monitor cycle steps) and for
+// decoding the supported / completed bitmaps in
+// TOBDMILStatus.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT - see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT - see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.Service.DriveCycle.Types;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -30,47 +30,34 @@ interface
 type
   TOBDMonitor = (
     // ---- continuous (always supported on OBD-II) ----------
-    omMisfire,
-    omFuelSystem,
-    omComprehensive,           // "Components" in SAE-speak
+    omMisfire, omFuelSystem, omComprehensive, // "Components" in SAE-speak
 
     // ---- non-continuous (spark / SI) ----------------------
-    omCatalyst,
-    omHeatedCatalyst,
-    omEvaporativeSystem,
-    omSecondaryAirSystem,
-    omACRefrigerant,
-    omOxygenSensor,
-    omOxygenSensorHeater,
-    omEGRSystem,
+    omCatalyst, omHeatedCatalyst, omEvaporativeSystem, omSecondaryAirSystem,
+    omACRefrigerant, omOxygenSensor, omOxygenSensorHeater, omEGRSystem,
 
     // ---- non-continuous (diesel / CI) ---------------------
-    omNMHCCatalyst,
-    omNOxAftertreatment,
-    omBoostPressureSystem,
-    omExhaustGasSensor,
-    omPMFilter,
-    omEGRorVVTSystem
-  );
+    omNMHCCatalyst, omNOxAftertreatment, omBoostPressureSystem,
+    omExhaustGasSensor, omPMFilter, omEGRorVVTSystem);
 
   TOBDMonitorSet = set of TOBDMonitor;
 
   /// <summary>One monitor's readiness state at a point in time.</summary>
   TOBDMonitorReadiness = record
-    Monitor:   TOBDMonitor;
+    Monitor: TOBDMonitor;
     /// <summary>True when the ECU reports the monitor is
     /// supported on this vehicle.</summary>
     Supported: Boolean;
     /// <summary>True when the monitor has completed since the
     /// last DTC clear.</summary>
-    Complete:  Boolean;
+    Complete: Boolean;
   end;
 
   /// <summary>One step in a drive cycle (e.g.
   /// "Cruise at 80 km/h for 5 minutes").</summary>
   TOBDDriveCycleStep = record
     /// <summary>1-based step number for human display.</summary>
-    Index:       Integer;
+    Index: Integer;
     /// <summary>Free-text instruction shown to the driver.</summary>
     Description: string;
     /// <summary>Estimated duration in seconds. Hosts use it to
@@ -83,17 +70,17 @@ type
   /// steps the driver should perform plus the rolled-up total
   /// duration.</summary>
   TOBDDriveCycle = record
-    Monitor:     TOBDMonitor;
+    Monitor: TOBDMonitor;
     /// <summary>Source citation, free text (e.g.
     /// "ISO 15031-7", "VW SSP-326").</summary>
-    Source:      string;
-    Steps:       TArray<TOBDDriveCycleStep>;
+    Source: string;
+    Steps: TArray<TOBDDriveCycleStep>;
     /// <summary>Sum of step durations in seconds.</summary>
-    TotalSec:    Cardinal;
+    TotalSec: Cardinal;
   end;
 
-/// <summary>String form for diagnostic logs and JSON-loader
-/// matches.</summary>
+  /// <summary>String form for diagnostic logs and JSON-loader
+  /// matches.</summary>
 function MonitorName(AMonitor: TOBDMonitor): string;
 
 /// <summary>Reverse of <see cref="MonitorName"/>; case-
@@ -104,28 +91,14 @@ function TryParseMonitor(const AName: string;
 implementation
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF};
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF};
 
 const
-  MONITOR_NAMES: array[TOBDMonitor] of string = (
-    'Misfire',
-    'FuelSystem',
-    'Comprehensive',
-    'Catalyst',
-    'HeatedCatalyst',
-    'EvaporativeSystem',
-    'SecondaryAirSystem',
-    'ACRefrigerant',
-    'OxygenSensor',
-    'OxygenSensorHeater',
-    'EGRSystem',
-    'NMHCCatalyst',
-    'NOxAftertreatment',
-    'BoostPressureSystem',
-    'ExhaustGasSensor',
-    'PMFilter',
-    'EGRorVVTSystem'
-  );
+  MONITOR_NAMES: array [TOBDMonitor] of string = ('Misfire', 'FuelSystem',
+    'Comprehensive', 'Catalyst', 'HeatedCatalyst', 'EvaporativeSystem',
+    'SecondaryAirSystem', 'ACRefrigerant', 'OxygenSensor', 'OxygenSensorHeater',
+    'EGRSystem', 'NMHCCatalyst', 'NOxAftertreatment', 'BoostPressureSystem',
+    'ExhaustGasSensor', 'PMFilter', 'EGRorVVTSystem');
 
 function MonitorName(AMonitor: TOBDMonitor): string;
 begin
@@ -134,7 +107,8 @@ end;
 
 function TryParseMonitor(const AName: string;
   out AMonitor: TOBDMonitor): Boolean;
-var M: TOBDMonitor;
+var
+  M: TOBDMonitor;
 begin
   for M := Low(TOBDMonitor) to High(TOBDMonitor) do
     if SameText(MONITOR_NAMES[M], AName) then

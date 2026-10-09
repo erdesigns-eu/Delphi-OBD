@@ -1,59 +1,59 @@
-//------------------------------------------------------------------------------
-//  ERD.OEM.Catalog.CSV
+﻿// ------------------------------------------------------------------------------
+// ERD.OEM.Catalog.CSV
 //
-//  CSV → JSON catalogue converter. Many community DID datasets
-//  ship as flat CSV files; this importer normalises them into the
-//  JSON catalogue shape that
-//  <see cref="ERD.OEM.Catalog.Loader"/> consumes.
+// CSV → JSON catalogue converter. Many community DID datasets
+// ship as flat CSV files; this importer normalises them into the
+// JSON catalogue shape that
+// <see cref="ERD.OEM.Catalog.Loader"/> consumes.
 //
-//  Recognised columns (case-insensitive, header row required):
+// Recognised columns (case-insensitive, header row required):
 //
-//    did            mandatory, hex (<c>0xF187</c>) or decimal
-//    name           mandatory, snake_case
-//    description    mandatory
-//    source         optional, falls back to default_source
-//    verified       optional, <c>true</c> / <c>false</c> / blank
-//    ecu_address    optional
-//    decoder        optional, embedded JSON sub-object
+// did            mandatory, hex (<c>0xF187</c>) or decimal
+// name           mandatory, snake_case
+// description    mandatory
+// source         optional, falls back to default_source
+// verified       optional, <c>true</c> / <c>false</c> / blank
+// ecu_address    optional
+// decoder        optional, embedded JSON sub-object
 //
-//  Empty / missing fields are skipped. Lines starting with
-//  <c>#</c> are comments. The parser is a minimal RFC-4180
-//  reader: comma-separated, double-quoted fields, embedded
-//  <c>""</c> decodes to a single quote.
+// Empty / missing fields are skipped. Lines starting with
+// <c>#</c> are comments. The parser is a minimal RFC-4180
+// reader: comma-separated, double-quoted fields, embedded
+// <c>""</c> decodes to a single quote.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-12  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-12  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.OEM.Catalog.CSV;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   System.JSON,
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF};
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF};
 
 type
   /// <summary>Raised on CSV import errors.</summary>
   EOBDCsvCatalogError = class(Exception);
 
   /// <summary>
-  ///   Converts CSV DID datasets to the JSON catalogue format
-  ///   read by <see cref="ERD.OEM.Catalog.Loader"/>.
+  /// Converts CSV DID datasets to the JSON catalogue format
+  /// read by <see cref="ERD.OEM.Catalog.Loader"/>.
   /// </summary>
   TOBDCatalogCSVImporter = class
   strict private
@@ -71,16 +71,15 @@ type
     /// <param name="ADefaultSource">Default provenance tag
     /// applied to entries without one.</param>
     /// <exception cref="EArgumentException">
-    ///   <c>AManufacturerKey</c> is empty.
+    /// <c>AManufacturerKey</c> is empty.
     /// </exception>
     constructor Create(const AManufacturerKey, ADisplayName: string;
-      const AApplicableWMIs: TArray<string>;
-      const ADefaultSource: string = '');
+      const AApplicableWMIs: TArray<string>; const ADefaultSource: string = '');
 
     /// <summary>
-    ///   Reads <c>CsvPath</c> and writes a JSON catalogue to
-    ///   <c>JsonPath</c>. Creates the target directory when
-    ///   missing.
+    /// Reads <c>CsvPath</c> and writes a JSON catalogue to
+    /// <c>JsonPath</c>. Creates the target directory when
+    /// missing.
     /// </summary>
     /// <param name="CsvPath">CSV source path.</param>
     /// <param name="JsonPath">JSON destination path.</param>
@@ -89,8 +88,8 @@ type
     procedure Convert(const CsvPath, JsonPath: string);
 
     /// <summary>
-    ///   In-memory variant — useful for tests. Returns the
-    ///   JSON catalogue as a string.
+    /// In-memory variant — useful for tests. Returns the
+    /// JSON catalogue as a string.
     /// </summary>
     /// <param name="CsvText">CSV source.</param>
     /// <exception cref="EOBDCsvCatalogError">CSV malformed or
@@ -111,9 +110,8 @@ implementation
 uses
   System.IOUtils;
 
-constructor TOBDCatalogCSVImporter.Create(
-  const AManufacturerKey, ADisplayName: string;
-  const AApplicableWMIs: TArray<string>;
+constructor TOBDCatalogCSVImporter.Create(const AManufacturerKey,
+  ADisplayName: string; const AApplicableWMIs: TArray<string>;
   const ADefaultSource: string);
 begin
   inherited Create;
@@ -189,8 +187,7 @@ begin
   end;
 end;
 
-function FindIndex(const Headers: TArray<string>;
-  const Name: string): Integer;
+function FindIndex(const Headers: TArray<string>; const Name: string): Integer;
 var
   I: Integer;
 begin
@@ -200,8 +197,7 @@ begin
   Result := -1;
 end;
 
-function TOBDCatalogCSVImporter.ConvertText(
-  const CsvText: string): string;
+function TOBDCatalogCSVImporter.ConvertText(const CsvText: string): string;
 var
   Reader: TStringList;
   Headers, Fields: TArray<string>;
@@ -220,21 +216,21 @@ begin
   try
     Reader.Text := CsvText;
     if Reader.Count < 2 then
-      raise EOBDCsvCatalogError.Create(
-        'CSV must contain at least a header line and one row');
+      raise EOBDCsvCatalogError.Create
+        ('CSV must contain at least a header line and one row');
 
     Headers := ParseCSVLine(Reader[0]);
-    IDx   := FindIndex(Headers, 'did');
+    IDx := FindIndex(Headers, 'did');
     NameI := FindIndex(Headers, 'name');
     DescI := FindIndex(Headers, 'description');
-    SrcI  := FindIndex(Headers, 'source');
-    VerI  := FindIndex(Headers, 'verified');
-    EcuI  := FindIndex(Headers, 'ecu_address');
-    DecI  := FindIndex(Headers, 'decoder');
+    SrcI := FindIndex(Headers, 'source');
+    VerI := FindIndex(Headers, 'verified');
+    EcuI := FindIndex(Headers, 'ecu_address');
+    DecI := FindIndex(Headers, 'decoder');
 
     if (IDx < 0) or (NameI < 0) or (DescI < 0) then
-      raise EOBDCsvCatalogError.Create(
-        'CSV must include did, name, description columns');
+      raise EOBDCsvCatalogError.Create
+        ('CSV must include did, name, description columns');
 
     Root := TJSONObject.Create;
     try
@@ -261,26 +257,21 @@ begin
         Fields := ParseCSVLine(Line);
         if Length(Fields) <= IDx then
           Continue;
-        if (Length(Fields) <= NameI) or
-           (Length(Fields) <= DescI) then
+        if (Length(Fields) <= NameI) or (Length(Fields) <= DescI) then
           Continue;
 
         Entry := TJSONObject.Create;
-        Entry.AddPair('did',         Trim(Fields[IDx]));
-        Entry.AddPair('name',        Trim(Fields[NameI]));
+        Entry.AddPair('did', Trim(Fields[IDx]));
+        Entry.AddPair('name', Trim(Fields[NameI]));
         Entry.AddPair('description', Trim(Fields[DescI]));
-        if (SrcI >= 0) and (SrcI < Length(Fields)) and
-           (Fields[SrcI] <> '') then
+        if (SrcI >= 0) and (SrcI < Length(Fields)) and (Fields[SrcI] <> '') then
           Entry.AddPair('source', Trim(Fields[SrcI]));
-        if (VerI >= 0) and (VerI < Length(Fields)) and
-           (Fields[VerI] <> '') then
+        if (VerI >= 0) and (VerI < Length(Fields)) and (Fields[VerI] <> '') then
           Entry.AddPair('verified',
             TJSONBool.Create(SameText(Trim(Fields[VerI]), 'true')));
-        if (EcuI >= 0) and (EcuI < Length(Fields)) and
-           (Fields[EcuI] <> '') then
+        if (EcuI >= 0) and (EcuI < Length(Fields)) and (Fields[EcuI] <> '') then
           Entry.AddPair('ecu_address', Trim(Fields[EcuI]));
-        if (DecI >= 0) and (DecI < Length(Fields)) and
-           (Fields[DecI] <> '') then
+        if (DecI >= 0) and (DecI < Length(Fields)) and (Fields[DecI] <> '') then
         begin
           DecoderText := Trim(Fields[DecI]);
           DecoderObj := TJSONObject.ParseJSONValue(DecoderText);
@@ -301,14 +292,12 @@ begin
   end;
 end;
 
-procedure TOBDCatalogCSVImporter.Convert(
-  const CsvPath, JsonPath: string);
+procedure TOBDCatalogCSVImporter.Convert(const CsvPath, JsonPath: string);
 var
   CsvText, JsonText: string;
 begin
   if not TFile.Exists(CsvPath) then
-    raise EOBDCsvCatalogError.CreateFmt(
-      'CSV file %s not found', [CsvPath]);
+    raise EOBDCsvCatalogError.CreateFmt('CSV file %s not found', [CsvPath]);
   CsvText := TFile.ReadAllText(CsvPath, TEncoding.UTF8);
   JsonText := ConvertText(CsvText);
   ForceDirectories(TPath.GetDirectoryName(JsonPath));

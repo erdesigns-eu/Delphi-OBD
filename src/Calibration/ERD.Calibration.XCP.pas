@@ -1,129 +1,129 @@
-//------------------------------------------------------------------------------
-//  ERD.Calibration.XCP
+﻿// ------------------------------------------------------------------------------
+// ERD.Calibration.XCP
 //
-//  TOBDXCP — non-visual ASAM MCD-1 XCP master. Speaks the XCP
-//  application-layer command set on top of any IOBDXCPTransport
-//  (CAN, CAN-FD, Ethernet, FlexRay, USB).
+// TOBDXCP — non-visual ASAM MCD-1 XCP master. Speaks the XCP
+// application-layer command set on top of any IOBDXCPTransport
+// (CAN, CAN-FD, Ethernet, FlexRay, USB).
 //
-//  v1 covers the standard set every measurement / calibration host
-//  needs:
+// v1 covers the standard set every measurement / calibration host
+// needs:
 //
-//    - CONNECT / DISCONNECT / GET_STATUS / GET_COMM_MODE_INFO
-//    - GET_ID (ASCII strings: vendor, comment, A2L filename, ...)
-//    - GET_SEED / UNLOCK (resource-protected XCP)
-//    - SET_MTA / UPLOAD / SHORT_UPLOAD / DOWNLOAD / SHORT_DOWNLOAD
-//    - SET_CAL_PAGE / GET_CAL_PAGE
-//    - START_STOP_DAQ_LIST  (begin / stop streamed measurement)
+// - CONNECT / DISCONNECT / GET_STATUS / GET_COMM_MODE_INFO
+// - GET_ID (ASCII strings: vendor, comment, A2L filename, ...)
+// - GET_SEED / UNLOCK (resource-protected XCP)
+// - SET_MTA / UPLOAD / SHORT_UPLOAD / DOWNLOAD / SHORT_DOWNLOAD
+// - SET_CAL_PAGE / GET_CAL_PAGE
+// - START_STOP_DAQ_LIST  (begin / stop streamed measurement)
 //
-//  Sync only: each XCP command is one packet round-trip. An async
-//  wrapper for hosts that don't want to block is out of scope for
-//  v1.
+// Sync only: each XCP command is one packet round-trip. An async
+// wrapper for hosts that don't want to block is out of scope for
+// v1.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - ASAM MCD-1 XCP v1.7 § 4 (Protocol Layer)
+// References  :
+// - ASAM MCD-1 XCP v1.7 § 4 (Protocol Layer)
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Calibration.XCP;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
   ERD.Protocol.Types,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
   ERD.Types,
   ERD.Calibration.XCP.Transport;
 
 const
   // ---- Master command codes (PID, ASAM MCD-1 XCP §4.1) ----
-  XCP_CMD_CONNECT             = $FF;
-  XCP_CMD_DISCONNECT          = $FE;
-  XCP_CMD_GET_STATUS          = $FD;
-  XCP_CMD_SYNCH               = $FC;
-  XCP_CMD_GET_COMM_MODE_INFO  = $FB;
-  XCP_CMD_GET_ID              = $FA;
-  XCP_CMD_SET_REQUEST         = $F9;
-  XCP_CMD_GET_SEED            = $F8;
-  XCP_CMD_UNLOCK              = $F7;
-  XCP_CMD_SET_MTA             = $F6;
-  XCP_CMD_UPLOAD              = $F5;
-  XCP_CMD_SHORT_UPLOAD        = $F4;
-  XCP_CMD_BUILD_CHECKSUM      = $F3;
-  XCP_CMD_DOWNLOAD            = $F0;
-  XCP_CMD_SHORT_DOWNLOAD      = $ED;
-  XCP_CMD_SET_CAL_PAGE        = $EB;
-  XCP_CMD_GET_CAL_PAGE        = $EA;
+  XCP_CMD_CONNECT = $FF;
+  XCP_CMD_DISCONNECT = $FE;
+  XCP_CMD_GET_STATUS = $FD;
+  XCP_CMD_SYNCH = $FC;
+  XCP_CMD_GET_COMM_MODE_INFO = $FB;
+  XCP_CMD_GET_ID = $FA;
+  XCP_CMD_SET_REQUEST = $F9;
+  XCP_CMD_GET_SEED = $F8;
+  XCP_CMD_UNLOCK = $F7;
+  XCP_CMD_SET_MTA = $F6;
+  XCP_CMD_UPLOAD = $F5;
+  XCP_CMD_SHORT_UPLOAD = $F4;
+  XCP_CMD_BUILD_CHECKSUM = $F3;
+  XCP_CMD_DOWNLOAD = $F0;
+  XCP_CMD_SHORT_DOWNLOAD = $ED;
+  XCP_CMD_SET_CAL_PAGE = $EB;
+  XCP_CMD_GET_CAL_PAGE = $EA;
   XCP_CMD_GET_DAQ_PROCESSOR_INFO = $DA;
-  XCP_CMD_GET_DAQ_RESOLUTION_INFO= $D9;
-  XCP_CMD_GET_DAQ_LIST_MODE      = $DF;
-  XCP_CMD_FREE_DAQ               = $D6;
-  XCP_CMD_ALLOC_DAQ              = $D5;
-  XCP_CMD_ALLOC_ODT              = $D4;
-  XCP_CMD_ALLOC_ODT_ENTRY        = $D3;
-  XCP_CMD_SET_DAQ_PTR            = $E2;
-  XCP_CMD_WRITE_DAQ              = $E1;
-  XCP_CMD_SET_DAQ_LIST_MODE      = $E0;
-  XCP_CMD_START_STOP_DAQ_LIST    = $DE;
-  XCP_CMD_START_STOP_SYNCH       = $DD;
+  XCP_CMD_GET_DAQ_RESOLUTION_INFO = $D9;
+  XCP_CMD_GET_DAQ_LIST_MODE = $DF;
+  XCP_CMD_FREE_DAQ = $D6;
+  XCP_CMD_ALLOC_DAQ = $D5;
+  XCP_CMD_ALLOC_ODT = $D4;
+  XCP_CMD_ALLOC_ODT_ENTRY = $D3;
+  XCP_CMD_SET_DAQ_PTR = $E2;
+  XCP_CMD_WRITE_DAQ = $E1;
+  XCP_CMD_SET_DAQ_LIST_MODE = $E0;
+  XCP_CMD_START_STOP_DAQ_LIST = $DE;
+  XCP_CMD_START_STOP_SYNCH = $DD;
 
   // ---- ProgramFlash (PGM resource) ----
-  XCP_CMD_PROGRAM_START   = $D2;
-  XCP_CMD_PROGRAM_CLEAR   = $D1;
-  XCP_CMD_PROGRAM         = $D0;
-  XCP_CMD_PROGRAM_RESET   = $CF;
+  XCP_CMD_PROGRAM_START = $D2;
+  XCP_CMD_PROGRAM_CLEAR = $D1;
+  XCP_CMD_PROGRAM = $D0;
+  XCP_CMD_PROGRAM_RESET = $CF;
   XCP_CMD_PROGRAM_PREPARE = $CC;
-  XCP_CMD_PROGRAM_FORMAT  = $CB;
-  XCP_CMD_PROGRAM_NEXT    = $CA;
-  XCP_CMD_PROGRAM_MAX     = $C9;
-  XCP_CMD_PROGRAM_VERIFY  = $C8;
+  XCP_CMD_PROGRAM_FORMAT = $CB;
+  XCP_CMD_PROGRAM_NEXT = $CA;
+  XCP_CMD_PROGRAM_MAX = $C9;
+  XCP_CMD_PROGRAM_VERIFY = $C8;
 
   // ---- Slave response PIDs ----
-  XCP_RES_OK    = $FF;
-  XCP_RES_ERR   = $FE;
+  XCP_RES_OK = $FF;
+  XCP_RES_ERR = $FE;
   XCP_RES_EVENT = $FD;
-  XCP_RES_SERV  = $FC;
+  XCP_RES_SERV = $FC;
 
   // ---- Resource bits returned by CONNECT ----
-  XCP_RESOURCE_DAQ  = $04;
+  XCP_RESOURCE_DAQ = $04;
   XCP_RESOURCE_STIM = $08;
-  XCP_RESOURCE_CAL  = $01;
-  XCP_RESOURCE_PGM  = $10;
+  XCP_RESOURCE_CAL = $01;
+  XCP_RESOURCE_PGM = $10;
 
   // ---- START_STOP_DAQ_LIST modes ----
-  XCP_DAQ_STOP   = $00;
-  XCP_DAQ_START  = $01;
+  XCP_DAQ_STOP = $00;
+  XCP_DAQ_START = $01;
   XCP_DAQ_SELECT = $02;
 
   // ---- GET_ID types ----
-  XCP_ID_ASCII             = $00;
-  XCP_ID_ASAM_FILENAME     = $01;
-  XCP_ID_ASAM_PATH         = $02;
-  XCP_ID_ASAM_URL          = $03;
-  XCP_ID_FILE_TO_UPLOAD    = $04;
+  XCP_ID_ASCII = $00;
+  XCP_ID_ASAM_FILENAME = $01;
+  XCP_ID_ASAM_PATH = $02;
+  XCP_ID_ASAM_URL = $03;
+  XCP_ID_FILE_TO_UPLOAD = $04;
 
 type
   /// <summary>Result of a CONNECT command.</summary>
   TOBDXCPConnectInfo = record
-    Resource: Byte;            // bitmap of resources advertised
+    Resource: Byte; // bitmap of resources advertised
     CommModeBasic: Byte;
-    MaxCTO: Byte;              // max command bytes
-    MaxDTO: Word;              // max DAQ bytes
+    MaxCTO: Byte; // max command bytes
+    MaxDTO: Word; // max DAQ bytes
     ProtocolVersion: Byte;
     TransportVersion: Byte;
     /// <summary>True when the slave reports ByteOrder = MotorolaMSB.</summary>
@@ -138,9 +138,9 @@ type
   end;
 
   /// <summary>
-  ///   Stateful XCP master. Holds a transport reference and tracks
-  ///   the connection state. Single-threaded by design — the
-  ///   caller serialises commands.
+  /// Stateful XCP master. Holds a transport reference and tracks
+  /// the connection state. Single-threaded by design — the
+  /// caller serialises commands.
   /// </summary>
   TOBDXCP = class(TComponent)
   strict private
@@ -151,8 +151,7 @@ type
     FMaxCTO: Byte;
     FMaxDTO: Word;
     procedure SendCommand(const ABytes: TBytes);
-    function Exchange(const ABytes: TBytes;
-      ATimeoutMs: Cardinal = 0): TBytes;
+    function Exchange(const ABytes: TBytes; ATimeoutMs: Cardinal = 0): TBytes;
     procedure WriteAddrPacket(var AOut: TBytes; AOffset: Integer;
       AAddress: UInt32; AExtension: Byte);
   public
@@ -202,8 +201,7 @@ type
 
     /// <summary>Sets the active calibration page on a logical
     /// segment / page index for the chosen access mode.</summary>
-    procedure SetCalPage(ALogicalSegment, ALogicalPage,
-      AMode: Byte);
+    procedure SetCalPage(ALogicalSegment, ALogicalPage, AMode: Byte);
     /// <summary>Reads the active calibration page.</summary>
     function GetCalPage(ALogicalSegment, AMode: Byte): Byte;
 
@@ -230,8 +228,7 @@ type
     procedure SetDAQPtr(ADaqList: Word; AOdtIndex, AOdtEntry: Byte);
     /// <summary>WRITE_DAQ — fills the current ODT entry slot with
     /// <c>(BitOffset, Size, AddressExtension, Address)</c>.</summary>
-    procedure WriteDAQ(ABitOffset, ASize, AAddressExt: Byte;
-      AAddress: UInt32);
+    procedure WriteDAQ(ABitOffset, ASize, AAddressExt: Byte; AAddress: UInt32);
     /// <summary>SET_DAQ_LIST_MODE — configures <c>ADaqList</c>'s
     /// transmission characteristics (mode, event channel,
     /// prescaler, priority).</summary>
@@ -243,8 +240,7 @@ type
     /// <summary>PROGRAM_START — opens a programming session.
     /// Returns slave's COMM_MODE_PGM, MAX_CTO_PGM and
     /// MAX_BS_PGM.</summary>
-    procedure ProgramStart(out ACommMode, AMaxCTO, AMaxBS,
-      AMinST: Byte);
+    procedure ProgramStart(out ACommMode, AMaxCTO, AMaxBS, AMinST: Byte);
     /// <summary>PROGRAM_CLEAR — erases <c>ALen</c> bytes starting
     /// at MTA. <c>AAccessMode</c> 0 = absolute, 1 = functional.</summary>
     procedure ProgramClear(AAccessMode: Byte; ALen: UInt32);
@@ -257,8 +253,8 @@ type
     /// <summary>PROGRAM_VERIFY — asks the slave to verify a region
     /// against an expected value. <c>AVerificationMode</c> selects
     /// the algorithm (vendor-defined).</summary>
-    procedure ProgramVerify(AVerificationMode: Byte;
-      AVerificationType: Word; AVerificationValue: UInt32);
+    procedure ProgramVerify(AVerificationMode: Byte; AVerificationType: Word;
+      AVerificationValue: UInt32);
 
     /// <summary>Bound transport. Set before <c>Connect</c>.</summary>
     property Transport: IOBDXCPTransport read FTransport write FTransport;
@@ -290,15 +286,15 @@ begin
   FTransport.SendPacket(ABytes);
 end;
 
-function TOBDXCP.Exchange(const ABytes: TBytes;
-  ATimeoutMs: Cardinal): TBytes;
+function TOBDXCP.Exchange(const ABytes: TBytes; ATimeoutMs: Cardinal): TBytes;
 var
   Effective: Cardinal;
 begin
   if FTransport = nil then
     raise EOBDConfig.Create('TOBDXCP: Transport not assigned');
   Effective := ATimeoutMs;
-  if Effective = 0 then Effective := FDefaultTimeoutMs;
+  if Effective = 0 then
+    Effective := FDefaultTimeoutMs;
   SendCommand(ABytes);
   Result := FTransport.ReceivePacket(Effective);
   if Length(Result) = 0 then
@@ -306,11 +302,9 @@ begin
   if (Result[0] = XCP_RES_ERR) and (Length(Result) < 2) then
     raise EOBDProtocolErr.Create('XCP: truncated ERR response');
   if Result[0] = XCP_RES_ERR then
-    raise EOBDProtocolErr.CreateFmt('XCP: ERR 0x%2.2X',
-      [Result[1]]);
+    raise EOBDProtocolErr.CreateFmt('XCP: ERR 0x%2.2X', [Result[1]]);
   if Result[0] <> XCP_RES_OK then
-    raise EOBDProtocolErr.CreateFmt(
-      'XCP: unexpected PID 0x%2.2X', [Result[0]]);
+    raise EOBDProtocolErr.CreateFmt('XCP: unexpected PID 0x%2.2X', [Result[0]]);
 end;
 
 procedure TOBDXCP.WriteAddrPacket(var AOut: TBytes; AOffset: Integer;
@@ -319,15 +313,15 @@ begin
   // Address bytes use the slave's byte order.
   if FBigEndian then
   begin
-    AOut[AOffset    ] := Byte((AAddress shr 24) and $FF);
+    AOut[AOffset] := Byte((AAddress shr 24) and $FF);
     AOut[AOffset + 1] := Byte((AAddress shr 16) and $FF);
-    AOut[AOffset + 2] := Byte((AAddress shr  8) and $FF);
+    AOut[AOffset + 2] := Byte((AAddress shr 8) and $FF);
     AOut[AOffset + 3] := Byte(AAddress and $FF);
   end
   else
   begin
-    AOut[AOffset    ] := Byte(AAddress and $FF);
-    AOut[AOffset + 1] := Byte((AAddress shr  8) and $FF);
+    AOut[AOffset] := Byte(AAddress and $FF);
+    AOut[AOffset + 1] := Byte((AAddress shr 8) and $FF);
     AOut[AOffset + 2] := Byte((AAddress shr 16) and $FF);
     AOut[AOffset + 3] := Byte((AAddress shr 24) and $FF);
   end;
@@ -339,34 +333,36 @@ var
 begin
   if FTransport = nil then
     raise EOBDConfig.Create('TOBDXCP: Transport not assigned');
-  if not FTransport.IsConnected then FTransport.Connect;
+  if not FTransport.IsConnected then
+    FTransport.Connect;
   SetLength(Cmd, 2);
   Cmd[0] := XCP_CMD_CONNECT;
   Cmd[1] := $00; // mode = NORMAL
   Resp := Exchange(Cmd);
   if Length(Resp) < 8 then
     raise EOBDProtocolErr.Create('XCP CONNECT: short response');
-  Result.Resource         := Resp[1];
-  Result.CommModeBasic    := Resp[2];
-  Result.MaxCTO           := Resp[3];
-  Result.BigEndian        := (Result.CommModeBasic and $01) <> 0;
+  Result.Resource := Resp[1];
+  Result.CommModeBasic := Resp[2];
+  Result.MaxCTO := Resp[3];
+  Result.BigEndian := (Result.CommModeBasic and $01) <> 0;
   // MAX_DTO is encoded in the slave's byte order from the start.
   // CONNECT always returns it in network order though — § 4.1.1.
-  Result.MaxDTO           := (Word(Resp[4]) shl 8) or Resp[5];
-  Result.ProtocolVersion  := Resp[6];
+  Result.MaxDTO := (Word(Resp[4]) shl 8) or Resp[5];
+  Result.ProtocolVersion := Resp[6];
   Result.TransportVersion := Resp[7];
 
   FConnected := True;
   FBigEndian := Result.BigEndian;
-  FMaxCTO    := Result.MaxCTO;
-  FMaxDTO    := Result.MaxDTO;
+  FMaxCTO := Result.MaxCTO;
+  FMaxDTO := Result.MaxDTO;
 end;
 
 procedure TOBDXCP.Disconnect;
 var
   Cmd: TBytes;
 begin
-  if not FConnected then Exit;
+  if not FConnected then
+    Exit;
   SetLength(Cmd, 1);
   Cmd[0] := XCP_CMD_DISCONNECT;
   try
@@ -375,7 +371,8 @@ begin
     // Best-effort close; swallow.
   end;
   FConnected := False;
-  if FTransport <> nil then FTransport.Disconnect;
+  if FTransport <> nil then
+    FTransport.Disconnect;
 end;
 
 function TOBDXCP.IsConnected: Boolean;
@@ -392,7 +389,7 @@ begin
   Resp := Exchange(Cmd);
   if Length(Resp) < 6 then
     raise EOBDProtocolErr.Create('XCP GET_STATUS: short response');
-  Result.SessionStatus      := Resp[1];
+  Result.SessionStatus := Resp[1];
   Result.ResourceProtection := Resp[2];
   if FBigEndian then
     Result.SessionConfigurationID := (Word(Resp[4]) shl 8) or Resp[5]
@@ -414,11 +411,12 @@ begin
   // Bytes 4..7 carry the length in slave byte order.
   if FBigEndian then
     TextLen := (Cardinal(Resp[4]) shl 24) or (Cardinal(Resp[5]) shl 16) or
-               (Cardinal(Resp[6]) shl 8) or Cardinal(Resp[7])
+      (Cardinal(Resp[6]) shl 8) or Cardinal(Resp[7])
   else
     TextLen := (Cardinal(Resp[7]) shl 24) or (Cardinal(Resp[6]) shl 16) or
-               (Cardinal(Resp[5]) shl 8) or Cardinal(Resp[4]);
-  if TextLen = 0 then Exit('');
+      (Cardinal(Resp[5]) shl 8) or Cardinal(Resp[4]);
+  if TextLen = 0 then
+    Exit('');
 
   // Pull the body via UPLOAD chunks. SET_MTA is implicit when the
   // slave returned the data inline (Mode = TRANSFER_MODE_INLINE).
@@ -437,7 +435,7 @@ var
 begin
   SetLength(Cmd, 3);
   Cmd[0] := XCP_CMD_GET_SEED;
-  Cmd[1] := $00;        // mode = first call
+  Cmd[1] := $00; // mode = first call
   Cmd[2] := AResource;
   Resp := Exchange(Cmd);
   if Length(Resp) < 2 then
@@ -462,7 +460,7 @@ begin
   if Length(Resp) < 2 then
     raise EOBDProtocolErr.Create('XCP UNLOCK: short response');
   Result := Resp[1]; // current resource protection bitmap
-  if AResource = 0 then ; // suppress unused-warning when a host omits it
+  if AResource = 0 then; // suppress unused-warning when a host omits it
 end;
 
 procedure TOBDXCP.SetMTA(AAddress: UInt32; AExtension: Byte);
@@ -487,8 +485,8 @@ begin
   Cmd[1] := ALen;
   Resp := Exchange(Cmd);
   if Length(Resp) < 1 + ALen then
-    raise EOBDProtocolErr.CreateFmt(
-      'XCP UPLOAD: expected %d data bytes, got %d', [ALen, Length(Resp) - 1]);
+    raise EOBDProtocolErr.CreateFmt
+      ('XCP UPLOAD: expected %d data bytes, got %d', [ALen, Length(Resp) - 1]);
   SetLength(Result, ALen);
   if ALen > 0 then
     Move(Resp[1], Result[0], ALen);
@@ -519,7 +517,8 @@ var
   N: Integer;
 begin
   N := Length(AData);
-  if N = 0 then Exit;
+  if N = 0 then
+    Exit;
   SetLength(Cmd, 2 + N);
   Cmd[0] := XCP_CMD_DOWNLOAD;
   Cmd[1] := Byte(N);
@@ -534,7 +533,8 @@ var
   N: Integer;
 begin
   N := Length(AData);
-  if N = 0 then Exit;
+  if N = 0 then
+    Exit;
   SetLength(Cmd, 8 + N);
   Cmd[0] := XCP_CMD_SHORT_DOWNLOAD;
   Cmd[1] := Byte(N);
@@ -545,8 +545,7 @@ begin
   Exchange(Cmd);
 end;
 
-procedure TOBDXCP.SetCalPage(ALogicalSegment, ALogicalPage,
-  AMode: Byte);
+procedure TOBDXCP.SetCalPage(ALogicalSegment, ALogicalPage, AMode: Byte);
 var
   Cmd: TBytes;
 begin
@@ -610,12 +609,12 @@ procedure WriteWordOrder(var ABuf: TBytes; AOff: Integer; AValue: Word;
 begin
   if ABigEndian then
   begin
-    ABuf[AOff]     := Byte((AValue shr 8) and $FF);
+    ABuf[AOff] := Byte((AValue shr 8) and $FF);
     ABuf[AOff + 1] := Byte(AValue and $FF);
   end
   else
   begin
-    ABuf[AOff]     := Byte(AValue and $FF);
+    ABuf[AOff] := Byte(AValue and $FF);
     ABuf[AOff + 1] := Byte((AValue shr 8) and $FF);
   end;
 end;
@@ -635,7 +634,7 @@ var
 begin
   SetLength(Cmd, 4);
   Cmd[0] := XCP_CMD_ALLOC_DAQ;
-  Cmd[1] := 0;  // reserved
+  Cmd[1] := 0; // reserved
   WriteWordOrder(Cmd, 2, ACount, FBigEndian);
   Exchange(Cmd);
 end;
@@ -692,8 +691,8 @@ begin
   Exchange(Cmd);
 end;
 
-procedure TOBDXCP.SetDAQListMode(AMode: Byte; ADaqList,
-  AEventChannel: Word; APrescaler, APriority: Byte);
+procedure TOBDXCP.SetDAQListMode(AMode: Byte; ADaqList, AEventChannel: Word;
+  APrescaler, APriority: Byte);
 var
   Cmd: TBytes;
 begin
@@ -709,8 +708,7 @@ end;
 
 { ---- PGM (ProgramFlash) ---------------------------------------------------- }
 
-procedure TOBDXCP.ProgramStart(out ACommMode, AMaxCTO, AMaxBS,
-  AMinST: Byte);
+procedure TOBDXCP.ProgramStart(out ACommMode, AMaxCTO, AMaxBS, AMinST: Byte);
 var
   Cmd, Resp: TBytes;
 begin
@@ -721,9 +719,9 @@ begin
     raise EOBDProtocolErr.Create('XCP PROGRAM_START: short response');
   // Resp: [PID, reserved, COMM_MODE_PGM, MAX_CTO_PGM, MAX_BS_PGM, MIN_ST_PGM, QUEUE_SIZE_PGM]
   ACommMode := Resp[2];
-  AMaxCTO   := Resp[3];
-  AMaxBS    := Resp[4];
-  AMinST    := Resp[5];
+  AMaxCTO := Resp[3];
+  AMaxBS := Resp[4];
+  AMinST := Resp[5];
 end;
 
 procedure TOBDXCP.ProgramClear(AAccessMode: Byte; ALen: UInt32);
@@ -740,13 +738,13 @@ begin
   begin
     Cmd[4] := Byte((ALen shr 24) and $FF);
     Cmd[5] := Byte((ALen shr 16) and $FF);
-    Cmd[6] := Byte((ALen shr  8) and $FF);
+    Cmd[6] := Byte((ALen shr 8) and $FF);
     Cmd[7] := Byte(ALen and $FF);
   end
   else
   begin
     Cmd[4] := Byte(ALen and $FF);
-    Cmd[5] := Byte((ALen shr  8) and $FF);
+    Cmd[5] := Byte((ALen shr 8) and $FF);
     Cmd[6] := Byte((ALen shr 16) and $FF);
     Cmd[7] := Byte((ALen shr 24) and $FF);
   end;
@@ -759,7 +757,8 @@ var
   N: Integer;
 begin
   N := Length(AData);
-  if N = 0 then Exit;
+  if N = 0 then
+    Exit;
   SetLength(Cmd, 2 + N);
   Cmd[0] := XCP_CMD_PROGRAM;
   Cmd[1] := Byte(N);
@@ -774,7 +773,10 @@ begin
   SetLength(Cmd, 1);
   Cmd[0] := XCP_CMD_PROGRAM_RESET;
   // PROGRAM_RESET response is optional; some slaves drop the link.
-  try Exchange(Cmd); except end;
+  try
+    Exchange(Cmd);
+  except
+  end;
   FConnected := False;
 end;
 
@@ -791,13 +793,13 @@ begin
   begin
     Cmd[4] := Byte((AVerificationValue shr 24) and $FF);
     Cmd[5] := Byte((AVerificationValue shr 16) and $FF);
-    Cmd[6] := Byte((AVerificationValue shr  8) and $FF);
+    Cmd[6] := Byte((AVerificationValue shr 8) and $FF);
     Cmd[7] := Byte(AVerificationValue and $FF);
   end
   else
   begin
     Cmd[4] := Byte(AVerificationValue and $FF);
-    Cmd[5] := Byte((AVerificationValue shr  8) and $FF);
+    Cmd[5] := Byte((AVerificationValue shr 8) and $FF);
     Cmd[6] := Byte((AVerificationValue shr 16) and $FF);
     Cmd[7] := Byte((AVerificationValue shr 24) and $FF);
   end;

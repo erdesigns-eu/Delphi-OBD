@@ -1,28 +1,28 @@
-//------------------------------------------------------------------------------
-//  ERD.UI.Branding
+﻿// ------------------------------------------------------------------------------
+// ERD.UI.Branding
 //
-//  Branding / utility visuals:
+// Branding / utility visuals:
 //
-//    TOBDOEMBadge        Vendor logo card. Manual SetBrand or
-//                        host-provided VIN → OEM mapping.
-//    TOBDDigitalCluster  Retro 7-segment N-digit cluster.
-//    TOBDBluetoothSignal RSSI bars for BT adapter.
-//    TOBDWiFiSignal      RSSI bars for WiFi adapter.
-//    TOBDGPSAccuracy     HDOP + sat-count indicator.
+// TOBDOEMBadge        Vendor logo card. Manual SetBrand or
+// host-provided VIN → OEM mapping.
+// TOBDDigitalCluster  Retro 7-segment N-digit cluster.
+// TOBDBluetoothSignal RSSI bars for BT adapter.
+// TOBDWiFiSignal      RSSI bars for WiFi adapter.
+// TOBDGPSAccuracy     HDOP + sat-count indicator.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.UI.Branding;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -32,9 +32,9 @@ uses
   Winapi.Windows,
   Winapi.GDIPAPI,
   Winapi.GDIPOBJ,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
   System.Bindings.Helper, Data.Bind.Components,
   Vcl.Controls,
   Vcl.Graphics,
@@ -50,8 +50,8 @@ type
   TOBDOEMBadge = class(TOBDCustomControl)
   strict private
     FBrandName: string;
-    FAccent:    TColor;
-    FFont:      TFont;
+    FAccent: TColor;
+    FFont: TFont;
     procedure SetBrandName(const AValue: string);
     procedure SetAccent(AValue: TColor);
     procedure SetFontA(AValue: TFont);
@@ -61,18 +61,16 @@ type
     procedure PaintControl(ACanvas: TCanvas); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
     /// <summary>One-shot brand setter (name + accent colour).
     /// </summary>
     procedure SetBrand(const AName: string; AColor: TColor);
   published
     /// <summary>Brand display name shown on the card.</summary>
-    property BrandName: string
-      read FBrandName write SetBrandName;
+    property BrandName: string read FBrandName write SetBrandName;
     /// <summary>Card accent / fill colour. <c>clDefault</c>
     /// uses the active theme accent.</summary>
-    property AccentColor: TColor
-      read FAccent write SetAccent default clDefault;
+    property AccentColor: TColor read FAccent write SetAccent default clDefault;
     /// <summary>Font used for the brand name.</summary>
     property BrandFont: TFont read FFont write SetFontA;
   end;
@@ -83,17 +81,17 @@ type
   TOBDDigitalCluster = class(TOBDCustomControl)
   strict private
     FDigitCount: Integer;
-    FText:       string;
-    FOnColor:    TColor;
-    FOffColor:   TColor;
+    FText: string;
+    FOnColor: TColor;
+    FOffColor: TColor;
     procedure SetDigitCount(AValue: Integer);
     procedure SetText(const AValue: string);
     procedure SetOnColor(AValue: TColor);
     procedure SetOffColor(AValue: TColor);
     procedure NotifyBindings;
-    function  SegmentMask(AGlyph: Char): Byte;
-    procedure DrawDigit(AGraphics: TGPGraphics;
-      AX, AY, AW, AH: Single; AMask: Byte);
+    function SegmentMask(AGlyph: Char): Byte;
+    procedure DrawDigit(AGraphics: TGPGraphics; AX, AY, AW, AH: Single;
+      AMask: Byte);
   protected
     procedure PaintControl(ACanvas: TCanvas); override;
   public
@@ -101,16 +99,14 @@ type
   published
     /// <summary>Number of digits in the cluster. Default 4.
     /// </summary>
-    property DigitCount: Integer
-      read FDigitCount write SetDigitCount default 4;
+    property DigitCount: Integer read FDigitCount write SetDigitCount default 4;
     /// <summary>Display text. Right-justified into
     /// <see cref="DigitCount"/> digits; unsegmentable
     /// characters render as blank.</summary>
     property Text: string read FText write SetText;
     /// <summary>Colour for lit segments. <c>clDefault</c> uses
     /// the theme accent.</summary>
-    property OnColor: TColor read FOnColor write SetOnColor
-      default clDefault;
+    property OnColor: TColor read FOnColor write SetOnColor default clDefault;
     /// <summary>Colour for unlit segments. <c>clDefault</c>
     /// uses a dim theme tone.</summary>
     property OffColor: TColor read FOffColor write SetOffColor
@@ -122,10 +118,10 @@ type
   /// metric and label.</summary>
   TOBDSignalBarsBase = class(TOBDCustomControl)
   strict private
-    FBarCount:  Integer;
-    FActive:    Integer;
-    FCaption:   string;
-    FFont:      TFont;
+    FBarCount: Integer;
+    FActive: Integer;
+    FCaption: string;
+    FFont: TFont;
     procedure SetBarCount(AValue: Integer);
     procedure SetActive(AValue: Integer);
     procedure SetCaption(const AValue: string);
@@ -136,16 +132,14 @@ type
     procedure PaintControl(ACanvas: TCanvas); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
   published
     /// <summary>Total number of bars in the indicator.
     /// Default 4.</summary>
-    property BarCount: Integer
-      read FBarCount write SetBarCount default 4;
+    property BarCount: Integer read FBarCount write SetBarCount default 4;
     /// <summary>Number of bars currently lit (0..BarCount).
     /// </summary>
-    property ActiveBars: Integer
-      read FActive write SetActive default 0;
+    property ActiveBars: Integer read FActive write SetActive default 0;
     /// <summary>Caption rendered next to the bars.</summary>
     property Caption: string read FCaption write SetCaption;
     /// <summary>Font used for the caption.</summary>
@@ -165,8 +159,7 @@ type
   published
     /// <summary>Current Bluetooth RSSI in dBm (typically
     /// -100..-30). Default -100 (no signal).</summary>
-    property RssiDbm: Integer read FRssiDbm write SetRssiDbm
-      default -100;
+    property RssiDbm: Integer read FRssiDbm write SetRssiDbm default -100;
   end;
 
   /// <summary>Wi-Fi RSSI bars.</summary>
@@ -180,37 +173,35 @@ type
   published
     /// <summary>Current Wi-Fi RSSI in dBm (typically
     /// -100..-30). Default -100 (no signal).</summary>
-    property RssiDbm: Integer read FRssiDbm write SetRssiDbm
-      default -100;
+    property RssiDbm: Integer read FRssiDbm write SetRssiDbm default -100;
   end;
 
   /// <summary>GPS accuracy indicator: HDOP + sat-count.
   /// Renders as a small panel with a coloured grade.</summary>
   TOBDGPSAccuracy = class(TOBDCustomControl)
   strict private
-    FHDOP:     Double;
+    FHDOP: Double;
     FSatCount: Integer;
-    FFont:     TFont;
+    FFont: TFont;
     procedure SetHDOP(AValue: Double);
     procedure SetSatCount(AValue: Integer);
     procedure SetFontA(AValue: TFont);
     procedure HandleFontChange(Sender: TObject);
     procedure NotifyBindings;
-    function  GradeColor: TColor;
-    function  GradeText: string;
+    function GradeColor: TColor;
+    function GradeText: string;
   protected
     procedure PaintControl(ACanvas: TCanvas); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
   published
     /// <summary>Horizontal dilution of precision (lower is
     /// better; &lt;2 is "excellent", &gt;5 is "poor").</summary>
     property HDOP: Double read FHDOP write SetHDOP;
     /// <summary>Satellite count contributing to the fix.
     /// Default 0.</summary>
-    property SatCount: Integer
-      read FSatCount write SetSatCount default 0;
+    property SatCount: Integer read FSatCount write SetSatCount default 0;
     /// <summary>Font used for the readout labels.</summary>
     property LabelFont: TFont read FFont write SetFontA;
   end;
@@ -222,7 +213,7 @@ implementation
 constructor TOBDOEMBadge.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 160;
+  Width := 160;
   Height := 60;
   FAccent := clDefault;
   FFont := TFont.Create;
@@ -241,7 +232,8 @@ end;
 
 procedure TOBDOEMBadge.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -255,14 +247,19 @@ end;
 
 procedure TOBDOEMBadge.SetBrandName(const AValue: string);
 begin
-  if FBrandName = AValue then Exit;
-  FBrandName := AValue; NotifyBindings; Repaint;
+  if FBrandName = AValue then
+    Exit;
+  FBrandName := AValue;
+  NotifyBindings;
+  Repaint;
 end;
 
 procedure TOBDOEMBadge.SetAccent(AValue: TColor);
 begin
-  if FAccent = AValue then Exit;
-  FAccent := AValue; Repaint;
+  if FAccent = AValue then
+    Exit;
+  FAccent := AValue;
+  Repaint;
 end;
 
 procedure TOBDOEMBadge.SetFontA(AValue: TFont);
@@ -273,7 +270,7 @@ end;
 procedure TOBDOEMBadge.SetBrand(const AName: string; AColor: TColor);
 begin
   FBrandName := AName;
-  FAccent    := AColor;
+  FAccent := AColor;
   NotifyBindings;
   Repaint;
 end;
@@ -290,7 +287,7 @@ begin
   Pad := ScaleValue(4);
   Card.X := Pad;
   Card.Y := Pad;
-  Card.Width  := Width - 2 * Pad;
+  Card.Width := Width - 2 * Pad;
   Card.Height := Height - 2 * Pad;
   Col := ResolveColor(FAccent, EffectiveAccent);
 
@@ -308,10 +305,8 @@ begin
   ACanvas.Font := FFont;
   TextW := ACanvas.TextWidth(FBrandName);
   TextH := ACanvas.TextHeight(FBrandName);
-  ACanvas.TextOut(
-    Round(Card.X + (Card.Width  - TextW) / 2),
-    Round(Card.Y + (Card.Height - TextH) / 2),
-    FBrandName);
+  ACanvas.TextOut(Round(Card.X + (Card.Width - TextW) / 2),
+    Round(Card.Y + (Card.Height - TextH) / 2), FBrandName);
 end;
 
 { ---- TOBDDigitalCluster -------------------------------------------- }
@@ -319,7 +314,7 @@ end;
 constructor TOBDDigitalCluster.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 200;
+  Width := 200;
   Height := 60;
   FDigitCount := 4;
   FText := '----';
@@ -329,7 +324,8 @@ end;
 
 procedure TOBDDigitalCluster.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -338,45 +334,68 @@ end;
 
 procedure TOBDDigitalCluster.SetDigitCount(AValue: Integer);
 begin
-  if AValue < 1 then AValue := 1;
-  if AValue > 16 then AValue := 16;
-  if FDigitCount = AValue then Exit;
-  FDigitCount := AValue; Repaint;
+  if AValue < 1 then
+    AValue := 1;
+  if AValue > 16 then
+    AValue := 16;
+  if FDigitCount = AValue then
+    Exit;
+  FDigitCount := AValue;
+  Repaint;
 end;
 
 procedure TOBDDigitalCluster.SetText(const AValue: string);
 begin
-  if FText = AValue then Exit;
-  FText := AValue; NotifyBindings; Repaint;
+  if FText = AValue then
+    Exit;
+  FText := AValue;
+  NotifyBindings;
+  Repaint;
 end;
 
 procedure TOBDDigitalCluster.SetOnColor(AValue: TColor);
 begin
-  if FOnColor = AValue then Exit;
-  FOnColor := AValue; Repaint;
+  if FOnColor = AValue then
+    Exit;
+  FOnColor := AValue;
+  Repaint;
 end;
 
 procedure TOBDDigitalCluster.SetOffColor(AValue: TColor);
 begin
-  if FOffColor = AValue then Exit;
-  FOffColor := AValue; Repaint;
+  if FOffColor = AValue then
+    Exit;
+  FOffColor := AValue;
+  Repaint;
 end;
 
 function TOBDDigitalCluster.SegmentMask(AGlyph: Char): Byte;
 begin
   case AGlyph of
-    '0': Result := $3F;
-    '1': Result := $06;
-    '2': Result := $5B;
-    '3': Result := $4F;
-    '4': Result := $66;
-    '5': Result := $6D;
-    '6': Result := $7D;
-    '7': Result := $07;
-    '8': Result := $7F;
-    '9': Result := $6F;
-    '-': Result := $40;
-    ' ': Result := $00;
+    '0':
+      Result := $3F;
+    '1':
+      Result := $06;
+    '2':
+      Result := $5B;
+    '3':
+      Result := $4F;
+    '4':
+      Result := $66;
+    '5':
+      Result := $6D;
+    '6':
+      Result := $7D;
+    '7':
+      Result := $07;
+    '8':
+      Result := $7F;
+    '9':
+      Result := $6F;
+    '-':
+      Result := $40;
+    ' ':
+      Result := $00;
   else
     Result := $00;
   end;
@@ -391,10 +410,13 @@ var
   CY: Single;
 
   procedure Fill(ABit: Byte; const R: TGPRectF);
-  var Col: TColor;
+  var
+    Col: TColor;
   begin
-    if (AMask and (1 shl ABit)) <> 0 then Col := OnCol
-    else                                  Col := OffCol;
+    if (AMask and (1 shl ABit)) <> 0 then
+      Col := OnCol
+    else
+      Col := OffCol;
     Brush := TGPSolidBrush.Create(ColorToARGB(Col));
     try
       AGraphics.FillRectangle(Brush, R);
@@ -407,14 +429,14 @@ var
   begin
     Result.X := X1;
     Result.Y := Y1;
-    Result.Width  := X2 - X1;
+    Result.Width := X2 - X1;
     Result.Height := Y2 - Y1;
   end;
 
 begin
   OnCol := ResolveColor(FOnColor, Palette.Accent);
   OffCol := ResolveColor(FOffColor, Palette.NeutralLight);
-  SegTh  := AW * 0.14;
+  SegTh := AW * 0.14;
   CY := AY + AH / 2;
 
   Fill(0, R(AX + AW * 0.15, AY, AX + AW * 0.85, AY + SegTh));
@@ -437,10 +459,12 @@ begin
   Pad := ScaleValue(4);
   W := (Width - 2 * Pad - (FDigitCount - 1) * Pad) / FDigitCount;
   H := Height - 2 * Pad;
-  if (W <= 0) or (H <= 0) then Exit;
+  if (W <= 0) or (H <= 0) then
+    Exit;
 
   Disp := FText;
-  while Length(Disp) < FDigitCount do Disp := ' ' + Disp;
+  while Length(Disp) < FDigitCount do
+    Disp := ' ' + Disp;
   if Length(Disp) > FDigitCount then
     Disp := Copy(Disp, Length(Disp) - FDigitCount + 1, FDigitCount);
 
@@ -464,10 +488,10 @@ end;
 constructor TOBDSignalBarsBase.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 80;
+  Width := 80;
   Height := 32;
   FBarCount := 4;
-  FActive   := 0;
+  FActive := 0;
   FFont := TFont.Create;
   FFont.Name := 'Segoe UI';
   FFont.Size := 8;
@@ -482,7 +506,8 @@ end;
 
 procedure TOBDSignalBarsBase.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -496,24 +521,35 @@ end;
 
 procedure TOBDSignalBarsBase.SetBarCount(AValue: Integer);
 begin
-  if AValue < 1 then AValue := 1;
-  if AValue > 8 then AValue := 8;
-  if FBarCount = AValue then Exit;
-  FBarCount := AValue; Repaint;
+  if AValue < 1 then
+    AValue := 1;
+  if AValue > 8 then
+    AValue := 8;
+  if FBarCount = AValue then
+    Exit;
+  FBarCount := AValue;
+  Repaint;
 end;
 
 procedure TOBDSignalBarsBase.SetActive(AValue: Integer);
 begin
-  if AValue < 0 then AValue := 0;
-  if AValue > FBarCount then AValue := FBarCount;
-  if FActive = AValue then Exit;
-  FActive := AValue; NotifyBindings; Repaint;
+  if AValue < 0 then
+    AValue := 0;
+  if AValue > FBarCount then
+    AValue := FBarCount;
+  if FActive = AValue then
+    Exit;
+  FActive := AValue;
+  NotifyBindings;
+  Repaint;
 end;
 
 procedure TOBDSignalBarsBase.SetCaption(const AValue: string);
 begin
-  if FCaption = AValue then Exit;
-  FCaption := AValue; Repaint;
+  if FCaption = AValue then
+    Exit;
+  FCaption := AValue;
+  Repaint;
 end;
 
 procedure TOBDSignalBarsBase.SetFontA(AValue: TFont);
@@ -532,12 +568,15 @@ var
 begin
   Pad := ScaleValue(4);
   BarsAreaW := Width - 2 * Pad;
-  if FCaption <> '' then BarsAreaW := BarsAreaW - ScaleValue(40);
+  if FCaption <> '' then
+    BarsAreaW := BarsAreaW - ScaleValue(40);
   BarsAreaH := Height - 2 * Pad;
-  if BarsAreaW < FBarCount then Exit;
+  if BarsAreaW < FBarCount then
+    Exit;
   BarGap := ScaleValue(2);
   BarW := (BarsAreaW - (FBarCount - 1) * BarGap) div FBarCount;
-  if BarW < 2 then BarW := 2;
+  if BarW < 2 then
+    BarW := 2;
 
   Graphics := TGPGraphics.Create(ACanvas.Handle);
   try
@@ -547,8 +586,10 @@ begin
       X := Pad + I * (BarW + BarGap);
       H := BarsAreaH * (0.3 + 0.7 * (I + 1) / FBarCount);
       Y := Pad + (BarsAreaH - H);
-      if I < FActive then Col := EffectiveAccent
-      else                Col := Palette.NeutralLight;
+      if I < FActive then
+        Col := EffectiveAccent
+      else
+        Col := Palette.NeutralLight;
       Brush := TGPSolidBrush.Create(ColorToARGB(Col));
       try
         Graphics.FillRectangle(Brush, X, Y, BarW, H);
@@ -575,28 +616,35 @@ end;
 constructor TOBDBluetoothSignal.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Caption  := 'BT';
+  Caption := 'BT';
   FRssiDbm := -100;
   UpdateBars;
 end;
 
 procedure TOBDBluetoothSignal.SetRssiDbm(AValue: Integer);
 begin
-  if FRssiDbm = AValue then Exit;
+  if FRssiDbm = AValue then
+    Exit;
   FRssiDbm := AValue;
   UpdateBars;
 end;
 
 procedure TOBDBluetoothSignal.UpdateBars;
-var Bars: Integer;
+var
+  Bars: Integer;
 begin
   // -100..-90 = 0, -90..-80 = 1, -80..-70 = 2, -70..-60 = 3,
   // > -60 = 4
-  if FRssiDbm >= -60 then Bars := 4
-  else if FRssiDbm >= -70 then Bars := 3
-  else if FRssiDbm >= -80 then Bars := 2
-  else if FRssiDbm >= -90 then Bars := 1
-  else Bars := 0;
+  if FRssiDbm >= -60 then
+    Bars := 4
+  else if FRssiDbm >= -70 then
+    Bars := 3
+  else if FRssiDbm >= -80 then
+    Bars := 2
+  else if FRssiDbm >= -90 then
+    Bars := 1
+  else
+    Bars := 0;
   ActiveBars := Bars;
 end;
 
@@ -605,26 +653,33 @@ end;
 constructor TOBDWiFiSignal.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Caption  := 'WiFi';
+  Caption := 'WiFi';
   FRssiDbm := -100;
   UpdateBars;
 end;
 
 procedure TOBDWiFiSignal.SetRssiDbm(AValue: Integer);
 begin
-  if FRssiDbm = AValue then Exit;
+  if FRssiDbm = AValue then
+    Exit;
   FRssiDbm := AValue;
   UpdateBars;
 end;
 
 procedure TOBDWiFiSignal.UpdateBars;
-var Bars: Integer;
+var
+  Bars: Integer;
 begin
-  if FRssiDbm >= -55 then Bars := 4
-  else if FRssiDbm >= -65 then Bars := 3
-  else if FRssiDbm >= -75 then Bars := 2
-  else if FRssiDbm >= -85 then Bars := 1
-  else Bars := 0;
+  if FRssiDbm >= -55 then
+    Bars := 4
+  else if FRssiDbm >= -65 then
+    Bars := 3
+  else if FRssiDbm >= -75 then
+    Bars := 2
+  else if FRssiDbm >= -85 then
+    Bars := 1
+  else
+    Bars := 0;
   ActiveBars := Bars;
 end;
 
@@ -633,7 +688,7 @@ end;
 constructor TOBDGPSAccuracy.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  Width  := 140;
+  Width := 140;
   Height := 36;
   FHDOP := 99.9;
   FSatCount := 0;
@@ -651,7 +706,8 @@ end;
 
 procedure TOBDGPSAccuracy.NotifyBindings;
 begin
-  if ([csDesigning, csDestroying] * ComponentState) <> [] then Exit;
+  if ([csDesigning, csDestroying] * ComponentState) <> [] then
+    Exit;
   try
     TBindings.Notify(Self, '');
   except
@@ -665,16 +721,24 @@ end;
 
 procedure TOBDGPSAccuracy.SetHDOP(AValue: Double);
 begin
-  if AValue < 0 then AValue := 0;
-  if SameValue(FHDOP, AValue) then Exit;
-  FHDOP := AValue; NotifyBindings; Repaint;
+  if AValue < 0 then
+    AValue := 0;
+  if SameValue(FHDOP, AValue) then
+    Exit;
+  FHDOP := AValue;
+  NotifyBindings;
+  Repaint;
 end;
 
 procedure TOBDGPSAccuracy.SetSatCount(AValue: Integer);
 begin
-  if AValue < 0 then AValue := 0;
-  if FSatCount = AValue then Exit;
-  FSatCount := AValue; NotifyBindings; Repaint;
+  if AValue < 0 then
+    AValue := 0;
+  if FSatCount = AValue then
+    Exit;
+  FSatCount := AValue;
+  NotifyBindings;
+  Repaint;
 end;
 
 procedure TOBDGPSAccuracy.SetFontA(AValue: TFont);
@@ -684,19 +748,28 @@ end;
 
 function TOBDGPSAccuracy.GradeColor: TColor;
 begin
-  if FHDOP <= 1.0 then Result := Palette.Success
-  else if FHDOP <= 2.5 then Result := EffectiveAccent
-  else if FHDOP <= 5.0 then Result := Palette.Warning
-  else Result := Palette.Danger;
+  if FHDOP <= 1.0 then
+    Result := Palette.Success
+  else if FHDOP <= 2.5 then
+    Result := EffectiveAccent
+  else if FHDOP <= 5.0 then
+    Result := Palette.Warning
+  else
+    Result := Palette.Danger;
 end;
 
 function TOBDGPSAccuracy.GradeText: string;
 begin
-  if FHDOP <= 1.0 then Result := 'excellent'
-  else if FHDOP <= 2.5 then Result := 'good'
-  else if FHDOP <= 5.0 then Result := 'fair'
-  else if FHDOP <= 10.0 then Result := 'poor'
-  else Result := 'no fix';
+  if FHDOP <= 1.0 then
+    Result := 'excellent'
+  else if FHDOP <= 2.5 then
+    Result := 'good'
+  else if FHDOP <= 5.0 then
+    Result := 'fair'
+  else if FHDOP <= 10.0 then
+    Result := 'poor'
+  else
+    Result := 'no fix';
 end;
 
 procedure TOBDGPSAccuracy.PaintControl(ACanvas: TCanvas);
@@ -708,12 +781,10 @@ begin
   ACanvas.Brush.Style := bsClear;
   ACanvas.Font := FFont;
   ACanvas.Font.Color := EffectiveForeground;
-  S := Format('GPS  HDOP %.1f  sats %d',
-    [FHDOP, FSatCount]);
+  S := Format('GPS  HDOP %.1f  sats %d', [FHDOP, FSatCount]);
   ACanvas.TextOut(Pad, Pad, S);
   ACanvas.Font.Color := GradeColor;
-  ACanvas.TextOut(Pad,
-    Pad + ACanvas.TextHeight('Mg') + ScaleValue(2),
+  ACanvas.TextOut(Pad, Pad + ACanvas.TextHeight('Mg') + ScaleValue(2),
     GradeText);
 end;
 

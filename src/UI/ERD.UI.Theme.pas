@@ -1,45 +1,45 @@
-//------------------------------------------------------------------------------
-//  ERD.UI.Theme
+﻿// ------------------------------------------------------------------------------
+// ERD.UI.Theme
 //
-//  TOBDTheme — non-visual controller component that owns the
-//  palette + dark-mode setting for every Delphi-OBD visual on
-//  the form / data-module. Drop one on a form, and every visual
-//  on the same Owner auto-binds at runtime — no host code
-//  required.
+// TOBDTheme — non-visual controller component that owns the
+// palette + dark-mode setting for every Delphi-OBD visual on
+// the form / data-module. Drop one on a form, and every visual
+// on the same Owner auto-binds at runtime — no host code
+// required.
 //
-//  The resolution chain a visual control walks (highest priority
-//  to lowest):
+// The resolution chain a visual control walks (highest priority
+// to lowest):
 //
-//    1. The control's <c>Style</c> per-component overrides.
-//    2. The control's explicit <c>Theme</c> property.
-//    3. The first <c>TOBDTheme</c> found on the Owner / its
-//       ancestors at runtime (auto-bind).
-//    4. The process-wide default theme — set via
-//       <c>TOBDTheme.RegisterDefault</c>.
-//    5. The active VCL Style (TStyleManager.ActiveStyle).
-//    6. The built-in brand palette (light / dark per mode).
+// 1. The control's <c>Style</c> per-component overrides.
+// 2. The control's explicit <c>Theme</c> property.
+// 3. The first <c>TOBDTheme</c> found on the Owner / its
+// ancestors at runtime (auto-bind).
+// 4. The process-wide default theme — set via
+// <c>TOBDTheme.RegisterDefault</c>.
+// 5. The active VCL Style (TStyleManager.ActiveStyle).
+// 6. The built-in brand palette (light / dark per mode).
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.UI.Theme;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   Vcl.Graphics,
   ERD.UI.Types;
 
@@ -65,23 +65,23 @@ type
   /// tmLight / tmDark force a palette.</summary>
   TOBDTheme = class(TComponent)
   strict private
-    FMode:        TOBDThemeMode;
-    FOnChange:    TOBDThemeChangedEvent;
+    FMode: TOBDThemeMode;
+    FOnChange: TOBDThemeChangedEvent;
     FOverrideUsed: Boolean;
-    FOverride:    TOBDThemePalette;
-    FAttached:    TList<TComponent>;
+    FOverride: TOBDThemePalette;
+    FAttached: TList<TComponent>;
 
     class var FDefault: TOBDTheme;
 
     procedure SetMode(AValue: TOBDThemeMode);
-    function  ResolveBuiltIn: TOBDThemePalette;
+    function ResolveBuiltIn: TOBDThemePalette;
     procedure NotifyAttached;
   protected
     procedure Notification(AComponent: TComponent;
       Operation: TOperation); override;
   public
     constructor Create(AOwner: TComponent); override;
-    destructor  Destroy; override;
+    destructor Destroy; override;
 
     /// <summary>Currently-resolved palette. Honours
     /// <see cref="OverridePalette"/> first, then VCL Style
@@ -103,7 +103,7 @@ type
     /// clears the override and returns to mode-based
     /// resolution.</summary>
     procedure SetCustomPalette(const APalette: TOBDThemePalette;
-                               AHasOverride: Boolean = True);
+      AHasOverride: Boolean = True);
 
     /// <summary>Convenience: read-only access to the currently-
     /// set custom-palette override (<c>HasOverride = True</c>
@@ -121,7 +121,7 @@ type
     /// call <c>TOBDTheme.RegisterDefault(MyTheme)</c> in their
     /// <c>initialization</c> to opt in.</summary>
     class procedure RegisterDefault(ATheme: TOBDTheme); static;
-    class function  GetDefault: TOBDTheme; static;
+    class function GetDefault: TOBDTheme; static;
 
     /// <summary>Walks <c>AControl.Owner</c> ancestry looking for
     /// a <c>TOBDTheme</c> sibling. Returns nil when none is
@@ -134,8 +134,7 @@ type
     property Mode: TOBDThemeMode read FMode write SetMode default tmAuto;
 
     /// <summary>Fires on every palette change.</summary>
-    property OnChange: TOBDThemeChangedEvent
-      read FOnChange write FOnChange;
+    property OnChange: TOBDThemeChangedEvent read FOnChange write FOnChange;
   end;
 
 implementation
@@ -166,7 +165,8 @@ end;
 
 procedure TOBDTheme.SetMode(AValue: TOBDThemeMode);
 begin
-  if FMode = AValue then Exit;
+  if FMode = AValue then
+    Exit;
   FMode := AValue;
   Refresh;
 end;
@@ -178,12 +178,16 @@ begin
   Mode := FMode;
   if Mode = tmAuto then
   begin
-    if VCLStyleIsDark then Mode := tmDark
-    else                   Mode := tmLight;
+    if VCLStyleIsDark then
+      Mode := tmDark
+    else
+      Mode := tmLight;
   end;
   case Mode of
-    tmDark: Result := BRAND_PALETTE_DARK;
-  else      Result := BRAND_PALETTE_LIGHT;
+    tmDark:
+      Result := BRAND_PALETTE_DARK;
+  else
+    Result := BRAND_PALETTE_LIGHT;
   end;
 end;
 
@@ -191,7 +195,8 @@ function TOBDTheme.Palette: TOBDThemePalette;
 var
   Built: TOBDThemePalette;
 begin
-  if FOverrideUsed then Exit(FOverride);
+  if FOverrideUsed then
+    Exit(FOverride);
 
   // Start from the brand built-in for the resolved mode.
   Built := ResolveBuiltIn;
@@ -202,11 +207,11 @@ begin
   // identifiers, not OS chrome.)
   if TStyleManager.IsCustomStyleActive then
   begin
-    Built.Background     := StyleColor(scWindow,        Built.Background);
+    Built.Background := StyleColor(scWindow, Built.Background);
     Built.ForegroundText := StyleServices.GetSystemColor(clWindowText);
-    Built.NeutralLight   := StyleColor(scPanel,         Built.NeutralLight);
-    Built.NeutralDark    := StyleServices.GetSystemColor(clWindowText);
-    Built.Subtle         := StyleServices.GetSystemColor(clGrayText);
+    Built.NeutralLight := StyleColor(scPanel, Built.NeutralLight);
+    Built.NeutralDark := StyleServices.GetSystemColor(clWindowText);
+    Built.Subtle := StyleServices.GetSystemColor(clGrayText);
   end;
 
   Result := Built;
@@ -214,22 +219,25 @@ end;
 
 procedure TOBDTheme.Attach(AComponent: TComponent);
 begin
-  if AComponent = nil then Exit;
-  if not Supports(AComponent, IOBDThemeAware) then Exit;
-  if FAttached.IndexOf(AComponent) >= 0 then Exit;
+  if AComponent = nil then
+    Exit;
+  if not Supports(AComponent, IOBDThemeAware) then
+    Exit;
+  if FAttached.IndexOf(AComponent) >= 0 then
+    Exit;
   FAttached.Add(AComponent);
   AComponent.FreeNotification(Self);
 end;
 
 procedure TOBDTheme.Detach(AComponent: TComponent);
 begin
-  if AComponent = nil then Exit;
+  if AComponent = nil then
+    Exit;
   FAttached.Remove(AComponent);
   AComponent.RemoveFreeNotification(Self);
 end;
 
-procedure TOBDTheme.Notification(AComponent: TComponent;
-  Operation: TOperation);
+procedure TOBDTheme.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   inherited;
   if Operation = opRemove then
@@ -294,7 +302,8 @@ var
   I: Integer;
 begin
   Result := nil;
-  if AControl = nil then Exit;
+  if AControl = nil then
+    Exit;
   Owner := AControl.Owner;
   while Owner <> nil do
   begin

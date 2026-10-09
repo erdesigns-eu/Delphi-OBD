@@ -1,69 +1,69 @@
-//------------------------------------------------------------------------------
-//  ERD.Speciality.Tachograph
+﻿// ------------------------------------------------------------------------------
+// ERD.Speciality.Tachograph
 //
-//  TOBDTachograph — non-visual decoder for the digital-tachograph
-//  records defined by EU Regulation 165/2014 / Commission
-//  Implementing Regulation 2016/799 (Annex IC) and the legacy
-//  3821/85 generation. Covers the record types every workshop /
-//  authority tool needs to read off a Vehicle Unit (VU) or driver
-//  card download:
+// TOBDTachograph — non-visual decoder for the digital-tachograph
+// records defined by EU Regulation 165/2014 / Commission
+// Implementing Regulation 2016/799 (Annex IC) and the legacy
+// 3821/85 generation. Covers the record types every workshop /
+// authority tool needs to read off a Vehicle Unit (VU) or driver
+// card download:
 //
-//    - DriverActivityRecord (work / drive / rest / availability)
-//    - EventRecord          (security / overspeed / sensor faults)
-//    - FaultRecord          (recording-equipment faults)
-//    - CalibrationRecord    (workshop activations / parameter changes)
-//    - VuOverview           (vehicle / owner / activation timestamps)
+// - DriverActivityRecord (work / drive / rest / availability)
+// - EventRecord          (security / overspeed / sensor faults)
+// - FaultRecord          (recording-equipment faults)
+// - CalibrationRecord    (workshop activations / parameter changes)
+// - VuOverview           (vehicle / owner / activation timestamps)
 //
-//  v1 ships pure decoders — TLV-style structural parsing of the
-//  ASN.1 BER blobs Annex IC defines. Card / VU dumps are produced
-//  by the workshop tool's transport layer (PC/SC card reader or
-//  K-line / CAN VU diagnostic surface); this component consumes
-//  the raw bytes those tools deliver.
+// v1 ships pure decoders — TLV-style structural parsing of the
+// ASN.1 BER blobs Annex IC defines. Card / VU dumps are produced
+// by the workshop tool's transport layer (PC/SC card reader or
+// K-line / CAN VU diagnostic surface); this component consumes
+// the raw bytes those tools deliver.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - Commission Implementing Regulation (EU) 2016/799 Annex IC
-//    - ISO 16844-3 (Tachograph CAN diagnostic surface)
+// References  :
+// - Commission Implementing Regulation (EU) 2016/799 Annex IC
+// - ISO 16844-3 (Tachograph CAN diagnostic surface)
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Speciality.Tachograph;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}DateUtils{$ELSE}System.DateUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}DateUtils{$ELSE}System.DateUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   ERD.Types;
 
 const
   // ---- Activity codes (ISO 16844-3 / Annex IC §2.1) ----
-  TACHO_ACT_WORK         = $01;
-  TACHO_ACT_DRIVE        = $02;
-  TACHO_ACT_REST         = $03;
-  TACHO_ACT_AVAILABLE    = $04;
+  TACHO_ACT_WORK = $01;
+  TACHO_ACT_DRIVE = $02;
+  TACHO_ACT_REST = $03;
+  TACHO_ACT_AVAILABLE = $04;
 
   // ---- Event types ----
-  TACHO_EVENT_OVERSPEED       = $11;
-  TACHO_EVENT_TIME_OVERLAP    = $13;
-  TACHO_EVENT_SENSOR_FAILURE  = $30;
-  TACHO_EVENT_POWER_LOSS      = $31;
+  TACHO_EVENT_OVERSPEED = $11;
+  TACHO_EVENT_TIME_OVERLAP = $13;
+  TACHO_EVENT_SENSOR_FAILURE = $30;
+  TACHO_EVENT_POWER_LOSS = $31;
   TACHO_EVENT_MOTION_DATA_ERR = $32;
-  TACHO_EVENT_CARD_INVALID    = $40;
+  TACHO_EVENT_CARD_INVALID = $40;
 
 type
   /// <summary>One decoded activity record.</summary>
@@ -138,11 +138,11 @@ type
     class function DecodeActivity(const ABytes: TBytes;
       out AActivity: TOBDTachoActivity): Boolean; static;
     /// <summary>Decodes one 24-byte EventRecord blob.</summary>
-    class function DecodeEvent(const ABytes: TBytes;
-      out AEvent: TOBDTachoEvent): Boolean; static;
+    class function DecodeEvent(const ABytes: TBytes; out AEvent: TOBDTachoEvent)
+      : Boolean; static;
     /// <summary>Decodes one 24-byte FaultRecord blob.</summary>
-    class function DecodeFault(const ABytes: TBytes;
-      out AFault: TOBDTachoFault): Boolean; static;
+    class function DecodeFault(const ABytes: TBytes; out AFault: TOBDTachoFault)
+      : Boolean; static;
     /// <summary>Decodes one CalibrationRecord blob (Annex IC §2.32,
     /// Gen 1 fixed layout). The variable-length card-number fields
     /// are decoded as raw ASCII strings — Gen 2 / V2 hosts that
@@ -156,8 +156,8 @@ type
     /// <summary>Inverse of <see cref="DecodeTimeReal"/>.</summary>
     class function EncodeTimeReal(AValue: TDateTime): Cardinal; static;
     /// <summary>Decodes a fixed-length, zero-padded ASCII field.</summary>
-    class function DecodeString(const ABytes: TBytes;
-      AOffset, ALength: Integer): string; static;
+    class function DecodeString(const ABytes: TBytes; AOffset, ALength: Integer)
+      : string; static;
   end;
 
 implementation
@@ -173,7 +173,8 @@ end;
 
 class function TOBDTachograph.EncodeTimeReal(AValue: TDateTime): Cardinal;
 begin
-  if AValue <= TachoEpoch then Exit(0);
+  if AValue <= TachoEpoch then
+    Exit(0);
   Result := Cardinal(Round((AValue - TachoEpoch) * SecsPerDay));
 end;
 
@@ -183,20 +184,21 @@ var
   W: Word;
   Minutes: Word;
 begin
-  AActivity := Default(TOBDTachoActivity);
+  AActivity := Default (TOBDTachoActivity);
   // Annex IC ActivityChangeInfo: 16 bits packed
-  //   bit 15..14 slot
-  //   bit 13     status (card inserted)
-  //   bit 12..11 activity (in our enum)
-  //   bit 10..0  minutes since 00:00 (0..1439)
+  // bit 15..14 slot
+  // bit 13     status (card inserted)
+  // bit 12..11 activity (in our enum)
+  // bit 10..0  minutes since 00:00 (0..1439)
   // Followed by no further bytes — the record is just 2 bytes.
-  if Length(ABytes) < 2 then Exit(False);
+  if Length(ABytes) < 2 then
+    Exit(False);
   W := (Word(ABytes[0]) shl 8) or Word(ABytes[1]);
-  AActivity.SlotID       := (W shr 14) and $03;
+  AActivity.SlotID := (W shr 14) and $03;
   AActivity.CardInserted := ((W shr 13) and $01) <> 0;
-  AActivity.Activity     := (W shr 11) and $03;
-  Minutes                := W and $7FF;
-  AActivity.BeginTime    := EncodeTime(Minutes div 60, Minutes mod 60, 0, 0);
+  AActivity.Activity := (W shr 11) and $03;
+  Minutes := W and $7FF;
+  AActivity.BeginTime := EncodeTime(Minutes div 60, Minutes mod 60, 0, 0);
   Result := True;
 end;
 
@@ -205,25 +207,22 @@ class function TOBDTachograph.DecodeEvent(const ABytes: TBytes;
 var
   Begin_, End_: Cardinal;
 begin
-  AEvent := Default(TOBDTachoEvent);
+  AEvent := Default (TOBDTachoEvent);
   // EventRecord per Annex IC §2.46:
-  //   eventType (1) eventBeginTime (4) eventEndTime (4) eventRecordPurpose (1)
-  //   cardNumberDriverSlotBegin (18 — skipped here)
-  //   cardNumberCodriverSlotBegin (18)
+  // eventType (1) eventBeginTime (4) eventEndTime (4) eventRecordPurpose (1)
+  // cardNumberDriverSlotBegin (18 — skipped here)
+  // cardNumberCodriverSlotBegin (18)
   // Minimum 10 bytes for the timing-and-type slice we expose.
-  if Length(ABytes) < 10 then Exit(False);
+  if Length(ABytes) < 10 then
+    Exit(False);
   AEvent.EventType := ABytes[0];
-  Begin_ := (Cardinal(ABytes[1]) shl 24) or
-            (Cardinal(ABytes[2]) shl 16) or
-            (Cardinal(ABytes[3]) shl 8)  or
-             Cardinal(ABytes[4]);
-  End_   := (Cardinal(ABytes[5]) shl 24) or
-            (Cardinal(ABytes[6]) shl 16) or
-            (Cardinal(ABytes[7]) shl 8)  or
-             Cardinal(ABytes[8]);
+  Begin_ := (Cardinal(ABytes[1]) shl 24) or (Cardinal(ABytes[2]) shl 16) or
+    (Cardinal(ABytes[3]) shl 8) or Cardinal(ABytes[4]);
+  End_ := (Cardinal(ABytes[5]) shl 24) or (Cardinal(ABytes[6]) shl 16) or
+    (Cardinal(ABytes[7]) shl 8) or Cardinal(ABytes[8]);
   AEvent.BeginTime := DecodeTimeReal(Begin_);
-  AEvent.EndTime   := DecodeTimeReal(End_);
-  AEvent.Source    := ABytes[9];
+  AEvent.EndTime := DecodeTimeReal(End_);
+  AEvent.Source := ABytes[9];
   Result := True;
 end;
 
@@ -232,20 +231,17 @@ class function TOBDTachograph.DecodeFault(const ABytes: TBytes;
 var
   Begin_, End_: Cardinal;
 begin
-  AFault := Default(TOBDTachoFault);
+  AFault := Default (TOBDTachoFault);
   // FaultRecord shares the layout of EventRecord (bytes 0..8).
-  if Length(ABytes) < 9 then Exit(False);
+  if Length(ABytes) < 9 then
+    Exit(False);
   AFault.FaultType := ABytes[0];
-  Begin_ := (Cardinal(ABytes[1]) shl 24) or
-            (Cardinal(ABytes[2]) shl 16) or
-            (Cardinal(ABytes[3]) shl 8)  or
-             Cardinal(ABytes[4]);
-  End_   := (Cardinal(ABytes[5]) shl 24) or
-            (Cardinal(ABytes[6]) shl 16) or
-            (Cardinal(ABytes[7]) shl 8)  or
-             Cardinal(ABytes[8]);
+  Begin_ := (Cardinal(ABytes[1]) shl 24) or (Cardinal(ABytes[2]) shl 16) or
+    (Cardinal(ABytes[3]) shl 8) or Cardinal(ABytes[4]);
+  End_ := (Cardinal(ABytes[5]) shl 24) or (Cardinal(ABytes[6]) shl 16) or
+    (Cardinal(ABytes[7]) shl 8) or Cardinal(ABytes[8]);
   AFault.BeginTime := DecodeTimeReal(Begin_);
-  AFault.EndTime   := DecodeTimeReal(End_);
+  AFault.EndTime := DecodeTimeReal(End_);
   Result := True;
 end;
 
@@ -256,43 +252,42 @@ var
   Wcc, Kcc: Cardinal;
   DateRaw: Cardinal;
 begin
-  ACalibration := Default(TOBDTachoCalibration);
+  ACalibration := Default (TOBDTachoCalibration);
   // Gen-1 fixed-offset layout (Annex IB §2.39):
-  //   0     calibrationPurpose (1)
-  //   1     workshopName     (36 = 1 codepage + 35 chars)
-  //   37    workshopAddress  (36 — skipped)
-  //   73    workshopCardNumber (16 — name(14) + replacement(1) + renewal(1))
-  //   89    workshopCardExpiryDate (TimeReal 4)
-  //   93    vehicleIdentificationNumber (17)
-  //   110   vehicleRegistrationNation (1)
-  //   111   vehicleRegistrationNumber (14) — skipped
-  //   125   wVehicleCharacteristicConstant (2 BE)
-  //   127   kConstantOfRecordingEquipment (2 BE)
-  //   129   lTyreCircumference (2 BE — skipped)
-  //   131   tyreSize (15)
-  //   146   authorisedSpeed (1)
-  //   147   ...odometers / times (Gen 1 stops here at 162)
-  if Length(ABytes) < 147 then Exit(False);
+  // 0     calibrationPurpose (1)
+  // 1     workshopName     (36 = 1 codepage + 35 chars)
+  // 37    workshopAddress  (36 — skipped)
+  // 73    workshopCardNumber (16 — name(14) + replacement(1) + renewal(1))
+  // 89    workshopCardExpiryDate (TimeReal 4)
+  // 93    vehicleIdentificationNumber (17)
+  // 110   vehicleRegistrationNation (1)
+  // 111   vehicleRegistrationNumber (14) — skipped
+  // 125   wVehicleCharacteristicConstant (2 BE)
+  // 127   kConstantOfRecordingEquipment (2 BE)
+  // 129   lTyreCircumference (2 BE — skipped)
+  // 131   tyreSize (15)
+  // 146   authorisedSpeed (1)
+  // 147   ...odometers / times (Gen 1 stops here at 162)
+  if Length(ABytes) < 147 then
+    Exit(False);
 
   ACalibration.Purpose := ABytes[0];
   // Skip the 1-byte code page in workshopName (offset 1) → name at 2..36
   ACalibration.WorkshopName := DecodeString(ABytes, 2, 35);
   ACalibration.WorkshopCardNumber := DecodeString(ABytes, 73 + 1, 13);
-  DateRaw := (Cardinal(ABytes[89]) shl 24) or
-             (Cardinal(ABytes[90]) shl 16) or
-             (Cardinal(ABytes[91]) shl  8) or
-              Cardinal(ABytes[92]);
+  DateRaw := (Cardinal(ABytes[89]) shl 24) or (Cardinal(ABytes[90]) shl 16) or
+    (Cardinal(ABytes[91]) shl 8) or Cardinal(ABytes[92]);
   ACalibration.Date := DecodeTimeReal(DateRaw);
-  ACalibration.VIN  := DecodeString(ABytes, 93, 17);
+  ACalibration.VIN := DecodeString(ABytes, 93, 17);
   Wcc := (Cardinal(ABytes[125]) shl 8) or ABytes[126];
   Kcc := (Cardinal(ABytes[127]) shl 8) or ABytes[128];
   ACalibration.WVehicleCharacteristic := Word(Wcc);
-  ACalibration.KConstant              := Word(Kcc);
+  ACalibration.KConstant := Word(Kcc);
   ACalibration.TyreSize := DecodeString(ABytes, 131, 15);
   ACalibration.AuthorisedSpeedKmh := ABytes[146];
 
   Off := 1; // suppress unused warning
-  if Off = 0 then ;
+  if Off = 0 then;
   Result := True;
 end;
 

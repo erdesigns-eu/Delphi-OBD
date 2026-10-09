@@ -1,49 +1,48 @@
-//------------------------------------------------------------------------------
-//  ERD.Protocol.KWP1281.Transport.Serial
+// ------------------------------------------------------------------------------
+// ERD.Protocol.KWP1281.Transport.Serial
 //
-//  TKWP1281SerialTransport - IKWP1281Transport implementation
-//  on top of <see cref="TOBDSerialTransport"/> (Win32 only).
+// TKWP1281SerialTransport - IKWP1281Transport implementation
+// on top of <see cref="TOBDSerialTransport"/> (Win32 only).
 //
-//  How the 5-baud init works:
-//    1. Hold TX line LOW for 200 ms (start bit).
-//    2. For each of the 7 address bits (LSB first), drive TX
-//       low for 200 ms if the bit is 0 or release for 200 ms
-//       if the bit is 1.
-//    3. Release TX (mark) for 200 ms (stop bit).
-//    4. Wait for the ECU's sync byte (0x55) at 9600 baud, then
-//       read KW1 (1 byte) and KW2 (1 byte).
+// How the 5-baud init works:
+// 1. Hold TX line LOW for 200 ms (start bit).
+// 2. For each of the 7 address bits (LSB first), drive TX
+// low for 200 ms if the bit is 0 or release for 200 ms
+// if the bit is 1.
+// 3. Release TX (mark) for 200 ms (stop bit).
+// 4. Wait for the ECU's sync byte (0x55) at 9600 baud, then
+// read KW1 (1 byte) and KW2 (1 byte).
 //
-//  Total init time: 8 x 200 ms wake-up + 200 ms stop bit +
-//  ECU sync time = ~2.5 seconds. Don't ATB the user during it.
+// Total init time: 8 x 200 ms wake-up + 200 ms stop bit +
+// ECU sync time = ~2.5 seconds. Don't ATB the user during it.
 //
-//  Per-byte I/O:
-//    SendByte() does WriteBytes([b]); the byte clocks out at
-//    the configured baud rate (typically 9600 or 10400 for VW
-//    radios, 12500 for MB W124).
-//    ReceiveByte() pops from a thread-safe queue fed by the
-//    base transport's read thread. The queue gives us the
-//    synchronous semantics KWP1281 needs without re-implementing
-//    the read loop.
+// Per-byte I/O:
+// SendByte() does WriteBytes([b]); the byte clocks out at
+// the configured baud rate (typically 9600 or 10400 for VW
+// radios, 12500 for MB W124).
+// ReceiveByte() pops from a thread-safe queue fed by the
+// base transport's read thread. The queue gives us the
+// synchronous semantics KWP1281 needs without re-implementing
+// the read loop.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT - see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT - see LICENSE
 //
-//  History     :
-//    2026-05-10  ERD  Initial Win32 implementation.
-//    2026-10-09  ERD  Match transport callbacks and use portable queue deadlines.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-10  ERD  Initial Win32 implementation.
+// 2026-10-09  ERD  Match transport callbacks and use portable queue deadlines.
+// ------------------------------------------------------------------------------
 
 unit ERD.Protocol.KWP1281.Transport.Serial;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
 {$ENDIF}
-
+{$ENDIF}
 {$IFNDEF MSWINDOWS}
 {$MESSAGE FATAL 'ERD.Protocol.KWP1281.Transport.Serial is Windows-only.'}
 {$ENDIF}
@@ -53,9 +52,9 @@ interface
 uses
   ERD.Collections.ThreadedQueue,
   ERD.Connection.Types,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
   ERD.Connection.Settings,
   ERD.Connection.Serial,
   ERD.Protocol.KWP1281;
@@ -64,9 +63,9 @@ type
   /// <summary>5-baud init bit timing - the standard is 200 ms
   /// per bit (5 baud = 1 bit / 200 ms).</summary>
   TKWP1281SerialInitTiming = record
-    BitMs:      Integer;  // default 200
-    StopBitMs:  Integer;  // default 200
-    SyncWaitMs: Integer;  // wait for radio's $55 sync after stop
+    BitMs: Integer; // default 200
+    StopBitMs: Integer; // default 200
+    SyncWaitMs: Integer; // wait for radio's $55 sync after stop
   end;
 
   /// <summary>Concrete KWP1281 K-line transport on top of
@@ -77,9 +76,9 @@ type
   /// 5-baud init using SetBreak / ClearBreak / Sleep.</summary>
   TKWP1281SerialTransport = class(TInterfacedObject, IKWP1281Transport)
   strict private
-    FSerial:   TOBDSerialTransport;
+    FSerial: TOBDSerialTransport;
     FSettings: TOBDSerialSettings;
-    FQueue:    TOBDThreadedQueue<Byte>;
+    FQueue: TOBDThreadedQueue<Byte>;
     FOwnsSerial: Boolean;
     FPreviousOnBytes: TOBDBytesEvent;
     FHandlerInstalled: Boolean;
@@ -101,31 +100,31 @@ type
 
     // ---- IKWP1281Transport -------------------------------------
     procedure SendByte(AByte: Byte; ATimeoutMs: Integer);
-    function  ReceiveByte(ATimeoutMs: Integer): Byte;
-    procedure FiveBaudInit(AAddress: Byte;
-      out AKW1, AKW2: Byte; ATimeoutMs: Integer);
+    function ReceiveByte(ATimeoutMs: Integer): Byte;
+    procedure FiveBaudInit(AAddress: Byte; out AKW1, AKW2: Byte;
+      ATimeoutMs: Integer);
     procedure Hangup;
 
     /// <summary>Init bit-timing knobs (default 200/200/2000 ms).
     /// Some ECUs are picky about the inter-bit gap.</summary>
-    property InitTiming: TKWP1281SerialInitTiming
-      read FInitTiming write FInitTiming;
+    property InitTiming: TKWP1281SerialInitTiming read FInitTiming
+      write FInitTiming;
   end;
 
 implementation
 
-{ TKWP1281SerialTransport -----------------------------------------------------}
+{ TKWP1281SerialTransport ----------------------------------------------------- }
 
 constructor TKWP1281SerialTransport.Wrap(ASerial: TOBDSerialTransport);
 begin
   inherited Create;
   if ASerial = nil then
     raise EKWP1281Error.Create('KWP1281 wrapped serial transport is nil');
-  FSerial      := ASerial;
-  FOwnsSerial  := False;
-  FQueue       := TOBDThreadedQueue<Byte>.Create(4096, INFINITE, 0);
-  FInitTiming.BitMs      := 200;
-  FInitTiming.StopBitMs  := 200;
+  FSerial := ASerial;
+  FOwnsSerial := False;
+  FQueue := TOBDThreadedQueue<Byte>.Create(4096, INFINITE, 0);
+  FInitTiming.BitMs := 200;
+  FInitTiming.StopBitMs := 200;
   FInitTiming.SyncWaitMs := 2000;
   FPreviousOnBytes := FSerial.GetOnDataReceived();
   FSerial.SetOnDataReceived(HandleBytes);
@@ -135,12 +134,12 @@ end;
 constructor TKWP1281SerialTransport.Create(ASettings: TOBDSerialSettings);
 begin
   inherited Create;
-  FSerial     := TOBDSerialTransport.Create;
-  FSettings   := ASettings;
+  FSerial := TOBDSerialTransport.Create;
+  FSettings := ASettings;
   FOwnsSerial := True;
-  FQueue      := TOBDThreadedQueue<Byte>.Create(4096, INFINITE, 0);
-  FInitTiming.BitMs      := 200;
-  FInitTiming.StopBitMs  := 200;
+  FQueue := TOBDThreadedQueue<Byte>.Create(4096, INFINITE, 0);
+  FInitTiming.BitMs := 200;
+  FInitTiming.StopBitMs := 200;
   FInitTiming.SyncWaitMs := 2000;
   FPreviousOnBytes := FSerial.GetOnDataReceived();
   FSerial.SetOnDataReceived(HandleBytes);
@@ -149,7 +148,8 @@ end;
 
 destructor TKWP1281SerialTransport.Destroy;
 begin
-  if FQueue <> nil then FQueue.DoShutDown;
+  if FQueue <> nil then
+    FQueue.DoShutDown;
   if FSerial <> nil then
   begin
     if FOwnsSerial then
@@ -161,8 +161,10 @@ begin
   inherited;
 end;
 
-procedure TKWP1281SerialTransport.HandleBytes(Sender: TObject; const ABytes: TBytes);
-var I: Integer;
+procedure TKWP1281SerialTransport.HandleBytes(Sender: TObject;
+  const ABytes: TBytes);
+var
+  I: Integer;
 begin
   for I := 0 to Length(ABytes) - 1 do
     FQueue.PushItem(ABytes[I]);
@@ -173,44 +175,43 @@ begin
   if not FSerial.IsOpen then
   begin
     if not FOwnsSerial then
-      raise EKWP1281Error.Create(
-        'KWP1281SerialTransport: wrapped serial port is not open');
+      raise EKWP1281Error.Create
+        ('KWP1281SerialTransport: wrapped serial port is not open');
     FSerial.Open(FSettings);
   end;
 end;
 
 procedure TKWP1281SerialTransport.DrainQueue;
-var Dummy: Byte;
+var
+  Dummy: Byte;
 begin
-  while FQueue.PopItem(Dummy, 0) = wrSignaled do
-    ;
+  while FQueue.PopItem(Dummy, 0) = wrSignaled do;
 end;
 
-procedure TKWP1281SerialTransport.SendByte(AByte: Byte;
-  ATimeoutMs: Integer);
+procedure TKWP1281SerialTransport.SendByte(AByte: Byte; ATimeoutMs: Integer);
 begin
   EnsureOpen;
   FSerial.WriteBytes(TBytes.Create(AByte));
 end;
 
 function TKWP1281SerialTransport.ReceiveByte(ATimeoutMs: Integer): Byte;
-var Status: TWaitResult;
+var
+  Status: TWaitResult;
 begin
   EnsureOpen;
   // The shared queue accepts a deadline per read on both compilers.
   Status := FQueue.PopItem(Result, ATimeoutMs);
   if Status <> wrSignaled then
-    raise EKWP1281Timeout.CreateFmt(
-      'KWP1281SerialTransport: no byte arrived within %d ms',
-      [ATimeoutMs]);
+    raise EKWP1281Timeout.CreateFmt
+      ('KWP1281SerialTransport: no byte arrived within %d ms', [ATimeoutMs]);
 end;
 
 procedure TKWP1281SerialTransport.FiveBaudInit(AAddress: Byte;
   out AKW1, AKW2: Byte; ATimeoutMs: Integer);
 var
-  I:   Integer;
+  I: Integer;
   Bit: Integer;
-  Sw:  TDateTime;
+  Sw: TDateTime;
   Sync: Byte;
   WaitedMs: Integer;
 begin
@@ -225,8 +226,10 @@ begin
   for I := 0 to 6 do
   begin
     Bit := (AAddress shr I) and 1;
-    if Bit = 1 then FSerial.ClearBreak
-              else FSerial.SetBreak;
+    if Bit = 1 then
+      FSerial.ClearBreak
+    else
+      FSerial.SetBreak;
     Sleep(FInitTiming.BitMs);
   end;
 
@@ -245,15 +248,16 @@ begin
   begin
     if FQueue.PopItem(Sync, 100) = wrSignaled then
     begin
-      if Sync = $55 then Break;
+      if Sync = $55 then
+        Break;
       // Some adapters return a $00 framing-error byte first;
       // skip it and keep waiting.
     end;
     WaitedMs := Round((Now - Sw) * 86400 * 1000);
   end;
   if WaitedMs >= FInitTiming.SyncWaitMs then
-    raise EKWP1281Timeout.CreateFmt(
-      'KWP1281SerialTransport: sync byte $55 not seen within %d ms',
+    raise EKWP1281Timeout.CreateFmt
+      ('KWP1281SerialTransport: sync byte $55 not seen within %d ms',
       [FInitTiming.SyncWaitMs]);
 
   AKW1 := ReceiveByte(ATimeoutMs);

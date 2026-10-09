@@ -1,53 +1,53 @@
-//------------------------------------------------------------------------------
-//  ERD.Protocol.FlexRay.Frame
+﻿// ------------------------------------------------------------------------------
+// ERD.Protocol.FlexRay.Frame
 //
-//  FlexRay frame primitives per ISO 17458-1 / FlexRay 2.1A:
+// FlexRay frame primitives per ISO 17458-1 / FlexRay 2.1A:
 //
-//    - 5-byte (40-bit) header: reserved + 4 indicator bits + 11-bit
-//      Frame ID + 7-bit payload length (in 16-bit words) + 11-bit
-//      header CRC + 6-bit cycle count.
-//    - Header CRC-11 (poly 0x385, init 0x1A) over the 20 bits
-//      preceding the CRC field.
-//    - Frame CRC-24 (poly 0x5D6DCB, init 0xFEDCBA, magnitude over
-//      the full header + payload).
-//    - Encode / decode a wire buffer.
+// - 5-byte (40-bit) header: reserved + 4 indicator bits + 11-bit
+// Frame ID + 7-bit payload length (in 16-bit words) + 11-bit
+// header CRC + 6-bit cycle count.
+// - Header CRC-11 (poly 0x385, init 0x1A) over the 20 bits
+// preceding the CRC field.
+// - Frame CRC-24 (poly 0x5D6DCB, init 0xFEDCBA, magnitude over
+// the full header + payload).
+// - Encode / decode a wire buffer.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  References  :
-//    - ISO 17458-1:2013 (FlexRay protocol specification)
-//    - FlexRay Communications System Protocol Specification 2.1A
-//      § 4.2 (Frame format), § 5.5 (CRC computation)
+// References  :
+// - ISO 17458-1:2013 (FlexRay protocol specification)
+// - FlexRay Communications System Protocol Specification 2.1A
+// § 4.2 (Frame format), § 5.5 (CRC computation)
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//    2026-10-08  Reject trailing bytes in complete FlexRay frames.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// 2026-10-08  Reject trailing bytes in complete FlexRay frames.
+// ------------------------------------------------------------------------------
 
 unit ERD.Protocol.FlexRay.Frame;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   ERD.Types;
 
 const
   /// <summary>Maximum FlexRay payload length in bytes
   /// (127 16-bit words).</summary>
-  FLEXRAY_MAX_PAYLOAD     = 254;
+  FLEXRAY_MAX_PAYLOAD = 254;
   /// <summary>FlexRay header length in bytes.</summary>
-  FLEXRAY_HEADER_BYTES    = 5;
+  FLEXRAY_HEADER_BYTES = 5;
   /// <summary>FlexRay frame CRC length in bytes.</summary>
   FLEXRAY_FRAME_CRC_BYTES = 3;
 
@@ -57,9 +57,9 @@ const
   FLEXRAY_HEADER_CRC_INIT = $01A;
 
   /// <summary>Frame CRC polynomial.</summary>
-  FLEXRAY_FRAME_CRC_POLY  = $5D6DCB;
+  FLEXRAY_FRAME_CRC_POLY = $5D6DCB;
   /// <summary>Frame CRC initial value.</summary>
-  FLEXRAY_FRAME_CRC_INIT  = $FEDCBA;
+  FLEXRAY_FRAME_CRC_INIT = $FEDCBA;
 
 type
   /// <summary>Decoded FlexRay frame header.</summary>
@@ -96,17 +96,17 @@ type
     FrameCRC: Cardinal;
   end;
 
-/// <summary>
-///   Computes the header CRC over the 20 bits that precede the
-///   header CRC field.
-/// </summary>
-/// <param name="AHeader">Header to compute the CRC for. Field
-/// <c>HeaderCRC</c> on input is ignored.</param>
-/// <returns>11-bit CRC value.</returns>
+  /// <summary>
+  /// Computes the header CRC over the 20 bits that precede the
+  /// header CRC field.
+  /// </summary>
+  /// <param name="AHeader">Header to compute the CRC for. Field
+  /// <c>HeaderCRC</c> on input is ignored.</param>
+  /// <returns>11-bit CRC value.</returns>
 function FlexRayHeaderCRC(const AHeader: TOBDFlexRayHeader): Word;
 
 /// <summary>
-///   Computes the frame CRC-24 over the full header bytes + payload.
+/// Computes the frame CRC-24 over the full header bytes + payload.
 /// </summary>
 /// <param name="AHeaderBytes">5 wire bytes of the header.</param>
 /// <param name="APayload">Payload bytes (must already be padded to
@@ -115,29 +115,29 @@ function FlexRayHeaderCRC(const AHeader: TOBDFlexRayHeader): Word;
 function FlexRayFrameCRC(const AHeaderBytes, APayload: TBytes): Cardinal;
 
 /// <summary>
-///   Encodes a header record into its 5 wire bytes. Computes the
-///   header CRC if the field is left as zero.
+/// Encodes a header record into its 5 wire bytes. Computes the
+/// header CRC if the field is left as zero.
 /// </summary>
 function FlexRayEncodeHeader(const AHeader: TOBDFlexRayHeader): TBytes;
 
 /// <summary>
-///   Decodes 5 wire bytes into a header record. Returns False when
-///   the buffer is too short or the header CRC fails.
+/// Decodes 5 wire bytes into a header record. Returns False when
+/// the buffer is too short or the header CRC fails.
 /// </summary>
 function FlexRayDecodeHeader(const ABytes: TBytes;
   out AHeader: TOBDFlexRayHeader): Boolean;
 
 /// <summary>
-///   Encodes a full frame to its on-bus byte form (header + padded
-///   payload + 3-byte frame CRC). Computes both CRCs.
+/// Encodes a full frame to its on-bus byte form (header + padded
+/// payload + 3-byte frame CRC). Computes both CRCs.
 /// </summary>
 /// <exception cref="EOBDConfig">Payload too long or Frame ID
 /// invalid.</exception>
 function FlexRayEncodeFrame(const AFrame: TOBDFlexRayFrame): TBytes;
 
 /// <summary>
-///   Decodes an on-bus frame. Verifies header CRC and frame CRC.
-///   Returns False on length mismatch or CRC failure.
+/// Decodes an on-bus frame. Verifies header CRC and frame CRC.
+/// Returns False on length mismatch or CRC failure.
 /// </summary>
 function FlexRayDecodeFrame(const ABytes: TBytes;
   out AFrame: TOBDFlexRayFrame): Boolean;
@@ -146,8 +146,8 @@ implementation
 
 // Standard MSB-first CRC step. Shifts in one input bit, XORs with
 // the polynomial when the top bit was set before the shift.
-function CRCStep(ACrc: Cardinal; ABit: Byte; APoly: Cardinal;
-  AWidth: Integer): Cardinal; inline;
+function CRCStep(ACrc: Cardinal; ABit: Byte; APoly: Cardinal; AWidth: Integer)
+  : Cardinal; inline;
 var
   TopBit, Mask: Cardinal;
   Feedback: Boolean;
@@ -164,7 +164,7 @@ end;
 function FlexRayHeaderCRC(const AHeader: TOBDFlexRayHeader): Word;
 var
   Crc: Cardinal;
-  Bits: array[0..19] of Byte;
+  Bits: array [0 .. 19] of Byte;
   I: Integer;
 begin
   // Bit ordering per FlexRay spec § 5.5.4: reserved, preamble, null,
@@ -211,15 +211,14 @@ end;
 procedure ValidateHeader(const AHeader: TOBDFlexRayHeader);
 begin
   if (AHeader.FrameID = 0) or (AHeader.FrameID > $7FF) then
-    raise EOBDConfig.CreateFmt(
-      'FlexRay: frame ID %d out of range (1..2047)', [AHeader.FrameID]);
+    raise EOBDConfig.CreateFmt('FlexRay: frame ID %d out of range (1..2047)',
+      [AHeader.FrameID]);
   if AHeader.PayloadLengthWords > $7F then
-    raise EOBDConfig.CreateFmt(
-      'FlexRay: payload-length %d exceeds 7-bit limit',
+    raise EOBDConfig.CreateFmt('FlexRay: payload-length %d exceeds 7-bit limit',
       [AHeader.PayloadLengthWords]);
   if AHeader.CycleCount > $3F then
-    raise EOBDConfig.CreateFmt(
-      'FlexRay: cycle count %d exceeds 6-bit limit', [AHeader.CycleCount]);
+    raise EOBDConfig.CreateFmt('FlexRay: cycle count %d exceeds 6-bit limit',
+      [AHeader.CycleCount]);
 end;
 
 function FlexRayEncodeHeader(const AHeader: TOBDFlexRayHeader): TBytes;
@@ -235,22 +234,22 @@ begin
   SetLength(Result, FLEXRAY_HEADER_BYTES);
   // Bytes 0..1: reserved + 4 indicators + 11-bit Frame ID
   W := 0;
-  W := W or (Cardinal(Ord(AHeader.Reserved))        shl 15);
+  W := W or (Cardinal(Ord(AHeader.Reserved)) shl 15);
   W := W or (Cardinal(Ord(AHeader.PayloadPreamble)) shl 14);
-  W := W or (Cardinal(Ord(AHeader.NullFrame))       shl 13);
-  W := W or (Cardinal(Ord(AHeader.SyncFrame))       shl 12);
-  W := W or (Cardinal(Ord(AHeader.StartupFrame))    shl 11);
+  W := W or (Cardinal(Ord(AHeader.NullFrame)) shl 13);
+  W := W or (Cardinal(Ord(AHeader.SyncFrame)) shl 12);
+  W := W or (Cardinal(Ord(AHeader.StartupFrame)) shl 11);
   W := W or Cardinal(AHeader.FrameID and $7FF);
   Result[0] := Byte((W shr 8) and $FF);
   Result[1] := Byte(W and $FF);
 
   // Trailing 24 bits: payload length (7) || header CRC (11) ||
   // cycle count (6). Packed bigendian into bytes 2..4:
-  //   byte 2 = pl[6..0] : crc[10]
-  //   byte 3 = crc[9..2]
-  //   byte 4 = crc[1..0] : cycle[5..0]
+  // byte 2 = pl[6..0] : crc[10]
+  // byte 3 = crc[9..2]
+  // byte 4 = crc[1..0] : cycle[5..0]
   Result[2] := Byte(((AHeader.PayloadLengthWords and $7F) shl 1) or
-                    ((Crc shr 10) and $01));
+    ((Crc shr 10) and $01));
   Result[3] := Byte((Crc shr 2) and $FF);
   Result[4] := Byte(((Crc and $03) shl 6) or (AHeader.CycleCount and $3F));
 end;
@@ -262,21 +261,21 @@ var
   Crc, Expected: Word;
 begin
   Result := False;
-  AHeader := Default(TOBDFlexRayHeader);
-  if Length(ABytes) < FLEXRAY_HEADER_BYTES then Exit;
+  AHeader := Default (TOBDFlexRayHeader);
+  if Length(ABytes) < FLEXRAY_HEADER_BYTES then
+    Exit;
   W0 := (Word(ABytes[0]) shl 8) or Word(ABytes[1]);
-  AHeader.Reserved        := (W0 and $8000) <> 0;
+  AHeader.Reserved := (W0 and $8000) <> 0;
   AHeader.PayloadPreamble := (W0 and $4000) <> 0;
-  AHeader.NullFrame       := (W0 and $2000) <> 0;
-  AHeader.SyncFrame       := (W0 and $1000) <> 0;
-  AHeader.StartupFrame    := (W0 and $0800) <> 0;
-  AHeader.FrameID         := W0 and $7FF;
+  AHeader.NullFrame := (W0 and $2000) <> 0;
+  AHeader.SyncFrame := (W0 and $1000) <> 0;
+  AHeader.StartupFrame := (W0 and $0800) <> 0;
+  AHeader.FrameID := W0 and $7FF;
 
   AHeader.PayloadLengthWords := (ABytes[2] shr 1) and $7F;
-  Crc := Word(((ABytes[2] and $01) shl 10) or
-              (Word(ABytes[3]) shl 2) or
-              ((ABytes[4] shr 6) and $03));
-  AHeader.HeaderCRC  := Crc;
+  Crc := Word(((ABytes[2] and $01) shl 10) or (Word(ABytes[3]) shl 2) or
+    ((ABytes[4] shr 6) and $03));
+  AHeader.HeaderCRC := Crc;
   AHeader.CycleCount := ABytes[4] and $3F;
 
   Expected := FlexRayHeaderCRC(AHeader);
@@ -292,8 +291,7 @@ begin
   HeaderBytes := FlexRayEncodeHeader(AFrame.Header);
   PayloadBytes := AFrame.Header.PayloadLengthWords * 2;
   if PayloadBytes > FLEXRAY_MAX_PAYLOAD then
-    raise EOBDConfig.CreateFmt(
-      'FlexRay: payload %d bytes exceeds maximum %d',
+    raise EOBDConfig.CreateFmt('FlexRay: payload %d bytes exceeds maximum %d',
       [PayloadBytes, FLEXRAY_MAX_PAYLOAD]);
   SetLength(PaddedPayload, PayloadBytes);
   if Length(AFrame.Payload) > 0 then
@@ -307,12 +305,13 @@ begin
   if Crc = 0 then
     Crc := FlexRayFrameCRC(HeaderBytes, PaddedPayload);
 
-  SetLength(Result, FLEXRAY_HEADER_BYTES + PayloadBytes + FLEXRAY_FRAME_CRC_BYTES);
+  SetLength(Result, FLEXRAY_HEADER_BYTES + PayloadBytes +
+    FLEXRAY_FRAME_CRC_BYTES);
   Move(HeaderBytes[0], Result[0], FLEXRAY_HEADER_BYTES);
   if PayloadBytes > 0 then
     Move(PaddedPayload[0], Result[FLEXRAY_HEADER_BYTES], PayloadBytes);
   I := FLEXRAY_HEADER_BYTES + PayloadBytes;
-  Result[I    ] := Byte((Crc shr 16) and $FF);
+  Result[I] := Byte((Crc shr 16) and $FF);
   Result[I + 1] := Byte((Crc shr 8) and $FF);
   Result[I + 2] := Byte(Crc and $FF);
 end;
@@ -327,17 +326,19 @@ var
   Off: Integer;
 begin
   Result := False;
-  AFrame := Default(TOBDFlexRayFrame);
+  AFrame := Default (TOBDFlexRayFrame);
   if Length(ABytes) < FLEXRAY_HEADER_BYTES + FLEXRAY_FRAME_CRC_BYTES then
     Exit;
 
   SetLength(HeaderBytes, FLEXRAY_HEADER_BYTES);
   Move(ABytes[0], HeaderBytes[0], FLEXRAY_HEADER_BYTES);
-  if not FlexRayDecodeHeader(HeaderBytes, AFrame.Header) then Exit;
+  if not FlexRayDecodeHeader(HeaderBytes, AFrame.Header) then
+    Exit;
 
   PLen := AFrame.Header.PayloadLengthWords * 2;
   Total := FLEXRAY_HEADER_BYTES + PLen + FLEXRAY_FRAME_CRC_BYTES;
-  if Length(ABytes) <> Total then Exit;
+  if Length(ABytes) <> Total then
+    Exit;
 
   SetLength(PayloadBytes, PLen);
   if PLen > 0 then
@@ -345,9 +346,8 @@ begin
   AFrame.Payload := PayloadBytes;
 
   Off := FLEXRAY_HEADER_BYTES + PLen;
-  Crc := (Cardinal(ABytes[Off]) shl 16) or
-         (Cardinal(ABytes[Off + 1]) shl 8) or
-         Cardinal(ABytes[Off + 2]);
+  Crc := (Cardinal(ABytes[Off]) shl 16) or (Cardinal(ABytes[Off + 1]) shl 8) or
+    Cardinal(ABytes[Off + 2]);
   AFrame.FrameCRC := Crc;
 
   Expected := FlexRayFrameCRC(HeaderBytes, PayloadBytes);

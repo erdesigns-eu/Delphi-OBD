@@ -1,52 +1,52 @@
-//------------------------------------------------------------------------------
-//  ERD.Service.Catalog
+﻿// ------------------------------------------------------------------------------
+// ERD.Service.Catalog
 //
-//  PID + DTC catalogue loader that consumes the JSON files shipped
-//  under /catalogs/. Complements ERD.Catalog (which uses a stricter
-//  v1 schema) by accepting the richer manufacturer-PID and DTC
-//  shapes already in the repository:
+// PID + DTC catalogue loader that consumes the JSON files shipped
+// under /catalogs/. Complements ERD.Catalog (which uses a stricter
+// v1 schema) by accepting the richer manufacturer-PID and DTC
+// shapes already in the repository:
 //
-//    obd2-pids.json — { "dids": [ { "did": "0x000C", "name": ...,
-//                                     "decoder": { "kind": "uint16_be",
-//                                                  "scale": 0.25,
-//                                                  "offset": 0,
-//                                                  "unit": "rpm" } } ] }
+// obd2-pids.json — { "dids": [ { "did": "0x000C", "name": ...,
+// "decoder": { "kind": "uint16_be",
+// "scale": 0.25,
+// "offset": 0,
+// "unit": "rpm" } } ] }
 //
-//    dtc-*.json — { "dtcs": [ { "code": "P0301",
-//                                      "description": "...",
-//                                      "severity": "warning" } ] }
+// dtc-*.json — { "dtcs": [ { "code": "P0301",
+// "description": "...",
+// "severity": "warning" } ] }
 //
-//  TOBDLiveData and TOBDDTCs consult these catalogues at runtime to
-//  resolve names, units, decoder formulas and human-readable text.
+// TOBDLiveData and TOBDDTCs consult these catalogues at runtime to
+// resolve names, units, decoder formulas and human-readable text.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-09  ERD  Follow-up — JSON-driven catalogues.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Follow-up — JSON-driven catalogues.
+// ------------------------------------------------------------------------------
 
 unit ERD.Service.Catalog;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   System.IOUtils,
-  {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
+{$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
   System.JSON,
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   ERD.Types;
 
 type
@@ -81,12 +81,13 @@ type
   end;
 
   /// <summary>
-  ///   Process-wide singleton holding the loaded PID and DTC
-  ///   catalogues. Thread-safe.
+  /// Process-wide singleton holding the loaded PID and DTC
+  /// catalogues. Thread-safe.
   /// </summary>
   TOBDServiceCatalog = class
   strict private
-    class var FInstance: TOBDServiceCatalog;
+  class var
+    FInstance: TOBDServiceCatalog;
     FLock: TCriticalSection;
     FPIDs: TDictionary<Word, TOBDPIDInfo>;
     FDTCs: TDictionary<string, TOBDDtcInfo>;
@@ -123,8 +124,7 @@ type
     function TryGetPID(APID: Word; out AInfo: TOBDPIDInfo): Boolean;
     /// <summary>Looks up a DTC code. The lookup is case-sensitive
     /// against the catalogue (e.g. <c>"P0301"</c>).</summary>
-    function TryGetDTC(const ACode: string;
-      out AInfo: TOBDDtcInfo): Boolean;
+    function TryGetDTC(const ACode: string; out AInfo: TOBDDtcInfo): Boolean;
 
     /// <summary>Number of loaded PID entries.</summary>
     function PIDCount: Integer;
@@ -132,23 +132,23 @@ type
     function DTCCount: Integer;
   end;
 
-/// <summary>
-///   Evaluates a decoder against raw response bytes. Returns False
-///   when the decoder kind is non-numeric (<c>hex</c>, <c>ascii</c>,
-///   <c>bitfield</c>, <c>raw</c>) or when the buffer is too short
-///   for the requested kind.
-/// </summary>
-/// <param name="ADecoder">Decoder configuration.</param>
-/// <param name="ARaw">Raw value bytes (after the PID echo).</param>
-/// <param name="AValue">Output engineering value, valid only when
-/// the function returns <c>True</c>.</param>
+  /// <summary>
+  /// Evaluates a decoder against raw response bytes. Returns False
+  /// when the decoder kind is non-numeric (<c>hex</c>, <c>ascii</c>,
+  /// <c>bitfield</c>, <c>raw</c>) or when the buffer is too short
+  /// for the requested kind.
+  /// </summary>
+  /// <param name="ADecoder">Decoder configuration.</param>
+  /// <param name="ARaw">Raw value bytes (after the PID echo).</param>
+  /// <param name="AValue">Output engineering value, valid only when
+  /// the function returns <c>True</c>.</param>
 function EvaluatePIDDecoder(const ADecoder: TOBDPIDDecoderInfo;
   const ARaw: TBytes; out AValue: Double): Boolean;
 
 implementation
 
 uses
-  {$IFDEF FPC}StrUtils{$ELSE}System.StrUtils{$ENDIF};
+{$IFDEF FPC}StrUtils{$ELSE}System.StrUtils{$ENDIF};
 
 { ---- helpers ---------------------------------------------------------------- }
 
@@ -172,8 +172,10 @@ var
   V: TJSONValue;
 begin
   V := AObj.GetValue(AKey);
-  if V is TJSONString then Result := TJSONString(V).Value
-  else Result := ADefault;
+  if V is TJSONString then
+    Result := TJSONString(V).Value
+  else
+    Result := ADefault;
 end;
 
 function GetJSONNum(AObj: TJSONObject; const AKey: string;
@@ -183,10 +185,13 @@ var
   N: Double;
 begin
   V := AObj.GetValue(AKey);
-  if V is TJSONNumber then Result := TJSONNumber(V).AsDouble
+  if V is TJSONNumber then
+    Result := TJSONNumber(V).AsDouble
   else if (V is TJSONString) and TryStrToFloat(TJSONString(V).Value, N,
-    TFormatSettings.Invariant) then Result := N
-  else Result := ADefault;
+    TFormatSettings.Invariant) then
+    Result := N
+  else
+    Result := ADefault;
 end;
 
 { ---- TOBDServiceCatalog ----------------------------------------------------- }
@@ -233,31 +238,43 @@ end;
 function TOBDServiceCatalog.PIDCount: Integer;
 begin
   FLock.Enter;
-  try Result := FPIDs.Count;
-  finally FLock.Leave; end;
+  try
+    Result := FPIDs.Count;
+  finally
+    FLock.Leave;
+  end;
 end;
 
 function TOBDServiceCatalog.DTCCount: Integer;
 begin
   FLock.Enter;
-  try Result := FDTCs.Count;
-  finally FLock.Leave; end;
+  try
+    Result := FDTCs.Count;
+  finally
+    FLock.Leave;
+  end;
 end;
 
 function TOBDServiceCatalog.TryGetPID(APID: Word;
   out AInfo: TOBDPIDInfo): Boolean;
 begin
   FLock.Enter;
-  try Result := FPIDs.TryGetValue(APID, AInfo);
-  finally FLock.Leave; end;
+  try
+    Result := FPIDs.TryGetValue(APID, AInfo);
+  finally
+    FLock.Leave;
+  end;
 end;
 
 function TOBDServiceCatalog.TryGetDTC(const ACode: string;
   out AInfo: TOBDDtcInfo): Boolean;
 begin
   FLock.Enter;
-  try Result := FDTCs.TryGetValue(UpperCase(Trim(ACode)), AInfo);
-  finally FLock.Leave; end;
+  try
+    Result := FDTCs.TryGetValue(UpperCase(Trim(ACode)), AInfo);
+  finally
+    FLock.Leave;
+  end;
 end;
 
 procedure TOBDServiceCatalog.DoLoadPIDFile(const AFileName: string);
@@ -268,13 +285,13 @@ var
   Entry, DecObj: TJSONObject;
   I: Integer;
   Info: TOBDPIDInfo;
-  Json: string;
+  JSON: string;
 begin
   if not TFile.Exists(AFileName) then
     raise EOBDConfig.CreateFmt('PID catalogue not found: %s', [AFileName]);
-  Json := TFile.ReadAllText(AFileName, TEncoding.UTF8);
-  Doc := TJSONObject.ParseJSONValue(Json);
-  if not (Doc is TJSONObject) then
+  JSON := TFile.ReadAllText(AFileName, TEncoding.UTF8);
+  Doc := TJSONObject.ParseJSONValue(JSON);
+  if not(Doc is TJSONObject) then
   begin
     Doc.Free;
     raise EOBDConfig.CreateFmt('PID catalogue %s: root is not an object',
@@ -282,13 +299,15 @@ begin
   end;
   try
     Root := Doc as TJSONObject;
-    if not (Root.GetValue('dids') is TJSONArray) then Exit;
+    if not(Root.GetValue('dids') is TJSONArray) then
+      Exit;
     Arr := Root.GetValue('dids') as TJSONArray;
     FLock.Enter;
     try
       for I := 0 to Arr.Count - 1 do
       begin
-        if not (Arr.Items[I] is TJSONObject) then Continue;
+        if not(Arr.Items[I] is TJSONObject) then
+          Continue;
         Entry := Arr.Items[I] as TJSONObject;
         Info := System.Default(TOBDPIDInfo);
         Info.PID := ParseHexWord(GetJSONStr(Entry, 'did', '0x0000'));
@@ -299,10 +318,10 @@ begin
         if Entry.GetValue('decoder') is TJSONObject then
         begin
           DecObj := Entry.GetValue('decoder') as TJSONObject;
-          Info.Decoder.Kind   := LowerCase(GetJSONStr(DecObj, 'kind', 'raw'));
-          Info.Decoder.Scale  := GetJSONNum(DecObj, 'scale',  1);
+          Info.Decoder.Kind := LowerCase(GetJSONStr(DecObj, 'kind', 'raw'));
+          Info.Decoder.Scale := GetJSONNum(DecObj, 'scale', 1);
           Info.Decoder.Offset := GetJSONNum(DecObj, 'offset', 0);
-          Info.Decoder.Unit_  := GetJSONStr(DecObj, 'unit', '');
+          Info.Decoder.Unit_ := GetJSONStr(DecObj, 'unit', '');
         end;
         FPIDs.AddOrSetValue(Info.PID, Info);
       end;
@@ -322,13 +341,13 @@ var
   Entry: TJSONObject;
   I: Integer;
   Info: TOBDDtcInfo;
-  Json: string;
+  JSON: string;
 begin
   if not TFile.Exists(AFileName) then
     raise EOBDConfig.CreateFmt('DTC catalogue not found: %s', [AFileName]);
-  Json := TFile.ReadAllText(AFileName, TEncoding.UTF8);
-  Doc := TJSONObject.ParseJSONValue(Json);
-  if not (Doc is TJSONObject) then
+  JSON := TFile.ReadAllText(AFileName, TEncoding.UTF8);
+  Doc := TJSONObject.ParseJSONValue(JSON);
+  if not(Doc is TJSONObject) then
   begin
     Doc.Free;
     raise EOBDConfig.CreateFmt('DTC catalogue %s: root is not an object',
@@ -336,19 +355,22 @@ begin
   end;
   try
     Root := Doc as TJSONObject;
-    if not (Root.GetValue('dtcs') is TJSONArray) then Exit;
+    if not(Root.GetValue('dtcs') is TJSONArray) then
+      Exit;
     Arr := Root.GetValue('dtcs') as TJSONArray;
     FLock.Enter;
     try
       for I := 0 to Arr.Count - 1 do
       begin
-        if not (Arr.Items[I] is TJSONObject) then Continue;
+        if not(Arr.Items[I] is TJSONObject) then
+          Continue;
         Entry := Arr.Items[I] as TJSONObject;
         Info := System.Default(TOBDDtcInfo);
-        Info.Code        := UpperCase(Trim(GetJSONStr(Entry, 'code', '')));
+        Info.Code := UpperCase(Trim(GetJSONStr(Entry, 'code', '')));
         Info.Description := GetJSONStr(Entry, 'description', '');
-        Info.Severity    := GetJSONStr(Entry, 'severity', '');
-        if Info.Code = '' then Continue;
+        Info.Severity := GetJSONStr(Entry, 'severity', '');
+        if Info.Code = '' then
+          Continue;
         FDTCs.AddOrSetValue(Info.Code, Info);
       end;
     finally
@@ -407,29 +429,34 @@ begin
   Kind := LowerCase(ADecoder.Kind);
   if Kind = 'uint8' then
   begin
-    if Length(ARaw) < 1 then Exit;
+    if Length(ARaw) < 1 then
+      Exit;
     Raw := ARaw[0];
   end
   else if Kind = 'int8' then
   begin
-    if Length(ARaw) < 1 then Exit;
+    if Length(ARaw) < 1 then
+      Exit;
     Raw := ShortInt(ARaw[0]);
   end
   else if (Kind = 'uint16_be') or (Kind = 'uint16') then
   begin
-    if Length(ARaw) < 2 then Exit;
+    if Length(ARaw) < 2 then
+      Exit;
     Raw := (Cardinal(ARaw[0]) shl 8) or Cardinal(ARaw[1]);
   end
   else if (Kind = 'int16_be') or (Kind = 'int16') then
   begin
-    if Length(ARaw) < 2 then Exit;
+    if Length(ARaw) < 2 then
+      Exit;
     Raw := SmallInt((Cardinal(ARaw[0]) shl 8) or Cardinal(ARaw[1]));
   end
   else if Kind = 'uint32_be' then
   begin
-    if Length(ARaw) < 4 then Exit;
+    if Length(ARaw) < 4 then
+      Exit;
     Raw := (Cardinal(ARaw[0]) shl 24) or (Cardinal(ARaw[1]) shl 16) or
-           (Cardinal(ARaw[2]) shl 8)  or  Cardinal(ARaw[3]);
+      (Cardinal(ARaw[2]) shl 8) or Cardinal(ARaw[3]);
   end
   else
     Exit;
@@ -440,6 +467,7 @@ end;
 initialization
 
 finalization
-  TOBDServiceCatalog.ReleaseDefault;
+
+TOBDServiceCatalog.ReleaseDefault;
 
 end.

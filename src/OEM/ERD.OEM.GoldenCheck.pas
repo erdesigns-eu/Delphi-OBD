@@ -1,37 +1,37 @@
-//------------------------------------------------------------------------------
-//  ERD.OEM.GoldenCheck
+﻿// ------------------------------------------------------------------------------
+// ERD.OEM.GoldenCheck
 //
-//  Spot-check helper that validates an OEM extension's
-//  <c>DecodeDID</c> against a list of (DID, payload, expected)
-//  tuples. Used by golden tests to surface decoder regressions.
+// Spot-check helper that validates an OEM extension's
+// <c>DecodeDID</c> against a list of (DID, payload, expected)
+// tuples. Used by golden tests to surface decoder regressions.
 //
-//  Framework-neutral by design — the helper returns the failure
-//  list rather than calling <c>Assert</c> directly, so callers
-//  can decide whether to fail the whole batch or report the count
-//  and drill in.
+// Framework-neutral by design — the helper returns the failure
+// list rather than calling <c>Assert</c> directly, so callers
+// can decide whether to fail the whole batch or report the count
+// and drill in.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-12  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-12  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.OEM.GoldenCheck;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   ERD.OEM.Extensions;
 
 type
@@ -42,8 +42,8 @@ type
     /// <summary>Raw response bytes.</summary>
     Payload: TBytes;
     /// <summary>
-    ///   Substring the decoder's output must contain. Empty =
-    ///   "any non-empty output passes".
+    /// Substring the decoder's output must contain. Empty =
+    /// "any non-empty output passes".
     /// </summary>
     ExpectedSubstring: string;
     /// <summary>Free-text label for failure messages.</summary>
@@ -60,18 +60,18 @@ type
     Reason: string;
   end;
 
-/// <summary>Builds a vector inline.</summary>
-/// <param name="DID">DID being checked.</param>
-/// <param name="Payload">Raw response bytes.</param>
-/// <param name="ExpectedSubstring">Substring the decoder's output
-/// must contain (empty = any non-empty output passes).</param>
-/// <param name="Description">Label for failure messages.</param>
+  /// <summary>Builds a vector inline.</summary>
+  /// <param name="DID">DID being checked.</param>
+  /// <param name="Payload">Raw response bytes.</param>
+  /// <param name="ExpectedSubstring">Substring the decoder's output
+  /// must contain (empty = any non-empty output passes).</param>
+  /// <param name="Description">Label for failure messages.</param>
 function GoldenVector(const DID: Word; const Payload: TBytes;
   const ExpectedSubstring, Description: string): TOBDGoldenVector;
 
 /// <summary>
-///   Runs every vector through <c>Ext.DecodeDID</c>. Returns the
-///   failures list — empty when every vector passed.
+/// Runs every vector through <c>Ext.DecodeDID</c>. Returns the
+/// failures list — empty when every vector passed.
 /// </summary>
 /// <param name="Ext">Extension under test.</param>
 /// <param name="Vectors">Vectors to run.</param>
@@ -81,7 +81,7 @@ function CheckGoldenVectors(const Ext: IOBDOEMExtension;
 implementation
 
 uses
-  {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF};
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF};
 
 function GoldenVector(const DID: Word; const Payload: TBytes;
   const ExpectedSubstring, Description: string): TOBDGoldenVector;
@@ -105,22 +105,22 @@ begin
     for V in Vectors do
     begin
       Output := Ext.DecodeDID(V.DID, V.Payload);
-      Failure := Default(TOBDGoldenFailure);
+      Failure := Default (TOBDGoldenFailure);
       Failure.Vector := V;
       Failure.ActualOutput := Output;
       if Trim(Output) = '' then
       begin
-        Failure.Reason := Format(
-          'DID 0x%.4X (%s): decoder produced empty output',
+        Failure.Reason :=
+          Format('DID 0x%.4X (%s): decoder produced empty output',
           [V.DID, V.Description]);
         Failures.Add(Failure);
         Continue;
       end;
-      if (V.ExpectedSubstring <> '') and
-         (Pos(V.ExpectedSubstring, Output) = 0) then
+      if (V.ExpectedSubstring <> '') and (Pos(V.ExpectedSubstring, Output) = 0)
+      then
       begin
-        Failure.Reason := Format(
-          'DID 0x%.4X (%s): expected output to contain "%s", got "%s"',
+        Failure.Reason :=
+          Format('DID 0x%.4X (%s): expected output to contain "%s", got "%s"',
           [V.DID, V.Description, V.ExpectedSubstring, Output]);
         Failures.Add(Failure);
       end;

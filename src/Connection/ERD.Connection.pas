@@ -1,34 +1,34 @@
-//------------------------------------------------------------------------------
-//  ERD.Connection
+﻿// ------------------------------------------------------------------------------
+// ERD.Connection
 //
-//  TOBDConnection — the single non-visual component a user drops on a
-//  form to talk to an OBD adapter over any of the supported transports.
+// TOBDConnection — the single non-visual component a user drops on a
+// form to talk to an OBD adapter over any of the supported transports.
 //
-//  Architecture: one component, enum-driven. Setting Transport selects
-//  the active sub-settings sub-object; Active := True instantiates the
-//  matching IOBDConnectionTransport implementation, wires its callbacks
-//  to the component, and marshals events to the main thread.
+// Architecture: one component, enum-driven. Setting Transport selects
+// the active sub-settings sub-object; Active := True instantiates the
+// matching IOBDConnectionTransport implementation, wires its callbacks
+// to the component, and marshals events to the main thread.
 //
-//  Bound consumers (<see cref="TOBDAdapter"/>) read bytes via
-//  OnDataReceived and write via WriteBytes / WriteString. They do
-//  not see the transport layer directly.
+// Bound consumers (<see cref="TOBDAdapter"/>) read bytes via
+// OnDataReceived and write via WriteBytes / WriteString. They do
+// not see the transport layer directly.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.Connection;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
@@ -36,9 +36,9 @@ interface
 uses
   ERD.Async.Task,
   System.Diagnostics,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
   ERD.Types,
   ERD.Connection.Types,
   ERD.Connection.Settings,
@@ -46,25 +46,24 @@ uses
 
 type
   /// <summary>
-  ///   Event surface for transient (non-fatal) errors.
+  /// Event surface for transient (non-fatal) errors.
   /// </summary>
   /// <param name="Sender">The TOBDConnection instance.</param>
   /// <param name="ACode">Coded error.</param>
   /// <param name="AMessage">Human-readable message.</param>
   /// <param name="AHandled">Set True to suppress the default behaviour
   /// (state transition to <c>csError</c>). Defaults to False.</param>
-  TOBDConnectionErrorEvent = procedure(Sender: TObject;
-    ACode: TOBDErrorCode; const AMessage: string;
-    var AHandled: Boolean) of object;
+  TOBDConnectionErrorEvent = procedure(Sender: TObject; ACode: TOBDErrorCode;
+    const AMessage: string; var AHandled: Boolean) of object;
 
   /// <summary>
-  ///   Headless OBD-II / diagnostics connection component.
+  /// Headless OBD-II / diagnostics connection component.
   /// </summary>
   /// <remarks>
-  ///   Drop on a form, set <c>Transport</c>, populate the matching
-  ///   sub-settings sub-object, wire <c>OnDataReceived</c>, then set
-  ///   <c>Active := True</c>. Threading is internal; events fire on the
-  ///   main thread.
+  /// Drop on a form, set <c>Transport</c>, populate the matching
+  /// sub-settings sub-object, wire <c>OnDataReceived</c>, then set
+  /// <c>Active := True</c>. Threading is internal; events fire on the
+  /// main thread.
   /// </remarks>
   TOBDConnection = class(TComponent)
   strict private
@@ -136,12 +135,12 @@ type
     destructor Destroy; override;
 
     /// <summary>
-    ///   Synchronous open. Equivalent to <c>Active := True</c>.
+    /// Synchronous open. Equivalent to <c>Active := True</c>.
     /// </summary>
     /// <remarks>
-    ///   Honours <c>RetryPolicy</c>: on transient open failure, sleeps
-    ///   per the policy and retries up to <c>RetryPolicy.MaxAttempts</c>
-    ///   times before re-raising the last exception.
+    /// Honours <c>RetryPolicy</c>: on transient open failure, sleeps
+    /// per the policy and retries up to <c>RetryPolicy.MaxAttempts</c>
+    /// times before re-raising the last exception.
     /// </remarks>
     /// <exception cref="EOBDConfig">Settings missing for the selected
     /// transport.</exception>
@@ -152,52 +151,52 @@ type
     procedure Open;
 
     /// <summary>
-    ///   Non-blocking open. Returns immediately; the actual transport
-    ///   open runs on a background worker.
+    /// Non-blocking open. Returns immediately; the actual transport
+    /// open runs on a background worker.
     /// </summary>
     /// <remarks>
-    ///   On success, fires <c>OnConnect</c> on the main thread. On
-    ///   failure, fires <c>OnError</c> on the main thread with a coded
-    ///   error and a human-readable message. Honours
-    ///   <c>RetryPolicy</c> the same way <see cref="Open"/> does.
+    /// On success, fires <c>OnConnect</c> on the main thread. On
+    /// failure, fires <c>OnError</c> on the main thread with a coded
+    /// error and a human-readable message. Honours
+    /// <c>RetryPolicy</c> the same way <see cref="Open"/> does.
     ///
-    ///   Use this when you do not want to block the UI thread on a
-    ///   slow transport (Wi-Fi DNS, Bluetooth handshake, BLE GATT
-    ///   discovery). The synchronous <see cref="Open"/> method remains
-    ///   available for code-driven use where blocking is acceptable.
+    /// Use this when you do not want to block the UI thread on a
+    /// slow transport (Wi-Fi DNS, Bluetooth handshake, BLE GATT
+    /// discovery). The synchronous <see cref="Open"/> method remains
+    /// available for code-driven use where blocking is acceptable.
     ///
-    ///   Only one async open may be in flight at a time. Calling
-    ///   <c>OpenAsync</c> while another is in progress raises. Calling
-    ///   <c>Close</c> during an in-flight async open marks it
-    ///   cancelled, waits for the worker to exit, then closes
-    ///   normally.
+    /// Only one async open may be in flight at a time. Calling
+    /// <c>OpenAsync</c> while another is in progress raises. Calling
+    /// <c>Close</c> during an in-flight async open marks it
+    /// cancelled, waits for the worker to exit, then closes
+    /// normally.
     /// </remarks>
     /// <exception cref="EOBDConfig">Already active or another async
     /// open is already in progress.</exception>
     procedure OpenAsync;
 
     /// <summary>
-    ///   Synchronous close. Equivalent to <c>Active := False</c>.
+    /// Synchronous close. Equivalent to <c>Active := False</c>.
     /// </summary>
     /// <remarks>
-    ///   No-op when not active. Joins the transport's worker thread
-    ///   before returning. If an async open is in flight it is
-    ///   cancelled and joined first.
+    /// No-op when not active. Joins the transport's worker thread
+    /// before returning. If an async open is in flight it is
+    /// cancelled and joined first.
     /// </remarks>
     procedure Close;
 
     /// <summary>
-    ///   Non-blocking close. Returns immediately; the actual transport
-    ///   shutdown runs on a background worker.
+    /// Non-blocking close. Returns immediately; the actual transport
+    /// shutdown runs on a background worker.
     /// </summary>
     /// <remarks>
-    ///   Fires <c>OnDisconnect</c> on the main thread once the
-    ///   transport has fully closed. Use this when a transport's
-    ///   close path can take noticeable time (Bluetooth in particular)
-    ///   and you do not want to block the UI thread.
+    /// Fires <c>OnDisconnect</c> on the main thread once the
+    /// transport has fully closed. Use this when a transport's
+    /// close path can take noticeable time (Bluetooth in particular)
+    /// and you do not want to block the UI thread.
     ///
-    ///   Calling <c>CloseAsync</c> when the connection is already
-    ///   closed is a no-op (no event fires).
+    /// Calling <c>CloseAsync</c> when the connection is already
+    /// closed is a no-op (no event fires).
     /// </remarks>
     procedure CloseAsync;
 
@@ -208,9 +207,9 @@ type
     function WriteBytes(const ABytes: TBytes): Integer;
 
     /// <summary>
-    ///   Sends an ASCII string through the active transport. The
-    ///   string is encoded as ASCII bytes and forwarded to
-    ///   <see cref="WriteBytes"/>.
+    /// Sends an ASCII string through the active transport. The
+    /// string is encoded as ASCII bytes and forwarded to
+    /// <see cref="WriteBytes"/>.
     /// </summary>
     /// <param name="AText">Text to send.</param>
     /// <returns>Number of bytes accepted by the transport.</returns>
@@ -228,7 +227,8 @@ type
     /// most components should use the public surface above.</remarks>
     /// <summary>Optional already-open transport supplied by a host or simulator.
     /// Set only while closed; Close detaches handlers and closes the provider.</summary>
-    property CustomTransport: IOBDConnectionTransport read FCustomTransport write SetCustomTransport;
+    property CustomTransport: IOBDConnectionTransport read FCustomTransport
+      write SetCustomTransport;
     /// <summary>Write a complete stream buffer with a deadline, rejecting stalled/invalid writes.</summary>
     function WriteAll(const ABytes: TBytes; ATimeoutMs: Cardinal): Integer;
     property TransportImpl: IOBDConnectionTransport read FTransportImpl;
@@ -244,18 +244,23 @@ type
     property SerialSettings: TOBDSerialSettings read FSerialSettings
       write SetSerialSettings;
     /// <summary>Bluetooth Classic tuneables.</summary>
-    property BluetoothSettings: TOBDBluetoothSettings
-      read FBluetoothSettings write SetBluetoothSettings;
+    property BluetoothSettings: TOBDBluetoothSettings read FBluetoothSettings
+      write SetBluetoothSettings;
     /// <summary>Bluetooth LE tuneables.</summary>
-    property BLESettings: TOBDBLESettings read FBLESettings write SetBLESettings;
+    property BLESettings: TOBDBLESettings read FBLESettings
+      write SetBLESettings;
     /// <summary>Wi-Fi (TCP) tuneables.</summary>
-    property WiFiSettings: TOBDWiFiSettings read FWiFiSettings write SetWiFiSettings;
+    property WiFiSettings: TOBDWiFiSettings read FWiFiSettings
+      write SetWiFiSettings;
     /// <summary>UDP tuneables (DoIP discovery, broadcast).</summary>
-    property UDPSettings: TOBDUDPSettings read FUDPSettings write SetUDPSettings;
+    property UDPSettings: TOBDUDPSettings read FUDPSettings
+      write SetUDPSettings;
     /// <summary>FTDI D2XX tuneables.</summary>
-    property FTDISettings: TOBDFTDISettings read FFTDISettings write SetFTDISettings;
+    property FTDISettings: TOBDFTDISettings read FFTDISettings
+      write SetFTDISettings;
     /// <summary>Retry policy for transient open failures.</summary>
-    property RetryPolicy: TOBDRetryPolicy read FRetryPolicy write SetRetryPolicy;
+    property RetryPolicy: TOBDRetryPolicy read FRetryPolicy
+      write SetRetryPolicy;
 
     /// <summary>Fires after a successful open.</summary>
     property OnConnect: TNotifyEvent read FOnConnect write FOnConnect;
@@ -268,17 +273,17 @@ type
       write FOnDataReceived;
 
     /// <summary>
-    ///   Fires when bytes arrive from the wire, on the transport's
-    ///   worker thread (no main-thread marshalling).
+    /// Fires when bytes arrive from the wire, on the transport's
+    /// worker thread (no main-thread marshalling).
     /// </summary>
     /// <remarks>
-    ///   Internal hook for low-level consumers (e.g. <c>TOBDAdapter</c>'s
-    ///   response collector) that need bytes synchronously without
-    ///   waiting for the main loop to drain. Avoid in UI code — use
-    ///   <see cref="OnDataReceived"/> instead.
+    /// Internal hook for low-level consumers (e.g. <c>TOBDAdapter</c>'s
+    /// response collector) that need bytes synchronously without
+    /// waiting for the main loop to drain. Avoid in UI code — use
+    /// <see cref="OnDataReceived"/> instead.
     ///
-    ///   Both events fire from the same source; setting one does not
-    ///   replace the other.
+    /// Both events fire from the same source; setting one does not
+    /// replace the other.
     /// </remarks>
     property OnDataReceivedRaw: TOBDBytesEvent read FOnDataReceivedRaw
       write FOnDataReceivedRaw;
@@ -286,22 +291,22 @@ type
     property OnStateChanged: TOBDStateEvent read FOnStateChanged
       write FOnStateChanged;
     /// <summary>
-    ///   Fires as a long-running operation progresses (main thread).
+    /// Fires as a long-running operation progresses (main thread).
     /// </summary>
     /// <remarks>
-    ///   Step-style snapshots are fired by each transport at named
-    ///   phase boundaries during <c>Open</c> / <c>OpenAsync</c>:
-    ///   <list type="table">
-    ///     <listheader><term>Transport</term><description>Phases</description></listheader>
-    ///     <item><term>Serial</term><description>1/3 Opening port → 2/3 Configuring → 3/3 Ready</description></item>
-    ///     <item><term>Wi-Fi</term><description>1/3 Resolving host → 2/3 Connecting → 3/3 Ready</description></item>
-    ///     <item><term>UDP</term><description>1/2 Binding → 2/2 Ready</description></item>
-    ///     <item><term>Bluetooth</term><description>1/5 Adapter check → 2/5 Locating device → 3/5 Creating socket → 4/5 Connecting → 5/5 Ready</description></item>
-    ///     <item><term>BLE</term><description>1/6 Adapter check → 2/6 Locating device → 3/6 Connecting → 4/6 Discovering service → 5/6 Subscribing notifications → 6/6 Ready</description></item>
-    ///     <item><term>FTDI</term><description>1/4 Loading D2XX → 2/4 Opening device → 3/4 Configuring → 4/4 Ready</description></item>
-    ///   </list>
-    ///   Bind a progress bar to <c>AStep.Percent</c>; bind a label to
-    ///   <c>AStep.Name</c> / <c>AStep.Detail</c>.
+    /// Step-style snapshots are fired by each transport at named
+    /// phase boundaries during <c>Open</c> / <c>OpenAsync</c>:
+    /// <list type="table">
+    /// <listheader><term>Transport</term><description>Phases</description></listheader>
+    /// <item><term>Serial</term><description>1/3 Opening port → 2/3 Configuring → 3/3 Ready</description></item>
+    /// <item><term>Wi-Fi</term><description>1/3 Resolving host → 2/3 Connecting → 3/3 Ready</description></item>
+    /// <item><term>UDP</term><description>1/2 Binding → 2/2 Ready</description></item>
+    /// <item><term>Bluetooth</term><description>1/5 Adapter check → 2/5 Locating device → 3/5 Creating socket → 4/5 Connecting → 5/5 Ready</description></item>
+    /// <item><term>BLE</term><description>1/6 Adapter check → 2/6 Locating device → 3/6 Connecting → 4/6 Discovering service → 5/6 Subscribing notifications → 6/6 Ready</description></item>
+    /// <item><term>FTDI</term><description>1/4 Loading D2XX → 2/4 Opening device → 3/4 Configuring → 4/4 Ready</description></item>
+    /// </list>
+    /// Bind a progress bar to <c>AStep.Percent</c>; bind a label to
+    /// <c>AStep.Name</c> / <c>AStep.Detail</c>.
     /// </remarks>
     property OnProgress: TOBDProgressEvent read FOnProgress write FOnProgress;
     /// <summary>Fires on transient I/O errors.</summary>
@@ -319,10 +324,9 @@ uses
   ERD.Connection.WiFi,
   ERD.Connection.UDP
 {$IFNDEF FPC}
-  , ERD.Connection.Bluetooth
-  , ERD.Connection.BLE
+    , ERD.Connection.Bluetooth, ERD.Connection.BLE
 {$ENDIF}
-  ;
+    ;
 
 { ---- TOBDConnection ---------------------------------------------------------- }
 
@@ -344,16 +348,17 @@ end;
 
 destructor TOBDConnection.Destroy;
 begin
-  if FOwnedTask <> nil then FOwnedTask.Cancel;
+  if FOwnedTask <> nil then
+    FOwnedTask.Cancel;
   // Cancel and wait for any in-flight OpenAsync before tearing down.
   WaitForAsyncOpen;
   RemoveFreeNotifications;
   if FActive then
-  try
-    DoClose;
-  except
-    // Destructor must not propagate.
-  end;
+    try
+      DoClose;
+    except
+      // Destructor must not propagate.
+    end;
   FSerialSettings.Free;
   FBluetoothSettings.Free;
   FBLESettings.Free;
@@ -367,30 +372,57 @@ begin
 end;
 
 procedure TOBDConnection.SetSerialSettings(AValue: TOBDSerialSettings);
-begin FSerialSettings.Assign(AValue); end;
-procedure TOBDConnection.SetBluetoothSettings(AValue: TOBDBluetoothSettings);
-begin FBluetoothSettings.Assign(AValue); end;
-procedure TOBDConnection.SetBLESettings(AValue: TOBDBLESettings);
-begin FBLESettings.Assign(AValue); end;
-procedure TOBDConnection.SetWiFiSettings(AValue: TOBDWiFiSettings);
-begin FWiFiSettings.Assign(AValue); end;
-procedure TOBDConnection.SetUDPSettings(AValue: TOBDUDPSettings);
-begin FUDPSettings.Assign(AValue); end;
-procedure TOBDConnection.SetFTDISettings(AValue: TOBDFTDISettings);
-begin FFTDISettings.Assign(AValue); end;
-procedure TOBDConnection.SetRetryPolicy(AValue: TOBDRetryPolicy);
-begin FRetryPolicy.Assign(AValue); end;
+begin
+  FSerialSettings.Assign(AValue);
+end;
 
-procedure TOBDConnection.SetCustomTransport(const AValue: IOBDConnectionTransport);
+procedure TOBDConnection.SetBluetoothSettings(AValue: TOBDBluetoothSettings);
+begin
+  FBluetoothSettings.Assign(AValue);
+end;
+
+procedure TOBDConnection.SetBLESettings(AValue: TOBDBLESettings);
+begin
+  FBLESettings.Assign(AValue);
+end;
+
+procedure TOBDConnection.SetWiFiSettings(AValue: TOBDWiFiSettings);
+begin
+  FWiFiSettings.Assign(AValue);
+end;
+
+procedure TOBDConnection.SetUDPSettings(AValue: TOBDUDPSettings);
+begin
+  FUDPSettings.Assign(AValue);
+end;
+
+procedure TOBDConnection.SetFTDISettings(AValue: TOBDFTDISettings);
+begin
+  FFTDISettings.Assign(AValue);
+end;
+
+procedure TOBDConnection.SetRetryPolicy(AValue: TOBDRetryPolicy);
+begin
+  FRetryPolicy.Assign(AValue);
+end;
+
+procedure TOBDConnection.SetCustomTransport(const AValue
+  : IOBDConnectionTransport);
 begin
   if FActive or (FAsyncOpenThread <> nil) then
-    raise EOBDConfig.Create('Close connection before changing custom transport');
+    raise EOBDConfig.Create
+      ('Close connection before changing custom transport');
   FCustomTransport := AValue;
 end;
 
-function TOBDConnection.WriteAll(const ABytes: TBytes; ATimeoutMs: Cardinal): Integer;
-var Sent: Integer; Watch: TStopwatch; Remaining: TBytes;
-  Timed: IOBDTimedStreamTransport; Elapsed: Int64;
+function TOBDConnection.WriteAll(const ABytes: TBytes;
+  ATimeoutMs: Cardinal): Integer;
+var
+  Sent: Integer;
+  Watch: TStopwatch;
+  Remaining: TBytes;
+  Timed: IOBDTimedStreamTransport;
+  Elapsed: Int64;
 begin
   Result := 0;
   Watch := TStopwatch.StartNew;
@@ -404,24 +436,30 @@ begin
     Remaining := Copy(ABytes, Result, Length(ABytes) - Result);
     Sent := WriteBytes(Remaining);
     if (Sent <= 0) or (Sent > Length(Remaining)) then
-      raise EOBDError.Create('Transport returned an invalid or stalled write count');
+      raise EOBDError.Create
+        ('Transport returned an invalid or stalled write count');
     Inc(Result, Sent);
   end;
 end;
 
 procedure TOBDConnection.SetTransport(AValue: TOBDTransport);
 begin
-  if FTransport = AValue then Exit;
+  if FTransport = AValue then
+    Exit;
   if FActive then
-    raise EOBDConfig.Create(
-      'Transport cannot be changed while Active = True. Close first.');
+    raise EOBDConfig.Create
+      ('Transport cannot be changed while Active = True. Close first.');
   FTransport := AValue;
 end;
 
 procedure TOBDConnection.SetActive(AValue: Boolean);
 begin
-  if FActive = AValue then Exit;
-  if AValue then DoOpen else DoClose;
+  if FActive = AValue then
+    Exit;
+  if AValue then
+    DoOpen
+  else
+    DoClose;
 end;
 
 procedure TOBDConnection.DoOpen;
@@ -438,87 +476,96 @@ begin
       // Step 1: instantiate the transport per Transport enum.
       if FCustomTransport <> nil then
       begin
-        if not FCustomTransport.IsOpen then raise EOBDConfig.Create('Custom transport must already be open');
+        if not FCustomTransport.IsOpen then
+          raise EOBDConfig.Create('Custom transport must already be open');
         FTransportImpl := FCustomTransport;
       end
-      else case FTransport of
+      else
+        case FTransport of
 {$IFDEF MSWINDOWS}
-        otSerial:    FTransportImpl := TOBDSerialTransport.Create;
-        otFTDI:      FTransportImpl := TOBDFTDITransport.Create;
+          otSerial:
+            FTransportImpl := TOBDSerialTransport.Create;
+          otFTDI:
+            FTransportImpl := TOBDFTDITransport.Create;
 {$ELSE}
-        otSerial, otFTDI:
-          raise EOBDUnsupported.Create(
-            'Serial / FTDI transports are Windows-only in v1');
+          otSerial, otFTDI:
+            raise EOBDUnsupported.Create
+              ('Serial / FTDI transports are Windows-only in v1');
 {$ENDIF}
 {$IFNDEF FPC}
-        otBluetooth: FTransportImpl := TOBDBluetoothTransport.Create;
-        otBLE:       FTransportImpl := TOBDBLETransport.Create;
+          otBluetooth:
+            FTransportImpl := TOBDBluetoothTransport.Create;
+          otBLE:
+            FTransportImpl := TOBDBLETransport.Create;
 {$ELSE}
-        otBluetooth, otBLE: raise EOBDUnsupported.Create(
-          'The built-in Bluetooth providers require the Delphi Bluetooth SDK');
+          otBluetooth, otBLE:
+            raise EOBDUnsupported.Create
+              ('The built-in Bluetooth providers require the Delphi Bluetooth SDK');
 {$ENDIF}
-        otWiFi:      FTransportImpl := TOBDWiFiTransport.Create;
-        otUDP:       FTransportImpl := TOBDUDPTransport.Create;
-      else
-        raise EOBDConfig.CreateFmt('Unknown transport %d', [Ord(FTransport)]);
-      end;
+          otWiFi:
+            FTransportImpl := TOBDWiFiTransport.Create;
+          otUDP:
+            FTransportImpl := TOBDUDPTransport.Create;
+        else
+          raise EOBDConfig.CreateFmt('Unknown transport %d', [Ord(FTransport)]);
+        end;
 
       // Step 2: wire the four callbacks via the interface (uniform).
-      FTransportImpl.OnDataReceived   := HandleTransportBytes;
-      FTransportImpl.OnStateChanged   := HandleTransportState;
+      FTransportImpl.OnDataReceived := HandleTransportBytes;
+      FTransportImpl.OnStateChanged := HandleTransportState;
       FTransportImpl.OnTransportError := HandleTransportError;
-      FTransportImpl.OnProgress       := HandleTransportProgress;
+      FTransportImpl.OnProgress := HandleTransportProgress;
 
       // Step 3: open the transport with the matching settings sub-object.
-      if FCustomTransport = nil then case FTransport of
+      if FCustomTransport = nil then
+        case FTransport of
 {$IFDEF MSWINDOWS}
-        otSerial:
-          (FTransportImpl as TOBDSerialTransport).Open(FSerialSettings);
-        otFTDI:
-          (FTransportImpl as TOBDFTDITransport).Open(FFTDISettings);
+          otSerial:
+            (FTransportImpl as TOBDSerialTransport).Open(FSerialSettings);
+          otFTDI:
+            (FTransportImpl as TOBDFTDITransport).Open(FFTDISettings);
 {$ENDIF}
 {$IFNDEF FPC}
-        otBluetooth:
-          (FTransportImpl as TOBDBluetoothTransport).Open(FBluetoothSettings);
-        otBLE:
-          (FTransportImpl as TOBDBLETransport).Open(FBLESettings);
+          otBluetooth:
+            (FTransportImpl as TOBDBluetoothTransport).Open(FBluetoothSettings);
+          otBLE:
+            (FTransportImpl as TOBDBLETransport).Open(FBLESettings);
 {$ENDIF}
-        otWiFi:
-          (FTransportImpl as TOBDWiFiTransport).Open(FWiFiSettings);
-        otUDP:
-          (FTransportImpl as TOBDUDPTransport).Open(FUDPSettings);
-      end;
-
-      // Success
-      FActive := True;
-      FireOnConnect;
-      Exit;
-
-    except
-      on E: Exception do
-      begin
-        if FTransportImpl <> nil then
-        begin
-          FTransportImpl.SetOnDataReceived(nil);
-          FTransportImpl.SetOnStateChanged(nil);
-          FTransportImpl.SetOnTransportError(nil);
-          FTransportImpl.SetOnProgress(nil);
-          FTransportImpl.Close;
-        end;
-        FTransportImpl := nil;
-        FreeAndNil(LastError);
-        LastError := Exception(AcquireExceptionObject);
-      end;
+          otWiFi:
+            (FTransportImpl as TOBDWiFiTransport).Open(FWiFiSettings);
+          otUDP:
+            (FTransportImpl as TOBDUDPTransport).Open(FUDPSettings);
     end;
 
-    // Retry?
-    if FAsyncOpenCancelled or
-       (not FRetryPolicy.Enabled) or
-       (Attempt >= FRetryPolicy.MaxAttempts) then
-      Break;
-    Delay := FRetryPolicy.DelayForAttempt(Attempt);
-    if Delay > 0 then
-      TThread.Sleep(Delay);
+    // Success
+    FActive := True;
+    FireOnConnect;
+    Exit;
+
+  except
+    on E: Exception do
+    begin
+      if FTransportImpl <> nil then
+      begin
+        FTransportImpl.SetOnDataReceived(nil);
+        FTransportImpl.SetOnStateChanged(nil);
+        FTransportImpl.SetOnTransportError(nil);
+        FTransportImpl.SetOnProgress(nil);
+        FTransportImpl.Close;
+      end;
+      FTransportImpl := nil;
+      FreeAndNil(LastError);
+      LastError := Exception(AcquireExceptionObject);
+    end;
+  end;
+
+  // Retry?
+  if FAsyncOpenCancelled or (not FRetryPolicy.Enabled) or
+    (Attempt >= FRetryPolicy.MaxAttempts) then
+    Break;
+  Delay := FRetryPolicy.DelayForAttempt(Attempt);
+  if Delay > 0 then
+    TThread.Sleep(Delay);
   until False;
 
   if LastError <> nil then
@@ -528,7 +575,8 @@ end;
 
 procedure TOBDConnection.FireOnConnect;
 begin
-  if FOwnedTask.Lifetime.IsCancelled then Exit;
+  if FOwnedTask.Lifetime.IsCancelled then
+    Exit;
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
     if Assigned(FOnConnect) then
@@ -545,7 +593,8 @@ end;
 
 procedure TOBDConnection.FireOnDisconnect;
 begin
-  if FOwnedTask.Lifetime.IsCancelled then Exit;
+  if FOwnedTask.Lifetime.IsCancelled then
+    Exit;
   if TThread.CurrentThread.ThreadID = MainThreadID then
   begin
     if Assigned(FOnDisconnect) then
@@ -561,13 +610,14 @@ begin
 end;
 
 procedure TOBDConnection.FireOnError(ACode: TOBDErrorCode;
-  const AMessage: string);
+const AMessage: string);
 var
   CodeCopy: TOBDErrorCode;
   MsgCopy: string;
   Handled: Boolean;
 begin
-  if FOwnedTask.Lifetime.IsCancelled then Exit;
+  if FOwnedTask.Lifetime.IsCancelled then
+    Exit;
   CodeCopy := ACode;
   MsgCopy := AMessage;
   if TThread.CurrentThread.ThreadID = MainThreadID then
@@ -769,7 +819,7 @@ begin
 end;
 
 procedure TOBDConnection.HandleTransportBytes(Sender: TObject;
-  const ABytes: TBytes);
+const ABytes: TBytes);
 var
   Snapshot: TBytes;
 begin
@@ -797,7 +847,7 @@ begin
 end;
 
 procedure TOBDConnection.HandleTransportState(Sender: TObject;
-  NewState: TOBDConnectionState);
+NewState: TOBDConnectionState);
 begin
   FState := NewState;
   if TThread.CurrentThread.ThreadID = MainThreadID then
@@ -815,7 +865,7 @@ begin
 end;
 
 procedure TOBDConnection.HandleTransportError(Sender: TObject;
-  ACode: TOBDErrorCode; const AMessage: string);
+ACode: TOBDErrorCode; const AMessage: string);
 var
   Code: TOBDErrorCode;
   Msg: string;
@@ -842,7 +892,7 @@ begin
 end;
 
 procedure TOBDConnection.HandleTransportProgress(Sender: TObject;
-  const AStep: TOBDProgressStep);
+const AStep: TOBDProgressStep);
 var
   Snapshot: TOBDProgressStep;
 begin

@@ -1,27 +1,26 @@
-//------------------------------------------------------------------------------
-//  ERD.J2534.Components
+// ------------------------------------------------------------------------------
+// ERD.J2534.Components
 //
-//  Non-visual TComponent wrappers around TJ2534Driver and
-//  TJ2534Channel. Drop on a form, set DllPath in the Object
-//  Inspector, optionally pick a Protocol + BaudRate, call
-//  Open. The components own the underlying driver / channel
-//  lifecycle.
+// Non-visual TComponent wrappers around TJ2534Driver and
+// TJ2534Channel. Drop on a form, set DllPath in the Object
+// Inspector, optionally pick a Protocol + BaudRate, call
+// Open. The components own the underlying driver / channel
+// lifecycle.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT - see LICENSE
-//------------------------------------------------------------------------------
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT - see LICENSE
+// ------------------------------------------------------------------------------
 
 unit ERD.J2534.Components;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
 {$ENDIF}
-
+{$ENDIF}
 {$IFNDEF MSWINDOWS}
 {$MESSAGE FATAL 'ERD.J2534.Components is Windows-only.'}
 {$ENDIF}
@@ -29,8 +28,8 @@ unit ERD.J2534.Components;
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   ERD.J2534;
 
 type
@@ -40,7 +39,7 @@ type
   TOBDJ2534Device = class(TComponent)
   strict private
     FDllPath: string;
-    FDriver:  TJ2534Driver;
+    FDriver: TJ2534Driver;
     FAutoOpenOnLoad: Boolean;
   protected
     procedure Loaded; override;
@@ -78,8 +77,8 @@ type
     /// <summary>When True, the IDE Loaded handler attempts to
     /// open the DLL right after streaming the .dfm. Off by
     /// default - hosts typically open on demand.</summary>
-    property AutoOpenOnLoad: Boolean
-      read FAutoOpenOnLoad write FAutoOpenOnLoad default False;
+    property AutoOpenOnLoad: Boolean read FAutoOpenOnLoad write FAutoOpenOnLoad
+      default False;
   end;
 
   /// <summary>Non-visual wrapper around <see cref="TJ2534Channel"/>.
@@ -87,12 +86,12 @@ type
   /// <see cref="BaudRate"/>, call <see cref="Open"/>.</summary>
   TOBDJ2534Channel = class(TComponent)
   strict private
-    FDevice:    TOBDJ2534Device;
-    FProtocol:  TJ2534Protocol;
-    FBaudRate:  Cardinal;
-    FFlags:     Cardinal;
-    FPortName:  string;
-    FChannel:   TJ2534Channel;
+    FDevice: TOBDJ2534Device;
+    FProtocol: TJ2534Protocol;
+    FBaudRate: Cardinal;
+    FFlags: Cardinal;
+    FPortName: string;
+    FChannel: TJ2534Channel;
     procedure SetDevice(AValue: TOBDJ2534Device);
   protected
     procedure Notification(AComponent: TComponent;
@@ -103,46 +102,41 @@ type
 
     procedure Open;
     procedure Close;
-    function  IsOpen: Boolean;
+    function IsOpen: Boolean;
 
-    procedure WriteMsg(const AData: TBytes;
-      ATxFlags: Cardinal = 0; ATimeoutMs: Cardinal = 1000);
-    function  TryReadMsg(out AData: TBytes;
-      ATimeoutMs: Cardinal = 1000): Boolean;
-    procedure InstallPassFilter(AId: Cardinal;
-      AExtended: Boolean = False);
+    procedure WriteMsg(const AData: TBytes; ATxFlags: Cardinal = 0;
+      ATimeoutMs: Cardinal = 1000);
+    function TryReadMsg(out AData: TBytes; ATimeoutMs: Cardinal = 1000)
+      : Boolean;
+    procedure InstallPassFilter(AId: Cardinal; AExtended: Boolean = False);
 
     property Channel: TJ2534Channel read FChannel;
   published
     /// <summary>Reference to the device that owns this
     /// channel. Required.</summary>
-    property Device: TOBDJ2534Device
-      read FDevice write SetDevice;
+    property Device: TOBDJ2534Device read FDevice write SetDevice;
 
     /// <summary>J2534 protocol id. Default
     /// <c>jpISO15765</c>.</summary>
-    property Protocol: TJ2534Protocol
-      read FProtocol write FProtocol default jpISO15765;
+    property Protocol: TJ2534Protocol read FProtocol write FProtocol
+      default jpISO15765;
 
     /// <summary>Channel baud rate. 500_000 for CAN, 10_400 for
     /// ISO 9141, etc.</summary>
-    property BaudRate: Cardinal
-      read FBaudRate write FBaudRate default 500000;
+    property BaudRate: Cardinal read FBaudRate write FBaudRate default 500000;
 
     /// <summary>Per-channel flags passed to PassThruConnect.
     /// 0 by default; set bits for CAN_29BIT_ID etc.</summary>
-    property Flags: Cardinal
-      read FFlags write FFlags default 0;
+    property Flags: Cardinal read FFlags write FFlags default 0;
 
     /// <summary>Port name passed to PassThruOpen. Empty
     /// (default) lets the DLL pick the device.</summary>
-    property PortName: string
-      read FPortName write FPortName;
+    property PortName: string read FPortName write FPortName;
   end;
 
 implementation
 
-{ TOBDJ2534Device -------------------------------------------------------------}
+{ TOBDJ2534Device ------------------------------------------------------------- }
 
 destructor TOBDJ2534Device.Destroy;
 begin
@@ -154,15 +148,18 @@ procedure TOBDJ2534Device.Loaded;
 begin
   inherited;
   if FAutoOpenOnLoad and (FDllPath <> '') then
-    try Open; except end;
+    try
+      Open;
+    except
+    end;
 end;
 
 procedure TOBDJ2534Device.Open;
 begin
-  if FDriver <> nil then Exit;
+  if FDriver <> nil then
+    Exit;
   if FDllPath = '' then
-    raise EOBDJ2534Error.Create(-1,
-      'TOBDJ2534Device: DllPath is not set');
+    raise EOBDJ2534Error.Create(-1, 'TOBDJ2534Device: DllPath is not set');
   FDriver := TJ2534Driver.Create(FDllPath);
 end;
 
@@ -186,14 +183,14 @@ begin
   Result := IsOpen and FDriver.HasV05;
 end;
 
-{ TOBDJ2534Channel ------------------------------------------------------------}
+{ TOBDJ2534Channel ------------------------------------------------------------ }
 
 constructor TOBDJ2534Channel.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FProtocol := jpISO15765;
   FBaudRate := 500000;
-  FFlags    := 0;
+  FFlags := 0;
 end;
 
 destructor TOBDJ2534Channel.Destroy;
@@ -204,10 +201,13 @@ end;
 
 procedure TOBDJ2534Channel.SetDevice(AValue: TOBDJ2534Device);
 begin
-  if FDevice = AValue then Exit;
-  if FDevice <> nil then FDevice.RemoveFreeNotification(Self);
+  if FDevice = AValue then
+    Exit;
+  if FDevice <> nil then
+    FDevice.RemoveFreeNotification(Self);
   FDevice := AValue;
-  if FDevice <> nil then FDevice.FreeNotification(Self);
+  if FDevice <> nil then
+    FDevice.FreeNotification(Self);
 end;
 
 procedure TOBDJ2534Channel.Notification(AComponent: TComponent;
@@ -223,13 +223,13 @@ end;
 
 procedure TOBDJ2534Channel.Open;
 begin
-  if FChannel <> nil then Exit;
+  if FChannel <> nil then
+    Exit;
   if FDevice = nil then
-    raise EOBDJ2534Error.Create(-1,
-      'TOBDJ2534Channel: Device not assigned');
-  FDevice.Open;  // idempotent
-  FChannel := TJ2534Channel.Open(FDevice.Driver, FProtocol,
-                                  FBaudRate, FFlags, FPortName);
+    raise EOBDJ2534Error.Create(-1, 'TOBDJ2534Channel: Device not assigned');
+  FDevice.Open; // idempotent
+  FChannel := TJ2534Channel.Open(FDevice.Driver, FProtocol, FBaudRate, FFlags,
+    FPortName);
 end;
 
 procedure TOBDJ2534Channel.Close;
@@ -242,8 +242,8 @@ begin
   Result := FChannel <> nil;
 end;
 
-procedure TOBDJ2534Channel.WriteMsg(const AData: TBytes;
-  ATxFlags: Cardinal; ATimeoutMs: Cardinal);
+procedure TOBDJ2534Channel.WriteMsg(const AData: TBytes; ATxFlags: Cardinal;
+  ATimeoutMs: Cardinal);
 begin
   Open;
   FChannel.WriteMsg(AData, ATxFlags, ATimeoutMs);
@@ -256,8 +256,7 @@ begin
   Result := FChannel.TryReadMsg(AData, ATimeoutMs);
 end;
 
-procedure TOBDJ2534Channel.InstallPassFilter(AId: Cardinal;
-  AExtended: Boolean);
+procedure TOBDJ2534Channel.InstallPassFilter(AId: Cardinal; AExtended: Boolean);
 begin
   Open;
   FChannel.InstallPassFilter(AId, AExtended);

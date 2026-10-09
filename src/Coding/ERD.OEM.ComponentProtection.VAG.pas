@@ -1,71 +1,71 @@
-//------------------------------------------------------------------------------
-//  ERD.OEM.ComponentProtection.VAG
+﻿// ------------------------------------------------------------------------------
+// ERD.OEM.ComponentProtection.VAG
 //
-//  TOBDComponentProtectionVAG — VAG Component Protection unlock
-//  helpers. CP is the cryptographic pairing between certain ECUs
-//  (instrument cluster, AVN, comfort module) and the vehicle's
-//  immobiliser. After ECU swap or restoration the new module is
-//  CP-locked: it functions only when the dealer-side activation
-//  flow runs Geko / SVM, exchanging a challenge with the OEM
-//  back-end and writing the resulting authorisation back via
-//  UDS WriteDataByIdentifier (DID 0xF1A4 / 0xF1A6 / 0xF1A8 series,
-//  vendor-defined).
+// TOBDComponentProtectionVAG — VAG Component Protection unlock
+// helpers. CP is the cryptographic pairing between certain ECUs
+// (instrument cluster, AVN, comfort module) and the vehicle's
+// immobiliser. After ECU swap or restoration the new module is
+// CP-locked: it functions only when the dealer-side activation
+// flow runs Geko / SVM, exchanging a challenge with the OEM
+// back-end and writing the resulting authorisation back via
+// UDS WriteDataByIdentifier (DID 0xF1A4 / 0xF1A6 / 0xF1A8 series,
+// vendor-defined).
 //
-//  This unit ships:
-//    - The standard CP DID catalogue (read CP status, read
-//      challenge, write authorisation)
-//    - A CP-status decoder
-//    - A challenge → authorisation request builder
+// This unit ships:
+// - The standard CP DID catalogue (read CP status, read
+// challenge, write authorisation)
+// - A CP-status decoder
+// - A challenge → authorisation request builder
 //
-//  The unit DOES NOT contain any OEM secrets; the actual
-//  challenge → response transform requires Geko / SVM access from
-//  the dealer-network side. Hosts plug their authorisation source
-//  into the <c>OnComputeAuthorisation</c> callback.
+// The unit DOES NOT contain any OEM secrets; the actual
+// challenge → response transform requires Geko / SVM access from
+// the dealer-network side. Hosts plug their authorisation source
+// into the <c>OnComputeAuthorisation</c> callback.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.OEM.ComponentProtection.VAG;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
   ERD.Protocol.Types,
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   ERD.Types,
   ERD.Coding.DataIdentifierIO;
 
 const
   /// <summary>VAG CP-status DID (read).</summary>
-  CP_DID_STATUS              = $F1A4;
+  CP_DID_STATUS = $F1A4;
   /// <summary>CP challenge DID (read).</summary>
-  CP_DID_CHALLENGE           = $F1A6;
+  CP_DID_CHALLENGE = $F1A6;
   /// <summary>CP authorisation DID (write).</summary>
-  CP_DID_AUTHORISATION       = $F1A8;
+  CP_DID_AUTHORISATION = $F1A8;
 
   /// <summary>CP status: OK.</summary>
-  CP_STATUS_OK               = $00;
+  CP_STATUS_OK = $00;
   /// <summary>CP status: blocked (needs unlock).</summary>
-  CP_STATUS_BLOCKED          = $01;
+  CP_STATUS_BLOCKED = $01;
   /// <summary>CP status: pending (challenge issued, awaiting
   /// authorisation).</summary>
-  CP_STATUS_PENDING          = $02;
+  CP_STATUS_PENDING = $02;
   /// <summary>CP status: not applicable on this ECU.</summary>
-  CP_STATUS_NOT_APPLICABLE   = $FF;
+  CP_STATUS_NOT_APPLICABLE = $FF;
 
 type
   /// <summary>Procedural challenge → authorisation transform.
@@ -111,17 +111,21 @@ implementation
 
 procedure TOBDComponentProtectionVAG.SetIO(AValue: TOBDDataIdentifierIO);
 begin
-  if FIO = AValue then Exit;
-  if FIO <> nil then FIO.RemoveFreeNotification(Self);
+  if FIO = AValue then
+    Exit;
+  if FIO <> nil then
+    FIO.RemoveFreeNotification(Self);
   FIO := AValue;
-  if FIO <> nil then FIO.FreeNotification(Self);
+  if FIO <> nil then
+    FIO.FreeNotification(Self);
 end;
 
 procedure TOBDComponentProtectionVAG.Notification(AComponent: TComponent;
   Operation: TOperation);
 begin
   inherited;
-  if (Operation = opRemove) and (AComponent = FIO) then FIO := nil;
+  if (Operation = opRemove) and (AComponent = FIO) then
+    FIO := nil;
 end;
 
 function TOBDComponentProtectionVAG.ReadStatus: Byte;
@@ -151,8 +155,8 @@ begin
   if FIO = nil then
     raise EOBDConfig.Create('TOBDComponentProtectionVAG: DataIO not assigned');
   if not Assigned(FAuthFunc) then
-    raise EOBDConfig.Create(
-      'TOBDComponentProtectionVAG: AuthFunc not configured ' +
+    raise EOBDConfig.Create
+      ('TOBDComponentProtectionVAG: AuthFunc not configured ' +
       '(provide a Geko / SVM bridge)');
   Challenge := ReadChallenge;
   if Length(Challenge) = 0 then
@@ -163,9 +167,8 @@ begin
   FIO.Write(CP_DID_AUTHORISATION, Auth);
   PostStatus := ReadStatus;
   if PostStatus <> CP_STATUS_OK then
-    raise EOBDProtocolErr.CreateFmt(
-      'CP unlock did not clear the lock — post-status 0x%2.2X',
-      [PostStatus]);
+    raise EOBDProtocolErr.CreateFmt
+      ('CP unlock did not clear the lock — post-status 0x%2.2X', [PostStatus]);
   Result := PostStatus;
 end;
 

@@ -1,39 +1,39 @@
-//------------------------------------------------------------------------------
-//  ERD.OEM.SCN.Mercedes
+﻿// ------------------------------------------------------------------------------
+// ERD.OEM.SCN.Mercedes
 //
-//  Mercedes-Benz SCN (Software Calibration Number) coding flow
-//  framing. Defines the wire-format records the XENTRY back-end
-//  exchanges with the diagnostic tool for SCN version-fetch +
-//  coding-grant transactions, plus the <see cref="IMBSCNSolver"/>
-//  contract a host implements to talk to a real Mercedes dealer
-//  portal (or a captured-replay).
+// Mercedes-Benz SCN (Software Calibration Number) coding flow
+// framing. Defines the wire-format records the XENTRY back-end
+// exchanges with the diagnostic tool for SCN version-fetch +
+// coding-grant transactions, plus the <see cref="IMBSCNSolver"/>
+// contract a host implements to talk to a real Mercedes dealer
+// portal (or a captured-replay).
 //
-//  The shipped <see cref="TMBSCNSolverNotAvailable"/>
-//  implementation throws on use — production builds plug in their
-//  own solver.
+// The shipped <see cref="TMBSCNSolverNotAvailable"/>
+// implementation throws on use — production builds plug in their
+// own solver.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-12  ERD  Initial implementation.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-12  ERD  Initial implementation.
+// ------------------------------------------------------------------------------
 
 unit ERD.OEM.SCN.Mercedes;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF};
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF};
 
 type
   /// <summary>Raised on SCN framing / encoding errors.</summary>
@@ -80,8 +80,8 @@ type
   end;
 
   /// <summary>
-  ///   Solver contract. Hosts implement this against the
-  ///   Mercedes XENTRY back-end (or a captured-replay).
+  /// Solver contract. Hosts implement this against the
+  /// Mercedes XENTRY back-end (or a captured-replay).
   /// </summary>
   IMBSCNSolver = interface
     ['{0A8F4B2D-8E1C-4D3A-B7E9-1F4C9E8D7A11}']
@@ -90,74 +90,68 @@ type
     /// <param name="Req">Version-fetch request.</param>
     /// <exception cref="EOBDMBSCNNoSolver">No solver wired
     /// up.</exception>
-    function FetchCurrentVersion(
-      const Req: TMBSCNVersionRequest): TMBSCNVersionResponse;
+    function FetchCurrentVersion(const Req: TMBSCNVersionRequest)
+      : TMBSCNVersionResponse;
     /// <summary>Requests a coding grant for the (VIN, ECU,
     /// variant, accessories) tuple.</summary>
     /// <param name="Req">Coding request.</param>
     /// <exception cref="EOBDMBSCNNoSolver">No solver wired
     /// up.</exception>
-    function RequestCoding(
-      const Req: TMBSCNCodingRequest): TMBSCNCodingResponse;
+    function RequestCoding(const Req: TMBSCNCodingRequest)
+      : TMBSCNCodingResponse;
   end;
 
   /// <summary>
-  ///   Stand-in solver that raises on use. Useful as a default
-  ///   when production builds haven't wired in their real
-  ///   dealer-portal client yet.
+  /// Stand-in solver that raises on use. Useful as a default
+  /// when production builds haven't wired in their real
+  /// dealer-portal client yet.
   /// </summary>
   TMBSCNSolverNotAvailable = class(TInterfacedObject, IMBSCNSolver)
   public
-    function FetchCurrentVersion(
-      const Req: TMBSCNVersionRequest): TMBSCNVersionResponse;
-    function RequestCoding(
-      const Req: TMBSCNCodingRequest): TMBSCNCodingResponse;
+    function FetchCurrentVersion(const Req: TMBSCNVersionRequest)
+      : TMBSCNVersionResponse;
+    function RequestCoding(const Req: TMBSCNCodingRequest)
+      : TMBSCNCodingResponse;
   end;
 
-/// <summary>Encodes a version-fetch request as
-/// <c>VIN(17) + ECUId(BE16)</c>.</summary>
-/// <param name="Req">Request.</param>
-/// <exception cref="EOBDMBSCN">VIN length is not 17.</exception>
-function EncodeMBSCNVersionRequest(
-  const Req: TMBSCNVersionRequest): TBytes;
+  /// <summary>Encodes a version-fetch request as
+  /// <c>VIN(17) + ECUId(BE16)</c>.</summary>
+  /// <param name="Req">Request.</param>
+  /// <exception cref="EOBDMBSCN">VIN length is not 17.</exception>
+function EncodeMBSCNVersionRequest(const Req: TMBSCNVersionRequest): TBytes;
 /// <summary>Decodes a 19-byte version-fetch request.</summary>
 /// <param name="Bytes">Wire bytes.</param>
 /// <exception cref="EOBDMBSCN">Length is not 19.</exception>
-function DecodeMBSCNVersionRequest(
-  const Bytes: TBytes): TMBSCNVersionRequest;
+function DecodeMBSCNVersionRequest(const Bytes: TBytes): TMBSCNVersionRequest;
 /// <summary>Encodes a coding request as
 /// <c>VIN(17) + ECUId(BE16) + Variant(BE16-LP) +
 /// AccessoryList(BE16-LP)</c>.</summary>
 /// <param name="Req">Request.</param>
 /// <exception cref="EOBDMBSCN">VIN length is not 17 or a payload
 /// exceeds 65535 bytes.</exception>
-function EncodeMBSCNCodingRequest(
-  const Req: TMBSCNCodingRequest): TBytes;
+function EncodeMBSCNCodingRequest(const Req: TMBSCNCodingRequest): TBytes;
 /// <summary>Decodes a coding request.</summary>
 /// <param name="Bytes">Wire bytes.</param>
 /// <exception cref="EOBDMBSCN">Bytes are short or
 /// truncated.</exception>
-function DecodeMBSCNCodingRequest(
-  const Bytes: TBytes): TMBSCNCodingRequest;
+function DecodeMBSCNCodingRequest(const Bytes: TBytes): TMBSCNCodingRequest;
 /// <summary>Encodes a coding response as
 /// <c>NewSCN(BE16-LP) + ServerSignature(BE16-LP)</c>.</summary>
 /// <param name="Resp">Response.</param>
 /// <exception cref="EOBDMBSCN">A payload exceeds 65535
 /// bytes.</exception>
-function EncodeMBSCNCodingResponse(
-  const Resp: TMBSCNCodingResponse): TBytes;
+function EncodeMBSCNCodingResponse(const Resp: TMBSCNCodingResponse): TBytes;
 /// <summary>Decodes a coding response.</summary>
 /// <param name="Bytes">Wire bytes.</param>
 /// <exception cref="EOBDMBSCN">Bytes are short or
 /// truncated.</exception>
-function DecodeMBSCNCodingResponse(
-  const Bytes: TBytes): TMBSCNCodingResponse;
+function DecodeMBSCNCodingResponse(const Bytes: TBytes): TMBSCNCodingResponse;
 
 implementation
 
 function PutWord(var Out_: TBytes; Cursor: Integer; W: Word): Integer;
 begin
-  Out_[Cursor]     := Byte(W shr 8);
+  Out_[Cursor] := Byte(W shr 8);
   Out_[Cursor + 1] := Byte(W and $FF);
   Result := Cursor + 2;
 end;
@@ -167,28 +161,25 @@ begin
   Result := (UInt16(B[Off]) shl 8) or B[Off + 1];
 end;
 
-function EncodeMBSCNVersionRequest(
-  const Req: TMBSCNVersionRequest): TBytes;
+function EncodeMBSCNVersionRequest(const Req: TMBSCNVersionRequest): TBytes;
 var
   I: Integer;
 begin
   if Length(Req.VIN) <> 17 then
-    raise EOBDMBSCN.CreateFmt(
-      'VIN must be 17 chars (got %d)', [Length(Req.VIN)]);
+    raise EOBDMBSCN.CreateFmt('VIN must be 17 chars (got %d)',
+      [Length(Req.VIN)]);
   SetLength(Result, 17 + 2);
   for I := 0 to 16 do
     Result[I] := Byte(Ord(Req.VIN[I + 1]));
   PutWord(Result, 17, Req.ECUId);
 end;
 
-function DecodeMBSCNVersionRequest(
-  const Bytes: TBytes): TMBSCNVersionRequest;
+function DecodeMBSCNVersionRequest(const Bytes: TBytes): TMBSCNVersionRequest;
 var
   I: Integer;
 begin
   if Length(Bytes) <> 19 then
-    raise EOBDMBSCN.CreateFmt(
-      'SCN version request must be 19 bytes (got %d)',
+    raise EOBDMBSCN.CreateFmt('SCN version request must be 19 bytes (got %d)',
       [Length(Bytes)]);
   SetLength(Result.VIN, 17);
   for I := 0 to 16 do
@@ -196,8 +187,7 @@ begin
   Result.ECUId := GetWord(Bytes, 17);
 end;
 
-function EncodeMBSCNCodingRequest(
-  const Req: TMBSCNCodingRequest): TBytes;
+function EncodeMBSCNCodingRequest(const Req: TMBSCNCodingRequest): TBytes;
 var
   Cursor, I: Integer;
 begin
@@ -207,8 +197,8 @@ begin
     raise EOBDMBSCN.Create('Variant exceeds 65535 bytes');
   if Length(Req.AccessoryList) > $FFFF then
     raise EOBDMBSCN.Create('AccessoryList exceeds 65535 bytes');
-  SetLength(Result,
-    17 + 2 + 2 + Length(Req.Variant) + 2 + Length(Req.AccessoryList));
+  SetLength(Result, 17 + 2 + 2 + Length(Req.Variant) + 2 +
+    Length(Req.AccessoryList));
   for I := 0 to 16 do
     Result[I] := Byte(Ord(Req.VIN[I + 1]));
   Cursor := 17;
@@ -222,12 +212,10 @@ begin
   PutWord(Result, Cursor, Word(Length(Req.AccessoryList)));
   Inc(Cursor, 2);
   if Length(Req.AccessoryList) > 0 then
-    Move(Req.AccessoryList[0], Result[Cursor],
-      Length(Req.AccessoryList));
+    Move(Req.AccessoryList[0], Result[Cursor], Length(Req.AccessoryList));
 end;
 
-function DecodeMBSCNCodingRequest(
-  const Bytes: TBytes): TMBSCNCodingRequest;
+function DecodeMBSCNCodingRequest(const Bytes: TBytes): TMBSCNCodingRequest;
 var
   Cursor, Len, I: Integer;
 begin
@@ -258,8 +246,7 @@ begin
     Move(Bytes[Cursor], Result.AccessoryList[0], Len);
 end;
 
-function EncodeMBSCNCodingResponse(
-  const Resp: TMBSCNCodingResponse): TBytes;
+function EncodeMBSCNCodingResponse(const Resp: TMBSCNCodingResponse): TBytes;
 var
   Cursor: Integer;
 begin
@@ -267,8 +254,7 @@ begin
     raise EOBDMBSCN.Create('NewSCN exceeds 65535 bytes');
   if Length(Resp.ServerSignature) > $FFFF then
     raise EOBDMBSCN.Create('ServerSignature exceeds 65535 bytes');
-  SetLength(Result,
-    2 + Length(Resp.NewSCN) + 2 + Length(Resp.ServerSignature));
+  SetLength(Result, 2 + Length(Resp.NewSCN) + 2 + Length(Resp.ServerSignature));
   Cursor := PutWord(Result, 0, Word(Length(Resp.NewSCN)));
   if Length(Resp.NewSCN) > 0 then
   begin
@@ -278,12 +264,10 @@ begin
   PutWord(Result, Cursor, Word(Length(Resp.ServerSignature)));
   Inc(Cursor, 2);
   if Length(Resp.ServerSignature) > 0 then
-    Move(Resp.ServerSignature[0], Result[Cursor],
-      Length(Resp.ServerSignature));
+    Move(Resp.ServerSignature[0], Result[Cursor], Length(Resp.ServerSignature));
 end;
 
-function DecodeMBSCNCodingResponse(
-  const Bytes: TBytes): TMBSCNCodingResponse;
+function DecodeMBSCNCodingResponse(const Bytes: TBytes): TMBSCNCodingResponse;
 var
   Cursor, Len: Integer;
 begin
@@ -311,19 +295,19 @@ end;
 
 { TMBSCNSolverNotAvailable }
 
-function TMBSCNSolverNotAvailable.FetchCurrentVersion(
-  const Req: TMBSCNVersionRequest): TMBSCNVersionResponse;
+function TMBSCNSolverNotAvailable.FetchCurrentVersion
+  (const Req: TMBSCNVersionRequest): TMBSCNVersionResponse;
 begin
-  raise EOBDMBSCNNoSolver.Create(
-    'Mercedes SCN version-fetch solver not available in this build. ' +
+  raise EOBDMBSCNNoSolver.Create
+    ('Mercedes SCN version-fetch solver not available in this build. ' +
     'Plug in a dealer-portal client or a captured (req, resp) replay.');
 end;
 
-function TMBSCNSolverNotAvailable.RequestCoding(
-  const Req: TMBSCNCodingRequest): TMBSCNCodingResponse;
+function TMBSCNSolverNotAvailable.RequestCoding(const Req: TMBSCNCodingRequest)
+  : TMBSCNCodingResponse;
 begin
-  raise EOBDMBSCNNoSolver.Create(
-    'Mercedes SCN coding solver not available in this build.');
+  raise EOBDMBSCNNoSolver.Create
+    ('Mercedes SCN coding solver not available in this build.');
 end;
 
 end.

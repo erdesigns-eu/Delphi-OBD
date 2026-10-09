@@ -1,40 +1,40 @@
-//------------------------------------------------------------------------------
-//  ERD.Connection.WiFi
+﻿// ------------------------------------------------------------------------------
+// ERD.Connection.WiFi
 //
-//  TCP transport for Wi-Fi and Ethernet adapters (e.g. ELM327 Wi-Fi
-//  clones at 192.168.0.10:35000, ESP-Link ECU bridges, DoIP TCP
-//  channels).
+// TCP transport for Wi-Fi and Ethernet adapters (e.g. ELM327 Wi-Fi
+// clones at 192.168.0.10:35000, ESP-Link ECU bridges, DoIP TCP
+// channels).
 //
-//  Cross-platform via <c>ERD.Compat.Socket</c>.
+// Cross-platform via <c>ERD.Compat.Socket</c>.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//    2026-05-09  ERD  Follow-up: rebased onto TOBDBaseTransport
-//                     and instrumented with step-progress events.
-//    2026-10-09  ERD  Route native socket options through the shared wrapper.
-//------------------------------------------------------------------------------
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// 2026-05-09  ERD  Follow-up: rebased onto TOBDBaseTransport
+// and instrumented with step-progress events.
+// 2026-10-09  ERD  Route native socket options through the shared wrapper.
+// ------------------------------------------------------------------------------
 
 unit ERD.Connection.WiFi;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}ERD.Compat.Functions,{$ENDIF}
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}ERD.Compat.Functions, {$ENDIF}
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
   ERD.Compat.Socket,
   ERD.Types,
   ERD.Connection.Types,
@@ -57,8 +57,7 @@ type
     /// <param name="ASocket">Connected <c>TSocket</c>.</param>
     /// <param name="AOnBytes">Inbound-bytes callback. Required.</param>
     /// <param name="AOnError">Error callback. Optional.</param>
-    constructor Create(ASocket: TSocket;
-      const AOnBytes: TProc<TBytes>;
+    constructor Create(ASocket: TSocket; const AOnBytes: TProc<TBytes>;
       const AOnError: TProc<TOBDErrorCode, string>);
   end;
 
@@ -75,15 +74,15 @@ type
     destructor Destroy; override;
 
     /// <summary>
-    ///   Resolves <c>ASettings.Host</c>, opens a TCP connection,
-    ///   starts the read thread.
+    /// Resolves <c>ASettings.Host</c>, opens a TCP connection,
+    /// starts the read thread.
     /// </summary>
     /// <param name="ASettings">Host, port, keep-alive, connect
     /// timeout.</param>
     /// <remarks>
-    ///   Synchronous. Fires three step-progress events:
-    ///   <c>1/3 Resolving host</c>, <c>2/3 Connecting</c>,
-    ///   <c>3/3 Ready</c>.
+    /// Synchronous. Fires three step-progress events:
+    /// <c>1/3 Resolving host</c>, <c>2/3 Connecting</c>,
+    /// <c>3/3 Ready</c>.
     /// </remarks>
     /// <exception cref="EOBDConfig"><c>ASettings</c> is <c>nil</c>,
     /// <c>Host</c> empty, or <c>Port</c> zero.</exception>
@@ -104,8 +103,7 @@ implementation
 { ---- TOBDWiFiReadThread ------------------------------------------------------ }
 
 constructor TOBDWiFiReadThread.Create(ASocket: TSocket;
-  const AOnBytes: TProc<TBytes>;
-  const AOnError: TProc<TOBDErrorCode, string>);
+  const AOnBytes: TProc<TBytes>; const AOnError: TProc<TOBDErrorCode, string>);
 begin
   inherited Create(True);
   FreeOnTerminate := False;
@@ -195,8 +193,14 @@ begin
   end;
 
   FReader := TOBDWiFiReadThread.Create(FSocket,
-    procedure(Bytes: TBytes) begin FireBytes(Bytes); end,
-    procedure(Code: TOBDErrorCode; Msg: string) begin FireError(Code, Msg); end);
+    procedure(Bytes: TBytes)
+    begin
+      FireBytes(Bytes);
+    end,
+    procedure(Code: TOBDErrorCode; Msg: string)
+    begin
+      FireError(Code, Msg);
+    end);
   FReader.Start;
 
   FireProgress(3, 3, 'Ready', '');
@@ -209,7 +213,8 @@ var
 begin
   FLock.Enter;
   try
-    if FState in [csClosed, csClosing] then Exit;
+    if FState in [csClosed, csClosing] then
+      Exit;
     SetState(csClosing);
     Local := FSocket;
     FSocket := nil;
@@ -221,7 +226,10 @@ begin
   begin
     FReader.Terminate;
     if Assigned(Local) then
-      try Local.Close; except end;
+      try
+        Local.Close;
+      except
+      end;
     FReader.WaitFor;
     FreeAndNil(FReader);
   end;
@@ -234,8 +242,10 @@ end;
 
 procedure TOBDWiFiTransport.SetWriteTimeout(ATimeoutMs: Cardinal);
 begin
-  if FSocket = nil then raise EOBDNotConnected.Create('Wi-Fi socket is closed');
-  if ATimeoutMs = 0 then ATimeoutMs := 1;
+  if FSocket = nil then
+    raise EOBDNotConnected.Create('Wi-Fi socket is closed');
+  if ATimeoutMs = 0 then
+    ATimeoutMs := 1;
   FSocket.SetSendTimeout(ATimeoutMs);
 end;
 

@@ -1,46 +1,46 @@
-//------------------------------------------------------------------------------
-//  ERD.Connection.Bluetooth
+﻿// ------------------------------------------------------------------------------
+// ERD.Connection.Bluetooth
 //
-//  Bluetooth Classic (RFCOMM / SPP) transport via System.Bluetooth.
+// Bluetooth Classic (RFCOMM / SPP) transport via System.Bluetooth.
 //
-//  The shared <c>TBluetoothManager.Current</c> is owned by the RTL;
-//  this transport does not free it. SPP service UUID defaults to the canonical
-//  <c>00001101-0000-1000-8000-00805F9B34FB</c>; ELM327 BT clones use
-//  the same UUID.
+// The shared <c>TBluetoothManager.Current</c> is owned by the RTL;
+// this transport does not free it. SPP service UUID defaults to the canonical
+// <c>00001101-0000-1000-8000-00805F9B34FB</c>; ELM327 BT clones use
+// the same UUID.
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : MIT — see LICENSE
 //
-//  History     :
-//    2026-05-09  ERD  Initial implementation.
-//    2026-05-09  ERD  Follow-up: rebased onto TOBDBaseTransport
-//                     and instrumented with step-progress events.
-//    2026-10-09  ERD  Check manager connection state and missing adapters.
-//    2026-10-09  ERD  Match reader callbacks to TProc value parameters.
+// History     :
+// 2026-05-09  ERD  Initial implementation.
+// 2026-05-09  ERD  Follow-up: rebased onto TOBDBaseTransport
+// and instrumented with step-progress events.
+// 2026-10-09  ERD  Check manager connection state and missing adapters.
+// 2026-10-09  ERD  Match reader callbacks to TProc value parameters.
 //
-//  Future work :
-//    - Pairing / passkey events surfaced through OnTransportError so
-//      apps can prompt without coupling to System.Bluetooth.
-//------------------------------------------------------------------------------
+// Future work :
+// - Pairing / passkey events surfaced through OnTransportError so
+// apps can prompt without coupling to System.Bluetooth.
+// ------------------------------------------------------------------------------
 
 unit ERD.Connection.Bluetooth;
 
 {$IFDEF FPC}
-  {$MODE DELPHI}
-  {$IF FPC_FULLVERSION >= 30301}
-    {$MODESWITCH FUNCTIONREFERENCES}
-    {$MODESWITCH ANONYMOUSFUNCTIONS}
-  {$ENDIF}
+{$MODE DELPHI}
+{$IF FPC_FULLVERSION >= 30301}
+{$MODESWITCH FUNCTIONREFERENCES}
+{$MODESWITCH ANONYMOUSFUNCTIONS}
+{$ENDIF}
 {$ENDIF}
 
 interface
 
 uses
-  {$IFDEF FPC}ERD.Compat.Functions,{$ENDIF}
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
-  {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFDEF FPC}ERD.Compat.Functions, {$ENDIF}
+{$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+{$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
+{$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
   System.Bluetooth,
   ERD.Types,
   ERD.Connection.Types,
@@ -64,8 +64,7 @@ type
     /// <param name="ASocket">Connected <c>TBluetoothSocket</c>.</param>
     /// <param name="AOnBytes">Inbound-bytes callback. Required.</param>
     /// <param name="AOnError">Error callback. Optional.</param>
-    constructor Create(ASocket: TBluetoothSocket;
-      const AOnBytes: TProc<TBytes>;
+    constructor Create(ASocket: TBluetoothSocket; const AOnBytes: TProc<TBytes>;
       const AOnError: TProc<TOBDErrorCode, string>);
   end;
 
@@ -84,17 +83,17 @@ type
     destructor Destroy; override;
 
     /// <summary>
-    ///   Locates the paired device and opens an RFCOMM client socket
-    ///   against the configured service UUID.
+    /// Locates the paired device and opens an RFCOMM client socket
+    /// against the configured service UUID.
     /// </summary>
     /// <param name="ASettings">Device address + service UUID +
     /// connect timeout.</param>
     /// <remarks>
-    ///   Synchronous. Fires five step-progress events:
-    ///   <c>1/5 Adapter check</c>, <c>2/5 Locating device</c>,
-    ///   <c>3/5 Creating socket</c>, <c>4/5 Connecting</c>,
-    ///   <c>5/5 Ready</c>. The device must already be paired with
-    ///   the host OS.
+    /// Synchronous. Fires five step-progress events:
+    /// <c>1/5 Adapter check</c>, <c>2/5 Locating device</c>,
+    /// <c>3/5 Creating socket</c>, <c>4/5 Connecting</c>,
+    /// <c>5/5 Ready</c>. The device must already be paired with
+    /// the host OS.
     /// </remarks>
     /// <exception cref="EOBDConfig"><c>ASettings</c> is <c>nil</c>,
     /// device address empty, or service UUID empty.</exception>
@@ -117,8 +116,7 @@ implementation
 { ---- TOBDBluetoothReadThread ------------------------------------------------- }
 
 constructor TOBDBluetoothReadThread.Create(ASocket: TBluetoothSocket;
-  const AOnBytes: TProc<TBytes>;
-  const AOnError: TProc<TOBDErrorCode, string>);
+  const AOnBytes: TProc<TBytes>; const AOnError: TProc<TOBDErrorCode, string>);
 begin
   inherited Create(False);
   FreeOnTerminate := False;
@@ -164,8 +162,8 @@ begin
   inherited;
 end;
 
-function TOBDBluetoothTransport.FindDevice(
-  const AAddress: string): TBluetoothDevice;
+function TOBDBluetoothTransport.FindDevice(const AAddress: string)
+  : TBluetoothDevice;
 var
   Devices: TBluetoothDeviceList;
   D: TBluetoothDevice;
@@ -173,12 +171,12 @@ var
 begin
   Result := nil;
   Devices := FManager.GetPairedDevices;
-  if Devices = nil then Exit;
+  if Devices = nil then
+    Exit;
   Needle := UpperCase(Trim(AAddress));
   for D in Devices do
   begin
-    if (UpperCase(D.Address) = Needle) or
-       SameText(D.DeviceName, AAddress) then
+    if (UpperCase(D.Address) = Needle) or SameText(D.DeviceName, AAddress) then
       Exit(D);
   end;
 end;
@@ -209,8 +207,8 @@ begin
     FireProgress(2, 5, 'Locating device', ASettings.DeviceAddress);
     FDevice := FindDevice(ASettings.DeviceAddress);
     if FDevice = nil then
-      raise EOBDError.CreateFmt(
-        'Bluetooth device "%s" is not paired with this host',
+      raise EOBDError.CreateFmt
+        ('Bluetooth device "%s" is not paired with this host',
         [ASettings.DeviceAddress]);
 
     FireProgress(3, 5, 'Creating socket', ASettings.ServiceUUID);
@@ -231,8 +229,14 @@ begin
   end;
 
   FReader := TOBDBluetoothReadThread.Create(FSocket,
-    procedure(Bytes: TBytes) begin FireBytes(Bytes); end,
-    procedure(Code: TOBDErrorCode; Msg: string) begin FireError(Code, Msg); end);
+    procedure(Bytes: TBytes)
+    begin
+      FireBytes(Bytes);
+    end,
+    procedure(Code: TOBDErrorCode; Msg: string)
+    begin
+      FireError(Code, Msg);
+    end);
 
   FireProgress(5, 5, 'Ready', '');
   SetState(csOpen);
@@ -244,7 +248,8 @@ var
 begin
   FLock.Enter;
   try
-    if FState in [csClosed, csClosing] then Exit;
+    if FState in [csClosed, csClosing] then
+      Exit;
     SetState(csClosing);
     Local := FSocket;
     FSocket := nil;
@@ -256,7 +261,10 @@ begin
   begin
     FReader.Terminate;
     if Assigned(Local) then
-      try Local.Close; except end;
+      try
+        Local.Close;
+      except
+      end;
     FReader.WaitFor;
     FreeAndNil(FReader);
   end;
