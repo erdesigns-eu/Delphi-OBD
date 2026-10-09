@@ -283,7 +283,6 @@ begin
     if RC <> STATUS_SUCCESS then
       raise EOBDError.CreateFmt('BCryptFinishHash failed (0x%.8X)', [RC]);
 
-    PaddingInfo := nil;
     case AArgs.Algorithm of
       saRSA_PSS_SHA256:
         begin

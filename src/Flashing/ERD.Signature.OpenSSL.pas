@@ -77,10 +77,12 @@ const
   RSA_PKCS1_PSS_PADDING    = 6;
 
 type
+  // Delphi has PByte, but does not define FPC's PPByte alias.
+  TOBDPPByte = ^PByte;
   TBIO_new_mem_buf = function(buf: Pointer; len: Integer): Pointer; cdecl;
   TBIO_free       = function(b: Pointer): Integer; cdecl;
   TPEM_read_bio_PUBKEY = function(bp, x, cb, u: Pointer): Pointer; cdecl;
-  Td2i_PUBKEY    = function(a: PPointer; const pp: PPByte; len: Integer): Pointer; cdecl;
+  Td2i_PUBKEY    = function(a: PPointer; const pp: TOBDPPByte; len: Integer): Pointer; cdecl;
   TEVP_PKEY_free = procedure(pkey: Pointer); cdecl;
   TEVP_MD_CTX_new = function: Pointer; cdecl;
   TEVP_MD_CTX_free = procedure(ctx: Pointer); cdecl;
