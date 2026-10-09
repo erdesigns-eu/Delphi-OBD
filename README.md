@@ -105,7 +105,9 @@ using flashing on a real vehicle.**
 ## Supported Delphi versions
 
 Target: Delphi 10.3 Rio through 13.1 on Windows, Win32 / Win64.
+
 The UI and IDE integration are **VCL only**; FireMonkey is outside scope (for now).
+
 These Delphi targets are build and validated with RAD Studio 12.
 
 EV catalogue entries describe model-specific data, not brand-wide support; see
@@ -133,4 +135,5 @@ External markdown is reserved for cross-cutting docs.
 
 ## License
 
-[MIT](LICENSE).
+[Custom License](LICENSE).
+Contact ERDesigns for commercial support and development inquiries.

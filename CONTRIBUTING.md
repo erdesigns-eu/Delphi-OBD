@@ -1,8 +1,7 @@
 # Contributing to Delphi-OBD
 
 Thanks for considering a contribution. This document covers how to work with
-the codebase. The architectural plan is in [`PLAN.md`](PLAN.md). The code
-style is in [`STYLE.md`](STYLE.md). Read both before opening a PR.
+the codebase. The code style is in [`STYLE.md`](STYLE.md). Read both before opening a PR.
 
 ## Ground rules
 
@@ -15,30 +14,24 @@ style is in [`STYLE.md`](STYLE.md). Read both before opening a PR.
    contributions.
 3. **Sign-off optional.** A `Signed-off-by:` trailer on commits is appreciated
    but not required.
-4. **Match the plan.** [`PLAN.md`](PLAN.md) is the source of truth for what
-   ships in v1. New components, services, or major behaviour need to be
-   discussed in an issue first so the plan can be updated.
 
 ## Branching and commits
 
-- `main` — frozen v1 reference. Do not commit here.
-- `v2` — active development. Do not commit here directly; PR into it.
-- Feature branches off `v2`: `v2/phase-N-shortname`
-  (e.g. `v2/phase-2-connection`).
+- `main` — active development. Do not commit here directly; PR into it.
+- Feature branches off `main`: `main/phase-N-shortname`
+  (e.g. `main/phase-2-connection`).
 - Conventional commit subjects: `feat:`, `fix:`, `docs:`, `test:`,
   `refactor:`, `chore:`. Imperative mood, no trailing period.
-- Squash-merge into `v2` is the default. Keep the squashed message clean.
+- Squash-merge into `main` is the default. Keep the squashed message clean.
 
 ## Pull requests
 
-1. Open against `v2`.
+1. Open against `main`.
 2. CI must be green.
 3. Every public symbol you add or change must have current XMLDoc.
 4. Tests for new behaviour. DUnitX. Capture-driven where the input is a wire
    format (see `tests/fixtures/`).
-5. If the change affects [`PLAN.md`](PLAN.md), update the plan in the same
-   PR.
-6. Link the issue if there is one.
+5. Link the issue if there is one.
 
 ## Filing issues
 
@@ -89,3 +82,4 @@ Any change touching `src/Flashing/`, `src/Coding/`, `src/Signature/`, or
   vehicle/ECU was used.
 
 Brick risk is real; care here is non-negotiable.
+ßß
