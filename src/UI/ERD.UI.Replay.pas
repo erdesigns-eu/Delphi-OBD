@@ -41,7 +41,7 @@ uses
   {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
   {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   {$IFDEF FPC}DateUtils{$ELSE}System.DateUtils{$ENDIF},
-  Data.Bind.Components,
+  System.Bindings.Helper, Data.Bind.Components,
   Vcl.Controls,
   Vcl.Graphics,
   Vcl.ComCtrls,

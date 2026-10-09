@@ -46,7 +46,7 @@ uses
   Winapi.Messages,
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  Data.Bind.Components,
+  System.Bindings.Helper, Data.Bind.Components,
   Vcl.Controls,
   Vcl.Graphics,
   Vcl.StdCtrls,

@@ -863,7 +863,6 @@ var
   Payload: TBytes;
 begin
   ACompleted := False;
-  Result := False;
   S := FSessions[AIndex];
   if ASequence <> S.NextPacket then
   begin
@@ -911,7 +910,6 @@ var
   PGN: Cardinal;
   Idx: Integer;
   S: TJ1939Session;
-  Size: Word;
   Packets: Byte;
   Reason: Byte;
   Payload: TBytes;
@@ -1040,17 +1038,6 @@ begin
   finally
     FLock.Leave;
   end;
-
-  if Control = J1939_TPCM_RTS then
-  begin
-    // No further action; CTS already sent.
-  end
-  else if Control = J1939_TPCM_BAM then
-  begin
-    // Wait for DT frames at the BAM cadence.
-    Size := 0; // suppress unused-warning when no work follows
-    Inc(Size);
-  end;
 end;
 
 function TOBDJ1939SessionManager.FeedTPDT(ASA, ADA: Byte;
@@ -1114,7 +1101,6 @@ var
   PGN: Cardinal;
   Idx: Integer;
   S: TJ1939Session;
-  Size: Cardinal;
   Reason: Byte;
   Payload: TBytes;
   Packets: Byte;
@@ -1219,10 +1205,6 @@ begin
   finally
     FLock.Leave;
   end;
-
-  // Suppress unused warning on Size in some compiler versions.
-  Size := 0;
-  Inc(Size);
 end;
 
 function TOBDJ1939SessionManager.FeedETPDT(ASA, ADA: Byte;
@@ -1330,8 +1312,6 @@ begin
   finally
     FLock.Leave;
   end;
-  // Suppress unused parameter in builds that don't use it.
-  ANowMs := 0; Inc(ANowMs);
 end;
 
 procedure TOBDJ1939SessionManager.BeginTransmit(ASA, ADA: Byte;

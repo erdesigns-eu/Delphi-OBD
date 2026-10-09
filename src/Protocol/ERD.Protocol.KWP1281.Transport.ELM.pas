@@ -284,7 +284,7 @@ begin
   begin
     if FRxLine.PopItem(B, 50) = wrSignaled then
     begin
-      if not (Char(B) in [#13, #10, ' ', '>']) then
+      if not CharInSet(Char(B), [#13, #10, ' ', '>']) then
         Exit(B);
     end;
     ElapsedMs := Round((Now - Sw) * 86400 * 1000);

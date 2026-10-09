@@ -57,7 +57,7 @@ uses
   {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
   {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   System.Diagnostics,
-  Data.Bind.Components;
+  System.Bindings.Helper, Data.Bind.Components;
 
 type
   /// <summary>Fires per dyno sample with derived HP / torque.

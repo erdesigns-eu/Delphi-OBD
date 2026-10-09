@@ -52,7 +52,6 @@ type
   TKWP1281TP20Transport = class(TInterfacedObject, IKWP1281Transport)
   strict private
     FTP20:    TTP20Codec;
-    FOwnsTP20: Boolean;
     FAppId:   TTP20AppId;
     FTxBuf:   TList<Byte>;
     FRxBuf:   TQueue<Byte>;

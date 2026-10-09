@@ -29,6 +29,20 @@ class CheckerRegressionTests(unittest.TestCase):
         self.assertIn('total:', result.stdout)
         return result.stdout
 
+    def test_livebindings_notify_requires_helper_unit(self):
+        source = self.source('src/Binding.pas', """unit Binding;
+interface
+uses Data.Bind.Components;
+implementation
+procedure Changed;
+begin TBindings.Notify(Self, ''); end;
+end.
+""")
+        self.assertIn('total: 1', self.checker('vcltypes'))
+        source.write_text(source.read_text().replace('Data.Bind.Components;',
+                          'Data.Bind.Components, System.Bindings.Helper;'))
+        self.assertIn('total: 0', self.checker('vcltypes'))
+
     def test_qualified_rtl_type_does_not_require_unrelated_repository_homonym(self):
         self.source('src/Compat.pas', 'unit Compat;\ninterface\ntype TSocket = class end;\nimplementation\nend.')
         consumer = self.source('src/Consumer.pas', 'unit Consumer;\ninterface\nuses Winapi.Winsock2;\nvar Socket: Winapi.Winsock2.TSocket;\nimplementation\nend.')

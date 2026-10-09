@@ -71,6 +71,8 @@ HOMES = {
     # style hooks lives in Vcl.Themes - the unit that registers one usually
     # forgets this.
     'tscrollingstylehook': {'vcl.forms'},
+    # LiveBindings helper (Data.Bind.Components does not declare TBindings).
+    'tbindings': {'system.bindings.helper'},
     # System and RTL
     'tobject': set(), 'tclass': set(),      # System, always in scope
     'tpersistent': {'system.classes'}, 'tcomponent': {'system.classes'},

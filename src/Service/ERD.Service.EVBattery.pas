@@ -36,7 +36,7 @@ uses
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
   {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
-  {$IFNDEF FPC}Data.Bind.Components,{$ENDIF}
+  {$IFNDEF FPC}Data.Bind.Components, System.Bindings.Helper,{$ENDIF}
   ERD.Errors,
   ERD.Types,
   ERD.Binary.Value,

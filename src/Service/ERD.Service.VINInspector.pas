@@ -37,7 +37,7 @@ interface
 uses
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  {$IFNDEF FPC}Data.Bind.Components,{$ENDIF}
+  {$IFNDEF FPC}Data.Bind.Components, System.Bindings.Helper,{$ENDIF}
   ERD.Service.VINDecoder,
   ERD.Service.VINDecoder.Types;
 

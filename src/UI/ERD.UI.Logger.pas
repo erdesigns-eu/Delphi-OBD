@@ -33,7 +33,7 @@ uses
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
   System.IOUtils,
-  Data.Bind.Components,
+  System.Bindings.Helper, Data.Bind.Components,
   Vcl.Controls,
   Vcl.Graphics,
   Vcl.ComCtrls,

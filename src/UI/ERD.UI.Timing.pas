@@ -42,7 +42,7 @@ uses
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   System.Diagnostics,
   {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
-  Data.Bind.Components,
+  System.Bindings.Helper, Data.Bind.Components,
   Vcl.Controls,
   Vcl.Graphics,
   Vcl.ExtCtrls,

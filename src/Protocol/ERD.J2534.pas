@@ -256,7 +256,6 @@ type
   TJ2534Channel = class
   strict private
     FDriver:    TJ2534Driver;
-    FOwnsDriver: Boolean;
     FDeviceId:  TJ2534DeviceId;
     FChannelId: TJ2534ChannelId;
     FProtocol:  TJ2534Protocol;

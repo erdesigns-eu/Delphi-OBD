@@ -46,7 +46,7 @@ uses
   {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
   Vcl.Controls,
   Vcl.Graphics,
-  Data.Bind.Components,
+  System.Bindings.Helper, Data.Bind.Components,
   ERD.UI.Types,
   ERD.UI.Theme,
   ERD.UI.Control,

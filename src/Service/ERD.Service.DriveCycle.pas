@@ -46,7 +46,7 @@ uses
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
-  {$IFNDEF FPC}Data.Bind.Components,{$ENDIF}
+  {$IFNDEF FPC}Data.Bind.Components, System.Bindings.Helper,{$ENDIF}
   ERD.Errors,
   ERD.Types,
   ERD.Connection.Types,
