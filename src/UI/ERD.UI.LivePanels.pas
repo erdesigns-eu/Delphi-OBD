@@ -35,6 +35,7 @@ unit ERD.UI.LivePanels;
 interface
 
 uses
+  System.UITypes,
   Winapi.Windows,
   Winapi.GDIPAPI,
   Winapi.GDIPOBJ,

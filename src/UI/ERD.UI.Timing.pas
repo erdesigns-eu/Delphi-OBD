@@ -34,6 +34,7 @@ unit ERD.UI.Timing;
 interface
 
 uses
+  System.UITypes,
   Winapi.Windows,
   Winapi.GDIPAPI,
   Winapi.GDIPOBJ,

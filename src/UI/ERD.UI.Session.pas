@@ -40,6 +40,7 @@ unit ERD.UI.Session;
 interface
 
 uses
+  System.UITypes,
   Winapi.Messages,
   Winapi.Windows,
   Winapi.GDIPAPI,

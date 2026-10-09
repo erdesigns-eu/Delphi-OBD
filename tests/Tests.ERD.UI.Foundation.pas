@@ -19,6 +19,7 @@ unit Tests.ERD.UI.Foundation;
 interface
 
 uses
+  System.UITypes,
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF}, {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF}, System.Diagnostics,
   Vcl.Graphics,
   DUnitX.TestFramework,

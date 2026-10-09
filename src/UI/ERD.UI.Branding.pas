@@ -28,6 +28,7 @@ unit ERD.UI.Branding;
 interface
 
 uses
+  System.UITypes,
   Winapi.Windows,
   Winapi.GDIPAPI,
   Winapi.GDIPOBJ,

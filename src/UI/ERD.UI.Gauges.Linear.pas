@@ -24,6 +24,7 @@ unit ERD.UI.Gauges.Linear;
 interface
 
 uses
+  System.UITypes,
   Winapi.Windows,
   Winapi.GDIPAPI,
   Winapi.GDIPOBJ,

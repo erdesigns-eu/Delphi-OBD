@@ -42,6 +42,7 @@ unit ERD.UI.MonitorEV;
 interface
 
 uses
+  System.UITypes,
   Winapi.Windows,
   Winapi.GDIPAPI,
   Winapi.GDIPOBJ,

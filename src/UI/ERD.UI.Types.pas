@@ -23,6 +23,7 @@ unit ERD.UI.Types;
 interface
 
 uses
+  System.UITypes,
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   Winapi.Windows,

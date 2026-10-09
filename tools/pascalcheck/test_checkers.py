@@ -184,6 +184,25 @@ end.
                           .replace('Bounds.Y', 'Bounds.Top'))
         self.assertIn('total: 0', self.checker('platformapi'))
 
+    def test_rectf_and_inline_color_dependencies_are_explicit(self):
+        source = self.source('src/Visual.pas', """unit Visual;
+interface
+procedure Paint(const Bounds: TRectF);
+implementation
+procedure Paint(const Bounds: TRectF);
+begin
+  Color := ColorToARGB(Value);
+  Color := PickColor(Value, Fallback);
+end;
+end.
+""")
+        self.assertIn('total: 1', self.checker('vcltypes'))
+        self.assertIn('total: 2', self.checker('needsunit'))
+        source.write_text(source.read_text().replace('interface\n',
+                          'interface\nuses System.Types, System.UITypes;\n'))
+        self.assertIn('total: 0', self.checker('vcltypes'))
+        self.assertIn('total: 0', self.checker('needsunit'))
+
     def test_livebindings_notify_requires_helper_unit(self):
         source = self.source('src/Binding.pas', """unit Binding;
 interface

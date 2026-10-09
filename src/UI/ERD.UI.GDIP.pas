@@ -24,6 +24,7 @@ unit ERD.UI.GDIP;
 interface
 
 uses
+  System.UITypes,
   Winapi.Windows,
   Winapi.GDIPAPI,
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},

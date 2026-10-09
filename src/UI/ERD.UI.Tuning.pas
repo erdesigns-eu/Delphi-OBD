@@ -32,6 +32,7 @@ unit ERD.UI.Tuning;
 interface
 
 uses
+  System.UITypes,
   Winapi.Windows,
   Winapi.GDIPAPI,
   Winapi.GDIPOBJ,

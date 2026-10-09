@@ -35,6 +35,8 @@ unit ERD.UI.Gauges.DialExtended;
 interface
 
 uses
+  System.Types,
+  System.UITypes,
   Winapi.Windows,
   Winapi.GDIPAPI,
   Winapi.GDIPOBJ,

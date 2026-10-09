@@ -567,20 +567,8 @@ procedure TOBDComboGauge.PaintExtras(AGraphics: TGPGraphics;
   const ABounds: TRectF);
 var
   S: string;
-  C: TCanvas;
 begin
-  // Paint the digital readout via TCanvas (sharper text than
-  // GDI+ at small sizes). Get the host canvas via the bitmap
-  // already in use.
-  // We work around the GDI+ Graphics by writing on the
-  // underlying surface — the buffer canvas is exposed through
-  // the inherited Paint pipeline.
-  C := nil;  //  filled below — using parent canvas
-  // PaintExtras runs INSIDE PaintControl which received the
-  // bitmap canvas as ACanvas. We don't have a direct handle
-  // here; instead, write via the TGPGraphics' DrawString
-  // (GDI+) — slightly softer than TCanvas at small sizes but
-  // works without canvas plumbing.
+  // Draw the digital readout on the active GDI+ surface.
   var FontFamily := TGPFontFamily.Create(FCenterFont.Name);
   var GdiFont    := TGPFont.Create(FontFamily,
     FCenterFont.Size, FontStyleBold, UnitPoint);

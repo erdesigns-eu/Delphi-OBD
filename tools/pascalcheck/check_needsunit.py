@@ -27,6 +27,8 @@ NEEDS = {
     'OutputDebugString': 'Winapi.Windows',
     'GetLocalTime': 'Winapi.Windows',
     'GetSystemTime': 'Winapi.Windows',
+    'ColorToARGB': 'System.UITypes',
+    'PickColor': 'System.UITypes',
     'GetRValue': 'Winapi.Windows',
     'GetGValue': 'Winapi.Windows',
     'GetBValue': 'Winapi.Windows',

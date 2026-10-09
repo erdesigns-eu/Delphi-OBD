@@ -40,6 +40,7 @@ unit ERD.UI.Connection;
 interface
 
 uses
+  System.UITypes,
   Winapi.Windows,
   Winapi.GDIPAPI,
   Winapi.GDIPOBJ,

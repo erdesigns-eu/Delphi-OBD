@@ -37,6 +37,7 @@ unit ERD.UI.Gauges.Variants;
 interface
 
 uses
+  System.UITypes,
   Winapi.Windows,
   Winapi.GDIPAPI,
   Winapi.GDIPOBJ,
@@ -360,7 +361,6 @@ begin
   end
   else
   begin
-    TrackX := Pad;
     TrackY := Pad + CapH + ScaleValue(4);
     TrackW := ScaleValue(24);
     TrackH := Height - TrackY - Pad;
@@ -441,7 +441,6 @@ var
   TrackRect, FillRect, ZoneRect: TGPRectF;
   Pen:   TGPPen;
   Brush: TGPSolidBrush;
-  Norm:  Single;
   ColorVal: TColor;
   Z: TOBDGaugeZone;
   ValStr: string;
@@ -498,7 +497,6 @@ begin
     end;
 
     // Centre-zero fill — from CenterX outward.
-    Norm := Single(NormalisedDisplay);   //  0..1 in clamped scale
     ColorVal := CurrentZoneColor;
     if ColorVal = clNone then ColorVal := EffectiveAccent;
     if DisplayValue >= 0 then
@@ -534,8 +532,6 @@ begin
       Pen.Free;
     end;
 
-    // Silence unused-var hint.
-    Norm := Norm;
   finally
     Graphics.Free;
   end;

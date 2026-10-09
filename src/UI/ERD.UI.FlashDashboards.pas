@@ -42,6 +42,7 @@ unit ERD.UI.FlashDashboards;
 interface
 
 uses
+  System.UITypes,
   Winapi.Messages,
   Winapi.Windows,
   Winapi.GDIPAPI,

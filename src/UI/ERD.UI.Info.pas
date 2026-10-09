@@ -40,6 +40,7 @@ unit ERD.UI.Info;
 interface
 
 uses
+  System.UITypes,
   ERD.Types,
   {$IFDEF FPC}Types{$ELSE}System.Types{$ENDIF},
   Winapi.Windows,

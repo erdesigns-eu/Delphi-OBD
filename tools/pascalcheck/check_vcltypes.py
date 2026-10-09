@@ -85,6 +85,7 @@ HOMES = {
     'tdatetime': set(),          # System itself, like TObject
     'tcriticalsection': {'system.syncobjs'},
     'tpoint': {'system.types', 'winapi.windows'},
+    'trectf': {'system.types'},
     'trect': {'system.types', 'winapi.windows'},
     'tsize': {'system.types', 'winapi.windows'},
     'tmessage': {'winapi.messages'},

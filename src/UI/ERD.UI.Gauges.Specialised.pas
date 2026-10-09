@@ -38,6 +38,7 @@ unit ERD.UI.Gauges.Specialised;
 interface
 
 uses
+  System.UITypes,
   Winapi.Windows,
   Winapi.GDIPAPI,
   Winapi.GDIPOBJ,
