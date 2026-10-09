@@ -60,6 +60,22 @@ end.
                           .replace('PChar(Name)', 'PAnsiChar(AnsiString(Name))'))
         self.assertIn('total: 0', self.checker('platformapi'))
 
+    def test_event_returning_getter_must_be_invoked_for_event_assignment(self):
+        source = self.source('src/Events.pas', """unit Events;
+interface
+implementation
+procedure Attach;
+begin
+  Previous := Serial.GetOnDataReceived;
+  StateHandler := Transport.GetOnStateChanged;
+end;
+end.
+""")
+        self.assertIn('total: 2', self.checker('platformapi'))
+        source.write_text(source.read_text().replace('GetOnDataReceived;', 'GetOnDataReceived();')
+                          .replace('GetOnStateChanged;', 'GetOnStateChanged();'))
+        self.assertIn('total: 0', self.checker('platformapi'))
+
     def test_kwp_serial_uses_transport_event_signature_and_portable_queue(self):
         source = self.source('src/KWPSerial.pas', """unit ERD.Protocol.KWP1281.Transport.Serial;
 interface

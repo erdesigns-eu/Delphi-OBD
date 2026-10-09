@@ -127,7 +127,7 @@ begin
   FInitTiming.BitMs      := 200;
   FInitTiming.StopBitMs  := 200;
   FInitTiming.SyncWaitMs := 2000;
-  FPreviousOnBytes := FSerial.GetOnDataReceived;
+  FPreviousOnBytes := FSerial.GetOnDataReceived();
   FSerial.SetOnDataReceived(HandleBytes);
   FHandlerInstalled := True;
 end;
@@ -142,7 +142,7 @@ begin
   FInitTiming.BitMs      := 200;
   FInitTiming.StopBitMs  := 200;
   FInitTiming.SyncWaitMs := 2000;
-  FPreviousOnBytes := FSerial.GetOnDataReceived;
+  FPreviousOnBytes := FSerial.GetOnDataReceived();
   FSerial.SetOnDataReceived(HandleBytes);
   FHandlerInstalled := True;
 end;

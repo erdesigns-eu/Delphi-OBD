@@ -43,6 +43,10 @@ for path in pas_files():
             for match in re.finditer(pattern, src, re.I):
                 finding(match.start(), why)
 
+    for match in re.finditer(
+            r':=\s*\w+\s*\.\s*GetOn(?:DataReceived|StateChanged|TransportError|Progress)\s*;', src, re.I):
+        finding(match.start(), 'Call event-returning transport getters explicitly with ()')
+
     declarations = re.finditer(
         r'\b(\w+)\s*:\s*(TBluetoothLEManager|TBluetoothLEDevice|TSocket)\b', src, re.I)
     for declaration in declarations:
