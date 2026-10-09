@@ -47,6 +47,12 @@ NEEDS = {
 
 # Winsock 2 written the way the C header reads, which Delphi's does not.
 WINSOCK = [
+    (re.compile(r'\bGetAddrInfoW\s*\([^;]*?,\s*@\w+\s*,', re.I),
+     'GetAddrInfoW takes the hints record by reference, not @Hints'),
+    (re.compile(r'\bFreeAddrInfoW\s*\(\s*(\w+)\s*\)', re.I),
+     'FreeAddrInfoW takes an addrinfoW record by reference: dereference the result pointer'),
+    (re.compile(r'\bsendto\s*\([^;]*?PSockAddr\s*\([^)]*\)\s*\^', re.I),
+     'sendto takes a PSockAddr pointer; do not dereference the destination'),
     (re.compile(r'\bFD_(SET|ZERO|ISSET|CLR)\s*\(', re.I),
      'FD_* is not a routine in Winapi.Winsock2; fill fd_count and fd_array by hand'),
     (re.compile(r'\b(connect|bind)\s*\([^;]*?PSockAddr\s*\(\s*@[^)]*\)\s*,', re.I),
@@ -86,6 +92,10 @@ for path in pas_files():
     if 'winapi.winsock2' in used:
         for rx, why in WINSOCK:
             for m in rx.finditer(clean):
+                if why.startswith('FreeAddrInfoW') and not re.search(
+                        r'\b' + re.escape(m.group(1)) +
+                        r'\b[^;:\n]*:\s*(?:Winapi\.Winsock2\.)?PAddrInfoW\b', clean, re.I):
+                    continue  # A record variable is already a valid var argument.
                 problems.append((rel, clean.count('\n', 0, m.start()) + 1, why))
 
 print('=== a Windows API name without its unit, or Winsock 2 called as the C header reads (E2003) ===')

@@ -156,7 +156,7 @@ begin
   Hints.ai_socktype := SOCK_DGRAM;
   Hints.ai_protocol := IPPROTO_UDP;
   Res := nil;
-  RC := GetAddrInfoW(PWideChar(Host), PWideChar(Port), @Hints, Res);
+  RC := GetAddrInfoW(PWideChar(Host), PWideChar(Port), Hints, Res);
   if RC <> 0 then
     raise EOSError.CreateFmt('Cannot resolve UDP host %s (error %d)', [Host, RC]);
   try
@@ -164,7 +164,7 @@ begin
       raise EOSError.Create('No IPv4 address returned for UDP host ' + Host);
     Move(Res.ai_addr^, Result.FAddress, SizeOf(Result.FAddress));
   finally
-    FreeAddrInfoW(Res);
+    if Res <> nil then FreeAddrInfoW(Res^);
   end;
 end;
 
@@ -196,7 +196,7 @@ function TOBDSocketOptions.SendDatagram(const AEndpoint: TOBDDatagramEndpoint;
 begin
   if Length(ABytes) = 0 then Exit(0);
   Result := Winapi.Winsock2.sendto(Handle, ABytes[0], Length(ABytes), 0,
-    PSockAddr(@AEndpoint.FAddress)^, SizeOf(AEndpoint.FAddress));
+    PSockAddr(@AEndpoint.FAddress), SizeOf(AEndpoint.FAddress));
   if Result = SOCKET_ERROR then
     raise EOSError.CreateFmt('UDP send failed (Winsock error %d)', [WSAGetLastError]);
 end;

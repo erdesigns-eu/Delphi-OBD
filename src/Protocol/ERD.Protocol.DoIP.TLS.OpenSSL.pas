@@ -668,7 +668,7 @@ begin
 
   PortStr := IntToStr(APort);
   Res := nil;
-  RC := GetAddrInfoW(PChar(AHost), PChar(PortStr), @Hints, Res);
+  RC := GetAddrInfoW(PChar(AHost), PChar(PortStr), Hints, Res);
   if (RC <> 0) or (Res = nil) then
     raise EOBDError.CreateFmt('DoIP TLS: getaddrinfo("%s:%d") failed (%d)',
       [AHost, APort, RC]);
@@ -721,7 +721,7 @@ begin
       Cur := Cur.ai_next;
     end;
   finally
-    FreeAddrInfoW(Res);
+    if Res <> nil then FreeAddrInfoW(Res^);
   end;
 
   if FSocket = INVALID_SOCKET then

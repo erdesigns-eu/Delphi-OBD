@@ -60,6 +60,26 @@ end.
                           .replace('PChar(Name)', 'PAnsiChar(AnsiString(Name))'))
         self.assertIn('total: 0', self.checker('platformapi'))
 
+    def test_winsock_addrinfo_and_sendto_parameter_modes(self):
+        source = self.source('src/Native.pas', """unit Native;
+interface
+uses Winapi.Winsock2;
+var Res: PAddrInfoW;
+implementation
+procedure Run;
+begin
+  GetAddrInfoW(Host, Port, @Hints, Res);
+  FreeAddrInfoW(Res);
+  sendto(Socket, Bytes[0], Count, 0, PSockAddr(@Address)^, SizeOf(Address));
+end;
+end.
+""")
+        self.assertIn('total: 3', self.checker('needsunit'))
+        source.write_text(source.read_text().replace('@Hints, Res', 'Hints, Res')
+                          .replace('FreeAddrInfoW(Res)', 'FreeAddrInfoW(Res^)')
+                          .replace('PSockAddr(@Address)^', 'PSockAddr(@Address)'))
+        self.assertIn('total: 0', self.checker('needsunit'))
+
     def test_udp_transport_cannot_leak_fpc_only_endpoint_and_overloads(self):
         source = self.source('src/UDP.pas', """unit ERD.Connection.UDP;
 interface
