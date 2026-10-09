@@ -25,9 +25,9 @@ interface
 uses
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
-  System.UITypes,
   Winapi.Windows,
-  Vcl.Graphics;
+  Vcl.Graphics,
+  Vcl.Themes;
 
 type
   /// <summary>Theme mode — auto follows the active VCL Style's
@@ -148,9 +148,6 @@ function StyleColor(AStyleColor: TStyleColor; ADefault: TColor): TColor;
 function PickColor(AOverride, AInherit: TColor): TColor; inline;
 
 implementation
-
-uses
-  Vcl.Themes;
 
 { TOBDVisualStyle ------------------------------------------------------------ }
 

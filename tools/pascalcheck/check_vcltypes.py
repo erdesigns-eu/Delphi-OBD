@@ -90,7 +90,7 @@ HOMES = {
     'tmessage': {'winapi.messages'},
     'tjsonobject': {'system.json'}, 'tjsonvalue': {'system.json'},
     'tjsonarray': {'system.json'},
-    'tstylecolor': {'system.uitypes'},
+    'tstylecolor': {'vcl.themes'},
     'tmodalresult': {'system.uitypes', 'vcl.controls'},
     'tshiftstate': {'system.classes', 'vcl.controls'},
 }

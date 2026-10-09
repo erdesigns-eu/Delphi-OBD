@@ -148,9 +148,10 @@ end.
     def test_style_color_and_rgb_helpers_require_declaring_units(self):
         source = self.source('src/Colors.pas', """unit Colors;
 interface
-uses Vcl.Graphics, Vcl.Themes;
+uses Vcl.Graphics, System.UITypes;
 function Color(Slot: TStyleColor): TColor;
 implementation
+uses Vcl.Themes;
 function Color(Slot: TStyleColor): TColor;
 begin
   R := GetRValue(Value);
@@ -161,8 +162,8 @@ end.
 """)
         self.assertIn('total: 1', self.checker('vcltypes'))
         self.assertIn('total: 3', self.checker('needsunit'))
-        source.write_text(source.read_text().replace('Vcl.Graphics, Vcl.Themes;',
-                          'Vcl.Graphics, Vcl.Themes, System.UITypes, Winapi.Windows;'))
+        source.write_text(source.read_text().replace('Vcl.Graphics, System.UITypes;',
+                          'Vcl.Graphics, Vcl.Themes, Winapi.Windows;').replace('implementation\nuses Vcl.Themes;', 'implementation'))
         self.assertIn('total: 0', self.checker('vcltypes'))
         self.assertIn('total: 0', self.checker('needsunit'))
 
