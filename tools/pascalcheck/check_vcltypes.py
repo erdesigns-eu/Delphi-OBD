@@ -23,8 +23,6 @@ import symbols
 
 # type -> the units that declare it; any one of them satisfies the reference.
 HOMES = {
-    # Delphi design-time VCL property editors
-    'tstringlistproperty': {'vcleditors'},
     # Vcl.Menus
     'tpopupmenu': {'vcl.menus'}, 'tmenuitem': {'vcl.menus'},
     'tmainmenu': {'vcl.menus'}, 'tmenu': {'vcl.menus'},

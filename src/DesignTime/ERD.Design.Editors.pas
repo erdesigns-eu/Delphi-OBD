@@ -59,7 +59,6 @@ uses
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   Vcl.Dialogs,
   DesignEditors,
-  VCLEditors,
   DesignIntf;
 
 type
@@ -111,10 +110,8 @@ type
   end;
 
   /// <summary>Multi-line editor for <c>TOBDAdapter.InitCommands</c>.
-  /// The IDE's stock <c>TStringListProperty</c> already provides a
-  /// memo dialog; this subclass swaps the title for one that hints
-  /// at the AT / ST command surface.</summary>
-  TOBDAdapterInitCommandsProperty = class(TStringListProperty)
+  /// Uses a dedicated dialog for the AT / ST command surface.</summary>
+  TOBDAdapterInitCommandsProperty = class(TClassProperty)
   public
     function GetAttributes: TPropertyAttributes; override;
     procedure Edit; override;
