@@ -48,6 +48,25 @@ end.
                                                     'Acc: TArray<Integer>'))
         self.assertIn('total: 0', self.checker('arrayidentity'))
 
+    def test_seed_key_provider_registration_selects_interface_overload(self):
+        source = self.source('src/OEM.pas', """unit OEM;
+interface
+implementation
+procedure RegisterDefaults;
+begin
+  Reg.RegisterAlgorithm($01, TOBDSeedKeyKWP2000TwosComplement.Create);
+  Reg.RegisterAlgorithm($02, TOBDSeedKeyXorMask.Create(Mask, 'fixture'));
+end;
+end.
+""")
+        self.assertIn('total: 2', self.checker('platformapi'))
+        source.write_text(source.read_text()
+                          .replace('TOBDSeedKeyKWP2000TwosComplement.Create);',
+                                   'IOBDSeedKeyAlgorithm(TOBDSeedKeyKWP2000TwosComplement.Create()));')
+                          .replace("TOBDSeedKeyXorMask.Create(Mask, 'fixture'));",
+                                   "IOBDSeedKeyAlgorithm(TOBDSeedKeyXorMask.Create(Mask, 'fixture')));"))
+        self.assertIn('total: 0', self.checker('platformapi'))
+
     def test_livebindings_notify_requires_helper_unit(self):
         source = self.source('src/Binding.pas', """unit Binding;
 interface

@@ -127,7 +127,7 @@ begin
   // wiTech use proprietary algorithms; production callers
   // replace this via RegisterAlgorithm.
   Reg.RegisterAlgorithm($01,
-    TOBDSeedKeyKWP2000TwosComplement.Create);
+    IOBDSeedKeyAlgorithm(TOBDSeedKeyKWP2000TwosComplement.Create()));
 end;
 
 procedure TOBDOEMExtensionStellantis.SeedDefaultDtcCatalog(

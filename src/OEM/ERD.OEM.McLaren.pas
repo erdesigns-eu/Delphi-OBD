@@ -109,7 +109,7 @@ procedure TOBDOEMExtensionMcLaren.SeedDefaultSeedKeyAlgorithms(
   Reg: TOBDSeedKeyRegistry);
 begin
   Reg.RegisterAlgorithm($01,
-    TOBDSeedKeyKWP2000TwosComplement.Create);
+    IOBDSeedKeyAlgorithm(TOBDSeedKeyKWP2000TwosComplement.Create()));
 end;
 
 procedure TOBDOEMExtensionMcLaren.SeedDefaultDtcCatalog(

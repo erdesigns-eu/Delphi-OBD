@@ -130,9 +130,9 @@ var
 begin
   SetLength(Mask, Length(PUBLIC_MASK));
   Move(PUBLIC_MASK[0], Mask[0], Length(PUBLIC_MASK));
-  Reg.RegisterAlgorithm($01, TOBDSeedKeyXorMask.Create(Mask,
+  Reg.RegisterAlgorithm($01, IOBDSeedKeyAlgorithm(TOBDSeedKeyXorMask.Create(Mask,
     'BMW community XOR-mask placeholder',
-    'community-pr', False));
+    'community-pr', False)));
 end;
 
 procedure TOBDOEMExtensionBMW.SeedDefaultDtcCatalog(

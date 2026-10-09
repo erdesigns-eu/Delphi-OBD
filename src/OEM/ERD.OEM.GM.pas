@@ -126,9 +126,9 @@ var
 begin
   SetLength(K, Length(CONST_KEY));
   Move(CONST_KEY[0], K[0], Length(CONST_KEY));
-  Reg.RegisterAlgorithm($01, TOBDSeedKeyConstant.Create(K,
+  Reg.RegisterAlgorithm($01, IOBDSeedKeyAlgorithm(TOBDSeedKeyConstant.Create(K,
     'GMLAN Class B trial-mode constant key',
-    'gmlan-public', False));
+    'gmlan-public', False)));
 end;
 
 procedure TOBDOEMExtensionGM.SeedDefaultDtcCatalog(

@@ -120,10 +120,10 @@ begin
   // production callers replace via RegisterAlgorithm.
   SetLength(Mask, Length(MASK_BYTES));
   Move(MASK_BYTES[0], Mask[0], Length(MASK_BYTES));
-  Reg.RegisterAlgorithm($01, TOBDSeedKeyByteRotate.Create(
+  Reg.RegisterAlgorithm($01, IOBDSeedKeyAlgorithm(TOBDSeedKeyByteRotate.Create(
     1, 3, Mask,
     'Aston Martin (Ford-lineage) byte-rotate placeholder',
-    'forscan-community', False));
+    'forscan-community', False)));
 end;
 
 procedure TOBDOEMExtensionAstonMartin.SeedDefaultDtcCatalog(

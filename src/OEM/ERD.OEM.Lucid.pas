@@ -108,7 +108,7 @@ begin
   // production callers register the real implementation via
   // RegisterAlgorithm.
   Reg.RegisterAlgorithm($01,
-    TOBDSeedKeyKWP2000TwosComplement.Create);
+    IOBDSeedKeyAlgorithm(TOBDSeedKeyKWP2000TwosComplement.Create()));
 end;
 
 procedure TOBDOEMExtensionLucid.SeedDefaultDtcCatalog(

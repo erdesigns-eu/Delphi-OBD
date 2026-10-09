@@ -168,7 +168,7 @@ begin
   // Level 1. Verified=False — production callers replace this
   // with their proprietary algorithm via RegisterAlgorithm.
   Reg.RegisterAlgorithm($01,
-    TOBDSeedKeyKWP2000TwosComplement.Create);
+    IOBDSeedKeyAlgorithm(TOBDSeedKeyKWP2000TwosComplement.Create()));
 end;
 
 procedure TOBDOEMExtensionVW.SeedDefaultDtcCatalog(Cat: TOBDDtcCatalog);

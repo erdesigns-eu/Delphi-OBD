@@ -140,9 +140,9 @@ begin
   // registered via RegisterAlgorithm.
   SetLength(Mask, Length(PUBLIC_MASK));
   Move(PUBLIC_MASK[0], Mask[0], Length(PUBLIC_MASK));
-  Reg.RegisterAlgorithm($01, TOBDSeedKeyXorMask.Create(Mask,
+  Reg.RegisterAlgorithm($01, IOBDSeedKeyAlgorithm(TOBDSeedKeyXorMask.Create(Mask,
     'MINI (BMW E-Sys lineage) XOR-mask placeholder',
-    'community-pr', False));
+    'community-pr', False)));
 end;
 
 procedure TOBDOEMExtensionMINI.SeedDefaultDtcCatalog(

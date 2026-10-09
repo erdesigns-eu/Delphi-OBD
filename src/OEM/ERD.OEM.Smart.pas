@@ -116,7 +116,7 @@ begin
   // algorithms with Polestar / Zeekr; legacy Hambach-era smart
   // used the Mercedes XENTRY two's-complement at Level 1.
   Reg.RegisterAlgorithm($01,
-    TOBDSeedKeyKWP2000TwosComplement.Create);
+    IOBDSeedKeyAlgorithm(TOBDSeedKeyKWP2000TwosComplement.Create()));
 end;
 
 procedure TOBDOEMExtensionSmart.SeedDefaultDtcCatalog(

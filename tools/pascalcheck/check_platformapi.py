@@ -16,6 +16,9 @@ for path in pas_files():
 
     for match in re.finditer(r'\bCurrentAdapter\s*\.\s*Activated\b', src, re.I):
         finding(match.start(), 'TBluetoothAdapter has no Activated property')
+    for match in re.finditer(
+            r'\bRegisterAlgorithm\s*\([^,]+,\s*TOBDSeedKey\w+\s*\.\s*Create\b', src, re.I):
+        finding(match.start(), 'Cast concrete seed-key providers to IOBDSeedKeyAlgorithm to select the interface overload')
     for match in re.finditer(r'\bGetProcAddress\s*\([^,]+,\s*P(?:Wide)?Char\s*\(', src, re.I):
         finding(match.start(), 'GetProcAddress requires an ANSI export name, not PChar/PWideChar')
     for match in re.finditer(r'\b(TPassThru\w+)\s*=\s*function\b.*?;\s*(cdecl|stdcall)\b', src, re.I | re.S):

@@ -107,7 +107,7 @@ begin
   // two's-complement at Level 1; modern SDD / Pathfinder uses
   // proprietary algorithms.
   Reg.RegisterAlgorithm($01,
-    TOBDSeedKeyKWP2000TwosComplement.Create);
+    IOBDSeedKeyAlgorithm(TOBDSeedKeyKWP2000TwosComplement.Create()));
 end;
 
 procedure TOBDOEMExtensionJLR.SeedDefaultDtcCatalog(

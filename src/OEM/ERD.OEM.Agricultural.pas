@@ -175,7 +175,7 @@ procedure TOBDOEMAgriculturalBase.SeedDefaultSeedKeyAlgorithms(
   Reg: TOBDSeedKeyRegistry);
 begin
   Reg.RegisterAlgorithm($01,
-    TOBDSeedKeyKWP2000TwosComplement.Create);
+    IOBDSeedKeyAlgorithm(TOBDSeedKeyKWP2000TwosComplement.Create()));
 end;
 
 function TOBDOEMAgriculturalBase.DtcCatalogFileName: string;

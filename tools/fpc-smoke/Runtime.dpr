@@ -306,15 +306,15 @@ var Registry: TOBDSeedKeyRegistry; Bytes: TBytes;
 begin
   Registry := TOBDSeedKeyRegistry.Create;
   try
-    Registry.RegisterAlgorithm(1, TOBDSeedKeyConstant.Create(TBytes.Create($AA)));
+    Registry.RegisterAlgorithm(1, IOBDSeedKeyAlgorithm(TOBDSeedKeyConstant.Create(TBytes.Create($AA))));
     try Registry.ComputeKey(1, TBytes.Create(1)); Check(False, 'Unverified production key accepted')
     except on E: EOBDSeedKey do Check(True, 'Unverified providers excluded by default') end;
     Registry.AllowUnverified := True;
     Bytes := Registry.ComputeKey(1, TBytes.Create(1));
     Check((Length(Bytes) = 1) and (Bytes[0] = $AA), 'Explicit lab opt-in works');
     Registry.AllowUnverified := False;
-    Registry.RegisterAlgorithm(1, TOBDSeedKeyConstant.Create(TBytes.Create($BB), 'fixture', 'test', True));
-    Registry.RegisterAlgorithm(1, TOBDSeedKeyConstant.Create(TBytes.Create($CC)));
+    Registry.RegisterAlgorithm(1, IOBDSeedKeyAlgorithm(TOBDSeedKeyConstant.Create(TBytes.Create($BB), 'fixture', 'test', True)));
+    Registry.RegisterAlgorithm(1, IOBDSeedKeyAlgorithm(TOBDSeedKeyConstant.Create(TBytes.Create($CC))));
     Bytes := Registry.ComputeKey(1, TBytes.Create(1));
     Check(Bytes[0] = $BB, 'Unverified newest provider cannot shadow eligible provider');
   finally Registry.Free end;

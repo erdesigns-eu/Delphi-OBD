@@ -115,7 +115,7 @@ begin
   // VW Group base extension registers; production callers replace
   // it with the Bentley NDA implementation via RegisterAlgorithm.
   Reg.RegisterAlgorithm($01,
-    TOBDSeedKeyKWP2000TwosComplement.Create);
+    IOBDSeedKeyAlgorithm(TOBDSeedKeyKWP2000TwosComplement.Create()));
 end;
 
 procedure TOBDOEMExtensionBentley.SeedDefaultDtcCatalog(

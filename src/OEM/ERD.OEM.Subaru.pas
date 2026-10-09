@@ -114,10 +114,10 @@ begin
   // Production callers replace via RegisterAlgorithm.
   SetLength(Mask, Length(MASK_BYTES));
   Move(MASK_BYTES[0], Mask[0], Length(MASK_BYTES));
-  Reg.RegisterAlgorithm($01, TOBDSeedKeyByteRotate.Create(
+  Reg.RegisterAlgorithm($01, IOBDSeedKeyAlgorithm(TOBDSeedKeyByteRotate.Create(
     1, 4, Mask,
     'Subaru SSM community byte-rotate placeholder',
-    'community-pr', False));
+    'community-pr', False)));
 end;
 
 procedure TOBDOEMExtensionSubaru.SeedDefaultDtcCatalog(

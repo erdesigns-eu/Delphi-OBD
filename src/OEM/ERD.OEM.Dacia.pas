@@ -116,9 +116,9 @@ begin
   // RegisterAlgorithm.
   SetLength(M, Length(MASK));
   Move(MASK[0], M[0], Length(MASK));
-  Reg.RegisterAlgorithm($01, TOBDSeedKeyXorMask.Create(M,
+  Reg.RegisterAlgorithm($01, IOBDSeedKeyAlgorithm(TOBDSeedKeyXorMask.Create(M,
     'Dacia (Renault-lineage) XOR-mask placeholder',
-    'community-pr', False));
+    'community-pr', False)));
 end;
 
 procedure TOBDOEMExtensionDacia.SeedDefaultDtcCatalog(

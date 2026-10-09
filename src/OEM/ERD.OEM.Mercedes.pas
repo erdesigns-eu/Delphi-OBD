@@ -140,7 +140,7 @@ begin
   // readers). The modern XENTRY algorithm is NDA-protected;
   // production callers replace this via RegisterAlgorithm.
   Reg.RegisterAlgorithm($01,
-    TOBDSeedKeyKWP2000TwosComplement.Create);
+    IOBDSeedKeyAlgorithm(TOBDSeedKeyKWP2000TwosComplement.Create()));
 end;
 
 procedure TOBDOEMExtensionMercedes.SeedDefaultDtcCatalog(
