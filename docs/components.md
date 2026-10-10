@@ -387,6 +387,39 @@ terminal, log viewer and DTC list have a `Theme` property: with a
 `TOBDTheme` assigned they take background, text and row colours from
 its palette.
 
+## OBD Studio
+
+Themed controls for a workshop application, on the **OBD Studio**
+palette page. They follow `TOBDTheme` for colours and for `Density`
+(`dnDesktop` / `dnTablet`, the row and touch-target heights), so one
+switch on the theme changes the whole form. The approved designs are in
+[`docs/mockups`](mockups/README.md).
+
+### Building blocks
+| Control | Unit | Purpose |
+|---|---|---|
+| `TOBDCard` | `ERD.UI.Card` | Container with title header, footer text and a status edge; child controls paint on the card colour. |
+| `TOBDButton` | `ERD.UI.Buttons` | `Kind` primary / secondary / danger / danger outline / ghost, optional glyph, `ModalResult`, `Default`, `Cancel`. |
+| `TOBDCheckBox` | `ERD.UI.Buttons` | `Style = csCheck` or `csSwitch`; checked, unchecked and grayed. |
+| `TOBDRadioButton` | `ERD.UI.Buttons` | Single choice within a `GroupIndex`; arrow keys move through the group. |
+| `TOBDChip`, `TOBDBadge` | `ERD.UI.Chips` | Status pill and counter bubble. |
+| `TOBDBanner` | `ERD.UI.Chips` | Info / success / warning / danger callout; holds child controls. |
+| `TOBDEdit`, `TOBDComboBox` | `ERD.UI.Edits` | Themed edit and drop-down (incremental search in the list). |
+| `TOBDSegmented` | `ERD.UI.Segmented` | Segmented choice / filter strip. |
+| `TOBDRangeBar` | `ERD.UI.RangeBar` | A value against its normal band. |
+| `TOBDInspector` | `ERD.UI.Inspector` | Categorised name / value grid with the keyboard and mouse behaviour of the Delphi Object Inspector: in-place editor (Enter commits, Esc reverts), pick lists, check values, ellipsis button, splitter, values that differ from their default in bold. |
+| `TOBDSidebar` | `ERD.UI.Sidebar` | Grouped navigation with icons and badges; collapses to icons. |
+| `TOBDRangeProfile` | `ERD.UI.RangeProfiles` | Non-visual: garage-adjustable normal ranges per PID, loaded from and saved to `catalogs/range-profiles/*.json`. |
+
+### Panels
+| Control | Unit | Purpose |
+|---|---|---|
+| `TOBDVehicleInfoCard` | `ERD.UI.VehicleCard` | Decoded VIN with check-digit verdict, vehicle, connection and odometer; `Layout` full or compact. |
+| `TOBDDtcPanel` | `ERD.UI.DtcPanel` | Trouble codes with status chips, filter strip, inline freeze-frame details and an inline clear confirmation (`OnReadCodes`, `OnClearCodes`). `LoadFromService` takes the `TOBDDtcEntry` list of a DTC read. |
+| `TOBDReadinessPanel` | `ERD.UI.ReadinessPanel` | Emission-monitor readiness from Mode 01 PID 01 (`LoadPID01`); the verdict names the local inspection through `InspectionRegime` (APK, keuring, contrôle technique, MOT, HU / AU, NCT or `InspectionName`). |
+| `TOBDFreezeFrameView` | `ERD.UI.FreezeFrameView` | Freeze-frame values at fault, optionally next to live values, against a `RangeProfile`; `Layout` table or inspector. |
+| `TOBDRangeEditor` | `ERD.UI.RangeEditor` | Editor for a `TOBDRangeProfile`: garage values, defaults, per-row reset and validation. |
+
 ## Where the code lives
 
 | File | Component family |

@@ -6,6 +6,7 @@
   "description": "VW/Audi/Skoda/Seat 1.6 TDI normal ranges for EA189/EA288-era workshop diagnostics.",
   "vehicle": "VW 1.6 TDI (EA189/EA288 era)",
   "source": "generic workshop defaults adjusted for VW/Audi/Skoda/Seat 1.6 TDI",
+  "engine_codes": ["CLHA", "CRKB", "DDYA"],
   "ranges": [
     {
       "pid": "04",

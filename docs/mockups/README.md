@@ -1,8 +1,10 @@
 # OBD Studio panel mockups
 
-Design proposals for the next set of visual components. None of these
-controls exist yet. The images are here so the layout, wording and
-colours can be agreed on before any Pascal is written.
+The approved designs of the OBD Studio controls. Every control shown
+here exists in `src/UI` and is registered on the **OBD Studio** palette
+page; the images are the visual reference the controls are painted to.
+New controls get a mockup here first, so the layout, wording and colours
+can be agreed on before any Pascal is written.
 
 Every colour comes from the ERDesigns palettes in
 `src/UI/ERD.UI.Types.pas` (`BRAND_PALETTE_LIGHT` / `BRAND_PALETTE_DARK`).
@@ -44,7 +46,9 @@ DPF and SCR faults.
 | Sidebar | A component of its own: `TOBDSidebar`. |
 | Buttons, check boxes, radio buttons | Components of their own: `TOBDButton`, `TOBDCheckBox`, `TOBDRadioButton`. |
 | Composition | Panels are built from small, reusable themed controls (below), so later screens reuse them. |
-| Property grid | `TOBDInspector`, a themed port of [erdesigns-eu/Delphi-Inspector](https://github.com/erdesigns-eu/Delphi-Inspector). |
+| Property grid | `TOBDInspector`, part of this library, with the keyboard and mouse behaviour of the Delphi Object Inspector. |
+| Freeze-frame layout | Both: `Layout: TOBDFreezeFrameLayout = (flTable, flInspector)`. |
+| Range profiles | Shipped as editable defaults per engine family in `catalogs/range-profiles/`. |
 
 ## Building blocks
 
@@ -89,20 +93,22 @@ ring) and disabled.
 
 ### Inspector (`TOBDInspector`)
 
-A themed port of `TInspector` from Delphi-Inspector. It keeps:
+A categorised name / value grid that behaves like the Delphi Object
+Inspector:
 
-- collapsible categories;
-- name / value rows;
-- the draggable splitter;
-- the inline editor and the ellipsis edit button.
-
-It adds:
-
-- combo and check-box value editors;
+- collapsible categories (click the arrow, double-click the header,
+  Left / Right or numpad `+` / `-` / `*`);
+- a draggable splitter (double-click resets it);
+- an in-place editor on the selected row: typing starts editing, Enter,
+  Up / Down or leaving the row commits, Esc reverts;
+- pick lists (Alt+Down or F4 opens, double-click cycles), check-box
+  values (click, Space or double-click toggles) and an ellipsis button
+  (Ctrl+Enter);
+- values that differ from their default are drawn bold, truncated
+  values show a hint;
 - read-only rows whose value is coloured by state (warning / alarm
   edge);
-- density-aware row heights;
-- `TOBDTheme` colours in place of `clBtnFace`.
+- density-aware row heights and `TOBDTheme` colours.
 
 The left example is a freeze frame shown as an inspector. The right one
 is the OBD Studio settings page, including the inspection regime, range
@@ -244,16 +250,3 @@ The Codes page uses a compact one-row version of it as the page header.
 | Light | Dark |
 |---|---|
 | ![](vehicle-card-light.png) | ![](vehicle-card-dark.png) |
-
-## Open questions
-
-1. **Inspector port**: should `TOBDInspector` be ported into this
-   repository (themed, with the extra editors), or should
-   Delphi-Inspector get the theme hooks and stay a separate package
-   that Delphi-OBD depends on?
-2. **Freeze frame**: should it use the table layout (at fault / live /
-   range columns) or the inspector layout (categories, one value
-   column), or both through a `Layout` property?
-3. **Range profiles**: should they be stored per garage (one JSON file
-   per installation) or shipped as editable defaults per engine family
-   in `catalogs/`?

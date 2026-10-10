@@ -1297,7 +1297,7 @@ def draw_range_editor(c):
 
 
 # --------------------------------------------------------------------------
-# Inspector (themed port of erdesigns-eu/Delphi-Inspector TInspector)
+# Inspector (TOBDInspector)
 # --------------------------------------------------------------------------
 
 FREEZE_INSPECTOR = [

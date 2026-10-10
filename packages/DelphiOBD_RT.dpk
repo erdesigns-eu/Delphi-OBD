@@ -357,6 +357,22 @@ contains
   ERD.UI.Terminal in '..\src\UI\ERD.UI.Terminal.pas',
   ERD.UI.LogViewer in '..\src\UI\ERD.UI.LogViewer.pas',
   ERD.UI.DtcList in '..\src\UI\ERD.UI.DtcList.pas',
-  ERD.UI.Pickers in '..\src\UI\ERD.UI.Pickers.pas';
+  ERD.UI.Pickers in '..\src\UI\ERD.UI.Pickers.pas',
+  ERD.UI.Paint in '..\src\UI\ERD.UI.Paint.pas',
+  ERD.UI.PopupList in '..\src\UI\ERD.UI.PopupList.pas',
+  ERD.UI.Card in '..\src\UI\ERD.UI.Card.pas',
+  ERD.UI.Buttons in '..\src\UI\ERD.UI.Buttons.pas',
+  ERD.UI.Chips in '..\src\UI\ERD.UI.Chips.pas',
+  ERD.UI.Edits in '..\src\UI\ERD.UI.Edits.pas',
+  ERD.UI.Segmented in '..\src\UI\ERD.UI.Segmented.pas',
+  ERD.UI.RangeBar in '..\src\UI\ERD.UI.RangeBar.pas',
+  ERD.UI.RangeProfiles in '..\src\UI\ERD.UI.RangeProfiles.pas',
+  ERD.UI.Inspector in '..\src\UI\ERD.UI.Inspector.pas',
+  ERD.UI.Sidebar in '..\src\UI\ERD.UI.Sidebar.pas',
+  ERD.UI.VehicleCard in '..\src\UI\ERD.UI.VehicleCard.pas',
+  ERD.UI.DtcPanel in '..\src\UI\ERD.UI.DtcPanel.pas',
+  ERD.UI.ReadinessPanel in '..\src\UI\ERD.UI.ReadinessPanel.pas',
+  ERD.UI.FreezeFrameView in '..\src\UI\ERD.UI.FreezeFrameView.pas',
+  ERD.UI.RangeEditor in '..\src\UI\ERD.UI.RangeEditor.pas';
 
 end.

@@ -138,12 +138,16 @@ type
     FProfileName: string;
     FDescription: string;
     FVehicle: string;
+    FEngineCodes: string;
     FRanges: TOBDValueRanges;
     FOnChange: TNotifyEvent;
+    FListeners: TArray<TNotifyEvent>;
     FLoading: Boolean;
+    function IndexOfListener(const AEvent: TNotifyEvent): Integer;
     procedure SetProfileName(const AValue: string);
     procedure SetDescription(const AValue: string);
     procedure SetVehicle(const AValue: string);
+    procedure SetEngineCodes(const AValue: string);
     procedure SetRanges(AValue: TOBDValueRanges);
     procedure DoChange;
     procedure RangesChanged;
@@ -172,6 +176,15 @@ type
     function ModifiedCount: Integer;
     /// <summary>Resets every range to its shipped default band.</summary>
     procedure ResetAll;
+    /// <summary>Registers a handler that runs on every change, next to
+    /// <see cref="OnChange"/>. Controls that show the profile use this,
+    /// so the host keeps OnChange for itself.</summary>
+    /// <param name="AEvent">Handler to add; a handler is added once.</param>
+    procedure AddChangeListener(const AEvent: TNotifyEvent);
+    /// <summary>Removes a handler added with
+    /// <see cref="AddChangeListener"/>.</summary>
+    /// <param name="AEvent">Handler to remove.</param>
+    procedure RemoveChangeListener(const AEvent: TNotifyEvent);
   published
     /// <summary>Profile identifier independent from TComponent.Name.</summary>
     property ProfileName: string read FProfileName write SetProfileName;
@@ -179,6 +192,8 @@ type
     property Description: string read FDescription write SetDescription;
     /// <summary>Vehicle or family this profile targets.</summary>
     property Vehicle: string read FVehicle write SetVehicle;
+    /// <summary>Comma-separated engine codes this profile applies to.</summary>
+    property EngineCodes: string read FEngineCodes write SetEngineCodes;
     /// <summary>Editable range definitions.</summary>
     property Ranges: TOBDValueRanges read FRanges write SetRanges;
     /// <summary>Fires after profile metadata or range values change.</summary>
@@ -242,6 +257,40 @@ begin
     if Value is TJSONString then
       Exit(TJSONString(Value).Value);
   end;
+end;
+
+function JSONStringOrArray(AObject: TJSONObject; const AKeys: array of string;
+  const ADefault: string): string;
+var
+  Key: string;
+  Value: TJSONValue;
+  ArrayValue: TJSONArray;
+  Index: Integer;
+begin
+  Result := JSONString(AObject, AKeys, '');
+  if Result <> '' then
+    Exit;
+  if AObject = nil then
+    Exit(ADefault);
+  for Key in AKeys do
+  begin
+    Value := AObject.GetValue(Key);
+    if Value is TJSONArray then
+    begin
+      ArrayValue := TJSONArray(Value);
+      for Index := 0 to ArrayValue.Count - 1 do
+      begin
+        if not (ArrayValue.Items[Index] is TJSONString) then
+          Continue;
+        if Result <> '' then
+          Result := Result + ', ';
+        Result := Result + TJSONString(ArrayValue.Items[Index]).Value;
+      end;
+      if Result <> '' then
+        Exit;
+    end;
+  end;
+  Result := ADefault;
 end;
 
 function JSONNumber(AObject: TJSONObject; const AKeys: array of string;
@@ -651,6 +700,8 @@ begin
       FProfileName := JSONString(Root, ['profile', 'profile_name', 'name'], '');
       FDescription := JSONString(Root, ['description'], '');
       FVehicle := JSONString(Root, ['vehicle'], '');
+      FEngineCodes := JSONStringOrArray(Root,
+        ['engine_codes', 'engineCodes', 'engines'], '');
       FRanges.Assign(TempRanges);
     finally
       FLoading := False;
@@ -666,6 +717,8 @@ function TOBDRangeProfile.ToJSON: string;
 var
   Root: TJSONObject;
   RangeArray: TJSONArray;
+  EngineArray: TJSONArray;
+  EngineCode: string;
   Index: Integer;
 begin
   Root := TJSONObject.Create;
@@ -676,6 +729,11 @@ begin
     Root.AddPair('profile', FProfileName);
     Root.AddPair('description', FDescription);
     Root.AddPair('vehicle', FVehicle);
+    EngineArray := TJSONArray.Create;
+    for EngineCode in FEngineCodes.Split([',']) do
+      if Trim(EngineCode) <> '' then
+        EngineArray.Add(Trim(EngineCode));
+    Root.AddPair('engine_codes', EngineArray);
     RangeArray := TJSONArray.Create;
     for Index := 0 to FRanges.Count - 1 do
       RangeArray.AddElement(RangeToJSON(FRanges[Index]));
@@ -693,6 +751,7 @@ begin
     FProfileName := 'generic';
     FDescription := 'Generic petrol/diesel-neutral OBD-II normal ranges. Source: generic workshop defaults.';
     FVehicle := 'Generic OBD-II vehicle';
+    FEngineCodes := '';
     FRanges.Clear;
     AddDefaultRange(Self, $04, 'calculated_load', 'Calculated load', '%',
       0, 100, 0, 85, 0);
@@ -778,6 +837,14 @@ begin
   DoChange;
 end;
 
+procedure TOBDRangeProfile.SetEngineCodes(const AValue: string);
+begin
+  if FEngineCodes = AValue then
+    Exit;
+  FEngineCodes := AValue;
+  DoChange;
+end;
+
 procedure TOBDRangeProfile.SetRanges(AValue: TOBDValueRanges);
 begin
   if AValue = nil then
@@ -788,11 +855,45 @@ begin
 end;
 
 procedure TOBDRangeProfile.DoChange;
+var
+  Listeners: TArray<TNotifyEvent>;
+  I: Integer;
 begin
   if FLoading then
     Exit;
   if Assigned(FOnChange) then
     FOnChange(Self);
+  Listeners := Copy(FListeners);
+  for I := 0 to High(Listeners) do
+    Listeners[I](Self);
+end;
+
+function TOBDRangeProfile.IndexOfListener(const AEvent: TNotifyEvent): Integer;
+var
+  I: Integer;
+begin
+  for I := 0 to High(FListeners) do
+    if (TMethod(FListeners[I]).Code = TMethod(AEvent).Code) and
+      (TMethod(FListeners[I]).Data = TMethod(AEvent).Data) then
+      Exit(I);
+  Result := -1;
+end;
+
+procedure TOBDRangeProfile.AddChangeListener(const AEvent: TNotifyEvent);
+begin
+  if not Assigned(AEvent) or (IndexOfListener(AEvent) >= 0) then
+    Exit;
+  SetLength(FListeners, Length(FListeners) + 1);
+  FListeners[High(FListeners)] := AEvent;
+end;
+
+procedure TOBDRangeProfile.RemoveChangeListener(const AEvent: TNotifyEvent);
+var
+  I: Integer;
+begin
+  I := IndexOfListener(AEvent);
+  if I >= 0 then
+    Delete(FListeners, I, 1);
 end;
 
 procedure TOBDRangeProfile.RangesChanged;

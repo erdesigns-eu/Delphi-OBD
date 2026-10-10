@@ -7,16 +7,40 @@
     "file": "palette/TOBDADAPTER.png",
     "type": "PNG"
   },
+  "TOBDBADGE": {
+    "file": "palette/TOBDBADGE.png",
+    "type": "PNG"
+  },
+  "TOBDBANNER": {
+    "file": "palette/TOBDBANNER.png",
+    "type": "PNG"
+  },
   "TOBDBARGAUGE": {
     "file": "palette/TOBDBARGAUGE.png",
+    "type": "PNG"
+  },
+  "TOBDBUTTON": {
+    "file": "palette/TOBDBUTTON.png",
     "type": "PNG"
   },
   "TOBDCANIDEDIT": {
     "file": "palette/TOBDCANIDEDIT.png",
     "type": "PNG"
   },
+  "TOBDCARD": {
+    "file": "palette/TOBDCARD.png",
+    "type": "PNG"
+  },
   "TOBDCCP": {
     "file": "palette/TOBDCCP.png",
+    "type": "PNG"
+  },
+  "TOBDCHECKBOX": {
+    "file": "palette/TOBDCHECKBOX.png",
+    "type": "PNG"
+  },
+  "TOBDCHIP": {
+    "file": "palette/TOBDCHIP.png",
     "type": "PNG"
   },
   "TOBDCLEARDTC": {
@@ -29,6 +53,10 @@
   },
   "TOBDCODINGSESSION": {
     "file": "palette/TOBDCODINGSESSION.png",
+    "type": "PNG"
+  },
+  "TOBDCOMBOBOX": {
+    "file": "palette/TOBDCOMBOBOX.png",
     "type": "PNG"
   },
   "TOBDCOMPONENTPROTECTIONBMW": {
@@ -91,6 +119,10 @@
     "file": "palette/TOBDDTCLIST.png",
     "type": "PNG"
   },
+  "TOBDDTCPANEL": {
+    "file": "palette/TOBDDTCPANEL.png",
+    "type": "PNG"
+  },
   "TOBDDTCS": {
     "file": "palette/TOBDDTCS.png",
     "type": "PNG"
@@ -101,6 +133,10 @@
   },
   "TOBDDYNOCONDITIONS": {
     "file": "palette/TOBDDYNOCONDITIONS.png",
+    "type": "PNG"
+  },
+  "TOBDEDIT": {
+    "file": "palette/TOBDEDIT.png",
     "type": "PNG"
   },
   "TOBDEMISSIONSESTIMATOR": {
@@ -131,12 +167,20 @@
     "file": "palette/TOBDFREEZEFRAME.png",
     "type": "PNG"
   },
+  "TOBDFREEZEFRAMEVIEW": {
+    "file": "palette/TOBDFREEZEFRAMEVIEW.png",
+    "type": "PNG"
+  },
   "TOBDFUELECONOMYMETER": {
     "file": "palette/TOBDFUELECONOMYMETER.png",
     "type": "PNG"
   },
   "TOBDINERTIALBRAKE": {
     "file": "palette/TOBDINERTIALBRAKE.png",
+    "type": "PNG"
+  },
+  "TOBDINSPECTOR": {
+    "file": "palette/TOBDINSPECTOR.png",
     "type": "PNG"
   },
   "TOBDISOBUS": {
@@ -245,6 +289,10 @@
   },
   "TOBDPROTOCOL": {
     "file": "palette/TOBDPROTOCOL.png",
+    "type": "PNG"
+  },
+  "TOBDRADIOBUTTON": {
+    "file": "palette/TOBDRADIOBUTTON.png",
     "type": "PNG"
   },
   "TOBDRADIOCODEACURA": {
@@ -427,6 +475,22 @@
     "file": "palette/TOBDRADIOCODEVW.png",
     "type": "PNG"
   },
+  "TOBDRANGEBAR": {
+    "file": "palette/TOBDRANGEBAR.png",
+    "type": "PNG"
+  },
+  "TOBDRANGEEDITOR": {
+    "file": "palette/TOBDRANGEEDITOR.png",
+    "type": "PNG"
+  },
+  "TOBDRANGEPROFILE": {
+    "file": "palette/TOBDRANGEPROFILE.png",
+    "type": "PNG"
+  },
+  "TOBDREADINESSPANEL": {
+    "file": "palette/TOBDREADINESSPANEL.png",
+    "type": "PNG"
+  },
   "TOBDRECORDER": {
     "file": "palette/TOBDRECORDER.png",
     "type": "PNG"
@@ -445,6 +509,14 @@
   },
   "TOBDSECURITYACCESS": {
     "file": "palette/TOBDSECURITYACCESS.png",
+    "type": "PNG"
+  },
+  "TOBDSEGMENTED": {
+    "file": "palette/TOBDSEGMENTED.png",
+    "type": "PNG"
+  },
+  "TOBDSIDEBAR": {
+    "file": "palette/TOBDSIDEBAR.png",
     "type": "PNG"
   },
   "TOBDSTATUSLAMP": {
@@ -525,6 +597,10 @@
   },
   "TOBDVEHICLEHEALTH": {
     "file": "palette/TOBDVEHICLEHEALTH.png",
+    "type": "PNG"
+  },
+  "TOBDVEHICLEINFOCARD": {
+    "file": "palette/TOBDVEHICLEINFOCARD.png",
     "type": "PNG"
   },
   "TOBDVIN": {

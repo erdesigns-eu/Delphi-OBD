@@ -24,7 +24,7 @@
 // 2026-05-10  ERD  Add splash + About-box registration via Tools API.
 //
 // 2026-10-08  ERD  Components/editors only; remove wizards and IDE branding.
-// 2026-10-10  ERD  "OBD Dashboard" palette page.
+// 2026-10-10  ERD  "OBD Dashboard" and "OBD Studio" palette pages.
 // ------------------------------------------------------------------------------
 
 unit ERD.Design.Registration;
@@ -132,6 +132,20 @@ uses
   ERD.UI.LogViewer,
   ERD.UI.DtcList,
   ERD.UI.Pickers,
+  ERD.UI.Card,
+  ERD.UI.Buttons,
+  ERD.UI.Chips,
+  ERD.UI.Edits,
+  ERD.UI.Segmented,
+  ERD.UI.RangeBar,
+  ERD.UI.RangeProfiles,
+  ERD.UI.Inspector,
+  ERD.UI.Sidebar,
+  ERD.UI.VehicleCard,
+  ERD.UI.DtcPanel,
+  ERD.UI.ReadinessPanel,
+  ERD.UI.FreezeFrameView,
+  ERD.UI.RangeEditor,
   ERD.Service.Dyno,
   ERD.UDS.Transfer,
   ERD.Flash.VoltageGate,
@@ -223,6 +237,15 @@ begin
   // Diagnostic list and edit controls built on standard VCL controls.
   RegisterComponents('OBD Visual', [TOBDTerminal, TOBDLogViewer, TOBDDtcList,
     TOBDVINEdit, TOBDPidPicker, TOBDOEMPicker, TOBDCANIdEdit]);
+
+  // OBD Studio controls. Small themed building blocks (card, buttons,
+  // check boxes, chips, edits, inspector, sidebar) and the workshop
+  // panels composed of them. All follow TOBDTheme and its Density.
+  RegisterComponents('OBD Studio', [TOBDCard, TOBDButton, TOBDCheckBox,
+    TOBDRadioButton, TOBDChip, TOBDBadge, TOBDBanner, TOBDEdit, TOBDComboBox,
+    TOBDSegmented, TOBDRangeBar, TOBDInspector, TOBDSidebar, TOBDRangeProfile,
+    TOBDVehicleInfoCard, TOBDDtcPanel, TOBDReadinessPanel, TOBDFreezeFrameView,
+    TOBDRangeEditor]);
   // Non-visual dyno math (own palette tab).
   RegisterComponents('OBD Dyno', [TOBDDynoCalculator, TOBDPowerCurve,
     TOBDDragRun, TOBDDynoConditions, TOBDFuelEconomyMeter,

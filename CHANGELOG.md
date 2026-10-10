@@ -34,6 +34,27 @@ warning rows paint in the warning colour.
 The ERDesigns light palette uses #856404 for warnings (the site's
 warning text colour); the dark palette uses #FFC107.
 
+### OBD Studio
+
+Themed workshop controls on the **OBD Studio** palette page, painted
+to the approved mockups in `docs/mockups`:
+
+- `TOBDTheme.Density` (`dnDesktop` / `dnTablet`) sets row and touch
+  target heights for every OBD Studio control on the form.
+- Building blocks: `TOBDCard`, `TOBDButton`, `TOBDCheckBox` (check or
+  switch), `TOBDRadioButton`, `TOBDChip`, `TOBDBadge`, `TOBDBanner`,
+  `TOBDEdit`, `TOBDComboBox`, `TOBDSegmented`, `TOBDRangeBar`,
+  `TOBDSidebar` and `TOBDInspector`, a property grid that behaves like
+  the Delphi Object Inspector.
+- Panels: `TOBDVehicleInfoCard`, `TOBDDtcPanel` (inline clear
+  confirmation), `TOBDReadinessPanel` (`InspectionRegime` for APK,
+  keuring, contrôle technique, MOT, HU / AU, NCT),
+  `TOBDFreezeFrameView` (table or inspector layout) and
+  `TOBDRangeEditor`.
+- `TOBDRangeProfile` with garage-adjustable normal ranges;
+  `catalogs/range-profiles` ships editable defaults (generic and
+  VAG 1.6 TDI).
+
 ### Dyno
 
 `ERD.Service.Dyno` holds the non-visual dyno and drive calculators on

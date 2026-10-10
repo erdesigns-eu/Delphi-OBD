@@ -836,6 +836,125 @@ def eeprom(text):
     return draw
 
 
+def studio_card(c):
+    c.frame(3.5, 4.5, 20.5, 19.5, 1.2, LIGHT)
+    c.rect(3.5, 4.5, 5, 19.5, ORANGE)
+    c.rect(7, 7.5, 15, 9, LIGHT, radius=0.5)
+    c.line([(7, 16.5), (18, 16.5)], 1, MUTED)
+
+
+def studio_button(c):
+    c.rect(3, 8, 21, 16, ORANGE, radius=1.5)
+    c.rect(7, 11.3, 17, 12.7, TILE, radius=0.5)
+
+
+def studio_check(c):
+    c.rect(3.5, 7.5, 12.5, 16.5, ORANGE, radius=1.5)
+    c.line([(5.6, 12), (7.6, 14.2), (10.8, 9.6)], 1.6, TILE)
+    c.rect(14.5, 9.5, 21.5, 14.5, LIGHT, radius=2.5)
+    c.circle(19, 12, 1.8, ORANGE)
+
+
+def studio_radio(c):
+    c.ring(8, 12, 4.5, 1.4, ORANGE)
+    c.circle(8, 12, 2.2, ORANGE)
+    c.line([(14.5, 12), (20.5, 12)], 1.6, LIGHT)
+
+
+def studio_chip(c):
+    c.rect(2.5, 8.5, 21.5, 15.5, DANGER, radius=1, alpha=0.35)
+    c.frame(2.5, 8.5, 21.5, 15.5, 1, DANGER, radius=1)
+    c.rect(6, 11.4, 18, 12.6, LIGHT, radius=0.4)
+
+
+def studio_badge(c):
+    c.rect(3.5, 5.5, 15.5, 17.5, GREY, radius=1.5)
+    c.circle(16.5, 7.5, 4.5, DANGER)
+    c.text_centered(16.5, 5.5, '3', LIGHT)
+
+
+def studio_banner(c):
+    c.rect(2.5, 6.5, 21.5, 17.5, WARNING, alpha=0.3)
+    c.rect(2.5, 6.5, 4, 17.5, WARNING)
+    c.circle(8, 12, 2.2, WARNING)
+    c.line([(12, 10), (19.5, 10)], 1.2, LIGHT)
+    c.line([(12, 14), (17.5, 14)], 1.2, MUTED)
+
+
+def studio_segmented(c):
+    c.frame(2.5, 8.5, 21.5, 15.5, 1, MUTED, radius=1)
+    c.rect(2.5, 8.5, 9, 15.5, ORANGE, radius=1)
+    c.line([(15.2, 9.5), (15.2, 14.5)], 1, MUTED)
+
+
+def studio_range_bar(c):
+    c.rect(3, 11, 21, 13, GREY, radius=1)
+    c.rect(8, 11, 16, 13, SUCCESS, radius=0.5)
+    c.line([(13, 8.5), (13, 15.5)], 1.6, LIGHT)
+
+
+def studio_inspector(c):
+    c.rect(3.5, 4, 20.5, 7, GREY, radius=0.6)
+    c.poly([(4.8, 4.8), (7.2, 4.8), (6, 6.4)], LIGHT)
+    for i in range(3):
+        y = 10 + i * 4
+        c.line([(4.5, y), (10, y)], 1.2, MUTED)
+        c.line([(13, y), (19.5, y)], 1.2, ORANGE if i == 1 else LIGHT)
+    c.line([(11.5, 8), (11.5, 20)], 1, TILE_EDGE)
+
+
+def studio_sidebar(c):
+    c.rect(3.5, 3.5, 10, 20.5, GREY, radius=1)
+    c.rect(3.5, 8, 10, 11, ORANGE)
+    for y in (5.5, 14, 17.5):
+        c.circle(6.8, y, 1, LIGHT)
+    c.frame(10, 3.5, 20.5, 20.5, 1, MUTED, radius=1)
+
+
+def studio_range_profile(c):
+    for i, (lo, hi) in enumerate(((7, 15), (5, 12), (10, 18))):
+        y = 7 + i * 5
+        c.rect(4, y - 0.8, 20, y + 0.8, GREY, radius=0.6)
+        c.rect(lo, y - 0.8, hi, y + 0.8, SUCCESS if i != 1 else ORANGE, radius=0.6)
+
+
+def studio_vehicle_card(c):
+    c.frame(3, 5, 21, 19, 1.2, LIGHT, radius=1)
+    c.text(5, 7, 'VIN', ORANGE)
+    c.line([(5, 15.5), (18.5, 15.5)], 1.2, MUTED)
+
+
+def studio_dtc_panel(c):
+    for i, color in enumerate((DANGER, WARNING, ORANGE_STRONG)):
+        y = 6.5 + i * 5.5
+        c.rect(3.5, y - 1.5, 8.5, y + 1.5, color, radius=0.8)
+        c.line([(11, y), (20, y)], 1.4, LIGHT)
+
+
+def studio_readiness(c):
+    for i in range(4):
+        x, y = 4 + (i % 2) * 9, 4.5 + (i // 2) * 8.5
+        c.frame(x, y, x + 7, y + 6.5, 1, MUTED, radius=0.8)
+        if i == 3:
+            c.circle(x + 3.5, y + 3.25, 1.6, WARNING)
+        else:
+            c.line([(x + 1.7, y + 3.3), (x + 3, y + 4.6), (x + 5.3, y + 1.9)], 1.2, SUCCESS)
+
+
+def studio_freeze_frame(c):
+    freeze_frame(c)
+    c.rect(4, 19, 20, 21, GREY, radius=0.8)
+    c.rect(9, 19, 15, 21, SUCCESS, radius=0.6)
+
+
+def studio_range_editor(c):
+    for i in range(2):
+        y = 7 + i * 7
+        c.line([(3.5, y + 2), (9, y + 2)], 1.2, LIGHT)
+        c.rect(11, y, 20.5, y + 4.5, LIGHT, radius=0.8)
+        c.rect(12.5, y + 1.5, 16, y + 3, ORANGE if i == 0 else TILE, radius=0.4)
+
+
 def labelled(text, sub):
     def draw(c):
         protocol_icon(c, text, sub)
@@ -907,6 +1026,15 @@ ICONS = {
     'TOBDBarGauge': bar_gauge, 'TOBDValueTile': value_tile, 'TOBDTrendChart': trend,
     'TOBDLiveDataGrid': grid, 'TOBDStatusLamp': lamp, 'TOBDConnectionBar': connection_bar,
     'TOBDMatrixDisplay': matrix,
+    # OBD Studio
+    'TOBDCard': studio_card, 'TOBDButton': studio_button, 'TOBDCheckBox': studio_check,
+    'TOBDRadioButton': studio_radio, 'TOBDChip': studio_chip, 'TOBDBadge': studio_badge,
+    'TOBDBanner': studio_banner, 'TOBDEdit': edit('AB'), 'TOBDComboBox': picker('AB'),
+    'TOBDSegmented': studio_segmented, 'TOBDRangeBar': studio_range_bar,
+    'TOBDInspector': studio_inspector, 'TOBDSidebar': studio_sidebar,
+    'TOBDRangeProfile': studio_range_profile, 'TOBDVehicleInfoCard': studio_vehicle_card,
+    'TOBDDtcPanel': studio_dtc_panel, 'TOBDReadinessPanel': studio_readiness,
+    'TOBDFreezeFrameView': studio_freeze_frame, 'TOBDRangeEditor': studio_range_editor,
     # Visual
     'TOBDTerminal': terminal, 'TOBDLogViewer': log_viewer, 'TOBDDtcList': dtc_list,
     'TOBDVINEdit': edit('VIN'), 'TOBDPidPicker': picker('PID'), 'TOBDOEMPicker': picker('OEM'),
