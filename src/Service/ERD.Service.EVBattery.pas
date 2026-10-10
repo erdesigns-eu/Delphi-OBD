@@ -14,7 +14,7 @@
 //
 // Author      : Ernst Reidinga (ERDesigns)
 // Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
-// License     : MIT - see LICENSE
+// License     : see LICENSE
 // ------------------------------------------------------------------------------
 
 unit ERD.Service.EVBattery;

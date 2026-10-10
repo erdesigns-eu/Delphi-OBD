@@ -2,7 +2,7 @@
 // ERD.UI.Theme
 //
 // TOBDTheme — non-visual controller component that owns the
-// palette + dark-mode setting for every Delphi-OBD visual on
+// palette, dark-mode and metric/imperial setting for every Delphi-OBD visual on
 // the form / data-module. Drop one on a form, and every visual
 // on the same Owner auto-binds at runtime — no host code
 // required.
@@ -17,11 +17,13 @@
 // 4. The process-wide default theme — set via
 // <c>TOBDTheme.RegisterDefault</c>.
 // 5. The active VCL Style (TStyleManager.ActiveStyle).
-// 6. The built-in brand palette (light / dark per mode).
+// 6. The built-in palette for the theme's Mode: the ERDesigns
+// light / dark palette, or the Windows system colours for
+// tmWindows.
 //
 // Author      : Ernst Reidinga (ERDesigns)
 // Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
-// License     : MIT — see LICENSE
+// License     : see LICENSE
 // ------------------------------------------------------------------------------
 
 unit ERD.UI.Theme;
@@ -60,12 +62,24 @@ type
     procedure ThemeChanged;
   end;
 
+  /// <summary>Controls whose layout depends on
+  /// <see cref="TOBDTheme.Density"/> implement this next to
+  /// <see cref="IOBDThemeAware"/>; the theme calls
+  /// <c>DensityChanged</c> before it repaints them.</summary>
+  IOBDDensityAware = interface
+    ['{4C7E2A91-0B3D-4F6E-9A58-2D1C8E7F3B60}']
+    procedure DensityChanged;
+  end;
+
   /// <summary>Non-visual theme controller. Drop on a form /
   /// data-module. Mode = tmAuto follows the active VCL Style;
-  /// tmLight / tmDark force a palette.</summary>
+  /// tmLight / tmDark force the ERDesigns palette; tmWindows uses
+  /// the Windows / VCL system colours.</summary>
   TOBDTheme = class(TComponent)
   strict private
     FMode: TOBDThemeMode;
+    FUnitSystem: TOBDUnitSystem;
+    FDensity: TOBDDensity;
     FOnChange: TOBDThemeChangedEvent;
     FOverrideUsed: Boolean;
     FOverride: TOBDThemePalette;
@@ -74,6 +88,8 @@ type
     class var FDefault: TOBDTheme;
 
     procedure SetMode(AValue: TOBDThemeMode);
+    procedure SetUnitSystem(AValue: TOBDUnitSystem);
+    procedure SetDensity(AValue: TOBDDensity);
     function ResolveBuiltIn: TOBDThemePalette;
     procedure NotifyAttached;
   protected
@@ -129,9 +145,22 @@ type
     /// auto-bind.</summary>
     class function FindOnOwner(AControl: TComponent): TOBDTheme; static;
   published
-    /// <summary>Light / Dark / Auto. Auto = follow the active
-    /// VCL Style's luma.</summary>
+    /// <summary>Auto / Light / Dark / Windows. Auto = ERDesigns
+    /// light or dark palette following the active VCL Style's luma;
+    /// Windows = system colours.</summary>
     property Mode: TOBDThemeMode read FMode write SetMode default tmAuto;
+
+    /// <summary>Metric or imperial display units for every bound
+    /// dashboard control. Values stay metric internally; changing this
+    /// only repaints.</summary>
+    property UnitSystem: TOBDUnitSystem read FUnitSystem write SetUnitSystem
+      default usMetric;
+
+    /// <summary>Row height and hit-target size for every bound OBD
+    /// Studio control whose <c>ParentDensity</c> is True. Switch to
+    /// <c>dnTablet</c> for touch screens.</summary>
+    property Density: TOBDDensity read FDensity write SetDensity
+      default dnDesktop;
 
     /// <summary>Fires on every palette change.</summary>
     property OnChange: TOBDThemeChangedEvent read FOnChange write FOnChange;
@@ -148,6 +177,8 @@ constructor TOBDTheme.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FMode := tmAuto;
+  FUnitSystem := usMetric;
+  FDensity := dnDesktop;
   FAttached := TList<TComponent>.Create;
 end;
 
@@ -168,6 +199,34 @@ begin
   if FMode = AValue then
     Exit;
   FMode := AValue;
+  Refresh;
+end;
+
+procedure TOBDTheme.SetUnitSystem(AValue: TOBDUnitSystem);
+begin
+  if FUnitSystem = AValue then
+    Exit;
+  FUnitSystem := AValue;
+  Refresh;
+end;
+
+procedure TOBDTheme.SetDensity(AValue: TOBDDensity);
+var
+  C: TComponent;
+  Aware: IOBDDensityAware;
+begin
+  if FDensity = AValue then
+    Exit;
+  FDensity := AValue;
+  // Controls re-layout on a density change; tell them before the
+  // repaint.
+  for C in FAttached do
+    if Supports(C, IOBDDensityAware, Aware) then
+      try
+        Aware.DensityChanged;
+      except
+        // Don't let one bad subscriber take the rest down.
+      end;
   Refresh;
 end;
 
@@ -197,6 +256,11 @@ var
 begin
   if FOverrideUsed then
     Exit(FOverride);
+
+  // The Windows palette is built from the (styled) system colours
+  // already, so it needs no further overlay.
+  if FMode = tmWindows then
+    Exit(WindowsPalette);
 
   // Start from the brand built-in for the resolved mode.
   Built := ResolveBuiltIn;

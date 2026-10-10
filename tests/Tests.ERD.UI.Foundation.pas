@@ -5,9 +5,9 @@
 //  chain + TOBDVisualStyle reset/has-any + TOBDValueAnim
 //  duration / easing arithmetic.
 //
-//  Component paint behaviour itself needs a windowed message
-//  loop and is out of unit-test scope (manual smoke on the
-//  demo dashboard).
+//  Off-screen rendering of the dashboard controls is covered by
+//  Tests.ERD.UI.Gauges, Tests.ERD.UI.Panels and
+//  Tests.ERD.UI.Dashboard.
 //------------------------------------------------------------------------------
 
 unit Tests.ERD.UI.Foundation;
@@ -47,6 +47,8 @@ type
     [Test] procedure DefaultsToAutoMode;
     [Test] procedure LightModeYieldsLightPalette;
     [Test] procedure DarkModeYieldsDarkPalette;
+    [Test] procedure WindowsModeYieldsSystemPalette;
+    [Test] procedure WindowsPaletteHoldsPlainRGB;
     [Test] procedure CustomOverridePaletteWins;
     [Test] procedure ClearOverrideReturnsToBrandDefault;
     [Test] procedure FindOnOwnerWalksAncestry;
@@ -153,6 +155,39 @@ begin
   finally
     T.Free;
   end;
+end;
+
+procedure TOBDThemeTests.WindowsModeYieldsSystemPalette;
+var T: TOBDTheme; P, W: TOBDThemePalette;
+begin
+  T := TOBDTheme.Create(nil);
+  try
+    T.Mode := tmWindows;
+    P := T.Palette;
+    W := WindowsPalette;
+    Assert.AreEqual<TColor>(W.Background, P.Background);
+    Assert.AreEqual<TColor>(W.ForegroundText, P.ForegroundText);
+    Assert.AreEqual<TColor>(W.Accent, P.Accent);
+    Assert.AreEqual<TColor>(ColorToRGB(clWindow), P.Background);
+    Assert.AreEqual<TColor>(ColorToRGB(clHighlight), P.Accent);
+  finally
+    T.Free;
+  end;
+end;
+
+procedure TOBDThemeTests.WindowsPaletteHoldsPlainRGB;
+var W: TOBDThemePalette;
+begin
+  // System colour indices are negative TColor values; the palette
+  // must hold resolved RGB so GDI+ painting gets real colours.
+  W := WindowsPalette;
+  Assert.IsTrue(W.Background >= 0);
+  Assert.IsTrue(W.ForegroundText >= 0);
+  Assert.IsTrue(W.Accent >= 0);
+  Assert.IsTrue(W.Subtle >= 0);
+  Assert.IsTrue(W.NeutralLight >= 0);
+  Assert.IsTrue(W.GaugeFace >= 0);
+  Assert.AreNotEqual<TColor>(W.Background, W.ForegroundText);
 end;
 
 procedure TOBDThemeTests.CustomOverridePaletteWins;

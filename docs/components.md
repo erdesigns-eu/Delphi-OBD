@@ -329,6 +329,115 @@ Generic components (`TOBDDataIdentifierIO`, `TOBDDTCs`,
 `TOBDUDSReadDID`, `TOBDJ1939DM`, …) resolve raw numeric IDs to
 human-readable names through the registry.
 
+## OBD Dashboard
+
+Visual controls for an OBD-Studio style workshop screen. Every control
+takes its colours from a `TOBDTheme` and its data from a
+`TOBDChannelBinding` (`Channel`): set `Channel.Source` to a
+`TOBDLiveData` (or let the dashboard do it) and `Channel.PID` to the
+Mode 01 PID, or push values from code with `Channel.PushValue`. A
+channel without an update for `StaleAfterMs` is drawn as stale.
+
+### `TOBDTheme` — `ERD.UI.Theme`
+Palette provider. `Mode` selects ERDesigns light, ERDesigns dark,
+Windows system colours or automatic light / dark; `UnitSystem`
+switches every connected control between metric and imperial.
+
+### `TOBDDialGauge` — `ERD.UI.Gauges.Dial`
+Round gauge with needle, scale, coloured warning / alarm bands
+(`Alerts`) and a digital readout. RPM, speed, boost, temperatures.
+
+### `TOBDBarGauge` — `ERD.UI.Gauges.Bar`
+Horizontal or vertical bar gauge, optionally centre-zero (fuel trims).
+
+### `TOBDValueTile` — `ERD.UI.ValueTile`
+Large number with caption, unit, alert colouring and an optional
+sparkline.
+
+### `TOBDStatusLamp` — `ERD.UI.StatusLamp`
+Indicator lamp (MIL, connection, readiness, warning) with `State`
+ok / warning / alarm / off / unknown and optional blinking.
+
+### `TOBDConnectionBar` — `ERD.UI.ConnectionBar`
+Status strip: link state, adapter, protocol, VIN and battery voltage.
+
+### `TOBDTrendChart` — `ERD.UI.TrendChart`
+Multi-channel strip chart over a rolling `TimeWindowSec`; each channel
+has its own PID, range, unit and colour.
+
+### `TOBDMatrixDisplay` — `ERD.UI.MatrixDisplay`
+Dot-matrix text display with presets (ticker, warning, alarm, status,
+value, LCD).
+
+### `TOBDLiveDataGrid` — `ERD.UI.LiveDataGrid`
+Table of PIDs with value, unit and session minimum / maximum; checked
+rows (`CheckedPIDs`) feed the dashboard or the trend chart.
+
+### `TOBDDashboard` — `ERD.UI.Dashboard`
+Grid host for the controls above. `AddTile('dial' | 'bar' | 'value' |
+'trend' | 'lamp' | 'matrix' | 'grid', Col, Row, ColSpan, RowSpan)`,
+`EditMode` for moving and resizing tiles at run time, layouts saved
+and loaded as JSON, and `Source` to connect every tile to one
+`TOBDLiveData`. See
+[`samples/18-OBDStudioDashboard`](../samples/18-OBDStudioDashboard/).
+
+The **OBD Visual** page holds the supporting controls (terminal, log
+viewer, DTC list, PID / OEM pickers, VIN and CAN-ID edits). The
+terminal, log viewer and DTC list have a `Theme` property: with a
+`TOBDTheme` assigned they take background, text and row colours from
+its palette.
+
+## OBD Studio
+
+Themed controls for a workshop application, on the **OBD Studio**
+palette page. They follow `TOBDTheme` for colours and for `Density`
+(`dnDesktop` / `dnTablet`, the row and touch-target heights), so one
+switch on the theme changes the whole form. The approved designs are in
+[`docs/mockups`](mockups/README.md).
+
+### Building blocks
+| Control | Unit | Purpose |
+|---|---|---|
+| `TOBDCard` | `ERD.UI.Card` | Container with title header, footer text and a status edge; child controls paint on the card colour. |
+| `TOBDButton` | `ERD.UI.Buttons` | `Kind` primary / secondary / danger / danger outline / ghost, optional glyph, `ModalResult`, `Default`, `Cancel`. |
+| `TOBDCheckBox` | `ERD.UI.Buttons` | `Style = csCheck` or `csSwitch`; checked, unchecked and grayed. |
+| `TOBDRadioButton` | `ERD.UI.Buttons` | Single choice within a `GroupIndex`; arrow keys move through the group. |
+| `TOBDChip`, `TOBDBadge` | `ERD.UI.Chips` | Status pill and counter bubble. |
+| `TOBDBanner` | `ERD.UI.Chips` | Info / success / warning / danger callout; holds child controls. |
+| `TOBDEdit`, `TOBDComboBox` | `ERD.UI.Edits` | Themed edit and drop-down (incremental search in the list). |
+| `TOBDSegmented` | `ERD.UI.Segmented` | Segmented choice / filter strip. |
+| `TOBDRangeBar` | `ERD.UI.RangeBar` | A value against its normal band. |
+| `TOBDInspector` | `ERD.UI.Inspector` | Categorised name / value grid with the keyboard and mouse behaviour of the Delphi Object Inspector: in-place editor (Enter commits, Esc reverts), pick lists, check values, ellipsis button, splitter, values that differ from their default in bold. |
+| `TOBDSidebar` | `ERD.UI.Sidebar` | Grouped navigation with icons and badges; collapses to icons. |
+| `TOBDRangeProfile` | `ERD.UI.RangeProfiles` | Non-visual: garage-adjustable normal ranges per PID, loaded from and saved to `catalogs/range-profiles/*.json`. |
+
+### Panels
+| Control | Unit | Purpose |
+|---|---|---|
+| `TOBDVehicleInfoCard` | `ERD.UI.VehicleCard` | Decoded VIN with check-digit verdict, vehicle, connection and odometer; `Layout` full or compact. |
+| `TOBDDtcPanel` | `ERD.UI.DtcPanel` | Trouble codes with status chips, filter strip, inline freeze-frame details and an inline clear confirmation (`OnReadCodes`, `OnClearCodes`). `LoadFromService` takes the `TOBDDtcEntry` list of a DTC read. |
+| `TOBDReadinessPanel` | `ERD.UI.ReadinessPanel` | Emission-monitor readiness from Mode 01 PID 01 (`LoadPID01`); the verdict names the local inspection through `InspectionRegime` (APK, keuring, contrôle technique, MOT, HU / AU, NCT or `InspectionName`). |
+| `TOBDFreezeFrameView` | `ERD.UI.FreezeFrameView` | Freeze-frame values at fault, optionally next to live values, against a `RangeProfile`; `Layout` table or inspector. |
+| `TOBDRangeEditor` | `ERD.UI.RangeEditor` | Editor for a `TOBDRangeProfile`: garage values, defaults, per-row reset and validation. |
+
+### Application chrome
+Everything around the panels, so a whole application follows the theme.
+
+| Control | Unit | Purpose |
+|---|---|---|
+| `TOBDTitleBar` | `ERD.UI.TitleBar` | Themed caption for any form: app icon, inline menu (`MenuPlacement` title bar or below), title, status chip, `Buttons` collection of extra caption buttons (glyph or image, hint, badge, toggle, `OnClick`) and the system buttons. Keeps resizing, snap layouts and the system menu. The border is the accent colour while the form is active. `CommandStyle = (csMenu, csRibbon)` switches between menu and `Ribbon` at run time; `QuickAccess` buttons show in ribbon mode. |
+| `TOBDMenuBar`, `TOBDPopupMenu` | `ERD.UI.Menus` | Themed `TMainMenu` bar and popup menus that read the standard `TMenuItem` tree (actions, shortcuts, check and radio items, submenus). A separator item with a `Hint` is drawn as a group header; `OnGetItemStyle` sets glyphs and danger items. Leave `Form.Menu` empty when a menu bar or title bar shows the menu. |
+| `TOBDRibbon` | `ERD.UI.Ribbon` | Tabs with groups of large and small items bound to actions; `ContextualTabs` collection with theme or custom colours; File button opening a `Backstage`; command search (Alt+Q); classic or simplified style; collapsible (Ctrl+F1). |
+| `TOBDBackstage`, `TOBDReportPreview` | `ERD.UI.Backstage` | Full-window page with an accent navigation strip whose items host pages; A4 report preview with zoom and page navigation (`OnPaintPage`). |
+| `TOBDTabs` | `ERD.UI.Tabs` | Page tabs (underline) or document tabs (closable, modified dot, new-tab button). |
+| `TOBDToolBar` | `ERD.UI.ToolBar` | Action-linked buttons, toggles, drop-downs, separators, overflow menu and a search box. |
+| `TOBDStatusBar` | `ERD.UI.StatusBar` | Text, status (coloured dot), progress and link panels. |
+| `TOBDProgressBar` | `ERD.UI.Progress` | Determinate, state-coloured, indeterminate and step progress. |
+| `TOBDDialog` | `ERD.UI.Dialogs` | Themed message dialog with kind, buttons, danger button and an optional check box; `OBDMessageDlg` helper. |
+| `TOBDToastManager` | `ERD.UI.Toast` | Stacked notifications with an action link and an auto-hide timer. |
+| `TOBDHintStyle` | `ERD.UI.Hint` | Makes `TOBDHintWindow` the application hint window: title, text and shortcut. |
+| `TOBDScrollBar` | `ERD.UI.ScrollBar` | Thin themed scroll bar that widens on hover; `OBDPaintScrollBar` lets other controls paint the same look. |
+
 ## Where the code lives
 
 | File | Component family |
@@ -347,4 +456,5 @@ human-readable names through the registry.
 | `src/Recorder/ERD.Recorder.*`, `ERD.Replayer.pas` | Recorder / replayer / mock / redactor |
 | `src/OEM/ERD.OEM.*` | Per-vendor coding + component protection |
 | `src/Core/ERD.*` | Cross-cutting: types, errors, decoders, catalog, version |
+| `src/UI/ERD.UI.*` | Visual controls: theme, gauges, dashboard and the OBD Visual page |
 | `src/DesignTime/ERD.Design.*` | IDE integration (component palette icons and property/component editors) |

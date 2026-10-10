@@ -1,0 +1,142 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://erdesigns.eu/schema/range-profile.json",
+  "title": "OBD value range profile",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "type",
+    "profile",
+    "ranges"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "type": {
+      "const": "range-profile"
+    },
+    "profile": {
+      "type": "string",
+      "minLength": 1
+    },
+    "description": {
+      "type": "string"
+    },
+    "vehicle": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string"
+    },
+    "engine_codes": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "ranges": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/range"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "pid": {
+      "oneOf": [
+        {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        {
+          "type": "string",
+          "pattern": "^(?:0x|\\$)?[0-9A-Fa-f]{1,2}$"
+        }
+      ]
+    },
+    "range": {
+      "type": "object",
+      "required": [
+        "key",
+        "caption",
+        "unit",
+        "min",
+        "max",
+        "low",
+        "high",
+        "default_low",
+        "default_high",
+        "alarm_margin",
+        "decimals"
+      ],
+      "properties": {
+        "pid": {
+          "$ref": "#/$defs/pid"
+        },
+        "key": {
+          "type": "string",
+          "minLength": 1
+        },
+        "caption": {
+          "type": "string",
+          "minLength": 1
+        },
+        "unit": {
+          "type": "string"
+        },
+        "min": {
+          "type": "number"
+        },
+        "max": {
+          "type": "number"
+        },
+        "low": {
+          "type": "number"
+        },
+        "high": {
+          "type": "number"
+        },
+        "default_low": {
+          "type": "number"
+        },
+        "default_high": {
+          "type": "number"
+        },
+        "alarm_margin": {
+          "type": "number",
+          "minimum": 0
+        },
+        "decimals": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 6
+        },
+        "notes": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "required": [
+            "pid"
+          ]
+        },
+        {
+          "required": [
+            "key"
+          ]
+        }
+      ]
+    }
+  }
+}

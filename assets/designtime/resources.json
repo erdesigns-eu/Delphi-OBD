@@ -1,103 +1,66 @@
 {
-  "TOBDACCELGRAPH": {
-    "file": "palette/TOBDACCELGRAPH.png",
-    "type": "PNG"
-  },
   "TOBDACTUATOR": {
     "file": "palette/TOBDACTUATOR.png",
-    "type": "PNG"
-  },
-  "TOBDACTUATORTESTPANEL": {
-    "file": "palette/TOBDACTUATORTESTPANEL.png",
-    "type": "PNG"
-  },
-  "TOBDADAPTATIONEDITOR": {
-    "file": "palette/TOBDADAPTATIONEDITOR.png",
     "type": "PNG"
   },
   "TOBDADAPTER": {
     "file": "palette/TOBDADAPTER.png",
     "type": "PNG"
   },
-  "TOBDADAPTERPANEL": {
-    "file": "palette/TOBDADAPTERPANEL.png",
+  "TOBDBACKSTAGE": {
+    "file": "palette/TOBDBACKSTAGE.png",
     "type": "PNG"
   },
-  "TOBDADBLUELEVEL": {
-    "file": "palette/TOBDADBLUELEVEL.png",
+  "TOBDBADGE": {
+    "file": "palette/TOBDBADGE.png",
     "type": "PNG"
   },
-  "TOBDAFRGAUGE": {
-    "file": "palette/TOBDAFRGAUGE.png",
+  "TOBDBANNER": {
+    "file": "palette/TOBDBANNER.png",
     "type": "PNG"
   },
-  "TOBDARCGAUGE": {
-    "file": "palette/TOBDARCGAUGE.png",
+  "TOBDBARGAUGE": {
+    "file": "palette/TOBDBARGAUGE.png",
     "type": "PNG"
   },
-  "TOBDBARSEGMENTGAUGE": {
-    "file": "palette/TOBDBARSEGMENTGAUGE.png",
-    "type": "PNG"
-  },
-  "TOBDBLUETOOTHSIGNAL": {
-    "file": "palette/TOBDBLUETOOTHSIGNAL.png",
-    "type": "PNG"
-  },
-  "TOBDBOOSTGAUGE": {
-    "file": "palette/TOBDBOOSTGAUGE.png",
+  "TOBDBUTTON": {
+    "file": "palette/TOBDBUTTON.png",
     "type": "PNG"
   },
   "TOBDCANIDEDIT": {
     "file": "palette/TOBDCANIDEDIT.png",
     "type": "PNG"
   },
+  "TOBDCARD": {
+    "file": "palette/TOBDCARD.png",
+    "type": "PNG"
+  },
   "TOBDCCP": {
     "file": "palette/TOBDCCP.png",
     "type": "PNG"
   },
-  "TOBDCELLVOLTAGEHEATMAP": {
-    "file": "palette/TOBDCELLVOLTAGEHEATMAP.png",
+  "TOBDCHECKBOX": {
+    "file": "palette/TOBDCHECKBOX.png",
     "type": "PNG"
   },
-  "TOBDCHARGEPORTINDICATOR": {
-    "file": "palette/TOBDCHARGEPORTINDICATOR.png",
-    "type": "PNG"
-  },
-  "TOBDCHARGINGFLOW": {
-    "file": "palette/TOBDCHARGINGFLOW.png",
-    "type": "PNG"
-  },
-  "TOBDCIRCULARGAUGE": {
-    "file": "palette/TOBDCIRCULARGAUGE.png",
+  "TOBDCHIP": {
+    "file": "palette/TOBDCHIP.png",
     "type": "PNG"
   },
   "TOBDCLEARDTC": {
-    "alias_of": "TOBDMODE04CONFIRM",
-    "file": "palette/TOBDMODE04CONFIRM.png",
-    "type": "PNG"
-  },
-  "TOBDCLOCK": {
-    "file": "palette/TOBDCLOCK.png",
+    "file": "palette/TOBDCLEARDTC.png",
     "type": "PNG"
   },
   "TOBDCODINGAUDITLOG": {
     "file": "palette/TOBDCODINGAUDITLOG.png",
     "type": "PNG"
   },
-  "TOBDCODINGDIFFVIEWER": {
-    "file": "palette/TOBDCODINGDIFFVIEWER.png",
-    "type": "PNG"
-  },
   "TOBDCODINGSESSION": {
     "file": "palette/TOBDCODINGSESSION.png",
     "type": "PNG"
   },
-  "TOBDCODINGSESSIONPANEL": {
-    "file": "palette/TOBDCODINGSESSIONPANEL.png",
-    "type": "PNG"
-  },
-  "TOBDCOMBOGAUGE": {
-    "file": "palette/TOBDCOMBOGAUGE.png",
+  "TOBDCOMBOBOX": {
+    "file": "palette/TOBDCOMBOBOX.png",
     "type": "PNG"
   },
   "TOBDCOMPONENTPROTECTIONBMW": {
@@ -120,12 +83,12 @@
     "file": "palette/TOBDCONNECTION.png",
     "type": "PNG"
   },
-  "TOBDCONNECTIONSTATELAMP": {
-    "file": "palette/TOBDCONNECTIONSTATELAMP.png",
+  "TOBDCONNECTIONBAR": {
+    "file": "palette/TOBDCONNECTIONBAR.png",
     "type": "PNG"
   },
-  "TOBDDASHLAMP": {
-    "file": "palette/TOBDDASHLAMP.png",
+  "TOBDDASHBOARD": {
+    "file": "palette/TOBDDASHBOARD.png",
     "type": "PNG"
   },
   "TOBDDATAIDENTIFIERIO": {
@@ -133,44 +96,23 @@
     "type": "PNG"
   },
   "TOBDDATASOURCE": {
-    "alias_of": "TOBDLIVEDATA",
-    "file": "palette/TOBDLIVEDATA.png",
+    "file": "palette/TOBDDATASOURCE.png",
     "type": "PNG"
   },
-  "TOBDDELTAGAUGE": {
-    "file": "palette/TOBDDELTAGAUGE.png",
+  "TOBDDIALGAUGE": {
+    "file": "palette/TOBDDIALGAUGE.png",
     "type": "PNG"
   },
-  "TOBDDIGITALCLUSTER": {
-    "file": "palette/TOBDDIGITALCLUSTER.png",
-    "type": "PNG"
-  },
-  "TOBDDIGITALGAUGE": {
-    "file": "palette/TOBDDIGITALGAUGE.png",
+  "TOBDDIALOG": {
+    "file": "palette/TOBDDIALOG.png",
     "type": "PNG"
   },
   "TOBDDOIPCLIENT": {
     "file": "palette/TOBDDOIPCLIENT.png",
     "type": "PNG"
   },
-  "TOBDDOIPNODEPICKER": {
-    "file": "palette/TOBDDOIPNODEPICKER.png",
-    "type": "PNG"
-  },
-  "TOBDDOIPSTATUSPANEL": {
-    "file": "palette/TOBDDOIPSTATUSPANEL.png",
-    "type": "PNG"
-  },
-  "TOBDDPFSTATUS": {
-    "file": "palette/TOBDDPFSTATUS.png",
-    "type": "PNG"
-  },
   "TOBDDRAGRUN": {
     "file": "palette/TOBDDRAGRUN.png",
-    "type": "PNG"
-  },
-  "TOBDDRAGTIMER": {
-    "file": "palette/TOBDDRAGTIMER.png",
     "type": "PNG"
   },
   "TOBDDRIVECYCLEADVISOR": {
@@ -181,45 +123,28 @@
     "file": "palette/TOBDDRIVECYCLECATALOGCOMP.png",
     "type": "PNG"
   },
-  "TOBDDRIVECYCLEPROGRESS": {
-    "file": "palette/TOBDDRIVECYCLEPROGRESS.png",
-    "type": "PNG"
-  },
-  "TOBDDRIVERSCOREWIDGET": {
-    "file": "palette/TOBDDRIVERSCOREWIDGET.png",
-    "type": "PNG"
-  },
-  "TOBDDTCBADGE": {
-    "file": "palette/TOBDDTCBADGE.png",
-    "type": "PNG"
-  },
   "TOBDDTCLIST": {
-    "alias_of": "TOBDDTCS",
-    "file": "palette/TOBDDTCS.png",
+    "file": "palette/TOBDDTCLIST.png",
+    "type": "PNG"
+  },
+  "TOBDDTCPANEL": {
+    "file": "palette/TOBDDTCPANEL.png",
     "type": "PNG"
   },
   "TOBDDTCS": {
     "file": "palette/TOBDDTCS.png",
     "type": "PNG"
   },
-  "TOBDDUALNEEDLEGAUGE": {
-    "file": "palette/TOBDDUALNEEDLEGAUGE.png",
-    "type": "PNG"
-  },
   "TOBDDYNOCALCULATOR": {
     "file": "palette/TOBDDYNOCALCULATOR.png",
-    "type": "PNG"
-  },
-  "TOBDDYNOCHART": {
-    "file": "palette/TOBDDYNOCHART.png",
     "type": "PNG"
   },
   "TOBDDYNOCONDITIONS": {
     "file": "palette/TOBDDYNOCONDITIONS.png",
     "type": "PNG"
   },
-  "TOBDECOSCOREWIDGET": {
-    "file": "palette/TOBDECOSCOREWIDGET.png",
+  "TOBDEDIT": {
+    "file": "palette/TOBDEDIT.png",
     "type": "PNG"
   },
   "TOBDEMISSIONSESTIMATOR": {
@@ -234,14 +159,6 @@
     "file": "palette/TOBDEVBATTERYCATALOGCOMP.png",
     "type": "PNG"
   },
-  "TOBDFLASHAUDITTAIL": {
-    "file": "palette/TOBDFLASHAUDITTAIL.png",
-    "type": "PNG"
-  },
-  "TOBDFLASHCHECKPOINTTIMELINE": {
-    "file": "palette/TOBDFLASHCHECKPOINTTIMELINE.png",
-    "type": "PNG"
-  },
   "TOBDFLASHER": {
     "file": "palette/TOBDFLASHER.png",
     "type": "PNG"
@@ -250,52 +167,32 @@
     "file": "palette/TOBDFLASHPIPELINE.png",
     "type": "PNG"
   },
-  "TOBDFLASHPROGRESS": {
-    "file": "palette/TOBDFLASHPROGRESS.png",
-    "type": "PNG"
-  },
-  "TOBDFLASHSAFETYDASHBOARD": {
-    "file": "palette/TOBDFLASHSAFETYDASHBOARD.png",
-    "type": "PNG"
-  },
   "TOBDFLASHSESSION": {
     "file": "palette/TOBDFLASHSESSION.png",
-    "type": "PNG"
-  },
-  "TOBDFRAMEINSPECTOR": {
-    "file": "palette/TOBDFRAMEINSPECTOR.png",
     "type": "PNG"
   },
   "TOBDFREEZEFRAME": {
     "file": "palette/TOBDFREEZEFRAME.png",
     "type": "PNG"
   },
-  "TOBDFREEZEFRAMETABLE": {
-    "file": "palette/TOBDFREEZEFRAMETABLE.png",
+  "TOBDFREEZEFRAMEVIEW": {
+    "file": "palette/TOBDFREEZEFRAMEVIEW.png",
     "type": "PNG"
   },
   "TOBDFUELECONOMYMETER": {
     "file": "palette/TOBDFUELECONOMYMETER.png",
     "type": "PNG"
   },
-  "TOBDFUELTRIMDISPLAY": {
-    "file": "palette/TOBDFUELTRIMDISPLAY.png",
-    "type": "PNG"
-  },
-  "TOBDGEARINDICATOR": {
-    "file": "palette/TOBDGEARINDICATOR.png",
-    "type": "PNG"
-  },
-  "TOBDGFORCEVISUALISER": {
-    "file": "palette/TOBDGFORCEVISUALISER.png",
-    "type": "PNG"
-  },
-  "TOBDGPSACCURACY": {
-    "file": "palette/TOBDGPSACCURACY.png",
+  "TOBDHINTSTYLE": {
+    "file": "palette/TOBDHINTSTYLE.png",
     "type": "PNG"
   },
   "TOBDINERTIALBRAKE": {
     "file": "palette/TOBDINERTIALBRAKE.png",
+    "type": "PNG"
+  },
+  "TOBDINSPECTOR": {
+    "file": "palette/TOBDINSPECTOR.png",
     "type": "PNG"
   },
   "TOBDISOBUS": {
@@ -303,13 +200,11 @@
     "type": "PNG"
   },
   "TOBDJ1939": {
-    "alias_of": "TOBDPROTOCOL",
-    "file": "palette/TOBDPROTOCOL.png",
+    "file": "palette/TOBDJ1939.png",
     "type": "PNG"
   },
   "TOBDJ1939DM": {
-    "alias_of": "TOBDPROTOCOL",
-    "file": "palette/TOBDPROTOCOL.png",
+    "file": "palette/TOBDJ1939DM.png",
     "type": "PNG"
   },
   "TOBDJ2534CHANNEL": {
@@ -318,10 +213,6 @@
   },
   "TOBDJ2534DEVICE": {
     "file": "palette/TOBDJ2534DEVICE.png",
-    "type": "PNG"
-  },
-  "TOBDJ2534DEVICELIST": {
-    "file": "palette/TOBDJ2534DEVICELIST.png",
     "type": "PNG"
   },
   "TOBDKEYADAPTATIONBMW": {
@@ -340,144 +231,56 @@
     "file": "palette/TOBDKEYADAPTATIONTOYOTA.png",
     "type": "PNG"
   },
-  "TOBDKNOB": {
-    "alias_of": "TOBDCANIDEDIT",
-    "file": "palette/TOBDCANIDEDIT.png",
-    "type": "PNG"
-  },
   "TOBDKWP": {
-    "alias_of": "TOBDPROTOCOL",
-    "file": "palette/TOBDPROTOCOL.png",
+    "file": "palette/TOBDKWP.png",
     "type": "PNG"
   },
   "TOBDKWP1281SESSION": {
     "file": "palette/TOBDKWP1281SESSION.png",
     "type": "PNG"
   },
-  "TOBDKWP1281SESSIONINSPECTOR": {
-    "file": "palette/TOBDKWP1281SESSIONINSPECTOR.png",
-    "type": "PNG"
-  },
   "TOBDKWPIOCONTROL": {
-    "alias_of": "TOBDACTUATOR",
-    "file": "palette/TOBDACTUATOR.png",
+    "file": "palette/TOBDKWPIOCONTROL.png",
     "type": "PNG"
   },
   "TOBDKWPREADDTC": {
-    "alias_of": "TOBDDTCS",
-    "file": "palette/TOBDDTCS.png",
+    "file": "palette/TOBDKWPREADDTC.png",
     "type": "PNG"
   },
   "TOBDKWPREADID": {
-    "alias_of": "TOBDDATAIDENTIFIERIO",
-    "file": "palette/TOBDDATAIDENTIFIERIO.png",
+    "file": "palette/TOBDKWPREADID.png",
     "type": "PNG"
   },
   "TOBDKWPROUTINE": {
-    "alias_of": "TOBDROUTINECONTROL",
-    "file": "palette/TOBDROUTINECONTROL.png",
+    "file": "palette/TOBDKWPROUTINE.png",
     "type": "PNG"
   },
   "TOBDKWPWRITEID": {
     "file": "palette/TOBDKWPWRITEID.png",
     "type": "PNG"
   },
-  "TOBDLABELFILEEDITOR": {
-    "file": "palette/TOBDLABELFILEEDITOR.png",
-    "type": "PNG"
-  },
-  "TOBDLAPTIMER": {
-    "file": "palette/TOBDLAPTIMER.png",
-    "type": "PNG"
-  },
-  "TOBDLAPTRACKMAP": {
-    "file": "palette/TOBDLAPTRACKMAP.png",
-    "type": "PNG"
-  },
-  "TOBDLED": {
-    "file": "palette/TOBDLED.png",
-    "type": "PNG"
-  },
-  "TOBDLINEARGAUGE": {
-    "file": "palette/TOBDLINEARGAUGE.png",
-    "type": "PNG"
-  },
   "TOBDLIVEDATA": {
     "file": "palette/TOBDLIVEDATA.png",
     "type": "PNG"
   },
-  "TOBDLIVEGRIDCHART": {
-    "file": "palette/TOBDLIVEGRIDCHART.png",
-    "type": "PNG"
-  },
-  "TOBDLOGGERCONTROL": {
-    "file": "palette/TOBDLOGGERCONTROL.png",
-    "type": "PNG"
-  },
-  "TOBDLOGGEREXPLORER": {
-    "file": "palette/TOBDLOGGEREXPLORER.png",
+  "TOBDLIVEDATAGRID": {
+    "file": "palette/TOBDLIVEDATAGRID.png",
     "type": "PNG"
   },
   "TOBDLOGVIEWER": {
-    "alias_of": "TOBDLOGGEREXPLORER",
-    "file": "palette/TOBDLOGGEREXPLORER.png",
-    "type": "PNG"
-  },
-  "TOBDLONGCODINGEDITOR": {
-    "file": "palette/TOBDLONGCODINGEDITOR.png",
-    "type": "PNG"
-  },
-  "TOBDMAINTENANCECARD": {
-    "file": "palette/TOBDMAINTENANCECARD.png",
-    "type": "PNG"
-  },
-  "TOBDMARINETACH": {
-    "file": "palette/TOBDMARINETACH.png",
+    "file": "palette/TOBDLOGVIEWER.png",
     "type": "PNG"
   },
   "TOBDMATRIXDISPLAY": {
     "file": "palette/TOBDMATRIXDISPLAY.png",
     "type": "PNG"
   },
-  "TOBDMILLAMP": {
-    "file": "palette/TOBDMILLAMP.png",
-    "type": "PNG"
-  },
-  "TOBDMINMAXGAUGE": {
-    "file": "palette/TOBDMINMAXGAUGE.png",
-    "type": "PNG"
-  },
-  "TOBDMODE04CONFIRM": {
-    "file": "palette/TOBDMODE04CONFIRM.png",
-    "type": "PNG"
-  },
-  "TOBDMODE06VIEWER": {
-    "file": "palette/TOBDMODE06VIEWER.png",
-    "type": "PNG"
-  },
-  "TOBDMODE07VIEWER": {
-    "file": "palette/TOBDMODE07VIEWER.png",
-    "type": "PNG"
-  },
-  "TOBDMODE0AVIEWER": {
-    "file": "palette/TOBDMODE0AVIEWER.png",
-    "type": "PNG"
-  },
-  "TOBDMULTIPIDGRID": {
-    "file": "palette/TOBDMULTIPIDGRID.png",
-    "type": "PNG"
-  },
-  "TOBDODOMETER": {
-    "file": "palette/TOBDODOMETER.png",
-    "type": "PNG"
-  },
-  "TOBDOEMBADGE": {
-    "file": "palette/TOBDOEMBADGE.png",
+  "TOBDMENUBAR": {
+    "file": "palette/TOBDMENUBAR.png",
     "type": "PNG"
   },
   "TOBDOEMCATALOG": {
-    "alias_of": "TOBDOEMPICKER",
-    "file": "palette/TOBDOEMPICKER.png",
+    "file": "palette/TOBDOEMCATALOG.png",
     "type": "PNG"
   },
   "TOBDOEMPICKER": {
@@ -489,44 +292,31 @@
     "type": "PNG"
   },
   "TOBDOXYGENMONITOR": {
-    "alias_of": "TOBDONBOARDMONITOR",
-    "file": "palette/TOBDONBOARDMONITOR.png",
-    "type": "PNG"
-  },
-  "TOBDPIDPANEL": {
-    "file": "palette/TOBDPIDPANEL.png",
+    "file": "palette/TOBDOXYGENMONITOR.png",
     "type": "PNG"
   },
   "TOBDPIDPICKER": {
     "file": "palette/TOBDPIDPICKER.png",
     "type": "PNG"
   },
-  "TOBDPLAYBACKSCRUBBER": {
-    "file": "palette/TOBDPLAYBACKSCRUBBER.png",
-    "type": "PNG"
-  },
-  "TOBDPLAYBACKTIMELINE": {
-    "file": "palette/TOBDPLAYBACKTIMELINE.png",
+  "TOBDPOPUPMENU": {
+    "file": "palette/TOBDPOPUPMENU.png",
     "type": "PNG"
   },
   "TOBDPOWERCURVE": {
     "file": "palette/TOBDPOWERCURVE.png",
     "type": "PNG"
   },
-  "TOBDPOWERCURVEGRAPH": {
-    "file": "palette/TOBDPOWERCURVEGRAPH.png",
-    "type": "PNG"
-  },
-  "TOBDPREDICTIVELAP": {
-    "file": "palette/TOBDPREDICTIVELAP.png",
+  "TOBDPROGRESSBAR": {
+    "file": "palette/TOBDPROGRESSBAR.png",
     "type": "PNG"
   },
   "TOBDPROTOCOL": {
     "file": "palette/TOBDPROTOCOL.png",
     "type": "PNG"
   },
-  "TOBDPTOMETER": {
-    "file": "palette/TOBDPTOMETER.png",
+  "TOBDRADIOBUTTON": {
+    "file": "palette/TOBDRADIOBUTTON.png",
     "type": "PNG"
   },
   "TOBDRADIOCODEACURA": {
@@ -709,162 +499,136 @@
     "file": "palette/TOBDRADIOCODEVW.png",
     "type": "PNG"
   },
-  "TOBDREADINESSGRID": {
-    "file": "palette/TOBDREADINESSGRID.png",
+  "TOBDRANGEBAR": {
+    "file": "palette/TOBDRANGEBAR.png",
     "type": "PNG"
   },
-  "TOBDREADINESSLAMP": {
-    "file": "palette/TOBDREADINESSLAMP.png",
+  "TOBDRANGEEDITOR": {
+    "file": "palette/TOBDRANGEEDITOR.png",
+    "type": "PNG"
+  },
+  "TOBDRANGEPROFILE": {
+    "file": "palette/TOBDRANGEPROFILE.png",
+    "type": "PNG"
+  },
+  "TOBDREADINESSPANEL": {
+    "file": "palette/TOBDREADINESSPANEL.png",
     "type": "PNG"
   },
   "TOBDRECORDER": {
     "file": "palette/TOBDRECORDER.png",
     "type": "PNG"
   },
-  "TOBDRECORDERTOOLBAR": {
-    "file": "palette/TOBDRECORDERTOOLBAR.png",
-    "type": "PNG"
-  },
-  "TOBDREGENINDICATOR": {
-    "file": "palette/TOBDREGENINDICATOR.png",
-    "type": "PNG"
-  },
   "TOBDREPLAYER": {
     "file": "palette/TOBDREPLAYER.png",
+    "type": "PNG"
+  },
+  "TOBDREPORTPREVIEW": {
+    "file": "palette/TOBDREPORTPREVIEW.png",
+    "type": "PNG"
+  },
+  "TOBDRIBBON": {
+    "file": "palette/TOBDRIBBON.png",
     "type": "PNG"
   },
   "TOBDROUTINECONTROL": {
     "file": "palette/TOBDROUTINECONTROL.png",
     "type": "PNG"
   },
-  "TOBDROUTINECONTROLLAUNCHER": {
-    "file": "palette/TOBDROUTINECONTROLLAUNCHER.png",
-    "type": "PNG"
-  },
-  "TOBDRUNRECORDER": {
-    "file": "palette/TOBDRUNRECORDER.png",
+  "TOBDSCROLLBAR": {
+    "file": "palette/TOBDSCROLLBAR.png",
     "type": "PNG"
   },
   "TOBDSECOCCODEC": {
     "file": "palette/TOBDSECOCCODEC.png",
     "type": "PNG"
   },
-  "TOBDSECOCSTATUSLAMP": {
-    "file": "palette/TOBDSECOCSTATUSLAMP.png",
-    "type": "PNG"
-  },
   "TOBDSECURITYACCESS": {
     "file": "palette/TOBDSECURITYACCESS.png",
     "type": "PNG"
   },
-  "TOBDSECURITYACCESSLAMP": {
-    "file": "palette/TOBDSECURITYACCESSLAMP.png",
+  "TOBDSEGMENTED": {
+    "file": "palette/TOBDSEGMENTED.png",
     "type": "PNG"
   },
-  "TOBDSEEDKEYDEBUGGER": {
-    "file": "palette/TOBDSEEDKEYDEBUGGER.png",
+  "TOBDSIDEBAR": {
+    "file": "palette/TOBDSIDEBAR.png",
     "type": "PNG"
   },
-  "TOBDSERVICEHISTORYTIMELINE": {
-    "file": "palette/TOBDSERVICEHISTORYTIMELINE.png",
+  "TOBDSTATUSBAR": {
+    "file": "palette/TOBDSTATUSBAR.png",
     "type": "PNG"
   },
-  "TOBDSHIFTLIGHT": {
-    "file": "palette/TOBDSHIFTLIGHT.png",
+  "TOBDSTATUSLAMP": {
+    "file": "palette/TOBDSTATUSLAMP.png",
     "type": "PNG"
   },
-  "TOBDSHIFTLIGHTBAR": {
-    "file": "palette/TOBDSHIFTLIGHTBAR.png",
-    "type": "PNG"
-  },
-  "TOBDSPARKLINE": {
-    "file": "palette/TOBDSPARKLINE.png",
-    "type": "PNG"
-  },
-  "TOBDSTATEOFCHARGEBAR": {
-    "file": "palette/TOBDSTATEOFCHARGEBAR.png",
-    "type": "PNG"
-  },
-  "TOBDSTRIPCHART": {
-    "file": "palette/TOBDSTRIPCHART.png",
-    "type": "PNG"
-  },
-  "TOBDTACHOMETER": {
-    "file": "palette/TOBDTACHOMETER.png",
+  "TOBDTABS": {
+    "file": "palette/TOBDTABS.png",
     "type": "PNG"
   },
   "TOBDTERMINAL": {
-    "alias_of": "TOBDFRAMEINSPECTOR",
-    "file": "palette/TOBDFRAMEINSPECTOR.png",
+    "file": "palette/TOBDTERMINAL.png",
     "type": "PNG"
   },
   "TOBDTHEME": {
     "file": "palette/TOBDTHEME.png",
     "type": "PNG"
   },
+  "TOBDTITLEBAR": {
+    "file": "palette/TOBDTITLEBAR.png",
+    "type": "PNG"
+  },
+  "TOBDTOASTMANAGER": {
+    "file": "palette/TOBDTOASTMANAGER.png",
+    "type": "PNG"
+  },
+  "TOBDTOOLBAR": {
+    "file": "palette/TOBDTOOLBAR.png",
+    "type": "PNG"
+  },
   "TOBDTORQUEATWHEELS": {
     "file": "palette/TOBDTORQUEATWHEELS.png",
-    "type": "PNG"
-  },
-  "TOBDTORQUERPMMAP": {
-    "file": "palette/TOBDTORQUERPMMAP.png",
-    "type": "PNG"
-  },
-  "TOBDTP20CHANNELPANEL": {
-    "file": "palette/TOBDTP20CHANNELPANEL.png",
     "type": "PNG"
   },
   "TOBDTP20SESSION": {
     "file": "palette/TOBDTP20SESSION.png",
     "type": "PNG"
   },
-  "TOBDTRENDGRAPH": {
-    "alias_of": "TOBDSTRIPCHART",
-    "file": "palette/TOBDSTRIPCHART.png",
-    "type": "PNG"
-  },
-  "TOBDTRIPSUMMARYCARD": {
-    "file": "palette/TOBDTRIPSUMMARYCARD.png",
+  "TOBDTRENDCHART": {
+    "file": "palette/TOBDTRENDCHART.png",
     "type": "PNG"
   },
   "TOBDUDS": {
-    "alias_of": "TOBDPROTOCOL",
-    "file": "palette/TOBDPROTOCOL.png",
+    "file": "palette/TOBDUDS.png",
     "type": "PNG"
   },
   "TOBDUDSDYNAMICDID": {
-    "alias_of": "TOBDDATAIDENTIFIERIO",
-    "file": "palette/TOBDDATAIDENTIFIERIO.png",
+    "file": "palette/TOBDUDSDYNAMICDID.png",
     "type": "PNG"
   },
   "TOBDUDSIOCONTROL": {
-    "alias_of": "TOBDACTUATOR",
-    "file": "palette/TOBDACTUATOR.png",
+    "file": "palette/TOBDUDSIOCONTROL.png",
     "type": "PNG"
   },
   "TOBDUDSREADBYPERIODIC": {
-    "alias_of": "TOBDLIVEDATA",
-    "file": "palette/TOBDLIVEDATA.png",
+    "file": "palette/TOBDUDSREADBYPERIODIC.png",
     "type": "PNG"
   },
   "TOBDUDSREADDID": {
-    "alias_of": "TOBDDATAIDENTIFIERIO",
-    "file": "palette/TOBDDATAIDENTIFIERIO.png",
+    "file": "palette/TOBDUDSREADDID.png",
     "type": "PNG"
   },
   "TOBDUDSREADDTC": {
-    "alias_of": "TOBDDTCS",
-    "file": "palette/TOBDDTCS.png",
+    "file": "palette/TOBDUDSREADDTC.png",
     "type": "PNG"
   },
   "TOBDUDSREADMEMORY": {
-    "alias_of": "TOBDDATAIDENTIFIERIO",
-    "file": "palette/TOBDDATAIDENTIFIERIO.png",
+    "file": "palette/TOBDUDSREADMEMORY.png",
     "type": "PNG"
   },
   "TOBDUDSRESET": {
-    "alias_of": "TOBDROUTINECONTROL",
-    "file": "palette/TOBDROUTINECONTROL.png",
+    "file": "palette/TOBDUDSRESET.png",
     "type": "PNG"
   },
   "TOBDUDSTRANSFER": {
@@ -872,8 +636,7 @@
     "type": "PNG"
   },
   "TOBDUDSWRITEDID": {
-    "alias_of": "TOBDKWPWRITEID",
-    "file": "palette/TOBDKWPWRITEID.png",
+    "file": "palette/TOBDUDSWRITEDID.png",
     "type": "PNG"
   },
   "TOBDUDSWRITEMEMORY": {
@@ -884,16 +647,20 @@
     "file": "palette/TOBDUPLOADER.png",
     "type": "PNG"
   },
+  "TOBDVALUETILE": {
+    "file": "palette/TOBDVALUETILE.png",
+    "type": "PNG"
+  },
   "TOBDVEHICLEHEALTH": {
     "file": "palette/TOBDVEHICLEHEALTH.png",
     "type": "PNG"
   },
-  "TOBDVIN": {
-    "file": "palette/TOBDVIN.png",
+  "TOBDVEHICLEINFOCARD": {
+    "file": "palette/TOBDVEHICLEINFOCARD.png",
     "type": "PNG"
   },
-  "TOBDVINCARD": {
-    "file": "palette/TOBDVINCARD.png",
+  "TOBDVIN": {
+    "file": "palette/TOBDVIN.png",
     "type": "PNG"
   },
   "TOBDVINCATALOG": {
@@ -916,30 +683,16 @@
     "file": "palette/TOBDVWRADIOSAFE.png",
     "type": "PNG"
   },
-  "TOBDWIFISIGNAL": {
-    "file": "palette/TOBDWIFISIGNAL.png",
-    "type": "PNG"
-  },
   "TOBDWWHOBD": {
-    "alias_of": "TOBDPROTOCOL",
-    "file": "palette/TOBDPROTOCOL.png",
+    "file": "palette/TOBDWWHOBD.png",
     "type": "PNG"
   },
   "TOBDWWHREADINESS": {
-    "alias_of": "TOBDREADINESSGRID",
-    "file": "palette/TOBDREADINESSGRID.png",
+    "file": "palette/TOBDWWHREADINESS.png",
     "type": "PNG"
   },
   "TOBDXCP": {
     "file": "palette/TOBDXCP.png",
-    "type": "PNG"
-  },
-  "TOBDXCPPROGRESSBAR": {
-    "file": "palette/TOBDXCPPROGRESSBAR.png",
-    "type": "PNG"
-  },
-  "TOBDXYHEATMAP": {
-    "file": "palette/TOBDXYHEATMAP.png",
     "type": "PNG"
   }
 }

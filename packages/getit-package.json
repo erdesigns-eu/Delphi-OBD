@@ -1,14 +1,14 @@
 {
   "$comment": [
-    "GetIt package metadata for Delphi-OBD v2. Submitted to GetIt",
-    "after the stable v2.0.0 tag ships; the beta is github-only.",
+    "GetIt package metadata for Delphi-OBD v3. Submitted to GetIt",
+    "after the stable v3.0.0 tag ships; the beta is github-only.",
     "",
     "Schema follows the Embarcadero GetIt package descriptor",
     "format. Update version + supported_studios on every release."
   ],
   "name": "Delphi-OBD",
   "id": "ErDesigns.DelphiOBD",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "publisher": "ERDesigns",
   "publisher_email": "info@erdesigns.eu",
   "publisher_url": "https://erdesigns.eu",
@@ -23,10 +23,13 @@
     "press F9.",
     "",
     "Ships:",
-    "  - 229 registered components (Connection, Adapter, Protocol,",
+    "  - 141 registered components (Connection, Adapter, Protocol,",
     "    DoIP, SecOC, LiveData, DTCs, VIN, FreezeFrame, OnBoard",
     "    Monitor, Actuator, Coding, Flashing, XCP, CCP, IsoBus,",
     "    Recorder, Replayer, ...).",
+    "  - OBD Dashboard palette: themed dial and bar gauges, value",
+    "    tiles, trend chart, live data grid, status lamp, connection",
+    "    bar, dot-matrix display and a layout-saving dashboard grid.",
     "  - Full UDS / KWP2000 / J1939 / DoIP / SecOC / LIN / FlexRay /",
     "    MOST surfaces.",
     "  - Production-grade flash pipeline with voltage gate, image",
@@ -139,5 +142,5 @@
       "destination": "$(BDSCATALOGREPOSITORY)\\Delphi-OBD\\samples"
     }
   ],
-  "icon": "assets/designtime/templates/delphi-obd-mark.png"
+  "icon": "assets/designtime/delphi-obd-mark.png"
 }

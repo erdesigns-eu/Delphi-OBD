@@ -16,7 +16,7 @@
 //
 // Author      : Ernst Reidinga (ERDesigns)
 // Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
-// License     : MIT — see LICENSE
+// License     : see LICENSE
 //
 // References  :
 // - SAE J1939-21 Data Link Layer (29-bit ID + TP.CM/TP.DT/ETP)

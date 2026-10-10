@@ -17,7 +17,7 @@
 //
 // Author      : Ernst Reidinga (ERDesigns)
 // Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
-// License     : MIT — see LICENSE
+// License     : see LICENSE
 //
 // References  :
 // - SAE J1979 (E/E Diagnostic Test Modes, Mode 01 PID catalogue)
@@ -118,8 +118,8 @@ type
     FAsyncInFlight: Boolean;
 
     /// <summary>Per-PID subscriber lists used by visuals (gauges,
-    /// digital readouts, charts) that bind directly to a PID via
-    /// SetLiveData + SetPID. Independent of <c>OnValue</c> — both
+    /// value tiles, charts) that bind to a PID through a channel
+    /// binding. Independent of <c>OnValue</c> — both
     /// fire for every dispatched value.</summary>
     FSubscribers: TDictionary<Byte, TList<TMethod>>;
     FSubscribersLock: TCriticalSection;

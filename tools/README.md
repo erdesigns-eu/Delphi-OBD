@@ -9,6 +9,7 @@ RAD Studio. All tools return a nonzero status on failed checks.
 | `pascalcheck/run.py -v` | Pascal/DFM/project sources; findings on stdout, no rewrites | Python standard library |
 | `validate_catalogs.py --require-coverage` | Every catalogue against local schemas and manifest references; report on stdout, no remote schema downloads | `pip install -r tools/requirements-validation.txt` |
 | `ev_support_matrix.py` | Vendor catalogues/manifest → checks `docs/ev-support-matrix.md`; `--write` regenerates it | Python standard library |
+| `designtime_icons.py` | Registrations → checks the generated 24px palette icons, the package mark and `resources.json` under `assets/designtime/`; `--write` regenerates them, `--sheet FILE` writes a contact sheet | Python standard library |
 | `designtime_resources.py` | Tracked native PNGs/manifest and registrations → checks `ERD.Design.Icons.res`; `--write` rebuilds it without image conversion | Python standard library |
 | `fpc_smoke.py` | Eleven original portable units → temporary compiler outputs, 185 executable checks | FPC 3.2.2; `--compiler` / `--rtl` overrides |
 | `setup_fpc_runtime.sh <directory>` | Pinned official FPC source → builds compiler and nonvisual packages outside checkout | FPC bootstrap, Git, make, binutils, GCC, OpenSSL |
@@ -31,6 +32,7 @@ python3 -m unittest discover -s tools/pascalcheck -p test_checkers.py -v
 python3 tools/pascalcheck/run.py -v
 python3 tools/validate_catalogs.py --require-coverage
 python3 tools/ev_support_matrix.py
+python3 tools/designtime_icons.py
 python3 tools/designtime_resources.py
 python3 tools/validate_delphi_projects.py
 python3 tools/fpc_smoke.py
@@ -42,8 +44,7 @@ reference artwork from another application. Git history retains the originals.
 Application-specific analyzers were removed or replaced with ERD-specific checks;
 there are no missing-input skips. Generic source heuristics remain conservative.
 
-The native palette PNGs were extracted byte-for-byte from the previous tracked
-resource, preserving the existing artwork. Large 256px source icons and component artwork
-templates remain under `assets/designtime/` for future artwork work. The resource
-manifest documents all shared icons explicitly. Generation needs no API key,
-image service or Windows resource compiler.
+The palette icons are drawn by `designtime_icons.py` in the ERDesigns theme
+colours and packed into the IDE resource by `designtime_resources.py`.
+Generation needs no API key, image service, image library or Windows resource
+compiler.

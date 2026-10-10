@@ -72,6 +72,7 @@ jobs:
       - name: Check generated EV support matrix and IDE resources
         run: |
           python3 tools/ev_support_matrix.py
+          python3 tools/designtime_icons.py
           python3 tools/designtime_resources.py
           python3 tools/validate_delphi_projects.py
       - name: Validate every catalog against its local schema

@@ -11,10 +11,6 @@ catalogue class so a host can configure `CatalogDir` /
 | `TOBDDriveCycleCatalogComp` | `TOBDDriveCycleCatalog` | `catalogs/drive-cycle-*.json` |
 | `TOBDEVBatteryCatalogComp` | `TOBDEVBatteryCatalog` | `catalogs/ev-battery/` |
 
-The wizard `Delphi-OBD: Catalogue manager DataModule`
-generates a `TDataModule` with all three pre-wired
-(`AutoLoad = True`).
-
 ## Build & run
 
 ```cmd
