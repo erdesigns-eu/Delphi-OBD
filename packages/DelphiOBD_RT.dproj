@@ -400,6 +400,18 @@
         <DCCReference Include="..\src\UI\ERD.UI.ReadinessPanel.pas"/>
         <DCCReference Include="..\src\UI\ERD.UI.FreezeFrameView.pas"/>
         <DCCReference Include="..\src\UI\ERD.UI.RangeEditor.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Menus.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.TitleBar.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Ribbon.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Backstage.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Tabs.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.ToolBar.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.StatusBar.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Progress.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Dialogs.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Toast.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Hint.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.ScrollBar.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

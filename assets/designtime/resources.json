@@ -7,6 +7,10 @@
     "file": "palette/TOBDADAPTER.png",
     "type": "PNG"
   },
+  "TOBDBACKSTAGE": {
+    "file": "palette/TOBDBACKSTAGE.png",
+    "type": "PNG"
+  },
   "TOBDBADGE": {
     "file": "palette/TOBDBADGE.png",
     "type": "PNG"
@@ -99,6 +103,10 @@
     "file": "palette/TOBDDIALGAUGE.png",
     "type": "PNG"
   },
+  "TOBDDIALOG": {
+    "file": "palette/TOBDDIALOG.png",
+    "type": "PNG"
+  },
   "TOBDDOIPCLIENT": {
     "file": "palette/TOBDDOIPCLIENT.png",
     "type": "PNG"
@@ -173,6 +181,10 @@
   },
   "TOBDFUELECONOMYMETER": {
     "file": "palette/TOBDFUELECONOMYMETER.png",
+    "type": "PNG"
+  },
+  "TOBDHINTSTYLE": {
+    "file": "palette/TOBDHINTSTYLE.png",
     "type": "PNG"
   },
   "TOBDINERTIALBRAKE": {
@@ -263,6 +275,10 @@
     "file": "palette/TOBDMATRIXDISPLAY.png",
     "type": "PNG"
   },
+  "TOBDMENUBAR": {
+    "file": "palette/TOBDMENUBAR.png",
+    "type": "PNG"
+  },
   "TOBDOEMCATALOG": {
     "file": "palette/TOBDOEMCATALOG.png",
     "type": "PNG"
@@ -283,8 +299,16 @@
     "file": "palette/TOBDPIDPICKER.png",
     "type": "PNG"
   },
+  "TOBDPOPUPMENU": {
+    "file": "palette/TOBDPOPUPMENU.png",
+    "type": "PNG"
+  },
   "TOBDPOWERCURVE": {
     "file": "palette/TOBDPOWERCURVE.png",
+    "type": "PNG"
+  },
+  "TOBDPROGRESSBAR": {
+    "file": "palette/TOBDPROGRESSBAR.png",
     "type": "PNG"
   },
   "TOBDPROTOCOL": {
@@ -499,8 +523,20 @@
     "file": "palette/TOBDREPLAYER.png",
     "type": "PNG"
   },
+  "TOBDREPORTPREVIEW": {
+    "file": "palette/TOBDREPORTPREVIEW.png",
+    "type": "PNG"
+  },
+  "TOBDRIBBON": {
+    "file": "palette/TOBDRIBBON.png",
+    "type": "PNG"
+  },
   "TOBDROUTINECONTROL": {
     "file": "palette/TOBDROUTINECONTROL.png",
+    "type": "PNG"
+  },
+  "TOBDSCROLLBAR": {
+    "file": "palette/TOBDSCROLLBAR.png",
     "type": "PNG"
   },
   "TOBDSECOCCODEC": {
@@ -519,8 +555,16 @@
     "file": "palette/TOBDSIDEBAR.png",
     "type": "PNG"
   },
+  "TOBDSTATUSBAR": {
+    "file": "palette/TOBDSTATUSBAR.png",
+    "type": "PNG"
+  },
   "TOBDSTATUSLAMP": {
     "file": "palette/TOBDSTATUSLAMP.png",
+    "type": "PNG"
+  },
+  "TOBDTABS": {
+    "file": "palette/TOBDTABS.png",
     "type": "PNG"
   },
   "TOBDTERMINAL": {
@@ -529,6 +573,18 @@
   },
   "TOBDTHEME": {
     "file": "palette/TOBDTHEME.png",
+    "type": "PNG"
+  },
+  "TOBDTITLEBAR": {
+    "file": "palette/TOBDTITLEBAR.png",
+    "type": "PNG"
+  },
+  "TOBDTOASTMANAGER": {
+    "file": "palette/TOBDTOASTMANAGER.png",
+    "type": "PNG"
+  },
+  "TOBDTOOLBAR": {
+    "file": "palette/TOBDTOOLBAR.png",
     "type": "PNG"
   },
   "TOBDTORQUEATWHEELS": {

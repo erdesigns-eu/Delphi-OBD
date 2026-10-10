@@ -146,6 +146,18 @@ uses
   ERD.UI.ReadinessPanel,
   ERD.UI.FreezeFrameView,
   ERD.UI.RangeEditor,
+  ERD.UI.Menus,
+  ERD.UI.TitleBar,
+  ERD.UI.Ribbon,
+  ERD.UI.Backstage,
+  ERD.UI.Tabs,
+  ERD.UI.ToolBar,
+  ERD.UI.StatusBar,
+  ERD.UI.Progress,
+  ERD.UI.Dialogs,
+  ERD.UI.Toast,
+  ERD.UI.Hint,
+  ERD.UI.ScrollBar,
   ERD.Service.Dyno,
   ERD.UDS.Transfer,
   ERD.Flash.VoltageGate,
@@ -246,6 +258,12 @@ begin
     TOBDSegmented, TOBDRangeBar, TOBDInspector, TOBDSidebar, TOBDRangeProfile,
     TOBDVehicleInfoCard, TOBDDtcPanel, TOBDReadinessPanel, TOBDFreezeFrameView,
     TOBDRangeEditor]);
+  // Application chrome: themed title bar with menu, optional ribbon
+  // with backstage, and the common application controls.
+  RegisterComponents('OBD Studio', [TOBDTitleBar, TOBDMenuBar, TOBDPopupMenu,
+    TOBDRibbon, TOBDBackstage, TOBDReportPreview, TOBDTabs, TOBDToolBar,
+    TOBDStatusBar, TOBDProgressBar, TOBDDialog, TOBDToastManager,
+    TOBDHintStyle, TOBDScrollBar]);
   // Non-visual dyno math (own palette tab).
   RegisterComponents('OBD Dyno', [TOBDDynoCalculator, TOBDPowerCurve,
     TOBDDragRun, TOBDDynoConditions, TOBDFuelEconomyMeter,

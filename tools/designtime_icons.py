@@ -955,6 +955,131 @@ def studio_range_editor(c):
         c.rect(12.5, y + 1.5, 16, y + 3, ORANGE if i == 0 else TILE, radius=0.4)
 
 
+def chrome_title_bar(c):
+    c.frame(2.5, 4.5, 21.5, 19.5, 1, ORANGE, radius=0.8)
+    c.rect(2.5, 4.5, 21.5, 9, GREY, radius=0.8)
+    c.rect(4, 5.8, 6.4, 7.8, ORANGE, radius=0.4)
+    c.line([(15, 6.8), (16.5, 6.8)], 1, LIGHT)
+    c.line([(19, 5.8), (20.4, 7.8)], 1, LIGHT)
+    c.line([(20.4, 5.8), (19, 7.8)], 1, LIGHT)
+
+
+def chrome_menu_bar(c):
+    c.rect(2.5, 4, 21.5, 7.5, GREY, radius=0.6)
+    for x in (4, 9.5, 15):
+        c.line([(x, 5.8), (x + 3.5, 5.8)], 1.2, LIGHT)
+    c.frame(9, 9, 20.5, 20, 1, MUTED, radius=0.8)
+    c.rect(9.5, 12.5, 20, 15, ORANGE, alpha=0.45)
+    c.line([(11, 13.8), (18, 13.8)], 1.2, LIGHT)
+    c.line([(11, 17.5), (16.5, 17.5)], 1.2, MUTED)
+
+
+def chrome_popup_menu(c):
+    c.frame(4.5, 3.5, 19.5, 20.5, 1, MUTED, radius=0.8)
+    c.line([(6.5, 6.8), (8, 8.3), (10.2, 5.6)], 1.2, ORANGE)
+    for y in (7, 12, 17):
+        c.line([(11.5, y), (17.5, y)], 1.2, LIGHT)
+    c.line([(6, 9.6), (18, 9.6)], 0.8, TILE_EDGE)
+
+
+def chrome_ribbon(c):
+    c.rect(2.5, 4, 7.5, 7.5, ORANGE, radius=0.5)
+    c.line([(9.5, 5.8), (13, 5.8)], 1.2, LIGHT)
+    c.line([(15, 5.8), (18.5, 5.8)], 1.2, MUTED)
+    c.frame(2.5, 8.5, 21.5, 19.5, 1, MUTED, radius=0.8)
+    c.rect(4.5, 10.5, 9, 15, ORANGE, radius=0.6)
+    c.line([(4.5, 17.2), (9, 17.2)], 1, LIGHT)
+    for y in (11.3, 14, 16.7):
+        c.rect(11.5, y - 0.9, 13.3, y + 0.9, LIGHT, radius=0.3)
+        c.line([(14.5, y), (19.5, y)], 1, MUTED)
+
+
+def chrome_tabs(c):
+    c.line([(3, 15), (21, 15)], 1, MUTED)
+    c.line([(4, 11.5), (9, 11.5)], 1.4, LIGHT)
+    c.rect(3.5, 14, 9.5, 16, ORANGE, radius=0.4)
+    c.line([(11.5, 11.5), (15.5, 11.5)], 1.4, MUTED)
+    c.line([(17.5, 11.5), (20.5, 11.5)], 1.4, MUTED)
+
+
+def chrome_tool_bar(c):
+    c.frame(2.5, 7, 21.5, 17, 1, MUTED, radius=0.8)
+    c.rect(4.5, 9, 8.5, 15, ORANGE, radius=0.6)
+    c.rect(10, 10.5, 13, 13.5, LIGHT, radius=0.4)
+    c.line([(14.8, 9.5), (14.8, 14.5)], 1, TILE_EDGE)
+    c.rect(16.5, 10.5, 19.5, 13.5, LIGHT, radius=0.4)
+
+
+def chrome_status_bar(c):
+    c.frame(2.5, 4.5, 21.5, 19.5, 1, MUTED, radius=0.8)
+    c.rect(2.5, 15, 21.5, 19.5, GREY, radius=0.8)
+    c.circle(5.5, 17.2, 1.2, SUCCESS)
+    c.line([(8, 17.2), (13, 17.2)], 1.2, LIGHT)
+    c.line([(16, 17.2), (19.5, 17.2)], 1.2, MUTED)
+
+
+def chrome_progress(c):
+    c.rect(3, 8, 21, 10.5, GREY, radius=1)
+    c.rect(3, 8, 15, 10.5, ORANGE, radius=1)
+    for i, color in enumerate((SUCCESS, ORANGE, GREY)):
+        c.circle(5 + i * 7, 16, 1.9, color)
+    c.line([(7, 16), (10, 16)], 1, SUCCESS)
+    c.line([(14, 16), (17, 16)], 1, MUTED)
+
+
+def chrome_dialog(c):
+    c.frame(3, 4, 21, 20, 1, ORANGE, radius=1)
+    c.circle(7.5, 9, 2.4, WARNING)
+    c.line([(11, 8), (18.5, 8)], 1.2, LIGHT)
+    c.line([(11, 11), (16.5, 11)], 1, MUTED)
+    c.rect(9.5, 15, 13.5, 17.8, GREY, radius=0.6)
+    c.rect(14.5, 15, 19.5, 17.8, DANGER, radius=0.6)
+
+
+def chrome_toast(c):
+    c.rect(3, 9, 21, 19, GREY, radius=1)
+    c.rect(3, 9, 4.6, 19, SUCCESS, radius=0.6)
+    c.line([(7, 12), (17, 12)], 1.2, LIGHT)
+    c.line([(7, 15), (14, 15)], 1, MUTED)
+    c.rect(4.6, 18, 15, 19, ORANGE)
+    c.frame(6, 3.5, 19, 7.5, 1, MUTED, radius=0.8)
+
+
+def chrome_hint(c):
+    c.frame(3, 5, 21, 14, 1, MUTED, radius=1)
+    c.poly([(7, 14), (10, 14), (7, 17.5)], MUTED)
+    c.line([(5.5, 8), (12.5, 8)], 1.4, LIGHT)
+    c.rect(14.5, 6.8, 19.5, 9.4, GREY, radius=0.5)
+    c.line([(5.5, 11.3), (16, 11.3)], 1, MUTED)
+
+
+def chrome_scroll_bar(c):
+    c.rect(10.5, 3, 13.5, 21, GREY, radius=1.5)
+    c.rect(10.5, 7, 13.5, 13, ORANGE, radius=1.5)
+    c.line([(16.5, 5), (18, 3.5), (19.5, 5)], 1, MUTED)
+    c.line([(16.5, 19), (18, 20.5), (19.5, 19)], 1, MUTED)
+
+
+def chrome_backstage(c):
+    c.frame(2.5, 4, 21.5, 20, 1, MUTED, radius=0.8)
+    c.rect(2.5, 4, 8, 20, ORANGE, radius=0.8)
+    c.line([(6.3, 6.8), (4.3, 8.3), (6.3, 9.8)], 1, TILE)
+    for y in (12.5, 15.5):
+        c.line([(4, y), (6.5, y)], 1, TILE)
+    c.rect(11, 7, 19.5, 17.5, LIGHT, radius=0.4)
+    c.line([(12.5, 9.5), (17, 9.5)], 1, ORANGE)
+    c.line([(12.5, 12.5), (18, 12.5)], 0.8, MUTED)
+    c.line([(12.5, 15), (16, 15)], 0.8, MUTED)
+
+
+def chrome_report_preview(c):
+    c.rect(3, 3, 21, 21, GREY, radius=1)
+    c.rect(6.5, 4.5, 17.5, 19.5, LIGHT, radius=0.3)
+    c.line([(8, 7), (13, 7)], 1.2, ORANGE)
+    for y in (10, 12.5, 15):
+        c.line([(8, y), (16, y)], 0.8, MUTED)
+
+
 def labelled(text, sub):
     def draw(c):
         protocol_icon(c, text, sub)
@@ -1035,6 +1160,13 @@ ICONS = {
     'TOBDRangeProfile': studio_range_profile, 'TOBDVehicleInfoCard': studio_vehicle_card,
     'TOBDDtcPanel': studio_dtc_panel, 'TOBDReadinessPanel': studio_readiness,
     'TOBDFreezeFrameView': studio_freeze_frame, 'TOBDRangeEditor': studio_range_editor,
+    'TOBDTitleBar': chrome_title_bar, 'TOBDMenuBar': chrome_menu_bar,
+    'TOBDPopupMenu': chrome_popup_menu, 'TOBDRibbon': chrome_ribbon, 'TOBDTabs': chrome_tabs,
+    'TOBDToolBar': chrome_tool_bar, 'TOBDStatusBar': chrome_status_bar,
+    'TOBDProgressBar': chrome_progress, 'TOBDDialog': chrome_dialog,
+    'TOBDToastManager': chrome_toast, 'TOBDHintStyle': chrome_hint,
+    'TOBDScrollBar': chrome_scroll_bar, 'TOBDBackstage': chrome_backstage,
+    'TOBDReportPreview': chrome_report_preview,
     # Visual
     'TOBDTerminal': terminal, 'TOBDLogViewer': log_viewer, 'TOBDDtcList': dtc_list,
     'TOBDVINEdit': edit('VIN'), 'TOBDPidPicker': picker('PID'), 'TOBDOEMPicker': picker('OEM'),

@@ -373,6 +373,18 @@ contains
   ERD.UI.DtcPanel in '..\src\UI\ERD.UI.DtcPanel.pas',
   ERD.UI.ReadinessPanel in '..\src\UI\ERD.UI.ReadinessPanel.pas',
   ERD.UI.FreezeFrameView in '..\src\UI\ERD.UI.FreezeFrameView.pas',
-  ERD.UI.RangeEditor in '..\src\UI\ERD.UI.RangeEditor.pas';
+  ERD.UI.RangeEditor in '..\src\UI\ERD.UI.RangeEditor.pas',
+  ERD.UI.Menus in '..\src\UI\ERD.UI.Menus.pas',
+  ERD.UI.TitleBar in '..\src\UI\ERD.UI.TitleBar.pas',
+  ERD.UI.Ribbon in '..\src\UI\ERD.UI.Ribbon.pas',
+  ERD.UI.Backstage in '..\src\UI\ERD.UI.Backstage.pas',
+  ERD.UI.Tabs in '..\src\UI\ERD.UI.Tabs.pas',
+  ERD.UI.ToolBar in '..\src\UI\ERD.UI.ToolBar.pas',
+  ERD.UI.StatusBar in '..\src\UI\ERD.UI.StatusBar.pas',
+  ERD.UI.Progress in '..\src\UI\ERD.UI.Progress.pas',
+  ERD.UI.Dialogs in '..\src\UI\ERD.UI.Dialogs.pas',
+  ERD.UI.Toast in '..\src\UI\ERD.UI.Toast.pas',
+  ERD.UI.Hint in '..\src\UI\ERD.UI.Hint.pas',
+  ERD.UI.ScrollBar in '..\src\UI\ERD.UI.ScrollBar.pas';
 
 end.
