@@ -2,7 +2,7 @@
 // ERD.UI.Theme
 //
 // TOBDTheme — non-visual controller component that owns the
-// palette + dark-mode setting for every Delphi-OBD visual on
+// palette, dark-mode and metric/imperial setting for every Delphi-OBD visual on
 // the form / data-module. Drop one on a form, and every visual
 // on the same Owner auto-binds at runtime — no host code
 // required.
@@ -66,6 +66,7 @@ type
   TOBDTheme = class(TComponent)
   strict private
     FMode: TOBDThemeMode;
+    FUnitSystem: TOBDUnitSystem;
     FOnChange: TOBDThemeChangedEvent;
     FOverrideUsed: Boolean;
     FOverride: TOBDThemePalette;
@@ -74,6 +75,7 @@ type
     class var FDefault: TOBDTheme;
 
     procedure SetMode(AValue: TOBDThemeMode);
+    procedure SetUnitSystem(AValue: TOBDUnitSystem);
     function ResolveBuiltIn: TOBDThemePalette;
     procedure NotifyAttached;
   protected
@@ -133,6 +135,12 @@ type
     /// VCL Style's luma.</summary>
     property Mode: TOBDThemeMode read FMode write SetMode default tmAuto;
 
+    /// <summary>Metric or imperial display units for every bound
+    /// dashboard control. Values stay metric internally; changing this
+    /// only repaints.</summary>
+    property UnitSystem: TOBDUnitSystem read FUnitSystem write SetUnitSystem
+      default usMetric;
+
     /// <summary>Fires on every palette change.</summary>
     property OnChange: TOBDThemeChangedEvent read FOnChange write FOnChange;
   end;
@@ -148,6 +156,7 @@ constructor TOBDTheme.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FMode := tmAuto;
+  FUnitSystem := usMetric;
   FAttached := TList<TComponent>.Create;
 end;
 
@@ -168,6 +177,14 @@ begin
   if FMode = AValue then
     Exit;
   FMode := AValue;
+  Refresh;
+end;
+
+procedure TOBDTheme.SetUnitSystem(AValue: TOBDUnitSystem);
+begin
+  if FUnitSystem = AValue then
+    Exit;
+  FUnitSystem := AValue;
   Refresh;
 end;
 

@@ -2,7 +2,7 @@
 // ERD.UI.Gauges.Types
 //
 // Shared records used across the gauge family: zone-coloured
-// value bands, tick configuration, gauge events.
+// value bands, tick configuration, gauge events, tick-step helper.
 //
 // Author      : Ernst Reidinga (ERDesigns)
 // Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
@@ -77,6 +77,15 @@ function NormaliseValue(AMin, AMax, AValue: Double): Double;
 /// <summary>Default tick config for a 0..100 scale.</summary>
 function DefaultTickConfig: TOBDGaugeTickConfig;
 
+/// <summary>Picks a "nice" tick step (1, 2, 2.5 or 5 times a power
+/// of ten) so that <c>ASpan</c> divides into roughly
+/// <c>ATargetTicks</c> intervals.</summary>
+/// <param name="ASpan">Scale span (Max - Min) in display units.</param>
+/// <param name="ATargetTicks">Desired number of intervals (at least
+/// 1).</param>
+/// <returns>Step size; 1 when the span is zero or negative.</returns>
+function NiceTickStep(ASpan: Double; ATargetTicks: Integer): Double;
+
 implementation
 
 uses {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF};
@@ -116,6 +125,30 @@ begin
   Result.MinorTicksPerMajor := 5;
   Result.ShowLabels := True;
   Result.LabelDecimals := 0;
+end;
+
+function NiceTickStep(ASpan: Double; ATargetTicks: Integer): Double;
+var
+  Raw, Mag, Norm: Double;
+begin
+  if (ASpan <= 0) or IsNan(ASpan) or IsInfinite(ASpan) then
+    Exit(1);
+  if ATargetTicks < 1 then
+    ATargetTicks := 1;
+  Raw := ASpan / ATargetTicks;
+  Mag := Power(10, Floor(Log10(Raw)));
+  Norm := Raw / Mag;
+  if Norm < 1.5 then
+    Result := 1
+  else if Norm < 2.25 then
+    Result := 2
+  else if Norm < 3.5 then
+    Result := 2.5
+  else if Norm < 7.5 then
+    Result := 5
+  else
+    Result := 10;
+  Result := Result * Mag;
 end;
 
 end.

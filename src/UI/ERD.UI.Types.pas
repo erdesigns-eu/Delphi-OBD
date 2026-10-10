@@ -3,7 +3,8 @@
 //
 // Shared types for the visual UI surface: theme palette, theme
 // mode, per-component style overrides, brand defaults, and the
-// resolution chain helpers every visual uses.
+// resolution chain helpers every visual uses. Also the data-state,
+// alert-level and unit-system enums shared by the dashboard set.
 //
 // Author      : Ernst Reidinga (ERDesigns)
 // Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
@@ -87,6 +88,41 @@ type
     /// <summary>True iff at least one slot is non-default.</summary>
     function HasAny: Boolean;
   end;
+
+  /// <summary>What a data-driven control currently knows about its
+  /// value. Every dashboard control paints each state distinctly, so a
+  /// control never shows a blank box.</summary>
+  TOBDDataState = (
+    /// <summary>No value has arrived yet (not connected, PID not
+    /// polled, or the channel is unbound).</summary>
+    dstNoData,
+    /// <summary>A fresh value inside the configured range.</summary>
+    dstLive,
+    /// <summary>The last value is older than the channel's
+    /// <c>StaleAfterMs</c>; it is still shown, but greyed.</summary>
+    dstStale,
+    /// <summary>The last value fell outside <c>Min..Max</c>; the
+    /// control pins to the scale end and flags the overflow.</summary>
+    dstOutOfRange);
+
+  /// <summary>Severity of the current value against the control's
+  /// warning / alarm thresholds.</summary>
+  TOBDAlertLevel = (
+    /// <summary>Inside the normal band.</summary>
+    alvNormal,
+    /// <summary>Past a warning threshold.</summary>
+    alvWarning,
+    /// <summary>Past an alarm threshold.</summary>
+    alvAlarm);
+
+  /// <summary>Measurement system used for displayed values. Values
+  /// are always stored in the metric unit the PID decoder delivers;
+  /// conversion happens at paint time only.</summary>
+  TOBDUnitSystem = (
+    /// <summary>SI / metric (km/h, degrees C, kPa, L).</summary>
+    usMetric,
+    /// <summary>US customary (mph, degrees F, psi, gal).</summary>
+    usImperial);
 
 const
   /// <summary>ERDesigns brand orange. BGR = clOBDOrange.</summary>

@@ -10,7 +10,8 @@
 // Component categories used:
 // - "OBD" — non-visual diagnostic and protocol components
 // - "OBD OEM" — vendor-specific coding helpers
-// - "OBD Visual" — Delphi VCL controls and dashboards
+// - "OBD Dashboard" — theme controller and dashboard controls
+// - "OBD Visual" — diagnostic list and edit controls
 //
 // Author      : Ernst Reidinga (ERDesigns)
 // Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
@@ -23,6 +24,7 @@
 // 2026-05-10  ERD  Add splash + About-box registration via Tools API.
 //
 // 2026-10-08  ERD  Components/editors only; remove wizards and IDE branding.
+// 2026-10-10  ERD  "OBD Dashboard" palette page.
 // ------------------------------------------------------------------------------
 
 unit ERD.Design.Registration;
@@ -118,40 +120,18 @@ uses
   ERD.Service.EVBattery.Catalog.Component,
   ERD.UI.Theme,
   ERD.UI.Gauges.Dial,
-  ERD.UI.Gauges.Linear,
-  ERD.UI.Gauges.Variants,
-  ERD.UI.Gauges.Sparkline,
-  ERD.UI.Gauges.DialExtended,
-  ERD.UI.Indicators,
-  ERD.UI.Telltales,
-  ERD.UI.Shift,
-  ERD.UI.Timing,
-  ERD.UI.Gauges.Specialised,
-  ERD.UI.LivePanels,
-  ERD.UI.LiveGrids,
+  ERD.UI.Gauges.Bar,
+  ERD.UI.ValueTile,
+  ERD.UI.TrendChart,
+  ERD.UI.LiveDataGrid,
+  ERD.UI.StatusLamp,
+  ERD.UI.ConnectionBar,
+  ERD.UI.Dashboard,
   ERD.UI.Terminal,
   ERD.UI.LogViewer,
   ERD.UI.DtcList,
-  ERD.UI.Knob,
-  ERD.UI.TrendGraph,
-  ERD.UI.Info,
-  ERD.UI.MonitorEV,
-  ERD.UI.Session,
-  ERD.UI.Connection,
   ERD.UI.Pickers,
-  ERD.UI.FlashDashboards,
-  ERD.UI.Dyno,
-  ERD.UI.Charts,
-  ERD.UI.Tuning,
-  ERD.UI.Motorsport,
-  ERD.UI.Commercial,
-  ERD.UI.Replay,
-  ERD.UI.Branding,
-  ERD.UI.CodingEditors,
-  ERD.UI.Diag,
-  ERD.UI.SessionInspect,
-  ERD.UI.Insights,
-  ERD.UI.Logger,
+  ERD.Service.Dyno,
   ERD.UDS.Transfer,
   ERD.Flash.VoltageGate,
   ERD.Flash.Pipeline,
@@ -232,40 +212,16 @@ begin
   RegisterComponents('OBD Catalogs', [TOBDVINCatalog, TOBDDriveCycleCatalogComp,
     TOBDEVBatteryCatalogComp]);
 
-  // Visual UI foundation. The TOBDTheme controller is the
-  // anchor: drop one on a form / data-module and every
-  // Delphi-OBD visual on the form auto-binds to it (the
-  // visuals walk Owner ancestry at runtime). Sub-phases A2.2+
-  // add the gauges / telltales / lists that consume the theme.
-  RegisterComponents('OBD Visual', [TOBDTheme, TOBDTerminal, TOBDLogViewer,
-    TOBDDtcList, TOBDKnob, TOBDTrendGraph, TOBDCircularGauge, TOBDLinearGauge,
-    TOBDTachometer, TOBDArcGauge, TOBDComboGauge, TOBDDigitalGauge,
-    TOBDBarSegmentGauge, TOBDDeltaGauge, TOBDSparkline, TOBDDualNeedleGauge,
-    TOBDMinMaxGauge, TOBDLED, TOBDMatrixDisplay, TOBDMILLamp, TOBDDTCBadge,
-    TOBDReadinessLamp, TOBDDashLamp, TOBDShiftLight, TOBDShiftLightBar,
-    TOBDGearIndicator, TOBDDragTimer, TOBDLapTimer, TOBDAccelGraph,
-    TOBDBoostGauge, TOBDAFRGauge, TOBDStateOfChargeBar, TOBDRegenIndicator,
-    TOBDPidPanel, TOBDFuelTrimDisplay, TOBDMultiPidGrid, TOBDFreezeFrameTable,
-    TOBDVINCard, TOBDAdapterPanel, TOBDOdometer, TOBDClock, TOBDReadinessGrid,
-    TOBDDriveCycleProgress, TOBDCellVoltageHeatmap, TOBDChargingFlow,
-    TOBDFlashProgress, TOBDCodingSessionPanel, TOBDXCPProgressBar,
-    TOBDRecorderToolbar, TOBDConnectionStateLamp, TOBDDoIPStatusPanel,
-    TOBDSecurityAccessLamp, TOBDSecOCStatusLamp, TOBDVINEdit, TOBDPidPicker,
-    TOBDOEMPicker, TOBDCANIdEdit, TOBDFlashSafetyDashboard,
-    TOBDFlashCheckpointTimeline, TOBDFlashAuditTail, TOBDStripChart,
-    TOBDLiveGridChart, TOBDDynoChart, TOBDPowerCurveGraph, TOBDXYHeatmap,
-    TOBDTorqueRPMMap, TOBDRunRecorder, TOBDLapTrackMap, TOBDPredictiveLap,
-    TOBDGForceVisualiser, TOBDMarineTach, TOBDPTOMeter, TOBDDPFStatus,
-    TOBDAdBlueLevel, TOBDChargePortIndicator, TOBDMaintenanceCard,
-    TOBDServiceHistoryTimeline, TOBDPlaybackScrubber, TOBDPlaybackTimeline,
-    TOBDFrameInspector, TOBDOEMBadge, TOBDDigitalCluster, TOBDBluetoothSignal,
-    TOBDWiFiSignal, TOBDGPSAccuracy, TOBDCodingDiffViewer, TOBDLabelFileEditor,
-    TOBDAdaptationEditor, TOBDLongCodingEditor, TOBDSeedKeyDebugger,
-    TOBDMode06Viewer, TOBDMode07Viewer, TOBDMode0AViewer, TOBDMode04Confirm,
-    TOBDRoutineControlLauncher, TOBDActuatorTestPanel,
-    TOBDKWP1281SessionInspector, TOBDJ2534DeviceList, TOBDTP20ChannelPanel,
-    TOBDDoIPNodePicker, TOBDDriverScoreWidget, TOBDEcoScoreWidget,
-    TOBDTripSummaryCard, TOBDLoggerControl, TOBDLoggerExplorer]);
+  // Dashboard controls. TOBDTheme is the anchor: drop one on a
+  // form or data module and every Delphi-OBD control on the form
+  // binds to it for colours, dark mode and metric / imperial units.
+  RegisterComponents('OBD Dashboard', [TOBDTheme, TOBDDashboard,
+    TOBDDialGauge, TOBDBarGauge, TOBDValueTile, TOBDTrendChart,
+    TOBDLiveDataGrid, TOBDStatusLamp, TOBDConnectionBar]);
+
+  // Diagnostic list and edit controls built on standard VCL controls.
+  RegisterComponents('OBD Visual', [TOBDTerminal, TOBDLogViewer, TOBDDtcList,
+    TOBDVINEdit, TOBDPidPicker, TOBDOEMPicker, TOBDCANIdEdit]);
   // Non-visual dyno math (own palette tab).
   RegisterComponents('OBD Dyno', [TOBDDynoCalculator, TOBDPowerCurve,
     TOBDDragRun, TOBDDynoConditions, TOBDFuelEconomyMeter,

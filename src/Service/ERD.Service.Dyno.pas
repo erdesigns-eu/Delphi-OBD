@@ -1,5 +1,5 @@
 ﻿// ------------------------------------------------------------------------------
-// ERD.UI.Dyno
+// ERD.Service.Dyno
 //
 // Non-visual dyno-math components. Each exposes a published
 // set of inputs + an event that fires on every sample, so
@@ -37,9 +37,13 @@
 // Author      : Ernst Reidinga (ERDesigns)
 // Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
 // License     : MIT — see LICENSE
+//
+// History     :
+// 2026-10-10  ERD  Service-layer unit; FPC-portable timing via
+//                  TThread.GetTickCount64.
 // ------------------------------------------------------------------------------
 
-unit ERD.UI.Dyno;
+unit ERD.Service.Dyno;
 
 {$IFDEF FPC}
 {$MODE DELPHI}
@@ -55,9 +59,8 @@ uses
 {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
 {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
 {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
-{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
-  System.Diagnostics,
-  System.Bindings.Helper, Data.Bind.Components;
+{$IFNDEF FPC}System.Bindings.Helper, Data.Bind.Components, {$ENDIF}
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF};
 
 type
   /// <summary>Fires per dyno sample with derived HP / torque.
@@ -153,7 +156,7 @@ type
     FSpeedKmh: Double;
     FArmed: Boolean;
     FRunning: Boolean;
-    FStopwatch: TStopwatch;
+    FStartTick: UInt64;
     FPeakHP: Double;
     FPeakTorque: Double;
     FOnFinished: TOBDDragRunCompleteEvent;
@@ -333,10 +336,12 @@ const
 
 procedure NotifyOf(AInstance: TComponent);
 begin
+{$IFNDEF FPC}
   try
     TBindings.Notify(AInstance, '');
   except
   end;
+{$ENDIF}
 end;
 
 { ---- TOBDDynoCalculator ------------------------------------------------- }
@@ -559,7 +564,8 @@ begin
       FArmed := False;
       if Assigned(FOnFinished) then
         try
-          FOnFinished(Self, Cardinal(FStopwatch.ElapsedMilliseconds), FPeakHP,
+          FOnFinished(Self,
+            Cardinal(UInt64(TThread.GetTickCount64) - FStartTick), FPeakHP,
             FPeakTorque);
         except
         end;
@@ -568,7 +574,7 @@ begin
   else if FArmed and (FSpeedKmh > FStartKmh) then
   begin
     FRunning := True;
-    FStopwatch := TStopwatch.StartNew;
+    FStartTick := UInt64(TThread.GetTickCount64);
   end;
   NotifyBindings;
 end;

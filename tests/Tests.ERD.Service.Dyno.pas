@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------
-//  Tests.ERD.UI.Dyno
+//  Tests.ERD.Service.Dyno
 //
 //  Coverage for the A2.12 dyno-math components. Each test
 //  exercises the property contract + a couple of sample
@@ -7,7 +7,7 @@
 //  integrator get round-trip checks.
 //------------------------------------------------------------------------------
 
-unit Tests.ERD.UI.Dyno;
+unit Tests.ERD.Service.Dyno;
 
 {$IFDEF FPC}
   {$MODE DELPHI}
@@ -18,7 +18,7 @@ interface
 uses
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF}, {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   DUnitX.TestFramework,
-  ERD.UI.Dyno;
+  ERD.Service.Dyno;
 
 type
   TTestCallback1 = reference to procedure(Sender: TObject; ATimeMs: Cardinal; AHP, ATorqueNm: Double);
