@@ -15,13 +15,14 @@ shipped dashboard controls:
 - small upper-case captions in the label colour.
 
 Sizes are logical pixels at 96 DPI. The PNGs are rendered at 2x so they
-stay sharp on high-DPI screens.
+stay sharp on high-DPI screens. Mockups that exist in both densities
+have a `-tablet` variant next to the desktop one.
 
 Regenerate after changing the generator or the palettes (needs Pillow):
 
 ```
 python3 tools/ui_mockups.py              # all mockups, light + dark
-python3 tools/ui_mockups.py --only dtc-panel
+python3 tools/ui_mockups.py --only controls
 ```
 
 On Windows the generator uses Segoe UI and Consolas, the fonts the VCL
@@ -31,12 +32,106 @@ text widths differ slightly from the real controls.
 All mockups use one sample job: a 2016 VW Golf VII 1.6 TDI with EGR,
 DPF and SCR faults.
 
+## Decisions
+
+| Topic | Decision |
+|---|---|
+| Permanent codes | Keep the strong accent orange. |
+| Clearing codes | The inline confirmation with pre-checks; no modal dialog. |
+| Readiness wording | `InspectionRegime: TOBDInspectionRegime` names the local inspection. `irCustom` uses `InspectionName`. |
+| Normal ranges | Garage-adjustable through range profiles (`TOBDRangeProfile`), selected per engine. |
+| Row height | `Density: TOBDDensity = (dnDesktop, dnTablet)` on every control and on `TOBDTheme`, so one switch changes the whole form. |
+| Sidebar | A component of its own: `TOBDSidebar`. |
+| Buttons, check boxes, radio buttons | Components of their own: `TOBDButton`, `TOBDCheckBox`, `TOBDRadioButton`. |
+| Composition | Panels are built from small, reusable themed controls (below), so later screens reuse them. |
+| Property grid | `TOBDInspector`, a themed port of [erdesigns-eu/Delphi-Inspector](https://github.com/erdesigns-eu/Delphi-Inspector). |
+
+## Building blocks
+
+These controls are themed through `TOBDTheme` and follow `Density`. The
+panels further down are compositions of them, and later OBD Studio
+screens reuse them.
+
+| Control | Purpose | Used by |
+|---|---|---|
+| `TOBDCard` | Surface with title, header actions, optional status edge and footer | every panel |
+| `TOBDButton` | `bkPrimary`, `bkSecondary`, `bkDanger`, `bkDangerOutline`, `bkGhost`; optional glyph | DTC panel, clear confirm, range editor |
+| `TOBDCheckBox` | `Style = csCheck` or `csSwitch`; checked, unchecked and grayed | clear confirm, freeze frame, inspector |
+| `TOBDRadioButton` | Single choice in a group | settings |
+| `TOBDChip` | Status pill (stored, pending, garage, connected and so on) | DTC panel, vehicle card, range editor |
+| `TOBDBadge` | Counter bubble | sidebar |
+| `TOBDBanner` | Callout: `bnInfo`, `bnSuccess`, `bnWarning`, `bnDanger` | readiness verdict, clear confirm, connection state |
+| `TOBDEdit` / `TOBDComboBox` | Themed edit and drop-down | range editor, profile picker |
+| `TOBDSegmented` | Filter strip / segmented choice | DTC panel |
+| `TOBDRangeBar` | A value against a normal band | freeze frame, range editor |
+| `TOBDInspector` | Categorised name / value grid with inline editors | freeze frame, settings, ECU info |
+| `TOBDSidebar` | Grouped navigation with badges; can collapse | OBD Studio shell |
+
+| Light | Dark |
+|---|---|
+| ![](building-blocks-light.png) | ![](building-blocks-dark.png) |
+
+Tablet: [light](building-blocks-tablet-light.png) · [dark](building-blocks-tablet-dark.png)
+
+### Buttons, check boxes, radio buttons
+
+States are normal, hover, pressed (buttons only), focused (a 2px accent
+ring) and disabled.
+
+- Orange fills carry dark ink, as on the dashboard.
+- `TOBDCheckBox` with `Style = csSwitch` draws the on/off switch that
+  the freeze frame uses, so no separate switch control is needed.
+
+| Light | Dark |
+|---|---|
+| ![](controls-light.png) | ![](controls-dark.png) |
+| ![](controls-tablet-light.png) | ![](controls-tablet-dark.png) |
+
+### Inspector (`TOBDInspector`)
+
+A themed port of `TInspector` from Delphi-Inspector. It keeps:
+
+- collapsible categories;
+- name / value rows;
+- the draggable splitter;
+- the inline editor and the ellipsis edit button.
+
+It adds:
+
+- combo and check-box value editors;
+- read-only rows whose value is coloured by state (warning / alarm
+  edge);
+- density-aware row heights;
+- `TOBDTheme` colours in place of `clBtnFace`.
+
+The left example is a freeze frame shown as an inspector. The right one
+is the OBD Studio settings page, including the inspection regime, range
+profile and density choices from the decisions above.
+
+| Light | Dark |
+|---|---|
+| ![](inspector-light.png) | ![](inspector-dark.png) |
+| ![](inspector-tablet-light.png) | ![](inspector-tablet-dark.png) |
+
+### Sidebar (`TOBDSidebar`)
+
+- Groups with captions, and items with an icon (an image list or the
+  built-in OBD glyphs), a caption and an optional badge.
+- A footer item and a collapse toggle.
+- When collapsed, only icons show. Badges become dots and the hover
+  tooltip shows the caption and the count.
+
+| Light | Dark |
+|---|---|
+| ![](sidebar-light.png) | ![](sidebar-dark.png) |
+| ![](sidebar-tablet-light.png) | ![](sidebar-tablet-dark.png) |
+
 ## OBD Studio – Codes page
 
-How the panels combine into the application. The page has:
+How the panels combine into the application:
 
-- a sidebar with counter badges;
-- a vehicle header;
+- `TOBDSidebar` with counter badges;
+- the vehicle header;
 - the DTC panel, with a compact readiness summary below it;
 - the freeze frame of the selected code on the right.
 
@@ -46,28 +141,25 @@ How the panels combine into the application. The page has:
 
 ## DTC panel (`TOBDDtcPanel`)
 
-A custom-drawn, themed list of trouble codes. It shows:
+Built from a card, chips, buttons, the segmented filter and an inline
+freeze-frame drill-down. It shows:
 
 - status chips: stored = Danger, pending = Warning, permanent = Accent;
 - the code in a monospace font, the description, the system and the
   control unit;
-- a camera marker on codes that have freeze-frame data;
-- an inline freeze-frame drill-down on the expanded row;
-- **Read codes** / **Clear codes…** actions;
-- a footer with a status filter.
+- a camera marker on codes that have freeze-frame data.
 
 | Light | Dark |
 |---|---|
 | ![](dtc-panel-light.png) | ![](dtc-panel-dark.png) |
+| ![](dtc-panel-tablet-light.png) | ![](dtc-panel-tablet-dark.png) |
 
 ### Clear-codes confirmation
 
-**Clear codes…** never clears straight away. An inline confirmation
-appears above the footer:
+**Clear codes…** opens an inline confirmation above the footer:
 
-- it explains what clearing does: freeze frames are erased, readiness
-  is reset, and permanent codes stay;
-- **Clear codes** stays disabled until both pre-checks are ticked.
+- it is a warning banner that explains what clearing does;
+- **Clear codes** stays disabled until both pre-check boxes are ticked.
 
 | Light | Dark |
 |---|---|
@@ -83,27 +175,60 @@ current drive cycle). The panel has:
 - one tile per monitor, grouped into continuous and non-continuous;
 - a drive hint on each incomplete monitor.
 
-Unsupported monitors are dimmed. The compression-ignition monitor set
-is shown here; spark-ignition cars get their own set.
-
 | Light | Dark |
 |---|---|
 | ![](readiness-panel-light.png) | ![](readiness-panel-dark.png) |
+
+### Inspection regime
+
+`InspectionRegime` sets the wording of the verdict. The values are:
+
+| Value | Inspection |
+|---|---|
+| `irGeneric` | emissions test |
+| `irAPK` | APK (NL) |
+| `irKeuring` | keuring (BE, Dutch) |
+| `irControleTechnique` | contrôle technique (BE, French / FR) |
+| `irMOT` | MOT (UK) |
+| `irHUAU` | HU / AU (DE) |
+| `irNCT` | NCT (IE) |
+| `irCustom` | the text in `InspectionName` |
+
+The last row shows the "ready" state.
+
+| Light | Dark |
+|---|---|
+| ![](readiness-inspection-light.png) | ![](readiness-inspection-dark.png) |
 
 ## Freeze-frame view (`TOBDFreezeFrameView`)
 
 The ECU snapshot for one code, with these columns:
 
 - **At fault**: the value when the code was stored.
-- **Live**: the current value, which can be switched off.
-- **Range**: a bar with the normal band in green and a marker for the
-  stored value.
-
-Rows outside the band get a warning or alarm tint and edge.
+- **Live**: the current value, which can be switched off with a
+  `csSwitch` check box.
+- **Range**: a `TOBDRangeBar` against the active range profile, which
+  is shown in the footer next to **Edit ranges…**.
 
 | Light | Dark |
 |---|---|
 | ![](freeze-frame-light.png) | ![](freeze-frame-dark.png) |
+| ![](freeze-frame-tablet-light.png) | ![](freeze-frame-tablet-dark.png) |
+
+### Range profiles (garage-adjustable)
+
+A `TOBDRangeProfile` holds the normal low / high per PID for a group of
+engines. In the editor:
+
+- garage values override the built-in defaults, show a **GARAGE** chip
+  with the default next to it, and can be reset per row;
+- the profile can apply to several engine codes;
+- profiles are stored as JSON next to the other catalogs.
+
+| Light | Dark |
+|---|---|
+| ![](range-editor-light.png) | ![](range-editor-dark.png) |
+| ![](range-editor-tablet-light.png) | ![](range-editor-tablet-dark.png) |
 
 ## Vehicle info card (`TOBDVehicleInfoCard`)
 
@@ -120,21 +245,15 @@ The Codes page uses a compact one-row version of it as the page header.
 |---|---|
 | ![](vehicle-card-light.png) | ![](vehicle-card-dark.png) |
 
-## Open questions to fine-tune
+## Open questions
 
-1. **Permanent codes**: they use the strong accent orange to keep them
-   apart from stored (red) and pending (yellow). Should they use a
-   neutral or outlined chip instead, so orange stays reserved for
-   actions and selection?
-2. **Clear-codes guard**: is the inline confirmation enough, or should
-   it be a modal dialog? Which pre-checks should be mandatory?
-3. **Readiness verdict**: should the banner wording follow the local
-   inspection (e.g. "APK / contrôle technique") or stay generic
-   ("emissions test")?
-4. **Freeze-frame ranges**: the normal bands are per-PID defaults.
-   Should the garage be able to edit them per engine type?
-5. **Density**: rows are 44px (DTC) and 30px (freeze frame). Is that
-   right for a workshop PC or touch screen, or should there be a
-   compact / comfortable switch?
-6. **Sidebar**: which pages belong in the first release (Dashboard,
-   Codes, Readiness, Live data, Recordings, Reports)?
+1. **Inspector port**: should `TOBDInspector` be ported into this
+   repository (themed, with the extra editors), or should
+   Delphi-Inspector get the theme hooks and stay a separate package
+   that Delphi-OBD depends on?
+2. **Freeze frame**: should it use the table layout (at fault / live /
+   range columns) or the inspector layout (categories, one value
+   column), or both through a `Layout` property?
+3. **Range profiles**: should they be stored per garage (one JSON file
+   per installation) or shipped as editable defaults per engine family
+   in `catalogs/`?
