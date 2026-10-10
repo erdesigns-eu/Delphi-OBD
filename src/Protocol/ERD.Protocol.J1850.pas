@@ -9,7 +9,7 @@
 //
 // Author      : Ernst Reidinga (ERDesigns)
 // Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
-// License     : MIT — see LICENSE
+// License     : see LICENSE
 //
 // References  :
 // - SAE J1850-2015 (Class B Data Communications Network Interface)

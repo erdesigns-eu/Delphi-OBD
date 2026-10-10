@@ -15,7 +15,7 @@
 //
 // Author      : Ernst Reidinga (ERDesigns)
 // Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
-// License     : MIT — see LICENSE
+// License     : see LICENSE
 //
 // References  :
 // - ISO 17987-3:2016 (LIN data link layer)

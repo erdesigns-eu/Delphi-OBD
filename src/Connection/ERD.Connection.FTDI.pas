@@ -12,7 +12,7 @@
 //
 // Author      : Ernst Reidinga (ERDesigns)
 // Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
-// License     : MIT — see LICENSE
+// License     : see LICENSE
 //
 // References  :
 // - FTDI D2XX Programmer's Guide (FT_000071)

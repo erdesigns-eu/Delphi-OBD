@@ -22,7 +22,7 @@
 //
 // Author      : Ernst Reidinga (ERDesigns)
 // Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
-// License     : MIT — see LICENSE
+// License     : see LICENSE
 //
 // References  :
 // - PKCS#11 v3.0 (OASIS)

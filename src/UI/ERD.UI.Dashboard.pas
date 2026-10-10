@@ -17,12 +17,12 @@
 //  - SaveLayout / LoadLayout store the grid, the tiles and each
 //    tile's settings as JSON, so layouts can be kept per vehicle or
 //    per job type.
-//  - LiveData is handed to every tile, so one assignment wires the
+//  - Source is handed to every tile, so one assignment wires the
 //    whole dashboard.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
-//  License     : MIT - see LICENSE
+//  License     : see LICENSE
 //
 //  History     :
 //    2026-10-10  ERD  Initial implementation for the dashboard set.
@@ -150,7 +150,7 @@ type
     FRows: Integer;
     FGap: Integer;
     FEditMode: Boolean;
-    FLiveData: TOBDLiveData;
+    FSource: TOBDLiveData;
     FArranging: Integer;
     FDragTile: TOBDDashboardTile;
     FDragHit: TOBDTileHit;
@@ -165,7 +165,7 @@ type
     procedure SetRows(AValue: Integer);
     procedure SetGap(AValue: Integer);
     procedure SetEditMode(AValue: Boolean);
-    procedure SetLiveData(AValue: TOBDLiveData);
+    procedure SetSource(AValue: TOBDLiveData);
     procedure AdoptControl(AControl: TOBDCustomControl);
     procedure SnapFromBounds(ATile: TOBDDashboardTile);
     procedure RepaintTiles;
@@ -321,7 +321,7 @@ type
     property EditMode: Boolean read FEditMode write SetEditMode
       default False;
     /// <summary>Data source handed to every tile.</summary>
-    property LiveData: TOBDLiveData read FLiveData write SetLiveData;
+    property Source: TOBDLiveData read FSource write SetSource;
     /// <summary>Fires after tiles were added, moved, resized or
     /// removed, or a layout was loaded.</summary>
     property OnLayoutChanged: TNotifyEvent read FOnLayoutChanged
@@ -549,10 +549,10 @@ begin
     if (Controls[I] is TOBDCustomControl) and
       (FTiles.FindControl(Controls[I]) = nil) then
       AdoptControl(TOBDCustomControl(Controls[I]));
-  if FLiveData <> nil then
+  if FSource <> nil then
     for I := 0 to FTiles.Count - 1 do
       if FTiles[I].Control <> nil then
-        FTiles[I].Control.AssignDataSource(FLiveData);
+        FTiles[I].Control.AssignDataSource(FSource);
   ArrangeTiles;
 end;
 
@@ -564,8 +564,8 @@ begin
   inherited;
   if Operation <> opRemove then
     Exit;
-  if AComponent = FLiveData then
-    FLiveData := nil;
+  if AComponent = FSource then
+    FSource := nil;
   if (FTiles <> nil) and (AComponent is TControl) then
   begin
     T := FTiles.FindControl(TControl(AComponent));
@@ -627,22 +627,22 @@ begin
     FOnEditModeChanged(Self);
 end;
 
-procedure TOBDDashboard.SetLiveData(AValue: TOBDLiveData);
+procedure TOBDDashboard.SetSource(AValue: TOBDLiveData);
 var
   I: Integer;
 begin
-  if FLiveData = AValue then
+  if FSource = AValue then
     Exit;
-  if FLiveData <> nil then
-    FLiveData.RemoveFreeNotification(Self);
-  FLiveData := AValue;
-  if FLiveData <> nil then
-    FLiveData.FreeNotification(Self);
+  if FSource <> nil then
+    FSource.RemoveFreeNotification(Self);
+  FSource := AValue;
+  if FSource <> nil then
+    FSource.FreeNotification(Self);
   if csLoading in ComponentState then
     Exit;
   for I := 0 to FTiles.Count - 1 do
     if FTiles[I].Control <> nil then
-      FTiles[I].Control.AssignDataSource(FLiveData);
+      FTiles[I].Control.AssignDataSource(FSource);
 end;
 
 procedure TOBDDashboard.RepaintTiles;
@@ -838,8 +838,8 @@ begin
         FRows := FRows + 1;
       end;
     T.SetCells(C, R, 1, 1);
-    if FLiveData <> nil then
-      AControl.AssignDataSource(FLiveData);
+    if FSource <> nil then
+      AControl.AssignDataSource(FSource);
   finally
     Dec(FArranging);
   end;
@@ -904,8 +904,8 @@ begin
   finally
     Dec(FArranging);
   end;
-  if FLiveData <> nil then
-    AControl.AssignDataSource(FLiveData);
+  if FSource <> nil then
+    AControl.AssignDataSource(FSource);
   ArrangeTiles;
   Invalidate;
   LayoutChanged;

@@ -19,7 +19,7 @@
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
-//  License     : MIT - see LICENSE
+//  License     : see LICENSE
 //
 //  History     :
 //    2026-10-10  ERD  TOBDDialGauge on the channel-bound gauge base.

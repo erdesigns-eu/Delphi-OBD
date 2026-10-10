@@ -11,7 +11,7 @@
 //
 // Author      : Ernst Reidinga (ERDesigns)
 // Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
-// License     : MIT — see LICENSE
+// License     : see LICENSE
 //
 // References  :
 // - LIN Specification 2.2A § 9 (LIN Description File)

@@ -5,9 +5,9 @@
 //  chain + TOBDVisualStyle reset/has-any + TOBDValueAnim
 //  duration / easing arithmetic.
 //
-//  Component paint behaviour itself needs a windowed message
-//  loop and is out of unit-test scope (manual smoke on the
-//  demo dashboard).
+//  Off-screen rendering of the dashboard controls is covered by
+//  Tests.ERD.UI.Gauges, Tests.ERD.UI.Panels and
+//  Tests.ERD.UI.Dashboard.
 //------------------------------------------------------------------------------
 
 unit Tests.ERD.UI.Foundation;

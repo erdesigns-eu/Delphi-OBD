@@ -8,7 +8,7 @@
 //
 // Author      : Ernst Reidinga (ERDesigns)
 // Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
-// License     : MIT — see LICENSE
+// License     : see LICENSE
 // ------------------------------------------------------------------------------
 
 unit ERD.UI.Types;
@@ -57,9 +57,8 @@ type
     Background: TColor;
     /// <summary>Body / value text.</summary>
     ForegroundText: TColor;
-    /// <summary>Brand accent. Default = ERDesigns brand orange.
-    /// Use for "active" / "selected" / "live" highlights only —
-    /// not large fills.</summary>
+    /// <summary>Accent fill: value bars, checked boxes, sparklines,
+    /// selection. Default = ERDesigns orange.</summary>
     Accent: TColor;
     /// <summary>Subtle borders / dividers / disabled state.</summary>
     Subtle: TColor;
@@ -136,28 +135,52 @@ type
     usImperial);
 
 const
-  /// <summary>ERDesigns brand orange. BGR = clOBDOrange.</summary>
-  clOBDOrange: TColor = $00298DF5; // RGB(245, 141, 41)
-  /// <summary>ERDesigns charcoal background.</summary>
-  clOBDCharcoal: TColor = $00262626;
-  /// <summary>ERDesigns silver / light card.</summary>
-  clOBDSilver: TColor = $00F0F0F0;
+  /// <summary>ERDesigns logo orange, #F08818 (<c>--clr-primary</c>,
+  /// light theme). A fill colour: needs dark ink on top.</summary>
+  clOBDOrange: TColor = $001888F0;
+  /// <summary>ERDesigns strong orange, #B4530A
+  /// (<c>--clr-primary-strong</c>, light theme). The orange used as
+  /// text, outlines and indicators on light surfaces.</summary>
+  clOBDOrangeStrong: TColor = $000A53B4;
+  /// <summary>ERDesigns dark-theme orange, #F0923A
+  /// (<c>--clr-primary</c>, dark theme).</summary>
+  clOBDOrangeDark: TColor = $003A92F0;
+  /// <summary>ERDesigns dark page background, #1A1B1E
+  /// (<c>--clr-bg</c>, dark theme).</summary>
+  clOBDCharcoal: TColor = $001E1B1A;
+  /// <summary>ERDesigns light card surface, #F8F9FA
+  /// (<c>--clr-surface</c>, light theme).</summary>
+  clOBDSilver: TColor = $00FAF9F8;
 
-  /// <summary>Brand-default palette, light mode.</summary>
-  BRAND_PALETTE_LIGHT: TOBDThemePalette = (Background: $00FFFFFF;
-    ForegroundText: $00202020; Accent: $00298DF5; // clOBDOrange
-    Subtle: $00BFBFBF; Success: $004CA64C; Warning: $0000A8FF;
-    Danger: $003C3CCC; NeutralLight: $00F0F0F0; NeutralDark: $00606060;
-    GaugeFace: $00FAFAFA; GaugeTick: $00404040; GaugeNeedle: $00298DF5;
-    GaugeLabel: $00303030;);
+  /// <summary>ERDesigns palette, light mode. Taken from the light
+  /// tokens of the ERDesigns design system (erdesigns.be site.css):
+  /// Background <c>--clr-bg</c> #F1F3F5, text <c>--clr-text</c>
+  /// #1A1A1A, Accent <c>--clr-primary</c> #F08818, Subtle and labels
+  /// <c>--clr-text-muted</c> #5C636A, faces <c>--clr-surface</c>
+  /// #F8F9FA, NeutralLight <c>--clr-border</c> #DEE2E6, needle
+  /// <c>--clr-primary-strong</c> #B4530A, status
+  /// <c>--clr-success</c> #28A745 / <c>--clr-warning</c> #FFC107 /
+  /// <c>--clr-error</c> #DC3545.</summary>
+  BRAND_PALETTE_LIGHT: TOBDThemePalette = (Background: $00F5F3F1;
+    ForegroundText: $001A1A1A; Accent: $001888F0; Subtle: $006A635C;
+    Success: $0045A728; Warning: $0007C1FF; Danger: $004535DC;
+    NeutralLight: $00E6E2DE; NeutralDark: $006A635C; GaugeFace: $00FAF9F8;
+    GaugeTick: $001A1A1A; GaugeNeedle: $000A53B4; GaugeLabel: $006A635C;);
 
-  /// <summary>Brand-default palette, dark mode.</summary>
-  BRAND_PALETTE_DARK: TOBDThemePalette = (Background: $00262626;
-    // clOBDCharcoal
-    ForegroundText: $00F0F0F0; Accent: $00298DF5; Subtle: $00505050;
-    Success: $0066CC66; Warning: $0000B8FF; Danger: $004444E0;
-    NeutralLight: $00606060; NeutralDark: $00D0D0D0; GaugeFace: $00303030;
-    GaugeTick: $00B0B0B0; GaugeNeedle: $00298DF5; GaugeLabel: $00D0D0D0;);
+  /// <summary>ERDesigns palette, dark mode. Taken from the
+  /// <c>[data-theme="dark"]</c> tokens of the ERDesigns design system
+  /// (erdesigns.be site.css): Background <c>--clr-bg</c> #1A1B1E,
+  /// text <c>--clr-text</c> #C1C2C5, Accent and needle
+  /// <c>--clr-primary</c> #F0923A, Subtle, labels and NeutralDark
+  /// <c>--clr-text-muted</c> #B0B1B5, faces <c>--clr-surface</c>
+  /// #25262B, NeutralLight <c>--clr-border</c> #373A40, status
+  /// <c>--clr-success</c> #28A745 / <c>--clr-warning</c> #FFC107 /
+  /// <c>--clr-error</c> #DC3545.</summary>
+  BRAND_PALETTE_DARK: TOBDThemePalette = (Background: $001E1B1A;
+    ForegroundText: $00C5C2C1; Accent: $003A92F0; Subtle: $00B5B1B0;
+    Success: $0045A728; Warning: $0007C1FF; Danger: $004535DC;
+    NeutralLight: $00403A37; NeutralDark: $00B5B1B0; GaugeFace: $002B2625;
+    GaugeTick: $00C5C2C1; GaugeNeedle: $003A92F0; GaugeLabel: $00B5B1B0;);
 
   /// <summary>Returns the active VCL Style's "is dark" flag —
   /// True when the style's window background is darker than 50%
