@@ -426,17 +426,18 @@ begin
   P := ActiveProfile;
   FUpdatingEdits := True;
   try
-    if (P <> nil) and (FSelected >= 0) and (FSelected < P.Ranges.Count) then
+    if P <> nil then
     begin
-      R := P.Ranges[FSelected];
-      FLowEdit.Text := FormatRangeNumber(R.Low, R.Decimals);
-      FHighEdit.Text := FormatRangeNumber(R.High, R.Decimals);
-    end
-    else
-    begin
-      FLowEdit.Text := '';
-      FHighEdit.Text := '';
+      if (FSelected >= 0) and (FSelected < P.Ranges.Count) then
+      begin
+        R := P.Ranges[FSelected];
+        FLowEdit.Text := FormatRangeNumber(R.Low, R.Decimals);
+        FHighEdit.Text := FormatRangeNumber(R.High, R.Decimals);
+        Exit;
+      end;
     end;
+    FLowEdit.Text := '';
+    FHighEdit.Text := '';
   finally
     FUpdatingEdits := False;
   end;
@@ -455,8 +456,10 @@ begin
   if FTopRow > Max(0, RangeCount - VisibleRows) then
     FTopRow := Max(0, RangeCount - VisibleRows);
 
-  VisibleEditor := (P <> nil) and (FSelected >= FTopRow) and
-    (FSelected < FTopRow + VisibleRows) and (FSelected < P.Ranges.Count);
+  VisibleEditor := False;
+  if P <> nil then
+    VisibleEditor := (FSelected >= FTopRow) and
+      (FSelected < FTopRow + VisibleRows) and (FSelected < P.Ranges.Count);
   FLowEdit.Visible := VisibleEditor;
   FHighEdit.Visible := VisibleEditor;
   FResetButton.Visible := False;
@@ -513,10 +516,11 @@ var
   P: TOBDRangeProfile;
 begin
   P := ActiveProfile;
-  if (P <> nil) and (Trim(P.EngineCodes) <> '') then
-    Result := 'Apply to ' + P.EngineCodes + ' engines'
-  else
-    Result := 'Apply to all matching engines';
+  Result := 'Apply to all matching engines';
+  if P = nil then
+    Exit;
+  if Trim(P.EngineCodes) <> '' then
+    Result := 'Apply to ' + P.EngineCodes + ' engines';
 end;
 
 procedure TOBDRangeEditor.ScrollTo(ATopRow: Integer);
@@ -553,7 +557,9 @@ begin
   if FUpdatingEdits then
     Exit;
   P := ActiveProfile;
-  if (P = nil) or (FSelected < 0) or (FSelected >= P.Ranges.Count) then
+  if P = nil then
+    Exit;
+  if (FSelected < 0) or (FSelected >= P.Ranges.Count) then
     Exit;
   R := P.Ranges[FSelected];
   FInvalid := False;
@@ -611,7 +617,9 @@ var
   P: TOBDRangeProfile;
 begin
   P := ActiveProfile;
-  if (P = nil) or (FSelected < 0) or (FSelected >= P.Ranges.Count) then
+  if P = nil then
+    Exit;
+  if (FSelected < 0) or (FSelected >= P.Ranges.Count) then
     Exit;
   P.Ranges[FSelected].ResetToDefault;
   FInvalid := False;
@@ -883,12 +891,15 @@ begin
   if I < 0 then
     Exit;
   P := ActiveProfile;
-  if (P <> nil) and PtInRect(ResetRect(I), Point(X, Y)) and P.Ranges[I].IsModified then
+  if P <> nil then
   begin
-    SelectRow(I);
-    if not FInvalid then
-      ResetSelectedClick(Self);
-    Exit;
+    if PtInRect(ResetRect(I), Point(X, Y)) and P.Ranges[I].IsModified then
+    begin
+      SelectRow(I);
+      if not FInvalid then
+        ResetSelectedClick(Self);
+      Exit;
+    end;
   end;
   SelectRow(I);
 end;
