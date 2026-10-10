@@ -31,6 +31,7 @@ uses
   Vcl.StdCtrls,
   DUnitX.TestFramework,
   ERD.UI.Types,
+  ERD.UI.Paint,
   ERD.UI.Card,
   ERD.UI.Buttons,
   ERD.UI.Segmented,
@@ -40,6 +41,8 @@ uses
   ERD.UI.VehicleCard,
   ERD.UI.DtcPanel,
   ERD.UI.ReadinessPanel,
+  ERD.UI.FreezeFrameView,
+  ERD.UI.RangeEditor,
   Tests.ERD.UI.RenderHelpers;
 
 type
@@ -138,6 +141,33 @@ type
     [Test] procedure PreviewDraws;
     [Test] procedure CheckDigitVerdict;
     [Test] procedure CompactLayoutDraws;
+  end;
+
+  [TestFixture]
+  TOBDFreezeFrameViewTests = class
+  strict private
+    FView: TOBDFreezeFrameView;
+    FProfile: TOBDRangeProfile;
+  public
+    [Setup] procedure Setup;
+    [TearDown] procedure TearDown;
+    [Test] procedure PreviewDraws;
+    [Test] procedure ValuesAndLive;
+    [Test] procedure InspectorLayoutDrawsDifferently;
+    [Test] procedure FreedProfileIsReleased;
+  end;
+
+  [TestFixture]
+  TOBDRangeEditorTests = class
+  strict private
+    FEditor: TOBDRangeEditor;
+    FProfile: TOBDRangeProfile;
+  public
+    [Setup] procedure Setup;
+    [TearDown] procedure TearDown;
+    [Test] procedure PreviewDraws;
+    [Test] procedure ProfileDraws;
+    [Test] procedure GarageEditChangesTheDrawing;
   end;
 
 implementation
@@ -661,6 +691,124 @@ begin
   Assert.IsTrue(InkRatio(FCard) > 0.02, 'compact vehicle strip is empty');
 end;
 
+{ TOBDFreezeFrameViewTests ---------------------------------------------------- }
+
+procedure TOBDFreezeFrameViewTests.Setup;
+begin
+  FView := TOBDFreezeFrameView.Create(nil);
+  FView.SetBounds(0, 0, 720, 420);
+  FProfile := TOBDRangeProfile.Create(nil);
+  FProfile.LoadDefaults;
+end;
+
+procedure TOBDFreezeFrameViewTests.TearDown;
+begin
+  FreeAndNil(FView);
+  FreeAndNil(FProfile);
+end;
+
+procedure TOBDFreezeFrameViewTests.PreviewDraws;
+begin
+  FView.ForcePreview := True;
+  Assert.AreEqual(0, FView.ValueCount, 'preview values leaked into the data');
+  Assert.IsTrue(InkRatio(FView) > 0.03, 'freeze-frame preview is empty');
+end;
+
+procedure TOBDFreezeFrameViewTests.ValuesAndLive;
+begin
+  FView.RangeProfile := FProfile;
+  FView.DtcCode := 'P0401';
+  FView.AddValue($05, 'coolant_temp', 'Coolant temperature', 88, '°C', 0);
+  FView.AddText($03, 'Fuel system status', 'Closed loop');
+  FView.SetLive($05, 91);
+  Assert.AreEqual(2, FView.ValueCount);
+  Assert.IsTrue(FView.Values(0).HasLive, 'live value not stored');
+  Assert.AreEqual(Double(91), FView.Values(0).Live, 1e-9);
+  Assert.IsFalse(FView.Values(1).IsNumeric);
+  Assert.IsTrue(InkRatio(FView) > 0.02, 'freeze-frame rows not drawn');
+  FView.Clear;
+  Assert.AreEqual(0, FView.ValueCount);
+end;
+
+procedure TOBDFreezeFrameViewTests.InspectorLayoutDrawsDifferently;
+var
+  Table, Inspector: TBitmap;
+begin
+  FView.RangeProfile := FProfile;
+  FView.AddValue($05, 'coolant_temp', 'Coolant temperature', 88, '°C', 0);
+  FView.AddValue($0C, 'engine_speed', 'Engine speed', 2140, 'rpm', 0);
+  Table := RenderControl(FView);
+  try
+    FView.Layout := flInspector;
+    Inspector := RenderControl(FView);
+    try
+      Assert.IsTrue(BitmapsDiffer(Table, Inspector, 200),
+        'inspector layout looks like the table');
+    finally
+      Inspector.Free;
+    end;
+  finally
+    Table.Free;
+  end;
+end;
+
+procedure TOBDFreezeFrameViewTests.FreedProfileIsReleased;
+begin
+  FView.RangeProfile := FProfile;
+  FreeAndNil(FProfile);
+  Assert.IsNull(FView.RangeProfile, 'freed profile still referenced');
+end;
+
+{ TOBDRangeEditorTests -------------------------------------------------------- }
+
+procedure TOBDRangeEditorTests.Setup;
+begin
+  FEditor := TOBDRangeEditor.Create(nil);
+  FEditor.SetBounds(0, 0, 720, 420);
+  FProfile := TOBDRangeProfile.Create(nil);
+  FProfile.LoadDefaults;
+end;
+
+procedure TOBDRangeEditorTests.TearDown;
+begin
+  FreeAndNil(FEditor);
+  FreeAndNil(FProfile);
+end;
+
+procedure TOBDRangeEditorTests.PreviewDraws;
+begin
+  FEditor.ForcePreview := True;
+  Assert.IsTrue(InkRatio(FEditor) > 0.03, 'range editor preview is empty');
+end;
+
+procedure TOBDRangeEditorTests.ProfileDraws;
+begin
+  FEditor.RangeProfile := FProfile;
+  Assert.IsTrue(InkRatio(FEditor) > 0.03, 'range editor rows not drawn');
+end;
+
+procedure TOBDRangeEditorTests.GarageEditChangesTheDrawing;
+var
+  Defaults, Edited: TBitmap;
+  Range: TOBDValueRange;
+begin
+  FEditor.RangeProfile := FProfile;
+  Defaults := RenderControl(FEditor);
+  try
+    Range := FProfile.Ranges.FindPID($05);
+    Range.High := Range.DefaultHigh + 5;
+    Edited := RenderControl(FEditor);
+    try
+      Assert.IsTrue(BitmapsDiffer(Defaults, Edited, 20),
+        'garage value not shown');
+    finally
+      Edited.Free;
+    end;
+  finally
+    Defaults.Free;
+  end;
+end;
+
 initialization
   TDUnitX.RegisterTestFixture(TOBDStudioBlockTests);
   TDUnitX.RegisterTestFixture(TOBDInspectorTests);
@@ -669,4 +817,6 @@ initialization
   TDUnitX.RegisterTestFixture(TOBDDtcPanelTests);
   TDUnitX.RegisterTestFixture(TOBDReadinessPanelTests);
   TDUnitX.RegisterTestFixture(TOBDVehicleInfoCardTests);
+  TDUnitX.RegisterTestFixture(TOBDFreezeFrameViewTests);
+  TDUnitX.RegisterTestFixture(TOBDRangeEditorTests);
 end.
