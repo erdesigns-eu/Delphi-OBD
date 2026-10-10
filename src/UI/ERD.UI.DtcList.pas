@@ -12,6 +12,9 @@
 // wire <c>OnDtcSelected</c> + <c>OnDtcDoubleClick</c> to drive a
 // host freeze-frame / extended-data viewer.
 //
+// With Theme assigned, background, text and severity colours come
+// from the TOBDTheme palette; without it the *Color properties apply.
+//
 // Author      : Ernst Reidinga (ERDesigns)
 // Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
 // License     : see LICENSE
@@ -41,7 +44,9 @@ uses
   Vcl.Controls,
   Vcl.ComCtrls,
   Vcl.Graphics,
-  Winapi.CommCtrl;
+  Winapi.CommCtrl,
+  ERD.UI.Types,
+  ERD.UI.Theme;
 
 type
   /// <summary>DTC severity — drives the row foreground colour.</summary>
@@ -94,8 +99,9 @@ type
   /// palette tweak the <c>InfoColor</c> / <c>WarningColor</c> /
   /// <c>CriticalColor</c> published properties.
   /// </remarks>
-  TOBDDtcList = class(TListView)
+  TOBDDtcList = class(TListView, IOBDThemeAware)
   strict private
+    FTheme: TOBDTheme;
     FDtcItems: TList<TOBDDtcItem>;
     FInfoColor: TColor;
     FWarningColor: TColor;
@@ -106,6 +112,8 @@ type
     function StatusText(AStatus: TOBDDtcStatus): string;
     function SeverityText(ASeverity: TOBDDtcSeverity): string;
     procedure RebuildView;
+    procedure SetTheme(AValue: TOBDTheme);
+    procedure ApplyTheme;
     procedure HandleCustomDrawItem(Sender: TCustomListView; Item: TListItem;
       State: TCustomDrawState; var DefaultDraw: Boolean);
     procedure HandleSelectItem(Sender: TObject; Item: TListItem;
@@ -113,6 +121,13 @@ type
     procedure HandleDblClick(Sender: TObject);
   protected
     procedure CreateWnd; override;
+    /// <summary>Clears <see cref="Theme"/> when the theme is freed.
+    /// </summary>
+    /// <param name="AComponent">Component being inserted or removed.
+    /// </param>
+    /// <param name="Operation">Insert or remove.</param>
+    procedure Notification(AComponent: TComponent;
+      Operation: TOperation); override;
   public
     /// <summary>Constructs the list with the four standard
     /// columns + custom-draw + theme-aware defaults.</summary>
@@ -150,14 +165,26 @@ type
 
     /// <summary>Number of rows.</summary>
     function DtcCount: Integer;
+
+    /// <summary>IOBDThemeAware: applies the new palette.</summary>
+    procedure ThemeChanged;
   published
-    /// <summary>Foreground colour for <c>dsInfo</c> rows.</summary>
+    /// <summary>Palette source. When assigned, the background is the
+    /// palette's face colour, text and info rows use ForegroundText,
+    /// warning rows Warning and critical rows Danger. When nil the
+    /// colour properties below apply.</summary>
+    property Theme: TOBDTheme read FTheme write SetTheme;
+
+    /// <summary>Foreground colour for <c>dsInfo</c> rows when
+    /// <see cref="Theme"/> is nil.</summary>
     property InfoColor: TColor read FInfoColor write FInfoColor
       default TColor($00FF9933); // BGR — light blue
-    /// <summary>Foreground colour for <c>dsWarning</c> rows.</summary>
+    /// <summary>Foreground colour for <c>dsWarning</c> rows when
+    /// <see cref="Theme"/> is nil.</summary>
     property WarningColor: TColor read FWarningColor write FWarningColor
       default TColor($0000A5FF); // BGR — amber
-    /// <summary>Foreground colour for <c>dsCritical</c> rows.</summary>
+    /// <summary>Foreground colour for <c>dsCritical</c> rows when
+    /// <see cref="Theme"/> is nil.</summary>
     property CriticalColor: TColor read FCriticalColor write FCriticalColor
       default TColor($003333E6); // BGR — red
 
@@ -191,6 +218,8 @@ end;
 
 destructor TOBDDtcList.Destroy;
 begin
+  if FTheme <> nil then
+    FTheme.Detach(Self);
   FDtcItems.Free;
   inherited;
 end;
@@ -218,8 +247,67 @@ begin
   RebuildView;
 end;
 
-function TOBDDtcList.SeverityColor(ASeverity: TOBDDtcSeverity): TColor;
+procedure TOBDDtcList.Notification(AComponent: TComponent;
+  Operation: TOperation);
 begin
+  inherited;
+  if (Operation = opRemove) and (AComponent = FTheme) then
+    FTheme := nil;
+end;
+
+procedure TOBDDtcList.SetTheme(AValue: TOBDTheme);
+begin
+  if FTheme = AValue then
+    Exit;
+  if FTheme <> nil then
+  begin
+    FTheme.Detach(Self);
+    FTheme.RemoveFreeNotification(Self);
+  end;
+  FTheme := AValue;
+  if FTheme <> nil then
+  begin
+    FTheme.FreeNotification(Self);
+    FTheme.Attach(Self);
+  end;
+  ApplyTheme;
+end;
+
+procedure TOBDDtcList.ApplyTheme;
+var
+  P: TOBDThemePalette;
+begin
+  if FTheme <> nil then
+  begin
+    P := FTheme.Palette;
+    Color := P.GaugeFace;
+    Font.Color := P.ForegroundText;
+  end;
+  Invalidate;
+end;
+
+procedure TOBDDtcList.ThemeChanged;
+begin
+  ApplyTheme;
+end;
+
+function TOBDDtcList.SeverityColor(ASeverity: TOBDDtcSeverity): TColor;
+var
+  P: TOBDThemePalette;
+begin
+  if FTheme <> nil then
+  begin
+    P := FTheme.Palette;
+    case ASeverity of
+      dsWarning:
+        Result := P.Warning;
+      dsCritical:
+        Result := P.Danger;
+    else
+      Result := P.ForegroundText;
+    end;
+    Exit;
+  end;
   case ASeverity of
     dsInfo:
       Result := FInfoColor;

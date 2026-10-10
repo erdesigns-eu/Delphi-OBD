@@ -6,6 +6,8 @@
 // only). Auto-scrolls to the tail as long as the user has not
 // manually scrolled away. Lines carry a direction tag (sent,
 // received, info, error) that colours the row foreground.
+// With Theme assigned, background, text and row colours come from
+// the TOBDTheme palette; without it the *Color properties apply.
 //
 // Use Log* / LogSent / LogReceived / LogInfo / LogError from the
 // main thread. Worker threads must marshal via
@@ -41,7 +43,9 @@ uses
   Vcl.StdCtrls,
   Vcl.Graphics,
   Winapi.Windows,
-  Winapi.Messages;
+  Winapi.Messages,
+  ERD.UI.Types,
+  ERD.UI.Theme;
 
 const
   /// <summary>Default ring-buffer capacity in lines.</summary>
@@ -81,8 +85,9 @@ type
   /// <see cref="LogError"/>; the ring buffer drops the oldest row
   /// once <see cref="MaxLines"/> is exceeded.
   /// </remarks>
-  TOBDTerminal = class(TListBox)
+  TOBDTerminal = class(TListBox, IOBDThemeAware)
   strict private
+    FTheme: TOBDTheme;
     FLines: TList<TOBDTerminalLine>;
     FMaxLines: Integer;
     FFollowTail: Boolean;
@@ -94,6 +99,9 @@ type
     FTimestampColor: TColor;
     procedure SetMaxLines(AValue: Integer);
     procedure SetShowTimestamps(AValue: Boolean);
+    procedure SetTheme(AValue: TOBDTheme);
+    procedure ApplyTheme;
+    function TimestampForeground: TColor;
     procedure DropOldestIfNeeded;
     procedure ScrollToTail;
     function FormatLine(const ALine: TOBDTerminalLine): string;
@@ -102,6 +110,13 @@ type
       State: TOwnerDrawState);
   protected
     procedure CreateParams(var Params: TCreateParams); override;
+    /// <summary>Clears <see cref="Theme"/> when the theme is freed.
+    /// </summary>
+    /// <param name="AComponent">Component being inserted or removed.
+    /// </param>
+    /// <param name="Operation">Insert or remove.</param>
+    procedure Notification(AComponent: TComponent;
+      Operation: TOperation); override;
   public
     /// <summary>Constructs the terminal with sensible defaults.</summary>
     /// <param name="AOwner">Component owner (standard VCL pattern).</param>
@@ -136,7 +151,16 @@ type
     /// <summary>Number of buffered lines (≤ <see cref="MaxLines"/>).
     /// </summary>
     function LineCount: Integer;
+
+    /// <summary>IOBDThemeAware: applies the new palette.</summary>
+    procedure ThemeChanged;
   published
+    /// <summary>Palette source. When assigned, the background is the
+    /// palette's face colour, text uses ForegroundText, sent rows
+    /// GaugeNeedle, info rows and timestamps Subtle and error rows
+    /// Danger. When nil the colour properties below apply.</summary>
+    property Theme: TOBDTheme read FTheme write SetTheme;
+
     /// <summary>
     /// Maximum buffered lines. Older lines are dropped FIFO.
     /// Default <c>1000</c>.
@@ -160,7 +184,8 @@ type
     property ShowTimestamps: Boolean read FShowTimestamps
       write SetShowTimestamps default True;
 
-    /// <summary>Foreground colour for <c>tdSent</c> rows.</summary>
+    /// <summary>Foreground colour for <c>tdSent</c> rows when
+    /// <see cref="Theme"/> is nil.</summary>
     property SentColor: TColor read FSentColor write FSentColor default clAqua;
     /// <summary>Foreground colour for <c>tdReceived</c> rows.</summary>
     property ReceivedColor: TColor read FReceivedColor write FReceivedColor
@@ -202,6 +227,8 @@ end;
 
 destructor TOBDTerminal.Destroy;
 begin
+  if FTheme <> nil then
+    FTheme.Detach(Self);
   FLines.Free;
   inherited;
 end;
@@ -212,6 +239,58 @@ begin
   // Horizontal scroll on long lines without wrapping (terminals are
   // conventionally non-wrapping).
   Params.Style := Params.Style or WS_HSCROLL;
+end;
+
+procedure TOBDTerminal.Notification(AComponent: TComponent;
+  Operation: TOperation);
+begin
+  inherited;
+  if (Operation = opRemove) and (AComponent = FTheme) then
+    FTheme := nil;
+end;
+
+procedure TOBDTerminal.SetTheme(AValue: TOBDTheme);
+begin
+  if FTheme = AValue then
+    Exit;
+  if FTheme <> nil then
+  begin
+    FTheme.Detach(Self);
+    FTheme.RemoveFreeNotification(Self);
+  end;
+  FTheme := AValue;
+  if FTheme <> nil then
+  begin
+    FTheme.FreeNotification(Self);
+    FTheme.Attach(Self);
+  end;
+  ApplyTheme;
+end;
+
+procedure TOBDTerminal.ApplyTheme;
+var
+  P: TOBDThemePalette;
+begin
+  if FTheme <> nil then
+  begin
+    P := FTheme.Palette;
+    Color := P.GaugeFace;
+    Font.Color := P.ForegroundText;
+  end;
+  Invalidate;
+end;
+
+procedure TOBDTerminal.ThemeChanged;
+begin
+  ApplyTheme;
+end;
+
+function TOBDTerminal.TimestampForeground: TColor;
+begin
+  if FTheme <> nil then
+    Result := FTheme.Palette.Subtle
+  else
+    Result := FTimestampColor;
 end;
 
 procedure TOBDTerminal.SetMaxLines(AValue: Integer);
@@ -249,7 +328,24 @@ begin
 end;
 
 function TOBDTerminal.ColorFor(ADirection: TOBDTerminalDirection): TColor;
+var
+  P: TOBDThemePalette;
 begin
+  if FTheme <> nil then
+  begin
+    P := FTheme.Palette;
+    case ADirection of
+      tdSent:
+        Result := P.GaugeNeedle;
+      tdInfo:
+        Result := P.Subtle;
+      tdError:
+        Result := P.Danger;
+    else
+      Result := P.ForegroundText;
+    end;
+    Exit;
+  end;
   case ADirection of
     tdSent:
       Result := FSentColor;
@@ -281,6 +377,13 @@ var
   Text: string;
   TsLen: Integer;
 begin
+  if FTheme <> nil then
+  begin
+    if odSelected in State then
+      Canvas.Brush.Color := FTheme.Palette.NeutralLight
+    else
+      Canvas.Brush.Color := Color;
+  end;
   Canvas.FillRect(Rect);
   if (Index < 0) or (Index >= FLines.Count) then
     Exit;
@@ -295,7 +398,7 @@ begin
     // Paint the timestamp prefix in TimestampColor, then the body
     // in the direction colour.
     TsLen := 12; // 'HH:MM:SS.zzz' is 12 chars
-    Canvas.Font.Color := FTimestampColor;
+    Canvas.Font.Color := TimestampForeground;
     Canvas.TextOut(TextRect.Left, TextRect.Top, Copy(Text, 1, TsLen));
     Canvas.Font.Color := ColorFor(L.Direction);
     Canvas.TextOut(TextRect.Left + Canvas.TextWidth(Copy(Text, 1, TsLen + 2)),

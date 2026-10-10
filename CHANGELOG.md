@@ -25,7 +25,12 @@ All controls receive data through `TOBDChannelBinding` (`Channel`
 property). Sample: `samples/18-OBDStudioDashboard`.
 
 The **OBD Visual** page holds the terminal, log viewer, DTC list,
-PID / OEM pickers and the VIN / CAN-ID edits.
+PID / OEM pickers and the VIN / CAN-ID edits. `TOBDTerminal`,
+`TOBDLogViewer` and `TOBDDtcList` take their colours from a
+`TOBDTheme` when `Theme` is assigned.
+
+The ERDesigns light palette uses #856404 for warnings (the site's
+warning text colour); the dark palette uses #FFC107.
 
 ### Dyno
 

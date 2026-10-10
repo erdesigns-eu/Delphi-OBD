@@ -382,7 +382,10 @@ and loaded as JSON, and `Source` to connect every tile to one
 [`samples/18-OBDStudioDashboard`](../samples/18-OBDStudioDashboard/).
 
 The **OBD Visual** page holds the supporting controls (terminal, log
-viewer, DTC list, PID / OEM pickers, VIN and CAN-ID edits).
+viewer, DTC list, PID / OEM pickers, VIN and CAN-ID edits). The
+terminal, log viewer and DTC list have a `Theme` property: with a
+`TOBDTheme` assigned they take background, text and row colours from
+its palette.
 
 ## Where the code lives
 

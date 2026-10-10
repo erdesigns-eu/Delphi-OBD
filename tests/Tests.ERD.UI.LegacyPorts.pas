@@ -6,6 +6,7 @@
 //    - TOBDTerminal      (TListBox owner-draw face)
 //    - TOBDLogViewer     (TOBDTerminal + level tags)
 //    - TOBDDtcList       (TListView vsReport face)
+//  and their optional TOBDTheme palette.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
@@ -27,6 +28,8 @@ uses
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
   {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   DUnitX.TestFramework,
+  ERD.UI.Types,
+  ERD.UI.Theme,
   ERD.UI.Terminal,
   ERD.UI.LogViewer,
   ERD.UI.DtcList;
@@ -40,6 +43,8 @@ type
     [Test] procedure Terminal_LogAppendsLine;
     [Test] procedure Terminal_RingBufferDropsOldestWhenFull;
     [Test] procedure Terminal_ClearLogEmptiesBuffer;
+    [Test] procedure Terminal_ThemeSetsPaletteColours;
+    [Test] procedure Terminal_FreeingThemeClearsTheme;
 
     [Test] procedure LogViewer_DefaultsShowLevelTag;
     [Test] procedure LogViewer_WriteAppendsRow;
@@ -49,6 +54,7 @@ type
     [Test] procedure DtcList_AddDtcExGrowsCount;
     [Test] procedure DtcList_ClearEmptiesItems;
     [Test] procedure DtcList_DtcAccessorRoundTrips;
+    [Test] procedure DtcList_ThemeSetsPaletteColours;
   end;
 
 implementation
@@ -219,6 +225,65 @@ begin
     Assert.AreEqual(Ord(dtHistory), Ord(Row.Status));
   finally
     L.Free;
+  end;
+end;
+
+procedure TLegacyVisualPortsTests.Terminal_ThemeSetsPaletteColours;
+var
+  T: TOBDTerminal;
+  Th: TOBDTheme;
+begin
+  Th := TOBDTheme.Create(nil);
+  T := TOBDTerminal.Create(nil);
+  try
+    Th.Mode := tmDark;
+    T.Theme := Th;
+    Assert.AreEqual(Integer(BRAND_PALETTE_DARK.GaugeFace), Integer(T.Color));
+    Assert.AreEqual(Integer(BRAND_PALETTE_DARK.ForegroundText),
+      Integer(T.Font.Color));
+    Th.Mode := tmLight;
+    Assert.AreEqual(Integer(BRAND_PALETTE_LIGHT.GaugeFace), Integer(T.Color));
+  finally
+    T.Free;
+    Th.Free;
+  end;
+end;
+
+procedure TLegacyVisualPortsTests.Terminal_FreeingThemeClearsTheme;
+var
+  T: TOBDTerminal;
+  Th: TOBDTheme;
+begin
+  Th := TOBDTheme.Create(nil);
+  T := TOBDTerminal.Create(nil);
+  try
+    T.Theme := Th;
+    FreeAndNil(Th);
+    Assert.IsNull(T.Theme);
+    T.LogInfo('still works');
+    Assert.AreEqual(1, T.LineCount);
+  finally
+    T.Free;
+    Th.Free;
+  end;
+end;
+
+procedure TLegacyVisualPortsTests.DtcList_ThemeSetsPaletteColours;
+var
+  L: TOBDDtcList;
+  Th: TOBDTheme;
+begin
+  Th := TOBDTheme.Create(nil);
+  L := TOBDDtcList.Create(nil);
+  try
+    Th.Mode := tmLight;
+    L.Theme := Th;
+    Assert.AreEqual(Integer(BRAND_PALETTE_LIGHT.GaugeFace), Integer(L.Color));
+    Assert.AreEqual(Integer(BRAND_PALETTE_LIGHT.ForegroundText),
+      Integer(L.Font.Color));
+  finally
+    L.Free;
+    Th.Free;
   end;
 end;
 
