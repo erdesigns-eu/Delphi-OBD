@@ -1037,6 +1037,8 @@ var
   X, CY, Img, BadgeW: Integer;
   S, B: string;
   G: TOBDGlyph;
+  TextSize: Single;
+  Weight: TOBDTextWeight;
 begin
   R := TabRect(APainter, AIndex);
   if (R.Right < 0) or (R.Left > Width) then
@@ -1098,8 +1100,15 @@ begin
     BadgeW := 0;
   if FTabStyle = tsDocument then
     Dec(BadgeW, 0);
-  APainter.Text(X, CY, S, IfThen(FTabStyle = tsDocument, 12.5, 13), Ink,
-    IfThen(Sel, twSemibold, twRegular), taLeftJustify,
+  if FTabStyle = tsDocument then
+    TextSize := 12.5
+  else
+    TextSize := 13;
+  if Sel then
+    Weight := twSemibold
+  else
+    Weight := twRegular;
+  APainter.Text(X, CY, S, TextSize, Ink, Weight, taLeftJustify,
     R.Right - X - ScaleValue(28) - BadgeW);
 
   if B <> '' then

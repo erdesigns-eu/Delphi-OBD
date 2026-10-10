@@ -4,9 +4,7 @@ The approved designs of the OBD Studio controls. Every control shown
 here exists in `src/UI` and is registered on the **OBD Studio** palette
 page; the images are the visual reference the controls are painted to.
 New controls get a mockup here first, so the layout, wording and colours
-can be agreed on before any Pascal is written. The controls under
-[Proposed: application chrome](#proposed-application-chrome) are such
-mockups: they are not built yet.
+can be agreed on before any Pascal is written.
 
 Every colour comes from the ERDesigns palettes in
 `src/UI/ERD.UI.Types.pas` (`BRAND_PALETTE_LIGHT` / `BRAND_PALETTE_DARK`).
@@ -253,10 +251,10 @@ The Codes page uses a compact one-row version of it as the page header.
 |---|---|
 | ![](vehicle-card-light.png) | ![](vehicle-card-dark.png) |
 
-## Proposed: application chrome
+## Application chrome
 
-Not built yet. These mockups cover what an application needs around
-the panels, so a whole form follows `TOBDTheme` and `Density`:
+These mockups cover what an application needs around the panels, so a
+whole form follows `TOBDTheme` and `Density`:
 
 - the window itself;
 - menus;
@@ -269,14 +267,15 @@ the panels, so a whole form follows `TOBDTheme` and `Density`:
 | `TOBDMenuBar` | Paints a standard `TMainMenu` in the theme, so the menu designer, actions and shortcuts stay as they are. `MenuPlacement = (mpTitleBar, mpBelow)`. |
 | `TOBDPopupMenu` | Themed popup for a `TMenuItem` tree. It has a glyph gutter, check and radio items, group headers, separators, shortcuts, submenus and danger items. Row heights follow `Density`. |
 | `TOBDRibbon` | Tabs with groups of large and small buttons bound to `TAction`s. It also has a File button, contextual tabs, a command search (Alt+Q) and dialog launchers. `RibbonStyle = (rsClassic, rsSimplified)`; it can collapse to tabs only (Ctrl+F1). |
+| `TOBDBackstage` | Full-window page opened by the ribbon File button, with its own navigation strip; `TOBDReportPreview` shows the A4 report preview. |
 | `TOBDTabs` | `TabStyle = (tsUnderline, tsDocument)`: page tabs with badges, or closable document tabs with a modified dot and a new-tab button. |
 | `TOBDToolBar` | Icon buttons with an optional caption, toggles, drop-downs, separators and a search box. |
 | `TOBDStatusBar` | Panels for the connection state, adapter, protocol, battery voltage, progress and counters. |
 | `TOBDProgressBar` | Determinate, failed, indeterminate and step (one segment per ECU) styles. |
 | `TOBDDialog` | Themed replacement for `MessageDlg`: icon, title, text, an optional check box and a button row. |
-| `TOBDToast` | Notifications stacked bottom-right, with an action link and an optional auto-hide timer. |
-| `TOBDHint` | Themed hint window with a title, text and shortcut, for the whole application through `HintWindowClass`. |
-| Scroll bars | Thin themed scroll bars for the scrolling controls (DTC panel, inspector, freeze frame). They widen on hover. |
+| `TOBDToastManager` | Notifications stacked bottom-right, with an action link and an optional auto-hide timer. |
+| `TOBDHintStyle` | Themed hint window (`TOBDHintWindow`) with a title, text and shortcut, for the whole application through `HintWindowClass`. |
+| `TOBDScrollBar` | Thin themed scroll bars for the scrolling controls (DTC panel, inspector, freeze frame). They widen on hover. |
 
 ### Themed form, title bar and menu
 
@@ -340,7 +339,7 @@ toasts.
 | Ribbon File button | Opens `TOBDBackstage`, a full-window page with its own navigation. Its first use is the report page with a live preview. |
 | Contextual tabs | A collection (`TOBDRibbon.ContextualTabs`): caption, colour, tabs and `Visible`. Green *Playback* is the first example. |
 
-### Backstage (`TOBDBackstage`) – needs approval
+### Backstage (`TOBDBackstage`, `TOBDReportPreview`)
 
 The ribbon's File button opens a full-window page instead of a menu.
 The left column is an orange navigation strip with a back button; each
