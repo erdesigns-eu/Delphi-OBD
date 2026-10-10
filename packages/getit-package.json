@@ -1,14 +1,14 @@
 {
   "$comment": [
-    "GetIt package metadata for Delphi-OBD v2. Submitted to GetIt",
-    "after the stable v2.0.0 tag ships; the beta is github-only.",
+    "GetIt package metadata for Delphi-OBD v3. Submitted to GetIt",
+    "after the stable v3.0.0 tag ships; the beta is github-only.",
     "",
     "Schema follows the Embarcadero GetIt package descriptor",
     "format. Update version + supported_studios on every release."
   ],
   "name": "Delphi-OBD",
   "id": "ErDesigns.DelphiOBD",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "publisher": "ERDesigns",
   "publisher_email": "info@erdesigns.eu",
   "publisher_url": "https://erdesigns.eu",

@@ -37,9 +37,9 @@ type
     [Test]
     procedure VersionStringIsPopulated;
 
-    /// <summary>The major version is 2.</summary>
+    /// <summary>The major version is 3.</summary>
     [Test]
-    procedure MajorVersionIsTwo;
+    procedure MajorVersionIsThree;
 
     /// <summary>The copyright line names the project.</summary>
     [Test]
@@ -57,9 +57,9 @@ begin
   Assert.IsNotEmpty(OBD_VERSION);
 end;
 
-procedure TVersionTests.MajorVersionIsTwo;
+procedure TVersionTests.MajorVersionIsThree;
 begin
-  Assert.AreEqual(2, OBD_VERSION_MAJOR);
+  Assert.AreEqual(3, OBD_VERSION_MAJOR);
 end;
 
 procedure TVersionTests.CopyrightContainsProjectName;

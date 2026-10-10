@@ -14,7 +14,7 @@ Hello.exe
 Expected output:
 
 ```
-Delphi-OBD 2.0.0-alpha.0
+Delphi-OBD 3.0.0-alpha.0
 (c) 2026 ERDesigns and Delphi-OBD contributors
 https://github.com/erdesigns-eu/Delphi-OBD
 ```

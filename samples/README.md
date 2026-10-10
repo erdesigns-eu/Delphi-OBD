@@ -33,6 +33,7 @@ demonstrating one component or one workflow.
 | 15 | [`15-IsoBusCodecs`](15-IsoBusCodecs/) | ISO 11783 (ISOBUS) NAME / VT / TC / FS / GNSS codec helpers. |
 | 16 | [`16-TachographDecode`](16-TachographDecode/) | Digital tachograph (EU 165/2014) record decoder helpers. |
 | 17 | [`17-CatalogBundleDM`](17-CatalogBundleDM/) | The three OBD-Catalogs components — VIN / drive-cycle / EV battery, AutoLoad=True. |
+| 18 | [`18-OBDStudioDashboard`](18-OBDStudioDashboard/) | VCL workshop dashboard — dials, bars, value tile, lamp, trend chart and ticker on a `TOBDDashboard`, fed with simulated data. Theme, unit and layout switching. |
 | 27 | [`27-FlashDryRun`](27-FlashDryRun/) | Walks the entire `TOBDFlashPipeline` phase chain without touching the wire. "Review before commit" tool for flash configs. |
 | 28 | [`28-FlashSignedFirmware`](28-FlashSignedFirmware/) | ⚠️ brick risk — signature-verified flash against a real ECU. Requires hardware + signed image + voltage source. |
 | 29 | [`29-J1939Flash`](29-J1939Flash/) | DM14 / DM15 / DM16 memory access on a heavy-duty J1939 bus. |
@@ -51,7 +52,8 @@ Or open the `.dpr` in RAD Studio and press F9.
 
 The hardware-dependent samples (`01`, `02`, `03`, `28`, `29`) need an
 actual adapter or vehicle. The catalog / parser / dry-run samples
-(`00`, `04`, `05`, `27`) run headless on any machine.
+(`00`, `04`, `05`, `27`) run headless on any machine. `18` is a VCL
+application with simulated data; it needs no hardware.
 
 ## Use the wizard for the rest
 
@@ -62,7 +64,7 @@ projects with components pre-wired:
 |---|---|---|
 | Service-mode | DTC reader / reset | (wizard only) |
 | Service-mode | VIN reader | [`03-ReadVIN`](03-ReadVIN/) |
-| Service-mode | Live data dashboard | (wizard only) |
+| Service-mode | Live data dashboard | [`18-OBDStudioDashboard`](18-OBDStudioDashboard/) |
 | Service-mode | Freeze frame inspector | (wizard only) |
 | Service-mode | Onboard monitor | (wizard only) |
 | Service-mode | Actuator test | (wizard only) |
