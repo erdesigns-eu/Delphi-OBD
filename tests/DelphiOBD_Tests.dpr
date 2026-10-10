@@ -326,6 +326,7 @@ uses
   Tests.ERD.UI.Panels          in 'Tests.ERD.UI.Panels.pas',
   Tests.ERD.UI.Dashboard       in 'Tests.ERD.UI.Dashboard.pas',
   Tests.ERD.UI.Studio          in 'Tests.ERD.UI.Studio.pas',
+  Tests.ERD.UI.Chrome          in 'Tests.ERD.UI.Chrome.pas',
   Tests.ERD.Service.Dyno       in 'Tests.ERD.Service.Dyno.pas',
   Tests.ERD.Tachograph         in 'Tests.ERD.Tachograph.pas',
   Tests.ERD.Utilities          in 'Tests.ERD.Utilities.pas',

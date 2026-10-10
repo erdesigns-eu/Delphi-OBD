@@ -371,6 +371,7 @@
     <DCCReference Include="Tests.ERD.UI.Panels.pas" />
     <DCCReference Include="Tests.ERD.UI.Dashboard.pas" />
     <DCCReference Include="Tests.ERD.UI.Studio.pas" />
+    <DCCReference Include="Tests.ERD.UI.Chrome.pas" />
     <DCCReference Include="Tests.ERD.Service.Dyno.pas" />
     <DCCReference Include="Tests.ERD.Tachograph.pas" />
     <DCCReference Include="Tests.ERD.Utilities.pas" />

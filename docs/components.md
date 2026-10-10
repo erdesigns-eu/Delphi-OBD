@@ -420,6 +420,24 @@ switch on the theme changes the whole form. The approved designs are in
 | `TOBDFreezeFrameView` | `ERD.UI.FreezeFrameView` | Freeze-frame values at fault, optionally next to live values, against a `RangeProfile`; `Layout` table or inspector. |
 | `TOBDRangeEditor` | `ERD.UI.RangeEditor` | Editor for a `TOBDRangeProfile`: garage values, defaults, per-row reset and validation. |
 
+### Application chrome
+Everything around the panels, so a whole application follows the theme.
+
+| Control | Unit | Purpose |
+|---|---|---|
+| `TOBDTitleBar` | `ERD.UI.TitleBar` | Themed caption for any form: app icon, inline menu (`MenuPlacement` title bar or below), title, status chip, `Buttons` collection of extra caption buttons (glyph or image, hint, badge, toggle, `OnClick`) and the system buttons. Keeps resizing, snap layouts and the system menu. The border is the accent colour while the form is active. `CommandStyle = (csMenu, csRibbon)` switches between menu and `Ribbon` at run time; `QuickAccess` buttons show in ribbon mode. |
+| `TOBDMenuBar`, `TOBDPopupMenu` | `ERD.UI.Menus` | Themed `TMainMenu` bar and popup menus that read the standard `TMenuItem` tree (actions, shortcuts, check and radio items, submenus). A separator item with a `Hint` is drawn as a group header; `OnGetItemStyle` sets glyphs and danger items. Leave `Form.Menu` empty when a menu bar or title bar shows the menu. |
+| `TOBDRibbon` | `ERD.UI.Ribbon` | Tabs with groups of large and small items bound to actions; `ContextualTabs` collection with theme or custom colours; File button opening a `Backstage`; command search (Alt+Q); classic or simplified style; collapsible (Ctrl+F1). |
+| `TOBDBackstage`, `TOBDReportPreview` | `ERD.UI.Backstage` | Full-window page with an accent navigation strip whose items host pages; A4 report preview with zoom and page navigation (`OnPaintPage`). |
+| `TOBDTabs` | `ERD.UI.Tabs` | Page tabs (underline) or document tabs (closable, modified dot, new-tab button). |
+| `TOBDToolBar` | `ERD.UI.ToolBar` | Action-linked buttons, toggles, drop-downs, separators, overflow menu and a search box. |
+| `TOBDStatusBar` | `ERD.UI.StatusBar` | Text, status (coloured dot), progress and link panels. |
+| `TOBDProgressBar` | `ERD.UI.Progress` | Determinate, state-coloured, indeterminate and step progress. |
+| `TOBDDialog` | `ERD.UI.Dialogs` | Themed message dialog with kind, buttons, danger button and an optional check box; `OBDMessageDlg` helper. |
+| `TOBDToastManager` | `ERD.UI.Toast` | Stacked notifications with an action link and an auto-hide timer. |
+| `TOBDHintStyle` | `ERD.UI.Hint` | Makes `TOBDHintWindow` the application hint window: title, text and shortcut. |
+| `TOBDScrollBar` | `ERD.UI.ScrollBar` | Thin themed scroll bar that widens on hover; `OBDPaintScrollBar` lets other controls paint the same look. |
+
 ## Where the code lives
 
 | File | Component family |

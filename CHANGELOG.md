@@ -54,6 +54,14 @@ to the approved mockups in `docs/mockups`:
 - `TOBDRangeProfile` with garage-adjustable normal ranges;
   `catalogs/range-profiles` ships editable defaults (generic and
   VAG 1.6 TDI).
+- Application chrome: `TOBDTitleBar` (themed caption with inline
+  menu, extra caption-button collection, accent border while active,
+  run-time switch between menu and ribbon), `TOBDMenuBar`,
+  `TOBDPopupMenu`, `TOBDRibbon` (contextual tab collection, classic and
+  simplified styles), `TOBDBackstage` with `TOBDReportPreview`,
+  `TOBDTabs`, `TOBDToolBar`, `TOBDStatusBar`, `TOBDProgressBar`,
+  `TOBDDialog`, `TOBDToastManager`, `TOBDHintStyle` and
+  `TOBDScrollBar`. `TOBDGlyph` has the line glyphs they use.
 
 ### Dyno
 
@@ -62,7 +70,7 @@ the **OBD Dyno** page.
 
 ### Design time
 
-- 141 registered components.
+- 174 registered components.
 - Palette icons are generated in the ERDesigns colours by
   `tools/designtime_icons.py` and compiled into
   `src/DesignTime/ERD.Design.Icons.res` by
