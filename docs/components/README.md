@@ -12,7 +12,7 @@ Delphi-OBD component. The canonical reference is two-fold:
 2. **`../components.md`.** One-paragraph summary per component on a
    single page, grouped by family (Foundation, Service-mode,
    Coding, Flashing, Calibration & Speciality, Diagnostics,
-   Recorder / Replayer). Useful for skimming the surface before
+   Recorder / Replayer, OBD Dashboard). Useful for skimming the surface before
    choosing what to drop on the form.
 
 Per-component anchors below link straight into the consolidated
@@ -89,6 +89,18 @@ page.
 - [`TOBDReplayer`](../components.md#tobdreplayer--obdreplayer)
 - [`TOBDProtocolMock`](../components.md#tobdprotocolmock--obdrecorderprotocolmock)
 - [`TOBDLogRedactor`](../components.md#tobdlogredactor--obdrecorderredactor)
+
+### OBD Dashboard
+- [`TOBDTheme`](../components.md#tobdtheme--erduitheme)
+- [`TOBDDialGauge`](../components.md#tobddialgauge--erduigaugesdial)
+- [`TOBDBarGauge`](../components.md#tobdbargauge--erduigaugesbar)
+- [`TOBDValueTile`](../components.md#tobdvaluetile--erduivaluetile)
+- [`TOBDStatusLamp`](../components.md#tobdstatuslamp--erduistatuslamp)
+- [`TOBDConnectionBar`](../components.md#tobdconnectionbar--erduiconnectionbar)
+- [`TOBDTrendChart`](../components.md#tobdtrendchart--erduitrendchart)
+- [`TOBDMatrixDisplay`](../components.md#tobdmatrixdisplay--erduimatrixdisplay)
+- [`TOBDLiveDataGrid`](../components.md#tobdlivedatagrid--erduilivedatagrid)
+- [`TOBDDashboard`](../components.md#tobddashboard--erduidashboard)
 
 ## Why a single page rather than 47 files?
 

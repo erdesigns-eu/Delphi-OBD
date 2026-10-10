@@ -329,6 +329,61 @@ Generic components (`TOBDDataIdentifierIO`, `TOBDDTCs`,
 `TOBDUDSReadDID`, `TOBDJ1939DM`, …) resolve raw numeric IDs to
 human-readable names through the registry.
 
+## OBD Dashboard
+
+Visual controls for an OBD-Studio style workshop screen. Every control
+takes its colours from a `TOBDTheme` and its data from a
+`TOBDChannelBinding` (`Channel`): set `Channel.Source` to a
+`TOBDLiveData` (or let the dashboard do it) and `Channel.PID` to the
+Mode 01 PID, or push values from code with `Channel.PushValue`. A
+channel without an update for `StaleAfterMs` is drawn as stale.
+
+### `TOBDTheme` — `ERD.UI.Theme`
+Palette provider. `Mode` selects ERDesigns light, ERDesigns dark,
+Windows system colours or automatic light / dark; `UnitSystem`
+switches every connected control between metric and imperial.
+
+### `TOBDDialGauge` — `ERD.UI.Gauges.Dial`
+Round gauge with needle, scale, coloured warning / alarm bands
+(`Alerts`) and a digital readout. RPM, speed, boost, temperatures.
+
+### `TOBDBarGauge` — `ERD.UI.Gauges.Bar`
+Horizontal or vertical bar gauge, optionally centre-zero (fuel trims).
+
+### `TOBDValueTile` — `ERD.UI.ValueTile`
+Large number with caption, unit, alert colouring and an optional
+sparkline.
+
+### `TOBDStatusLamp` — `ERD.UI.StatusLamp`
+Indicator lamp (MIL, connection, readiness, warning) with `State`
+ok / warning / alarm / off / unknown and optional blinking.
+
+### `TOBDConnectionBar` — `ERD.UI.ConnectionBar`
+Status strip: link state, adapter, protocol, VIN and battery voltage.
+
+### `TOBDTrendChart` — `ERD.UI.TrendChart`
+Multi-channel strip chart over a rolling `TimeWindowSec`; each channel
+has its own PID, range, unit and colour.
+
+### `TOBDMatrixDisplay` — `ERD.UI.MatrixDisplay`
+Dot-matrix text display with presets (ticker, warning, alarm, status,
+value, LCD).
+
+### `TOBDLiveDataGrid` — `ERD.UI.LiveDataGrid`
+Table of PIDs with value, unit and session minimum / maximum; checked
+rows (`CheckedPIDs`) feed the dashboard or the trend chart.
+
+### `TOBDDashboard` — `ERD.UI.Dashboard`
+Grid host for the controls above. `AddTile('dial' | 'bar' | 'value' |
+'trend' | 'lamp' | 'matrix' | 'grid', Col, Row, ColSpan, RowSpan)`,
+`EditMode` for moving and resizing tiles at run time, layouts saved
+and loaded as JSON, and `Source` to connect every tile to one
+`TOBDLiveData`. See
+[`samples/18-OBDStudioDashboard`](../samples/18-OBDStudioDashboard/).
+
+The **OBD Visual** page holds the supporting controls (terminal, log
+viewer, DTC list, PID / OEM pickers, VIN and CAN-ID edits).
+
 ## Where the code lives
 
 | File | Component family |
@@ -347,4 +402,5 @@ human-readable names through the registry.
 | `src/Recorder/ERD.Recorder.*`, `ERD.Replayer.pas` | Recorder / replayer / mock / redactor |
 | `src/OEM/ERD.OEM.*` | Per-vendor coding + component protection |
 | `src/Core/ERD.*` | Cross-cutting: types, errors, decoders, catalog, version |
+| `src/UI/ERD.UI.*` | Visual controls: theme, gauges, dashboard and the OBD Visual page |
 | `src/DesignTime/ERD.Design.*` | IDE integration (component palette icons and property/component editors) |

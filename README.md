@@ -13,8 +13,15 @@ library. See [compiler targets and validation](docs/fpc-compatibility.md).
 
 ## ⚠️ Development notice
 
-The code in this repository is not complete yet, im currently working on creating visual components. There already are a range of visual components in the repository but these are NOT finished yet.
-Please don't use them since they will change alot and will only introduce issues later. The non-visual components are ready for 90% - expect some issues can still popup. Please open a github issue for bugs that turn up. 
+Version 3.0 is an alpha. The **OBD Dashboard** controls (theme, dial
+and bar gauges, value tile, status lamp, connection bar, trend chart,
+dot-matrix display, live-data grid and the dashboard host) are new and
+their published properties may still change before 3.0.0. The
+non-visual components are largely complete; expect some issues. Please
+open a GitHub issue for bugs that turn up.
+
+See [`samples/18-OBDStudioDashboard`](samples/18-OBDStudioDashboard/)
+for a workshop dashboard built from the visual controls.
 
 ## Quick start
 
@@ -97,10 +104,11 @@ using flashing on a real vehicle.**
 
 1. Open `packages/DelphiOBD_RT.dproj` in RAD Studio. Build.
 2. Open `packages/DelphiOBD_DT.dproj`. Build, then Install.
-3. The **OBD**, **OBD Services**, **OBD Coding**,
-   **OBD Calibration**, **OBD Flashing**, **OBD Radio**,
-   **OBD EEPROM**, and **OBD Catalogs** categories appear on
-   the component palette.
+3. The **OBD**, **OBD Services**, **OBD Diagnostics**,
+   **OBD Coding**, **OBD Calibration**, **OBD Flashing**,
+   **OBD Catalogs**, **OBD Dashboard**, **OBD Visual**,
+   **OBD Dyno**, **OBD Radio** and **OBD EEPROM** categories
+   appear on the component palette.
 
 ## Supported Delphi versions
 
