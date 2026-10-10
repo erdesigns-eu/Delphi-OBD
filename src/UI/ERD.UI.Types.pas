@@ -4,7 +4,8 @@
 // Shared types for the visual UI surface: theme palette, theme
 // mode, per-component style overrides, brand defaults, and the
 // resolution chain helpers every visual uses. Also the data-state,
-// alert-level and unit-system enums shared by the dashboard set.
+// alert-level and unit-system enums shared by the dashboard set,
+// and the desktop / tablet density metrics of the OBD Studio controls.
 //
 // Author      : Ernst Reidinga (ERDesigns)
 // Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
@@ -134,6 +135,45 @@ type
     /// <summary>US customary (mph, degrees F, psi, gal).</summary>
     usImperial);
 
+  /// <summary>Row height and hit-target size of the OBD Studio
+  /// controls. Fonts stay the same in both densities.</summary>
+  TOBDDensity = (
+    /// <summary>Compact rows tuned for mouse use.</summary>
+    dnDesktop,
+    /// <summary>Touch targets of 44 px or more, for workshop
+    /// tablets.</summary>
+    dnTablet);
+
+  /// <summary>Sizes, in 96-DPI logical pixels, that a density
+  /// resolves to. Controls scale them with <c>ScaleValue</c>.
+  /// </summary>
+  TOBDDensityMetrics = record
+    /// <summary>List row (DTC panel, range editor).</summary>
+    Row: Integer;
+    /// <summary>Panel header with title and actions.</summary>
+    Head: Integer;
+    /// <summary>Column header strip.</summary>
+    ColHead: Integer;
+    /// <summary>Panel footer.</summary>
+    Foot: Integer;
+    /// <summary>Compact row (freeze frame, inspector).</summary>
+    CompactRow: Integer;
+    /// <summary>Cell of a value grid (inline freeze frame).</summary>
+    Cell: Integer;
+    /// <summary>Button height.</summary>
+    Button: Integer;
+    /// <summary>Navigation item (sidebar).</summary>
+    Nav: Integer;
+    /// <summary>Check box and radio button glyph.</summary>
+    Check: Integer;
+    /// <summary>Switch track height.</summary>
+    Switch: Integer;
+    /// <summary>Segmented control height.</summary>
+    Segment: Integer;
+    /// <summary>Edit and combo box height.</summary>
+    Edit: Integer;
+  end;
+
 const
   /// <summary>ERDesigns logo orange, #F08818 (<c>--clr-primary</c>,
   /// light theme). A fill colour: needs dark ink on top.</summary>
@@ -211,6 +251,11 @@ function WindowsPalette: TOBDThemePalette;
 /// <c>clDefault</c>; otherwise returns <c>AInherit</c>.
 /// One-liner for every resolution step inside paint code.</summary>
 function PickColor(AOverride, AInherit: TColor): TColor; inline;
+
+/// <summary>Sizes for a density.</summary>
+/// <param name="ADensity">Density to resolve.</param>
+/// <returns>Logical-pixel metrics at 96 DPI.</returns>
+function DensityMetrics(ADensity: TOBDDensity): TOBDDensityMetrics;
 
 implementation
 
@@ -324,6 +369,40 @@ begin
     Result := AOverride
   else
     Result := AInherit;
+end;
+
+function DensityMetrics(ADensity: TOBDDensity): TOBDDensityMetrics;
+begin
+  if ADensity = dnTablet then
+  begin
+    Result.Row := 56;
+    Result.Head := 68;
+    Result.ColHead := 32;
+    Result.Foot := 60;
+    Result.CompactRow := 44;
+    Result.Cell := 44;
+    Result.Button := 44;
+    Result.Nav := 52;
+    Result.Check := 22;
+    Result.Switch := 24;
+    Result.Segment := 44;
+    Result.Edit := 44;
+  end
+  else
+  begin
+    Result.Row := 44;
+    Result.Head := 56;
+    Result.ColHead := 28;
+    Result.Foot := 40;
+    Result.CompactRow := 30;
+    Result.Cell := 32;
+    Result.Button := 30;
+    Result.Nav := 38;
+    Result.Check := 16;
+    Result.Switch := 16;
+    Result.Segment := 24;
+    Result.Edit := 26;
+  end;
 end;
 
 end.

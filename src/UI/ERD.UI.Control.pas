@@ -38,7 +38,9 @@
 // History     :
 // 2026-10-10  ERD  Invalidate marks the paint buffer dirty. RenderTo,
 //                  ForcePreview, UnitSystem, tile-host edit mode and
-//                  settings persistence.
+//                  settings persistence. Density / ParentDensity and
+//                  Metrics for the OBD Studio controls. IOBDSurface:
+//                  children of a card take its surface colour.
 // ------------------------------------------------------------------------------
 
 unit ERD.UI.Control;
@@ -100,12 +102,25 @@ type
     procedure TileMouseMessage(ATile: TControl; var AMessage: TMessage);
   end;
 
+  /// <summary>Implemented by containers that paint their own surface
+  /// (cards, banners, panels). A <see cref="TOBDCustomControl"/>
+  /// placed on such a container fills its background with the
+  /// container's surface colour instead of the theme background, so a
+  /// button on a card sits on the card face.</summary>
+  IOBDSurface = interface
+    ['{9B2E5D47-3A1C-4F08-B6E9-71C4D2A8E5F3}']
+    /// <summary>Colour child controls paint their background with.
+    /// </summary>
+    /// <returns>Surface colour.</returns>
+    function SurfaceColor: TColor;
+  end;
+
   /// <summary>Base for windowed visuals (focusable, can host
   /// keyboard input). Subclasses override <c>PaintControl</c>
   /// to draw onto the supplied <c>TCanvas</c>; the base class
   /// handles double-buffering, theme resolution, and DPI
   /// scaling.</summary>
-  TOBDCustomControl = class(TCustomControl, IOBDThemeAware)
+  TOBDCustomControl = class(TCustomControl, IOBDThemeAware, IOBDDensityAware)
   strict private
     FTheme: TOBDTheme;
     FStyle: TOBDVisualStyle;
@@ -114,7 +129,13 @@ type
     FBufferDirty: Boolean;
     FDesignPPI: Integer;
     FForcePreview: Boolean;
+    FDensity: TOBDDensity;
+    FParentDensity: Boolean;
     procedure SetTheme(AValue: TOBDTheme);
+    function GetDensity: TOBDDensity;
+    procedure SetDensity(AValue: TOBDDensity);
+    procedure SetParentDensity(AValue: Boolean);
+    function IsDensityStored: Boolean;
     procedure ResolveTheme;
     procedure DetachFromTheme;
     function GetStyleBackground: TColor;
@@ -178,6 +199,23 @@ type
     /// <c>alvNormal</c>.</param>
     /// <returns>Success / warning / danger colour.</returns>
     function AlertColor(ALevel: TOBDAlertLevel; ANormal: TColor): TColor;
+
+    /// <summary>Sizes for the effective <see cref="Density"/>, in
+    /// 96-DPI logical pixels (pass them through
+    /// <see cref="ScaleValue"/>).</summary>
+    /// <returns>Density metrics.</returns>
+    function Metrics: TOBDDensityMetrics;
+
+    /// <summary>Row height and hit-target size. Reads the bound
+    /// theme's density while <see cref="ParentDensity"/> is True;
+    /// setting it clears <c>ParentDensity</c>. Published by the
+    /// OBD Studio controls.</summary>
+    property Density: TOBDDensity read GetDensity write SetDensity
+      stored IsDensityStored;
+    /// <summary>True: follow <c>TOBDTheme.Density</c>. False: use
+    /// the control's own <see cref="Density"/>.</summary>
+    property ParentDensity: Boolean read FParentDensity
+      write SetParentDensity default True;
   public
     /// <summary>Creates the control with double-buffering enabled.
     /// </summary>
@@ -188,6 +226,10 @@ type
     destructor Destroy; override;
     /// <summary>IOBDThemeAware: repaints with the new palette.</summary>
     procedure ThemeChanged; // IOBDThemeAware
+    /// <summary>IOBDDensityAware: the effective density changed.
+    /// Subclasses that size or place child controls by density
+    /// override this and call <c>inherited</c>.</summary>
+    procedure DensityChanged; virtual; // IOBDDensityAware
     /// <summary>Force a repaint at the next idle cycle (the
     /// double-buffer is invalidated; <c>Paint</c> redraws on
     /// next WM_PAINT).</summary>
@@ -516,6 +558,8 @@ begin
   FDesignPPI := DESIGN_PPI;
   FBuffer := TBitmap.Create;
   FBufferDirty := True;
+  FDensity := dnDesktop;
+  FParentDensity := True;
 end;
 
 destructor TOBDCustomControl.Destroy;
@@ -537,6 +581,49 @@ begin
   if FTheme <> nil then
     FTheme.FreeNotification(Self);
   ResolveTheme;
+  if FParentDensity and not (csLoading in ComponentState) then
+    DensityChanged;
+  Invalidate;
+end;
+
+function TOBDCustomControl.GetDensity: TOBDDensity;
+begin
+  if FParentDensity and (FResolvedTheme <> nil) then
+    Result := FResolvedTheme.Density
+  else
+    Result := FDensity;
+end;
+
+procedure TOBDCustomControl.SetDensity(AValue: TOBDDensity);
+begin
+  if (FDensity = AValue) and not FParentDensity then
+    Exit;
+  FDensity := AValue;
+  FParentDensity := False;
+  DensityChanged;
+end;
+
+procedure TOBDCustomControl.SetParentDensity(AValue: Boolean);
+begin
+  if FParentDensity = AValue then
+    Exit;
+  FParentDensity := AValue;
+  DensityChanged;
+end;
+
+function TOBDCustomControl.IsDensityStored: Boolean;
+begin
+  Result := not FParentDensity;
+end;
+
+function TOBDCustomControl.Metrics: TOBDDensityMetrics;
+begin
+  Result := DensityMetrics(GetDensity);
+end;
+
+procedure TOBDCustomControl.DensityChanged;
+begin
+  FBufferDirty := True;
   Invalidate;
 end;
 
@@ -576,6 +663,7 @@ procedure TOBDCustomControl.Loaded;
 begin
   inherited;
   ResolveTheme;
+  DensityChanged;
 end;
 
 procedure TOBDCustomControl.Notification(AComponent: TComponent;
@@ -620,7 +708,12 @@ begin
 end;
 
 function TOBDCustomControl.EffectiveBackground: TColor;
+var
+  Surface: IOBDSurface;
 begin
+  if (FStyle.Background = clDefault) and (Parent <> nil) and
+    Supports(Parent, IOBDSurface, Surface) then
+    Exit(Surface.SurfaceColor);
   Result := PickColor(FStyle.Background, Palette.Background);
 end;
 

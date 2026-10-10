@@ -62,6 +62,15 @@ type
     procedure ThemeChanged;
   end;
 
+  /// <summary>Controls whose layout depends on
+  /// <see cref="TOBDTheme.Density"/> implement this next to
+  /// <see cref="IOBDThemeAware"/>; the theme calls
+  /// <c>DensityChanged</c> before it repaints them.</summary>
+  IOBDDensityAware = interface
+    ['{4C7E2A91-0B3D-4F6E-9A58-2D1C8E7F3B60}']
+    procedure DensityChanged;
+  end;
+
   /// <summary>Non-visual theme controller. Drop on a form /
   /// data-module. Mode = tmAuto follows the active VCL Style;
   /// tmLight / tmDark force the ERDesigns palette; tmWindows uses
@@ -70,6 +79,7 @@ type
   strict private
     FMode: TOBDThemeMode;
     FUnitSystem: TOBDUnitSystem;
+    FDensity: TOBDDensity;
     FOnChange: TOBDThemeChangedEvent;
     FOverrideUsed: Boolean;
     FOverride: TOBDThemePalette;
@@ -79,6 +89,7 @@ type
 
     procedure SetMode(AValue: TOBDThemeMode);
     procedure SetUnitSystem(AValue: TOBDUnitSystem);
+    procedure SetDensity(AValue: TOBDDensity);
     function ResolveBuiltIn: TOBDThemePalette;
     procedure NotifyAttached;
   protected
@@ -145,6 +156,12 @@ type
     property UnitSystem: TOBDUnitSystem read FUnitSystem write SetUnitSystem
       default usMetric;
 
+    /// <summary>Row height and hit-target size for every bound OBD
+    /// Studio control whose <c>ParentDensity</c> is True. Switch to
+    /// <c>dnTablet</c> for touch screens.</summary>
+    property Density: TOBDDensity read FDensity write SetDensity
+      default dnDesktop;
+
     /// <summary>Fires on every palette change.</summary>
     property OnChange: TOBDThemeChangedEvent read FOnChange write FOnChange;
   end;
@@ -161,6 +178,7 @@ begin
   inherited Create(AOwner);
   FMode := tmAuto;
   FUnitSystem := usMetric;
+  FDensity := dnDesktop;
   FAttached := TList<TComponent>.Create;
 end;
 
@@ -189,6 +207,26 @@ begin
   if FUnitSystem = AValue then
     Exit;
   FUnitSystem := AValue;
+  Refresh;
+end;
+
+procedure TOBDTheme.SetDensity(AValue: TOBDDensity);
+var
+  C: TComponent;
+  Aware: IOBDDensityAware;
+begin
+  if FDensity = AValue then
+    Exit;
+  FDensity := AValue;
+  // Controls re-layout on a density change; tell them before the
+  // repaint.
+  for C in FAttached do
+    if Supports(C, IOBDDensityAware, Aware) then
+      try
+        Aware.DensityChanged;
+      except
+        // Don't let one bad subscriber take the rest down.
+      end;
   Refresh;
 end;
 
