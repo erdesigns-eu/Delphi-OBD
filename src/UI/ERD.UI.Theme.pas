@@ -17,7 +17,9 @@
 // 4. The process-wide default theme — set via
 // <c>TOBDTheme.RegisterDefault</c>.
 // 5. The active VCL Style (TStyleManager.ActiveStyle).
-// 6. The built-in brand palette (light / dark per mode).
+// 6. The built-in palette for the theme's Mode: the ERDesigns
+// light / dark palette, or the Windows system colours for
+// tmWindows.
 //
 // Author      : Ernst Reidinga (ERDesigns)
 // Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
@@ -62,7 +64,8 @@ type
 
   /// <summary>Non-visual theme controller. Drop on a form /
   /// data-module. Mode = tmAuto follows the active VCL Style;
-  /// tmLight / tmDark force a palette.</summary>
+  /// tmLight / tmDark force the ERDesigns palette; tmWindows uses
+  /// the Windows / VCL system colours.</summary>
   TOBDTheme = class(TComponent)
   strict private
     FMode: TOBDThemeMode;
@@ -131,8 +134,9 @@ type
     /// auto-bind.</summary>
     class function FindOnOwner(AControl: TComponent): TOBDTheme; static;
   published
-    /// <summary>Light / Dark / Auto. Auto = follow the active
-    /// VCL Style's luma.</summary>
+    /// <summary>Auto / Light / Dark / Windows. Auto = ERDesigns
+    /// light or dark palette following the active VCL Style's luma;
+    /// Windows = system colours.</summary>
     property Mode: TOBDThemeMode read FMode write SetMode default tmAuto;
 
     /// <summary>Metric or imperial display units for every bound
@@ -214,6 +218,11 @@ var
 begin
   if FOverrideUsed then
     Exit(FOverride);
+
+  // The Windows palette is built from the (styled) system colours
+  // already, so it needs no further overlay.
+  if FMode = tmWindows then
+    Exit(WindowsPalette);
 
   // Start from the brand built-in for the resolved mode.
   Built := ResolveBuiltIn;

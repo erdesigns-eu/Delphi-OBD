@@ -521,7 +521,7 @@ begin
   FIcon := mxiNone;
   FDotShape := mxdRound;
   FDotGap := 20;
-  FDotColor := ColorAmber;
+  FDotColor := $0000B0FF;
   FDotOffColor := clNone;
   FBoardColor := clNone;
   FImageThreshold := 96;

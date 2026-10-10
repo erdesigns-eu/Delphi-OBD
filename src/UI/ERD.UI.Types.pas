@@ -35,7 +35,18 @@ type
   /// <summary>Theme mode — auto follows the active VCL Style's
   /// background luma (dark style ⇒ dark palette); explicit
   /// modes force a palette.</summary>
-  TOBDThemeMode = (tmAuto, tmLight, tmDark);
+  TOBDThemeMode = (
+    /// <summary>ERDesigns light or dark palette, picked from the
+    /// active VCL Style's background luma.</summary>
+    tmAuto,
+    /// <summary>ERDesigns light palette.</summary>
+    tmLight,
+    /// <summary>ERDesigns dark palette.</summary>
+    tmDark,
+    /// <summary>Windows / VCL system colours (clWindow, clWindowText,
+    /// clHighlight, clBtnFace, ...), following the active VCL Style
+    /// when one is applied. See <see cref="WindowsPalette"/>.</summary>
+    tmWindows);
 
   /// <summary>One palette. Every visual reads only these slots —
   /// the resolution chain (per-component Style ▸ Theme ▸ active
@@ -161,6 +172,17 @@ function VCLStyleIsDark: Boolean;
 /// <c>TStyleManager.ActiveStyle.GetStyleColor</c> call.</summary>
 function StyleColor(AStyleColor: TStyleColor; ADefault: TColor): TColor;
 
+/// <summary>Builds a palette from the Windows / VCL system colours:
+/// background <c>clWindow</c>, text <c>clWindowText</c>, accent and
+/// needle <c>clHighlight</c>, cards and dial face <c>clBtnFace</c>,
+/// dividers <c>clGrayText</c>. Status colours use the Windows
+/// success / caution / critical colours, in their light or dark
+/// variant depending on the window colour. System colours are
+/// resolved through the active VCL Style and returned as plain RGB,
+/// so the palette is safe to hand to GDI+.</summary>
+/// <returns>Palette for <c>TOBDTheme.Mode = tmWindows</c>.</returns>
+function WindowsPalette: TOBDThemePalette;
+
 /// <summary>Picks <c>AOverride</c> when it isn't
 /// <c>clDefault</c>; otherwise returns <c>AInherit</c>.
 /// One-liner for every resolution step inside paint code.</summary>
@@ -220,6 +242,55 @@ begin
       Result := TStyleManager.ActiveStyle.GetStyleColor(AStyleColor);
   except
     Result := ADefault;
+  end;
+end;
+
+function SystemColor(AColor: TColor): TColor;
+begin
+  Result := AColor;
+  try
+    Result := StyleServices.GetSystemColor(AColor);
+  except
+    Result := AColor;
+  end;
+  Result := ColorToRGB(Result);
+end;
+
+function IsDarkColor(AColor: TColor): Boolean;
+var
+  C: TColor;
+begin
+  C := ColorToRGB(AColor);
+  // Rec. 709 luma. Below 50% mid-grey = dark.
+  Result := (GetRValue(C) * 21 + GetGValue(C) * 72 + GetBValue(C) * 7)
+    div 100 < 128;
+end;
+
+function WindowsPalette: TOBDThemePalette;
+begin
+  Result.Background := SystemColor(clWindow);
+  Result.ForegroundText := SystemColor(clWindowText);
+  Result.Accent := SystemColor(clHighlight);
+  Result.Subtle := SystemColor(clGrayText);
+  Result.NeutralLight := SystemColor(clBtnFace);
+  Result.NeutralDark := SystemColor(clBtnShadow);
+  Result.GaugeFace := SystemColor(clBtnFace);
+  Result.GaugeTick := SystemColor(clWindowText);
+  Result.GaugeNeedle := SystemColor(clHighlight);
+  Result.GaugeLabel := SystemColor(clWindowText);
+  if IsDarkColor(Result.Background) then
+  begin
+    // Windows dark-mode status colours: #6CCB5F / #FCE100 / #FF99A4.
+    Result.Success := $005FCB6C;
+    Result.Warning := $0000E1FC;
+    Result.Danger := $00A499FF;
+  end
+  else
+  begin
+    // Windows light-mode status colours: #0F7B0F / #9D5D00 / #C42B1C.
+    Result.Success := $000F7B0F;
+    Result.Warning := $00005D9D;
+    Result.Danger := $001C2BC4;
   end;
 end;
 

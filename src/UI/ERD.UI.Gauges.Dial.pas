@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------------
+﻿//------------------------------------------------------------------------------
 //  ERD.UI.Gauges.Dial
 //
 //  TOBDDialGauge - round dial for RPM, speed, coolant temperature,
@@ -31,6 +31,7 @@ interface
 
 uses
   System.Types,
+  System.UITypes,
   System.SysUtils,
   System.Classes,
   System.Math,

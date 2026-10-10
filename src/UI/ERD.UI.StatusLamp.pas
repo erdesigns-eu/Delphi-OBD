@@ -31,6 +31,7 @@ interface
 
 uses
   System.Types,
+  System.UITypes,
   System.SysUtils,
   System.Classes,
   System.Math,

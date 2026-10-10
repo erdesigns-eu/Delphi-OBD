@@ -221,6 +221,7 @@ uses
   ERD.UI.LiveDataGrid        in '..\src\UI\ERD.UI.LiveDataGrid.pas',
   ERD.UI.StatusLamp          in '..\src\UI\ERD.UI.StatusLamp.pas',
   ERD.UI.ConnectionBar       in '..\src\UI\ERD.UI.ConnectionBar.pas',
+  ERD.UI.MatrixDisplay       in '..\src\UI\ERD.UI.MatrixDisplay.pas',
   ERD.UI.Dashboard           in '..\src\UI\ERD.UI.Dashboard.pas',
   ERD.UI.Terminal            in '..\src\UI\ERD.UI.Terminal.pas',
   ERD.UI.LogViewer           in '..\src\UI\ERD.UI.LogViewer.pas',

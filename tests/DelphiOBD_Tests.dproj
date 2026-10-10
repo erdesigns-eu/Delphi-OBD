@@ -266,6 +266,7 @@
     <DCCReference Include="..\src\UI\ERD.UI.LiveDataGrid.pas" />
     <DCCReference Include="..\src\UI\ERD.UI.StatusLamp.pas" />
     <DCCReference Include="..\src\UI\ERD.UI.ConnectionBar.pas" />
+    <DCCReference Include="..\src\UI\ERD.UI.MatrixDisplay.pas" />
     <DCCReference Include="..\src\UI\ERD.UI.Dashboard.pas" />
     <DCCReference Include="..\src\UI\ERD.UI.Terminal.pas" />
     <DCCReference Include="..\src\UI\ERD.UI.LogViewer.pas" />

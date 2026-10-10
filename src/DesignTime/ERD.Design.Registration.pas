@@ -126,6 +126,7 @@ uses
   ERD.UI.LiveDataGrid,
   ERD.UI.StatusLamp,
   ERD.UI.ConnectionBar,
+  ERD.UI.MatrixDisplay,
   ERD.UI.Dashboard,
   ERD.UI.Terminal,
   ERD.UI.LogViewer,
@@ -217,7 +218,7 @@ begin
   // binds to it for colours, dark mode and metric / imperial units.
   RegisterComponents('OBD Dashboard', [TOBDTheme, TOBDDashboard,
     TOBDDialGauge, TOBDBarGauge, TOBDValueTile, TOBDTrendChart,
-    TOBDLiveDataGrid, TOBDStatusLamp, TOBDConnectionBar]);
+    TOBDLiveDataGrid, TOBDStatusLamp, TOBDConnectionBar, TOBDMatrixDisplay]);
 
   // Diagnostic list and edit controls built on standard VCL controls.
   RegisterComponents('OBD Visual', [TOBDTerminal, TOBDLogViewer, TOBDDtcList,
