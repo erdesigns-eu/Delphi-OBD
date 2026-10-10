@@ -459,7 +459,9 @@ begin
     (FSelected < FTopRow + VisibleRows) and (FSelected < P.Ranges.Count);
   FLowEdit.Visible := VisibleEditor;
   FHighEdit.Visible := VisibleEditor;
-  FResetButton.Visible := VisibleEditor and P.Ranges[FSelected].IsModified;
+  FResetButton.Visible := False;
+  if VisibleEditor then
+    FResetButton.Visible := P.Ranges[FSelected].IsModified;
   if VisibleEditor then
   begin
     R := LowEditRect(FSelected);
