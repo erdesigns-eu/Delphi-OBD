@@ -5,12 +5,12 @@
 // the OS-native VCL TListBox face (owner-draw, monospace, append-
 // only). Auto-scrolls to the tail as long as the user has not
 // manually scrolled away. Lines carry a direction tag (sent,
-// received, info, error) that colours the row foreground.
+// received, info, warning, error) that colours the row foreground.
 // With Theme assigned, background, text and row colours come from
 // the TOBDTheme palette; without it the *Color properties apply.
 //
-// Use Log* / LogSent / LogReceived / LogInfo / LogError from the
-// main thread. Worker threads must marshal via
+// Use Log* / LogSent / LogReceived / LogInfo / LogWarning / LogError
+// from the main thread. Worker threads must marshal via
 // <c>TThread.Queue(nil, procedure begin Term.LogSent(...) end)</c>.
 //
 // Author      : Ernst Reidinga (ERDesigns)
@@ -63,7 +63,9 @@ type
     /// <summary>Informational message — grey by default.</summary>
     tdInfo,
     /// <summary>Error message — red by default.</summary>
-    tdError);
+    tdError,
+    /// <summary>Warning message — amber by default.</summary>
+    tdWarning);
 
   /// <summary>
   /// One row in the terminal.
@@ -96,6 +98,7 @@ type
     FReceivedColor: TColor;
     FInfoColor: TColor;
     FErrorColor: TColor;
+    FWarningColor: TColor;
     FTimestampColor: TColor;
     procedure SetMaxLines(AValue: Integer);
     procedure SetShowTimestamps(AValue: Boolean);
@@ -137,6 +140,9 @@ type
     /// <summary>Convenience — appends an <c>tdInfo</c> row.</summary>
     /// <param name="AText">Row text.</param>
     procedure LogInfo(const AText: string);
+    /// <summary>Convenience — appends an <c>tdWarning</c> row.</summary>
+    /// <param name="AText">Row text.</param>
+    procedure LogWarning(const AText: string);
     /// <summary>Convenience — appends an <c>tdError</c> row.</summary>
     /// <param name="AText">Row text.</param>
     procedure LogError(const AText: string);
@@ -158,7 +164,8 @@ type
     /// <summary>Palette source. When assigned, the background is the
     /// palette's face colour, text uses ForegroundText, sent rows
     /// GaugeNeedle, info rows and timestamps Subtle and error rows
-    /// Danger. When nil the colour properties below apply.</summary>
+    /// Danger and warning rows Warning. When nil the colour properties
+    /// below apply.</summary>
     property Theme: TOBDTheme read FTheme write SetTheme;
 
     /// <summary>
@@ -192,6 +199,9 @@ type
       default clLime;
     /// <summary>Foreground colour for <c>tdInfo</c> rows.</summary>
     property InfoColor: TColor read FInfoColor write FInfoColor default clGray;
+    /// <summary>Foreground colour for <c>tdWarning</c> rows.</summary>
+    property WarningColor: TColor read FWarningColor write FWarningColor
+      default TColor($0000A5FF);
     /// <summary>Foreground colour for <c>tdError</c> rows.</summary>
     property ErrorColor: TColor read FErrorColor write FErrorColor
       default clRed;
@@ -216,6 +226,7 @@ begin
   FReceivedColor := clLime;
   FInfoColor := clGray;
   FErrorColor := clRed;
+  FWarningColor := TColor($0000A5FF);
   FTimestampColor := clGray;
   Style := lbOwnerDrawFixed;
   ItemHeight := 16;
@@ -341,6 +352,8 @@ begin
         Result := P.Subtle;
       tdError:
         Result := P.Danger;
+      tdWarning:
+        Result := P.Warning;
     else
       Result := P.ForegroundText;
     end;
@@ -355,6 +368,8 @@ begin
       Result := FInfoColor;
     tdError:
       Result := FErrorColor;
+    tdWarning:
+      Result := FWarningColor;
   else
     Result := Font.Color;
   end;
@@ -443,6 +458,11 @@ end;
 procedure TOBDTerminal.LogInfo(const AText: string);
 begin
   Log(tdInfo, AText);
+end;
+
+procedure TOBDTerminal.LogWarning(const AText: string);
+begin
+  Log(tdWarning, AText);
 end;
 
 procedure TOBDTerminal.LogError(const AText: string);

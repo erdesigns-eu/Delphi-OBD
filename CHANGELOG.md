@@ -27,7 +27,9 @@ property). Sample: `samples/18-OBDStudioDashboard`.
 The **OBD Visual** page holds the terminal, log viewer, DTC list,
 PID / OEM pickers and the VIN / CAN-ID edits. `TOBDTerminal`,
 `TOBDLogViewer` and `TOBDDtcList` take their colours from a
-`TOBDTheme` when `Theme` is assigned.
+`TOBDTheme` when `Theme` is assigned. The terminal has a warning
+direction (`tdWarning`, `LogWarning`, `WarningColor`); log viewer
+warning rows paint in the warning colour.
 
 The ERDesigns light palette uses #856404 for warnings (the site's
 warning text colour); the dark palette uses #FFC107.
@@ -59,3 +61,5 @@ The following 2.x units are not part of 3.0: `ERD.UI.Branding`,
 `ERD.UI.SessionInspect`, `ERD.UI.Shift`, `ERD.UI.Telltales`,
 `ERD.UI.Timing`, `ERD.UI.TrendGraph`, `ERD.UI.Tuning`. Forms that use
 their components need the OBD Dashboard controls listed above.
+`TOBDLogViewer.WarnColor` is `WarningColor` (published by
+`TOBDTerminal`).

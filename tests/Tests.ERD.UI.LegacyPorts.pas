@@ -49,6 +49,7 @@ type
     [Test] procedure LogViewer_DefaultsShowLevelTag;
     [Test] procedure LogViewer_WriteAppendsRow;
     [Test] procedure LogViewer_LevelTagPrefixed;
+    [Test] procedure LogViewer_LevelsMapToDirections;
 
     [Test] procedure DtcList_DefaultsThreeColors;
     [Test] procedure DtcList_AddDtcExGrowsCount;
@@ -163,6 +164,26 @@ begin
     V.ShowLevelTag := False;
     V.Info('plain');
     Assert.AreEqual('plain', V.Line(1).Text);
+  finally
+    V.Free;
+  end;
+end;
+
+procedure TLegacyVisualPortsTests.LogViewer_LevelsMapToDirections;
+var
+  V: TOBDLogViewer;
+begin
+  V := TOBDLogViewer.Create(nil);
+  try
+    V.Info('info');
+    V.Warn('warning');
+    V.Error('error');
+    V.Critical('critical');
+    Assert.AreEqual(Ord(tdInfo), Ord(V.Line(0).Direction));
+    Assert.AreEqual(Ord(tdWarning), Ord(V.Line(1).Direction));
+    Assert.AreEqual(Ord(tdError), Ord(V.Line(2).Direction));
+    Assert.AreEqual(Ord(tdError), Ord(V.Line(3).Direction));
+    Assert.AreNotEqual(Integer(V.InfoColor), Integer(V.WarningColor));
   finally
     V.Free;
   end;

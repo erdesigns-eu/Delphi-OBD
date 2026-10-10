@@ -2,10 +2,10 @@
 // ERD.UI.LogViewer
 //
 // TOBDLogViewer — descends from <see cref="TOBDTerminal"/> and
-// prefixes every line with a severity tag. Wires through the
-// Terminal's direction-coloured paint pipeline (info / error
-// rows already get the right foreground) and adds a Trace /
-// Warn alias on top.
+// prefixes every line with a severity tag. Each level maps onto a
+// Terminal direction, so debug / info rows paint in InfoColor,
+// warning rows in WarningColor and error / critical rows in
+// ErrorColor (or the TOBDTheme palette when Theme is assigned).
 //
 // Implements <see cref="IOBDLogSink"/> so it can be registered
 // with <c>TOBDLogger.Instance.RegisterSink</c> and receive
@@ -59,7 +59,6 @@ type
   TOBDLogViewer = class(TOBDTerminal, IOBDLogSink)
   strict private
     FShowLevelTag: Boolean;
-    FWarnColor: TColor;
     procedure SetShowLevelTag(AValue: Boolean);
     function DirectionFor(ALevel: TOBDLogLevel): TOBDTerminalDirection;
     function PrefixFor(ALevel: TOBDLogLevel): string;
@@ -108,13 +107,6 @@ type
     /// </summary>
     property ShowLevelTag: Boolean read FShowLevelTag write SetShowLevelTag
       default True;
-
-    /// <summary>
-    /// Foreground colour for <c>olWarning</c> rows. Default
-    /// amber (<c>$0000A5FF</c>).
-    /// </summary>
-    property WarnColor: TColor read FWarnColor write FWarnColor
-      default TColor($0000A5FF);
   end;
 
 implementation
@@ -123,7 +115,6 @@ constructor TOBDLogViewer.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FShowLevelTag := True;
-  FWarnColor := TColor($0000A5FF);
 end;
 
 procedure TOBDLogViewer.SetShowLevelTag(AValue: Boolean);
@@ -138,8 +129,10 @@ function TOBDLogViewer.DirectionFor(ALevel: TOBDLogLevel)
   : TOBDTerminalDirection;
 begin
   case ALevel of
-    olDebug, olInfo, olWarning:
+    olDebug, olInfo:
       Result := tdInfo;
+    olWarning:
+      Result := tdWarning;
     olError, olCritical:
       Result := tdError;
   else
@@ -168,24 +161,8 @@ begin
 end;
 
 procedure TOBDLogViewer.WriteLog(ALevel: TOBDLogLevel; const AText: string);
-var
-  PrevInfo: TColor;
 begin
-  // olWarning re-uses tdInfo with a distinct foreground colour
-  // for this call only — restore InfoColor afterwards so other
-  // tdInfo rows keep their normal grey paint.
-  if ALevel = olWarning then
-  begin
-    PrevInfo := InfoColor;
-    InfoColor := FWarnColor;
-    try
-      Log(DirectionFor(ALevel), PrefixFor(ALevel) + AText);
-    finally
-      InfoColor := PrevInfo;
-    end;
-  end
-  else
-    Log(DirectionFor(ALevel), PrefixFor(ALevel) + AText);
+  Log(DirectionFor(ALevel), PrefixFor(ALevel) + AText);
 end;
 
 procedure TOBDLogViewer.Debug(const AText: string);
