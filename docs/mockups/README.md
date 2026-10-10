@@ -4,7 +4,9 @@ The approved designs of the OBD Studio controls. Every control shown
 here exists in `src/UI` and is registered on the **OBD Studio** palette
 page; the images are the visual reference the controls are painted to.
 New controls get a mockup here first, so the layout, wording and colours
-can be agreed on before any Pascal is written.
+can be agreed on before any Pascal is written. The controls under
+[Proposed: application chrome](#proposed-application-chrome) are such
+mockups: they are not built yet.
 
 Every colour comes from the ERDesigns palettes in
 `src/UI/ERD.UI.Types.pas` (`BRAND_PALETTE_LIGHT` / `BRAND_PALETTE_DARK`).
@@ -250,3 +252,105 @@ The Codes page uses a compact one-row version of it as the page header.
 | Light | Dark |
 |---|---|
 | ![](vehicle-card-light.png) | ![](vehicle-card-dark.png) |
+
+## Proposed: application chrome
+
+Not built yet. These mockups cover what an application needs around
+the panels, so a whole form follows `TOBDTheme` and `Density`:
+
+- the window itself;
+- menus;
+- an optional ribbon;
+- the common application controls.
+
+| Control | Purpose |
+|---|---|
+| `TOBDTitleBar` | Themed caption on any `TForm`. It shows the app icon, optional quick-access buttons, the menu and the title. Extra caption buttons come from a `Buttons` collection (glyph, hint, badge, `OnClick`); a status chip can sit next to them. Minimise, maximise and close keep the Windows behaviour (snap, double-click, system menu). The 1px border uses the accent colour while the form is active. |
+| `TOBDMenuBar` | Paints a standard `TMainMenu` in the theme, so the menu designer, actions and shortcuts stay as they are. `MenuPlacement = (mpTitleBar, mpBelow)`. |
+| `TOBDPopupMenu` | Themed popup for a `TMenuItem` tree. It has a glyph gutter, check and radio items, group headers, separators, shortcuts, submenus and danger items. Row heights follow `Density`. |
+| `TOBDRibbon` | Tabs with groups of large and small buttons bound to `TAction`s. It also has a File button, contextual tabs, a command search (Alt+Q) and dialog launchers. `RibbonStyle = (rsClassic, rsSimplified)`; it can collapse to tabs only (Ctrl+F1). |
+| `TOBDTabs` | `TabStyle = (tsUnderline, tsDocument)`: page tabs with badges, or closable document tabs with a modified dot and a new-tab button. |
+| `TOBDToolBar` | Icon buttons with an optional caption, toggles, drop-downs, separators and a search box. |
+| `TOBDStatusBar` | Panels for the connection state, adapter, protocol, battery voltage, progress and counters. |
+| `TOBDProgressBar` | Determinate, failed, indeterminate and step (one segment per ECU) styles. |
+| `TOBDDialog` | Themed replacement for `MessageDlg`: icon, title, text, an optional check box and a button row. |
+| `TOBDToast` | Notifications stacked bottom-right, with an action link and an optional auto-hide timer. |
+| `TOBDHint` | Themed hint window with a title, text and shortcut, for the whole application through `HintWindowClass`. |
+| Scroll bars | Thin themed scroll bars for the scrolling controls (DTC panel, inspector, freeze frame). They widen on hover. |
+
+### Themed form, title bar and menu
+
+The menu sits in the title bar here, with *Vehicle* open and the
+*Protocol* submenu showing radio items. The extra caption buttons are:
+
+- theme (light / dark);
+- density (desktop / tablet);
+- notifications with a counter;
+- help.
+
+The connection chip sits next to them. Below the form are the title-bar
+variants: menu below the caption, inactive, maximised with the close
+button hovered, and tablet density.
+
+| Light | Dark |
+|---|---|
+| ![](form-chrome-light.png) | ![](form-chrome-dark.png) |
+
+### Menus (`TOBDMenuBar`, `TOBDPopupMenu`)
+
+- The main menu with a submenu.
+- Radio groups with headers and check items (theme, density, panels).
+- A context menu on a code row, with a danger item for clearing one code.
+
+| Light | Dark |
+|---|---|
+| ![](menus-light.png) | ![](menus-dark.png) |
+| ![](menus-tablet-light.png) | ![](menus-tablet-dark.png) |
+
+### Ribbon (`TOBDRibbon`)
+
+The classic ribbon on the Codes page has quick-access buttons in the
+title bar and a contextual *Playback* tab. Below it are the simplified
+one-row style (desktop and tablet; what does not fit moves to the
+overflow button) and the collapsed style.
+
+| Light | Dark |
+|---|---|
+| ![](ribbon-light.png) | ![](ribbon-dark.png) |
+
+### Application controls
+
+Tabs, tool bar, status bar, progress, hint, scroll bar, dialog and
+toasts.
+
+| Light | Dark |
+|---|---|
+| ![](app-controls-light.png) | ![](app-controls-dark.png) |
+| ![](app-controls-tablet-light.png) | ![](app-controls-tablet-dark.png) |
+
+### Open questions
+
+1. Menu bar, ribbon or both? The proposal is to use the menu in the
+   title bar plus the sidebar and a tool bar for OBD Studio, and to make
+   the ribbon an optional style.
+2. Default menu placement: in the title bar (`mpTitleBar`) or below it
+   (`mpBelow`)?
+3. Should the form border be accent orange while the form is active, or
+   always neutral?
+4. Keep these extra caption buttons: theme, density, notifications,
+   help, and the connection chip?
+5. Should the ribbon's File button open a full-window page (settings,
+   recent jobs, export) or a plain menu?
+6. Is green the right colour for contextual tabs, such as *Playback*
+   while a recording is open?
+
+### Technical notes
+
+- The library supports Delphi 10.3. `TForm.CustomTitleBar` only exists
+  from 10.4, so `TOBDTitleBar` draws the caption itself through
+  `WM_NCCALCSIZE` and `WM_NCHITTEST`. That keeps resizing, snap layouts
+  and the shadow working.
+- Popup menus use their own windows rather than owner-drawn native
+  menus, because the native menu border cannot follow a dark theme.
+  They still read the standard `TMenuItem` tree, so `TMainMenu`,
+  `TPopupMenu` and actions keep working.

@@ -17,6 +17,7 @@ Usage: ``python3 tools/ui_mockups.py [--out DIR] [--only NAME]``.
 Requires Pillow (``pip install "pillow>=12.3"``).
 """
 import argparse
+import math
 import re
 import sys
 from pathlib import Path
@@ -119,10 +120,12 @@ def find_font(kind):
 DENSITY = {
     'desktop': dict(row=44, head=56, colhead=28, foot=40, ff_row=30,
                     cell=32, button=30, nav=38, check=16, switch=16, seg=24,
-                    edit=26),
+                    edit=26, title=40, menubar=30, menuitem=30, status=28,
+                    tab=36, cap_w=46),
     'tablet': dict(row=56, head=68, colhead=32, foot=60, ff_row=44,
                    cell=44, button=44, nav=52, check=22, switch=24, seg=44,
-                   edit=44),
+                   edit=44, title=48, menubar=44, menuitem=44, status=36,
+                   tab=48, cap_w=56),
 }
 
 
@@ -1583,6 +1586,1198 @@ def draw_shell(c):
 
 
 # --------------------------------------------------------------------------
+# Application chrome (proposed): form, menus, ribbon and app controls
+# --------------------------------------------------------------------------
+
+SHADOW = (0, 0, 0)
+THIN_GLYPHS = ('min', 'max', 'restore', 'close')
+
+
+def backdrop(p):
+    """Desktop colour behind the mockup windows."""
+    if p.dark:
+        return mix(SHADOW, p.Background, 0.38)
+    return mix(p.Subtle, p.Background, 0.22)
+
+
+def glyph(c, kind, cx, cy, color, s=1.0, bg=None):
+    """Line glyphs for menus, caption buttons and the ribbon. The glyph
+    fits a 16px box at s = 1; the ribbon draws them at s = 2."""
+    lw = 1.0 if kind in THIN_GLYPHS else (1.5 if s <= 1 else 1.2 * s)
+
+    def L(*pts):
+        c.line([(cx + a * s, cy + b * s) for a, b in pts], color, lw)
+
+    def R(x, y, w, h, fill=False):
+        c.rect(cx + x * s, cy + y * s, w * s, h * s,
+               fill=color if fill else None,
+               outline=None if fill else color, width=lw)
+
+    def E(x, y, w, h, fill=False):
+        c.ellipse(cx + x * s, cy + y * s, w * s, h * s,
+                  fill=color if fill else None,
+                  outline=None if fill else color, width=lw)
+
+    def P(*pts):
+        c.polygon([(cx + a * s, cy + b * s) for a, b in pts], color)
+
+    if kind in ('connect', 'disconnect'):
+        R(-5, -2, 10, 7)
+        L((-2.5, -7), (-2.5, -2))
+        L((2.5, -7), (2.5, -2))
+        L((0, 5), (0, 8))
+        if kind == 'disconnect':
+            L((-7, -7), (7, 7))
+    elif kind == 'read':
+        L((0, -7), (0, 3))
+        L((-4, -1), (0, 3), (4, -1))
+        L((-7, 4), (-7, 7), (7, 7), (7, 4))
+    elif kind == 'clear':
+        R(-4.5, -3, 9, 10)
+        L((-6.5, -4.5), (6.5, -4.5))
+        L((-2, -7), (2, -7))
+    elif kind == 'snapshot':
+        R(-7, -4, 14, 10)
+        E(-2.6, -1.6, 5.2, 5.2)
+        R(-3, -6.5, 5, 2.5, True)
+    elif kind == 'readiness':
+        E(-7, -7, 14, 14)
+        L((-3.5, 0), (-1, 2.5), (3.5, -2.5))
+    elif kind == 'live':
+        L((-8, 3), (-4, -3), (0, 2), (3, -6), (8, 0))
+    elif kind == 'record':
+        E(-7, -7, 14, 14)
+        E(-3, -3, 6, 6, True)
+    elif kind in ('report', 'pdf', 'new'):
+        L((-6, -8), (2, -8), (6, -4), (6, 8), (-6, 8), (-6, -8))
+        L((2, -8), (2, -4), (6, -4))
+        if kind == 'new':
+            L((0, -1), (0, 5))
+            L((-3, 2), (3, 2))
+        else:
+            for dy in (0, 3.5):
+                L((-3, dy), (3, dy))
+    elif kind == 'print':
+        R(-4, -8, 8, 5)
+        R(-7, -3, 14, 7)
+        R(-4, 2, 8, 6)
+    elif kind == 'copy':
+        R(-6, -4, 9, 11)
+        L((-3, -4), (-3, -7), (6, -7), (6, 4), (3, 4))
+    elif kind == 'save':
+        R(-7, -7, 14, 14)
+        R(-4, -7, 8, 5)
+        R(-4, 2, 8, 5)
+    elif kind == 'open':
+        L((-7, 6), (-7, -6), (-2, -6), (0, -4), (7, -4), (7, 6), (-7, 6))
+    elif kind in ('undo', 'redo'):
+        m = 1 if kind == 'undo' else -1
+        L((-6 * m, -2), (2 * m, -2), (5 * m, 0.5), (5 * m, 3.5), (2 * m, 6),
+          (-2 * m, 6))
+        L((-3 * m, -5), (-6 * m, -2), (-3 * m, 1))
+    elif kind == 'search':
+        E(-7, -7, 10, 10)
+        L((1.5, 1.5), (7, 7))
+    elif kind in ('help', 'info'):
+        E(-7, -7, 14, 14)
+        c.text(cx, cy + 0.5 * s, '?' if kind == 'help' else 'i', 10 * s,
+               color, 'bold', anchor='mm')
+    elif kind == 'sun':
+        E(-3.5, -3.5, 7, 7)
+        for i in range(8):
+            a = math.pi * i / 4
+            L((5.5 * math.cos(a), 5.5 * math.sin(a)),
+              (7.5 * math.cos(a), 7.5 * math.sin(a)))
+    elif kind == 'moon':
+        E(-7, -7, 14, 14, True)
+        c.ellipse(cx - 3 * s, cy - 10 * s, 13 * s, 13 * s, fill=bg)
+    elif kind == 'bell':
+        L((-6, 4), (-5, 2), (-5, -2), (-3, -5), (0, -6), (3, -5), (5, -2),
+          (5, 2), (6, 4), (-6, 4))
+        L((-2, 6.5), (2, 6.5))
+    elif kind == 'tablet':
+        R(-5, -7, 10, 14)
+        L((-1, 4.5), (1, 4.5))
+    elif kind == 'desktop':
+        R(-7, -6, 14, 10)
+        L((-3, 7), (3, 7))
+        L((0, 4), (0, 7))
+    elif kind == 'gear':
+        c.ellipse(cx - 6 * s, cy - 6 * s, 12 * s, 12 * s, outline=color,
+                  width=lw * 1.5)
+        E(-2, -2, 4, 4, True)
+    elif kind == 'dashboard':
+        E(-7, -7, 14, 14)
+        L((0, 0), (4, -4))
+    elif kind == 'codes':
+        P((0, -7), (8, 6), (-8, 6))
+    elif kind == 'vehicle':
+        L((-7, 3), (-7, -1), (-4, -5), (4, -5), (7, -1), (7, 3), (-7, 3))
+        E(-5.5, 1.5, 3.5, 3.5, True)
+        E(2, 1.5, 3.5, 3.5, True)
+    elif kind == 'globe':
+        E(-7, -7, 14, 14)
+        E(-3, -7, 6, 14)
+        L((-7, 0), (7, 0))
+    elif kind == 'filter':
+        L((-7, -6), (7, -6), (1, 1), (1, 6), (-1, 7), (-1, 1), (-7, -6))
+    elif kind == 'ecu':
+        R(-5, -5, 10, 10)
+        for d in (-2.5, 0, 2.5):
+            L((d, -8), (d, -5))
+            L((d, 5), (d, 8))
+            L((-8, d), (-5, d))
+            L((5, d), (8, d))
+    elif kind == 'battery':
+        R(-7, -4, 13, 8)
+        R(6, -2, 1.5, 4, True)
+        R(-5, -2, 6, 4, True)
+    elif kind == 'play':
+        P((-4, -6), (6, 0), (-4, 6))
+    elif kind == 'stop':
+        R(-5, -5, 10, 10, True)
+    elif kind == 'more':
+        for d in (-5, 0, 5):
+            E(d - 1.2, -1.2, 2.4, 2.4, True)
+    elif kind == 'close':
+        L((-5, -5), (5, 5))
+        L((5, -5), (-5, 5))
+    elif kind == 'min':
+        L((-5, 0), (5, 0))
+    elif kind == 'max':
+        R(-5, -5, 10, 10)
+    elif kind == 'restore':
+        R(-5, -3, 8, 8)
+        L((-3, -3), (-3, -5), (5, -5), (5, 3), (3, 3))
+    elif kind == 'launcher':
+        R(-4, -4, 8, 8)
+        L((0, 0), (4, 4))
+    elif kind == 'pin':
+        L((-4, -6), (4, -6))
+        R(-2.5, -6, 5, 7)
+        L((-5, 1), (5, 1))
+        L((0, 1), (0, 7))
+    elif kind == 'wrench':
+        L((-6, 6), (2, -2))
+        E(0, -7, 7, 7)
+
+
+def shadow(c, x, y, w, h, depth=8, under=None):
+    """Soft drop shadow under a window or popup; under is the colour the
+    shadow falls on."""
+    p = c.p
+    under = under or c.bg
+    base = 0.16 if p.dark else 0.07
+    for i in range(depth, 0, -2):
+        a = base * (depth - i + 2) / depth
+        c.rrect(x - i / 2, y - i / 2 + 3, w + i, h + i, i,
+                fill=mix(SHADOW, under, a))
+
+
+def window_frame(c, x, y, w, h, active=True):
+    """Form surface with the 1px themed border (accent when active)."""
+    p = c.p
+    shadow(c, x, y, w, h, 16)
+    c.rect(x, y, w, h, fill=p.Background,
+           outline=p.Accent if active else p.NeutralLight)
+
+
+def caption_buttons(c, right, y, h, hover=None, maximized=False,
+                    active=True, buttons=('min', 'max', 'close')):
+    """System caption buttons; right is the right edge. Returns the left
+    edge."""
+    p = c.p
+    bw = c.dn['cap_w']
+    ink = p.ForegroundText if active else mix(p.Subtle, p.GaugeFace, 0.6)
+    x = right - len(buttons) * bw
+    for i, kind in enumerate(buttons):
+        bx = x + i * bw
+        g = ink
+        if kind == hover:
+            if kind == 'close':
+                c.rect(bx, y, bw, h, fill=p.Danger)
+                g = p.on_danger
+            else:
+                c.rect(bx, y, bw, h, fill=mix(p.ForegroundText, p.GaugeFace,
+                                               0.08))
+        if kind == 'max' and maximized:
+            kind = 'restore'
+        glyph(c, kind, bx + bw / 2, y + h / 2, g)
+    return x
+
+
+def extra_buttons(c, right, y, h, items, hover=None, active=True,
+                  fill=None):
+    """Extra caption buttons (TOBDTitleBar.Buttons); right is the right
+    edge. Returns the left edge."""
+    p = c.p
+    bw = h - 4
+    x = right - len(items) * bw
+    ink = p.Subtle if active else mix(p.Subtle, p.GaugeFace, 0.55)
+    for i, (kind, count) in enumerate(items):
+        bx = x + i * bw
+        if kind == hover:
+            c.rect(bx + 3, y + 5, bw - 6, h - 10,
+                   fill=mix(p.ForegroundText, p.GaugeFace, 0.08))
+        glyph(c, kind, bx + bw / 2, y + h / 2, ink, bg=fill or p.GaugeFace)
+        if count:
+            d = 15
+            c.ellipse(bx + bw / 2 + 2, y + h / 2 - 12, d, d, fill=p.Danger,
+                      outline=fill or p.GaugeFace, width=1.5)
+            c.text(bx + bw / 2 + 2 + d / 2, y + h / 2 - 12 + d / 2, count,
+                   9, p.on_danger, 'bold', anchor='mm')
+    return x
+
+
+MENU = ['File', 'Edit', 'Vehicle', 'View', 'Tools', 'Help']
+
+
+def menu_items(c, x, y, h, items, open_item=None, hover=None, active=True,
+               underline=False):
+    """Menu bar entries; returns (right edge, {caption: left edge})."""
+    p = c.p
+    pos = {}
+    size = 13 if h < 40 else 14
+    for t in items:
+        w = c.tw(t, size) + 20
+        ink = p.ForegroundText if active else mix(p.Subtle, p.GaugeFace, 0.6)
+        if t == open_item:
+            c.rect(x, y, w, h, fill=p.tint(p.Accent, 0.16 if not p.dark
+                                            else 0.26))
+            ink = p.accent_text
+        elif t == hover:
+            c.rect(x, y, w, h, fill=mix(p.ForegroundText, p.GaugeFace, 0.07))
+        c.text(x + 10, y + h / 2, t, size, ink)
+        if underline:
+            c.hline(x + 10, y + h / 2 + 9, c.tw(t[0], size), ink)
+        pos[t] = x
+        x += w
+    return x, pos
+
+
+CAPTION_EXTRAS = [('moon', None), ('tablet', None), ('bell', '3'),
+                  ('help', None)]
+
+
+def title_bar(c, x, y, w, active=True, menu=False, open_item=None,
+              hover=None, maximized=False, quick=None, center=False,
+              connection=True, title='OBD Studio',
+              sub='Job 2026-0142  ·  VW Golf VII 1.6 TDI'):
+    """TOBDTitleBar: app icon, optional quick-access buttons and inline
+    menu, title, extra caption buttons, system buttons. Returns
+    (height, {menu caption: left edge})."""
+    p, dn = c.p, c.dn
+    h = dn['title']
+    fill = p.GaugeFace if active else p.Background
+    c.rect(x, y, w, h, fill=fill)
+    c.hline(x, y + h - 1, w, p.NeutralLight)
+    ink = p.ForegroundText if active else mix(p.Subtle, fill, 0.7)
+    sub_ink = p.GaugeLabel if active else mix(p.Subtle, fill, 0.55)
+    ic = h - 16
+    c.rect(x + 12, y + 8, ic, ic, fill=p.Accent if active else p.NeutralLight)
+    c.text(x + 12 + ic / 2, y + h / 2, 'OS', 10 if ic < 30 else 12,
+           p.on_accent if active else sub_ink, 'bold', anchor='mm')
+    tx = x + 12 + ic + 10
+    right = caption_buttons(c, x + w, y, h, hover, maximized, active)
+    extras = [(k if not (k == 'moon' and p.dark) else 'sun', n)
+              for k, n in CAPTION_EXTRAS]
+    c.vline(right - 4, y + 10, h - 20, p.NeutralLight)
+    right = extra_buttons(c, right - 8, y, h, extras,
+                          hover if hover not in THIN_GLYPHS else None,
+                          active, fill) - 8
+    if connection:
+        cw = chip_w(c, 'CONNECTED')
+        if active:
+            chip(c, right - cw, y + (h - 20) / 2, 'CONNECTED', p.Success)
+        else:
+            c.rrect(right - cw, y + (h - 20) / 2, cw, 20, 10,
+                    outline=p.NeutralLight)
+            c.text(right - cw + 8, y + h / 2, 'CONNECTED', 10.5, sub_ink,
+                   'bold')
+        right -= cw + 12
+    if quick:
+        for kind in quick:
+            if kind == hover:
+                c.rect(tx, y + 6, 28, h - 12,
+                       fill=mix(p.ForegroundText, p.GaugeFace, 0.08))
+            glyph(c, kind, tx + 14, y + h / 2,
+                  p.Subtle if active else sub_ink)
+            tx += 30
+        c.vline(tx + 4, y + 12, h - 24, p.NeutralLight)
+        tx += 12
+    pos = {}
+    if menu:
+        mh = h - 12
+        tx, pos = menu_items(c, tx, y + 6, mh, MENU, open_item, hover,
+                             active)
+        tx += 12
+    if center or menu:
+        text = '%s  —  %s' % (sub, title)
+        mid = x + w / 2
+        tw = c.tw(text, 12.5)
+        if mid - tw / 2 < tx:
+            mid = tx + tw / 2
+        c.text(mid, y + h / 2, text, 12.5, sub_ink, anchor='mm',
+               max_w=right - tx)
+    else:
+        tw = c.text(tx + 2, y + h / 2, title, 14, ink, 'semibold')
+        c.text(tx + tw + 14, y + h / 2, sub, 12.5, sub_ink,
+               max_w=right - tx - tw - 20)
+    return h, pos
+
+
+def menu_bar(c, x, y, w, open_item=None, hover=None, underline=False):
+    """TOBDMenuBar below the title bar (MenuPlacement = mpBelow)."""
+    p = c.p
+    h = c.dn['menubar']
+    c.rect(x, y, w, h, fill=p.GaugeFace)
+    c.hline(x, y + h - 1, w, p.NeutralLight)
+    _, pos = menu_items(c, x + 6, y, h - 1, MENU, open_item, hover,
+                        underline=underline)
+    return h, pos
+
+
+def menu_row_h(c, item):
+    if item[0] == 'sep':
+        return 9
+    if item[0] == 'header':
+        return 28 if c.density == 'tablet' else 24
+    return c.dn['menuitem']
+
+
+def menu_height(c, items):
+    return 8 + sum(menu_row_h(c, it) for it in items)
+
+
+def menu_width(c, items):
+    size = 13 if c.density == 'desktop' else 14
+    tw = max([c.tw(it[2], size) for it in items if it[0] == 'item'] + [0])
+    sw = max([c.tw(it[3], 12) for it in items if it[0] == 'item'] + [0])
+    sub = any('sub' in it[4] for it in items if it[0] == 'item')
+    return round(36 + tw + 32 + sw + (18 if sub else 0) + 14)
+
+
+def menu_popup(c, x, y, items, w=None, hover=None):
+    """TOBDPopupMenu window. Items are ('item', glyph, caption, shortcut,
+    flags), ('sep',) or ('header', caption). Flags: checked, radio,
+    disabled, danger, sub, default. Returns ({caption: row top}, w, h)."""
+    p, dn = c.p, c.dn
+    w = w or menu_width(c, items)
+    h = menu_height(c, items)
+    rh = dn['menuitem']
+    size = 13 if c.density == 'desktop' else 14
+    shadow(c, x, y, w, h, 10, p.Background)
+    c.rect(x, y, w, h, fill=p.GaugeFace, outline=p.NeutralLight)
+    ry = y + 4
+    rows = {}
+    for it in items:
+        if it[0] == 'sep':
+            c.hline(x + 10, ry + 4, w - 20, p.NeutralLight)
+        elif it[0] == 'header':
+            c.caps(x + 14, ry + menu_row_h(c, it) / 2 + 1, it[1], size=10)
+        else:
+            _, kind, text, short, flags = it
+            rows[text] = ry
+            cy = ry + rh / 2
+            dis = 'disabled' in flags
+            if text == hover and not dis:
+                c.rect(x + 4, ry, w - 8, rh,
+                       fill=p.tint(p.Accent, 0.16 if not p.dark else 0.26))
+            if dis:
+                ink = gl = mix(p.Subtle, p.GaugeFace, 0.5)
+            elif 'danger' in flags:
+                ink = gl = p.Danger if not p.dark else mix(
+                    p.Danger, (255, 255, 255), 0.7)
+            else:
+                ink, gl = p.ForegroundText, p.Subtle
+            if 'checked' in flags:
+                icon_check(c, x + 20, cy, p.accent_text if not dis else gl,
+                           0.75)
+            elif 'radio-on' in flags:
+                c.ellipse(x + 16, cy - 4, 8, 8, fill=p.accent_text)
+            elif kind:
+                glyph(c, kind, x + 20, cy, gl, 0.85, bg=p.GaugeFace)
+            c.text(x + 36, cy, text, size, ink,
+                   'semibold' if 'default' in flags else 'regular')
+            sr = x + w - 12
+            if 'sub' in flags:
+                chevron(c, x + w - 16, cy, gl)
+                sr -= 16
+            if short:
+                c.text(sr, cy, short, 12, p.GaugeLabel if not dis else gl,
+                       anchor='rm')
+        ry += menu_row_h(c, it)
+    return rows, w, h
+
+
+VEHICLE_MENU = [
+    ('item', 'connect', 'Connect', 'F5', ()),
+    ('item', 'disconnect', 'Disconnect', 'Shift+F5', ('disabled',)),
+    ('sep',),
+    ('item', 'vehicle', 'Change vehicle…', 'Ctrl+Shift+V', ()),
+    ('item', 'ecu', 'Select ECU', '', ('sub',)),
+    ('item', None, 'Protocol', '', ('sub',)),
+    ('sep',),
+    ('item', 'read', 'Read codes', 'Ctrl+R', ('default',)),
+    ('item', 'clear', 'Clear codes…', '', ('danger',)),
+    ('item', 'snapshot', 'Freeze frame', 'Ctrl+F', ()),
+    ('sep',),
+    ('item', 'readiness', 'Readiness', 'Ctrl+I', ()),
+]
+
+PROTOCOL_MENU = [
+    ('item', None, 'Automatic', '', ()),
+    ('item', None, 'ISO 15765-4 CAN 11/500', '', ('radio-on',)),
+    ('item', None, 'ISO 15765-4 CAN 29/500', '', ()),
+    ('item', None, 'ISO 14230-4 KWP fast init', '', ()),
+    ('item', None, 'ISO 9141-2', '', ()),
+    ('item', None, 'SAE J1850 VPW', '', ('disabled',)),
+]
+
+FILE_MENU = [
+    ('item', 'new', 'New job', 'Ctrl+N', ()),
+    ('item', 'open', 'Open job…', 'Ctrl+O', ()),
+    ('item', None, 'Open recent', '', ('sub',)),
+    ('sep',),
+    ('item', 'save', 'Save', 'Ctrl+S', ()),
+    ('item', None, 'Save as…', 'Ctrl+Shift+S', ()),
+    ('sep',),
+    ('item', 'pdf', 'Export report', '', ('sub',)),
+    ('item', 'print', 'Print…', 'Ctrl+P', ()),
+    ('sep',),
+    ('item', None, 'Exit', 'Alt+F4', ()),
+]
+
+EXPORT_MENU = [
+    ('item', 'pdf', 'PDF report', '', ('default',)),
+    ('item', 'report', 'HTML report', '', ()),
+    ('item', 'copy', 'CSV (codes and live data)', '', ()),
+]
+
+VIEW_MENU = [
+    ('header', 'Theme'),
+    ('item', None, 'Light', '', ()),
+    ('item', None, 'Dark', '', ('radio-on',)),
+    ('item', None, 'Follow Windows', '', ()),
+    ('sep',),
+    ('header', 'Density'),
+    ('item', None, 'Desktop', '', ('radio-on',)),
+    ('item', None, 'Tablet', '', ()),
+    ('sep',),
+    ('item', None, 'Sidebar', 'Ctrl+B', ('checked',)),
+    ('item', None, 'Status bar', '', ('checked',)),
+    ('item', None, 'Compact readiness', '', ()),
+    ('item', None, 'Full screen', 'F11', ()),
+]
+
+CONTEXT_MENU = [
+    ('item', 'copy', 'Copy code', 'Ctrl+C', ('default',)),
+    ('item', None, 'Copy code and description', '', ()),
+    ('item', 'globe', 'Search online', '', ()),
+    ('sep',),
+    ('item', 'snapshot', 'Show freeze frame', 'Enter', ()),
+    ('item', 'live', 'Watch related PIDs', '', ()),
+    ('item', 'report', 'Add note to report…', '', ('disabled',)),
+    ('sep',),
+    ('item', 'clear', 'Clear this code…', 'Del', ('danger',)),
+]
+
+
+def status_bar(c, x, y, w, reading=True, connected=True):
+    """TOBDStatusBar: connection state, adapter panels, progress."""
+    p, dn = c.p, c.dn
+    h = dn['status']
+    size = 12 if c.density == 'desktop' else 13
+    c.rect(x, y, w, h, fill=p.GaugeFace)
+    c.hline(x, y, w, p.NeutralLight)
+    cy = y + h / 2
+    sx = x + 12
+    colr = p.Success if connected else p.Danger
+    c.ellipse(sx, cy - 4, 8, 8, fill=colr)
+    sx += 14
+    sx += c.text(sx, cy, 'Connected' if connected else 'Adapter lost',
+                 size, p.ForegroundText if connected else colr,
+                 'semibold') + 12
+    panels = ([(None, 'ELM327 v2.2 · COM4'), (None, 'CAN 11/500'),
+               ('battery', '12.6 V')] if connected else
+              [(None, 'ELM327 v2.2 · COM4'), (None, 'Retrying in 4 s')])
+    for kind, text in panels:
+        c.vline(sx, y + 6, h - 12, p.NeutralLight)
+        sx += 12
+        if kind:
+            glyph(c, kind, sx + 7, cy, p.Subtle, 0.75)
+            sx += 18
+        sx += c.text(sx, cy, text, size, p.GaugeLabel) + 12
+    if not connected:
+        c.vline(sx, y + 6, h - 12, p.NeutralLight)
+        c.text(sx + 12, cy, 'Reconnect', size, p.accent_text, 'semibold')
+    rx = x + w - 12
+    rx -= c.text(rx, cy, '5 codes  ·  MIL on', size, p.GaugeLabel,
+                 anchor='rm') + 12
+    if reading:
+        c.vline(rx, y + 6, h - 12, p.NeutralLight)
+        rx -= 12
+        bw = 120
+        c.rect(rx - bw, cy - 3, bw, 6, fill=p.NeutralLight)
+        c.rect(rx - bw, cy - 3, bw * 0.6, 6, fill=p.Accent)
+        rx -= bw + 10
+        c.text(rx, cy, 'Reading 7E9 (gearbox)…', size, p.ForegroundText,
+               anchor='rm')
+    return h
+
+
+def app_content(c, x, y, w, sidebar=True):
+    """The Codes page used inside the window mockups; returns the height."""
+    dn = c.dn
+    h = 20 + 92 + 16 + dtc_height(dn, False) + 20
+    if sidebar:
+        draw_sidebar(c, x, y, 208, h)
+        x, w = x + 208, w - 208
+    x0 = x + 20
+    cw = w - 40
+    draw_vehicle_strip(c, x0, y + 20, cw, 92)
+    top = y + 20 + 92 + 16
+    draw_dtc_panel(c, x0, top, cw, dtc_height(dn, False), expanded=-1,
+                   selected=0, show_ecu=True)
+    return h
+
+
+def with_density(c, density, fn):
+    """Run fn with another TOBDDensity (one sheet showing both)."""
+    old = c.density, c.dn
+    c.density, c.dn = density, DENSITY[density]
+    try:
+        return fn()
+    finally:
+        c.density, c.dn = old
+
+
+def sheet_label(c, x, y, text, sub=''):
+    p = c.p
+    on = c.bg
+    ink = p.ForegroundText
+    c.text(x, y, text, 13.5, ink, 'bold')
+    if sub:
+        c.text(x + c.tw(text, 13.5, 'bold') + 12, y + 1, sub, 12,
+               mix(p.ForegroundText, on, 0.7))
+
+
+def draw_form_chrome(c):
+    """Themed form: TOBDTitleBar with the menu inline, extra caption
+    buttons, an open menu with a submenu, and TOBDStatusBar."""
+    p, dn = c.p, c.dn
+    x, y, w = 24, 24, c.w - 48
+    content_h = 20 + 92 + 16 + dtc_height(dn, False) + 20
+    h = dn['title'] + content_h + dn['status'] + 2
+    window_frame(c, x, y, w, h)
+    tb, pos = title_bar(c, x + 1, y + 1, w - 2, menu=True,
+                        open_item='Vehicle', hover='bell')
+    app_content(c, x + 1, y + 1 + tb, w - 2)
+    status_bar(c, x + 1, y + 1 + tb + content_h, w - 2)
+    mx, my = pos['Vehicle'], y + 1 + tb - 2
+    rows, mw, _ = menu_popup(c, mx, my, VEHICLE_MENU, hover='Protocol')
+    menu_popup(c, mx + mw - 4, rows['Protocol'] - 4, PROTOCOL_MENU,
+               hover='ISO 15765-4 CAN 29/500')
+
+    # Title bar variants.
+    yy = y + h + 40
+    vw = w
+
+    def strip(label, sub, fn):
+        nonlocal yy
+        sheet_label(c, x, yy, label, sub)
+        yy += 18
+        bottom = fn(yy)
+        yy = bottom + 34
+
+    def classic(top):
+        c.rect(x, top, vw, dn['title'] + dn['menubar'] + 2,
+               outline=p.Accent)
+        th, _ = title_bar(c, x + 1, top + 1, vw - 2)
+        mh, _ = menu_bar(c, x + 1, top + 1 + th, vw - 2, hover='File',
+                         underline=True)
+        return top + th + mh + 2
+
+    def plain(top, **kw):
+        active = kw.get('active', True)
+        c.rect(x, top, vw, c.dn['title'] + 2,
+               outline=p.Accent if active else p.NeutralLight)
+        th, _ = title_bar(c, x + 1, top + 1, vw - 2, **kw)
+        return top + th + 2
+
+    strip('MenuPlacement = mpBelow',
+          'classic menu bar under the caption · Alt shows the accelerators',
+          classic)
+    strip('Inactive form', 'muted caption, grey border',
+          lambda t: plain(t, menu=True, active=False))
+    strip('Maximised · hover on close', 'restore glyph, red close button',
+          lambda t: plain(t, menu=True, maximized=True, hover='close'))
+    strip('Density = dnTablet', 'taller caption and wider buttons for touch',
+          lambda t: with_density(c, 'tablet',
+                                 lambda: plain(t, menu=True)))
+    return yy - 34
+
+
+def draw_menus(c):
+    """TOBDMenuBar / TOBDPopupMenu: main menu with a submenu, check and
+    radio items, and a context menu."""
+    p, dn = c.p, c.dn
+    L = 16
+    sheet_label(c, L, 18, 'Main menu', 'File open · Export report submenu')
+    bar_w = 560
+    mh, pos = menu_bar(c, L, 36, bar_w, open_item='File')
+    c.rect(L, 36, bar_w, mh, outline=p.NeutralLight)
+    rows, mw, fh = menu_popup(c, pos['File'], 36 + mh - 1, FILE_MENU,
+                              hover='Export report')
+    menu_popup(c, pos['File'] + mw - 4,
+                           rows['Export report'] - 4, EXPORT_MENU,
+                           hover='PDF report')
+    bottom = 36 + mh + fh
+
+    vx = L + bar_w + 40
+    sheet_label(c, vx, 18, 'Check and radio items', 'View menu')
+    _, vw, vh = menu_popup(c, vx, 36 + mh - 1, VIEW_MENU, hover='Sidebar')
+    bottom = max(bottom, 36 + mh + vh)
+
+    cx = vx + vw + 40
+    cw = c.w - cx - 16
+    sheet_label(c, cx, 18, 'Context menu', 'right-click on a code')
+    rh = dn['row']
+    ry = 36 + mh - 1
+    card(c, cx, ry, cw, rh * 2)
+    for i, (status, code, desc) in enumerate(
+            (('STORED', 'P0401', 'EGR flow insufficient'),
+             ('PENDING', 'P0299', 'Turbo underboost'))):
+        yy = ry + i * rh
+        colr = p.Danger if status == 'STORED' else p.Warning
+        if i == 0:
+            c.rect(cx + 1, yy + 1, cw - 2, rh - 2, fill=p.tint(p.Accent,
+                                                               0.12))
+        c.rect(cx, yy, 4, rh, fill=colr)
+        chip(c, cx + 14, yy + (rh - 20) / 2, status, colr)
+        c.text(cx + 104, yy + rh / 2, code, 13.5, p.ForegroundText,
+               'monobold')
+        c.text(cx + 164, yy + rh / 2, desc, 12.5, p.ForegroundText,
+               max_w=cw - 176)
+        if i == 0:
+            c.hline(cx, yy + rh, cw, p.NeutralLight)
+    px, py = cx + 60, ry + rh / 2 + 6
+    _, _, ch = menu_popup(c, px, py, CONTEXT_MENU, hover='Show freeze frame')
+    # Mouse pointer.
+    c.polygon([(px - 2, py - 8), (px - 2, py + 6), (px + 2, py + 2),
+               (px + 6, py + 8), (px + 8, py + 7), (px + 4, py + 1),
+               (px + 9, py + 1)], p.ForegroundText)
+    return max(bottom, py + ch)
+
+
+RIBBON_TABS = ['Home', 'Diagnose', 'Live data', 'Reports', 'View']
+
+RIBBON_GROUPS = [
+    ('Connection', True,
+     [('large', 'connect', 'Connect', ''),
+      ('small', 'ecu', 'ECU: Engine 7E8', 'drop'),
+      ('small', 'filter', 'Protocol: Auto', 'drop'),
+      ('small', 'disconnect', 'Disconnect', 'disabled')]),
+    ('Trouble codes', True,
+     [('large', 'read', 'Read codes', 'hover'),
+      ('large', 'clear', 'Clear codes', 'danger'),
+      ('small', 'snapshot', 'Freeze frame', ''),
+      ('small', 'filter', 'Pending only', 'down'),
+      ('small', 'copy', 'Copy list', '')]),
+    ('Readiness', False,
+     [('large', 'readiness', 'Readiness', ''),
+      ('small', 'info', 'Inspection: APK', 'drop'),
+      ('small', 'vehicle', 'Drive cycle guide', '')]),
+    ('Live data', False,
+     [('large', 'live', 'Live data', ''),
+      ('large', 'record', 'Record', 'record'),
+      ('small', 'dashboard', 'Dashboard', ''),
+      ('small', 'stop', 'Stop', 'disabled')]),
+    ('Report', True,
+     [('large', 'pdf', 'Report', 'split'),
+      ('small', 'print', 'Print…', ''),
+      ('small', 'copy', 'Copy summary', '')]),
+]
+
+
+def ribbon_tabs(c, x, y, w, selected='Diagnose', contextual=True,
+                search=True, collapsed=False):
+    """Tab row: File (backstage) button, tabs, a contextual tab and the
+    command search. Returns the height."""
+    p, dn = c.p, c.dn
+    h = dn['tab']
+    c.rect(x, y, w, h, fill=p.GaugeFace)
+    fw = c.tw('File', 13, 'semibold') + 28
+    c.rect(x + 6, y + 5, fw, h - 10, fill=p.Accent)
+    c.text(x + 6 + fw / 2, y + h / 2, 'File', 13, p.on_accent, 'semibold',
+           anchor='mm')
+    tx = x + 6 + fw + 6
+    for t in RIBBON_TABS:
+        tw = c.tw(t, 13) + 28
+        sel = t == selected
+        c.text(tx + tw / 2, y + h / 2, t, 13,
+               p.accent_text if sel else p.ForegroundText,
+               'semibold' if sel else 'regular', anchor='mm')
+        if sel:
+            c.rect(tx + 10, y + h - 3, tw - 20, 3, fill=p.accent_text)
+        tx += tw
+    if contextual:
+        t = 'Playback'
+        tw = c.tw(t, 13) + 28
+        tx += 8
+        c.rect(tx, y, tw, h, fill=p.tint(p.Success, 0.14 if not p.dark
+                                         else 0.2))
+        c.rect(tx, y, tw, 3, fill=p.Success)
+        c.text(tx + tw / 2, y + h / 2 + 1, t, 13, p.Success, 'semibold',
+               anchor='mm')
+        tx += tw
+    rx = x + w - 10
+    gx = rx - 14
+    chevron_up = not collapsed
+    if chevron_up:
+        c.line([(gx - 4, y + h / 2 + 2), (gx, y + h / 2 - 2),
+                (gx + 4, y + h / 2 + 2)], p.Subtle, 1.6)
+    else:
+        chevron(c, gx, y + h / 2, p.Subtle, down=True)
+    rx -= 36
+    if search:
+        sw = 260
+        eh = h - 10
+        c.rect(rx - sw, y + 5, sw, eh, fill=p.Background,
+               outline=p.NeutralLight)
+        glyph(c, 'search', rx - sw + 16, y + h / 2, p.Subtle, 0.75)
+        c.text(rx - sw + 30, y + h / 2, 'Search commands', 12.5, p.GaugeLabel)
+        c.text(rx - 10, y + h / 2, 'Alt+Q', 11.5, p.GaugeLabel, anchor='rm')
+    c.hline(x, y + h - 1, w, p.NeutralLight)
+    return h
+
+
+def ribbon_large(c, x, y, h, kind, text, state):
+    p = c.p
+    lines = text.split(' ', 1) if ' ' in text else [text]
+    tw = max(c.tw(t, 12) for t in lines)
+    if state == 'split':
+        lines = [text]
+        tw = c.tw(text, 12)
+    w = max(tw + 16, 52)
+    if state == 'hover':
+        c.rect(x, y, w, h, fill=mix(p.ForegroundText, p.GaugeFace, 0.07),
+               outline=p.NeutralLight)
+    colr = {'danger': p.Danger, 'record': p.Danger}.get(state, p.accent_text)
+    glyph(c, kind, x + w / 2, y + 22, colr, 1.7, bg=p.GaugeFace)
+    for i, t in enumerate(lines):
+        c.text(x + w / 2, y + 50 + i * 15, t, 12, p.ForegroundText,
+               anchor='mm')
+    if state == 'split':
+        c.hline(x + 4, y + 40, w - 8, p.NeutralLight)
+        chevron(c, x + w / 2, y + 66, p.Subtle, down=True)
+    return w
+
+
+def ribbon_small(c, x, y, rh, kind, text, state):
+    p = c.p
+    dis = state == 'disabled'
+    ink = mix(p.Subtle, p.GaugeFace, 0.5) if dis else p.ForegroundText
+    w = c.tw(text, 12) + 34 + (14 if state == 'drop' else 0)
+    if state == 'down':
+        c.rect(x, y, w, rh, fill=p.tint(p.Accent, 0.16 if not p.dark
+                                         else 0.26), outline=p.accent_text)
+    glyph(c, kind, x + 12, y + rh / 2, mix(p.Subtle, p.GaugeFace, 0.5)
+          if dis else p.Subtle, 0.75, bg=p.GaugeFace)
+    c.text(x + 26, y + rh / 2, text, 12, ink)
+    if state == 'drop':
+        chevron(c, x + w - 10, y + rh / 2, p.Subtle, down=True)
+    return w
+
+
+def ribbon_body(c, x, y, w):
+    """Classic ribbon body: groups of large and small buttons with group
+    captions and dialog launchers. Returns the height."""
+    p = c.p
+    body = 74
+    cap = 22
+    h = body + cap + 8
+    c.rect(x, y, w, h, fill=p.GaugeFace)
+    gx = x + 8
+    for name, launcher, items in RIBBON_GROUPS:
+        start = gx
+        bx = gx
+        small = [it for it in items if it[0] == 'small']
+        for kind, g, text, state in [it for it in items if it[0] == 'large']:
+            bx += ribbon_large(c, bx, y + 4, body, g, text, state) + 2
+        if small:
+            rh = body / 3
+            col = 0
+            for i, (_, g, text, state) in enumerate(small):
+                col = max(col, ribbon_small(c, bx + 2, y + 4 + i * rh, rh,
+                                            g, text, state))
+            bx += col + 6
+        gw = max(bx - start, c.tw(name, 11.5) + 36)
+        cy = y + 4 + body + cap / 2 + 2
+        c.text(start + gw / 2, cy, name, 11.5, p.GaugeLabel, anchor='mm')
+        if launcher:
+            glyph(c, 'launcher', start + gw - 8, cy, p.Subtle, 0.7)
+        gx = start + gw + 6
+        c.vline(gx, y + 8, h - 16, p.NeutralLight)
+        gx += 7
+    c.hline(x, y + h - 1, w, p.NeutralLight)
+    return h
+
+
+def ribbon_simplified(c, x, y, w):
+    """RibbonStyle = rsSimplified: one row of small buttons."""
+    p, dn = c.p, c.dn
+    rh = dn['button']
+    h = rh + 12
+    c.rect(x, y, w, h, fill=p.GaugeFace)
+    bx = x + 8
+    size_ok = x + w - 60
+    for gi, (name, _, items) in enumerate(RIBBON_GROUPS):
+        for kind, g, text, state in items:
+            st = state if state in ('drop', 'disabled', 'down') else ''
+            bw = c.tw(text, 12) + 34 + (14 if st == 'drop' else 0)
+            if bx + bw > size_ok:
+                break
+            ribbon_small(c, bx, y + 6, rh, g, text, st)
+            bx += bw + 2
+        else:
+            c.vline(bx + 3, y + 10, h - 20, p.NeutralLight)
+            bx += 8
+            continue
+        break
+    c.rect(x + w - 44, y + 6, 32, rh, outline=p.NeutralLight)
+    glyph(c, 'more', x + w - 28, y + 6 + rh / 2, p.Subtle)
+    c.hline(x, y + h - 1, w, p.NeutralLight)
+    return h
+
+
+def draw_ribbon(c):
+    """TOBDRibbon in a themed form, plus the simplified and collapsed
+    styles."""
+    p, dn = c.p, c.dn
+    x, y, w = 24, 24, c.w - 48
+    rib_h = dn['tab'] + 74 + 22 + 8
+    content_h = 20 + 92 + 16 + dtc_height(dn, False) + 20
+    h = dn['title'] + rib_h + content_h + dn['status'] + 2
+    window_frame(c, x, y, w, h)
+    tb, _ = title_bar(c, x + 1, y + 1, w - 2, quick=('save', 'undo', 'redo'),
+                      center=True, hover='undo')
+    yy = y + 1 + tb
+    yy += ribbon_tabs(c, x + 1, yy, w - 2)
+    yy += ribbon_body(c, x + 1, yy, w - 2)
+    app_content(c, x + 1, yy, w - 2, sidebar=False)
+    status_bar(c, x + 1, yy + content_h, w - 2)
+
+    yy = y + h + 40
+    for label, sub, dens, collapsed in (
+            ('RibbonStyle = rsSimplified', 'one row; what does not fit '
+             'moves to the overflow button', 'desktop', False),
+            ('RibbonStyle = rsSimplified · Density = dnTablet',
+             'touch-sized commands', 'tablet', False),
+            ('Collapsed (Ctrl+F1)', 'tabs only; clicking a tab drops '
+             'the body down over the page', 'desktop', True)):
+        sheet_label(c, x, yy, label, sub)
+        yy += 18
+
+        def part(top=yy, collapsed=collapsed):
+            hh = ribbon_tabs(c, x + 1, top + 1, w - 2, collapsed=collapsed)
+            if not collapsed:
+                hh += ribbon_simplified(c, x + 1, top + 1 + hh, w - 2)
+            c.rect(x, top, w, hh + 2, outline=p.NeutralLight)
+            return hh + 2
+
+        yy += with_density(c, dens, part) + 34
+    return yy - 34
+
+
+def tabs_underline(c, x, y, w):
+    p, dn = c.p, c.dn
+    h = dn['tab'] + 4
+    c.rect(x, y, w, h, fill=p.GaugeFace, outline=p.NeutralLight)
+    tx = x + 8
+    for t, bdg, state in (('Overview', None, ''),
+                          ('Trouble codes', ('5', p.Danger), 'sel'),
+                          ('Freeze frame', None, 'hover'),
+                          ('Readiness', ('2', p.Warning), ''),
+                          ('ECU info', None, 'disabled')):
+        tw = c.tw(t, 13) + 28 + (28 if bdg else 0)
+        if state == 'hover':
+            c.rect(tx, y + 4, tw, h - 8,
+                   fill=mix(p.ForegroundText, p.GaugeFace, 0.06))
+        ink = {'sel': p.accent_text,
+               'disabled': mix(p.Subtle, p.GaugeFace, 0.5)}.get(
+                   state, p.ForegroundText)
+        c.text(tx + 14, y + h / 2, t, 13, ink,
+               'semibold' if state == 'sel' else 'regular')
+        if bdg:
+            badge(c, tx + tw - 10, y + h / 2 - 9, bdg[0], bdg[1])
+        if state == 'sel':
+            c.rect(tx + 8, y + h - 3, tw - 16, 3, fill=p.accent_text)
+        tx += tw
+    return h
+
+
+def tabs_document(c, x, y, w):
+    p, dn = c.p, c.dn
+    h = dn['tab'] + 4
+    c.rect(x, y, w, h, fill=p.Background, outline=p.NeutralLight)
+    tx = x + 1
+    for t, state in (('Golf VII · 2026-0142', 'sel'),
+                     ('Polo 6R · 2026-0139', 'modified'),
+                     ('Recording 18:20', 'hover')):
+        tw = c.tw(t, 12.5) + 52
+        if state == 'sel':
+            c.rect(tx, y + 1, tw, h - 1, fill=p.GaugeFace)
+            c.rect(tx, y + 1, tw, 2, fill=p.Accent)
+        elif state == 'hover':
+            c.rect(tx, y + 1, tw, h - 2,
+                   fill=mix(p.ForegroundText, p.Background, 0.05))
+        c.text(tx + 14, y + h / 2, t, 12.5, p.ForegroundText if state in
+               ('sel', 'hover') else p.GaugeLabel,
+               'semibold' if state == 'sel' else 'regular')
+        gx = tx + tw - 18
+        if state == 'modified':
+            c.ellipse(gx - 4, y + h / 2 - 4, 8, 8, fill=p.Subtle)
+        else:
+            c.line([(gx - 4, y + h / 2 - 4), (gx + 4, y + h / 2 + 4)],
+                   p.Subtle, 1.3)
+            c.line([(gx + 4, y + h / 2 - 4), (gx - 4, y + h / 2 + 4)],
+                   p.Subtle, 1.3)
+        tx += tw
+        c.vline(tx, y + 8, h - 16, p.NeutralLight)
+    c.line([(tx + 20, y + h / 2 - 6), (tx + 20, y + h / 2 + 6)], p.Subtle,
+           1.6)
+    c.line([(tx + 14, y + h / 2), (tx + 26, y + h / 2)], p.Subtle, 1.6)
+    return h
+
+
+def toolbar(c, x, y, w):
+    p, dn = c.p, c.dn
+    bh = dn['button']
+    h = bh + 12
+    c.rect(x, y, w, h, fill=p.GaugeFace, outline=p.NeutralLight)
+    bx = x + 6
+    for item in (('open', None, ''), ('save', None, 'hover'), '|',
+                 ('read', 'Read codes', ''), ('clear', 'Clear', 'danger'),
+                 '|', ('snapshot', None, 'down'), ('filter', 'Filter', 'drop'),
+                 '|', ('print', None, 'disabled')):
+        if item == '|':
+            c.vline(bx + 3, y + 10, h - 20, p.NeutralLight)
+            bx += 8
+            continue
+        kind, text, state = item
+        bw = bh if not text else c.tw(text, 12.5) + bh + 10
+        if state == 'drop':
+            bw += 14
+        if state == 'hover':
+            c.rect(bx, y + 6, bw, bh, fill=mix(p.ForegroundText, p.GaugeFace,
+                                               0.08))
+        elif state == 'down':
+            c.rect(bx, y + 6, bw, bh, fill=p.tint(p.Accent, 0.16 if not
+                                                  p.dark else 0.26),
+                   outline=p.accent_text)
+        if state == 'disabled':
+            gl = ink = mix(p.Subtle, p.GaugeFace, 0.5)
+        elif state == 'danger':
+            gl = ink = p.Danger if not p.dark else mix(p.Danger,
+                                                       (255, 255, 255), 0.7)
+        else:
+            gl = p.accent_text if state == 'down' else p.Subtle
+            ink = p.ForegroundText
+        glyph(c, kind, bx + bh / 2, y + 6 + bh / 2, gl, 0.9, bg=p.GaugeFace)
+        if text:
+            c.text(bx + bh - 2, y + 6 + bh / 2, text, 12.5, ink)
+        if state == 'drop':
+            chevron(c, bx + bw - 10, y + 6 + bh / 2, p.Subtle, down=True)
+        bx += bw + 2
+    sw = 220
+    eh = dn['edit']
+    c.rect(x + w - sw - 8, y + (h - eh) / 2, sw, eh, fill=p.Background,
+           outline=p.NeutralLight)
+    glyph(c, 'search', x + w - sw + 8, y + h / 2, p.Subtle, 0.75)
+    c.text(x + w - sw + 22, y + h / 2, 'Find code or PID', 12.5,
+           p.GaugeLabel)
+    return h
+
+
+def progress_rows(c, x, y, w):
+    p = c.p
+    rows = [('Reading codes · 2 of 3 ECUs', 0.62, p.Accent, '62 %'),
+            ('Clearing failed: ignition off?', 1.0, p.Danger, 'Failed'),
+            ('Waiting for the adapter', None, p.Accent, '')]
+    for i, (label, val, colr, right) in enumerate(rows):
+        yy = y + i * 40
+        c.text(x, yy + 8, label, 12.5, p.ForegroundText)
+        if right:
+            c.text(x + w, yy + 8, right, 12, colr if colr == p.Danger else
+                   p.GaugeLabel, 'semibold', anchor='rm')
+        c.rect(x, yy + 22, w, 6, fill=p.NeutralLight)
+        if val is None:
+            c.rect(x + w * 0.35, yy + 22, w * 0.25, 6, fill=colr)
+            c.text(x + w, yy + 8, 'indeterminate', 11.5, p.GaugeLabel,
+                   anchor='rm')
+        else:
+            c.rect(x, yy + 22, w * val, 6, fill=colr)
+    yy = y + 3 * 40 + 6
+    steps = [('Engine 7E8', 'done'), ('Gearbox 7E9', 'done'),
+             ('ABS 7E2', 'busy'), ('Airbag 7E3', 'todo')]
+    sw = w / len(steps)
+    for i, (name, st) in enumerate(steps):
+        sx = x + i * sw
+        colr = {'done': p.Success, 'busy': p.Accent}.get(st, p.NeutralLight)
+        c.rect(sx, yy, sw - 6, 4, fill=colr)
+        if st == 'done':
+            icon_check(c, sx + 7, yy + 18, p.Success, 0.7)
+        elif st == 'busy':
+            icon_pending(c, sx + 7, yy + 18, p.accent_text, 0.75)
+        else:
+            icon_dash(c, sx + 7, yy + 18, p.Subtle, 0.7)
+        c.text(sx + 18, yy + 18, name, 12, p.ForegroundText if st != 'todo'
+               else p.GaugeLabel)
+    return yy + 30 - y
+
+
+def dialog(c, x, y, w):
+    """TOBDDialog: themed replacement for MessageDlg."""
+    p, dn = c.p, c.dn
+    th = dn['title'] - 6
+    body = 128
+    h = th + body + dn['button'] + 28
+    window_frame(c, x, y, w, h)
+    c.rect(x + 1, y + 1, w - 2, th, fill=p.GaugeFace)
+    c.hline(x + 1, y + th, w - 2, p.NeutralLight)
+    c.text(x + 14, y + 1 + th / 2, 'OBD Studio', 12.5, p.GaugeLabel)
+    caption_buttons(c, x + w - 1, y + 1, th, buttons=('close',))
+    by = y + th + 22
+    icon_pending(c, x + 32, by + 10, p.Warning, 1.5)
+    c.text(x + 56, by + 10, 'Save changes to job 2026-0142?', 15,
+           p.ForegroundText, 'bold')
+    c.text(x + 56, by + 34, 'The codes and the freeze frame of this visit',
+           12.5, p.ForegroundText)
+    c.text(x + 56, by + 52, 'are not saved yet.', 12.5, p.ForegroundText)
+    checkbox(c, x + 56, by + 84, 'unchecked', "Don't ask again")
+    fy = y + th + body
+    c.rect(x + 1, fy, w - 2, h - (fy - y) - 1, fill=p.GaugeFace)
+    c.hline(x + 1, fy, w - 2, p.NeutralLight)
+    bx = x + w - 16
+    for text, kind in (('Save', 'primary'), ('Cancel', 'secondary'),
+                       ("Don't save", 'ghost')):
+        bw = button_w(c, text)
+        bx -= bw
+        button(c, bx, fy + 14, text, kind, state='focused'
+               if kind == 'primary' else 'normal')
+        bx -= 10
+    return h
+
+
+def toast(c, x, y, w, kind, title, text, action=None, timer=None):
+    p = c.p
+    h = 64
+    colr = {'success': p.Success, 'warning': p.Warning}[kind]
+    shadow(c, x, y, w, h, 10, p.Background)
+    c.rect(x, y, w, h, fill=p.GaugeFace, outline=p.NeutralLight)
+    c.rect(x, y, 4, h, fill=colr)
+    if kind == 'success':
+        icon_check(c, x + 24, y + 22, colr, 1.1)
+    else:
+        icon_pending(c, x + 24, y + 22, colr, 1.1)
+    c.text(x + 44, y + 22, title, 13, p.ForegroundText, 'bold')
+    c.text(x + 44, y + 44, text, 12, p.GaugeLabel, max_w=w - 120)
+    glyph(c, 'close', x + w - 18, y + 18, p.Subtle)
+    if action:
+        c.text(x + w - 14, y + 44, action, 12, p.accent_text, 'semibold',
+               anchor='rm')
+    if timer is not None:
+        c.rect(x + 4, y + h - 3, (w - 4) * timer, 2, fill=colr)
+    return h
+
+
+def hint(c, x, y, title, text, shortcut):
+    """TOBDHint: themed hint window with a title, text and shortcut."""
+    p = c.p
+    w = max(c.tw(text, 12), c.tw(title, 12.5, 'bold') +
+            c.tw(shortcut, 11.5) + 24) + 24
+    h = 52
+    shadow(c, x, y, w, h, 8, p.Background)
+    c.rect(x, y, w, h, fill=p.GaugeFace, outline=p.NeutralLight)
+    c.text(x + 12, y + 16, title, 12.5, p.ForegroundText, 'bold')
+    c.text(x + w - 12, y + 16, shortcut, 11.5, p.GaugeLabel, anchor='rm')
+    c.text(x + 12, y + 36, text, 12, p.GaugeLabel)
+    return w, h
+
+
+def scrollbars(c, x, y, h):
+    p = c.p
+    for i, (label, wide) in enumerate((('idle', False), ('hover', True))):
+        sx = x + i * 70
+        c.rect(sx, y, 14, h, fill=p.GaugeFace, outline=p.NeutralLight)
+        tw_ = 8 if wide else 4
+        colr = p.Subtle if wide else mix(p.Subtle, p.GaugeFace, 0.6)
+        c.rrect(sx + 7 - tw_ / 2, y + 30, tw_, 60, tw_ / 2, fill=colr)
+        c.text(sx + 22, y + h / 2, label, 11.5, p.GaugeLabel)
+
+
+def draw_app_controls(c):
+    """The remaining application controls: tabs, toolbar, status bar,
+    progress, dialog, toast, hint and scroll bar."""
+    p, dn = c.p, c.dn
+    L, W = 16, c.w - 32
+    y = 16
+
+    def title(t, sub):
+        nonlocal y
+        c.text(L, y + 12, t, 16, p.ForegroundText, 'bold')
+        c.text(L + c.tw(t, 16, 'bold') + 12, y + 13, sub, 12, p.GaugeLabel)
+        y += 34
+
+    title('TOBDTabs', 'TabStyle = tsUnderline (pages) and tsDocument '
+          '(open jobs)')
+    hw = (W - 16) / 2
+    tabs_underline(c, L, y, W)
+    y += dn['tab'] + 4 + 10
+    y += tabs_document(c, L, y, W) + 26
+
+    title('TOBDToolBar', 'icon and caption buttons, toggles, drop-downs, '
+          'search')
+    y += toolbar(c, L, y, W) + 26
+
+    title('TOBDStatusBar', 'connection, adapter panels, progress')
+    y += status_bar(c, L, y, W) + 8
+    c.rect(L, y - 8 - dn['status'], W, dn['status'], outline=p.NeutralLight)
+    y += status_bar(c, L, y, W, reading=False, connected=False)
+    c.rect(L, y - dn['status'], W, dn['status'], outline=p.NeutralLight)
+    y += 26
+
+    title('TOBDProgressBar', 'determinate, failed, indeterminate, '
+          'ECU steps')
+    card(c, L, y, hw, 210)
+    ph = progress_rows(c, L + 20, y + 20, hw - 40) + 40
+    # Hint and scroll bars next to it.
+    rx = L + hw + 16
+    c.caps(rx, y + 8, 'TOBDHint')
+    button(c, rx, y + 26, 'Read codes', 'primary', icon=icon_read,
+           state='hover')
+    hy = y + 26 + dn['button'] + 8
+    _, hh = hint(c, rx + 24, hy, 'Read codes', 'Reads stored, pending and '
+                 'permanent codes from every ECU.', 'Ctrl+R')
+    c.caps(rx, hy + hh + 18, 'Scroll bar')
+    scrollbars(c, rx, hy + hh + 34, 64)
+    y += max(210, ph, hy + hh + 34 + 64 - y) + 26
+
+    title('TOBDDialog and TOBDToast', 'themed MessageDlg, notifications '
+          'stacked bottom-right')
+    dh = dialog(c, L, y, 470)
+    tx = L + 470 + 40
+    tw = W - 470 - 40
+    th = toast(c, tx, y + 8, tw, 'success', 'Report saved',
+               'Golf VII 2026-0142.pdf', 'Open folder')
+    toast(c, tx, y + 8 + th + 12, tw, 'warning', 'Battery 11.8 V',
+          'Connect a charger before programming', timer=0.6)
+    y += max(dh, 2 * th + 20) + 16
+    return y
+
+
+# --------------------------------------------------------------------------
 
 BOTH = ('desktop', 'tablet')
 DESKTOP = ('desktop',)
@@ -1611,12 +2806,22 @@ MOCKUPS = {
     'controls': (BOTH, 1100, None, draw_controls),
     'building-blocks': (BOTH, 960, None, draw_blocks),
     'inspector': (BOTH, 856, None, draw_inspector_sheet),
+    'form-chrome': (DESKTOP, 1366, None, draw_form_chrome),
+    'menus': (BOTH, 1366, None, draw_menus),
+    'ribbon': (DESKTOP, 1366, None, draw_ribbon),
+    'app-controls': (BOTH, 1100, None, draw_app_controls),
 }
+
+
+# Window mockups are drawn on a desktop colour so the form border shows.
+ON_DESKTOP = ('form-chrome', 'ribbon')
 
 
 def render(name, density, palette):
     densities, w, h, draw = MOCKUPS[name]
-    c = Canvas(w, h or 2000, palette, density=density)
+    bg = backdrop(palette) if name in ON_DESKTOP else palette.Background
+    c = Canvas(w, h or 2000, palette, background=bg, density=density)
+    c.bg = bg
     bottom = draw(c)
     if h is None:
         c.h = round(bottom + 16)
