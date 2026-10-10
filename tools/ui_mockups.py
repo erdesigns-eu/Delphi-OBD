@@ -2055,6 +2055,10 @@ EXPORT_MENU = [
 ]
 
 VIEW_MENU = [
+    ('header', 'Commands'),
+    ('item', None, 'Menu', '', ('radio-on',)),
+    ('item', None, 'Ribbon', 'Ctrl+Shift+R', ()),
+    ('sep',),
     ('header', 'Theme'),
     ('item', None, 'Light', '', ()),
     ('item', None, 'Dark', '', ('radio-on',)),
@@ -2490,6 +2494,275 @@ def draw_ribbon(c):
     return yy - 34
 
 
+BACKSTAGE_ITEMS = [
+    ('back', None), ('item', ('vehicle', 'Job info')),
+    ('item', ('new', 'New job')), ('item', ('open', 'Open job')),
+    ('item', ('save', 'Save as')), ('sep', None),
+    ('item', ('pdf', 'Report')), ('item', ('print', 'Print')),
+    ('item', ('copy', 'Export')), ('sep', None),
+    ('item', ('gear', 'Settings')), ('item', ('info', 'About')),
+]
+
+REPORT_SECTIONS = [
+    ('Vehicle and customer', 'checked'), ('Trouble codes', 'checked'),
+    ('Freeze frames', 'checked'), ('Readiness', 'checked'),
+    ('Live data snapshot', 'unchecked'), ('Technician notes', 'checked'),
+]
+
+PAPER = (255, 255, 255)
+PAPER_INK = (26, 26, 26)
+PAPER_MUTED = (106, 99, 92)
+PAPER_RULE = (226, 226, 230)
+PAPER_WARN = (133, 100, 4)
+
+
+def backstage_nav(c, x, y, w, h, selected='Report'):
+    """Left column of TOBDBackstage: back button and page items."""
+    p, dn = c.p, c.dn
+    c.rect(x, y, w, h, fill=p.Accent)
+    ink = p.on_accent
+    sel_fill = mix(p.on_accent, p.Accent, 0.16)
+    hov_fill = mix(p.on_accent, p.Accent, 0.08)
+    iy = y + 12
+    rh = dn['nav']
+    for kind, data in BACKSTAGE_ITEMS:
+        if kind == 'back':
+            cy = iy + rh / 2
+            c.ellipse(x + 16, cy - 15, 30, 30, outline=ink, width=1.5)
+            c.line([(x + 37, cy), (x + 25, cy)], ink, 1.6)
+            c.line([(x + 30, cy - 5), (x + 25, cy), (x + 30, cy + 5)], ink,
+                   1.6)
+            iy += rh + 14
+        elif kind == 'sep':
+            c.hline(x + 16, iy + 6, w - 32, mix(ink, p.Accent, 0.3))
+            iy += 13
+        else:
+            g, text = data
+            if text == selected:
+                c.rect(x, iy, w, rh, fill=sel_fill)
+                c.rect(x, iy + 6, 3, rh - 12, fill=ink)
+            elif text == 'Print':
+                c.rect(x, iy, w, rh, fill=hov_fill)
+            glyph(c, g, x + 30, iy + rh / 2, ink, 0.95, bg=p.Accent)
+            c.text(x + 52, iy + rh / 2, text, 13.5, ink,
+                   'semibold' if text == selected else 'regular')
+            iy += rh + 2
+
+
+def report_page(c, x, y, w, h):
+    """A4 page preview of the sample job. Paper stays white in both
+    themes: it is what gets printed."""
+    p = c.p
+    ink, muted, rule = PAPER_INK, PAPER_MUTED, PAPER_RULE
+    shadow(c, x, y, w, h, 10, c.page_bg)
+    c.rect(x, y, w, h, fill=PAPER)
+    k = w / 420
+    L, R = x + 28 * k, x + w - 28 * k
+    c.rect(L, y + 26 * k, 34 * k, 34 * k, fill=p.Accent)
+    c.text(L + 17 * k, y + 43 * k, 'GP', 11 * k, ink, 'bold', anchor='mm')
+    c.text(L + 44 * k, y + 36 * k, 'Garage Peeters', 13 * k, ink, 'bold')
+    c.text(L + 44 * k, y + 52 * k, 'Diagnostic report  ·  job 2026-0142',
+           9.5 * k, muted)
+    c.text(R, y + 36 * k, '10 Oct 2026', 9.5 * k, muted, anchor='rm')
+    c.text(R, y + 52 * k, 'Page 1 of 3', 9.5 * k, muted, anchor='rm')
+    c.rect(L, y + 72 * k, R - L, 2 * k, fill=p.Accent)
+    yy = y + 92 * k
+    c.text(L, yy, 'VEHICLE', 8.5 * k, muted, 'semibold')
+    yy += 16 * k
+    for a, b in (('Volkswagen Golf VII 1.6 TDI', 'VIN WVWZZZAUZGW123456'),
+                 ('2016 · Diesel · CLHA · 81 kW', 'Odometer 148 312 km')):
+        c.text(L, yy, a, 10 * k, ink, 'semibold' if 'Golf' in a else
+               'regular')
+        c.text(R, yy, b, 9.5 * k, muted, anchor='rm')
+        yy += 15 * k
+    yy += 10 * k
+    c.text(L, yy, 'TROUBLE CODES', 8.5 * k, muted, 'semibold')
+    yy += 8 * k
+    for status, code, desc in (
+            ('STORED', 'P0401', 'Exhaust gas recirculation flow insufficient'),
+            ('STORED', 'P2002', 'DPF efficiency below threshold (bank 1)'),
+            ('PENDING', 'P0299', 'Turbocharger underboost'),
+            ('STORED', 'U0121', 'Lost communication with ABS module'),
+            ('PERMANENT', 'P20EE', 'SCR NOx catalyst efficiency below '
+             'threshold')):
+        colr = {'STORED': (220, 53, 69), 'PENDING': PAPER_WARN,
+                'PERMANENT': (180, 83, 10)}[status]
+        c.rect(L, yy + 4 * k, 3 * k, 16 * k, fill=colr)
+        c.text(L + 9 * k, yy + 12 * k, status, 7.5 * k, colr, 'bold')
+        c.text(L + 66 * k, yy + 12 * k, code, 9.5 * k, ink, 'monobold')
+        c.text(L + 112 * k, yy + 12 * k, desc, 9.5 * k, ink,
+               max_w=R - L - 112 * k)
+        yy += 22 * k
+        c.hline(L, yy + 1 * k, R - L, rule)
+    yy += 18 * k
+    c.text(L, yy, 'READINESS', 8.5 * k, muted, 'semibold')
+    yy += 8 * k
+    c.rect(L, yy, R - L, 34 * k, fill=(255, 245, 214))
+    c.rect(L, yy, 3 * k, 34 * k, fill=PAPER_WARN)
+    c.text(L + 12 * k, yy + 11 * k, 'Not ready for the emissions test',
+           10 * k, ink, 'bold')
+    c.text(L + 12 * k, yy + 25 * k, '2 of 8 supported monitors incomplete',
+           9 * k, muted)
+    yy += 50 * k
+    c.text(L, yy, 'FREEZE FRAME  ·  P0401', 8.5 * k, muted, 'semibold')
+    yy += 10 * k
+    half = (R - L) / 2
+    for i, (a, b) in enumerate((('Engine speed', '2 140 rpm'),
+                                ('Coolant temperature', '84 °C'),
+                                ('Intake MAP', '142 kPa'),
+                                ('Commanded EGR', '38.0 %'))):
+        cx = L if i % 2 == 0 else L + half + 8 * k
+        cy = yy + (i // 2) * 17 * k
+        c.text(cx, cy + 6 * k, a, 9 * k, muted)
+        c.text(cx + half - 8 * k, cy + 6 * k, b, 9 * k, ink, 'semibold',
+               anchor='rm')
+    yy += 44 * k
+    c.text(L, yy, 'TECHNICIAN NOTES', 8.5 * k, muted, 'semibold')
+    for i in range(3):
+        c.hline(L, yy + (16 + i * 14) * k, R - L - (60 * k if i == 2 else 0),
+                rule)
+    c.hline(L, y + h - 34 * k, R - L, rule)
+    c.text(L, y + h - 22 * k, 'Garage Peeters · Industrieweg 12, Hasselt '
+           '· +32 11 00 00 00', 8 * k, muted)
+
+
+def draw_backstage(c):
+    """TOBDBackstage: the ribbon's File button opens a full-window page.
+    Shown on the Report page with the report preview."""
+    p, dn = c.p, c.dn
+    x, y, w = 24, 24, c.w - 48
+    h = c.h - 48
+    window_frame(c, x, y, w, h)
+    tb, _ = title_bar(c, x + 1, y + 1, w - 2, quick=('save', 'undo', 'redo'),
+                      center=True)
+    top = y + 1 + tb
+    bh = h - tb - 2
+    nav_w = 216
+    backstage_nav(c, x + 1, top, nav_w, bh)
+    px = x + 1 + nav_w
+    pw = w - 2 - nav_w
+    c.rect(px, top, pw, bh, fill=p.Background)
+    L = px + 32
+    c.text(L, top + 40, 'Report', 26, p.ForegroundText, 'bold')
+    c.text(L, top + 72, 'Golf VII 1.6 TDI  ·  job 2026-0142  ·  '
+           'customer L. Janssens', 12.5, p.GaugeLabel)
+    # Settings column.
+    sw = 360
+    sy = top + 100
+    sh = bh - 132
+    card(c, L, sy, sw, sh)
+    iy = sy + 22
+    ew = sw - 36
+    c.caps(L + 18, iy, 'Template')
+    iy += 16
+    eh = dn['edit']
+    c.rect(L + 18, iy, ew, eh, fill=p.GaugeFace, outline=p.NeutralLight)
+    c.text(L + 28, iy + eh / 2, 'Garage report (A4)', 12.5,
+           p.ForegroundText)
+    chevron(c, L + 18 + ew - 14, iy + eh / 2, p.Subtle, down=True)
+    iy += eh + 24
+    c.caps(L + 18, iy, 'Sections')
+    iy += 20
+    for text, state in REPORT_SECTIONS:
+        checkbox(c, L + 18, iy, state, text)
+        iy += dn['check'] + 14
+    iy += 6
+    c.caps(L + 18, iy, 'Language')
+    iy += 14
+    segmented(c, L + 18 + ew, iy, ['English', 'Nederlands', 'Deutsch',
+                                   'Français'], 1)
+    iy += dn['seg'] + 26
+    switch(c, L + 18, iy, True, 'Garage logo and footer')
+    iy += dn['switch'] + 18
+    switch(c, L + 18, iy, False, 'Live values next to the freeze frame')
+    by = sy + sh - 18 - dn['button']
+    c.hline(L + 1, by - 16, sw - 2, p.NeutralLight)
+    bw = button(c, L + 18, by, 'Export PDF', 'primary', icon=icon_read)
+    bw2 = button(c, L + 18 + bw + 8, by, 'Print…', 'secondary')
+    button(c, L + 18 + bw + 8 + bw2 + 8, by, 'E-mail', 'ghost')
+
+    # Preview.
+    vx = L + sw + 24
+    vw = px + pw - 32 - vx
+    c.page_bg = mix(p.NeutralLight, p.Background, 0.5)
+    c.rect(vx, sy, vw, sh, fill=c.page_bg, outline=p.NeutralLight)
+    ty = sy + 10
+    c.text(vx + 16, ty + 14, 'Preview', 13, p.ForegroundText, 'semibold')
+    rx = vx + vw - 12
+    for t in ('Fit width', '100 %'):
+        tw = c.tw(t, 12) + 20
+        c.rect(rx - tw, ty, tw, 28, fill=p.GaugeFace, outline=p.NeutralLight)
+        c.text(rx - tw / 2, ty + 14, t, 12, p.ForegroundText, anchor='mm')
+        rx -= tw + 6
+    rx -= 6
+    c.rect(rx - 28, ty, 28, 28, fill=p.GaugeFace, outline=p.NeutralLight)
+    chevron(c, rx - 14, ty + 14, p.Subtle)
+    rx -= 34
+    c.text(rx, ty + 14, 'Page 1 of 3', 12, p.GaugeLabel, anchor='rm')
+    rx -= c.tw('Page 1 of 3', 12) + 8
+    c.rect(rx - 28, ty, 28, 28, fill=p.GaugeFace, outline=p.NeutralLight)
+    c.line([(rx - 12, ty + 10), (rx - 16, ty + 14), (rx - 12, ty + 18)],
+           mix(p.Subtle, p.GaugeFace, 0.5), 1.6)
+    ph = sh - 72
+    pw_ = ph / 1.414
+    if pw_ > vw - 60:
+        pw_ = vw - 60
+        ph = pw_ * 1.414
+    report_page(c, vx + (vw - pw_) / 2, sy + 52, pw_, ph)
+
+
+def ribbon_tabs_ctx(c, x, y, w, ctx):
+    """Tab row with a set of contextual tabs; the first one is selected."""
+    p, dn = c.p, c.dn
+    h = dn['tab']
+    c.rect(x, y, w, h, fill=p.GaugeFace)
+    fw = c.tw('File', 13, 'semibold') + 28
+    c.rect(x + 6, y + 5, fw, h - 10, fill=p.Accent)
+    c.text(x + 6 + fw / 2, y + h / 2, 'File', 13, p.on_accent, 'semibold',
+           anchor='mm')
+    tx = x + 6 + fw + 6
+    for t in RIBBON_TABS:
+        tw = c.tw(t, 13) + 28
+        c.text(tx + tw / 2, y + h / 2, t, 13, p.ForegroundText, anchor='mm')
+        tx += tw
+    tx += 8
+    for i, (t, colr) in enumerate(ctx):
+        tw = c.tw(t, 13) + 28
+        c.rect(tx, y, tw, h, fill=p.tint(colr, 0.14 if not p.dark else 0.2))
+        c.rect(tx, y, tw, 3, fill=colr)
+        c.text(tx + tw / 2, y + h / 2 + 1, t, 13, colr,
+               'semibold' if i == 0 else 'regular', anchor='mm')
+        if i == 0:
+            c.rect(tx + 10, y + h - 3, tw - 20, 3, fill=colr)
+        tx += tw + 2
+    c.hline(x, y + h - 1, w, p.NeutralLight)
+    return h
+
+
+def draw_ribbon_config(c):
+    """ContextualTabs collection: each set has its own caption, colour
+    and tabs, and is shown while its context is active."""
+    p = c.p
+    L = 16
+    w = c.w - 32
+    sheet_label(c, L, 18, 'ContextualTabs', 'a collection: caption, '
+                'colour (theme status colour or custom), tabs, Visible')
+    yy = 38
+    for label, tabs in (
+            ('Recording open  ·  Colour = ccSuccess',
+             [('Playback', p.Success)]),
+            ('Code selected while a report is open  ·  ccDanger and '
+             'ccAccent', [('Code', p.Danger), ('Report', p.accent_text)]),
+            ('Adapter firmware update  ·  ccWarning',
+             [('Firmware', p.Warning)])):
+        c.text(L, yy + 10, label, 12, p.GaugeLabel)
+        yy += 22
+        h = ribbon_tabs_ctx(c, L + 1, yy + 1, w - 2, tabs)
+        c.rect(L, yy, w, h + 2, outline=p.NeutralLight)
+        yy += h + 2 + 20
+    return yy - 20
+
+
 def tabs_underline(c, x, y, w):
     p, dn = c.p, c.dn
     h = dn['tab'] + 4
@@ -2810,11 +3083,13 @@ MOCKUPS = {
     'menus': (BOTH, 1366, None, draw_menus),
     'ribbon': (DESKTOP, 1366, None, draw_ribbon),
     'app-controls': (BOTH, 1100, None, draw_app_controls),
+    'backstage': (DESKTOP, 1366, 860, draw_backstage),
+    'ribbon-contextual': (DESKTOP, 1366, None, draw_ribbon_config),
 }
 
 
 # Window mockups are drawn on a desktop colour so the form border shows.
-ON_DESKTOP = ('form-chrome', 'ribbon')
+ON_DESKTOP = ('form-chrome', 'ribbon', 'backstage')
 
 
 def render(name, density, palette):

@@ -172,6 +172,19 @@ type
     Segment: Integer;
     /// <summary>Edit and combo box height.</summary>
     Edit: Integer;
+    /// <summary>Form caption (title bar) height.</summary>
+    TitleBar: Integer;
+    /// <summary>Menu bar below the caption.</summary>
+    MenuBar: Integer;
+    /// <summary>Item row of a popup menu.</summary>
+    MenuItem: Integer;
+    /// <summary>Status bar height.</summary>
+    StatusBar: Integer;
+    /// <summary>Tab strip height (tabs, ribbon tabs).</summary>
+    Tab: Integer;
+    /// <summary>Width of a system caption button (minimise,
+    /// maximise, close).</summary>
+    CaptionButton: Integer;
   end;
 
 const
@@ -387,6 +400,12 @@ begin
     Result.Switch := 24;
     Result.Segment := 44;
     Result.Edit := 44;
+    Result.TitleBar := 48;
+    Result.MenuBar := 44;
+    Result.MenuItem := 44;
+    Result.StatusBar := 36;
+    Result.Tab := 48;
+    Result.CaptionButton := 56;
   end
   else
   begin
@@ -402,6 +421,12 @@ begin
     Result.Switch := 16;
     Result.Segment := 24;
     Result.Edit := 26;
+    Result.TitleBar := 40;
+    Result.MenuBar := 30;
+    Result.MenuItem := 30;
+    Result.StatusBar := 28;
+    Result.Tab := 36;
+    Result.CaptionButton := 46;
   end;
 end;
 

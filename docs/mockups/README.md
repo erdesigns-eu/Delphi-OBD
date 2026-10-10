@@ -299,7 +299,8 @@ button hovered, and tablet density.
 ### Menus (`TOBDMenuBar`, `TOBDPopupMenu`)
 
 - The main menu with a submenu.
-- Radio groups with headers and check items (theme, density, panels).
+- Radio groups with headers and check items: commands (menu or
+  ribbon), theme, density and panels.
 - A context menu on a code row, with a danger item for clearing one code.
 
 | Light | Dark |
@@ -328,21 +329,44 @@ toasts.
 | ![](app-controls-light.png) | ![](app-controls-dark.png) |
 | ![](app-controls-tablet-light.png) | ![](app-controls-tablet-dark.png) |
 
-### Open questions
+### Decisions
 
-1. Menu bar, ribbon or both? The proposal is to use the menu in the
-   title bar plus the sidebar and a tool bar for OBD Studio, and to make
-   the ribbon an optional style.
-2. Default menu placement: in the title bar (`mpTitleBar`) or below it
-   (`mpBelow`)?
-3. Should the form border be accent orange while the form is active, or
-   always neutral?
-4. Keep these extra caption buttons: theme, density, notifications,
-   help, and the connection chip?
-5. Should the ribbon's File button open a full-window page (settings,
-   recent jobs, export) or a plain menu?
-6. Is green the right colour for contextual tabs, such as *Playback*
-   while a recording is open?
+| Topic | Decision |
+|---|---|
+| Menu or ribbon | Both. The menu sits in the title bar by default. The ribbon is optional, and the user switches between them at run time: View › Commands, or `TOBDTitleBar.CommandStyle = (csMenu, csRibbon)`. |
+| Menu placement | In the title bar (`MenuPlacement = mpTitleBar`). |
+| Form border | Accent orange while the form is active, neutral when inactive. |
+| Extra caption buttons | A collection (`TOBDTitleBar.Buttons`), so buttons can be added and changed at design time and at run time. The theme, density, notifications and help buttons are the shipped example. |
+| Ribbon File button | Opens `TOBDBackstage`, a full-window page with its own navigation. Its first use is the report page with a live preview. |
+| Contextual tabs | A collection (`TOBDRibbon.ContextualTabs`): caption, colour, tabs and `Visible`. Green *Playback* is the first example. |
+
+### Backstage (`TOBDBackstage`) – needs approval
+
+The ribbon's File button opens a full-window page instead of a menu.
+The left column is an orange navigation strip with a back button; each
+item hosts a page (any `TWinControl`, usually a frame). The example
+shows the Report page:
+
+- report settings: template, sections, language, logo and footer;
+- the export, print and e-mail actions;
+- an A4 preview with page navigation and zoom.
+
+The paper stays white in both themes, because that is what is printed.
+
+| Light | Dark |
+|---|---|
+| ![](backstage-light.png) | ![](backstage-dark.png) |
+
+### Contextual tabs (`TOBDRibbon.ContextualTabs`)
+
+Each entry has a caption, a colour (`ccAccent`, `ccSuccess`,
+`ccWarning`, `ccDanger` from the theme, or `ccCustom` with a colour of
+its own), its tabs and `Visible`. The application shows an entry while
+its context is active, for example while a recording is open.
+
+| Light | Dark |
+|---|---|
+| ![](ribbon-contextual-light.png) | ![](ribbon-contextual-dark.png) |
 
 ### Technical notes
 
