@@ -159,11 +159,12 @@ const
   /// <c>--clr-text-muted</c> #5C636A, faces <c>--clr-surface</c>
   /// #F8F9FA, NeutralLight <c>--clr-border</c> #DEE2E6, needle
   /// <c>--clr-primary-strong</c> #B4530A, status
-  /// <c>--clr-success</c> #28A745 / <c>--clr-warning</c> #FFC107 /
-  /// <c>--clr-error</c> #DC3545.</summary>
+  /// <c>--clr-success</c> #28A745 / warning #856404 (the site's
+  /// warning text colour; <c>--clr-warning</c> #FFC107 is too light
+  /// on the light faces) / <c>--clr-error</c> #DC3545.</summary>
   BRAND_PALETTE_LIGHT: TOBDThemePalette = (Background: $00F5F3F1;
     ForegroundText: $001A1A1A; Accent: $001888F0; Subtle: $006A635C;
-    Success: $0045A728; Warning: $0007C1FF; Danger: $004535DC;
+    Success: $0045A728; Warning: $00046485; Danger: $004535DC;
     NeutralLight: $00E6E2DE; NeutralDark: $006A635C; GaugeFace: $00FAF9F8;
     GaugeTick: $001A1A1A; GaugeNeedle: $000A53B4; GaugeLabel: $006A635C;);
 
