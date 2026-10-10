@@ -51,7 +51,7 @@ Review these scenarios in a real VCL form, with Windows scaling at
 | DTC list | Empty list, active/pending/history entries, descriptions and long codes. |
 | EV view | Empty arrays say no cell data; NaN/infinity/nonpositive cell readings are neutral and show N/A when text is enabled. Valid zero values in other measurements remain valid. |
 | Flash dashboard | Idle, progress, rejected configuration, timeout, cancellation, checkpoint failure and successful completion using a simulator. |
-| Component palette | All 229 class icons appear; no default missing-icon boxes. Inspect native 24px icons and IDE scaling at 16/24/32px. |
+| Component palette | All 141 class icons appear; no default missing-icon boxes. Inspect the generated 24px icons at 100 %, 150 % and 200 % IDE scaling in the light and dark IDE themes. |
 | Live-test dialog | Close while an action has retained callbacks; late log/status callbacks must not access the freed dialog. |
 
 Save actual Delphi screenshots with the recorded scale/style and surface name
