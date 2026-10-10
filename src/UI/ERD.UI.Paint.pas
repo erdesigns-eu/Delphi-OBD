@@ -119,7 +119,99 @@ type
     /// <summary>Dash: not supported.</summary>
     glDash,
     /// <summary>Warning triangle with an exclamation mark.</summary>
-    glAlert);
+    glAlert,
+    /// <summary>Caption button: minimise.</summary>
+    glMinimize,
+    /// <summary>Caption button: maximise.</summary>
+    glMaximize,
+    /// <summary>Caption button: restore.</summary>
+    glRestore,
+    /// <summary>Close cross.</summary>
+    glClose,
+    /// <summary>Plug: connect to the adapter.</summary>
+    glConnect,
+    /// <summary>Crossed-out plug: disconnect.</summary>
+    glDisconnect,
+    /// <summary>Page with a plus: new document.</summary>
+    glNew,
+    /// <summary>Folder: open.</summary>
+    glOpen,
+    /// <summary>Floppy: save.</summary>
+    glSave,
+    /// <summary>Curved arrow left: undo.</summary>
+    glUndo,
+    /// <summary>Curved arrow right: redo.</summary>
+    glRedo,
+    /// <summary>Printer.</summary>
+    glPrint,
+    /// <summary>Two sheets: copy.</summary>
+    glCopy,
+    /// <summary>Page with lines: PDF export.</summary>
+    glPdf,
+    /// <summary>Page with lines: report.</summary>
+    glReport,
+    /// <summary>Magnifier.</summary>
+    glSearch,
+    /// <summary>Question mark in a circle.</summary>
+    glHelp,
+    /// <summary>Letter i in a circle.</summary>
+    glInfo,
+    /// <summary>Sun: light theme.</summary>
+    glSun,
+    /// <summary>Crescent: dark theme.</summary>
+    glMoon,
+    /// <summary>Bell: notifications.</summary>
+    glBell,
+    /// <summary>Tablet: tablet density.</summary>
+    glTablet,
+    /// <summary>Monitor: desktop density.</summary>
+    glDesktop,
+    /// <summary>Gear: settings.</summary>
+    glGear,
+    /// <summary>Dial: dashboard.</summary>
+    glDashboard,
+    /// <summary>Filled triangle: trouble codes.</summary>
+    glCodes,
+    /// <summary>Car.</summary>
+    glVehicle,
+    /// <summary>Globe: language.</summary>
+    glGlobe,
+    /// <summary>Funnel: filter.</summary>
+    glFilter,
+    /// <summary>Chip: control unit.</summary>
+    glEcu,
+    /// <summary>Battery.</summary>
+    glBattery,
+    /// <summary>Zig-zag line: live data.</summary>
+    glLive,
+    /// <summary>Ring with a dot: record.</summary>
+    glRecord,
+    /// <summary>Circle with a check: readiness monitors.</summary>
+    glReadiness,
+    /// <summary>Play triangle.</summary>
+    glPlay,
+    /// <summary>Filled square: stop.</summary>
+    glStop,
+    /// <summary>Three dots: more.</summary>
+    glMore,
+    /// <summary>Square with an arrow: dialog launcher.</summary>
+    glLauncher,
+    /// <summary>Pin.</summary>
+    glPin,
+    /// <summary>Wrench: service.</summary>
+    glWrench,
+    /// <summary>Chevron pointing down.</summary>
+    glChevronDown,
+    /// <summary>Chevron pointing right.</summary>
+    glChevronRight,
+    /// <summary>Chevron pointing up.</summary>
+    glChevronUp,
+    /// <summary>Chevron pointing left.</summary>
+    glChevronLeft,
+    /// <summary>Arrow pointing left: back.</summary>
+    glBack,
+    /// <summary>Plus sign: add.</summary>
+    glPlus);
 
   /// <summary>Colour and icon of a <c>TOBDBanner</c>.</summary>
   TOBDBannerKind = (
@@ -282,6 +374,10 @@ type
     procedure GlyphChevron(CX, CY: Single; AColor: TColor; ADown: Boolean);
     /// <summary>Warning triangle with "!", 24 px wide.</summary>
     procedure GlyphAlert(CX, CY: Single; AColor: TColor);
+    /// <summary>Line glyphs for menus, caption buttons, tool bars and
+    /// the ribbon: 16 px box at scale 1.</summary>
+    procedure GlyphLine(AGlyph: TOBDGlyph; CX, CY: Single; AColor: TColor;
+      AScale: Single);
     /// <summary>Draws any built-in glyph.</summary>
     procedure Glyph(AGlyph: TOBDGlyph; CX, CY: Single; AColor: TColor;
       AScale: Single = 1);
@@ -1015,6 +1111,287 @@ begin
   Text(Round(CX), Round(CY + 2 * K), '!', 13, Ink, twBold, taCenter);
 end;
 
+procedure TOBDPainter.GlyphLine(AGlyph: TOBDGlyph; CX, CY: Single;
+  AColor: TColor; AScale: Single);
+var
+  K, LW, A: Single;
+  I: Integer;
+  D: Single;
+  G: TGPGraphics;
+  Clip: TGPGraphicsPath;
+  Brush: TGPSolidBrush;
+
+  procedure L(const P: array of Single);
+  var
+    Pts: array of TGPPointF;
+    J: Integer;
+  begin
+    SetLength(Pts, Length(P) div 2);
+    for J := 0 to High(Pts) do
+      Pts[J] := MakePoint(CX + P[J * 2] * K, CY + P[J * 2 + 1] * K);
+    Lines(Pts, AColor, LW);
+  end;
+
+  procedure R(X, Y, W, H: Single; AFill: Boolean = False);
+  begin
+    if AFill then
+      RoundRect(CX + X * K, CY + Y * K, W * K, H * K, 0, AColor, clNone)
+    else
+      RoundRect(CX + X * K, CY + Y * K, W * K, H * K, 0, clNone, AColor, LW);
+  end;
+
+  procedure E(X, Y, W, H: Single; AFill: Boolean = False);
+  begin
+    if AFill then
+      Ellipse(CX + X * K, CY + Y * K, W * K, H * K, AColor, clNone)
+    else
+      Ellipse(CX + X * K, CY + Y * K, W * K, H * K, clNone, AColor, LW);
+  end;
+
+  procedure P3(X1, Y1, X2, Y2, X3, Y3: Single);
+  begin
+    Polygon([MakePoint(CX + X1 * K, CY + Y1 * K), MakePoint(CX + X2 * K,
+      CY + Y2 * K), MakePoint(CX + X3 * K, CY + Y3 * K)], AColor);
+  end;
+
+begin
+  K := SF(AScale);
+  if AGlyph in [glMinimize, glMaximize, glRestore, glClose] then
+    LW := SF(1)
+  else if AScale <= 1 then
+    LW := SF(1.5)
+  else
+    LW := SF(1.2 * AScale);
+  case AGlyph of
+    glConnect, glDisconnect:
+      begin
+        R(-5, -2, 10, 7);
+        L([-2.5, -7, -2.5, -2]);
+        L([2.5, -7, 2.5, -2]);
+        L([0, 5, 0, 8]);
+        if AGlyph = glDisconnect then
+          L([-7, -7, 7, 7]);
+      end;
+    glReport, glPdf, glNew:
+      begin
+        L([-6, -8, 2, -8, 6, -4, 6, 8, -6, 8, -6, -8]);
+        L([2, -8, 2, -4, 6, -4]);
+        if AGlyph = glNew then
+        begin
+          L([0, -1, 0, 5]);
+          L([-3, 2, 3, 2]);
+        end
+        else
+        begin
+          L([-3, 0, 3, 0]);
+          L([-3, 3.5, 3, 3.5]);
+        end;
+      end;
+    glPrint:
+      begin
+        R(-4, -8, 8, 5);
+        R(-7, -3, 14, 7);
+        R(-4, 2, 8, 6);
+      end;
+    glCopy:
+      begin
+        R(-6, -4, 9, 11);
+        L([-3, -4, -3, -7, 6, -7, 6, 4, 3, 4]);
+      end;
+    glSave:
+      begin
+        R(-7, -7, 14, 14);
+        R(-4, -7, 8, 5);
+        R(-4, 2, 8, 5);
+      end;
+    glOpen:
+      L([-7, 6, -7, -6, -2, -6, 0, -4, 7, -4, 7, 6, -7, 6]);
+    glUndo:
+      begin
+        L([-6, -2, 2, -2, 5, 0.5, 5, 3.5, 2, 6, -2, 6]);
+        L([-3, -5, -6, -2, -3, 1]);
+      end;
+    glRedo:
+      begin
+        L([6, -2, -2, -2, -5, 0.5, -5, 3.5, -2, 6, 2, 6]);
+        L([3, -5, 6, -2, 3, 1]);
+      end;
+    glSearch:
+      begin
+        E(-7, -7, 10, 10);
+        L([1.5, 1.5, 7, 7]);
+      end;
+    glHelp, glInfo:
+      begin
+        E(-7, -7, 14, 14);
+        if AGlyph = glHelp then
+          Text(Round(CX), Round(CY + 0.5 * K), '?', 10 * AScale, AColor,
+            twBold, taCenter)
+        else
+          Text(Round(CX), Round(CY + 0.5 * K), 'i', 10 * AScale, AColor,
+            twBold, taCenter);
+      end;
+    glSun:
+      begin
+        E(-3.5, -3.5, 7, 7);
+        for I := 0 to 7 do
+        begin
+          A := Pi * I / 4;
+          L([5.5 * Cos(A), 5.5 * Sin(A), 7.5 * Cos(A), 7.5 * Sin(A)]);
+        end;
+      end;
+    glMoon:
+      begin
+        // Full disc minus an offset disc: a crescent on any background.
+        G := NewGraphics;
+        try
+          Clip := TGPGraphicsPath.Create;
+          Brush := TGPSolidBrush.Create(ColorToARGB(AColor));
+          try
+            Clip.AddEllipse(CX - 3 * K, CY - 10 * K, 13 * K, 13 * K);
+            G.SetClip(Clip, CombineModeExclude);
+            G.FillEllipse(Brush, CX - 7 * K, CY - 7 * K, 14 * K, 14 * K);
+          finally
+            Brush.Free;
+            Clip.Free;
+          end;
+        finally
+          G.Free;
+        end;
+      end;
+    glBell:
+      begin
+        L([-6, 4, -5, 2, -5, -2, -3, -5, 0, -6, 3, -5, 5, -2, 5, 2, 6, 4,
+          -6, 4]);
+        L([-2, 6.5, 2, 6.5]);
+      end;
+    glTablet:
+      begin
+        R(-5, -7, 10, 14);
+        L([-1, 4.5, 1, 4.5]);
+      end;
+    glDesktop:
+      begin
+        R(-7, -6, 14, 10);
+        L([-3, 7, 3, 7]);
+        L([0, 4, 0, 7]);
+      end;
+    glGear:
+      begin
+        Ellipse(CX - 6 * K, CY - 6 * K, 12 * K, 12 * K, clNone, AColor,
+          LW * 1.5);
+        E(-2, -2, 4, 4, True);
+      end;
+    glDashboard:
+      begin
+        E(-7, -7, 14, 14);
+        L([0, 0, 4, -4]);
+      end;
+    glCodes:
+      P3(0, -7, 8, 6, -8, 6);
+    glVehicle:
+      begin
+        L([-7, 3, -7, -1, -4, -5, 4, -5, 7, -1, 7, 3, -7, 3]);
+        E(-5.5, 1.5, 3.5, 3.5, True);
+        E(2, 1.5, 3.5, 3.5, True);
+      end;
+    glGlobe:
+      begin
+        E(-7, -7, 14, 14);
+        E(-3, -7, 6, 14);
+        L([-7, 0, 7, 0]);
+      end;
+    glFilter:
+      L([-7, -6, 7, -6, 1, 1, 1, 6, -1, 7, -1, 1, -7, -6]);
+    glEcu:
+      begin
+        R(-5, -5, 10, 10);
+        for I := -1 to 1 do
+        begin
+          D := 2.5 * I;
+          L([D, -8, D, -5]);
+          L([D, 5, D, 8]);
+          L([-8, D, -5, D]);
+          L([5, D, 8, D]);
+        end;
+      end;
+    glBattery:
+      begin
+        R(-7, -4, 13, 8);
+        R(6, -2, 1.5, 4, True);
+        R(-5, -2, 6, 4, True);
+      end;
+    glLive:
+      L([-8, 3, -4, -3, 0, 2, 3, -6, 8, 0]);
+    glRecord:
+      begin
+        E(-7, -7, 14, 14);
+        E(-3, -3, 6, 6, True);
+      end;
+    glReadiness:
+      begin
+        E(-7, -7, 14, 14);
+        L([-3.5, 0, -1, 2.5, 3.5, -2.5]);
+      end;
+    glPlay:
+      P3(-4, -6, 6, 0, -4, 6);
+    glStop:
+      R(-5, -5, 10, 10, True);
+    glMore:
+      for I := -1 to 1 do
+        E(5 * I - 1.2, -1.2, 2.4, 2.4, True);
+    glClose:
+      begin
+        L([-5, -5, 5, 5]);
+        L([5, -5, -5, 5]);
+      end;
+    glMinimize:
+      L([-5, 0, 5, 0]);
+    glMaximize:
+      R(-5, -5, 10, 10);
+    glRestore:
+      begin
+        R(-5, -3, 8, 8);
+        L([-3, -3, -3, -5, 5, -5, 5, 3, 3, 3]);
+      end;
+    glLauncher:
+      begin
+        R(-4, -4, 8, 8);
+        L([0, 0, 4, 4]);
+      end;
+    glPin:
+      begin
+        L([-4, -6, 4, -6]);
+        R(-2.5, -6, 5, 7);
+        L([-5, 1, 5, 1]);
+        L([0, 1, 0, 7]);
+      end;
+    glWrench:
+      begin
+        L([-6, 6, 2, -2]);
+        E(0, -7, 7, 7);
+      end;
+    glChevronDown:
+      L([-4, -2, 0, 2, 4, -2]);
+    glChevronUp:
+      L([-4, 2, 0, -2, 4, 2]);
+    glChevronRight:
+      L([-2, -4, 2, 0, -2, 4]);
+    glChevronLeft:
+      L([2, -4, -2, 0, 2, 4]);
+    glBack:
+      begin
+        L([6, 0, -6, 0]);
+        L([-2, -4, -6, 0, -2, 4]);
+      end;
+    glPlus:
+      begin
+        L([-6, 0, 6, 0]);
+        L([0, -6, 0, 6]);
+      end;
+  end;
+end;
+
 procedure TOBDPainter.Glyph(AGlyph: TOBDGlyph; CX, CY: Single;
   AColor: TColor; AScale: Single);
 begin
@@ -1033,6 +1410,10 @@ begin
       GlyphDash(CX, CY, AColor, AScale);
     glAlert:
       GlyphAlert(CX, CY, AColor);
+    glNone:
+      ;
+  else
+    GlyphLine(AGlyph, CX, CY, AColor, AScale);
   end;
 end;
 
