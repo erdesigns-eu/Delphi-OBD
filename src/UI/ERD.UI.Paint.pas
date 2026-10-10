@@ -348,6 +348,8 @@ type
       AOn, AEnabled, AFocused: Boolean);
     /// <summary>Colour a banner kind stands for.</summary>
     function BannerColor(AKind: TOBDBannerKind): TColor;
+    /// <summary>Tinted fill of a banner kind.</summary>
+    function BannerFill(AKind: TOBDBannerKind): TColor;
     /// <summary>Banner surface: tinted fill, mixed outline and a 4 px
     /// edge.</summary>
     procedure BannerFrame(const R: TRect; AKind: TOBDBannerKind);
@@ -401,6 +403,16 @@ function OBDIsDarkPalette(const APalette: TOBDThemePalette): Boolean;
 function OBDRangeLevel(AValue, ALow, AHigh, AAlarmMargin: Double)
   : TOBDAlertLevel;
 
+/// <summary>Width of a text in the painter fonts, without a canvas of
+/// the caller (for AutoSize before a window handle exists).</summary>
+/// <param name="AText">Text.</param>
+/// <param name="ASize">Em height in 96-DPI pixels.</param>
+/// <param name="AWeight">Weight.</param>
+/// <param name="APPI">Pixels per inch to measure at.</param>
+/// <returns>Width in device pixels.</returns>
+function OBDMeasureText(const AText: string; ASize: Single;
+  AWeight: TOBDTextWeight; APPI: Integer): Integer;
+
 const
   /// <summary>Card status edge width, 96-DPI pixels.</summary>
   OBD_EDGE = 4;
@@ -441,6 +453,28 @@ end;
 function OBDIsDarkPalette(const APalette: TOBDThemePalette): Boolean;
 begin
   Result := Luma(APalette.Background) < 128;
+end;
+
+function OBDMeasureText(const AText: string; ASize: Single;
+  AWeight: TOBDTextWeight; APPI: Integer): Integer;
+var
+  Bmp: TBitmap;
+  P: TOBDPainter;
+begin
+  if AText = '' then
+    Exit(0);
+  Bmp := TBitmap.Create;
+  try
+    Bmp.SetSize(1, 1);
+    P := TOBDPainter.Create(Bmp.Canvas, Default(TOBDThemePalette), APPI);
+    try
+      Result := P.TextWidth(AText, ASize, AWeight);
+    finally
+      P.Free;
+    end;
+  finally
+    Bmp.Free;
+  end;
 end;
 
 function OBDRangeLevel(AValue, ALow, AHigh, AAlarmMargin: Double)
@@ -1348,17 +1382,17 @@ begin
   end;
 end;
 
+function TOBDPainter.BannerFill(AKind: TOBDBannerKind): TColor;
+begin
+  Result := Tint(BannerColor(AKind), 0.14);
+end;
+
 procedure TOBDPainter.BannerFrame(const R: TRect; AKind: TOBDBannerKind);
 var
   C: TColor;
 begin
   C := BannerColor(AKind);
-  if FDark then
-    FillRect(R, Tint(C, 0.14))
-  else if AKind = bnInfo then
-    FillRect(R, Tint(C, 0.14))
-  else
-    FillRect(R, Tint(C, 0.16));
+  FillRect(R, BannerFill(AKind));
   FrameRect(R, OBDMixColor(C, FPalette.GaugeFace, 0.5));
   FillRect(Rect(R.Left, R.Top, R.Left + S(OBD_EDGE), R.Bottom), C);
 end;
