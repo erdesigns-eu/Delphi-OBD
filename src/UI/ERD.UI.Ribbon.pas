@@ -33,6 +33,7 @@ uses
   System.Classes,
   System.Math,
   System.StrUtils,
+  System.Actions,
   Vcl.Graphics,
   Vcl.Controls,
   Vcl.Forms,
