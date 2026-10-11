@@ -2415,7 +2415,7 @@ begin
   else if AItem.Color = ricAccent then
     GlyphColor := APainter.AccentText;
   DrawItemGlyph(APainter, ACanvas, AItem, X + ScaleValue(12), Y + H div 2,
-    GlyphColor, 0.75);
+    GlyphColor, 1);
   APainter.Text(X + ScaleValue(26), Y + H div 2, CaptionText, ITEM_TEXT_SIZE,
     Ink, twRegular, taLeftJustify, Result - ScaleValue(32));
   if AItem.Kind in [rikDropDown, rikSplit] then
@@ -2456,14 +2456,8 @@ end;
 
 procedure TOBDRibbon.DrawLauncher(APainter: TOBDPainter; CX, CY: Integer;
   AColor: TColor);
-var
-  S: Integer;
 begin
-  S := ScaleValue(6);
-  APainter.FrameRect(Rect(CX - S, CY - S, CX + S, CY + S), AColor);
-  APainter.Lines([OBDPointF(CX - ScaleValue(2), CY + ScaleValue(2)),
-    OBDPointF(CX + ScaleValue(4), CY - ScaleValue(4))], AColor,
-    ScaleValue(12) / 10);
+  APainter.GlyphLine(glLauncher, CX, CY, AColor, 0.75);
 end;
 
 procedure TOBDRibbon.Resize;

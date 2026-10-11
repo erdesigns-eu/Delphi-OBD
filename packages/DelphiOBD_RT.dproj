@@ -364,6 +364,7 @@
         <DCCReference Include="..\src\RadioCode\ERD.RadioCode.EEPROM.pas"/>
         <DCCReference Include="..\src\UI\ERD.UI.Types.pas"/>
         <DCCReference Include="..\src\UI\ERD.UI.GDIP.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.IconData.pas"/>
         <DCCReference Include="..\src\UI\ERD.UI.Theme.pas"/>
         <DCCReference Include="..\src\UI\ERD.UI.Control.pas"/>
         <DCCReference Include="..\src\UI\ERD.UI.Anim.pas"/>

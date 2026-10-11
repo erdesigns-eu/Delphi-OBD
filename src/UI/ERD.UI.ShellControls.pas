@@ -388,6 +388,9 @@ function OBDDrawShellIcon(ACanvas: TCanvas; AIndex, CX, CY,
 
 implementation
 
+uses
+  ERD.UI.IconData;
+
 const
   // FILE_ATTRIBUTE_* match faHidden / faSysFile without the platform warning.
   OBD_HIDDEN_ATTR = FILE_ATTRIBUTE_HIDDEN or FILE_ATTRIBUTE_SYSTEM;
@@ -583,96 +586,10 @@ end;
 
 procedure OBDDrawShellGlyph(APainter: TOBDPainter; AKind: TOBDShellGlyphKind;
   CX, CY: Integer; AColor: TColor; AScale: Single);
-var
-  S, X, Y: Single;
 begin
-  S := APainter.SF(AScale);
-  X := CX;
-  Y := CY;
-  case AKind of
-    sgFolder, sgNewFolder:
-      begin
-        APainter.RoundRect(X - 9 * S, Y - 7 * S, 7 * S, 4 * S, S,
-          APainter.Tint(AColor, 0.12), AColor, 1.3 * S);
-        APainter.RoundRect(X - 10 * S, Y - 3 * S, 20 * S, 12 * S, 1.5 * S,
-          clNone, AColor, 1.5 * S);
-        if AKind = sgNewFolder then
-        begin
-          APainter.Lines([OBDPointF(X + 2 * S, Y + 3 * S),
-            OBDPointF(X + 8 * S, Y + 3 * S)], AColor, 1.4 * S);
-          APainter.Lines([OBDPointF(X + 5 * S, Y),
-            OBDPointF(X + 5 * S, Y + 6 * S)], AColor, 1.4 * S);
-        end;
-      end;
-    sgDrive:
-      begin
-        APainter.RoundRect(X - 10 * S, Y - 5 * S, 20 * S, 12 * S, 2 * S,
-          clNone, AColor, 1.5 * S);
-        APainter.HLine(Round(X - 7 * S), Round(Y + 2 * S), Round(14 * S),
-          AColor);
-        APainter.Ellipse(X + 4 * S, Y + 3 * S, 2 * S, 2 * S, AColor, clNone);
-      end;
-    sgFile, sgDocument:
-      begin
-        APainter.RoundRect(X - 7 * S, Y - 10 * S, 14 * S, 20 * S, S,
-          clNone, AColor, 1.4 * S);
-        APainter.Lines([OBDPointF(X + 2 * S, Y - 10 * S),
-          OBDPointF(X + 7 * S, Y - 5 * S)], AColor, 1.1 * S);
-        APainter.HLine(Round(X - 3 * S), Round(Y), Round(7 * S), AColor);
-        APainter.HLine(Round(X - 3 * S), Round(Y + 5 * S), Round(7 * S),
-          AColor);
-      end;
-    sgImage:
-      begin
-        APainter.RoundRect(X - 9 * S, Y - 8 * S, 18 * S, 16 * S, 1.5 * S,
-          clNone, AColor, 1.4 * S);
-        APainter.Ellipse(X - 4 * S, Y - 4 * S, 3 * S, 3 * S, AColor,
-          clNone);
-        APainter.Lines([OBDPointF(X - 8 * S, Y + 5 * S),
-          OBDPointF(X - 2 * S, Y), OBDPointF(X + 2 * S, Y + 3 * S),
-          OBDPointF(X + 8 * S, Y - 3 * S)], AColor, 1.3 * S);
-      end;
-    sgDesktop:
-      begin
-        APainter.RoundRect(X - 9 * S, Y - 7 * S, 18 * S, 12 * S, S,
-          clNone, AColor, 1.4 * S);
-        APainter.VLine(Round(X), Round(Y + 5 * S), Round(4 * S), AColor);
-        APainter.HLine(Round(X - 5 * S), Round(Y + 9 * S), Round(10 * S),
-          AColor);
-      end;
-    sgDownload:
-      begin
-        APainter.Lines([OBDPointF(X, Y - 9 * S), OBDPointF(X, Y + 3 * S),
-          OBDPointF(X - 5 * S, Y - 2 * S)], AColor, 1.5 * S);
-        APainter.Lines([OBDPointF(X, Y + 3 * S), OBDPointF(X + 5 * S,
-          Y - 2 * S)], AColor, 1.5 * S);
-        APainter.HLine(Round(X - 8 * S), Round(Y + 8 * S), Round(16 * S),
-          AColor);
-      end;
-    sgUp:
-      APainter.Glyph(glChevronUp, CX, CY, AColor, AScale);
-    sgForward:
-      APainter.Glyph(glChevronRight, CX, CY, AColor, AScale);
-    sgList:
-      begin
-        APainter.HLine(Round(X - 7 * S), Round(Y - 5 * S), Round(14 * S),
-          AColor);
-        APainter.HLine(Round(X - 7 * S), Round(Y), Round(14 * S), AColor);
-        APainter.HLine(Round(X - 7 * S), Round(Y + 5 * S), Round(14 * S),
-          AColor);
-      end;
-    sgGrid:
-      begin
-        APainter.FrameRect(Rect(Round(X - 8 * S), Round(Y - 8 * S),
-          Round(X - S), Round(Y - S)), AColor);
-        APainter.FrameRect(Rect(Round(X + S), Round(Y - 8 * S),
-          Round(X + 8 * S), Round(Y - S)), AColor);
-        APainter.FrameRect(Rect(Round(X - 8 * S), Round(Y + S),
-          Round(X - S), Round(Y + 8 * S)), AColor);
-        APainter.FrameRect(Rect(Round(X + S), Round(Y + S),
-          Round(X + 8 * S), Round(Y + 8 * S)), AColor);
-      end;
-  end;
+  // Callers size these for the former 20 px design; the icons are 16 px.
+  APainter.DrawIcon(OBD_ICON_SHELL_FIRST + Ord(AKind), CX, CY, AColor,
+    OBDIconScale(AScale * 1.25));
 end;
 
 { TOBDPlace }

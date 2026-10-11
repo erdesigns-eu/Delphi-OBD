@@ -1148,7 +1148,7 @@ begin
   CancelButton.Cancel := True;
   OKButton := AWindow.AddButton('OK', bkPrimary, mrOk);
   OKButton.Default := True;
-  FPickButton := AWindow.AddLeftButton('Pick from screen', glSnapshot);
+  FPickButton := AWindow.AddLeftButton('Pick from screen', glPipette);
   FPickButton.OnClick := PipetteClick;
   AWindow.CancelResult := mrCancel;
   AWindow.FitBody;

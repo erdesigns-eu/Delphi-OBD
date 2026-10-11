@@ -429,6 +429,12 @@ densities: `OBD_TEXT_CAPS` (10.5 px, upper-case captions and badges),
 values, buttons, edits, bars and menus), `OBD_TEXT_HEADING` (14) and
 `OBD_TEXT_TITLE` (16). New controls should paint with these constants.
 
+Icons come from one set as well: `TOBDGlyph` (menus, buttons, ribbon,
+title bar), the shell glyphs and the banner status icons are generated
+from `tools/ui_icons.py` into `ERD.UI.IconData` and drawn with
+`TOBDPainter.Glyph` / `DrawIcon` at 16 px, or 32 px in the ribbon. Edit
+the icons in the script and run `python3 tools/ui_icons.py --write`.
+
 ### Building blocks
 | Control | Unit | Purpose |
 |---|---|---|

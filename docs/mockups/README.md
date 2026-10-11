@@ -450,14 +450,31 @@ path bar and a places pane.
 | Colour picker | Theme colours first, then standard colours, then custom colours (kept in `CustomColors`). Includes an HSV picker, hex and RGB entry, and a screen pipette. |
 | Places | The places pane combines Quick access (known folders plus `Places`, a collection the application can fill, such as Jobs and Reports) with the drives. |
 
-## Icon set (proposal)
+## Icon set
 
-The built-in icons are redrawn as one set: the `TOBDGlyph` line glyphs
-(menus, buttons, ribbon, title bar), the shell glyphs of the file and
-folder dialogs (used when `SystemIcons` is False) and the status icons
-of banners and toasts. Each cell shows the current icon, the new icon
-at 16 px and the new icon at the 32 px ribbon size. The sheet ends with
-a ribbon and two menus drawn with the current set and with the new one.
+The built-in icons are one set: the `TOBDGlyph` line glyphs (menus,
+buttons, ribbon, title bar), the shell glyphs of the file and folder
+dialogs (used when `SystemIcons` is False) and the status icons of
+banners and toasts. Each cell shows the icon at 16 px and at the 32 px
+ribbon size. All other mockups draw this set too.
+
+The sheet continues with a **proposal** for feature icons of the two
+OBD Studio editions, grouped by area, and a ribbon for each edition:
+
+- **OBD Studio Free** (ELM327 / OBDLink): connection (adapter, USB,
+  Bluetooth, Wi-Fi), diagnosis (graphs, sensor table, O2 sensors,
+  on-board tests, vehicle info, health check, temperatures, fuel,
+  acceleration, drive cycle, emissions) and workshop (customer, job
+  card, history, export, retry).
+- **OBD Studio Pro** adds coding and programming (coding, adaptations,
+  flashing, write, memory, backup, compare, edit), security access,
+  radio codes and EEPROM, service functions (oil reset, parking brake,
+  steering angle, TPMS, DPF regeneration, actuator tests, routines, ECU
+  reset), buses (CAN, terminal, DoIP) and vehicle types (trucks,
+  motorcycles, agricultural, marine, EV, tachograph, calibration maps).
+
+The feature icons are in `FEATURES` of `tools/ui_icons.py` and are not
+yet part of `TOBDGlyph`.
 
 | Light | Dark |
 |---|---|
@@ -479,5 +496,7 @@ the Pascal painter can draw the same shapes:
   colour, not text, so they look the same with every font.
 
 Only drawing primitives that GDI+ has are used (lines, arcs, ellipses,
-rounded rectangles and filled polygons), so the Pascal port is a direct
-translation.
+rounded rectangles and filled polygons). `python3 tools/ui_icons.py
+--write` compiles them into `src/UI/ERD.UI.IconData.pas`, which
+`TOBDPainter.DrawIcon` draws; CI runs the script without `--write` to
+check the unit is up to date.

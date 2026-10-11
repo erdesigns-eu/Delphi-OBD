@@ -215,7 +215,9 @@ type
     /// <summary>Arrow pointing right: forward.</summary>
     glForward,
     /// <summary>Arrow pointing up: parent folder.</summary>
-    glUp);
+    glUp,
+    /// <summary>Pipette: pick a colour from the screen.</summary>
+    glPipette);
 
   /// <summary>Colour and icon of a <c>TOBDBanner</c>.</summary>
   TOBDBannerKind = (
@@ -398,10 +400,19 @@ type
     procedure GlyphClear(CX, CY: Single; AColor: TColor);
     procedure GlyphSnapshot(CX, CY: Single; AColor: TColor);
     procedure GlyphChevron(CX, CY: Single; AColor: TColor; ADown: Boolean);
+    /// <summary>Draws built-in icon AIndex of ERD.UI.IconData (a
+    /// TOBDGlyph, shell or status icon) centred on (CX, CY).</summary>
+    /// <param name="AScale">1 = 16 px. Not snapped; pass
+    /// OBDIconScale for line icons.</param>
+    /// <param name="AInk">Colour of marks on filled shapes; clNone uses
+    /// the face colour.</param>
+    /// <param name="AThin">Caption-button stroke weight.</param>
+    procedure DrawIcon(AIndex: Integer; CX, CY: Single; AColor: TColor;
+      AScale: Single; AInk: TColor = clNone; AThin: Boolean = False);
     /// <summary>Warning triangle with "!", 24 px wide.</summary>
     procedure GlyphAlert(CX, CY: Single; AColor: TColor; AScale: Single = 1);
     /// <summary>Line glyphs for menus, caption buttons, tool bars and
-    /// the ribbon: 16 px box at scale 1.</summary>
+    /// the ribbon: 16 px at scales below 1.5, 32 px up to 2.5.</summary>
     procedure GlyphLine(AGlyph: TOBDGlyph; CX, CY: Single; AColor: TColor;
       AScale: Single);
     /// <summary>Draws any built-in glyph.</summary>
@@ -573,6 +584,15 @@ function OBDFontLineHeight(AFont: TFont): Integer;
 /// <returns>Factor to multiply the sized widths with.</returns>
 function OBDColumnScale(ASized, ABase, AAvailable, AReserve: Integer): Double;
 
+/// <summary>Snaps an icon scale to the icon grid: 16 px (1) or 32 px
+/// (2); scales above 2.5 are kept.</summary>
+function OBDIconScale(AScale: Single): Single;
+
+/// <summary>Stroke width of a built-in icon in 96-DPI pixels.</summary>
+/// <param name="AScale">Icon scale (1 = 16 px).</param>
+/// <param name="AThin">Caption-button weight.</param>
+function OBDIconStroke(AScale: Single; AThin: Boolean = False): Single;
+
 const
   /// <summary>Card status edge width, 96-DPI pixels.</summary>
   OBD_EDGE = 4;
@@ -597,6 +617,9 @@ const
   OBD_TEXT_TITLE = 16;
 
 implementation
+
+uses
+  ERD.UI.IconData;
 
 const
   DESIGN_PPI = 96;
@@ -702,6 +725,30 @@ begin
     Result := 1;
   if ASized * Result > AAvailable - AReserve then
     Result := System.Math.Max(0, AAvailable - AReserve) / ASized;
+end;
+
+function OBDIconScale(AScale: Single): Single;
+begin
+  if AScale < 1.5 then
+    Result := 1
+  else if AScale <= 2.5 then
+    Result := 2
+  else
+    Result := AScale;
+end;
+
+function OBDIconStroke(AScale: Single; AThin: Boolean): Single;
+begin
+  if AThin then
+  begin
+    Result := AScale * 0.75;
+    if Result < 1 then
+      Result := 1;
+  end
+  else if AScale <= 1 then
+    Result := 1
+  else
+    Result := 1 + 0.75 * (AScale - 1);
 end;
 
 function OBDFontLineHeight(AFont: TFont): Integer;
@@ -1328,372 +1375,288 @@ begin
   Lines([OBDPointF(CX - 5 * K, CY), OBDPointF(CX + 5 * K, CY)], AColor, 2 * K);
 end;
 
-procedure TOBDPainter.GlyphRead(CX, CY: Single; AColor: TColor);
+procedure TOBDPainter.DrawIcon(AIndex: Integer; CX, CY: Single;
+  AColor: TColor; AScale: Single; AInk: TColor; AThin: Boolean);
 var
-  K: Single;
+  G: TGPGraphics;
+  Pen, InkPen: TGPPen;
+  Brush, InkBrush: TGPSolidBrush;
+  K, LW: Single;
+  P, Last, Q: Integer;
+  State: GraphicsState;
+
+  function V(I: Integer): Single;
+  begin
+    Result := OBD_ICON_DATA[I];
+  end;
+
+  function Op(I: Integer): Integer;
+  begin
+    Result := Round(OBD_ICON_DATA[I]);
+  end;
+
+  // Offset of the primitive after the one at I.
+  function Next(I: Integer): Integer;
+  begin
+    case Op(I) of
+      OBD_ICON_LINE, OBD_ICON_LOOP, OBD_ICON_FILL:
+        Result := I + 2 + 2 * Round(V(I + 1));
+      OBD_ICON_ARC, OBD_ICON_PIE:
+        Result := I + 6;
+      OBD_ICON_RING, OBD_ICON_DISC:
+        Result := I + 4;
+      OBD_ICON_ELLIPSE:
+        Result := I + 5;
+      OBD_ICON_KNOCK, OBD_ICON_INK:
+        Result := Next(I + 1);
+    else
+      Result := Last;
+    end;
+  end;
+
+  function Points(I: Integer): TArray<TGPPointF>;
+  var
+    J: Integer;
+  begin
+    SetLength(Result, Round(V(I + 1)));
+    for J := 0 to High(Result) do
+      Result[J] := OBDPointF(CX + V(I + 2 + 2 * J) * K,
+        CY + V(I + 3 + 2 * J) * K);
+  end;
+
+  // Box of the circle (cx, cy, r) at I + 1.
+  function Circle(I: Integer): TGPRectF;
+  begin
+    Result := RectF(CX + (V(I + 1) - V(I + 3)) * K,
+      CY + (V(I + 2) - V(I + 3)) * K, 2 * V(I + 3) * K, 2 * V(I + 3) * K);
+  end;
+
+  procedure Draw(I: Integer; APen: TGPPen; ABrush: TGPSolidBrush);
+  var
+    Pts: TArray<TGPPointF>;
+    R: TGPRectF;
+  begin
+    case Op(I) of
+      OBD_ICON_LINE, OBD_ICON_LOOP, OBD_ICON_FILL:
+        begin
+          Pts := Points(I);
+          if Length(Pts) < 2 then
+            Exit;
+          if Op(I) = OBD_ICON_LINE then
+            G.DrawLines(APen, PGPPointF(@Pts[0]), Length(Pts))
+          else if Op(I) = OBD_ICON_LOOP then
+            G.DrawPolygon(APen, PGPPointF(@Pts[0]), Length(Pts))
+          else
+            G.FillPolygon(ABrush, PGPPointF(@Pts[0]), Length(Pts));
+        end;
+      OBD_ICON_ARC:
+        begin
+          R := Circle(I);
+          G.DrawArc(APen, R.X, R.Y, R.Width, R.Height, V(I + 4), V(I + 5));
+        end;
+      OBD_ICON_PIE:
+        begin
+          R := Circle(I);
+          G.FillPie(ABrush, R.X, R.Y, R.Width, R.Height, V(I + 4), V(I + 5));
+        end;
+      OBD_ICON_RING:
+        begin
+          R := Circle(I);
+          G.DrawEllipse(APen, R.X, R.Y, R.Width, R.Height);
+        end;
+      OBD_ICON_DISC:
+        begin
+          R := Circle(I);
+          G.FillEllipse(ABrush, R.X, R.Y, R.Width, R.Height);
+        end;
+      OBD_ICON_ELLIPSE:
+        G.DrawEllipse(APen, CX + V(I + 1) * K, CY + V(I + 2) * K,
+          V(I + 3) * K, V(I + 4) * K);
+    end;
+  end;
+
+  // Excludes the knocked-out primitive at I (1 px wider on each side
+  // than its stroke) from the clip.
+  procedure Knock(I: Integer);
+  var
+    Path: TGPGraphicsPath;
+    Wide: TGPPen;
+    Pts: TArray<TGPPointF>;
+    R: TGPRectF;
+  begin
+    Path := TGPGraphicsPath.Create(FillModeWinding);
+    try
+      case Op(I) of
+        OBD_ICON_LINE, OBD_ICON_LOOP, OBD_ICON_FILL:
+          begin
+            Pts := Points(I);
+            if Length(Pts) < 2 then
+              Exit;
+            if Op(I) = OBD_ICON_LINE then
+              Path.AddLines(PGPPointF(@Pts[0]), Length(Pts))
+            else
+              Path.AddPolygon(PGPPointF(@Pts[0]), Length(Pts));
+          end;
+        OBD_ICON_ARC, OBD_ICON_PIE:
+          begin
+            R := Circle(I);
+            if Op(I) = OBD_ICON_ARC then
+              Path.AddArc(R.X, R.Y, R.Width, R.Height, V(I + 4), V(I + 5))
+            else
+              Path.AddPie(R.X, R.Y, R.Width, R.Height, V(I + 4), V(I + 5));
+          end;
+        OBD_ICON_RING, OBD_ICON_DISC:
+          begin
+            R := Circle(I);
+            Path.AddEllipse(R.X, R.Y, R.Width, R.Height);
+          end;
+        OBD_ICON_ELLIPSE:
+          Path.AddEllipse(CX + V(I + 1) * K, CY + V(I + 2) * K,
+            V(I + 3) * K, V(I + 4) * K);
+      end;
+      if Op(I) in [OBD_ICON_LINE, OBD_ICON_LOOP, OBD_ICON_ARC, OBD_ICON_RING,
+        OBD_ICON_ELLIPSE] then
+      begin
+        Wide := TGPPen.Create(ColorToARGB(clBlack), LW + SF(2));
+        try
+          Wide.SetStartCap(LineCapRound);
+          Wide.SetEndCap(LineCapRound);
+          Wide.SetLineJoin(LineJoinRound);
+          Path.Widen(Wide);
+        finally
+          Wide.Free;
+        end;
+        Path.SetFillMode(FillModeWinding);
+      end;
+      G.SetClip(Path, CombineModeExclude);
+    finally
+      Path.Free;
+    end;
+  end;
+
+  function NewPen(AInkColor: TColor; AWidth: Single): TGPPen;
+  begin
+    Result := TGPPen.Create(ColorToARGB(AInkColor), AWidth);
+    Result.SetStartCap(LineCapRound);
+    Result.SetEndCap(LineCapRound);
+    Result.SetLineJoin(LineJoinRound);
+  end;
+
 begin
-  K := SF(1);
-  Lines([OBDPointF(CX - 5 * K, CY - K), OBDPointF(CX, CY + 4 * K),
-    OBDPointF(CX + 5 * K, CY - K)], AColor, 1.8 * K);
-  Lines([OBDPointF(CX, CY - 6 * K), OBDPointF(CX, CY + 4 * K)], AColor,
-    1.8 * K);
+  if (AIndex < 0) or (AIndex >= OBD_ICON_COUNT) then
+    Exit;
+  P := OBD_ICON_START[AIndex];
+  Last := OBD_ICON_START[AIndex + 1];
+  if P >= Last then
+    Exit;
+  if AInk = clNone then
+    AInk := FPalette.GaugeFace;
+  // Grid points on pixel centres: 1 px strokes stay crisp.
+  CX := Floor(CX) + 0.5;
+  CY := Floor(CY) + 0.5;
+  K := SF(AScale);
+  LW := SF(OBDIconStroke(AScale, AThin));
+  G := NewGraphics;
+  Pen := nil;
+  InkPen := nil;
+  Brush := nil;
+  InkBrush := nil;
+  try
+    Pen := NewPen(AColor, LW);
+    InkPen := NewPen(AInk, LW);
+    Brush := TGPSolidBrush.Create(ColorToARGB(AColor));
+    InkBrush := TGPSolidBrush.Create(ColorToARGB(AInk));
+    while P < Last do
+    begin
+      if Op(P) <> OBD_ICON_KNOCK then
+      begin
+        // Every knock-out after this primitive cuts into it.
+        State := G.Save;
+        Q := Next(P);
+        while Q < Last do
+        begin
+          if Op(Q) = OBD_ICON_KNOCK then
+            Knock(Q + 1);
+          Q := Next(Q);
+        end;
+        if Op(P) = OBD_ICON_INK then
+        begin
+          // Ink marks on filled shapes read better a little bolder.
+          if Op(P + 1) = OBD_ICON_LINE then
+            InkPen.SetWidth(LW * 1.6)
+          else
+            InkPen.SetWidth(LW);
+          Draw(P + 1, InkPen, InkBrush);
+        end
+        else
+          Draw(P, Pen, Brush);
+        G.Restore(State);
+      end;
+      P := Next(P);
+    end;
+  finally
+    InkBrush.Free;
+    Brush.Free;
+    InkPen.Free;
+    Pen.Free;
+    G.Free;
+  end;
+end;
+
+procedure TOBDPainter.GlyphRead(CX, CY: Single; AColor: TColor);
+begin
+  DrawIcon(Ord(glRead), CX, CY, AColor, 1);
 end;
 
 procedure TOBDPainter.GlyphClear(CX, CY: Single; AColor: TColor);
-var
-  K: Single;
 begin
-  K := SF(1);
-  RoundRect(CX - 4 * K, CY - 3 * K, 8 * K, 9 * K, 0, clNone, AColor,
-    1.4 * K);
-  Lines([OBDPointF(CX - 6 * K, CY - 4.5 * K), OBDPointF(CX + 6 * K,
-    CY - 4.5 * K)], AColor, 1.4 * K);
-  Lines([OBDPointF(CX - 1.5 * K, CY - 6.5 * K), OBDPointF(CX + 1.5 * K,
-    CY - 6.5 * K)], AColor, 1.4 * K);
+  DrawIcon(Ord(glClear), CX, CY, AColor, 1);
 end;
 
 procedure TOBDPainter.GlyphSnapshot(CX, CY: Single; AColor: TColor);
-var
-  K: Single;
 begin
-  K := SF(1);
-  RoundRect(CX - 7 * K, CY - 4 * K, 14 * K, 10 * K, 2 * K, clNone, AColor,
-    1.3 * K);
-  Ellipse(CX - 2.6 * K, CY - 1.6 * K, 5.2 * K, 5.2 * K, clNone, AColor,
-    1.3 * K);
-  RoundRect(CX - 3 * K, CY - 6 * K, 5 * K, 2 * K, 0, AColor, clNone);
+  DrawIcon(Ord(glSnapshot), CX, CY, AColor, 1);
 end;
 
 procedure TOBDPainter.GlyphChevron(CX, CY: Single; AColor: TColor;
   ADown: Boolean);
-var
-  K: Single;
 begin
-  K := SF(1);
   if ADown then
-    Lines([OBDPointF(CX - 4 * K, CY - 2 * K), OBDPointF(CX, CY + 2 * K),
-      OBDPointF(CX + 4 * K, CY - 2 * K)], AColor, 1.6 * K)
+    DrawIcon(Ord(glChevronDown), CX, CY, AColor, 1)
   else
-    Lines([OBDPointF(CX - 2 * K, CY - 4 * K), OBDPointF(CX + 2 * K, CY),
-      OBDPointF(CX - 2 * K, CY + 4 * K)], AColor, 1.6 * K);
+    DrawIcon(Ord(glChevronRight), CX, CY, AColor, 1);
 end;
 
 procedure TOBDPainter.GlyphAlert(CX, CY: Single; AColor: TColor;
   AScale: Single);
 var
-  K: Single;
   Ink: TColor;
 begin
-  K := SF(1) * AScale;
-  Polygon([OBDPointF(CX, CY - 11 * K), OBDPointF(CX + 12 * K, CY + 9 * K),
-    OBDPointF(CX - 12 * K, CY + 9 * K)], AColor);
   if FDark then
     Ink := OnAccent
   else
     Ink := clWhite;
-  // The optical centre of the triangle sits below its bounding-box centre.
-  InkText(CX, CY + 2.5 * K, '!', 11 * AScale, Ink, twBold);
+  // The status triangle is 17 px wide; this glyph is 24 px.
+  DrawIcon(OBD_ICON_STATUS_FIRST + Ord(bnWarning), CX, CY, AColor,
+    AScale * 24 / 17, Ink);
 end;
 
 procedure TOBDPainter.GlyphLine(AGlyph: TOBDGlyph; CX, CY: Single;
   AColor: TColor; AScale: Single);
-var
-  K, LW, A: Single;
-  I: Integer;
-  D: Single;
-  G: TGPGraphics;
-  Clip: TGPGraphicsPath;
-  Brush: TGPSolidBrush;
-
-  procedure L(const P: array of Single);
-  var
-    Pts: array of TGPPointF;
-    J: Integer;
-  begin
-    SetLength(Pts, Length(P) div 2);
-    for J := 0 to High(Pts) do
-      Pts[J] := OBDPointF(CX + P[J * 2] * K, CY + P[J * 2 + 1] * K);
-    Lines(Pts, AColor, LW);
-  end;
-
-  procedure R(X, Y, W, H: Single; AFill: Boolean = False);
-  begin
-    if AFill then
-      RoundRect(CX + X * K, CY + Y * K, W * K, H * K, 0, AColor, clNone)
-    else
-      RoundRect(CX + X * K, CY + Y * K, W * K, H * K, 0, clNone, AColor, LW);
-  end;
-
-  procedure E(X, Y, W, H: Single; AFill: Boolean = False);
-  begin
-    if AFill then
-      Ellipse(CX + X * K, CY + Y * K, W * K, H * K, AColor, clNone)
-    else
-      Ellipse(CX + X * K, CY + Y * K, W * K, H * K, clNone, AColor, LW);
-  end;
-
-  procedure P3(X1, Y1, X2, Y2, X3, Y3: Single);
-  begin
-    Polygon([OBDPointF(CX + X1 * K, CY + Y1 * K), OBDPointF(CX + X2 * K,
-      CY + Y2 * K), OBDPointF(CX + X3 * K, CY + Y3 * K)], AColor);
-  end;
-
 begin
-  K := SF(AScale);
-  if AGlyph in [glMinimize, glMaximize, glRestore, glClose] then
-    LW := SF(1)
-  else if AScale <= 1 then
-    LW := SF(1.5)
+  // The dialog launcher is the one icon with a smaller (12 px) size.
+  if (AGlyph = glLauncher) and (AScale < 0.9) then
+    AScale := 0.75
   else
-    LW := SF(1.2 * AScale);
-  case AGlyph of
-    glConnect, glDisconnect:
-      begin
-        R(-5, -2, 10, 7);
-        L([-2.5, -7, -2.5, -2]);
-        L([2.5, -7, 2.5, -2]);
-        L([0, 5, 0, 8]);
-        if AGlyph = glDisconnect then
-          L([-7, -7, 7, 7]);
-      end;
-    glReport, glPdf, glNew:
-      begin
-        L([-6, -8, 2, -8, 6, -4, 6, 8, -6, 8, -6, -8]);
-        L([2, -8, 2, -4, 6, -4]);
-        if AGlyph = glNew then
-        begin
-          L([0, -1, 0, 5]);
-          L([-3, 2, 3, 2]);
-        end
-        else
-        begin
-          L([-3, 0, 3, 0]);
-          L([-3, 3.5, 3, 3.5]);
-        end;
-      end;
-    glPrint:
-      begin
-        R(-4, -8, 8, 5);
-        R(-7, -3, 14, 7);
-        R(-4, 2, 8, 6);
-      end;
-    glCopy:
-      begin
-        R(-6, -4, 9, 11);
-        L([-3, -4, -3, -7, 6, -7, 6, 4, 3, 4]);
-      end;
-    glSave:
-      begin
-        R(-7, -7, 14, 14);
-        R(-4, -7, 8, 5);
-        R(-4, 2, 8, 5);
-      end;
-    glOpen:
-      L([-7, 6, -7, -6, -2, -6, 0, -4, 7, -4, 7, 6, -7, 6]);
-    glUndo:
-      begin
-        L([-6, -2, 2, -2, 5, 0.5, 5, 3.5, 2, 6, -2, 6]);
-        L([-3, -5, -6, -2, -3, 1]);
-      end;
-    glRedo:
-      begin
-        L([6, -2, -2, -2, -5, 0.5, -5, 3.5, -2, 6, 2, 6]);
-        L([3, -5, 6, -2, 3, 1]);
-      end;
-    glSearch:
-      begin
-        E(-7, -7, 10, 10);
-        L([1.5, 1.5, 7, 7]);
-      end;
-    glHelp, glInfo:
-      begin
-        E(-7, -7, 14, 14);
-        if AGlyph = glHelp then
-          InkText(CX, CY, '?', 10 * AScale, AColor, twBold)
-        else
-          InkText(CX, CY, 'i', 10 * AScale, AColor, twBold);
-      end;
-    glSun:
-      begin
-        E(-3.5, -3.5, 7, 7);
-        for I := 0 to 7 do
-        begin
-          A := Pi * I / 4;
-          L([5.5 * Cos(A), 5.5 * Sin(A), 7.5 * Cos(A), 7.5 * Sin(A)]);
-        end;
-      end;
-    glMoon:
-      begin
-        // Full disc minus an offset disc: a crescent on any background.
-        G := NewGraphics;
-        try
-          Clip := TGPGraphicsPath.Create;
-          Brush := TGPSolidBrush.Create(ColorToARGB(AColor));
-          try
-            Clip.AddEllipse(CX - 3 * K, CY - 10 * K, 13 * K, 13 * K);
-            G.SetClip(Clip, CombineModeExclude);
-            G.FillEllipse(Brush, CX - 7 * K, CY - 7 * K, 14 * K, 14 * K);
-          finally
-            Brush.Free;
-            Clip.Free;
-          end;
-        finally
-          G.Free;
-        end;
-      end;
-    glBell:
-      begin
-        L([-6, 4, -5, 2, -5, -2, -3, -5, 0, -6, 3, -5, 5, -2, 5, 2, 6, 4,
-          -6, 4]);
-        L([-2, 6.5, 2, 6.5]);
-      end;
-    glTablet:
-      begin
-        R(-5, -7, 10, 14);
-        L([-1, 4.5, 1, 4.5]);
-      end;
-    glDesktop:
-      begin
-        R(-7, -6, 14, 10);
-        L([-3, 7, 3, 7]);
-        L([0, 4, 0, 7]);
-      end;
-    glGear:
-      begin
-        Ellipse(CX - 6 * K, CY - 6 * K, 12 * K, 12 * K, clNone, AColor,
-          LW * 1.5);
-        E(-2, -2, 4, 4, True);
-      end;
-    glDashboard:
-      begin
-        E(-7, -7, 14, 14);
-        L([0, 0, 4, -4]);
-      end;
-    glCodes:
-      P3(0, -7, 8, 6, -8, 6);
-    glVehicle:
-      begin
-        L([-7, 3, -7, -1, -4, -5, 4, -5, 7, -1, 7, 3, -7, 3]);
-        E(-5.5, 1.5, 3.5, 3.5, True);
-        E(2, 1.5, 3.5, 3.5, True);
-      end;
-    glGlobe:
-      begin
-        E(-7, -7, 14, 14);
-        E(-3, -7, 6, 14);
-        L([-7, 0, 7, 0]);
-      end;
-    glFilter:
-      L([-7, -6, 7, -6, 1, 1, 1, 6, -1, 7, -1, 1, -7, -6]);
-    glEcu:
-      begin
-        R(-5, -5, 10, 10);
-        for I := -1 to 1 do
-        begin
-          D := 2.5 * I;
-          L([D, -8, D, -5]);
-          L([D, 5, D, 8]);
-          L([-8, D, -5, D]);
-          L([5, D, 8, D]);
-        end;
-      end;
-    glBattery:
-      begin
-        R(-7, -4, 13, 8);
-        R(6, -2, 1.5, 4, True);
-        R(-5, -2, 6, 4, True);
-      end;
-    glLive:
-      L([-8, 3, -4, -3, 0, 2, 3, -6, 8, 0]);
-    glRecord:
-      begin
-        E(-7, -7, 14, 14);
-        E(-3, -3, 6, 6, True);
-      end;
-    glReadiness:
-      begin
-        E(-7, -7, 14, 14);
-        L([-3.5, 0, -1, 2.5, 3.5, -2.5]);
-      end;
-    glPlay:
-      P3(-4, -6, 6, 0, -4, 6);
-    glStop:
-      R(-5, -5, 10, 10, True);
-    glMore:
-      for I := -1 to 1 do
-        E(5 * I - 1.2, -1.2, 2.4, 2.4, True);
-    glClose:
-      begin
-        L([-5, -5, 5, 5]);
-        L([5, -5, -5, 5]);
-      end;
-    glMinimize:
-      L([-5, 0, 5, 0]);
-    glMaximize:
-      R(-5, -5, 10, 10);
-    glRestore:
-      begin
-        R(-5, -3, 8, 8);
-        L([-3, -3, -3, -5, 5, -5, 5, 3, 3, 3]);
-      end;
-    glLauncher:
-      begin
-        R(-4, -4, 8, 8);
-        L([0, 0, 4, 4]);
-      end;
-    glPin:
-      begin
-        L([-4, -6, 4, -6]);
-        R(-2.5, -6, 5, 7);
-        L([-5, 1, 5, 1]);
-        L([0, 1, 0, 7]);
-      end;
-    glWrench:
-      begin
-        L([-6, 6, 2, -2]);
-        E(0, -7, 7, 7);
-      end;
-    glChevronDown:
-      L([-4, -2, 0, 2, 4, -2]);
-    glChevronUp:
-      L([-4, 2, 0, -2, 4, 2]);
-    glChevronRight:
-      L([-2, -4, 2, 0, -2, 4]);
-    glChevronLeft:
-      L([2, -4, -2, 0, 2, 4]);
-    glBack:
-      begin
-        L([6, 0, -6, 0]);
-        L([-2, -4, -6, 0, -2, 4]);
-      end;
-    glPlus:
-      begin
-        L([-6, 0, 6, 0]);
-        L([0, -6, 0, 6]);
-      end;
-    glForward:
-      begin
-        L([-6, 0, 6, 0]);
-        L([2, -4, 6, 0, 2, 4]);
-      end;
-    glUp:
-      begin
-        L([0, 6, 0, -6]);
-        L([-4, -2, 0, -6, 4, -2]);
-      end;
-  end;
+    AScale := OBDIconScale(AScale);
+  DrawIcon(Ord(AGlyph), CX, CY, AColor, AScale, clNone,
+    AGlyph in [glMinimize, glMaximize, glRestore, glClose]);
 end;
 
 procedure TOBDPainter.Glyph(AGlyph: TOBDGlyph; CX, CY: Single;
   AColor: TColor; AScale: Single);
 begin
   case AGlyph of
-    glRead:
-      GlyphRead(CX, CY, AColor);
-    glClear:
-      GlyphClear(CX, CY, AColor);
-    glSnapshot:
-      GlyphSnapshot(CX, CY, AColor);
     glCheck:
       GlyphCheck(CX, CY, AColor, AScale);
     glPending:
@@ -2080,7 +2043,6 @@ procedure TOBDPainter.BannerIcon(CX, CY: Integer; AKind: TOBDBannerKind;
   AAlert: Boolean; AScale: Single);
 var
   C, Ink: TColor;
-  R: Single;
 begin
   C := BannerColor(AKind);
   if AScale <= 0 then
@@ -2091,24 +2053,17 @@ begin
     Exit;
   end;
   case AKind of
-    bnSuccess:
-      GlyphCheck(CX, CY, C, 1.2 * AScale);
-    bnWarning:
-      GlyphPending(CX, CY, C, 1.3 * AScale);
-  else
-    R := SF(9) * AScale;
-    Ellipse(CX - R, CY - R, 2 * R, 2 * R, C, clNone);
-    if AKind = bnDanger then
-    begin
+    bnDanger:
       Ink := clWhite;
-      InkText(CX, CY, '!', 12 * AScale, Ink, twBold);
-    end
-    else
-    begin
-      Ink := FPalette.GaugeFace;
-      InkText(CX, CY, 'i', 12 * AScale, Ink, twBold);
-    end;
+    bnSuccess:
+      if FDark then
+        Ink := OnAccent
+      else
+        Ink := clWhite;
+  else
+    Ink := OnAccent;
   end;
+  DrawIcon(OBD_ICON_STATUS_FIRST + Ord(AKind), CX, CY, C, AScale, Ink);
 end;
 
 procedure TOBDPainter.RangeBar(X, CY, W: Integer; AMin, AMax, ALow, AHigh,

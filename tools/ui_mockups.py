@@ -399,29 +399,27 @@ def icon_dash(c, cx, cy, color, s=1.0):
     c.line([(cx - 5 * s, cy), (cx + 5 * s, cy)], color, 2 * s)
 
 
+def _icon(c, kind, cx, cy, color):
+    """A built-in icon at 16 px (TOBDPainter.GlyphRead, GlyphChevron...)."""
+    ui_icons.draw_icon(c, ui_icons.GLYPHS[kind], _snap(cx), _snap(cy),
+                       color, 1)
+
+
 def icon_read(c, cx, cy, color):
-    c.line([(cx - 5, cy - 1), (cx, cy + 4), (cx + 5, cy - 1)], color, 1.8)
-    c.line([(cx, cy - 6), (cx, cy + 4)], color, 1.8)
+    _icon(c, 'read', cx, cy, color)
 
 
 def icon_trash(c, cx, cy, color):
-    c.rect(cx - 4, cy - 3, 8, 9, outline=color, width=1.4)
-    c.line([(cx - 6, cy - 4.5), (cx + 6, cy - 4.5)], color, 1.4)
-    c.line([(cx - 1.5, cy - 6.5), (cx + 1.5, cy - 6.5)], color, 1.4)
+    _icon(c, 'clear', cx, cy, color)
 
 
 def icon_snapshot(c, cx, cy, color):
     """Freeze-frame marker: a small camera."""
-    c.rrect(cx - 7, cy - 4, 14, 10, 2, outline=color, width=1.3)
-    c.ellipse(cx - 2.6, cy - 1.6, 5.2, 5.2, outline=color, width=1.3)
-    c.rect(cx - 3, cy - 6, 5, 2, fill=color)
+    _icon(c, 'snapshot', cx, cy, color)
 
 
 def chevron(c, cx, cy, color, down=False):
-    if down:
-        c.line([(cx - 4, cy - 2), (cx, cy + 2), (cx + 4, cy - 2)], color, 1.6)
-    else:
-        c.line([(cx - 2, cy - 4), (cx + 2, cy), (cx - 2, cy + 4)], color, 1.6)
+    _icon(c, 'chevron-down' if down else 'chevron-right', cx, cy, color)
 
 
 def switch(c, x, y, on, label, disabled=False, focused=False):
@@ -1443,15 +1441,12 @@ def banner(c, x, y, w, h, kind, title, text):
            outline=mix(colr, p.GaugeFace, 0.5))
     c.rect(x, y, 4, h, fill=colr)
     cx, cy = x + 24, y + h / 2
-    if kind == 'success':
-        icon_check(c, cx, cy, colr, 1.2)
-    elif kind == 'warning':
-        icon_pending(c, cx, cy, colr, 1.3)
-    else:
-        c.ellipse(cx - 9, cy - 9, 18, 18, fill=colr)
-        ink = p.on_danger if kind == 'danger' else p.GaugeFace
-        c.text(cx, cy, '!' if kind == 'danger' else 'i', 12, ink, 'bold',
-               anchor='mm')
+    # TOBDPainter.BannerIcon: ERD.UI.IconData status icons.
+    ink = p.on_danger if kind == 'danger' else (
+        p.on_accent if kind in ('info', 'warning') or p.dark
+        else (255, 255, 255))
+    ui_icons.draw_icon(c, ui_icons.STATUS[kind], _snap(cx), _snap(cy), colr,
+                       1, ink=ink)
     c.text(x + 44, cy - 9, title, 13.5, p.ForegroundText, 'bold',
            max_w=w - 56)
     c.text(x + 44, cy + 10, text, 12, p.ForegroundText, max_w=w - 56)
@@ -2430,7 +2425,7 @@ def ribbon_small(c, x, y, rh, kind, text, state):
     return w
 
 
-def ribbon_body(c, x, y, w):
+def ribbon_body(c, x, y, w, groups=None):
     """Classic ribbon body: groups of large and small buttons with group
     captions and dialog launchers. Returns the height."""
     p = c.p
@@ -2439,7 +2434,7 @@ def ribbon_body(c, x, y, w):
     h = body + cap + 8
     c.rect(x, y, w, h, fill=p.GaugeFace)
     gx = x + 8
-    for name, launcher, items in RIBBON_GROUPS:
+    for name, launcher, items in groups or RIBBON_GROUPS:
         start = gx
         bx = gx
         small = [it for it in items if it[0] == 'small']
@@ -4050,80 +4045,38 @@ def _snap(v):
 
 
 def glyph_new(c, kind, cx, cy, color, s=1.0, bg=None):
-    """Drop-in replacement for glyph() that draws the proposed icons. The
-    scale snaps to the 16 px grid (1x) or the 32 px ribbon size (2x)."""
-    ops = ui_icons.GLYPHS.get(kind) or ui_icons.SHELL.get(kind)
+    """glyph() with the built-in icon set of tools/ui_icons.py (as
+    ERD.UI.IconData draws it); feature icons are the proposal. The scale
+    snaps to the 16 px grid (1x) or the 32 px ribbon size (2x)."""
+    ops = (ui_icons.GLYPHS.get(kind) or ui_icons.SHELL.get(kind)
+           or ui_icons.FEATURES.get(kind))
     if ops is None:
         return _glyph_old(c, kind, cx, cy, color, s, bg)
-    if kind == 'launcher' and s < 0.9:
-        s = 0.75
-    else:
-        s = 1.0 if s < 1.5 else 2.0
+    s = ui_icons.snap_scale(s, kind)
     ui_icons.draw_icon(c, ops, _snap(cx), _snap(cy), color, s, bg=bg,
                        thin=kind in ui_icons.THIN)
 
 
 _glyph_old = glyph
+# Every mockup draws the built-in icon set.
+glyph = glyph_new
 
 
-def glyph_now(c, kind, cx, cy, color, s=1.0):
-    """The current icon of a TOBDGlyph / shell kind (None if it has no
-    mockup equivalent)."""
-    if kind == 'check':
-        icon_check(c, cx, cy, color, 0.8 * s)
-    elif kind == 'pending':
-        icon_pending(c, cx, cy, color, 0.9 * s)
-    elif kind == 'dash':
-        icon_dash(c, cx, cy, color, 0.8 * s)
-    elif kind == 'alert':
-        c.polygon([(cx, cy - 7 * s), (cx + 7 * s, cy + 6 * s),
-                   (cx - 7 * s, cy + 6 * s)], color)
-        c.text(cx, cy + 1.5 * s, '!', 9 * s, c.bg, 'bold', anchor='mm')
-    elif kind.startswith('chevron-'):
-        d = kind[8:]
-        if d in ('down', 'right'):
-            chevron(c, cx, cy, color, down=d == 'down')
-        elif d == 'up':
-            c.line([(cx - 4, cy + 2), (cx, cy - 2), (cx + 4, cy + 2)], color,
-                   1.6)
-        else:
-            c.line([(cx + 2, cy - 4), (cx - 2, cy), (cx + 2, cy + 4)], color,
-                   1.6)
-    elif kind == 'plus':
-        c.line([(cx - 5, cy), (cx + 5, cy)], color, 1.5)
-        c.line([(cx, cy - 5), (cx, cy + 5)], color, 1.5)
-    else:
-        alias = {'folder': 'open', 'file': 'new', 'document': 'report',
-                 'download': 'read'}.get(kind, kind)
-        _glyph_old(c, alias, cx, cy, color, s, bg=c.bg)
-
-
-class new_icons:
-    """with new_icons(): existing drawing code uses the proposed set."""
-
-    def __enter__(self):
-        globals()['glyph'] = glyph_new
-
-    def __exit__(self, *exc):
-        globals()['glyph'] = _glyph_old
-
-
-def icon_cell(c, x, y, w, h, kind, name):
+def icon_cell(c, x, y, w, h, kind, name, ops=None):
+    """Icon name, then the icon at 16 px and at 32 px (ribbon)."""
     p = c.p
     c.rect(x, y, w, h, fill=p.GaugeFace, outline=p.NeutralLight)
     c.text(x + 10, y + 14, name, 11.5, p.GaugeLabel, max_w=w - 16)
     cy = y + 48
-    on = c.bg
-    c.bg = p.GaugeFace
-    glyph_now(c, kind, x + 22, cy, p.Subtle)
-    c.vline(x + 41, y + 30, 36, p.NeutralLight)
-    ops = ui_icons.GLYPHS.get(kind) or ui_icons.SHELL[kind]
+    if ops is None:
+        ops = (ui_icons.GLYPHS.get(kind) or ui_icons.SHELL.get(kind)
+               or ui_icons.FEATURES[kind])
     thin = kind in ui_icons.THIN
-    ui_icons.draw_icon(c, ops, _snap(x + 60), _snap(cy), p.ForegroundText,
+    ui_icons.draw_icon(c, ops, _snap(x + 22), _snap(cy), p.ForegroundText,
                        1, bg=p.GaugeFace, thin=thin)
-    ui_icons.draw_icon(c, ops, _snap(x + w - 34), _snap(cy), p.accent_text,
+    c.vline(x + 41, y + 30, 36, p.NeutralLight)
+    ui_icons.draw_icon(c, ops, _snap(x + 70), _snap(cy), p.accent_text,
                        2, bg=p.GaugeFace, thin=thin)
-    c.bg = on
 
 
 def icon_grid(c, x, y, w, items, cols):
@@ -4138,32 +4091,68 @@ def icon_grid(c, x, y, w, items, cols):
     return y + rows * (ch + gap) - gap
 
 
-def status_banner(c, x, y, w, h, kind, title, text):
-    """TOBDBanner with the proposed status icon."""
-    p = c.p
-    colr = {'info': p.accent_text, 'success': p.Success,
-            'warning': p.Warning, 'danger': p.Danger}[kind]
-    c.rect(x, y, w, h, fill=p.tint(colr, 0.14), outline=mix(colr, p.GaugeFace,
-                                                             0.5))
-    c.rect(x, y, 4, h, fill=colr)
-    ink = p.on_danger if kind == 'danger' else (
-        p.on_accent if kind in ('info', 'warning') or p.dark
-        else (255, 255, 255))
-    ui_icons.draw_icon(c, ui_icons.STATUS[kind], _snap(x + 24),
-                       _snap(y + h / 2), colr, 1, ink=ink)
-    c.text(x + 44, y + h / 2 - 9, title, 13.5, p.ForegroundText, 'bold',
-           max_w=w - 56)
-    c.text(x + 44, y + h / 2 + 10, text, 12, p.ForegroundText, max_w=w - 56)
+# Ribbon of the Pro edition, drawn with the proposed feature icons.
+PRO_RIBBON = [
+    ('Connection', True,
+     [('large', 'adapter', 'Connect', ''),
+      ('small', 'ecu', 'ECU: Engine 7E8', 'drop'),
+      ('small', 'bus', 'Bus: CAN 500k', 'drop'),
+      ('small', 'terminal', 'Terminal', '')]),
+    ('Coding', True,
+     [('large', 'coding', 'Coding', 'hover'),
+      ('large', 'adaptation', 'Adaptations', ''),
+      ('small', 'lock', 'Security access', ''),
+      ('small', 'database', 'Backup', ''),
+      ('small', 'compare', 'Compare', '')]),
+    ('Programming', True,
+     [('large', 'flash', 'Flash ECU', 'danger'),
+      ('large', 'binary', 'Memory', ''),
+      ('small', 'eeprom', 'EEPROM', ''),
+      ('small', 'radio', 'Radio code', ''),
+      ('small', 'key', 'Keys', '')]),
+    ('Service', False,
+     [('large', 'oil', 'Oil reset', ''),
+      ('large', 'brake', 'Parking brake', ''),
+      ('small', 'steering', 'Steering angle', ''),
+      ('small', 'tpms', 'TPMS', ''),
+      ('small', 'regen', 'DPF regeneration', '')]),
+]
+
+# Ribbon of the Free edition (ELM327 / OBDLink).
+FREE_RIBBON = [
+    ('Connection', True,
+     [('large', 'adapter', 'Connect', ''),
+      ('small', 'usb', 'USB: COM4', 'drop'),
+      ('small', 'bluetooth', 'Bluetooth', ''),
+      ('small', 'wifi', 'Wi-Fi', '')]),
+    ('Diagnosis', False,
+     [('large', 'health', 'Health check', 'hover'),
+      ('large', 'read', 'Read codes', ''),
+      ('small', 'vin', 'Vehicle info', ''),
+      ('small', 'o2sensor', 'O2 sensors', ''),
+      ('small', 'test', 'On-board tests', '')]),
+    ('Live data', False,
+     [('large', 'chart', 'Graphs', ''),
+      ('large', 'record', 'Record', 'record'),
+      ('small', 'table', 'Sensor table', ''),
+      ('small', 'dashboard', 'Dashboard', ''),
+      ('small', 'timer', 'Acceleration', '')]),
+    ('Workshop', True,
+     [('large', 'job', 'Job card', ''),
+      ('small', 'customer', 'Customer', ''),
+      ('small', 'clock', 'History', ''),
+      ('small', 'export', 'Export', '')]),
+]
 
 
 def draw_icons(c):
     p = c.p
     W = c.w - 32
     x, y = 16, 24
-    sheet_label(c, x, y, 'Icon set - proposal',
-                'Per cell: current | new 16 px | new 32 px (ribbon). '
-                '16 px grid, 1 px strokes on pixel centres, round caps and '
-                'corners.')
+    sheet_label(c, x, y, 'Icon set',
+                'Per cell: 16 px | 32 px (ribbon). 16 px grid, 1 px strokes '
+                'on pixel centres, round caps and corners. Source: '
+                'tools/ui_icons.py -> ERD.UI.IconData.')
     y += 24
     c.caps(x, y, 'TOBDGlyph (menus, buttons, ribbon, title bar)')
     y = icon_grid(c, x, y + 14, W, [(k, n) for k, n in ui_icons.GLYPH_ORDER],
@@ -4188,25 +4177,35 @@ def draw_icons(c):
     for i, kind in enumerate(ui_icons.STATUS_ORDER):
         bx = x + (i % 2) * (bw + 8)
         by = y + (i // 2) * 72
-        status_banner(c, round(bx), by, round(bw), 64, kind, *texts[kind])
+        banner(c, round(bx), by, round(bw), 64, kind, *texts[kind])
     y += 2 * 72 + 20
 
-    c.caps(x, y, 'In context: ribbon (current, then proposed)')
-    y += 14
-    y += ribbon_body(c, x, y, W) + 8
-    with new_icons():
-        y += ribbon_body(c, x, y, W) + 24
+    for edition, sub in (
+            ('Free', 'ELM327 / OBDLink: generic OBD-II diagnosis for the '
+                     'workshop'),
+            ('Pro', 'adds coding, programming, flashing, radio codes, '
+                    'service functions and more buses')):
+        sheet_label(c, x, y, 'Proposal: OBD Studio ' + edition, sub)
+        y += 28
+        for ed, group, items in ui_icons.FEATURE_GROUPS:
+            if ed != edition:
+                continue
+            c.caps(x, y, group)
+            y = icon_grid(c, x, y + 14, W, items, 8) + 24
+        y += 4
 
-    c.caps(x, y, 'In context: menus (current, then proposed)')
+    c.caps(x, y, 'In context: OBD Studio Free ribbon')
+    y += 14
+    y += ribbon_body(c, x, y, W, FREE_RIBBON) + 24
+    c.caps(x, y, 'In context: OBD Studio Pro ribbon')
+    y += 14
+    y += ribbon_body(c, x, y, W, PRO_RIBBON) + 24
+
+    c.caps(x, y, 'In context: menus')
     y += 14
     mw = menu_width(c, VEHICLE_MENU)
-    fw = menu_width(c, FILE_MENU)
     _, _, h1 = menu_popup(c, x, y, VEHICLE_MENU, hover='Read codes')
     menu_popup(c, x + mw + 16, y, FILE_MENU)
-    with new_icons():
-        ox = x + mw + fw + 64
-        menu_popup(c, ox, y, VEHICLE_MENU, hover='Read codes')
-        menu_popup(c, ox + mw + 16, y, FILE_MENU)
     return y + max(h1, menu_height(c, FILE_MENU))
 
 
@@ -4254,7 +4253,7 @@ ON_DESKTOP = ('form-chrome', 'ribbon', 'backstage')
 def render(name, density, palette):
     densities, w, h, draw = MOCKUPS[name]
     bg = backdrop(palette) if name in ON_DESKTOP else palette.Background
-    c = Canvas(w, h or 2000, palette, background=bg, density=density)
+    c = Canvas(w, h or 4000, palette, background=bg, density=density)
     c.bg = bg
     bottom = draw(c)
     if h is None:

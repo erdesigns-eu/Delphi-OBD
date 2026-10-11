@@ -29,6 +29,8 @@ ui_mockups.py draws the comparison sheet (docs/mockups/icons-*.png).
 """
 
 import math
+import re
+from pathlib import Path
 
 STROKE = 1.0
 
@@ -339,7 +341,7 @@ GLYPH_ORDER = [
     ('chevron-down', 'glChevronDown'), ('chevron-right', 'glChevronRight'),
     ('chevron-up', 'glChevronUp'), ('chevron-left', 'glChevronLeft'),
     ('back', 'glBack'), ('plus', 'glPlus'), ('forward', 'glForward'),
-    ('up', 'glUp'),
+    ('up', 'glUp'), ('pipette', 'glPipette'),
 ]
 
 # Caption buttons keep the thin Windows 11 look.
@@ -373,12 +375,12 @@ SHELL = {
     'grid': [('rect', x, y, 5, 5, 1) for x in (-7, 2) for y in (-7, 2)],
     'newfolder': _folder() + [('path', [(0, 1), (0, 5)], 0, False),
                               ('path', [(-2, 3), (2, 3)], 0, False)],
-    'pipette': _pipette(),
 }
 
+GLYPHS['pipette'] = _pipette()
+
 SHELL_ORDER = ['folder', 'drive', 'file', 'image', 'desktop', 'download',
-               'document', 'up', 'forward', 'list', 'grid', 'newfolder',
-               'pipette']
+               'document', 'up', 'forward', 'list', 'grid', 'newfolder']
 
 # --------------------------------------------------------------------------
 # Status icons (banner, toast, readiness) drawn on a filled 18 px shape
@@ -400,18 +402,388 @@ STATUS = {
 STATUS_ORDER = ['info', 'success', 'warning', 'danger']
 
 
+
+
 # --------------------------------------------------------------------------
-# Renderer (Pillow canvas from ui_mockups.py)
+# Feature icons (proposal): OBD Studio Free and Pro
 # --------------------------------------------------------------------------
 
+def _earc(cx, cy, rx, ry, start, sweep):
+    """Elliptic arc as a polyline (the arc op is circular only)."""
+    k = max(6, int(abs(sweep) / 10))
+    return [(round(cx + rx * math.cos(math.radians(start + sweep * i / k)), 2),
+             round(cy + ry * math.sin(math.radians(start + sweep * i / k)),
+                   2)) for i in range(k + 1)]
+
+
+def _rot(points, deg):
+    a = math.radians(deg)
+    ca, sa = math.cos(a), math.sin(a)
+    return [(round(x * ca - y * sa, 2), round(x * sa + y * ca, 2))
+            for x, y in points]
+
+
+def _drop(cx=0.0, top=-7.0, r=4.5, bottom=7.0):
+    """Droplet: a point at the top and a round bottom."""
+    cy = bottom - r
+    d = cy - top
+    a = math.degrees(math.asin(r / d))          # half angle at the tip
+    # tangent points: angle on the circle measured from 3 o'clock
+    t = 90 - a
+    start = -t + 0                               # right tangent (upper right)
+    return [('path', [(cx, top), (round(cx + r * math.cos(math.radians(-t)),
+                                        2),
+                                  round(cy + r * math.sin(math.radians(-t)),
+                                        2))], 0, False),
+            ('arc', cx, cy, r, round(start, 2), round(180 + 2 * t - 180 +
+                                                      180, 2)),
+            ('path', [(round(cx - r * math.cos(math.radians(-t)), 2),
+                       round(cy + r * math.sin(math.radians(-t)), 2)),
+                      (cx, top)], 0, False)]
+
+
+def _leaf():
+    """Leaf (emissions): a lens between two corners plus the vein."""
+    a, b = (-6.0, 6.0), (6.0, -6.0)
+    chord = math.hypot(b[0] - a[0], b[1] - a[1])
+    r = chord / (2 * math.sin(math.radians(45)))   # 90 degree arcs
+    mid = ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2)
+    off = math.sqrt(r * r - (chord / 2) ** 2)
+    n = (math.sqrt(0.5), math.sqrt(0.5))
+    ops = []
+    for sign in (1, -1):
+        c = (mid[0] + sign * off * n[0], mid[1] + sign * off * n[1])
+        a0 = math.degrees(math.atan2(a[1] - c[1], a[0] - c[0]))
+        a1 = math.degrees(math.atan2(b[1] - c[1], b[0] - c[0]))
+        sweep = (a1 - a0) % 360
+        if sweep > 180:
+            sweep -= 360
+        ops.append(('arc', round(c[0], 2), round(c[1], 2), round(r, 2),
+                    round(a0, 2), round(sweep, 2)))
+    return ops + [('path', [(-7, 7), (2, -2)], 0, False)]
+
+
+def _star(r_out=7.0, r_in=3.0, cy=0.5):
+    pts = []
+    for i in range(10):
+        r = r_out if i % 2 == 0 else r_in
+        a = math.radians(-90 + 36 * i)
+        pts.append((round(r * math.cos(a), 2), round(cy + r * math.sin(a),
+                                                     2)))
+    return pts
+
+
+def _fan():
+    blade = [(0, 0), (-2, -3), (-1, -6.5), (2.5, -6), (2, -2.5)]
+    ops = [('circle', 0, 0, 7)]
+    for k in range(3):
+        ops.append(('fill', _rot(blade, 120 * k), 1))
+    return ops + [('knock', ('disc', 0, 0, 1.5)), ('disc', 0, 0, 1)]
+
+
+def _heart():
+    """Heart outline from two arcs and two straight sides."""
+    r = 3.25
+    left, right = (-3.25, -2.5), (3.25, -2.5)
+    tip = (0, 6.5)
+    ops = [('arc', left[0], left[1], r, 135, 225),
+           ('arc', right[0], right[1], r, 180, 225)]
+    lp = (round(left[0] + r * math.cos(math.radians(135)), 2),
+          round(left[1] + r * math.sin(math.radians(135)), 2))
+    rp = (round(right[0] + r * math.cos(math.radians(45)), 2),
+          round(right[1] + r * math.sin(math.radians(45)), 2))
+    return ops + [('path', [lp, tip, rp], 1, False)]
+
+
+def _refresh():
+    """Circular arrow (routine, retry, reset adaptation)."""
+    return [('arc', 0, 0.5, 5.5, -45, -270),
+            ('fill', [(5.5, -5), (5.5, -1.5), (2, -1.5)], 0.5)]
+
+
+def _flame():
+    return [('path', [(0, 7), (-4.5, 4.5), (-5, 1), (-3, -2.5), (-1, -4),
+                      (0, -7), (2.5, -3.5), (4.5, -0.5), (5, 2.5),
+                      (4, 5.5)], 2, True),
+            ('path', [(0, 7), (-2, 4.5), (-1, 1.5), (0.5, 0), (1.5, 3),
+                      (1, 5.5)], 1, False)]
+
+
+def _database():
+    return [('ellipse', -6, -7, 12, 4),
+            ('path', _earc(0, -1, 6, 2, 0, 180), 0, False),
+            ('path', _earc(0, 5, 6, 2, 0, 180), 0, False),
+            ('path', [(-6, -5), (-6, 5)], 0, False),
+            ('path', [(6, -5), (6, 5)], 0, False)]
+
+
+def _tractor():
+    return [('circle', -2.5, 2.5, 4.5),
+            ('circle', 4.5, 4.5, 2.5),
+            ('path', [(-5.5, -1), (-4.5, -7), (1, -7), (1, -1)], 1, False),
+            ('path', [(1, -3), (5.5, -3), (6.5, 1.5)], 1, False),
+            ('disc', -2.5, 2.5, 1)]
+
+
+FEATURES = {
+    # ---- Free: connection
+    'adapter': [('path', [(-7, -6), (7, -6), (6, 0), (-6, 0)], 1, True),
+                ('disc', -3, -3, 0.9), ('disc', 0, -3, 0.9),
+                ('disc', 3, -3, 0.9),
+                ('path', [(0, 0), (0, 3), (3, 7)], 1.5, False)],
+    'usb': [('rect', -3, -7, 6, 5, 0.5),
+            ('path', [(-1, -5), (-1, -4)], 0, False),
+            ('path', [(1, -5), (1, -4)], 0, False),
+            ('path', [(-4, -2), (4, -2), (4, 3), (2, 5), (-2, 5), (-4, 3)],
+             1, True),
+            ('path', [(0, 5), (0, 7)], 0, False)],
+    'bluetooth': [('path', [(-4, -3.5), (4, 3.5), (0, 7), (0, -7), (4, -3.5),
+                            (-4, 3.5)], 0, False)],
+    'wifi': [('arc', 0, 6.5, 9.5, 225, 90), ('arc', 0, 6.5, 6, 225, 90),
+             ('arc', 0, 6.5, 2.5, 225, 90), ('disc', 0, 6, 1)],
+    # ---- Free: diagnosis
+    'chart': [('path', [(-7, -7), (-7, 7), (7, 7)], 0, False),
+              ('path', [(-4, 3), (-1, -1), (2, 2), (6, -4)], 0, False)],
+    'table': [('rect', -7, -6, 14, 12, 1.5),
+              ('path', [(-7, -2), (7, -2)], 0, False),
+              ('path', [(-7, 2), (7, 2)], 0, False),
+              ('path', [(-2, -2), (-2, 6)], 0, False)],
+    'o2sensor': [('rect', -2.5, -7, 5, 4, 1),
+                 ('path', [(-5, -3), (5, -3), (5, 0), (-5, 0)], 0.5, True),
+                 ('path', [(-2, 0), (-2, 5), (0, 7), (2, 5), (2, 0)], 1,
+                  False),
+                 ('path', [(0, 2), (0, 4)], 0, False)],
+    'test': [('path', [(-2, -7), (-2, -2), (-6, 5), (-5, 7), (5, 7), (6, 5),
+                       (2, -2), (2, -7)], 1, False),
+             ('path', [(-3.5, -7), (3.5, -7)], 0, False),
+             ('path', [(-4, 2), (4, 2)], 0, False)],
+    'vin': [('rect', -7, -5, 14, 10, 1.5)]
+           + [('path', [(x, -2), (x, 2)], 0, False) for x in (-4, -2, 1, 4)]
+           + [('path', [(x, -2), (x, 0)], 0, False) for x in (-1, 2)],
+    'health': _heart() + [('path', [(-5, 1), (-2, 1), (-1, -1), (1, 3),
+                                    (2, 1), (5, 1)], 0, False)],
+    'temperature': [('path', [(-2, 1.3), (-2, -5)], 0, False),
+                    ('arc', 0, -5, 2, 180, 180),
+                    ('path', [(2, -5), (2, 1.3)], 0, False),
+                    ('arc', 0, 3.8, 3.2, -51.34, 282.68),
+                    ('disc', 0, 3.8, 1.5),
+                    ('path', [(0, -2), (0, 3)], 0, False)],
+    'fuel': [('rect', -6, -7, 8, 14, 1.5),
+             ('rect', -4, -5, 4, 3, 0.5),
+             ('path', [(2, -2), (4, -2), (4, 4), (6, 4), (6, -3), (4, -6)],
+              1, False)],
+    'timer': [('circle', 0, 1, 6),
+              ('path', [(-2, -7), (2, -7)], 0, False),
+              ('path', [(0, -7), (0, -5)], 0, False),
+              ('path', [(0, 1), (2.5, -1.5)], 0, False),
+              ('path', [(4.5, -4.5), (5.5, -5.5)], 0, False)],
+    'flag': [('path', [(-5, 7), (-5, -7)], 0, False),
+             ('path', [(-5, -6), (5, -6), (3, -3), (5, 0), (-5, 0)], 0.5,
+              False)],
+    'leaf': _leaf(),
+    # ---- Free: workshop
+    'customer': [('circle', 0, -3.5, 3), ('arc', 0, 7, 6, 180, 180)],
+    'job': [('rect', -5, -5, 10, 12, 1.5), ('rect', -2.5, -7, 5, 3, 1),
+            ('path', [(-2, 0), (2, 0)], 0, False),
+            ('path', [(-2, 3), (2, 3)], 0, False)],
+    'clock': [('circle', 0, 0, 7),
+              ('path', [(0, -4), (0, 0), (3, 2)], 0, False)],
+    'export': [('path', [(-1, -6), (-6, -6), (-6, 6), (6, 6), (6, 1)], 1.5,
+                False),
+               ('path', [(-1, 1), (6, -6)], 0, False),
+               ('path', [(1, -6), (6, -6), (6, -1)], 0, False)],
+    'refresh': _refresh(),
+    # ---- Pro: coding and programming
+    'coding': [('path', [(-3, -4), (-7, 0), (-3, 4)], 0, False),
+               ('path', [(3, -4), (7, 0), (3, 4)], 0, False),
+               ('path', [(1, -6), (-1, 6)], 0, False)],
+    'adaptation': [('path', [(-7, y), (7, y)], 0, False)
+                   for y in (-5, 0, 5)]
+                  + [('disc', x, y, 1.75)
+                     for x, y in ((3, -5), (-3, 0), (1, 5))],
+    'flash': [('rect', -5, -5, 10, 10, 1.5)]
+             + [('path', [(d, -7), (d, -5)], 0, False) for d in (-2, 2)]
+             + [('path', [(d, 5), (d, 7)], 0, False) for d in (-2, 2)]
+             + [('path', [(-7, d), (-5, d)], 0, False) for d in (-2, 2)]
+             + [('path', [(5, d), (7, d)], 0, False) for d in (-2, 2)]
+             + [('fill', [(1, -3.5), (-2.5, 0.5), (0, 0.5), (-1, 3.5),
+                          (2.5, -0.5), (0, -0.5)], 0)],
+    'write': [('path', [(0, 2), (0, -7)], 0, False),
+              ('path', [(-3.5, -3.5), (0, -7), (3.5, -3.5)], 0, False),
+              ('path', [(-7, 1), (-7, 6), (7, 6), (7, 1)], 1.5, False)],
+    'binary': [('rect', -6, -5, 5, 10, 2.5),
+               ('path', [(2, -3), (4, -5), (4, 5)], 0, False),
+               ('path', [(2, 5), (6, 5)], 0, False)],
+    'database': _database(),
+    'compare': [('path', [(-7, -3), (5, -3)], 0, False),
+                ('path', [(2, -6), (5, -3), (2, 0)], 0, False),
+                ('path', [(7, 3), (-5, 3)], 0, False),
+                ('path', [(-2, 0), (-5, 3), (-2, 6)], 0, False)],
+    'edit': [('path', [(-6, 6), (-6, 3), (4, -7), (7, -4), (-3, 6)], 0.5,
+              True),
+             ('path', [(1, -4), (4, -1)], 0, False)],
+    # ---- Pro: security
+    'lock': [('rect', -5, -1, 10, 8, 1.5),
+             ('path', [(-3, -1), (-3, -4)], 0, False),
+             ('arc', 0, -4, 3, 180, 180),
+             ('path', [(3, -4), (3, -1)], 0, False),
+             ('disc', 0, 3, 1)],
+    'unlock': [('rect', -5, -1, 10, 8, 1.5),
+               ('path', [(-3, -1), (-3, -4)], 0, False),
+               ('arc', 0, -4, 3, 180, 180),
+               ('path', [(3, -4), (3, -3)], 0, False),
+               ('disc', 0, 3, 1)],
+    'key': [('circle', -3.5, 3.5, 3),
+            ('path', [(-1.38, 1.38), (6, -6)], 0, False),
+            ('path', [(4, -4), (5.5, -2.5)], 0, False),
+            ('path', [(2, -2), (3.5, -0.5)], 0, False)],
+    'shield': [('path', [(0, -7), (6, -5), (6, 0), (0, 7), (-6, 0), (-6, -5)],
+                1.5, True),
+               ('path', [(-3, 0), (-1, 2), (3, -2)], 0, False)],
+    # ---- Pro: radio codes
+    'radio': [('rect', -7, -4, 14, 10, 1.5),
+              ('box', -5, -2, 6, 3, 0.5),
+              ('circle', 3.5, 1, 1.75),
+              ('path', [(-5, 3), (0, 3)], 0, False)],
+    'eeprom': [('rect', -4, -6, 8, 12, 1),
+               ('arc', 0, -6, 1.5, 0, 180)]
+              + [('path', [(-7, y), (-4, y)], 0, False) for y in (-3, 0, 3)]
+              + [('path', [(4, y), (7, y)], 0, False) for y in (-3, 0, 3)],
+    # ---- Pro: service functions
+    'oil': _drop(),
+    'brake': [('circle', 0, 0, 4.5),
+              ('arc', 0, 0, 7, 135, 90), ('arc', 0, 0, 7, -45, 90),
+              ('path', [(-1.5, 2.5), (-1.5, -2.5), (0.5, -2.5)], 0, False),
+              ('arc', 0.5, -1.25, 1.25, -90, 180),
+              ('path', [(0.5, 0), (-1.5, 0)], 0, False)],
+    'steering': [('circle', 0, 0, 7), ('circle', 0, 0, 2),
+                 ('path', [(-7, 0), (-2, 0)], 0, False),
+                 ('path', [(2, 0), (7, 0)], 0, False),
+                 ('path', [(0, 2), (0, 7)], 0, False)],
+    'tpms': [('arc', 0, -0.5, 6.5, 125, 290),
+             ('path', [(-3.73, 4.82), (-5, 6.5), (5, 6.5), (3.73, 4.82)], 0,
+              False),
+             ('box', -0.75, -4, 1.5, 4.5, 0.75), ('disc', 0, 2.75, 0.9)],
+    'regen': _flame(),
+    'fan': _fan(),
+    'routine': [('circle', 0, 0, 7),
+                ('fill', [(-2, -3.5), (4, 0), (-2, 3.5)], 1)],
+    'power': [('arc', 0, 1, 6, -60, 300), ('path', [(0, -7), (0, 0)], 0,
+                                             False)],
+    # ---- Pro: buses and protocols
+    'bus': [('path', [(-7, 0), (7, 0)], 0, False),
+            ('rect', -6, -7, 5, 4, 1), ('path', [(-3.5, -3), (-3.5, 0)], 0,
+                                           False),
+            ('rect', 1, -7, 5, 4, 1), ('path', [(3.5, -3), (3.5, 0)], 0,
+                                          False),
+            ('rect', -2.5, 3, 5, 4, 1), ('path', [(0, 0), (0, 3)], 0,
+                                            False)],
+    'terminal': [('rect', -7, -6, 14, 12, 1.5),
+                 ('path', [(-4, -2), (-2, 0), (-4, 2)], 0, False),
+                 ('path', [(0, 2), (4, 2)], 0, False)],
+    'ethernet': [('path', [(-6, 6), (-6, -2), (-3, -2), (-3, -5), (3, -5),
+                           (3, -2), (6, -2), (6, 6)], 1, True)]
+                + [('path', [(x, 3), (x, 4)], 0, False)
+                   for x in (-3, -1, 1, 3)],
+    # ---- Pro: vehicles and specialities
+    'truck': [('rect', -7, -5, 9, 9, 1),
+              ('path', [(2, -2), (5, -2), (7, 1), (7, 4), (2, 4)], 1, False),
+              ('disc', -4, 5.5, 1.5), ('disc', 4, 5.5, 1.5)],
+    'motorcycle': [('circle', -4.5, 3.5, 2.5), ('circle', 4.5, 3.5, 2.5),
+                   ('path', [(-4.5, 3.5), (-1, -1), (3, -1), (4.5, 3.5)], 0,
+                    False),
+                   ('path', [(2, -1), (1, -4), (3, -4)], 0, False),
+                   ('path', [(-4, -1), (-1, -1)], 0, False)],
+    'tractor': _tractor(),
+    'boat': [('path', [(-7, 1), (7, 1), (4, 5), (-5, 5)], 1, True),
+             ('path', [(-3, 1), (-3, -3), (2, -3), (4, 1)], 1, False),
+             ('path', [(0, -3), (0, -6)], 0, False)],
+    'ev': [('circle', 0, 0, 7),
+           ('fill', [(1, -5), (-3, 1), (0, 1), (-1, 5), (3, -1), (0, -1)],
+            0)],
+    'card': [('rect', -7, -5, 14, 10, 1.5),
+             ('rect', -5, -2, 4, 4, 0.75),
+             ('path', [(1, -1), (5, -1)], 0, False),
+             ('path', [(1, 2), (4, 2)], 0, False)],
+    'map': [('rect', -6, -6, 12, 12, 1.5),
+            ('path', [(-2, -6), (-2, 6)], 0, False),
+            ('path', [(2, -6), (2, 6)], 0, False),
+            ('path', [(-6, -2), (6, -2)], 0, False),
+            ('path', [(-6, 2), (6, 2)], 0, False)],
+    'star': [('path', _star(), 0.5, True)],
+}
+
+# Sections of the proposal sheet: (edition, group, [(icon, label)]).
+FEATURE_GROUPS = [
+    ('Free', 'Connection', [('adapter', 'ELM327 / OBDLink'), ('usb', 'USB'),
+                            ('bluetooth', 'Bluetooth'), ('wifi', 'Wi-Fi')]),
+    ('Free', 'Diagnosis', [('chart', 'Graphs'), ('table', 'Sensor table'),
+                           ('o2sensor', 'O2 sensors (05)'),
+                           ('test', 'On-board tests (06)'),
+                           ('vin', 'Vehicle info / VIN'),
+                           ('health', 'Health check'),
+                           ('temperature', 'Temperatures'),
+                           ('fuel', 'Fuel / trip'),
+                           ('timer', 'Acceleration'),
+                           ('flag', 'Drive cycle'),
+                           ('leaf', 'Emissions')]),
+    ('Free', 'Workshop', [('customer', 'Customer'), ('job', 'Job card'),
+                          ('clock', 'History'), ('export', 'Export / share'),
+                          ('refresh', 'Refresh / retry')]),
+    ('Pro', 'Coding and programming', [
+        ('coding', 'Coding'), ('adaptation', 'Adaptations'),
+        ('flash', 'Flashing'), ('write', 'Write / program'),
+        ('binary', 'Memory / hex'), ('database', 'Backup / catalog'),
+        ('compare', 'Compare'), ('edit', 'Edit value')]),
+    ('Pro', 'Security', [('lock', 'Security access'), ('unlock', 'Unlocked'),
+                         ('key', 'Keys / immobiliser'),
+                         ('shield', 'Component protection')]),
+    ('Pro', 'Radio codes', [('radio', 'Radio code'),
+                            ('eeprom', 'EEPROM read')]),
+    ('Pro', 'Service functions', [
+        ('oil', 'Oil service reset'), ('brake', 'Electronic parking brake'),
+        ('steering', 'Steering angle'), ('tpms', 'TPMS'),
+        ('regen', 'DPF regeneration'), ('fan', 'Actuator test'),
+        ('routine', 'Routine'), ('power', 'ECU reset')]),
+    ('Pro', 'Buses and protocols', [('bus', 'CAN bus'),
+                                    ('terminal', 'Terminal'),
+                                    ('ethernet', 'DoIP / Ethernet')]),
+    ('Pro', 'Vehicles and specialities', [
+        ('truck', 'Trucks (J1939)'), ('motorcycle', 'Motorcycles'),
+        ('tractor', 'Agricultural (ISOBUS)'), ('boat', 'Marine'),
+        ('ev', 'EV battery'), ('card', 'Tachograph card'),
+        ('map', 'Calibration maps'), ('star', 'Pro edition')]),
+]
+
+
+# --------------------------------------------------------------------------
+# Compiled form: the primitives the Pascal painter draws
+# --------------------------------------------------------------------------
+#
+# ('line', pts)                     open polyline, round caps and joins
+# ('loop', pts)                     closed polyline
+# ('fill', pts)                     filled polygon
+# ('arc', cx, cy, r, start, sweep)  stroked arc
+# ('ring', cx, cy, r)               stroked circle
+# ('disc', cx, cy, r)               filled circle
+# ('pie', cx, cy, r, start, sweep)  filled pie
+# ('ellipse', x, y, w, h)           stroked ellipse
+# ('knock', prim)                   cut prim (2 px wider) out of what was
+#                                   drawn before it
+# ('ink', prim)                     prim in the ink colour
+
+OPCODES = {'line': 1, 'loop': 2, 'fill': 3, 'arc': 4, 'ring': 5, 'disc': 6,
+           'pie': 7, 'ellipse': 8, 'knock': 9, 'ink': 10}
+
+
 def _fillet(points, r, closed):
-    """Rounds the corners of a polyline; returns sampled points."""
+    """Rounds the corners of a polyline; returns sampled points (a closed
+    polyline is returned without repeating its first point)."""
     n = len(points)
     if r <= 0 or n < 3:
-        return list(points) + ([points[0]] if closed else [])
+        return list(points)
     out = []
-    idx = range(n) if closed else range(n)
-    for i in idx:
+    for i in range(n):
         p = points[i]
         if not closed and (i == 0 or i == n - 1):
             out.append(p)
@@ -434,7 +806,6 @@ def _fillet(points, r, closed):
         rr = t * math.tan(theta / 2)
         p1 = (p[0] - u[0] * t, p[1] - u[1] * t)
         p2 = (p[0] + w[0] * t, p[1] + w[1] * t)
-        # centre along the bisector
         bis = (w[0] - u[0], w[1] - u[1])
         lb = math.hypot(*bis)
         bis = (bis[0] / lb, bis[1] / lb)
@@ -443,57 +814,132 @@ def _fillet(points, r, closed):
         a0 = math.atan2(p1[1] - c[1], p1[0] - c[0])
         a1 = math.atan2(p2[1] - c[1], p2[0] - c[0])
         da = (a1 - a0 + math.pi) % (2 * math.pi) - math.pi
-        k = 6
+        k = 4
         for j in range(k + 1):
             aa = a0 + da * j / k
             out.append((c[0] + rr * math.cos(aa), c[1] + rr * math.sin(aa)))
-    if closed:
-        out.append(out[0])
-        out.append(out[1])
     return out
-
-
-def _arc_points(cx, cy, r, start, sweep):
-    k = max(4, int(abs(sweep) / 6))
-    return [(cx + r * math.cos(math.radians(start + sweep * i / k)),
-             cy + r * math.sin(math.radians(start + sweep * i / k)))
-            for i in range(k + 1)]
 
 
 def _rrect_points(x, y, w, h, r):
     return _fillet([(x, y), (x + w, y), (x + w, y + h), (x, y + h)], r, True)
 
 
+def _round_pts(points):
+    out = []
+    for x, y in points:
+        q = (round(x, 2) + 0.0, round(y, 2) + 0.0)
+        if not out or out[-1] != q:
+            out.append(q)
+    return out
+
+
+def compile_op(op):
+    kind = op[0]
+    r2 = lambda v: round(v, 2) + 0.0
+    if kind == 'path':
+        _, pts, r, closed = op
+        return ('loop' if closed else 'line',
+                _round_pts(_fillet(pts, r, closed)))
+    if kind == 'rect':
+        _, x, y, w, h, r = op
+        return ('loop', _round_pts(_rrect_points(x, y, w, h, r)))
+    if kind == 'box':
+        _, x, y, w, h, r = op
+        return ('fill', _round_pts(_rrect_points(x, y, w, h, r)))
+    if kind == 'fill':
+        _, pts, r = op
+        return ('fill', _round_pts(_fillet(pts, r, True)))
+    if kind == 'circle':
+        return ('ring',) + tuple(r2(v) for v in op[1:])
+    if kind in ('arc', 'disc', 'pie', 'ellipse'):
+        return (kind,) + tuple(r2(v) for v in op[1:])
+    if kind in ('knock', 'ink'):
+        return (kind, compile_op(op[1]))
+    raise ValueError(kind)
+
+
+def compile_icon(ops):
+    return [compile_op(op) for op in ops]
+
+
+def encode(prims):
+    """Flat number stream of compiled primitives (the Pascal data)."""
+    out = []
+    for prim in prims:
+        kind = prim[0]
+        out.append(OPCODES[kind])
+        if kind in ('knock', 'ink'):
+            out.extend(encode([prim[1]]))
+        elif kind in ('line', 'loop', 'fill'):
+            out.append(len(prim[1]))
+            for x, y in prim[1]:
+                out.extend((x, y))
+        else:
+            out.extend(prim[1:])
+    return out
+
+
+# --------------------------------------------------------------------------
+# Renderer (Pillow canvas from ui_mockups.py)
+# --------------------------------------------------------------------------
+
+def stroke_width(s, thin=False):
+    """Stroke in 96-DPI pixels for an icon scale (1 = 16 px)."""
+    if thin:
+        return STROKE * max(1.0, s * 0.75)
+    return STROKE * (1 if s <= 1 else (1 + 0.75 * (s - 1)))
+
+
+def snap_scale(s, kind=None):
+    """Icons are drawn at whole grid multiples: 1 (16 px) or 2 (32 px);
+    only the dialog launcher has a smaller (12 px) size. Mirrors
+    OBDIconScale and TOBDPainter.GlyphLine."""
+    if kind == 'launcher' and s < 0.9:
+        return 0.75
+    if s < 1.5:
+        return 1.0
+    if s <= 2.5:
+        return 2.0
+    return s
+
+
 def draw_icon(c, ops, cx, cy, color, s=1.0, bg=None, ink=None, thin=False):
     """Draws an icon centred on (cx, cy); s = 1 is the 16 px size. Pass
     cx, cy at a pixel centre (n + 0.5) for crisp 1 px strokes."""
-    lw = STROKE * (1 if s <= 1 else (1 + 0.75 * (s - 1)))
-    if thin:
-        lw = STROKE * max(1.0, s * 0.75)
+    draw_prims(c, compile_icon(ops), cx, cy, color, s, bg, ink, thin)
+
+
+def draw_prims(c, prims, cx, cy, color, s=1.0, bg=None, ink=None,
+               thin=False):
+    lw = stroke_width(s, thin)
     bg = bg if bg is not None else c.bg
     ink = ink if ink is not None else bg
 
     def T(pts):
         return [(cx + x * s, cy + y * s) for x, y in pts]
 
-    def stroke(pts, col, width):
-        pts = T(pts)
-        c.line(pts, col, width)
-        rad = width / 2
-        for px, py in (pts[0], pts[-1]):
-            c.ellipse(px - rad, py - rad, 2 * rad, 2 * rad, fill=col)
+    def dot(px, py, rad, col):
+        c.ellipse(px - rad, py - rad, 2 * rad, 2 * rad, fill=col)
 
-    def run(op, col, width):
-        kind = op[0]
-        if kind == 'path':
-            _, pts, r, closed = op
-            stroke(_fillet(pts, r, closed), col, width)
-        elif kind in ('arc', 'circle'):
-            if kind == 'circle':
-                _, x, y, r = op
+    def run(prim, col, width):
+        kind = prim[0]
+        if kind == 'line':
+            pts = T(prim[1])
+            c.line(pts, col, width)
+            for px, py in (pts[0], pts[-1]):
+                dot(px, py, width / 2, col)
+        elif kind == 'loop':
+            pts = T(prim[1])
+            c.line(pts + pts[:2], col, width)
+        elif kind == 'fill':
+            c.polygon(T(prim[1]), col)
+        elif kind in ('arc', 'ring'):
+            if kind == 'ring':
+                _, x, y, r = prim
                 start, sweep = 0, 360
             else:
-                _, x, y, r, start, sweep = op
+                _, x, y, r, start, sweep = prim
             q = c._s
             ext = r * s + width / 2
             box = [q(cx + x * s - ext), q(cy + y * s - ext),
@@ -504,46 +950,41 @@ def draw_icon(c, ops, cx, cy, color, s=1.0, bg=None, ink=None, thin=False):
                 c.d.ellipse(box, outline=col, width=q(width))
             else:
                 c.d.arc(box, a0, a1, fill=col, width=q(width))
-                rad = width / 2
                 for a in (a0, a1):
-                    px = cx + (x + r * math.cos(math.radians(a))) * s
-                    py = cy + (y + r * math.sin(math.radians(a))) * s
-                    c.ellipse(px - rad, py - rad, 2 * rad, 2 * rad, fill=col)
-        elif kind == 'ellipse':
-            _, x, y, w, h = op
-            pts = [(x + w / 2 + w / 2 * math.cos(math.radians(a)),
-                    y + h / 2 + h / 2 * math.sin(math.radians(a)))
-                   for a in range(0, 375, 6)]
-            stroke(pts, col, width)
+                    dot(cx + (x + r * math.cos(math.radians(a))) * s,
+                        cy + (y + r * math.sin(math.radians(a))) * s,
+                        width / 2, col)
         elif kind == 'disc':
-            _, x, y, r = op
-            c.ellipse(cx + (x - r) * s, cy + (y - r) * s, 2 * r * s,
-                      2 * r * s, fill=col)
-        elif kind == 'rect':
-            _, x, y, w, h, r = op
-            stroke(_rrect_points(x, y, w, h, r), col, width)
-        elif kind == 'box':
-            _, x, y, w, h, r = op
-            c.polygon(T(_rrect_points(x, y, w, h, r)), col)
-        elif kind == 'fill':
-            _, pts, r = op
-            c.polygon(T(_fillet(pts, r, True)), col)
+            _, x, y, r = prim
+            dot(cx + x * s, cy + y * s, r * s, col)
         elif kind == 'pie':
-            _, x, y, r, start, sweep = op
-            c.polygon(T([(x, y)] + _arc_points(x, y, r, start, sweep)), col)
+            _, x, y, r, start, sweep = prim
+            a0, a1 = (start, start + sweep) if sweep > 0 else \
+                (start + sweep, start)
+            c.pie(cx + (x - r) * s, cy + (y - r) * s, 2 * r * s, 2 * r * s,
+                  a0, a1, col)
+        elif kind == 'ellipse':
+            _, x, y, w, h = prim
+            q = c._s
+            half = width / 2
+            c.d.ellipse([q(cx + x * s - half), q(cy + y * s - half),
+                         q(cx + (x + w) * s + half),
+                         q(cy + (y + h) * s + half)], outline=col,
+                        width=q(width))
         elif kind == 'knock':
-            run(op[1], bg, width + 2 * s)
+            run(prim[1], bg, width + 2)
         elif kind == 'ink':
-            run(op[1], ink, width * 1.6 if op[1][0] == 'path' else width)
+            inner = prim[1]
+            run(inner, ink, width * 1.6 if inner[0] == 'line' else width)
         else:
             raise ValueError(kind)
 
-    for op in ops:
-        run(op, color, lw)
+    for prim in prims:
+        run(prim, color, lw)
 
 
 def bounds(ops):
-    """Rough extent of an icon in grid units (for the self-check)."""
+    """Extent of an icon in grid units (for the self-check)."""
     xs, ys = [], []
 
     def add(pts):
@@ -551,32 +992,184 @@ def bounds(ops):
             xs.append(x)
             ys.append(y)
 
-    for op in ops:
-        kind = op[0]
-        if kind in ('knock', 'ink'):
-            op = op[1]
-            kind = op[0]
-        if kind == 'path':
-            add(op[1])
-        elif kind == 'fill':
-            add(op[1])
-        elif kind == 'arc' or kind == 'pie':
-            add(_arc_points(*op[1:]))
-        elif kind in ('circle', 'disc'):
-            _, x, y, r = op
+    for prim in compile_icon(ops):
+        if prim[0] in ('knock', 'ink'):
+            prim = prim[1]
+        kind = prim[0]
+        if kind in ('line', 'loop', 'fill'):
+            add(prim[1])
+        elif kind in ('arc', 'pie'):
+            _, x, y, r, start, sweep = prim
+            k = max(4, int(abs(sweep) / 6))
+            add([(x + r * math.cos(math.radians(start + sweep * i / k)),
+                  y + r * math.sin(math.radians(start + sweep * i / k)))
+                 for i in range(k + 1)])
+        elif kind in ('ring', 'disc'):
+            _, x, y, r = prim
             add([(x - r, y - r), (x + r, y + r)])
-        elif kind in ('rect', 'box'):
-            _, x, y, w, h, _r = op
-            add([(x, y), (x + w, y + h)])
         elif kind == 'ellipse':
-            _, x, y, w, h = op
+            _, x, y, w, h = prim
             add([(x, y), (x + w, y + h)])
     return min(xs), min(ys), max(xs), max(ys)
 
 
-if __name__ == '__main__':
+# --------------------------------------------------------------------------
+# Pascal data unit
+# --------------------------------------------------------------------------
+
+ROOT = Path(__file__).resolve().parents[1]
+PAINT_UNIT = ROOT / 'src/UI/ERD.UI.Paint.pas'
+SHELL_UNIT = ROOT / 'src/UI/ERD.UI.ShellControls.pas'
+DATA_UNIT = ROOT / 'src/UI/ERD.UI.IconData.pas'
+
+
+def _enum(path, name):
+    text = path.read_text(encoding='utf-8-sig')
+    m = re.search(r'\b%s\s*=\s*\((.*?)\);' % re.escape(name), text, re.S)
+    if not m:
+        raise SystemExit('%s not found in %s' % (name, path.name))
+    body = re.sub(r'//[^\n]*', '', m.group(1))
+    body = re.sub(r'\{.*?\}', '', body, flags=re.S)
+    return [v.strip() for v in body.split(',') if v.strip()]
+
+
+def icon_table():
+    """[(pascal name, compiled prims)] in the order of the data unit, and
+    the first index of the shell and status icons."""
+    glyphs = _enum(PAINT_UNIT, 'TOBDGlyph')
+    expect = ['glNone'] + [n for _, n in GLYPH_ORDER]
+    if glyphs != expect:
+        raise SystemExit('TOBDGlyph in ERD.UI.Paint.pas does not match '
+                         'GLYPH_ORDER:\n  unit: %s\n  tool: %s'
+                         % (glyphs, expect))
+    shell = _enum(SHELL_UNIT, 'TOBDShellGlyphKind')
+    expect = ['sg' + {'newfolder': 'NewFolder'}.get(k, k.capitalize())
+              for k in SHELL_ORDER]
+    if shell != expect:
+        raise SystemExit('TOBDShellGlyphKind does not match SHELL_ORDER:'
+                         '\n  unit: %s\n  tool: %s' % (shell, expect))
+    banner = _enum(PAINT_UNIT, 'TOBDBannerKind')
+    expect = ['bn' + k.capitalize() for k in STATUS_ORDER]
+    if banner != expect:
+        raise SystemExit('TOBDBannerKind does not match STATUS_ORDER')
+    by_name = dict((n, k) for k, n in GLYPH_ORDER)
+    table = [('glNone', [])]
+    table += [(n, compile_icon(GLYPHS[by_name[n]])) for n in glyphs[1:]]
+    shell_first = len(table)
+    table += [(n, compile_icon(SHELL[k])) for n, k in zip(shell,
+                                                          SHELL_ORDER)]
+    status_first = len(table)
+    table += [(n, compile_icon(STATUS[k])) for n, k in zip(banner,
+                                                           STATUS_ORDER)]
+    return table, shell_first, status_first
+
+
+def _num(v):
+    if float(v).is_integer():
+        return '%d' % int(v)
+    return ('%.2f' % v).rstrip('0')
+
+
+def _wrap(items, indent='    ', width=78):
+    lines, cur = [], indent
+    for i, item in enumerate(items):
+        piece = item + (',' if i < len(items) - 1 else '')
+        if len(cur) + len(piece) + 1 > width and cur.strip():
+            lines.append(cur.rstrip())
+            cur = indent
+        cur += piece + ' '
+    lines.append(cur.rstrip())
+    return lines
+
+
+def pascal_unit():
+    table, shell_first, status_first = icon_table()
+    data, starts = [], []
+    for _, prims in table:
+        starts.append(len(data))
+        data.extend(encode(prims))
+    starts.append(len(data))
+    out = [
+        '//' + '-' * 78,
+        '//  ERD.UI.IconData',
+        '//',
+        '//  The built-in OBD Studio icons as drawing data. GENERATED by',
+        '//  tools/ui_icons.py --write; edit the icons there, not here.',
+        '//',
+        '//  Every icon is a stream of primitives on a 16 px grid whose',
+        '//  origin is the centre of the middle pixel (live area -7..7).',
+        '//  TOBDPainter.DrawIcon in ERD.UI.Paint draws them with GDI+.',
+        '//',
+        '//  Author      : Ernst Reidinga (ERDesigns)',
+        '//  Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)',
+        '//  License     : see LICENSE',
+        '//',
+        '//  History     :',
+        '//    2026-10-11  ERD  Initial version (redesigned icon set).',
+        '//' + '-' * 78,
+        '',
+        'unit ERD.UI.IconData;',
+        '',
+        'interface',
+        '',
+        'const',
+        '  /// <summary>Open polyline: count, then x, y pairs.</summary>',
+        '  OBD_ICON_LINE = 1;',
+        '  /// <summary>Closed polyline: count, then x, y pairs.</summary>',
+        '  OBD_ICON_LOOP = 2;',
+        '  /// <summary>Filled polygon: count, then x, y pairs.</summary>',
+        '  OBD_ICON_FILL = 3;',
+        '  /// <summary>Stroked arc: cx, cy, r, start, sweep (degrees,',
+        '  /// clockwise from 3 o\'clock).</summary>',
+        '  OBD_ICON_ARC = 4;',
+        '  /// <summary>Stroked circle: cx, cy, r.</summary>',
+        '  OBD_ICON_RING = 5;',
+        '  /// <summary>Filled circle: cx, cy, r.</summary>',
+        '  OBD_ICON_DISC = 6;',
+        '  /// <summary>Filled pie: cx, cy, r, start, sweep.</summary>',
+        '  OBD_ICON_PIE = 7;',
+        '  /// <summary>Stroked ellipse: x, y, w, h.</summary>',
+        '  OBD_ICON_ELLIPSE = 8;',
+        '  /// <summary>The next primitive, 2 px wider, is cut out of',
+        '  /// everything drawn before it.</summary>',
+        '  OBD_ICON_KNOCK = 9;',
+        '  /// <summary>The next primitive is drawn in the ink colour.',
+        '  /// </summary>',
+        '  OBD_ICON_INK = 10;',
+        '',
+        '  /// <summary>Index of the first TOBDShellGlyphKind icon.</summary>',
+        '  OBD_ICON_SHELL_FIRST = %d;' % shell_first,
+        '  /// <summary>Index of the first TOBDBannerKind icon.</summary>',
+        '  OBD_ICON_STATUS_FIRST = %d;' % status_first,
+        '  /// <summary>Number of icons.</summary>',
+        '  OBD_ICON_COUNT = %d;' % len(table),
+        '',
+        '  /// <summary>Icon I is OBD_ICON_DATA[OBD_ICON_START[I]] up to',
+        '  /// OBD_ICON_START[I + 1] - 1. TOBDGlyph icons come first, in',
+        '  /// enum order (glNone is empty).</summary>',
+        '  OBD_ICON_START: array[0..OBD_ICON_COUNT] of Integer = (',
+    ]
+    out += _wrap([str(v) for v in starts])
+    out[-1] += ');'
+    out += ['',
+            '  /// <summary>Primitive stream of all icons.</summary>',
+            '  OBD_ICON_DATA: array[0..%d] of Single = (' % (len(data) - 1)]
+    for name, prims in table:
+        if not prims:
+            continue
+        out.append('    // %s' % name)
+        nums = [_num(v) for v in encode(prims)]
+        out += _wrap(nums)
+        out[-1] += ','
+    out[-1] = out[-1][:-1] + ');'
+    out += ['', 'implementation', '', 'end.', '']
+    return '\r\n'.join(out)
+
+
+def check():
     bad = []
-    for name, ops in list(GLYPHS.items()) + list(SHELL.items()):
+    for name, ops in (list(GLYPHS.items()) + list(SHELL.items())
+                      + list(FEATURES.items())):
         x0, y0, x1, y1 = bounds(ops)
         if min(x0, y0) < -7.01 or max(x1, y1) > 7.01:
             bad.append((name, (x0, y0, x1, y1)))
@@ -585,5 +1178,32 @@ if __name__ == '__main__':
         if min(x0, y0) < -9.01 or max(x1, y1) > 9.01:
             bad.append((name, (x0, y0, x1, y1)))
     missing = [k for k, _ in GLYPH_ORDER if k not in GLYPHS]
-    print('outside the live area:', bad or 'none')
-    print('missing:', missing or 'none')
+    missing += [k for _, _, items in FEATURE_GROUPS for k, _ in items
+                if k not in FEATURES]
+    return bad, missing
+
+
+def main():
+    import argparse
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument('--write', action='store_true',
+                    help='regenerate src/UI/ERD.UI.IconData.pas')
+    args = ap.parse_args()
+    bad, missing = check()
+    if bad or missing:
+        raise SystemExit('outside the live area: %s\nmissing: %s'
+                         % (bad, missing))
+    text = pascal_unit().encode('ascii')
+    if args.write:
+        DATA_UNIT.write_bytes(text)
+        print('wrote', DATA_UNIT.relative_to(ROOT))
+    elif not DATA_UNIT.exists() or DATA_UNIT.read_bytes() != text:
+        raise SystemExit('ERD.UI.IconData.pas is stale; run '
+                         'python3 tools/ui_icons.py --write')
+    else:
+        print('ERD.UI.IconData.pas is up to date (%d icons).'
+              % len(icon_table()[0]))
+
+
+if __name__ == '__main__':
+    main()

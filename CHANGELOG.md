@@ -139,6 +139,11 @@ system menu is now a themed popup menu.
 The title bar icon uses the closest size from the icon file instead of
 stretching the 16 px image. File and folder dialogs show the Windows
 shell icons (`SystemIcons`). `TOBDBanner.IconSize` sizes the banner icon.
+The built-in icons are redrawn as one set on a 16 px grid (sharp 1 px
+strokes, 32 px in the ribbon): line glyphs, shell glyphs and the banner
+status icons. They are generated from `tools/ui_icons.py` into
+`ERD.UI.IconData` and drawn by `TOBDPainter.DrawIcon`; `glPipette` is
+new and used by the colour dialog's *Pick from screen* button.
 The font dialog lists every installed font again, the print dialog's
 printer status no longer overlaps the Pages label, and the selection
 ring on the first colour swatch is no longer clipped.

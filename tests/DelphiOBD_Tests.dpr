@@ -207,6 +207,7 @@ uses
   ERD.RadioCode.EEPROM in '..\src\RadioCode\ERD.RadioCode.EEPROM.pas',
   ERD.UI.Types               in '..\src\UI\ERD.UI.Types.pas',
   ERD.UI.GDIP                in '..\src\UI\ERD.UI.GDIP.pas',
+  ERD.UI.IconData            in '..\src\UI\ERD.UI.IconData.pas',
   ERD.UI.Theme               in '..\src\UI\ERD.UI.Theme.pas',
   ERD.UI.Control             in '..\src\UI\ERD.UI.Control.pas',
   ERD.UI.Anim                in '..\src\UI\ERD.UI.Anim.pas',
