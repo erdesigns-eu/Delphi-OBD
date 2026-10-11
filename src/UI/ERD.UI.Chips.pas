@@ -111,10 +111,14 @@ type
     FTitle: string;
     FText: string;
     FAlertIcon: Boolean;
+    FIconSize: Integer;
     procedure SetKind(AValue: TOBDBannerKind);
     procedure SetTitle(const AValue: string);
     procedure SetText(const AValue: string);
     procedure SetAlertIcon(AValue: Boolean);
+    procedure SetIconSize(AValue: Integer);
+    function IconCenterX: Integer;
+    function TextLeft: Integer;
     function TextRight: Integer;
   protected
     procedure PaintControl(ACanvas: TCanvas); override;
@@ -143,6 +147,10 @@ type
     /// </summary>
     property AlertIcon: Boolean read FAlertIcon write SetAlertIcon
       default False;
+    /// <summary>Icon size in pixels at 96 DPI (12 to 64). The text
+    /// moves right and an auto-sized banner grows to fit the
+    /// icon.</summary>
+    property IconSize: Integer read FIconSize write SetIconSize default 18;
     /// <summary>Desktop or tablet height.</summary>
     property Density;
     /// <summary>Takes the density from the theme.</summary>
@@ -324,6 +332,7 @@ begin
   inherited Create(AOwner);
   ControlStyle := ControlStyle + [csAcceptsControls];
   FKind := bnInfo;
+  FIconSize := 18;
   Width := 420;
   Height := 56;
   AutoSize := True;
@@ -365,6 +374,28 @@ begin
   Invalidate;
 end;
 
+procedure TOBDBanner.SetIconSize(AValue: Integer);
+begin
+  AValue := EnsureRange(AValue, 12, 64);
+  if FIconSize = AValue then
+    Exit;
+  FIconSize := AValue;
+  if AutoSize and not (csLoading in ComponentState) then
+    AdjustSize;
+  Invalidate;
+end;
+
+function TOBDBanner.IconCenterX: Integer;
+begin
+  // 15 px from the edge to the icon, as with the default 18 px icon.
+  Result := ScaleValue(15) + ScaleValue(FIconSize) div 2;
+end;
+
+function TOBDBanner.TextLeft: Integer;
+begin
+  Result := ScaleValue(15) + ScaleValue(FIconSize) + ScaleValue(11);
+end;
+
 procedure TOBDBanner.DensityChanged;
 begin
   if AutoSize and not (csLoading in ComponentState) then
@@ -387,7 +418,7 @@ end;
 function TOBDBanner.CanAutoSize(var NewWidth, NewHeight: Integer): Boolean;
 begin
   Result := True;
-  NewHeight := ScaleValue(Max(56, Metrics.Head));
+  NewHeight := ScaleValue(Max(Max(56, Metrics.Head), FIconSize + 24));
 end;
 
 procedure TOBDBanner.AdjustClientRect(var Rect: TRect);
@@ -405,7 +436,7 @@ begin
   for I := 0 to ControlCount - 1 do
   begin
     Child := Controls[I];
-    if Child.Visible and (Child.Left > ScaleValue(44)) then
+    if Child.Visible and (Child.Left > TextLeft) then
       Result := Min(Result, Child.Left - ScaleValue(8));
   end;
 end;
@@ -419,8 +450,8 @@ begin
   try
     P.BannerFrame(Rect(0, 0, Width, Height), FKind);
     CY := Height div 2;
-    P.BannerIcon(P.S(24), CY, FKind, FAlertIcon);
-    X := P.S(44);
+    P.BannerIcon(IconCenterX, CY, FKind, FAlertIcon, FIconSize / 18);
+    X := TextLeft;
     MaxW := TextRight - X;
     if MaxW <= 0 then
       Exit;

@@ -62,6 +62,7 @@ type
     FDefaultExt: string;
     FOptions: TOBDFileOptions;
     FPlaces: TOBDPlaces;
+    FSystemIcons: Boolean;
     FOnSelectionChange: TNotifyEvent;
     FOnFolderChange: TNotifyEvent;
     procedure SetFilterIndex(AValue: Integer);
@@ -117,6 +118,10 @@ type
     /// <summary>Lets the user resize the dialog; the list grows with it.
     /// </summary>
     property Resizable default True;
+    /// <summary>Shows the Windows shell icons for folders, drives and
+    /// file types instead of the themed line glyphs.</summary>
+    property SystemIcons: Boolean read FSystemIcons write FSystemIcons
+      default True;
   end;
 
   /// <summary>Themed open-file dialog.</summary>
@@ -193,6 +198,7 @@ type
     FDirectory: string;
     FInitialDir: string;
     FOptions: TOBDFileOptions;
+    FSystemIcons: Boolean;
   protected
     /// <summary>Default title.</summary>
     function DefaultTitle: string; override;
@@ -212,6 +218,10 @@ type
     /// <summary>Lets the user resize the dialog; the tree grows with it.
     /// </summary>
     property Resizable default True;
+    /// <summary>Shows the Windows shell icons for folders, drives and
+    /// file types instead of the themed line glyphs.</summary>
+    property SystemIcons: Boolean read FSystemIcons write FSystemIcons
+      default True;
     /// <summary>Theme.</summary>
     property Theme;
     /// <summary>Density.</summary>
@@ -445,6 +455,7 @@ begin
   FFilter := 'All files|*.*';
   FFilterIndex := 1;
   FOptions := [foFileMustExist, foPathMustExist];
+  FSystemIcons := True;
   Resizable := True;
 end;
 
@@ -717,6 +728,7 @@ begin
   FPlaces := TOBDPlacesPane.Create(FWindow);
   FWindow.Adopt(FPlaces);
   FPlaces.Places := FDialog.Places;
+  FPlaces.SystemIcons := FDialog.SystemIcons;
   FPlaces.OnNavigate := PlacesNavigate;
   FWindow.Place(FPlaces, 16, ListY, 196, LIST_H);
 
@@ -725,6 +737,7 @@ begin
     Dec(ListW, 232);
   FList := TOBDFileList.Create(FWindow);
   FWindow.Adopt(FList);
+  FList.SystemIcons := FDialog.SystemIcons;
   FList.Mask := FDialog.CurrentMask;
   FList.MultiSelect := (foAllowMultiSelect in FDialog.Options) and
     not FDialog.IsSaveDialog;
@@ -1121,6 +1134,7 @@ begin
   FTree := TOBDFolderTree.Create(FWindow);
   FWindow.Adopt(FTree);
   FTree.ShowHidden := foShowHidden in FDialog.Options;
+  FTree.SystemIcons := FDialog.SystemIcons;
   FTree.OnPathChange := TreeChange;
   FWindow.Place(FTree, 16, 16, 388, 300);
   FolderLabel := FWindow.AddText(16, 330, 160, 'FOLDER');
@@ -1187,6 +1201,7 @@ end;
 constructor TOBDFolderDialog.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FSystemIcons := True;
   Resizable := True;
 end;
 

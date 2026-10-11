@@ -181,6 +181,9 @@ type
     FSubtitle: string;
     FAppInitials: string;
     FAppIconStyle: TOBDAppIconStyle;
+    FIconCache: HICON;
+    FIconCacheSource: HICON;
+    FIconCacheSize: Integer;
     FSystemMenu: TOBDPopupMenu;
     FStatusCaption: string;
     FStatusKind: TOBDStatusKind;
@@ -430,6 +433,88 @@ var
   GDwmSetWindowAttribute: TOBDDwmSetWindowAttribute = nil;
   GDwmExtendFrameIntoClientArea: TOBDDwmExtendFrameIntoClientArea = nil;
   GWindowsBuild: Integer = -1;
+
+/// <summary>Creates an icon of ASize pixels from the best image of AIcon.
+/// TIcon keeps a single (usually 16 or 32 px) handle, so drawing that
+/// handle larger upscales it. This picks the closest image at or above the
+/// size from the original .ico data (or the MAINICON resource for the
+/// default application icon) and lets Windows scale it down.</summary>
+function CreateSizedIcon(AIcon: TIcon; ASize: Integer): HICON;
+type
+  TIconDirEntry = packed record
+    Width, Height, ColorCount, Reserved: Byte;
+    Planes, BitCount: Word;
+    BytesInRes, ImageOffset: Cardinal;
+  end;
+  PIconDirEntry = ^TIconDirEntry;
+var
+  Stream: TMemoryStream;
+  Data: PByte;
+  Count, I, W, BestW, BestBits, Best: Integer;
+  Entry: PIconDirEntry;
+  Better: Boolean;
+begin
+  Result := 0;
+  if (AIcon = nil) or AIcon.Empty or (ASize <= 0) then
+    Exit;
+  if (AIcon = Application.Icon) and
+    (AIcon.Handle = LoadIcon(MainInstance, 'MAINICON')) then
+  begin
+    Result := LoadImage(MainInstance, 'MAINICON', IMAGE_ICON, ASize, ASize,
+      LR_DEFAULTCOLOR);
+    if Result <> 0 then
+      Exit;
+  end;
+  Stream := TMemoryStream.Create;
+  try
+    AIcon.SaveToStream(Stream);
+    if Stream.Size < 6 then
+      Exit;
+    Data := Stream.Memory;
+    if (PWord(Data + 2)^ <> 1) then
+      Exit;
+    Count := PWord(Data + 4)^;
+    if (Count <= 0) or (6 + Count * SizeOf(TIconDirEntry) > Stream.Size) then
+      Exit;
+    Best := -1;
+    BestW := 0;
+    BestBits := 0;
+    for I := 0 to Count - 1 do
+    begin
+      Entry := PIconDirEntry(Data + 6 + I * SizeOf(TIconDirEntry));
+      if (Entry.BytesInRes = 0) or
+        (Int64(Entry.ImageOffset) + Entry.BytesInRes > Stream.Size) then
+        Continue;
+      W := Entry.Width;
+      if W = 0 then
+        W := 256;
+      // Prefer the smallest image at or above the size, then the largest
+      // one below it; same size: more colours.
+      if Best < 0 then
+        Better := True
+      else if (W >= ASize) <> (BestW >= ASize) then
+        Better := W >= ASize
+      else if W <> BestW then
+        Better := ((W >= ASize) and (W < BestW)) or
+          ((W < ASize) and (W > BestW))
+      else
+        Better := Entry.BitCount > BestBits;
+      if Better then
+      begin
+        Best := I;
+        BestW := W;
+        BestBits := Entry.BitCount;
+      end;
+    end;
+    if Best < 0 then
+      Exit;
+    Entry := PIconDirEntry(Data + 6 + Best * SizeOf(TIconDirEntry));
+    Result := CreateIconFromResourceEx(Data + Entry.ImageOffset,
+      Entry.BytesInRes, True, $00030000, ASize, ASize, LR_DEFAULTCOLOR);
+  finally
+    Stream.Free;
+  end;
+end;
 
 function SameMethod(const A, B: TWndMethod): Boolean;
 begin
@@ -688,6 +773,8 @@ end;
 destructor TOBDTitleBar.Destroy;
 begin
   UnhookParentForm;
+  if FIconCache <> 0 then
+    DestroyIcon(FIconCache);
   FreeAndNil(FButtons);
   FreeAndNil(FQuickAccess);
   FreeAndNil(FMenuBar);
@@ -1876,8 +1963,21 @@ begin
       Icon := Application.Icon;
     if Icon <> nil then
     begin
-      DrawIconEx(ACanvas.Handle, R.Left, R.Top, Icon.Handle, R.Width,
-        R.Height, 0, 0, DI_NORMAL);
+      if (FIconCacheSource <> Icon.Handle) or
+        (FIconCacheSize <> R.Width) then
+      begin
+        if FIconCache <> 0 then
+          DestroyIcon(FIconCache);
+        FIconCache := CreateSizedIcon(Icon, R.Width);
+        FIconCacheSource := Icon.Handle;
+        FIconCacheSize := R.Width;
+      end;
+      if FIconCache <> 0 then
+        DrawIconEx(ACanvas.Handle, R.Left, R.Top, FIconCache, R.Width,
+          R.Height, 0, 0, DI_NORMAL)
+      else
+        DrawIconEx(ACanvas.Handle, R.Left, R.Top, Icon.Handle, R.Width,
+          R.Height, 0, 0, DI_NORMAL);
       Exit;
     end;
   end;

@@ -24,12 +24,15 @@ uses
   Winapi.Windows,
   Winapi.Messages,
   Winapi.ShlObj,
+  Winapi.ShellAPI,
+  Winapi.CommCtrl,
   System.Types,
   System.SysUtils,
   System.Classes,
   System.Math,
   System.StrUtils,
   System.Masks,
+  System.Generics.Collections,
   Vcl.Graphics,
   Vcl.Controls,
   ERD.UI.Types,
@@ -131,8 +134,10 @@ type
     FRows: TArray<TRow>;
     FRowsValid: Boolean;
     FChanging: Boolean;
+    FSystemIcons: Boolean;
     FOnNavigate: TOBDPathEvent;
     procedure SetPlaces(AValue: TOBDPlaces);
+    procedure SetSystemIcons(AValue: Boolean);
     procedure SetPath(const AValue: string);
     procedure BuildRows;
     procedure PlacesChanged(Sender: TObject);
@@ -164,6 +169,10 @@ type
     property Places: TOBDPlaces read FPlaces write SetPlaces;
     /// <summary>Selected path.</summary>
     property Path: string read FPath write SetPath;
+    /// <summary>Draws the Windows shell icons (folder, drive, file type)
+    /// instead of the themed line glyphs.</summary>
+    property SystemIcons: Boolean read FSystemIcons write SetSystemIcons
+      default True;
     /// <summary>Density.</summary>
     property Density;
     /// <summary>Parent density.</summary>
@@ -191,8 +200,10 @@ type
     FRows: TArray<TNode>;
     FRowsValid: Boolean;
     FChanging: Boolean;
+    FSystemIcons: Boolean;
     FOnPathChange: TOBDPathEvent;
     procedure SetRootPath(const AValue: string);
+    procedure SetSystemIcons(AValue: Boolean);
     procedure SetPath(const AValue: string);
     procedure SetShowHidden(AValue: Boolean);
     procedure BuildRows;
@@ -228,6 +239,10 @@ type
     /// <summary>Show hidden and system folders.</summary>
     property ShowHidden: Boolean read FShowHidden write SetShowHidden
       default False;
+    /// <summary>Draws the Windows shell icons (folder, drive, file type)
+    /// instead of the themed line glyphs.</summary>
+    property SystemIcons: Boolean read FSystemIcons write SetSystemIcons
+      default True;
     /// <summary>Density.</summary>
     property Density;
     /// <summary>Parent density.</summary>
@@ -264,6 +279,7 @@ type
     FSortColumn: Integer;
     FSortAscending: Boolean;
     FTileWidth: Integer;
+    FSystemIcons: Boolean;
     FEntries: TArray<TOBDFileEntry>;
     FOnFolderOpen: TOBDPathEvent;
     FOnFileActivate: TOBDPathEvent;
@@ -274,6 +290,7 @@ type
     procedure SetShowHidden(AValue: Boolean);
     procedure SetViewStyle(AValue: TOBDFileViewStyle);
     procedure SetTileWidth(AValue: Integer);
+    procedure SetSystemIcons(AValue: Boolean);
     function GetFileCount: Integer;
     function GetEntry(AIndex: Integer): TOBDFileEntry;
     function ColumnAt(X: Integer): Integer;
@@ -330,6 +347,10 @@ type
     /// <summary>Tile width in 96-DPI pixels.</summary>
     property TileWidth96: Integer read FTileWidth write SetTileWidth
       default 132;
+    /// <summary>Draws the Windows shell icons (folder, drive, file type)
+    /// instead of the themed line glyphs.</summary>
+    property SystemIcons: Boolean read FSystemIcons write SetSystemIcons
+      default True;
     /// <summary>Multi-select.</summary>
     property MultiSelect;
     /// <summary>Border.</summary>
@@ -351,6 +372,19 @@ type
 /// <summary>Draws a reusable shell glyph.</summary>
 procedure OBDDrawShellGlyph(APainter: TOBDPainter; AKind: TOBDShellGlyphKind;
   CX, CY: Integer; AColor: TColor; AScale: Single = 1);
+
+/// <summary>Index of the path's icon in the Windows system image list, or
+/// -1. Folders and files with their own icon (programs, shortcuts, icons)
+/// are looked up by path, other files by extension; results are cached.
+/// </summary>
+function OBDShellIconIndex(const APath: string; AIsFolder: Boolean): Integer;
+
+/// <summary>Draws a system image list icon centred on (CX, CY) at its
+/// native size: the small list for sizes up to the small icon size, the
+/// large list above that (never stretched).</summary>
+/// <returns>False when nothing was drawn.</returns>
+function OBDDrawShellIcon(ACanvas: TCanvas; AIndex, CX, CY,
+  ASize: Integer): Boolean;
 
 implementation
 
@@ -459,6 +493,92 @@ begin
     Result := Format('%d KB', [(ASize + 1023) div 1024])
   else
     Result := FormatFloat('0.# MB', ASize / (1024 * 1024));
+end;
+
+var
+  GShellIcons: TDictionary<string, Integer>;
+  GShellLists: array[Boolean] of HIMAGELIST;
+
+function HasOwnShellIcon(const APath: string): Boolean;
+begin
+  Result := MatchText(LowerCase(ExtractFileExt(APath)), ['.exe', '.lnk',
+    '.ico', '.url', '.cpl', '.scr', '.msc', '.cur', '.ani']);
+end;
+
+function OBDShellIconIndex(const APath: string; AIsFolder: Boolean): Integer;
+var
+  Key: string;
+  Info: TSHFileInfo;
+  Flags, Attr: Cardinal;
+begin
+  Result := -1;
+  if APath = '' then
+    Exit;
+  Flags := SHGFI_SYSICONINDEX or SHGFI_SMALLICON;
+  Attr := 0;
+  if AIsFolder or HasOwnShellIcon(APath) then
+    Key := LowerCase(APath)
+  else
+  begin
+    // By extension only: no disk access, so long lists stay fast.
+    Key := '*' + LowerCase(ExtractFileExt(APath));
+    Flags := Flags or SHGFI_USEFILEATTRIBUTES;
+    Attr := FILE_ATTRIBUTE_NORMAL;
+  end;
+  if GShellIcons = nil then
+    GShellIcons := TDictionary<string, Integer>.Create;
+  if GShellIcons.TryGetValue(Key, Result) then
+    Exit;
+  FillChar(Info, SizeOf(Info), 0);
+  if SHGetFileInfo(PChar(APath), Attr, Info, SizeOf(Info), Flags) <> 0 then
+    Result := Info.iIcon
+  else
+    Result := -1;
+  if GShellIcons.Count > 4096 then
+    GShellIcons.Clear;
+  GShellIcons.AddOrSetValue(Key, Result);
+end;
+
+function ShellImageList(ALarge: Boolean): HIMAGELIST;
+const
+  SIZE_FLAG: array[Boolean] of Cardinal = (SHGFI_SMALLICON, SHGFI_LARGEICON);
+var
+  Info: TSHFileInfo;
+begin
+  if GShellLists[ALarge] = 0 then
+  begin
+    FillChar(Info, SizeOf(Info), 0);
+    GShellLists[ALarge] := HIMAGELIST(SHGetFileInfo('.txt',
+      FILE_ATTRIBUTE_NORMAL, Info, SizeOf(Info), SHGFI_USEFILEATTRIBUTES or
+      SHGFI_SYSICONINDEX or SIZE_FLAG[ALarge]));
+  end;
+  Result := GShellLists[ALarge];
+end;
+
+function OBDDrawShellIcon(ACanvas: TCanvas; AIndex, CX, CY,
+  ASize: Integer): Boolean;
+var
+  List, Large: HIMAGELIST;
+  W, H, LW, LH: Integer;
+begin
+  Result := False;
+  if (ACanvas = nil) or (AIndex < 0) then
+    Exit;
+  List := ShellImageList(False);
+  if (List = 0) or not ImageList_GetIconSize(List, W, H) then
+    Exit;
+  if ASize > W + W div 2 then
+  begin
+    Large := ShellImageList(True);
+    if (Large <> 0) and ImageList_GetIconSize(Large, LW, LH) then
+    begin
+      List := Large;
+      W := LW;
+      H := LH;
+    end;
+  end;
+  Result := ImageList_Draw(List, AIndex, ACanvas.Handle, CX - W div 2,
+    CY - H div 2, ILD_TRANSPARENT);
 end;
 
 procedure OBDDrawShellGlyph(APainter: TOBDPainter; AKind: TOBDShellGlyphKind;
@@ -868,6 +988,15 @@ begin
   BorderVisible := False;
   Width := 196;
   FRowsValid := False;
+  FSystemIcons := True;
+end;
+
+procedure TOBDPlacesPane.SetSystemIcons(AValue: Boolean);
+begin
+  if FSystemIcons = AValue then
+    Exit;
+  FSystemIcons := AValue;
+  Invalidate;
 end;
 
 destructor TOBDPlacesPane.Destroy;
@@ -1001,7 +1130,9 @@ begin
   if ASelected then
     Ink := APainter.AccentText;
   X := ARect.Left + ScaleValue(20);
-  OBDDrawShellGlyph(APainter, Kind, X, CY, Ink, 0.82);
+  if not FSystemIcons or not OBDDrawShellIcon(APainter.Canvas,
+    OBDShellIconIndex(FRows[AIndex].Path, True), X, CY, ScaleValue(16)) then
+    OBDDrawShellGlyph(APainter, Kind, X, CY, Ink, 0.82);
   APainter.Text(ARect.Left + ScaleValue(44), CY, FRows[AIndex].Caption,
     OBD_TEXT_BODY, Ink, twRegular, taLeftJustify,
     ARect.Width - ScaleValue(52));
@@ -1074,7 +1205,16 @@ begin
   FExpanded := TStringList.Create;
   FExpanded.Sorted := True;
   FExpanded.Duplicates := dupIgnore;
+  FSystemIcons := True;
   EmptyText := 'No folders';
+end;
+
+procedure TOBDFolderTree.SetSystemIcons(AValue: Boolean);
+begin
+  if FSystemIcons = AValue then
+    Exit;
+  FSystemIcons := AValue;
+  Invalidate;
 end;
 
 destructor TOBDFolderTree.Destroy;
@@ -1238,8 +1378,11 @@ begin
     else
       APainter.Glyph(glChevronRight, X, CY, Palette.Subtle, 0.72);
   end;
-  OBDDrawShellGlyph(APainter, sgFolder, X + ScaleValue(22), CY,
-    Palette.ForegroundText, 0.78);
+  if not FSystemIcons or not OBDDrawShellIcon(APainter.Canvas,
+    OBDShellIconIndex(FRows[AIndex].Path, True), X + ScaleValue(22), CY,
+    ScaleValue(16)) then
+    OBDDrawShellGlyph(APainter, sgFolder, X + ScaleValue(22), CY,
+      Palette.ForegroundText, 0.78);
   APainter.Text(X + ScaleValue(42), CY, FRows[AIndex].Caption, OBD_TEXT_BODY,
     Palette.ForegroundText, twRegular, taLeftJustify,
     ARect.Right - X - ScaleValue(48));
@@ -1379,7 +1522,16 @@ begin
   FSortColumn := 0;
   FSortAscending := True;
   FTileWidth := 132;
+  FSystemIcons := True;
   EmptyText := 'No files';
+end;
+
+procedure TOBDFileList.SetSystemIcons(AValue: Boolean);
+begin
+  if FSystemIcons = AValue then
+    Exit;
+  FSystemIcons := AValue;
+  Invalidate;
 end;
 
 procedure TOBDFileList.SetDirectory(const AValue: string);
@@ -1702,8 +1854,12 @@ begin
   CY := (ARect.Top + ARect.Bottom) div 2;
   if FViewStyle = fvIcons then
   begin
-    OBDDrawShellGlyph(APainter, G, (ARect.Left + ARect.Right) div 2,
-      ARect.Top + ScaleValue(32), Palette.ForegroundText, 1.4);
+    if not FSystemIcons or not OBDDrawShellIcon(APainter.Canvas,
+      OBDShellIconIndex(E.FullPath, E.IsFolder),
+      (ARect.Left + ARect.Right) div 2, ARect.Top + ScaleValue(32),
+      ScaleValue(40)) then
+      OBDDrawShellGlyph(APainter, G, (ARect.Left + ARect.Right) div 2,
+        ARect.Top + ScaleValue(32), Palette.ForegroundText, 1.4);
     APainter.WrapText(Rect(ARect.Left + ScaleValue(8), ARect.Top +
       ScaleValue(56), ARect.Right - ScaleValue(8), ARect.Bottom -
       ScaleValue(4)), E.Name, OBD_TEXT_BODY, Palette.ForegroundText,
@@ -1711,7 +1867,9 @@ begin
     Exit;
   end;
   X := ARect.Left + ScaleValue(24);
-  OBDDrawShellGlyph(APainter, G, X, CY, Palette.ForegroundText, 0.9);
+  if not FSystemIcons or not OBDDrawShellIcon(APainter.Canvas,
+    OBDShellIconIndex(E.FullPath, E.IsFolder), X, CY, ScaleValue(16)) then
+    OBDDrawShellGlyph(APainter, G, X, CY, Palette.ForegroundText, 0.9);
   APainter.Text(ARect.Left + ScaleValue(52), CY, E.Name, OBD_TEXT_BODY,
     Palette.ForegroundText, twRegular, taLeftJustify, ScaleValue(315));
   APainter.Text(ARect.Left + ScaleValue(390), CY, DateTimeToStr(E.Modified),
@@ -1767,5 +1925,10 @@ begin
       Break;
     end;
 end;
+
+initialization
+
+finalization
+  FreeAndNil(GShellIcons);
 
 end.

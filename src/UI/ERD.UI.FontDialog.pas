@@ -122,6 +122,7 @@ type
     destructor Destroy; override;
     procedure Populate(AOptions: TOBDFontDialogOptions);
     function IndexOfFamily(const AName: string): Integer;
+    function FindFamily(const AText: string): Integer;
     procedure SelectFamily(const AName: string);
     property Filter: string read FFilter write SetFilter;
   end;
@@ -375,6 +376,21 @@ begin
   Result := FItems.IndexOf(AName);
 end;
 
+function TFontFamilyList.FindFamily(const AText: string): Integer;
+var
+  I: Integer;
+begin
+  Result := -1;
+  if AText = '' then
+    Exit;
+  for I := 0 to FItems.Count - 1 do
+    if StartsText(AText, FItems[I]) then
+      Exit(I);
+  for I := 0 to FItems.Count - 1 do
+    if ContainsText(FItems[I], AText) then
+      Exit(I);
+end;
+
 procedure TFontFamilyList.SelectFamily(const AName: string);
 var
   Index: Integer;
@@ -547,12 +563,16 @@ end;
 
 function TFontColorRow.SwatchRect(AIndex: Integer): TRect;
 var
-  S, G: Integer;
+  S, G, Pad: Integer;
 begin
-  S := ScaleValue(22);
+  // Pad leaves room for the selection ring (3 px outside the swatch) so it
+  // is not clipped on the first swatch or at the top and bottom.
+  Pad := ScaleValue(4);
+  S := System.Math.Max(ScaleValue(12),
+    System.Math.Min(ScaleValue(22), Height - 2 * Pad));
   G := ScaleValue(6);
-  Result := Rect(AIndex * (S + G), (Height - S) div 2,
-    AIndex * (S + G) + S, (Height - S) div 2 + S);
+  Result := Rect(Pad + AIndex * (S + G), (Height - S) div 2,
+    Pad + AIndex * (S + G) + S, (Height - S) div 2 + S);
 end;
 
 function TFontColorRow.ColorAt(AIndex: Integer): TColor;
@@ -831,7 +851,7 @@ begin
   AWindow.Adopt(FColorRow);
   FColorRow.Enabled := fdoEffects in FDialog.Options;
   FColorRow.OnChange := EffectsChange;
-  AWindow.Place(FColorRow, 248, RowY, 356, EditH);
+  AWindow.Place(FColorRow, 244, RowY - 2, 360, EditH + 4);
 
   SampleLabel := AWindow.AddText(16, RowY + EditH + 16, 588, 'Sample');
   FPreview := TFontPreview.Create(AWindow);
@@ -941,8 +961,16 @@ end;
 
 procedure TFontDialogController.FamilyChange(Sender: TObject);
 begin
-  if not FUpdating then
-    UpdatePreview;
+  if FUpdating then
+    Exit;
+  FUpdating := True;
+  try
+    if FFamily.ItemIndex >= 0 then
+      FSearch.Text := FFamily.GetItemText(FFamily.ItemIndex);
+  finally
+    FUpdating := False;
+  end;
+  UpdatePreview;
 end;
 
 procedure TFontDialogController.FamilyActivate(Sender: TObject);
@@ -956,16 +984,22 @@ end;
 
 procedure TFontDialogController.SearchChange(Sender: TObject);
 var
-  Name: string;
+  Index: Integer;
 begin
-  if FFamily = nil then
+  // Like the Windows font dialog the edit finds a family (name prefix
+  // first, then anywhere in the name) and the list keeps every font.
+  if FUpdating or (FFamily = nil) then
     Exit;
-  Name := FSearch.Text;
-  FFamily.Filter := Name;
-  if FFamily.ItemCount > 0 then
-    FFamily.ItemIndex := 0;
-  if not FUpdating then
-    UpdatePreview;
+  Index := FFamily.FindFamily(Trim(FSearch.Text));
+  if Index < 0 then
+    Exit;
+  FUpdating := True;
+  try
+    FFamily.ItemIndex := Index;
+  finally
+    FUpdating := False;
+  end;
+  UpdatePreview;
 end;
 
 procedure TFontDialogController.StyleChange(Sender: TObject);

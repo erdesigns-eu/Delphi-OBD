@@ -58,6 +58,7 @@ type
     FOnChange: TNotifyEvent;
     function SwatchSize: Integer;
     function SwatchGap: Integer;
+    function SwatchInset: Integer;
     function Columns: Integer;
     function SectionHeight(const ASection: TSection): Integer;
     function SwatchRect(ASection, AIndex: Integer): TRect;
@@ -473,7 +474,7 @@ begin
   inherited Create(AOwner);
   TabStop := True;
   FSelectedColor := clBlack;
-  Width := 236;
+  Width := 244;
   Height := 250;
 end;
 
@@ -485,6 +486,11 @@ end;
 function TOBDColorSwatches.SwatchGap: Integer;
 begin
   Result := ScaleValue(6);
+end;
+
+function TOBDColorSwatches.SwatchInset: Integer;
+begin
+  Result := ScaleValue(4);
 end;
 
 function TOBDColorSwatches.Columns: Integer;
@@ -514,9 +520,10 @@ begin
   Inc(TopY, ScaleValue(18));
   Row := AIndex div Columns;
   Col := AIndex mod Columns;
-  Result := Rect(Col * (SwatchSize + SwatchGap),
+  // SwatchInset keeps the selection ring (3 px outside) inside the control.
+  Result := Rect(SwatchInset + Col * (SwatchSize + SwatchGap),
     TopY + Row * (SwatchSize + SwatchGap),
-    Col * (SwatchSize + SwatchGap) + SwatchSize,
+    SwatchInset + Col * (SwatchSize + SwatchGap) + SwatchSize,
     TopY + Row * (SwatchSize + SwatchGap) + SwatchSize);
 end;
 
@@ -606,7 +613,7 @@ begin
     TopY := 0;
     for S := 0 to High(FSections) do
     begin
-      Painter.Caps(0, TopY + ScaleValue(7), FSections[S].Caption);
+      Painter.Caps(SwatchInset, TopY + ScaleValue(7), FSections[S].Caption);
       for I := 0 to High(FSections[S].Colors) do
       begin
         R := SwatchRect(S, I);
@@ -1077,7 +1084,7 @@ begin
   FSwatches := TOBDColorSwatches.Create(AWindow);
   AWindow.Adopt(FSwatches);
   FSwatches.OnChange := SwatchesChange;
-  AWindow.Place(FSwatches, 16, 16, 236, 244);
+  AWindow.Place(FSwatches, 12, 16, 244, 244);
 
   FSpectrum := TOBDColorSpectrum.Create(AWindow);
   AWindow.Adopt(FSpectrum);

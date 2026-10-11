@@ -399,7 +399,7 @@ type
     procedure GlyphSnapshot(CX, CY: Single; AColor: TColor);
     procedure GlyphChevron(CX, CY: Single; AColor: TColor; ADown: Boolean);
     /// <summary>Warning triangle with "!", 24 px wide.</summary>
-    procedure GlyphAlert(CX, CY: Single; AColor: TColor);
+    procedure GlyphAlert(CX, CY: Single; AColor: TColor; AScale: Single = 1);
     /// <summary>Line glyphs for menus, caption buttons, tool bars and
     /// the ribbon: 16 px box at scale 1.</summary>
     procedure GlyphLine(AGlyph: TOBDGlyph; CX, CY: Single; AColor: TColor;
@@ -478,8 +478,10 @@ type
     /// <summary>Banner icon centred on (CX, CY).</summary>
     /// <param name="AAlert">Draw the warning triangle instead of the
     /// kind's own icon.</param>
+    /// <param name="AScale">Icon size relative to the default 18 px.
+    /// </param>
     procedure BannerIcon(CX, CY: Integer; AKind: TOBDBannerKind;
-      AAlert: Boolean = False);
+      AAlert: Boolean = False; AScale: Single = 1);
     /// <summary>A value against its normal band: a 6 px track, the
     /// band in green and a 3 x 14 px marker.</summary>
     /// <param name="X">Left edge.</param>
@@ -1376,12 +1378,13 @@ begin
       OBDPointF(CX - 2 * K, CY + 4 * K)], AColor, 1.6 * K);
 end;
 
-procedure TOBDPainter.GlyphAlert(CX, CY: Single; AColor: TColor);
+procedure TOBDPainter.GlyphAlert(CX, CY: Single; AColor: TColor;
+  AScale: Single);
 var
   K: Single;
   Ink: TColor;
 begin
-  K := SF(1);
+  K := SF(1) * AScale;
   Polygon([OBDPointF(CX, CY - 11 * K), OBDPointF(CX + 12 * K, CY + 9 * K),
     OBDPointF(CX - 12 * K, CY + 9 * K)], AColor);
   if FDark then
@@ -1389,7 +1392,7 @@ begin
   else
     Ink := clWhite;
   // The optical centre of the triangle sits below its bounding-box centre.
-  InkText(CX, CY + 2.5 * K, '!', 11, Ink, twBold);
+  InkText(CX, CY + 2.5 * K, '!', 11 * AScale, Ink, twBold);
 end;
 
 procedure TOBDPainter.GlyphLine(AGlyph: TOBDGlyph; CX, CY: Single;
@@ -2074,34 +2077,36 @@ begin
 end;
 
 procedure TOBDPainter.BannerIcon(CX, CY: Integer; AKind: TOBDBannerKind;
-  AAlert: Boolean);
+  AAlert: Boolean; AScale: Single);
 var
   C, Ink: TColor;
   R: Single;
 begin
   C := BannerColor(AKind);
+  if AScale <= 0 then
+    AScale := 1;
   if AAlert then
   begin
-    GlyphAlert(CX, CY, C);
+    GlyphAlert(CX, CY, C, AScale);
     Exit;
   end;
   case AKind of
     bnSuccess:
-      GlyphCheck(CX, CY, C, 1.2);
+      GlyphCheck(CX, CY, C, 1.2 * AScale);
     bnWarning:
-      GlyphPending(CX, CY, C, 1.3);
+      GlyphPending(CX, CY, C, 1.3 * AScale);
   else
-    R := SF(9);
+    R := SF(9) * AScale;
     Ellipse(CX - R, CY - R, 2 * R, 2 * R, C, clNone);
     if AKind = bnDanger then
     begin
       Ink := clWhite;
-      InkText(CX, CY, '!', 12, Ink, twBold);
+      InkText(CX, CY, '!', 12 * AScale, Ink, twBold);
     end
     else
     begin
       Ink := FPalette.GaugeFace;
-      InkText(CX, CY, 'i', 12, Ink, twBold);
+      InkText(CX, CY, 'i', 12 * AScale, Ink, twBold);
     end;
   end;
 end;

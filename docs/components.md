@@ -437,7 +437,7 @@ values, buttons, edits, bars and menus), `OBD_TEXT_HEADING` (14) and
 | `TOBDCheckBox` | `ERD.UI.Buttons` | `Style = csCheck` or `csSwitch`; checked, unchecked and grayed. |
 | `TOBDRadioButton` | `ERD.UI.Buttons` | Single choice within a `GroupIndex`; arrow keys move through the group. |
 | `TOBDChip`, `TOBDBadge` | `ERD.UI.Chips` | Status pill and counter bubble. |
-| `TOBDBanner` | `ERD.UI.Chips` | Info / success / warning / danger callout; holds child controls. |
+| `TOBDBanner` | `ERD.UI.Chips` | Info / success / warning / danger callout; holds child controls. `IconSize` (12–64 px, default 18) sizes the icon; the text moves right and an auto-sized banner grows to fit. |
 | `TOBDEdit`, `TOBDComboBox` | `ERD.UI.Edits` | Themed edit and drop-down (incremental search in the list). |
 | `TOBDSpinEdit` | `ERD.UI.SpinEdit` | Numeric edit with up / down buttons (auto-repeat), `MinValue` / `MaxValue`, `Increment`, `Decimals`; arrow keys, Page Up / Down (x10) and the mouse wheel while focused. |
 | `TOBDTrackBar` | `ERD.UI.TrackBar` | Slider with `Min` / `Max` / `Position`, tick marks (`Frequency`), keyboard and wheel, optional value read-out with `Suffix`. |
@@ -465,7 +465,7 @@ Everything around the panels, so a whole application follows the theme.
 
 | Control | Unit | Purpose |
 |---|---|---|
-| `TOBDTitleBar` | `ERD.UI.TitleBar` | Themed caption for any form: app icon, inline menu (`MenuPlacement` title bar or below), title, status chip, `Buttons` collection of extra caption buttons (glyph or image, hint, badge, toggle, `OnClick`) and the system buttons. Keeps resizing and snap layouts. `AppIconStyle` shows the `AppInitials` (`aiInitials`) or the form icon, falling back to the application icon (`aiIcon`). The system menu (icon click, Alt+Space, caption right-click) is a themed popup menu; double-clicking the icon closes the form. The border is the accent colour while the form is active. `CommandStyle = (csMenu, csRibbon)` switches between menu and `Ribbon` at run time; `QuickAccess` buttons show in ribbon mode. |
+| `TOBDTitleBar` | `ERD.UI.TitleBar` | Themed caption for any form: app icon, inline menu (`MenuPlacement` title bar or below), title, status chip, `Buttons` collection of extra caption buttons (glyph or image, hint, badge, toggle, `OnClick`) and the system buttons. Keeps resizing and snap layouts. `AppIconStyle` shows the `AppInitials` (`aiInitials`) or the form icon, falling back to the application icon (`aiIcon`); the icon is drawn from the closest image in the .ico (or `MAINICON`) at the caption size rather than an upscaled 16 px one. The system menu (icon click, Alt+Space, caption right-click) is a themed popup menu; double-clicking the icon closes the form. The border is the accent colour while the form is active. `CommandStyle = (csMenu, csRibbon)` switches between menu and `Ribbon` at run time; `QuickAccess` buttons show in ribbon mode. |
 | `TOBDMenuBar`, `TOBDPopupMenu` | `ERD.UI.Menus` | Themed `TMainMenu` bar and popup menus that read the standard `TMenuItem` tree (actions, shortcuts, check and radio items, submenus). A separator item with a `Hint` is drawn as a group header; `OnGetItemStyle` sets glyphs and danger items. Leave `Form.Menu` empty when a menu bar or title bar shows the menu. `TOBDMenuBar.AutoSize` (default on) sizes the bar to its items and density height; with `Align = alTop` only the height follows. |
 | `TOBDRibbon` | `ERD.UI.Ribbon` | Tabs with groups of large and small items bound to actions; `ContextualTabs` collection with theme or custom colours; File button opening a `Backstage`; command search (Alt+Q); classic or simplified style; collapsible (Ctrl+F1). While collapsed, clicking a tab opens its groups as an overlay over the form, as in Office; it takes no layout height and closes on a command, Esc or a click elsewhere. |
 | `TOBDBackstage`, `TOBDReportPreview` | `ERD.UI.Backstage` | Full-window page with an accent navigation strip whose items host pages; A4 report preview with zoom and page navigation (`OnPaintPage`). |
@@ -488,7 +488,9 @@ right-click a dialog and choose **Test Dialog** (or double-click it) to
 preview it; the preview runs on a copy, so it never changes the form.
 The file, folder and font dialogs are `Resizable` by default: drag any
 edge to make the window larger (it never gets smaller than the size it
-opens at). The lists take the extra room. Footer buttons sit 8 px apart.
+opens at). The lists take the extra room. Footer buttons sit 8 px apart. The file and folder dialogs show the
+Windows shell icons for folders, drives and file types (`SystemIcons`,
+on by default; the shell controls have the same property).
 
 | Component | Unit | Replaces / purpose |
 |---|---|---|
@@ -497,7 +499,7 @@ opens at). The lists take the extra room. Footer buttons sit 8 px apart.
 | `TOBDFolderDialog` | `ERD.UI.FileDialogs` | `SelectDirectory`: folder tree, new folder, `Directory`. |
 | `TOBDPrintDialog` | `ERD.UI.PrintDialogs` | `TPrintDialog`: printer, copies, collate, page range, orientation and a first-page preview (`OnPaintPage`). |
 | `TOBDPageSetupDialog` | `ERD.UI.PrintDialogs` | `TPageSetupDialog`, `TPrinterSetupDialog`: paper, orientation and margins with a live preview. |
-| `TOBDFontDialog` | `ERD.UI.FontDialog` | `TFontDialog`: searchable family list, style and size (each with an edit box above its list), effects and a sample. |
+| `TOBDFontDialog` | `ERD.UI.FontDialog` | `TFontDialog`: family list with every installed font (typing in the edit selects the first match), style and size (each with an edit box above its list), effects and a sample. |
 | `TOBDColorDialog` | `ERD.UI.ColorDialog` | `TColorDialog`: theme, standard and custom colours (`CustomColors`), HSV picker, hex / RGB entry and a screen pipette. |
 | `TOBDFindDialog`, `TOBDReplaceDialog` | `ERD.UI.FindDialogs` | `TFindDialog`, `TReplaceDialog`: modeless, `OnFind` / `OnReplace`, `SetResult` shows the match count. |
 | `TOBDTaskDialog` | `ERD.UI.TaskDialog` | `TTaskDialog`: icon, main instruction, text, expandable details, custom buttons or command links, radio buttons, verification check box, progress bar and footer. |

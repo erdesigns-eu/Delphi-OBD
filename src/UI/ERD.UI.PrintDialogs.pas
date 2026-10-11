@@ -1235,7 +1235,7 @@ var
   SetupButton: TOBDButton;
   Banner: TOBDBanner;
   NoPrinters: Boolean;
-  BodyH, Offset, Y: Integer;
+  BodyH, Y: Integer;
 begin
   Printers := TStringList.Create;
   try
@@ -1244,9 +1244,6 @@ begin
       BodyH := 462
     else
       BodyH := 404;
-    Offset := 0;
-    if NoPrinters then
-      Offset := 66;
     Window := NewWindow;
     try
       Window.SetLayout(600, BodyH, True);
@@ -1256,8 +1253,11 @@ begin
       Combo := TOBDComboBox.Create(Window);
       Window.Adopt(Combo);
       Window.Place(Combo, 16, 34, 300, DensityMetrics(Density).Edit);
-      Status := Window.AddText(32, 34 + DensityMetrics(Density).Edit + 11,
-        284, '', dtsSmall);
+      // The status line sits under the combo with its own row, so it never
+      // runs into the Pages label below it (desktop and tablet density).
+      Y := 34 + DensityMetrics(Density).Edit + 6;
+      Status := Window.AddText(16, Y, 300, '', dtsSmall);
+      Inc(Y, 20 + 12);
       if NoPrinters then
       begin
         Banner := TOBDBanner.Create(Window);
@@ -1266,9 +1266,9 @@ begin
         Banner.Title := 'No printers';
         Banner.Text := 'Add a printer in Windows before printing.';
         Banner.AlertIcon := False;
-        Window.Place(Banner, 16, 80, 300, 56);
+        Window.Place(Banner, 16, Y, 300, 56);
+        Inc(Y, 56 + 12);
       end;
-      Y := 80 + Offset;
       Window.AddText(16, Y, 300, 'Pages');
       Inc(Y, 18);
       AllRadio := TOBDRadioButton.Create(Window);
