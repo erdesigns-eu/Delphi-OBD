@@ -1237,13 +1237,22 @@ end;
 procedure TOBDInspector.ActivateEditor(ASelectAll: Boolean);
 var
   Prop: TOBDInspectorProperty;
+  EditorHadFocus: Boolean;
 begin
+  // Hiding the focused editor hands the focus to the form, not to the
+  // inspector, so the arrow keys would stop working on a pick-list or
+  // check row reached from a text row: take the focus back.
+  EditorHadFocus := FEditor.Visible and FEditor.Focused;
   HideEditor;
-  if not (FSelected is TOBDInspectorProperty) then
+  if not (FSelected is TOBDInspectorProperty) or
+    not (TOBDInspectorProperty(FSelected).Kind in [ivText, ivReadOnly,
+    ivEllipsis]) then
+  begin
+    if EditorHadFocus and CanFocus then
+      SetFocus;
     Exit;
+  end;
   Prop := TOBDInspectorProperty(FSelected);
-  if not (Prop.Kind in [ivText, ivReadOnly, ivEllipsis]) then
-    Exit;
   FEditProperty := Prop;
   FEditOriginalValue := Prop.Value;
   FInternalEditorUpdate := True;
@@ -1938,11 +1947,15 @@ begin
     Exit;
   end;
 
+  // The chevron gutter toggles a category; in tablet density the whole
+  // header does, as the gutter is too small a target for a finger. The
+  // second press of a double-click is left to DblClick.
   Cat := CategoryAt(P);
-  if (Cat <> nil) and (X <= GutterWidth) then
+  if (Cat <> nil) and ((X <= GutterWidth) or (Density = dnTablet)) then
   begin
     SelectItem(Cat, False);
-    ToggleCategory(Cat);
+    if not (ssDouble in Shift) then
+      ToggleCategory(Cat);
     Exit;
   end;
 

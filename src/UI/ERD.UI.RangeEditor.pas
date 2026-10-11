@@ -67,6 +67,7 @@ type
     FInvalidMessage: string;
     FUpdatingEdits: Boolean;
     FDraggingScroll: Boolean;
+    FDraggingSelect: Boolean;
     FScrollDragOffset: Integer;
     FOnSave: TNotifyEvent;
     FOnCancel: TNotifyEvent;
@@ -957,6 +958,7 @@ var
   Track, Thumb: TRect;
 begin
   inherited MouseDown(Button, Shift, X, Y);
+  FDraggingSelect := False;
   if Button <> mbLeft then
     Exit;
   SetFocus;
@@ -995,14 +997,49 @@ begin
   end;
   SelectRow(I);
   if FSelected = I then
+  begin
     FocusSelectedEdit(False);
+    // Holding the button and sweeping over rows moves the selection, as
+    // in the inspector.
+    FDraggingSelect := True;
+  end;
 end;
 
 procedure TOBDRangeEditor.MouseMove(Shift: TShiftState; X, Y: Integer);
 var
   Track, Thumb: TRect;
+  RowsTop, RowsBottom, I: Integer;
 begin
   inherited MouseMove(Shift, X, Y);
+  if FDraggingSelect then
+  begin
+    if not (ssLeft in Shift) then
+    begin
+      FDraggingSelect := False;
+      Exit;
+    end;
+    // Above or below the rows the selection steps on, which scrolls.
+    RowsTop := HeaderHeight + ColumnHeaderHeight;
+    RowsBottom := RowsTop + Min(VisibleRows, RangeCount - FTopRow) *
+      RowHeight;
+    if Y < RowsTop then
+      I := FTopRow - 1
+    else if Y >= RowsBottom then
+      I := FTopRow + VisibleRows
+    else
+      I := RowAtY(Y);
+    I := EnsureRange(I, 0, RangeCount - 1);
+    if (I <> FSelected) and (RangeCount > 0) then
+    begin
+      SelectRow(I);
+      // Stop when the current row is invalid and keeps the selection.
+      if FSelected <> I then
+        FDraggingSelect := False
+      else
+        FocusSelectedEdit(False);
+    end;
+    Exit;
+  end;
   if not FDraggingScroll then
     Exit;
   Track := ScrollTrackRect;
@@ -1016,6 +1053,7 @@ procedure TOBDRangeEditor.MouseUp(Button: TMouseButton; Shift: TShiftState;
   X, Y: Integer);
 begin
   inherited MouseUp(Button, Shift, X, Y);
+  FDraggingSelect := False;
   if FDraggingScroll then
   begin
     FDraggingScroll := False;
