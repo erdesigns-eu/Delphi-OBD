@@ -497,7 +497,8 @@ begin
     MidY - FApplyEngines.Height div 2, Min(FApplyEngines.Width,
     Max(0, CancelX - ScaleValue(16) - ScaleValue(160))),
     FApplyEngines.Height);
-  FResetAllButton.SetBounds(FApplyEngines.Right + ScaleValue(14), Y - Ring,
+  FResetAllButton.SetBounds(FApplyEngines.BoundsRect.Right + ScaleValue(14),
+    Y - Ring,
     WResetAll + 2 * Ring, BH + 2 * Ring);
   UpdateButtons;
 end;
