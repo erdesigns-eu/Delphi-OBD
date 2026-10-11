@@ -959,15 +959,17 @@ var
 begin
   P := TOBDPainter.Create(ACanvas, Palette, ScaleValue(96));
   try
-    // Tile frame: dashed accent outline (edit mode, not a selection),
-    // heavier while hovered or dragged.
-    if FEditDown in [thMove, thResize] then
-      LW := P.SF(2.5)
-    else if FEditHot <> thNone then
-      LW := P.SF(2)
-    else
-      LW := P.SF(1.25);
-    P.DashedRoundRect(0, 0, Width, Height, P.SF(4), EffectiveAccent, LW);
+    // Tile frame: thin dashed accent outline on the hovered or active
+    // (dragged / resized) tile only; the other tiles keep just their
+    // close button and resize grip.
+    if (FEditDown <> thNone) or (FEditHot <> thNone) then
+    begin
+      if FEditDown in [thMove, thResize] then
+        LW := P.SF(1.5)
+      else
+        LW := P.SF(1.25);
+      P.DashedRoundRect(0, 0, Width, Height, P.SF(4), EffectiveAccent, LW);
+    end;
 
     // Close button: soft danger tint at rest, solid danger on hover,
     // darker while pressed.

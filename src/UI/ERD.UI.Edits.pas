@@ -150,7 +150,6 @@ type
     FItems: TStrings;
     FItemIndex: Integer;
     FPopup: TOBDPopupList;
-    FHover: Boolean;
     FMono: Boolean;
     FDropDownCount: Integer;
     FSearch: string;
@@ -169,8 +168,6 @@ type
     procedure ChangeIndex(AIndex: Integer);
     procedure Search(AChar: Char);
     function IsOpen: Boolean;
-    procedure CMMouseEnter(var Message: TMessage); message CM_MOUSEENTER;
-    procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
     procedure CMEnabledChanged(var Message: TMessage);
       message CM_ENABLEDCHANGED;
     procedure CMCancelMode(var Message: TCMCancelMode); message CM_CANCELMODE;
@@ -473,6 +470,11 @@ procedure TOBDEdit.Resize;
 begin
   inherited Resize;
   LayoutInner;
+  // Repaint the whole frame and the inner edit after a size change, not
+  // only the newly exposed strip, so a shrinking edit keeps its border.
+  Invalidate;
+  if (FEdit <> nil) and FEdit.HandleAllocated then
+    FEdit.Invalidate;
 end;
 
 procedure TOBDEdit.DensityChanged;
@@ -657,20 +659,6 @@ begin
     end;
 end;
 
-procedure TOBDComboBox.CMMouseEnter(var Message: TMessage);
-begin
-  inherited;
-  FHover := True;
-  Invalidate;
-end;
-
-procedure TOBDComboBox.CMMouseLeave(var Message: TMessage);
-begin
-  inherited;
-  FHover := False;
-  Invalidate;
-end;
-
 procedure TOBDComboBox.CMEnabledChanged(var Message: TMessage);
 begin
   inherited;
@@ -806,8 +794,6 @@ begin
   try
     P.EditFrame(Rect(0, 0, Width, Height),
       (Focused or IsOpen) and not IsPreview, Enabled);
-    if FHover and Enabled and not Focused and not IsOpen then
-      P.FrameRect(Rect(0, 0, Width, Height), Palette.NeutralDark);
     if Enabled then
       Ink := Palette.ForegroundText
     else

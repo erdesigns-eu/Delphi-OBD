@@ -1160,6 +1160,10 @@ begin
   begin
     SetColumnWidth(FResizeColumn, Max(MinColumnWidths[FResizeColumn],
       FResizeStartWidth + MulDiv(X - FResizeStartX, 96, ScaleValue(96))));
+    // Paint the rows and the in-place edits now: while the mouse keeps
+    // moving, WM_PAINT would otherwise wait until the drag pauses.
+    if HandleAllocated then
+      RedrawWindow(Handle, nil, 0, RDW_UPDATENOW or RDW_ALLCHILDREN);
     Exit;
   end;
   if ColumnDividerAt(X, Y) >= 0 then

@@ -382,7 +382,7 @@ the themed overlay scroll bar.
 Grid host for the controls above. `AddTile('dial' | 'bar' | 'value' |
 'trend' | 'lamp' | 'matrix' | 'grid', Col, Row, ColSpan, RowSpan)`,
 `EditMode` for moving, resizing and removing tiles at run time (tiles
-get a dashed accent frame, heavier on the hovered tile; drop a tile on
+the hovered or dragged tile gets a thin dashed accent frame; drop a tile on
 another tile to swap the two; the close button and resize grip show
 hover and pressed states, and close acts on release), layouts saved
 and loaded as JSON, and `Source` to connect every tile to one
@@ -441,7 +441,7 @@ switch on the theme changes the whole form. The approved designs are in
 | Control | Unit | Purpose |
 |---|---|---|
 | `TOBDVehicleInfoCard` | `ERD.UI.VehicleCard` | Decoded VIN with check-digit verdict, vehicle, connection and odometer; `Layout` full or compact. |
-| `TOBDDtcPanel` | `ERD.UI.DtcPanel` | Trouble codes with status chips, filter strip, inline freeze-frame details and an inline clear confirmation (`OnReadCodes`, `OnClearCodes`). `LoadFromService` takes the `TOBDDtcEntry` list of a DTC read. |
+| `TOBDDtcPanel` | `ERD.UI.DtcPanel` | Trouble codes with status chips, filter strip, inline freeze-frame details (tablet: tap anywhere on a row to expand it) and an inline clear confirmation (`OnReadCodes`, `OnClearCodes`). `LoadFromService` takes the `TOBDDtcEntry` list of a DTC read. |
 | `TOBDReadinessPanel` | `ERD.UI.ReadinessPanel` | Emission-monitor readiness from Mode 01 PID 01 (`LoadPID01`); the verdict names the local inspection through `InspectionRegime` (APK, keuring, contrôle technique, MOT, HU / AU, NCT or `InspectionName`). |
 | `TOBDFreezeFrameView` | `ERD.UI.FreezeFrameView` | Freeze-frame values at fault, optionally next to live values, against a `RangeProfile`; `Layout` table or inspector; the table scrolls with the themed scroll bar. |
 | `TOBDRangeEditor` | `ERD.UI.RangeEditor` | Editor for a `TOBDRangeProfile`: garage values, defaults, per-row reset and validation; hold the mouse button and sweep over the rows to move the selection; drag the header dividers to resize the columns (double-click resets; `*ColumnWidth` properties). |

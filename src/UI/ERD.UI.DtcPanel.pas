@@ -1412,7 +1412,10 @@ begin
     if (Y >= RowTop) and (Y < RowBottom) then
     begin
       ASourceIndex := I;
-      AOnExpander := X >= ClientWidth - ScaleValue(48);
+      // Tablet rows expand and collapse from anywhere on the row (as the
+      // inspector's category headers); desktop keeps the chevron area.
+      AOnExpander := (Density = dnTablet) or
+        (X >= ClientWidth - ScaleValue(48));
       Exit(True);
     end;
     RowTop := RowBottom;

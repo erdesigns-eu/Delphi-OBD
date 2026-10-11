@@ -44,8 +44,9 @@ the old one in the accent colour) and highlights the row under the
 mouse. `TOBDComboBox` has `DropDownCount`; `TOBDEdit` has `CharCase`
 and centres its text vertically.
 
-Dashboard edit mode draws dashed tile frames, and hover now clears
-when the mouse moves to another tile, the gaps or off the dashboard.
+Dashboard edit mode draws a thin dashed frame on the hovered or
+active (dragged / resized) tile only, and hover clears when the mouse
+moves to another tile, the gaps or off the dashboard.
 
 In tablet density a click anywhere on an inspector category header
 collapses or expands it (desktop keeps the chevron gutter). Moving
@@ -70,6 +71,11 @@ its text vertically, and `TOBDConnectionBar` uses the same text size
 as the status bar. Menu bar drop-downs and the themed drop-down lists
 are positioned before their window is shown, so they no longer flash
 in the top-left corner of the desktop when moving between menus.
+The low / high edits now repaint while a range column is being
+dragged instead of only after the drag stops, and `TOBDComboBox` no
+longer draws a darker border on hover, matching `TOBDEdit`.
+In tablet density a click anywhere on a `TOBDDtcPanel` row expands or
+collapses its freeze frame, not only on the chevron.
 
 Text on accent fills (backstage navigation, ribbon File button, check
 boxes, switches, badges) picks dark or light ink by contrast, so it
