@@ -1178,7 +1178,6 @@ begin
       Details := TDetailsController.Create(Window);
       Details.Setup(Window, DetailButton, DetailText, DetailH);
       DetailButton.OnClick := Details.Toggle;
-      Inc(Y, DetailButtonH);
     end;
 
     Verify := nil;
