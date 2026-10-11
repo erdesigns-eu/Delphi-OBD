@@ -357,7 +357,7 @@ function Answer: Integer;
 begin Result := 42; end;
 end.
 ''')
-        consumer = self.source('samples/Demo/Consumer.pas', '''unit Consumer;
+        consumer = self.source('examples/Demo/Consumer.pas', '''unit Consumer;
 interface
 procedure Run;
 implementation

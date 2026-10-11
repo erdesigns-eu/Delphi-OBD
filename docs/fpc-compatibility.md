@@ -91,7 +91,7 @@ incorrect standard identifier. Only the listed diagnostic messages are claimed.
 - 107 applicable static checkers: no findings, including hints.
 - Nine analyzer regression tests and twelve catalog-auditor regression tests pass.
 - All 248 catalogs have schema coverage and zero violations.
-- Every unit declaration matches its filename; source, tests, samples and packages
+- Every unit declaration matches its filename; source, tests and packages
   have no old unit-namespace references.
 - FPC compiles and executes original repository sources. Delphi builds, DUnitX,
   hardware sessions and GitHub Actions execution are not established by this run.

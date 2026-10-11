@@ -33,6 +33,7 @@ uses
 {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
 {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
 {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFNDEF FPC}System.Net.Socket,{$ENDIF}
   ERD.Compat.Socket,
   ERD.Types,
   ERD.Connection.Types,

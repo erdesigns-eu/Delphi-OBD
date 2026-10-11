@@ -136,10 +136,6 @@
     {
       "source": "docs/**/*",
       "destination": "$(BDSCATALOGREPOSITORY)\\Delphi-OBD\\docs"
-    },
-    {
-      "source": "samples/**/*",
-      "destination": "$(BDSCATALOGREPOSITORY)\\Delphi-OBD\\samples"
     }
   ],
   "icon": "assets/designtime/delphi-obd-mark.png"

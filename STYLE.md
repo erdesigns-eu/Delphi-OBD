@@ -352,8 +352,8 @@ procedure ReadVINAsync;
   these strings appear.
 - `src/DesignTime` is the only place VCL is allowed (the IDE itself is
   VCL).
-- Demo / sample applications under `samples/` may use VCL or FMX as
-  appropriate per sample.
+- Example applications may use VCL or FMX as appropriate per
+  example.
 
 ---
 

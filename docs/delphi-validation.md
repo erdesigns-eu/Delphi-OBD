@@ -52,7 +52,7 @@ Review these scenarios in a real VCL form, with Windows scaling at
 | Terminal / logs | Long lines, timestamps, ring-buffer limit, selection and readability on both themes. |
 | DTC list | Empty list, active/pending/history entries, descriptions and long codes. |
 | Trend chart / matrix | Empty chart, one and several channels, window rollover; every matrix preset, scrolling ticker and text longer than the display. |
-| Dashboard | `samples/18-OBDStudioDashboard`: default layout, edit mode move / resize / remove, save, load, default layout; `Source` assigned to a live `TOBDLiveData`. |
+| Dashboard | A form hosting `TOBDDashboard`: default layout, edit mode move / resize / remove, save, load, default layout; `Source` assigned to a live `TOBDLiveData`. |
 | Component palette | All 141 class icons appear; no default missing-icon boxes. Inspect the generated 24px icons at 100 %, 150 % and 200 % IDE scaling in the light and dark IDE themes. |
 | Live-test dialog | Close while an action has retained callbacks; late log/status callbacks must not access the freed dialog. |
 

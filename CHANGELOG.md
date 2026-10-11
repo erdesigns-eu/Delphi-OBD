@@ -22,7 +22,7 @@ A themed VCL control set for workshop dashboards, on the
   layouts; `Source` binds every tile to one `TOBDLiveData`.
 
 All controls receive data through `TOBDChannelBinding` (`Channel`
-property). Sample: `samples/18-OBDStudioDashboard`.
+property).
 
 The **OBD Visual** page holds the terminal, log viewer, DTC list,
 PID / OEM pickers and the VIN / CAN-ID edits. `TOBDTerminal`,

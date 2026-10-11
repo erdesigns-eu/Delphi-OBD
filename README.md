@@ -20,9 +20,6 @@ their published properties may still change before 3.0.0. The
 non-visual components are largely complete; expect some issues. Please
 open a GitHub issue for bugs that turn up.
 
-See [`samples/18-OBDStudioDashboard`](samples/18-OBDStudioDashboard/)
-for a workshop dashboard built from the visual controls.
-
 ## Quick start
 
 ```pascal
@@ -131,7 +128,6 @@ EV catalogue entries describe model-specific data, not brand-wide support; see
 | [`docs/coding-cookbook.md`](docs/coding-cookbook.md) | Per-vendor coding walkthroughs (VAG / BMW / Mercedes / Stellantis / Ford / HMG / Honda / Toyota) |
 | [`docs/radio-code-algorithms.md`](docs/radio-code-algorithms.md) | Per-vendor inventory of which radio-code algorithms ship bundled vs as `OnCalculate` stubs, with public-source citations |
 | [`docs/flashing-safety.md`](docs/flashing-safety.md) | Pre-conditions, voltage requirements, recovery, bricked-ECU playbook |
-| [`samples/`](samples/) | Standalone sample projects, each with its own README |
 
 ## Contributing
 

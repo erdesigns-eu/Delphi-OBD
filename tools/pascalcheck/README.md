@@ -29,7 +29,7 @@ out from the file's own location, so the suite runs from any directory; set
 
 ## Delphi-OBD integration
 
-Discovery covers namespaced units under `src/`, `samples/`, `packages/`,
+Discovery covers namespaced units under `src/`, `examples/`, `packages/`,
 `tests/` and `tools/`. Conditional FPC/Delphi imports are recognized.
 No source files are rewritten. The default CI run is strict, including
 hint/warning checkers. `--errors-only` is an optional local mode that reports

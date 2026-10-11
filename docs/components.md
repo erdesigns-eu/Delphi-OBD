@@ -378,8 +378,7 @@ Grid host for the controls above. `AddTile('dial' | 'bar' | 'value' |
 'trend' | 'lamp' | 'matrix' | 'grid', Col, Row, ColSpan, RowSpan)`,
 `EditMode` for moving and resizing tiles at run time, layouts saved
 and loaded as JSON, and `Source` to connect every tile to one
-`TOBDLiveData`. See
-[`samples/18-OBDStudioDashboard`](../samples/18-OBDStudioDashboard/).
+`TOBDLiveData`.
 
 The **OBD Visual** page holds the supporting controls (terminal, log
 viewer, DTC list, PID / OEM pickers, VIN and CAN-ID edits). The

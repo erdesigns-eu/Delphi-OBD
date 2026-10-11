@@ -527,8 +527,6 @@ var
   Code: TScrollCode;
 begin
   inherited;
-  NewPos := FPosition;
-  Code := scLineDown;
   case Key of
     VK_LEFT, VK_UP:
       begin

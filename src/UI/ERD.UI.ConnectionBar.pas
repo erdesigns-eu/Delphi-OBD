@@ -30,6 +30,7 @@ uses
   System.SysUtils,
   System.Classes,
   System.Math,
+  System.UITypes,
   Vcl.Graphics,
   Vcl.Controls,
   Vcl.ExtCtrls,

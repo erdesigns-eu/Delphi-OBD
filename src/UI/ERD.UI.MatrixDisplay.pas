@@ -42,6 +42,7 @@ uses
   System.Classes,
   System.Math,
   System.JSON,
+  System.Generics.Collections,
   System.UITypes,
   Vcl.Graphics,
   Vcl.Controls,
