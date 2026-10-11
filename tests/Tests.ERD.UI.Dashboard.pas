@@ -3,7 +3,7 @@
 //
 //  Behaviour tests for TOBDDashboard: tile kinds, cell placement and
 //  growth, removal, layout save / load round-trip, data-source
-//  propagation and rendering of the empty grid.
+//  propagation, rendering of the empty grid and the edit-mode handles.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
@@ -64,6 +64,8 @@ type
     [Test] procedure SourceReachesTiles;
     [Test] procedure LayoutChangeIsReported;
     [Test] procedure EmptyGridDraws;
+    [Test] procedure EditHitTestFindsHandles;
+    [Test] procedure EditStateIsTracked;
   end;
 
 implementation
@@ -324,6 +326,36 @@ end;
 procedure TOBDDashboardTests.EmptyGridDraws;
 begin
   Assert.IsTrue(InkRatio(FDash) > 0, 'empty dashboard draws nothing');
+end;
+
+procedure TOBDDashboardTests.EditHitTestFindsHandles;
+var
+  Tile: TOBDCustomControl;
+begin
+  Tile := FDash.AddTile('value');
+  Assert.IsTrue((Tile.Width > 80) and (Tile.Height > 80), 'tile size');
+  Assert.AreEqual(Ord(thClose), Ord(Tile.EditHitTest(Tile.Width - 17, 17)),
+    'close button');
+  Assert.AreEqual(Ord(thResize),
+    Ord(Tile.EditHitTest(Tile.Width - 4, Tile.Height - 4)), 'resize grip');
+  Assert.AreEqual(Ord(thMove),
+    Ord(Tile.EditHitTest(Tile.Width div 2, Tile.Height div 2)), 'body');
+  Assert.AreEqual(Ord(thNone), Ord(Tile.EditHitTest(-1, 60)), 'outside');
+end;
+
+procedure TOBDDashboardTests.EditStateIsTracked;
+var
+  Tile: TOBDCustomControl;
+begin
+  Tile := FDash.AddTile('value');
+  Assert.AreEqual(Ord(thNone), Ord(Tile.EditHot));
+  Tile.SetEditState(thClose, thClose);
+  Assert.AreEqual(Ord(thClose), Ord(Tile.EditHot));
+  Assert.AreEqual(Ord(thClose), Ord(Tile.EditDown));
+  FDash.EditMode := True;
+  FDash.EditMode := False;
+  Assert.AreEqual(Ord(thNone), Ord(Tile.EditHot), 'edit mode exit');
+  Assert.AreEqual(Ord(thNone), Ord(Tile.EditDown), 'edit mode exit');
 end;
 
 initialization

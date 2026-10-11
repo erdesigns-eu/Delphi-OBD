@@ -140,6 +140,8 @@ type
     FForcePreview: Boolean;
     FDensity: TOBDDensity;
     FParentDensity: Boolean;
+    FEditHot: TOBDTileHit;
+    FEditDown: TOBDTileHit;
     procedure SetTheme(AValue: TOBDTheme);
     function GetDensity: TOBDDensity;
     procedure SetDensity(AValue: TOBDDensity);
@@ -157,6 +159,8 @@ type
     procedure SetStyleBorder(AValue: TColor);
     procedure SetForcePreview(AValue: Boolean);
     function TileHost: IOBDTileHost;
+    function EditCloseRect: TRect;
+    function EditGripSize: Integer;
     procedure DrawEditOverlay(ACanvas: TCanvas);
   protected
     /// <summary>Override and paint onto <c>ACanvas</c>. Bounds
@@ -286,6 +290,15 @@ type
     /// <param name="Y">Client Y.</param>
     /// <returns>Which edit handle the point is over.</returns>
     function EditHitTest(X, Y: Integer): TOBDTileHit;
+    /// <summary>Sets the hover and pressed edit handles painted by the
+    /// dashboard edit overlay (called by the tile host).</summary>
+    /// <param name="AHot">Handle under the mouse.</param>
+    /// <param name="ADown">Handle being pressed or dragged.</param>
+    procedure SetEditState(AHot, ADown: TOBDTileHit);
+    /// <summary>Edit handle under the mouse.</summary>
+    property EditHot: TOBDTileHit read FEditHot;
+    /// <summary>Edit handle being pressed or dragged.</summary>
+    property EditDown: TOBDTileHit read FEditDown;
 
     /// <summary>Writes the control's user-facing settings (caption,
     /// channel, range, thresholds, ...) to a JSON object. Used by
@@ -478,6 +491,9 @@ procedure OBDJsonWriteBool(AObject: TJSONObject; const AKey: string;
   AValue: Boolean);
 
 implementation
+
+uses
+  ERD.UI.Paint;
 
 const
   DESIGN_PPI = 96;
@@ -882,14 +898,39 @@ begin
       Result := nil;
 end;
 
+function TOBDCustomControl.EditCloseRect: TRect;
+var
+  M, D: Integer;
+begin
+  // Round close button inset from the top-right corner; larger touch
+  // target in tablet density.
+  M := ScaleValue(6);
+  if Density = dnTablet then
+    D := ScaleValue(30)
+  else
+    D := ScaleValue(22);
+  Result := Rect(Width - M - D, M, Width - M, M + D);
+end;
+
+function TOBDCustomControl.EditGripSize: Integer;
+begin
+  if Density = dnTablet then
+    Result := ScaleValue(28)
+  else
+    Result := ScaleValue(20);
+end;
+
 function TOBDCustomControl.EditHitTest(X, Y: Integer): TOBDTileHit;
 var
+  R: TRect;
   Grip: Integer;
 begin
   if (X < 0) or (Y < 0) or (X >= Width) or (Y >= Height) then
     Exit(thNone);
-  Grip := ScaleValue(20);
-  if (X >= Width - Grip) and (Y < Grip) then
+  R := EditCloseRect;
+  InflateRect(R, ScaleValue(3), ScaleValue(3));
+  Grip := EditGripSize;
+  if (X >= R.Left) and (X < R.Right) and (Y >= R.Top) and (Y < R.Bottom) then
     Result := thClose
   else if (X >= Width - Grip) and (Y >= Height - Grip) then
     Result := thResize
@@ -897,36 +938,84 @@ begin
     Result := thMove;
 end;
 
+procedure TOBDCustomControl.SetEditState(AHot, ADown: TOBDTileHit);
+begin
+  if (FEditHot = AHot) and (FEditDown = ADown) then
+    Exit;
+  FEditHot := AHot;
+  FEditDown := ADown;
+  Invalidate;
+end;
+
 procedure TOBDCustomControl.DrawEditOverlay(ACanvas: TCanvas);
 var
-  Grip, Pad, I: Integer;
+  P: TOBDPainter;
   R: TRect;
+  LW, CX, CY, K, Grip: Single;
+  Fill, Outline, Ink: TColor;
+  Pressed: Boolean;
+  I: Integer;
 begin
-  Grip := ScaleValue(20);
-  Pad := ScaleValue(5);
-  ACanvas.Brush.Style := bsClear;
-  ACanvas.Pen.Style := psDash;
-  ACanvas.Pen.Width := 1;
-  ACanvas.Pen.Color := EffectiveAccent;
-  ACanvas.Rectangle(0, 0, Width, Height);
-  ACanvas.Pen.Style := psSolid;
-  ACanvas.Pen.Width := ScaleValue(2);
-  // Close glyph: an X in a filled square, top-right.
-  R := Rect(Width - Grip, 0, Width, Grip);
-  ACanvas.Brush.Style := bsSolid;
-  ACanvas.Brush.Color := Palette.Danger;
-  ACanvas.FillRect(R);
-  ACanvas.Pen.Color := clWhite;
-  ACanvas.MoveTo(R.Left + Pad, R.Top + Pad);
-  ACanvas.LineTo(R.Right - Pad, R.Bottom - Pad);
-  ACanvas.MoveTo(R.Right - Pad, R.Top + Pad);
-  ACanvas.LineTo(R.Left + Pad, R.Bottom - Pad);
-  // Resize grip: three diagonal strokes, bottom-right.
-  ACanvas.Pen.Color := EffectiveAccent;
-  for I := 1 to 3 do
-  begin
-    ACanvas.MoveTo(Width - I * ScaleValue(5), Height - 2);
-    ACanvas.LineTo(Width - 2, Height - I * ScaleValue(5));
+  P := TOBDPainter.Create(ACanvas, Palette, ScaleValue(96));
+  try
+    // Tile frame: thin accent outline, heavier while hovered or dragged.
+    if FEditDown in [thMove, thResize] then
+      LW := P.SF(2.5)
+    else if FEditHot <> thNone then
+      LW := P.SF(2)
+    else
+      LW := P.SF(1.25);
+    P.RoundRect(LW / 2, LW / 2, Width - LW, Height - LW, P.SF(4), clNone,
+      EffectiveAccent, LW);
+
+    // Close button: soft danger tint at rest, solid danger on hover,
+    // darker while pressed.
+    R := EditCloseRect;
+    Pressed := (FEditDown = thClose) and (FEditHot = thClose);
+    if Pressed then
+    begin
+      Fill := OBDMixColor(Palette.Danger, clBlack, 0.8);
+      Outline := clNone;
+      Ink := P.ContrastInk(Palette.Danger);
+    end
+    else if FEditHot = thClose then
+    begin
+      Fill := Palette.Danger;
+      Outline := clNone;
+      Ink := P.ContrastInk(Fill);
+    end
+    else
+    begin
+      Fill := P.Tint(Palette.Danger, 0.12);
+      Outline := P.Tint(Palette.Danger, 0.45);
+      Ink := P.DangerInk;
+    end;
+    P.Ellipse(R.Left, R.Top, R.Width, R.Height, Fill, Outline, P.SF(1));
+    CX := R.Left + R.Width / 2;
+    CY := R.Top + R.Height / 2;
+    K := R.Width * 0.18;
+    P.Lines([OBDPointF(CX - K, CY - K), OBDPointF(CX + K, CY + K)], Ink,
+      P.SF(1.75));
+    P.Lines([OBDPointF(CX + K, CY - K), OBDPointF(CX - K, CY + K)], Ink,
+      P.SF(1.75));
+
+    // Resize grip: three diagonal strokes, bottom-right, on an accent
+    // tint while hovered or dragged.
+    Grip := EditGripSize;
+    if (FEditHot = thResize) or (FEditDown = thResize) then
+    begin
+      P.RoundRect(Width - Grip - P.SF(2), Height - Grip - P.SF(2), Grip,
+        Grip, P.SF(4), P.Tint(EffectiveAccent, 0.2), clNone);
+      Ink := P.AccentText;
+    end
+    else
+      Ink := EffectiveAccent;
+    for I := 1 to 3 do
+      P.Lines([OBDPointF(Width - P.SF(4) - I * Grip * 0.22, Height - P.SF(4)),
+        OBDPointF(Width - P.SF(4), Height - P.SF(4) - I * Grip * 0.22)], Ink,
+        P.SF(1.5));
+  finally
+    P.Free;
   end;
 end;
 
@@ -939,6 +1028,9 @@ procedure TOBDCustomControl.WndProc(var Message: TMessage);
 var
   Host: IOBDTileHost;
 begin
+  if (Message.Msg = CM_MOUSELEAVE) and (FEditHot <> thNone) and
+    (GetCapture <> WindowHandle) then
+    SetEditState(thNone, FEditDown);
   if (Message.Msg >= WM_MOUSEFIRST) and (Message.Msg <= WM_MOUSELAST) then
   begin
     Host := TileHost;

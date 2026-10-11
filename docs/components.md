@@ -381,7 +381,9 @@ the themed overlay scroll bar.
 ### `TOBDDashboard` — `ERD.UI.Dashboard`
 Grid host for the controls above. `AddTile('dial' | 'bar' | 'value' |
 'trend' | 'lamp' | 'matrix' | 'grid', Col, Row, ColSpan, RowSpan)`,
-`EditMode` for moving and resizing tiles at run time, layouts saved
+`EditMode` for moving, resizing and removing tiles at run time (drop a
+tile on another tile to swap the two; the close button and resize grip
+show hover and pressed states, and close acts on release), layouts saved
 and loaded as JSON, and `Source` to connect every tile to one
 `TOBDLiveData`.
 

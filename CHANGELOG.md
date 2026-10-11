@@ -18,7 +18,8 @@ A themed VCL control set for workshop dashboards, on the
 - `TOBDTrendChart`, `TOBDMatrixDisplay`, `TOBDLiveDataGrid` —
   multi-channel strip chart, dot-matrix text display with presets and
   a PID table with session minimum / maximum.
-- `TOBDDashboard` — grid host with run-time edit mode and JSON
+- `TOBDDashboard` — grid host with run-time edit mode (drag to move or
+  swap tiles, resize grip, close button with hover / pressed states) and JSON
   layouts; `Source` binds every tile to one `TOBDLiveData`.
 
 All controls receive data through `TOBDChannelBinding` (`Channel`

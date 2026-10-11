@@ -10,7 +10,7 @@
 //    and snap to the cell under them.
 //  - At run time EditMode lets the mechanic drag tiles to move them,
 //    drag the bottom-right grip to resize and click the red cross to
-//    remove; clicking an empty cell fires OnEmptyCellClick so the
+//    remove; dropping a tile on another tile swaps the two; clicking an empty cell fires OnEmptyCellClick so the
 //    host can offer "add gauge here".
 //  - AddTile creates a control by kind name ('dial', 'bar', 'value',
 //    'trend', 'lamp', 'matrix', 'grid'); RegisterTileKind adds more.
@@ -156,6 +156,8 @@ type
     FDragHit: TOBDTileHit;
     FDragStart: TPoint;
     FDragOrigin: TRect;
+    FDragSwapped: Boolean;
+    FSwapTile: TOBDDashboardTile;
     FPendingRemove: TList<TControl>;
     FOnLayoutChanged: TNotifyEvent;
     FOnEmptyCellClick: TOBDDashboardCellEvent;
@@ -169,6 +171,12 @@ type
     procedure AdoptControl(AControl: TOBDCustomControl);
     procedure SnapFromBounds(ATile: TOBDDashboardTile);
     procedure RepaintTiles;
+    function AreaFree(ACol, ARow, AColSpan, ARowSpan: Integer;
+      AIgnoreA, AIgnoreB: TOBDDashboardTile): Boolean;
+    function TileAtCell(ACol, ARow: Integer;
+      AIgnore: TOBDDashboardTile): TOBDDashboardTile;
+    function TrySwap(ATile, AOther: TOBDDashboardTile): Boolean;
+    procedure ClearEditStates;
     procedure CMControlListChange(var Message: TCMControlListChange);
       message CM_CONTROLLISTCHANGE;
     procedure CMRemovePending(var Message: TMessage); message CM_OBD_REMOVE_PENDING;
@@ -573,6 +581,8 @@ begin
     begin
       if FDragTile = T then
         FDragTile := nil;
+      if FSwapTile = T then
+        FSwapTile := nil;
       T.Free;
     end;
   end;
@@ -621,10 +631,21 @@ begin
     Exit;
   FEditMode := AValue;
   FDragTile := nil;
+  FSwapTile := nil;
+  ClearEditStates;
   Invalidate;
   RepaintTiles;
   if Assigned(FOnEditModeChanged) then
     FOnEditModeChanged(Self);
+end;
+
+procedure TOBDDashboard.ClearEditStates;
+var
+  I: Integer;
+begin
+  for I := 0 to FTiles.Count - 1 do
+    if FTiles[I].Control <> nil then
+      FTiles[I].Control.SetEditState(thNone, thNone);
 end;
 
 procedure TOBDDashboard.SetSource(AValue: TOBDLiveData);
@@ -700,6 +721,12 @@ end;
 
 function TOBDDashboard.IsFree(ACol, ARow, AColSpan, ARowSpan: Integer;
   AIgnore: TOBDDashboardTile): Boolean;
+begin
+  Result := AreaFree(ACol, ARow, AColSpan, ARowSpan, AIgnore, nil);
+end;
+
+function TOBDDashboard.AreaFree(ACol, ARow, AColSpan, ARowSpan: Integer;
+  AIgnoreA, AIgnoreB: TOBDDashboardTile): Boolean;
 var
   I: Integer;
   T: TOBDDashboardTile;
@@ -712,12 +739,56 @@ begin
   for I := 0 to FTiles.Count - 1 do
   begin
     T := FTiles[I];
-    if T = AIgnore then
+    if (T = AIgnoreA) or (T = AIgnoreB) then
       Continue;
     if (ACol < T.Col + T.ColSpan) and (T.Col < ACol + AColSpan) and
       (ARow < T.Row + T.RowSpan) and (T.Row < ARow + ARowSpan) then
       Exit(False);
   end;
+end;
+
+function TOBDDashboard.TileAtCell(ACol, ARow: Integer;
+  AIgnore: TOBDDashboardTile): TOBDDashboardTile;
+var
+  I: Integer;
+  T: TOBDDashboardTile;
+begin
+  Result := nil;
+  for I := 0 to FTiles.Count - 1 do
+  begin
+    T := FTiles[I];
+    if (T <> AIgnore) and (ACol >= T.Col) and (ACol < T.Col + T.ColSpan) and
+      (ARow >= T.Row) and (ARow < T.Row + T.RowSpan) then
+      Exit(T);
+  end;
+end;
+
+function TOBDDashboard.TrySwap(ATile, AOther: TOBDDashboardTile): Boolean;
+var
+  NewCol, NewRow, OtherCol, OtherRow: Integer;
+begin
+  // ATile takes AOther's top-left cell, AOther takes ATile's; both keep
+  // their spans. Only when both fit and do not overlap anything else.
+  NewCol := AOther.Col;
+  NewRow := AOther.Row;
+  OtherCol := ATile.Col;
+  OtherRow := ATile.Row;
+  Result := AreaFree(NewCol, NewRow, ATile.ColSpan, ATile.RowSpan, ATile,
+    AOther) and AreaFree(OtherCol, OtherRow, AOther.ColSpan, AOther.RowSpan,
+    ATile, AOther) and not ((NewCol < OtherCol + AOther.ColSpan) and
+    (OtherCol < NewCol + ATile.ColSpan) and
+    (NewRow < OtherRow + AOther.RowSpan) and
+    (OtherRow < NewRow + ATile.RowSpan));
+  if not Result then
+    Exit;
+  Inc(FArranging);
+  try
+    ATile.SetCells(NewCol, NewRow, ATile.ColSpan, ATile.RowSpan);
+    AOther.SetCells(OtherCol, OtherRow, AOther.ColSpan, AOther.RowSpan);
+  finally
+    Dec(FArranging);
+  end;
+  ArrangeTiles;
 end;
 
 function TOBDDashboard.FindFree(AColSpan, ARowSpan: Integer;
@@ -866,6 +937,8 @@ begin
     begin
       if FDragTile = T then
         FDragTile := nil;
+      if FSwapTile = T then
+        FSwapTile := nil;
       T.Free;
     end;
   end;
@@ -940,6 +1013,8 @@ begin
     Exit;
   if FDragTile = T then
     FDragTile := nil;
+  if FSwapTile = T then
+    FSwapTile := nil;
   T.Free;
   AControl.Free;
   Invalidate;
@@ -951,6 +1026,7 @@ var
   C: TControl;
 begin
   FDragTile := nil;
+  FSwapTile := nil;
   while FTiles.Count > 0 do
   begin
     C := FTiles[FTiles.Count - 1].Control;
@@ -982,10 +1058,11 @@ end;
 procedure TOBDDashboard.TileMouseMessage(ATile: TControl;
   var AMessage: TMessage);
 var
-  T: TOBDDashboardTile;
+  T, Other: TOBDDashboardTile;
+  Tile: TOBDCustomControl;
   P: TPoint;
   Hit: TOBDTileHit;
-  DC, DR, NC, NR, NCS, NRS: Integer;
+  DC, DR, NC, NR, NCS, NRS, PC, PR: Integer;
   Moved: Boolean;
   G: Integer;
   CW, CH: Double;
@@ -994,31 +1071,38 @@ begin
   T := FTiles.FindControl(ATile);
   if (T = nil) or not(ATile is TOBDCustomControl) then
     Exit;
+  Tile := TOBDCustomControl(ATile);
   P := Point(TWMMouse(AMessage).XPos, TWMMouse(AMessage).YPos);
+  Hit := Tile.EditHitTest(P.X, P.Y);
   case AMessage.Msg of
     WM_LBUTTONDOWN:
       begin
-        Hit := TOBDCustomControl(ATile).EditHitTest(P.X, P.Y);
-        if Hit = thClose then
-        begin
-          // The tile is inside its own window procedure; free it once
-          // the message has unwound.
-          if FPendingRemove.IndexOf(ATile) < 0 then
-            FPendingRemove.Add(ATile);
-          PostMessage(Handle, CM_OBD_REMOVE_PENDING, 0, 0);
-          Exit;
-        end;
+        // Close acts on release (like a button), so the pressed state
+        // shows and the mechanic can still slide off to cancel.
         FDragTile := T;
         FDragHit := Hit;
+        FDragSwapped := False;
+        FSwapTile := nil;
         FDragStart := ATile.ClientToParent(P, Self);
         FDragOrigin := Rect(T.Col, T.Row, T.ColSpan, T.RowSpan);
-        Winapi.Windows.SetCapture(TWinControl(ATile).Handle);
+        Tile.SetEditState(Hit, Hit);
+        Winapi.Windows.SetCapture(Tile.Handle);
       end;
     WM_MOUSEMOVE:
       begin
-        Hit := TOBDCustomControl(ATile).EditHitTest(P.X, P.Y);
         if FDragTile = T then
-          Hit := FDragHit;
+        begin
+          if FDragHit <> thClose then
+            Tile.SetEditState(FDragHit, FDragHit)
+          else if Hit = thClose then
+            Tile.SetEditState(thClose, thClose)
+          else
+            Tile.SetEditState(thNone, thClose);
+          if FDragHit <> thClose then
+            Hit := FDragHit;
+        end
+        else
+          Tile.SetEditState(Hit, thNone);
         case Hit of
           thResize:
             Winapi.Windows.SetCursor(Screen.Cursors[crSizeNWSE]);
@@ -1027,7 +1111,7 @@ begin
         else
           Winapi.Windows.SetCursor(Screen.Cursors[crSizeAll]);
         end;
-        if FDragTile <> T then
+        if (FDragTile <> T) or (FDragHit = thClose) then
           Exit;
         P := ATile.ClientToParent(P, Self);
         G := ScaleValue(FGap);
@@ -1044,18 +1128,39 @@ begin
           NR := FDragOrigin.Top;
           NCS := EnsureRange(FDragOrigin.Right + DC, 1, FColumns - NC);
           NRS := EnsureRange(FDragOrigin.Bottom + DR, 1, FRows - NR);
-        end
-        else
-        begin
-          NCS := FDragOrigin.Right;
-          NRS := FDragOrigin.Bottom;
-          NC := EnsureRange(FDragOrigin.Left + DC, 0, FColumns - NCS);
-          NR := EnsureRange(FDragOrigin.Top + DR, 0, FRows - NRS);
+          if ((NCS <> T.ColSpan) or (NRS <> T.RowSpan)) and
+            IsFree(NC, NR, NCS, NRS, T) then
+          begin
+            T.SetCells(NC, NR, NCS, NRS);
+            Invalidate;
+          end;
+          Exit;
         end;
-        if ((NC <> T.Col) or (NR <> T.Row) or (NCS <> T.ColSpan) or
-          (NRS <> T.RowSpan)) and IsFree(NC, NR, NCS, NRS, T) then
+        NCS := T.ColSpan;
+        NRS := T.RowSpan;
+        NC := EnsureRange(FDragOrigin.Left + DC, 0, FColumns - NCS);
+        NR := EnsureRange(FDragOrigin.Top + DR, 0, FRows - NRS);
+        if ((NC <> T.Col) or (NR <> T.Row)) and
+          IsFree(NC, NR, NCS, NRS, T) then
         begin
           T.SetCells(NC, NR, NCS, NRS);
+          FSwapTile := nil;
+          Invalidate;
+          Exit;
+        end;
+        // Pointer over another tile: swap places with it (reorder).
+        // FSwapTile stops the pair swapping back until the pointer
+        // leaves that tile.
+        CellAt(P.X, P.Y, PC, PR);
+        Other := nil;
+        if PC >= 0 then
+          Other := TileAtCell(PC, PR, T);
+        if Other = nil then
+          FSwapTile := nil
+        else if (Other <> FSwapTile) and TrySwap(T, Other) then
+        begin
+          FSwapTile := Other;
+          FDragSwapped := True;
           Invalidate;
         end;
       end;
@@ -1063,10 +1168,24 @@ begin
       if FDragTile = T then
       begin
         Winapi.Windows.ReleaseCapture;
-        Moved := (T.Col <> FDragOrigin.Left) or
+        FDragTile := nil;
+        FSwapTile := nil;
+        Tile.SetEditState(Hit, thNone);
+        if FDragHit = thClose then
+        begin
+          if Hit = thClose then
+          begin
+            // The tile is inside its own window procedure; free it
+            // once the message has unwound.
+            if FPendingRemove.IndexOf(ATile) < 0 then
+              FPendingRemove.Add(ATile);
+            PostMessage(Handle, CM_OBD_REMOVE_PENDING, 0, 0);
+          end;
+          Exit;
+        end;
+        Moved := FDragSwapped or (T.Col <> FDragOrigin.Left) or
           (T.Row <> FDragOrigin.Top) or (T.ColSpan <> FDragOrigin.Right) or
           (T.RowSpan <> FDragOrigin.Bottom);
-        FDragTile := nil;
         if Moved then
           LayoutChanged;
       end;
