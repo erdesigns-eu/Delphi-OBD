@@ -2038,6 +2038,9 @@ begin
     (X >= ScrollTrackRect.Left);
   if Abs(X - SplitterX) <= ScaleValue(3) then
     Cursor := crSizeWE
+  else if (Density = dnTablet) and not NewHover and
+    (CategoryAt(Point(X, Y)) <> nil) then
+    Cursor := crHandPoint
   else
     Cursor := crDefault;
   if NewHover <> FScrollHover then

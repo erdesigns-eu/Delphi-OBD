@@ -47,6 +47,13 @@ and centres its text vertically.
 Dashboard edit mode draws dashed tile frames, and hover now clears
 when the mouse moves to another tile, the gaps or off the dashboard.
 
+In tablet density a click anywhere on an inspector category header
+collapses or expands it (desktop keeps the chevron gutter). Moving
+with the arrow keys from a text property to a pick-list or check
+property no longer loses the keyboard focus. `TOBDRangeEditor` follows
+the inspector: hold the mouse button and sweep over the rows to move
+the selection, scrolling past the top or bottom edge.
+
 Text on accent fills (backstage navigation, ribbon File button, check
 boxes, switches, badges) picks dark or light ink by contrast, so it
 stays readable on the blue accent of the Windows theme.

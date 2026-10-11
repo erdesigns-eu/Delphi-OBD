@@ -1013,7 +1013,7 @@ begin
   inherited MouseMove(Shift, X, Y);
   if FDraggingSelect then
   begin
-    if not (ssLeft in Shift) then
+    if not (ssLeft in Shift) or (RangeCount = 0) then
     begin
       FDraggingSelect := False;
       Exit;
@@ -1029,7 +1029,7 @@ begin
     else
       I := RowAtY(Y);
     I := EnsureRange(I, 0, RangeCount - 1);
-    if (I <> FSelected) and (RangeCount > 0) then
+    if I <> FSelected then
     begin
       SelectRow(I);
       // Stop when the current row is invalid and keeps the selection.
