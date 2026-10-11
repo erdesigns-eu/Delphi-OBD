@@ -122,7 +122,6 @@ type
     procedure SetFilterText(const AValue: string);
     procedure SetItemIndex(AValue: Integer);
     procedure SetScrollPos(AValue: Integer);
-    procedure SignalsChanged;
     function UsePreviewData: Boolean;
     function SourceCount: Integer;
     function SourceGroup(AIndex: Integer): string;
@@ -195,6 +194,8 @@ type
     function DoMouseWheelUp(Shift: TShiftState; MousePos: TPoint): Boolean;
       override;
   public
+    /// <summary>Notifies the browser that its signal collection changed.</summary>
+    procedure SignalsChanged;
     /// <summary>Creates an empty signal browser.</summary>
     /// <param name="AOwner">Component owner.</param>
     constructor Create(AOwner: TComponent); override;

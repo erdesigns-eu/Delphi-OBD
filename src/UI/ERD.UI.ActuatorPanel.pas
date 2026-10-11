@@ -124,7 +124,6 @@ type
     FOnStopAll: TNotifyEvent;
     procedure SetItems(AValue: TOBDActuatorCollection);
     procedure SetScrollPos(AValue: Integer);
-    procedure ItemsChanged;
     function UsePreviewData: Boolean;
     function VisualCount: Integer;
     function VisualName(AIndex: Integer): string;
@@ -188,6 +187,8 @@ type
     function DoMouseWheelUp(Shift: TShiftState; MousePos: TPoint): Boolean;
       override;
   public
+    /// <summary>Notifies the panel that its actuator collection changed.</summary>
+    procedure ItemsChanged;
     /// <summary>Creates an empty actuator panel.</summary>
     /// <param name="AOwner">Component owner.</param>
     constructor Create(AOwner: TComponent); override;

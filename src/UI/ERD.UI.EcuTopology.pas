@@ -187,7 +187,6 @@ type
     procedure SetEcus(AValue: TOBDEcuCollection);
     procedure SetSelectedAddress(const AValue: string);
     procedure SetItemIndex(AValue: Integer);
-    procedure DataChanged;
     function UsePreviewData: Boolean;
     function VisualBusCount: Integer;
     function VisualEcuCount: Integer;
@@ -238,6 +237,8 @@ type
     /// <param name="Message">Dialog-code message.</param>
     procedure WMGetDlgCode(var Message: TWMGetDlgCode); message WM_GETDLGCODE;
   public
+    /// <summary>Notifies the control that the bus or ECU model changed.</summary>
+    procedure DataChanged;
     /// <summary>Creates an empty topology view.</summary>
     /// <param name="AOwner">Component owner.</param>
     constructor Create(AOwner: TComponent); override;
@@ -309,7 +310,6 @@ type
     procedure SetSelectedAddress(const AValue: string);
     procedure SetItemIndex(AValue: Integer);
     procedure SetScrollPos(AValue: Integer);
-    procedure DataChanged;
     function UsePreviewData: Boolean;
     function VisualEcuCount: Integer;
     function VisualFaultCount: Integer;
@@ -379,6 +379,8 @@ type
     function DoMouseWheelUp(Shift: TShiftState; MousePos: TPoint): Boolean;
       override;
   public
+    /// <summary>Notifies the control that the bus or ECU model changed.</summary>
+    procedure DataChanged;
     /// <summary>Creates an empty ECU list.</summary>
     /// <param name="AOwner">Component owner.</param>
     constructor Create(AOwner: TComponent); override;
@@ -861,17 +863,22 @@ end;
 
 procedure TOBDEcuTopology.SetSelectedAddress(const AValue: string);
 var
-  I: Integer;
+  I, J: Integer;
 begin
   if FSelectedAddress = AValue then
     Exit;
-  I := FEcus.IndexOfAddress(AValue);
   if UsePreviewData then
-    for I := 0 to ECU_PREVIEW_COUNT - 1 do
-      if SameText(PreviewEcuAddress(I), AValue) then
-        Break;
-  if UsePreviewData and (I >= ECU_PREVIEW_COUNT) then
+  begin
     I := -1;
+    for J := 0 to ECU_PREVIEW_COUNT - 1 do
+      if SameText(PreviewEcuAddress(J), AValue) then
+      begin
+        I := J;
+        Break;
+      end;
+  end
+  else
+    I := FEcus.IndexOfAddress(AValue);
   if (not UsePreviewData) and (I < 0) and (AValue <> '') then
   begin
     FSelectedAddress := AValue;
@@ -1478,17 +1485,22 @@ end;
 
 procedure TOBDEcuList.SetSelectedAddress(const AValue: string);
 var
-  I: Integer;
+  I, J: Integer;
 begin
   if FSelectedAddress = AValue then
     Exit;
-  I := FEcus.IndexOfAddress(AValue);
   if UsePreviewData then
-    for I := 0 to ECU_PREVIEW_COUNT - 1 do
-      if SameText(PreviewEcuAddress(I), AValue) then
-        Break;
-  if UsePreviewData and (I >= ECU_PREVIEW_COUNT) then
+  begin
     I := -1;
+    for J := 0 to ECU_PREVIEW_COUNT - 1 do
+      if SameText(PreviewEcuAddress(J), AValue) then
+      begin
+        I := J;
+        Break;
+      end;
+  end
+  else
+    I := FEcus.IndexOfAddress(AValue);
   SetItemIndex(I);
 end;
 

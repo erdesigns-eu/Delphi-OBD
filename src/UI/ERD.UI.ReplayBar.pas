@@ -62,7 +62,7 @@ type
     constructor Create(Collection: TCollection); override;
   published
     /// <summary>Marker position in milliseconds.</summary>
-    property PositionMs: Int64 read FPositionMs write SetPositionMs default 0;
+    property PositionMs: Int64 read FPositionMs write SetPositionMs;
     /// <summary>Marker kind.</summary>
     property Kind: TOBDReplayMarkerKind read FKind write SetKind
       default rpbBookmark;
@@ -195,9 +195,9 @@ type
     /// <summary>Secondary recording information.</summary>
     property InfoText: string read FInfoText write SetInfoText;
     /// <summary>Current playback position in milliseconds.</summary>
-    property PositionMs: Int64 read FPositionMs write SetPositionMs default 0;
+    property PositionMs: Int64 read FPositionMs write SetPositionMs;
     /// <summary>Recording duration in milliseconds.</summary>
-    property DurationMs: Int64 read FDurationMs write SetDurationMs default 0;
+    property DurationMs: Int64 read FDurationMs write SetDurationMs;
     /// <summary>True while playback is active.</summary>
     property Playing: Boolean read FPlaying write SetPlaying default False;
     /// <summary>Playback speed multiplier.</summary>
@@ -675,6 +675,7 @@ begin
   if PtInRect(SliderRect, Point(X, Y)) then
   begin
     FDraggingSlider := True;
+    MouseCapture := True;
     Seek(PositionFromX(X));
     Invalidate;
     Exit;
@@ -710,7 +711,9 @@ begin
   for I := 0 to 3 do
     if PtInRect(ButtonRect(I), Point(X, Y)) then
       FHoverButton := I;
-  if (FHoverButton >= 0) or PtInRect(SliderRect, Point(X, Y)) then
+  if (FHoverButton >= 0) or PtInRect(SliderRect, Point(X, Y)) or
+    PtInRect(SpeedRect(0), Point(X, Y)) or PtInRect(SpeedRect(1), Point(X, Y)) or
+    PtInRect(SpeedRect(2), Point(X, Y)) or PtInRect(SpeedRect(3), Point(X, Y)) then
     Cursor := crHandPoint
   else
     Cursor := crDefault;
@@ -724,6 +727,8 @@ begin
   if FDraggingSlider then
   begin
     FDraggingSlider := False;
+    MouseCapture := False;
+    Invalidate;
     Exit;
   end;
   if (FDownButton >= 0) and PtInRect(ButtonRect(FDownButton), Point(X, Y)) then
@@ -766,6 +771,11 @@ begin
   inherited;
   FHoverButton := -1;
   FDownButton := -1;
+  if FDraggingSlider then
+  begin
+    FDraggingSlider := False;
+    MouseCapture := False;
+  end;
   Cursor := crDefault;
   Invalidate;
 end;

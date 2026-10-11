@@ -1003,14 +1003,17 @@ begin
   if AButton = BTN_NEXT then
     Exit(Rect(X, Y, X + BW, Y + BH));
   Dec(X, Gap);
-  Caption := VisualStepActionCaption(VisualCurrentStep);
-  if Caption <> '' then
+  if StepCount > 0 then
   begin
-    BW := APainter.ButtonWidth(Caption, glNone);
-    Dec(X, BW);
-    if AButton = BTN_ACTION then
-      Exit(Rect(X, Y, X + BW, Y + BH));
-    Dec(X, Gap);
+    Caption := VisualStepActionCaption(VisualCurrentStep);
+    if Caption <> '' then
+    begin
+      BW := APainter.ButtonWidth(Caption, glNone);
+      Dec(X, BW);
+      if AButton = BTN_ACTION then
+        Exit(Rect(X, Y, X + BW, Y + BH));
+      Dec(X, Gap);
+    end;
   end;
   BW := APainter.ButtonWidth('Back', glNone);
   Dec(X, BW);
@@ -1049,7 +1052,7 @@ begin
   Result := cstNormal;
   if (AButton = BTN_BACK) and (VisualCurrentStep <= 0) then
     Result := cstDisabled
-  else if (AButton = BTN_NEXT) and not FNextEnabled then
+  else if (AButton = BTN_NEXT) and ((StepCount = 0) or not FNextEnabled) then
     Result := cstDisabled
   else if FDownButton = AButton then
     Result := cstPressed
@@ -1263,7 +1266,7 @@ begin
     F.Top + F.Height div 2, Source, OBD_TEXT_BODY, Palette.GaugeLabel,
     twRegular, taLeftJustify, ClientWidth - ScaleValue(460));
   APainter.Button(ButtonRect(BTN_BACK, APainter), 'Back', bkSecondary, ButtonState(BTN_BACK), False, glNone);
-  if VisualStepActionCaption(VisualCurrentStep) <> '' then
+  if (StepCount > 0) and (VisualStepActionCaption(VisualCurrentStep) <> '') then
     APainter.Button(ButtonRect(BTN_ACTION, APainter), VisualStepActionCaption(VisualCurrentStep),
       bkSecondary, ButtonState(BTN_ACTION), False, glNone);
   APainter.Button(ButtonRect(BTN_NEXT, APainter), 'Next', bkPrimary, ButtonState(BTN_NEXT), False, glNone);

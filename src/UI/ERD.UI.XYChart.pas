@@ -919,7 +919,10 @@ begin
           HasL := True;
         end
         else
+        begin
+          FLeftMin := System.Math.Min(FLeftMin, Pt.Y);
           FLeftMax := System.Math.Max(FLeftMax, Pt.Y);
+        end;
       end
       else
       begin
@@ -930,7 +933,10 @@ begin
           HasR := True;
         end
         else
+        begin
+          FRightMin := System.Math.Min(FRightMin, Pt.Y);
           FRightMax := System.Math.Max(FRightMax, Pt.Y);
+        end;
       end;
     end;
   end;

@@ -181,9 +181,10 @@ procedure TOBDCellMatrix.EnsureGrid;
 var
   M, I, Idx: Integer;
 begin
-  if (Length(FVoltages) = FModuleCount) and (FModuleCount > 0) and
-    (Length(FVoltages[0]) = FCellsPerModule) then
-    Exit;
+  if (FModuleCount > 0) and (FCellsPerModule > 0) and
+    (Length(FVoltages) = FModuleCount) then
+    if Length(FVoltages[0]) = FCellsPerModule then
+      Exit;
   SetLength(FVoltages, FModuleCount);
   SetLength(FTemps, FModuleCount);
   for M := 0 to FModuleCount - 1 do
@@ -473,6 +474,10 @@ begin
     Exit;
   FModuleCount := AValue;
   SetLength(FVoltages, 0);
+  SetLength(FTemps, 0);
+  FHotModule := -1;
+  FHotCell := -1;
+  FHotRect := Rect(0, 0, 0, 0);
   Invalidate;
 end;
 
@@ -484,6 +489,10 @@ begin
     Exit;
   FCellsPerModule := AValue;
   SetLength(FVoltages, 0);
+  SetLength(FTemps, 0);
+  FHotModule := -1;
+  FHotCell := -1;
+  FHotRect := Rect(0, 0, 0, 0);
   Invalidate;
 end;
 
@@ -510,8 +519,10 @@ begin
   FHotModule := -1;
   FHotCell := -1;
   G := GridRect;
-  if (Y >= G.Top - ScaleValue(6)) and (Y <= G.Bottom) and (X >= G.Left) and
-    (X <= G.Right) and (FModuleCount > 0) and (FCellsPerModule > 0) then
+  if (G.Width > 0) and (G.Height > 0) and
+    (Y >= G.Top - ScaleValue(6)) and (Y <= G.Bottom) and
+    (X >= G.Left) and (X <= G.Right) and (FModuleCount > 0) and
+    (FCellsPerModule > 0) then
   begin
     MW := G.Width / FModuleCount;
     M := Trunc((X - G.Left) / MW);

@@ -119,7 +119,6 @@ type
   strict private
     FSignals: TOBDSignalGridCollection;
     procedure SetSignals(AValue: TOBDSignalGridCollection);
-    procedure SignalsChanged;
     function UsePreviewData: Boolean;
     function VisualCount: Integer;
     function VisualName(AIndex: Integer): string;
@@ -142,6 +141,8 @@ type
     /// <param name="ACanvas">Target canvas.</param>
     procedure PaintControl(ACanvas: TCanvas); override;
   public
+    /// <summary>Notifies the grid that its signal collection changed.</summary>
+    procedure SignalsChanged;
     /// <summary>Creates an empty signal grid.</summary>
     /// <param name="AOwner">Component owner.</param>
     constructor Create(AOwner: TComponent); override;

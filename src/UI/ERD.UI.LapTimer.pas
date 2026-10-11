@@ -370,6 +370,7 @@ begin
   FTimer.Enabled := False;
   FFinalMs := 0;
   FStartTick := 0;
+  FSplits.Clear;
   SetState(ltsStaged);
   Invalidate;
 end;

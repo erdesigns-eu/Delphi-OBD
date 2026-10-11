@@ -122,7 +122,6 @@ type
     function SlotRect(AIndex: Integer): TRect;
     function HitSlot(X, Y: Integer): Integer;
     function StateColor(APainter: TOBDPainter; AState: TOBDKeySlotState): TColor;
-    procedure SlotsChanged;
     procedure DrawSlot(APainter: TOBDPainter; AIndex: Integer; const R: TRect);
     procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
   protected
@@ -149,6 +148,8 @@ type
     /// <param name="Message">Dialog-code message.</param>
     procedure WMGetDlgCode(var Message: TWMGetDlgCode); message WM_GETDLGCODE;
   public
+    /// <summary>Notifies the grid that its slot collection changed.</summary>
+    procedure SlotsChanged;
     /// <summary>Creates a key-slot grid.</summary>
     /// <param name="AOwner">Component owner.</param>
     constructor Create(AOwner: TComponent); override;

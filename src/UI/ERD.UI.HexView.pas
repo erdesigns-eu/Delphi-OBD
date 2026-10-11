@@ -244,7 +244,7 @@ type
     /// <summary>Header title.</summary>
     property Title: string read FTitle write SetTitle;
     /// <summary>Address added to the offset column.</summary>
-    property BaseAddress: Int64 read FBaseAddress write SetBaseAddress default 0;
+    property BaseAddress: Int64 read FBaseAddress write SetBaseAddress;
     /// <summary>Number of bytes shown per row.</summary>
     property BytesPerRow: Integer read FBytesPerRow write SetBytesPerRow
       default 16;
@@ -298,7 +298,7 @@ end;
 function TOBDHexRegionItem.Contains(AOffset: Integer): Boolean;
 begin
   Result := (FLength > 0) and (AOffset >= FOffset) and
-    (AOffset < FOffset + FLength);
+    (Int64(AOffset) < Int64(FOffset) + FLength);
 end;
 
 function TOBDHexRegionItem.GetDisplayName: string;
@@ -524,12 +524,19 @@ begin
 end;
 
 procedure TOBDHexView.LoadFromStream(AStream: TStream);
+var
+  Remaining: Int64;
 begin
   if AStream = nil then
     SetLength(FData, 0)
   else
   begin
-    SetLength(FData, AStream.Size - AStream.Position);
+    Remaining := AStream.Size - AStream.Position;
+    if Remaining < 0 then
+      Remaining := 0;
+    if Remaining > MaxInt then
+      raise EStreamError.Create('Stream is too large for TOBDHexView');
+    SetLength(FData, Integer(Remaining));
     if Length(FData) > 0 then
       AStream.ReadBuffer(FData[0], Length(FData));
   end;

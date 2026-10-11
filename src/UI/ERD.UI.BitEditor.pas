@@ -952,6 +952,7 @@ procedure TOBDBitEditor.DrawLabelRows(APainter: TOBDPainter; AByteIndex: Integer
   var ATop: Integer; ALeft: Integer);
 var
   I, Mid, EditW, Value: Integer;
+  CheckState: TCheckBoxState;
   Item: TOBDBitLabelItem;
   WhereText, ValueText: string;
 begin
@@ -971,9 +972,12 @@ begin
     APainter.Text(ALeft, Mid, WhereText, BIT_META, Palette.GaugeLabel, twMono);
     if Item.Kind = bleCheck then
     begin
+      if Item.Extract(CodingByte(AByteIndex)) <> 0 then
+        CheckState := cbChecked
+      else
+        CheckState := cbUnchecked;
       APainter.CheckBox(ALeft + ScaleValue(70), Mid, Metrics.Check,
-        TCheckBoxState(Item.Extract(CodingByte(AByteIndex))), True, False,
-        False);
+        CheckState, True, False, False);
       APainter.Text(ALeft + ScaleValue(70 + Metrics.Check + 8), Mid,
         Item.Caption, BIT_TEXT, Palette.ForegroundText, twRegular,
         taLeftJustify, ClientWidth - ALeft - ScaleValue(150));
