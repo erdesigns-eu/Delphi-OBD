@@ -195,7 +195,6 @@ type
     function NextSelectable(AStart, ADelta: Integer): Integer;
     function FirstSelectable: Integer;
     function LastSelectable: Integer;
-    procedure ItemsChanged;
     procedure ScrollBy(ADelta: Integer);
     procedure EnsureTabVisible(AIndex: Integer);
     procedure CloseTab(AIndex: Integer);
@@ -208,6 +207,8 @@ type
     procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
     procedure CMHintShow(var Message: TCMHintShow); message CM_HINTSHOW;
     procedure WMGetDlgCode(var Message: TWMGetDlgCode); message WM_GETDLGCODE;
+  private
+    procedure ItemsChanged;
   protected
     /// <summary>Clears the image list reference when it is freed.</summary>
     /// <param name="AComponent">Component inserted or removed.</param>

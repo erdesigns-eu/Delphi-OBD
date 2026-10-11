@@ -246,7 +246,6 @@ type
     procedure ToggleMaximizeRestore;
     procedure ExecuteSystemButton(AButton: TOBDSystemButton);
     procedure ExecuteButton(AButton: TOBDCaptionButton);
-    procedure UpdateChildLayout;
     procedure UpdateCommandSurface;
     procedure UpdateDwmFrame;
     procedure ApplyHeight;
@@ -263,6 +262,8 @@ type
       AHover: Boolean);
     procedure DrawStatus(APainter: TOBDPainter; const R: TRect);
     procedure DrawTitleText(APainter: TOBDPainter; ALeft, ARight: Integer);
+  private
+    procedure UpdateChildLayout;
   protected
     /// <summary>Clears component references when they are freed.</summary>
     /// <param name="AComponent">Component being inserted or removed.</param>

@@ -114,7 +114,7 @@ type
 
   /// <summary>One streamable toolbar item.</summary>
   TOBDToolItem = class(TCollectionItem)
-  strict private
+  private
     FKind: TOBDToolItemKind;
     FAction: TBasicAction;
     FActionLink: TOBDToolItemActionLink;
@@ -249,7 +249,6 @@ type
     function SearchRect: TRect;
     function ItemWidth(APainter: TOBDPainter; AItem: TOBDToolItem): Integer;
     function ItemAt(X, Y: Integer): Integer;
-    procedure ItemsChanged;
     procedure LayoutItems(APainter: TOBDPainter);
     procedure DrawItem(APainter: TOBDPainter; ACanvas: TCanvas; AIndex: Integer);
     procedure DrawMore(APainter: TOBDPainter);
@@ -266,6 +265,8 @@ type
     function ItemGlyph(AItem: TOBDToolItem): TOBDGlyph;
     procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
     procedure CMHintShow(var Message: TCMHintShow); message CM_HINTSHOW;
+  private
+    procedure ItemsChanged;
   protected
     /// <summary>Clears image and menu references when components are freed.</summary>
     /// <param name="AComponent">Component inserted or removed.</param>

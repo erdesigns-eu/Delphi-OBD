@@ -179,7 +179,6 @@ type
     function EffectiveMono(AIndex: Integer): Boolean;
     function TextSize: Single;
     function PanelNaturalWidth(APainter: TOBDPainter; AIndex: Integer): Integer;
-    procedure PanelsChanged;
     procedure LayoutPanels(APainter: TOBDPainter);
     procedure DrawPanel(APainter: TOBDPainter; ACanvas: TCanvas;
       AIndex: Integer);
@@ -187,6 +186,8 @@ type
     function PanelAt(X, Y: Integer): Integer;
     procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
     procedure CMHintShow(var Message: TCMHintShow); message CM_HINTSHOW;
+  private
+    procedure PanelsChanged;
   protected
     /// <summary>Clears the image list reference when it is freed.</summary>
     /// <param name="AComponent">Component inserted or removed.</param>

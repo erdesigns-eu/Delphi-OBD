@@ -334,7 +334,7 @@ type
   end;
 
   TOBDMenuSession = class(TComponent)
-  strict private
+  private
     FOwnerControl: TWinControl;
     FSender: TObject;
     FWindows: TList;

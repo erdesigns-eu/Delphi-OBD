@@ -63,7 +63,7 @@ type
 
   /// <summary>Creates and manages themed toast notifications.</summary>
   TOBDToastManager = class(TComponent, IOBDThemeAware)
-  strict private
+  private
     FTheme: TOBDTheme;
     FDensity: TOBDDensity;
     FPosition: TOBDToastPosition;

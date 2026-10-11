@@ -88,7 +88,7 @@ type
 
   /// <summary>One streamable backstage navigation item.</summary>
   TOBDBackstageItem = class(TCollectionItem)
-  strict private
+  private
     FCaption: string;
     FGlyph: TOBDGlyph;
     FImageIndex: Integer;
@@ -195,7 +195,6 @@ type
     function NextSelectable(AStart, ADirection: Integer): Integer;
     function ItemHeight(AItem: TOBDBackstageItem): Integer;
     function FooterBlockTop: Integer;
-    procedure ItemsChanged;
     procedure ActivateItem(AIndex: Integer);
     procedure ApplyPages;
     procedure HideItemPages;
@@ -218,6 +217,8 @@ type
       message CM_VISIBLECHANGED;
     procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
     procedure WMGetDlgCode(var Message: TWMGetDlgCode); message WM_GETDLGCODE;
+  private
+    procedure ItemsChanged;
   protected
     /// <summary>Clears image and page references when controls are freed.</summary>
     /// <param name="AComponent">Component inserted or removed.</param>

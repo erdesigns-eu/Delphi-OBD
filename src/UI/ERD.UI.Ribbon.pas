@@ -199,7 +199,7 @@ type
 
   /// <summary>One command in a ribbon group.</summary>
   TOBDRibbonItem = class(TCollectionItem)
-  strict private
+  private
     FAction: TBasicAction;
     FActionLink: TActionLink;
     FCaption: TCaption;
@@ -281,7 +281,7 @@ type
 
   /// <summary>One captioned group in a ribbon tab.</summary>
   TOBDRibbonGroup = class(TCollectionItem)
-  strict private
+  private
     FCaption: TCaption;
     FVisible: Boolean;
     FShowLauncher: Boolean;
@@ -294,6 +294,7 @@ type
     procedure SetVisible(AValue: Boolean);
     procedure SetShowLauncher(AValue: Boolean);
     procedure SetItems(AValue: TOBDRibbonItems);
+  private
     procedure GroupChanged;
   protected
     /// <summary>Returns the caption in the collection editor.</summary>
@@ -329,7 +330,7 @@ type
 
   /// <summary>One normal or contextual ribbon tab.</summary>
   TOBDRibbonTab = class(TCollectionItem)
-  strict private
+  private
     FCaption: TCaption;
     FVisible: Boolean;
     FGroups: TOBDRibbonGroups;
@@ -340,6 +341,7 @@ type
     procedure SetCaption(const AValue: TCaption);
     procedure SetVisible(AValue: Boolean);
     procedure SetGroups(AValue: TOBDRibbonGroups);
+  private
     procedure TabChanged;
   protected
     /// <summary>Returns the caption in the collection editor.</summary>
@@ -379,6 +381,7 @@ type
     procedure SetCustomColor(AValue: TColor);
     procedure SetVisible(AValue: Boolean);
     procedure SetTabs(AValue: TOBDRibbonTabs);
+  private
     procedure SetChanged;
   protected
     /// <summary>Returns the caption in the collection editor.</summary>
@@ -478,7 +481,6 @@ type
     function DesiredHeight: Integer;
     procedure UpdateHeight;
     procedure LayoutSearchEdit;
-    procedure RibbonChanged;
     procedure NormalizeActiveTab;
     procedure DoTabChange;
     procedure DrawTabRow(APainter: TOBDPainter);
@@ -523,6 +525,8 @@ type
     procedure CMHintShow(var Message: TCMHintShow); message CM_HINTSHOW;
     procedure CMCancelMode(var Message: TCMCancelMode); message CM_CANCELMODE;
     procedure WMGetDlgCode(var Message: TWMGetDlgCode); message WM_GETDLGCODE;
+  private
+    procedure RibbonChanged;
   protected
     /// <summary>Clears component references when they are freed.</summary>
     /// <param name="AComponent">Component inserted or removed.</param>

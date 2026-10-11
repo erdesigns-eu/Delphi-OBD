@@ -172,7 +172,6 @@ type
     procedure SetSelectedIndex(AValue: Integer);
     procedure SetExpandedIndex(AValue: Integer);
     procedure SetFilter(AValue: TOBDDtcFilter);
-    procedure ItemsChanged;
     procedure ReadButtonClick(Sender: TObject);
     procedure ClearButtonClick(Sender: TObject);
     procedure ConfirmButtonClick(Sender: TObject);
@@ -232,6 +231,8 @@ type
     function FooterText: string;
     procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
     procedure WMGetDlgCode(var Message: TWMGetDlgCode); message WM_GETDLGCODE;
+  private
+    procedure ItemsChanged;
   protected
     /// <summary>Paints the card, header, grid, inline details and footer.</summary>
     /// <param name="ACanvas">Target canvas.</param>

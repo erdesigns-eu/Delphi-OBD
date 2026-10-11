@@ -137,7 +137,6 @@ type
     procedure SetSteps(AValue: TOBDProgressSteps);
     procedure TimerTick(Sender: TObject);
     procedure UpdateTimer;
-    procedure StepsChanged;
     function ProgressColor(APainter: TOBDPainter): TColor;
     function PreviewMode: Boolean;
     function PreviewStepCount: Integer;
@@ -149,6 +148,8 @@ type
     procedure DrawBar(APainter: TOBDPainter);
     procedure DrawSteps(APainter: TOBDPainter);
     procedure CMVisibleChanged(var Message: TMessage); message CM_VISIBLECHANGED;
+  private
+    procedure StepsChanged;
   protected
     /// <summary>Paints the progress control.</summary>
     /// <param name="ACanvas">Target canvas.</param>

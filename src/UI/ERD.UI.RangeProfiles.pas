@@ -150,6 +150,9 @@ type
     procedure SetEngineCodes(const AValue: string);
     procedure SetRanges(AValue: TOBDValueRanges);
     procedure DoChange;
+  private
+    /// <summary>Called by the owned range collection when a range
+    /// changes.</summary>
     procedure RangesChanged;
   public
     /// <summary>Creates an empty range profile.</summary>
