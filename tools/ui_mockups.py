@@ -28,6 +28,9 @@ try:
 except ImportError:  # pragma: no cover - reported to the user
     sys.exit('ui_mockups.py needs Pillow: pip install "pillow>=12.3"')
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import ui_icons  # noqa: E402  (proposed icon set, tools/ui_icons.py)
+
 ROOT = Path(__file__).resolve().parents[1]
 TYPES_UNIT = ROOT / 'src/UI/ERD.UI.Types.pas'
 DEFAULT_OUT = ROOT / 'docs/mockups'
@@ -4037,6 +4040,176 @@ DESKTOP = ('desktop',)
 
 # name: (densities, width, height or None, draw). A height of None means the
 # draw function returns the bottom edge and the image is cropped to it.
+# --------------------------------------------------------------------------
+# Icon set proposal (tools/ui_icons.py)
+# --------------------------------------------------------------------------
+
+def _snap(v):
+    """Pixel centre for crisp 1 px strokes."""
+    return math.floor(v) + 0.5
+
+
+def glyph_new(c, kind, cx, cy, color, s=1.0, bg=None):
+    """Drop-in replacement for glyph() that draws the proposed icons. The
+    scale snaps to the 16 px grid (1x) or the 32 px ribbon size (2x)."""
+    ops = ui_icons.GLYPHS.get(kind) or ui_icons.SHELL.get(kind)
+    if ops is None:
+        return _glyph_old(c, kind, cx, cy, color, s, bg)
+    if kind == 'launcher' and s < 0.9:
+        s = 0.75
+    else:
+        s = 1.0 if s < 1.5 else 2.0
+    ui_icons.draw_icon(c, ops, _snap(cx), _snap(cy), color, s, bg=bg,
+                       thin=kind in ui_icons.THIN)
+
+
+_glyph_old = glyph
+
+
+def glyph_now(c, kind, cx, cy, color, s=1.0):
+    """The current icon of a TOBDGlyph / shell kind (None if it has no
+    mockup equivalent)."""
+    if kind == 'check':
+        icon_check(c, cx, cy, color, 0.8 * s)
+    elif kind == 'pending':
+        icon_pending(c, cx, cy, color, 0.9 * s)
+    elif kind == 'dash':
+        icon_dash(c, cx, cy, color, 0.8 * s)
+    elif kind == 'alert':
+        c.polygon([(cx, cy - 7 * s), (cx + 7 * s, cy + 6 * s),
+                   (cx - 7 * s, cy + 6 * s)], color)
+        c.text(cx, cy + 1.5 * s, '!', 9 * s, c.bg, 'bold', anchor='mm')
+    elif kind.startswith('chevron-'):
+        d = kind[8:]
+        if d in ('down', 'right'):
+            chevron(c, cx, cy, color, down=d == 'down')
+        elif d == 'up':
+            c.line([(cx - 4, cy + 2), (cx, cy - 2), (cx + 4, cy + 2)], color,
+                   1.6)
+        else:
+            c.line([(cx + 2, cy - 4), (cx - 2, cy), (cx + 2, cy + 4)], color,
+                   1.6)
+    elif kind == 'plus':
+        c.line([(cx - 5, cy), (cx + 5, cy)], color, 1.5)
+        c.line([(cx, cy - 5), (cx, cy + 5)], color, 1.5)
+    else:
+        alias = {'folder': 'open', 'file': 'new', 'document': 'report',
+                 'download': 'read'}.get(kind, kind)
+        _glyph_old(c, alias, cx, cy, color, s, bg=c.bg)
+
+
+class new_icons:
+    """with new_icons(): existing drawing code uses the proposed set."""
+
+    def __enter__(self):
+        globals()['glyph'] = glyph_new
+
+    def __exit__(self, *exc):
+        globals()['glyph'] = _glyph_old
+
+
+def icon_cell(c, x, y, w, h, kind, name):
+    p = c.p
+    c.rect(x, y, w, h, fill=p.GaugeFace, outline=p.NeutralLight)
+    c.text(x + 10, y + 14, name, 11.5, p.GaugeLabel, max_w=w - 16)
+    cy = y + 48
+    on = c.bg
+    c.bg = p.GaugeFace
+    glyph_now(c, kind, x + 22, cy, p.Subtle)
+    c.vline(x + 41, y + 30, 36, p.NeutralLight)
+    ops = ui_icons.GLYPHS.get(kind) or ui_icons.SHELL[kind]
+    thin = kind in ui_icons.THIN
+    ui_icons.draw_icon(c, ops, _snap(x + 60), _snap(cy), p.ForegroundText,
+                       1, bg=p.GaugeFace, thin=thin)
+    ui_icons.draw_icon(c, ops, _snap(x + w - 34), _snap(cy), p.accent_text,
+                       2, bg=p.GaugeFace, thin=thin)
+    c.bg = on
+
+
+def icon_grid(c, x, y, w, items, cols):
+    gap = 8
+    cw = (w - gap * (cols - 1)) / cols
+    ch = 80
+    for i, (kind, name) in enumerate(items):
+        cx = x + (i % cols) * (cw + gap)
+        cy = y + (i // cols) * (ch + gap)
+        icon_cell(c, round(cx), round(cy), round(cw), ch, kind, name)
+    rows = (len(items) + cols - 1) // cols
+    return y + rows * (ch + gap) - gap
+
+
+def status_banner(c, x, y, w, h, kind, title, text):
+    """TOBDBanner with the proposed status icon."""
+    p = c.p
+    colr = {'info': p.accent_text, 'success': p.Success,
+            'warning': p.Warning, 'danger': p.Danger}[kind]
+    c.rect(x, y, w, h, fill=p.tint(colr, 0.14), outline=mix(colr, p.GaugeFace,
+                                                             0.5))
+    c.rect(x, y, 4, h, fill=colr)
+    ink = p.on_danger if kind == 'danger' else (
+        p.on_accent if kind in ('info', 'warning') or p.dark
+        else (255, 255, 255))
+    ui_icons.draw_icon(c, ui_icons.STATUS[kind], _snap(x + 24),
+                       _snap(y + h / 2), colr, 1, ink=ink)
+    c.text(x + 44, y + h / 2 - 9, title, 13.5, p.ForegroundText, 'bold',
+           max_w=w - 56)
+    c.text(x + 44, y + h / 2 + 10, text, 12, p.ForegroundText, max_w=w - 56)
+
+
+def draw_icons(c):
+    p = c.p
+    W = c.w - 32
+    x, y = 16, 24
+    sheet_label(c, x, y, 'Icon set - proposal',
+                'Per cell: current | new 16 px | new 32 px (ribbon). '
+                '16 px grid, 1 px strokes on pixel centres, round caps and '
+                'corners.')
+    y += 24
+    c.caps(x, y, 'TOBDGlyph (menus, buttons, ribbon, title bar)')
+    y = icon_grid(c, x, y + 14, W, [(k, n) for k, n in ui_icons.GLYPH_ORDER],
+                  10) + 28
+    c.caps(x, y, 'Shell glyphs (file and folder dialogs, SystemIcons = '
+           'False)')
+    y = icon_grid(c, x, y + 14, W, [(k, 'sg' + k.capitalize())
+                                    for k in ui_icons.SHELL_ORDER], 10) + 28
+
+    c.caps(x, y, 'Status icons (TOBDBanner, toasts) - 18 px filled')
+    y += 14
+    bw = (W - 8) / 2
+    texts = {
+        'info': ('Vehicle connected', 'ELM327 v2.1 on COM4, ISO 15765-4 CAN.'),
+        'success': ('Codes cleared', 'All monitors were reset. Drive the '
+                    'vehicle to complete them.'),
+        'warning': ('2 monitors not ready', 'Catalyst and EVAP have not '
+                    'completed since the last clear.'),
+        'danger': ('Connection lost', 'The adapter stopped responding. '
+                   'Check the cable and the ignition.'),
+    }
+    for i, kind in enumerate(ui_icons.STATUS_ORDER):
+        bx = x + (i % 2) * (bw + 8)
+        by = y + (i // 2) * 72
+        status_banner(c, round(bx), by, round(bw), 64, kind, *texts[kind])
+    y += 2 * 72 + 20
+
+    c.caps(x, y, 'In context: ribbon (current, then proposed)')
+    y += 14
+    y += ribbon_body(c, x, y, W) + 8
+    with new_icons():
+        y += ribbon_body(c, x, y, W) + 24
+
+    c.caps(x, y, 'In context: menus (current, then proposed)')
+    y += 14
+    mw = menu_width(c, VEHICLE_MENU)
+    fw = menu_width(c, FILE_MENU)
+    _, _, h1 = menu_popup(c, x, y, VEHICLE_MENU, hover='Read codes')
+    menu_popup(c, x + mw + 16, y, FILE_MENU)
+    with new_icons():
+        ox = x + mw + fw + 64
+        menu_popup(c, ox, y, VEHICLE_MENU, hover='Read codes')
+        menu_popup(c, ox + mw + 16, y, FILE_MENU)
+    return y + max(h1, menu_height(c, FILE_MENU))
+
+
 MOCKUPS = {
     'obd-studio-codes': (DESKTOP, 1366, 800, draw_shell),
     'vehicle-card': (DESKTOP, 560, 232,
@@ -4070,6 +4243,7 @@ MOCKUPS = {
     'dialogs-print': (BOTH, 1100, None, draw_dialogs_print),
     'dialogs-font-colour': (BOTH, 1100, None, draw_dialogs_font_colour),
     'dialogs-text': (BOTH, 1100, None, draw_dialogs_text),
+    'icons': (DESKTOP, 1366, None, draw_icons),
 }
 
 

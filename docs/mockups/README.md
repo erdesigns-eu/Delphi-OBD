@@ -449,3 +449,35 @@ path bar and a places pane.
 | Print preview | The print dialog shows the first page of the report. It uses the same page painter as the backstage preview. |
 | Colour picker | Theme colours first, then standard colours, then custom colours (kept in `CustomColors`). Includes an HSV picker, hex and RGB entry, and a screen pipette. |
 | Places | The places pane combines Quick access (known folders plus `Places`, a collection the application can fill, such as Jobs and Reports) with the drives. |
+
+## Icon set (proposal)
+
+The built-in icons are redrawn as one set: the `TOBDGlyph` line glyphs
+(menus, buttons, ribbon, title bar), the shell glyphs of the file and
+folder dialogs (used when `SystemIcons` is False) and the status icons
+of banners and toasts. Each cell shows the current icon, the new icon
+at 16 px and the new icon at the 32 px ribbon size. The sheet ends with
+a ribbon and two menus drawn with the current set and with the new one.
+
+| Light | Dark |
+|---|---|
+| ![](icons-light.png) | ![](icons-dark.png) |
+
+The icons are defined as data in `tools/ui_icons.py`, so the mockup and
+the Pascal painter can draw the same shapes:
+
+- a 16 px grid with the origin on the middle pixel and a 15 px live
+  area, so 1 px strokes land on whole pixels and stay sharp at 100 %;
+- 1 px strokes at 16 px and 1.75 px at 32 px, with round caps and
+  joins; caption buttons keep the thin Windows 11 strokes;
+- rounded corners (1–2 px) on pages, folders, windows and devices;
+- one metaphor per action: a tray with an arrow for *Read*, a bin with
+  a lid for *Clear*, the engine lamp for *Codes*, a gauge for
+  *Dashboard*, a plug with a slash for *Disconnect*, a page with a bar
+  chart for *Report*;
+- status icons are filled shapes with the mark cut out in the ink
+  colour, not text, so they look the same with every font.
+
+Only drawing primitives that GDI+ has are used (lines, arcs, ellipses,
+rounded rectangles and filled polygons), so the Pascal port is a direct
+translation.
