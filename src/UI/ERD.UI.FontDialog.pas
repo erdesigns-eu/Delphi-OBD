@@ -834,7 +834,7 @@ begin
   AWindow.InitialFocus := FSearch;
 
   ApplyButton := AWindow.AddLeftButton('Apply');
-  ApplyButton.Enabled := Assigned(FDialog.FOnApply);
+  ApplyButton.Enabled := Assigned(FDialog.OnApply);
   ApplyButton.OnClick := ApplyClick;
 end;
 
@@ -847,7 +847,7 @@ begin
     FSearch.Text := AFont.Name;
     FFamily.SelectFamily(AFont.Name);
     FStyle.SelectStyle(AFont.Style);
-    Size := ClampFontSize(System.Math.Abs(AFont.Size), FDialog.MinFontSize,
+    Size := ClampFontSize(Abs(AFont.Size), FDialog.MinFontSize,
       FDialog.MaxFontSize);
     FSizeList.SelectSize(Size);
     FSizeEdit.Text := IntToStr(Size);
@@ -981,8 +981,8 @@ end;
 procedure TFontDialogController.ApplyClick(Sender: TObject);
 begin
   ApplyToFont(FDialog.Font);
-  if Assigned(FDialog.FOnApply) then
-    FDialog.FOnApply(FDialog);
+  if Assigned(FDialog.OnApply) then
+    FDialog.OnApply(FDialog);
 end;
 
 { TOBDFontDialog }

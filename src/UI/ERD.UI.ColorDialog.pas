@@ -1048,11 +1048,11 @@ begin
 
   for I := 0 to High(Custom) do
     Custom[I] := clNone;
-  EnsureCustomSlots(FDialog.FCustomColors);
+  EnsureCustomSlots(FDialog.CustomColors);
   for I := 0 to 15 do
   begin
-    Index := FDialog.FCustomColors.IndexOfName(CustomName(I));
-    if (Index >= 0) and TryCustomColor(FDialog.FCustomColors[Index], C) then
+    Index := FDialog.CustomColors.IndexOfName(CustomName(I));
+    if (Index >= 0) and TryCustomColor(FDialog.CustomColors[Index], C) then
       Custom[I] := C;
   end;
 
@@ -1215,23 +1215,23 @@ var
   C: TColor;
   Line: string;
 begin
-  EnsureCustomSlots(FDialog.FCustomColors);
+  EnsureCustomSlots(FDialog.CustomColors);
   Target := 15;
   for I := 0 to 15 do
   begin
-    Index := FDialog.FCustomColors.IndexOfName(CustomName(I));
-    if (Index < 0) or not TryCustomColor(FDialog.FCustomColors[Index], C) then
+    Index := FDialog.CustomColors.IndexOfName(CustomName(I));
+    if (Index < 0) or not TryCustomColor(FDialog.CustomColors[Index], C) then
     begin
       Target := I;
       Break;
     end;
   end;
   Line := CustomName(Target) + '=' + CustomHex(FNewColor);
-  Index := FDialog.FCustomColors.IndexOfName(CustomName(Target));
+  Index := FDialog.CustomColors.IndexOfName(CustomName(Target));
   if Index >= 0 then
-    FDialog.FCustomColors[Index] := Line
+    FDialog.CustomColors[Index] := Line
   else
-    FDialog.FCustomColors.Add(Line);
+    FDialog.CustomColors.Add(Line);
   BuildSwatches;
 end;
 

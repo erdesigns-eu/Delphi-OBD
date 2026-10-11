@@ -354,6 +354,10 @@ procedure OBDDrawShellGlyph(APainter: TOBDPainter; AKind: TOBDShellGlyphKind;
 
 implementation
 
+const
+  // FILE_ATTRIBUTE_* match faHidden / faSysFile without the platform warning.
+  OBD_HIDDEN_ATTR = FILE_ATTRIBUTE_HIDDEN or FILE_ATTRIBUTE_SYSTEM;
+
 type
   TBreadPart = record
     Caption: string;
@@ -376,7 +380,7 @@ end;
 
 function IsHiddenAttr(AAttr: Integer): Boolean;
 begin
-  Result := (AAttr and (faHidden or faSysFile)) <> 0;
+  Result := (AAttr and OBD_HIDDEN_ATTR) <> 0;
 end;
 
 function UserFolder(const AName: string): string;
@@ -1109,7 +1113,7 @@ var
 begin
   Result := False;
   Path := IncludeTrailingPathDelimiter(APath) + '*';
-  if FindFirst(Path, faDirectory or faHidden or faSysFile, SR) <> 0 then
+  if FindFirst(Path, faDirectory or OBD_HIDDEN_ATTR, SR) <> 0 then
     Exit;
   try
     repeat
@@ -1159,7 +1163,7 @@ var
     if not Expanded then
       Exit;
     if FindFirst(IncludeTrailingPathDelimiter(APath) + '*',
-      faDirectory or faHidden or faSysFile, SR) <> 0 then
+      faDirectory or OBD_HIDDEN_ATTR, SR) <> 0 then
       Exit;
     try
       repeat
@@ -1503,7 +1507,7 @@ begin
   end;
   Search := LowerCase(FSearchText);
   if FindFirst(IncludeTrailingPathDelimiter(Base) + '*',
-    faAnyFile or faHidden or faSysFile, SR) = 0 then
+    faAnyFile or OBD_HIDDEN_ATTR, SR) = 0 then
   try
     repeat
       if (SR.Name = '.') or (SR.Name = '..') then

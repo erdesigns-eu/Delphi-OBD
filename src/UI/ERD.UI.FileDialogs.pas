@@ -519,7 +519,6 @@ var
   W: TOBDDialogWindow;
   C: TFileDialogController;
 begin
-  Result := False;
   W := NewWindow;
   try
     C := TFileDialogController.CreateController(W, Self, W);
@@ -1085,7 +1084,6 @@ var
   W: TOBDDialogWindow;
   C: TFolderController;
 begin
-  Result := False;
   W := NewWindow;
   try
     C := TFolderController.CreateController(W, Self, W);

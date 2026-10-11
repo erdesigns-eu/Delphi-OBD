@@ -404,14 +404,13 @@ function SafeCollectPrinters(AStrings: TStrings): Boolean;
 var
   I: Integer;
 begin
-  Result := False;
   AStrings.Clear;
   try
     for I := 0 to Printer.Printers.Count - 1 do
       AStrings.Add(Printer.Printers[I]);
     Result := AStrings.Count = 0;
   except
-    on E: EPrinter do
+    on EPrinter do
     begin
       AStrings.Clear;
       Result := True;

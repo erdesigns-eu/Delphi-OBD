@@ -1,6 +1,7 @@
-"""E2361: a member declared private/strict private reached from another unit.
+"""E2361: a member declared private/strict private reached from another unit,
+or a strict private member reached from another class in the same unit.
 
-Delphi's 'private' is unit-scoped, so this only matters across units.
+Delphi's 'private' is unit-scoped; 'strict private' is class-scoped.
 """
 import os, re, sys, collections
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -28,10 +29,10 @@ def lookup_vis(tyname, member):
         un = OWNER_UNIT.get(n.lower())
         if un:
             v = VIS[un].get((n.lower(), member.lower().lstrip('&')))
-            if v: return v, un
+            if v: return v, un, n
             ti = US[un].types.get(n.lower())
             if ti: stack.extend(ti.parents)
-    return None, None
+    return None, None, None
 
 rows = []
 for uname, u in sorted(US.items()):
@@ -66,9 +67,13 @@ for uname, u in sorted(US.items()):
             j = i
             while j + 2 < b and toks[j+1][1] == '.' and toks[j+2][0] == 'id':
                 mem = toks[j+2][1]
-                vis, owner = lookup_vis(base_name(cur), mem)
+                vis, owner, decl = lookup_vis(base_name(cur), mem)
+                # strict private is class-scoped: a helper class in the same
+                # unit cannot reach it either (nested types of the owner can).
+                inside = bool(selft) and decl.lower() in \
+                    [q.lower() for q in selft.split('.')] if decl else False
                 if vis is not None and (vis.startswith('strict') or vis == 'private'):
-                    if owner != uname:      # private is unit-scoped in Delphi
+                    if owner != uname or (vis == 'strict private' and not inside):
                         rows.append((u.rel, u.line(toks[j+2][2]),
                                      (r.qual + '.' if r.qual else '') + r.name,
                                      base_name(cur), mem, vis, owner))

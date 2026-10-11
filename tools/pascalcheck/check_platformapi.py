@@ -45,6 +45,17 @@ for path in pas_files():
     for match in re.finditer(r'\b(TPassThru\w+)\s*=\s*function\b.*?;\s*(cdecl|stdcall)\b', src, re.I | re.S):
         if match.group(2).lower() == 'cdecl':
             finding(match.start(), f'{match.group(1)} must use the Windows stdcall ABI')
+    # SysUtils marks these attribute constants 'platform' (W1002); the
+    # FILE_ATTRIBUTE_* values from Winapi.Windows are the same bits.
+    for match in re.finditer(
+            r'\bfa(Hidden|SysFile|VolumeID|Archive|Temporary|Compressed|Encrypted|Virtual)\b', src):
+        finding(match.start(), f'fa{match.group(1)} is platform-specific (W1002); use FILE_ATTRIBUTE_*')
+    # Routines declared in System, qualified with another unit (E2003).
+    for match in re.finditer(
+            r'\bSystem\s*\.\s*(\w+)\s*\.\s*(Abs|Length|Copy|Round|Trunc|Ord|Chr|SetLength|'
+            r'High|Low|Assigned|Pos|Sqr|Sqrt|Frac|Int|Odd|Inc|Dec|Exp|Ln|Sin|Cos|ArcTan|Pi)\s*\(',
+            src, re.I):
+        finding(match.start(), f'{match.group(2)} is declared in System, not System.{match.group(1)}')
     for match in re.finditer(r'\b(scWindowText|scGenericGrayed)\b', src):
         finding(match.start(), 'Use StyleServices.GetSystemColor for window/gray text colors')
 

@@ -248,6 +248,61 @@ end.
                           .replace('PChar(Name)', 'PAnsiChar(AnsiString(Name))'))
         self.assertIn('total: 0', self.checker('platformapi'))
 
+    def test_platform_attributes_and_misqualified_system_routines(self):
+        source = self.source('src/Shell.pas', """unit Shell;
+interface
+implementation
+function Hidden(A, B: Integer): Boolean;
+begin
+  Result := (A and (faHidden or faSysFile)) <> 0;
+  Result := Result and (System.Math.Abs(B) > 0);
+end;
+end.
+""")
+        self.assertIn('total: 3', self.checker('platformapi'))
+        source.write_text(source.read_text()
+                          .replace('faHidden or faSysFile',
+                                   'FILE_ATTRIBUTE_HIDDEN or FILE_ATTRIBUTE_SYSTEM')
+                          .replace('System.Math.Abs(', 'Abs('))
+        self.assertIn('total: 0', self.checker('platformapi'))
+
+    def test_strict_private_field_is_class_scoped_within_a_unit(self):
+        source = self.source('src/Dlg.pas', """unit Dlg;
+interface
+type
+  TDlg = class
+  strict private
+    FOnApply: TNotifyEvent;
+    FA, FB: Integer;
+    procedure Run(X: Integer; Y: string);
+  public
+    property OnApply: TNotifyEvent read FOnApply write FOnApply;
+  end;
+  TController = class
+  strict private
+    FDialog: TDlg;
+  public
+    procedure Apply;
+  end;
+implementation
+procedure TDlg.Run(X: Integer; Y: string);
+begin
+  FB := X;
+  if Assigned(Self.FOnApply) then Self.FOnApply(Self);
+end;
+procedure TController.Apply;
+begin
+  if Assigned(FDialog.FOnApply) then
+    FDialog.FB := 1;
+end;
+end.
+""")
+        self.assertIn('total: 2', self.checker('visibility'))
+        source.write_text(source.read_text()
+                          .replace('Assigned(FDialog.FOnApply)', 'Assigned(FDialog.OnApply)')
+                          .replace('FDialog.FB := 1;', 'FDialog.OnApply(nil);'))
+        self.assertIn('total: 0', self.checker('visibility'))
+
     def test_event_returning_getter_must_be_invoked_for_event_assignment(self):
         source = self.source('src/Events.pas', """unit Events;
 interface
