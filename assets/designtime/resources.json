@@ -1,698 +1,2612 @@
 {
-  "TOBDACTUATOR": {
+  "TOBDACTUATOR16_PNG": {
+    "file": "palette/TOBDACTUATOR16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDACTUATOR32_PNG": {
+    "file": "palette/TOBDACTUATOR32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDACTUATOR_PNG": {
     "file": "palette/TOBDACTUATOR.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDADAPTER": {
+  "TOBDADAPTER16_PNG": {
+    "file": "palette/TOBDADAPTER16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDADAPTER32_PNG": {
+    "file": "palette/TOBDADAPTER32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDADAPTER_PNG": {
     "file": "palette/TOBDADAPTER.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDBACKSTAGE": {
+  "TOBDBACKSTAGE16_PNG": {
+    "file": "palette/TOBDBACKSTAGE16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDBACKSTAGE32_PNG": {
+    "file": "palette/TOBDBACKSTAGE32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDBACKSTAGE_PNG": {
     "file": "palette/TOBDBACKSTAGE.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDBADGE": {
+  "TOBDBADGE16_PNG": {
+    "file": "palette/TOBDBADGE16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDBADGE32_PNG": {
+    "file": "palette/TOBDBADGE32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDBADGE_PNG": {
     "file": "palette/TOBDBADGE.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDBANNER": {
+  "TOBDBANNER16_PNG": {
+    "file": "palette/TOBDBANNER16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDBANNER32_PNG": {
+    "file": "palette/TOBDBANNER32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDBANNER_PNG": {
     "file": "palette/TOBDBANNER.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDBARGAUGE": {
+  "TOBDBARGAUGE16_PNG": {
+    "file": "palette/TOBDBARGAUGE16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDBARGAUGE32_PNG": {
+    "file": "palette/TOBDBARGAUGE32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDBARGAUGE_PNG": {
     "file": "palette/TOBDBARGAUGE.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDBUTTON": {
+  "TOBDBUTTON16_PNG": {
+    "file": "palette/TOBDBUTTON16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDBUTTON32_PNG": {
+    "file": "palette/TOBDBUTTON32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDBUTTON_PNG": {
     "file": "palette/TOBDBUTTON.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDCANIDEDIT": {
+  "TOBDCANIDEDIT16_PNG": {
+    "file": "palette/TOBDCANIDEDIT16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDCANIDEDIT32_PNG": {
+    "file": "palette/TOBDCANIDEDIT32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDCANIDEDIT_PNG": {
     "file": "palette/TOBDCANIDEDIT.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDCARD": {
+  "TOBDCARD16_PNG": {
+    "file": "palette/TOBDCARD16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDCARD32_PNG": {
+    "file": "palette/TOBDCARD32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDCARD_PNG": {
     "file": "palette/TOBDCARD.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDCCP": {
+  "TOBDCCP16_PNG": {
+    "file": "palette/TOBDCCP16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDCCP32_PNG": {
+    "file": "palette/TOBDCCP32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDCCP_PNG": {
     "file": "palette/TOBDCCP.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDCHECKBOX": {
+  "TOBDCHECKBOX16_PNG": {
+    "file": "palette/TOBDCHECKBOX16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDCHECKBOX32_PNG": {
+    "file": "palette/TOBDCHECKBOX32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDCHECKBOX_PNG": {
     "file": "palette/TOBDCHECKBOX.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDCHIP": {
+  "TOBDCHIP16_PNG": {
+    "file": "palette/TOBDCHIP16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDCHIP32_PNG": {
+    "file": "palette/TOBDCHIP32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDCHIP_PNG": {
     "file": "palette/TOBDCHIP.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDCLEARDTC": {
+  "TOBDCLEARDTC16_PNG": {
+    "file": "palette/TOBDCLEARDTC16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDCLEARDTC32_PNG": {
+    "file": "palette/TOBDCLEARDTC32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDCLEARDTC_PNG": {
     "file": "palette/TOBDCLEARDTC.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDCODINGAUDITLOG": {
+  "TOBDCODINGAUDITLOG16_PNG": {
+    "file": "palette/TOBDCODINGAUDITLOG16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDCODINGAUDITLOG32_PNG": {
+    "file": "palette/TOBDCODINGAUDITLOG32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDCODINGAUDITLOG_PNG": {
     "file": "palette/TOBDCODINGAUDITLOG.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDCODINGSESSION": {
+  "TOBDCODINGSESSION16_PNG": {
+    "file": "palette/TOBDCODINGSESSION16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDCODINGSESSION32_PNG": {
+    "file": "palette/TOBDCODINGSESSION32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDCODINGSESSION_PNG": {
     "file": "palette/TOBDCODINGSESSION.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDCOMBOBOX": {
+  "TOBDCOMBOBOX16_PNG": {
+    "file": "palette/TOBDCOMBOBOX16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDCOMBOBOX32_PNG": {
+    "file": "palette/TOBDCOMBOBOX32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDCOMBOBOX_PNG": {
     "file": "palette/TOBDCOMBOBOX.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDCOMPONENTPROTECTIONBMW": {
+  "TOBDCOMPONENTPROTECTIONBMW16_PNG": {
+    "file": "palette/TOBDCOMPONENTPROTECTIONBMW16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDCOMPONENTPROTECTIONBMW32_PNG": {
+    "file": "palette/TOBDCOMPONENTPROTECTIONBMW32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDCOMPONENTPROTECTIONBMW_PNG": {
     "file": "palette/TOBDCOMPONENTPROTECTIONBMW.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDCOMPONENTPROTECTIONMERCEDES": {
+  "TOBDCOMPONENTPROTECTIONMERCEDES16_PNG": {
+    "file": "palette/TOBDCOMPONENTPROTECTIONMERCEDES16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDCOMPONENTPROTECTIONMERCEDES32_PNG": {
+    "file": "palette/TOBDCOMPONENTPROTECTIONMERCEDES32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDCOMPONENTPROTECTIONMERCEDES_PNG": {
     "file": "palette/TOBDCOMPONENTPROTECTIONMERCEDES.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDCOMPONENTPROTECTIONSTELLANTIS": {
+  "TOBDCOMPONENTPROTECTIONSTELLANTIS16_PNG": {
+    "file": "palette/TOBDCOMPONENTPROTECTIONSTELLANTIS16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDCOMPONENTPROTECTIONSTELLANTIS32_PNG": {
+    "file": "palette/TOBDCOMPONENTPROTECTIONSTELLANTIS32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDCOMPONENTPROTECTIONSTELLANTIS_PNG": {
     "file": "palette/TOBDCOMPONENTPROTECTIONSTELLANTIS.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDCOMPONENTPROTECTIONVAG": {
+  "TOBDCOMPONENTPROTECTIONVAG16_PNG": {
+    "file": "palette/TOBDCOMPONENTPROTECTIONVAG16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDCOMPONENTPROTECTIONVAG32_PNG": {
+    "file": "palette/TOBDCOMPONENTPROTECTIONVAG32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDCOMPONENTPROTECTIONVAG_PNG": {
     "file": "palette/TOBDCOMPONENTPROTECTIONVAG.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDCONNECTION": {
-    "file": "palette/TOBDCONNECTION.png",
-    "type": "PNG"
+  "TOBDCONNECTION16_PNG": {
+    "file": "palette/TOBDCONNECTION16.png",
+    "type": "RCDATA",
+    "size": 16
   },
-  "TOBDCONNECTIONBAR": {
+  "TOBDCONNECTION32_PNG": {
+    "file": "palette/TOBDCONNECTION32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDCONNECTIONBAR16_PNG": {
+    "file": "palette/TOBDCONNECTIONBAR16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDCONNECTIONBAR32_PNG": {
+    "file": "palette/TOBDCONNECTIONBAR32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDCONNECTIONBAR_PNG": {
     "file": "palette/TOBDCONNECTIONBAR.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDDASHBOARD": {
+  "TOBDCONNECTION_PNG": {
+    "file": "palette/TOBDCONNECTION.png",
+    "type": "RCDATA",
+    "size": 24
+  },
+  "TOBDDASHBOARD16_PNG": {
+    "file": "palette/TOBDDASHBOARD16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDDASHBOARD32_PNG": {
+    "file": "palette/TOBDDASHBOARD32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDDASHBOARD_PNG": {
     "file": "palette/TOBDDASHBOARD.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDDATAIDENTIFIERIO": {
+  "TOBDDATAIDENTIFIERIO16_PNG": {
+    "file": "palette/TOBDDATAIDENTIFIERIO16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDDATAIDENTIFIERIO32_PNG": {
+    "file": "palette/TOBDDATAIDENTIFIERIO32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDDATAIDENTIFIERIO_PNG": {
     "file": "palette/TOBDDATAIDENTIFIERIO.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDDATASOURCE": {
+  "TOBDDATASOURCE16_PNG": {
+    "file": "palette/TOBDDATASOURCE16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDDATASOURCE32_PNG": {
+    "file": "palette/TOBDDATASOURCE32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDDATASOURCE_PNG": {
     "file": "palette/TOBDDATASOURCE.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDDIALGAUGE": {
+  "TOBDDIALGAUGE16_PNG": {
+    "file": "palette/TOBDDIALGAUGE16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDDIALGAUGE32_PNG": {
+    "file": "palette/TOBDDIALGAUGE32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDDIALGAUGE_PNG": {
     "file": "palette/TOBDDIALGAUGE.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDDIALOG": {
+  "TOBDDIALOG16_PNG": {
+    "file": "palette/TOBDDIALOG16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDDIALOG32_PNG": {
+    "file": "palette/TOBDDIALOG32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDDIALOG_PNG": {
     "file": "palette/TOBDDIALOG.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDDOIPCLIENT": {
+  "TOBDDOIPCLIENT16_PNG": {
+    "file": "palette/TOBDDOIPCLIENT16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDDOIPCLIENT32_PNG": {
+    "file": "palette/TOBDDOIPCLIENT32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDDOIPCLIENT_PNG": {
     "file": "palette/TOBDDOIPCLIENT.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDDRAGRUN": {
+  "TOBDDRAGRUN16_PNG": {
+    "file": "palette/TOBDDRAGRUN16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDDRAGRUN32_PNG": {
+    "file": "palette/TOBDDRAGRUN32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDDRAGRUN_PNG": {
     "file": "palette/TOBDDRAGRUN.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDDRIVECYCLEADVISOR": {
+  "TOBDDRIVECYCLEADVISOR16_PNG": {
+    "file": "palette/TOBDDRIVECYCLEADVISOR16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDDRIVECYCLEADVISOR32_PNG": {
+    "file": "palette/TOBDDRIVECYCLEADVISOR32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDDRIVECYCLEADVISOR_PNG": {
     "file": "palette/TOBDDRIVECYCLEADVISOR.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDDRIVECYCLECATALOGCOMP": {
+  "TOBDDRIVECYCLECATALOGCOMP16_PNG": {
+    "file": "palette/TOBDDRIVECYCLECATALOGCOMP16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDDRIVECYCLECATALOGCOMP32_PNG": {
+    "file": "palette/TOBDDRIVECYCLECATALOGCOMP32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDDRIVECYCLECATALOGCOMP_PNG": {
     "file": "palette/TOBDDRIVECYCLECATALOGCOMP.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDDTCLIST": {
+  "TOBDDTCLIST16_PNG": {
+    "file": "palette/TOBDDTCLIST16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDDTCLIST32_PNG": {
+    "file": "palette/TOBDDTCLIST32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDDTCLIST_PNG": {
     "file": "palette/TOBDDTCLIST.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDDTCPANEL": {
+  "TOBDDTCPANEL16_PNG": {
+    "file": "palette/TOBDDTCPANEL16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDDTCPANEL32_PNG": {
+    "file": "palette/TOBDDTCPANEL32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDDTCPANEL_PNG": {
     "file": "palette/TOBDDTCPANEL.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDDTCS": {
+  "TOBDDTCS16_PNG": {
+    "file": "palette/TOBDDTCS16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDDTCS32_PNG": {
+    "file": "palette/TOBDDTCS32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDDTCS_PNG": {
     "file": "palette/TOBDDTCS.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDDYNOCALCULATOR": {
+  "TOBDDYNOCALCULATOR16_PNG": {
+    "file": "palette/TOBDDYNOCALCULATOR16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDDYNOCALCULATOR32_PNG": {
+    "file": "palette/TOBDDYNOCALCULATOR32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDDYNOCALCULATOR_PNG": {
     "file": "palette/TOBDDYNOCALCULATOR.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDDYNOCONDITIONS": {
+  "TOBDDYNOCONDITIONS16_PNG": {
+    "file": "palette/TOBDDYNOCONDITIONS16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDDYNOCONDITIONS32_PNG": {
+    "file": "palette/TOBDDYNOCONDITIONS32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDDYNOCONDITIONS_PNG": {
     "file": "palette/TOBDDYNOCONDITIONS.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDEDIT": {
+  "TOBDEDIT16_PNG": {
+    "file": "palette/TOBDEDIT16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDEDIT32_PNG": {
+    "file": "palette/TOBDEDIT32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDEDIT_PNG": {
     "file": "palette/TOBDEDIT.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDEMISSIONSESTIMATOR": {
+  "TOBDEMISSIONSESTIMATOR16_PNG": {
+    "file": "palette/TOBDEMISSIONSESTIMATOR16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDEMISSIONSESTIMATOR32_PNG": {
+    "file": "palette/TOBDEMISSIONSESTIMATOR32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDEMISSIONSESTIMATOR_PNG": {
     "file": "palette/TOBDEMISSIONSESTIMATOR.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDEVBATTERY": {
-    "file": "palette/TOBDEVBATTERY.png",
-    "type": "PNG"
+  "TOBDEVBATTERY16_PNG": {
+    "file": "palette/TOBDEVBATTERY16.png",
+    "type": "RCDATA",
+    "size": 16
   },
-  "TOBDEVBATTERYCATALOGCOMP": {
+  "TOBDEVBATTERY32_PNG": {
+    "file": "palette/TOBDEVBATTERY32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDEVBATTERYCATALOGCOMP16_PNG": {
+    "file": "palette/TOBDEVBATTERYCATALOGCOMP16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDEVBATTERYCATALOGCOMP32_PNG": {
+    "file": "palette/TOBDEVBATTERYCATALOGCOMP32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDEVBATTERYCATALOGCOMP_PNG": {
     "file": "palette/TOBDEVBATTERYCATALOGCOMP.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDFLASHER": {
+  "TOBDEVBATTERY_PNG": {
+    "file": "palette/TOBDEVBATTERY.png",
+    "type": "RCDATA",
+    "size": 24
+  },
+  "TOBDFLASHER16_PNG": {
+    "file": "palette/TOBDFLASHER16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDFLASHER32_PNG": {
+    "file": "palette/TOBDFLASHER32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDFLASHER_PNG": {
     "file": "palette/TOBDFLASHER.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDFLASHPIPELINE": {
+  "TOBDFLASHPIPELINE16_PNG": {
+    "file": "palette/TOBDFLASHPIPELINE16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDFLASHPIPELINE32_PNG": {
+    "file": "palette/TOBDFLASHPIPELINE32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDFLASHPIPELINE_PNG": {
     "file": "palette/TOBDFLASHPIPELINE.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDFLASHSESSION": {
+  "TOBDFLASHSESSION16_PNG": {
+    "file": "palette/TOBDFLASHSESSION16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDFLASHSESSION32_PNG": {
+    "file": "palette/TOBDFLASHSESSION32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDFLASHSESSION_PNG": {
     "file": "palette/TOBDFLASHSESSION.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDFREEZEFRAME": {
-    "file": "palette/TOBDFREEZEFRAME.png",
-    "type": "PNG"
+  "TOBDFREEZEFRAME16_PNG": {
+    "file": "palette/TOBDFREEZEFRAME16.png",
+    "type": "RCDATA",
+    "size": 16
   },
-  "TOBDFREEZEFRAMEVIEW": {
+  "TOBDFREEZEFRAME32_PNG": {
+    "file": "palette/TOBDFREEZEFRAME32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDFREEZEFRAMEVIEW16_PNG": {
+    "file": "palette/TOBDFREEZEFRAMEVIEW16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDFREEZEFRAMEVIEW32_PNG": {
+    "file": "palette/TOBDFREEZEFRAMEVIEW32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDFREEZEFRAMEVIEW_PNG": {
     "file": "palette/TOBDFREEZEFRAMEVIEW.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDFUELECONOMYMETER": {
+  "TOBDFREEZEFRAME_PNG": {
+    "file": "palette/TOBDFREEZEFRAME.png",
+    "type": "RCDATA",
+    "size": 24
+  },
+  "TOBDFUELECONOMYMETER16_PNG": {
+    "file": "palette/TOBDFUELECONOMYMETER16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDFUELECONOMYMETER32_PNG": {
+    "file": "palette/TOBDFUELECONOMYMETER32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDFUELECONOMYMETER_PNG": {
     "file": "palette/TOBDFUELECONOMYMETER.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDHINTSTYLE": {
+  "TOBDHINTSTYLE16_PNG": {
+    "file": "palette/TOBDHINTSTYLE16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDHINTSTYLE32_PNG": {
+    "file": "palette/TOBDHINTSTYLE32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDHINTSTYLE_PNG": {
     "file": "palette/TOBDHINTSTYLE.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDINERTIALBRAKE": {
+  "TOBDINERTIALBRAKE16_PNG": {
+    "file": "palette/TOBDINERTIALBRAKE16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDINERTIALBRAKE32_PNG": {
+    "file": "palette/TOBDINERTIALBRAKE32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDINERTIALBRAKE_PNG": {
     "file": "palette/TOBDINERTIALBRAKE.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDINSPECTOR": {
+  "TOBDINSPECTOR16_PNG": {
+    "file": "palette/TOBDINSPECTOR16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDINSPECTOR32_PNG": {
+    "file": "palette/TOBDINSPECTOR32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDINSPECTOR_PNG": {
     "file": "palette/TOBDINSPECTOR.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDISOBUS": {
+  "TOBDISOBUS16_PNG": {
+    "file": "palette/TOBDISOBUS16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDISOBUS32_PNG": {
+    "file": "palette/TOBDISOBUS32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDISOBUS_PNG": {
     "file": "palette/TOBDISOBUS.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDJ1939": {
-    "file": "palette/TOBDJ1939.png",
-    "type": "PNG"
+  "TOBDJ193916_PNG": {
+    "file": "palette/TOBDJ193916.png",
+    "type": "RCDATA",
+    "size": 16
   },
-  "TOBDJ1939DM": {
+  "TOBDJ193932_PNG": {
+    "file": "palette/TOBDJ193932.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDJ1939DM16_PNG": {
+    "file": "palette/TOBDJ1939DM16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDJ1939DM32_PNG": {
+    "file": "palette/TOBDJ1939DM32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDJ1939DM_PNG": {
     "file": "palette/TOBDJ1939DM.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDJ2534CHANNEL": {
+  "TOBDJ1939_PNG": {
+    "file": "palette/TOBDJ1939.png",
+    "type": "RCDATA",
+    "size": 24
+  },
+  "TOBDJ2534CHANNEL16_PNG": {
+    "file": "palette/TOBDJ2534CHANNEL16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDJ2534CHANNEL32_PNG": {
+    "file": "palette/TOBDJ2534CHANNEL32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDJ2534CHANNEL_PNG": {
     "file": "palette/TOBDJ2534CHANNEL.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDJ2534DEVICE": {
+  "TOBDJ2534DEVICE16_PNG": {
+    "file": "palette/TOBDJ2534DEVICE16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDJ2534DEVICE32_PNG": {
+    "file": "palette/TOBDJ2534DEVICE32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDJ2534DEVICE_PNG": {
     "file": "palette/TOBDJ2534DEVICE.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDKEYADAPTATIONBMW": {
+  "TOBDKEYADAPTATIONBMW16_PNG": {
+    "file": "palette/TOBDKEYADAPTATIONBMW16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDKEYADAPTATIONBMW32_PNG": {
+    "file": "palette/TOBDKEYADAPTATIONBMW32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDKEYADAPTATIONBMW_PNG": {
     "file": "palette/TOBDKEYADAPTATIONBMW.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDKEYADAPTATIONFORD": {
+  "TOBDKEYADAPTATIONFORD16_PNG": {
+    "file": "palette/TOBDKEYADAPTATIONFORD16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDKEYADAPTATIONFORD32_PNG": {
+    "file": "palette/TOBDKEYADAPTATIONFORD32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDKEYADAPTATIONFORD_PNG": {
     "file": "palette/TOBDKEYADAPTATIONFORD.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDKEYADAPTATIONHMG": {
+  "TOBDKEYADAPTATIONHMG16_PNG": {
+    "file": "palette/TOBDKEYADAPTATIONHMG16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDKEYADAPTATIONHMG32_PNG": {
+    "file": "palette/TOBDKEYADAPTATIONHMG32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDKEYADAPTATIONHMG_PNG": {
     "file": "palette/TOBDKEYADAPTATIONHMG.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDKEYADAPTATIONTOYOTA": {
+  "TOBDKEYADAPTATIONTOYOTA16_PNG": {
+    "file": "palette/TOBDKEYADAPTATIONTOYOTA16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDKEYADAPTATIONTOYOTA32_PNG": {
+    "file": "palette/TOBDKEYADAPTATIONTOYOTA32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDKEYADAPTATIONTOYOTA_PNG": {
     "file": "palette/TOBDKEYADAPTATIONTOYOTA.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDKWP": {
-    "file": "palette/TOBDKWP.png",
-    "type": "PNG"
+  "TOBDKWP1281SESSION16_PNG": {
+    "file": "palette/TOBDKWP1281SESSION16.png",
+    "type": "RCDATA",
+    "size": 16
   },
-  "TOBDKWP1281SESSION": {
+  "TOBDKWP1281SESSION32_PNG": {
+    "file": "palette/TOBDKWP1281SESSION32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDKWP1281SESSION_PNG": {
     "file": "palette/TOBDKWP1281SESSION.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDKWPIOCONTROL": {
+  "TOBDKWP16_PNG": {
+    "file": "palette/TOBDKWP16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDKWP32_PNG": {
+    "file": "palette/TOBDKWP32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDKWPIOCONTROL16_PNG": {
+    "file": "palette/TOBDKWPIOCONTROL16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDKWPIOCONTROL32_PNG": {
+    "file": "palette/TOBDKWPIOCONTROL32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDKWPIOCONTROL_PNG": {
     "file": "palette/TOBDKWPIOCONTROL.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDKWPREADDTC": {
+  "TOBDKWPREADDTC16_PNG": {
+    "file": "palette/TOBDKWPREADDTC16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDKWPREADDTC32_PNG": {
+    "file": "palette/TOBDKWPREADDTC32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDKWPREADDTC_PNG": {
     "file": "palette/TOBDKWPREADDTC.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDKWPREADID": {
+  "TOBDKWPREADID16_PNG": {
+    "file": "palette/TOBDKWPREADID16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDKWPREADID32_PNG": {
+    "file": "palette/TOBDKWPREADID32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDKWPREADID_PNG": {
     "file": "palette/TOBDKWPREADID.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDKWPROUTINE": {
+  "TOBDKWPROUTINE16_PNG": {
+    "file": "palette/TOBDKWPROUTINE16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDKWPROUTINE32_PNG": {
+    "file": "palette/TOBDKWPROUTINE32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDKWPROUTINE_PNG": {
     "file": "palette/TOBDKWPROUTINE.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDKWPWRITEID": {
+  "TOBDKWPWRITEID16_PNG": {
+    "file": "palette/TOBDKWPWRITEID16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDKWPWRITEID32_PNG": {
+    "file": "palette/TOBDKWPWRITEID32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDKWPWRITEID_PNG": {
     "file": "palette/TOBDKWPWRITEID.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDLIVEDATA": {
-    "file": "palette/TOBDLIVEDATA.png",
-    "type": "PNG"
+  "TOBDKWP_PNG": {
+    "file": "palette/TOBDKWP.png",
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDLIVEDATAGRID": {
+  "TOBDLIVEDATA16_PNG": {
+    "file": "palette/TOBDLIVEDATA16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDLIVEDATA32_PNG": {
+    "file": "palette/TOBDLIVEDATA32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDLIVEDATAGRID16_PNG": {
+    "file": "palette/TOBDLIVEDATAGRID16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDLIVEDATAGRID32_PNG": {
+    "file": "palette/TOBDLIVEDATAGRID32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDLIVEDATAGRID_PNG": {
     "file": "palette/TOBDLIVEDATAGRID.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDLOGVIEWER": {
+  "TOBDLIVEDATA_PNG": {
+    "file": "palette/TOBDLIVEDATA.png",
+    "type": "RCDATA",
+    "size": 24
+  },
+  "TOBDLOGVIEWER16_PNG": {
+    "file": "palette/TOBDLOGVIEWER16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDLOGVIEWER32_PNG": {
+    "file": "palette/TOBDLOGVIEWER32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDLOGVIEWER_PNG": {
     "file": "palette/TOBDLOGVIEWER.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDMATRIXDISPLAY": {
+  "TOBDMATRIXDISPLAY16_PNG": {
+    "file": "palette/TOBDMATRIXDISPLAY16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDMATRIXDISPLAY32_PNG": {
+    "file": "palette/TOBDMATRIXDISPLAY32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDMATRIXDISPLAY_PNG": {
     "file": "palette/TOBDMATRIXDISPLAY.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDMENUBAR": {
+  "TOBDMENUBAR16_PNG": {
+    "file": "palette/TOBDMENUBAR16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDMENUBAR32_PNG": {
+    "file": "palette/TOBDMENUBAR32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDMENUBAR_PNG": {
     "file": "palette/TOBDMENUBAR.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDOEMCATALOG": {
+  "TOBDOEMCATALOG16_PNG": {
+    "file": "palette/TOBDOEMCATALOG16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDOEMCATALOG32_PNG": {
+    "file": "palette/TOBDOEMCATALOG32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDOEMCATALOG_PNG": {
     "file": "palette/TOBDOEMCATALOG.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDOEMPICKER": {
+  "TOBDOEMPICKER16_PNG": {
+    "file": "palette/TOBDOEMPICKER16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDOEMPICKER32_PNG": {
+    "file": "palette/TOBDOEMPICKER32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDOEMPICKER_PNG": {
     "file": "palette/TOBDOEMPICKER.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDONBOARDMONITOR": {
+  "TOBDONBOARDMONITOR16_PNG": {
+    "file": "palette/TOBDONBOARDMONITOR16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDONBOARDMONITOR32_PNG": {
+    "file": "palette/TOBDONBOARDMONITOR32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDONBOARDMONITOR_PNG": {
     "file": "palette/TOBDONBOARDMONITOR.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDOXYGENMONITOR": {
+  "TOBDOXYGENMONITOR16_PNG": {
+    "file": "palette/TOBDOXYGENMONITOR16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDOXYGENMONITOR32_PNG": {
+    "file": "palette/TOBDOXYGENMONITOR32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDOXYGENMONITOR_PNG": {
     "file": "palette/TOBDOXYGENMONITOR.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDPIDPICKER": {
+  "TOBDPIDPICKER16_PNG": {
+    "file": "palette/TOBDPIDPICKER16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDPIDPICKER32_PNG": {
+    "file": "palette/TOBDPIDPICKER32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDPIDPICKER_PNG": {
     "file": "palette/TOBDPIDPICKER.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDPOPUPMENU": {
+  "TOBDPOPUPMENU16_PNG": {
+    "file": "palette/TOBDPOPUPMENU16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDPOPUPMENU32_PNG": {
+    "file": "palette/TOBDPOPUPMENU32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDPOPUPMENU_PNG": {
     "file": "palette/TOBDPOPUPMENU.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDPOWERCURVE": {
+  "TOBDPOWERCURVE16_PNG": {
+    "file": "palette/TOBDPOWERCURVE16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDPOWERCURVE32_PNG": {
+    "file": "palette/TOBDPOWERCURVE32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDPOWERCURVE_PNG": {
     "file": "palette/TOBDPOWERCURVE.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDPROGRESSBAR": {
+  "TOBDPROGRESSBAR16_PNG": {
+    "file": "palette/TOBDPROGRESSBAR16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDPROGRESSBAR32_PNG": {
+    "file": "palette/TOBDPROGRESSBAR32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDPROGRESSBAR_PNG": {
     "file": "palette/TOBDPROGRESSBAR.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDPROTOCOL": {
+  "TOBDPROTOCOL16_PNG": {
+    "file": "palette/TOBDPROTOCOL16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDPROTOCOL32_PNG": {
+    "file": "palette/TOBDPROTOCOL32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDPROTOCOL_PNG": {
     "file": "palette/TOBDPROTOCOL.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOBUTTON": {
+  "TOBDRADIOBUTTON16_PNG": {
+    "file": "palette/TOBDRADIOBUTTON16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOBUTTON32_PNG": {
+    "file": "palette/TOBDRADIOBUTTON32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOBUTTON_PNG": {
     "file": "palette/TOBDRADIOBUTTON.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODEACURA": {
+  "TOBDRADIOCODEACURA16_PNG": {
+    "file": "palette/TOBDRADIOCODEACURA16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODEACURA32_PNG": {
+    "file": "palette/TOBDRADIOCODEACURA32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODEACURA_PNG": {
     "file": "palette/TOBDRADIOCODEACURA.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODEALFAROMEO": {
+  "TOBDRADIOCODEALFAROMEO16_PNG": {
+    "file": "palette/TOBDRADIOCODEALFAROMEO16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODEALFAROMEO32_PNG": {
+    "file": "palette/TOBDRADIOCODEALFAROMEO32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODEALFAROMEO_PNG": {
     "file": "palette/TOBDRADIOCODEALFAROMEO.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODEALPINE": {
+  "TOBDRADIOCODEALPINE16_PNG": {
+    "file": "palette/TOBDRADIOCODEALPINE16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODEALPINE32_PNG": {
+    "file": "palette/TOBDRADIOCODEALPINE32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODEALPINE_PNG": {
     "file": "palette/TOBDRADIOCODEALPINE.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODEAUDICONCERT": {
+  "TOBDRADIOCODEAUDICONCERT16_PNG": {
+    "file": "palette/TOBDRADIOCODEAUDICONCERT16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODEAUDICONCERT32_PNG": {
+    "file": "palette/TOBDRADIOCODEAUDICONCERT32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODEAUDICONCERT_PNG": {
     "file": "palette/TOBDRADIOCODEAUDICONCERT.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODEBECKER4": {
+  "TOBDRADIOCODEBECKER416_PNG": {
+    "file": "palette/TOBDRADIOCODEBECKER416.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODEBECKER432_PNG": {
+    "file": "palette/TOBDRADIOCODEBECKER432.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODEBECKER4_PNG": {
     "file": "palette/TOBDRADIOCODEBECKER4.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODEBECKER5": {
+  "TOBDRADIOCODEBECKER516_PNG": {
+    "file": "palette/TOBDRADIOCODEBECKER516.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODEBECKER532_PNG": {
+    "file": "palette/TOBDRADIOCODEBECKER532.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODEBECKER5_PNG": {
     "file": "palette/TOBDRADIOCODEBECKER5.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODEBLAUPUNKT": {
+  "TOBDRADIOCODEBLAUPUNKT16_PNG": {
+    "file": "palette/TOBDRADIOCODEBLAUPUNKT16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODEBLAUPUNKT32_PNG": {
+    "file": "palette/TOBDRADIOCODEBLAUPUNKT32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODEBLAUPUNKT_PNG": {
     "file": "palette/TOBDRADIOCODEBLAUPUNKT.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODEBMW": {
+  "TOBDRADIOCODEBMW16_PNG": {
+    "file": "palette/TOBDRADIOCODEBMW16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODEBMW32_PNG": {
+    "file": "palette/TOBDRADIOCODEBMW32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODEBMW_PNG": {
     "file": "palette/TOBDRADIOCODEBMW.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODECHRYSLER": {
+  "TOBDRADIOCODECHRYSLER16_PNG": {
+    "file": "palette/TOBDRADIOCODECHRYSLER16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODECHRYSLER32_PNG": {
+    "file": "palette/TOBDRADIOCODECHRYSLER32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODECHRYSLER_PNG": {
     "file": "palette/TOBDRADIOCODECHRYSLER.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODECITROEN": {
+  "TOBDRADIOCODECITROEN16_PNG": {
+    "file": "palette/TOBDRADIOCODECITROEN16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODECITROEN32_PNG": {
+    "file": "palette/TOBDRADIOCODECITROEN32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODECITROEN_PNG": {
     "file": "palette/TOBDRADIOCODECITROEN.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODECLARION": {
+  "TOBDRADIOCODECLARION16_PNG": {
+    "file": "palette/TOBDRADIOCODECLARION16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODECLARION32_PNG": {
+    "file": "palette/TOBDRADIOCODECLARION32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODECLARION_PNG": {
     "file": "palette/TOBDRADIOCODECLARION.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODEEEPROM_MERCEDESBECKER": {
+  "TOBDRADIOCODEEEPROM_MERCEDESBECKER16_PNG": {
+    "file": "palette/TOBDRADIOCODEEEPROM_MERCEDESBECKER16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODEEEPROM_MERCEDESBECKER32_PNG": {
+    "file": "palette/TOBDRADIOCODEEEPROM_MERCEDESBECKER32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODEEEPROM_MERCEDESBECKER_PNG": {
     "file": "palette/TOBDRADIOCODEEEPROM_MERCEDESBECKER.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODEEEPROM_OPELCD30": {
+  "TOBDRADIOCODEEEPROM_OPELCD3016_PNG": {
+    "file": "palette/TOBDRADIOCODEEEPROM_OPELCD3016.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODEEEPROM_OPELCD3032_PNG": {
+    "file": "palette/TOBDRADIOCODEEEPROM_OPELCD3032.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODEEEPROM_OPELCD30_PNG": {
     "file": "palette/TOBDRADIOCODEEEPROM_OPELCD30.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODEEEPROM_VOLVOHU": {
+  "TOBDRADIOCODEEEPROM_VOLVOHU16_PNG": {
+    "file": "palette/TOBDRADIOCODEEEPROM_VOLVOHU16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODEEEPROM_VOLVOHU32_PNG": {
+    "file": "palette/TOBDRADIOCODEEEPROM_VOLVOHU32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODEEEPROM_VOLVOHU_PNG": {
     "file": "palette/TOBDRADIOCODEEEPROM_VOLVOHU.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODEFIATDAIICHI": {
+  "TOBDRADIOCODEFIATDAIICHI16_PNG": {
+    "file": "palette/TOBDRADIOCODEFIATDAIICHI16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODEFIATDAIICHI32_PNG": {
+    "file": "palette/TOBDRADIOCODEFIATDAIICHI32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODEFIATDAIICHI_PNG": {
     "file": "palette/TOBDRADIOCODEFIATDAIICHI.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODEFIATVP": {
+  "TOBDRADIOCODEFIATVP16_PNG": {
+    "file": "palette/TOBDRADIOCODEFIATVP16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODEFIATVP32_PNG": {
+    "file": "palette/TOBDRADIOCODEFIATVP32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODEFIATVP_PNG": {
     "file": "palette/TOBDRADIOCODEFIATVP.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODEFORDM": {
+  "TOBDRADIOCODEFORDM16_PNG": {
+    "file": "palette/TOBDRADIOCODEFORDM16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODEFORDM32_PNG": {
+    "file": "palette/TOBDRADIOCODEFORDM32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODEFORDM_PNG": {
     "file": "palette/TOBDRADIOCODEFORDM.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODEFORDV": {
+  "TOBDRADIOCODEFORDV16_PNG": {
+    "file": "palette/TOBDRADIOCODEFORDV16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODEFORDV32_PNG": {
+    "file": "palette/TOBDRADIOCODEFORDV32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODEFORDV_PNG": {
     "file": "palette/TOBDRADIOCODEFORDV.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODEGM": {
+  "TOBDRADIOCODEGM16_PNG": {
+    "file": "palette/TOBDRADIOCODEGM16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODEGM32_PNG": {
+    "file": "palette/TOBDRADIOCODEGM32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODEGM_PNG": {
     "file": "palette/TOBDRADIOCODEGM.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODEHONDA": {
+  "TOBDRADIOCODEHONDA16_PNG": {
+    "file": "palette/TOBDRADIOCODEHONDA16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODEHONDA32_PNG": {
+    "file": "palette/TOBDRADIOCODEHONDA32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODEHONDA_PNG": {
     "file": "palette/TOBDRADIOCODEHONDA.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODEHYUNDAI": {
+  "TOBDRADIOCODEHYUNDAI16_PNG": {
+    "file": "palette/TOBDRADIOCODEHYUNDAI16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODEHYUNDAI32_PNG": {
+    "file": "palette/TOBDRADIOCODEHYUNDAI32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODEHYUNDAI_PNG": {
     "file": "palette/TOBDRADIOCODEHYUNDAI.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODEINFINITI": {
+  "TOBDRADIOCODEINFINITI16_PNG": {
+    "file": "palette/TOBDRADIOCODEINFINITI16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODEINFINITI32_PNG": {
+    "file": "palette/TOBDRADIOCODEINFINITI32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODEINFINITI_PNG": {
     "file": "palette/TOBDRADIOCODEINFINITI.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODEJAGUAR": {
+  "TOBDRADIOCODEJAGUAR16_PNG": {
+    "file": "palette/TOBDRADIOCODEJAGUAR16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODEJAGUAR32_PNG": {
+    "file": "palette/TOBDRADIOCODEJAGUAR32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODEJAGUAR_PNG": {
     "file": "palette/TOBDRADIOCODEJAGUAR.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODELANDROVER": {
+  "TOBDRADIOCODELANDROVER16_PNG": {
+    "file": "palette/TOBDRADIOCODELANDROVER16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODELANDROVER32_PNG": {
+    "file": "palette/TOBDRADIOCODELANDROVER32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODELANDROVER_PNG": {
     "file": "palette/TOBDRADIOCODELANDROVER.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODELEXUS": {
+  "TOBDRADIOCODELEXUS16_PNG": {
+    "file": "palette/TOBDRADIOCODELEXUS16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODELEXUS32_PNG": {
+    "file": "palette/TOBDRADIOCODELEXUS32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODELEXUS_PNG": {
     "file": "palette/TOBDRADIOCODELEXUS.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODEMASERATI": {
+  "TOBDRADIOCODEMASERATI16_PNG": {
+    "file": "palette/TOBDRADIOCODEMASERATI16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODEMASERATI32_PNG": {
+    "file": "palette/TOBDRADIOCODEMASERATI32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODEMASERATI_PNG": {
     "file": "palette/TOBDRADIOCODEMASERATI.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODEMAZDA": {
+  "TOBDRADIOCODEMAZDA16_PNG": {
+    "file": "palette/TOBDRADIOCODEMAZDA16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODEMAZDA32_PNG": {
+    "file": "palette/TOBDRADIOCODEMAZDA32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODEMAZDA_PNG": {
     "file": "palette/TOBDRADIOCODEMAZDA.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODEMERCEDES": {
+  "TOBDRADIOCODEMERCEDES16_PNG": {
+    "file": "palette/TOBDRADIOCODEMERCEDES16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODEMERCEDES32_PNG": {
+    "file": "palette/TOBDRADIOCODEMERCEDES32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODEMERCEDES_PNG": {
     "file": "palette/TOBDRADIOCODEMERCEDES.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODEMINI": {
+  "TOBDRADIOCODEMINI16_PNG": {
+    "file": "palette/TOBDRADIOCODEMINI16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODEMINI32_PNG": {
+    "file": "palette/TOBDRADIOCODEMINI32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODEMINI_PNG": {
     "file": "palette/TOBDRADIOCODEMINI.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODEMITSUBISHI": {
+  "TOBDRADIOCODEMITSUBISHI16_PNG": {
+    "file": "palette/TOBDRADIOCODEMITSUBISHI16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODEMITSUBISHI32_PNG": {
+    "file": "palette/TOBDRADIOCODEMITSUBISHI32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODEMITSUBISHI_PNG": {
     "file": "palette/TOBDRADIOCODEMITSUBISHI.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODENISSAN": {
+  "TOBDRADIOCODENISSAN16_PNG": {
+    "file": "palette/TOBDRADIOCODENISSAN16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODENISSAN32_PNG": {
+    "file": "palette/TOBDRADIOCODENISSAN32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODENISSAN_PNG": {
     "file": "palette/TOBDRADIOCODENISSAN.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODEOPEL": {
+  "TOBDRADIOCODEOPEL16_PNG": {
+    "file": "palette/TOBDRADIOCODEOPEL16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODEOPEL32_PNG": {
+    "file": "palette/TOBDRADIOCODEOPEL32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODEOPEL_PNG": {
     "file": "palette/TOBDRADIOCODEOPEL.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODEPEUGEOT": {
+  "TOBDRADIOCODEPEUGEOT16_PNG": {
+    "file": "palette/TOBDRADIOCODEPEUGEOT16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODEPEUGEOT32_PNG": {
+    "file": "palette/TOBDRADIOCODEPEUGEOT32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODEPEUGEOT_PNG": {
     "file": "palette/TOBDRADIOCODEPEUGEOT.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODEPORSCHE": {
+  "TOBDRADIOCODEPORSCHE16_PNG": {
+    "file": "palette/TOBDRADIOCODEPORSCHE16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODEPORSCHE32_PNG": {
+    "file": "palette/TOBDRADIOCODEPORSCHE32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODEPORSCHE_PNG": {
     "file": "palette/TOBDRADIOCODEPORSCHE.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODERENAULT": {
+  "TOBDRADIOCODERENAULT16_PNG": {
+    "file": "palette/TOBDRADIOCODERENAULT16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODERENAULT32_PNG": {
+    "file": "palette/TOBDRADIOCODERENAULT32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODERENAULT_PNG": {
     "file": "palette/TOBDRADIOCODERENAULT.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODESAAB": {
+  "TOBDRADIOCODESAAB16_PNG": {
+    "file": "palette/TOBDRADIOCODESAAB16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODESAAB32_PNG": {
+    "file": "palette/TOBDRADIOCODESAAB32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODESAAB_PNG": {
     "file": "palette/TOBDRADIOCODESAAB.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODESEAT": {
+  "TOBDRADIOCODESEAT16_PNG": {
+    "file": "palette/TOBDRADIOCODESEAT16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODESEAT32_PNG": {
+    "file": "palette/TOBDRADIOCODESEAT32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODESEAT_PNG": {
     "file": "palette/TOBDRADIOCODESEAT.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODESKODA": {
+  "TOBDRADIOCODESKODA16_PNG": {
+    "file": "palette/TOBDRADIOCODESKODA16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODESKODA32_PNG": {
+    "file": "palette/TOBDRADIOCODESKODA32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODESKODA_PNG": {
     "file": "palette/TOBDRADIOCODESKODA.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODESMART": {
+  "TOBDRADIOCODESMART16_PNG": {
+    "file": "palette/TOBDRADIOCODESMART16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODESMART32_PNG": {
+    "file": "palette/TOBDRADIOCODESMART32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODESMART_PNG": {
     "file": "palette/TOBDRADIOCODESMART.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODESUBARU": {
+  "TOBDRADIOCODESUBARU16_PNG": {
+    "file": "palette/TOBDRADIOCODESUBARU16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODESUBARU32_PNG": {
+    "file": "palette/TOBDRADIOCODESUBARU32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODESUBARU_PNG": {
     "file": "palette/TOBDRADIOCODESUBARU.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODESUZUKI": {
+  "TOBDRADIOCODESUZUKI16_PNG": {
+    "file": "palette/TOBDRADIOCODESUZUKI16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODESUZUKI32_PNG": {
+    "file": "palette/TOBDRADIOCODESUZUKI32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODESUZUKI_PNG": {
     "file": "palette/TOBDRADIOCODESUZUKI.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODETOYOTA": {
+  "TOBDRADIOCODETOYOTA16_PNG": {
+    "file": "palette/TOBDRADIOCODETOYOTA16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODETOYOTA32_PNG": {
+    "file": "palette/TOBDRADIOCODETOYOTA32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODETOYOTA_PNG": {
     "file": "palette/TOBDRADIOCODETOYOTA.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODEVISTEON": {
+  "TOBDRADIOCODEVISTEON16_PNG": {
+    "file": "palette/TOBDRADIOCODEVISTEON16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODEVISTEON32_PNG": {
+    "file": "palette/TOBDRADIOCODEVISTEON32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODEVISTEON_PNG": {
     "file": "palette/TOBDRADIOCODEVISTEON.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODEVOLVO": {
+  "TOBDRADIOCODEVOLVO16_PNG": {
+    "file": "palette/TOBDRADIOCODEVOLVO16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODEVOLVO32_PNG": {
+    "file": "palette/TOBDRADIOCODEVOLVO32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODEVOLVO_PNG": {
     "file": "palette/TOBDRADIOCODEVOLVO.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRADIOCODEVW": {
+  "TOBDRADIOCODEVW16_PNG": {
+    "file": "palette/TOBDRADIOCODEVW16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRADIOCODEVW32_PNG": {
+    "file": "palette/TOBDRADIOCODEVW32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRADIOCODEVW_PNG": {
     "file": "palette/TOBDRADIOCODEVW.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRANGEBAR": {
+  "TOBDRANGEBAR16_PNG": {
+    "file": "palette/TOBDRANGEBAR16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRANGEBAR32_PNG": {
+    "file": "palette/TOBDRANGEBAR32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRANGEBAR_PNG": {
     "file": "palette/TOBDRANGEBAR.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRANGEEDITOR": {
+  "TOBDRANGEEDITOR16_PNG": {
+    "file": "palette/TOBDRANGEEDITOR16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRANGEEDITOR32_PNG": {
+    "file": "palette/TOBDRANGEEDITOR32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRANGEEDITOR_PNG": {
     "file": "palette/TOBDRANGEEDITOR.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRANGEPROFILE": {
+  "TOBDRANGEPROFILE16_PNG": {
+    "file": "palette/TOBDRANGEPROFILE16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRANGEPROFILE32_PNG": {
+    "file": "palette/TOBDRANGEPROFILE32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRANGEPROFILE_PNG": {
     "file": "palette/TOBDRANGEPROFILE.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDREADINESSPANEL": {
+  "TOBDREADINESSPANEL16_PNG": {
+    "file": "palette/TOBDREADINESSPANEL16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDREADINESSPANEL32_PNG": {
+    "file": "palette/TOBDREADINESSPANEL32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDREADINESSPANEL_PNG": {
     "file": "palette/TOBDREADINESSPANEL.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRECORDER": {
+  "TOBDRECORDER16_PNG": {
+    "file": "palette/TOBDRECORDER16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRECORDER32_PNG": {
+    "file": "palette/TOBDRECORDER32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRECORDER_PNG": {
     "file": "palette/TOBDRECORDER.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDREPLAYER": {
+  "TOBDREPLAYER16_PNG": {
+    "file": "palette/TOBDREPLAYER16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDREPLAYER32_PNG": {
+    "file": "palette/TOBDREPLAYER32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDREPLAYER_PNG": {
     "file": "palette/TOBDREPLAYER.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDREPORTPREVIEW": {
+  "TOBDREPORTPREVIEW16_PNG": {
+    "file": "palette/TOBDREPORTPREVIEW16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDREPORTPREVIEW32_PNG": {
+    "file": "palette/TOBDREPORTPREVIEW32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDREPORTPREVIEW_PNG": {
     "file": "palette/TOBDREPORTPREVIEW.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDRIBBON": {
+  "TOBDRIBBON16_PNG": {
+    "file": "palette/TOBDRIBBON16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDRIBBON32_PNG": {
+    "file": "palette/TOBDRIBBON32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDRIBBON_PNG": {
     "file": "palette/TOBDRIBBON.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDROUTINECONTROL": {
+  "TOBDROUTINECONTROL16_PNG": {
+    "file": "palette/TOBDROUTINECONTROL16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDROUTINECONTROL32_PNG": {
+    "file": "palette/TOBDROUTINECONTROL32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDROUTINECONTROL_PNG": {
     "file": "palette/TOBDROUTINECONTROL.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDSCROLLBAR": {
+  "TOBDSCROLLBAR16_PNG": {
+    "file": "palette/TOBDSCROLLBAR16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDSCROLLBAR32_PNG": {
+    "file": "palette/TOBDSCROLLBAR32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDSCROLLBAR_PNG": {
     "file": "palette/TOBDSCROLLBAR.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDSECOCCODEC": {
+  "TOBDSECOCCODEC16_PNG": {
+    "file": "palette/TOBDSECOCCODEC16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDSECOCCODEC32_PNG": {
+    "file": "palette/TOBDSECOCCODEC32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDSECOCCODEC_PNG": {
     "file": "palette/TOBDSECOCCODEC.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDSECURITYACCESS": {
+  "TOBDSECURITYACCESS16_PNG": {
+    "file": "palette/TOBDSECURITYACCESS16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDSECURITYACCESS32_PNG": {
+    "file": "palette/TOBDSECURITYACCESS32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDSECURITYACCESS_PNG": {
     "file": "palette/TOBDSECURITYACCESS.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDSEGMENTED": {
+  "TOBDSEGMENTED16_PNG": {
+    "file": "palette/TOBDSEGMENTED16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDSEGMENTED32_PNG": {
+    "file": "palette/TOBDSEGMENTED32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDSEGMENTED_PNG": {
     "file": "palette/TOBDSEGMENTED.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDSIDEBAR": {
+  "TOBDSIDEBAR16_PNG": {
+    "file": "palette/TOBDSIDEBAR16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDSIDEBAR32_PNG": {
+    "file": "palette/TOBDSIDEBAR32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDSIDEBAR_PNG": {
     "file": "palette/TOBDSIDEBAR.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDSTATUSBAR": {
+  "TOBDSTATUSBAR16_PNG": {
+    "file": "palette/TOBDSTATUSBAR16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDSTATUSBAR32_PNG": {
+    "file": "palette/TOBDSTATUSBAR32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDSTATUSBAR_PNG": {
     "file": "palette/TOBDSTATUSBAR.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDSTATUSLAMP": {
+  "TOBDSTATUSLAMP16_PNG": {
+    "file": "palette/TOBDSTATUSLAMP16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDSTATUSLAMP32_PNG": {
+    "file": "palette/TOBDSTATUSLAMP32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDSTATUSLAMP_PNG": {
     "file": "palette/TOBDSTATUSLAMP.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDTABS": {
+  "TOBDTABS16_PNG": {
+    "file": "palette/TOBDTABS16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDTABS32_PNG": {
+    "file": "palette/TOBDTABS32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDTABS_PNG": {
     "file": "palette/TOBDTABS.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDTERMINAL": {
+  "TOBDTERMINAL16_PNG": {
+    "file": "palette/TOBDTERMINAL16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDTERMINAL32_PNG": {
+    "file": "palette/TOBDTERMINAL32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDTERMINAL_PNG": {
     "file": "palette/TOBDTERMINAL.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDTHEME": {
+  "TOBDTHEME16_PNG": {
+    "file": "palette/TOBDTHEME16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDTHEME32_PNG": {
+    "file": "palette/TOBDTHEME32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDTHEME_PNG": {
     "file": "palette/TOBDTHEME.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDTITLEBAR": {
+  "TOBDTITLEBAR16_PNG": {
+    "file": "palette/TOBDTITLEBAR16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDTITLEBAR32_PNG": {
+    "file": "palette/TOBDTITLEBAR32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDTITLEBAR_PNG": {
     "file": "palette/TOBDTITLEBAR.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDTOASTMANAGER": {
+  "TOBDTOASTMANAGER16_PNG": {
+    "file": "palette/TOBDTOASTMANAGER16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDTOASTMANAGER32_PNG": {
+    "file": "palette/TOBDTOASTMANAGER32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDTOASTMANAGER_PNG": {
     "file": "palette/TOBDTOASTMANAGER.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDTOOLBAR": {
+  "TOBDTOOLBAR16_PNG": {
+    "file": "palette/TOBDTOOLBAR16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDTOOLBAR32_PNG": {
+    "file": "palette/TOBDTOOLBAR32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDTOOLBAR_PNG": {
     "file": "palette/TOBDTOOLBAR.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDTORQUEATWHEELS": {
+  "TOBDTORQUEATWHEELS16_PNG": {
+    "file": "palette/TOBDTORQUEATWHEELS16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDTORQUEATWHEELS32_PNG": {
+    "file": "palette/TOBDTORQUEATWHEELS32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDTORQUEATWHEELS_PNG": {
     "file": "palette/TOBDTORQUEATWHEELS.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDTP20SESSION": {
+  "TOBDTP20SESSION16_PNG": {
+    "file": "palette/TOBDTP20SESSION16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDTP20SESSION32_PNG": {
+    "file": "palette/TOBDTP20SESSION32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDTP20SESSION_PNG": {
     "file": "palette/TOBDTP20SESSION.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDTRENDCHART": {
+  "TOBDTRENDCHART16_PNG": {
+    "file": "palette/TOBDTRENDCHART16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDTRENDCHART32_PNG": {
+    "file": "palette/TOBDTRENDCHART32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDTRENDCHART_PNG": {
     "file": "palette/TOBDTRENDCHART.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDUDS": {
-    "file": "palette/TOBDUDS.png",
-    "type": "PNG"
+  "TOBDUDS16_PNG": {
+    "file": "palette/TOBDUDS16.png",
+    "type": "RCDATA",
+    "size": 16
   },
-  "TOBDUDSDYNAMICDID": {
+  "TOBDUDS32_PNG": {
+    "file": "palette/TOBDUDS32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDUDSDYNAMICDID16_PNG": {
+    "file": "palette/TOBDUDSDYNAMICDID16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDUDSDYNAMICDID32_PNG": {
+    "file": "palette/TOBDUDSDYNAMICDID32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDUDSDYNAMICDID_PNG": {
     "file": "palette/TOBDUDSDYNAMICDID.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDUDSIOCONTROL": {
+  "TOBDUDSIOCONTROL16_PNG": {
+    "file": "palette/TOBDUDSIOCONTROL16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDUDSIOCONTROL32_PNG": {
+    "file": "palette/TOBDUDSIOCONTROL32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDUDSIOCONTROL_PNG": {
     "file": "palette/TOBDUDSIOCONTROL.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDUDSREADBYPERIODIC": {
+  "TOBDUDSREADBYPERIODIC16_PNG": {
+    "file": "palette/TOBDUDSREADBYPERIODIC16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDUDSREADBYPERIODIC32_PNG": {
+    "file": "palette/TOBDUDSREADBYPERIODIC32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDUDSREADBYPERIODIC_PNG": {
     "file": "palette/TOBDUDSREADBYPERIODIC.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDUDSREADDID": {
+  "TOBDUDSREADDID16_PNG": {
+    "file": "palette/TOBDUDSREADDID16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDUDSREADDID32_PNG": {
+    "file": "palette/TOBDUDSREADDID32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDUDSREADDID_PNG": {
     "file": "palette/TOBDUDSREADDID.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDUDSREADDTC": {
+  "TOBDUDSREADDTC16_PNG": {
+    "file": "palette/TOBDUDSREADDTC16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDUDSREADDTC32_PNG": {
+    "file": "palette/TOBDUDSREADDTC32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDUDSREADDTC_PNG": {
     "file": "palette/TOBDUDSREADDTC.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDUDSREADMEMORY": {
+  "TOBDUDSREADMEMORY16_PNG": {
+    "file": "palette/TOBDUDSREADMEMORY16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDUDSREADMEMORY32_PNG": {
+    "file": "palette/TOBDUDSREADMEMORY32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDUDSREADMEMORY_PNG": {
     "file": "palette/TOBDUDSREADMEMORY.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDUDSRESET": {
+  "TOBDUDSRESET16_PNG": {
+    "file": "palette/TOBDUDSRESET16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDUDSRESET32_PNG": {
+    "file": "palette/TOBDUDSRESET32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDUDSRESET_PNG": {
     "file": "palette/TOBDUDSRESET.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDUDSTRANSFER": {
+  "TOBDUDSTRANSFER16_PNG": {
+    "file": "palette/TOBDUDSTRANSFER16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDUDSTRANSFER32_PNG": {
+    "file": "palette/TOBDUDSTRANSFER32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDUDSTRANSFER_PNG": {
     "file": "palette/TOBDUDSTRANSFER.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDUDSWRITEDID": {
+  "TOBDUDSWRITEDID16_PNG": {
+    "file": "palette/TOBDUDSWRITEDID16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDUDSWRITEDID32_PNG": {
+    "file": "palette/TOBDUDSWRITEDID32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDUDSWRITEDID_PNG": {
     "file": "palette/TOBDUDSWRITEDID.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDUDSWRITEMEMORY": {
+  "TOBDUDSWRITEMEMORY16_PNG": {
+    "file": "palette/TOBDUDSWRITEMEMORY16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDUDSWRITEMEMORY32_PNG": {
+    "file": "palette/TOBDUDSWRITEMEMORY32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDUDSWRITEMEMORY_PNG": {
     "file": "palette/TOBDUDSWRITEMEMORY.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDUPLOADER": {
+  "TOBDUDS_PNG": {
+    "file": "palette/TOBDUDS.png",
+    "type": "RCDATA",
+    "size": 24
+  },
+  "TOBDUPLOADER16_PNG": {
+    "file": "palette/TOBDUPLOADER16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDUPLOADER32_PNG": {
+    "file": "palette/TOBDUPLOADER32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDUPLOADER_PNG": {
     "file": "palette/TOBDUPLOADER.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDVALUETILE": {
+  "TOBDVALUETILE16_PNG": {
+    "file": "palette/TOBDVALUETILE16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDVALUETILE32_PNG": {
+    "file": "palette/TOBDVALUETILE32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDVALUETILE_PNG": {
     "file": "palette/TOBDVALUETILE.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDVEHICLEHEALTH": {
+  "TOBDVEHICLEHEALTH16_PNG": {
+    "file": "palette/TOBDVEHICLEHEALTH16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDVEHICLEHEALTH32_PNG": {
+    "file": "palette/TOBDVEHICLEHEALTH32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDVEHICLEHEALTH_PNG": {
     "file": "palette/TOBDVEHICLEHEALTH.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDVEHICLEINFOCARD": {
+  "TOBDVEHICLEINFOCARD16_PNG": {
+    "file": "palette/TOBDVEHICLEINFOCARD16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDVEHICLEINFOCARD32_PNG": {
+    "file": "palette/TOBDVEHICLEINFOCARD32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDVEHICLEINFOCARD_PNG": {
     "file": "palette/TOBDVEHICLEINFOCARD.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDVIN": {
-    "file": "palette/TOBDVIN.png",
-    "type": "PNG"
+  "TOBDVIN16_PNG": {
+    "file": "palette/TOBDVIN16.png",
+    "type": "RCDATA",
+    "size": 16
   },
-  "TOBDVINCATALOG": {
+  "TOBDVIN32_PNG": {
+    "file": "palette/TOBDVIN32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDVINCATALOG16_PNG": {
+    "file": "palette/TOBDVINCATALOG16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDVINCATALOG32_PNG": {
+    "file": "palette/TOBDVINCATALOG32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDVINCATALOG_PNG": {
     "file": "palette/TOBDVINCATALOG.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDVINEDIT": {
+  "TOBDVINEDIT16_PNG": {
+    "file": "palette/TOBDVINEDIT16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDVINEDIT32_PNG": {
+    "file": "palette/TOBDVINEDIT32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDVINEDIT_PNG": {
     "file": "palette/TOBDVINEDIT.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDVININSPECTOR": {
+  "TOBDVININSPECTOR16_PNG": {
+    "file": "palette/TOBDVININSPECTOR16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDVININSPECTOR32_PNG": {
+    "file": "palette/TOBDVININSPECTOR32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDVININSPECTOR_PNG": {
     "file": "palette/TOBDVININSPECTOR.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDVOLTAGEGATE": {
+  "TOBDVIN_PNG": {
+    "file": "palette/TOBDVIN.png",
+    "type": "RCDATA",
+    "size": 24
+  },
+  "TOBDVOLTAGEGATE16_PNG": {
+    "file": "palette/TOBDVOLTAGEGATE16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDVOLTAGEGATE32_PNG": {
+    "file": "palette/TOBDVOLTAGEGATE32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDVOLTAGEGATE_PNG": {
     "file": "palette/TOBDVOLTAGEGATE.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDVWRADIOSAFE": {
+  "TOBDVWRADIOSAFE16_PNG": {
+    "file": "palette/TOBDVWRADIOSAFE16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDVWRADIOSAFE32_PNG": {
+    "file": "palette/TOBDVWRADIOSAFE32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDVWRADIOSAFE_PNG": {
     "file": "palette/TOBDVWRADIOSAFE.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDWWHOBD": {
+  "TOBDWWHOBD16_PNG": {
+    "file": "palette/TOBDWWHOBD16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDWWHOBD32_PNG": {
+    "file": "palette/TOBDWWHOBD32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDWWHOBD_PNG": {
     "file": "palette/TOBDWWHOBD.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDWWHREADINESS": {
+  "TOBDWWHREADINESS16_PNG": {
+    "file": "palette/TOBDWWHREADINESS16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDWWHREADINESS32_PNG": {
+    "file": "palette/TOBDWWHREADINESS32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDWWHREADINESS_PNG": {
     "file": "palette/TOBDWWHREADINESS.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   },
-  "TOBDXCP": {
+  "TOBDXCP16_PNG": {
+    "file": "palette/TOBDXCP16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDXCP32_PNG": {
+    "file": "palette/TOBDXCP32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDXCP_PNG": {
     "file": "palette/TOBDXCP.png",
-    "type": "PNG"
+    "type": "RCDATA",
+    "size": 24
   }
 }

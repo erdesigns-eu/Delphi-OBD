@@ -96,6 +96,9 @@ class ResourceTests(unittest.TestCase):
         self.assertEqual(data, resources.TARGET.read_bytes())
         # The Win32 resource stream starts with the required 32-byte null header.
         self.assertEqual(struct.unpack_from('<II', data), (0, 32))
+        # The IDE reads palette PNGs from RCDATA <CLASS>16_PNG / _PNG / 32_PNG.
+        for name in ('TOBDDIALGAUGE16_PNG', 'TOBDDIALGAUGE_PNG', 'TOBDDIALGAUGE32_PNG'):
+            self.assertIn(b'\x0a\x00' + name.encode('utf-16le') + b'\0\0', data, name)
 
     def test_missing_component_is_a_failure(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -125,7 +128,7 @@ class ResourceTests(unittest.TestCase):
 class IconTests(unittest.TestCase):
     def test_tracked_icons_match_the_generator(self):
         files = icons.build()
-        self.assertEqual(len(files), 176)
+        self.assertEqual(len(files), 174 * len(icons.ICON_SIZES) + 2)
         for rel, data in files.items():
             self.assertEqual(data, (icons.ASSETS / rel).read_bytes(), rel)
         tracked = {p.name for p in icons.PALETTE.glob('*.png')}

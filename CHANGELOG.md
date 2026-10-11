@@ -74,7 +74,9 @@ the **OBD Dyno** page.
 - Palette icons are generated in the ERDesigns colours by
   `tools/designtime_icons.py` and compiled into
   `src/DesignTime/ERD.Design.Icons.res` by
-  `tools/designtime_resources.py`.
+  `tools/designtime_resources.py`, as 16, 24 and 32 px `RCDATA` PNGs
+  named `<CLASS>16_PNG`, `<CLASS>_PNG` and `<CLASS>32_PNG` (the names
+  the IDE loads palette icons from).
 
 ### Upgrading from 2.x
 

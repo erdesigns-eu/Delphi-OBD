@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate/check the 24px component palette icons in the ERDesigns theme colours.
+"""Generate/check the 16/24/32px component palette icons in the ERDesigns theme colours.
 
 Every registered component gets one icon drawn from simple vector shapes on a
 charcoal tile, so the set reads on both the light and the dark IDE theme.
@@ -24,6 +24,9 @@ MANIFEST = ASSETS / 'resources.json'
 MARK = ASSETS / 'delphi-obd-mark.png'
 REGISTRATION = ROOT / 'src/DesignTime/ERD.Design.Registration.pas'
 SIZE = 24
+# Palette sizes and the RCDATA resource-name suffix the IDE (10.2.2 and
+# later) looks up for each: <CLASS>16_PNG, <CLASS>_PNG, <CLASS>32_PNG.
+ICON_SIZES = ((16, '16'), (24, ''), (32, '32'))
 MARK_SIZE = 128
 SUPERSAMPLE = 4
 
@@ -1223,9 +1226,11 @@ def build():
     files = {}
     manifest = {}
     for name in names:
-        rel = f'palette/{name.upper()}.png'
-        files[rel] = render(name).png()
-        manifest[name.upper()] = {'file': rel, 'type': 'PNG'}
+        for size, suffix in ICON_SIZES:
+            rel = f'palette/{name.upper()}{suffix}.png'
+            files[rel] = render(name, size).png()
+            manifest[f'{name.upper()}{suffix}_PNG'] = {
+                'file': rel, 'type': 'RCDATA', 'size': size}
     files['delphi-obd-mark.png'] = render('TOBDDialGauge', MARK_SIZE).png()
     files['resources.json'] = (json.dumps(dict(sorted(manifest.items())), indent=2) +
                                '\n').encode('utf-8')
@@ -1286,7 +1291,7 @@ def main():
                                  ', '.join((stale + extra)[:8]))
     except (ValueError, OSError, KeyError) as exc:
         parser.exit(1, f'{exc}\n')
-    print(f'{len(files) - 2} palette icons in the theme colours verified.')
+    print(f'{(len(files) - 2) // len(ICON_SIZES)} components x {len(ICON_SIZES)} palette icon sizes in the theme colours verified.')
     return 0
 
 
