@@ -893,9 +893,10 @@ begin
           if FRegions[I].Offset div FBytesPerRow = Row then
           begin
             APainter.Chip(ClientWidth - ScaleValue(30) -
-              APainter.ChipWidth(FRegions[I].Name, False, 9.5),
+              APainter.ChipWidth(FRegions[I].Name, False, OBD_TEXT_CAPS),
               Mid - ScaleValue(10), FRegions[I].Name,
-              RegionColor(APainter, FRegions[I].Kind), False, False, 9.5);
+              RegionColor(APainter, FRegions[I].Kind), False, False,
+              OBD_TEXT_CAPS);
             Break;
           end;
       end;

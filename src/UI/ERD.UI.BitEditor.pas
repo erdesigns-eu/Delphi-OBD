@@ -857,15 +857,15 @@ begin
     if ByteChanged(I) then
     begin
       APainter.RoundRect(X - ScaleValue(3), Y - ScaleValue(10),
-        APainter.TextWidth(Text, 13, twMonoBold) + ScaleValue(6),
+        APainter.TextWidth(Text, BIT_TEXT, twMonoBold) + ScaleValue(6),
         ScaleValue(20), ScaleValue(4), APainter.Tint(Palette.Accent, 0.18),
         clNone);
       Color := APainter.AccentText;
     end
     else
       Color := Palette.ForegroundText;
-    APainter.Text(X, Y, Text, 13, Color, twMonoBold);
-    Inc(X, APainter.TextWidth('00 ', 13, twMono));
+    APainter.Text(X, Y, Text, BIT_TEXT, Color, twMonoBold);
+    Inc(X, APainter.TextWidth('00 ', BIT_TEXT, twMono));
   end;
   APainter.Text(ClientWidth - ScaleValue(16), Y, 'Copy', BIT_META,
     APainter.AccentText, twSemibold, taRightJustify);
@@ -902,7 +902,7 @@ begin
         APainter.Text(ScaleValue(16), Mid, Format('Byte %.2d', [I]), BIT_TEXT,
           Palette.ForegroundText, twSemibold);
         APainter.Text(ScaleValue(80), Mid, Format('%.2x', [CodingByte(I)]),
-          13, IfThen(ByteChanged(I), APainter.AccentText, Palette.ForegroundText),
+          BIT_TEXT, IfThen(ByteChanged(I), APainter.AccentText, Palette.ForegroundText),
           twMonoBold);
         if ByteChanged(I) then
           APainter.Text(ScaleValue(104), Mid, Format('was %.2x',
@@ -968,7 +968,7 @@ begin
     else
       WhereText := Format('bits %d-%d', [Item.BitIndex,
         Item.BitIndex + Item.BitCount - 1]);
-    APainter.Text(ALeft, Mid, WhereText, 11, Palette.GaugeLabel, twMono);
+    APainter.Text(ALeft, Mid, WhereText, BIT_META, Palette.GaugeLabel, twMono);
     if Item.Kind = bleCheck then
     begin
       APainter.CheckBox(ALeft + ScaleValue(70), Mid, Metrics.Check,

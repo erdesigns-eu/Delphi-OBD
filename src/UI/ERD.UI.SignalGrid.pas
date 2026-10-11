@@ -183,6 +183,9 @@ type
 
 implementation
 
+uses
+  Winapi.GDIPAPI;
+
 const
   PREVIEW_GRID_COUNT = 6;
 

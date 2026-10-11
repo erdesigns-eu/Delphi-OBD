@@ -79,7 +79,6 @@ type
     function GetValue(ARow, ACol: Integer): Double;
     procedure SetValue(ARow, ACol: Integer; AValue: Double);
     function GetEdited(ARow, ACol: Integer): Boolean;
-    function UsePreviewData: Boolean;
     function HasData: Boolean;
     function EnsureGrid: Boolean;
     function HeaderHeight: Integer;
@@ -330,11 +329,6 @@ end;
 function TOBDMapGrid.HasData: Boolean;
 begin
   Result := (FRows > 0) and (FCols > 0);
-end;
-
-function TOBDMapGrid.UsePreviewData: Boolean;
-begin
-  Result := IsPreview and not HasData;
 end;
 
 function TOBDMapGrid.EnsureGrid: Boolean;
