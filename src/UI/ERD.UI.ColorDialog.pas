@@ -1144,6 +1144,7 @@ begin
   FPickButton := AWindow.AddLeftButton('Pick from screen', glSnapshot);
   FPickButton.OnClick := PipetteClick;
   AWindow.CancelResult := mrCancel;
+  AWindow.FitBody;
   AWindow.InitialFocus := FHex;
 
   BuildSwatches;

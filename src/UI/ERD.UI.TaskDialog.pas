@@ -891,16 +891,16 @@ begin
   begin
     FButton.Caption := 'Hide details';
     FWindow.ClientHeight := FWindow.ClientHeight + Delta;
-    if FWindow.Footer <> nil then
-      FWindow.Footer.Top := FWindow.Footer.Top + Delta;
   end
   else
   begin
     FButton.Caption := 'Show details';
-    if FWindow.Footer <> nil then
-      FWindow.Footer.Top := FWindow.Footer.Top - Delta;
     FWindow.ClientHeight := FWindow.ClientHeight - Delta;
   end;
+  // The footer is anchored to the bottom; pin it explicitly as well so the
+  // result does not depend on when the anchors are applied.
+  if FWindow.Footer <> nil then
+    FWindow.Footer.Top := FWindow.ClientHeight - 1 - FWindow.Footer.Height;
 end;
 
 { TOBDTaskDialog }
@@ -1019,7 +1019,7 @@ begin
   if FFooterText <> '' then
     Inc(Result, 30);
   if FExpandedText <> '' then
-    Inc(Result, 26);
+    Inc(Result, DensityMetrics(Density).Button + 8);
   for I := 1 to Length(FText) div 80 do
     Inc(Result, 18);
   Inc(Result, 16);
@@ -1083,7 +1083,7 @@ var
   Item: TOBDTaskButtonItem;
   RItem: TOBDTaskRadioButtonItem;
   MR: TModalResult;
-  I, Y, L, W, LinkH, DetailH: Integer;
+  I, Y, L, W, LinkH, DetailH, DetailButtonH: Integer;
   CB: TOBDTaskCommonButton;
   Default: Boolean;
 begin
@@ -1167,16 +1167,18 @@ begin
       DetailButton.Kind := bkGhost;
       DetailButton.Caption := 'Show details';
       DetailButton.Glyph := glChevronRight;
-      Window.Place(DetailButton, L - 10, Y, 150, 26);
+      DetailButtonH := DensityMetrics(Density).Button + 8;
+      Window.Place(DetailButton, L - 10, Y, MulDiv(Window.ButtonWidth(
+        'Hide details', glChevronRight), 96, Window.PPI), DetailButtonH);
       DetailH := 54;
-      DetailText := Window.AddText(L, Y + 26, W, FExpandedText, dtsSmall,
-        DetailH);
+      DetailText := Window.AddText(L, Y + DetailButtonH, W, FExpandedText,
+        dtsSmall, DetailH);
       DetailText.WordWrap := True;
       DetailText.Visible := False;
       Details := TDetailsController.Create(Window);
       Details.Setup(Window, DetailButton, DetailText, DetailH);
       DetailButton.OnClick := Details.Toggle;
-      Inc(Y, 26);
+      Inc(Y, DetailButtonH);
     end;
 
     Verify := nil;

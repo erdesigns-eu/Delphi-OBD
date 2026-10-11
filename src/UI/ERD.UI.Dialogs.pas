@@ -120,6 +120,8 @@ type
   /// <summary>Footer strip of a dialog window. Child controls paint on its
   /// fill.</summary>
   TOBDDialogFooter = class(TOBDCustomControl, IOBDSurface)
+  strict private
+    procedure WMNCHitTest(var Message: TWMNCHitTest); message WM_NCHITTEST;
   protected
     /// <summary>Paints the fill and the divider line.</summary>
     /// <param name="ACanvas">Target canvas.</param>
@@ -150,10 +152,18 @@ type
     FCloseHot: Boolean;
     FInitialFocus: TWinControl;
     FOnCloseButton: TNotifyEvent;
+    FSizable: Boolean;
+    FMinSize: TPoint;
+    FSizeHit: Integer;
+    FSizeOrigin: TPoint;
+    FSizeBounds: TRect;
     procedure SetTitle(const AValue: string);
     procedure SetCloseHot(AValue: Boolean);
     function CloseRect: TRect;
+    procedure TrackSize;
     procedure WMNCHitTest(var Message: TWMNCHitTest); message WM_NCHITTEST;
+    procedure WMNCLButtonDown(var Message: TWMNCLButtonDown);
+      message WM_NCLBUTTONDOWN;
     procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
   protected
     /// <summary>Adds the drop shadow and clipping styles.</summary>
@@ -181,6 +191,11 @@ type
     /// <summary>Moves the focus to InitialFocus the first time the window
     /// activates.</summary>
     procedure Activate; override;
+    /// <summary>Records the shown size as the minimum size.</summary>
+    procedure DoShow; override;
+    /// <summary>Repaints the frame and the footer after a size change.
+    /// </summary>
+    procedure Resize; override;
   public
     /// <summary>Creates an empty dialog window.</summary>
     /// <param name="AOwner">Component owner.</param>
@@ -201,6 +216,17 @@ type
     /// <summary>Top of the body in device pixels.</summary>
     /// <returns>Body top.</returns>
     function BodyTop: Integer;
+    /// <summary>Sizes the body to the controls placed on it, with a 16 px
+    /// bottom margin, and moves the footer below them. Call it after the
+    /// layout is built and before anchoring controls to the bottom.
+    /// </summary>
+    procedure FitBody;
+    /// <summary>Hit-test code of the resize border at a screen point.
+    /// </summary>
+    /// <param name="AScreen">Point in screen coordinates.</param>
+    /// <returns>HTLEFT..HTBOTTOMRIGHT, or HTNOWHERE when the window is not
+    /// sizable or the point is not on its border.</returns>
+    function SizingHit(const AScreen: TPoint): Integer;
     /// <summary>Parents a control on the window, or on AParent, and gives
     /// an OBD control the dialog theme and density.</summary>
     /// <param name="AControl">Control to add.</param>
@@ -282,6 +308,10 @@ type
     /// is used on a modeless window.</summary>
     property OnCloseButton: TNotifyEvent read FOnCloseButton
       write FOnCloseButton;
+    /// <summary>Lets the user resize the window by its border. The size
+    /// it is shown at is the minimum; anchor the controls that follow.
+    /// </summary>
+    property Sizable: Boolean read FSizable write FSizable;
   end;
 
   /// <summary>Base of the non-visual OBD Studio dialog components.
@@ -292,6 +322,7 @@ type
     FDensity: TOBDDensity;
     FParentDensity: Boolean;
     FTitle: string;
+    FResizable: Boolean;
     FOnShow: TNotifyEvent;
     FOnClose: TNotifyEvent;
     procedure SetTheme(AValue: TOBDTheme);
@@ -322,6 +353,10 @@ type
     procedure DoShow; virtual;
     /// <summary>Fires OnClose.</summary>
     procedure DoClose; virtual;
+    /// <summary>Lets the user resize the window. Descendants with a
+    /// layout that follows the size publish it.</summary>
+    property Resizable: Boolean read FResizable write FResizable
+      default False;
   public
     /// <summary>Creates the dialog.</summary>
     /// <param name="AOwner">Component owner.</param>
@@ -497,10 +532,16 @@ procedure OBDShowMessage(const AMessage: string; ATheme: TOBDTheme = nil);
 
 implementation
 
+const
+  // Width of the resize border of a sizable dialog window, at 96 dpi.
+  SIZE_GRIP = 6;
+
 type
   // Gives the dialog window access to the protected Density of the OBD
   // controls it lays out.
   TOBDControlAccess = class(TOBDCustomControl);
+  // Place gives explicit bounds, so AutoSize must not change them.
+  TControlSizeAccess = class(TControl);
 
   TDialogContent = class(TOBDCustomControl)
   strict private
@@ -736,6 +777,15 @@ begin
   Height := 58;
 end;
 
+procedure TOBDDialogFooter.WMNCHitTest(var Message: TWMNCHitTest);
+begin
+  inherited;
+  // The footer covers the bottom border: let the window resize there.
+  if (Parent is TOBDDialogWindow) and (TOBDDialogWindow(Parent).SizingHit(
+    Point(Message.XPos, Message.YPos)) <> HTNOWHERE) then
+    Message.Result := HTTRANSPARENT;
+end;
+
 function TOBDDialogFooter.SurfaceColor: TColor;
 begin
   Result := Palette.GaugeFace;
@@ -818,6 +868,7 @@ begin
     end;
     FFooter.SetBounds(1, ClientHeight - 1 - FooterH, ClientWidth - 2,
       FooterH);
+    FFooter.Anchors := [akLeft, akRight, akBottom];
     FButtonRight := FFooter.Width - Dp(16);
     FLeftRight := Dp(16);
   end;
@@ -826,6 +877,115 @@ end;
 function TOBDDialogWindow.BodyTop: Integer;
 begin
   Result := 1 + FHeaderHeight + 1;
+end;
+
+procedure TOBDDialogWindow.FitBody;
+var
+  I, Bottom, FooterH: Integer;
+  C: TControl;
+begin
+  Bottom := BodyTop;
+  for I := 0 to ControlCount - 1 do
+  begin
+    C := Controls[I];
+    if (C <> FFooter) and C.Visible then
+      Bottom := System.Math.Max(Bottom, C.Top + C.Height);
+  end;
+  FooterH := 0;
+  if FFooter <> nil then
+    FooterH := FFooter.Height;
+  ClientHeight := Bottom + Dp(16) + FooterH + 1;
+  if FFooter <> nil then
+    FFooter.SetBounds(1, ClientHeight - 1 - FooterH, ClientWidth - 2,
+      FooterH);
+end;
+
+function TOBDDialogWindow.SizingHit(const AScreen: TPoint): Integer;
+var
+  P: TPoint;
+  G: Integer;
+  L, R, T, B: Boolean;
+begin
+  Result := HTNOWHERE;
+  if not FSizable or not HandleAllocated then
+    Exit;
+  P := ScreenToClient(AScreen);
+  G := Dp(SIZE_GRIP);
+  if (P.X < 0) or (P.Y < 0) or (P.X >= ClientWidth) or
+    (P.Y >= ClientHeight) then
+    Exit;
+  L := P.X < G;
+  R := P.X >= ClientWidth - G;
+  T := P.Y < G;
+  B := P.Y >= ClientHeight - G;
+  if T and L then
+    Result := HTTOPLEFT
+  else if T and R then
+    Result := HTTOPRIGHT
+  else if B and L then
+    Result := HTBOTTOMLEFT
+  else if B and R then
+    Result := HTBOTTOMRIGHT
+  else if L then
+    Result := HTLEFT
+  else if R then
+    Result := HTRIGHT
+  else if T then
+    Result := HTTOP
+  else if B then
+    Result := HTBOTTOM;
+end;
+
+procedure TOBDDialogWindow.WMNCLButtonDown(var Message: TWMNCLButtonDown);
+begin
+  // A borderless window has no sizing frame, so Windows does not size it:
+  // track the border drag here.
+  if FSizable and (Message.HitTest >= HTLEFT) and
+    (Message.HitTest <= HTBOTTOMRIGHT) then
+  begin
+    FSizeHit := Message.HitTest;
+    FSizeOrigin := Point(Message.XCursor, Message.YCursor);
+    FSizeBounds := BoundsRect;
+    SetCapture(Handle);
+    Message.Result := 0;
+    Exit;
+  end;
+  inherited;
+end;
+
+procedure TOBDDialogWindow.TrackSize;
+var
+  P: TPoint;
+  R: TRect;
+  DX, DY: Integer;
+begin
+  GetCursorPos(P);
+  DX := P.X - FSizeOrigin.X;
+  DY := P.Y - FSizeOrigin.Y;
+  R := FSizeBounds;
+  if FSizeHit in [HTLEFT, HTTOPLEFT, HTBOTTOMLEFT] then
+    R.Left := System.Math.Min(R.Left + DX, R.Right - FMinSize.X);
+  if FSizeHit in [HTRIGHT, HTTOPRIGHT, HTBOTTOMRIGHT] then
+    R.Right := System.Math.Max(R.Right + DX, R.Left + FMinSize.X);
+  if FSizeHit in [HTTOP, HTTOPLEFT, HTTOPRIGHT] then
+    R.Top := System.Math.Min(R.Top + DY, R.Bottom - FMinSize.Y);
+  if FSizeHit in [HTBOTTOM, HTBOTTOMLEFT, HTBOTTOMRIGHT] then
+    R.Bottom := System.Math.Max(R.Bottom + DY, R.Top + FMinSize.Y);
+  SetBounds(R.Left, R.Top, R.Right - R.Left, R.Bottom - R.Top);
+end;
+
+procedure TOBDDialogWindow.DoShow;
+begin
+  FMinSize := Point(Width, Height);
+  inherited;
+end;
+
+procedure TOBDDialogWindow.Resize;
+begin
+  inherited;
+  Invalidate;
+  if FFooter <> nil then
+    FFooter.Invalidate;
 end;
 
 procedure TOBDDialogWindow.Adopt(AControl: TControl; AParent: TWinControl);
@@ -844,6 +1004,7 @@ procedure TOBDDialogWindow.Place(AControl: TControl; X, Y, W, H: Integer);
 begin
   if AControl.Parent = nil then
     Adopt(AControl);
+  TControlSizeAccess(AControl).AutoSize := False;
   AControl.SetBounds(Dp(X), BodyTop + Dp(Y), Dp(W), Dp(H));
 end;
 
@@ -888,6 +1049,8 @@ begin
   Result.Caption := ACaption;
   Result.Kind := AKind;
   Result.ModalResult := AResult;
+  Result.AutoSize := False;
+  Result.Anchors := [akTop, akRight];
   W := ButtonWidth(ACaption);
   H := Dp(DensityMetrics(FDensity).Button) + 2 * Dp(4);
   Result.SetBounds(FButtonRight - W + Dp(4), (FFooter.Height - H) div 2,
@@ -907,6 +1070,7 @@ begin
   Result.Caption := ACaption;
   Result.Kind := bkGhost;
   Result.Glyph := AGlyph;
+  Result.AutoSize := False;
   W := ButtonWidth(ACaption, AGlyph);
   H := Dp(DensityMetrics(FDensity).Button) + 2 * Dp(4);
   Result.SetBounds(FLeftRight - Dp(10), (FFooter.Height - H) div 2, W, H);
@@ -924,6 +1088,7 @@ begin
   Adopt(Result, FFooter);
   Result.Caption := ACaption;
   Result.Checked := AChecked;
+  Result.AutoSize := False;
   W := OBDMeasureText(ACaption, OBD_TEXT_BODY, twRegular, FPPI) +
     Dp(DensityMetrics(FDensity).Check + 24);
   H := Dp(DensityMetrics(FDensity).Button) + 2 * Dp(4);
@@ -960,8 +1125,15 @@ end;
 procedure TOBDDialogWindow.WMNCHitTest(var Message: TWMNCHitTest);
 var
   P: TPoint;
+  Hit: Integer;
 begin
   inherited;
+  Hit := SizingHit(Point(Message.XPos, Message.YPos));
+  if Hit <> HTNOWHERE then
+  begin
+    Message.Result := Hit;
+    Exit;
+  end;
   P := ScreenToClient(Point(Message.XPos, Message.YPos));
   if PtInRect(CloseRect, P) then
     Message.Result := HTCLIENT
@@ -1017,6 +1189,15 @@ end;
 procedure TOBDDialogWindow.MouseMove(Shift: TShiftState; X, Y: Integer);
 begin
   inherited;
+  if FSizeHit <> 0 then
+  begin
+    if ssLeft in Shift then
+    begin
+      TrackSize;
+      Exit;
+    end;
+    FSizeHit := 0;
+  end;
   SetCloseHot(PtInRect(CloseRect, Point(X, Y)));
 end;
 
@@ -1024,6 +1205,13 @@ procedure TOBDDialogWindow.MouseUp(Button: TMouseButton; Shift: TShiftState;
   X, Y: Integer);
 begin
   inherited;
+  if FSizeHit <> 0 then
+  begin
+    FSizeHit := 0;
+    if GetCapture = Handle then
+      ReleaseCapture;
+    Exit;
+  end;
   if (Button <> mbLeft) or not PtInRect(CloseRect, Point(X, Y)) then
     Exit;
   if fsModal in FormState then
@@ -1186,6 +1374,7 @@ begin
   if S = '' then
     S := DefaultTitle;
   Result := TOBDDialogWindow.CreateWindow(Application, FTheme, GetDensity, S);
+  Result.Sizable := FResizable;
 end;
 
 function TOBDCommonDialog.RunWindow(AWindow: TOBDDialogWindow): TModalResult;

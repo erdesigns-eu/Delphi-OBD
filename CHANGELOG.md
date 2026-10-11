@@ -130,6 +130,8 @@ the field. New building blocks: `TOBDListBox` (on the
 `TOBDCustomItemList` base), `TOBDBreadcrumb`, `TOBDPlacesPane`,
 `TOBDFolderTree`, `TOBDFileList`, `TOBDColorSwatches` and
 `TOBDColorSpectrum`.
+The file, folder and font dialogs can be resized (`Resizable`, on by
+default) and the dialogs size themselves to their content.
 
 The ERDesigns light palette uses #856404 for warnings (the site's
 warning text colour); the dark palette uses #FFC107.

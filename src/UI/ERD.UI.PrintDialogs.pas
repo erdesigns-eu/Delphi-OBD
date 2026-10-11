@@ -1321,7 +1321,9 @@ begin
         DensityMetrics(Density).Check + 12);
       Preview := TPrintPreviewPanel.CreatePreview(Window, Self);
       Window.Adopt(Preview);
-      Window.Place(Preview, 340, 16, 244, BodyH);
+      Window.Place(Preview, 340, 16, 244, Y +
+        DensityMetrics(Density).Check + 12 - 16);
+      Window.FitBody;
       PrintButton := Window.AddButton('Print', bkPrimary, mrOk);
       PrintButton.Default := True;
       Window.AddButton('Cancel', bkSecondary, mrCancel).Cancel := True;
@@ -1490,7 +1492,9 @@ begin
     Window.Place(BottomSpin, 186, Y, 60, DensityMetrics(Density).Edit);
     Preview := TPageSetupPreview.Create(Window);
     Window.Adopt(Preview);
-    Window.Place(Preview, 270, 16, 150, 318);
+    Window.Place(Preview, 270, 16, 150, System.Math.Max(318, Y +
+      DensityMetrics(Density).Edit - 16));
+    Window.FitBody;
     OKButton := Window.AddButton('OK', bkPrimary, mrOk);
     OKButton.Default := True;
     Window.AddButton('Cancel', bkSecondary, mrCancel).Cancel := True;

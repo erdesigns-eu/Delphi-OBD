@@ -114,6 +114,9 @@ type
     /// <summary>Folder change event.</summary>
     property OnFolderChange: TNotifyEvent read FOnFolderChange
       write FOnFolderChange;
+    /// <summary>Lets the user resize the dialog; the list grows with it.
+    /// </summary>
+    property Resizable default True;
   end;
 
   /// <summary>Themed open-file dialog.</summary>
@@ -194,6 +197,9 @@ type
     /// <summary>Default title.</summary>
     function DefaultTitle: string; override;
   public
+    /// <summary>Creates the dialog.</summary>
+    /// <param name="AOwner">Component owner.</param>
+    constructor Create(AOwner: TComponent); override;
     /// <summary>Shows the dialog.</summary>
     function Execute: Boolean; override;
   published
@@ -203,6 +209,9 @@ type
     property InitialDir: string read FInitialDir write FInitialDir;
     /// <summary>Options.</summary>
     property Options: TOBDFileOptions read FOptions write FOptions;
+    /// <summary>Lets the user resize the dialog; the tree grows with it.
+    /// </summary>
+    property Resizable default True;
     /// <summary>Theme.</summary>
     property Theme;
     /// <summary>Density.</summary>
@@ -254,8 +263,13 @@ type
     FSearchEdit: TReturnEdit;
     FTypeCombo: TOBDComboBox;
     FBanner: TOBDBanner;
+    FBannerChange: TOBDButton;
+    FBannerReplace: TOBDButton;
     FPreview: TPicturePreview;
     FOK: TOBDButton;
+    FBackButton: TOBDButton;
+    FForwardButton: TOBDButton;
+    FUpButton: TOBDButton;
     FHistory: TStringList;
     FHistoryIndex: Integer;
     FReplacing: Boolean;
@@ -264,6 +278,10 @@ type
     function TypedPath: string;
     function SelectedFilePath: string;
     procedure SetBanner(const ATitle, AText: string; AKind: TOBDBannerKind);
+    procedure HideBanner;
+    procedure UpdateNavButtons;
+    function NavButton(AGlyph: TOBDGlyph; AClick: TNotifyEvent; X,
+      H: Integer): TOBDButton;
   public
     constructor CreateController(AOwner: TComponent;
       ADialog: TOBDCustomFileDialog; AWindow: TOBDDialogWindow);
@@ -427,6 +445,7 @@ begin
   FFilter := 'All files|*.*';
   FFilterIndex := 1;
   FOptions := [foFileMustExist, foPathMustExist];
+  Resizable := True;
 end;
 
 destructor TOBDCustomFileDialog.Destroy;
@@ -614,44 +633,55 @@ begin
   FHistoryIndex := FHistory.Count - 1;
 end;
 
-procedure TFileDialogController.Build;
+function ParentFolder(const ADir: string): string;
 var
-  BodyH, MainW, ListW, SearchX, EditH: Integer;
+  S: string;
+begin
+  S := ExcludeTrailingPathDelimiter(ADir);
+  Result := ExtractFileDir(S);
+  if (Length(Result) = 2) and (Result[2] = ':') then
+    Result := Result + PathDelim;
+  if (Result = '') or SameText(IncludeTrailingPathDelimiter(Result),
+    IncludeTrailingPathDelimiter(ADir)) then
+    Result := '';
+end;
+
+function TFileDialogController.NavButton(AGlyph: TOBDGlyph;
+  AClick: TNotifyEvent; X, H: Integer): TOBDButton;
+begin
+  Result := TOBDButton.Create(FWindow);
+  FWindow.Adopt(Result);
+  Result.Caption := '';
+  Result.Glyph := AGlyph;
+  Result.Kind := bkGhost;
+  Result.OnClick := AClick;
+  FWindow.Place(Result, X, 18, 34, H);
+end;
+
+procedure TFileDialogController.Build;
+const
+  LIST_H = 330;
+var
+  BodyH, MainW, ListW, SearchX, EditH, NavH, ListY, NameY, NewW: Integer;
   Dir, Caption: string;
-  Btn: TOBDButton;
+  Btn, NewButton: TOBDButton;
+  NameLabel, TypeLabel: TOBDDialogText;
   L: TStringList;
   I: Integer;
 begin
-  BodyH := 486;
   MainW := 1068;
-  if FDialog.IsSaveDialog then
-    BodyH := 604;
   if FDialog.IsPictureDialog then
     MainW := 1228;
-  FWindow.SetLayout(MainW, BodyH);
   EditH := DensityMetrics(FWindow.Density).Edit;
+  NavH := System.Math.Max(34, EditH);
+  ListY := 18 + NavH + 14;
+  NameY := ListY + LIST_H + 18;
+  BodyH := NameY + 24 + EditH + 16;
+  FWindow.SetLayout(MainW, BodyH);
 
-  Btn := TOBDButton.Create(FWindow);
-  FWindow.Adopt(Btn);
-  Btn.Caption := '';
-  Btn.Glyph := glBack;
-  Btn.Kind := bkGhost;
-  Btn.OnClick := Back;
-  FWindow.Place(Btn, 16, 18, 36, 34);
-  Btn := TOBDButton.Create(FWindow);
-  FWindow.Adopt(Btn);
-  Btn.Caption := '';
-  Btn.Glyph := glRedo;
-  Btn.Kind := bkGhost;
-  Btn.OnClick := Forward;
-  FWindow.Place(Btn, 56, 18, 36, 34);
-  Btn := TOBDButton.Create(FWindow);
-  FWindow.Adopt(Btn);
-  Btn.Caption := '';
-  Btn.Glyph := glChevronUp;
-  Btn.Kind := bkGhost;
-  Btn.OnClick := Up;
-  FWindow.Place(Btn, 96, 18, 36, 34);
+  FBackButton := NavButton(glBack, Back, 16, NavH);
+  FForwardButton := NavButton(glForward, Forward, 52, NavH);
+  FUpButton := NavButton(glUp, Up, 88, NavH);
 
   SearchX := MainW - 242;
   if FDialog.IsPictureDialog then
@@ -659,34 +689,40 @@ begin
   FBreadcrumb := TOBDBreadcrumb.Create(FWindow);
   FWindow.Adopt(FBreadcrumb);
   FBreadcrumb.OnNavigate := BreadcrumbNavigate;
-  FWindow.Place(FBreadcrumb, 140, 18, SearchX - 156, 34);
-
+  NewButton := nil;
+  NewW := 0;
   if FDialog.IsSaveDialog then
   begin
-    Btn := TOBDButton.Create(FWindow);
-    FWindow.Adopt(Btn);
-    Btn.Caption := 'New folder';
-    Btn.Glyph := glNew;
-    Btn.Kind := bkGhost;
-    Btn.OnClick := NewFolder;
-    FWindow.Place(Btn, SearchX - 116, 18, 104, 34);
+    NewW := MulDiv(FWindow.ButtonWidth('New folder', glNew), 96, FWindow.PPI);
+    NewButton := TOBDButton.Create(FWindow);
+    FWindow.Adopt(NewButton);
+    NewButton.Caption := 'New folder';
+    NewButton.Glyph := glNew;
+    NewButton.Kind := bkGhost;
+    NewButton.OnClick := NewFolder;
+    FWindow.Place(NewButton, SearchX - 8 - NewW, 18, NewW, NavH);
   end;
+  if NewW > 0 then
+    FWindow.Place(FBreadcrumb, 132, 18, SearchX - 148 - NewW, NavH)
+  else
+    FWindow.Place(FBreadcrumb, 132, 18, SearchX - 144, NavH);
 
   FSearchEdit := TReturnEdit.Create(FWindow);
   FWindow.Adopt(FSearchEdit);
   FSearchEdit.TextHint := 'Search';
   FSearchEdit.OnChange := SearchChange;
-  FWindow.Place(FSearchEdit, SearchX, 18, 226, EditH);
+  FWindow.Place(FSearchEdit, SearchX, 18 + (NavH - EditH) div 2, MainW - 16 -
+    SearchX, EditH);
 
   FPlaces := TOBDPlacesPane.Create(FWindow);
   FWindow.Adopt(FPlaces);
   FPlaces.Places := FDialog.Places;
   FPlaces.OnNavigate := PlacesNavigate;
-  FWindow.Place(FPlaces, 16, 66, 196, 274);
+  FWindow.Place(FPlaces, 16, ListY, 196, LIST_H);
 
-  ListW := MainW - 244;
+  ListW := MainW - 240;
   if FDialog.IsPictureDialog then
-    Dec(ListW, 236);
+    Dec(ListW, 232);
   FList := TOBDFileList.Create(FWindow);
   FWindow.Adopt(FList);
   FList.Mask := FDialog.CurrentMask;
@@ -696,26 +732,27 @@ begin
   FList.OnFolderOpen := FolderOpen;
   FList.OnFileActivate := FileActivate;
   FList.OnChange := SelectionChange;
-  FWindow.Place(FList, 224, 66, ListW, 274);
+  FWindow.Place(FList, 224, ListY, ListW, LIST_H);
 
   if FDialog.IsPictureDialog then
   begin
     FPreview := TPicturePreview.Create(FWindow);
     FWindow.Adopt(FPreview);
-    FWindow.Place(FPreview, 224 + ListW + 12, 66, 220, 274);
+    FWindow.Place(FPreview, 224 + ListW + 12, ListY, MainW - 16 -
+      (224 + ListW + 12), LIST_H);
   end;
 
-  FWindow.AddText(16, 358, 160, 'FILE NAME');
+  NameLabel := FWindow.AddText(16, NameY, 160, 'FILE NAME');
   FNameEdit := TReturnEdit.Create(FWindow);
   FWindow.Adopt(FNameEdit);
   FNameEdit.Text := ExtractFileName(FDialog.FileName);
   FNameEdit.OnReturn := NameReturn;
-  FWindow.Place(FNameEdit, 16, 382, MainW - 286, EditH);
+  FWindow.Place(FNameEdit, 16, NameY + 24, MainW - 282, EditH);
 
   if FDialog.IsSaveDialog then
-    FWindow.AddText(MainW - 266, 358, 160, 'SAVE AS TYPE')
+    TypeLabel := FWindow.AddText(MainW - 266, NameY, 160, 'SAVE AS TYPE')
   else
-    FWindow.AddText(MainW - 266, 358, 160, 'FILE TYPE');
+    TypeLabel := FWindow.AddText(MainW - 266, NameY, 160, 'FILE TYPE');
   FTypeCombo := TOBDComboBox.Create(FWindow);
   FWindow.Adopt(FTypeCombo);
   L := TStringList.Create;
@@ -736,7 +773,7 @@ begin
   FTypeCombo.ItemIndex := System.Math.Min(FTypeCombo.Items.Count - 1,
     FDialog.FilterIndex - 1);
   FTypeCombo.OnChange := FilterChange;
-  FWindow.Place(FTypeCombo, MainW - 266, 382, 250, EditH);
+  FWindow.Place(FTypeCombo, MainW - 266, NameY + 24, 250, EditH);
 
   if not (foHideReadOnly in FDialog.Options) and not FDialog.IsSaveDialog then
     FWindow.AddLeftCheck('Open read-only', foReadOnly in FDialog.Options);
@@ -745,6 +782,21 @@ begin
   FOK.OnClick := Accept;
   Btn := FWindow.AddButton('Cancel', bkSecondary, mrCancel);
   Btn.Cancel := True;
+
+  // Anchors are set once the layout is final so a resize stretches the
+  // list area and keeps the name row and the buttons at the edges.
+  FBreadcrumb.Anchors := [akLeft, akTop, akRight];
+  FSearchEdit.Anchors := [akTop, akRight];
+  FPlaces.Anchors := [akLeft, akTop, akBottom];
+  FList.Anchors := [akLeft, akTop, akRight, akBottom];
+  if FPreview <> nil then
+    FPreview.Anchors := [akTop, akRight, akBottom];
+  NameLabel.Anchors := [akLeft, akBottom];
+  FNameEdit.Anchors := [akLeft, akRight, akBottom];
+  TypeLabel.Anchors := [akRight, akBottom];
+  FTypeCombo.Anchors := [akRight, akBottom];
+  if NewButton <> nil then
+    NewButton.Anchors := [akTop, akRight];
 
   Dir := StartDirectory(FDialog.InitialDir, FDialog.FileName);
   Navigate(Dir);
@@ -764,6 +816,8 @@ begin
   FSearchEdit.Text := '';
   if AHistory then
     AddHistory(S);
+  HideBanner;
+  UpdateNavButtons;
   FDialog.DoFolderChange;
 end;
 
@@ -842,37 +896,91 @@ end;
 procedure TFileDialogController.SetBanner(const ATitle, AText: string;
   AKind: TOBDBannerKind);
 var
-  MainW: Integer;
-  B: TOBDButton;
+  Shrink, Right, BtnH, W: Integer;
 begin
-  MainW := MulDiv(FWindow.ClientWidth, 96, FWindow.PPI);
   if FBanner = nil then
   begin
     FBanner := TOBDBanner.Create(FWindow);
     FWindow.Adopt(FBanner);
-    FWindow.Place(FBanner, 16, 430, MainW - 32, 64);
+    FBanner.Visible := False;
+    BtnH := FWindow.Dp(DensityMetrics(FWindow.Density).Button) +
+      2 * FWindow.Dp(4);
+    FBannerReplace := TOBDButton.Create(FWindow);
+    FWindow.Adopt(FBannerReplace, FBanner);
+    FBannerReplace.Caption := 'Replace';
+    FBannerReplace.Kind := bkDanger;
+    FBannerReplace.AutoSize := False;
+    FBannerReplace.OnClick := Replace;
+    FBannerChange := TOBDButton.Create(FWindow);
+    FWindow.Adopt(FBannerChange, FBanner);
+    FBannerChange.Caption := 'Change name';
+    FBannerChange.Kind := bkGhost;
+    FBannerChange.AutoSize := False;
+    FBannerChange.OnClick := ChangeName;
+    FBanner.Height := FWindow.Dp(64);
+    W := FWindow.ButtonWidth('Replace');
+    FBannerReplace.SetBounds(0, (FBanner.Height - BtnH) div 2, W, BtnH);
+    W := FWindow.ButtonWidth('Change name');
+    FBannerChange.SetBounds(0, (FBanner.Height - BtnH) div 2, W, BtnH);
+  end;
+  if not FBanner.Visible then
+  begin
+    // The banner takes the bottom of the list area; the panes above
+    // give up the room and get it back in HideBanner.
+    Shrink := FWindow.Dp(64) + FWindow.Dp(8);
+    FPlaces.Height := FPlaces.Height - Shrink;
+    FList.Height := FList.Height - Shrink;
+    if FPreview <> nil then
+      FPreview.Height := FPreview.Height - Shrink;
+    Right := FList.Left + FList.Width;
+    if FPreview <> nil then
+      Right := FPreview.Left + FPreview.Width;
+    FBanner.Anchors := [akLeft, akTop];
+    FBanner.SetBounds(FPlaces.Left, FList.Top + FList.Height + FWindow.Dp(8),
+      Right - FPlaces.Left, FWindow.Dp(64));
+    FBanner.Anchors := [akLeft, akRight, akBottom];
   end;
   FBanner.Kind := AKind;
   FBanner.Title := ATitle;
   FBanner.Text := AText;
+  FBannerReplace.Visible := FDialog.IsSaveDialog and (AKind = bnWarning);
+  FBannerChange.Visible := FBannerReplace.Visible;
+  FBannerReplace.Anchors := [akLeft, akTop];
+  FBannerChange.Anchors := [akLeft, akTop];
+  FBannerReplace.Left := FBanner.Width - FWindow.Dp(12) + FWindow.Dp(4) -
+    FBannerReplace.Width;
+  FBannerChange.Left := FBannerReplace.Left + 2 * FWindow.Dp(4) -
+    FWindow.Dp(8) - FBannerChange.Width;
+  FBannerReplace.Anchors := [akTop, akRight];
+  FBannerChange.Anchors := [akTop, akRight];
   FBanner.Visible := True;
-  if FDialog.IsSaveDialog and (AKind = bnWarning) then
+end;
+
+procedure TFileDialogController.HideBanner;
+var
+  Grow: Integer;
+begin
+  if FReplacing or (FOK.Kind = bkDanger) then
   begin
-    B := TOBDButton.Create(FWindow);
-    FWindow.Adopt(B, FBanner);
-    B.Caption := 'Change name';
-    B.Kind := bkGhost;
-    B.OnClick := ChangeName;
-    B.SetBounds(FWindow.Dp(18), FWindow.Dp(22), FWindow.Dp(110),
-      FWindow.Dp(34));
-    B := TOBDButton.Create(FWindow);
-    FWindow.Adopt(B, FBanner);
-    B.Caption := 'Replace';
-    B.Kind := bkDanger;
-    B.OnClick := Replace;
-    B.SetBounds(FBanner.Width - FWindow.Dp(110), FWindow.Dp(16),
-      FWindow.Dp(94), FWindow.Dp(40));
+    FReplacing := False;
+    FOK.Caption := FDialog.AcceptCaption;
+    FOK.Kind := bkPrimary;
   end;
+  if (FBanner = nil) or not FBanner.Visible then
+    Exit;
+  FBanner.Visible := False;
+  Grow := FWindow.Dp(64) + FWindow.Dp(8);
+  FPlaces.Height := FPlaces.Height + Grow;
+  FList.Height := FList.Height + Grow;
+  if FPreview <> nil then
+    FPreview.Height := FPreview.Height + Grow;
+end;
+
+procedure TFileDialogController.UpdateNavButtons;
+begin
+  FBackButton.Enabled := FHistoryIndex > 0;
+  FForwardButton.Enabled := FHistoryIndex < FHistory.Count - 1;
+  FUpButton.Enabled := ParentFolder(CurrentDir) <> '';
 end;
 
 procedure TFileDialogController.NameReturn(Sender: TObject);
@@ -955,7 +1063,7 @@ procedure TFileDialogController.Up(Sender: TObject);
 var
   P: string;
 begin
-  P := ExtractFileDir(ExcludeTrailingPathDelimiter(CurrentDir));
+  P := ParentFolder(CurrentDir);
   if (P <> '') and DirectoryExists(P) then
     Navigate(P);
 end;
@@ -980,11 +1088,7 @@ end;
 
 procedure TFileDialogController.ChangeName(Sender: TObject);
 begin
-  FReplacing := False;
-  FOK.Caption := FDialog.AcceptCaption;
-  FOK.Kind := bkPrimary;
-  if FBanner <> nil then
-    FBanner.Visible := False;
+  HideBanner;
   FNameEdit.SetFocus;
   FNameEdit.SelectAll;
 end;
@@ -1008,19 +1112,25 @@ end;
 procedure TFolderController.Build;
 var
   Btn: TOBDButton;
+  FolderLabel: TOBDDialogText;
   Dir: string;
+  EditH: Integer;
 begin
-  FWindow.SetLayout(420, 430);
+  EditH := DensityMetrics(FWindow.Density).Edit;
+  FWindow.SetLayout(420, 16 + 300 + 14 + 24 + EditH + 16);
   FTree := TOBDFolderTree.Create(FWindow);
   FWindow.Adopt(FTree);
   FTree.ShowHidden := foShowHidden in FDialog.Options;
   FTree.OnPathChange := TreeChange;
   FWindow.Place(FTree, 16, 16, 388, 300);
-  FWindow.AddText(16, 330, 160, 'FOLDER');
+  FolderLabel := FWindow.AddText(16, 330, 160, 'FOLDER');
   FEdit := TReturnEdit.Create(FWindow);
   FWindow.Adopt(FEdit);
   FEdit.OnReturn := EditReturn;
-  FWindow.Place(FEdit, 16, 354, 388, DensityMetrics(FWindow.Density).Edit);
+  FWindow.Place(FEdit, 16, 354, 388, EditH);
+  FTree.Anchors := [akLeft, akTop, akRight, akBottom];
+  FolderLabel.Anchors := [akLeft, akBottom];
+  FEdit.Anchors := [akLeft, akRight, akBottom];
   Btn := FWindow.AddLeftButton('New folder', glNew);
   Btn.OnClick := NewFolder;
   Btn := FWindow.AddButton('Select folder', bkPrimary, mrNone);
@@ -1073,6 +1183,12 @@ begin
 end;
 
 { TOBDFolderDialog }
+
+constructor TOBDFolderDialog.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  Resizable := True;
+end;
 
 function TOBDFolderDialog.DefaultTitle: string;
 begin

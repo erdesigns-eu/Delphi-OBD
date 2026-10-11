@@ -486,6 +486,9 @@ form (`TOBDDialogWindow`). The properties match the VCL dialog they
 replace, so swapping one in is a type change. In the form designer,
 right-click a dialog and choose **Test Dialog** (or double-click it) to
 preview it; the preview runs on a copy, so it never changes the form.
+The file, folder and font dialogs are `Resizable` by default: drag any
+edge to make the window larger (it never gets smaller than the size it
+opens at). The lists take the extra room. Footer buttons sit 8 px apart.
 
 | Component | Unit | Replaces / purpose |
 |---|---|---|
@@ -494,7 +497,7 @@ preview it; the preview runs on a copy, so it never changes the form.
 | `TOBDFolderDialog` | `ERD.UI.FileDialogs` | `SelectDirectory`: folder tree, new folder, `Directory`. |
 | `TOBDPrintDialog` | `ERD.UI.PrintDialogs` | `TPrintDialog`: printer, copies, collate, page range, orientation and a first-page preview (`OnPaintPage`). |
 | `TOBDPageSetupDialog` | `ERD.UI.PrintDialogs` | `TPageSetupDialog`, `TPrinterSetupDialog`: paper, orientation and margins with a live preview. |
-| `TOBDFontDialog` | `ERD.UI.FontDialog` | `TFontDialog`: searchable family list, style, size, effects and a sample. |
+| `TOBDFontDialog` | `ERD.UI.FontDialog` | `TFontDialog`: searchable family list, style and size (each with an edit box above its list), effects and a sample. |
 | `TOBDColorDialog` | `ERD.UI.ColorDialog` | `TColorDialog`: theme, standard and custom colours (`CustomColors`), HSV picker, hex / RGB entry and a screen pipette. |
 | `TOBDFindDialog`, `TOBDReplaceDialog` | `ERD.UI.FindDialogs` | `TFindDialog`, `TReplaceDialog`: modeless, `OnFind` / `OnReplace`, `SetResult` shows the match count. |
 | `TOBDTaskDialog` | `ERD.UI.TaskDialog` | `TTaskDialog`: icon, main instruction, text, expandable details, custom buttons or command links, radio buttons, verification check box, progress bar and footer. |

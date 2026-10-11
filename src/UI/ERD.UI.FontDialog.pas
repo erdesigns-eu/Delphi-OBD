@@ -91,13 +91,15 @@ type
       default 0;
     /// <summary>Fires when the Apply button is pressed.</summary>
     property OnApply: TNotifyEvent read FOnApply write FOnApply;
+    /// <summary>Lets the user resize the dialog; the lists grow with it.
+    /// </summary>
+    property Resizable default True;
   end;
 
 implementation
 
 const
   FONT_BODY_W = 620;
-  FONT_BODY_H = 346;
   FONT_ROWS = 7;
   SAMPLE_TEXT = 'P0401  EGR flow insufficient';
 
@@ -198,6 +200,7 @@ type
     FFamily: TFontFamilyList;
     FSearch: TOBDEdit;
     FStyle: TFontStyleList;
+    FStyleEdit: TOBDEdit;
     FSizeList: TFontSizeList;
     FSizeEdit: TOBDEdit;
     FUnderline: TOBDCheckBox;
@@ -209,6 +212,7 @@ type
     procedure FamilyActivate(Sender: TObject);
     procedure SearchChange(Sender: TObject);
     procedure StyleChange(Sender: TObject);
+    procedure StyleEditChange(Sender: TObject);
     procedure SizeChange(Sender: TObject);
     procedure SizeEditChange(Sender: TObject);
     procedure EffectsChange(Sender: TObject);
@@ -753,16 +757,19 @@ end;
 
 procedure TFontDialogController.Build(AWindow: TOBDDialogWindow);
 var
-  ListH, EditH: Integer;
+  ListH, EditH, RowY: Integer;
   OKButton, CancelButton, ApplyButton: TOBDButton;
+  StyleLabel, SizeLabel, EffectsLabel, ColorLabel,
+    SampleLabel: TOBDDialogText;
 begin
-  AWindow.SetLayout(FONT_BODY_W, FONT_BODY_H);
   EditH := DensityMetrics(AWindow.Density).Edit;
   ListH := EditH + 4 + FONT_ROWS * System.Math.Min(EditH, 40) + 4;
+  RowY := 34 + ListH + 34;
+  AWindow.SetLayout(FONT_BODY_W, RowY + EditH + 34 + 64 + 16);
 
   AWindow.AddText(16, 16, 220, 'Font');
-  AWindow.AddText(248, 16, 150, 'Style');
-  AWindow.AddText(422, 16, 182, 'Size');
+  StyleLabel := AWindow.AddText(248, 16, 150, 'Style');
+  SizeLabel := AWindow.AddText(422, 16, 182, 'Size');
 
   FSearch := TOBDEdit.Create(AWindow);
   AWindow.Adopt(FSearch);
@@ -777,6 +784,11 @@ begin
   FFamily.Populate(FDialog.Options);
   AWindow.Place(FFamily, 16, 34 + EditH + 4, 220,
     ListH - EditH - 4);
+
+  FStyleEdit := TOBDEdit.Create(AWindow);
+  AWindow.Adopt(FStyleEdit);
+  FStyleEdit.OnChange := StyleEditChange;
+  AWindow.Place(FStyleEdit, 248, 34, 150, EditH);
 
   FStyle := TFontStyleList.Create(AWindow);
   AWindow.Adopt(FStyle);
@@ -798,33 +810,51 @@ begin
   AWindow.Place(FSizeList, 422, 34 + EditH + 4, 182,
     ListH - EditH - 4);
 
-  AWindow.AddText(16, 34 + ListH + 16, 220, 'Effects');
-  AWindow.AddText(248, 34 + ListH + 16, 356, 'Colour');
+  EffectsLabel := AWindow.AddText(16, 34 + ListH + 16, 220, 'Effects');
+  ColorLabel := AWindow.AddText(248, 34 + ListH + 16, 356, 'Colour');
 
   FUnderline := TOBDCheckBox.Create(AWindow);
   AWindow.Adopt(FUnderline);
   FUnderline.Caption := 'Underline';
   FUnderline.Enabled := fdoEffects in FDialog.Options;
   FUnderline.OnChange := EffectsChange;
-  AWindow.Place(FUnderline, 16, 34 + ListH + 34, 116, EditH);
+  AWindow.Place(FUnderline, 16, RowY, 116, EditH);
 
   FStrikeout := TOBDCheckBox.Create(AWindow);
   AWindow.Adopt(FStrikeout);
   FStrikeout.Caption := 'Strikeout';
   FStrikeout.Enabled := fdoEffects in FDialog.Options;
   FStrikeout.OnChange := EffectsChange;
-  AWindow.Place(FStrikeout, 138, 34 + ListH + 34, 104, EditH);
+  AWindow.Place(FStrikeout, 138, RowY, 104, EditH);
 
   FColorRow := TFontColorRow.Create(AWindow);
   AWindow.Adopt(FColorRow);
   FColorRow.Enabled := fdoEffects in FDialog.Options;
   FColorRow.OnChange := EffectsChange;
-  AWindow.Place(FColorRow, 248, 34 + ListH + 34, 356, EditH);
+  AWindow.Place(FColorRow, 248, RowY, 356, EditH);
 
-  AWindow.AddText(16, 34 + ListH + 34 + EditH + 16, 588, 'Sample');
+  SampleLabel := AWindow.AddText(16, RowY + EditH + 16, 588, 'Sample');
   FPreview := TFontPreview.Create(AWindow);
   AWindow.Adopt(FPreview);
-  AWindow.Place(FPreview, 16, 34 + ListH + 34 + EditH + 34, 588, 64);
+  AWindow.Place(FPreview, 16, RowY + EditH + 34, 588, 64);
+
+  // The font list takes any extra width and every list any extra height;
+  // the style and size columns and the rows below follow the edges.
+  FSearch.Anchors := [akLeft, akTop, akRight];
+  FFamily.Anchors := [akLeft, akTop, akRight, akBottom];
+  StyleLabel.Anchors := [akTop, akRight];
+  FStyleEdit.Anchors := [akTop, akRight];
+  FStyle.Anchors := [akTop, akRight, akBottom];
+  SizeLabel.Anchors := [akTop, akRight];
+  FSizeEdit.Anchors := [akTop, akRight];
+  FSizeList.Anchors := [akTop, akRight, akBottom];
+  EffectsLabel.Anchors := [akLeft, akBottom];
+  FUnderline.Anchors := [akLeft, akBottom];
+  FStrikeout.Anchors := [akLeft, akBottom];
+  ColorLabel.Anchors := [akRight, akBottom];
+  FColorRow.Anchors := [akRight, akBottom];
+  SampleLabel.Anchors := [akLeft, akRight, akBottom];
+  FPreview.Anchors := [akLeft, akRight, akBottom];
 
   CancelButton := AWindow.AddButton('Cancel', bkSecondary, mrCancel);
   CancelButton.Cancel := True;
@@ -847,6 +877,7 @@ begin
     FSearch.Text := AFont.Name;
     FFamily.SelectFamily(AFont.Name);
     FStyle.SelectStyle(AFont.Style);
+    FStyleEdit.Text := STYLE_NAMES[FStyle.ItemIndex];
     Size := ClampFontSize(Abs(AFont.Size), FDialog.MinFontSize,
       FDialog.MaxFontSize);
     FSizeList.SelectSize(Size);
@@ -939,8 +970,40 @@ end;
 
 procedure TFontDialogController.StyleChange(Sender: TObject);
 begin
-  if not FUpdating then
-    UpdatePreview;
+  if FUpdating then
+    Exit;
+  FUpdating := True;
+  try
+    if FStyle.ItemIndex >= 0 then
+      FStyleEdit.Text := STYLE_NAMES[FStyle.ItemIndex];
+  finally
+    FUpdating := False;
+  end;
+  UpdatePreview;
+end;
+
+procedure TFontDialogController.StyleEditChange(Sender: TObject);
+var
+  Typed: string;
+  I: Integer;
+begin
+  if FUpdating then
+    Exit;
+  Typed := Trim(FStyleEdit.Text);
+  if Typed = '' then
+    Exit;
+  for I := Low(STYLE_NAMES) to High(STYLE_NAMES) do
+    if SameText(Copy(STYLE_NAMES[I], 1, Length(Typed)), Typed) then
+    begin
+      FUpdating := True;
+      try
+        FStyle.ItemIndex := I;
+      finally
+        FUpdating := False;
+      end;
+      UpdatePreview;
+      Exit;
+    end;
 end;
 
 procedure TFontDialogController.SizeChange(Sender: TObject);
@@ -995,6 +1058,7 @@ begin
   FFont.Size := 9;
   FFont.Color := clWindowText;
   FOptions := [fdoEffects];
+  Resizable := True;
 end;
 
 destructor TOBDFontDialog.Destroy;

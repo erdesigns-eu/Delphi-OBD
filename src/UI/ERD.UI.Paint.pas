@@ -211,7 +211,11 @@ type
     /// <summary>Arrow pointing left: back.</summary>
     glBack,
     /// <summary>Plus sign: add.</summary>
-    glPlus);
+    glPlus,
+    /// <summary>Arrow pointing right: forward.</summary>
+    glForward,
+    /// <summary>Arrow pointing up: parent folder.</summary>
+    glUp);
 
   /// <summary>Colour and icon of a <c>TOBDBanner</c>.</summary>
   TOBDBannerKind = (
@@ -1664,6 +1668,16 @@ begin
         L([-6, 0, 6, 0]);
         L([0, -6, 0, 6]);
       end;
+    glForward:
+      begin
+        L([-6, 0, 6, 0]);
+        L([2, -4, 6, 0, 2, 4]);
+      end;
+    glUp:
+      begin
+        L([0, 6, 0, -6]);
+        L([-4, -2, 0, -6, 4, -2]);
+      end;
   end;
 end;
 
@@ -1863,11 +1877,18 @@ begin
     IW := S(18)
   else
     IW := 0;
-  TX := R.Left + (R.Width - TW - IW) div 2;
   CY := R.Top + R.Height div 2;
+  if ACaption = '' then
+  begin
+    // A glyph-only button: the glyph sits in the middle.
+    if AGlyph <> glNone then
+      Glyph(AGlyph, R.Left + R.Width / 2, CY, Ink);
+    Exit;
+  end;
+  TX := R.Left + (R.Width - TW - IW) div 2;
   if AGlyph <> glNone then
   begin
-    Glyph(AGlyph, TX + SF(6), CY, Ink);
+    Glyph(AGlyph, TX + SF(7), CY, Ink);
     Inc(TX, IW);
   end;
   Text(TX, CY, ACaption, 12.5, Ink, twSemibold, taLeftJustify,
