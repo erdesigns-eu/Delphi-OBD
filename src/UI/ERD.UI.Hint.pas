@@ -50,6 +50,12 @@ type
     function TextWidth(const AText: string; ASize: Single;
       AWeight: TOBDTextWeight): Integer;
   protected
+    /// <summary>Draws the themed card.</summary>
+    procedure Paint; override;
+    /// <summary>Draws no native border.</summary>
+    /// <param name="Message">Non-client paint message.</param>
+    procedure WMNCPaint(var Message: TWMNCPaint); message WM_NCPAINT;
+  public
     /// <summary>Calculates the themed hint rectangle.</summary>
     /// <param name="MaxWidth">Maximum width.</param>
     /// <param name="AHint">Hint text in Title|Body form.</param>
@@ -63,12 +69,6 @@ type
     /// <param name="AData">Hint information pointer.</param>
     procedure ActivateHintData(Rect: TRect; const AHint: string;
       AData: Pointer); override;
-    /// <summary>Draws the themed card.</summary>
-    procedure Paint; override;
-    /// <summary>Draws no native border.</summary>
-    /// <param name="Message">Non-client paint message.</param>
-    procedure WMNCPaint(var Message: TWMNCPaint); message WM_NCPAINT;
-  public
     /// <summary>Creates the themed hint window.</summary>
     /// <param name="AOwner">Component owner.</param>
     constructor Create(AOwner: TComponent); override;
@@ -166,7 +166,7 @@ procedure TOBDHintWindow.ParseHint(const AHint: string; AData: Pointer);
 var
   S: string;
   P, T: Integer;
-  Info: PHintInfo;
+  Info: Vcl.Controls.PHintInfo;
   Action: TCustomAction;
 begin
   FTitle := AHint;
@@ -189,7 +189,7 @@ begin
 
   if (FShortcut = '') and (AData <> nil) then
   begin
-    Info := PHintInfo(AData);
+    Info := Vcl.Controls.PHintInfo(AData);
     if (Info^.HintControl <> nil) and
       (Info^.HintControl.Action is TCustomAction) then
     begin
