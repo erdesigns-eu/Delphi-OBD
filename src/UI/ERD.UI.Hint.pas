@@ -277,7 +277,7 @@ begin
     if FBody <> '' then
     begin
       YBody := 36;
-      Painter.Text(12, YBody, FBody, 12, P.GaugeLabel, twRegular,
+      Painter.Text(12, YBody, FBody, OBD_TEXT_BODY, P.GaugeLabel, twRegular,
         taLeftJustify, R.Width - 24);
     end;
   finally

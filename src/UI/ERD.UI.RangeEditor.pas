@@ -860,13 +860,14 @@ var
   Text: string;
 begin
   P := ActiveProfile;
-  APainter.Text(ScaleValue(16), ScaleValue(28), 'Normal ranges', 16,
+  APainter.Text(ScaleValue(16), ScaleValue(28), 'Normal ranges', OBD_TEXT_TITLE,
     Palette.ForegroundText, twBold);
   APainter.Text(ScaleValue(16), ScaleValue(52),
     'Used for the range bars in the freeze frame and the live-data limits.',
-    12, Palette.GaugeLabel);
+    OBD_TEXT_SMALL, Palette.GaugeLabel);
   APainter.Text(ScaleValue(16), ScaleValue(70),
-    'Garage values override the built-in defaults for this profile.', 12,
+    'Garage values override the built-in defaults for this profile.',
+    OBD_TEXT_SMALL,
     Palette.GaugeLabel);
 
   R := Rect(Width - ScaleValue(16 + 260), ScaleValue(34), Width - ScaleValue(16),
@@ -954,7 +955,8 @@ begin
         twSemibold, taLeftJustify, Max(0, Width - ColSrc - ScaleValue(110)));
     end;
 
-    APainter.Text(ColParam, Mid, R.Caption, 13, Palette.ForegroundText,
+    APainter.Text(ColParam, Mid, R.Caption, OBD_TEXT_BODY,
+      Palette.ForegroundText,
       twRegular, taLeftJustify, ColUnit - ColParam - ScaleValue(14));
     APainter.Text(ColUnit, Mid, R.UnitText, 12.5, Palette.GaugeLabel,
       twRegular, taLeftJustify, Max(1, ColLow - ColUnit - ScaleValue(12)));
@@ -1024,7 +1026,7 @@ begin
     else
       MsgColor := Palette.GaugeLabel;
     APainter.Text(FCancelButton.Left + ScaleValue(4) - ScaleValue(16), MY,
-      Text, 12,
+      Text, OBD_TEXT_SMALL,
       MsgColor, twRegular, taRightJustify);
   end;
 end;

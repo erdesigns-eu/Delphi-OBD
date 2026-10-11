@@ -235,7 +235,7 @@ type
 implementation
 
 const
-  EDIT_TEXT_SIZE = 12.5;
+  EDIT_TEXT_SIZE = OBD_TEXT_BODY;
   SEARCH_RESET_MS = 1000;
 
 function TextFontHeight(ASize: Single; APPI: Integer): Integer;

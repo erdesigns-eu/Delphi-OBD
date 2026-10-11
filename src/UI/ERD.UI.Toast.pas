@@ -283,7 +283,7 @@ begin
     B.SetSize(1, 1);
     Painter := TOBDPainter.Create(B.Canvas, P, Screen.PixelsPerInch);
     try
-      W := Painter.TextWidth(FActionCaption, 12, twSemibold) + 8;
+      W := Painter.TextWidth(FActionCaption, OBD_TEXT_BODY, twSemibold) + 8;
     finally
       Painter.Free;
     end;
@@ -370,9 +370,9 @@ begin
     else
       Painter.InkText(24, 22, 'i', 16, C, twBold);
     end;
-    Painter.Text(44, 22, FTitle, 13, P.ForegroundText, twBold,
+    Painter.Text(44, 22, FTitle, OBD_TEXT_BODY, P.ForegroundText, twBold,
       taLeftJustify, Width - 86);
-    Painter.Text(44, 44, FText, 12, P.GaugeLabel, twRegular,
+    Painter.Text(44, 44, FText, OBD_TEXT_BODY, P.GaugeLabel, twRegular,
       taLeftJustify, Width - 120);
     Ink := P.Subtle;
     if FHover and PtInRect(CloseRect, ScreenToClient(Mouse.CursorPos)) then
@@ -383,7 +383,8 @@ begin
       Ink, 1.6);
     A := ActionRect;
     if not A.IsEmpty then
-      Painter.Text(A.Right - 4, 44, FActionCaption, 12, Painter.AccentText,
+      Painter.Text(A.Right - 4, 44, FActionCaption, OBD_TEXT_BODY,
+      Painter.AccentText,
         twSemibold, taRightJustify);
     if FDuration > 0 then
     begin

@@ -120,8 +120,8 @@ type
 implementation
 
 const
-  CARD_TITLE_SIZE = 15;
-  CARD_FOOTER_SIZE = 12;
+  CARD_TITLE_SIZE = OBD_TEXT_HEADING;
+  CARD_FOOTER_SIZE = OBD_TEXT_SMALL;
 
 { TOBDCard }
 

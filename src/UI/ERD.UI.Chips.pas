@@ -425,16 +425,16 @@ begin
     if MaxW <= 0 then
       Exit;
     if FText = '' then
-      P.Text(X, CY, FTitle, 13.5, Palette.ForegroundText, twBold,
+      P.Text(X, CY, FTitle, OBD_TEXT_BODY, Palette.ForegroundText, twBold,
         taLeftJustify, MaxW)
     else if FTitle = '' then
-      P.Text(X, CY, FText, 12, Palette.ForegroundText, twRegular,
+      P.Text(X, CY, FText, OBD_TEXT_BODY, Palette.ForegroundText, twRegular,
         taLeftJustify, MaxW)
     else
     begin
-      P.Text(X, CY - P.S(9), FTitle, 13.5, Palette.ForegroundText, twBold,
+      P.Text(X, CY - P.S(9), FTitle, OBD_TEXT_BODY, Palette.ForegroundText, twBold,
         taLeftJustify, MaxW);
-      P.Text(X, CY + P.S(10), FText, 12, Palette.ForegroundText, twRegular,
+      P.Text(X, CY + P.S(10), FText, OBD_TEXT_BODY, Palette.ForegroundText, twRegular,
         taLeftJustify, MaxW);
     end;
   finally

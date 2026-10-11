@@ -274,9 +274,9 @@ const
   ColSeverity = 2;
   ColStatus = 3;
   MinColumnWidth96 = 32;
-  CodeSize = 13;
-  TextSize = 12.5;
-  MetaSize = 12;
+  CodeSize = OBD_TEXT_BODY;
+  TextSize = OBD_TEXT_BODY;
+  MetaSize = OBD_TEXT_SMALL;
   ChipSize = 9.5;
 
 { TOBDDtcList }
@@ -775,7 +775,7 @@ begin
     if N = 0 then
     begin
       Y := HH + (Height - HH) div 2;
-      P.Text(Width div 2, Y - ScaleValue(10), 'No trouble codes', 14,
+      P.Text(Width div 2, Y - ScaleValue(10), 'No trouble codes', OBD_TEXT_HEADING,
         Palette.ForegroundText, twSemibold, taCenter);
       P.Text(Width div 2, Y + ScaleValue(12),
         'Read codes to refresh the vehicle status.', MetaSize,

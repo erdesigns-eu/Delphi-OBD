@@ -301,7 +301,7 @@ begin
       Painter.Text(X, Y + ScaleValue(1), 'i', 16, Ink, twBold, taCenter);
     end;
 
-    Painter.Text(ScaleValue(56), ScaleValue(22), FDialog.Title, 15,
+    Painter.Text(ScaleValue(56), ScaleValue(22), FDialog.Title, OBD_TEXT_TITLE,
       P.ForegroundText, twBold, taLeftJustify, Width - ScaleValue(72));
     TextRect := Rect(ScaleValue(56), ScaleValue(40), Width - ScaleValue(20),
       Height - ScaleValue(8));

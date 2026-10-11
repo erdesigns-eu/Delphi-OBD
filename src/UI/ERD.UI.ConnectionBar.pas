@@ -360,10 +360,7 @@ end;
 function TOBDConnectionBar.TextSize: Single;
 begin
   // Same text size as the status bar and the other OBD controls.
-  if Density = dnTablet then
-    Result := 13
-  else
-    Result := 12;
+  Result := OBD_TEXT_BODY;
 end;
 
 procedure TOBDConnectionBar.DrawSegment(APainter: TOBDPainter; var AX: Integer;
@@ -374,9 +371,10 @@ begin
   if AX >= Width then
     Exit;
   CY := Height div 2;
-  Inc(AX, APainter.Text(AX, CY, ALabel, TextSize, Palette.GaugeLabel) +
-    ScaleValue(4));
-  Inc(AX, APainter.Text(AX, CY, AValue, TextSize, AValueColor, twSemibold) +
+  // Bold key, regular value: the keys stand out when scanning the bar.
+  Inc(AX, APainter.Text(AX, CY, ALabel, TextSize, Palette.GaugeLabel,
+    twBold) + ScaleValue(4));
+  Inc(AX, APainter.Text(AX, CY, AValue, TextSize, AValueColor) +
     ScaleValue(18));
 end;
 

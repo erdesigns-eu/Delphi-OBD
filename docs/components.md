@@ -421,6 +421,12 @@ palette page. They follow `TOBDTheme` for colours and for `Density`
 switch on the theme changes the whole form. The approved designs are in
 [`docs/mockups`](mockups/README.md).
 
+Text uses one type scale from `ERD.UI.Paint`, the same in both
+densities: `OBD_TEXT_CAPS` (10.5 px, upper-case captions and badges),
+`OBD_TEXT_SMALL` (11.5, secondary text), `OBD_TEXT_BODY` (12.5, items,
+values, buttons, edits, bars and menus), `OBD_TEXT_HEADING` (14) and
+`OBD_TEXT_TITLE` (16). New controls should paint with these constants.
+
 ### Building blocks
 | Control | Unit | Purpose |
 |---|---|---|
@@ -455,7 +461,7 @@ Everything around the panels, so a whole application follows the theme.
 | `TOBDMenuBar`, `TOBDPopupMenu` | `ERD.UI.Menus` | Themed `TMainMenu` bar and popup menus that read the standard `TMenuItem` tree (actions, shortcuts, check and radio items, submenus). A separator item with a `Hint` is drawn as a group header; `OnGetItemStyle` sets glyphs and danger items. Leave `Form.Menu` empty when a menu bar or title bar shows the menu. `TOBDMenuBar.AutoSize` (default on) sizes the bar to its items and density height; with `Align = alTop` only the height follows. |
 | `TOBDRibbon` | `ERD.UI.Ribbon` | Tabs with groups of large and small items bound to actions; `ContextualTabs` collection with theme or custom colours; File button opening a `Backstage`; command search (Alt+Q); classic or simplified style; collapsible (Ctrl+F1). |
 | `TOBDBackstage`, `TOBDReportPreview` | `ERD.UI.Backstage` | Full-window page with an accent navigation strip whose items host pages; A4 report preview with zoom and page navigation (`OnPaintPage`). |
-| `TOBDTabs` | `ERD.UI.Tabs` | Page tabs (underline) or document tabs (closable, modified dot, new-tab button). |
+| `TOBDTabs` | `ERD.UI.Tabs` | Page tabs (underline) or document tabs (closable, modified dot, new-tab button); no strip frame, keyboard focus ring on the selected tab. |
 | `TOBDToolBar` | `ERD.UI.ToolBar` | Action-linked buttons, toggles, drop-downs, separators, overflow menu and a search box. |
 | `TOBDStatusBar` | `ERD.UI.StatusBar` | Text, status (coloured dot), progress and link panels. |
 | `TOBDProgressBar` | `ERD.UI.Progress` | Determinate, state-coloured, indeterminate and step progress. |

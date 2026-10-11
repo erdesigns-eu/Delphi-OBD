@@ -563,6 +563,21 @@ const
   /// <summary>Chip height, 96-DPI pixels.</summary>
   OBD_CHIP_HEIGHT = 20;
 
+  { Shared type scale (96-DPI pixels). Every control paints its text in
+    one of these sizes, in both densities, so the UI reads as one set;
+    only large read-outs (gauge values, hero titles) use their own. }
+
+  /// <summary>Upper-case captions, badges and chips.</summary>
+  OBD_TEXT_CAPS = 10.5;
+  /// <summary>Secondary text: hints, meta data, shortcuts, legends.</summary>
+  OBD_TEXT_SMALL = 11.5;
+  /// <summary>Body text: items, values, buttons, edits, bars, menus.</summary>
+  OBD_TEXT_BODY = 12.5;
+  /// <summary>Section headings, card titles and empty-state messages.</summary>
+  OBD_TEXT_HEADING = 14;
+  /// <summary>Panel and dialog titles.</summary>
+  OBD_TEXT_TITLE = 16;
+
 implementation
 
 const

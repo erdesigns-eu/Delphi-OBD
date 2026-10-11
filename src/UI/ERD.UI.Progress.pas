@@ -524,7 +524,7 @@ begin
       Palette.ForegroundText, twRegular, taLeftJustify,
       Width - ScaleValue(90));
   if FShowValue or FIndeterminate or PreviewMode then
-    APainter.Text(Width, TopY + ScaleValue(8), RightText, 12,
+    APainter.Text(Width, TopY + ScaleValue(8), RightText, OBD_TEXT_BODY,
       IfThen(FState = pbsError, TextColor, Palette.GaugeLabel), twSemibold,
       taRightJustify);
 
@@ -591,7 +591,8 @@ begin
       Ink := Palette.GaugeLabel
     else
       Ink := Palette.ForegroundText;
-    APainter.Text(SX + ScaleValue(18), CY, EffectiveStepCaption(I), 12, Ink,
+    APainter.Text(SX + ScaleValue(18), CY, EffectiveStepCaption(I),
+      OBD_TEXT_BODY, Ink,
       twRegular, taLeftJustify, SW - ScaleValue(22));
   end;
 end;

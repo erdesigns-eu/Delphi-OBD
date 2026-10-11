@@ -364,11 +364,11 @@ type
 implementation
 
 const
-  DTC_TITLE_SIZE = 16;
-  DTC_CODE_SIZE = 14;
-  DTC_TEXT_SIZE = 13;
-  DTC_META_SIZE = 12.5;
-  DTC_FOOTER_SIZE = 12;
+  DTC_TITLE_SIZE = OBD_TEXT_TITLE;
+  DTC_CODE_SIZE = OBD_TEXT_HEADING;
+  DTC_TEXT_SIZE = OBD_TEXT_BODY;
+  DTC_META_SIZE = OBD_TEXT_BODY;
+  DTC_FOOTER_SIZE = OBD_TEXT_SMALL;
   // Clear confirmation: the text block takes the top 104 px of the
   // card, the checkbox/button row sits below it with 14 px under it,
   // and the card has an 8 px margin above and below.
@@ -1726,7 +1726,7 @@ begin
     CX := ScaleValue(118) + (I mod PerRow) * CW;
     CY := ATop + ScaleValue(30) + (I div PerRow) * Cell;
     TY := CY + (Cell - ScaleValue(16)) div 2;
-    APainter.Text(CX, TY, NameText, 11, Palette.GaugeLabel, twRegular,
+    APainter.Text(CX, TY, NameText, OBD_TEXT_SMALL, Palette.GaugeLabel, twRegular,
       taLeftJustify, System.Math.Max(0, CW - ScaleValue(80)));
     Color := Palette.ForegroundText;
     if SameText(NameText, 'EGR error') then
@@ -1773,7 +1773,7 @@ begin
   if ClearN <= 0 then
     ClearN := DtcCount;
   APainter.Text(L, R.Top + ScaleValue(24),
-    Format('Clear %d diagnostic trouble codes?', [ClearN]), 15,
+    Format('Clear %d diagnostic trouble codes?', [ClearN]), OBD_TEXT_HEADING,
     Palette.ForegroundText, twBold, taLeftJustify, R.Width - ScaleValue(72));
   APainter.Text(L, R.Top + ScaleValue(48),
     'Clearing also erases the freeze frames and resets all readiness monitors.',
@@ -1798,7 +1798,8 @@ begin
   CX := R.Left + R.Width div 2;
   CY := R.Top + R.Height div 2;
   APainter.GlyphCheck(CX, CY - ScaleValue(22), Palette.Success, 1.4);
-  APainter.Text(CX, CY + ScaleValue(10), 'No trouble codes stored', 15,
+  APainter.Text(CX, CY + ScaleValue(10), 'No trouble codes stored',
+    OBD_TEXT_HEADING,
     Palette.ForegroundText, twSemibold, taCenter);
   APainter.Text(CX, CY + ScaleValue(32), 'Read codes to refresh the vehicle status.',
     DTC_FOOTER_SIZE, Palette.GaugeLabel, twRegular, taCenter);

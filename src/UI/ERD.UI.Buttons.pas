@@ -234,7 +234,7 @@ type
 implementation
 
 const
-  BUTTON_TEXT_SIZE = 12.5;
+  BUTTON_TEXT_SIZE = OBD_TEXT_BODY;
 
 { TOBDInteractiveControl }
 
@@ -539,10 +539,7 @@ end;
 
 function TOBDCheckBox.LabelSize: Single;
 begin
-  if Metrics.Check >= 20 then
-    Result := 13.5
-  else
-    Result := 12.5;
+  Result := OBD_TEXT_BODY;
 end;
 
 function TOBDCheckBox.CanAutoSize(var NewWidth, NewHeight: Integer): Boolean;
@@ -676,10 +673,7 @@ end;
 
 function TOBDRadioButton.LabelSize: Single;
 begin
-  if Metrics.Check >= 20 then
-    Result := 13.5
-  else
-    Result := 12.5;
+  Result := OBD_TEXT_BODY;
 end;
 
 procedure TOBDRadioButton.WMGetDlgCode(var Message: TWMGetDlgCode);

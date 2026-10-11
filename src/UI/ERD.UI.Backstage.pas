@@ -1163,7 +1163,7 @@ begin
   else
     APainter.Glyph(Item.FGlyph, GlyphCX, CY, Ink, 0.95);
   TextX := ScaleValue(52);
-  APainter.Text(TextX, CY, Item.FCaption, 13.5, Ink, Weight,
+  APainter.Text(TextX, CY, Item.FCaption, OBD_TEXT_BODY, Ink, Weight,
     taLeftJustify, NavWidth - TextX - ScaleValue(10));
 end;
 
@@ -1217,7 +1217,7 @@ begin
       Weight := twRegular;
     CY := R.Top + R.Height div 2;
     APainter.Glyph(Glyphs[I], ScaleValue(30), CY, Ink, 0.95);
-    APainter.Text(ScaleValue(52), CY, Captions[I], 13.5, Ink, Weight,
+    APainter.Text(ScaleValue(52), CY, Captions[I], OBD_TEXT_BODY, Ink, Weight,
       taLeftJustify, NavWidth - ScaleValue(62));
     Inc(Y, NavStride);
   end;
@@ -1230,7 +1230,7 @@ begin
     R := Rect(0, FooterY, NavWidth, FooterY + RH);
     CY := R.Top + R.Height div 2;
     APainter.Glyph(Glyphs[I], ScaleValue(30), CY, Ink, 0.95);
-    APainter.Text(ScaleValue(52), CY, Captions[I], 13.5, Ink, twRegular,
+    APainter.Text(ScaleValue(52), CY, Captions[I], OBD_TEXT_BODY, Ink, twRegular,
       taLeftJustify, NavWidth - ScaleValue(62));
     Inc(FooterY, NavStride);
   end;
@@ -1330,23 +1330,23 @@ begin
   APainter.FillRect(R, PageBg);
   APainter.FrameRect(R, Palette.NeutralLight);
   Y := R.Top + ScaleValue(10);
-  APainter.Text(R.Left + ScaleValue(16), Y + ScaleValue(14), 'Preview', 13,
+  APainter.Text(R.Left + ScaleValue(16), Y + ScaleValue(14), 'Preview', OBD_TEXT_HEADING,
     Palette.ForegroundText, twSemibold);
   RX := R.Right - ScaleValue(12);
-  TW := APainter.TextWidth('Fit width', 12) + ScaleValue(20);
+  TW := APainter.TextWidth('Fit width', OBD_TEXT_BODY) + ScaleValue(20);
   APainter.FillRect(Rect(RX - TW, Y, RX, Y + ScaleValue(28)),
     Palette.GaugeFace);
   APainter.FrameRect(Rect(RX - TW, Y, RX, Y + ScaleValue(28)),
     Palette.NeutralLight);
-  APainter.Text(RX - TW div 2, Y + ScaleValue(14), 'Fit width', 12,
+  APainter.Text(RX - TW div 2, Y + ScaleValue(14), 'Fit width', OBD_TEXT_BODY,
     Palette.ForegroundText, twRegular, taCenter);
   Dec(RX, TW + ScaleValue(6));
-  TW := APainter.TextWidth('100 %', 12) + ScaleValue(20);
+  TW := APainter.TextWidth('100 %', OBD_TEXT_BODY) + ScaleValue(20);
   APainter.FillRect(Rect(RX - TW, Y, RX, Y + ScaleValue(28)),
     Palette.GaugeFace);
   APainter.FrameRect(Rect(RX - TW, Y, RX, Y + ScaleValue(28)),
     Palette.NeutralLight);
-  APainter.Text(RX - TW div 2, Y + ScaleValue(14), '100 %', 12,
+  APainter.Text(RX - TW div 2, Y + ScaleValue(14), '100 %', OBD_TEXT_BODY,
     Palette.ForegroundText, twRegular, taCenter);
   Dec(RX, TW + ScaleValue(12));
   APainter.FillRect(Rect(RX - ScaleValue(28), Y, RX, Y + ScaleValue(28)),
@@ -1356,9 +1356,9 @@ begin
   APainter.Glyph(glChevronRight, RX - ScaleValue(14), Y + ScaleValue(14),
     Palette.Subtle, 0.8);
   Dec(RX, ScaleValue(34));
-  APainter.Text(RX, Y + ScaleValue(14), 'Page 1 of 3', 12, Palette.GaugeLabel,
+  APainter.Text(RX, Y + ScaleValue(14), 'Page 1 of 3', OBD_TEXT_SMALL, Palette.GaugeLabel,
     twRegular, taRightJustify);
-  Dec(RX, APainter.TextWidth('Page 1 of 3', 12) + ScaleValue(8));
+  Dec(RX, APainter.TextWidth('Page 1 of 3', OBD_TEXT_SMALL) + ScaleValue(8));
   APainter.FillRect(Rect(RX - ScaleValue(28), Y, RX, Y + ScaleValue(28)),
     Palette.GaugeFace);
   APainter.FrameRect(Rect(RX - ScaleValue(28), Y, RX, Y + ScaleValue(28)),
@@ -1751,7 +1751,7 @@ var
   R: TRect;
   S: string;
 begin
-  APainter.Text(ScaleValue(16), ScaleValue(24), 'Preview', 13,
+  APainter.Text(ScaleValue(16), ScaleValue(24), 'Preview', OBD_TEXT_HEADING,
     Palette.ForegroundText, twSemibold);
   Y := ScaleValue(10);
   RX := Width - ScaleValue(12);
@@ -1763,19 +1763,19 @@ begin
   else
     S := 'Fit page';
   end;
-  TW := APainter.TextWidth(S, 12) + ScaleValue(20);
+  TW := APainter.TextWidth(S, OBD_TEXT_BODY) + ScaleValue(20);
   R := Rect(RX - TW, Y, RX, Y + ScaleValue(28));
   APainter.FillRect(R, Palette.GaugeFace);
   APainter.FrameRect(R, Palette.NeutralLight);
-  APainter.Text(R.Left + R.Width div 2, R.Top + R.Height div 2, S, 12,
+  APainter.Text(R.Left + R.Width div 2, R.Top + R.Height div 2, S, OBD_TEXT_BODY,
     Palette.ForegroundText, twRegular, taCenter);
   Dec(RX, TW + ScaleValue(6));
   S := IntToStr(Round(PageScale(PaperAreaRect) * 100)) + ' %';
-  TW := APainter.TextWidth(S, 12) + ScaleValue(20);
+  TW := APainter.TextWidth(S, OBD_TEXT_BODY) + ScaleValue(20);
   R := Rect(RX - TW, Y, RX, Y + ScaleValue(28));
   APainter.FillRect(R, Palette.GaugeFace);
   APainter.FrameRect(R, Palette.NeutralLight);
-  APainter.Text(R.Left + R.Width div 2, R.Top + R.Height div 2, S, 12,
+  APainter.Text(R.Left + R.Width div 2, R.Top + R.Height div 2, S, OBD_TEXT_BODY,
     Palette.ForegroundText, twRegular, taCenter);
   Dec(RX, TW + ScaleValue(12));
   R := Rect(RX - ScaleValue(28), Y, RX, Y + ScaleValue(28));
@@ -1785,9 +1785,10 @@ begin
     R.Top + R.Height div 2, Palette.Subtle, 0.8);
   Dec(RX, ScaleValue(34));
   S := Format('Page %d of %d', [FPageIndex + 1, FPageCount]);
-  APainter.Text(RX, Y + ScaleValue(14), S, 12, Palette.GaugeLabel,
+  APainter.Text(RX, Y + ScaleValue(14), S, OBD_TEXT_SMALL,
+      Palette.GaugeLabel,
     twRegular, taRightJustify);
-  Dec(RX, APainter.TextWidth(S, 12) + ScaleValue(8));
+  Dec(RX, APainter.TextWidth(S, OBD_TEXT_SMALL) + ScaleValue(8));
   R := Rect(RX - ScaleValue(28), Y, RX, Y + ScaleValue(28));
   APainter.FillRect(R, Palette.GaugeFace);
   APainter.FrameRect(R, Palette.NeutralLight);

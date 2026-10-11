@@ -1056,9 +1056,9 @@ begin
     TitleY := (R.Top + R.Bottom) div 2 - P.S(9);
     SubY := (R.Top + R.Bottom) div 2 + P.S(10);
     MaxW := R.Right - TextX - P.S(16);
-    P.Text(TextX, TitleY, Title, 14, Palette.ForegroundText, twBold,
+    P.Text(TextX, TitleY, Title, OBD_TEXT_HEADING, Palette.ForegroundText, twBold,
       taLeftJustify, MaxW);
-    P.Text(TextX, SubY, SubText, 12, Palette.ForegroundText, twRegular,
+    P.Text(TextX, SubY, SubText, OBD_TEXT_BODY, Palette.ForegroundText, twRegular,
       taLeftJustify, MaxW);
   end
   else
@@ -1066,7 +1066,7 @@ begin
     TitleY := (R.Top + R.Bottom) div 2 - P.S(11);
     SubY := (R.Top + R.Bottom) div 2 + P.S(12);
     MaxW := R.Right - TextX - P.S(230);
-    P.Text(TextX, TitleY, Title, 15, Palette.ForegroundText, twBold,
+    P.Text(TextX, TitleY, Title, OBD_TEXT_HEADING, Palette.ForegroundText, twBold,
       taLeftJustify, MaxW);
     P.Text(TextX, SubY, SubText, 12.5, Palette.ForegroundText, twRegular,
       taLeftJustify, MaxW);
@@ -1111,14 +1111,16 @@ begin
     TextColor := Palette.Subtle
   else
     TextColor := Palette.ForegroundText;
-  P.Text(X + P.S(14), Y + P.S(20), MonitorName(AMonitor), 13, TextColor,
+  P.Text(X + P.S(14), Y + P.S(20), MonitorName(AMonitor), OBD_TEXT_BODY,
+      TextColor,
     twSemibold, taLeftJustify, W - P.S(28));
   PaintMonitorIcon(P, State, X + P.S(21), Y + P.S(43), 0.85);
-  P.Text(X + P.S(34), Y + P.S(43), MonitorStateText(State), 12, Color,
+  P.Text(X + P.S(34), Y + P.S(43), MonitorStateText(State),
+      OBD_TEXT_SMALL, Color,
     twSemibold, taLeftJustify, W - P.S(48));
   Note := VisualNote(AMonitor);
   if (State = msIncomplete) and (Note <> '') then
-    P.Text(X + P.S(14), Y + P.S(63), Note, 11, Palette.GaugeLabel,
+    P.Text(X + P.S(14), Y + P.S(63), Note, OBD_TEXT_SMALL, Palette.GaugeLabel,
       twRegular, taLeftJustify, W - P.S(28));
 end;
 
@@ -1142,7 +1144,8 @@ begin
   P.FillRect(Rect(X, Y, X + W, Y + H), FillColor);
   P.FrameRect(Rect(X, Y, X + W, Y + H), Palette.NeutralLight);
   PaintMonitorIcon(P, State, X + P.S(16), Y + H div 2, 0.75);
-  P.Text(X + P.S(30), Y + H div 2, MonitorName(AMonitor), 12, TextColor,
+  P.Text(X + P.S(30), Y + H div 2, MonitorName(AMonitor), OBD_TEXT_BODY,
+    TextColor,
     twRegular, taLeftJustify, W - P.S(38));
 end;
 
@@ -1172,7 +1175,7 @@ var
   Y, LX, LY: Integer;
   SourceText, Updated: string;
 begin
-  P.Text(P.S(16), P.S(26), 'Readiness monitors', 16, Palette.ForegroundText,
+  P.Text(P.S(16), P.S(26), 'Readiness monitors', OBD_TEXT_TITLE, Palette.ForegroundText,
     twBold);
   if VisualCompressionIgnition then
     SourceText := 'Compression ignition  ·  Mode 01 PID 01'
@@ -1210,7 +1213,7 @@ var
   Gap, CellW, CellH, I, X, Y: Integer;
   Items: array of TOBDReadinessMonitor;
 begin
-  P.Text(P.S(16), P.S(24), 'Readiness', 15, Palette.ForegroundText, twBold);
+  P.Text(P.S(16), P.S(24), 'Readiness', OBD_TEXT_TITLE, Palette.ForegroundText, twBold);
   if FActionText <> '' then
     P.Text(Width - P.S(16), P.S(24), FActionText, 11.5, P.AccentText,
       twSemibold, taRightJustify);

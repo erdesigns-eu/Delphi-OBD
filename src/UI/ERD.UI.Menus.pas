@@ -976,10 +976,7 @@ end;
 
 function TOBDMenuPopupWindow.TextSize: Single;
 begin
-  if FDensity = dnTablet then
-    Result := 14
-  else
-    Result := 13;
+  Result := OBD_TEXT_BODY;
 end;
 
 procedure TOBDMenuPopupWindow.BuildRows;
@@ -1065,7 +1062,8 @@ begin
       TextW := OBDMeasureText(FRows[I].Caption, Size, twRegular, FPPI);
       if FRows[I].Item.Default then
         TextW := OBDMeasureText(FRows[I].Caption, Size, twSemibold, FPPI);
-      ShortW := OBDMeasureText(FRows[I].ShortCutText, 12, twRegular, FPPI);
+      ShortW := OBDMeasureText(FRows[I].ShortCutText, OBD_TEXT_SMALL, twRegular,
+        FPPI);
       MaxText := System.Math.Max(MaxText, TextW);
       MaxShort := System.Math.Max(MaxShort, ShortW);
       HasSub := HasSub or (FRows[I].Item.Count > 0);
@@ -1407,7 +1405,8 @@ begin
         DrawAcceleratedText(P, TextX, CY, FRows[I].Caption, TextSize, Ink,
           Weight, MaxText, FRows[I].AccelIndex);
         if FRows[I].ShortCutText <> '' then
-          P.Text(ShortRight, CY, FRows[I].ShortCutText, 12, ShortInk,
+          P.Text(ShortRight, CY, FRows[I].ShortCutText, OBD_TEXT_SMALL,
+        ShortInk,
             twRegular, taRightJustify, ShortRight - TextX);
       end;
     end;
@@ -1768,10 +1767,7 @@ end;
 
 function TOBDMenuBar.ItemTextSize: Single;
 begin
-  if Height < ScaleValue(40) then
-    Result := 13
-  else
-    Result := 14;
+  Result := OBD_TEXT_BODY;
 end;
 
 function TOBDMenuBar.ItemRect(AIndex: Integer): TRect;

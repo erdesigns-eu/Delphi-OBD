@@ -99,7 +99,7 @@ type
 implementation
 
 const
-  SEGMENT_TEXT_SIZE = 11.5;
+  SEGMENT_TEXT_SIZE = OBD_TEXT_BODY;
   SEGMENT_PAD = 20;
 
 { TOBDSegmented }

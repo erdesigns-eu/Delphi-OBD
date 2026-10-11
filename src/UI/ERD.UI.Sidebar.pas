@@ -319,9 +319,9 @@ implementation
 const
   PREVIEW_COUNT = 8;
   // Same text sizes as the inspector, live data grid and edits.
-  SIDEBAR_TEXT_SIZE = 12.5;
-  SIDEBAR_TITLE_SIZE = 14;
-  SIDEBAR_SUBTITLE_SIZE = 11.5;
+  SIDEBAR_TEXT_SIZE = OBD_TEXT_BODY;
+  SIDEBAR_TITLE_SIZE = OBD_TEXT_HEADING;
+  SIDEBAR_SUBTITLE_SIZE = OBD_TEXT_SMALL;
 
 { TOBDSidebarItem ------------------------------------------------------------ }
 

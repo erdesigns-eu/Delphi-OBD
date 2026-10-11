@@ -593,10 +593,7 @@ end;
 
 function TOBDStatusBar.TextSize: Single;
 begin
-  if Density = dnTablet then
-    Result := 13
-  else
-    Result := 12;
+  Result := OBD_TEXT_BODY;
 end;
 
 function TOBDStatusBar.PanelNaturalWidth(APainter: TOBDPainter;

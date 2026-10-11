@@ -642,7 +642,7 @@ begin
     PartW := P.TextWidth(Part, 17, twMonoBold);
     P.Text(VX, Y, Part, 17, Palette.ForegroundText, twMonoBold);
     P.HLine(VX, Y + P.S(13), PartW, Palette.NeutralLight);
-    P.Text(VX + PartW div 2, Y + P.S(22), 'WMI', 9.5, Palette.GaugeLabel,
+    P.Text(VX + PartW div 2, Y + P.S(22), 'WMI', OBD_TEXT_CAPS, Palette.GaugeLabel,
       twSemibold, taCenter);
     Inc(VX, PartW + P.S(8));
 
@@ -650,7 +650,7 @@ begin
     PartW := P.TextWidth(Part, 17, twMonoBold);
     P.Text(VX, Y, Part, 17, Palette.ForegroundText, twMonoBold);
     P.HLine(VX, Y + P.S(13), PartW, Palette.NeutralLight);
-    P.Text(VX + PartW div 2, Y + P.S(22), 'VDS', 9.5, Palette.GaugeLabel,
+    P.Text(VX + PartW div 2, Y + P.S(22), 'VDS', OBD_TEXT_CAPS, Palette.GaugeLabel,
       twSemibold, taCenter);
     Inc(VX, PartW + P.S(8));
 
@@ -658,7 +658,7 @@ begin
     PartW := P.TextWidth(Part, 17, twMonoBold);
     P.Text(VX, Y, Part, 17, Palette.ForegroundText, twMonoBold);
     P.HLine(VX, Y + P.S(13), PartW, Palette.NeutralLight);
-    P.Text(VX + PartW div 2, Y + P.S(22), 'VIS', 9.5, Palette.GaugeLabel,
+    P.Text(VX + PartW div 2, Y + P.S(22), 'VIS', OBD_TEXT_CAPS, Palette.GaugeLabel,
       twSemibold, taCenter);
     Inc(VX, PartW + P.S(8));
   end
@@ -757,10 +757,10 @@ begin
     P.Caps(FX, FY + P.S(8), FactsK[I]);
     Mono := FactsK[I] = 'Calibration ID';
     if Mono then
-      P.Text(FX, FY + P.S(28), FactsV[I], 13, FactsC[I], twMonoBold,
+      P.Text(FX, FY + P.S(28), FactsV[I], OBD_TEXT_BODY, FactsC[I], twMonoBold,
         taLeftJustify, FactW - P.S(16))
     else
-      P.Text(FX, FY + P.S(28), FactsV[I], 13, FactsC[I], twSemibold,
+      P.Text(FX, FY + P.S(28), FactsV[I], OBD_TEXT_BODY, FactsC[I], twSemibold,
         taLeftJustify, FactW - P.S(16));
   end;
 end;
@@ -778,7 +778,7 @@ begin
   P.Caps(L, P.S(22), 'Vehicle');
   P.Text(L, P.S(50), VehicleTitle, 18, Palette.ForegroundText, twBold,
     taLeftJustify, P.S(290));
-  P.Text(L, P.S(72), VehicleSubtitle, 12, Palette.GaugeLabel, twRegular,
+  P.Text(L, P.S(72), VehicleSubtitle, OBD_TEXT_SMALL, Palette.GaugeLabel, twRegular,
     taLeftJustify, P.S(290));
 
   FactsK[0] := 'VIN';

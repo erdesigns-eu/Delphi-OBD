@@ -158,6 +158,7 @@ type
     FLeftHover: Boolean;
     FRightHover: Boolean;
     FNewTabHover: Boolean;
+    FKeyboardFocus: Boolean;
     FOnChange: TNotifyEvent;
     FOnChanging: TOBDTabChangingEvent;
     FOnClose: TOBDTabCloseEvent;
@@ -773,10 +774,7 @@ end;
 
 function TOBDTabs.TabTextSize: Single;
 begin
-  if FTabStyle = tsDocument then
-    Result := 12.5
-  else
-    Result := 13;
+  Result := OBD_TEXT_BODY;
 end;
 
 function TOBDTabs.TabWidth(APainter: TOBDPainter; AIndex: Integer): Integer;
@@ -1174,6 +1172,7 @@ procedure TOBDTabs.PaintControl(ACanvas: TCanvas);
 var
   P: TOBDPainter;
   I: Integer;
+  R: TRect;
   Pal: TOBDThemePalette;
   Total: Integer;
 begin
@@ -1184,7 +1183,6 @@ begin
       P.FillRect(ClientRect, Pal.Background)
     else
       P.FillRect(ClientRect, Pal.GaugeFace);
-    P.FrameRect(ClientRect, Pal.NeutralLight);
     Total := TotalTabWidth(P);
     if FScrollOffset > MaxScrollOffset(P) then
       FScrollOffset := MaxScrollOffset(P);
@@ -1197,9 +1195,15 @@ begin
       DrawChevron(P, LeftOverflowRect, True, FLeftHover);
       DrawChevron(P, RightOverflowRect, False, FRightHover);
     end;
-    if Focused then
-      P.FocusRing(ScaleValue(2), ScaleValue(2), Width - ScaleValue(4),
-        Height - ScaleValue(4));
+    // No frame around the strip: the focus ring is drawn on the selected
+    // tab only, and only while the keyboard is used to move between tabs.
+    I := SelectedIndexForPaint;
+    if Focused and FKeyboardFocus and (I >= 0) then
+    begin
+      R := TabRect(P, I);
+      InflateRect(R, -ScaleValue(2), -ScaleValue(2));
+      P.FocusRing(R.Left, R.Top, R.Width, R.Height, ScaleValue(4));
+    end;
   finally
     P.Free;
   end;
@@ -1243,6 +1247,7 @@ begin
   inherited;
   if Button <> mbLeft then
     Exit;
+  FKeyboardFocus := False;
   SetFocus;
   if FLeftHover then
   begin
@@ -1290,6 +1295,11 @@ var
   I: Integer;
 begin
   inherited;
+  if not FKeyboardFocus then
+  begin
+    FKeyboardFocus := True;
+    Invalidate;
+  end;
   if (Key = Ord('W')) and (ssCtrl in Shift) and (FTabStyle = tsDocument) then
   begin
     CloseTab(FTabIndex);

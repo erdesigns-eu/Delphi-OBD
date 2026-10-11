@@ -68,7 +68,8 @@ click it to reset), or set `ParameterColumnWidth`, `UnitColumnWidth`,
 `LowColumnWidth` and `HighColumnWidth`; the low / high edits follow
 their columns. The toolbar search box (the live data filter) centres
 its text vertically, and `TOBDConnectionBar` uses the same text size
-as the status bar. Menu bar drop-downs and the themed drop-down lists
+as the status bar, with bold keys (Adapter, Protocol, Battery, VIN) and
+regular values. Menu bar drop-downs and the themed drop-down lists
 are positioned before their window is shown, so they no longer flash
 in the top-left corner of the desktop when moving between menus.
 The low / high edits now repaint while a range column is being
@@ -78,6 +79,19 @@ In tablet density a click anywhere on a `TOBDDtcPanel` row expands or
 collapses its freeze frame, not only on the chevron.
 `TOBDSidebar` items use the standard 12.5 pt body text (was 13.5) and a
 14 pt title, matching the inspector, live data grid and edits.
+
+All controls now paint their text from one shared type scale in
+`ERD.UI.Paint` (`OBD_TEXT_CAPS` 10.5, `OBD_TEXT_SMALL` 11.5,
+`OBD_TEXT_BODY` 12.5, `OBD_TEXT_HEADING` 14, `OBD_TEXT_TITLE` 16),
+the same in desktop and tablet density. Menus, menu bar, tabs, ribbon,
+status bar, connection bar, check boxes, radio buttons, segmented
+controls, toasts, banners, the backstage navigation, readiness panel,
+DTC list / panel and range editor moved onto it; gauge read-outs and
+hero titles keep their own sizes.
+
+`TOBDTabs` no longer draws a frame around the whole strip or a focus
+ring across its full width when clicked; the focus ring now marks the
+selected tab only, and only while the keyboard is used.
 
 Text on accent fills (backstage navigation, ribbon File button, check
 boxes, switches, badges) picks dark or light ink by contrast, so it

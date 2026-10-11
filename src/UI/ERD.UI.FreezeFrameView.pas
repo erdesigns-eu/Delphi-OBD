@@ -849,7 +849,7 @@ begin
       twRegular, taRightJustify);
   S := DisplaySubtitle;
   if S <> '' then
-    APainter.Text(X, ScaleValue(50), S, 12, Palette.GaugeLabel,
+    APainter.Text(X, ScaleValue(50), S, OBD_TEXT_SMALL, Palette.GaugeLabel,
       twRegular, taLeftJustify, Max(0, Width - X - ScaleValue(220)));
 end;
 
