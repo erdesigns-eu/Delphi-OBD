@@ -30,6 +30,7 @@ unit ERD.UI.StatusLamp;
 interface
 
 uses
+  Winapi.Windows,
   System.Types,
   System.UITypes,
   System.SysUtils,

@@ -24,6 +24,7 @@ unit ERD.UI.Chips;
 interface
 
 uses
+  Winapi.Windows,
   Winapi.Messages,
   System.Types,
   System.UITypes,

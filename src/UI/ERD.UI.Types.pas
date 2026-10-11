@@ -329,7 +329,6 @@ end;
 
 function SystemColor(AColor: TColor): TColor;
 begin
-  Result := AColor;
   try
     Result := StyleServices.GetSystemColor(AColor);
   except

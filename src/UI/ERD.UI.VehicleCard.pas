@@ -19,6 +19,7 @@ unit ERD.UI.VehicleCard;
 interface
 
 uses
+  Winapi.Windows,
   System.Types,
   System.UITypes,
   System.SysUtils,

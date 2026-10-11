@@ -29,6 +29,7 @@ uses
   System.Math,
   Vcl.Graphics,
   Vcl.Controls,
+  Vcl.Forms,
   Vcl.StdCtrls,
   Vcl.ExtCtrls,
   Vcl.Menus,

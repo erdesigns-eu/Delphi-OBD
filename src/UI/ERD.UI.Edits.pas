@@ -39,6 +39,7 @@ uses
   System.StrUtils,
   Vcl.Graphics,
   Vcl.Controls,
+  Vcl.Forms,
   Vcl.StdCtrls,
   ERD.UI.Control,
   ERD.UI.Paint,

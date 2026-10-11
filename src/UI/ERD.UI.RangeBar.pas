@@ -24,6 +24,7 @@ unit ERD.UI.RangeBar;
 interface
 
 uses
+  Winapi.Windows,
   Winapi.Messages,
   System.Types,
   System.UITypes,

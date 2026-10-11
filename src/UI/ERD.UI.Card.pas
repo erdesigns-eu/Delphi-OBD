@@ -27,6 +27,7 @@ unit ERD.UI.Card;
 interface
 
 uses
+  Winapi.Windows,
   System.Types,
   System.UITypes,
   System.SysUtils,

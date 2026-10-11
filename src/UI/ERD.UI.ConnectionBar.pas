@@ -25,6 +25,7 @@ unit ERD.UI.ConnectionBar;
 interface
 
 uses
+  Winapi.Windows,
   System.Types,
   System.SysUtils,
   System.Classes,
