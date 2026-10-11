@@ -4318,7 +4318,14 @@ def render(name, density, palette):
     return c
 
 
+def register_pro():
+    """Add the OBD Studio Pro mockups (tools/ui_mockups_pro.py)."""
+    import ui_mockups_pro
+    MOCKUPS.update(ui_mockups_pro.MOCKUPS)
+
+
 def main():
+    register_pro()
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument('--out', type=Path, default=DEFAULT_OUT)
     ap.add_argument('--only', choices=sorted(MOCKUPS))
