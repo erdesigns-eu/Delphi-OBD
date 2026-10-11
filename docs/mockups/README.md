@@ -377,3 +377,75 @@ its context is active, for example while a recording is open.
   menus, because the native menu border cannot follow a dark theme.
   They still read the standard `TMenuItem` tree, so `TMainMenu`,
   `TPopupMenu` and actions keep working.
+
+## Dialogs
+
+These are themed replacements for the standard VCL dialogs. Native
+dialogs (`IFileDialog`, the common print and font dialogs) can't follow
+our themes, so each one is a non-visual component that builds a
+borderless themed form, the same way `TOBDDialog` does. The properties
+match the VCL dialog they replace (`Execute`, `FileName`, `Filter`,
+`FilterIndex`, `InitialDir`, `Options`, and so on), plus `Theme` and
+`Density`. Swapping one in is a type change.
+
+| Component | Replaces |
+|---|---|
+| `TOBDOpenDialog`, `TOBDSaveDialog` | `TOpenDialog`, `TSaveDialog`, `TFileOpenDialog`, `TFileSaveDialog` |
+| `TOBDFolderDialog` | `SelectDirectory`, `TFileOpenDialog` with `fdoPickFolders` |
+| `TOBDOpenPictureDialog`, `TOBDSavePictureDialog` | `TOpenPictureDialog`, `TSavePictureDialog` |
+| `TOBDPrintDialog` | `TPrintDialog` |
+| `TOBDPageSetupDialog` | `TPageSetupDialog`, `TPrinterSetupDialog` |
+| `TOBDFontDialog` | `TFontDialog` |
+| `TOBDColorDialog` | `TColorDialog` |
+| `TOBDFindDialog`, `TOBDReplaceDialog` | `TFindDialog`, `TReplaceDialog` |
+| `TOBDTaskDialog` | `TTaskDialog` |
+| `OBDInputQuery`, `OBDInputBox`, `OBDShowMessage` | `InputQuery`, `InputBox`, `ShowMessage` |
+
+The dialogs reuse a few new building blocks that also work on their
+own: a folder tree, a file list (details and icon views), a breadcrumb
+path bar and a places pane.
+
+### Open and save
+
+| Light | Dark |
+|---|---|
+| ![](dialogs-file-light.png) | ![](dialogs-file-dark.png) |
+| ![](dialogs-file-tablet-light.png) | ![](dialogs-file-tablet-dark.png) |
+
+### Folder and picture
+
+| Light | Dark |
+|---|---|
+| ![](dialogs-folder-light.png) | ![](dialogs-folder-dark.png) |
+| ![](dialogs-folder-tablet-light.png) | ![](dialogs-folder-tablet-dark.png) |
+
+### Print and page setup
+
+| Light | Dark |
+|---|---|
+| ![](dialogs-print-light.png) | ![](dialogs-print-dark.png) |
+| ![](dialogs-print-tablet-light.png) | ![](dialogs-print-tablet-dark.png) |
+
+### Font and colour
+
+| Light | Dark |
+|---|---|
+| ![](dialogs-font-colour-light.png) | ![](dialogs-font-colour-dark.png) |
+| ![](dialogs-font-colour-tablet-light.png) | ![](dialogs-font-colour-tablet-dark.png) |
+
+### Find, replace, task and input
+
+| Light | Dark |
+|---|---|
+| ![](dialogs-text-light.png) | ![](dialogs-text-dark.png) |
+| ![](dialogs-text-tablet-light.png) | ![](dialogs-text-tablet-dark.png) |
+
+### Proposed decisions
+
+| Topic | Proposal |
+|---|---|
+| Overwrite prompt | Shown as a banner inside the save dialog, not as a second modal dialog. |
+| Find and replace | Modeless, like the VCL ones. `OnFind` and `OnReplace` fire, and the result count shows in the dialog. |
+| Print preview | The print dialog shows the first page of the report. It uses the same page painter as the backstage preview. |
+| Colour picker | Theme colours first, then standard colours, then custom colours (kept in `CustomColors`). Includes an HSV picker, hex and RGB entry, and a screen pipette. |
+| Places | The places pane combines Quick access (known folders plus `Places`, a collection the application can fill, such as Jobs and Reports) with the drives. |

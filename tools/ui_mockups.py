@@ -17,6 +17,7 @@ Usage: ``python3 tools/ui_mockups.py [--out DIR] [--only NAME]``.
 Requires Pillow (``pip install "pillow>=12.3"``).
 """
 import argparse
+import colorsys
 import math
 import re
 import sys
@@ -1760,6 +1761,38 @@ def glyph(c, kind, cx, cy, color, s=1.0, bg=None):
     elif kind == 'wrench':
         L((-6, 6), (2, -2))
         E(0, -7, 7, 7)
+    elif kind == 'drive':
+        R(-7, -2, 14, 8)
+        L((-5, -2), (-3, -6), (3, -6), (5, -2))
+        E(3, 1, 2, 2, True)
+    elif kind == 'image':
+        R(-7, -6, 14, 12)
+        L((-7, 4), (-2, -1), (2, 3), (4, 1), (7, 4))
+        E(2, -4, 3, 3, True)
+    elif kind in ('back', 'forward'):
+        m = 1 if kind == 'back' else -1
+        L((7 * m, 0), (-7 * m, 0))
+        L((-2 * m, -5), (-7 * m, 0), (-2 * m, 5))
+    elif kind == 'up':
+        L((0, 7), (0, -7))
+        L((-5, -2), (0, -7), (5, -2))
+    elif kind == 'list':
+        for d in (-5, 0, 5):
+            L((-3, d), (7, d))
+            E(-7.5, d - 1, 2, 2, True)
+    elif kind == 'grid':
+        for gx in (-7, 1):
+            for gy in (-7, 1):
+                R(gx, gy, 6, 6)
+    elif kind == 'newfolder':
+        L((-7, 6), (-7, -6), (-2, -6), (0, -4), (7, -4), (7, 6), (-7, 6))
+        L((0, -1), (0, 5))
+        L((-3, 2), (3, 2))
+    elif kind == 'pipette':
+        L((-7, 7), (-6, 4), (2, -4))
+        L((-4, 0), (0, 4))
+        L((2, -4), (4, -6), (6, -6), (7, -5), (7, -3), (5, -1))
+        L((0, -6), (6, 0))
 
 
 def shadow(c, x, y, w, h, depth=8, under=None):
@@ -3051,6 +3084,953 @@ def draw_app_controls(c):
 
 
 # --------------------------------------------------------------------------
+# Standard dialogs: themed replacements for the Vcl.Dialogs components
+# --------------------------------------------------------------------------
+
+JOB_FOLDERS = [(name, mod, 'File folder', '', 'folder') for name, mod in (
+    ('2026-09', '30-09-2026 18:04'), ('2026-10', '11-10-2026 13:58'),
+    ('Archive', '01-09-2026 08:30'))]
+JOB_FILES = [
+    # name, modified, type, size, icon
+    ('Golf VII 2026-0142.obdjob', '11-10-2026 13:58', 'OBD job', '184 KB',
+     'job'),
+    ('Golf VII 2026-0142.pdf', '11-10-2026 14:02', 'PDF report', '412 KB',
+     'pdf'),
+    ('Polo 6R 2026-0139.obdjob', '09-10-2026 10:21', 'OBD job', '96 KB',
+     'job'),
+    ('Caddy 2K 2026-0138.obdlog', '08-10-2026 17:10', 'Live data recording',
+     '2.4 MB', 'log'),
+    ('Passat B8 2026-0137.obdjob', '08-10-2026 16:45', 'OBD job', '221 KB',
+     'job'),
+    ('Octavia III 2026-0131.obdjob', '06-10-2026 09:12', 'OBD job', '143 KB',
+     'job'),
+    ('Fabia III 2026-0126.obdjob', '03-10-2026 15:37', 'OBD job', '88 KB',
+     'job'),
+]
+REPORT_FILES = [
+    ('Golf VII 2026-0142.pdf', '11-10-2026 14:02', 'PDF report', '412 KB',
+     'pdf'),
+    ('Passat B8 2026-0137.pdf', '08-10-2026 16:52', 'PDF report', '388 KB',
+     'pdf'),
+    ('Polo 6R 2026-0139.pdf', '09-10-2026 10:30', 'PDF report', '297 KB',
+     'pdf'),
+]
+PLACES = [
+    ('Quick access', None), ('desktop', 'Desktop'), ('report', 'Documents'),
+    ('read', 'Downloads'), ('pin', 'Jobs'), ('pin', 'Reports'),
+    ('This PC', None), ('drive', 'Local disk (C:)'),
+    ('drive', 'USB stick (E:)'),
+]
+FOLDER_TREE = [
+    # level, label, icon, state (None = no children, True = open)
+    (0, 'This PC', 'desktop', True),
+    (1, 'Desktop', 'desktop', False),
+    (1, 'Documents', 'report', True),
+    (2, 'OBD Studio', 'folder', True),
+    (3, 'Jobs', 'folder', False),
+    (3, 'Logs', 'folder', None),
+    (3, 'Reports', 'folder', None),
+    (2, 'Invoices', 'folder', False),
+    (1, 'Downloads', 'read', False),
+    (1, 'Local disk (C:)', 'drive', False),
+    (1, 'USB stick (E:)', 'drive', False),
+]
+PICTURES = ['Dashboard MIL.jpg', 'Engine bay.jpg', 'VIN plate.jpg',
+            'Odometer.jpg', 'EGR valve.jpg', 'DPF sensor.png']
+
+
+def danger_ink(p):
+    return p.Danger if not p.dark else mix(p.Danger, (255, 255, 255), 0.7)
+
+
+def dlg_title_h(c):
+    return c.dn['title'] - 5
+
+
+def dlg_footer_h(c):
+    return c.dn['button'] + 28
+
+
+def dlg_window(c, x, y, w, h, title):
+    """Themed dialog form with its title strip; returns the client top."""
+    p, dn = c.p, c.dn
+    th = dn['title'] - 6
+    window_frame(c, x, y, w, h)
+    c.rect(x + 1, y + 1, w - 2, th, fill=p.GaugeFace)
+    c.hline(x + 1, y + th, w - 2, p.NeutralLight)
+    c.text(x + 14, y + 1 + th / 2, title, 12.5, p.ForegroundText,
+           'semibold')
+    caption_buttons(c, x + w - 1, y + 1, th, buttons=('close',))
+    return y + 1 + th
+
+
+def dlg_footer(c, x, y, w, h, buttons, left=None):
+    """Footer strip; buttons are drawn right to left as (text, kind,
+    state). left is ('check', label, state) for a check box or
+    (text, glyph) for a ghost button on the left."""
+    p, dn = c.p, c.dn
+    fh = dlg_footer_h(c)
+    fy = y + h - fh - 1
+    c.rect(x + 1, fy, w - 2, fh, fill=p.GaugeFace)
+    c.hline(x + 1, fy, w - 2, p.NeutralLight)
+    bx = x + w - 16
+    by = fy + (fh - dn['button']) / 2
+    for text, kind, state in buttons:
+        bw = max(button_w(c, text), 84)
+        bx -= bw
+        button(c, bx, by, text, kind, w=bw, state=state)
+        bx -= 8
+    if left and left[0] == 'check':
+        checkbox(c, x + 16, fy + fh / 2, left[2], left[1])
+    elif left:
+        text, kind = left
+        icon = ((lambda c_, cx, cy, ink:
+                 glyph(c_, kind, cx, cy, ink, 0.8, bg=p.GaugeFace))
+                if kind else None)
+        button(c, x + 10, by, text, 'ghost', icon=icon)
+    return fy
+
+
+def file_icon(c, kind, cx, cy, s=1.0):
+    p = c.p
+    if kind == 'folder':
+        c.polygon([(cx - 7 * s, cy + 6 * s), (cx - 7 * s, cy - 6 * s),
+                   (cx - 2 * s, cy - 6 * s), (cx, cy - 4 * s),
+                   (cx + 7 * s, cy - 4 * s), (cx + 7 * s, cy + 6 * s)],
+                  p.tint(p.Accent, 0.35 if not p.dark else 0.4))
+        glyph(c, 'open', cx, cy, p.accent_text, s)
+    elif kind == 'pdf':
+        glyph(c, 'pdf', cx, cy, danger_ink(p), s)
+    elif kind == 'job':
+        glyph(c, 'report', cx, cy, p.accent_text, s)
+    elif kind == 'log':
+        glyph(c, 'live', cx, cy, p.Success, s)
+    else:
+        glyph(c, kind, cx, cy, p.Subtle, s, bg=p.GaugeFace)
+
+
+def vbar(c, x, y, h, pos, page):
+    """Idle themed scroll bar thumb; x is the centre of the strip."""
+    p = c.p
+    th = max(24, h * page)
+    ty = y + (h - th) * pos
+    c.rrect(x - 2, ty, 4, th, 2, fill=mix(p.Subtle, p.GaugeFace, 0.6))
+
+
+def nav_buttons(c, x, y):
+    """Back, forward and up; returns the right edge."""
+    p, dn = c.p, c.dn
+    bh = dn['edit']
+    for i, (kind, enabled) in enumerate((('back', True), ('forward', False),
+                                         ('up', True))):
+        ink = p.Subtle if enabled else mix(p.Subtle, p.Background, 0.4)
+        if i == 0:
+            c.rect(x, y, bh, bh, fill=mix(p.ForegroundText, p.Background,
+                                          0.06))
+        glyph(c, kind, x + i * bh + bh / 2, y + bh / 2, ink, 0.8)
+    return x + 3 * bh
+
+
+def breadcrumb(c, x, y, w, parts):
+    p, dn = c.p, c.dn
+    h = dn['edit']
+    c.rect(x, y, w, h, fill=p.GaugeFace, outline=p.NeutralLight)
+    file_icon(c, 'folder', x + 16, y + h / 2, 0.8)
+    tx = x + 30
+    for i, part in enumerate(parts):
+        last = i == len(parts) - 1
+        tx += c.text(tx, y + h / 2, part, 12.5, p.ForegroundText if last
+                     else p.GaugeLabel, 'semibold' if last else 'regular')
+        if not last:
+            chevron(c, tx + 9, y + h / 2, p.Subtle)
+            tx += 18
+
+
+def search_box(c, x, y, w, hint_text):
+    p, dn = c.p, c.dn
+    h = dn['edit']
+    c.rect(x, y, w, h, fill=p.GaugeFace, outline=p.NeutralLight)
+    glyph(c, 'search', x + 14, y + h / 2, p.Subtle, 0.75)
+    c.text(x + 28, y + h / 2, hint_text, 12.5, p.GaugeLabel, max_w=w - 36)
+
+
+def caption_edit(c, x, y, w, caption, text, **kw):
+    """Upper-case caption above an edit; returns the height used."""
+    c.caps(x, y + 7, caption)
+    edit_box(c, x, y + 18, w, text, **kw)
+    return 18 + c.dn['edit']
+
+
+def places(c, x, y, w, h, selected):
+    """Places pane of the file dialogs."""
+    p, dn = c.p, c.dn
+    card(c, x, y, w, h)
+    rh = dn['ff_row']
+    yy = y + 6
+    for kind, label in PLACES:
+        if label is None:
+            c.caps(x + 14, yy + 13, kind)
+            yy += 26
+            continue
+        sel = label == selected
+        if sel:
+            c.rect(x + 1, yy, w - 2, rh, fill=p.tint(p.Accent, 0.14 if not
+                                                     p.dark else 0.2))
+            c.rect(x + 1, yy + 5, 3, rh - 10, fill=p.accent_text)
+        glyph(c, kind, x + 24, yy + rh / 2, p.accent_text if sel else
+              p.Subtle, 0.8, bg=p.GaugeFace)
+        c.text(x + 42, yy + rh / 2, label, 12.5, p.accent_text if sel else
+               p.ForegroundText, 'semibold' if sel else 'regular',
+               max_w=w - 50)
+        yy += rh
+
+
+def places_height(c):
+    return 12 + 2 * 26 + 7 * c.dn['ff_row']
+
+
+def sort_mark(c, x, cy, color):
+    c.line([(x - 4, cy + 2), (x, cy - 2), (x + 4, cy + 2)], color, 1.4)
+
+
+def file_list(c, x, y, w, h, rows, selected=None, hover=None):
+    """Details view: Name, Date modified, Type, Size."""
+    p, dn = c.p, c.dn
+    card(c, x, y, w, h)
+    ch = dn['colhead']
+    c.rect(x + 1, y + 1, w - 2, ch - 1, fill=p.header())
+    c.hline(x + 1, y + ch - 1, w - 2, p.NeutralLight)
+    R = x + w - 14
+    cd, ct, cs = R - 380, R - 236, R - 8
+    c.caps(x + 14, y + ch / 2, 'Name')
+    sort_mark(c, x + 14 + c.tw('NAME', 10.5, 'semibold') + 10, y + ch / 2,
+              p.accent_text)
+    for cx_, t in ((cd, 'Date modified'), (ct, 'Type')):
+        c.vline(cx_ - 8, y + 6, ch - 12, p.NeutralLight)
+        c.caps(cx_, y + ch / 2, t)
+    c.vline(R - 90, y + 6, ch - 12, p.NeutralLight)
+    c.caps(cs, y + ch / 2, 'Size', anchor='rm')
+    rh = dn['ff_row']
+    yy = y + ch
+    shown = 0
+    for i, (name, mod, typ, size, kind) in enumerate(rows):
+        if yy + rh > y + h - 1:
+            break
+        if i == selected:
+            c.rect(x + 1, yy, R - x, rh, fill=p.tint(p.Accent, 0.16 if not
+                                                     p.dark else 0.26))
+        elif i == hover:
+            c.rect(x + 1, yy, R - x, rh,
+                   fill=mix(p.ForegroundText, p.GaugeFace, 0.05))
+        mid = yy + rh / 2
+        file_icon(c, kind, x + 24, mid)
+        c.text(x + 42, mid, name, 12.5, p.ForegroundText,
+               'semibold' if i == selected else 'regular',
+               max_w=cd - x - 58)
+        c.text(cd, mid, mod, 12.5, p.GaugeLabel)
+        c.text(ct, mid, typ, 12.5, p.GaugeLabel, max_w=R - 100 - ct)
+        c.text(cs, mid, size, 12.5, p.GaugeLabel, anchor='rm')
+        yy += rh
+        shown += 1
+    if shown < len(rows):
+        vbar(c, x + w - 7, y + ch + 4, h - ch - 8, 0.0, shown / len(rows))
+
+
+def file_dialog(c, x, y, w, save=False):
+    """TOBDOpenDialog / TOBDSaveDialog in the details view."""
+    p, dn = c.p, c.dn
+    eh, rh, ch = dn['edit'], dn['ff_row'], dn['colhead']
+    rows = JOB_FOLDERS + (REPORT_FILES if save else JOB_FILES)
+    # The open dialog shows 8 of its 10 rows, so the scroll bar shows.
+    body_h = max(places_height(c), ch + min(len(rows), 8) * rh + 2)
+    banner_h = 64
+    h = (dlg_title_h(c) + 12 + eh + 10 + body_h + 14 + 18 + eh +
+         (14 + banner_h if save else 0) + 16 + dlg_footer_h(c))
+    cy = dlg_window(c, x, y, w, h, 'Save report as' if save else 'Open job')
+    ty = cy + 12
+    nr = nav_buttons(c, x + 12, ty)
+    sw = 220
+    right = x + w - 12 - sw - 8
+    if save:
+        nw = button_w(c, 'New folder', True)
+
+        def newfolder(c_, cx, cy_, ink):
+            glyph(c_, 'newfolder', cx, cy_, ink, 0.8, bg=p.Background)
+        button(c, right - nw, ty + (eh - dn['button']) / 2, 'New folder',
+               'ghost', icon=newfolder)
+        right -= nw + 8
+    breadcrumb(c, nr + 8, ty, right - nr - 8,
+               ['This PC', 'Documents', 'OBD Studio',
+                'Reports' if save else 'Jobs'])
+    search_box(c, x + w - 12 - sw, ty, sw,
+               'Search %s' % ('Reports' if save else 'Jobs'))
+    by = ty + eh + 10
+    pw = 196
+    places(c, x + 12, by, pw, body_h, 'Reports' if save else 'Jobs')
+    file_list(c, x + 12 + pw + 8, by, w - 24 - pw - 8, body_h, rows,
+              selected=3, hover=None if save else 5)
+    fy = by + body_h + 14
+    tw = 260
+    caption_edit(c, x + 12, fy, w - 24 - tw - 8, 'File name',
+                 'Golf VII 2026-0142.pdf' if save else
+                 'Golf VII 2026-0142.obdjob', align='left', focused=save)
+    caption_edit(c, x + w - 12 - tw, fy, tw,
+                 'Save as type' if save else 'File type',
+                 'PDF report (*.pdf)' if save else 'OBD job (*.obdjob)',
+                 dropdown=True)
+    if save:
+        banner(c, x + 12, fy + 18 + eh + 14, w - 24, banner_h, 'warning',
+               'Golf VII 2026-0142.pdf already exists',
+               'Replace it? The report saved on 11-10-2026 at 14:02 is '
+               'overwritten.')
+        dlg_footer(c, x, y, w, h, [('Replace', 'danger', 'focused'),
+                                   ('Cancel', 'secondary', 'normal')],
+                   left=('Change name', None))
+    else:
+        dlg_footer(c, x, y, w, h, [('Open', 'primary', 'focused'),
+                                   ('Cancel', 'secondary', 'normal')],
+                   left=('check', 'Open read-only', 'unchecked'))
+    return h
+
+
+def picture(c, x, y, w, h, seed=0):
+    """Placeholder photo: sky, hills and a sun in muted theme colours."""
+    p = c.p
+    c.rect(x, y, w, h, fill=mix(p.Subtle, p.GaugeFace,
+                                0.18 + 0.04 * (seed % 3)))
+    c.polygon([(x, y + h), (x, y + h * 0.7), (x + w * 0.3, y + h * 0.42),
+               (x + w * 0.55, y + h * 0.68), (x + w * 0.75, y + h * 0.5),
+               (x + w, y + h * 0.72), (x + w, y + h)],
+              mix(p.Subtle, p.GaugeFace, 0.5))
+    d = h * 0.18
+    c.ellipse(x + w * (0.62 + 0.05 * (seed % 2)), y + h * 0.16, d, d,
+              fill=mix(p.Accent, p.GaugeFace, 0.75))
+
+
+def picture_dialog(c, x, y, w):
+    """TOBDOpenPictureDialog: icon view with a preview pane."""
+    p, dn = c.p, c.dn
+    eh = dn['edit']
+    tile_w, tile_h = 118, 108
+    cols = 3
+    grid_w = cols * tile_w + 24
+    prev_w = w - 24 - grid_w - 8
+    body_h = 2 * tile_h + 24
+    h = (dlg_title_h(c) + 12 + eh + 10 + body_h + 14 + 18 + eh + 16 +
+         dlg_footer_h(c))
+    cy = dlg_window(c, x, y, w, h, 'Open picture')
+    ty = cy + 12
+    nr = nav_buttons(c, x + 12, ty)
+    vx = x + w - 12 - 2 * eh
+    for i, kind in enumerate(('list', 'grid')):
+        if kind == 'grid':
+            c.rect(vx + i * eh, ty, eh, eh, fill=p.tint(
+                p.Accent, 0.16 if not p.dark else 0.26),
+                outline=p.accent_text)
+        glyph(c, kind, vx + i * eh + eh / 2, ty + eh / 2,
+              p.accent_text if kind == 'grid' else p.Subtle, 0.75)
+    breadcrumb(c, nr + 8, ty, vx - 8 - nr - 8,
+               ['Pictures', 'Workshop', 'Golf VII 2026-0142'])
+    by = ty + eh + 10
+    card(c, x + 12, by, grid_w, body_h)
+    for i, name in enumerate(PICTURES):
+        tx = x + 12 + 12 + (i % cols) * tile_w
+        tyy = by + 12 + (i // cols) * tile_h
+        sel = name == 'VIN plate.jpg'
+        if sel:
+            c.rect(tx + 2, tyy, tile_w - 4, tile_h - 4, fill=p.tint(
+                p.Accent, 0.16 if not p.dark else 0.26),
+                outline=p.accent_text)
+        picture(c, tx + 10, tyy + 8, tile_w - 20, 64, i)
+        c.text(tx + tile_w / 2, tyy + 8 + 64 + 15, name, 11.5,
+               p.ForegroundText, 'semibold' if sel else 'regular',
+               anchor='mm')
+    px = x + 12 + grid_w + 8
+    card(c, px, by, prev_w, body_h)
+    c.caps(px + 14, by + 18, 'Preview')
+    iw = prev_w - 28
+    picture(c, px + 14, by + 34, iw, iw * 0.62, 2)
+    ly = by + 34 + iw * 0.62 + 20
+    c.text(px + 14, ly, 'VIN plate.jpg', 13, p.ForegroundText, 'bold')
+    c.text(px + 14, ly + 20, '1920 × 1080  ·  JPEG', 12, p.GaugeLabel)
+    c.text(px + 14, ly + 38, '412 KB  ·  11-10-2026 13:40', 12,
+           p.GaugeLabel)
+    fy = by + body_h + 14
+    tw = 250
+    caption_edit(c, x + 12, fy, w - 24 - tw - 8, 'File name',
+                 'VIN plate.jpg', align='left')
+    caption_edit(c, x + w - 12 - tw, fy, tw, 'File type',
+                 'Pictures (*.jpg; *.png; *.bmp)', dropdown=True)
+    dlg_footer(c, x, y, w, h, [('Open', 'primary', 'focused'),
+                               ('Cancel', 'secondary', 'normal')])
+    return h
+
+
+def folder_dialog(c, x, y, w):
+    """TOBDFolderDialog: SelectDirectory / fdoPickFolders replacement."""
+    p, dn = c.p, c.dn
+    eh, rh = dn['edit'], dn['ff_row']
+    tree_h = len(FOLDER_TREE) * rh + 12
+    h = (dlg_title_h(c) + 14 + 20 + 10 + tree_h + 14 + 18 + eh + 16 +
+         dlg_footer_h(c))
+    cy = dlg_window(c, x, y, w, h, 'Select folder')
+    c.text(x + 16, cy + 24, 'Choose the folder reports are saved to.', 12.5,
+           p.ForegroundText)
+    ty = cy + 14 + 20 + 10
+    card(c, x + 12, ty, w - 24, tree_h)
+    yy = ty + 6
+    for level, label, icon, state in FOLDER_TREE:
+        sel = label == 'Reports'
+        mid = yy + rh / 2
+        if sel:
+            c.rect(x + 13, yy, w - 26 - 14, rh, fill=p.tint(
+                p.Accent, 0.16 if not p.dark else 0.26))
+        lx = x + 12 + 12 + level * 18
+        if state is not None:
+            chevron(c, lx + 4, mid, p.Subtle, down=state)
+        file_icon(c, icon, lx + 22, mid, 0.9)
+        c.text(lx + 38, mid, label, 12.5, p.ForegroundText,
+               'semibold' if sel else 'regular')
+        yy += rh
+    vbar(c, x + w - 12 - 7, ty + 4, tree_h - 8, 0.0, 0.8)
+    fy = ty + tree_h + 14
+    caption_edit(c, x + 12, fy, w - 24, 'Folder',
+                 r'C:\Users\Garage\Documents\OBD Studio\Reports',
+                 align='left')
+    dlg_footer(c, x, y, w, h, [('Select folder', 'primary', 'focused'),
+                               ('Cancel', 'secondary', 'normal')],
+               left=('New folder', 'newfolder'))
+    return h
+
+
+def spin_box(c, x, y, w, text, focused=False):
+    """TOBDSpinEdit: value with up / down buttons."""
+    p, dn = c.p, c.dn
+    h = dn['edit']
+    bw = 20 if h < 40 else 30
+    c.rect(x, y, w, h, fill=p.GaugeFace, outline=p.accent_text if focused
+           else p.NeutralLight, width=2 if focused else 1)
+    c.text(x + w - bw - 8, y + h / 2, text, 12.5, p.ForegroundText,
+           anchor='rm')
+    c.vline(x + w - bw, y + 4, h - 8, p.NeutralLight)
+    cx, d = x + w - bw / 2, 3.5
+    for cy, k in ((y + h / 4 + 1, 1), (y + 3 * h / 4 - 1, -1)):
+        c.line([(cx - d, cy + k * d / 2), (cx, cy - k * d / 2),
+                (cx + d, cy + k * d / 2)], p.Subtle, 1.4)
+
+
+def segmented_at(c, x, y, items, selected):
+    """segmented() with the left edge at x; returns the width."""
+    width = sum(c.tw(t, 11.5, 'semibold') + 20 for t in items)
+    segmented(c, x + width, y, items, selected)
+    return width
+
+
+def page_nav(c, cx, cy, text):
+    p = c.p
+    half = c.tw(text, 12) / 2
+    c.line([(cx - half - 14, cy - 4), (cx - half - 18, cy),
+            (cx - half - 14, cy + 4)], p.Subtle, 1.6)
+    c.text(cx, cy, text, 12, p.GaugeLabel, anchor='mm')
+    chevron(c, cx + half + 16, cy, p.Subtle)
+
+
+def print_dialog(c, x, y, w):
+    """TOBDPrintDialog with the print preview of the job report."""
+    p, dn = c.p, c.dn
+    eh = dn['edit']
+    ck = max(26, dn['check'] + 12)
+    pages_row = max(ck, eh + 4)
+    lw = 300
+    L = x + 16
+    pv_w = w - 32 - lw - 24
+    page_w = pv_w - 48
+    page_h = page_w * 1.414
+    left_h = ((18 + eh + 32) + (16 + 3 * ck + pages_row + 8) +
+              (18 + eh + 14) + (18 + dn['seg'] + 14) + ck)
+    body_h = max(left_h, page_h + 18 + 44)
+    h = dlg_title_h(c) + 16 + body_h + 16 + dlg_footer_h(c)
+    cy = dlg_window(c, x, y, w, h, 'Print')
+    yy = cy + 16
+    yy += caption_edit(c, L, yy, lw, 'Printer',
+                       'HP LaserJet Pro M404 (workshop)', dropdown=True)
+    c.ellipse(L + 2, yy + 7, 8, 8, fill=p.Success)
+    c.text(L + 16, yy + 11, 'Ready  ·  A4  ·  duplex', 11.5, p.GaugeLabel)
+    yy += 32
+    c.caps(L, yy + 7, 'Pages')
+    yy += 16
+    for label, on, dis in (('All (3 pages)', False, False),
+                           ('Current page', False, False),
+                           ('Pages', True, False),
+                           ('Selection', False, True)):
+        rh = pages_row if label == 'Pages' else ck
+        rw = radio(c, L, yy + rh / 2, on, label, disabled=dis)
+        if label == 'Pages':
+            edit_box(c, L + rw + 10, yy + (rh - eh) / 2, 110, '1, 3',
+                     focused=True, align='left')
+        yy += rh
+    yy += 8
+    c.caps(L, yy + 7, 'Copies')
+    spin_box(c, L, yy + 18, 96, '2')
+    checkbox(c, L + 112, yy + 18 + eh / 2, 'checked', 'Collate')
+    yy += 18 + eh + 14
+    c.caps(L, yy + 7, 'Orientation')
+    segmented_at(c, L, yy + 18, ('Portrait', 'Landscape'), 0)
+    yy += 18 + dn['seg'] + 14
+    checkbox(c, L, yy + ck / 2, 'unchecked', 'Print to file')
+    px = x + w - 16 - pv_w
+    c.page_bg = mix(p.NeutralLight, p.Background, 0.5)
+    c.rect(px, cy + 16, pv_w, body_h, fill=c.page_bg,
+           outline=p.NeutralLight)
+    report_page(c, px + 24, cy + 16 + 18, page_w, page_h)
+    page_nav(c, px + pv_w / 2, cy + 16 + body_h - 22, 'Page 1 of 3')
+    dlg_footer(c, x, y, w, h, [('Print', 'primary', 'focused'),
+                               ('Cancel', 'secondary', 'normal')],
+               left=('Page setup', 'gear'))
+    return h
+
+
+def mini_page(c, x, y, w, h, margins):
+    """Page with dashed margin guides and grey text lines."""
+    p = c.p
+    shadow(c, x, y, w, h, 8, c.page_bg)
+    c.rect(x, y, w, h, fill=PAPER)
+    k = w / 210
+    ml, mr, mt, mb = (m * k for m in margins)
+    gx0, gy0, gx1, gy1 = x + ml, y + mt, x + w - mr, y + h - mb
+    dash = mix(p.Accent, PAPER, 0.8)
+    for xx in (gx0, gx1):
+        for d in range(0, int(h), 6):
+            c.vline(xx, y + d, 3, dash)
+    for yy in (gy0, gy1):
+        for d in range(0, int(w), 6):
+            c.hline(x + d, yy, 3, dash)
+    c.rect(gx0, gy0 + 4, (gx1 - gx0) * 0.35, 5, fill=PAPER_MUTED)
+    ly = gy0 + 18
+    i = 0
+    while ly < gy1 - 6:
+        c.rect(gx0, ly, (gx1 - gx0) * (0.95 if i % 4 != 3 else 0.6), 3,
+               fill=PAPER_RULE)
+        ly += 9
+        i += 1
+
+
+def page_setup_dialog(c, x, y, w):
+    """TOBDPageSetupDialog: paper, orientation and margins."""
+    p, dn = c.p, c.dn
+    eh = dn['edit']
+    lw = 230
+    L = x + 16
+    left_h = (2 * (18 + eh + 12) + (18 + dn['seg'] + 12) + 18 +
+              2 * eh + 8)
+    page_w = w - 32 - lw - 24 - 48
+    page_h = page_w * 1.414
+    body_h = max(left_h, page_h + 36)
+    h = dlg_title_h(c) + 16 + body_h + 16 + dlg_footer_h(c)
+    cy = dlg_window(c, x, y, w, h, 'Page setup')
+    yy = cy + 16
+    yy += caption_edit(c, L, yy, lw, 'Paper size', 'A4 (210 × 297 mm)',
+                       dropdown=True) + 12
+    yy += caption_edit(c, L, yy, lw, 'Source', 'Automatically select',
+                       dropdown=True) + 12
+    c.caps(L, yy + 7, 'Orientation')
+    segmented_at(c, L, yy + 18, ('Portrait', 'Landscape'), 0)
+    yy += 18 + dn['seg'] + 12
+    c.caps(L, yy + 7, 'Margins (mm)')
+    yy += 18
+    sw = 60
+    for row, ((a, av), (b, bv)) in enumerate(
+            ((('Left', '20'), ('Right', '20')),
+             (('Top', '25'), ('Bottom', '20')))):
+        ry = yy + row * (eh + 8)
+        c.text(L, ry + eh / 2, a, 12.5, p.GaugeLabel)
+        spin_box(c, L + 44, ry, sw, av)
+        c.text(L + 44 + sw + 14, ry + eh / 2, b, 12.5, p.GaugeLabel)
+        spin_box(c, L + lw - sw, ry, sw, bv)
+    px = x + w - 16 - (page_w + 48)
+    c.page_bg = mix(p.NeutralLight, p.Background, 0.5)
+    c.rect(px, cy + 16, page_w + 48, body_h, fill=c.page_bg,
+           outline=p.NeutralLight)
+    mini_page(c, px + 24, cy + 16 + (body_h - page_h) / 2, page_w, page_h,
+              (20, 20, 25, 20))
+    dlg_footer(c, x, y, w, h, [('OK', 'primary', 'focused'),
+                               ('Cancel', 'secondary', 'normal')],
+               left=('Printer', 'print'))
+    return h
+
+
+def pick_list(c, x, y, w, rows, items, selected, weight=None, edit=None,
+              align='left'):
+    """Edit with a list below it (font dialog columns)."""
+    p, dn = c.p, c.dn
+    eh = dn['edit']
+    rh = min(eh, 40)
+    edit_box(c, x, y, w, edit if edit is not None else items[selected],
+             align=align, focused=edit is not None)
+    ly = y + eh + 4
+    lh = rows * rh + 4
+    card(c, x, ly, w, lh)
+    for i, item in enumerate(items[:rows]):
+        iy = ly + 2 + i * rh
+        if i == selected:
+            c.rect(x + 1, iy, w - 2, rh, fill=p.tint(
+                p.Accent, 0.16 if not p.dark else 0.26))
+        wt = weight(item) if weight else 'regular'
+        if align == 'right':
+            c.text(x + w - 18, iy + rh / 2, item, 12.5, p.ForegroundText,
+                   wt, anchor='rm')
+        else:
+            c.text(x + 10, iy + rh / 2, item, 12.5, p.ForegroundText, wt,
+                   max_w=w - 24)
+    if len(items) > rows:
+        vbar(c, x + w - 6, ly + 4, lh - 8, 0.3, rows / len(items))
+
+
+FONTS = ['Bahnschrift', 'Calibri', 'Cascadia Mono', 'Consolas', 'Segoe UI',
+         'Segoe UI Semibold', 'Tahoma', 'Verdana', 'Arial']
+STYLES = ['Regular', 'Italic', 'Semibold', 'Bold', 'Bold italic']
+SIZES = ['8', '9', '10', '11', '12', '14', '16', '18', '20', '24']
+
+
+def font_weight(name):
+    if 'Mono' in name or name == 'Consolas':
+        return 'mono'
+    return 'semibold' if 'Semibold' in name else 'regular'
+
+
+def style_weight(name):
+    if 'Bold' in name:
+        return 'bold'
+    return 'semibold' if name == 'Semibold' else 'regular'
+
+
+def font_dialog(c, x, y, w):
+    """TOBDFontDialog: family, style, size, effects, colour and sample."""
+    p, dn = c.p, c.dn
+    eh = dn['edit']
+    rows = 7
+    list_h = eh + 4 + rows * min(eh, 40) + 4
+    sample_h = 64
+    h = (dlg_title_h(c) + 16 + 18 + list_h + 16 + 18 + eh + 16 + 18 +
+         sample_h + 16 + dlg_footer_h(c))
+    cy = dlg_window(c, x, y, w, h, 'Font')
+    L = x + 16
+    fw, sw = 220, 150
+    zw = w - 32 - fw - sw - 24
+    yy = cy + 16
+    for cx_, t in ((L, 'Font'), (L + fw + 12, 'Style'),
+                   (L + fw + sw + 24, 'Size')):
+        c.caps(cx_, yy + 7, t)
+    yy += 18
+    pick_list(c, L, yy, fw, rows, FONTS, 4, weight=font_weight,
+              edit='Segoe UI')
+    pick_list(c, L + fw + 12, yy, sw, rows, STYLES, 0, weight=style_weight)
+    pick_list(c, L + fw + sw + 24, yy, zw, rows, SIZES, 3, align='right')
+    yy += list_h + 16
+    c.caps(L, yy + 7, 'Effects')
+    c.caps(L + fw + 12, yy + 7, 'Colour')
+    yy += 18
+    cw = checkbox(c, L, yy + eh / 2, 'unchecked', 'Underline')
+    checkbox(c, L + cw + 20, yy + eh / 2, 'unchecked', 'Strikeout')
+    edit_box(c, L + fw + 12, yy, w - 32 - fw - 12, '', dropdown=True)
+    c.rect(L + fw + 22, yy + eh / 2 - 7, 14, 14, fill=p.ForegroundText,
+           outline=p.NeutralDark)
+    c.text(L + fw + 44, yy + eh / 2, 'Text (theme)', 12.5, p.ForegroundText)
+    yy += eh + 16
+    c.caps(L, yy + 7, 'Sample')
+    yy += 18
+    card(c, L, yy, w - 32, sample_h, fill=p.Background)
+    c.text(x + w / 2, yy + sample_h / 2, 'P0401  EGR flow insufficient',
+           16, p.ForegroundText, anchor='mm')
+    dlg_footer(c, x, y, w, h, [('OK', 'primary', 'focused'),
+                               ('Cancel', 'secondary', 'normal')],
+               left=('Apply', None))
+    return h
+
+
+STANDARD_COLOURS = [
+    (0, 0, 0), (89, 89, 89), (140, 140, 140), (191, 191, 191),
+    (217, 217, 217), (255, 255, 255), (112, 48, 160), (0, 112, 192),
+    (192, 0, 0), (232, 89, 12), (255, 192, 0), (146, 208, 80),
+    (0, 176, 80), (0, 176, 240), (31, 78, 121), (124, 76, 60),
+]
+
+
+def swatch(c, x, y, s, colour, selected=False):
+    p = c.p
+    c.rect(x, y, s, s, fill=colour,
+           outline=mix(p.ForegroundText, colour, 0.25))
+    if selected:
+        c.rect(x - 3, y - 3, s + 6, s + 6, outline=p.accent_text, width=2)
+
+
+def hsv(h, s, v):
+    r, g, b = colorsys.hsv_to_rgb(h, s, v)
+    return round(r * 255), round(g * 255), round(b * 255)
+
+
+def colour_dialog(c, x, y, w):
+    """TOBDColorDialog: theme, standard and custom colours plus a picker."""
+    p, dn = c.p, c.dn
+    eh = dn['edit']
+    s, g = 24, 6
+    lw = 8 * s + 7 * g
+    L = x + 16
+    rx = L + lw + 28
+    rw = x + w - 16 - rx
+    sv_w, sv_h = rw - 24, 150
+    right_h = sv_h + 14 + 18 + eh + 12 + 18 + eh
+    left_h = 3 * (18 + 16) + 4 * s + g
+    body_h = max(left_h, right_h)
+    h = dlg_title_h(c) + 16 + body_h + 16 + dlg_footer_h(c)
+    cy = dlg_window(c, x, y, w, h, 'Colour')
+    yy = cy + 16
+    c.caps(L, yy + 7, 'Theme colours')
+    yy += 18
+    theme = [p.Accent, p.accent_text, p.Success, p.Warning, p.Danger,
+             p.Subtle, p.NeutralDark, p.ForegroundText]
+    for i, col in enumerate(theme):
+        swatch(c, L + i * (s + g), yy, s, col)
+    yy += s + 16
+    c.caps(L, yy + 7, 'Standard colours')
+    yy += 18
+    sel = (232, 89, 12)
+    for i, col in enumerate(STANDARD_COLOURS):
+        swatch(c, L + (i % 8) * (s + g), yy + (i // 8) * (s + g), s, col,
+               col == sel)
+    yy += 2 * s + g + 16
+    c.caps(L, yy + 7, 'Custom colours')
+    yy += 18
+    custom = [(0, 128, 128), (200, 160, 60), (96, 96, 160)]
+    for i in range(8):
+        sx = L + i * (s + g)
+        if i < len(custom):
+            swatch(c, sx, yy, s, custom[i])
+            continue
+        c.rect(sx, yy, s, s, outline=p.NeutralLight)
+        if i == len(custom):
+            c.line([(sx + s / 2, yy + 7), (sx + s / 2, yy + s - 7)],
+                   p.Subtle, 1.4)
+            c.line([(sx + 7, yy + s / 2), (sx + s - 7, yy + s / 2)],
+                   p.Subtle, 1.4)
+    # Saturation / value square and hue strip for the selected colour.
+    hue, sat, val = colorsys.rgb_to_hsv(*(v / 255 for v in sel))
+    top = cy + 16
+    n = 30
+    cw_, chh = sv_w / n, sv_h / n
+    for i in range(n):
+        for j in range(n):
+            c.rect(rx + i * cw_, top + j * chh, cw_ + 0.6, chh + 0.6,
+                   fill=hsv(hue, (i + 0.5) / n, 1 - (j + 0.5) / n))
+    c.rect(rx, top, sv_w, sv_h, outline=p.NeutralLight)
+    mx, my = rx + sat * sv_w, top + (1 - val) * sv_h
+    c.ellipse(mx - 6, my - 6, 12, 12, outline=(255, 255, 255), width=2)
+    c.ellipse(mx - 7, my - 7, 14, 14, outline=(0, 0, 0), width=1)
+    hx = rx + sv_w + 10
+    for j in range(n):
+        c.rect(hx, top + j * chh, 14, chh + 0.6, fill=hsv((j + 0.5) / n, 1,
+                                                          1))
+    c.rect(hx, top, 14, sv_h, outline=p.NeutralLight)
+    hy = top + hue * sv_h
+    c.rect(hx - 3, hy - 2, 20, 4, outline=p.ForegroundText, width=1.5)
+    yy = top + sv_h + 14
+    hw = (rw - 12) / 2
+    caption_edit(c, rx, yy, hw, 'Hex', '#E8590C', align='left', focused=True)
+    c.caps(rx + hw + 12, yy + 7, 'New / current')
+    c.rect(rx + hw + 12, yy + 18, hw / 2, eh, fill=sel)
+    c.rect(rx + hw + 12 + hw / 2, yy + 18, hw / 2, eh, fill=p.Accent)
+    c.rect(rx + hw + 12, yy + 18, hw, eh, outline=p.NeutralLight)
+    yy += 18 + eh + 12
+    bw = (rw - 2 * 10) / 3
+    for i, (lab, v) in enumerate((('Red', '232'), ('Green', '89'),
+                                  ('Blue', '12'))):
+        c.caps(rx + i * (bw + 10), yy + 7, lab)
+        spin_box(c, rx + i * (bw + 10), yy + 18, bw, v)
+    dlg_footer(c, x, y, w, h, [('OK', 'primary', 'focused'),
+                               ('Cancel', 'secondary', 'normal')],
+               left=('Pick from screen', 'pipette'))
+    return h
+
+
+def find_dialog(c, x, y, w, replace=False):
+    """TOBDFindDialog / TOBDReplaceDialog: modeless, stays on top."""
+    p, dn = c.p, c.dn
+    eh = dn['edit']
+    ck = max(26, dn['check'] + 12)
+    fields = 2 if replace else 1
+    h = (dlg_title_h(c) + 16 + fields * (18 + eh + 12) + ck + 8 + 18 +
+         dn['seg'] + 16 + dlg_footer_h(c))
+    cy = dlg_window(c, x, y, w, h, 'Replace' if replace else 'Find')
+    L = x + 16
+    yy = cy + 16
+    yy += caption_edit(c, L, yy, w - 32, 'Find what', 'EGR', align='left',
+                       focused=not replace) + 12
+    if replace:
+        yy += caption_edit(c, L, yy, w - 32, 'Replace with',
+                           'Exhaust gas recirculation', align='left',
+                           focused=True) + 12
+    cw = checkbox(c, L, yy + ck / 2, 'checked', 'Match case')
+    checkbox(c, L + cw + 24, yy + ck / 2, 'unchecked', 'Whole word only')
+    yy += ck + 8
+    c.caps(L, yy + 7, 'Direction')
+    segmented_at(c, L, yy + 18, ('Up', 'Down'), 1)
+    if replace:
+        c.text(x + w - 16, yy + 18 + dn['seg'] / 2, '4 matches', 12,
+               p.GaugeLabel, anchor='rm')
+        dlg_footer(c, x, y, w, h, [('Find next', 'primary', 'focused'),
+                                   ('Replace', 'secondary', 'normal'),
+                                   ('Replace all', 'secondary', 'normal')],
+                   left=('Close', None))
+    else:
+        dlg_footer(c, x, y, w, h, [('Find next', 'primary', 'focused'),
+                                   ('Close', 'secondary', 'normal')])
+    return h
+
+
+def input_dialog(c, x, y, w):
+    """OBDInputQuery: one or more prompts with validation."""
+    p, dn = c.p, c.dn
+    eh = dn['edit']
+    h = (dlg_title_h(c) + 16 + 20 + 12 + 2 * (18 + eh) + 24 + 16 +
+         dlg_footer_h(c))
+    cy = dlg_window(c, x, y, w, h, 'New job')
+    L = x + 16
+    c.text(L, cy + 26, 'Enter the job number and the customer.', 12.5,
+           p.ForegroundText)
+    yy = cy + 16 + 20 + 12
+    yy += caption_edit(c, L, yy, w - 32, 'Job number', '2026-014',
+                       align='left', focused=True)
+    c.text(L, yy + 10, 'Use the format YYYY-NNNN.', 11.5, danger_ink(p))
+    yy += 24
+    caption_edit(c, L, yy, w - 32, 'Customer', 'J. de Vries', align='left')
+    dlg_footer(c, x, y, w, h, [('OK', 'primary', 'disabled'),
+                               ('Cancel', 'secondary', 'normal')])
+    return h
+
+
+def task_dialog(c, x, y, w):
+    """TOBDTaskDialog: main instruction, command links, progress, details
+    and a verification check box."""
+    p, dn = c.p, c.dn
+    link_h = max(52, dn['button'] + 18)
+    h = (dlg_title_h(c) + 22 + 70 + 3 * (link_h + 6) + 10 + 36 + 26 + 12 +
+         dlg_footer_h(c))
+    cy = dlg_window(c, x, y, w, h, 'OBD Studio')
+    L = x + 56
+    yy = cy + 22
+    icon_pending(c, x + 32, yy + 10, p.Warning, 1.5)
+    c.text(L, yy + 10, 'The battery voltage is low (11.8 V)', 15,
+           p.ForegroundText, 'bold')
+    c.text(L, yy + 34, 'Coding an ECU on a low battery can leave the module '
+           'unusable.', 12.5, p.ForegroundText)
+    c.text(L, yy + 52, 'Connect a charger before you continue.', 12.5,
+           p.ForegroundText)
+    yy += 70
+    links = [('Connect a charger and check again',
+              'OBD Studio waits until the battery reads 12.5 V or more.',
+              'hover'),
+             ('Continue anyway', 'Not recommended while coding or '
+              'flashing.', 'danger'),
+             ('Cancel coding', 'Nothing is written to the ECU.', '')]
+    lw = w - 56 - 16
+    for title, note, state in links:
+        mid = yy + link_h / 2
+        if state == 'hover':
+            c.rect(L - 8, yy, lw + 8, link_h, fill=p.tint(
+                p.Accent, 0.12 if not p.dark else 0.2),
+                outline=p.accent_text)
+        ink = danger_ink(p) if state == 'danger' else p.accent_text
+        c.line([(L + 1, mid - 9), (L + 11, mid - 9)], ink, 1.8)
+        c.line([(L + 7, mid - 13), (L + 11, mid - 9), (L + 7, mid - 5)],
+               ink, 1.8)
+        c.text(L + 22, mid - 9, title, 13.5, ink, 'semibold')
+        c.text(L + 22, mid + 10, note, 12, p.GaugeLabel)
+        yy += link_h + 6
+    yy += 10
+    c.text(L, yy + 6, 'Battery', 12, p.GaugeLabel)
+    c.text(x + w - 16, yy + 6, '11.8 V of 12.5 V', 12, p.GaugeLabel,
+           anchor='rm')
+    c.rect(L, yy + 18, lw, 6, fill=p.NeutralLight)
+    c.rect(L, yy + 18, lw * 0.72, 6, fill=p.Warning)
+    yy += 36
+    chevron(c, L + 4, yy + 8, p.accent_text)
+    c.text(L + 16, yy + 8, 'Show details', 12.5, p.accent_text, 'semibold')
+    dlg_footer(c, x, y, w, h, [('Close', 'secondary', 'normal')],
+               left=('check', "Don't warn me again for this vehicle",
+                     'unchecked'))
+    return h
+
+
+def dialog_sheet(c, rows):
+    """Lays out rows of (name, sub, draw, width) dialogs with a caption
+    above each; returns the bottom edge."""
+    p = c.p
+    y = 16
+    for row in rows:
+        x = 16
+        bottom = y
+        for name, sub, fn, w in row:
+            c.text(x, y + 12, name, 16, p.ForegroundText, 'bold')
+            c.text(x, y + 34, sub, 12, p.GaugeLabel, max_w=w)
+            h = fn(c, x, y + 56, w)
+            bottom = max(bottom, y + 56 + h)
+            x += w + 32
+        y = bottom + 32
+    return y - 16
+
+
+def draw_dialogs_file(c):
+    return dialog_sheet(c, [
+        [('TOBDOpenDialog', 'TOpenDialog / TFileOpenDialog: places, '
+          'breadcrumb, search, details view, file type filter',
+          file_dialog, 1068)],
+        [('TOBDSaveDialog', 'TSaveDialog / TFileSaveDialog: overwrite '
+          'prompt inline (ofOverwritePrompt), new folder',
+          lambda c_, x, y, w: file_dialog(c_, x, y, w, save=True), 1068)],
+    ])
+
+
+def draw_dialogs_folder(c):
+    return dialog_sheet(c, [
+        [('TOBDFolderDialog', 'SelectDirectory / fdoPickFolders',
+          folder_dialog, 420),
+         ('TOBDOpenPictureDialog', 'TOpenPictureDialog: icon view with a '
+          'preview pane', picture_dialog, 616)],
+    ])
+
+
+def draw_dialogs_print(c):
+    return dialog_sheet(c, [
+        [('TOBDPrintDialog', 'TPrintDialog: printer, pages, copies, '
+          'orientation and a preview', print_dialog, 600),
+         ('TOBDPageSetupDialog', 'TPageSetupDialog / TPrinterSetupDialog',
+          page_setup_dialog, 436)],
+    ])
+
+
+def draw_dialogs_font_colour(c):
+    return dialog_sheet(c, [
+        [('TOBDFontDialog', 'TFontDialog: type to search, sample, Apply',
+          font_dialog, 540),
+         ('TOBDColorDialog', 'TColorDialog: theme, standard and custom '
+          'colours, picker', colour_dialog, 496)],
+    ])
+
+
+def draw_dialogs_text(c):
+    return dialog_sheet(c, [
+        [('TOBDReplaceDialog', 'TReplaceDialog: modeless, stays on top of '
+          'its form', lambda c_, x, y, w: find_dialog(c_, x, y, w, True),
+          460),
+         ('TOBDFindDialog', 'TFindDialog', find_dialog, 576)],
+        [('TOBDTaskDialog', 'TTaskDialog: command links, progress, '
+          'details, verification check box', task_dialog, 600),
+         ('OBDInputQuery / OBDInputBox', 'InputQuery / InputBox with '
+          'validation', input_dialog, 436)],
+    ])
+
+
+# --------------------------------------------------------------------------
 
 BOTH = ('desktop', 'tablet')
 DESKTOP = ('desktop',)
@@ -3085,6 +4065,11 @@ MOCKUPS = {
     'app-controls': (BOTH, 1100, None, draw_app_controls),
     'backstage': (DESKTOP, 1366, 860, draw_backstage),
     'ribbon-contextual': (DESKTOP, 1366, None, draw_ribbon_config),
+    'dialogs-file': (BOTH, 1100, None, draw_dialogs_file),
+    'dialogs-folder': (BOTH, 1100, None, draw_dialogs_folder),
+    'dialogs-print': (BOTH, 1100, None, draw_dialogs_print),
+    'dialogs-font-colour': (BOTH, 1100, None, draw_dialogs_font_colour),
+    'dialogs-text': (BOTH, 1100, None, draw_dialogs_text),
 }
 
 
