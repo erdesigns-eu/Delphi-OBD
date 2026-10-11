@@ -126,6 +126,7 @@ type
     procedure OpenMenu(AIndex: Integer; AKeyboard: Boolean);
     procedure CloseMenuState(Sender: TObject);
     procedure SwitchOpenMenu(Sender: TObject; ADirection: Integer);
+    procedure MenuHotTrack(const AScreenPoint: TPoint);
     procedure AppMessage(var Msg: tagMSG; var Handled: Boolean);
     procedure AppShortCut(var Msg: TWMKey; var Handled: Boolean);
     procedure AppDeactivate(Sender: TObject);
@@ -215,6 +216,7 @@ const
   OBD_MENU_SUB_WIDTH = 18;
   OBD_MENU_SUB_DELAY = 250;
   WM_OBD_MENU_CLICK = WM_USER + 347;
+  WM_OBD_MENU_FREE = WM_USER + 348;
 
 type
   TOBDMenuRowKind = (mrItem, mrSeparator, mrHeader);
@@ -222,6 +224,7 @@ type
   TOBDMenuNavigateEvent = procedure(Sender: TObject; ADirection: Integer)
     of object;
   TOBDMenuSessionCloseEvent = procedure(Sender: TObject) of object;
+  TOBDMenuHotTrackEvent = procedure(const AScreenPoint: TPoint) of object;
 
   TOBDMenuRow = record
     Kind: TOBDMenuRowKind;
@@ -346,12 +349,16 @@ type
     FOnStyle: TOBDMenuGetItemStyleEvent;
     FOnClose: TOBDMenuSessionCloseEvent;
     FOnNavigate: TOBDMenuNavigateEvent;
+    FOnHotTrack: TOBDMenuHotTrackEvent;
     FKeyboardMode: Boolean;
     FClosing: Boolean;
     procedure AppDeactivate(Sender: TObject);
     procedure AppMessage(var Msg: tagMSG; var Handled: Boolean);
     function WindowAtPoint(const P: TPoint): TOBDMenuPopupWindow;
     procedure ReleaseWindowsFrom(ALevel: Integer);
+  protected
+    procedure Notification(AComponent: TComponent;
+      Operation: TOperation); override;
   public
     constructor CreateSession(AOwnerControl: TWinControl; ASender: TObject;
       ATheme: TOBDTheme; ADensity: TOBDDensity; AImages: TCustomImageList;
@@ -373,6 +380,10 @@ type
     property Density: TOBDDensity read FDensity;
     property Images: TCustomImageList read FImages;
     property KeyboardMode: Boolean read FKeyboardMode;
+    /// <summary>Called for mouse moves outside the popups, so a menu bar
+    /// can switch menus while one is open.</summary>
+    property OnHotTrack: TOBDMenuHotTrackEvent read FOnHotTrack
+      write FOnHotTrack;
   end;
 
   TOBDMenuClickQueue = class
@@ -384,6 +395,7 @@ type
     constructor Create;
     destructor Destroy; override;
     procedure Post(AItem: TMenuItem);
+    procedure PostFree;
   end;
 
 var
@@ -577,6 +589,11 @@ begin
   PostMessage(FHandle, WM_OBD_MENU_CLICK, 0, 0);
 end;
 
+procedure TOBDMenuClickQueue.PostFree;
+begin
+  PostMessage(FHandle, WM_OBD_MENU_FREE, 0, 0);
+end;
+
 procedure TOBDMenuClickQueue.WndProc(var Message: TMessage);
 var
   Item: TMenuItem;
@@ -590,6 +607,11 @@ begin
       if Item <> nil then
         Item.Click;
     end;
+    Message.Result := 0;
+  end
+  else if Message.Msg = WM_OBD_MENU_FREE then
+  begin
+    FreeDeadSessions;
     Message.Result := 0;
   end
   else
@@ -628,6 +650,16 @@ begin
   ReleaseWindowsFrom(0);
   FWindows.Free;
   inherited;
+end;
+
+procedure TOBDMenuSession.Notification(AComponent: TComponent;
+  Operation: TOperation);
+begin
+  inherited;
+  // A popup is parented to the owner control; when that control (or its
+  // form) is destroyed first, it frees the popup too.
+  if (Operation = opRemove) and (FWindows <> nil) then
+    FWindows.Remove(AComponent);
 end;
 
 procedure TOBDMenuSession.AppDeactivate(Sender: TObject);
@@ -677,6 +709,12 @@ begin
           C := W.ScreenToClient(P);
           W.RouteMouseMove(C.X, C.Y);
           Handled := True;
+        end
+        else if Assigned(FOnHotTrack) then
+        begin
+          Handled := True;
+          // May close this session and open another one.
+          FOnHotTrack(P);
         end;
       end;
     WM_LBUTTONDOWN, WM_RBUTTONDOWN, WM_MBUTTONDOWN:
@@ -814,6 +852,11 @@ begin
   if Assigned(CloseEvent) then
     CloseEvent(Self);
   DeferFreeSession(Self);
+  // Free closed sessions (and their popup windows) once the current
+  // message has been handled, not only at unit finalization.
+  if GClickQueue = nil then
+    GClickQueue := TOBDMenuClickQueue.Create;
+  GClickQueue.PostFree;
 end;
 
 procedure TOBDMenuSession.RequestNavigate(ADirection: Integer);
@@ -823,8 +866,10 @@ begin
   NavigateEvent := FOnNavigate;
   if Assigned(NavigateEvent) then
   begin
-    CloseAll;
+    // The handler opens the neighbouring menu, which closes this session;
+    // closing first would clear the owner's open index it navigates from.
     NavigateEvent(nil, ADirection);
+    CloseAll;
   end;
 end;
 
@@ -1803,17 +1848,46 @@ begin
   Item := EffectiveItem(AIndex);
   if (Item = nil) or (not Item.Visible) or (not Item.Enabled) then
     Exit;
-  R := ClientToScreen(ItemRect(AIndex));
+  R := ItemRect(AIndex);
+  R.TopLeft := ClientToScreen(R.TopLeft);
+  R.BottomRight := ClientToScreen(R.BottomRight);
+  // Close the current menu first: its close callback clears FOpenIndex.
+  OBDCloseThemedMenu;
   FOpenIndex := AIndex;
   FHoverIndex := AIndex;
   FKeyboardMode := AKeyboard;
   Invalidate;
-  OBDShowMenuItemsEx(Self, Self, Item, R, PopupTheme, Density, EffectiveImages,
-    FOnGetItemStyle, CloseMenuState, SwitchOpenMenu, AKeyboard);
+  if OBDShowMenuItemsEx(Self, Self, Item, R, PopupTheme, Density,
+    EffectiveImages, FOnGetItemStyle, CloseMenuState, SwitchOpenMenu,
+    AKeyboard) then
+  begin
+    if GMenuSession <> nil then
+      GMenuSession.OnHotTrack := MenuHotTrack;
+  end
+  else
+  begin
+    FOpenIndex := -1;
+    Invalidate;
+  end;
+end;
+
+procedure TOBDMenuBar.MenuHotTrack(const AScreenPoint: TPoint);
+var
+  C: TPoint;
+  Idx: Integer;
+begin
+  if (FOpenIndex < 0) or not HandleAllocated or not Visible then
+    Exit;
+  C := ScreenToClient(AScreenPoint);
+  Idx := IndexAt(C.X, C.Y);
+  if (Idx >= 0) and (Idx <> FOpenIndex) and EffectiveEnabled(Idx) then
+    OpenMenu(Idx, FKeyboardMode);
 end;
 
 procedure TOBDMenuBar.CloseMenuState(Sender: TObject);
 begin
+  if csDestroying in ComponentState then
+    Exit;
   FOpenIndex := -1;
   Invalidate;
 end;

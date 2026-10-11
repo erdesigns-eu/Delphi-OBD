@@ -66,6 +66,8 @@ type
     FInvalid: Boolean;
     FInvalidMessage: string;
     FUpdatingEdits: Boolean;
+    FDraggingScroll: Boolean;
+    FScrollDragOffset: Integer;
     FOnSave: TNotifyEvent;
     FOnCancel: TNotifyEvent;
     procedure SetRangeProfile(AValue: TOBDRangeProfile);
@@ -88,10 +90,14 @@ type
     procedure UpdateButtons;
     function EngineApplyCaption: string;
     procedure ScrollTo(ATopRow: Integer);
+    function ScrollTrackRect: TRect;
+    function ScrollThumbRect: TRect;
     function ParseNumber(const S: string; out AValue: Double): Boolean;
     function ValidateSelected(ACommit: Boolean): Boolean;
     procedure EditChanged(Sender: TObject);
     procedure EditExit(Sender: TObject);
+    procedure EditKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure FocusSelectedEdit(AHigh: Boolean);
     procedure ProfileChanged(Sender: TObject);
     procedure ResetSelectedClick(Sender: TObject);
     procedure ResetAllClick(Sender: TObject);
@@ -107,6 +113,8 @@ type
     procedure PaintControl(ACanvas: TCanvas); override;
     procedure Resize; override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
+    procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
@@ -189,6 +197,7 @@ begin
   FLowEdit.AutoSize := False;
   FLowEdit.OnChange := EditChanged;
   FLowEdit.OnExit := EditExit;
+  FLowEdit.OnKeyDown := EditKeyDown;
 
   FHighEdit := TOBDRangeEdit.Create(Self);
   FHighEdit.Parent := Self;
@@ -196,6 +205,7 @@ begin
   FHighEdit.AutoSize := False;
   FHighEdit.OnChange := EditChanged;
   FHighEdit.OnExit := EditExit;
+  FHighEdit.OnKeyDown := EditKeyDown;
 
   FResetButton := TOBDButton.Create(Self);
   FResetButton.Parent := Self;
@@ -534,6 +544,33 @@ begin
   Invalidate;
 end;
 
+function TOBDRangeEditor.ScrollTrackRect: TRect;
+var
+  W, TrackTop: Integer;
+begin
+  if RangeCount <= VisibleRows then
+    Exit(TRect.Empty);
+  W := ScaleValue(8);
+  TrackTop := HeaderHeight + ColumnHeaderHeight;
+  Result := Rect(Width - W - ScaleValue(2), TrackTop, Width - ScaleValue(2),
+    Height - FooterHeight);
+end;
+
+function TOBDRangeEditor.ScrollThumbRect: TRect;
+var
+  Track: TRect;
+  ThumbH, ThumbTop: Integer;
+begin
+  Track := ScrollTrackRect;
+  if Track.IsEmpty then
+    Exit(TRect.Empty);
+  ThumbH := Min(Track.Height, Max(ScaleValue(24),
+    Round(Track.Height * VisibleRows / RangeCount)));
+  ThumbTop := Track.Top + Round((Track.Height - ThumbH) * FTopRow /
+    Max(1, RangeCount - VisibleRows));
+  Result := Rect(Track.Left, ThumbTop, Track.Right, ThumbTop + ThumbH);
+end;
+
 function TOBDRangeEditor.ParseNumber(const S: string; out AValue: Double): Boolean;
 var
   T: string;
@@ -606,6 +643,42 @@ end;
 procedure TOBDRangeEditor.EditExit(Sender: TObject);
 begin
   ValidateSelected(True);
+end;
+
+procedure TOBDRangeEditor.EditKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+var
+  Target: Integer;
+begin
+  if (ssAlt in Shift) or (ssCtrl in Shift) then
+    Exit;
+  case Key of
+    VK_UP:
+      Target := Max(0, FSelected - 1);
+    VK_DOWN:
+      Target := Min(RangeCount - 1, FSelected + 1);
+  else
+    Exit;
+  end;
+  Key := 0;
+  // Up/Down step to the neighbouring range and keep editing the same column,
+  // so a list of ranges can be typed in one after another.
+  SelectRow(Target);
+  FocusSelectedEdit(Sender = FHighEdit);
+end;
+
+procedure TOBDRangeEditor.FocusSelectedEdit(AHigh: Boolean);
+var
+  Edit: TOBDRangeEdit;
+begin
+  if AHigh then
+    Edit := FHighEdit
+  else
+    Edit := FLowEdit;
+  if not Edit.Visible or not Edit.CanFocus then
+    Exit;
+  Edit.SetFocus;
+  Edit.SelectAll;
 end;
 
 procedure TOBDRangeEditor.ProfileChanged(Sender: TObject);
@@ -839,21 +912,19 @@ end;
 
 procedure TOBDRangeEditor.DrawScrollBar(APainter: TOBDPainter);
 var
-  Count, VRows, TrackTop, TrackH, ThumbH, ThumbTop, W: Integer;
+  Track, Thumb: TRect;
+  ThumbColor: TColor;
 begin
-  Count := RangeCount;
-  VRows := VisibleRows;
-  if Count <= VRows then
+  Track := ScrollTrackRect;
+  if Track.IsEmpty then
     Exit;
-  W := ScaleValue(8);
-  TrackTop := HeaderHeight + ColumnHeaderHeight;
-  TrackH := Height - TrackTop - FooterHeight;
-  APainter.FillRect(Rect(Width - W - ScaleValue(2), TrackTop, Width - ScaleValue(2),
-    TrackTop + TrackH), Palette.NeutralLight);
-  ThumbH := Max(ScaleValue(24), Round(TrackH * VRows / Count));
-  ThumbTop := TrackTop + Round((TrackH - ThumbH) * FTopRow / Max(1, Count - VRows));
-  APainter.FillRect(Rect(Width - W - ScaleValue(2), ThumbTop, Width - ScaleValue(2),
-    ThumbTop + ThumbH), Palette.Subtle);
+  APainter.FillRect(Track, Palette.NeutralLight);
+  Thumb := ScrollThumbRect;
+  if FDraggingScroll then
+    ThumbColor := Palette.Accent
+  else
+    ThumbColor := Palette.Subtle;
+  APainter.FillRect(Thumb, ThumbColor);
 end;
 
 procedure TOBDRangeEditor.PaintControl(ACanvas: TCanvas);
@@ -883,11 +954,31 @@ procedure TOBDRangeEditor.MouseDown(Button: TMouseButton; Shift: TShiftState;
 var
   I: Integer;
   P: TOBDRangeProfile;
+  Track, Thumb: TRect;
 begin
   inherited MouseDown(Button, Shift, X, Y);
   if Button <> mbLeft then
     Exit;
   SetFocus;
+  Track := ScrollTrackRect;
+  if not Track.IsEmpty and (X >= Track.Left - ScaleValue(4)) and
+    (Y >= Track.Top) and (Y < Track.Bottom) then
+  begin
+    if not ValidateSelected(True) then
+      Exit;
+    Thumb := ScrollThumbRect;
+    if Y < Thumb.Top then
+      ScrollTo(FTopRow - VisibleRows)
+    else if Y >= Thumb.Bottom then
+      ScrollTo(FTopRow + VisibleRows)
+    else
+    begin
+      FDraggingScroll := True;
+      FScrollDragOffset := Y - Thumb.Top;
+      Invalidate;
+    end;
+    Exit;
+  end;
   I := RowAtY(Y);
   if I < 0 then
     Exit;
@@ -903,6 +994,33 @@ begin
     end;
   end;
   SelectRow(I);
+  if FSelected = I then
+    FocusSelectedEdit(False);
+end;
+
+procedure TOBDRangeEditor.MouseMove(Shift: TShiftState; X, Y: Integer);
+var
+  Track, Thumb: TRect;
+begin
+  inherited MouseMove(Shift, X, Y);
+  if not FDraggingScroll then
+    Exit;
+  Track := ScrollTrackRect;
+  Thumb := ScrollThumbRect;
+  if Track.Height - Thumb.Height > 0 then
+    ScrollTo(Round((Y - FScrollDragOffset - Track.Top) *
+      Max(0, RangeCount - VisibleRows) / (Track.Height - Thumb.Height)));
+end;
+
+procedure TOBDRangeEditor.MouseUp(Button: TMouseButton; Shift: TShiftState;
+  X, Y: Integer);
+begin
+  inherited MouseUp(Button, Shift, X, Y);
+  if FDraggingScroll then
+  begin
+    FDraggingScroll := False;
+    Invalidate;
+  end;
 end;
 
 procedure TOBDRangeEditor.KeyDown(var Key: Word; Shift: TShiftState);
@@ -925,6 +1043,7 @@ begin
     Exit;
   end;
   Key := 0;
+  FocusSelectedEdit(False);
 end;
 
 procedure TOBDRangeEditor.CMMouseWheel(var Message: TCMMouseWheel);

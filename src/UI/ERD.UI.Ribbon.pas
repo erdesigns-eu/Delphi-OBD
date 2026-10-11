@@ -428,6 +428,7 @@ type
     FShowFileButton: Boolean;
     FFileCaption: TCaption;
     FBackstage: TControl;
+    FBackstageOpen: Boolean;
     FShowSearch: Boolean;
     FSearchHint: string;
     FRibbonStyle: TOBDRibbonStyle;
@@ -526,6 +527,8 @@ type
     procedure CMHintShow(var Message: TCMHintShow); message CM_HINTSHOW;
     procedure CMCancelMode(var Message: TCMCancelMode); message CM_CANCELMODE;
     procedure WMGetDlgCode(var Message: TWMGetDlgCode); message WM_GETDLGCODE;
+    procedure CMOBDBackstageVisible(var Message: TMessage);
+      message CM_OBD_BACKSTAGEVISIBLE;
   private
     procedure RibbonChanged;
   protected
@@ -1409,10 +1412,42 @@ begin
   if FBackstage = AValue then
     Exit;
   if FBackstage <> nil then
+  begin
     FBackstage.RemoveFreeNotification(Self);
+    FBackstage.Perform(CM_OBD_BACKSTAGELINK, 0, 0);
+  end;
   FBackstage := AValue;
+  if FBackstageOpen then
+  begin
+    FBackstageOpen := False;
+    UpdateHeight;
+  end;
   if FBackstage <> nil then
+  begin
     FBackstage.FreeNotification(Self);
+    // A TOBDBackstage answers by reporting its visibility, so the ribbon
+    // steps aside while it is open.
+    FBackstage.Perform(CM_OBD_BACKSTAGELINK, 0, LPARAM(Self));
+  end;
+end;
+
+procedure TOBDRibbon.CMOBDBackstageVisible(var Message: TMessage);
+var
+  Open: Boolean;
+begin
+  // Like the Office backstage view, the open backstage replaces the tabs
+  // and commands: the ribbon collapses to zero height until it closes.
+  Open := (Message.WParam <> 0) and not (csDesigning in ComponentState);
+  if FBackstageOpen = Open then
+    Exit;
+  FBackstageOpen := Open;
+  if Open then
+  begin
+    OBDCloseThemedMenu;
+    FTemporaryExpanded := False;
+  end;
+  UpdateHeight;
+  Invalidate;
 end;
 
 procedure TOBDRibbon.SetShowSearch(AValue: Boolean);
@@ -1472,7 +1507,14 @@ begin
     if AComponent = FImages then
       FImages := nil;
     if AComponent = FBackstage then
+    begin
       FBackstage := nil;
+      if FBackstageOpen and not (csDestroying in ComponentState) then
+      begin
+        FBackstageOpen := False;
+        UpdateHeight;
+      end;
+    end;
   end;
 end;
 
@@ -1729,6 +1771,8 @@ end;
 
 function TOBDRibbon.DesiredHeight: Integer;
 begin
+  if FBackstageOpen then
+    Exit(0);
   Result := TabHeight;
   if BodyVisible then
     Inc(Result, BodyHeight);

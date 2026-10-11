@@ -202,6 +202,8 @@ type
     procedure SetActiveBorder(AValue: Boolean);
     procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
     procedure CMHintShow(var Message: TCMHintShow); message CM_HINTSHOW;
+    procedure WMNCHitTest(var Message: TWMNCHitTest); message WM_NCHITTEST;
+    function CaptionHitTest(const AScreenPoint: TPoint): Integer;
     function CaptionHeight: Integer;
     function MenuHeight: Integer;
     function TotalHeight: Integer;
@@ -876,6 +878,54 @@ begin
   Message.HintInfo^.CursorRect := R;
 end;
 
+procedure TOBDTitleBar.WMNCHitTest(var Message: TWMNCHitTest);
+begin
+  inherited;
+  if (csDesigning in ComponentState) or (Message.Result <> HTCLIENT) then
+    Exit;
+  // The bar is a child window covering the form's caption area, so the
+  // form never sees WM_NCHITTEST there. Let it fall through to the form
+  // (whose hooked hit test answers HTCAPTION, HTMAXBUTTON or a resize
+  // edge) wherever the bar has no control of its own.
+  if CaptionHitTest(Point(Message.XPos, Message.YPos)) <> HTCLIENT then
+    Message.Result := HTTRANSPARENT;
+end;
+
+function TOBDTitleBar.CaptionHitTest(const AScreenPoint: TPoint): Integer;
+var
+  C: TPoint;
+  WR: TRect;
+  Edge, Corner: Integer;
+begin
+  Result := HTCLIENT;
+  if (FHookedForm = nil) or not FHookedForm.HandleAllocated or
+    not HandleAllocated then
+    Exit;
+  if FormResizable and not FormMaximized then
+  begin
+    GetWindowRect(FHookedForm.Handle, WR);
+    Edge := ScaleValue(5);
+    Corner := Edge + ScaleValue(16);
+    if AScreenPoint.Y < WR.Top + Edge then
+    begin
+      if AScreenPoint.X < WR.Left + Corner then
+        Result := HTTOPLEFT
+      else if AScreenPoint.X >= WR.Right - Corner then
+        Result := HTTOPRIGHT
+      else
+        Result := HTTOP;
+      Exit;
+    end;
+  end;
+  C := ScreenToClient(AScreenPoint);
+  if (C.X < 0) or (C.X >= Width) or (C.Y < 0) or (C.Y >= CaptionHeight) then
+    Exit;
+  if SystemButtonAt(C.X, C.Y) = sbMaximize then
+    Result := HTMAXBUTTON
+  else if PointInCaptionDragArea(C.X, C.Y) then
+    Result := HTCAPTION;
+end;
+
 function TOBDTitleBar.CaptionHeight: Integer;
 begin
   Result := ScaleValue(Metrics.TitleBar);
@@ -1339,6 +1389,13 @@ begin
         HandleNCLButtonUp(Message);
         Exit;
       end;
+    WM_NCMOUSELEAVE:
+      if (FHoverSystem <> sbNone) or (FPressedSystem <> sbNone) then
+      begin
+        FHoverSystem := sbNone;
+        FPressedSystem := sbNone;
+        Invalidate;
+      end;
     WM_NCRBUTTONUP:
       if Message.WParam = HTCAPTION then
       begin
@@ -1396,7 +1453,18 @@ var
   R: PRect;
   Mon: TMonitor;
   Work: TRect;
+  WindowTop: Integer;
 begin
+  // The proposed window top, before the default handler moves it down
+  // by the system caption and frame.
+  WindowTop := 0;
+  if Message.LParam <> 0 then
+  begin
+    if Message.WParam <> 0 then
+      WindowTop := POBDNCCalcSizeParams(Message.LParam)^.rgrc[0].Top
+    else
+      WindowTop := PRect(Message.LParam)^.Top;
+  end;
   if Assigned(FOldFormWindowProc) then
     FOldFormWindowProc(Message);
   if (FHookedForm = nil) or not FHookedForm.HandleAllocated then
@@ -1416,13 +1484,15 @@ begin
       Params^.rgrc[0] := Work;
     end
     else
-      Dec(Params^.rgrc[0].Top, CaptionHeight);
+      // Remove the whole system caption and top frame: the client area
+      // starts at the window top and the title bar paints the caption.
+      Params^.rgrc[0].Top := WindowTop;
   end
   else
   begin
     R := PRect(Message.LParam);
     if R <> nil then
-      Dec(R^.Top, CaptionHeight);
+      R^.Top := WindowTop;
   end;
   Message.Result := 0;
 end;
@@ -1430,8 +1500,7 @@ end;
 procedure TOBDTitleBar.HandleNCHitTest(var Message: TMessage);
 var
   P, C: TPoint;
-  WR: TRect;
-  Edge, Corner: Integer;
+  Hit: Integer;
   OldResult: LRESULT;
 begin
   if Assigned(FOldFormWindowProc) then
@@ -1443,41 +1512,22 @@ begin
   if (FHookedForm = nil) or not FHookedForm.HandleAllocated then
     Exit;
   P := PointFromMessage(Message);
-  GetWindowRect(FHookedForm.Handle, WR);
-  if FormResizable and not FormMaximized then
-  begin
-    Edge := System.Math.Max(ScaleValue(5), GetSystemMetrics(SM_CYSIZEFRAME) +
-      GetSystemMetrics(SM_CXPADDEDBORDER));
-    Corner := Edge + ScaleValue(16);
-    if P.Y < WR.Top + Edge then
-    begin
-      if P.X < WR.Left + Corner then
-        Message.Result := HTTOPLEFT
-      else if P.X >= WR.Right - Corner then
-        Message.Result := HTTOPRIGHT
-      else
-        Message.Result := HTTOP;
-      Exit;
-    end;
-  end;
-  C := ScreenToClient(P);
-  if (C.X < 0) or (C.X >= Width) or (C.Y < 0) or (C.Y >= Height) then
-    Exit;
-  if SystemButtonAt(C.X, C.Y) = sbMaximize then
-  begin
-    Message.Result := HTMAXBUTTON;
-    Exit;
-  end;
-  if PointInCaptionDragArea(C.X, C.Y) then
-    Message.Result := HTCAPTION
+  Hit := CaptionHitTest(P);
+  if Hit <> HTCLIENT then
+    Message.Result := Hit
   else
-    Message.Result := HTCLIENT;
+  begin
+    C := ScreenToClient(P);
+    if (C.X >= 0) and (C.X < Width) and (C.Y >= 0) and (C.Y < Height) then
+      Message.Result := HTCLIENT;
+  end;
 end;
 
 procedure TOBDTitleBar.HandleNCMouseMove(var Message: TMessage);
 var
   C: TPoint;
   NewHover: TOBDSystemButton;
+  Track: TTrackMouseEvent;
 begin
   NewHover := sbNone;
   if FHookedForm <> nil then
@@ -1490,6 +1540,16 @@ begin
   begin
     FHoverSystem := NewHover;
     Invalidate;
+  end;
+  if (NewHover <> sbNone) and (FHookedForm <> nil) and
+    FHookedForm.HandleAllocated then
+  begin
+    // Ask for WM_NCMOUSELEAVE so the maximize hover clears on exit.
+    Track.cbSize := SizeOf(Track);
+    Track.dwFlags := TME_LEAVE or TME_NONCLIENT;
+    Track.hwndTrack := FHookedForm.Handle;
+    Track.dwHoverTime := 0;
+    TrackMouseEvent(Track);
   end;
   if Assigned(FOldFormWindowProc) then
     FOldFormWindowProc(Message);

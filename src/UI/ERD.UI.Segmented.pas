@@ -324,34 +324,46 @@ begin
       Strength := 0.28
     else
       Strength := 0.18;
+    // Unselected segments first, the selected one last, so a hovered
+    // neighbour (or its separator) can never paint over the selected
+    // segment's border.
     for I := 0 to FItems.Count - 1 do
     begin
+      if I = FItemIndex then
+        Continue;
       R := SegmentRect(I);
       if not Enabled then
-      begin
-        Ink := P.DisabledText;
-        if I = FItemIndex then
-          P.FrameRect(R, Palette.NeutralDark);
-      end
-      else if I = FItemIndex then
-      begin
-        P.FillRect(R, P.Tint(Palette.Accent, Strength));
-        P.FrameRect(R, P.AccentText);
-        Ink := P.AccentText;
-      end
+        Ink := P.DisabledText
       else
       begin
         if I = FHotIndex then
-          P.FillRect(Rect(R.Left + 1, R.Top + 1, R.Right, R.Bottom - 1),
+          P.FillRect(Rect(R.Left + 1, R.Top + 1, R.Right - 1, R.Bottom - 1),
             OBDMixColor(Palette.ForegroundText, Palette.GaugeFace, 0.06));
         Ink := Palette.Subtle;
       end;
-      if (I > 0) and (I <> FItemIndex) then
+      if (I > 0) and (I - 1 <> FItemIndex) then
         P.VLine(R.Left, R.Top + P.S(5), R.Height - P.S(10),
           Palette.NeutralLight);
       P.Text(R.Left + R.Width div 2, R.Top + R.Height div 2, FItems[I],
         SEGMENT_TEXT_SIZE, Ink, twSemibold, taCenter);
-      if (I = FItemIndex) and Focused and not IsPreview then
+    end;
+    if (FItemIndex >= 0) and (FItemIndex < FItems.Count) then
+    begin
+      R := SegmentRect(FItemIndex);
+      if not Enabled then
+      begin
+        P.FrameRect(R, Palette.NeutralDark);
+        Ink := P.DisabledText;
+      end
+      else
+      begin
+        P.FillRect(R, P.Tint(Palette.Accent, Strength));
+        P.FrameRect(R, P.AccentText);
+        Ink := P.AccentText;
+      end;
+      P.Text(R.Left + R.Width div 2, R.Top + R.Height div 2,
+        FItems[FItemIndex], SEGMENT_TEXT_SIZE, Ink, twSemibold, taCenter);
+      if Focused and not IsPreview then
         P.FocusRing(R.Left, R.Top, R.Width, R.Height);
     end;
   finally

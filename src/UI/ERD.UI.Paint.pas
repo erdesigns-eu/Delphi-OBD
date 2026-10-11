@@ -354,6 +354,17 @@ type
     /// <summary>Small upper-case caption (10.5 px semibold) in the
     /// label colour.</summary>
     /// <returns>Drawn width in device pixels.</returns>
+    /// <summary>Draws short text (an icon letter such as "i", "!" or a
+    /// badge count) centred on its visible ink, not on the font's line
+    /// box, so it sits in the optical centre of a circle or pill.</summary>
+    /// <param name="CX">Centre X in device pixels.</param>
+    /// <param name="CY">Centre Y in device pixels.</param>
+    /// <param name="AText">Text.</param>
+    /// <param name="ASize">Em height in 96-DPI pixels.</param>
+    /// <param name="AColor">Colour.</param>
+    /// <param name="AWeight">Weight.</param>
+    procedure InkText(CX, CY: Single; const AText: string; ASize: Single;
+      AColor: TColor; AWeight: TOBDTextWeight = twBold);
     function Caps(X, CY: Integer; const AText: string;
       AAlign: TAlignment = taLeftJustify; AColor: TColor = clDefault;
       AMaxWidth: Integer = 0): Integer;
@@ -999,6 +1010,78 @@ begin
   Result := W;
 end;
 
+procedure TOBDPainter.InkText(CX, CY: Single; const AText: string;
+  ASize: Single; AColor: TColor; AWeight: TOBDTextWeight);
+const
+  IDENTITY: TMat2 = (
+    eM11: (fract: 0; value: 1); eM12: (fract: 0; value: 0);
+    eM21: (fract: 0; value: 0); eM22: (fract: 0; value: 1));
+var
+  DC: HDC;
+  GM: TGlyphMetrics;
+  I, Advance, L, T, InkL, InkT, InkR, InkB: Integer;
+  Any: Boolean;
+  OldAlign: UINT;
+begin
+  if AText = '' then
+    Exit;
+  SetFont(ASize, AWeight, AColor);
+  FCanvas.Brush.Style := bsClear;
+  DC := FCanvas.Handle;
+  Advance := 0;
+  Any := False;
+  InkL := 0;
+  InkT := 0;
+  InkR := 0;
+  InkB := 0;
+  for I := 1 to Length(AText) do
+  begin
+    FillChar(GM, SizeOf(GM), 0);
+    if GetGlyphOutline(DC, Ord(AText[I]), GGO_METRICS, GM, 0, nil,
+      IDENTITY) = DWORD(GDI_ERROR) then
+    begin
+      FCanvas.Brush.Style := bsSolid;
+      Text(Round(CX), Round(CY), AText, ASize, AColor, AWeight, taCenter);
+      Exit;
+    end;
+    if (AText[I] <> ' ') and (GM.gmBlackBoxX > 0) and (GM.gmBlackBoxY > 0) then
+    begin
+      // Ink box relative to the pen start on the baseline (Y down).
+      L := Advance + GM.gmptGlyphOrigin.X;
+      T := -GM.gmptGlyphOrigin.Y;
+      if not Any then
+      begin
+        InkL := L;
+        InkT := T;
+        InkR := L + Integer(GM.gmBlackBoxX);
+        InkB := T + Integer(GM.gmBlackBoxY);
+        Any := True;
+      end
+      else
+      begin
+        InkL := System.Math.Min(InkL, L);
+        InkT := System.Math.Min(InkT, T);
+        InkR := System.Math.Max(InkR, L + Integer(GM.gmBlackBoxX));
+        InkB := System.Math.Max(InkB, T + Integer(GM.gmBlackBoxY));
+      end;
+    end;
+    Inc(Advance, GM.gmCellIncX);
+  end;
+  if not Any then
+  begin
+    FCanvas.Brush.Style := bsSolid;
+    Exit;
+  end;
+  OldAlign := SetTextAlign(DC, TA_LEFT or TA_BASELINE or TA_NOUPDATECP);
+  try
+    ExtTextOut(DC, Round(CX - (InkL + InkR) / 2), Round(CY - (InkT + InkB) / 2),
+      0, nil, PChar(AText), Length(AText), nil);
+  finally
+    SetTextAlign(DC, OldAlign);
+    FCanvas.Brush.Style := bsSolid;
+  end;
+end;
+
 function TOBDPainter.Caps(X, CY: Integer; const AText: string;
   AAlign: TAlignment; AColor: TColor; AMaxWidth: Integer): Integer;
 begin
@@ -1122,7 +1205,8 @@ begin
     Ink := OnAccent
   else
     Ink := clWhite;
-  Text(Round(CX), Round(CY + 2 * K), '!', 13, Ink, twBold, taCenter);
+  // The optical centre of the triangle sits below its bounding-box centre.
+  InkText(CX, CY + 2.5 * K, '!', 11, Ink, twBold);
 end;
 
 procedure TOBDPainter.GlyphLine(AGlyph: TOBDGlyph; CX, CY: Single;
@@ -1239,11 +1323,9 @@ begin
       begin
         E(-7, -7, 14, 14);
         if AGlyph = glHelp then
-          Text(Round(CX), Round(CY + 0.5 * K), '?', 10 * AScale, AColor,
-            twBold, taCenter)
+          InkText(CX, CY, '?', 10 * AScale, AColor, twBold)
         else
-          Text(Round(CX), Round(CY + 0.5 * K), 'i', 10 * AScale, AColor,
-            twBold, taCenter);
+          InkText(CX, CY, 'i', 10 * AScale, AColor, twBold);
       end;
     glSun:
       begin
@@ -1495,8 +1577,7 @@ begin
   W := BadgeWidth(AText);
   H := S(18);
   RoundRect(ARight - W, ATop, W, H, H / 2, AColor, clNone);
-  Text(ARight - W div 2, ATop + H div 2, AText, 10.5, InkOn(AColor), twBold,
-    taCenter);
+  InkText(ARight - W / 2, ATop + H / 2, AText, 10.5, InkOn(AColor), twBold);
 end;
 
 procedure TOBDPainter.ButtonColors(AKind: TOBDButtonKind;
@@ -1815,12 +1896,12 @@ begin
     if AKind = bnDanger then
     begin
       Ink := clWhite;
-      Text(CX, CY, '!', 12, Ink, twBold, taCenter);
+      InkText(CX, CY, '!', 12, Ink, twBold);
     end
     else
     begin
       Ink := FPalette.GaugeFace;
-      Text(CX, CY, 'i', 12, Ink, twBold, taCenter);
+      InkText(CX, CY, 'i', 12, Ink, twBold);
     end;
   end;
 end;

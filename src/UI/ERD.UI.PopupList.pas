@@ -27,6 +27,7 @@ uses
   Vcl.Controls,
   Vcl.StdCtrls,
   Vcl.Forms,
+  Vcl.AppEvnts,
   ERD.UI.Types,
   ERD.UI.Paint;
 
@@ -46,12 +47,19 @@ type
     FPalette: TOBDThemePalette;
     FPPI: Integer;
     FRowHeight: Integer;
+    FAppEvents: TApplicationEvents;
+    FOwnerControl: TWinControl;
+    FFieldRect: TRect;
+    procedure AppMessage(var Msg: TMsg; var Handled: Boolean);
+    procedure AppDeactivate(Sender: TObject);
     procedure WMMouseActivate(var Message: TWMMouseActivate); message WM_MOUSEACTIVATE;
     function ScalePixel(AValue: Integer): Integer;
   protected
     /// <summary>Creates a popup, border, top-most and no-activate window.</summary>
     /// <param name="Params">Window creation parameters.</param>
     procedure CreateParams(var Params: TCreateParams); override;
+    /// <summary>Applies the fixed row height to the new list-box window.</summary>
+    procedure CreateWnd; override;
     /// <summary>Paints one owner-drawn row.</summary>
     /// <param name="Index">Item index.</param>
     /// <param name="Rect">Item rectangle.</param>
@@ -126,6 +134,43 @@ begin
   Params.WindowClass.Style := Params.WindowClass.Style or CS_SAVEBITS;
 end;
 
+procedure TOBDPopupList.CreateWnd;
+begin
+  inherited CreateWnd;
+  // A WS_POPUP list box sends WM_MEASUREITEM to its owner window, which the
+  // VCL does not route back, so Windows would fall back to the font height.
+  SendMessage(Handle, LB_SETITEMHEIGHT, 0, FRowHeight);
+end;
+
+procedure TOBDPopupList.AppMessage(var Msg: TMsg; var Handled: Boolean);
+begin
+  if not FIsOpen or not HandleAllocated then
+    Exit;
+  case Msg.message of
+    WM_LBUTTONDOWN, WM_RBUTTONDOWN, WM_MBUTTONDOWN, WM_LBUTTONDBLCLK,
+    WM_NCLBUTTONDOWN, WM_NCRBUTTONDOWN, WM_NCMBUTTONDOWN, WM_NCLBUTTONDBLCLK:
+      begin
+        if (Msg.hwnd = Handle) or IsChild(Handle, Msg.hwnd) then
+          Exit;
+        // A press on the owner's field is left to the owner, which toggles
+        // the list itself (like clicking a Windows combo box while open).
+        if (FOwnerControl <> nil) and FOwnerControl.HandleAllocated and
+          (Msg.hwnd = FOwnerControl.Handle) and PtInRect(FFieldRect, Msg.pt) then
+          Exit;
+        // Any other press closes the list and is swallowed, as with the
+        // standard combo box drop-down.
+        CloseUp(False);
+        Handled := True;
+      end;
+  end;
+end;
+
+procedure TOBDPopupList.AppDeactivate(Sender: TObject);
+begin
+  if FIsOpen then
+    CloseUp(False);
+end;
+
 procedure TOBDPopupList.WMMouseActivate(var Message: TWMMouseActivate);
 begin
   Message.Result := MA_NOACTIVATE;
@@ -143,6 +188,14 @@ begin
     Exit;
 
   Parent := AOwnerControl;
+  FOwnerControl := AOwnerControl;
+  FFieldRect := AFieldRect;
+  if FAppEvents = nil then
+  begin
+    FAppEvents := TApplicationEvents.Create(Self);
+    FAppEvents.OnMessage := AppMessage;
+    FAppEvents.OnDeactivate := AppDeactivate;
+  end;
   FPalette := APalette;
   FPPI := APPI;
   if FPPI <= 0 then
@@ -177,6 +230,7 @@ begin
     X := Work.Left;
 
   HandleNeeded;
+  SendMessage(Handle, LB_SETITEMHEIGHT, 0, FRowHeight);
   FIsOpen := True;
   SetWindowPos(Handle, HWND_TOP, X, Y, W, H, SWP_NOACTIVATE or
     SWP_SHOWWINDOW);

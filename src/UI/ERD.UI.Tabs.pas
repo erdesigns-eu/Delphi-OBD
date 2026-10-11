@@ -186,6 +186,9 @@ type
     function RightOverflowRect: TRect;
     function NewTabRect: TRect;
     function TabWidth(APainter: TOBDPainter; AIndex: Integer): Integer;
+    function TabIconWidth(AIndex: Integer): Integer;
+    function TabTrailing: Integer;
+    function TabTextSize: Single;
     function TotalTabWidth(APainter: TOBDPainter): Integer;
     function MaxScrollOffset(APainter: TOBDPainter): Integer;
     function TabRect(APainter: TOBDPainter; AIndex: Integer): TRect;
@@ -729,20 +732,48 @@ begin
   end;
 end;
 
+function TOBDTabs.TabIconWidth(AIndex: Integer): Integer;
+var
+  Img: Integer;
+begin
+  Img := EffectiveImageIndex(AIndex);
+  if (FImages <> nil) and (Img >= 0) and (Img < FImages.Count) then
+    Result := FImages.Width + ScaleValue(6)
+  else if EffectiveGlyph(AIndex) <> glNone then
+    Result := ScaleValue(20)
+  else
+    Result := 0;
+end;
+
+function TOBDTabs.TabTrailing: Integer;
+begin
+  // Document tabs keep room for the close button / modified dot.
+  if FTabStyle = tsDocument then
+    Result := ScaleValue(38)
+  else
+    Result := ScaleValue(14);
+end;
+
+function TOBDTabs.TabTextSize: Single;
+begin
+  if FTabStyle = tsDocument then
+    Result := 12.5
+  else
+    Result := 13;
+end;
+
 function TOBDTabs.TabWidth(APainter: TOBDPainter; AIndex: Integer): Integer;
 var
   W: Integer;
 begin
-  if FTabStyle = tsDocument then
-    W := APainter.TextWidth(EffectiveCaption(AIndex), 12.5, twRegular) +
-      ScaleValue(52)
-  else
-    W := APainter.TextWidth(EffectiveCaption(AIndex), 13, twRegular) +
-      ScaleValue(28);
-  if EffectiveGlyph(AIndex) <> glNone then
-    Inc(W, ScaleValue(20));
+  // Same layout as DrawTab: padding, icon, caption, badge, trailing area.
+  // The caption is measured in the selected (semibold) weight so selecting
+  // a tab never truncates it.
+  W := ScaleValue(14) + TabIconWidth(AIndex) +
+    APainter.TextWidth(EffectiveCaption(AIndex), TabTextSize, twSemibold) +
+    ScaleValue(2) + TabTrailing;
   if EffectiveBadge(AIndex) <> '' then
-    Inc(W, APainter.BadgeWidth(EffectiveBadge(AIndex)) + ScaleValue(8));
+    Inc(W, APainter.BadgeWidth(EffectiveBadge(AIndex)) + ScaleValue(6));
   Result := W;
 end;
 
@@ -1083,37 +1114,27 @@ begin
   Img := EffectiveImageIndex(AIndex);
   G := EffectiveGlyph(AIndex);
   if (FImages <> nil) and (Img >= 0) and (Img < FImages.Count) then
-  begin
-    FImages.Draw(ACanvas, X, CY - FImages.Height div 2, Img, En);
-    Inc(X, FImages.Width + ScaleValue(6));
-  end
+    FImages.Draw(ACanvas, X, CY - FImages.Height div 2, Img, En)
   else if G <> glNone then
-  begin
     APainter.Glyph(G, X + ScaleValue(8), CY, Ink, 0.85);
-    Inc(X, ScaleValue(20));
-  end;
+  Inc(X, TabIconWidth(AIndex));
 
   S := EffectiveCaption(AIndex);
   B := EffectiveBadge(AIndex);
   if B <> '' then
-    BadgeW := APainter.BadgeWidth(B) + ScaleValue(12)
+    BadgeW := APainter.BadgeWidth(B) + ScaleValue(6)
   else
     BadgeW := 0;
-  if FTabStyle = tsDocument then
-    Dec(BadgeW, 0);
-  if FTabStyle = tsDocument then
-    TextSize := 12.5
-  else
-    TextSize := 13;
+  TextSize := TabTextSize;
   if Sel then
     Weight := twSemibold
   else
     Weight := twRegular;
   APainter.Text(X, CY, S, TextSize, Ink, Weight, taLeftJustify,
-    R.Right - X - ScaleValue(28) - BadgeW);
+    System.Math.Max(0, R.Right - TabTrailing - BadgeW - X));
 
   if B <> '' then
-    APainter.Badge(R.Right - ScaleValue(10), CY - ScaleValue(9), B,
+    APainter.Badge(R.Right - TabTrailing, CY - ScaleValue(9), B,
       APainter.StatusColor(EffectiveBadgeKind(AIndex)));
 
   if FTabStyle = tsDocument then

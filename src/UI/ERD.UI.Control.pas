@@ -69,6 +69,15 @@ uses
   ERD.UI.Types,
   ERD.UI.Theme;
 
+const
+  /// <summary>Sent by a ribbon to the control assigned to its Backstage
+  /// property. LParam is the ribbon, or 0 to unlink.</summary>
+  CM_OBD_BACKSTAGELINK = WM_APP + $0B10;
+  /// <summary>Sent by a backstage to its linked ribbon when it is shown
+  /// (WParam 1) or hidden (WParam 0), so the ribbon can make room like
+  /// the Office backstage view.</summary>
+  CM_OBD_BACKSTAGEVISIBLE = WM_APP + $0B11;
+
 type
   /// <summary>Hit-test result for a tile in dashboard edit mode.
   /// </summary>
@@ -173,6 +182,11 @@ type
     function EffectiveAccent: TColor;
     function EffectiveBorder: TColor;
 
+    /// <summary>Adds WS_CLIPCHILDREN so repainting the buffer never paints
+    /// over child windows (inline edits, buttons), which would make them
+    /// flash.</summary>
+    /// <param name="Params">Window creation parameters.</param>
+    procedure CreateParams(var Params: TCreateParams); override;
     procedure Paint; override;
     procedure Resize; override;
     /// <summary>Returns the bounds rectangle while no window handle
@@ -957,6 +971,12 @@ begin
     FBufferDirty := False;
   end;
   Canvas.Draw(0, 0, FBuffer);
+end;
+
+procedure TOBDCustomControl.CreateParams(var Params: TCreateParams);
+begin
+  inherited CreateParams(Params);
+  Params.Style := Params.Style or WS_CLIPCHILDREN;
 end;
 
 procedure TOBDCustomControl.Repaint;

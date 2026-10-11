@@ -277,6 +277,7 @@ type
     FPopup: TOBDPopupList;
     FDraggingSplitter: Boolean;
     FDraggingScroll: Boolean;
+    FDraggingSelect: Boolean;
     FScrollHover: Boolean;
     FScrollDragOffset: Integer;
     FLastMouse: TPoint;
@@ -305,6 +306,7 @@ type
     function MaxScroll: Integer;
     function EffectiveRight: Integer;
     function VisibleValueRect(AProperty: TOBDInspectorProperty): TRect;
+    function EditFrameRect(AProperty: TOBDInspectorProperty): TRect;
     function EllipsisButtonRect(AProperty: TOBDInspectorProperty): TRect;
     function CheckBoxRect(AProperty: TOBDInspectorProperty): TRect;
     function DropDownRect(AProperty: TOBDInspectorProperty): TRect;
@@ -1009,12 +1011,25 @@ end;
 procedure TOBDInspector.ApplyEditorTheme;
 var
   P: TOBDThemePalette;
+  FontName: string;
+  FontHeight: Integer;
 begin
   P := Palette;
-  FEditor.Color := P.GaugeFace;
-  FEditor.Font.Name := 'Segoe UI';
-  FEditor.Font.Color := P.ForegroundText;
-  FEditor.Font.Height := -System.Math.Max(1, Round(12.5 * ScaleValue(96) / 96));
+  if (FEditProperty <> nil) and (FEditProperty.Kind = ivEllipsis) then
+    FontName := 'Consolas'
+  else
+    FontName := 'Segoe UI';
+  FontHeight := -System.Math.Max(1, Round(12.5 * ScaleValue(96) / 96));
+  // Only assign changed values: every font assignment makes the edit repaint,
+  // and this runs on each paint of the inspector.
+  if FEditor.Color <> P.GaugeFace then
+    FEditor.Color := P.GaugeFace;
+  if not SameText(FEditor.Font.Name, FontName) then
+    FEditor.Font.Name := FontName;
+  if FEditor.Font.Color <> P.ForegroundText then
+    FEditor.Font.Color := P.ForegroundText;
+  if FEditor.Font.Height <> FontHeight then
+    FEditor.Font.Height := FontHeight;
 end;
 
 function TOBDInspector.RowHeight: Integer;
@@ -1130,9 +1145,19 @@ begin
   R := AProperty.Rect;
   OffsetRect(R, 0, -FScrollPos);
   Result := Rect(SplitterX + ScaleValue(8), R.Top + ScaleValue(4),
-    EffectiveRight - ScaleValue(4), R.Bottom - ScaleValue(4));
+    EditFrameRect(AProperty).Right - ScaleValue(6), R.Bottom - ScaleValue(4));
   if AProperty.Kind = ivEllipsis then
     Result.Right := EllipsisButtonRect(AProperty).Left - ScaleValue(4);
+end;
+
+function TOBDInspector.EditFrameRect(AProperty: TOBDInspectorProperty): TRect;
+var
+  R: TRect;
+begin
+  R := AProperty.Rect;
+  OffsetRect(R, 0, -FScrollPos);
+  Result := Rect(SplitterX + ScaleValue(2), R.Top + ScaleValue(3),
+    EffectiveRight - ScaleValue(4), R.Bottom - ScaleValue(3));
 end;
 
 function TOBDInspector.EllipsisButtonRect(AProperty: TOBDInspectorProperty): TRect;
@@ -1142,9 +1167,9 @@ var
 begin
   R := AProperty.Rect;
   OffsetRect(R, 0, -FScrollPos);
-  S := RowHeight - ScaleValue(8);
-  Result := Rect(EffectiveRight - ScaleValue(2) - S, R.Top + ScaleValue(4),
-    EffectiveRight - ScaleValue(2), R.Top + ScaleValue(4) + S);
+  S := RowHeight - ScaleValue(10);
+  Result := Rect(EffectiveRight - ScaleValue(6) - S, R.Top + ScaleValue(5),
+    EffectiveRight - ScaleValue(6), R.Top + ScaleValue(5) + S);
 end;
 
 function TOBDInspector.CheckBoxRect(AProperty: TOBDInspectorProperty): TRect;
@@ -1776,9 +1801,8 @@ begin
 
   if (FEditProperty = AProperty) and FEditor.Visible then
   begin
-    APainter.FrameRect(Rect(SplitterX + ScaleValue(2), R.Top + ScaleValue(3),
-      EffectiveRight - ScaleValue(4), R.Bottom - ScaleValue(3)),
-      APainter.AccentText, ScaleValue(2));
+    APainter.FrameRect(EditFrameRect(AProperty), APainter.AccentText,
+      ScaleValue(2));
     if AProperty.Kind = ivEllipsis then
     begin
       Btn := EllipsisButtonRect(AProperty);
@@ -1890,6 +1914,12 @@ var
   Thumb: TRect;
 begin
   inherited;
+  if FPopup.IsOpen then
+  begin
+    // Pressing the open pick-list field again closes it, like a combo box.
+    FPopup.CloseUp(False);
+    Exit;
+  end;
   if not Enabled or (Button <> mbLeft) then
     Exit;
   P := Point(X, Y);
@@ -1942,13 +1972,18 @@ begin
       OpenPickList(Prop)
     else if (Prop.Kind = ivEllipsis) and PtInRect(EllipsisButtonRect(Prop), P) and
       Assigned(FOnPropertyButtonClick) then
-      FOnPropertyButtonClick(Self, Prop);
+      FOnPropertyButtonClick(Self, Prop)
+    else
+      FDraggingSelect := FSelected = Prop;
     Exit;
   end;
 
   Item := ItemAt(P);
   if Item <> nil then
+  begin
     SelectItem(Item, False);
+    FDraggingSelect := FSelected = Item;
+  end;
 end;
 
 procedure TOBDInspector.MouseMove(Shift: TShiftState; X, Y: Integer);
@@ -1956,6 +1991,8 @@ var
   NewPos: Integer;
   Track: TRect;
   Thumb: TRect;
+  Item: TCollectionItem;
+  NewHover: Boolean;
 begin
   inherited;
   FLastMouse := Point(X, Y);
@@ -1977,13 +2014,39 @@ begin
         Track.Height - Thumb.Height));
     Exit;
   end;
-  FScrollHover := (FContentHeight > ClientHeight - 2) and
+  if FDraggingSelect then
+  begin
+    if not (ssLeft in Shift) then
+      FDraggingSelect := False
+    else
+    begin
+      // Holding the button and sweeping over rows moves the selection, like
+      // the Delphi Object Inspector; dragging past an edge scrolls.
+      if Y < 0 then
+        SetScrollPos(FScrollPos - RowHeight)
+      else if Y >= ClientHeight then
+        SetScrollPos(FScrollPos + RowHeight);
+      Item := ItemAt(Point(X, EnsureRange(Y, 1, ClientHeight - 2)));
+      if (Item <> nil) and (Item <> FSelected) then
+      begin
+        SelectItem(Item, True);
+        if FSelected <> Item then
+          FDraggingSelect := False;
+      end;
+      Exit;
+    end;
+  end;
+  NewHover := (FContentHeight > ClientHeight - 2) and
     (X >= ClientWidth - ScrollBarWidth - ScaleValue(4));
   if Abs(X - SplitterX) <= ScaleValue(3) then
     Cursor := crSizeWE
   else
     Cursor := crDefault;
-  Invalidate;
+  if NewHover <> FScrollHover then
+  begin
+    FScrollHover := NewHover;
+    Invalidate;
+  end;
 end;
 
 procedure TOBDInspector.MouseUp(Button: TMouseButton; Shift: TShiftState; X,
@@ -1992,16 +2055,20 @@ begin
   inherited;
   FDraggingSplitter := False;
   FDraggingScroll := False;
+  FDraggingSelect := False;
   Cursor := crDefault;
 end;
 
 procedure TOBDInspector.CMMouseLeave(var Message: TMessage);
 begin
   inherited;
-  FScrollHover := False;
   if not FDraggingSplitter then
     Cursor := crDefault;
-  Invalidate;
+  if FScrollHover then
+  begin
+    FScrollHover := False;
+    Invalidate;
+  end;
 end;
 
 procedure TOBDInspector.DblClick;

@@ -178,6 +178,7 @@ type
     FOnItemClick: TOBDBackstageItemEvent;
     FOnChange: TNotifyEvent;
     FOnClose: TNotifyEvent;
+    FRibbon: TControl;
     procedure SetItems(AValue: TOBDBackstageItems);
     procedure SetItemIndex(AValue: Integer);
     procedure SetImages(AValue: TCustomImageList);
@@ -215,6 +216,9 @@ type
     procedure DrawSampleSegmented(APainter: TOBDPainter; X, Y, W: Integer);
     procedure CMVisibleChanged(var Message: TMessage);
       message CM_VISIBLECHANGED;
+    procedure CMOBDBackstageLink(var Message: TMessage);
+      message CM_OBD_BACKSTAGELINK;
+    procedure NotifyRibbon;
     procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
     procedure WMGetDlgCode(var Message: TWMGetDlgCode); message WM_GETDLGCODE;
   private
@@ -575,6 +579,8 @@ begin
   inherited;
   if Operation <> opRemove then
     Exit;
+  if AComponent = FRibbon then
+    FRibbon := nil;
   if AComponent = FImages then
   begin
     FImages := nil;
@@ -995,6 +1001,35 @@ begin
   end
   else
     HideItemPages;
+  NotifyRibbon;
+end;
+
+procedure TOBDBackstage.CMOBDBackstageLink(var Message: TMessage);
+var
+  NewRibbon: TControl;
+begin
+  NewRibbon := TControl(Message.LParam);
+  if FRibbon = NewRibbon then
+    Exit;
+  if FRibbon <> nil then
+  begin
+    FRibbon.RemoveFreeNotification(Self);
+    if not (csDestroying in FRibbon.ComponentState) then
+      FRibbon.Perform(CM_OBD_BACKSTAGEVISIBLE, 0, 0);
+  end;
+  FRibbon := NewRibbon;
+  if FRibbon <> nil then
+    FRibbon.FreeNotification(Self);
+  NotifyRibbon;
+end;
+
+procedure TOBDBackstage.NotifyRibbon;
+begin
+  if (FRibbon = nil) or (csDestroying in ComponentState) or
+    (csDestroying in FRibbon.ComponentState) or
+    (csDesigning in ComponentState) then
+    Exit;
+  FRibbon.Perform(CM_OBD_BACKSTAGEVISIBLE, Ord(Visible), 0);
 end;
 
 procedure TOBDBackstage.CMMouseLeave(var Message: TMessage);

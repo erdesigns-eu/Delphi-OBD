@@ -164,6 +164,8 @@ type
       message WM_MOUSEACTIVATE;
     procedure CMMouseEnter(var Message: TMessage); message CM_MOUSEENTER;
     procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
+    procedure WMEraseBkgnd(var Message: TWMEraseBkgnd); message WM_ERASEBKGND;
+    procedure PaintTo(ACanvas: TCanvas);
   protected
     procedure CreateParams(var Params: TCreateParams); override;
     procedure Paint; override;
@@ -229,6 +231,12 @@ end;
 procedure TToastWindow.WMMouseActivate(var Message: TWMMouseActivate);
 begin
   Message.Result := MA_NOACTIVATE;
+end;
+
+procedure TToastWindow.WMEraseBkgnd(var Message: TWMEraseBkgnd);
+begin
+  // Paint covers every pixel from an off-screen buffer.
+  Message.Result := 1;
 end;
 
 procedure TToastWindow.CMMouseEnter(var Message: TMessage);
@@ -300,11 +308,18 @@ begin
 end;
 
 procedure TToastWindow.TimerTick(Sender: TObject);
+var
+  R: TRect;
 begin
   if FHover or FClosing then
     Exit;
   Inc(FElapsed, FTimer.Interval);
-  Invalidate;
+  // Only the countdown strip changes between ticks.
+  if HandleAllocated then
+  begin
+    R := Rect(0, Height - 4, Width, Height);
+    InvalidateRect(Handle, @R, False);
+  end;
   if (FDuration > 0) and (FElapsed >= FDuration) then
   begin
     FClosing := True;
@@ -313,6 +328,22 @@ begin
 end;
 
 procedure TToastWindow.Paint;
+var
+  Buffer: TBitmap;
+begin
+  if (Width <= 0) or (Height <= 0) then
+    Exit;
+  Buffer := TBitmap.Create;
+  try
+    Buffer.SetSize(Width, Height);
+    PaintTo(Buffer.Canvas);
+    Canvas.Draw(0, 0, Buffer);
+  finally
+    Buffer.Free;
+  end;
+end;
+
+procedure TToastWindow.PaintTo(ACanvas: TCanvas);
 var
   P: TOBDThemePalette;
   Painter: TOBDPainter;
@@ -323,9 +354,9 @@ var
 begin
   P := FManager.Palette;
   C := AccentColor(P);
-  Painter := TOBDPainter.Create(Canvas, P, Screen.PixelsPerInch);
+  Painter := TOBDPainter.Create(ACanvas, P, Screen.PixelsPerInch);
   try
-    R := ClientRect;
+    R := Rect(0, 0, Width, Height);
     Painter.FillRect(R, P.GaugeFace);
     Painter.FrameRect(R, P.NeutralLight);
     Painter.FillRect(Rect(0, 0, 4, Height), C);
@@ -333,11 +364,11 @@ begin
       tkSuccess:
         Painter.GlyphCheck(24, 22, C, 1.1);
       tkDanger:
-        Painter.Text(24, 23, '!', 16, C, twBold, taCenter);
+        Painter.InkText(24, 22, '!', 16, C, twBold);
       tkWarning:
         Painter.GlyphPending(24, 22, C, 1.1);
     else
-      Painter.Text(24, 23, 'i', 16, C, twBold, taCenter);
+      Painter.InkText(24, 22, 'i', 16, C, twBold);
     end;
     Painter.Text(44, 22, FTitle, 13, P.ForegroundText, twBold,
       taLeftJustify, Width - 86);
