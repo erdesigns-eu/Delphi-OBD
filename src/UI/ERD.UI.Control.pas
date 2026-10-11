@@ -204,6 +204,12 @@ type
       Operation: TOperation); override;
     procedure Loaded; override;
     procedure CMStyleChanged(var Message: TMessage); message CM_STYLECHANGED;
+    /// <summary>Skips background erasing. Paint always blits a fully
+    /// opaque buffer, so erasing first (which, with csParentBackground,
+    /// draws the parent straight onto the screen) only makes the control
+    /// flash on every resize, realign or collapse.</summary>
+    /// <param name="Message">The erase message; Result is set to 1.</param>
+    procedure WMEraseBkgnd(var Message: TWMEraseBkgnd); message WM_ERASEBKGND;
     procedure WndProc(var Message: TMessage); override;
 
     /// <summary>True when the control should paint its realistic
@@ -922,6 +928,11 @@ begin
     ACanvas.MoveTo(Width - I * ScaleValue(5), Height - 2);
     ACanvas.LineTo(Width - 2, Height - I * ScaleValue(5));
   end;
+end;
+
+procedure TOBDCustomControl.WMEraseBkgnd(var Message: TWMEraseBkgnd);
+begin
+  Message.Result := 1;
 end;
 
 procedure TOBDCustomControl.WndProc(var Message: TMessage);

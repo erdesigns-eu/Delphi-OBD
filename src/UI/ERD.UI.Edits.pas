@@ -408,9 +408,9 @@ var
 begin
   if FEdit = nil then
     Exit;
-  if FMono then
+  if FMono and not SameText(FEdit.Font.Name, 'Consolas') then
     FEdit.Font.Name := 'Consolas'
-  else
+  else if not FMono and not SameText(FEdit.Font.Name, 'Segoe UI') then
     FEdit.Font.Name := 'Segoe UI';
   FontH := TextFontHeight(EDIT_TEXT_SIZE, ScaleValue(96));
   if FEdit.Font.Height <> FontH then

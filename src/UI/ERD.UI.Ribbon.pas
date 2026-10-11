@@ -621,6 +621,9 @@ type
 
 implementation
 
+uses
+  ERD.UI.Backstage;
+
 const
   LARGE_BODY_HEIGHT = 74;
   GROUP_CAPTION_HEIGHT = 22;
@@ -1342,6 +1345,7 @@ begin
   FSearchEdit := TEdit.Create(Self);
   FSearchEdit.Parent := Self;
   FSearchEdit.BorderStyle := bsNone;
+  FSearchEdit.AutoSize := False;
   FSearchEdit.Visible := False;
   FSearchEdit.TextHint := 'Search commands';
   FSearchEdit.OnChange := SearchChanged;
@@ -1520,7 +1524,11 @@ end;
 
 procedure TOBDRibbon.CloseBackstage;
 begin
-  if FBackstage <> nil then
+  if (FBackstage = nil) or not FBackstage.Visible then
+    Exit;
+  if FBackstage is TOBDBackstage then
+    TOBDBackstage(FBackstage).Close
+  else
     FBackstage.Visible := False;
 end;
 
@@ -1787,23 +1795,35 @@ end;
 procedure TOBDRibbon.LayoutSearchEdit;
 var
   R: TRect;
+  FontHeight, EditHeight: Integer;
 begin
   if FSearchEdit = nil then
     Exit;
   R := FSearchRect;
-  InflateRect(R, -ScaleValue(30), -ScaleValue(5));
+  InflateRect(R, -ScaleValue(32), -ScaleValue(3));
   R.Right := FSearchRect.Right - ScaleValue(54);
   if (not FShowSearch) or (R.Right <= R.Left) or (R.Bottom <= R.Top) then
   begin
     FSearchEdit.Visible := False;
     Exit;
   end;
-  FSearchEdit.SetBounds(R.Left, R.Top + ScaleValue(1), R.Width,
-    System.Math.Max(1, R.Height - ScaleValue(2)));
-  FSearchEdit.Font.Name := 'Segoe UI';
-  FSearchEdit.Font.Size := 9;
-  FSearchEdit.Color := Palette.Background;
-  FSearchEdit.Font.Color := Palette.ForegroundText;
+  // Same 12.5 px text as the painted placeholder. A borderless TEdit draws
+  // its text at the top of its client area, so size it to one text line and
+  // centre that line in the search box (it is much taller in tablet density).
+  FontHeight := System.Math.Max(1, Round(12.5 * ScaleValue(96) / 96));
+  EditHeight := System.Math.Min(R.Height, Round(FontHeight * 1.4) +
+    ScaleValue(2));
+  FSearchEdit.SetBounds(R.Left,
+    FSearchRect.Top + (FSearchRect.Height - EditHeight) div 2, R.Width,
+    System.Math.Max(1, EditHeight));
+  if not SameText(FSearchEdit.Font.Name, 'Segoe UI') then
+    FSearchEdit.Font.Name := 'Segoe UI';
+  if FSearchEdit.Font.Height <> -FontHeight then
+    FSearchEdit.Font.Height := -FontHeight;
+  if FSearchEdit.Color <> Palette.Background then
+    FSearchEdit.Color := Palette.Background;
+  if FSearchEdit.Font.Color <> Palette.ForegroundText then
+    FSearchEdit.Font.Color := Palette.ForegroundText;
   FSearchEdit.Visible := True;
 end;
 
@@ -1935,9 +1955,9 @@ begin
     APainter.FillRect(FSearchRect, Palette.Background);
     APainter.FrameRect(FSearchRect, Palette.NeutralLight);
     APainter.Glyph(glSearch, FSearchRect.Left + ScaleValue(16), H div 2,
-      Palette.Subtle, 0.55);
+      Palette.Subtle, 0.9);
     if FSearchEdit.Text = '' then
-      APainter.Text(FSearchRect.Left + ScaleValue(30), H div 2,
+      APainter.Text(FSearchRect.Left + ScaleValue(32), H div 2,
         'Search commands', 12.5, Palette.GaugeLabel, twRegular,
         taLeftJustify, FSearchRect.Width - ScaleValue(90));
     APainter.Text(FSearchRect.Right - ScaleValue(10), H div 2, 'Alt+Q',
@@ -2463,6 +2483,8 @@ begin
   T := HitTab(X, Y);
   if T <> nil then
   begin
+    // A tab click leaves the backstage and shows that tab.
+    CloseBackstage;
     ActiveTab := FlatIndexOfTab(T);
     if FCollapsed then
     begin
@@ -2690,6 +2712,12 @@ end;
 
 procedure TOBDRibbon.ClickFile;
 begin
+  // File toggles the backstage, like Office.
+  if (FBackstage <> nil) and FBackstage.Visible then
+  begin
+    CloseBackstage;
+    Exit;
+  end;
   if FBackstage <> nil then
   begin
     FBackstage.Visible := True;

@@ -37,6 +37,7 @@ unit ERD.UI.MatrixDisplay;
 interface
 
 uses
+  Winapi.Windows,
   System.Types,
   System.SysUtils,
   System.Classes,
@@ -359,6 +360,11 @@ type
   end;
 
 implementation
+
+uses
+  Winapi.GDIPAPI,
+  Winapi.GDIPOBJ,
+  ERD.UI.GDIP;
 
 const
   GlyphRows = 7;
@@ -1345,7 +1351,10 @@ var
   Frame: TArray<TColor>;
   Pitch, Gap, Dot, OX, OY, X, Y, L, T: Integer;
   OffColor: TColor;
-  C: TColor;
+  C, BrushColor: TColor;
+  G: TGPGraphics;
+  Brush: TGPSolidBrush;
+  RoundDots: Boolean;
 begin
   Pitch := System.Math.Min(Width div FColumns, Height div FRows);
   if Pitch < 1 then
@@ -1360,22 +1369,40 @@ begin
   Dot := System.Math.Max(1, Pitch - Gap);
   OffColor := ResolvedOffColor;
   Frame := BuildFrame;
-  ACanvas.Pen.Style := psClear;
-  for Y := 0 to FRows - 1 do
-    for X := 0 to FColumns - 1 do
-    begin
-      C := Frame[Y * FColumns + X];
-      if C = clNone then
-        C := OffColor;
-      L := OX + X * Pitch + (Pitch - Dot) div 2;
-      T := OY + Y * Pitch + (Pitch - Dot) div 2;
-      ACanvas.Brush.Color := C;
-      if (FDotShape = mxdRound) and (Dot >= 3) then
-        ACanvas.Ellipse(L, T, L + Dot + 1, T + Dot + 1)
-      else
-        ACanvas.FillRect(Rect(L, T, L + Dot, T + Dot));
+  RoundDots := (FDotShape = mxdRound) and (Dot >= 3);
+  // GDI+ with anti-aliasing: GDI's Ellipse draws large dots as jagged
+  // polygons. One Graphics/brush for the whole board keeps it fast.
+  G := TGPGraphics.Create(ACanvas.Handle);
+  try
+    G.SetSmoothingMode(SmoothingModeAntiAlias);
+    G.SetPixelOffsetMode(PixelOffsetModeHalf);
+    BrushColor := OffColor;
+    Brush := TGPSolidBrush.Create(ColorToARGB(BrushColor));
+    try
+      for Y := 0 to FRows - 1 do
+        for X := 0 to FColumns - 1 do
+        begin
+          C := Frame[Y * FColumns + X];
+          if C = clNone then
+            C := OffColor;
+          if C <> BrushColor then
+          begin
+            BrushColor := C;
+            Brush.SetColor(ColorToARGB(BrushColor));
+          end;
+          L := OX + X * Pitch + (Pitch - Dot) div 2;
+          T := OY + Y * Pitch + (Pitch - Dot) div 2;
+          if RoundDots then
+            G.FillEllipse(Brush, L, T, Dot, Dot)
+          else
+            G.FillRectangle(Brush, L, T, Dot, Dot);
+        end;
+    finally
+      Brush.Free;
     end;
-  ACanvas.Pen.Style := psSolid;
+  finally
+    G.Free;
+  end;
 end;
 
 { ---- settings ---------------------------------------------------------------- }

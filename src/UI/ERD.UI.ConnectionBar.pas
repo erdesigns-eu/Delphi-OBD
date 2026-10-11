@@ -134,6 +134,9 @@ type
 
 implementation
 
+uses
+  ERD.UI.Paint;
+
 constructor TOBDConnectionBar.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
@@ -378,6 +381,8 @@ procedure TOBDConnectionBar.PaintControl(ACanvas: TCanvas);
 var
   X, Dot, Pad: Integer;
   S: string;
+  DotColor: TColor;
+  P: TOBDPainter;
 begin
   Pad := ScaleValue(10);
   ACanvas.Pen.Color := EffectiveBorder;
@@ -390,13 +395,17 @@ begin
   // Link dot and state.
   Dot := System.Math.Max(ScaleValue(8), Round(Height * 0.32));
   X := Pad;
-  ACanvas.Brush.Style := bsSolid;
   if IsPreview and (FConnection = nil) and (FLinkState = lnkDisconnected) then
-    ACanvas.Brush.Color := Palette.Success
+    DotColor := Palette.Success
   else
-    ACanvas.Brush.Color := LinkColor;
-  ACanvas.Pen.Color := ACanvas.Brush.Color;
-  ACanvas.Ellipse(X, (Height - Dot) div 2, X + Dot, (Height + Dot) div 2);
+    DotColor := LinkColor;
+  // GDI+ anti-aliased: GDI's Ellipse renders small circles as jagged polygons.
+  P := TOBDPainter.Create(ACanvas, Palette, ScaleValue(96));
+  try
+    P.Ellipse(X, (Height - Dot) / 2, Dot, Dot, DotColor, clNone);
+  finally
+    P.Free;
+  end;
   Inc(X, Dot + ScaleValue(6));
   ACanvas.Brush.Style := bsClear;
   ACanvas.Font.Style := [fsBold];

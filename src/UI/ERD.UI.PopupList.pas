@@ -50,6 +50,19 @@ type
     FAppEvents: TApplicationEvents;
     FOwnerControl: TWinControl;
     FFieldRect: TRect;
+    FBarDragging: Boolean;
+    FBarHot: Boolean;
+    FBarDragOffset: Integer;
+    FLastTop: Integer;
+    FCheckingTop: Boolean;
+    function VisibleRows: Integer;
+    function NeedsBar: Boolean;
+    function BarRect: TRect;
+    function ThumbRect: TRect;
+    procedure PaintBar;
+    procedure BarMouseDown(Y: Integer);
+    procedure BarDrag(Y: Integer);
+    procedure CheckTopChanged;
     procedure AppMessage(var Msg: TMsg; var Handled: Boolean);
     procedure AppDeactivate(Sender: TObject);
     procedure WMMouseActivate(var Message: TWMMouseActivate); message WM_MOUSEACTIVATE;
@@ -60,6 +73,17 @@ type
     procedure CreateParams(var Params: TCreateParams); override;
     /// <summary>Applies the fixed row height to the new list-box window.</summary>
     procedure CreateWnd; override;
+    /// <summary>Drives the themed scroll bar (the Windows one is
+    /// removed) and repaints after the list scrolls.</summary>
+    /// <param name="Message">Window message.</param>
+    procedure WndProc(var Message: TMessage); override;
+    /// <summary>Scrolls three rows per wheel notch.</summary>
+    /// <param name="Shift">Shift state.</param>
+    /// <param name="WheelDelta">Wheel delta.</param>
+    /// <param name="MousePos">Mouse position.</param>
+    /// <returns>True: the wheel is handled.</returns>
+    function DoMouseWheel(Shift: TShiftState; WheelDelta: Integer;
+      MousePos: TPoint): Boolean; override;
     /// <summary>Paints one owner-drawn row.</summary>
     /// <param name="Index">Item index.</param>
     /// <param name="Rect">Item rectangle.</param>
@@ -104,6 +128,9 @@ type
 
 implementation
 
+uses
+  ERD.UI.ScrollBar;
+
 constructor TOBDPopupList.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
@@ -127,8 +154,10 @@ end;
 procedure TOBDPopupList.CreateParams(var Params: TCreateParams);
 begin
   inherited CreateParams(Params);
-  Params.Style := (Params.Style and not WS_CHILD) or WS_POPUP or WS_BORDER or
-    WS_CLIPCHILDREN or WS_CLIPSIBLINGS;
+  // No Windows scroll bars: the list paints the themed overlay bar.
+  Params.Style := (Params.Style and not (WS_CHILD or WS_VSCROLL or
+    WS_HSCROLL)) or WS_POPUP or WS_BORDER or WS_CLIPCHILDREN or
+    WS_CLIPSIBLINGS;
   Params.ExStyle := Params.ExStyle or WS_EX_TOOLWINDOW or WS_EX_TOPMOST or
     WS_EX_NOACTIVATE;
   Params.WindowClass.Style := Params.WindowClass.Style or CS_SAVEBITS;
@@ -140,6 +169,223 @@ begin
   // A WS_POPUP list box sends WM_MEASUREITEM to its owner window, which the
   // VCL does not route back, so Windows would fall back to the font height.
   SendMessage(Handle, LB_SETITEMHEIGHT, 0, FRowHeight);
+end;
+
+function TOBDPopupList.VisibleRows: Integer;
+begin
+  Result := System.Math.Max(1, ClientHeight div System.Math.Max(1,
+    FRowHeight));
+end;
+
+function TOBDPopupList.NeedsBar: Boolean;
+begin
+  Result := HandleAllocated and (Items.Count > VisibleRows);
+end;
+
+function TOBDPopupList.BarRect: TRect;
+begin
+  Result := Rect(ClientWidth - ScalePixel(10), 0, ClientWidth, ClientHeight);
+end;
+
+function TOBDPopupList.ThumbRect: TRect;
+begin
+  Result := OBDScrollThumbRect(BarRect, True, 0, Items.Count - 1,
+    VisibleRows, TopIndex, FBarHot, FBarDragging);
+end;
+
+procedure TOBDPopupList.PaintBar;
+var
+  DC: HDC;
+  C: TCanvas;
+  P: TOBDPainter;
+begin
+  if not NeedsBar then
+    Exit;
+  DC := GetDC(Handle);
+  try
+    C := TCanvas.Create;
+    try
+      C.Handle := DC;
+      P := TOBDPainter.Create(C, FPalette, FPPI);
+      try
+        OBDPaintScrollBar(P, BarRect, True, 0, Items.Count - 1, VisibleRows,
+          TopIndex, FBarHot, FBarDragging);
+      finally
+        P.Free;
+      end;
+      C.Handle := 0;
+    finally
+      C.Free;
+    end;
+  finally
+    ReleaseDC(Handle, DC);
+  end;
+end;
+
+procedure TOBDPopupList.BarMouseDown(Y: Integer);
+var
+  Thumb: TRect;
+begin
+  Thumb := ThumbRect;
+  if (Y >= Thumb.Top) and (Y < Thumb.Bottom) then
+  begin
+    FBarDragging := True;
+    FBarDragOffset := Y - Thumb.Top;
+    MouseCapture := True;
+    PaintBar;
+  end
+  else if Y < Thumb.Top then
+    TopIndex := System.Math.Max(0, TopIndex - VisibleRows)
+  else
+    TopIndex := System.Math.Min(Items.Count - VisibleRows,
+      TopIndex + VisibleRows);
+end;
+
+procedure TOBDPopupList.BarDrag(Y: Integer);
+var
+  Thumb: TRect;
+  Travel, MaxTop: Integer;
+begin
+  Thumb := ThumbRect;
+  Travel := ClientHeight - Thumb.Height;
+  MaxTop := System.Math.Max(0, Items.Count - VisibleRows);
+  if Travel > 0 then
+    TopIndex := EnsureRange(Round((Y - FBarDragOffset) / Travel * MaxTop),
+      0, MaxTop);
+end;
+
+procedure TOBDPopupList.CheckTopChanged;
+var
+  Top: Integer;
+begin
+  if FCheckingTop or not HandleAllocated or not FIsOpen then
+    Exit;
+  FCheckingTop := True;
+  try
+    Top := TopIndex;
+    // The list box scrolls by blitting its client area, which drags the
+    // overlay bar along: repaint everything when the top row changed.
+    if Top <> FLastTop then
+    begin
+      FLastTop := Top;
+      InvalidateRect(Handle, nil, True);
+    end;
+  finally
+    FCheckingTop := False;
+  end;
+end;
+
+procedure TOBDPopupList.WndProc(var Message: TMessage);
+var
+  Pt: TPoint;
+  Hot: Boolean;
+  DC: HDC;
+  R, Bar: TRect;
+  Brush: HBRUSH;
+  Saved: Integer;
+begin
+  case Message.Msg of
+    WM_ERASEBKGND:
+      if HandleAllocated then
+      begin
+        // Fill around the overlay bar so it does not flash.
+        DC := TWMEraseBkgnd(Message).DC;
+        Saved := SaveDC(DC);
+        try
+          if NeedsBar then
+          begin
+            Bar := BarRect;
+            ExcludeClipRect(DC, Bar.Left, Bar.Top, Bar.Right, Bar.Bottom);
+          end;
+          R := Rect(0, 0, ClientWidth, ClientHeight);
+          Brush := CreateSolidBrush(ColorToRGB(FPalette.GaugeFace));
+          try
+            Winapi.Windows.FillRect(DC, R, Brush);
+          finally
+            DeleteObject(Brush);
+          end;
+        finally
+          RestoreDC(DC, Saved);
+        end;
+        Message.Result := 1;
+        Exit;
+      end;
+    WM_LBUTTONDOWN, WM_LBUTTONDBLCLK:
+      begin
+        Pt := Point(TWMMouse(Message).XPos, TWMMouse(Message).YPos);
+        if NeedsBar and PtInRect(BarRect, Pt) then
+        begin
+          BarMouseDown(Pt.Y);
+          CheckTopChanged;
+          Message.Result := 0;
+          Exit;
+        end;
+      end;
+    WM_MOUSEMOVE:
+      begin
+        Pt := Point(TWMMouse(Message).XPos, TWMMouse(Message).YPos);
+        if FBarDragging then
+        begin
+          BarDrag(Pt.Y);
+          CheckTopChanged;
+          Message.Result := 0;
+          Exit;
+        end;
+        Hot := NeedsBar and PtInRect(BarRect, Pt);
+        if Hot <> FBarHot then
+        begin
+          FBarHot := Hot;
+          PaintBar;
+        end;
+        if Hot then
+        begin
+          Message.Result := 0;
+          Exit;
+        end;
+      end;
+    WM_LBUTTONUP:
+      begin
+        Pt := Point(TWMMouse(Message).XPos, TWMMouse(Message).YPos);
+        if FBarDragging then
+        begin
+          FBarDragging := False;
+          MouseCapture := False;
+          PaintBar;
+          Message.Result := 0;
+          Exit;
+        end;
+        if NeedsBar and PtInRect(BarRect, Pt) then
+        begin
+          Message.Result := 0;
+          Exit;
+        end;
+      end;
+    CM_MOUSELEAVE:
+      if FBarHot and not FBarDragging then
+      begin
+        FBarHot := False;
+        PaintBar;
+      end;
+  end;
+  inherited WndProc(Message);
+  case Message.Msg of
+    WM_PAINT:
+      PaintBar;
+    WM_KEYDOWN, WM_MOUSEWHEEL, WM_TIMER, WM_LBUTTONDOWN, WM_MOUSEMOVE,
+    WM_VSCROLL, LB_SETCURSEL, LB_SETTOPINDEX, LB_RESETCONTENT:
+      CheckTopChanged;
+  end;
+end;
+
+function TOBDPopupList.DoMouseWheel(Shift: TShiftState; WheelDelta: Integer;
+  MousePos: TPoint): Boolean;
+begin
+  Result := inherited DoMouseWheel(Shift, WheelDelta, MousePos);
+  if Result or (Items.Count = 0) then
+    Exit;
+  TopIndex := EnsureRange(TopIndex - Sign(WheelDelta) * 3, 0,
+    System.Math.Max(0, Items.Count - VisibleRows));
+  Result := True;
 end;
 
 procedure TOBDPopupList.AppMessage(var Msg: TMsg; var Handled: Boolean);
@@ -231,6 +477,9 @@ begin
 
   HandleNeeded;
   SendMessage(Handle, LB_SETITEMHEIGHT, 0, FRowHeight);
+  FBarDragging := False;
+  FBarHot := False;
+  FLastTop := -1;
   FIsOpen := True;
   SetWindowPos(Handle, HWND_TOP, X, Y, W, H, SWP_NOACTIVATE or
     SWP_SHOWWINDOW);
@@ -242,6 +491,11 @@ var
   LIndex: Integer;
 begin
   LIndex := ItemIndex;
+  if FBarDragging then
+  begin
+    FBarDragging := False;
+    MouseCapture := False;
+  end;
   if HandleAllocated then
     ShowWindow(Handle, SW_HIDE);
   FIsOpen := False;
@@ -348,6 +602,9 @@ begin
       Ink := P.AccentText;
       Weight := twSemibold;
     end;
+    // Leave the overlay scroll bar's strip alone.
+    if NeedsBar then
+      Rect.Right := System.Math.Min(Rect.Right, BarRect.Left);
     P.FillRect(Rect, Fill);
     P.Text(Rect.Left + ScalePixel(8), Rect.Top + Rect.Height div 2,
       Items[Index], 12.5, Ink, Weight, taLeftJustify,

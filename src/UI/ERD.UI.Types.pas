@@ -347,13 +347,34 @@ begin
     div 100 < 128;
 end;
 
+function MixRGB(A, B: TColor; T: Single): TColor;
+var
+  I: Integer;
+  CA, CB, Ch: Integer;
+begin
+  // A * T + B * (1 - T), per channel, on resolved RGB values.
+  Result := 0;
+  for I := 0 to 2 do
+  begin
+    CA := (A shr (I * 8)) and $FF;
+    CB := (B shr (I * 8)) and $FF;
+    Ch := Round(CA * T + CB * (1 - T));
+    Result := Result or TColor(Ch shl (I * 8));
+  end;
+end;
+
 function WindowsPalette: TOBDThemePalette;
 begin
   Result.Background := SystemColor(clWindow);
   Result.ForegroundText := SystemColor(clWindowText);
   Result.Accent := SystemColor(clHighlight);
   Result.Subtle := SystemColor(clGrayText);
-  Result.NeutralLight := SystemColor(clBtnFace);
+  // Borders and dividers are drawn in NeutralLight on GaugeFace
+  // (clBtnFace), so plain clBtnFace would make them invisible. A step
+  // towards clBtnShadow gives the Windows divider grey (#D8D8D8 on the
+  // default light colours).
+  Result.NeutralLight := MixRGB(SystemColor(clBtnShadow),
+    SystemColor(clBtnFace), 0.3);
   Result.NeutralDark := SystemColor(clBtnShadow);
   Result.GaugeFace := SystemColor(clBtnFace);
   Result.GaugeTick := SystemColor(clWindowText);

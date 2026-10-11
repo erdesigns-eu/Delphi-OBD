@@ -642,6 +642,7 @@ begin
   FSearchEdit := TEdit.Create(Self);
   FSearchEdit.Parent := Self;
   FSearchEdit.BorderStyle := bsNone;
+  FSearchEdit.AutoSize := False;
   FSearchEdit.Visible := False;
   FSearchEdit.OnChange := SearchChanged;
   FSearchEdit.OnKeyDown := SearchKeyDown;
@@ -941,26 +942,42 @@ begin
   APainter.FillRect(R, Palette.Background);
   APainter.FrameRect(R, Palette.NeutralLight);
   APainter.Glyph(glSearch, R.Left + ScaleValue(16), R.Top + R.Height div 2,
-    Palette.Subtle, 0.75);
+    Palette.Subtle, 0.9);
 end;
 
 procedure TOBDToolBar.UpdateSearchEdit;
 var
-  R: TRect;
+  R, Box: TRect;
+  FontHeight, EditHeight: Integer;
 begin
   if FSearchEdit = nil then
     Exit;
-  FSearchEdit.Visible := FShowSearch;
-  R := SearchRect;
-  InflateRect(R, -ScaleValue(30), -ScaleValue(5));
-  R.Right := SearchRect.Right - ScaleValue(8);
-  FSearchEdit.SetBounds(R.Left, R.Top, System.Math.Max(0, R.Width),
-    System.Math.Max(1, R.Height));
-  FSearchEdit.Color := Palette.Background;
-  FSearchEdit.Font.Name := 'Segoe UI';
-  FSearchEdit.Font.Size := 9;
-  FSearchEdit.Font.Color := Palette.ForegroundText;
-  FSearchEdit.TextHint := FSearchHint;
+  // Runs from PaintControl: only assign what changed. Re-assigning the font
+  // on every paint re-sized and repainted the edit, which invalidated the
+  // toolbar again - an endless repaint loop that starved the whole page.
+  if FSearchEdit.Visible <> FShowSearch then
+    FSearchEdit.Visible := FShowSearch;
+  Box := SearchRect;
+  R := Box;
+  InflateRect(R, -ScaleValue(30), -ScaleValue(3));
+  R.Right := Box.Right - ScaleValue(8);
+  // One text line, centred in the search box (borderless edits draw their
+  // text at the top of the client area).
+  FontHeight := System.Math.Max(1, Round(12.5 * ScaleValue(96) / 96));
+  EditHeight := System.Math.Max(1, System.Math.Min(R.Height,
+    Round(FontHeight * 1.4) + ScaleValue(2)));
+  FSearchEdit.SetBounds(R.Left, Box.Top + (Box.Height - EditHeight) div 2,
+    System.Math.Max(0, R.Width), EditHeight);
+  if FSearchEdit.Color <> Palette.Background then
+    FSearchEdit.Color := Palette.Background;
+  if not SameText(FSearchEdit.Font.Name, 'Segoe UI') then
+    FSearchEdit.Font.Name := 'Segoe UI';
+  if FSearchEdit.Font.Height <> -FontHeight then
+    FSearchEdit.Font.Height := -FontHeight;
+  if FSearchEdit.Font.Color <> Palette.ForegroundText then
+    FSearchEdit.Font.Color := Palette.ForegroundText;
+  if FSearchEdit.TextHint <> FSearchHint then
+    FSearchEdit.TextHint := FSearchHint;
 end;
 
 procedure TOBDToolBar.SearchChanged(Sender: TObject);

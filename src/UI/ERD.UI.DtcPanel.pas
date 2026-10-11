@@ -186,6 +186,7 @@ type
     function FooterHeight: Integer;
     function RowHeight: Integer;
     function FreezeHeight: Integer;
+    function ConfirmActionHeight: Integer;
     function ConfirmHeight: Integer;
     function BodyRect: TRect;
     function FooterRect: TRect;
@@ -366,7 +367,12 @@ const
   DTC_TEXT_SIZE = 13;
   DTC_META_SIZE = 12.5;
   DTC_FOOTER_SIZE = 12;
-  DTC_CONFIRM_HEIGHT = 124;
+  // Clear confirmation: the text block takes the top 104 px of the
+  // card, the checkbox/button row sits below it with 14 px under it,
+  // and the card has an 8 px margin above and below.
+  DTC_CONFIRM_TEXT_HEIGHT = 104;
+  DTC_CONFIRM_BOTTOM_PAD = 14;
+  DTC_CONFIRM_MARGIN = 8;
   DTC_PREVIEW_COUNT = 5;
 
   PREVIEW_FREEZE: array [0 .. 7] of string = (
@@ -978,7 +984,8 @@ end;
 
 procedure TOBDDtcPanel.LayoutChildren;
 var
-  Ring, ButtonH, ButtonY, RightX, VisibleW, VisibleH, X, Y, CheckY: Integer;
+  Ring, ButtonH, ButtonY, RightX, VisibleW, VisibleH, X, Y, CheckY,
+    RowCY: Integer;
   Footer, Confirm: TRect;
   ConfirmFill: TColor;
 begin
@@ -1040,17 +1047,23 @@ begin
     ((DtcCount > 0) and FPrecheckIgnition.Checked and FPrecheckReport.Checked);
   if FConfirmVisible then
   begin
+    // Action row below the text block, vertically centred.
+    RowCY := Confirm.Top + ScaleValue(DTC_CONFIRM_TEXT_HEIGHT) +
+      ConfirmActionHeight div 2;
     VisibleW := FConfirmButton.Width - 2 * Ring;
     X := Confirm.Right - ScaleValue(16) - VisibleW - Ring;
-    Y := Confirm.Bottom - ScaleValue(42) - Ring;
+    Y := RowCY - FConfirmButton.Height div 2;
     FConfirmButton.SetBounds(X, Y, FConfirmButton.Width, FConfirmButton.Height);
     X := X - ScaleValue(8) - (FCancelButton.Width - 2 * Ring);
+    Y := RowCY - FCancelButton.Height div 2;
     FCancelButton.SetBounds(X, Y, FCancelButton.Width, FCancelButton.Height);
-    CheckY := Confirm.Bottom - ScaleValue(26) - FPrecheckIgnition.Height div 2;
+    CheckY := RowCY - FPrecheckIgnition.Height div 2;
     X := Confirm.Left + ScaleValue(56) - Ring;
     FPrecheckIgnition.SetBounds(X, CheckY, FPrecheckIgnition.Width,
       FPrecheckIgnition.Height);
-    X := X + ScaleValue(230);
+    X := X + System.Math.Max(ScaleValue(230),
+      FPrecheckIgnition.Width + ScaleValue(16));
+    CheckY := RowCY - FPrecheckReport.Height div 2;
     FPrecheckReport.SetBounds(X, CheckY, FPrecheckReport.Width,
       FPrecheckReport.Height);
   end;
@@ -1092,10 +1105,25 @@ begin
   Result := ScaleValue(32 + 2 * Metrics.Cell);
 end;
 
+function TOBDDtcPanel.ConfirmActionHeight: Integer;
+var
+  Ring: Integer;
+begin
+  // Visible height of the checkbox/button row (the controls carry a
+  // focus-ring margin around their visible part).
+  Ring := ScaleValue(4);
+  Result := ScaleValue(Metrics.Button);
+  if FPrecheckIgnition <> nil then
+    Result := System.Math.Max(Result, FPrecheckIgnition.Height - 2 * Ring);
+  if FConfirmButton <> nil then
+    Result := System.Math.Max(Result, FConfirmButton.Height - 2 * Ring);
+end;
+
 function TOBDDtcPanel.ConfirmHeight: Integer;
 begin
   if FConfirmVisible then
-    Result := ScaleValue(DTC_CONFIRM_HEIGHT)
+    Result := ScaleValue(2 * DTC_CONFIRM_MARGIN + DTC_CONFIRM_TEXT_HEIGHT +
+      DTC_CONFIRM_BOTTOM_PAD) + ConfirmActionHeight
   else
     Result := 0;
 end;
@@ -1124,8 +1152,10 @@ begin
   H := ConfirmHeight;
   if H = 0 then
     Exit(Rect(0, 0, 0, 0));
-  Result := Rect(ScaleValue(12), ClientHeight - FooterHeight - H + ScaleValue(8),
-    ClientWidth - ScaleValue(12), ClientHeight - FooterHeight - ScaleValue(8));
+  Result := Rect(ScaleValue(12),
+    ClientHeight - FooterHeight - H + ScaleValue(DTC_CONFIRM_MARGIN),
+    ClientWidth - ScaleValue(12),
+    ClientHeight - FooterHeight - ScaleValue(DTC_CONFIRM_MARGIN));
 end;
 
 function TOBDDtcPanel.ScrollBarWidth: Integer;

@@ -203,7 +203,7 @@ end;
 
 procedure TOBDLogViewer.Flush;
 begin
-  // The viewer renders synchronously into the underlying listbox;
+  // The viewer renders synchronously from its line buffer;
   // nothing pending.
 end;
 
