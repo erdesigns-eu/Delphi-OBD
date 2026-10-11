@@ -111,6 +111,9 @@ type
 
 implementation
 
+uses
+  Winapi.GDIPAPI;
+
 const
   /// <summary>Em height of the read-out values, 96-DPI pixels.</summary>
   OBD_GMETER_VALUE = 14;

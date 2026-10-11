@@ -23,6 +23,7 @@ interface
 uses
   Winapi.Windows,
   Winapi.Messages,
+  Winapi.GDIPAPI,
   System.Types,
   System.UITypes,
   System.SysUtils,
