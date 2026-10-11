@@ -1471,7 +1471,6 @@ var
   NewIndex: Integer;
 begin
   inherited;
-  NewIndex := -1;
   case Key of
     VK_UP:
       NewIndex := NextSelectable(FItemIndex, -1);

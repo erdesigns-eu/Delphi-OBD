@@ -230,6 +230,10 @@ type
     /// Subclasses that size or place child controls by density
     /// override this and call <c>inherited</c>.</summary>
     procedure DensityChanged; virtual; // IOBDDensityAware
+    /// <summary>Re-applies AutoSize. Public so parent panels can
+    /// size child controls immediately after changing a caption,
+    /// before placing them.</summary>
+    procedure AdjustSize; override;
     /// <summary>Force a repaint at the next idle cycle (the
     /// double-buffer is invalidated; <c>Paint</c> redraws on
     /// next WM_PAINT).</summary>
@@ -907,6 +911,11 @@ procedure TOBDCustomControl.Repaint;
 begin
   FBufferDirty := True;
   inherited;
+end;
+
+procedure TOBDCustomControl.AdjustSize;
+begin
+  inherited AdjustSize;
 end;
 
 procedure TOBDCustomControl.Resize;

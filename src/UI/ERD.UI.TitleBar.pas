@@ -984,8 +984,8 @@ var
   Form: TCustomForm;
 begin
   Form := GetParentForm(Self);
-  if Form <> nil then
-    Result := Form.BorderIcons
+  if Form is TForm then
+    Result := TForm(Form).BorderIcons
   else
     Result := [biSystemMenu, biMinimize, biMaximize];
 end;
@@ -1687,9 +1687,9 @@ var
   C: TColor;
 begin
   Form := GetParentForm(Self);
-  if (Form <> nil) and (Form.Icon <> nil) and not Form.Icon.Empty then
+  if (Form is TForm) and not TForm(Form).Icon.Empty then
   begin
-    DrawIconEx(ACanvas.Handle, R.Left, R.Top, Form.Icon.Handle, R.Width,
+    DrawIconEx(ACanvas.Handle, R.Left, R.Top, TForm(Form).Icon.Handle, R.Width,
       R.Height, 0, 0, DI_NORMAL);
     Exit;
   end;
