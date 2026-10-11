@@ -145,12 +145,31 @@ def _wrench():
             ('arc', end[0], end[1], w, 45, 180)]
 
 
+def _earc(cx, cy, rx, ry, start, sweep):
+    """Elliptic arc as a polyline (the arc op is circular only)."""
+    k = max(6, int(abs(sweep) / 10))
+    return [(round(cx + rx * math.cos(math.radians(start + sweep * i / k)), 2),
+             round(cy + ry * math.sin(math.radians(start + sweep * i / k)),
+                   2)) for i in range(k + 1)]
+
+
+def _rot(points, deg):
+    a = math.radians(deg)
+    ca, sa = math.cos(a), math.sin(a)
+    return [(round(x * ca - y * sa, 2), round(x * sa + y * ca, 2))
+            for x, y in points]
+
+
 def _pipette():
-    return [('path', [(-7, 7), (-6, 4), (1, -3)], 0, False),
-            ('path', [(-3, 1), (0, 4)], 0, False),
-            ('path', [(-1, -5), (5, 1)], 0, False),
-            ('fill', [(1, -3), (4, -6), (5.5, -6.5), (6.5, -5.5), (6, -4),
-                      (3, -1)], 1)]
+    """Eyedropper: rounded bulb, collar and a glass tube tapering to the
+    tip, drawn upright and turned 45 degrees."""
+    bulb = ([(-1.75, -4.5)] + _earc(0, -6.75, 1.75, 1.75, 180, 180)
+            + [(1.75, -4.5)])
+    tube = [(-1.25, -3), (-1.25, 4), (0, 7.5), (1.25, 4), (1.25, -3)]
+    return [('fill', _rot(bulb, 45), 0),
+            ('path', _rot([(-3, -3.5), (3, -3.5)], 45), 0, False),
+            ('path', _rot(tube, 45), 0.5, False),
+            ('path', _rot([(-1.25, 2), (1.25, 2)], 45), 0, False)]
 
 
 def _engine():
@@ -408,38 +427,32 @@ STATUS_ORDER = ['info', 'success', 'warning', 'danger']
 # Feature icons (proposal): OBD Studio Free and Pro
 # --------------------------------------------------------------------------
 
-def _earc(cx, cy, rx, ry, start, sweep):
-    """Elliptic arc as a polyline (the arc op is circular only)."""
-    k = max(6, int(abs(sweep) / 10))
-    return [(round(cx + rx * math.cos(math.radians(start + sweep * i / k)), 2),
-             round(cy + ry * math.sin(math.radians(start + sweep * i / k)),
-                   2)) for i in range(k + 1)]
+def _oil_can():
+    """Oil can with a drip (the oil service lamp)."""
+    return [('path', [(-5, -1), (0, -1), (3, 1.5), (3, 5), (-5, 5)], 0.75,
+             True),
+            ('path', [(1.5, 0.5), (7, -3)], 0, False),
+            ('path', [(-5, 0.5), (-7, -0.5), (-7, 2), (-5, 3)], 0.5, False),
+            ('path', [(-2.5, -1), (-2.5, -3)], 0, False),
+            ('path', [(-4, -3), (-1, -3)], 0, False),
+            ('fill', [(6, -0.5), (7, 1.6), (6, 2.8), (5, 1.6)], 0.6)]
 
 
-def _rot(points, deg):
-    a = math.radians(deg)
-    ca, sa = math.cos(a), math.sin(a)
-    return [(round(x * ca - y * sa, 2), round(x * sa + y * ca, 2))
-            for x, y in points]
+def _car_key():
+    """Car key: fob with a button and a blade with cuts (immobiliser)."""
+    return [('rect', -7, -4, 6, 8, 2),
+            ('circle', -4, 0, 1.25),
+            ('path', [(-1, -1.5), (6, -1.5), (7, 0), (6, 1.5), (5, 1.5),
+                      (4, 0.5), (3, 1.5), (2, 1.5), (1, 0.5), (0, 1.5),
+                      (-1, 1.5)], 0, False)]
 
 
-def _drop(cx=0.0, top=-7.0, r=4.5, bottom=7.0):
-    """Droplet: a point at the top and a round bottom."""
-    cy = bottom - r
-    d = cy - top
-    a = math.degrees(math.asin(r / d))          # half angle at the tip
-    # tangent points: angle on the circle measured from 3 o'clock
-    t = 90 - a
-    start = -t + 0                               # right tangent (upper right)
-    return [('path', [(cx, top), (round(cx + r * math.cos(math.radians(-t)),
-                                        2),
-                                  round(cy + r * math.sin(math.radians(-t)),
-                                        2))], 0, False),
-            ('arc', cx, cy, r, round(start, 2), round(180 + 2 * t - 180 +
-                                                      180, 2)),
-            ('path', [(round(cx - r * math.cos(math.radians(-t)), 2),
-                       round(cy + r * math.sin(math.radians(-t)), 2)),
-                      (cx, top)], 0, False)]
+def _shield():
+    """Symmetric shield outline."""
+    right = [(0, -7), (5, -5.5), (6, -5), (6, -0.5), (5.2, 2.6), (3.2, 5),
+             (0, 7)]
+    left = [(-x, y) for x, y in reversed(right[1:-1])]
+    return right + left
 
 
 def _leaf():
@@ -501,12 +514,25 @@ def _refresh():
             ('fill', [(5.5, -5), (5.5, -1.5), (2, -1.5)], 0.5)]
 
 
-def _flame():
-    return [('path', [(0, 7), (-4.5, 4.5), (-5, 1), (-3, -2.5), (-1, -4),
-                      (0, -7), (2.5, -3.5), (4.5, -0.5), (5, 2.5),
-                      (4, 5.5)], 2, True),
-            ('path', [(0, 7), (-2, 4.5), (-1, 1.5), (0.5, 0), (1.5, 3),
-                      (1, 5.5)], 1, False)]
+def _dpf():
+    """Particulate filter lamp: a filter housing with soot dots and the
+    exhaust pipe on both sides."""
+    return ([('rect', -5, -5, 10, 10, 1.5),
+             ('path', [(-7, 0), (-5, 0)], 0, False),
+             ('path', [(5, 0), (7, 0)], 0, False)]
+            + [('disc', x, y, 0.75) for x in (-2.5, 0, 2.5)
+               for y in (-2.5, 0, 2.5)])
+
+
+def _ship():
+    """Ship in profile: hull with a raked bow, bridge, funnel, waves."""
+    return [('path', [(-7, 0), (7, 0), (5, 4), (-6, 4)], 0.5, True),
+            ('path', [(-5, 0), (-5, -3), (1, -3), (1, 0)], 0.5, False),
+            ('path', [(-3, -3), (-3, -6), (-1, -6), (-1, -3)], 0, False),
+            ('path', [(3, 0), (3, -1.5), (5, -1.5)], 0, False),
+            ('path', [(-7, 6.5), (-5.25, 5.5), (-3.5, 6.5), (-1.75, 5.5),
+                      (0, 6.5), (1.75, 5.5), (3.5, 6.5), (5.25, 5.5),
+                      (7, 6.5)], 1, False)]
 
 
 def _database():
@@ -557,9 +583,10 @@ FEATURES = {
                        (2, -2), (2, -7)], 1, False),
              ('path', [(-3.5, -7), (3.5, -7)], 0, False),
              ('path', [(-4, 2), (4, 2)], 0, False)],
-    'vin': [('rect', -7, -5, 14, 10, 1.5)]
-           + [('path', [(x, -2), (x, 2)], 0, False) for x in (-4, -2, 1, 4)]
-           + [('path', [(x, -2), (x, 0)], 0, False) for x in (-1, 2)],
+    'vin': [('rect', -7, -5, 14, 10, 1.5),
+            ('path', [(-5, -2), (-3.5, 2), (-2, -2)], 0, False),
+            ('path', [(0, -2), (0, 2)], 0, False),
+            ('path', [(2, 2), (2, -2), (5, 2), (5, -2)], 0, False)],
     'health': _heart() + [('path', [(-5, 1), (-2, 1), (-1, -1), (1, 3),
                                     (2, 1), (5, 1)], 0, False)],
     'temperature': [('path', [(-2, 1.3), (-2, -5)], 0, False),
@@ -633,12 +660,8 @@ FEATURES = {
                ('arc', 0, -4, 3, 180, 180),
                ('path', [(3, -4), (3, -3)], 0, False),
                ('disc', 0, 3, 1)],
-    'key': [('circle', -3.5, 3.5, 3),
-            ('path', [(-1.38, 1.38), (6, -6)], 0, False),
-            ('path', [(4, -4), (5.5, -2.5)], 0, False),
-            ('path', [(2, -2), (3.5, -0.5)], 0, False)],
-    'shield': [('path', [(0, -7), (6, -5), (6, 0), (0, 7), (-6, 0), (-6, -5)],
-                1.5, True),
+    'key': _car_key(),
+    'shield': [('path', _shield(), 0, True),
                ('path', [(-3, 0), (-1, 2), (3, -2)], 0, False)],
     # ---- Pro: radio codes
     'radio': [('rect', -7, -4, 14, 10, 1.5),
@@ -650,7 +673,7 @@ FEATURES = {
               + [('path', [(-7, y), (-4, y)], 0, False) for y in (-3, 0, 3)]
               + [('path', [(4, y), (7, y)], 0, False) for y in (-3, 0, 3)],
     # ---- Pro: service functions
-    'oil': _drop(),
+    'oil': _oil_can(),
     'brake': [('circle', 0, 0, 4.5),
               ('arc', 0, 0, 7, 135, 90), ('arc', 0, 0, 7, -45, 90),
               ('path', [(-1.5, 2.5), (-1.5, -2.5), (0.5, -2.5)], 0, False),
@@ -664,7 +687,7 @@ FEATURES = {
              ('path', [(-3.73, 4.82), (-5, 6.5), (5, 6.5), (3.73, 4.82)], 0,
               False),
              ('box', -0.75, -4, 1.5, 4.5, 0.75), ('disc', 0, 2.75, 0.9)],
-    'regen': _flame(),
+    'regen': _dpf(),
     'fan': _fan(),
     'routine': [('circle', 0, 0, 7),
                 ('fill', [(-2, -3.5), (4, 0), (-2, 3.5)], 1)],
@@ -695,9 +718,7 @@ FEATURES = {
                    ('path', [(2, -1), (1, -4), (3, -4)], 0, False),
                    ('path', [(-4, -1), (-1, -1)], 0, False)],
     'tractor': _tractor(),
-    'boat': [('path', [(-7, 1), (7, 1), (4, 5), (-5, 5)], 1, True),
-             ('path', [(-3, 1), (-3, -3), (2, -3), (4, 1)], 1, False),
-             ('path', [(0, -3), (0, -6)], 0, False)],
+    'boat': _ship(),
     'ev': [('circle', 0, 0, 7),
            ('fill', [(1, -5), (-3, 1), (0, 1), (-1, 5), (3, -1), (0, -1)],
             0)],
