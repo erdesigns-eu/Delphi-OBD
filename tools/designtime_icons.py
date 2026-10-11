@@ -1,21 +1,28 @@
 #!/usr/bin/env python3
 """Generate/check the 16/24/32px component palette icons in the ERDesigns theme colours.
 
-Every registered component gets one icon drawn from simple vector shapes on a
-charcoal tile, so the set reads on both the light and the dark IDE theme.
-Colours are the tokens of the ERDesigns site theme that the dashboard palettes
-in ``src/UI/ERD.UI.Types.pas`` use. Output is deterministic: the check mode
-(default) fails when a tracked PNG or ``resources.json`` differs from what the
-generator draws, ``--write`` regenerates them. ``--sheet FILE`` writes an 8x
-contact sheet for visual review.
+Every registered component gets a line icon in the style of the OBD Studio
+icon set: the shapes are the ``tools/ui_icons.py`` operations on the 16 px
+grid (reused glyphs plus palette-only parts), stroked in orange and a neutral
+grey on a transparent background so the set reads on both the light and the
+dark IDE theme. Protocol, brand and catalogue families carry a small label
+above the glyph at 24 and 32 px. The rasteriser is pure Python and
+deterministic: the check mode (default) fails when a tracked PNG or
+``resources.json`` differs from what the generator draws, ``--write``
+regenerates them. ``--sheet FILE`` writes an 8x contact sheet for visual
+review.
 """
 import argparse
 import json
 import math
 import re
 import struct
+import sys
 import zlib
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import ui_icons  # noqa: E402  (icon shapes, tools/ui_icons.py)
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / 'assets/designtime'
@@ -36,17 +43,11 @@ def rgb(value):
     return tuple(int(value[i:i + 2], 16) for i in (0, 2, 4))
 
 
-# ERDesigns theme tokens (site.css): --clr-primary, --clr-primary-strong,
-# dark --clr-primary, --clr-surface (light / dark), --clr-border (dark),
-# --clr-text-muted and the status colours.
+# ERDesigns theme tokens (site.css): --clr-primary, --clr-surface (light /
+# dark) and the status colours; NEUTRAL is the secondary stroke grey.
 ORANGE = rgb('#f08818')
-ORANGE_STRONG = rgb('#b4530a')
-ORANGE_LIGHT = rgb('#f0923a')
 LIGHT = rgb('#f8f9fa')
 TILE = rgb('#25262b')
-TILE_EDGE = rgb('#5c636a')
-GREY = rgb('#373a40')
-MUTED = rgb('#b0b1b5')
 SUCCESS = rgb('#28a745')
 WARNING = rgb('#ffc107')
 DANGER = rgb('#dc3545')
@@ -76,147 +77,47 @@ FONT = {
 }
 
 
+NEUTRAL = rgb('#868e96')
+
+COLOURS = {'a': ORANGE, 'n': NEUTRAL, 'ok': SUCCESS, 'warn': WARNING,
+           'bad': DANGER, 'info': INFO}
+
+
+# ---- rasteriser ----------------------------------------------------------------
+
+def encode_png(width, height, raw):
+    def chunk(kind, data):
+        body = kind + data
+        return struct.pack('>I', len(data)) + body + struct.pack('>I', zlib.crc32(body))
+    header = struct.pack('>IIBBBBB', width, height, 8, 6, 0, 0, 0)
+    return (b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', header) +
+            chunk(b'IDAT', zlib.compress(raw, 9)) + chunk(b'IEND', b''))
+
+
 class Canvas:
-    """RGBA canvas in a 24-unit coordinate space, anti-aliased by supersampling."""
+    """RGBA canvas in pixels; every shape is rasterised to a supersampled
+    coverage mask first, so overlapping strokes of one shape never darken."""
 
     def __init__(self, size):
         self.size = size
-        self.scale = size / 24.0
         self.pixels = [[0.0, 0.0, 0.0, 0.0] for _ in range(size * size)]
 
-    def fill(self, inside, box, color, alpha=1.0):
-        x0, y0, x1, y1 = box
-        k = self.scale
-        px0 = max(0, int(math.floor(x0 * k)))
-        py0 = max(0, int(math.floor(y0 * k)))
-        px1 = min(self.size, int(math.ceil(x1 * k)))
-        py1 = min(self.size, int(math.ceil(y1 * k)))
-        step = 1.0 / SUPERSAMPLE
-        total = SUPERSAMPLE * SUPERSAMPLE
-        for py in range(py0, py1):
-            for px in range(px0, px1):
-                hits = 0
-                for sy in range(SUPERSAMPLE):
-                    y = (py + (sy + 0.5) * step) / k
-                    for sx in range(SUPERSAMPLE):
-                        if inside((px + (sx + 0.5) * step) / k, y):
-                            hits += 1
-                if hits:
-                    self.blend(py * self.size + px, color, alpha * hits / total)
+    def mask(self):
+        return Mask(self.size)
 
-    def blend(self, index, color, alpha):
-        dst = self.pixels[index]
-        out = alpha + dst[3] * (1 - alpha)
-        if out <= 0:
-            return
-        for i in range(3):
-            dst[i] = (color[i] * alpha + dst[i] * dst[3] * (1 - alpha)) / out
-        dst[3] = out
+    def paint(self, mask, color):
+        for index, cover in mask.coverage():
+            dst = self.pixels[index]
+            out = cover + dst[3] * (1 - cover)
+            if out <= 0:
+                continue
+            for i in range(3):
+                dst[i] = (color[i] * cover + dst[i] * dst[3] * (1 - cover)) / out
+            dst[3] = out
 
-    # ---- primitives --------------------------------------------------------
-
-    def rect(self, x0, y0, x1, y1, color, radius=0.0, alpha=1.0):
-        r = min(radius, (x1 - x0) / 2, (y1 - y0) / 2)
-
-        def inside(x, y):
-            if not (x0 <= x <= x1 and y0 <= y <= y1):
-                return False
-            if r <= 0:
-                return True
-            cx = min(max(x, x0 + r), x1 - r)
-            cy = min(max(y, y0 + r), y1 - r)
-            return (x - cx) ** 2 + (y - cy) ** 2 <= r * r
-        self.fill(inside, (x0, y0, x1, y1), color, alpha)
-
-    def frame(self, x0, y0, x1, y1, width, color, radius=0.0):
-        """Rectangle outline of the given stroke width."""
-        ri = max(0.0, radius - width)
-
-        def rounded(x, y, a0, b0, a1, b1, r):
-            if not (a0 <= x <= a1 and b0 <= y <= b1):
-                return False
-            if r <= 0:
-                return True
-            cx = min(max(x, a0 + r), a1 - r)
-            cy = min(max(y, b0 + r), b1 - r)
-            return (x - cx) ** 2 + (y - cy) ** 2 <= r * r
-
-        def inside(x, y):
-            return rounded(x, y, x0, y0, x1, y1, radius) and not rounded(
-                x, y, x0 + width, y0 + width, x1 - width, y1 - width, ri)
-        self.fill(inside, (x0, y0, x1, y1), color)
-
-    def circle(self, cx, cy, r, color, alpha=1.0):
-        self.fill(lambda x, y: (x - cx) ** 2 + (y - cy) ** 2 <= r * r,
-                  (cx - r, cy - r, cx + r, cy + r), color, alpha)
-
-    def ellipse(self, cx, cy, rx, ry, color, alpha=1.0):
-        self.fill(lambda x, y: ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1,
-                  (cx - rx, cy - ry, cx + rx, cy + ry), color, alpha)
-
-    def ring(self, cx, cy, r, width, color, start=None, end=None):
-        """Circle outline; with start/end an arc in degrees, clockwise from east."""
-        ri = r - width
-
-        def inside(x, y):
-            d = (x - cx) ** 2 + (y - cy) ** 2
-            if not (ri * ri <= d <= r * r):
-                return False
-            if start is None:
-                return True
-            a = math.degrees(math.atan2(y - cy, x - cx)) % 360
-            return (a - start) % 360 <= (end - start)
-        self.fill(inside, (cx - r, cy - r, cx + r, cy + r), color)
-
-    def line(self, points, width, color, alpha=1.0):
-        """Polyline with round caps and joins."""
-        h = width / 2
-        segs = list(zip(points, points[1:]))
-
-        def near(x, y):
-            for (ax, ay), (bx, by) in segs:
-                dx, dy = bx - ax, by - ay
-                ll = dx * dx + dy * dy
-                t = 0.0 if ll == 0 else max(0.0, min(1.0, ((x - ax) * dx + (y - ay) * dy) / ll))
-                if (x - ax - t * dx) ** 2 + (y - ay - t * dy) ** 2 <= h * h:
-                    return True
-            return False
-        xs = [p[0] for p in points]
-        ys = [p[1] for p in points]
-        self.fill(near, (min(xs) - h, min(ys) - h, max(xs) + h, max(ys) + h), color, alpha)
-
-    def poly(self, points, color, alpha=1.0):
-        n = len(points)
-
-        def inside(x, y):
-            c = False
-            j = n - 1
-            for i in range(n):
-                xi, yi = points[i]
-                xj, yj = points[j]
-                if (yi > y) != (yj > y) and x < (xj - xi) * (y - yi) / (yj - yi) + xi:
-                    c = not c
-                j = i
-            return c
-        xs = [p[0] for p in points]
-        ys = [p[1] for p in points]
-        self.fill(inside, (min(xs), min(ys), max(xs), max(ys)), color, alpha)
-
-    def text(self, x, y, value, color, scale=1):
-        for ch in value:
-            rows = FONT[ch]
-            for ry, row in enumerate(rows):
-                for rx, bit in enumerate(row):
-                    if bit == '1':
-                        self.rect(x + rx * scale, y + ry * scale,
-                                  x + (rx + 1) * scale, y + (ry + 1) * scale, color)
-            x += 4 * scale
-
-    def text_centered(self, cx, y, value, color, scale=1):
-        width = (len(value) * 4 - 1) * scale
-        self.text(round(cx - width / 2), y, value, color, scale)
-
-    # ---- output ------------------------------------------------------------
+    def erase(self, mask):
+        for index, cover in mask.coverage():
+            self.pixels[index][3] *= 1 - cover
 
     def png(self):
         raw = bytearray()
@@ -232,1192 +133,548 @@ class Canvas:
         return encode_png(self.size, self.size, bytes(raw))
 
 
-def encode_png(width, height, raw):
-    def chunk(kind, data):
-        body = kind + data
-        return struct.pack('>I', len(data)) + body + struct.pack('>I', zlib.crc32(body))
-    header = struct.pack('>IIBBBBB', width, height, 8, 6, 0, 0, 0)
-    return (b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', header) +
-            chunk(b'IDAT', zlib.compress(raw, 9)) + chunk(b'IEND', b''))
-
-
-# ---- shared parts -------------------------------------------------------------
-
-def tile(c):
-    c.rect(0.5, 0.5, 23.5, 23.5, TILE_EDGE, radius=4.5)
-    c.rect(1.5, 1.5, 22.5, 22.5, TILE, radius=3.5)
-
-
-def label(c, text, color=LIGHT, y=3):
-    c.text_centered(12, y, text, color)
-
-
-def chip(c, cx=12, cy=16, w=8, h=7, color=ORANGE):
-    x0, y0 = cx - w / 2, cy - h / 2
-    for i in range(3):
-        y = y0 + 1.5 + i * (h - 3) / 2
-        c.line([(x0 - 2, y), (x0, y)], 1, MUTED)
-        c.line([(x0 + w, y), (x0 + w + 2, y)], 1, MUTED)
-    c.rect(x0, y0, x0 + w, y0 + h, color, radius=1)
-    c.circle(x0 + 1.8, y0 + 1.8, 0.8, TILE)
-
-
-def arrow(c, x0, y0, x1, y1, color, width=1.6, head=2.6):
-    ang = math.atan2(y1 - y0, x1 - x0)
-    bx, by = x1 - math.cos(ang) * head, y1 - math.sin(ang) * head
-    c.line([(x0, y0), (bx, by)], width, color)
-    px, py = -math.sin(ang) * head * 0.8, math.cos(ang) * head * 0.8
-    c.poly([(x1, y1), (bx + px, by + py), (bx - px, by - py)], color)
-
-
-def engine(c, color=WARNING, dx=0.0, dy=0.0):
-    pts = [(5, 11), (8, 11), (8, 9), (14, 9), (14, 11), (16, 11), (17, 13), (19, 13),
-           (19, 11), (20.5, 11), (20.5, 19), (19, 19), (19, 17), (17, 17), (15, 20),
-           (8, 20), (7, 18), (5, 18)]
-    c.poly([(x + dx, y + dy) for x, y in pts], color)
-    c.rect(9 + dx, 7 + dy, 13 + dx, 8.6 + dy, color)
-
-
-def key(c, color=ORANGE, cx=8.5, cy=12):
-    c.ring(cx, cy, 4, 2, color)
-    c.line([(cx + 3.5, cy), (20, cy)], 2, color)
-    c.line([(17.5, cy), (17.5, cy + 3.5)], 1.8, color)
-    c.line([(20, cy), (20, cy + 3)], 1.8, color)
-
-
-def shield(c, color=ORANGE):
-    c.poly([(12, 3), (20, 5.5), (20, 12), (12, 21), (4, 12), (4, 5.5)], color)
-
-
-def pencil(c, x=11, y=21, color=ORANGE):
-    c.poly([(x, y), (x + 1, y - 3.5), (x + 8, y - 10.5), (x + 10.5, y - 8), (x + 3.5, y - 1)], color)
-    c.poly([(x, y), (x + 1, y - 3.5), (x + 3.5, y - 1)], LIGHT)
-
-
-def book(c, color=ORANGE):
-    c.rect(4, 3, 20, 21, color, radius=1.5)
-    c.rect(7, 14, 20, 21, LIGHT, radius=1)
-    c.rect(4, 3, 6.5, 21, ORANGE_STRONG)
-
-
-def clock(c, cx, cy, r, color=LIGHT):
-    c.ring(cx, cy, r, 1.4, color)
-    c.line([(cx, cy), (cx, cy - r + 2)], 1.3, color)
-    c.line([(cx, cy), (cx + r - 2.2, cy)], 1.3, color)
-
-
-def bolt(c, dx=0.0, dy=0.0, color=WARNING, s=1.0):
-    pts = [(13, 3), (7, 13), (11.5, 13), (10, 21), (17, 10), (12.5, 10), (14.5, 3)]
-    c.poly([(12 + (x - 12) * s + dx, 12 + (y - 12) * s + dy) for x, y in pts], color)
-
-
-def dropdown(c, text):
-    c.rect(3, 7, 21, 17, LIGHT, radius=1.5)
-    c.rect(16, 7, 21, 17, ORANGE, radius=1.5)
-    c.rect(16, 7, 17.5, 17, ORANGE)
-    c.poly([(16.8, 11), (20.2, 11), (18.5, 13.5)], TILE)
-    c.text(4.5, 9.5, text, TILE)
-
-
-def edit_box(c, text):
-    c.rect(3, 7, 21, 17, LIGHT, radius=1.5)
-    c.text(5, 9.5, text, TILE)
-    c.rect(18, 9, 19, 15, ORANGE)
-
-
-def radio_unit(c, text, color=ORANGE):
-    c.rect(2.5, 6, 21.5, 18, color, radius=1.5)
-    c.rect(4, 7.5, 20, 14, TILE, radius=0.8)
-    c.text_centered(12, 8, text, LIGHT)
-    for x in (5.5, 9.5, 14.5, 18.5):
-        c.rect(x - 1.2, 15.2, x + 1.2, 16.8, TILE, radius=0.5)
-
-
-def protocol_icon(c, text, sub):
-    label(c, text)
-    sub(c)
-
-
-# ---- sub-glyphs below a three-letter label (area y 10..21) --------------------
-
-def sub_chip(c):
-    chip(c, 12, 15.5)
-
-
-def sub_reset(c):
-    c.ring(12, 15.5, 5, 1.8, ORANGE, 300, 600)
-    c.poly([(16.8, 9.3), (17.8, 14), (13.3, 12.6)], ORANGE)
-
-
-def sub_read(c):
-    c.rect(5, 11, 13, 20, LIGHT, radius=1)
-    arrow(c, 18, 10.5, 18, 20.5, ORANGE)
-    for y in (13, 15.5, 18):
-        c.line([(6.8, y), (11.2, y)], 1, TILE)
-
-
-def sub_write(c):
-    c.rect(4, 11, 12, 20, LIGHT, radius=1)
-    for y in (13, 15.5, 18):
-        c.line([(5.8, y), (10.2, y)], 1, TILE)
-    c.poly([(12.5, 21), (13, 18.5), (18.5, 13), (20.5, 15), (15, 20.5)], ORANGE)
-
-
-def sub_toggle(c):
-    c.rect(4, 12, 20, 19, LIGHT, radius=3.5)
-    c.circle(16.5, 15.5, 2.6, ORANGE)
-
-
-def sub_tag(c):
-    c.poly([(5, 11.5), (14, 11.5), (19.5, 15.5), (14, 19.5), (5, 19.5)], ORANGE)
-    c.circle(8, 15.5, 1.3, TILE)
-
-
-def sub_dtc(c):
-    c.poly([(12, 10), (19.5, 21), (4.5, 21)], WARNING)
-    c.rect(11.2, 13.5, 12.8, 17.5, TILE)
-    c.rect(11.2, 18.5, 12.8, 20, TILE)
-
-
-def sub_clock(c):
-    clock(c, 12, 15.5, 5.2, ORANGE)
-
-
-def sub_plus(c):
-    c.rect(5, 11, 14, 20, LIGHT, radius=1)
-    c.circle(16.5, 17, 4, ORANGE)
-    c.line([(16.5, 15), (16.5, 19)], 1.4, TILE)
-    c.line([(14.5, 17), (18.5, 17)], 1.4, TILE)
-
-
-def sub_play(c):
-    c.ring(12, 15.5, 5.5, 1.5, ORANGE)
-    c.poly([(10.5, 12.8), (15, 15.5), (10.5, 18.2)], ORANGE)
-
-
-def sub_transfer(c):
-    arrow(c, 4, 13, 20, 13, ORANGE)
-    arrow(c, 20, 18.5, 4, 18.5, LIGHT)
-
-
-def sub_sliders(c):
-    for x, k in ((7, 13), (12, 18), (17, 14.5)):
-        c.line([(x, 10.5), (x, 20.5)], 1, MUTED)
-        c.rect(x - 2, k - 1.2, x + 2, k + 1.2, ORANGE, radius=0.6)
-
-
-def sub_truck(c):
-    c.rect(4, 11, 14, 18, ORANGE, radius=0.8)
-    c.poly([(14.5, 13), (18, 13), (20, 15.5), (20, 18), (14.5, 18)], ORANGE)
-    c.rect(16, 14, 18, 15.5, TILE)
-    for x in (7, 17):
-        c.circle(x, 19, 1.9, LIGHT)
-        c.circle(x, 19, 0.8, TILE)
-
-
-def sub_wave(c):
-    c.line([(3.5, 16), (6, 16), (6, 12), (9, 12), (9, 19), (12, 19), (12, 12), (15, 12),
-            (15, 19), (18, 19), (18, 16), (20.5, 16)], 1.5, ORANGE)
-
-
-def sub_device(c):
-    c.rect(5, 11, 19, 20, ORANGE, radius=1.2)
-    c.rect(7, 13, 13, 15.5, TILE, radius=0.5)
-    c.circle(16, 14.2, 1.1, SUCCESS)
-    c.line([(12, 20), (12, 22)], 1.5, MUTED)
-
-
-# ---- per-component icons ------------------------------------------------------
-
-def theme(c):
-    c.circle(12, 12, 8.5, LIGHT)
-    c.fill(lambda x, y: x >= 12 and (x - 12) ** 2 + (y - 12) ** 2 <= 8.5 ** 2,
-           (12, 3.5, 20.5, 20.5), GREY)
-    c.ring(12, 12, 8.5, 1, MUTED)
-    c.circle(12, 12, 3.6, ORANGE)
-
-
-def dashboard(c):
-    c.rect(4, 4, 11, 11, ORANGE, radius=1)
-    c.rect(13, 4, 20, 11, LIGHT, radius=1)
-    c.rect(4, 13, 11, 20, LIGHT, radius=1)
-    c.rect(13, 13, 20, 20, LIGHT, radius=1)
-    c.ring(7.5, 8.2, 2.4, 1, TILE, 180, 360)
-
-
-def dial(c):
-    c.ring(12, 13, 8.5, 2.2, GREY, 135, 405)
-    c.ring(12, 13, 8.5, 2.2, ORANGE, 135, 330)
-    c.ring(12, 13, 8.5, 2.2, DANGER, 360, 405)
-    c.line([(12, 13), (16.8, 8.2)], 1.6, LIGHT)
-    c.circle(12, 13, 2, LIGHT)
-    c.rect(9, 18, 15, 20.5, ORANGE_LIGHT, radius=0.6)
-
-
-def bar_gauge(c):
-    c.frame(8.5, 3.5, 15.5, 20.5, 1.2, LIGHT, radius=1.5)
-    c.rect(10.2, 9, 13.8, 18.8, ORANGE, radius=0.6)
-    for y in (6, 10, 14, 18):
-        c.line([(17.5, y), (20, y)], 1, MUTED)
-    c.line([(4, 9), (6.5, 9)], 1.4, DANGER)
-
-
-def value_tile(c):
-    c.text_centered(12, 4, '88', ORANGE, scale=2)
-    c.line([(4.5, 19.5), (8, 17.5), (11, 18.5), (15, 15.5), (19.5, 16.5)], 1.2, LIGHT)
-
-
-def trend(c):
-    c.line([(4, 3.5), (4, 20), (20.5, 20)], 1.2, MUTED)
-    c.line([(5.5, 16), (9, 11), (12, 13.5), (15.5, 7), (19.5, 9)], 1.8, ORANGE)
-    c.line([(5.5, 18), (9, 16), (12.5, 17), (19.5, 14)], 1.2, INFO)
-
-
-def grid(c):
-    c.rect(3.5, 4, 20.5, 7.5, GREY, radius=1)
-    c.rect(3.5, 11.5, 20.5, 14.5, ORANGE, radius=0.8)
-    for y in (9.5, 16.5, 19.5):
-        c.line([(4.5, y), (19.5, y)], 1.2, LIGHT)
-    c.line([(10.5, 4), (10.5, 20)], 1, TILE)
-
-
-def lamp(c):
-    c.circle(12, 12, 9, WARNING, alpha=0.3)
-    c.circle(12, 12, 6.5, WARNING)
-    c.ring(12, 12, 6.5, 1, ORANGE_STRONG)
-    c.circle(10, 10, 1.8, LIGHT, alpha=0.8)
-
-
-def connection_bar(c):
-    c.rect(2.5, 8, 21.5, 16, LIGHT, radius=1.5)
-    c.circle(6, 12, 2, SUCCESS)
-    c.rect(9.5, 10.8, 14, 13.2, TILE, radius=0.6)
-    c.rect(15.5, 10.8, 19.5, 13.2, ORANGE, radius=0.6)
-
-
-def matrix(c):
-    lit = {(1, 1), (2, 1), (3, 1), (1, 2), (1, 3), (2, 3), (1, 4), (1, 5), (2, 5), (3, 5),
-           (5, 1), (5, 2), (5, 3), (5, 4), (5, 5), (6, 3)}
-    for row in range(7):
-        for col in range(7):
-            x, y = 4.5 + col * 2.5, 4.5 + row * 2.5
-            on = (col, row) in lit
-            c.circle(x, y, 0.95, ORANGE if on else GREY)
-
-
-def terminal(c):
-    c.text(5, 8, '>_', ORANGE, scale=2)
-    c.rect(4, 3.5, 20, 5, MUTED, radius=0.5)
-
-
-def log_viewer(c):
-    for i, color in enumerate((SUCCESS, INFO, WARNING, DANGER)):
-        y = 6 + i * 4
-        c.circle(5.5, y, 1.4, color)
-        c.line([(9, y), (19.5 - (i % 2) * 4, y)], 1.4, LIGHT)
-
-
-def dtc_list(c):
-    engine(c, WARNING, 0, -3)
-    c.rect(4, 19, 20, 20.6, LIGHT, radius=0.6)
-
-
-def vin_inspector(c):
-    c.text(4, 4, 'VIN', LIGHT)
-    c.ring(13, 14, 4.8, 1.6, ORANGE)
-    c.line([(16.5, 17.5), (20, 21)], 2.2, ORANGE)
-
-
-def connection(c):
-    c.rect(4, 9, 11, 15, ORANGE, radius=1)
-    c.line([(1.8, 10.8), (4, 10.8)], 1.2, LIGHT)
-    c.line([(1.8, 13.2), (4, 13.2)], 1.2, LIGHT)
-    c.rect(13, 9, 20, 15, LIGHT, radius=1)
-    c.line([(11, 12), (13, 12)], 1.4, MUTED)
-    c.line([(20, 12), (22, 12)], 1.6, LIGHT)
-
-
-def adapter(c):
-    c.poly([(3, 7), (21, 7), (19, 17), (5, 17)], ORANGE)
-    for row, (y, x0, n) in enumerate(((10, 5.8, 8), (14, 6.6, 7))):
-        for i in range(n):
-            c.circle(x0 + i * (12.4 - row * 0.8) / (n - 1), y, 0.7, TILE)
-    c.text_centered(12, 18, 'OBD', LIGHT)
-
-
-def protocol(c):
-    for i, color in enumerate((ORANGE, ORANGE_LIGHT, LIGHT)):
-        y = 5 + i * 5
-        c.poly([(12, y), (20.5, y + 3), (12, y + 6), (3.5, y + 3)], color)
-
-
-def doip(c):
-    label(c, 'DOIP'[:4])
-    c.rect(6, 10, 18, 20, ORANGE, radius=1)
-    c.rect(8.5, 12, 15.5, 17, TILE)
-    c.rect(10.5, 17, 13.5, 18.5, TILE)
-
-
-def secoc(c):
-    c.ring(12, 9, 4.5, 1.8, LIGHT, 180, 360)
-    c.line([(7.6, 9), (7.6, 11)], 1.8, LIGHT)
-    c.line([(16.4, 9), (16.4, 11)], 1.8, LIGHT)
-    c.rect(5, 11, 19, 20.5, ORANGE, radius=1.5)
-    c.circle(12, 15, 1.6, TILE)
-    c.rect(11.3, 15, 12.7, 18.5, TILE)
-
-
-def recorder(c):
-    c.ring(12, 12, 8.5, 1.6, LIGHT)
-    c.circle(12, 12, 5, DANGER)
-
-
-def replayer(c):
-    c.ring(12, 12, 8.5, 1.6, LIGHT)
-    c.poly([(9.5, 7.5), (17, 12), (9.5, 16.5)], ORANGE)
-
-
-def live_data(c):
-    c.line([(3, 13), (7, 13), (9, 8), (12, 18), (14.5, 5), (17, 13), (21, 13)], 1.8, ORANGE)
-    c.circle(21, 13, 1.2, LIGHT)
-
-
-def vin(c):
-    c.rect(3, 6, 21, 18, LIGHT, radius=1.5)
-    c.text_centered(12, 9.5, 'VIN', TILE)
-
-
-def freeze_frame(c):
-    for a in (0, 60, 120):
-        r = math.radians(a)
-        dx, dy = math.cos(r) * 8, math.sin(r) * 8
-        c.line([(12 - dx, 12 - dy), (12 + dx, 12 + dy)], 1.6, INFO)
-    c.circle(12, 12, 2.2, LIGHT)
-
-
-def on_board_monitor(c):
-    for i, color in enumerate((SUCCESS, SUCCESS, WARNING)):
-        y = 6 + i * 6
-        if color == SUCCESS:
-            c.line([(4, y), (5.8, y + 1.8), (8.8, y - 1.6)], 1.4, color)
-        else:
-            c.circle(6.2, y, 1.8, color)
-        c.line([(11, y), (20, y)], 1.6, LIGHT)
-
-
-def gear(c, cx=12, cy=12, r=7.5, color=ORANGE):
-    pts = []
-    for i in range(16):
-        a = math.radians(i * 22.5)
-        rr = r if i % 2 == 0 else r - 2.2
-        pts.append((cx + math.cos(a) * rr, cy + math.sin(a) * rr))
-    c.poly(pts, color)
-    c.circle(cx, cy, r * 0.35, TILE)
-
-
-def actuator(c):
-    gear(c, 10, 10, 7)
-    arrow(c, 14, 20, 21, 20, LIGHT)
-
-
-def vehicle_health(c):
-    c.circle(8.5, 9.5, 4.3, DANGER)
-    c.circle(15.5, 9.5, 4.3, DANGER)
-    c.poly([(4.4, 11), (19.6, 11), (12, 20)], DANGER)
-    c.line([(5, 12), (9, 12), (10.5, 9.5), (13, 14.5), (14.5, 12), (19, 12)], 1.2, LIGHT)
-
-
-def drive_cycle(c):
-    c.line([(5, 21), (7, 15), (14, 13), (16, 7), (12, 4)], 2.2, LIGHT)
-    c.line([(16.5, 3), (16.5, 11)], 1.2, MUTED)
-    c.poly([(16.5, 3), (21, 4.8), (16.5, 6.6)], ORANGE)
-
-
-def ev_battery(c):
-    c.rect(4, 6, 19, 18, LIGHT, radius=1.5)
-    c.rect(19, 9.5, 21, 14.5, LIGHT, radius=0.6)
-    c.rect(5.5, 7.5, 17.5, 16.5, SUCCESS, radius=0.8)
-    bolt(c, -0.5, 0, LIGHT, 0.45)
-
-
-def clear_dtc(c):
-    engine(c, WARNING, -1, -2)
-    c.circle(17.5, 17.5, 4.5, SUCCESS)
-    c.line([(15.4, 17.6), (17, 19.2), (19.8, 16)], 1.3, LIGHT)
-
-
-def oxygen(c):
-    c.circle(12, 12, 8.5, INFO)
-    c.text(6, 7, 'O', LIGHT, scale=2)
-    c.text(13, 12, '2', LIGHT)
-
-
-def data_source(c):
-    c.ellipse(12, 18, 7, 2.6, ORANGE)
-    c.rect(5, 6, 19, 18, ORANGE)
-    c.line([(5, 12), (19, 12)], 1, ORANGE_STRONG)
-    c.ellipse(12, 6, 7, 2.6, LIGHT)
-
-
-def wwh_obd(c):
-    c.ring(12, 9, 6, 1.3, INFO)
-    c.line([(6.5, 9), (17.5, 9)], 1.1, INFO)
-    c.fill(lambda x, y: abs(((x - 12) / 2.8) ** 2 + ((y - 9) / 6) ** 2 - 1) < 0.3,
-           (9, 3, 15, 15), INFO)
-    c.text_centered(12, 17, 'WWH', ORANGE)
-
-
-def wwh_readiness(c):
-    c.text_centered(12, 3, 'WWH', LIGHT)
-    for i in range(2):
-        y = 12 + i * 5.5
-        c.line([(5, y), (6.8, y + 1.8), (9.8, y - 1.6)], 1.4, SUCCESS)
-        c.line([(12, y), (19.5, y)], 1.6, LIGHT)
-
-
-def oem_catalog(c):
-    book(c)
-    c.text_centered(13.5, 15, 'OEM', TILE)
-    c.rect(9, 5.5, 18, 11.5, LIGHT, radius=0.8)
-    c.line([(10.5, 8.5), (16.5, 8.5)], 1, ORANGE_STRONG)
-
-
-def security_access(c):
-    key(c)
-    c.rect(4, 18, 20, 20, ORANGE_STRONG, radius=0.8)
-
-
-def data_identifier_io(c):
-    label(c, 'DID')
-    sub_transfer(c)
-
-
-def routine_control(c):
-    c.ring(12, 12, 8.5, 1.8, ORANGE)
-    c.poly([(9.5, 7.5), (17, 12), (9.5, 16.5)], ORANGE)
-
-
-def flasher(c):
-    chip(c, 12, 14, 12, 12, ORANGE)
-    bolt(c, 0, 2, LIGHT, 0.5)
-
-
-def uploader(c):
-    chip(c, 12, 16.5, 10, 7, ORANGE)
-    arrow(c, 12, 11, 12, 2.5, LIGHT)
-
-
-def flash_session(c):
-    c.ring(12, 12, 8.5, 1.6, ORANGE)
-    bolt(c, 0, 0, WARNING, 0.65)
-
-
-def audit_log(c):
-    c.rect(5, 4.5, 19, 21, LIGHT, radius=1.5)
-    c.rect(9, 3, 15, 6, ORANGE, radius=1)
-    for y in (10, 13.5, 17):
-        c.circle(8, y, 0.9, ORANGE_STRONG)
-        c.line([(10.5, y), (16, y)], 1.2, TILE)
-
-
-def coding_session(c):
-    chip(c, 9.5, 9.5, 9, 9, ORANGE)
-    pencil(c, 11, 22, LIGHT)
-
-
-def component_protection(text):
-    def draw(c):
-        shield(c)
-        c.text_centered(12, 8, text, TILE)
-    return draw
-
-
-def key_adaptation(text):
-    def draw(c):
-        c.rect(3, 4, 11, 12, ORANGE, radius=2)
-        c.circle(7, 8, 1.3, TILE)
-        c.line([(10, 8), (20, 8)], 2.2, LIGHT)
-        c.line([(16.5, 8), (16.5, 11)], 1.6, LIGHT)
-        c.line([(19.3, 8), (19.3, 10.5)], 1.6, LIGHT)
-        c.text_centered(12, 15.5, text, ORANGE_LIGHT)
-    return draw
-
-
-def voltage_gate(c):
-    c.ring(12, 14, 8.5, 2, GREY, 180, 360)
-    c.ring(12, 14, 8.5, 2, SUCCESS, 230, 310)
-    c.line([(12, 14), (15.5, 8.5)], 1.5, LIGHT)
-    c.circle(12, 14, 1.8, LIGHT)
-    c.text_centered(12, 17, 'V', ORANGE)
-
-
-def flash_pipeline(c):
-    for i, color in enumerate((ORANGE, ORANGE_LIGHT, LIGHT)):
-        x = 3 + i * 6.5
-        c.rect(x, 9, x + 5, 15, color, radius=1)
-    c.line([(8, 12), (9.5, 12)], 1.2, MUTED)
-    c.line([(14.5, 12), (16, 12)], 1.2, MUTED)
-    bolt(c, -6.5, -3, WARNING, 0.3)
-
-
-def catalog(text, glyph):
-    def draw(c):
-        book(c)
-        glyph(c)
-        c.text_centered(13.5, 15, text, TILE)
-    return draw
-
-
-def dyno(c):
-    c.circle(7.5, 15, 4.5, ORANGE)
-    c.circle(16.5, 15, 4.5, ORANGE)
-    for x in (7.5, 16.5):
-        c.circle(x, 15, 1.4, TILE)
-    c.line([(3, 9.5), (21, 9.5)], 1.6, LIGHT)
-    c.line([(7.5, 10.5), (16.5, 10.5)], 0.8, MUTED)
-
-
-def power_curve(c):
-    c.line([(4, 3.5), (4, 20), (20.5, 20)], 1.2, MUTED)
-    c.line([(5, 18), (9, 12), (13, 7.5), (16, 6.5), (19.5, 9)], 1.8, ORANGE)
-    c.line([(5, 14), (9, 10.5), (13, 11), (19.5, 15)], 1.3, INFO)
-
-
-def drag_run(c):
-    c.line([(5, 3), (5, 21)], 1.4, LIGHT)
-    for row in range(3):
-        for col in range(4):
-            color = LIGHT if (row + col) % 2 == 0 else TILE
-            c.rect(5.7 + col * 3.6, 3.5 + row * 3.5, 9.3 + col * 3.6, 7 + row * 3.5, color)
-    c.frame(5.5, 3.3, 20.3, 14, 0.6, LIGHT)
-
-
-def dyno_conditions(c):
-    c.rect(9.5, 3, 14.5, 16, LIGHT, radius=2.5)
-    c.circle(12, 17.5, 4, LIGHT)
-    c.circle(12, 17.5, 2.8, DANGER)
-    c.rect(11, 8, 13, 17, DANGER)
-    for y in (6, 9, 12):
-        c.line([(15.5, y), (18, y)], 1, MUTED)
-
-
-def fuel(c):
-    c.rect(4, 5, 14, 21, ORANGE, radius=1.5)
-    c.rect(6, 7, 12, 11.5, TILE, radius=0.6)
-    c.line([(14, 9), (17, 9), (18.5, 11), (18.5, 17), (20, 17), (20, 7), (17.5, 4.5)], 1.4, LIGHT)
-
-
-def emissions(c):
-    c.circle(8, 10, 3.8, MUTED)
-    c.circle(13, 7.5, 4.5, MUTED)
-    c.circle(16.5, 10.5, 3.5, MUTED)
-    c.rect(8, 10, 16.5, 14, MUTED, radius=0.5)
-    c.text_centered(12, 16, 'CO2', LIGHT)
-
-
-def inertial_brake(c):
-    c.ring(11, 12, 8.5, 2.6, LIGHT)
-    for a in range(0, 360, 60):
-        r = math.radians(a)
-        c.circle(11 + math.cos(r) * 4.6, 12 + math.sin(r) * 4.6, 0.9, MUTED)
-    c.circle(11, 12, 2.4, LIGHT)
-    c.rect(16, 6, 21, 15, DANGER, radius=1.5)
-
-
-def torque_wheels(c):
-    c.circle(11, 13, 7.5, GREY)
-    c.ring(11, 13, 7.5, 2.4, LIGHT)
-    c.circle(11, 13, 2.2, LIGHT)
-    c.ring(13, 11, 9.5, 1.6, ORANGE, 200, 300)
-    c.poly([(16.5, 0.8), (19.5, 3.6), (15.2, 4.6)], ORANGE)
-
-
-def eeprom(text):
-    def draw(c):
-        chip(c, 12, 9, 10, 8, ORANGE)
-        c.text_centered(12, 16, text, LIGHT)
-    return draw
-
-
-def studio_card(c):
-    c.frame(3.5, 4.5, 20.5, 19.5, 1.2, LIGHT)
-    c.rect(3.5, 4.5, 5, 19.5, ORANGE)
-    c.rect(7, 7.5, 15, 9, LIGHT, radius=0.5)
-    c.line([(7, 16.5), (18, 16.5)], 1, MUTED)
-
-
-def studio_button(c):
-    c.rect(3, 8, 21, 16, ORANGE, radius=1.5)
-    c.rect(7, 11.3, 17, 12.7, TILE, radius=0.5)
-
-
-def studio_check(c):
-    c.rect(3.5, 7.5, 12.5, 16.5, ORANGE, radius=1.5)
-    c.line([(5.6, 12), (7.6, 14.2), (10.8, 9.6)], 1.6, TILE)
-    c.rect(14.5, 9.5, 21.5, 14.5, LIGHT, radius=2.5)
-    c.circle(19, 12, 1.8, ORANGE)
-
-
-def studio_radio(c):
-    c.ring(8, 12, 4.5, 1.4, ORANGE)
-    c.circle(8, 12, 2.2, ORANGE)
-    c.line([(14.5, 12), (20.5, 12)], 1.6, LIGHT)
-
-
-def studio_chip(c):
-    c.rect(2.5, 8.5, 21.5, 15.5, DANGER, radius=1, alpha=0.35)
-    c.frame(2.5, 8.5, 21.5, 15.5, 1, DANGER, radius=1)
-    c.rect(6, 11.4, 18, 12.6, LIGHT, radius=0.4)
-
-
-def studio_badge(c):
-    c.rect(3.5, 5.5, 15.5, 17.5, GREY, radius=1.5)
-    c.circle(16.5, 7.5, 4.5, DANGER)
-    c.text_centered(16.5, 5.5, '3', LIGHT)
-
-
-def studio_banner(c):
-    c.rect(2.5, 6.5, 21.5, 17.5, WARNING, alpha=0.3)
-    c.rect(2.5, 6.5, 4, 17.5, WARNING)
-    c.circle(8, 12, 2.2, WARNING)
-    c.line([(12, 10), (19.5, 10)], 1.2, LIGHT)
-    c.line([(12, 14), (17.5, 14)], 1.2, MUTED)
-
-
-def studio_segmented(c):
-    c.frame(2.5, 8.5, 21.5, 15.5, 1, MUTED, radius=1)
-    c.rect(2.5, 8.5, 9, 15.5, ORANGE, radius=1)
-    c.line([(15.2, 9.5), (15.2, 14.5)], 1, MUTED)
-
-
-def studio_range_bar(c):
-    c.rect(3, 11, 21, 13, GREY, radius=1)
-    c.rect(8, 11, 16, 13, SUCCESS, radius=0.5)
-    c.line([(13, 8.5), (13, 15.5)], 1.6, LIGHT)
-
-
-def studio_inspector(c):
-    c.rect(3.5, 4, 20.5, 7, GREY, radius=0.6)
-    c.poly([(4.8, 4.8), (7.2, 4.8), (6, 6.4)], LIGHT)
-    for i in range(3):
-        y = 10 + i * 4
-        c.line([(4.5, y), (10, y)], 1.2, MUTED)
-        c.line([(13, y), (19.5, y)], 1.2, ORANGE if i == 1 else LIGHT)
-    c.line([(11.5, 8), (11.5, 20)], 1, TILE_EDGE)
-
-
-def studio_sidebar(c):
-    c.rect(3.5, 3.5, 10, 20.5, GREY, radius=1)
-    c.rect(3.5, 8, 10, 11, ORANGE)
-    for y in (5.5, 14, 17.5):
-        c.circle(6.8, y, 1, LIGHT)
-    c.frame(10, 3.5, 20.5, 20.5, 1, MUTED, radius=1)
-
-
-def studio_range_profile(c):
-    for i, (lo, hi) in enumerate(((7, 15), (5, 12), (10, 18))):
-        y = 7 + i * 5
-        c.rect(4, y - 0.8, 20, y + 0.8, GREY, radius=0.6)
-        c.rect(lo, y - 0.8, hi, y + 0.8, SUCCESS if i != 1 else ORANGE, radius=0.6)
-
-
-def studio_vehicle_card(c):
-    c.frame(3, 5, 21, 19, 1.2, LIGHT, radius=1)
-    c.text(5, 7, 'VIN', ORANGE)
-    c.line([(5, 15.5), (18.5, 15.5)], 1.2, MUTED)
-
-
-def studio_dtc_panel(c):
-    for i, color in enumerate((DANGER, WARNING, ORANGE_STRONG)):
-        y = 6.5 + i * 5.5
-        c.rect(3.5, y - 1.5, 8.5, y + 1.5, color, radius=0.8)
-        c.line([(11, y), (20, y)], 1.4, LIGHT)
-
-
-def studio_readiness(c):
-    for i in range(4):
-        x, y = 4 + (i % 2) * 9, 4.5 + (i // 2) * 8.5
-        c.frame(x, y, x + 7, y + 6.5, 1, MUTED, radius=0.8)
-        if i == 3:
-            c.circle(x + 3.5, y + 3.25, 1.6, WARNING)
-        else:
-            c.line([(x + 1.7, y + 3.3), (x + 3, y + 4.6), (x + 5.3, y + 1.9)], 1.2, SUCCESS)
-
-
-def studio_freeze_frame(c):
-    freeze_frame(c)
-    c.rect(4, 19, 20, 21, GREY, radius=0.8)
-    c.rect(9, 19, 15, 21, SUCCESS, radius=0.6)
-
-
-def studio_range_editor(c):
-    for i in range(2):
-        y = 7 + i * 7
-        c.line([(3.5, y + 2), (9, y + 2)], 1.2, LIGHT)
-        c.rect(11, y, 20.5, y + 4.5, LIGHT, radius=0.8)
-        c.rect(12.5, y + 1.5, 16, y + 3, ORANGE if i == 0 else TILE, radius=0.4)
-
-
-def chrome_title_bar(c):
-    c.frame(2.5, 4.5, 21.5, 19.5, 1, ORANGE, radius=0.8)
-    c.rect(2.5, 4.5, 21.5, 9, GREY, radius=0.8)
-    c.rect(4, 5.8, 6.4, 7.8, ORANGE, radius=0.4)
-    c.line([(15, 6.8), (16.5, 6.8)], 1, LIGHT)
-    c.line([(19, 5.8), (20.4, 7.8)], 1, LIGHT)
-    c.line([(20.4, 5.8), (19, 7.8)], 1, LIGHT)
-
-
-def chrome_menu_bar(c):
-    c.rect(2.5, 4, 21.5, 7.5, GREY, radius=0.6)
-    for x in (4, 9.5, 15):
-        c.line([(x, 5.8), (x + 3.5, 5.8)], 1.2, LIGHT)
-    c.frame(9, 9, 20.5, 20, 1, MUTED, radius=0.8)
-    c.rect(9.5, 12.5, 20, 15, ORANGE, alpha=0.45)
-    c.line([(11, 13.8), (18, 13.8)], 1.2, LIGHT)
-    c.line([(11, 17.5), (16.5, 17.5)], 1.2, MUTED)
-
-
-def chrome_popup_menu(c):
-    c.frame(4.5, 3.5, 19.5, 20.5, 1, MUTED, radius=0.8)
-    c.line([(6.5, 6.8), (8, 8.3), (10.2, 5.6)], 1.2, ORANGE)
-    for y in (7, 12, 17):
-        c.line([(11.5, y), (17.5, y)], 1.2, LIGHT)
-    c.line([(6, 9.6), (18, 9.6)], 0.8, TILE_EDGE)
-
-
-def chrome_ribbon(c):
-    c.rect(2.5, 4, 7.5, 7.5, ORANGE, radius=0.5)
-    c.line([(9.5, 5.8), (13, 5.8)], 1.2, LIGHT)
-    c.line([(15, 5.8), (18.5, 5.8)], 1.2, MUTED)
-    c.frame(2.5, 8.5, 21.5, 19.5, 1, MUTED, radius=0.8)
-    c.rect(4.5, 10.5, 9, 15, ORANGE, radius=0.6)
-    c.line([(4.5, 17.2), (9, 17.2)], 1, LIGHT)
-    for y in (11.3, 14, 16.7):
-        c.rect(11.5, y - 0.9, 13.3, y + 0.9, LIGHT, radius=0.3)
-        c.line([(14.5, y), (19.5, y)], 1, MUTED)
-
-
-def chrome_tabs(c):
-    c.line([(3, 15), (21, 15)], 1, MUTED)
-    c.line([(4, 11.5), (9, 11.5)], 1.4, LIGHT)
-    c.rect(3.5, 14, 9.5, 16, ORANGE, radius=0.4)
-    c.line([(11.5, 11.5), (15.5, 11.5)], 1.4, MUTED)
-    c.line([(17.5, 11.5), (20.5, 11.5)], 1.4, MUTED)
-
-
-def chrome_tool_bar(c):
-    c.frame(2.5, 7, 21.5, 17, 1, MUTED, radius=0.8)
-    c.rect(4.5, 9, 8.5, 15, ORANGE, radius=0.6)
-    c.rect(10, 10.5, 13, 13.5, LIGHT, radius=0.4)
-    c.line([(14.8, 9.5), (14.8, 14.5)], 1, TILE_EDGE)
-    c.rect(16.5, 10.5, 19.5, 13.5, LIGHT, radius=0.4)
-
-
-def chrome_status_bar(c):
-    c.frame(2.5, 4.5, 21.5, 19.5, 1, MUTED, radius=0.8)
-    c.rect(2.5, 15, 21.5, 19.5, GREY, radius=0.8)
-    c.circle(5.5, 17.2, 1.2, SUCCESS)
-    c.line([(8, 17.2), (13, 17.2)], 1.2, LIGHT)
-    c.line([(16, 17.2), (19.5, 17.2)], 1.2, MUTED)
-
-
-def chrome_progress(c):
-    c.rect(3, 8, 21, 10.5, GREY, radius=1)
-    c.rect(3, 8, 15, 10.5, ORANGE, radius=1)
-    for i, color in enumerate((SUCCESS, ORANGE, GREY)):
-        c.circle(5 + i * 7, 16, 1.9, color)
-    c.line([(7, 16), (10, 16)], 1, SUCCESS)
-    c.line([(14, 16), (17, 16)], 1, MUTED)
-
-
-def chrome_dialog(c):
-    c.frame(3, 4, 21, 20, 1, ORANGE, radius=1)
-    c.circle(7.5, 9, 2.4, WARNING)
-    c.line([(11, 8), (18.5, 8)], 1.2, LIGHT)
-    c.line([(11, 11), (16.5, 11)], 1, MUTED)
-    c.rect(9.5, 15, 13.5, 17.8, GREY, radius=0.6)
-    c.rect(14.5, 15, 19.5, 17.8, DANGER, radius=0.6)
-
-
-def chrome_toast(c):
-    c.rect(3, 9, 21, 19, GREY, radius=1)
-    c.rect(3, 9, 4.6, 19, SUCCESS, radius=0.6)
-    c.line([(7, 12), (17, 12)], 1.2, LIGHT)
-    c.line([(7, 15), (14, 15)], 1, MUTED)
-    c.rect(4.6, 18, 15, 19, ORANGE)
-    c.frame(6, 3.5, 19, 7.5, 1, MUTED, radius=0.8)
-
-
-def chrome_hint(c):
-    c.frame(3, 5, 21, 14, 1, MUTED, radius=1)
-    c.poly([(7, 14), (10, 14), (7, 17.5)], MUTED)
-    c.line([(5.5, 8), (12.5, 8)], 1.4, LIGHT)
-    c.rect(14.5, 6.8, 19.5, 9.4, GREY, radius=0.5)
-    c.line([(5.5, 11.3), (16, 11.3)], 1, MUTED)
-
-
-def chrome_scroll_bar(c):
-    c.rect(10.5, 3, 13.5, 21, GREY, radius=1.5)
-    c.rect(10.5, 7, 13.5, 13, ORANGE, radius=1.5)
-    c.line([(16.5, 5), (18, 3.5), (19.5, 5)], 1, MUTED)
-    c.line([(16.5, 19), (18, 20.5), (19.5, 19)], 1, MUTED)
-
-
-
-def studio_splitter(c):
-    c.frame(2.5, 4, 21.5, 20, 1, MUTED, radius=0.8)
-    c.rect(10.5, 4, 13.5, 20, ORANGE)
-    for y in (10, 12, 14):
-        c.circle(12, y, 0.6, TILE)
-    c.line([(7.5, 9.5), (5, 12), (7.5, 14.5)], 1, LIGHT)
-    c.line([(16.5, 9.5), (19, 12), (16.5, 14.5)], 1, LIGHT)
-
-
-def studio_scroll_box(c):
-    c.frame(2.5, 3, 21.5, 21, 1, MUTED, radius=0.8)
-    for y in (6, 10.5, 15):
-        c.rect(5, y, 15.5, y + 3, LIGHT, radius=0.5)
-    c.rect(17.5, 5, 19.5, 19, GREY, radius=1)
-    c.rect(17.5, 6, 19.5, 11.5, ORANGE, radius=1)
-
-
-def studio_spin_edit(c):
-    c.rect(3, 7, 21, 17, LIGHT, radius=1.5)
-    c.text(5, 9.5, '42', TILE)
-    c.line([(15.5, 10.5), (17, 9), (18.5, 10.5)], 1.2, ORANGE)
-    c.line([(15.5, 13.5), (17, 15), (18.5, 13.5)], 1.2, ORANGE)
-
-
-def studio_track_bar(c):
-    c.rect(3, 11, 21, 13, GREY, radius=1)
-    c.rect(3, 11, 13, 13, ORANGE, radius=1)
-    c.circle(13, 12, 3.4, LIGHT)
-    c.ring(13, 12, 3.4, 1.4, ORANGE)
-    for x in (3.5, 8, 12.5, 17, 20.5):
-        c.rect(x - 0.4, 16.5, x + 0.4, 18.5, MUTED)
-
-
-def studio_memo(c):
-    c.rect(3, 4, 21, 20, LIGHT, radius=1.5)
-    for y, x1 in ((7.5, 15.5), (10.5, 14), (13.5, 15.5), (16.5, 11)):
-        c.line([(5.5, y), (x1, y)], 1.2, TILE)
-    c.rect(17.5, 6, 19, 18, GREY, radius=0.7)
-    c.rect(17.5, 6.5, 19, 11, ORANGE, radius=0.7)
-
-
-def studio_calendar(c):
-    c.rect(3, 4.5, 21, 20.5, LIGHT, radius=1.5)
-    c.rect(3, 4.5, 21, 8.5, ORANGE, radius=1.5)
-    c.rect(7, 3, 8.5, 6, TILE, radius=0.5)
-    c.rect(15.5, 3, 17, 6, TILE, radius=0.5)
-    for row, y in enumerate((11, 14, 17.5)):
-        for col, x in enumerate((6.5, 10, 13.5, 17)):
-            if (row, col) == (1, 2):
-                c.circle(x + 0.5, y + 0.5, 1.7, ORANGE)
+class Mask:
+    """Supersampled coverage; shapes are in pixel coordinates."""
+
+    def __init__(self, size):
+        self.size = size
+        self.n = size * SUPERSAMPLE
+        self.bits = bytearray(self.n * self.n)
+
+    def _range(self, lo, hi):
+        k = SUPERSAMPLE
+        return (max(0, int(math.floor(lo * k - 0.5))),
+                min(self.n, int(math.ceil(hi * k + 0.5))))
+
+    def coverage(self):
+        k = SUPERSAMPLE
+        total = k * k
+        n, bits = self.n, self.bits
+        for py in range(self.size):
+            for px in range(self.size):
+                hits = 0
+                for sy in range(py * k, py * k + k):
+                    row = sy * n + px * k
+                    hits += sum(bits[row:row + k])
+                if hits:
+                    yield py * self.size + px, hits / total
+
+    def segment(self, ax, ay, bx, by, h):
+        k = SUPERSAMPLE
+        dx, dy = bx - ax, by - ay
+        ll = dx * dx + dy * dy
+        x0, x1 = self._range(min(ax, bx) - h, max(ax, bx) + h)
+        y0, y1 = self._range(min(ay, by) - h, max(ay, by) + h)
+        hh = h * h
+        for sy in range(y0, y1):
+            y = (sy + 0.5) / k
+            base = sy * self.n
+            for sx in range(x0, x1):
+                x = (sx + 0.5) / k
+                t = 0.0 if ll == 0 else max(0.0, min(1.0, ((x - ax) * dx + (y - ay) * dy) / ll))
+                if (x - ax - t * dx) ** 2 + (y - ay - t * dy) ** 2 <= hh:
+                    self.bits[base + sx] = 1
+
+    def polyline(self, points, width, closed=False):
+        pts = list(points) + ([points[0]] if closed else [])
+        if len(pts) == 1:
+            pts = pts * 2
+        for (ax, ay), (bx, by) in zip(pts, pts[1:]):
+            self.segment(ax, ay, bx, by, width / 2)
+
+    def polygon(self, points):
+        k = SUPERSAMPLE
+        ys = [p[1] for p in points]
+        y0, y1 = self._range(min(ys), max(ys))
+        count = len(points)
+        for sy in range(y0, y1):
+            y = (sy + 0.5) / k
+            xs = []
+            for i in range(count):
+                (xa, ya), (xb, yb) = points[i], points[(i + 1) % count]
+                if (ya > y) != (yb > y):
+                    xs.append(xa + (y - ya) * (xb - xa) / (yb - ya))
+            xs.sort()
+            base = sy * self.n
+            for a, b in zip(xs[0::2], xs[1::2]):
+                for sx in range(max(0, int(math.ceil(a * k - 0.5))),
+                                min(self.n, int(math.floor(b * k - 0.5)) + 1)):
+                    self.bits[base + sx] = 1
+
+    def disc(self, cx, cy, r):
+        self.annulus(cx, cy, r, 0.0)
+
+    def annulus(self, cx, cy, r_out, r_in, start=None, sweep=None):
+        k = SUPERSAMPLE
+        x0, x1 = self._range(cx - r_out, cx + r_out)
+        y0, y1 = self._range(cy - r_out, cy + r_out)
+        ro, ri = r_out * r_out, max(0.0, r_in) ** 2
+        if sweep is not None and sweep < 0:
+            start, sweep = start + sweep, -sweep
+        for sy in range(y0, y1):
+            y = (sy + 0.5) / k - cy
+            base = sy * self.n
+            for sx in range(x0, x1):
+                x = (sx + 0.5) / k - cx
+                d = x * x + y * y
+                if not (ri <= d <= ro):
+                    continue
+                if start is not None and (math.degrees(math.atan2(y, x)) - start) % 360 > sweep:
+                    continue
+                self.bits[base + sx] = 1
+
+
+def _arc_points(cx, cy, rx, ry, start, sweep, steps=None):
+    steps = steps or max(8, int(abs(sweep) / 6))
+    return [(cx + rx * math.cos(math.radians(start + sweep * i / steps)),
+             cy + ry * math.sin(math.radians(start + sweep * i / steps)))
+            for i in range(steps + 1)]
+
+
+class Pen:
+    """Maps the 16 px icon grid of tools/ui_icons.py onto a canvas: grid
+    unit s pixels, origin (ox, oy), stroke width in pixels."""
+
+    def __init__(self, canvas, s, ox, oy, width):
+        self.c, self.s, self.ox, self.oy, self.w = canvas, s, ox, oy, width
+
+    def T(self, pts):
+        return [(self.ox + x * self.s, self.oy + y * self.s) for x, y in pts]
+
+    def shape(self, mask, prim, width):
+        s = self.s
+        kind = prim[0]
+        if kind in ('line', 'loop'):
+            mask.polyline(self.T(prim[1]), width, kind == 'loop')
+        elif kind == 'fill':
+            mask.polygon(self.T(prim[1]))
+        elif kind in ('ring', 'arc'):
+            _, x, y, r = prim[:4]
+            cx, cy = self.T([(x, y)])[0]
+            if kind == 'ring':
+                mask.annulus(cx, cy, r * s + width / 2, r * s - width / 2)
             else:
-                c.rect(x, y, x + 1.2, y + 1.2, TILE)
-
-
-def studio_date_picker(c):
-    c.rect(3, 7, 21, 17, LIGHT, radius=1.5)
-    c.line([(5.5, 12), (11.5, 12)], 1.2, TILE)
-    c.frame(14.5, 9.5, 19.5, 15, 1, ORANGE, radius=0.6)
-    c.rect(14.5, 9.5, 19.5, 11.2, ORANGE)
-    c.rect(16.5, 12.5, 17.7, 13.7, TILE)
-
-def chrome_backstage(c):
-    c.frame(2.5, 4, 21.5, 20, 1, MUTED, radius=0.8)
-    c.rect(2.5, 4, 8, 20, ORANGE, radius=0.8)
-    c.line([(6.3, 6.8), (4.3, 8.3), (6.3, 9.8)], 1, TILE)
-    for y in (12.5, 15.5):
-        c.line([(4, y), (6.5, y)], 1, TILE)
-    c.rect(11, 7, 19.5, 17.5, LIGHT, radius=0.4)
-    c.line([(12.5, 9.5), (17, 9.5)], 1, ORANGE)
-    c.line([(12.5, 12.5), (18, 12.5)], 0.8, MUTED)
-    c.line([(12.5, 15), (16, 15)], 0.8, MUTED)
-
-
-def chrome_report_preview(c):
-    c.rect(3, 3, 21, 21, GREY, radius=1)
-    c.rect(6.5, 4.5, 17.5, 19.5, LIGHT, radius=0.3)
-    c.line([(8, 7), (13, 7)], 1.2, ORANGE)
-    for y in (10, 12.5, 15):
-        c.line([(8, y), (16, y)], 0.8, MUTED)
-
-
-
-def folder_shape(c, x0, y0, x1, y1, color):
-    c.rect(x0, y0, x0 + (x1 - x0) * 0.42, y0 + 2.5, color, radius=0.6)
-    c.rect(x0, y0 + 1.5, x1, y1, color, radius=0.8)
-
-
-def dialog_frame(c):
-    c.frame(2.5, 3.5, 21.5, 20.5, 1, ORANGE, radius=1)
-    c.rect(2.5, 3.5, 21.5, 6.5, GREY, radius=1)
-
-
-def studio_list_box(c):
-    c.frame(3, 3.5, 21, 20.5, 1, MUTED, radius=1)
-    c.rect(4, 9, 20, 12.5, ORANGE, alpha=0.45)
-    c.rect(4, 9.3, 5, 12.2, ORANGE)
-    for y in (6.8, 10.8, 14.8, 18):
-        c.line([(6.5, y), (16, y)], 1, LIGHT)
-
-
-def studio_breadcrumb(c):
-    c.rect(2.5, 8, 21.5, 16, GREY, radius=1.2)
-    c.line([(4.5, 12), (7.5, 12)], 1.2, LIGHT)
-    c.line([(8.8, 10.3), (10.3, 12), (8.8, 13.7)], 1, MUTED)
-    c.line([(11.5, 12), (14, 12)], 1.2, LIGHT)
-    c.line([(15.3, 10.3), (16.8, 12), (15.3, 13.7)], 1, MUTED)
-    c.line([(18, 12), (20, 12)], 1.4, ORANGE)
-
-
-def studio_places(c):
-    c.rect(3, 3, 11, 21, GREY, radius=1)
-    folder_shape(c, 4.5, 5, 9.5, 8.5, ORANGE)
-    folder_shape(c, 4.5, 10.5, 9.5, 14, MUTED)
-    c.rect(4.5, 16.5, 9.5, 19.5, LIGHT, radius=0.6)
-    c.circle(8.3, 18, 0.6, SUCCESS)
-    for y in (7, 12.5, 18):
-        c.line([(13, y), (20, y)], 1, MUTED)
-
-
-def studio_folder_tree(c):
-    folder_shape(c, 3, 3.5, 10, 8, ORANGE)
-    c.line([(5, 8), (5, 17.5), (9, 17.5)], 1, MUTED)
-    c.line([(5, 12.5), (9, 12.5)], 1, MUTED)
-    folder_shape(c, 10, 10.3, 17, 14.5, LIGHT)
-    folder_shape(c, 10, 15.3, 17, 19.5, LIGHT)
-
-
-def studio_file_list(c):
-    c.frame(2.5, 3.5, 21.5, 20.5, 1, MUTED, radius=1)
-    c.rect(3.5, 4.5, 20.5, 7.5, GREY)
-    for i, y in enumerate((10, 13.5, 17)):
-        if i == 0:
-            folder_shape(c, 4.5, y - 1.5, 7.5, y + 1.5, ORANGE)
+                start, sweep = prim[4], prim[5]
+                mask.annulus(cx, cy, r * s + width / 2, r * s - width / 2, start, sweep)
+                for a in (start, start + sweep):
+                    mask.disc(cx + r * s * math.cos(math.radians(a)),
+                              cy + r * s * math.sin(math.radians(a)), width / 2)
+        elif kind == 'disc':
+            _, x, y, r = prim
+            cx, cy = self.T([(x, y)])[0]
+            mask.disc(cx, cy, r * s)
+        elif kind == 'pie':
+            _, x, y, r, start, sweep = prim
+            mask.polygon(self.T([(x, y)] + _arc_points(x, y, r, r, start, sweep)))
+        elif kind == 'ellipse':
+            _, x, y, w, h = prim
+            pts = _arc_points(x + w / 2, y + h / 2, w / 2, h / 2, 0, 360, 48)
+            mask.polyline(self.T(pts), width, True)
         else:
-            c.rect(5, y - 1.6, 7.3, y + 1.6, LIGHT, radius=0.4)
-        c.line([(9, y), (15, y)], 1, LIGHT)
-        c.line([(16.5, y), (19, y)], 1, MUTED)
+            raise ValueError(kind)
+
+    def draw(self, ops, color):
+        for op in ops:
+            if op[0] == 'text':
+                _, x, y, value = op[:4]
+                scale = op[4] if len(op) > 4 else 1
+                cx, cy = self.T([(x, y)])[0]
+                text(self.c, cx, cy, value, color, scale)
+                continue
+            if op[0] == 'only':
+                if self.c.size in op[1]:
+                    self.draw([op[2]], color)
+                continue
+            prim = ui_icons.compile_op(op)
+            mask = self.c.mask()
+            if prim[0] == 'knock':
+                self.shape(mask, prim[1], self.w + 2 * max(1.0, self.s * 0.75))
+                self.c.erase(mask)
+            elif prim[0] == 'ink':
+                inner = prim[1]
+                self.shape(mask, inner, self.w * 1.6 if inner[0] == 'line' else self.w)
+                self.c.erase(mask)
+            else:
+                self.shape(mask, prim, self.w)
+                self.c.paint(mask, color)
 
 
-def file_dialog_icon(arrow_up, picture=False):
-    def draw(c):
-        dialog_frame(c)
-        if picture:
-            c.rect(5, 9, 13.5, 17.5, LIGHT, radius=0.5)
-            c.poly([(5.5, 17), (8.5, 12.5), (11, 15.5), (13, 13.5), (13, 17)], SUCCESS)
-            c.circle(11, 11, 1, WARNING)
+def text(c, cx, cy, value, color, scale=1):
+    """3x5 pixel font centred on (cx, cy), snapped to whole pixels."""
+    width = (len(value) * 4 - 1) * scale
+    x = int(round(cx - width / 2))
+    y = int(round(cy - 5 * scale / 2))
+    mask = c.mask()
+    for ch in value:
+        for ry, row in enumerate(FONT[ch]):
+            for rx, bit in enumerate(row):
+                if bit == '1':
+                    px, py = x + rx * scale, y + ry * scale
+                    mask.polygon([(px, py), (px + scale, py),
+                                  (px + scale, py + scale), (px, py + scale)])
+        x += 4 * scale
+    c.paint(mask, color)
+
+
+# ---- icon designs ----------------------------------------------------------------
+# A design is a list of layers (colour key, ops). Ops are the ui_icons.py
+# operations on the 16 px grid (origin on the middle pixel, live area -7..7)
+# plus ('text', x, y, value[, scale]) and ('only', sizes, op).
+
+G = {**ui_icons.GLYPHS, **ui_icons.FEATURES}
+SHELL = ui_icons.SHELL
+
+
+def xf(ops, k=1.0, dx=0.0, dy=0.0):
+    """Scale and move grid ops (for badges and composites)."""
+    P = lambda pts: [(round(x * k + dx, 3), round(y * k + dy, 3)) for x, y in pts]
+    out = []
+    for op in ops:
+        kind = op[0]
+        if kind == 'path':
+            out.append(('path', P(op[1]), op[2] * k, op[3]))
+        elif kind == 'fill':
+            out.append(('fill', P(op[1]), op[2] * k))
+        elif kind in ('rect', 'box'):
+            _, x, y, w, h, r = op
+            out.append((kind, x * k + dx, y * k + dy, w * k, h * k, r * k))
+        elif kind in ('circle', 'disc'):
+            out.append((kind, op[1] * k + dx, op[2] * k + dy, op[3] * k))
+        elif kind in ('arc', 'pie'):
+            out.append((kind, op[1] * k + dx, op[2] * k + dy, op[3] * k, op[4], op[5]))
+        elif kind == 'ellipse':
+            _, x, y, w, h = op
+            out.append(('ellipse', x * k + dx, y * k + dy, w * k, h * k))
+        elif kind in ('knock', 'ink'):
+            out.append((kind, xf([op[1]], k, dx, dy)[0]))
         else:
-            folder_shape(c, 5, 9, 13.5, 17, ORANGE)
-        x = 17.5
-        if arrow_up:
-            c.line([(x, 17.5), (x, 10)], 1.4, LIGHT)
-            c.line([(x - 2.3, 12.3), (x, 10), (x + 2.3, 12.3)], 1.4, LIGHT)
-        else:
-            c.line([(x, 9.5), (x, 17)], 1.4, LIGHT)
-            c.line([(x - 2.3, 14.7), (x, 17), (x + 2.3, 14.7)], 1.4, LIGHT)
-    return draw
+            out.append(op)
+    return out
 
 
-def dialog_folder(c):
-    dialog_frame(c)
-    folder_shape(c, 5, 9, 15, 18, ORANGE)
-    c.circle(17.5, 16.5, 2.6, SUCCESS)
-    c.line([(16.2, 16.5), (17.2, 17.5), (18.9, 15.6)], 0.9, LIGHT)
+def P(*points, r=0, closed=False):
+    return ('path', list(points), r, closed)
 
 
-def dialog_print(c):
-    c.rect(7, 3.5, 17, 9, LIGHT, radius=0.4)
-    c.rect(3, 8, 21, 16.5, GREY, radius=1.2)
-    c.circle(18, 10.8, 0.8, ORANGE)
-    c.rect(7, 13.5, 17, 21, LIGHT, radius=0.4)
-    for y in (16, 18.3):
-        c.line([(8.8, y), (15.2, y)], 0.9, MUTED)
+def one(name, colour='a'):
+    return [(colour, G[name])]
 
 
-def dialog_page_setup(c):
-    c.rect(5, 2.5, 19, 21.5, LIGHT, radius=0.5)
-    c.frame(7.5, 5, 16.5, 19, 0.8, ORANGE)
-    for y in (8, 10.5, 13):
-        c.line([(9, y), (15, y)], 0.8, MUTED)
+def two(name, accent, base='n', colour='a'):
+    """A glyph with the ops at the accent indices in orange."""
+    ops = G[name] if name in G else SHELL[name]
+    return [(base, [op for i, op in enumerate(ops) if i not in accent]),
+            (colour, [op for i, op in enumerate(ops) if i in accent])]
 
 
-def dialog_font(c):
-    dialog_frame(c)
-    c.poly([(5, 18.5), (8.7, 8.5), (10.3, 8.5), (14, 18.5), (12, 18.5), (9.5, 11), (7, 18.5)], LIGHT)
-    c.line([(7.6, 15), (11.4, 15)], 1.2, LIGHT)
-    c.line([(15.5, 18.5), (15.5, 12)], 1.2, ORANGE)
-    c.line([(15.5, 13.5), (17.5, 12), (19, 13), (19, 18.5)], 1.2, ORANGE)
+def badge(layers, sub_layers, colour='a'):
+    """Main design with a half-size badge in the lower right corner."""
+    cut = [('knock', ('disc', 4, 4, 3.6))]
+    return [(c, ops) for c, ops in layers] + [('n', cut)] + [
+        (c, xf(ops, 0.5, 4, 4)) for c, ops in sub_layers]
 
 
-def dialog_colour(c):
-    dialog_frame(c)
-    for i, col in enumerate((ORANGE, SUCCESS, INFO, DANGER)):
-        x = 5 + (i % 2) * 4.5
-        y = 9 + (i // 2) * 4.5
-        c.rect(x, y, x + 3.5, y + 3.5, col, radius=0.5)
-    c.rect(15, 9, 19.5, 17.5, WARNING, radius=0.6)
+class Tagged:
+    """A label above a glyph (protocol, brand and catalogue families). At
+    16 px only the glyph is drawn."""
+
+    def __init__(self, label, layers):
+        self.label, self.layers = label, layers
 
 
-def studio_swatches(c):
-    cols = (ORANGE, SUCCESS, INFO, DANGER, WARNING, LIGHT, MUTED, GREY, ORANGE_STRONG)
-    for i, col in enumerate(cols):
-        x = 3.5 + (i % 3) * 6
-        y = 3.5 + (i // 3) * 6
-        c.rect(x, y, x + 5, y + 5, col, radius=0.8)
-    c.frame(8.8, 8.8, 15.2, 15.2, 1, LIGHT, radius=1)
+# Small parts drawn only for the palette ---------------------------------------
+
+WAVE = [('path', [(-7, 0), (-5.25, -3), (-3.5, 0), (-1.75, 3), (0, 0),
+                  (1.75, -3), (3.5, 0), (5.25, 3), (7, 0)], 1.5, False)]
+TOGGLE = [('rect', -7, -3.5, 14, 7, 3.5), ('disc', 3.5, 0, 2)]
+TAG = [('path', [(-7, -5), (1, -5), (7, 0), (1, 5), (-7, 5)], 1, True),
+       ('disc', -3.5, 0, 1)]
+SLIDERS = [P((-7, -4), (7, -4)), P((-7, 0), (7, 0)), P((-7, 4), (7, 4)),
+           ('box', -4, -6, 2, 4, 1), ('box', 2, -2, 2, 4, 1), ('box', -1, 2, 2, 4, 1)]
+TRANSFER = [P((-7, -3), (5, -3)), P((2, -6), (5, -3), (2, 0)),
+            P((7, 3), (-5, 3)), P((-2, 0), (-5, 3), (-2, 6))]
+BOOK = [('path', [(-6, -7), (5, -7), (5, 7), (-6, 7)], 1, True), P((-3, -7), (-3, 7)),
+        P((0, -3), (3, -3))]
+DIAL = [('arc', 0, 1, 7, 135, 270), P((-5.6, 1), (-4.6, 1)), P((0, -6), (0, -5)),
+        P((5.6, 1), (4.6, 1))]
+NEEDLE = [P((0, 1), (3.5, -2.5)), ('disc', 0, 1, 1.25)]
+SNOWFLAKE = ([P((0, -7), (0, 7))] + [P(*ui_icons._rot([(0, -7), (0, 7)], a)) for a in (60, -60)] +
+             [P(*ui_icons._rot(pts, a)) for a in (0, 60, 120, 180, 240, 300)
+              for pts in ([(-2, -6.5), (0, -4.5), (2, -6.5)],)])
+FONT_A = [P((-7, 6), (-3, -6), (1, 6)), P((-5.5, 2), (-0.5, 2))]
+FONT_SMALL = [('circle', 4.5, 3.5, 2.5), P((7, 1), (7, 6))]
 
 
-def studio_spectrum(c):
-    for i in range(12):
-        t = i / 11
-        c.rect(3 + i * 1.25, 3, 4.4 + i * 1.25, 18, ORANGE, alpha=0.25 + 0.75 * t)
-    c.rect(3, 15, 18, 18, TILE, alpha=0.8)
-    c.ring(13, 8, 1.6, 0.8, LIGHT)
-    for i, col in enumerate((DANGER, WARNING, SUCCESS, INFO, ORANGE_STRONG)):
-        c.rect(19.5, 3 + i * 3, 21.5, 6 + i * 3, col)
+def field(label, chevron=False):
+    """Text field (edit/combo); the label is drawn as pixel text."""
+    ops = [('rect', -7, -4, 14, 8, 1.5)]
+    if chevron:
+        return [('n', ops + [('only', (24, 32), P((3, -1), (4.5, 0.5), (6, -1)))]),
+                ('a', [('only', (16,), ('text', 0, 0, label)),
+                       ('only', (24, 32), ('text', -2, 0, label))])]
+    return [('n', ops), ('a', [('text', 0, 0, label)])]
 
 
-def dialog_find(c, replace=False):
-    dialog_frame(c)
-    c.ring(10, 12.5, 3.3, 1.3, LIGHT)
-    c.line([(12.4, 14.9), (15.5, 18)], 1.8, ORANGE)
-    if replace:
-        c.line([(15.5, 9.5), (19.5, 9.5)], 1, MUTED)
-        c.line([(17.8, 8), (19.5, 9.5), (17.8, 11)], 1, MUTED)
+def rows(n=3, x0=-4, x1=5, y0=-4, gap=4, colour='n'):
+    return [(colour, [P((x0, y0 + i * gap), (x1, y0 + i * gap)) for i in range(n)])]
 
 
-def dialog_task(c):
-    dialog_frame(c)
-    c.circle(7.5, 11.5, 2.6, INFO)
-    c.line([(7.5, 10.8), (7.5, 13)], 0.9, LIGHT)
-    c.circle(7.5, 9.8, 0.45, LIGHT)
-    c.line([(11.5, 10), (19, 10)], 1.2, LIGHT)
-    c.line([(11.5, 13), (17, 13)], 1, MUTED)
-    c.rect(5, 16, 19, 18.8, GREY, radius=0.6)
-    c.line([(16.5, 16.8), (17.8, 17.4), (16.5, 18)], 0.8, ORANGE)
-
-
-def labelled(text, sub):
-    def draw(c):
-        protocol_icon(c, text, sub)
-    return draw
-
-
-def edit(text):
-    return lambda c: edit_box(c, text)
-
-
-def picker(text):
-    return lambda c: dropdown(c, text)
-
-
-def radio(text):
-    return lambda c: radio_unit(c, text)
-
-
-ICONS = {
+DESIGNS = {
     # OBD
-    'TOBDConnection': connection, 'TOBDAdapter': adapter, 'TOBDProtocol': protocol,
-    'TOBDDoIPClient': doip, 'TOBDSecOCCodec': secoc,
-    'TOBDRecorder': recorder, 'TOBDReplayer': replayer,
-    'TOBDKWP1281Session': labelled('1281', sub_wave), 'TOBDTP20Session': labelled('TP20', sub_wave),
-    'TOBDJ2534Device': labelled('2534', sub_device), 'TOBDJ2534Channel': labelled('2534', sub_wave),
+    'TOBDConnection': two('connect', {3}), 'TOBDAdapter': two('adapter', {1, 2, 3}),
+    'TOBDProtocol': two('bus', {0}),
+    'TOBDDoIPClient': Tagged('DOIP', two('ethernet', {1, 2, 3, 4})),
+    'TOBDSecOCCodec': Tagged('SEC', two('lock', {4})),
+    'TOBDRecorder': [('n', [G['record'][0]]), ('bad', [G['record'][1]])],
+    'TOBDReplayer': [('n', [('circle', 0, 0, 7)]),
+                     ('a', [('fill', [(-2, -3.5), (4, 0), (-2, 3.5)], 1)])],
+    'TOBDKWP1281Session': Tagged('1281', [('a', WAVE)]),
+    'TOBDTP20Session': Tagged('TP20', [('a', WAVE)]),
+    'TOBDJ2534Device': Tagged('2534', two('usb', {1, 2})),
+    'TOBDJ2534Channel': Tagged('2534', [('a', WAVE)]),
     # Services
-    'TOBDLiveData': live_data, 'TOBDDTCs': lambda c: engine(c),
-    'TOBDVIN': vin, 'TOBDVINInspector': vin_inspector, 'TOBDFreezeFrame': freeze_frame,
-    'TOBDOnBoardMonitor': on_board_monitor, 'TOBDActuator': actuator,
-    'TOBDVehicleHealth': vehicle_health, 'TOBDDriveCycleAdvisor': drive_cycle,
-    'TOBDEVBattery': ev_battery, 'TOBDClearDTC': clear_dtc, 'TOBDOxygenMonitor': oxygen,
-    'TOBDDataSource': data_source, 'TOBDWWHOBD': wwh_obd, 'TOBDWWHReadiness': wwh_readiness,
+    'TOBDLiveData': one('live'), 'TOBDDTCs': one('codes', 'warn'),
+    'TOBDVIN': two('vin', {1, 2, 3}),
+    'TOBDVINInspector': badge(two('vin', {1, 2, 3}), one('search')),
+    'TOBDFreezeFrame': [('a', SNOWFLAKE)],
+    'TOBDOnBoardMonitor': two('test', {2}),
+    'TOBDActuator': two('fan', {0}),
+    'TOBDVehicleHealth': two('health', {len(G['health']) - 1}),
+    'TOBDDriveCycleAdvisor': one('flag'),
+    'TOBDEVBattery': [('n', G['battery'][:2]), ('ok', G['battery'][2:])],
+    'TOBDClearDTC': two('clear', {3, 4}),
+    'TOBDOxygenMonitor': one('o2sensor'),
+    'TOBDDataSource': two('database', {0}),
+    'TOBDWWHOBD': Tagged('WWH', one('codes', 'warn')),
+    'TOBDWWHReadiness': Tagged('WWH', two('readiness', {1}, colour='ok')),
     # Diagnostics
-    'TOBDUDS': labelled('UDS', sub_chip), 'TOBDUDSReset': labelled('UDS', sub_reset),
-    'TOBDUDSReadMemory': labelled('UDS', sub_read), 'TOBDUDSIOControl': labelled('UDS', sub_toggle),
-    'TOBDUDSReadDID': labelled('UDS', sub_tag), 'TOBDUDSReadDTC': labelled('UDS', sub_dtc),
-    'TOBDUDSReadByPeriodic': labelled('UDS', sub_clock), 'TOBDUDSDynamicDID': labelled('UDS', sub_plus),
-    'TOBDKWP': labelled('KWP', sub_chip), 'TOBDKWPReadID': labelled('KWP', sub_tag),
-    'TOBDKWPReadDTC': labelled('KWP', sub_dtc), 'TOBDKWPIOControl': labelled('KWP', sub_toggle),
-    'TOBDKWPRoutine': labelled('KWP', sub_play),
-    'TOBDJ1939': labelled('1939', sub_truck), 'TOBDJ1939DM': labelled('1939', sub_dtc),
-    'TOBDOEMCatalog': oem_catalog,
+    'TOBDOEMCatalog': Tagged('OEM', [('n', BOOK[:2]), ('a', BOOK[2:])]),
+    'TOBDJ1939': Tagged('1939', two('truck', {2, 3})),
+    'TOBDJ1939DM': Tagged('1939', one('codes', 'warn')),
     # Coding
-    'TOBDSecurityAccess': security_access, 'TOBDDataIdentifierIO': data_identifier_io,
-    'TOBDRoutineControl': routine_control, 'TOBDFlasher': flasher, 'TOBDUploader': uploader,
-    'TOBDFlashSession': flash_session,
-    'TOBDUDSWriteMemory': labelled('UDS', sub_write), 'TOBDUDSWriteDID': labelled('DID', sub_write),
-    'TOBDKWPWriteID': labelled('KWP', sub_write), 'TOBDCodingAuditLog': audit_log,
-    'TOBDCodingSession': coding_session,
-    'TOBDComponentProtectionVAG': component_protection('VAG'),
-    'TOBDComponentProtectionBMW': component_protection('BMW'),
-    'TOBDComponentProtectionMercedes': component_protection('MB'),
-    'TOBDComponentProtectionStellantis': component_protection('STL'),
-    'TOBDKeyAdaptationFord': key_adaptation('FRD'), 'TOBDKeyAdaptationHMG': key_adaptation('HMG'),
-    'TOBDKeyAdaptationBMW': key_adaptation('BMW'), 'TOBDKeyAdaptationToyota': key_adaptation('TOY'),
-    # Calibration
-    'TOBDXCP': labelled('XCP', sub_sliders), 'TOBDCCP': labelled('CCP', sub_sliders),
-    'TOBDIsoBus': labelled('ISO', sub_sliders),
-    # Flashing
-    'TOBDUDSTransfer': labelled('UDS', sub_transfer), 'TOBDVoltageGate': voltage_gate,
-    'TOBDFlashPipeline': flash_pipeline,
-    # Catalogs
-    'TOBDVINCatalog': catalog('VIN', lambda c: c.rect(9, 5.5, 18, 11.5, LIGHT, radius=0.8)),
-    'TOBDDriveCycleCatalogComp': catalog('DRV', lambda c: c.line(
-        [(9, 12), (11, 8.5), (15, 8.5), (17.5, 5)], 1.6, LIGHT)),
-    'TOBDEVBatteryCatalogComp': catalog('EV', lambda c: bolt(c, 1.5, -3.5, LIGHT, 0.45)),
+    'TOBDSecurityAccess': two('lock', {4}),
+    'TOBDDataIdentifierIO': Tagged('DID', [('a', TRANSFER)]),
+    'TOBDRoutineControl': two('routine', {1}),
+    'TOBDFlasher': two('flash', {9}),
+    'TOBDUploader': [('a', SHELL['download'][:2]), ('n', SHELL['download'][2:])],
+    'TOBDFlashSession': badge(two('flash', {9}), one('clock', 'n')),
+    'TOBDCodingAuditLog': two('job', {2, 3}),
+    'TOBDCodingSession': one('coding'),
+    # Calibration and flashing
+    'TOBDXCP': Tagged('XCP', two('map', {1, 3})),
+    'TOBDCCP': Tagged('CCP', two('map', {1, 3})),
+    'TOBDIsoBus': Tagged('ISO', two('tractor', set())),
+    'TOBDVoltageGate': [('n', G['battery'][:2]), ('a', G['battery'][2:])],
+    'TOBDFlashPipeline': [('n', [('rect', -7, -6, 4, 4, 1), ('rect', -7, 2, 4, 4, 1),
+                                 P((-3, -4), (0, -4), (0, 4), (-3, 4))]),
+                          ('a', [('rect', 3, -2, 4, 4, 1), P((0, 0), (3, 0))])],
+    # Catalogues
+    'TOBDVINCatalog': Tagged('VIN', [('n', BOOK[:2]), ('a', BOOK[2:])]),
+    'TOBDDriveCycleCatalogComp': Tagged('DRV', [('n', BOOK[:2]), ('a', BOOK[2:])]),
+    'TOBDEVBatteryCatalogComp': Tagged('EV', [('n', BOOK[:2]), ('a', BOOK[2:])]),
     # Dashboard
-    'TOBDTheme': theme, 'TOBDDashboard': dashboard, 'TOBDDialGauge': dial,
-    'TOBDBarGauge': bar_gauge, 'TOBDValueTile': value_tile, 'TOBDTrendChart': trend,
-    'TOBDLiveDataGrid': grid, 'TOBDStatusLamp': lamp, 'TOBDConnectionBar': connection_bar,
-    'TOBDMatrixDisplay': matrix,
-    # OBD Studio
-    'TOBDCard': studio_card, 'TOBDButton': studio_button, 'TOBDCheckBox': studio_check,
-    'TOBDRadioButton': studio_radio, 'TOBDChip': studio_chip, 'TOBDBadge': studio_badge,
-    'TOBDBanner': studio_banner, 'TOBDEdit': edit('AB'), 'TOBDComboBox': picker('AB'),
-    'TOBDSegmented': studio_segmented, 'TOBDRangeBar': studio_range_bar,
-    'TOBDInspector': studio_inspector, 'TOBDSidebar': studio_sidebar,
-    'TOBDRangeProfile': studio_range_profile, 'TOBDVehicleInfoCard': studio_vehicle_card,
-    'TOBDDtcPanel': studio_dtc_panel, 'TOBDReadinessPanel': studio_readiness,
-    'TOBDFreezeFrameView': studio_freeze_frame, 'TOBDRangeEditor': studio_range_editor,
-    'TOBDTitleBar': chrome_title_bar, 'TOBDMenuBar': chrome_menu_bar,
-    'TOBDPopupMenu': chrome_popup_menu, 'TOBDRibbon': chrome_ribbon, 'TOBDTabs': chrome_tabs,
-    'TOBDToolBar': chrome_tool_bar, 'TOBDStatusBar': chrome_status_bar,
-    'TOBDProgressBar': chrome_progress, 'TOBDDialog': chrome_dialog,
-    'TOBDToastManager': chrome_toast, 'TOBDHintStyle': chrome_hint,
-    'TOBDScrollBar': chrome_scroll_bar, 'TOBDBackstage': chrome_backstage,
-    'TOBDReportPreview': chrome_report_preview,
-    'TOBDSplitter': studio_splitter, 'TOBDScrollBox': studio_scroll_box,
-    'TOBDSpinEdit': studio_spin_edit, 'TOBDTrackBar': studio_track_bar,
-    'TOBDMemo': studio_memo, 'TOBDCalendar': studio_calendar,
-    'TOBDDatePicker': studio_date_picker,
-    'TOBDListBox': studio_list_box, 'TOBDBreadcrumb': studio_breadcrumb,
-    'TOBDPlacesPane': studio_places, 'TOBDFolderTree': studio_folder_tree,
-    'TOBDFileList': studio_file_list, 'TOBDColorSwatches': studio_swatches,
-    'TOBDColorSpectrum': studio_spectrum,
+    'TOBDTheme': [('n', [('circle', 0, 0, 7)]), ('a', [('pie', 0, 0, 7, -90, 180)])],
+    'TOBDDashboard': [('n', [('rect', -7, -6, 8, 12, 1.5), ('rect', 3, -6, 4, 5, 1),
+                             ('rect', 3, 1, 4, 5, 1)]),
+                      ('a', [('arc', -3, 1.5, 2.5, 180, 180), P((-3, 1.5), (-1.5, -0.5))])],
+    'TOBDDialGauge': [('n', DIAL), ('a', NEEDLE)],
+    'TOBDBarGauge': [('n', [('rect', -7, -3, 14, 6, 1.5)] +
+                     [P((x, 5), (x, 7)) for x in (-6, -2, 2, 6)]),
+                     ('a', [('box', -5, -1, 7, 2, 0.5)])],
+    'TOBDValueTile': [('n', [('rect', -7, -6, 14, 12, 1.5), P((-4, -3), (0, -3))]),
+                      ('a', [('text', 0, 1.5, '88')])],
+    'TOBDTrendChart': [('n', G['chart'][:1]), ('a', G['chart'][1:])],
+    'TOBDLiveDataGrid': two('table', {3}),
+    'TOBDStatusLamp': [('n', [('circle', 0, 0, 6)]), ('ok', [('disc', 0, 0, 3.5)])],
+    'TOBDConnectionBar': [('n', [('rect', -7, -3, 14, 6, 1.5), P((-1, 0), (4, 0))]),
+                          ('ok', [('disc', -4, 0, 1.25)])],
+    'TOBDMatrixDisplay': [('n', [('disc', x, y, 0.9) for x in (-6, -2, 2, 6)
+                                 for y in (-6, -2, 2, 6) if (x + y) % 8]),
+                          ('a', [('disc', x, y, 0.9) for x in (-6, -2, 2, 6)
+                                 for y in (-6, -2, 2, 6) if not (x + y) % 8])],
+    # OBD Studio controls
+    'TOBDCard': [('n', [('rect', -7, -6, 14, 12, 1.5), P((-4, 2), (4, 2))]),
+                 ('a', [P((-4, -2), (2, -2))])],
+    'TOBDButton': [('a', [('box', -7, -4, 14, 8, 2), ('ink', P((-3, 0), (3, 0)))])],
+    'TOBDCheckBox': [('n', [('rect', -6, -6, 12, 12, 2)]),
+                     ('a', [P((-3, 0), (-1, 2), (3, -2))])],
+    'TOBDRadioButton': [('n', [('circle', 0, 0, 6)]), ('a', [('disc', 0, 0, 3)])],
+    'TOBDChip': [('n', [('rect', -7, -3.5, 14, 7, 3.5), P((-1, 0), (4, 0))]),
+                 ('a', [('disc', -4, 0, 1.25)])],
+    'TOBDBadge': [('a', [('box', -6, -4, 12, 8, 4), ('ink', P((-2, 0), (2, 0)))])],
+    'TOBDBanner': [('n', [('rect', -7, -4, 14, 8, 1.5), P((0, 0), (5, 0))]),
+                   ('info', [('disc', -3.5, 0, 2), ('ink', P((-3.5, -0.5), (-3.5, 1)))])],
+    'TOBDEdit': field('AB'), 'TOBDComboBox': field('AB', chevron=True),
+    'TOBDSegmented': [('n', [('rect', -7, -3.5, 14, 7, 1.5), P((-2.5, -3.5), (-2.5, 3.5)),
+                             P((2.5, -3.5), (2.5, 3.5))]),
+                      ('a', [('box', -2.5, -3.5, 5, 7, 0)])],
+    'TOBDRangeBar': [('n', [P((-7, 0), (7, 0)), P((-7, 3), (-7, 5)), P((7, 3), (7, 5))]),
+                     ('ok', [('box', -3, -1.5, 7, 3, 1.5)]),
+                     ('a', [('fill', [(0, -2), (-2, -5), (2, -5)], 0)])],
+    'TOBDInspector': [('n', [('rect', -7, -6, 14, 12, 1.5), P((-7, -2), (7, -2)),
+                             P((-7, 2), (7, 2)), P((-1, -6), (-1, 6))]),
+                      ('a', [P((1, 0), (5, 0))])],
+    'TOBDSidebar': [('n', [('rect', -7, -6, 14, 12, 1.5), P((-2, -6), (-2, 6)),
+                           P((-5, 1), (-4, 1)), P((-5, 4), (-4, 4))]),
+                    ('a', [P((-5, -2), (-4, -2))])],
+    'TOBDRangeProfile': [('n', [P((-7, -3), (7, -3)), P((-7, 4), (7, 4)), P((-7, -7), (-7, 7))]),
+                         ('a', [P((-5, 2), (-2, -1), (1, 1), (5, -1))])],
+    'TOBDVehicleInfoCard': two('card', {1}),
+    'TOBDDtcPanel': [('n', [('rect', -7, -6, 14, 12, 1.5), P((-2, -2), (4, -2)),
+                            P((-2, 2), (4, 2))]),
+                     ('warn', [('disc', -4.5, -2, 1)]), ('bad', [('disc', -4.5, 2, 1)])],
+    'TOBDReadinessPanel': [('n', [('rect', x, y, 6, 6, 1.5) for x, y in ((1, -7), (-7, 1))]),
+                           ('ok', [('rect', -7, -7, 6, 6, 1.5), ('rect', 1, 1, 6, 6, 1.5),
+                                   P((-5.5, -4), (-4, -2.5), (-2.5, -5.5)),
+                                   P((2.5, 4), (4, 5.5), (5.5, 2.5))])],
+    'TOBDFreezeFrameView': two('snapshot', {2, 3}),
+    'TOBDRangeEditor': [('n', SLIDERS[:3]), ('a', SLIDERS[3:])],
+    # Chrome
+    'TOBDTitleBar': [('n', [('rect', -7, -6, 14, 12, 1.5), P((-7, -2), (7, -2))]),
+                     ('a', [P((-5, -4), (-2, -4)), P((3, -5), (5, -3)), P((5, -5), (3, -3))])],
+    'TOBDMenuBar': [('n', [P((-7, -6), (-4, -6)), ('rect', -2, -3, 9, 10, 1.5),
+                           P((0, 0), (5, 0)), P((0, 4), (4, 4))]),
+                    ('a', [P((-1, -6), (4, -6))])],
+    'TOBDPopupMenu': [('n', [('rect', -6, -7, 12, 14, 1.5), P((-3, -4), (3, -4)),
+                             P((-3, 4), (2, 4))]),
+                      ('a', [('box', -4, -1.5, 8, 3, 1)])],
+    'TOBDRibbon': [('n', [('rect', -7, -5, 14, 11, 1.5), P((-7, -1), (7, -1)),
+                          P((1, 1), (1, 4))]),
+                   ('a', [P((-5, -3), (-2, -3)), ('rect', -5, 1.5, 3, 2.5, 0.5),
+                          ('rect', 3, 1.5, 3, 2.5, 0.5)])],
+    'TOBDTabs': [('n', [P((-7, 5), (7, 5)), P((1, 5), (1, -2), (6, -2), (6, 5), r=1)]),
+                 ('a', [P((-7, 5), (-7, -3), (-1, -3), (-1, 5), r=1)])],
+    'TOBDToolBar': [('n', [('rect', -7, -4, 14, 8, 1.5)]),
+                    ('a', [('box', -5, -2, 3, 4, 1)]),
+                    ('n', [('box', -1, -2, 3, 4, 1), ('box', 3, -2, 2, 4, 1)])],
+    'TOBDStatusBar': [('n', [('rect', -7, -6, 14, 12, 1.5), P((-7, 2), (7, 2)),
+                             P((-2, 4), (4, 4))]),
+                      ('ok', [('disc', -4.5, 4, 1)])],
+    'TOBDProgressBar': [('n', [('rect', -7, -3, 14, 6, 3)]),
+                        ('a', [('box', -5, -1, 6, 2, 1)])],
+    'TOBDDialog': [('n', [('rect', -7, -6, 14, 12, 1.5), P((-7, -2), (7, -2)),
+                          P((-4, 1), (2, 1))]),
+                   ('a', [('box', 1, 3, 4, 2, 0.5)])],
+    'TOBDToastManager': [('n', [P((-5, -7), (5, -7)), ('rect', -7, -4, 14, 9, 2),
+                                P((-1, 0.5), (4, 0.5))]),
+                         ('ok', [('disc', -4, 0.5, 1.25)])],
+    'TOBDHintStyle': [('n', [('path', [(-7, -6), (7, -6), (7, 3), (-1, 3), (-4, 6),
+                                        (-4, 3), (-7, 3)], 1, True)]),
+                      ('a', [P((-4, -3), (4, -3)), P((-4, 0), (1, 0))])],
+    'TOBDScrollBar': [('n', [('rect', -3, -7, 6, 14, 3)]),
+                      ('a', [('box', -1, -4, 2, 5, 1)])],
+    'TOBDBackstage': [('n', [('rect', -7, -6, 14, 12, 1.5), P((0, -2), (5, -2)),
+                             P((0, 1), (4, 1))]),
+                      ('a', [('box', -7, -6, 5, 12, 1.5), ('ink', P((-5, -3), (-4, -3))),
+                             ('ink', P((-5, 0), (-4, 0)))])],
+    'TOBDReportPreview': badge(two('report', {2, 3, 4}), one('search', 'n')),
+    'TOBDSplitter': [('n', [('rect', -7, -6, 5, 12, 1.5), ('rect', 2, -6, 5, 12, 1.5)]),
+                     ('a', [('disc', 0, y, 0.75) for y in (-2.5, 0, 2.5)])],
+    'TOBDScrollBox': [('n', [('rect', -7, -6, 14, 12, 1.5), P((-4, -3), (1, -3)),
+                             P((-4, 0), (1, 0)), P((-4, 3), (0, 3))]),
+                      ('a', [P((4, -3), (4, 0))])],
+    'TOBDSpinEdit': [('n', [('rect', -7, -4, 14, 8, 1.5)]),
+                     ('a', [('only', (24, 32), ('text', -2, 0, '12')),
+                            ('only', (16,), ('text', -1.5, 0, '1')),
+                            P((3, -1), (4.5, -2.5), (6, -1)), P((3, 1), (4.5, 2.5), (6, 1))])],
+    'TOBDTrackBar': [('n', [P((-7, 0), (7, 0))] + [P((x, 4), (x, 6)) for x in (-6, -2, 2, 6)]),
+                     ('a', [P((-7, 0), (-1, 0)), ('box', -2, -3, 3, 6, 1.5)])],
+    'TOBDMemo': [('n', [('rect', -7, -6, 14, 12, 1.5), P((-4, 0), (2, 0)),
+                        P((-4, 3), (0, 3))]),
+                 ('a', [P((-4, -3), (3, -3)), P((5, -3), (5, -1))])],
+    'TOBDCalendar': [('n', [('rect', -7, -5, 14, 12, 1.5), P((-7, -1), (7, -1)),
+                            P((-3, -7), (-3, -4)), P((3, -7), (3, -4))] +
+                      [('disc', x, y, 0.75) for x, y in ((-4, 2), (0, 2), (4, 2), (-4, 4.5))]),
+                     ('a', [('disc', 0, 4.5, 1.1)])],
+    'TOBDDatePicker': [('n', [('rect', -7, -4, 14, 8, 1.5), P((-5, 0), (-1, 0))]),
+                       ('a', [('rect', 1.5, -2, 4, 4, 0.5), P((1.5, -0.5), (5.5, -0.5))])],
+    'TOBDListBox': [('n', [('rect', -7, -6, 14, 12, 1.5), P((-4, -3), (3, -3)),
+                           P((-4, 3), (2, 3))]),
+                    ('a', [('box', -5, -1, 10, 2, 0.5)])],
+    'TOBDBreadcrumb': [('n', [P((-7, 0), (-4, 0)), P((-2.5, -2.5), (-0.5, 0), (-2.5, 2.5))]),
+                       ('a', [P((1.5, 0), (7, 0))])],
+    'TOBDPlacesPane': [('n', [P((-1, y), (6, y)) for y in (-4, 0, 4)]),
+                       ('a', [('rect', -7, -5.5, 3, 3, 0.5)]),
+                       ('n', [('rect', -7, -1.5, 3, 3, 0.5), ('rect', -7, 2.5, 3, 3, 0.5)])],
+    'TOBDFolderTree': [('n', [P((-5, -3), (-5, 5), (-1, 5)), P((-5, 1), (-1, 1))]),
+                       ('a', [('rect', -7, -7, 5, 4, 1), ('rect', 1, -1, 5, 4, 1),
+                              ('rect', 1, 3, 5, 4, 1)])],
+    'TOBDFileList': [('n', SHELL['list'][:3]), ('a', SHELL['list'][3:])],
+    'TOBDColorSwatches': [(col, [('box', -7 + (i % 3) * 5, -7 + (i // 3) * 5, 4, 4, 1)])
+                          for i, col in enumerate(('a', 'ok', 'info', 'bad', 'warn', 'a',
+                                                   'n', 'info', 'ok'))],
+    'TOBDColorSpectrum': [(col, [('pie', 0, 0, 7, i * 60 - 90, 60)])
+                          for i, col in enumerate(('a', 'warn', 'ok', 'info', 'n', 'bad'))]
+                         + [('n', [('knock', ('disc', 0, 0, 1.5))])],
     # OBD Studio dialogs
-    'TOBDOpenDialog': file_dialog_icon(True), 'TOBDSaveDialog': file_dialog_icon(False),
-    'TOBDOpenPictureDialog': file_dialog_icon(True, picture=True),
-    'TOBDSavePictureDialog': file_dialog_icon(False, picture=True),
-    'TOBDFolderDialog': dialog_folder, 'TOBDPrintDialog': dialog_print,
-    'TOBDPageSetupDialog': dialog_page_setup, 'TOBDFontDialog': dialog_font,
-    'TOBDColorDialog': dialog_colour, 'TOBDFindDialog': dialog_find,
-    'TOBDReplaceDialog': lambda c: dialog_find(c, replace=True), 'TOBDTaskDialog': dialog_task,
+    'TOBDOpenDialog': two('open', {1}), 'TOBDSaveDialog': two('save', {1}),
+    'TOBDOpenPictureDialog': badge([('n', SHELL['image'][:1]), ('a', SHELL['image'][1:])],
+                                   [('a', G['up'])]),
+    'TOBDSavePictureDialog': badge([('n', SHELL['image'][:1]), ('a', SHELL['image'][1:])],
+                                   [('a', SHELL['download'][:2])]),
+    'TOBDFolderDialog': badge(two('folder', set()), [('ok', G['check'])]),
+    'TOBDPrintDialog': two('print', {3}),
+    'TOBDPageSetupDialog': [('n', [('rect', -6, -7, 12, 14, 1.5)]),
+                            ('a', [('rect', -3, -4, 6, 8, 0.5)])],
+    'TOBDFontDialog': [('a', FONT_A), ('n', FONT_SMALL)],
+    'TOBDColorDialog': [('n', [('ellipse', -7, -6, 14, 12)]),
+                        ('a', [('disc', -3.5, -1.5, 1.2)]), ('ok', [('disc', 0, -3, 1.2)]),
+                        ('info', [('disc', 3.5, -1.5, 1.2)]), ('bad', [('disc', -2, 2.5, 1.2)])],
+    'TOBDFindDialog': two('search', {1}),
+    'TOBDReplaceDialog': badge(two('search', {1}), [('a', TRANSFER)]),
+    'TOBDTaskDialog': [('n', [('rect', -7, -6, 14, 12, 1.5), P((1, -2), (5, -2)),
+                              P((1, 1), (4, 1))]),
+                       ('info', [('disc', -3, -0.5, 2.5), ('ink', P((-3, -1), (-3, 0.5)))])],
     # Visual
-    'TOBDTerminal': terminal, 'TOBDLogViewer': log_viewer, 'TOBDDtcList': dtc_list,
-    'TOBDVINEdit': edit('VIN'), 'TOBDPidPicker': picker('PID'), 'TOBDOEMPicker': picker('OEM'),
-    'TOBDCANIdEdit': edit('CAN'),
+    'TOBDTerminal': two('terminal', {1, 2}),
+    'TOBDLogViewer': [('n', [P((-3, y), (7, y)) for y in (-5, 0, 5)]),
+                      ('info', [('disc', -6, -5, 1)]), ('warn', [('disc', -6, 0, 1)]),
+                      ('bad', [('disc', -6, 5, 1)])],
+    'TOBDDtcList': [('n', [('rect', -7, -6, 14, 12, 1.5), P((-2, -2), (4, -2)),
+                           P((-2, 2), (4, 2))]),
+                    ('bad', [('disc', -4.5, -2, 1)]), ('warn', [('disc', -4.5, 2, 1)])],
+    'TOBDVINEdit': field('VIN'), 'TOBDPidPicker': field('PID', chevron=True),
+    'TOBDOEMPicker': field('OEM', chevron=True), 'TOBDCANIdEdit': field('CAN'),
     # Dyno
-    'TOBDDynoCalculator': dyno, 'TOBDPowerCurve': power_curve, 'TOBDDragRun': drag_run,
-    'TOBDDynoConditions': dyno_conditions, 'TOBDFuelEconomyMeter': fuel,
-    'TOBDEmissionsEstimator': emissions, 'TOBDInertialBrake': inertial_brake,
-    'TOBDTorqueAtWheels': torque_wheels,
-    # EEPROM
-    'TOBDRadioCodeEEPROM_VolvoHU': eeprom('VOL'), 'TOBDRadioCodeEEPROM_OpelCD30': eeprom('OPL'),
-    'TOBDRadioCodeEEPROM_MercedesBecker': eeprom('MB'),
-    'TOBDVWRadioSAFE': radio('SAFE'),
+    'TOBDDynoCalculator': [('a', [('circle', 0, -2.5, 4.5), ('disc', 0, -2.5, 1)]),
+                           ('n', [('circle', -4, 5, 2), ('circle', 4, 5, 2)])],
+    'TOBDPowerCurve': [('n', [P((-7, -7), (-7, 7), (7, 7)),
+                              P((-5, 1), (-2, -3), (2, -4), (6, -2))]),
+                       ('a', [P((-5, 5), (-1, 0), (3, -3), (6, -5))])],
+    'TOBDDragRun': [('n', [('rect', -3, -7, 6, 14, 3)]), ('warn', [('disc', 0, -4, 1.5)]),
+                    ('warn', [('disc', 0, 0, 1.5)]), ('ok', [('disc', 0, 4, 1.5)])],
+    'TOBDDynoConditions': two('temperature', {4, 5}),
+    'TOBDFuelEconomyMeter': one('fuel'),
+    'TOBDEmissionsEstimator': one('leaf', 'ok'),
+    'TOBDInertialBrake': two('brake', {2, 3, 4, 5}),
+    'TOBDTorqueAtWheels': [('n', [('circle', 0, 0, 4), ('disc', 0, 0, 1.25)]),
+                           ('a', [('arc', 0, 0, 6.5, 200, 230),
+                                  P((4.2, 2.8), (5.4, 4.98), (7.6, 4.0))])],
 }
+
+UDS_SUBS = {
+    '': [('n', G['ecu'][:1] + G['ecu'][2:]), ('a', G['ecu'][1:2])],
+    'Reset': one('refresh'), 'ReadMemory': one('binary'),
+    'IOControl': [('n', TOGGLE[:1]), ('a', TOGGLE[1:])],
+    'ReadDID': [('n', TAG[:1]), ('a', TAG[1:])], 'ReadDTC': one('codes', 'warn'),
+    'ReadByPeriodic': one('clock'), 'DynamicDID': one('plus'),
+    'WriteMemory': two('write', {0, 1}), 'Transfer': [('a', TRANSFER)],
+}
+for _sub, _layers in UDS_SUBS.items():
+    DESIGNS['TOBDUDS' + _sub] = Tagged('UDS', _layers)
+for _cls, _sub in (('', ''), ('ReadID', 'ReadDID'), ('ReadDTC', 'ReadDTC'),
+                   ('IOControl', 'IOControl'), ('WriteID', 'WriteMemory')):
+    DESIGNS['TOBDKWP' + _cls] = Tagged('KWP', UDS_SUBS[_sub])
+DESIGNS['TOBDKWPRoutine'] = Tagged('KWP', two('routine', {1}))
+DESIGNS['TOBDUDSWriteDID'] = Tagged('DID', two('edit', {1}))
+
+for _brand, _label in (('VAG', 'VAG'), ('BMW', 'BMW'), ('Mercedes', 'MB'),
+                       ('Stellantis', 'STL')):
+    DESIGNS['TOBDComponentProtection' + _brand] = Tagged(_label, two('shield', {1}))
+for _brand, _label in (('Ford', 'FRD'), ('HMG', 'HMG'), ('BMW', 'BMW'), ('Toyota', 'TOY')):
+    DESIGNS['TOBDKeyAdaptation' + _brand] = Tagged(_label, two('key', {1}))
+for _cls, _label in (('VolvoHU', 'VOL'), ('OpelCD30', 'OPL'), ('MercedesBecker', 'MB')):
+    DESIGNS['TOBDRadioCodeEEPROM_' + _cls] = Tagged(_label, two('eeprom', {1}))
 
 RADIO_LABELS = {
     'VW': 'VW', 'AudiConcert': 'AUDI', 'BMW': 'BMW', 'Mercedes': 'MB', 'Mini': 'MINI',
@@ -1431,7 +688,49 @@ RADIO_LABELS = {
     'Becker4': 'BEC4', 'Becker5': 'BEC5', 'Volvo': 'VOL', 'FordV': 'FDV',
 }
 for _name, _text in RADIO_LABELS.items():
-    ICONS['TOBDRadioCode' + _name] = radio(_text)
+    DESIGNS['TOBDRadioCode' + _name] = Tagged(_text, two('radio', {1, 2}))
+DESIGNS['TOBDVWRadioSAFE'] = Tagged('SAFE', two('radio', {1, 2}))
+
+
+def draw_layers(c, layers, s, ox, oy):
+    pen = Pen(c, s, ox, oy, 2.0 if s == 2 else ui_icons.stroke_width(s))
+    for colour, ops in layers:
+        pen.draw(ops, COLOURS[colour])
+
+
+def draw_design(design):
+    """Return the draw function for a design (layers or Tagged)."""
+    def draw(c):
+        size = c.size
+        if isinstance(design, Tagged) and size > 16:
+            if size == 24:
+                text(c, 11.5, 3.5, design.label, ORANGE)
+                draw_layers(c, design.layers, 1.0, 11.5, 15.5)
+            else:
+                text(c, 16, 6, design.label, ORANGE, 2)
+                draw_layers(c, design.layers, 1.25, 16, 22)
+            return
+        layers = design.layers if isinstance(design, Tagged) else design
+        # 16 px: 1 px strokes on pixel centres; 32 px: 2 px strokes on
+        # pixel edges; 24 px sits between the two.
+        o = {16: 7.5, 24: 11.5}.get(size, size / 2)
+        draw_layers(c, layers, size / 16, o, o)
+    return draw
+
+
+ICONS = {name: draw_design(design) for name, design in DESIGNS.items()}
+dial = ICONS['TOBDDialGauge']
+
+
+def mark(c):
+    """Package mark: the dial gauge on the charcoal theme tile."""
+    size = c.size
+    pen = Pen(c, size / 16, size / 2, size / 2, 0)
+    pen.draw([('box', -7.5, -7.5, 15, 15, 3)], TILE)
+    s = size / 16 * 0.8
+    pen = Pen(c, s, size / 2, size / 2, ui_icons.stroke_width(s) * 1.2)
+    pen.draw(DIAL, LIGHT)
+    pen.draw(NEEDLE, ORANGE)
 
 
 def registered():
@@ -1443,8 +742,13 @@ def registered():
 
 def render(name, size=SIZE):
     c = Canvas(size)
-    tile(c)
     ICONS[name](c)
+    return c
+
+
+def render_mark(size=MARK_SIZE):
+    c = Canvas(size)
+    mark(c)
     return c
 
 
@@ -1465,7 +769,7 @@ def build():
             files[rel] = render(name, size).png()
             manifest[f'{name.upper()}{suffix}_PNG'] = {
                 'file': rel, 'type': 'RCDATA', 'size': size}
-    files['delphi-obd-mark.png'] = render('TOBDDialGauge', MARK_SIZE).png()
+    files['delphi-obd-mark.png'] = render_mark().png()
     files['resources.json'] = (json.dumps(dict(sorted(manifest.items())), indent=2) +
                                '\n').encode('utf-8')
     return files

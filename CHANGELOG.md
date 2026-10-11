@@ -143,7 +143,12 @@ The built-in icons are redrawn as one set on a 16 px grid (sharp 1 px
 strokes, 32 px in the ribbon): line glyphs, shell glyphs and the banner
 status icons. They are generated from `tools/ui_icons.py` into
 `ERD.UI.IconData` and drawn by `TOBDPainter.DrawIcon`; `glPipette` is
-new and used by the colour dialog's *Pick from screen* button.
+new and used by the colour dialog's *Pick from screen* button (drawn
+as an eyedropper); the plus of `sgNewFolder` sits in the folder centre.
+The IDE palette icons of all components are redrawn in the same style:
+transparent line icons in neutral and orange, built from the
+`tools/ui_icons.py` shapes, with a short label on brand-specific
+components at 24 and 32 px.
 The font dialog lists every installed font again, the print dialog's
 printer status no longer overlaps the Pages label, and the selection
 ring on the first colour swatch is no longer clipped.

@@ -30,6 +30,7 @@ except ImportError:  # pragma: no cover - reported to the user
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import ui_icons  # noqa: E402  (proposed icon set, tools/ui_icons.py)
+import designtime_icons  # noqa: E402  (IDE palette icons)
 
 ROOT = Path(__file__).resolve().parents[1]
 TYPES_UNIT = ROOT / 'src/UI/ERD.UI.Types.pas'
@@ -4209,6 +4210,54 @@ def draw_icons(c):
     return y + max(h1, menu_height(c, FILE_MENU))
 
 
+def palette_pages():
+    """Registered classes per IDE palette page, in registration order."""
+    source = designtime_icons.REGISTRATION.read_text(encoding='utf-8')
+    pages = {}
+    for page, block in re.findall(
+            r"RegisterComponents\('([^']+)',\s*\[(.*?)\]\);", source, re.S):
+        pages.setdefault(page, []).extend(re.findall(r'\bTOBD\w+', block))
+    return pages
+
+
+def paste_icon(c, x, y, canvas):
+    """Pastes a palette icon pixel for pixel (no resampling blur)."""
+    size = canvas.size
+    img = Image.new('RGBA', (size, size))
+    img.putdata([tuple(int(round(min(255.0, v))) for v in px[:3]) +
+                 (int(round(px[3] * 255)),) for px in canvas.pixels])
+    k = SUPERSAMPLE
+    img = img.resize((size * k, size * k), Image.NEAREST)
+    c.img.paste(img, (round(x * k), round(y * k)), img)
+
+
+def draw_palette(c):
+    """IDE component palette icons (assets/designtime) at 32, 24, 16 px."""
+    p = c.p
+    x, y = 16, 24
+    sheet_label(c, x, y, 'Component palette icons',
+                'Per cell: 32 | 24 | 16 px. Line icons from the ui_icons '
+                'shapes, orange and neutral strokes on a transparent '
+                'background. Source: tools/designtime_icons.py.')
+    y += 24
+    cell_w, cell_h = 133, 66
+    cols = (c.w - 32) // cell_w
+    for page, names in palette_pages().items():
+        c.caps(x, y, page)
+        y += 14
+        for i, name in enumerate(names):
+            cx = x + (i % cols) * cell_w
+            cy = y + (i // cols) * cell_h
+            ix = cx
+            for size in (32, 24, 16):
+                paste_icon(c, ix, cy + 32 - size, designtime_icons.render(
+                    name, size))
+                ix += size + 8
+            c.text(cx, cy + 46, name[4:], 10.5, p.Subtle, max_w=cell_w - 8)
+        y += ((len(names) + cols - 1) // cols) * cell_h + 14
+    return y
+
+
 MOCKUPS = {
     'obd-studio-codes': (DESKTOP, 1366, 800, draw_shell),
     'vehicle-card': (DESKTOP, 560, 232,
@@ -4243,6 +4292,7 @@ MOCKUPS = {
     'dialogs-font-colour': (BOTH, 1100, None, draw_dialogs_font_colour),
     'dialogs-text': (BOTH, 1100, None, draw_dialogs_text),
     'icons': (DESKTOP, 1366, None, draw_icons),
+    'palette-icons': (DESKTOP, 1366, None, draw_palette),
 }
 
 

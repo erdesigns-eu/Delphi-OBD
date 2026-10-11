@@ -500,3 +500,17 @@ rounded rectangles and filled polygons). `python3 tools/ui_icons.py
 --write` compiles them into `src/UI/ERD.UI.IconData.pas`, which
 `TOBDPainter.DrawIcon` draws; CI runs the script without `--write` to
 check the unit is up to date.
+
+### Component palette icons
+
+The IDE palette icons of all 200 registered components use the same
+style: the `tools/ui_icons.py` shapes as line icons on a transparent
+background, with the neutral stroke (`#868e96`) and the ERDesigns orange
+(`#f08818`) for the part that identifies the component. Brand-specific
+components (UDS services, KWP, radio codes, component protection,
+key adaptation, EEPROM) share one glyph and carry a short label at 24
+and 32 px. Each cell shows the icon at 32, 24 and 16 px.
+
+| Light | Dark |
+|---|---|
+| ![](palette-icons-light.png) | ![](palette-icons-dark.png) |

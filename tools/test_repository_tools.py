@@ -134,12 +134,14 @@ class IconTests(unittest.TestCase):
         tracked = {p.name for p in icons.PALETTE.glob('*.png')}
         self.assertEqual(tracked, {Path(rel).name for rel in files if rel.startswith('palette/')})
 
-    def test_icons_use_the_theme_tile(self):
+    def test_icons_are_line_icons_on_a_transparent_background(self):
         canvas = icons.render('TOBDDialGauge')
-        r, g, b, a = canvas.pixels[2 * icons.SIZE + 12]
-        self.assertEqual(tuple(round(v) for v in (r, g, b)), icons.TILE)
-        self.assertAlmostEqual(a, 1.0)
         self.assertEqual(canvas.pixels[0][3], 0.0)
+        r, g, b, a = canvas.pixels[13 * icons.SIZE + 11]  # needle hub
+        self.assertEqual(tuple(round(v) for v in (r, g, b)), icons.ORANGE)
+        self.assertAlmostEqual(a, 1.0)
+        self.assertFalse(any(px[:3] == list(icons.TILE) and px[3]
+                             for px in canvas.pixels))
 
     def test_unregistered_design_is_a_failure(self):
         with patch.dict(icons.ICONS, {'TOBDNotRegistered': icons.dial}):
