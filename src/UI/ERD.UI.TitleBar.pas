@@ -158,7 +158,7 @@ type
   end;
 
   /// <summary>Themed application title bar that replaces the native form caption.</summary>
-  TOBDTitleBar = class(TOBDCustomControl)
+  TOBDTitleBar = class(TOBDCustomControl, IOBDSurface)
   strict private
     FButtons: TOBDCaptionButtons;
     FQuickAccess: TOBDCaptionButtons;
@@ -309,6 +309,9 @@ type
     destructor Destroy; override;
     /// <summary>Re-sizes child rows when the density changes.</summary>
     procedure DensityChanged; override;
+    /// <summary>Caption fill, so the embedded menu bar blends in.</summary>
+    /// <returns>Caption colour for the current activation state.</returns>
+    function SurfaceColor: TColor;
   published
     /// <summary>Extra caption buttons between the status chip and system buttons.</summary>
     property Buttons: TOBDCaptionButtons read FButtons write SetButtons;
@@ -382,6 +385,9 @@ type
     cyTopHeight: Integer;
     cyBottomHeight: Integer;
   end;
+
+  /// <summary>Exposes the protected form WndProc for the hook fallback.</summary>
+  TOBDHookedFormAccess = class(TCustomForm);
 
   TOBDOSVersionInfo = record
     dwOSVersionInfoSize: DWORD;
@@ -691,10 +697,9 @@ begin
     if AComponent = FRibbon then
       FRibbon := nil;
     if AComponent = FHookedForm then
-    begin
-      FHookedForm := nil;
-      FOldFormWindowProc := nil;
-    end;
+      // The form is still alive here and keeps receiving messages while
+      // it tears down its children, so give it back its own window proc.
+      UnhookParentForm;
   end;
 end;
 
@@ -1011,6 +1016,14 @@ end;
 function TOBDTitleBar.EffectiveActive: Boolean;
 begin
   Result := FFormActive or (csDesigning in ComponentState);
+end;
+
+function TOBDTitleBar.SurfaceColor: TColor;
+begin
+  if EffectiveActive then
+    Result := Palette.GaugeFace
+  else
+    Result := Palette.Background;
 end;
 
 function TOBDTitleBar.EffectiveMenuVisible: Boolean;
@@ -1411,6 +1424,8 @@ begin
           FFormActive := ActiveNow;
           UpdateDwmFrame;
           Invalidate;
+          if FMenuBar <> nil then
+            FMenuBar.Invalidate;
         end;
       end;
     WM_ACTIVATE:
@@ -1421,6 +1436,8 @@ begin
           FFormActive := ActiveNow;
           UpdateDwmFrame;
           Invalidate;
+          if FMenuBar <> nil then
+            FMenuBar.Invalidate;
         end;
       end;
     WM_SYSKEYDOWN:
@@ -1443,8 +1460,10 @@ begin
   end;
   if Assigned(FOldFormWindowProc) then
     FOldFormWindowProc(Message)
-  else
-    inherited WndProc(Message);
+  else if FHookedForm <> nil then
+    // Never fall back to the title bar's own WndProc: CM_INVALIDATE would
+    // bounce to Parent.Perform (the form) and recurse forever.
+    TOBDHookedFormAccess(FHookedForm).WndProc(Message);
 end;
 
 procedure TOBDTitleBar.HandleNCCalcSize(var Message: TMessage);
@@ -1698,10 +1717,7 @@ begin
   P := TOBDPainter.Create(ACanvas, Palette, ScaleValue(96));
   try
     Active := EffectiveActive;
-    if Active then
-      Fill := Palette.GaugeFace
-    else
-      Fill := Palette.Background;
+    Fill := SurfaceColor;
     P.FillRect(Rect(0, 0, Width, CaptionHeight), Fill);
     if (FCommandStyle <> csMenu) or (FMenuPlacement <> mpBelow) then
       P.HLine(0, CaptionHeight - 1, Width, Palette.NeutralLight);
