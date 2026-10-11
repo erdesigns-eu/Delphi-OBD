@@ -98,9 +98,11 @@ type
     FHotIndex: Integer;
     FTopRow: Integer;
     FColumnWidths: array [0 .. 2] of Integer;
+    FColumnBase: Integer;
     FResizeColumn: Integer;
     FResizeStartX: Integer;
     FResizeStartWidth: Integer;
+    FResizeMaxWidth: Integer;
     FBarHot: Boolean;
     FBarDragging: Boolean;
     FBarDragOffset: Integer;
@@ -126,6 +128,7 @@ type
     function ScrollThumb: TRect;
     function ContentRight: Integer;
     function AutoColumnWidth(AColumn: Integer): Integer;
+    function ColumnScale: Double;
     function ColumnWidthPx(AColumn: Integer): Integer;
     function ColumnX(AColumn: Integer): Integer;
     function ColumnDividerAt(X, Y: Integer): Integer;
@@ -552,6 +555,7 @@ var
 begin
   for I := Low(FColumnWidths) to High(FColumnWidths) do
     FColumnWidths[I] := 0;
+  FColumnBase := 0;
   Invalidate;
 end;
 
@@ -572,11 +576,31 @@ begin
   end;
 end;
 
+function TOBDDtcList.ColumnScale: Double;
+var
+  C, Sized, Avail, Reserve: Integer;
+begin
+  // Sized columns follow the list width (maximise / restore) so every
+  // column stays visible; the filling column keeps its minimum width.
+  Sized := 0;
+  Avail := ContentRight;
+  Reserve := ScaleValue(MinColumnWidth96);
+  for C := Low(FColumnWidths) to High(FColumnWidths) do
+    if FColumnWidths[C] > 0 then
+      Inc(Sized, ScaleValue(FColumnWidths[C]))
+    else if C = ColDescription then
+      // Description fills; Status keeps its own width next to it.
+      Inc(Reserve, ScaleValue(104))
+    else
+      Dec(Avail, AutoColumnWidth(C));
+  Result := OBDColumnScale(Sized, ScaleValue(FColumnBase), Avail, Reserve);
+end;
+
 function TOBDDtcList.ColumnWidthPx(AColumn: Integer): Integer;
 begin
   if (AColumn >= Low(FColumnWidths)) and (AColumn <= High(FColumnWidths)) and
     (FColumnWidths[AColumn] > 0) then
-    Result := ScaleValue(FColumnWidths[AColumn])
+    Result := Round(ScaleValue(FColumnWidths[AColumn]) * ColumnScale)
   else
     Result := AutoColumnWidth(AColumn);
 end;
@@ -823,7 +847,7 @@ end;
 procedure TOBDDtcList.MouseDown(Button: TMouseButton; Shift: TShiftState;
   X, Y: Integer);
 var
-  Index, C: Integer;
+  Index, C, Spare: Integer;
   Thumb: TRect;
   Frozen: array [0 .. 2] of Integer;
 begin
@@ -854,14 +878,19 @@ begin
   FResizeColumn := ColumnDividerAt(X, Y);
   if FResizeColumn >= 0 then
   begin
-    // Freeze the current widths so only the dragged column changes.
+    // Freeze the current widths so only the dragged column changes, and
+    // remember the width they were sized at so they scale with the list.
     for C := Low(Frozen) to High(Frozen) do
       Frozen[C] := System.Math.Max(MinColumnWidth96,
         MulDiv(ColumnWidthPx(C), 96, ScaleValue(96)));
+    Spare := System.Math.Max(0, ContentRight - ColumnX(ColStatus) -
+      ScaleValue(MinColumnWidth96));
+    FColumnBase := MulDiv(ContentRight, 96, ScaleValue(96));
     for C := Low(Frozen) to High(Frozen) do
       FColumnWidths[C] := Frozen[C];
     FResizeStartX := X;
     FResizeStartWidth := FColumnWidths[FResizeColumn];
+    FResizeMaxWidth := FResizeStartWidth + MulDiv(Spare, 96, ScaleValue(96));
     MouseCapture := True;
     Exit;
   end;
@@ -889,8 +918,9 @@ begin
   end;
   if FResizeColumn >= 0 then
   begin
-    SetColumnWidth(FResizeColumn, System.Math.Max(MinColumnWidth96,
-      FResizeStartWidth + MulDiv(X - FResizeStartX, 96, ScaleValue(96))));
+    SetColumnWidth(FResizeColumn, EnsureRange(FResizeStartWidth +
+      MulDiv(X - FResizeStartX, 96, ScaleValue(96)), MinColumnWidth96,
+      System.Math.Max(MinColumnWidth96, FResizeMaxWidth)));
     Exit;
   end;
   SetBarHot(NeedsScrollBar and PtInRect(ScrollBarRect, Point(X, Y)));

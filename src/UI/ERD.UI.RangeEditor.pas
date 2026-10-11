@@ -71,15 +71,18 @@ type
     FDraggingSelect: Boolean;
     FBarHot: Boolean;
     FColumnWidths: array[0..3] of Integer;
+    FColumnBase: Integer;
     FResizeColumn: Integer;
     FResizeStartX: Integer;
     FResizeStartWidth: Integer;
+    FResizeMaxWidth: Integer;
     FEditHigh: Boolean;
     FScrollDragOffset: Integer;
     FOnSave: TNotifyEvent;
     FOnCancel: TNotifyEvent;
     function GetColumnWidth(AIndex: Integer): Integer;
     procedure SetColumnWidth(AIndex, AValue: Integer);
+    function ColumnScale: Double;
     function ColumnX(AIndex: Integer): Integer;
     function ColumnDividerAt(X, Y: Integer): Integer;
     procedure SetRangeProfile(AValue: TOBDRangeProfile);
@@ -95,6 +98,8 @@ type
     function RowAtY(Y: Integer): Integer;
     function LowEditRect(AIndex: Integer): TRect;
     function HighEditRect(AIndex: Integer): TRect;
+    function DefaultRangeText(AIndex: Integer): string;
+    function DefaultTextLeft: Integer;
     function ResetRect(AIndex: Integer): TRect;
     procedure SelectRow(AIndex: Integer);
     procedure LoadSelectedEdits;
@@ -180,6 +185,11 @@ const
   /// Low and High columns; Source takes the rest of the row.</summary>
   DefaultColumnWidths: array[0..3] of Integer = (214, 60, 100, 100);
   MinColumnWidths: array[0..3] of Integer = (60, 32, 56, 56);
+  /// <summary>Width (96 DPI) the Source column keeps at least, for the
+  /// GARAGE chip and the Reset button.</summary>
+  SourceMinWidth = 160;
+  /// <summary>Width (96 DPI) of a row's Reset button.</summary>
+  ResetButtonWidth = 78;
   /// <summary>Space between an in-place edit and the next column.</summary>
   EditColumnGap = 16;
 
@@ -448,23 +458,45 @@ var
 begin
   for I := Low(FColumnWidths) to High(FColumnWidths) do
     FColumnWidths[I] := 0;
+  FColumnBase := 0;
   UpdateChildLayout;
   Invalidate;
+end;
+
+function TOBDRangeEditor.ColumnScale: Double;
+var
+  I, W, Sized: Integer;
+begin
+  // The columns follow the editor width (maximise / restore) so every
+  // column stays visible; Source keeps room for the chip and Reset.
+  Sized := 0;
+  for I := Low(FColumnWidths) to High(FColumnWidths) do
+  begin
+    W := FColumnWidths[I];
+    if W <= 0 then
+      W := DefaultColumnWidths[I];
+    Inc(Sized, ScaleValue(W));
+  end;
+  Result := OBDColumnScale(Sized, ScaleValue(FColumnBase),
+    Width - ScaleValue(32), ScaleValue(SourceMinWidth));
 end;
 
 function TOBDRangeEditor.ColumnX(AIndex: Integer): Integer;
 var
   I, W: Integer;
+  Scale: Double;
 begin
   // Left edge of column AIndex: 0 Parameter, 1 Unit, 2 Low, 3 High,
   // 4 Source.
   Result := ScaleValue(16);
+  Scale := ColumnScale;
   for I := 0 to Min(AIndex, 4) - 1 do
   begin
     W := FColumnWidths[I];
     if W <= 0 then
       W := DefaultColumnWidths[I];
-    Inc(Result, ScaleValue(W));
+    Inc(Result, Max(ScaleValue(MinColumnWidths[I]),
+      Round(ScaleValue(W) * Scale)));
   end;
 end;
 
@@ -503,14 +535,40 @@ begin
     Top + EH);
 end;
 
+function TOBDRangeEditor.DefaultRangeText(AIndex: Integer): string;
+var
+  P: TOBDRangeProfile;
+  R: TOBDValueRange;
+begin
+  Result := '';
+  P := ActiveProfile;
+  if (P = nil) or (AIndex < 0) or (AIndex >= P.Ranges.Count) then
+    Exit;
+  R := P.Ranges[AIndex];
+  Result := Format('default %s – %s', [FormatRangeNumber(R.DefaultLow,
+    R.Decimals), FormatRangeNumber(R.DefaultHigh, R.Decimals)]);
+end;
+
+function TOBDRangeEditor.DefaultTextLeft: Integer;
+begin
+  // Right of the GARAGE chip (painter chip: bold caps text + 16 px).
+  Result := ColumnX(4) + OBDMeasureText('GARAGE', OBD_TEXT_CAPS, twBold,
+    ScaleValue(96)) + ScaleValue(16) + ScaleValue(8);
+end;
+
 function TOBDRangeEditor.ResetRect(AIndex: Integer): TRect;
 var
-  W, H, Top: Integer;
+  W, H, Top, X: Integer;
 begin
-  W := ScaleValue(78);
+  // Reset follows the Source column: right after the chip and the
+  // default range, but never past the editor's right edge.
+  W := ScaleValue(ResetButtonWidth);
   H := ScaleValue(Metrics.Button);
   Top := RowTop(AIndex) + (RowHeight - H) div 2;
-  Result := Rect(Width - ScaleValue(16) - W, Top, Width - ScaleValue(16), Top + H);
+  X := DefaultTextLeft + OBDMeasureText(DefaultRangeText(AIndex),
+    OBD_TEXT_SMALL, twRegular, ScaleValue(96)) + ScaleValue(12);
+  X := Min(X, Width - ScaleValue(16) - W);
+  Result := Rect(X, Top, X + W, Top + H);
 end;
 
 procedure TOBDRangeEditor.SelectRow(AIndex: Integer);
@@ -880,7 +938,7 @@ begin
     Text := '';
   if Text = '' then
     Text := '(no profile)';
-  APainter.Text(R.Left + ScaleValue(10), R.Top + R.Height div 2, Text, 12.5,
+  APainter.Text(R.Left + ScaleValue(10), R.Top + R.Height div 2, Text, OBD_TEXT_BODY,
     Palette.ForegroundText, twRegular, taLeftJustify, R.Width - ScaleValue(36));
   Box := R;
   APainter.GlyphChevron(Box.Right - ScaleValue(14), Box.Top + Box.Height / 2,
@@ -895,7 +953,7 @@ var
   Garage: Boolean;
   RowR, LowR, HighR, RR: TRect;
   ColParam, ColUnit, ColLow, ColHigh, ColSrc: Integer;
-  CWidth, HY: Integer;
+  CWidth, HY, TextX: Integer;
   Weight: TOBDTextWeight;
   Strength: Single;
 begin
@@ -951,14 +1009,14 @@ begin
     begin
       APainter.FillRect(Rect(ScaleValue(1), Top, ScaleValue(4), Top + RowHeight),
         Palette.Danger);
-      APainter.Text(ColSrc, Mid, FInvalidMessage, 11.5, Palette.Danger,
+      APainter.Text(ColSrc, Mid, FInvalidMessage, OBD_TEXT_SMALL, Palette.Danger,
         twSemibold, taLeftJustify, Max(0, Width - ColSrc - ScaleValue(110)));
     end;
 
     APainter.Text(ColParam, Mid, R.Caption, OBD_TEXT_BODY,
       Palette.ForegroundText,
       twRegular, taLeftJustify, ColUnit - ColParam - ScaleValue(14));
-    APainter.Text(ColUnit, Mid, R.UnitText, 12.5, Palette.GaugeLabel,
+    APainter.Text(ColUnit, Mid, R.UnitText, OBD_TEXT_BODY, Palette.GaugeLabel,
       twRegular, taLeftJustify, Max(1, ColLow - ColUnit - ScaleValue(12)));
     LowR := LowEditRect(I);
     HighR := HighEditRect(I);
@@ -970,7 +1028,7 @@ begin
       else
         Weight := twRegular;
       APainter.Text(LowR.Right - ScaleValue(10), LowR.Top + EH div 2,
-        FormatRangeNumber(R.Low, R.Decimals), 12.5, Palette.ForegroundText,
+        FormatRangeNumber(R.Low, R.Decimals), OBD_TEXT_BODY, Palette.ForegroundText,
         Weight, taRightJustify);
       APainter.EditFrame(HighR, False, True);
       if Garage and (not SameValue(R.High, R.DefaultHigh)) then
@@ -978,7 +1036,7 @@ begin
       else
         Weight := twRegular;
       APainter.Text(HighR.Right - ScaleValue(10), HighR.Top + EH div 2,
-        FormatRangeNumber(R.High, R.Decimals), 12.5, Palette.ForegroundText,
+        FormatRangeNumber(R.High, R.Decimals), OBD_TEXT_BODY, Palette.ForegroundText,
         Weight, taRightJustify);
     end;
 
@@ -988,14 +1046,13 @@ begin
       begin
         CWidth := APainter.Chip(ColSrc, Mid - ScaleValue(10), 'GARAGE',
           APainter.AccentText);
-        APainter.Text(ColSrc + CWidth + ScaleValue(8), Mid,
-          Format('default %s – %s', [FormatRangeNumber(R.DefaultLow, R.Decimals),
-          FormatRangeNumber(R.DefaultHigh, R.Decimals)]), 11.5, Palette.GaugeLabel);
+        RR := ResetRect(I);
+        TextX := ColSrc + CWidth + ScaleValue(8);
+        APainter.Text(TextX, Mid, DefaultRangeText(I), OBD_TEXT_SMALL,
+          Palette.GaugeLabel, twRegular, taLeftJustify,
+          Max(1, RR.Left - ScaleValue(12) - TextX));
         if I <> FSelected then
-        begin
-          RR := ResetRect(I);
           APainter.Button(RR, 'Reset', bkGhost, cstNormal, False, glNone);
-        end;
       end
       else
         APainter.Chip(ColSrc, Mid - ScaleValue(10), 'DEFAULT', Palette.Subtle);
@@ -1082,9 +1139,10 @@ end;
 procedure TOBDRangeEditor.MouseDown(Button: TMouseButton; Shift: TShiftState;
   X, Y: Integer);
 var
-  I: Integer;
+  I, Spare: Integer;
   P: TOBDRangeProfile;
   Track, Thumb: TRect;
+  Frozen: array[0..3] of Integer;
 begin
   inherited MouseDown(Button, Shift, X, Y);
   FDraggingSelect := False;
@@ -1097,9 +1155,18 @@ begin
     if ssDouble in Shift then
       Exit;
     FResizeColumn := ColumnDividerAt(X, Y);
+    // Freeze the current widths so only the dragged column changes, and
+    // remember the width they were sized at so they scale with the editor.
+    for I := Low(Frozen) to High(Frozen) do
+      Frozen[I] := MulDiv(ColumnX(I + 1) - ColumnX(I), 96, ScaleValue(96));
+    Spare := Max(0, Width - ScaleValue(16) - ColumnX(4) -
+      ScaleValue(SourceMinWidth));
+    FColumnBase := MulDiv(Width - ScaleValue(32), 96, ScaleValue(96));
+    for I := Low(Frozen) to High(Frozen) do
+      FColumnWidths[I] := Max(MinColumnWidths[I], Frozen[I]);
     FResizeStartX := X;
-    FResizeStartWidth := MulDiv(ColumnX(FResizeColumn + 1) -
-      ColumnX(FResizeColumn), 96, ScaleValue(96));
+    FResizeStartWidth := FColumnWidths[FResizeColumn];
+    FResizeMaxWidth := FResizeStartWidth + MulDiv(Spare, 96, ScaleValue(96));
     MouseCapture := True;
     Exit;
   end;
@@ -1160,8 +1227,10 @@ begin
   inherited MouseMove(Shift, X, Y);
   if FResizeColumn >= 0 then
   begin
-    SetColumnWidth(FResizeColumn, Max(MinColumnWidths[FResizeColumn],
-      FResizeStartWidth + MulDiv(X - FResizeStartX, 96, ScaleValue(96))));
+    SetColumnWidth(FResizeColumn, EnsureRange(FResizeStartWidth +
+      MulDiv(X - FResizeStartX, 96, ScaleValue(96)),
+      MinColumnWidths[FResizeColumn],
+      Max(MinColumnWidths[FResizeColumn], FResizeMaxWidth)));
     // Paint the rows and the in-place edits now: while the mouse keeps
     // moving, WM_PAINT would otherwise wait until the drag pauses.
     if HandleAllocated then

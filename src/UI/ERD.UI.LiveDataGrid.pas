@@ -90,9 +90,11 @@ type
     FTimer: TTimer;
     FOnCheckChanged: TOBDGridCheckEvent;
     FColumnWidths: array [1 .. 5] of Integer;
+    FColumnBase: Integer;
     FResizeColumn: Integer;
     FResizeStartX: Integer;
     FResizeStartWidth: Integer;
+    FResizeMaxWidth: Integer;
     FBarHot: Boolean;
     FBarDragging: Boolean;
     FBarDragOffset: Integer;
@@ -100,6 +102,7 @@ type
     function GetColumnWidth(AIndex: Integer): Integer;
     procedure SetColumnWidth(AIndex, AValue: Integer);
     function AutoColumnWidth(AColumn: Integer): Integer;
+    function ColumnScale: Double;
     function ColumnWidthPx(AColumn: Integer): Integer;
     function ColumnDividerAt(X, Y: Integer): Integer;
     function NeedsScrollBar: Boolean;
@@ -725,6 +728,7 @@ var
 begin
   for I := Low(FColumnWidths) to High(FColumnWidths) do
     FColumnWidths[I] := 0;
+  FColumnBase := 0;
   Invalidate;
 end;
 
@@ -755,11 +759,31 @@ begin
   end;
 end;
 
+function TOBDLiveDataGrid.ColumnScale: Double;
+var
+  C, Sized, Avail: Integer;
+begin
+  // Sized columns follow the grid width (maximise / restore) so every
+  // column stays visible; the Max column keeps its minimum width.
+  Sized := 0;
+  if FShowCheckboxes then
+    Avail := ContentRight - CheckColumnWidth
+  else
+    Avail := ContentRight;
+  for C := Low(FColumnWidths) to High(FColumnWidths) do
+    if FColumnWidths[C] > 0 then
+      Inc(Sized, ScaleValue(FColumnWidths[C]))
+    else
+      Dec(Avail, AutoColumnWidth(C));
+  Result := OBDColumnScale(Sized, ScaleValue(FColumnBase), Avail,
+    ScaleValue(MinColumnWidth96));
+end;
+
 function TOBDLiveDataGrid.ColumnWidthPx(AColumn: Integer): Integer;
 begin
   if (AColumn >= Low(FColumnWidths)) and (AColumn <= High(FColumnWidths)) and
     (FColumnWidths[AColumn] > 0) then
-    Result := ScaleValue(FColumnWidths[AColumn])
+    Result := Round(ScaleValue(FColumnWidths[AColumn]) * ColumnScale)
   else
     Result := AutoColumnWidth(AColumn);
 end;
@@ -1039,7 +1063,8 @@ end;
 procedure TOBDLiveDataGrid.MouseDown(Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 var
-  Index, C: Integer;
+  Index, C, Spare: Integer;
+  Frozen: array [1 .. 5] of Integer;
   Thumb: TRect;
 begin
   inherited;
@@ -1069,12 +1094,19 @@ begin
   FResizeColumn := ColumnDividerAt(X, Y);
   if FResizeColumn >= 0 then
   begin
-    // Freeze the automatic widths so only the dragged column changes.
+    // Freeze the current widths so only the dragged column changes, and
+    // remember the width they were sized at so they scale with the grid.
     for C := Low(FColumnWidths) to High(FColumnWidths) do
-      FColumnWidths[C] := System.Math.Max(MinColumnWidth96,
+      Frozen[C] := System.Math.Max(MinColumnWidth96,
         MulDiv(ColumnWidthPx(C), 96, ScaleValue(96)));
+    Spare := System.Math.Max(0, ContentRight - ColumnX(ColMax) -
+      ScaleValue(MinColumnWidth96));
+    FColumnBase := MulDiv(ContentRight - ColumnX(ColPID), 96, ScaleValue(96));
+    for C := Low(FColumnWidths) to High(FColumnWidths) do
+      FColumnWidths[C] := Frozen[C];
     FResizeStartX := X;
     FResizeStartWidth := FColumnWidths[FResizeColumn];
+    FResizeMaxWidth := FResizeStartWidth + MulDiv(Spare, 96, ScaleValue(96));
     MouseCapture := True;
     Exit;
   end;
@@ -1107,8 +1139,9 @@ begin
   end;
   if FResizeColumn >= 0 then
   begin
-    SetColumnWidth(FResizeColumn, System.Math.Max(MinColumnWidth96,
-      FResizeStartWidth + MulDiv(X - FResizeStartX, 96, ScaleValue(96))));
+    SetColumnWidth(FResizeColumn, EnsureRange(FResizeStartWidth +
+      MulDiv(X - FResizeStartX, 96, ScaleValue(96)), MinColumnWidth96,
+      System.Math.Max(MinColumnWidth96, FResizeMaxWidth)));
     Exit;
   end;
   SetBarHot(NeedsScrollBar and PtInRect(ScrollBarRect, Point(X, Y)));
@@ -1216,6 +1249,7 @@ begin
   AObject.AddPair('columnWidths', W);
   for I := Low(FColumnWidths) to High(FColumnWidths) do
     W.Add(FColumnWidths[I]);
+  AObject.AddPair('columnBase', TJSONNumber.Create(FColumnBase));
 end;
 
 procedure TOBDLiveDataGrid.LoadSettings(AObject: TJSONObject);
@@ -1259,6 +1293,10 @@ begin
         SetColumnWidth(Low(FColumnWidths) + I,
           EnsureRange(TJSONNumber(Arr.Items[I]).AsInt, 0, 2000));
   end;
+  N := 0;
+  OBDJsonReadInt(AObject, 'columnBase', N);
+  FColumnBase := EnsureRange(N, 0, 20000);
+  Invalidate;
 end;
 
 end.

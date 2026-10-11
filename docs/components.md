@@ -375,7 +375,9 @@ rows (`CheckedPIDs`) feed the dashboard or the trend chart.
 Drag a header divider to resize a column (double-click resets it to
 automatic); `PIDColumnWidth`, `NameColumnWidth`, `ValueColumnWidth`,
 `UnitColumnWidth` and `MinColumnWidth` hold the widths at 96 DPI (0 =
-automatic) and `ResetColumnWidths` clears them. Long lists scroll with
+automatic) and `ResetColumnWidths` clears them. Resized columns scale
+with the grid (maximise / restore) so they always fit; there is no
+horizontal scroll bar. Long lists scroll with
 the themed overlay scroll bar.
 
 ### `TOBDDashboard` — `ERD.UI.Dashboard`
@@ -397,7 +399,7 @@ its palette.
 `TOBDDtcList` paints itself: themed column header with draggable
 dividers (`CodeColumnWidth`, `DescriptionColumnWidth`,
 `SeverityColumnWidth`; 0 = automatic, double-click a divider to
-reset), severity chips, `ItemIndex`, keyboard navigation, the themed
+reset; resized columns scale with the list so they always fit), severity chips, `ItemIndex`, keyboard navigation, the themed
 scroll bar and `Density` row heights. It no longer wraps a `TListView`,
 so `Items`, `Selected` and `Columns` are gone; use `Dtc`, `DtcCount`
 and `ItemIndex`.
@@ -450,7 +452,7 @@ values, buttons, edits, bars and menus), `OBD_TEXT_HEADING` (14) and
 | `TOBDDtcPanel` | `ERD.UI.DtcPanel` | Trouble codes with status chips, filter strip, inline freeze-frame details (tablet: tap anywhere on a row to expand it) and an inline clear confirmation (`OnReadCodes`, `OnClearCodes`). `LoadFromService` takes the `TOBDDtcEntry` list of a DTC read. |
 | `TOBDReadinessPanel` | `ERD.UI.ReadinessPanel` | Emission-monitor readiness from Mode 01 PID 01 (`LoadPID01`); the verdict names the local inspection through `InspectionRegime` (APK, keuring, contrôle technique, MOT, HU / AU, NCT or `InspectionName`). |
 | `TOBDFreezeFrameView` | `ERD.UI.FreezeFrameView` | Freeze-frame values at fault, optionally next to live values, against a `RangeProfile`; `Layout` table or inspector; the table scrolls with the themed scroll bar. |
-| `TOBDRangeEditor` | `ERD.UI.RangeEditor` | Editor for a `TOBDRangeProfile`: garage values, defaults, per-row reset and validation; hold the mouse button and sweep over the rows to move the selection; drag the header dividers to resize the columns (double-click resets; `*ColumnWidth` properties). |
+| `TOBDRangeEditor` | `ERD.UI.RangeEditor` | Editor for a `TOBDRangeProfile`: garage values, defaults, per-row reset and validation; hold the mouse button and sweep over the rows to move the selection; drag the header dividers to resize the columns (double-click resets; `*ColumnWidth` properties); columns scale with the editor so they always fit, and Reset follows the Source column. |
 
 ### Application chrome
 Everything around the panels, so a whole application follows the theme.

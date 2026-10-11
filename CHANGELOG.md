@@ -75,6 +75,15 @@ in the top-left corner of the desktop when moving between menus.
 The low / high edits now repaint while a range column is being
 dragged instead of only after the drag stops, and `TOBDComboBox` no
 longer draws a darker border on hover, matching `TOBDEdit`.
+Resized columns in `TOBDLiveDataGrid`, `TOBDDtcList` and
+`TOBDRangeEditor` now follow the control's width (maximise, restore,
+splitter) proportionally, so every column stays visible without a
+horizontal scroll bar; a divider can no longer be dragged so far that
+the last column disappears (shared `OBDColumnScale` in `ERD.UI.Paint`).
+The grid saves the width the columns were sized at in its settings
+(`columnBase`). The range editor's Reset button follows the Source
+column (right after the default range) instead of sticking to the
+right edge, and its rows use the shared type scale.
 In tablet density a click anywhere on a `TOBDDtcPanel` row expands or
 collapses its freeze frame, not only on the chevron.
 `TOBDSidebar` items use the standard 12.5 pt body text (was 13.5) and a

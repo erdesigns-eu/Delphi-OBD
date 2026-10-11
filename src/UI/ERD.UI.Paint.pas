@@ -555,6 +555,18 @@ function OBDMeasureText(const AText: string; ASize: Single;
 /// <returns>Line height in device pixels.</returns>
 function OBDFontLineHeight(AFont: TFont): Integer;
 
+/// <summary>Scale factor for list columns the user has resized, so the
+/// columns follow the control when it grows or shrinks (maximise,
+/// restore) and always fit: the sized columns keep their proportions
+/// and the filling column keeps at least <c>AReserve</c>.</summary>
+/// <param name="ASized">Sum of the sized column widths, device pixels.</param>
+/// <param name="ABase">Content width at the time the columns were sized,
+/// device pixels; 0 keeps the widths as they are while they fit.</param>
+/// <param name="AAvailable">Current content width, device pixels.</param>
+/// <param name="AReserve">Minimum width of the filling column.</param>
+/// <returns>Factor to multiply the sized widths with.</returns>
+function OBDColumnScale(ASized, ABase, AAvailable, AReserve: Integer): Double;
+
 const
   /// <summary>Card status edge width, 96-DPI pixels.</summary>
   OBD_EDGE = 4;
@@ -672,6 +684,18 @@ begin
     Result := LightInk
   else
     Result := DarkInk;
+end;
+
+function OBDColumnScale(ASized, ABase, AAvailable, AReserve: Integer): Double;
+begin
+  if ASized <= 0 then
+    Exit(1);
+  if ABase > 0 then
+    Result := AAvailable / ABase
+  else
+    Result := 1;
+  if ASized * Result > AAvailable - AReserve then
+    Result := System.Math.Max(0, AAvailable - AReserve) / ASized;
 end;
 
 function OBDFontLineHeight(AFont: TFont): Integer;
