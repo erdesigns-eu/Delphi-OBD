@@ -200,7 +200,6 @@ type
     procedure SetStatusKind(AValue: TOBDStatusKind);
     procedure SetStatusVisible(AValue: Boolean);
     procedure SetActiveBorder(AValue: Boolean);
-    procedure CMParentChanged(var Message: TMessage); message CM_PARENTCHANGED;
     procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
     procedure CMHintShow(var Message: TCMHintShow); message CM_HINTSHOW;
     function CaptionHeight: Integer;
@@ -275,6 +274,10 @@ type
     procedure PaintControl(ACanvas: TCanvas); override;
     /// <summary>Applies the hook and menu layout after streaming.</summary>
     procedure Loaded; override;
+    /// <summary>Docks the bar to the top and hooks the new parent form.
+    /// </summary>
+    /// <param name="AParent">New parent control, or nil.</param>
+    procedure SetParent(AParent: TWinControl); override;
     /// <summary>Updates hover states for client-area buttons.</summary>
     /// <param name="Shift">Modifier keys.</param>
     /// <param name="X">Mouse X.</param>
@@ -825,9 +828,11 @@ begin
   Invalidate;
 end;
 
-procedure TOBDTitleBar.CMParentChanged(var Message: TMessage);
+procedure TOBDTitleBar.SetParent(AParent: TWinControl);
 begin
-  inherited;
+  inherited SetParent(AParent);
+  if csDestroying in ComponentState then
+    Exit;
   Align := alTop;
   HookParentForm;
   UpdateChildLayout;
@@ -1536,8 +1541,8 @@ begin
   MenuHandle := GetSystemMenu(FHookedForm.Handle, False);
   if MenuHandle = 0 then
     Exit;
-  Cmd := TrackPopupMenu(MenuHandle, TPM_LEFTBUTTON or TPM_RIGHTBUTTON or
-    TPM_RETURNCMD, X, Y, 0, FHookedForm.Handle, nil);
+  Cmd := Integer(TrackPopupMenu(MenuHandle, TPM_LEFTBUTTON or TPM_RIGHTBUTTON or
+    TPM_RETURNCMD, X, Y, 0, FHookedForm.Handle, nil));
   if Cmd <> 0 then
     SendMessage(FHookedForm.Handle, WM_SYSCOMMAND, Cmd, 0);
 end;
