@@ -40,6 +40,7 @@ interface
 
 uses
   System.Math,
+  Winapi.Windows,
 {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
 {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   System.Bindings.Helper, Data.Bind.Components,

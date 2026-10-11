@@ -32,6 +32,13 @@ INLINE_NEEDS = {
     'MessageDlgPos': 'System.UITypes',
 }
 
+# TOBDCustomControl.ScaleValue (ERD.UI.Control) is inline and its body calls
+# MulDiv from Winapi.Windows, so any unit that calls it - descendants of the
+# OBD controls - must name Winapi.Windows too.
+INHERITED_INLINE_NEEDS = {
+    'ScaleValue': ('Winapi.Windows', 'erd.ui.control'),
+}
+
 # System.Classes re-declares these System.Types helpers as inline wrappers,
 # so a unit that names System.Classes but not System.Types and calls them
 # gets H2443 at every call site.
@@ -77,6 +84,14 @@ for path in pas_files():
                              f'{name} is inline and reaches into {unit}, '
                              f'which this unit does not name'))
             break
+    for name, (unit, via) in INHERITED_INLINE_NEEDS.items():
+        if via not in used or unit.lower() in used:
+            continue
+        m = re.search(r'(?<![\w.])' + name + r'\s*\(', clean)
+        if m:
+            problems.append((rel, clean.count('\n', 0, m.start()) + 1,
+                             f'{name} is inline and reaches into {unit}, '
+                             f'which this unit does not name'))
     if (('system.classes' in used or 'classes' in used)
             and 'system.types' not in used and 'types' not in used):
         for name in CLASSES_WRAPPERS:
