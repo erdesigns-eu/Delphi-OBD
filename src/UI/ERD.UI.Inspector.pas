@@ -269,7 +269,7 @@ type
     FScrollPos: Integer;
     FContentHeight: Integer;
     FUpdateCount: Integer;
-    FEditor: TCustomEdit;
+    FEditor: TEdit;
     FEditProperty: TOBDInspectorProperty;
     FEditOriginalValue: string;
     FInternalEditorUpdate: Boolean;
@@ -368,7 +368,8 @@ type
     /// <param name="Y">Client Y.</param>
     procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
     /// <summary>Clears scroll hover state.</summary>
-    procedure MouseLeave; override;
+    /// <param name="Message">Mouse-leave notification.</param>
+    procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
     /// <summary>Handles double-click toggles and splitter reset.</summary>
     procedure DblClick; override;
     /// <summary>Handles object-inspector keyboard navigation.</summary>
@@ -456,7 +457,7 @@ type
 implementation
 
 type
-  TOBDInspectorEdit = class(TCustomEdit)
+  TOBDInspectorEdit = class(TEdit)
   protected
     procedure WMGetDlgCode(var Message: TWMGetDlgCode); message WM_GETDLGCODE;
   public
@@ -1994,7 +1995,7 @@ begin
   Cursor := crDefault;
 end;
 
-procedure TOBDInspector.MouseLeave;
+procedure TOBDInspector.CMMouseLeave(var Message: TMessage);
 begin
   inherited;
   FScrollHover := False;

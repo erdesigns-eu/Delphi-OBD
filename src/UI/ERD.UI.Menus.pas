@@ -457,10 +457,7 @@ begin
   else
     Result := Screen.PixelsPerInch;
 {$ELSE}
-  if AControl <> nil then
-    Result := AControl.Font.PixelsPerInch
-  else
-    Result := Screen.PixelsPerInch;
+  Result := Screen.PixelsPerInch;
 {$ENDIF}
   if Result <= 0 then
     Result := 96;
