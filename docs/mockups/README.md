@@ -529,3 +529,86 @@ and 32 px. Each cell shows the icon at 32, 24 and 16 px.
 | Light | Dark |
 |---|---|
 | ![](palette-icons-light.png) | ![](palette-icons-dark.png) |
+
+## OBD Studio Pro (proposal)
+
+These are mockups of the proposed Pro components; none of them exists in
+`src/UI` yet. They are here so they can be refined before anything is
+built. The order is: mock everything, refine, then build. The mockups
+come from `tools/ui_mockups_pro.py`, which `tools/ui_mockups.py`
+registers, so the usual command renders them
+(`python3 tools/ui_mockups.py --only pro-dyno`).
+
+The building blocks are drawn in both densities. The panels are drawn
+for the desktop at 1366 px wide.
+
+### Decisions
+
+| Topic | Decision |
+|---|---|
+| Editions | Components know nothing about editions. The Pro components are registered on their own **OBD Studio Pro** palette page; the application decides what an edition offers. |
+| Procedure texts and pictures | Loaded from catalogue files (`catalogs/procedures/`), with a garage folder for custom procedures. `TOBDProcedureView` only shows the model it is given. |
+| Dyno correction standards | Loaded from a catalogue (`catalogs/dyno/corrections`), so custom standards can be added next to SAE J1349, DIN 70020, EEC 80/1269 and ISO 1585. |
+| Writing to a control unit | Every write needs a backup first, then the inline `TOBDWriteConfirm` strip. No modal dialog. |
+
+### New building blocks
+
+| Component | Purpose |
+|---|---|
+| `TOBDPreconditionList` | Conditions that must be met before a procedure or write can start. |
+| `TOBDProcedureView` | Step-by-step guided procedure: steps, instruction, picture, live values and actions. |
+| `TOBDSecurityAccessCard` | Session, security level and keep-alive of the unlocked control unit. |
+| `TOBDWriteConfirm` | Inline confirmation strip with the backup status, shown before any write. |
+| `TOBDTimeline`, `TOBDDiffView` | History of changes and a before/after comparison. |
+| `TOBDHexView`, `TOBDBitEditor` | Memory dump with regions and compare; long coding bits and options. |
+| `TOBDBusTrace` | CAN trace with decoding, filters and colouring. |
+| `TOBDXYChart` | Curves over a shared X axis with two Y axes, earlier runs, peaks and a cursor. |
+| `TOBDMapGrid` | Calibration map with the live operating point and edited cells. |
+| `TOBDLapTimer`, `TOBDGMeter` | Drag run timer with splits; friction circle with trail and peak. |
+| `TOBDCellMatrix` | HV battery cell voltages per module with module temperatures. |
+| `TOBDKeySlots` | Key learning slots with their state. |
+| `TOBDSignalBrowser`, `TOBDSignalGrid` | A2L measurement objects; live values with min/max and sparklines. |
+| `TOBDActuatorPanel`, `TOBDBusSend`, `TOBDReplayBar` | Actuator tests with feedback and *Stop all*; sending (periodic) frames; recording playback. |
+
+### Building blocks
+
+| Light | Dark |
+|---|---|
+| ![](pro-workflow-light.png) | ![](pro-workflow-dark.png) |
+| ![](pro-workflow-tablet-light.png) | ![](pro-workflow-tablet-dark.png) |
+| ![](pro-data-light.png) | ![](pro-data-dark.png) |
+| ![](pro-data-tablet-light.png) | ![](pro-data-tablet-dark.png) |
+| ![](pro-charts-light.png) | ![](pro-charts-dark.png) |
+| ![](pro-charts-tablet-light.png) | ![](pro-charts-tablet-dark.png) |
+
+### Panels
+
+| Mockup | Shows |
+|---|---|
+| `pro-ecu-network` | Every control unit with its status, as a list and as a bus topology. |
+| `pro-service-functions` | The service function catalogue and a running procedure (electronic parking brake). |
+| `pro-coding` | Long coding bit editor with the diff, the write confirmation, adaptations and online coding. |
+| `pro-flash` | Flash image, voltage gate, progress with checkpoints and the flash log. |
+| `pro-memory` | EEPROM dump with catalogue regions, reading and writing, and the checksum. |
+| `pro-radio-code` | Radio code from the serial number, an EEPROM dump or online, with the entry instructions. |
+| `pro-dyno` | Run state, power and torque curves, runs, peaks, conditions and vehicle setup. |
+| `pro-performance` | Drag run, brake test and trip consumption. |
+| `pro-security` | Key learning and component protection. |
+| `pro-measurement` | XCP/CCP: signal browser, live measurement, trend and calibration map. |
+| `pro-actuators-bus` | Actuator tests, bus monitor with sending, and replay. |
+| `pro-ev-battery` | HV battery state of health, cells, summary and the battery test. |
+
+| Light | Dark |
+|---|---|
+| ![](pro-ecu-network-light.png) | ![](pro-ecu-network-dark.png) |
+| ![](pro-service-functions-light.png) | ![](pro-service-functions-dark.png) |
+| ![](pro-coding-light.png) | ![](pro-coding-dark.png) |
+| ![](pro-flash-light.png) | ![](pro-flash-dark.png) |
+| ![](pro-memory-light.png) | ![](pro-memory-dark.png) |
+| ![](pro-radio-code-light.png) | ![](pro-radio-code-dark.png) |
+| ![](pro-dyno-light.png) | ![](pro-dyno-dark.png) |
+| ![](pro-performance-light.png) | ![](pro-performance-dark.png) |
+| ![](pro-security-light.png) | ![](pro-security-dark.png) |
+| ![](pro-measurement-light.png) | ![](pro-measurement-dark.png) |
+| ![](pro-actuators-bus-light.png) | ![](pro-actuators-bus-dark.png) |
+| ![](pro-ev-battery-light.png) | ![](pro-ev-battery-dark.png) |

@@ -11,7 +11,7 @@ command renders them:
 
 The components are edition-agnostic: they only live on their own palette
 page. Sample data follows the shared sample job (2016 VW Golf VII 1.6 TDI);
-the EV battery page uses a 2017 VW e-Golf.
+the EV battery page uses a 2017 BMW i3 (94 Ah, 96 cells in 8 modules).
 """
 import math
 
@@ -219,7 +219,8 @@ def precondition_list(c, x, y, w, rows=PRECONDITIONS, title='Before you '
     return y + h
 
 
-def security_card(c, x, y, w):
+def security_card(c, x, y, w, ecu='09 Central electrics',
+                  level='0x03 / 0x04 · seed-key'):
     """TOBDSecurityAccessCard; returns the bottom edge."""
     p, dn = c.p, c.dn
     h = dn['head'] + 128
@@ -227,9 +228,9 @@ def security_card(c, x, y, w):
     ry = head(c, x, y, w, 'Security access', icon='unlock',
               chips=[('UNLOCKED', p.Success)])
     L = x + 20
-    kv_row(c, L, ry + 20, w - 40, 'Control unit', '09 Central electrics')
+    kv_row(c, L, ry + 20, w - 40, 'Control unit', ecu)
     kv_row(c, L, ry + 44, w - 40, 'Session', 'Extended (0x03)')
-    kv_row(c, L, ry + 68, w - 40, 'Level', '0x03 / 0x04 · seed-key')
+    kv_row(c, L, ry + 68, w - 40, 'Level', level)
     kv_row(c, L, ry + 92, w - 40, 'Keep-alive', 'Tester present · 2 s')
     hbar(c, L, ry + 112, w - 40, 0.7, p.Success, 4)
     return y + h
@@ -520,7 +521,7 @@ def sample_bytes(n, seed=7):
     return out
 
 
-EEPROM = sample_bytes(16 * 12)
+EEPROM = sample_bytes(16 * 16)
 EEPROM[0x00:0x10] = [0x56, 0x57, 0x5A, 0x31, 0x5A, 0x32, 0x4E, 0x31, 0x32,
                      0x33, 0x34, 0x35, 0x36, 0x37, 0xFF, 0xFF]
 EEPROM[0x38:0x3C] = [0x04, 0x01, 0x07, 0x02]
@@ -675,8 +676,9 @@ def bit_editor(c, x, y, w, h):
                     checkbox(c, lx + 70, smid, 'checked' if val
                              else 'unchecked', label)
                 else:
-                    c.text(lx + 70, smid, label, 12.5, p.ForegroundText)
                     ew = 170
+                    c.text(lx + 70, smid, label, 12.5, p.ForegroundText,
+                           max_w=x + w - 56 - ew - lx - 70)
                     edit_box(c, x + w - 44 - ew, smid - dn['edit'] / 2, ew,
                              val, dropdown=True)
                 sy2 += row
@@ -1097,8 +1099,1453 @@ def draw_charts(c):
     return y + gs + 92
 
 
+# --------------------------------------------------------------------------
+# Panel helpers
+# --------------------------------------------------------------------------
+
+def tabs(c, x, y, w, items, sel, lead=None):
+    """TOBDTabs (underline style) with generic items; returns the bottom."""
+    p, dn = c.p, c.dn
+    h = dn['tab'] + 4
+    c.rect(x, y, w, h, fill=p.GaugeFace, outline=p.NeutralLight)
+    tx = x + 8
+    if lead:
+        tx = lead(tx, y, h)
+    for i, (t, bdg) in enumerate(items):
+        tw = c.tw(t, 13) + 28 + (28 if bdg else 0)
+        on = i == sel
+        c.text(tx + 14, y + h / 2, t, 13, p.accent_text if on else
+               p.ForegroundText, 'semibold' if on else 'regular')
+        if bdg:
+            M.badge(c, tx + tw - 10, y + h / 2 - 9, bdg[0], bdg[1])
+        if on:
+            c.rect(tx + 8, y + h - 3, tw - 16, 3, fill=p.accent_text)
+        tx += tw
+    return y + h
+
+
+def slider(c, x, y, w, frac, label=None):
+    """TOBDTrackBar; y is the vertical centre."""
+    p = c.p
+    c.rrect(x, y - 2, w, 4, 2, fill=p.NeutralLight)
+    if frac > 0:
+        c.rrect(x, y - 2, max(4, w * frac), 4, 2, fill=p.Accent)
+    k = 14 if c.density == 'desktop' else 22
+    c.ellipse(x + w * frac - k / 2, y - k / 2, k, k, fill=p.GaugeFace,
+              outline=p.accent_text, width=2)
+    if label:
+        c.text(x + w + 12, y, label, 12.5, p.ForegroundText, 'semibold')
+
+
+def spark(c, x, y, w, h, vals, colr, lo=None, hi=None, width=1.5):
+    lo = min(vals) if lo is None else lo
+    hi = max(vals) if hi is None else hi
+    span = (hi - lo) or 1
+    pts = [(x + i * w / (len(vals) - 1), y + h - (v - lo) / span * h)
+           for i, v in enumerate(vals)]
+    c.line(pts, colr, width)
+
+
+def wave(n, base, amp, f=0.35, ph=0.0, drift=0.0):
+    return [base + amp * math.sin(i * f + ph) + amp * 0.4 *
+            math.sin(i * f * 2.7 + ph) + drift * i for i in range(n)]
+
+
+def trend(c, x, y, w, h, title, series, lo, hi, unit, sub=None,
+          xl=('−60 s', 'now')):
+    """Small trend chart card (TOBDTrendChart look)."""
+    p, dn = c.p, c.dn
+    card(c, x, y, w, h)
+    ry = head(c, x, y, w, title, sub=sub)
+    lx = x + w - 16
+    for name, vals, colr in reversed(series):
+        tw = c.tw(name, 12)
+        c.text(lx - tw, y + dn['head'] / 2, name, 12, p.ForegroundText)
+        c.line([(lx - tw - 24, y + dn['head'] / 2),
+                (lx - tw - 8, y + dn['head'] / 2)], colr, 2.5)
+        lx -= tw + 40
+    gx0, gx1 = x + 48, x + w - 16
+    gy0, gy1 = ry + 30, y + h - 28
+    for i in range(5):
+        gy = gy1 - i * (gy1 - gy0) / 4
+        c.hline(gx0, gy, gx1 - gx0, p.NeutralLight)
+        c.text(gx0 - 8, gy, '%g' % (lo + (hi - lo) * i / 4), 11,
+               p.GaugeLabel, anchor='rm')
+    c.caps(gx0 - 8, gy0 - 18, unit, anchor='lm')
+    for name, vals, colr in series:
+        spark(c, gx0, gy0, gx1 - gx0, gy1 - gy0, vals, colr, lo, hi, 2)
+    c.text(gx0, gy1 + 14, xl[0], 11, p.GaugeLabel)
+    c.text(gx1, gy1 + 14, xl[1], 11, p.GaugeLabel, anchor='rm')
+    return y + h
+
+
+def action_grid(c, x, y, w, items, cols=3):
+    """Grid of secondary buttons with icons; returns the bottom."""
+    p, dn = c.p, c.dn
+    bh = dn['button'] + 10
+    bw = (w - (cols - 1) * 8) / cols
+    for i, (icon, text, kind) in enumerate(items):
+        bx = x + (i % cols) * (bw + 8)
+        by = y + (i // cols) * (bh + 8)
+        fill, outline, ink = M.button_colors(p, kind, 'normal')
+        c.rect(bx, by, bw, bh, fill=fill, outline=outline)
+        glyph(c, icon, bx + 18, by + bh / 2, p.accent_text if kind !=
+              'danger-outline' else ink, 1, bg=fill)
+        c.text(bx + 34, by + bh / 2, text, 12.5, ink, 'semibold',
+               max_w=bw - 42)
+    rows = (len(items) + cols - 1) // cols
+    return y + rows * (bh + 8) - 8
+
+
+# --------------------------------------------------------------------------
+# ECU network
+# --------------------------------------------------------------------------
+
+ECUS = [
+    ('01', 'Engine electronics', '04L906056HT', 'EDC17C64', 3, 'fault',
+     'pt'),
+    ('02', 'Transmission (DSG)', '0AM300050R', 'DQ200', 0, 'ok', 'pt'),
+    ('03', 'Brakes (ABS/ESC)', '5Q0907379AA', 'MK100', 1, 'fault', 'ch'),
+    ('08', 'Climatronic', '5G0907044EM', '', 0, 'ok', 'co'),
+    ('09', 'Central electrics', '5Q0937084CK', 'BCM MQB', 1, 'fault', 'co'),
+    ('13', 'Distance regulation', '5Q0907572H', 'ACC', 0, 'ok', 'ex'),
+    ('15', 'Airbag', '5Q0959655BJ', '', 1, 'fault', 'ch'),
+    ('16', 'Steering column', '5Q0953507DH', '', 0, 'ok', 'co'),
+    ('17', 'Instruments', '5G1920741A', '', 0, 'ok', 'co'),
+    ('19', 'Gateway', '5Q0907530AH', 'J533', 0, 'ok', 'gw'),
+    ('44', 'Steering assist', '5Q0909144R', '', 1, 'fault', 'ch'),
+    ('53', 'Parking brake', '5Q0907801B', '', 0, 'ok', 'ch'),
+    ('5F', 'Infotainment', '5G0035867A', 'MIB2', 1, 'protected', 'in'),
+    ('A5', 'Front camera', '3Q0980653', '', 0, 'noreply', 'ex'),
+]
+
+
+def ecu_status_chip(c, x, y, faults, st, size=9.5):
+    p = c.p
+    if st == 'fault':
+        text, colr = ('%d FAULT%s' % (faults, 'S' if faults > 1 else ''),
+                      p.Danger)
+    elif st == 'protected':
+        text, colr = 'PROTECTED', p.accent_text
+    elif st == 'noreply':
+        text, colr = 'NO REPLY', p.Subtle
+    else:
+        text, colr = 'OK', p.Success
+    return chip(c, x, y, text, colr, size=size)
+
+
+def ecu_detail(c, x, y, w, h):
+    p, dn = c.p, c.dn
+    card(c, x, y, w, h, edge=p.Accent)
+    ry = head(c, x, y, w, '09 Central electrics', icon='ecu',
+              sub='UDS on CAN · 0x710 / 0x77A', chips=[('1 FAULT', p.Danger)])
+    L = x + 20
+    rows = [('Part number', '5Q0937084CK', True),
+            ('Hardware', '5Q0937084AN · H45', True),
+            ('Software', '0254 · BCM MQB', False),
+            ('Workshop code', 'WSC 01234 · 2026-10-11', False),
+            ('Label file', '5Q0-937-08X.clb', True)]
+    yy = ry + 22
+    for k, v, mono in rows:
+        kv_row(c, L, yy, w - 40, k, v, mono=mono)
+        yy += 26
+    c.caps(L, yy + 4, 'Long coding')
+    code = '2D 0B 3C 84 40 1A 00 0C 80 6C 03 12 08 00 51 C0'
+    c.text(L, yy + 26, code, 12.5, p.ForegroundText, 'mono', max_w=w - 40)
+    yy += 52
+    c.hline(x + 4, yy, w - 4, p.NeutralLight)
+    yy = action_grid(c, L, yy + 16, w - 40,
+                     [('codes', 'Faults', 'secondary'),
+                      ('coding', 'Coding', 'secondary'),
+                      ('adaptation', 'Adaptations', 'secondary'),
+                      ('wrench', 'Service', 'secondary'),
+                      ('database', 'Backup', 'secondary'),
+                      ('flash', 'Flash…', 'danger-outline')])
+    banner(c, L, yy + 16, w - 40, 52, 'info', 'Changed today',
+           'Long coding written 18:52 by J. de Vries')
+    return y + h
+
+
+def ecu_list(c, x, y, w, h):
+    p, dn = c.p, c.dn
+    card(c, x, y, w, h)
+    ry = head(c, x, y, w, 'Control units', icon='network',
+              chips=[('14 FOUND', p.Subtle), ('6 WITH FAULTS', p.Danger)],
+              buttons=[('Scan all', 'primary', None)])
+    seg_r = x + w - 32 - button_w(c, 'Scan all')
+    segmented(c, seg_r, y + (dn['head'] - dn['seg']) / 2,
+              ['List', 'Topology'], 0)
+    col = dict(addr=x + 16, name=x + 64, part=x + 270, sw=x + 400,
+               st=x + w - 130)
+    ry = colhead(c, x, ry, w, [(col['addr'], 'Addr'), (col['name'],
+                               'Control unit'), (col['part'], 'Part number'),
+                               (col['sw'], 'System'), (col['st'], 'Status')])
+    row = dn['row'] - 4
+    for i, (addr, name, part, sysn, faults, st, bus) in enumerate(ECUS):
+        if ry + row > y + h - dn['foot']:
+            break
+        mid = ry + row / 2
+        if addr == '09':
+            c.rect(x + 1, ry, w - 2, row,
+                   fill=p.tint(p.Accent, 0.10 if not p.dark else 0.14))
+        if st != 'ok':
+            c.rect(x + 1, ry + 6, 4, row - 12, fill={
+                'fault': p.Danger, 'protected': p.accent_text}.get(
+                    st, p.Subtle))
+        c.text(col['addr'], mid, addr, 14, p.ForegroundText, 'monobold')
+        c.text(col['name'], mid, name, 13, p.ForegroundText if st !=
+               'noreply' else p.GaugeLabel, max_w=col['part'] - col['name']
+               - 12)
+        c.text(col['part'], mid, part, 12.5, p.GaugeLabel, 'mono')
+        c.text(col['sw'], mid, sysn or '–', 12.5, p.GaugeLabel)
+        ecu_status_chip(c, col['st'], mid - 10, faults, st)
+        chevron(c, x + w - 16, mid, p.Subtle)
+        ry += row
+        c.hline(x + 1, ry - 1, w - 2, p.NeutralLight)
+    footer(c, x, y, w, h, 'Scanned 18:40 · 1 min 12 s · gateway list '
+           '+ address probe')
+    return y + h
+
+
+BUSES = [('pt', 'Powertrain CAN', '500k'), ('ch', 'Chassis CAN', '500k'),
+         ('co', 'Comfort CAN', '500k'), ('in', 'Infotainment CAN', '500k'),
+         ('ex', 'Extended CAN', '500k')]
+
+
+def ecu_topology(c, x, y, w, h):
+    p, dn = c.p, c.dn
+    card(c, x, y, w, h)
+    ry = head(c, x, y, w, 'Topology', icon='network',
+              sub='Grouped by bus behind the gateway')
+    segmented(c, x + w - 16, y + (dn['head'] - dn['seg']) / 2,
+              ['List', 'Topology'], 1)
+    gw_w, gw_h = 180, 44
+    lane_x = x + 220
+    lane_top = ry + 20
+    lane_h = (y + h - 16 - lane_top) / len(BUSES)
+    gx = x + 20
+    gy = lane_top + (len(BUSES) * lane_h) / 2 - gw_h / 2
+    trunk = gx + gw_w / 2
+    c.vline(lane_x - 20, lane_top + lane_h / 2,
+            (len(BUSES) - 1) * lane_h + 1, p.NeutralDark)
+    c.hline(gx + gw_w - 30, gy + gw_h / 2, lane_x - 20 - (gx + gw_w - 30),
+            p.NeutralDark)
+    del trunk
+    nw = 150
+    for i, (key, name, rate) in enumerate(BUSES):
+        ly = lane_top + i * lane_h + lane_h / 2
+        c.hline(lane_x - 20, ly, w - (lane_x - 20 - x) - 20, p.NeutralDark)
+        c.caps(lane_x, ly - 14, '%s · %s' % (name, rate))
+        nx = lane_x
+        for addr, ename, part, sysn, faults, st, bus in ECUS:
+            if bus != key:
+                continue
+            ny = ly + 4
+            nh = min(lane_h - 26, 36)
+            edge = {'fault': p.Danger, 'protected': p.accent_text,
+                    'noreply': p.Subtle}.get(st)
+            card(c, nx, ny, nw, nh, edge=edge)
+            c.text(nx + 12, ny + nh / 2, addr, 12.5, p.ForegroundText,
+                   'monobold')
+            c.text(nx + 36, ny + nh / 2, ename, 12, p.ForegroundText
+                   if st != 'noreply' else p.GaugeLabel, max_w=nw - 64)
+            if faults:
+                M.badge(c, nx + nw - 6, ny + nh / 2 - 9, str(faults),
+                        p.Danger)
+            nx += nw + 12
+    # Gateway node.
+    card(c, gx, gy, gw_w - 30, gw_h, edge=p.Accent)
+    c.text(gx + 14, gy + gw_h / 2 - 8, '19 Gateway', 12.5, p.ForegroundText,
+           'bold')
+    c.text(gx + 14, gy + gw_h / 2 + 9, 'J533 · OBD port', 11.5,
+           p.GaugeLabel)
+    return y + h
+
+
+def draw_ecu_network(c):
+    L, W = 16, c.w - 32
+    y = 16
+    draw_vehicle_strip(c, L, y, W, 92)
+    y += 92 + 16
+    dw = 440
+    lw = W - dw - 16
+    lh = c.dn['head'] + c.dn['colhead'] + (c.dn['row'] - 4) * len(ECUS) + \
+        c.dn['foot']
+    ecu_list(c, L, y, lw, lh)
+    ecu_detail(c, L + lw + 16, y, dw, lh)
+    y += lh + 24
+    y = sheet_title(c, L, y, 'Topology view', 'the same list, grouped '
+                    'by bus (List / Topology switch)')
+    return ecu_topology(c, L, y, W, 380)
+
+
+# --------------------------------------------------------------------------
+# Service functions
+# --------------------------------------------------------------------------
+
+SERVICE_TILES = [
+    ('oil', 'Oil service reset', '17 Instruments', 'ok'),
+    ('brake', 'Parking brake service', '53 Parking brake', 'sel'),
+    ('steering', 'Steering angle calibration', '44 Steering assist', 'ok'),
+    ('batteryreg', 'Battery registration', '19 Gateway', 'ok'),
+    ('regen', 'DPF regeneration', '01 Engine electronics', 'ok'),
+    ('tpms', 'TPMS relearn', '03 Brakes (indirect)', 'ok'),
+    ('throttle', 'Throttle relearn', '01 Engine electronics', 'ok'),
+    ('bleed', 'Brake bleeding', '03 Brakes', 'ok'),
+    ('erase', 'Clear adaptations', '02 Transmission', 'ok'),
+    ('injector', 'Glow plug test', '01 Engine · garage', 'custom'),
+    ('drivetrain', 'AWD coupling calibration', 'Not fitted', 'off'),
+    ('suspension', 'Air suspension calibration', 'Not fitted', 'off'),
+]
+
+
+def service_catalogue(c, x, y, w, h):
+    p, dn = c.p, c.dn
+    card(c, x, y, w, h)
+    ry = head(c, x, y, w, 'Service functions', icon='wrench',
+              chips=[('10 SUPPORTED', p.Success)])
+    search_box(c, x + 16, ry + 12, w - 32, 'Find a function')
+    ry += 12 + dn['edit'] + 12
+    cx = x + 16
+    for i, t in enumerate(('All', 'Maintenance', 'Brakes', 'Engine',
+                           'Chassis', 'Garage')):
+        cx += chip(c, cx, ry, t.upper(), p.accent_text if i == 0
+                   else p.Subtle, filled=i == 0, size=9.5) + 6
+    ry += 32
+    cols = 2
+    tw = (w - 32 - 8) / cols
+    th = 60 if c.density == 'desktop' else 72
+    for i, (icon, name, ecu, st) in enumerate(SERVICE_TILES):
+        tx = x + 16 + (i % cols) * (tw + 8)
+        ty = ry + (i // cols) * (th + 8)
+        off = st == 'off'
+        fill = p.tint(p.Accent, 0.12 if not p.dark else 0.18) \
+            if st == 'sel' else p.GaugeFace
+        c.rect(tx, ty, tw, th, fill=fill, outline=p.accent_text if st ==
+               'sel' else p.NeutralLight, width=1.5 if st == 'sel' else 1)
+        ink = mix(p.Subtle, p.GaugeFace, 0.55) if off else p.ForegroundText
+        glyph(c, icon, tx + 26, ty + th / 2, mix(p.Subtle, p.GaugeFace, 0.55)
+              if off else p.accent_text, 1.5, bg=fill)
+        c.text(tx + 50, ty + th / 2 - 9, name, 12.5, ink, 'semibold',
+               max_w=tw - 60)
+        c.text(tx + 50, ty + th / 2 + 10, ecu, 11.5, mix(p.Subtle,
+               p.GaugeFace, 0.55) if off else p.GaugeLabel,
+               max_w=tw - 60 - (chip_w(c, 'GARAGE', 9) if st == 'custom'
+                                else 0))
+        if st == 'custom':
+            chip(c, tx + tw - 8 - chip_w(c, 'GARAGE', 9), ty + th - 24,
+                 'GARAGE', p.accent_text, size=9, h=18)
+    footer(c, x, y, w, h, 'From catalogs/procedures · garage files in '
+           'catalogs/procedures/garage')
+    return y + h
+
+
+def draw_service_functions(c):
+    L, W = 16, c.w - 32
+    y = 16
+    draw_vehicle_strip(c, L, y, W, 92)
+    y += 92 + 16
+    cw = 520
+    pw = W - cw - 16
+    ph = 470 + (c.dn['row'] - 44) * 3
+    rows = [(st, t, v) for st, t, v in PRECONDITIONS if st != 'fail']
+    rows = [('ok' if st == 'wait' else st, t, 'Granted' if st == 'wait'
+             else v) for st, t, v in rows]
+    pre_h = c.dn['head'] + (c.dn['row'] - 6) * len(rows) + c.dn['foot']
+    th = 60 if c.density == 'desktop' else 72
+    ch = max(ph + 16 + pre_h, c.dn['head'] + c.dn['edit'] + 56 +
+             6 * (th + 8) + c.dn['foot'] + 8)
+    service_catalogue(c, L, y, cw, ch)
+    procedure_view(c, L + cw + 16, y, pw, ph, EPB_PROCEDURE)
+    precondition_list(c, L + cw + 16, y + ph + 16, pw, rows,
+                      title='Preconditions · parking brake service',
+                      note='All met at 18:55 · checked again before every '
+                      'step')
+    return y + ch
+
+
+# --------------------------------------------------------------------------
+# Coding and adaptations
+# --------------------------------------------------------------------------
+
+def ecu_tabs(c, x, y, w, items, sel, ecu='09 Central electrics'):
+    """Tabs with an ECU selector and the security state in front."""
+    p, dn = c.p, c.dn
+
+    def lead(tx, ty, th):
+        ew = 230
+        edit_box(c, tx + 4, ty + (th - dn['edit']) / 2, ew, ecu,
+                 dropdown=True, bold=True)
+        tx += ew + 16
+        cw = chip(c, tx, ty + th / 2 - 10, 'UNLOCKED', p.Success)
+        tx += cw + 12
+        c.vline(tx, ty + 8, th - 16, p.NeutralLight)
+        return tx + 4
+    return tabs(c, x, y, w, items, sel, lead)
+
+
+ADAPTATIONS = [
+    ('Coming home duration', '30', '45', 's', '0–90', 'spin'),
+    ('Leaving home duration', '10', '10', 's', '0–90', ''),
+    ('Comfort turn signal flashes', '3', '3', '', '1–5', ''),
+    ('Daytime running light dimming', '100', '100', '%', '0–100', ''),
+    ('Footwell light brightness', '60', '60', '%', '0–100', ''),
+    ('Mirror dip on reverse', 'Passenger', 'Passenger', '', 'list', 'combo'),
+    ('Auto-lock speed', '15', '15', 'km/h', '5–30', ''),
+]
+
+
+def adaptation_editor(c, x, y, w, h):
+    p, dn = c.p, c.dn
+    card(c, x, y, w, h)
+    ry = head(c, x, y, w, 'Adaptations', icon='adaptation',
+              sub='09 Central electrics · 214 channels',
+              chips=[('1 CHANGED', p.accent_text)])
+    search_box(c, x + w - 276, y + (dn['head'] - dn['edit']) / 2, 260,
+               'Find a channel')
+    col_n, col_v = x + 16, x + w - 380
+    col_u, col_r = x + w - 210, x + w - 130
+    ry = colhead(c, x, ry, w, [(col_n, 'Channel'), (col_v, 'Value'),
+                               (col_u, 'Unit'), (col_r, 'Range')])
+    row = dn['row'] - 6
+    for name, old, new, unit, rng, kind in ADAPTATIONS:
+        mid = ry + row / 2
+        ch = old != new
+        if ch:
+            c.rect(x + 1, ry, w - 2, row, fill=p.tint(p.Accent, 0.10 if not
+                                                       p.dark else 0.14))
+            c.rect(x + 1, ry + 4, 4, row - 8, fill=p.Accent)
+        c.text(col_n, mid, name, 12.5, p.ForegroundText,
+               max_w=col_v - col_n - 16)
+        if kind == 'spin':
+            M.spin_box(c, col_v, mid - dn['edit'] / 2, 110, new, focused=True)
+            c.text(col_v + 122, mid, 'was %s' % old, 11.5, p.GaugeLabel)
+        elif kind == 'combo':
+            edit_box(c, col_v, mid - dn['edit'] / 2, 150, new, dropdown=True)
+        else:
+            c.text(col_v, mid, new, 12.5, p.ForegroundText, 'semibold')
+        c.text(col_u, mid, unit or '–', 12.5, p.GaugeLabel)
+        c.text(col_r, mid, rng, 12.5, p.GaugeLabel)
+        ry += row
+        c.hline(x + 1, ry - 1, w - 2, p.NeutralLight)
+    fh = dn['foot'] + 8
+    fy = y + h - fh
+    c.hline(x + 1, fy, w - 2, p.NeutralLight)
+    c.text(x + 16, fy + fh / 2, 'Test applies the value until the ignition '
+           'is switched off.', 12, p.GaugeLabel)
+    bx = x + w - 16
+    by = fy + (fh - dn['button']) / 2
+    for text, kind in (('Save to ECU…', 'primary'), ('Test', 'secondary')):
+        bw = button_w(c, text)
+        button(c, bx - bw, by, text, kind)
+        bx -= bw + 8
+    return y + h
+
+
+def online_coding(c, x, y, w, h):
+    p, dn = c.p, c.dn
+    card(c, x, y, w, h)
+    ry = head(c, x, y, w, 'Online coding', icon='cloud',
+              sub='Mercedes-Benz SCN · sample: C 220 d (W205)')
+    rows = [('ok', 'Account signed in', 'garage@example.eu'),
+            ('ok', 'Workshop certificate', 'Valid to 2027-03-01'),
+            ('ok', 'Vehicle data sent', 'N2 · 14 control units'),
+            ('wait', 'SCN code received', 'Waiting · 4 s'),
+            ('skip', 'Write SCN coding', 'After download')]
+    row = dn['row'] - 8
+    for st, text, value in rows:
+        mid = ry + row / 2
+        status_mark(c, st, x + 26, mid)
+        c.text(x + 46, mid, text, 12.5, p.ForegroundText if st != 'skip'
+               else p.GaugeLabel)
+        c.text(x + w - 16, mid, value, 12, state_colour(p, st) if st !=
+               'ok' else p.GaugeLabel, 'semibold' if st == 'wait'
+               else 'regular', anchor='rm')
+        ry += row
+        c.hline(x + 1, ry - 1, w - 2, p.NeutralLight)
+    fh = dn['foot'] + 8
+    fy = y + h - fh
+    c.hline(x + 1, fy, w - 2, p.NeutralLight)
+    bw = button_w(c, 'Apply online coding')
+    button(c, x + w - 16 - bw, fy + (fh - dn['button']) / 2,
+           'Apply online coding', 'primary', state='disabled')
+    c.text(x + 16, fy + fh / 2, 'Providers from the OEM catalogue', 12,
+           p.GaugeLabel, max_w=w - bw - 48)
+    return y + h
+
+
+def draw_coding(c):
+    p, dn = c.p, c.dn
+    L, W = 16, c.w - 32
+    y = 16
+    draw_vehicle_strip(c, L, y, W, 92)
+    y += 92 + 16
+    y = ecu_tabs(c, L, y, W, [('Long coding', None), ('Adaptations',
+                 ('1', p.Accent)), ('Online coding', None),
+                 ('History', None)], 0) + 16
+    row = dn['row'] - 10
+    bh = dn['head'] + 42 + row * 9 + dn['foot'] + 4
+    bw = 780
+    bit_editor(c, L, y, bw, bh)
+    diff_view(c, L + bw + 16, y, W - bw - 16, bh)
+    y += bh + 16
+    y = write_confirm(c, L, y, W) + 24
+    y = sheet_title(c, L, y, 'Adaptations  ·  Online coding',
+                    'the Adaptations and Online coding tabs')
+    ah = dn['head'] + dn['colhead'] + (dn['row'] - 6) * len(ADAPTATIONS) + \
+        dn['foot'] + 8
+    adaptation_editor(c, L, y, bw, ah)
+    online_coding(c, L + bw + 16, y, W - bw - 16, ah)
+    return y + ah
+
+
+# --------------------------------------------------------------------------
+# Flashing, memory and radio codes
+# --------------------------------------------------------------------------
+
+FLASH_STEPS = ['Preconditions', 'Backup', 'Erase', 'Transfer', 'Verify',
+               'Finalise']
+
+
+def flash_image_card(c, x, y, w, h):
+    p, dn = c.p, c.dn
+    card(c, x, y, w, h, edge=p.Success)
+    ry = head(c, x, y, w, 'Flash image', icon='filecheck',
+              chips=[('APPLICABLE', p.Success)])
+    c.text(x + 20, ry + 22, '04L906056KJ_0012.frf', 14, p.ForegroundText,
+           'monobold', max_w=w - 40)
+    c.text(x + 20, ry + 44, '2.0 MB · 664 blocks · from the VAG flash '
+           'catalogue', 12, p.GaugeLabel, max_w=w - 40)
+    yy = ry + 64
+    c.hline(x + 4, yy, w - 4, p.NeutralLight)
+    kv_row(c, x + 20, yy + 22, w - 40, 'Part number',
+           '04L906056HT → KJ', mono=True)
+    kv_row(c, x + 20, yy + 46, w - 40, 'Software', '9978 → 0012',
+           mono=True)
+    yy += 64
+    checks = [('ok', 'Part number family matches'),
+              ('ok', 'Hardware 04L907309B supported'),
+              ('ok', 'Newer software version'),
+              ('ok', 'Signature valid · RSA-2048'),
+              ('ok', 'Block checksums')]
+    for st, text in checks:
+        status_mark(c, st, x + 26, yy + 14)
+        c.text(x + 46, yy + 14, text, 12.5, p.ForegroundText, max_w=w - 64)
+        yy += 28
+    return y + h
+
+
+def voltage_gate(c, x, y, w, volts=13.6, minimum=12.5):
+    """Live voltage gate bar; returns the bottom edge."""
+    p = c.p
+    lo, hi = 11.0, 15.0
+
+    def X(v):
+        return x + (v - lo) / (hi - lo) * w
+    c.caps(x, y + 8, 'Voltage gate')
+    c.text(x + w, y + 8, '%.1f V' % volts, 14, p.Success, 'bold',
+           anchor='rm')
+    by = y + 28
+    c.rect(x, by, w, 10, fill=p.NeutralLight)
+    c.rect(X(minimum), by, X(hi) - X(minimum), 10,
+           fill=mix(p.Success, p.GaugeFace, 0.45))
+    c.rect(X(volts) - 1.5, by - 5, 3, 20, fill=p.ForegroundText)
+    c.vline(X(minimum), by - 6, 22, danger_ink(p))
+    c.text(X(minimum), by + 26, 'min %.1f V' % minimum, 11.5, danger_ink(p),
+           'semibold', anchor='mm')
+    for v in (11, 13, 15):
+        c.text(X(v), by + 26, '%d' % v, 11.5, p.GaugeLabel, anchor='mm')
+    return by + 36
+
+
+def flash_progress(c, x, y, w, h):
+    p, dn = c.p, c.dn
+    card(c, x, y, w, h, edge=p.Accent)
+    ry = head(c, x, y, w, 'Flash 01 Engine electronics', icon='flash',
+              sub='UDS on CAN · 0x7E0 · programming session',
+              chips=[('IN PROGRESS', p.accent_text)])
+    ry = step_strip(c, x + 20, ry + 14, w - 40, FLASH_STEPS, 3) + 18
+    c.caps(x + 20, ry + 4, 'Transfer')
+    c.text(x + 20, ry + 34, 'Block 412 of 664', 22, p.ForegroundText,
+           'bold')
+    c.text(x + w - 20, ry + 34, '62 %', 22, p.accent_text, 'bold',
+           anchor='rm')
+    ry += 56
+    hbar(c, x + 20, ry, w - 40, 0.62, p.Accent, 10)
+    ry += 26
+    cols = [('Speed', '38.4 kB/s'), ('Elapsed', '3:05'),
+            ('Remaining', '1:52'), ('Retries', '0')]
+    cw = (w - 40) / len(cols)
+    for i, (k, v) in enumerate(cols):
+        cx = x + 20 + i * cw
+        if i:
+            c.vline(cx - 12, ry, 40, p.NeutralLight)
+        c.caps(cx, ry + 8, k)
+        c.text(cx, ry + 30, v, 14, p.ForegroundText, 'bold')
+    ry += 60
+    ry = voltage_gate(c, x + 20, ry, w - 40) + 18
+    banner(c, x + 20, ry, w - 40, 52, 'info', 'Checkpoint saved at block 400',
+           'If the flash is interrupted it resumes from the last '
+           'checkpoint.')
+    fh = dn['foot'] + 8
+    fy = y + h - fh
+    ly = ry + 52 + 24
+    if fy - ly > 90:
+        c.caps(x + 20, ly + 6, 'Flash log')
+        ly += 20
+        for t, text in (('18:57:41', 'Programming session · security '
+                         'access level 0x11 granted'),
+                        ('18:57:44', 'Fingerprint written · WSC 01234'),
+                        ('18:57:48', 'Erase memory 0x00080000 · 4.1 s'),
+                        ('18:58:12', 'Checkpoint · block 400')):
+            if ly + 22 > fy - 8:
+                break
+            c.text(x + 20, ly + 11, t, 12, p.GaugeLabel, 'mono')
+            c.text(x + 100, ly + 11, text, 12, p.ForegroundText,
+                   max_w=w - 120)
+            ly += 22
+    c.hline(x + 1, fy, w - 2, p.NeutralLight)
+    button(c, x + 16, fy + (fh - dn['button']) / 2, 'Abort',
+           'danger-outline')
+    glyph(c, 'alert', x + 40 + button_w(c, 'Abort'), fy + fh / 2,
+          p.Warning, 1)
+    c.text(x + 56 + button_w(c, 'Abort'), fy + fh / 2, 'Keep the ignition '
+           'on and do not disconnect the adapter.', 12.5, p.ForegroundText,
+           'semibold')
+    return y + h
+
+
+def draw_flash(c):
+    p, dn = c.p, c.dn
+    L, W = 16, c.w - 32
+    y = 16
+    draw_vehicle_strip(c, L, y, W, 92)
+    y += 92 + 16
+    lw = 440
+    ih = dn['head'] + 64 + 64 + 5 * 28 + 12
+    flash_image_card(c, L, y, lw, ih)
+    pre = [('ok', 'Ignition on', 'Terminal 15'),
+           ('ok', 'Battery charger', '13.6 V'),
+           ('ok', 'Engine off', '0 rpm'),
+           ('ok', 'Backup saved', '01_Engine_1851.bin'),
+           ('ok', 'Security access', 'Level 0x11')]
+    by = precondition_list(c, L, y + ih + 16, lw, pre, title='Preconditions',
+                           note='Checked again before every phase.')
+    fw = W - lw - 16
+    flash_progress(c, L + lw + 16, y, fw, by - y)
+    return by
+
+
+MEM_REGIONS = [('VIN', '0x0000–0x000F', 'Subtle'),
+               ('Radio code', '0x0038–0x003B', 'accent_text'),
+               ('Odometer copy', '0x0090–0x0097', 'Subtle'),
+               ('Checksum', '0x0FFE–0x0FFF', 'Subtle')]
+
+
+def memory_side(c, x, y, w, h):
+    p, dn = c.p, c.dn
+    card(c, x, y, w, h)
+    ry = head(c, x, y, w, 'Read and write', icon='binary')
+    L = x + 20
+    c.caps(L, ry + 20, 'Source')
+    segmented(c, x + w - 20, ry + 20 - dn['seg'] / 2, ['ECU memory',
+              'EEPROM file'], 1)
+    yy = ry + 44
+    yy += M.caption_edit(c, L, yy, w - 40, 'File',
+                         'RCD330_24C32_2026-10-11.bin', align='left') + 12
+    half = (w - 52) / 2
+    M.caption_edit(c, L, yy, half, 'From', '0x0000', align='left')
+    M.caption_edit(c, L + half + 12, yy, half, 'To', '0x0FFF', align='left')
+    yy += 18 + dn['edit'] + 18
+    bw = (w - 48) / 2
+    button(c, L, yy, 'Read', 'primary', w=bw)
+    button(c, L + bw + 8, yy, 'Write…', 'danger-outline', w=bw)
+    yy += dn['button'] + 20
+    c.hline(x + 4, yy, w - 4, p.NeutralLight)
+    c.caps(L, yy + 20, 'Checksum')
+    kv_row(c, L, yy + 44, w - 40, 'Algorithm', 'Sum16 at 0x0FFE')
+    kv_row(c, L, yy + 68, w - 40, 'Stored · calculated', '5A3C · 5A3C',
+           mono=True)
+    icon_check(c, L + 6, yy + 92, p.Success, 0.7)
+    c.text(L + 18, yy + 92, 'Checksum OK', 12.5, p.Success, 'semibold')
+    yy += 112
+    c.hline(x + 4, yy, w - 4, p.NeutralLight)
+    c.caps(L, yy + 20, 'Regions (catalogue)')
+    yy += 34
+    for name, rng, colr in MEM_REGIONS:
+        col = getattr(p, colr)
+        c.rect(L, yy + 6, 10, 10, fill=p.tint(col, 0.5) if colr ==
+               'accent_text' else p.NeutralLight, outline=col)
+        c.text(L + 18, yy + 11, name, 12.5, p.ForegroundText)
+        c.text(x + w - 20, yy + 11, rng, 12, p.GaugeLabel, 'mono',
+               anchor='rm')
+        yy += 26
+    return y + h
+
+
+def draw_memory(c):
+    L, W = 16, c.w - 32
+    y = 16
+    sw = 380
+    hw = W - sw - 16
+    bottom = hex_view(c, L, y, hw, rows=16)
+    memory_side(c, L + hw + 16, y, sw, bottom - y)
+    return bottom
+
+
+def radio_panel(c, x, y, w, h):
+    p, dn = c.p, c.dn
+    card(c, x, y, w, h)
+    ry = head(c, x, y, w, 'Radio code', icon='radio',
+              chips=[('CODE FOUND', p.Success)])
+    L = x + 20
+    c.caps(L, ry + 20, 'Method')
+    segmented(c, x + w - 20, ry + 20 - dn['seg'] / 2,
+              ['Serial number', 'EEPROM dump', 'Online'], 0)
+    yy = ry + 44
+    half = (w - 52) / 2
+    M.caption_edit(c, L, yy, half, 'Brand', 'Volkswagen', dropdown=True)
+    M.caption_edit(c, L + half + 12, yy, half, 'Unit',
+                   'RCD 330 (Delphi)', dropdown=True)
+    yy += 18 + dn['edit'] + 14
+    yy += M.caption_edit(c, L, yy, w - 40, 'Serial number',
+                         'VWZ1Z2N1234567', align='left', focused=True,
+                         bold=True)
+    icon_check(c, L + 6, yy + 16, p.Success, 0.7)
+    c.text(L + 18, yy + 16, 'Format valid · VWZ + 11 characters (label '
+           'on the unit)', 12, p.Success, 'semibold', max_w=w - 60)
+    yy += 40
+    c.hline(x + 4, yy, w - 4, p.NeutralLight)
+    c.caps(L, yy + 22, 'Code')
+    dw, dh = 64, 80
+    for i, d in enumerate('4172'):
+        dx = L + i * (dw + 12)
+        c.rect(dx, yy + 40, dw, dh, fill=p.tint(p.Accent, 0.10 if not
+                                                 p.dark else 0.14),
+               outline=p.accent_text, width=1.5)
+        c.text(dx + dw / 2, yy + 40 + dh / 2, d, 40, p.ForegroundText,
+               'bold', anchor='mm')
+    bx = L + 4 * (dw + 12) + 12
+    by = yy + 40
+    for text, kind in (('Copy', 'secondary'), ('Print', 'secondary'),
+                       ('Save to job', 'ghost')):
+        button(c, bx, by, text, kind, w=130)
+        by += dn['button'] + 6
+    yy += 40 + dh + 24
+    banner(c, L, yy, w - 40, 56, 'info', 'Entering the code',
+           'Preset keys 1–4 select each digit; hold OK for 2 s. '
+           '(catalogue text)')
+    return y + h
+
+
+def draw_radio(c):
+    p, dn = c.p, c.dn
+    L, W = 16, c.w - 32
+    y = 16
+    rw = 560
+    rh = dn['head'] + 44 + 2 * (18 + dn['edit']) + 14 + 40 + 40 + 80 + 24 + \
+        56 + 20
+    radio_panel(c, L, y, rw, rh)
+    hx = L + rw + 16
+    b = hex_view(c, hx, y, W - rw - 16, rows=8, title='EEPROM · 24C32',
+                 compare=False)
+    if b < y + rh:
+        card(c, hx, b + 16, W - rw - 16, y + rh - b - 16)
+        c.caps(hx + 16, b + 36, 'From the EEPROM')
+        c.text(hx + 16, b + 62, 'Code bytes 0x0038–0x003B: 04 01 07 02 → '
+               '4172', 13.5, p.ForegroundText, 'semibold')
+        c.text(hx + 16, b + 86, 'Layout from catalogs/radio-codes/vw-'
+               'rcd330.json', 12, p.GaugeLabel)
+    return max(b, y + rh)
+
+
+# --------------------------------------------------------------------------
+# Dyno and performance
+# --------------------------------------------------------------------------
+
+def run_strip(c, x, y, w, h, title, icon, state, colr, values, buttons):
+    """Live state strip at the top of a performance page."""
+    p, dn = c.p, c.dn
+    card(c, x, y, w, h, edge=colr)
+    glyph(c, icon, x + 30, y + h / 2, p.accent_text, 1.5, bg=p.GaugeFace)
+    c.text(x + 54, y + h / 2 - 10, title, 16, p.ForegroundText, 'bold')
+    chip(c, x + 54, y + h / 2 + 2, state, colr, size=9.5)
+    vx = x + 280
+    for k, v in values:
+        c.vline(vx - 18, y + 14, h - 28, p.NeutralLight)
+        c.caps(vx, y + h / 2 - 12, k)
+        vw = c.text(vx, y + h / 2 + 12, v, 16, p.ForegroundText, 'bold')
+        vx += max(vw, c.tw(k.upper(), 10.5, 'semibold')) + 40
+    bx = x + w - 16
+    for text, kind, st in reversed(buttons):
+        bw = button_w(c, text)
+        button(c, bx - bw, y + (h - dn['button']) / 2, text, kind, state=st)
+        bx -= bw + 8
+    return y + h
+
+
+RUNS = [('Run 3', '79.1 kW', '254 Nm', 'SAE J1349 · CF 0.987', True,
+         'current'),
+        ('Run 2', '77.4 kW', '246 Nm', 'SAE J1349 · CF 0.989', True, ''),
+        ('Run 1', '76.9 kW', '245 Nm', 'SAE J1349 · CF 0.991', False,
+         'cold engine')]
+
+
+def runs_table(c, x, y, w, h):
+    p, dn = c.p, c.dn
+    card(c, x, y, w, h)
+    ry = head(c, x, y, w, 'Runs', buttons=[('Export…', 'secondary', None)])
+    cols = [x + 16, x + 150, x + 260, x + 370, x + w - 16]
+    ry = colhead(c, x, ry, w, [(cols[0], 'Run'), (cols[1], 'Peak power'),
+                               (cols[2], 'Peak torque'),
+                               (cols[3], 'Correction'),
+                               (cols[4], 'Overlay', 'rm')])
+    row = dn['row'] - 8
+    for name, pw, tq, corr, on, note in RUNS:
+        mid = ry + row / 2
+        if note == 'current':
+            c.rect(x + 1, ry + 6, 4, row - 12, fill=p.Accent)
+        c.text(cols[0], mid, name, 13, p.ForegroundText, 'semibold')
+        if note:
+            c.text(cols[0] + 50, mid, note, 11.5, p.GaugeLabel)
+        c.text(cols[1], mid, pw, 13, p.ForegroundText, 'semibold')
+        c.text(cols[2], mid, tq, 13, p.ForegroundText, 'semibold')
+        c.text(cols[3], mid, corr, 12.5, p.GaugeLabel)
+        M.checkbox(c, cols[4] - c.dn['check'], mid, 'checked' if on
+                   else 'unchecked', '')
+        ry += row
+        c.hline(x + 1, ry - 1, w - 2, p.NeutralLight)
+    return y + h
+
+
+def form_card(c, x, y, w, title, icon, rows, note=None):
+    """Card with caption / value rows (edits, combos, read-only values);
+    returns the bottom edge."""
+    p, dn = c.p, c.dn
+    rh = dn['edit'] + 10
+    h = dn['head'] + 12 + rh * len(rows) + (dn['foot'] if note else 8)
+    card(c, x, y, w, h)
+    ry = head(c, x, y, w, title, icon=icon) + 12
+    for label, value, kind in rows:
+        mid = ry + rh / 2
+        c.text(x + 16, mid, label, 12.5, p.GaugeLabel)
+        ew = w * 0.48
+        ex = x + w - 16 - ew
+        if kind == 'combo':
+            edit_box(c, ex, mid - dn['edit'] / 2, ew, value, dropdown=True)
+        elif kind == 'edit':
+            edit_box(c, ex, mid - dn['edit'] / 2, ew, value)
+        else:
+            c.text(x + w - 16, mid, value, 13, p.ForegroundText, 'bold',
+                   anchor='rm')
+        ry += rh
+    if note:
+        footer(c, x, y, w, h, note)
+    return y + h
+
+
+def draw_dyno(c):
+    p, dn = c.p, c.dn
+    L, W = 16, c.w - 32
+    y = 16
+    y = run_strip(c, L, y, W, 76, 'Dyno', 'dyno', 'RECORDING RUN 3',
+                  p.Danger, [('Gear', '3rd'), ('Engine', '3 120 rpm'),
+                             ('Speed', '78 km/h'), ('Throttle', '100 %'),
+                             ('Boost', '1.92 bar')],
+                  [('Stop run', 'danger-outline', 'normal'),
+                   ('New run', 'primary', 'disabled')]) + 16
+    rw = 420
+    lw = W - rw - 16
+    ch = 430
+    xy_chart(c, L, y, lw, ch)
+    rx = L + lw + 16
+    tw = (rw - 12) / 2
+    th = 84
+    tile(c, rx, y, tw, th, 'Peak power', '79.1', 'kW', '107.5 PS @ 3 450 rpm',
+         edge=p.Accent)
+    tile(c, rx + tw + 12, y, tw, th, 'Peak torque', '254', 'Nm',
+         '@ 1 750 rpm')
+    tile(c, rx, y + th + 12, tw, th, 'Wheel power', '68.2', 'kW',
+         'measured')
+    tile(c, rx + tw + 12, y + th + 12, tw, th, 'Drivetrain loss', '13.8',
+         '%', 'estimated (coast-down)')
+    yy = y + 2 * th + 24
+    yy = form_card(c, rx, yy, rw, 'Conditions', 'weather', [
+        ('Correction', 'SAE J1349', 'combo'),
+        ('Air temperature', '18 °C', 'value'),
+        ('Air pressure', '1 012 hPa', 'value'),
+        ('Humidity', '54 %', 'value'),
+        ('Correction factor', '0.987', 'value')],
+        note='Standards from catalogs/dyno/corrections') + 12
+    yy = form_card(c, rx, yy, rw, 'Vehicle setup', 'calculator', [
+        ('Mass with driver', '1 405 kg', 'edit'),
+        ('Tyres', '205/55 R16', 'combo'),
+        ('Gear ratio · final', '1.27 · 3.45', 'edit'),
+        ('Drag area (Cd·A)', '0.67 m²', 'edit')])
+    rt = dn['head'] + dn['colhead'] + (dn['row'] - 8) * 3 + 8
+    rt = max(rt, yy - (y + ch + 16))
+    runs_table(c, L, y + ch + 16, lw, rt)
+    return max(yy, y + ch + 16 + rt)
+
+
+def draw_performance(c):
+    p, dn = c.p, c.dn
+    L, W = 16, c.w - 32
+    y = 16
+    cw = (W - 32) / 3
+    h = 640
+    # Drag run.
+    x = L
+    lt = dn['head'] + 128 + dn['colhead'] + min(30, dn['row'] - 12) * 5 + 12
+    lap_timer(c, x, y, cw, lt)
+    trend(c, x, y + lt + 16, cw, h - lt - 16, 'Speed', [
+        ('Run 4', [min(129, 129 * (1 - math.exp(-i / 9.0)) * 1.04)
+                   for i in range(40)], p.Accent),
+        ('Best', [min(130, 130 * (1 - math.exp(-i / 8.8)) * 1.04)
+                  for i in range(40)], mix(p.Subtle, p.GaugeFace, 0.5))],
+        0, 140, 'km/h', sub='Run 4 against the best run',
+        xl=('0 s', '18 s'))
+    # Brake test.
+    x = L + cw + 16
+    card(c, x, y, cw, h, edge=p.Success)
+    ry = head(c, x, y, cw, 'Brake test', icon='gforce',
+              chips=[('PASSED', p.Success)])
+    gs = min(cw - 80, 300)
+    g_meter(c, x + (cw - gs) / 2, ry + 12, gs)
+    ty = ry + gs + 28
+    tw = (cw - 44) / 2
+    for i, (k, v, u, sub) in enumerate((
+            ('100–0 km/h', '37.8', 'm', 'limit 40.0 m'),
+            ('Stop time', '2.94', 's', 'from 100 km/h'),
+            ('Peak', '0.98', 'g', 'longitudinal'),
+            ('Mean (MFDD)', '0.91', 'g', 'EU limit 0.58 g'))):
+        tile(c, x + 16 + (i % 2) * (tw + 12), ty + (i // 2) * 92, tw, 80, k,
+             v, u, sub, size=20)
+    # Trip.
+    x = L + 2 * (cw + 16)
+    card(c, x, y, cw, 300)
+    ry = head(c, x, y, cw, 'Trip', icon='trip',
+              chips=[('RUNNING', p.accent_text)],
+              buttons=[('Reset', 'ghost', None)])
+    tw = (cw - 44) / 2
+    for i, (k, v, u, sub) in enumerate((
+            ('Average', '4.6', 'l/100 km', 'since 18:20'),
+            ('Now', '5.8', 'l/100 km', '78 km/h'),
+            ('Distance', '23.4', 'km', '28 min'),
+            ('CO₂ (estimate)', '121', 'g/km', 'from fuel flow'))):
+        tile(c, x + 16 + (i % 2) * (tw + 12), ry + 16 + (i // 2) * 106, tw,
+             94, k, v, u, sub, size=20)
+    trend(c, x, y + 316, cw, h - 316, 'Consumption', [
+        ('l/100 km', [5 + 1.6 * math.sin(i / 3.0) + 0.8 *
+                      math.sin(i / 1.3) for i in range(40)], p.Accent)],
+        0, 10, 'l/100')
+    return y + h
+
+
+# --------------------------------------------------------------------------
+# Security: key learning and component protection
+# --------------------------------------------------------------------------
+
+KEY_SLOTS = [('Key 1', 'ok', 'Learned'), ('Key 2', 'ok', 'Learned'),
+             ('Key 3', 'wait', 'Hold to the marker'),
+             ('Key 4', 'todo', 'Empty'), ('Key 5', 'todo', 'Empty'),
+             ('Key 6', 'todo', 'Empty'), ('Key 7', 'todo', 'Empty'),
+             ('Key 8', 'todo', 'Empty')]
+
+
+def key_slots(c, x, y, w, slots=KEY_SLOTS, cols=4):
+    """TOBDKeySlots; returns the bottom edge."""
+    p = c.p
+    sh = 64
+    sw = (w - (cols - 1) * 12) / cols
+    for i, (name, st, text) in enumerate(slots):
+        sx = x + (i % cols) * (sw + 12)
+        sy = y + (i // cols) * (sh + 12)
+        if st == 'wait':
+            fill = p.tint(p.Accent, 0.10 if not p.dark else 0.16)
+            outline, width = p.accent_text, 2
+        else:
+            fill, outline, width = p.GaugeFace, p.NeutralLight, 1
+        c.rect(sx, sy, sw, sh, fill=fill, outline=outline, width=width)
+        ink = (p.Success if st == 'ok' else p.accent_text if st == 'wait'
+               else p.Subtle)
+        glyph(c, 'key', sx + 22, sy + sh / 2, ink, 1, bg=fill)
+        c.text(sx + 42, sy + sh / 2 - 9, name, 13, p.ForegroundText
+               if st != 'todo' else p.GaugeLabel, 'semibold')
+        c.text(sx + 42, sy + sh / 2 + 10, text, 11.5, ink if st != 'todo'
+               else p.GaugeLabel, 'semibold' if st != 'todo' else 'regular',
+               max_w=sw - 50)
+        if st == 'ok':
+            icon_check(c, sx + sw - 16, sy + 14, p.Success, 0.6)
+        elif st == 'wait':
+            icon_pending(c, sx + sw - 16, sy + 14, p.accent_text, 0.65)
+    rows = (len(slots) + cols - 1) // cols
+    return y + rows * (sh + 12) - 12
+
+
+def key_learning(c, x, y, w, h):
+    p, dn = c.p, c.dn
+    card(c, x, y, w, h, edge=p.Accent)
+    ry = head(c, x, y, w, 'Key learning', icon='key',
+              chips=[('STEP 4 OF 5', p.accent_text)],
+              sub='17 Instruments · immobilizer 5 · transponder ID48')
+    ry = step_strip(c, x + 20, ry + 16, w - 40, ['Preconditions',
+                    'Login (PIN)', 'Key count', 'Learn keys', 'Finish'],
+                    3) + 16
+    c.text(x + 20, ry + 10, 'Hold key 3 against the marker on the steering '
+           'column and switch the ignition on.', 14, p.ForegroundText,
+           'bold', max_w=w - 40)
+    c.text(x + 20, ry + 34, 'Keys are learned one by one. Keys that are '
+           'not learned in this session stop working.', 12.5,
+           p.GaugeLabel, max_w=w - 40)
+    ry = key_slots(c, x + 20, ry + 60, w - 40) + 20
+    kw = (w - 40 - 24) / 3
+    for i, (k, v) in enumerate((('Keys learned', '2 of 3'),
+                                ('Transponder', 'Detected · ID48'),
+                                ('Time left', '00:41'))):
+        kx = x + 20 + i * (kw + 12)
+        c.caps(kx, ry + 8, k)
+        c.text(kx, ry + 32, v, 16, p.accent_text if i == 2
+               else p.ForegroundText, 'bold')
+    fh = dn['foot'] + 8
+    fy = y + h - fh
+    c.rect(x + 1, fy, w - 2, fh - 1, fill=p.header())
+    c.hline(x + 1, fy, w - 2, p.NeutralLight)
+    c.text(x + 20, fy + fh / 2, 'The session ends safely if the time runs '
+           'out; learned keys are kept.', 12, p.GaugeLabel,
+           max_w=w - 320)
+    bx = x + w - 16
+    for text, kind in (('Next key', 'primary'), ('Cancel', 'secondary')):
+        bw = button_w(c, text)
+        button(c, bx - bw, fy + (fh - dn['button']) / 2, text, kind,
+               state='disabled' if text == 'Next key' else 'normal')
+        bx -= bw + 8
+    return y + h
+
+
+PROTECTION = [('19', 'Gateway', '5Q0 907 530 AQ', 'ok'),
+              ('17', 'Instruments', '5G1 920 640 B', 'ok'),
+              ('5F', 'Infotainment', '5G0 035 020 E', 'protected'),
+              ('46', 'Comfort system', '5Q0 959 435 C', 'ok'),
+              ('15', 'Airbag', '5Q0 959 655 BJ', 'ok'),
+              ('44', 'Steering assistance', '5Q1 909 144 R', 'ok')]
+
+
+def protection_list(c, x, y, w, h):
+    """Component protection status per control unit."""
+    p, dn = c.p, c.dn
+    card(c, x, y, w, h)
+    ry = head(c, x, y, w, 'Component protection', icon='shield',
+              chips=[('1 PROTECTED', p.Danger)],
+              buttons=[('Refresh', 'ghost', None)])
+    cols = [x + 16, x + 70, x + 290, x + 470, x + w - 16]
+    ry = colhead(c, x, ry, w, [(cols[0], 'Addr'), (cols[1], 'Control unit'),
+                               (cols[2], 'Part number'), (cols[3], 'Status'),
+                               (cols[4], 'Action', 'rm')])
+    row = dn['row'] - 6
+    for addr, name, part, st in PROTECTION:
+        mid = ry + row / 2
+        bad = st == 'protected'
+        if bad:
+            c.rect(x + 1, ry, w - 2, row, fill=p.tint(p.Danger, 0.08 if not
+                                                       p.dark else 0.12))
+            c.rect(x + 1, ry + 6, 4, row - 12, fill=p.Danger)
+        c.text(cols[0], mid, addr, 12.5, p.GaugeLabel, 'mono')
+        c.text(cols[1], mid, name, 12.5, p.ForegroundText, 'semibold')
+        c.text(cols[2], mid, part, 12.5, p.GaugeLabel, 'mono')
+        if bad:
+            chip(c, cols[3], mid - 10, 'PROTECTED', p.Danger, filled=True,
+                 size=9.5, h=20)
+            bw = button_w(c, 'Remove (online)')
+            button(c, cols[4] - bw, mid - dn['button'] / 2,
+                   'Remove (online)', 'primary')
+        else:
+            icon_check(c, cols[3] + 6, mid, p.Success, 0.6)
+            c.text(cols[3] + 18, mid, 'Not active', 12.5, p.ForegroundText)
+            c.text(cols[4], mid, '—', 12.5, p.GaugeLabel, anchor='rm')
+        ry += row
+        c.hline(x + 1, ry - 1, w - 2, p.NeutralLight)
+    footer(c, x, y, w, h, 'Removing protection needs an online session '
+           'with the manufacturer (user account and a valid licence).')
+    return y + h
+
+
+KEY_PRECONDITIONS = [('ok', 'All keys present', '3 keys'),
+                     ('ok', 'Ignition on', 'Terminal 15'),
+                     ('ok', 'Battery voltage ≥ 12.5 V', '12.7 V'),
+                     ('ok', 'Immobilizer PIN', 'Read from 17'),
+                     ('skip', 'Online login', 'Not required')]
+
+
+def draw_security(c):
+    p, dn = c.p, c.dn
+    L, W = 16, c.w - 32
+    y = 16
+    draw_vehicle_strip(c, L, y, W, 92)
+    y += 92 + 16
+    y = ecu_tabs(c, L, y, W, [('Key learning', None),
+                              ('Component protection', ('1', p.Danger)),
+                              ('Immobilizer data', None)], 0,
+                 ecu='17 Instruments') + 16
+    rw = 440
+    lw = W - rw - 16
+    rx = L + lw + 16
+    ry = security_card(c, rx, y, rw, ecu='17 Instruments',
+                       level='Immobilizer login · PIN') + 16
+    ry = precondition_list(c, rx, ry, rw, KEY_PRECONDITIONS,
+                           note='Learning starts when every condition is '
+                           'met.')
+    key_learning(c, L, y, lw, ry - y)
+    y = ry + 24
+    y = sheet_title(c, L, y, 'Component protection',
+                    'the Component protection tab')
+    ph = dn['head'] + dn['colhead'] + (dn['row'] - 6) * len(PROTECTION) + \
+        dn['foot'] + 4
+    return protection_list(c, L, y, W, ph)
+
+
+# --------------------------------------------------------------------------
+# Measurement and calibration (XCP / CCP)
+# --------------------------------------------------------------------------
+
+A2L_TREE = [(0, 'group', 'Air system', 'open'),
+            (1, 'checked', 'Boost pressure actual', 'hPa'),
+            (1, 'checked', 'Boost pressure setpoint', 'hPa'),
+            (1, 'checked', 'Air mass actual', 'mg/stroke'),
+            (1, 'unchecked', 'Air mass setpoint', 'mg/stroke'),
+            (0, 'group', 'Injection', 'open'),
+            (1, 'checked', 'Main injection quantity', 'mg/stroke'),
+            (1, 'checked', 'Rail pressure actual', 'bar'),
+            (1, 'unchecked', 'Rail pressure setpoint', 'bar'),
+            (1, 'checked', 'Start of injection', '°CA'),
+            (0, 'group', 'Exhaust', 'closed'),
+            (0, 'group', 'Engine speed and load', 'closed'),
+            (0, 'group', 'Maps', 'open'),
+            (1, 'map', 'Injection quantity', '8 × 8'),
+            (1, 'map', 'Boost setpoint', '16 × 12'),
+            (1, 'map', 'Smoke limiter', '12 × 10')]
+
+
+def signal_browser(c, x, y, w, h):
+    """TOBDSignalBrowser: measurement and calibration objects of an A2L
+    description file."""
+    p, dn = c.p, c.dn
+    card(c, x, y, w, h)
+    ry = head(c, x, y, w, 'Signals', icon='database',
+              sub='03L906023xx.a2l · EDC17C64')
+    search_box(c, x + 16, ry + 12, w - 32, 'Search 2 318 objects')
+    ry += dn['edit'] + 24
+    row = dn['row'] - 12
+    fy = y + h - dn['foot']
+    for lvl, kind, name, extra in A2L_TREE:
+        if ry + row > fy:
+            break
+        mid = ry + row / 2
+        ix = x + 16 + lvl * 22
+        if kind == 'group':
+            chevron(c, ix + 6, mid, p.Subtle, down=extra == 'open')
+            c.text(ix + 20, mid, name, 12.5, p.ForegroundText, 'semibold')
+        elif kind == 'map':
+            c.rect(x + 1, ry, w - 2, row, fill=p.tint(p.Accent, 0.10 if
+                                                       not p.dark else 0.16)
+                   ) if name == 'Injection quantity' else None
+            glyph(c, 'map', ix + 8, mid, p.accent_text, 1)
+            c.text(ix + 24, mid, name, 12.5, p.ForegroundText)
+            c.text(x + w - 16, mid, extra, 11.5, p.GaugeLabel, anchor='rm')
+        else:
+            M.checkbox(c, ix, mid, kind, '')
+            c.text(ix + dn['check'] + 8, mid, name, 12.5, p.ForegroundText,
+                   max_w=w - (ix - x) - 120)
+            c.text(x + w - 16, mid, extra, 11.5, p.GaugeLabel, anchor='rm')
+        ry += row
+    footer(c, x, y, w, h, '6 measurements · 3 maps selected')
+    return y + h
+
+
+LIVE_SIGNALS = [('Boost pressure actual', '1 918', 'hPa', '985 / 2 104',
+                 wave(40, 1700, 180, 0.3), 'Accent'),
+                ('Boost pressure setpoint', '1 950', 'hPa', '1 000 / 2 150',
+                 wave(40, 1730, 170, 0.3, 0.3), 'Subtle'),
+                ('Air mass actual', '742', 'mg/stroke', '310 / 820',
+                 wave(40, 640, 110, 0.32, 1.0), 'Accent'),
+                ('Main injection quantity', '38.6', 'mg/stroke',
+                 '2.1 / 44.0', wave(40, 30, 8, 0.32, 0.6), 'Accent'),
+                ('Rail pressure actual', '1 482', 'bar', '320 / 1 640',
+                 wave(40, 1300, 160, 0.28, 0.2), 'Accent'),
+                ('Start of injection', '−2.4', '°CA', '−6.0 / 1.2',
+                 wave(40, -2, 1.4, 0.4, 2.0), 'Accent')]
+
+
+def signal_grid(c, x, y, w, h):
+    """TOBDSignalGrid: live values with min/max and a sparkline."""
+    p, dn = c.p, c.dn
+    card(c, x, y, w, h)
+    ry = head(c, x, y, w, 'Live measurement', icon='scope',
+              chips=[('DAQ 10 MS', p.Success), ('DAQ 100 MS', p.Subtle)],
+              buttons=[('Mark', 'secondary', None)])
+    cols = [x + 16, x + 320, x + 330, x + 440, x + 580, x + w - 16]
+    ry = colhead(c, x, ry, w, [(cols[0], 'Signal'), (cols[1], 'Value', 'rm'),
+                               (cols[2], 'Unit'),
+                               (cols[3], 'Min / max'),
+                               (cols[4], 'Last 10 s')])
+    row = dn['row'] - 8
+    for name, v, u, mm, vals, colr in LIVE_SIGNALS:
+        mid = ry + row / 2
+        c.text(cols[0], mid, name, 12.5, p.ForegroundText, max_w=230)
+        c.text(cols[1], mid, v, 13.5, p.ForegroundText, 'bold', anchor='rm')
+        c.text(cols[2], mid, u, 12, p.GaugeLabel)
+        c.text(cols[3], mid, mm, 12, p.GaugeLabel)
+        spark(c, cols[4], ry + 8, cols[5] - cols[4], row - 16, vals,
+              getattr(p, colr) if colr != 'Accent' else p.accent_text)
+        ry += row
+        c.hline(x + 1, ry - 1, w - 2, p.NeutralLight)
+    return y + h
+
+
+def draw_measurement(c):
+    p, dn = c.p, c.dn
+    L, W = 16, c.w - 32
+    y = 16
+    y = run_strip(c, L, y, W, 76, 'Measurement', 'scope', 'XCP · DAQ '
+                  'RUNNING', p.Success,
+                  [('Protocol', 'XCP on CAN'), ('Control unit', '01 Engine'),
+                   ('Signals', '6 of 2 318'), ('Samples', '1 420 /s'),
+                   ('Recording', '04:12')],
+                  [('Stop DAQ', 'danger-outline', 'normal'),
+                   ('Record', 'primary', 'normal')]) + 16
+    bw = 380
+    rx = L + bw + 16
+    rw = W - bw - 16
+    gh = dn['head'] + dn['colhead'] + (dn['row'] - 8) * len(LIVE_SIGNALS) + 8
+    signal_grid(c, rx, y, rw, gh)
+    by = y + gh + 16
+    th = 340
+    tw = (rw - 16) * 0.44
+    trend(c, rx, by, tw, th, 'Boost pressure', [
+        ('Actual', wave(40, 1700, 180, 0.3), p.Accent),
+        ('Setpoint', wave(40, 1730, 170, 0.3, 0.3),
+         mix(p.Subtle, p.GaugeFace, 0.4))], 1000, 2200, 'hPa')
+    map_grid(c, rx + tw + 16, by, rw - tw - 16, th)
+    signal_browser(c, L, y, bw, by + th - y)
+    return by + th
+
+
+# --------------------------------------------------------------------------
+# Actuator tests, bus monitor and replay
+# --------------------------------------------------------------------------
+
+ACTUATORS = [('Radiator fan', 'slider', 0.6, '60 %', 'Fan speed 2 140 rpm',
+              '00:24'),
+             ('EGR valve', 'slider', 0.35, '35 %', 'Position 34 %', '00:12'),
+             ('Fuel pump relay', 'switch', False, '', 'Off', ''),
+             ('Glow plugs', 'button', 'Run 10 s', '', 'Current 0.0 A', ''),
+             ('Boost pressure actuator', 'slider', 0.0, '0 %',
+              'Position 2 %', ''),
+             ('Throttle valve', 'button', 'Sweep', '', 'Angle 87 %', '')]
+
+
+def actuator_panel(c, x, y, w, h):
+    """TOBDActuatorPanel: controls with live feedback and a time limit."""
+    p, dn = c.p, c.dn
+    card(c, x, y, w, h)
+    ry = head(c, x, y, w, 'Actuator tests', icon='routine',
+              chips=[('2 ACTIVE', p.accent_text)],
+              sub='01 Engine electronics · engine off',
+              buttons=[('Stop all', 'danger', None)])
+    row = dn['row'] + 12
+    for name, kind, val, label, fb, timer in ACTUATORS:
+        mid = ry + row / 2
+        active = bool(timer)
+        if active:
+            c.rect(x + 1, ry + 8, 4, row - 16, fill=p.Accent)
+        c.text(x + 20, mid - 9, name, 13, p.ForegroundText, 'semibold',
+               max_w=w * 0.42)
+        c.text(x + 20, mid + 10, fb, 12, p.accent_text if active
+               else p.GaugeLabel, max_w=w * 0.42)
+        cx0 = x + w * 0.46
+        if kind == 'slider':
+            slider(c, cx0, mid, w * 0.28, val, label)
+        elif kind == 'switch':
+            switch(c, cx0, mid, val, 'Relay on')
+        else:
+            button(c, cx0, mid - dn['button'] / 2, val, 'secondary')
+        if timer:
+            chip(c, x + w - 16 - chip_w(c, timer, 9.5, mono=True), mid - 10,
+                 timer, p.accent_text, size=9.5, mono=True, h=20)
+        ry += row
+        c.hline(x + 1, ry - 1, w - 2, p.NeutralLight)
+    footer(c, x, y, w, h, 'Tests stop after 30 s, when the engine starts '
+           'or when the connection drops.')
+    return y + h
+
+
+def send_line(c, x, y, w):
+    """TOBDBusSend: one frame or a periodic frame; returns the bottom."""
+    p, dn = c.p, c.dn
+    h = dn['head'] + dn['edit'] + 44
+    card(c, x, y, w, h)
+    ry = head(c, x, y, w, 'Send frame', icon='bus',
+              chips=[('PERIODIC', p.accent_text)])
+    ey = ry + 30
+    fx = x + 16
+    for cap, val, fw in (('ID', '7E0', 72), ('Data', '02 10 03 00 00 00 00 '
+                         '00', 250), ('Cycle', '100 ms', 90)):
+        c.caps(fx, ey - 14, cap)
+        edit_box(c, fx, ey, fw, val, align='left')
+        fx += fw + 12
+    M.checkbox(c, fx + 4, ey + dn['edit'] / 2, 'checked', 'Periodic')
+    bw = button_w(c, 'Send')
+    button(c, x + w - 16 - bw, ey + (dn['edit'] - dn['button']) / 2, 'Send',
+           'primary')
+    return y + h
+
+
+def replay_bar(c, x, y, w):
+    """TOBDReplayBar: transport, scrubber with events, speed and file."""
+    p, dn = c.p, c.dn
+    h = 88
+    card(c, x, y, w, h)
+    mid = y + h / 2
+    bx = x + 16
+    for g, primary in (('back', False), ('play', True), ('stop', False),
+                       ('forward', False)):
+        s = dn['button']
+        fill = p.Accent if primary else p.GaugeFace
+        c.rect(bx, mid - s / 2, s, s, fill=fill,
+               outline=None if primary else p.NeutralLight)
+        glyph(c, g, bx + s / 2, mid, p.on_accent if primary else
+              p.ForegroundText, 1, bg=fill)
+        bx += s + 6
+    tx = bx + 16
+    glyph(c, 'replay', tx + 8, mid - 14, p.accent_text, 1)
+    c.text(tx + 24, mid - 14, 'Golf_1.6TDI_2026-10-11_1842.obdrec', 12.5,
+           p.ForegroundText, 'semibold')
+    c.text(tx + 24, mid + 12, 'Recorded 18:42 · 12:18 · 41 signals · '
+           'CAN trace', 11.5, p.GaugeLabel)
+    sx0 = tx + 320
+    sx1 = x + w - 330
+    frac = 0.30
+    c.rrect(sx0, mid - 3, sx1 - sx0, 6, 3, fill=p.NeutralLight)
+    c.rrect(sx0, mid - 3, (sx1 - sx0) * frac, 6, 3, fill=p.Accent)
+    for f, colr in ((0.12, p.Danger), (0.48, p.Danger), (0.22, p.Subtle),
+                    (0.66, p.Subtle), (0.81, p.Warning)):
+        mx = sx0 + (sx1 - sx0) * f
+        c.rect(mx - 1.5, mid - 16, 3, 9, fill=colr)
+    k = 16
+    c.ellipse(sx0 + (sx1 - sx0) * frac - k / 2, mid - k / 2, k, k,
+              fill=p.GaugeFace, outline=p.accent_text, width=2)
+    c.text(sx0, mid + 20, '03:42 / 12:18', 11.5, p.ForegroundText,
+           'semibold')
+    lx = sx1
+    for colr, t in ((p.Warning, 'Note'), (p.Subtle, 'Bookmark'),
+                    (p.Danger, 'DTC')):
+        tw = c.tw(t, 11.5)
+        c.text(lx - tw, mid + 20, t, 11.5, p.GaugeLabel)
+        c.rect(lx - tw - 10, mid + 16, 3, 9, fill=colr)
+        lx -= tw + 24
+    segmented(c, x + w - 16, mid - dn['seg'] / 2, ['0.5×', '1×', '2×',
+              '4×'], 1)
+    c.caps(x + w - 16 - 4 * 44 - 20, mid, 'Speed', anchor='rm')
+    return y + h
+
+
+def draw_actuators_bus(c):
+    p, dn = c.p, c.dn
+    L, W = 16, c.w - 32
+    y = 16
+    aw = 560
+    rx = L + aw + 16
+    rw = W - aw - 16
+    ah = dn['head'] + (dn['row'] + 12) * len(ACTUATORS) + dn['foot'] + 4
+    actuator_panel(c, L, y, aw, ah)
+    sh = dn['head'] + dn['edit'] + 44
+    bus_trace(c, rx, y, rw, ah - sh - 16)
+    send_line(c, rx, y + ah - sh, rw)
+    y += ah + 24
+    y = sheet_title(c, L, y, 'TOBDReplayBar',
+                    'plays a recording back through the same panels')
+    return replay_bar(c, L, y, W)
+
+
+# --------------------------------------------------------------------------
+# EV battery
+# --------------------------------------------------------------------------
+
+EV_PRECONDITIONS = [('ok', 'Vehicle in READY / parked', 'P · handbrake'),
+                    ('ok', 'High-voltage system', 'No faults'),
+                    ('ok', '12 V battery ≥ 12.5 V', '13.9 V (DC/DC)'),
+                    ('ok', 'Battery temperature 15–35 °C', '23–31 °C'),
+                    ('skip', 'Charging cable', 'Not required')]
+
+
+def draw_ev_battery(c):
+    p, dn = c.p, c.dn
+    L, W = 16, c.w - 32
+    y = 16
+    y = run_strip(c, L, y, W, 76, 'HV battery', 'ev', 'READY · NOT '
+                  'CHARGING', p.Success,
+                  [('Vehicle', 'BMW i3 (2017)'), ('Battery', '94 Ah · 33 kWh'),
+                   ('Mileage', '48 210 km'),
+                   ('Control unit', 'SME battery mgmt')],
+                  [('Export report', 'secondary', 'normal'),
+                   ('Start test', 'primary', 'normal')]) + 16
+    n = 6
+    tw = (W - (n - 1) * 12) / n
+    th = 92
+    for i, (k, v, u, sub, colr, edge) in enumerate((
+            ('State of health', '91', '%', 'capacity 85.5 Ah', None,
+             p.Success),
+            ('State of charge', '64', '%', 'display 61 %', None, None),
+            ('Pack voltage', '360.2', 'V', 'cells 3.712–3.791 V', None,
+             None),
+            ('Current', '−2.4', 'A', 'auxiliaries', None, None),
+            ('Temperature', '23–31', '°C', 'module 8 warmest', None,
+             p.Warning),
+            ('Isolation', '> 5', 'MΩ', 'limit 0.5 MΩ', None, None))):
+        tile(c, L + i * (tw + 12), y, tw, th, k, v, u, sub, colr=colr,
+             edge=edge)
+    y += th + 16
+    rw = 440
+    lw = W - rw - 16
+    rx = L + lw + 16
+    ry = y
+    sh = dn['head'] + 236
+    card(c, rx, ry, rw, sh)
+    yy = head(c, rx, ry, rw, 'Cell summary', icon='ev')
+    yy += 16
+    banner(c, rx + 16, yy, rw - 32, 64, 'warning', 'Cell 77 is low',
+           '3.712 V · 40 mV below the mean of module 7')
+    yy += 80
+    for k, v in (('Mean cell voltage', '3.752 V'),
+                 ('Spread (max − min)', '79 mV'),
+                 ('Highest', 'cell 41 · 3.791 V'),
+                 ('Lowest', 'cell 77 · 3.712 V'),
+                 ('Balancing', 'off · last 2 days ago')):
+        kv_row(c, rx + 16, yy + 10, rw - 32, k, v)
+        yy += 28
+    ry += sh + 16
+    ry = precondition_list(c, rx, ry, rw, EV_PRECONDITIONS,
+                           title='Battery test',
+                           note='The test reads every cell under a short '
+                           'load; it takes about 4 minutes.')
+    cell_matrix(c, L, y, lw, ry - y)
+    return ry
+
+
 MOCKUPS = {
     'pro-workflow': (BOTH, 1100, None, draw_workflow),
     'pro-data': (BOTH, 1100, None, draw_data),
     'pro-charts': (BOTH, 1100, None, draw_charts),
+    'pro-ecu-network': (DESKTOP, 1366, None, draw_ecu_network),
+    'pro-service-functions': (DESKTOP, 1366, None, draw_service_functions),
+    'pro-coding': (DESKTOP, 1366, None, draw_coding),
+    'pro-flash': (DESKTOP, 1366, None, draw_flash),
+    'pro-memory': (DESKTOP, 1366, None, draw_memory),
+    'pro-radio-code': (DESKTOP, 1366, None, draw_radio),
+    'pro-dyno': (DESKTOP, 1366, None, draw_dyno),
+    'pro-performance': (DESKTOP, 1366, None, draw_performance),
+    'pro-security': (DESKTOP, 1366, None, draw_security),
+    'pro-measurement': (DESKTOP, 1366, None, draw_measurement),
+    'pro-actuators-bus': (DESKTOP, 1366, None, draw_actuators_bus),
+    'pro-ev-battery': (DESKTOP, 1366, None, draw_ev_battery),
 }

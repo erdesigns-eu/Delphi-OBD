@@ -157,6 +157,14 @@ relearn, dyno, calibration, logging and bus functionality of the
 components. The palette icons of the dyno components, the flash
 pipeline, the coding audit log, the replayer, XCP/CCP, the J2534 device
 and the KWP1281 session use these feature icons.
+Mockups of the proposed OBD Studio Pro components are added
+(`tools/ui_mockups_pro.py`, `docs/mockups/pro-*.png`): the new building
+blocks (precondition list, procedure view, write confirmation, hex view,
+bit editor, bus trace, XY chart, map grid, lap timer, G-meter, cell
+matrix) and the panels for the ECU network, service functions, coding,
+flashing, memory, radio codes, dyno, performance, security, measurement,
+actuator tests with the bus monitor and replay, and the HV battery. They
+are proposals; nothing is built yet.
 The font dialog lists every installed font again, the print dialog's
 printer status no longer overlaps the Pages label, and the selection
 ring on the first colour swatch is no longer clipped.
