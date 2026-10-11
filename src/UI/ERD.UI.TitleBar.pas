@@ -1934,7 +1934,10 @@ begin
   else if AGlyph <> glNone then
     APainter.Glyph(AGlyph, R.Left + R.Width / 2, R.Top + R.Height / 2, Ink);
   if ABadge <> '' then
-    APainter.Badge(R.Right - ScaleValue(3), R.Top + ScaleValue(2), ABadge,
+    // Keep clear of the window's top border: caption buttons span the
+    // full caption height, so inset the badge like the hover fill.
+    APainter.Badge(R.Right - ScaleValue(3),
+      System.Math.Max(R.Top + ScaleValue(2), ScaleValue(6)), ABadge,
       APainter.StatusColor(ABadgeKind));
 end;
 

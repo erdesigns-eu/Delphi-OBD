@@ -336,6 +336,12 @@ type
 
 implementation
 
+uses
+  System.UITypes,
+  Winapi.GDIPAPI,
+  Winapi.GDIPOBJ,
+  ERD.UI.GDIP;
+
 { ---- TOBDVINEdit -------------------------------------------------------- }
 
 constructor TOBDVINEdit.Create(AOwner: TComponent);
@@ -433,8 +439,8 @@ procedure TOBDVINEdit.PaintLamp;
 var
   DC: HDC;
   R: TRect;
-  Brush: HBRUSH;
-  OldBrush: HBRUSH;
+  G: TGPGraphics;
+  Brush: TGPSolidBrush;
   LampColor: TColor;
   D, X, Y: Integer;
 begin
@@ -462,13 +468,20 @@ begin
       D := 14;
     X := R.Right - D - 2;
     Y := R.Top + (R.Height - D) div 2;
-    Brush := CreateSolidBrush(ColorToRGB(LampColor));
+    // GDI+ anti-aliased: GDI's Ellipse draws small circles as jagged
+    // polygons.
+    G := TGPGraphics.Create(DC);
     try
-      OldBrush := SelectObject(DC, Brush);
-      Winapi.Windows.Ellipse(DC, X, Y, X + D, Y + D);
-      SelectObject(DC, OldBrush);
+      G.SetSmoothingMode(SmoothingModeAntiAlias);
+      G.SetPixelOffsetMode(PixelOffsetModeHalf);
+      Brush := TGPSolidBrush.Create(ColorToARGB(LampColor));
+      try
+        G.FillEllipse(Brush, X, Y, D, D);
+      finally
+        Brush.Free;
+      end;
     finally
-      DeleteObject(Brush);
+      G.Free;
     end;
   finally
     ReleaseDC(Handle, DC);
