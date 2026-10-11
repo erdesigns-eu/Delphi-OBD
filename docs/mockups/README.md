@@ -539,8 +539,8 @@ come from `tools/ui_mockups_pro.py`, which `tools/ui_mockups.py`
 registers, so the usual command renders them
 (`python3 tools/ui_mockups.py --only pro-dyno`).
 
-The building blocks are drawn in both densities. The panels are drawn
-for the desktop at 1366 px wide.
+Every Pro component gets both densities (desktop and tablet), so all
+mockups have a `-tablet` variant. The panels are drawn 1366 px wide.
 
 ### Decisions
 
@@ -548,7 +548,8 @@ for the desktop at 1366 px wide.
 |---|---|
 | Editions | Components know nothing about editions. The Pro components are registered on their own **OBD Studio Pro** palette page; the application decides what an edition offers. |
 | Procedure texts and pictures | Loaded from catalogue files (`catalogs/procedures/`), with a garage folder for custom procedures. `TOBDProcedureView` only shows the model it is given. |
-| Dyno correction standards | Loaded from a catalogue (`catalogs/dyno/corrections`), so custom standards can be added next to SAE J1349, DIN 70020, EEC 80/1269 and ISO 1585. |
+| Dyno correction standards | Loaded from a catalogue (`catalogs/dyno/corrections`), so custom standards can be added next to SAE J1349, DIN 70020, EEC 80/1269 and ISO 1585. The default is SAE J1349. |
+| Density | Every Pro component supports `dnDesktop` and `dnTablet`. |
 | Writing to a control unit | Every write needs a backup first, then the inline `TOBDWriteConfirm` strip. No modal dialog. |
 
 ### New building blocks
@@ -568,6 +569,7 @@ for the desktop at 1366 px wide.
 | `TOBDCellMatrix` | HV battery cell voltages per module with module temperatures. |
 | `TOBDKeySlots` | Key learning slots with their state. |
 | `TOBDSignalBrowser`, `TOBDSignalGrid` | A2L measurement objects; live values with min/max and sparklines. |
+| `TOBDEcuTopology` | The tester, the gateway and every control unit on its bus, with the unit state. |
 | `TOBDActuatorPanel`, `TOBDBusSend`, `TOBDReplayBar` | Actuator tests with feedback and *Stop all*; sending (periodic) frames; recording playback. |
 
 ### Building blocks
@@ -585,7 +587,7 @@ for the desktop at 1366 px wide.
 
 | Mockup | Shows |
 |---|---|
-| `pro-ecu-network` | Every control unit with its status, as a list and as a bus topology. |
+| `pro-ecu-network` | Every control unit with its status, as a list and as a topology: the tester and gateway, one lane per bus, the units on it and a legend. |
 | `pro-service-functions` | The service function catalogue and a running procedure (electronic parking brake). |
 | `pro-coding` | Long coding bit editor with the diff, the write confirmation, adaptations and online coding. |
 | `pro-flash` | Flash image, voltage gate, progress with checkpoints and the flash log. |
@@ -601,14 +603,26 @@ for the desktop at 1366 px wide.
 | Light | Dark |
 |---|---|
 | ![](pro-ecu-network-light.png) | ![](pro-ecu-network-dark.png) |
+| ![](pro-ecu-network-tablet-light.png) | ![](pro-ecu-network-tablet-dark.png) |
 | ![](pro-service-functions-light.png) | ![](pro-service-functions-dark.png) |
+| ![](pro-service-functions-tablet-light.png) | ![](pro-service-functions-tablet-dark.png) |
 | ![](pro-coding-light.png) | ![](pro-coding-dark.png) |
+| ![](pro-coding-tablet-light.png) | ![](pro-coding-tablet-dark.png) |
 | ![](pro-flash-light.png) | ![](pro-flash-dark.png) |
+| ![](pro-flash-tablet-light.png) | ![](pro-flash-tablet-dark.png) |
 | ![](pro-memory-light.png) | ![](pro-memory-dark.png) |
+| ![](pro-memory-tablet-light.png) | ![](pro-memory-tablet-dark.png) |
 | ![](pro-radio-code-light.png) | ![](pro-radio-code-dark.png) |
+| ![](pro-radio-code-tablet-light.png) | ![](pro-radio-code-tablet-dark.png) |
 | ![](pro-dyno-light.png) | ![](pro-dyno-dark.png) |
+| ![](pro-dyno-tablet-light.png) | ![](pro-dyno-tablet-dark.png) |
 | ![](pro-performance-light.png) | ![](pro-performance-dark.png) |
+| ![](pro-performance-tablet-light.png) | ![](pro-performance-tablet-dark.png) |
 | ![](pro-security-light.png) | ![](pro-security-dark.png) |
+| ![](pro-security-tablet-light.png) | ![](pro-security-tablet-dark.png) |
 | ![](pro-measurement-light.png) | ![](pro-measurement-dark.png) |
+| ![](pro-measurement-tablet-light.png) | ![](pro-measurement-tablet-dark.png) |
 | ![](pro-actuators-bus-light.png) | ![](pro-actuators-bus-dark.png) |
+| ![](pro-actuators-bus-tablet-light.png) | ![](pro-actuators-bus-tablet-dark.png) |
 | ![](pro-ev-battery-light.png) | ![](pro-ev-battery-dark.png) |
+| ![](pro-ev-battery-tablet-light.png) | ![](pro-ev-battery-tablet-dark.png) |

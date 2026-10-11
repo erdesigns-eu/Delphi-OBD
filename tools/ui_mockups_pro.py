@@ -443,8 +443,8 @@ def diff_view(c, x, y, w, h, rows=DIFF_ROWS, title='Changes'):
                                           p.accent_text)])
     sw_x = x + w - 16 - c.dn['switch'] * 1.9 - 8 - c.tw('Only changes', 12.5)
     switch(c, sw_x, y + dn['head'] / 2, False, 'Only changes')
-    col_item, col_old = x + 16, x + w * 0.52
-    col_new = x + w * 0.76
+    col_item, col_old = x + 16, x + w * 0.48
+    col_new = x + w * 0.72
     ry = colhead(c, x, ry, w, [(col_item, 'Setting'), (col_old, 'Before'),
                                (col_new, 'After')])
     row = dn['row'] - 6
@@ -676,9 +676,10 @@ def bit_editor(c, x, y, w, h):
                     checkbox(c, lx + 70, smid, 'checked' if val
                              else 'unchecked', label)
                 else:
-                    ew = 170
+                    room = x + w - 44 - (lx + 70)
+                    ew = max(140, min(170, room - c.tw(label, 12.5) - 12))
                     c.text(lx + 70, smid, label, 12.5, p.ForegroundText,
-                           max_w=x + w - 56 - ew - lx - 70)
+                           max_w=room - ew - 8)
                     edit_box(c, x + w - 44 - ew, smid - dn['edit'] / 2, ew,
                              val, dropdown=True)
                 sy2 += row
@@ -1307,58 +1308,133 @@ def ecu_list(c, x, y, w, h):
     return y + h
 
 
-BUSES = [('pt', 'Powertrain CAN', '500k'), ('ch', 'Chassis CAN', '500k'),
-         ('co', 'Comfort CAN', '500k'), ('in', 'Infotainment CAN', '500k'),
-         ('ex', 'Extended CAN', '500k')]
+BUSES = [('pt', 'Powertrain CAN', '500 kbit/s'),
+         ('ch', 'Chassis CAN', '500 kbit/s'),
+         ('co', 'Comfort CAN', '500 kbit/s'),
+         ('in', 'Infotainment CAN', '500 kbit/s'),
+         ('ex', 'Extended CAN', '500 kbit/s')]
+
+ECU_STATE = {'fault': 'Danger', 'protected': 'accent_text',
+             'noreply': 'Subtle'}
 
 
-def ecu_topology(c, x, y, w, h):
+def topo_node(c, x, y, w, h, ecu, selected=False):
+    """One control unit on a bus lane of the topology view."""
+    p = c.p
+    addr, name, part, sysn, faults, st, bus = ecu
+    edge = getattr(p, ECU_STATE[st]) if st in ECU_STATE else p.Success
+    fill = (p.tint(p.Accent, 0.10 if not p.dark else 0.16) if selected
+            else p.GaugeFace)
+    card(c, x, y, w, h, edge=edge, fill=fill)
+    if selected:
+        c.rect(x, y, w, h, outline=p.accent_text, width=2)
+    mid = y + h / 2
+    off = ink = p.ForegroundText if st != 'noreply' else p.GaugeLabel
+    aw = c.text(x + 16, mid - 9, addr, 13, off, 'monobold')
+    c.text(x + 16 + aw + 8, mid - 9, name, 12.5, ink, 'semibold',
+           max_w=w - aw - 60)
+    c.text(x + 16, mid + 10, sysn or part, 11.5, p.GaugeLabel,
+           'regular' if sysn else 'mono', max_w=w - 56)
+    rx = x + w - 14
+    if st == 'fault':
+        M.badge(c, rx, mid - 9, str(faults), p.Danger)
+    elif st == 'protected':
+        glyph(c, 'lock', rx - 8, mid, p.accent_text, 1, bg=fill)
+    elif st == 'noreply':
+        icon_dash(c, rx - 8, mid, p.Subtle, 0.8)
+    else:
+        icon_check(c, rx - 8, mid, p.Success, 0.7)
+
+
+def topo_legend(c, x, y):
+    """Legend of the node states; x is the right edge, y the centre."""
+    p = c.p
+    items = [(p.Success, 'OK'), (p.Danger, 'Faults'),
+             (p.accent_text, 'Protected'), (p.Subtle, 'No reply')]
+    for colr, t in reversed(items):
+        tw = c.tw(t, 11.5)
+        c.text(x - tw, y, t, 11.5, p.GaugeLabel)
+        c.rect(x - tw - 14, y - 6, 4, 12, fill=colr)
+        x -= tw + 32
+    return x
+
+
+def ecu_topology(c, x, y, w, h=None, selected='09'):
+    """TOBDEcuTopology: the gateway with its buses and the control units
+    on each bus. h=None sizes the card to its content; returns the
+    bottom edge."""
     p, dn = c.p, c.dn
+    tablet = c.density != 'desktop'
+    nh = 64 if tablet else 52
+    lane_h = nh + 28
+    per_bus = {k: [e for e in ECUS if e[6] == k] for k, _, _ in BUSES}
+    body = len(BUSES) * lane_h
+    if h is None:
+        h = dn['head'] + 20 + body + 12 + dn['foot']
     card(c, x, y, w, h)
     ry = head(c, x, y, w, 'Topology', icon='network',
-              sub='Grouped by bus behind the gateway')
+              sub='14 control units on 5 buses behind the gateway')
     segmented(c, x + w - 16, y + (dn['head'] - dn['seg']) / 2,
               ['List', 'Topology'], 1)
-    gw_w, gw_h = 180, 44
-    lane_x = x + 220
-    lane_top = ry + 20
-    lane_h = (y + h - 16 - lane_top) / len(BUSES)
-    gx = x + 20
-    gy = lane_top + (len(BUSES) * lane_h) / 2 - gw_h / 2
-    trunk = gx + gw_w / 2
-    c.vline(lane_x - 20, lane_top + lane_h / 2,
-            (len(BUSES) - 1) * lane_h + 1, p.NeutralDark)
-    c.hline(gx + gw_w - 30, gy + gw_h / 2, lane_x - 20 - (gx + gw_w - 30),
-            p.NeutralDark)
-    del trunk
-    nw = 150
+    top = ry + 20
+    # Gateway column: tester on top, gateway below.
+    gx, gw = x + 20, 200
+    th = nh
+    c.rect(gx, top, gw, th, fill=p.header(), outline=p.NeutralLight)
+    glyph(c, 'vci', gx + 22, top + th / 2, p.accent_text, 1, bg=p.header())
+    c.text(gx + 42, top + th / 2 - 9, 'Tester', 12.5, p.ForegroundText,
+           'semibold')
+    c.text(gx + 42, top + th / 2 + 10, 'OBDLink EX · OBD port', 11.5,
+           p.GaugeLabel, max_w=gw - 52)
+    gy = top + th + 28
+    gh = top + body - 12 - gy
+    c.vline(gx + gw / 2, top + th, gy - top - th, p.NeutralDark)
+    c.caps(gx + gw / 2 + 8, top + th + 14, 'Diagnostic CAN')
+    card(c, gx, gy, gw, gh, edge=p.Accent)
+    glyph(c, 'network', gx + 26, gy + 26, p.accent_text, 1.5,
+          bg=p.GaugeFace)
+    c.text(gx + 48, gy + 18, '19 Gateway', 14, p.ForegroundText, 'bold')
+    c.text(gx + 48, gy + 36, 'J533 · 5Q0907530AH', 11.5, p.GaugeLabel,
+           max_w=gw - 56)
+    ky = gy + 70
+    for k, v in (('Buses', '5'), ('Units', '14'), ('Wake-up', 'On'),
+                 ('Faults', '0')):
+        if ky + 10 > gy + gh - 8:
+            break
+        kv_row(c, gx + 18, ky, gw - 34, k, v)
+        ky += 24
+    # Bus lanes.
+    port_x = gx + gw
+    lab_x = port_x + 24
+    nx0 = port_x + 190
+    term = x + w - 28
+    most = max(len(v) for v in per_bus.values())
+    nw = (term - 20 - nx0 - (most - 1) * 16) / most
     for i, (key, name, rate) in enumerate(BUSES):
-        ly = lane_top + i * lane_h + lane_h / 2
-        c.hline(lane_x - 20, ly, w - (lane_x - 20 - x) - 20, p.NeutralDark)
-        c.caps(lane_x, ly - 14, '%s · %s' % (name, rate))
-        nx = lane_x
-        for addr, ename, part, sysn, faults, st, bus in ECUS:
-            if bus != key:
-                continue
-            ny = ly + 4
-            nh = min(lane_h - 26, 36)
-            edge = {'fault': p.Danger, 'protected': p.accent_text,
-                    'noreply': p.Subtle}.get(st)
-            card(c, nx, ny, nw, nh, edge=edge)
-            c.text(nx + 12, ny + nh / 2, addr, 12.5, p.ForegroundText,
-                   'monobold')
-            c.text(nx + 36, ny + nh / 2, ename, 12, p.ForegroundText
-                   if st != 'noreply' else p.GaugeLabel, max_w=nw - 64)
-            if faults:
-                M.badge(c, nx + nw - 6, ny + nh / 2 - 9, str(faults),
-                        p.Danger)
-            nx += nw + 12
-    # Gateway node.
-    card(c, gx, gy, gw_w - 30, gw_h, edge=p.Accent)
-    c.text(gx + 14, gy + gw_h / 2 - 8, '19 Gateway', 12.5, p.ForegroundText,
-           'bold')
-    c.text(gx + 14, gy + gw_h / 2 + 9, 'J533 · OBD port', 11.5,
-           p.GaugeLabel)
+        ly = top + i * lane_h
+        line_y = ly + nh / 2
+        nodes = per_bus[key]
+        faults = sum(e[4] for e in nodes)
+        if i % 2:
+            c.rect(port_x + 1, ly - 10, x + w - 1 - port_x - 1, lane_h,
+                   fill=mix(p.header(), p.GaugeFace, 0.5))
+        end = nx0 + len(nodes) * (nw + 16) - 16 + 20
+        c.rect(port_x, line_y - 1.5, end - port_x, 3, fill=p.NeutralDark)
+        c.rect(end, line_y - 8, 3, 16, fill=p.NeutralDark)
+        c.rect(port_x - 4, line_y - 5, 8, 10, fill=p.GaugeFace,
+               outline=p.NeutralDark, width=1.5)
+        c.text(lab_x, line_y - 13, name, 12.5, p.ForegroundText, 'semibold')
+        c.text(lab_x, line_y + 13, rate + (' · %d fault%s' % (
+            faults, 's' if faults > 1 else '') if faults else ''), 11.5,
+            danger_ink(p) if faults else p.GaugeLabel)
+        for j, ecu in enumerate(nodes):
+            topo_node(c, nx0 + j * (nw + 16), ly, nw, nh, ecu,
+                      ecu[0] == selected)
+    fy = y + h - dn['foot']
+    c.hline(x + 1, fy, w - 2, p.NeutralLight)
+    c.text(x + 16, fy + dn['foot'] / 2, 'Select a unit to open it · '
+           'scanned 18:40', 12, p.GaugeLabel)
+    topo_legend(c, x + w - 16, fy + dn['foot'] / 2)
     return y + h
 
 
@@ -1376,7 +1452,7 @@ def draw_ecu_network(c):
     y += lh + 24
     y = sheet_title(c, L, y, 'Topology view', 'the same list, grouped '
                     'by bus (List / Topology switch)')
-    return ecu_topology(c, L, y, W, 380)
+    return ecu_topology(c, L, y, W)
 
 
 # --------------------------------------------------------------------------
@@ -1585,7 +1661,7 @@ def draw_coding(c):
                  ('History', None)], 0) + 16
     row = dn['row'] - 10
     bh = dn['head'] + 42 + row * 9 + dn['foot'] + 4
-    bw = 780
+    bw = 780 if c.density == 'desktop' else 880
     bit_editor(c, L, y, bw, bh)
     diff_view(c, L + bw + 16, y, W - bw - 16, bh)
     y += bh + 16
@@ -1845,18 +1921,19 @@ def draw_radio(c):
     rw = 560
     rh = dn['head'] + 44 + 2 * (18 + dn['edit']) + 14 + 40 + 40 + 80 + 24 + \
         56 + 20
-    radio_panel(c, L, y, rw, rh)
     hx = L + rw + 16
     b = hex_view(c, hx, y, W - rw - 16, rows=8, title='EEPROM · 24C32',
                  compare=False)
-    if b < y + rh:
-        card(c, hx, b + 16, W - rw - 16, y + rh - b - 16)
-        c.caps(hx + 16, b + 36, 'From the EEPROM')
-        c.text(hx + 16, b + 62, 'Code bytes 0x0038–0x003B: 04 01 07 02 → '
-               '4172', 13.5, p.ForegroundText, 'semibold')
-        c.text(hx + 16, b + 86, 'Layout from catalogs/radio-codes/vw-'
-               'rcd330.json', 12, p.GaugeLabel)
-    return max(b, y + rh)
+    eh = max(110, y + rh - b - 16)
+    rh = max(rh, b + 16 + eh - y)
+    radio_panel(c, L, y, rw, rh)
+    card(c, hx, b + 16, W - rw - 16, eh)
+    c.caps(hx + 16, b + 36, 'From the EEPROM')
+    c.text(hx + 16, b + 62, 'Code bytes 0x0038–0x003B: 04 01 07 02 → '
+           '4172', 13.5, p.ForegroundText, 'semibold')
+    c.text(hx + 16, b + 86, 'Layout from catalogs/radio-codes/vw-'
+           'rcd330.json', 12, p.GaugeLabel)
+    return y + rh
 
 
 # --------------------------------------------------------------------------
@@ -2536,16 +2613,16 @@ MOCKUPS = {
     'pro-workflow': (BOTH, 1100, None, draw_workflow),
     'pro-data': (BOTH, 1100, None, draw_data),
     'pro-charts': (BOTH, 1100, None, draw_charts),
-    'pro-ecu-network': (DESKTOP, 1366, None, draw_ecu_network),
-    'pro-service-functions': (DESKTOP, 1366, None, draw_service_functions),
-    'pro-coding': (DESKTOP, 1366, None, draw_coding),
-    'pro-flash': (DESKTOP, 1366, None, draw_flash),
-    'pro-memory': (DESKTOP, 1366, None, draw_memory),
-    'pro-radio-code': (DESKTOP, 1366, None, draw_radio),
-    'pro-dyno': (DESKTOP, 1366, None, draw_dyno),
-    'pro-performance': (DESKTOP, 1366, None, draw_performance),
-    'pro-security': (DESKTOP, 1366, None, draw_security),
-    'pro-measurement': (DESKTOP, 1366, None, draw_measurement),
-    'pro-actuators-bus': (DESKTOP, 1366, None, draw_actuators_bus),
-    'pro-ev-battery': (DESKTOP, 1366, None, draw_ev_battery),
+    'pro-ecu-network': (BOTH, 1366, None, draw_ecu_network),
+    'pro-service-functions': (BOTH, 1366, None, draw_service_functions),
+    'pro-coding': (BOTH, 1366, None, draw_coding),
+    'pro-flash': (BOTH, 1366, None, draw_flash),
+    'pro-memory': (BOTH, 1366, None, draw_memory),
+    'pro-radio-code': (BOTH, 1366, None, draw_radio),
+    'pro-dyno': (BOTH, 1366, None, draw_dyno),
+    'pro-performance': (BOTH, 1366, None, draw_performance),
+    'pro-security': (BOTH, 1366, None, draw_security),
+    'pro-measurement': (BOTH, 1366, None, draw_measurement),
+    'pro-actuators-bus': (BOTH, 1366, None, draw_actuators_bus),
+    'pro-ev-battery': (BOTH, 1366, None, draw_ev_battery),
 }

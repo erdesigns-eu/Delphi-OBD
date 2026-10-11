@@ -164,7 +164,9 @@ bit editor, bus trace, XY chart, map grid, lap timer, G-meter, cell
 matrix) and the panels for the ECU network, service functions, coding,
 flashing, memory, radio codes, dyno, performance, security, measurement,
 actuator tests with the bus monitor and replay, and the HV battery. They
-are proposals; nothing is built yet.
+are proposals; nothing is built yet. Every Pro mockup has a desktop and
+a tablet variant, the dyno uses SAE J1349 by default, and the ECU
+topology shows the tester, the gateway and one lane per bus.
 The font dialog lists every installed font again, the print dialog's
 printer status no longer overlaps the Pages label, and the selection
 ring on the first colour swatch is no longer clipped.
