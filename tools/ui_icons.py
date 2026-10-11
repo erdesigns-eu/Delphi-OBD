@@ -558,6 +558,63 @@ def _tractor():
             ('disc', -2.5, 2.5, 1)]
 
 
+def _cloud(dx=0.0, dy=0.0, k=1.0):
+    """Cloud outline: two small lobes and a large one on a flat base."""
+    pts = ([(-3.5, 5)] + _earc(-3.5, 2.5, 2.5, 2.5, 90, 180)
+           + _earc(0.5, 0.5, 4, 4, 207, 126)
+           + _earc(4.5, 2.5, 2.5, 2.5, -90, 180))
+    return [(round(dx + x * k, 2), round(dy + y * k, 2)) for x, y in pts]
+
+
+def _pin():
+    """Map pin (location): a circle drawn to a point, with a hole."""
+    a = math.degrees(math.asin(5 / 9))
+    return [(0, 7)] + _earc(0, -2, 5, 5, 90 + (90 - a), 2 * a + 180)
+
+
+def _drop(cx, cy, r, tip):
+    """Teardrop outline with its point at (cx, cy - tip)."""
+    a = math.degrees(math.asin(r / tip))
+    start = -90 + (90 - a)
+    return ([(cx, cy - tip)] + _earc(cx, cy, r, r, start, 360 - 2 * (90 - a)))
+
+
+def _sine(x0, x1, cy, amp, n=1.0):
+    k = 24
+    return [(round(x0 + (x1 - x0) * i / k, 2),
+             round(cy - amp * math.sin(2 * math.pi * n * i / k), 2))
+            for i in range(k + 1)]
+
+
+def _hexagon(r):
+    return [(round(r * math.cos(math.radians(60 * i)), 2),
+             round(r * math.sin(math.radians(60 * i)), 2)) for i in range(6)]
+
+
+def _arrow_arc(cx, cy, r, start, sweep, head=1.8):
+    """Stroked arc with a filled arrow head at its end (clockwise)."""
+    end = math.radians(start + sweep)
+    px, py = cx + r * math.cos(end), cy + r * math.sin(end)
+    d = 1 if sweep > 0 else -1
+    tx, ty = -math.sin(end) * d, math.cos(end) * d
+    nx, ny = math.cos(end), math.sin(end)
+    pts = [(px + head * tx, py + head * ty), (px + head * nx, py + head * ny),
+           (px - head * nx, py - head * ny)]
+    return [('arc', cx, cy, r, start, sweep - d * 8),
+            ('fill', [(round(x, 2), round(y, 2)) for x, y in pts], 0.3)]
+
+
+def _snowflake():
+    ops = []
+    for a in (0, 60, 120):
+        ops.append(('path', _rot([(0, -7), (0, 7)], a), 0, False))
+    for a in range(0, 360, 60):
+        ops.append(('path', _rot([(-2, -6.5), (0, -4.5), (2, -6.5)], a), 0,
+                    False))
+    return ops
+
+
+
 FEATURES = {
     # ---- Free: connection
     'adapter': [('path', [(-7, -6), (7, -6), (6, 0), (-6, 0)], 1, True),
@@ -738,6 +795,156 @@ FEATURES = {
             ('path', [(-6, -2), (6, -2)], 0, False),
             ('path', [(-6, 2), (6, 2)], 0, False)],
     'star': [('path', _star(), 0.5, True)],
+    # ---- Pro: performance and dyno
+    'dyno': [('circle', 0, -2, 4.5), ('disc', 0, -2, 1.25),
+             ('circle', -3.5, 3.5, 2), ('circle', 3.5, 3.5, 2),
+             ('path', [(-7, 7), (7, 7)], 0, False)],
+    'powercurve': [('path', [(-7, -7), (-7, 7), (7, 7)], 0, False),
+                   ('path', [(-5, 5), (-2, 1), (1, -2), (4, -4), (6, -4.5)],
+                    3, False),
+                   ('path', [(-5, 0), (-2, -3.5), (1, -4), (4, -2), (6, 1)],
+                    3, False)],
+    'finish': [('path', [(-6, 7), (-6, -7)], 0, False),
+               ('rect', -6, -6, 12, 8, 0),
+               ('box', -6, -6, 4, 4, 0), ('box', 2, -6, 4, 4, 0),
+               ('box', -2, -2, 4, 4, 0)],
+    'gforce': [('circle', 0, 0, 7), ('circle', 0, 0, 3.5),
+               ('path', [(-7, 0), (7, 0)], 0, False),
+               ('path', [(0, -7), (0, 7)], 0, False),
+               ('knock', ('disc', 3, -3, 1.75)), ('disc', 3, -3, 1.75)],
+    'torque': [('path', _hexagon(3), 0, True), ('circle', 0, 0, 1.25)]
+              + _arrow_arc(0, 0, 6, 150, 240, 2.25),
+    'wheel': [('circle', 0, 0, 7), ('circle', 0, 0, 4), ('disc', 0, 0, 1.5)],
+    'weather': [('circle', 2.5, -2.5, 2)]
+               + [('path', [(round(2.5 + x, 2), round(-2.5 + y, 2))
+                            for x, y in _rot([(0, -3.25), (0, -4.25)], a)],
+                   0, False) for a in (-45, 0, 45, 90)]
+               + [('knock', ('fill', _cloud(-1, 1.5, 0.85), 0)),
+                  ('knock', ('path', _cloud(-1, 1.5, 0.85), 0.5, True)),
+                  ('path', _cloud(-1, 1.5, 0.85), 0.5, True)],
+    'calculator': [('rect', -6, -7, 12, 14, 1.5),
+                   ('rect', -4, -5, 8, 3, 0.5)]
+                  + [('disc', x, y, 0.9) for y in (1, 4)
+                     for x in (-3, 0, 3)],
+    'trip': [('path', [(-7, 7), (-2, -7)], 0, False),
+             ('path', [(7, 7), (2, -7)], 0, False),
+             ('path', [(0, -6), (0, -4)], 0, False),
+             ('path', [(0, -1), (0, 1.5)], 0, False),
+             ('path', [(0, 4.5), (0, 7)], 0, False)],
+    # ---- Pro: relearns and calibrations
+    'throttle': [('path', [(-7, -5), (7, -5)], 0, False),
+                 ('path', [(-7, 5), (7, 5)], 0, False),
+                 ('path', [(-2.5, 3.5), (2.5, -3.5)], 0, False),
+                 ('knock', ('disc', 0, 0, 1)), ('disc', 0, 0, 1.25)],
+    'piston': [('rect', -4, -7, 8, 7, 1),
+               ('path', [(-4, -5), (4, -5)], 0, False),
+               ('disc', 0, -2.5, 1),
+               ('path', [(0, -2.5), (0, 2)], 0, False),
+               ('circle', 0, 4.5, 2.5)],
+    'injector': [('rect', -1.5, -7, 3, 2, 0.5),
+                 ('rect', -3, -5, 6, 6, 1),
+                 ('path', [(-1.5, 1), (-1, 3), (1, 3), (1.5, 1)], 0, False),
+                 ('path', [(0, 5), (0, 7)], 0, False),
+                 ('path', [(-1.5, 5), (-3, 7)], 0, False),
+                 ('path', [(1.5, 5), (3, 7)], 0, False)],
+    'gearbox': [('path', [(x, -5.5), (x, 5.5)], 0, False) for x in (-5, 0, 5)]
+               + [('path', [(-5, 0), (5, 0)], 0, False)]
+               + [('disc', x, y, 1.5) for x in (-5, 0, 5)
+                  for y in (-5.5, 5.5)],
+    'drivetrain': [('rect', x, y, 2, 4, 0.75) for x in (-7, 5)
+                   for y in (-7, 3)]
+                  + [('path', [(-5, -5), (5, -5)], 0, False),
+                     ('path', [(-5, 5), (-1.5, 5)], 0, False),
+                     ('path', [(1.5, 5), (5, 5)], 0, False),
+                     ('rect', -1.5, 3.5, 3, 3, 0.5),
+                     ('path', [(0, -5), (0, -1.5)], 0, False),
+                     ('rect', -1.5, -1.5, 3, 3, 0.5),
+                     ('path', [(0, 1.5), (0, 3.5)], 0, False)],
+    'suspension': [('path', [(-6, -6), (6, -6)], 0, False),
+                   ('path', [(-6, 6), (6, 6)], 0, False),
+                   ('path', [(-4, -6), (4, -4), (-4, -2), (4, 0), (-4, 2),
+                             (4, 4), (-4, 6)], 0.5, False)],
+    'bleed': [('circle', 0, 0, 4.5),
+              ('arc', 0, 0, 7, 135, 90), ('arc', 0, 0, 7, -45, 90),
+              ('fill', _drop(0, 1, 1.75, 3.75), 0)],
+    'def': [('path', [(-5, -3), (-3, -5), (5, -5), (5, 7), (-5, 7)], 1,
+             True),
+            ('path', [(0, -5), (0, -7), (4, -7), (4, -5)], 0.5, False),
+            ('path', [(-5, -3), (-6.5, -4.5)], 0, False),
+            ('path', [(-2.5, -1), (2.5, 4)], 0, False),
+            ('path', [(2.5, -1), (-2.5, 4)], 0, False)],
+    'batteryreg': [('rect', -7, -4, 13, 8, 1.5),
+                   ('path', [(7, -2), (7, 2)], 0, False),
+                   ('path', [(-3.5, 0), (-1.5, 2), (2.5, -2)], 0, False)],
+    'calibrate': [('circle', 0, 0, 5),
+                  ('path', [(0, -7), (0, -3)], 0, False),
+                  ('path', [(0, 3), (0, 7)], 0, False),
+                  ('path', [(-7, 0), (-3, 0)], 0, False),
+                  ('path', [(3, 0), (7, 0)], 0, False),
+                  ('disc', 0, 0, 1)],
+    'erase': [('path', _rot([(-6, -2.5), (6, -2.5), (6, 2.5), (-6, 2.5)],
+                            -45), 1, True),
+              ('path', _rot([(-1, -2.5), (-1, 2.5)], -45), 0, False),
+              ('path', [(1, 7), (7, 7)], 0, False)],
+    # ---- Pro: body and comfort
+    'light': [('path', [(-1, -5.5)] + _earc(-1, 0, 7, 5.5, -90, 180)
+               + [(-1, 5.5)], 0, True)]
+             + [('path', [(-7, y), (-3.5, y)], 0, False) for y in (-3, 0, 3)],
+    'airbag': [('disc', -4, -5, 1.5),
+               ('path', [(-4.5, -2), (-4, 3), (0, 3), (1, 7)], 1, False),
+               ('circle', 3.5, -2, 3.5)],
+    'climate': _snowflake(),
+    # ---- Pro: workflow and data
+    'steps': [('disc', -5.5, 0, 1.5), ('disc', 0, 0, 1.5),
+              ('circle', 5.5, 0, 1.5),
+              ('path', [(-3.5, 0), (-2, 0)], 0, False),
+              ('path', [(2, 0), (3.5, 0)], 0, False)],
+    'bookmark': [('path', [(-4, -7), (4, -7), (4, 7), (0, 3), (-4, 7)], 1,
+                  True)],
+    'certificate': [('circle', 0, -2.5, 4.5), ('circle', 0, -2.5, 2),
+                    ('path', [(-2.5, 1.25), (-3.5, 7), (-1.5, 5.75),
+                              (-0.5, 1.75)], 0.5, False),
+                    ('path', [(2.5, 1.25), (3.5, 7), (1.5, 5.75),
+                              (0.5, 1.75)], 0.5, False)],
+    'filecheck': _page([('path', [(-2.5, 2), (-0.5, 4), (2.5, 0)], 0,
+                         False)]),
+    'tag': [('path', [(-7, -5), (1, -5), (7, 0), (1, 5), (-7, 5)], 1, True),
+            ('disc', -3.5, 0, 1)],
+    'audit': [op for y in (-5, 0, 5)
+              for op in (('path', [(-7, y), (-5.5, y + 1.5), (-3, y - 1.5)],
+                          0, False),
+                         ('path', [(0, y), (7, y)], 0, False))],
+    'cloud': [('path', _cloud(), 0.5, True)],
+    'switch': [('rect', -7, -3.5, 14, 7, 3.5), ('disc', 3.5, 0, 2)],
+    'replay': [('arc', 0, 0.5, 5.5, 225, 270),
+               ('fill', [(-5.5, -5), (-5.5, -1.5), (-2, -1.5)], 0.5),
+               ('fill', [(-1.5, -2), (2.5, 0.5), (-1.5, 3)], 0.5)],
+    'privacy': [('arc', 0, 4.13, 8.13, 210.47, 119.06),
+                ('arc', 0, -4.13, 8.13, 30.47, 119.06),
+                ('circle', 0, 0, 2),
+                ('knock', ('path', [(-6, -6), (6, 6)], 0, False)),
+                ('path', [(-6, -6), (6, 6)], 0, False)],
+    'log': [op for y in (-6, -2, 2, 6)
+            for op in (('disc', -6, y, 0.9),
+                       ('path', [(-3, y), ({-6: 7, -2: 4, 2: 7}.get(y, 2),
+                                           y)], 0, False))],
+    'scope': [('rect', -7, -6, 14, 12, 1.5),
+              ('path', _sine(-5, 5, 0, 3), 0, False)],
+    # ---- Pro: devices and buses
+    'vci': [('rect', -6, -3, 12, 10, 1.5),
+            ('disc', -3, 0.5, 0.75), ('disc', 0, 0.5, 0.75),
+            ('disc', 3, 0.5, 0.75),
+            ('path', [(-3, 4), (3, 4)], 0, False),
+            ('path', [(3, -3), (3, -5), (5, -7)], 1, False)],
+    'signal': [('path', [(-7, 3), (-4, 3), (-4, -3), (-1, -3), (-1, 3),
+                         (2, 3), (2, -3), (5, -3), (5, 3), (7, 3)], 0,
+                False)],
+    'network': [('circle', 0, 0, 5)]
+               + [('knock', ('disc', x, y, 2)) for x, y in
+                  ((0, -5), (5, 0), (0, 5), (-5, 0))]
+               + [('circle', x, y, 2) for x, y in
+                  ((0, -5), (5, 0), (0, 5), (-5, 0))],
+    'location': [('path', _pin(), 0, True), ('circle', 0, -2, 2)],
 }
 
 # Sections of the proposal sheet: (edition, group, [(icon, label)]).
@@ -780,7 +987,53 @@ FEATURE_GROUPS = [
         ('tractor', 'Agricultural (ISOBUS)'), ('boat', 'Marine'),
         ('ev', 'EV battery'), ('card', 'Tachograph card'),
         ('map', 'Calibration maps'), ('star', 'Pro edition')]),
+    ('Pro', 'Performance and dyno', [
+        ('dyno', 'Dyno calculator'), ('powercurve', 'Power curve'),
+        ('torque', 'Torque'), ('wheel', 'Torque at the wheels'),
+        ('finish', 'Drag run'), ('gforce', 'G-meter / brake test'),
+        ('weather', 'Dyno conditions (SAE)'), ('calculator', 'Calculator'),
+        ('trip', 'Trip / fuel economy')]),
+    ('Pro', 'Relearns and calibrations', [
+        ('throttle', 'Throttle / idle relearn'),
+        ('piston', 'Crank relearn'), ('injector', 'Fuel trim reset'),
+        ('gearbox', 'Transmission relearn'),
+        ('drivetrain', 'AWD coupling (Haldex)'),
+        ('suspension', 'Air suspension'), ('bleed', 'Brake bleeding'),
+        ('def', 'DEF / AdBlue test'),
+        ('batteryreg', 'Battery registration'),
+        ('calibrate', 'Basic setting'), ('erase', 'Clear adaptations')]),
+    ('Pro', 'Body and comfort', [('light', 'Lighting'),
+                                 ('airbag', 'Airbag / SRS'),
+                                 ('climate', 'Climate')]),
+    ('Pro', 'Workflow and data', [
+        ('steps', 'Flash pipeline'), ('bookmark', 'Checkpoint / resume'),
+        ('certificate', 'Signature'), ('filecheck', 'Image check'),
+        ('tag', 'Labels / options'), ('audit', 'Audit log'),
+        ('cloud', 'Online coding (SCN)'), ('switch', 'I/O control'),
+        ('replay', 'Replay'), ('privacy', 'Redact log'),
+        ('log', 'Log viewer'), ('scope', 'Measurement (XCP)')]),
+    ('Pro', 'Devices and buses', [
+        ('vci', 'J2534 pass-thru'), ('signal', 'K-Line / LIN'),
+        ('network', 'MOST / FlexRay'), ('location', 'GNSS / position')]),
 ]
+
+# TOBDGlyph names of the feature icons that are not 'gl' + Key.
+FEATURE_NAMES = {
+    'o2sensor': 'glO2Sensor', 'wifi': 'glWiFi', 'test': 'glFlask',
+    'job': 'glJobCard', 'regen': 'glDpfRegen', 'bus': 'glCanBus',
+    'boat': 'glShip', 'ev': 'glEvBattery', 'card': 'glTachoCard',
+    'map': 'glCalibrationMap', 'powercurve': 'glPowerCurve',
+    'finish': 'glFinishFlag', 'gforce': 'glGForce', 'def': 'glDefFluid',
+    'batteryreg': 'glBatteryRegistration', 'erase': 'glEraser',
+    'light': 'glHeadlight', 'filecheck': 'glFileCheck', 'switch': 'glToggle',
+}
+
+# The feature icons extend TOBDGlyph after the built-in glyphs, in the
+# order of FEATURE_GROUPS.
+FEATURE_ORDER = [(k, FEATURE_NAMES.get(k, 'gl' + k.capitalize()))
+                 for _, _, items in FEATURE_GROUPS for k, _ in items]
+FEATURE_LABELS = dict((k, label) for _, _, items in FEATURE_GROUPS
+                      for k, label in items)
 
 
 # --------------------------------------------------------------------------
@@ -1064,10 +1317,11 @@ def icon_table():
     """[(pascal name, compiled prims)] in the order of the data unit, and
     the first index of the shell and status icons."""
     glyphs = _enum(PAINT_UNIT, 'TOBDGlyph')
-    expect = ['glNone'] + [n for _, n in GLYPH_ORDER]
+    expect = ['glNone'] + [n for _, n in GLYPH_ORDER + FEATURE_ORDER]
     if glyphs != expect:
         raise SystemExit('TOBDGlyph in ERD.UI.Paint.pas does not match '
-                         'GLYPH_ORDER:\n  unit: %s\n  tool: %s'
+                         'GLYPH_ORDER + FEATURE_ORDER:\n  unit: %s\n'
+                         '  tool: %s'
                          % (glyphs, expect))
     shell = _enum(SHELL_UNIT, 'TOBDShellGlyphKind')
     expect = ['sg' + {'newfolder': 'NewFolder'}.get(k, k.capitalize())
@@ -1079,9 +1333,10 @@ def icon_table():
     expect = ['bn' + k.capitalize() for k in STATUS_ORDER]
     if banner != expect:
         raise SystemExit('TOBDBannerKind does not match STATUS_ORDER')
-    by_name = dict((n, k) for k, n in GLYPH_ORDER)
+    by_name = dict((n, k) for k, n in GLYPH_ORDER + FEATURE_ORDER)
+    shapes = dict(FEATURES, **GLYPHS)
     table = [('glNone', [])]
-    table += [(n, compile_icon(GLYPHS[by_name[n]])) for n in glyphs[1:]]
+    table += [(n, compile_icon(shapes[by_name[n]])) for n in glyphs[1:]]
     shell_first = len(table)
     table += [(n, compile_icon(SHELL[k])) for n, k in zip(shell,
                                                           SHELL_ORDER)]
@@ -1207,6 +1462,11 @@ def check():
     missing = [k for k, _ in GLYPH_ORDER if k not in GLYPHS]
     missing += [k for _, _, items in FEATURE_GROUPS for k, _ in items
                 if k not in FEATURES]
+    missing += ['ungrouped feature ' + k for k in FEATURES
+                if k not in FEATURE_LABELS]
+    names = [n for _, n in GLYPH_ORDER + FEATURE_ORDER]
+    missing += ['duplicate ' + n for n in set(names)
+                if names.count(n) > 1]
     return bad, missing
 
 

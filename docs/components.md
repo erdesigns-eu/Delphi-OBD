@@ -432,8 +432,13 @@ values, buttons, edits, bars and menus), `OBD_TEXT_HEADING` (14) and
 Icons come from one set as well: `TOBDGlyph` (menus, buttons, ribbon,
 title bar), the shell glyphs and the banner status icons are generated
 from `tools/ui_icons.py` into `ERD.UI.IconData` and drawn with
-`TOBDPainter.Glyph` / `DrawIcon` at 16 px, or 32 px in the ribbon. Edit
-the icons in the script and run `python3 tools/ui_icons.py --write`.
+`TOBDPainter.Glyph` / `DrawIcon` at 16 px, or 32 px in the ribbon.
+After the user-interface glyphs `TOBDGlyph` carries the feature icons
+of OBD Studio Free and Pro (connection, diagnosis, workshop, coding,
+security, service functions, relearns, dyno, calibration, data and
+buses), for example `glOil`, `glKey`, `glDyno` or `glFinishFlag`; the
+icons mockup (`docs/mockups/icons-*.png`) lists every value. Edit the
+icons in the script and run `python3 tools/ui_icons.py --write`.
 
 ### Building blocks
 | Control | Unit | Purpose |

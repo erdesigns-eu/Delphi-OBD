@@ -4047,7 +4047,7 @@ def _snap(v):
 
 def glyph_new(c, kind, cx, cy, color, s=1.0, bg=None):
     """glyph() with the built-in icon set of tools/ui_icons.py (as
-    ERD.UI.IconData draws it); feature icons are the proposal. The scale
+    ERD.UI.IconData draws it), including the feature icons. The scale
     snaps to the 16 px grid (1x) or the 32 px ribbon size (2x)."""
     ops = (ui_icons.GLYPHS.get(kind) or ui_icons.SHELL.get(kind)
            or ui_icons.FEATURES.get(kind))
@@ -4063,8 +4063,9 @@ _glyph_old = glyph
 glyph = glyph_new
 
 
-def icon_cell(c, x, y, w, h, kind, name, ops=None):
-    """Icon name, then the icon at 16 px and at 32 px (ribbon)."""
+def icon_cell(c, x, y, w, h, kind, name, ops=None, sub=None):
+    """Icon name, then the icon at 16 px and at 32 px (ribbon); sub is an
+    optional second name (the TOBDGlyph value) below the icons."""
     p = c.p
     c.rect(x, y, w, h, fill=p.GaugeFace, outline=p.NeutralLight)
     c.text(x + 10, y + 14, name, 11.5, p.GaugeLabel, max_w=w - 16)
@@ -4078,21 +4079,24 @@ def icon_cell(c, x, y, w, h, kind, name, ops=None):
     c.vline(x + 41, y + 30, 36, p.NeutralLight)
     ui_icons.draw_icon(c, ops, _snap(x + 70), _snap(cy), p.accent_text,
                        2, bg=p.GaugeFace, thin=thin)
+    if sub:
+        c.text(x + 10, y + h - 12, sub, 10.5, p.Subtle, max_w=w - 16)
 
 
-def icon_grid(c, x, y, w, items, cols):
+def icon_grid(c, x, y, w, items, cols, subs=None):
     gap = 8
     cw = (w - gap * (cols - 1)) / cols
-    ch = 80
+    ch = 92 if subs else 80
     for i, (kind, name) in enumerate(items):
         cx = x + (i % cols) * (cw + gap)
         cy = y + (i // cols) * (ch + gap)
-        icon_cell(c, round(cx), round(cy), round(cw), ch, kind, name)
+        icon_cell(c, round(cx), round(cy), round(cw), ch, kind, name,
+                  sub=(subs or {}).get(kind))
     rows = (len(items) + cols - 1) // cols
     return y + rows * (ch + gap) - gap
 
 
-# Ribbon of the Pro edition, drawn with the proposed feature icons.
+# Ribbon of the Pro edition, drawn with the feature icons.
 PRO_RIBBON = [
     ('Connection', True,
      [('large', 'adapter', 'Connect', ''),
@@ -4185,14 +4189,16 @@ def draw_icons(c):
             ('Free', 'ELM327 / OBDLink: generic OBD-II diagnosis for the '
                      'workshop'),
             ('Pro', 'adds coding, programming, flashing, radio codes, '
-                    'service functions and more buses')):
-        sheet_label(c, x, y, 'Proposal: OBD Studio ' + edition, sub)
+                    'service functions, dyno, calibration and more buses')):
+        sheet_label(c, x, y, 'Feature icons: OBD Studio ' + edition,
+                    sub + ' (TOBDGlyph)')
         y += 28
+        subs = dict(ui_icons.FEATURE_ORDER)
         for ed, group, items in ui_icons.FEATURE_GROUPS:
             if ed != edition:
                 continue
             c.caps(x, y, group)
-            y = icon_grid(c, x, y + 14, W, items, 8) + 24
+            y = icon_grid(c, x, y + 14, W, items, 8, subs) + 24
         y += 4
 
     c.caps(x, y, 'In context: OBD Studio Free ribbon')

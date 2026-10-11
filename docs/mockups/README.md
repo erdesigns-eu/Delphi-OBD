@@ -458,8 +458,10 @@ dialogs (used when `SystemIcons` is False) and the status icons of
 banners and toasts. Each cell shows the icon at 16 px and at the 32 px
 ribbon size. All other mockups draw this set too.
 
-The sheet continues with a **proposal** for feature icons of the two
-OBD Studio editions, grouped by area, and a ribbon for each edition:
+The sheet continues with the feature icons of the two OBD Studio
+editions, grouped by area, and a ribbon for each edition. They are
+`TOBDGlyph` values too (after `glPipette`); each cell shows the value
+name below the icons:
 
 - **OBD Studio Free** (ELM327 / OBDLink): connection (adapter, USB,
   Bluetooth, Wi-Fi), diagnosis (graphs, sensor table, O2 sensors,
@@ -472,9 +474,22 @@ OBD Studio editions, grouped by area, and a ribbon for each edition:
   steering angle, TPMS, DPF regeneration, actuator tests, routines, ECU
   reset), buses (CAN, terminal, DoIP) and vehicle types (trucks,
   motorcycles, agricultural, marine, EV, tachograph, calibration maps).
+- For the rest of the Pro functionality in the components: performance
+  and dyno (`TOBDDynoCalculator`, power curve, torque, torque at the
+  wheels, drag run, G-meter / inertial brake test, SAE conditions,
+  calculator, trip / fuel economy), relearns and calibrations (the
+  `TOBDServiceFunctionKind` set: throttle / idle, crankshaft, fuel trim,
+  transmission, AWD coupling, air suspension, brake bleeding, DEF
+  quality, battery registration, basic setting, clear adaptations),
+  body and comfort (lighting, airbag, climate), workflow and data (flash
+  pipeline, checkpoint / resume, signature, image check, label files
+  and coding options, audit log, online SCN coding, I/O control,
+  replay, log redaction, log viewer, XCP / CCP measurement) and devices
+  and buses (J2534 pass-thru, K-Line / LIN, MOST / FlexRay, GNSS).
 
-The feature icons are in `FEATURES` of `tools/ui_icons.py` and are not
-yet part of `TOBDGlyph`.
+The feature icons are in `FEATURES` and `FEATURE_GROUPS` of
+`tools/ui_icons.py`; `FEATURE_NAMES` holds the `TOBDGlyph` names that
+are not `gl` + the key.
 
 | Light | Dark |
 |---|---|

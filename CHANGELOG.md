@@ -149,6 +149,12 @@ The IDE palette icons of all components are redrawn in the same style:
 transparent line icons in neutral and orange, built from the
 `tools/ui_icons.py` shapes, with a short label on brand-specific
 components at 24 and 32 px.
+`TOBDGlyph` now also has the feature icons of OBD Studio Free and Pro
+(92 values after `glPipette`, e.g. `glOil`, `glKey`, `glTpms`,
+`glDyno`, `glFinishFlag`, `glThrottle`, `glCertificate`), covering the
+connection, diagnosis, workshop, coding, security, radio, service,
+relearn, dyno, calibration, logging and bus functionality of the
+components.
 The font dialog lists every installed font again, the print dialog's
 printer status no longer overlaps the Pages label, and the selection
 ring on the first colour swatch is no longer clipped.

@@ -217,7 +217,191 @@ type
     /// <summary>Arrow pointing up: parent folder.</summary>
     glUp,
     /// <summary>Pipette: pick a colour from the screen.</summary>
-    glPipette);
+    glPipette,
+    /// <summary>OBD-II connector: the ELM327 / OBDLink adapter.</summary>
+    glAdapter,
+    /// <summary>USB plug: USB / serial connection.</summary>
+    glUsb,
+    /// <summary>Bluetooth rune: Bluetooth connection.</summary>
+    glBluetooth,
+    /// <summary>Wi-Fi arcs: Wi-Fi connection.</summary>
+    glWiFi,
+    /// <summary>Line chart: graphs of live data.</summary>
+    glChart,
+    /// <summary>Table: sensor table.</summary>
+    glTable,
+    /// <summary>Oxygen sensor: O2 sensor tests (mode 05).</summary>
+    glO2Sensor,
+    /// <summary>Flask: on-board monitor tests (mode 06).</summary>
+    glFlask,
+    /// <summary>Plate with "VIN": vehicle information.</summary>
+    glVin,
+    /// <summary>Heart with a pulse: health check.</summary>
+    glHealth,
+    /// <summary>Thermometer: temperatures.</summary>
+    glTemperature,
+    /// <summary>Fuel pump: fuel and trip data.</summary>
+    glFuel,
+    /// <summary>Stopwatch: acceleration timing.</summary>
+    glTimer,
+    /// <summary>Flag: drive cycle.</summary>
+    glFlag,
+    /// <summary>Leaf: emissions.</summary>
+    glLeaf,
+    /// <summary>Person: customer.</summary>
+    glCustomer,
+    /// <summary>Clipboard: job card.</summary>
+    glJobCard,
+    /// <summary>Clock: history.</summary>
+    glClock,
+    /// <summary>Arrow out of a box: export / share.</summary>
+    glExport,
+    /// <summary>Circular arrow: refresh / retry.</summary>
+    glRefresh,
+    /// <summary>Angle brackets: coding.</summary>
+    glCoding,
+    /// <summary>Sliders: adaptations.</summary>
+    glAdaptation,
+    /// <summary>Chip with a lightning bolt: flash an ECU.</summary>
+    glFlash,
+    /// <summary>Arrow out of a tray: write / program.</summary>
+    glWrite,
+    /// <summary>"10": memory / hex view.</summary>
+    glBinary,
+    /// <summary>Database: backup / catalogue.</summary>
+    glDatabase,
+    /// <summary>Opposite arrows: compare.</summary>
+    glCompare,
+    /// <summary>Pencil: edit a value.</summary>
+    glEdit,
+    /// <summary>Closed padlock: security access.</summary>
+    glLock,
+    /// <summary>Open padlock: unlocked.</summary>
+    glUnlock,
+    /// <summary>Car key: keys / immobiliser.</summary>
+    glKey,
+    /// <summary>Shield with a check mark: component protection.</summary>
+    glShield,
+    /// <summary>Car radio: radio code.</summary>
+    glRadio,
+    /// <summary>Memory chip: EEPROM read.</summary>
+    glEeprom,
+    /// <summary>Oil can: oil service reset.</summary>
+    glOil,
+    /// <summary>Brake lamp with a "P": electronic parking brake.</summary>
+    glBrake,
+    /// <summary>Steering wheel: steering angle sensor.</summary>
+    glSteering,
+    /// <summary>Tyre with an exclamation mark: TPMS.</summary>
+    glTpms,
+    /// <summary>Particulate filter: DPF regeneration.</summary>
+    glDpfRegen,
+    /// <summary>Fan: actuator test.</summary>
+    glFan,
+    /// <summary>Play button in a circle: routine.</summary>
+    glRoutine,
+    /// <summary>Power symbol: ECU reset.</summary>
+    glPower,
+    /// <summary>Nodes on a bus line: CAN bus.</summary>
+    glCanBus,
+    /// <summary>Console prompt: terminal.</summary>
+    glTerminal,
+    /// <summary>Network socket: DoIP / Ethernet.</summary>
+    glEthernet,
+    /// <summary>Truck: heavy duty (J1939).</summary>
+    glTruck,
+    /// <summary>Motorcycle.</summary>
+    glMotorcycle,
+    /// <summary>Tractor: agricultural (ISOBUS).</summary>
+    glTractor,
+    /// <summary>Ship: marine.</summary>
+    glShip,
+    /// <summary>Lightning bolt in a circle: EV battery.</summary>
+    glEvBattery,
+    /// <summary>Smart card: tachograph card.</summary>
+    glTachoCard,
+    /// <summary>Grid: calibration maps.</summary>
+    glCalibrationMap,
+    /// <summary>Star: Pro edition.</summary>
+    glStar,
+    /// <summary>Wheel on two rollers: dyno calculator.</summary>
+    glDyno,
+    /// <summary>Two curves on axes: power and torque curve.</summary>
+    glPowerCurve,
+    /// <summary>Nut with a turning arrow: torque.</summary>
+    glTorque,
+    /// <summary>Wheel and rim: torque at the wheels.</summary>
+    glWheel,
+    /// <summary>Chequered flag: drag run.</summary>
+    glFinishFlag,
+    /// <summary>G-meter: acceleration and brake test.</summary>
+    glGForce,
+    /// <summary>Sun behind a cloud: dyno conditions (SAE J1349).</summary>
+    glWeather,
+    /// <summary>Calculator.</summary>
+    glCalculator,
+    /// <summary>Road: trip / fuel economy.</summary>
+    glTrip,
+    /// <summary>Throttle plate in a duct: throttle / idle relearn.</summary>
+    glThrottle,
+    /// <summary>Piston and connecting rod: crankshaft relearn.</summary>
+    glPiston,
+    /// <summary>Fuel injector: fuel trim reset.</summary>
+    glInjector,
+    /// <summary>Gear shift pattern: transmission relearn.</summary>
+    glGearbox,
+    /// <summary>Axles and shafts: AWD coupling (Haldex).</summary>
+    glDrivetrain,
+    /// <summary>Coil spring: air suspension calibration.</summary>
+    glSuspension,
+    /// <summary>Brake lamp with a drop: brake bleeding.</summary>
+    glBleed,
+    /// <summary>Fluid canister: DEF / AdBlue quality test.</summary>
+    glDefFluid,
+    /// <summary>Battery with a check mark: battery registration.</summary>
+    glBatteryRegistration,
+    /// <summary>Crosshair: basic setting / calibration.</summary>
+    glCalibrate,
+    /// <summary>Eraser: clear adaptations.</summary>
+    glEraser,
+    /// <summary>Headlamp: lighting.</summary>
+    glHeadlight,
+    /// <summary>Seated person and airbag: airbag / SRS.</summary>
+    glAirbag,
+    /// <summary>Snowflake: climate control.</summary>
+    glClimate,
+    /// <summary>Three steps: flash pipeline.</summary>
+    glSteps,
+    /// <summary>Bookmark: checkpoint / resume.</summary>
+    glBookmark,
+    /// <summary>Rosette: signature / certificate.</summary>
+    glCertificate,
+    /// <summary>Page with a check mark: image check.</summary>
+    glFileCheck,
+    /// <summary>Tag: labels / coding options.</summary>
+    glTag,
+    /// <summary>Checklist: audit log.</summary>
+    glAudit,
+    /// <summary>Cloud: online coding (SCN).</summary>
+    glCloud,
+    /// <summary>Toggle switch: I/O control.</summary>
+    glToggle,
+    /// <summary>Play inside a circular arrow: replay.</summary>
+    glReplay,
+    /// <summary>Eye with a slash: redact a log.</summary>
+    glPrivacy,
+    /// <summary>List of entries: log viewer.</summary>
+    glLog,
+    /// <summary>Wave on a screen: measurement (XCP / CCP).</summary>
+    glScope,
+    /// <summary>Interface box with a cable: J2534 pass-thru.</summary>
+    glVci,
+    /// <summary>Square wave: K-Line / LIN.</summary>
+    glSignal,
+    /// <summary>Ring of nodes: MOST / FlexRay.</summary>
+    glNetwork,
+    /// <summary>Map pin: GNSS / position.</summary>
+    glLocation);
 
   /// <summary>Colour and icon of a <c>TOBDBanner</c>.</summary>
   TOBDBannerKind = (
