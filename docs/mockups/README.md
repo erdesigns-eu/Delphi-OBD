@@ -518,7 +518,7 @@ check the unit is up to date.
 
 ### Component palette icons
 
-The IDE palette icons of all 200 registered components use the same
+The IDE palette icons of all 222 registered components use the same
 style: the `tools/ui_icons.py` shapes as line icons on a transparent
 background, with the neutral stroke (`#868e96`) and the ERDesigns orange
 (`#f08818`) for the part that identifies the component. Brand-specific
@@ -530,11 +530,13 @@ and 32 px. Each cell shows the icon at 32, 24 and 16 px.
 |---|---|
 | ![](palette-icons-light.png) | ![](palette-icons-dark.png) |
 
-## OBD Studio Pro (proposal)
+## OBD Studio Pro
 
-These are mockups of the proposed Pro components; none of them exists in
-`src/UI` yet. They are here so they can be refined before anything is
-built. The order is: mock everything, refine, then build. The mockups
+These are the approved mockups of the Pro components. The building
+blocks below are built in `src/UI` and registered on the **OBD Studio
+Pro** palette page (see [`docs/components.md`](../components.md)); the
+panels are compositions of them and of the OBD Studio controls. The
+order was: mock everything, refine, then build. The mockups
 come from `tools/ui_mockups_pro.py`, which `tools/ui_mockups.py`
 registers, so the usual command renders them
 (`python3 tools/ui_mockups.py --only pro-dyno`).
@@ -552,7 +554,7 @@ mockups have a `-tablet` variant. The panels are drawn 1366 px wide.
 | Density | Every Pro component supports `dnDesktop` and `dnTablet`. |
 | Writing to a control unit | Every write needs a backup first, then the inline `TOBDWriteConfirm` strip. No modal dialog. |
 
-### New building blocks
+### Building blocks (components)
 
 | Component | Purpose |
 |---|---|
@@ -569,10 +571,10 @@ mockups have a `-tablet` variant. The panels are drawn 1366 px wide.
 | `TOBDCellMatrix` | HV battery cell voltages per module with module temperatures. |
 | `TOBDKeySlots` | Key learning slots with their state. |
 | `TOBDSignalBrowser`, `TOBDSignalGrid` | A2L measurement objects; live values with min/max and sparklines. |
-| `TOBDEcuTopology` | The tester, the gateway and every control unit on its bus, with the unit state. |
+| `TOBDEcuTopology`, `TOBDEcuList` | The tester, the gateway and every control unit on its bus, with the unit state; the same units as a list. |
 | `TOBDActuatorPanel`, `TOBDBusSend`, `TOBDReplayBar` | Actuator tests with feedback and *Stop all*; sending (periodic) frames; recording playback. |
 
-### Building blocks
+### Building block sheets
 
 | Light | Dark |
 |---|---|

@@ -526,6 +526,44 @@ Building blocks used by the dialogs, also available on their own:
 | `TOBDFileList` | `ERD.UI.ShellControls` | Files of a `Directory` filtered by `Mask`: sortable details view or icon view. |
 | `TOBDColorSwatches`, `TOBDColorSpectrum` | `ERD.UI.ColorDialog` | Colour swatch grid and HSV picker. |
 
+## OBD Studio Pro
+
+Building blocks for coding, flashing, security, performance,
+measurement and bus work, on the **OBD Studio Pro** palette page. They
+are ordinary OBD Studio controls: they follow `TOBDTheme` (colours,
+`Density` desktop / tablet), use the same type scale and icons, and show
+the sample data of the approved mockups in the form designer
+([`docs/mockups`](mockups/README.md), section *OBD Studio Pro*). The
+components know nothing about editions; the application decides what an
+edition offers. Procedure texts, pictures and dyno correction standards
+come from catalogue files loaded by the application; the controls only
+show the model they are given. Every write goes through a backup first
+and the inline `TOBDWriteConfirm` strip, never a modal dialog.
+
+| Control | Unit | Purpose |
+|---|---|---|
+| `TOBDPreconditionList` | `ERD.UI.PreconditionList` | Conditions that must be met before a procedure or write (met / failed / pending / not required, live value text) with the "N of M met" chip. `Items`, `AddPrecondition`, `AllMet`, `MetCount`, `RequiredCount`, `OnChange`. |
+| `TOBDProcedureView` | `ERD.UI.ProcedureView` | Guided procedure: step strip, instruction list, picture, warning banner, live values and Abort / Back / action / Next. `Steps`, `LiveValues`, `CurrentStep`, `NextEnabled`, `SourceText`, `OnAbort`, `OnBack`, `OnNext`, `OnAction`, `OnStepChange`. |
+| `TOBDSecurityAccessCard` | `ERD.UI.SecurityAccessCard` | Security access state of the unlocked control unit: session, level and keep-alive with its progress. `State`, `ControlUnit`, `SessionText`, `LevelText`, `KeepAliveText`, `KeepAliveProgress`. |
+| `TOBDWriteConfirm` | `ERD.UI.WriteConfirm` | Inline confirmation strip shown before every write, with the backup status; asks for a backup first while `BackupDone` is False. `OnConfirm`, `OnCancel`, `OnBackup`; Enter / Escape when focused. |
+| `TOBDTimeline` | `ERD.UI.Timeline` | Job / audit history with All / Writes / Backups / Errors filter. `Entries`, `Filter`, `AddEntry`, `OnEntryClick`. |
+| `TOBDDiffView` | `ERD.UI.DiffView` | Before / after comparison of coding or adaptation values, "Only changes" switch, revert per row and *Revert all*. `Rows`, `ChangedCount`, `OnlyChanges`, `OnRevert`, `OnRevertAll`. |
+| `TOBDHexView` | `ERD.UI.HexView` | Memory / EEPROM dump with offset, hex and ASCII columns, coloured catalogue regions, compare highlighting and a keyboard caret. `Data`, `CompareData`, `BaseAddress`, `BytesPerRow`, `Regions`, `AddRegion`, `LoadFromStream`, `OnSelectionChange`. |
+| `TOBDBitEditor` | `ERD.UI.BitEditor` | Long coding editor: bytes, the bits and multi-bit options of the selected byte from label definitions, changed bits against the original. `Coding`, `OriginalCoding`, `Labels`, `AddBitLabel`, `AddOptionLabel`, `ChangedCount`, `OnChange`. |
+| `TOBDBusTrace` | `ERD.UI.BusTrace` | CAN trace (time, ID, DLC, data, decoded text) in a ring buffer with filter, pause and changed-byte colouring. `Capacity`, `Paused`, `AutoScroll`, `FilterText`, `AddFrame`, `FrameCount`. |
+| `TOBDBusSend` | `ERD.UI.BusSend` | One send line: ID, data, period and the periodic switch. `CANIdText`, `DataText`, `PeriodMs`, `Periodic`, `Extended`, `TryParseId`, `TryParseData`, `OnSend`, `OnPeriodicChange`. |
+| `TOBDReplayBar` | `ERD.UI.ReplayBar` | Recording playback: play / pause, position with markers, time and speed. `PositionMs`, `DurationMs`, `Playing`, `Speed`, `Markers`, `Play`, `Pause`, `Seek`. |
+| `TOBDXYChart` | `ERD.UI.XYChart` | Curves over a shared X axis with a left and a right Y axis, earlier runs, peaks and a cursor (power and torque over rpm). `Series`, `AddPoint`, `OnCursorChange`. |
+| `TOBDMapGrid` | `ERD.UI.MapGrid` | Calibration map with axis breakpoints, colour scale, the live operating point and edited cells. `SetAxes`, `Values`, `OperatingPoint`, `OnSelect`, `OnCellEdit`. |
+| `TOBDLapTimer` | `ERD.UI.LapTimer` | Drag run timer with state and splits (best / delta). `Splits`, `Start`, `Stop`, `Reset`, `ElapsedMs`, `OnSplit`. |
+| `TOBDGMeter` | `ERD.UI.GMeter` | Friction circle with trail, current point and peak; `Compact` variant. `AddSample`, `MaxG`, `TrailLength`, `PeakG`, `ResetPeak`. |
+| `TOBDCellMatrix` | `ERD.UI.CellMatrix` | HV battery cell voltages per module with module temperatures, outliers, summary and hints. `CellVoltage`, `ModuleTemperature`, `ModuleCount`, `CellsPerModule`, `OnCellClick`. |
+| `TOBDEcuTopology`, `TOBDEcuList` | `ERD.UI.EcuTopology` | Every control unit with its state: as a topology (tester, gateway, one lane per bus, legend) or as a list. `Buses`, `Ecus`, `AddBus`, `AddEcu`, `SelectedAddress`, `OnSelect`. |
+| `TOBDKeySlots` | `ERD.UI.KeySlots` | Key learning slots with their state. `Slots`, `Cols`, `AddSlot`, `OnSlotClick`. |
+| `TOBDSignalBrowser` | `ERD.UI.SignalBrowser` | A2L measurement objects by group with search and a check to measure. `Signals`, `FilterText`, `AddSignal`, `OnCheckChange`. |
+| `TOBDSignalGrid` | `ERD.UI.SignalGrid` | Live measurement values with min / max and a sparkline. `AddSignal`, `PushValue`, `ResetMinMax`. |
+| `TOBDActuatorPanel` | `ERD.UI.ActuatorPanel` | Actuator tests with state, feedback, Start / Stop per row and *Stop all*. `Items`, `AddTest`, `OnStart`, `OnStop`, `OnStopAll`. |
+
 ## Where the code lives
 
 | File | Component family |

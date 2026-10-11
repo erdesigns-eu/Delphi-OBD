@@ -427,6 +427,27 @@
         <DCCReference Include="..\src\UI\ERD.UI.ColorDialog.pas"/>
         <DCCReference Include="..\src\UI\ERD.UI.FindDialogs.pas"/>
         <DCCReference Include="..\src\UI\ERD.UI.TaskDialog.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.PreconditionList.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.SecurityAccessCard.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.WriteConfirm.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.ProcedureView.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Timeline.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.DiffView.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.HexView.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.BitEditor.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.BusTrace.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.BusSend.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.ReplayBar.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.XYChart.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.MapGrid.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.LapTimer.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.GMeter.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.CellMatrix.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.EcuTopology.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.KeySlots.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.SignalBrowser.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.SignalGrid.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.ActuatorPanel.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

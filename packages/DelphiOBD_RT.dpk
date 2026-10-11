@@ -400,6 +400,27 @@ contains
   ERD.UI.FontDialog in '..\src\UI\ERD.UI.FontDialog.pas',
   ERD.UI.ColorDialog in '..\src\UI\ERD.UI.ColorDialog.pas',
   ERD.UI.FindDialogs in '..\src\UI\ERD.UI.FindDialogs.pas',
-  ERD.UI.TaskDialog in '..\src\UI\ERD.UI.TaskDialog.pas';
+  ERD.UI.TaskDialog in '..\src\UI\ERD.UI.TaskDialog.pas',
+  ERD.UI.PreconditionList in '..\src\UI\ERD.UI.PreconditionList.pas',
+  ERD.UI.SecurityAccessCard in '..\src\UI\ERD.UI.SecurityAccessCard.pas',
+  ERD.UI.WriteConfirm in '..\src\UI\ERD.UI.WriteConfirm.pas',
+  ERD.UI.ProcedureView in '..\src\UI\ERD.UI.ProcedureView.pas',
+  ERD.UI.Timeline in '..\src\UI\ERD.UI.Timeline.pas',
+  ERD.UI.DiffView in '..\src\UI\ERD.UI.DiffView.pas',
+  ERD.UI.HexView in '..\src\UI\ERD.UI.HexView.pas',
+  ERD.UI.BitEditor in '..\src\UI\ERD.UI.BitEditor.pas',
+  ERD.UI.BusTrace in '..\src\UI\ERD.UI.BusTrace.pas',
+  ERD.UI.BusSend in '..\src\UI\ERD.UI.BusSend.pas',
+  ERD.UI.ReplayBar in '..\src\UI\ERD.UI.ReplayBar.pas',
+  ERD.UI.XYChart in '..\src\UI\ERD.UI.XYChart.pas',
+  ERD.UI.MapGrid in '..\src\UI\ERD.UI.MapGrid.pas',
+  ERD.UI.LapTimer in '..\src\UI\ERD.UI.LapTimer.pas',
+  ERD.UI.GMeter in '..\src\UI\ERD.UI.GMeter.pas',
+  ERD.UI.CellMatrix in '..\src\UI\ERD.UI.CellMatrix.pas',
+  ERD.UI.EcuTopology in '..\src\UI\ERD.UI.EcuTopology.pas',
+  ERD.UI.KeySlots in '..\src\UI\ERD.UI.KeySlots.pas',
+  ERD.UI.SignalBrowser in '..\src\UI\ERD.UI.SignalBrowser.pas',
+  ERD.UI.SignalGrid in '..\src\UI\ERD.UI.SignalGrid.pas',
+  ERD.UI.ActuatorPanel in '..\src\UI\ERD.UI.ActuatorPanel.pas';
 
 end.
