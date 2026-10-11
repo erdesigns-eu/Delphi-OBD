@@ -195,6 +195,7 @@ type
     FLatestMs: Int64;
     FEpoch: UInt64;
     FCursorX: Integer;
+    FHasData: Boolean;
     FShowLegend: Boolean;
     FShowGrid: Boolean;
     FOnPauseChanged: TNotifyEvent;
@@ -216,6 +217,7 @@ type
     procedure DrawPreview(ACanvas: TCanvas; const APlot: TRect);
     procedure DrawLegend(ACanvas: TCanvas);
     procedure DrawCursor(ACanvas: TCanvas; const APlot: TRect; AEndMs: Int64);
+    procedure InvalidateCursor;
     procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
   protected
     /// <summary>Re-subscribes every channel after streaming.</summary>
@@ -225,9 +227,11 @@ type
     /// <param name="Operation">Insert or remove.</param>
     procedure Notification(AComponent: TComponent;
       Operation: TOperation); override;
-    /// <summary>Paints legend, grid, traces and cursor.</summary>
+    /// <summary>Paints legend, grid and traces into the cached buffer.</summary>
     /// <param name="ACanvas">Target canvas.</param>
     procedure PaintControl(ACanvas: TCanvas); override;
+    /// <summary>Shows the cached chart and overlays the hover cursor.</summary>
+    procedure Paint; override;
     /// <summary>Tracks the cursor.</summary>
     /// <param name="Shift">Modifier keys.</param>
     /// <param name="X">Mouse X.</param>
@@ -1177,6 +1181,7 @@ begin
     AnyData := AnyData or (FChannels[I].SampleCount > 0);
     DrawChannel(ACanvas, P, FChannels[I], EndMs);
   end;
+  FHasData := AnyData;
   if not AnyData then
   begin
     if FChannels.Count = 0 then
@@ -1191,7 +1196,31 @@ begin
       P.Top + (P.Height - ACanvas.TextHeight(S)) div 2, S);
     Exit;
   end;
-  DrawCursor(ACanvas, P, EndMs);
+end;
+
+procedure TOBDTrendChart.Paint;
+var
+  P: TRect;
+begin
+  inherited;
+  // The hover cursor is drawn over the cached chart instead of into it, so
+  // moving the mouse only blits the buffer: re-rendering every trace on each
+  // WM_MOUSEMOVE kept the message queue busy and starved the WM_TIMER
+  // messages that drive the other controls.
+  if (FCursorX < 0) or not FHasData or IsPreview then
+    Exit;
+  P := PlotRect;
+  if (P.Width < ScaleValue(20)) or (P.Height < ScaleValue(20)) then
+    Exit;
+  Canvas.Font.Name := Font.Name;
+  DrawCursor(Canvas, P, ViewEndMs);
+end;
+
+procedure TOBDTrendChart.InvalidateCursor;
+begin
+  // Repaint without marking the buffer dirty.
+  if HandleAllocated then
+    Winapi.Windows.InvalidateRect(Handle, nil, False);
 end;
 
 procedure TOBDTrendChart.MouseMove(Shift: TShiftState; X, Y: Integer);
@@ -1200,7 +1229,7 @@ begin
   if FCursorX <> X then
   begin
     FCursorX := X;
-    Invalidate;
+    InvalidateCursor;
   end;
 end;
 
@@ -1210,7 +1239,7 @@ begin
   if FCursorX <> -1 then
   begin
     FCursorX := -1;
-    Invalidate;
+    InvalidateCursor;
   end;
 end;
 

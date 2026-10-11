@@ -31,6 +31,7 @@ uses
   ERD.UI.Types,
   ERD.UI.Control,
   ERD.UI.Paint,
+  ERD.UI.ScrollBar,
   ERD.UI.Buttons,
   ERD.UI.Segmented,
   ERD.Service.DTCs;
@@ -192,6 +193,7 @@ type
     function FooterRect: TRect;
     function ConfirmRect: TRect;
     function ScrollBarWidth: Integer;
+    function ScrollTrackRect: TRect;
     function UsePreviewRows: Boolean;
     function SourceCount: Integer;
     function SourceStatus(AIndex: Integer): TOBDDtcStatus;
@@ -1160,7 +1162,14 @@ end;
 
 function TOBDDtcPanel.ScrollBarWidth: Integer;
 begin
-  Result := ScaleValue(6);
+  Result := ScaleValue(10);
+end;
+
+function TOBDDtcPanel.ScrollTrackRect: TRect;
+begin
+  Result := Rect(ClientWidth - ScrollBarWidth - ScaleValue(3),
+    BodyRect.Top + ScaleValue(2), ClientWidth - ScaleValue(3),
+    BodyRect.Bottom - ScaleValue(2));
 end;
 
 function TOBDDtcPanel.UsePreviewRows: Boolean;
@@ -1373,21 +1382,13 @@ begin
 end;
 
 function TOBDDtcPanel.ScrollThumbRect: TRect;
-var
-  Track: TRect;
-  ThumbH, ThumbY: Integer;
 begin
   Result := Rect(0, 0, 0, 0);
   if ContentHeight <= BodyRect.Height then
     Exit;
-  Track := Rect(ClientWidth - ScrollBarWidth - ScaleValue(3), BodyRect.Top + ScaleValue(2),
-    ClientWidth - ScaleValue(3), BodyRect.Bottom - ScaleValue(2));
-  ThumbH := System.Math.Max(ScaleValue(24), MulDiv(Track.Height,
-    BodyRect.Height, ContentHeight));
-  ThumbY := Track.Top;
-  if MaxScroll > 0 then
-    Inc(ThumbY, MulDiv(Track.Height - ThumbH, FScrollPos, MaxScroll));
-  Result := Rect(Track.Left, ThumbY, Track.Right, ThumbY + ThumbH);
+  // Same themed overlay bar as the other OBD controls; positions in pixels.
+  Result := OBDScrollThumbRect(ScrollTrackRect, True, 0, ContentHeight - 1,
+    BodyRect.Height, FScrollPos, FScrollHover, FDraggingScroll);
 end;
 
 function TOBDDtcPanel.HitRow(X, Y: Integer; out ASourceIndex: Integer;
@@ -1801,24 +1802,11 @@ begin
 end;
 
 procedure TOBDDtcPanel.DrawScrollBar(APainter: TOBDPainter);
-var
-  Track, Thumb: TRect;
-  ThumbColor: TColor;
 begin
   if ContentHeight <= BodyRect.Height then
     Exit;
-  Track := Rect(ClientWidth - ScrollBarWidth - ScaleValue(3), BodyRect.Top + ScaleValue(2),
-    ClientWidth - ScaleValue(3), BodyRect.Bottom - ScaleValue(2));
-  Thumb := ScrollThumbRect;
-  APainter.FillRect(Track, APainter.Tint(Palette.NeutralLight, 0.35));
-  ThumbColor := APainter.Tint(Palette.NeutralDark, 0.65);
-  if FScrollHover or FDraggingScroll then
-  begin
-    InflateRect(Thumb, ScaleValue(1), 0);
-    ThumbColor := APainter.Tint(Palette.NeutralDark, 0.85);
-  end;
-  APainter.RoundRect(Thumb.Left, Thumb.Top, Thumb.Width, Thumb.Height,
-    ScrollBarWidth / 2, ThumbColor, clNone);
+  OBDPaintScrollBar(APainter, ScrollTrackRect, True, 0, ContentHeight - 1,
+    BodyRect.Height, FScrollPos, FScrollHover, FDraggingScroll);
 end;
 
 procedure TOBDDtcPanel.MouseDown(Button: TMouseButton; Shift: TShiftState; X,
@@ -1835,15 +1823,17 @@ begin
     SetFocus;
 
   Thumb := ScrollThumbRect;
-  if not Thumb.IsEmpty and PtInRect(Rect(Thumb.Left - ScaleValue(2), Thumb.Top,
-    Thumb.Right + ScaleValue(2), Thumb.Bottom), Point(X, Y)) then
+  if not Thumb.IsEmpty and (X >= ScrollTrackRect.Left - ScaleValue(2)) and
+    (Y >= Thumb.Top) and (Y < Thumb.Bottom) then
   begin
     FDraggingScroll := True;
     FScrollDragOffset := Y - Thumb.Top;
+    MouseCapture := True;
+    Invalidate;
     Exit;
   end;
   if (ContentHeight > BodyRect.Height) and
-    (X >= ClientWidth - ScrollBarWidth - ScaleValue(5)) then
+    (X >= ScrollTrackRect.Left - ScaleValue(2)) then
   begin
     if Y < Thumb.Top then
       SetScrollPos(FScrollPos - BodyRect.Height)
@@ -1869,8 +1859,7 @@ begin
   inherited;
   if FDraggingScroll then
   begin
-    Track := Rect(ClientWidth - ScrollBarWidth - ScaleValue(3), BodyRect.Top + ScaleValue(2),
-      ClientWidth - ScaleValue(3), BodyRect.Bottom - ScaleValue(2));
+    Track := ScrollTrackRect;
     Thumb := ScrollThumbRect;
     if (Track.Height - Thumb.Height) > 0 then
       SetScrollPos(MulDiv(Y - FScrollDragOffset - Track.Top, MaxScroll,
@@ -1879,7 +1868,7 @@ begin
   end;
 
   FScrollHover := (ContentHeight > BodyRect.Height) and
-    (X >= ClientWidth - ScrollBarWidth - ScaleValue(5)) and
+    (X >= ScrollTrackRect.Left - ScaleValue(2)) and
     (Y >= BodyRect.Top) and (Y <= BodyRect.Bottom);
   if HitRow(X, Y, Source, Expander) then
     FHoverIndex := Source
@@ -1896,7 +1885,12 @@ procedure TOBDDtcPanel.MouseUp(Button: TMouseButton; Shift: TShiftState; X,
   Y: Integer);
 begin
   inherited;
-  FDraggingScroll := False;
+  if FDraggingScroll then
+  begin
+    FDraggingScroll := False;
+    MouseCapture := False;
+    Invalidate;
+  end;
   Cursor := crDefault;
 end;
 

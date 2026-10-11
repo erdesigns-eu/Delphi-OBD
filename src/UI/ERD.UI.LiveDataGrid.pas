@@ -41,6 +41,8 @@ uses
   Vcl.ExtCtrls,
   ERD.UI.Types,
   ERD.UI.Control,
+  ERD.UI.Paint,
+  ERD.UI.ScrollBar,
   ERD.UI.Units,
   ERD.Service.Catalog,
   ERD.Service.LiveData;
@@ -86,6 +88,26 @@ type
     FShowCheckboxes: Boolean;
     FTimer: TTimer;
     FOnCheckChanged: TOBDGridCheckEvent;
+    FColumnWidths: array [1 .. 5] of Integer;
+    FResizeColumn: Integer;
+    FResizeStartX: Integer;
+    FResizeStartWidth: Integer;
+    FBarHot: Boolean;
+    FBarDragging: Boolean;
+    FBarDragOffset: Integer;
+    FLastMouse: TPoint;
+    function GetColumnWidth(AIndex: Integer): Integer;
+    procedure SetColumnWidth(AIndex, AValue: Integer);
+    function AutoColumnWidth(AColumn: Integer): Integer;
+    function ColumnWidthPx(AColumn: Integer): Integer;
+    function ColumnDividerAt(X, Y: Integer): Integer;
+    function NeedsScrollBar: Boolean;
+    function ScrollBarRect: TRect;
+    function ScrollThumb: TRect;
+    function ContentRight: Integer;
+    function MaxTopRow: Integer;
+    procedure SetBarHot(AValue: Boolean);
+    procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
     procedure SetSource(AValue: TOBDLiveData);
     procedure SetStaleAfterMs(AValue: Cardinal);
     procedure SetShowCheckboxes(AValue: Boolean);
@@ -129,6 +151,22 @@ type
     /// <param name="Y">Mouse Y.</param>
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState;
       X, Y: Integer); override;
+    /// <summary>Resizes columns, drags the scroll bar and tracks hover.
+    /// </summary>
+    /// <param name="Shift">Modifier keys.</param>
+    /// <param name="X">Mouse X.</param>
+    /// <param name="Y">Mouse Y.</param>
+    procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
+    /// <summary>Ends a column resize or scroll bar drag.</summary>
+    /// <param name="Button">Mouse button.</param>
+    /// <param name="Shift">Modifier keys.</param>
+    /// <param name="X">Mouse X.</param>
+    /// <param name="Y">Mouse Y.</param>
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState;
+      X, Y: Integer); override;
+    /// <summary>Double-clicking a column divider restores the automatic
+    /// widths.</summary>
+    procedure DblClick; override;
     /// <summary>Arrow keys, page keys and space.</summary>
     /// <param name="Key">Virtual key.</param>
     /// <param name="Shift">Modifier keys.</param>
@@ -167,6 +205,8 @@ type
     procedure PushValue(const AValue: TOBDPIDValue); overload;
     /// <summary>Resets minimum and maximum of every row.</summary>
     procedure ResetMinMax;
+    /// <summary>Restores the automatic column widths.</summary>
+    procedure ResetColumnWidths;
     /// <summary>Number of rows.</summary>
     /// <returns>Row count.</returns>
     function RowCount: Integer;
@@ -211,6 +251,23 @@ type
     /// <summary>Show the checkbox column.</summary>
     property ShowCheckboxes: Boolean read FShowCheckboxes
       write SetShowCheckboxes default True;
+    /// <summary>PID column width at 96 DPI; 0 = automatic. Columns are
+    /// resized at run time by dragging the header dividers.</summary>
+    property PIDColumnWidth: Integer index 1 read GetColumnWidth
+      write SetColumnWidth default 0;
+    /// <summary>Name column width at 96 DPI; 0 = automatic.</summary>
+    property NameColumnWidth: Integer index 2 read GetColumnWidth
+      write SetColumnWidth default 0;
+    /// <summary>Value column width at 96 DPI; 0 = automatic.</summary>
+    property ValueColumnWidth: Integer index 3 read GetColumnWidth
+      write SetColumnWidth default 0;
+    /// <summary>Unit column width at 96 DPI; 0 = automatic.</summary>
+    property UnitColumnWidth: Integer index 4 read GetColumnWidth
+      write SetColumnWidth default 0;
+    /// <summary>Min column width at 96 DPI; 0 = automatic. The Max column
+    /// fills the remaining width.</summary>
+    property MinColumnWidth: Integer index 5 read GetColumnWidth
+      write SetColumnWidth default 0;
     /// <summary>Fires when a row's checkbox changes.</summary>
     property OnCheckChanged: TOBDGridCheckEvent read FOnCheckChanged
       write FOnCheckChanged;
@@ -226,6 +283,8 @@ const
   ColUnit = 4;
   ColMin = 5;
   ColMax = 6;
+  /// <summary>Smallest resizable column width at 96 DPI.</summary>
+  MinColumnWidth96 = 24;
 
 { ---- TOBDLiveDataGrid -------------------------------------------------------- }
 
@@ -236,6 +295,7 @@ begin
   FStaleAfterMs := 3000;
   FShowCheckboxes := True;
   FSelected := -1;
+  FResizeColumn := -1;
   TabStop := True;
   Width := 520;
   Height := 260;
@@ -608,7 +668,65 @@ begin
   Result := System.Math.Max(1, (Height - HeaderHeight) div RowHeight);
 end;
 
-function TOBDLiveDataGrid.ColumnX(AColumn: Integer): Integer;
+function TOBDLiveDataGrid.NeedsScrollBar: Boolean;
+begin
+  Result := FRows.Count > VisibleRows;
+end;
+
+function TOBDLiveDataGrid.ScrollBarRect: TRect;
+begin
+  if not NeedsScrollBar then
+    Exit(Rect(0, 0, 0, 0));
+  Result := Rect(Width - 1 - ScaleValue(10), HeaderHeight, Width - 1,
+    Height - 1);
+end;
+
+function TOBDLiveDataGrid.ScrollThumb: TRect;
+begin
+  Result := OBDScrollThumbRect(ScrollBarRect, True, 0, FRows.Count - 1,
+    VisibleRows, FTopRow, FBarHot, FBarDragging);
+end;
+
+function TOBDLiveDataGrid.ContentRight: Integer;
+begin
+  if NeedsScrollBar then
+    Result := ScrollBarRect.Left
+  else
+    Result := Width;
+end;
+
+function TOBDLiveDataGrid.MaxTopRow: Integer;
+begin
+  Result := System.Math.Max(0, FRows.Count - VisibleRows);
+end;
+
+function TOBDLiveDataGrid.GetColumnWidth(AIndex: Integer): Integer;
+begin
+  Result := FColumnWidths[AIndex];
+end;
+
+procedure TOBDLiveDataGrid.SetColumnWidth(AIndex, AValue: Integer);
+begin
+  if AValue > 0 then
+    AValue := System.Math.Max(MinColumnWidth96, AValue)
+  else
+    AValue := 0;
+  if FColumnWidths[AIndex] = AValue then
+    Exit;
+  FColumnWidths[AIndex] := AValue;
+  Invalidate;
+end;
+
+procedure TOBDLiveDataGrid.ResetColumnWidths;
+var
+  I: Integer;
+begin
+  for I := Low(FColumnWidths) to High(FColumnWidths) do
+    FColumnWidths[I] := 0;
+  Invalidate;
+end;
+
+function TOBDLiveDataGrid.AutoColumnWidth(AColumn: Integer): Integer;
 var
   CheckW, PidW, Rest: Integer;
 begin
@@ -617,31 +735,66 @@ begin
   else
     CheckW := 0;
   PidW := ScaleValue(40);
-  Rest := System.Math.Max(0, Width - CheckW - PidW);
+  Rest := System.Math.Max(0, ContentRight - CheckW - PidW);
   // Name 40 %, value 18 %, unit 12 %, min 15 %, max 15 %.
   case AColumn of
-    ColCheck:
-      Result := 0;
     ColPID:
-      Result := CheckW;
+      Result := PidW;
     ColName:
-      Result := CheckW + PidW;
+      Result := Rest * 40 div 100;
     ColValue:
-      Result := CheckW + PidW + Rest * 40 div 100;
+      Result := Rest * 18 div 100;
     ColUnit:
-      Result := CheckW + PidW + Rest * 58 div 100;
+      Result := Rest * 12 div 100;
     ColMin:
-      Result := CheckW + PidW + Rest * 70 div 100;
-    ColMax:
-      Result := CheckW + PidW + Rest * 85 div 100;
+      Result := Rest * 15 div 100;
   else
-    Result := Width;
+    Result := Rest * 15 div 100;
   end;
+end;
+
+function TOBDLiveDataGrid.ColumnWidthPx(AColumn: Integer): Integer;
+begin
+  if (AColumn >= Low(FColumnWidths)) and (AColumn <= High(FColumnWidths)) and
+    (FColumnWidths[AColumn] > 0) then
+    Result := ScaleValue(FColumnWidths[AColumn])
+  else
+    Result := AutoColumnWidth(AColumn);
+end;
+
+function TOBDLiveDataGrid.ColumnX(AColumn: Integer): Integer;
+var
+  C: Integer;
+begin
+  if AColumn <= ColCheck then
+    Exit(0);
+  if AColumn > ColMax then
+    Exit(ContentRight);
+  if FShowCheckboxes then
+    Result := ScaleValue(28)
+  else
+    Result := 0;
+  for C := ColPID to AColumn - 1 do
+    Inc(Result, ColumnWidthPx(C));
+end;
+
+function TOBDLiveDataGrid.ColumnDividerAt(X, Y: Integer): Integer;
+var
+  C, Slop: Integer;
+begin
+  Result := -1;
+  if (Y < 0) or (Y >= Height) or (X >= ContentRight) then
+    Exit;
+  Slop := ScaleValue(3);
+  // Dividers to the right of PID .. Min; the Max column fills the rest.
+  for C := ColPID to ColMin do
+    if Abs(X - ColumnX(C + 1)) <= Slop then
+      Exit(C);
 end;
 
 procedure TOBDLiveDataGrid.ScrollTo(ATop: Integer);
 begin
-  ATop := EnsureRange(ATop, 0, System.Math.Max(0, FRows.Count - VisibleRows));
+  ATop := EnsureRange(ATop, 0, MaxTopRow);
   if FTopRow = ATop then
     Exit;
   FTopRow := ATop;
@@ -744,7 +897,7 @@ begin
     ACanvas.Brush.Color := Palette.GaugeFace
   else
     ACanvas.Brush.Color := EffectiveBackground;
-  ACanvas.FillRect(Rect(0, ATop, Width, ATop + H));
+  ACanvas.FillRect(Rect(0, ATop, ContentRight, ATop + H));
 
   Conv := OBDUnitConversion(ARow.UnitText, UnitSystem);
   Decimals := 0;
@@ -806,6 +959,7 @@ var
   I, Y, HH, N: Integer;
   Preview: Boolean;
   S: string;
+  Painter: TOBDPainter;
 begin
   ACanvas.Font.Assign(Font);
   HH := HeaderHeight;
@@ -819,11 +973,19 @@ begin
   begin
     S := Headers[I];
     if I in [ColValue, ColMin, ColMax] then
-      ACanvas.TextOut(ColumnX(I + 1) - ScaleValue(6) - ACanvas.TextWidth(S),
+      ACanvas.TextRect(Rect(ColumnX(I), 0, ColumnX(I + 1), HH),
+        ColumnX(I + 1) - ScaleValue(6) - ACanvas.TextWidth(S),
         (HH - ACanvas.TextHeight(S)) div 2, S)
     else
-      ACanvas.TextOut(ColumnX(I) + ScaleValue(6),
-        (HH - ACanvas.TextHeight(S)) div 2, S);
+      ACanvas.TextRect(Rect(ColumnX(I), 0, ColumnX(I + 1), HH),
+        ColumnX(I) + ScaleValue(6), (HH - ACanvas.TextHeight(S)) div 2, S);
+    // Column dividers double as resize grips.
+    if I < ColMax then
+    begin
+      ACanvas.Pen.Color := Palette.Subtle;
+      ACanvas.MoveTo(ColumnX(I + 1), ScaleValue(4));
+      ACanvas.LineTo(ColumnX(I + 1), HH - ScaleValue(4));
+    end;
   end;
 
   Preview := (FRows.Count = 0) and IsPreview;
@@ -854,6 +1016,17 @@ begin
     Inc(I);
   end;
 
+  if not Preview and NeedsScrollBar then
+  begin
+    Painter := TOBDPainter.Create(ACanvas, Palette, ScaleValue(96));
+    try
+      OBDPaintScrollBar(Painter, ScrollBarRect, True, 0, FRows.Count - 1,
+        VisibleRows, FTopRow, FBarHot, FBarDragging);
+    finally
+      Painter.Free;
+    end;
+  end;
+
   ACanvas.Pen.Color := EffectiveBorder;
   ACanvas.Brush.Style := bsClear;
   ACanvas.Rectangle(0, 0, Width, Height);
@@ -864,11 +1037,46 @@ end;
 procedure TOBDLiveDataGrid.MouseDown(Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 var
-  Index: Integer;
+  Index, C: Integer;
+  Thumb: TRect;
 begin
   inherited;
+  FLastMouse := Point(X, Y);
   if CanFocus then
     SetFocus;
+  if Button <> mbLeft then
+    Exit;
+
+  if NeedsScrollBar and PtInRect(ScrollBarRect, Point(X, Y)) then
+  begin
+    Thumb := ScrollThumb;
+    if (Y >= Thumb.Top) and (Y < Thumb.Bottom) then
+    begin
+      FBarDragging := True;
+      FBarDragOffset := Y - Thumb.Top;
+      MouseCapture := True;
+      Invalidate;
+    end
+    else if Y < Thumb.Top then
+      ScrollTo(FTopRow - VisibleRows)
+    else
+      ScrollTo(FTopRow + VisibleRows);
+    Exit;
+  end;
+
+  FResizeColumn := ColumnDividerAt(X, Y);
+  if FResizeColumn >= 0 then
+  begin
+    // Freeze the automatic widths so only the dragged column changes.
+    for C := Low(FColumnWidths) to High(FColumnWidths) do
+      FColumnWidths[C] := System.Math.Max(MinColumnWidth96,
+        MulDiv(ColumnWidthPx(C), 96, ScaleValue(96)));
+    FResizeStartX := X;
+    FResizeStartWidth := FColumnWidths[FResizeColumn];
+    MouseCapture := True;
+    Exit;
+  end;
+
   if Y < HeaderHeight then
     Exit;
   Index := FTopRow + (Y - HeaderHeight) div RowHeight;
@@ -877,6 +1085,75 @@ begin
   Selected := Index;
   if FShowCheckboxes and (X < ColumnX(ColPID)) then
     ToggleRow(Index);
+end;
+
+procedure TOBDLiveDataGrid.MouseMove(Shift: TShiftState; X, Y: Integer);
+var
+  Bar, Thumb: TRect;
+  Travel: Integer;
+begin
+  inherited;
+  FLastMouse := Point(X, Y);
+  if FBarDragging then
+  begin
+    Bar := ScrollBarRect;
+    Thumb := ScrollThumb;
+    Travel := Bar.Height - Thumb.Height;
+    if Travel > 0 then
+      ScrollTo(Round((Y - FBarDragOffset - Bar.Top) / Travel * MaxTopRow));
+    Exit;
+  end;
+  if FResizeColumn >= 0 then
+  begin
+    SetColumnWidth(FResizeColumn, System.Math.Max(MinColumnWidth96,
+      FResizeStartWidth + MulDiv(X - FResizeStartX, 96, ScaleValue(96))));
+    Exit;
+  end;
+  SetBarHot(NeedsScrollBar and PtInRect(ScrollBarRect, Point(X, Y)));
+  if ColumnDividerAt(X, Y) >= 0 then
+    Cursor := crHSplit
+  else
+    Cursor := crDefault;
+end;
+
+procedure TOBDLiveDataGrid.MouseUp(Button: TMouseButton; Shift: TShiftState;
+  X, Y: Integer);
+begin
+  inherited;
+  if FBarDragging or (FResizeColumn >= 0) then
+    MouseCapture := False;
+  FResizeColumn := -1;
+  if FBarDragging then
+  begin
+    FBarDragging := False;
+    Invalidate;
+  end;
+end;
+
+procedure TOBDLiveDataGrid.DblClick;
+begin
+  inherited;
+  if ColumnDividerAt(FLastMouse.X, FLastMouse.Y) >= 0 then
+  begin
+    FResizeColumn := -1;
+    ResetColumnWidths;
+  end;
+end;
+
+procedure TOBDLiveDataGrid.SetBarHot(AValue: Boolean);
+begin
+  if FBarHot = AValue then
+    Exit;
+  FBarHot := AValue;
+  Invalidate;
+end;
+
+procedure TOBDLiveDataGrid.CMMouseLeave(var Message: TMessage);
+begin
+  inherited;
+  SetBarHot(False);
+  if FResizeColumn < 0 then
+    Cursor := crDefault;
 end;
 
 procedure TOBDLiveDataGrid.KeyDown(var Key: Word; Shift: TShiftState);
@@ -919,7 +1196,7 @@ end;
 
 procedure TOBDLiveDataGrid.SaveSettings(AObject: TJSONObject);
 var
-  P, C: TJSONArray;
+  P, C, W: TJSONArray;
   I: Integer;
 begin
   P := TJSONArray.Create;
@@ -933,6 +1210,10 @@ begin
       C.Add(Integer(FRows[I].PID));
   end;
   AObject.AddPair('staleAfterMs', TJSONNumber.Create(FStaleAfterMs));
+  W := TJSONArray.Create;
+  AObject.AddPair('columnWidths', W);
+  for I := Low(FColumnWidths) to High(FColumnWidths) do
+    W.Add(FColumnWidths[I]);
 end;
 
 procedure TOBDLiveDataGrid.LoadSettings(AObject: TJSONObject);
@@ -967,6 +1248,15 @@ begin
   N := Integer(FStaleAfterMs);
   if OBDJsonReadInt(AObject, 'staleAfterMs', N) then
     StaleAfterMs := Cardinal(System.Math.Max(0, N));
+  AV := AObject.Values['columnWidths'];
+  if AV is TJSONArray then
+  begin
+    Arr := TJSONArray(AV);
+    for I := 0 to System.Math.Min(Arr.Count, Length(FColumnWidths)) - 1 do
+      if Arr.Items[I] is TJSONNumber then
+        SetColumnWidth(Low(FColumnWidths) + I,
+          EnsureRange(TJSONNumber(Arr.Items[I]).AsInt, 0, 2000));
+  end;
 end;
 
 end.

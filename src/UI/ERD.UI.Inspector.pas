@@ -30,7 +30,8 @@ uses
   ERD.UI.Types,
   ERD.UI.Paint,
   ERD.UI.Control,
-  ERD.UI.PopupList;
+  ERD.UI.PopupList,
+  ERD.UI.ScrollBar;
 
 type
   TOBDInspectorProperty = class;
@@ -309,8 +310,8 @@ type
     function EditFrameRect(AProperty: TOBDInspectorProperty): TRect;
     function EllipsisButtonRect(AProperty: TOBDInspectorProperty): TRect;
     function CheckBoxRect(AProperty: TOBDInspectorProperty): TRect;
-    function DropDownRect(AProperty: TOBDInspectorProperty): TRect;
     function ScrollThumbRect: TRect;
+    function ScrollTrackRect: TRect;
     function PropertyCategory(AProperty: TOBDInspectorProperty): TOBDInspectorCategory;
     function CanEditText(AProperty: TOBDInspectorProperty): Boolean;
     function IsReadOnlyText(AProperty: TOBDInspectorProperty): Boolean;
@@ -470,6 +471,7 @@ constructor TOBDInspectorEdit.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   BorderStyle := bsNone;
+  AutoSize := False;
   TabStop := False;
 end;
 
@@ -1044,7 +1046,7 @@ end;
 
 function TOBDInspector.ScrollBarWidth: Integer;
 begin
-  Result := ScaleValue(6);
+  Result := ScaleValue(10);
 end;
 
 function TOBDInspector.EffectiveRight: Integer;
@@ -1184,37 +1186,27 @@ begin
     SplitterX + ScaleValue(8) + S, R.Top + (R.Height - S) div 2 + S);
 end;
 
-function TOBDInspector.DropDownRect(AProperty: TOBDInspectorProperty): TRect;
-var
-  R: TRect;
+function TOBDInspector.ScrollTrackRect: TRect;
 begin
-  R := AProperty.Rect;
-  OffsetRect(R, 0, -FScrollPos);
-  Result := Rect(EffectiveRight - ScaleValue(28), R.Top, EffectiveRight,
-    R.Bottom);
+  Result := Rect(ClientWidth - 1 - ScrollBarWidth, 1, ClientWidth - 1,
+    ClientHeight - 1);
 end;
 
 function TOBDInspector.ScrollThumbRect: TRect;
-var
-  Track: TRect;
-  ThumbH, ThumbY: Integer;
 begin
   Result := Rect(0, 0, 0, 0);
   if FContentHeight <= ClientHeight - 2 then
     Exit;
-  Track := Rect(ClientWidth - ScrollBarWidth - ScaleValue(2), ScaleValue(2),
-    ClientWidth - ScaleValue(2), ClientHeight - ScaleValue(2));
-  ThumbH := System.Math.Max(ScaleValue(24), MulDiv(Track.Height,
-    ClientHeight - 2, FContentHeight));
-  ThumbY := Track.Top;
-  if MaxScroll > 0 then
-    Inc(ThumbY, MulDiv(Track.Height - ThumbH, FScrollPos, MaxScroll));
-  Result := Rect(Track.Left, ThumbY, Track.Right, ThumbY + ThumbH);
+  // Same themed overlay bar as the other OBD controls (ERD.UI.ScrollBar);
+  // positions are in pixels.
+  Result := OBDScrollThumbRect(ScrollTrackRect, True, 0, FContentHeight - 1,
+    ClientHeight - 2, FScrollPos, FScrollHover, FDraggingScroll);
 end;
 
 procedure TOBDInspector.UpdateEditorBounds;
 var
   R, Row: TRect;
+  H: Integer;
 begin
   if (FEditProperty = nil) or not FEditor.Visible then
     Exit;
@@ -1226,11 +1218,14 @@ begin
     Exit;
   end;
   R := VisibleValueRect(FEditProperty);
-  InflateRect(R, 0, -ScaleValue(1));
   if R.Right < R.Left then
     R.Right := R.Left;
-  FEditor.SetBounds(R.Left, R.Top + ScaleValue(1), R.Width,
-    System.Math.Max(1, R.Height - ScaleValue(2)));
+  // A borderless TEdit draws its text at the top of its client area, so
+  // size it to one text line and centre that line in the row (rows are much
+  // taller in tablet density).
+  H := System.Math.Max(1, System.Math.Min(Row.Height - ScaleValue(2),
+    OBDFontLineHeight(FEditor.Font)));
+  FEditor.SetBounds(R.Left, Row.Top + (Row.Height - H) div 2, R.Width, H);
 end;
 
 procedure TOBDInspector.HideEditor;
@@ -1867,24 +1862,11 @@ begin
 end;
 
 procedure TOBDInspector.DrawScrollBar(APainter: TOBDPainter);
-var
-  Track, Thumb: TRect;
-  ThumbColor: TColor;
 begin
   if FContentHeight <= ClientHeight - 2 then
     Exit;
-  Track := Rect(ClientWidth - ScrollBarWidth - ScaleValue(2), ScaleValue(2),
-    ClientWidth - ScaleValue(2), ClientHeight - ScaleValue(2));
-  Thumb := ScrollThumbRect;
-  APainter.FillRect(Track, APainter.Tint(Palette.NeutralLight, 0.35));
-  ThumbColor := APainter.Tint(Palette.NeutralDark, 0.65);
-  if FScrollHover or FDraggingScroll then
-  begin
-    InflateRect(Thumb, ScaleValue(1), 0);
-    ThumbColor := APainter.Tint(Palette.NeutralDark, 0.85);
-  end;
-  APainter.RoundRect(Thumb.Left, Thumb.Top, Thumb.Width, Thumb.Height,
-    ScrollBarWidth / 2, ThumbColor, clNone);
+  OBDPaintScrollBar(APainter, ScrollTrackRect, True, 0, FContentHeight - 1,
+    ClientHeight - 2, FScrollPos, FScrollHover, FDraggingScroll);
 end;
 
 procedure TOBDInspector.Resize;
@@ -1928,15 +1910,17 @@ begin
     SetFocus;
 
   Thumb := ScrollThumbRect;
-  if not Thumb.IsEmpty and PtInRect(Rect(Thumb.Left - ScaleValue(2), Thumb.Top,
-    Thumb.Right + ScaleValue(2), Thumb.Bottom), P) then
+  if not Thumb.IsEmpty and (X >= ScrollTrackRect.Left) and (Y >= Thumb.Top) and
+    (Y < Thumb.Bottom) then
   begin
     FDraggingScroll := True;
     FScrollDragOffset := Y - Thumb.Top;
+    MouseCapture := True;
+    Invalidate;
     Exit;
   end;
   if (FContentHeight > ClientHeight - 2) and
-    (X >= ClientWidth - ScrollBarWidth - ScaleValue(3)) then
+    (X >= ScrollTrackRect.Left) then
   begin
     if Y < Thumb.Top then
       SetScrollPos(FScrollPos - (ClientHeight - RowHeight))
@@ -1968,7 +1952,9 @@ begin
     SelectItem(Prop, True);
     if (Prop.Kind = ivCheck) and PtInRect(CheckBoxRect(Prop), P) then
       ToggleCheck(Prop)
-    else if (Prop.Kind = ivPickList) and PtInRect(DropDownRect(Prop), P) then
+    else if (Prop.Kind = ivPickList) and (X > SplitterX + ScaleValue(3)) then
+      // Like a csDropDownList combo box: the whole value field opens the
+      // list, not only the arrow button.
       OpenPickList(Prop)
     else if (Prop.Kind = ivEllipsis) and PtInRect(EllipsisButtonRect(Prop), P) and
       Assigned(FOnPropertyButtonClick) then
@@ -2006,8 +1992,7 @@ begin
   end;
   if FDraggingScroll then
   begin
-    Track := Rect(ClientWidth - ScrollBarWidth - ScaleValue(2), ScaleValue(2),
-      ClientWidth - ScaleValue(2), ClientHeight - ScaleValue(2));
+    Track := ScrollTrackRect;
     Thumb := ScrollThumbRect;
     if (Track.Height - Thumb.Height) > 0 then
       SetScrollPos(MulDiv(Y - FScrollDragOffset - Track.Top, MaxScroll,
@@ -2037,7 +2022,7 @@ begin
     end;
   end;
   NewHover := (FContentHeight > ClientHeight - 2) and
-    (X >= ClientWidth - ScrollBarWidth - ScaleValue(4));
+    (X >= ScrollTrackRect.Left);
   if Abs(X - SplitterX) <= ScaleValue(3) then
     Cursor := crSizeWE
   else
@@ -2054,7 +2039,12 @@ procedure TOBDInspector.MouseUp(Button: TMouseButton; Shift: TShiftState; X,
 begin
   inherited;
   FDraggingSplitter := False;
-  FDraggingScroll := False;
+  if FDraggingScroll then
+  begin
+    FDraggingScroll := False;
+    MouseCapture := False;
+    Invalidate;
+  end;
   FDraggingSelect := False;
   Cursor := crDefault;
 end;

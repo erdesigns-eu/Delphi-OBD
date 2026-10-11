@@ -528,6 +528,13 @@ function OBDRangeLevel(AValue, ALow, AHigh, AAlarmMargin: Double)
 function OBDMeasureText(const AText: string; ASize: Single;
   AWeight: TOBDTextWeight; APPI: Integer): Integer;
 
+/// <summary>Height of one text line in a font (GDI tmHeight), which is
+/// what a borderless TEdit needs to show its text; used to centre child
+/// editors vertically in rows and boxes.</summary>
+/// <param name="AFont">Font to measure.</param>
+/// <returns>Line height in device pixels.</returns>
+function OBDFontLineHeight(AFont: TFont): Integer;
+
 const
   /// <summary>Card status edge width, 96-DPI pixels.</summary>
   OBD_EDGE = 4;
@@ -574,6 +581,27 @@ end;
 function OBDIsDarkPalette(const APalette: TOBDThemePalette): Boolean;
 begin
   Result := Luma(APalette.Background) < 128;
+end;
+
+function OBDFontLineHeight(AFont: TFont): Integer;
+var
+  DC: HDC;
+  Old: HGDIOBJ;
+  TM: TTextMetric;
+begin
+  Result := Abs(AFont.Height);
+  DC := GetDC(0);
+  try
+    Old := SelectObject(DC, AFont.Handle);
+    try
+      if GetTextMetrics(DC, TM) then
+        Result := TM.tmHeight;
+    finally
+      SelectObject(DC, Old);
+    end;
+  finally
+    ReleaseDC(0, DC);
+  end;
 end;
 
 function OBDMeasureText(const AText: string; ASize: Single;

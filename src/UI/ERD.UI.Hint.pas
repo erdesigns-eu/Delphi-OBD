@@ -166,7 +166,7 @@ procedure TOBDHintWindow.ParseHint(const AHint: string; AData: Pointer);
 var
   S: string;
   P, T: Integer;
-  Info: Vcl.Controls.PHintInfo;
+  Control: TControl;
   Action: TCustomAction;
 begin
   FTitle := AHint;
@@ -187,13 +187,15 @@ begin
     FTitle := Copy(FTitle, 1, T - 1);
   end;
 
-  if (FShortcut = '') and (AData <> nil) then
+  // AData is the control's HintInfo.HintData (normally nil), not a
+  // PHintInfo, so never dereference it. Take the shortcut from the action of
+  // the control under the mouse instead.
+  if FShortcut = '' then
   begin
-    Info := Vcl.Controls.PHintInfo(AData);
-    if (Info^.HintControl <> nil) and
-      (Info^.HintControl.Action is TCustomAction) then
+    Control := FindDragTarget(Mouse.CursorPos, True);
+    if (Control <> nil) and (Control.Action is TCustomAction) then
     begin
-      Action := TCustomAction(Info^.HintControl.Action);
+      Action := TCustomAction(Control.Action);
       FShortcut := ShortCutToText(Action.ShortCut);
     end;
   end;
@@ -356,6 +358,22 @@ begin
     Uninstall;
 end;
 
+procedure RecreateHintWindow;
+begin
+  // Toggling ShowHint frees the application's hint window and creates one of
+  // the current HintWindowClass. Never do that while the application shuts
+  // down: the main form (and this component) is freed inside
+  // Application.DestroyComponents, after DoneApplication already switched
+  // ShowHint off. Switching it back on there would create a hint window that
+  // DestroyComponents frees while Application still references it, which
+  // ends in "Invalid pointer operation" on exit.
+  if (Application = nil) or (csDestroying in Application.ComponentState) or
+    Application.Terminated or not Application.ShowHint then
+    Exit;
+  Application.ShowHint := False;
+  Application.ShowHint := True;
+end;
+
 procedure TOBDHintStyle.Install;
 begin
   if csDesigning in ComponentState then
@@ -364,8 +382,7 @@ begin
     GPreviousHintWindowClass := HintWindowClass;
   GActiveHintStyle := Self;
   HintWindowClass := TOBDHintWindow;
-  Application.ShowHint := False;
-  Application.ShowHint := True;
+  RecreateHintWindow;
 end;
 
 procedure TOBDHintStyle.Uninstall;
@@ -376,8 +393,7 @@ begin
   if GPreviousHintWindowClass <> nil then
     HintWindowClass := GPreviousHintWindowClass;
   GPreviousHintWindowClass := nil;
-  Application.ShowHint := False;
-  Application.ShowHint := True;
+  RecreateHintWindow;
 end;
 
 end.

@@ -2246,9 +2246,11 @@ end;
 initialization
 
 finalization
+  // Runs before Vcl.Forms finalizes (and frees the forms), so a menu bar that
+  // is destroyed later may still reach these globals: nil them.
   OBDCloseThemedMenu;
   FreeDeadSessions;
-  GDeadSessions.Free;
-  GClickQueue.Free;
+  FreeAndNil(GDeadSessions);
+  FreeAndNil(GClickQueue);
 
 end.

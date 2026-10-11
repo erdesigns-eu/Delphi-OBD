@@ -372,6 +372,11 @@ value, LCD).
 ### `TOBDLiveDataGrid` — `ERD.UI.LiveDataGrid`
 Table of PIDs with value, unit and session minimum / maximum; checked
 rows (`CheckedPIDs`) feed the dashboard or the trend chart.
+Drag a header divider to resize a column (double-click resets it to
+automatic); `PIDColumnWidth`, `NameColumnWidth`, `ValueColumnWidth`,
+`UnitColumnWidth` and `MinColumnWidth` hold the widths at 96 DPI (0 =
+automatic) and `ResetColumnWidths` clears them. Long lists scroll with
+the themed overlay scroll bar.
 
 ### `TOBDDashboard` — `ERD.UI.Dashboard`
 Grid host for the controls above. `AddTile('dial' | 'bar' | 'value' |

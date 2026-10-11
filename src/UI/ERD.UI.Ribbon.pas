@@ -1808,18 +1808,20 @@ begin
     Exit;
   end;
   // Same 12.5 px text as the painted placeholder. A borderless TEdit draws
-  // its text at the top of its client area, so size it to one text line and
-  // centre that line in the search box (it is much taller in tablet density).
+  // its text at the top of its client area, so size it to exactly one text
+  // line (measured from the font) and centre that line in the search box
+  // (it is much taller in tablet density).
   FontHeight := System.Math.Max(1, Round(12.5 * ScaleValue(96) / 96));
-  EditHeight := System.Math.Min(R.Height, Round(FontHeight * 1.4) +
-    ScaleValue(2));
-  FSearchEdit.SetBounds(R.Left,
-    FSearchRect.Top + (FSearchRect.Height - EditHeight) div 2, R.Width,
-    System.Math.Max(1, EditHeight));
   if not SameText(FSearchEdit.Font.Name, 'Segoe UI') then
     FSearchEdit.Font.Name := 'Segoe UI';
   if FSearchEdit.Font.Height <> -FontHeight then
     FSearchEdit.Font.Height := -FontHeight;
+  EditHeight := System.Math.Max(1, System.Math.Min(R.Height,
+    OBDFontLineHeight(FSearchEdit.Font)));
+  R.Top := FSearchRect.Top + (FSearchRect.Height - EditHeight) div 2;
+  if (FSearchEdit.Left <> R.Left) or (FSearchEdit.Top <> R.Top) or
+    (FSearchEdit.Width <> R.Width) or (FSearchEdit.Height <> EditHeight) then
+    FSearchEdit.SetBounds(R.Left, R.Top, R.Width, EditHeight);
   if FSearchEdit.Color <> Palette.Background then
     FSearchEdit.Color := Palette.Background;
   if FSearchEdit.Font.Color <> Palette.ForegroundText then

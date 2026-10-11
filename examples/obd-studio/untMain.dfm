@@ -885,9 +885,9 @@ object frmMain: TfrmMain
         end
         object sbHistory: TOBDScrollBar
           Left = 12
-          Top = 612
+          Top = 636
           Width = 1184
-          Height = 36
+          Height = 12
           Kind = sbHorizontal
           OnChange = sbHistoryChange
           Align = alBottom

@@ -40,7 +40,8 @@ uses
   Vcl.StdCtrls,
   ERD.UI.Types,
   ERD.UI.Control,
-  ERD.UI.Paint;
+  ERD.UI.Paint,
+  ERD.UI.ScrollBar;
 
 type
   TOBDBackstage = class;
@@ -306,6 +307,9 @@ type
     FScrollY: Integer;
     FShowToolbar: Boolean;
     FOnPaintPage: TOBDReportPaintPageEvent;
+    FBarHot: Boolean;
+    FBarDragging: Boolean;
+    FBarDragOffset: Integer;
     procedure SetZoom(AValue: Integer);
     procedure SetZoomMode(AValue: TOBDReportZoomMode);
     procedure SetPageIndex(AValue: Integer);
@@ -317,6 +321,10 @@ type
     function PaperRect: TRect;
     function MaxScrollY: Integer;
     procedure ClampScroll;
+    function ScrollTrackRect: TRect;
+    function ScrollThumb: TRect;
+    procedure SetScrollY(AValue: Integer);
+    procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
     procedure DrawToolbar(APainter: TOBDPainter);
     procedure DrawPaper(APainter: TOBDPainter; ACanvas: TCanvas;
       const R: TRect; AScale: Single);
@@ -335,6 +343,25 @@ type
     /// <returns>True when handled.</returns>
     function DoMouseWheel(Shift: TShiftState; WheelDelta: Integer;
       MousePos: TPoint): Boolean; override;
+    /// <summary>Drags or pages the themed scroll bar.</summary>
+    /// <param name="Button">Mouse button.</param>
+    /// <param name="Shift">Modifier keys.</param>
+    /// <param name="X">Mouse X.</param>
+    /// <param name="Y">Mouse Y.</param>
+    procedure MouseDown(Button: TMouseButton; Shift: TShiftState;
+      X, Y: Integer); override;
+    /// <summary>Drags the scroll thumb and tracks hover.</summary>
+    /// <param name="Shift">Modifier keys.</param>
+    /// <param name="X">Mouse X.</param>
+    /// <param name="Y">Mouse Y.</param>
+    procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
+    /// <summary>Ends a thumb drag.</summary>
+    /// <param name="Button">Mouse button.</param>
+    /// <param name="Shift">Modifier keys.</param>
+    /// <param name="X">Mouse X.</param>
+    /// <param name="Y">Mouse Y.</param>
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState;
+      X, Y: Integer); override;
   public
     /// <summary>Creates a fit-page A4 preview.</summary>
     /// <param name="AOwner">Component owner.</param>
@@ -1563,11 +1590,108 @@ begin
     FScrollY := 0;
 end;
 
+function TOBDReportPreview.ScrollTrackRect: TRect;
+begin
+  Result := Rect(Width - 1 - ScaleValue(10), PaperAreaRect.Top + 1,
+    Width - 1, Height - 1);
+end;
+
+function TOBDReportPreview.ScrollThumb: TRect;
+var
+  Page: Integer;
+begin
+  Page := Max(1, PaperAreaRect.Height);
+  Result := OBDScrollThumbRect(ScrollTrackRect, True, 0,
+    MaxScrollY + Page - 1, Page, FScrollY, FBarHot, FBarDragging);
+end;
+
+procedure TOBDReportPreview.SetScrollY(AValue: Integer);
+begin
+  AValue := EnsureRange(AValue, 0, MaxScrollY);
+  if FScrollY = AValue then
+    Exit;
+  FScrollY := AValue;
+  Invalidate;
+end;
+
+procedure TOBDReportPreview.MouseDown(Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+var
+  Thumb: TRect;
+begin
+  inherited;
+  if CanFocus and not Focused then
+    SetFocus;
+  if (Button <> mbLeft) or (MaxScrollY <= 0) or
+    not PtInRect(ScrollTrackRect, Point(X, Y)) then
+    Exit;
+  Thumb := ScrollThumb;
+  if (Y >= Thumb.Top) and (Y < Thumb.Bottom) then
+  begin
+    FBarDragging := True;
+    FBarDragOffset := Y - Thumb.Top;
+    MouseCapture := True;
+    Invalidate;
+  end
+  else if Y < Thumb.Top then
+    SetScrollY(FScrollY - PaperAreaRect.Height)
+  else
+    SetScrollY(FScrollY + PaperAreaRect.Height);
+end;
+
+procedure TOBDReportPreview.MouseMove(Shift: TShiftState; X, Y: Integer);
+var
+  Track, Thumb: TRect;
+  Travel: Integer;
+  Hot: Boolean;
+begin
+  inherited;
+  if FBarDragging then
+  begin
+    Track := ScrollTrackRect;
+    Thumb := ScrollThumb;
+    Travel := Track.Height - Thumb.Height;
+    if Travel > 0 then
+      SetScrollY(Round((Y - FBarDragOffset - Track.Top) / Travel *
+        MaxScrollY));
+    Exit;
+  end;
+  Hot := (MaxScrollY > 0) and PtInRect(ScrollTrackRect, Point(X, Y));
+  if Hot <> FBarHot then
+  begin
+    FBarHot := Hot;
+    Invalidate;
+  end;
+end;
+
+procedure TOBDReportPreview.MouseUp(Button: TMouseButton; Shift: TShiftState;
+  X, Y: Integer);
+begin
+  inherited;
+  if FBarDragging then
+  begin
+    FBarDragging := False;
+    MouseCapture := False;
+    Invalidate;
+  end;
+end;
+
+procedure TOBDReportPreview.CMMouseLeave(var Message: TMessage);
+begin
+  inherited;
+  if FBarHot then
+  begin
+    FBarHot := False;
+    Invalidate;
+  end;
+end;
+
 procedure TOBDReportPreview.PaintControl(ACanvas: TCanvas);
 var
   P: TOBDPainter;
   R: TRect;
   S: Single;
+  Page: Integer;
 begin
   P := TOBDPainter.Create(ACanvas, Palette, ScaleValue(96));
   try
@@ -1579,6 +1703,12 @@ begin
     R := PaperRect;
     S := PageScale(PaperAreaRect);
     DrawPaper(P, ACanvas, R, S);
+    if MaxScrollY > 0 then
+    begin
+      Page := Max(1, PaperAreaRect.Height);
+      OBDPaintScrollBar(P, ScrollTrackRect, True, 0, MaxScrollY + Page - 1,
+        Page, FScrollY, FBarHot, FBarDragging);
+    end;
   finally
     P.Free;
   end;
