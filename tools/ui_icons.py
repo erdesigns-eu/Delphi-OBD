@@ -514,6 +514,13 @@ def _refresh():
             ('fill', [(5.5, -5), (5.5, -1.5), (2, -1.5)], 0.5)]
 
 
+def _tyre():
+    """Tyre cross-section of the TPMS lamp: rim flanges at the top,
+    bulging sidewalls and a flat tread."""
+    right = [(5, 5), (6.3, 3), (6.7, 0), (6.2, -3), (4, -5.5), (4, -7)]
+    return [(-x, y) for x, y in reversed(right)] + right
+
+
 def _dpf():
     """Particulate filter lamp: a filter housing with soot dots and the
     exhaust pipe on both sides."""
@@ -683,10 +690,9 @@ FEATURES = {
                  ('path', [(-7, 0), (-2, 0)], 0, False),
                  ('path', [(2, 0), (7, 0)], 0, False),
                  ('path', [(0, 2), (0, 7)], 0, False)],
-    'tpms': [('arc', 0, -0.5, 6.5, 125, 290),
-             ('path', [(-3.73, 4.82), (-5, 6.5), (5, 6.5), (3.73, 4.82)], 0,
-              False),
-             ('box', -0.75, -4, 1.5, 4.5, 0.75), ('disc', 0, 2.75, 0.9)],
+    'tpms': [('path', _tyre(), 1.5, False)]
+            + [('path', [(x, 5), (x, 7)], 0, False) for x in (-4, -2, 0, 2, 4)]
+            + [('path', [(0, -5), (0, -0.5)], 0, False), ('disc', 0, 2, 1)],
     'regen': _dpf(),
     'fan': _fan(),
     'routine': [('circle', 0, 0, 7),
