@@ -305,9 +305,15 @@ begin
   if FKind = AValue then
     Exit;
   FKind := AValue;
-  OldW := Width;
-  Width := Height;
-  Height := OldW;
+  // Swap the orientation only for an interactive change: while the form
+  // streams in, Width and Height were already read for the final kind and
+  // swapping them turned a 36 px history bar into one that covered the page.
+  if not (csLoading in ComponentState) then
+  begin
+    OldW := Width;
+    Width := Height;
+    Height := OldW;
+  end;
   Invalidate;
 end;
 
