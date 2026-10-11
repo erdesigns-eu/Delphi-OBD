@@ -453,6 +453,7 @@ type
     FSearchMenu: TOBDPopupMenu;
     FOverflowMenu: TOBDPopupMenu;
     FApplicationEvents: TApplicationEvents;
+    FPeek: TCustomControl;
     FOnTabChange: TOBDRibbonTabEvent;
     FOnFileClick: TNotifyEvent;
     FOnItemClick: TOBDRibbonItemEvent;
@@ -523,6 +524,9 @@ type
     procedure AddCommandsFromTabs(AMenu: TPopupMenu; ATabs: TOBDRibbonTabs;
       const AFilter: string; AOnlyOverflow: Boolean);
     procedure AppShortCut(var Msg: TWMKey; var Handled: Boolean);
+    procedure AppMessage(var Msg: TMsg; var Handled: Boolean);
+    procedure AppDeactivate(Sender: TObject);
+    procedure ShowPeek;
     procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
     procedure CMHintShow(var Message: TCMHintShow); message CM_HINTSHOW;
     procedure CMCancelMode(var Message: TCMCancelMode); message CM_CANCELMODE;
@@ -531,6 +535,12 @@ type
       message CM_OBD_BACKSTAGEVISIBLE;
   private
     procedure RibbonChanged;
+    // Used by the peek panel, which shows the body of a collapsed ribbon
+    // over the form.
+    procedure ClosePeek;
+    function PeekOffset: Integer;
+    function PeekHeight: Integer;
+    procedure PaintPeek(ACanvas: TCanvas; AHeight: Integer);
   protected
     /// <summary>Clears component references when they are freed.</summary>
     /// <param name="AComponent">Component inserted or removed.</param>
@@ -568,6 +578,9 @@ type
   public
     /// <summary>Re-sizes for a density change.</summary>
     procedure DensityChanged; override;
+    /// <summary>Repaints the ribbon and, while it is open, the body that a
+    /// collapsed ribbon shows over the form.</summary>
+    procedure Invalidate; override;
     /// <summary>Creates the ribbon with alTop alignment.</summary>
     /// <param name="AOwner">Owner component.</param>
     constructor Create(AOwner: TComponent); override;
@@ -633,6 +646,28 @@ const
   SEARCH_WIDTH = 260;
 
 type
+  // Body of a collapsed ribbon, opened by a tab click. Like the Office
+  // ribbon it lies over the form below the tab row and takes no layout
+  // space; the ribbon still paints it and handles its mouse input, in
+  // ribbon coordinates (peek Y + PeekOffset).
+  TOBDRibbonPeek = class(TCustomControl)
+  strict private
+    FRibbon: TOBDRibbon;
+    procedure WMEraseBkgnd(var Message: TWMEraseBkgnd);
+      message WM_ERASEBKGND;
+    procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
+    procedure CMHintShow(var Message: TCMHintShow); message CM_HINTSHOW;
+  protected
+    procedure Paint; override;
+    procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
+    procedure MouseDown(Button: TMouseButton; Shift: TShiftState;
+      X, Y: Integer); override;
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState;
+      X, Y: Integer); override;
+  public
+    constructor CreatePeek(ARibbon: TOBDRibbon);
+  end;
+
   TOBDRibbonActionLink = class(TActionLink)
   strict private
     FClient: TOBDRibbonItem;
@@ -1324,6 +1359,80 @@ end;
 
 { TOBDRibbon ---------------------------------------------------------------- }
 
+{ TOBDRibbonPeek }
+
+constructor TOBDRibbonPeek.CreatePeek(ARibbon: TOBDRibbon);
+begin
+  inherited Create(ARibbon);
+  FRibbon := ARibbon;
+  ControlStyle := ControlStyle + [csOpaque];
+  Visible := False;
+end;
+
+procedure TOBDRibbonPeek.WMEraseBkgnd(var Message: TWMEraseBkgnd);
+begin
+  Message.Result := 1;
+end;
+
+procedure TOBDRibbonPeek.Paint;
+var
+  Buffer: TBitmap;
+  Offset: Integer;
+begin
+  // Paint the whole ribbon as if it were expanded and show the body part;
+  // the item rectangles it records are the ones the ribbon hit-tests.
+  Offset := FRibbon.PeekOffset;
+  Buffer := TBitmap.Create;
+  try
+    Buffer.SetSize(Width, Offset + Height);
+    FRibbon.PaintPeek(Buffer.Canvas, Offset + Height);
+    BitBlt(Canvas.Handle, 0, 0, Width, Height, Buffer.Canvas.Handle, 0,
+      Offset, SRCCOPY);
+  finally
+    Buffer.Free;
+  end;
+end;
+
+procedure TOBDRibbonPeek.MouseMove(Shift: TShiftState; X, Y: Integer);
+begin
+  inherited;
+  FRibbon.MouseMove(Shift, X, Y + FRibbon.PeekOffset);
+end;
+
+procedure TOBDRibbonPeek.MouseDown(Button: TMouseButton; Shift: TShiftState;
+  X, Y: Integer);
+begin
+  inherited;
+  FRibbon.MouseDown(Button, Shift, X, Y + FRibbon.PeekOffset);
+end;
+
+procedure TOBDRibbonPeek.MouseUp(Button: TMouseButton; Shift: TShiftState;
+  X, Y: Integer);
+begin
+  inherited;
+  FRibbon.MouseUp(Button, Shift, X, Y + FRibbon.PeekOffset);
+end;
+
+procedure TOBDRibbonPeek.CMMouseLeave(var Message: TMessage);
+begin
+  inherited;
+  FRibbon.Perform(CM_MOUSELEAVE, 0, 0);
+end;
+
+procedure TOBDRibbonPeek.CMHintShow(var Message: TCMHintShow);
+var
+  Offset: Integer;
+begin
+  Offset := FRibbon.PeekOffset;
+  Inc(Message.HintInfo.CursorPos.Y, Offset);
+  Message.Result := FRibbon.Perform(CM_HINTSHOW, 0,
+    LPARAM(Message.HintInfo));
+  Dec(Message.HintInfo.CursorPos.Y, Offset);
+  OffsetRect(Message.HintInfo.CursorRect, 0, -Offset);
+end;
+
+{ TOBDRibbon }
+
 constructor TOBDRibbon.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
@@ -1352,12 +1461,16 @@ begin
   FSearchEdit.OnKeyDown := SearchKeyDown;
   FApplicationEvents := TApplicationEvents.Create(Self);
   FApplicationEvents.OnShortCut := AppShortCut;
+  FApplicationEvents.OnMessage := AppMessage;
+  FApplicationEvents.OnDeactivate := AppDeactivate;
   UpdateHeight;
 end;
 
 destructor TOBDRibbon.Destroy;
 begin
   FApplicationEvents.OnShortCut := nil;
+  FApplicationEvents.OnMessage := nil;
+  FApplicationEvents.OnDeactivate := nil;
   FOverflowMenu.Free;
   FSearchMenu.Free;
   FPreviewContextualTabs.Free;
@@ -1389,7 +1502,6 @@ begin
     Exit;
   FActiveTab := AValue;
   FFocusedItem := nil;
-  FTemporaryExpanded := False;
   UpdateHeight;
   Invalidate;
   DoTabChange;
@@ -1448,7 +1560,7 @@ begin
   if Open then
   begin
     OBDCloseThemedMenu;
-    FTemporaryExpanded := False;
+    ClosePeek;
   end;
   UpdateHeight;
   Invalidate;
@@ -1485,7 +1597,7 @@ begin
   if FCollapsed = AValue then
     Exit;
   FCollapsed := AValue;
-  FTemporaryExpanded := False;
+  ClosePeek;
   UpdateHeight;
   Invalidate;
 end;
@@ -1510,6 +1622,11 @@ begin
   begin
     if AComponent = FImages then
       FImages := nil;
+    if AComponent = FPeek then
+    begin
+      FPeek := nil;
+      FTemporaryExpanded := False;
+    end;
     if AComponent = FBackstage then
     begin
       FBackstage := nil;
@@ -1781,8 +1898,10 @@ function TOBDRibbon.DesiredHeight: Integer;
 begin
   if FBackstageOpen then
     Exit(0);
+  // A collapsed ribbon keeps the tab row height while its body is open:
+  // the body is the peek panel over the form.
   Result := TabHeight;
-  if BodyVisible then
+  if not FCollapsed then
     Inc(Result, BodyHeight);
 end;
 
@@ -2350,7 +2469,104 @@ end;
 procedure TOBDRibbon.Resize;
 begin
   inherited Resize;
+  ClosePeek;
   LayoutSearchEdit;
+end;
+
+procedure TOBDRibbon.Invalidate;
+begin
+  inherited Invalidate;
+  if (FPeek <> nil) and FPeek.Visible then
+    FPeek.Invalidate;
+end;
+
+function TOBDRibbon.PeekOffset: Integer;
+begin
+  Result := TabHeight;
+end;
+
+function TOBDRibbon.PeekHeight: Integer;
+begin
+  Result := BodyHeight;
+end;
+
+procedure TOBDRibbon.PaintPeek(ACanvas: TCanvas; AHeight: Integer);
+var
+  P: TOBDPainter;
+begin
+  NormalizeActiveTab;
+  ClearLayout;
+  P := TOBDPainter.Create(ACanvas, Palette, ScaleValue(96));
+  try
+    P.FillRect(Rect(0, 0, Width, AHeight), Palette.GaugeFace);
+    DrawTabRow(P);
+    DrawBody(P, ACanvas);
+  finally
+    P.Free;
+  end;
+end;
+
+procedure TOBDRibbon.ShowPeek;
+var
+  Host: TWinControl;
+  P: TPoint;
+begin
+  if csDesigning in ComponentState then
+    Exit;
+  Host := GetParentForm(Self);
+  if Host = nil then
+    Host := Parent;
+  if (Host = nil) or not HandleAllocated then
+    Exit;
+  if FPeek = nil then
+    FPeek := TOBDRibbonPeek.CreatePeek(Self);
+  if FPeek.Parent <> Host then
+    FPeek.Parent := Host;
+  P := Host.ScreenToClient(ClientToScreen(Point(0, PeekOffset)));
+  FPeek.SetBounds(P.X, P.Y, Width, PeekHeight);
+  FPeek.ShowHint := ShowHint;
+  FTemporaryExpanded := True;
+  FPeek.Visible := True;
+  FPeek.BringToFront;
+  Invalidate;
+end;
+
+procedure TOBDRibbon.ClosePeek;
+begin
+  if not FTemporaryExpanded then
+    Exit;
+  FTemporaryExpanded := False;
+  if FPeek <> nil then
+    FPeek.Visible := False;
+  FHoverItem := nil;
+  FHoverLauncher := nil;
+  Invalidate;
+end;
+
+procedure TOBDRibbon.AppMessage(var Msg: TMsg; var Handled: Boolean);
+begin
+  if not FTemporaryExpanded or (FPeek = nil) or not HandleAllocated then
+    Exit;
+  case Msg.message of
+    WM_LBUTTONDOWN, WM_RBUTTONDOWN, WM_MBUTTONDOWN, WM_LBUTTONDBLCLK,
+    WM_NCLBUTTONDOWN, WM_NCRBUTTONDOWN, WM_NCMBUTTONDOWN, WM_NCLBUTTONDBLCLK:
+      begin
+        // Presses on the ribbon and its body are handled there; menus
+        // opened from the body are other top-level windows and keep it.
+        if (Msg.hwnd = Handle) or IsChild(Handle, Msg.hwnd) then
+          Exit;
+        if FPeek.HandleAllocated and ((Msg.hwnd = FPeek.Handle) or
+          IsChild(FPeek.Handle, Msg.hwnd)) then
+          Exit;
+        if GetAncestor(Msg.hwnd, GA_ROOT) = GetAncestor(Handle, GA_ROOT) then
+          ClosePeek;
+      end;
+  end;
+end;
+
+procedure TOBDRibbon.AppDeactivate(Sender: TObject);
+begin
+  ClosePeek;
 end;
 
 procedure TOBDRibbon.DensityChanged;
@@ -2450,6 +2666,7 @@ var
   It: TOBDRibbonItem;
   G: TOBDRibbonGroup;
   P: TPoint;
+  Same: Boolean;
   R: TRect;
 begin
   inherited MouseDown(Button, Shift, X, Y);
@@ -2486,14 +2703,17 @@ begin
   if T <> nil then
   begin
     // A tab click leaves the backstage and shows that tab.
+    // On a collapsed ribbon a tab click opens the body over the form;
+    // clicking the open tab again closes it, as in Office.
+    Same := FTemporaryExpanded and (FlatIndexOfTab(T) = FActiveTab);
     CloseBackstage;
     ActiveTab := FlatIndexOfTab(T);
     if FCollapsed then
     begin
-      FTemporaryExpanded := True;
-      UpdateHeight;
-      BringToFront;
-      Invalidate;
+      if Same then
+        ClosePeek
+      else
+        ShowPeek;
     end;
     Exit;
   end;
@@ -2510,12 +2730,8 @@ begin
     FFocusedItem := It;
     Invalidate;
   end
-  else if FTemporaryExpanded and (Y >= Height) then
-  begin
-    FTemporaryExpanded := False;
-    UpdateHeight;
-    Invalidate;
-  end;
+  else if FTemporaryExpanded and (Y >= PeekOffset + PeekHeight) then
+    ClosePeek;
 end;
 
 procedure TOBDRibbon.MouseUp(Button: TMouseButton; Shift: TShiftState;
@@ -2626,6 +2842,12 @@ begin
           ExecuteItem(FFocusedItem, False);
         Key := 0;
       end;
+    VK_ESCAPE:
+      if FTemporaryExpanded then
+      begin
+        ClosePeek;
+        Key := 0;
+      end;
   end;
 end;
 
@@ -2650,9 +2872,20 @@ end;
 procedure TOBDRibbon.CMHintShow(var Message: TCMHintShow);
 var
   S: string;
+  P: TPoint;
+  It: TOBDRibbonItem;
 begin
   inherited;
-  S := ItemHintAt(Message.HintInfo.CursorPos.X, Message.HintInfo.CursorPos.Y);
+  P := Message.HintInfo.CursorPos;
+  It := HitItem(P.X, P.Y);
+  // The hint belongs to the item under the cursor only. Without a
+  // CursorRect the whole ribbon counts as one hint area, so moving to the
+  // next item would not show its hint until the mouse left the ribbon.
+  if It <> nil then
+    Message.HintInfo.CursorRect := It.FRect
+  else
+    Message.HintInfo.CursorRect := Rect(P.X, P.Y, P.X + 1, P.Y + 1);
+  S := ItemHintAt(P.X, P.Y);
   if S <> '' then
   begin
     Message.HintInfo.HintStr := S;
@@ -2663,12 +2896,11 @@ end;
 procedure TOBDRibbon.CMCancelMode(var Message: TCMCancelMode);
 begin
   inherited;
-  if FTemporaryExpanded then
-  begin
-    FTemporaryExpanded := False;
-    UpdateHeight;
-    Invalidate;
-  end;
+  // A press on the ribbon or its open body sends this too (the ribbon is
+  // usually the active control); only other controls close the body.
+  if (Message.Sender <> Self) and ((FPeek = nil) or
+    (Message.Sender <> FPeek)) then
+    ClosePeek;
 end;
 
 procedure TOBDRibbon.ExecuteItem(AItem: TOBDRibbonItem; AFromMenu: Boolean);
@@ -2678,11 +2910,7 @@ begin
   AItem.Execute;
   if Assigned(FOnItemClick) then
     FOnItemClick(Self, AItem);
-  if FTemporaryExpanded then
-  begin
-    FTemporaryExpanded := False;
-    UpdateHeight;
-  end;
+  ClosePeek;
   Invalidate;
 end;
 

@@ -58,6 +58,15 @@ type
     /// <summary>Ribbon command surface with quick access buttons.</summary>
     csRibbon);
 
+  /// <summary>What the app icon at the left of the caption shows.</summary>
+  TOBDAppIconStyle = (
+    /// <summary>The <see cref="TOBDTitleBar.AppInitials"/> on an accent
+    /// tile.</summary>
+    aiInitials,
+    /// <summary>The form icon, else the application icon; the initials
+    /// when neither has one.</summary>
+    aiIcon);
+
   /// <summary>Internal system caption button hit.</summary>
   TOBDSystemButton = (
     /// <summary>No system caption button.</summary>
@@ -171,6 +180,8 @@ type
     FTitle: string;
     FSubtitle: string;
     FAppInitials: string;
+    FAppIconStyle: TOBDAppIconStyle;
+    FSystemMenu: TOBDPopupMenu;
     FStatusCaption: string;
     FStatusKind: TOBDStatusKind;
     FStatusVisible: Boolean;
@@ -196,6 +207,11 @@ type
     procedure SetTitle(const AValue: string);
     procedure SetSubtitle(const AValue: string);
     procedure SetAppInitials(const AValue: string);
+    procedure SetAppIconStyle(AValue: TOBDAppIconStyle);
+    procedure BuildSystemMenu;
+    procedure SystemMenuClick(Sender: TObject);
+    procedure SystemMenuItemStyle(Sender: TObject; AItem: TMenuItem;
+      var AGlyph: TOBDGlyph; var ADanger: Boolean);
     procedure SetStatusCaption(const AValue: string);
     procedure SetStatusKind(AValue: TOBDStatusKind);
     procedure SetStatusVisible(AValue: Boolean);
@@ -334,8 +350,13 @@ type
     property Title: string read FTitle write SetTitle;
     /// <summary>Optional context text rendered before or beside the title.</summary>
     property Subtitle: string read FSubtitle write SetSubtitle;
-    /// <summary>Initials painted in the accent app icon when the form has no icon.</summary>
+    /// <summary>Initials painted in the accent app icon.</summary>
     property AppInitials: string read FAppInitials write SetAppInitials;
+    /// <summary>Shows the initials or the form / application icon at the
+    /// left of the caption. Clicking it opens the themed system menu;
+    /// double-clicking it closes the form.</summary>
+    property AppIconStyle: TOBDAppIconStyle read FAppIconStyle
+      write SetAppIconStyle default aiInitials;
     /// <summary>Status chip text.</summary>
     property StatusCaption: string read FStatusCaption write SetStatusCaption;
     /// <summary>Status chip colour.</summary>
@@ -648,6 +669,7 @@ begin
   FMenuPlacement := mpTitleBar;
   FCommandStyle := csMenu;
   FAppInitials := 'OS';
+  FAppIconStyle := aiInitials;
   FStatusCaption := 'CONNECTED';
   FStatusKind := skSuccess;
   FActiveBorder := True;
@@ -799,6 +821,14 @@ begin
   if FAppInitials = AValue then
     Exit;
   FAppInitials := AValue;
+  Invalidate;
+end;
+
+procedure TOBDTitleBar.SetAppIconStyle(AValue: TOBDAppIconStyle);
+begin
+  if FAppIconStyle = AValue then
+    Exit;
+  FAppIconStyle := AValue;
   Invalidate;
 end;
 
@@ -1612,20 +1642,86 @@ begin
     FOldFormWindowProc(Message);
 end;
 
-procedure TOBDTitleBar.ShowSystemMenuAt(X, Y: Integer);
+procedure TOBDTitleBar.BuildSystemMenu;
+
+  procedure AddItem(const ACaption: string; ACommand: Integer;
+    AEnabled: Boolean; AShortCut: TShortCut = 0);
+  var
+    Item: TMenuItem;
+  begin
+    Item := TMenuItem.Create(FSystemMenu);
+    Item.Caption := ACaption;
+    Item.Tag := ACommand;
+    Item.Enabled := AEnabled;
+    Item.ShortCut := AShortCut;
+    Item.OnClick := SystemMenuClick;
+    FSystemMenu.Items.Add(Item);
+  end;
+
 var
-  MenuHandle: HMENU;
-  Cmd: Integer;
+  Zoomed, Iconic, Sizable: Boolean;
+  Icons: TBorderIcons;
+  Separator: TMenuItem;
 begin
-  if (FHookedForm = nil) or not FHookedForm.HandleAllocated then
+  if FSystemMenu = nil then
+  begin
+    FSystemMenu := TOBDPopupMenu.Create(Self);
+    FSystemMenu.OnGetItemStyle := SystemMenuItemStyle;
+  end;
+  FSystemMenu.Theme := Theme;
+  FSystemMenu.Density := Density;
+  FSystemMenu.PopupComponent := Self;
+  FSystemMenu.Items.Clear;
+  Zoomed := IsZoomed(FHookedForm.Handle);
+  Iconic := IsIconic(FHookedForm.Handle);
+  Sizable := FormResizable;
+  Icons := FormBorderIcons;
+  // The same commands, states and order as the Windows system menu.
+  AddItem('Restore', SC_RESTORE, Zoomed or Iconic);
+  AddItem('Move', SC_MOVE, not Zoomed and not Iconic);
+  AddItem('Size', SC_SIZE, Sizable and not Zoomed and not Iconic);
+  AddItem('Minimise', SC_MINIMIZE, (biMinimize in Icons) and not Iconic);
+  AddItem('Maximise', SC_MAXIMIZE, (biMaximize in Icons) and Sizable and
+    not Zoomed);
+  Separator := TMenuItem.Create(FSystemMenu);
+  Separator.Caption := cLineCaption;
+  FSystemMenu.Items.Add(Separator);
+  AddItem('Close', SC_CLOSE, True, ShortCut(VK_F4, [ssAlt]));
+end;
+
+procedure TOBDTitleBar.SystemMenuClick(Sender: TObject);
+begin
+  if (FHookedForm = nil) or not FHookedForm.HandleAllocated or
+    not (Sender is TMenuItem) then
     Exit;
-  MenuHandle := GetSystemMenu(FHookedForm.Handle, False);
-  if MenuHandle = 0 then
+  // Posted, so the menu has closed before the form moves, sizes or closes.
+  PostMessage(FHookedForm.Handle, WM_SYSCOMMAND, WPARAM(TMenuItem(Sender).Tag),
+    0);
+end;
+
+procedure TOBDTitleBar.SystemMenuItemStyle(Sender: TObject; AItem: TMenuItem;
+  var AGlyph: TOBDGlyph; var ADanger: Boolean);
+begin
+  case AItem.Tag of
+    SC_RESTORE:
+      AGlyph := glRestore;
+    SC_MINIMIZE:
+      AGlyph := glMinimize;
+    SC_MAXIMIZE:
+      AGlyph := glMaximize;
+    SC_CLOSE:
+      AGlyph := glClose;
+  end;
+end;
+
+procedure TOBDTitleBar.ShowSystemMenuAt(X, Y: Integer);
+begin
+  if (FHookedForm = nil) or not FHookedForm.HandleAllocated or
+    (csDesigning in ComponentState) then
     Exit;
-  Cmd := Integer(TrackPopupMenu(MenuHandle, TPM_LEFTBUTTON or TPM_RIGHTBUTTON or
-    TPM_RETURNCMD, X, Y, 0, FHookedForm.Handle, nil));
-  if Cmd <> 0 then
-    SendMessage(FHookedForm.Handle, WM_SYSCOMMAND, Cmd, 0);
+  // Our own themed menu instead of the native one, with the same commands.
+  BuildSystemMenu;
+  FSystemMenu.Popup(X, Y);
 end;
 
 procedure TOBDTitleBar.ShowKeyboardSystemMenu;
@@ -1766,15 +1862,24 @@ procedure TOBDTitleBar.DrawAppIcon(APainter: TOBDPainter; ACanvas: TCanvas;
   const R: TRect);
 var
   Form: TCustomForm;
+  Icon: TIcon;
   S: string;
   C: TColor;
 begin
-  Form := GetParentForm(Self);
-  if (Form is TForm) and not TForm(Form).Icon.Empty then
+  if FAppIconStyle = aiIcon then
   begin
-    DrawIconEx(ACanvas.Handle, R.Left, R.Top, TForm(Form).Icon.Handle, R.Width,
-      R.Height, 0, 0, DI_NORMAL);
-    Exit;
+    Form := GetParentForm(Self);
+    Icon := nil;
+    if (Form is TForm) and not TForm(Form).Icon.Empty then
+      Icon := TForm(Form).Icon
+    else if (Application <> nil) and not Application.Icon.Empty then
+      Icon := Application.Icon;
+    if Icon <> nil then
+    begin
+      DrawIconEx(ACanvas.Handle, R.Left, R.Top, Icon.Handle, R.Width,
+        R.Height, 0, 0, DI_NORMAL);
+      Exit;
+    end;
   end;
   if EffectiveActive then
     C := Palette.Accent
@@ -2031,8 +2136,26 @@ end;
 
 procedure TOBDTitleBar.MouseDown(Button: TMouseButton; Shift: TShiftState;
   X, Y: Integer);
+var
+  R: TRect;
 begin
   inherited;
+  if PtInRect(AppIconRect, Point(X, Y)) and (Button in [mbLeft, mbRight]) then
+  begin
+    // As with the Windows caption icon: a click opens the system menu
+    // below the icon and a double-click closes the form.
+    if (Button = mbLeft) and (ssDouble in Shift) then
+    begin
+      if (FHookedForm <> nil) and FHookedForm.HandleAllocated then
+        PostMessage(FHookedForm.Handle, WM_SYSCOMMAND, SC_CLOSE, 0);
+      Exit;
+    end;
+    R := AppIconRect;
+    R.TopLeft := ClientToScreen(R.TopLeft);
+    R.BottomRight := ClientToScreen(R.BottomRight);
+    ShowSystemMenuAt(R.Left, R.Bottom + ScaleValue(4));
+    Exit;
+  end;
   if Button = mbRight then
   begin
     if PointInCaptionDragArea(X, Y) then

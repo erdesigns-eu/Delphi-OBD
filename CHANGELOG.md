@@ -132,6 +132,10 @@ the field. New building blocks: `TOBDListBox` (on the
 `TOBDColorSpectrum`.
 The file, folder and font dialogs can be resized (`Resizable`, on by
 default) and the dialogs size themselves to their content.
+A collapsed ribbon opens a tab as an overlay instead of pushing the
+form down, and ribbon item hints update when moving between items.
+`TOBDTitleBar.AppIconStyle` picks initials or the form icon, and the
+system menu is now a themed popup menu.
 
 The ERDesigns light palette uses #856404 for warnings (the site's
 warning text colour); the dark palette uses #FFC107.
