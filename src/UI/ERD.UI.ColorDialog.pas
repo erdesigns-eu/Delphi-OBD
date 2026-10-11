@@ -180,7 +180,7 @@ type
   TOBDColorDialog = class(TOBDCommonDialog)
   strict private
     FColor: TColor;
-    FCustomColors: TStringList;
+    FCustomColors: TStrings;
     procedure SetCustomColors(AValue: TStrings);
   protected
     /// <summary>Title used when <see cref="Title"/> is empty.</summary>
