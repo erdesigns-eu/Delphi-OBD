@@ -124,8 +124,8 @@ type
     function NextVisibleIndex(AIndex, ADirection: Integer): Integer;
     function IndexFromAccel(AChar: Char): Integer;
     procedure OpenMenu(AIndex: Integer; AKeyboard: Boolean);
-    procedure CloseMenuState;
-    procedure SwitchOpenMenu(ADirection: Integer);
+    procedure CloseMenuState(Sender: TObject);
+    procedure SwitchOpenMenu(Sender: TObject; ADirection: Integer);
     procedure AppMessage(var Msg: tagMSG; var Handled: Boolean);
     procedure AppShortCut(var Msg: TWMKey; var Handled: Boolean);
     procedure AppDeactivate(Sender: TObject);
@@ -1746,7 +1746,6 @@ function TOBDMenuBar.NextVisibleIndex(AIndex, ADirection: Integer): Integer;
 var
   I: Integer;
 begin
-  Result := -1;
   I := AIndex + ADirection;
   while (I >= 0) and (I < EffectiveCount) do
   begin
@@ -1813,13 +1812,13 @@ begin
     FOnGetItemStyle, CloseMenuState, SwitchOpenMenu, AKeyboard);
 end;
 
-procedure TOBDMenuBar.CloseMenuState;
+procedure TOBDMenuBar.CloseMenuState(Sender: TObject);
 begin
   FOpenIndex := -1;
   Invalidate;
 end;
 
-procedure TOBDMenuBar.SwitchOpenMenu(ADirection: Integer);
+procedure TOBDMenuBar.SwitchOpenMenu(Sender: TObject; ADirection: Integer);
 var
   Idx: Integer;
 begin
