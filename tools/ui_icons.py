@@ -392,8 +392,8 @@ SHELL = {
     'list': [('path', [(-3, y), (7, y)], 0, False) for y in (-5, 0, 5)]
             + [('disc', -6, y, 1) for y in (-5, 0, 5)],
     'grid': [('rect', x, y, 5, 5, 1) for x in (-7, 2) for y in (-7, 2)],
-    'newfolder': _folder() + [('path', [(0, 1), (0, 5)], 0, False),
-                              ('path', [(-2, 3), (2, 3)], 0, False)],
+    'newfolder': _folder()[:1] + [('path', [(0, -1), (0, 3)], 0, False),
+                                  ('path', [(-2, 1), (2, 1)], 0, False)],
 }
 
 GLYPHS['pipette'] = _pipette()
