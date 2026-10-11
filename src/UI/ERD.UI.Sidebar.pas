@@ -318,6 +318,10 @@ implementation
 
 const
   PREVIEW_COUNT = 8;
+  // Same text sizes as the inspector, live data grid and edits.
+  SIDEBAR_TEXT_SIZE = 12.5;
+  SIDEBAR_TITLE_SIZE = 14;
+  SIDEBAR_SUBTITLE_SIZE = 11.5;
 
 { TOBDSidebarItem ------------------------------------------------------------ }
 
@@ -1030,11 +1034,13 @@ begin
     Exit;
   X := ScaleValue(20);
   Y := ScaleValue(12);
-  APainter.Text(X, Y + ScaleValue(14), FTitle, 15, Palette.ForegroundText,
-    twSemibold, taLeftJustify, Width - X - ScaleValue(16));
+  APainter.Text(X, Y + ScaleValue(14), FTitle, SIDEBAR_TITLE_SIZE,
+    Palette.ForegroundText, twSemibold, taLeftJustify,
+    Width - X - ScaleValue(16));
   if FSubtitle <> '' then
-    APainter.Text(X, Y + ScaleValue(36), FSubtitle, 11.5, Palette.GaugeLabel,
-      twRegular, taLeftJustify, Width - X - ScaleValue(16));
+    APainter.Text(X, Y + ScaleValue(36), FSubtitle, SIDEBAR_SUBTITLE_SIZE,
+      Palette.GaugeLabel, twRegular, taLeftJustify,
+      Width - X - ScaleValue(16));
 end;
 
 procedure TOBDSidebar.DrawBody(APainter: TOBDPainter; ACanvas: TCanvas);
@@ -1174,8 +1180,8 @@ begin
   end
   else
   begin
-    APainter.Text(ScaleValue(54), CY, EffectiveCaption(AIndex), 13.5,
-      TextColor, Weight, taLeftJustify, Width - ScaleValue(88));
+    APainter.Text(ScaleValue(54), CY, EffectiveCaption(AIndex),
+      SIDEBAR_TEXT_SIZE, TextColor, Weight, taLeftJustify, Width - ScaleValue(88));
     if Badge > 0 then
     begin
       BadgeTop := CY - ScaleValue(9);
@@ -1206,8 +1212,8 @@ begin
   TextColor := Palette.GaugeLabel;
   DrawDoubleChevron(APainter, CX, CY, not FCollapsed, Palette.Subtle);
   if not FCollapsed then
-    APainter.Text(ScaleValue(54), CY, FCollapseCaption, 13.5, TextColor,
-      twRegular, taLeftJustify, Width - ScaleValue(70));
+    APainter.Text(ScaleValue(54), CY, FCollapseCaption, SIDEBAR_TEXT_SIZE,
+      TextColor, twRegular, taLeftJustify, Width - ScaleValue(70));
 end;
 
 procedure TOBDSidebar.DrawIcon(APainter: TOBDPainter; ACanvas: TCanvas;

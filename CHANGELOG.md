@@ -76,6 +76,8 @@ dragged instead of only after the drag stops, and `TOBDComboBox` no
 longer draws a darker border on hover, matching `TOBDEdit`.
 In tablet density a click anywhere on a `TOBDDtcPanel` row expands or
 collapses its freeze frame, not only on the chevron.
+`TOBDSidebar` items use the standard 12.5 pt body text (was 13.5) and a
+14 pt title, matching the inspector, live data grid and edits.
 
 Text on accent fills (backstage navigation, ribbon File button, check
 boxes, switches, badges) picks dark or light ink by contrast, so it
