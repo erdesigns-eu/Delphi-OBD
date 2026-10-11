@@ -381,9 +381,10 @@ the themed overlay scroll bar.
 ### `TOBDDashboard` — `ERD.UI.Dashboard`
 Grid host for the controls above. `AddTile('dial' | 'bar' | 'value' |
 'trend' | 'lamp' | 'matrix' | 'grid', Col, Row, ColSpan, RowSpan)`,
-`EditMode` for moving, resizing and removing tiles at run time (drop a
-tile on another tile to swap the two; the close button and resize grip
-show hover and pressed states, and close acts on release), layouts saved
+`EditMode` for moving, resizing and removing tiles at run time (tiles
+get a dashed accent frame, heavier on the hovered tile; drop a tile on
+another tile to swap the two; the close button and resize grip show
+hover and pressed states, and close acts on release), layouts saved
 and loaded as JSON, and `Source` to connect every tile to one
 `TOBDLiveData`.
 
@@ -400,6 +401,17 @@ reset), severity chips, `ItemIndex`, keyboard navigation, the themed
 scroll bar and `Density` row heights. It no longer wraps a `TListView`,
 so `Items`, `Selected` and `Columns` are gone; use `Dtc`, `DtcCount`
 and `ItemIndex`.
+
+The pickers are built on the themed `TOBDEdit` / `TOBDComboBox`, so
+they share the focus frame, density heights, drop-down list and scroll
+bar of every other control. `TOBDVINEdit` paints its validity lamp in
+the theme's success / warning / danger colours; `TOBDCANIdEdit`
+filters hex input; `TOBDPidPicker` and `TOBDOEMPicker` read
+`SelectedPID` / `SelectedOEM` from `ItemIndex`, so setting `ItemIndex`
+in code updates them too, and `OnChange` is free for the host. The
+native-control properties (`Style`, `AutoComplete`, `AutoDropDown`,
+`BorderStyle`, `Ctl3D`, `Color`, `PasswordChar`, ...) are gone;
+`DropDownCount` stays.
 
 ## OBD Studio
 

@@ -69,16 +69,28 @@ type
     function GetSelLength: Integer;
     procedure SetSelLength(AValue: Integer);
     procedure SetMono(AValue: Boolean);
+    function GetCharCase: TEditCharCase;
+    procedure SetCharCase(AValue: TEditCharCase);
     procedure InnerChange(Sender: TObject);
     procedure InnerFocusChange(Sender: TObject);
     procedure InnerKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure InnerKeyPress(Sender: TObject; var Key: Char);
-    procedure LayoutInner;
     procedure SyncInnerLook;
     procedure CMEnabledChanged(var Message: TMessage);
       message CM_ENABLEDCHANGED;
   protected
+    /// <summary>Places the inner edit: one text line high, centred
+    /// vertically, inset by the padding and <see cref="TrailingSpace"/>.</summary>
+    procedure LayoutInner;
+    /// <summary>Width reserved at the right edge for an adornment that a
+    /// descendant paints (for example a validity lamp).</summary>
+    /// <returns>Reserved width in device pixels; 0 by default.</returns>
+    function TrailingSpace: Integer; virtual;
+    /// <summary>Called when the text changes; fires
+    /// <see cref="OnChange"/>. Descendants override it to react to edits
+    /// without taking over the event.</summary>
+    procedure Change; virtual;
     procedure PaintControl(ACanvas: TCanvas); override;
     function CanAutoSize(var NewWidth, NewHeight: Integer): Boolean; override;
     procedure Resize; override;
@@ -121,6 +133,9 @@ type
     property TextHint: string read GetEditTextHint write SetEditTextHint;
     /// <summary>Consolas instead of Segoe UI.</summary>
     property Mono: Boolean read FMono write SetMono default False;
+    /// <summary>Forces typed text to upper or lower case.</summary>
+    property CharCase: TEditCharCase read GetCharCase write SetCharCase
+      default ecNormal;
     /// <summary>Desktop or tablet height.</summary>
     property Density;
     /// <summary>Takes the density from the theme.</summary>
@@ -137,6 +152,7 @@ type
     FPopup: TOBDPopupList;
     FHover: Boolean;
     FMono: Boolean;
+    FDropDownCount: Integer;
     FSearch: string;
     FSearchTick: Cardinal;
     FOnChange: TNotifyEvent;
@@ -146,6 +162,7 @@ type
     procedure SetItemIndex(AValue: Integer);
     function GetText: string;
     procedure SetMono(AValue: Boolean);
+    procedure SetDropDownCount(AValue: Integer);
     procedure ItemsChanged(Sender: TObject);
     procedure PopupCloseUp(Sender: TObject; AAccepted: Boolean;
       AIndex: Integer);
@@ -162,6 +179,10 @@ type
     procedure WMGetDlgCode(var Message: TWMGetDlgCode); message WM_GETDLGCODE;
     procedure WMKillFocus(var Message: TWMKillFocus); message WM_KILLFOCUS;
   protected
+    /// <summary>Called when the user picks another item; fires
+    /// <see cref="OnChange"/>. Descendants override it to react without
+    /// taking over the event.</summary>
+    procedure Change; virtual;
     procedure PaintControl(ACanvas: TCanvas); override;
     function CanAutoSize(var NewWidth, NewHeight: Integer): Boolean; override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState;
@@ -197,6 +218,9 @@ type
       default -1;
     /// <summary>Consolas instead of Segoe UI.</summary>
     property Mono: Boolean read FMono write SetMono default False;
+    /// <summary>Most rows the open list shows before it scrolls.</summary>
+    property DropDownCount: Integer read FDropDownCount
+      write SetDropDownCount default 8;
     /// <summary>Desktop or tablet height.</summary>
     property Density;
     /// <summary>Takes the density from the theme.</summary>
@@ -334,6 +358,21 @@ begin
   LayoutInner;
 end;
 
+function TOBDEdit.GetCharCase: TEditCharCase;
+begin
+  Result := FEdit.CharCase;
+end;
+
+procedure TOBDEdit.SetCharCase(AValue: TEditCharCase);
+begin
+  FEdit.CharCase := AValue;
+end;
+
+function TOBDEdit.TrailingSpace: Integer;
+begin
+  Result := 0;
+end;
+
 procedure TOBDEdit.SelectAll;
 begin
   FEdit.SelectAll;
@@ -353,6 +392,11 @@ begin
 end;
 
 procedure TOBDEdit.InnerChange(Sender: TObject);
+begin
+  Change;
+end;
+
+procedure TOBDEdit.Change;
 begin
   if Assigned(FOnChange) then
     FOnChange(Self);
@@ -416,9 +460,12 @@ begin
   if FEdit.Font.Height <> FontH then
     FEdit.Font.Height := FontH;
   Pad := ScaleValue(10);
-  EH := Abs(FontH) + ScaleValue(6);
-  FEdit.SetBounds(Pad, Max(ScaleValue(2), (Height - EH) div 2),
-    Max(0, Width - 2 * Pad), Min(EH, Height - ScaleValue(4)));
+  // A borderless edit draws its text at the top of its window, so the
+  // window is exactly one text line high and centred in the frame; that
+  // centres the text itself.
+  EH := Max(1, Min(OBDFontLineHeight(FEdit.Font), Height - ScaleValue(4)));
+  FEdit.SetBounds(Pad, (Height - EH) div 2,
+    Max(0, Width - 2 * Pad - TrailingSpace), EH);
   SyncInnerLook;
 end;
 
@@ -473,6 +520,7 @@ begin
   FItems := TStringList.Create;
   TStringList(FItems).OnChange := ItemsChanged;
   FItemIndex := -1;
+  FDropDownCount := 8;
   Width := 180;
   Height := 26;
   TabStop := True;
@@ -525,6 +573,11 @@ begin
   Invalidate;
 end;
 
+procedure TOBDComboBox.SetDropDownCount(AValue: Integer);
+begin
+  FDropDownCount := Max(1, AValue);
+end;
+
 procedure TOBDComboBox.ChangeIndex(AIndex: Integer);
 begin
   AIndex := EnsureRange(AIndex, -1, FItems.Count - 1);
@@ -532,6 +585,11 @@ begin
     Exit;
   FItemIndex := AIndex;
   Invalidate;
+  Change;
+end;
+
+procedure TOBDComboBox.Change;
+begin
   if Assigned(FOnChange) then
     FOnChange(Self);
 end;
@@ -558,7 +616,7 @@ begin
   BottomRight := ClientToScreen(Point(Width, Height));
   FPopup.Popup(Self, Rect(TopLeft.X, TopLeft.Y, BottomRight.X, BottomRight.Y),
     FItems, FItemIndex, Palette, ScaleValue(96),
-    ScaleValue(Metrics.CompactRow));
+    ScaleValue(Metrics.CompactRow), FDropDownCount);
   Invalidate;
 end;
 

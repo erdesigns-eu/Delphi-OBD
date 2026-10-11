@@ -32,7 +32,20 @@ PID / OEM pickers and the VIN / CAN-ID edits. `TOBDTerminal`,
 direction (`tdWarning`, `LogWarning`, `WarningColor`); log viewer
 warning rows paint in the warning colour. `TOBDDtcList` is self-painted
 (no `TListView`): resizable columns, severity chips, `ItemIndex`,
-`Density` and the themed scroll bar.
+`Density` and the themed scroll bar. The PID / OEM pickers and the VIN /
+CAN-ID edits are built on the themed `TOBDComboBox` / `TOBDEdit` (no
+native combo boxes, edit borders or scroll bars); their native-control
+properties such as `Style`, `AutoComplete`, `BorderStyle` and `Color`
+are gone.
+
+The drop-down list of `TOBDComboBox`, the pickers and the inspector
+paints its own 1 px theme border with a drop shadow (Windows painted
+the old one in the accent colour) and highlights the row under the
+mouse. `TOBDComboBox` has `DropDownCount`; `TOBDEdit` has `CharCase`
+and centres its text vertically.
+
+Dashboard edit mode draws dashed tile frames, and hover now clears
+when the mouse moves to another tile, the gaps or off the dashboard.
 
 Text on accent fills (backstage navigation, ribbon File button, check
 boxes, switches, badges) picks dark or light ink by contrast, so it

@@ -320,6 +320,10 @@ type
     /// skip the fill or the outline.</summary>
     procedure RoundRect(X, Y, W, H, ARadius: Single; AFill, AOutline: TColor;
       AOutlineWidth: Single = 1);
+    /// <summary>Anti-aliased dashed rounded-rectangle outline, stroked
+    /// inside the shape. Dash and gap lengths are 96-DPI pixels.</summary>
+    procedure DashedRoundRect(X, Y, W, H, ARadius: Single; AColor: TColor;
+      AWidth: Single = 1; ADash: Single = 5; AGap: Single = 3);
     /// <summary>Anti-aliased ellipse. Pass <c>clNone</c> to skip the
     /// fill or the outline.</summary>
     procedure Ellipse(X, Y, W, H: Single; AFill, AOutline: TColor;
@@ -890,6 +894,39 @@ begin
   APath.AddArc(X + W - D, Y + H - D, D, D, 0, 90);
   APath.AddArc(X, Y + H - D, D, D, 90, 90);
   APath.CloseFigure;
+end;
+
+procedure TOBDPainter.DashedRoundRect(X, Y, W, H, ARadius: Single;
+  AColor: TColor; AWidth: Single; ADash: Single; AGap: Single);
+var
+  G: TGPGraphics;
+  Path: TGPGraphicsPath;
+  Pen: TGPPen;
+  Half: Single;
+  Pattern: array[0..1] of Single;
+begin
+  if (W <= 0) or (H <= 0) or (AColor = clNone) or (AWidth <= 0) then
+    Exit;
+  G := NewGraphics;
+  try
+    Half := AWidth / 2;
+    Path := TGPGraphicsPath.Create;
+    Pen := TGPPen.Create(ColorToARGB(AColor), AWidth);
+    try
+      // GDI+ dash lengths are in multiples of the pen width.
+      Pattern[0] := System.Math.Max(0.1, SF(ADash) / AWidth);
+      Pattern[1] := System.Math.Max(0.1, SF(AGap) / AWidth);
+      Pen.SetDashPattern(@Pattern[0], 2);
+      AddRoundRect(Path, X + Half, Y + Half, W - AWidth, H - AWidth,
+        ARadius - Half);
+      G.DrawPath(Pen, Path);
+    finally
+      Pen.Free;
+      Path.Free;
+    end;
+  finally
+    G.Free;
+  end;
 end;
 
 procedure TOBDPainter.RoundRect(X, Y, W, H, ARadius: Single;

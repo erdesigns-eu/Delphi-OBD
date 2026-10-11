@@ -246,8 +246,8 @@ begin
     TOBDDialGauge, TOBDBarGauge, TOBDValueTile, TOBDTrendChart,
     TOBDLiveDataGrid, TOBDStatusLamp, TOBDConnectionBar, TOBDMatrixDisplay]);
 
-  // Diagnostic list and edit controls (the pickers and edits wrap
-  // standard VCL controls).
+  // Diagnostic list and edit controls (the pickers and edits are built
+  // on the themed TOBDComboBox / TOBDEdit).
   RegisterComponents('OBD Visual', [TOBDTerminal, TOBDLogViewer, TOBDDtcList,
     TOBDVINEdit, TOBDPidPicker, TOBDOEMPicker, TOBDCANIdEdit]);
 

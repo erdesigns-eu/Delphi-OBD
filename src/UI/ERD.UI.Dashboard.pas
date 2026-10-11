@@ -176,7 +176,7 @@ type
     function TileAtCell(ACol, ARow: Integer;
       AIgnore: TOBDDashboardTile): TOBDDashboardTile;
     function TrySwap(ATile, AOther: TOBDDashboardTile): Boolean;
-    procedure ClearEditStates;
+    procedure ClearEditStates(AExcept: TControl = nil);
     procedure CMControlListChange(var Message: TCMControlListChange);
       message CM_CONTROLLISTCHANGE;
     procedure CMRemovePending(var Message: TMessage); message CM_OBD_REMOVE_PENDING;
@@ -208,6 +208,12 @@ type
     /// <param name="Y">Mouse Y.</param>
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState;
       X, Y: Integer); override;
+    /// <summary>Clears tile hover when the mouse is over the gaps
+    /// between tiles in edit mode.</summary>
+    /// <param name="Shift">Modifier keys.</param>
+    /// <param name="X">Mouse X.</param>
+    /// <param name="Y">Mouse Y.</param>
+    procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
     /// <summary>IOBDTileHost: edit-mode flag.</summary>
     /// <returns>True in edit mode.</returns>
     function IsEditingTiles: Boolean;
@@ -639,12 +645,12 @@ begin
     FOnEditModeChanged(Self);
 end;
 
-procedure TOBDDashboard.ClearEditStates;
+procedure TOBDDashboard.ClearEditStates(AExcept: TControl);
 var
   I: Integer;
 begin
   for I := 0 to FTiles.Count - 1 do
-    if FTiles[I].Control <> nil then
+    if (FTiles[I].Control <> nil) and (FTiles[I].Control <> AExcept) then
       FTiles[I].Control.SetEditState(thNone, thNone);
 end;
 
@@ -1066,6 +1072,7 @@ var
   Moved: Boolean;
   G: Integer;
   CW, CH: Double;
+  TME: TTrackMouseEvent;
 begin
   AMessage.Result := 0;
   T := FTiles.FindControl(ATile);
@@ -1074,6 +1081,23 @@ begin
   Tile := TOBDCustomControl(ATile);
   P := Point(TWMMouse(AMessage).XPos, TWMMouse(AMessage).YPos);
   Hit := Tile.EditHitTest(P.X, P.Y);
+  if ((AMessage.Msg = WM_MOUSEMOVE) or (AMessage.Msg = WM_LBUTTONDOWN)) and
+    (FDragTile = nil) then
+  begin
+    // Only one tile is hot at a time: drop any hover left on another
+    // tile (its leave notification can be missed), and arm leave
+    // tracking for this one - the VCL's own tracking never runs because
+    // the tile hands its mouse messages to the dashboard.
+    ClearEditStates(Tile);
+    if Tile.HandleAllocated then
+    begin
+      TME.cbSize := SizeOf(TME);
+      TME.dwFlags := TME_LEAVE;
+      TME.hwndTrack := Tile.Handle;
+      TME.dwHoverTime := 0;
+      TrackMouseEvent(TME);
+    end;
+  end;
   case AMessage.Msg of
     WM_LBUTTONDOWN:
       begin
@@ -1203,6 +1227,13 @@ begin
   CellAt(X, Y, C, R);
   if (C >= 0) and IsFree(C, R, 1, 1) and Assigned(FOnEmptyCellClick) then
     FOnEmptyCellClick(Self, C, R);
+end;
+
+procedure TOBDDashboard.MouseMove(Shift: TShiftState; X, Y: Integer);
+begin
+  inherited;
+  if IsEditingTiles and (FDragTile = nil) then
+    ClearEditStates;
 end;
 
 { ---- painting ---------------------------------------------------------------- }

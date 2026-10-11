@@ -493,6 +493,7 @@ procedure OBDJsonWriteBool(AObject: TJSONObject; const AKey: string;
 implementation
 
 uses
+  System.Types,
   ERD.UI.Paint;
 
 const
@@ -958,15 +959,15 @@ var
 begin
   P := TOBDPainter.Create(ACanvas, Palette, ScaleValue(96));
   try
-    // Tile frame: thin accent outline, heavier while hovered or dragged.
+    // Tile frame: dashed accent outline (edit mode, not a selection),
+    // heavier while hovered or dragged.
     if FEditDown in [thMove, thResize] then
       LW := P.SF(2.5)
     else if FEditHot <> thNone then
       LW := P.SF(2)
     else
       LW := P.SF(1.25);
-    P.RoundRect(LW / 2, LW / 2, Width - LW, Height - LW, P.SF(4), clNone,
-      EffectiveAccent, LW);
+    P.DashedRoundRect(0, 0, Width, Height, P.SF(4), EffectiveAccent, LW);
 
     // Close button: soft danger tint at rest, solid danger on hover,
     // darker while pressed.
@@ -1028,8 +1029,11 @@ procedure TOBDCustomControl.WndProc(var Message: TMessage);
 var
   Host: IOBDTileHost;
 begin
-  if (Message.Msg = CM_MOUSELEAVE) and (FEditHot <> thNone) and
-    (GetCapture <> WindowHandle) then
+  // The tile host takes every mouse message in edit mode, so the VCL
+  // never arms its own leave tracking: the host arms TrackMouseEvent and
+  // WM_MOUSELEAVE (outside the WM_MOUSEFIRST..LAST range) clears hover.
+  if ((Message.Msg = CM_MOUSELEAVE) or (Message.Msg = WM_MOUSELEAVE)) and
+    (FEditHot <> thNone) and (GetCapture <> WindowHandle) then
     SetEditState(thNone, FEditDown);
   if (Message.Msg >= WM_MOUSEFIRST) and (Message.Msg <= WM_MOUSELAST) then
   begin

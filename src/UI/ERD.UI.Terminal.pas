@@ -326,6 +326,7 @@ type
 implementation
 
 uses
+  System.Types,
 {$IFDEF FPC}DateUtils{$ELSE}System.DateUtils{$ENDIF},
 {$IFDEF FPC}Math{$ELSE}System.Math{$ENDIF},
   Vcl.Clipbrd,

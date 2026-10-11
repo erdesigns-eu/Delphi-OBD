@@ -55,7 +55,11 @@ type
     FBarDragOffset: Integer;
     FLastTop: Integer;
     FCheckingTop: Boolean;
+    FHotIndex: Integer;
     function VisibleRows: Integer;
+    procedure SetHotIndex(AValue: Integer);
+    procedure InvalidateItem(AIndex: Integer);
+    procedure PaintFrame;
     function NeedsBar: Boolean;
     function BarRect: TRect;
     function ThumbRect: TRect;
@@ -68,13 +72,16 @@ type
     procedure WMMouseActivate(var Message: TWMMouseActivate); message WM_MOUSEACTIVATE;
     function ScalePixel(AValue: Integer): Integer;
   protected
-    /// <summary>Creates a popup, border, top-most and no-activate window.</summary>
+    /// <summary>Creates a popup, top-most, no-activate window with a drop
+    /// shadow. There is no WS_BORDER: Windows paints that frame in the
+    /// system accent colour, so the list draws its own themed frame.</summary>
     /// <param name="Params">Window creation parameters.</param>
     procedure CreateParams(var Params: TCreateParams); override;
     /// <summary>Applies the fixed row height to the new list-box window.</summary>
     procedure CreateWnd; override;
     /// <summary>Drives the themed scroll bar (the Windows one is
-    /// removed) and repaints after the list scrolls.</summary>
+    /// removed), the themed 1 px frame, hover tracking, and repaints after
+    /// the list scrolls.</summary>
     /// <param name="Message">Window message.</param>
     procedure WndProc(var Message: TMessage); override;
     /// <summary>Scrolls three rows per wheel notch.</summary>
@@ -109,9 +116,10 @@ type
     /// <param name="APalette">Palette used for painting.</param>
     /// <param name="APPI">Pixels per inch for themed drawing.</param>
     /// <param name="ARowHeight">Fixed row height in device pixels.</param>
+    /// <param name="AMaxRows">Most rows shown before the list scrolls.</param>
     procedure Popup(AOwnerControl: TWinControl; const AFieldRect: TRect;
       AItems: TStrings; AItemIndex: Integer; const APalette: TOBDThemePalette;
-      APPI, ARowHeight: Integer);
+      APPI, ARowHeight: Integer; AMaxRows: Integer = 8);
     /// <summary>Hides the list and reports whether the highlighted item was accepted.</summary>
     /// <param name="AAccepted">True to accept the highlighted item.</param>
     procedure CloseUp(AAccepted: Boolean);
@@ -122,6 +130,8 @@ type
     function HandleKey(var Key: Word; Shift: TShiftState): Boolean;
     /// <summary>True while the popup window is visible.</summary>
     property IsOpen: Boolean read FIsOpen;
+    /// <summary>Item under the mouse, or -1.</summary>
+    property HotIndex: Integer read FHotIndex;
     /// <summary>Fires after <see cref="CloseUp"/> hides the popup.</summary>
     property OnCloseUp: TOBDPopupCloseEvent read FOnCloseUp write FOnCloseUp;
   end;
@@ -143,6 +153,7 @@ begin
   FPalette := BRAND_PALETTE_LIGHT;
   FPPI := 96;
   FRowHeight := 24;
+  FHotIndex := -1;
   ItemHeight := FRowHeight;
 end;
 
@@ -154,13 +165,17 @@ end;
 procedure TOBDPopupList.CreateParams(var Params: TCreateParams);
 begin
   inherited CreateParams(Params);
-  // No Windows scroll bars: the list paints the themed overlay bar.
+  // No Windows scroll bars: the list paints the themed overlay bar. No
+  // WS_BORDER either: Windows draws that frame in the accent colour (blue
+  // by default), so WM_NCCALCSIZE/WM_NCPAINT draw a themed one instead.
   Params.Style := (Params.Style and not (WS_CHILD or WS_VSCROLL or
-    WS_HSCROLL)) or WS_POPUP or WS_BORDER or WS_CLIPCHILDREN or
-    WS_CLIPSIBLINGS;
-  Params.ExStyle := Params.ExStyle or WS_EX_TOOLWINDOW or WS_EX_TOPMOST or
-    WS_EX_NOACTIVATE;
-  Params.WindowClass.Style := Params.WindowClass.Style or CS_SAVEBITS;
+    WS_HSCROLL or WS_BORDER or WS_DLGFRAME or WS_THICKFRAME)) or WS_POPUP or
+    WS_CLIPCHILDREN or WS_CLIPSIBLINGS;
+  Params.ExStyle := (Params.ExStyle and not (WS_EX_CLIENTEDGE or
+    WS_EX_WINDOWEDGE or WS_EX_STATICEDGE)) or WS_EX_TOOLWINDOW or
+    WS_EX_TOPMOST or WS_EX_NOACTIVATE;
+  Params.WindowClass.Style := Params.WindowClass.Style or CS_SAVEBITS or
+    CS_DROPSHADOW;
 end;
 
 procedure TOBDPopupList.CreateWnd;
@@ -254,6 +269,53 @@ begin
       0, MaxTop);
 end;
 
+procedure TOBDPopupList.InvalidateItem(AIndex: Integer);
+var
+  R: TRect;
+begin
+  if not HandleAllocated or (AIndex < 0) or (AIndex >= Items.Count) then
+    Exit;
+  R := ItemRect(AIndex);
+  // No erase: the owner-drawn row paints its full rectangle.
+  InvalidateRect(Handle, @R, False);
+end;
+
+procedure TOBDPopupList.SetHotIndex(AValue: Integer);
+begin
+  if (AValue < 0) or (AValue >= Items.Count) then
+    AValue := -1;
+  if AValue = FHotIndex then
+    Exit;
+  InvalidateItem(FHotIndex);
+  FHotIndex := AValue;
+  InvalidateItem(FHotIndex);
+end;
+
+procedure TOBDPopupList.PaintFrame;
+var
+  DC: HDC;
+  R: TRect;
+  Brush: HBRUSH;
+begin
+  if not HandleAllocated then
+    Exit;
+  DC := GetWindowDC(Handle);
+  if DC = 0 then
+    Exit;
+  try
+    GetWindowRect(Handle, R);
+    OffsetRect(R, -R.Left, -R.Top);
+    Brush := CreateSolidBrush(ColorToRGB(FPalette.NeutralLight));
+    try
+      Winapi.Windows.FrameRect(DC, R, Brush);
+    finally
+      DeleteObject(Brush);
+    end;
+  finally
+    ReleaseDC(Handle, DC);
+  end;
+end;
+
 procedure TOBDPopupList.CheckTopChanged;
 var
   Top: Integer;
@@ -285,6 +347,22 @@ var
   Saved: Integer;
 begin
   case Message.Msg of
+    WM_NCCALCSIZE:
+      begin
+        // Reserve a 1 px non-client frame for the themed border.
+        inherited WndProc(Message);
+        if TWMNCCalcSize(Message).CalcValidRects then
+          InflateRect(TWMNCCalcSize(Message).CalcSize_Params^.rgrc[0], -1, -1)
+        else
+          InflateRect(PRect(Message.LParam)^, -1, -1);
+        Exit;
+      end;
+    WM_NCPAINT:
+      begin
+        PaintFrame;
+        Message.Result := 0;
+        Exit;
+      end;
     WM_ERASEBKGND:
       if HandleAllocated then
       begin
@@ -339,9 +417,13 @@ begin
         end;
         if Hot then
         begin
+          SetHotIndex(-1);
           Message.Result := 0;
           Exit;
         end;
+        // Hover highlight: the row under the mouse gets a light accent
+        // tint, like the menus.
+        SetHotIndex(ItemAtPos(Pt, True));
       end;
     WM_LBUTTONUP:
       begin
@@ -361,10 +443,13 @@ begin
         end;
       end;
     CM_MOUSELEAVE:
-      if FBarHot and not FBarDragging then
       begin
-        FBarHot := False;
-        PaintBar;
+        SetHotIndex(-1);
+        if FBarHot and not FBarDragging then
+        begin
+          FBarHot := False;
+          PaintBar;
+        end;
       end;
   end;
   inherited WndProc(Message);
@@ -424,7 +509,8 @@ end;
 
 procedure TOBDPopupList.Popup(AOwnerControl: TWinControl;
   const AFieldRect: TRect; AItems: TStrings; AItemIndex: Integer;
-  const APalette: TOBDThemePalette; APPI, ARowHeight: Integer);
+  const APalette: TOBDThemePalette; APPI, ARowHeight: Integer;
+  AMaxRows: Integer);
 var
   Rows, W, H, X, Y: Integer;
   Work: TRect;
@@ -456,7 +542,8 @@ begin
   else
     ItemIndex := -1;
 
-  Rows := System.Math.Max(1, System.Math.Min(8, System.Math.Max(Items.Count, 1)));
+  Rows := System.Math.Max(1, System.Math.Min(System.Math.Max(1, AMaxRows),
+    System.Math.Max(Items.Count, 1)));
   W := System.Math.Max(AFieldRect.Width, ScalePixel(40));
   H := Rows * FRowHeight + 2;
   X := AFieldRect.Left;
@@ -479,10 +566,12 @@ begin
   SendMessage(Handle, LB_SETITEMHEIGHT, 0, FRowHeight);
   FBarDragging := False;
   FBarHot := False;
+  FHotIndex := -1;
   FLastTop := -1;
   FIsOpen := True;
+  // SWP_FRAMECHANGED re-runs WM_NCCALCSIZE so the themed frame is in place.
   SetWindowPos(Handle, HWND_TOP, X, Y, W, H, SWP_NOACTIVATE or
-    SWP_SHOWWINDOW);
+    SWP_SHOWWINDOW or SWP_FRAMECHANGED);
   Invalidate;
 end;
 
@@ -498,6 +587,7 @@ begin
   end;
   if HandleAllocated then
     ShowWindow(Handle, SW_HIDE);
+  FHotIndex := -1;
   FIsOpen := False;
   if Assigned(FOnCloseUp) then
     FOnCloseUp(Self, AAccepted, LIndex);
@@ -577,6 +667,8 @@ begin
   if Result then
   begin
     Key := 0;
+    // The keyboard now drives the highlight; drop the stale mouse hover.
+    FHotIndex := -1;
     Invalidate;
   end;
 end;
@@ -587,25 +679,41 @@ var
   P: TOBDPainter;
   Fill, Ink: TColor;
   Weight: TOBDTextWeight;
+  Selected, Hot: Boolean;
 begin
   P := TOBDPainter.Create(Canvas, FPalette, FPPI);
   try
     Fill := FPalette.GaugeFace;
     Ink := FPalette.ForegroundText;
     Weight := twRegular;
-    if odSelected in State then
+    Selected := odSelected in State;
+    Hot := Index = FHotIndex;
+    if Selected then
     begin
-      if P.Dark then
+      if P.Dark and Hot then
+        Fill := P.Tint(FPalette.Accent, 0.26)
+      else if P.Dark or Hot then
         Fill := P.Tint(FPalette.Accent, 0.18)
       else
         Fill := P.Tint(FPalette.Accent, 0.12);
       Ink := P.AccentText;
       Weight := twSemibold;
+    end
+    else if Hot then
+    begin
+      if P.Dark then
+        Fill := P.Tint(FPalette.Accent, 0.12)
+      else
+        Fill := P.Tint(FPalette.Accent, 0.07);
     end;
     // Leave the overlay scroll bar's strip alone.
     if NeedsBar then
       Rect.Right := System.Math.Min(Rect.Right, BarRect.Left);
     P.FillRect(Rect, Fill);
+    if Selected then
+      P.FillRect(System.Types.Rect(Rect.Left, Rect.Top + ScalePixel(4),
+        Rect.Left + ScalePixel(3), Rect.Bottom - ScalePixel(4)),
+        FPalette.Accent);
     P.Text(Rect.Left + ScalePixel(8), Rect.Top + Rect.Height div 2,
       Items[Index], 12.5, Ink, Weight, taLeftJustify,
       System.Math.Max(0, Rect.Width - ScalePixel(16)));
