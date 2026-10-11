@@ -154,7 +154,9 @@ components at 24 and 32 px.
 `glDyno`, `glFinishFlag`, `glThrottle`, `glCertificate`), covering the
 connection, diagnosis, workshop, coding, security, radio, service,
 relearn, dyno, calibration, logging and bus functionality of the
-components.
+components. The palette icons of the dyno components, the flash
+pipeline, the coding audit log, the replayer, XCP/CCP, the J2534 device
+and the KWP1281 session use these feature icons.
 The font dialog lists every installed font again, the print dialog's
 printer status no longer overlaps the Pages label, and the selection
 ring on the first colour swatch is no longer clipped.
