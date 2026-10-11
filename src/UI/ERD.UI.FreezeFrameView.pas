@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------------
+﻿//------------------------------------------------------------------------------
 //  ERD.UI.FreezeFrameView
 //
 //  TOBDFreezeFrameView - a card that shows the ECU freeze-frame snapshot for

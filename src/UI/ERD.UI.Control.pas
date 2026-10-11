@@ -175,6 +175,11 @@ type
 
     procedure Paint; override;
     procedure Resize; override;
+    /// <summary>Returns the bounds rectangle while no window handle
+    /// exists, so layout code can read <c>ClientWidth</c> and
+    /// <c>ClientHeight</c> before the control has a parent (for example
+    /// in a constructor or while the IDE drops it on a form).</summary>
+    function GetClientRect: TRect; override;
     procedure ChangeScale(M, D: Integer; isDpiChange: Boolean); override;
     procedure Notification(AComponent: TComponent;
       Operation: TOperation); override;
@@ -922,6 +927,14 @@ procedure TOBDCustomControl.Resize;
 begin
   inherited;
   FBufferDirty := True;
+end;
+
+function TOBDCustomControl.GetClientRect: TRect;
+begin
+  if HandleAllocated then
+    Result := inherited GetClientRect
+  else
+    Result := Rect(0, 0, Width, Height);
 end;
 
 procedure TOBDCustomControl.ChangeScale(M, D: Integer; isDpiChange: Boolean);

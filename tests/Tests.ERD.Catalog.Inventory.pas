@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------------
+﻿//------------------------------------------------------------------------------
 //  Tests.ERD.Catalog.Inventory
 //
 //  Regression test that the shipped catalogue files contain at least

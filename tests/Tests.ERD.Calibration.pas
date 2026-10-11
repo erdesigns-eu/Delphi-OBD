@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------------
+﻿//------------------------------------------------------------------------------
 //  Tests.ERD.Calibration
 //
 //  Coverage for the calibration components: A2L parser, XCP master encode-side

@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------------
+﻿//------------------------------------------------------------------------------
 //  Tests.ERD.Adapter.Detection
 //
 //  DUnitX coverage for TOBDAdapterDetector. Drives the detector with a

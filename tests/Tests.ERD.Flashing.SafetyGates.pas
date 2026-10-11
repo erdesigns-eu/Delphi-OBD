@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------------
+﻿//------------------------------------------------------------------------------
 //  Tests.ERD.Flashing.SafetyGates
 //
 //  Coverage for the flash safety gates: TOBDVoltageGate latch behaviour,

@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------------
+﻿//------------------------------------------------------------------------------
 //  ERD.UI.ReadinessPanel
 //
 //  TOBDReadinessPanel - emissions-readiness card for OBD Studio. The control

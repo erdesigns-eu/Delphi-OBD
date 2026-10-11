@@ -14,7 +14,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from common import ROOT, SKIP
 
 BOM = b'\xef\xbb\xbf'
-EXT = ('.pas', '.dfm', '.dpr', '.dproj', '.inc')
+EXT = ('.pas', '.dfm', '.dpr', '.dpk', '.dproj', '.inc')
 
 def tracked():
     out = subprocess.run(['git', 'diff', '--name-only', 'HEAD'], cwd=ROOT,
@@ -43,8 +43,10 @@ for name in tracked():
               'BOM' if now.startswith(BOM) else 'none'))
         total += 1
 
-for base in ('forms', 'components', 'units', 'build', '.'):
+for base in ('src', 'tests', 'packages', 'examples', 'forms', 'components', 'units', 'build', '.'):
     d = os.path.join(ROOT, base)
+    if not os.path.isdir(d):
+        continue
     for dp, dn, fn in os.walk(d):
         if any(s.strip('/') in dp for s in SKIP):
             continue
