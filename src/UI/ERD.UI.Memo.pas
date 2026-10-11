@@ -32,6 +32,7 @@ uses
   System.Math,
   Vcl.Graphics,
   Vcl.Controls,
+  Vcl.Forms,
   Vcl.StdCtrls,
   ERD.UI.Types,
   ERD.UI.Control,

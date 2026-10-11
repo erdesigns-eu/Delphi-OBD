@@ -99,8 +99,9 @@ type
     /// an alTop splitter, and so on), or nil.</summary>
     /// <returns>Resized control or nil.</returns>
     function ResizedControl: TControl;
-    /// <summary>True while the bar is dragged.</summary>
-    property Dragging: Boolean read FDragging;
+    /// <summary>True while the bar is dragged (TControl.Dragging is the
+    /// drag-and-drop state).</summary>
+    property Sizing: Boolean read FDragging;
   published
     /// <summary>Side the splitter sits on; the resized control has the
     /// same alignment.</summary>
