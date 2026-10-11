@@ -94,6 +94,15 @@ type
     FCompareSwitch: TOBDCheckBox;
     FEditButton: TOBDButton;
     FOnEditRanges: TNotifyEvent;
+    FColumnWidths: array[0..2] of Integer;
+    FResizeColumn: Integer;
+    FResizeStartX: Integer;
+    FResizeStartWidth: Integer;
+    procedure SetColumnWidth(AIndex, AValue: Integer);
+    function GetColumnWidth(AIndex: Integer): Integer;
+    procedure GetColumns(out AParam, AFault, ALive, ARange, ARight: Integer);
+    function ColumnHeaderTop: Integer;
+    function ColumnDividerAt(X, Y: Integer): Integer;
     procedure SetDtcCode(const AValue: string);
     procedure SetTitle(const AValue: string);
     procedure SetSubtitle(const AValue: string);
@@ -128,6 +137,12 @@ type
     procedure PaintControl(ACanvas: TCanvas); override;
     procedure Resize; override;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
+    procedure MouseDown(Button: TMouseButton; Shift: TShiftState;
+      X, Y: Integer); override;
+    procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState;
+      X, Y: Integer); override;
+    procedure DblClick; override;
   public
     /// <summary>Creates the table, footer buttons and inspector child.</summary>
     constructor Create(AOwner: TComponent); override;
@@ -184,6 +199,16 @@ type
     property ShowLive: Boolean read GetShowLive write SetShowLive stored False;
     /// <summary>Garage normal-range profile used to draw bars and status colours.</summary>
     property RangeProfile: TOBDRangeProfile read FRangeProfile write SetRangeProfile;
+    /// <summary>Parameter column width at 96 DPI; 0 = fill the free space.
+    /// Drag the header divider to resize, double-click it to reset.</summary>
+    property ParameterColumnWidth: Integer index 0 read GetColumnWidth
+      write SetColumnWidth default 0;
+    /// <summary>At-fault column width at 96 DPI; 0 = automatic.</summary>
+    property FaultColumnWidth: Integer index 1 read GetColumnWidth
+      write SetColumnWidth default 0;
+    /// <summary>Live column width at 96 DPI; 0 = automatic.</summary>
+    property LiveColumnWidth: Integer index 2 read GetColumnWidth
+      write SetColumnWidth default 0;
     /// <summary>Desktop or tablet density.</summary>
     property Density;
     /// <summary>True when density follows the resolved theme.</summary>
@@ -221,6 +246,7 @@ begin
   FDtcCode := '';
   FCompareLive := True;
   FLayout := flTable;
+  FResizeColumn := -1;
   TabStop := False;
   Width := 520;
   Height := 320;
@@ -831,11 +857,149 @@ begin
   end;
 end;
 
+function TOBDFreezeFrameView.GetColumnWidth(AIndex: Integer): Integer;
+begin
+  Result := FColumnWidths[AIndex];
+end;
+
+procedure TOBDFreezeFrameView.SetColumnWidth(AIndex, AValue: Integer);
+begin
+  AValue := Max(0, AValue);
+  if FColumnWidths[AIndex] = AValue then
+    Exit;
+  FColumnWidths[AIndex] := AValue;
+  Invalidate;
+end;
+
+function TOBDFreezeFrameView.ColumnHeaderTop: Integer;
+begin
+  Result := ScaleValue(68);
+end;
+
+procedure TOBDFreezeFrameView.GetColumns(out AParam, AFault, ALive, ARange,
+  ARight: Integer);
+var
+  WParam, WFault, WLive, WRangeAuto: Integer;
+begin
+  // Column left edges, listview style: Parameter | At fault | Live | Range.
+  // Range is the last column and takes whatever space is left.
+  AParam := ScaleValue(OBD_PAD);
+  ARight := Width - ScaleValue(OBD_PAD);
+  if FColumnWidths[1] > 0 then
+    WFault := ScaleValue(FColumnWidths[1])
+  else
+    WFault := ScaleValue(96);
+  WLive := 0;
+  if FCompareLive then
+  begin
+    if FColumnWidths[2] > 0 then
+      WLive := ScaleValue(FColumnWidths[2])
+    else
+      WLive := ScaleValue(78);
+  end;
+  if Width >= ScaleValue(420) then
+    WRangeAuto := ScaleValue(64 + 16)
+  else
+    WRangeAuto := ScaleValue(48 + 16);
+  if FColumnWidths[0] > 0 then
+    WParam := ScaleValue(FColumnWidths[0])
+  else
+    WParam := Max(ScaleValue(60), ARight - AParam - WFault - WLive - WRangeAuto);
+  AFault := AParam + WParam;
+  ALive := AFault + WFault;
+  ARange := ALive + WLive;
+end;
+
+function TOBDFreezeFrameView.ColumnDividerAt(X, Y: Integer): Integer;
+var
+  XParam, XFault, XLive, XRange, XRight, HY, Slop: Integer;
+begin
+  Result := -1;
+  if FLayout <> flTable then
+    Exit;
+  HY := ColumnHeaderTop;
+  if (Y < HY) or (Y >= HY + ScaleValue(Metrics.ColHead)) then
+    Exit;
+  GetColumns(XParam, XFault, XLive, XRange, XRight);
+  Slop := ScaleValue(4);
+  // Check right-most first so a collapsed column can still be widened.
+  if FCompareLive and (Abs(X - XRange) <= Slop) then
+    Exit(2);
+  if Abs(X - XLive) <= Slop then
+    Exit(1);
+  if Abs(X - XFault) <= Slop then
+    Exit(0);
+end;
+
+procedure TOBDFreezeFrameView.MouseDown(Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+var
+  XParam, XFault, XLive, XRange, XRight: Integer;
+begin
+  inherited MouseDown(Button, Shift, X, Y);
+  if (Button <> mbLeft) or (ssDouble in Shift) then
+    Exit;
+  FResizeColumn := ColumnDividerAt(X, Y);
+  if FResizeColumn < 0 then
+    Exit;
+  // Freeze the automatic widths so only the dragged column changes.
+  GetColumns(XParam, XFault, XLive, XRange, XRight);
+  FColumnWidths[0] := MulDiv(XFault - XParam, 96, ScaleValue(96));
+  FColumnWidths[1] := MulDiv(XLive - XFault, 96, ScaleValue(96));
+  if FCompareLive then
+    FColumnWidths[2] := MulDiv(XRange - XLive, 96, ScaleValue(96));
+  FResizeStartX := X;
+  FResizeStartWidth := FColumnWidths[FResizeColumn];
+end;
+
+procedure TOBDFreezeFrameView.MouseMove(Shift: TShiftState; X, Y: Integer);
+var
+  NewWidth: Integer;
+begin
+  inherited MouseMove(Shift, X, Y);
+  if FResizeColumn >= 0 then
+  begin
+    NewWidth := Max(40, FResizeStartWidth +
+      MulDiv(X - FResizeStartX, 96, ScaleValue(96)));
+    SetColumnWidth(FResizeColumn, NewWidth);
+    Exit;
+  end;
+  if ColumnDividerAt(X, Y) >= 0 then
+    Cursor := crHSplit
+  else
+    Cursor := crDefault;
+end;
+
+procedure TOBDFreezeFrameView.MouseUp(Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  inherited MouseUp(Button, Shift, X, Y);
+  FResizeColumn := -1;
+end;
+
+procedure TOBDFreezeFrameView.DblClick;
+var
+  P: TPoint;
+  Col: Integer;
+begin
+  inherited DblClick;
+  P := ScreenToClient(Mouse.CursorPos);
+  Col := ColumnDividerAt(P.X, P.Y);
+  if Col < 0 then
+    Exit;
+  // Double-clicking a divider returns the columns to automatic sizing.
+  FColumnWidths[0] := 0;
+  FColumnWidths[1] := 0;
+  FColumnWidths[2] := 0;
+  Invalidate;
+end;
+
 procedure TOBDFreezeFrameView.DrawTable(APainter: TOBDPainter);
 var
   M: TOBDDensityMetrics;
   HeaderH, ColHeadH, FootH, RowH, HY, RY, BarW: Integer;
   ColFault, ColLive, ColBar, MaxNameW: Integer;
+  XParam, XFault, XLive, XRange, XRight, CellPad: Integer;
   V: TOBDFreezeFrameValue;
   R: TOBDValueRange;
   Level: TOBDAlertLevel;
@@ -850,26 +1014,32 @@ begin
   FootH := ScaleValue(M.Foot);
   RowH := ScaleValue(M.CompactRow);
   HY := HeaderH;
-  if Width >= ScaleValue(420) then
-    BarW := ScaleValue(64)
-  else
-    BarW := ScaleValue(48);
-  ColBar := Width - ScaleValue(OBD_PAD) - BarW;
-  ColLive := ColBar - ScaleValue(16);
-  if FCompareLive then
-    ColFault := ColLive - ScaleValue(78)
-  else
-    ColFault := ColBar - ScaleValue(16);
+  GetColumns(XParam, XFault, XLive, XRange, XRight);
+  CellPad := ScaleValue(8);
+  // Right-aligned value columns end CellPad before the next divider; the
+  // range bar fills the last column.
+  ColFault := XLive - CellPad;
+  ColLive := XRange - CellPad;
+  ColBar := XRange + ScaleValue(16);
+  BarW := XRight - ColBar;
 
   APainter.FillRect(Rect(ScaleValue(1), HY, Width - ScaleValue(1), HY + ColHeadH),
     APainter.HeaderFill);
   APainter.HLine(ScaleValue(1), HY + ColHeadH - ScaleValue(1),
     Width - ScaleValue(2), Palette.NeutralLight);
-  APainter.Caps(ScaleValue(OBD_PAD), HY + ColHeadH div 2, 'Parameter');
+  APainter.VLine(XFault, HY + ScaleValue(6), ColHeadH - ScaleValue(12),
+    Palette.NeutralLight);
+  APainter.VLine(XLive, HY + ScaleValue(6), ColHeadH - ScaleValue(12),
+    Palette.NeutralLight);
+  if FCompareLive then
+    APainter.VLine(XRange, HY + ScaleValue(6), ColHeadH - ScaleValue(12),
+      Palette.NeutralLight);
+  APainter.Caps(XParam, HY + ColHeadH div 2, 'Parameter');
   APainter.Caps(ColFault, HY + ColHeadH div 2, 'At fault', taRightJustify);
   if FCompareLive then
     APainter.Caps(ColLive, HY + ColHeadH div 2, 'Live', taRightJustify);
-  APainter.Caps(ColBar, HY + ColHeadH div 2, 'Range');
+  if BarW > 0 then
+    APainter.Caps(ColBar, HY + ColHeadH div 2, 'Range');
 
   RY := HY + ColHeadH;
   for V in DisplayValues do
@@ -890,8 +1060,8 @@ begin
       APainter.FillRect(Rect(ScaleValue(1), RY + ScaleValue(5), ScaleValue(4),
         RY + RowH - ScaleValue(5)), C);
     end;
-    MaxNameW := Max(0, ColFault - ScaleValue(OBD_PAD) - ScaleValue(84));
-    APainter.Text(ScaleValue(OBD_PAD), RY + RowH div 2, V.Caption, 12.5,
+    MaxNameW := Max(0, XFault - XParam - CellPad);
+    APainter.Text(XParam, RY + RowH div 2, V.Caption, 12.5,
       Palette.ForegroundText, twRegular, taLeftJustify, MaxNameW);
     if Level = alvNormal then
       Weight := twSemibold
@@ -908,7 +1078,8 @@ begin
       APainter.Text(ColLive, RY + RowH div 2, LiveS, 12.5,
         Palette.GaugeLabel, twRegular, taRightJustify);
     end;
-    if (R <> nil) and V.IsNumeric and not IsNan(V.AtFault) then
+    if (R <> nil) and V.IsNumeric and not IsNan(V.AtFault) and
+      (BarW >= ScaleValue(16)) then
       APainter.RangeBar(ColBar, RY + RowH div 2, BarW, R.Min, R.Max, R.Low,
         R.High, V.AtFault, Level);
     APainter.HLine(ScaleValue(1), RY + RowH - ScaleValue(1), Width - ScaleValue(2),

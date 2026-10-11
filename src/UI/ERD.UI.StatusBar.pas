@@ -183,6 +183,8 @@ type
     procedure DrawPanel(APainter: TOBDPainter; ACanvas: TCanvas;
       AIndex: Integer);
     procedure DrawSizeGrip(APainter: TOBDPainter);
+    function SizeGripVisible: Boolean;
+    function SizeGripRect: TRect;
     function PanelAt(X, Y: Integer): Integer;
     procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
     procedure CMHintShow(var Message: TCMHintShow); message CM_HINTSHOW;
@@ -202,6 +204,13 @@ type
     /// <param name="X">Mouse X.</param>
     /// <param name="Y">Mouse Y.</param>
     procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
+    /// <summary>Starts sizing the form from the size grip.</summary>
+    /// <param name="Button">Mouse button.</param>
+    /// <param name="Shift">Modifier keys.</param>
+    /// <param name="X">Mouse X.</param>
+    /// <param name="Y">Mouse Y.</param>
+    procedure MouseDown(Button: TMouseButton; Shift: TShiftState;
+      X, Y: Integer); override;
     /// <summary>Fires panel click events.</summary>
     /// <param name="Button">Mouse button.</param>
     /// <param name="Shift">Modifier keys.</param>
@@ -733,24 +742,64 @@ begin
     R.Right - X - ScaleValue(8));
 end;
 
-procedure TOBDStatusBar.DrawSizeGrip(APainter: TOBDPainter);
+function TOBDStatusBar.SizeGripVisible: Boolean;
 var
   Form: TCustomForm;
-  X, Y, I: Integer;
+  Corner: TPoint;
 begin
-  Form := GetParentForm(Self);
-  if (Form = nil) or (Form.BorderStyle in [bsNone, bsDialog]) or
-    (Form.WindowState = wsMaximized) then
+  Result := False;
+  if csDesigning in ComponentState then
     Exit;
-  X := Width - ScaleValue(13);
-  Y := Height - ScaleValue(6);
-  for I := 0 to 2 do
-  begin
-    APainter.Ellipse(X + I * ScaleValue(4), Y, ScaleValue(2), ScaleValue(2),
-      Palette.Subtle, clNone);
-    APainter.Ellipse(X + I * ScaleValue(4), Y - ScaleValue(4),
-      ScaleValue(2), ScaleValue(2), Palette.Subtle, clNone);
-  end;
+  Form := GetParentForm(Self);
+  if (Form = nil) or not (Form.BorderStyle in [bsSizeable, bsSizeToolWin]) or
+    (Form.WindowState = wsMaximized) or not Form.HandleAllocated then
+    Exit;
+  // Only when this bar sits in the form's bottom-right corner.
+  Corner := Form.ScreenToClient(ClientToScreen(Point(Width, Height)));
+  Result := (Abs(Corner.X - Form.ClientWidth) <= ScaleValue(2)) and
+    (Abs(Corner.Y - Form.ClientHeight) <= ScaleValue(2));
+end;
+
+function TOBDStatusBar.SizeGripRect: TRect;
+var
+  S: Integer;
+begin
+  S := ScaleValue(16);
+  Result := Rect(Width - S, Height - S, Width, Height);
+end;
+
+procedure TOBDStatusBar.DrawSizeGrip(APainter: TOBDPainter);
+var
+  Row, Col, Step, Dot, Right, Bottom: Integer;
+begin
+  if not SizeGripVisible then
+    Exit;
+  // Classic triangle of dots hugging the corner: 3 / 2 / 1 from the bottom.
+  Step := ScaleValue(4);
+  Dot := ScaleValue(2);
+  Right := Width - ScaleValue(3);
+  Bottom := Height - ScaleValue(3);
+  for Row := 0 to 2 do
+    for Col := 0 to 2 - Row do
+      APainter.FillRect(Rect(Right - Col * Step - Dot, Bottom - Row * Step - Dot,
+        Right - Col * Step, Bottom - Row * Step), Palette.Subtle);
+end;
+
+procedure TOBDStatusBar.MouseDown(Button: TMouseButton; Shift: TShiftState;
+  X, Y: Integer);
+const
+  WMSZ_BOTTOMRIGHT_SIZE = 8;
+var
+  Form: TCustomForm;
+begin
+  inherited;
+  if (Button <> mbLeft) or not SizeGripVisible or
+    not PtInRect(SizeGripRect, Point(X, Y)) then
+    Exit;
+  Form := GetParentForm(Self);
+  // Hand the drag to Windows' own sizing loop, bottom-right edge.
+  ReleaseCapture;
+  SendMessage(Form.Handle, WM_SYSCOMMAND, SC_SIZE or WMSZ_BOTTOMRIGHT_SIZE, 0);
 end;
 
 function TOBDStatusBar.PanelAt(X, Y: Integer): Integer;
@@ -808,6 +857,10 @@ var
   Old: Integer;
 begin
   inherited;
+  if SizeGripVisible and PtInRect(SizeGripRect, Point(X, Y)) then
+    Cursor := crSizeNWSE
+  else if Cursor = crSizeNWSE then
+    Cursor := crDefault;
   Old := FHoverIndex;
   FHoverIndex := PanelAt(X, Y);
   if Old <> FHoverIndex then
