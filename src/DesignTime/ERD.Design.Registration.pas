@@ -180,7 +180,8 @@ uses
   ERD.RadioCode.Volvo,
   ERD.RadioCode.FordV,
   ERD.RadioCode.EEPROM,
-  ERD.Design.Editors;
+  ERD.Design.Editors,
+  ERD.Design.DialogEditors;
 
 procedure Register;
 begin
@@ -317,6 +318,8 @@ begin
 
   // Register only the property and component editors for palette components.
   RegisterDelphiOBDEditors;
+  // "Test Dialog" verb for the themed dialogs.
+  RegisterDelphiOBDDialogEditors;
 end;
 
 end.

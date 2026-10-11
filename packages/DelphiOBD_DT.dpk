@@ -373,6 +373,7 @@ contains
   ERD.UI.ScrollBar in '..\src\UI\ERD.UI.ScrollBar.pas',
   ERD.Design.Registration in '..\src\DesignTime\ERD.Design.Registration.pas',
   ERD.Design.Editors in '..\src\DesignTime\ERD.Design.Editors.pas',
+  ERD.Design.DialogEditors in '..\src\DesignTime\ERD.Design.DialogEditors.pas',
   ERD.Design.Forms.FlashSafety in '..\src\DesignTime\ERD.Design.Forms.FlashSafety.pas' {OBDFlashSafetyDlg},
   ERD.Design.Forms.InitCommands in '..\src\DesignTime\ERD.Design.Forms.InitCommands.pas' {OBDInitCommandsDlg},
   ERD.Design.Forms.PipelineValidate in '..\src\DesignTime\ERD.Design.Forms.PipelineValidate.pas' {OBDPipelineValidateDlg},
