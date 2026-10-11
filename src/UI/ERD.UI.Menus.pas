@@ -1192,8 +1192,8 @@ var
   S: Integer;
 begin
   S := ScalePixel(4);
-  APainter.Lines([MakePoint(CX - S / 2, CY - S), MakePoint(CX + S / 2, CY),
-    MakePoint(CX - S / 2, CY + S)], AColor, ScalePixel(2));
+  APainter.Lines([OBDPointF(CX - S / 2, CY - S), OBDPointF(CX + S / 2, CY),
+    OBDPointF(CX - S / 2, CY + S)], AColor, ScalePixel(2));
 end;
 
 procedure TOBDMenuPopupWindow.DrawImageOrGlyph(APainter: TOBDPainter;

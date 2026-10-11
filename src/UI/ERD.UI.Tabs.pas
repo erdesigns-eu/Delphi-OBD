@@ -984,12 +984,12 @@ begin
   CY := R.Top + R.Height div 2;
   K := APainter.SF(1);
   if ALeft then
-    APainter.Lines([MakePoint(CX + 3 * K, CY - 6 * K),
-      MakePoint(CX - 3 * K, CY), MakePoint(CX + 3 * K, CY + 6 * K)], C,
+    APainter.Lines([OBDPointF(CX + 3 * K, CY - 6 * K),
+      OBDPointF(CX - 3 * K, CY), OBDPointF(CX + 3 * K, CY + 6 * K)], C,
       1.6 * K)
   else
-    APainter.Lines([MakePoint(CX - 3 * K, CY - 6 * K),
-      MakePoint(CX + 3 * K, CY), MakePoint(CX - 3 * K, CY + 6 * K)], C,
+    APainter.Lines([OBDPointF(CX - 3 * K, CY - 6 * K),
+      OBDPointF(CX + 3 * K, CY), OBDPointF(CX - 3 * K, CY + 6 * K)], C,
       1.6 * K);
 end;
 
@@ -1002,10 +1002,10 @@ begin
   K := APainter.SF(1);
   CX := R.Left + R.Width div 2;
   CY := R.Top + R.Height div 2;
-  APainter.Lines([MakePoint(CX - 4 * K, CY - 4 * K),
-    MakePoint(CX + 4 * K, CY + 4 * K)], AColor, 1.3 * K);
-  APainter.Lines([MakePoint(CX + 4 * K, CY - 4 * K),
-    MakePoint(CX - 4 * K, CY + 4 * K)], AColor, 1.3 * K);
+  APainter.Lines([OBDPointF(CX - 4 * K, CY - 4 * K),
+    OBDPointF(CX + 4 * K, CY + 4 * K)], AColor, 1.3 * K);
+  APainter.Lines([OBDPointF(CX + 4 * K, CY - 4 * K),
+    OBDPointF(CX - 4 * K, CY + 4 * K)], AColor, 1.3 * K);
 end;
 
 procedure TOBDTabs.DrawNewTab(APainter: TOBDPainter; const R: TRect);
@@ -1023,9 +1023,9 @@ begin
   K := APainter.SF(1);
   CX := R.Left + R.Width div 2;
   CY := R.Top + R.Height div 2;
-  APainter.Lines([MakePoint(CX, CY - 6 * K), MakePoint(CX, CY + 6 * K)], C,
+  APainter.Lines([OBDPointF(CX, CY - 6 * K), OBDPointF(CX, CY + 6 * K)], C,
     1.6 * K);
-  APainter.Lines([MakePoint(CX - 6 * K, CY), MakePoint(CX + 6 * K, CY)], C,
+  APainter.Lines([OBDPointF(CX - 6 * K, CY), OBDPointF(CX + 6 * K, CY)], C,
     1.6 * K);
 end;
 

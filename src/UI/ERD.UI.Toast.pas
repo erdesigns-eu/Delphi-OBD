@@ -346,9 +346,9 @@ begin
     Ink := P.Subtle;
     if FHover and PtInRect(CloseRect, ScreenToClient(Mouse.CursorPos)) then
       Ink := P.ForegroundText;
-    Painter.Lines([MakePoint(Width - 22, 14), MakePoint(Width - 14, 22)],
+    Painter.Lines([OBDPointF(Width - 22, 14), OBDPointF(Width - 14, 22)],
       Ink, 1.6);
-    Painter.Lines([MakePoint(Width - 14, 14), MakePoint(Width - 22, 22)],
+    Painter.Lines([OBDPointF(Width - 14, 14), OBDPointF(Width - 22, 22)],
       Ink, 1.6);
     A := ActionRect;
     if not A.IsEmpty then

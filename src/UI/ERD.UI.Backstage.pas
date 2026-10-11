@@ -1046,11 +1046,11 @@ begin
   Radius := ScaleValue(15);
   APainter.Ellipse(CX - Radius, CY - Radius, Radius * 2, Radius * 2,
     clNone, Ink, APainter.SF(1.5));
-  APainter.Lines([MakePoint(CX + ScaleValue(6), CY),
-    MakePoint(CX - ScaleValue(6), CY)], Ink, APainter.SF(1.6));
-  APainter.Lines([MakePoint(CX - ScaleValue(1), CY - ScaleValue(5)),
-    MakePoint(CX - ScaleValue(6), CY),
-    MakePoint(CX - ScaleValue(1), CY + ScaleValue(5))], Ink,
+  APainter.Lines([OBDPointF(CX + ScaleValue(6), CY),
+    OBDPointF(CX - ScaleValue(6), CY)], Ink, APainter.SF(1.6));
+  APainter.Lines([OBDPointF(CX - ScaleValue(1), CY - ScaleValue(5)),
+    OBDPointF(CX - ScaleValue(6), CY),
+    OBDPointF(CX - ScaleValue(1), CY + ScaleValue(5))], Ink,
     APainter.SF(1.6));
 end;
 

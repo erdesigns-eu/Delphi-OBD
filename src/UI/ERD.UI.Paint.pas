@@ -476,6 +476,14 @@ type
     property FontName: string read FFontName write FFontName;
   end;
 
+/// <summary>Builds a floating-point GDI+ point.</summary>
+/// <remarks>Unlike the overloaded <c>MakePoint</c>, the result is always
+/// a <c>TGPPointF</c>, even when both coordinates are integers.</remarks>
+/// <param name="X">Horizontal coordinate.</param>
+/// <param name="Y">Vertical coordinate.</param>
+/// <returns>Point for the painter's polyline and polygon methods.</returns>
+function OBDPointF(X, Y: Single): TGPPointF;
+
 /// <summary>Blends two colours.</summary>
 /// <param name="A">Colour at weight 1.</param>
 /// <param name="B">Colour at weight 0.</param>
@@ -523,6 +531,12 @@ const
   DESIGN_PPI = 96;
   SEMIBOLD_SUFFIX = ' Semibold';
   MONO_FONT = 'Consolas';
+
+function OBDPointF(X, Y: Single): TGPPointF;
+begin
+  Result.X := X;
+  Result.Y := Y;
+end;
 
 function OBDMixColor(A, B: TColor; T: Single): TColor;
 var
@@ -1023,8 +1037,8 @@ var
   K: Single;
 begin
   K := SF(AScale);
-  Lines([MakePoint(CX - 5 * K, CY), MakePoint(CX - 1.5 * K, CY + 3.5 * K),
-    MakePoint(CX + 5 * K, CY - 4 * K)], AColor, 2 * K);
+  Lines([OBDPointF(CX - 5 * K, CY), OBDPointF(CX - 1.5 * K, CY + 3.5 * K),
+    OBDPointF(CX + 5 * K, CY - 4 * K)], AColor, 2 * K);
 end;
 
 procedure TOBDPainter.GlyphPending(CX, CY: Single; AColor: TColor;
@@ -1043,7 +1057,7 @@ var
   K: Single;
 begin
   K := SF(AScale);
-  Lines([MakePoint(CX - 5 * K, CY), MakePoint(CX + 5 * K, CY)], AColor, 2 * K);
+  Lines([OBDPointF(CX - 5 * K, CY), OBDPointF(CX + 5 * K, CY)], AColor, 2 * K);
 end;
 
 procedure TOBDPainter.GlyphRead(CX, CY: Single; AColor: TColor);
@@ -1051,9 +1065,9 @@ var
   K: Single;
 begin
   K := SF(1);
-  Lines([MakePoint(CX - 5 * K, CY - K), MakePoint(CX, CY + 4 * K),
-    MakePoint(CX + 5 * K, CY - K)], AColor, 1.8 * K);
-  Lines([MakePoint(CX, CY - 6 * K), MakePoint(CX, CY + 4 * K)], AColor,
+  Lines([OBDPointF(CX - 5 * K, CY - K), OBDPointF(CX, CY + 4 * K),
+    OBDPointF(CX + 5 * K, CY - K)], AColor, 1.8 * K);
+  Lines([OBDPointF(CX, CY - 6 * K), OBDPointF(CX, CY + 4 * K)], AColor,
     1.8 * K);
 end;
 
@@ -1064,9 +1078,9 @@ begin
   K := SF(1);
   RoundRect(CX - 4 * K, CY - 3 * K, 8 * K, 9 * K, 0, clNone, AColor,
     1.4 * K);
-  Lines([MakePoint(CX - 6 * K, CY - 4.5 * K), MakePoint(CX + 6 * K,
+  Lines([OBDPointF(CX - 6 * K, CY - 4.5 * K), OBDPointF(CX + 6 * K,
     CY - 4.5 * K)], AColor, 1.4 * K);
-  Lines([MakePoint(CX - 1.5 * K, CY - 6.5 * K), MakePoint(CX + 1.5 * K,
+  Lines([OBDPointF(CX - 1.5 * K, CY - 6.5 * K), OBDPointF(CX + 1.5 * K,
     CY - 6.5 * K)], AColor, 1.4 * K);
 end;
 
@@ -1089,11 +1103,11 @@ var
 begin
   K := SF(1);
   if ADown then
-    Lines([MakePoint(CX - 4 * K, CY - 2 * K), MakePoint(CX, CY + 2 * K),
-      MakePoint(CX + 4 * K, CY - 2 * K)], AColor, 1.6 * K)
+    Lines([OBDPointF(CX - 4 * K, CY - 2 * K), OBDPointF(CX, CY + 2 * K),
+      OBDPointF(CX + 4 * K, CY - 2 * K)], AColor, 1.6 * K)
   else
-    Lines([MakePoint(CX - 2 * K, CY - 4 * K), MakePoint(CX + 2 * K, CY),
-      MakePoint(CX - 2 * K, CY + 4 * K)], AColor, 1.6 * K);
+    Lines([OBDPointF(CX - 2 * K, CY - 4 * K), OBDPointF(CX + 2 * K, CY),
+      OBDPointF(CX - 2 * K, CY + 4 * K)], AColor, 1.6 * K);
 end;
 
 procedure TOBDPainter.GlyphAlert(CX, CY: Single; AColor: TColor);
@@ -1102,8 +1116,8 @@ var
   Ink: TColor;
 begin
   K := SF(1);
-  Polygon([MakePoint(CX, CY - 11 * K), MakePoint(CX + 12 * K, CY + 9 * K),
-    MakePoint(CX - 12 * K, CY + 9 * K)], AColor);
+  Polygon([OBDPointF(CX, CY - 11 * K), OBDPointF(CX + 12 * K, CY + 9 * K),
+    OBDPointF(CX - 12 * K, CY + 9 * K)], AColor);
   if FDark then
     Ink := OnAccent
   else
@@ -1128,7 +1142,7 @@ var
   begin
     SetLength(Pts, Length(P) div 2);
     for J := 0 to High(Pts) do
-      Pts[J] := MakePoint(CX + P[J * 2] * K, CY + P[J * 2 + 1] * K);
+      Pts[J] := OBDPointF(CX + P[J * 2] * K, CY + P[J * 2 + 1] * K);
     Lines(Pts, AColor, LW);
   end;
 
@@ -1150,8 +1164,8 @@ var
 
   procedure P3(X1, Y1, X2, Y2, X3, Y3: Single);
   begin
-    Polygon([MakePoint(CX + X1 * K, CY + Y1 * K), MakePoint(CX + X2 * K,
-      CY + Y2 * K), MakePoint(CX + X3 * K, CY + Y3 * K)], AColor);
+    Polygon([OBDPointF(CX + X1 * K, CY + Y1 * K), OBDPointF(CX + X2 * K,
+      CY + Y2 * K), OBDPointF(CX + X3 * K, CY + Y3 * K)], AColor);
   end;
 
 begin

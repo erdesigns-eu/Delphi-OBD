@@ -2261,11 +2261,11 @@ var
 begin
   S := ScaleValue(4);
   if ADown then
-    APainter.Lines([MakePoint(CX - S, CY - S div 2), MakePoint(CX, CY + S div 2),
-      MakePoint(CX + S, CY - S div 2)], AColor, ScaleValue(16) / 10)
+    APainter.Lines([OBDPointF(CX - S, CY - S div 2), OBDPointF(CX, CY + S div 2),
+      OBDPointF(CX + S, CY - S div 2)], AColor, ScaleValue(16) / 10)
   else
-    APainter.Lines([MakePoint(CX - S, CY + S div 2), MakePoint(CX, CY - S div 2),
-      MakePoint(CX + S, CY + S div 2)], AColor, ScaleValue(16) / 10);
+    APainter.Lines([OBDPointF(CX - S, CY + S div 2), OBDPointF(CX, CY - S div 2),
+      OBDPointF(CX + S, CY + S div 2)], AColor, ScaleValue(16) / 10);
 end;
 
 procedure TOBDRibbon.DrawLauncher(APainter: TOBDPainter; CX, CY: Integer;
@@ -2275,8 +2275,8 @@ var
 begin
   S := ScaleValue(6);
   APainter.FrameRect(Rect(CX - S, CY - S, CX + S, CY + S), AColor);
-  APainter.Lines([MakePoint(CX - ScaleValue(2), CY + ScaleValue(2)),
-    MakePoint(CX + ScaleValue(4), CY - ScaleValue(4))], AColor,
+  APainter.Lines([OBDPointF(CX - ScaleValue(2), CY + ScaleValue(2)),
+    OBDPointF(CX + ScaleValue(4), CY - ScaleValue(4))], AColor,
     ScaleValue(12) / 10);
 end;
 

@@ -1240,20 +1240,20 @@ begin
       begin
         APainter.Ellipse(CX - 7 * K, CY - 7 * K, 14 * K, 14 * K, clNone,
           AColor, ScaleValue(15) / 10);
-        APainter.Lines([MakePoint(CX, CY), MakePoint(CX + 4 * K, CY - 4 * K)],
+        APainter.Lines([OBDPointF(CX, CY), OBDPointF(CX + 4 * K, CY - 4 * K)],
           AColor, W);
       end;
     siTroubleCodes:
-      APainter.Polygon([MakePoint(CX, CY - 7 * K), MakePoint(CX + 8 * K,
-        CY + 6 * K), MakePoint(CX - 8 * K, CY + 6 * K)], AColor);
+      APainter.Polygon([OBDPointF(CX, CY - 7 * K), OBDPointF(CX + 8 * K,
+        CY + 6 * K), OBDPointF(CX - 8 * K, CY + 6 * K)], AColor);
     siReadiness:
-      APainter.Lines([MakePoint(CX - 7 * K, CY), MakePoint(CX - 2 * K,
-        CY + 5 * K), MakePoint(CX + 8 * K, CY - 7 * K)], AColor,
+      APainter.Lines([OBDPointF(CX - 7 * K, CY), OBDPointF(CX - 2 * K,
+        CY + 5 * K), OBDPointF(CX + 8 * K, CY - 7 * K)], AColor,
         ScaleValue(22) / 10);
     siLiveData:
-      APainter.Lines([MakePoint(CX - 8 * K, CY + 3 * K), MakePoint(CX -
-        4 * K, CY - 3 * K), MakePoint(CX, CY + 2 * K), MakePoint(CX +
-        3 * K, CY - 6 * K), MakePoint(CX + 8 * K, CY)], AColor, W);
+      APainter.Lines([OBDPointF(CX - 8 * K, CY + 3 * K), OBDPointF(CX -
+        4 * K, CY - 3 * K), OBDPointF(CX, CY + 2 * K), OBDPointF(CX +
+        3 * K, CY - 6 * K), OBDPointF(CX + 8 * K, CY)], AColor, W);
     siLog:
       begin
         APainter.Ellipse(CX - 7 * K, CY - 7 * K, 14 * K, 14 * K, clNone,
@@ -1290,10 +1290,10 @@ begin
       end;
     siVehicle:
       begin
-        APainter.Lines([MakePoint(CX - 9 * K, CY + 2 * K), MakePoint(CX -
-          6 * K, CY - 4 * K), MakePoint(CX + 5 * K, CY - 4 * K),
-          MakePoint(CX + 9 * K, CY + 2 * K)], AColor, W);
-        APainter.Lines([MakePoint(CX - 8 * K, CY + 2 * K), MakePoint(CX +
+        APainter.Lines([OBDPointF(CX - 9 * K, CY + 2 * K), OBDPointF(CX -
+          6 * K, CY - 4 * K), OBDPointF(CX + 5 * K, CY - 4 * K),
+          OBDPointF(CX + 9 * K, CY + 2 * K)], AColor, W);
+        APainter.Lines([OBDPointF(CX - 8 * K, CY + 2 * K), OBDPointF(CX +
           8 * K, CY + 2 * K)], AColor, W);
         APainter.Ellipse(CX - 7 * K, CY + 2 * K, 4 * K, 4 * K, clNone,
           AColor, W);
@@ -1302,21 +1302,21 @@ begin
       end;
     siTests:
       begin
-        APainter.Lines([MakePoint(CX - 5 * K, CY - 8 * K), MakePoint(CX +
+        APainter.Lines([OBDPointF(CX - 5 * K, CY - 8 * K), OBDPointF(CX +
           5 * K, CY - 8 * K)], AColor, W);
-        APainter.Lines([MakePoint(CX - 3 * K, CY - 8 * K), MakePoint(CX -
-          3 * K, CY + 5 * K), MakePoint(CX + 3 * K, CY + 5 * K),
-          MakePoint(CX + 3 * K, CY - 8 * K)], AColor, W);
-        APainter.Lines([MakePoint(CX - 2 * K, CY), MakePoint(CX + 2 * K,
+        APainter.Lines([OBDPointF(CX - 3 * K, CY - 8 * K), OBDPointF(CX -
+          3 * K, CY + 5 * K), OBDPointF(CX + 3 * K, CY + 5 * K),
+          OBDPointF(CX + 3 * K, CY - 8 * K)], AColor, W);
+        APainter.Lines([OBDPointF(CX - 2 * K, CY), OBDPointF(CX + 2 * K,
           CY)], AColor, W);
       end;
     siConnection:
       begin
-        APainter.Lines([MakePoint(CX - 7 * K, CY - 3 * K), MakePoint(CX -
-          1 * K, CY + 3 * K), MakePoint(CX + 5 * K, CY - 3 * K)], AColor, W);
-        APainter.Lines([MakePoint(CX - 8 * K, CY - 8 * K), MakePoint(CX -
+        APainter.Lines([OBDPointF(CX - 7 * K, CY - 3 * K), OBDPointF(CX -
+          1 * K, CY + 3 * K), OBDPointF(CX + 5 * K, CY - 3 * K)], AColor, W);
+        APainter.Lines([OBDPointF(CX - 8 * K, CY - 8 * K), OBDPointF(CX -
           4 * K, CY - 4 * K)], AColor, W);
-        APainter.Lines([MakePoint(CX + 4 * K, CY + 4 * K), MakePoint(CX +
+        APainter.Lines([OBDPointF(CX + 4 * K, CY + 4 * K), OBDPointF(CX +
           8 * K, CY + 8 * K)], AColor, W);
       end;
   end;
@@ -1334,19 +1334,19 @@ begin
   begin
     X1 := CX + 1 * K;
     X2 := CX + 6 * K;
-    APainter.Lines([MakePoint(X1, CY - 4 * K), MakePoint(X1 - 4 * K, CY),
-      MakePoint(X1, CY + 4 * K)], AColor, W);
-    APainter.Lines([MakePoint(X2, CY - 4 * K), MakePoint(X2 - 4 * K, CY),
-      MakePoint(X2, CY + 4 * K)], AColor, W);
+    APainter.Lines([OBDPointF(X1, CY - 4 * K), OBDPointF(X1 - 4 * K, CY),
+      OBDPointF(X1, CY + 4 * K)], AColor, W);
+    APainter.Lines([OBDPointF(X2, CY - 4 * K), OBDPointF(X2 - 4 * K, CY),
+      OBDPointF(X2, CY + 4 * K)], AColor, W);
   end
   else
   begin
     X1 := CX - 4 * K;
     X2 := CX + 1 * K;
-    APainter.Lines([MakePoint(X1, CY - 4 * K), MakePoint(X1 + 4 * K, CY),
-      MakePoint(X1, CY + 4 * K)], AColor, W);
-    APainter.Lines([MakePoint(X2, CY - 4 * K), MakePoint(X2 + 4 * K, CY),
-      MakePoint(X2, CY + 4 * K)], AColor, W);
+    APainter.Lines([OBDPointF(X1, CY - 4 * K), OBDPointF(X1 + 4 * K, CY),
+      OBDPointF(X1, CY + 4 * K)], AColor, W);
+    APainter.Lines([OBDPointF(X2, CY - 4 * K), OBDPointF(X2 + 4 * K, CY),
+      OBDPointF(X2, CY + 4 * K)], AColor, W);
   end;
 end;
 

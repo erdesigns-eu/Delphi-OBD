@@ -915,8 +915,8 @@ begin
   begin
     K := APainter.SF(1);
     X := R.Right - ScaleValue(10);
-    APainter.Lines([MakePoint(X - 4 * K, CY - 2 * K), MakePoint(X, CY +
-      3 * K), MakePoint(X + 4 * K, CY - 2 * K)], Palette.Subtle, 1.4 * K);
+    APainter.Lines([OBDPointF(X - 4 * K, CY - 2 * K), OBDPointF(X, CY +
+      3 * K), OBDPointF(X + 4 * K, CY - 2 * K)], Palette.Subtle, 1.4 * K);
   end;
 end;
 

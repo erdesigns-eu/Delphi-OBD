@@ -383,11 +383,11 @@ begin
     Painter.Text(14, 1 + FHeaderHeight div 2, FDialog.Title, 12.5,
       FPalette.GaugeLabel, twRegular, taLeftJustify,
       ClientWidth - FHeaderHeight - 24);
-    Painter.Lines([MakePoint(ClientWidth - FHeaderHeight div 2 - 4,
-      1 + FHeaderHeight div 2 - 4), MakePoint(ClientWidth - FHeaderHeight div 2 + 4,
+    Painter.Lines([OBDPointF(ClientWidth - FHeaderHeight div 2 - 4,
+      1 + FHeaderHeight div 2 - 4), OBDPointF(ClientWidth - FHeaderHeight div 2 + 4,
       1 + FHeaderHeight div 2 + 4)], FPalette.Subtle, 1.6);
-    Painter.Lines([MakePoint(ClientWidth - FHeaderHeight div 2 + 4,
-      1 + FHeaderHeight div 2 - 4), MakePoint(ClientWidth - FHeaderHeight div 2 - 4,
+    Painter.Lines([OBDPointF(ClientWidth - FHeaderHeight div 2 + 4,
+      1 + FHeaderHeight div 2 - 4), OBDPointF(ClientWidth - FHeaderHeight div 2 - 4,
       1 + FHeaderHeight div 2 + 4)], FPalette.Subtle, 1.6);
   finally
     Painter.Free;
