@@ -1063,6 +1063,68 @@ def chrome_scroll_bar(c):
     c.line([(16.5, 19), (18, 20.5), (19.5, 19)], 1, MUTED)
 
 
+
+def studio_splitter(c):
+    c.frame(2.5, 4, 21.5, 20, 1, MUTED, radius=0.8)
+    c.rect(10.5, 4, 13.5, 20, ORANGE)
+    for y in (10, 12, 14):
+        c.circle(12, y, 0.6, TILE)
+    c.line([(7.5, 9.5), (5, 12), (7.5, 14.5)], 1, LIGHT)
+    c.line([(16.5, 9.5), (19, 12), (16.5, 14.5)], 1, LIGHT)
+
+
+def studio_scroll_box(c):
+    c.frame(2.5, 3, 21.5, 21, 1, MUTED, radius=0.8)
+    for y in (6, 10.5, 15):
+        c.rect(5, y, 15.5, y + 3, LIGHT, radius=0.5)
+    c.rect(17.5, 5, 19.5, 19, GREY, radius=1)
+    c.rect(17.5, 6, 19.5, 11.5, ORANGE, radius=1)
+
+
+def studio_spin_edit(c):
+    c.rect(3, 7, 21, 17, LIGHT, radius=1.5)
+    c.text(5, 9.5, '42', TILE)
+    c.line([(15.5, 10.5), (17, 9), (18.5, 10.5)], 1.2, ORANGE)
+    c.line([(15.5, 13.5), (17, 15), (18.5, 13.5)], 1.2, ORANGE)
+
+
+def studio_track_bar(c):
+    c.rect(3, 11, 21, 13, GREY, radius=1)
+    c.rect(3, 11, 13, 13, ORANGE, radius=1)
+    c.circle(13, 12, 3.4, LIGHT)
+    c.ring(13, 12, 3.4, 1.4, ORANGE)
+    for x in (3.5, 8, 12.5, 17, 20.5):
+        c.rect(x - 0.4, 16.5, x + 0.4, 18.5, MUTED)
+
+
+def studio_memo(c):
+    c.rect(3, 4, 21, 20, LIGHT, radius=1.5)
+    for y, x1 in ((7.5, 15.5), (10.5, 14), (13.5, 15.5), (16.5, 11)):
+        c.line([(5.5, y), (x1, y)], 1.2, TILE)
+    c.rect(17.5, 6, 19, 18, GREY, radius=0.7)
+    c.rect(17.5, 6.5, 19, 11, ORANGE, radius=0.7)
+
+
+def studio_calendar(c):
+    c.rect(3, 4.5, 21, 20.5, LIGHT, radius=1.5)
+    c.rect(3, 4.5, 21, 8.5, ORANGE, radius=1.5)
+    c.rect(7, 3, 8.5, 6, TILE, radius=0.5)
+    c.rect(15.5, 3, 17, 6, TILE, radius=0.5)
+    for row, y in enumerate((11, 14, 17.5)):
+        for col, x in enumerate((6.5, 10, 13.5, 17)):
+            if (row, col) == (1, 2):
+                c.circle(x + 0.5, y + 0.5, 1.7, ORANGE)
+            else:
+                c.rect(x, y, x + 1.2, y + 1.2, TILE)
+
+
+def studio_date_picker(c):
+    c.rect(3, 7, 21, 17, LIGHT, radius=1.5)
+    c.line([(5.5, 12), (11.5, 12)], 1.2, TILE)
+    c.frame(14.5, 9.5, 19.5, 15, 1, ORANGE, radius=0.6)
+    c.rect(14.5, 9.5, 19.5, 11.2, ORANGE)
+    c.rect(16.5, 12.5, 17.7, 13.7, TILE)
+
 def chrome_backstage(c):
     c.frame(2.5, 4, 21.5, 20, 1, MUTED, radius=0.8)
     c.rect(2.5, 4, 8, 20, ORANGE, radius=0.8)
@@ -1170,6 +1232,10 @@ ICONS = {
     'TOBDToastManager': chrome_toast, 'TOBDHintStyle': chrome_hint,
     'TOBDScrollBar': chrome_scroll_bar, 'TOBDBackstage': chrome_backstage,
     'TOBDReportPreview': chrome_report_preview,
+    'TOBDSplitter': studio_splitter, 'TOBDScrollBox': studio_scroll_box,
+    'TOBDSpinEdit': studio_spin_edit, 'TOBDTrackBar': studio_track_bar,
+    'TOBDMemo': studio_memo, 'TOBDCalendar': studio_calendar,
+    'TOBDDatePicker': studio_date_picker,
     # Visual
     'TOBDTerminal': terminal, 'TOBDLogViewer': log_viewer, 'TOBDDtcList': dtc_list,
     'TOBDVINEdit': edit('VIN'), 'TOBDPidPicker': picker('PID'), 'TOBDOEMPicker': picker('OEM'),

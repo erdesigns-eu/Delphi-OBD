@@ -298,6 +298,12 @@
     <DCCReference Include="..\src\UI\ERD.UI.Progress.pas" />
     <DCCReference Include="..\src\UI\ERD.UI.Dialogs.pas" />
     <DCCReference Include="..\src\UI\ERD.UI.Toast.pas" />
+    <DCCReference Include="..\src\UI\ERD.UI.Splitter.pas" />
+    <DCCReference Include="..\src\UI\ERD.UI.ScrollBox.pas" />
+    <DCCReference Include="..\src\UI\ERD.UI.SpinEdit.pas" />
+    <DCCReference Include="..\src\UI\ERD.UI.TrackBar.pas" />
+    <DCCReference Include="..\src\UI\ERD.UI.Memo.pas" />
+    <DCCReference Include="..\src\UI\ERD.UI.Calendar.pas" />
     <DCCReference Include="..\src\UI\ERD.UI.Hint.pas" />
     <DCCReference Include="..\src\UI\ERD.UI.ScrollBar.pas" />
     <DCCReference Include="Tests.ERD.Version.pas" />
@@ -372,6 +378,7 @@
     <DCCReference Include="Tests.ERD.UI.Dashboard.pas" />
     <DCCReference Include="Tests.ERD.UI.Studio.pas" />
     <DCCReference Include="Tests.ERD.UI.Chrome.pas" />
+    <DCCReference Include="Tests.ERD.UI.Controls.pas" />
     <DCCReference Include="Tests.ERD.Service.Dyno.pas" />
     <DCCReference Include="Tests.ERD.Tachograph.pas" />
     <DCCReference Include="Tests.ERD.Utilities.pas" />

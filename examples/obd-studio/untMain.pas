@@ -1556,6 +1556,11 @@ begin
     Prop := Cat.AddProperty('Commands', 'Ribbon', ivPickList);
     Prop.PickList.Add('Ribbon');
     Prop.PickList.Add('Menu bar');
+    Prop := Cat.AddProperty('Notifications', 'In window', ivPickList);
+    Prop.PickList.Add('In window');
+    Prop.PickList.Add('On desktop');
+    Prop.Hint := 'On desktop shows notifications in the screen corner, ' +
+      'also when the window is not maximised';
 
     Cat := insSettings.AddCategory('Workshop');
     Cat.AddProperty('Garage name', FGarageName);
@@ -1599,6 +1604,8 @@ const
   DENSITIES: array [TOBDDensity] of string = ('Desktop', 'Tablet');
   UNITS: array [TOBDUnitSystem] of string = ('Metric', 'Imperial');
   COMMANDS: array [TOBDCommandStyle] of string = ('Menu bar', 'Ribbon');
+  PLACEMENTS: array [TOBDToastPlacement] of string = ('In window',
+    'On desktop');
 begin
   FSyncing := True;
   try
@@ -1606,6 +1613,7 @@ begin
     SetSetting('Density', DENSITIES[OBDTheme.Density]);
     SetSetting('Units', UNITS[OBDTheme.UnitSystem]);
     SetSetting('Commands', COMMANDS[TitleBar.CommandStyle]);
+    SetSetting('Notifications', PLACEMENTS[OBDToasts.Placement]);
   finally
     FSyncing := False;
   end;
@@ -1650,6 +1658,13 @@ begin
       TitleBar.CommandStyle := csMenu
     else
       TitleBar.CommandStyle := csRibbon;
+  end
+  else if AProperty.Name = 'Notifications' then
+  begin
+    if Index = 1 then
+      OBDToasts.Placement := tlScreen
+    else
+      OBDToasts.Placement := tlForm;
   end
   else if AProperty.Name = 'Garage name' then
   begin

@@ -14,12 +14,19 @@
 //  Header and footer heights follow the density (56 / 40 px desktop,
 //  68 / 60 px tablet).
 //
+//  Collapsible turns the card into an expander: a chevron appears on the
+//  right of the header and a click on the header folds the card to just
+//  its title bar (Collapsed) and back to ExpandedHeight. Stack collapsible
+//  cards top-aligned in a TOBDScrollBox for a settings page or a long
+//  form; the cards below move up when one folds.
+//
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
 //  License     : see LICENSE
 //
 //  History     :
 //    2026-10-10  ERD  Initial implementation for the OBD Studio controls.
+//    2026-10-11  ERD  Collapsible / Collapsed (expander card).
 //------------------------------------------------------------------------------
 
 unit ERD.UI.Card;
@@ -63,11 +70,19 @@ type
     FFooterText: string;
     FShowFooter: Boolean;
     FStatusEdge: TOBDCardEdge;
+    FCollapsible: Boolean;
+    FCollapsed: Boolean;
+    FExpandedHeight: Integer;
+    FOnCollapsedChange: TNotifyEvent;
     procedure SetTitle(const AValue: string);
     procedure SetShowHeader(AValue: Boolean);
     procedure SetFooterText(const AValue: string);
     procedure SetShowFooter(AValue: Boolean);
     procedure SetStatusEdge(AValue: TOBDCardEdge);
+    procedure SetCollapsible(AValue: Boolean);
+    procedure SetCollapsed(AValue: Boolean);
+    function IsExpandedHeightStored: Boolean;
+    function CollapsedHeight: Integer;
     procedure LayoutChanged;
   protected
     /// <summary>Paints face, border, edge, header and footer.</summary>
@@ -75,6 +90,23 @@ type
     /// <summary>Excludes border, edge, header and footer from the area
     /// aligned children use.</summary>
     procedure AdjustClientRect(var Rect: TRect); override;
+    /// <summary>Applies a collapsed state read from the form file.
+    /// </summary>
+    procedure Loaded; override;
+    /// <summary>Scales the remembered expanded height with the form.
+    /// </summary>
+    /// <param name="M">Multiplier.</param>
+    /// <param name="D">Divisor.</param>
+    /// <param name="isDpiChange">True for a DPI change.</param>
+    procedure ChangeScale(M, D: Integer; isDpiChange: Boolean); override;
+    /// <summary>Folds or unfolds a collapsible card on a header click.
+    /// </summary>
+    /// <param name="Button">Mouse button.</param>
+    /// <param name="Shift">Shift state.</param>
+    /// <param name="X">Client X.</param>
+    /// <param name="Y">Client Y.</param>
+    procedure MouseDown(Button: TMouseButton; Shift: TShiftState;
+      X, Y: Integer); override;
   public
     /// <summary>Creates a 320 x 200 card with a header.</summary>
     constructor Create(AOwner: TComponent); override;
@@ -94,6 +126,8 @@ type
     /// footer.</summary>
     /// <returns>Footer rectangle.</returns>
     function FooterRect: TRect;
+    /// <summary>Flips <see cref="Collapsed"/>.</summary>
+    procedure Toggle;
   published
     /// <summary>Title in the header, 15 px bold.</summary>
     property Title: string read FTitle write SetTitle;
@@ -115,6 +149,22 @@ type
     /// <summary>Space between the content area and the children.
     /// </summary>
     property Padding;
+    /// <summary>Shows a chevron in the header; a click on the header
+    /// folds and unfolds the card. Needs ShowHeader.</summary>
+    property Collapsible: Boolean read FCollapsible write SetCollapsible
+      default False;
+    /// <summary>Folds the card to its header; the children are clipped
+    /// away until it unfolds to <see cref="ExpandedHeight"/>.</summary>
+    property Collapsed: Boolean read FCollapsed write SetCollapsed
+      default False;
+    /// <summary>Height to unfold to; recorded when the card folds.
+    /// </summary>
+    property ExpandedHeight: Integer read FExpandedHeight
+      write FExpandedHeight stored IsExpandedHeightStored;
+    /// <summary>Fires on the main thread after the card folded or
+    /// unfolded.</summary>
+    property OnCollapsedChange: TNotifyEvent read FOnCollapsedChange
+      write FOnCollapsedChange;
   end;
 
 implementation
@@ -185,9 +235,83 @@ end;
 
 procedure TOBDCard.DensityChanged;
 begin
+  if FCollapsed and not (csLoading in ComponentState) then
+    Height := CollapsedHeight;
   if not (csLoading in ComponentState) then
     Realign;
   inherited DensityChanged;
+end;
+
+function TOBDCard.CollapsedHeight: Integer;
+begin
+  // The title bar alone: the header minus the gap under the title.
+  Result := ScaleValue(Metrics.Head - 8);
+end;
+
+function TOBDCard.IsExpandedHeightStored: Boolean;
+begin
+  Result := FCollapsed;
+end;
+
+procedure TOBDCard.SetCollapsible(AValue: Boolean);
+begin
+  if FCollapsible = AValue then
+    Exit;
+  FCollapsible := AValue;
+  if not AValue and FCollapsed then
+    SetCollapsed(False);
+  Invalidate;
+end;
+
+procedure TOBDCard.SetCollapsed(AValue: Boolean);
+begin
+  if FCollapsed = AValue then
+    Exit;
+  FCollapsed := AValue;
+  if csLoading in ComponentState then
+    Exit;
+  if AValue then
+  begin
+    FExpandedHeight := Height;
+    Height := CollapsedHeight;
+  end
+  else if FExpandedHeight > CollapsedHeight then
+    Height := FExpandedHeight;
+  LayoutChanged;
+  if Assigned(FOnCollapsedChange) then
+    FOnCollapsedChange(Self);
+end;
+
+procedure TOBDCard.Toggle;
+begin
+  SetCollapsed(not FCollapsed);
+end;
+
+procedure TOBDCard.Loaded;
+begin
+  inherited Loaded;
+  if FCollapsed then
+  begin
+    if FExpandedHeight <= 0 then
+      FExpandedHeight := Height;
+    Height := CollapsedHeight;
+  end;
+end;
+
+procedure TOBDCard.ChangeScale(M, D: Integer; isDpiChange: Boolean);
+begin
+  inherited ChangeScale(M, D, isDpiChange);
+  if FExpandedHeight > 0 then
+    FExpandedHeight := MulDiv(FExpandedHeight, M, D);
+end;
+
+procedure TOBDCard.MouseDown(Button: TMouseButton; Shift: TShiftState;
+  X, Y: Integer);
+begin
+  inherited MouseDown(Button, Shift, X, Y);
+  if (Button = mbLeft) and FCollapsible and FShowHeader and Enabled and
+    (Y < CollapsedHeight) then
+    Toggle;
 end;
 
 function TOBDCard.SurfaceColor: TColor;
@@ -264,9 +388,18 @@ begin
     P.Card(Rect(0, 0, Width, Height), Edge, SurfaceColor);
     Left := P.S(OBD_PAD);
     if FShowHeader and (FTitle <> '') then
-      P.Text(Left, P.S((M.Head - 8) / 2), FTitle, CARD_TITLE_SIZE,
-        Palette.ForegroundText, twBold, taLeftJustify, Width - Left * 2);
-    if FShowFooter then
+      if FCollapsible then
+        P.Text(Left, P.S((M.Head - 8) / 2), FTitle, CARD_TITLE_SIZE,
+          Palette.ForegroundText, twBold, taLeftJustify,
+          Width - Left * 2 - P.S(24))
+      else
+        P.Text(Left, P.S((M.Head - 8) / 2), FTitle, CARD_TITLE_SIZE,
+          Palette.ForegroundText, twBold, taLeftJustify, Width - Left * 2);
+    // Expander chevron: down while open, right while folded.
+    if FShowHeader and FCollapsible then
+      P.GlyphChevron(Width - P.SF(OBD_PAD) - P.SF(6), P.SF((M.Head - 8) / 2),
+        Palette.Subtle, not FCollapsed);
+    if FShowFooter and not FCollapsed then
     begin
       FootH := P.S(M.Foot);
       if FStatusEdge <> ceNone then

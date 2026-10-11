@@ -156,6 +156,12 @@ uses
   ERD.UI.Progress,
   ERD.UI.Dialogs,
   ERD.UI.Toast,
+  ERD.UI.Splitter,
+  ERD.UI.ScrollBox,
+  ERD.UI.SpinEdit,
+  ERD.UI.TrackBar,
+  ERD.UI.Memo,
+  ERD.UI.Calendar,
   ERD.UI.Hint,
   ERD.UI.ScrollBar,
   ERD.Service.Dyno,
@@ -265,6 +271,10 @@ begin
     TOBDRibbon, TOBDBackstage, TOBDReportPreview, TOBDTabs, TOBDToolBar,
     TOBDStatusBar, TOBDProgressBar, TOBDDialog, TOBDToastManager,
     TOBDHintStyle, TOBDScrollBar]);
+  // Layout and input controls: splitter, scroll box, spin edit, slider,
+  // memo, calendar and date picker.
+  RegisterComponents('OBD Studio', [TOBDSplitter, TOBDScrollBox,
+    TOBDSpinEdit, TOBDTrackBar, TOBDMemo, TOBDCalendar, TOBDDatePicker]);
   // Non-visual dyno math (own palette tab).
   RegisterComponents('OBD Dyno', [TOBDDynoCalculator, TOBDPowerCurve,
     TOBDDragRun, TOBDDynoConditions, TOBDFuelEconomyMeter,

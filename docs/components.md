@@ -432,13 +432,19 @@ values, buttons, edits, bars and menus), `OBD_TEXT_HEADING` (14) and
 ### Building blocks
 | Control | Unit | Purpose |
 |---|---|---|
-| `TOBDCard` | `ERD.UI.Card` | Container with title header, footer text and a status edge; child controls paint on the card colour. |
+| `TOBDCard` | `ERD.UI.Card` | Container with title header, footer text and a status edge; child controls paint on the card colour. `Collapsible` adds a header chevron; a click on the header (or `Toggle`) folds the card to its header (`Collapsed`, `OnCollapsedChange`). |
 | `TOBDButton` | `ERD.UI.Buttons` | `Kind` primary / secondary / danger / danger outline / ghost, optional glyph, `ModalResult`, `Default`, `Cancel`. |
 | `TOBDCheckBox` | `ERD.UI.Buttons` | `Style = csCheck` or `csSwitch`; checked, unchecked and grayed. |
 | `TOBDRadioButton` | `ERD.UI.Buttons` | Single choice within a `GroupIndex`; arrow keys move through the group. |
 | `TOBDChip`, `TOBDBadge` | `ERD.UI.Chips` | Status pill and counter bubble. |
 | `TOBDBanner` | `ERD.UI.Chips` | Info / success / warning / danger callout; holds child controls. |
 | `TOBDEdit`, `TOBDComboBox` | `ERD.UI.Edits` | Themed edit and drop-down (incremental search in the list). |
+| `TOBDSpinEdit` | `ERD.UI.SpinEdit` | Numeric edit with up / down buttons (auto-repeat), `MinValue` / `MaxValue`, `Increment`, `Decimals`; arrow keys, Page Up / Down (x10) and the mouse wheel while focused. |
+| `TOBDTrackBar` | `ERD.UI.TrackBar` | Slider with `Min` / `Max` / `Position`, tick marks (`Frequency`), keyboard and wheel, optional value read-out with `Suffix`. |
+| `TOBDMemo` | `ERD.UI.Memo` | Multi-line text (notes, job remarks) in the edit frame with the themed scroll bar; `Mono` for log-style text. |
+| `TOBDCalendar`, `TOBDDatePicker` | `ERD.UI.Calendar` | Month calendar (keyboard, today ring, `FirstDay`) and a date field that drops it down (`DisplayFormat`; arrow keys change the day while closed, F4 / Alt+Down opens). |
+| `TOBDSplitter` | `ERD.UI.Splitter` | Themed splitter with grip dots; resizes the neighbouring aligned control live, `MinSize`, `Thickness` (density default), `OnMoved`. |
+| `TOBDScrollBox` | `ERD.UI.ScrollBox` | Vertically scrolling container with the themed scroll bar; mouse wheel, keeps the focused child in view. |
 | `TOBDSegmented` | `ERD.UI.Segmented` | Segmented choice / filter strip. |
 | `TOBDRangeBar` | `ERD.UI.RangeBar` | A value against its normal band. |
 | `TOBDInspector` | `ERD.UI.Inspector` | Categorised name / value grid with the keyboard and mouse behaviour of the Delphi Object Inspector: in-place editor (Enter commits, Esc reverts), pick lists, check values, ellipsis button, splitter, values that differ from their default in bold. Hold the mouse button and sweep to move the selection; in tablet density the whole category header toggles collapse. |
@@ -468,7 +474,7 @@ Everything around the panels, so a whole application follows the theme.
 | `TOBDStatusBar` | `ERD.UI.StatusBar` | Text, status (coloured dot), progress and link panels. |
 | `TOBDProgressBar` | `ERD.UI.Progress` | Determinate, state-coloured, indeterminate and step progress. |
 | `TOBDDialog` | `ERD.UI.Dialogs` | Themed message dialog with kind, buttons, danger button and an optional check box; `OBDMessageDlg` helper. |
-| `TOBDToastManager` | `ERD.UI.Toast` | Stacked notifications with an action link and an auto-hide timer. |
+| `TOBDToastManager` | `ERD.UI.Toast` | Stacked notifications with an action link and an auto-hide timer. `Placement` shows them in the corner of the form (`tlForm`) or of the screen, top-most (`tlScreen`); form placement falls back to the screen while the form is minimised or hidden. |
 | `TOBDHintStyle` | `ERD.UI.Hint` | Makes `TOBDHintWindow` the application hint window: title, text and shortcut. |
 | `TOBDScrollBar` | `ERD.UI.ScrollBar` | Thin themed scroll bar that widens on hover; `OBDPaintScrollBar` lets other controls paint the same look. |
 

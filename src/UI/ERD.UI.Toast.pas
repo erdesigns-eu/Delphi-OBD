@@ -4,8 +4,9 @@
 //  Non-activating themed toast notifications for OBD Studio.
 //
 //    TOBDToastManager  creates top-most no-activate popup toast windows,
-//                      stacks them near the owner form or monitor work area,
-//                      tracks duration and raises action / dismiss events.
+//                      stacks them over the owner form or in the corner of
+//                      the screen (Placement), tracks duration and raises
+//                      action / dismiss events.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
@@ -56,6 +57,16 @@ type
     /// <summary>Bottom centre of the owner client area or work area.</summary>
     tpBottomCenter);
 
+  /// <summary>Where the toast stack is shown.</summary>
+  TOBDToastPlacement = (
+    /// <summary>Over the owner form's client area (falls back to the
+    /// screen while the form is hidden or minimised).</summary>
+    tlForm,
+    /// <summary>In the corner of the work area of the monitor that shows
+    /// the owner form, on top of other windows, so notifications are seen
+    /// while the application is not maximised or not in front.</summary>
+    tlScreen);
+
   /// <summary>Toast event carrying the toast identifier.</summary>
   /// <param name="Sender">Toast manager.</param>
   /// <param name="AId">Toast identifier.</param>
@@ -67,6 +78,7 @@ type
     FTheme: TOBDTheme;
     FDensity: TOBDDensity;
     FPosition: TOBDToastPosition;
+    FPlacement: TOBDToastPlacement;
     FDuration: Cardinal;
     FMaxVisible: Integer;
     FMargin: Integer;
@@ -77,6 +89,8 @@ type
     procedure SetTheme(AValue: TOBDTheme);
     procedure SetDensity(AValue: TOBDDensity);
     procedure SetPosition(AValue: TOBDToastPosition);
+    procedure SetPlacement(AValue: TOBDToastPlacement);
+    function StackArea: TRect;
     procedure SetDuration(AValue: Cardinal);
     procedure SetMaxVisible(AValue: Integer);
     procedure SetMargin(AValue: Integer);
@@ -127,6 +141,9 @@ type
     /// <summary>Toast stack anchor.</summary>
     property Position: TOBDToastPosition read FPosition write SetPosition
       default tpBottomRight;
+    /// <summary>Over the owner form or in the corner of the screen.</summary>
+    property Placement: TOBDToastPlacement read FPlacement write SetPlacement
+      default tlForm;
     /// <summary>Visible duration in milliseconds; 0 keeps toasts sticky.</summary>
     property Duration: Cardinal read FDuration write SetDuration default 5000;
     /// <summary>Maximum number of visible toasts.</summary>
@@ -416,6 +433,7 @@ begin
   inherited Create(AOwner);
   FDensity := dnDesktop;
   FPosition := tpBottomRight;
+  FPlacement := tlForm;
   FDuration := 5000;
   FMaxVisible := 3;
   FMargin := 16;
@@ -488,6 +506,14 @@ begin
   if FPosition = AValue then
     Exit;
   FPosition := AValue;
+  Restack;
+end;
+
+procedure TOBDToastManager.SetPlacement(AValue: TOBDToastPlacement);
+begin
+  if FPlacement = AValue then
+    Exit;
+  FPlacement := AValue;
   Restack;
 end;
 
@@ -581,42 +607,51 @@ begin
     FOnDismiss(Self, AId);
 end;
 
+function TOBDToastManager.StackArea: TRect;
+var
+  OwnerForm: TCustomForm;
+  Shown: Boolean;
+  Mon: TMonitor;
+begin
+  OwnerForm := nil;
+  if Owner is TCustomForm then
+    OwnerForm := TCustomForm(Owner)
+  else if Application.MainForm <> nil then
+    OwnerForm := Application.MainForm;
+  Shown := (OwnerForm <> nil) and OwnerForm.Visible and
+    OwnerForm.HandleAllocated and not IsIconic(OwnerForm.Handle);
+
+  if (FPlacement = tlForm) and Shown then
+  begin
+    Result := OwnerForm.ClientRect;
+    Result.TopLeft := OwnerForm.ClientToScreen(Result.TopLeft);
+    Result.BottomRight := OwnerForm.ClientToScreen(Result.BottomRight);
+    Exit;
+  end;
+
+  // Screen corner: the work area (without the task bar) of the monitor
+  // that shows the form.
+  if (OwnerForm <> nil) and OwnerForm.HandleAllocated then
+    Mon := Screen.MonitorFromWindow(OwnerForm.Handle, mdNearest)
+  else
+    Mon := Screen.MonitorFromWindow(Application.Handle, mdNearest);
+  if Mon <> nil then
+    Result := Mon.WorkareaRect
+  else
+    Result := Screen.WorkAreaRect;
+end;
+
 procedure TOBDToastManager.Restack;
 var
   Area: TRect;
-  OwnerForm: TCustomForm;
   I, W, H, Gap, X, Y: Integer;
-  Mon: TMonitor;
   R: TRect;
   Metrics: TOBDDensityMetrics;
 begin
   if FToasts.Count = 0 then
     Exit;
 
-  OwnerForm := nil;
-  if Owner is TCustomForm then
-    OwnerForm := TCustomForm(Owner)
-  else if Application.MainForm <> nil then
-    OwnerForm := Application.MainForm;
-
-  if (OwnerForm <> nil) and OwnerForm.Visible then
-    Area := OwnerForm.ClientRect
-  else
-    Area := Rect(0, 0, 0, 0);
-
-  if (OwnerForm <> nil) and OwnerForm.Visible then
-  begin
-    Area.TopLeft := OwnerForm.ClientToScreen(Area.TopLeft);
-    Area.BottomRight := OwnerForm.ClientToScreen(Area.BottomRight);
-  end
-  else
-  begin
-    Mon := Screen.MonitorFromWindow(Application.Handle, mdNearest);
-    if Mon <> nil then
-      Area := Mon.WorkareaRect
-    else
-      Area := Screen.DesktopRect;
-  end;
+  Area := StackArea;
 
   Metrics := DensityMetrics(FDensity);
   W := 340;

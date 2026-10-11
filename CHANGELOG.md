@@ -106,6 +106,17 @@ Text on accent fills (backstage navigation, ribbon File button, check
 boxes, switches, badges) picks dark or light ink by contrast, so it
 stays readable on the blue accent of the Windows theme.
 
+New OBD Studio controls: `TOBDSplitter` (themed splitter that resizes
+live, `MinSize`, grip dots), `TOBDScrollBox` (scrolling container with
+the themed scroll bar that keeps the focused child in view),
+`TOBDSpinEdit`, `TOBDTrackBar`, `TOBDMemo`, `TOBDCalendar` and
+`TOBDDatePicker` (date field with a drop-down calendar). `TOBDCard` can
+be `Collapsible` (click the header to fold it). `TOBDToastManager` has
+`Placement`: in the corner of the form (default) or top-most in the
+corner of the screen, so notifications stay visible when the
+application is not maximised; the demo exposes it under Settings >
+Appearance > Notifications.
+
 The ERDesigns light palette uses #856404 for warnings (the site's
 warning text colour); the dark palette uses #FFC107.
 
