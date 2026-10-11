@@ -443,7 +443,10 @@ end;
 
 procedure TOBDCustomFileDialog.SetPlaces(AValue: TOBDPlaces);
 begin
-  FPlaces.Assign(AValue);
+  if AValue <> nil then
+    FPlaces.Assign(AValue)
+  else
+    FPlaces.Clear;
 end;
 
 function TOBDCustomFileDialog.IsSaveDialog: Boolean;
@@ -925,7 +928,7 @@ begin
     FList.SelectedPaths(FDialog.FFiles);
   if FDialog.FFiles.Count = 0 then
     FDialog.FFiles.Add(P);
-  for I := 0 to FDialog.FFiles.Count - 1 do
+  for I := FDialog.FFiles.Count - 1 downto 0 do
     if FDialog.FFiles[I] = '' then
       FDialog.FFiles.Delete(I);
   FWindow.ModalResult := mrOk;

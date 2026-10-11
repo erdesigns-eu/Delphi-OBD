@@ -89,6 +89,21 @@
     "type": "RCDATA",
     "size": 24
   },
+  "TOBDBREADCRUMB16_PNG": {
+    "file": "palette/TOBDBREADCRUMB16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDBREADCRUMB32_PNG": {
+    "file": "palette/TOBDBREADCRUMB32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDBREADCRUMB_PNG": {
+    "file": "palette/TOBDBREADCRUMB.png",
+    "type": "RCDATA",
+    "size": 24
+  },
   "TOBDBUTTON16_PNG": {
     "file": "palette/TOBDBUTTON16.png",
     "type": "RCDATA",
@@ -236,6 +251,51 @@
   },
   "TOBDCODINGSESSION_PNG": {
     "file": "palette/TOBDCODINGSESSION.png",
+    "type": "RCDATA",
+    "size": 24
+  },
+  "TOBDCOLORDIALOG16_PNG": {
+    "file": "palette/TOBDCOLORDIALOG16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDCOLORDIALOG32_PNG": {
+    "file": "palette/TOBDCOLORDIALOG32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDCOLORDIALOG_PNG": {
+    "file": "palette/TOBDCOLORDIALOG.png",
+    "type": "RCDATA",
+    "size": 24
+  },
+  "TOBDCOLORSPECTRUM16_PNG": {
+    "file": "palette/TOBDCOLORSPECTRUM16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDCOLORSPECTRUM32_PNG": {
+    "file": "palette/TOBDCOLORSPECTRUM32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDCOLORSPECTRUM_PNG": {
+    "file": "palette/TOBDCOLORSPECTRUM.png",
+    "type": "RCDATA",
+    "size": 24
+  },
+  "TOBDCOLORSWATCHES16_PNG": {
+    "file": "palette/TOBDCOLORSWATCHES16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDCOLORSWATCHES32_PNG": {
+    "file": "palette/TOBDCOLORSWATCHES32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDCOLORSWATCHES_PNG": {
+    "file": "palette/TOBDCOLORSWATCHES.png",
     "type": "RCDATA",
     "size": 24
   },
@@ -629,6 +689,36 @@
     "type": "RCDATA",
     "size": 24
   },
+  "TOBDFILELIST16_PNG": {
+    "file": "palette/TOBDFILELIST16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDFILELIST32_PNG": {
+    "file": "palette/TOBDFILELIST32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDFILELIST_PNG": {
+    "file": "palette/TOBDFILELIST.png",
+    "type": "RCDATA",
+    "size": 24
+  },
+  "TOBDFINDDIALOG16_PNG": {
+    "file": "palette/TOBDFINDDIALOG16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDFINDDIALOG32_PNG": {
+    "file": "palette/TOBDFINDDIALOG32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDFINDDIALOG_PNG": {
+    "file": "palette/TOBDFINDDIALOG.png",
+    "type": "RCDATA",
+    "size": 24
+  },
   "TOBDFLASHER16_PNG": {
     "file": "palette/TOBDFLASHER16.png",
     "type": "RCDATA",
@@ -671,6 +761,51 @@
   },
   "TOBDFLASHSESSION_PNG": {
     "file": "palette/TOBDFLASHSESSION.png",
+    "type": "RCDATA",
+    "size": 24
+  },
+  "TOBDFOLDERDIALOG16_PNG": {
+    "file": "palette/TOBDFOLDERDIALOG16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDFOLDERDIALOG32_PNG": {
+    "file": "palette/TOBDFOLDERDIALOG32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDFOLDERDIALOG_PNG": {
+    "file": "palette/TOBDFOLDERDIALOG.png",
+    "type": "RCDATA",
+    "size": 24
+  },
+  "TOBDFOLDERTREE16_PNG": {
+    "file": "palette/TOBDFOLDERTREE16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDFOLDERTREE32_PNG": {
+    "file": "palette/TOBDFOLDERTREE32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDFOLDERTREE_PNG": {
+    "file": "palette/TOBDFOLDERTREE.png",
+    "type": "RCDATA",
+    "size": 24
+  },
+  "TOBDFONTDIALOG16_PNG": {
+    "file": "palette/TOBDFONTDIALOG16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDFONTDIALOG32_PNG": {
+    "file": "palette/TOBDFONTDIALOG32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDFONTDIALOG_PNG": {
+    "file": "palette/TOBDFONTDIALOG.png",
     "type": "RCDATA",
     "size": 24
   },
@@ -1004,6 +1139,21 @@
     "type": "RCDATA",
     "size": 24
   },
+  "TOBDLISTBOX16_PNG": {
+    "file": "palette/TOBDLISTBOX16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDLISTBOX32_PNG": {
+    "file": "palette/TOBDLISTBOX32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDLISTBOX_PNG": {
+    "file": "palette/TOBDLISTBOX.png",
+    "type": "RCDATA",
+    "size": 24
+  },
   "TOBDLIVEDATA16_PNG": {
     "file": "palette/TOBDLIVEDATA16.png",
     "type": "RCDATA",
@@ -1139,6 +1289,36 @@
     "type": "RCDATA",
     "size": 24
   },
+  "TOBDOPENDIALOG16_PNG": {
+    "file": "palette/TOBDOPENDIALOG16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDOPENDIALOG32_PNG": {
+    "file": "palette/TOBDOPENDIALOG32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDOPENDIALOG_PNG": {
+    "file": "palette/TOBDOPENDIALOG.png",
+    "type": "RCDATA",
+    "size": 24
+  },
+  "TOBDOPENPICTUREDIALOG16_PNG": {
+    "file": "palette/TOBDOPENPICTUREDIALOG16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDOPENPICTUREDIALOG32_PNG": {
+    "file": "palette/TOBDOPENPICTUREDIALOG32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDOPENPICTUREDIALOG_PNG": {
+    "file": "palette/TOBDOPENPICTUREDIALOG.png",
+    "type": "RCDATA",
+    "size": 24
+  },
   "TOBDOXYGENMONITOR16_PNG": {
     "file": "palette/TOBDOXYGENMONITOR16.png",
     "type": "RCDATA",
@@ -1154,6 +1334,21 @@
     "type": "RCDATA",
     "size": 24
   },
+  "TOBDPAGESETUPDIALOG16_PNG": {
+    "file": "palette/TOBDPAGESETUPDIALOG16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDPAGESETUPDIALOG32_PNG": {
+    "file": "palette/TOBDPAGESETUPDIALOG32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDPAGESETUPDIALOG_PNG": {
+    "file": "palette/TOBDPAGESETUPDIALOG.png",
+    "type": "RCDATA",
+    "size": 24
+  },
   "TOBDPIDPICKER16_PNG": {
     "file": "palette/TOBDPIDPICKER16.png",
     "type": "RCDATA",
@@ -1166,6 +1361,21 @@
   },
   "TOBDPIDPICKER_PNG": {
     "file": "palette/TOBDPIDPICKER.png",
+    "type": "RCDATA",
+    "size": 24
+  },
+  "TOBDPLACESPANE16_PNG": {
+    "file": "palette/TOBDPLACESPANE16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDPLACESPANE32_PNG": {
+    "file": "palette/TOBDPLACESPANE32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDPLACESPANE_PNG": {
+    "file": "palette/TOBDPLACESPANE.png",
     "type": "RCDATA",
     "size": 24
   },
@@ -1196,6 +1406,21 @@
   },
   "TOBDPOWERCURVE_PNG": {
     "file": "palette/TOBDPOWERCURVE.png",
+    "type": "RCDATA",
+    "size": 24
+  },
+  "TOBDPRINTDIALOG16_PNG": {
+    "file": "palette/TOBDPRINTDIALOG16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDPRINTDIALOG32_PNG": {
+    "file": "palette/TOBDPRINTDIALOG32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDPRINTDIALOG_PNG": {
+    "file": "palette/TOBDPRINTDIALOG.png",
     "type": "RCDATA",
     "size": 24
   },
@@ -1994,6 +2219,21 @@
     "type": "RCDATA",
     "size": 24
   },
+  "TOBDREPLACEDIALOG16_PNG": {
+    "file": "palette/TOBDREPLACEDIALOG16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDREPLACEDIALOG32_PNG": {
+    "file": "palette/TOBDREPLACEDIALOG32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDREPLACEDIALOG_PNG": {
+    "file": "palette/TOBDREPLACEDIALOG.png",
+    "type": "RCDATA",
+    "size": 24
+  },
   "TOBDREPLAYER16_PNG": {
     "file": "palette/TOBDREPLAYER16.png",
     "type": "RCDATA",
@@ -2051,6 +2291,36 @@
   },
   "TOBDROUTINECONTROL_PNG": {
     "file": "palette/TOBDROUTINECONTROL.png",
+    "type": "RCDATA",
+    "size": 24
+  },
+  "TOBDSAVEDIALOG16_PNG": {
+    "file": "palette/TOBDSAVEDIALOG16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDSAVEDIALOG32_PNG": {
+    "file": "palette/TOBDSAVEDIALOG32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDSAVEDIALOG_PNG": {
+    "file": "palette/TOBDSAVEDIALOG.png",
+    "type": "RCDATA",
+    "size": 24
+  },
+  "TOBDSAVEPICTUREDIALOG16_PNG": {
+    "file": "palette/TOBDSAVEPICTUREDIALOG16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDSAVEPICTUREDIALOG32_PNG": {
+    "file": "palette/TOBDSAVEPICTUREDIALOG32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDSAVEPICTUREDIALOG_PNG": {
+    "file": "palette/TOBDSAVEPICTUREDIALOG.png",
     "type": "RCDATA",
     "size": 24
   },
@@ -2216,6 +2486,21 @@
   },
   "TOBDTABS_PNG": {
     "file": "palette/TOBDTABS.png",
+    "type": "RCDATA",
+    "size": 24
+  },
+  "TOBDTASKDIALOG16_PNG": {
+    "file": "palette/TOBDTASKDIALOG16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDTASKDIALOG32_PNG": {
+    "file": "palette/TOBDTASKDIALOG32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDTASKDIALOG_PNG": {
+    "file": "palette/TOBDTASKDIALOG.png",
     "type": "RCDATA",
     "size": 24
   },

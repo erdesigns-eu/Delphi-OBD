@@ -1145,6 +1145,162 @@ def chrome_report_preview(c):
         c.line([(8, y), (16, y)], 0.8, MUTED)
 
 
+
+def folder_shape(c, x0, y0, x1, y1, color):
+    c.rect(x0, y0, x0 + (x1 - x0) * 0.42, y0 + 2.5, color, radius=0.6)
+    c.rect(x0, y0 + 1.5, x1, y1, color, radius=0.8)
+
+
+def dialog_frame(c):
+    c.frame(2.5, 3.5, 21.5, 20.5, 1, ORANGE, radius=1)
+    c.rect(2.5, 3.5, 21.5, 6.5, GREY, radius=1)
+
+
+def studio_list_box(c):
+    c.frame(3, 3.5, 21, 20.5, 1, MUTED, radius=1)
+    c.rect(4, 9, 20, 12.5, ORANGE, alpha=0.45)
+    c.rect(4, 9.3, 5, 12.2, ORANGE)
+    for y in (6.8, 10.8, 14.8, 18):
+        c.line([(6.5, y), (16, y)], 1, LIGHT)
+
+
+def studio_breadcrumb(c):
+    c.rect(2.5, 8, 21.5, 16, GREY, radius=1.2)
+    c.line([(4.5, 12), (7.5, 12)], 1.2, LIGHT)
+    c.line([(8.8, 10.3), (10.3, 12), (8.8, 13.7)], 1, MUTED)
+    c.line([(11.5, 12), (14, 12)], 1.2, LIGHT)
+    c.line([(15.3, 10.3), (16.8, 12), (15.3, 13.7)], 1, MUTED)
+    c.line([(18, 12), (20, 12)], 1.4, ORANGE)
+
+
+def studio_places(c):
+    c.rect(3, 3, 11, 21, GREY, radius=1)
+    folder_shape(c, 4.5, 5, 9.5, 8.5, ORANGE)
+    folder_shape(c, 4.5, 10.5, 9.5, 14, MUTED)
+    c.rect(4.5, 16.5, 9.5, 19.5, LIGHT, radius=0.6)
+    c.circle(8.3, 18, 0.6, SUCCESS)
+    for y in (7, 12.5, 18):
+        c.line([(13, y), (20, y)], 1, MUTED)
+
+
+def studio_folder_tree(c):
+    folder_shape(c, 3, 3.5, 10, 8, ORANGE)
+    c.line([(5, 8), (5, 17.5), (9, 17.5)], 1, MUTED)
+    c.line([(5, 12.5), (9, 12.5)], 1, MUTED)
+    folder_shape(c, 10, 10.3, 17, 14.5, LIGHT)
+    folder_shape(c, 10, 15.3, 17, 19.5, LIGHT)
+
+
+def studio_file_list(c):
+    c.frame(2.5, 3.5, 21.5, 20.5, 1, MUTED, radius=1)
+    c.rect(3.5, 4.5, 20.5, 7.5, GREY)
+    for i, y in enumerate((10, 13.5, 17)):
+        if i == 0:
+            folder_shape(c, 4.5, y - 1.5, 7.5, y + 1.5, ORANGE)
+        else:
+            c.rect(5, y - 1.6, 7.3, y + 1.6, LIGHT, radius=0.4)
+        c.line([(9, y), (15, y)], 1, LIGHT)
+        c.line([(16.5, y), (19, y)], 1, MUTED)
+
+
+def file_dialog_icon(arrow_up, picture=False):
+    def draw(c):
+        dialog_frame(c)
+        if picture:
+            c.rect(5, 9, 13.5, 17.5, LIGHT, radius=0.5)
+            c.poly([(5.5, 17), (8.5, 12.5), (11, 15.5), (13, 13.5), (13, 17)], SUCCESS)
+            c.circle(11, 11, 1, WARNING)
+        else:
+            folder_shape(c, 5, 9, 13.5, 17, ORANGE)
+        x = 17.5
+        if arrow_up:
+            c.line([(x, 17.5), (x, 10)], 1.4, LIGHT)
+            c.line([(x - 2.3, 12.3), (x, 10), (x + 2.3, 12.3)], 1.4, LIGHT)
+        else:
+            c.line([(x, 9.5), (x, 17)], 1.4, LIGHT)
+            c.line([(x - 2.3, 14.7), (x, 17), (x + 2.3, 14.7)], 1.4, LIGHT)
+    return draw
+
+
+def dialog_folder(c):
+    dialog_frame(c)
+    folder_shape(c, 5, 9, 15, 18, ORANGE)
+    c.circle(17.5, 16.5, 2.6, SUCCESS)
+    c.line([(16.2, 16.5), (17.2, 17.5), (18.9, 15.6)], 0.9, LIGHT)
+
+
+def dialog_print(c):
+    c.rect(7, 3.5, 17, 9, LIGHT, radius=0.4)
+    c.rect(3, 8, 21, 16.5, GREY, radius=1.2)
+    c.circle(18, 10.8, 0.8, ORANGE)
+    c.rect(7, 13.5, 17, 21, LIGHT, radius=0.4)
+    for y in (16, 18.3):
+        c.line([(8.8, y), (15.2, y)], 0.9, MUTED)
+
+
+def dialog_page_setup(c):
+    c.rect(5, 2.5, 19, 21.5, LIGHT, radius=0.5)
+    c.frame(7.5, 5, 16.5, 19, 0.8, ORANGE)
+    for y in (8, 10.5, 13):
+        c.line([(9, y), (15, y)], 0.8, MUTED)
+
+
+def dialog_font(c):
+    dialog_frame(c)
+    c.poly([(5, 18.5), (8.7, 8.5), (10.3, 8.5), (14, 18.5), (12, 18.5), (9.5, 11), (7, 18.5)], LIGHT)
+    c.line([(7.6, 15), (11.4, 15)], 1.2, LIGHT)
+    c.line([(15.5, 18.5), (15.5, 12)], 1.2, ORANGE)
+    c.line([(15.5, 13.5), (17.5, 12), (19, 13), (19, 18.5)], 1.2, ORANGE)
+
+
+def dialog_colour(c):
+    dialog_frame(c)
+    for i, col in enumerate((ORANGE, SUCCESS, INFO, DANGER)):
+        x = 5 + (i % 2) * 4.5
+        y = 9 + (i // 2) * 4.5
+        c.rect(x, y, x + 3.5, y + 3.5, col, radius=0.5)
+    c.rect(15, 9, 19.5, 17.5, WARNING, radius=0.6)
+
+
+def studio_swatches(c):
+    cols = (ORANGE, SUCCESS, INFO, DANGER, WARNING, LIGHT, MUTED, GREY, ORANGE_STRONG)
+    for i, col in enumerate(cols):
+        x = 3.5 + (i % 3) * 6
+        y = 3.5 + (i // 3) * 6
+        c.rect(x, y, x + 5, y + 5, col, radius=0.8)
+    c.frame(8.8, 8.8, 15.2, 15.2, 1, LIGHT, radius=1)
+
+
+def studio_spectrum(c):
+    for i in range(12):
+        t = i / 11
+        c.rect(3 + i * 1.25, 3, 4.4 + i * 1.25, 18, ORANGE, alpha=0.25 + 0.75 * t)
+    c.rect(3, 15, 18, 18, TILE, alpha=0.8)
+    c.ring(13, 8, 1.6, 0.8, LIGHT)
+    for i, col in enumerate((DANGER, WARNING, SUCCESS, INFO, ORANGE_STRONG)):
+        c.rect(19.5, 3 + i * 3, 21.5, 6 + i * 3, col)
+
+
+def dialog_find(c, replace=False):
+    dialog_frame(c)
+    c.ring(10, 12.5, 3.3, 1.3, LIGHT)
+    c.line([(12.4, 14.9), (15.5, 18)], 1.8, ORANGE)
+    if replace:
+        c.line([(15.5, 9.5), (19.5, 9.5)], 1, MUTED)
+        c.line([(17.8, 8), (19.5, 9.5), (17.8, 11)], 1, MUTED)
+
+
+def dialog_task(c):
+    dialog_frame(c)
+    c.circle(7.5, 11.5, 2.6, INFO)
+    c.line([(7.5, 10.8), (7.5, 13)], 0.9, LIGHT)
+    c.circle(7.5, 9.8, 0.45, LIGHT)
+    c.line([(11.5, 10), (19, 10)], 1.2, LIGHT)
+    c.line([(11.5, 13), (17, 13)], 1, MUTED)
+    c.rect(5, 16, 19, 18.8, GREY, radius=0.6)
+    c.line([(16.5, 16.8), (17.8, 17.4), (16.5, 18)], 0.8, ORANGE)
+
+
 def labelled(text, sub):
     def draw(c):
         protocol_icon(c, text, sub)
@@ -1236,6 +1392,18 @@ ICONS = {
     'TOBDSpinEdit': studio_spin_edit, 'TOBDTrackBar': studio_track_bar,
     'TOBDMemo': studio_memo, 'TOBDCalendar': studio_calendar,
     'TOBDDatePicker': studio_date_picker,
+    'TOBDListBox': studio_list_box, 'TOBDBreadcrumb': studio_breadcrumb,
+    'TOBDPlacesPane': studio_places, 'TOBDFolderTree': studio_folder_tree,
+    'TOBDFileList': studio_file_list, 'TOBDColorSwatches': studio_swatches,
+    'TOBDColorSpectrum': studio_spectrum,
+    # OBD Studio dialogs
+    'TOBDOpenDialog': file_dialog_icon(True), 'TOBDSaveDialog': file_dialog_icon(False),
+    'TOBDOpenPictureDialog': file_dialog_icon(True, picture=True),
+    'TOBDSavePictureDialog': file_dialog_icon(False, picture=True),
+    'TOBDFolderDialog': dialog_folder, 'TOBDPrintDialog': dialog_print,
+    'TOBDPageSetupDialog': dialog_page_setup, 'TOBDFontDialog': dialog_font,
+    'TOBDColorDialog': dialog_colour, 'TOBDFindDialog': dialog_find,
+    'TOBDReplaceDialog': lambda c: dialog_find(c, replace=True), 'TOBDTaskDialog': dialog_task,
     # Visual
     'TOBDTerminal': terminal, 'TOBDLogViewer': log_viewer, 'TOBDDtcList': dtc_list,
     'TOBDVINEdit': edit('VIN'), 'TOBDPidPicker': picker('PID'), 'TOBDOEMPicker': picker('OEM'),

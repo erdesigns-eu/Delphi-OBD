@@ -435,6 +435,14 @@
         <DCCReference Include="..\src\UI\ERD.UI.Calendar.pas"/>
         <DCCReference Include="..\src\UI\ERD.UI.Hint.pas"/>
         <DCCReference Include="..\src\UI\ERD.UI.ScrollBar.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.ItemList.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.ShellControls.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.FileDialogs.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.PrintDialogs.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.FontDialog.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.ColorDialog.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.FindDialogs.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.TaskDialog.pas"/>
         <DCCReference Include="..\src\DesignTime\ERD.Design.Registration.pas"/>
         <DCCReference Include="..\src\DesignTime\ERD.Design.Editors.pas"/>
         <DCCReference Include="..\src\DesignTime\ERD.Design.DialogEditors.pas"/>

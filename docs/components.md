@@ -473,10 +473,42 @@ Everything around the panels, so a whole application follows the theme.
 | `TOBDToolBar` | `ERD.UI.ToolBar` | Action-linked buttons, toggles, drop-downs, separators, overflow menu and a search box. |
 | `TOBDStatusBar` | `ERD.UI.StatusBar` | Text, status (coloured dot), progress and link panels. |
 | `TOBDProgressBar` | `ERD.UI.Progress` | Determinate, state-coloured, indeterminate and step progress. |
-| `TOBDDialog` | `ERD.UI.Dialogs` | Themed message dialog with kind, buttons, danger button and an optional check box; `OBDMessageDlg` helper. |
+| `TOBDDialog` | `ERD.UI.Dialogs` | Themed message dialog with kind, buttons, danger button and an optional check box; `OBDMessageDlg`, `OBDInputQuery` (with a per-field validator), `OBDInputBox` and `OBDShowMessage` helpers. |
 | `TOBDToastManager` | `ERD.UI.Toast` | Stacked notifications with an action link and an auto-hide timer. `Placement` shows them in the corner of the form (`tlForm`) or of the screen, top-most (`tlScreen`); form placement falls back to the screen while the form is minimised or hidden. |
 | `TOBDHintStyle` | `ERD.UI.Hint` | Makes `TOBDHintWindow` the application hint window: title, text and shortcut. |
 | `TOBDScrollBar` | `ERD.UI.ScrollBar` | Thin themed scroll bar that widens on hover; `OBDPaintScrollBar` lets other controls paint the same look. |
+
+### Dialogs
+Themed replacements for the standard VCL dialogs. Each one is a
+non-visual component built on `TOBDCommonDialog` (`Theme`, `Density`,
+`Title`, `OnShow`, `OnClose`, `Execute`) that shows a borderless themed
+form (`TOBDDialogWindow`). The properties match the VCL dialog they
+replace, so swapping one in is a type change. In the form designer,
+right-click a dialog and choose **Test Dialog** (or double-click it) to
+preview it; the preview runs on a copy, so it never changes the form.
+
+| Component | Unit | Replaces / purpose |
+|---|---|---|
+| `TOBDOpenDialog`, `TOBDSaveDialog` | `ERD.UI.FileDialogs` | `TOpenDialog`, `TSaveDialog`: places pane, breadcrumb, back / forward / up, search, details or icon view, `Filter`, `FilterIndex`, `InitialDir`, `DefaultExt`, `Files` (multi-select), `Options`. The overwrite prompt is a banner inside the save dialog. |
+| `TOBDOpenPictureDialog`, `TOBDSavePictureDialog` | `ERD.UI.FileDialogs` | `TOpenPictureDialog`, `TSavePictureDialog`, with a preview pane. |
+| `TOBDFolderDialog` | `ERD.UI.FileDialogs` | `SelectDirectory`: folder tree, new folder, `Directory`. |
+| `TOBDPrintDialog` | `ERD.UI.PrintDialogs` | `TPrintDialog`: printer, copies, collate, page range, orientation and a first-page preview (`OnPaintPage`). |
+| `TOBDPageSetupDialog` | `ERD.UI.PrintDialogs` | `TPageSetupDialog`, `TPrinterSetupDialog`: paper, orientation and margins with a live preview. |
+| `TOBDFontDialog` | `ERD.UI.FontDialog` | `TFontDialog`: searchable family list, style, size, effects and a sample. |
+| `TOBDColorDialog` | `ERD.UI.ColorDialog` | `TColorDialog`: theme, standard and custom colours (`CustomColors`), HSV picker, hex / RGB entry and a screen pipette. |
+| `TOBDFindDialog`, `TOBDReplaceDialog` | `ERD.UI.FindDialogs` | `TFindDialog`, `TReplaceDialog`: modeless, `OnFind` / `OnReplace`, `SetResult` shows the match count. |
+| `TOBDTaskDialog` | `ERD.UI.TaskDialog` | `TTaskDialog`: icon, main instruction, text, expandable details, custom buttons or command links, radio buttons, verification check box, progress bar and footer. |
+
+Building blocks used by the dialogs, also available on their own:
+
+| Control | Unit | Purpose |
+|---|---|---|
+| `TOBDListBox` | `ERD.UI.ItemList` | Themed list box (`Items`, `MultiSelect`, type-ahead). `TOBDCustomItemList` is the virtual list / tile-grid base. |
+| `TOBDBreadcrumb` | `ERD.UI.ShellControls` | Path bar; click a segment to go there (`OnNavigate`). |
+| `TOBDPlacesPane` | `ERD.UI.ShellControls` | Quick access (known folders plus the `Places` collection) and the drives. |
+| `TOBDFolderTree` | `ERD.UI.ShellControls` | Lazily loaded folder tree with `Path`. |
+| `TOBDFileList` | `ERD.UI.ShellControls` | Files of a `Directory` filtered by `Mask`: sortable details view or icon view. |
+| `TOBDColorSwatches`, `TOBDColorSpectrum` | `ERD.UI.ColorDialog` | Colour swatch grid and HSV picker. |
 
 ## Where the code lives
 

@@ -164,6 +164,14 @@ uses
   ERD.UI.Calendar,
   ERD.UI.Hint,
   ERD.UI.ScrollBar,
+  ERD.UI.ItemList,
+  ERD.UI.ShellControls,
+  ERD.UI.FileDialogs,
+  ERD.UI.PrintDialogs,
+  ERD.UI.FontDialog,
+  ERD.UI.ColorDialog,
+  ERD.UI.FindDialogs,
+  ERD.UI.TaskDialog,
   ERD.Service.Dyno,
   ERD.UDS.Transfer,
   ERD.Flash.VoltageGate,
@@ -276,6 +284,17 @@ begin
   // memo, calendar and date picker.
   RegisterComponents('OBD Studio', [TOBDSplitter, TOBDScrollBox,
     TOBDSpinEdit, TOBDTrackBar, TOBDMemo, TOBDCalendar, TOBDDatePicker]);
+  // Lists, shell browsing and colour building blocks used by the themed
+  // dialogs; they work on their own too.
+  RegisterComponents('OBD Studio', [TOBDListBox, TOBDBreadcrumb,
+    TOBDPlacesPane, TOBDFolderTree, TOBDFileList, TOBDColorSwatches,
+    TOBDColorSpectrum]);
+  // Themed replacements for the standard dialogs. Right-click one in the
+  // form designer and choose Test Dialog to preview it.
+  RegisterComponents('OBD Studio', [TOBDOpenDialog, TOBDSaveDialog,
+    TOBDOpenPictureDialog, TOBDSavePictureDialog, TOBDFolderDialog,
+    TOBDPrintDialog, TOBDPageSetupDialog, TOBDFontDialog, TOBDColorDialog,
+    TOBDFindDialog, TOBDReplaceDialog, TOBDTaskDialog]);
   // Non-visual dyno math (own palette tab).
   RegisterComponents('OBD Dyno', [TOBDDynoCalculator, TOBDPowerCurve,
     TOBDDragRun, TOBDDynoConditions, TOBDFuelEconomyMeter,

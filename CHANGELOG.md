@@ -117,6 +117,20 @@ corner of the screen, so notifications stay visible when the
 application is not maximised; the demo exposes it under Settings >
 Appearance > Notifications.
 
+Themed dialogs replace the standard VCL ones: `TOBDOpenDialog`,
+`TOBDSaveDialog`, `TOBDOpenPictureDialog`, `TOBDSavePictureDialog`,
+`TOBDFolderDialog`, `TOBDPrintDialog`, `TOBDPageSetupDialog`,
+`TOBDFontDialog`, `TOBDColorDialog`, `TOBDFindDialog`,
+`TOBDReplaceDialog` and `TOBDTaskDialog`. They keep the VCL property
+names and follow the theme and density. Right-click one in the form
+designer and choose **Test Dialog** to preview it. `ERD.UI.Dialogs` now
+holds the shared `TOBDDialogWindow` and `TOBDCommonDialog`;
+`OBDInputQuery` takes an optional validator and shows the message under
+the field. New building blocks: `TOBDListBox` (on the
+`TOBDCustomItemList` base), `TOBDBreadcrumb`, `TOBDPlacesPane`,
+`TOBDFolderTree`, `TOBDFileList`, `TOBDColorSwatches` and
+`TOBDColorSpectrum`.
+
 The ERDesigns light palette uses #856404 for warnings (the site's
 warning text colour); the dark palette uses #FFC107.
 

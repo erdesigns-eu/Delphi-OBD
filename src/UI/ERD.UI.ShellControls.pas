@@ -52,9 +52,9 @@ type
     FPath: string;
     procedure SetCaption(const AValue: string);
     procedure SetPath(const AValue: string);
-  public
+  protected
     /// <summary>Returns the caption shown in lists.</summary>
-    function DisplayName: string; override;
+    function GetDisplayName: string; override;
   published
     /// <summary>Displayed name.</summary>
     property Caption: string read FCaption write SetCaption;
@@ -569,7 +569,7 @@ begin
   Changed(False);
 end;
 
-function TOBDPlace.DisplayName: string;
+function TOBDPlace.GetDisplayName: string;
 begin
   Result := FCaption;
   if Result = '' then
@@ -879,7 +879,10 @@ end;
 
 procedure TOBDPlacesPane.SetPlaces(AValue: TOBDPlaces);
 begin
-  FPlaces.Assign(AValue);
+  if AValue <> nil then
+    FPlaces.Assign(AValue)
+  else
+    FPlaces.Clear;
   Refresh;
 end;
 
@@ -892,7 +895,8 @@ end;
 
 procedure TOBDPlacesPane.BuildRows;
 var
-  I, Mask: Integer;
+  I: Integer;
+  Mask: DWORD;
   Root: string;
 
   procedure AddPlace(AKind: TRowKind; const ACaption, APath: string);
@@ -925,7 +929,7 @@ begin
   AddPlace(rkHeader, 'THIS PC', '');
   Mask := GetLogicalDrives;
   for I := 0 to 25 do
-    if (Mask and (1 shl I)) <> 0 then
+    if (Mask and (DWORD(1) shl I)) <> 0 then
     begin
       Root := Chr(Ord('A') + I) + ':\';
       AddPlace(rkDrive, DriveCaption(Root), Root);
@@ -1124,7 +1128,8 @@ end;
 
 procedure TOBDFolderTree.BuildRows;
 var
-  Mask, I: Integer;
+  I: Integer;
+  Mask: DWORD;
 
   procedure AddNode(const ACaption, APath: string; ALevel: Integer;
     AExpanded, AHasChildren: Boolean);
@@ -1182,7 +1187,7 @@ begin
   begin
     Mask := GetLogicalDrives;
     for I := 0 to 25 do
-      if (Mask and (1 shl I)) <> 0 then
+      if (Mask and (DWORD(1) shl I)) <> 0 then
         AddFolder(Chr(Ord('A') + I) + ':\', Chr(Ord('A') + I) + ':', 0);
   end;
   FRowsValid := True;
