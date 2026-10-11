@@ -45,6 +45,7 @@ uses
 {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   System.Bindings.Helper, Data.Bind.Components,
   Vcl.Graphics,
+  Vcl.Controls,
   Vcl.StdCtrls,
   ERD.UI.Control,
   ERD.UI.Edits,
