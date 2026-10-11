@@ -68,6 +68,7 @@ type
     FUpdatingEdits: Boolean;
     FDraggingScroll: Boolean;
     FDraggingSelect: Boolean;
+    FEditHigh: Boolean;
     FScrollDragOffset: Integer;
     FOnSave: TNotifyEvent;
     FOnCancel: TNotifyEvent;
@@ -96,6 +97,7 @@ type
     function ParseNumber(const S: string; out AValue: Double): Boolean;
     function ValidateSelected(ACommit: Boolean): Boolean;
     procedure EditChanged(Sender: TObject);
+    procedure EditEnter(Sender: TObject);
     procedure EditExit(Sender: TObject);
     procedure EditKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure FocusSelectedEdit(AHigh: Boolean);
@@ -197,6 +199,7 @@ begin
   FLowEdit.Alignment := taRightJustify;
   FLowEdit.AutoSize := False;
   FLowEdit.OnChange := EditChanged;
+  FLowEdit.OnEnter := EditEnter;
   FLowEdit.OnExit := EditExit;
   FLowEdit.OnKeyDown := EditKeyDown;
 
@@ -205,6 +208,7 @@ begin
   FHighEdit.Alignment := taRightJustify;
   FHighEdit.AutoSize := False;
   FHighEdit.OnChange := EditChanged;
+  FHighEdit.OnEnter := EditEnter;
   FHighEdit.OnExit := EditExit;
   FHighEdit.OnKeyDown := EditKeyDown;
 
@@ -641,6 +645,13 @@ begin
     ValidateSelected(False);
 end;
 
+procedure TOBDRangeEditor.EditEnter(Sender: TObject);
+begin
+  // Remember the column being edited, so selecting another row by mouse
+  // or keyboard keeps editing the same one.
+  FEditHigh := Sender = FHighEdit;
+end;
+
 procedure TOBDRangeEditor.EditExit(Sender: TObject);
 begin
   ValidateSelected(True);
@@ -995,10 +1006,16 @@ begin
       Exit;
     end;
   end;
+  // A click on a row's low or high value picks that column; elsewhere on
+  // the row the last edited column is kept.
+  if PtInRect(HighEditRect(I), Point(X, Y)) then
+    FEditHigh := True
+  else if PtInRect(LowEditRect(I), Point(X, Y)) then
+    FEditHigh := False;
   SelectRow(I);
   if FSelected = I then
   begin
-    FocusSelectedEdit(False);
+    FocusSelectedEdit(FEditHigh);
     // Holding the button and sweeping over rows moves the selection, as
     // in the inspector.
     FDraggingSelect := True;
@@ -1036,7 +1053,7 @@ begin
       if FSelected <> I then
         FDraggingSelect := False
       else
-        FocusSelectedEdit(False);
+        FocusSelectedEdit(FEditHigh);
     end;
     Exit;
   end;
@@ -1081,7 +1098,7 @@ begin
     Exit;
   end;
   Key := 0;
-  FocusSelectedEdit(False);
+  FocusSelectedEdit(FEditHigh);
 end;
 
 procedure TOBDRangeEditor.CMMouseWheel(var Message: TCMMouseWheel);

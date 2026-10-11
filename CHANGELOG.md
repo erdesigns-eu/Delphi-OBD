@@ -52,7 +52,8 @@ collapses or expands it (desktop keeps the chevron gutter). Moving
 with the arrow keys from a text property to a pick-list or check
 property no longer loses the keyboard focus. `TOBDRangeEditor` follows
 the inspector: hold the mouse button and sweep over the rows to move
-the selection, scrolling past the top or bottom edge.
+the selection, scrolling past the top or bottom edge; the low or high
+edit you last worked in stays the active one as the selection moves.
 
 Text on accent fills (backstage navigation, ribbon File button, check
 boxes, switches, badges) picks dark or light ink by contrast, so it
