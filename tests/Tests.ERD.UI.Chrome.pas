@@ -73,6 +73,7 @@ type
     [Test] procedure ProgressClampsPosition;
     [Test] procedure ScrollBarClampsPosition;
     [Test] procedure TabletTitleBarIsTaller;
+    [Test] procedure MenuBarAutoSizesToItems;
   end;
 
 implementation
@@ -97,8 +98,12 @@ begin
 end;
 
 procedure TOBDChromePreviewTests.MenuBarPreviewDraws;
+var
+  Bar: TOBDMenuBar;
 begin
-  CheckPreview(TOBDMenuBar.Create(nil), 600, 30, 'menu bar');
+  Bar := TOBDMenuBar.Create(nil);
+  Bar.ForcePreview := True;
+  CheckPreview(Bar, 600, 30, 'menu bar');
 end;
 
 procedure TOBDChromePreviewTests.RibbonPreviewDraws;
@@ -307,6 +312,26 @@ begin
     DesktopHeight := Bar.Height;
     Bar.Density := dnTablet;
     Assert.IsTrue(Bar.Height > DesktopHeight, 'tablet title bar not taller');
+  finally
+    Bar.Free;
+  end;
+end;
+
+procedure TOBDChromeBehaviourTests.MenuBarAutoSizesToItems;
+var
+  Bar: TOBDMenuBar;
+begin
+  Bar := TOBDMenuBar.Create(nil);
+  try
+    Assert.IsTrue(Bar.AutoSize, 'menu bar should auto-size by default');
+    Bar.ForcePreview := True;
+    Bar.SetBounds(0, 0, 0, 0);
+    Assert.IsTrue(Bar.ItemsWidth > 0, 'preview items have no width');
+    Assert.IsTrue(Bar.Width >= Bar.ItemsWidth, 'menu bar narrower than items');
+    Assert.IsTrue(Bar.Height > 0, 'menu bar has no height');
+    Bar.Align := alTop;
+    Bar.SetBounds(0, 0, 900, 0);
+    Assert.AreEqual(900, Bar.Width, 'Align alTop width overridden');
   finally
     Bar.Free;
   end;

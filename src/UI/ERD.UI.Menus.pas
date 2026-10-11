@@ -159,6 +159,15 @@ type
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
     /// <summary>Clears keyboard accelerator display when focus leaves.</summary>
     procedure DoExit; override;
+    /// <summary>Sizes the bar to its top-level items and the density's
+    /// menu-bar height. A dimension driven by Align or by left and right
+    /// anchors is left alone.</summary>
+    /// <param name="NewWidth">Proposed width; replaced by the items width.</param>
+    /// <param name="NewHeight">Proposed height; replaced by the metric.</param>
+    /// <returns>Always True.</returns>
+    function CanAutoSize(var NewWidth, NewHeight: Integer): Boolean; override;
+    /// <summary>Applies AutoSize once the streamed Menu is known.</summary>
+    procedure Loaded; override;
   public
     /// <summary>Creates a themed menu bar.</summary>
     /// <param name="AOwner">Owner component.</param>
@@ -179,6 +188,9 @@ type
     property Images: TCustomImageList read FImages write SetImages;
     /// <summary>True draws only the items, for embedding inside a title bar.</summary>
     property Embedded: Boolean read FEmbedded write SetEmbedded default False;
+    /// <summary>Sizes the bar to its top-level items and the density's
+    /// menu-bar height.</summary>
+    property AutoSize default True;
     /// <summary>Provides glyphs and danger styling for popup items.</summary>
     property OnGetItemStyle: TOBDMenuGetItemStyleEvent read FOnGetItemStyle
       write FOnGetItemStyle;
@@ -1581,6 +1593,7 @@ begin
   inherited Create(AOwner);
   ControlStyle := ControlStyle + [csOpaque];
   TabStop := True;
+  Width := ScaleValue(320);
   Height := ScaleValue(DensityMetrics(Density).MenuBar);
   FHoverIndex := -1;
   FOpenIndex := -1;
@@ -1588,6 +1601,31 @@ begin
   FAppEvents.OnMessage := AppMessage;
   FAppEvents.OnShortCut := AppShortCut;
   FAppEvents.OnDeactivate := AppDeactivate;
+  AutoSize := True;
+end;
+
+function TOBDMenuBar.CanAutoSize(var NewWidth, NewHeight: Integer): Boolean;
+var
+  W: Integer;
+begin
+  Result := True;
+  if not (Align in [alTop, alBottom, alClient]) and
+    not ((akLeft in Anchors) and (akRight in Anchors)) then
+  begin
+    W := ItemsWidth;
+    if not FEmbedded then
+      Inc(W, 2 * ScaleValue(6));
+    NewWidth := System.Math.Max(W, ScaleValue(40));
+  end;
+  if not (Align in [alLeft, alRight, alClient]) then
+    NewHeight := ScaleValue(Metrics.MenuBar);
+end;
+
+procedure TOBDMenuBar.Loaded;
+begin
+  inherited;
+  if AutoSize then
+    AdjustSize;
 end;
 
 destructor TOBDMenuBar.Destroy;
@@ -1608,6 +1646,8 @@ begin
     FMenu.FreeNotification(Self);
   FHoverIndex := -1;
   FOpenIndex := -1;
+  if AutoSize then
+    AdjustSize;
   Invalidate;
 end;
 
@@ -1628,6 +1668,8 @@ begin
   if FEmbedded = AValue then
     Exit;
   FEmbedded := AValue;
+  if AutoSize then
+    AdjustSize;
   Invalidate;
 end;
 
@@ -2081,17 +2123,24 @@ begin
   inherited;
   if Operation = opRemove then
   begin
-    if AComponent = FMenu then
-      FMenu := nil;
     if AComponent = FImages then
       FImages := nil;
+    if AComponent = FMenu then
+    begin
+      FMenu := nil;
+      if AutoSize and not (csDestroying in ComponentState) then
+        AdjustSize;
+    end;
   end;
 end;
 
 procedure TOBDMenuBar.DensityChanged;
 begin
   inherited;
-  Height := ScaleValue(Metrics.MenuBar);
+  if AutoSize then
+    AdjustSize
+  else
+    Height := ScaleValue(Metrics.MenuBar);
   Invalidate;
 end;
 

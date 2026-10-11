@@ -655,6 +655,8 @@ begin
   FHoverSystem := sbNone;
   FPressedSystem := sbNone;
   FMenuBar := TOBDMenuBar.Create(Self);
+  // The title bar places the embedded bar itself (UpdateChildLayout).
+  FMenuBar.AutoSize := False;
   FMenuBar.Parent := Self;
   FMenuBar.Visible := False;
   FMenuBar.Embedded := True;
