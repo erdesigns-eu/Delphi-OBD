@@ -271,9 +271,16 @@ type
     /// <summary>Column-header and category fill.</summary>
     /// <returns>Header colour.</returns>
     function HeaderFill: TColor;
-    /// <summary>Ink for text and glyphs on an orange fill.</summary>
-    /// <returns>The darker of text and background.</returns>
+    /// <summary>Ink for text and glyphs on an accent fill.</summary>
+    /// <returns>Text or background colour, whichever contrasts more
+    /// with the accent (dark ink on the orange brand accent, light ink
+    /// on the blue Windows highlight).</returns>
     function OnAccent: TColor;
+    /// <summary>Ink for text and glyphs on an arbitrary fill.</summary>
+    /// <param name="AFill">Fill colour behind the ink.</param>
+    /// <returns>Text or background colour, whichever contrasts more
+    /// with <c>AFill</c>.</returns>
+    function ContrastInk(AFill: TColor): TColor;
     /// <summary>Orange used as text, outline or indicator.</summary>
     /// <returns>GaugeNeedle colour.</returns>
     function AccentText: TColor;
@@ -507,6 +514,15 @@ function OBDMixColor(A, B: TColor; T: Single): TColor;
 /// <returns>Dark flag.</returns>
 function OBDIsDarkPalette(const APalette: TOBDThemePalette): Boolean;
 
+/// <summary>Picks the ink for text and glyphs on a fill: the lighter
+/// ink wherever it reaches a 3:1 contrast (as Windows does on its blue
+/// accent), otherwise whichever ink contrasts more.</summary>
+/// <param name="AFill">Fill colour behind the ink.</param>
+/// <param name="AInkA">First candidate ink.</param>
+/// <param name="AInkB">Second candidate ink.</param>
+/// <returns><c>AInkA</c> or <c>AInkB</c>.</returns>
+function OBDContrastInk(AFill, AInkA, AInkB: TColor): TColor;
+
 /// <summary>Alert level of a value against a normal band.</summary>
 /// <param name="AValue">Value.</param>
 /// <param name="ALow">Low end of the normal band.</param>
@@ -581,6 +597,62 @@ end;
 function OBDIsDarkPalette(const APalette: TOBDThemePalette): Boolean;
 begin
   Result := Luma(APalette.Background) < 128;
+end;
+
+function RelativeLuminance(AColor: TColor): Double;
+
+  function Channel(AValue: Byte): Double;
+  var
+    V: Double;
+  begin
+    V := AValue / 255;
+    if V <= 0.03928 then
+      Result := V / 12.92
+    else
+      Result := System.Math.Power((V + 0.055) / 1.055, 2.4);
+  end;
+
+var
+  C: Cardinal;
+begin
+  // WCAG 2 relative luminance of an sRGB colour.
+  C := ColorToRGB(AColor);
+  Result := 0.2126 * Channel(GetRValue(C)) + 0.7152 * Channel(GetGValue(C)) +
+    0.0722 * Channel(GetBValue(C));
+end;
+
+function ContrastRatio(A, B: TColor): Double;
+var
+  LA, LB: Double;
+begin
+  LA := RelativeLuminance(A);
+  LB := RelativeLuminance(B);
+  Result := (System.Math.Max(LA, LB) + 0.05) /
+    (System.Math.Min(LA, LB) + 0.05);
+end;
+
+function OBDContrastInk(AFill, AInkA, AInkB: TColor): TColor;
+var
+  LightInk, DarkInk: TColor;
+begin
+  if RelativeLuminance(AInkA) >= RelativeLuminance(AInkB) then
+  begin
+    LightInk := AInkA;
+    DarkInk := AInkB;
+  end
+  else
+  begin
+    LightInk := AInkB;
+    DarkInk := AInkA;
+  end;
+  // Light ink wins on any fill where it reaches 3:1 (WCAG UI and large
+  // text), as Windows does on its blue accent; on light fills such as
+  // the brand orange or a yellow warning the higher-contrast ink is used.
+  if (ContrastRatio(LightInk, AFill) >= 3.0) or
+    (ContrastRatio(LightInk, AFill) > ContrastRatio(DarkInk, AFill)) then
+    Result := LightInk
+  else
+    Result := DarkInk;
 end;
 
 function OBDFontLineHeight(AFont: TFont): Integer;
@@ -706,10 +778,13 @@ end;
 
 function TOBDPainter.OnAccent: TColor;
 begin
-  if Luma(FPalette.ForegroundText) <= Luma(FPalette.Background) then
-    Result := FPalette.ForegroundText
-  else
-    Result := FPalette.Background;
+  Result := ContrastInk(FPalette.Accent);
+end;
+
+function TOBDPainter.ContrastInk(AFill: TColor): TColor;
+begin
+  Result := OBDContrastInk(AFill, FPalette.ForegroundText,
+    FPalette.Background);
 end;
 
 function TOBDPainter.AccentText: TColor;
@@ -733,7 +808,7 @@ end;
 function TOBDPainter.InkOn(AFill: TColor): TColor;
 begin
   if (AFill = FPalette.Accent) or (FDark and (AFill = FPalette.Warning)) then
-    Result := OnAccent
+    Result := ContrastInk(AFill)
   else
     Result := clWhite;
 end;

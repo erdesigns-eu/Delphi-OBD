@@ -29,7 +29,13 @@ PID / OEM pickers and the VIN / CAN-ID edits. `TOBDTerminal`,
 `TOBDLogViewer` and `TOBDDtcList` take their colours from a
 `TOBDTheme` when `Theme` is assigned. The terminal has a warning
 direction (`tdWarning`, `LogWarning`, `WarningColor`); log viewer
-warning rows paint in the warning colour.
+warning rows paint in the warning colour. `TOBDDtcList` is self-painted
+(no `TListView`): resizable columns, severity chips, `ItemIndex`,
+`Density` and the themed scroll bar.
+
+Text on accent fills (backstage navigation, ribbon File button, check
+boxes, switches, badges) picks dark or light ink by contrast, so it
+stays readable on the blue accent of the Windows theme.
 
 The ERDesigns light palette uses #856404 for warnings (the site's
 warning text colour); the dark palette uses #FFC107.

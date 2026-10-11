@@ -1285,6 +1285,7 @@ object frmMain: TfrmMain
               Glyph = glEcu
               Closable = False
             end>
+          TabIndex = 0
           OnChange = tabsLogChange
           Align = alTop
           Theme = OBDTheme

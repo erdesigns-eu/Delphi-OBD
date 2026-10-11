@@ -38,6 +38,7 @@ uses
   Winapi.Messages,
   Vcl.Graphics,
   Vcl.Controls,
+  Vcl.StdCtrls,
   Vcl.ExtCtrls,
   ERD.UI.Types,
   ERD.UI.Control,
@@ -127,8 +128,9 @@ type
     function ColumnX(AColumn: Integer): Integer;
     procedure ToggleRow(AIndex: Integer);
     procedure ScrollTo(ATop: Integer);
-    procedure DrawRow(ACanvas: TCanvas; AIndex, ATop: Integer;
-      const ARow: TOBDLiveDataRow; APreview: Boolean);
+    function CheckColumnWidth: Integer;
+    procedure DrawRow(APainter: TOBDPainter; ACanvas: TCanvas;
+      AIndex, ATop: Integer; const ARow: TOBDLiveDataRow; APreview: Boolean);
     function PreviewRow(AIndex: Integer): TOBDLiveDataRow;
     procedure CMMouseWheel(var Message: TCMMouseWheel); message CM_MOUSEWHEEL;
     procedure WMGetDlgCode(var Message: TWMGetDlgCode); message WM_GETDLGCODE;
@@ -731,7 +733,7 @@ var
   CheckW, PidW, Rest: Integer;
 begin
   if FShowCheckboxes then
-    CheckW := ScaleValue(28)
+    CheckW := CheckColumnWidth
   else
     CheckW := 0;
   PidW := ScaleValue(40);
@@ -771,7 +773,7 @@ begin
   if AColumn > ColMax then
     Exit(ContentRight);
   if FShowCheckboxes then
-    Result := ScaleValue(28)
+    Result := CheckColumnWidth
   else
     Result := 0;
   for C := ColPID to AColumn - 1 do
@@ -858,10 +860,16 @@ begin
   end;
 end;
 
-procedure TOBDLiveDataGrid.DrawRow(ACanvas: TCanvas; AIndex, ATop: Integer;
-  const ARow: TOBDLiveDataRow; APreview: Boolean);
+function TOBDLiveDataGrid.CheckColumnWidth: Integer;
+begin
+  Result := ScaleValue(Metrics.Check + 16);
+end;
+
+procedure TOBDLiveDataGrid.DrawRow(APainter: TOBDPainter; ACanvas: TCanvas;
+  AIndex, ATop: Integer; const ARow: TOBDLiveDataRow; APreview: Boolean);
 var
-  H, Box, BX, BY: Integer;
+  H, Box: Integer;
+  State: TCheckBoxState;
   Conv: TOBDUnitConversion;
   Decimals: Integer;
   TextColor: TColor;
@@ -892,7 +900,13 @@ begin
   H := RowHeight;
   ACanvas.Brush.Style := bsSolid;
   if AIndex = FSelected then
-    ACanvas.Brush.Color := EffectiveAccent
+  begin
+    // Same accent wash as the DTC list and panel.
+    if APainter.Dark then
+      ACanvas.Brush.Color := APainter.Tint(Palette.Accent, 0.14)
+    else
+      ACanvas.Brush.Color := APainter.Tint(Palette.Accent, 0.10);
+  end
   else if Odd(AIndex) then
     ACanvas.Brush.Color := Palette.GaugeFace
   else
@@ -909,35 +923,26 @@ begin
       Decimals := 1;
   end;
 
-  if AIndex = FSelected then
-    TextColor := Palette.Background
-  else if (not APreview) and ((ARow.LastTick = 0) or IsRowStale(ARow)) then
+  if (not APreview) and ((ARow.LastTick = 0) or IsRowStale(ARow)) then
     TextColor := Palette.Subtle
   else
     TextColor := EffectiveForeground;
 
   if FShowCheckboxes then
   begin
-    Box := System.Math.Min(ScaleValue(14), H - ScaleValue(4));
-    BX := (ColumnX(ColPID) - Box) div 2;
-    BY := ATop + (H - Box) div 2;
-    ACanvas.Pen.Color := TextColor;
+    // The regular TOBDCheckBox box, sized by density.
+    Box := System.Math.Min(Metrics.Check,
+      MulDiv(H - ScaleValue(4), 96, ScaleValue(96)));
     if ARow.Checked then
-      ACanvas.Brush.Color := Palette.Accent
+      State := cbChecked
     else
-      ACanvas.Brush.Style := bsClear;
-    ACanvas.Rectangle(BX, BY, BX + Box, BY + Box);
-    if ARow.Checked then
-    begin
-      ACanvas.Pen.Color := Palette.Background;
-      ACanvas.Pen.Width := System.Math.Max(1, ScaleValue(2));
-      ACanvas.MoveTo(BX + Box * 2 div 10, BY + Box div 2);
-      ACanvas.LineTo(BX + Box * 4 div 10, BY + Box * 75 div 100);
-      ACanvas.LineTo(BX + Box * 8 div 10, BY + Box * 25 div 100);
-      ACanvas.Pen.Width := 1;
-    end;
+      State := cbUnchecked;
+    APainter.CheckBox((ColumnX(ColPID) - ScaleValue(Box)) div 2,
+      ATop + H div 2, Box, State, Enabled, False, False);
   end;
 
+  // The painter changes the canvas font; restore the grid font.
+  ACanvas.Font.Assign(Font);
   ACanvas.Brush.Style := bsClear;
   ACanvas.Font.Color := TextColor;
   ACanvas.Font.Style := [];
@@ -956,80 +961,77 @@ const
   Headers: array [ColPID .. ColMax] of string = (
     'PID', 'Name', 'Value', 'Unit', 'Min', 'Max');
 var
-  I, Y, HH, N: Integer;
+  I, Y, HH, N, W: Integer;
   Preview: Boolean;
   S: string;
   Painter: TOBDPainter;
 begin
-  ACanvas.Font.Assign(Font);
   HH := HeaderHeight;
-  ACanvas.Brush.Style := bsSolid;
-  ACanvas.Brush.Color := Palette.NeutralDark;
-  ACanvas.FillRect(Rect(0, 0, Width, HH));
-  ACanvas.Brush.Style := bsClear;
-  ACanvas.Font.Style := [fsBold];
-  ACanvas.Font.Color := Palette.NeutralLight;
-  for I := ColPID to ColMax do
-  begin
-    S := Headers[I];
-    if I in [ColValue, ColMin, ColMax] then
-      ACanvas.TextRect(Rect(ColumnX(I), 0, ColumnX(I + 1), HH),
-        ColumnX(I + 1) - ScaleValue(6) - ACanvas.TextWidth(S),
-        (HH - ACanvas.TextHeight(S)) div 2, S)
-    else
-      ACanvas.TextRect(Rect(ColumnX(I), 0, ColumnX(I + 1), HH),
-        ColumnX(I) + ScaleValue(6), (HH - ACanvas.TextHeight(S)) div 2, S);
-    // Column dividers double as resize grips.
-    if I < ColMax then
+  Painter := TOBDPainter.Create(ACanvas, Palette, ScaleValue(96));
+  try
+    // Column header in the theme's header style (as the DTC panel).
+    Painter.FillRect(Rect(0, 0, Width, HH), Painter.HeaderFill);
+    Painter.HLine(0, HH - 1, Width, Palette.NeutralLight);
+    for I := ColPID to ColMax do
     begin
-      ACanvas.Pen.Color := Palette.Subtle;
-      ACanvas.MoveTo(ColumnX(I + 1), ScaleValue(4));
-      ACanvas.LineTo(ColumnX(I + 1), HH - ScaleValue(4));
+      S := Headers[I];
+      W := System.Math.Max(1, ColumnX(I + 1) - ColumnX(I) - ScaleValue(12));
+      if I in [ColValue, ColMin, ColMax] then
+        Painter.Caps(ColumnX(I + 1) - ScaleValue(6), HH div 2, S,
+          taRightJustify, clDefault, W)
+      else
+        Painter.Caps(ColumnX(I) + ScaleValue(6), HH div 2, S, taLeftJustify,
+          clDefault, W);
+      // Column dividers double as resize grips.
+      if I < ColMax then
+        Painter.VLine(ColumnX(I + 1), ScaleValue(6), HH - ScaleValue(12),
+          Palette.NeutralLight);
     end;
-  end;
 
-  Preview := (FRows.Count = 0) and IsPreview;
-  if Preview then
-    N := 5
-  else
-    N := FRows.Count;
-  if N = 0 then
-  begin
-    S := 'NO PIDS';
-    ACanvas.Font.Color := Palette.Subtle;
-    ACanvas.TextOut((Width - ACanvas.TextWidth(S)) div 2,
-      HH + (Height - HH - ACanvas.TextHeight(S)) div 2, S);
-    Exit;
-  end;
-
-  Y := HH;
-  I := FTopRow;
-  if Preview then
-    I := 0;
-  while (I < N) and (Y < Height) do
-  begin
+    Preview := (FRows.Count = 0) and IsPreview;
     if Preview then
-      DrawRow(ACanvas, I, Y, PreviewRow(I), True)
+      N := 5
     else
-      DrawRow(ACanvas, I, Y, FRows[I], False);
-    Inc(Y, RowHeight);
-    Inc(I);
-  end;
+      N := FRows.Count;
+    if N = 0 then
+    begin
+      ACanvas.Brush.Style := bsSolid;
+      ACanvas.Brush.Color := EffectiveBackground;
+      ACanvas.FillRect(Rect(0, HH, Width, Height));
+      Painter.Text(Width div 2, HH + (Height - HH) div 2, 'No PIDs', 12.5,
+        Palette.GaugeLabel, twRegular, taCenter);
+    end
+    else
+    begin
+      Y := HH;
+      I := FTopRow;
+      if Preview then
+        I := 0;
+      while (I < N) and (Y < Height) do
+      begin
+        if Preview then
+          DrawRow(Painter, ACanvas, I, Y, PreviewRow(I), True)
+        else
+          DrawRow(Painter, ACanvas, I, Y, FRows[I], False);
+        Inc(Y, RowHeight);
+        Inc(I);
+      end;
+      if Y < Height then
+      begin
+        ACanvas.Brush.Style := bsSolid;
+        ACanvas.Brush.Color := EffectiveBackground;
+        ACanvas.FillRect(Rect(0, Y, Width, Height));
+      end;
+    end;
 
-  if not Preview and NeedsScrollBar then
-  begin
-    Painter := TOBDPainter.Create(ACanvas, Palette, ScaleValue(96));
-    try
+    if not Preview and NeedsScrollBar then
       OBDPaintScrollBar(Painter, ScrollBarRect, True, 0, FRows.Count - 1,
         VisibleRows, FTopRow, FBarHot, FBarDragging);
-    finally
-      Painter.Free;
-    end;
-  end;
 
-  ACanvas.Pen.Color := EffectiveBorder;
-  ACanvas.Brush.Style := bsClear;
-  ACanvas.Rectangle(0, 0, Width, Height);
+    Painter.FrameRect(Rect(0, 0, Width, Height), Palette.NeutralLight);
+  finally
+    Painter.Free;
+  end;
 end;
 
 { ---- input ------------------------------------------------------------------- }

@@ -244,6 +244,9 @@ type
     /// <param name="Key">Virtual key.</param>
     /// <param name="Shift">Modifier keys.</param>
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    /// <summary>Validates the streamed <see cref="TabIndex"/> once the
+    /// tabs are loaded.</summary>
+    procedure Loaded; override;
   public
     /// <summary>Creates an underline tab strip.</summary>
     /// <param name="AOwner">Component owner.</param>
@@ -482,6 +485,14 @@ begin
   end;
 end;
 
+procedure TOBDTabs.Loaded;
+begin
+  inherited Loaded;
+  if (FTabIndex >= 0) and ((FTabIndex >= EffectiveCount) or
+    not EffectiveVisible(FTabIndex) or not EffectiveEnabled(FTabIndex)) then
+    FTabIndex := -1;
+end;
+
 procedure TOBDTabs.DensityChanged;
 begin
   Height := TabHeight;
@@ -507,6 +518,12 @@ var
   Allow: Boolean;
   OldIndex: Integer;
 begin
+  if csLoading in ComponentState then
+  begin
+    // Streamed value: checked in Loaded, no events while loading.
+    FTabIndex := System.Math.Max(AValue, -1);
+    Exit;
+  end;
   if AValue < 0 then
     AValue := -1
   else if (AValue >= EffectiveCount) or not EffectiveVisible(AValue) or

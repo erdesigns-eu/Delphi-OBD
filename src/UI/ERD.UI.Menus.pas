@@ -283,6 +283,7 @@ type
     procedure WMMouseActivate(var Message: TWMMouseActivate);
       message WM_MOUSEACTIVATE;
     procedure WMActivate(var Message: TWMActivate); message WM_ACTIVATE;
+    procedure WMEraseBkgnd(var Message: TWMEraseBkgnd); message WM_ERASEBKGND;
     procedure DrawImageOrGlyph(APainter: TOBDPainter; const ARow: TOBDMenuRow;
       ACX, ACY: Integer; AColor: TColor; AEnabled: Boolean);
     procedure DrawAcceleratedText(APainter: TOBDPainter; X, CY: Integer;
@@ -714,6 +715,10 @@ begin
   case Msg.message of
     WM_MOUSEMOVE:
       begin
+        // The popup holds the mouse capture, so Windows sends no
+        // WM_SETCURSOR: set the arrow here. Otherwise a pointer hidden
+        // while typing (e.g. in the ribbon search) stays hidden.
+        Winapi.Windows.SetCursor(Screen.Cursors[crArrow]);
         GetCursorPos(P);
         W := WindowAtPoint(P);
         if W <> nil then
@@ -917,6 +922,9 @@ constructor TOBDMenuPopupWindow.CreatePopup(AOwner: TComponent;
 begin
   inherited Create(AOwner);
   ControlStyle := ControlStyle + [csOpaque];
+  // Hot tracking repaints the whole popup; paint off-screen so moving
+  // over the items does not flicker.
+  DoubleBuffered := True;
   TabStop := False;
   FSession := ASession;
   FRoot := ARoot;
@@ -953,6 +961,12 @@ end;
 procedure TOBDMenuPopupWindow.WMActivate(var Message: TWMActivate);
 begin
   Message.Result := 0;
+end;
+
+procedure TOBDMenuPopupWindow.WMEraseBkgnd(var Message: TWMEraseBkgnd);
+begin
+  // Paint fills every pixel (double-buffered); erasing first flickers.
+  Message.Result := 1;
 end;
 
 function TOBDMenuPopupWindow.ScalePixel(AValue: Integer): Integer;

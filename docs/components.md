@@ -391,6 +391,14 @@ terminal, log viewer and DTC list have a `Theme` property: with a
 `TOBDTheme` assigned they take background, text and row colours from
 its palette.
 
+`TOBDDtcList` paints itself: themed column header with draggable
+dividers (`CodeColumnWidth`, `DescriptionColumnWidth`,
+`SeverityColumnWidth`; 0 = automatic, double-click a divider to
+reset), severity chips, `ItemIndex`, keyboard navigation, the themed
+scroll bar and `Density` row heights. It no longer wraps a `TListView`,
+so `Items`, `Selected` and `Columns` are gone; use `Dtc`, `DtcCount`
+and `ItemIndex`.
+
 ## OBD Studio
 
 Themed controls for a workshop application, on the **OBD Studio**

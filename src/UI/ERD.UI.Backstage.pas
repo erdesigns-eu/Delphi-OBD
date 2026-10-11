@@ -1840,7 +1840,7 @@ begin
   APainter.FillRect(Rect(L, R.Top + Round(26 * K), L + Round(34 * K),
     R.Top + Round(60 * K)), APalette.Accent);
   APainter.Text(L + Round(17 * K), R.Top + Round(43 * K), 'GP', 11 * K,
-    PAPER_INK, twBold, taCenter);
+    OBDContrastInk(APalette.Accent, PAPER_INK, clWhite), twBold, taCenter);
   APainter.Text(L + Round(44 * K), R.Top + Round(36 * K), 'Garage Peeters',
     13 * K, PAPER_INK, twBold);
   APainter.Text(L + Round(44 * K), R.Top + Round(52 * K),

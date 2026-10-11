@@ -5,7 +5,7 @@
 //  OS-control faces:
 //    - TOBDTerminal      (TListBox owner-draw face)
 //    - TOBDLogViewer     (TOBDTerminal + level tags)
-//    - TOBDDtcList       (TListView vsReport face)
+//    - TOBDDtcList       (self-painted TOBDCustomControl)
 //  and their optional TOBDTheme palette.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
@@ -32,7 +32,8 @@ uses
   ERD.UI.Theme,
   ERD.UI.Terminal,
   ERD.UI.LogViewer,
-  ERD.UI.DtcList;
+  ERD.UI.DtcList,
+  Tests.ERD.UI.RenderHelpers;
 
 type
   /// <summary>DUnitX fixture for the ported visual components.</summary>
@@ -299,9 +300,12 @@ begin
   try
     Th.Mode := tmLight;
     L.Theme := Th;
-    Assert.AreEqual(Integer(BRAND_PALETTE_LIGHT.GaugeFace), Integer(L.Color));
-    Assert.AreEqual(Integer(BRAND_PALETTE_LIGHT.ForegroundText),
-      Integer(L.Font.Color));
+    L.SetBounds(0, 0, 320, 160);
+    L.AddDtcEx('P0301', 'Cylinder 1 misfire', dsCritical, dtActive);
+    Assert.IsTrue(RenderedNear(L, BRAND_PALETTE_LIGHT.GaugeFace, 4) > 0);
+    Assert.IsTrue(RenderedNear(L, BRAND_PALETTE_LIGHT.Danger, 24) > 0);
+    Th.Mode := tmDark;
+    Assert.IsTrue(RenderedNear(L, BRAND_PALETTE_DARK.GaugeFace, 4) > 0);
   finally
     L.Free;
     Th.Free;

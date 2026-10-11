@@ -1000,6 +1000,7 @@ var
   HeaderH, ColHeadH, FootH, RowH, HY, RY, BarW: Integer;
   ColFault, ColLive, ColBar, MaxNameW: Integer;
   XParam, XFault, XLive, XRange, XRight, CellPad: Integer;
+  FaultW, LiveW: Integer;
   V: TOBDFreezeFrameValue;
   R: TOBDValueRange;
   Level: TOBDAlertLevel;
@@ -1022,6 +1023,13 @@ begin
   ColLive := XRange - CellPad;
   ColBar := XRange + ScaleValue(16);
   BarW := XRight - ColBar;
+  // Every cell is limited to its own column (and to the card), so text
+  // ellipses instead of running into the next column after a resize.
+  MaxNameW := Max(1, Min(XFault, XRight) - XParam - CellPad);
+  FaultW := Max(1, Min(XLive, XRight) - XFault - 2 * CellPad);
+  LiveW := Max(1, Min(XRange, XRight) - XLive - 2 * CellPad);
+  ColFault := Min(ColFault, XRight);
+  ColLive := Min(ColLive, XRight);
 
   APainter.FillRect(Rect(ScaleValue(1), HY, Width - ScaleValue(1), HY + ColHeadH),
     APainter.HeaderFill);
@@ -1034,12 +1042,17 @@ begin
   if FCompareLive then
     APainter.VLine(XRange, HY + ScaleValue(6), ColHeadH - ScaleValue(12),
       Palette.NeutralLight);
-  APainter.Caps(XParam, HY + ColHeadH div 2, 'Parameter');
-  APainter.Caps(ColFault, HY + ColHeadH div 2, 'At fault', taRightJustify);
-  if FCompareLive then
-    APainter.Caps(ColLive, HY + ColHeadH div 2, 'Live', taRightJustify);
+  APainter.Caps(XParam, HY + ColHeadH div 2, 'Parameter', taLeftJustify,
+    clDefault, MaxNameW);
+  if XFault + CellPad < XRight then
+    APainter.Caps(ColFault, HY + ColHeadH div 2, 'At fault', taRightJustify,
+      clDefault, FaultW);
+  if FCompareLive and (XLive + CellPad < XRight) then
+    APainter.Caps(ColLive, HY + ColHeadH div 2, 'Live', taRightJustify,
+      clDefault, LiveW);
   if BarW > 0 then
-    APainter.Caps(ColBar, HY + ColHeadH div 2, 'Range');
+    APainter.Caps(ColBar, HY + ColHeadH div 2, 'Range', taLeftJustify,
+      clDefault, BarW);
 
   RY := HY + ColHeadH;
   for V in DisplayValues do
@@ -1060,23 +1073,24 @@ begin
       APainter.FillRect(Rect(ScaleValue(1), RY + ScaleValue(5), ScaleValue(4),
         RY + RowH - ScaleValue(5)), C);
     end;
-    MaxNameW := Max(0, XFault - XParam - CellPad);
     APainter.Text(XParam, RY + RowH div 2, V.Caption, 12.5,
       Palette.ForegroundText, twRegular, taLeftJustify, MaxNameW);
     if Level = alvNormal then
       Weight := twSemibold
     else
       Weight := twBold;
-    APainter.Text(ColFault, RY + RowH div 2, ValueText(V, False), 12.5,
-      APainter.LevelColor(Level), Weight, taRightJustify);
+    if XFault + CellPad < XRight then
+      APainter.Text(ColFault, RY + RowH div 2, ValueText(V, False), 12.5,
+        APainter.LevelColor(Level), Weight, taRightJustify, FaultW);
     if FCompareLive then
     begin
       if V.HasLive then
         LiveS := ValueText(V, True)
       else
         LiveS := '--';
-      APainter.Text(ColLive, RY + RowH div 2, LiveS, 12.5,
-        Palette.GaugeLabel, twRegular, taRightJustify);
+      if XLive + CellPad < XRight then
+        APainter.Text(ColLive, RY + RowH div 2, LiveS, 12.5,
+          Palette.GaugeLabel, twRegular, taRightJustify, LiveW);
     end;
     if (R <> nil) and V.IsNumeric and not IsNan(V.AtFault) and
       (BarW >= ScaleValue(16)) then
