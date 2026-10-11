@@ -303,6 +303,7 @@ type
     function RowHeight: Integer;
     function GutterWidth: Integer;
     function SplitterX: Integer;
+    function OverSplitter(const P: TPoint): Boolean;
     function ScrollBarWidth: Integer;
     function MaxScroll: Integer;
     function EffectiveRight: Integer;
@@ -1056,6 +1057,14 @@ begin
     Dec(Result, ScrollBarWidth + ScaleValue(2));
 end;
 
+function TOBDInspector.OverSplitter(const P: TPoint): Boolean;
+begin
+  // The splitter only exists on property rows; category headers span the
+  // full width.
+  Result := (P.X >= SplitterX - ScaleValue(3)) and
+    (P.X <= SplitterX + ScaleValue(3)) and (PropertyAt(P) <> nil);
+end;
+
 function TOBDInspector.SplitterX: Integer;
 var
   MinX, MaxX, X: Integer;
@@ -1702,8 +1711,6 @@ begin
             DrawProperty(P, Prop, R);
         end;
       end;
-      P.VLine(SplitterX, 1, System.Math.Max(0, ClientHeight - 2),
-        Palette.NeutralLight);
       DrawScrollBar(P);
     finally
       RestoreDC(ACanvas.Handle, Save);
@@ -1791,6 +1798,8 @@ begin
     AProperty.Name, 12.5, Ink, NameWeight, taLeftJustify,
     System.Math.Max(0, SplitterX - GutterWidth - ScaleValue(12)));
 
+  APainter.VLine(SplitterX, R.Top, R.Height, Palette.NeutralLight);
+
   VX := SplitterX + ScaleValue(8);
   VW := System.Math.Max(0, EffectiveRight - VX - ScaleValue(6));
   ValueInk := Palette.ForegroundText;
@@ -1805,8 +1814,10 @@ begin
 
   if (FEditProperty = AProperty) and FEditor.Visible then
   begin
-    APainter.FrameRect(EditFrameRect(AProperty), APainter.AccentText,
-      ScaleValue(2));
+    // Fill the field with the editor's own colour: the editor is one text
+    // line high, so on taller (tablet) rows the field shows above and below
+    // it and must not show the selected-row tint.
+    APainter.EditFrame(EditFrameRect(AProperty), True, True);
     if AProperty.Kind = ivEllipsis then
     begin
       Btn := EllipsisButtonRect(AProperty);
@@ -1901,7 +1912,6 @@ var
   Item: TCollectionItem;
   Cat: TOBDInspectorCategory;
   Prop: TOBDInspectorProperty;
-  SplitBand: TRect;
   Thumb: TRect;
 begin
   inherited;
@@ -1938,9 +1948,7 @@ begin
     Exit;
   end;
 
-  SplitBand := Rect(SplitterX - ScaleValue(3), 0, SplitterX + ScaleValue(4),
-    ClientHeight);
-  if PtInRect(SplitBand, P) then
+  if OverSplitter(P) then
   begin
     FDraggingSplitter := True;
     Cursor := crSizeWE;
@@ -2036,7 +2044,7 @@ begin
   end;
   NewHover := (FContentHeight > ClientHeight - 2) and
     (X >= ScrollTrackRect.Left);
-  if Abs(X - SplitterX) <= ScaleValue(3) then
+  if OverSplitter(Point(X, Y)) then
     Cursor := crSizeWE
   else if (Density = dnTablet) and not NewHover and
     (CategoryAt(Point(X, Y)) <> nil) then
@@ -2083,7 +2091,7 @@ var
   Prop: TOBDInspectorProperty;
 begin
   inherited;
-  if Abs(FLastMouse.X - SplitterX) <= ScaleValue(3) then
+  if OverSplitter(FLastMouse) then
   begin
     SplitterPosition := 150;
     Exit;

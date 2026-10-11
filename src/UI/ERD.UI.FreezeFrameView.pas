@@ -35,6 +35,7 @@ uses
   ERD.UI.Control,
   ERD.UI.Paint,
   ERD.UI.Buttons,
+  ERD.UI.ScrollBar,
   ERD.UI.Inspector,
   ERD.UI.RangeProfiles,
   ERD.Service.LiveData;
@@ -98,6 +99,23 @@ type
     FResizeColumn: Integer;
     FResizeStartX: Integer;
     FResizeStartWidth: Integer;
+    FTopRow: Integer;
+    FBarHot: Boolean;
+    FBarDragging: Boolean;
+    FBarDragOffset: Integer;
+    function RowHeight: Integer;
+    function RowsTop: Integer;
+    function RowsBottom: Integer;
+    function VisibleRows: Integer;
+    function MaxTopRow: Integer;
+    function NeedsScrollBar: Boolean;
+    function ScrollBarRect: TRect;
+    function ScrollThumb: TRect;
+    function RowRight: Integer;
+    procedure ScrollTo(ATop: Integer);
+    procedure SetBarHot(AValue: Boolean);
+    procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
+    procedure CMMouseWheel(var Message: TCMMouseWheel); message CM_MOUSEWHEEL;
     procedure SetColumnWidth(AIndex, AValue: Integer);
     function GetColumnWidth(AIndex: Integer): Integer;
     procedure GetColumns(out AParam, AFault, ALive, ARange, ARight: Integer);
@@ -319,6 +337,7 @@ end;
 procedure TOBDFreezeFrameView.Clear;
 begin
   FValues.Clear;
+  FTopRow := 0;
   DataChanged;
 end;
 
@@ -557,6 +576,7 @@ end;
 
 procedure TOBDFreezeFrameView.DataChanged;
 begin
+  FTopRow := EnsureRange(FTopRow, 0, MaxTopRow);
   FInspectorDirty := True;
   if FUpdateCount = 0 then
   begin
@@ -876,6 +896,94 @@ begin
   Result := ScaleValue(68);
 end;
 
+function TOBDFreezeFrameView.RowHeight: Integer;
+begin
+  Result := Max(1, ScaleValue(Metrics.CompactRow));
+end;
+
+function TOBDFreezeFrameView.RowsTop: Integer;
+begin
+  Result := ColumnHeaderTop + ScaleValue(Metrics.ColHead);
+end;
+
+function TOBDFreezeFrameView.RowsBottom: Integer;
+begin
+  Result := Max(RowsTop, Height - ScaleValue(Metrics.Foot));
+end;
+
+function TOBDFreezeFrameView.VisibleRows: Integer;
+begin
+  Result := Max(1, (RowsBottom - RowsTop) div RowHeight);
+end;
+
+function TOBDFreezeFrameView.MaxTopRow: Integer;
+begin
+  Result := Max(0, DisplayValues.Count - VisibleRows);
+end;
+
+function TOBDFreezeFrameView.NeedsScrollBar: Boolean;
+begin
+  Result := (FLayout = flTable) and (DisplayValues.Count > VisibleRows);
+end;
+
+function TOBDFreezeFrameView.ScrollBarRect: TRect;
+begin
+  if not NeedsScrollBar then
+    Exit(Rect(0, 0, 0, 0));
+  Result := Rect(Width - ScaleValue(1) - ScaleValue(10), RowsTop,
+    Width - ScaleValue(1), RowsBottom);
+end;
+
+function TOBDFreezeFrameView.ScrollThumb: TRect;
+begin
+  Result := OBDScrollThumbRect(ScrollBarRect, True, 0,
+    DisplayValues.Count - 1, VisibleRows, FTopRow, FBarHot, FBarDragging);
+end;
+
+function TOBDFreezeFrameView.RowRight: Integer;
+begin
+  // Row tints and grid lines stop at the scroll bar.
+  if NeedsScrollBar then
+    Result := ScrollBarRect.Left
+  else
+    Result := Width - ScaleValue(1);
+end;
+
+procedure TOBDFreezeFrameView.ScrollTo(ATop: Integer);
+begin
+  ATop := EnsureRange(ATop, 0, MaxTopRow);
+  if FTopRow = ATop then
+    Exit;
+  FTopRow := ATop;
+  Invalidate;
+end;
+
+procedure TOBDFreezeFrameView.SetBarHot(AValue: Boolean);
+begin
+  if FBarHot = AValue then
+    Exit;
+  FBarHot := AValue;
+  Invalidate;
+end;
+
+procedure TOBDFreezeFrameView.CMMouseLeave(var Message: TMessage);
+begin
+  inherited;
+  if not FBarDragging then
+    SetBarHot(False);
+end;
+
+procedure TOBDFreezeFrameView.CMMouseWheel(var Message: TCMMouseWheel);
+begin
+  if not NeedsScrollBar then
+  begin
+    inherited;
+    Exit;
+  end;
+  ScrollTo(FTopRow - Sign(Message.WheelDelta) * 3);
+  Message.Result := 1;
+end;
+
 procedure TOBDFreezeFrameView.GetColumns(out AParam, AFault, ALive, ARange,
   ARight: Integer);
 var
@@ -885,6 +993,8 @@ begin
   // Range is the last column and takes whatever space is left.
   AParam := ScaleValue(OBD_PAD);
   ARight := Width - ScaleValue(OBD_PAD);
+  if NeedsScrollBar then
+    ARight := Min(ARight, ScrollBarRect.Left - ScaleValue(8));
   if FColumnWidths[1] > 0 then
     WFault := ScaleValue(FColumnWidths[1])
   else
@@ -935,10 +1045,27 @@ procedure TOBDFreezeFrameView.MouseDown(Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 var
   XParam, XFault, XLive, XRange, XRight: Integer;
+  Thumb: TRect;
 begin
   inherited MouseDown(Button, Shift, X, Y);
   if (Button <> mbLeft) or (ssDouble in Shift) then
     Exit;
+  if NeedsScrollBar and PtInRect(ScrollBarRect, Point(X, Y)) then
+  begin
+    Thumb := ScrollThumb;
+    if (Y >= Thumb.Top) and (Y < Thumb.Bottom) then
+    begin
+      FBarDragging := True;
+      FBarDragOffset := Y - Thumb.Top;
+      MouseCapture := True;
+      Invalidate;
+    end
+    else if Y < Thumb.Top then
+      ScrollTo(FTopRow - VisibleRows)
+    else
+      ScrollTo(FTopRow + VisibleRows);
+    Exit;
+  end;
   FResizeColumn := ColumnDividerAt(X, Y);
   if FResizeColumn < 0 then
     Exit;
@@ -954,9 +1081,20 @@ end;
 
 procedure TOBDFreezeFrameView.MouseMove(Shift: TShiftState; X, Y: Integer);
 var
-  NewWidth: Integer;
+  NewWidth, Travel: Integer;
+  Bar, Thumb: TRect;
 begin
   inherited MouseMove(Shift, X, Y);
+  if FBarDragging then
+  begin
+    Bar := ScrollBarRect;
+    Thumb := ScrollThumb;
+    Travel := Bar.Height - Thumb.Height;
+    if Travel > 0 then
+      ScrollTo(Round((Y - FBarDragOffset - Bar.Top) / Travel * MaxTopRow));
+    Exit;
+  end;
+  SetBarHot(NeedsScrollBar and PtInRect(ScrollBarRect, Point(X, Y)));
   if FResizeColumn >= 0 then
   begin
     NewWidth := Max(40, FResizeStartWidth +
@@ -975,6 +1113,13 @@ procedure TOBDFreezeFrameView.MouseUp(Button: TMouseButton;
 begin
   inherited MouseUp(Button, Shift, X, Y);
   FResizeColumn := -1;
+  if FBarDragging then
+  begin
+    FBarDragging := False;
+    MouseCapture := False;
+    SetBarHot(NeedsScrollBar and PtInRect(ScrollBarRect, Point(X, Y)));
+    Invalidate;
+  end;
 end;
 
 procedure TOBDFreezeFrameView.DblClick;
@@ -1008,6 +1153,8 @@ var
   Weight: TOBDTextWeight;
   LiveS: string;
   Strength: Single;
+  Values: TObjectList<TOBDFreezeFrameValue>;
+  I, RightX: Integer;
 begin
   M := Metrics;
   HeaderH := ScaleValue(68);
@@ -1055,8 +1202,11 @@ begin
       clDefault, BarW);
 
   RY := HY + ColHeadH;
-  for V in DisplayValues do
+  Values := DisplayValues;
+  RightX := RowRight;
+  for I := EnsureRange(FTopRow, 0, MaxTopRow) to Values.Count - 1 do
   begin
+    V := Values[I];
     if RY + RowH > Height - FootH then
       Break;
     R := FindRange(V);
@@ -1068,7 +1218,7 @@ begin
         Strength := 0.12
       else
         Strength := 0.08;
-      APainter.FillRect(Rect(ScaleValue(1), RY, Width - ScaleValue(1), RY + RowH),
+      APainter.FillRect(Rect(ScaleValue(1), RY, RightX, RY + RowH),
         APainter.Tint(C, Strength));
       APainter.FillRect(Rect(ScaleValue(1), RY + ScaleValue(5), ScaleValue(4),
         RY + RowH - ScaleValue(5)), C);
@@ -1096,10 +1246,14 @@ begin
       (BarW >= ScaleValue(16)) then
       APainter.RangeBar(ColBar, RY + RowH div 2, BarW, R.Min, R.Max, R.Low,
         R.High, V.AtFault, Level);
-    APainter.HLine(ScaleValue(1), RY + RowH - ScaleValue(1), Width - ScaleValue(2),
-      Palette.NeutralLight);
+    APainter.HLine(ScaleValue(1), RY + RowH - ScaleValue(1),
+      RightX - ScaleValue(1), Palette.NeutralLight);
     Inc(RY, RowH);
   end;
+
+  if NeedsScrollBar then
+    OBDPaintScrollBar(APainter, ScrollBarRect, True, 0, Values.Count - 1,
+      VisibleRows, FTopRow, FBarHot, FBarDragging);
 end;
 
 procedure TOBDFreezeFrameView.PaintControl(ACanvas: TCanvas);
@@ -1124,6 +1278,7 @@ end;
 procedure TOBDFreezeFrameView.Resize;
 begin
   inherited Resize;
+  FTopRow := EnsureRange(FTopRow, 0, MaxTopRow);
   UpdateChildLayout;
 end;
 

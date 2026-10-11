@@ -34,6 +34,7 @@ uses
   ERD.UI.Paint,
   ERD.UI.Buttons,
   ERD.UI.Edits,
+  ERD.UI.ScrollBar,
   ERD.UI.RangeProfiles;
 
 type
@@ -68,6 +69,7 @@ type
     FUpdatingEdits: Boolean;
     FDraggingScroll: Boolean;
     FDraggingSelect: Boolean;
+    FBarHot: Boolean;
     FEditHigh: Boolean;
     FScrollDragOffset: Integer;
     FOnSave: TNotifyEvent;
@@ -110,6 +112,8 @@ type
     procedure DrawRows(APainter: TOBDPainter);
     procedure DrawFooter(APainter: TOBDPainter);
     procedure DrawScrollBar(APainter: TOBDPainter);
+    procedure SetBarHot(AValue: Boolean);
+    procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
     procedure CMMouseWheel(var Message: TCMMouseWheel); message CM_MOUSEWHEEL;
     procedure WMGetDlgCode(var Message: TWMGetDlgCode); message WM_GETDLGCODE;
   protected
@@ -555,7 +559,7 @@ var
 begin
   if RangeCount <= VisibleRows then
     Exit(TRect.Empty);
-  W := ScaleValue(8);
+  W := ScaleValue(10);
   TrackTop := HeaderHeight + ColumnHeaderHeight;
   Result := Rect(Width - W - ScaleValue(2), TrackTop, Width - ScaleValue(2),
     Height - FooterHeight);
@@ -564,16 +568,12 @@ end;
 function TOBDRangeEditor.ScrollThumbRect: TRect;
 var
   Track: TRect;
-  ThumbH, ThumbTop: Integer;
 begin
   Track := ScrollTrackRect;
   if Track.IsEmpty then
     Exit(TRect.Empty);
-  ThumbH := Min(Track.Height, Max(ScaleValue(24),
-    Round(Track.Height * VisibleRows / RangeCount)));
-  ThumbTop := Track.Top + Round((Track.Height - ThumbH) * FTopRow /
-    Max(1, RangeCount - VisibleRows));
-  Result := Rect(Track.Left, ThumbTop, Track.Right, ThumbTop + ThumbH);
+  Result := OBDScrollThumbRect(Track, True, 0, RangeCount - 1, VisibleRows,
+    FTopRow, FBarHot, FDraggingScroll);
 end;
 
 function TOBDRangeEditor.ParseNumber(const S: string; out AValue: Double): Boolean;
@@ -924,19 +924,28 @@ end;
 
 procedure TOBDRangeEditor.DrawScrollBar(APainter: TOBDPainter);
 var
-  Track, Thumb: TRect;
-  ThumbColor: TColor;
+  Track: TRect;
 begin
   Track := ScrollTrackRect;
   if Track.IsEmpty then
     Exit;
-  APainter.FillRect(Track, Palette.NeutralLight);
-  Thumb := ScrollThumbRect;
-  if FDraggingScroll then
-    ThumbColor := Palette.Accent
-  else
-    ThumbColor := Palette.Subtle;
-  APainter.FillRect(Thumb, ThumbColor);
+  OBDPaintScrollBar(APainter, Track, True, 0, RangeCount - 1, VisibleRows,
+    FTopRow, FBarHot, FDraggingScroll);
+end;
+
+procedure TOBDRangeEditor.SetBarHot(AValue: Boolean);
+begin
+  if FBarHot = AValue then
+    Exit;
+  FBarHot := AValue;
+  Invalidate;
+end;
+
+procedure TOBDRangeEditor.CMMouseLeave(var Message: TMessage);
+begin
+  inherited;
+  if not FDraggingScroll then
+    SetBarHot(False);
 end;
 
 procedure TOBDRangeEditor.PaintControl(ACanvas: TCanvas);
@@ -1058,7 +1067,12 @@ begin
     Exit;
   end;
   if not FDraggingScroll then
+  begin
+    Track := ScrollTrackRect;
+    SetBarHot(not Track.IsEmpty and (X >= Track.Left - ScaleValue(4)) and
+      (Y >= Track.Top) and (Y < Track.Bottom));
     Exit;
+  end;
   Track := ScrollTrackRect;
   Thumb := ScrollThumbRect;
   if Track.Height - Thumb.Height > 0 then
@@ -1074,6 +1088,7 @@ begin
   if FDraggingScroll then
   begin
     FDraggingScroll := False;
+    SetBarHot(PtInRect(ScrollTrackRect, Point(X, Y)));
     Invalidate;
   end;
 end;

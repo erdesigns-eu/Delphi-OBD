@@ -55,6 +55,13 @@ the inspector: hold the mouse button and sweep over the rows to move
 the selection, scrolling past the top or bottom edge; the low or high
 edit you last worked in stays the active one as the selection moves.
 
+The freeze-frame table scrolls (themed scroll bar, mouse wheel) when
+it has more values than fit, and `TOBDRangeEditor` now uses the shared
+themed scroll bar instead of its own flat one. The inspector draws its
+name / value splitter on property rows only, not across category
+headers, and the in-place editor's field is filled with the editor
+colour, so on tall tablet rows no row tint shows above and below it.
+
 Text on accent fills (backstage navigation, ribbon File button, check
 boxes, switches, badges) picks dark or light ink by contrast, so it
 stays readable on the blue accent of the Windows theme.
