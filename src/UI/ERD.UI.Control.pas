@@ -180,6 +180,11 @@ type
     /// <c>ClientHeight</c> before the control has a parent (for example
     /// in a constructor or while the IDE drops it on a form).</summary>
     function GetClientRect: TRect; override;
+    /// <summary>Resolves the theme once the control has a parent, so
+    /// controls created in code (and the parts of composite controls)
+    /// follow the form's theme without an explicit
+    /// <c>Theme</c>.</summary>
+    procedure SetParent(AParent: TWinControl); override;
     procedure ChangeScale(M, D: Integer; isDpiChange: Boolean); override;
     procedure Notification(AComponent: TComponent;
       Operation: TOperation); override;
@@ -374,6 +379,7 @@ type
     function EffectiveBorder: TColor;
 
     procedure Paint; override;
+    procedure SetParent(AParent: TWinControl); override;
     procedure ChangeScale(M, D: Integer; isDpiChange: Boolean); override;
     procedure Notification(AComponent: TComponent;
       Operation: TOperation); override;
@@ -597,7 +603,11 @@ end;
 
 function TOBDCustomControl.GetDensity: TOBDDensity;
 begin
-  if FParentDensity and (FResolvedTheme <> nil) then
+  // A part of a composite control (owned by it) follows the
+  // composite's density; other controls follow the theme.
+  if FParentDensity and (Owner is TOBDCustomControl) then
+    Result := TOBDCustomControl(Owner).GetDensity
+  else if FParentDensity and (FResolvedTheme <> nil) then
     Result := FResolvedTheme.Density
   else
     Result := FDensity;
@@ -631,14 +641,28 @@ begin
 end;
 
 procedure TOBDCustomControl.DensityChanged;
+var
+  I: Integer;
+  Part: TOBDCustomControl;
 begin
+  // Owned parts re-measure first, so a composite's own layout code
+  // (which runs after inherited) sees their new sizes.
+  for I := 0 to ComponentCount - 1 do
+    if Components[I] is TOBDCustomControl then
+    begin
+      Part := TOBDCustomControl(Components[I]);
+      if Part.FParentDensity and not (csDestroying in Part.ComponentState) then
+        Part.DensityChanged;
+    end;
   FBufferDirty := True;
   Invalidate;
 end;
 
 procedure TOBDCustomControl.ResolveTheme;
 var
-  Candidate: TOBDTheme;
+  Candidate, Previous: TOBDTheme;
+  Part: TOBDCustomControl;
+  I: Integer;
 begin
   // Detach from any previously-resolved theme.
   if FResolvedTheme <> nil then
@@ -649,7 +673,10 @@ begin
 
   // Explicit Theme wins. Auto-find on Owner ancestry next.
   // Process-wide default last. nil = use VCL Style + brand.
+  // The parts of a composite control use the composite's theme.
   Candidate := FTheme;
+  if (Candidate = nil) and (Owner is TOBDCustomControl) then
+    Candidate := TOBDCustomControl(Owner).FResolvedTheme;
   if Candidate = nil then
     Candidate := TOBDTheme.FindOnOwner(Self);
   if Candidate = nil then
@@ -657,6 +684,26 @@ begin
   FResolvedTheme := Candidate;
   if FResolvedTheme <> nil then
     FResolvedTheme.Attach(Self);
+  // Re-resolve owned parts: they may have been parented before the
+  // theme was streamed in.
+  for I := 0 to ComponentCount - 1 do
+    if (Components[I] is TOBDCustomControl) and
+      not (csDestroying in Components[I].ComponentState) then
+    begin
+      Part := TOBDCustomControl(Components[I]);
+      Previous := Part.FResolvedTheme;
+      Part.ResolveTheme;
+      if Part.FResolvedTheme <> Previous then
+        Part.ThemeChanged;
+    end;
+end;
+
+procedure TOBDCustomControl.SetParent(AParent: TWinControl);
+begin
+  inherited;
+  if (AParent <> nil) and (FResolvedTheme = nil) and
+    (ComponentState * [csLoading, csDestroying] = []) then
+    ResolveTheme;
 end;
 
 procedure TOBDCustomControl.DetachFromTheme;
@@ -1060,6 +1107,14 @@ begin
   FResolvedTheme := Candidate;
   if FResolvedTheme <> nil then
     FResolvedTheme.Attach(Self);
+end;
+
+procedure TOBDGraphicControl.SetParent(AParent: TWinControl);
+begin
+  inherited;
+  if (AParent <> nil) and (FResolvedTheme = nil) and
+    (ComponentState * [csLoading, csDestroying] = []) then
+    ResolveTheme;
 end;
 
 procedure TOBDGraphicControl.DetachFromTheme;

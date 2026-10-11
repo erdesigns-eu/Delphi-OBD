@@ -184,14 +184,15 @@ end;
 
 destructor TOBDTheme.Destroy;
 begin
-  // Detach every attached component first so they don't dangle.
-  while FAttached.Count > 0 do
-    Detach(FAttached[FAttached.Count - 1]);
-  FAttached.Free;
   // If we were the process-wide default, clear that.
   if FDefault = Self then
     FDefault := nil;
+  // Keep the free-notification links: inherited Destroy sends
+  // opRemove to every attached component, which clears its
+  // reference to this theme.
+  FAttached.Clear;
   inherited;
+  FreeAndNil(FAttached);
 end;
 
 procedure TOBDTheme.SetMode(AValue: TOBDThemeMode);
