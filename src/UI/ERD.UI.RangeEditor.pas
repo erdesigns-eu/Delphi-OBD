@@ -70,10 +70,18 @@ type
     FDraggingScroll: Boolean;
     FDraggingSelect: Boolean;
     FBarHot: Boolean;
+    FColumnWidths: array[0..3] of Integer;
+    FResizeColumn: Integer;
+    FResizeStartX: Integer;
+    FResizeStartWidth: Integer;
     FEditHigh: Boolean;
     FScrollDragOffset: Integer;
     FOnSave: TNotifyEvent;
     FOnCancel: TNotifyEvent;
+    function GetColumnWidth(AIndex: Integer): Integer;
+    procedure SetColumnWidth(AIndex, AValue: Integer);
+    function ColumnX(AIndex: Integer): Integer;
+    function ColumnDividerAt(X, Y: Integer): Integer;
     procedure SetRangeProfile(AValue: TOBDRangeProfile);
     function ActiveProfile: TOBDRangeProfile;
     procedure EnsurePreviewProfile;
@@ -122,6 +130,7 @@ type
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
     procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
+    procedure DblClick; override;
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
@@ -135,6 +144,8 @@ type
     procedure RangesChanged;
     /// <summary>Surface colour for child edits and buttons.</summary>
     function SurfaceColor: TColor;
+    /// <summary>Restores the default column widths.</summary>
+    procedure ResetColumnWidths;
   published
     /// <summary>Garage range profile being edited.</summary>
     property RangeProfile: TOBDRangeProfile read FRangeProfile write SetRangeProfile;
@@ -142,6 +153,20 @@ type
     property Density;
     /// <summary>True when density follows the resolved theme.</summary>
     property ParentDensity;
+    /// <summary>Parameter column width at 96 DPI; 0 = default. Columns are
+    /// resized at run time by dragging the header dividers; double-click a
+    /// divider to restore the defaults.</summary>
+    property ParameterColumnWidth: Integer index 0 read GetColumnWidth
+      write SetColumnWidth default 0;
+    /// <summary>Unit column width at 96 DPI; 0 = default.</summary>
+    property UnitColumnWidth: Integer index 1 read GetColumnWidth
+      write SetColumnWidth default 0;
+    /// <summary>Low column width at 96 DPI; 0 = default.</summary>
+    property LowColumnWidth: Integer index 2 read GetColumnWidth
+      write SetColumnWidth default 0;
+    /// <summary>High column width at 96 DPI; 0 = default.</summary>
+    property HighColumnWidth: Integer index 3 read GetColumnWidth
+      write SetColumnWidth default 0;
     /// <summary>Fires after a valid Save click.</summary>
     property OnSave: TNotifyEvent read FOnSave write FOnSave;
     /// <summary>Fires when Cancel is clicked.</summary>
@@ -149,6 +174,14 @@ type
   end;
 
 implementation
+
+const
+  /// <summary>Default and minimum widths (96 DPI) of the Parameter, Unit,
+  /// Low and High columns; Source takes the rest of the row.</summary>
+  DefaultColumnWidths: array[0..3] of Integer = (214, 60, 100, 100);
+  MinColumnWidths: array[0..3] of Integer = (60, 32, 56, 56);
+  /// <summary>Space between an in-place edit and the next column.</summary>
+  EditColumnGap = 16;
 
 function FormatRangeNumber(AValue: Double; ADecimals: Integer): string;
 var
@@ -194,6 +227,7 @@ begin
   FPreviewProfile := TOBDRangeProfile.Create(Self);
   FSelected := -1;
   FTopRow := 0;
+  FResizeColumn := -1;
   TabStop := True;
   Width := 840;
   Height := 520;
@@ -389,13 +423,74 @@ begin
     Result := I;
 end;
 
+function TOBDRangeEditor.GetColumnWidth(AIndex: Integer): Integer;
+begin
+  Result := FColumnWidths[AIndex];
+end;
+
+procedure TOBDRangeEditor.SetColumnWidth(AIndex, AValue: Integer);
+begin
+  if AValue > 0 then
+    AValue := Max(MinColumnWidths[AIndex], AValue)
+  else
+    AValue := 0;
+  if FColumnWidths[AIndex] = AValue then
+    Exit;
+  FColumnWidths[AIndex] := AValue;
+  // The in-place edits follow their columns.
+  UpdateChildLayout;
+  Invalidate;
+end;
+
+procedure TOBDRangeEditor.ResetColumnWidths;
+var
+  I: Integer;
+begin
+  for I := Low(FColumnWidths) to High(FColumnWidths) do
+    FColumnWidths[I] := 0;
+  UpdateChildLayout;
+  Invalidate;
+end;
+
+function TOBDRangeEditor.ColumnX(AIndex: Integer): Integer;
+var
+  I, W: Integer;
+begin
+  // Left edge of column AIndex: 0 Parameter, 1 Unit, 2 Low, 3 High,
+  // 4 Source.
+  Result := ScaleValue(16);
+  for I := 0 to Min(AIndex, 4) - 1 do
+  begin
+    W := FColumnWidths[I];
+    if W <= 0 then
+      W := DefaultColumnWidths[I];
+    Inc(Result, ScaleValue(W));
+  end;
+end;
+
+function TOBDRangeEditor.ColumnDividerAt(X, Y: Integer): Integer;
+var
+  I, Slop: Integer;
+begin
+  Result := -1;
+  if (Y < HeaderHeight) or (Y >= HeaderHeight + ColumnHeaderHeight) then
+    Exit;
+  Slop := ScaleValue(4);
+  // Dividers sit half-way into the gap before each column. Right-most
+  // first, so a narrowed column can still be widened.
+  for I := High(FColumnWidths) downto Low(FColumnWidths) do
+    if Abs(X - (ColumnX(I + 1) - ScaleValue(8))) <= Slop then
+      Exit(I);
+end;
+
 function TOBDRangeEditor.LowEditRect(AIndex: Integer): TRect;
 var
   Top, EH: Integer;
 begin
   EH := ScaleValue(Metrics.Edit);
   Top := RowTop(AIndex) + (RowHeight - EH) div 2;
-  Result := Rect(ScaleValue(290), Top, ScaleValue(290 + 84), Top + EH);
+  Result := Rect(ColumnX(2), Top, ColumnX(3) - ScaleValue(EditColumnGap),
+    Top + EH);
 end;
 
 function TOBDRangeEditor.HighEditRect(AIndex: Integer): TRect;
@@ -404,7 +499,8 @@ var
 begin
   EH := ScaleValue(Metrics.Edit);
   Top := RowTop(AIndex) + (RowHeight - EH) div 2;
-  Result := Rect(ScaleValue(390), Top, ScaleValue(390 + 84), Top + EH);
+  Result := Rect(ColumnX(3), Top, ColumnX(4) - ScaleValue(EditColumnGap),
+    Top + EH);
 end;
 
 function TOBDRangeEditor.ResetRect(AIndex: Integer): TRect;
@@ -798,7 +894,7 @@ var
   Garage: Boolean;
   RowR, LowR, HighR, RR: TRect;
   ColParam, ColUnit, ColLow, ColHigh, ColSrc: Integer;
-  CWidth: Integer;
+  CWidth, HY: Integer;
   Weight: TOBDTextWeight;
   Strength: Single;
 begin
@@ -807,16 +903,26 @@ begin
     HeaderHeight + ColumnHeaderHeight), APainter.HeaderFill);
   APainter.HLine(ScaleValue(1), HeaderHeight + ColumnHeaderHeight - ScaleValue(1),
     Width - ScaleValue(2), Palette.NeutralLight);
-  ColParam := ScaleValue(16);
-  ColUnit := ScaleValue(230);
-  ColLow := ScaleValue(290);
-  ColHigh := ScaleValue(390);
-  ColSrc := ScaleValue(500);
-  APainter.Caps(ColParam, HeaderHeight + ColumnHeaderHeight div 2, 'Parameter');
-  APainter.Caps(ColUnit, HeaderHeight + ColumnHeaderHeight div 2, 'Unit');
-  APainter.Caps(ColLow, HeaderHeight + ColumnHeaderHeight div 2, 'Low');
-  APainter.Caps(ColHigh, HeaderHeight + ColumnHeaderHeight div 2, 'High');
-  APainter.Caps(ColSrc, HeaderHeight + ColumnHeaderHeight div 2, 'Source');
+  ColParam := ColumnX(0);
+  ColUnit := ColumnX(1);
+  ColLow := ColumnX(2);
+  ColHigh := ColumnX(3);
+  ColSrc := ColumnX(4);
+  HY := HeaderHeight + ColumnHeaderHeight div 2;
+  APainter.Caps(ColParam, HY, 'Parameter', taLeftJustify, clDefault,
+    Max(1, ColUnit - ColParam - ScaleValue(12)));
+  APainter.Caps(ColUnit, HY, 'Unit', taLeftJustify, clDefault,
+    Max(1, ColLow - ColUnit - ScaleValue(12)));
+  APainter.Caps(ColLow, HY, 'Low', taLeftJustify, clDefault,
+    Max(1, ColHigh - ColLow - ScaleValue(12)));
+  APainter.Caps(ColHigh, HY, 'High', taLeftJustify, clDefault,
+    Max(1, ColSrc - ColHigh - ScaleValue(12)));
+  APainter.Caps(ColSrc, HY, 'Source', taLeftJustify, clDefault,
+    Max(1, Width - ColSrc - ScaleValue(16)));
+  // Column dividers double as resize grips.
+  for I := 1 to 4 do
+    APainter.VLine(ColumnX(I) - ScaleValue(8), HeaderHeight + ScaleValue(6),
+      ColumnHeaderHeight - ScaleValue(12), Palette.NeutralLight);
 
   if P = nil then
     Exit;
@@ -850,7 +956,8 @@ begin
 
     APainter.Text(ColParam, Mid, R.Caption, 13, Palette.ForegroundText,
       twRegular, taLeftJustify, ColUnit - ColParam - ScaleValue(14));
-    APainter.Text(ColUnit, Mid, R.UnitText, 12.5, Palette.GaugeLabel);
+    APainter.Text(ColUnit, Mid, R.UnitText, 12.5, Palette.GaugeLabel,
+      twRegular, taLeftJustify, Max(1, ColLow - ColUnit - ScaleValue(12)));
     LowR := LowEditRect(I);
     HighR := HighEditRect(I);
     if I <> FSelected then
@@ -982,6 +1089,18 @@ begin
   if Button <> mbLeft then
     Exit;
   SetFocus;
+  if ColumnDividerAt(X, Y) >= 0 then
+  begin
+    // The second press of a double-click is left to DblClick (reset).
+    if ssDouble in Shift then
+      Exit;
+    FResizeColumn := ColumnDividerAt(X, Y);
+    FResizeStartX := X;
+    FResizeStartWidth := MulDiv(ColumnX(FResizeColumn + 1) -
+      ColumnX(FResizeColumn), 96, ScaleValue(96));
+    MouseCapture := True;
+    Exit;
+  end;
   Track := ScrollTrackRect;
   if not Track.IsEmpty and (X >= Track.Left - ScaleValue(4)) and
     (Y >= Track.Top) and (Y < Track.Bottom) then
@@ -1037,6 +1156,16 @@ var
   RowsTop, RowsBottom, I: Integer;
 begin
   inherited MouseMove(Shift, X, Y);
+  if FResizeColumn >= 0 then
+  begin
+    SetColumnWidth(FResizeColumn, Max(MinColumnWidths[FResizeColumn],
+      FResizeStartWidth + MulDiv(X - FResizeStartX, 96, ScaleValue(96))));
+    Exit;
+  end;
+  if ColumnDividerAt(X, Y) >= 0 then
+    Cursor := crHSplit
+  else
+    Cursor := crDefault;
   if FDraggingSelect then
   begin
     if not (ssLeft in Shift) or (RangeCount = 0) then
@@ -1085,12 +1214,28 @@ procedure TOBDRangeEditor.MouseUp(Button: TMouseButton; Shift: TShiftState;
 begin
   inherited MouseUp(Button, Shift, X, Y);
   FDraggingSelect := False;
+  if FResizeColumn >= 0 then
+  begin
+    FResizeColumn := -1;
+    MouseCapture := False;
+  end;
   if FDraggingScroll then
   begin
     FDraggingScroll := False;
     SetBarHot(PtInRect(ScrollTrackRect, Point(X, Y)));
     Invalidate;
   end;
+end;
+
+procedure TOBDRangeEditor.DblClick;
+var
+  P: TPoint;
+begin
+  inherited DblClick;
+  P := ScreenToClient(Mouse.CursorPos);
+  // Double-clicking a header divider restores the default widths.
+  if ColumnDividerAt(P.X, P.Y) >= 0 then
+    ResetColumnWidths;
 end;
 
 procedure TOBDRangeEditor.KeyDown(var Key: Word; Shift: TShiftState);

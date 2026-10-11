@@ -1090,7 +1090,6 @@ var
 begin
   if AOwnerControl = nil then
     Exit;
-  Parent := AOwnerControl;
   FPPI := ControlPPI(AOwnerControl);
   BuildRows;
   UpdateSize;
@@ -1126,6 +1125,13 @@ begin
       X := Work.Left;
   end;
 
+  // Position the popup before it gets a parent: assigning the parent
+  // creates and shows the (visible) window at its current Left/Top, which
+  // for a new popup is the top-left corner of the desktop - a visible
+  // flash when moving between menu bar items.
+  SetBounds(X, Y, W, H);
+  if Parent <> AOwnerControl then
+    Parent := AOwnerControl;
   HandleNeeded;
   SetWindowPos(Handle, HWND_TOPMOST, X, Y, W, H, SWP_NOACTIVATE or
     SWP_SHOWWINDOW);

@@ -444,7 +444,7 @@ switch on the theme changes the whole form. The approved designs are in
 | `TOBDDtcPanel` | `ERD.UI.DtcPanel` | Trouble codes with status chips, filter strip, inline freeze-frame details and an inline clear confirmation (`OnReadCodes`, `OnClearCodes`). `LoadFromService` takes the `TOBDDtcEntry` list of a DTC read. |
 | `TOBDReadinessPanel` | `ERD.UI.ReadinessPanel` | Emission-monitor readiness from Mode 01 PID 01 (`LoadPID01`); the verdict names the local inspection through `InspectionRegime` (APK, keuring, contrôle technique, MOT, HU / AU, NCT or `InspectionName`). |
 | `TOBDFreezeFrameView` | `ERD.UI.FreezeFrameView` | Freeze-frame values at fault, optionally next to live values, against a `RangeProfile`; `Layout` table or inspector; the table scrolls with the themed scroll bar. |
-| `TOBDRangeEditor` | `ERD.UI.RangeEditor` | Editor for a `TOBDRangeProfile`: garage values, defaults, per-row reset and validation; hold the mouse button and sweep over the rows to move the selection. |
+| `TOBDRangeEditor` | `ERD.UI.RangeEditor` | Editor for a `TOBDRangeProfile`: garage values, defaults, per-row reset and validation; hold the mouse button and sweep over the rows to move the selection; drag the header dividers to resize the columns (double-click resets; `*ColumnWidth` properties). |
 
 ### Application chrome
 Everything around the panels, so a whole application follows the theme.

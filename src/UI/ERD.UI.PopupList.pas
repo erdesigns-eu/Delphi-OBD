@@ -519,7 +519,6 @@ begin
   if AOwnerControl = nil then
     Exit;
 
-  Parent := AOwnerControl;
   FOwnerControl := AOwnerControl;
   FFieldRect := AFieldRect;
   if FAppEvents = nil then
@@ -533,17 +532,9 @@ begin
   if FPPI <= 0 then
     FPPI := 96;
   FRowHeight := System.Math.Max(1, ARowHeight);
-  ItemHeight := FRowHeight;
-  Color := FPalette.GaugeFace;
-  Font.Color := FPalette.ForegroundText;
-  Items.Assign(AItems);
-  if Items.Count > 0 then
-    ItemIndex := EnsureRange(AItemIndex, 0, Items.Count - 1)
-  else
-    ItemIndex := -1;
 
   Rows := System.Math.Max(1, System.Math.Min(System.Math.Max(1, AMaxRows),
-    System.Math.Max(Items.Count, 1)));
+    System.Math.Max(AItems.Count, 1)));
   W := System.Math.Max(AFieldRect.Width, ScalePixel(40));
   H := Rows * FRowHeight + 2;
   X := AFieldRect.Left;
@@ -561,6 +552,21 @@ begin
     X := Work.Right - W;
   if X < Work.Left then
     X := Work.Left;
+
+  // Position the list before it gets a parent: assigning the parent
+  // creates and shows the window at its current Left/Top, which for a new
+  // list is the top-left corner of the desktop (a visible flash).
+  SetBounds(X, Y, W, H);
+  if Parent <> AOwnerControl then
+    Parent := AOwnerControl;
+  ItemHeight := FRowHeight;
+  Color := FPalette.GaugeFace;
+  Font.Color := FPalette.ForegroundText;
+  Items.Assign(AItems);
+  if Items.Count > 0 then
+    ItemIndex := EnsureRange(AItemIndex, 0, Items.Count - 1)
+  else
+    ItemIndex := -1;
 
   HandleNeeded;
   SendMessage(Handle, LB_SETITEMHEIGHT, 0, FRowHeight);

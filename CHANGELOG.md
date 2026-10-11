@@ -62,6 +62,15 @@ name / value splitter on property rows only, not across category
 headers, and the in-place editor's field is filled with the editor
 colour, so on tall tablet rows no row tint shows above and below it.
 
+`TOBDRangeEditor` columns are resizable: drag a header divider (double-
+click it to reset), or set `ParameterColumnWidth`, `UnitColumnWidth`,
+`LowColumnWidth` and `HighColumnWidth`; the low / high edits follow
+their columns. The toolbar search box (the live data filter) centres
+its text vertically, and `TOBDConnectionBar` uses the same text size
+as the status bar. Menu bar drop-downs and the themed drop-down lists
+are positioned before their window is shown, so they no longer flash
+in the top-left corner of the desktop when moving between menus.
+
 Text on accent fills (backstage navigation, ribbon File button, check
 boxes, switches, badges) picks dark or light ink by contrast, so it
 stays readable on the blue accent of the Windows theme.

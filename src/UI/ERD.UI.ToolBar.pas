@@ -961,19 +961,23 @@ begin
   R := Box;
   InflateRect(R, -ScaleValue(30), -ScaleValue(3));
   R.Right := Box.Right - ScaleValue(8);
-  // One text line, centred in the search box (borderless edits draw their
-  // text at the top of the client area).
+  // A borderless edit draws its text at the top of its client area, so
+  // size it to exactly one text line (measured from the font, which is set
+  // first) and centre that line in the search box.
   FontHeight := System.Math.Max(1, Round(12.5 * ScaleValue(96) / 96));
-  EditHeight := System.Math.Max(1, System.Math.Min(R.Height,
-    Round(FontHeight * 1.4) + ScaleValue(2)));
-  FSearchEdit.SetBounds(R.Left, Box.Top + (Box.Height - EditHeight) div 2,
-    System.Math.Max(0, R.Width), EditHeight);
-  if FSearchEdit.Color <> Palette.Background then
-    FSearchEdit.Color := Palette.Background;
   if not SameText(FSearchEdit.Font.Name, 'Segoe UI') then
     FSearchEdit.Font.Name := 'Segoe UI';
   if FSearchEdit.Font.Height <> -FontHeight then
     FSearchEdit.Font.Height := -FontHeight;
+  EditHeight := System.Math.Max(1, System.Math.Min(R.Height,
+    OBDFontLineHeight(FSearchEdit.Font)));
+  R.Top := Box.Top + (Box.Height - EditHeight) div 2;
+  R.Right := System.Math.Max(R.Left, R.Right);
+  if (FSearchEdit.Left <> R.Left) or (FSearchEdit.Top <> R.Top) or
+    (FSearchEdit.Width <> R.Width) or (FSearchEdit.Height <> EditHeight) then
+    FSearchEdit.SetBounds(R.Left, R.Top, R.Width, EditHeight);
+  if FSearchEdit.Color <> Palette.Background then
+    FSearchEdit.Color := Palette.Background;
   if FSearchEdit.Font.Color <> Palette.ForegroundText then
     FSearchEdit.Font.Color := Palette.ForegroundText;
   if FSearchEdit.TextHint <> FSearchHint then

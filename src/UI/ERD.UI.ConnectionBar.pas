@@ -36,6 +36,7 @@ uses
   Vcl.ExtCtrls,
   ERD.UI.Types,
   ERD.UI.Control,
+  ERD.UI.Paint,
   ERD.UI.Units,
   ERD.UI.Binding,
   ERD.Connection.Types,
@@ -82,7 +83,8 @@ type
     function LinkColor: TColor;
     function BatteryText: string;
     function BatteryColor: TColor;
-    procedure DrawSegment(ACanvas: TCanvas; var AX: Integer;
+    function TextSize: Single;
+    procedure DrawSegment(APainter: TOBDPainter; var AX: Integer;
       const ALabel, AValue: string; AValueColor: TColor);
   protected
     /// <summary>Re-subscribes the battery channel after streaming.
@@ -133,9 +135,6 @@ type
   end;
 
 implementation
-
-uses
-  ERD.UI.Paint;
 
 constructor TOBDConnectionBar.Create(AOwner: TComponent);
 begin
@@ -358,23 +357,27 @@ begin
     Result := EffectiveForeground;
 end;
 
-procedure TOBDConnectionBar.DrawSegment(ACanvas: TCanvas; var AX: Integer;
+function TOBDConnectionBar.TextSize: Single;
+begin
+  // Same text size as the status bar and the other OBD controls.
+  if Density = dnTablet then
+    Result := 13
+  else
+    Result := 12;
+end;
+
+procedure TOBDConnectionBar.DrawSegment(APainter: TOBDPainter; var AX: Integer;
   const ALabel, AValue: string; AValueColor: TColor);
 var
-  Y: Integer;
+  CY: Integer;
 begin
   if AX >= Width then
     Exit;
-  ACanvas.Brush.Style := bsClear;
-  ACanvas.Font.Style := [];
-  ACanvas.Font.Color := Palette.GaugeLabel;
-  Y := (Height - ACanvas.TextHeight(ALabel)) div 2;
-  ACanvas.TextOut(AX, Y, ALabel);
-  Inc(AX, ACanvas.TextWidth(ALabel) + ScaleValue(4));
-  ACanvas.Font.Style := [fsBold];
-  ACanvas.Font.Color := AValueColor;
-  ACanvas.TextOut(AX, Y, AValue);
-  Inc(AX, ACanvas.TextWidth(AValue) + ScaleValue(18));
+  CY := Height div 2;
+  Inc(AX, APainter.Text(AX, CY, ALabel, TextSize, Palette.GaugeLabel) +
+    ScaleValue(4));
+  Inc(AX, APainter.Text(AX, CY, AValue, TextSize, AValueColor, twSemibold) +
+    ScaleValue(18));
 end;
 
 procedure TOBDConnectionBar.PaintControl(ACanvas: TCanvas);
@@ -385,60 +388,52 @@ var
   P: TOBDPainter;
 begin
   Pad := ScaleValue(10);
-  ACanvas.Pen.Color := EffectiveBorder;
-  ACanvas.MoveTo(0, Height - 1);
-  ACanvas.LineTo(Width, Height - 1);
-  ACanvas.Font.Name := Font.Name;
-  ACanvas.Font.Height := -System.Math.Max(ScaleValue(11),
-    System.Math.Min(ScaleValue(16), Round(Height * 0.42)));
-
-  // Link dot and state.
-  Dot := System.Math.Max(ScaleValue(8), Round(Height * 0.32));
-  X := Pad;
-  if IsPreview and (FConnection = nil) and (FLinkState = lnkDisconnected) then
-    DotColor := Palette.Success
-  else
-    DotColor := LinkColor;
-  // GDI+ anti-aliased: GDI's Ellipse renders small circles as jagged polygons.
   P := TOBDPainter.Create(ACanvas, Palette, ScaleValue(96));
   try
+    P.HLine(0, Height - 1, Width, EffectiveBorder);
+
+    // Link dot and state.
+    Dot := System.Math.Max(ScaleValue(8),
+      System.Math.Min(ScaleValue(10), Round(Height * 0.32)));
+    X := Pad;
+    if IsPreview and (FConnection = nil) and (FLinkState = lnkDisconnected) then
+      DotColor := Palette.Success
+    else
+      DotColor := LinkColor;
     P.Ellipse(X, (Height - Dot) / 2, Dot, Dot, DotColor, clNone);
+    Inc(X, Dot + ScaleValue(6));
+    if IsPreview and (FConnection = nil) and (FLinkState = lnkDisconnected) then
+      S := 'Connected'
+    else
+      S := LinkText;
+    Inc(X, P.Text(X, Height div 2, S, TextSize, EffectiveForeground,
+      twSemibold) + ScaleValue(18));
+
+    S := FAdapterText;
+    if (S = '') and IsPreview then
+      S := 'ELM327 v1.5';
+    if S = '' then
+      S := '--';
+    DrawSegment(P, X, 'Adapter', S, EffectiveForeground);
+
+    S := FProtocolText;
+    if (S = '') and IsPreview then
+      S := 'ISO 15765-4 CAN';
+    if S = '' then
+      S := '--';
+    DrawSegment(P, X, 'Protocol', S, EffectiveForeground);
+
+    DrawSegment(P, X, 'Battery', BatteryText, BatteryColor);
+
+    S := FVIN;
+    if (S = '') and IsPreview then
+      S := 'WVWZZZ1KZAW000000';
+    if S = '' then
+      S := '--';
+    DrawSegment(P, X, 'VIN', S, EffectiveForeground);
   finally
     P.Free;
   end;
-  Inc(X, Dot + ScaleValue(6));
-  ACanvas.Brush.Style := bsClear;
-  ACanvas.Font.Style := [fsBold];
-  ACanvas.Font.Color := EffectiveForeground;
-  if IsPreview and (FConnection = nil) and (FLinkState = lnkDisconnected) then
-    S := 'Connected'
-  else
-    S := LinkText;
-  ACanvas.TextOut(X, (Height - ACanvas.TextHeight(S)) div 2, S);
-  Inc(X, ACanvas.TextWidth(S) + ScaleValue(18));
-
-  S := FAdapterText;
-  if (S = '') and IsPreview then
-    S := 'ELM327 v1.5';
-  if S = '' then
-    S := '--';
-  DrawSegment(ACanvas, X, 'Adapter', S, EffectiveForeground);
-
-  S := FProtocolText;
-  if (S = '') and IsPreview then
-    S := 'ISO 15765-4 CAN';
-  if S = '' then
-    S := '--';
-  DrawSegment(ACanvas, X, 'Protocol', S, EffectiveForeground);
-
-  DrawSegment(ACanvas, X, 'Battery', BatteryText, BatteryColor);
-
-  S := FVIN;
-  if (S = '') and IsPreview then
-    S := 'WVWZZZ1KZAW000000';
-  if S = '' then
-    S := '--';
-  DrawSegment(ACanvas, X, 'VIN', S, EffectiveForeground);
 end;
 
 end.
