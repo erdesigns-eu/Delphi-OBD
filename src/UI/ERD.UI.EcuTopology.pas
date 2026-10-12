@@ -202,7 +202,6 @@ type
     function HeaderHeight: Integer;
     function FooterHeight: Integer;
     function StateColor(APainter: TOBDPainter; AState: TOBDEcuNodeState): TColor;
-    function StatusText(AState: TOBDEcuNodeState; AFaults: Integer): string;
     function BodyTop: Integer;
     procedure LayoutNodeRects;
     procedure DrawHeader(APainter: TOBDPainter);
@@ -1033,23 +1032,6 @@ begin
     ensNoResponse, ensNotScanned: Result := APainter.Palette.Subtle;
   else
     Result := APainter.Palette.Success;
-  end;
-end;
-
-function TOBDEcuTopology.StatusText(AState: TOBDEcuNodeState;
-  AFaults: Integer): string;
-begin
-  case AState of
-    ensFaults:
-      if AFaults = 1 then
-        Result := '1 FAULT'
-      else
-        Result := Format('%d FAULTS', [AFaults]);
-    ensLocked: Result := 'PROTECTED';
-    ensNoResponse: Result := 'NO REPLY';
-    ensNotScanned: Result := 'NOT SCANNED';
-  else
-    Result := 'OK';
   end;
 end;
 

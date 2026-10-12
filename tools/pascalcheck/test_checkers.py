@@ -303,6 +303,55 @@ end.
                           .replace('FDialog.FB := 1;', 'FDialog.OnApply(nil);'))
         self.assertIn('total: 0', self.checker('visibility'))
 
+    def test_private_helper_shared_by_name_counts_per_class(self):
+        source = self.source('src/Pair.pas', """unit Pair;
+interface
+type
+  TOne = class
+  strict private
+    FName: string;
+    function Text: string;
+    procedure SetName(const AValue: string);
+  public
+    procedure Draw;
+    property Name: string read FName write SetName;
+  end;
+  TTwo = class
+  strict private
+    function Text: string;
+  public
+    procedure Draw;
+  end;
+implementation
+function TOne.Text: string;
+begin
+  Result := 'one';
+end;
+procedure TOne.SetName(const AValue: string);
+begin
+  FName := AValue;
+end;
+procedure TOne.Draw;
+begin
+end;
+function TTwo.Text: string;
+begin
+  Result := 'two';
+end;
+procedure TTwo.Draw;
+begin
+  Text;
+end;
+end.
+""")
+        out = self.checker('private')
+        self.assertIn('TOne.Text', out)
+        self.assertNotIn('TTwo.Text', out)
+        self.assertNotIn('SetName', out)
+        source.write_text(source.read_text().replace(
+            'procedure TOne.Draw;\nbegin\nend;', 'procedure TOne.Draw;\nbegin\n  Text;\nend;'))
+        self.assertNotIn('TOne.Text', self.checker('private'))
+
     def test_property_must_not_hide_an_inherited_vcl_method(self):
         source = self.source('src/Row.pas', """unit Row;
 interface

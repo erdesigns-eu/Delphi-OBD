@@ -4,6 +4,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from common import *
 from typemap import all_units, find_type
 from resolve import base_name
+from bodies import parse_routines
 
 ROUT_KW = ('procedure', 'function', 'constructor', 'destructor')
 DIRECTIVES = {'override', 'virtual', 'dynamic', 'abstract', 'reintroduce',
@@ -112,6 +113,8 @@ for uname, u in sorted(all_units().items()):
         if k == 'id': freq[t.lower().lstrip('&')] += 1
     # walk class bodies tracking visibility
     stack = []; vis = None; i = 0
+    private_decls = []
+    spans = {}
     while i < n:
         k, t, p = toks[i]
         if k != 'id': i += 1; continue
@@ -122,11 +125,15 @@ for uname, u in sorted(all_units().items()):
             j = i-1
             while j >= 0 and toks[j][1] != '=': j -= 1
             if j-1 >= 0 and toks[j-1][0]=='id': tn = toks[j-1][1]
-            stack.append([tn, 'published' if tl=='class' else 'public', tl]); i += 1; continue
+            stack.append([tn, 'published' if tl=='class' else 'public', tl, i]); i += 1; continue
         if tl == 'record' and prv in ('=','packed'):
-            stack.append([None,'public','record']); i += 1; continue
+            stack.append([None,'public','record', i]); i += 1; continue
         if not stack: i += 1; continue
-        if tl == 'end': stack.pop(); i += 1; continue
+        if tl == 'end':
+            top = stack.pop()
+            if top[0] and top[2] == 'class':
+                spans[top[0].lower()] = (top[3], i)
+            i += 1; continue
         if tl in VIS:
             stack[-1][1] = tl; i += 1; continue
         if tl == 'strict': i += 1; continue
@@ -134,7 +141,7 @@ for uname, u in sorted(all_units().items()):
             if i+1 < n and toks[i+1][0]=='id':
                 mname = toks[i+1][1]
                 ml = mname.lower().lstrip('&')
-                tn, v, kind = stack[-1]
+                tn, v, kind = stack[-1][:3]
                 # trailing directives up to the terminating ';'
                 seg = ' '.join(x[1].lower() for x in toks[i:i+80])
                 has_override = bool(re.search(r'\boverride\b', seg.split(';')[1] if ';' in seg else ''))
@@ -169,10 +176,40 @@ for uname, u in sorted(all_units().items()):
                     if ti is not None and ml in inherited_virtuals(ti, u):
                         hides.append((u.rel, u.line(p), tn, mname))
                 is_msg = 'message' in tail
-                if (v == 'private' and kind == 'class' and freq[ml] <= 2
+                if (v == 'private' and kind == 'class'
                         and not is_msg and not has_override):
-                    unused_priv.append((u.rel, u.line(p), tn, mname, freq[ml]))
+                    if freq[ml] <= 2:
+                        unused_priv.append((u.rel, u.line(p), tn, mname, freq[ml]))
+                    elif tn:
+                        private_decls.append((u.line(p), tn, mname, ml))
         i += 1
+    # Two classes of one unit each keeping a private helper of the same name:
+    # the unit-wide count sees the other class's calls and passes a helper
+    # its own class never calls. Count those only inside the class's own
+    # method bodies (and unit-level routines, which could reach a plain
+    # private one).
+    owners = collections.defaultdict(set)
+    for line, tn, mname, ml in private_decls:
+        owners[ml].add(tn.lower())
+    shared = [d for d in private_decls if len(owners[d[3]]) > 1]
+    if shared:
+        routines = [r for r in parse_routines(u) if r.body[1] is not None]
+        for line, tn, mname, ml in shared:
+            # The declaration itself is one; a property naming it as its
+            # reader or writer is a use.
+            a, b = spans.get(tn.lower(), (0, -1))
+            uses = sum(1 for i2 in range(a, b + 1)
+                       if toks[i2][0] == 'id' and toks[i2][1].lower().lstrip('&') == ml) - 1
+            for r in routines:
+                owner = r.qual.split('.')[-1].lower() if r.qual else ''
+                if owner not in ('', tn.lower()):
+                    continue
+                a, b = r.body
+                for i2 in range(a, b):
+                    if r.owns(i2) and toks[i2][0] == 'id' and toks[i2][1].lower().lstrip('&') == ml:
+                        uses += 1
+            if not uses:
+                unused_priv.append((u.rel, line, tn, mname, 0))
 
 print("=== W1010: redeclares a VCL virtual method without 'override' ===")
 for rel, line, tn, m in hides: print("  %s:%d  %s.%s" % (rel, line, tn, m))
