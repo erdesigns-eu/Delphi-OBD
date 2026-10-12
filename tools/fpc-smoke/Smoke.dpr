@@ -20,7 +20,7 @@ begin
 end;
 begin
   Checks := 0;
-  Check(OBD_VERSION_MAJOR = 2, 'version');
+  Check(OBD_VERSION_MAJOR = 3, 'version');
   for I := Ord(Low(TOBDErrorCode)) to Ord(High(TOBDErrorCode)) do
     Check(OBDErrorCodeToMessage(TOBDErrorCode(I)) <> '', 'error message');
   for I := 0 to 63 do begin

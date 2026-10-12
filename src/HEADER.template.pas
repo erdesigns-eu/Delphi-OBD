@@ -9,7 +9,7 @@
 // Author      : Ernst Reidinga (ERDesigns)
 // Co-authors  : <Name>, <Name>
 // Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
-// License     : MIT — see LICENSE
+// License     : see LICENSE
 //
 // References  :
 // - <Spec / standard / source URL or DOI>

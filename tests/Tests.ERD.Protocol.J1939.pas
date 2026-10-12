@@ -1,11 +1,11 @@
-//------------------------------------------------------------------------------
+﻿//------------------------------------------------------------------------------
 //  Tests.ERD.Protocol.J1939
 //
 //  J1939 ID encode / decode + DM PGN catalogue coverage.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
-//  License     : MIT — see LICENSE
+//  License     : see LICENSE
 //
 //  History     :
 //    2026-05-09  ERD  Initial implementation.

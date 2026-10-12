@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------------
+﻿//------------------------------------------------------------------------------
 //  Tests.ERD.UI.Pickers
 //
 //  Non-visual contract for the A2.10 input pickers.
@@ -32,7 +32,7 @@ type
   [TestFixture]
   TPidPickerTests = class
   public
-    [Test] procedure DefaultsCsDropDownList;
+    [Test] procedure DefaultsSixteenRowList;
     [Test] procedure SetPIDsPopulatesItems;
     [Test] procedure HasSelectionFalseByDefault;
   end;
@@ -42,6 +42,7 @@ type
   public
     [Test] procedure DefaultsNoneSelected;
     [Test] procedure SelectUpdatesSelectedOEM;
+    [Test] procedure ItemIndexDrivesSelectedOEM;
   end;
 
   [TestFixture]
@@ -121,12 +122,13 @@ end;
 
 { TPidPickerTests --------------------------------------------------------- }
 
-procedure TPidPickerTests.DefaultsCsDropDownList;
+procedure TPidPickerTests.DefaultsSixteenRowList;
 var P: TOBDPidPicker;
 begin
   P := TOBDPidPicker.Create(nil);
   try
-    Assert.IsTrue(P.Style = csDropDownList);
+    // Themed TOBDComboBox: always a pick list, 16 rows tall.
+    Assert.AreEqual(-1, P.ItemIndex);
     Assert.AreEqual(16, P.DropDownCount);
   finally P.Free; end;
 end;
@@ -171,6 +173,20 @@ begin
     Assert.IsTrue(P.SelectedOEM = oemBMW);
     P.Select(oemHMG);
     Assert.IsTrue(P.SelectedOEM = oemHMG);
+  finally P.Free; end;
+end;
+
+procedure TOEMPickerTests.ItemIndexDrivesSelectedOEM;
+var P: TOBDOEMPicker;
+begin
+  P := TOBDOEMPicker.Create(nil);
+  try
+    // The OEM list is built up front, one row per TOBDOEM value.
+    Assert.AreEqual(Ord(High(TOBDOEM)) + 1, P.Items.Count);
+    P.ItemIndex := Ord(oemFord);
+    Assert.IsTrue(P.SelectedOEM = oemFord);
+    P.ItemIndex := -1;
+    Assert.IsTrue(P.SelectedOEM = oemNone);
   finally P.Free; end;
 end;
 

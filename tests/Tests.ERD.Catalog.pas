@@ -10,7 +10,7 @@
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+//  License     : see LICENSE
 //
 //  History     :
 //    2026-05-09  ERD  Initial coverage: PID round-trip, text

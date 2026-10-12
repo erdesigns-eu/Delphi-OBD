@@ -11,6 +11,14 @@ Generated 2026-05-08 by `tools/generate_catalog_index.py` (re-run on every relea
   - **powersports**: 5 catalogs / 1,131 entries
 - **47 DTC catalogs** (`dtc-<oem>.json`) — **1,282 total DTCs**
 - **2 universal catalogs** (ISO 15031 / UDS / OBD-II PIDs)
+- **2 range profiles** (`range-profiles/*.json`) — editable normal bands for OBD Studio values
+
+## Range profiles
+
+| Profile | File | Vehicle | Source |
+|---|---|---|---|
+| Generic | `range-profiles/generic.json` | Generic OBD-II vehicle | generic workshop defaults |
+| VAG 1.6 TDI | `range-profiles/vag-16-tdi.json` | VW 1.6 TDI (EA189/EA288 era) | generic workshop defaults adjusted for VW/Audi/Skoda/Seat 1.6 TDI |
 
 ## Agricultural
 

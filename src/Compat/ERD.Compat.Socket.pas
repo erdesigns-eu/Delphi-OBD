@@ -2,7 +2,7 @@
 // ERD.Compat.Socket
 // IPv4 TCP/UDP sockets for FPC and native Windows options for Delphi.
 // Author: ERDesigns and Delphi-OBD contributors
-// License: MIT — see LICENSE
+// License: see LICENSE
 // ------------------------------------------------------------------------------
 unit ERD.Compat.Socket;
 {$IFDEF FPC}

@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------------
+﻿//------------------------------------------------------------------------------
 //  Tests.ERD.OEM.Captures
 //
 //  Coverage for ExtractCapturePairs + ValidateAgainstExtension.
@@ -7,7 +7,7 @@
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
-//  License     : MIT — see LICENSE
+//  License     : see LICENSE
 //
 //  History     :
 //    2026-05-12  ERD  Initial fixture.

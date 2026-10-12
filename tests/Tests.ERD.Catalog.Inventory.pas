@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------------
+﻿//------------------------------------------------------------------------------
 //  Tests.ERD.Catalog.Inventory
 //
 //  Regression test that the shipped catalogue files contain at least
@@ -10,7 +10,7 @@
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
-//  License     : MIT — see LICENSE
+//  License     : see LICENSE
 //
 //  History     :
 //    2026-05-09  ERD  Initial baseline (84 PIDs, 528

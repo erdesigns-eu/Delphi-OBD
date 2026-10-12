@@ -1,0 +1,150 @@
+object frmService: TfrmService
+  Left = 0
+  Top = 0
+  Width = 1208
+  Height = 660
+  Padding.Left = 12
+  Padding.Top = 12
+  Padding.Right = 12
+  Padding.Bottom = 12
+  TabOrder = 0
+  object vcVehicle: TOBDVehicleInfoCard
+    Left = 12
+    Top = 12
+    Width = 1184
+    Height = 92
+    Align = alTop
+    Layout = vlCompact
+    TabOrder = 0
+  end
+  object pnlBody: TPanel
+    Left = 12
+    Top = 104
+    Width = 1184
+    Height = 544
+    Align = alClient
+    BevelOuter = bvNone
+    ParentBackground = False
+    ParentColor = True
+    ShowCaption = False
+    TabOrder = 1
+    object cdCatalogue: TOBDCard
+      AlignWithMargins = True
+      Left = 0
+      Top = 0
+      Width = 380
+      Height = 544
+      Margins.Left = 0
+      Margins.Top = 12
+      Margins.Right = 12
+      Margins.Bottom = 0
+      Align = alLeft
+      Title = 'Service functions'
+      ShowFooter = True
+      StatusEdge = ceAccent
+      Padding.Left = 12
+      Padding.Top = 8
+      Padding.Right = 12
+      Padding.Bottom = 12
+      TabOrder = 0
+      object edSearch: TOBDEdit
+        Left = 17
+        Top = 61
+        Width = 350
+        Height = 26
+        Align = alTop
+        TextHint = 'Find a function'
+        OnChange = edSearchChange
+        TabOrder = 0
+      end
+      object cbCategory: TOBDComboBox
+        AlignWithMargins = True
+        Left = 17
+        Top = 99
+        Width = 350
+        Height = 26
+        Margins.Left = 0
+        Margins.Top = 12
+        Margins.Right = 0
+        Margins.Bottom = 0
+        Align = alTop
+        OnChange = cbCategoryChange
+        TabOrder = 1
+      end
+      object btnRun: TOBDButton
+        Left = 17
+        Top = 464
+        Width = 350
+        Height = 32
+        Align = alBottom
+        Caption = 'Run function'
+        Glyph = glPlay
+        AutoSize = False
+        OnClick = btnRunClick
+        TabOrder = 3
+      end
+      object tilesCatalogue: TOBDTileGrid
+        AlignWithMargins = True
+        Left = 17
+        Top = 137
+        Width = 350
+        Height = 315
+        Margins.Left = 0
+        Margins.Top = 12
+        Margins.Right = 0
+        Margins.Bottom = 12
+        Align = alClient
+        TileStyle = tgsRow
+        TileWidth = 300
+        TileHeight = 64
+        ShowGroups = True
+        BorderVisible = True
+        OnChange = tilesCatalogueChange
+        OnItemActivate = tilesCatalogueItemActivate
+        TabOrder = 2
+      end
+    end
+    object pnlRight: TPanel
+      AlignWithMargins = True
+      Left = 392
+      Top = 0
+      Width = 792
+      Height = 544
+      Margins.Left = 0
+      Margins.Top = 12
+      Margins.Right = 0
+      Margins.Bottom = 0
+      Align = alClient
+      BevelOuter = bvNone
+      ParentBackground = False
+      ParentColor = True
+      ShowCaption = False
+      TabOrder = 1
+      object procService: TOBDProcedureView
+        Left = 0
+        Top = 0
+        Width = 792
+        Height = 374
+        Align = alClient
+        OnAbort = procServiceAbort
+        OnBack = procServiceBack
+        OnNext = procServiceNext
+        OnAction = procServiceAction
+        TabOrder = 0
+      end
+      object preService: TOBDPreconditionList
+        AlignWithMargins = True
+        Left = 0
+        Top = 386
+        Width = 792
+        Height = 158
+        Margins.Left = 0
+        Margins.Top = 12
+        Margins.Right = 0
+        Margins.Bottom = 0
+        Align = alBottom
+        TabOrder = 1
+      end
+    end
+  end
+end

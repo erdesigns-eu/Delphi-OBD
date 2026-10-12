@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------------
+﻿//------------------------------------------------------------------------------
 //  Tests.ERD.Tachograph
 //
 //  Coverage for the EU 165/2014 tachograph signature + workshop
@@ -10,7 +10,7 @@
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
-//  License     : MIT — see LICENSE
+//  License     : see LICENSE
 //
 //  History     :
 //    2026-05-11  ERD  Initial fixture.

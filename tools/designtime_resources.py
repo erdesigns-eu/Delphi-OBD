@@ -10,6 +10,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / 'assets/designtime'
 TARGET = ROOT / 'src/DesignTime/ERD.Design.Icons.res'
+RT_RCDATA = 10
+# The IDE (10.2.2 and later) loads palette PNGs from RCDATA resources named
+# <CLASS>16_PNG, <CLASS>_PNG (24px) and <CLASS>32_PNG.
+ICON_SIZES = ((16, '16'), (24, ''), (32, '32'))
 
 
 def align(data):
@@ -75,10 +79,13 @@ def build():
     registered = {name.upper() for block in re.findall(
         r"RegisterComponents\('[^']+',\s*\[(.*?)\]\);", source, re.S)
         for name in re.findall(r'\bTOBD\w+', block)}
-    missing = registered - manifest.keys()
+    expected_sizes = {f'{name}{suffix}_PNG': size for name in registered
+                      for size, suffix in ICON_SIZES}
+    missing = {name for name in registered
+               if any(f'{name}{suffix}_PNG' not in manifest for _, suffix in ICON_SIZES)}
     if missing:
         raise ValueError('Missing registered icons: ' + ', '.join(sorted(missing)))
-    if set(manifest) != registered:
+    if set(manifest) != set(expected_sizes):
         raise ValueError('Resource manifest contains missing or unregistered entries')
     result = struct.pack('<IIHHHHIHHII', 0, 32, 0xFFFF, 0, 0xFFFF, 0, 0, 0, 0, 0, 0)
     for name, entry in sorted(manifest.items()):
@@ -86,16 +93,17 @@ def build():
         if ASSETS.resolve() not in path.parents:
             raise ValueError('Resource path escapes assets directory: ' + name)
         raw = path.read_bytes()
-        expected = (24, 24)
-        verify_png(raw, name, expected)
-        expected_kind = 'PNG'
-        if entry['type'] != expected_kind:
+        size = expected_sizes[name]
+        if entry.get('size') != size:
+            raise ValueError('Wrong IDE icon size: ' + name)
+        verify_png(raw, name, (size, size))
+        if entry['type'] != 'RCDATA':
             raise ValueError('Wrong IDE resource type: ' + name)
         if 'alias_of' in entry:
             original = manifest[entry['alias_of']]
             if original['file'] != entry['file'] or original['type'] != entry['type']:
                 raise ValueError('Icon alias does not match its original: ' + name)
-        result += resource(entry['type'], name, raw)
+        result += resource(RT_RCDATA, name, raw)
     return result, len(registered)
 
 

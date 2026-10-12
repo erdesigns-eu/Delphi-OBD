@@ -1,32 +1,29 @@
 ﻿// ------------------------------------------------------------------------------
 // ERD.UI.Pickers
 //
-// Input pickers descending from the stock VCL edit / combo
-// controls so they inherit Windows visual styles + VCL Styles
-// for free:
+// Input pickers built on the themed OBD Studio edit and combo box
+// (ERD.UI.Edits), so they share the theme, density, focus frame,
+// drop-down list and scroll bars of every other control - no native
+// Windows edit borders, combo boxes or scroll bars:
 //
-// TOBDVINEdit     17-char VIN editor with shape + check-
-// digit validation + a small valid lamp on
-// the right edge.
-// TOBDPidPicker   PID combo-box pulling names from the
-// service catalog. Drop-down hosts PID hex
-// + display name; the underlying byte
-// surfaces via the SelectedPID property.
-// TOBDOEMPicker   Combo of known OEMs (VAG / BMW / Ford /
-// HMG / Honda / Mercedes / Stellantis /
-// Toyota). Drives the matching coding /
-// flashing component class selection.
-// TOBDCANIdEdit   Hex CAN-ID editor with 11 / 29-bit toggle
-// and clamped validation.
+// TOBDVINEdit     17-char VIN editor (TOBDEdit) with shape + check-
+//                 digit validation + a themed validity lamp on the
+//                 right edge.
+// TOBDPidPicker   PID combo box (TOBDComboBox) pulling names from the
+//                 service catalog. The list shows PID hex + display
+//                 name; the byte surfaces via SelectedPID.
+// TOBDOEMPicker   Combo of known OEMs (VAG / BMW / Ford / HMG / Honda /
+//                 Mercedes / Stellantis / Toyota). Drives the matching
+//                 coding / flashing component class selection.
+// TOBDCANIdEdit   Hex CAN-ID editor (TOBDEdit) with 11 / 29-bit toggle
+//                 and clamped validation.
 //
-// All four are theme- / HiDPI- / VCL-Style-aware through the
-// stock VCL bases they descend from, route every state
-// change through TBindings.Notify, and guard the catalogue
-// lookup paths with csDesigning.
+// All four route every state change through TBindings.Notify and
+// guard the catalogue lookup paths with csDesigning.
 //
 // Author      : Ernst Reidinga (ERDesigns)
 // Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
-// License     : MIT — see LICENSE
+// License     : see LICENSE
 // ------------------------------------------------------------------------------
 
 unit ERD.UI.Pickers;
@@ -44,13 +41,14 @@ interface
 uses
   System.Math,
   Winapi.Windows,
-  Winapi.Messages,
 {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
 {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   System.Bindings.Helper, Data.Bind.Components,
-  Vcl.Controls,
   Vcl.Graphics,
+  Vcl.Controls,
   Vcl.StdCtrls,
+  ERD.UI.Control,
+  ERD.UI.Edits,
   ERD.Service.VINDecoder,
   ERD.Service.Catalog;
 
@@ -71,24 +69,23 @@ type
     /// characters.</summary>
     vvInvalid);
 
-  /// <summary>17-character VIN input. Filters illegal
-  /// characters at <c>KeyPress</c>, caps the input at 17,
-  /// recomputes validity on every <c>Change</c>, and paints
-  /// a small status lamp on the right edge of the client
-  /// area.</summary>
-  TOBDVINEdit = class(TCustomEdit)
+  /// <summary>17-character VIN input on the themed edit. Filters
+  /// illegal characters at <c>KeyPress</c>, caps the input at 17,
+  /// recomputes validity on every <c>Change</c>, and paints a
+  /// themed status lamp on the right edge of the field.</summary>
+  TOBDVINEdit = class(TOBDEdit)
   strict private
     FValidity: TOBDVINValidity;
     FShowLamp: Boolean;
     FAutoUppercase: Boolean;
+    procedure SetShowLamp(AValue: Boolean);
     procedure RecomputeValidity;
     procedure NotifyBindings;
-    procedure PaintLamp;
   protected
     procedure KeyPress(var Key: Char); override;
     procedure Change; override;
-    procedure WMPaint(var Msg: TWMPaint); message WM_PAINT;
-    procedure CreateParams(var Params: TCreateParams); override;
+    function TrailingSpace: Integer; override;
+    procedure PaintControl(ACanvas: TCanvas); override;
   public
     constructor Create(AOwner: TComponent); override;
     /// <summary>True when the input is a 17-character VIN
@@ -103,74 +100,34 @@ type
   published
     /// <summary>Show the small valid-state lamp on the right
     /// edge of the editor. Default True.</summary>
-    property ShowLamp: Boolean read FShowLamp write FShowLamp default True;
+    property ShowLamp: Boolean read FShowLamp write SetShowLamp default True;
     /// <summary>Force-uppercase user input (VINs are always
     /// upper-case). Default True.</summary>
     property AutoUppercase: Boolean read FAutoUppercase write FAutoUppercase
       default True;
-
-    property Align;
-    property Anchors;
-    property AutoSelect;
-    property BorderStyle;
-    property CharCase;
-    property Color;
-    property Ctl3D;
-    property Cursor;
-    property DragCursor;
-    property DragKind;
-    property DragMode;
-    property Enabled;
-    property Font;
-    property HideSelection;
-    property Hint;
-    property MaxLength;
-    property OEMConvert;
-    property ParentColor;
-    property ParentCtl3D;
-    property ParentFont;
-    property ParentShowHint;
-    property PasswordChar;
-    property PopupMenu;
-    property ReadOnly;
-    property ShowHint;
-    property TabOrder;
-    property TabStop;
-    property Text;
-    property TextHint;
-    property Visible;
-    property OnChange;
-    property OnClick;
-    property OnDblClick;
-    property OnEnter;
-    property OnExit;
-    property OnKeyDown;
-    property OnKeyPress;
-    property OnKeyUp;
-    property OnMouseDown;
-    property OnMouseEnter;
-    property OnMouseLeave;
-    property OnMouseMove;
-    property OnMouseUp;
+    /// <summary>A VIN is 17 characters.</summary>
+    property MaxLength default 17;
+    /// <summary>VINs are upper-case.</summary>
+    property CharCase default ecUpperCase;
+    /// <summary>VINs read best in Consolas.</summary>
+    property Mono default True;
   end;
 
-  /// <summary>PID combo-box. Pulls every catalogued OBD-II
-  /// PID from the service catalog and lists them as
-  /// <c>"0x0C — Engine RPM"</c>; the byte surfaces via
-  /// <see cref="SelectedPID"/>. Host can also seed the list
-  /// from a custom byte set via <see cref="SetPIDs"/>.
-  /// </summary>
-  TOBDPidPicker = class(TCustomComboBox)
+  /// <summary>PID combo box on the themed combo. Pulls every
+  /// catalogued OBD-II PID from the service catalog and lists them
+  /// as <c>"0x0C — Engine RPM"</c>; the byte surfaces via
+  /// <see cref="SelectedPID"/>. Host can also seed the list from a
+  /// custom byte set via <see cref="SetPIDs"/>.</summary>
+  TOBDPidPicker = class(TOBDComboBox)
   strict private
-    FSelected: Byte;
-    FHaveSel: Boolean;
-    procedure HandleChange(Sender: TObject);
     procedure NotifyBindings;
     procedure RebuildFromCatalog;
-    procedure RememberSelection;
+    function GetSelectedPID: Byte;
+    function GetHasSelection: Boolean;
   protected
     procedure Loaded; override;
     procedure CreateWnd; override;
+    procedure Change; override;
   public
     constructor Create(AOwner: TComponent); override;
     /// <summary>Replaces the drop-down items with the supplied
@@ -183,37 +140,18 @@ type
     /// <summary>Currently-selected PID byte. Read 0 when
     /// nothing is selected; check
     /// <see cref="HasSelection"/> first.</summary>
-    property SelectedPID: Byte read FSelected;
+    property SelectedPID: Byte read GetSelectedPID;
     /// <summary>True when an item is selected (not "-1").
     /// </summary>
-    property HasSelection: Boolean read FHaveSel;
+    property HasSelection: Boolean read GetHasSelection;
   published
-    property Align;
-    property Anchors;
-    property AutoComplete default True;
-    property AutoDropDown default True;
-    property Color;
+    /// <summary>Items come from the catalog or
+    /// <see cref="SetPIDs"/>, so they are not streamed.</summary>
+    property Items stored False;
+    /// <summary>The PID list is long: show 16 rows.</summary>
     property DropDownCount default 16;
-    property Enabled;
-    property Font;
-    property Hint;
-    property ItemIndex;
-    property ParentColor;
-    property ParentFont;
-    property ParentShowHint;
-    property ShowHint;
-    property Style default csDropDownList;
-    property TabOrder;
-    property TabStop;
-    property Visible;
-    property OnChange;
-    property OnClick;
-    property OnDropDown;
-    property OnEnter;
-    property OnExit;
-    property OnKeyDown;
-    property OnKeyPress;
-    property OnKeyUp;
+    /// <summary>PID codes read best in Consolas.</summary>
+    property Mono default True;
   end;
 
   /// <summary>Known OEM identifier. Matches the keys used by
@@ -221,57 +159,39 @@ type
   TOBDOEM = (oemNone, oemVAG, oemBMW, oemFord, oemHMG, oemHonda, oemMercedes,
     oemStellantis, oemToyota);
 
-  /// <summary>OEM combo-box. Lists every entry in
-  /// <see cref="TOBDOEM"/>; host reads
+  /// <summary>OEM combo box on the themed combo. Lists every entry
+  /// in <see cref="TOBDOEM"/>; host reads
   /// <see cref="SelectedOEM"/> to drive the matching coding
   /// / flashing component class.</summary>
-  TOBDOEMPicker = class(TCustomComboBox)
+  TOBDOEMPicker = class(TOBDComboBox)
   strict private
-    FSelected: TOBDOEM;
-    procedure HandleChange(Sender: TObject);
     procedure NotifyBindings;
     procedure RebuildItems;
     function TextFor(AOEM: TOBDOEM): string;
+    function GetSelectedOEM: TOBDOEM;
   protected
-    procedure CreateWnd; override;
+    procedure Change; override;
   public
     constructor Create(AOwner: TComponent); override;
     /// <summary>Programmatic selection. Updates
     /// <see cref="ItemIndex"/> + fires the binding notify.
     /// </summary>
-    procedure Select(AOEM: TOBDOEM); reintroduce; overload;
-    property SelectedOEM: TOBDOEM read FSelected;
+    procedure Select(AOEM: TOBDOEM);
+    /// <summary>OEM of the selected item; oemNone when nothing is
+    /// selected.</summary>
+    property SelectedOEM: TOBDOEM read GetSelectedOEM;
   published
-    property Align;
-    property Anchors;
-    property AutoComplete default True;
-    property AutoDropDown default True;
-    property Color;
+    /// <summary>The OEM list is fixed, so it is not streamed.</summary>
+    property Items stored False;
+    /// <summary>Shows every OEM without scrolling.</summary>
     property DropDownCount default 16;
-    property Enabled;
-    property Font;
-    property Hint;
-    property ItemIndex;
-    property ParentColor;
-    property ParentFont;
-    property ParentShowHint;
-    property ShowHint;
-    property Style default csDropDownList;
-    property TabOrder;
-    property TabStop;
-    property Visible;
-    property OnChange;
-    property OnClick;
-    property OnDropDown;
-    property OnEnter;
-    property OnExit;
   end;
 
-  /// <summary>Hex CAN-ID editor with 11 / 29-bit validation.
-  /// Accepts <c>0x</c> / <c>$</c> prefix or bare hex. Input is
-  /// filtered to <c>[0-9A-F]</c> + the prefix tokens; commits
-  /// clamp to the active bit width.</summary>
-  TOBDCANIdEdit = class(TCustomEdit)
+  /// <summary>Hex CAN-ID editor on the themed edit, with 11 / 29-bit
+  /// validation. Accepts <c>0x</c> / <c>$</c> prefix or bare hex.
+  /// Input is filtered to <c>[0-9A-F]</c> + the prefix tokens;
+  /// commits clamp to the active bit width.</summary>
+  TOBDCANIdEdit = class(TOBDEdit)
   strict private
     FExtendedId: Boolean;
     FCanId: Cardinal;
@@ -298,43 +218,18 @@ type
     /// <summary>Current parsed CAN ID. Setting this updates
     /// the Text in canonical <c>0xNNN</c> / <c>0xNNNNNNNN</c>
     /// form.</summary>
-    property CanId: Cardinal read FCanId write SetCanId;
-
-    property Align;
-    property Anchors;
-    property AutoSelect;
-    property BorderStyle;
-    property Color;
-    property Ctl3D;
-    property Cursor;
-    property Enabled;
-    property Font;
-    property HideSelection;
-    property Hint;
-    property MaxLength;
-    property ParentColor;
-    property ParentCtl3D;
-    property ParentFont;
-    property ParentShowHint;
-    property PopupMenu;
-    property ReadOnly;
-    property ShowHint;
-    property TabOrder;
-    property TabStop;
-    property Text;
-    property TextHint;
-    property Visible;
-    property OnChange;
-    property OnClick;
-    property OnDblClick;
-    property OnEnter;
-    property OnExit;
-    property OnKeyDown;
-    property OnKeyPress;
-    property OnKeyUp;
+    property CanId: Cardinal read FCanId write SetCanId default 0;
+    /// <summary>"0x" + 3 hex digits (11-bit) or 8 (29-bit); follows
+    /// <see cref="ExtendedId"/>.</summary>
+    property MaxLength stored False;
+    /// <summary>CAN IDs read best in Consolas.</summary>
+    property Mono default True;
   end;
 
 implementation
+
+uses
+  ERD.UI.Paint;
 
 { ---- TOBDVINEdit -------------------------------------------------------- }
 
@@ -342,24 +237,22 @@ constructor TOBDVINEdit.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   Width := 200;
+  Mono := True;
   CharCase := ecUpperCase;
   MaxLength := 17;
   FShowLamp := True;
   FAutoUppercase := True;
   FValidity := vvEmpty;
+  LayoutInner;
 end;
 
-procedure TOBDVINEdit.CreateParams(var Params: TCreateParams);
+procedure TOBDVINEdit.SetShowLamp(AValue: Boolean);
 begin
-  inherited CreateParams(Params);
-  // Reserve a small inset on the right so the lamp doesn't
-  // overlap text. Cheap approach: rely on the lamp paint to
-  // not clobber the caret since the editor isn't expected to
-  // fill all 17 chars worth of space, but the standard
-  // single-line edit doesn't let us push the client rect.
-  // For production-grade look the lamp paints a translucent
-  // pip at the very right edge and is small enough to avoid
-  // most overlap.
+  if FShowLamp = AValue then
+    Exit;
+  FShowLamp := AValue;
+  LayoutInner;
+  Invalidate;
 end;
 
 procedure TOBDVINEdit.NotifyBindings;
@@ -429,56 +322,45 @@ begin
   Result := FValidity = vvValid;
 end;
 
-procedure TOBDVINEdit.PaintLamp;
-var
-  DC: HDC;
-  R: TRect;
-  Brush: HBRUSH;
-  OldBrush: HBRUSH;
-  LampColor: TColor;
-  D, X, Y: Integer;
+function TOBDVINEdit.TrailingSpace: Integer;
 begin
-  if not FShowLamp then
-    Exit;
-  if not HandleAllocated then
-    Exit;
-  DC := GetDC(Handle);
-  try
-    R := ClientRect;
-    case FValidity of
-      vvValid:
-        LampColor := clGreen;
-      vvShapeOnly:
-        LampColor := $0000A8FF; // amber (BGR)
-      vvInvalid:
-        LampColor := clRed;
-    else
-      LampColor := clGray;
-    end;
-    D := R.Height - 6;
-    if D < 6 then
-      D := 6;
-    if D > 14 then
-      D := 14;
-    X := R.Right - D - 2;
-    Y := R.Top + (R.Height - D) div 2;
-    Brush := CreateSolidBrush(ColorToRGB(LampColor));
-    try
-      OldBrush := SelectObject(DC, Brush);
-      Winapi.Windows.Ellipse(DC, X, Y, X + D, Y + D);
-      SelectObject(DC, OldBrush);
-    finally
-      DeleteObject(Brush);
-    end;
-  finally
-    ReleaseDC(Handle, DC);
-  end;
+  // Lamp diameter plus a gap to the text.
+  if FShowLamp then
+    Result := ScaleValue(16)
+  else
+    Result := 0;
 end;
 
-procedure TOBDVINEdit.WMPaint(var Msg: TWMPaint);
+procedure TOBDVINEdit.PaintControl(ACanvas: TCanvas);
+var
+  P: TOBDPainter;
+  LampColor: TColor;
+  D, X, Y: Single;
 begin
-  inherited;
-  PaintLamp;
+  inherited PaintControl(ACanvas);
+  if not FShowLamp then
+    Exit;
+  case FValidity of
+    vvValid:
+      LampColor := Palette.Success;
+    vvShapeOnly:
+      LampColor := Palette.Warning;
+    vvInvalid:
+      LampColor := Palette.Danger;
+  else
+    LampColor := Palette.NeutralLight;
+  end;
+  if not Enabled then
+    LampColor := OBDMixColor(LampColor, Palette.Background, 0.5);
+  P := TOBDPainter.Create(ACanvas, Palette, ScaleValue(96));
+  try
+    D := ScaleValue(8);
+    X := Width - ScaleValue(10) - D;
+    Y := (Height - D) / 2;
+    P.Ellipse(X, Y, D, D, LampColor, clNone);
+  finally
+    P.Free;
+  end;
 end;
 
 { ---- TOBDPidPicker ------------------------------------------------------ }
@@ -487,11 +369,8 @@ constructor TOBDPidPicker.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   Width := 220;
-  Style := csDropDownList;
+  Mono := True;
   DropDownCount := 16;
-  AutoComplete := True;
-  AutoDropDown := True;
-  OnChange := HandleChange;
 end;
 
 procedure TOBDPidPicker.Loaded;
@@ -504,7 +383,8 @@ end;
 procedure TOBDPidPicker.CreateWnd;
 begin
   inherited;
-  if (Items.Count = 0) and not(csDesigning in ComponentState) then
+  if (Items.Count = 0) and not([csDesigning, csLoading] * ComponentState <> [])
+  then
     RebuildFromCatalog;
 end;
 
@@ -518,24 +398,23 @@ begin
   end;
 end;
 
-procedure TOBDPidPicker.RememberSelection;
+function TOBDPidPicker.GetHasSelection: Boolean;
 begin
-  if ItemIndex >= 0 then
-  begin
-    FSelected := Byte(NativeInt(Items.Objects[ItemIndex]));
-    FHaveSel := True;
-  end
-  else
-  begin
-    FSelected := 0;
-    FHaveSel := False;
-  end;
+  Result := (ItemIndex >= 0) and (ItemIndex < Items.Count);
 end;
 
-procedure TOBDPidPicker.HandleChange(Sender: TObject);
+function TOBDPidPicker.GetSelectedPID: Byte;
 begin
-  RememberSelection;
+  if GetHasSelection then
+    Result := Byte(NativeInt(Items.Objects[ItemIndex]))
+  else
+    Result := 0;
+end;
+
+procedure TOBDPidPicker.Change;
+begin
   NotifyBindings;
+  inherited;
 end;
 
 procedure TOBDPidPicker.RebuildFromCatalog;
@@ -598,19 +477,8 @@ constructor TOBDOEMPicker.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   Width := 180;
-  Style := csDropDownList;
   DropDownCount := 16;
-  AutoComplete := True;
-  AutoDropDown := True;
-  OnChange := HandleChange;
-  FSelected := oemNone;
-end;
-
-procedure TOBDOEMPicker.CreateWnd;
-begin
-  inherited;
-  if Items.Count = 0 then
-    RebuildItems;
+  RebuildItems;
 end;
 
 procedure TOBDOEMPicker.NotifyBindings;
@@ -663,13 +531,18 @@ begin
   end;
 end;
 
-procedure TOBDOEMPicker.HandleChange(Sender: TObject);
+function TOBDOEMPicker.GetSelectedOEM: TOBDOEM;
 begin
-  if ItemIndex >= 0 then
-    FSelected := TOBDOEM(NativeInt(Items.Objects[ItemIndex]))
+  if (ItemIndex >= 0) and (ItemIndex < Items.Count) then
+    Result := TOBDOEM(NativeInt(Items.Objects[ItemIndex]))
   else
-    FSelected := oemNone;
+    Result := oemNone;
+end;
+
+procedure TOBDOEMPicker.Change;
+begin
   NotifyBindings;
+  inherited;
 end;
 
 procedure TOBDOEMPicker.Select(AOEM: TOBDOEM);
@@ -682,7 +555,6 @@ begin
     if TOBDOEM(NativeInt(Items.Objects[I])) = AOEM then
     begin
       ItemIndex := I;
-      FSelected := AOEM;
       NotifyBindings;
       Exit;
     end;
@@ -694,9 +566,10 @@ constructor TOBDCANIdEdit.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   Width := 160;
+  Mono := True;
   FExtendedId := False;
   FCanId := 0;
-  MaxLength := 10; // "0x" + 8 hex digits
+  MaxLength := 5; // "0x" + 3 hex digits (11-bit)
   Text := '0x000';
 end;
 
@@ -790,11 +663,13 @@ end;
 
 procedure TOBDCANIdEdit.Change;
 begin
+  // Parse first so an OnChange handler reads the new CanId.
+  if not FInUpdate then
+  begin
+    RecomputeFromText;
+    NotifyBindings;
+  end;
   inherited;
-  if FInUpdate then
-    Exit;
-  RecomputeFromText;
-  NotifyBindings;
 end;
 
 procedure TOBDCANIdEdit.DoExit;

@@ -1,0 +1,130 @@
+object frmEcuNetwork: TfrmEcuNetwork
+  Left = 0
+  Top = 0
+  Width = 1208
+  Height = 660
+  Padding.Left = 12
+  Padding.Top = 12
+  Padding.Right = 12
+  Padding.Bottom = 12
+  TabOrder = 0
+  object vcVehicle: TOBDVehicleInfoCard
+    Left = 12
+    Top = 12
+    Width = 1184
+    Height = 92
+    Align = alTop
+    Layout = vlCompact
+    TabOrder = 0
+  end
+  object pnlBody: TPanel
+    Left = 12
+    Top = 104
+    Width = 1184
+    Height = 544
+    Align = alClient
+    BevelOuter = bvNone
+    ParentBackground = False
+    ParentColor = True
+    ShowCaption = False
+    TabOrder = 1
+    object pnlLeft: TPanel
+      AlignWithMargins = True
+      Left = 0
+      Top = 0
+      Width = 520
+      Height = 544
+      Margins.Left = 0
+      Margins.Top = 12
+      Margins.Right = 12
+      Margins.Bottom = 0
+      Align = alLeft
+      BevelOuter = bvNone
+      ParentBackground = False
+      ParentColor = True
+      ShowCaption = False
+      TabOrder = 0
+      object btnScanAll: TOBDButton
+        Left = 0
+        Top = 0
+        Width = 520
+        Height = 32
+        Align = alTop
+        Caption = 'Scan all'
+        Glyph = glRefresh
+        AutoSize = False
+        OnClick = btnScanAllClick
+        TabOrder = 0
+      end
+      object ecuList: TOBDEcuList
+        AlignWithMargins = True
+        Left = 0
+        Top = 44
+        Width = 520
+        Height = 500
+        Margins.Left = 0
+        Margins.Top = 12
+        Margins.Right = 0
+        Margins.Bottom = 0
+        Align = alClient
+        OnSelect = EcuSelect
+        TabOrder = 1
+      end
+    end
+    object pnlRight: TPanel
+      AlignWithMargins = True
+      Left = 532
+      Top = 0
+      Width = 652
+      Height = 544
+      Margins.Left = 0
+      Margins.Top = 12
+      Margins.Right = 0
+      Margins.Bottom = 0
+      Align = alClient
+      BevelOuter = bvNone
+      ParentBackground = False
+      ParentColor = True
+      ShowCaption = False
+      TabOrder = 1
+      object cdEcuDetail: TOBDCard
+        Left = 0
+        Top = 0
+        Width = 652
+        Height = 230
+        Align = alTop
+        Title = '09 Central electrics'
+        StatusEdge = ceAccent
+        Padding.Left = 12
+        Padding.Top = 8
+        Padding.Right = 12
+        Padding.Bottom = 12
+        TabOrder = 0
+        object kvEcuDetail: TOBDKeyValueList
+          Left = 17
+          Top = 61
+          Width = 622
+          Height = 156
+          Align = alClient
+          KeyWidth = 145
+          WordWrap = True
+          TabOrder = 0
+        end
+      end
+      object topoNetwork: TOBDEcuTopology
+        AlignWithMargins = True
+        Left = 0
+        Top = 242
+        Width = 652
+        Height = 302
+        Margins.Left = 0
+        Margins.Top = 12
+        Margins.Right = 0
+        Margins.Bottom = 0
+        Align = alClient
+        OnSelect = EcuSelect
+        TabOrder = 1
+      end
+    end
+  end
+end

@@ -23,10 +23,24 @@
 // - Production-ready (double-buffered paint pipeline,
 // thread-safe Value setter on subclasses, csDesigning /
 // csLoading safe).
+// - Testable (RenderTo paints into an off-screen bitmap
+// without a window handle, so rendering tests can verify
+// that a control draws something).
+// - Dashboard-ready (IOBDTileHost lets a parent dashboard
+// take over mouse input and draw an edit overlay; tiles
+// persist their settings through SaveSettings /
+// LoadSettings).
 //
 // Author      : Ernst Reidinga (ERDesigns)
 // Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
-// License     : MIT — see LICENSE
+// License     : see LICENSE
+//
+// History     :
+// 2026-10-10  ERD  Invalidate marks the paint buffer dirty. RenderTo,
+//                  ForcePreview, UnitSystem, tile-host edit mode and
+//                  settings persistence. Density / ParentDensity and
+//                  Metrics for the OBD Studio controls. IOBDSurface:
+//                  children of a card take its surface colour.
 // ------------------------------------------------------------------------------
 
 unit ERD.UI.Control;
@@ -51,16 +65,71 @@ uses
   Vcl.Controls,
   Vcl.Graphics,
   Vcl.Themes,
+  System.JSON,
   ERD.UI.Types,
   ERD.UI.Theme;
 
+const
+  /// <summary>Sent by a ribbon to the control assigned to its Backstage
+  /// property. LParam is the ribbon, or 0 to unlink.</summary>
+  CM_OBD_BACKSTAGELINK = WM_APP + $0B10;
+  /// <summary>Sent by a backstage to its linked ribbon when it is shown
+  /// (WParam 1) or hidden (WParam 0), so the ribbon can make room like
+  /// the Office backstage view.</summary>
+  CM_OBD_BACKSTAGEVISIBLE = WM_APP + $0B11;
+
 type
+  /// <summary>Hit-test result for a tile in dashboard edit mode.
+  /// </summary>
+  TOBDTileHit = (
+    /// <summary>Outside the control.</summary>
+    thNone,
+    /// <summary>Body of the tile: drag to move.</summary>
+    thMove,
+    /// <summary>Bottom-right grip: drag to resize.</summary>
+    thResize,
+    /// <summary>Top-right close glyph: click to remove.</summary>
+    thClose);
+
+  /// <summary>Implemented by containers (the dashboard) that lay out
+  /// Delphi-OBD controls as tiles and can put them into an edit mode
+  /// where the mechanic moves, resizes and removes tiles.</summary>
+  /// <remarks>While <c>IsEditingTiles</c> returns True, every mouse
+  /// message a child <see cref="TOBDCustomControl"/> receives is
+  /// forwarded to <c>TileMouseMessage</c> instead of the child's own
+  /// handlers, and the child paints an edit overlay.</remarks>
+  IOBDTileHost = interface
+    ['{6F3A8C2E-1D47-4B9A-9E52-7C0D3B8F4A61}']
+    /// <summary>True while the host is in tile edit mode.</summary>
+    /// <returns>Edit-mode flag.</returns>
+    function IsEditingTiles: Boolean;
+    /// <summary>Receives a mouse message from a child tile.</summary>
+    /// <param name="ATile">Tile control that received the message.
+    /// </param>
+    /// <param name="AMessage">The original message; coordinates are in
+    /// the tile's client space.</param>
+    procedure TileMouseMessage(ATile: TControl; var AMessage: TMessage);
+  end;
+
+  /// <summary>Implemented by containers that paint their own surface
+  /// (cards, banners, panels). A <see cref="TOBDCustomControl"/>
+  /// placed on such a container fills its background with the
+  /// container's surface colour instead of the theme background, so a
+  /// button on a card sits on the card face.</summary>
+  IOBDSurface = interface
+    ['{9B2E5D47-3A1C-4F08-B6E9-71C4D2A8E5F3}']
+    /// <summary>Colour child controls paint their background with.
+    /// </summary>
+    /// <returns>Surface colour.</returns>
+    function SurfaceColor: TColor;
+  end;
+
   /// <summary>Base for windowed visuals (focusable, can host
   /// keyboard input). Subclasses override <c>PaintControl</c>
   /// to draw onto the supplied <c>TCanvas</c>; the base class
   /// handles double-buffering, theme resolution, and DPI
   /// scaling.</summary>
-  TOBDCustomControl = class(TCustomControl, IOBDThemeAware)
+  TOBDCustomControl = class(TCustomControl, IOBDThemeAware, IOBDDensityAware)
   strict private
     FTheme: TOBDTheme;
     FStyle: TOBDVisualStyle;
@@ -68,7 +137,16 @@ type
     FBuffer: TBitmap;
     FBufferDirty: Boolean;
     FDesignPPI: Integer;
+    FForcePreview: Boolean;
+    FDensity: TOBDDensity;
+    FParentDensity: Boolean;
+    FEditHot: TOBDTileHit;
+    FEditDown: TOBDTileHit;
     procedure SetTheme(AValue: TOBDTheme);
+    function GetDensity: TOBDDensity;
+    procedure SetDensity(AValue: TOBDDensity);
+    procedure SetParentDensity(AValue: Boolean);
+    function IsDensityStored: Boolean;
     procedure ResolveTheme;
     procedure DetachFromTheme;
     function GetStyleBackground: TColor;
@@ -79,6 +157,11 @@ type
     procedure SetStyleForeground(AValue: TColor);
     procedure SetStyleAccent(AValue: TColor);
     procedure SetStyleBorder(AValue: TColor);
+    procedure SetForcePreview(AValue: Boolean);
+    function TileHost: IOBDTileHost;
+    function EditCloseRect: TRect;
+    function EditGripSize: Integer;
+    procedure DrawEditOverlay(ACanvas: TCanvas);
   protected
     /// <summary>Override and paint onto <c>ACanvas</c>. Bounds
     /// are <c>ClientRect</c>. Theme palette already resolved
@@ -103,21 +186,142 @@ type
     function EffectiveAccent: TColor;
     function EffectiveBorder: TColor;
 
+    /// <summary>Adds WS_CLIPCHILDREN so repainting the buffer never paints
+    /// over child windows (inline edits, buttons), which would make them
+    /// flash.</summary>
+    /// <param name="Params">Window creation parameters.</param>
+    procedure CreateParams(var Params: TCreateParams); override;
     procedure Paint; override;
     procedure Resize; override;
+    /// <summary>Returns the bounds rectangle while no window handle
+    /// exists, so layout code can read <c>ClientWidth</c> and
+    /// <c>ClientHeight</c> before the control has a parent (for example
+    /// in a constructor or while the IDE drops it on a form).</summary>
+    function GetClientRect: TRect; override;
+    /// <summary>Resolves the theme once the control has a parent, so
+    /// controls created in code (and the parts of composite controls)
+    /// follow the form's theme without an explicit
+    /// <c>Theme</c>.</summary>
+    procedure SetParent(AParent: TWinControl); override;
     procedure ChangeScale(M, D: Integer; isDpiChange: Boolean); override;
     procedure Notification(AComponent: TComponent;
       Operation: TOperation); override;
     procedure Loaded; override;
     procedure CMStyleChanged(var Message: TMessage); message CM_STYLECHANGED;
+    /// <summary>Skips background erasing. Paint always blits a fully
+    /// opaque buffer, so erasing first (which, with csParentBackground,
+    /// draws the parent straight onto the screen) only makes the control
+    /// flash on every resize, realign or collapse.</summary>
+    /// <param name="Message">The erase message; Result is set to 1.</param>
+    procedure WMEraseBkgnd(var Message: TWMEraseBkgnd); message WM_ERASEBKGND;
+    procedure WndProc(var Message: TMessage); override;
+
+    /// <summary>True when the control should paint its realistic
+    /// sample data instead of live data: at design time, or when
+    /// <see cref="ForcePreview"/> is set.</summary>
+    /// <returns>Preview flag.</returns>
+    function IsPreview: Boolean;
+
+    /// <summary>Unit system of the resolved theme; metric when no
+    /// theme is bound.</summary>
+    /// <returns>Effective unit system.</returns>
+    function UnitSystem: TOBDUnitSystem;
+
+    /// <summary>Resolves an alert level to a palette colour.</summary>
+    /// <param name="ALevel">Alert level.</param>
+    /// <param name="ANormal">Colour returned for
+    /// <c>alvNormal</c>.</param>
+    /// <returns>Success / warning / danger colour.</returns>
+    function AlertColor(ALevel: TOBDAlertLevel; ANormal: TColor): TColor;
+
+    /// <summary>Sizes for the effective <see cref="Density"/>, in
+    /// 96-DPI logical pixels (pass them through
+    /// <see cref="ScaleValue"/>).</summary>
+    /// <returns>Density metrics.</returns>
+    function Metrics: TOBDDensityMetrics;
+
+    /// <summary>Row height and hit-target size. Reads the bound
+    /// theme's density while <see cref="ParentDensity"/> is True;
+    /// setting it clears <c>ParentDensity</c>. Published by the
+    /// OBD Studio controls.</summary>
+    property Density: TOBDDensity read GetDensity write SetDensity
+      stored IsDensityStored;
+    /// <summary>True: follow <c>TOBDTheme.Density</c>. False: use
+    /// the control's own <see cref="Density"/>.</summary>
+    property ParentDensity: Boolean read FParentDensity
+      write SetParentDensity default True;
   public
+    /// <summary>Creates the control with double-buffering enabled.
+    /// </summary>
+    /// <param name="AOwner">Component owner.</param>
     constructor Create(AOwner: TComponent); override;
+    /// <summary>Detaches from the theme and frees the paint buffer.
+    /// </summary>
     destructor Destroy; override;
+    /// <summary>IOBDThemeAware: repaints with the new palette.</summary>
     procedure ThemeChanged; // IOBDThemeAware
+    /// <summary>IOBDDensityAware: the effective density changed.
+    /// Subclasses that size or place child controls by density
+    /// override this and call <c>inherited</c>.</summary>
+    procedure DensityChanged; virtual; // IOBDDensityAware
+    /// <summary>Re-applies AutoSize. Public so parent panels can
+    /// size child controls immediately after changing a caption,
+    /// before placing them.</summary>
+    procedure AdjustSize; override;
     /// <summary>Force a repaint at the next idle cycle (the
     /// double-buffer is invalidated; <c>Paint</c> redraws on
     /// next WM_PAINT).</summary>
     procedure Repaint; override;
+    /// <summary>Marks the paint buffer dirty and schedules a repaint.
+    /// Every property setter may call this safely.</summary>
+    procedure Invalidate; override;
+
+    /// <summary>Paints the control into <c>ABitmap</c> at the
+    /// control's current size, without a window handle.</summary>
+    /// <param name="ABitmap">Target bitmap. Resized to the control
+    /// and switched to 32-bit pixels.</param>
+    /// <remarks>Used by rendering tests and by hosts that print or
+    /// export a dashboard snapshot (e.g. a before/after report).
+    /// </remarks>
+    procedure RenderTo(ABitmap: TBitmap);
+
+    /// <summary>Hit-tests a point for dashboard edit mode.</summary>
+    /// <param name="X">Client X.</param>
+    /// <param name="Y">Client Y.</param>
+    /// <returns>Which edit handle the point is over.</returns>
+    function EditHitTest(X, Y: Integer): TOBDTileHit;
+    /// <summary>Sets the hover and pressed edit handles painted by the
+    /// dashboard edit overlay (called by the tile host).</summary>
+    /// <param name="AHot">Handle under the mouse.</param>
+    /// <param name="ADown">Handle being pressed or dragged.</param>
+    procedure SetEditState(AHot, ADown: TOBDTileHit);
+    /// <summary>Edit handle under the mouse.</summary>
+    property EditHot: TOBDTileHit read FEditHot;
+    /// <summary>Edit handle being pressed or dragged.</summary>
+    property EditDown: TOBDTileHit read FEditDown;
+
+    /// <summary>Writes the control's user-facing settings (caption,
+    /// channel, range, thresholds, ...) to a JSON object. Used by
+    /// <c>TOBDDashboard</c> to save layouts.</summary>
+    /// <param name="AObject">Object to add pairs to. Not owned.
+    /// </param>
+    procedure SaveSettings(AObject: TJSONObject); virtual;
+
+    /// <summary>Restores settings written by
+    /// <see cref="SaveSettings"/>. Missing keys keep their current
+    /// value.</summary>
+    /// <param name="AObject">Object to read from. Not owned.</param>
+    procedure LoadSettings(AObject: TJSONObject); virtual;
+
+    /// <summary>Binds the control's channel(s) to a data source
+    /// component (currently a <c>TOBDLiveData</c>). The dashboard
+    /// calls this for every tile it creates. Default: no-op.</summary>
+    /// <param name="ASource">Data source, or nil to unbind.</param>
+    procedure AssignDataSource(ASource: TComponent); virtual;
+
+    /// <summary>Paint the design-time sample data at run time.
+    /// Handy for screenshots and rendering tests.</summary>
+    property ForcePreview: Boolean read FForcePreview write SetForcePreview;
   published
     /// <summary>Optional explicit theme. nil = auto-find on
     /// Owner ancestry.</summary>
@@ -208,6 +412,7 @@ type
     function EffectiveBorder: TColor;
 
     procedure Paint; override;
+    procedure SetParent(AParent: TWinControl); override;
     procedure ChangeScale(M, D: Integer; isDpiChange: Boolean); override;
     procedure Notification(AComponent: TComponent;
       Operation: TOperation); override;
@@ -245,7 +450,51 @@ type
     property OnMouseUp;
   end;
 
+
+/// <summary>Reads a number from a settings object.</summary>
+/// <param name="AObject">Object to read from; nil is allowed.</param>
+/// <param name="AKey">Pair name.</param>
+/// <param name="AValue">Receives the number when present.</param>
+/// <returns>True when the pair exists and is a number.</returns>
+function OBDJsonReadFloat(AObject: TJSONObject; const AKey: string;
+  var AValue: Double): Boolean;
+
+/// <summary>Reads an integer from a settings object.</summary>
+/// <param name="AObject">Object to read from; nil is allowed.</param>
+/// <param name="AKey">Pair name.</param>
+/// <param name="AValue">Receives the integer when present.</param>
+/// <returns>True when the pair exists and is a number.</returns>
+function OBDJsonReadInt(AObject: TJSONObject; const AKey: string;
+  var AValue: Integer): Boolean;
+
+/// <summary>Reads a string from a settings object.</summary>
+/// <param name="AObject">Object to read from; nil is allowed.</param>
+/// <param name="AKey">Pair name.</param>
+/// <param name="AValue">Receives the string when present.</param>
+/// <returns>True when the pair exists and is a string.</returns>
+function OBDJsonReadStr(AObject: TJSONObject; const AKey: string;
+  var AValue: string): Boolean;
+
+/// <summary>Reads a boolean from a settings object.</summary>
+/// <param name="AObject">Object to read from; nil is allowed.</param>
+/// <param name="AKey">Pair name.</param>
+/// <param name="AValue">Receives the boolean when present.</param>
+/// <returns>True when the pair exists and is true or false.</returns>
+function OBDJsonReadBool(AObject: TJSONObject; const AKey: string;
+  var AValue: Boolean): Boolean;
+
+/// <summary>Adds a boolean pair (<c>true</c> / <c>false</c>).</summary>
+/// <param name="AObject">Target object.</param>
+/// <param name="AKey">Pair name.</param>
+/// <param name="AValue">Value to write.</param>
+procedure OBDJsonWriteBool(AObject: TJSONObject; const AKey: string;
+  AValue: Boolean);
+
 implementation
+
+uses
+  System.Types,
+  ERD.UI.Paint;
 
 const
   DESIGN_PPI = 96;
@@ -277,6 +526,79 @@ begin
   ACanvas.TextOut(R.Left + 4, R.Top + 4, Msg);
 end;
 
+function OBDJsonReadFloat(AObject: TJSONObject; const AKey: string;
+  var AValue: Double): Boolean;
+var
+  V: TJSONValue;
+begin
+  Result := False;
+  if AObject = nil then
+    Exit;
+  V := AObject.Values[AKey];
+  if V is TJSONNumber then
+  begin
+    AValue := TJSONNumber(V).AsDouble;
+    Result := True;
+  end;
+end;
+
+function OBDJsonReadInt(AObject: TJSONObject; const AKey: string;
+  var AValue: Integer): Boolean;
+var
+  D: Double;
+begin
+  D := 0;
+  Result := OBDJsonReadFloat(AObject, AKey, D);
+  if Result then
+    AValue := Round(D);
+end;
+
+function OBDJsonReadStr(AObject: TJSONObject; const AKey: string;
+  var AValue: string): Boolean;
+var
+  V: TJSONValue;
+begin
+  Result := False;
+  if AObject = nil then
+    Exit;
+  V := AObject.Values[AKey];
+  if V is TJSONString then
+  begin
+    AValue := TJSONString(V).Value;
+    Result := True;
+  end;
+end;
+
+function OBDJsonReadBool(AObject: TJSONObject; const AKey: string;
+  var AValue: Boolean): Boolean;
+var
+  V: TJSONValue;
+begin
+  Result := False;
+  if AObject = nil then
+    Exit;
+  V := AObject.Values[AKey];
+  if V is TJSONTrue then
+  begin
+    AValue := True;
+    Result := True;
+  end
+  else if V is TJSONFalse then
+  begin
+    AValue := False;
+    Result := True;
+  end;
+end;
+
+procedure OBDJsonWriteBool(AObject: TJSONObject; const AKey: string;
+  AValue: Boolean);
+begin
+  if AValue then
+    AObject.AddPair(AKey, TJSONTrue.Create)
+  else
+    AObject.AddPair(AKey, TJSONFalse.Create);
+end;
+
 { ---- TOBDCustomControl ----------------------------------------------------- }
 
 constructor TOBDCustomControl.Create(AOwner: TComponent);
@@ -288,6 +610,8 @@ begin
   FDesignPPI := DESIGN_PPI;
   FBuffer := TBitmap.Create;
   FBufferDirty := True;
+  FDensity := dnDesktop;
+  FParentDensity := True;
 end;
 
 destructor TOBDCustomControl.Destroy;
@@ -309,12 +633,73 @@ begin
   if FTheme <> nil then
     FTheme.FreeNotification(Self);
   ResolveTheme;
+  if FParentDensity and not (csLoading in ComponentState) then
+    DensityChanged;
+  Invalidate;
+end;
+
+function TOBDCustomControl.GetDensity: TOBDDensity;
+begin
+  // A part of a composite control (owned by it) follows the
+  // composite's density; other controls follow the theme.
+  if FParentDensity and (Owner is TOBDCustomControl) then
+    Result := TOBDCustomControl(Owner).GetDensity
+  else if FParentDensity and (FResolvedTheme <> nil) then
+    Result := FResolvedTheme.Density
+  else
+    Result := FDensity;
+end;
+
+procedure TOBDCustomControl.SetDensity(AValue: TOBDDensity);
+begin
+  if (FDensity = AValue) and not FParentDensity then
+    Exit;
+  FDensity := AValue;
+  FParentDensity := False;
+  DensityChanged;
+end;
+
+procedure TOBDCustomControl.SetParentDensity(AValue: Boolean);
+begin
+  if FParentDensity = AValue then
+    Exit;
+  FParentDensity := AValue;
+  DensityChanged;
+end;
+
+function TOBDCustomControl.IsDensityStored: Boolean;
+begin
+  Result := not FParentDensity;
+end;
+
+function TOBDCustomControl.Metrics: TOBDDensityMetrics;
+begin
+  Result := DensityMetrics(GetDensity);
+end;
+
+procedure TOBDCustomControl.DensityChanged;
+var
+  I: Integer;
+  Part: TOBDCustomControl;
+begin
+  // Owned parts re-measure first, so a composite's own layout code
+  // (which runs after inherited) sees their new sizes.
+  for I := 0 to ComponentCount - 1 do
+    if Components[I] is TOBDCustomControl then
+    begin
+      Part := TOBDCustomControl(Components[I]);
+      if Part.FParentDensity and not (csDestroying in Part.ComponentState) then
+        Part.DensityChanged;
+    end;
+  FBufferDirty := True;
   Invalidate;
 end;
 
 procedure TOBDCustomControl.ResolveTheme;
 var
-  Candidate: TOBDTheme;
+  Candidate, Previous: TOBDTheme;
+  Part: TOBDCustomControl;
+  I: Integer;
 begin
   // Detach from any previously-resolved theme.
   if FResolvedTheme <> nil then
@@ -325,7 +710,10 @@ begin
 
   // Explicit Theme wins. Auto-find on Owner ancestry next.
   // Process-wide default last. nil = use VCL Style + brand.
+  // The parts of a composite control use the composite's theme.
   Candidate := FTheme;
+  if (Candidate = nil) and (Owner is TOBDCustomControl) then
+    Candidate := TOBDCustomControl(Owner).FResolvedTheme;
   if Candidate = nil then
     Candidate := TOBDTheme.FindOnOwner(Self);
   if Candidate = nil then
@@ -333,6 +721,26 @@ begin
   FResolvedTheme := Candidate;
   if FResolvedTheme <> nil then
     FResolvedTheme.Attach(Self);
+  // Re-resolve owned parts: they may have been parented before the
+  // theme was streamed in.
+  for I := 0 to ComponentCount - 1 do
+    if (Components[I] is TOBDCustomControl) and
+      not (csDestroying in Components[I].ComponentState) then
+    begin
+      Part := TOBDCustomControl(Components[I]);
+      Previous := Part.FResolvedTheme;
+      Part.ResolveTheme;
+      if Part.FResolvedTheme <> Previous then
+        Part.ThemeChanged;
+    end;
+end;
+
+procedure TOBDCustomControl.SetParent(AParent: TWinControl);
+begin
+  inherited;
+  if (AParent <> nil) and (FResolvedTheme = nil) and
+    (ComponentState * [csLoading, csDestroying] = []) then
+    ResolveTheme;
 end;
 
 procedure TOBDCustomControl.DetachFromTheme;
@@ -348,6 +756,7 @@ procedure TOBDCustomControl.Loaded;
 begin
   inherited;
   ResolveTheme;
+  DensityChanged;
 end;
 
 procedure TOBDCustomControl.Notification(AComponent: TComponent;
@@ -392,7 +801,12 @@ begin
 end;
 
 function TOBDCustomControl.EffectiveBackground: TColor;
+var
+  Surface: IOBDSurface;
 begin
+  if (FStyle.Background = clDefault) and (Parent <> nil) and
+    Supports(Parent, IOBDSurface, Surface) then
+    Exit(Surface.SurfaceColor);
   Result := PickColor(FStyle.Background, Palette.Background);
 end;
 
@@ -411,7 +825,233 @@ begin
   Result := PickColor(FStyle.Border, Palette.Subtle);
 end;
 
+procedure TOBDCustomControl.Invalidate;
+begin
+  FBufferDirty := True;
+  inherited;
+end;
+
+procedure TOBDCustomControl.SetForcePreview(AValue: Boolean);
+begin
+  if FForcePreview = AValue then
+    Exit;
+  FForcePreview := AValue;
+  Invalidate;
+end;
+
+function TOBDCustomControl.IsPreview: Boolean;
+begin
+  Result := FForcePreview or (csDesigning in ComponentState);
+end;
+
+function TOBDCustomControl.UnitSystem: TOBDUnitSystem;
+begin
+  if FResolvedTheme <> nil then
+    Result := FResolvedTheme.UnitSystem
+  else
+    Result := usMetric;
+end;
+
+function TOBDCustomControl.AlertColor(ALevel: TOBDAlertLevel;
+  ANormal: TColor): TColor;
+begin
+  case ALevel of
+    alvWarning:
+      Result := Palette.Warning;
+    alvAlarm:
+      Result := Palette.Danger;
+  else
+    Result := ANormal;
+  end;
+end;
+
+procedure TOBDCustomControl.RenderTo(ABitmap: TBitmap);
+begin
+  ABitmap.PixelFormat := pf32bit;
+  ABitmap.SetSize(Width, Height);
+  ABitmap.Canvas.Brush.Style := bsSolid;
+  ABitmap.Canvas.Brush.Color := EffectiveBackground;
+  ABitmap.Canvas.FillRect(Rect(0, 0, Width, Height));
+  if (Width > 0) and (Height > 0) then
+    PaintControl(ABitmap.Canvas);
+end;
+
+procedure TOBDCustomControl.SaveSettings(AObject: TJSONObject);
+begin
+  // Base controls have no persisted settings.
+end;
+
+procedure TOBDCustomControl.LoadSettings(AObject: TJSONObject);
+begin
+  // Base controls have no persisted settings.
+end;
+
+procedure TOBDCustomControl.AssignDataSource(ASource: TComponent);
+begin
+  // Controls without a data channel ignore the source.
+end;
+
+function TOBDCustomControl.TileHost: IOBDTileHost;
+begin
+  Result := nil;
+  if (Parent <> nil) and not(csDesigning in ComponentState) then
+    if not Supports(Parent, IOBDTileHost, Result) then
+      Result := nil;
+end;
+
+function TOBDCustomControl.EditCloseRect: TRect;
+var
+  M, D: Integer;
+begin
+  // Round close button inset from the top-right corner; larger touch
+  // target in tablet density.
+  M := ScaleValue(6);
+  if Density = dnTablet then
+    D := ScaleValue(30)
+  else
+    D := ScaleValue(22);
+  Result := Rect(Width - M - D, M, Width - M, M + D);
+end;
+
+function TOBDCustomControl.EditGripSize: Integer;
+begin
+  if Density = dnTablet then
+    Result := ScaleValue(28)
+  else
+    Result := ScaleValue(20);
+end;
+
+function TOBDCustomControl.EditHitTest(X, Y: Integer): TOBDTileHit;
+var
+  R: TRect;
+  Grip: Integer;
+begin
+  if (X < 0) or (Y < 0) or (X >= Width) or (Y >= Height) then
+    Exit(thNone);
+  R := EditCloseRect;
+  InflateRect(R, ScaleValue(3), ScaleValue(3));
+  Grip := EditGripSize;
+  if (X >= R.Left) and (X < R.Right) and (Y >= R.Top) and (Y < R.Bottom) then
+    Result := thClose
+  else if (X >= Width - Grip) and (Y >= Height - Grip) then
+    Result := thResize
+  else
+    Result := thMove;
+end;
+
+procedure TOBDCustomControl.SetEditState(AHot, ADown: TOBDTileHit);
+begin
+  if (FEditHot = AHot) and (FEditDown = ADown) then
+    Exit;
+  FEditHot := AHot;
+  FEditDown := ADown;
+  Invalidate;
+end;
+
+procedure TOBDCustomControl.DrawEditOverlay(ACanvas: TCanvas);
+var
+  P: TOBDPainter;
+  R: TRect;
+  LW, CX, CY, K, Grip: Single;
+  Fill, Outline, Ink: TColor;
+  Pressed: Boolean;
+  I: Integer;
+begin
+  P := TOBDPainter.Create(ACanvas, Palette, ScaleValue(96));
+  try
+    // Tile frame: thin dashed accent outline on the hovered or active
+    // (dragged / resized) tile only; the other tiles keep just their
+    // close button and resize grip.
+    if (FEditDown <> thNone) or (FEditHot <> thNone) then
+    begin
+      if FEditDown in [thMove, thResize] then
+        LW := P.SF(1.5)
+      else
+        LW := P.SF(1.25);
+      P.DashedRoundRect(0, 0, Width, Height, P.SF(4), EffectiveAccent, LW);
+    end;
+
+    // Close button: soft danger tint at rest, solid danger on hover,
+    // darker while pressed.
+    R := EditCloseRect;
+    Pressed := (FEditDown = thClose) and (FEditHot = thClose);
+    if Pressed then
+    begin
+      Fill := OBDMixColor(Palette.Danger, clBlack, 0.8);
+      Outline := clNone;
+      Ink := P.ContrastInk(Palette.Danger);
+    end
+    else if FEditHot = thClose then
+    begin
+      Fill := Palette.Danger;
+      Outline := clNone;
+      Ink := P.ContrastInk(Fill);
+    end
+    else
+    begin
+      Fill := P.Tint(Palette.Danger, 0.12);
+      Outline := P.Tint(Palette.Danger, 0.45);
+      Ink := P.DangerInk;
+    end;
+    P.Ellipse(R.Left, R.Top, R.Width, R.Height, Fill, Outline, P.SF(1));
+    CX := R.Left + R.Width / 2;
+    CY := R.Top + R.Height / 2;
+    K := R.Width * 0.18;
+    P.Lines([OBDPointF(CX - K, CY - K), OBDPointF(CX + K, CY + K)], Ink,
+      P.SF(1.75));
+    P.Lines([OBDPointF(CX + K, CY - K), OBDPointF(CX - K, CY + K)], Ink,
+      P.SF(1.75));
+
+    // Resize grip: three diagonal strokes, bottom-right, on an accent
+    // tint while hovered or dragged.
+    Grip := EditGripSize;
+    if (FEditHot = thResize) or (FEditDown = thResize) then
+    begin
+      P.RoundRect(Width - Grip - P.SF(2), Height - Grip - P.SF(2), Grip,
+        Grip, P.SF(4), P.Tint(EffectiveAccent, 0.2), clNone);
+      Ink := P.AccentText;
+    end
+    else
+      Ink := EffectiveAccent;
+    for I := 1 to 3 do
+      P.Lines([OBDPointF(Width - P.SF(4) - I * Grip * 0.22, Height - P.SF(4)),
+        OBDPointF(Width - P.SF(4), Height - P.SF(4) - I * Grip * 0.22)], Ink,
+        P.SF(1.5));
+  finally
+    P.Free;
+  end;
+end;
+
+procedure TOBDCustomControl.WMEraseBkgnd(var Message: TWMEraseBkgnd);
+begin
+  Message.Result := 1;
+end;
+
+procedure TOBDCustomControl.WndProc(var Message: TMessage);
+var
+  Host: IOBDTileHost;
+begin
+  // The tile host takes every mouse message in edit mode, so the VCL
+  // never arms its own leave tracking: the host arms TrackMouseEvent and
+  // WM_MOUSELEAVE (outside the WM_MOUSEFIRST..LAST range) clears hover.
+  if ((Message.Msg = CM_MOUSELEAVE) or (Message.Msg = WM_MOUSELEAVE)) and
+    (FEditHot <> thNone) and (GetCapture <> WindowHandle) then
+    SetEditState(thNone, FEditDown);
+  if (Message.Msg >= WM_MOUSEFIRST) and (Message.Msg <= WM_MOUSELAST) then
+  begin
+    Host := TileHost;
+    if (Host <> nil) and Host.IsEditingTiles then
+    begin
+      Host.TileMouseMessage(Self, Message);
+      Exit;
+    end;
+  end;
+  inherited WndProc(Message);
+end;
+
 procedure TOBDCustomControl.Paint;
+var
+  Host: IOBDTileHost;
 begin
   if (Width <= 0) or (Height <= 0) then
     Exit;
@@ -434,9 +1074,18 @@ begin
       end
     else
       PaintControl(FBuffer.Canvas);
+    Host := TileHost;
+    if (Host <> nil) and Host.IsEditingTiles then
+      DrawEditOverlay(FBuffer.Canvas);
     FBufferDirty := False;
   end;
   Canvas.Draw(0, 0, FBuffer);
+end;
+
+procedure TOBDCustomControl.CreateParams(var Params: TCreateParams);
+begin
+  inherited CreateParams(Params);
+  Params.Style := Params.Style or WS_CLIPCHILDREN;
 end;
 
 procedure TOBDCustomControl.Repaint;
@@ -445,10 +1094,23 @@ begin
   inherited;
 end;
 
+procedure TOBDCustomControl.AdjustSize;
+begin
+  inherited AdjustSize;
+end;
+
 procedure TOBDCustomControl.Resize;
 begin
   inherited;
   FBufferDirty := True;
+end;
+
+function TOBDCustomControl.GetClientRect: TRect;
+begin
+  if HandleAllocated then
+    Result := inherited GetClientRect
+  else
+    Result := Rect(0, 0, Width, Height);
 end;
 
 procedure TOBDCustomControl.ChangeScale(M, D: Integer; isDpiChange: Boolean);
@@ -574,6 +1236,14 @@ begin
   FResolvedTheme := Candidate;
   if FResolvedTheme <> nil then
     FResolvedTheme.Attach(Self);
+end;
+
+procedure TOBDGraphicControl.SetParent(AParent: TWinControl);
+begin
+  inherited;
+  if (AParent <> nil) and (FResolvedTheme = nil) and
+    (ComponentState * [csLoading, csDestroying] = []) then
+    ResolveTheme;
 end;
 
 procedure TOBDGraphicControl.DetachFromTheme;

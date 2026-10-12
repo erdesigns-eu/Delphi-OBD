@@ -87,6 +87,34 @@ BASES = {
     'tstrings': STRINGS, 'tstringlist': STRINGS,
 }
 
+# The names in the sets above that are methods rather than properties: a
+# property of that name in a descendant hides the method (W1009), and every
+# call to it in the class then reads the property instead (E2066 at the
+# opening bracket).
+METHODS = {
+    'assign', 'assignto', 'getnamepath', 'getowner', 'findcomponent',
+    'insertcomponent', 'removecomponent', 'hasparent', 'getparentcomponent',
+    'setsubcomponent', 'notification', 'loaded', 'updateregistry',
+    'destroying', 'bringtofront', 'sendtoback', 'clienttoscreen',
+    'screentoclient', 'begindrag', 'enddrag', 'dragging', 'hide', 'show',
+    'invalidate', 'refresh', 'repaint', 'update', 'setbounds', 'perform',
+    'gettextlen', 'gettext', 'settext', 'click', 'dblclick', 'resize',
+    'changescale', 'mousedown', 'mousemove', 'mouseup', 'mousewheel',
+    'mouseenter', 'mouseleave', 'dragover', 'dragdrop', 'scalevalue',
+    'getdesigninfo', 'defaulthandler', 'focused', 'setfocus', 'canfocus',
+    'disablealign', 'enablealign', 'realign', 'insertcontrol',
+    'removecontrol', 'scaleby', 'updatecontrolstate', 'createparams',
+    'createwnd', 'destroywnd', 'createhandle', 'destroyhandle', 'paintwindow',
+    'painthandler', 'wndproc', 'doenter', 'doexit', 'keydown', 'keyup',
+    'keypress', 'alignposition', 'aligncontrols', 'paintto', 'flipchildren',
+    'selectfirst', 'selectnext', 'paint', 'close', 'closequery', 'release',
+    'showmodal', 'print', 'changed', 'getdisplayname', 'setindex', 'add',
+    'clear', 'delete', 'insert', 'notify', 'beginupdate', 'endupdate',
+    'getattr', 'getitem', 'setitem', 'execute', 'terminate', 'start',
+    'waitfor', 'synchronize', 'queue', 'checkterminated', 'doterminate',
+    'namethreadfordebugging', 'addobject', 'addstrings', 'append',
+    'exchange', 'indexof', 'loadfromfile', 'savetofile'}
+
 # Virtual methods the VCL and the RTL declare public, so that an override of
 # one put under protected or private is a hint on every build (H2269) and out
 # of reach of whatever called it from outside. Only names that are public

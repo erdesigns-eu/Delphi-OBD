@@ -2,7 +2,7 @@
 // ERD.Compat.Functions
 // Managed function-reference signatures for Free Pascal 3.3.1 or later.
 // Author: ERDesigns and Delphi-OBD contributors
-// License: MIT — see LICENSE
+// License: see LICENSE
 // ------------------------------------------------------------------------------
 unit ERD.Compat.Functions;
 {$IFDEF FPC}

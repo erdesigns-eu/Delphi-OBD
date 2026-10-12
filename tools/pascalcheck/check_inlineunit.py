@@ -32,6 +32,19 @@ INLINE_NEEDS = {
     'MessageDlgPos': 'System.UITypes',
 }
 
+# TOBDCustomControl.ScaleValue (ERD.UI.Control) is inline and its body calls
+# MulDiv from Winapi.Windows, so any unit that calls it - descendants of the
+# OBD controls - must name Winapi.Windows too.
+INHERITED_INLINE_NEEDS = {
+    # MulDiv (Winapi.Windows) and TControl.CurrentPPI (Vcl.Controls).
+    'ScaleValue': (('Winapi.Windows', 'Vcl.Controls'), 'erd.ui.control'),
+}
+
+# System.Classes re-declares these System.Types helpers as inline wrappers,
+# so a unit that names System.Classes but not System.Types and calls them
+# gets H2443 at every call site.
+CLASSES_WRAPPERS = ('Point', 'Rect', 'Bounds', 'SmallPoint')
+
 # A record's own inline members, and the unit they are declared in. Reached
 # through a unit that only re-exports the type - Winapi.Windows for TRect -
 # the type resolves and the members do not expand.
@@ -72,6 +85,28 @@ for path in pas_files():
                              f'{name} is inline and reaches into {unit}, '
                              f'which this unit does not name'))
             break
+    for name, (units, via) in INHERITED_INLINE_NEEDS.items():
+        if via not in used:
+            continue
+        m = re.search(r'(?<![\w.])' + name + r'\s*\(', clean)
+        if not m:
+            continue
+        for unit in units:
+            if unit.lower() not in used:
+                problems.append((rel, clean.count('\n', 0, m.start()) + 1,
+                                 f'{name} is inline and reaches into {unit}, '
+                                 f'which this unit does not name'))
+    if (('system.classes' in used or 'classes' in used)
+            and 'system.types' not in used and 'types' not in used):
+        for name in CLASSES_WRAPPERS:
+            if name.lower() in declared:
+                continue
+            m = re.search(r'(?<![\w.])' + name + r'\s*\(', clean)
+            if m:
+                problems.append((rel, clean.count('\n', 0, m.start()) + 1,
+                                 f'{name} is an inline System.Classes wrapper '
+                                 f'that reaches into System.Types, which this '
+                                 f'unit does not name'))
     for unit, shape in MEMBER_NEEDS.items():
         short = unit.lower().split('.')[-1]
         if unit.lower() in used or short in used:

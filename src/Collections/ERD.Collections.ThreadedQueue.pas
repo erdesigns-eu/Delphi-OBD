@@ -3,7 +3,7 @@
 // Bounded FIFO with per-operation timeouts on Delphi and FPC.
 // Owners must join all producers/consumers before destroying the queue.
 // Author: ERDesigns and Delphi-OBD contributors
-// License: MIT — see LICENSE
+// License: see LICENSE
 // ------------------------------------------------------------------------------
 unit ERD.Collections.ThreadedQueue;
 {$IFDEF FPC}

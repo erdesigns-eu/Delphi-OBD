@@ -9,7 +9,7 @@
 //
 // Author      : Ernst Reidinga (ERDesigns)
 // Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
-// License     : MIT — see LICENSE
+// License     : see LICENSE
 //
 // References  :
 // - https://semver.org/
@@ -32,7 +32,7 @@ interface
 
 const
   /// <summary>Major version. Breaking changes increment this.</summary>
-  OBD_VERSION_MAJOR = 2;
+  OBD_VERSION_MAJOR = 3;
 
   /// <summary>Minor version. New features that keep API compatibility
   /// increment this.</summary>
@@ -47,7 +47,7 @@ const
 
   /// <summary>Full SemVer 2.0 version string.</summary>
   /// <remarks>Format: <c>MAJOR.MINOR.PATCH[-PRERELEASE]</c>.</remarks>
-  OBD_VERSION = '2.0.0-alpha.0';
+  OBD_VERSION = '3.0.0-alpha.0';
 
   /// <summary>Human-readable copyright line surfaced in About boxes.</summary>
   OBD_COPYRIGHT = '(c) 2024-2026 ERDesigns';

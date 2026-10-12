@@ -248,6 +248,203 @@ end.
                           .replace('PChar(Name)', 'PAnsiChar(AnsiString(Name))'))
         self.assertIn('total: 0', self.checker('platformapi'))
 
+    def test_platform_attributes_and_misqualified_system_routines(self):
+        source = self.source('src/Shell.pas', """unit Shell;
+interface
+implementation
+function Hidden(A, B: Integer): Boolean;
+begin
+  Result := (A and (faHidden or faSysFile)) <> 0;
+  Result := Result and (System.Math.Abs(B) > 0);
+end;
+end.
+""")
+        self.assertIn('total: 3', self.checker('platformapi'))
+        source.write_text(source.read_text()
+                          .replace('faHidden or faSysFile',
+                                   'FILE_ATTRIBUTE_HIDDEN or FILE_ATTRIBUTE_SYSTEM')
+                          .replace('System.Math.Abs(', 'Abs('))
+        self.assertIn('total: 0', self.checker('platformapi'))
+
+    def test_strict_private_field_is_class_scoped_within_a_unit(self):
+        source = self.source('src/Dlg.pas', """unit Dlg;
+interface
+type
+  TDlg = class
+  strict private
+    FOnApply: TNotifyEvent;
+    FA, FB: Integer;
+    procedure Run(X: Integer; Y: string);
+  public
+    property OnApply: TNotifyEvent read FOnApply write FOnApply;
+  end;
+  TController = class
+  strict private
+    FDialog: TDlg;
+  public
+    procedure Apply;
+  end;
+implementation
+procedure TDlg.Run(X: Integer; Y: string);
+begin
+  FB := X;
+  if Assigned(Self.FOnApply) then Self.FOnApply(Self);
+end;
+procedure TController.Apply;
+begin
+  if Assigned(FDialog.FOnApply) then
+    FDialog.FB := 1;
+end;
+end.
+""")
+        self.assertIn('total: 2', self.checker('visibility'))
+        source.write_text(source.read_text()
+                          .replace('Assigned(FDialog.FOnApply)', 'Assigned(FDialog.OnApply)')
+                          .replace('FDialog.FB := 1;', 'FDialog.OnApply(nil);'))
+        self.assertIn('total: 0', self.checker('visibility'))
+
+    def test_private_helper_shared_by_name_counts_per_class(self):
+        source = self.source('src/Pair.pas', """unit Pair;
+interface
+type
+  TOne = class
+  strict private
+    FName: string;
+    function Text: string;
+    procedure SetName(const AValue: string);
+  public
+    procedure Draw;
+    property Name: string read FName write SetName;
+  end;
+  TTwo = class
+  strict private
+    function Text: string;
+  public
+    procedure Draw;
+  end;
+implementation
+function TOne.Text: string;
+begin
+  Result := 'one';
+end;
+procedure TOne.SetName(const AValue: string);
+begin
+  FName := AValue;
+end;
+procedure TOne.Draw;
+begin
+end;
+function TTwo.Text: string;
+begin
+  Result := 'two';
+end;
+procedure TTwo.Draw;
+begin
+  Text;
+end;
+end.
+""")
+        out = self.checker('private')
+        self.assertIn('TOne.Text', out)
+        self.assertNotIn('TTwo.Text', out)
+        self.assertNotIn('SetName', out)
+        source.write_text(source.read_text().replace(
+            'procedure TOne.Draw;\nbegin\nend;', 'procedure TOne.Draw;\nbegin\n  Text;\nend;'))
+        self.assertNotIn('TOne.Text', self.checker('private'))
+
+    def test_property_must_not_hide_an_inherited_vcl_method(self):
+        source = self.source('src/Row.pas', """unit Row;
+interface
+uses System.Classes;
+type
+  TRow = class(TCollectionItem)
+  strict private
+    FChanged: Boolean;
+    FCaption: string;
+  published
+    property Changed: Boolean read FChanged write FChanged;
+    property Caption: string read FCaption write FCaption;
+  end;
+implementation
+end.
+""")
+        self.assertIn('total: 1', self.checker('hidemember'))
+        source.write_text(source.read_text().replace('property Changed:', 'property IsChanged:'))
+        self.assertIn('total: 0', self.checker('hidemember'))
+
+    def test_property_field_must_have_the_property_type(self):
+        source = self.source('src/Step.pas', """unit Step;
+interface
+uses System.Classes;
+type
+  TStep = class(TCollectionItem)
+  strict private
+    FLines: TStringList;
+    FName: UnicodeString;
+    FCount: Longint;
+    function GetLines: TStrings;
+  published
+    property Lines: TStrings read FLines;
+    property Name: string read FName write FName;
+    property Count: Integer read FCount write FCount;
+  end;
+implementation
+function TStep.GetLines: TStrings;
+begin
+  Result := FLines;
+end;
+end.
+""")
+        self.assertIn('total: 1', self.checker('proptype'))
+        source.write_text(source.read_text().replace('read FLines;', 'read GetLines;'))
+        self.assertIn('total: 0', self.checker('proptype'))
+
+    def test_dfm_property_must_be_published_by_the_component(self):
+        self.source('src/Tile.pas', """unit Tile;
+interface
+uses System.Classes, Vcl.Controls;
+type
+  TTileItem = class(TCollectionItem)
+  published
+    property Caption: string read FCaption write FCaption;
+  end;
+  TTileItems = class(TOwnedCollection)
+  public
+    property Items[Index: Integer]: TTileItem read GetItem; default;
+  end;
+  TTile = class(TCustomControl)
+  public
+    property Busy: Boolean read FBusy write FBusy;
+  published
+    property &Unit: string read FUnit write FUnit;
+    property Tiles: TTileItems read FTiles write SetTiles;
+  end;
+implementation
+end.
+""")
+        form = self.source('examples/app/Main.dfm', """object Main: TForm
+  Caption = 'Main'
+  object Tile1: TTile
+    Left = 8
+    Top = 8
+    Unit = 'km/h'
+    Busy = True
+    Tiles = <
+      item
+        Caption = 'One'
+        Subtitle = 'Two'
+      end>
+  end
+end
+""")
+        out = self.checker('dfmpublished')
+        self.assertIn('total: 2', out)
+        self.assertIn('no published Busy', out)
+        self.assertIn('no published Subtitle', out)
+        form.write_text(form.read_text().replace("    Busy = True\n", '')
+                        .replace("        Subtitle = 'Two'\n", ''))
+        self.assertIn('total: 0', self.checker('dfmpublished'))
+
     def test_event_returning_getter_must_be_invoked_for_event_assignment(self):
         source = self.source('src/Events.pas', """unit Events;
 interface
@@ -357,7 +554,7 @@ function Answer: Integer;
 begin Result := 42; end;
 end.
 ''')
-        consumer = self.source('samples/Demo/Consumer.pas', '''unit Consumer;
+        consumer = self.source('examples/Demo/Consumer.pas', '''unit Consumer;
 interface
 procedure Run;
 implementation
@@ -545,7 +742,7 @@ end.
         self.assertEqual(len(directives), 5)
 
     def test_missing_optional_form_directory_does_not_crash(self):
-        for name in ('caption', 'dfm', 'dispatch'):
+        for name in ('caption', 'dfm', 'dfmpublished', 'dispatch'):
             with self.subTest(name=name):
                 self.assertIn('total: 0', self.checker(name))
 

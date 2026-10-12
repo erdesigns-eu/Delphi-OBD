@@ -2,7 +2,7 @@
 //  Tests.ERD.OEM.UdsValues
 //  Catalog-driven coding and adaptation wire regressions, without hardware.
 //  Author: Ernst Reidinga (ERDesigns) and Delphi-OBD contributors
-//  License: MIT — see LICENSE
+//  License: see LICENSE
 //------------------------------------------------------------------------------
 unit Tests.ERD.OEM.UdsValues;
 

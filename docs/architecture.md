@@ -50,7 +50,8 @@ each piece independently testable, mockable, and replaceable.
 
 | Layer | Components | Responsibilities |
 |---|---|---|
-| Application | (host code) | UI, business logic |
+| Application | (host code) | Forms, business logic |
+| Dashboard / UI | `TOBDTheme`, `TOBDDashboard`, `TOBDDialGauge`, `TOBDBarGauge`, `TOBDValueTile`, `TOBDStatusLamp`, `TOBDConnectionBar`, `TOBDTrendChart`, `TOBDMatrixDisplay`, `TOBDLiveDataGrid` | Themed VCL presentation of live data; bound to service components through `TOBDChannelBinding` |
 | Service-mode | `TOBDLiveData`, `TOBDDTCs`, `TOBDVIN`, `TOBDFreezeFrame`, `TOBDOnBoardMonitor`, `TOBDActuator` | OBD-II Service 01–0A |
 | Coding | `TOBDSecurityAccess`, `TOBDDataIdentifierIO`, `TOBDRoutineControl`, `TOBDFlasher`, `TOBDUploader`, `TOBDFlashSession`, `TOBDUDSWriteMemory`, `TOBDKWPWriteID`, `TOBDCodingAuditLog`, `TOBDCodingSession`, `TOBDComponentProtection*` | UDS coding services + per-OEM helpers |
 | Flashing | `TOBDUDSTransfer`, `TOBDFlashPipeline`, `TOBDVoltageGate` | Production-grade reflash with safety gates |
@@ -64,7 +65,7 @@ each piece independently testable, mockable, and replaceable.
 Source layout follows the layer split:
 `src/Core` · `src/Connection` · `src/Adapter` · `src/Protocol` ·
 `src/Service` · `src/Coding` · `src/Flashing` · `src/Calibration` ·
-`src/Speciality` · `src/Recorder` · `src/DesignTime`.
+`src/Speciality` · `src/Recorder` · `src/UI` · `src/DesignTime`.
 
 ## Threading model
 

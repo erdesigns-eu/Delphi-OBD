@@ -9,7 +9,7 @@
 //
 // Author      : Ernst Reidinga (ERDesigns)
 // Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
-// License     : MIT — see LICENSE
+// License     : see LICENSE
 //
 // History     :
 // 2026-05-09  ERD  Initial implementation.
@@ -35,6 +35,7 @@ uses
 {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
 {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
 {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF},
+{$IFNDEF FPC}System.Net.Socket,{$ENDIF}
   ERD.Compat.Socket,
   ERD.Types,
   ERD.Connection.Types,

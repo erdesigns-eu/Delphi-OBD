@@ -1,4 +1,4 @@
-"""Regressions: missing icons, corrupt PNGs and stale/mismatched EV documents."""
+"""Regressions: missing icons, generated palette art, corrupt PNGs and stale/mismatched EV documents."""
 import json
 import struct
 import tempfile
@@ -6,6 +6,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+import designtime_icons as icons
 import designtime_resources as resources
 import ev_support_matrix as matrix
 import fpc_runtime as runtime
@@ -91,10 +92,13 @@ class DelphiProjectTests(unittest.TestCase):
 class ResourceTests(unittest.TestCase):
     def test_every_registered_class_has_exact_reproducible_resource(self):
         data, count = resources.build()
-        self.assertEqual(count, 229)
+        self.assertEqual(count, 225)
         self.assertEqual(data, resources.TARGET.read_bytes())
         # The Win32 resource stream starts with the required 32-byte null header.
         self.assertEqual(struct.unpack_from('<II', data), (0, 32))
+        # The IDE reads palette PNGs from RCDATA <CLASS>16_PNG / _PNG / 32_PNG.
+        for name in ('TOBDDIALGAUGE16_PNG', 'TOBDDIALGAUGE_PNG', 'TOBDDIALGAUGE32_PNG'):
+            self.assertIn(b'\x0a\x00' + name.encode('utf-16le') + b'\0\0', data, name)
 
     def test_missing_component_is_a_failure(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -119,6 +123,30 @@ class ResourceTests(unittest.TestCase):
         raw = (resources.ASSETS / 'palette/TOBDCONNECTION.png').read_bytes()
         with self.assertRaisesRegex(ValueError, 'expected'):
             resources.verify_png(raw, 'wrong-size', (16, 16))
+
+
+class IconTests(unittest.TestCase):
+    def test_tracked_icons_match_the_generator(self):
+        files = icons.build()
+        self.assertEqual(len(files), 225 * len(icons.ICON_SIZES) + 2)
+        for rel, data in files.items():
+            self.assertEqual(data, (icons.ASSETS / rel).read_bytes(), rel)
+        tracked = {p.name for p in icons.PALETTE.glob('*.png')}
+        self.assertEqual(tracked, {Path(rel).name for rel in files if rel.startswith('palette/')})
+
+    def test_icons_are_line_icons_on_a_transparent_background(self):
+        canvas = icons.render('TOBDDialGauge')
+        self.assertEqual(canvas.pixels[0][3], 0.0)
+        r, g, b, a = canvas.pixels[13 * icons.SIZE + 11]  # needle hub
+        self.assertEqual(tuple(round(v) for v in (r, g, b)), icons.ORANGE)
+        self.assertAlmostEqual(a, 1.0)
+        self.assertFalse(any(px[:3] == list(icons.TILE) and px[3]
+                             for px in canvas.pixels))
+
+    def test_unregistered_design_is_a_failure(self):
+        with patch.dict(icons.ICONS, {'TOBDNotRegistered': icons.dial}):
+            with self.assertRaisesRegex(ValueError, 'unregistered'):
+                icons.build()
 
 
 class MatrixTests(unittest.TestCase):
