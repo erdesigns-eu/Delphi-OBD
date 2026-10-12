@@ -680,7 +680,7 @@ a `-tablet` variant.
 
 | Mockup | Shows |
 |---|---|
-| `personal-welcome` | First-start wizard (language, licence, units and theme, adapter, vehicle) on the licence step, with the same licence text as the installer. |
+| `personal-welcome` | First-start wizard (language, licence, units and theme, adapter, vehicle) on the licence step: a short summary, then the full licence the installer showed. |
 | `personal-connect` | Connection and device (Bluetooth, Bluetooth LE, USB, Wi-Fi), the adapter check that tells a genuine adapter from a clone, and the demo car. |
 | `personal-overview` | MIL, codes, inspection readiness and battery at a glance; quick start and recent sessions. |
 | `personal-codes` | Codes per ECU with status chips, the freeze frame with normal ranges, possible causes, offline code lookup, CSV export and clear. |

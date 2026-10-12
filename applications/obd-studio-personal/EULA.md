@@ -3,8 +3,9 @@
 > **Draft for legal review. Not yet in force.** This text has not been
 > reviewed by a lawyer. Have it checked under Belgian and EU consumer law
 > before the first release. It must stay consistent with the repository
-> [`LICENSE`](../../LICENSE) and with the licence step of the first-start
-> wizard (`personal-welcome` mockup).
+> [`LICENSE`](../../LICENSE). The licence step of the first-start wizard
+> (`personal-welcome` mockup) shows a short summary followed by this full
+> text; keep the summary in line with it.
 
 Licence version 1.0 · 12 October 2026
 

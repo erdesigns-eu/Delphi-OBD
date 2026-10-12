@@ -225,9 +225,9 @@ The licence is accepted twice:
 
 1. **Installer.** The installer shows [`EULA.md`](EULA.md) and does not
    continue until the user accepts it.
-2. **First start.** The first-start wizard shows the licence again
-   (`personal-welcome`) and stores the accepted version for the Windows
-   user. When a later update changes the licence version, the application
+2. **First start.** The first-start wizard shows a short summary followed
+   by the same full text (`personal-welcome`) and stores the accepted
+   version for the Windows user. When a later update changes the licence version, the application
    asks again.
 
 ## Roadmap

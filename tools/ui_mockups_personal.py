@@ -481,8 +481,8 @@ LICENCE_TEXT = [
      'Do not operate the software while driving. Performance tools are for '
      'closed tracks only. Clearing trouble codes does not repair the car.'),
     ('4. Privacy',
-     'OBD-Studio works offline. The optional online VIN lookup sends the '
-     'VIN to the NHTSA vPIC service; you can switch it off in Settings.'),
+     'OBD-Studio works offline. The online VIN lookup (NHTSA vPIC) and the '
+     'update check are optional; switch them off in Settings › Privacy.'),
     ('5. No warranty',
      'The software is provided as is, without warranty of any kind.'),
 ]
@@ -494,15 +494,17 @@ def wizard_body(c, bx, y, bw):
     c.caps(bx, y, 'Step 2 of 5')
     c.text(bx, y + 26, 'Licence agreement', 16, p.ForegroundText, 'bold')
     y = para(c, bx, y + 54, bw, 'OBD-Studio Personal is free for personal '
-             'use. Please read the licence and accept it to continue. It is '
-             'the same text the installer showed you.', 12.5, p.GaugeLabel)
+             'use. Please read the licence and accept it to continue. A '
+             'summary comes first; scroll down for the full text, the same '
+             'one the installer showed you.', 12.5, p.GaugeLabel)
     y = wbanner(c, bx, y + 2, bw, 'info', 'Free for personal use',
                 'All features, no account, no adverts. Use in a garage, '
                 'fleet or other business needs OBD-Studio Professional.')
     y += 16
     lh = 300 if c.density == 'desktop' else 340
     c.rect(bx, y, bw, lh, fill=p.GaugeFace, outline=p.NeutralLight)
-    ty = y + 22
+    c.caps(bx + 16, y + 20, 'In short')
+    ty = y + 50
     for title, text in LICENCE_TEXT:
         if ty > y + lh - 24:
             break
