@@ -3,9 +3,11 @@
 //
 //  Main form of OBD-Studio Personal: the shell around the pages.
 //
-//  Title bar (theme, density, help, connect), the sidebar with the page
-//  groups of the mockups (Vehicle, Tests, Drive, Tools, Settings), the
-//  status bar (link, adapter, protocol, battery, progress, codes and the
+//  Title bar (theme, density, help, connect) with the commands as a menu
+//  bar or a ribbon (the user picks one in Settings or the View menu), the
+//  sidebar with the page groups of the mockups (Vehicle, Tests, Drive,
+//  Tools, Settings; it scrolls when the window is low), the status bar
+//  (link, adapter, protocol, battery, progress, codes and the
 //  recording indicator) and the host the page frames talk to through
 //  IPersonalHost. The form owns the settings and the vehicle session.
 //
@@ -30,16 +32,20 @@ uses
   System.Classes,
   System.IOUtils,
   System.JSON,
+  System.Actions,
   Vcl.Graphics,
   Vcl.Controls,
   Vcl.Forms,
   Vcl.ExtCtrls,
   Vcl.Dialogs,
+  Vcl.ActnList,
+  Vcl.Menus,
   ERD.I18n,
   ERD.UI.Types,
   ERD.UI.Paint,
   ERD.UI.Theme,
   ERD.UI.TitleBar,
+  ERD.UI.Ribbon,
   ERD.UI.Sidebar,
   ERD.UI.StatusBar,
   ERD.UI.Toast,
@@ -55,6 +61,7 @@ const
 type
   TfrmMain = class(TForm, IPersonalHost)
     TitleBar: TOBDTitleBar;
+    rbnMain: TOBDRibbon;
     sdbMain: TOBDSidebar;
     pnlPages: TPanel;
     sbMain: TOBDStatusBar;
@@ -63,6 +70,74 @@ type
     OBDToasts: TOBDToastManager;
     dlgConfirm: TOBDDialog;
     tmrBattery: TTimer;
+    alMain: TActionList;
+    actConnect: TAction;
+    actDisconnect: TAction;
+    actPageOverview: TAction;
+    actPageCodes: TAction;
+    actPageReadiness: TAction;
+    actPageLive: TAction;
+    actPageDashboard: TAction;
+    actPageTests: TAction;
+    actPageInfo: TAction;
+    actPageFuel: TAction;
+    actPagePerformance: TAction;
+    actPageEV: TAction;
+    actPageAdapter: TAction;
+    actPageRecordings: TAction;
+    actPageConsole: TAction;
+    actPageSettings: TAction;
+    actThemeLight: TAction;
+    actThemeDark: TAction;
+    actThemeWindows: TAction;
+    actDensityDesktop: TAction;
+    actDensityTablet: TAction;
+    actUnitsMetric: TAction;
+    actUnitsImperial: TAction;
+    actMenuBar: TAction;
+    actRibbon: TAction;
+    actAbout: TAction;
+    actExit: TAction;
+    mnuMain: TMainMenu;
+    miFile: TMenuItem;
+    miConnect: TMenuItem;
+    miDisconnect: TMenuItem;
+    miFileSep1: TMenuItem;
+    miPageSettings: TMenuItem;
+    miFileSep2: TMenuItem;
+    miExit: TMenuItem;
+    miVehicle: TMenuItem;
+    miPageOverview: TMenuItem;
+    miPageCodes: TMenuItem;
+    miPageReadiness: TMenuItem;
+    miPageLive: TMenuItem;
+    miPageDashboard: TMenuItem;
+    miTests: TMenuItem;
+    miPageTests: TMenuItem;
+    miPageInfo: TMenuItem;
+    miDrive: TMenuItem;
+    miPageFuel: TMenuItem;
+    miPagePerformance: TMenuItem;
+    miPageEV: TMenuItem;
+    miTools: TMenuItem;
+    miPageAdapter: TMenuItem;
+    miPageRecordings: TMenuItem;
+    miPageConsole: TMenuItem;
+    miView: TMenuItem;
+    miThemeLight: TMenuItem;
+    miThemeDark: TMenuItem;
+    miThemeWindows: TMenuItem;
+    miViewSep1: TMenuItem;
+    miDensityDesktop: TMenuItem;
+    miDensityTablet: TMenuItem;
+    miViewSep2: TMenuItem;
+    miUnitsMetric: TMenuItem;
+    miUnitsImperial: TMenuItem;
+    miViewSep3: TMenuItem;
+    miMenuBar: TMenuItem;
+    miRibbon: TMenuItem;
+    miHelp: TMenuItem;
+    miAbout: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -71,17 +146,30 @@ type
     procedure sbMainPanelClick(Sender: TObject; Panel: TOBDStatusPanel);
     procedure OBDThemeChange(Sender: TObject);
     procedure tmrBatteryTimer(Sender: TObject);
+    procedure TitleBarCommandStyleChange(Sender: TObject);
+    procedure actConnectExecute(Sender: TObject);
+    procedure actDisconnectExecute(Sender: TObject);
+    procedure actPageExecute(Sender: TObject);
+    procedure actThemeExecute(Sender: TObject);
+    procedure actDensityExecute(Sender: TObject);
+    procedure actUnitsExecute(Sender: TObject);
+    procedure actCommandsExecute(Sender: TObject);
+    procedure actAboutExecute(Sender: TObject);
+    procedure actExitExecute(Sender: TObject);
   strict private
     FSettings: TPersonalSettings;
     FSession: TPersonalSession;
     FPages: TArray<TControl>;
     FKeys: TArray<string>;
+    FPageActions: TArray<TAction>;
     FActive: Integer;
     FSyncing: Boolean;
     FActivity: TStringList;
     FCodeCount: Integer;
     FMIL: Boolean;
+    FCatalogError: string;
     procedure WMPersonalStarted(var Msg: TMessage); message WM_PERSONAL_STARTED;
+    procedure LoadCatalogs;
     procedure AddPage(APage: TControl);
     procedure CreatePages;
     function PageIndex(const AKey: string): Integer;
@@ -91,7 +179,9 @@ type
     procedure ApplySettings;
     procedure ApplyLanguage;
     procedure TranslateShell;
+    procedure TranslateCommands;
     procedure SyncTitleButtons;
+    procedure SyncCommands;
     procedure SyncStatus;
     procedure SessionStateChanged(Sender: TObject);
     procedure SessionStatus(Sender: TObject);
@@ -164,22 +254,26 @@ const
 
 procedure TfrmMain.FormCreate(Sender: TObject);
 begin
+  // Nothing in here may raise: the VCL swallows an exception from
+  // OnCreate and shows a form that is only half set up.
+  FActive := -1;
+  // Indexed by page index, like the Tag of the sidebar items.
+  FPageActions := [actPageOverview, actPageCodes, actPageReadiness,
+    actPageLive, actPageDashboard, actPageTests, actPageInfo, actPageFuel,
+    actPagePerformance, actPageEV, actPageAdapter, actPageRecordings,
+    actPageConsole, actPageSettings];
   // Frames and dialogs created at run time pick this theme up as well.
   TOBDTheme.RegisterDefault(OBDTheme);
   FActivity := TStringList.Create;
   FSettings := TPersonalSettings.Create;
   FSettings.Load;
 
-  // The PID and trouble code catalogues ship next to the program.
-  TOBDServiceCatalog.Default.LoadDirectory(
-    TPath.Combine(AppFolder, 'catalogs'));
-
   FSession := TPersonalSession.Create(Self);
   FSession.OnStateChanged := SessionStateChanged;
   FSession.OnStatus := SessionStatus;
   FSession.Inspection.Country := FSettings.InspectionCountry;
 
-  FActive := -1;
+  LoadCatalogs;
   CreatePages;
   RestoreWindow;
   ApplySettings;
@@ -190,8 +284,33 @@ begin
   PostMessage(Handle, WM_PERSONAL_STARTED, 0, 0);
 end;
 
+procedure TfrmMain.LoadCatalogs;
+begin
+  // The PID and trouble code catalogues ship next to the program. Without
+  // them the program still runs, with empty code texts, normal ranges,
+  // VIN decoding and inspection rules; the user is told once the window
+  // is on screen.
+  try
+    TOBDServiceCatalog.Default.LoadDirectory(
+      TPath.Combine(AppFolder, 'catalogs'));
+  except
+    on E: Exception do
+    begin
+      FCatalogError := E.Message;
+      LogWarning('Catalogues not loaded: ' + E.Message);
+    end;
+  end;
+end;
+
 procedure TfrmMain.WMPersonalStarted(var Msg: TMessage);
 begin
+  if FCatalogError <> '' then
+    Notify(tkWarning, Tr('personal.shell.catalogsTitle',
+      'Catalogues not found'), TrFmt('personal.shell.catalogsText',
+      'Copy the catalogs folder of the repository next to the program ' +
+      '(%s). Until then trouble code texts, normal ranges, VIN decoding ' +
+      'and inspection rules are empty.',
+      [TPath.Combine(AppFolder, 'catalogs')]));
   if not FSettings.EulaAccepted or not FSettings.WelcomeDone then
   begin
     if not TfrmWelcome.Execute(Self, FSettings, LanguageFolder) then
@@ -213,7 +332,7 @@ end;
 
 procedure TfrmMain.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
-  if FActive >= 0 then
+  if (FActive >= 0) and (FActive <= High(FKeys)) then
     FSettings.LastPage := FKeys[FActive];
   StoreWindow;
   try
@@ -223,14 +342,18 @@ begin
       // Closing must not fail because the settings folder is read-only.
       WriteActivity('WARN', 'Settings not saved: ' + E.Message);
   end;
-  FSession.Disconnect;
+  if FSession <> nil then
+    FSession.Disconnect;
 end;
 
 procedure TfrmMain.FormDestroy(Sender: TObject);
 begin
   tmrBattery.Enabled := False;
-  FSession.OnStateChanged := nil;
-  FSession.OnStatus := nil;
+  if FSession <> nil then
+  begin
+    FSession.OnStateChanged := nil;
+    FSession.OnStatus := nil;
+  end;
   // The session goes before the pages so that no polling thread calls
   // into a page that is being destroyed.
   FreeAndNil(FSession);
@@ -326,6 +449,7 @@ begin
   finally
     FSyncing := False;
   end;
+  SyncCommands;
   if Supports(FPages[AIndex], IPersonalPage, Page) then
     Page.Activated(True);
 end;
@@ -360,6 +484,7 @@ begin
   dlgConfirm.Density := OBDTheme.Density;
   OBDHintStyle.Density := OBDTheme.Density;
   SyncTitleButtons;
+  SyncCommands;
 end;
 
 procedure TfrmMain.OBDThemeChange(Sender: TObject);
@@ -378,6 +503,11 @@ begin
   OBDTheme.Density := FSettings.Density;
   OBDTheme.UnitSystem := FSettings.UnitSystem;
   FSession.Inspection.Country := FSettings.InspectionCountry;
+  // The title bar shows the menu bar or the ribbon below it.
+  if FSettings.UseRibbon then
+    TitleBar.CommandStyle := csRibbon
+  else
+    TitleBar.CommandStyle := csMenu;
   ApplyChrome;
   ApplyLanguage;
   if UnitsChanged then
@@ -430,8 +560,8 @@ begin
     Button := TitleBar.QuickAccess[I];
     if Button.Name = 'connect' then
     begin
-      Button.Down := FSession.Online;
-      if FSession.Online then
+      Button.Down := Connected;
+      if Connected then
         Button.Hint := Tr('personal.shell.disconnect', 'Disconnect')
       else
         Button.Hint := Tr('personal.shell.connect', 'Connect');
@@ -462,6 +592,101 @@ begin
     ShowAbout
   else if AButton.Name = 'connect' then
     ToggleConnection;
+end;
+
+{ Commands ------------------------------------------------------------------ }
+
+procedure TfrmMain.SyncCommands;
+var
+  I: Integer;
+  Busy: Boolean;
+begin
+  // The menu items and the ribbon buttons follow their action: Checked
+  // shows as a check mark in the menu and as a pressed ribbon button.
+  Busy := (FSession <> nil) and (FSession.State in [plsConnecting, plsOnline]);
+  actConnect.Enabled := (FSession <> nil) and not Busy;
+  actDisconnect.Enabled := Busy;
+  for I := 0 to High(FPageActions) do
+    FPageActions[I].Checked := I = FActive;
+  actThemeLight.Checked := OBDTheme.Mode = tmLight;
+  actThemeDark.Checked := OBDTheme.Mode = tmDark;
+  actThemeWindows.Checked := OBDTheme.Mode in [tmAuto, tmWindows];
+  actDensityDesktop.Checked := OBDTheme.Density = dnDesktop;
+  actDensityTablet.Checked := OBDTheme.Density = dnTablet;
+  actUnitsMetric.Checked := OBDTheme.UnitSystem = usMetric;
+  actUnitsImperial.Checked := OBDTheme.UnitSystem = usImperial;
+  actMenuBar.Checked := TitleBar.CommandStyle = csMenu;
+  actRibbon.Checked := TitleBar.CommandStyle = csRibbon;
+end;
+
+procedure TfrmMain.TitleBarCommandStyleChange(Sender: TObject);
+begin
+  SyncCommands;
+end;
+
+procedure TfrmMain.actConnectExecute(Sender: TObject);
+begin
+  FSession.Connect(FSettings);
+end;
+
+procedure TfrmMain.actDisconnectExecute(Sender: TObject);
+begin
+  FSession.Disconnect;
+end;
+
+procedure TfrmMain.actPageExecute(Sender: TObject);
+begin
+  // The page actions have the page index as Tag.
+  ActivatePage(TComponent(Sender).Tag);
+end;
+
+procedure TfrmMain.actThemeExecute(Sender: TObject);
+begin
+  // actThemeLight / actThemeDark / actThemeWindows have Tag 0 / 1 / 2.
+  case TComponent(Sender).Tag of
+    1:
+      FSettings.ThemeMode := tmDark;
+    2:
+      FSettings.ThemeMode := tmWindows;
+  else
+    FSettings.ThemeMode := tmLight;
+  end;
+  SettingsChanged;
+end;
+
+procedure TfrmMain.actDensityExecute(Sender: TObject);
+begin
+  if TComponent(Sender).Tag = 1 then
+    FSettings.Density := dnTablet
+  else
+    FSettings.Density := dnDesktop;
+  SettingsChanged;
+end;
+
+procedure TfrmMain.actUnitsExecute(Sender: TObject);
+begin
+  if TComponent(Sender).Tag = 1 then
+    FSettings.UnitSystem := usImperial
+  else
+    FSettings.UnitSystem := usMetric;
+  SettingsChanged;
+end;
+
+procedure TfrmMain.actCommandsExecute(Sender: TObject);
+begin
+  // actMenuBar has Tag 0, actRibbon Tag 1.
+  FSettings.UseRibbon := TComponent(Sender).Tag = 1;
+  SettingsChanged;
+end;
+
+procedure TfrmMain.actAboutExecute(Sender: TObject);
+begin
+  ShowAbout;
+end;
+
+procedure TfrmMain.actExitExecute(Sender: TObject);
+begin
+  Close;
 end;
 
 procedure TfrmMain.sbMainPanelClick(Sender: TObject; Panel: TOBDStatusPanel);
@@ -583,25 +808,19 @@ begin
 end;
 
 procedure TfrmMain.TranslateShell;
-const
-  // Sidebar captions by page index (the Tag of the items).
-  KEYS: array[0..13] of string = ('overview', 'codes', 'readiness', 'live',
-    'dashboard', 'tests', 'info', 'fuel', 'performance', 'ev', 'adapter',
-    'recordings', 'console', 'settings');
-  CAPTIONS: array[0..13] of string = ('Overview', 'Trouble codes',
-    'Readiness', 'Live data', 'Dashboard', 'Monitor tests', 'Vehicle info',
-    'Fuel economy', 'Performance', 'EV battery', 'Adapter', 'Recordings',
-    'Console', 'Settings');
 var
   I: Integer;
   Item: TOBDSidebarItem;
   Page: IPersonalPage;
 begin
-  for I := 0 to High(KEYS) do
+  TranslateCommands;
+  // The sidebar shows the same captions as the page commands. Its hint
+  // stays empty: a collapsed sidebar shows the caption and badge instead.
+  for I := 0 to High(FPageActions) do
   begin
     Item := SidebarItemOf(I);
     if Item <> nil then
-      Item.Caption := Tr('personal.nav.' + KEYS[I], CAPTIONS[I]);
+      Item.Caption := FPageActions[I].Caption;
   end;
   for I := 0 to sdbMain.Items.Count - 1 do
   begin
@@ -620,6 +839,111 @@ begin
   for I := 0 to High(FPages) do
     if Supports(FPages[I], IPersonalPage, Page) then
       Page.Translate;
+end;
+
+procedure TfrmMain.TranslateCommands;
+
+  procedure SetCommand(AAction: TAction; const ACaption, AHint: string);
+  begin
+    AAction.Caption := ACaption;
+    AAction.Hint := AHint;
+  end;
+
+  procedure SetGroupCaption(ATab, AGroup: Integer; const ACaption: string);
+  begin
+    if (ATab < rbnMain.Tabs.Count) and
+      (AGroup < rbnMain.Tabs[ATab].Groups.Count) then
+      rbnMain.Tabs[ATab].Groups[AGroup].Caption := ACaption;
+  end;
+
+begin
+  // Menu items and ribbon buttons take caption and hint from the action.
+  SetCommand(actConnect, Tr('personal.cmd.connect', 'Connect'),
+    Tr('personal.cmd.connectHint', 'Connect with the saved adapter'));
+  SetCommand(actDisconnect, Tr('personal.cmd.disconnect', 'Disconnect'),
+    Tr('personal.cmd.disconnectHint', 'Close the connection'));
+  SetCommand(actPageOverview, Tr('personal.nav.overview', 'Overview'),
+    Tr('personal.nav.overviewHint',
+    'Vehicle, codes and readiness at a glance'));
+  SetCommand(actPageCodes, Tr('personal.nav.codes', 'Trouble codes'),
+    Tr('personal.nav.codesHint', 'Read and clear the trouble codes'));
+  SetCommand(actPageReadiness, Tr('personal.nav.readiness', 'Readiness'),
+    Tr('personal.nav.readinessHint',
+    'Readiness monitors and the inspection check'));
+  SetCommand(actPageLive, Tr('personal.nav.live', 'Live data'),
+    Tr('personal.nav.liveHint', 'Live sensor values with a chart'));
+  SetCommand(actPageDashboard, Tr('personal.nav.dashboard', 'Dashboard'),
+    Tr('personal.nav.dashboardHint', 'Gauges for the most important values'));
+  SetCommand(actPageTests, Tr('personal.nav.tests', 'Monitor tests'),
+    Tr('personal.nav.testsHint', 'On-board monitor test results'));
+  SetCommand(actPageInfo, Tr('personal.nav.info', 'Vehicle info'),
+    Tr('personal.nav.infoHint', 'VIN, calibration IDs and ECUs'));
+  SetCommand(actPageFuel, Tr('personal.nav.fuel', 'Fuel economy'),
+    Tr('personal.nav.fuelHint', 'Consumption, trip costs and CO2'));
+  SetCommand(actPagePerformance, Tr('personal.nav.performance', 'Performance'),
+    Tr('personal.nav.performanceHint', 'Acceleration and power runs'));
+  SetCommand(actPageEV, Tr('personal.nav.ev', 'EV battery'),
+    Tr('personal.nav.evHint', 'State of charge and battery health'));
+  SetCommand(actPageAdapter, Tr('personal.nav.adapter', 'Adapter'),
+    Tr('personal.nav.adapterHint', 'Choose and connect the adapter'));
+  SetCommand(actPageRecordings, Tr('personal.nav.recordings', 'Recordings'),
+    Tr('personal.nav.recordingsHint', 'Record and replay drives'));
+  SetCommand(actPageConsole, Tr('personal.nav.console', 'Console'),
+    Tr('personal.nav.consoleHint', 'Activity log and adapter terminal'));
+  SetCommand(actPageSettings, Tr('personal.nav.settings', 'Settings'),
+    Tr('personal.nav.settingsHint', 'Language, appearance, units and data'));
+  SetCommand(actThemeLight, Tr('personal.cmd.themeLight', 'Light theme'),
+    Tr('personal.cmd.themeLight', 'Light theme'));
+  SetCommand(actThemeDark, Tr('personal.cmd.themeDark', 'Dark theme'),
+    Tr('personal.cmd.themeDark', 'Dark theme'));
+  SetCommand(actThemeWindows, Tr('personal.cmd.themeWindows', 'Follow Windows'),
+    Tr('personal.cmd.themeWindowsHint', 'Follow the Windows app mode'));
+  SetCommand(actDensityDesktop, Tr('personal.cmd.desktop', 'Desktop'),
+    Tr('personal.cmd.desktopHint', 'Compact controls for mouse and keyboard'));
+  SetCommand(actDensityTablet, Tr('personal.cmd.tablet', 'Tablet'),
+    Tr('personal.cmd.tabletHint', 'Larger controls for touch screens'));
+  SetCommand(actUnitsMetric, Tr('personal.cmd.metric', 'Metric units'),
+    Tr('personal.cmd.metricHint', 'km, °C, kPa, litres'));
+  SetCommand(actUnitsImperial, Tr('personal.cmd.imperial', 'Imperial units'),
+    Tr('personal.cmd.imperialHint', 'miles, °F, psi, gallons'));
+  SetCommand(actMenuBar, Tr('personal.cmd.menuBar', 'Menu bar'),
+    Tr('personal.cmd.menuBarHint', 'Show the commands in a classic menu bar'));
+  SetCommand(actRibbon, Tr('personal.cmd.ribbon', 'Ribbon'),
+    Tr('personal.cmd.ribbonHint', 'Show the commands in a ribbon'));
+  SetCommand(actAbout, Tr('personal.shell.about', 'About OBD-Studio Personal'),
+    Tr('personal.shell.about', 'About OBD-Studio Personal'));
+  SetCommand(actExit, Tr('personal.cmd.exit', 'Exit'),
+    Tr('personal.cmd.exitHint', 'Close OBD-Studio Personal'));
+
+  miFile.Caption := Tr('personal.menu.file', '&File');
+  miVehicle.Caption := Tr('personal.menu.vehicle', '&Vehicle');
+  miTests.Caption := Tr('personal.menu.tests', '&Tests');
+  miDrive.Caption := Tr('personal.menu.drive', '&Drive');
+  miTools.Caption := Tr('personal.menu.tools', 'T&ools');
+  miView.Caption := Tr('personal.menu.view', 'Vie&w');
+  miHelp.Caption := Tr('personal.menu.help', '&Help');
+
+  // Tabs and groups in the order of the DFM.
+  if rbnMain.Tabs.Count >= 4 then
+  begin
+    rbnMain.Tabs[0].Caption := Tr('personal.ribbon.home', 'Home');
+    rbnMain.Tabs[1].Caption := Tr('personal.ribbon.testsDrive',
+      'Tests and drive');
+    rbnMain.Tabs[2].Caption := Tr('personal.ribbon.tools', 'Tools');
+    rbnMain.Tabs[3].Caption := Tr('personal.ribbon.view', 'View');
+  end;
+  SetGroupCaption(0, 0, Tr('personal.ribbon.connection', 'Connection'));
+  SetGroupCaption(0, 1, Tr('personal.nav.groupVehicle', 'Vehicle'));
+  SetGroupCaption(1, 0, Tr('personal.nav.groupTests', 'Tests'));
+  SetGroupCaption(1, 1, Tr('personal.nav.groupDrive', 'Drive'));
+  SetGroupCaption(2, 0, Tr('personal.nav.groupTools', 'Tools'));
+  SetGroupCaption(2, 1, Tr('personal.nav.settings', 'Settings'));
+  SetGroupCaption(3, 0, Tr('personal.ribbon.theme', 'Theme'));
+  SetGroupCaption(3, 1, Tr('personal.ribbon.density', 'Density'));
+  SetGroupCaption(3, 2, Tr('personal.ribbon.units', 'Units'));
+  SetGroupCaption(3, 3, Tr('personal.ribbon.commands', 'Commands'));
+  SetGroupCaption(3, 4, Tr('personal.ribbon.help', 'Help'));
+  rbnMain.SearchHint := Tr('personal.ribbon.search', 'Search commands  Alt+Q');
 end;
 
 { Session ------------------------------------------------------------------- }
@@ -659,6 +983,7 @@ begin
   end;
   tmrBattery.Enabled := FSession.Online;
   SyncTitleButtons;
+  SyncCommands;
   SyncStatus;
   if FSession.State <> plsConnecting then
     for I := 0 to High(FPages) do
@@ -829,7 +1154,7 @@ end;
 
 function TfrmMain.Connected: Boolean;
 begin
-  Result := FSession.Online;
+  Result := (FSession <> nil) and FSession.Online;
 end;
 
 procedure TfrmMain.Notify(AKind: TOBDToastKind; const ATitle, AText: string);

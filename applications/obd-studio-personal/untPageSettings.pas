@@ -51,6 +51,8 @@ type
     FThemeCombo: TOBDComboBox;
     FDensityLabel: TOBDDialogText;
     FDensityCombo: TOBDComboBox;
+    FCommandsLabel: TOBDDialogText;
+    FCommandsCombo: TOBDComboBox;
     FUnitsLabel: TOBDDialogText;
     FUnitsCombo: TOBDComboBox;
     FFuelPriceLabel: TOBDDialogText;
@@ -85,6 +87,7 @@ type
     procedure LanguageChanged(Sender: TObject);
     procedure ThemeChanged(Sender: TObject);
     procedure DensityChanged(Sender: TObject);
+    procedure CommandsChanged(Sender: TObject);
     procedure UnitsComboChanged(Sender: TObject);
     procedure FuelPriceChanged(Sender: TObject);
     procedure CurrencyChanged(Sender: TObject);
@@ -178,6 +181,9 @@ begin
   FDensityLabel := NewText(FAppearanceCard, '', dtsCaps);
   FDensityCombo := NewCombo(FAppearanceCard);
   FDensityCombo.OnChange := DensityChanged;
+  FCommandsLabel := NewText(FAppearanceCard, '', dtsCaps);
+  FCommandsCombo := NewCombo(FAppearanceCard);
+  FCommandsCombo.OnChange := CommandsChanged;
 
   FUnitsCard := TOBDCard.Create(Self);
   FUnitsCard.Parent := FScroll;
@@ -255,7 +261,7 @@ begin
   Y := 96;
   FLanguageCard.SetBounds(LeftX, Y, ColW, 170);
   Inc(Y, FLanguageCard.Height + Gap);
-  FAppearanceCard.SetBounds(LeftX, Y, ColW, 190);
+  FAppearanceCard.SetBounds(LeftX, Y, ColW, 248);
   Inc(Y, FAppearanceCard.Height + Gap);
   FUnitsCard.SetBounds(LeftX, Y, ColW, 250);
 
@@ -283,6 +289,8 @@ begin
   FThemeCombo.SetBounds(16, 84, RowW, 30);
   FDensityLabel.SetBounds(16, 122, RowW, 18);
   FDensityCombo.SetBounds(16, 142, RowW, 30);
+  FCommandsLabel.SetBounds(16, 180, RowW, 18);
+  FCommandsCombo.SetBounds(16, 200, RowW, 30);
 
   FUnitsLabel.SetBounds(16, 64, RowW, 18);
   FUnitsCombo.SetBounds(16, 84, RowW, 30);
@@ -351,6 +359,8 @@ begin
     'Appearance');
   FThemeLabel.Caption := Tr('personal.settings.theme.label', 'Theme');
   FDensityLabel.Caption := Tr('personal.settings.density.label', 'Density');
+  FCommandsLabel.Caption := Tr('personal.settings.commands.label',
+    'Commands');
   FUnitsCard.Title := Tr('personal.settings.units.title', 'Units and fuel');
   FUnitsLabel.Caption := Tr('personal.settings.units.label', 'Units');
   FFuelPriceLabel.Caption := Tr('personal.settings.fuelPrice.label',
@@ -384,6 +394,9 @@ begin
   FDensityCombo.Items.Text := Tr('personal.settings.density.desktop',
     'Desktop') + sLineBreak + Tr('personal.settings.density.tablet',
     'Tablet / touch');
+  FCommandsCombo.Items.Text := Tr('personal.settings.commands.menu',
+    'Menu bar') + sLineBreak + Tr('personal.settings.commands.ribbon',
+    'Ribbon');
   FUnitsCombo.Items.Text := Tr('personal.settings.units.metric',
     'Metric (km, °C, kPa, litres)') + sLineBreak +
     Tr('personal.settings.units.imperial',
@@ -511,6 +524,10 @@ begin
       FDensityCombo.ItemIndex := 1
     else
       FDensityCombo.ItemIndex := 0;
+    if Settings.UseRibbon then
+      FCommandsCombo.ItemIndex := 1
+    else
+      FCommandsCombo.ItemIndex := 0;
     if Settings.UnitSystem = usImperial then
       FUnitsCombo.ItemIndex := 1
     else
@@ -581,6 +598,14 @@ begin
     FHost.Settings.Density := dnTablet
   else
     FHost.Settings.Density := dnDesktop;
+  SettingsChanged;
+end;
+
+procedure TfrmPageSettings.CommandsChanged(Sender: TObject);
+begin
+  if (FHost = nil) or FLoading then
+    Exit;
+  FHost.Settings.UseRibbon := FCommandsCombo.ItemIndex = 1;
   SettingsChanged;
 end;
 

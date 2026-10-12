@@ -576,31 +576,24 @@ begin
 end;
 
 procedure TfrmWelcome.Translate;
-const
-  STEP_TITLES: array[0..3] of string = ('Language', 'Licence',
-    'Connection', 'Done');
-  STEP_SUBS: array[0..3] of string = ('Choose your language',
-    'Read and accept', 'Adapter and units', 'Ready to start');
 begin
   Caption := Tr('personal.welcome.caption', 'Welcome to OBD-Studio Personal');
   FBrandTitle.Caption := Tr('personal.welcome.brand', 'OBD-Studio');
   FBrandSub.Caption := Tr('personal.welcome.personal', 'Personal');
-  FStepLabels[0].Caption := Tr('personal.welcome.step.language',
-    STEP_TITLES[0]);
-  FStepLabels[1].Caption := Tr('personal.welcome.step.licence',
-    STEP_TITLES[1]);
-  FStepLabels[2].Caption := Tr('personal.welcome.step.connect',
-    STEP_TITLES[2]);
-  FStepLabels[3].Caption := Tr('personal.welcome.step.done',
-    STEP_TITLES[3]);
+  // The English texts stay literal here: tools/personal_strings.py
+  // collects them for languages/en.json.
+  FStepLabels[0].Caption := Tr('personal.welcome.step.language', 'Language');
+  FStepLabels[1].Caption := Tr('personal.welcome.step.licence', 'Licence');
+  FStepLabels[2].Caption := Tr('personal.welcome.step.connect', 'Connection');
+  FStepLabels[3].Caption := Tr('personal.welcome.step.done', 'Done');
   FStepSubs[0].Caption := Tr('personal.welcome.step.language.sub',
-    STEP_SUBS[0]);
+    'Choose your language');
   FStepSubs[1].Caption := Tr('personal.welcome.step.licence.sub',
-    STEP_SUBS[1]);
+    'Read and accept');
   FStepSubs[2].Caption := Tr('personal.welcome.step.connect.sub',
-    STEP_SUBS[2]);
+    'Adapter and units');
   FStepSubs[3].Caption := Tr('personal.welcome.step.done.sub',
-    STEP_SUBS[3]);
+    'Ready to start');
 
   FLanguageLabel.Caption := Tr('personal.welcome.language.label',
     'Display language');

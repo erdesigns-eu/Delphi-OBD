@@ -167,6 +167,15 @@ each in light and dark, desktop and tablet.
 
 Render them with `cd tools && python3 ui_mockups.py --only personal-NAME`.
 
+Every page is reachable three ways: the sidebar, the commands below the
+title bar and the status bar shortcuts. The commands come as a classic
+**menu bar** (the default) or as a **ribbon** (tabs Home, Tests and drive,
+Tools and View); pick one under *Settings > Appearance > Commands* or with
+*View > Menu bar / Ribbon*. Both share one action list (`alMain`), so a
+command is enabled, checked and translated in one place. The sidebar
+scrolls with the mouse wheel, its scroll bar or the arrow keys when the
+window is too low to show every page.
+
 ## Catalogue coverage
 
 Checked after the catalogue growth in step 2 (12 October 2026):
@@ -283,9 +292,9 @@ The licence is accepted twice:
    | `languages\personal\` | `languages\*.json` in this folder (application strings) |
    | `EULA.md` | this folder |
 
-   Without `catalogs\` the program still starts, but code texts, normal
-   ranges, VIN decoding and inspection rules are empty. Without
-   `languages\` it runs in English.
+   Without `catalogs\` the program still starts and shows a warning, but
+   code texts, normal ranges, VIN decoding and inspection rules are empty.
+   Without `languages\` it runs in English.
 
 ### Application strings
 

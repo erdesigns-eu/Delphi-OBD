@@ -107,9 +107,6 @@ implementation
 
 {$R *.dfm}
 
-const
-  MONITOR_NOTE_INCOMPLETE = 'Drive until this monitor has completed.';
-
 function PanelMonitor(AMonitor: TOBDMonitor): TOBDReadinessMonitor;
 begin
   case AMonitor of
@@ -763,7 +760,8 @@ begin
     for Item in ASnapshot.SinceClear do
       ReadinessPanel.SetMonitor(PanelMonitor(Item.Monitor), ReadinessState(Item),
         IfThen(Item.Supported and not Item.Complete,
-        Tr('personal.readiness.monitorNote', MONITOR_NOTE_INCOMPLETE), ''));
+        Tr('personal.readiness.monitorNote',
+        'Drive until this monitor has completed.'), ''));
   finally
     ReadinessPanel.EndUpdate;
   end;

@@ -75,6 +75,7 @@ type
     FWindowWidth: Integer;
     FWindowHeight: Integer;
     FWindowMaximized: Boolean;
+    FUseRibbon: Boolean;
     procedure SetDefaults;
     function GetDataFolder: string;
   public
@@ -128,6 +129,9 @@ type
     property WindowHeight: Integer read FWindowHeight write FWindowHeight;
     property WindowMaximized: Boolean read FWindowMaximized
       write FWindowMaximized;
+    /// <summary>Commands in a ribbon (True) or in a classic menu bar
+    /// (False, the default).</summary>
+    property UseRibbon: Boolean read FUseRibbon write FUseRibbon;
   end;
 
 function ConnectionKindToText(AKind: TPersonalConnectionKind): string;
@@ -214,6 +218,7 @@ begin
   FWindowWidth := 1280;
   FWindowHeight := 800;
   FWindowMaximized := False;
+  FUseRibbon := False;
 end;
 
 function TPersonalSettings.GetDataFolder: string;
@@ -279,6 +284,8 @@ begin
     FWindowHeight := Root.GetValue<Integer>('windowHeight', FWindowHeight);
     FWindowMaximized := Root.GetValue<Boolean>('windowMaximized',
       FWindowMaximized);
+    FUseRibbon := SameText(Root.GetValue<string>('commands', 'menu'),
+      'ribbon');
   finally
     Root.Free;
   end;
@@ -317,6 +324,10 @@ begin
     Root.AddPair('windowWidth', TJSONNumber.Create(FWindowWidth));
     Root.AddPair('windowHeight', TJSONNumber.Create(FWindowHeight));
     Root.AddPair('windowMaximized', TJSONBool.Create(FWindowMaximized));
+    if FUseRibbon then
+      Root.AddPair('commands', 'ribbon')
+    else
+      Root.AddPair('commands', 'menu');
     ForceDirectories(ExtractFilePath(FFileName));
     TempName := FFileName + '.tmp';
     TFile.WriteAllText(TempName, Root.Format(2), TEncoding.UTF8);

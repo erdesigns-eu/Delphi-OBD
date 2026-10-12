@@ -18,6 +18,8 @@
 //
 //  History     :
 //    2026-10-10  ERD  Initial implementation.
+//    2026-10-12  ERD  Alt+Q is left alone while the ribbon is hidden (menu
+//                     bar command style) or its form is not the active one.
 //------------------------------------------------------------------------------
 
 unit ERD.UI.Ribbon;
@@ -3080,8 +3082,16 @@ begin
 end;
 
 procedure TOBDRibbon.AppShortCut(var Msg: TWMKey; var Handled: Boolean);
+var
+  Form: TCustomForm;
 begin
   if Handled then
+    Exit;
+  // The shortcut is application wide: only the ribbon the user sees, on
+  // the active form, takes it. Focusing the search of a hidden ribbon or
+  // one behind a modal dialog would raise "Cannot focus".
+  Form := GetParentForm(Self);
+  if (Form = nil) or not Form.Active or not Showing or not CanFocus then
     Exit;
   if (Msg.CharCode = Ord('Q')) and (HiWord(Msg.KeyData) and KF_ALTDOWN <> 0)
   then
