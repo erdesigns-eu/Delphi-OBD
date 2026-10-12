@@ -71,6 +71,8 @@ Adding a PID, DTC, DID, J1939 PGN or any other catalogue entry:
   pointing at the file.
 - No recompile is needed.
 - Run `python3 tools/validate_catalogs.py --require-coverage`.
+- Regenerate the catalogue index with `python3 tools/catalog_index.py --write`
+  (and `python3 tools/ev_support_matrix.py --write` after EV battery changes).
 - Keep one logical group per change (for example "add Mode 06 MIDs for the
   diesel particulate filter monitor").
 

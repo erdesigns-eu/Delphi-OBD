@@ -1,13 +1,12 @@
 # Catalog index
 
-Inventory of the OEM, DTC, universal and range-profile catalogues. It was first
-generated on 2026-05-08 and is maintained by hand since (the generator script is
-no longer part of the repository). Every count below was checked against the
-catalogue files on 2026-10-12. Update the affected rows when a catalogue changes;
-`python3 tools/validate_catalogs.py --require-coverage` validates the catalogues
-themselves. All other catalogue files (standard OBD-II / UDS / J1939 / KWP data,
-OEM overlays, VIN, EV battery, radio code, adapter, tachograph, key platforms,
-service routines and drive cycles) are described in
+Inventory of the OEM, DTC, universal and range-profile catalogues. This file is
+generated from the catalogue files by `python3 tools/catalog_index.py --write`;
+do not edit it by hand. CI runs `python3 tools/catalog_index.py` and fails when
+this file is out of date. `python3 tools/validate_catalogs.py --require-coverage`
+validates the catalogues themselves. All other catalogue files (standard OBD-II /
+UDS / J1939 / KWP data, OEM overlays, VIN, EV battery, radio code, adapter,
+tachograph, key platforms, service routines and drive cycles) are described in
 [`docs/catalogs.md`](../docs/catalogs.md).
 
 How the counts are made:
@@ -28,15 +27,15 @@ How the counts are made:
   - **motorcycle**: 14 catalogs / 3,292 entries
   - **powersports**: 5 catalogs / 1,131 entries
 - **47 DTC catalogs** (`dtc-<oem>.json`) — **1,282 total DTCs**
-- **2 universal catalogs** (`obd2-pids.json`, `uds-standard.json`)
+- **2 universal catalogs** (`obd2-pids.json` and `uds-standard.json`)
 - **2 range profiles** (`range-profiles/*.json`) — editable normal bands for OBD Studio values
 
 ## Range profiles
 
-| Profile | File | Vehicle | Source |
-|---|---|---|---|
-| Generic | `range-profiles/generic.json` | Generic OBD-II vehicle | generic workshop defaults |
-| VAG 1.6 TDI | `range-profiles/vag-16-tdi.json` | VW 1.6 TDI (EA189/EA288 era) | generic workshop defaults adjusted for VW/Audi/Skoda/Seat 1.6 TDI |
+| Profile | File | Vehicle | Source | Ranges |
+|---|---|---|---|---:|
+| `generic` | `range-profiles/generic.json` | Generic OBD-II vehicle | generic workshop defaults | 15 |
+| `vag-16-tdi` | `range-profiles/vag-16-tdi.json` | VW 1.6 TDI (EA189/EA288 era) | generic workshop defaults adjusted for VW/Audi/Skoda/Seat 1.6 TDI | 15 |
 
 ## Agricultural
 
@@ -198,5 +197,5 @@ How the counts are made:
 
 | File | Name | DIDs | Routines | Total |
 |---|---|---:|---:|---:|
-| `obd2-pids.json` |  | 84 | 0 | 84 |
-| `uds-standard.json` |  | 31 | 4 | 35 |
+| `obd2-pids.json` | ISO 15031-6 / SAE J1979 OBD-II Service 01 PIDs | 84 | 0 | 84 |
+| `uds-standard.json` | ISO 14229-1 Universal UDS DIDs | 31 | 4 | 35 |

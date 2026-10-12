@@ -196,6 +196,11 @@ run-time package. It hosts:
   Detect adapter, Send ATI / AT@1, Add standard PIDs, Live test PID,
   Read / Clear DTCs, Validate configuration, Read flashing safety guide)
   and **Test Dialog** for the themed dialogs.
+- The full flashing safety guide, shown by the destructive components'
+  verb and by the pipeline validation report. The text is compiled into
+  the package (`ERD.Design.SafetyGuide`, generated from
+  `docs/flashing-safety.md` by `tools/safety_guide.py`), so no browser or
+  internet connection is needed.
 
 The design-time package registers components and their editors only. There are
 no project/form wizards, starter generators, About/Splash entries or help hooks.

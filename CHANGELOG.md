@@ -258,6 +258,14 @@ the **OBD Dyno** page.
   `tools/designtime_resources.py`, as 16, 24 and 32 px `RCDATA` PNGs
   named `<CLASS>16_PNG`, `<CLASS>_PNG` and `<CLASS>32_PNG` (the names
   the IDE loads palette icons from).
+- The flashing safety guide is built into the design-time package: the
+  "Read flashing safety guide" verb and the pipeline validation report's
+  "Open safety guide" button show the full guide in the IDE instead of
+  opening it online. `tools/safety_guide.py` generates
+  `ERD.Design.SafetyGuide` from `docs/flashing-safety.md`; CI checks that
+  it is up to date.
+- `catalogs/INDEX.md` is generated again, by `tools/catalog_index.py`,
+  and checked by CI.
 
 ### Upgrading from 2.x
 

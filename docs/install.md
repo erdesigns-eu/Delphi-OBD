@@ -42,7 +42,8 @@ For clean builds, DUnitX and validation steps, follow
 
 The component/property editors retain init-command editing, live connection
 checks and flash configuration/safety dialogs. Those are component editing tools,
-not application-generation wizards.
+not application-generation wizards. The flashing safety guide is built into the
+DT package, so the IDE shows it without a browser or an internet connection.
 
 ## Uninstalling or updating
 
