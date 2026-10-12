@@ -4,6 +4,402 @@
   "type": "obd2-dtc",
   "entries": [
     {
+      "code": "0x0001",
+      "text": "Fuel Volume Regulator Control Circuit/Open"
+    },
+    {
+      "code": "0x0002",
+      "text": "Fuel Volume Regulator Control Circuit Range/Performance"
+    },
+    {
+      "code": "0x0003",
+      "text": "Fuel Volume Regulator Control Circuit Low"
+    },
+    {
+      "code": "0x0004",
+      "text": "Fuel Volume Regulator Control Circuit High"
+    },
+    {
+      "code": "0x0005",
+      "text": "Fuel Shutoff Valve 'A' Control Circuit/Open"
+    },
+    {
+      "code": "0x0006",
+      "text": "Fuel Shutoff Valve 'A' Control Circuit Low"
+    },
+    {
+      "code": "0x0007",
+      "text": "Fuel Shutoff Valve 'A' Control Circuit High"
+    },
+    {
+      "code": "0x0008",
+      "text": "Engine Position System Performance"
+    },
+    {
+      "code": "0x0009",
+      "text": "Engine Position System Performance"
+    },
+    {
+      "code": "0x0010",
+      "text": "'A' Camshaft Position Actuator Circuit"
+    },
+    {
+      "code": "0x0011",
+      "text": "'A' Camshaft Position - Timing Over-Advanced or System Performance"
+    },
+    {
+      "code": "0x0012",
+      "text": "'A' Camshaft Position - Timing Over-Retarded"
+    },
+    {
+      "code": "0x0013",
+      "text": "'B' Camshaft Position - Actuator Circuit"
+    },
+    {
+      "code": "0x0014",
+      "text": "'B' Camshaft Position - Timing Over-Advanced or System Performance"
+    },
+    {
+      "code": "0x0015",
+      "text": "'B' Camshaft Position - Timing Over-Retarded"
+    },
+    {
+      "code": "0x0016",
+      "text": "Crankshaft Position - Camshaft Position Correlation"
+    },
+    {
+      "code": "0x0017",
+      "text": "Crankshaft Position - Camshaft Position Correlation"
+    },
+    {
+      "code": "0x0018",
+      "text": "Crankshaft Position - Camshaft Position Correlation"
+    },
+    {
+      "code": "0x0019",
+      "text": "Crankshaft Position - Camshaft Position Correlation"
+    },
+    {
+      "code": "0x0020",
+      "text": "'A' Camshaft Position Actuator Circuit"
+    },
+    {
+      "code": "0x0021",
+      "text": "'A' Camshaft Position - Timing Over-Advanced or System Performance"
+    },
+    {
+      "code": "0x0022",
+      "text": "'A' Camshaft Position - Timing Over-Retarded"
+    },
+    {
+      "code": "0x0023",
+      "text": "'B' Camshaft Position - Actuator Circuit"
+    },
+    {
+      "code": "0x0024",
+      "text": "'B' Camshaft Position - Timing Over-Advanced or System Performance"
+    },
+    {
+      "code": "0x0025",
+      "text": "'B' Camshaft Position - Timing Over-Retarded"
+    },
+    {
+      "code": "0x0026",
+      "text": "Intake Valve Control Solenoid Circuit Range/Performance"
+    },
+    {
+      "code": "0x0027",
+      "text": "Exhaust Valve Control Solenoid Circuit Range/Performance"
+    },
+    {
+      "code": "0x0028",
+      "text": "Intake Valve Control Solenoid Circuit Range/Performance"
+    },
+    {
+      "code": "0x0029",
+      "text": "Exhaust Valve Control Solenoid Circuit Range/Performance"
+    },
+    {
+      "code": "0x0030",
+      "text": "HO2S Heater Control Circuit"
+    },
+    {
+      "code": "0x0031",
+      "text": "HO2S Heater Control Circuit Low"
+    },
+    {
+      "code": "0x0032",
+      "text": "HO2S Heater Control Circuit High"
+    },
+    {
+      "code": "0x0033",
+      "text": "Turbo Charger Bypass Valve Control Circuit"
+    },
+    {
+      "code": "0x0034",
+      "text": "Turbo Charger Bypass Valve Control Circuit Low"
+    },
+    {
+      "code": "0x0035",
+      "text": "Turbo Charger Bypass Valve Control Circuit High"
+    },
+    {
+      "code": "0x0036",
+      "text": "HO2S Heater Control Circuit"
+    },
+    {
+      "code": "0x0037",
+      "text": "HO2S Heater Control Circuit Low"
+    },
+    {
+      "code": "0x0038",
+      "text": "HO2S Heater Control Circuit High"
+    },
+    {
+      "code": "0x0039",
+      "text": "Turbo/Super Charger Bypass Valve Control Circuit Range/Performance"
+    },
+    {
+      "code": "0x0040",
+      "text": "O2 Sensor Signals Swapped Bank 1 Sensor 1/ Bank 2 Sensor 1"
+    },
+    {
+      "code": "0x0041",
+      "text": "O2 Sensor Signals Swapped Bank 1 Sensor 2/ Bank 2 Sensor 2"
+    },
+    {
+      "code": "0x0042",
+      "text": "HO2S Heater Control Circuit"
+    },
+    {
+      "code": "0x0043",
+      "text": "HO2S Heater Control Circuit Low"
+    },
+    {
+      "code": "0x0044",
+      "text": "HO2S Heater Control Circuit High"
+    },
+    {
+      "code": "0x0045",
+      "text": "Turbo/Super Charger Boost Control Solenoid Circuit/Open"
+    },
+    {
+      "code": "0x0046",
+      "text": "Turbo/Super Charger Boost Control Solenoid Circuit Range/Performance"
+    },
+    {
+      "code": "0x0047",
+      "text": "Turbo/Super Charger Boost Control Solenoid Circuit Low"
+    },
+    {
+      "code": "0x0048",
+      "text": "Turbo/Super Charger Boost Control Solenoid Circuit High"
+    },
+    {
+      "code": "0x0049",
+      "text": "Turbo/Super Charger Turbine Overspeed"
+    },
+    {
+      "code": "0x0050",
+      "text": "HO2S Heater Control Circuit"
+    },
+    {
+      "code": "0x0051",
+      "text": "HO2S Heater Control Circuit Low"
+    },
+    {
+      "code": "0x0052",
+      "text": "HO2S Heater Control Circuit High"
+    },
+    {
+      "code": "0x0053",
+      "text": "HO2S Heater Resistance"
+    },
+    {
+      "code": "0x0054",
+      "text": "HO2S Heater Resistance"
+    },
+    {
+      "code": "0x0055",
+      "text": "HO2S Heater Resistance"
+    },
+    {
+      "code": "0x0056",
+      "text": "HO2S Heater Control Circuit"
+    },
+    {
+      "code": "0x0057",
+      "text": "HO2S Heater Control Circuit Low"
+    },
+    {
+      "code": "0x0058",
+      "text": "HO2S Heater Control Circuit High"
+    },
+    {
+      "code": "0x0059",
+      "text": "HO2S Heater Resistance"
+    },
+    {
+      "code": "0x0060",
+      "text": "HO2S Heater Resistance"
+    },
+    {
+      "code": "0x0061",
+      "text": "HO2S Heater Resistance"
+    },
+    {
+      "code": "0x0062",
+      "text": "HO2S Heater Control Circuit"
+    },
+    {
+      "code": "0x0063",
+      "text": "HO2S Heater Control Circuit Low"
+    },
+    {
+      "code": "0x0064",
+      "text": "HO2S Heater Control Circuit High"
+    },
+    {
+      "code": "0x0065",
+      "text": "Air Assisted Injector Control Range/Performance"
+    },
+    {
+      "code": "0x0066",
+      "text": "Air Assisted Injector Control Circuit or Circuit Low"
+    },
+    {
+      "code": "0x0067",
+      "text": "Air Assisted Injector Control Circuit High"
+    },
+    {
+      "code": "0x0068",
+      "text": "MAP/MAF - Throttle Position Correlation"
+    },
+    {
+      "code": "0x0069",
+      "text": "Manifold Absolute Pressure - Barometric Pressure Correlation"
+    },
+    {
+      "code": "0x0070",
+      "text": "Ambient Air Temperature Sensor Circuit"
+    },
+    {
+      "code": "0x0071",
+      "text": "Ambient Air Temperature Sensor Range/Performance"
+    },
+    {
+      "code": "0x0072",
+      "text": "Ambient Air Temperature Sensor Circuit Low"
+    },
+    {
+      "code": "0x0073",
+      "text": "Ambient Air Temperature Sensor Circuit High"
+    },
+    {
+      "code": "0x0074",
+      "text": "Ambient Air Temperature Sensor Circuit Intermittent"
+    },
+    {
+      "code": "0x0075",
+      "text": "Intake Valve Control Solenoid Circuit"
+    },
+    {
+      "code": "0x0076",
+      "text": "Intake Valve Control Solenoid Circuit Low"
+    },
+    {
+      "code": "0x0077",
+      "text": "Intake Valve Control Solenoid Circuit High"
+    },
+    {
+      "code": "0x0078",
+      "text": "Exhaust Valve Control Solenoid Circuit"
+    },
+    {
+      "code": "0x0079",
+      "text": "Exhaust Valve Control Solenoid Circuit Low"
+    },
+    {
+      "code": "0x0080",
+      "text": "Exhaust Valve Control Solenoid Circuit High"
+    },
+    {
+      "code": "0x0081",
+      "text": "Intake Valve Control Solenoid Circuit"
+    },
+    {
+      "code": "0x0082",
+      "text": "Intake Valve Control Solenoid Circuit Low"
+    },
+    {
+      "code": "0x0083",
+      "text": "Intake Valve Control Solenoid Circuit High"
+    },
+    {
+      "code": "0x0084",
+      "text": "Exhaust Valve Control Solenoid Circuit"
+    },
+    {
+      "code": "0x0085",
+      "text": "Exhaust Valve Control Solenoid Circuit Low"
+    },
+    {
+      "code": "0x0086",
+      "text": "Exhaust Valve Control Solenoid Circuit High"
+    },
+    {
+      "code": "0x0087",
+      "text": "Fuel Rail/System Pressure - Too Low"
+    },
+    {
+      "code": "0x0088",
+      "text": "Fuel Rail/System Pressure - Too High"
+    },
+    {
+      "code": "0x0089",
+      "text": "Fuel Pressure Regulator 1 Performance"
+    },
+    {
+      "code": "0x0090",
+      "text": "Fuel Pressure Regulator 1 Control Circuit"
+    },
+    {
+      "code": "0x0091",
+      "text": "Fuel Pressure Regulator 1 Control Circuit Low"
+    },
+    {
+      "code": "0x0092",
+      "text": "Fuel Pressure Regulator 1 Control Circuit High"
+    },
+    {
+      "code": "0x0093",
+      "text": "Fuel System Leak Detected - Large Leak"
+    },
+    {
+      "code": "0x0094",
+      "text": "Fuel System Leak Detected - Small Leak"
+    },
+    {
+      "code": "0x0095",
+      "text": "Intake Air Temperature Sensor 2 Circuit"
+    },
+    {
+      "code": "0x0096",
+      "text": "Intake Air Temperature Sensor 2 Circuit Range/Performance"
+    },
+    {
+      "code": "0x0097",
+      "text": "Intake Air Temperature Sensor 2 Circuit Low"
+    },
+    {
+      "code": "0x0098",
+      "text": "Intake Air Temperature Sensor 2 Circuit High"
+    },
+    {
+      "code": "0x0099",
+      "text": "Intake Air Temperature Sensor 2 Circuit Intermittent/Erratic"
+    },
+    {
       "code": "0x0100",
       "text": "Mass Air Flow Sensor 'A' Circuit Malfunction"
     },
@@ -142,6 +538,10 @@
     {
       "code": "0x0134",
       "text": "O2 Sensor Bank 1 Sensor 1 Circuit Intermittent"
+    },
+    {
+      "code": "0x0135",
+      "text": "O2 Sensor Heater Circuit"
     },
     {
       "code": "0x0136",
@@ -320,6 +720,10 @@
       "text": "O2 Sensor Heater Circuit, Bank 1 Sensor 2 Circuit Intermittent"
     },
     {
+      "code": "0x0170",
+      "text": "Fuel Trim"
+    },
+    {
       "code": "0x0171",
       "text": "System Too Lean (Bank 1)"
     },
@@ -328,12 +732,32 @@
       "text": "System Too Rich (Bank 1)"
     },
     {
+      "code": "0x0173",
+      "text": "Fuel Trim"
+    },
+    {
       "code": "0x0174",
       "text": "System Too Lean (Bank 2)"
     },
     {
       "code": "0x0175",
       "text": "System Too Rich (Bank 2)"
+    },
+    {
+      "code": "0x0176",
+      "text": "Fuel Composition Sensor Circuit"
+    },
+    {
+      "code": "0x0177",
+      "text": "Fuel Composition Sensor Circuit Range/Performance"
+    },
+    {
+      "code": "0x0178",
+      "text": "Fuel Composition Sensor Circuit Low"
+    },
+    {
+      "code": "0x0179",
+      "text": "Fuel Composition Sensor Circuit High"
     },
     {
       "code": "0x0180",
@@ -516,6 +940,50 @@
       "text": "Injector Driver Bank 'B' Circuit Intermittent"
     },
     {
+      "code": "0x0219",
+      "text": "Engine Overspeed Condition"
+    },
+    {
+      "code": "0x0220",
+      "text": "Throttle/Pedal Position Sensor/Switch 'B' Circuit"
+    },
+    {
+      "code": "0x0221",
+      "text": "Throttle/Pedal Position Sensor/Switch 'B' Circuit Range/Performance"
+    },
+    {
+      "code": "0x0222",
+      "text": "Throttle/Pedal Position Sensor/Switch 'B' Circuit Low"
+    },
+    {
+      "code": "0x0223",
+      "text": "Throttle/Pedal Position Sensor/Switch 'B' Circuit High"
+    },
+    {
+      "code": "0x0224",
+      "text": "Throttle/Pedal Position Sensor/Switch 'B' Circuit Intermittent"
+    },
+    {
+      "code": "0x0225",
+      "text": "Throttle/Pedal Position Sensor/Switch 'C' Circuit"
+    },
+    {
+      "code": "0x0226",
+      "text": "Throttle/Pedal Position Sensor/Switch 'C' Circuit Range/Performance"
+    },
+    {
+      "code": "0x0227",
+      "text": "Throttle/Pedal Position Sensor/Switch 'C' Circuit Low"
+    },
+    {
+      "code": "0x0228",
+      "text": "Throttle/Pedal Position Sensor/Switch 'C' Circuit High"
+    },
+    {
+      "code": "0x0229",
+      "text": "Throttle/Pedal Position Sensor/Switch 'C' Circuit Intermittent"
+    },
+    {
       "code": "0x0230",
       "text": "Fuel Pump Primary Circuit Malfunction"
     },
@@ -640,6 +1108,30 @@
       "text": "Turbocharger Boost Pressure Out-of-Range Circuit Intermittent"
     },
     {
+      "code": "0x0255",
+      "text": "Injection Pump Fuel Metering Control 'A' Intermittent (Cam/Rotor/Injector)"
+    },
+    {
+      "code": "0x0256",
+      "text": "Injection Pump Fuel Metering Control 'B' (Cam/Rotor/Injector)"
+    },
+    {
+      "code": "0x0257",
+      "text": "Injection Pump Fuel Metering Control 'B' Range/Performance (Cam/Rotor/Injector)"
+    },
+    {
+      "code": "0x0258",
+      "text": "Injection Pump Fuel Metering Control 'B' Low (Cam/Rotor/Injector)"
+    },
+    {
+      "code": "0x0259",
+      "text": "Injection Pump Fuel Metering Control 'B' High (Cam/Rotor/Injector)"
+    },
+    {
+      "code": "0x0260",
+      "text": "Injection Pump Fuel Metering Control 'B' Intermittent (Cam/Rotor/Injector)"
+    },
+    {
       "code": "0x0261",
       "text": "Cylinder 1 Injector Circuit Low"
     },
@@ -736,6 +1228,90 @@
       "text": "Cylinder 8 Injector Circuit Performance"
     },
     {
+      "code": "0x0279",
+      "text": "Cylinder 7 Injector Circuit Low"
+    },
+    {
+      "code": "0x0280",
+      "text": "Cylinder 7 Injector Circuit High"
+    },
+    {
+      "code": "0x0281",
+      "text": "Cylinder 7 Contribution/Balance"
+    },
+    {
+      "code": "0x0282",
+      "text": "Cylinder 8 Injector Circuit Low"
+    },
+    {
+      "code": "0x0283",
+      "text": "Cylinder 8 Injector Circuit High"
+    },
+    {
+      "code": "0x0284",
+      "text": "Cylinder 8 Contribution/Balance"
+    },
+    {
+      "code": "0x0285",
+      "text": "Cylinder 9 Injector Circuit Low"
+    },
+    {
+      "code": "0x0286",
+      "text": "Cylinder 9 Injector Circuit High"
+    },
+    {
+      "code": "0x0287",
+      "text": "Cylinder 9 Contribution/Balance"
+    },
+    {
+      "code": "0x0288",
+      "text": "Cylinder 10 Injector Circuit Low"
+    },
+    {
+      "code": "0x0289",
+      "text": "Cylinder 10 Injector Circuit High"
+    },
+    {
+      "code": "0x0290",
+      "text": "Cylinder 10 Contribution/Balance"
+    },
+    {
+      "code": "0x0291",
+      "text": "Cylinder 11 Injector Circuit Low"
+    },
+    {
+      "code": "0x0292",
+      "text": "Cylinder 11 Injector Circuit High"
+    },
+    {
+      "code": "0x0293",
+      "text": "Cylinder 11 Contribution/Balance"
+    },
+    {
+      "code": "0x0294",
+      "text": "Cylinder 12 Injector Circuit Low"
+    },
+    {
+      "code": "0x0295",
+      "text": "Cylinder 12 Injector Circuit High"
+    },
+    {
+      "code": "0x0296",
+      "text": "Cylinder 12 Contribution/Balance"
+    },
+    {
+      "code": "0x0297",
+      "text": "Vehicle Overspeed Condition"
+    },
+    {
+      "code": "0x0298",
+      "text": "Engine Oil Over Temperature"
+    },
+    {
+      "code": "0x0299",
+      "text": "Turbo/Super Charger Underboost"
+    },
+    {
       "code": "0x0300",
       "text": "Random/Multiple Cylinder Misfire Detected"
     },
@@ -786,6 +1362,66 @@
     {
       "code": "0x030C",
       "text": "Cylinder 12 Misfire Detected"
+    },
+    {
+      "code": "0x0310",
+      "text": "Cylinder 10 Misfire Detected"
+    },
+    {
+      "code": "0x0311",
+      "text": "Cylinder 11 Misfire Detected"
+    },
+    {
+      "code": "0x0312",
+      "text": "Cylinder 12 Misfire Detected"
+    },
+    {
+      "code": "0x0313",
+      "text": "Misfire Detected with Low Fuel"
+    },
+    {
+      "code": "0x0314",
+      "text": "Single Cylinder Misfire (Cylinder not Specified)"
+    },
+    {
+      "code": "0x0315",
+      "text": "Crankshaft Position System Variation Not Learned"
+    },
+    {
+      "code": "0x0316",
+      "text": "Engine Misfire Detected on Startup (First 1000 Revolutions)"
+    },
+    {
+      "code": "0x0317",
+      "text": "Rough Road Hardware Not Present"
+    },
+    {
+      "code": "0x0318",
+      "text": "Rough Road Sensor 'A' Signal Circuit"
+    },
+    {
+      "code": "0x0319",
+      "text": "Rough Road Sensor 'B'"
+    },
+    {
+      "code": "0x0320",
+      "text": "Ignition/Distributor Engine Speed Input Circuit"
+    },
+    {
+      "code": "0x0321",
+      "text": "Ignition/Distributor Engine Speed Input Circuit Range/Performance"
+    },
+    {
+      "code": "0x0322",
+      "text": "Ignition/Distributor Engine Speed Input Circuit No Signal"
+    },
+    {
+      "code": "0x0323",
+      "text": "Ignition/Distributor Engine Speed Input Circuit Intermittent"
+    },
+    {
+      "code": "0x0324",
+      "text": "Knock Control System Error"
     },
     {
       "code": "0x0325",
@@ -908,6 +1544,166 @@
       "text": "Ignition Coil 'A' Primary/Secondary Circuit Circuit Intermittent"
     },
     {
+      "code": "0x0355",
+      "text": "Ignition Coil 'E' Primary/Secondary Circuit"
+    },
+    {
+      "code": "0x0356",
+      "text": "Ignition Coil 'F' Primary/Secondary Circuit"
+    },
+    {
+      "code": "0x0357",
+      "text": "Ignition Coil 'G' Primary/Secondary Circuit"
+    },
+    {
+      "code": "0x0358",
+      "text": "Ignition Coil 'H' Primary/Secondary Circuit"
+    },
+    {
+      "code": "0x0359",
+      "text": "Ignition Coil 'I' Primary/Secondary Circuit"
+    },
+    {
+      "code": "0x0360",
+      "text": "Ignition Coil 'J' Primary/Secondary Circuit"
+    },
+    {
+      "code": "0x0361",
+      "text": "Ignition Coil 'K' Primary/Secondary Circuit"
+    },
+    {
+      "code": "0x0362",
+      "text": "Ignition Coil 'L' Primary/Secondary Circuit"
+    },
+    {
+      "code": "0x0363",
+      "text": "Misfire Detected - Fueling Disabled"
+    },
+    {
+      "code": "0x0364",
+      "text": "Reserved"
+    },
+    {
+      "code": "0x0365",
+      "text": "Camshaft Position Sensor 'B' Circuit"
+    },
+    {
+      "code": "0x0366",
+      "text": "Camshaft Position Sensor 'B' Circuit Range/Performance"
+    },
+    {
+      "code": "0x0367",
+      "text": "Camshaft Position Sensor 'B' Circuit Low"
+    },
+    {
+      "code": "0x0368",
+      "text": "Camshaft Position Sensor 'B' Circuit High"
+    },
+    {
+      "code": "0x0369",
+      "text": "Camshaft Position Sensor 'B' Circuit Intermittent"
+    },
+    {
+      "code": "0x0370",
+      "text": "Timing Reference High Resolution Signal 'A'"
+    },
+    {
+      "code": "0x0371",
+      "text": "Timing Reference High Resolution Signal 'A' Too Many Pulses"
+    },
+    {
+      "code": "0x0372",
+      "text": "Timing Reference High Resolution Signal 'A' Too Few Pulses"
+    },
+    {
+      "code": "0x0373",
+      "text": "Timing Reference High Resolution Signal 'A' Intermittent/Erratic Pulses"
+    },
+    {
+      "code": "0x0374",
+      "text": "Timing Reference High Resolution Signal 'A' No Pulse"
+    },
+    {
+      "code": "0x0375",
+      "text": "Timing Reference High Resolution Signal 'B'"
+    },
+    {
+      "code": "0x0376",
+      "text": "Timing Reference High Resolution Signal 'B' Too Many Pulses"
+    },
+    {
+      "code": "0x0377",
+      "text": "Timing Reference High Resolution Signal 'B' Too Few Pulses"
+    },
+    {
+      "code": "0x0378",
+      "text": "Timing Reference High Resolution Signal 'B' Intermittent/Erratic Pulses"
+    },
+    {
+      "code": "0x0379",
+      "text": "Timing Reference High Resolution Signal 'B' No Pulses"
+    },
+    {
+      "code": "0x0380",
+      "text": "Glow Plug/Heater Circuit 'A'"
+    },
+    {
+      "code": "0x0381",
+      "text": "Glow Plug/Heater Indicator Circuit"
+    },
+    {
+      "code": "0x0382",
+      "text": "Glow Plug/Heater Circuit 'B'"
+    },
+    {
+      "code": "0x0383",
+      "text": "Reserved by SAE J2012"
+    },
+    {
+      "code": "0x0384",
+      "text": "Reserved by SAE J2012"
+    },
+    {
+      "code": "0x0385",
+      "text": "Crankshaft Position Sensor 'B' Circuit"
+    },
+    {
+      "code": "0x0386",
+      "text": "Crankshaft Position Sensor 'B' Circuit Range/Performance"
+    },
+    {
+      "code": "0x0387",
+      "text": "Crankshaft Position Sensor 'B' Circuit Low"
+    },
+    {
+      "code": "0x0388",
+      "text": "Crankshaft Position Sensor 'B' Circuit High"
+    },
+    {
+      "code": "0x0389",
+      "text": "Crankshaft Position Sensor 'B' Circuit Intermittent"
+    },
+    {
+      "code": "0x0390",
+      "text": "Camshaft Position Sensor 'B' Circuit"
+    },
+    {
+      "code": "0x0391",
+      "text": "Camshaft Position Sensor 'B' Circuit Range/Performance"
+    },
+    {
+      "code": "0x0392",
+      "text": "Camshaft Position Sensor 'B' Circuit Low"
+    },
+    {
+      "code": "0x0393",
+      "text": "Camshaft Position Sensor 'B' Circuit High"
+    },
+    {
+      "code": "0x0394",
+      "text": "Camshaft Position Sensor 'B' Circuit Intermittent"
+    },
+    {
       "code": "0x0400",
       "text": "Exhaust Gas Recirculation 'A' Flow Malfunction"
     },
@@ -992,6 +1788,22 @@
       "text": "Catalyst System Efficiency Below Threshold (Bank 1)"
     },
     {
+      "code": "0x0421",
+      "text": "Warm Up Catalyst Efficiency Below Threshold"
+    },
+    {
+      "code": "0x0422",
+      "text": "Main Catalyst Efficiency Below Threshold"
+    },
+    {
+      "code": "0x0423",
+      "text": "Heated Catalyst Efficiency Below Threshold"
+    },
+    {
+      "code": "0x0424",
+      "text": "Heated Catalyst Temperature Below Threshold"
+    },
+    {
       "code": "0x0425",
       "text": "Catalyst Temperature Sensor, Bank 1 Malfunction"
     },
@@ -1032,12 +1844,44 @@
       "text": "Catalyst Temperature Sensor, Bank 2 Circuit Intermittent"
     },
     {
+      "code": "0x0435",
+      "text": "Catalyst Temperature Sensor"
+    },
+    {
+      "code": "0x0436",
+      "text": "Catalyst Temperature Sensor Range/Performance"
+    },
+    {
+      "code": "0x0437",
+      "text": "Catalyst Temperature Sensor Low"
+    },
+    {
+      "code": "0x0438",
+      "text": "Catalyst Temperature Sensor High"
+    },
+    {
+      "code": "0x0439",
+      "text": "Catalyst Heater Control Circuit"
+    },
+    {
       "code": "0x0440",
       "text": "Evaporative Emission System Malfunction"
     },
     {
+      "code": "0x0441",
+      "text": "Evaporative Emission System Incorrect Purge Flow"
+    },
+    {
       "code": "0x0442",
       "text": "Evaporative Emission System Leak Detected (Small Leak)"
+    },
+    {
+      "code": "0x0443",
+      "text": "Evaporative Emission System Purge Control Valve Circuit"
+    },
+    {
+      "code": "0x0444",
+      "text": "Evaporative Emission System Purge Control Valve Circuit Open"
     },
     {
       "code": "0x0445",
@@ -1084,6 +1928,182 @@
       "text": "Evaporative Emission System Leak Detected (Gross Leak)"
     },
     {
+      "code": "0x0456",
+      "text": "Evaporative Emission System Leak Detected (very small leak)"
+    },
+    {
+      "code": "0x0457",
+      "text": "Evaporative Emission System Leak Detected (fuel cap loose/off)"
+    },
+    {
+      "code": "0x0458",
+      "text": "Evaporative Emission System Purge Control Valve Circuit Low"
+    },
+    {
+      "code": "0x0459",
+      "text": "Evaporative Emission System Purge Control Valve Circuit High"
+    },
+    {
+      "code": "0x0460",
+      "text": "Fuel Level Sensor 'A' Circuit"
+    },
+    {
+      "code": "0x0461",
+      "text": "Fuel Level Sensor 'A' Circuit Range/Performance"
+    },
+    {
+      "code": "0x0462",
+      "text": "Fuel Level Sensor 'A' Circuit Low"
+    },
+    {
+      "code": "0x0463",
+      "text": "Fuel Level Sensor 'A' Circuit High"
+    },
+    {
+      "code": "0x0464",
+      "text": "Fuel Level Sensor 'A' Circuit Intermittent"
+    },
+    {
+      "code": "0x0465",
+      "text": "EVAP Purge Flow Sensor Circuit"
+    },
+    {
+      "code": "0x0466",
+      "text": "EVAP Purge Flow Sensor Circuit Range/Performance"
+    },
+    {
+      "code": "0x0467",
+      "text": "EVAP Purge Flow Sensor Circuit Low"
+    },
+    {
+      "code": "0x0468",
+      "text": "EVAP Purge Flow Sensor Circuit High"
+    },
+    {
+      "code": "0x0469",
+      "text": "EVAP Purge Flow Sensor Circuit Intermittent"
+    },
+    {
+      "code": "0x0470",
+      "text": "Exhaust Pressure Sensor"
+    },
+    {
+      "code": "0x0471",
+      "text": "Exhaust Pressure Sensor Range/Performance"
+    },
+    {
+      "code": "0x0472",
+      "text": "Exhaust Pressure Sensor Low"
+    },
+    {
+      "code": "0x0473",
+      "text": "Exhaust Pressure Sensor High"
+    },
+    {
+      "code": "0x0474",
+      "text": "Exhaust Pressure Sensor Intermittent"
+    },
+    {
+      "code": "0x0475",
+      "text": "Exhaust Pressure Control Valve"
+    },
+    {
+      "code": "0x0476",
+      "text": "Exhaust Pressure Control Valve Range/Performance"
+    },
+    {
+      "code": "0x0477",
+      "text": "Exhaust Pressure Control Valve Low"
+    },
+    {
+      "code": "0x0478",
+      "text": "Exhaust Pressure Control Valve High"
+    },
+    {
+      "code": "0x0479",
+      "text": "Exhaust Pressure Control Valve Intermittent"
+    },
+    {
+      "code": "0x0480",
+      "text": "Fan 1 Control Circuit"
+    },
+    {
+      "code": "0x0481",
+      "text": "Fan 2 Control Circuit"
+    },
+    {
+      "code": "0x0482",
+      "text": "Fan 3 Control Circuit"
+    },
+    {
+      "code": "0x0483",
+      "text": "Fan Rationality Check"
+    },
+    {
+      "code": "0x0484",
+      "text": "Fan Circuit Over Current"
+    },
+    {
+      "code": "0x0485",
+      "text": "Fan Power/Ground Circuit"
+    },
+    {
+      "code": "0x0486",
+      "text": "Exhaust Gas Recirculation Sensor 'B' Circuit"
+    },
+    {
+      "code": "0x0487",
+      "text": "Exhaust Gas Recirculation Throttle Position Control Circuit"
+    },
+    {
+      "code": "0x0488",
+      "text": "Exhaust Gas Recirculation Throttle Position Control Range/Performance"
+    },
+    {
+      "code": "0x0489",
+      "text": "Exhaust Gas Recirculation Control Circuit Low"
+    },
+    {
+      "code": "0x0490",
+      "text": "Exhaust Gas Recirculation Control Circuit High"
+    },
+    {
+      "code": "0x0491",
+      "text": "Secondary Air Injection System Insufficient Flow"
+    },
+    {
+      "code": "0x0492",
+      "text": "Secondary Air Injection System Insufficient Flow"
+    },
+    {
+      "code": "0x0493",
+      "text": "Fan Overspeed"
+    },
+    {
+      "code": "0x0494",
+      "text": "Fan Speed Low"
+    },
+    {
+      "code": "0x0495",
+      "text": "Fan Speed High"
+    },
+    {
+      "code": "0x0496",
+      "text": "Evaporative Emission System High Purge Flow"
+    },
+    {
+      "code": "0x0497",
+      "text": "Evaporative Emission System Low Purge Flow"
+    },
+    {
+      "code": "0x0498",
+      "text": "Evaporative Emission System Vent Valve Control Circuit Low"
+    },
+    {
+      "code": "0x0499",
+      "text": "Evaporative Emission System Vent Valve Control Circuit High"
+    },
+    {
       "code": "0x0500",
       "text": "Vehicle Speed Sensor 'A' Circuit Malfunction"
     },
@@ -1102,6 +2122,26 @@
     {
       "code": "0x0504",
       "text": "Vehicle Speed Sensor 'A' Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0505",
+      "text": "Idle Air Control System"
+    },
+    {
+      "code": "0x0506",
+      "text": "Idle Air Control System RPM Lower Than Expected"
+    },
+    {
+      "code": "0x0507",
+      "text": "Idle Air Control System RPM Higher Than Expected"
+    },
+    {
+      "code": "0x0508",
+      "text": "Idle Air Control System Circuit Low"
+    },
+    {
+      "code": "0x0509",
+      "text": "Idle Air Control System Circuit High"
     },
     {
       "code": "0x0510",
@@ -1182,6 +2222,366 @@
     {
       "code": "0x0529",
       "text": "Cruise Control Servo Control Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0530",
+      "text": "A/C Refrigerant Pressure Sensor 'A' Circuit"
+    },
+    {
+      "code": "0x0531",
+      "text": "A/C Refrigerant Pressure Sensor 'A' Circuit Range/Performance"
+    },
+    {
+      "code": "0x0532",
+      "text": "A/C Refrigerant Pressure Sensor 'A' Circuit Low"
+    },
+    {
+      "code": "0x0533",
+      "text": "A/C Refrigerant Pressure Sensor 'A' Circuit High"
+    },
+    {
+      "code": "0x0534",
+      "text": "Air Conditioner Refrigerant Charge Loss"
+    },
+    {
+      "code": "0x0535",
+      "text": "A/C Evaporator Temperature Sensor Circuit"
+    },
+    {
+      "code": "0x0536",
+      "text": "A/C Evaporator Temperature Sensor Circuit Range/Performance"
+    },
+    {
+      "code": "0x0537",
+      "text": "A/C Evaporator Temperature Sensor Circuit Low"
+    },
+    {
+      "code": "0x0538",
+      "text": "A/C Evaporator Temperature Sensor Circuit High"
+    },
+    {
+      "code": "0x0539",
+      "text": "A/C Evaporator Temperature Sensor Circuit Intermittent"
+    },
+    {
+      "code": "0x0540",
+      "text": "Intake Air Heater 'A' Circuit"
+    },
+    {
+      "code": "0x0541",
+      "text": "Intake Air Heater 'A' Circuit Low"
+    },
+    {
+      "code": "0x0542",
+      "text": "Intake Air Heater 'A' Circuit High"
+    },
+    {
+      "code": "0x0543",
+      "text": "Intake Air Heater 'A' Circuit Open"
+    },
+    {
+      "code": "0x0544",
+      "text": "Exhaust Gas Temperature Sensor Circuit"
+    },
+    {
+      "code": "0x0545",
+      "text": "Exhaust Gas Temperature Sensor Circuit Low"
+    },
+    {
+      "code": "0x0546",
+      "text": "Exhaust Gas Temperature Sensor Circuit High"
+    },
+    {
+      "code": "0x0547",
+      "text": "Exhaust Gas Temperature Sensor Circuit"
+    },
+    {
+      "code": "0x0548",
+      "text": "Exhaust Gas Temperature Sensor Circuit Low"
+    },
+    {
+      "code": "0x0549",
+      "text": "Exhaust Gas Temperature Sensor Circuit High"
+    },
+    {
+      "code": "0x0550",
+      "text": "Power Steering Pressure Sensor/Switch Circuit"
+    },
+    {
+      "code": "0x0551",
+      "text": "Power Steering Pressure Sensor/Switch Circuit Range/Performance"
+    },
+    {
+      "code": "0x0552",
+      "text": "Power Steering Pressure Sensor/Switch Circuit Low Input"
+    },
+    {
+      "code": "0x0553",
+      "text": "Power Steering Pressure Sensor/Switch Circuit High Input"
+    },
+    {
+      "code": "0x0554",
+      "text": "Power Steering Pressure Sensor/Switch Circuit Intermittent"
+    },
+    {
+      "code": "0x0555",
+      "text": "Brake Booster Pressure Sensor Circuit"
+    },
+    {
+      "code": "0x0556",
+      "text": "Brake Booster Pressure Sensor Circuit Range/Performance"
+    },
+    {
+      "code": "0x0557",
+      "text": "Brake Booster Pressure Sensor Circuit Low Input"
+    },
+    {
+      "code": "0x0558",
+      "text": "Brake Booster Pressure Sensor Circuit High Input"
+    },
+    {
+      "code": "0x0559",
+      "text": "Brake Booster Pressure Sensor Circuit Intermittent"
+    },
+    {
+      "code": "0x0560",
+      "text": "System Voltage"
+    },
+    {
+      "code": "0x0561",
+      "text": "System Voltage Unstable"
+    },
+    {
+      "code": "0x0562",
+      "text": "System Voltage Low"
+    },
+    {
+      "code": "0x0563",
+      "text": "System Voltage High"
+    },
+    {
+      "code": "0x0564",
+      "text": "Cruise Control Multi-Function Input 'A' Circuit"
+    },
+    {
+      "code": "0x0565",
+      "text": "Cruise Control On Signal"
+    },
+    {
+      "code": "0x0566",
+      "text": "Cruise Control Off Signal"
+    },
+    {
+      "code": "0x0567",
+      "text": "Cruise Control Resume Signal"
+    },
+    {
+      "code": "0x0568",
+      "text": "Cruise Control Set Signal"
+    },
+    {
+      "code": "0x0569",
+      "text": "Cruise Control Coast Signal"
+    },
+    {
+      "code": "0x0570",
+      "text": "Cruise Control Accelerate Signal"
+    },
+    {
+      "code": "0x0571",
+      "text": "Brake Switch 'A' Circuit"
+    },
+    {
+      "code": "0x0572",
+      "text": "Brake Switch 'A' Circuit Low"
+    },
+    {
+      "code": "0x0573",
+      "text": "Brake Switch 'A' Circuit High"
+    },
+    {
+      "code": "0x0574",
+      "text": "Cruise Control System - Vehicle Speed Too High"
+    },
+    {
+      "code": "0x0575",
+      "text": "Cruise Control Input Circuit"
+    },
+    {
+      "code": "0x0576",
+      "text": "Cruise Control Input Circuit Low"
+    },
+    {
+      "code": "0x0577",
+      "text": "Cruise Control Input Circuit High"
+    },
+    {
+      "code": "0x0578",
+      "text": "Cruise Control Multi-Function Input 'A' Circuit Stuck"
+    },
+    {
+      "code": "0x0579",
+      "text": "Cruise Control Multi-Function Input 'A' Circuit Range/Performance"
+    },
+    {
+      "code": "0x0580",
+      "text": "Cruise Control Multi-Function Input 'A' Circuit Low"
+    },
+    {
+      "code": "0x0581",
+      "text": "Cruise Control Multi-Function Input 'A' Circuit High"
+    },
+    {
+      "code": "0x0582",
+      "text": "Cruise Control Vacuum Control Circuit/Open"
+    },
+    {
+      "code": "0x0583",
+      "text": "Cruise Control Vacuum Control Circuit Low"
+    },
+    {
+      "code": "0x0584",
+      "text": "Cruise Control Vacuum Control Circuit High"
+    },
+    {
+      "code": "0x0585",
+      "text": "Cruise Control Multi-Function Input 'A'/'B' Correlation"
+    },
+    {
+      "code": "0x0586",
+      "text": "Cruise Control Vent Control Circuit/Open"
+    },
+    {
+      "code": "0x0587",
+      "text": "Cruise Control Vent Control Circuit Low"
+    },
+    {
+      "code": "0x0588",
+      "text": "Cruise Control Vent Control Circuit High"
+    },
+    {
+      "code": "0x0589",
+      "text": "Cruise Control Multi-Function Input 'B' Circuit"
+    },
+    {
+      "code": "0x0590",
+      "text": "Cruise Control Multi-Function Input 'B' Circuit Stuck"
+    },
+    {
+      "code": "0x0591",
+      "text": "Cruise Control Multi-Function Input 'B' Circuit Range/Performance"
+    },
+    {
+      "code": "0x0592",
+      "text": "Cruise Control Multi-Function Input 'B' Circuit Low"
+    },
+    {
+      "code": "0x0593",
+      "text": "Cruise Control Multi-Function Input 'B' Circuit High"
+    },
+    {
+      "code": "0x0594",
+      "text": "Cruise Control Servo Control Circuit/Open"
+    },
+    {
+      "code": "0x0595",
+      "text": "Cruise Control Servo Control Circuit Low"
+    },
+    {
+      "code": "0x0596",
+      "text": "Cruise Control Servo Control Circuit High"
+    },
+    {
+      "code": "0x0597",
+      "text": "Thermostat Heater Control Circuit/Open"
+    },
+    {
+      "code": "0x0598",
+      "text": "Thermostat Heater Control Circuit Low"
+    },
+    {
+      "code": "0x0599",
+      "text": "Thermostat Heater Control Circuit High"
+    },
+    {
+      "code": "0x0600",
+      "text": "Serial Communication Link"
+    },
+    {
+      "code": "0x0601",
+      "text": "Internal Control Module Memory Check Sum Error"
+    },
+    {
+      "code": "0x0602",
+      "text": "Control Module Programming Error"
+    },
+    {
+      "code": "0x0603",
+      "text": "Internal Control Module Keep Alive Memory (KAM) Error"
+    },
+    {
+      "code": "0x0604",
+      "text": "Internal Control Module Random Access Memory (RAM) Error"
+    },
+    {
+      "code": "0x0605",
+      "text": "Internal Control Module Read Only Memory (ROM) Error"
+    },
+    {
+      "code": "0x0606",
+      "text": "ECM/PCM Processor"
+    },
+    {
+      "code": "0x0607",
+      "text": "Control Module Performance"
+    },
+    {
+      "code": "0x0608",
+      "text": "Control Module VSS Output 'A'"
+    },
+    {
+      "code": "0x0609",
+      "text": "Control Module VSS Output 'B'"
+    },
+    {
+      "code": "0x0610",
+      "text": "Control Module Vehicle Options Error"
+    },
+    {
+      "code": "0x0611",
+      "text": "Fuel Injector Control Module Performance"
+    },
+    {
+      "code": "0x0612",
+      "text": "Fuel Injector Control Module Relay Control"
+    },
+    {
+      "code": "0x0613",
+      "text": "TCM Processor"
+    },
+    {
+      "code": "0x0614",
+      "text": "ECM / TCM Incompatible"
+    },
+    {
+      "code": "0x0615",
+      "text": "Starter Relay Circuit"
+    },
+    {
+      "code": "0x0616",
+      "text": "Starter Relay Circuit Low"
+    },
+    {
+      "code": "0x0617",
+      "text": "Starter Relay Circuit High"
+    },
+    {
+      "code": "0x0618",
+      "text": "Alternative Fuel Control Module KAM Error"
+    },
+    {
+      "code": "0x0619",
+      "text": "Alternative Fuel Control Module RAM/ROM Error"
     },
     {
       "code": "0x0620",
@@ -1324,6 +2724,26 @@
       "text": "Malfunction Indicator Lamp (MIL) Control Circuit Circuit Intermittent"
     },
     {
+      "code": "0x0655",
+      "text": "Engine Hot Lamp Output Control Circuit"
+    },
+    {
+      "code": "0x0656",
+      "text": "Fuel Level Output Circuit"
+    },
+    {
+      "code": "0x0657",
+      "text": "Actuator Supply Voltage 'A' Circuit/Open"
+    },
+    {
+      "code": "0x0658",
+      "text": "Actuator Supply Voltage 'A' Circuit Low"
+    },
+    {
+      "code": "0x0659",
+      "text": "Actuator Supply Voltage 'A' Circuit High"
+    },
+    {
       "code": "0x0660",
       "text": "Intake Manifold Tuning Valve Control Circuit Malfunction"
     },
@@ -1342,6 +2762,186 @@
     {
       "code": "0x0664",
       "text": "Intake Manifold Tuning Valve Control Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0665",
+      "text": "Intake Manifold Tuning Valve Control Circuit High"
+    },
+    {
+      "code": "0x0666",
+      "text": "PCM/ECM/TCM Internal Temperature Sensor Circuit"
+    },
+    {
+      "code": "0x0667",
+      "text": "PCM/ECM/TCM Internal Temperature Sensor Range/Performance"
+    },
+    {
+      "code": "0x0668",
+      "text": "PCM/ECM/TCM Internal Temperature Sensor Circuit Low"
+    },
+    {
+      "code": "0x0669",
+      "text": "PCM/ECM/TCM Internal Temperature Sensor Circuit High"
+    },
+    {
+      "code": "0x0670",
+      "text": "Glow Plug Module Control Circuit"
+    },
+    {
+      "code": "0x0671",
+      "text": "Cylinder 1 Glow Plug Circuit"
+    },
+    {
+      "code": "0x0672",
+      "text": "Cylinder 2 Glow Plug Circuit"
+    },
+    {
+      "code": "0x0673",
+      "text": "Cylinder 3 Glow Plug Circuit"
+    },
+    {
+      "code": "0x0674",
+      "text": "Cylinder 4 Glow Plug Circuit"
+    },
+    {
+      "code": "0x0675",
+      "text": "Cylinder 5 Glow Plug Circuit"
+    },
+    {
+      "code": "0x0676",
+      "text": "Cylinder 6 Glow Plug Circuit"
+    },
+    {
+      "code": "0x0677",
+      "text": "Cylinder 7 Glow Plug Circuit"
+    },
+    {
+      "code": "0x0678",
+      "text": "Cylinder 8 Glow Plug Circuit"
+    },
+    {
+      "code": "0x0679",
+      "text": "Cylinder 9 Glow Plug Circuit"
+    },
+    {
+      "code": "0x0680",
+      "text": "Cylinder 10 Glow Plug Circuit"
+    },
+    {
+      "code": "0x0681",
+      "text": "Cylinder 11 Glow Plug Circuit"
+    },
+    {
+      "code": "0x0682",
+      "text": "Cylinder 12 Glow Plug Circuit"
+    },
+    {
+      "code": "0x0683",
+      "text": "Glow Plug Control Module to PCM Communication Circuit"
+    },
+    {
+      "code": "0x0684",
+      "text": "Glow Plug Control Module to PCM Communication Circuit Range/Performance"
+    },
+    {
+      "code": "0x0685",
+      "text": "ECM/PCM Power Relay Control Circuit /Open"
+    },
+    {
+      "code": "0x0686",
+      "text": "ECM/PCM Power Relay Control Circuit Low"
+    },
+    {
+      "code": "0x0687",
+      "text": "ECM/PCM Power Relay Control Circuit High"
+    },
+    {
+      "code": "0x0688",
+      "text": "ECM/PCM Power Relay Sense Circuit /Open"
+    },
+    {
+      "code": "0x0689",
+      "text": "ECM/PCM Power Relay Sense Circuit Low"
+    },
+    {
+      "code": "0x0690",
+      "text": "ECM/PCM Power Relay Sense Circuit High"
+    },
+    {
+      "code": "0x0691",
+      "text": "Fan 1 Control Circuit Low"
+    },
+    {
+      "code": "0x0692",
+      "text": "Fan 1 Control Circuit High"
+    },
+    {
+      "code": "0x0693",
+      "text": "Fan 2 Control Circuit Low"
+    },
+    {
+      "code": "0x0694",
+      "text": "Fan 2 Control Circuit High"
+    },
+    {
+      "code": "0x0695",
+      "text": "Fan 3 Control Circuit Low"
+    },
+    {
+      "code": "0x0696",
+      "text": "Fan 3 Control Circuit High"
+    },
+    {
+      "code": "0x0697",
+      "text": "Sensor Reference Voltage 'C' Circuit/Open"
+    },
+    {
+      "code": "0x0698",
+      "text": "Sensor Reference Voltage 'C' Circuit Low"
+    },
+    {
+      "code": "0x0699",
+      "text": "Sensor Reference Voltage 'C' Circuit High"
+    },
+    {
+      "code": "0x0700",
+      "text": "Transmission Control System (MIL Request)"
+    },
+    {
+      "code": "0x0701",
+      "text": "Transmission Control System Range/Performance"
+    },
+    {
+      "code": "0x0702",
+      "text": "Transmission Control System Electrical"
+    },
+    {
+      "code": "0x0703",
+      "text": "Brake Switch 'B' Circuit"
+    },
+    {
+      "code": "0x0704",
+      "text": "Clutch Switch Input Circuit Malfunction"
+    },
+    {
+      "code": "0x0705",
+      "text": "Transmission Range Sensor Circuit Malfunction (PRNDL Input)"
+    },
+    {
+      "code": "0x0706",
+      "text": "Transmission Range Sensor Circuit Range/Performance"
+    },
+    {
+      "code": "0x0707",
+      "text": "Transmission Range Sensor Circuit Low"
+    },
+    {
+      "code": "0x0708",
+      "text": "Transmission Range Sensor Circuit High"
+    },
+    {
+      "code": "0x0709",
+      "text": "Transmission Range Sensor Circuit Intermittent"
     },
     {
       "code": "0x0710",
@@ -1444,6 +3044,26 @@
       "text": "Incorrect Gear Ratio Circuit Intermittent"
     },
     {
+      "code": "0x0735",
+      "text": "Gear 5 Incorrect Ratio"
+    },
+    {
+      "code": "0x0736",
+      "text": "Reverse Incorrect Ratio"
+    },
+    {
+      "code": "0x0737",
+      "text": "TCM Engine Speed Output Circuit"
+    },
+    {
+      "code": "0x0738",
+      "text": "TCM Engine Speed Output Circuit Low"
+    },
+    {
+      "code": "0x0739",
+      "text": "TCM Engine Speed Output Circuit High"
+    },
+    {
       "code": "0x0740",
       "text": "Torque Converter Clutch Circuit Malfunction"
     },
@@ -1462,6 +3082,26 @@
     {
       "code": "0x0744",
       "text": "Torque Converter Clutch Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0745",
+      "text": "Pressure Control Solenoid 'A'"
+    },
+    {
+      "code": "0x0746",
+      "text": "Pressure Control Solenoid 'A' Performance or Stuck Off"
+    },
+    {
+      "code": "0x0747",
+      "text": "Pressure Control Solenoid 'A' Stuck On"
+    },
+    {
+      "code": "0x0748",
+      "text": "Pressure Control Solenoid 'A' Electrical"
+    },
+    {
+      "code": "0x0749",
+      "text": "Pressure Control Solenoid 'A' Intermittent"
     },
     {
       "code": "0x0750",
@@ -1584,6 +3224,46 @@
       "text": "Shift Solenoid 'F' Circuit Intermittent"
     },
     {
+      "code": "0x0770",
+      "text": "Shift Solenoid 'E'"
+    },
+    {
+      "code": "0x0771",
+      "text": "Shift Solenoid 'E' Performance or Stuck Off"
+    },
+    {
+      "code": "0x0772",
+      "text": "Shift Solenoid 'E' Stuck On"
+    },
+    {
+      "code": "0x0773",
+      "text": "Shift Solenoid 'E' Electrical"
+    },
+    {
+      "code": "0x0774",
+      "text": "Shift Solenoid 'E' Intermittent"
+    },
+    {
+      "code": "0x0775",
+      "text": "Pressure Control Solenoid 'B'"
+    },
+    {
+      "code": "0x0776",
+      "text": "Pressure Control Solenoid 'B' Performance or Stuck off"
+    },
+    {
+      "code": "0x0777",
+      "text": "Pressure Control Solenoid 'B' Stuck On"
+    },
+    {
+      "code": "0x0778",
+      "text": "Pressure Control Solenoid 'B' Electrical"
+    },
+    {
+      "code": "0x0779",
+      "text": "Pressure Control Solenoid 'B' Intermittent"
+    },
+    {
       "code": "0x0780",
       "text": "Shift Malfunction Malfunction"
     },
@@ -1604,6 +3284,26 @@
       "text": "Shift Malfunction Circuit Intermittent"
     },
     {
+      "code": "0x0785",
+      "text": "Shift/Timing Solenoid"
+    },
+    {
+      "code": "0x0786",
+      "text": "Shift/Timing Solenoid Range/Performance"
+    },
+    {
+      "code": "0x0787",
+      "text": "Shift/Timing Solenoid Low"
+    },
+    {
+      "code": "0x0788",
+      "text": "Shift/Timing Solenoid High"
+    },
+    {
+      "code": "0x0789",
+      "text": "Shift/Timing Solenoid Intermittent"
+    },
+    {
       "code": "0x0790",
       "text": "Normal/Performance Switch Circuit Malfunction"
     },
@@ -1622,6 +3322,826 @@
     {
       "code": "0x0794",
       "text": "Normal/Performance Switch Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x0795",
+      "text": "Pressure Control Solenoid 'C'"
+    },
+    {
+      "code": "0x0796",
+      "text": "Pressure Control Solenoid 'C' Performance or Stuck off"
+    },
+    {
+      "code": "0x0797",
+      "text": "Pressure Control Solenoid 'C' Stuck On"
+    },
+    {
+      "code": "0x0798",
+      "text": "Pressure Control Solenoid 'C' Electrical"
+    },
+    {
+      "code": "0x0799",
+      "text": "Pressure Control Solenoid 'C' Intermittent"
+    },
+    {
+      "code": "0x0800",
+      "text": "Transfer Case Control System (MIL Request)"
+    },
+    {
+      "code": "0x0801",
+      "text": "Reverse Inhibit Control Circuit"
+    },
+    {
+      "code": "0x0802",
+      "text": "Transmission Control System MIL Request Circuit/Open"
+    },
+    {
+      "code": "0x0803",
+      "text": "1-4 Upshift (Skip Shift) Solenoid Control Circuit"
+    },
+    {
+      "code": "0x0804",
+      "text": "1-4 Upshift (Skip Shift) Lamp Control Circuit"
+    },
+    {
+      "code": "0x0805",
+      "text": "Clutch Position Sensor Circuit"
+    },
+    {
+      "code": "0x0806",
+      "text": "Clutch Position Sensor Circuit Range/Performance"
+    },
+    {
+      "code": "0x0807",
+      "text": "Clutch Position Sensor Circuit Low"
+    },
+    {
+      "code": "0x0808",
+      "text": "Clutch Position Sensor Circuit High"
+    },
+    {
+      "code": "0x0809",
+      "text": "Clutch Position Sensor Circuit Intermittent"
+    },
+    {
+      "code": "0x0810",
+      "text": "Clutch Position Control Error"
+    },
+    {
+      "code": "0x0811",
+      "text": "Excessive Clutch Slippage"
+    },
+    {
+      "code": "0x0812",
+      "text": "Reverse Input Circuit"
+    },
+    {
+      "code": "0x0813",
+      "text": "Reverse Output Circuit"
+    },
+    {
+      "code": "0x0814",
+      "text": "Transmission Range Display Circuit"
+    },
+    {
+      "code": "0x0815",
+      "text": "Upshift Switch Circuit"
+    },
+    {
+      "code": "0x0816",
+      "text": "Downshift Switch Circuit"
+    },
+    {
+      "code": "0x0817",
+      "text": "Starter Disable Circuit"
+    },
+    {
+      "code": "0x0818",
+      "text": "Driveline Disconnect Switch Input Circuit"
+    },
+    {
+      "code": "0x0819",
+      "text": "Up and Down Shift Switch to Transmission Range Correlation"
+    },
+    {
+      "code": "0x0820",
+      "text": "Gear Lever X-Y Position Sensor Circuit"
+    },
+    {
+      "code": "0x0821",
+      "text": "Gear Lever X Position Circuit"
+    },
+    {
+      "code": "0x0822",
+      "text": "Gear Lever Y Position Circuit"
+    },
+    {
+      "code": "0x0823",
+      "text": "Gear Lever X Position Circuit Intermittent"
+    },
+    {
+      "code": "0x0824",
+      "text": "Gear Lever Y Position Circuit Intermittent"
+    },
+    {
+      "code": "0x0825",
+      "text": "Gear Lever Push-Pull Switch (Shift Anticipate)"
+    },
+    {
+      "code": "0x0826",
+      "text": "Up and Down Shift Switch Circuit"
+    },
+    {
+      "code": "0x0827",
+      "text": "Up and Down Shift Switch Circuit Low"
+    },
+    {
+      "code": "0x0828",
+      "text": "Up and Down Shift Switch Circuit High"
+    },
+    {
+      "code": "0x0829",
+      "text": "5-6 Shift"
+    },
+    {
+      "code": "0x0830",
+      "text": "Clutch Pedal Switch 'A' Circuit"
+    },
+    {
+      "code": "0x0831",
+      "text": "Clutch Pedal Switch 'A' Circuit Low"
+    },
+    {
+      "code": "0x0832",
+      "text": "Clutch Pedal Switch 'A' Circuit High"
+    },
+    {
+      "code": "0x0833",
+      "text": "Clutch Pedal Switch 'B' Circuit"
+    },
+    {
+      "code": "0x0834",
+      "text": "Clutch Pedal Switch 'B' Circuit Low"
+    },
+    {
+      "code": "0x0835",
+      "text": "Clutch Pedal Switch 'B' Circuit High"
+    },
+    {
+      "code": "0x0836",
+      "text": "Four Wheel Drive (4WD) Switch Circuit"
+    },
+    {
+      "code": "0x0837",
+      "text": "Four Wheel Drive (4WD) Switch Circuit Range/Performance"
+    },
+    {
+      "code": "0x0838",
+      "text": "Four Wheel Drive (4WD) Switch Circuit Low"
+    },
+    {
+      "code": "0x0839",
+      "text": "Four Wheel Drive (4WD) Switch Circuit High"
+    },
+    {
+      "code": "0x0840",
+      "text": "Transmission Fluid Pressure Sensor/Switch 'A' Circuit"
+    },
+    {
+      "code": "0x0841",
+      "text": "Transmission Fluid Pressure Sensor/Switch 'A' Circuit Range/Performance"
+    },
+    {
+      "code": "0x0842",
+      "text": "Transmission Fluid Pressure Sensor/Switch 'A' Circuit Low"
+    },
+    {
+      "code": "0x0843",
+      "text": "Transmission Fluid Pressure Sensor/Switch 'A' Circuit High"
+    },
+    {
+      "code": "0x0844",
+      "text": "Transmission Fluid Pressure Sensor/Switch 'A' Circuit Intermittent"
+    },
+    {
+      "code": "0x0845",
+      "text": "Transmission Fluid Pressure Sensor/Switch 'B' Circuit"
+    },
+    {
+      "code": "0x0846",
+      "text": "Transmission Fluid Pressure Sensor/Switch 'B' Circuit Range/Performance"
+    },
+    {
+      "code": "0x0847",
+      "text": "Transmission Fluid Pressure Sensor/Switch 'B' Circuit Low"
+    },
+    {
+      "code": "0x0848",
+      "text": "Transmission Fluid Pressure Sensor/Switch 'B' Circuit High"
+    },
+    {
+      "code": "0x0849",
+      "text": "Transmission Fluid Pressure Sensor/Switch 'B' Circuit Intermittent"
+    },
+    {
+      "code": "0x0850",
+      "text": "Park/Neutral Switch Input Circuit"
+    },
+    {
+      "code": "0x0851",
+      "text": "Park/Neutral Switch Input Circuit Low"
+    },
+    {
+      "code": "0x0852",
+      "text": "Park/Neutral Switch Input Circuit High"
+    },
+    {
+      "code": "0x0853",
+      "text": "Drive Switch Input Circuit"
+    },
+    {
+      "code": "0x0854",
+      "text": "Drive Switch Input Circuit Low"
+    },
+    {
+      "code": "0x0855",
+      "text": "Drive Switch Input Circuit High"
+    },
+    {
+      "code": "0x0856",
+      "text": "Traction Control Input Signal"
+    },
+    {
+      "code": "0x0857",
+      "text": "Traction Control Input Signal Range/Performance"
+    },
+    {
+      "code": "0x0858",
+      "text": "Traction Control Input Signal Low"
+    },
+    {
+      "code": "0x0859",
+      "text": "Traction Control Input Signal High"
+    },
+    {
+      "code": "0x0860",
+      "text": "Gear Shift Module Communication Circuit"
+    },
+    {
+      "code": "0x0861",
+      "text": "Gear Shift Module Communication Circuit Low"
+    },
+    {
+      "code": "0x0862",
+      "text": "Gear Shift Module Communication Circuit High"
+    },
+    {
+      "code": "0x0863",
+      "text": "TCM Communication Circuit"
+    },
+    {
+      "code": "0x0864",
+      "text": "TCM Communication Circuit Range/Performance"
+    },
+    {
+      "code": "0x0865",
+      "text": "TCM Communication Circuit Low"
+    },
+    {
+      "code": "0x0866",
+      "text": "TCM Communication Circuit High"
+    },
+    {
+      "code": "0x0867",
+      "text": "Transmission Fluid Pressure"
+    },
+    {
+      "code": "0x0868",
+      "text": "Transmission Fluid Pressure Low"
+    },
+    {
+      "code": "0x0869",
+      "text": "Transmission Fluid Pressure High"
+    },
+    {
+      "code": "0x0870",
+      "text": "Transmission Fluid Pressure Sensor/Switch 'C' Circuit"
+    },
+    {
+      "code": "0x0871",
+      "text": "Transmission Fluid Pressure Sensor/Switch 'C' Circuit Range/Performance"
+    },
+    {
+      "code": "0x0872",
+      "text": "Transmission Fluid Pressure Sensor/Switch 'C' Circuit Low"
+    },
+    {
+      "code": "0x0873",
+      "text": "Transmission Fluid Pressure Sensor/Switch 'C' Circuit High"
+    },
+    {
+      "code": "0x0874",
+      "text": "Transmission Fluid Pressure Sensor/Switch 'C' Circuit Intermittent"
+    },
+    {
+      "code": "0x0875",
+      "text": "Transmission Fluid Pressure Sensor/Switch 'D' Circuit"
+    },
+    {
+      "code": "0x0876",
+      "text": "Transmission Fluid Pressure Sensor/Switch 'D' Circuit Range/Performance"
+    },
+    {
+      "code": "0x0877",
+      "text": "Transmission Fluid Pressure Sensor/Switch 'D' Circuit Low"
+    },
+    {
+      "code": "0x0878",
+      "text": "Transmission Fluid Pressure Sensor/Switch 'D' Circuit High"
+    },
+    {
+      "code": "0x0879",
+      "text": "Transmission Fluid Pressure Sensor/Switch 'D' Circuit Intermittent"
+    },
+    {
+      "code": "0x0880",
+      "text": "TCM Power Input Signal"
+    },
+    {
+      "code": "0x0881",
+      "text": "TCM Power Input Signal Range/Performance"
+    },
+    {
+      "code": "0x0882",
+      "text": "TCM Power Input Signal Low"
+    },
+    {
+      "code": "0x0883",
+      "text": "TCM Power Input Signal High"
+    },
+    {
+      "code": "0x0884",
+      "text": "TCM Power Input Signal Intermittent"
+    },
+    {
+      "code": "0x0885",
+      "text": "TCM Power Relay Control Circuit/Open"
+    },
+    {
+      "code": "0x0886",
+      "text": "TCM Power Relay Control Circuit Low"
+    },
+    {
+      "code": "0x0887",
+      "text": "TCM Power Relay Control Circuit High"
+    },
+    {
+      "code": "0x0888",
+      "text": "TCM Power Relay Sense Circuit"
+    },
+    {
+      "code": "0x0889",
+      "text": "TCM Power Relay Sense Circuit Range/Performance"
+    },
+    {
+      "code": "0x0890",
+      "text": "TCM Power Relay Sense Circuit Low"
+    },
+    {
+      "code": "0x0891",
+      "text": "TCM Power Relay Sense Circuit High"
+    },
+    {
+      "code": "0x0892",
+      "text": "TCM Power Relay Sense Circuit Intermittent"
+    },
+    {
+      "code": "0x0893",
+      "text": "Multiple Gears Engaged"
+    },
+    {
+      "code": "0x0894",
+      "text": "Transmission Component Slipping"
+    },
+    {
+      "code": "0x0895",
+      "text": "Shift Time Too Short"
+    },
+    {
+      "code": "0x0896",
+      "text": "Shift Time Too Long"
+    },
+    {
+      "code": "0x0897",
+      "text": "Transmission Fluid Deteriorated"
+    },
+    {
+      "code": "0x0898",
+      "text": "Transmission Control System MIL Request Circuit Low"
+    },
+    {
+      "code": "0x0899",
+      "text": "Transmission Control System MIL Request Circuit High"
+    },
+    {
+      "code": "0x0900",
+      "text": "Clutch Actuator Circuit/Open"
+    },
+    {
+      "code": "0x0901",
+      "text": "Clutch Actuator Circuit Range/Performance"
+    },
+    {
+      "code": "0x0902",
+      "text": "Clutch Actuator Circuit Low"
+    },
+    {
+      "code": "0x0903",
+      "text": "Clutch Actuator Circuit High"
+    },
+    {
+      "code": "0x0904",
+      "text": "Gate Select Position Circuit"
+    },
+    {
+      "code": "0x0905",
+      "text": "Gate Select Position Circuit Range/Performance"
+    },
+    {
+      "code": "0x0906",
+      "text": "Gate Select Position Circuit Low"
+    },
+    {
+      "code": "0x0907",
+      "text": "Gate Select Position Circuit High"
+    },
+    {
+      "code": "0x0908",
+      "text": "Gate Select Position Circuit Intermittent"
+    },
+    {
+      "code": "0x0909",
+      "text": "Gate Select Control Error"
+    },
+    {
+      "code": "0x0910",
+      "text": "Gate Select Actuator Circuit/Open"
+    },
+    {
+      "code": "0x0911",
+      "text": "Gate Select Actuator Circuit Range/Performance"
+    },
+    {
+      "code": "0x0912",
+      "text": "Gate Select Actuator Circuit Low"
+    },
+    {
+      "code": "0x0913",
+      "text": "Gate Select Actuator Circuit High"
+    },
+    {
+      "code": "0x0914",
+      "text": "Gear Shift Position Circuit"
+    },
+    {
+      "code": "0x0915",
+      "text": "Gear Shift Position Circuit Range/Performance"
+    },
+    {
+      "code": "0x0916",
+      "text": "Gear Shift Position Circuit Low"
+    },
+    {
+      "code": "0x0917",
+      "text": "Gear Shift Position Circuit High"
+    },
+    {
+      "code": "0x0918",
+      "text": "Gear Shift Position Circuit Intermittent"
+    },
+    {
+      "code": "0x0919",
+      "text": "Gear Shift Position Control Error"
+    },
+    {
+      "code": "0x0920",
+      "text": "Gear Shift Forward Actuator Circuit/Open"
+    },
+    {
+      "code": "0x0921",
+      "text": "Gear Shift Forward Actuator Circuit Range/Performance"
+    },
+    {
+      "code": "0x0922",
+      "text": "Gear Shift Forward Actuator Circuit Low"
+    },
+    {
+      "code": "0x0923",
+      "text": "Gear Shift Forward Actuator Circuit High"
+    },
+    {
+      "code": "0x0924",
+      "text": "Gear Shift Reverse Actuator Circuit/Open"
+    },
+    {
+      "code": "0x0925",
+      "text": "Gear Shift Reverse Actuator Circuit Range/Performance"
+    },
+    {
+      "code": "0x0926",
+      "text": "Gear Shift Reverse Actuator Circuit Low"
+    },
+    {
+      "code": "0x0927",
+      "text": "Gear Shift Reverse Actuator Circuit High"
+    },
+    {
+      "code": "0x0928",
+      "text": "Gear Shift Lock Solenoid Control Circuit/Open"
+    },
+    {
+      "code": "0x0929",
+      "text": "Gear Shift Lock Solenoid Control Circuit Range/Performance"
+    },
+    {
+      "code": "0x0930",
+      "text": "Gear Shift Lock Solenoid Control Circuit Low"
+    },
+    {
+      "code": "0x0931",
+      "text": "Gear Shift Lock Solenoid Control Circuit High"
+    },
+    {
+      "code": "0x0932",
+      "text": "Hydraulic Pressure Sensor Circuit"
+    },
+    {
+      "code": "0x0933",
+      "text": "Hydraulic Pressure Sensor Range/Performance"
+    },
+    {
+      "code": "0x0934",
+      "text": "Hydraulic Pressure Sensor Circuit Low"
+    },
+    {
+      "code": "0x0935",
+      "text": "Hydraulic Pressure Sensor Circuit High"
+    },
+    {
+      "code": "0x0936",
+      "text": "Hydraulic Pressure Sensor Circuit Intermittent"
+    },
+    {
+      "code": "0x0937",
+      "text": "Hydraulic Oil Temperature Sensor Circuit"
+    },
+    {
+      "code": "0x0938",
+      "text": "Hydraulic Oil Temperature Sensor Range/Performance"
+    },
+    {
+      "code": "0x0939",
+      "text": "Hydraulic Oil Temperature Sensor Circuit Low"
+    },
+    {
+      "code": "0x0940",
+      "text": "Hydraulic Oil Temperature Sensor Circuit High"
+    },
+    {
+      "code": "0x0941",
+      "text": "Hydraulic Oil Temperature Sensor Circuit Intermittent"
+    },
+    {
+      "code": "0x0942",
+      "text": "Hydraulic Pressure Unit"
+    },
+    {
+      "code": "0x0943",
+      "text": "Hydraulic Pressure Unit Cycling Period Too Short"
+    },
+    {
+      "code": "0x0944",
+      "text": "Hydraulic Pressure Unit Loss of Pressure"
+    },
+    {
+      "code": "0x0945",
+      "text": "Hydraulic Pump Relay Circuit/Open"
+    },
+    {
+      "code": "0x0946",
+      "text": "Hydraulic Pump Relay Circuit Range/Performance"
+    },
+    {
+      "code": "0x0947",
+      "text": "Hydraulic Pump Relay Circuit Low"
+    },
+    {
+      "code": "0x0948",
+      "text": "Hydraulic Pump Relay Circuit High"
+    },
+    {
+      "code": "0x0949",
+      "text": "Auto Shift Manual Adaptive Learning Not Complete"
+    },
+    {
+      "code": "0x0950",
+      "text": "Auto Shift Manual Control Circuit"
+    },
+    {
+      "code": "0x0951",
+      "text": "Auto Shift Manual Control Circuit Range/Performance"
+    },
+    {
+      "code": "0x0952",
+      "text": "Auto Shift Manual Control Circuit Low"
+    },
+    {
+      "code": "0x0953",
+      "text": "Auto Shift Manual Control Circuit High"
+    },
+    {
+      "code": "0x0954",
+      "text": "Auto Shift Manual Control Circuit Intermittent"
+    },
+    {
+      "code": "0x0955",
+      "text": "Auto Shift Manual Mode Circuit"
+    },
+    {
+      "code": "0x0956",
+      "text": "Auto Shift Manual Mode Circuit Range/Performance"
+    },
+    {
+      "code": "0x0957",
+      "text": "Auto Shift Manual Mode Circuit Low"
+    },
+    {
+      "code": "0x0958",
+      "text": "Auto Shift Manual Mode Circuit High"
+    },
+    {
+      "code": "0x0959",
+      "text": "Auto Shift Manual Mode Circuit Intermittent"
+    },
+    {
+      "code": "0x0960",
+      "text": "Pressure Control Solenoid 'A' Control Circuit/Open"
+    },
+    {
+      "code": "0x0961",
+      "text": "Pressure Control Solenoid 'A' Control Circuit Range/Performance"
+    },
+    {
+      "code": "0x0962",
+      "text": "Pressure Control Solenoid 'A' Control Circuit Low"
+    },
+    {
+      "code": "0x0963",
+      "text": "Pressure Control Solenoid 'A' Control Circuit High"
+    },
+    {
+      "code": "0x0964",
+      "text": "Pressure Control Solenoid 'B' Control Circuit/Open"
+    },
+    {
+      "code": "0x0965",
+      "text": "Pressure Control Solenoid 'B' Control Circuit Range/Performance"
+    },
+    {
+      "code": "0x0966",
+      "text": "Pressure Control Solenoid 'B' Control Circuit Low"
+    },
+    {
+      "code": "0x0967",
+      "text": "Pressure Control Solenoid 'B' Control Circuit High"
+    },
+    {
+      "code": "0x0968",
+      "text": "Pressure Control Solenoid 'C' Control Circuit/Open"
+    },
+    {
+      "code": "0x0969",
+      "text": "Pressure Control Solenoid 'C' Control Circuit Range/Performance"
+    },
+    {
+      "code": "0x0970",
+      "text": "Pressure Control Solenoid 'C' Control Circuit Low"
+    },
+    {
+      "code": "0x0971",
+      "text": "Pressure Control Solenoid 'C' Control Circuit High"
+    },
+    {
+      "code": "0x0972",
+      "text": "Shift Solenoid 'A' Control Circuit Range/Performance"
+    },
+    {
+      "code": "0x0973",
+      "text": "Shift Solenoid 'A' Control Circuit Low"
+    },
+    {
+      "code": "0x0974",
+      "text": "Shift Solenoid 'A' Control Circuit High"
+    },
+    {
+      "code": "0x0975",
+      "text": "Shift Solenoid 'B' Control Circuit Range/Performance"
+    },
+    {
+      "code": "0x0976",
+      "text": "Shift Solenoid 'B' Control Circuit Low"
+    },
+    {
+      "code": "0x0977",
+      "text": "Shift Solenoid 'B' Control Circuit High"
+    },
+    {
+      "code": "0x0978",
+      "text": "Shift Solenoid 'C' Control Circuit Range/Performance"
+    },
+    {
+      "code": "0x0979",
+      "text": "Shift Solenoid 'C' Control Circuit Low"
+    },
+    {
+      "code": "0x0980",
+      "text": "Shift Solenoid 'C' Control Circuit High"
+    },
+    {
+      "code": "0x0981",
+      "text": "Shift Solenoid 'D' Control Circuit Range/Performance"
+    },
+    {
+      "code": "0x0982",
+      "text": "Shift Solenoid 'D' Control Circuit Low"
+    },
+    {
+      "code": "0x0983",
+      "text": "Shift Solenoid 'D' Control Circuit High"
+    },
+    {
+      "code": "0x0984",
+      "text": "Shift Solenoid 'E' Control Circuit Range/Performance"
+    },
+    {
+      "code": "0x0985",
+      "text": "Shift Solenoid 'E' Control Circuit Low"
+    },
+    {
+      "code": "0x0986",
+      "text": "Shift Solenoid 'E' Control Circuit High"
+    },
+    {
+      "code": "0x0987",
+      "text": "Transmission Fluid Pressure Sensor/Switch 'E' Circuit"
+    },
+    {
+      "code": "0x0988",
+      "text": "Transmission Fluid Pressure Sensor/Switch 'E' Circuit Range/Performance"
+    },
+    {
+      "code": "0x0989",
+      "text": "Transmission Fluid Pressure Sensor/Switch 'E' Circuit Low"
+    },
+    {
+      "code": "0x0990",
+      "text": "Transmission Fluid Pressure Sensor/Switch 'E' Circuit High"
+    },
+    {
+      "code": "0x0991",
+      "text": "Transmission Fluid Pressure Sensor/Switch 'E' Circuit Intermittent"
+    },
+    {
+      "code": "0x0992",
+      "text": "Transmission Fluid Pressure Sensor/Switch 'F' Circuit"
+    },
+    {
+      "code": "0x0993",
+      "text": "Transmission Fluid Pressure Sensor/Switch 'F' Circuit Range/Performance"
+    },
+    {
+      "code": "0x0994",
+      "text": "Transmission Fluid Pressure Sensor/Switch 'F' Circuit Low"
+    },
+    {
+      "code": "0x0995",
+      "text": "Transmission Fluid Pressure Sensor/Switch 'F' Circuit High"
+    },
+    {
+      "code": "0x0996",
+      "text": "Transmission Fluid Pressure Sensor/Switch 'F' Circuit Intermittent"
+    },
+    {
+      "code": "0x0997",
+      "text": "Shift Solenoid 'F' Control Circuit Range/Performance"
+    },
+    {
+      "code": "0x0998",
+      "text": "Shift Solenoid 'F' Control Circuit Low"
+    },
+    {
+      "code": "0x0999",
+      "text": "Shift Solenoid 'F' Control Circuit High"
     },
     {
       "code": "0x0A00",
@@ -1724,6 +4244,30 @@
       "text": "Drive Motor 'A' Inverter Performance Circuit Intermittent"
     },
     {
+      "code": "0x0A24",
+      "text": "Generator Torque Sensor Circuit Low"
+    },
+    {
+      "code": "0x0A25",
+      "text": "Generator Torque Sensor Circuit High"
+    },
+    {
+      "code": "0x0A26",
+      "text": "Generator Torque Sensor Circuit Intermittent"
+    },
+    {
+      "code": "0x0A27",
+      "text": "Battery Power Off Circuit"
+    },
+    {
+      "code": "0x0A28",
+      "text": "Battery Power Off Circuit Low"
+    },
+    {
+      "code": "0x0A29",
+      "text": "Battery Power Off Circuit High"
+    },
+    {
       "code": "0x0A30",
       "text": "Hybrid Battery Voltage Sense Circuit Malfunction"
     },
@@ -1788,8 +4332,396 @@
       "text": "OBD-II Monitor Testing Not Complete"
     },
     {
+      "code": "0x2000",
+      "text": "NOx Trap Efficiency Below Threshold"
+    },
+    {
+      "code": "0x2001",
+      "text": "NOx Trap Efficiency Below Threshold"
+    },
+    {
+      "code": "0x2002",
+      "text": "Particulate Trap Efficiency Below Threshold"
+    },
+    {
+      "code": "0x2003",
+      "text": "Particulate Trap Efficiency Below Threshold"
+    },
+    {
+      "code": "0x2004",
+      "text": "Intake Manifold Runner Control Stuck Open"
+    },
+    {
+      "code": "0x2005",
+      "text": "Intake Manifold Runner Control Stuck Open"
+    },
+    {
+      "code": "0x2006",
+      "text": "Intake Manifold Runner Control Stuck Closed"
+    },
+    {
+      "code": "0x2007",
+      "text": "Intake Manifold Runner Control Stuck Closed"
+    },
+    {
+      "code": "0x2008",
+      "text": "Intake Manifold Runner Control Circuit/Open"
+    },
+    {
+      "code": "0x2009",
+      "text": "Intake Manifold Runner Control Circuit Low"
+    },
+    {
+      "code": "0x2010",
+      "text": "Intake Manifold Runner Control Circuit High"
+    },
+    {
+      "code": "0x2011",
+      "text": "Intake Manifold Runner Control Circuit/Open"
+    },
+    {
+      "code": "0x2012",
+      "text": "Intake Manifold Runner Control Circuit Low"
+    },
+    {
+      "code": "0x2013",
+      "text": "Intake Manifold Runner Control Circuit High"
+    },
+    {
+      "code": "0x2014",
+      "text": "Intake Manifold Runner Position Sensor/Switch Circuit"
+    },
+    {
+      "code": "0x2015",
+      "text": "Intake Manifold Runner Position Sensor/Switch Circuit Range/Performance"
+    },
+    {
+      "code": "0x2016",
+      "text": "Intake Manifold Runner Position Sensor/Switch Circuit Low"
+    },
+    {
+      "code": "0x2017",
+      "text": "Intake Manifold Runner Position Sensor/Switch Circuit High"
+    },
+    {
+      "code": "0x2018",
+      "text": "Intake Manifold Runner Position Sensor/Switch Circuit Intermittent"
+    },
+    {
+      "code": "0x2019",
+      "text": "Intake Manifold Runner Position Sensor/Switch Circuit"
+    },
+    {
+      "code": "0x2020",
+      "text": "Intake Manifold Runner Position Sensor/Switch Circuit Range/Performance"
+    },
+    {
+      "code": "0x2021",
+      "text": "Intake Manifold Runner Position Sensor/Switch Circuit Low"
+    },
+    {
+      "code": "0x2022",
+      "text": "Intake Manifold Runner Position Sensor/Switch Circuit High"
+    },
+    {
+      "code": "0x2023",
+      "text": "Intake Manifold Runner Position Sensor/Switch Circuit Intermittent"
+    },
+    {
+      "code": "0x2024",
+      "text": "Evaporative Emissions (EVAP) Fuel Vapor Temperature Sensor Circuit"
+    },
+    {
+      "code": "0x2025",
+      "text": "Evaporative Emissions (EVAP) Fuel Vapor Temperature Sensor Performance"
+    },
+    {
+      "code": "0x2026",
+      "text": "Evaporative Emissions (EVAP) Fuel Vapor Temperature Sensor Circuit Low Voltage"
+    },
+    {
+      "code": "0x2027",
+      "text": "Evaporative Emissions (EVAP) Fuel Vapor Temperature Sensor Circuit High Voltage"
+    },
+    {
+      "code": "0x2028",
+      "text": "Evaporative Emissions (EVAP) Fuel Vapor Temperature Sensor Circuit Intermittent"
+    },
+    {
+      "code": "0x2029",
+      "text": "Fuel Fired Heater Disabled"
+    },
+    {
+      "code": "0x2030",
+      "text": "Fuel Fired Heater Performance"
+    },
+    {
+      "code": "0x2031",
+      "text": "Exhaust Gas Temperature Sensor Circuit"
+    },
+    {
+      "code": "0x2032",
+      "text": "Exhaust Gas Temperature Sensor Circuit Low"
+    },
+    {
+      "code": "0x2033",
+      "text": "Exhaust Gas Temperature Sensor Circuit High"
+    },
+    {
+      "code": "0x2034",
+      "text": "Exhaust Gas Temperature Sensor Circuit"
+    },
+    {
+      "code": "0x2035",
+      "text": "Exhaust Gas Temperature Sensor Circuit Low"
+    },
+    {
+      "code": "0x2036",
+      "text": "Exhaust Gas Temperature Sensor Circuit High"
+    },
+    {
+      "code": "0x2037",
+      "text": "Reductant Injection Air Pressure Sensor Circuit"
+    },
+    {
+      "code": "0x2038",
+      "text": "Reductant Injection Air Pressure Sensor Circuit Range/Performance"
+    },
+    {
+      "code": "0x2039",
+      "text": "Reductant Injection Air Pressure Sensor Circuit Low Input"
+    },
+    {
+      "code": "0x2040",
+      "text": "Reductant Injection Air Pressure Sensor Circuit High Input"
+    },
+    {
+      "code": "0x2041",
+      "text": "Reductant Injection Air Pressure Sensor Circuit Intermittent"
+    },
+    {
+      "code": "0x2042",
+      "text": "Reductant Temperature Sensor Circuit"
+    },
+    {
+      "code": "0x2043",
+      "text": "Reductant Temperature Sensor Circuit Range/Performance"
+    },
+    {
+      "code": "0x2044",
+      "text": "Reductant Temperature Sensor Circuit Low Input"
+    },
+    {
+      "code": "0x2045",
+      "text": "Reductant Temperature Sensor Circuit High Input"
+    },
+    {
+      "code": "0x2046",
+      "text": "Reductant Temperature Sensor Circuit Intermittent"
+    },
+    {
+      "code": "0x2047",
+      "text": "Reductant Injector Circuit/Open"
+    },
+    {
+      "code": "0x2048",
+      "text": "Reductant Injector Circuit Low"
+    },
+    {
+      "code": "0x2049",
+      "text": "Reductant Injector Circuit High"
+    },
+    {
       "code": "0x204F",
       "text": "Reductant System Performance"
+    },
+    {
+      "code": "0x2050",
+      "text": "Reductant Injector Circuit/Open"
+    },
+    {
+      "code": "0x2051",
+      "text": "Reductant Injector Circuit Low"
+    },
+    {
+      "code": "0x2052",
+      "text": "Reductant Injector Circuit High"
+    },
+    {
+      "code": "0x2053",
+      "text": "Reductant Injector Circuit/Open"
+    },
+    {
+      "code": "0x2054",
+      "text": "Reductant Injector Circuit Low"
+    },
+    {
+      "code": "0x2055",
+      "text": "Reductant Injector Circuit High"
+    },
+    {
+      "code": "0x2056",
+      "text": "Reductant Injector Circuit/Open"
+    },
+    {
+      "code": "0x2057",
+      "text": "Reductant Injector Circuit Low"
+    },
+    {
+      "code": "0x2058",
+      "text": "Reductant Injector Circuit High"
+    },
+    {
+      "code": "0x2059",
+      "text": "Reductant Injection Air Pump Control Circuit/Open"
+    },
+    {
+      "code": "0x2060",
+      "text": "Reductant Injection Air Pump Control Circuit Low"
+    },
+    {
+      "code": "0x2061",
+      "text": "Reductant Injection Air Pump Control Circuit High"
+    },
+    {
+      "code": "0x2062",
+      "text": "Reductant Supply Control Circuit/Open"
+    },
+    {
+      "code": "0x2063",
+      "text": "Reductant Supply Control Circuit Low"
+    },
+    {
+      "code": "0x2064",
+      "text": "Reductant Supply Control Circuit High"
+    },
+    {
+      "code": "0x2065",
+      "text": "Fuel Level Sensor 'B' Circuit"
+    },
+    {
+      "code": "0x2066",
+      "text": "Fuel Level Sensor 'B' Performance"
+    },
+    {
+      "code": "0x2067",
+      "text": "Fuel Level Sensor 'B' Circuit Low"
+    },
+    {
+      "code": "0x2068",
+      "text": "Fuel Level Sensor 'B' Circuit High"
+    },
+    {
+      "code": "0x2069",
+      "text": "Fuel Level Sensor 'B' Circuit Intermittent"
+    },
+    {
+      "code": "0x2070",
+      "text": "Intake Manifold Tuning (IMT) Valve Stuck Open"
+    },
+    {
+      "code": "0x2071",
+      "text": "Intake Manifold Tuning (IMT) Valve Stuck Closed"
+    },
+    {
+      "code": "0x2075",
+      "text": "Intake Manifold Tuning (IMT) Valve Position Sensor/Switch Circuit"
+    },
+    {
+      "code": "0x2076",
+      "text": "Intake Manifold Tuning (IMT) Valve Position Sensor/Switch Circuit Range/Performance"
+    },
+    {
+      "code": "0x2077",
+      "text": "Intake Manifold Tuning (IMT) Valve Position Sensor/Switch Circuit Low"
+    },
+    {
+      "code": "0x2078",
+      "text": "Intake Manifold Tuning (IMT) Valve Position Sensor/Switch Circuit High"
+    },
+    {
+      "code": "0x2079",
+      "text": "Intake Manifold Tuning (IMT) Valve Position Sensor/Switch Circuit Intermittent"
+    },
+    {
+      "code": "0x2080",
+      "text": "Exhaust Gas Temperature Sensor Circuit Range/Performance"
+    },
+    {
+      "code": "0x2081",
+      "text": "Exhaust Gas Temperature Sensor Circuit Intermittent"
+    },
+    {
+      "code": "0x2082",
+      "text": "Exhaust Gas Temperature Sensor Circuit Range/Performance"
+    },
+    {
+      "code": "0x2083",
+      "text": "Exhaust Gas Temperature Sensor Circuit Intermittent"
+    },
+    {
+      "code": "0x2084",
+      "text": "Exhaust Gas Temperature Sensor Circuit Range/Performance"
+    },
+    {
+      "code": "0x2085",
+      "text": "Exhaust Gas Temperature Sensor Circuit Intermittent"
+    },
+    {
+      "code": "0x2086",
+      "text": "Exhaust Gas Temperature Sensor Circuit Range/Performance"
+    },
+    {
+      "code": "0x2087",
+      "text": "Exhaust Gas Temperature Sensor Circuit Intermittent"
+    },
+    {
+      "code": "0x2088",
+      "text": "'A' Camshaft Position Actuator Control Circuit Low"
+    },
+    {
+      "code": "0x2089",
+      "text": "'A' Camshaft Position Actuator Control Circuit High"
+    },
+    {
+      "code": "0x2090",
+      "text": "'B' Camshaft Position Actuator Control Circuit Low"
+    },
+    {
+      "code": "0x2091",
+      "text": "'B' Camshaft Position Actuator Control Circuit High"
+    },
+    {
+      "code": "0x2092",
+      "text": "'A' Camshaft Position Actuator Control Circuit Low"
+    },
+    {
+      "code": "0x2093",
+      "text": "'A' Camshaft Position Actuator Control Circuit High"
+    },
+    {
+      "code": "0x2094",
+      "text": "'B' Camshaft Position Actuator Control Circuit Low"
+    },
+    {
+      "code": "0x2095",
+      "text": "'B' Camshaft Position Actuator Control Circuit High"
+    },
+    {
+      "code": "0x2096",
+      "text": "Post Catalyst Fuel Trim System Too Lean"
+    },
+    {
+      "code": "0x2097",
+      "text": "Post Catalyst Fuel Trim System Too Rich"
+    },
+    {
+      "code": "0x2098",
+      "text": "Post Catalyst Fuel Trim System Too Lean"
+    },
+    {
+      "code": "0x2099",
+      "text": "Post Catalyst Fuel Trim System Too Rich"
     },
     {
       "code": "0x2100",
@@ -1810,6 +4742,26 @@
     {
       "code": "0x2104",
       "text": "Throttle Actuator 'A' Control Motor Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x2105",
+      "text": "Throttle Actuator Control System - Forced Engine Shutdown"
+    },
+    {
+      "code": "0x2106",
+      "text": "Throttle Actuator Control System - Forced Limited Power"
+    },
+    {
+      "code": "0x2107",
+      "text": "Throttle Actuator Control Module Processor"
+    },
+    {
+      "code": "0x2108",
+      "text": "Throttle Actuator Control Module Performance"
+    },
+    {
+      "code": "0x2109",
+      "text": "Throttle/Pedal Position Sensor 'A' Minimum Stop Performance"
     },
     {
       "code": "0x2110",
@@ -1892,6 +4844,286 @@
       "text": "Pedal Position Sensor / Switch 'E' Circuit Circuit Intermittent"
     },
     {
+      "code": "0x2130",
+      "text": "Throttle/Pedal Position Sensor/Switch 'F' Circuit"
+    },
+    {
+      "code": "0x2131",
+      "text": "Throttle/Pedal Position Sensor/Switch 'F' Circuit Range Performance"
+    },
+    {
+      "code": "0x2132",
+      "text": "Throttle/Pedal Position Sensor/Switch 'F' Circuit Low Input"
+    },
+    {
+      "code": "0x2133",
+      "text": "Throttle/Pedal Position Sensor/Switch 'F' Circuit High Input"
+    },
+    {
+      "code": "0x2134",
+      "text": "Throttle/Pedal Position Sensor/Switch 'F' Circuit Intermittent"
+    },
+    {
+      "code": "0x2135",
+      "text": "Throttle/Pedal Position Sensor/Switch 'A' / 'B' Voltage Correlation"
+    },
+    {
+      "code": "0x2136",
+      "text": "Throttle/Pedal Position Sensor/Switch 'A' / 'C' Voltage Correlation"
+    },
+    {
+      "code": "0x2137",
+      "text": "Throttle/Pedal Position Sensor/Switch 'B' / 'C' Voltage Correlation"
+    },
+    {
+      "code": "0x2138",
+      "text": "Throttle/Pedal Position Sensor/Switch 'D' / 'E' Voltage Correlation"
+    },
+    {
+      "code": "0x2139",
+      "text": "Throttle/Pedal Position Sensor/Switch 'D' / 'F' Voltage Correlation"
+    },
+    {
+      "code": "0x2140",
+      "text": "Throttle/Pedal Position Sensor/Switch 'E' / 'F' Voltage Correlation"
+    },
+    {
+      "code": "0x2141",
+      "text": "Exhaust Gas Recirculation Throttle Control Circuit Low"
+    },
+    {
+      "code": "0x2142",
+      "text": "Exhaust Gas Recirculation Throttle Control Circuit High"
+    },
+    {
+      "code": "0x2143",
+      "text": "Exhaust Gas Recirculation Vent Control Circuit/Open"
+    },
+    {
+      "code": "0x2144",
+      "text": "Exhaust Gas Recirculation Vent Control Circuit Low"
+    },
+    {
+      "code": "0x2145",
+      "text": "Exhaust Gas Recirculation Vent Control Circuit High"
+    },
+    {
+      "code": "0x2146",
+      "text": "Fuel Injector Group 'A' Supply Voltage Circuit/Open"
+    },
+    {
+      "code": "0x2147",
+      "text": "Fuel Injector Group 'A' Supply Voltage Circuit Low"
+    },
+    {
+      "code": "0x2148",
+      "text": "Fuel Injector Group 'A' Supply Voltage Circuit High"
+    },
+    {
+      "code": "0x2149",
+      "text": "Fuel Injector Group 'B' Supply Voltage Circuit/Open"
+    },
+    {
+      "code": "0x2150",
+      "text": "Fuel Injector Group 'B' Supply Voltage Circuit Low"
+    },
+    {
+      "code": "0x2151",
+      "text": "Fuel Injector Group 'B' Supply Voltage Circuit High"
+    },
+    {
+      "code": "0x2152",
+      "text": "Fuel Injector Group 'C' Supply Voltage Circuit/Open"
+    },
+    {
+      "code": "0x2153",
+      "text": "Fuel Injector Group 'C' Supply Voltage Circuit Low"
+    },
+    {
+      "code": "0x2154",
+      "text": "Fuel Injector Group 'C' Supply Voltage Circuit High"
+    },
+    {
+      "code": "0x2155",
+      "text": "Fuel Injector Group 'D' Supply Voltage Circuit/Open"
+    },
+    {
+      "code": "0x2156",
+      "text": "Fuel Injector Group 'D' Supply Voltage Circuit Low"
+    },
+    {
+      "code": "0x2157",
+      "text": "Fuel Injector Group 'D' Supply Voltage Circuit High"
+    },
+    {
+      "code": "0x2158",
+      "text": "Vehicle Speed Sensor 'B'"
+    },
+    {
+      "code": "0x2159",
+      "text": "Vehicle Speed Sensor 'B' Range/Performance"
+    },
+    {
+      "code": "0x2160",
+      "text": "Vehicle Speed Sensor 'B' Circuit Low"
+    },
+    {
+      "code": "0x2161",
+      "text": "Vehicle Speed Sensor 'B' Intermittent/Erratic"
+    },
+    {
+      "code": "0x2162",
+      "text": "Vehicle Speed Sensor 'A' / 'B' Correlation"
+    },
+    {
+      "code": "0x2163",
+      "text": "Throttle/Pedal Position Sensor 'A' Maximum Stop Performance"
+    },
+    {
+      "code": "0x2164",
+      "text": "Throttle/Pedal Position Sensor 'B' Maximum Stop Performance"
+    },
+    {
+      "code": "0x2165",
+      "text": "Throttle/Pedal Position Sensor 'C' Maximum Stop Performance"
+    },
+    {
+      "code": "0x2166",
+      "text": "Throttle/Pedal Position Sensor 'D' Maximum Stop Performance"
+    },
+    {
+      "code": "0x2167",
+      "text": "Throttle/Pedal Position Sensor 'E' Maximum Stop Performance"
+    },
+    {
+      "code": "0x2168",
+      "text": "Throttle/Pedal Position Sensor 'F' Maximum Stop Performance"
+    },
+    {
+      "code": "0x2169",
+      "text": "Exhaust Pressure Regulator Vent Solenoid Control Circuit/Open"
+    },
+    {
+      "code": "0x2170",
+      "text": "Exhaust Pressure Regulator Vent Solenoid Control Circuit Low"
+    },
+    {
+      "code": "0x2171",
+      "text": "Exhaust Pressure Regulator Vent Solenoid Control Circuit High"
+    },
+    {
+      "code": "0x2172",
+      "text": "Throttle Actuator Control System - Sudden High Airflow Detected"
+    },
+    {
+      "code": "0x2173",
+      "text": "Throttle Actuator Control System - High Airflow Detected"
+    },
+    {
+      "code": "0x2174",
+      "text": "Throttle Actuator Control System - Sudden Low Airflow Detected"
+    },
+    {
+      "code": "0x2175",
+      "text": "Throttle Actuator Control System - Low Airflow Detected"
+    },
+    {
+      "code": "0x2176",
+      "text": "Throttle Actuator Control System - Idle Position Not Learned"
+    },
+    {
+      "code": "0x2177",
+      "text": "System Too Lean Off Idle"
+    },
+    {
+      "code": "0x2178",
+      "text": "System Too Rich Off Idle"
+    },
+    {
+      "code": "0x2179",
+      "text": "System Too Lean Off Idle"
+    },
+    {
+      "code": "0x2180",
+      "text": "System Too Rich Off Idle"
+    },
+    {
+      "code": "0x2181",
+      "text": "Cooling System Performance"
+    },
+    {
+      "code": "0x2182",
+      "text": "Engine Coolant Temperature Sensor 2 Circuit"
+    },
+    {
+      "code": "0x2183",
+      "text": "Engine Coolant Temperature Sensor 2 Circuit Range/Performance"
+    },
+    {
+      "code": "0x2184",
+      "text": "Engine Coolant Temperature Sensor 2 Circuit Low"
+    },
+    {
+      "code": "0x2185",
+      "text": "Engine Coolant Temperature Sensor 2 Circuit High"
+    },
+    {
+      "code": "0x2186",
+      "text": "Engine Coolant Temperature Sensor 2 Circuit Intermittent/Erratic"
+    },
+    {
+      "code": "0x2187",
+      "text": "System Too Lean at Idle"
+    },
+    {
+      "code": "0x2188",
+      "text": "System Too Rich at Idle"
+    },
+    {
+      "code": "0x2189",
+      "text": "System Too Lean at Idle"
+    },
+    {
+      "code": "0x2190",
+      "text": "System Too Rich at Idle"
+    },
+    {
+      "code": "0x2191",
+      "text": "System Too Lean at Higher Load"
+    },
+    {
+      "code": "0x2192",
+      "text": "System Too Rich at Higher Load"
+    },
+    {
+      "code": "0x2193",
+      "text": "System Too Lean at Higher Load"
+    },
+    {
+      "code": "0x2194",
+      "text": "System Too Rich at Higher Load"
+    },
+    {
+      "code": "0x2195",
+      "text": "O2 Sensor Signal Stuck Lean"
+    },
+    {
+      "code": "0x2196",
+      "text": "O2 Sensor Signal Stuck Rich"
+    },
+    {
+      "code": "0x2197",
+      "text": "O2 Sensor Signal Stuck Lean"
+    },
+    {
+      "code": "0x2198",
+      "text": "O2 Sensor Signal Stuck Rich"
+    },
+    {
+      "code": "0x2199",
+      "text": "Intake Air Temperature Sensor 1 / 2 Correlation"
+    },
+    {
       "code": "0x2200",
       "text": "NOx Sensor Circuit, Bank 1, Sensor 1 Malfunction"
     },
@@ -1932,6 +5164,558 @@
       "text": "NOx Sensor Heater Circuit Circuit Intermittent"
     },
     {
+      "code": "0x2210",
+      "text": "NOx Sensor Heater Sense Circuit Low Input"
+    },
+    {
+      "code": "0x2211",
+      "text": "NOx Sensor Heater Sense Circuit High Input"
+    },
+    {
+      "code": "0x2212",
+      "text": "NOx Sensor Heater Sense Circuit Intermittent"
+    },
+    {
+      "code": "0x2213",
+      "text": "NOx Sensor Circuit"
+    },
+    {
+      "code": "0x2214",
+      "text": "NOx Sensor Circuit Range/Performance"
+    },
+    {
+      "code": "0x2215",
+      "text": "NOx Sensor Circuit Low Input"
+    },
+    {
+      "code": "0x2216",
+      "text": "NOx Sensor Circuit High Input"
+    },
+    {
+      "code": "0x2217",
+      "text": "NOx Sensor Circuit Intermittent Input"
+    },
+    {
+      "code": "0x2218",
+      "text": "NOx Sensor Heater Control Circuit/Open"
+    },
+    {
+      "code": "0x2219",
+      "text": "NOx Sensor Heater Control Circuit Low"
+    },
+    {
+      "code": "0x2220",
+      "text": "NOx Sensor Heater Control Circuit High"
+    },
+    {
+      "code": "0x2221",
+      "text": "NOx Sensor Heater Sense Circuit"
+    },
+    {
+      "code": "0x2222",
+      "text": "NOx Sensor Heater Sense Circuit Range/Performance"
+    },
+    {
+      "code": "0x2223",
+      "text": "NOx Sensor Heater Sense Circuit Low"
+    },
+    {
+      "code": "0x2224",
+      "text": "NOx Sensor Heater Sense Circuit High"
+    },
+    {
+      "code": "0x2225",
+      "text": "NOx Sensor Heater Sense Circuit Intermittent"
+    },
+    {
+      "code": "0x2226",
+      "text": "Barometric Pressure Circuit"
+    },
+    {
+      "code": "0x2227",
+      "text": "Barometric Pressure Circuit Range/Performance"
+    },
+    {
+      "code": "0x2228",
+      "text": "Barometric Pressure Circuit Low"
+    },
+    {
+      "code": "0x2229",
+      "text": "Barometric Pressure Circuit High"
+    },
+    {
+      "code": "0x2230",
+      "text": "Barometric Pressure Circuit Intermittent"
+    },
+    {
+      "code": "0x2231",
+      "text": "O2 Sensor Signal Circuit Shorted to Heater Circuit"
+    },
+    {
+      "code": "0x2232",
+      "text": "O2 Sensor Signal Circuit Shorted to Heater Circuit"
+    },
+    {
+      "code": "0x2233",
+      "text": "O2 Sensor Signal Circuit Shorted to Heater Circuit"
+    },
+    {
+      "code": "0x2234",
+      "text": "O2 Sensor Signal Circuit Shorted to Heater Circuit"
+    },
+    {
+      "code": "0x2235",
+      "text": "O2 Sensor Signal Circuit Shorted to Heater Circuit"
+    },
+    {
+      "code": "0x2236",
+      "text": "O2 Sensor Signal Circuit Shorted to Heater Circuit"
+    },
+    {
+      "code": "0x2237",
+      "text": "O2 Sensor Positive Current Control Circuit/Open"
+    },
+    {
+      "code": "0x2238",
+      "text": "O2 Sensor Positive Current Control Circuit Low"
+    },
+    {
+      "code": "0x2239",
+      "text": "O2 Sensor Positive Current Control Circuit High"
+    },
+    {
+      "code": "0x2240",
+      "text": "O2 Sensor Positive Current Control Circuit/Open"
+    },
+    {
+      "code": "0x2241",
+      "text": "O2 Sensor Positive Current Control Circuit Low"
+    },
+    {
+      "code": "0x2242",
+      "text": "O2 Sensor Positive Current Control Circuit High"
+    },
+    {
+      "code": "0x2243",
+      "text": "O2 Sensor Reference Voltage Circuit/Open"
+    },
+    {
+      "code": "0x2244",
+      "text": "O2 Sensor Reference Voltage Performance"
+    },
+    {
+      "code": "0x2245",
+      "text": "O2 Sensor Reference Voltage Circuit Low"
+    },
+    {
+      "code": "0x2246",
+      "text": "O2 Sensor Reference Voltage Circuit High"
+    },
+    {
+      "code": "0x2247",
+      "text": "O2 Sensor Reference Voltage Circuit/Open"
+    },
+    {
+      "code": "0x2248",
+      "text": "O2 Sensor Reference Voltage Performance"
+    },
+    {
+      "code": "0x2249",
+      "text": "O2 Sensor Reference Voltage Circuit Low"
+    },
+    {
+      "code": "0x2250",
+      "text": "O2 Sensor Reference Voltage Circuit High"
+    },
+    {
+      "code": "0x2251",
+      "text": "O2 Sensor Negative Current Control Circuit/Open"
+    },
+    {
+      "code": "0x2252",
+      "text": "O2 Sensor Negative Current Control Circuit Low"
+    },
+    {
+      "code": "0x2253",
+      "text": "O2 Sensor Negative Current Control Circuit High"
+    },
+    {
+      "code": "0x2254",
+      "text": "O2 Sensor Negative Current Control Circuit/Open"
+    },
+    {
+      "code": "0x2255",
+      "text": "O2 Sensor Negative Current Control Circuit Low"
+    },
+    {
+      "code": "0x2256",
+      "text": "O2 Sensor Negative Current Control Circuit High"
+    },
+    {
+      "code": "0x2257",
+      "text": "Secondary Air Injection System Control 'A' Circuit Low"
+    },
+    {
+      "code": "0x2258",
+      "text": "Secondary Air Injection System Control 'A' Circuit High"
+    },
+    {
+      "code": "0x2259",
+      "text": "Secondary Air Injection System Control 'B' Circuit Low"
+    },
+    {
+      "code": "0x2260",
+      "text": "Secondary Air Injection System Control 'B' Circuit High"
+    },
+    {
+      "code": "0x2261",
+      "text": "Turbo/Super Charger Bypass Valve - Mechanical"
+    },
+    {
+      "code": "0x2262",
+      "text": "Turbo Boost Pressure Not Detected - Mechanical"
+    },
+    {
+      "code": "0x2263",
+      "text": "Turbo/Super Charger Boost System Performance"
+    },
+    {
+      "code": "0x2264",
+      "text": "Water in Fuel Sensor Circuit"
+    },
+    {
+      "code": "0x2265",
+      "text": "Water in Fuel Sensor Circuit Range/Performance"
+    },
+    {
+      "code": "0x2266",
+      "text": "Water in Fuel Sensor Circuit Low"
+    },
+    {
+      "code": "0x2267",
+      "text": "Water in Fuel Sensor Circuit High"
+    },
+    {
+      "code": "0x2268",
+      "text": "Water in Fuel Sensor Circuit Intermittent"
+    },
+    {
+      "code": "0x2269",
+      "text": "Water in Fuel Condition"
+    },
+    {
+      "code": "0x2270",
+      "text": "O2 Sensor Signal Stuck Lean"
+    },
+    {
+      "code": "0x2271",
+      "text": "O2 Sensor Signal Stuck Rich"
+    },
+    {
+      "code": "0x2272",
+      "text": "O2 Sensor Signal Stuck Lean"
+    },
+    {
+      "code": "0x2273",
+      "text": "O2 Sensor Signal Stuck Rich"
+    },
+    {
+      "code": "0x2274",
+      "text": "O2 Sensor Signal Stuck Lean"
+    },
+    {
+      "code": "0x2275",
+      "text": "O2 Sensor Signal Stuck Rich"
+    },
+    {
+      "code": "0x2276",
+      "text": "O2 Sensor Signal Stuck Lean"
+    },
+    {
+      "code": "0x2277",
+      "text": "O2 Sensor Signal Stuck Rich"
+    },
+    {
+      "code": "0x2278",
+      "text": "O2 Sensor Signals Swapped Bank 1 Sensor 3 / Bank 2 Sensor 3"
+    },
+    {
+      "code": "0x2279",
+      "text": "Intake Air System Leak"
+    },
+    {
+      "code": "0x2280",
+      "text": "Air Flow Restriction / Air Leak Between Air Filter and MAF"
+    },
+    {
+      "code": "0x2281",
+      "text": "Air Leak Between MAF and Throttle Body"
+    },
+    {
+      "code": "0x2282",
+      "text": "Air Leak Between Throttle Body and Intake Valves"
+    },
+    {
+      "code": "0x2283",
+      "text": "Injector Control Pressure Sensor Circuit"
+    },
+    {
+      "code": "0x2284",
+      "text": "Injector Control Pressure Sensor Circuit Range/Performance"
+    },
+    {
+      "code": "0x2285",
+      "text": "Injector Control Pressure Sensor Circuit Low"
+    },
+    {
+      "code": "0x2286",
+      "text": "Injector Control Pressure Sensor Circuit High"
+    },
+    {
+      "code": "0x2287",
+      "text": "Injector Control Pressure Sensor Circuit Intermittent"
+    },
+    {
+      "code": "0x2288",
+      "text": "Injector Control Pressure Too High"
+    },
+    {
+      "code": "0x2289",
+      "text": "Injector Control Pressure Too High - Engine Off"
+    },
+    {
+      "code": "0x2290",
+      "text": "Injector Control Pressure Too Low"
+    },
+    {
+      "code": "0x2291",
+      "text": "Injector Control Pressure Too Low - Engine Cranking"
+    },
+    {
+      "code": "0x2292",
+      "text": "Injector Control Pressure Erratic"
+    },
+    {
+      "code": "0x2293",
+      "text": "Fuel Pressure Regulator 2 Performance"
+    },
+    {
+      "code": "0x2294",
+      "text": "Fuel Pressure Regulator 2 Control Circuit"
+    },
+    {
+      "code": "0x2295",
+      "text": "Fuel Pressure Regulator 2 Control Circuit Low"
+    },
+    {
+      "code": "0x2296",
+      "text": "Fuel Pressure Regulator 2 Control Circuit High"
+    },
+    {
+      "code": "0x2297",
+      "text": "O2 Sensor Out of Range During Deceleration"
+    },
+    {
+      "code": "0x2298",
+      "text": "O2 Sensor Out of Range During Deceleration"
+    },
+    {
+      "code": "0x2299",
+      "text": "Brake Pedal Position / Accelerator Pedal Position Incompatible"
+    },
+    {
+      "code": "0x2300",
+      "text": "Ignition Coil 'A' Primary Control Circuit Low"
+    },
+    {
+      "code": "0x2301",
+      "text": "Ignition Coil 'A' Primary Control Circuit High"
+    },
+    {
+      "code": "0x2302",
+      "text": "Ignition Coil 'A' Secondary Circuit"
+    },
+    {
+      "code": "0x2303",
+      "text": "Ignition Coil 'B' Primary Control Circuit Low"
+    },
+    {
+      "code": "0x2304",
+      "text": "Ignition Coil 'B' Primary Control Circuit High"
+    },
+    {
+      "code": "0x2305",
+      "text": "Ignition Coil 'B' Secondary Circuit"
+    },
+    {
+      "code": "0x2306",
+      "text": "Ignition Coil 'C' Primary Control Circuit Low"
+    },
+    {
+      "code": "0x2307",
+      "text": "Ignition Coil 'C' Primary Control Circuit High"
+    },
+    {
+      "code": "0x2308",
+      "text": "Ignition Coil 'C' Secondary Circuit"
+    },
+    {
+      "code": "0x2309",
+      "text": "Ignition Coil 'D' Primary Control Circuit Low"
+    },
+    {
+      "code": "0x2310",
+      "text": "Ignition Coil 'D' Primary Control Circuit High"
+    },
+    {
+      "code": "0x2311",
+      "text": "Ignition Coil 'D' Secondary Circuit"
+    },
+    {
+      "code": "0x2312",
+      "text": "Ignition Coil 'E' Primary Control Circuit Low"
+    },
+    {
+      "code": "0x2313",
+      "text": "Ignition Coil 'E' Primary Control Circuit High"
+    },
+    {
+      "code": "0x2314",
+      "text": "Ignition Coil 'E' Secondary Circuit"
+    },
+    {
+      "code": "0x2315",
+      "text": "Ignition Coil 'F' Primary Control Circuit Low"
+    },
+    {
+      "code": "0x2316",
+      "text": "Ignition Coil 'F' Primary Control Circuit High"
+    },
+    {
+      "code": "0x2317",
+      "text": "Ignition Coil 'F' Secondary Circuit"
+    },
+    {
+      "code": "0x2318",
+      "text": "Ignition Coil 'G' Primary Control Circuit Low"
+    },
+    {
+      "code": "0x2319",
+      "text": "Ignition Coil 'G' Primary Control Circuit High"
+    },
+    {
+      "code": "0x2320",
+      "text": "Ignition Coil 'G' Secondary Circuit"
+    },
+    {
+      "code": "0x2321",
+      "text": "Ignition Coil 'H' Primary Control Circuit Low"
+    },
+    {
+      "code": "0x2322",
+      "text": "Ignition Coil 'H' Primary Control Circuit High"
+    },
+    {
+      "code": "0x2323",
+      "text": "Ignition Coil 'H' Secondary Circuit"
+    },
+    {
+      "code": "0x2324",
+      "text": "Ignition Coil 'I' Primary Control Circuit Low"
+    },
+    {
+      "code": "0x2325",
+      "text": "Ignition Coil 'I' Primary Control Circuit High"
+    },
+    {
+      "code": "0x2326",
+      "text": "Ignition Coil 'I' Secondary Circuit"
+    },
+    {
+      "code": "0x2327",
+      "text": "Ignition Coil 'J' Primary Control Circuit Low"
+    },
+    {
+      "code": "0x2328",
+      "text": "Ignition Coil 'J' Primary Control Circuit High"
+    },
+    {
+      "code": "0x2329",
+      "text": "Ignition Coil 'J' Secondary Circuit"
+    },
+    {
+      "code": "0x2330",
+      "text": "Ignition Coil 'K' Primary Control Circuit Low"
+    },
+    {
+      "code": "0x2331",
+      "text": "Ignition Coil 'K' Primary Control Circuit High"
+    },
+    {
+      "code": "0x2332",
+      "text": "Ignition Coil 'K' Secondary Circuit"
+    },
+    {
+      "code": "0x2333",
+      "text": "Ignition Coil 'L' Primary Control Circuit Low"
+    },
+    {
+      "code": "0x2334",
+      "text": "Ignition Coil 'L' Primary Control Circuit High"
+    },
+    {
+      "code": "0x2335",
+      "text": "Ignition Coil 'L' Secondary Circuit"
+    },
+    {
+      "code": "0x2336",
+      "text": "Cylinder #1 Above Knock Threshold"
+    },
+    {
+      "code": "0x2337",
+      "text": "Cylinder #2 Above Knock Threshold"
+    },
+    {
+      "code": "0x2338",
+      "text": "Cylinder #3 Above Knock Threshold"
+    },
+    {
+      "code": "0x2339",
+      "text": "Cylinder #4 Above Knock Threshold"
+    },
+    {
+      "code": "0x2340",
+      "text": "Cylinder #5 Above Knock Threshold"
+    },
+    {
+      "code": "0x2341",
+      "text": "Cylinder #6 Above Knock Threshold"
+    },
+    {
+      "code": "0x2342",
+      "text": "Cylinder #7 Above Knock Threshold"
+    },
+    {
+      "code": "0x2343",
+      "text": "Cylinder #8 Above Knock Threshold"
+    },
+    {
+      "code": "0x2344",
+      "text": "Cylinder #9 Above Knock Threshold"
+    },
+    {
+      "code": "0x2345",
+      "text": "Cylinder #10 Above Knock Threshold"
+    },
+    {
+      "code": "0x2346",
+      "text": "Cylinder #11 Above Knock Threshold"
+    },
+    {
+      "code": "0x2347",
+      "text": "Cylinder #12 Above Knock Threshold"
+    },
+    {
       "code": "0x2400",
       "text": "EVAP Leak Detection Pump Control Circuit Malfunction"
     },
@@ -1950,6 +5734,26 @@
     {
       "code": "0x2404",
       "text": "EVAP Leak Detection Pump Control Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x2405",
+      "text": "Evaporative Emission System Leak Detection Pump Sense Circuit Low"
+    },
+    {
+      "code": "0x2406",
+      "text": "Evaporative Emission System Leak Detection Pump Sense Circuit High"
+    },
+    {
+      "code": "0x2407",
+      "text": "Evaporative Emission System Leak Detection Pump Sense Circuit Intermittent/Erratic"
+    },
+    {
+      "code": "0x2408",
+      "text": "Fuel Cap Sensor/Switch Circuit"
+    },
+    {
+      "code": "0x2409",
+      "text": "Fuel Cap Sensor/Switch Circuit Range/Performance"
     },
     {
       "code": "0x2410",
@@ -1972,6 +5776,46 @@
       "text": "Catalyst Temperature Bank 2 Circuit Intermittent"
     },
     {
+      "code": "0x2415",
+      "text": "O2 Sensor Exhaust Sample Error"
+    },
+    {
+      "code": "0x2416",
+      "text": "O2 Sensor Signals Swapped Bank 1 Sensor 2 / Bank 1 Sensor 3"
+    },
+    {
+      "code": "0x2417",
+      "text": "O2 Sensor Signals Swapped Bank 2 Sensor 2 / Bank 2 Sensor 3"
+    },
+    {
+      "code": "0x2418",
+      "text": "Evaporative Emission System Switching Valve Control Circuit / Open"
+    },
+    {
+      "code": "0x2419",
+      "text": "Evaporative Emission System Switching Valve Control Circuit Low"
+    },
+    {
+      "code": "0x2420",
+      "text": "Evaporative Emission System Switching Valve Control Circuit High"
+    },
+    {
+      "code": "0x2421",
+      "text": "Evaporative Emission System Vent Valve Stuck Open"
+    },
+    {
+      "code": "0x2422",
+      "text": "Evaporative Emission System Vent Valve Stuck Closed"
+    },
+    {
+      "code": "0x2423",
+      "text": "HC Adsorption Catalyst Efficiency Below Threshold"
+    },
+    {
+      "code": "0x2424",
+      "text": "HC Adsorption Catalyst Efficiency Below Threshold"
+    },
+    {
       "code": "0x2425",
       "text": "EGR Cooler Bypass Control Circuit Malfunction"
     },
@@ -1992,6 +5836,46 @@
       "text": "EGR Cooler Bypass Control Circuit Circuit Intermittent"
     },
     {
+      "code": "0x2430",
+      "text": "Secondary Air Injection System Air Flow/Pressure Sensor Circuit"
+    },
+    {
+      "code": "0x2431",
+      "text": "Secondary Air Injection System Air Flow/Pressure Sensor Circuit Range/Performance"
+    },
+    {
+      "code": "0x2432",
+      "text": "Secondary Air Injection System Air Flow/Pressure Sensor Circuit Low"
+    },
+    {
+      "code": "0x2433",
+      "text": "Secondary Air Injection System Air Flow/Pressure Sensor Circuit High"
+    },
+    {
+      "code": "0x2434",
+      "text": "Secondary Air Injection System Air Flow/Pressure Sensor Circuit Intermittent/Erratic"
+    },
+    {
+      "code": "0x2435",
+      "text": "Secondary Air Injection System Air Flow/Pressure Sensor Circuit"
+    },
+    {
+      "code": "0x2436",
+      "text": "Secondary Air Injection System Air Flow/Pressure Sensor Circuit Range/Performance"
+    },
+    {
+      "code": "0x2437",
+      "text": "Secondary Air Injection System Air Flow/Pressure Sensor Circuit Low"
+    },
+    {
+      "code": "0x2438",
+      "text": "Secondary Air Injection System Air Flow/Pressure Sensor Circuit High"
+    },
+    {
+      "code": "0x2439",
+      "text": "Secondary Air Injection System Air Flow/Pressure Sensor Circuit Intermittent/Erratic"
+    },
+    {
       "code": "0x2440",
       "text": "DPF Pressure Sensor 'A' Circuit Malfunction"
     },
@@ -2010,6 +5894,18 @@
     {
       "code": "0x2444",
       "text": "DPF Pressure Sensor 'A' Circuit Circuit Intermittent"
+    },
+    {
+      "code": "0x2445",
+      "text": "Secondary Air Injection System Pump Stuck Off"
+    },
+    {
+      "code": "0x2446",
+      "text": "Secondary Air Injection System Pump Stuck On"
+    },
+    {
+      "code": "0x2447",
+      "text": "Secondary Air Injection System Pump Stuck Off"
     },
     {
       "code": "0x244A",
@@ -2044,8 +5940,1800 @@
       "text": "Diesel Particulate Filter Regeneration Frequency"
     },
     {
+      "code": "0x2500",
+      "text": "Generator Lamp/L-Terminal Circuit Low"
+    },
+    {
+      "code": "0x2501",
+      "text": "Generator Lamp/L-Terminal Circuit High"
+    },
+    {
+      "code": "0x2502",
+      "text": "Charging System Voltage"
+    },
+    {
+      "code": "0x2503",
+      "text": "Charging System Voltage Low"
+    },
+    {
+      "code": "0x2504",
+      "text": "Charging System Voltage High"
+    },
+    {
+      "code": "0x2505",
+      "text": "ECM/PCM Power Input Signal"
+    },
+    {
+      "code": "0x2506",
+      "text": "ECM/PCM Power Input Signal Range/Performance"
+    },
+    {
+      "code": "0x2507",
+      "text": "ECM/PCM Power Input Signal Low"
+    },
+    {
+      "code": "0x2508",
+      "text": "ECM/PCM Power Input Signal High"
+    },
+    {
+      "code": "0x2509",
+      "text": "ECM/PCM Power Input Signal Intermittent"
+    },
+    {
+      "code": "0x2510",
+      "text": "ECM/PCM Power Relay Sense Circuit Range/Performance"
+    },
+    {
+      "code": "0x2511",
+      "text": "ECM/PCM Power Relay Sense Circuit Intermittent"
+    },
+    {
+      "code": "0x2512",
+      "text": "Event Data Recorder Request Circuit/ Open"
+    },
+    {
+      "code": "0x2513",
+      "text": "Event Data Recorder Request Circuit Low"
+    },
+    {
+      "code": "0x2514",
+      "text": "Event Data Recorder Request Circuit High"
+    },
+    {
+      "code": "0x2515",
+      "text": "A/C Refrigerant Pressure Sensor 'B' Circuit"
+    },
+    {
+      "code": "0x2516",
+      "text": "A/C Refrigerant Pressure Sensor 'B' Circuit Range/Performance"
+    },
+    {
+      "code": "0x2517",
+      "text": "A/C Refrigerant Pressure Sensor 'B' Circuit Low"
+    },
+    {
+      "code": "0x2518",
+      "text": "A/C Refrigerant Pressure Sensor 'B' Circuit High"
+    },
+    {
+      "code": "0x2519",
+      "text": "A/C Request 'A' Circuit"
+    },
+    {
+      "code": "0x2520",
+      "text": "A/C Request 'A' Circuit Low"
+    },
+    {
+      "code": "0x2521",
+      "text": "A/C Request 'A' Circuit High"
+    },
+    {
+      "code": "0x2522",
+      "text": "A/C Request 'B' Circuit"
+    },
+    {
+      "code": "0x2523",
+      "text": "A/C Request 'B' Circuit Low"
+    },
+    {
+      "code": "0x2524",
+      "text": "A/C Request 'B' Circuit High"
+    },
+    {
+      "code": "0x2525",
+      "text": "Vacuum Reservoir Pressure Sensor Circuit"
+    },
+    {
+      "code": "0x2526",
+      "text": "Vacuum Reservoir Pressure Sensor Circuit Range/Performance"
+    },
+    {
+      "code": "0x2527",
+      "text": "Vacuum Reservoir Pressure Sensor Circuit Low"
+    },
+    {
+      "code": "0x2528",
+      "text": "Vacuum Reservoir Pressure Sensor Circuit High"
+    },
+    {
+      "code": "0x2529",
+      "text": "Vacuum Reservoir Pressure Sensor Circuit Intermittent"
+    },
+    {
+      "code": "0x2530",
+      "text": "Ignition Switch Run Position Circuit"
+    },
+    {
+      "code": "0x2531",
+      "text": "Ignition Switch Run Position Circuit Low"
+    },
+    {
+      "code": "0x2532",
+      "text": "Ignition Switch Run Position Circuit High"
+    },
+    {
+      "code": "0x2533",
+      "text": "Ignition Switch Run/Start Position Circuit"
+    },
+    {
+      "code": "0x2534",
+      "text": "Ignition Switch Run/Start Position Circuit Low"
+    },
+    {
+      "code": "0x2535",
+      "text": "Ignition Switch Run/Start Position Circuit High"
+    },
+    {
+      "code": "0x2536",
+      "text": "Ignition Switch Accessory Position Circuit"
+    },
+    {
+      "code": "0x2537",
+      "text": "Ignition Switch Accessory Position Circuit Low"
+    },
+    {
+      "code": "0x2538",
+      "text": "Ignition Switch Accessory Position Circuit High"
+    },
+    {
+      "code": "0x2539",
+      "text": "Low Pressure Fuel System Sensor Circuit"
+    },
+    {
+      "code": "0x2540",
+      "text": "Low Pressure Fuel System Sensor Circuit Range/Performance"
+    },
+    {
+      "code": "0x2541",
+      "text": "Low Pressure Fuel System Sensor Circuit Low"
+    },
+    {
+      "code": "0x2542",
+      "text": "Low Pressure Fuel System Sensor Circuit High"
+    },
+    {
+      "code": "0x2543",
+      "text": "Low Pressure Fuel System Sensor Circuit Intermittent"
+    },
+    {
+      "code": "0x2544",
+      "text": "Torque Management Request Input Signal 'A'"
+    },
+    {
+      "code": "0x2545",
+      "text": "Torque Management Request Input Signal 'A' Range/Performance"
+    },
+    {
+      "code": "0x2546",
+      "text": "Torque Management Request Input Signal 'A' Low"
+    },
+    {
+      "code": "0x2547",
+      "text": "Torque Management Request Input Signal 'A' High"
+    },
+    {
+      "code": "0x2548",
+      "text": "Torque Management Request Input Signal 'B'"
+    },
+    {
+      "code": "0x2549",
+      "text": "Torque Management Request Input Signal 'B' Range/Performance"
+    },
+    {
+      "code": "0x2550",
+      "text": "Torque Management Request Input Signal 'B' Low"
+    },
+    {
+      "code": "0x2551",
+      "text": "Torque Management Request Input Signal 'B' High"
+    },
+    {
+      "code": "0x2552",
+      "text": "Throttle/Fuel Inhibit Circuit"
+    },
+    {
+      "code": "0x2553",
+      "text": "Throttle/Fuel Inhibit Circuit Range/Performance"
+    },
+    {
+      "code": "0x2554",
+      "text": "Throttle/Fuel Inhibit Circuit Low"
+    },
+    {
+      "code": "0x2555",
+      "text": "Throttle/Fuel Inhibit Circuit High"
+    },
+    {
+      "code": "0x2556",
+      "text": "Engine Coolant Level Sensor/Switch Circuit"
+    },
+    {
+      "code": "0x2557",
+      "text": "Engine Coolant Level Sensor/Switch Circuit Range/Performance"
+    },
+    {
+      "code": "0x2558",
+      "text": "Engine Coolant Level Sensor/Switch Circuit Low"
+    },
+    {
+      "code": "0x2559",
+      "text": "Engine Coolant Level Sensor/Switch Circuit High"
+    },
+    {
+      "code": "0x2560",
+      "text": "Engine Coolant Level Low"
+    },
+    {
+      "code": "0x2561",
+      "text": "A/C Control Module Requested MIL Illumination"
+    },
+    {
+      "code": "0x2562",
+      "text": "Turbocharger Boost Control Position Sensor Circuit"
+    },
+    {
+      "code": "0x2563",
+      "text": "Turbocharger Boost Control Position Sensor Circuit Range/Performance"
+    },
+    {
+      "code": "0x2564",
+      "text": "Turbocharger Boost Control Position Sensor Circuit Low"
+    },
+    {
+      "code": "0x2565",
+      "text": "Turbocharger Boost Control Position Sensor Circuit High"
+    },
+    {
+      "code": "0x2566",
+      "text": "Turbocharger Boost Control Position Sensor Circuit Intermittent"
+    },
+    {
+      "code": "0x2567",
+      "text": "Direct Ozone Reduction Catalyst Temperature Sensor Circuit"
+    },
+    {
+      "code": "0x2568",
+      "text": "Direct Ozone Reduction Catalyst Temperature Sensor Circuit Range/Performance"
+    },
+    {
+      "code": "0x2569",
+      "text": "Direct Ozone Reduction Catalyst Temperature Sensor Circuit Low"
+    },
+    {
+      "code": "0x2570",
+      "text": "Direct Ozone Reduction Catalyst Temperature Sensor Circuit High"
+    },
+    {
+      "code": "0x2571",
+      "text": "Direct Ozone Reduction Catalyst Temperature Sensor Circuit Intermittent/Erratic"
+    },
+    {
+      "code": "0x2572",
+      "text": "Direct Ozone Reduction Catalyst Deterioration Sensor Circuit"
+    },
+    {
+      "code": "0x2573",
+      "text": "Direct Ozone Reduction Catalyst Deterioration Sensor Circuit Range/Performance"
+    },
+    {
+      "code": "0x2574",
+      "text": "Direct Ozone Reduction Catalyst Deterioration Sensor Circuit Low"
+    },
+    {
+      "code": "0x2575",
+      "text": "Direct Ozone Reduction Catalyst Deterioration Sensor Circuit High"
+    },
+    {
+      "code": "0x2576",
+      "text": "Direct Ozone Reduction Catalyst Deterioration Sensor Circuit Intermittent/Erratic"
+    },
+    {
+      "code": "0x2577",
+      "text": "Direct Ozone Reduction Catalyst Efficiency Below Threshold"
+    },
+    {
+      "code": "0x2600",
+      "text": "Coolant Pump Control Circuit/Open"
+    },
+    {
+      "code": "0x2601",
+      "text": "Coolant Pump Control Circuit Range/Performance"
+    },
+    {
+      "code": "0x2602",
+      "text": "Coolant Pump Control Circuit Low"
+    },
+    {
+      "code": "0x2603",
+      "text": "Coolant Pump Control Circuit High"
+    },
+    {
+      "code": "0x2604",
+      "text": "Intake Air Heater 'A' Circuit Range/Performance"
+    },
+    {
+      "code": "0x2605",
+      "text": "Intake Air Heater 'A' Circuit/Open"
+    },
+    {
+      "code": "0x2606",
+      "text": "Intake Air Heater 'B' Circuit Range/Performance"
+    },
+    {
+      "code": "0x2607",
+      "text": "Intake Air Heater 'B' Circuit Low"
+    },
+    {
+      "code": "0x2608",
+      "text": "Intake Air Heater 'B' Circuit High"
+    },
+    {
+      "code": "0x2609",
+      "text": "Intake Air Heater System Performance"
+    },
+    {
+      "code": "0x2610",
+      "text": "ECM/PCM Internal Engine Off Timer Performance"
+    },
+    {
+      "code": "0x2611",
+      "text": "A/C Refrigerant Distribution Valve Control Circuit/Open"
+    },
+    {
+      "code": "0x2612",
+      "text": "A/C Refrigerant Distribution Valve Control Circuit Low"
+    },
+    {
+      "code": "0x2613",
+      "text": "A/C Refrigerant Distribution Valve Control Circuit High"
+    },
+    {
+      "code": "0x2614",
+      "text": "Camshaft Position Signal Output Circuit/Open"
+    },
+    {
+      "code": "0x2615",
+      "text": "Camshaft Position Signal Output Circuit Low"
+    },
+    {
+      "code": "0x2616",
+      "text": "Camshaft Position Signal Output Circuit High"
+    },
+    {
+      "code": "0x2617",
+      "text": "Crankshaft Position Signal Output Circuit/Open"
+    },
+    {
+      "code": "0x2618",
+      "text": "Crankshaft Position Signal Output Circuit Low"
+    },
+    {
+      "code": "0x2619",
+      "text": "Crankshaft Position Signal Output Circuit High"
+    },
+    {
+      "code": "0x2620",
+      "text": "Throttle Position Output Circuit/Open"
+    },
+    {
+      "code": "0x2621",
+      "text": "Throttle Position Output Circuit Low"
+    },
+    {
+      "code": "0x2622",
+      "text": "Throttle Position Output Circuit High"
+    },
+    {
+      "code": "0x2623",
+      "text": "Injector Control Pressure Regulator Circuit/Open"
+    },
+    {
+      "code": "0x2624",
+      "text": "Injector Control Pressure Regulator Circuit Low"
+    },
+    {
+      "code": "0x2625",
+      "text": "Injector Control Pressure Regulator Circuit High"
+    },
+    {
+      "code": "0x2626",
+      "text": "O2 Sensor Pumping Current Trim Circuit/Open"
+    },
+    {
+      "code": "0x2627",
+      "text": "O2 Sensor Pumping Current Trim Circuit Low"
+    },
+    {
+      "code": "0x2628",
+      "text": "O2 Sensor Pumping Current Trim Circuit High"
+    },
+    {
+      "code": "0x2629",
+      "text": "O2 Sensor Pumping Current Trim Circuit/Open"
+    },
+    {
+      "code": "0x2630",
+      "text": "O2 Sensor Pumping Current Trim Circuit Low"
+    },
+    {
+      "code": "0x2631",
+      "text": "O2 Sensor Pumping Current Trim Circuit High"
+    },
+    {
+      "code": "0x2632",
+      "text": "Fuel Pump 'B' Control Circuit /Open"
+    },
+    {
+      "code": "0x2633",
+      "text": "Fuel Pump 'B' Control Circuit Low"
+    },
+    {
+      "code": "0x2634",
+      "text": "Fuel Pump 'B' Control Circuit High"
+    },
+    {
+      "code": "0x2635",
+      "text": "Fuel Pump 'A' Low Flow / Performance"
+    },
+    {
+      "code": "0x2636",
+      "text": "Fuel Pump 'B' Low Flow / Performance"
+    },
+    {
+      "code": "0x2637",
+      "text": "Torque Management Feedback Signal 'A'"
+    },
+    {
+      "code": "0x2638",
+      "text": "Torque Management Feedback Signal 'A' Range/Performance"
+    },
+    {
+      "code": "0x2639",
+      "text": "Torque Management Feedback Signal 'A' Low"
+    },
+    {
+      "code": "0x2640",
+      "text": "Torque Management Feedback Signal 'A' High"
+    },
+    {
+      "code": "0x2641",
+      "text": "Torque Management Feedback Signal 'B'"
+    },
+    {
+      "code": "0x2642",
+      "text": "Torque Management Feedback Signal 'B' Range/Performance"
+    },
+    {
+      "code": "0x2643",
+      "text": "Torque Management Feedback Signal 'B' Low"
+    },
+    {
+      "code": "0x2644",
+      "text": "Torque Management Feedback Signal 'B' High"
+    },
+    {
+      "code": "0x2645",
+      "text": "'A' Rocker Arm Actuator Control Circuit/Open"
+    },
+    {
+      "code": "0x2646",
+      "text": "'A' Rocker Arm Actuator System Performance or Stuck Off"
+    },
+    {
+      "code": "0x2647",
+      "text": "'A' Rocker Arm Actuator System Stuck On"
+    },
+    {
+      "code": "0x2648",
+      "text": "'A' Rocker Arm Actuator Control Circuit Low"
+    },
+    {
+      "code": "0x2649",
+      "text": "'A' Rocker Arm Actuator Control Circuit High"
+    },
+    {
+      "code": "0x2650",
+      "text": "'B' Rocker Arm Actuator Control Circuit/Open"
+    },
+    {
+      "code": "0x2651",
+      "text": "'B' Rocker Arm Actuator System Performance or Stuck Off"
+    },
+    {
+      "code": "0x2652",
+      "text": "'B' Rocker Arm Actuator System Stuck On"
+    },
+    {
+      "code": "0x2653",
+      "text": "'B' Rocker Arm Actuator Control Circuit Low"
+    },
+    {
+      "code": "0x2654",
+      "text": "'B' Rocker Arm Actuator Control Circuit High"
+    },
+    {
+      "code": "0x2655",
+      "text": "'A' Rocker Arm Actuator Control Circuit/Open"
+    },
+    {
+      "code": "0x2656",
+      "text": "'A' Rocker Arm Actuator System Performance or Stuck Off"
+    },
+    {
+      "code": "0x2657",
+      "text": "'A' Rocker Arm Actuator System Stuck On"
+    },
+    {
+      "code": "0x2658",
+      "text": "'A' Rocker Arm Actuator Control Circuit Low"
+    },
+    {
+      "code": "0x2659",
+      "text": "'A' Rocker Arm Actuator Control Circuit High"
+    },
+    {
+      "code": "0x2660",
+      "text": "'B' Rocker Arm Actuator Control Circuit/Open"
+    },
+    {
+      "code": "0x2661",
+      "text": "'B' Rocker Arm Actuator System Performance or Stuck Off"
+    },
+    {
+      "code": "0x2662",
+      "text": "'B' Rocker Arm Actuator System Stuck On"
+    },
+    {
+      "code": "0x2663",
+      "text": "'B' Rocker Arm Actuator Control Circuit Low"
+    },
+    {
+      "code": "0x2664",
+      "text": "'B' Rocker Arm Actuator Control Circuit High"
+    },
+    {
+      "code": "0x2665",
+      "text": "Fuel Shutoff Valve 'B' Control Circuit/Open"
+    },
+    {
+      "code": "0x2666",
+      "text": "Fuel Shutoff Valve 'B' Control Circuit Low"
+    },
+    {
+      "code": "0x2667",
+      "text": "Fuel Shutoff Valve 'B' Control Circuit High"
+    },
+    {
+      "code": "0x2668",
+      "text": "Fuel Mode Indicator Lamp Control Circuit"
+    },
+    {
+      "code": "0x2669",
+      "text": "Actuator Supply Voltage 'B' Circuit /Open"
+    },
+    {
+      "code": "0x2670",
+      "text": "Actuator Supply Voltage 'B' Circuit Low"
+    },
+    {
+      "code": "0x2671",
+      "text": "Actuator Supply Voltage 'B' Circuit High"
+    },
+    {
+      "code": "0x2700",
+      "text": "Transmission Friction Element 'A' Apply Time Range/Performance"
+    },
+    {
+      "code": "0x2701",
+      "text": "Transmission Friction Element 'B' Apply Time Range/Performance"
+    },
+    {
+      "code": "0x2702",
+      "text": "Transmission Friction Element 'C' Apply Time Range/Performance"
+    },
+    {
+      "code": "0x2703",
+      "text": "Transmission Friction Element 'D' Apply Time Range/Performance"
+    },
+    {
+      "code": "0x2704",
+      "text": "Transmission Friction Element 'E' Apply Time Range/Performance"
+    },
+    {
+      "code": "0x2705",
+      "text": "Transmission Friction Element 'F' Apply Time Range/Performance"
+    },
+    {
+      "code": "0x2706",
+      "text": "Shift Solenoid 'F'"
+    },
+    {
+      "code": "0x2707",
+      "text": "Shift Solenoid 'F' Performance or Stuck Off"
+    },
+    {
+      "code": "0x2708",
+      "text": "Shift Solenoid 'F' Stuck On"
+    },
+    {
+      "code": "0x2709",
+      "text": "Shift Solenoid 'F' Electrical"
+    },
+    {
+      "code": "0x2710",
+      "text": "Shift Solenoid 'F' Intermittent"
+    },
+    {
+      "code": "0x2711",
+      "text": "Unexpected Mechanical Gear Disengagement"
+    },
+    {
+      "code": "0x2712",
+      "text": "Hydraulic Power Unit Leakage"
+    },
+    {
+      "code": "0x2713",
+      "text": "Pressure Control Solenoid 'D'"
+    },
+    {
+      "code": "0x2714",
+      "text": "Pressure Control Solenoid 'D' Performance or Stuck Off"
+    },
+    {
+      "code": "0x2715",
+      "text": "Pressure Control Solenoid 'D' Stuck On"
+    },
+    {
+      "code": "0x2716",
+      "text": "Pressure Control Solenoid 'D' Electrical"
+    },
+    {
+      "code": "0x2717",
+      "text": "Pressure Control Solenoid 'D' Intermittent"
+    },
+    {
+      "code": "0x2718",
+      "text": "Pressure Control Solenoid 'D' Control Circuit / Open"
+    },
+    {
+      "code": "0x2719",
+      "text": "Pressure Control Solenoid 'D' Control Circuit Range/Performance"
+    },
+    {
+      "code": "0x2720",
+      "text": "Pressure Control Solenoid 'D' Control Circuit Low"
+    },
+    {
+      "code": "0x2721",
+      "text": "Pressure Control Solenoid 'D' Control Circuit High"
+    },
+    {
+      "code": "0x2722",
+      "text": "Pressure Control Solenoid 'E'"
+    },
+    {
+      "code": "0x2723",
+      "text": "Pressure Control Solenoid 'E' Performance or Stuck Off"
+    },
+    {
+      "code": "0x2724",
+      "text": "Pressure Control Solenoid 'E' Stuck On"
+    },
+    {
+      "code": "0x2725",
+      "text": "Pressure Control Solenoid 'E' Electrical"
+    },
+    {
+      "code": "0x2726",
+      "text": "Pressure Control Solenoid 'E' Intermittent"
+    },
+    {
+      "code": "0x2727",
+      "text": "Pressure Control Solenoid 'E' Control Circuit / Open"
+    },
+    {
+      "code": "0x2728",
+      "text": "Pressure Control Solenoid 'E' Control Circuit Range/Performance"
+    },
+    {
+      "code": "0x2729",
+      "text": "Pressure Control Solenoid 'E' Control Circuit Low"
+    },
+    {
+      "code": "0x2730",
+      "text": "Pressure Control Solenoid 'E' Control Circuit High"
+    },
+    {
+      "code": "0x2731",
+      "text": "Pressure Control Solenoid 'F'"
+    },
+    {
+      "code": "0x2732",
+      "text": "Pressure Control Solenoid 'F' Performance or Stuck Off"
+    },
+    {
+      "code": "0x2733",
+      "text": "Pressure Control Solenoid 'F' Stuck On"
+    },
+    {
+      "code": "0x2734",
+      "text": "Pressure Control Solenoid 'F' Electrical"
+    },
+    {
+      "code": "0x2735",
+      "text": "Pressure Control Solenoid 'F' Intermittent"
+    },
+    {
+      "code": "0x2736",
+      "text": "Pressure Control Solenoid 'F' Control Circuit/Open"
+    },
+    {
+      "code": "0x2737",
+      "text": "Pressure Control Solenoid 'F' Control Circuit Range/Performance"
+    },
+    {
+      "code": "0x2738",
+      "text": "Pressure Control Solenoid 'F' Control Circuit Low"
+    },
+    {
+      "code": "0x2739",
+      "text": "Pressure Control Solenoid 'F' Control Circuit High"
+    },
+    {
+      "code": "0x2740",
+      "text": "Transmission Fluid Temperature Sensor 'B' Circuit"
+    },
+    {
+      "code": "0x2741",
+      "text": "Transmission Fluid Temperature Sensor 'B' Circuit Range Performance"
+    },
+    {
+      "code": "0x2742",
+      "text": "Transmission Fluid Temperature Sensor 'B' Circuit Low"
+    },
+    {
+      "code": "0x2743",
+      "text": "Transmission Fluid Temperature Sensor 'B' Circuit High"
+    },
+    {
+      "code": "0x2744",
+      "text": "Transmission Fluid Temperature Sensor 'B' Circuit Intermittent"
+    },
+    {
+      "code": "0x2745",
+      "text": "Intermediate Shaft Speed Sensor 'B' Circuit"
+    },
+    {
+      "code": "0x2746",
+      "text": "Intermediate Shaft Speed Sensor 'B' Circuit Range/Performance"
+    },
+    {
+      "code": "0x2747",
+      "text": "Intermediate Shaft Speed Sensor 'B' Circuit No Signal"
+    },
+    {
+      "code": "0x2748",
+      "text": "Intermediate Shaft Speed Sensor 'B' Circuit Intermittent"
+    },
+    {
+      "code": "0x2749",
+      "text": "Intermediate Shaft Speed Sensor 'C' Circuit"
+    },
+    {
+      "code": "0x2750",
+      "text": "Intermediate Shaft Speed Sensor 'C' Circuit Range/Performance"
+    },
+    {
+      "code": "0x2751",
+      "text": "Intermediate Shaft Speed Sensor 'C' Circuit No Signal"
+    },
+    {
+      "code": "0x2752",
+      "text": "Intermediate Shaft Speed Sensor 'C' Circuit Intermittent"
+    },
+    {
+      "code": "0x2753",
+      "text": "Transmission Fluid Cooler Control Circuit/Open"
+    },
+    {
+      "code": "0x2754",
+      "text": "Transmission Fluid Cooler Control Circuit Low"
+    },
+    {
+      "code": "0x2755",
+      "text": "Transmission Fluid Cooler Control Circuit High"
+    },
+    {
+      "code": "0x2756",
+      "text": "Torque Converter Clutch Pressure Control Solenoid"
+    },
+    {
+      "code": "0x2757",
+      "text": "Torque Converter Clutch Pressure Control Solenoid Control Circuit Performance or Stuck Off"
+    },
+    {
+      "code": "0x2758",
+      "text": "Torque Converter Clutch Pressure Control Solenoid Control Circuit Stuck On"
+    },
+    {
+      "code": "0x2759",
+      "text": "Torque Converter Clutch Pressure Control Solenoid Control Circuit Electrical"
+    },
+    {
+      "code": "0x2760",
+      "text": "Torque Converter Clutch Pressure Control Solenoid Control Circuit Intermittent"
+    },
+    {
+      "code": "0x2761",
+      "text": "Torque Converter Clutch Pressure Control Solenoid Control Circuit/Open"
+    },
+    {
+      "code": "0x2762",
+      "text": "Torque Converter Clutch Pressure Control Solenoid Control Circuit Range/Performance"
+    },
+    {
+      "code": "0x2763",
+      "text": "Torque Converter Clutch Pressure Control Solenoid Control Circuit High"
+    },
+    {
+      "code": "0x2764",
+      "text": "Torque Converter Clutch Pressure Control Solenoid Control Circuit Low"
+    },
+    {
+      "code": "0x2765",
+      "text": "Input/Turbine Speed Sensor 'B' Circuit"
+    },
+    {
+      "code": "0x2766",
+      "text": "Input/Turbine Speed Sensor 'B' Circuit Range/Performance"
+    },
+    {
+      "code": "0x2767",
+      "text": "Input/Turbine Speed Sensor 'B' Circuit No Signal"
+    },
+    {
+      "code": "0x2768",
+      "text": "Input/Turbine Speed Sensor 'B' Circuit Intermittent"
+    },
+    {
+      "code": "0x2769",
+      "text": "Torque Converter Clutch Circuit Low"
+    },
+    {
+      "code": "0x2770",
+      "text": "Torque Converter Clutch Circuit High"
+    },
+    {
+      "code": "0x2771",
+      "text": "Four Wheel Drive (4WD) Low Switch Circuit"
+    },
+    {
+      "code": "0x2772",
+      "text": "Four Wheel Drive (4WD) Low Switch Circuit Range/Performance"
+    },
+    {
+      "code": "0x2773",
+      "text": "Four Wheel Drive (4WD) Low Switch Circuit Low"
+    },
+    {
+      "code": "0x2774",
+      "text": "Four Wheel Drive (4WD) Low Switch Circuit High"
+    },
+    {
+      "code": "0x2775",
+      "text": "Upshift Switch Circuit Range/Performance"
+    },
+    {
+      "code": "0x2776",
+      "text": "Upshift Switch Circuit Low"
+    },
+    {
+      "code": "0x2777",
+      "text": "Upshift Switch Circuit High"
+    },
+    {
+      "code": "0x2778",
+      "text": "Upshift Switch Circuit Intermittent/Erratic"
+    },
+    {
+      "code": "0x2779",
+      "text": "Downshift Switch Circuit Range/Performance"
+    },
+    {
+      "code": "0x2780",
+      "text": "Downshift Switch Circuit Low"
+    },
+    {
+      "code": "0x2781",
+      "text": "Downshift Switch Circuit High"
+    },
+    {
+      "code": "0x2782",
+      "text": "Downshift Switch Circuit Intermittent/Erratic"
+    },
+    {
+      "code": "0x2783",
+      "text": "Torque Converter Temperature Too High"
+    },
+    {
+      "code": "0x2784",
+      "text": "Input/Turbine Speed Sensor 'A'/'B' Correlation"
+    },
+    {
+      "code": "0x2785",
+      "text": "Clutch Actuator Temperature Too High"
+    },
+    {
+      "code": "0x2786",
+      "text": "Gear Shift Actuator Temperature Too High"
+    },
+    {
+      "code": "0x2787",
+      "text": "Clutch Temperature Too High"
+    },
+    {
+      "code": "0x2788",
+      "text": "Auto Shift Manual Adaptive Learning at Limit"
+    },
+    {
+      "code": "0x2789",
+      "text": "Clutch Adaptive Learning at Limit"
+    },
+    {
+      "code": "0x2790",
+      "text": "Gate Select Direction Circuit"
+    },
+    {
+      "code": "0x2791",
+      "text": "Gate Select Direction Circuit Low"
+    },
+    {
+      "code": "0x2792",
+      "text": "Gate Select Direction Circuit High"
+    },
+    {
+      "code": "0x2793",
+      "text": "Gear Shift Direction Circuit"
+    },
+    {
+      "code": "0x2794",
+      "text": "Gear Shift Direction Circuit Low"
+    },
+    {
+      "code": "0x2795",
+      "text": "Gear Shift Direction Circuit High"
+    },
+    {
+      "code": "0x2A00",
+      "text": "O2 Sensor Circuit Range/Performance"
+    },
+    {
+      "code": "0x2A01",
+      "text": "O2 Sensor Circuit Range/Performance"
+    },
+    {
+      "code": "0x2A02",
+      "text": "O2 Sensor Circuit Range/Performance"
+    },
+    {
+      "code": "0x2A03",
+      "text": "O2 Sensor Circuit Range/Performance"
+    },
+    {
+      "code": "0x2A04",
+      "text": "O2 Sensor Circuit Range/Performance"
+    },
+    {
+      "code": "0x2A05",
+      "text": "O2 Sensor Circuit Range/Performance"
+    },
+    {
+      "code": "0x3400",
+      "text": "Cylinder Deactivation System"
+    },
+    {
+      "code": "0x3401",
+      "text": "Cylinder 1 Deactivation/lntake Valve Control Circuit/Open"
+    },
+    {
+      "code": "0x3402",
+      "text": "Cylinder 1 Deactivation/lntake Valve Control Performance"
+    },
+    {
+      "code": "0x3403",
+      "text": "Cylinder 1 Deactivation/lntake Valve Control Circuit Low"
+    },
+    {
+      "code": "0x3404",
+      "text": "Cylinder 1 Deactivation/lntake Valve Control Circuit High"
+    },
+    {
+      "code": "0x3405",
+      "text": "Cylinder 1 Exhaust Valve Control Circuit/Open"
+    },
+    {
+      "code": "0x3406",
+      "text": "Cylinder 1 Exhaust Valve Control Performance"
+    },
+    {
+      "code": "0x3407",
+      "text": "Cylinder 1 Exhaust Valve Control Circuit Low"
+    },
+    {
+      "code": "0x3408",
+      "text": "Cylinder 1 Exhaust Valve Control Circuit High"
+    },
+    {
+      "code": "0x3409",
+      "text": "Cylinder 2 Deactivation/lntake Valve Control Circuit/Open"
+    },
+    {
+      "code": "0x3410",
+      "text": "Cylinder 2 Deactivation/lntake Valve Control Performance"
+    },
+    {
+      "code": "0x3411",
+      "text": "Cylinder 2 Deactivation/lntake Valve Control Circuit Low"
+    },
+    {
+      "code": "0x3412",
+      "text": "Cylinder 2 Deactivation/lntake Valve Control Circuit High"
+    },
+    {
+      "code": "0x3413",
+      "text": "Cylinder 2 Exhaust Valve Control Circuit/Open"
+    },
+    {
+      "code": "0x3414",
+      "text": "Cylinder 2 Exhaust Valve Control Performance"
+    },
+    {
+      "code": "0x3415",
+      "text": "Cylinder 2 Exhaust Valve Control Circuit Low"
+    },
+    {
+      "code": "0x3416",
+      "text": "Cylinder 2 Exhaust Valve Control Circuit High"
+    },
+    {
+      "code": "0x3417",
+      "text": "Cylinder 3 Deactivation/lntake Valve Control Circuit/Open"
+    },
+    {
+      "code": "0x3418",
+      "text": "Cylinder 3 Deactivation/lntake Valve Control Performance"
+    },
+    {
+      "code": "0x3419",
+      "text": "Cylinder 3 Deactivation/lntake Valve Control Circuit Low"
+    },
+    {
+      "code": "0x3420",
+      "text": "Cylinder 3 Deactivation/lntake Valve Control Circuit High"
+    },
+    {
+      "code": "0x3421",
+      "text": "Cylinder 3 Exhaust Valve Control Circuit/Open"
+    },
+    {
+      "code": "0x3422",
+      "text": "Cylinder 3 Exhaust Valve Control Performance"
+    },
+    {
+      "code": "0x3423",
+      "text": "Cylinder 3 Exhaust Valve Control Circuit Low"
+    },
+    {
+      "code": "0x3424",
+      "text": "Cylinder 3 Exhaust Valve Control Circuit High"
+    },
+    {
+      "code": "0x3425",
+      "text": "Cylinder 4 Deactivation/lntake Valve Control Circuit/Open"
+    },
+    {
+      "code": "0x3426",
+      "text": "Cylinder 4 Deactivation/lntake Valve Control Performance"
+    },
+    {
+      "code": "0x3427",
+      "text": "Cylinder 4 Deactivation/lntake Valve Control Circuit Low"
+    },
+    {
+      "code": "0x3428",
+      "text": "Cylinder 4 Deactivation/lntake Valve Control Circuit High"
+    },
+    {
+      "code": "0x3429",
+      "text": "Cylinder 4 Exhaust Valve Control Circuit/Open"
+    },
+    {
+      "code": "0x3430",
+      "text": "Cylinder 4 Exhaust Valve Control Performance"
+    },
+    {
+      "code": "0x3431",
+      "text": "Cylinder 4 Exhaust Valve Control Circuit Low"
+    },
+    {
+      "code": "0x3432",
+      "text": "Cylinder 4 Exhaust Valve Control Circuit High"
+    },
+    {
+      "code": "0x3433",
+      "text": "Cylinder 5 Deactivation/lntake Valve Control Circuit/Open"
+    },
+    {
+      "code": "0x3434",
+      "text": "Cylinder 5 Deactivation/lntake Valve Control Performance"
+    },
+    {
+      "code": "0x3435",
+      "text": "Cylinder 5 Deactivation/lntake Valve Control Circuit Low"
+    },
+    {
+      "code": "0x3436",
+      "text": "Cylinder 5 Deactivation/lntake Valve Control Circuit High"
+    },
+    {
+      "code": "0x3437",
+      "text": "Cylinder 5 Exhaust Valve Control Circuit/Open"
+    },
+    {
+      "code": "0x3438",
+      "text": "Cylinder 5 Exhaust Valve Control Performance"
+    },
+    {
+      "code": "0x3439",
+      "text": "Cylinder 5 Exhaust Valve Control Circuit Low"
+    },
+    {
+      "code": "0x3440",
+      "text": "Cylinder 5 Exhaust Valve Control Circuit High"
+    },
+    {
+      "code": "0x3441",
+      "text": "Cylinder 6 Deactivation/lntake Valve Control Circuit/Open"
+    },
+    {
+      "code": "0x3442",
+      "text": "Cylinder 6 Deactivation/lntake Valve Control Performance"
+    },
+    {
+      "code": "0x3443",
+      "text": "Cylinder 6 Deactivation/lntake Valve Control Circuit Low"
+    },
+    {
+      "code": "0x3444",
+      "text": "Cylinder 6 Deactivation/lntake Valve Control Circuit High"
+    },
+    {
+      "code": "0x3445",
+      "text": "Cylinder 6 Exhaust Valve Control Circuit/Open"
+    },
+    {
+      "code": "0x3446",
+      "text": "Cylinder 6 Exhaust Valve Control Performance"
+    },
+    {
+      "code": "0x3447",
+      "text": "Cylinder 6 Exhaust Valve Control Circuit Low"
+    },
+    {
+      "code": "0x3448",
+      "text": "Cylinder 6 Exhaust Valve Control Circuit High"
+    },
+    {
+      "code": "0x3449",
+      "text": "Cylinder 7 Deactivation/lntake Valve Control Circuit/Open"
+    },
+    {
+      "code": "0x3450",
+      "text": "Cylinder 7 Deactivation/lntake Valve Control Performance"
+    },
+    {
+      "code": "0x3451",
+      "text": "Cylinder 7 Deactivation/lntake Valve Control Circuit Low"
+    },
+    {
+      "code": "0x3452",
+      "text": "Cylinder 7 Deactivation/lntake Valve Control Circuit High"
+    },
+    {
+      "code": "0x3453",
+      "text": "Cylinder 7 Exhaust Valve Control Circuit/Open"
+    },
+    {
+      "code": "0x3454",
+      "text": "Cylinder 7 Exhaust Valve Control Performance"
+    },
+    {
+      "code": "0x3455",
+      "text": "Cylinder 7 Exhaust Valve Control Circuit Low"
+    },
+    {
+      "code": "0x3456",
+      "text": "Cylinder 7 Exhaust Valve Control Circuit High"
+    },
+    {
+      "code": "0x3457",
+      "text": "Cylinder 8 Deactivation/lntake Valve Control Circuit/Open"
+    },
+    {
+      "code": "0x3458",
+      "text": "Cylinder 8 Deactivation/lntake Valve Control Performance"
+    },
+    {
+      "code": "0x3459",
+      "text": "Cylinder 8 Deactivation/lntake Valve Control Circuit Low"
+    },
+    {
+      "code": "0x3460",
+      "text": "Cylinder 8 Deactivation/lntake Valve Control Circuit High"
+    },
+    {
+      "code": "0x3461",
+      "text": "Cylinder 8 Exhaust Valve Control Circuit/Open"
+    },
+    {
+      "code": "0x3462",
+      "text": "Cylinder 8 Exhaust Valve Control Performance"
+    },
+    {
+      "code": "0x3463",
+      "text": "Cylinder 8 Exhaust Valve Control Circuit Low"
+    },
+    {
+      "code": "0x3464",
+      "text": "Cylinder 8 Exhaust Valve Control Circuit High"
+    },
+    {
+      "code": "0x3465",
+      "text": "Cylinder 9 Deactivation/lntake Valve Control Circuit/Open"
+    },
+    {
+      "code": "0x3466",
+      "text": "Cylinder 9 Deactivation/lntake Valve Control Performance"
+    },
+    {
+      "code": "0x3467",
+      "text": "Cylinder 9 Deactivation/lntake Valve Control Circuit Low"
+    },
+    {
+      "code": "0x3468",
+      "text": "Cylinder 9 Deactivation/lntake Valve Control Circuit High"
+    },
+    {
+      "code": "0x3469",
+      "text": "Cylinder 9 Exhaust Valve Control Circuit/Open"
+    },
+    {
+      "code": "0x3470",
+      "text": "Cylinder 9 Exhaust Valve Control Performance"
+    },
+    {
+      "code": "0x3471",
+      "text": "Cylinder 9 Exhaust Valve Control Circuit Low"
+    },
+    {
+      "code": "0x3472",
+      "text": "Cylinder 9 Exhaust Valve Control Circuit High"
+    },
+    {
+      "code": "0x3473",
+      "text": "Cylinder 10 Deactivation/lntake Valve Control Circuit/Open"
+    },
+    {
+      "code": "0x3474",
+      "text": "Cylinder 10 Deactivation/lntake Valve Control Performance"
+    },
+    {
+      "code": "0x3475",
+      "text": "Cylinder 10 Deactivation/lntake Valve Control Circuit Low"
+    },
+    {
+      "code": "0x3476",
+      "text": "Cylinder 10 Deactivation/lntake Valve Control Circuit High"
+    },
+    {
+      "code": "0x3477",
+      "text": "Cylinder 10 Exhaust Valve Control Circuit/Open"
+    },
+    {
+      "code": "0x3478",
+      "text": "Cylinder 10 Exhaust Valve Control Performance"
+    },
+    {
+      "code": "0x3479",
+      "text": "Cylinder 10 Exhaust Valve Control Circuit Low"
+    },
+    {
+      "code": "0x3480",
+      "text": "Cylinder 10 Exhaust Valve Control Circuit High"
+    },
+    {
+      "code": "0x3481",
+      "text": "Cylinder 11 Deactivation/lntake Valve Control Circuit/Open"
+    },
+    {
+      "code": "0x3482",
+      "text": "Cylinder 11 Deactivation/lntake Valve Control Performance"
+    },
+    {
+      "code": "0x3483",
+      "text": "Cylinder 11 Deactivation/lntake Valve Control Circuit Low"
+    },
+    {
+      "code": "0x3484",
+      "text": "Cylinder 11 Deactivation/lntake Valve Control Circuit High"
+    },
+    {
+      "code": "0x3485",
+      "text": "Cylinder 11 Exhaust Valve Control Circuit/Open"
+    },
+    {
+      "code": "0x3486",
+      "text": "Cylinder 11 Exhaust Valve Control Performance"
+    },
+    {
+      "code": "0x3487",
+      "text": "Cylinder 11 Exhaust Valve Control Circuit Low"
+    },
+    {
+      "code": "0x3488",
+      "text": "Cylinder 11 Exhaust Valve Control Circuit High"
+    },
+    {
+      "code": "0x3489",
+      "text": "Cylinder 12 Deactivation/lntake Valve Control Circuit/Open"
+    },
+    {
+      "code": "0x3490",
+      "text": "Cylinder 12 Deactivation/lntake Valve Control Performance"
+    },
+    {
+      "code": "0x3491",
+      "text": "Cylinder 12 Deactivation/lntake Valve Control Circuit Low"
+    },
+    {
+      "code": "0x3492",
+      "text": "Cylinder 12 Deactivation/lntake Valve Control Circuit High"
+    },
+    {
+      "code": "0x3493",
+      "text": "Cylinder 12 Exhaust Valve Control Circuit/Open"
+    },
+    {
+      "code": "0x3494",
+      "text": "Cylinder 12 Exhaust Valve Control Performance"
+    },
+    {
+      "code": "0x3495",
+      "text": "Cylinder 12 Exhaust Valve Control Circuit Low"
+    },
+    {
+      "code": "0x3496",
+      "text": "Cylinder 12 Exhaust Valve Control Circuit High"
+    },
+    {
+      "code": "0x3497",
+      "text": "Cylinder Deactivation System"
+    },
+    {
       "code": "0xC001",
       "text": "High Speed CAN Communication Bus"
+    },
+    {
+      "code": "0xC002",
+      "text": "High Speed CAN Communication Bus (Performance)"
+    },
+    {
+      "code": "0xC003",
+      "text": "High Speed CAN Communication Bus (Open)"
+    },
+    {
+      "code": "0xC004",
+      "text": "High Speed CAN Communication Bus (Low)"
+    },
+    {
+      "code": "0xC005",
+      "text": "High Speed CAN Communication Bus (High)"
+    },
+    {
+      "code": "0xC006",
+      "text": "High Speed CAN Communication Bus (Open)"
+    },
+    {
+      "code": "0xC007",
+      "text": "High Speed CAN Communication Bus (Low)"
+    },
+    {
+      "code": "0xC008",
+      "text": "High Speed CAN Communication Bus (High)"
+    },
+    {
+      "code": "0xC009",
+      "text": "High Speed CAN Communication Bus (shorted to Bus)"
+    },
+    {
+      "code": "0xC010",
+      "text": "Medium Speed CAN Communication Bus"
+    },
+    {
+      "code": "0xC011",
+      "text": "Medium Speed CAN Communication Bus (Performance)"
+    },
+    {
+      "code": "0xC012",
+      "text": "Medium Speed CAN Communication Bus (Open)"
+    },
+    {
+      "code": "0xC013",
+      "text": "Medium Speed CAN Communication Bus (Low)"
+    },
+    {
+      "code": "0xC014",
+      "text": "Medium Speed CAN Communication Bus (High)"
+    },
+    {
+      "code": "0xC015",
+      "text": "Medium Speed CAN Communication Bus (Open)"
+    },
+    {
+      "code": "0xC016",
+      "text": "Medium Speed CAN Communication Bus (Low)"
+    },
+    {
+      "code": "0xC017",
+      "text": "Medium Speed CAN Communication Bus (High)"
+    },
+    {
+      "code": "0xC018",
+      "text": "Medium Speed CAN Communication Bus (shorted to Bus)"
+    },
+    {
+      "code": "0xC019",
+      "text": "Low Speed CAN Communication Bus"
+    },
+    {
+      "code": "0xC020",
+      "text": "Low Speed CAN Communication Bus (Performance)"
+    },
+    {
+      "code": "0xC021",
+      "text": "Low Speed CAN Communication Bus (Open)"
+    },
+    {
+      "code": "0xC022",
+      "text": "Low Speed CAN Communication Bus (Low)"
+    },
+    {
+      "code": "0xC023",
+      "text": "Low Speed CAN Communication Bus (High)"
+    },
+    {
+      "code": "0xC024",
+      "text": "Low Speed CAN Communication Bus (Open)"
+    },
+    {
+      "code": "0xC025",
+      "text": "Low Speed CAN Communication Bus (Low)"
+    },
+    {
+      "code": "0xC026",
+      "text": "Low Speed CAN Communication Bus (High)"
+    },
+    {
+      "code": "0xC027",
+      "text": "Low Speed CAN Communication Bus (shorted to Bus)"
+    },
+    {
+      "code": "0xC028",
+      "text": "Vehicle Communication Bus A"
+    },
+    {
+      "code": "0xC029",
+      "text": "Vehicle Communication Bus A (Performance)"
+    },
+    {
+      "code": "0xC030",
+      "text": "Vehicle Communication Bus A (Open)"
+    },
+    {
+      "code": "0xC031",
+      "text": "Vehicle Communication Bus A (Low)"
+    },
+    {
+      "code": "0xC032",
+      "text": "Vehicle Communication Bus A (High)"
+    },
+    {
+      "code": "0xC033",
+      "text": "Vehicle Communication Bus A (Open)"
+    },
+    {
+      "code": "0xC034",
+      "text": "Vehicle Communication Bus A (Low)"
+    },
+    {
+      "code": "0xC035",
+      "text": "Vehicle Communication Bus A (High)"
+    },
+    {
+      "code": "0xC036",
+      "text": "Vehicle Communication Bus A (shorted to Bus A)"
+    },
+    {
+      "code": "0xC037",
+      "text": "Vehicle Communication Bus B"
+    },
+    {
+      "code": "0xC038",
+      "text": "Vehicle Communication Bus B (Performance)"
+    },
+    {
+      "code": "0xC039",
+      "text": "Vehicle Communication Bus B (Open)"
+    },
+    {
+      "code": "0xC040",
+      "text": "Vehicle Communication Bus B (Low)"
+    },
+    {
+      "code": "0xC041",
+      "text": "Vehicle Communication Bus B (High)"
+    },
+    {
+      "code": "0xC042",
+      "text": "Vehicle Communication Bus B (Open)"
+    },
+    {
+      "code": "0xC043",
+      "text": "Vehicle Communication Bus B (Low)"
+    },
+    {
+      "code": "0xC044",
+      "text": "Vehicle Communication Bus B (High)"
+    },
+    {
+      "code": "0xC045",
+      "text": "Vehicle Communication Bus B (shorted to Bus B)"
+    },
+    {
+      "code": "0xC046",
+      "text": "Vehicle Communication Bus C"
+    },
+    {
+      "code": "0xC047",
+      "text": "Vehicle Communication Bus C (Performance)"
+    },
+    {
+      "code": "0xC048",
+      "text": "Vehicle Communication Bus C (Open)"
+    },
+    {
+      "code": "0xC049",
+      "text": "Vehicle Communication Bus C (Low)"
+    },
+    {
+      "code": "0xC050",
+      "text": "Vehicle Communication Bus C (High)"
+    },
+    {
+      "code": "0xC051",
+      "text": "Vehicle Communication Bus C (Open)"
+    },
+    {
+      "code": "0xC052",
+      "text": "Vehicle Communication Bus C (Low)"
+    },
+    {
+      "code": "0xC053",
+      "text": "Vehicle Communication Bus C (High)"
+    },
+    {
+      "code": "0xC054",
+      "text": "Vehicle Communication Bus C (shorted to Bus C)"
+    },
+    {
+      "code": "0xC055",
+      "text": "Vehicle Communication Bus D"
+    },
+    {
+      "code": "0xC056",
+      "text": "Vehicle Communication Bus D (Performance)"
+    },
+    {
+      "code": "0xC057",
+      "text": "Vehicle Communication Bus D (Open)"
+    },
+    {
+      "code": "0xC058",
+      "text": "Vehicle Communication Bus D (Low)"
+    },
+    {
+      "code": "0xC059",
+      "text": "Vehicle Communication Bus D (High)"
+    },
+    {
+      "code": "0xC060",
+      "text": "Vehicle Communication Bus D (Open)"
+    },
+    {
+      "code": "0xC061",
+      "text": "Vehicle Communication Bus D (Low)"
+    },
+    {
+      "code": "0xC062",
+      "text": "Vehicle Communication Bus D (High)"
+    },
+    {
+      "code": "0xC063",
+      "text": "Vehicle Communication Bus D (shorted to Bus D)"
+    },
+    {
+      "code": "0xC064",
+      "text": "Vehicle Communication Bus E"
+    },
+    {
+      "code": "0xC065",
+      "text": "Vehicle Communication Bus E (Performance)"
+    },
+    {
+      "code": "0xC066",
+      "text": "Vehicle Communication Bus E (Open)"
+    },
+    {
+      "code": "0xC067",
+      "text": "Vehicle Communication Bus E (Low)"
+    },
+    {
+      "code": "0xC068",
+      "text": "Vehicle Communication Bus E (High)"
+    },
+    {
+      "code": "0xC069",
+      "text": "Vehicle Communication Bus E (Open)"
+    },
+    {
+      "code": "0xC070",
+      "text": "Vehicle Communication Bus E (Low)"
+    },
+    {
+      "code": "0xC071",
+      "text": "Vehicle Communication Bus E (High)"
+    },
+    {
+      "code": "0xC072",
+      "text": "Vehicle Communication Bus E (shorted to Bus E)"
+    },
+    {
+      "code": "0xC073",
+      "text": "Control Module Communication Bus Off"
+    },
+    {
+      "code": "0xC074",
+      "text": "Reserved by J2012"
+    },
+    {
+      "code": "0xC075",
+      "text": "Reserved by J2012"
+    },
+    {
+      "code": "0xC076",
+      "text": "Reserved by J2012"
+    },
+    {
+      "code": "0xC077",
+      "text": "Reserved by J2012"
+    },
+    {
+      "code": "0xC078",
+      "text": "Reserved by J2012"
+    },
+    {
+      "code": "0xC079",
+      "text": "Reserved by J2012"
+    },
+    {
+      "code": "0xC080",
+      "text": "Reserved by J2012"
+    },
+    {
+      "code": "0xC081",
+      "text": "Reserved by J2012"
+    },
+    {
+      "code": "0xC082",
+      "text": "Reserved by J2012"
+    },
+    {
+      "code": "0xC083",
+      "text": "Reserved by J2012"
+    },
+    {
+      "code": "0xC084",
+      "text": "Reserved by J2012"
+    },
+    {
+      "code": "0xC085",
+      "text": "Reserved by J2012"
+    },
+    {
+      "code": "0xC086",
+      "text": "Reserved by J2012"
+    },
+    {
+      "code": "0xC087",
+      "text": "Reserved by J2012"
+    },
+    {
+      "code": "0xC088",
+      "text": "Reserved by J2012"
+    },
+    {
+      "code": "0xC089",
+      "text": "Reserved by J2012"
+    },
+    {
+      "code": "0xC090",
+      "text": "Reserved by J2012"
+    },
+    {
+      "code": "0xC091",
+      "text": "Reserved by J2012"
+    },
+    {
+      "code": "0xC092",
+      "text": "Reserved by J2012"
+    },
+    {
+      "code": "0xC093",
+      "text": "Reserved by J2012"
+    },
+    {
+      "code": "0xC094",
+      "text": "Reserved by J2012"
+    },
+    {
+      "code": "0xC095",
+      "text": "Reserved by J2012"
+    },
+    {
+      "code": "0xC096",
+      "text": "Reserved by J2012"
+    },
+    {
+      "code": "0xC097",
+      "text": "Reserved by J2012"
+    },
+    {
+      "code": "0xC098",
+      "text": "Reserved by J2012"
+    },
+    {
+      "code": "0xC099",
+      "text": "Reserved by J2012"
     },
     {
       "code": "0xC100",
@@ -2068,8 +7756,68 @@
       "text": "Lost Communication With Cruise Control Module"
     },
     {
+      "code": "0xC105",
+      "text": "Lost Communication With Fuel Injector Control Module"
+    },
+    {
+      "code": "0xC106",
+      "text": "Lost Communication With Glow Plug Control Module"
+    },
+    {
+      "code": "0xC107",
+      "text": "Lost Communication With Throttle Actuator Control Module"
+    },
+    {
+      "code": "0xC108",
+      "text": "Lost Communication With Alternative Fuel Control Module"
+    },
+    {
+      "code": "0xC109",
+      "text": "Lost Communication With Fuel Pump Control Module"
+    },
+    {
       "code": "0xC110",
       "text": "Lost Communication With Generic Module 'A'"
+    },
+    {
+      "code": "0xC111",
+      "text": "Lost Communication With Battery Energy Control Module 'A'"
+    },
+    {
+      "code": "0xC112",
+      "text": "Lost Communication With Battery Energy Control Module 'B'"
+    },
+    {
+      "code": "0xC113",
+      "text": "Lost Communication With Emissions Critical Control Information"
+    },
+    {
+      "code": "0xC114",
+      "text": "Lost Communication With Four-Wheel Drive Clutch Control Module"
+    },
+    {
+      "code": "0xC115",
+      "text": "Lost Communication With ECM/PCM B"
+    },
+    {
+      "code": "0xC116",
+      "text": "Reserved by J2012"
+    },
+    {
+      "code": "0xC117",
+      "text": "Reserved by J2012"
+    },
+    {
+      "code": "0xC118",
+      "text": "Reserved by J2012"
+    },
+    {
+      "code": "0xC119",
+      "text": "Reserved by J2012"
+    },
+    {
+      "code": "0xC120",
+      "text": "Reserved by J2012"
     },
     {
       "code": "0xC121",
@@ -2080,8 +7828,72 @@
       "text": "Lost Communication With Vehicle Dynamics Control"
     },
     {
+      "code": "0xC123",
+      "text": "Lost Communication With Yaw Rate Sensor Module"
+    },
+    {
+      "code": "0xC124",
+      "text": "Lost Communication With Lateral Acceleration Sensor Module"
+    },
+    {
       "code": "0xC125",
       "text": "Lost Communication With Multi-axis Acceleration Sensor Module"
+    },
+    {
+      "code": "0xC126",
+      "text": "Lost Communication With Steering Angle Sensor Module"
+    },
+    {
+      "code": "0xC127",
+      "text": "Lost Communication With Tire Pressure Monitor Module"
+    },
+    {
+      "code": "0xC128",
+      "text": "Lost Communication With Park Brake Control Module"
+    },
+    {
+      "code": "0xC129",
+      "text": "Lost Communication With Brake System Control Module"
+    },
+    {
+      "code": "0xC130",
+      "text": "Lost Communication With Steering Effort Control Module"
+    },
+    {
+      "code": "0xC131",
+      "text": "Lost Communication With Power Steering Control Module"
+    },
+    {
+      "code": "0xC132",
+      "text": "Lost Communication With Ride Level Control Module"
+    },
+    {
+      "code": "0xC133",
+      "text": "Reserved by J2012"
+    },
+    {
+      "code": "0xC134",
+      "text": "Reserved by J2012"
+    },
+    {
+      "code": "0xC135",
+      "text": "Reserved by J2012"
+    },
+    {
+      "code": "0xC136",
+      "text": "Reserved by J2012"
+    },
+    {
+      "code": "0xC137",
+      "text": "Reserved by J2012"
+    },
+    {
+      "code": "0xC138",
+      "text": "Reserved by J2012"
+    },
+    {
+      "code": "0xC139",
+      "text": "Reserved by J2012"
     },
     {
       "code": "0xC140",
@@ -2092,28 +7904,640 @@
       "text": "Lost Communication With Gateway 'A'"
     },
     {
+      "code": "0xC142",
+      "text": "Lost Communication With Body Control Module 'B'"
+    },
+    {
+      "code": "0xC143",
+      "text": "Lost Communication With Body Control Module 'C'"
+    },
+    {
+      "code": "0xC144",
+      "text": "Lost Communication With Body Control Module 'D'"
+    },
+    {
+      "code": "0xC145",
+      "text": "Lost Communication With Body Control Module 'E'"
+    },
+    {
+      "code": "0xC146",
+      "text": "Lost Communication With Gateway 'A'"
+    },
+    {
+      "code": "0xC147",
+      "text": "Lost Communication With Gateway 'B'"
+    },
+    {
+      "code": "0xC148",
+      "text": "Lost Communication With Gateway 'C'"
+    },
+    {
+      "code": "0xC149",
+      "text": "Lost Communication With Gateway 'D'"
+    },
+    {
+      "code": "0xC150",
+      "text": "Lost Communication With Gateway 'E'"
+    },
+    {
       "code": "0xC151",
       "text": "Lost Communication With Restraint Control Module"
+    },
+    {
+      "code": "0xC152",
+      "text": "Lost Communication With Side Restraints Control Module Left"
+    },
+    {
+      "code": "0xC153",
+      "text": "Lost Communication With Side Restraints Control Module Right"
+    },
+    {
+      "code": "0xC154",
+      "text": "Lost Communication With Restraints Occupant Sensing Control Module"
     },
     {
       "code": "0xC155",
       "text": "Lost Communication With Instrument Panel Cluster (IPC)"
     },
     {
+      "code": "0xC156",
+      "text": "Lost Communication With Information Center 'A'"
+    },
+    {
+      "code": "0xC157",
+      "text": "Lost Communication With Information Center 'B'"
+    },
+    {
+      "code": "0xC158",
+      "text": "Lost Communication With Head Up Display"
+    },
+    {
+      "code": "0xC159",
+      "text": "Lost Communication With Parking Assist Control Module"
+    },
+    {
       "code": "0xC160",
       "text": "Lost Communication With Audio Control Module"
+    },
+    {
+      "code": "0xC161",
+      "text": "Lost Communication With Compass Module"
+    },
+    {
+      "code": "0xC162",
+      "text": "Lost Communication With Navigation Display Module"
+    },
+    {
+      "code": "0xC163",
+      "text": "Lost Communication With Navigation Control Module"
+    },
+    {
+      "code": "0xC164",
+      "text": "Lost Communication With HVAC Control Module"
+    },
+    {
+      "code": "0xC165",
+      "text": "Lost Communication With HVAC Control Module Rear"
+    },
+    {
+      "code": "0xC166",
+      "text": "Lost Communication With Auxiliary Heater Control Module"
     },
     {
       "code": "0xC167",
       "text": "Lost Communication With Headlamp Control Module"
     },
     {
+      "code": "0xC168",
+      "text": "Lost Communication With Vehicle Security Control Module"
+    },
+    {
+      "code": "0xC169",
+      "text": "Lost Communication With Sunroof Control Module"
+    },
+    {
+      "code": "0xC170",
+      "text": "Lost Communication With 'Restraints System Sensor A'"
+    },
+    {
+      "code": "0xC171",
+      "text": "Lost Communication With 'Restraints System Sensor B'"
+    },
+    {
+      "code": "0xC172",
+      "text": "Lost Communication With 'Restraints System Sensor C'"
+    },
+    {
+      "code": "0xC173",
+      "text": "Lost Communication With 'Restraints System Sensor D'"
+    },
+    {
+      "code": "0xC174",
+      "text": "Lost Communication With 'Restraints System Sensor E'"
+    },
+    {
+      "code": "0xC175",
+      "text": "Lost Communication With 'Restraints System Sensor F'"
+    },
+    {
+      "code": "0xC176",
+      "text": "Lost Communication With 'Restraints System Sensor G'"
+    },
+    {
+      "code": "0xC177",
+      "text": "Lost Communication With 'Restraints System Sensor H'"
+    },
+    {
+      "code": "0xC178",
+      "text": "Lost Communication With 'Restraints System Sensor I'"
+    },
+    {
+      "code": "0xC179",
+      "text": "Lost Communication With 'Restraints System Sensor J'"
+    },
+    {
+      "code": "0xC180",
+      "text": "Lost Communication With Automatic Lighting Control Module"
+    },
+    {
+      "code": "0xC181",
+      "text": "Lost Communication With Headlamp Leveling Control Module"
+    },
+    {
+      "code": "0xC182",
+      "text": "Lost Communication With Lighting Control Module Front"
+    },
+    {
+      "code": "0xC183",
+      "text": "Lost Communication With Lighting Control Module Rear"
+    },
+    {
       "code": "0xC184",
       "text": "Lost Communication With Telematics Module"
     },
     {
+      "code": "0xC185",
+      "text": "Lost Communication With Antenna Control Module"
+    },
+    {
+      "code": "0xC186",
+      "text": "Lost Communication With Audio Amplifier"
+    },
+    {
+      "code": "0xC187",
+      "text": "Lost Communication With Digital Disc Player/Changer Module 'A'"
+    },
+    {
+      "code": "0xC188",
+      "text": "Lost Communication With Digital Disc Player/Changer Module 'B'"
+    },
+    {
+      "code": "0xC189",
+      "text": "Lost Communication With Digital Disc Player/Changer Module 'C'"
+    },
+    {
+      "code": "0xC190",
+      "text": "Lost Communication With Digital Disc Player/Changer Module 'D'"
+    },
+    {
+      "code": "0xC191",
+      "text": "Lost Communication With Television"
+    },
+    {
+      "code": "0xC192",
+      "text": "Lost Communication With Personal Computer"
+    },
+    {
+      "code": "0xC193",
+      "text": "Lost Communication With 'Digital Audio Control Module A'"
+    },
+    {
+      "code": "0xC194",
+      "text": "Lost Communication With 'Digital Audio Control Module B'"
+    },
+    {
+      "code": "0xC195",
+      "text": "Lost Communication With Subscription Entertainment Receiver Module"
+    },
+    {
+      "code": "0xC196",
+      "text": "Lost Communication With Rear Seat Entertainment Control Module"
+    },
+    {
+      "code": "0xC197",
+      "text": "Lost Communication With Telephone Control Module"
+    },
+    {
+      "code": "0xC198",
+      "text": "Lost Communication With Telematic Control Module"
+    },
+    {
+      "code": "0xC199",
+      "text": "Lost Communication With 'Door Control Module A'"
+    },
+    {
       "code": "0xC19E",
       "text": "Lost Communication With Steering Column Lock Module"
+    },
+    {
+      "code": "0xC200",
+      "text": "Lost Communication With 'Door Control Module B'"
+    },
+    {
+      "code": "0xC201",
+      "text": "Lost Communication With 'Door Control Module C'"
+    },
+    {
+      "code": "0xC202",
+      "text": "Lost Communication With 'Door Control Module D'"
+    },
+    {
+      "code": "0xC203",
+      "text": "Lost Communication With 'Door Control Module E'"
+    },
+    {
+      "code": "0xC204",
+      "text": "Lost Communication With 'Door Control Module F'"
+    },
+    {
+      "code": "0xC205",
+      "text": "Lost Communication With 'Door Control Module G'"
+    },
+    {
+      "code": "0xC206",
+      "text": "Lost Communication With Folding Top Control Module"
+    },
+    {
+      "code": "0xC207",
+      "text": "Lost Communication With Moveable Roof Control Module"
+    },
+    {
+      "code": "0xC208",
+      "text": "Lost Communication With 'Seat Control Module A'"
+    },
+    {
+      "code": "0xC209",
+      "text": "Lost Communication With 'Seat Control Module B'"
+    },
+    {
+      "code": "0xC210",
+      "text": "Lost Communication With 'Seat Control Module C'"
+    },
+    {
+      "code": "0xC211",
+      "text": "Lost Communication With 'Seat Control Module D'"
+    },
+    {
+      "code": "0xC212",
+      "text": "Lost Communication With Steering Column Control Module"
+    },
+    {
+      "code": "0xC213",
+      "text": "Lost Communication With Mirror Control Module"
+    },
+    {
+      "code": "0xC214",
+      "text": "Lost Communication With Remote Function Actuation"
+    },
+    {
+      "code": "0xC215",
+      "text": "Lost Communication With 'Door Switch A'"
+    },
+    {
+      "code": "0xC216",
+      "text": "Lost Communication With 'Door Switch B'"
+    },
+    {
+      "code": "0xC217",
+      "text": "Lost Communication With 'Door Switch C'"
+    },
+    {
+      "code": "0xC218",
+      "text": "Lost Communication With 'Door Switch D'"
+    },
+    {
+      "code": "0xC219",
+      "text": "Lost Communication With 'Door Switch E'"
+    },
+    {
+      "code": "0xC220",
+      "text": "Lost Communication With 'Door Switch F'"
+    },
+    {
+      "code": "0xC221",
+      "text": "Lost Communication With 'Door Switch G'"
+    },
+    {
+      "code": "0xC222",
+      "text": "Lost Communication With 'Door Window Motor A'"
+    },
+    {
+      "code": "0xC223",
+      "text": "Lost Communication With 'Door Window Motor B'"
+    },
+    {
+      "code": "0xC224",
+      "text": "Lost Communication With 'Door Window Motor C'"
+    },
+    {
+      "code": "0xC225",
+      "text": "Lost Communication With 'Door Window Motor D'"
+    },
+    {
+      "code": "0xC226",
+      "text": "Lost Communication With 'Door Window Motor E'"
+    },
+    {
+      "code": "0xC227",
+      "text": "Lost Communication With 'Door Window Motor F'"
+    },
+    {
+      "code": "0xC228",
+      "text": "Lost Communication With 'Door Window Motor G'"
+    },
+    {
+      "code": "0xC229",
+      "text": "Lost Communication With Heated Steering Wheel Module"
+    },
+    {
+      "code": "0xC230",
+      "text": "Lost Communication With Rear Gate Module"
+    },
+    {
+      "code": "0xC231",
+      "text": "Lost Communication With Rain Sensing Module"
+    },
+    {
+      "code": "0xC232",
+      "text": "Lost Communication With Side Obstacle Detection Control Module Left"
+    },
+    {
+      "code": "0xC233",
+      "text": "Lost Communication With Side Obstacle Detection Control Module Right"
+    },
+    {
+      "code": "0xC234",
+      "text": "Lost Communication With Convenience Recall Module"
+    },
+    {
+      "code": "0xC235",
+      "text": "Lost Communication With Cruise Control Front Distance Range Sensor"
+    },
+    {
+      "code": "0xC300",
+      "text": "Internal Control Module Software Incompatibility"
+    },
+    {
+      "code": "0xC301",
+      "text": "Software Incompatibility with ECM/PCM"
+    },
+    {
+      "code": "0xC302",
+      "text": "Software Incompatibility with Transmission Control Module"
+    },
+    {
+      "code": "0xC303",
+      "text": "Software Incompatibility with Transfer Case Control Module"
+    },
+    {
+      "code": "0xC304",
+      "text": "Software Incompatibility with Gear Shift Control Module"
+    },
+    {
+      "code": "0xC305",
+      "text": "Software Incompatibility with Cruise Control Module"
+    },
+    {
+      "code": "0xC306",
+      "text": "Software Incompatibility with Fuel Injector Control Module"
+    },
+    {
+      "code": "0xC307",
+      "text": "Software Incompatibility with Glow Plug Control Module"
+    },
+    {
+      "code": "0xC308",
+      "text": "Software Incompatibility with Throttle Actuator Control Module"
+    },
+    {
+      "code": "0xC309",
+      "text": "Software Incompatibility with Alternative Fuel Control Module"
+    },
+    {
+      "code": "0xC310",
+      "text": "Software Incompatibility with Fuel Pump Control Module"
+    },
+    {
+      "code": "0xC311",
+      "text": "Software Incompatibility with Drive Motor Control Module"
+    },
+    {
+      "code": "0xC312",
+      "text": "Software Incompatibility with Battery Energy Control Module A"
+    },
+    {
+      "code": "0xC313",
+      "text": "Software Incompatibility with Battery Energy Control Module B"
+    },
+    {
+      "code": "0xC314",
+      "text": "Software Incompatibility with Four-Wheel Drive Clutch Control Module"
+    },
+    {
+      "code": "0xC315",
+      "text": "Software Incompatibility with Anti-Lock Brake System Control Module"
+    },
+    {
+      "code": "0xC316",
+      "text": "Software Incompatibility with Vehicle Dynamics Control Module"
+    },
+    {
+      "code": "0xC317",
+      "text": "Software Incompatibility with Park Brake Control Module"
+    },
+    {
+      "code": "0xC318",
+      "text": "Software Incompatibility with Brake System Control Module"
+    },
+    {
+      "code": "0xC319",
+      "text": "Software Incompatibility with Steering Effort Control Module"
+    },
+    {
+      "code": "0xC320",
+      "text": "Software Incompatibility with Power Steering Control Module"
+    },
+    {
+      "code": "0xC321",
+      "text": "Software Incompatibility with Ride Level Control Module"
+    },
+    {
+      "code": "0xC322",
+      "text": "Software Incompatibility with Body Control Module"
+    },
+    {
+      "code": "0xC323",
+      "text": "Software Incompatibility with Instrument Panel Control Module"
+    },
+    {
+      "code": "0xC324",
+      "text": "Software Incompatibility with HVAC Control Module"
+    },
+    {
+      "code": "0xC325",
+      "text": "Software Incompatibility with Auxiliary Heater Control Module"
+    },
+    {
+      "code": "0xC326",
+      "text": "Software Incompatibility with Vehicle Immobilizer Control Module"
+    },
+    {
+      "code": "0xC327",
+      "text": "Software Incompatibility with Vehicle Security Control Module"
+    },
+    {
+      "code": "0xC328",
+      "text": "Software Incompatibility with Steering Angle Sensor Module"
+    },
+    {
+      "code": "0xC329",
+      "text": "Software Incompatibility with Steering Column Control Module"
+    },
+    {
+      "code": "0xC330",
+      "text": "Software Incompatibility with Tire Pressure Monitor Module"
+    },
+    {
+      "code": "0xC331",
+      "text": "Software Incompatibility with Body Control Module 'A'"
+    },
+    {
+      "code": "0xC400",
+      "text": "Invalid Data Received"
+    },
+    {
+      "code": "0xC401",
+      "text": "Invalid Data Received From ECM/PCM"
+    },
+    {
+      "code": "0xC402",
+      "text": "Invalid Data Received From Transmission Control Module"
+    },
+    {
+      "code": "0xC403",
+      "text": "Invalid Data Received From Transfer Case Control Module"
+    },
+    {
+      "code": "0xC404",
+      "text": "Invalid Data Received From Gear Shift Control Module"
+    },
+    {
+      "code": "0xC405",
+      "text": "Invalid Data Received From Cruise Control Module"
+    },
+    {
+      "code": "0xC406",
+      "text": "Invalid Data Received From Fuel Injector Control Module"
+    },
+    {
+      "code": "0xC407",
+      "text": "Invalid Data Received From Glow Plug Control Module"
+    },
+    {
+      "code": "0xC408",
+      "text": "Invalid Data Received From Throttle Actuator Control Module"
+    },
+    {
+      "code": "0xC409",
+      "text": "Invalid Data Received From Alternative Fuel Control Module"
+    },
+    {
+      "code": "0xC410",
+      "text": "Invalid Data Received From Fuel Pump Control Module"
+    },
+    {
+      "code": "0xC411",
+      "text": "Invalid Data Received From Drive Motor Control Module"
+    },
+    {
+      "code": "0xC412",
+      "text": "Invalid Data Received From Battery Energy Control Module A"
+    },
+    {
+      "code": "0xC413",
+      "text": "Invalid Data Received From Battery Energy Control Module B"
+    },
+    {
+      "code": "0xC414",
+      "text": "Invalid Data Received From Four-Wheel Drive Clutch Control Module"
+    },
+    {
+      "code": "0xC415",
+      "text": "Invalid Data Received From Anti-Lock Brake System Control Module"
+    },
+    {
+      "code": "0xC416",
+      "text": "Invalid Data Received From Vehicle Dynamics Control Module"
+    },
+    {
+      "code": "0xC417",
+      "text": "Invalid Data Received From Park Brake Control Module"
+    },
+    {
+      "code": "0xC418",
+      "text": "Invalid Data Received From Brake System Control Module"
+    },
+    {
+      "code": "0xC419",
+      "text": "Invalid Data Received From Steering Effort Control Module"
+    },
+    {
+      "code": "0xC420",
+      "text": "Invalid Data Received From Power Steering Control Module"
+    },
+    {
+      "code": "0xC421",
+      "text": "Invalid Data Received From Ride Level Control Module"
+    },
+    {
+      "code": "0xC422",
+      "text": "Invalid Data Received From Body Control Module"
+    },
+    {
+      "code": "0xC423",
+      "text": "Invalid Data Received From Instrument Panel Control Module"
+    },
+    {
+      "code": "0xC424",
+      "text": "Invalid Data Received From HVAC Control Module"
+    },
+    {
+      "code": "0xC425",
+      "text": "Invalid Data Received From Auxiliary Heater Control Module"
+    },
+    {
+      "code": "0xC426",
+      "text": "Invalid Data Received From Vehicle Immobilizer Control Module"
+    },
+    {
+      "code": "0xC427",
+      "text": "Invalid Data Received From Vehicle Security Control Module"
+    },
+    {
+      "code": "0xC428",
+      "text": "Invalid Data Received From Steering Angle Sensor Module"
+    },
+    {
+      "code": "0xC429",
+      "text": "Invalid Data Received From Steering Column Control Module"
+    },
+    {
+      "code": "0xC430",
+      "text": "Invalid Data Received From Tire Pressure Monitor Module"
+    },
+    {
+      "code": "0xC431",
+      "text": "Invalid Data Received From Body Control Module 'A'"
     }
   ]
 }

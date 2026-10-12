@@ -31,7 +31,7 @@ How the counts are made:
   - **marine**: 6 catalogs / 766 brand-specific entries
   - **motorcycle**: 14 catalogs / 1,108 brand-specific entries
   - **powersports**: 5 catalogs / 376 brand-specific entries
-- **47 DTC catalogs** (`dtc-<oem>.json`) — **1,282 total DTCs**
+- **47 DTC catalogs** (`dtc-<oem>.json`) — **2,888 total DTCs**
 - **2 universal catalogs** (`obd2-pids.json` and `uds-standard.json`)
 - **2 range profiles** (`range-profiles/*.json`) — editable normal bands for OBD Studio values
 - **6 shared base catalogs** (`_shared/*.json`) — **7,428 template entries** stored once instead of per brand
@@ -162,7 +162,7 @@ How the counts are made:
 
 | File | Name | Default source | Entries |
 |---|---|---|---:|
-| `dtc-iso-15031.json` | ISO 15031-6 / SAE J2012 generic DTCs | iso-15031-6 | 528 |
+| `dtc-iso-15031.json` | ISO 15031-6 / SAE J2012 generic DTCs | iso-15031-6 | 2,134 |
 | `dtc-lucid.json` | Lucid DTC starter | Lucid community DTCs | 33 |
 | `dtc-dacia.json` | Dacia DTC starter | Dacia CLIP shared with Renault DTCs | 29 |
 | `dtc-rolls-royce.json` | Rolls-Royce DTC starter | Rolls-Royce BMW ISTA shared DTCs | 28 |
@@ -214,5 +214,5 @@ How the counts are made:
 
 | File | Name | DIDs | Routines | Total |
 |---|---|---:|---:|---:|
-| `obd2-pids.json` | ISO 15031-6 / SAE J1979 OBD-II Service 01 PIDs | 84 | 0 | 84 |
+| `obd2-pids.json` | ISO 15031-6 / SAE J1979 OBD-II Service 01 PIDs | 205 | 0 | 205 |
 | `uds-standard.json` | ISO 14229-1 Universal UDS DIDs | 31 | 4 | 35 |
