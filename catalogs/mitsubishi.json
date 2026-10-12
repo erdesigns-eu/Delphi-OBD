@@ -6930,6 +6930,814 @@
         "kind": "uint16_be",
         "unit": "kΩ"
       }
+    },
+    {
+      "did": "0x0E00",
+      "name": "speed_output",
+      "description": "Speed output",
+      "ecu_address": "0x743",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "km/h"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0E01",
+      "name": "odometer",
+      "description": "Fields: Odometer [km] (byte 0)",
+      "ecu_address": "0x743",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0E03",
+      "name": "fuel_meter",
+      "description": "Fuel meter",
+      "ecu_address": "0x743",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.8,
+        "unit": "L"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0E25",
+      "name": "front_right_tire_pressure",
+      "description": "Alternative decodings: Front right tire pressure [psi] (byte 0); Front right tire pressure [psi] (byte 0)",
+      "ecu_address": "0x743",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.25,
+        "unit": "psi"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0E26",
+      "name": "front_left_tire_pressure",
+      "description": "Alternative decodings: Front left tire pressure [psi] (byte 0); Front left tire pressure [psi] (byte 0)",
+      "ecu_address": "0x743",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.25,
+        "unit": "psi"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0E27",
+      "name": "rear_right_tire_pressure",
+      "description": "Alternative decodings: Rear right tire pressure [psi] (byte 0); Rear right tire pressure [psi] (byte 0)",
+      "ecu_address": "0x743",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.25,
+        "unit": "psi"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0E28",
+      "name": "rear_left_tire_pressure",
+      "description": "Alternative decodings: Rear left tire pressure [psi] (byte 0); Rear left tire pressure [psi] (byte 0)",
+      "ecu_address": "0x743",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.25,
+        "unit": "psi"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1002",
+      "name": "at_position",
+      "description": "AT position",
+      "ecu_address": "0x748",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x100C",
+      "name": "wheel_speed_rl",
+      "description": "Wheel speed RL",
+      "ecu_address": "0x748",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.041667,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x100D",
+      "name": "wheel_speed_rr",
+      "description": "Wheel speed RR",
+      "ecu_address": "0x748",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.041667,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1013",
+      "name": "wheel_speed_fl",
+      "description": "Wheel speed FL",
+      "ecu_address": "0x748",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.041667,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1014",
+      "name": "wheel_speed_fr",
+      "description": "Wheel speed FR",
+      "ecu_address": "0x748",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.041667,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1105",
+      "name": "exhaust_gas_recirculation_temperature_sensor_voltage",
+      "description": "Exhaust gas recirculation temperature sensor voltage",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.02,
+        "unit": "V"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1105",
+      "name": "exhaust_gas_recirculation_temperature_sensor_voltage",
+      "description": "Exhaust gas recirculation temperature sensor voltage",
+      "ecu_address": "0xDA18",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.02,
+        "unit": "V"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1106",
+      "name": "t_f_status",
+      "description": "T/F status",
+      "ecu_address": "0x748",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1111",
+      "name": "fuel_temperature",
+      "description": "Fuel temperature",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°C"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1111",
+      "name": "fuel_temperature",
+      "description": "Fuel temperature",
+      "ecu_address": "0xDA18",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°C"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1114",
+      "name": "fuel_level_input",
+      "description": "Fuel level input",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.04,
+        "unit": "V"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1114",
+      "name": "fuel_level_input",
+      "description": "Fuel level input",
+      "ecu_address": "0xDA18",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.04,
+        "unit": "V"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1115",
+      "name": "evap_pressure_sensor_voltage",
+      "description": "EVAP pressure sensor voltage",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.02,
+        "unit": "V"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1115",
+      "name": "evap_pressure_sensor_voltage",
+      "description": "EVAP pressure sensor voltage",
+      "ecu_address": "0xDA18",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.02,
+        "unit": "V"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x111F",
+      "name": "engine_oil_temperature",
+      "description": "Engine oil temperature",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°C"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x111F",
+      "name": "engine_oil_temperature",
+      "description": "Engine oil temperature",
+      "ecu_address": "0xDA18",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°C"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1207",
+      "name": "base_injection_timing",
+      "description": "Base injection timing",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.00048828125,
+        "unit": "ms"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1207",
+      "name": "base_injection_timing",
+      "description": "Base injection timing",
+      "ecu_address": "0xDA18",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.00048828125,
+        "unit": "ms"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x120C",
+      "name": "fuel_pressure_sensor_voltage",
+      "description": "Fuel pressure sensor voltage",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0003051804379,
+        "unit": "V"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x120C",
+      "name": "fuel_pressure_sensor_voltage",
+      "description": "Fuel pressure sensor voltage",
+      "ecu_address": "0xDA18",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0003051804379,
+        "unit": "V"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x120D",
+      "name": "accelerator_pedal_position_sensor_1_voltage",
+      "description": "Accelerator pedal position sensor 1 voltage",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.005,
+        "unit": "V"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x120D",
+      "name": "accelerator_pedal_position_sensor_1_voltage",
+      "description": "Accelerator pedal position sensor 1 voltage",
+      "ecu_address": "0xDA18",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.005,
+        "unit": "V"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x120E",
+      "name": "accelerator_pedal_position_sensor_2_voltage",
+      "description": "Accelerator pedal position sensor 2 voltage",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.005,
+        "unit": "V"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x120E",
+      "name": "accelerator_pedal_position_sensor_2_voltage",
+      "description": "Accelerator pedal position sensor 2 voltage",
+      "ecu_address": "0xDA18",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.005,
+        "unit": "V"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x120F",
+      "name": "throttle_position_sensor_1_voltage",
+      "description": "Throttle position sensor 1 voltage",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.005,
+        "unit": "V"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x120F",
+      "name": "throttle_position_sensor_1_voltage",
+      "description": "Throttle position sensor 1 voltage",
+      "ecu_address": "0xDA18",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.005,
+        "unit": "V"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1210",
+      "name": "throttle_position_sensor_2_voltage",
+      "description": "Throttle position sensor 2 voltage",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.005,
+        "unit": "V"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1210",
+      "name": "throttle_position_sensor_2_voltage",
+      "description": "Throttle position sensor 2 voltage",
+      "ecu_address": "0xDA18",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.005,
+        "unit": "V"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x121F",
+      "name": "roll_over_sensor_voltage",
+      "description": "Roll-over sensor voltage",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.005,
+        "unit": "V"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x121F",
+      "name": "roll_over_sensor_voltage",
+      "description": "Roll-over sensor voltage",
+      "ecu_address": "0xDA18",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.005,
+        "unit": "V"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x150D",
+      "name": "engine_speed",
+      "description": "Fields: Engine speed [rpm] (byte 0); Throttle pedal sensor [%] (byte 2); Static engine torque [Nm] (byte 4)",
+      "ecu_address": "0xDA18",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x150E",
+      "name": "input_shaft_speed",
+      "description": "Fields: Input shaft speed [rpm] (byte 1); Output shaft speed [rpm] (byte 3); Transmission fluid temperature, pipe [°C] (byte 5); Transmission fluid temperature, pan [°C] (byte 6); Vehicle speed [km/h] (byte 7); Gear (byte 9)",
+      "ecu_address": "0xDA18",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x150F",
+      "name": "lock_up_solenoid",
+      "description": "Fields: Lock-up solenoid (byte 0, bit 7, 1 bit(s)); Lock-up control solenoid duty [%] (byte 1); Line pressure control solenoid duty [%] (byte 2); Linear solenoid 1 duty [%] (byte 3); Linear solenoid 2 duty [%] (byte 4); Linear solenoid 3 duty [%] (byte 5); Linear solenoid 4 duty [%] (byte 6); Electromagnetic oil pump duty [%] (byte 7)",
+      "ecu_address": "0xDA18",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2170",
+      "name": "transmission_fluid_temperature",
+      "description": "Fields: Transmission fluid temperature [°C] (byte 29)",
+      "ecu_address": "0xDA18",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4000",
+      "name": "engine_control_module_voltage",
+      "description": "Engine control module voltage",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.0732,
+        "unit": "V"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4002",
+      "name": "engine_speed",
+      "description": "Engine speed",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 25,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x403B",
+      "name": "fuel_temperature",
+      "description": "Fuel temperature",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x408F",
+      "name": "boost_pressure_actual",
+      "description": "Boost pressure, actual",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 1.3332,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4093",
+      "name": "engine_oil_pressure",
+      "description": "Engine oil pressure",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 4,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4500",
+      "name": "exhaust_gas_temperature_sensor_0",
+      "description": "Fields: Exhaust gas temperature sensor 0 [°C] (byte 0); Exhaust gas temperature sensor 1 [°C] (byte 1); Exhaust gas temperature sensor 2 [°C] (byte 2); Exhaust gas temperature sensor 3 [°C] (byte 3); Exhaust gas temperature sensor 4 [°C] (byte 4); Diesel particulate filter differential pressure [kPa] (byte 5)",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4501",
+      "name": "fuel_injection_amount_pilot_1",
+      "description": "Fields: Fuel injection amount, pilot 1 (byte 0); Fuel injection amount, pilot 2 (byte 1); Fuel injection amount, pilot 3 (byte 2)",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4502",
+      "name": "final_fuel_injection_amount",
+      "description": "Fields: Final fuel injection amount (byte 0); Fuel injection amount at startup (byte 1); Injection amount, smoke limit (byte 2); Fuel injection amount, pilot (byte 3)",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4503",
+      "name": "fuel_quantity_correction_cylinder_1",
+      "description": "Fields: Fuel quantity correction, cylinder 1 [ms] (byte 0); Fuel quantity correction, cylinder 2 [ms] (byte 1); Fuel quantity correction, cylinder 3 [ms] (byte 2); Fuel quantity correction, cylinder 4 [ms] (byte 3)",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4506",
+      "name": "turbocharger_target_position",
+      "description": "Fields: Turbocharger, target position [%] (byte 0); Boost pressure target [kPa] (byte 1); Turbocharger, actual position [%] (byte 2)",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4507",
+      "name": "fuel_injection_amount_main",
+      "description": "Fields: Fuel injection amount, main (byte 0); Fuel injection amount, after (byte 1); Fuel injection amount, post 1 (byte 2); Fuel injection amount, post 2 (byte 3); Fuel injection amount, post 3 (byte 4)",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4510",
+      "name": "fuel_injection_duration_pilot",
+      "description": "Fields: Fuel injection duration, pilot [ms] (byte 0); Fuel injection duration, main [ms] (byte 2)",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x451D",
+      "name": "engine_speed_deviation_time_1",
+      "description": "Fields: Engine speed deviation time 1 [ms] (byte 0); Engine speed deviation time 2 [ms] (byte 2)",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x451E",
+      "name": "engine_speed_deviation_time_3",
+      "description": "Fields: Engine speed deviation time 3 [ms] (byte 0); Engine speed deviation time 4 [ms] (byte 2)",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4522",
+      "name": "fuel_pressure",
+      "description": "Fuel pressure",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x452B",
+      "name": "diesel_particulate_filter_differential_pressure_2",
+      "description": "Diesel particulate filter differential pressure 2",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "offset": -10,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4534",
+      "name": "oil_temperature",
+      "description": "Oil temperature",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4535",
+      "name": "fuel_pressure_low",
+      "description": "Fuel pressure, low",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 10,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4539",
+      "name": "target_common_rail_fuel_pressure",
+      "description": "Target common rail fuel pressure",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x454C",
+      "name": "distance_since_last_dpf_regeneration",
+      "description": "Fields: Distance since last DPF regeneration [km] (byte 0); Diesel particulate filter soot accumulation [g/L] (byte 1); Diesel particulate filter regeneration total count (byte 2); Diesel particulate filter regeneration request mileage [km] (byte 4); Regeneration request soot deposit [g/L] (byte 5)",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4B00",
+      "name": "front_left_wheel_speed",
+      "description": "Front left wheel speed",
+      "ecu_address": "0xDA2D",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "km/h"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4B01",
+      "name": "front_right_wheel_speed",
+      "description": "Front right wheel speed",
+      "ecu_address": "0xDA2D",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "km/h"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4B02",
+      "name": "rear_left_wheel_speed",
+      "description": "Rear left wheel speed",
+      "ecu_address": "0xDA2D",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "km/h"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4B03",
+      "name": "rear_right_wheel_speed",
+      "description": "Rear right wheel speed",
+      "ecu_address": "0xDA2D",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "km/h"
+      },
+      "source": "OBDb/Mitsubishi signalset (CC BY-SA 4.0)",
+      "verified": false
     }
   ],
   "routines": [

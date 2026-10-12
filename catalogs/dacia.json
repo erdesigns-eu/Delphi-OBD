@@ -10,7 +10,7 @@
     "LRY"
   ],
   "default_source": "dacia-renault-clip-community",
-  "extends": "_shared/oem-cars-and-trucks.json",
+  "extends": "renault.json",
   "ecus": [
     {
       "address": "0x7E0",
@@ -93,116 +93,6 @@
       "common_name": "Spring EV 26.8 kWh / Bigster Hybrid HV pack"
     },
     {
-      "address": "0x7E2",
-      "name": "tcm",
-      "common_name": "TCM"
-    },
-    {
-      "address": "0x7E3",
-      "name": "tcase",
-      "common_name": "Transfer case / AWD"
-    },
-    {
-      "address": "0x7E8",
-      "name": "ldc",
-      "common_name": "DC-DC"
-    },
-    {
-      "address": "0x7E9",
-      "name": "vcms",
-      "common_name": "Vehicle charging mgr"
-    },
-    {
-      "address": "0x7EA",
-      "name": "mot_front",
-      "common_name": "Front motor"
-    },
-    {
-      "address": "0x710",
-      "name": "abs",
-      "common_name": "ABS"
-    },
-    {
-      "address": "0x711",
-      "name": "sas",
-      "common_name": "SAS"
-    },
-    {
-      "address": "0x712",
-      "name": "eps",
-      "common_name": "EPS"
-    },
-    {
-      "address": "0x713",
-      "name": "epb",
-      "common_name": "EPB"
-    },
-    {
-      "address": "0x724",
-      "name": "rear_radar_r",
-      "common_name": "Rear radar R"
-    },
-    {
-      "address": "0x726",
-      "name": "corner_radar_fr",
-      "common_name": "Corner FR"
-    },
-    {
-      "address": "0x728",
-      "name": "cam_360_r",
-      "common_name": "360 rear"
-    },
-    {
-      "address": "0x731",
-      "name": "bcm",
-      "common_name": "BCM"
-    },
-    {
-      "address": "0x732",
-      "name": "instrument",
-      "common_name": "Cluster"
-    },
-    {
-      "address": "0x741",
-      "name": "sunroof",
-      "common_name": "Pano roof"
-    },
-    {
-      "address": "0x742",
-      "name": "fuel_flap",
-      "common_name": "Fuel flap"
-    },
-    {
-      "address": "0x744",
-      "name": "frunk",
-      "common_name": "Frunk"
-    },
-    {
-      "address": "0x745",
-      "name": "headlight_l",
-      "common_name": "Headlight L"
-    },
-    {
-      "address": "0x746",
-      "name": "headlight_r",
-      "common_name": "Headlight R"
-    },
-    {
-      "address": "0x748",
-      "name": "taillight_r",
-      "common_name": "Taillight R"
-    },
-    {
-      "address": "0x75A",
-      "name": "seat_climate_pa",
-      "common_name": "Seat climate pa"
-    },
-    {
-      "address": "0x75D",
-      "name": "wireless_charging",
-      "common_name": "Qi"
-    },
-    {
       "address": "0x762",
       "name": "ota",
       "common_name": "OTA master"
@@ -211,11 +101,6 @@
       "address": "0x763",
       "name": "hsm",
       "common_name": "HSM"
-    },
-    {
-      "address": "0x764",
-      "name": "ethernet",
-      "common_name": "Ethernet switch"
     },
     {
       "address": "0x765",
@@ -531,16 +416,6 @@
       }
     },
     {
-      "did": "0xF186",
-      "name": "active_diagnostic_session",
-      "description": "Currently active UDS session",
-      "source": "oem-extension",
-      "verified": false,
-      "decoder": {
-        "kind": "bytes"
-      }
-    },
-    {
       "did": "0xF187",
       "name": "spare_part_number",
       "description": "Renault Group part number",
@@ -548,432 +423,6 @@
       "verified": false,
       "decoder": {
         "kind": "bytes"
-      }
-    },
-    {
-      "did": "0xF189",
-      "name": "sw_version_number",
-      "description": "ECU software version",
-      "source": "oem-extension",
-      "verified": false,
-      "decoder": {
-        "kind": "bytes"
-      }
-    },
-    {
-      "did": "0xF190",
-      "name": "vin",
-      "description": "Vehicle identification number",
-      "source": "oem-extension",
-      "verified": false,
-      "decoder": {
-        "kind": "bytes"
-      }
-    },
-    {
-      "did": "0xF197",
-      "name": "system_name",
-      "description": "ECU long name",
-      "source": "oem-extension",
-      "verified": false,
-      "decoder": {
-        "kind": "bytes"
-      }
-    },
-    {
-      "did": "0x4120",
-      "name": "ecm_cyl5_misfire",
-      "description": "Cyl 5 misfire",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E0",
-      "decoder": {
-        "kind": "uint16_be"
-      }
-    },
-    {
-      "did": "0x4121",
-      "name": "ecm_cyl5_misfire_lt",
-      "description": "Cyl 5 lifetime",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E0",
-      "decoder": {
-        "kind": "uint32_be"
-      }
-    },
-    {
-      "did": "0x4122",
-      "name": "ecm_cyl5_knock",
-      "description": "Cyl 5 knock",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E0",
-      "decoder": {
-        "kind": "int8",
-        "scale": 0.5,
-        "unit": "°"
-      }
-    },
-    {
-      "did": "0x4123",
-      "name": "ecm_cyl5_inj_corr",
-      "description": "Cyl 5 inj corr",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E0",
-      "decoder": {
-        "kind": "int16_be",
-        "scale": 0.01,
-        "unit": "%"
-      }
-    },
-    {
-      "did": "0x4124",
-      "name": "ecm_cyl5_compression",
-      "description": "Cyl 5 compression",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E0",
-      "decoder": {
-        "kind": "uint8",
-        "unit": "%"
-      }
-    },
-    {
-      "did": "0x4125",
-      "name": "ecm_cyl5_egt",
-      "description": "Cyl 5 EGT",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E0",
-      "decoder": {
-        "kind": "uint16_be",
-        "scale": 0.5,
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x4126",
-      "name": "ecm_cyl5_lambda",
-      "description": "Cyl 5 lambda",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E0",
-      "decoder": {
-        "kind": "uint16_be",
-        "scale": 0.001,
-        "unit": "λ"
-      }
-    },
-    {
-      "did": "0x4127",
-      "name": "ecm_cyl5_coil",
-      "description": "Cyl 5 coil",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E0",
-      "decoder": {
-        "kind": "uint16_be",
-        "scale": 0.01,
-        "unit": "Ω"
-      }
-    },
-    {
-      "did": "0x4128",
-      "name": "ecm_cyl6_misfire",
-      "description": "Cyl 6 misfire",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E0",
-      "decoder": {
-        "kind": "uint16_be"
-      }
-    },
-    {
-      "did": "0x4129",
-      "name": "ecm_cyl6_misfire_lt",
-      "description": "Cyl 6 lifetime",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E0",
-      "decoder": {
-        "kind": "uint32_be"
-      }
-    },
-    {
-      "did": "0x412A",
-      "name": "ecm_cyl6_knock",
-      "description": "Cyl 6 knock",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E0",
-      "decoder": {
-        "kind": "int8",
-        "scale": 0.5,
-        "unit": "°"
-      }
-    },
-    {
-      "did": "0x412B",
-      "name": "ecm_cyl6_inj_corr",
-      "description": "Cyl 6 inj corr",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E0",
-      "decoder": {
-        "kind": "int16_be",
-        "scale": 0.01,
-        "unit": "%"
-      }
-    },
-    {
-      "did": "0x412C",
-      "name": "ecm_cyl6_compression",
-      "description": "Cyl 6 compression",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E0",
-      "decoder": {
-        "kind": "uint8",
-        "unit": "%"
-      }
-    },
-    {
-      "did": "0x412D",
-      "name": "ecm_cyl6_egt",
-      "description": "Cyl 6 EGT",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E0",
-      "decoder": {
-        "kind": "uint16_be",
-        "scale": 0.5,
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x412E",
-      "name": "ecm_cyl6_lambda",
-      "description": "Cyl 6 lambda",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E0",
-      "decoder": {
-        "kind": "uint16_be",
-        "scale": 0.001,
-        "unit": "λ"
-      }
-    },
-    {
-      "did": "0x412F",
-      "name": "ecm_cyl6_coil",
-      "description": "Cyl 6 coil",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E0",
-      "decoder": {
-        "kind": "uint16_be",
-        "scale": 0.01,
-        "unit": "Ω"
-      }
-    },
-    {
-      "did": "0x4130",
-      "name": "ecm_cyl7_misfire",
-      "description": "Cyl 7 misfire",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E0",
-      "decoder": {
-        "kind": "uint16_be"
-      }
-    },
-    {
-      "did": "0x4131",
-      "name": "ecm_cyl7_misfire_lt",
-      "description": "Cyl 7 lifetime",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E0",
-      "decoder": {
-        "kind": "uint32_be"
-      }
-    },
-    {
-      "did": "0x4132",
-      "name": "ecm_cyl7_knock",
-      "description": "Cyl 7 knock",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E0",
-      "decoder": {
-        "kind": "int8",
-        "scale": 0.5,
-        "unit": "°"
-      }
-    },
-    {
-      "did": "0x4133",
-      "name": "ecm_cyl7_inj_corr",
-      "description": "Cyl 7 inj corr",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E0",
-      "decoder": {
-        "kind": "int16_be",
-        "scale": 0.01,
-        "unit": "%"
-      }
-    },
-    {
-      "did": "0x4134",
-      "name": "ecm_cyl7_compression",
-      "description": "Cyl 7 compression",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E0",
-      "decoder": {
-        "kind": "uint8",
-        "unit": "%"
-      }
-    },
-    {
-      "did": "0x4135",
-      "name": "ecm_cyl7_egt",
-      "description": "Cyl 7 EGT",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E0",
-      "decoder": {
-        "kind": "uint16_be",
-        "scale": 0.5,
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x4136",
-      "name": "ecm_cyl7_lambda",
-      "description": "Cyl 7 lambda",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E0",
-      "decoder": {
-        "kind": "uint16_be",
-        "scale": 0.001,
-        "unit": "λ"
-      }
-    },
-    {
-      "did": "0x4137",
-      "name": "ecm_cyl7_coil",
-      "description": "Cyl 7 coil",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E0",
-      "decoder": {
-        "kind": "uint16_be",
-        "scale": 0.01,
-        "unit": "Ω"
-      }
-    },
-    {
-      "did": "0x4138",
-      "name": "ecm_cyl8_misfire",
-      "description": "Cyl 8 misfire",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E0",
-      "decoder": {
-        "kind": "uint16_be"
-      }
-    },
-    {
-      "did": "0x4139",
-      "name": "ecm_cyl8_misfire_lt",
-      "description": "Cyl 8 lifetime",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E0",
-      "decoder": {
-        "kind": "uint32_be"
-      }
-    },
-    {
-      "did": "0x413A",
-      "name": "ecm_cyl8_knock",
-      "description": "Cyl 8 knock",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E0",
-      "decoder": {
-        "kind": "int8",
-        "scale": 0.5,
-        "unit": "°"
-      }
-    },
-    {
-      "did": "0x413B",
-      "name": "ecm_cyl8_inj_corr",
-      "description": "Cyl 8 inj corr",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E0",
-      "decoder": {
-        "kind": "int16_be",
-        "scale": 0.01,
-        "unit": "%"
-      }
-    },
-    {
-      "did": "0x413C",
-      "name": "ecm_cyl8_compression",
-      "description": "Cyl 8 compression",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E0",
-      "decoder": {
-        "kind": "uint8",
-        "unit": "%"
-      }
-    },
-    {
-      "did": "0x413D",
-      "name": "ecm_cyl8_egt",
-      "description": "Cyl 8 EGT",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E0",
-      "decoder": {
-        "kind": "uint16_be",
-        "scale": 0.5,
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x413E",
-      "name": "ecm_cyl8_lambda",
-      "description": "Cyl 8 lambda",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E0",
-      "decoder": {
-        "kind": "uint16_be",
-        "scale": 0.001,
-        "unit": "λ"
-      }
-    },
-    {
-      "did": "0x413F",
-      "name": "ecm_cyl8_coil",
-      "description": "Cyl 8 coil",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E0",
-      "decoder": {
-        "kind": "uint16_be",
-        "scale": 0.01,
-        "unit": "Ω"
       }
     },
     {
@@ -3535,2596 +2984,834 @@
       }
     },
     {
-      "did": "0x4650",
-      "name": "hv_cell_081_v",
-      "description": "Cell 81 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
+      "did": "0x0100",
+      "name": "steering_wheel_angle",
+      "description": "Alternative decodings: Steering wheel angle [°] (byte 0); Steering wheel angle [°] (byte 0)",
+      "ecu_address": "0x740",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -3276.7,
+        "unit": "°"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x012F",
+      "name": "computer_supply_voltage",
+      "description": "Alternative decodings: Computer supply voltage [V] (byte 0); Computer supply voltage [V] (byte 0)",
+      "ecu_address": "0x740",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1,
+        "unit": "V"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0207",
+      "name": "odometer_in_km",
+      "description": "Alternative decodings: Odometer in km [km] (byte 0); Odometer [km] (byte 0)",
+      "ecu_address": "0x743",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2006",
+      "name": "total_distance_travelled_in_km",
+      "description": "Fields: Total distance travelled in km [km] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2023",
+      "name": "sensor_supply_no_3_voltage",
+      "description": "SENSOR SUPPLY no. 3 VOLTAGE",
+      "ecu_address": "0x7E0",
       "decoder": {
         "kind": "uint16_be",
         "unit": "mV"
-      }
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
     },
     {
-      "did": "0x4651",
-      "name": "hv_cell_082_v",
-      "description": "Cell 82 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
+      "did": "0x2025",
+      "name": "brake_pedal",
+      "description": "Brake pedal",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2033",
+      "name": "inlet_camshaft_dephaser_control_ocr",
+      "description": "Alternative decodings: Inlet camshaft dephaser control OCR [%] (byte 0); Inlet camshaft shifter control OCR [%] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2039",
+      "name": "rv_lv_button_voltage",
+      "description": "Alternative decodings: Rv/lv button voltage [mV] (byte 0); Rv/lv button voltage [V] (byte 0)",
+      "ecu_address": "0x7E0",
       "decoder": {
         "kind": "uint16_be",
         "unit": "mV"
-      }
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
     },
     {
-      "did": "0x4652",
-      "name": "hv_cell_083_v",
-      "description": "Cell 83 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
+      "did": "0x203B",
+      "name": "cc_sl_connection_after_cc_button_pressed",
+      "description": "CC/SL connection after cc button pressed",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x203E",
+      "name": "cc_sl_connection_after_sl_button_pressed",
+      "description": "CC/SL connection after sl button pressed",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x203F",
+      "name": "speed_limiter",
+      "description": "Speed limiter",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2050",
+      "name": "vehicle_speed",
+      "description": "Vehicle speed",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "km/h"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x206E",
+      "name": "brake_switch",
+      "description": "Brake switch",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2078",
+      "name": "cc_sl_deactivation_by_driver_action",
+      "description": "CC/SL deactivation by driver action",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2079",
+      "name": "cruise_control",
+      "description": "Fields: Cruise control (byte 0); Parking brake (byte 0, bit 3, 1 bit(s)); Traction control/anti-yaw control (byte 0, bit 5, 1 bit(s)); Engage reverse gear (byte 0, bit 6, 1 bit(s)); Starter button (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x207E",
+      "name": "number_of_abnormal_cc_sl_transitions",
+      "description": "Number of abnormal cc/sl transitions",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "s"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x209A",
+      "name": "idle_adaptive_correction",
+      "description": "Alternative decodings: Idle adaptive correction [Nm] (byte 0); Idle adaptive correction [Nm] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.03125,
+        "offset": -1024,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2156",
+      "name": "torquemeter_value_programmed",
+      "description": "Torquemeter value, programmed",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x215D",
+      "name": "torquemeter_correction_adaptive",
+      "description": "Torquemeter correction, adaptive",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "offset": -32768
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2229",
+      "name": "air_conditioning_command",
+      "description": "Air conditioning command",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x222F",
+      "name": "cc_sl_connection_authorisation",
+      "description": "Fields: CC/SL connection authorisation (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2246",
+      "name": "idle_regulation_integral_correction",
+      "description": "Alternative decodings: Idle regulation integral correction [Nm] (byte 0); Idle regulation integral correction [Nm] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.03125,
+        "offset": -1024,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x224D",
+      "name": "exhaust_camshaft_shifter_sv_control_ocr",
+      "description": "Exhaust camshaft shifter sv control OCR",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x224E",
+      "name": "exhaust_camshaft_shifter_set_point",
+      "description": "Exhaust camshaft shifter set point",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.02
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2255",
+      "name": "camshaft_shifter_measured_position",
+      "description": "Camshaft shifter measured position",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.02,
+        "unit": "%"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2264",
+      "name": "water_pump_command",
+      "description": "Alternative decodings: Water pump command (byte 0, bit 7, 1 bit(s)); Coolant flow valve control (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x240D",
+      "name": "inlet_air_temperature",
+      "description": "Alternative decodings: Inlet air temperature [°C] (byte 0); Inlet air temperature [°C] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": 6273,
+        "unit": "°C"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x241F",
+      "name": "motorised_throttle_ocr",
+      "description": "Motorised throttle OCR",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "offset": -327.68,
+        "unit": "%"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2422",
+      "name": "air_flow",
+      "description": "Alternative decodings: Air flow (byte 0); Mass air flow (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.05
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2449",
+      "name": "o2_sensor_voltage_upstream",
+      "description": "O2 sensor voltage, upstream",
+      "ecu_address": "0x7E0",
       "decoder": {
         "kind": "uint16_be",
         "unit": "mV"
-      }
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
     },
     {
-      "did": "0x4653",
-      "name": "hv_cell_084_v",
-      "description": "Cell 84 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
+      "did": "0x244A",
+      "name": "o2_sensor_voltage_downstream",
+      "description": "O2 sensor voltage, downstream",
+      "ecu_address": "0x7E0",
       "decoder": {
         "kind": "uint16_be",
         "unit": "mV"
-      }
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
     },
     {
-      "did": "0x4654",
-      "name": "hv_cell_085_v",
-      "description": "Cell 85 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "mV"
-      }
-    },
-    {
-      "did": "0x4655",
-      "name": "hv_cell_086_v",
-      "description": "Cell 86 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "mV"
-      }
-    },
-    {
-      "did": "0x4656",
-      "name": "hv_cell_087_v",
-      "description": "Cell 87 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "mV"
-      }
-    },
-    {
-      "did": "0x4657",
-      "name": "hv_cell_088_v",
-      "description": "Cell 88 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "mV"
-      }
-    },
-    {
-      "did": "0x4658",
-      "name": "hv_cell_089_v",
-      "description": "Cell 89 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "mV"
-      }
-    },
-    {
-      "did": "0x4659",
-      "name": "hv_cell_090_v",
-      "description": "Cell 90 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "mV"
-      }
-    },
-    {
-      "did": "0x465A",
-      "name": "hv_cell_091_v",
-      "description": "Cell 91 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "mV"
-      }
-    },
-    {
-      "did": "0x465B",
-      "name": "hv_cell_092_v",
-      "description": "Cell 92 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "mV"
-      }
-    },
-    {
-      "did": "0x465C",
-      "name": "hv_cell_093_v",
-      "description": "Cell 93 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "mV"
-      }
-    },
-    {
-      "did": "0x465D",
-      "name": "hv_cell_094_v",
-      "description": "Cell 94 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "mV"
-      }
-    },
-    {
-      "did": "0x465E",
-      "name": "hv_cell_095_v",
-      "description": "Cell 95 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "mV"
-      }
-    },
-    {
-      "did": "0x465F",
-      "name": "hv_cell_096_v",
-      "description": "Cell 96 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "mV"
-      }
-    },
-    {
-      "did": "0x4660",
-      "name": "hv_module_01_voltage_v",
-      "description": "Mod 1 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "V",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x4661",
-      "name": "hv_module_01_current_a",
-      "description": "Mod 1 A",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int16_be",
-        "unit": "A",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x4662",
-      "name": "hv_module_01_temp_max",
-      "description": "Mod 1 max T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x4663",
-      "name": "hv_module_01_temp_min",
-      "description": "Mod 1 min T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x4664",
-      "name": "hv_module_01_soc",
-      "description": "Mod 1 SOC",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x4665",
-      "name": "hv_module_01_soh",
-      "description": "Mod 1 SOH",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x4666",
-      "name": "hv_module_01_balance",
-      "description": "Mod 1 balance",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
+      "did": "0x244B",
+      "name": "o2_sensor_heating_resistance_upstream",
+      "description": "Alternative decodings: O2 sensor heating resistance, upstream [Ohm] (byte 0); Upstream o2 sensor heating OCR [%] (byte 0)",
+      "ecu_address": "0x7E0",
       "decoder": {
         "kind": "uint8",
-        "unit": ""
-      }
+        "scale": 0.3921568627,
+        "unit": "Ohm"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
     },
     {
-      "did": "0x4667",
-      "name": "hv_module_01_isolation",
-      "description": "Mod 1 isolation",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "kΩ"
-      }
-    },
-    {
-      "did": "0x4668",
-      "name": "hv_module_02_voltage_v",
-      "description": "Mod 2 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "V",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x4669",
-      "name": "hv_module_02_current_a",
-      "description": "Mod 2 A",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int16_be",
-        "unit": "A",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x466A",
-      "name": "hv_module_02_temp_max",
-      "description": "Mod 2 max T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x466B",
-      "name": "hv_module_02_temp_min",
-      "description": "Mod 2 min T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x466C",
-      "name": "hv_module_02_soc",
-      "description": "Mod 2 SOC",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x466D",
-      "name": "hv_module_02_soh",
-      "description": "Mod 2 SOH",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x466E",
-      "name": "hv_module_02_balance",
-      "description": "Mod 2 balance",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
+      "did": "0x244C",
+      "name": "o2_sensor_heating_resistance_downstream",
+      "description": "Alternative decodings: O2 sensor heating resistance, downstream [Ohm] (byte 0); Downstream sensor heating OCR [%] (byte 0)",
+      "ecu_address": "0x7E0",
       "decoder": {
         "kind": "uint8",
-        "unit": ""
-      }
+        "scale": 0.3921568627,
+        "unit": "Ohm"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
     },
     {
-      "did": "0x466F",
-      "name": "hv_module_02_isolation",
-      "description": "Mod 2 isolation",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
+      "did": "0x24C1",
+      "name": "downstream_oxygen_sensor",
+      "description": "Downstream oxygen sensor",
+      "ecu_address": "0x7E0",
       "decoder": {
-        "kind": "uint16_be",
-        "unit": "kΩ"
-      }
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
     },
     {
-      "did": "0x4670",
-      "name": "hv_module_03_voltage_v",
-      "description": "Mod 3 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
+      "did": "0x24C4",
+      "name": "o2_sensor_heating_delay_upstream",
+      "description": "O2 sensor heating delay, upstream",
+      "ecu_address": "0x7E0",
       "decoder": {
-        "kind": "uint16_be",
-        "unit": "V",
-        "scale": 0.01
-      }
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
     },
     {
-      "did": "0x4671",
-      "name": "hv_module_03_current_a",
-      "description": "Mod 3 A",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
+      "did": "0x24D7",
+      "name": "manifold_pressure_linearised",
+      "description": "Manifold pressure, linearised",
+      "ecu_address": "0x7E0",
       "decoder": {
-        "kind": "int16_be",
-        "unit": "A",
-        "scale": 0.01
-      }
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
     },
     {
-      "did": "0x4672",
-      "name": "hv_module_03_temp_max",
-      "description": "Mod 3 max T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
+      "did": "0x24E1",
+      "name": "gross_inlet_manifold_pressure",
+      "description": "Gross inlet manifold pressure",
+      "ecu_address": "0x7E0",
       "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
     },
     {
-      "did": "0x4673",
-      "name": "hv_module_03_temp_min",
-      "description": "Mod 3 min T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x4674",
-      "name": "hv_module_03_soc",
-      "description": "Mod 3 SOC",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x4675",
-      "name": "hv_module_03_soh",
-      "description": "Mod 3 SOH",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x4676",
-      "name": "hv_module_03_balance",
-      "description": "Mod 3 balance",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
+      "did": "0x24E5",
+      "name": "boost_pressure_wastegate_rco",
+      "description": "Boost pressure wastegate RCO",
+      "ecu_address": "0x7E0",
       "decoder": {
         "kind": "uint8",
-        "unit": ""
-      }
+        "scale": 0.3333333333,
+        "unit": "%"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
     },
     {
-      "did": "0x4677",
-      "name": "hv_module_03_isolation",
-      "description": "Mod 3 isolation",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
+      "did": "0x2506",
+      "name": "upstream_o2_sensor_heating",
+      "description": "Upstream o2 sensor heating",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x25D6",
+      "name": "cooling_request_by_injection",
+      "description": "Alternative decodings: Cooling request by injection (byte 0, bit 7, 1 bit(s)); Sensor diagnostic request (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2822",
+      "name": "canister_bleed_solenoid_valve_rco",
+      "description": "Alternative decodings: Canister bleed solenoid valve RCO [%] (byte 0); Canister bleed solenoid valve RCO [%] (byte 0)",
+      "ecu_address": "0x7E0",
       "decoder": {
         "kind": "uint16_be",
-        "unit": "kΩ"
-      }
+        "scale": 0.00152590219,
+        "unit": "%"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
     },
     {
-      "did": "0x4678",
-      "name": "hv_module_04_voltage_v",
-      "description": "Mod 4 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "V",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x4679",
-      "name": "hv_module_04_current_a",
-      "description": "Mod 4 A",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int16_be",
-        "unit": "A",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x467A",
-      "name": "hv_module_04_temp_max",
-      "description": "Mod 4 max T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x467B",
-      "name": "hv_module_04_temp_min",
-      "description": "Mod 4 min T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x467C",
-      "name": "hv_module_04_soc",
-      "description": "Mod 4 SOC",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x467D",
-      "name": "hv_module_04_soh",
-      "description": "Mod 4 SOH",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x467E",
-      "name": "hv_module_04_balance",
-      "description": "Mod 4 balance",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
+      "did": "0x2871",
+      "name": "controlled_coolant_thermostat_ocr",
+      "description": "Controlled coolant thermostat OCR",
+      "ecu_address": "0x7E0",
       "decoder": {
         "kind": "uint8",
-        "unit": ""
-      }
+        "scale": 0.3921569,
+        "unit": "%"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
     },
     {
-      "did": "0x467F",
-      "name": "hv_module_04_isolation",
-      "description": "Mod 4 isolation",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
+      "did": "0x287C",
+      "name": "richness_regulation_programming",
+      "description": "Richness regulation programming",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2887",
+      "name": "injection_fuel_pump_pwm_control",
+      "description": "Injection fuel pump PWM control",
+      "ecu_address": "0x7E0",
       "decoder": {
         "kind": "uint16_be",
-        "unit": "kΩ"
-      }
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
     },
     {
-      "did": "0x4680",
-      "name": "hv_module_05_voltage_v",
-      "description": "Mod 5 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
+      "did": "0x2890",
+      "name": "mastervac_pressure_switch_signal",
+      "description": "Alternative decodings: Mastervac pressure switch signal (byte 0, bit 7, 1 bit(s)); Mastervac pressure (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2891",
+      "name": "mastervac_pressure",
+      "description": "Fields: Mastervac pressure (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2892",
+      "name": "vacuum_pump_ageing_counter",
+      "description": "Vacuum pump ageing counter",
+      "ecu_address": "0x7E0",
       "decoder": {
         "kind": "uint16_be",
-        "unit": "V",
-        "scale": 0.01
-      }
+        "scale": 100,
+        "unit": "s"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
     },
     {
-      "did": "0x4681",
-      "name": "hv_module_05_current_a",
-      "description": "Mod 5 A",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int16_be",
-        "unit": "A",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x4682",
-      "name": "hv_module_05_temp_max",
-      "description": "Mod 5 max T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x4683",
-      "name": "hv_module_05_temp_min",
-      "description": "Mod 5 min T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x4684",
-      "name": "hv_module_05_soc",
-      "description": "Mod 5 SOC",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
+      "did": "0x4B00",
+      "name": "speed_of_front_l_h_wheel",
+      "description": "Alternative decodings: Speed of front l/h wheel [km/h] (byte 0); FL wheel speed [km/h] (byte 0)",
+      "ecu_address": "0x740",
       "decoder": {
         "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
+        "scale": 0.01,
+        "unit": "km/h"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
     },
     {
-      "did": "0x4685",
-      "name": "hv_module_05_soh",
-      "description": "Mod 5 SOH",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
+      "did": "0x4B01",
+      "name": "speed_of_front_r_h_wheel",
+      "description": "Alternative decodings: Speed of front r/h wheel [km/h] (byte 0); FR wheel speed [km/h] (byte 0)",
+      "ecu_address": "0x740",
       "decoder": {
         "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
+        "scale": 0.01,
+        "unit": "km/h"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
     },
     {
-      "did": "0x4686",
-      "name": "hv_module_05_balance",
-      "description": "Mod 5 balance",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint8",
-        "unit": ""
-      }
-    },
-    {
-      "did": "0x4687",
-      "name": "hv_module_05_isolation",
-      "description": "Mod 5 isolation",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
+      "did": "0x4B02",
+      "name": "speed_of_rear_l_h_wheel",
+      "description": "Alternative decodings: Speed of rear l/h wheel [km/h] (byte 0); RL wheel speed [km/h] (byte 0)",
+      "ecu_address": "0x740",
       "decoder": {
         "kind": "uint16_be",
-        "unit": "kΩ"
-      }
+        "scale": 0.01,
+        "unit": "km/h"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
     },
     {
-      "did": "0x4688",
-      "name": "hv_module_06_voltage_v",
-      "description": "Mod 6 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
+      "did": "0x4B03",
+      "name": "speed_of_rear_r_h_wheel",
+      "description": "Alternative decodings: Speed of rear r/h wheel [km/h] (byte 0); RR wheel speed [km/h] (byte 0)",
+      "ecu_address": "0x740",
       "decoder": {
         "kind": "uint16_be",
-        "unit": "V",
-        "scale": 0.01
-      }
+        "scale": 0.01,
+        "unit": "km/h"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
     },
     {
-      "did": "0x4689",
-      "name": "hv_module_06_current_a",
-      "description": "Mod 6 A",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int16_be",
-        "unit": "A",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x468A",
-      "name": "hv_module_06_temp_max",
-      "description": "Mod 6 max T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x468B",
-      "name": "hv_module_06_temp_min",
-      "description": "Mod 6 min T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x468C",
-      "name": "hv_module_06_soc",
-      "description": "Mod 6 SOC",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
+      "did": "0x4B04",
+      "name": "vehicle_speed",
+      "description": "Vehicle speed",
+      "ecu_address": "0x740",
       "decoder": {
         "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
+        "scale": 0.01,
+        "unit": "km/h"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
     },
     {
-      "did": "0x468D",
-      "name": "hv_module_06_soh",
-      "description": "Mod 6 SOH",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
+      "did": "0x4B06",
+      "name": "computer_current_mileage",
+      "description": "Alternative decodings: Computer, current mileage [km] (byte 0); Odometer [km] (byte 0)",
+      "ecu_address": "0x740",
       "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
+        "kind": "uint32_be",
+        "unit": "km"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
     },
     {
-      "did": "0x468E",
-      "name": "hv_module_06_balance",
-      "description": "Mod 6 balance",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
+      "did": "0x4B07",
+      "name": "longitudinal_acceleration",
+      "description": "Alternative decodings: Longitudinal acceleration (byte 0); Acceleration, longitudinal (byte 0)",
+      "ecu_address": "0x740",
       "decoder": {
         "kind": "uint8",
-        "unit": ""
-      }
+        "scale": 0.1,
+        "offset": -12.7
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
     },
     {
-      "did": "0x468F",
-      "name": "hv_module_06_isolation",
-      "description": "Mod 6 isolation",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "kΩ"
-      }
-    },
-    {
-      "did": "0x4690",
-      "name": "hv_module_07_voltage_v",
-      "description": "Mod 7 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "V",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x4691",
-      "name": "hv_module_07_current_a",
-      "description": "Mod 7 A",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int16_be",
-        "unit": "A",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x4692",
-      "name": "hv_module_07_temp_max",
-      "description": "Mod 7 max T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x4693",
-      "name": "hv_module_07_temp_min",
-      "description": "Mod 7 min T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x4694",
-      "name": "hv_module_07_soc",
-      "description": "Mod 7 SOC",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x4695",
-      "name": "hv_module_07_soh",
-      "description": "Mod 7 SOH",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x4696",
-      "name": "hv_module_07_balance",
-      "description": "Mod 7 balance",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
+      "did": "0x4B0B",
+      "name": "transverse_acceleration",
+      "description": "Alternative decodings: Transverse acceleration [g] (byte 0); Acceleration, lateral [g] (byte 0)",
+      "ecu_address": "0x740",
       "decoder": {
         "kind": "uint8",
-        "unit": ""
-      }
+        "scale": 0.02,
+        "offset": -2.54,
+        "unit": "g"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
     },
     {
-      "did": "0x4697",
-      "name": "hv_module_07_isolation",
-      "description": "Mod 7 isolation",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
+      "did": "0x4B0C",
+      "name": "yaw_angle",
+      "description": "Alternative decodings: Yaw angle (byte 0); Yaw angle (byte 0)",
+      "ecu_address": "0x740",
       "decoder": {
         "kind": "uint16_be",
-        "unit": "kΩ"
-      }
+        "scale": 0.2,
+        "offset": -6553.4
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
     },
     {
-      "did": "0x4698",
-      "name": "hv_module_08_voltage_v",
-      "description": "Mod 8 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
+      "did": "0x4B0E",
+      "name": "master_cylinder_pressure",
+      "description": "Alternative decodings: Master cylinder pressure (byte 0); Brake pressure, master cylinder [bar] (byte 0)",
+      "ecu_address": "0x740",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4B24",
+      "name": "speedo_index",
+      "description": "Speedo index",
+      "ecu_address": "0x740",
       "decoder": {
         "kind": "uint16_be",
-        "unit": "V",
-        "scale": 0.01
-      }
+        "unit": "mm"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
     },
     {
-      "did": "0x4699",
-      "name": "hv_module_08_current_a",
-      "description": "Mod 8 A",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
+      "did": "0x4B31",
+      "name": "hill_start",
+      "description": "Hill start",
+      "ecu_address": "0x740",
       "decoder": {
-        "kind": "int16_be",
-        "unit": "A",
-        "scale": 0.01
-      }
+        "kind": "uint8"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
     },
     {
-      "did": "0x469A",
-      "name": "hv_module_08_temp_max",
-      "description": "Mod 8 max T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
+      "did": "0x4B35",
+      "name": "electronic_brakeforce_distrib_function",
+      "description": "Fields: Electronic brakeforce distrib. function (byte 0, bit 0, 1 bit(s)); Electronic brakeforce distrib. function (byte 0, bit 1, 1 bit(s)); Anti-lock brake FUNCTION (byte 0, bit 2, 1 bit(s)); Anti-lock brake FUNCTION (byte 0, bit 3, 1 bit(s)); Traction control function deactivated (byte 0, bit 4, 1 bit(s)); Traction control function (byte 0, bit 6, 1 bit(s)); Traction control function (byte 0, bit 7, 1 bit(s)); Traction control, warning (byte 0, bit 7, 1 bit(s)); …",
+      "ecu_address": "0x740",
       "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
+        "kind": "hex"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
     },
     {
-      "did": "0x469B",
-      "name": "hv_module_08_temp_min",
-      "description": "Mod 8 min T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x469C",
-      "name": "hv_module_08_soc",
-      "description": "Mod 8 SOC",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x469D",
-      "name": "hv_module_08_soh",
-      "description": "Mod 8 SOH",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x469E",
-      "name": "hv_module_08_balance",
-      "description": "Mod 8 balance",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
+      "did": "0x4B36",
+      "name": "steering_wheel_angle_programming_offset",
+      "description": "Alternative decodings: Steering wheel angle programming offset [°] (byte 0); Steering wheel angle, offset [°] (byte 0)",
+      "ecu_address": "0x740",
       "decoder": {
         "kind": "uint8",
-        "unit": ""
-      }
+        "scale": 0.2,
+        "offset": -25.4,
+        "unit": "°"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
     },
     {
-      "did": "0x469F",
-      "name": "hv_module_08_isolation",
-      "description": "Mod 8 isolation",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "kΩ"
-      }
-    },
-    {
-      "did": "0x46A0",
-      "name": "hv_module_09_voltage_v",
-      "description": "Mod 9 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "V",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46A1",
-      "name": "hv_module_09_current_a",
-      "description": "Mod 9 A",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int16_be",
-        "unit": "A",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46A2",
-      "name": "hv_module_09_temp_max",
-      "description": "Mod 9 max T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x46A3",
-      "name": "hv_module_09_temp_min",
-      "description": "Mod 9 min T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x46A4",
-      "name": "hv_module_09_soc",
-      "description": "Mod 9 SOC",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46A5",
-      "name": "hv_module_09_soh",
-      "description": "Mod 9 SOH",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46A6",
-      "name": "hv_module_09_balance",
-      "description": "Mod 9 balance",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
+      "did": "0x4B37",
+      "name": "transverse_accel_programming_offset",
+      "description": "Alternative decodings: Transverse accel programming offset [g] (byte 0); Acceleration offset, lateral [g] (byte 0)",
+      "ecu_address": "0x740",
       "decoder": {
         "kind": "uint8",
-        "unit": ""
-      }
+        "scale": 0.01,
+        "offset": -1.27,
+        "unit": "g"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
     },
     {
-      "did": "0x46A7",
-      "name": "hv_module_09_isolation",
-      "description": "Mod 9 isolation",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "kΩ"
-      }
-    },
-    {
-      "did": "0x46A8",
-      "name": "hv_module_10_voltage_v",
-      "description": "Mod 10 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "V",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46A9",
-      "name": "hv_module_10_current_a",
-      "description": "Mod 10 A",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int16_be",
-        "unit": "A",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46AA",
-      "name": "hv_module_10_temp_max",
-      "description": "Mod 10 max T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x46AB",
-      "name": "hv_module_10_temp_min",
-      "description": "Mod 10 min T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x46AC",
-      "name": "hv_module_10_soc",
-      "description": "Mod 10 SOC",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46AD",
-      "name": "hv_module_10_soh",
-      "description": "Mod 10 SOH",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46AE",
-      "name": "hv_module_10_balance",
-      "description": "Mod 10 balance",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
+      "did": "0x4B38",
+      "name": "longitudinal_acceleration_programming_offset",
+      "description": "Alternative decodings: Longitudinal acceleration programming offset (byte 0); Acceleration offset, longitudinal (byte 0)",
+      "ecu_address": "0x740",
       "decoder": {
         "kind": "uint8",
-        "unit": ""
-      }
+        "scale": 0.0981,
+        "offset": -12.46
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
     },
     {
-      "did": "0x46AF",
-      "name": "hv_module_10_isolation",
-      "description": "Mod 10 isolation",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "kΩ"
-      }
-    },
-    {
-      "did": "0x46B0",
-      "name": "hv_module_11_voltage_v",
-      "description": "Mod 11 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "V",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46B1",
-      "name": "hv_module_11_current_a",
-      "description": "Mod 11 A",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int16_be",
-        "unit": "A",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46B2",
-      "name": "hv_module_11_temp_max",
-      "description": "Mod 11 max T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x46B3",
-      "name": "hv_module_11_temp_min",
-      "description": "Mod 11 min T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x46B4",
-      "name": "hv_module_11_soc",
-      "description": "Mod 11 SOC",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46B5",
-      "name": "hv_module_11_soh",
-      "description": "Mod 11 SOH",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46B6",
-      "name": "hv_module_11_balance",
-      "description": "Mod 11 balance",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
+      "did": "0x4B39",
+      "name": "pressure_sensor_programming_offset",
+      "description": "Alternative decodings: Pressure sensor programming offset [bar] (byte 0); Pressure sensor offset [bar] (byte 0)",
+      "ecu_address": "0x740",
       "decoder": {
         "kind": "uint8",
-        "unit": ""
-      }
+        "scale": 0.2,
+        "offset": -25.4,
+        "unit": "bar"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
     },
     {
-      "did": "0x46B7",
-      "name": "hv_module_11_isolation",
-      "description": "Mod 11 isolation",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
+      "did": "0x4B42",
+      "name": "steering_wheel_speed",
+      "description": "Alternative decodings: Steering wheel speed (byte 0); Steering wheel speed (byte 0)",
+      "ecu_address": "0x740",
       "decoder": {
         "kind": "uint16_be",
-        "unit": "kΩ"
-      }
+        "scale": 0.1,
+        "offset": -3276.7
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
     },
     {
-      "did": "0x46B8",
-      "name": "hv_module_12_voltage_v",
-      "description": "Mod 12 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "V",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46B9",
-      "name": "hv_module_12_current_a",
-      "description": "Mod 12 A",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int16_be",
-        "unit": "A",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46BA",
-      "name": "hv_module_12_temp_max",
-      "description": "Mod 12 max T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x46BB",
-      "name": "hv_module_12_temp_min",
-      "description": "Mod 12 min T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x46BC",
-      "name": "hv_module_12_soc",
-      "description": "Mod 12 SOC",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46BD",
-      "name": "hv_module_12_soh",
-      "description": "Mod 12 SOH",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46BE",
-      "name": "hv_module_12_balance",
-      "description": "Mod 12 balance",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
+      "did": "0x4B4E",
+      "name": "vacuum_sensor_circuit",
+      "description": "Alternative decodings: Vacuum sensor circuit (byte 0); Vacuum sensor pressure [bar] (byte 0)",
+      "ecu_address": "0x740",
       "decoder": {
         "kind": "uint8",
-        "unit": ""
-      }
+        "scale": 50
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
     },
     {
-      "did": "0x46BF",
-      "name": "hv_module_12_isolation",
-      "description": "Mod 12 isolation",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
+      "did": "0x4C28",
+      "name": "tyre_pressure_warning_system",
+      "description": "Fields: Tyre pressure warning system (byte 1)",
+      "ecu_address": "0x740",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xFD82",
+      "name": "boost_pressure_sensor_voltage",
+      "description": "Boost pressure sensor voltage",
+      "ecu_address": "0x7E0",
       "decoder": {
         "kind": "uint16_be",
-        "unit": "kΩ"
-      }
-    },
-    {
-      "did": "0x46C0",
-      "name": "hv_module_13_voltage_v",
-      "description": "Mod 13 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "V",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46C1",
-      "name": "hv_module_13_current_a",
-      "description": "Mod 13 A",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int16_be",
-        "unit": "A",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46C2",
-      "name": "hv_module_13_temp_max",
-      "description": "Mod 13 max T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x46C3",
-      "name": "hv_module_13_temp_min",
-      "description": "Mod 13 min T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x46C4",
-      "name": "hv_module_13_soc",
-      "description": "Mod 13 SOC",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46C5",
-      "name": "hv_module_13_soh",
-      "description": "Mod 13 SOH",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46C6",
-      "name": "hv_module_13_balance",
-      "description": "Mod 13 balance",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint8",
-        "unit": ""
-      }
-    },
-    {
-      "did": "0x46C7",
-      "name": "hv_module_13_isolation",
-      "description": "Mod 13 isolation",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "kΩ"
-      }
-    },
-    {
-      "did": "0x46C8",
-      "name": "hv_module_14_voltage_v",
-      "description": "Mod 14 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "V",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46C9",
-      "name": "hv_module_14_current_a",
-      "description": "Mod 14 A",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int16_be",
-        "unit": "A",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46CA",
-      "name": "hv_module_14_temp_max",
-      "description": "Mod 14 max T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x46CB",
-      "name": "hv_module_14_temp_min",
-      "description": "Mod 14 min T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x46CC",
-      "name": "hv_module_14_soc",
-      "description": "Mod 14 SOC",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46CD",
-      "name": "hv_module_14_soh",
-      "description": "Mod 14 SOH",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46CE",
-      "name": "hv_module_14_balance",
-      "description": "Mod 14 balance",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint8",
-        "unit": ""
-      }
-    },
-    {
-      "did": "0x46CF",
-      "name": "hv_module_14_isolation",
-      "description": "Mod 14 isolation",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "kΩ"
-      }
-    },
-    {
-      "did": "0x46D0",
-      "name": "hv_module_15_voltage_v",
-      "description": "Mod 15 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "V",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46D1",
-      "name": "hv_module_15_current_a",
-      "description": "Mod 15 A",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int16_be",
-        "unit": "A",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46D2",
-      "name": "hv_module_15_temp_max",
-      "description": "Mod 15 max T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x46D3",
-      "name": "hv_module_15_temp_min",
-      "description": "Mod 15 min T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x46D4",
-      "name": "hv_module_15_soc",
-      "description": "Mod 15 SOC",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46D5",
-      "name": "hv_module_15_soh",
-      "description": "Mod 15 SOH",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46D6",
-      "name": "hv_module_15_balance",
-      "description": "Mod 15 balance",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint8",
-        "unit": ""
-      }
-    },
-    {
-      "did": "0x46D7",
-      "name": "hv_module_15_isolation",
-      "description": "Mod 15 isolation",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "kΩ"
-      }
-    },
-    {
-      "did": "0x46D8",
-      "name": "hv_module_16_voltage_v",
-      "description": "Mod 16 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "V",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46D9",
-      "name": "hv_module_16_current_a",
-      "description": "Mod 16 A",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int16_be",
-        "unit": "A",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46DA",
-      "name": "hv_module_16_temp_max",
-      "description": "Mod 16 max T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x46DB",
-      "name": "hv_module_16_temp_min",
-      "description": "Mod 16 min T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x46DC",
-      "name": "hv_module_16_soc",
-      "description": "Mod 16 SOC",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46DD",
-      "name": "hv_module_16_soh",
-      "description": "Mod 16 SOH",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46DE",
-      "name": "hv_module_16_balance",
-      "description": "Mod 16 balance",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint8",
-        "unit": ""
-      }
-    },
-    {
-      "did": "0x46DF",
-      "name": "hv_module_16_isolation",
-      "description": "Mod 16 isolation",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "kΩ"
-      }
-    },
-    {
-      "did": "0x46E0",
-      "name": "hv_module_17_voltage_v",
-      "description": "Mod 17 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "V",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46E1",
-      "name": "hv_module_17_current_a",
-      "description": "Mod 17 A",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int16_be",
-        "unit": "A",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46E2",
-      "name": "hv_module_17_temp_max",
-      "description": "Mod 17 max T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x46E3",
-      "name": "hv_module_17_temp_min",
-      "description": "Mod 17 min T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x46E4",
-      "name": "hv_module_17_soc",
-      "description": "Mod 17 SOC",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46E5",
-      "name": "hv_module_17_soh",
-      "description": "Mod 17 SOH",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46E6",
-      "name": "hv_module_17_balance",
-      "description": "Mod 17 balance",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint8",
-        "unit": ""
-      }
-    },
-    {
-      "did": "0x46E7",
-      "name": "hv_module_17_isolation",
-      "description": "Mod 17 isolation",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "kΩ"
-      }
-    },
-    {
-      "did": "0x46E8",
-      "name": "hv_module_18_voltage_v",
-      "description": "Mod 18 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "V",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46E9",
-      "name": "hv_module_18_current_a",
-      "description": "Mod 18 A",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int16_be",
-        "unit": "A",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46EA",
-      "name": "hv_module_18_temp_max",
-      "description": "Mod 18 max T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x46EB",
-      "name": "hv_module_18_temp_min",
-      "description": "Mod 18 min T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x46EC",
-      "name": "hv_module_18_soc",
-      "description": "Mod 18 SOC",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46ED",
-      "name": "hv_module_18_soh",
-      "description": "Mod 18 SOH",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46EE",
-      "name": "hv_module_18_balance",
-      "description": "Mod 18 balance",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint8",
-        "unit": ""
-      }
-    },
-    {
-      "did": "0x46EF",
-      "name": "hv_module_18_isolation",
-      "description": "Mod 18 isolation",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "kΩ"
-      }
-    },
-    {
-      "did": "0x46F0",
-      "name": "hv_module_19_voltage_v",
-      "description": "Mod 19 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "V",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46F1",
-      "name": "hv_module_19_current_a",
-      "description": "Mod 19 A",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int16_be",
-        "unit": "A",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46F2",
-      "name": "hv_module_19_temp_max",
-      "description": "Mod 19 max T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x46F3",
-      "name": "hv_module_19_temp_min",
-      "description": "Mod 19 min T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x46F4",
-      "name": "hv_module_19_soc",
-      "description": "Mod 19 SOC",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46F5",
-      "name": "hv_module_19_soh",
-      "description": "Mod 19 SOH",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46F6",
-      "name": "hv_module_19_balance",
-      "description": "Mod 19 balance",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint8",
-        "unit": ""
-      }
-    },
-    {
-      "did": "0x46F7",
-      "name": "hv_module_19_isolation",
-      "description": "Mod 19 isolation",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "kΩ"
-      }
-    },
-    {
-      "did": "0x46F8",
-      "name": "hv_module_20_voltage_v",
-      "description": "Mod 20 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "V",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46F9",
-      "name": "hv_module_20_current_a",
-      "description": "Mod 20 A",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int16_be",
-        "unit": "A",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46FA",
-      "name": "hv_module_20_temp_max",
-      "description": "Mod 20 max T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x46FB",
-      "name": "hv_module_20_temp_min",
-      "description": "Mod 20 min T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x46FC",
-      "name": "hv_module_20_soc",
-      "description": "Mod 20 SOC",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46FD",
-      "name": "hv_module_20_soh",
-      "description": "Mod 20 SOH",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x46FE",
-      "name": "hv_module_20_balance",
-      "description": "Mod 20 balance",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint8",
-        "unit": ""
-      }
-    },
-    {
-      "did": "0x46FF",
-      "name": "hv_module_20_isolation",
-      "description": "Mod 20 isolation",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "kΩ"
-      }
-    },
-    {
-      "did": "0x4700",
-      "name": "hv_module_21_voltage_v",
-      "description": "Mod 21 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "V",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x4701",
-      "name": "hv_module_21_current_a",
-      "description": "Mod 21 A",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int16_be",
-        "unit": "A",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x4702",
-      "name": "hv_module_21_temp_max",
-      "description": "Mod 21 max T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x4703",
-      "name": "hv_module_21_temp_min",
-      "description": "Mod 21 min T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x4704",
-      "name": "hv_module_21_soc",
-      "description": "Mod 21 SOC",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x4705",
-      "name": "hv_module_21_soh",
-      "description": "Mod 21 SOH",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x4706",
-      "name": "hv_module_21_balance",
-      "description": "Mod 21 balance",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint8",
-        "unit": ""
-      }
-    },
-    {
-      "did": "0x4707",
-      "name": "hv_module_21_isolation",
-      "description": "Mod 21 isolation",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "kΩ"
-      }
-    },
-    {
-      "did": "0x4708",
-      "name": "hv_module_22_voltage_v",
-      "description": "Mod 22 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "V",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x4709",
-      "name": "hv_module_22_current_a",
-      "description": "Mod 22 A",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int16_be",
-        "unit": "A",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x470A",
-      "name": "hv_module_22_temp_max",
-      "description": "Mod 22 max T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x470B",
-      "name": "hv_module_22_temp_min",
-      "description": "Mod 22 min T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x470C",
-      "name": "hv_module_22_soc",
-      "description": "Mod 22 SOC",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x470D",
-      "name": "hv_module_22_soh",
-      "description": "Mod 22 SOH",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x470E",
-      "name": "hv_module_22_balance",
-      "description": "Mod 22 balance",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint8",
-        "unit": ""
-      }
-    },
-    {
-      "did": "0x470F",
-      "name": "hv_module_22_isolation",
-      "description": "Mod 22 isolation",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "kΩ"
-      }
-    },
-    {
-      "did": "0x4710",
-      "name": "hv_module_23_voltage_v",
-      "description": "Mod 23 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "V",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x4711",
-      "name": "hv_module_23_current_a",
-      "description": "Mod 23 A",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int16_be",
-        "unit": "A",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x4712",
-      "name": "hv_module_23_temp_max",
-      "description": "Mod 23 max T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x4713",
-      "name": "hv_module_23_temp_min",
-      "description": "Mod 23 min T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x4714",
-      "name": "hv_module_23_soc",
-      "description": "Mod 23 SOC",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x4715",
-      "name": "hv_module_23_soh",
-      "description": "Mod 23 SOH",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x4716",
-      "name": "hv_module_23_balance",
-      "description": "Mod 23 balance",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint8",
-        "unit": ""
-      }
-    },
-    {
-      "did": "0x4717",
-      "name": "hv_module_23_isolation",
-      "description": "Mod 23 isolation",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "kΩ"
-      }
-    },
-    {
-      "did": "0x4718",
-      "name": "hv_module_24_voltage_v",
-      "description": "Mod 24 V",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "V",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x4719",
-      "name": "hv_module_24_current_a",
-      "description": "Mod 24 A",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int16_be",
-        "unit": "A",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x471A",
-      "name": "hv_module_24_temp_max",
-      "description": "Mod 24 max T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x471B",
-      "name": "hv_module_24_temp_min",
-      "description": "Mod 24 min T",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "int8",
-        "unit": "°C"
-      }
-    },
-    {
-      "did": "0x471C",
-      "name": "hv_module_24_soc",
-      "description": "Mod 24 SOC",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x471D",
-      "name": "hv_module_24_soh",
-      "description": "Mod 24 SOH",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "%",
-        "scale": 0.01
-      }
-    },
-    {
-      "did": "0x471E",
-      "name": "hv_module_24_balance",
-      "description": "Mod 24 balance",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint8",
-        "unit": ""
-      }
-    },
-    {
-      "did": "0x471F",
-      "name": "hv_module_24_isolation",
-      "description": "Mod 24 isolation",
-      "source": "clip",
-      "verified": false,
-      "ecu_address": "0x7E4",
-      "decoder": {
-        "kind": "uint16_be",
-        "unit": "kΩ"
-      }
+        "scale": 0.000152588,
+        "unit": "V"
+      },
+      "source": "OBDb/Dacia signalset (CC BY-SA 4.0)",
+      "verified": false
     }
   ],
   "routines": [
@@ -6163,11 +3850,6 @@
       "name": "dacia_eps_calibration",
       "description": "EPS calibration after replacement",
       "ecu_address": "0x784"
-    },
-    {
-      "id": "0x0203",
-      "name": "reset_adaptations",
-      "description": "Reset adaptive learning"
     },
     {
       "id": "0x0290",

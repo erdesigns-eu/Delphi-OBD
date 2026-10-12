@@ -8,7 +8,7 @@
     "SAW"
   ],
   "default_source": "esys-community / bimmer-utility",
-  "extends": "_shared/oem-cars-and-trucks.json",
+  "extends": "bmw.json",
   "ecus": [
     {
       "address": "0x12",
@@ -19,31 +19,6 @@
       "address": "0x07",
       "name": "egs",
       "common_name": "EGS — Aisin / GS6F-21WA / 7DCT"
-    },
-    {
-      "address": "0x29",
-      "name": "dsc",
-      "common_name": "DSC — Stability Control"
-    },
-    {
-      "address": "0x40",
-      "name": "kombi",
-      "common_name": "KOMBI — Instrument Cluster"
-    },
-    {
-      "address": "0x60",
-      "name": "frm",
-      "common_name": "FRM — Footwell Module"
-    },
-    {
-      "address": "0x72",
-      "name": "cas",
-      "common_name": "CAS — Car Access System"
-    },
-    {
-      "address": "0x10",
-      "name": "gateway",
-      "common_name": "ZGW — Central Gateway"
     },
     {
       "address": "0x63",
@@ -6403,6 +6378,136 @@
         "kind": "uint16_be",
         "unit": "kΩ"
       }
+    },
+    {
+      "did": "0x4408",
+      "name": "engine_oil_temperature",
+      "description": "Alternative decodings: Engine oil temperature [°C] (byte 0); Engine oil temperature [°C] (byte 0)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -273.15,
+        "unit": "°C"
+      },
+      "source": "OBDb/Mini signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD031",
+      "name": "current_gear",
+      "description": "Alternative decodings: Current gear (byte 0); Current gear (byte 0)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Mini signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA12",
+      "name": "automatic_transmission_fluid_temperature",
+      "description": "Automatic transmission fluid temperature",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "offset": -48,
+        "unit": "°C"
+      },
+      "source": "OBDb/Mini signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA23",
+      "name": "odometer_low_resolution",
+      "description": "Odometer, low resolution",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint32_be",
+        "scale": 8,
+        "unit": "km"
+      },
+      "source": "OBDb/Mini signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA25",
+      "name": "engine_oil_temperature",
+      "description": "Alternative decodings: Engine oil temperature [°C] (byte 0); Engine oil temperature [°C] (byte 0)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "int16_be",
+        "offset": -48,
+        "unit": "°C"
+      },
+      "source": "OBDb/Mini signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDB32",
+      "name": "front_axle_actual_torque",
+      "description": "Fields: Front axle, actual torque [Nm] (byte 0); Front axle, actual torque [Nm] (byte 0); Front axle, set point torque [Nm] (byte 4); Front axle target torque [Nm] (byte 4)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Mini signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDDBC",
+      "name": "hv_battery_charge",
+      "description": "Fields: HV battery charge [%] (byte 0); HV battery charge, maximum [%] (byte 2); HV battery charge, minimum [%] (byte 4)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Mini signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDDC0",
+      "name": "hv_battery_cell_temperature_minimum",
+      "description": "Fields: HV battery cell temperature, minimum [°C] (byte 0); HV battery cell temperature, maximum [°C] (byte 2)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Mini signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDE84",
+      "name": "charger_grid_frequency_phase_1",
+      "description": "Fields: Charger grid frequency, phase 1 [Hz] (byte 0); Charger derating [%] (byte 4)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Mini signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDFA0",
+      "name": "cell_capacity_minimum",
+      "description": "Fields: Cell capacity, minimum [Ah] (byte 0); Cell capacity, maximum [Ah] (byte 2); Cell capacity, average [Ah] (byte 4); Cell voltage, minimum [V] (byte 6); Cell voltage, maximum [V] (byte 8); Cell voltage, average [V] (byte 10); Cell temperature, minimum [°C] (byte 12); Cell temperature, maximum [°C] (byte 14); …",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Mini signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDFE7",
+      "name": "variable_geometry_turbocharger_calibration_angle",
+      "description": "Fields: Variable geometry turbocharger calibration angle [°] (byte 0); Current calibration angle [°] (byte 0); Distance since last oil change [km] (byte 38); Distance since last oil change [km] (byte 38)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Mini signalset (CC BY-SA 4.0)",
+      "verified": false
     }
   ],
   "routines": [

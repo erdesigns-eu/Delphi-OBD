@@ -5754,6 +5754,1297 @@
         "kind": "uint16_be",
         "unit": "kΩ"
       }
+    },
+    {
+      "did": "0x012C",
+      "name": "high_voltage_components_n129_1_locked_state",
+      "description": "High voltage components, N129/1 locked state",
+      "ecu_address": "0x662",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x012F",
+      "name": "high_voltage_system_voltage_at_power_machine_1_unit_n129_1",
+      "description": "High voltage system voltage at power machine 1 unit, N129/1",
+      "ecu_address": "0x662",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "V"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0163",
+      "name": "boost_air_temperature",
+      "description": "Fields: Boost air temperature [°C] (byte 6); Boost pressure (byte 15)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0168",
+      "name": "exhaust_back_pressure",
+      "description": "Fields: Exhaust back pressure (byte 0); Diesel particulate filter differential pressure (byte 40)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x016B",
+      "name": "odometer",
+      "description": "Fields: Odometer [km] (byte 36)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x016F",
+      "name": "fuel_temperature",
+      "description": "Fields: Fuel temperature [°C] (byte 16)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0188",
+      "name": "service_level",
+      "description": "Service level",
+      "ecu_address": "0x743",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01A0",
+      "name": "distance_at_trip_start",
+      "description": "Distance at trip start",
+      "ecu_address": "0x743",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01A2",
+      "name": "time_at_trip_start",
+      "description": "Fields: Time at trip start [s] (byte 0)",
+      "ecu_address": "0x743",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0200",
+      "name": "electric_machine_2_rotor_temperature",
+      "description": "Fields: Electric machine 2 rotor temperature [°C] (byte 2); Electric machine 2 coolant temperature [°C] (byte 4); Electric machine 2 stator temperature 1 [°C] (byte 6); Electric machine 2 stator temperature 2 [°C] (byte 8)",
+      "ecu_address": "0x624",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0200",
+      "name": "power_machine_1_actual_torque",
+      "description": "Fields: Power machine 1, actual torque [Nm] (byte 0); Power machine 1 stator temperature [°C] (byte 4); Power machine 1, maximum available torque [Nm] (byte 6)",
+      "ecu_address": "0x662",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0201",
+      "name": "12v_system_voltage_hd",
+      "description": "Fields: 12V system voltage, hd [V] (byte 2)",
+      "ecu_address": "0x624",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0201",
+      "name": "hv_battery_temperature",
+      "description": "HV battery temperature",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.015625,
+        "unit": "°C"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0202",
+      "name": "ac_current",
+      "description": "Fields: AC current [A] (byte 10); Phase U current [A] (byte 12); Phase V current [A] (byte 14); Phase W current [A] (byte 16)",
+      "ecu_address": "0x624",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0202",
+      "name": "battery_module_1_temperature",
+      "description": "Fields: Battery module 1 temperature [°C] (byte 0); Battery module 2 temperature [°C] (byte 2); Battery module 3 temperature [°C] (byte 4); Battery module 4 temperature [°C] (byte 6); Battery module 5 temperature [°C] (byte 8); Battery module 6 temperature [°C] (byte 10); Battery module 7 temperature [°C] (byte 12); Battery module 8 temperature [°C] (byte 14); …",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0203",
+      "name": "terminal_30c_state",
+      "description": "Terminal 30C state",
+      "ecu_address": "0x662",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0203",
+      "name": "distance_to_next_service",
+      "description": "Distance to next service",
+      "ecu_address": "0x743",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0203",
+      "name": "hv_battery_current",
+      "description": "HV battery current",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.03125,
+        "unit": "A"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0204",
+      "name": "days_to_next_service",
+      "description": "Days to next service",
+      "ecu_address": "0x743",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0204",
+      "name": "hv_battery_voltage",
+      "description": "Fields: HV battery voltage [V] (byte 8)",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0205",
+      "name": "electric_machine_2_rpm",
+      "description": "Fields: Electric machine 2 rpm [rpm] (byte 2); Electric machine 1 rpm [rpm] (byte 10)",
+      "ecu_address": "0x624",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0206",
+      "name": "electric_machine_2_state_diagnostic",
+      "description": "Electric machine 2 state, diagnostic",
+      "ecu_address": "0x624",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "V"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0207",
+      "name": "electric_machine_2_actual_torque",
+      "description": "Electric machine 2, actual torque",
+      "ecu_address": "0x624",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -500,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0207",
+      "name": "cell_voltage_reference_maximum",
+      "description": "Fields: Cell voltage reference, maximum [mV] (byte 0); Cell voltage reference, minimum [mV] (byte 2); Cell voltage reference, average [mV] (byte 4)",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0208",
+      "name": "cell_1_voltage",
+      "description": "Fields: Cell 1 voltage [V] (byte 0); Cell 2 voltage [V] (byte 2); Cell 3 voltage [V] (byte 4); Cell 4 voltage [V] (byte 6); Cell 5 voltage [V] (byte 8); Cell 6 voltage [V] (byte 10); Cell 7 voltage [V] (byte 12); Cell 8 voltage [V] (byte 14); …",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0209",
+      "name": "hv_isolation_resistance",
+      "description": "Fields: HV isolation resistance [kOhm] (byte 0); HV DC fault code (byte 2)",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0223",
+      "name": "charger_cooling_plate_temperature",
+      "description": "Fields: Charger cooling plate temperature [°C] (byte 1); Charger temperature [°C] (byte 3); Charging socket temperature [°C] (byte 5)",
+      "ecu_address": "0x61A",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0225",
+      "name": "charger_mains_current",
+      "description": "Fields: Charger mains current [A] (byte 2); Charging cable current code [A] (byte 4); Charger HV output current [A] (byte 14)",
+      "ecu_address": "0x61A",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0226",
+      "name": "charger_12v_output_voltage",
+      "description": "Fields: Charger 12V output voltage [V] (byte 2); Charger HV output voltage [V] (byte 5); Charger mains voltage [V] (byte 7)",
+      "ecu_address": "0x61A",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x022A",
+      "name": "charger_current_set_point",
+      "description": "Fields: Charger current set point [A] (byte 3)",
+      "ecu_address": "0x61A",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0230",
+      "name": "transmission_fluid_temperature_variant_2",
+      "description": "Fields: Transmission fluid temperature, variant 2 [°F] (byte 11)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0234",
+      "name": "transmission_fluid_temperature_variant_4",
+      "description": "Fields: Transmission fluid temperature, variant 4 [°C] (byte 3)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0301",
+      "name": "parking_lock_adaptation_state",
+      "description": "Parking lock adaptation state",
+      "ecu_address": "0x662",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0302",
+      "name": "parking_lock_state",
+      "description": "Parking lock state",
+      "ecu_address": "0x662",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0306",
+      "name": "electric_machine_n129_1_power_level_0_4",
+      "description": "Fields: Electric machine, N129/1 power level, 0-4 (byte 0); Electric machine, N129/1 requested power level, 0-4 (byte 1)",
+      "ecu_address": "0x662",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x030B",
+      "name": "hv_contactor_cycles_remaining",
+      "description": "Fields: HV contactor cycles remaining (byte 1)",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x030C",
+      "name": "hv_contactor_cycles_maximum",
+      "description": "Fields: HV contactor cycles, maximum (byte 1)",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0310",
+      "name": "time_with_hv_off",
+      "description": "Fields: Time with HV off [s] (byte 1); State of health, raw (byte 10); Cell capacity, maximum [Ah] (byte 13); Cell capacity, minimum [Ah] (byte 17); Cell capacity, average [Ah] (byte 19)",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2001",
+      "name": "front_left_wheel_speed",
+      "description": "Fields: Front left wheel speed [km/h] (byte 0); Front left wheel speed [km/h] (byte 0); Front right wheel speed [km/h] (byte 2); Front right wheel speed [km/h] (byte 2); Rear left wheel speed [km/h] (byte 4); Rear left wheel speed [km/h] (byte 4); Rear right wheel speed [km/h] (byte 6); Rear right wheel speed [km/h] (byte 6)",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2002",
+      "name": "longitudinal_acceleration",
+      "description": "Fields: Longitudinal acceleration [g] (byte 1); Longitudinal acceleration [g] (byte 1); Lateral acceleration [g] (byte 3); Lateral acceleration [g] (byte 3); Yaw rate [rad] (byte 6); Steering wheel angle [°] (byte 9); Master break cylinder pressure [bar] (byte 12); Master break cylinder pressure [bar] (byte 12); …",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2005",
+      "name": "auxiliary_battery_voltage",
+      "description": "Auxiliary battery voltage",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1015686275,
+        "unit": "V"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2006",
+      "name": "terminal_87_feedback",
+      "description": "Terminal 87 feedback",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.019531,
+        "unit": "V"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x200C",
+      "name": "outside_temperature",
+      "description": "Fields: Outside temperature [°C] (byte 2)",
+      "ecu_address": "0x743",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2017",
+      "name": "radiator_temperature",
+      "description": "Radiator temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.84375,
+        "offset": 32,
+        "unit": "°F"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2030",
+      "name": "fuel_tank_level",
+      "description": "Fuel tank level",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.099934824,
+        "unit": "L"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2041",
+      "name": "vacuum_pump_pressure_1",
+      "description": "Vacuum pump pressure 1",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "int16_be"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2043",
+      "name": "vacuum_pump_pressure_2",
+      "description": "Vacuum pump pressure 2",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "int16_be"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2047",
+      "name": "coolant_temperature",
+      "description": "Coolant temperature",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.125,
+        "unit": "°C"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2071",
+      "name": "fuel_rail_pressure",
+      "description": "Fuel rail pressure",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.4998701,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2095",
+      "name": "engine_oil_temperature",
+      "description": "Engine oil temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 1.35,
+        "offset": -54,
+        "unit": "°F"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2104",
+      "name": "trip_time",
+      "description": "Fields: Trip time [s] (byte 0)",
+      "ecu_address": "0x743",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2308",
+      "name": "coolant_pump_voltage",
+      "description": "Coolant pump voltage",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1,
+        "unit": "V"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2309",
+      "name": "coolant_pump_current",
+      "description": "Fields: Coolant pump current [A] (byte 1)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x230A",
+      "name": "coolant_pump_temperature",
+      "description": "Coolant pump temperature",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°C"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2525",
+      "name": "power_electric_unit_temperature_sensor_b11_5",
+      "description": "Power electric unit temperature sensor, B11/5",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.125,
+        "unit": "°C"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2526",
+      "name": "hv_battery_coolant_temperature",
+      "description": "HV battery coolant temperature",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.125,
+        "unit": "°C"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3008",
+      "name": "terminal_15_status",
+      "description": "Fields: Terminal 15 status (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3022",
+      "name": "dc_dc_activation_request",
+      "description": "DC/DC activation request",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3023",
+      "name": "dc_dc_voltage_request",
+      "description": "DC/DC voltage request",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.05,
+        "offset": 12,
+        "unit": "V"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3024",
+      "name": "dc_dc_output_voltage",
+      "description": "DC/DC output voltage",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1,
+        "offset": 4,
+        "unit": "V"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3025",
+      "name": "dc_dc_output_current",
+      "description": "DC/DC output current",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1,
+        "unit": "A"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x320C",
+      "name": "hv_battery_available_energy",
+      "description": "HV battery available energy",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.005,
+        "unit": "kWh"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3301",
+      "name": "power_distribution_12v_voltage",
+      "description": "Power distribution 12V voltage",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.06,
+        "offset": 6,
+        "unit": "V"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x339D",
+      "name": "charging_plug_detected",
+      "description": "Fields: Charging plug detected (byte 0, bit 4, 4 bit(s))",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3494",
+      "name": "dc_dc_output_power",
+      "description": "DC/DC output power",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 10,
+        "unit": "W"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3495",
+      "name": "dc_dc_load",
+      "description": "DC/DC load",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.390625,
+        "unit": "%"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x34CB",
+      "name": "cabin_blower_command",
+      "description": "Cabin blower command",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 2,
+        "unit": "%"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3505",
+      "name": "terminal_50_status",
+      "description": "Fields: Terminal 50 status (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x503A",
+      "name": "mains_current_phase_2",
+      "description": "Mains current, phase 2",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0625,
+        "offset": -200,
+        "unit": "A"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x503B",
+      "name": "mains_current_phase_3",
+      "description": "Mains current, phase 3",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0625,
+        "offset": -200,
+        "unit": "A"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x503F",
+      "name": "mains_voltage_phases_1_2",
+      "description": "Mains voltage, phases 1-2",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.5,
+        "unit": "V"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5041",
+      "name": "mains_voltage_phases_2_3",
+      "description": "Mains voltage, phases 2-3",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.5,
+        "unit": "V"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5042",
+      "name": "mains_voltage_phases_3_1",
+      "description": "Mains voltage, phases 3-1",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.5,
+        "unit": "V"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5049",
+      "name": "mains_frequency",
+      "description": "Mains frequency",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0078125,
+        "offset": 10,
+        "unit": "Hz"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x504A",
+      "name": "mains_active_power",
+      "description": "Mains active power",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "offset": -20,
+        "unit": "kW"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5062",
+      "name": "mains_ground_resistance",
+      "description": "Mains ground resistance",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "offset": -32.768
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5064",
+      "name": "leakage_diagnostic_code",
+      "description": "Leakage diagnostic code",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5065",
+      "name": "leakage_dc_current",
+      "description": "Leakage DC current",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "offset": -32.768
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5066",
+      "name": "leakage_current_10_kilohertz",
+      "description": "Leakage current, 10 kilohertz",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "offset": -32.768
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5067",
+      "name": "leakage_high_frequency_current",
+      "description": "Leakage high-frequency current",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "offset": -32.768
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5068",
+      "name": "leakage_low_frequency_current",
+      "description": "Leakage low-frequency current",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "offset": -32.768
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5070",
+      "name": "mains_current_limit",
+      "description": "Mains current limit",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "offset": -32.768
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5504",
+      "name": "coolant_pump_voltage_m13_5",
+      "description": "Coolant pump voltage, M13/5",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.125,
+        "unit": "V"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5506",
+      "name": "coolant_pump_voltage_m43_1",
+      "description": "Coolant pump voltage, M43/1",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.125,
+        "unit": "V"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x550A",
+      "name": "high_voltage_ptc_heater_voltage_n33_5",
+      "description": "High voltage PTC heater voltage, N33/5",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.025,
+        "unit": "V"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x550C",
+      "name": "high_voltage_ptc_heater_state_n33_5",
+      "description": "Fields: High voltage PTC heater state, N33/5 (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x550F",
+      "name": "radiator_grill_m2_39_position",
+      "description": "Radiator grill, M2/39 position",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5510",
+      "name": "radiator_grill_m2_39_status_closing",
+      "description": "Radiator grill, M2/39 status, closing",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x6050",
+      "name": "hv_battery_state_of_charge",
+      "description": "HV battery state of charge",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x6053",
+      "name": "hv_battery_amperage",
+      "description": "Alternative decodings: HV battery amperage [A] (byte 0); HV battery amperage [A] (byte 0)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "A"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x6071",
+      "name": "dc_converter_requested_voltage",
+      "description": "Alternative decodings: DC converter requested voltage [V] (byte 0); DC converter requested voltage [V] (byte 0)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.025,
+        "unit": "V"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x6074",
+      "name": "dc_dc_module_state_boost",
+      "description": "DC/DC module state, boost",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "A"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x6075",
+      "name": "hv_battery_voltage",
+      "description": "Alternative decodings: HV battery voltage [V] (byte 0); HV battery voltage [V] (byte 0)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.025,
+        "unit": "V"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x6308",
+      "name": "battery_age_condition",
+      "description": "Battery age condition",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "unit": "%"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x6309",
+      "name": "coolant_pump_operating_time",
+      "description": "Coolant pump operating time",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "h"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x630A",
+      "name": "cooling_fan_operating_time",
+      "description": "Cooling fan operating time",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "h"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x6321",
+      "name": "battery_heater_operating_time",
+      "description": "Battery heater operating time",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "h"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x6502",
+      "name": "hv_battery_remaining_distance",
+      "description": "HV battery remaining distance",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "km"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x6503",
+      "name": "remaining_operating_time",
+      "description": "Remaining operating time",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "offset": -2048
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x6504",
+      "name": "distance_to_next_service",
+      "description": "Distance to next service",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x7303",
+      "name": "charger_mains_voltage",
+      "description": "Fields: Charger mains voltage [V] (byte 0); Charger mains current, phase 1 [A] (byte 6); Charger mains current, phase 2 [A] (byte 8); Charger power 1 [kW] (byte 12); Charger power 2 [kW] (byte 14)",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD000",
+      "name": "hv_contactor_state",
+      "description": "HV contactor state",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD027",
+      "name": "terminal_87_status",
+      "description": "Fields: Terminal 87 status (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD032",
+      "name": "coolant_pump_speed",
+      "description": "Coolant pump speed",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD041",
+      "name": "cooling_fan_speed",
+      "description": "Cooling fan speed",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD302",
+      "name": "battery_heater_on",
+      "description": "Fields: Battery heater on (byte 0)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD50A",
+      "name": "fan_motor_duty_m4_7",
+      "description": "Fan motor duty, M4/7",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Smart signalset (CC BY-SA 4.0)",
+      "verified": false
     }
   ],
   "routines": [

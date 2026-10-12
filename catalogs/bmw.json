@@ -25916,6 +25916,1284 @@
       "decoder": {
         "kind": "uint32_be"
       }
+    },
+    {
+      "did": "0x1700",
+      "name": "odometer_variant",
+      "description": "Odometer variant",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "km"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x400B",
+      "name": "lambda_1_excess_air_ratio",
+      "description": "Alternative decodings: Lambda 1, excess air ratio (byte 5); Lambda 1, excess air ratio (byte 5)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4015",
+      "name": "intake_air_temperature",
+      "description": "Fields: Intake air temperature [°C] (byte 1)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x402B",
+      "name": "12v_battery_temperature",
+      "description": "Fields: 12V battery temperature [°C] (byte 0); 12V battery voltage [V] (byte 2); 12V battery current [A] (byte 4)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x40A9",
+      "name": "battery_capacity",
+      "description": "Fields: Battery capacity [Ah] (byte 0); Original battery capacity [Ah] (byte 2)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x40AD",
+      "name": "battery_state_of_charge_current",
+      "description": "Fields: Battery state of charge current [%] (byte 0); Battery state of charge last-1 [%] (byte 2); Battery state of charge last-2 [%] (byte 4); Battery state of charge last-3 [%] (byte 6); Battery state of charge last-4 [%] (byte 8); Battery state of charge last-5 [%] (byte 10); Battery time in state of charge 0-40% [%] (byte 12); Battery time in state of charge 40-60% [%] (byte 14); …",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x40CB",
+      "name": "ethanol_content_can_broadcast_live",
+      "description": "Fields: Ethanol content, CAN broadcast, live [%] (byte 13)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x411E",
+      "name": "coolant_temperature",
+      "description": "Fields: Coolant temperature [°C] (byte 2)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4201",
+      "name": "barometric_pressure",
+      "description": "Barometric pressure",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.00390625,
+        "unit": "kPa"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4205",
+      "name": "boost_pressure",
+      "description": "Boost pressure",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0078125,
+        "unit": "kPa"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x420C",
+      "name": "estimated_range_remaining_in_economy_mode",
+      "description": "Fields: Estimated range remaining in economy mode [km] (byte 0); Estimated range remaining in comfort mode [km] (byte 2); Estimated range remaining [km] (byte 4)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4300",
+      "name": "engine_temperature",
+      "description": "Fields: Engine temperature [°C] (byte 0); Engine temperature [°C] (byte 0)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4402",
+      "name": "engine_oil_temperature",
+      "description": "Fields: Engine oil temperature [°C] (byte 0); Engine oil temperature [°C] (byte 1)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4408",
+      "name": "engine_oil_temperature",
+      "description": "Alternative decodings: Engine oil temperature [°C] (byte 0); Engine oil temperature [°C] (byte 0)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "°C"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x442C",
+      "name": "oil_level",
+      "description": "Oil level",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x442F",
+      "name": "engine_torque",
+      "description": "Engine torque",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "Nm"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4506",
+      "name": "engine_oil_temperature",
+      "description": "Fields: Engine oil temperature [°C] (byte 0); Engine oil temperature [°C] (byte 0)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x480C",
+      "name": "engine_load_target",
+      "description": "Engine load, target",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0234375,
+        "unit": "%"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4A2D",
+      "name": "intake_manifold_pressure",
+      "description": "Intake manifold pressure",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0078125,
+        "unit": "kPa"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4A2E",
+      "name": "rev_limiter",
+      "description": "Rev limiter",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4A49",
+      "name": "ignition_timing_cylinder_1",
+      "description": "Ignition timing, cylinder 1",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "°"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4A4A",
+      "name": "ignition_timing_cylinder_2",
+      "description": "Ignition timing, cylinder 2",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "°"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4A4B",
+      "name": "engine_load_2",
+      "description": "Engine load 2",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4A4C",
+      "name": "ignition_timing_cylinder_3",
+      "description": "Ignition timing, cylinder 3",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "°"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4A4D",
+      "name": "ignition_timing_cylinder_4",
+      "description": "Ignition timing, cylinder 4",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "°"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4AB0",
+      "name": "boost_pressure_set_point",
+      "description": "Boost pressure, set point",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.00390625,
+        "unit": "kPa"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4AB1",
+      "name": "vehicle_speed",
+      "description": "Vehicle speed",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "km/h"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4C5B",
+      "name": "exhaust_gas_calculated_temperature",
+      "description": "Fields: Exhaust gas calculated temperature [°C] (byte 2)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x558E",
+      "name": "odometer_engine_computer",
+      "description": "Odometer, engine computer",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "km"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x558F",
+      "name": "engine_operating_hours",
+      "description": "Engine operating hours",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint32_be",
+        "scale": 0.5,
+        "unit": "h"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x56D7",
+      "name": "fuel_rail_pressure",
+      "description": "Fuel rail pressure",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.02,
+        "unit": "bar"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x57C3",
+      "name": "engine_oil_temperature_alternate",
+      "description": "Engine oil temperature, alternate",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "°C"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x580F",
+      "name": "intake_air_temperature",
+      "description": "Intake air temperature",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.75,
+        "offset": -48,
+        "unit": "°C"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5813",
+      "name": "engine_load",
+      "description": "Engine load",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.75,
+        "unit": "%"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x582C",
+      "name": "lambda_2",
+      "description": "Lambda 2",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000244140625
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x582F",
+      "name": "catalyst_temperature",
+      "description": "Catalyst temperature",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -273.15,
+        "unit": "°C"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x586F",
+      "name": "engine_oil_pressure",
+      "description": "Engine oil pressure",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "bar"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5889",
+      "name": "lambda",
+      "description": "Lambda",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0002441443503
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x58BA",
+      "name": "crank_torque",
+      "description": "Crank torque",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "Nm"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x58F3",
+      "name": "low_side_fuel_pressure",
+      "description": "Low side fuel pressure",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "bar"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x59FA",
+      "name": "ignition_angle",
+      "description": "Fields: Ignition angle [°] (byte 0)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5AC3",
+      "name": "fuel_pressure",
+      "description": "Fuel pressure",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 2.6,
+        "unit": "bar"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x6335",
+      "name": "hv_battery_health",
+      "description": "Fields: HV battery health [%] (byte 3)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD030",
+      "name": "wheel_sensor_speed_1",
+      "description": "Fields: Wheel sensor speed 1 [km/h] (byte 0); Wheel sensor speed 2 [km/h] (byte 2); Wheel sensor speed 3 [km/h] (byte 4); Wheel sensor speed 4 [km/h] (byte 6); Speed from satellite positioning [km/h] (byte 10)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD031",
+      "name": "current_gear",
+      "description": "Current gear",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD107",
+      "name": "vehicle_speed",
+      "description": "Vehicle speed",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "km/h"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD10D",
+      "name": "odometer",
+      "description": "Fields: Odometer [km] (byte 0); Odometer, alternative [km] (byte 4)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD111",
+      "name": "current_electric_range",
+      "description": "Fields: Current electric range [km] (byte 0); Maximum electric range [km] (byte 2); Current fuel range [km] (byte 4); Maximum fuel range [km] (byte 6); Electric consumption / 100km [kWh] (byte 8); Auxiliary power consumption [kW] (byte 10)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD112",
+      "name": "ambient_air_temperature",
+      "description": "Ambient air temperature",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD129",
+      "name": "trip_computer_average_consumption",
+      "description": "Fields: Trip computer average consumption [kWh/100km] (byte 0); Trip computer average speed [km/h] (byte 2); Trip computer range [km] (byte 6)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD12A",
+      "name": "consumption_kwh_100km",
+      "description": "Fields: Consumption, kwh/100km (byte 0); Trip average consumption since reset [kWh/100km] (byte 0); Trip average speed since reset [km/h] (byte 2); Trip distance since reset [km] (byte 8)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD130",
+      "name": "parking_brake_applied",
+      "description": "Fields: Parking brake applied (byte 0)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD240",
+      "name": "vehicle_speed_instrument_cluster",
+      "description": "Vehicle speed, instrument cluster",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km/h"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD85C",
+      "name": "cabin_temperature",
+      "description": "Fields: Cabin temperature [°C] (byte 0)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD8C5",
+      "name": "a_c_compressor_operating_state",
+      "description": "A/C compressor operating state",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD906",
+      "name": "air_conditioning_compressor_status",
+      "description": "Fields: Air conditioning compressor status (byte 1); Air conditioning compressor PWM [%] (byte 2)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD91A",
+      "name": "front_air_distribution_left",
+      "description": "Fields: Front air distribution, left (byte 0); Front air distribution, right (byte 1)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD92C",
+      "name": "climate_control_off",
+      "description": "Fields: Climate control off (byte 0)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD930",
+      "name": "automatic_air_recirculation",
+      "description": "Fields: Automatic air recirculation (byte 0)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD931",
+      "name": "recirculation",
+      "description": "Fields: Recirculation (byte 0)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD96B",
+      "name": "outside_temperature_climate_control",
+      "description": "Outside temperature, climate control",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.5,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA12",
+      "name": "automatic_transmission_fluid_temperature",
+      "description": "Automatic transmission fluid temperature",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "int16_be",
+        "offset": -48,
+        "unit": "°C"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA1F",
+      "name": "kickdown",
+      "description": "Fields: Kickdown (byte 1)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA22",
+      "name": "torque_converter_lockup",
+      "description": "Fields: Torque converter lockup (byte 1)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA23",
+      "name": "odometer_low_resolution",
+      "description": "Alternative decodings: Odometer, low resolution [km] (byte 0); Odometer [km] (byte 0)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint32_be",
+        "scale": 8,
+        "unit": "km"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA25",
+      "name": "engine_oil_temperature",
+      "description": "Engine oil temperature",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "int16_be",
+        "offset": -48,
+        "unit": "°C"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA28",
+      "name": "brake_switch",
+      "description": "Fields: Brake switch (byte 1)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA2A",
+      "name": "torque_converter_speed",
+      "description": "Fields: Torque converter speed [rpm] (byte 0); Transmission output shaft speed [rpm] (byte 2)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA2E",
+      "name": "shift_gear",
+      "description": "Fields: Shift gear (byte 0); Drive mode (byte 1)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA37",
+      "name": "time_in_d",
+      "description": "Fields: Time in d (byte 0); Time in s (byte 1); Time in m (byte 2)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDB32",
+      "name": "front_axle_actual_torque",
+      "description": "Fields: Front axle, actual torque [Nm] (byte 0); Front axle, actual torque [Nm] (byte 0); Front axle target torque [Nm] (byte 4); Front axle, set point torque [Nm] (byte 4)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDB99",
+      "name": "steering_torque",
+      "description": "Steering torque",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.0078125,
+        "unit": "Nm"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDBE4",
+      "name": "front_left_wheel_speed",
+      "description": "Fields: Front left wheel speed [km/h] (byte 0); Front right wheel speed [km/h] (byte 2); Rear left wheel speed [km/h] (byte 4); Rear right wheel speed [km/h] (byte 6)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDBE5",
+      "name": "brake_pressure",
+      "description": "Brake pressure",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "bar"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDC98",
+      "name": "front_left_tire_sensor_position",
+      "description": "Fields: Front left tire sensor position (byte 4); Front left tire pressure [bar] (byte 5); Front left tire temperature [°C] (byte 7); Front left tire pressure, set point [bar] (byte 8); Tire sensor reception, front left [%] (byte 12); Front left tire sensor battery life, months (byte 15)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDC99",
+      "name": "front_right_tire_sensor_position",
+      "description": "Fields: Front right tire sensor position (byte 4); Front right tire pressure [bar] (byte 5); Front right tire temperature [°C] (byte 7); Front right tire pressure, set point [bar] (byte 8); Tire sensor reception, front right [%] (byte 12); Front right tire sensor battery life, months (byte 15)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDC9A",
+      "name": "rear_left_tire_sensor_position",
+      "description": "Fields: Rear left tire sensor position (byte 4); Rear left tire pressure [bar] (byte 5); Rear left tire temperature [°C] (byte 7); Rear left tire pressure, set point [bar] (byte 8); Tire sensor reception, rear left [%] (byte 12); Rear left tire sensor battery life, months (byte 15)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDC9B",
+      "name": "rear_right_tire_sensor_position",
+      "description": "Fields: Rear right tire sensor position (byte 4); Rear right tire pressure [bar] (byte 5); Rear right tire temperature [°C] (byte 7); Rear right tire pressure, set point [bar] (byte 8); Tire sensor reception, rear right [%] (byte 12); Rear right tire sensor battery life, months (byte 15)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDCDD",
+      "name": "driver_door_open",
+      "description": "Fields: Driver door open (byte 0); Passenger door open (byte 1); Rear driver door open (byte 2); Rear passenger door open (byte 3); Hood open (byte 4); Trunk open (byte 5); Rear window open (byte 6); Locked (byte 7)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD68",
+      "name": "hv_battery_voltage",
+      "description": "HV battery voltage",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "V"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD69",
+      "name": "hv_battery_current",
+      "description": "Alternative decodings: HV battery current [A] (byte 0); HV battery current [A] (byte 0)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "int32_be",
+        "scale": 0.01,
+        "unit": "A"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDDBC",
+      "name": "hv_battery_charge",
+      "description": "Fields: HV battery charge [%] (byte 0); HV battery charge, max [%] (byte 2); HV battery charge, min [%] (byte 4)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDDBF",
+      "name": "lowest_cell_voltage",
+      "description": "Fields: Lowest cell voltage [V] (byte 0); Highest cell voltage [V] (byte 2)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDDC0",
+      "name": "hv_battery_cell_temperature_min",
+      "description": "Fields: HV battery cell temperature, min [°C] (byte 0); HV battery cell temperature, max [°C] (byte 2)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDE00",
+      "name": "state_of_charge_power_module",
+      "description": "Fields: State of charge, power module [%] (byte 0); Minimum state of charge [%] (byte 2); Is charger connected (byte 3); Is charging (byte 4); Ready to drive (byte 5)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDE84",
+      "name": "charger_grid_frequency_phase_1",
+      "description": "Fields: Charger grid frequency, phase 1 [Hz] (byte 0); Charger power reduction [%] (byte 4)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDE85",
+      "name": "charge_cycle_efficiency",
+      "description": "Fields: Charge cycle efficiency [%] (byte 0); Charger DC efficiency [%] (byte 1); Charger HV output power [W] (byte 2)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDE86",
+      "name": "charger_ac_voltage_phase_1",
+      "description": "Fields: Charger AC voltage, phase 1 [V] (byte 0); Charger HV DC voltage [V] (byte 4); Charger 12V supply voltage [V] (byte 6); Charger AC voltage, phase 2 [V] (byte 8); Charger AC voltage, phase 3 [V] (byte 10)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDE87",
+      "name": "charger_ac_current_phase_1",
+      "description": "Fields: Charger AC current, phase 1 [A] (byte 0); Charger HV DC current [A] (byte 4); Charger AC current, phase 2 [A] (byte 10); Charger AC current, phase 3 [A] (byte 12)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDE8A",
+      "name": "drive_motor_phase_w_current",
+      "description": "Fields: Drive motor phase w current [A] (byte 0); Drive motor phase v current [A] (byte 2); Drive motor phase u current [A] (byte 4); Drive motor excitation current [A] (byte 6); Drive inverter HV DC current [A] (byte 8)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDE8C",
+      "name": "drive_inverter_phase_u_temperature",
+      "description": "Fields: Drive inverter phase u temperature [°C] (byte 0); Drive inverter phase v temperature [°C] (byte 2); Drive inverter phase w temperature [°C] (byte 4); Drive inverter gate driver temperature [°C] (byte 6); DC/DC converter board temperature [°C] (byte 8); On-board charger board temperature [°C] (byte 22); Drive electronics processor 0 temperature [°C] (byte 26); Drive electronics processor 2 temperature [°C] (byte 28)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDE9C",
+      "name": "accelerator_pedal_position",
+      "description": "Fields: Accelerator pedal position [%] (byte 4)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDEA6",
+      "name": "drive_motor_temperature_1",
+      "description": "Fields: Drive motor temperature 1 [°C] (byte 0); Drive motor temperature 2 [°C] (byte 2)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDEA7",
+      "name": "drive_motor_speed",
+      "description": "Fields: Drive motor speed [rpm] (byte 0); Drive motor torque, actual [Nm] (byte 2); Drive motor torque, requested [Nm] (byte 4)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDEF1",
+      "name": "charge_flap_closed",
+      "description": "Fields: Charge flap closed (byte 0)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDEF2",
+      "name": "charging_interface_ready",
+      "description": "Fields: Charging interface ready (byte 0)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDEF3",
+      "name": "charge_port_light_state",
+      "description": "Charge port light state",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDEF5",
+      "name": "charging_plug_state",
+      "description": "Fields: Charging plug state (byte 0); Charging cable current rating [A] (byte 1)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDEF6",
+      "name": "charging_pilot_signal_active",
+      "description": "Fields: Charging pilot signal active (byte 0); Charging pilot duty cycle [%] (byte 1); Charging current the pilot signal allows [A] (byte 2); Ready to charge (byte 3)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDEF7",
+      "name": "dc_charge_control_1",
+      "description": "Fields: DC charge control 1 (byte 0); DC charge control 2 (byte 1); DC charge permission (byte 2); DC charge plug connected (byte 3)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDEF8",
+      "name": "dc_charge_contactor_state",
+      "description": "DC charge contactor state",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDEFA",
+      "name": "dc_charging_pin_cover_open",
+      "description": "Fields: DC charging pin cover open (byte 0)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDF71",
+      "name": "number_of_cells",
+      "description": "Fields: Number of cells (byte 0); Number of cells per module (byte 2); Number of modules (byte 3); Number of temperature sensors per module (byte 4)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDFA0",
+      "name": "cell_capacity_min",
+      "description": "Fields: Cell capacity, min [Ah] (byte 0); Cell capacity, max [Ah] (byte 2); Cell capacity, average [Ah] (byte 4); Cell voltage, min [V] (byte 6); Cell voltage, max [V] (byte 8); Cell voltage, average [V] (byte 10); Cell temperature, min [°C] (byte 12); Cell temperature, max [°C] (byte 14); …",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDFE7",
+      "name": "current_calibration_angle",
+      "description": "Fields: Current calibration angle [°] (byte 0); Variable geometry turbocharger calibration angle [°] (byte 0); Distance since last oil change [km] (byte 38); Distance since last oil change [km] (byte 38)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE54D",
+      "name": "battery_voltage",
+      "description": "Battery voltage",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "V"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE561",
+      "name": "high_voltage_battery_current",
+      "description": "Fields: High voltage battery current [A] (byte 2)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE5C7",
+      "name": "hv_battery_health",
+      "description": "Fields: HV battery health [%] (byte 3)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE5CE",
+      "name": "hv_battery_charge",
+      "description": "HV battery charge",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/BMW signalset (CC BY-SA 4.0)",
+      "verified": false
     }
   ],
   "routines": [

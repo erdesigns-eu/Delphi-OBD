@@ -22002,6 +22002,1040 @@
         "kind": "ascii",
         "length": 8
       }
+    },
+    {
+      "did": "0x2001",
+      "name": "motor_inverter_current",
+      "description": "Fields: Motor inverter, current [A] (byte 6); Battery coolant temperature [°C] (byte 11); Battery module power [kW] (byte 21); Generator motor speed [rpm] (byte 23); Cabin air temperature [°F] (byte 25); Outside air temperature [°F] (byte 26); HV battery fan 3 speed [rpm] (byte 36)",
+      "ecu_address": "0xDBEF",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2010",
+      "name": "hv_battery_current",
+      "description": "Fields: HV battery current [A] (byte 4); DC-DC converter temperature [°C] (byte 13)",
+      "ecu_address": "0xDBEF",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2012",
+      "name": "hv_battery_usable_capacity",
+      "description": "Fields: HV battery usable capacity [%] (byte 4); State of charge [%] (byte 5); HV battery cell max state of charge [%] (byte 26)",
+      "ecu_address": "0xDBEF",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2021",
+      "name": "normal_charger_input_voltage",
+      "description": "Fields: Normal charger input voltage [V] (byte 30); Normal charger output voltage [V] (byte 34)",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2028",
+      "name": "individual_cell_voltage_a1",
+      "description": "Fields: Individual cell voltage A1 [mV] (byte 27); Individual cell voltage A2 [mV] (byte 29); Individual cell voltage A3 [mV] (byte 31); Individual cell voltage A4 [mV] (byte 33); Individual cell voltage A5 [mV] (byte 35); Individual cell voltage A6 [mV] (byte 37); Individual cell voltage A7 [mV] (byte 39); Individual cell voltage A8 [mV] (byte 41); …",
+      "ecu_address": "0xDA01",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2028",
+      "name": "cell_voltage_1",
+      "description": "Fields: Cell voltage, 1 [mV] (byte 27); Cell voltage, 2 [mV] (byte 29); Cell voltage, 3 [mV] (byte 31); Cell voltage, 4 [mV] (byte 33); Cell voltage, 5 [mV] (byte 35); Cell voltage, 6 [mV] (byte 37); Cell voltage, 7 [mV] (byte 39); Cell voltage, 8 [mV] (byte 41); …",
+      "ecu_address": "0xDA16",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2029",
+      "name": "charging_voltage_target",
+      "description": "Fields: Charging voltage target [mV] (byte 34); Cell voltage limit during charge [mV] (byte 49)",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x202A",
+      "name": "state_of_charge",
+      "description": "Fields: State of charge [%] (byte 50); High voltage battery total current [A] (byte 57); High voltage battery voltage [V] (byte 61); High voltage battery cells, max state of charge [%] (byte 73); High voltage battery cells, max state of charge [%] (byte 75); Ambient air temperature, cabin [°C] (byte 104); Ambient air temperature, outside [°C] (byte 105); High voltage battery total capacity [Ah] (byte 167)",
+      "ecu_address": "0xDA01",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x202A",
+      "name": "high_voltage_battery_voltage_line_b",
+      "description": "Fields: High voltage battery voltage, line B [V] (byte 61); Individual cell max SOC, line B [%] (byte 73); Individual cell min SOC, line B [%] (byte 75); Battery capacity, line B [Ah] (byte 167)",
+      "ecu_address": "0xDA16",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x202C",
+      "name": "high_voltage_battery_module_1a_temperature",
+      "description": "Fields: High voltage battery module 1A temperature [°C] (byte 59); High voltage battery module 3A temperature [°C] (byte 63); Engine coolant temperature sensor 1 [°C] (byte 201); Engine coolant temperature sensor 2 [°C] (byte 203); Engine coolant temperature sensor 3 [°C] (byte 205); Engine coolant temperature sensor 4 [°C] (byte 207)",
+      "ecu_address": "0xDA01",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x202C",
+      "name": "high_voltage_battery_module_1b_temperature",
+      "description": "Fields: High voltage battery module 1B temperature [°C] (byte 59); High voltage battery module 2A temperature [°C] (byte 61); High voltage battery module 3B temperature [°C] (byte 63); High voltage battery module 4B temperature [°C] (byte 65)",
+      "ecu_address": "0xDA16",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2201",
+      "name": "automatic_transmission_fluid_temperature",
+      "description": "Fields: Automatic transmission fluid temperature [°C] (byte 26)",
+      "ecu_address": "0xDA1D",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2201",
+      "name": "transmission_fluid_temperature_variant_4",
+      "description": "Fields: Transmission fluid temperature, variant 4 [°C] (byte 26)",
+      "ecu_address": "0xDA1E",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2203",
+      "name": "oil_pressure",
+      "description": "Fields: Oil pressure [kPa] (byte 9)",
+      "ecu_address": "0xDA1D",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2221",
+      "name": "gear",
+      "description": "Fields: Gear (byte 23)",
+      "ecu_address": "0xDA1D",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2222",
+      "name": "hv_battery_max_cell_voltage",
+      "description": "Fields: HV battery max cell voltage [mV] (byte 8)",
+      "ecu_address": "0xDBEF",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2240",
+      "name": "distance_traveled_since_last_charge",
+      "description": "Fields: Distance traveled since last charge [km] (byte 10)",
+      "ecu_address": "0xDA0E",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2414",
+      "name": "traction_battery_current",
+      "description": "Traction battery current",
+      "ecu_address": "0xDA17",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.05,
+        "unit": "A"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2429",
+      "name": "traction_battery_nominal_voltage",
+      "description": "Traction battery nominal voltage",
+      "ecu_address": "0xDA17",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.015625,
+        "unit": "V"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2610",
+      "name": "generator",
+      "description": "Fields: Generator [%] (byte 23); A/C clutch (byte 32, bit 6, 1 bit(s))",
+      "ecu_address": "0xDA0E",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2610",
+      "name": "generator",
+      "description": "Fields: Generator [%] (byte 23); A/C clutch (byte 32, bit 6, 1 bit(s))",
+      "ecu_address": "0xDA10",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2610",
+      "name": "generator",
+      "description": "Fields: Generator [%] (byte 23); Generator [%] (byte 23); Air conditioner clutch (byte 32, bit 6, 1 bit(s))",
+      "ecu_address": "0xDA11",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2611",
+      "name": "fuel_air_commanded_equivalence_ratio",
+      "description": "Fields: Fuel/air commanded equivalence ratio (byte 0); Fuel/air commanded equivalence ratio (byte 0); Air/gas ratio (byte 8); Air/gas ratio (byte 8)",
+      "ecu_address": "0xDA0E",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2611",
+      "name": "fuel_air_commanded_equivalence_ratio",
+      "description": "Fields: Fuel/air commanded equivalence ratio (byte 0); Air/gas ratio (byte 8)",
+      "ecu_address": "0xDA10",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2611",
+      "name": "air_gas_ratio",
+      "description": "Fields: Air/gas ratio (byte 8)",
+      "ecu_address": "0xDA11",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2612",
+      "name": "vtec_valve_control",
+      "description": "Fields: VTEC valve control (byte 21, bit 7, 1 bit(s)); Current gear var.2 (byte 44); Current gear var.3 (byte 46)",
+      "ecu_address": "0xDA0E",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2612",
+      "name": "variable_valve_control",
+      "description": "Fields: Variable valve control (byte 21)",
+      "ecu_address": "0xDA10",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2612",
+      "name": "vtec_valve_control",
+      "description": "Fields: VTEC valve control (byte 21, bit 7, 1 bit(s))",
+      "ecu_address": "0xDA11",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2613",
+      "name": "a_c_pressure",
+      "description": "Fields: A/C pressure [kPa] (byte 15)",
+      "ecu_address": "0xDA0E",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2613",
+      "name": "evaporative_purge_control_load",
+      "description": "Fields: Evaporative purge control load [%] (byte 6); Air conditioning pressure, raw count (byte 15)",
+      "ecu_address": "0xDA11",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2614",
+      "name": "state_of_charge_raw_count",
+      "description": "Fields: State of charge, raw count (byte 18); Motor assist battery temperature [°C] (byte 22)",
+      "ecu_address": "0xDA10",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2614",
+      "name": "state_of_charge_raw_count",
+      "description": "Fields: State of charge, raw count (byte 18); Motor assist battery temperature [°C] (byte 22)",
+      "ecu_address": "0xDA11",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2615",
+      "name": "active_cylinders",
+      "description": "Fields: Active cylinders (byte 50)",
+      "ecu_address": "0xDA0E",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2615",
+      "name": "active_cylinders",
+      "description": "Fields: Active cylinders (byte 50)",
+      "ecu_address": "0xDA10",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2615",
+      "name": "fuel_pressure_sensor_a_raw_count",
+      "description": "Fields: Fuel pressure sensor A, raw count (byte 31)",
+      "ecu_address": "0xDA11",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2660",
+      "name": "odometer",
+      "description": "Fields: Odometer [km] (byte 43); Time since engine start [s] (byte 46)",
+      "ecu_address": "0xDA0E",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2660",
+      "name": "odometer",
+      "description": "Fields: Odometer [km] (byte 43); Time since engine start [s] (byte 46)",
+      "ecu_address": "0xDA10",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2660",
+      "name": "time_since_engine_start",
+      "description": "Fields: Time since engine start [s] (byte 46)",
+      "ecu_address": "0xDA11",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2660",
+      "name": "odometer",
+      "description": "Fields: Odometer [km] (byte 43)",
+      "ecu_address": "0xDA1D",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2661",
+      "name": "fuel_air_commanded_equivalence_ratio",
+      "description": "Fields: Fuel/air commanded equivalence ratio (byte 8)",
+      "ecu_address": "0xDA0E",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2661",
+      "name": "fuel_air_commanded_equivalence_ratio",
+      "description": "Fields: Fuel/air commanded equivalence ratio (byte 8)",
+      "ecu_address": "0xDA10",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2661",
+      "name": "electric_load_detector_current",
+      "description": "Fields: Electric load detector current [A] (byte 17)",
+      "ecu_address": "0xDA11",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2662",
+      "name": "knock_control",
+      "description": "Fields: Knock control (byte 10); Variable valve timing duty [%] (byte 28)",
+      "ecu_address": "0xDA0E",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2662",
+      "name": "knock_control",
+      "description": "Fields: Knock control (byte 10); Knock control (byte 10); Variable timing control duty [%] (byte 28)",
+      "ecu_address": "0xDA10",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2662",
+      "name": "knock_control",
+      "description": "Fields: Knock control (byte 10); Catalyst temperature [°C] (byte 12); Variable timing control duty [%] (byte 28); Variable timing control duty [%] (byte 28)",
+      "ecu_address": "0xDA11",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2663",
+      "name": "misfire_count_1_variant_3",
+      "description": "Fields: Misfire count #1, variant 3 (byte 20); Misfire count #2, variant 3 (byte 22); Misfire count #3, variant 3 (byte 24); Misfire count #4, variant 3 (byte 26); Misfire count #5, variant 3 (byte 28); Misfire count #6, variant 3 (byte 30); Misfire count, cylinder 1 (byte 34); Misfire count, cylinder 2 (byte 36); …",
+      "ecu_address": "0xDA0E",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2663",
+      "name": "misfire_count_1",
+      "description": "Fields: Misfire count #1 (byte 34); Misfire count #2 (byte 36); Misfire count #3 (byte 38); Misfire count #4 (byte 40); Misfire count, cylinder 5 (byte 42); Misfire count, cylinder 6 (byte 44)",
+      "ecu_address": "0xDA10",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2663",
+      "name": "misfire_count_1_variant_3",
+      "description": "Fields: Misfire count #1, variant 3 (byte 20); Misfire count #2, variant 3 (byte 22); Misfire count #3, variant 3 (byte 24); Misfire count #4, variant 3 (byte 26); Misfire count #5, variant 3 (byte 28); Misfire count #6, variant 3 (byte 30); Misfire count #1, variant 2 (byte 34); Misfire count #2, variant 2 (byte 36); …",
+      "ecu_address": "0xDA11",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2663",
+      "name": "misfire_count_1",
+      "description": "Fields: Misfire count 1 (byte 34); Misfire count 2 (byte 36); Misfire count 3 (byte 38); Misfire count 4 (byte 40)",
+      "ecu_address": "0xDA1D",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2666",
+      "name": "engine_oil_temperature_variant_3",
+      "description": "Fields: Engine oil temperature, variant 3 [°C] (byte 11); Engine oil temperature, variant 4 [°C] (byte 14)",
+      "ecu_address": "0xDA0E",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2666",
+      "name": "engine_oil_temperature_variant_3",
+      "description": "Fields: Engine oil temperature, variant 3 [°C] (byte 11); Engine oil temperature, variant 4 [°C] (byte 14)",
+      "ecu_address": "0xDA10",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2666",
+      "name": "engine_oil_level",
+      "description": "Fields: Engine oil level [mm] (byte 6); Engine oil temperature, variant 1 [°C] (byte 11); Engine oil temperature, variant 2 [°C] (byte 14)",
+      "ecu_address": "0xDA11",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2668",
+      "name": "electric_motor_load",
+      "description": "Fields: Electric motor load [%] (byte 27)",
+      "ecu_address": "0xDA10",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2668",
+      "name": "electric_motor_load",
+      "description": "Fields: Electric motor load [%] (byte 27)",
+      "ecu_address": "0xDA11",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x266C",
+      "name": "misfire_count_1_variant_1",
+      "description": "Fields: Misfire count #1, variant 1 (byte 6); Misfire count #2, variant 1 (byte 7); Misfire count #3, variant 1 (byte 8); Misfire count #4, variant 1 (byte 9); Misfire count #5, variant 1 (byte 10); Misfire count #6, variant 1 (byte 11)",
+      "ecu_address": "0xDA0E",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x266C",
+      "name": "misfire_count_1_variant_1",
+      "description": "Fields: Misfire count #1, variant 1 (byte 6); Misfire count #2, variant 1 (byte 7); Misfire count #3, variant 1 (byte 8); Misfire count #4, variant 1 (byte 9); Misfire count #5, variant 1 (byte 10); Misfire count #6, variant 1 (byte 11)",
+      "ecu_address": "0xDA11",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x266D",
+      "name": "air_fuel_mixture_heater",
+      "description": "Fields: Air-fuel mixture heater [%] (byte 9)",
+      "ecu_address": "0xDA0E",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x27C6",
+      "name": "state_of_charge_high_resolution",
+      "description": "State of charge, high resolution",
+      "ecu_address": "0xDACB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.00152590219,
+        "unit": "%"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2AF5",
+      "name": "cell_voltage_average",
+      "description": "Fields: Cell voltage, average [V] (byte 0); Cell voltage, minimum [V] (byte 2); Cell voltage, maximum [V] (byte 4)",
+      "ecu_address": "0xDACB",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B43",
+      "name": "state_of_charge",
+      "description": "State of charge",
+      "ecu_address": "0xDACB",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3083",
+      "name": "transmission_fluid_temperature",
+      "description": "Alternative decodings: Transmission fluid temperature [°C] (byte 14); Transmission fluid temperature [°C] (byte 14)",
+      "ecu_address": "0xDA1E",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3086",
+      "name": "transmission_gear",
+      "description": "Fields: Transmission gear (byte 20)",
+      "ecu_address": "0xDA1E",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x33E5",
+      "name": "12v_battery_voltage",
+      "description": "12V battery voltage",
+      "ecu_address": "0xDA1D",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1,
+        "unit": "V"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4004",
+      "name": "brake_switch",
+      "description": "Fields: Brake switch (byte 15, bit 7, 1 bit(s))",
+      "ecu_address": "0xDA28",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4005",
+      "name": "brake_pressure",
+      "description": "Fields: Brake pressure [bar] (byte 7)",
+      "ecu_address": "0xDA28",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x40E5",
+      "name": "traction_battery_coolant_temperature_1",
+      "description": "Traction battery coolant temperature 1",
+      "ecu_address": "0xDA40",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.03125,
+        "unit": "°C"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x40E6",
+      "name": "traction_battery_coolant_temperature_2",
+      "description": "Traction battery coolant temperature 2",
+      "ecu_address": "0xDA40",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.03125,
+        "unit": "°C"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4124",
+      "name": "traction_battery_temperature_sensor_b",
+      "description": "Traction battery temperature sensor B",
+      "ecu_address": "0xDA40",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.03125,
+        "unit": "°C"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4127",
+      "name": "traction_battery_temperature_sensor_a",
+      "description": "Traction battery temperature sensor A",
+      "ecu_address": "0xDA40",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.03125,
+        "unit": "°C"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4149",
+      "name": "charge_station_pilot_current",
+      "description": "Charge station pilot current",
+      "ecu_address": "0xDA40",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "A"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x416C",
+      "name": "traction_battery_group_1_voltage",
+      "description": "Traction battery group 1 voltage",
+      "ecu_address": "0xDA40",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "V"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x416D",
+      "name": "traction_battery_group_2_voltage",
+      "description": "Traction battery group 2 voltage",
+      "ecu_address": "0xDA40",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "V"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x416E",
+      "name": "traction_battery_group_3_voltage",
+      "description": "Traction battery group 3 voltage",
+      "ecu_address": "0xDA40",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "V"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4201",
+      "name": "brake_pedal_stroke",
+      "description": "Fields: Brake pedal stroke [mm] (byte 11); Brake fluid pressure (byte 21); Master cylinder stroke [mm] (byte 29); Slave cylinder stroke [mm] (byte 31)",
+      "ecu_address": "0xDA2A",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x434F",
+      "name": "traction_battery_temperature",
+      "description": "Traction battery temperature",
+      "ecu_address": "0xDA40",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x448F",
+      "name": "odometer",
+      "description": "Odometer",
+      "ecu_address": "0xDA40",
+      "decoder": {
+        "kind": "uint32_be",
+        "scale": 0.015625,
+        "unit": "km"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4A7A",
+      "name": "front_left_wheel_speed",
+      "description": "Fields: Front left wheel speed [km/h] (byte 0); Front right wheel speed [km/h] (byte 1); Rear left wheel speed [km/h] (byte 2); Rear right wheel speed [km/h] (byte 3)",
+      "ecu_address": "0xDA28",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4A7C",
+      "name": "brake_pressure",
+      "description": "Fields: Brake pressure [kPa] (byte 0)",
+      "ecu_address": "0xDA28",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4C2D",
+      "name": "steering_wheel_angle",
+      "description": "Steering wheel angle",
+      "ecu_address": "0xDA28",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.022,
+        "unit": "°"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4C2F",
+      "name": "lateral_acceleration",
+      "description": "Lateral acceleration",
+      "ecu_address": "0xDA28",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.001592796725,
+        "unit": "g"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4C30",
+      "name": "longitudinal_acceleration",
+      "description": "Longitudinal acceleration",
+      "ecu_address": "0xDA28",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.001592796725,
+        "unit": "g"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5005",
+      "name": "front_left_tire_pressure",
+      "description": "Front left tire pressure",
+      "ecu_address": "0xDA40",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0625,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5006",
+      "name": "front_right_tire_pressure",
+      "description": "Front right tire pressure",
+      "ecu_address": "0xDA40",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0625,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5007",
+      "name": "rear_right_tire_pressure",
+      "description": "Rear right tire pressure",
+      "ecu_address": "0xDA40",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0625,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5008",
+      "name": "rear_left_tire_pressure",
+      "description": "Rear left tire pressure",
+      "ecu_address": "0xDA40",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0625,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x6001",
+      "name": "front_right_tire_pressure",
+      "description": "Fields: Front right tire pressure [kPa] (byte 8); Front left tire pressure [kPa] (byte 10); Rear right tire pressure [kPa] (byte 12); Rear left tire pressure [kPa] (byte 14); Front right tire temperature [°C] (byte 24); Front left tire temperature [°C] (byte 25); Rear right tire temperature [°C] (byte 26); Rear left tire temperature [°C] (byte 27)",
+      "ecu_address": "0xDA26",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x7022",
+      "name": "odometer_variation_3",
+      "description": "Fields: Odometer, variation 3 [mi] (byte 6)",
+      "ecu_address": "0xDA60",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x7028",
+      "name": "outside_air_temperature",
+      "description": "Alternative decodings: Outside air temperature [°F] (byte 16, bit 4, 12 bit(s)); Outside air temperature [°C] (byte 16, bit 4, 12 bit(s))",
+      "ecu_address": "0xDA60",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x7029",
+      "name": "fuel_level",
+      "description": "Fields: Fuel level [L] (byte 12)",
+      "ecu_address": "0xDA60",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x7060",
+      "name": "maintenance_oil_filter",
+      "description": "Fields: Maintenance, oil & filter (byte 14); Maintenance, spark plugs & valves (byte 16); Maintenance, general inspection (byte 26); Maintenance, tire rotation (byte 28); Maintenance, cabin filter (byte 30); Maintenance, transmission fluid (byte 32); Maintenance, engine coolant (byte 36); Maintenance, rake fluid (byte 40); …",
+      "ecu_address": "0xDA60",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Honda signalset (CC BY-SA 4.0)",
+      "verified": false
     }
   ],
   "routines": [

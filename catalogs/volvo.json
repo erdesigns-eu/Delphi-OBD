@@ -7500,6 +7500,5667 @@
         "kind": "uint16_be",
         "unit": "kΩ"
       }
+    },
+    {
+      "did": "0x0188",
+      "name": "service_level",
+      "description": "Service level",
+      "ecu_address": "0x743",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01A0",
+      "name": "distance_at_trip_start",
+      "description": "Distance at trip start",
+      "ecu_address": "0x743",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01A2",
+      "name": "time_at_trip_start",
+      "description": "Fields: Time at trip start [s] (byte 0)",
+      "ecu_address": "0x743",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0201",
+      "name": "12v_system_voltage_hd",
+      "description": "Fields: 12V system voltage, hd [V] (byte 2)",
+      "ecu_address": "0x624",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0201",
+      "name": "hv_battery_temperature",
+      "description": "HV battery temperature",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.015625,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0202",
+      "name": "battery_module_1_temperature",
+      "description": "Fields: Battery module 1 temperature [°C] (byte 0); Battery module 2 temperature [°C] (byte 2); Battery module 3 temperature [°C] (byte 4); Battery module 4 temperature [°C] (byte 6); Battery module 5 temperature [°C] (byte 8); Battery module 6 temperature [°C] (byte 10); Battery module 7 temperature [°C] (byte 12); Battery module 8 temperature [°C] (byte 14); …",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0203",
+      "name": "distance_to_next_service",
+      "description": "Distance to next service",
+      "ecu_address": "0x743",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0203",
+      "name": "hv_battery_current",
+      "description": "HV battery current",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.03125,
+        "unit": "A"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0204",
+      "name": "days_to_next_service",
+      "description": "Days to next service",
+      "ecu_address": "0x743",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0204",
+      "name": "hv_battery_voltage",
+      "description": "Fields: HV battery voltage [V] (byte 8)",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0207",
+      "name": "cell_voltage_reference_maximum",
+      "description": "Fields: Cell voltage reference, maximum [mV] (byte 0); Cell voltage reference, minimum [mV] (byte 2); Cell voltage reference, average [mV] (byte 4)",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0208",
+      "name": "cell_1_voltage",
+      "description": "Fields: Cell 1 voltage [V] (byte 0); Cell 2 voltage [V] (byte 2); Cell 3 voltage [V] (byte 4); Cell 4 voltage [V] (byte 6); Cell 5 voltage [V] (byte 8); Cell 6 voltage [V] (byte 10); Cell 7 voltage [V] (byte 12); Cell 8 voltage [V] (byte 14); …",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0209",
+      "name": "hv_isolation_resistance",
+      "description": "Fields: HV isolation resistance [kOhm] (byte 0); HV DC fault code (byte 2)",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0223",
+      "name": "charger_cooling_plate_temperature",
+      "description": "Fields: Charger cooling plate temperature [°C] (byte 1); Charger temperature [°C] (byte 3); Charging socket temperature [°C] (byte 5)",
+      "ecu_address": "0x61A",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0225",
+      "name": "charger_mains_current",
+      "description": "Fields: Charger mains current [A] (byte 2); Charging cable current code [A] (byte 4); Charger HV output current [A] (byte 14)",
+      "ecu_address": "0x61A",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0226",
+      "name": "charger_12v_output_voltage",
+      "description": "Fields: Charger 12V output voltage [V] (byte 2); Charger HV output voltage [V] (byte 5); Charger mains voltage [V] (byte 7)",
+      "ecu_address": "0x61A",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x022A",
+      "name": "charger_current_set_point",
+      "description": "Fields: Charger current set point [A] (byte 3)",
+      "ecu_address": "0x61A",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0303",
+      "name": "compressor_inlet_sensor_pressure",
+      "description": "Fields: Compressor inlet sensor pressure [bar] (byte 0); Compressor inlet sensor temperature [°C] (byte 2)",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x030B",
+      "name": "hv_contactor_cycles_remaining",
+      "description": "Fields: HV contactor cycles remaining (byte 1)",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x030C",
+      "name": "hv_contactor_cycles_maximum",
+      "description": "Fields: HV contactor cycles, maximum (byte 1)",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0310",
+      "name": "time_with_hv_off",
+      "description": "Fields: Time with HV off [s] (byte 1); State of health, raw (byte 10); Cell capacity, maximum [Ah] (byte 13); Cell capacity, minimum [Ah] (byte 17); Cell capacity, average [Ah] (byte 19)",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0329",
+      "name": "compressor_outlet_sensor_pressure",
+      "description": "Fields: Compressor outlet sensor pressure [bar] (byte 0); Compressor outlet sensor temperature [°C] (byte 2)",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x032B",
+      "name": "high_voltage_coolant_heater_a_inlet_temperature",
+      "description": "Fields: High voltage coolant heater A, inlet temperature [°C] (byte 0); High voltage coolant heater A, outlet temperature [°C] (byte 2)",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x032F",
+      "name": "air_conditioning_compressor_module_a_speed",
+      "description": "Fields: Air conditioning compressor module a speed [rpm] (byte 2); Air conditioning compressor module a status (byte 3)",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0331",
+      "name": "air_conditioning_compressor_module_a_current",
+      "description": "Air conditioning compressor module A current",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "unit": "A"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x033E",
+      "name": "boost_pressure_after_turbocharger",
+      "description": "Boost pressure after turbocharger",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.007633587786,
+        "offset": -0.053435,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x033E",
+      "name": "boost_air_pressure_after_turbocharger",
+      "description": "Boost air pressure after turbocharger",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0341",
+      "name": "boost_air_temperature",
+      "description": "Boost air temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.625,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0341",
+      "name": "boost_air_temperature",
+      "description": "Boost air temperature",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.625,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0707",
+      "name": "grill_shutter_open",
+      "description": "Grill shutter open",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1944",
+      "name": "all_wheel_drive_coupling_pressure",
+      "description": "All-wheel drive coupling pressure",
+      "ecu_address": "0x795",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1945",
+      "name": "all_wheel_drive_coupling_current",
+      "description": "All-wheel drive coupling current",
+      "ecu_address": "0x795",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mA"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1946",
+      "name": "all_wheel_drive_coupling_current",
+      "description": "All-wheel drive coupling current",
+      "ecu_address": "0x795",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mA"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1946",
+      "name": "module_current",
+      "description": "Module current",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mA"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E14",
+      "name": "a_t_converter",
+      "description": "A/T converter",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E16",
+      "name": "at_actual_gear_ratio",
+      "description": "AT, actual gear ratio",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000244140625
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E19",
+      "name": "transmission_expected_gear_ratio",
+      "description": "Transmission expected gear ratio",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E1B",
+      "name": "slave_a_t",
+      "description": "Slave A/T",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E1E",
+      "name": "transmission_line_pressure_solenoid_current_requested",
+      "description": "Transmission line pressure solenoid current, requested",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mA"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E24",
+      "name": "transmission_fixed_lock_up",
+      "description": "Transmission fixed lock-up",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E2F",
+      "name": "leading_a_t",
+      "description": "Leading A/T",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E3F",
+      "name": "transmission_fluid_temperature",
+      "description": "Transmission fluid temperature",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.25,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E40",
+      "name": "transmission_line_pressure_solenoid_current",
+      "description": "Transmission line pressure solenoid current",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mA"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E41",
+      "name": "torque_converter_lock_up_solenoid_current_requested",
+      "description": "Torque converter lock-up solenoid current, requested",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mA"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E42",
+      "name": "transmission_linear_pressure_solenoid_slc1_requested_current",
+      "description": "Transmission linear pressure solenoid SLC1, requested, current",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mA"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E43",
+      "name": "transmission_linear_pressure_solenoid_slc2_requested_current",
+      "description": "Transmission linear pressure solenoid SLC2, requested, current",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mA"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E44",
+      "name": "transmission_linear_pressure_solenoid_slc3_requested_current",
+      "description": "Transmission linear pressure solenoid SLC3, requested, current",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mA"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E45",
+      "name": "transmission_linear_pressure_solenoid_slb1_requested_current",
+      "description": "Transmission linear pressure solenoid SLB1, requested, current",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mA"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E47",
+      "name": "torque_converter_lock_up_solenoid_current",
+      "description": "Torque converter lock-up solenoid current",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mA"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E48",
+      "name": "transmission_linear_pressure_solenoid_slc1_current",
+      "description": "Transmission linear pressure solenoid SLC1 current",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mA"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E49",
+      "name": "transmission_linear_pressure_solenoid_slc2_current",
+      "description": "Transmission linear pressure solenoid SLC2 current",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mA"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E4A",
+      "name": "transmission_linear_pressure_solenoid_slc3_current",
+      "description": "Transmission linear pressure solenoid SLC3 current",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mA"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2005",
+      "name": "auxiliary_battery_voltage",
+      "description": "Auxiliary battery voltage",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1015686275,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x200C",
+      "name": "outside_temperature",
+      "description": "Fields: Outside temperature [°C] (byte 2)",
+      "ecu_address": "0x743",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2041",
+      "name": "vacuum_pump_pressure_1",
+      "description": "Vacuum pump pressure 1",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "int16_be"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2043",
+      "name": "vacuum_pump_pressure_2",
+      "description": "Vacuum pump pressure 2",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "int16_be"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2047",
+      "name": "coolant_temperature",
+      "description": "Coolant temperature",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.125,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2104",
+      "name": "trip_time",
+      "description": "Fields: Trip time [s] (byte 0)",
+      "ecu_address": "0x743",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2308",
+      "name": "coolant_pump_voltage",
+      "description": "Coolant pump voltage",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2309",
+      "name": "coolant_pump_current",
+      "description": "Fields: Coolant pump current [A] (byte 1)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x230A",
+      "name": "coolant_pump_temperature",
+      "description": "Coolant pump temperature",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2526",
+      "name": "hv_battery_coolant_temperature",
+      "description": "HV battery coolant temperature",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.125,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B00",
+      "name": "brake_light_switch",
+      "description": "Fields: Brake light switch (byte 0, bit 0, 1 bit(s))",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B05",
+      "name": "traction_control_switch_indicator",
+      "description": "Traction control switch indicator",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.015625,
+        "offset": -1
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B06",
+      "name": "front_left_wheel_speed",
+      "description": "Front left wheel speed",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "km/h"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B06",
+      "name": "front_left_wheel_speed",
+      "description": "Front left wheel speed",
+      "ecu_address": "0x795",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "km/h"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B06",
+      "name": "front_left_wheel_speed",
+      "description": "Alternative decodings: Front left wheel speed [km/h] (byte 0); Front left wheel speed [km/h] (byte 0)",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "km/h"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B07",
+      "name": "front_right_wheel_speed",
+      "description": "Front right wheel speed",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "km/h"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B07",
+      "name": "front_right_wheel_speed",
+      "description": "Front right wheel speed",
+      "ecu_address": "0x795",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "km/h"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B07",
+      "name": "front_right_wheel_speed",
+      "description": "Alternative decodings: Front right wheel speed [km/h] (byte 0); Front right wheel speed [km/h] (byte 0)",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "km/h"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B08",
+      "name": "rear_left_wheel_speed",
+      "description": "Rear left wheel speed",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "km/h"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B08",
+      "name": "rear_left_wheel_speed",
+      "description": "Rear left wheel speed",
+      "ecu_address": "0x795",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "km/h"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B08",
+      "name": "rear_left_wheel_speed",
+      "description": "Alternative decodings: Rear left wheel speed [km/h] (byte 0); Rear left wheel speed [km/h] (byte 0)",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "km/h"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B09",
+      "name": "rear_right_wheel_speed",
+      "description": "Rear right wheel speed",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "km/h"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B09",
+      "name": "rear_right_wheel_speed",
+      "description": "Rear right wheel speed",
+      "ecu_address": "0x795",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "km/h"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B09",
+      "name": "rear_right_wheel_speed",
+      "description": "Alternative decodings: Rear right wheel speed [km/h] (byte 0); Rear right wheel speed [km/h] (byte 0)",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "km/h"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B0B",
+      "name": "yaw_rate_signal",
+      "description": "Yaw rate signal",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.2
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B0C",
+      "name": "lateral_angle",
+      "description": "Lateral angle",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "°"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B0D",
+      "name": "brake_pressure",
+      "description": "Brake pressure",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.3333333333,
+        "unit": "bar"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B14",
+      "name": "park_brake_switch",
+      "description": "Park brake switch",
+      "ecu_address": "0x756",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B1A",
+      "name": "left_parking_brake_pad",
+      "description": "Fields: Left parking brake pad (byte 1); Right parking brake pad (byte 2)",
+      "ecu_address": "0x756",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B20",
+      "name": "parking_brake_static_use_count",
+      "description": "Fields: Parking brake static use count (byte 2)",
+      "ecu_address": "0x756",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B21",
+      "name": "parking_brake_dynamic_use_count",
+      "description": "Fields: Parking brake dynamic use count (byte 2)",
+      "ecu_address": "0x756",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B24",
+      "name": "parking_brake_normal_0_maintenance_32",
+      "description": "Fields: Parking brake normal 0 /maintenance 32 (byte 1)",
+      "ecu_address": "0x756",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B35",
+      "name": "pedal_position_sensor",
+      "description": "- pedal position sensor",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.04,
+        "unit": "mm"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3022",
+      "name": "dc_dc_activation_request",
+      "description": "DC/DC activation request",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3023",
+      "name": "dc_dc_voltage_request",
+      "description": "DC/DC voltage request",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.05,
+        "offset": 12,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3024",
+      "name": "dc_dc_output_voltage",
+      "description": "DC/DC output voltage",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1,
+        "offset": 4,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3025",
+      "name": "dc_dc_output_current",
+      "description": "DC/DC output current",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1,
+        "unit": "A"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x320C",
+      "name": "hv_battery_available_energy",
+      "description": "HV battery available energy",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.005,
+        "unit": "kWh"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3301",
+      "name": "steering_wheel_angle_velocity",
+      "description": "Steering wheel angle velocity",
+      "ecu_address": "0x730",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 4
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3301",
+      "name": "power_distribution_12v_voltage",
+      "description": "Power distribution 12V voltage",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.06,
+        "offset": 6,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3302",
+      "name": "steering_angle_actual_value",
+      "description": "Steering angle, actual value",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x330C",
+      "name": "steering_shaft_torque",
+      "description": "Steering shaft torque",
+      "ecu_address": "0x730",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1,
+        "offset": -12.7,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x339D",
+      "name": "charging_plug_detected",
+      "description": "Fields: Charging plug detected (byte 0, bit 4, 4 bit(s))",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3494",
+      "name": "dc_dc_output_power",
+      "description": "DC/DC output power",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 10,
+        "unit": "W"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3495",
+      "name": "dc_dc_load",
+      "description": "DC/DC load",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.390625,
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x34CB",
+      "name": "cabin_blower_command",
+      "description": "Cabin blower command",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 2,
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3B71",
+      "name": "front_axle_sensor",
+      "description": "Front axle sensor",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.025,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3B73",
+      "name": "rear_axle_sensor",
+      "description": "Rear axle sensor",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.025,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4025",
+      "name": "quiescent_current_average",
+      "description": "Quiescent current average",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.5,
+        "offset": -1000,
+        "unit": "mA"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4025",
+      "name": "average_static_low_range_battery_current",
+      "description": "Average static low range battery current",
+      "ecu_address": "0xD01A",
+      "decoder": {
+        "kind": "uint16_be",
+        "offset": -511,
+        "unit": "mA"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4027",
+      "name": "battery_operation_time_since_battery_monitoring_sensor_reset_days",
+      "description": "Battery operation time since battery monitoring sensor reset, days",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4028",
+      "name": "battery_state_of_charge",
+      "description": "Battery state of charge",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4028",
+      "name": "battery_state_of_charge",
+      "description": "Alternative decodings: Battery state of charge [%] (byte 0); State of charge [%] (byte 0)",
+      "ecu_address": "0xD01A",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4029",
+      "name": "battery_temperature",
+      "description": "Battery temperature",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x402A",
+      "name": "battery_voltage",
+      "description": "Battery voltage",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.05,
+        "offset": 6,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4090",
+      "name": "battery_charge_amps",
+      "description": "Battery charge, amps",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0625,
+        "offset": -511.7,
+        "unit": "A"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4090",
+      "name": "battery_current",
+      "description": "Battery current",
+      "ecu_address": "0xD01A",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0625,
+        "offset": -512,
+        "unit": "A"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x40CD",
+      "name": "battery_voltage",
+      "description": "Battery voltage",
+      "ecu_address": "0xD01A",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.025,
+        "offset": 5,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x40D1",
+      "name": "alternator_control_mode",
+      "description": "Alternator control mode",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x40D3",
+      "name": "auxiliary_battery_temperature",
+      "description": "Auxiliary battery temperature",
+      "ecu_address": "0xD01A",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4112",
+      "name": "auxiliary_battery_current",
+      "description": "Auxiliary battery current",
+      "ecu_address": "0xD01A",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -127,
+        "unit": "A"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4117",
+      "name": "fuel_level_sensor",
+      "description": "Fuel level sensor",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.004887824429,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4118",
+      "name": "fuel_level_sensor_ejector_side_saddle_tank",
+      "description": "Fuel level sensor ejector side saddle tank",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.004887824429,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x411D",
+      "name": "alternator_charge_voltage_request",
+      "description": "Alternator charge voltage request",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x412A",
+      "name": "twilight_sensor",
+      "description": "Twilight sensor",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x412D",
+      "name": "remote_key",
+      "description": "Remote key",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4139",
+      "name": "servo_pump_engine_power_consumption",
+      "description": "Servo pump engine power consumption",
+      "ecu_address": "0x730",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "unit": "A"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x413A",
+      "name": "servo_pump_speed_desired_value",
+      "description": "Servo pump speed, desired value",
+      "ecu_address": "0x730",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 20,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x413C",
+      "name": "servo_pump_speed",
+      "description": "Servo pump speed",
+      "ecu_address": "0x730",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 20,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x413D",
+      "name": "servo_supply_voltage",
+      "description": "Servo supply voltage",
+      "ecu_address": "0x730",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x417E",
+      "name": "secondary_battery_voltage",
+      "description": "Secondary battery voltage",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x417E",
+      "name": "auxiliary_battery_voltage",
+      "description": "Auxiliary battery voltage",
+      "ecu_address": "0xD01A",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x419C",
+      "name": "secondary_battery_relay",
+      "description": "Secondary battery relay",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x41A5",
+      "name": "battery_charge_balance_ah",
+      "description": "Battery charge balance, ah",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x41A7",
+      "name": "battery_management_sensor_reliable",
+      "description": "Battery management sensor reliable",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4336",
+      "name": "auxiliary_water_pump_duty_cycle",
+      "description": "Auxiliary water pump duty cycle",
+      "ecu_address": "0xD01A",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4337",
+      "name": "heat_exchanger_temperature_v_2",
+      "description": "Fields: Heat exchanger temperature v.2 [°C] (byte 0)",
+      "ecu_address": "0xD01A",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4344",
+      "name": "high_voltage_coolant_heater_coolant_inlet_temperature",
+      "description": "Fields: High-voltage coolant heater coolant inlet temperature [°C] (byte 0); High-voltage coolant heater coolant outlet temperature [°C] (byte 1)",
+      "ecu_address": "0xD01A",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4345",
+      "name": "high_voltage_coolant_heater_current_consumption",
+      "description": "Fields: High-voltage coolant heater current consumption [A] (byte 0); High-voltage coolant heater power consumption [W] (byte 1); High-voltage coolant heater required power consumption [W] (byte 3)",
+      "ecu_address": "0xD01A",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x43BE",
+      "name": "fuel_operated_heater_inlet_water_temperature",
+      "description": "Fields: Fuel-operated heater, inlet water temperature [°C] (byte 0); Fuel-operated heater, outlet water temperature [°C] (byte 1)",
+      "ecu_address": "0xD01A",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4801",
+      "name": "high_voltage_battery_state_of_charge",
+      "description": "High voltage battery state of charge",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.002,
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4802",
+      "name": "high_voltage_battery_current",
+      "description": "High voltage battery current",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.02,
+        "unit": "A"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4803",
+      "name": "high_voltage_battery_voltage",
+      "description": "High voltage battery voltage",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4804",
+      "name": "high_voltage_battery_inlet_coolant_temperature",
+      "description": "Fields: High voltage battery, inlet coolant temperature [°C] (byte 0); High voltage battery coolant inlet temperature [°C] (byte 0)",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4808",
+      "name": "high_voltage_battery_iem_fuse_voltage",
+      "description": "High voltage battery, IEM fuse voltage",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4809",
+      "name": "high_voltage_battery_igm_fuse_voltage",
+      "description": "High voltage battery, IGM fuse voltage",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x480A",
+      "name": "high_voltage_battery_high_voltage_coolant_heater_fuse_voltage",
+      "description": "High voltage battery, high-voltage coolant heater fuse voltage",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x480B",
+      "name": "high_voltage_battery_obc_fuse_voltage",
+      "description": "High voltage battery, OBC fuse voltage",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4857",
+      "name": "high_voltage_battery_contactor_voltage",
+      "description": "High voltage battery contactor voltage",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4858",
+      "name": "high_voltage_battery_voltage_at_ihfa_fuse",
+      "description": "High voltage battery - voltage at IHFA fuse",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4859",
+      "name": "high_voltage_battery_voltage_at_iem_fuse",
+      "description": "High voltage battery - voltage at IEM fuse",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4866",
+      "name": "high_voltage_battery_coolant_pump_speed_requested",
+      "description": "High voltage battery, coolant pump speed, requested",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 24,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4867",
+      "name": "high_voltage_battery_coolant_pump_speed_actual",
+      "description": "High voltage battery, coolant pump speed, actual",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 24,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x489C",
+      "name": "charge_power_limit",
+      "description": "Fields: Charge power limit [kW] (byte 0)",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x489E",
+      "name": "discharge_power_limit",
+      "description": "Fields: Discharge power limit [kW] (byte 0)",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x491B",
+      "name": "high_voltage_battery_average_temperature",
+      "description": "High voltage battery, average temperature",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "offset": -50,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4945",
+      "name": "high_voltage_battery_max_temperature",
+      "description": "Fields: High voltage battery, max temperature [°C] (byte 1)",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4946",
+      "name": "12v_battery_state_of_charge",
+      "description": "12V battery state of charge",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.065536,
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x496D",
+      "name": "high_voltage_battery_state_of_health",
+      "description": "High voltage battery state of health",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint32_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x497C",
+      "name": "high_voltage_battery_cell_voltage_sum",
+      "description": "High voltage battery cell voltage sum",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x498B",
+      "name": "fuse_dc_charging_voltage",
+      "description": "Fuse DC charging voltage",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4990",
+      "name": "high_voltage_battery_coolant_outlet_temperature",
+      "description": "High voltage battery coolant outlet temperature",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x49D4",
+      "name": "electric_front_axle_drive_torque",
+      "description": "Electric front axle drive torque",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "int32_be",
+        "offset": -1024,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4A00",
+      "name": "electric_rear_axle_drive_motor_winding_temperature_sensor_1",
+      "description": "Electric rear axle drive motor winding temperature sensor 1",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "int32_be",
+        "scale": 0.1,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4A01",
+      "name": "electric_rear_axle_drive_motor_winding_temperature_sensor_2",
+      "description": "Electric rear axle drive motor winding temperature sensor 2",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "int32_be",
+        "scale": 0.1,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4A0E",
+      "name": "electric_rear_axle_drive_motor_speed",
+      "description": "Electric rear axle drive motor speed",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "int32_be",
+        "scale": 0.1,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4A58",
+      "name": "high_voltage_battery_negative_contactor_voltage",
+      "description": "High voltage battery negative contactor voltage",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4A88",
+      "name": "actual_power",
+      "description": "Actual power",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "kW"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x503A",
+      "name": "mains_current_phase_2",
+      "description": "Mains current, phase 2",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0625,
+        "offset": -200,
+        "unit": "A"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x503B",
+      "name": "mains_current_phase_3",
+      "description": "Mains current, phase 3",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0625,
+        "offset": -200,
+        "unit": "A"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x503F",
+      "name": "mains_voltage_phases_1_2",
+      "description": "Mains voltage, phases 1-2",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.5,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5041",
+      "name": "mains_voltage_phases_2_3",
+      "description": "Mains voltage, phases 2-3",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.5,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5042",
+      "name": "mains_voltage_phases_3_1",
+      "description": "Mains voltage, phases 3-1",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.5,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5049",
+      "name": "mains_frequency",
+      "description": "Mains frequency",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0078125,
+        "offset": 10,
+        "unit": "Hz"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x504A",
+      "name": "mains_active_power",
+      "description": "Mains active power",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "offset": -20,
+        "unit": "kW"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5062",
+      "name": "mains_ground_resistance",
+      "description": "Mains ground resistance",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "offset": -32.768
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5064",
+      "name": "leakage_diagnostic_code",
+      "description": "Leakage diagnostic code",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5065",
+      "name": "leakage_dc_current",
+      "description": "Leakage DC current",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "offset": -32.768
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5066",
+      "name": "leakage_current_10_kilohertz",
+      "description": "Leakage current, 10 kilohertz",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "offset": -32.768
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5067",
+      "name": "leakage_high_frequency_current",
+      "description": "Leakage high-frequency current",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "offset": -32.768
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5068",
+      "name": "leakage_low_frequency_current",
+      "description": "Leakage low-frequency current",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "offset": -32.768
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5070",
+      "name": "mains_current_limit",
+      "description": "Mains current limit",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "offset": -32.768
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5B19",
+      "name": "seat_buckle_driver_locked",
+      "description": "Seat buckle driver locked",
+      "ecu_address": "0x737",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5B1A",
+      "name": "seat_buckle_passenger_locked",
+      "description": "Seat buckle passenger locked",
+      "ecu_address": "0x737",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5B28",
+      "name": "passenger_airbag_cutoff_switch",
+      "description": "Passenger airbag cutoff switch",
+      "ecu_address": "0x737",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5B29",
+      "name": "passenger_airbag_activated",
+      "description": "Passenger airbag activated",
+      "ecu_address": "0x737",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5B46",
+      "name": "seat_buckle_rear_left_locked",
+      "description": "Seat buckle rear left locked",
+      "ecu_address": "0x737",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5B47",
+      "name": "seat_buckle_rear_center_locked",
+      "description": "Seat buckle rear center locked",
+      "ecu_address": "0x737",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5B48",
+      "name": "seat_buckle_rear_right_locked",
+      "description": "Seat buckle rear right locked",
+      "ecu_address": "0x737",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x6050",
+      "name": "hv_battery_state_of_charge",
+      "description": "HV battery state of charge",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x6053",
+      "name": "hv_battery_amperage",
+      "description": "HV battery amperage",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "A"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x6071",
+      "name": "dc_converter_requested_voltage",
+      "description": "DC converter requested voltage",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.025,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x6075",
+      "name": "hv_battery_voltage",
+      "description": "HV battery voltage",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.025,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x61A5",
+      "name": "passenger_airbag_off_lamp",
+      "description": "Fields: Passenger airbag OFF lamp (byte 2)",
+      "ecu_address": "0x737",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x61BB",
+      "name": "odometer",
+      "description": "Fields: Odometer [km] (byte 0)",
+      "ecu_address": "0xD018",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x61CC",
+      "name": "odometer_at_last_service",
+      "description": "Fields: Odometer at last service [km] (byte 0); Total months at last service (byte 3); Total engine running time at last service (byte 5)",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x61D0",
+      "name": "fuel_level_2_of_2_ejector_side_saddle_tank",
+      "description": "Fuel level 2 of 2 ejector side saddle tank",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "L"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x61D1",
+      "name": "fuel_level_1_of_2",
+      "description": "Fuel level 1 of 2",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "L"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x6308",
+      "name": "battery_age_condition",
+      "description": "Battery age condition",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x6309",
+      "name": "coolant_pump_operating_time",
+      "description": "Coolant pump operating time",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "h"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x630A",
+      "name": "cooling_fan_operating_time",
+      "description": "Cooling fan operating time",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "h"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x630E",
+      "name": "distance_since_last_service",
+      "description": "Fields: Distance since last service [km] (byte 0); Months since last service (byte 2); Engine time since last service (byte 4)",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x6310",
+      "name": "transmission_gear_selector_p_0_r_1_n_2_d_3",
+      "description": "Transmission gear selector p, 0 r, 1 n, 2 d, 3",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x6321",
+      "name": "battery_heater_operating_time",
+      "description": "Battery heater operating time",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "h"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x6502",
+      "name": "hv_battery_remaining_distance",
+      "description": "HV battery remaining distance",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "km"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x6504",
+      "name": "distance_to_next_service",
+      "description": "Distance to next service",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x7151",
+      "name": "dipped_beam",
+      "description": "Fields: Dipped beam (byte 0); High beam (byte 1); Parking lights (byte 2)",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x7303",
+      "name": "charger_mains_voltage",
+      "description": "Fields: Charger mains voltage [V] (byte 0); Charger mains current, phase 1 [A] (byte 6); Charger mains current, phase 2 [A] (byte 8); Charger power 1 [kW] (byte 12); Charger power 2 [kW] (byte 14)",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x8012",
+      "name": "navigation_altitude",
+      "description": "Fields: Navigation altitude [°] (byte 0); Navigation fix [°] (byte 10); Navigation heading [°] (byte 13)",
+      "ecu_address": "0x784",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x8035",
+      "name": "navigation_number_of_satellites",
+      "description": "Navigation number of satellites",
+      "ecu_address": "0x784",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x831F",
+      "name": "infotainment_ring_optical_fiber_test",
+      "description": "Infotainment ring optical fiber test",
+      "ecu_address": "0x784",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x8335",
+      "name": "most_network_number_of_modules",
+      "description": "MOST network number of modules",
+      "ecu_address": "0x784",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9820",
+      "name": "evaporator_temperature_v_2",
+      "description": "Fields: Evaporator temperature v.2 [°C] (byte 0)",
+      "ecu_address": "0xD01A",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9843",
+      "name": "interior_temperature",
+      "description": "Interior temperature",
+      "ecu_address": "0xD01A",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.8,
+        "offset": -60,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x984F",
+      "name": "evaporator_temperature",
+      "description": "Evaporator temperature",
+      "ecu_address": "0xD01A",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9850",
+      "name": "heat_exchanger_temperature",
+      "description": "Heat exchanger temperature",
+      "ecu_address": "0xD01A",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x985C",
+      "name": "high_voltage_system_voltage",
+      "description": "Alternative decodings: High voltage system voltage [V] (byte 0); High voltage system voltage [V] (byte 0)",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.25,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x985E",
+      "name": "electric_drivetrain_coolant_temperature_iem_inlet",
+      "description": "Fields: Electric drivetrain coolant temperature, IEM inlet [°C] (byte 0); Electric drivetrain coolant temperature, IEM outlet [°C] (byte 4); Electric drivetrain coolant temperature, IHFA inlet [°C] (byte 0); Electric drivetrain coolant temperature, IHFA outlet [°C] (byte 4)",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9861",
+      "name": "high_voltage_system_current",
+      "description": "Alternative decodings: High voltage system current [A] (byte 0); High voltage system current [A] (byte 0)",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "offset": 40,
+        "unit": "A"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9969",
+      "name": "front_camera_voltage_supply",
+      "description": "Front camera voltage supply",
+      "ecu_address": "0x764",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.08,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9A03",
+      "name": "fuel_heater_fan_adjustment",
+      "description": "Fuel heater fan adjustment",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9A04",
+      "name": "glow_plug_pulse_ratio",
+      "description": "Glow plug pulse ratio",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9A06",
+      "name": "combustion_air_fan",
+      "description": "Combustion air fan",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9A08",
+      "name": "operating_state",
+      "description": "Operating state",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9A0B",
+      "name": "burning_time_hours",
+      "description": "Fields: Burning time, hours (byte 0); Burning time, minutes (byte 2)",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9A0C",
+      "name": "running_time_hours",
+      "description": "Fields: Running time, hours (byte 0); Running time, minutes (byte 2)",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9A0D",
+      "name": "counter",
+      "description": "Counter",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9A0E",
+      "name": "parking_heater_counter",
+      "description": "Parking heater counter",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9A0F",
+      "name": "supplementary_heater_counter",
+      "description": "Supplementary heater counter",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9A1B",
+      "name": "in_car_temperature",
+      "description": "In-car temperature",
+      "ecu_address": "0x733",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.015625,
+        "offset": -100,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9A21",
+      "name": "left_seat_heater",
+      "description": "Left seat heater",
+      "ecu_address": "0x733",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9A22",
+      "name": "right_seat_heater",
+      "description": "Right seat heater",
+      "ecu_address": "0x733",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9A23",
+      "name": "rear_left_seat_heater",
+      "description": "Rear left seat heater",
+      "ecu_address": "0x733",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9A24",
+      "name": "rear_right_seat_heater",
+      "description": "Rear right seat heater",
+      "ecu_address": "0x733",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xA220",
+      "name": "automatic_alignment_offset",
+      "description": "Automatic alignment offset",
+      "ecu_address": "0x764",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "°"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xA223",
+      "name": "primary_target_range_m",
+      "description": "Primary, target range, m",
+      "ecu_address": "0x764",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xA4A7",
+      "name": "drivers_door_rear_mirror_x_axis",
+      "description": "Drivers door rear mirror x-axis",
+      "ecu_address": "0x740",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xA4A7",
+      "name": "passenger_door_rear_mirror_x_axis",
+      "description": "Passenger door rear mirror x-axis",
+      "ecu_address": "0x741",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xA4A8",
+      "name": "drivers_door_rear_mirror_y_axis",
+      "description": "Drivers door rear mirror y-axis",
+      "ecu_address": "0x740",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xA4A8",
+      "name": "passenger_door_rear_mirror_x_axis",
+      "description": "Passenger door rear mirror x-axis",
+      "ecu_address": "0x741",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB112",
+      "name": "rear_left_distance",
+      "description": "Rear left distance",
+      "ecu_address": "0x736",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB113",
+      "name": "rear_right_distance",
+      "description": "Rear right distance",
+      "ecu_address": "0x736",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB114",
+      "name": "rear_left_inner_distance",
+      "description": "Rear left inner distance",
+      "ecu_address": "0x736",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB115",
+      "name": "rear_right_inner_distance",
+      "description": "Rear right inner distance",
+      "ecu_address": "0x736",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB116",
+      "name": "front_left_distance",
+      "description": "Front left distance",
+      "ecu_address": "0x736",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB117",
+      "name": "front_right_distance",
+      "description": "Front right distance",
+      "ecu_address": "0x736",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB118",
+      "name": "front_left_inner_distance",
+      "description": "Front left inner distance",
+      "ecu_address": "0x736",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB119",
+      "name": "front_right_inner_distance",
+      "description": "Front right inner distance",
+      "ecu_address": "0x736",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xC150",
+      "name": "boot_lid_sensor",
+      "description": "Boot lid sensor",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.015625
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xC154",
+      "name": "bonnet_closed",
+      "description": "Bonnet closed",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xC259",
+      "name": "central_lock",
+      "description": "Central lock",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD000",
+      "name": "hv_contactor_state",
+      "description": "HV contactor state",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD032",
+      "name": "coolant_pump_speed",
+      "description": "Coolant pump speed",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD041",
+      "name": "cooling_fan_speed",
+      "description": "Cooling fan speed",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD111",
+      "name": "control_module_power_supply",
+      "description": "Control module power supply",
+      "ecu_address": "0x733",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD111",
+      "name": "tailgate_power_supply",
+      "description": "Tailgate power supply",
+      "ecu_address": "0x775",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD111",
+      "name": "voltage_supply",
+      "description": "Voltage supply",
+      "ecu_address": "0x791",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD111",
+      "name": "module_voltage",
+      "description": "Module voltage",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD112",
+      "name": "voltage_supply",
+      "description": "Voltage supply",
+      "ecu_address": "0x764",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.08,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD116",
+      "name": "all_wheel_drive_coupling_module_temperature_sensor_1",
+      "description": "Fields: All-wheel drive coupling module temperature sensor 1 [°C] (byte 0)",
+      "ecu_address": "0x795",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD11C",
+      "name": "servo_control_module_temperature",
+      "description": "Servo control module temperature",
+      "ecu_address": "0x730",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD302",
+      "name": "battery_heater_on",
+      "description": "Fields: Battery heater on (byte 0)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD900",
+      "name": "defroster_damper_motor_wanted_position",
+      "description": "Defroster damper motor wanted position",
+      "ecu_address": "0x733",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD900",
+      "name": "tailgate_handle_button",
+      "description": "Tailgate handle button",
+      "ecu_address": "0x775",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD900",
+      "name": "all_wheel_drive_coupling_module_temperature_sensor_2",
+      "description": "Fields: All-wheel drive coupling module temperature sensor 2 [°C] (byte 0)",
+      "ecu_address": "0x795",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD900",
+      "name": "air_conditioning_pressure",
+      "description": "Air conditioning pressure",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.2,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD900",
+      "name": "transmission_fluid_temperature",
+      "description": "Transmission fluid temperature",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 1000,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD901",
+      "name": "recirculation_damper_motor_wanted_position",
+      "description": "Recirculation damper motor wanted position",
+      "ecu_address": "0x733",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD901",
+      "name": "voltage_supply",
+      "description": "Voltage supply",
+      "ecu_address": "0x737",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.08,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD901",
+      "name": "tailgate_switch_1_2",
+      "description": "Tailgate switch 1-2",
+      "ecu_address": "0x775",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD901",
+      "name": "charging",
+      "description": "Charging",
+      "ecu_address": "0x791",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -1
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD902",
+      "name": "left_temperature_damper_motor_wanted_position",
+      "description": "Left temperature damper motor wanted position",
+      "ecu_address": "0x733",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD903",
+      "name": "right_temperature_damper_motor_wanted_position",
+      "description": "Right temperature damper motor wanted position",
+      "ecu_address": "0x733",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD903",
+      "name": "distance_since_last_service",
+      "description": "Fields: Distance since last service [km] (byte 0); Days since last service (byte 2); Motor hours since last service [h] (byte 4)",
+      "ecu_address": "0xD018",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD904",
+      "name": "air_distribution_damper_motor_wanted_position",
+      "description": "Air distribution damper motor wanted position",
+      "ecu_address": "0x733",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD904",
+      "name": "tailgate_hall_sensor_signal",
+      "description": "Tailgate hall sensor signal",
+      "ecu_address": "0x775",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD904",
+      "name": "control_module_voltage",
+      "description": "Control module voltage",
+      "ecu_address": "0x784",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD904",
+      "name": "diesel_particulate_filter_additive_pump",
+      "description": "Fields: Diesel particulate filter additive pump (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0x7C0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD904",
+      "name": "transmission_fluid_temperature_variant_2",
+      "description": "Transmission fluid temperature, variant 2",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD905",
+      "name": "defroster_damper_motor_actual_position",
+      "description": "Defroster damper motor, actual position",
+      "ecu_address": "0x733",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD906",
+      "name": "recirculation_damper_motor_actual_position",
+      "description": "Recirculation damper motor, actual position",
+      "ecu_address": "0x733",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD906",
+      "name": "display_temperature",
+      "description": "Display temperature",
+      "ecu_address": "0x784",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD906",
+      "name": "odometer_at_last_service",
+      "description": "Fields: Odometer at last service [km] (byte 0)",
+      "ecu_address": "0xD018",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD907",
+      "name": "left_temperature_damper_motor_actual_position",
+      "description": "Left temperature damper motor, actual position",
+      "ecu_address": "0x733",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD907",
+      "name": "tailgate_opening_motor",
+      "description": "Tailgate opening motor",
+      "ecu_address": "0x775",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD908",
+      "name": "right_temperature_damper_motor_actual_position",
+      "description": "Right temperature damper motor, actual position",
+      "ecu_address": "0x733",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD908",
+      "name": "tailgate_closing_motor",
+      "description": "Tailgate closing motor",
+      "ecu_address": "0x775",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD909",
+      "name": "air_distribution_damper_motor_actual_position",
+      "description": "Air distribution damper motor, actual position",
+      "ecu_address": "0x733",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD909",
+      "name": "tailgate_opening_position",
+      "description": "Tailgate opening position",
+      "ecu_address": "0x775",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD909",
+      "name": "air_conditioning_relay",
+      "description": "Air conditioning relay",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD90C",
+      "name": "slc1_current",
+      "description": "SLC1 current",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mA"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD90D",
+      "name": "transmission_fluid_temperature",
+      "description": "Transmission fluid temperature",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD90F",
+      "name": "slc2_current",
+      "description": "SLC2 current",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mA"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD910",
+      "name": "slc3_current",
+      "description": "SLC3 current",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mA"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD916",
+      "name": "air_flow_cycle_mg_s",
+      "description": "Air flow/cycle, mg/s",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD918",
+      "name": "rear_defroster_automatic",
+      "description": "Rear defroster automatic",
+      "ecu_address": "0x733",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD91C",
+      "name": "m3_iat_maf",
+      "description": "M3 IAT, MAF",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD91F",
+      "name": "air_mass_desired",
+      "description": "Air mass, desired",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD920",
+      "name": "clutch_pump_duty",
+      "description": "Clutch pump duty",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD924",
+      "name": "alternator_amps",
+      "description": "Alternator, amps",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "A"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD926",
+      "name": "clutch_1_temperature",
+      "description": "Clutch 1 temperature",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD930",
+      "name": "temperature_left_setting",
+      "description": "Temperature left setting",
+      "ecu_address": "0x733",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.5,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD930",
+      "name": "all_wheel_drive_coupling_rear_axle_torque",
+      "description": "All-wheel drive coupling rear axle torque",
+      "ecu_address": "0x795",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "Nm"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD931",
+      "name": "temperature_right_setting",
+      "description": "Temperature right setting",
+      "ecu_address": "0x733",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.5,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD936",
+      "name": "trip_1",
+      "description": "Fields: Trip 1 [km] (byte 3)",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD937",
+      "name": "trip_2",
+      "description": "Fields: Trip 2 [km] (byte 3)",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD940",
+      "name": "clutch_2_temperature",
+      "description": "Clutch 2 temperature",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD941",
+      "name": "boost_pressure",
+      "description": "Boost pressure",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD943",
+      "name": "brake_switch",
+      "description": "Brake switch",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD94F",
+      "name": "system_relay",
+      "description": "System relay",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD950",
+      "name": "cabin_fan_speed_requested",
+      "description": "Cabin fan speed, requested",
+      "ecu_address": "0x733",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.015625,
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD950",
+      "name": "starter_relay",
+      "description": "Starter relay",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD953",
+      "name": "all_wheel_drive_coupling_rear_axle_torque_requested",
+      "description": "All-wheel drive coupling rear axle torque, requested",
+      "ecu_address": "0x795",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "Nm"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD953",
+      "name": "battery_relay",
+      "description": "Battery relay",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD956",
+      "name": "input_torque_requested",
+      "description": "Input torque, requested",
+      "ecu_address": "0x795",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 8,
+        "offset": -16376,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD95B",
+      "name": "coolant_pump_relay",
+      "description": "Coolant pump relay",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD962",
+      "name": "input_torque_calculated",
+      "description": "Input torque calculated",
+      "ecu_address": "0x795",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 8,
+        "offset": -16376,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD96B",
+      "name": "clutch_actuator_1_temperature",
+      "description": "Clutch actuator 1 temperature",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD96C",
+      "name": "m3_egr_dc",
+      "description": "M3 EGR DC",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD96D",
+      "name": "exhaust_gas_recirculation_valve_commanded_position_ii",
+      "description": "Exhaust gas recirculation valve, commanded position II",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD974",
+      "name": "clutch_actuator_2_temperature",
+      "description": "Clutch actuator 2 temperature",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD998",
+      "name": "evaporator_temperature",
+      "description": "Evaporator temperature",
+      "ecu_address": "0x733",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.015625,
+        "offset": -100,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD99C",
+      "name": "fuel_temperature",
+      "description": "Fuel temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "offset": -273,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD9A0",
+      "name": "glow_plugs",
+      "description": "Fields: Glow plugs [%] (byte 2)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD9A1",
+      "name": "transmission_fluid_temperature_variant_3",
+      "description": "Transmission fluid temperature, variant 3",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -60,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD9AB",
+      "name": "intake_air_temperature_manifold_sensor",
+      "description": "Intake air temperature, manifold sensor",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "offset": -273.14,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD9B8",
+      "name": "control_module_temperature",
+      "description": "Control module temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.625,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD9DC",
+      "name": "engine_oil_temperature",
+      "description": "Engine oil temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -273.14,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD9E4",
+      "name": "boost_pressure_desired_value",
+      "description": "Boost pressure, desired value",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD9EE",
+      "name": "fuel_pressure_regulator_valve_current",
+      "description": "Fuel pressure regulator valve current",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mA"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD9EE",
+      "name": "turbo_bypass_valve_opened",
+      "description": "Fields: Turbo bypass valve opened (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD9F2",
+      "name": "diesel_particulate_filter_soot",
+      "description": "Fields: Diesel particulate filter soot (byte 0); M3 DPF soot [g] (byte 2)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD9F3",
+      "name": "m3_diff_press",
+      "description": "M3 diff.press.",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD9F9",
+      "name": "diesel_particulate_filter_temperature",
+      "description": "Diesel particulate filter temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -273.14,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD9FE",
+      "name": "cold_zone_count",
+      "description": "Cold zone count",
+      "ecu_address": "0x733",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD9FF",
+      "name": "fuel_pressure_nominal_value",
+      "description": "Fuel pressure nominal value",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 100
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA03",
+      "name": "misfire_catalytic_damage_total_petrol",
+      "description": "Misfire catalytic damage total - petrol",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA04",
+      "name": "misfire_emission_related_total_petrol",
+      "description": "Misfire emission related total - petrol",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA10",
+      "name": "adaptive_cruise_set_speed",
+      "description": "Fields: Adaptive cruise set speed [km/h] (byte 2)",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA11",
+      "name": "adaptive_cruise_time_gap",
+      "description": "Fields: Adaptive cruise time gap [s] (byte 1)",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA12",
+      "name": "adaptive_cruise_target_vehicle",
+      "description": "Fields: Adaptive cruise target vehicle [km/h] (byte 2)",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA12",
+      "name": "starter_relay_1",
+      "description": "Starter relay 1",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA18",
+      "name": "traffic_sign_speed_limit",
+      "description": "Fields: Traffic sign speed limit [km/h] (byte 1)",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA34",
+      "name": "gear_ratio_actual",
+      "description": "Gear ratio, actual",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000244140625
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA34",
+      "name": "gear_ratio_actual",
+      "description": "Gear ratio, actual",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000244
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA38",
+      "name": "driven_shaft_speed",
+      "description": "Driven shaft speed",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA3B",
+      "name": "transmission_fluid_temperature_variant_2",
+      "description": "Transmission fluid temperature, variant 2",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA3B",
+      "name": "transmission_fluid_temperature",
+      "description": "Transmission fluid temperature",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA3C",
+      "name": "transmission_lock_up_function",
+      "description": "Transmission lock-up function",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3333333333,
+        "offset": -0.333333
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA3C",
+      "name": "torque_converter_lock",
+      "description": "Torque converter lock",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA40",
+      "name": "gear_at_position",
+      "description": "Fields: Gear, AT position (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA47",
+      "name": "gear_ratio_expected",
+      "description": "Gear ratio expected",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA47",
+      "name": "gear_ratio_requested",
+      "description": "Gear ratio, requested",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA49",
+      "name": "transmission_line_pressure_solenoid_current_requested",
+      "description": "Transmission line pressure solenoid current, requested",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mA"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA4A",
+      "name": "transmission_line_pressure_solenoid_current",
+      "description": "Transmission line pressure solenoid current",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mA"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA4B",
+      "name": "torque_converter_lock_up_solenoid_requested",
+      "description": "Torque converter lock-up solenoid, requested",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mA"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA4C",
+      "name": "torque_converter_lock_up_solenoid",
+      "description": "Torque converter lock-up solenoid",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mA"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA4D",
+      "name": "transmission_linear_pressure_solenoid_sl1_requested_current",
+      "description": "Transmission linear pressure solenoid SL1, requested, current",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mA"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA4E",
+      "name": "transmission_linear_pressure_solenoid_sl1_current",
+      "description": "Transmission linear pressure solenoid SL1 current",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mA"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA4F",
+      "name": "transmission_linear_pressure_solenoid_sl2_requested_current",
+      "description": "Transmission linear pressure solenoid SL2, requested, current",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mA"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA50",
+      "name": "transmission_linear_pressure_solenoid_sl2_current",
+      "description": "Transmission linear pressure solenoid SL2 current",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mA"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA51",
+      "name": "transmission_linear_pressure_solenoid_sl3_requested_current",
+      "description": "Transmission linear pressure solenoid SL3, requested, current",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mA"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA52",
+      "name": "transmission_linear_pressure_solenoid_sl3_current",
+      "description": "Transmission linear pressure solenoid SL3 current",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mA"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA59",
+      "name": "front_oxygen_sensor_heating",
+      "description": "Front oxygen sensor heating",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "ms"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA85",
+      "name": "gear",
+      "description": "Fields: Gear (byte 1)",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA89",
+      "name": "engine_torque",
+      "description": "Engine torque",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -512,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDAAD",
+      "name": "exhaust_gas_recirculation_valve_position_sensor",
+      "description": "Exhaust gas recirculation valve position sensor",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDAB6",
+      "name": "cylinder_1_misfire_average",
+      "description": "Fields: Cylinder 1 misfire average (byte 0); Cylinder 2 misfire average (byte 2); Cylinder 3 misfire average (byte 4); Cylinder 4 misfire average (byte 6); Cylinder 5 misfire average (byte 8); Cylinder 6 misfire average (byte 10); Cylinder 7 misfire average (byte 12); Cylinder 8 misfire average (byte 14)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDAC8",
+      "name": "diesel_particulate_filter_pressure",
+      "description": "Diesel particulate filter pressure",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDAD2",
+      "name": "exhaust_gas_recirculation_cooler_bypass_actuator_position",
+      "description": "Exhaust gas recirculation cooler bypass actuator position",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDAD5",
+      "name": "fuel_volume_control_valve",
+      "description": "Fuel volume control valve",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDB01",
+      "name": "display_illumination_intensity",
+      "description": "Display illumination intensity",
+      "ecu_address": "0x784",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDB16",
+      "name": "most_lock",
+      "description": "MOST lock",
+      "ecu_address": "0x784",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDB35",
+      "name": "fuel_filter_heater",
+      "description": "Fuel filter heater",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDB77",
+      "name": "rear_oxygen_sensor_heating",
+      "description": "Rear oxygen sensor heating",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "ms"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDC00",
+      "name": "turbo_control_valve_bypass_or_variable_nozzle",
+      "description": "Turbo control valve, bypass or variable nozzle",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01220852155,
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDC01",
+      "name": "exhaust_gas_recirculation_valve_commanded_position",
+      "description": "Exhaust gas recirculation valve, commanded position",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDC02",
+      "name": "fan",
+      "description": "Fan",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDC10",
+      "name": "turbo_control_valve_wastegate",
+      "description": "Turbo control valve wastegate",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01220852155,
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDC13",
+      "name": "fuel_volume_control_valve",
+      "description": "Fuel volume control valve",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDC14",
+      "name": "fuel_filter_heater",
+      "description": "Fuel filter heater",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDC80",
+      "name": "wastegate_position",
+      "description": "Wastegate position",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDCE4",
+      "name": "transmission_kickdown",
+      "description": "Transmission kickdown",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDCEA",
+      "name": "transmission_selector",
+      "description": "Transmission selector",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDCF0",
+      "name": "transmission_torque_limiting",
+      "description": "Transmission torque limiting",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDCF9",
+      "name": "air_quality_sensor_status",
+      "description": "Air quality sensor status",
+      "ecu_address": "0x733",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD01",
+      "name": "odometer",
+      "description": "Fields: Odometer [km] (byte 0)",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD01",
+      "name": "odometer",
+      "description": "Fields: Odometer [km] (byte 0)",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD01",
+      "name": "odometer",
+      "description": "Fields: Odometer [km] (byte 0)",
+      "ecu_address": "0x730",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD01",
+      "name": "odometer",
+      "description": "Fields: Odometer [km] (byte 0)",
+      "ecu_address": "0x736",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD01",
+      "name": "odometer",
+      "description": "Fields: Odometer [km] (byte 0)",
+      "ecu_address": "0x737",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD01",
+      "name": "odometer",
+      "description": "Fields: Odometer [km] (byte 0)",
+      "ecu_address": "0x740",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD01",
+      "name": "odometer",
+      "description": "Fields: Odometer [km] (byte 0)",
+      "ecu_address": "0x741",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD01",
+      "name": "odometer",
+      "description": "Fields: Odometer [km] (byte 0)",
+      "ecu_address": "0x756",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD01",
+      "name": "odometer",
+      "description": "Fields: Odometer [km] (byte 0)",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD01",
+      "name": "odometer",
+      "description": "Fields: Odometer [km] (byte 0)",
+      "ecu_address": "0x764",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD01",
+      "name": "odometer",
+      "description": "Fields: Odometer [km] (byte 0)",
+      "ecu_address": "0x793",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD01",
+      "name": "odometer",
+      "description": "Fields: Odometer [km] (byte 0)",
+      "ecu_address": "0x794",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD01",
+      "name": "all_wheel_drive_coupling_distance",
+      "description": "Fields: All-wheel drive coupling distance [km] (byte 0)",
+      "ecu_address": "0x795",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD01",
+      "name": "odometer",
+      "description": "Fields: Odometer [km] (byte 0)",
+      "ecu_address": "0x797",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD01",
+      "name": "odometer",
+      "description": "Fields: Odometer [km] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD01",
+      "name": "odometer",
+      "description": "Fields: Odometer [km] (byte 0)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD01",
+      "name": "odometer",
+      "description": "Alternative decodings: Odometer [km] (byte 0); Total distance [km] (byte 0); Total distance [km] (byte 0)",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD02",
+      "name": "all_wheel_drive_coupling_module_voltage",
+      "description": "All-wheel drive coupling module voltage",
+      "ecu_address": "0x795",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.25,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD02",
+      "name": "transmission_control_module_supply_voltage",
+      "description": "Transmission control module supply voltage",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.25,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD04",
+      "name": "in_car_temperature",
+      "description": "In-car temperature",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD04",
+      "name": "in_car_temperature",
+      "description": "In car temperature",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD04",
+      "name": "in_car_temperature",
+      "description": "In car temperature",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD05",
+      "name": "outdoor_temperature_bcm",
+      "description": "Outdoor temperature, BCM",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD06",
+      "name": "power_mode",
+      "description": "Power mode",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -192
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD06",
+      "name": "power_mode",
+      "description": "Power mode",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD07",
+      "name": "power_mode",
+      "description": "Power mode",
+      "ecu_address": "0x784",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -99
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD81",
+      "name": "transmission_gear",
+      "description": "Fields: Transmission gear (byte 1)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD89",
+      "name": "transmission_solenoid_s1_status",
+      "description": "Transmission solenoid S1 status",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD8A",
+      "name": "transmission_solenoid_s2_status",
+      "description": "Transmission solenoid S2 status",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD8D",
+      "name": "transmission_torque",
+      "description": "Transmission torque",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD8E",
+      "name": "accelerator_pedal_position",
+      "description": "Accelerator pedal position",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDF08",
+      "name": "transmission_start_lock_start_approved",
+      "description": "Transmission start lock - start approved",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.003921568627
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE004",
+      "name": "transmission_fluid_temperature",
+      "description": "Transmission fluid temperature",
+      "ecu_address": "0xDA18",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE501",
+      "name": "torque_from_engine",
+      "description": "Torque from engine",
+      "ecu_address": "0xDA18",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "Nm"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE504",
+      "name": "brake_pedal_position",
+      "description": "Brake pedal position",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEE03",
+      "name": "steering_wheel_angle_sensor_offset",
+      "description": "Fields: Steering wheel angle sensor offset [°] (byte 0); Brake pressure sensor offset [bar] (byte 4); Lateral acceleration sensor offset [m/s²] (byte 6); Yaw rate sensor offset (byte 8)",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEE04",
+      "name": "steering_wheel_angle_sensor_stored_offset",
+      "description": "Fields: Steering wheel angle sensor stored offset [°] (byte 0); Lateral acceleration sensor stored offset [m/s²] (byte 6)",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEE04",
+      "name": "tailgate_motor_protection",
+      "description": "Tailgate motor protection",
+      "ecu_address": "0x775",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEE07",
+      "name": "front_left_brake_disc_temperature_calculated",
+      "description": "Fields: Front left brake disc temperature, calculated [°C] (byte 0); Front right brake disc temperature, calculated [°C] (byte 1); Rear left brake disc temperature, calculated [°C] (byte 2); Rear right brake disc temperature, calculated [°C] (byte 3)",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEE09",
+      "name": "electric_rear_axle_drive_calculated_torque",
+      "description": "Electric rear axle drive calculated torque",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 4,
+        "offset": -8188,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEE11",
+      "name": "fuel_level_damped",
+      "description": "Fuel level damped",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.2,
+        "unit": "L"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEE12",
+      "name": "fuel_level_damped",
+      "description": "Fuel level damped",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.2,
+        "unit": "L"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEE15",
+      "name": "main_charger_current",
+      "description": "Main charger current",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "A"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEE16",
+      "name": "dc_charger_current",
+      "description": "DC charger current",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "A"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEE17",
+      "name": "dc_charger_voltage",
+      "description": "DC charger voltage",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEE19",
+      "name": "on_board_charger_module_temperature",
+      "description": "Fields: On-board charger module temperature [°C] (byte 0)",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEE1C",
+      "name": "main_charger_voltage",
+      "description": "Main charger voltage",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEE1D",
+      "name": "charging_state",
+      "description": "Charging state",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEE34",
+      "name": "air_conditioning_pressure",
+      "description": "Air conditioning pressure",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 2,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEE36",
+      "name": "compressor_inlet_sensor_temperature",
+      "description": "Compressor inlet sensor temperature",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -273.14,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEE37",
+      "name": "engine_oil_pressure",
+      "description": "Engine oil pressure",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "kPa"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEE38",
+      "name": "compressor_outlet_sensor_temperature",
+      "description": "Compressor outlet sensor temperature",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -273.14,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEE3E",
+      "name": "charge_air_pressure",
+      "description": "Charge air pressure",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.007812,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEE40",
+      "name": "water_cooled_condenser_outlet_sensor_temperature",
+      "description": "Water cooled condenser outlet sensor temperature",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -273.14,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEE46",
+      "name": "external_temperature_sensor_hv_battery_cooling_module",
+      "description": "External temperature sensor, HV battery cooling module",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -273.14,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEE47",
+      "name": "outside_heat_exchanger_outlet_sensor_temperature",
+      "description": "Outside heat exchanger outlet sensor temperature",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -273.14,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEE48",
+      "name": "outside_heat_exchanger_outlet_sensor_pressure",
+      "description": "Outside heat exchanger outlet sensor pressure",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "int32_be"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEE4F",
+      "name": "fuel_high_pressure",
+      "description": "Fuel high pressure",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0005
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEE57",
+      "name": "fuel_low_pressure",
+      "description": "Fuel low pressure",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEE58",
+      "name": "engine_oil_temperature",
+      "description": "Engine oil temperature",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -273.14,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEE62",
+      "name": "radiator_cooling_fan_1_requested_speed",
+      "description": "Radiator cooling fan 1, requested speed",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEE6F",
+      "name": "engine_coolant_fan",
+      "description": "Fields: Engine coolant fan [%] (byte 0); Accelerator pedal position [%] (byte 0)",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEE7F",
+      "name": "exhaust_gas_recirculation_bypass_valve",
+      "description": "Exhaust gas recirculation bypass valve",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEE84",
+      "name": "supercharger_clutch_requested_position",
+      "description": "Supercharger clutch, requested position",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEE8C",
+      "name": "charging_socket_lock",
+      "description": "Charging socket lock",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x01": "UNLOCKED",
+          "0x02": "LOCKED"
+        }
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEE8D",
+      "name": "charger_cable_current",
+      "description": "Charger cable current",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -410,
+        "unit": "A"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEEA2",
+      "name": "voltage_power_sensitive_loads_connected",
+      "description": "Voltage/power sensitive loads connected",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEEB6",
+      "name": "average_charging_time_left",
+      "description": "Average charging time left",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "min"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEED2",
+      "name": "secondary_battery_temperature",
+      "description": "Secondary battery temperature",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEED3",
+      "name": "secondary_battery_charge_time",
+      "description": "Secondary battery charge time",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "s"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEED4",
+      "name": "secondary_battery_voltage_latest_stored",
+      "description": "Secondary battery voltage latest stored",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEED5",
+      "name": "secondary_battery_needed_charge_time",
+      "description": "Secondary battery needed charge time",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "s"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEED6",
+      "name": "downtime",
+      "description": "Downtime",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEED7",
+      "name": "secondary_battery_voltage_average_value",
+      "description": "Secondary battery voltage average value",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1,
+        "unit": "V"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEEEB",
+      "name": "starter_relay_2",
+      "description": "Starter relay 2",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEEFD",
+      "name": "distance_to_empty",
+      "description": "Distance to empty",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEF12",
+      "name": "electric_rear_axle_drive_calculated_torque",
+      "description": "Electric rear axle drive calculated torque",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 4,
+        "offset": -8188,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEF13",
+      "name": "high_voltage_system_current",
+      "description": "High voltage system current",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 2,
+        "offset": -250,
+        "unit": "A"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEF44",
+      "name": "start_stop_brake_booster_pressure",
+      "description": "Start/stop brake booster pressure",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEF4E",
+      "name": "engine_oil_pressure",
+      "description": "Engine oil pressure",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEF51",
+      "name": "start_stop_battery_relay",
+      "description": "Start/stop battery relay",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEF52",
+      "name": "start_stop_secondary_battery_relay",
+      "description": "Start/stop secondary battery relay",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEF59",
+      "name": "fuel_pump_low_pressure_side_duty_cycle",
+      "description": "Fuel pump low pressure side duty cycle",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEF71",
+      "name": "high_voltage_motor_coolant_pump",
+      "description": "Fields: High voltage motor coolant pump [rpm] (byte 0); Misfires, cylinder 3 (byte 2); Misfires, cylinder 2 (byte 4)",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xEF73",
+      "name": "high_voltage_ed_coolant_temperature_2",
+      "description": "High voltage ED coolant temperature 2",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xFD04",
+      "name": "all_wheel_drive_coupling_oil_temperature",
+      "description": "All-wheel drive coupling oil temperature",
+      "ecu_address": "0x795",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -60,
+        "unit": "°C"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xFDC6",
+      "name": "indirect_tire_pressure_monitoring_low_speed_calibration",
+      "description": "Fields: Indirect tire pressure monitoring low speed calibration [%] (byte 0); Indirect tire pressure monitoring high speed calibration [%] (byte 1)",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xFEE7",
+      "name": "front_left_brake_disc_temperature",
+      "description": "Fields: Front left brake disc temperature [°C] (byte 0); Front right brake disc temperature [°C] (byte 2); Rear left brake disc temperature [°C] (byte 4); Rear right brake disc temperature [°C] (byte 6)",
+      "ecu_address": "0xD016",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Volvo signalset (CC BY-SA 4.0)",
+      "verified": false
     }
   ],
   "routines": [

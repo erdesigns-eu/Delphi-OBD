@@ -24105,6 +24105,4886 @@
         "kind": "ascii",
         "length": 16
       }
+    },
+    {
+      "did": "0x000F",
+      "name": "high_voltage_battery_intake_air_temperature",
+      "description": "High voltage battery intake air temperature",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 1.8,
+        "offset": -39.8,
+        "unit": "°F"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0117",
+      "name": "coolant_pump_b_control_speed_commanded",
+      "description": "Coolant pump b control speed, commanded",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "V"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x011A",
+      "name": "coolant_pump_a_control_speed_commanded",
+      "description": "Coolant pump a control speed, commanded",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "V"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x017C",
+      "name": "actuator_cam_position_corrected",
+      "description": "Actuator cam position corrected",
+      "ecu_address": "0x703",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.015625,
+        "unit": "°"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x017E",
+      "name": "power_transfer_unit_input_shaft_speed",
+      "description": "Power transfer unit input shaft speed",
+      "ecu_address": "0x703",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.5,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x017F",
+      "name": "actuator_duty_cycle_output_commanded",
+      "description": "Actuator duty cycle output, commanded",
+      "ecu_address": "0x703",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.003906,
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0182",
+      "name": "power_transfer_unit_requested_torque",
+      "description": "Power transfer unit, requested torque",
+      "ecu_address": "0x703",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "Nm"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0184",
+      "name": "power_transfer_unit_sump_temperature",
+      "description": "Power transfer unit sump temperature",
+      "ecu_address": "0x703",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.0625,
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0185",
+      "name": "power_transfer_unit_requested_torque_capacity_inferred",
+      "description": "Power transfer unit, requested torque capacity inferred",
+      "ecu_address": "0x703",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "Nm"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0301",
+      "name": "manifold_pressure_sensor_voltage",
+      "description": "Alternative decodings: Manifold pressure sensor voltage [V] (byte 0); Manifold absolute pressure sensor voltage [V] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0009765625,
+        "unit": "V"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0304",
+      "name": "commanded_generator_voltage",
+      "description": "Commanded generator voltage",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000488,
+        "unit": "V"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0307",
+      "name": "fuel_pump_duty_cycle_low_pressure",
+      "description": "Alternative decodings: Fuel pump duty cycle, low pressure [%] (byte 0); Low pressure fuel pump commanded duty cycle [%] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.003051757812,
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x030F",
+      "name": "lambda_commanded",
+      "description": "Alternative decodings: Lambda, commanded (byte 0); Commanded lambda (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 3.051757812e-05
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0316",
+      "name": "camshaft_solenoid_duty_cycle_intake",
+      "description": "Alternative decodings: Camshaft solenoid duty cycle, intake [%] (byte 0); VCT intake camshaft solenoid duty cycle [%] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.003051757812,
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0317",
+      "name": "camshaft_solenoid_duty_cycle_exhaust",
+      "description": "Alternative decodings: Camshaft solenoid duty cycle, exhaust [%] (byte 0); VCT exhaust camshaft solenoid duty cycle [%] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.003051757812,
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0318",
+      "name": "camshaft_position_intake_actual",
+      "description": "Alternative decodings: Camshaft position, intake actual [°] (byte 0); VCT intake camshaft actual [°] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.0625,
+        "unit": "°"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0319",
+      "name": "camshaft_position_exhaust_actual",
+      "description": "Alternative decodings: Camshaft position, exhaust actual [°] (byte 0); VCT exhaust camshaft actual [°] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0625,
+        "unit": "°"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x031A",
+      "name": "camshaft_position_error_intake",
+      "description": "Camshaft position error, intake",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.0625,
+        "unit": "°"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x031B",
+      "name": "camshaft_position_error_exhaust",
+      "description": "Alternative decodings: Camshaft position error, exhaust [°] (byte 0); VCT exhaust camshaft error [°] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0625,
+        "unit": "°"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0324",
+      "name": "fuel_rail_sensor_voltage_high_pressure",
+      "description": "Alternative decodings: Fuel rail sensor voltage, high pressure [V] (byte 0); High pressure fuel rail sensor voltage [V] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.004887585533,
+        "unit": "V"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x032B",
+      "name": "accelerator_position",
+      "description": "Alternative decodings: Accelerator position [%] (byte 0); Accelerator Pedal Position [%] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0334",
+      "name": "cylinder_head_temperature",
+      "description": "Cylinder head temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.015625,
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0338",
+      "name": "throttle_control_trim_angle_learned",
+      "description": "Alternative decodings: Throttle control trim angle, learned [°] (byte 0); Electronic throttle control learned trim angle [°] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.001953125,
+        "unit": "°"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x033C",
+      "name": "throttle_inlet_pressure_sensor_voltage",
+      "description": "Alternative decodings: Throttle inlet pressure sensor voltage [V] (byte 0); Throttle inlet pressure sensor voltage [V] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0048828125,
+        "unit": "V"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x033D",
+      "name": "mass_airflow_sensor_frequency",
+      "description": "Mass airflow sensor frequency",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.25,
+        "unit": "Hz"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x033E",
+      "name": "throttle_inlet_pressure",
+      "description": "Alternative decodings: Throttle inlet pressure [psi] (byte 0); Throttle inlet pressure absolute [psi] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001106426243,
+        "unit": "psi"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0345",
+      "name": "misfire_events_latest_cycle",
+      "description": "Misfire events, latest cycle",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0353",
+      "name": "barometric_pressure",
+      "description": "Alternative decodings: Barometric pressure [psi] (byte 0); Barometric pressure [psi] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.03625537936,
+        "unit": "psi"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x035A",
+      "name": "barometric_pressure_sensor_voltage",
+      "description": "Alternative decodings: Barometric pressure sensor voltage [V] (byte 0); Barometric pressure sensor voltage [V] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.004887585533,
+        "unit": "V"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x035F",
+      "name": "o2_sensor_voltage_rear",
+      "description": "Alternative decodings: O2 sensor voltage, rear [V] (byte 0); Rear O2 voltage [V] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0009765625,
+        "unit": "V"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0370",
+      "name": "manifold_absolute_pressure_high_resolution",
+      "description": "Manifold absolute pressure, high resolution",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.25,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0378",
+      "name": "generator_control",
+      "description": "Generator control",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.003052,
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0382",
+      "name": "misfire_acceleration_cylinder_1",
+      "description": "Fields: Misfire acceleration, cylinder 1 (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0388",
+      "name": "misfire_acceleration_cylinder_2",
+      "description": "Fields: Misfire acceleration, cylinder 2 (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x038A",
+      "name": "misfire_acceleration_cylinder_3",
+      "description": "Fields: Misfire acceleration, cylinder 3 (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x038B",
+      "name": "misfire_acceleration_cylinder_4",
+      "description": "Fields: Misfire acceleration, cylinder 4 (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x038C",
+      "name": "misfire_acceleration_cylinder_5",
+      "description": "Fields: Misfire acceleration, cylinder 5 (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x038E",
+      "name": "evaporative_pressure_sensor_raw_count",
+      "description": "Alternative decodings: Evaporative pressure sensor, raw count (byte 0); Evaporative vapor pressure sensor voltage [V] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x038F",
+      "name": "coolant_temperature",
+      "description": "Alternative decodings: Coolant temperature [°C] (byte 0); Engine coolant temperature [°C] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.015625,
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0393",
+      "name": "a_c_compressor_pressure",
+      "description": "Alternative decodings: A/C compressor pressure [psi] (byte 0); Air conditioning compressor pressure [psi] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.2900754962,
+        "unit": "psi"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0398",
+      "name": "misfire_acceleration_cylinder_6",
+      "description": "Fields: Misfire acceleration, cylinder 6 (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x03AF",
+      "name": "torque_request",
+      "description": "Torque request",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x03B9",
+      "name": "fan_speed_desired",
+      "description": "Fan speed, desired",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.003051804379,
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x03BA",
+      "name": "ambient_temperature_sensor_voltage",
+      "description": "Alternative decodings: Ambient temperature sensor voltage [V] (byte 0); Ambient air temperature sensor voltage [V] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.004887585533,
+        "unit": "V"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x03BB",
+      "name": "camshaft_position_exhaust_desired",
+      "description": "Alternative decodings: Camshaft position, exhaust desired [°] (byte 0); VCT exhaust cam desired [°] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.0625,
+        "unit": "°"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x03BC",
+      "name": "variable_camshaft_timing_intake_cam_desired",
+      "description": "Alternative decodings: Variable camshaft timing intake cam desired [°] (byte 0); VCT intake cam desired [°] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.0625,
+        "unit": "°"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x03BD",
+      "name": "lambda_correction",
+      "description": "Alternative decodings: Lambda correction (byte 0); Closed loop lambda correction (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.0001220703125
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x03C0",
+      "name": "misfire_monitor_status",
+      "description": "Fields: Misfire monitor status (byte 0, bit 0, 1 bit(s))",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x03C3",
+      "name": "fuel_rail_pressure_control",
+      "description": "Fuel rail pressure control",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x03CA",
+      "name": "manifold_temperature",
+      "description": "Manifold temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x03DC",
+      "name": "fuel_rail_pressure_desired",
+      "description": "Alternative decodings: Fuel rail pressure, desired [kPa] (byte 0); High pressure fuel pressure desired [psi] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 10,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x03E3",
+      "name": "pf_differential_pressure_feedback_egr_sensor_voltage",
+      "description": "PF differential pressure feedback EGR sensor voltage",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.000977,
+        "unit": "V"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x03E8",
+      "name": "octane_adjustment",
+      "description": "Alternative decodings: Octane adjustment (byte 0); Octane adjust ratio (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 6.103515625e-05
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x03EC",
+      "name": "ignition_correction_cylinder_1",
+      "description": "Ignition correction, cylinder 1",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.001953125,
+        "unit": "°"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x03F3",
+      "name": "sump_oil_temperature_measured",
+      "description": "Sump oil temperature measured",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x03F4",
+      "name": "exhaust_gas_temperature_1",
+      "description": "Exhaust gas temperature 1",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 5,
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x03F5",
+      "name": "exhaust_gas_temperature_2",
+      "description": "Exhaust gas temperature 2",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 5,
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0403",
+      "name": "knock_sensor_1",
+      "description": "Knock sensor, 1",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0404",
+      "name": "knock_sensor_2",
+      "description": "Knock sensor, 2",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0415",
+      "name": "oil_pressure",
+      "description": "Oil pressure",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "kPa"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0416",
+      "name": "glow_plug_commanded_status",
+      "description": "Fields: Glow plug, commanded status (byte 0); Low oil pressure switch (byte 2, bit 6, 1 bit(s))",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x041F",
+      "name": "fuel_pressure_low_desired",
+      "description": "Fuel pressure, low desired",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.435,
+        "unit": "psi"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0427",
+      "name": "bypass_valve",
+      "description": "Bypass valve",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.003921568627
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0429",
+      "name": "fuel_temperature_a",
+      "description": "Fuel temperature a",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.015625,
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x042C",
+      "name": "diesel_particulate_filter_soot_level_percentage",
+      "description": "Diesel particulate filter soot level percentage",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0871944108,
+        "offset": -57.142857,
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0434",
+      "name": "distance_since_last_complete_regeneration",
+      "description": "Fields: Distance since last complete regeneration [mi] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0455",
+      "name": "alternator_2_monitor",
+      "description": "Alternator 2 monitor",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.003051850948,
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0460",
+      "name": "charge_air_temperature_sensor_voltage",
+      "description": "Charge air temperature sensor voltage",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.0009765625,
+        "unit": "V"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0461",
+      "name": "charge_air_temperature",
+      "description": "Charge air temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.015625,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0462",
+      "name": "wastegate_duty_cycle",
+      "description": "Wastegate duty cycle",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.003051757812,
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0466",
+      "name": "throttle_inlet_pressure_desired",
+      "description": "Throttle inlet pressure, desired",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001106426243,
+        "unit": "psi"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x046F",
+      "name": "injection_mode",
+      "description": "Injection mode",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0487",
+      "name": "diesel_exhaust_fluid_level",
+      "description": "Diesel exhaust fluid level",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.25,
+        "unit": "L"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x048F",
+      "name": "fuel_correction_cylinder_6",
+      "description": "Fields: Fuel correction, cylinder 6 (byte 0); Cylinder 6 fuel balance correction (byte 1)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x04A5",
+      "name": "cylinder_8_fuel_balance_correction",
+      "description": "Fields: Cylinder 8 fuel balance correction (byte 1)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x04A6",
+      "name": "cylinder_7_fuel_balance_correction",
+      "description": "Fields: Cylinder 7 fuel balance correction (byte 1)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x04AA",
+      "name": "cylinder_1_fuel_quantity",
+      "description": "Fields: Cylinder 1 fuel quantity (byte 1)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x04AB",
+      "name": "cylinder_2_fuel_quantity",
+      "description": "Fields: Cylinder 2 fuel quantity (byte 1)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x04AC",
+      "name": "cylinder_3_fuel_quantity",
+      "description": "Fields: Cylinder 3 fuel quantity (byte 1)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x04AD",
+      "name": "cylinder_4_fuel_quantity",
+      "description": "Fields: Cylinder 4 fuel quantity (byte 1)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x04AE",
+      "name": "cylinder_5_fuel_quantity",
+      "description": "Fields: Cylinder 5 fuel quantity (byte 1)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x04AF",
+      "name": "cylinder_6_fuel_quantity",
+      "description": "Fields: Cylinder 6 fuel quantity (byte 1)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x04B0",
+      "name": "cylinder_7_fuel_quantity",
+      "description": "Fields: Cylinder 7 fuel quantity (byte 1)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x04B1",
+      "name": "cylinder_8_fuel_quantity",
+      "description": "Fields: Cylinder 8 fuel quantity (byte 1)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x04F7",
+      "name": "generator_current",
+      "description": "Generator current",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.01562,
+        "unit": "A"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0508",
+      "name": "charge_air_cooler_temperature",
+      "description": "Fields: Charge air cooler temperature (byte 0); Calculated soot in oil (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x051C",
+      "name": "charge_air_temperature",
+      "description": "Charge air temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x051D",
+      "name": "cylinder_head_temperature",
+      "description": "Cylinder head temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0522",
+      "name": "fuel_temperature",
+      "description": "Fuel temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x052E",
+      "name": "exhaust_gas_recirculation_open",
+      "description": "Exhaust gas recirculation open",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x053F",
+      "name": "time_since_last_oil_change",
+      "description": "Time since last oil change",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0152590219
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0542",
+      "name": "distance_since_last_oil_change",
+      "description": "Distance since last oil change",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0543",
+      "name": "exhaust_gas_recirculation_temperature",
+      "description": "Exhaust gas recirculation temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0548",
+      "name": "fuel_pressure_low_actual",
+      "description": "Fuel pressure, low actual",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.07252052331,
+        "unit": "psi"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x054B",
+      "name": "oil_life_remaining",
+      "description": "Oil life remaining",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x054C",
+      "name": "dilution_of_oil_with_fuel",
+      "description": "Dilution of oil with fuel",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x054D",
+      "name": "fuel_pressure_sensor_voltage_low",
+      "description": "Fuel pressure sensor voltage, low",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.0009765625,
+        "unit": "V"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x055D",
+      "name": "exhaust_gas_recirculation_cooler_outlet_temperature",
+      "description": "Exhaust gas recirculation cooler outlet temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.0312,
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0569",
+      "name": "exhaust_gas_recirculation_cooler_inlet_temperature",
+      "description": "Exhaust gas recirculation cooler inlet temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.0312,
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0579",
+      "name": "diesel_particulate_filter_soot_load_variant_2",
+      "description": "Diesel particulate filter soot load, variant 2",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x057D",
+      "name": "ambient_temperature_alternate",
+      "description": "Ambient temperature, alternate",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0580",
+      "name": "grill_shutter_position",
+      "description": "Grill shutter position",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x05A1",
+      "name": "target_desired_state_of_charge",
+      "description": "Target/desired state of charge",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x05AC",
+      "name": "knock_counter_cylinder_1",
+      "description": "Knock counter, cylinder 1",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x05AD",
+      "name": "knock_counter_cylinder_2",
+      "description": "Knock counter, cylinder 2",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x05AE",
+      "name": "knock_counter_cylinder_3",
+      "description": "Knock counter, cylinder 3",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x05AF",
+      "name": "knock_counter_cylinder_4",
+      "description": "Knock counter, cylinder 4",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x05B0",
+      "name": "knock_counter_cylinder_5",
+      "description": "Knock counter, cylinder 5",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x05B1",
+      "name": "knock_counter_cylinder_6",
+      "description": "Knock counter, cylinder 6",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x05BE",
+      "name": "turbo_inlet_pressure",
+      "description": "Turbo inlet pressure",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0625,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x05EF",
+      "name": "engine_oil_pressure_desired",
+      "description": "Engine oil pressure - desired",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kPa"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x05FC",
+      "name": "cylinder_head_temperature_sensor_2",
+      "description": "Cylinder head temperature, sensor 2",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.015625,
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0604",
+      "name": "a_c_refrigerant_pressure",
+      "description": "A/C refrigerant pressure",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "kPa"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x064E",
+      "name": "low_side_fuel_rail_pressure",
+      "description": "Low side fuel rail pressure",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.5,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0700",
+      "name": "intake_temperature_fault",
+      "description": "Intake temperature fault",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0701",
+      "name": "fan_speed_demanded",
+      "description": "Fan speed demanded",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 25,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0702",
+      "name": "fan_speed_indicated",
+      "description": "Fan speed indicated",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 25,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0707",
+      "name": "grill_shutter_duty_cycle",
+      "description": "Grill shutter duty cycle",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x070D",
+      "name": "transfer_case_fluid_temperature",
+      "description": "Transfer case fluid temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.0625,
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x091A",
+      "name": "throttle_angle_desired",
+      "description": "Throttle angle, desired",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001953125,
+        "unit": "°"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x092C",
+      "name": "transmission_fluid_temperature_variant_6",
+      "description": "Transmission fluid temperature, variant 6",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "°F"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x093C",
+      "name": "throttle_angle_actual",
+      "description": "Throttle angle, actual",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001953125,
+        "unit": "°"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0966",
+      "name": "diesel_particulate_filter_regen_status",
+      "description": "Diesel particulate filter regen status",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.0078125
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x096C",
+      "name": "exhaust_gas_recirculation_throttle_position_signal",
+      "description": "Exhaust gas recirculation throttle position signal",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.003051850948,
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x096D",
+      "name": "variable_geometry_turbo_duty_cycle",
+      "description": "Variable geometry turbo duty cycle",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.003051850948,
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x098A",
+      "name": "fuel_correction_cylinder_1",
+      "description": "Fields: Fuel correction, cylinder 1 (byte 0); Cylinder 1 fuel balance correction (byte 1)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x098B",
+      "name": "fuel_correction_cylinder_2",
+      "description": "Fields: Fuel correction, cylinder 2 (byte 0); Cylinder 2 fuel balance correction (byte 1)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x098C",
+      "name": "fuel_correction_cylinder_3",
+      "description": "Fields: Fuel correction, cylinder 3 (byte 0); Cylinder 3 fuel balance correction (byte 1)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x098D",
+      "name": "fuel_correction_cylinder_4",
+      "description": "Fields: Fuel correction, cylinder 4 (byte 0); Cylinder 4 fuel balance correction (byte 1)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0991",
+      "name": "exhaust_gas_temperature_after_turbo_before_oxidation_catalyst",
+      "description": "Exhaust gas temperature after turbo, before oxidation catalyst",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0992",
+      "name": "exhaust_gas_temperature_after_oxidation_catalyst_before_particulate_filter",
+      "description": "Exhaust gas temperature after oxidation catalyst, before particulate filter",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x099B",
+      "name": "a_c_compressor_state",
+      "description": "Fields: A/C compressor, state (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x099F",
+      "name": "fan_speed_sensor",
+      "description": "Fan speed sensor",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.25,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x09CB",
+      "name": "torque_into_torque_converter",
+      "description": "Torque into torque converter",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.7375621484,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x09CD",
+      "name": "injector_control_module_cam_and_crank_sync",
+      "description": "Injector control module cam and crank sync",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x09CF",
+      "name": "injector_control_module_logic_power",
+      "description": "Injector control module logic power",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.00390625,
+        "unit": "V"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x09D0",
+      "name": "injector_control_module_main_power",
+      "description": "Injector control module main power",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.00390625,
+        "unit": "V"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x09D2",
+      "name": "exhaust_gas_recirculation_valve_position_desired",
+      "description": "Exhaust gas recirculation valve position, desired",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.003051850948,
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x09D4",
+      "name": "accelerator_pedal_position",
+      "description": "Accelerator pedal position",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x09DB",
+      "name": "turbo_boost",
+      "description": "Turbo boost",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "kPa"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x09FE",
+      "name": "exhaust_gas_recirculation_valve_position_measured",
+      "description": "Exhaust gas recirculation valve position measured",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.003051850948,
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1123",
+      "name": "intake_air_temperature_1",
+      "description": "Intake air temperature 1",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "°F"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1126",
+      "name": "engine_run_time",
+      "description": "Engine run time",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "s"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1127",
+      "name": "barometric_pressure",
+      "description": "Barometric pressure",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 4.2329875,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x113C",
+      "name": "exhaust_gas_recirculation_duty_cycle",
+      "description": "Exhaust gas recirculation duty cycle",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1141",
+      "name": "injector_impulse_width",
+      "description": "Alternative decodings: Injector impulse width [s] (byte 0); Fuel pump pulse width, bank 1 (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 2.2e-05,
+        "unit": "s"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1142",
+      "name": "fuel_pump_pulse_width_bank_2",
+      "description": "Fuel pump pulse width, bank 2",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.2
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x115F",
+      "name": "exhaust_gas_recirculation_temperature_a",
+      "description": "Exhaust gas recirculation temperature a",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.18,
+        "offset": -40,
+        "unit": "°F"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1161",
+      "name": "exhaust_gas_recirculation_inlet_temperature",
+      "description": "Exhaust gas recirculation inlet temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.18,
+        "offset": -40,
+        "unit": "°F"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1166",
+      "name": "evaporative_purge",
+      "description": "Evaporative purge",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.003051757812,
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x116B",
+      "name": "ignition_timing_cylinder_1",
+      "description": "Ignition timing, cylinder 1",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.25,
+        "unit": "°"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x116C",
+      "name": "diesel_particulate_filter_delta_pressure",
+      "description": "Diesel particulate filter delta pressure",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 7.928974,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1171",
+      "name": "exhaust_gas_temperature_after_particulate_filter",
+      "description": "Exhaust gas temperature after particulate filter",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1172",
+      "name": "battery_voltage",
+      "description": "Battery voltage",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.0625,
+        "unit": "V"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11B3",
+      "name": "transmission_gear",
+      "description": "Transmission gear",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11B3",
+      "name": "transmission_gear",
+      "description": "Transmission gear",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11B5",
+      "name": "transmission_output_shaft_speed",
+      "description": "Transmission output shaft speed",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.025,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11B8",
+      "name": "torque_converter_slip",
+      "description": "Torque converter slip",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.6103,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11BA",
+      "name": "converter_speed_ratio",
+      "description": "Converter speed ratio",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.06097560976
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11C0",
+      "name": "torque_converter_line_pressure",
+      "description": "Torque converter line pressure",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 34.4738,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11D3",
+      "name": "fuel_correction_cylinder_5",
+      "description": "Fields: Fuel correction, cylinder 5 (byte 0); Cylinder 5 fuel balance correction (byte 1)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1279",
+      "name": "intake_temperature_sensor_voltage",
+      "description": "Intake temperature sensor voltage",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.004887585533,
+        "unit": "V"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1310",
+      "name": "engine_oil_temperature",
+      "description": "Engine oil temperature",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1310",
+      "name": "engine_oil_temperature",
+      "description": "Engine oil temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1313",
+      "name": "engine_oil_temperature_variant_2",
+      "description": "Engine oil temperature, variant 2",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1410",
+      "name": "fuel_pulse_width",
+      "description": "Fuel pulse width",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.008,
+        "unit": "ms"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1411",
+      "name": "volume_fuel_desired",
+      "description": "Volume fuel, desired",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0625
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1412",
+      "name": "mass_fuel_desired",
+      "description": "Mass fuel, desired",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0625
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1434",
+      "name": "injection_pressure_regulator_duty_cycle",
+      "description": "Injection pressure regulator duty cycle",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.390625,
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1440",
+      "name": "boost",
+      "description": "Boost",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "psi"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1445",
+      "name": "exhaust_back_pressure",
+      "description": "Exhaust back pressure",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.03625,
+        "unit": "psi"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1446",
+      "name": "injection_control_pressure",
+      "description": "Injection control pressure",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.57,
+        "unit": "psi"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1505",
+      "name": "vehicle_speed_high_resolution",
+      "description": "Vehicle speed, high resolution",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0078125,
+        "unit": "km/h"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x160E",
+      "name": "cylinder_1_misfire_count",
+      "description": "Cylinder 1 misfire count",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x160F",
+      "name": "cylinder_2_misfire_count",
+      "description": "Cylinder 2 misfire count",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1610",
+      "name": "cylinder_3_misfire_count",
+      "description": "Cylinder 3 misfire count",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1611",
+      "name": "cylinder_4_misfire_count",
+      "description": "Cylinder 4 misfire count",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1612",
+      "name": "cylinder_5_misfire_count",
+      "description": "Cylinder 5 misfire count",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1613",
+      "name": "cylinder_6_misfire_count",
+      "description": "Cylinder 6 misfire count",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1614",
+      "name": "cylinder_7_misfire_count",
+      "description": "Cylinder 7 misfire count",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1615",
+      "name": "cylinder_8_misfire_count",
+      "description": "Cylinder 8 misfire count",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1616",
+      "name": "total_misfire_count",
+      "description": "Total misfire count",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1624",
+      "name": "cylinder_head_temperature",
+      "description": "Cylinder head temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "°F"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1639",
+      "name": "fuel_tank_pressure",
+      "description": "Fuel tank pressure",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1449,
+        "unit": "psi"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x163A",
+      "name": "torque_into_torque_converter",
+      "description": "Torque into torque converter",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.2711635897,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x163A",
+      "name": "torque_into_torque_converter_variant_2",
+      "description": "Torque into torque converter, variant 2",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.2711635897,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x163B",
+      "name": "transmission_gear_ratio",
+      "description": "Transmission gear ratio",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 15.7480315
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1672",
+      "name": "fuel_pump_duty_cycle",
+      "description": "Fuel pump duty cycle",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.78125,
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1674",
+      "name": "transmission_fluid_temperature_variant_1",
+      "description": "Transmission fluid temperature, variant 1",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.125,
+        "unit": "°F"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1674",
+      "name": "transmission_fluid_temperature_variant_2",
+      "description": "Transmission fluid temperature, variant 2",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "°F"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1685",
+      "name": "cylinder_head_temperature_alternate",
+      "description": "Cylinder head temperature, alternate",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.281,
+        "unit": "°F"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x168B",
+      "name": "fuel_injection_impulse_width",
+      "description": "Fuel injection impulse width",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 8e-06,
+        "unit": "s"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x16A8",
+      "name": "intake_air_temperature_2",
+      "description": "Intake air temperature 2",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.5555555556,
+        "offset": -17.777778,
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x16AD",
+      "name": "injection_control_pressure_sensor_voltage",
+      "description": "Injection control pressure sensor voltage",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.01960784314,
+        "unit": "V"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x16C1",
+      "name": "fuel_level",
+      "description": "Fuel level",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0030518509,
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x16E0",
+      "name": "manifold_air_temperature",
+      "description": "Manifold air temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 1.8,
+        "offset": -40,
+        "unit": "°F"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x16E1",
+      "name": "wastegate_control",
+      "description": "Wastegate control",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01526,
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x16E8",
+      "name": "commanded_generator_duty",
+      "description": "Commanded generator duty",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.003052,
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x180F",
+      "name": "transmission_fluid_fluid_quality",
+      "description": "Transmission fluid fluid quality",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E12",
+      "name": "current_gear",
+      "description": "Alternative decodings: Current gear (byte 0); Current gear, transmission module (byte 0)",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E12",
+      "name": "current_gear",
+      "description": "Current gear",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x01": "1",
+          "0x02": "2",
+          "0x03": "3",
+          "0x04": "4",
+          "0x05": "5",
+          "0x06": "6",
+          "0x07": "7",
+          "0x08": "8",
+          "0x09": "9",
+          "0x0A": "10"
+        }
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E12",
+      "name": "gear_commanded",
+      "description": "Gear commanded",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x00": "UNKNOWN",
+          "0x14": "L",
+          "0x28": "D",
+          "0x32": "N",
+          "0x3C": "R",
+          "0x46": "P",
+          "0xFF": "FAULT"
+        }
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E13",
+      "name": "actual_turbine_shaft_speed",
+      "description": "Actual turbine shaft speed",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.25,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E14",
+      "name": "actual_torque_converter_slip",
+      "description": "Actual torque converter slip",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.25,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E16",
+      "name": "axle_gear_ratio_measured",
+      "description": "Axle gear ratio, measured",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000244140625
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E19",
+      "name": "gear_ratio_commanded",
+      "description": "Gear ratio, commanded",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0002441443503
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E1A",
+      "name": "transmission_pressure_commanded",
+      "description": "Transmission pressure, commanded",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 2,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E1B",
+      "name": "actual_output_shaft_speed",
+      "description": "Actual output shaft speed",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.25,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E1C",
+      "name": "transmission_oil_temperature",
+      "description": "Transmission oil temperature",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0625,
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E1C",
+      "name": "transmission_oil_temperature",
+      "description": "Alternative decodings: Transmission oil temperature [°C] (byte 0); Transmission oil temperature [°C] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.0625,
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E1C",
+      "name": "transmission_temperature",
+      "description": "Transmission temperature",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.0625,
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E1F",
+      "name": "gear_engaged",
+      "description": "Gear, engaged",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E1F",
+      "name": "gear",
+      "description": "Gear",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.0625
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E23",
+      "name": "shift_gear",
+      "description": "Alternative decodings: Shift gear (byte 0); Shift gear (byte 0)",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E23",
+      "name": "gear_shift",
+      "description": "Gear, shift",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x0A": "MANUAL",
+          "0x2E": "DRIVE",
+          "0x32": "NEUTRAL",
+          "0x3C": "REVERSE",
+          "0x46": "PARK"
+        }
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E2C",
+      "name": "primary_motor_speed",
+      "description": "Primary motor speed",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "rpm"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E35",
+      "name": "desired_torque_converter_slip",
+      "description": "Desired torque converter slip",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.25,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E3F",
+      "name": "transmission_fluid_temperature_variant_5",
+      "description": "Transmission fluid temperature, variant 5",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E62",
+      "name": "all_wheel_drive_clutch_diagnostic_signal",
+      "description": "All-wheel drive clutch diagnostic signal",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E63",
+      "name": "all_wheel_drive_clutch_commanded_control_signal",
+      "description": "All-wheel drive clutch, commanded control signal",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E9E",
+      "name": "measured_current_of_clutch_a_actuator",
+      "description": "Measured current of clutch a actuator",
+      "ecu_address": "0x703",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.01,
+        "unit": "A"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2028",
+      "name": "brake_booster_pressure",
+      "description": "Brake booster pressure",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.01,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x280B",
+      "name": "tire_temperature",
+      "description": "Fields: Tire temperature [°C] (byte 6)",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2813",
+      "name": "front_left_tire_pressure",
+      "description": "Alternative decodings: Front left tire pressure [psi] (byte 0); Front left tire pressure [psi] (byte 0)",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.05,
+        "unit": "psi"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2814",
+      "name": "front_right_tire_pressure",
+      "description": "Alternative decodings: Front right tire pressure [psi] (byte 0); Front right tire pressure [psi] (byte 0)",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.05,
+        "unit": "psi"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2815",
+      "name": "rear_right_outer_tire_pressure",
+      "description": "Alternative decodings: Rear right outer tire pressure [psi] (byte 0); Rear right outer tire pressure [psi] (byte 0); Rear right outer tire pressure [psi] (byte 0)",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.05,
+        "unit": "psi"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2816",
+      "name": "rear_left_outer_tire_pressure",
+      "description": "Alternative decodings: Rear left outer tire pressure [psi] (byte 0); Rear left outer tire pressure [psi] (byte 0); Rear left outer tire pressure [psi] (byte 0)",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.05,
+        "unit": "psi"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2817",
+      "name": "rear_right_inner_tire_pressure",
+      "description": "Rear right inner tire pressure",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.05,
+        "unit": "psi"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2818",
+      "name": "rear_left_inner_tire_pressure",
+      "description": "Rear left inner tire pressure",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.05,
+        "unit": "psi"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B00",
+      "name": "parking_brake_state",
+      "description": "Fields: Parking brake state (byte 0, bit 0, 1 bit(s))",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B06",
+      "name": "front_right_wheel_speed",
+      "description": "Front right wheel speed",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "km/h"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B07",
+      "name": "front_left_wheel_speed",
+      "description": "Front left wheel speed",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "km/h"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B08",
+      "name": "rear_right_wheel_speed",
+      "description": "Rear right wheel speed",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "km/h"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B09",
+      "name": "rear_left_wheel_speed",
+      "description": "Rear left wheel speed",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "km/h"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B0B",
+      "name": "yaw_rate_signal",
+      "description": "Yaw rate signal",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.2
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B0C",
+      "name": "lateral_angle",
+      "description": "Lateral angle",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "int16_be"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B0D",
+      "name": "brake_hydraulic_pressure",
+      "description": "Fields: Brake hydraulic pressure [kPa] (byte 0); Brake hydraulic pressure, raw count (byte 0)",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B11",
+      "name": "lateral_acceleration",
+      "description": "Lateral acceleration",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.02
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3201",
+      "name": "steering_wheel_angle",
+      "description": "Fields: Steering wheel angle [°] (byte 0); Steering angle [°] (byte 0)",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3302",
+      "name": "steering_angle_from_the_body_module_actual_value",
+      "description": "Steering angle from the body module, actual value",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -780,
+        "unit": "°"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x330C",
+      "name": "steering_shaft_torque",
+      "description": "Steering shaft torque",
+      "ecu_address": "0x730",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1,
+        "offset": -12.7,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3987",
+      "name": "anti_lock_brake_wheel_speed_1",
+      "description": "Fields: Anti-lock brake wheel speed 1 [km/h] (byte 0); Anti-lock brake wheel speed 2 [km/h] (byte 1); Anti-lock brake wheel speed 3 [km/h] (byte 2); Anti-lock brake wheel speed 4 [km/h] (byte 3)",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3A51",
+      "name": "anti_lock_brake_lateral_acceleration",
+      "description": "Anti-lock brake lateral acceleration",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.02,
+        "unit": "g"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3B40",
+      "name": "foot_brake",
+      "description": "Fields: Foot brake (byte 0, bit 6, 1 bit(s))",
+      "ecu_address": "0x703",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x401E",
+      "name": "normalized_cumulative_charge_when_ignition_is_on",
+      "description": "Normalized cumulative charge when ignition is on",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4021",
+      "name": "normalized_cumulative_discharge_from_battery_with_engine_on",
+      "description": "Normalized cumulative discharge from battery with engine on",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4025",
+      "name": "battery_quiescent_current_low_range",
+      "description": "Battery quiescent current, low range",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.5,
+        "offset": -1000,
+        "unit": "mA"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4026",
+      "name": "normalized_cumulative_discharge_from_battery_with_engine_off",
+      "description": "Normalized cumulative discharge from battery with engine off",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4027",
+      "name": "12v_battery_age",
+      "description": "Alternative decodings: 12V battery age [h] (byte 0); Battery age (byte 0)",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 24,
+        "unit": "h"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4028",
+      "name": "12v_battery_state_of_charge",
+      "description": "12V battery state of charge",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4029",
+      "name": "12v_battery_temperature",
+      "description": "12V battery temperature",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x402A",
+      "name": "12v_battery_voltage",
+      "description": "Alternative decodings: 12V battery voltage [V] (byte 0); Vehicle battery voltage [V] (byte 0)",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.05,
+        "offset": 6,
+        "unit": "V"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x402B",
+      "name": "12v_battery_current",
+      "description": "12V battery current",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -127,
+        "unit": "A"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x404C",
+      "name": "odometer",
+      "description": "Alternative decodings: Odometer [km] (byte 0); Odometer, instrument panel [km] (byte 0)",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x407E",
+      "name": "exterior_lighting_state",
+      "description": "Fields: Exterior lighting state (byte 0, bit 0, 1 bit(s))",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4090",
+      "name": "battery_current",
+      "description": "Battery current",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0625,
+        "offset": -511.7,
+        "unit": "A"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x40D1",
+      "name": "aux_12v_battery_control_mode",
+      "description": "Aux 12V battery control mode",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4194",
+      "name": "distance_to_empty_calculated",
+      "description": "Distance to empty, calculated",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "km"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4195",
+      "name": "distance_to_empty_displayed",
+      "description": "Distance to empty, displayed",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "km"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x41A9",
+      "name": "battery_current_too_high_for_start_stop",
+      "description": "Fields: Battery current too high for start/stop (byte 0, bit 2, 1 bit(s)); Battery voltage too low for start/stop (byte 0, bit 3, 1 bit(s)); Battery state of charge too low for start/stop (byte 0, bit 4, 1 bit(s)); Battery capacity too low for start/stop (byte 0, bit 5, 1 bit(s)); Battery voltage too low for cold cranking capability (byte 0, bit 6, 1 bit(s)); Battery voltage too low for auto restart (byte 1, bit 4, 1 bit(s)); Battery temperature too low for auto stop (byte 1, bit 5, 1 bit(s)); Battery refresh cycle in progress for start/stop (byte 1, bit 6, 1 bit(s))",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x41E8",
+      "name": "second_battery_voltage",
+      "description": "Second battery voltage",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.05,
+        "offset": 6,
+        "unit": "V"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4209",
+      "name": "battery_current_predicted",
+      "description": "Fields: Battery current, predicted [A] (byte 0)",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x420A",
+      "name": "battery_state_detection_status",
+      "description": "Battery state detection status",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x423C",
+      "name": "second_battery_current",
+      "description": "Second battery current",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.03125,
+        "unit": "A"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4800",
+      "name": "hv_battery_temperature",
+      "description": "HV battery temperature",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4801",
+      "name": "hv_battery_charge",
+      "description": "HV battery charge",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.002,
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4803",
+      "name": "hv_positive_leakage_voltage",
+      "description": "HV positive leakage voltage",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4804",
+      "name": "hv_negative_leakage_voltage",
+      "description": "HV negative leakage voltage",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4805",
+      "name": "contactor_voltage_positive",
+      "description": "Alternative decodings: Contactor voltage positive [V] (byte 0); Contactor voltage positive [V] (byte 0)",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "V"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4806",
+      "name": "contactor_voltage_negative",
+      "description": "Alternative decodings: Contactor voltage negative [V] (byte 0); Contactor voltage negative [V] (byte 0)",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "V"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4808",
+      "name": "temperature_range_maximum",
+      "description": "Fields: Temperature range, maximum [°C] (byte 0); HV battery temperature, maximum [°C] (byte 0); Temperature range, minimum [°C] (byte 1); HV battery temperature, minimum [°C] (byte 1); Temperature range [°C] (byte 2); Temperature range average [°C] (byte 3); HV battery temperature, average [°C] (byte 3)",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4809",
+      "name": "hv_battery_current_high_range",
+      "description": "Alternative decodings: HV battery current high range [A] (byte 0); Battery current, high range [A] (byte 0)",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "A"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x480A",
+      "name": "hv_battery_current_low_range",
+      "description": "HV battery current, low range",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.02,
+        "unit": "A"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x480B",
+      "name": "high_voltage_current",
+      "description": "High voltage current",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.02,
+        "unit": "A"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x480B",
+      "name": "high_voltage_battery_current",
+      "description": "Alternative decodings: High voltage battery current [A] (byte 0); HV battery current, alternate [A] (byte 0)",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.02,
+        "unit": "A"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x480D",
+      "name": "high_voltage_battery_voltage_raw_count",
+      "description": "High-voltage battery voltage, raw count",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x480D",
+      "name": "hv_battery_voltage",
+      "description": "HV battery voltage",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "V"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4810",
+      "name": "hv_battery_age",
+      "description": "HV battery age",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 3.6,
+        "unit": "h"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4811",
+      "name": "high_voltage_leakage_resistance_bus_positive",
+      "description": "Alternative decodings: High voltage leakage resistance bus positive [kOhm] (byte 0); High voltage leakage resistance bus positive, raw count (byte 0)",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kOhm"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4812",
+      "name": "high_voltage_leakage_resistance_bus_negative",
+      "description": "High voltage leakage resistance bus negative",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kOhm"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4813",
+      "name": "leakage_resistance_bus_overall",
+      "description": "Alternative decodings: Leakage resistance bus overall [kOhm] (byte 0); High voltage leakage resistance bus overall, raw count (byte 0)",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kOhm"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4815",
+      "name": "maximum_discharge_power_limit",
+      "description": "Maximum discharge power limit",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.25,
+        "unit": "kW"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4819",
+      "name": "secondary_motor_torque_commanded",
+      "description": "Secondary motor torque, commanded",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x481A",
+      "name": "secondary_motor_torque",
+      "description": "Secondary motor torque",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x481C",
+      "name": "primary_motor_torque",
+      "description": "Primary motor torque",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x481D",
+      "name": "primary_motor_inverter_voltage",
+      "description": "Primary motor inverter voltage",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "V"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x481E",
+      "name": "secondary_motor_inverter_temperature",
+      "description": "Secondary motor inverter temperature",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x481F",
+      "name": "primary_motor_coil_temperature",
+      "description": "Alternative decodings: Primary motor coil temperature [°C] (byte 0); Motor coil temperature [°F] (byte 0)",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4820",
+      "name": "generator_coil_temperature",
+      "description": "Generator coil temperature",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 1.8,
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4820",
+      "name": "secondary_motor_coil_temperature",
+      "description": "Secondary motor coil temperature",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4821",
+      "name": "secondary_motor_speed",
+      "description": "Secondary motor speed",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "rpm"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4823",
+      "name": "secondary_motor_inverter_voltage",
+      "description": "Secondary motor inverter voltage",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "V"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4824",
+      "name": "primary_motor_inverter_temperature",
+      "description": "Primary motor inverter temperature",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4832",
+      "name": "motor_electronics_coolant_temperature",
+      "description": "Motor electronics coolant temperature",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 1.8,
+        "offset": 32,
+        "unit": "°F"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4836",
+      "name": "low_voltage_converter_current_low_side",
+      "description": "Low voltage converter current, low side",
+      "ecu_address": "0x746",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "A"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x483A",
+      "name": "low_voltage_converter_current_high_side",
+      "description": "Alternative decodings: Low voltage converter current, high side [A] (byte 0); Low voltage converter input current [A] (byte 0)",
+      "ecu_address": "0x746",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1,
+        "unit": "A"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x483D",
+      "name": "dc_dc_converter",
+      "description": "Fields: DC-DC converter (byte 0)",
+      "ecu_address": "0x746",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x483E",
+      "name": "soc_variation_battery_modules",
+      "description": "SOC variation battery modules",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x483F",
+      "name": "voltage_variation_battery_modules",
+      "description": "Alternative decodings: Voltage variation battery modules [V] (byte 0); HV battery modules voltage [V] (byte 0)",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4840",
+      "name": "minimum_battery_module_voltage",
+      "description": "Alternative decodings: Minimum battery module voltage [V] (byte 0); HV battery minimum module voltage [V] (byte 0)",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4841",
+      "name": "average_battery_module_voltage",
+      "description": "Alternative decodings: Average battery module voltage [V] (byte 0); HV battery average module voltage [V] (byte 0)",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4842",
+      "name": "high_voltage_charger_current_requested",
+      "description": "High voltage charger current, requested",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "A"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4842",
+      "name": "hv_battery_charge_current_requested",
+      "description": "HV battery charge current requested",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "A"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4844",
+      "name": "high_voltage_charger_voltage_requested",
+      "description": "High voltage charger voltage, requested",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 2,
+        "unit": "V"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4844",
+      "name": "hv_battery_charge_voltage_requested",
+      "description": "HV battery charge voltage requested",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 2,
+        "unit": "V"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4845",
+      "name": "hv_battery_charge_displayed",
+      "description": "HV battery charge, displayed",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4846",
+      "name": "hv_battery_coolant_inlet_temperature",
+      "description": "HV battery coolant inlet temperature",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4848",
+      "name": "hv_battery_energy",
+      "description": "HV battery energy",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.002,
+        "unit": "kWh"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x484A",
+      "name": "high_voltage_charger_output_voltage_raw_count",
+      "description": "Alternative decodings: High voltage charger output voltage, raw count (byte 0); HV charger output voltage [V] (byte 0)",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x484A",
+      "name": "charger_output_voltage",
+      "description": "Charger output voltage",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "V"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x484D",
+      "name": "high_voltage_charger_status",
+      "description": "High voltage charger status",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x484D",
+      "name": "hv_battery_charging_status",
+      "description": "HV battery charging status",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x00": "NOT_READY",
+          "0x01": "WAIT",
+          "0x02": "READY",
+          "0x03": "CHARGING",
+          "0x04": "DONE",
+          "0x05": "FAULT"
+        }
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x484E",
+      "name": "high_voltage_charger_input_power_available_raw_count",
+      "description": "Alternative decodings: High voltage charger input power available, raw count (byte 0); HV charger input power available [kW] (byte 0)",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x484E",
+      "name": "charger_input_power_available",
+      "description": "Charger input power available",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.005,
+        "unit": "kW"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x484F",
+      "name": "high_voltage_charger_status",
+      "description": "High voltage charger status",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x484F",
+      "name": "charging_state",
+      "description": "Charging state",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x00": "NOT_READY",
+          "0x01": "READY",
+          "0x02": "FAULT",
+          "0x03": "WAIT",
+          "0x04": "PRE_COND",
+          "0x05": "CHARGING",
+          "0x06": "DONE",
+          "0x07": "EXT",
+          "0x08": "INIT"
+        }
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4850",
+      "name": "high_voltage_charger_output_current_measured",
+      "description": "Alternative decodings: High voltage charger output current measured [A] (byte 0); HV charger output current measured [A] (byte 0)",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "A"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4851",
+      "name": "charging_station_connection_raw_count",
+      "description": "Alternative decodings: Charging station connection, raw count (byte 0); Charger type (byte 0)",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4851",
+      "name": "ev_supply_equipment_type_detected",
+      "description": "EV supply equipment type detected",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4852",
+      "name": "battery_discharge_power_limit",
+      "description": "Battery discharge power limit",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "kW"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x485C",
+      "name": "battery_capacity",
+      "description": "Battery capacity",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "Ah"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x485D",
+      "name": "battery_pack_lifetime_charge_out_throughput",
+      "description": "Battery pack lifetime charge out, throughput",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 10,
+        "unit": "Ah"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x485E",
+      "name": "hv_ac_charger_input_voltage",
+      "description": "HV AC charger input voltage",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "V"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x485F",
+      "name": "hv_ac_charger_input_current",
+      "description": "HV AC charger input current",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "A"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4860",
+      "name": "hv_ac_charger_input_frequency",
+      "description": "HV AC charger input frequency",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "unit": "Hz"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4861",
+      "name": "hv_charger_pilot_duty_cycle",
+      "description": "HV charger pilot duty cycle",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4862",
+      "name": "hv_charger_proximity_status",
+      "description": "HV charger proximity status",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x00": "OFF",
+          "0x01": "ON_S3",
+          "0x02": "ON",
+          "0x03": "10A",
+          "0x04": "13A",
+          "0x05": "16A",
+          "0x06": "20A",
+          "0x07": "FAULT",
+          "0x08": "32A",
+          "0x09": "63A",
+          "0x10": "DC",
+          "0x11": "OPEN",
+          "0x12": "SHORT",
+          "0x13": "SHORT_PWR",
+          "0x14": "OUT_OF_RANGE",
+          "0x15": "OPEN_CIRCUIT"
+        }
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4878",
+      "name": "charging_inhibit_requested",
+      "description": "Charging inhibit - requested",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4888",
+      "name": "hv_ac_charger_coupler_temperature",
+      "description": "Alternative decodings: HV AC charger coupler temperature [°C] (byte 0); High voltage AC charger coupler temperature [°F] (byte 0)",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4897",
+      "name": "hv_dc_charger_coupler_temperature_1",
+      "description": "Alternative decodings: HV DC charger coupler temperature 1 [°C] (byte 0); High voltage DC charger coupler temperature 1 [°F] (byte 0)",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4899",
+      "name": "high_voltage_dc_charger_maximum_current",
+      "description": "Alternative decodings: High voltage DC charger, maximum, current [A] (byte 0); HV DC charger maximum current [A] (byte 0)",
+      "ecu_address": "0x6F5",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "A"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x489D",
+      "name": "high_voltage_dc_charger_maximum_voltage",
+      "description": "Alternative decodings: High voltage DC charger, maximum voltage [V] (byte 0); HV DC charger maximum voltage [V] (byte 0)",
+      "ecu_address": "0x6F5",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "V"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x489E",
+      "name": "high_voltage_dc_charger_status",
+      "description": "Alternative decodings: High voltage DC charger status (byte 0); HV DC charger status (byte 0)",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x489E",
+      "name": "dc_charger_status",
+      "description": "DC charger status",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x48A0",
+      "name": "hv_charger_proximity_voltage",
+      "description": "HV charger proximity voltage",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.02,
+        "unit": "V"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x48A4",
+      "name": "hv_dc_charger_coupler_temperature_3",
+      "description": "Alternative decodings: HV DC charger coupler temperature 3 [°C] (byte 0); High voltage DC charger coupler temperature 3 [°F] (byte 0)",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x48A5",
+      "name": "hv_charger_output_reduction_temperature",
+      "description": "Alternative decodings: HV charger output reduction temperature [%] (byte 0); High voltage charger output reduction temperature [%] (byte 0)",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x48AF",
+      "name": "dc_charging_system_contactor_voltage",
+      "description": "DC charging system contactor voltage",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "V"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x48B6",
+      "name": "hv_charger_pilot_voltage",
+      "description": "Alternative decodings: HV charger pilot voltage [V] (byte 0); High voltage charger pilot voltage [V] (byte 0)",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1,
+        "unit": "V"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x48B7",
+      "name": "charger_digital_mode",
+      "description": "Charger digital mode",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x00": "NONE",
+          "0x01": "DC_E_MINUS",
+          "0x02": "DC_MINUS_P",
+          "0x03": "DC_EP",
+          "0x04": "AC_E_MINUS",
+          "0x05": "AC_MINUS_P",
+          "0x06": "AC_EP",
+          "0x07": "RESET",
+          "0x08": "OFF",
+          "0x09": "ESTABLISH",
+          "0x0A": "FAULT"
+        }
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x48BC",
+      "name": "hv_battery_maximum_charge_current",
+      "description": "Alternative decodings: HV battery maximum charge current [A] (byte 0); High voltage charger pilot voltage, raw count (byte 0)",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.05,
+        "unit": "A"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x48C4",
+      "name": "hv_charger_maximum_power",
+      "description": "Alternative decodings: HV charger maximum power [kW] (byte 0); High voltage charger, maximum power [kW] (byte 0)",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.05,
+        "unit": "kW"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x48DE",
+      "name": "coolant_heater_power",
+      "description": "Alternative decodings: Coolant heater power [kW] (byte 0); Coolant heater power [kW] (byte 0)",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "kW"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x48DF",
+      "name": "coolant_heater_operation_mode",
+      "description": "Coolant heater operation mode",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x00": "OFF",
+          "0x01": "ON",
+          "0x02": "DEGRADED",
+          "0x03": "SHUTDOWN",
+          "0x04": "SHORT",
+          "0x05": "NO_RESPONSE",
+          "0x06": "UNKNOWN",
+          "0x07": "STOP"
+        }
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x48E0",
+      "name": "hv_battery_thermal_operation_mode",
+      "description": "HV battery thermal operation mode",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x00": "OFF",
+          "0x01": "EQUALIZE",
+          "0x02": "COOLANT_FLOW",
+          "0x03": "COOLANT_FAN",
+          "0x04": "COOLANT_MODERATE",
+          "0x05": "COOLANT_MAX",
+          "0x0F": "HEAT"
+        }
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x48F9",
+      "name": "hv_battery_current",
+      "description": "Alternative decodings: HV battery current [A] (byte 0); High-voltage battery current [A] (byte 0)",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "A"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x48FB",
+      "name": "hv_battery_charge_power_limit",
+      "description": "HV battery charge power limit",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "kW"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x490B",
+      "name": "traction_battery_voltage_alternate",
+      "description": "Traction battery voltage, alternate",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.003051757812,
+        "unit": "V"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x490C",
+      "name": "hv_battery_state_of_health",
+      "description": "HV battery state of health",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x496A",
+      "name": "traction_motor_speed",
+      "description": "Traction motor speed",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4972",
+      "name": "generator_coil_temperature",
+      "description": "Generator coil temperature",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 180,
+        "offset": 320,
+        "unit": "°F"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4983",
+      "name": "motor_electronic_coolant_temperature_ii",
+      "description": "Motor electronic coolant temperature II",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 1.8,
+        "offset": -39.8,
+        "unit": "°F"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x6180",
+      "name": "odometer",
+      "description": "Fields: Odometer [km] (byte 0)",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x6182",
+      "name": "odometer",
+      "description": "Odometer",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.008192
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x6185",
+      "name": "fuel_tank_level",
+      "description": "Fuel tank level",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x61A5",
+      "name": "tire_pressure_warning_indicator",
+      "description": "Fields: Tire pressure warning indicator (byte 0, bit 2, 1 bit(s))",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x7151",
+      "name": "high_beam_status",
+      "description": "Fields: High beam status (byte 0)",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x8012",
+      "name": "navigation_altitude",
+      "description": "Fields: Navigation altitude (byte 0); Navigation speed [km/h] (byte 11); Navigation heading [°] (byte 13)",
+      "ecu_address": "0x7D0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9800",
+      "name": "a_c_compressor_pressure_sensor_voltage",
+      "description": "A/C compressor pressure sensor voltage",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.0009765625,
+        "unit": "V"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x99AB",
+      "name": "a_c_compressor_current",
+      "description": "A/C compressor current",
+      "ecu_address": "0x7C7",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.003051850948,
+        "unit": "A"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xA211",
+      "name": "4_wheel_drive_engaged",
+      "description": "4 wheel drive engaged",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xA220",
+      "name": "forward_sensing_module_automatic_alignment_offset",
+      "description": "Forward sensing module automatic alignment offset",
+      "ecu_address": "0x764",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "°"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xA224",
+      "name": "target_speed",
+      "description": "Target speed",
+      "ecu_address": "0x764",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.36,
+        "unit": "km/h"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xC150",
+      "name": "trunk_ajar",
+      "description": "Fields: Trunk ajar? (byte 1, bit 3, 1 bit(s)); Rear right door ajar? (byte 1, bit 4, 1 bit(s)); Rear left door ajar? (byte 1, bit 5, 1 bit(s)); Driver door ajar (byte 2, bit 0, 1 bit(s)); Passenger door ajar? (byte 2, bit 1, 1 bit(s))",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xC154",
+      "name": "hood_ajar",
+      "description": "Fields: Hood ajar? (byte 0, bit 0, 1 bit(s))",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xC259",
+      "name": "lock_status",
+      "description": "Lock status",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x00": "UNLOCKED",
+          "0x02": "LOCKED"
+        }
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xC974",
+      "name": "diesel_particulate_filter_soot_level",
+      "description": "Diesel particulate filter soot level",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "offset": 8.192
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD00C",
+      "name": "high_voltage_dc_charger_coupler_temperature",
+      "description": "High voltage DC charger coupler temperature",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 1.8,
+        "offset": -40,
+        "unit": "°F"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD00F",
+      "name": "hydraulic_pump_motor_current",
+      "description": "Hydraulic pump motor current",
+      "ecu_address": "0x703",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "A"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD113",
+      "name": "alternator_current_output",
+      "description": "Alternator current output",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.05,
+        "unit": "A"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD117",
+      "name": "high_voltage_ac_charger_coupler_temperature",
+      "description": "High voltage AC charger coupler temperature",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 1.8,
+        "offset": -40,
+        "unit": "°F"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD137",
+      "name": "dtc_counter",
+      "description": "DTC counter",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD01",
+      "name": "trip_distance",
+      "description": "Fields: Trip distance [km] (byte 0)",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD01",
+      "name": "odometer_instrument_panel",
+      "description": "Alternative decodings: Odometer, instrument panel [km] (byte 0); Odometer, instrument panel [km] (byte 0)",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD01",
+      "name": "odometer_power_steering_module",
+      "description": "Fields: Odometer, power steering module [km] (byte 0)",
+      "ecu_address": "0x730",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD01",
+      "name": "odometer_brake_module",
+      "description": "Alternative decodings: Odometer, brake module [km] (byte 0); Odometer, battery control module [km] (byte 0)",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD01",
+      "name": "odometer_forward_sensing_module",
+      "description": "Fields: Odometer, forward sensing module [km] (byte 0)",
+      "ecu_address": "0x764",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD01",
+      "name": "transmission_odometer",
+      "description": "Fields: Transmission odometer [km] (byte 0)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD04",
+      "name": "in_car_temperature",
+      "description": "In car temperature",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.125,
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD04",
+      "name": "interior_temperature",
+      "description": "Interior temperature",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD04",
+      "name": "temperature_inside_car",
+      "description": "Temperature inside car",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 1.8,
+        "offset": -40,
+        "unit": "°F"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD05",
+      "name": "outdoor_temperature_bcm",
+      "description": "Outdoor temperature, BCM",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD05",
+      "name": "exterior_temperature",
+      "description": "Exterior temperature",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD05",
+      "name": "outside_temperature",
+      "description": "Outside temperature",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 1.8,
+        "offset": -40,
+        "unit": "°F"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xFD18",
+      "name": "air_conditioning_pressure",
+      "description": "Air conditioning pressure",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 12.156863,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xFD8A",
+      "name": "distance_since_last_complete_dpf_regeneration",
+      "description": "Distance since last complete DPF regeneration",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.009977908,
+        "unit": "km"
+      },
+      "source": "OBDb/Ford signalset (CC BY-SA 4.0)",
+      "verified": false
     }
   ],
   "routines": [

@@ -7258,6 +7258,5902 @@
         "kind": "uint16_be",
         "unit": "kΩ"
       }
+    },
+    {
+      "did": "0x0100",
+      "name": "steering_angle",
+      "description": "Steering angle",
+      "ecu_address": "0xDA2D",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -3276.7,
+        "unit": "°"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0101",
+      "name": "yaw_rate",
+      "description": "Yaw rate",
+      "ecu_address": "0x723",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "°"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0103",
+      "name": "right_turn_signal",
+      "description": "Fields: Right turn signal (byte 0, bit 0, 1 bit(s)); Left turn signal (byte 0, bit 1, 1 bit(s))",
+      "ecu_address": "0x707",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0107",
+      "name": "radar_distance",
+      "description": "Radar distance",
+      "ecu_address": "0x723",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "m"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0108",
+      "name": "relative_speed",
+      "description": "Relative speed",
+      "ecu_address": "0x723",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "m/s"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0110",
+      "name": "steering_wheel_angle",
+      "description": "Steering wheel angle",
+      "ecu_address": "0x723",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "°"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0201",
+      "name": "front_left_tire_pressure",
+      "description": "Alternative decodings: Front left tire pressure [psi] (byte 0); Front left tire pressure [psi] (byte 0)",
+      "ecu_address": "0x758",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.25,
+        "unit": "psi"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0202",
+      "name": "front_right_tire_pressure",
+      "description": "Alternative decodings: Front right tire pressure [psi] (byte 0); Front right tire pressure [psi] (byte 0)",
+      "ecu_address": "0x758",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.25,
+        "unit": "psi"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0203",
+      "name": "rear_right_tire_pressure",
+      "description": "Alternative decodings: Rear right tire pressure [psi] (byte 0); Rear right tire pressure [psi] (byte 0)",
+      "ecu_address": "0x758",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.25,
+        "unit": "psi"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0204",
+      "name": "rear_left_tire_pressure",
+      "description": "Alternative decodings: Rear left tire pressure [psi] (byte 0); Rear left tire pressure [psi] (byte 0)",
+      "ecu_address": "0x758",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.25,
+        "unit": "psi"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x020D",
+      "name": "front_left_tire_pressure_warning",
+      "description": "Front left tire pressure, warning",
+      "ecu_address": "0x758",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.25,
+        "unit": "psi"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x020E",
+      "name": "front_right_tire_pressure_warning",
+      "description": "Front right tire pressure, warning",
+      "ecu_address": "0x758",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.25,
+        "unit": "psi"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x020F",
+      "name": "rear_right_tire_pressure_warning",
+      "description": "Rear right tire pressure, warning",
+      "ecu_address": "0x758",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.25,
+        "unit": "psi"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0210",
+      "name": "rear_left_tire_pressure_warning",
+      "description": "Rear left tire pressure, warning",
+      "ecu_address": "0x758",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.25,
+        "unit": "psi"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0230",
+      "name": "transmission_fluid_temperature_variant_1",
+      "description": "Fields: Transmission fluid temperature, variant 1 [°F] (byte 11)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0E01",
+      "name": "odometer",
+      "description": "Alternative decodings: Odometer [km] (byte 0); Odometer [mi] (byte 0)",
+      "ecu_address": "0x743",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0E25",
+      "name": "front_right_tire_pressure",
+      "description": "Alternative decodings: Front right tire pressure [kPa] (byte 0); Front right tire pressure [psi] (byte 0)",
+      "ecu_address": "0x743",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 1.7236894,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0E26",
+      "name": "front_left_tire_pressure",
+      "description": "Alternative decodings: Front left tire pressure [kPa] (byte 0); Front left tire pressure [psi] (byte 0)",
+      "ecu_address": "0x743",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 1.7236894,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0E27",
+      "name": "rear_right_tire_pressure",
+      "description": "Alternative decodings: Rear right tire pressure [kPa] (byte 0); Rear right tire pressure [psi] (byte 0)",
+      "ecu_address": "0x743",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 1.7236894,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0E28",
+      "name": "rear_left_tire_pressure",
+      "description": "Alternative decodings: Rear left tire pressure [kPa] (byte 0); Rear left tire pressure [psi] (byte 0)",
+      "ecu_address": "0x743",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 1.7236894,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0E2D",
+      "name": "state_of_charge_as_the_dash_shows_it",
+      "description": "Fields: State of charge, as the dash shows it [%] (byte 14)",
+      "ecu_address": "0x743",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0E2E",
+      "name": "range_remaining",
+      "description": "Range remaining",
+      "ecu_address": "0x743",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1101",
+      "name": "vehicle_speed_sensor",
+      "description": "Vehicle speed sensor",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "km/h"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1102",
+      "name": "vehicle_speed_vehicle_control_module",
+      "description": "Vehicle speed, vehicle control module",
+      "ecu_address": "0x797",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "km/h"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1102",
+      "name": "estimated_vehicle_speed",
+      "description": "Estimated vehicle speed",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "km/h"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1102",
+      "name": "vehicle_speed",
+      "description": "Vehicle speed",
+      "ecu_address": "0xDADA",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "km/h"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1103",
+      "name": "all_wheel_drive_electronic_traction_support_solenoid",
+      "description": "Fields: All-wheel drive electronic traction support solenoid (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0x748",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1103",
+      "name": "12v_battery_voltage",
+      "description": "12V battery voltage",
+      "ecu_address": "0x797",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.08,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1103",
+      "name": "battery_voltage_engine_module",
+      "description": "Battery voltage, engine module",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.08,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1103",
+      "name": "vehicle_speed",
+      "description": "Vehicle speed",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "km/h"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1104",
+      "name": "all_wheel_drive_request_engine_torque",
+      "description": "Fields: All-wheel drive request engine torque (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0x748",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1104",
+      "name": "water_pump_1",
+      "description": "Water pump 1",
+      "ecu_address": "0xDADA",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.2,
+        "unit": "%"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1105",
+      "name": "all_wheel_drive_estimated_engine_torque",
+      "description": "Fields: All-wheel drive estimated engine torque (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0x748",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1105",
+      "name": "exhaust_gas_recirculation_temperature_sensor_voltage",
+      "description": "Exhaust gas recirculation temperature sensor voltage",
+      "ecu_address": "0xDA18",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.02,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1105",
+      "name": "water_pump_1_target_duty",
+      "description": "Water pump 1, target duty",
+      "ecu_address": "0xDADA",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 2,
+        "unit": "%"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1106",
+      "name": "a_c_state",
+      "description": "Fields: A/C state (byte 0)",
+      "ecu_address": "0x797",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1106",
+      "name": "water_pump_1_current_speed_duty",
+      "description": "Water pump 1 current speed duty",
+      "ecu_address": "0xDADA",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.2,
+        "unit": "%"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1107",
+      "name": "awd_target_traction_control_torque",
+      "description": "Fields: AWD, target traction control torque (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0x748",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x110A",
+      "name": "ignition_timing_advance",
+      "description": "Ignition timing advance",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": -1,
+        "offset": 110,
+        "unit": "°"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x110A",
+      "name": "secondary_pulley_pressure",
+      "description": "Secondary pulley pressure",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 25,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x110B",
+      "name": "primary_pulley_pressure",
+      "description": "Primary pulley pressure",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 25,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x110C",
+      "name": "transmission_fluid_temperature",
+      "description": "Transmission fluid temperature",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x110D",
+      "name": "lubrication_pressure",
+      "description": "Fields: Lubrication pressure [kPa] (byte 0)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x110E",
+      "name": "line_pressure",
+      "description": "Line pressure",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 25,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x110F",
+      "name": "rear_heater_state",
+      "description": "Rear heater state",
+      "ecu_address": "0x797",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0xA2": "HEATER_ON"
+        }
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x110F",
+      "name": "target_primary_pulley_pressure",
+      "description": "Target primary pulley pressure",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 25,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1110",
+      "name": "evap_purge_duty",
+      "description": "EVAP purge duty",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "unit": "%"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1110",
+      "name": "target_select_pressure",
+      "description": "Target select pressure",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 25,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1111",
+      "name": "fuel_temperature",
+      "description": "Fuel temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°C"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1111",
+      "name": "target_secondary_pulley_pressure",
+      "description": "Target secondary pulley pressure",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 25,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1111",
+      "name": "fuel_temperature",
+      "description": "Fuel temperature",
+      "ecu_address": "0xDA18",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°C"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1112",
+      "name": "requested_torque_delta",
+      "description": "Fields: Requested torque delta [Nm] (byte 0)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1113",
+      "name": "requested_torque",
+      "description": "Fields: Requested torque [Nm] (byte 0)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1114",
+      "name": "all_wheel_drive_coupling_temperature",
+      "description": "Fields: All-wheel drive coupling temperature (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0x748",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1114",
+      "name": "requested_engine_speed",
+      "description": "Requested engine speed",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 50,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1114",
+      "name": "fuel_level_input",
+      "description": "Fuel level input",
+      "ecu_address": "0xDA18",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.04,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1115",
+      "name": "accelerator_pedal_position",
+      "description": "Accelerator pedal position",
+      "ecu_address": "0x740",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "unit": "%"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1115",
+      "name": "evap_pressure_sensor_voltage",
+      "description": "EVAP pressure sensor voltage",
+      "ecu_address": "0xDA18",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.02,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x111A",
+      "name": "high_voltage_coolant_temperature",
+      "description": "High voltage coolant temperature",
+      "ecu_address": "0xDADA",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.125,
+        "unit": "°C"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x111C",
+      "name": "traction_motor_temperature",
+      "description": "Traction motor temperature",
+      "ecu_address": "0xDADA",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x111F",
+      "name": "variable_valve_timing_oil_temperature",
+      "description": "Variable valve timing oil temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°C"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x111F",
+      "name": "engine_oil_temperature",
+      "description": "Engine oil temperature",
+      "ecu_address": "0xDA18",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°C"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1123",
+      "name": "a_f_ratio_adj_b1",
+      "description": "A/F ratio adj, B1",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -100,
+        "unit": "%"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1124",
+      "name": "air_fuel_ratio_adjustment_bank_2",
+      "description": "Air/fuel ratio adjustment, bank 2",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -100,
+        "unit": "%"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1128",
+      "name": "motor_torque_nominal",
+      "description": "Motor torque, nominal",
+      "ecu_address": "0x797",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.015625,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1128",
+      "name": "target_motor_torque",
+      "description": "Target motor torque",
+      "ecu_address": "0xDADA",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.015625,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x112A",
+      "name": "manifold_pressure_sensor_voltage",
+      "description": "Manifold pressure sensor voltage",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.02,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x112E",
+      "name": "refrigerant_pressure_sensor",
+      "description": "Refrigerant pressure sensor",
+      "ecu_address": "0xDADA",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 2e-06
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1135",
+      "name": "camshaft_adv_angle_b1",
+      "description": "Camshaft adv angle, B1",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "offset": -64,
+        "unit": "°"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1137",
+      "name": "intake_camshaft_advance_bank_2",
+      "description": "Intake camshaft advance, bank 2",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "offset": -64,
+        "unit": "°"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1138",
+      "name": "camshaft_valve_duty_b1",
+      "description": "Camshaft valve duty, B1",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.390625,
+        "unit": "%"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1139",
+      "name": "intake_valve_timing_solenoid_duty_bank_2",
+      "description": "Intake valve timing solenoid duty, bank 2",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.390625,
+        "unit": "%"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x113C",
+      "name": "ignition_advance",
+      "description": "Ignition advance",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": -1,
+        "offset": 112
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1144",
+      "name": "available_motor_maximum_output",
+      "description": "Available motor, maximum output",
+      "ecu_address": "0xDADA",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1145",
+      "name": "motor_regenerative_power_maximum",
+      "description": "Motor regenerative power, maximum",
+      "ecu_address": "0xDADA",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1146",
+      "name": "motor_power",
+      "description": "Motor power",
+      "ecu_address": "0x797",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 40,
+        "unit": "W"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1146",
+      "name": "motor_power_consumption",
+      "description": "Motor power consumption",
+      "ecu_address": "0xDADA",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.05,
+        "unit": "%"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x114B",
+      "name": "high_voltage_battery_available_charge_display",
+      "description": "High voltage battery available charge display",
+      "ecu_address": "0xDADA",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x114E",
+      "name": "charging_mode",
+      "description": "Charging mode",
+      "ecu_address": "0x797",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x00": "NOT_CHARGING",
+          "0x01": "CHARGING_L1",
+          "0x02": "CHARGING_L2",
+          "0x03": "CHARGING_L3"
+        }
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1151",
+      "name": "power_used_by_both_the_a_c_and_ptc_heater",
+      "description": "Power used by both the A/C and PTC heater.",
+      "ecu_address": "0x797",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 250,
+        "unit": "W"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1152",
+      "name": "power_used_by_auxiliary_equipment_lights_radio_navigation_rear_defroster_etc",
+      "description": "Power used by auxiliary equipment (lights, radio, navigation, rear defroster, etc...).",
+      "ecu_address": "0x797",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 100,
+        "unit": "W"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1156",
+      "name": "gear",
+      "description": "Gear",
+      "ecu_address": "0x797",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x01": "PARK",
+          "0x02": "REVERSE",
+          "0x03": "NEUTRAL",
+          "0x04": "DRIVE",
+          "0x07": "ECO"
+        }
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x115D",
+      "name": "ambient_air_temperature",
+      "description": "Ambient air temperature",
+      "ecu_address": "0x797",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.9,
+        "offset": -40.9,
+        "unit": "°F"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1183",
+      "name": "12v_battery_current",
+      "description": "12V battery current",
+      "ecu_address": "0x797",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.00390625,
+        "unit": "A"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1186",
+      "name": "remaining_fuel",
+      "description": "Remaining fuel",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "L"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1201",
+      "name": "all_wheel_drive_front_right_wheel_speed",
+      "description": "Fields: All-wheel drive front right wheel speed (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0x748",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1201",
+      "name": "current_engine_speed",
+      "description": "Current engine speed",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 12.5,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1201",
+      "name": "input_speed",
+      "description": "Input speed",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1202",
+      "name": "all_wheel_drive_front_left_wheel_speed",
+      "description": "Fields: All-wheel drive front left wheel speed (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0x748",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1202",
+      "name": "primary_pulley_speed",
+      "description": "Primary pulley speed",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1203",
+      "name": "all_wheel_drive_rear_right_wheel_speed",
+      "description": "Fields: All-wheel drive rear right wheel speed (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0x748",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1203",
+      "name": "quick_charge_count",
+      "description": "Quick charge count",
+      "ecu_address": "0x797",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1203",
+      "name": "secondary_pulley_speed",
+      "description": "Secondary pulley speed",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1204",
+      "name": "all_wheel_drive_rear_left_wheel_speed",
+      "description": "Fields: All-wheel drive rear left wheel speed (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0x748",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1204",
+      "name": "mass_air_flow_volts_b1",
+      "description": "Mass air flow volts, B1",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.005,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1204",
+      "name": "engine_speed",
+      "description": "Engine speed",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1205",
+      "name": "quick_charge_count",
+      "description": "Quick charge count",
+      "ecu_address": "0x797",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1205",
+      "name": "mass_air_flow_sensor_voltage_bank_2",
+      "description": "Mass air flow sensor voltage, bank 2",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.005,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1205",
+      "name": "secondary_pressure_sensor_voltage",
+      "description": "Secondary pressure sensor voltage",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.004887585533,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1206",
+      "name": "primary_pressure_sensor_voltage",
+      "description": "Primary pressure sensor voltage",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.004887585533,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1207",
+      "name": "fluid_temperature_sensor_voltage",
+      "description": "Fluid temperature sensor voltage",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.004887585533,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1207",
+      "name": "base_injection_timing",
+      "description": "Base injection timing",
+      "ecu_address": "0xDA18",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.00048828125,
+        "unit": "ms"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1208",
+      "name": "anti_lock_brake_steering_angle",
+      "description": "Anti-lock brake steering angle",
+      "ecu_address": "0x740",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "°"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1208",
+      "name": "fuel_base_pulse_width",
+      "description": "Fuel base pulse width",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.00048828125,
+        "unit": "ms"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1208",
+      "name": "acceleration_sensor_voltage",
+      "description": "Acceleration sensor voltage",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.0001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1209",
+      "name": "brake_master_cylinder_pressure_count",
+      "description": "Brake master cylinder pressure count",
+      "ecu_address": "0x740",
+      "decoder": {
+        "kind": "int16_be"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1209",
+      "name": "mass_air_flow",
+      "description": "Mass air flow",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "g/s"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x120C",
+      "name": "input_speed_alternate",
+      "description": "Input speed, alternate",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x120C",
+      "name": "fuel_pressure_sensor_voltage",
+      "description": "Fuel pressure sensor voltage",
+      "ecu_address": "0xDA18",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0003051804379,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x120D",
+      "name": "primary_pulley_speed_alternate",
+      "description": "Primary pulley speed, alternate",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x120D",
+      "name": "accelerator_pedal_position_sensor_1_volts",
+      "description": "Accelerator pedal position sensor 1, volts",
+      "ecu_address": "0xDA18",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.005,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x120E",
+      "name": "secondary_pulley_speed_alternate",
+      "description": "Secondary pulley speed, alternate",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x120E",
+      "name": "accelerator_pedal_position_sensor_2_volts",
+      "description": "Accelerator pedal position sensor 2, volts",
+      "ecu_address": "0xDA18",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.005,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x120F",
+      "name": "engine_speed_alternate",
+      "description": "Engine speed, alternate",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x120F",
+      "name": "throttle_position_sensor_1_volts",
+      "description": "Throttle position sensor 1, volts",
+      "ecu_address": "0xDA18",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.005,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1210",
+      "name": "pulley_ratio",
+      "description": "Pulley ratio",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0001
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1210",
+      "name": "throttle_position_sensor_2_volts",
+      "description": "Throttle position sensor 2, volts",
+      "ecu_address": "0xDA18",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.005,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1212",
+      "name": "engine_torque_active",
+      "description": "Engine torque, active",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1213",
+      "name": "engine_torque_transmitted",
+      "description": "Engine torque, transmitted",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1214",
+      "name": "engine_torque",
+      "description": "Engine torque",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1215",
+      "name": "primary_pulley_torque",
+      "description": "Primary pulley torque",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1216",
+      "name": "torque_ratio",
+      "description": "Torque ratio",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.00360625
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1218",
+      "name": "target_pulley_ratio",
+      "description": "Target pulley ratio",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0001
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1219",
+      "name": "isolation_solenoid_1_current",
+      "description": "Isolation solenoid 1 current",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.001,
+        "unit": "A"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x121A",
+      "name": "vehicle_speed",
+      "description": "Vehicle speed",
+      "ecu_address": "0x797",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "km/h"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x121A",
+      "name": "isolation_solenoid_2_current",
+      "description": "Isolation solenoid 2 current",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.001,
+        "unit": "A"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x121B",
+      "name": "primary_solenoid_current",
+      "description": "Primary solenoid current",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.001,
+        "unit": "A"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x121C",
+      "name": "secondary_solenoid_current",
+      "description": "Secondary solenoid current",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.001,
+        "unit": "A"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x121D",
+      "name": "select_solenoid_current",
+      "description": "Select solenoid current",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.001,
+        "unit": "A"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x121E",
+      "name": "solenoid_1_monitor_current",
+      "description": "Solenoid 1 monitor current",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "A"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x121F",
+      "name": "solenoid_2_monitor_current",
+      "description": "Solenoid 2 monitor current",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.001,
+        "unit": "A"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x121F",
+      "name": "roll_over_sensor_voltage",
+      "description": "Roll-over sensor voltage",
+      "ecu_address": "0xDA18",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.005,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1221",
+      "name": "primary_solenoid_monitor_current",
+      "description": "Primary solenoid monitor current",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.001,
+        "unit": "A"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1222",
+      "name": "secondary_solenoid_monitor_current",
+      "description": "Secondary solenoid monitor current",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.001,
+        "unit": "A"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1223",
+      "name": "refrigerant_fluid_sensor_voltage",
+      "description": "Refrigerant fluid sensor voltage",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.005,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1223",
+      "name": "select_solenoid_monitor_current",
+      "description": "Select solenoid monitor current",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.001,
+        "unit": "A"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1225",
+      "name": "upstream_oxygen_sensor_voltage",
+      "description": "Upstream oxygen sensor voltage",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.005,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x122B",
+      "name": "cruise_control_set_speed",
+      "description": "Cruise control set speed",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.05625,
+        "unit": "km/h"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1234",
+      "name": "l1_l2_charge_port_plug_state",
+      "description": "L1/L2 charge port plug state",
+      "ecu_address": "0x797",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x00": "UNPLUGGED",
+          "0x01": "PLUGGED_PARTIAL",
+          "0x02": "PLUGGED"
+        }
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1236",
+      "name": "charging_power",
+      "description": "Charging power",
+      "ecu_address": "0x797",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 100,
+        "unit": "W"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1248",
+      "name": "hv_battery_current",
+      "description": "HV battery current",
+      "ecu_address": "0x797",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.5,
+        "unit": "A"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1254",
+      "name": "motor_torque_actual",
+      "description": "Motor torque, actual",
+      "ecu_address": "0x797",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.015625,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1254",
+      "name": "motor_rpm",
+      "description": "Motor RPM",
+      "ecu_address": "0xDADA",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "rpm"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1255",
+      "name": "engine_rpm",
+      "description": "Engine RPM",
+      "ecu_address": "0x797",
+      "decoder": {
+        "kind": "int16_be"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1261",
+      "name": "power_used_by_air_conditioning",
+      "description": "Power used by air conditioning",
+      "ecu_address": "0x797",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 50,
+        "unit": "W"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1262",
+      "name": "power_used_by_cabin_positive_temperature_coefficient_ptc_heaters",
+      "description": "Power used by cabin positive temperature coefficient (PTC) heaters.",
+      "ecu_address": "0x797",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 250,
+        "unit": "W"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1266",
+      "name": "variable_valve_timing_oil_temperature",
+      "description": "Variable valve timing oil temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0234375,
+        "offset": -273,
+        "unit": "°C"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1304",
+      "name": "power_switch",
+      "description": "Fields: Power switch (byte 0, bit 0, 1 bit(s))",
+      "ecu_address": "0x797",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1305",
+      "name": "brake_switch",
+      "description": "Fields: Brake switch (byte 0, bit 5, 1 bit(s))",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1307",
+      "name": "air_conditioning_compressor",
+      "description": "Fields: Air conditioning compressor (byte 0, bit 1, 1 bit(s)); Idle control mode (byte 0, bit 6, 1 bit(s))",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x130D",
+      "name": "brake_switch_number_2",
+      "description": "Fields: BRAKE SWITCH, number 2 (byte 0, bit 2, 1 bit(s)); BRAKE SWITCH, number 1 (byte 0, bit 3, 1 bit(s))",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1313",
+      "name": "cooling_fan_low",
+      "description": "Fields: Cooling fan low (byte 0, bit 5, 1 bit(s)); Cooling fan high (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1314",
+      "name": "all_wheel_drive_clutch_high_temperature_signal_1",
+      "description": "Fields: All-wheel drive clutch high temperature signal 1 (byte 0, bit 0, 1 bit(s))",
+      "ecu_address": "0x748",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1315",
+      "name": "all_wheel_drive_clutch_high_temperature_signal_2",
+      "description": "Fields: All-wheel drive clutch high temperature signal 2 (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0x748",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1318",
+      "name": "eco_mode_state",
+      "description": "ECO mode state",
+      "ecu_address": "0x797",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x00": "ECO_OFF",
+          "0x10": "ECO_ON_1",
+          "0x11": "ECO_ON_2"
+        }
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x131A",
+      "name": "e_pedal_mode",
+      "description": "E-pedal mode",
+      "ecu_address": "0x797",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x00": "EPEDAL_OFF",
+          "0x04": "EPEDAL_ON"
+        }
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1406",
+      "name": "coolant_temperature",
+      "description": "Coolant temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x140E",
+      "name": "manifold_pressure",
+      "description": "Manifold pressure",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 1000
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x140F",
+      "name": "throttle_opening",
+      "description": "Throttle opening",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.35,
+        "unit": "°"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2003",
+      "name": "vehicle_speed",
+      "description": "Vehicle speed",
+      "ecu_address": "0xDADA",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "km/h"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2004",
+      "name": "engine_torque",
+      "description": "Engine torque",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.5,
+        "offset": -400,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2004",
+      "name": "engine_torque",
+      "description": "Engine torque",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.03125,
+        "offset": -400,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2005",
+      "name": "battery_voltage",
+      "description": "Battery voltage",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2007",
+      "name": "engine_oil_temperature",
+      "description": "Engine oil temperature",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -273,
+        "unit": "°C"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x200F",
+      "name": "braking_detected_multiplex_signal",
+      "description": "Braking detected multiplex signal",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2026",
+      "name": "wired_brake_contact",
+      "description": "Fields: Wired brake contact (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2030",
+      "name": "intake_camshaft_phase_position_target",
+      "description": "Intake camshaft phase position target",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.02,
+        "unit": "°"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2033",
+      "name": "camshaft_phaser_solenoid_valve_duty_cycle",
+      "description": "Camshaft phaser solenoid valve duty cycle",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x204B",
+      "name": "cruise_control_speed_limiter_buttons",
+      "description": "Cruise control/speed limiter buttons",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2057",
+      "name": "alternator_power",
+      "description": "Alternator power",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 10,
+        "unit": "W"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2069",
+      "name": "engine_reference_torque",
+      "description": "Engine reference torque",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.03125,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2079",
+      "name": "parking_brake",
+      "description": "Fields: Parking brake (byte 0, bit 3, 1 bit(s)); Cruise control (byte 0, bit 4, 1 bit(s)); Traction control/anti-yaw control (byte 0, bit 5, 1 bit(s)); Engage reverse gear (byte 0, bit 6, 1 bit(s)); Starter button (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x207A",
+      "name": "duration_of_resume_button_press",
+      "description": "Duration of resume button press",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.05,
+        "unit": "s"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x207B",
+      "name": "duration_of_button_press",
+      "description": "Duration of + button press",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.05,
+        "unit": "s"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x207C",
+      "name": "duration_of_button_press",
+      "description": "Duration of - button press",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.05,
+        "unit": "s"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x207D",
+      "name": "duration_of_suspend_button_press",
+      "description": "Duration of suspend button press",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.05,
+        "unit": "s"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x207E",
+      "name": "number_of_abnormal_cc_sl_transitions",
+      "description": "Number of abnormal cc/sl transitions",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2095",
+      "name": "engine_oil_temperature",
+      "description": "Engine oil temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.75,
+        "offset": -48,
+        "unit": "°C"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x20C6",
+      "name": "boost_pressure_sensor_voltage",
+      "description": "Boost pressure sensor voltage",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mV"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x20FE",
+      "name": "dc_battery_voltage",
+      "description": "DC battery voltage",
+      "ecu_address": "0xDADA",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2113",
+      "name": "oil_temperature",
+      "description": "Oil temperature",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -273,
+        "unit": "°C"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2161",
+      "name": "crank_signal_correction",
+      "description": "Fields: Crank signal, correction (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2170",
+      "name": "change_of_vehicle_speed_unit",
+      "description": "Fields: Change of vehicle speed unit (byte 0, bit 4, 1 bit(s)); Auto emergency braking system request (byte 0, bit 5, 1 bit(s)); Stop warning light (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2170",
+      "name": "transmission_fluid_temperature",
+      "description": "Fields: Transmission fluid temperature [°C] (byte 29)",
+      "ecu_address": "0xDA18",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x21CC",
+      "name": "dc_battery_current",
+      "description": "DC battery current",
+      "ecu_address": "0xDADA",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": -0.25,
+        "offset": 500,
+        "unit": "A"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2225",
+      "name": "vehicle_speed_multiplexed_information",
+      "description": "Fields: Vehicle speed multiplexed information (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x222A",
+      "name": "refrigerant_pressure",
+      "description": "Refrigerant pressure",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "bar"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x222B",
+      "name": "manual_or_assisted_parking_brake",
+      "description": "Manual or assisted parking brake",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2255",
+      "name": "camshaft_phase_measured_position",
+      "description": "Camshaft phase, measured position",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.02,
+        "unit": "%"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x22AA",
+      "name": "starter_wear_counter",
+      "description": "Fields: Starter wear counter (byte 5)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2401",
+      "name": "inlet_pressure",
+      "description": "Inlet pressure",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x243F",
+      "name": "inlet_air_temperature",
+      "description": "Inlet air temperature",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -273,
+        "unit": "°C"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x244D",
+      "name": "manifold_air_temperature",
+      "description": "Manifold air temperature",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -273,
+        "unit": "°C"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x24D7",
+      "name": "estimated_manifold_pressure",
+      "description": "Estimated manifold pressure",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2874",
+      "name": "combustion_misfire_counter",
+      "description": "Combustion misfire counter",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x28C6",
+      "name": "fuel_flow",
+      "description": "Fuel flow",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.08192
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2C04",
+      "name": "gearbox_ratio",
+      "description": "Gearbox ratio",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x30D9",
+      "name": "engine_starts_after_pf_regen",
+      "description": "Engine starts after PF regen",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4007",
+      "name": "air_conditioning_status",
+      "description": "Fields: Air conditioning status (byte 0)",
+      "ecu_address": "0x744",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4008",
+      "name": "ambient_air_temperature",
+      "description": "Ambient air temperature",
+      "ecu_address": "0x744",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4B00",
+      "name": "front_left_wheel_speed",
+      "description": "Front left wheel speed",
+      "ecu_address": "0xDA2D",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "km/h"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4B01",
+      "name": "front_right_wheel_speed",
+      "description": "Front right wheel speed",
+      "ecu_address": "0xDA2D",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "km/h"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4B02",
+      "name": "rear_left_wheel_speed",
+      "description": "Rear left wheel speed",
+      "ecu_address": "0xDA2D",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "km/h"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4B03",
+      "name": "rear_right_wheel_speed",
+      "description": "Rear right wheel speed",
+      "ecu_address": "0xDA2D",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "km/h"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4B0E",
+      "name": "main_brake_cylinder_pressure",
+      "description": "Main brake cylinder pressure",
+      "ecu_address": "0xDA2D",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "bar"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9001",
+      "name": "traction_battery_state_of_charge",
+      "description": "Traction battery state of charge",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "offset": -3,
+        "unit": "%"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9002",
+      "name": "dc_battery_state_of_charge",
+      "description": "DC battery state of charge",
+      "ecu_address": "0xDADA",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9003",
+      "name": "dc_battery_state_of_health",
+      "description": "DC battery state of health",
+      "ecu_address": "0xDADA",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9005",
+      "name": "open_circuit_voltage",
+      "description": "Open circuit voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9006",
+      "name": "traction_battery_voltage",
+      "description": "Traction battery voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "int32_be",
+        "scale": 0.0009765625,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9007",
+      "name": "highest_cell_voltage_level",
+      "description": "Highest cell voltage level",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9008",
+      "name": "cell_with_the_highest_voltage",
+      "description": "Cell with the highest voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9009",
+      "name": "lowest_cell_voltage_level",
+      "description": "Lowest cell voltage level",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x900A",
+      "name": "cell_with_the_lowest_voltage",
+      "description": "Cell with the lowest voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9011",
+      "name": "computer_power_supply",
+      "description": "Computer power supply",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9012",
+      "name": "traction_battery_compartment_temperature",
+      "description": "Traction battery compartment temperature",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0625,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9013",
+      "name": "traction_battery_minimum_temperature",
+      "description": "Traction battery minimum temperature",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0625,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9014",
+      "name": "traction_battery_maximum_temperature",
+      "description": "Traction battery maximum temperature",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0625,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9021",
+      "name": "cell_1_voltage",
+      "description": "Cell 1 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9022",
+      "name": "cell_2_voltage",
+      "description": "Cell 2 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9023",
+      "name": "cell_3_voltage",
+      "description": "Cell 3 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9024",
+      "name": "cell_4_voltage",
+      "description": "Cell 4 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9025",
+      "name": "cell_5_voltage",
+      "description": "Cell 5 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9026",
+      "name": "cell_6_voltage",
+      "description": "Cell 6 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9027",
+      "name": "cell_7_voltage",
+      "description": "Cell 7 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9028",
+      "name": "cell_8_voltage",
+      "description": "Cell 8 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9029",
+      "name": "cell_9_voltage",
+      "description": "Cell 9 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x902A",
+      "name": "cell_10_voltage",
+      "description": "Cell 10 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x902B",
+      "name": "cell_11_voltage",
+      "description": "Cell 11 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x902C",
+      "name": "cell_12_voltage",
+      "description": "Cell 12 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x902D",
+      "name": "cell_13_voltage",
+      "description": "Cell 13 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x902E",
+      "name": "cell_14_voltage",
+      "description": "Cell 14 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x902F",
+      "name": "cell_15_voltage",
+      "description": "Cell 15 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9030",
+      "name": "cell_16_voltage",
+      "description": "Cell 16 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9031",
+      "name": "cell_17_voltage",
+      "description": "Cell 17 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9032",
+      "name": "cell_18_voltage",
+      "description": "Cell 18 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9033",
+      "name": "cell_19_voltage",
+      "description": "Cell 19 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9034",
+      "name": "cell_20_voltage",
+      "description": "Cell 20 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9035",
+      "name": "cell_21_voltage",
+      "description": "Cell 21 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9036",
+      "name": "cell_22_voltage",
+      "description": "Cell 22 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9037",
+      "name": "cell_23_voltage",
+      "description": "Cell 23 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9038",
+      "name": "cell_24_voltage",
+      "description": "Cell 24 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9039",
+      "name": "cell_25_voltage",
+      "description": "Cell 25 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x903A",
+      "name": "cell_26_voltage",
+      "description": "Cell 26 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x903B",
+      "name": "cell_27_voltage",
+      "description": "Cell 27 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x903C",
+      "name": "cell_28_voltage",
+      "description": "Cell 28 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x903D",
+      "name": "cell_29_voltage",
+      "description": "Cell 29 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x903E",
+      "name": "cell_30_voltage",
+      "description": "Cell 30 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x903F",
+      "name": "cell_31_voltage",
+      "description": "Cell 31 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9041",
+      "name": "cell_32_voltage",
+      "description": "Cell 32 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9042",
+      "name": "cell_33_voltage",
+      "description": "Cell 33 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9043",
+      "name": "cell_34_voltage",
+      "description": "Cell 34 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9044",
+      "name": "cell_35_voltage",
+      "description": "Cell 35 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9045",
+      "name": "cell_36_voltage",
+      "description": "Cell 36 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9046",
+      "name": "cell_37_voltage",
+      "description": "Cell 37 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9047",
+      "name": "cell_38_voltage",
+      "description": "Cell 38 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9048",
+      "name": "cell_39_voltage",
+      "description": "Cell 39 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9049",
+      "name": "cell_40_voltage",
+      "description": "Cell 40 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x904A",
+      "name": "cell_41_voltage",
+      "description": "Cell 41 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x904B",
+      "name": "cell_42_voltage",
+      "description": "Cell 42 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x904C",
+      "name": "cell_43_voltage",
+      "description": "Cell 43 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x904D",
+      "name": "cell_44_voltage",
+      "description": "Cell 44 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x904E",
+      "name": "cell_45_voltage",
+      "description": "Cell 45 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x904F",
+      "name": "cell_46_voltage",
+      "description": "Cell 46 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9050",
+      "name": "cell_47_voltage",
+      "description": "Cell 47 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9051",
+      "name": "cell_48_voltage",
+      "description": "Cell 48 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9052",
+      "name": "cell_49_voltage",
+      "description": "Cell 49 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9053",
+      "name": "cell_50_voltage",
+      "description": "Cell 50 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9054",
+      "name": "cell_51_voltage",
+      "description": "Cell 51 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9055",
+      "name": "cell_52_voltage",
+      "description": "Cell 52 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9056",
+      "name": "cell_53_voltage",
+      "description": "Cell 53 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9057",
+      "name": "cell_54_voltage",
+      "description": "Cell 54 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9058",
+      "name": "cell_55_voltage",
+      "description": "Cell 55 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9059",
+      "name": "cell_56_voltage",
+      "description": "Cell 56 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x905A",
+      "name": "cell_57_voltage",
+      "description": "Cell 57 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x905B",
+      "name": "cell_58_voltage",
+      "description": "Cell 58 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x905C",
+      "name": "cell_59_voltage",
+      "description": "Cell 59 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x905D",
+      "name": "cell_60_voltage",
+      "description": "Cell 60 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x905E",
+      "name": "cell_61_voltage",
+      "description": "Cell 61 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x905F",
+      "name": "cell_62_voltage",
+      "description": "Cell 62 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9061",
+      "name": "cell_63_voltage",
+      "description": "Cell 63 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9062",
+      "name": "cell_64_voltage",
+      "description": "Cell 64 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9063",
+      "name": "cell_65_voltage",
+      "description": "Cell 65 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9064",
+      "name": "cell_66_voltage",
+      "description": "Cell 66 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9065",
+      "name": "cell_67_voltage",
+      "description": "Cell 67 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9066",
+      "name": "cell_68_voltage",
+      "description": "Cell 68 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9067",
+      "name": "cell_69_voltage",
+      "description": "Cell 69 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9068",
+      "name": "cell_70_voltage",
+      "description": "Cell 70 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9069",
+      "name": "cell_71_voltage",
+      "description": "Cell 71 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x906A",
+      "name": "cell_72_voltage",
+      "description": "Cell 72 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x906B",
+      "name": "cell_73_voltage",
+      "description": "Cell 73 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x906C",
+      "name": "cell_74_voltage",
+      "description": "Cell 74 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x906D",
+      "name": "cell_75_voltage",
+      "description": "Cell 75 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x906E",
+      "name": "cell_76_voltage",
+      "description": "Cell 76 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x906F",
+      "name": "cell_77_voltage",
+      "description": "Cell 77 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9070",
+      "name": "cell_78_voltage",
+      "description": "Cell 78 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9071",
+      "name": "cell_79_voltage",
+      "description": "Cell 79 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9072",
+      "name": "cell_80_voltage",
+      "description": "Cell 80 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9073",
+      "name": "cell_81_voltage",
+      "description": "Cell 81 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9074",
+      "name": "cell_82_voltage",
+      "description": "Cell 82 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9075",
+      "name": "cell_83_voltage",
+      "description": "Cell 83 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9076",
+      "name": "cell_84_voltage",
+      "description": "Cell 84 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9077",
+      "name": "cell_85_voltage",
+      "description": "Cell 85 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9078",
+      "name": "cell_86_voltage",
+      "description": "Cell 86 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9079",
+      "name": "cell_87_voltage",
+      "description": "Cell 87 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x907A",
+      "name": "cell_88_voltage",
+      "description": "Cell 88 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x907B",
+      "name": "cell_89_voltage",
+      "description": "Cell 89 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x907C",
+      "name": "cell_90_voltage",
+      "description": "Cell 90 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x907D",
+      "name": "cell_91_voltage",
+      "description": "Cell 91 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x907E",
+      "name": "cell_92_voltage",
+      "description": "Cell 92 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x907F",
+      "name": "cell_93_voltage",
+      "description": "Cell 93 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9081",
+      "name": "cell_94_voltage",
+      "description": "Cell 94 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9082",
+      "name": "cell_95_voltage",
+      "description": "Cell 95 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9083",
+      "name": "cell_96_voltage",
+      "description": "Cell 96 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9129",
+      "name": "secondary_battery_management_board_12",
+      "description": "Fields: Secondary battery management board 12 (byte 2, bit 4, 1 bit(s)); Secondary battery management board 11 (byte 2, bit 5, 1 bit(s)); Secondary battery management board 10 (byte 2, bit 6, 1 bit(s)); Secondary battery management board 9 (byte 2, bit 7, 1 bit(s)); Secondary battery management board 8 (byte 3, bit 0, 1 bit(s)); Secondary battery management board 7 (byte 3, bit 1, 1 bit(s)); Secondary battery management board 6 (byte 3, bit 2, 1 bit(s)); Secondary battery management board 5 (byte 3, bit 3, 1 bit(s)); …",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x912E",
+      "name": "fan_speed",
+      "description": "Fan speed",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 32,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x912F",
+      "name": "module_12_temperature_sensor_flag",
+      "description": "Fields: Module 12 temperature sensor flag (byte 2, bit 4, 1 bit(s)); Module 11 temperature sensor flag (byte 2, bit 5, 1 bit(s)); Module 10 temperature sensor flag (byte 2, bit 6, 1 bit(s)); Module 9 temperature sensor flag (byte 2, bit 7, 1 bit(s)); Module 8 temperature sensor flag (byte 3, bit 0, 1 bit(s)); Module 7 temperature sensor flag (byte 3, bit 1, 1 bit(s)); Module 6 temperature sensor flag (byte 3, bit 2, 1 bit(s)); Module 5 temperature sensor flag (byte 3, bit 3, 1 bit(s)); …",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9131",
+      "name": "module_1_temperature",
+      "description": "Module 1 temperature",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0625,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9132",
+      "name": "module_2_temperature",
+      "description": "Module 2 temperature",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0625,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9133",
+      "name": "module_3_temperature",
+      "description": "Module 3 temperature",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0625,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9134",
+      "name": "module_4_temperature",
+      "description": "Module 4 temperature",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0625,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9135",
+      "name": "module_5_temperature",
+      "description": "Module 5 temperature",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0625,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9136",
+      "name": "module_6_temperature",
+      "description": "Module 6 temperature",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0625,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9137",
+      "name": "module_7_temperature",
+      "description": "Module 7 temperature",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0625,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9138",
+      "name": "module_8_temperature",
+      "description": "Module 8 temperature",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0625,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9139",
+      "name": "module_9_temperature",
+      "description": "Module 9 temperature",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0625,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x913A",
+      "name": "module_10_temperature",
+      "description": "Module 10 temperature",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0625,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x913B",
+      "name": "module_11_temperature",
+      "description": "Module 11 temperature",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0625,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x913C",
+      "name": "module_12_temperature",
+      "description": "Module 12 temperature",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0625,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x91C8",
+      "name": "dc_battery_capacity",
+      "description": "Fields: DC battery capacity [kWh] (byte 0)",
+      "ecu_address": "0xDADA",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x91C9",
+      "name": "motor_driven_fan_unit_request",
+      "description": "Motor-driven fan unit request",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "unit": "%"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x91CC",
+      "name": "bus_bar_12_flag",
+      "description": "Fields: Bus bar 12 flag (byte 2, bit 4, 1 bit(s)); Bus bar 11 flag (byte 2, bit 5, 1 bit(s)); Bus bar 10 flag (byte 2, bit 6, 1 bit(s)); Bus bar 9 flag (byte 2, bit 7, 1 bit(s)); Bus bar 8 flag (byte 3, bit 0, 1 bit(s)); Bus bar 7 flag (byte 3, bit 1, 1 bit(s)); Bus bar 6 flag (byte 3, bit 2, 1 bit(s)); Bus bar 5 flag (byte 3, bit 3, 1 bit(s)); …",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x91CD",
+      "name": "traction_battery_input_water_temperature",
+      "description": "Traction battery input water temperature",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0625,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x91CF",
+      "name": "traction_battery_total_mileage",
+      "description": "Traction battery total mileage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "int32_be",
+        "scale": 0.03125,
+        "offset": 67108864,
+        "unit": "km"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x91EF",
+      "name": "fan_unit",
+      "description": "Fields: Fan unit (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x91F0",
+      "name": "fan_speed",
+      "description": "Fan speed",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x91F6",
+      "name": "traction_battery_service_plug_interlock",
+      "description": "Traction battery service plug interlock",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x91F7",
+      "name": "traction_battery_interlock",
+      "description": "Traction battery interlock",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9216",
+      "name": "traction_battery_overheating",
+      "description": "Fields: Traction battery overheating (byte 0, bit 0, 1 bit(s)); Cells overvoltage (byte 0, bit 1, 1 bit(s)); Traction battery overcurrent (byte 0, bit 2, 1 bit(s)); Cells undervoltage (byte 0, bit 3, 1 bit(s))",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9221",
+      "name": "bus_bar_1_voltage",
+      "description": "Bus bar 1 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9222",
+      "name": "bus_bar_2_voltage",
+      "description": "Bus bar 2 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9223",
+      "name": "bus_bar_3_voltage",
+      "description": "Bus bar 3 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9224",
+      "name": "bus_bar_4_voltage",
+      "description": "Bus bar 4 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9225",
+      "name": "bus_bar_5_voltage",
+      "description": "Bus bar 5 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9226",
+      "name": "bus_bar_6_voltage",
+      "description": "Bus bar 6 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9227",
+      "name": "bus_bar_7_voltage",
+      "description": "Bus bar 7 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9228",
+      "name": "bus_bar_8_voltage",
+      "description": "Bus bar 8 voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.000976563,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9242",
+      "name": "module_with_the_minimum_temperature",
+      "description": "Module with the minimum temperature",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9245",
+      "name": "cumulative_energy_when_discharging",
+      "description": "Cumulative energy when discharging",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "int32_be",
+        "scale": 0.001,
+        "unit": "kWh"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9256",
+      "name": "cell_96_flag",
+      "description": "Fields: Cell 96 flag (byte 20, bit 0, 1 bit(s)); Cell 95 flag (byte 20, bit 1, 1 bit(s)); Cell 94 flag (byte 20, bit 2, 1 bit(s)); Cell 93 flag (byte 20, bit 3, 1 bit(s)); Cell 92 flag (byte 20, bit 4, 1 bit(s)); Cell 91 flag (byte 20, bit 5, 1 bit(s)); Cell 90 flag (byte 20, bit 6, 1 bit(s)); Cell 89 flag (byte 20, bit 7, 1 bit(s)); …",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x925A",
+      "name": "fan_unit_feed",
+      "description": "Fan unit feed",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 4,
+        "unit": "Hz"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9261",
+      "name": "absolute_time_since_first_ignition",
+      "description": "Fields: Absolute time since first ignition [min] (byte 0)",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x927A",
+      "name": "cell_96_state_of_health_flag",
+      "description": "Fields: Cell 96 state of health flag (byte 20, bit 0, 1 bit(s)); Cell 95 state of health flag (byte 20, bit 1, 1 bit(s)); Cell 94 state of health flag (byte 20, bit 2, 1 bit(s)); Cell 93 state of health flag (byte 20, bit 3, 1 bit(s)); Cell 92 state of health flag (byte 20, bit 4, 1 bit(s)); Cell 91 state of health flag (byte 20, bit 5, 1 bit(s)); Cell 90 state of health flag (byte 20, bit 6, 1 bit(s)); Cell 89 state of health flag (byte 20, bit 7, 1 bit(s)); …",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9284",
+      "name": "traction_battery_current",
+      "description": "Traction battery current",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "int32_be",
+        "scale": -0.001,
+        "unit": "A"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF00",
+      "name": "12v_battery_supply_voltage",
+      "description": "12V battery supply voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF04",
+      "name": "high_voltage_state_of_charge",
+      "description": "High voltage state of charge",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "unit": "%"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF05",
+      "name": "high_voltage_battery_voltage",
+      "description": "High voltage battery voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF06",
+      "name": "max_cell_voltage",
+      "description": "Max cell voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF07",
+      "name": "min_cell_voltage",
+      "description": "Min cell voltage",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF08",
+      "name": "high_voltage_battery_current",
+      "description": "High voltage battery current",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.05,
+        "offset": -1600,
+        "unit": "A"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF09",
+      "name": "high_voltage_battery_current_low",
+      "description": "High voltage battery current, low",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.05,
+        "offset": -1600,
+        "unit": "A"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF0A",
+      "name": "high_voltage_battery_current_high",
+      "description": "High voltage battery current, high",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.05,
+        "offset": -1600,
+        "unit": "A"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF0D",
+      "name": "high_voltage_battery_temperature_sensor_1",
+      "description": "High voltage battery temperature sensor 1",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -100,
+        "unit": "°C"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF0E",
+      "name": "high_voltage_battery_temperature_sensor_2",
+      "description": "High voltage battery temperature sensor 2",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -100,
+        "unit": "°C"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF0F",
+      "name": "high_voltage_battery_temperature_sensor_3",
+      "description": "High voltage battery temperature sensor 3",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -100,
+        "unit": "°C"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF11",
+      "name": "high_voltage_battery_temperature_sensor_4",
+      "description": "High voltage battery temperature sensor 4",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -100,
+        "unit": "°C"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF12",
+      "name": "high_voltage_battery_intake_air_temperature",
+      "description": "High voltage battery intake air temperature",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -100,
+        "unit": "°C"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF19",
+      "name": "output_possible_power",
+      "description": "Output possible power",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.25,
+        "unit": "kW"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF1A",
+      "name": "output_possible_power_short",
+      "description": "Output possible power, short",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.25,
+        "unit": "kW"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF1B",
+      "name": "input_possible_power",
+      "description": "Input possible power",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.25,
+        "unit": "kW"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF1C",
+      "name": "input_possible_power_short",
+      "description": "Input possible power, short",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.25,
+        "unit": "kW"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF1D",
+      "name": "battery_cell_01",
+      "description": "Battery cell 01",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF1E",
+      "name": "battery_cell_02",
+      "description": "Battery cell 02",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF1F",
+      "name": "battery_cell_03",
+      "description": "Battery cell 03",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF20",
+      "name": "battery_cell_04",
+      "description": "Battery cell 04",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF21",
+      "name": "battery_cell_05",
+      "description": "Battery cell 05",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF22",
+      "name": "battery_cell_06",
+      "description": "Battery cell 06",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF23",
+      "name": "battery_cell_07",
+      "description": "Battery cell 07",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF24",
+      "name": "battery_cell_08",
+      "description": "Battery cell 08",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF25",
+      "name": "battery_cell_09",
+      "description": "Battery cell 09",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF26",
+      "name": "battery_cell_10",
+      "description": "Battery cell 10",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF27",
+      "name": "battery_cell_11",
+      "description": "Battery cell 11",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF28",
+      "name": "battery_cell_12",
+      "description": "Battery cell 12",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF29",
+      "name": "battery_cell_13",
+      "description": "Battery cell 13",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF2A",
+      "name": "battery_cell_14",
+      "description": "Battery cell 14",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF2B",
+      "name": "battery_cell_15",
+      "description": "Battery cell 15",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF2C",
+      "name": "battery_cell_16",
+      "description": "Battery cell 16",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF2D",
+      "name": "battery_cell_17",
+      "description": "Battery cell 17",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF2E",
+      "name": "battery_cell_18",
+      "description": "Battery cell 18",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF2F",
+      "name": "battery_cell_19",
+      "description": "Battery cell 19",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF30",
+      "name": "battery_cell_20",
+      "description": "Battery cell 20",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF31",
+      "name": "battery_cell_21",
+      "description": "Battery cell 21",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF32",
+      "name": "battery_cell_22",
+      "description": "Battery cell 22",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF33",
+      "name": "battery_cell_23",
+      "description": "Battery cell 23",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF34",
+      "name": "battery_cell_24",
+      "description": "Battery cell 24",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF35",
+      "name": "battery_cell_25",
+      "description": "Battery cell 25",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF36",
+      "name": "battery_cell_26",
+      "description": "Battery cell 26",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF37",
+      "name": "battery_cell_27",
+      "description": "Battery cell 27",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF38",
+      "name": "battery_cell_28",
+      "description": "Battery cell 28",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF39",
+      "name": "battery_cell_29",
+      "description": "Battery cell 29",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF3A",
+      "name": "battery_cell_30",
+      "description": "Battery cell 30",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF3B",
+      "name": "battery_cell_31",
+      "description": "Battery cell 31",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF3C",
+      "name": "battery_cell_32",
+      "description": "Battery cell 32",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF3D",
+      "name": "battery_cell_33",
+      "description": "Battery cell 33",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF3E",
+      "name": "battery_cell_34",
+      "description": "Battery cell 34",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF3F",
+      "name": "battery_cell_35",
+      "description": "Battery cell 35",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF40",
+      "name": "battery_cell_36",
+      "description": "Battery cell 36",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF41",
+      "name": "battery_cell_37",
+      "description": "Battery cell 37",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF42",
+      "name": "battery_cell_38",
+      "description": "Battery cell 38",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF43",
+      "name": "battery_cell_39",
+      "description": "Battery cell 39",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF44",
+      "name": "battery_cell_40",
+      "description": "Battery cell 40",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF45",
+      "name": "battery_cell_41",
+      "description": "Battery cell 41",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF46",
+      "name": "battery_cell_42",
+      "description": "Battery cell 42",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF47",
+      "name": "battery_cell_43",
+      "description": "Battery cell 43",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF48",
+      "name": "battery_cell_44",
+      "description": "Battery cell 44",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF49",
+      "name": "battery_cell_45",
+      "description": "Battery cell 45",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF4A",
+      "name": "battery_cell_46",
+      "description": "Battery cell 46",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF4B",
+      "name": "battery_cell_47",
+      "description": "Battery cell 47",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF4C",
+      "name": "battery_cell_48",
+      "description": "Battery cell 48",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF4D",
+      "name": "battery_cell_49",
+      "description": "Battery cell 49",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF4E",
+      "name": "battery_cell_50",
+      "description": "Battery cell 50",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF4F",
+      "name": "battery_cell_51",
+      "description": "Battery cell 51",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF50",
+      "name": "battery_cell_52",
+      "description": "Battery cell 52",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF51",
+      "name": "battery_cell_53",
+      "description": "Battery cell 53",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF52",
+      "name": "battery_cell_54",
+      "description": "Battery cell 54",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF53",
+      "name": "battery_cell_55",
+      "description": "Battery cell 55",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF54",
+      "name": "battery_cell_56",
+      "description": "Battery cell 56",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF55",
+      "name": "battery_cell_57",
+      "description": "Battery cell 57",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF56",
+      "name": "battery_cell_58",
+      "description": "Battery cell 58",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF57",
+      "name": "battery_cell_59",
+      "description": "Battery cell 59",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF58",
+      "name": "battery_cell_60",
+      "description": "Battery cell 60",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF59",
+      "name": "battery_cell_61",
+      "description": "Battery cell 61",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF5A",
+      "name": "battery_cell_62",
+      "description": "Battery cell 62",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF5B",
+      "name": "battery_cell_63",
+      "description": "Battery cell 63",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF5C",
+      "name": "battery_cell_64",
+      "description": "Battery cell 64",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF5D",
+      "name": "battery_cell_65",
+      "description": "Battery cell 65",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF5E",
+      "name": "battery_cell_66",
+      "description": "Battery cell 66",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF5F",
+      "name": "battery_cell_67",
+      "description": "Battery cell 67",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF60",
+      "name": "battery_cell_68",
+      "description": "Battery cell 68",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF61",
+      "name": "battery_cell_69",
+      "description": "Battery cell 69",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF62",
+      "name": "battery_cell_70",
+      "description": "Battery cell 70",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF63",
+      "name": "battery_cell_71",
+      "description": "Battery cell 71",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF64",
+      "name": "battery_cell_72",
+      "description": "Battery cell 72",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF65",
+      "name": "battery_cell_73",
+      "description": "Battery cell 73",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF66",
+      "name": "battery_cell_74",
+      "description": "Battery cell 74",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF67",
+      "name": "battery_cell_75",
+      "description": "Battery cell 75",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF68",
+      "name": "battery_cell_76",
+      "description": "Battery cell 76",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF69",
+      "name": "battery_cell_77",
+      "description": "Battery cell 77",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF6A",
+      "name": "battery_cell_78",
+      "description": "Battery cell 78",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF6B",
+      "name": "battery_cell_79",
+      "description": "Battery cell 79",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xCF6C",
+      "name": "battery_cell_80",
+      "description": "Battery cell 80",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xF1A0",
+      "name": "fault_finding_version",
+      "description": "Fault finding version",
+      "ecu_address": "0xDADB",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xFD7A",
+      "name": "misfire_counter_1",
+      "description": "Misfire counter 1",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xFD7B",
+      "name": "misfire_counter_2",
+      "description": "Misfire counter 2",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xFD7C",
+      "name": "misfire_counter_3",
+      "description": "Misfire counter 3",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xFD7D",
+      "name": "misfire_counter_4",
+      "description": "Misfire counter 4",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xFD7E",
+      "name": "knock_value_2",
+      "description": "Knock value 2",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001220721752,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xFD7F",
+      "name": "knock_value_1",
+      "description": "Knock value 1",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001220721752,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xFDC2",
+      "name": "average_knock_signal",
+      "description": "Average knock signal",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.01952941176,
+        "unit": "V"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xFDDA",
+      "name": "engine_control_module_temperature",
+      "description": "Engine control module temperature",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°C"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xFE1D",
+      "name": "boost_pressure_wastegate_control",
+      "description": "Boost pressure wastegate control",
+      "ecu_address": "0xDA15",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Nissan signalset (CC BY-SA 4.0)",
+      "verified": false
     }
   ],
   "routines": [

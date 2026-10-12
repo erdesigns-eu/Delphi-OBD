@@ -18,23 +18,24 @@ How the counts are made:
 - **Own** is the sum of the catalogue's own `ecus`, `dids`, `routines`,
   `coding_blocks`, `adaptations`, `actuator_tests`, `live_pids` and
   `dtc_extended_data` entries: the brand-specific data. Generic template entries
-  live once in a shared base under `_shared/` that the catalogue names in
-  `extends`; **Inherited** counts the entries it gets from that base and **Base**
-  names it. **Verified** counts own entries marked `"verified": true` (confirmed
-  on a vehicle or against a specification).
+  live once in a shared base under `_shared/`, and a sister brand can build on its
+  parent brand catalogue (Dacia on Renault, Polestar on Volvo); the catalogue
+  names its base in `extends`. **Inherited** counts the entries it gets through
+  that chain and **Base** names it. **Verified** counts own entries marked
+  `"verified": true` (confirmed on a vehicle or against a specification).
 - DTC catalogues are the top-level `dtc-*.json` files; **Entries** counts `dtcs`.
 
 ## Summary
-- **79 OEM catalogs** — **64,812 brand-specific entries** (plus 186,545 inherited from 6 shared bases, 0 verified) across 5 vehicle classes:
+- **81 OEM catalogs** — **75,442 brand-specific entries** (plus 218,080 inherited through `extends` from 6 shared bases and parent brands, 0 verified) across 5 vehicle classes:
   - **agricultural**: 8 catalogs / 728 brand-specific entries
-  - **cars-and-trucks**: 46 catalogs / 61,834 brand-specific entries
+  - **cars-and-trucks**: 48 catalogs / 72,464 brand-specific entries
   - **marine**: 6 catalogs / 766 brand-specific entries
   - **motorcycle**: 14 catalogs / 1,108 brand-specific entries
   - **powersports**: 5 catalogs / 376 brand-specific entries
 - **47 DTC catalogs** (`dtc-<oem>.json`) — **2,888 total DTCs**
 - **2 universal catalogs** (`obd2-pids.json` and `uds-standard.json`)
 - **2 range profiles** (`range-profiles/*.json`) — editable normal bands for OBD Studio values
-- **6 shared base catalogs** (`_shared/*.json`) — **7,428 template entries** stored once instead of per brand
+- **6 shared base catalogs** (`_shared/*.json`) — **4,968 template entries** stored once instead of per brand
 
 ## Shared base catalogs
 
@@ -42,7 +43,7 @@ How the counts are made:
 |---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | `_shared/dtc-extended-generic.json` | Shared generic DTC extended-data records (occurrence / aging / mileage / status / freeze-frame per generic DTC) |  | 10 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 2,460 | **2,460** |
 | `_shared/oem-agricultural.json` | Shared generic template (Agricultural and construction) |  | 8 | 23 | 74 | 14 | 0 | 12 | 15 | 12 | 0 | **150** |
-| `_shared/oem-cars-and-trucks.json` | Shared generic template (Cars and trucks) |  | 36 | 74 | 1,475 | 98 | 26 | 63 | 123 | 39 | 2,460 | **4,358** |
+| `_shared/oem-cars-and-trucks.json` | Shared generic template (Cars and trucks) | `dtc-extended-generic.json` | 33 | 74 | 1,475 | 98 | 26 | 63 | 123 | 39 | 0 | **1,898** |
 | `_shared/oem-marine.json` | Shared generic template (Marine) |  | 6 | 22 | 74 | 14 | 0 | 12 | 15 | 12 | 4 | **153** |
 | `_shared/oem-motorcycle.json` | Shared generic template (Motorcycles) |  | 14 | 25 | 74 | 14 | 0 | 12 | 15 | 12 | 4 | **156** |
 | `_shared/oem-powersports.json` | Shared generic template (Powersports) |  | 5 | 20 | 74 | 14 | 0 | 12 | 15 | 12 | 4 | **151** |
@@ -71,52 +72,54 @@ How the counts are made:
 
 | Brand | Key | WMIs | Base | ECUs | DIDs | Routines | Coding | Adapt | Act | Live | DTC ext | **Own** | Inherited | Verified |
 |---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| **Volkswagen Audi Group — full diagnostic catalog** <sub>`vw.json`</sub> | `VAG` | WVW, WV1, WV2 +4 | `dtc-extended-generic.json` | 117 | 3,042 | 536 | 141 | 604 | 340 | 437 | 2,310 | **7,527** | 2,460 | 0 |
-| **Bayerische Motoren Werke** <sub>`bmw.json`</sub> | `BMW` | WBA, WBS, WBY +3 | `dtc-extended-generic.json` | 140 | 2,068 | 203 | 43 | 198 | 151 | 69 | 3,856 | **6,728** | 2,460 | 0 |
-| **Ford Motor Company** <sub>`ford.json`</sub> | `FORD` | 1FA, 1FB, 1FC +12 | `dtc-extended-generic.json` | 106 | 1,941 | 187 | 37 | 142 | 111 | 40 | 2,728 | **5,292** | 2,460 | 0 |
-| **Mercedes-Benz Group** <sub>`mercedes.json`</sub> | `MB` | WDB, WDC, WDD +4 | `dtc-extended-generic.json` | 140 | 2,101 | 164 | 40 | 94 | 130 | 41 | 1,124 | **3,834** | 2,460 | 0 |
-| **Stellantis (FCA + PSA)** <sub>`stellantis.json`</sub> | `STLA` | 1C3, 1C4, 1C6 +23 | `dtc-extended-generic.json` | 157 | 2,633 | 159 | 34 | 81 | 168 | 53 | 0 | **3,285** | 2,460 | 0 |
-| **Hyundai Motor Group (Hyundai / Kia / Genesis)** <sub>`hmg.json`</sub> | `HMG` | KMH, KM8, KMF +12 | `dtc-extended-generic.json` | 143 | 2,481 | 145 | 32 | 76 | 145 | 45 | 0 | **3,067** | 2,460 | 0 |
-| **Jaguar Land Rover Limited (Tata)** <sub>`jlr.json`</sub> | `JLR` | SAJ, SAL, SAD +1 | `dtc-extended-generic.json` | 144 | 2,396 | 150 | 32 | 75 | 149 | 49 | 0 | **2,995** | 2,460 | 0 |
-| **Dr. Ing. h.c. F. Porsche AG** <sub>`porsche.json`</sub> | `PORSCHE` | WP0, WP1 | `dtc-extended-generic.json` | 128 | 2,423 | 141 | 31 | 74 | 139 | 40 | 0 | **2,976** | 2,460 | 0 |
-| **Toyota Motor Corporation** <sub>`toyota.json`</sub> | `TOYOTA` | JTD, JTE, JTH +13 | `dtc-extended-generic.json` | 109 | 1,860 | 124 | 31 | 79 | 104 | 38 | 572 | **2,917** | 2,460 | 0 |
-| **Honda Motor Co. (incl. Acura)** <sub>`honda.json`</sub> | `HONDA` | JHM, JHL, JHF +11 | `dtc-extended-generic.json` | 91 | 1,782 | 110 | 28 | 64 | 93 | 33 | 0 | **2,201** | 2,460 | 0 |
-| **General Motors** <sub>`gm.json`</sub> | `GM` | 1G1, 1G2, 1G4 +10 | `oem-cars-and-trucks.json` | 58 | 767 | 28 | 6 | 15 | 11 | 0 | 0 | **885** | 4,358 | 0 |
+| **Volkswagen Audi Group — full diagnostic catalog** <sub>`vw.json`</sub> | `VAG` | WVW, WV1, WV2 +4 | `dtc-extended-generic.json` | 117 | 4,856 | 536 | 141 | 604 | 340 | 437 | 2,310 | **9,341** | 2,460 | 0 |
+| **Bayerische Motoren Werke** <sub>`bmw.json`</sub> | `BMW` | WBA, WBS, WBY +3 | `dtc-extended-generic.json` | 140 | 2,177 | 203 | 43 | 198 | 151 | 69 | 3,856 | **6,837** | 2,460 | 0 |
+| **Ford Motor Company** <sub>`ford.json`</sub> | `FORD` | 1FA, 1FB, 1FC +12 | `dtc-extended-generic.json` | 106 | 2,327 | 187 | 37 | 142 | 111 | 40 | 2,728 | **5,678** | 2,460 | 0 |
+| **Dr. Ing. h.c. F. Porsche AG** <sub>`porsche.json`</sub> | `PORSCHE` | WP0, WP1 | `dtc-extended-generic.json` | 128 | 4,355 | 141 | 31 | 74 | 139 | 40 | 0 | **4,908** | 2,460 | 0 |
+| **Stellantis (FCA + PSA)** <sub>`stellantis.json`</sub> | `STLA` | 1C3, 1C4, 1C6 +23 | `dtc-extended-generic.json` | 157 | 3,302 | 159 | 34 | 81 | 168 | 53 | 0 | **3,954** | 2,460 | 0 |
+| **Mercedes-Benz Group** <sub>`mercedes.json`</sub> | `MB` | WDB, WDC, WDD +4 | `dtc-extended-generic.json` | 140 | 2,112 | 164 | 40 | 94 | 130 | 41 | 1,124 | **3,845** | 2,460 | 0 |
+| **Toyota Motor Corporation** <sub>`toyota.json`</sub> | `TOYOTA` | JTD, JTE, JTH +13 | `dtc-extended-generic.json` | 109 | 2,276 | 124 | 31 | 79 | 104 | 38 | 572 | **3,333** | 2,460 | 0 |
+| **Hyundai Motor Group (Hyundai / Kia / Genesis)** <sub>`hmg.json`</sub> | `HMG` | KMH, KM8, KMF +12 | `dtc-extended-generic.json` | 143 | 2,581 | 145 | 32 | 76 | 145 | 45 | 0 | **3,167** | 2,460 | 0 |
+| **Jaguar Land Rover Limited (Tata)** <sub>`jlr.json`</sub> | `JLR` | SAJ, SAL, SAD +1 | `dtc-extended-generic.json` | 144 | 2,500 | 150 | 32 | 75 | 149 | 49 | 0 | **3,099** | 2,460 | 0 |
+| **Honda Motor Co. (incl. Acura)** <sub>`honda.json`</sub> | `HONDA` | JHM, JHL, JHF +11 | `dtc-extended-generic.json` | 91 | 1,872 | 110 | 28 | 64 | 93 | 33 | 0 | **2,291** | 2,460 | 0 |
+| **Renault Group (Renault / Dacia / Alpine)** <sub>`renault.json`</sub> | `RNLT` | VF1, VF2, VS5 +8 | `oem-cars-and-trucks.json` | 44 | 1,796 | 12 | 3 | 4 | 3 | 0 | 0 | **1,862** | 4,358 | 0 |
+| **General Motors** <sub>`gm.json`</sub> | `GM` | 1G1, 1G2, 1G4 +10 | `oem-cars-and-trucks.json` | 58 | 1,381 | 28 | 6 | 15 | 11 | 0 | 0 | **1,499** | 4,358 | 0 |
+| **Mazda Motor Corporation** <sub>`mazda.json`</sub> | `MAZDA` | JM1, JM3, JM7 +3 | `oem-cars-and-trucks.json` | 40 | 1,399 | 13 | 2 | 3 | 3 | 0 | 0 | **1,460** | 4,358 | 0 |
+| **Volvo Cars (Geely)** <sub>`volvo.json`</sub> | `VOLVO` | YV1, YV4, LYV +3 | `oem-cars-and-trucks.json` | 43 | 1,069 | 10 | 2 | 5 | 3 | 0 | 0 | **1,132** | 4,358 | 0 |
+| **Nissan Motor (incl. Infiniti, Datsun)** <sub>`nissan.json`</sub> | `NISSAN` | JN1, JN6, JN8 +9 | `oem-cars-and-trucks.json` | 42 | 1,044 | 11 | 3 | 5 | 4 | 0 | 0 | **1,109** | 4,358 | 0 |
+| **Suzuki Motor Corp. (incl. Maruti Suzuki India)** <sub>`suzuki.json`</sub> | `SUZUKI` | JS1, JS2, JSA +5 | `oem-cars-and-trucks.json` | 46 | 895 | 6 | 2 | 2 | 2 | 0 | 0 | **953** | 4,358 | 0 |
+| **Bentley Motors Ltd.** <sub>`bentley.json`</sub> | `BENTLEY` | SCB | `vw.json` | 46 | 887 | 12 | 2 | 3 | 2 | 0 | 0 | **952** | 11,801 | 0 |
+| **BYD Auto Co. Ltd.** <sub>`byd.json`</sub> | `BYD` | L6T, LGX, 8GA | `oem-cars-and-trucks.json` | 48 | 724 | 13 | 3 | 5 | 4 | 0 | 0 | **797** | 4,358 | 0 |
+| **Subaru Corporation** <sub>`subaru.json`</sub> | `SUBARU` | JF1, JF2, JF3 +2 | `oem-cars-and-trucks.json` | 50 | 705 | 13 | 3 | 5 | 3 | 0 | 0 | **779** | 4,358 | 0 |
 | **Geely Auto / Lynk & Co** <sub>`geely.json`</sub> | `GEELY` | LB3, LFM, LJV +2 | `oem-cars-and-trucks.json` | 45 | 626 | 11 | 3 | 3 | 3 | 0 | 0 | **691** | 4,358 | 0 |
-| **Volvo Cars (Geely)** <sub>`volvo.json`</sub> | `VOLVO` | YV1, YV4, LYV +3 | `oem-cars-and-trucks.json` | 43 | 603 | 10 | 2 | 5 | 3 | 0 | 0 | **666** | 4,358 | 0 |
-| **Renault Group (Renault / Dacia / Alpine)** <sub>`renault.json`</sub> | `RNLT` | VF1, VF2, VS5 +8 | `oem-cars-and-trucks.json` | 44 | 599 | 12 | 3 | 4 | 3 | 0 | 0 | **665** | 4,358 | 0 |
-| **Nissan Motor (incl. Infiniti, Datsun)** <sub>`nissan.json`</sub> | `NISSAN` | JN1, JN6, JN8 +9 | `oem-cars-and-trucks.json` | 42 | 583 | 11 | 3 | 5 | 4 | 0 | 0 | **648** | 4,358 | 0 |
+| **Mitsubishi Motors Corp.** <sub>`mitsubishi.json`</sub> | `MITSU` | JA3, JA4, JMB +5 | `oem-cars-and-trucks.json` | 45 | 620 | 11 | 2 | 5 | 3 | 0 | 0 | **686** | 4,358 | 0 |
 | **Tata Motors Ltd.** <sub>`tata.json`</sub> | `TATA` | MAT, MAR, KMU | `oem-cars-and-trucks.json` | 45 | 579 | 9 | 1 | 2 | 1 | 0 | 0 | **637** | 4,358 | 0 |
-| **BYD Auto Co. Ltd.** <sub>`byd.json`</sub> | `BYD` | L6T, LGX, 8GA | `oem-cars-and-trucks.json` | 48 | 555 | 13 | 3 | 5 | 4 | 0 | 0 | **628** | 4,358 | 0 |
-| **Mitsubishi Motors Corp.** <sub>`mitsubishi.json`</sub> | `MITSU` | JA3, JA4, JMB +5 | `oem-cars-and-trucks.json` | 45 | 555 | 11 | 2 | 5 | 3 | 0 | 0 | **621** | 4,358 | 0 |
 | **Tesla, Inc.** <sub>`tesla.json`</sub> | `TESLA` | 5YJ, LRW, XP7 +1 | `oem-cars-and-trucks.json` | 53 | 530 | 16 | 4 | 7 | 9 | 0 | 0 | **619** | 4,358 | 0 |
+| **smart Automobile Co. (Mercedes-Geely JV)** <sub>`smart.json`</sub> | `SMART` | WME, L7M | `oem-cars-and-trucks.json` | 43 | 564 | 6 | 1 | 2 | 2 | 0 | 0 | **618** | 4,358 | 0 |
 | **Great Wall Motor (Haval / WEY / ORA / Tank / Poer)** <sub>`gwm.json`</sub> | `GWM` | LGW, LGE, LGT +1 | `oem-cars-and-trucks.json` | 45 | 545 | 11 | 2 | 2 | 2 | 0 | 0 | **607** | 4,358 | 0 |
 | **Cummins Inc. (engine OEM)** <sub>`cummins.json`</sub> | `CUMMINS` |  | `oem-cars-and-trucks.json` | 50 | 532 | 12 | 1 | 5 | 4 | 0 | 0 | **604** | 4,358 | 0 |
 | **Ferrari N.V.** <sub>`ferrari.json`</sub> | `FERRARI` | ZFF | `oem-cars-and-trucks.json` | 47 | 527 | 12 | 3 | 5 | 4 | 0 | 0 | **598** | 4,358 | 0 |
 | **Aston Martin Lagonda Ltd.** <sub>`aston-martin.json`</sub> | `ASTON_MARTIN` | SCF | `oem-cars-and-trucks.json` | 44 | 534 | 10 | 1 | 3 | 3 | 0 | 0 | **595** | 4,358 | 0 |
-| **Mazda Motor Corporation** <sub>`mazda.json`</sub> | `MAZDA` | JM1, JM3, JM7 +3 | `oem-cars-and-trucks.json` | 40 | 533 | 13 | 2 | 3 | 3 | 0 | 0 | **594** | 4,358 | 0 |
 | **Mahindra & Mahindra Ltd.** <sub>`mahindra.json`</sub> | `MAHINDRA` | MAJ, MA6, M3M | `oem-cars-and-trucks.json` | 45 | 530 | 8 | 2 | 2 | 1 | 0 | 0 | **588** | 4,358 | 0 |
-| **Suzuki Motor Corp. (incl. Maruti Suzuki India)** <sub>`suzuki.json`</sub> | `SUZUKI` | JS1, JS2, JSA +6 | `oem-cars-and-trucks.json` | 46 | 529 | 6 | 2 | 2 | 2 | 0 | 0 | **587** | 4,358 | 0 |
-| **MINI (BMW Group sub-brand)** <sub>`mini.json`</sub> | `MINI` | WMW, SAW | `oem-cars-and-trucks.json` | 53 | 508 | 10 | 2 | 3 | 3 | 0 | 0 | **579** | 4,358 | 0 |
+| **MINI (BMW Group sub-brand)** <sub>`mini.json`</sub> | `MINI` | WMW, SAW | `bmw.json` | 48 | 519 | 10 | 2 | 3 | 3 | 0 | 0 | **585** | 9,297 | 0 |
 | **PACCAR Inc. (Peterbilt / Kenworth / DAF / Leyland)** <sub>`paccar.json`</sub> | `PACCAR` | 1XP, 1NP, 5KJ +5 | `oem-cars-and-trucks.json` | 55 | 507 | 12 | 1 | 2 | 2 | 0 | 0 | **579** | 4,358 | 0 |
 | **Volvo Group (Volvo Trucks / Mack / Renault Trucks)** <sub>`volvotrucks.json`</sub> | `VOLVOTR` | 4V4, YV2, 4V2 +6 | `oem-cars-and-trucks.json` | 59 | 494 | 13 | 1 | 2 | 2 | 0 | 0 | **571** | 4,358 | 0 |
 | **NIO Inc.** <sub>`nio.json`</sub> | `NIO` | LJN, LBL | `oem-cars-and-trucks.json` | 48 | 492 | 14 | 3 | 5 | 4 | 0 | 0 | **566** | 4,358 | 0 |
-| **Subaru Corporation** <sub>`subaru.json`</sub> | `SUBARU` | JF1, JF2, JF3 +2 | `oem-cars-and-trucks.json` | 50 | 486 | 13 | 3 | 5 | 3 | 0 | 0 | **560** | 4,358 | 0 |
 | **Isuzu Motors Ltd.** <sub>`isuzu.json`</sub> | `ISUZU` | JAA, JAB, JAL +4 | `oem-cars-and-trucks.json` | 54 | 483 | 11 | 1 | 2 | 2 | 0 | 0 | **553** | 4,358 | 0 |
-| **Polestar Performance AB (Geely)** <sub>`polestar.json`</sub> | `POLESTAR` | LPS, LFP | `oem-cars-and-trucks.json` | 43 | 495 | 9 | 1 | 3 | 2 | 0 | 0 | **553** | 4,358 | 0 |
 | **Iveco S.p.A. (Iveco Group)** <sub>`iveco.json`</sub> | `IVECO` | ZCF, VCF | `oem-cars-and-trucks.json` | 53 | 482 | 12 | 1 | 2 | 2 | 0 | 0 | **552** | 4,358 | 0 |
 | **Xpeng Motors (XPeng Inc.)** <sub>`xpeng.json`</sub> | `XPENG` | LJY, LMZ | `oem-cars-and-trucks.json` | 47 | 475 | 13 | 3 | 5 | 5 | 0 | 0 | **548** | 4,358 | 0 |
-| **Automobile Dacia SA (Renault Group)** <sub>`dacia.json`</sub> | `DACIA` | UU1, UU3, LBR +1 | `oem-cars-and-trucks.json` | 46 | 488 | 8 | 1 | 2 | 2 | 0 | 0 | **547** | 4,358 | 0 |
-| **Bentley Motors Ltd.** <sub>`bentley.json`</sub> | `BENTLEY` | SCB | `oem-cars-and-trucks.json` | 46 | 480 | 12 | 2 | 3 | 2 | 0 | 0 | **545** | 4,358 | 0 |
+| **Rolls-Royce Motor Cars Ltd.** <sub>`rolls-royce.json`</sub> | `ROLLS_ROYCE` | SCA | `oem-cars-and-trucks.json` | 58 | 455 | 13 | 4 | 5 | 5 | 0 | 0 | **540** | 4,358 | 0 |
 | **Lucid Group, Inc.** <sub>`lucid.json`</sub> | `LUCID` | 50A | `oem-cars-and-trucks.json` | 45 | 466 | 9 | 2 | 4 | 3 | 0 | 0 | **529** | 4,358 | 0 |
 | **Rivian Automotive, Inc.** <sub>`rivian.json`</sub> | `RIVIAN` | 7PD | `oem-cars-and-trucks.json` | 47 | 456 | 11 | 3 | 5 | 4 | 0 | 0 | **526** | 4,358 | 0 |
 | **AvtoVAZ (Lada)** <sub>`lada.json`</sub> | `LADA` | XTA, XTC, XTV | `oem-cars-and-trucks.json` | 46 | 463 | 9 | 1 | 2 | 1 | 0 | 0 | **522** | 4,358 | 0 |
 | **McLaren Automotive Ltd.** <sub>`mclaren.json`</sub> | `MCLAREN` | SBM | `oem-cars-and-trucks.json` | 49 | 448 | 13 | 2 | 5 | 4 | 0 | 0 | **521** | 4,358 | 0 |
-| **smart Automobile Co. (Mercedes-Geely JV)** <sub>`smart.json`</sub> | `SMART` | WME, L7M | `oem-cars-and-trucks.json` | 43 | 457 | 6 | 1 | 2 | 2 | 0 | 0 | **511** | 4,358 | 0 |
-| **Rolls-Royce Motor Cars Ltd.** <sub>`rolls-royce.json`</sub> | `ROLLS_ROYCE` | SCA | `oem-cars-and-trucks.json` | 58 | 425 | 13 | 4 | 5 | 5 | 0 | 0 | **510** | 4,358 | 0 |
 | **MAN Truck & Bus SE (Traton Group)** <sub>`man.json`</sub> | `MAN` | WMA, 9BW | `oem-cars-and-trucks.json` | 56 | 436 | 10 | 1 | 2 | 2 | 0 | 0 | **507** | 4,358 | 0 |
 | **Scania AB (Traton Group)** <sub>`scania.json`</sub> | `SCANIA` | VLU, YS2, XLE +1 | `oem-cars-and-trucks.json` | 56 | 437 | 10 | 1 | 2 | 1 | 0 | 0 | **507** | 4,358 | 0 |
 | **Detroit Diesel Corp. (Daimler Truck — engine OEM)** <sub>`detroit.json`</sub> | `DDC` |  | `oem-cars-and-trucks.json` | 49 | 429 | 10 | 1 | 2 | 2 | 0 | 0 | **493** | 4,358 | 0 |
+| **Automobili Lamborghini S.p.A.** <sub>`lamborghini.json`</sub> | `LAMBORGHINI` | ZHW, ZA9 | `vw.json` | 0 | 353 | 0 | 0 | 0 | 0 | 0 | 0 | **353** | 11,801 | 0 |
+| **Automobile Dacia SA (Renault Group)** <sub>`dacia.json`</sub> | `DACIA` | UU1, UU3, LBR +1 | `renault.json` | 23 | 312 | 7 | 1 | 2 | 2 | 0 | 0 | **347** | 6,220 | 0 |
+| **Polestar Performance AB (Geely)** <sub>`polestar.json`</sub> | `POLESTAR` | LPS, LFP | `volvo.json` | 18 | 249 | 8 | 1 | 3 | 2 | 0 | 0 | **281** | 5,490 | 0 |
+| **SAIC Motor — MG** <sub>`mg.json`</sub> | `SAIC-MG` | LSJ | `oem-cars-and-trucks.json` | 0 | 145 | 0 | 0 | 0 | 0 | 0 | 0 | **145** | 4,358 | 0 |
 
 ## Marine
 

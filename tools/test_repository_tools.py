@@ -185,7 +185,7 @@ class CatalogIndexTests(unittest.TestCase):
         self.assertEqual(len(profiles), 2)
         self.assertTrue(shared)
         self.assertTrue(all(row['file'].startswith('_shared/') for row in shared))
-        bases = {row['file'] for row in shared}
+        bases = {row['file'] for row in shared} | {row['file'] for row in oem}
         self.assertTrue(all(row['base'] in bases for row in oem if row['base']))
 
 

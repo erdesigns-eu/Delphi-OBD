@@ -5420,6 +5420,352 @@
         "kind": "uint16_be",
         "unit": "kΩ"
       }
+    },
+    {
+      "did": "0x420C",
+      "name": "estimated_range_remaining_in_economy_mode",
+      "description": "Fields: Estimated range remaining in economy mode [km] (byte 0); Estimated range remaining in comfort mode [km] (byte 2); Estimated range remaining [km] (byte 4)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Rolls-Royce signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4AB1",
+      "name": "vehicle_speed",
+      "description": "Vehicle speed",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "km/h"
+      },
+      "source": "OBDb/Rolls-Royce signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x586F",
+      "name": "engine_oil_pressure",
+      "description": "Engine oil pressure",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Rolls-Royce signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x6335",
+      "name": "hv_battery_health",
+      "description": "Fields: HV battery health [%] (byte 3)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Rolls-Royce signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD031",
+      "name": "current_gear",
+      "description": "Current gear",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Rolls-Royce signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD107",
+      "name": "vehicle_speed",
+      "description": "Vehicle speed",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "km/h"
+      },
+      "source": "OBDb/Rolls-Royce signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD10D",
+      "name": "odometer_1",
+      "description": "Fields: Odometer #1 [km] (byte 0); Odometer #2 [km] (byte 4)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Rolls-Royce signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD111",
+      "name": "current_electric_range",
+      "description": "Fields: Current electric range [km] (byte 0); Maximum electric range [km] (byte 2); Current fuel range [km] (byte 4); Maximum fuel range [km] (byte 6); Electric consumption / 100km [kWh] (byte 8); Auxiliary power consumption [kW] (byte 10)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Rolls-Royce signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD112",
+      "name": "ambient_air_temperature",
+      "description": "Ambient air temperature",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Rolls-Royce signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD240",
+      "name": "vehicle_speed_instrument_cluster",
+      "description": "Vehicle speed (instrument cluster)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km/h"
+      },
+      "source": "OBDb/Rolls-Royce signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA12",
+      "name": "atf_temperature",
+      "description": "ATF temperature",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Rolls-Royce signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA1F",
+      "name": "kickdown",
+      "description": "Fields: Kickdown (byte 1)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Rolls-Royce signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA22",
+      "name": "torque_converter_lockup",
+      "description": "Fields: Torque converter lockup (byte 1)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Rolls-Royce signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA23",
+      "name": "odometer_low_resolution",
+      "description": "Odometer, low resolution",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint32_be",
+        "scale": 8,
+        "unit": "km"
+      },
+      "source": "OBDb/Rolls-Royce signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA25",
+      "name": "engine_oil_temperature",
+      "description": "Engine oil temperature",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Rolls-Royce signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA2A",
+      "name": "torque_converter_speed",
+      "description": "Fields: Torque converter speed [rpm] (byte 0); Transmission output shaft speed [rpm] (byte 2)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Rolls-Royce signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA2E",
+      "name": "gear",
+      "description": "Alternative decodings: Gear (byte 0); Shift gear (byte 0)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Rolls-Royce signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA37",
+      "name": "time_in_d",
+      "description": "Fields: Time in D (byte 0); Time in S (byte 1); Time in M (byte 2)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Rolls-Royce signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDB32",
+      "name": "front_axle_actual_torque",
+      "description": "Fields: Front axle, actual torque [Nm] (byte 0); Front axle, setpoint torque [Nm] (byte 4)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Rolls-Royce signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDBE4",
+      "name": "front_left_wheel_speed",
+      "description": "Fields: Front left wheel speed [km/h] (byte 0); Front right wheel speed [km/h] (byte 2); Rear left wheel speed [km/h] (byte 4); Rear right wheel speed [km/h] (byte 6)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Rolls-Royce signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDCDD",
+      "name": "driver_door_open",
+      "description": "Fields: Driver door open (byte 0); Passenger door open (byte 1); Rear driver door open (byte 2); Rear passenger door open (byte 3); Hood open (byte 4); Trunk open (byte 5); Rear window open (byte 6); Locked (byte 7)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Rolls-Royce signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD68",
+      "name": "hv_battery_voltage",
+      "description": "HV battery voltage",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "V"
+      },
+      "source": "OBDb/Rolls-Royce signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD69",
+      "name": "hv_battery_current",
+      "description": "Alternative decodings: HV battery current [A] (byte 0); HV battery current [A] (byte 0)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "int32_be",
+        "scale": 0.01,
+        "unit": "A"
+      },
+      "source": "OBDb/Rolls-Royce signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDDBC",
+      "name": "hv_battery_charge",
+      "description": "Fields: HV battery charge [%] (byte 0); HV battery charge (maximum) [%] (byte 2); HV battery charge (minimum) [%] (byte 4)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Rolls-Royce signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDDC0",
+      "name": "hv_battery_cell_temperature_min",
+      "description": "Fields: HV battery cell temperature (min) [°C] (byte 0); HV battery cell temperature (max) [°C] (byte 2)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Rolls-Royce signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDE00",
+      "name": "state_of_charge_hvpm",
+      "description": "Fields: State of charge (hvpm) [%] (byte 0); Minimum state of charge [%] (byte 2); Is charger connected (byte 3); Is charging (byte 4); Ready to drive (byte 5)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Rolls-Royce signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDF71",
+      "name": "number_of_cells",
+      "description": "Fields: Number of cells (byte 0); Number of cells per module (byte 2); Number of modules (byte 3); Number of temperature sensors per module (byte 4)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Rolls-Royce signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDFA0",
+      "name": "cell_capacity_min",
+      "description": "Fields: Cell capacity (min) [Ah] (byte 0); Cell capacity (max) [Ah] (byte 2); Cell capacity (average) [Ah] (byte 4); Cell voltage (min)) [V] (byte 6); Cell voltage (max) [V] (byte 8); Cell voltage (avg) [V] (byte 10); Cell temperature (min) [°C] (byte 12); Cell temperature (max) [°C] (byte 14); …",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Rolls-Royce signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE5C7",
+      "name": "hv_battery_health",
+      "description": "Fields: HV battery health [%] (byte 3)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Rolls-Royce signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE5CE",
+      "name": "hv_battery_charge",
+      "description": "HV battery charge",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Rolls-Royce signalset (CC BY-SA 4.0)",
+      "verified": false
     }
   ],
   "routines": [

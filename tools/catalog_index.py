@@ -174,9 +174,10 @@ def render():
                join_and('`%s`' % name for name in FIXTURES)),
             '**Own** is the sum of the catalogue\'s own %s entries: the '
             'brand-specific data. Generic template entries live once in a '
-            'shared base under `%s/` that the catalogue names in `extends`; '
-            '**Inherited** counts the entries it gets from that base and '
-            '**Base** names it. **Verified** counts own entries marked '
+            'shared base under `%s/`, and a sister brand can build on its '
+            'parent brand catalogue (Dacia on Renault, Polestar on Volvo); the '
+            'catalogue names its base in `extends`. **Inherited** counts the '
+            'entries it gets through that chain and **Base** names it. **Verified** counts own entries marked '
             '`"verified": true` (confirmed on a vehicle or against a '
             'specification).'
             % (join_and('`%s`' % section for section in SECTIONS), SHARED_DIR),
@@ -188,7 +189,8 @@ def render():
         '',
         '## Summary',
         '- **%d OEM catalogs** \u2014 **%s brand-specific entries** (plus %s '
-        'inherited from %d shared bases, %s verified) across %d vehicle '
+        'inherited through `extends` from %d shared bases and parent '
+        'brands, %s verified) across %d vehicle '
         'classes:' % (len(oem), '{:,}'.format(sum(r['total'] for r in oem)),
                       '{:,}'.format(sum(r['inherited'] for r in oem)),
                       len(shared),

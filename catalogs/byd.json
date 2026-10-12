@@ -6952,6 +6952,2117 @@
         "kind": "uint16_be",
         "unit": "kΩ"
       }
+    },
+    {
+      "did": "0x0003",
+      "name": "steering_wheel_angle",
+      "description": "Steering wheel angle",
+      "ecu_address": "0x783",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "°"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0004",
+      "name": "times_off_full_power_second_rate",
+      "description": "Times off full power, second-rate",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0005",
+      "name": "high_voltage_battery_state_of_charge",
+      "description": "High voltage battery state of charge",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0007",
+      "name": "ac_side_current",
+      "description": "AC side current",
+      "ecu_address": "0x797",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.2,
+        "unit": "A"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0008",
+      "name": "battery_total_voltage",
+      "description": "Battery total voltage",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0009",
+      "name": "battery_total_current",
+      "description": "Battery total current",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -500,
+        "unit": "A"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x000A",
+      "name": "maximum_allowed_charge_power",
+      "description": "Maximum allowed charge power",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "kW"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x000B",
+      "name": "charge_times",
+      "description": "Charge times",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x000C",
+      "name": "12v_battery_voltage",
+      "description": "12V battery voltage",
+      "ecu_address": "0x762",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x000D",
+      "name": "12v_battery_cell_1",
+      "description": "12V battery cell 1",
+      "ecu_address": "0x762",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x000E",
+      "name": "maximum_allowed_discharge_power",
+      "description": "Maximum allowed discharge power",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "kW"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x000F",
+      "name": "accumulated_charge_power_ah",
+      "description": "Fields: Accumulated charge power, ah [Ah] (byte 0)",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0010",
+      "name": "accumulated_discharge_power_ah",
+      "description": "Fields: Accumulated discharge power, ah [Ah] (byte 0)",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0011",
+      "name": "accumulated_charge_energy",
+      "description": "Accumulated charge energy",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kWh"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0012",
+      "name": "accumulated_discharge_energy",
+      "description": "Accumulated discharge energy",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kWh"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0013",
+      "name": "12v_battery_negative_contact_temperature",
+      "description": "12V battery negative contact temperature",
+      "ecu_address": "0x762",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0014",
+      "name": "12v_battery_mos_temperature",
+      "description": "12V battery MOS temperature",
+      "ecu_address": "0x762",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0019",
+      "name": "cooling_fan_duty_cycle",
+      "description": "Cooling fan duty cycle",
+      "ecu_address": "0x797",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x001F",
+      "name": "engine_coolant_temperature",
+      "description": "Engine coolant temperature",
+      "ecu_address": "0x743",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0025",
+      "name": "vehicle_speed",
+      "description": "Vehicle speed",
+      "ecu_address": "0x743",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "km/h"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0026",
+      "name": "odometer",
+      "description": "Fields: Odometer [km] (byte 0)",
+      "ecu_address": "0x743",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x002A",
+      "name": "lowest_voltage_cell",
+      "description": "Lowest voltage cell #",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x002B",
+      "name": "lowest_voltage_cell_value",
+      "description": "Lowest voltage cell value",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x002C",
+      "name": "highest_voltage_cell",
+      "description": "Highest voltage cell #",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x002D",
+      "name": "highest_voltage_cell_value",
+      "description": "Highest voltage cell value",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x002E",
+      "name": "lowest_temperature_cell",
+      "description": "Lowest temperature cell #",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x002F",
+      "name": "lowest_temperature_cell_value",
+      "description": "Lowest temperature cell value",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0030",
+      "name": "highest_temperature_cell",
+      "description": "Highest temperature cell #",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0031",
+      "name": "highest_temperature_cell_value",
+      "description": "Highest temperature cell value",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0032",
+      "name": "battery_pack_average_temperature",
+      "description": "Battery pack average temperature",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0101",
+      "name": "throttle_depth",
+      "description": "Throttle depth",
+      "ecu_address": "0x743",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0102",
+      "name": "brake_depth",
+      "description": "Brake depth",
+      "ecu_address": "0x743",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0103",
+      "name": "engine_outlet_water_temperature",
+      "description": "Engine outlet water temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.75,
+        "offset": -48,
+        "unit": "°C"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0104",
+      "name": "front_drive_target_torque",
+      "description": "Front drive, target torque",
+      "ecu_address": "0x743",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "offset": -500,
+        "unit": "Nm"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0105",
+      "name": "rear_drive_target_torque",
+      "description": "Rear drive, target torque",
+      "ecu_address": "0x743",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "offset": -500,
+        "unit": "Nm"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0106",
+      "name": "fuel_level_input",
+      "description": "Fuel level input",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "L"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0107",
+      "name": "cylinder_head_oil_temperature_modeled",
+      "description": "Cylinder head oil temperature, modeled",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 2.34375e-06,
+        "offset": -273.15,
+        "unit": "°C"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x010F",
+      "name": "boost_pressure_actual",
+      "description": "Boost pressure, actual",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.078125
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0111",
+      "name": "fuel_flow",
+      "description": "Fuel flow",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 5.96e-07
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0112",
+      "name": "boost_pressure_target",
+      "description": "Boost pressure, target",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.078125
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0160",
+      "name": "pack_1_lowest_voltage_cell_number",
+      "description": "Pack 1 lowest voltage cell number",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0161",
+      "name": "pack_1_lowest_voltage_cell_value",
+      "description": "Pack 1 lowest voltage cell value",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0162",
+      "name": "pack_1_highest_voltage_cell_number",
+      "description": "Pack 1 highest voltage cell number",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0163",
+      "name": "pack_1_highest_voltage_cell_value",
+      "description": "Pack 1 highest voltage cell value",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0164",
+      "name": "pack_2_lowest_voltage_cell_number",
+      "description": "Pack 2 lowest voltage cell number",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0165",
+      "name": "pack_2_lowest_voltage_cell_value",
+      "description": "Pack 2 lowest voltage cell value",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0166",
+      "name": "pack_2_highest_voltage_cell_number",
+      "description": "Pack 2 highest voltage cell number",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0167",
+      "name": "pack_2_highest_voltage_cell_value",
+      "description": "Pack 2 highest voltage cell value",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0168",
+      "name": "pack_3_lowest_voltage_cell_number",
+      "description": "Pack 3 lowest voltage cell number",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0169",
+      "name": "pack_3_lowest_voltage_cell_value",
+      "description": "Pack 3 lowest voltage cell value",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x016A",
+      "name": "pack_3_highest_voltage_cell_number",
+      "description": "Pack 3 highest voltage cell number",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x016B",
+      "name": "pack_3_highest_voltage_cell_value",
+      "description": "Pack 3 highest voltage cell value",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x016C",
+      "name": "pack_4_lowest_voltage_cell_number",
+      "description": "Pack 4 lowest voltage cell number",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x016D",
+      "name": "pack_4_lowest_voltage_cell_value",
+      "description": "Pack 4 lowest voltage cell value",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x016E",
+      "name": "pack_4_highest_voltage_cell_number",
+      "description": "Pack 4 highest voltage cell number",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x016F",
+      "name": "pack_4_highest_voltage_cell_value",
+      "description": "Pack 4 highest voltage cell value",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0170",
+      "name": "pack_5_lowest_voltage_cell_number",
+      "description": "Pack 5 lowest voltage cell number",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0171",
+      "name": "pack_5_lowest_voltage_cell_value",
+      "description": "Pack 5 lowest voltage cell value",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0172",
+      "name": "pack_5_highest_voltage_cell_number",
+      "description": "Pack 5 highest voltage cell number",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0173",
+      "name": "pack_5_highest_voltage_cell_value",
+      "description": "Pack 5 highest voltage cell value",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0174",
+      "name": "pack_6_lowest_voltage_cell_number",
+      "description": "Pack 6 lowest voltage cell number",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0175",
+      "name": "pack_6_lowest_voltage_cell_value",
+      "description": "Pack 6 lowest voltage cell value",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0176",
+      "name": "pack_6_highest_voltage_cell_number",
+      "description": "Pack 6 highest voltage cell number",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0177",
+      "name": "pack_6_highest_voltage_cell_value",
+      "description": "Pack 6 highest voltage cell value",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0178",
+      "name": "pack_7_lowest_voltage_cell_number",
+      "description": "Pack 7 lowest voltage cell number",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0179",
+      "name": "pack_7_lowest_voltage_cell_value",
+      "description": "Pack 7 lowest voltage cell value",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x017A",
+      "name": "pack_7_highest_voltage_cell_number",
+      "description": "Pack 7 highest voltage cell number",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x017B",
+      "name": "pack_7_highest_voltage_cell_value",
+      "description": "Pack 7 highest voltage cell value",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x017C",
+      "name": "engine_water_temperature_at_start",
+      "description": "Engine water temperature at start",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.75,
+        "offset": -48,
+        "unit": "°C"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x017C",
+      "name": "pack_8_lowest_voltage_cell_number",
+      "description": "Pack 8 lowest voltage cell number",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x017D",
+      "name": "pack_8_lowest_voltage_cell_value",
+      "description": "Pack 8 lowest voltage cell value",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x017E",
+      "name": "pack_8_highest_voltage_cell_number",
+      "description": "Pack 8 highest voltage cell number",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x017F",
+      "name": "pack_8_highest_voltage_cell_value",
+      "description": "Pack 8 highest voltage cell value",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0180",
+      "name": "misfires_cylinder_1",
+      "description": "Misfires, cylinder 1",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.078125
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0180",
+      "name": "pack_9_lowest_voltage_cell_number",
+      "description": "Pack 9 lowest voltage cell number",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0181",
+      "name": "misfires_cylinder_4",
+      "description": "Misfires, cylinder 4",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.078125
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0181",
+      "name": "pack_9_lowest_voltage_cell_value",
+      "description": "Pack 9 lowest voltage cell value",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0182",
+      "name": "misfires_cylinder_3",
+      "description": "Misfires, cylinder 3",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.078125
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0182",
+      "name": "pack_9_highest_voltage_cell_number",
+      "description": "Pack 9 highest voltage cell number",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0183",
+      "name": "misfires_cylinder_2",
+      "description": "Misfires, cylinder 2",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.078125
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0183",
+      "name": "pack_9_highest_voltage_cell_value",
+      "description": "Pack 9 highest voltage cell value",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0184",
+      "name": "pack_10_lowest_voltage_cell_number",
+      "description": "Pack 10 lowest voltage cell number",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0185",
+      "name": "pack_10_lowest_voltage_cell_value",
+      "description": "Pack 10 lowest voltage cell value",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0186",
+      "name": "pack_10_highest_voltage_cell_number",
+      "description": "Pack 10 highest voltage cell number",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0187",
+      "name": "pack_10_highest_voltage_cell_value",
+      "description": "Pack 10 highest voltage cell value",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0188",
+      "name": "pack_11_lowest_voltage_cell_number",
+      "description": "Pack 11 lowest voltage cell number",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0189",
+      "name": "pack_11_lowest_voltage_cell_value",
+      "description": "Pack 11 lowest voltage cell value",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x018A",
+      "name": "pack_11_highest_voltage_cell_number",
+      "description": "Pack 11 highest voltage cell number",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x018B",
+      "name": "pack_11_highest_voltage_cell_value",
+      "description": "Pack 11 highest voltage cell value",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x018C",
+      "name": "pack_12_lowest_voltage_cell_number",
+      "description": "Pack 12 lowest voltage cell number",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x018D",
+      "name": "pack_12_lowest_voltage_cell_value",
+      "description": "Pack 12 lowest voltage cell value",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x018E",
+      "name": "pack_12_highest_voltage_cell_number",
+      "description": "Pack 12 highest voltage cell number",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x018F",
+      "name": "pack_12_highest_voltage_cell_value",
+      "description": "Pack 12 highest voltage cell value",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0190",
+      "name": "pack_13_lowest_voltage_cell_number",
+      "description": "Pack 13 lowest voltage cell number",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0191",
+      "name": "pack_13_lowest_voltage_cell_value",
+      "description": "Pack 13 lowest voltage cell value",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0192",
+      "name": "pack_13_highest_voltage_cell_number",
+      "description": "Pack 13 highest voltage cell number",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0193",
+      "name": "pack_13_highest_voltage_cell_value",
+      "description": "Pack 13 highest voltage cell value",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0194",
+      "name": "pack_14_lowest_voltage_cell_number",
+      "description": "Pack 14 lowest voltage cell number",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0195",
+      "name": "pack_14_lowest_voltage_cell_value",
+      "description": "Pack 14 lowest voltage cell value",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0196",
+      "name": "pack_14_highest_voltage_cell_number",
+      "description": "Pack 14 highest voltage cell number",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0197",
+      "name": "pack_14_highest_voltage_cell_value",
+      "description": "Pack 14 highest voltage cell value",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0198",
+      "name": "pack_15_lowest_voltage_cell_number",
+      "description": "Pack 15 lowest voltage cell number",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0199",
+      "name": "pack_15_lowest_voltage_cell_value",
+      "description": "Pack 15 lowest voltage cell value",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x019A",
+      "name": "pack_15_highest_voltage_cell_number",
+      "description": "Pack 15 highest voltage cell number",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x019B",
+      "name": "pack_15_highest_voltage_cell_value",
+      "description": "Pack 15 highest voltage cell value",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x019C",
+      "name": "pack_7_lowest_voltage_cell_number",
+      "description": "Pack 7 lowest voltage cell number",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x019D",
+      "name": "pack_7_lowest_voltage_cell_value",
+      "description": "Pack 7 lowest voltage cell value",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x019E",
+      "name": "pack_7_highest_voltage_cell_number",
+      "description": "Pack 7 highest voltage cell number",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x019F",
+      "name": "pack_7_highest_voltage_cell_value",
+      "description": "Pack 7 highest voltage cell value",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01A0",
+      "name": "pack_7_lowest_temperature_cell_number",
+      "description": "Pack 7 lowest temperature cell number",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01A1",
+      "name": "pack_7_lowest_temperature_cell_value",
+      "description": "Pack 7 lowest temperature cell value",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01A2",
+      "name": "pack_7_highest_temperature_cell_number",
+      "description": "Pack 7 highest temperature cell number",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01A3",
+      "name": "pack_7_highest_temperature_cell_value",
+      "description": "Pack 7 highest temperature cell value",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01A4",
+      "name": "pack_8_lowest_voltage_cell_number",
+      "description": "Pack 8 lowest voltage cell number",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01A5",
+      "name": "pack_8_lowest_voltage_cell_value",
+      "description": "Pack 8 lowest voltage cell value",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01A6",
+      "name": "pack_8_highest_voltage_cell_number",
+      "description": "Pack 8 highest voltage cell number",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01A7",
+      "name": "pack_8_highest_voltage_cell_value",
+      "description": "Pack 8 highest voltage cell value",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01A8",
+      "name": "pack_8_lowest_temperature_cell_number",
+      "description": "Pack 8 lowest temperature cell number",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01A9",
+      "name": "pack_8_lowest_temperature_cell_value",
+      "description": "Pack 8 lowest temperature cell value",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01AA",
+      "name": "pack_8_highest_temperature_cell_number",
+      "description": "Pack 8 highest temperature cell number",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01AB",
+      "name": "pack_8_highest_temperature_cell_value",
+      "description": "Pack 8 highest temperature cell value",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01AC",
+      "name": "pack_9_lowest_voltage_cell_number",
+      "description": "Pack 9 lowest voltage cell number",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01AD",
+      "name": "pack_9_lowest_voltage_cell_value",
+      "description": "Pack 9 lowest voltage cell value",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01AE",
+      "name": "pack_9_highest_voltage_cell_number",
+      "description": "Pack 9 highest voltage cell number",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01AF",
+      "name": "pack_9_highest_voltage_cell_value",
+      "description": "Pack 9 highest voltage cell value",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01B0",
+      "name": "pack_9_lowest_temperature_cell_number",
+      "description": "Pack 9 lowest temperature cell number",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01B1",
+      "name": "pack_9_lowest_temperature_cell_value",
+      "description": "Pack 9 lowest temperature cell value",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01B2",
+      "name": "pack_9_highest_temperature_cell_number",
+      "description": "Pack 9 highest temperature cell number",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01B3",
+      "name": "pack_9_highest_temperature_cell_value",
+      "description": "Pack 9 highest temperature cell value",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01B4",
+      "name": "pack_10_lowest_voltage_cell_number",
+      "description": "Pack 10 lowest voltage cell number",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01B5",
+      "name": "pack_10_lowest_voltage_cell_value",
+      "description": "Pack 10 lowest voltage cell value",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01B6",
+      "name": "pack_10_highest_voltage_cell_number",
+      "description": "Pack 10 highest voltage cell number",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01B7",
+      "name": "pack_10_highest_voltage_cell_value",
+      "description": "Pack 10 highest voltage cell value",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01B8",
+      "name": "pack_10_lowest_temperature_cell_number",
+      "description": "Pack 10 lowest temperature cell number",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01B9",
+      "name": "pack_10_lowest_temperature_cell_value",
+      "description": "Pack 10 lowest temperature cell value",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01BA",
+      "name": "pack_10_highest_temperature_cell_number",
+      "description": "Pack 10 highest temperature cell number",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01BB",
+      "name": "pack_10_highest_temperature_cell_value",
+      "description": "Pack 10 highest temperature cell value",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01BC",
+      "name": "pack_11_lowest_voltage_cell_number",
+      "description": "Pack 11 lowest voltage cell number",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01BD",
+      "name": "pack_11_lowest_voltage_cell_value",
+      "description": "Pack 11 lowest voltage cell value",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01BE",
+      "name": "pack_11_highest_voltage_cell_number",
+      "description": "Pack 11 highest voltage cell number",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01BF",
+      "name": "pack_11_highest_voltage_cell_value",
+      "description": "Pack 11 highest voltage cell value",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01C0",
+      "name": "pack_11_lowest_temperature_cell_number",
+      "description": "Pack 11 lowest temperature cell number",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01C1",
+      "name": "pack_11_lowest_temperature_cell_value",
+      "description": "Pack 11 lowest temperature cell value",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01C2",
+      "name": "pack_11_highest_temperature_cell_number",
+      "description": "Pack 11 highest temperature cell number",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01C3",
+      "name": "pack_11_highest_temperature_cell_value",
+      "description": "Pack 11 highest temperature cell value",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01C4",
+      "name": "pack_12_lowest_voltage_cell_number",
+      "description": "Pack 12 lowest voltage cell number",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01C5",
+      "name": "pack_12_lowest_voltage_cell_value",
+      "description": "Pack 12 lowest voltage cell value",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01C6",
+      "name": "pack_12_highest_voltage_cell_number",
+      "description": "Pack 12 highest voltage cell number",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01C7",
+      "name": "pack_12_highest_voltage_cell_value",
+      "description": "Pack 12 highest voltage cell value",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01C8",
+      "name": "pack_12_lowest_temperature_cell_number",
+      "description": "Pack 12 lowest temperature cell number",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01C9",
+      "name": "pack_12_lowest_temperature_cell_value",
+      "description": "Pack 12 lowest temperature cell value",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01CA",
+      "name": "pack_12_highest_temperature_cell_number",
+      "description": "Pack 12 highest temperature cell number",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01CB",
+      "name": "pack_12_highest_temperature_cell_value",
+      "description": "Pack 12 highest temperature cell value",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01CC",
+      "name": "pack_13_lowest_voltage_cell_number",
+      "description": "Pack 13 lowest voltage cell number",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01CD",
+      "name": "pack_13_lowest_voltage_cell_value",
+      "description": "Pack 13 lowest voltage cell value",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01CE",
+      "name": "pack_13_highest_voltage_cell_number",
+      "description": "Pack 13 highest voltage cell number",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01CF",
+      "name": "pack_13_highest_voltage_cell_value",
+      "description": "Pack 13 highest voltage cell value",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01D0",
+      "name": "pack_13_lowest_temperature_cell_number",
+      "description": "Pack 13 lowest temperature cell number",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01D1",
+      "name": "pack_13_lowest_temperature_cell_value",
+      "description": "Pack 13 lowest temperature cell value",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01D2",
+      "name": "pack_13_highest_temperature_cell_number",
+      "description": "Pack 13 highest temperature cell number",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": 1
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01D3",
+      "name": "pack_13_highest_temperature_cell_value",
+      "description": "Pack 13 highest temperature cell value",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1FFC",
+      "name": "high_voltage_battery_pack_nominal_state_of_charge",
+      "description": "Fields: High voltage battery pack nominal state of charge [%] (byte 0); High voltage battery pack factory capacity [Ah] (byte 2)",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1FFD",
+      "name": "state_of_charge_actual",
+      "description": "State of charge, actual",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1FFE",
+      "name": "high_voltage_battery_pack_factory_state_of_charge",
+      "description": "Fields: High voltage battery pack factory state of charge [%] (byte 0); High voltage battery pack factory capacity [Ah] (byte 2)",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2001",
+      "name": "front_left_wheel_speed",
+      "description": "Fields: Front left wheel speed [km/h] (byte 0); Front right wheel speed [km/h] (byte 2); Rear left wheel speed [km/h] (byte 4); Rear right wheel speed [km/h] (byte 6)",
+      "ecu_address": "0x782",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x210A",
+      "name": "engine_total_mileage",
+      "description": "Engine total mileage",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "km"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x211F",
+      "name": "radiator_outlet_water_temperature",
+      "description": "Radiator outlet water temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.75,
+        "offset": -48,
+        "unit": "°C"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2129",
+      "name": "boost_temperature",
+      "description": "Boost temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.75,
+        "offset": -48,
+        "unit": "°C"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2143",
+      "name": "instrument_panel_total_mileage",
+      "description": "Instrument panel total mileage",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "km"
+      },
+      "source": "OBDb/BYD signalset (CC BY-SA 4.0)",
+      "verified": false
     }
   ],
   "routines": [

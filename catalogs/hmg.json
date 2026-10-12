@@ -30679,6 +30679,1107 @@
         "kind": "ascii",
         "length": 3
       }
+    },
+    {
+      "did": "0x0100",
+      "name": "interior_temperature_front",
+      "description": "Fields: Interior temperature, front [°C] (byte 5); Interior temperature [°C] (byte 5); Outdoor temperature [°C] (byte 6); Exterior temperature [°C] (byte 6); Evaporator temperature [°C] (byte 7); Humidity sensor for automatic defogger [%] (byte 25); Interior temperature, driver vent [°C] (byte 27); Interior temperature, driver legs vent [°C] (byte 28); …",
+      "ecu_address": "0x7B3",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0101",
+      "name": "interior_temperature_passenger_vent",
+      "description": "Fields: Interior temperature, passenger vent [°C] (byte 8); Interior temperature, passenger legs vent [°C] (byte 9)",
+      "ecu_address": "0x7B3",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0101",
+      "name": "state_of_charge",
+      "description": "Fields: State of charge [%] (byte 4); Available charge power [kW] (byte 5); Wheel turn angle, absolute [°] (byte 7); Available discharge power [kW] (byte 7); Motor-driven power steering current [A] (byte 11); Battery min temp [°C] (byte 15); Battery mod 1 temp [°C] (byte 16); Battery mod 2 temp [°C] (byte 17); …",
+      "ecu_address": "0x7D4",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0101",
+      "name": "hv_battery_charge_dashboard",
+      "description": "Fields: HV battery charge, dashboard [%] (byte 4); Available charge power [kW] (byte 5); Available discharge power [kW] (byte 7); HV battery charging (byte 9, bit 0, 1 bit(s)); Charging? (byte 9, bit 0, 1 bit(s)); Rapid charge port state (byte 9, bit 1, 1 bit(s)); Rapid charge port (byte 9, bit 1, 1 bit(s)); Normal charge port state (byte 9, bit 2, 1 bit(s)); …",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0102",
+      "name": "coolant_temperature",
+      "description": "Fields: Coolant temperature [°C] (byte 4); Inverter temperature [°C] (byte 12)",
+      "ecu_address": "0x7B3",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0102",
+      "name": "motor_temperature",
+      "description": "Fields: Motor temperature [°C] (byte 11); Inverter temperature [°C] (byte 12)",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0102",
+      "name": "cell_voltage_001",
+      "description": "Fields: Cell voltage 001 [V] (byte 4); HV battery module 001 voltage [V] (byte 4); Cell voltage 002 [V] (byte 5); HV battery module 002 voltage [V] (byte 5); Cell voltage 003 [V] (byte 6); HV battery module 003 voltage [V] (byte 6); Cell voltage 004 [V] (byte 7); HV battery module 004 voltage [V] (byte 7); …",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0103",
+      "name": "cell_voltage_033",
+      "description": "Fields: Cell voltage 033 [V] (byte 4); HV battery module 033 voltage [V] (byte 4); Cell voltage 034 [V] (byte 5); HV battery module 034 voltage [V] (byte 5); Cell voltage 035 [V] (byte 6); HV battery module 035 voltage [V] (byte 6); Cell voltage 036 [V] (byte 7); HV battery module 036 voltage [V] (byte 7); …",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0104",
+      "name": "vehicle_speed_average",
+      "description": "Fields: Vehicle speed, average [km/h] (byte 6); Front left wheel speed [km/h] (byte 10); Front left wheel speed [km/h] (byte 11); Front right wheel speed [km/h] (byte 12); Rear right wheel speed [km/h] (byte 13); Rear left wheel speed [km/h] (byte 14); Vehicle traction control switch, raw (byte 18, bit 6, 1 bit(s)); Steering wheel angle [°] (byte 25); …",
+      "ecu_address": "0x7D1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0104",
+      "name": "hv_battery_module_065_voltage",
+      "description": "Fields: HV battery module 065 voltage [V] (byte 4); HV battery module 065 voltage [V] (byte 4); HV battery module 066 voltage [V] (byte 5); HV battery module 066 voltage [V] (byte 5); HV battery module 067 voltage [V] (byte 6); HV battery module 067 voltage [V] (byte 6); HV battery module 068 voltage [V] (byte 7); HV battery module 068 voltage [V] (byte 7); …",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0105",
+      "name": "hv_cell_voltage_deviation",
+      "description": "Fields: HV cell voltage deviation [V] (byte 20); Airbag hard-wire duty (byte 22); HV battery heater 1 temperature [°C] (byte 23); HV battery heater 2 temperature [°C] (byte 24); HV battery state of health [%] (byte 25); HV battery max deterioration cell id (byte 27); HV battery remaining energy [kWh] (byte 28); HV battery min deterioration [%] (byte 28); …",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0106",
+      "name": "battery_management_state",
+      "description": "Fields: Battery management state (byte 0); Battery temperature at cooling input [°C] (byte 4); Battery fan duty feedback [%] (byte 8); Battery fan duty feedback [%] (byte 8); Climate compressor operation RPM, variant 1 [rpm] (byte 12); Battery temperature, power relay assembly [°C] (byte 20)",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x010A",
+      "name": "hv_battery_module_097_voltage",
+      "description": "Fields: HV battery module 097 voltage [V] (byte 4); HV battery module 098 voltage [V] (byte 5); HV battery module 099 voltage [V] (byte 6); HV battery module 100 voltage [V] (byte 7); HV battery module 101 voltage [V] (byte 8); HV battery module 102 voltage [V] (byte 9); HV battery module 103 voltage [V] (byte 10); HV battery module 104 voltage [V] (byte 11); …",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x010B",
+      "name": "hv_battery_module_129_voltage",
+      "description": "Fields: HV battery module 129 voltage [V] (byte 4); HV battery module 130 voltage [V] (byte 5); HV battery module 131 voltage [V] (byte 6); HV battery module 132 voltage [V] (byte 7); HV battery module 133 voltage [V] (byte 8); HV battery module 134 voltage [V] (byte 9); HV battery module 135 voltage [V] (byte 10); HV battery module 136 voltage [V] (byte 11); …",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x010C",
+      "name": "hv_battery_module_161_voltage",
+      "description": "Fields: HV battery module 161 voltage [V] (byte 4); HV battery module 162 voltage [V] (byte 5); HV battery module 163 voltage [V] (byte 6); HV battery module 164 voltage [V] (byte 7); HV battery module 165 voltage [V] (byte 8); HV battery module 166 voltage [V] (byte 9); HV battery module 167 voltage [V] (byte 10); HV battery module 168 voltage [V] (byte 11); …",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0111",
+      "name": "number_of_standard_charging",
+      "description": "Fields: Number of standard charging (byte 4); Number of quick charging (byte 8); Accumulated normal charging energy [kWh] (byte 12); Quick charging energy, total [kWh] (byte 16); Battery pack B17 [°C] (byte 26); Battery pack B18 [°C] (byte 27)",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0114",
+      "name": "a_c_compressor_operation_rpm",
+      "description": "Fields: A/C compressor operation RPM [rpm] (byte 26)",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01A0",
+      "name": "engine_rpm",
+      "description": "Fields: Engine RPM [rpm] (byte 4); Engine RPM [rpm] (byte 4); Vehicle speed [km/h] (byte 6); Relative accelerator pedal position [%] (byte 8); Turbine speed [rpm] (byte 9); Output speed [rpm] (byte 11); Output speed [rpm] (byte 11); Automatic transmission fluid temperature [°C] (byte 13); …",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01A1",
+      "name": "4wd_calculated_commanded_torque",
+      "description": "Fields: 4WD calculated, commanded torque [Nm] (byte 5); 4WD pump PWM duty [%] (byte 7); 4WD clutch duty [%] (byte 9); 4WD max clutch stress [%] (byte 11); 4WD clutch stress [%] (byte 13); 4WD pump current [A] (byte 14); 4WD clutch, actual torque [Nm] (byte 16); 4WD clutch, actual pressure [bar] (byte 18); …",
+      "ecu_address": "0x740",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01A3",
+      "name": "4wd_calculated_clutch_power",
+      "description": "Fields: 4WD calculated clutch power [kWh] (byte 7); 4WD front axle ratio (byte 7); 4WD calculated engine power [kWh] (byte 9); 4WD engine RPM [bar] (byte 14); 4WD delta speed between front and rear axle [rpm] (byte 18)",
+      "ecu_address": "0x740",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01A4",
+      "name": "current_gear",
+      "description": "Fields: Current gear (byte 23, bit 4, 4 bit(s)); Next gear (byte 24, bit 4, 4 bit(s)); Current gear (byte 27); Clutch #1 temperature [°C] (byte 29); Clutch #2 temperature [°C] (byte 31)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x01A5",
+      "name": "dual_clutch_transmission_odd_shaft_gear_engaged",
+      "description": "Fields: Dual-clutch transmission odd shaft, gear engaged (byte 4); Dual-clutch transmission even shaft, gear engaged (byte 5); Dual-clutch transmission fluid temperature 1 [°C] (byte 6); Dual-clutch transmission fluid temperature 2 [°C] (byte 7); Dual-clutch transmission clutch 1, pressure sensor A [bar] (byte 24); Dual-clutch transmission clutch 2, pressure sensor B [bar] (byte 26); Dual-clutch transmission line pressure, sensor C [bar] (byte 28)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0201",
+      "name": "48_battery_state_of_charge",
+      "description": "Fields: 48 battery state of charge [%] (byte 19)",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0203",
+      "name": "48v_battery_cell_01_voltage",
+      "description": "Fields: 48V battery cell 01 voltage [mV] (byte 6); 48V battery cell 02 voltage [mV] (byte 8); 48V battery cell 03 voltage [mV] (byte 10); 48V battery cell 04 voltage [mV] (byte 12); 48V battery cell 05 voltage [mV] (byte 14); 48V battery cell 06 voltage [mV] (byte 16); 48V battery cell 07 voltage [mV] (byte 18); 48V battery cell 08 voltage [mV] (byte 20); …",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0204",
+      "name": "current_sensor_narrow_range_amps",
+      "description": "Fields: Current sensor narrow range, amps [A] (byte 4); Current sensor wide range, amps [A] (byte 6); 48V battery current monitoring [A] (byte 8); 48V battery current [A] (byte 10); Battery temperature 1 [°C] (byte 12); Battery temperature 2 [°C] (byte 14); Minimum 48V battery voltage [mV] (byte 16); Maximum 48V battery voltage [mV] (byte 18); …",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0205",
+      "name": "48_battery_state_of_charge_2",
+      "description": "Fields: 48 battery state of charge 2 [%] (byte 5); 48V battery charge limit [A] (byte 27); 48V battery voltage [mV] (byte 41)",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x21A0",
+      "name": "transmission_fluid_temperature",
+      "description": "Fields: Transmission fluid temperature [°F] (byte 2)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4000",
+      "name": "front_left_wheel_speed",
+      "description": "Fields: Front left wheel speed [km/h] (byte 6); Front left wheel speed [km/h] (byte 6); Front right wheel speed [km/h] (byte 7); Front right wheel speed [km/h] (byte 7); Rear left wheel speed [km/h] (byte 8); Rear left wheel speed [km/h] (byte 8); Rear right wheel speed [km/h] (byte 9); Rear right wheel speed [km/h] (byte 9)",
+      "ecu_address": "0x7D1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB002",
+      "name": "fuel_level_volume",
+      "description": "Fields: Fuel level, volume [L] (byte 4); Fuel level [L] (byte 4); Cluster voltage [V] (byte 5); Cluster voltage [V] (byte 5); Odometer, metric [km] (byte 6); Odometer [km] (byte 6); Odometer, imperial [mi] (byte 9)",
+      "ecu_address": "0x7C6",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB008",
+      "name": "brake_switch",
+      "description": "Fields: Brake switch (byte 6, bit 3, 1 bit(s))",
+      "ecu_address": "0x7A0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB009",
+      "name": "parking_sensor_rear_center_left_level",
+      "description": "Fields: Parking sensor rear center left level (byte 4); Parking sensor rear center right level (byte 5)",
+      "ecu_address": "0x7A0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB00C",
+      "name": "heated_steering_wheel",
+      "description": "Fields: Heated steering wheel (byte 4, bit 2, 1 bit(s)); Heated steering wheel, alternate bit (byte 5, bit 2, 1 bit(s))",
+      "ecu_address": "0x7A0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xBC03",
+      "name": "trunk_open",
+      "description": "Fields: Trunk open? (byte 4, bit 0, 1 bit(s)); Front left door open? (byte 4, bit 2, 1 bit(s)); Front right door open? (byte 4, bit 3, 1 bit(s)); Handbrake engaged? (byte 4, bit 4, 1 bit(s)); Rear right door open? (byte 4, bit 5, 1 bit(s)); Rear left door open? (byte 4, bit 7, 1 bit(s)); Passenger seatbelt latched? (byte 5, bit 5, 1 bit(s)); Driver seatbelt latched? (byte 5, bit 6, 1 bit(s)); …",
+      "ecu_address": "0x770",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xBC04",
+      "name": "reverse_gear_selected",
+      "description": "Fields: Reverse gear selected (byte 4, bit 3, 1 bit(s)); Front left door locked? (byte 4, bit 4, 1 bit(s)); Front right door locked? (byte 4, bit 5, 1 bit(s)); Rear middle seatbelt latched? (byte 6, bit 4, 1 bit(s)); Rear left seatbelt latched? (byte 6, bit 5, 1 bit(s)); Rear right seatbelt latched? (byte 6, bit 6, 1 bit(s))",
+      "ecu_address": "0x770",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xBC05",
+      "name": "hazard_switch",
+      "description": "Fields: Hazard switch (byte 4); Headlight switch (byte 6)",
+      "ecu_address": "0x770",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xBC06",
+      "name": "brake_light",
+      "description": "Fields: Brake light (byte 4)",
+      "ecu_address": "0x770",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xBC07",
+      "name": "defog_light",
+      "description": "Fields: Defog light (byte 5, bit 7, 1 bit(s))",
+      "ecu_address": "0x770",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xBC08",
+      "name": "right_turn_signal_on",
+      "description": "Fields: Right turn signal on? (byte 4, bit 5, 1 bit(s)); Left turn signal on? (byte 4, bit 6, 1 bit(s))",
+      "ecu_address": "0x770",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xBC09",
+      "name": "headlight_high_beam",
+      "description": "Fields: Headlight high beam (byte 6, bit 7, 1 bit(s)); Headlight low beam (byte 7, bit 7, 1 bit(s))",
+      "ecu_address": "0x770",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xBC10",
+      "name": "exterior_lights_state_code",
+      "description": "Fields: Exterior lights state code (byte 4, bit 0, 4 bit(s))",
+      "ecu_address": "0x770",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xC002",
+      "name": "tire_sensor_1_id",
+      "description": "Fields: Tire sensor 1 ID (byte 4); Tire sensor 2 ID (byte 8); Tire sensor 3 ID (byte 12); Tire sensor 4 ID (byte 16)",
+      "ecu_address": "0x7A0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xC00B",
+      "name": "front_left_tire_pressure",
+      "description": "Fields: Front left tire pressure [psi] (byte 4); Tire pressure front left [psi] (byte 4); Tire temperature front left [°C] (byte 5); Tire temperature front left [°C] (byte 5); Front left tire temperature [°C] (byte 5); Tire alert front left (byte 7); Front left tire reading invalid? (byte 7, bit 6, 1 bit(s)); Tire pressure front right [psi] (byte 8); …",
+      "ecu_address": "0x7A0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xC00C",
+      "name": "sensor_1_odometer_event_1",
+      "description": "Fields: Sensor 1 odometer event 1 [km] (byte 34); Sensor 1 odometer event 1 [km] (byte 34); Sensor 1 odometer event 2 [km] (byte 37); Sensor 1 odometer event 2 [km] (byte 37); Sensor 1 odometer event 3 [km] (byte 40); Sensor 1 odometer event 3 [km] (byte 40)",
+      "ecu_address": "0x7A0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xC00D",
+      "name": "sensor_2_odometer_event_1",
+      "description": "Fields: Sensor 2 odometer event 1 [km] (byte 34); Sensor 2 odometer event 1 [km] (byte 34); Sensor 2 odometer event 2 [km] (byte 37); Sensor 2 odometer event 2 [km] (byte 37); Sensor 2 odometer event 3 [km] (byte 40); Sensor 2 odometer event 3 [km] (byte 40)",
+      "ecu_address": "0x7A0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xC00E",
+      "name": "sensor_3_odometer_event_1",
+      "description": "Fields: Sensor 3 odometer event 1 [km] (byte 34); Sensor 3 odometer event 1 [km] (byte 34); Sensor 3 odometer event 2 [km] (byte 37); Sensor 3 odometer event 2 [km] (byte 37); Sensor 3 odometer event 3 [km] (byte 40); Sensor 3 odometer event 3 [km] (byte 40)",
+      "ecu_address": "0x7A0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xC00F",
+      "name": "sensor_4_odometer_event_1",
+      "description": "Fields: Sensor 4 odometer event 1 [km] (byte 34); Sensor 4 odometer event 1 [km] (byte 34); Sensor 4 odometer event 2 [km] (byte 37); Sensor 4 odometer event 2 [km] (byte 37); Sensor 4 odometer event 3 [km] (byte 40); Sensor 4 odometer event 3 [km] (byte 40)",
+      "ecu_address": "0x7A0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xC101",
+      "name": "front_left_wheel_speed",
+      "description": "Fields: Front left wheel speed [km/h] (byte 11); Front right wheel speed [km/h] (byte 12); Rear left wheel speed [km/h] (byte 13); Rear right wheel speed [km/h] (byte 14)",
+      "ecu_address": "0x7D1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xC101",
+      "name": "front_left_wheel_speed",
+      "description": "Fields: Front left wheel speed [km/h] (byte 11); Front right wheel speed [km/h] (byte 12); Rear left wheel speed [km/h] (byte 13); Rear right wheel speed [km/h] (byte 14)",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xC104",
+      "name": "tire_pressure_monitor_latest_deflation_odometer",
+      "description": "Fields: Tire pressure monitor latest deflation odometer [km] (byte 8); Tire pressure monitor deflation odometer history 1 [km] (byte 12); Tire pressure monitor deflation odometer history 2 [km] (byte 16); Tire pressure monitor deflation odometer history 3 [km] (byte 20); Tire pressure monitor deflation odometer history 4 [km] (byte 24); Tire pressure monitor deflation odometer history 5 [km] (byte 28); Tire pressure monitor deflation odometer history 6 [km] (byte 32); Tire pressure monitor deflation odometer history 7 [km] (byte 36); …",
+      "ecu_address": "0x7D1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE001",
+      "name": "auxiliary_battery_voltage",
+      "description": "Fields: Auxiliary battery voltage [V] (byte 11); DC charging state (byte 17, bit 4, 1 bit(s)); AC charging state (byte 17, bit 5, 1 bit(s)); On-board charger, charging DC voltage [V] (byte 19); On-board charger, charging DC current [A] (byte 21); On-board charger, charging AC current [A] (byte 23); On-board charger, charging AC voltage [V] (byte 25); On-board charger, discharging DC current [A] (byte 26); …",
+      "ecu_address": "0x744",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE001",
+      "name": "battery_voltage",
+      "description": "Fields: Battery voltage [V] (byte 4); Battery voltage after ignition [V] (byte 5); 12V battery state of charge [%] (byte 6); Intake air temperature [°C] (byte 33); Intake air temperature [°C] (byte 33); Intake air temperature [°C] (byte 33); Engine oil temperature [°C] (byte 34); Engine oil temperature [°C] (byte 34); …",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE001",
+      "name": "ignition_voltage",
+      "description": "Fields: Ignition voltage [V] (byte 15); Motor RPM [rpm] (byte 17); Nominal torque value [Nm] (byte 19); Motor actual torque [Nm] (byte 21); Motor phase current [A] (byte 23); Motor temperature [°C] (byte 25); Inverter temperature [°C] (byte 27); Heat sink temperature [°C] (byte 56)",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE001",
+      "name": "charge_mode_dc_target_voltage",
+      "description": "Fields: Charge mode DC target voltage [V] (byte 8); Charge mode DC maximum current limit [A] (byte 10); Charge mode A/C maximum current limit [A] (byte 12); Discharge mode A/C target voltage [V] (byte 14); Discharge mode DC maximum current limit [A] (byte 16); Discharge mode A/C maximum current limit [A] (byte 17)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE002",
+      "name": "electric_vehicle_supply_equipment_voltage_max",
+      "description": "Fields: Electric vehicle supply equipment, voltage, max [V] (byte 9); Electric vehicle supply equipment, current, max [A] (byte 11); Electric vehicle supply equipment, voltage, min [V] (byte 13); Electric vehicle supply equipment, current, min [A] (byte 15); Electric vehicle supply equipment, voltage [V] (byte 17); Electric vehicle supply equipment, current [A] (byte 19); Electric vehicle supply equipment, regulation tolerance [A] (byte 22); Electric vehicle supply equipment, power, delivered [kWh] (byte 23); …",
+      "ecu_address": "0x744",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE002",
+      "name": "injection_duration_cylinder_1",
+      "description": "Fields: Injection duration cylinder 1 [ms] (byte 22); Injection duration cylinder 2 [ms] (byte 24); Injection duration cylinder 3 [ms] (byte 26); Injection duration cylinder 4 [ms] (byte 28); Injection duration cylinder 5 [ms] (byte 30); Injection duration cylinder 6 [ms] (byte 32)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE002",
+      "name": "actual_drive_motor_speed",
+      "description": "Fields: Actual drive motor speed [rpm] (byte 4); Drive motor torque reference [Nm] (byte 6); Drive motor torque, actual [Nm] (byte 8); Drive motor temperature [°C] (byte 12); Heat sink temperature [°C] (byte 43)",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE002",
+      "name": "on_board_charger_ac_voltage_a",
+      "description": "Fields: On-board charger, AC voltage a [V] (byte 4); On-board charger, AC voltage b [V] (byte 6); On-board charger, AC frequency [Hz] (byte 10); On-board charger, AC total current [A] (byte 11); On-board charger, AC current a [A] (byte 13); On-board charger, AC current b [A] (byte 15); On-board charger, DC voltage [V] (byte 19); On-board charger, DC current total [A] (byte 21); …",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE003",
+      "name": "control_pilot_voltage",
+      "description": "Fields: Control pilot voltage [V] (byte 6); Control pilot duty cycle [%] (byte 7); Proximity detection voltage [V] (byte 11); High voltage battery, voltage [V] (byte 13); High voltage battery, state of charge [%] (byte 15); Electric vehicle supply equipment, target voltage [V] (byte 16); Electric vehicle supply equipment, target current [A] (byte 18); High voltage battery, max voltage [V] (byte 20); …",
+      "ecu_address": "0x744",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE003",
+      "name": "boost_pressure_upstream",
+      "description": "Fields: Boost pressure upstream (byte 35); Boost pressure upstream, desired (byte 39)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE003",
+      "name": "clutch_fluid_pressure",
+      "description": "Fields: Clutch fluid pressure [bar] (byte 36); Engine clutch pressure command [bar] (byte 41)",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE003",
+      "name": "on_board_charger_charge_mode_dc_target_voltage",
+      "description": "Fields: On-board charger, charge mode DC target voltage [V] (byte 8); On-board charger, charge mode DC target current [A] (byte 10)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE004",
+      "name": "battery_main_relay_status",
+      "description": "Fields: Battery main relay status (byte 4, bit 5, 1 bit(s)); Charging socket connected (byte 4, bit 6, 1 bit(s)); 400V relay status (byte 5, bit 2, 1 bit(s)); 400V relay on/off request (byte 5, bit 3, 1 bit(s)); DC inlet temperature 1 [°C] (byte 8); DC inlet temperature 2 [°C] (byte 9); AC inlet temperature 1 [°C] (byte 10)",
+      "ecu_address": "0x744",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE004",
+      "name": "engine_status_byte",
+      "description": "Fields: Engine status byte (byte 0); Fuel cut (byte 8); Wide open throttle (byte 9); Knock detected (byte 21); Aux battery state of charge [%] (byte 40); Aux battery state of health [%] (byte 41)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE004",
+      "name": "accelerator_pedal_position",
+      "description": "Fields: Accelerator pedal position [%] (byte 8); Vehicle speed, high resolution [km/h] (byte 10); Auxiliary battery voltage [V] (byte 12); 12v battery charge [%] (byte 19)",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE005",
+      "name": "gasoline_direct_injection_time_bank_a_1",
+      "description": "Fields: Gasoline direct injection time bank a, 1 [ms] (byte 28); Gasoline direct injection time bank a, 2 [ms] (byte 30); Gasoline direct injection time bank a, 3 [ms] (byte 32); Gasoline direct injection time bank a, 4 [ms] (byte 34); Gasoline direct injection time bank b, 1 [ms] (byte 44); Gasoline direct injection time bank b, 2 [ms] (byte 46); Gasoline direct injection time bank b, 3 [ms] (byte 48); Gasoline direct injection time bank b, 4 [ms] (byte 50)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE005",
+      "name": "disconnector_stroke_position",
+      "description": "Fields: Disconnector stroke position [mm] (byte 4); Disconnector meet point [mm] (byte 6); Disconnector end point [mm] (byte 8); Disconnector disengage last time [ms] (byte 10); Disconnector actuator motor current [A] (byte 12); Disconnector inverter PWM duty [%] (byte 13); Disconnector zero count offset (byte 15)",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE006",
+      "name": "fuel_rail_low_pressure",
+      "description": "Fields: Fuel rail low pressure [kPa] (byte 44)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE007",
+      "name": "fuel_level_input",
+      "description": "Fields: Fuel level input [L] (byte 14); Fuel level input [L] (byte 14); Injector correction factor 1 (byte 26); Injector correction factor 2 (byte 28); Injector correction factor 3 (byte 30); Injector correction factor 4 (byte 32)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE009",
+      "name": "gasoline_particulate_filter_inlet_temperature_sensor_raw_voltage",
+      "description": "Fields: Gasoline particulate filter inlet temperature sensor raw voltage [V] (byte 32); Gasoline particulate filter outlet temperature sensor raw voltage [V] (byte 34); Exhaust gas temperature before gasoline particulate filter sensor 1 [°C] (byte 36); Exhaust gas temperature before gasoline particulate filter sensor 1 [°C] (byte 36); Exhaust gas temperature before gasoline particulate filter sensor 2 [°C] (byte 38); Exhaust gas temperature before gasoline particulate filter sensor 2 [°C] (byte 38); Gasoline particulate filter charge state (byte 40); Odometer at last gasoline particulate filter regeneration [km] (byte 41); …",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE009",
+      "name": "electric_water_pump_current_dc",
+      "description": "Fields: Electric water pump, current DC [A] (byte 7); Electric water pump, voltage DC [V] (byte 8); Electric water pump, commanded rotation speed [rpm] (byte 11); Electric water pump, actual rotation speed [rpm] (byte 12); Electric oil pump, actual speed [rpm] (byte 14); Electric oil pump, commanded speed [rpm] (byte 19); Electric oil pump, current DC [A] (byte 22); Electric oil pump, current IQ [A] (byte 23)",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE00A",
+      "name": "knock_retard_cylinder_1",
+      "description": "Fields: Knock retard, cylinder 1 [°] (byte 12); Knock retard cylinder 1 [°] (byte 12); Knock retard, cylinder 2 [°] (byte 13); Knock retard cylinder 2 [°] (byte 13); Knock retard, cylinder 3 [°] (byte 14); Knock retard cylinder 3 [°] (byte 14); Knock retard, cylinder 4 [°] (byte 15); Knock retard cylinder 4 [°] (byte 15); …",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE00D",
+      "name": "misfires_current_cylinder_1",
+      "description": "Fields: Misfires, current, cylinder 1 (byte 6); Misfires, current, cylinder 2 (byte 8); Misfires, current, cylinder 3 (byte 10); Misfires, current, cylinder 4 (byte 12); Emission relevant misfires total, cylinder 1 (byte 22); Emission relevant misfires total, cylinder 2 (byte 24); Emission relevant misfires total, cylinder 3 (byte 26); Emission relevant misfires total, cylinder 4 (byte 28); …",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE00E",
+      "name": "engine_running_time_total",
+      "description": "Fields: Engine running time total [min] (byte 10)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE010",
+      "name": "mass_air_flow_rate",
+      "description": "Fields: Mass air flow rate (byte 26)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE011",
+      "name": "calculated_oil_temperature",
+      "description": "Alternative decodings: Calculated oil temperature [°C] (byte 38); Calculated oil temperature [°C] (byte 38)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE011",
+      "name": "low_voltage_dc_dc_converter_temperature",
+      "description": "Fields: Low-voltage dc-dc converter, temperature [°C] (byte 9); Low-voltage dc-dc converter, output voltage [V] (byte 10); Low-voltage dc-dc converter, output current [A] (byte 12); Low-voltage dc-dc converter, input voltage [V] (byte 14); Auxiliary battery current [A] (byte 18); Auxiliary battery state of charge [%] (byte 20); Auxiliary battery voltage [V] (byte 21); Auxiliary battery temperature [°C] (byte 23)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE013",
+      "name": "brake_booster_pressure",
+      "description": "Fields: Brake booster pressure (byte 6)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE014",
+      "name": "coolant_fan_pwm",
+      "description": "Fields: Coolant fan PWM [%] (byte 11); Air conditioning pressure [kPa] (byte 14); Overheat protection, active (byte 16, bit 4, 1 bit(s))",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE019",
+      "name": "knock_retard_cylinder_1_alternate",
+      "description": "Fields: Knock retard cylinder 1, alternate [°] (byte 21); Knock retard cylinder 2, alternate [°] (byte 22); Knock retard cylinder 3, alternate [°] (byte 23); Knock retard cylinder 4, alternate [°] (byte 24)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE01D",
+      "name": "misfires_cylinder_1",
+      "description": "Fields: Misfires, cylinder 1 (byte 4); Misfires, cylinder 2 (byte 6); Misfires, cylinder 3 (byte 8); Misfires, cylinder 4 (byte 10); Misfires harmful for catalyst, cylinder 1 (byte 20); Misfires harmful for catalyst, cylinder 2 (byte 22); Misfires harmful for catalyst, cylinder 3 (byte 24); Misfires harmful for catalyst, cylinder 4 (byte 26)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE020",
+      "name": "intake_camshaft_position",
+      "description": "Fields: Intake camshaft position [°] (byte 9); Exhaust camshaft position [°] (byte 11)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE021",
+      "name": "turbo_boost_pressure",
+      "description": "Fields: Turbo boost pressure [kPa] (byte 7); Turbo boost pressure, absolute [kPa] (byte 7); Waste gate voltage [V] (byte 49); Waste gate voltage [V] (byte 49); Waste gate duty [%] (byte 51); Waste gate position [%] (byte 53); Waste gate position [%] (byte 53); Waste gate set point [%] (byte 55); …",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE023",
+      "name": "fuel_pressure_actual",
+      "description": "Fields: Fuel pressure, actual (byte 4); Emission relevant misfires total, cylinder 1 (byte 4); Fuel pressure (byte 4); Fuel pressure, set point (byte 6); Emission relevant misfires total, cylinder 2 (byte 6); Fuel pressure target (byte 6); Emission relevant misfires total, cylinder 3 (byte 8); Fuel pressure set point deviation (byte 10); …",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE0F1",
+      "name": "engine_oil_temperature",
+      "description": "Fields: Engine oil temperature [°C] (byte 18); Exhaust gas volume flow (byte 30); Diesel particulate filter differential pressure (byte 31)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE0F2",
+      "name": "diesel_particulate_filter_successful_regeneration_count",
+      "description": "Fields: Diesel particulate filter successful regeneration count (byte 54); Boost pressure (byte 62)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE101",
+      "name": "low_voltage_dc_dc_converter_temperature",
+      "description": "Fields: Low-voltage dc-dc converter, temperature [°C] (byte 9); Low-voltage dc-dc converter, output voltage [V] (byte 10); Low-voltage dc-dc converter, output current [A] (byte 12); Low-voltage dc-dc converter, input voltage [V] (byte 14); Auxiliary battery current [A] (byte 18); Auxiliary battery state of charge [%] (byte 20); Auxiliary battery voltage [V] (byte 21); Auxiliary battery temperature [°C] (byte 23)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xED01",
+      "name": "fuel_pressure",
+      "description": "Fields: Fuel pressure (byte 5); Rail pressure control valve (byte 6, bit 7, 1 bit(s)); Air conditioning relay (byte 12, bit 5, 1 bit(s)); Glow relay duty [%] (byte 17); Engine coolant fan low speed [%] (byte 22); Engine coolant fan high speed, on/off (byte 23); Boost pressure (byte 25); Boost regulator duty [%] (byte 26); …",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xED02",
+      "name": "engine_oil_temperature",
+      "description": "Fields: Engine oil temperature [°C] (byte 23)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xED03",
+      "name": "fuel_consumption",
+      "description": "Fields: Fuel consumption [L] (byte 5); Exhaust gas flow in the particulate filter [L] (byte 32); Exhaust gas temperature at catalyst [°C] (byte 34); Diesel particulate filter differential pressure (byte 36); NOx trap outlet pressure (byte 36); Exhaust temperature 1, upstream of oxidation catalyst [°C] (byte 37); Diesel particulate filter load, from model [%] (byte 37); Exhaust temperature 2, upstream of DPF [°C] (byte 38); …",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xED04",
+      "name": "actual_acceleration",
+      "description": "Fields: Actual acceleration [m/s²] (byte 30)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xED05",
+      "name": "gear",
+      "description": "Fields: Gear (byte 22); Crankshaft torque [Nm] (byte 30)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xED06",
+      "name": "requested_torque_limitation_from_traction_control",
+      "description": "Fields: Requested torque limitation from traction control [%] (byte 15); Diesel particulate filter regen, completed state (byte 25)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xED07",
+      "name": "engine_oil_temperature",
+      "description": "Alternative decodings: Engine oil temperature [°C] (byte 19); Engine oil temperature [°C] (byte 19)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xED08",
+      "name": "12v_battery_current",
+      "description": "Fields: 12V battery current [A] (byte 6); 12V battery voltage [V] (byte 8); 12V battery temperature [°C] (byte 10); 12V battery state of charge [%] (byte 11); 12V battery state of health [%] (byte 12); 12V battery state of function [V] (byte 13)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xED13",
+      "name": "oil_pump_pwm",
+      "description": "Fields: Oil pump PWM (byte 8, bit 7, 1 bit(s))",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xED1D",
+      "name": "diesel_particulate_filter_soot",
+      "description": "Fields: Diesel particulate filter soot (byte 4)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xED27",
+      "name": "gear_in_neutral_position",
+      "description": "Fields: Gear in neutral position (byte 4, bit 4, 1 bit(s)); Battery current, battery sensor [A] (byte 6); Battery voltage, battery sensor [V] (byte 7); Battery temperature, battery sensor [°C] (byte 8); Battery state of charge, battery sensor [%] (byte 9); Battery state of health, battery sensor [%] (byte 10); Battery state of function, battery sensor [V] (byte 11); Brake booster vacuum pressure (byte 16); …",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xED29",
+      "name": "total_sulfur_mass",
+      "description": "Alternative decodings: Total sulfur mass (byte 0); Diesel particulate filter total sulfur mass (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.15259
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xED94",
+      "name": "diesel_particulate_filter_soot_mass",
+      "description": "Fields: Diesel particulate filter soot mass [g] (byte 7)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xF010",
+      "name": "front_right_wheel_speed_high_resolution",
+      "description": "Fields: Front right wheel speed, high resolution [km/h] (byte 4); Front right wheel speed, high resolution [km/h] (byte 4); Front left wheel speed, high resolution [km/h] (byte 6); Front left wheel speed, high resolution [km/h] (byte 6); Rear right wheel speed, high resolution [km/h] (byte 8); Rear right wheel speed, high resolution [km/h] (byte 8); Rear left wheel speed, high resolution [km/h] (byte 10); Rear left wheel speed, high resolution [km/h] (byte 10); …",
+      "ecu_address": "0x730",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Hyundai signalset (CC BY-SA 4.0)",
+      "verified": false
     }
   ],
   "routines": [

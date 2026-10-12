@@ -29640,6 +29640,1224 @@
       "decoder": {
         "kind": "bool"
       }
+    },
+    {
+      "did": "0x0202",
+      "name": "726_0202_raw",
+      "description": "726 0202 raw",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x033E",
+      "name": "boost_absolute_pressure_raw_value",
+      "description": "Alternative decodings: Boost absolute pressure raw value [kPa] (byte 0); Fuel rail pressure [kPa] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.007629510948,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x03E6",
+      "name": "oil_level",
+      "description": "Oil level",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x03F2",
+      "name": "oil_volume",
+      "description": "Oil volume",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.0264172,
+        "unit": "gal"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x03F3",
+      "name": "sump_oil_temperature",
+      "description": "Alternative decodings: Sump oil temperature [°C] (byte 0); Oil temp [°C] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0417",
+      "name": "diesel_particulate_filter_remaining_volume",
+      "description": "Diesel particulate filter remaining volume",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1,
+        "unit": "L"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x051C",
+      "name": "air_charge_temperature",
+      "description": "Air charge temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0520",
+      "name": "intercooler_outlet_air_temperature_b1",
+      "description": "Intercooler outlet air temperature B1",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x053B",
+      "name": "misfires_for_catalyst_damage_cylinder_1",
+      "description": "Fields: Misfires for catalyst damage, cylinder 1 (byte 0); Misfires for catalyst damage, cylinder 2 (byte 1); Misfires for catalyst damage, cylinder 3 (byte 2); Misfires for catalyst damage, cylinder 4 (byte 3); Misfires for catalyst damage, cylinder 5 (byte 4); Misfires for catalyst damage, cylinder 6 (byte 5); Misfires for emissions failure, cylinder 1 (byte 8); Misfires for emissions failure, cylinder 2 (byte 9); …",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0543",
+      "name": "intake_air_temperature_b2",
+      "description": "Intake air temperature B2",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0598",
+      "name": "diesel_particulate_filter_calculated_max_soot_concentration",
+      "description": "Diesel particulate filter calculated max soot concentration",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "%"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x05FC",
+      "name": "exhaust_fluid_mass",
+      "description": "Exhaust fluid mass",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x061F",
+      "name": "diesel_particulate_filter_soot_mass",
+      "description": "Diesel particulate filter soot mass",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.00152590219
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0635",
+      "name": "diesel_particulate_filter_soot",
+      "description": "Diesel particulate filter soot",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1172",
+      "name": "battery_voltage",
+      "description": "Battery voltage",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.0625,
+        "unit": "V"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1670",
+      "name": "fuel_rail_pressure",
+      "description": "Fuel rail pressure",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 7.8125,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x168E",
+      "name": "fuel_rail_temperature",
+      "description": "Fields: Fuel rail temperature [°C] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x16C1",
+      "name": "fuel_tank_level",
+      "description": "Fuel tank level",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.003051804379,
+        "unit": "%"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x197C",
+      "name": "197c_raw",
+      "description": "197C raw",
+      "ecu_address": "0x761",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E12",
+      "name": "gear_commanded",
+      "description": "Gear, commanded",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E1F",
+      "name": "gear_engaged",
+      "description": "Gear engaged",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E65",
+      "name": "transmission_fluid_over_temperature_counter",
+      "description": "Transmission fluid over temperature counter",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E66",
+      "name": "engine_oil_over_temperature_counter",
+      "description": "Engine oil over temperature counter",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E68",
+      "name": "transmission_output_shaft_speed",
+      "description": "Alternative decodings: Transmission output shaft speed [rpm] (byte 0); 1E68 raw (byte 0)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 32,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E69",
+      "name": "transmission_fluid_temperature",
+      "description": "Alternative decodings: Transmission fluid temperature [°C] (byte 0); Gearbox temp [°C] (byte 0)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E6A",
+      "name": "1e6a_raw",
+      "description": "1E6A raw",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E71",
+      "name": "engine_coolant_over_temperature_counter",
+      "description": "Engine coolant over temperature counter",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E72",
+      "name": "turbine_speed",
+      "description": "Turbine speed",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 32,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E7C",
+      "name": "total_distance",
+      "description": "Fields: Total distance [km] (byte 0)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E88",
+      "name": "1e88_raw",
+      "description": "1E88 raw",
+      "ecu_address": "0x795",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E89",
+      "name": "1e89_raw",
+      "description": "1E89 raw",
+      "ecu_address": "0x795",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E8A",
+      "name": "locking_diff_oil_temp",
+      "description": "Locking diff oil temp",
+      "ecu_address": "0x795",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1F12",
+      "name": "torque_converter_temperature",
+      "description": "Torque converter temperature",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 2,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x201C",
+      "name": "transfer_case_high_1_low_0_range",
+      "description": "Fields: Transfer case high, 1/low, 0 range (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2076",
+      "name": "front_left_tire_pressure",
+      "description": "Fields: Front left tire pressure [bar] (byte 1)",
+      "ecu_address": "0x751",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2077",
+      "name": "front_right_tire_pressure",
+      "description": "Fields: Front right tire pressure [bar] (byte 1)",
+      "ecu_address": "0x751",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2078",
+      "name": "rear_right_tire_pressure",
+      "description": "Fields: Rear right tire pressure [bar] (byte 1)",
+      "ecu_address": "0x751",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2079",
+      "name": "rear_left_tire_pressure",
+      "description": "Fields: Rear left tire pressure [bar] (byte 1)",
+      "ecu_address": "0x751",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2A0A",
+      "name": "front_left_tire_temperature",
+      "description": "Front left tire temperature",
+      "ecu_address": "0x751",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°C"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2A0B",
+      "name": "front_right_tire_temperature",
+      "description": "Front right tire temperature",
+      "ecu_address": "0x751",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°C"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2A0C",
+      "name": "rear_left_tire_temperature",
+      "description": "Alternative decodings: Rear left tire temperature [°C] (byte 0); Rear right tire temperature [°C] (byte 0)",
+      "ecu_address": "0x751",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°C"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2A0D",
+      "name": "rear_right_tire_temperature",
+      "description": "Alternative decodings: Rear right tire temperature [°C] (byte 0); Rear left tire temperature [°C] (byte 0)",
+      "ecu_address": "0x751",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°C"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2A32",
+      "name": "2a32_raw",
+      "description": "2A32 raw",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "uint32_be"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2A33",
+      "name": "2a33_raw",
+      "description": "2A33 raw",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "uint32_be"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2A34",
+      "name": "2a34_raw",
+      "description": "2A34 raw",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "uint32_be"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2A35",
+      "name": "2a35_raw",
+      "description": "2A35 raw",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "uint32_be"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2A36",
+      "name": "2a36_distance_counter",
+      "description": "Fields: 2A36 distance counter (byte 0)",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2A37",
+      "name": "2a37_raw",
+      "description": "Fields: 2A37 raw (byte 0)",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2A38",
+      "name": "2a38_raw",
+      "description": "Fields: 2A38 raw (byte 0)",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2A39",
+      "name": "2a39_raw",
+      "description": "Fields: 2A39 raw (byte 0)",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2A3A",
+      "name": "2a3a_raw",
+      "description": "Fields: 2A3A raw (byte 0)",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2A3B",
+      "name": "2a3b_raw",
+      "description": "2A3B raw",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "uint32_be"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2A3C",
+      "name": "2a3c_raw",
+      "description": "Fields: 2A3C raw (byte 0)",
+      "ecu_address": "0x792",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B06",
+      "name": "front_left_wheel_speed",
+      "description": "Front left wheel speed",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "km/h"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B07",
+      "name": "front_right_wheel_speed",
+      "description": "Front right wheel speed",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "km/h"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B08",
+      "name": "rear_left_wheel_speed",
+      "description": "Rear left wheel speed",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "km/h"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B09",
+      "name": "rear_right_wheel_speed",
+      "description": "Rear right wheel speed",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "km/h"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B12",
+      "name": "suspension_height_offset",
+      "description": "Suspension height offset",
+      "ecu_address": "0x7D3",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "mm"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3B00",
+      "name": "3b00_raw",
+      "description": "3B00 raw",
+      "ecu_address": "0x7D3",
+      "decoder": {
+        "kind": "uint32_be"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3B01",
+      "name": "ride_height_state",
+      "description": "Fields: Ride height state (byte 0)",
+      "ecu_address": "0x7D3",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3B02",
+      "name": "3b02_byte_1",
+      "description": "Fields: 3B02 byte 1 (byte 0); 3B02 byte 2 (byte 1); 3B02 byte 3 (byte 2); 3B02 byte 4 (byte 3)",
+      "ecu_address": "0x7D3",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3B03",
+      "name": "suspension_pressure_front_right",
+      "description": "Fields: Suspension pressure front right [psi] (byte 1)",
+      "ecu_address": "0x710",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3B03",
+      "name": "suspension_pressure_front_right",
+      "description": "Fields: Suspension pressure front right [psi] (byte 1)",
+      "ecu_address": "0x7D3",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3B04",
+      "name": "suspension_pressure_front_left",
+      "description": "Fields: Suspension pressure front left [psi] (byte 1)",
+      "ecu_address": "0x710",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3B04",
+      "name": "suspension_pressure_front_left",
+      "description": "Fields: Suspension pressure front left [psi] (byte 1)",
+      "ecu_address": "0x7D3",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3B05",
+      "name": "suspension_pressure_rear_right",
+      "description": "Fields: Suspension pressure rear right [psi] (byte 1)",
+      "ecu_address": "0x710",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3B05",
+      "name": "suspension_pressure_rear_right",
+      "description": "Fields: Suspension pressure rear right [psi] (byte 1)",
+      "ecu_address": "0x7D3",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3B06",
+      "name": "suspension_pressure_rear_left",
+      "description": "Fields: Suspension pressure rear left [psi] (byte 1)",
+      "ecu_address": "0x710",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3B06",
+      "name": "suspension_pressure_rear_left",
+      "description": "Fields: Suspension pressure rear left [psi] (byte 1)",
+      "ecu_address": "0x7D3",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3B07",
+      "name": "compressor_activity",
+      "description": "Compressor activity",
+      "ecu_address": "0x7D3",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3B08",
+      "name": "3b08_raw",
+      "description": "3B08 raw",
+      "ecu_address": "0x7D3",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3B0B",
+      "name": "3b0b_raw",
+      "description": "3B0B raw",
+      "ecu_address": "0x7D3",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3B3C",
+      "name": "suspension_height",
+      "description": "Suspension height",
+      "ecu_address": "0x710",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3B3C",
+      "name": "ride_height_mode",
+      "description": "Ride height mode",
+      "ecu_address": "0x7D3",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x01": "Normal",
+          "0x02": "Off-Road",
+          "0x04": "Access",
+          "0x0D": "In Transit"
+        }
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3B4D",
+      "name": "driving_mode",
+      "description": "Driving mode",
+      "ecu_address": "0x710",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3B4D",
+      "name": "3b4d_raw",
+      "description": "3B4D raw",
+      "ecu_address": "0x7D3",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3B71",
+      "name": "suspension_height_front",
+      "description": "Suspension height front",
+      "ecu_address": "0x710",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3B71",
+      "name": "front_height_sensor_inverted",
+      "description": "Front height sensor, inverted",
+      "ecu_address": "0x7D3",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3B72",
+      "name": "suspension_height_rear",
+      "description": "Suspension height rear",
+      "ecu_address": "0x710",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3B72",
+      "name": "rear_height_sensor_inverted",
+      "description": "Rear height sensor, inverted",
+      "ecu_address": "0x7D3",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x40F7",
+      "name": "handbrake",
+      "description": "Handbrake",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4208",
+      "name": "dcdc_current_out",
+      "description": "DCDC, current out",
+      "ecu_address": "0x753",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "A"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x420A",
+      "name": "dcdc_voltage_out",
+      "description": "DCDC voltage out",
+      "ecu_address": "0x753",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1,
+        "unit": "V"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4837",
+      "name": "dcdc_hv_voltage_in",
+      "description": "DCDC HV voltage in",
+      "ecu_address": "0x753",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "V"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x498F",
+      "name": "charge_voltage",
+      "description": "Fields: Charge voltage [V] (byte 0); Charge, current [A] (byte 1)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9924",
+      "name": "outside_temperature",
+      "description": "Outside temperature",
+      "ecu_address": "0x733",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9924",
+      "name": "ambient_temperature",
+      "description": "Ambient temperature",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xA0A6",
+      "name": "satellites_in_view",
+      "description": "Fields: Satellites in view (byte 9)",
+      "ecu_address": "0x754",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD11A",
+      "name": "d11a_raw",
+      "description": "D11A raw",
+      "ecu_address": "0x7D3",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD11C",
+      "name": "d11c_raw",
+      "description": "D11C raw",
+      "ecu_address": "0x761",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD928",
+      "name": "gear",
+      "description": "Fields: Gear (byte 0, bit 0, 7 bit(s)); Parked? (byte 0, bit 7, 1 bit(s)); Gear selector (byte 0)",
+      "ecu_address": "0x732",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA2A",
+      "name": "contact_ready",
+      "description": "Contact ready",
+      "ecu_address": "0x732",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD00",
+      "name": "elapsed",
+      "description": "Elapsed",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "s"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD01",
+      "name": "odometer",
+      "description": "Fields: Odometer [km] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD01",
+      "name": "dd01_raw",
+      "description": "Fields: DD01 raw (byte 0)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD01",
+      "name": "odometer",
+      "description": "Alternative decodings: Odometer [km] (byte 0); Odometer [km] (byte 0)",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD02",
+      "name": "12v_battery",
+      "description": "12V battery",
+      "ecu_address": "0x753",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.25,
+        "unit": "V"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD04",
+      "name": "cabin_temperature",
+      "description": "Cabin temperature",
+      "ecu_address": "0x733",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD04",
+      "name": "cabin_temperature",
+      "description": "Cabin temperature",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD09",
+      "name": "vehicle_speed",
+      "description": "Vehicle speed",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "km/h"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD09",
+      "name": "vehicle_speed",
+      "description": "Vehicle Speed",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "km/h"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xFD2A",
+      "name": "brake",
+      "description": "Brake",
+      "ecu_address": "0x726",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xFD37",
+      "name": "charging_state",
+      "description": "Fields: Charging state (byte 1)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xFE0C",
+      "name": "charging_status",
+      "description": "Fields: Charging status (byte 0); Charger mode (byte 1); Connection status: connected (byte 2); Charging state, vehicle (byte 0, bit 0, 4 bit(s))",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Jaguar signalset (CC BY-SA 4.0)",
+      "verified": false
     }
   ],
   "routines": [

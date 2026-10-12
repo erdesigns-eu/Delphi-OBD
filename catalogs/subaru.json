@@ -6106,6 +6106,2762 @@
         "kind": "uint16_be",
         "unit": "kΩ"
       }
+    },
+    {
+      "did": "0x0005",
+      "name": "coolant_temperature",
+      "description": "Coolant temperature",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0005",
+      "name": "coolant_temperature",
+      "description": "Coolant temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0023",
+      "name": "fuel_rail_pressure",
+      "description": "Fuel rail pressure",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "kPa"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x002F",
+      "name": "fuel_level",
+      "description": "Fuel level",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x003C",
+      "name": "exhaust_gas_temperature_catalyst_inlet",
+      "description": "Exhaust gas temperature, catalyst inlet",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "°C"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x003E",
+      "name": "exhaust_gas_temperature_at_dpf_inlet",
+      "description": "Exhaust gas temperature at DPF inlet",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "°C"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1017",
+      "name": "cvt_fluid_temperature",
+      "description": "CVT fluid temperature",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°C"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x101E",
+      "name": "trip_counter",
+      "description": "Trip counter",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1021",
+      "name": "high_voltage_battery_state_of_charge",
+      "description": "High voltage battery state of charge",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1022",
+      "name": "rear_left_tire_pressure",
+      "description": "Fields: Rear left tire pressure [psi] (byte 0); Rear right tire pressure [psi] (byte 1); Front right tire pressure [psi] (byte 2); Front left tire pressure [psi] (byte 3)",
+      "ecu_address": "0x753",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1024",
+      "name": "front_right_wheel_speed",
+      "description": "Front right wheel speed",
+      "ecu_address": "0x7B0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.05625,
+        "unit": "km/h"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1025",
+      "name": "front_left_wheel_speed",
+      "description": "Front left wheel speed",
+      "ecu_address": "0x7B0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.05625,
+        "unit": "km/h"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1026",
+      "name": "rear_right_wheel_speed",
+      "description": "Rear right wheel speed",
+      "ecu_address": "0x7B0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.05625,
+        "unit": "km/h"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1027",
+      "name": "rear_left_wheel_speed",
+      "description": "Rear left wheel speed",
+      "ecu_address": "0x7B0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.05625,
+        "unit": "km/h"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1028",
+      "name": "tire_1_id",
+      "description": "Fields: Tire 1 id (byte 0); Tire 2 id (byte 3); Tire 3 id (byte 6); Tire 4 id (byte 9)",
+      "ecu_address": "0x753",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1029",
+      "name": "steering_wheel_angle",
+      "description": "Steering wheel angle",
+      "ecu_address": "0x7B0",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "°"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x102A",
+      "name": "high_voltage_battery_temperature_1",
+      "description": "High voltage battery temperature 1",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.5,
+        "offset": -100,
+        "unit": "°C"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x102B",
+      "name": "high_voltage_battery_temperature_2",
+      "description": "High voltage battery temperature 2",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.5,
+        "offset": -100,
+        "unit": "°C"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x102C",
+      "name": "high_voltage_battery_temperature_3",
+      "description": "High voltage battery temperature 3",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.5,
+        "offset": -100,
+        "unit": "°C"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x102D",
+      "name": "high_voltage_battery_intake_air_temperature",
+      "description": "High voltage battery intake air temperature",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.5,
+        "offset": -100,
+        "unit": "°C"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1032",
+      "name": "steering_wheel_angle_v2",
+      "description": "Fields: Steering wheel angle, v2 [°] (byte 0)",
+      "ecu_address": "0x746",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1033",
+      "name": "high_voltage_battery_state_of_charge",
+      "description": "High voltage battery state of charge",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1037",
+      "name": "12v_aux_battery_voltage",
+      "description": "12V aux battery voltage",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1,
+        "unit": "V"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1039",
+      "name": "12v_engine_restart_battery_voltage",
+      "description": "12V engine restart battery voltage",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1,
+        "unit": "V"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1045",
+      "name": "torque_converter_lock_up_duty",
+      "description": "Torque converter lock-up duty",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1052",
+      "name": "drive_motor_torque_output_actual",
+      "description": "Drive motor torque output actual",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1055",
+      "name": "drive_motor_output_power",
+      "description": "Drive motor output power",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "W"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1057",
+      "name": "drive_motor_torque_target",
+      "description": "Drive motor torque target",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1058",
+      "name": "drive_motor_speed",
+      "description": "Drive motor speed",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "rpm"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1059",
+      "name": "drive_motor_speed_target",
+      "description": "Drive motor speed target",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "rpm"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x105D",
+      "name": "drive_motor_torque_upper_limit",
+      "description": "Fields: Drive motor torque upper limit [Nm] (byte 0)",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x105E",
+      "name": "drive_motor_torque_lower_limit",
+      "description": "Fields: Drive motor torque lower limit [Nm] (byte 0)",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1063",
+      "name": "drive_motor_inverter_input_hv_sensor",
+      "description": "Drive motor inverter input HV sensor",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.25,
+        "unit": "V"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1065",
+      "name": "all_wheel_drive_transfer_clutch_duty",
+      "description": "All-wheel drive transfer clutch duty",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1065",
+      "name": "inverter_temperature_estimated",
+      "description": "Inverter temperature estimated",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°C"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1066",
+      "name": "drive_motor_inverter_temperature_a",
+      "description": "Drive motor inverter temperature a",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°C"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1067",
+      "name": "turbine_speed",
+      "description": "Turbine speed",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 32,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1067",
+      "name": "drive_motor_inverter_temperature_b",
+      "description": "Drive motor inverter temperature b",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°C"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1068",
+      "name": "drive_motor_inverter_temperature_c",
+      "description": "Drive motor inverter temperature c",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°C"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x106B",
+      "name": "transmission_fluid_temperature",
+      "description": "Transmission fluid temperature",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°C"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x106D",
+      "name": "drive_motor_temperature_a",
+      "description": "Drive motor temperature a",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -55,
+        "unit": "°C"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x106E",
+      "name": "drive_motor_temperature_b",
+      "description": "Drive motor temperature b",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -55,
+        "unit": "°C"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1077",
+      "name": "12v_engine_restart_battery_soc",
+      "description": "12V engine restart battery soc",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1079",
+      "name": "12v_engine_restart_battery_temperature",
+      "description": "12V engine restart battery temperature",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x107A",
+      "name": "high_voltage_battery_cooling_fan_duty_target",
+      "description": "High voltage battery cooling fan duty, target",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1081",
+      "name": "high_voltage_battery_cooling_fan_speed",
+      "description": "High voltage battery cooling fan speed",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1082",
+      "name": "high_voltage_battery_cooling_fan_duty_target",
+      "description": "High voltage battery cooling fan duty, target",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1084",
+      "name": "high_voltage_battery_cooling_fan_duty_output",
+      "description": "High voltage battery cooling fan duty output",
+      "ecu_address": "0x7E6",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10A1",
+      "name": "mass_airflow_sensor_voltage",
+      "description": "Mass airflow sensor voltage",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.02,
+        "unit": "V"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10A3",
+      "name": "fuel_injection_1_pulse_width",
+      "description": "Fuel injection 1 pulse width",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.256,
+        "unit": "ms"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10A4",
+      "name": "fuel_injector_2_pulse_width",
+      "description": "Fuel injector #2 pulse width",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.256,
+        "unit": "ms"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10A5",
+      "name": "odometer",
+      "description": "Odometer",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 2,
+        "unit": "km"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10A6",
+      "name": "accelerator_pedal_position",
+      "description": "Accelerator pedal position",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10A7",
+      "name": "fuel_temperature",
+      "description": "Fuel temperature",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10AB",
+      "name": "radiator_fan_control",
+      "description": "Radiator fan control",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10AC",
+      "name": "primary_boost_control",
+      "description": "Primary boost control",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10AC",
+      "name": "primary_boost_control",
+      "description": "Primary boost control",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10AE",
+      "name": "canister_purge_control_valve_duty_cycle",
+      "description": "Canister purge control valve duty cycle",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10AF",
+      "name": "tumble_generator_valve_position_sensor_right",
+      "description": "Tumble generator valve position sensor right",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.02,
+        "unit": "V"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10B0",
+      "name": "tumble_generator_valve_position_sensor_left",
+      "description": "Tumble generator valve position sensor left",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.02,
+        "unit": "V"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10B1",
+      "name": "exhaust_gas_recirculation_steps",
+      "description": "Exhaust gas recirculation steps",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10B2",
+      "name": "alternator_duty",
+      "description": "Alternator duty",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10B3",
+      "name": "fuel_pump_duty",
+      "description": "Fuel pump duty",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10B4",
+      "name": "intake_vvt_advance_angle_right",
+      "description": "Intake VVT advance angle right",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10B5",
+      "name": "intake_vvt_advance_angle_left",
+      "description": "Intake VVT advance angle left",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10B6",
+      "name": "oil_control_valve_duty_right",
+      "description": "Oil control valve duty right",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10B7",
+      "name": "oil_control_valve_duty_left",
+      "description": "Oil control valve duty left",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10BE",
+      "name": "a_f_sensor_1",
+      "description": "A/F sensor #1",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.007803921569
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10C8",
+      "name": "lock_up_duty_ratio",
+      "description": "Lock up duty ratio",
+      "ecu_address": "0x7A3",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10C9",
+      "name": "transfer_duty_ratio",
+      "description": "Transfer duty ratio",
+      "ecu_address": "0x7A3",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10CB",
+      "name": "turbine_speed",
+      "description": "Turbine speed",
+      "ecu_address": "0x7A3",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 32,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10D2",
+      "name": "electric_waste_gate_valve_position_sensor_learning_value_at_fully_closed_position",
+      "description": "Electric waste gate valve position sensor learning value at fully-closed position",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1560784314,
+        "offset": -10,
+        "unit": "mm"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10D2",
+      "name": "continuously_variable_transmission_temperature",
+      "description": "Alternative decodings: Continuously variable transmission temperature [°C] (byte 0); Transmission fluid temperature [°C] (byte 0)",
+      "ecu_address": "0x7A3",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°C"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10D3",
+      "name": "electric_waste_gate_valve_request_position_value",
+      "description": "Electric waste gate valve request position value",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0006103608759,
+        "offset": -10,
+        "unit": "mm"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10D4",
+      "name": "electric_waste_gate_valve_actual_position_value",
+      "description": "Electric waste gate valve actual position value",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0006103608759,
+        "offset": -10,
+        "unit": "mm"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10DE",
+      "name": "throttle_motor_duty",
+      "description": "Throttle motor duty",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.784,
+        "offset": -100,
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10E3",
+      "name": "cruise_speed_set",
+      "description": "Cruise speed, set",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "km/h"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10E5",
+      "name": "odometer",
+      "description": "Odometer",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 2,
+        "unit": "km"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10E5",
+      "name": "odometer",
+      "description": "Odometer",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 2,
+        "unit": "km"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10E6",
+      "name": "fuel_tank_air_pressure",
+      "description": "Fuel tank air pressure",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10E7",
+      "name": "engine_oil_temperature",
+      "description": "Engine oil temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10E8",
+      "name": "oil_supply_value_duty_right",
+      "description": "Oil supply value, duty right",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10E9",
+      "name": "oil_supply_value_duty_left",
+      "description": "Oil supply value, duty left",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10EC",
+      "name": "exhaust_vvt_retard_angle_right",
+      "description": "Exhaust VVT retard angle right",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10ED",
+      "name": "exhaust_vvt_retard_angle_left",
+      "description": "Exhaust VVT retard angle left",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10EE",
+      "name": "exhaust_ocv_duty_right",
+      "description": "Exhaust OCV duty right",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10EF",
+      "name": "exhaust_ocv_duty_left",
+      "description": "Exhaust OCV duty left",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x110B",
+      "name": "roughness_monitor_1",
+      "description": "Roughness monitor #1",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x110C",
+      "name": "roughness_monitor_2",
+      "description": "Roughness monitor #2",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x110D",
+      "name": "roughness_monitor_3",
+      "description": "Roughness monitor #3",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x110E",
+      "name": "roughness_monitor_4",
+      "description": "Roughness monitor #4",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1116",
+      "name": "final_injection_amount",
+      "description": "Final injection amount",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1118",
+      "name": "target_intake_manifold_pressure",
+      "description": "Target intake manifold pressure",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "kPa"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x111B",
+      "name": "exhaust_gas_recirculation_target_valve_opening_angle",
+      "description": "Exhaust gas recirculation target valve opening angle",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x111C",
+      "name": "exhaust_gas_recirculation_valve_opening_angle",
+      "description": "Exhaust gas recirculation valve opening angle",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x111F",
+      "name": "inlet_air_temperature_after_air_filter",
+      "description": "Inlet air temperature, after air filter",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1121",
+      "name": "target_engine_speed",
+      "description": "Target engine speed",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.25,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x112A",
+      "name": "mileage_after_injector_learning",
+      "description": "Mileage after injector learning",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 5,
+        "unit": "km"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x112B",
+      "name": "mileage_after_injector_replacement",
+      "description": "Mileage after injector replacement",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 5,
+        "unit": "km"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x112C",
+      "name": "interior_heater",
+      "description": "Interior heater",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x112D",
+      "name": "quantity_correction_cylinder_1",
+      "description": "Quantity correction cylinder #1",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "ms"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x112E",
+      "name": "quantity_correction_cylinder_2",
+      "description": "Quantity correction cylinder #2",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "ms"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x112F",
+      "name": "quantity_correction_cylinder_3",
+      "description": "Quantity correction cylinder #3",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "ms"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1130",
+      "name": "quantity_correction_cylinder_4",
+      "description": "Quantity correction cylinder #4",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "ms"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1135",
+      "name": "12v_battery_current",
+      "description": "12V battery current",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -128,
+        "unit": "mA"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1136",
+      "name": "12v_battery_temperature",
+      "description": "12V battery temperature",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1138",
+      "name": "secondary_pulley_speed",
+      "description": "Secondary pulley speed",
+      "ecu_address": "0x7A3",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x113A",
+      "name": "actual_secondary_pressure",
+      "description": "Actual secondary pressure",
+      "ecu_address": "0x7A3",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0003906309606
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x113B",
+      "name": "secondary_set_current",
+      "description": "Secondary set current",
+      "ecu_address": "0x7A3",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mA"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x113C",
+      "name": "secondary_actual_current",
+      "description": "Secondary actual current",
+      "ecu_address": "0x7A3",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mA"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x113D",
+      "name": "target_gear_ratio",
+      "description": "Target gear ratio",
+      "ecu_address": "0x7A3",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.003906309606
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x113E",
+      "name": "actual_gear_ratio",
+      "description": "Actual gear ratio",
+      "ecu_address": "0x7A3",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.003906309606
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1141",
+      "name": "actual_primary_pressure",
+      "description": "Actual primary pressure",
+      "ecu_address": "0x7A3",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0003906309606
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1143",
+      "name": "high_voltage_battery_cell_temperature_estimated",
+      "description": "High voltage battery cell temperature estimated",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -100,
+        "unit": "°C"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1146",
+      "name": "primary_pulley_speed",
+      "description": "Primary pulley speed",
+      "ecu_address": "0x7A3",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1147",
+      "name": "front_wheel_speed",
+      "description": "Front wheel speed",
+      "ecu_address": "0x7A3",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1149",
+      "name": "cumulative_ash_ratio",
+      "description": "Cumulative ash ratio",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1149",
+      "name": "cumulative_ash_ratio",
+      "description": "Cumulative ash ratio",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x114A",
+      "name": "pressure_difference_between_dpf_inlet_and_outlet",
+      "description": "Pressure difference between DPF inlet and outlet",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "kPa"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x114B",
+      "name": "estimated_catalyst_temperature",
+      "description": "Estimated catalyst temperature",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 5,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x114C",
+      "name": "estimated_dpf_temperature",
+      "description": "Estimated DPF temperature",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 5,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x114D",
+      "name": "soot_accumulation_ratio",
+      "description": "Soot accumulation ratio",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x114E",
+      "name": "oil_dilution_ratio",
+      "description": "Oil dilution ratio",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1155",
+      "name": "estimated_distance_to_oil_change",
+      "description": "Estimated distance to oil change",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 100,
+        "unit": "km"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1155",
+      "name": "estimated_distance_to_oil_change",
+      "description": "Estimated distance to oil change",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 100,
+        "unit": "km"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1156",
+      "name": "running_distance_since_last_dpf_regeneration",
+      "description": "Running distance since last DPF regeneration",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1157",
+      "name": "diesel_particulate_filter_regeneration_count",
+      "description": "Diesel particulate filter regeneration count",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1158",
+      "name": "micro_quantity_injection_final_learning_value_1_cylinder_1",
+      "description": "Fields: Micro-quantity-injection final learning value #1 cylinder #1 [ms] (byte 0); Micro-quantity-injection final learning value #2 cylinder #1 [ms] (byte 1); Micro-quantity-injection final learning value #3 cylinder #1 [ms] (byte 2); Micro-quantity-injection final learning value #4 cylinder #1 [ms] (byte 3); Micro-quantity-injection final learning value #5 cylinder #1 [ms] (byte 4)",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1159",
+      "name": "micro_quantity_injection_final_learning_value_1_cylinder_2",
+      "description": "Fields: Micro-quantity-injection final learning value #1 cylinder #2 [ms] (byte 0); Micro-quantity-injection final learning value #2 cylinder #2 [ms] (byte 1); Micro-quantity-injection final learning value #3 cylinder #2 [ms] (byte 2); Micro-quantity-injection final learning value #4 cylinder #2 [ms] (byte 3); Micro-quantity-injection final learning value #5 cylinder #2 [ms] (byte 4)",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x115A",
+      "name": "micro_quantity_injection_final_learning_value_1_cylinder_3",
+      "description": "Fields: Micro-quantity-injection final learning value #1 cylinder #3 [ms] (byte 0); Micro-quantity-injection final learning value #2 cylinder #3 [ms] (byte 1); Micro-quantity-injection final learning value #3 cylinder #3 [ms] (byte 2); Micro-quantity-injection final learning value #4 cylinder #3 [ms] (byte 3); Micro-quantity-injection final learning value #5 cylinder #3 [ms] (byte 4)",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x115B",
+      "name": "micro_quantity_injection_final_learning_value_1_cylinder_4",
+      "description": "Fields: Micro-quantity-injection final learning value #1 cylinder #4 [ms] (byte 0); Micro-quantity-injection final learning value #2 cylinder #4 [ms] (byte 1); Micro-quantity-injection final learning value #3 cylinder #4 [ms] (byte 2); Micro-quantity-injection final learning value #4 cylinder #4 [ms] (byte 3); Micro-quantity-injection final learning value #5 cylinder #4 [ms] (byte 4)",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1161",
+      "name": "individual_pump_difference_learning_value",
+      "description": "Individual pump difference learning value",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mA"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1162",
+      "name": "final_main_injection_period",
+      "description": "Final main injection period",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "ms"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x116A",
+      "name": "distance_since_particulate_filter_warning",
+      "description": "Distance since particulate filter warning",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x116A",
+      "name": "distance_since_particulate_filter_warning",
+      "description": "Distance since particulate filter warning",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1189",
+      "name": "oil_dilution_amount",
+      "description": "Oil dilution amount",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.005
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11A1",
+      "name": "diesel_particulate_filter_regeneration_attempts",
+      "description": "Diesel particulate filter regeneration attempts",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11BE",
+      "name": "intake_vvt_cleaning_self_recovery_counter",
+      "description": "Intake VVT cleaning self-recovery counter",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11BF",
+      "name": "exhaust_vvt_cleaning_self_recovery_counter",
+      "description": "Exhaust VVT cleaning self-recovery counter",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11CB",
+      "name": "turbine_revolution_speed",
+      "description": "Turbine revolution speed",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 32,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11D0",
+      "name": "knocking_signal",
+      "description": "Knocking signal",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "°"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x122F",
+      "name": "clutch_switch",
+      "description": "Clutch switch",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x122F",
+      "name": "clutch_pedal_position",
+      "description": "Clutch pedal position",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1230",
+      "name": "stop_light_switch",
+      "description": "Stop light switch",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1231",
+      "name": "cruise_control_set_coast_switch",
+      "description": "Cruise control set/coast switch",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1232",
+      "name": "cruise_control_resume_accelerate_switch",
+      "description": "Cruise control resume/accelerate switch",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1233",
+      "name": "brake_switch",
+      "description": "Brake switch",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1233",
+      "name": "brake_pedal_position",
+      "description": "Brake pedal position",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1234",
+      "name": "cruise_control_main_toggle_switch",
+      "description": "Cruise control main toggle switch",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x124A",
+      "name": "cruise_control_cancel_switch",
+      "description": "Cruise control cancel switch",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x124C",
+      "name": "oil_level_switch",
+      "description": "Oil level switch",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x124F",
+      "name": "glow_relay_switch",
+      "description": "Glow relay switch",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1251",
+      "name": "sub_fuel_pump_relay_switch",
+      "description": "Sub fuel pump relay switch",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1254",
+      "name": "injector_learning_switch",
+      "description": "Injector learning switch",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x125B",
+      "name": "diesel_particulate_filter_active_regeneration_switch",
+      "description": "Diesel particulate filter active regeneration switch",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1275",
+      "name": "throttle_motor_voltage",
+      "description": "Throttle motor voltage",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.08,
+        "unit": "V"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1276",
+      "name": "sub_throttle_sensor",
+      "description": "Sub throttle sensor",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.02,
+        "unit": "V"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1277",
+      "name": "main_throttle_sensor",
+      "description": "Main throttle sensor",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.02,
+        "unit": "V"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1278",
+      "name": "sub_accelerator_sensor",
+      "description": "Sub accelerator sensor",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.02,
+        "unit": "V"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1279",
+      "name": "main_accelerator_sensor",
+      "description": "Main accelerator sensor",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.02,
+        "unit": "V"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1289",
+      "name": "idle_mass_air_flow",
+      "description": "Idle mass air flow",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "g/s"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x128A",
+      "name": "idle_mass_air_flow_feedback_correction",
+      "description": "Idle mass air flow feedback correction",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "offset": -300,
+        "unit": "g/s"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x128B",
+      "name": "idle_speed_control_learning_value",
+      "description": "Idle speed control learning value",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "offset": -300,
+        "unit": "g/s"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x128C",
+      "name": "idle_a_c_load_correction",
+      "description": "Idle A/C load correction",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.01,
+        "unit": "g/s"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x128D",
+      "name": "electric_load_feedback_value",
+      "description": "Electric load feedback value",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.01,
+        "unit": "g/s"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x128E",
+      "name": "idle_dirty_throttle_correction",
+      "description": "Idle dirty throttle correction",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "offset": -300,
+        "unit": "g/s"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x128F",
+      "name": "intake_vvt_advance_target_angle_right",
+      "description": "Intake VVT advance, target angle right",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1290",
+      "name": "intake_vvt_advance_target_angle_left",
+      "description": "Intake VVT advance, target angle left",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1291",
+      "name": "exhaust_vvt_retard_target_angle_right",
+      "description": "Exhaust VVT retard, target angle right",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1292",
+      "name": "exhaust_vvt_retard_target_angle_left",
+      "description": "Exhaust VVT retard, target angle left",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1295",
+      "name": "purge_density_learn_value",
+      "description": "Purge density learn value",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.7811764706,
+        "offset": -100,
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1298",
+      "name": "transmission_turbine_speed",
+      "description": "Transmission turbine speed",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1299",
+      "name": "transmission_lock_up",
+      "description": "Transmission lock-up",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x129C",
+      "name": "engine_starting_time",
+      "description": "Engine starting time",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 10,
+        "unit": "ms"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x12B1",
+      "name": "actual_line_pressure",
+      "description": "Actual line pressure",
+      "ecu_address": "0x7A3",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0003906309606
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x12B2",
+      "name": "lin_solenoid_actual_current",
+      "description": "Lin. solenoid actual current",
+      "ecu_address": "0x7A3",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mA"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x12B4",
+      "name": "all_wheel_drive_solenoid_set_current",
+      "description": "All-wheel drive solenoid set current",
+      "ecu_address": "0x7A3",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mA"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x12B5",
+      "name": "all_wheel_drive_solenoid_actual_current",
+      "description": "All-wheel drive solenoid actual current",
+      "ecu_address": "0x7A3",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mA"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x12CE",
+      "name": "ambient_temperature_for_sensor_signal",
+      "description": "Ambient temperature for sensor signal",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x12D1",
+      "name": "ambient_temperature_for_control",
+      "description": "Ambient temperature for control",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x12ED",
+      "name": "mass_air_flow_average",
+      "description": "Alternative decodings: Mass air flow, average [g/s] (byte 0); Mass air flow average [g/s] (byte 0)",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "g/s"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1314",
+      "name": "cylinder_monitor_1",
+      "description": "Cylinder monitor #1",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.25,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1315",
+      "name": "cylinder_monitor_2",
+      "description": "Cylinder monitor #2",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.25,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1316",
+      "name": "cylinder_monitor_3",
+      "description": "Cylinder monitor #3",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.25,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1317",
+      "name": "cylinder_monitor_4",
+      "description": "Cylinder monitor #4",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.25,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1321",
+      "name": "battery_terminal_voltage",
+      "description": "Battery terminal voltage",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1322",
+      "name": "battery_charge_discharge_current",
+      "description": "Battery charge/discharge current",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint32_be",
+        "scale": 0.001,
+        "offset": -2000,
+        "unit": "A"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1323",
+      "name": "estimated_battery_temperature",
+      "description": "Estimated battery temperature",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.5,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1324",
+      "name": "remaining_battery_capacity",
+      "description": "Remaining battery capacity",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1352",
+      "name": "split_ratio_of_fuel_injection_1",
+      "description": "Split ratio of fuel injection 1",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1353",
+      "name": "split_ratio_of_fuel_injection_2",
+      "description": "Split ratio of fuel injection 2",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1354",
+      "name": "split_ratio_of_fuel_injection_3",
+      "description": "Split ratio of fuel injection 3",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1355",
+      "name": "split_ratio_of_fuel_injection_4",
+      "description": "Split ratio of fuel injection 4",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1357",
+      "name": "direct_fuel_injection_time_1",
+      "description": "Direct fuel injection time 1",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.004,
+        "unit": "ms"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1358",
+      "name": "direct_fuel_injection_time_2",
+      "description": "Direct fuel injection time 2",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.004,
+        "unit": "ms"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1359",
+      "name": "direct_fuel_injection_time_3",
+      "description": "Direct fuel injection time 3",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.004,
+        "unit": "ms"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x135A",
+      "name": "direct_fuel_injection_time_4",
+      "description": "Direct fuel injection time 4",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.004,
+        "unit": "ms"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2006",
+      "name": "engine_torque_target",
+      "description": "Engine torque target",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -1000,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2009",
+      "name": "high_voltage_battery_total_voltage",
+      "description": "High voltage battery total voltage",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "V"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x200A",
+      "name": "high_voltage_battery_current",
+      "description": "High voltage battery current",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -200,
+        "unit": "A"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x200C",
+      "name": "high_voltage_battery_cooling_fan_duty_target",
+      "description": "High voltage battery cooling fan duty, target",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2012",
+      "name": "12v_engine_restart_battery_current",
+      "description": "12V engine restart battery current",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -2000,
+        "unit": "A"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2014",
+      "name": "12v_engine_restart_battery_soc_control",
+      "description": "12V engine restart battery soc control",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2021",
+      "name": "high_voltage_battery_state_of_health",
+      "description": "High voltage battery state of health",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2022",
+      "name": "high_voltage_battery_temperature_max",
+      "description": "High voltage battery temperature max",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "offset": -40,
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2023",
+      "name": "high_voltage_battery_temperature_min",
+      "description": "High voltage battery temperature min",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "offset": -40,
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2024",
+      "name": "high_voltage_battery_intake_air_temperature",
+      "description": "High voltage battery intake air temperature",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "offset": -40,
+        "unit": "%"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2025",
+      "name": "high_voltage_battery_discharge_power",
+      "description": "High voltage battery discharge power",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1,
+        "unit": "kW"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2026",
+      "name": "high_voltage_battery_charge_power",
+      "description": "High voltage battery charge power",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1,
+        "unit": "kW"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2034",
+      "name": "electric_oil_pump_speed",
+      "description": "Electric oil pump speed",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2035",
+      "name": "electric_oil_pump_current",
+      "description": "Electric oil pump current",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.0625,
+        "unit": "A"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2061",
+      "name": "engine_torque_upper",
+      "description": "Engine torque upper",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 1.6,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2062",
+      "name": "engine_torque_actual",
+      "description": "Engine torque actual",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -1000,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x20E2",
+      "name": "12v_aux_battery_temperature",
+      "description": "12V aux battery temperature",
+      "ecu_address": "0x7E7",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x300E",
+      "name": "cvt_primary_pulley_speed",
+      "description": "CVT primary pulley speed",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x307A",
+      "name": "inlet_air_temperature",
+      "description": "Inlet air temperature",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 1.8,
+        "offset": -40,
+        "unit": "°F"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x30D0",
+      "name": "cvt_secondary_pulley_speed",
+      "description": "CVT secondary pulley speed",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x30DA",
+      "name": "cvt_gear_ratio_actual",
+      "description": "CVT gear ratio, actual",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.003921568627
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x30F8",
+      "name": "cvt_gear_ratio_target",
+      "description": "CVT gear ratio, target",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.003921568627
+      },
+      "source": "OBDb/Subaru signalset (CC BY-SA 4.0)",
+      "verified": false
     }
   ],
   "routines": [

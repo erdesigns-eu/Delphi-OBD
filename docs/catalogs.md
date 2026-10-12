@@ -226,6 +226,14 @@ relative to the catalogue's folder (vehicle-class catalogues use
 chains deeper than four levels are rejected. `CreateFromText` needs a
 base folder when the text uses `extends`.
 
+A sister brand can also extend its parent brand catalogue instead of a
+`_shared/` base — `dacia.json` extends `renault.json`, `polestar.json`
+extends `volvo.json`, `mini.json` extends `bmw.json`, and `bentley.json`
+and `lamborghini.json` extend `vw.json` (which itself covers Volkswagen,
+Audi, Škoda, SEAT and Cupra). The parent's chain is followed, so
+the sister brand still gets the shared template; it only keeps the entries
+that differ from its parent.
+
 `tools/validate_catalogs.py` checks the chain, rejects brand entries that
 merely repeat an inherited one, and fails when an entry is copied
 identically into more than five unrelated catalogues beyond the

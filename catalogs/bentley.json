@@ -7,7 +7,7 @@
     "SCB"
   ],
   "default_source": "bentley-vag-odis-community",
-  "extends": "_shared/oem-cars-and-trucks.json",
+  "extends": "vw.json",
   "ecus": [
     {
       "address": "0x7E0",
@@ -6032,6 +6032,5067 @@
         "kind": "uint16_be",
         "unit": "kΩ"
       }
+    },
+    {
+      "did": "0x028C",
+      "name": "hv_battery_state_of_charge",
+      "description": "Alternative decodings: HV battery state of charge [%] (byte 0); HV battery charge [%] (byte 0); HV battery state of charge [%] (byte 0)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x028C",
+      "name": "state_of_charge",
+      "description": "Alternative decodings: State of charge [%] (byte 0); State of charge [%] (byte 0); State of charge, display [%] (byte 0)",
+      "ecu_address": "0xFC00",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.4,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x028D",
+      "name": "control_module_temperature",
+      "description": "Alternative decodings: Control module temperature [°C] (byte 0); Engine control module temperature [°C] (byte 0); Control module temperature [°C] (byte 0); Control module temperature [°C] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -273.1,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x02BD",
+      "name": "odometer_battery_management_system",
+      "description": "Fields: Odometer, battery management system [km] (byte 1)",
+      "ecu_address": "0xFC00",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0303",
+      "name": "driving_time_in_efficiency_mode",
+      "description": "Driving time in efficiency mode",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.4,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0304",
+      "name": "driving_time_sport",
+      "description": "Driving time, sport",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.4,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0305",
+      "name": "driving_time_manual",
+      "description": "Driving time, manual",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.4,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0838",
+      "name": "emergency_call_battery_critical_status",
+      "description": "Fields: Emergency call battery critical status [%] (byte 0); Ecall battery charge status (byte 0); Emergency call battery level [%] (byte 1); ECall battery status (byte 0)",
+      "ecu_address": "0x767",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1000",
+      "name": "ambient_temperature",
+      "description": "Ambient temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.75,
+        "offset": -48,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1001",
+      "name": "intake_air_temperature",
+      "description": "Intake air temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.75,
+        "offset": -48,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1001",
+      "name": "front_right_wheel_speed",
+      "description": "Fields: Front right wheel speed [km/h] (byte 0); Front right wheel speed [km/h] (byte 0); Front right wheel speed [km/h] (byte 0); Transmission read 1001, first byte raw count (byte 0)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1002",
+      "name": "a_c_compressor_torque_requested",
+      "description": "A/c compressor torque, requested",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1004",
+      "name": "ambient_temperature",
+      "description": "Ambient temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.0078125,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1004",
+      "name": "rear_left_wheel_speed",
+      "description": "Alternative decodings: Rear left wheel speed [km/h] (byte 0); Rear left wheel speed [km/h] (byte 0); Rear left wheel speed [km/h] (byte 0); Transmission value 1004, raw (byte 0)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "km/h"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1007",
+      "name": "camshaft_position_start_of_phase_window",
+      "description": "Alternative decodings: Camshaft position, start of phase window [°] (byte 0); Camshaft start position [°] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.021973,
+        "unit": "°"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x100A",
+      "name": "vehicle_speed_from_transmission_raw_count",
+      "description": "Alternative decodings: Vehicle speed from transmission, raw count (byte 0); Vehicle speed from transmission [km/h] (byte 0); Vehicle speed from transmission [km/h] (byte 0)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x100B",
+      "name": "driver_demand_torque",
+      "description": "Alternative decodings: Driver demand torque [Nm] (byte 0); Driver demand torque [Nm] (byte 0)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.05,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x100D",
+      "name": "gear_engaged",
+      "description": "Alternative decodings: Gear engaged (byte 0); Current gear (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1010",
+      "name": "engine_torque",
+      "description": "Engine torque",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1017",
+      "name": "air_conditioning_compressor_pressure",
+      "description": "Alternative decodings: Air conditioning compressor pressure (byte 0); Air conditioning refrigerant pressure [kPa] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 2
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1017",
+      "name": "road_resistance",
+      "description": "Alternative decodings: Road resistance [%] (byte 0); Road resistance [%] (byte 0)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.249,
+        "offset": -31.6,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1018",
+      "name": "coolant_fan_requested_by_a_c",
+      "description": "Coolant fan, requested by A/C",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.012207,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x101A",
+      "name": "air_conditioning_compressor_torque",
+      "description": "Alternative decodings: Air conditioning compressor torque [Nm] (byte 0); A/C compressor torque [Nm] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x101A",
+      "name": "odometer_mileage_2",
+      "description": "Alternative decodings: Odometer, mileage 2 [km] (byte 0); Odometer #3 [km] (byte 0); Odometer (TCM #2) [km] (byte 0)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x101B",
+      "name": "generator_torque_request",
+      "description": "Generator torque request",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x101C",
+      "name": "generator_load_signal",
+      "description": "Alternative decodings: Generator load signal [%] (byte 0); Alternator load [%] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1023",
+      "name": "air_conditioning_compressor_torque_request",
+      "description": "Air conditioning compressor torque request",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1024",
+      "name": "alternator_load",
+      "description": "Fields: Alternator load [W] (byte 0); Air mass meter 1 (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1026",
+      "name": "mass_airflow_sensor_1_bank_1_raw_value",
+      "description": "Mass airflow sensor 1 bank 1 raw value",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1028",
+      "name": "downshift_point_adaptation_voltage",
+      "description": "Downshift point adaptation voltage",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.2,
+        "unit": "mV"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1029",
+      "name": "accelerator_pedal_release_detection_threshold_voltage",
+      "description": "Accelerator pedal release detection threshold voltage",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.2,
+        "unit": "mV"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x102A",
+      "name": "accelerator_pedal_sensor_1_voltage",
+      "description": "Accelerator pedal, sensor 1 voltage",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.2,
+        "unit": "mV"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x102A",
+      "name": "current_n443_pressure_control_valve_7_main_pressure",
+      "description": "Alternative decodings: Current N443 pressure control valve 7 main pressure [mA] (byte 0); Clutch center central plate temperature [°C] (byte 0)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "mA"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x102B",
+      "name": "accelerator_pedal_sensor_2_voltage",
+      "description": "Accelerator pedal, sensor 2 voltage",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.2,
+        "unit": "mV"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x102C",
+      "name": "coolant_temperature_at_radiator_outlet_actual_value",
+      "description": "Coolant temperature at radiator outlet, actual value",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -273.1,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x102E",
+      "name": "accelerator_pedal_sensor_2",
+      "description": "Alternative decodings: Accelerator pedal, sensor 2 [mV] (byte 0); Accelerator pedal sensor 2 [mV] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.2,
+        "unit": "mV"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1033",
+      "name": "generator_load_signal",
+      "description": "Generator load signal",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x103C",
+      "name": "intake_manifold_pressure_calculated",
+      "description": "Intake manifold pressure calculated",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1040",
+      "name": "particulate_filter_differential_pressure_filtered",
+      "description": "Particulate filter differential pressure, filtered",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.25,
+        "offset": -5000
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1044",
+      "name": "diesel_particulate_filter_surface_temperature",
+      "description": "Alternative decodings: Diesel particulate filter surface temperature [°C] (byte 0); Diesel particulate filter surface temperature [°C] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -273.1,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1047",
+      "name": "engine_torque",
+      "description": "Alternative decodings: Engine torque [Nm] (byte 0); Engine torque [Nm] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1048",
+      "name": "air_conditioning_compressor_refrigerant_pressure",
+      "description": "Air conditioning compressor refrigerant pressure",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 2
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1056",
+      "name": "charge_air_cooler_downstream_air_pressure",
+      "description": "Charge air cooler downstream air pressure",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1057",
+      "name": "charge_air_pressure_actual_value",
+      "description": "Alternative decodings: Charge air pressure, actual value (byte 0); Boost pressure [bar] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1059",
+      "name": "accelerator_pedal_torque_limit",
+      "description": "Accelerator pedal torque limit",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x105A",
+      "name": "battery_voltage",
+      "description": "Alternative decodings: Battery voltage [V] (byte 0); Battery voltage [V] (byte 0); Battery voltage [V] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.02,
+        "unit": "V"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x105C",
+      "name": "generator_load",
+      "description": "Alternative decodings: Generator load [%] (byte 0); Brake pressure [bar] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x105D",
+      "name": "brake_pedal_position",
+      "description": "Brake pedal position",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.012207,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x105E",
+      "name": "battery_voltage_variant",
+      "description": "Fields: Battery voltage variant [V] (byte 0); Battery voltage variant [V] (byte 0); Engine read 105E, signed raw count (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1063",
+      "name": "engine_outlet_coolant_temperature_calculated",
+      "description": "Engine outlet coolant temperature calculated",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -273.1,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1063",
+      "name": "clutch_1_characteristic_curve_shift",
+      "description": "Alternative decodings: Clutch 1 characteristic curve shift [mm] (byte 0); Clutch 1 characteristic curve shift [mm] (byte 0)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.00098,
+        "unit": "mm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1064",
+      "name": "coolant_temperature_at_engine_outlet_calculated",
+      "description": "Coolant temperature at engine outlet, calculated",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -273.1,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1064",
+      "name": "desired_torque_filtered",
+      "description": "Alternative decodings: Desired torque filtered [Nm] (byte 0); Analysis, clutch 1, maximum temperature [°C] (byte 0)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "Nm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1065",
+      "name": "cylinder_head_temperature_actual",
+      "description": "Alternative decodings: Cylinder head temperature, actual [°C] (byte 0); Cylinder head temperature [°F] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -273.1,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1065",
+      "name": "friction_torque",
+      "description": "Alternative decodings: Friction torque [Nm] (byte 0); Clutch 1 temperature time in range 0 [s] (byte 0)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "Nm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1066",
+      "name": "static_torque_limitation",
+      "description": "Alternative decodings: Static torque limitation [Nm] (byte 0); Analysis, clutch 1 temperature time in range 1 [s] (byte 0)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "Nm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1067",
+      "name": "dynamic_torque_limitation",
+      "description": "Alternative decodings: Dynamic torque limitation [Nm] (byte 0); Analysis, clutch 1 temperature time in range 2 [s] (byte 0)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "Nm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x106B",
+      "name": "limitation_torque",
+      "description": "Alternative decodings: Limitation, torque [Nm] (byte 0); Torque limit [Nm] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1077",
+      "name": "onboard_electrical_system_power",
+      "description": "Onboard electrical system power",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 4,
+        "unit": "W"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x107D",
+      "name": "torque_limitation",
+      "description": "Torque limitation",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x108C",
+      "name": "odometer",
+      "description": "Odometer",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "km"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1091",
+      "name": "transmission_input_speed_shaft_1",
+      "description": "Alternative decodings: Transmission input speed - shaft 1 [rpm] (byte 0); Gear actuator adaptation synchronization position G2 [mm] (byte 0)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "rpm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1092",
+      "name": "camshaft_speed",
+      "description": "Camshaft speed",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.25,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1093",
+      "name": "camshaft_adaptation_intake_phase_position",
+      "description": "Camshaft adaptation intake, phase position",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.02197271645,
+        "unit": "°"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1093",
+      "name": "transmission_input_speed_shaft_2",
+      "description": "Alternative decodings: Transmission input speed - shaft 2 [rpm] (byte 0); Gear actuator adaptation synchronization position G4 [mm] (byte 0)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "rpm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1097",
+      "name": "generator_power",
+      "description": "Generator power",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 9.4247,
+        "unit": "W"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10A0",
+      "name": "fuel_flow",
+      "description": "Fuel flow",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.01,
+        "unit": "L"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10A2",
+      "name": "mileage_with_ecu_installed",
+      "description": "Mileage with ECU installed",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be",
+        "scale": 0.001,
+        "unit": "km"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10A4",
+      "name": "injection_speed_injector_0",
+      "description": "Injection speed injector 0",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.25,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10A5",
+      "name": "injection_speed_injector_1",
+      "description": "Injection speed injector 1",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.25,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10A6",
+      "name": "injection_speed_injector_2",
+      "description": "Injection speed injector 2",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.25,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10A7",
+      "name": "oil_temperature",
+      "description": "Oil temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -273.1,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10A8",
+      "name": "injection_speed_injector_3",
+      "description": "Injection speed injector 3",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.25,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10AF",
+      "name": "analysis_39_driving_recorder_total_time",
+      "description": "Fields: Analysis-39 driving recorder total time [s] (byte 0); Gear actuator adaptation synchronization position reverse [mm] (byte 0)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10B0",
+      "name": "time_with_transmission_fluid_below_65_degrees",
+      "description": "Fields: Time with transmission fluid below 65 degrees [s] (byte 0); Gear actuator adaptation engaged position GR [mm] (byte 0); Time with transmission fluid at 65 to 80 degrees [s] (byte 4); Time with transmission fluid at 80 to 110 degrees [s] (byte 8); Time with transmission fluid at 110 to 135 degrees [s] (byte 12); Time with transmission fluid above 135 degrees [s] (byte 16)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10C2",
+      "name": "exhaust_gas_recirculation_valve_duty",
+      "description": "Exhaust gas recirculation valve duty",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10D0",
+      "name": "injector_1_rail_pressure_calibration_point_1",
+      "description": "Injector 1 rail pressure calibration point 1",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 5e-05,
+        "unit": "ms"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10D1",
+      "name": "injector_3_rail_pressure_calibration_point_1",
+      "description": "Injector 3 rail pressure calibration point 1",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 5e-05,
+        "unit": "ms"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10D2",
+      "name": "injector_3_rail_pressure_calibration_point_2",
+      "description": "Injector 3 rail pressure calibration point 2",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 5e-05,
+        "unit": "ms"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10D3",
+      "name": "injector_2_rail_pressure_calibration_point_1",
+      "description": "Injector 2 rail pressure calibration point 1",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 5e-05,
+        "unit": "ms"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10D4",
+      "name": "injector_2_rail_pressure_calibration_point_1",
+      "description": "Injector 2, rail pressure calibration point 1",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 5e-05,
+        "unit": "ms"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10D5",
+      "name": "injector_5_rail_pressure_calibration_point_1",
+      "description": "Alternative decodings: Injector 5, rail pressure calibration point 1 [ms] (byte 0); Lambda, actual value (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 5e-05,
+        "unit": "ms"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10D6",
+      "name": "injector_1_rail_pressure_calibration_point_2",
+      "description": "Injector 1 rail pressure calibration point 2",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 5e-05,
+        "unit": "ms"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10D7",
+      "name": "injector_4_rail_pressure_calibration_point_2",
+      "description": "Injector 4, rail pressure calibration point 2",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 5e-05,
+        "unit": "ms"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10D8",
+      "name": "injector_4_rail_pressure_calibration_point_2",
+      "description": "Injector 4 rail pressure calibration point 2",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 5e-05,
+        "unit": "ms"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10D9",
+      "name": "injector_2_rail_pressure_calibration_point_2",
+      "description": "Injector 2 rail pressure calibration point 2",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 5e-05,
+        "unit": "ms"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10E0",
+      "name": "odometer",
+      "description": "Fields: Odometer [km] (byte 0); Odometer, alternative [km] (byte 0); Engine module 10E0, raw (byte 0); Engine read 10E0, signed raw count (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10E1",
+      "name": "injector_5_rail_pressure_calibration_point_3",
+      "description": "Alternative decodings: Injector 5, rail pressure calibration point 3 [ms] (byte 0); Open camshaft angle at quantity control valve [°] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 5e-05,
+        "unit": "ms"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10E2",
+      "name": "wear_index",
+      "description": "Wear index",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "m"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10E3",
+      "name": "torque_reduction_due_to_exhaust_temperature",
+      "description": "Torque reduction due to exhaust temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.0001
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10E4",
+      "name": "regulation_factor_total",
+      "description": "Regulation factor total",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.0001,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10E5",
+      "name": "ignition_timing_angle_retard_cylinder_4",
+      "description": "Ignition timing angle retard, cylinder 4",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.75,
+        "unit": "°"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10E6",
+      "name": "engine_oil_temperature",
+      "description": "Alternative decodings: Engine oil temperature [°C] (byte 0); Knock retard 2 [°] (byte 0); Engine oil temperature [°C] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -60,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10E7",
+      "name": "knock_retard_4",
+      "description": "Fields: Knock retard 4 [°] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10E9",
+      "name": "maximum_filling_correction_factor_from_knock_control",
+      "description": "Maximum filling correction factor from knock control",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 3e-05
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10F1",
+      "name": "diesel_particulate_filter_differential_pressure_offset",
+      "description": "Diesel particulate filter differential pressure offset",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10F2",
+      "name": "sum_of_misfires_counter",
+      "description": "Sum of misfires counter",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10F3",
+      "name": "oil_level_last_valid_dynamic_value",
+      "description": "Alternative decodings: Oil level, last valid dynamic value [mm] (byte 0); Diesel particulate filter differential pressure variant 2 (byte 0); Particulate filter differential pressure, raw count (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0625,
+        "offset": -127,
+        "unit": "mm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10F4",
+      "name": "misfires_per_1000_revolutions_cylinder_3",
+      "description": "Misfires per 1000 revolutions, cylinder 3",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10F5",
+      "name": "misfires_cylinder_4",
+      "description": "Misfires, cylinder 4",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10F6",
+      "name": "misfires_per_1000_revolutions_cylinder_2",
+      "description": "Misfires per 1000 revolutions, cylinder 2",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10F7",
+      "name": "misfires_cylinder_1",
+      "description": "Misfires, cylinder 1",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10F9",
+      "name": "exhaust_gas_temperature_sensor_4",
+      "description": "Alternative decodings: Exhaust gas temperature sensor 4 [°C] (byte 0); Diesel particulate filter outlet temperature [°C] (byte 0); Diesel particulate filter outlet temperature [°C] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "offset": -273.1,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10FF",
+      "name": "injection_quantity_deviation_cylinder_1",
+      "description": "Alternative decodings: Injection quantity deviation cylinder 1 (byte 0); Injection amount deviation cylinder 1 (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.01
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1100",
+      "name": "injection_quantity_deviation_cylinder_4",
+      "description": "Alternative decodings: Injection quantity deviation cylinder 4 (byte 0); Injection amount deviation cylinder 3 (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.01
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1100",
+      "name": "adaptation_inflation_time_torque_converter_lockup_clutch",
+      "description": "Adaptation inflation time torque converter lockup clutch",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 10,
+        "unit": "ms"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1101",
+      "name": "adaptation_counter_torque_converter_lockup_clutch",
+      "description": "Adaptation counter torque converter lockup clutch",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1102",
+      "name": "engine_oil_temperature",
+      "description": "Engine oil temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1104",
+      "name": "injection_quantity_deviation_cylinder_3",
+      "description": "Alternative decodings: Injection quantity deviation cylinder 3 (byte 0); Injection amount deviation cylinder 4 (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.01
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1105",
+      "name": "injection_quantity_deviation_cylinder_6",
+      "description": "Alternative decodings: Injection quantity deviation cylinder 6 (byte 0); Injection amount deviation cylinder 2 (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.01
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1106",
+      "name": "injection_quantity_deviation_cylinder_2",
+      "description": "Injection quantity deviation cylinder 2",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.01
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1107",
+      "name": "injection_quantity_deviation_cylinder_5",
+      "description": "Injection quantity deviation cylinder 5",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.01
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1108",
+      "name": "charge_pressure_control_specified_value",
+      "description": "Charge pressure control specified value",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.00152590219,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1109",
+      "name": "fuel_pump_specified_value",
+      "description": "Fuel pump specified value",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.00152590219,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x110A",
+      "name": "mass_flow_through_throttle_valve",
+      "description": "Mass flow through throttle valve",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x110E",
+      "name": "long_term_fuel_trim_at_idle",
+      "description": "Long term fuel trim at idle",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.05,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1111",
+      "name": "radiator_output_coolant_temperature_commanded",
+      "description": "Alternative decodings: Radiator output coolant temperature, commanded [°C] (byte 0); Radiator outlet coolant temperature commanded [°C] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -273.1,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1114",
+      "name": "coolant_fan_2_duty",
+      "description": "Alternative decodings: Coolant fan 2 duty [%] (byte 0); Coolant fan 2 duty cycle [%] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1116",
+      "name": "coolant_fan_1_duty_cycle",
+      "description": "Coolant fan 1 duty cycle",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1117",
+      "name": "coolant_fan_1_activation_1117",
+      "description": "Coolant fan 1 activation, $1117",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1118",
+      "name": "boost_pressure_target",
+      "description": "Boost pressure, target",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 10
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x111A",
+      "name": "instant_fuel_flow",
+      "description": "Alternative decodings: Instant fuel flow [L] (byte 0); Fuel flow rate [L] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.01,
+        "unit": "L"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x111B",
+      "name": "high_fuel_pressure_target",
+      "description": "High fuel pressure, target",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0005
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x111C",
+      "name": "fuel_temperature",
+      "description": "Fuel temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -273.1,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x111E",
+      "name": "boost_pressure_actual",
+      "description": "Boost pressure, actual",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.08
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x111F",
+      "name": "preheat_time",
+      "description": "Preheat time",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 100,
+        "unit": "ms"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1125",
+      "name": "camshaft_adaptation_intake_bank_1_phase_position",
+      "description": "Camshaft adaptation intake bank 1, phase position",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.021973,
+        "unit": "°"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1128",
+      "name": "camshaft_adaptation_exhaust_bank_1_phase_position",
+      "description": "Camshaft adaptation exhaust bank 1, phase position",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.021973,
+        "unit": "°"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x112C",
+      "name": "spark_efficiency_deviation_at_idle",
+      "description": "Fields: Spark efficiency deviation at idle [%] (byte 0); Turbine actuator 1 bank 1: activation [%] (byte 0); Compression test cylinder 4 [rpm] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x112D",
+      "name": "spark_efficiency_deviation_at_part_load",
+      "description": "Fields: Spark efficiency deviation at part load [%] (byte 0); Spark efficiency deviation at part load [%] (byte 0); SEG_AD_MMV_ER, 1 [%] (byte 0); Spark efficiency deviation at part load [%] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x112E",
+      "name": "cooling_fan_2",
+      "description": "Alternative decodings: Cooling fan 2 [%] (byte 0); SEG_AD_MMV_ER, 2 [%] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1130",
+      "name": "cooling_fan_1",
+      "description": "Alternative decodings: Cooling fan 1 [%] (byte 0); Coolant fan 1, commanded duty [%] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1131",
+      "name": "post_injection_3_activation_start",
+      "description": "Alternative decodings: Post-injection 3, activation start [°] (byte 0); Post-injection 3 start position [°] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.02,
+        "unit": "°"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1132",
+      "name": "seg_ad_mmv_er_mid_0",
+      "description": "SEG_AD_MMV_ER_MID, 0",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.0002384197516,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1133",
+      "name": "seg_ad_mmv_er_mid_1",
+      "description": "SEG_AD_MMV_ER_MID, 1",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.0002384197516,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1134",
+      "name": "seg_ad_mmv_er_mid_2",
+      "description": "SEG_AD_MMV_ER_MID, 2",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.0002384197516,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1135",
+      "name": "coolant_temperature_at_radiator_outlet",
+      "description": "Alternative decodings: Coolant temperature at radiator outlet [°C] (byte 0); Coolant temperature at radiator outlet [°C] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -273.1,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1136",
+      "name": "height_correction",
+      "description": "Height correction",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 6.10348e-05
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1137",
+      "name": "fuel_part_from_evap_system",
+      "description": "Fields: Fuel part from EVAP system (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1138",
+      "name": "seg_ad_mmv_er_h_0",
+      "description": "SEG_AD_MMV_ER_H, 0",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.0002384197516,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1138",
+      "name": "engaged_position_side_a_gear_selector_1_3",
+      "description": "Engaged position side a gear selector 1-3",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1139",
+      "name": "mean_injection_quantity",
+      "description": "Mean injection quantity",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.01
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x113A",
+      "name": "long_term_throttle_adaptation_to_maf_sensor",
+      "description": "Alternative decodings: Long term throttle adaptation to MAF sensor [%] (byte 0); SEG_AD_MMV_ER_H, 2 [%] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 6.10351e-05,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x113A",
+      "name": "engaged_position_side_a_gear_selector_5_and_neutral",
+      "description": "Engaged position side a gear selector 5 and neutral",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x113B",
+      "name": "seg_ad_mmv_er_h_3",
+      "description": "SEG_AD_MMV_ER_H, 3",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.0002384197516,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x113B",
+      "name": "engaged_position_side_a_gear_selector_6_and_reverse",
+      "description": "Engaged position side a gear selector 6 and reverse",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x113C",
+      "name": "synchronous_position_side_a_gear_selector_1_3",
+      "description": "Synchronous position side a gear selector 1-3",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x113D",
+      "name": "oxygen_sensor_1_bank_1_lambda_value",
+      "description": "Oxygen sensor 1 bank 1 lambda value",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.01
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x113D",
+      "name": "synchronous_position_side_a_gear_selector_2_4",
+      "description": "Synchronous position side a gear selector 2-4",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x113E",
+      "name": "synchronous_position_side_a_gear_selector_5_and_neutral",
+      "description": "Synchronous position side a gear selector 5 and neutral",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x113F",
+      "name": "synchronous_position_side_a_gear_selector_6_and_reverse",
+      "description": "Synchronous position side a gear selector 6 and reverse",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1144",
+      "name": "engaged_position_side_b_gear_selector_1_3",
+      "description": "Engaged position side b gear selector 1-3",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1145",
+      "name": "engaged_position_side_b_gear_selector_2_4",
+      "description": "Engaged position side b gear selector 2-4",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1148",
+      "name": "fuel_metering_valve_position",
+      "description": "Alternative decodings: Fuel metering valve position [%] (byte 0); Misfires / 1000 revolutions, cylinder 3 (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1148",
+      "name": "synchronous_position_side_b_gear_selector_1_3",
+      "description": "Synchronous position side b gear selector 1-3",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1149",
+      "name": "boost_pressure_commanded",
+      "description": "Alternative decodings: Boost pressure commanded (byte 0); Misfires / 1000 revolutions, cylinder 4 (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1149",
+      "name": "synchronous_position_side_b_gear_selector_2_4",
+      "description": "Synchronous position side b gear selector 2-4",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x114A",
+      "name": "synchronous_position_side_b_gear_selector_5_and_neutral",
+      "description": "Synchronous position side b gear selector 5 and neutral",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x114B",
+      "name": "synchronous_position_side_b_gear_selector_6_and_reverse",
+      "description": "Synchronous position side b gear selector 6 and reverse",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x114F",
+      "name": "soot_mass_calculated",
+      "description": "Alternative decodings: Soot mass calculated (byte 0); Unidentified engine value, raw count (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1150",
+      "name": "misfires_cylinder_3",
+      "description": "Misfires, cylinder 3",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1151",
+      "name": "electric_motor_1_rpm",
+      "description": "Alternative decodings: Electric motor 1 rpm [rpm] (byte 0); Misfires, cylinder 4 (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.5,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1152",
+      "name": "electric_motor_2_rpm",
+      "description": "Alternative decodings: Electric motor 2 rpm [rpm] (byte 0); Misfires, cylinder 2 (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.5,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1153",
+      "name": "elector_motor_1_torque",
+      "description": "Fields: Elector motor 1 torque [Nm] (byte 0); Engine read 1153, raw count (byte 0); Diesel particulate filter oil ash volume [L] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1154",
+      "name": "elector_motor_2_torque",
+      "description": "Alternative decodings: Elector motor 2 torque [Nm] (byte 0); Misfires 4 (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.03125,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1155",
+      "name": "elector_motor_3_torque",
+      "description": "Elector motor 3 torque",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.03125,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1156",
+      "name": "high_voltage_battery_charge",
+      "description": "Fields: High-voltage battery charge [%] (byte 0); Distance since last regeneration [km] (byte 0); High-voltage battery charge [%] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1158",
+      "name": "maximum_discharge_current",
+      "description": "Maximum discharge current",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "A"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1159",
+      "name": "maximum_charge_current",
+      "description": "Maximum charge current",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "A"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x115A",
+      "name": "particle_filter_fuel_consumption_since_last_regeneration",
+      "description": "Alternative decodings: Particle filter, fuel consumption since last regeneration [L] (byte 0); Diesel particulate filter fuel consumption since last regeneration [L] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.01,
+        "unit": "L"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x115B",
+      "name": "particle_filter_field_regeneration_request_status",
+      "description": "Fields: Particle filter, field regeneration request status (byte 0); Vehicle speed, directional [km/h] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x115E",
+      "name": "time_since_particulate_filter_regeneration_raw_count",
+      "description": "Fields: Time since particulate filter regeneration, raw count (byte 0); Time since last regen. [min] (byte 0); Time since last regeneration [min] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1161",
+      "name": "idle_target_rpm",
+      "description": "Idle, target RPM",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.5,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1164",
+      "name": "hv_battery_charge_displayed",
+      "description": "Fields: HV battery charge, displayed [%] (byte 0); Engine read 1164, raw count (byte 0); Service regeneration current duration [min] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x116A",
+      "name": "fuel_high_pressure_specified_value",
+      "description": "Fuel high-pressure, specified value",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 100
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1177",
+      "name": "air_conditioning_heat_exchanger_outlet_temperature",
+      "description": "Air conditioning heat exchanger outlet temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -273.1,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1181",
+      "name": "high_pressure_turbocharger_actuator_activation",
+      "description": "High pressure turbocharger actuator, activation",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1184",
+      "name": "psn_edge_rel_ad_cam_save_ex_1",
+      "description": "PSN_EDGE_REL_AD_CAM_SAVE_EX_1",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.0625,
+        "unit": "°"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1185",
+      "name": "psn_edge_rel_ad_cam_save_ex_2",
+      "description": "PSN_EDGE_REL_AD_CAM_SAVE_EX_2",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.0625,
+        "unit": "°"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11A0",
+      "name": "inlet_flaps_requested_value",
+      "description": "Inlet flaps - requested value",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.00152590219,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11A3",
+      "name": "ea888b_boost_pressure_regulator_commanded",
+      "description": "Ea888b boost pressure regulator, commanded",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11A4",
+      "name": "fuel_pump_commanded_duty",
+      "description": "Fuel pump, commanded duty",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0015258743,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11A6",
+      "name": "limitation_accelerator_pedal",
+      "description": "Alternative decodings: Limitation, accelerator pedal [Nm] (byte 0); Accelerator pedal limit [Nm] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11B2",
+      "name": "exhaust_gas_temperature_sensor_3",
+      "description": "Alternative decodings: Exhaust gas temperature sensor 3 [°C] (byte 0); Diesel particulate filter inlet temperature [°C] (byte 0); Exhaust gas temperature sensor 3 [°C] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "offset": -273.1,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11B5",
+      "name": "coolant_temperature_at_radiator_outlet",
+      "description": "Coolant temperature at radiator outlet",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -273.1,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11BA",
+      "name": "oil_level",
+      "description": "Alternative decodings: Oil level [cm] (byte 0); Oil level (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0004,
+        "unit": "cm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11BD",
+      "name": "oil_level_warning_threshold",
+      "description": "Fields: Oil level warning threshold [cm] (byte 0); Engine oil temperature, engine control module [°C] (byte 0); Critical engine oil level [mm] (byte 0); Engine module 11BD, raw (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11BE",
+      "name": "engine_oil_temperature",
+      "description": "Fields: Engine oil temperature (byte 0); Oil temperature variant [°C] (byte 0); Engine read 11BE, signed raw count (byte 0); Oil temperature variant [°C] (byte 0); Engine module 11BE, raw (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11C1",
+      "name": "diesel_particulate_filter_field_regeneration_lock_status",
+      "description": "Diesel particulate filter field regeneration lock status",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11C3",
+      "name": "service_regeneration_current_duration",
+      "description": "Service regeneration current duration",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be",
+        "scale": 0.01,
+        "unit": "s"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11C4",
+      "name": "oil_level_max_raw_count",
+      "description": "Fields: Oil level, max, raw count (byte 0); Oil maximum level [mm] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11C5",
+      "name": "oil_level_min_raw_count",
+      "description": "Fields: Oil level, min, raw count (byte 0); Oil minimum level [mm] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11C8",
+      "name": "fuel_low_pressure_actual_value",
+      "description": "Alternative decodings: Fuel low pressure, actual value [kPa] (byte 0); Low fuel pressure, actual [kPa] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11CE",
+      "name": "fuel_low_pressure_specified_value",
+      "description": "Alternative decodings: Fuel low pressure, specified value [kPa] (byte 0); Low fuel pressure, commanded [kPa] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11D0",
+      "name": "high_pressure_turbocharger_actuator_actual_unconditioned_voltage",
+      "description": "Fields: High pressure turbocharger actuator, actual unconditioned voltage [mV] (byte 0); TCO_1_ST [°C] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11F0",
+      "name": "boost_pressure_actual",
+      "description": "Alternative decodings: Boost pressure, actual (byte 0); Actual turbo boost [bar] (byte 0); Boost pressure, actual (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.078125
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11F2",
+      "name": "main_injection_start",
+      "description": "Alternative decodings: Main injection, start [°] (byte 0); Main injection start position [°] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.02,
+        "unit": "°"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11F3",
+      "name": "post_injection_2_start",
+      "description": "Alternative decodings: Post-injection 2, start [°] (byte 0); Post-injection 2 start position [°] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.02,
+        "unit": "°"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11F4",
+      "name": "post_injection_1_start",
+      "description": "Alternative decodings: Post-injection 1, start [°] (byte 0); Post-injection 1 start position [°] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.02,
+        "unit": "°"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11F6",
+      "name": "field_limit",
+      "description": "Alternative decodings: Field limit (byte 0); Field limit value (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1200",
+      "name": "launch_control_counter_variant_1",
+      "description": "Launch control counter, variant 1",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x120E",
+      "name": "knock_sensor_cylinder_1",
+      "description": "Knock sensor, cylinder 1",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be",
+        "scale": 7.62e-07
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x120F",
+      "name": "knock_sensor_cylinder_4",
+      "description": "Fields: Knock sensor, cylinder 4 (byte 0); Knock sensor, cylinder 3 [V] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x120F",
+      "name": "clutch_0_temperature_calculated",
+      "description": "Alternative decodings: Clutch_0 temperature calculated [°C] (byte 0); Clutch 0 temperature calculated [°C] (byte 0); Clutch 0 temperature calculated [°C] (byte 0)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1210",
+      "name": "knock_sensor_cylinder_3",
+      "description": "Fields: Knock sensor, cylinder 3 (byte 0); Knock sensor, cylinder 4 [V] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1211",
+      "name": "knock_sensor_cylinder_6",
+      "description": "Fields: Knock sensor, cylinder 6 (byte 0); Knock sensor, cylinder 2 [V] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1216",
+      "name": "relative_load_value",
+      "description": "Relative load value",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.02344030809
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x121D",
+      "name": "pre_injection_3_activation_start",
+      "description": "Pre-injection 3, activation start",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.02,
+        "unit": "°"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x121E",
+      "name": "fuel_pressure_regulator_valve_specified_rail_pressure",
+      "description": "Fuel pressure regulator valve specified rail pressure",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 100
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x123C",
+      "name": "oil_last_dynamic_value",
+      "description": "Alternative decodings: Oil last dynamic value [mm] (byte 0); Oil last dynamic measurement [mm] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.004,
+        "unit": "mm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x123F",
+      "name": "oil_dynamic_average",
+      "description": "Alternative decodings: Oil dynamic average [mm] (byte 0); Oil dynamic average measurement [mm] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.004,
+        "unit": "mm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1272",
+      "name": "egt_after_catalyst_modeled",
+      "description": "EGT after catalyst, modeled",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -273.1,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x127D",
+      "name": "variable_valve_timing_intake_bank_1_switch_on",
+      "description": "Alternative decodings: Variable valve timing, intake, bank 1, switch on [%] (byte 0); Variable valve timing, intake, bank 1, switch on [%] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0030517549,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x128C",
+      "name": "median_injection_timing",
+      "description": "Alternative decodings: Median injection timing [ms] (byte 0); Avg. injection time [ms] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be",
+        "scale": 0.001,
+        "unit": "ms"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1290",
+      "name": "oxygen_sensor_1_bank_1_ceramic_temperature",
+      "description": "Alternative decodings: Oxygen sensor 1 bank 1 ceramic temperature [°C] (byte 0); Oxygen sensor 1 bank 1 ceramic temperature [°C] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.023437,
+        "offset": -273.15,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1291",
+      "name": "coolant_at_engine_start",
+      "description": "Coolant at engine start",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -273.1,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x12C7",
+      "name": "pre_injection_2_activation_start",
+      "description": "Pre-injection 2, activation start",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.02,
+        "unit": "°"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x12C8",
+      "name": "pre_injection_1_activation_start",
+      "description": "Pre-injection 1, activation start",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.02,
+        "unit": "°"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x12CB",
+      "name": "service_limit",
+      "description": "Alternative decodings: Service limit (byte 0); Service limit value (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x12FC",
+      "name": "throttle_valve_adapter_actual_value",
+      "description": "Alternative decodings: Throttle valve adapter, actual value [%] (byte 0); Throttle valve adapter position [%] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x12FE",
+      "name": "camshaft_adaptation_intake_bank_1_phase_position",
+      "description": "Alternative decodings: Camshaft adaptation intake bank 1, phase position [°] (byte 0); Intake camshaft adaptation unit 1 phase length [°] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.021973,
+        "unit": "°"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1301",
+      "name": "limitation_smoke",
+      "description": "Alternative decodings: Limitation, smoke [Nm] (byte 0); Smoke limit [Nm] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x133B",
+      "name": "camshaft_speed",
+      "description": "Alternative decodings: Camshaft speed [%] (byte 0); Camshaft speed [rpm] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.3,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1347",
+      "name": "regen_duration",
+      "description": "Alternative decodings: Regen. duration [min] (byte 0); Regeneration duration [min] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be",
+        "scale": 0.0001666666667,
+        "unit": "min"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1356",
+      "name": "charge_limit_over_charge",
+      "description": "Alternative decodings: Charge limit over-charge (byte 0); Charge limit overcharge protection (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.01
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x136C",
+      "name": "camshaft_adjustment_exhaust_bank_1_actual_value",
+      "description": "Camshaft adjustment, exhaust bank 1, actual value",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.015625,
+        "unit": "°"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x139C",
+      "name": "egt_at_lambda_sensor_1_modeled",
+      "description": "EGT at lambda sensor 1, modeled",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -273.1,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x13CD",
+      "name": "air_mass",
+      "description": "Air mass",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.03125
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x13F2",
+      "name": "knock_retard_cylinder_1",
+      "description": "Alternative decodings: Knock retard:, cylinder 1 [°] (byte 0); IGA_CYL_KNK, 0 [°] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.375,
+        "offset": -48,
+        "unit": "°"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x13F3",
+      "name": "knock_retard_cylinder_2",
+      "description": "Alternative decodings: Knock retard:, cylinder 2 [°] (byte 0); IGA_CYL_KNK, 1 [°] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.375,
+        "offset": -48,
+        "unit": "°"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x13F4",
+      "name": "knock_retard_cylinder_3",
+      "description": "Alternative decodings: Knock retard:, cylinder 3 [°] (byte 0); IGA_CYL_KNK, 2 [°] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.375,
+        "offset": -48,
+        "unit": "°"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x13F5",
+      "name": "knock_retard_cylinder_4",
+      "description": "Alternative decodings: Knock retard:, cylinder 4 [°] (byte 0); IGA_CYL_KNK, 3 [°] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.375,
+        "offset": -48,
+        "unit": "°"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x13F6",
+      "name": "knock_retard_cylinder_5",
+      "description": "Fields: Knock retard:, cylinder 5 [°] (byte 0); NL_PRE, 0 [V] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x13F7",
+      "name": "knock_retard_cylinder_6",
+      "description": "Fields: Knock retard:, cylinder 6 [°] (byte 0); NL_PRE, 1 [V] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x13F8",
+      "name": "knock_sensor_voltage_cylinder_1",
+      "description": "Alternative decodings: Knock sensor voltage:, cylinder 1 [V] (byte 0); NL_PRE, 2 [V] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 7.6294e-05,
+        "unit": "V"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x13F9",
+      "name": "knock_sensor_voltage_cylinder_4",
+      "description": "Alternative decodings: Knock sensor voltage:, cylinder 4 [V] (byte 0); NL_PRE, 3 [V] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 7.6294e-05,
+        "unit": "V"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1421",
+      "name": "exhaust_gas_temperature_before_catalyst_modeled",
+      "description": "Alternative decodings: Exhaust gas temperature before catalyst, modeled [°C] (byte 0); Exhaust temperature before the catalyst, modeled [°C] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -273.1,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1426",
+      "name": "clutch_0_commanded_pressure_offset",
+      "description": "Alternative decodings: Clutch 0, commanded pressure offset [bar] (byte 0); Clutch 0 commanded pressure offset [bar] (byte 0)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.001,
+        "unit": "bar"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x147F",
+      "name": "misfires_counter_cylinder_4",
+      "description": "Alternative decodings: Misfires counter:, cylinder 4 (byte 0); Drive motor torque [Nm] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1488",
+      "name": "misfires_per_1000_rpm_cylinder_2",
+      "description": "Alternative decodings: Misfires per 1000 rpm:, cylinder 2 (byte 0); Electric additional coolant pump control, high circle [%] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1490",
+      "name": "brake_booster_actual_vacuum",
+      "description": "Alternative decodings: Brake booster, actual vacuum (byte 0); Brake booster low pressure, actual (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.04
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x149E",
+      "name": "intake_air_temperature",
+      "description": "Intake air temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.75,
+        "offset": -48,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x14C7",
+      "name": "first_pilot_injection_start",
+      "description": "Alternative decodings: First pilot injection, start [°] (byte 0); Pilot injection 1 start position [°] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.02,
+        "unit": "°"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x14C8",
+      "name": "second_pilot_injection_start",
+      "description": "Alternative decodings: Second pilot injection, start [°] (byte 0); Pilot injection 2 start [°] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.02,
+        "unit": "°"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x14CC",
+      "name": "post_injection_1_duration",
+      "description": "Alternative decodings: Post-injection 1, duration [ms] (byte 0); Post-injection 1 duration [ms] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.0004,
+        "unit": "ms"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x14CD",
+      "name": "post_injection_2_duration",
+      "description": "Alternative decodings: Post-injection 2, duration [ms] (byte 0); Post-injection 2 duration [ms] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.0004,
+        "unit": "ms"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x14CF",
+      "name": "main_injection_duration",
+      "description": "Alternative decodings: Main injection, duration [ms] (byte 0); Main injection duration [ms] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.0004,
+        "unit": "ms"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x14D0",
+      "name": "first_pilot_injection_duration",
+      "description": "Alternative decodings: First pilot injection, duration [ms] (byte 0); Pilot injection 1 duration [ms] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.0004,
+        "unit": "ms"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x14D1",
+      "name": "pilot_injection_2_duration",
+      "description": "Pilot injection 2 duration",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.0004,
+        "unit": "ms"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x14F9",
+      "name": "main_catalyst_aging_factor",
+      "description": "Alternative decodings: Main catalyst aging factor (byte 0); Main cat oxygen storage capacity age correction factor (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 3.051758601e-06
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1509",
+      "name": "barometric_pressure",
+      "description": "Alternative decodings: Barometric pressure [kPa] (byte 0); Ambient air pressure (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.004,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1512",
+      "name": "high_voltage_battery_energy_information",
+      "description": "Fields: High voltage battery energy information [kWh] (byte 0); NV energy requirement [kWh] (byte 2); Electric machine high-voltage battery energy information [kWh] (byte 3)",
+      "ecu_address": "0x710",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x15B7",
+      "name": "oil_sump_temperature",
+      "description": "Alternative decodings: Oil sump temperature [°C] (byte 0); Engine oil sump temperature [°F] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -273.1,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x15B8",
+      "name": "particulate_filter_differential_pressure_dynamic_offset",
+      "description": "Alternative decodings: Particulate filter differential pressure, dynamic offset (byte 0); Oil level, last dynamic value [mm] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x15C1",
+      "name": "intake_air_temperature_before_throttle_valve_raw_value",
+      "description": "Intake air temperature before throttle valve, raw value",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -273.1,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x15CF",
+      "name": "longitudinal_acceleration_raw_value",
+      "description": "Alternative decodings: Longitudinal acceleration, raw value [m/s²] (byte 0); Longitudinal acceleration, raw value [m/s²] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.001,
+        "unit": "m/s²"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x15D1",
+      "name": "lateral_acceleration_raw_value",
+      "description": "Lateral acceleration, raw value",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.01,
+        "unit": "m/s²"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x15E1",
+      "name": "power_loss_battery_charger",
+      "description": "Alternative decodings: Power loss battery charger (byte 0); Charger power loss [W] (byte 0)",
+      "ecu_address": "0x744",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 20
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x15E2",
+      "name": "charger_coolant_temperature",
+      "description": "Charger coolant temperature",
+      "ecu_address": "0x744",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1622",
+      "name": "control_module_temperature",
+      "description": "Control module temperature",
+      "ecu_address": "0xFC00",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1626",
+      "name": "radiator_output_coolant_temperature_actual",
+      "description": "Alternative decodings: Radiator output coolant temperature, actual [°C] (byte 0); Radiator output coolant temp: actual [°C] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -273.1,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1628",
+      "name": "intercooler_air_temperature_raw_count",
+      "description": "Fields: Intercooler air temperature, raw count (byte 0); Intercooler air output temperature [°C] (byte 0); Intercooler air output temperature [°C] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x162F",
+      "name": "particulate_filter_air_pressure_sensor_raw_value",
+      "description": "Particulate filter air pressure sensor raw value",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1631",
+      "name": "pilot_injection_3_start",
+      "description": "Pilot injection 3, start",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.021973,
+        "unit": "°"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1633",
+      "name": "longitudinal_acceleration",
+      "description": "Alternative decodings: Longitudinal acceleration [m/s²] (byte 0); Longitudinal acceleration [m/s²] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.001,
+        "unit": "m/s²"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x163B",
+      "name": "post_injection_2_quantity_specified_value",
+      "description": "Alternative decodings: Post injection 2, quantity specified value (byte 0); Post injection 2: quantity specified value (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x163C",
+      "name": "post_injection_1_quantity_specified_value",
+      "description": "Alternative decodings: Post injection 1, quantity specified value (byte 0); Post injection 1: quantity specified value (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x166E",
+      "name": "exhaust_gas_temperature_sensor_4_bank_2",
+      "description": "Exhaust gas temperature, sensor 4 bank 2",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -273.1,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x167D",
+      "name": "post_injection_3_quantity_specified_value",
+      "description": "Alternative decodings: Post injection 3, quantity specified value (byte 0); Post injection 3: quantity specified value (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x16A9",
+      "name": "odometer_mileage",
+      "description": "Alternative decodings: Odometer, mileage [km] (byte 0); Odometer, alternate [km] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "km"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x16F3",
+      "name": "engine_rpm",
+      "description": "Alternative decodings: Engine RPM [rpm] (byte 0); Engine RPM [rpm] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.5,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1711",
+      "name": "clutch_kiss_point_rapid_adaptation_remaining",
+      "description": "Clutch kiss point rapid adaptation remaining",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1722",
+      "name": "early_ignition_counter_cylinder_1",
+      "description": "Early ignition counter:, cylinder 1",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1723",
+      "name": "early_ignition_counter_cylinder_3",
+      "description": "Early ignition counter:, cylinder 3",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1724",
+      "name": "early_ignition_counter_cylinder_4",
+      "description": "Early ignition counter:, cylinder 4",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1725",
+      "name": "early_ignition_counter_cylinder_2",
+      "description": "Early ignition counter:, cylinder 2",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x177E",
+      "name": "long_term_fuel_trim_at_idle_direct_injection",
+      "description": "Alternative decodings: Long term fuel trim at idle, direct injection [%] (byte 0); Long term fuel trim at idle - direct injection [%] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.046875,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1800",
+      "name": "front_left_wheel_speed",
+      "description": "Alternative decodings: Front left wheel speed [km/h] (byte 0); Front left wheel speed [km] (byte 0); Front left wheel speed, raw count (byte 0)",
+      "ecu_address": "0x713",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "km/h"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1801",
+      "name": "front_right_wheel_speed",
+      "description": "Alternative decodings: Front right wheel speed [km/h] (byte 0); Front right wheel speed [km] (byte 0); Front right wheel speed, raw count (byte 0)",
+      "ecu_address": "0x713",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "km/h"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1802",
+      "name": "rear_left_wheel_speed",
+      "description": "Alternative decodings: Rear left wheel speed [km/h] (byte 0); Rear left wheel speed [km] (byte 0); Rear left wheel speed, raw count (byte 0)",
+      "ecu_address": "0x713",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "km/h"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1803",
+      "name": "rear_right_wheel_speed",
+      "description": "Alternative decodings: Rear right wheel speed [km/h] (byte 0); Rear right wheel speed [km] (byte 0); Rear right wheel speed, raw count (byte 0)",
+      "ecu_address": "0x713",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "km/h"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1804",
+      "name": "steering_wheel_angle",
+      "description": "Alternative decodings: Steering wheel angle [°] (byte 10); Steering wheel angle [°] (byte 10)",
+      "ecu_address": "0x713",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1805",
+      "name": "steering_wheel_torque_sensor_1",
+      "description": "Alternative decodings: Steering wheel torque sensor 1 [°] (byte 0); Steering wheel torque sensor 1 [°] (byte 0)",
+      "ecu_address": "0x712",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.004395,
+        "offset": 0.06,
+        "unit": "°"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1806",
+      "name": "steering_wheel_torque_sensor_2",
+      "description": "Alternative decodings: Steering wheel torque sensor 2 [°] (byte 0); Steering wheel torque sensor 2 [°] (byte 0)",
+      "ecu_address": "0x712",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.004395,
+        "offset": 0.06,
+        "unit": "°"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x180C",
+      "name": "electronic_differential_lock_active",
+      "description": "Fields: Electronic differential lock active (byte 0, bit 1, 1 bit(s)); Electronic differential lock front left brake temperature [°C] (byte 1); Electronic differential lock: front left brake temperature [°C] (byte 1); Electronic differential lock front right brake temperature [°C] (byte 3); Electronic differential lock: front right brake temperature [°C] (byte 3); Electronic differential lock rear left brake temperature [°C] (byte 5); Electronic differential lock: rear left brake temperature [°C] (byte 5); Electronic differential lock rear right brake temperature [°C] (byte 7); …",
+      "ecu_address": "0x713",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x180E",
+      "name": "brake_disk_drying_active",
+      "description": "Fields: Brake disk drying active (byte 0, bit 1, 1 bit(s)); Brake disk drying last activation distance [km] (byte 1)",
+      "ecu_address": "0x713",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x180E",
+      "name": "bmc_e_temperature_3",
+      "description": "BMC-E temperature, 3",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1810",
+      "name": "hydraulic_brake_booster_active",
+      "description": "Fields: Hydraulic brake booster active (byte 0, bit 6, 1 bit(s))",
+      "ecu_address": "0x713",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1812",
+      "name": "steering_wheel_angle",
+      "description": "Alternative decodings: Steering wheel angle [°] (byte 0); Steering wheel angle [°] (byte 0); Steering wheel angle [°] (byte 0)",
+      "ecu_address": "0x712",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.125,
+        "unit": "°"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1816",
+      "name": "brake_pressure",
+      "description": "Fields: Brake pressure [bar] (byte 1); Air intake vacuum (byte 7)",
+      "ecu_address": "0x713",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1821",
+      "name": "tire_pressure_monitoring_available",
+      "description": "Fields: Tire pressure monitoring available (byte 0, bit 7, 1 bit(s)); Tire pressure monitoring system available (byte 0, bit 7, 1 bit(s)); Tire pressure monitoring odometer reading at last adaptation [km] (byte 1); Odometer reading at last adaptation [km] (byte 2); Tire pressure monitoring odometer reading two adaptations ago [km] (byte 5); Odometer reading two adaptations ago [km] (byte 6); Tire pressure monitoring odometer reading three adaptations ago [km] (byte 9); Odometer reading three adaptations ago [km] (byte 10); …",
+      "ecu_address": "0x713",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x18B6",
+      "name": "directional_stability_control_active",
+      "description": "Fields: Directional stability control active (byte 0, bit 6, 1 bit(s)); Directional stability control last activation distance [km] (byte 1); Directional stability control steering torque [Nm] (byte 4)",
+      "ecu_address": "0x713",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1945",
+      "name": "washer_nozzle_heater_active",
+      "description": "Washer nozzle heater active",
+      "ecu_address": "0x70E",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1DA7",
+      "name": "hv_charger_output_voltage",
+      "description": "Fields: HV charger output voltage [V] (byte 0); High voltage output [V] (byte 0)",
+      "ecu_address": "0x744",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E0E",
+      "name": "battery_temperature_max",
+      "description": "Fields: Battery temperature, max [°C] (byte 0); Battery temperature, max sensor ID (byte 2)",
+      "ecu_address": "0xFC00",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E1B",
+      "name": "maximum_dynamic_charge_current_limit",
+      "description": "Fields: Maximum dynamic charge current limit [A] (byte 0); HV battery charge current limit [A] (byte 0)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E1C",
+      "name": "maximum_dynamic_discharge_current_limit",
+      "description": "Fields: Maximum dynamic discharge current limit [A] (byte 0); HV battery discharge current limit [A] (byte 0)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E1D",
+      "name": "maximum_predicted_charge_current_limit",
+      "description": "Fields: Maximum predicted charge current limit [A] (byte 0); HV battery charge current limit, predicted [A] (byte 0)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E1E",
+      "name": "maximum_predicted_discharge_current_limit",
+      "description": "Fields: Maximum predicted discharge current limit [A] (byte 0); HV battery discharge current limit, predicted [A] (byte 0)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E32",
+      "name": "hv_battery_total_ampere_hours_of_charge",
+      "description": "Fields: HV battery total ampere hours of charge [Ah] (byte 0); High voltage battery total charge ah [Ah] (byte 0); HV battery total ampere hours of discharge [Ah] (byte 4); High voltage battery total discharge ah [Ah] (byte 4); HV battery total kilowatt hours of charge [kWh] (byte 8); High voltage battery total charge kwh [kWh] (byte 8); HV battery total kilowatt hours of discharge [kWh] (byte 12); High voltage battery total discharge kwh [kWh] (byte 12); …",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E33",
+      "name": "cell_voltage_max_value",
+      "description": "Fields: Cell voltage max, value [V] (byte 0); HV battery cell voltage, maximum [V] (byte 0); Cell voltage max, index (byte 2); HV battery highest cell (byte 3)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E33",
+      "name": "hv_battery_cell_voltage_maximum",
+      "description": "Fields: HV battery cell voltage, maximum [V] (byte 0); HV battery cell voltage max, ID (byte 2)",
+      "ecu_address": "0xFC00",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E34",
+      "name": "cell_voltage_min_value",
+      "description": "Fields: Cell voltage min, value [V] (byte 0); HV battery cell voltage, minimum [V] (byte 0); Cell voltage min, index (byte 2); HV battery lowest cell (byte 3)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E34",
+      "name": "hv_battery_cell_voltage_minimum",
+      "description": "Fields: HV battery cell voltage, minimum [V] (byte 0); HV battery cell voltage min, ID (byte 2)",
+      "ecu_address": "0xFC00",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E3C",
+      "name": "hv_battery_cell_voltage_sum",
+      "description": "Alternative decodings: HV battery cell voltage sum [V] (byte 0); HV battery cell voltage sum [V] (byte 0)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E3D",
+      "name": "hv_battery_current",
+      "description": "Fields: HV battery current [A] (byte 0); High-voltage battery current, raw count (byte 0); HV battery current [A] (byte 0)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E3E",
+      "name": "battery_current_dc_alternate",
+      "description": "Battery current, DC, alternate",
+      "ecu_address": "0xFC00",
+      "decoder": {
+        "kind": "uint32_be",
+        "scale": 0.01,
+        "offset": -1500,
+        "unit": "A"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E40",
+      "name": "hv_battery_cell_1_voltage",
+      "description": "Alternative decodings: HV battery cell 1 voltage [V] (byte 0); HV battery cell 1 voltage [V] (byte 0)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E41",
+      "name": "hv_battery_cell_2_voltage",
+      "description": "Alternative decodings: HV battery cell 2 voltage [V] (byte 0); HV battery cell 2 voltage [V] (byte 0)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E42",
+      "name": "hv_battery_cell_3_voltage",
+      "description": "Alternative decodings: HV battery cell 3 voltage [V] (byte 0); HV battery cell 3 voltage [V] (byte 0)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E43",
+      "name": "hv_battery_cell_4_voltage",
+      "description": "Alternative decodings: HV battery cell 4 voltage [V] (byte 0); HV battery cell 4 voltage [V] (byte 0)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E44",
+      "name": "hv_battery_cell_5_voltage",
+      "description": "Alternative decodings: HV battery cell 5 voltage [V] (byte 0); HV battery cell 5 voltage [V] (byte 0)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E45",
+      "name": "hv_battery_cell_6_voltage",
+      "description": "Alternative decodings: HV battery cell 6 voltage [V] (byte 0); HV battery cell 6 voltage [V] (byte 0)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E46",
+      "name": "hv_battery_cell_7_voltage",
+      "description": "Alternative decodings: HV battery cell 7 voltage [V] (byte 0); HV battery cell 7 voltage [V] (byte 0)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E47",
+      "name": "hv_battery_cell_8_voltage",
+      "description": "Alternative decodings: HV battery cell 8 voltage [V] (byte 0); HV battery cell 8 voltage [V] (byte 0)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E48",
+      "name": "hv_battery_cell_9_voltage",
+      "description": "Alternative decodings: HV battery cell 9 voltage [V] (byte 0); HV battery cell 9 voltage [V] (byte 0)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E49",
+      "name": "hv_battery_cell_10_voltage",
+      "description": "Alternative decodings: HV battery cell 10 voltage [V] (byte 0); HV battery cell 10 voltage [V] (byte 0)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E4A",
+      "name": "hv_battery_cell_11_voltage",
+      "description": "Alternative decodings: HV battery cell 11 voltage [V] (byte 0); HV battery cell 11 voltage [V] (byte 0)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E4B",
+      "name": "hv_battery_cell_12_voltage",
+      "description": "Alternative decodings: HV battery cell 12 voltage [V] (byte 0); HV battery cell 12 voltage [V] (byte 0)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E4C",
+      "name": "hv_battery_cell_13_voltage",
+      "description": "Alternative decodings: HV battery cell 13 voltage [V] (byte 0); HV battery cell 13 voltage [V] (byte 0)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2002",
+      "name": "engine_torque",
+      "description": "Engine torque",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "Nm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2005",
+      "name": "engine_module_2005_raw",
+      "description": "Fields: Engine module 2005, raw (byte 0); Brake booster pressure [bar] (byte 0); Brake booster pressure (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x202F",
+      "name": "engine_oil_temperature",
+      "description": "Alternative decodings: Engine oil temperature (byte 0); Engine oil temperature (byte 0); Oil temperature [°C] (byte 0)",
+      "ecu_address": "0x714",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -58
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x202F",
+      "name": "engine_oil_temperature",
+      "description": "Alternative decodings: Engine oil temperature [°C] (byte 0); Engine oil temperature [°C] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -273.1,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2061",
+      "name": "accelerator_pedal_position_sensor_1",
+      "description": "Accelerator pedal position sensor 1",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2062",
+      "name": "accelerator_pedal_position_sensor_2",
+      "description": "Accelerator pedal position sensor 2",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2084",
+      "name": "diesel_particulate_filter_differential_pressure",
+      "description": "Diesel particulate filter differential pressure",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2085",
+      "name": "diesel_particulate_filter_offset_for_differential_pressure",
+      "description": "Diesel particulate filter offset for differential pressure",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2087",
+      "name": "field_regeneration_request_status",
+      "description": "Fields: Field regeneration request status (byte 0); Diesel particulate filter regeneration request status (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2088",
+      "name": "diesel_particulate_filter_field_regeneration_lock_status",
+      "description": "Alternative decodings: Diesel particulate filter field regeneration, lock status (byte 0); Diesel particulate filter, fuel consumption since last regeneration (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2089",
+      "name": "time_since_last_regeneration",
+      "description": "Fields: Time since last regeneration [min] (byte 0); Diesel particulate filter time since last regeneration [h] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x208B",
+      "name": "diesel_particulate_filter_oil_ash_volume",
+      "description": "Alternative decodings: Diesel particulate filter oil ash volume [L] (byte 0); Gasoline particulate filter soot mass calculated (byte 0); Soot mass calculated (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.01,
+        "unit": "L"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x208D",
+      "name": "diesel_particulate_filter_distance_since_last_regeneration",
+      "description": "Fields: Diesel particulate filter distance since last regeneration [km] (byte 0); Distance since last regeneration [km] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2102",
+      "name": "transmission_input_speed",
+      "description": "Transmission input speed",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.25,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2103",
+      "name": "transmission_output_speed",
+      "description": "Transmission output speed",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.25,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2104",
+      "name": "automatic_transmission_fluid_temperature",
+      "description": "Alternative decodings: Automatic transmission fluid temperature [°C] (byte 0); Transmission fluid temperature, dual-clutch [°C] (byte 0); Automatic transmission fluid temperature, variant 2 [°C] (byte 0)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x210F",
+      "name": "current_gear",
+      "description": "Alternative decodings: Current gear (byte 0); Current gear (byte 0); Shift gear (byte 0)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2110",
+      "name": "engine_specified_torque_during_transmission_intervention",
+      "description": "Engine specified torque during transmission intervention",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "Nm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2118",
+      "name": "acceleration_deceleration_mode",
+      "description": "Acceleration/deceleration mode",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2203",
+      "name": "odometer_dash",
+      "description": "Fields: Odometer, dash [km] (byte 0); Odometer [km] (byte 0); Odometer [km] (byte 0)",
+      "ecu_address": "0x714",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2299",
+      "name": "fuel_consumption_average",
+      "description": "Fuel consumption, average",
+      "ecu_address": "0x714",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "L"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x22B0",
+      "name": "fuel_level_volume",
+      "description": "Fields: Fuel level, volume [L] (byte 42)",
+      "ecu_address": "0x714",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x22B8",
+      "name": "odometer_mileage_hr",
+      "description": "Odometer, mileage, HR",
+      "ecu_address": "0x714",
+      "decoder": {
+        "kind": "uint32_be",
+        "scale": 0.001,
+        "unit": "km"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2357",
+      "name": "crashes_rollover",
+      "description": "Alternative decodings: Crashes, rollover (byte 0); Crashes, rollover (byte 0)",
+      "ecu_address": "0x715",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2606",
+      "name": "radiator_fan_actual_duty",
+      "description": "Fields: Radiator fan actual duty [%] (byte 0); Radiator fan actual value #1 [%] (byte 0); Radiator fan actual duty [%] (byte 0); Radiator fan actual duty [%] (byte 0); Radiator fan actual value #2 [%] (byte 2)",
+      "ecu_address": "0x746",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2607",
+      "name": "radiator_fan_commanded_duty",
+      "description": "Fields: Radiator fan commanded duty [%] (byte 0); Radiator fan commanded value [%] (byte 0); Radiator fan commanded duty [%] (byte 0)",
+      "ecu_address": "0x746",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2609",
+      "name": "outside_temperature",
+      "description": "Fields: Outside temperature [°C] (byte 0); Outside temperature [°C] (byte 0); Outside temperature [°C] (byte 0); Outside temperature [°C] (byte 0)",
+      "ecu_address": "0x746",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2609",
+      "name": "particulate_filter_soot_mass_calculated",
+      "description": "Particulate filter soot mass calculated",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.01
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x260A",
+      "name": "outside_temperature_system_calculated",
+      "description": "Fields: Outside temperature, system calculated [°C] (byte 0); Outside temperature, from cabin sensor [°C] (byte 0); Outside temperature, system calculated [°C] (byte 0)",
+      "ecu_address": "0x746",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x260C",
+      "name": "front_left_deflector_temperature",
+      "description": "Alternative decodings: Front left deflector temperature [°C] (byte 0); Temperature, front left deflector [°C] (byte 0)",
+      "ecu_address": "0x746",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3333333333,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x260D",
+      "name": "front_right_deflector_temperature",
+      "description": "Alternative decodings: Front right deflector temperature [°C] (byte 0); Temperature, front right deflector [°C] (byte 0)",
+      "ecu_address": "0x746",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3333333333,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2611",
+      "name": "leg_air_vent_temperature",
+      "description": "Alternative decodings: Leg air vent temperature [°C] (byte 0); Leg deflector temperature [°C] (byte 0)",
+      "ecu_address": "0x746",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.333,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2612",
+      "name": "temperature_after_evaporator",
+      "description": "Fields: Temperature after evaporator [°C] (byte 0); Evaporator output temperature [°C] (byte 0); Temperature after evaporator [°C] (byte 0)",
+      "ecu_address": "0x746",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2613",
+      "name": "cabin_temperature",
+      "description": "Alternative decodings: Cabin temperature [°C] (byte 0); Cabin temperature [°C] (byte 0)",
+      "ecu_address": "0x746",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x261E",
+      "name": "recirculation_flap_actual_steps",
+      "description": "Fields: Recirculation flap, actual steps (byte 0); Recirculation flap, actual steps (byte 0); Recirculation flap, actual [%] (byte 2); Recirculation flap, actual [%] (byte 2)",
+      "ecu_address": "0x746",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x261F",
+      "name": "recirculation_flap_commanded_steps",
+      "description": "Recirculation flap, commanded steps",
+      "ecu_address": "0x746",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2620",
+      "name": "recirculation_flap_stop_fresh_air",
+      "description": "Recirculation flap stop, fresh air",
+      "ecu_address": "0x746",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2621",
+      "name": "recirculation_flap_stop_recirculated_air",
+      "description": "Recirculation flap stop, recirculated air",
+      "ecu_address": "0x746",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2622",
+      "name": "front_left_temperature_flap_actual",
+      "description": "Alternative decodings: Front left temperature flap actual [%] (byte 2); Front left temperature flap actual value [%] (byte 2)",
+      "ecu_address": "0x746",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2626",
+      "name": "front_right_temperature_flap_actual",
+      "description": "Alternative decodings: Front right temperature flap actual [%] (byte 2); Front right temperature flap actual value [%] (byte 2)",
+      "ecu_address": "0x746",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x263D",
+      "name": "temperature_rear_deflector",
+      "description": "Alternative decodings: Temperature, rear deflector [°C] (byte 0); Rear deflector temperature [°C] (byte 0)",
+      "ecu_address": "0x746",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.333,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x27C4",
+      "name": "windshield_temperature",
+      "description": "Fields: Windshield temperature [°C] (byte 0); Inside humidity [%] (byte 4)",
+      "ecu_address": "0x746",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x27D6",
+      "name": "air_conditioning_compressor_power_consumption",
+      "description": "Fields: Air conditioning compressor power consumption [kW] (byte 2)",
+      "ecu_address": "0x746",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x295A",
+      "name": "odometer",
+      "description": "Fields: Odometer [km] (byte 0); Odometer, alternative [km] (byte 0); Odometer, mileage [km] (byte 0); Odometer [km] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2998",
+      "name": "number_of_engine_starts_manual",
+      "description": "Number of engine starts, manual",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2999",
+      "name": "number_of_automatic_engine_starts",
+      "description": "Number of automatic engine starts",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x29F7",
+      "name": "diesel_particulate_filter_field_regeneration_cancel_conditions",
+      "description": "Diesel particulate filter field regeneration, cancel conditions",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2A09",
+      "name": "start_stop_battery_current",
+      "description": "Alternative decodings: Start/stop battery current [A] (byte 0); Battery current [A] (byte 0); Start/stop battery current [A] (byte 0); Battery current [A] (byte 0)",
+      "ecu_address": "0x710",
+      "decoder": {
+        "kind": "int32_be",
+        "scale": 0.001,
+        "unit": "A"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2A0A",
+      "name": "start_stop_battery_sensor_temperature",
+      "description": "Fields: Start/stop battery sensor temperature [°C] (byte 0); Odometer [km] (byte 0); Odometer [km] (byte 1); Odometer [km] (byte 1)",
+      "ecu_address": "0x710",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2A0B",
+      "name": "high_voltage_battery_temperature",
+      "description": "High voltage battery temperature",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -100,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2A0E",
+      "name": "start_stop_battery_resistance",
+      "description": "Alternative decodings: Start/stop battery resistance [mOhm] (byte 0); Battery internal resistance (byte 0); Battery internal resistance (byte 0); Battery internal resistance (byte 0)",
+      "ecu_address": "0x710",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.2,
+        "unit": "mOhm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2A10",
+      "name": "start_stop_battery_voltage_at_rest",
+      "description": "Start/stop battery voltage, at rest",
+      "ecu_address": "0x710",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1,
+        "offset": 9,
+        "unit": "V"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2A1C",
+      "name": "generator_current",
+      "description": "Alternative decodings: Generator current [A] (byte 0); Generator current [A] (byte 0)",
+      "ecu_address": "0x710",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "A"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2AB2",
+      "name": "hv_battery_maximum_energy_raw_count",
+      "description": "Fields: HV battery maximum energy, raw count (byte 0); HV battery capacity [W] (byte 0); Maximum energy content of the traction battery [kWh] (byte 0)",
+      "ecu_address": "0x710",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2AB6",
+      "name": "range_remaining",
+      "description": "Alternative decodings: Range remaining [mi] (byte 0); Range remaining, unit unconfirmed [mi] (byte 0)",
+      "ecu_address": "0x710",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mi"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2AB8",
+      "name": "battery_energy_content",
+      "description": "Fields: Battery energy content [kWh] (byte 0); HV battery energy content [kWh] (byte 2); HV battery energy [W] (byte 2); HV battery energy content [kWh] (byte 2)",
+      "ecu_address": "0x710",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2AE9",
+      "name": "egt_after_catalyst_model_bank_1",
+      "description": "Alternative decodings: EGT after catalyst, model bank 1 [°C] (byte 0); Exhaust gas temperature - calculated after catalyst [°C] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.023438,
+        "offset": -273.15,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B21",
+      "name": "break_pressure",
+      "description": "Alternative decodings: Break pressure [bar] (byte 0); Brake pressure [bar] (byte 0)",
+      "ecu_address": "0x713",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.0152999,
+        "offset": -42.503,
+        "unit": "bar"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3841",
+      "name": "odometer_mileage_1",
+      "description": "Fields: Odometer, mileage 1 [km] (byte 0); Odometer [km] (byte 0); Odometer [km] (byte 0); Odometer (TCM #1) [km] (byte 0)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3852",
+      "name": "actual_position_of_gear_positioner_a",
+      "description": "Actual position of gear positioner a",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.01,
+        "unit": "mm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x385A",
+      "name": "actual_position_of_gear_positioner_b",
+      "description": "Actual position of gear positioner b",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.01,
+        "unit": "mm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3862",
+      "name": "actual_position_of_gear_positioner_c",
+      "description": "Actual position of gear positioner c",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.01,
+        "unit": "mm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x386A",
+      "name": "actual_position_of_gear_positioner_d",
+      "description": "Actual position of gear positioner d",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.01,
+        "unit": "mm"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x3887",
+      "name": "odometer_2",
+      "description": "Odometer #2",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint32_be",
+        "scale": 0.1,
+        "unit": "km"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x38F1",
+      "name": "launch_control_counter",
+      "description": "Launch control counter",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x39F9",
+      "name": "regeneration_duration",
+      "description": "Fields: Regeneration duration [min] (byte 0); Diesel particulate filter counter for regeneration time [s] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x406B",
+      "name": "low_press_egr_closing",
+      "description": "Alternative decodings: Low press. EGR closing [%] (byte 0); Diesel particulate filter ash load limit (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x40C8",
+      "name": "electric_drive_motor_angular_speed",
+      "description": "Electric drive motor angular speed",
+      "ecu_address": "0xFC00",
+      "decoder": {
+        "kind": "uint32_be"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x43B8",
+      "name": "dc_dc_converter_coolant_temperature",
+      "description": "DC-DC converter coolant temperature",
+      "ecu_address": "0xFC00",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x44F5",
+      "name": "particle_sensor_cleaning_deviation_reaction_time",
+      "description": "Alternative decodings: Particle sensor, cleaning deviation reaction time (byte 0); Diesel particulate filter cleaning deviation reaction time (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.001
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x44F8",
+      "name": "particle_sensor_exhaust_temperature",
+      "description": "Alternative decodings: Particle sensor, exhaust temperature [°C] (byte 0); Diesel particulate filter exhaust temperature [°C] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "offset": -273.1,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x44F9",
+      "name": "particle_sensor_exhaust_speed",
+      "description": "Alternative decodings: Particle sensor, exhaust speed (byte 0); Diesel particulate filter exhaust speed (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.02
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x44FA",
+      "name": "particle_sensor_heat_voltage",
+      "description": "Alternative decodings: Particle sensor, heat voltage [V] (byte 0); Diesel particulate filter heat voltage [V] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.01,
+        "unit": "V"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x44FB",
+      "name": "particle_sensor_surface_temperature",
+      "description": "Alternative decodings: Particle sensor, surface temperature [°C] (byte 0); Diesel particulate filter surface temperature [°C] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.0625,
+        "offset": -273.15,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4657",
+      "name": "motor_electrical_angular_frequency",
+      "description": "Motor electrical angular frequency",
+      "ecu_address": "0xFC00",
+      "decoder": {
+        "kind": "uint32_be"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4F70",
+      "name": "oil_pressure_target",
+      "description": "Oil pressure target",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x51D8",
+      "name": "tank_fill_level_diagnostic_reference_value",
+      "description": "Tank fill level diagnostic reference value",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.00390625,
+        "unit": "L"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x51E0",
+      "name": "hv_battery_health",
+      "description": "HV battery health",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.127,
+        "offset": -1798.574,
+        "unit": "%"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5867",
+      "name": "odometer_battery_management_system_second_read",
+      "description": "Fields: Odometer, battery management system, second read [km] (byte 2)",
+      "ecu_address": "0xFC00",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x7050",
+      "name": "selected_gear",
+      "description": "Alternative decodings: Selected gear [°C] (byte 0); Selected gear (byte 0)",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -2,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x7426",
+      "name": "hv_battery_module_temperature_18",
+      "description": "HV battery module temperature, #18",
+      "ecu_address": "0xFC00",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.125,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x7427",
+      "name": "hv_battery_module_temperature_19",
+      "description": "HV battery module temperature, #19",
+      "ecu_address": "0xFC00",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.125,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x7428",
+      "name": "hv_battery_module_temperature_20",
+      "description": "HV battery module temperature, #20",
+      "ecu_address": "0xFC00",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.125,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x7429",
+      "name": "hv_battery_module_temperature_21",
+      "description": "HV battery module temperature, #21",
+      "ecu_address": "0xFC00",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.125,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x742A",
+      "name": "hv_battery_module_temperature_22",
+      "description": "HV battery module temperature, #22",
+      "ecu_address": "0xFC00",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.125,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x742B",
+      "name": "hv_battery_module_temperature_23",
+      "description": "HV battery module temperature, #23",
+      "ecu_address": "0xFC00",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.125,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x742C",
+      "name": "hv_battery_module_temperature_24",
+      "description": "HV battery module temperature, #24",
+      "ecu_address": "0xFC00",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.125,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Bentley signalset (CC BY-SA 4.0)",
+      "verified": false
     }
   ],
   "routines": [

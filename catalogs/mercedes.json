@@ -26141,6 +26141,141 @@
         "kind": "ascii",
         "length": 8
       }
+    },
+    {
+      "did": "0x0201",
+      "name": "12v_system_voltage_hd",
+      "description": "Fields: 12V system voltage, hd [V] (byte 2)",
+      "ecu_address": "0x624",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Mercedes-Benz signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2001",
+      "name": "front_left_wheel_speed",
+      "description": "Fields: Front left wheel speed [km/h] (byte 0); Front left wheel speed [km/h] (byte 0); Front right wheel speed [km/h] (byte 2); Front right wheel speed [km/h] (byte 2); Rear left wheel speed [km/h] (byte 4); Rear left wheel speed [km/h] (byte 4); Rear right wheel speed [km/h] (byte 6); Rear right wheel speed [km/h] (byte 6)",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Mercedes-Benz signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2002",
+      "name": "longitudinal_acceleration",
+      "description": "Fields: Longitudinal acceleration [g] (byte 1); Longitudinal acceleration [g] (byte 1); Lateral acceleration [g] (byte 3); Lateral acceleration [g] (byte 3); Yaw rate [rad] (byte 6); Steering wheel angle [°] (byte 9); Master break cylinder pressure [bar] (byte 12); Master break cylinder pressure [bar] (byte 12); …",
+      "ecu_address": "0x7E2",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Mercedes-Benz signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2005",
+      "name": "auxiliary_battery_voltage",
+      "description": "Auxiliary battery voltage",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1015686275,
+        "unit": "V"
+      },
+      "source": "OBDb/Mercedes-Benz signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2526",
+      "name": "hv_battery_coolant_temperature",
+      "description": "HV battery coolant temperature",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.125,
+        "unit": "°C"
+      },
+      "source": "OBDb/Mercedes-Benz signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x6050",
+      "name": "hv_battery_state_of_charge",
+      "description": "HV battery state of charge",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/Mercedes-Benz signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x6053",
+      "name": "hv_battery_amperage",
+      "description": "HV battery amperage",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "A"
+      },
+      "source": "OBDb/Mercedes-Benz signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x6071",
+      "name": "dc_converter_requested_voltage",
+      "description": "DC converter requested voltage",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.025,
+        "unit": "V"
+      },
+      "source": "OBDb/Mercedes-Benz signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x6075",
+      "name": "hv_battery_voltage",
+      "description": "HV battery voltage",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.025,
+        "unit": "V"
+      },
+      "source": "OBDb/Mercedes-Benz signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x6502",
+      "name": "hv_battery_remaining_distance",
+      "description": "HV battery remaining distance",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "km"
+      },
+      "source": "OBDb/Mercedes-Benz signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x6504",
+      "name": "distance_to_next_service",
+      "description": "Distance to next service",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km"
+      },
+      "source": "OBDb/Mercedes-Benz signalset (CC BY-SA 4.0)",
+      "verified": false
     }
   ],
   "routines": [

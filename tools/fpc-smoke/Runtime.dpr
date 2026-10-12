@@ -83,7 +83,14 @@ begin
     Check(Catalog.Extends = '_shared/oem-cars-and-trucks.json', 'Brand catalog names its base');
     Check(Catalog.ManufacturerKey = 'BYD', 'Brand header survives the base');
     Check(Catalog.DtcExtendedCount = 2460, 'Inherited DTC extended records load');
-    Check(Catalog.DIDCount = 2030, 'Base and brand DIDs both load');
+    Check(Catalog.DIDCount = 2199, 'Base and brand DIDs both load');
+  finally Catalog.Free end;
+  // A sister brand builds on its parent brand, which builds on the shared bases.
+  Catalog := TOBDOEMJSONCatalog.Create(TPath.Combine(ParamStr(4), 'dacia.json'));
+  try
+    Check(Catalog.Extends = 'renault.json', 'Sister brand names its parent brand');
+    Check(Catalog.ManufacturerKey = 'DACIA', 'Sister brand header survives the parent');
+    Check(Catalog.DtcExtendedCount = 2460, 'Three-level extends chain loads');
   finally Catalog.Free end;
   Catalog := TOBDOEMJSONCatalog.Create(TPath.Combine(TPath.Combine(ParamStr(4), 'motorcycle'), 'ktm.json'));
   try Check(Catalog.RoutineCount = 14, 'Vehicle-class catalog resolves ../_shared base');

@@ -23053,6 +23053,5156 @@
         "kind": "ascii",
         "length": 8
       }
+    },
+    {
+      "did": "0x0005",
+      "name": "coolant_temperature",
+      "description": "Coolant temperature",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0005",
+      "name": "coolant_temperature",
+      "description": "Coolant temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0023",
+      "name": "fuel_rail_pressure",
+      "description": "Fuel rail pressure",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 10,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x002F",
+      "name": "fuel_level",
+      "description": "Fuel level",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0102",
+      "name": "key_cycle",
+      "description": "Key cycle",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0103",
+      "name": "odometer",
+      "description": "Fields: Odometer [km] (byte 1)",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0103",
+      "name": "odometer",
+      "description": "Fields: Odometer [km] (byte 1)",
+      "ecu_address": "0x701",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0103",
+      "name": "odometer",
+      "description": "Alternative decodings: Odometer [km] (byte 1); Odometer [km] (byte 1)",
+      "ecu_address": "0x747",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0103",
+      "name": "total_distance",
+      "description": "Total distance",
+      "ecu_address": "0x7B1",
+      "decoder": {
+        "kind": "uint32_be"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0103",
+      "name": "odometer",
+      "description": "Fields: Odometer [km] (byte 1)",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0202",
+      "name": "number_of_dtcs",
+      "description": "Number of DTCs",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0301",
+      "name": "manifold_absolute_pressure_sensor_voltage",
+      "description": "Manifold absolute pressure sensor voltage",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0009765625,
+        "unit": "V"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0307",
+      "name": "low_pressure_fuel_pump_commanded_duty_cycle",
+      "description": "Low pressure fuel pump commanded duty cycle",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0030517578,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0316",
+      "name": "intake_camshaft_solenoid_duty_cycle",
+      "description": "Intake camshaft solenoid duty cycle",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0030517578,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0317",
+      "name": "exhaust_camshaft_solenoid_duty_cycle",
+      "description": "Exhaust camshaft solenoid duty cycle",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0030517578,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0318",
+      "name": "intake_camshaft_timing_actual",
+      "description": "Intake camshaft timing, actual",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.0625,
+        "unit": "°"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0319",
+      "name": "exhaust_camshaft_timing_actual",
+      "description": "Exhaust camshaft timing, actual",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0625,
+        "unit": "°"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0324",
+      "name": "high_pressure_fuel_rail_sensor_voltage",
+      "description": "High pressure fuel rail sensor voltage",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.004887585533,
+        "unit": "V"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x032B",
+      "name": "accelerator_pedal_position",
+      "description": "Accelerator pedal position",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x035F",
+      "name": "rear_o2_voltage",
+      "description": "Rear O2 voltage",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0009765625,
+        "unit": "V"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0393",
+      "name": "a_c_compressor_pressure",
+      "description": "A/C compressor pressure",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.2900754962,
+        "unit": "psi"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x03BA",
+      "name": "ambient_air_temperature_sensor_voltage",
+      "description": "Ambient air temperature sensor voltage",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0048875855,
+        "unit": "V"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x03BD",
+      "name": "closed_loop_lambda_correction",
+      "description": "Closed loop lambda correction",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.0001220703125
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x03DC",
+      "name": "high_pressure_fuel_pressure_desired",
+      "description": "High pressure fuel pressure desired",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 1.450377397,
+        "unit": "psi"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x03E8",
+      "name": "octane_adjust_ratio",
+      "description": "Octane adjust ratio",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 6.103515625e-05
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x03EC",
+      "name": "ignition_correction_cylinder_1",
+      "description": "Ignition correction, cylinder 1",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.001953125,
+        "unit": "°"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0415",
+      "name": "engine_oil_pressure",
+      "description": "Engine oil pressure",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "kPa"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x057D",
+      "name": "ambient_temperature_alternate",
+      "description": "Ambient temperature, alternate",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0700",
+      "name": "intake_temperature_fault",
+      "description": "Intake temperature fault",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0914",
+      "name": "app_sensor_1_voltage",
+      "description": "APP sensor 1 voltage",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0915",
+      "name": "app_sensor_2_voltage",
+      "description": "APP sensor 2 voltage",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0917",
+      "name": "throttle_position_1_voltage",
+      "description": "Throttle position 1 voltage",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0918",
+      "name": "throttle_position_2_voltage",
+      "description": "Throttle position 2 voltage",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x091A",
+      "name": "throttle_control_desired",
+      "description": "Throttle control desired",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001953125,
+        "unit": "°"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x093C",
+      "name": "throttle_position_actual",
+      "description": "Throttle position actual",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001953125,
+        "unit": "°"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x099B",
+      "name": "a_c_compressor_state",
+      "description": "Fields: A/C compressor, state (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1001",
+      "name": "cabin_temperature",
+      "description": "Cabin temperature",
+      "ecu_address": "0x7C4",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.01,
+        "unit": "°C"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1002",
+      "name": "battery_voltage",
+      "description": "Battery voltage",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0012207,
+        "unit": "V"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1002",
+      "name": "ambient_temperature_climate",
+      "description": "Ambient temperature, climate",
+      "ecu_address": "0x7C4",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.01,
+        "unit": "°C"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1002",
+      "name": "aux_battery_voltage",
+      "description": "Aux battery voltage",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.00122,
+        "unit": "V"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1003",
+      "name": "front_right_wheel_speed",
+      "description": "Fields: Front right wheel speed [km/h] (byte 0); Front left wheel speed [km/h] (byte 1); Rear right wheel speed [km/h] (byte 2); Rear left wheel speed [km/h] (byte 3)",
+      "ecu_address": "0x7B1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1004",
+      "name": "front_right_tire_temperature",
+      "description": "Fields: Front right tire temperature [°C] (byte 0); Front right tire temperature [°C] (byte 0); Tire sensor 1 temperature [°C] (byte 0); Front left tire temperature [°C] (byte 0); Rear right tire temperature [°C] (byte 1); Rear right tire temperature [°C] (byte 1); Tire sensor 2 temperature [°C] (byte 1); Front right tire temperature [°C] (byte 1); …",
+      "ecu_address": "0x750",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1004",
+      "name": "steering_angle",
+      "description": "Steering angle",
+      "ecu_address": "0x7B3",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 1.5,
+        "unit": "°"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1004",
+      "name": "drive_mode",
+      "description": "Drive mode",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x00": "NORMAL",
+          "0x01": "POWER",
+          "0x02": "SPORT",
+          "0x03": "SPORT_S",
+          "0x04": "SPORT_S_PLUS",
+          "0x05": "COMFORT",
+          "0x06": "ECO",
+          "0x09": "RANGE",
+          "0x0B": "CHAUFFEUR"
+        }
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1005",
+      "name": "front_right_tire_pressure",
+      "description": "Fields: Front right tire pressure [psi] (byte 1); Tire sensor 1 pressure [bar] (byte 1); Rear right tire pressure [psi] (byte 3); Tire sensor 2 pressure [bar] (byte 3); Front left tire pressure [psi] (byte 5); Tire sensor 3 pressure [bar] (byte 5); Rear left tire pressure [psi] (byte 7); Tire sensor 4 pressure [bar] (byte 7); …",
+      "ecu_address": "0x750",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1006",
+      "name": "master_cylinder_sensor_temperature",
+      "description": "Master cylinder sensor temperature",
+      "ecu_address": "0x7B0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -80,
+        "unit": "°C"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1009",
+      "name": "real_engine_torque",
+      "description": "Fields: Real engine torque [Nm] (byte 4); Steering angle [°] (byte 6)",
+      "ecu_address": "0x7B1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x100E",
+      "name": "front_axle_coupling_clutch_current",
+      "description": "Fields: Front axle coupling clutch current [A] (byte 0); Rear axle coupling clutch current [A] (byte 2); Left coupling clutch current [A] (byte 4); Right coupling clutch current [A] (byte 6)",
+      "ecu_address": "0x7B1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x100F",
+      "name": "front_axle_coupling_clutch_position_sensor_status",
+      "description": "Fields: Front axle coupling clutch position sensor status (byte 1, bit 0, 1 bit(s)); Rear axle coupling clutch position sensor status (byte 1, bit 1, 1 bit(s))",
+      "ecu_address": "0x7B1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1017",
+      "name": "injection_volume",
+      "description": "Injection volume",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0003125,
+        "unit": "L"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1018",
+      "name": "injector_port",
+      "description": "Injector port",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "ms"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1019",
+      "name": "injection",
+      "description": "Injection",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x01": "DIRECT",
+          "0x02": "BOTH"
+        }
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x101E",
+      "name": "trip_counter",
+      "description": "Trip counter",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1021",
+      "name": "b_battery_voltage",
+      "description": "Alternative decodings: B+ battery voltage [V] (byte 0); B+ battery voltage [V] (byte 0)",
+      "ecu_address": "0x7C0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1,
+        "unit": "V"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1022",
+      "name": "rear_left_tire_pressure",
+      "description": "Fields: Rear left tire pressure [psi] (byte 0); Rear right tire pressure [psi] (byte 1); Front right tire pressure [psi] (byte 2); Front left tire pressure [psi] (byte 3)",
+      "ecu_address": "0x753",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1022",
+      "name": "fuel_level",
+      "description": "Alternative decodings: Fuel level [L] (byte 0); Fuel remaining [L] (byte 0)",
+      "ecu_address": "0x7C0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "L"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1024",
+      "name": "front_right_wheel_speed",
+      "description": "Front right wheel speed",
+      "ecu_address": "0x7B0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.05625,
+        "unit": "km/h"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1025",
+      "name": "front_left_wheel_speed",
+      "description": "Front left wheel speed",
+      "ecu_address": "0x7B0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.05625,
+        "unit": "km/h"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1026",
+      "name": "rear_right_wheel_speed",
+      "description": "Rear right wheel speed",
+      "ecu_address": "0x7B0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.05625,
+        "unit": "km/h"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1026",
+      "name": "coupling_temperature",
+      "description": "Coupling temperature",
+      "ecu_address": "0x7B1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0078125,
+        "unit": "°C"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1027",
+      "name": "rear_left_wheel_speed",
+      "description": "Rear left wheel speed",
+      "ecu_address": "0x7B0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.05625,
+        "unit": "km/h"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1028",
+      "name": "tire_1_id",
+      "description": "Fields: Tire 1 id (byte 0); Tire 2 id (byte 3); Tire 3 id (byte 6); Tire 4 id (byte 9)",
+      "ecu_address": "0x753",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1029",
+      "name": "steering_wheel_angle",
+      "description": "Steering wheel angle",
+      "ecu_address": "0x7B0",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "°"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x102A",
+      "name": "a_f_ratio_learned_idle_bank_1",
+      "description": "Fields: A/F ratio learned idle, bank 1 [%] (byte 0); A/F ratio learned low, bank 1 [%] (byte 1); A/F ratio learned mid 1, bank 1 [%] (byte 2); A/F ratio learned mid 2, bank 1 [%] (byte 3); A/F ratio learned high, bank 1 [%] (byte 4)",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1032",
+      "name": "steering_wheel_angle_v2",
+      "description": "Fields: Steering wheel angle, v2 [°] (byte 0)",
+      "ecu_address": "0x746",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1036",
+      "name": "climate_set_point_code",
+      "description": "Climate set point code",
+      "ecu_address": "0x7C4",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1039",
+      "name": "front_rear_motor_torque_ratio",
+      "description": "Fields: Front/rear motor torque ratio (byte 2)",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1040",
+      "name": "transaxle_oil_temperature",
+      "description": "Fields: Transaxle oil temperature [°C] (byte 2)",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1041",
+      "name": "engine_coolant_temperature_at_ignition",
+      "description": "Fields: Engine coolant temperature, at ignition [°C] (byte 0); Engine coolant temperature, initial [°C] (byte 1)",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1043",
+      "name": "electric_water_pump_target_speed",
+      "description": "Fields: Electric water pump target speed [rpm] (byte 0); Electric water pump RPM [rpm] (byte 1)",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1045",
+      "name": "parking_brake_actuator_status",
+      "description": "Parking brake actuator status",
+      "ecu_address": "0x7B0",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x00": "APPLIED"
+        }
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1046",
+      "name": "cooling_fan_duty_ratio",
+      "description": "Cooling fan duty ratio",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x104C",
+      "name": "brake_pedal_stroke",
+      "description": "Brake pedal stroke",
+      "ecu_address": "0x7B0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "mm"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1059",
+      "name": "accelerator_pedal",
+      "description": "Accelerator pedal",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.7042253521,
+        "offset": -28.873,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x105C",
+      "name": "knock_correction_learned_value",
+      "description": "Fields: Knock correction, learned value (byte 0); Knock feedback value (byte 2)",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x105E",
+      "name": "internal_temperature",
+      "description": "Internal temperature",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1060",
+      "name": "accelerator_pedal_position",
+      "description": "Accelerator pedal position",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1061",
+      "name": "shift_position",
+      "description": "Shift position",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x00": "P",
+          "0x02": "R",
+          "0x04": "N",
+          "0x06": "D"
+        }
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1062",
+      "name": "exhaust_vvt_oil_control_valve_control_duty",
+      "description": "Exhaust VVT oil control valve control duty",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.006103608759,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1067",
+      "name": "turbine_speed",
+      "description": "Turbine speed",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 32,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1069",
+      "name": "motor_regenerative_brake_torque_requested",
+      "description": "Fields: Motor regenerative brake torque, requested [kW] (byte 0); Motor regenerative brake torque [kW] (byte 2)",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x106A",
+      "name": "fuel_pump_duty_ratio",
+      "description": "Alternative decodings: Fuel pump duty ratio [kPa] (byte 0); Fuel pump duty ratio [kPa] (byte 0)",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0609756098,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x106A",
+      "name": "rear_motor_regenerative_brake_torque_requested",
+      "description": "Fields: Rear motor regenerative brake torque, requested [kW] (byte 0); Rear motor regenerative brake torque [kW] (byte 2)",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x106C",
+      "name": "distance_since_last_battery_cable_disconnection",
+      "description": "Distance since last battery cable disconnection",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x106C",
+      "name": "hv_battery_charge_maximum",
+      "description": "Fields: HV battery charge, maximum [%] (byte 1); HV battery charge, minimum [%] (byte 2)",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x106E",
+      "name": "climate_power_charging_control",
+      "description": "Climate power, charging control",
+      "ecu_address": "0x745",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.05,
+        "unit": "kW"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x106E",
+      "name": "air_conditioning_power_consumption",
+      "description": "Air conditioning power consumption",
+      "ecu_address": "0x747",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.0005,
+        "offset": -12500,
+        "unit": "kW"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x106E",
+      "name": "air_conditioning_power_consumption",
+      "description": "Air conditioning power consumption",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.05,
+        "unit": "kW"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x106F",
+      "name": "intake_vvt_target_angle_b1",
+      "description": "Intake VVT target angle B1",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.009764248112,
+        "unit": "°"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1071",
+      "name": "exhaust_vvt_target_angle_b1",
+      "description": "Exhaust VVT target angle B1",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.009764248112,
+        "unit": "°"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1074",
+      "name": "engine_oil_pressure",
+      "description": "Alternative decodings: Engine oil pressure [kPa] (byte 0); Engine oil pressure [kPa] (byte 0)",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.078125,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1075",
+      "name": "intercooler_water_pump_speed_raw_count",
+      "description": "Intercooler water pump speed, raw count",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1075",
+      "name": "front_right_wheel_speed",
+      "description": "Fields: Front right wheel speed [km/h] (byte 0); Front left wheel speed [km/h] (byte 2); Rear right wheel speed [km/h] (byte 4); Rear left wheel speed [km/h] (byte 6)",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1076",
+      "name": "ready_to_drive",
+      "description": "Fields: Ready to drive (byte 1, bit 7, 1 bit(s))",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1078",
+      "name": "idle_spark_advance_control_cylinder_1",
+      "description": "Fields: Idle spark advance control, cylinder 1 [°] (byte 0); Idle spark advance control, cylinder 2 [°] (byte 1); Idle spark advance control, cylinder 3 [°] (byte 2); Idle spark advance control, cylinder 4 [°] (byte 3)",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x107B",
+      "name": "engine_oil_temperature",
+      "description": "Fields: Engine oil temperature [°C] (byte 24)",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x107E",
+      "name": "12v_battery_voltage_before_system_main_relay",
+      "description": "12V battery voltage before system main relay",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.00122,
+        "offset": 11.25,
+        "unit": "V"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1084",
+      "name": "rough_idle_cylinder_1",
+      "description": "Fields: Rough idle, cylinder 1 [°] (byte 0); Rough idle, cylinder 2 [°] (byte 1); Rough idle, cylinder 3 [°] (byte 2); Rough idle, cylinder 4 [°] (byte 3); Rough idle cyl.4 (byte 3, bit 4, 1 bit(s)); Rough idle cyl.3 (byte 3, bit 5, 1 bit(s)); Rough idle cyl.2 (byte 3, bit 6, 1 bit(s)); Rough idle cyl.1 (byte 3, bit 7, 1 bit(s))",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1086",
+      "name": "electric_heater_power_count",
+      "description": "Electric heater power count",
+      "ecu_address": "0x7C4",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1087",
+      "name": "intake_vvt_change_angle_bank_1",
+      "description": "Intake VVT change angle, bank 1",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.009764248112,
+        "unit": "°"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1087",
+      "name": "all_wheel_drive_mode",
+      "description": "Fields: All-wheel drive mode (byte 1)",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1088",
+      "name": "exhaust_vvt_change_angle_bank_1",
+      "description": "Exhaust VVT change angle, bank 1",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.009764248112,
+        "unit": "°"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1089",
+      "name": "exhaust_vvt_hold_learn_value_bank_1",
+      "description": "Alternative decodings: Exhaust VVT hold learn value, bank 1 [%] (byte 0); Exhaust VVT hold learn value bank 1 [%] (byte 0)",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.006102082856,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x108A",
+      "name": "vvt_ie_duty_ratio_bank_1",
+      "description": "Fields: VVT-ie duty ratio bank 1 [%] (byte 0, bit 0, 15 bit(s)); Variable valve timing duty ratio, bank 1 [%] (byte 0); VVT-ie motor direction: forward bank 1 (byte 1, bit 7, 1 bit(s))",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x108D",
+      "name": "intake_vvt_most_over_retarded_learn_value_bank_1",
+      "description": "Intake VVT most over-retarded learn value, bank 1",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.009765621424,
+        "unit": "°"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x108F",
+      "name": "exhaust_vvt_timing_most_over_advanced_learn_value_bank_1",
+      "description": "Exhaust VVT timing most over-advanced learn value, bank 1",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.009765621424,
+        "unit": "°"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x109A",
+      "name": "fuel_filter_temperature",
+      "description": "Fuel filter temperature",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10A1",
+      "name": "mass_airflow_sensor_voltage",
+      "description": "Mass airflow sensor voltage",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.02,
+        "unit": "V"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10A1",
+      "name": "motor_rpm",
+      "description": "Fields: Motor RPM [rpm] (byte 0); Motor torque [Nm] (byte 6)",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10A2",
+      "name": "a_f_ratio_learn_value_idle_bank_1",
+      "description": "Fields: A/F ratio learn value idle, bank 1 [%] (byte 0); A/F ratio learn value idle, bank 1 [%] (byte 0); A/F ratio learn value low, bank 1 [%] (byte 1); A/F ratio learn value low, bank 1 [%] (byte 1); A/F ratio learn value mid.1, bank 1 [%] (byte 2); A/F ratio learn value mid.1, bank 1 [%] (byte 2); A/F ratio learn value mid.2, bank 1 [%] (byte 3); A/F ratio learn value mid.2, bank 1 [%] (byte 3); …",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10A2",
+      "name": "rear_motor_speed",
+      "description": "Fields: Rear motor speed [rpm] (byte 0); Rear motor torque [Nm] (byte 6)",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10A3",
+      "name": "fuel_injection_1_pulse_width",
+      "description": "Fuel injection 1 pulse width",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.256,
+        "unit": "ms"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10A4",
+      "name": "fuel_injector_2_pulse_width",
+      "description": "Fuel injector #2 pulse width",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.256,
+        "unit": "ms"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10A4",
+      "name": "generator_inverter_temperature",
+      "description": "Generator inverter temperature",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10A5",
+      "name": "misfire_count_all_cylinders",
+      "description": "Misfire count, all cylinders",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10A5",
+      "name": "odometer",
+      "description": "Odometer",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 2,
+        "unit": "km"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10A5",
+      "name": "motor_inverter_temperature",
+      "description": "Fields: Motor inverter temperature [°C] (byte 0); Motor inverter temperature after ignition on [°C] (byte 1); Maximum motor inverter temperature [°C] (byte 2)",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10A6",
+      "name": "accelerator_pedal_position",
+      "description": "Accelerator pedal position",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10A6",
+      "name": "rear_motor_inverter_coolant_temperature",
+      "description": "Fields: Rear motor inverter, coolant temperature [°C] (byte 0); Motor inverter, maximum temperature [°C] (byte 2)",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10A7",
+      "name": "misfire_count_cylinder_1",
+      "description": "Fields: Misfire count, cylinder 1 (byte 0); Misfire count, cylinder 2 (byte 1); Misfire count, cylinder 3 (byte 2); Misfire count, cylinder 4 (byte 3)",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10A7",
+      "name": "boosting_converter_temperature_upper",
+      "description": "Fields: Boosting converter temperature, upper [°C] (byte 0); Boosting converter temperature, lower [°C] (byte 1)",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10A8",
+      "name": "generator_inverter_temperature",
+      "description": "Fields: Generator inverter temperature [°C] (byte 0); Generator inverter temperature after ignition on [°C] (byte 1); Maximum generator inverter temperature [°C] (byte 2)",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10AA",
+      "name": "misfire_load",
+      "description": "Fields: Misfire load [%] (byte 0); Misfire RPM [rpm] (byte 3); Misfire margin [rpm] (byte 4)",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10AB",
+      "name": "radiator_fan_control",
+      "description": "Radiator fan control",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10AE",
+      "name": "canister_purge_control_valve_duty_cycle",
+      "description": "Canister purge control valve duty cycle",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10B0",
+      "name": "vl_voltage_before_boosting",
+      "description": "Fields: Vl-voltage before boosting [V] (byte 0); Vh-voltage after boosting [V] (byte 2)",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10B1",
+      "name": "exhaust_gas_recirculation_steps",
+      "description": "Exhaust gas recirculation steps",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10B2",
+      "name": "alternator_duty",
+      "description": "Alternator duty",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10B2",
+      "name": "inverter_coolant_temperature",
+      "description": "Inverter coolant temperature",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10B3",
+      "name": "fuel_pump_duty",
+      "description": "Fuel pump duty",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10B4",
+      "name": "intake_vvt_advance_angle_right",
+      "description": "Intake VVT advance angle right",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10B5",
+      "name": "intake_vvt_advance_angle_left",
+      "description": "Intake VVT advance angle left",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10B6",
+      "name": "oil_control_valve_duty_right",
+      "description": "Oil control valve duty right",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10B7",
+      "name": "oil_control_valve_duty_left",
+      "description": "Oil control valve duty left",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10BE",
+      "name": "a_f_sensor_1",
+      "description": "A/F sensor #1",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.007803921569
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10C8",
+      "name": "lock_up_duty_ratio",
+      "description": "Lock up duty ratio",
+      "ecu_address": "0x7A3",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10CB",
+      "name": "turbine_speed",
+      "description": "Turbine speed",
+      "ecu_address": "0x7A3",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 32,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10CD",
+      "name": "low_fuel_pressure",
+      "description": "Alternative decodings: Low fuel pressure [kPa] (byte 0); Low fuel pressure sensor [kPa] (byte 0)",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -3276.8,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10D1",
+      "name": "control_system_mode",
+      "description": "Control system mode",
+      "ecu_address": "0x745",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x00": "NONE",
+          "0x01": "DRIVING",
+          "0x03": "CHARGING"
+        }
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10D2",
+      "name": "transmission_fluid_temperature",
+      "description": "Transmission fluid temperature",
+      "ecu_address": "0x7A3",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°C"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10D4",
+      "name": "battery_charging_power",
+      "description": "Battery charging power",
+      "ecu_address": "0x745",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "offset": -327.68,
+        "unit": "kW"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10DE",
+      "name": "throttle_motor_duty",
+      "description": "Throttle motor duty",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.784,
+        "offset": -100,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10E3",
+      "name": "cruise_speed_set",
+      "description": "Cruise speed, set",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "km/h"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10E5",
+      "name": "odometer",
+      "description": "Odometer",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 2,
+        "unit": "km"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10E5",
+      "name": "odometer",
+      "description": "Odometer",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 2,
+        "unit": "km"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10E6",
+      "name": "fuel_tank_air_pressure",
+      "description": "Fuel tank air pressure",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10E7",
+      "name": "engine_oil_temperature",
+      "description": "Engine oil temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10E8",
+      "name": "oil_supply_value_duty_right",
+      "description": "Oil supply value, duty right",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10E9",
+      "name": "oil_supply_value_duty_left",
+      "description": "Oil supply value, duty left",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10EC",
+      "name": "exhaust_vvt_retard_angle_right",
+      "description": "Exhaust VVT retard angle right",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10ED",
+      "name": "exhaust_vvt_retard_angle_left",
+      "description": "Exhaust VVT retard angle left",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10EE",
+      "name": "exhaust_ocv_duty_right",
+      "description": "Exhaust OCV duty right",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x10EF",
+      "name": "exhaust_ocv_duty_left",
+      "description": "Exhaust OCV duty left",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1105",
+      "name": "pm_accumulation_ratio_bank_1",
+      "description": "PM accumulation ratio - bank 1",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 2,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x110B",
+      "name": "roughness_monitor_1",
+      "description": "Roughness monitor #1",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x110C",
+      "name": "roughness_monitor_2",
+      "description": "Roughness monitor #2",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x110D",
+      "name": "roughness_monitor_3",
+      "description": "Roughness monitor #3",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x110E",
+      "name": "roughness_monitor_4",
+      "description": "Roughness monitor #4",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1112",
+      "name": "inverter_water_pump_duty",
+      "description": "Inverter water pump duty",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0030518,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1118",
+      "name": "target_intake_manifold_pressure",
+      "description": "Target intake manifold pressure",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "kPa"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x111B",
+      "name": "exhaust_gas_recirculation_target_valve_opening_angle",
+      "description": "Exhaust gas recirculation target valve opening angle",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x111C",
+      "name": "exhaust_gas_recirculation_valve_opening_angle",
+      "description": "Exhaust gas recirculation valve opening angle",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x111C",
+      "name": "dc_dc_converter_output_current",
+      "description": "DC-DC converter output current",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.78125,
+        "unit": "A"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x111D",
+      "name": "dc_dc_converter_low_side_voltage",
+      "description": "DC-DC converter low side voltage",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.07812,
+        "unit": "V"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x111E",
+      "name": "dc_dc_converter_high_side_voltage",
+      "description": "DC-DC converter high side voltage",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1220703,
+        "unit": "V"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x111F",
+      "name": "inlet_air_temperature_after_air_filter",
+      "description": "Inlet air temperature, after air filter",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x111F",
+      "name": "dc_dc_converter_target_voltage_before_charging",
+      "description": "DC-DC converter, target voltage before charging",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1220703,
+        "unit": "V"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1121",
+      "name": "target_engine_speed",
+      "description": "Target engine speed",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.25,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x112B",
+      "name": "injection_feedback_value_1",
+      "description": "Fields: Injection feedback value 1 (byte 0); Injection feedback value 2 (byte 1); Injection feedback value 3 (byte 2); Injection feedback value 4 (byte 3)",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x112C",
+      "name": "injection_volume_target",
+      "description": "Injection volume - target",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.019531
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x112C",
+      "name": "interior_heater",
+      "description": "Interior heater",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x112F",
+      "name": "injection_volume_total",
+      "description": "Injection volume total",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.019531,
+        "offset": -640
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1131",
+      "name": "cylinder_1_injection_volume",
+      "description": "Fields: Cylinder 1 injection volume (byte 0); Cylinder 2 injection volume (byte 2); Cylinder 3 injection volume (byte 4); Cylinder 4 injection volume (byte 6)",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1135",
+      "name": "12v_battery_current",
+      "description": "12V battery current",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -128,
+        "unit": "mA"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1136",
+      "name": "12v_battery_temperature",
+      "description": "12V battery temperature",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x113C",
+      "name": "fuel_pressure_1",
+      "description": "Fields: Fuel pressure 1 [kPa] (byte 0); Fuel pressure 2 [kPa] (byte 2); Fuel pressure 3 [kPa] (byte 4); Fuel pressure 4 [kPa] (byte 6)",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x113E",
+      "name": "fuel_temperature_1",
+      "description": "Fields: Fuel temperature 1 [°C] (byte 0); Fuel temperature 2 [°C] (byte 1); Fuel temperature 3 [°C] (byte 2); Fuel temperature 4 [°C] (byte 3)",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1141",
+      "name": "fuel_return_temperature",
+      "description": "Fuel return temperature",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x114B",
+      "name": "estimated_catalyst_temperature",
+      "description": "Estimated catalyst temperature",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 5,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1155",
+      "name": "estimated_distance_to_oil_change",
+      "description": "Estimated distance to oil change",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 100,
+        "unit": "km"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1155",
+      "name": "estimated_distance_to_oil_change",
+      "description": "Estimated distance to oil change",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 100,
+        "unit": "km"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1166",
+      "name": "evaporative_purge",
+      "description": "Evaporative purge",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.003051757812,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x118B",
+      "name": "injection_volume_1",
+      "description": "Fields: Injection volume 1 (byte 0); Injection volume 2 (byte 2); Injection volume 3 (byte 4); Injection volume 5 (byte 6); Injection volume 6 (byte 8)",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x119B",
+      "name": "diesel_particulate_and_nitrogen_oxide_reduction_regeneration_status",
+      "description": "Diesel particulate and nitrogen oxide reduction regeneration status",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x119C",
+      "name": "intercooler_coolant_temperature",
+      "description": "Intercooler coolant temperature",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11AF",
+      "name": "2nd_turbocharger_outlet_pressure",
+      "description": "2nd turbocharger outlet pressure",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11B8",
+      "name": "injection_feedback_value_1",
+      "description": "Fields: Injection feedback value 1 (byte 0); Injection feedback value 2 (byte 1); Injection feedback value 3 (byte 2); Injection feedback value 4 (byte 3); Injection feedback value 5 (byte 4); Injection feedback value 6 (byte 5)",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11BE",
+      "name": "intake_vvt_cleaning_self_recovery_counter",
+      "description": "Intake VVT cleaning self-recovery counter",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11BF",
+      "name": "exhaust_vvt_cleaning_self_recovery_counter",
+      "description": "Exhaust VVT cleaning self-recovery counter",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11C4",
+      "name": "fuel_pressure_1",
+      "description": "Fields: Fuel pressure 1 [kPa] (byte 0); Fuel pressure 2 [kPa] (byte 2); Fuel pressure 3 [kPa] (byte 4); Fuel pressure 4 [kPa] (byte 6); Fuel pressure 5 [kPa] (byte 8); Fuel pressure 6 [kPa] (byte 10)",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11C5",
+      "name": "fuel_temperature_1",
+      "description": "Fields: Fuel temperature 1 [°C] (byte 0); Fuel temperature 2 [°C] (byte 1); Fuel temperature 3 [°C] (byte 2); Fuel temperature 4 [°C] (byte 3); Fuel temperature 5 [°C] (byte 4); Fuel temperature 6 [°C] (byte 5)",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11CB",
+      "name": "turbine_revolution_speed",
+      "description": "Turbine revolution speed",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 32,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11CD",
+      "name": "1st_turbocharger_outlet_pressure_control_valve",
+      "description": "Fields: 1st turbocharger outlet pressure, control valve [kPa] (byte 0); 2nd turbocharger outlet pressure, control valve [kPa] (byte 2)",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x11D0",
+      "name": "knocking_signal",
+      "description": "Knocking signal",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "°"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x122F",
+      "name": "clutch_switch",
+      "description": "Clutch switch",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x122F",
+      "name": "clutch_pedal_position",
+      "description": "Clutch pedal position",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1230",
+      "name": "stop_light_switch",
+      "description": "Stop light switch",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1231",
+      "name": "cruise_control_set_coast_switch",
+      "description": "Cruise control set/coast switch",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1232",
+      "name": "cruise_control_resume_accelerate_switch",
+      "description": "Cruise control resume/accelerate switch",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1233",
+      "name": "brake_switch",
+      "description": "Brake switch",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1233",
+      "name": "brake_pedal_position",
+      "description": "Brake pedal position",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1234",
+      "name": "cruise_control_main_toggle_switch",
+      "description": "Cruise control main toggle switch",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x124A",
+      "name": "cruise_control_cancel_switch",
+      "description": "Cruise control cancel switch",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x124C",
+      "name": "oil_level_switch",
+      "description": "Oil level switch",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1251",
+      "name": "sub_fuel_pump_relay_switch",
+      "description": "Sub fuel pump relay switch",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1275",
+      "name": "throttle_motor_voltage",
+      "description": "Throttle motor voltage",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.08,
+        "unit": "V"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1276",
+      "name": "sub_throttle_sensor",
+      "description": "Sub throttle sensor",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.02,
+        "unit": "V"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1277",
+      "name": "main_throttle_sensor",
+      "description": "Main throttle sensor",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.02,
+        "unit": "V"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1278",
+      "name": "sub_accelerator_sensor",
+      "description": "Sub accelerator sensor",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.02,
+        "unit": "V"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1279",
+      "name": "main_accelerator_sensor",
+      "description": "Fields: Main accelerator sensor [V] (byte 0); Intake temperature sensor voltage [V] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1289",
+      "name": "idle_mass_air_flow",
+      "description": "Idle mass air flow",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "g/s"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x128A",
+      "name": "idle_mass_air_flow_feedback_correction",
+      "description": "Idle mass air flow feedback correction",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "offset": -300,
+        "unit": "g/s"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x128B",
+      "name": "idle_speed_control_learning_value",
+      "description": "Idle speed control learning value",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "offset": -300,
+        "unit": "g/s"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x128C",
+      "name": "idle_a_c_load_correction",
+      "description": "Idle A/C load correction",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.01,
+        "unit": "g/s"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x128D",
+      "name": "electric_load_feedback_value",
+      "description": "Electric load feedback value",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.01,
+        "unit": "g/s"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x128E",
+      "name": "idle_dirty_throttle_correction",
+      "description": "Idle dirty throttle correction",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "offset": -300,
+        "unit": "g/s"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x128F",
+      "name": "intake_vvt_advance_target_angle_right",
+      "description": "Intake VVT advance, target angle right",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1290",
+      "name": "intake_vvt_advance_target_angle_left",
+      "description": "Intake VVT advance, target angle left",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1291",
+      "name": "exhaust_vvt_retard_target_angle_right",
+      "description": "Exhaust VVT retard, target angle right",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1292",
+      "name": "exhaust_vvt_retard_target_angle_left",
+      "description": "Exhaust VVT retard, target angle left",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1295",
+      "name": "purge_density_learn_value",
+      "description": "Purge density learn value",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.7811764706,
+        "offset": -100,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1298",
+      "name": "transmission_turbine_speed",
+      "description": "Transmission turbine speed",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1299",
+      "name": "transmission_lock_up",
+      "description": "Transmission lock-up",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x129C",
+      "name": "engine_starting_time",
+      "description": "Engine starting time",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 10,
+        "unit": "ms"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x12CE",
+      "name": "ambient_temperature_for_sensor_signal",
+      "description": "Ambient temperature for sensor signal",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x12D1",
+      "name": "ambient_temperature_for_control",
+      "description": "Ambient temperature for control",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x12ED",
+      "name": "mass_air_flow_average",
+      "description": "Mass air flow, average",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "g/s"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1310",
+      "name": "engine_oil_temperature",
+      "description": "Engine oil temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1314",
+      "name": "cylinder_monitor_1",
+      "description": "Cylinder monitor #1",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.25,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1315",
+      "name": "cylinder_monitor_2",
+      "description": "Cylinder monitor #2",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.25,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1316",
+      "name": "cylinder_monitor_3",
+      "description": "Cylinder monitor #3",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.25,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1317",
+      "name": "cylinder_monitor_4",
+      "description": "Cylinder monitor #4",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.25,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1321",
+      "name": "battery_terminal_voltage",
+      "description": "Battery terminal voltage",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1322",
+      "name": "battery_charge_discharge_current",
+      "description": "Battery charge/discharge current",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint32_be",
+        "scale": 0.001,
+        "offset": -2000,
+        "unit": "A"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1323",
+      "name": "estimated_battery_temperature",
+      "description": "Estimated battery temperature",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.5,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1324",
+      "name": "remaining_battery_capacity",
+      "description": "Remaining battery capacity",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1352",
+      "name": "split_ratio_of_fuel_injection_1",
+      "description": "Split ratio of fuel injection 1",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1353",
+      "name": "split_ratio_of_fuel_injection_2",
+      "description": "Split ratio of fuel injection 2",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1354",
+      "name": "split_ratio_of_fuel_injection_3",
+      "description": "Split ratio of fuel injection 3",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1355",
+      "name": "split_ratio_of_fuel_injection_4",
+      "description": "Split ratio of fuel injection 4",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1357",
+      "name": "direct_fuel_injection_time_1",
+      "description": "Direct fuel injection time 1",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.004,
+        "unit": "ms"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1358",
+      "name": "direct_fuel_injection_time_2",
+      "description": "Direct fuel injection time 2",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.004,
+        "unit": "ms"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1359",
+      "name": "direct_fuel_injection_time_3",
+      "description": "Direct fuel injection time 3",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.004,
+        "unit": "ms"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x135A",
+      "name": "direct_fuel_injection_time_4",
+      "description": "Direct fuel injection time 4",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.004,
+        "unit": "ms"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x15E5",
+      "name": "battery_status_of_full_charge",
+      "description": "Battery status of full charge",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 127.5,
+        "unit": "Ah"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x15E5",
+      "name": "12v_battery_full_charge_capacity",
+      "description": "12V battery full charge capacity",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "unit": "Ah"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x15E7",
+      "name": "dark_current_of_battery",
+      "description": "Dark current of battery",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "mA"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x15E8",
+      "name": "charging_integrated_current_of_aux_battery",
+      "description": "Fields: Charging integrated current of aux. battery [Ah] (byte 0); Discharging integrated current of aux. battery [Ah] (byte 4); Aux. battery capacity after IG ON [Ah] (byte 8); Aux. battery capacity after IG OFF [Ah] (byte 9); Integrated engine run time [h] (byte 10)",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x15E8",
+      "name": "12v_battery_charge_total",
+      "description": "Fields: 12V battery charge, total [Ah] (byte 0); 12V battery discharge, total [Ah] (byte 4); Ready-on time, total [h] (byte 10)",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x15EE",
+      "name": "voltage_of_battery_sensor",
+      "description": "Voltage of battery sensor",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001220691234,
+        "unit": "V"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x15EE",
+      "name": "12v_battery_voltage",
+      "description": "12V battery voltage",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.31448,
+        "offset": 0.0125,
+        "unit": "V"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x15F0",
+      "name": "sleep_time_of_battery_sensor",
+      "description": "Sleep time of battery sensor",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "h"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x15F6",
+      "name": "initial_engine_battery_voltage_lower_limit",
+      "description": "Fields: Initial engine battery voltage lower limit [V] (byte 2)",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x15F7",
+      "name": "battery_current",
+      "description": "Battery current",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.003813229572,
+        "offset": -125,
+        "unit": "A"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x15F7",
+      "name": "12v_battery_current",
+      "description": "12V battery current",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0038147,
+        "offset": -125,
+        "unit": "A"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x15F8",
+      "name": "battery_temperature",
+      "description": "Battery temperature",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x15F8",
+      "name": "12v_battery_temperature",
+      "description": "12V battery temperature",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x15FA",
+      "name": "alternator_output_duty_cycle",
+      "description": "Alternator output duty cycle",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.006097560976,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1609",
+      "name": "hv_battery_charge_voltage",
+      "description": "HV battery charge voltage",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "V"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1614",
+      "name": "nc1_speed",
+      "description": "NC1 speed",
+      "ecu_address": "0x701",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1616",
+      "name": "secondary_speed",
+      "description": "Secondary speed",
+      "ecu_address": "0x701",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1618",
+      "name": "no_speed",
+      "description": "NO speed",
+      "ecu_address": "0x701",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1619",
+      "name": "ac_target_power",
+      "description": "Fields: AC target power [kW] (byte 0); AC current limit [A] (byte 3); Charger operation status (byte 2)",
+      "ecu_address": "0x745",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x161A",
+      "name": "nt_speed",
+      "description": "NT speed",
+      "ecu_address": "0x701",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x161C",
+      "name": "charger_supply_voltage_type",
+      "description": "Charger supply voltage type",
+      "ecu_address": "0x745",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x00": "NONE",
+          "0x01": "V100",
+          "0x02": "V200"
+        }
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x161D",
+      "name": "charger_input_power",
+      "description": "Charger input power",
+      "ecu_address": "0x745",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.005,
+        "unit": "kW"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x161E",
+      "name": "charger_output_power",
+      "description": "Fields: Charger output power [kW] (byte 0); Charger output power, target [kW] (byte 2)",
+      "ecu_address": "0x745",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1620",
+      "name": "lock_up_state",
+      "description": "Fields: Lock up state (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1620",
+      "name": "lock_up_state",
+      "description": "Fields: Lock up state (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0x701",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1621",
+      "name": "gear",
+      "description": "Gear",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1622",
+      "name": "transmission_shift_state_ratio",
+      "description": "Transmission shift state ratio",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0002441290913
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1622",
+      "name": "transmission_shift_state_ratio",
+      "description": "Transmission shift state ratio",
+      "ecu_address": "0x701",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0002441290913
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1625",
+      "name": "charging_lid_open",
+      "description": "Fields: Charging lid open (byte 1, bit 6, 1 bit(s))",
+      "ecu_address": "0x745",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1627",
+      "name": "transmission_fluid_temperature_pan_var_3",
+      "description": "Transmission fluid temperature, pan var.3",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.00390625,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1627",
+      "name": "transmission_fluid_pan_temperature",
+      "description": "Alternative decodings: Transmission fluid pan temperature [°F] (byte 0); Transmission fluid temperature, pan [°C] (byte 0)",
+      "ecu_address": "0x701",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.00703125,
+        "offset": -40,
+        "unit": "°F"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1628",
+      "name": "transmission_fluid_post_converter_temperature_variant_3",
+      "description": "Transmission fluid post-converter temperature, variant 3",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.00390625,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1628",
+      "name": "transmission_fluid_post_converter_temperature",
+      "description": "Transmission fluid post-converter temperature",
+      "ecu_address": "0x701",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.00703125,
+        "offset": -40,
+        "unit": "°F"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x162A",
+      "name": "transmission_belt_clamping_force_sensor",
+      "description": "Transmission belt clamping force sensor",
+      "ecu_address": "0x701",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0019531,
+        "offset": -64
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x162B",
+      "name": "automatic_transmission_fluid_thermal_degradation_estimate",
+      "description": "Automatic transmission fluid thermal degradation estimate",
+      "ecu_address": "0x701",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1634",
+      "name": "synchronize_stroke_sensor_position",
+      "description": "Synchronize stroke sensor position",
+      "ecu_address": "0x701",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.003906309606,
+        "unit": "mm"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1638",
+      "name": "transmission_fluid_temperature",
+      "description": "Alternative decodings: Transmission fluid temperature [°C] (byte 0); Transmission fluid temperature [°C] (byte 0)",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1665",
+      "name": "ac_usable_power",
+      "description": "AC usable power",
+      "ecu_address": "0x745",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.01,
+        "unit": "kW"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1666",
+      "name": "dc_high_level_communication_state",
+      "description": "DC high level communication state",
+      "ecu_address": "0x745",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1667",
+      "name": "charge_stop_request_code",
+      "description": "Charge stop request code",
+      "ecu_address": "0x745",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1669",
+      "name": "plug_in_switch_status",
+      "description": "Plug-in switch status",
+      "ecu_address": "0x745",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x166A",
+      "name": "dc_charger_maximum_power",
+      "description": "DC charger maximum power",
+      "ecu_address": "0x745",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "kW"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x166B",
+      "name": "dc_charger_present_voltage",
+      "description": "DC charger present voltage",
+      "ecu_address": "0x745",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "V"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x166C",
+      "name": "dc_charger_present_current",
+      "description": "DC charger present current",
+      "ecu_address": "0x745",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "A"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x166D",
+      "name": "target_charging_current",
+      "description": "Target charging current",
+      "ecu_address": "0x745",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "A"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1679",
+      "name": "dc_charger_maximum_current",
+      "description": "DC charger maximum current",
+      "ecu_address": "0x745",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "A"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1681",
+      "name": "dc_charger_maximum_voltage",
+      "description": "DC charger maximum voltage",
+      "ecu_address": "0x745",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "V"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1684",
+      "name": "ac_charging_operation_status",
+      "description": "AC charging operation status",
+      "ecu_address": "0x745",
+      "decoder": {
+        "kind": "enum",
+        "size": 1,
+        "values": {
+          "0x00": "STOP",
+          "0x01": "STARTUP",
+          "0x02": "RUNNING",
+          "0x03": "FINISHING"
+        }
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1688",
+      "name": "last_charge_outcome_code",
+      "description": "Last charge outcome code",
+      "ecu_address": "0x745",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1692",
+      "name": "cabin_mode_active_while_parked",
+      "description": "Fields: Cabin mode active while parked (byte 1, bit 7, 1 bit(s))",
+      "ecu_address": "0x745",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x16A1",
+      "name": "minimum_permission_power",
+      "description": "Minimum permission power",
+      "ecu_address": "0x745",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.01,
+        "unit": "kW"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x16E8",
+      "name": "generator_field_coil_control_duty",
+      "description": "Generator field coil control duty",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.003051804379,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x16E9",
+      "name": "generator_output_voltage",
+      "description": "Generator output voltage",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.125,
+        "unit": "V"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1738",
+      "name": "state_of_charge_charging_control",
+      "description": "State of charge, charging control",
+      "ecu_address": "0x745",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1739",
+      "name": "hv_battery_charge_displayed",
+      "description": "HV battery charge, displayed",
+      "ecu_address": "0x745",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1802",
+      "name": "hybrid_battery_1_fan",
+      "description": "Fields: Hybrid battery 1 fan [%] (byte 2)",
+      "ecu_address": "0x747",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1802",
+      "name": "auxiliary_battery_current",
+      "description": "Fields: Auxiliary battery current [A] (byte 0); Hybrid battery 1 fan [%] (byte 2)",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x180B",
+      "name": "hybrid_battery_intake_air_temperature_1",
+      "description": "Fields: Hybrid battery intake air temperature 1 [°F] (byte 0); Hybrid battery intake air temperature 2 [°F] (byte 2)",
+      "ecu_address": "0x747",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1814",
+      "name": "battery_temperature_01",
+      "description": "Fields: Battery temperature 01 [°C] (byte 0); Battery temperature 02 [°C] (byte 2); Battery temperature 03 [°C] (byte 4); Battery temperature 04 [°C] (byte 6); Battery temperature 05 [°C] (byte 8); Battery temperature 06 [°C] (byte 10); Battery temperature 07 [°C] (byte 12); Battery temperature 08 [°C] (byte 14); …",
+      "ecu_address": "0x747",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1814",
+      "name": "hybrid_battery_temperature_1",
+      "description": "Fields: Hybrid battery temperature 1 [°F] (byte 0); Hybrid battery temperature 2 [°F] (byte 2); Hybrid battery temperature 3 [°F] (byte 4)",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1819",
+      "name": "hybrid_battery_block_1_average_voltage",
+      "description": "Fields: Hybrid battery block 1 average voltage [°F] (byte 0); Hybrid battery block 2 average voltage [°F] (byte 2); Hybrid battery block 3 average voltage [°F] (byte 4); Hybrid battery block 4 average voltage [°F] (byte 6); Hybrid battery block 5 average voltage [°F] (byte 8)",
+      "ecu_address": "0x747",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1824",
+      "name": "battery_heater_temperature",
+      "description": "Battery heater temperature",
+      "ecu_address": "0x747",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°C"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1825",
+      "name": "hybrid_battery_heater_temperature_2",
+      "description": "Hybrid battery heater temperature 2",
+      "ecu_address": "0x747",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 1.8,
+        "offset": -58,
+        "unit": "°F"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1829",
+      "name": "hv_battery_maximum_temperature",
+      "description": "HV battery maximum temperature",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°C"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x182A",
+      "name": "hv_battery_minimum_temperature",
+      "description": "HV battery minimum temperature",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -50,
+        "unit": "°C"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x182E",
+      "name": "hv_battery_cell_01_voltage",
+      "description": "Fields: HV battery cell #01 voltage [V] (byte 0); HV battery module 01 voltage [V] (byte 0); HV battery cell #02 voltage [V] (byte 2); HV battery module 02 voltage [V] (byte 2); HV battery cell #03 voltage [V] (byte 4); HV battery cell #04 voltage [V] (byte 6); HV battery cell #05 voltage [V] (byte 8); HV battery cell #06 voltage [V] (byte 10); …",
+      "ecu_address": "0x747",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1D3E",
+      "name": "full_charge_capacity_1",
+      "description": "Fields: Full charge capacity 1 [Ah] (byte 0); Full charge capacity 2 [Ah] (byte 2); Full charge capacity 3 [Ah] (byte 4); Full charge capacity 4 [Ah] (byte 6); Full charge capacity 5 [Ah] (byte 8); Full charge capacity 6 [Ah] (byte 10); Full charge capacity 7 [Ah] (byte 12); Full charge capacity 8 [Ah] (byte 14)",
+      "ecu_address": "0x747",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E1C",
+      "name": "transmission_temperature",
+      "description": "Transmission temperature",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1125,
+        "offset": 32,
+        "unit": "°F"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1E1F",
+      "name": "gear_engaged",
+      "description": "Gear, engaged",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1F05",
+      "name": "coolant_temperature",
+      "description": "Coolant temperature",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1F0D",
+      "name": "vehicle_speed",
+      "description": "Vehicle speed",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "km/h"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1F2F",
+      "name": "fuel_level",
+      "description": "Fuel level",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1F3C",
+      "name": "catalyst_temperature_bank_1_sensor_1",
+      "description": "Catalyst temperature, bank 1 sensor 1",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1F3D",
+      "name": "catalyst_temperature_bank_2_sensor_1",
+      "description": "Catalyst temperature bank 2 sensor 1",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.18,
+        "offset": -40,
+        "unit": "°F"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1F3E",
+      "name": "catalyst_temperature_bank_1_sensor_2",
+      "description": "Catalyst temperature, bank 1 sensor 2",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1F3F",
+      "name": "catalyst_temperature_bank_2_sensor_2",
+      "description": "Catalyst temperature bank 2 sensor 2",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.18,
+        "offset": -40,
+        "unit": "°F"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1F42",
+      "name": "12v_battery_voltage_smoothed",
+      "description": "12V battery voltage smoothed",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1F46",
+      "name": "ambient_temperature",
+      "description": "Alternative decodings: Ambient temperature [°C] (byte 0); Ambient temperature [°C] (byte 0)",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1F46",
+      "name": "ambient_temperature",
+      "description": "Ambient temperature",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1F49",
+      "name": "accelerator_pedal_position_1",
+      "description": "Accelerator pedal, position 1",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1F4A",
+      "name": "accelerator_pedal_position_2",
+      "description": "Accelerator pedal, position 2",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1F5B",
+      "name": "hybrid_battery_soc",
+      "description": "Alternative decodings: Hybrid battery SOC [%] (byte 0); State of charge, battery ECU [%] (byte 0)",
+      "ecu_address": "0x747",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1F5B",
+      "name": "state_of_charge",
+      "description": "State of charge",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1F5C",
+      "name": "engine_oil_temperature_variation_2",
+      "description": "Engine oil temperature, variation 2",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1F6D",
+      "name": "high_fuel_pressure_target",
+      "description": "Fields: High fuel pressure, target [kPa] (byte 1); High fuel pressure, actual [kPa] (byte 3); Low fuel pressure [kPa] (byte 8)",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1F77",
+      "name": "intake_air_temperature_bank_1_sensor_1",
+      "description": "Fields: Intake air temperature, bank 1 sensor 1 [°C] (byte 1); Intake air temperature, bank 1 sensor 2 [°C] (byte 2)",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1F7A",
+      "name": "diesel_particulate_filter_differential_pressure",
+      "description": "Fields: Diesel particulate filter differential pressure [kPa] (byte 1)",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1F9A",
+      "name": "hybrid_battery_current",
+      "description": "Fields: Hybrid battery current [A] (byte 4)",
+      "ecu_address": "0x747",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1F9A",
+      "name": "hv_battery_voltage",
+      "description": "Fields: HV battery voltage [V] (byte 2); HV battery current [A] (byte 4)",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1FA6",
+      "name": "odometer",
+      "description": "Odometer",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "uint32_be",
+        "scale": 0.1,
+        "unit": "km"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1FF8",
+      "name": "battery_temperature",
+      "description": "Battery temperature",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.18,
+        "offset": -40,
+        "unit": "°F"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2021",
+      "name": "tire_1_position",
+      "description": "Fields: Tire 1 position (byte 0); Tire 2 position (byte 1); Tire 3 position (byte 2); Tire 4 position (byte 3)",
+      "ecu_address": "0x750",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2801",
+      "name": "blower_level",
+      "description": "Blower level",
+      "ecu_address": "0x7C4",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2820",
+      "name": "intercooler_water_pump",
+      "description": "Intercooler water pump",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.006103608759,
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2827",
+      "name": "electric_water_pump",
+      "description": "Electric water pump",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 40,
+        "unit": "rpm"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2829",
+      "name": "electric_thermostat_duty_ratio",
+      "description": "Electric thermostat duty ratio",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x282C",
+      "name": "coolant_water_route_switching_valve_1_closed",
+      "description": "Fields: Coolant water route switching valve 1, closed? (byte 1, bit 7, 1 bit(s))",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2843",
+      "name": "variable_valve_timing_opening_angle_bank_1",
+      "description": "Variable valve timing opening angle bank 1",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2847",
+      "name": "coolant_water_route_switching_valve_2_closed",
+      "description": "Fields: Coolant water route switching valve 2, closed? (byte 1, bit 7, 1 bit(s))",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2848",
+      "name": "engine_oil_pressure_control_valve",
+      "description": "Engine oil pressure control valve",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0762939,
+        "unit": "mA"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2A05",
+      "name": "tire_pressure_wheel_1",
+      "description": "Tire pressure, wheel 1",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.01373,
+        "unit": "bar"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2A06",
+      "name": "tire_pressure_wheel_2",
+      "description": "Tire pressure, wheel 2",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.01373,
+        "unit": "bar"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2A07",
+      "name": "tire_pressure_wheel_3",
+      "description": "Tire pressure, wheel 3",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.01373,
+        "unit": "bar"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2A08",
+      "name": "tire_pressure_wheel_4",
+      "description": "Tire pressure, wheel 4",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.01373,
+        "unit": "bar"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B00",
+      "name": "parking_brake",
+      "description": "Fields: Parking brake (byte 0, bit 0, 1 bit(s))",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B06",
+      "name": "front_right_wheel_speed",
+      "description": "Front right wheel speed",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "km/h"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B07",
+      "name": "front_left_wheel_speed",
+      "description": "Front left wheel speed",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "km/h"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B08",
+      "name": "rear_right_wheel_speed",
+      "description": "Rear right wheel speed",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "km/h"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B09",
+      "name": "rear_left_wheel_speed",
+      "description": "Rear left wheel speed",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "km/h"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B0C",
+      "name": "lateral_angle_raw_count",
+      "description": "Lateral angle, raw count",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "int16_be"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B0D",
+      "name": "brake_hydraulic_pressure_raw_count",
+      "description": "Brake hydraulic pressure, raw count",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x2B11",
+      "name": "lateral_acceleration_raw_count",
+      "description": "Lateral acceleration, raw count",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "int16_be"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x307A",
+      "name": "inlet_air_temperature",
+      "description": "Inlet air temperature",
+      "ecu_address": "0x7A2",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 1.8,
+        "offset": -40,
+        "unit": "°F"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x61B1",
+      "name": "fuel_level",
+      "description": "Fuel level",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "%"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x9800",
+      "name": "a_c_compressor_pressure_sensor_voltage",
+      "description": "A/C compressor pressure sensor voltage",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.0009765625,
+        "unit": "V"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD901",
+      "name": "distance_from_bumper_to_target",
+      "description": "Fields: Distance from bumper to target [m] (byte 1)",
+      "ecu_address": "0x793",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD01",
+      "name": "odometer_instrument_cluster",
+      "description": "Fields: Odometer, instrument cluster [km] (byte 0)",
+      "ecu_address": "0x720",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD01",
+      "name": "odometer_stability_control_module",
+      "description": "Fields: Odometer, stability control module [km] (byte 0)",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDD01",
+      "name": "odometer",
+      "description": "Fields: Odometer [km] (byte 0)",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xF19A",
+      "name": "hybrid_battery_voltage",
+      "description": "Fields: Hybrid battery voltage [V] (byte 2)",
+      "ecu_address": "0x747",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xF19A",
+      "name": "hybrid_battery_voltage",
+      "description": "Fields: Hybrid battery voltage [V] (byte 2)",
+      "ecu_address": "0x7D2",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xF19D",
+      "name": "engine_fuel_rate",
+      "description": "Fields: Engine fuel rate [g/s] (byte 0); Vehicle fuel rate [g/s] (byte 2)",
+      "ecu_address": "0x700",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Toyota signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1700",
+      "name": "odometer_variant",
+      "description": "Odometer variant",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "km"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4201",
+      "name": "barometric_pressure",
+      "description": "Barometric pressure",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.00390625,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4205",
+      "name": "boost_pressure",
+      "description": "Boost pressure",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0078125,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x420C",
+      "name": "estimated_range_remaining_in_economy_mode",
+      "description": "Fields: Estimated range remaining in economy mode [km] (byte 0); Estimated range remaining in comfort mode [km] (byte 2); Estimated range remaining [km] (byte 4)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4408",
+      "name": "engine_oil_temperature",
+      "description": "Engine oil temperature",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -273.15,
+        "unit": "°C"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x442C",
+      "name": "oil_level",
+      "description": "Oil level",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x480C",
+      "name": "engine_load_target",
+      "description": "Engine load, target",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0234375,
+        "unit": "%"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4A2D",
+      "name": "intake_manifold_pressure",
+      "description": "Intake manifold pressure",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0078125,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4A2E",
+      "name": "rev_limiter",
+      "description": "Rev limiter",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "rpm"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4A49",
+      "name": "ignition_timing_cylinder_1",
+      "description": "Ignition timing, cylinder 1",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "°"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4A4A",
+      "name": "ignition_timing_cylinder_2",
+      "description": "Ignition timing, cylinder 2",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "°"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4A4B",
+      "name": "engine_load_2",
+      "description": "Engine load 2",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4A4C",
+      "name": "ignition_timing_cylinder_3",
+      "description": "Ignition timing, cylinder 3",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "°"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4A4D",
+      "name": "ignition_timing_cylinder_4",
+      "description": "Ignition timing, cylinder 4",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.1,
+        "unit": "°"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4AB0",
+      "name": "boost_pressure_set_point",
+      "description": "Boost pressure, set point",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.00390625,
+        "unit": "kPa"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x4AB1",
+      "name": "vehicle_speed",
+      "description": "Vehicle speed",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "km/h"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x558E",
+      "name": "odometer_engine_computer",
+      "description": "Odometer, engine computer",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint32_be",
+        "unit": "km"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x558F",
+      "name": "engine_operating_hours",
+      "description": "Engine operating hours",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint32_be",
+        "scale": 0.5,
+        "unit": "h"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x56D7",
+      "name": "fuel_rail_pressure",
+      "description": "Fuel rail pressure",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.02,
+        "unit": "bar"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x580F",
+      "name": "intake_air_temperature",
+      "description": "Intake air temperature",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.75,
+        "offset": -48,
+        "unit": "°C"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5813",
+      "name": "engine_load",
+      "description": "Engine load",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.75,
+        "unit": "%"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x582C",
+      "name": "lambda_2",
+      "description": "Lambda 2",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.000244140625
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x582F",
+      "name": "catalyst_temperature",
+      "description": "Catalyst temperature",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -273.15,
+        "unit": "°C"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x586F",
+      "name": "engine_oil_pressure",
+      "description": "Engine oil pressure",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "bar"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x5889",
+      "name": "lambda",
+      "description": "Lambda",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0002441443503
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x58BA",
+      "name": "crank_torque",
+      "description": "Crank torque",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "Nm"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x59FA",
+      "name": "ignition_angle",
+      "description": "Fields: Ignition angle [°] (byte 0)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD031",
+      "name": "current_gear",
+      "description": "Current gear",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD107",
+      "name": "vehicle_speed",
+      "description": "Vehicle speed",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "km/h"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD10D",
+      "name": "odometer_1",
+      "description": "Fields: Odometer #1 [km] (byte 0); Odometer #2 [km] (byte 4)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD111",
+      "name": "current_electric_range",
+      "description": "Fields: Current electric range [km] (byte 0); Maximum electric range [km] (byte 2); Current fuel range [km] (byte 4); Maximum fuel range [km] (byte 6); Electric consumption / 100km [kWh] (byte 8); Auxiliary power consumption [kW] (byte 10)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD112",
+      "name": "ambient_air_temperature",
+      "description": "Ambient air temperature",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD240",
+      "name": "vehicle_speed_instrument_cluster",
+      "description": "Vehicle speed, instrument cluster",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km/h"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA12",
+      "name": "transmission_fluid_temperature",
+      "description": "Transmission fluid temperature",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA1F",
+      "name": "kickdown",
+      "description": "Fields: Kickdown (byte 1)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA22",
+      "name": "torque_converter_lockup",
+      "description": "Fields: Torque converter lockup (byte 1)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA23",
+      "name": "odometer",
+      "description": "Odometer",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint32_be",
+        "scale": 8,
+        "unit": "km"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA25",
+      "name": "engine_oil_temperature",
+      "description": "Engine oil temperature",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "int16_be",
+        "offset": -48,
+        "unit": "°C"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA28",
+      "name": "brake_switch",
+      "description": "Fields: Brake switch (byte 1)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA2A",
+      "name": "torque_converter_speed",
+      "description": "Fields: Torque converter speed [rpm] (byte 0); Transmission output shaft speed [rpm] (byte 2)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA2E",
+      "name": "gear",
+      "description": "Gear",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDA37",
+      "name": "time_in_d",
+      "description": "Fields: Time in d (byte 0); Time in s (byte 1); Time in m (byte 2)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDB32",
+      "name": "front_axle_actual_torque",
+      "description": "Fields: Front axle, actual torque [Nm] (byte 0); Front axle, set point torque [Nm] (byte 4)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDBE4",
+      "name": "front_left_wheel_speed",
+      "description": "Fields: Front left wheel speed [km/h] (byte 0); Front right wheel speed [km/h] (byte 2); Rear left wheel speed [km/h] (byte 4); Rear right wheel speed [km/h] (byte 6)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDC98",
+      "name": "front_left_tire_sensor_position",
+      "description": "Fields: Front left tire sensor position (byte 4); Front left tire pressure [bar] (byte 5); Front left tire temperature [°C] (byte 7); Front left tire pressure, set point [bar] (byte 8); Front left tire sensor battery life, months (byte 15)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDC99",
+      "name": "front_right_tire_sensor_position",
+      "description": "Fields: Front right tire sensor position (byte 4); Front right tire pressure [bar] (byte 5); Front right tire temperature [°C] (byte 7); Front right tire pressure, set point [bar] (byte 8); Front right tire sensor battery life, months (byte 15)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDC9A",
+      "name": "rear_left_tire_sensor_position",
+      "description": "Fields: Rear left tire sensor position (byte 4); Rear left tire pressure [bar] (byte 5); Rear left tire temperature [°C] (byte 7); Rear left tire pressure, set point [bar] (byte 8); Rear left tire sensor battery life, months (byte 15)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDC9B",
+      "name": "rear_right_tire_sensor_position",
+      "description": "Fields: Rear right tire sensor position (byte 4); Rear right tire pressure [bar] (byte 5); Rear right tire temperature [°C] (byte 7); Rear right tire pressure, set point [bar] (byte 8); Rear right tire sensor battery life, months (byte 15)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDCDD",
+      "name": "driver_door_open",
+      "description": "Fields: Driver door open (byte 0); Passenger door open (byte 1); Rear driver door open (byte 2); Rear passenger door open (byte 3); Hood open (byte 4); Trunk open (byte 5); Rear window open (byte 6); Locked (byte 7)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xDFE7",
+      "name": "variable_geometry_turbocharger_calibration_angle",
+      "description": "Fields: Variable geometry turbocharger calibration angle [°] (byte 0); Distance since last oil change [km] (byte 38)",
+      "ecu_address": "0x6F1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/Lexus signalset (CC BY-SA 4.0)",
+      "verified": false
     }
   ],
   "routines": [
