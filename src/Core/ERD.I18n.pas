@@ -61,19 +61,23 @@ type
     type
       TLanguageCatalog = class
       strict private
+        FLanguage: string;
+        FName: string;
+        FEnglishName: string;
+        FVersion: Integer;
         FStrings: TDictionary<string, string>;
         FPlurals: TDictionary<string, TOBDPluralText>;
       public
-        Language: string;
-        Name: string;
-        EnglishName: string;
-        Version: Integer;
         constructor Create;
         destructor Destroy; override;
         procedure AddString(const AKey, AValue: string);
         procedure AddPlural(const AKey, AOne, AOther: string);
         function TryString(const AKey: string; out AValue: string): Boolean;
         function TryPlural(const AKey: string; out AValue: TOBDPluralText): Boolean;
+        property Language: string read FLanguage write FLanguage;
+        property Name: string read FName write FName;
+        property EnglishName: string read FEnglishName write FEnglishName;
+        property Version: Integer read FVersion write FVersion;
       end;
   strict private
     FLock: TCriticalSection;
