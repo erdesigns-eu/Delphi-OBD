@@ -40,6 +40,7 @@ uses
   Vcl.Dialogs,
   Vcl.ActnList,
   Vcl.Menus,
+  Vcl.AppEvnts,
   ERD.I18n,
   ERD.UI.Types,
   ERD.UI.Paint,
@@ -138,6 +139,7 @@ type
     miRibbon: TMenuItem;
     miHelp: TMenuItem;
     miAbout: TMenuItem;
+    aeMain: TApplicationEvents;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -156,12 +158,21 @@ type
     procedure actCommandsExecute(Sender: TObject);
     procedure actAboutExecute(Sender: TObject);
     procedure actExitExecute(Sender: TObject);
+    procedure aeMainIdle(Sender: TObject; var Done: Boolean);
   strict private
     FSettings: TPersonalSettings;
     FSession: TPersonalSession;
     FPages: TArray<TControl>;
     FKeys: TArray<string>;
     FPageActions: TArray<TAction>;
+    // Page commands: one action each, the page that owns it, the coloured
+    // ribbon tab of every page (nil without commands), the Home group and
+    // the menu of the active page.
+    FCommandActions: array[TPersonalCommand] of TAction;
+    FCommandPages: array[TPersonalCommand] of Integer;
+    FPageTabs: TArray<TOBDContextualTabSet>;
+    FDiagnosisGroup: TOBDRibbonGroup;
+    FPageMenu: TMenuItem;
     FActive: Integer;
     FSyncing: Boolean;
     FActivity: TStringList;
@@ -175,11 +186,16 @@ type
     function PageIndex(const AKey: string): Integer;
     function SidebarItemOf(AIndex: Integer): TOBDSidebarItem;
     procedure ActivatePage(AIndex: Integer);
+    procedure CreateCommands;
+    procedure ShowPageCommands;
+    procedure UpdateCommandStates;
+    procedure actCommandExecute(Sender: TObject);
     procedure ApplyChrome;
     procedure ApplySettings;
     procedure ApplyLanguage;
     procedure TranslateShell;
     procedure TranslateCommands;
+    procedure TranslatePageCommands;
     procedure SyncTitleButtons;
     procedure SyncCommands;
     procedure SyncStatus;
@@ -250,6 +266,71 @@ const
 
   ACTIVITY_MAX_LINES = 5000;
 
+  // Page commands that save, copy or export results: they form the
+  // "Save and share" group of the page tab.
+  SHARE_COMMANDS: TPersonalCommands = [pcSaveVehicleReport, pcSaveCodeReport,
+    pcExportTests, pcCopyVehicleInfo, pcSaveVehicleInfo, pcExportRecording,
+    pcShowRecording, pcSaveConsole];
+  // Page commands that are also on the Home tab and in the Vehicle and
+  // Tools menus, whatever page is open.
+  DIAGNOSIS_COMMANDS: TPersonalCommands = [pcScanVehicle, pcReadCodes,
+    pcClearCodes, pcRecordSession];
+  // Page commands that run without bringing their page to the front.
+  BACKGROUND_COMMANDS: TPersonalCommands = [pcRecordSession];
+
+function CommandGlyph(ACommand: TPersonalCommand): TOBDGlyph;
+begin
+  case ACommand of
+    pcScanVehicle:
+      Result := glHealth;
+    pcSaveVehicleReport, pcSaveCodeReport:
+      Result := glReport;
+    pcReadCodes, pcReadTests:
+      Result := glRead;
+    pcClearCodes, pcDeleteRecording, pcClearConsole:
+      Result := glClear;
+    pcLookUpCode:
+      Result := glGlobe;
+    pcStartAdvisor:
+      Result := glPlay;
+    pcStopAdvisor, pcCancelRun:
+      Result := glStop;
+    pcRecordLive, pcRecordSession:
+      Result := glRecord;
+    pcAddGauge:
+      Result := glPlus;
+    pcEditDashboard, pcRenameRecording:
+      Result := glEdit;
+    pcSaveDashboard, pcSaveVehicleInfo, pcSaveConsole:
+      Result := glSave;
+    pcResetDashboard, pcResetTrip:
+      Result := glUndo;
+    pcExportTests, pcExportRecording:
+      Result := glExport;
+    pcCopyVehicleInfo:
+      Result := glCopy;
+    pcArmRun:
+      Result := glFlag;
+    pcShowRecording:
+      Result := glOpen;
+  else
+    // Read again / refresh.
+    Result := glRefresh;
+  end;
+end;
+
+function CommandColor(ACommand: TPersonalCommand): TOBDRibbonItemColor;
+begin
+  case ACommand of
+    pcScanVehicle:
+      Result := ricAccent;
+    pcClearCodes, pcDeleteRecording:
+      Result := ricDanger;
+  else
+    Result := ricNormal;
+  end;
+end;
+
 { Start and stop ------------------------------------------------------------ }
 
 procedure TfrmMain.FormCreate(Sender: TObject);
@@ -275,6 +356,7 @@ begin
 
   LoadCatalogs;
   CreatePages;
+  CreateCommands;
   RestoreWindow;
   ApplySettings;
   SyncStatus;
@@ -450,6 +532,7 @@ begin
     FSyncing := False;
   end;
   SyncCommands;
+  ShowPageCommands;
   if Supports(FPages[AIndex], IPersonalPage, Page) then
     Page.Activated(True);
 end;
@@ -617,6 +700,230 @@ begin
   actUnitsImperial.Checked := OBDTheme.UnitSystem = usImperial;
   actMenuBar.Checked := TitleBar.CommandStyle = csMenu;
   actRibbon.Checked := TitleBar.CommandStyle = csRibbon;
+  UpdateCommandStates;
+end;
+
+procedure TfrmMain.CreateCommands;
+var
+  C: TPersonalCommand;
+  I: Integer;
+  PageCommands: IPersonalCommands;
+  Owned, Actions, Shares: TPersonalCommands;
+  Act: TAction;
+  TabSet: TOBDContextualTabSet;
+  Tab: TOBDRibbonTab;
+  Group: TOBDRibbonGroup;
+
+  procedure AddRibbonItem(AGroup: TOBDRibbonGroup; ACommand: TPersonalCommand;
+    ASize: TOBDRibbonItemSize);
+  var
+    Item: TOBDRibbonItem;
+  begin
+    Item := AGroup.Items.Add;
+    Item.Glyph := CommandGlyph(ACommand);
+    Item.Size := ASize;
+    Item.Color := CommandColor(ACommand);
+    Item.Action := FCommandActions[ACommand];
+  end;
+
+  procedure AddMenuItem(AParent: TMenuItem; ACommand: TPersonalCommand;
+    APage: Integer);
+  var
+    Item: TMenuItem;
+  begin
+    Item := TMenuItem.Create(Self);
+    Item.Action := FCommandActions[ACommand];
+    Item.Tag := APage;
+    AParent.Add(Item);
+  end;
+
+  procedure AddMenuSeparator(AParent: TMenuItem; APage: Integer);
+  var
+    Item: TMenuItem;
+  begin
+    Item := TMenuItem.Create(Self);
+    Item.Caption := '-';
+    Item.Tag := APage;
+    AParent.Add(Item);
+  end;
+
+begin
+  // The buttons of the pages become commands in the ribbon and the menu
+  // bar. Every page with commands gets a coloured ribbon tab and a menu,
+  // shown while the page is open (ShowPageCommands). Caption and hint
+  // come from TranslatePageCommands, Enabled and Checked from the page
+  // while the application is idle (UpdateCommandStates).
+  for C := Low(TPersonalCommand) to High(TPersonalCommand) do
+  begin
+    FCommandPages[C] := -1;
+    Act := TAction.Create(Self);
+    Act.ActionList := alMain;
+    Act.Category := 'Page';
+    Act.Tag := Ord(C);
+    Act.Enabled := False;
+    Act.OnExecute := actCommandExecute;
+    FCommandActions[C] := Act;
+  end;
+
+  FPageMenu := TMenuItem.Create(Self);
+  FPageMenu.Visible := False;
+  mnuMain.Items.Insert(miView.MenuIndex, FPageMenu);
+
+  SetLength(FPageTabs, Length(FPages));
+  for I := 0 to High(FPages) do
+  begin
+    FPageTabs[I] := nil;
+    if not Supports(FPages[I], IPersonalCommands, PageCommands) then
+      Continue;
+    Owned := PageCommands.Commands;
+    if Owned = [] then
+      Continue;
+    for C in Owned do
+      FCommandPages[C] := I;
+    Actions := Owned - SHARE_COMMANDS;
+    Shares := Owned * SHARE_COMMANDS;
+
+    TabSet := rbnMain.ContextualTabs.Add;
+    TabSet.Tag := I;
+    Tab := TabSet.Tabs.Add;
+    if Actions <> [] then
+    begin
+      Group := Tab.Groups.Add;
+      Group.Tag := 0;
+      for C in Actions do
+      begin
+        AddRibbonItem(Group, C, risLarge);
+        AddMenuItem(FPageMenu, C, I);
+      end;
+    end;
+    if Shares <> [] then
+    begin
+      if Actions <> [] then
+        AddMenuSeparator(FPageMenu, I);
+      Group := Tab.Groups.Add;
+      Group.Tag := 1;
+      for C in Shares do
+      begin
+        AddRibbonItem(Group, C, risSmall);
+        AddMenuItem(FPageMenu, C, I);
+      end;
+    end;
+    FPageTabs[I] := TabSet;
+  end;
+
+  // Scan, read and clear codes and the session recorder are also on the
+  // Home tab, in the Vehicle menu and in the Tools menu.
+  if rbnMain.Tabs.Count > 0 then
+  begin
+    FDiagnosisGroup := rbnMain.Tabs[0].Groups.Add;
+    for C in DIAGNOSIS_COMMANDS do
+      AddRibbonItem(FDiagnosisGroup, C, risLarge);
+  end;
+  Actions := DIAGNOSIS_COMMANDS - BACKGROUND_COMMANDS;
+  AddMenuSeparator(miVehicle, -1);
+  for C in Actions do
+    AddMenuItem(miVehicle, C, -1);
+  Actions := DIAGNOSIS_COMMANDS * BACKGROUND_COMMANDS;
+  AddMenuSeparator(miTools, -1);
+  for C in Actions do
+    AddMenuItem(miTools, C, -1);
+end;
+
+procedure TfrmMain.ShowPageCommands;
+var
+  I, NormalTabs: Integer;
+  OnPageTab, HasCommands: Boolean;
+begin
+  // Only the tab and the menu of the active page are shown. Whoever works
+  // in the page tab stays in it when opening another page; without page
+  // commands the ribbon goes back to Home.
+  NormalTabs := 0;
+  for I := 0 to rbnMain.Tabs.Count - 1 do
+    if rbnMain.Tabs[I].Visible then
+      Inc(NormalTabs);
+  OnPageTab := rbnMain.ActiveTab >= NormalTabs;
+  HasCommands := False;
+  for I := 0 to High(FPageTabs) do
+    if FPageTabs[I] <> nil then
+    begin
+      FPageTabs[I].Visible := I = FActive;
+      if I = FActive then
+        HasCommands := True;
+    end;
+  if OnPageTab then
+  begin
+    if HasCommands then
+      rbnMain.ActiveTab := NormalTabs
+    else
+      rbnMain.ActiveTab := 0;
+  end;
+  if FPageMenu <> nil then
+  begin
+    for I := 0 to FPageMenu.Count - 1 do
+      FPageMenu.Items[I].Visible := FPageMenu.Items[I].Tag = FActive;
+    if (FActive >= 0) and (FActive <= High(FPageActions)) then
+      FPageMenu.Caption := FPageActions[FActive].Caption;
+    FPageMenu.Visible := HasCommands;
+    TitleBar.MenuChanged;
+  end;
+  UpdateCommandStates;
+end;
+
+procedure TfrmMain.UpdateCommandStates;
+var
+  C: TPersonalCommand;
+  Page: Integer;
+  PageCommands: IPersonalCommands;
+begin
+  for C := Low(TPersonalCommand) to High(TPersonalCommand) do
+  begin
+    if FCommandActions[C] = nil then
+      Continue;
+    Page := FCommandPages[C];
+    if (Page >= 0) and (Page <= High(FPages)) and
+      Supports(FPages[Page], IPersonalCommands, PageCommands) then
+    begin
+      FCommandActions[C].Enabled := PageCommands.CommandEnabled(C);
+      FCommandActions[C].Checked := PageCommands.CommandChecked(C);
+    end
+    else
+      FCommandActions[C].Enabled := False;
+  end;
+end;
+
+procedure TfrmMain.aeMainIdle(Sender: TObject; var Done: Boolean);
+begin
+  // The VCL updates actions only for controls and Form.Menu; ribbon
+  // buttons and the title-bar menu follow the pages from here. Setting
+  // an unchanged Enabled or Checked does nothing.
+  UpdateCommandStates;
+end;
+
+procedure TfrmMain.actCommandExecute(Sender: TObject);
+var
+  Value: NativeInt;
+  Command: TPersonalCommand;
+  Page: Integer;
+  PageCommands: IPersonalCommands;
+begin
+  // The command actions have Ord(command) as Tag.
+  Value := TComponent(Sender).Tag;
+  if (Value < Ord(Low(TPersonalCommand))) or
+    (Value > Ord(High(TPersonalCommand))) then
+    Exit;
+  Command := TPersonalCommand(Value);
+  Page := FCommandPages[Command];
+  if (Page < 0) or (Page > High(FPages)) or
+    not Supports(FPages[Page], IPersonalCommands, PageCommands) then
+    Exit;
+  // The page comes to the front to show the result. Opening it can start
+  // the same job (the codes page reads the codes when it opens), so the
+  // command only runs when it is still enabled.
+  if not (Command in BACKGROUND_COMMANDS) then
+    ActivatePage(Page);
+  if PageCommands.CommandEnabled(Command) then
+    PageCommands.ExecuteCommand(Command);
+  UpdateCommandStates;
 end;
 
 procedure TfrmMain.TitleBarCommandStyleChange(Sender: TObject);
@@ -944,6 +1251,131 @@ begin
   SetGroupCaption(3, 3, Tr('personal.ribbon.commands', 'Commands'));
   SetGroupCaption(3, 4, Tr('personal.ribbon.help', 'Help'));
   rbnMain.SearchHint := Tr('personal.ribbon.search', 'Search commands  Alt+Q');
+  TranslatePageCommands;
+  // Top-level captions changed: the menu bar measures its items again.
+  TitleBar.MenuChanged;
+end;
+
+procedure TfrmMain.TranslatePageCommands;
+
+  procedure SetCommand(ACommand: TPersonalCommand; const ACaption,
+    AHint: string);
+  begin
+    if FCommandActions[ACommand] <> nil then
+    begin
+      FCommandActions[ACommand].Caption := ACaption;
+      FCommandActions[ACommand].Hint := AHint;
+    end;
+  end;
+
+var
+  I, J: Integer;
+  Tab: TOBDRibbonTab;
+begin
+  SetCommand(pcScanVehicle, Tr('personal.cmd.scan', 'Scan vehicle'),
+    Tr('personal.cmd.scanHint',
+    'Quick scan of codes, readiness and key live values'));
+  SetCommand(pcSaveVehicleReport, Tr('personal.cmd.healthReport',
+    'Health report'), Tr('personal.cmd.healthReportHint',
+    'Save a vehicle health report as text'));
+  SetCommand(pcReadCodes, Tr('personal.cmd.readCodes', 'Read codes'),
+    Tr('personal.cmd.readCodesHint',
+    'Read the stored, pending and permanent trouble codes'));
+  SetCommand(pcClearCodes, Tr('personal.cmd.clearCodes', 'Clear codes'),
+    Tr('personal.cmd.clearCodesHint',
+    'Erase the trouble codes and turn the MIL off (asks first)'));
+  SetCommand(pcLookUpCode, Tr('personal.cmd.searchWeb', 'Search the web'),
+    Tr('personal.cmd.searchWebHint', 'Search the web for the selected code'));
+  SetCommand(pcSaveCodeReport, Tr('personal.cmd.saveCodeReport',
+    'Save report'), Tr('personal.cmd.saveCodeReportHint',
+    'Save the trouble-code report as text and HTML'));
+  SetCommand(pcRefreshReadiness, Tr('personal.cmd.readReadiness',
+    'Read readiness'), Tr('personal.cmd.readReadinessHint',
+    'Read the readiness monitors again'));
+  SetCommand(pcStartAdvisor, Tr('personal.cmd.startAdvisor', 'Start advisor'),
+    Tr('personal.cmd.startAdvisorHint',
+    'Drive-cycle advisor for the first incomplete monitor'));
+  SetCommand(pcStopAdvisor, Tr('personal.cmd.stopAdvisor', 'Stop advisor'),
+    Tr('personal.cmd.stopAdvisorHint', 'Stop the drive-cycle advisor'));
+  SetCommand(pcRefreshSensors, Tr('personal.cmd.findSensors', 'Find sensors'),
+    Tr('personal.cmd.findSensorsHint', 'Read the supported sensors again'));
+  SetCommand(pcRecordLive, Tr('personal.cmd.recordCsv', 'Record CSV'),
+    Tr('personal.cmd.recordCsvHint',
+    'Record the selected sensors to a CSV file'));
+  SetCommand(pcAddGauge, Tr('personal.cmd.addGauge', 'Add gauge'),
+    Tr('personal.cmd.addGaugeHint', 'Add the chosen gauge to the dashboard'));
+  SetCommand(pcEditDashboard, Tr('personal.cmd.editLayout', 'Edit layout'),
+    Tr('personal.cmd.editLayoutHint', 'Move and resize the gauges'));
+  SetCommand(pcSaveDashboard, Tr('personal.cmd.saveLayout', 'Save layout'),
+    Tr('personal.cmd.saveLayoutHint', 'Save the dashboard layout'));
+  SetCommand(pcResetDashboard, Tr('personal.cmd.defaultLayout',
+    'Default layout'), Tr('personal.cmd.defaultLayoutHint',
+    'Replace the layout with the default gauges (asks first)'));
+  SetCommand(pcReadTests, Tr('personal.cmd.readTests', 'Read tests'),
+    Tr('personal.cmd.readTestsHint',
+    'Read the Mode 06 results and the in-use performance counters'));
+  SetCommand(pcExportTests, Tr('personal.cmd.exportTests', 'Export CSV'),
+    Tr('personal.cmd.exportTestsHint', 'Export the test results to a CSV file'));
+  SetCommand(pcReadVehicleInfo, Tr('personal.cmd.readInfo', 'Read info'),
+    Tr('personal.cmd.readInfoHint',
+    'Read the VIN, calibration IDs and ECUs again'));
+  SetCommand(pcCopyVehicleInfo, Tr('personal.cmd.copyInfo', 'Copy all'),
+    Tr('personal.cmd.copyInfoHint',
+    'Copy the vehicle information to the clipboard'));
+  SetCommand(pcSaveVehicleInfo, Tr('personal.cmd.saveInfo', 'Save text'),
+    Tr('personal.cmd.saveInfoHint', 'Save the vehicle information as text'));
+  SetCommand(pcResetTrip, Tr('personal.cmd.resetTrip', 'Reset trip'),
+    Tr('personal.cmd.resetTripHint',
+    'Start a new trip for consumption, costs and CO2'));
+  SetCommand(pcArmRun, Tr('personal.cmd.armRun', 'Arm run'),
+    Tr('personal.cmd.armRunHint', 'Get ready: the run starts when you pull away'));
+  SetCommand(pcCancelRun, Tr('personal.cmd.cancelRun', 'Cancel run'),
+    Tr('personal.cmd.cancelRunHint', 'Cancel the armed or running run'));
+  SetCommand(pcReadBattery, Tr('personal.cmd.readBattery', 'Read battery'),
+    Tr('personal.cmd.readBatteryHint', 'Read the battery values again'));
+  SetCommand(pcRefreshPorts, Tr('personal.cmd.refreshPorts', 'Refresh ports'),
+    Tr('personal.cmd.refreshPortsHint',
+    'Look for serial and USB ports again'));
+  SetCommand(pcRecordSession, Tr('personal.cmd.recordSession',
+    'Record session'), Tr('personal.cmd.recordSessionHint',
+    'Record the whole session to a log you can replay'));
+  SetCommand(pcRefreshRecordings, Tr('personal.cmd.refreshRecordings',
+    'Refresh'), Tr('personal.cmd.refreshRecordingsHint',
+    'Look for recordings again'));
+  SetCommand(pcRenameRecording, Tr('personal.cmd.rename', 'Rename'),
+    Tr('personal.cmd.renameHint', 'Rename the selected recording'));
+  SetCommand(pcDeleteRecording, Tr('personal.cmd.delete', 'Delete'),
+    Tr('personal.cmd.deleteHint',
+    'Delete the selected recording (asks first)'));
+  SetCommand(pcExportRecording, Tr('personal.cmd.exportCopy', 'Export copy'),
+    Tr('personal.cmd.exportCopyHint', 'Save a copy of the selected recording'));
+  SetCommand(pcShowRecording, Tr('personal.cmd.showFile', 'Show file'),
+    Tr('personal.cmd.showFileHint',
+    'Show the selected recording in Explorer'));
+  SetCommand(pcClearConsole, Tr('personal.cmd.clearConsole', 'Clear'),
+    Tr('personal.cmd.clearConsoleHint',
+    'Clear the terminal, or read the activity log again'));
+  SetCommand(pcSaveConsole, Tr('personal.cmd.saveLog', 'Save log'),
+    Tr('personal.cmd.saveLogHint', 'Save the terminal or the activity log'));
+
+  if FDiagnosisGroup <> nil then
+    FDiagnosisGroup.Caption := Tr('personal.ribbon.diagnosis', 'Diagnosis');
+  // A page tab and a page menu carry the name of their page.
+  for I := 0 to High(FPageTabs) do
+    if (FPageTabs[I] <> nil) and (I <= High(FPageActions)) and
+      (FPageTabs[I].Tabs.Count > 0) then
+    begin
+      Tab := FPageTabs[I].Tabs[0];
+      Tab.Caption := FPageActions[I].Caption;
+      for J := 0 to Tab.Groups.Count - 1 do
+        if Tab.Groups[J].Tag = 1 then
+          Tab.Groups[J].Caption := Tr('personal.ribbon.share', 'Save and share')
+        else
+          Tab.Groups[J].Caption := Tr('personal.ribbon.actions', 'Actions');
+    end;
+  if (FPageMenu <> nil) and (FActive >= 0) and
+    (FActive <= High(FPageActions)) then
+    FPageMenu.Caption := FPageActions[FActive].Caption;
 end;
 
 { Session ------------------------------------------------------------------- }

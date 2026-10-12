@@ -69,7 +69,7 @@ type
     FailedCount: Integer;
   end;
 
-  TfrmPageTests = class(TFrame, IPersonalPage)
+  TfrmPageTests = class(TFrame, IPersonalPage, IPersonalCommands)
   strict private
     FHost: IPersonalHost;
     FActive: Boolean;
@@ -102,6 +102,11 @@ type
     procedure ConnectionChanged(AConnected: Boolean);
     procedure UnitsChanged;
     procedure Translate;
+    // IPersonalCommands
+    function Commands: TPersonalCommands;
+    function CommandEnabled(ACommand: TPersonalCommand): Boolean;
+    function CommandChecked(ACommand: TPersonalCommand): Boolean;
+    procedure ExecuteCommand(ACommand: TPersonalCommand);
   end;
 
 implementation
@@ -771,6 +776,41 @@ begin
       FileName);
   finally
     Lines.Free;
+  end;
+end;
+
+{ Commands ------------------------------------------------------------------ }
+
+function TfrmPageTests.Commands: TPersonalCommands;
+begin
+  Result := [pcReadTests, pcExportTests];
+end;
+
+function TfrmPageTests.CommandEnabled(ACommand: TPersonalCommand): Boolean;
+begin
+  case ACommand of
+    pcReadTests:
+      Result := Connected and not FReading;
+    pcExportTests:
+      Result := (Length(FLastSnapshot.ModeRows) > 0) or
+        (Length(FLastSnapshot.IPTRows) > 0);
+  else
+    Result := False;
+  end;
+end;
+
+function TfrmPageTests.CommandChecked(ACommand: TPersonalCommand): Boolean;
+begin
+  Result := False;
+end;
+
+procedure TfrmPageTests.ExecuteCommand(ACommand: TPersonalCommand);
+begin
+  case ACommand of
+    pcReadTests:
+      RefreshClicked(Self);
+    pcExportTests:
+      ExportClicked(Self);
   end;
 end;
 

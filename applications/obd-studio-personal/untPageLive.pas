@@ -35,7 +35,7 @@ uses
   untPersonalPage;
 
 type
-  TfrmPageLive = class(TFrame, IPersonalPage)
+  TfrmPageLive = class(TFrame, IPersonalPage, IPersonalCommands)
   strict private
     FHost: IPersonalHost;
     FActive: Boolean;
@@ -97,6 +97,11 @@ type
     procedure ConnectionChanged(AConnected: Boolean);
     procedure UnitsChanged;
     procedure Translate;
+    // IPersonalCommands
+    function Commands: TPersonalCommands;
+    function CommandEnabled(ACommand: TPersonalCommand): Boolean;
+    function CommandChecked(ACommand: TPersonalCommand): Boolean;
+    procedure ExecuteCommand(ACommand: TPersonalCommand);
   end;
 
 implementation
@@ -782,6 +787,44 @@ begin
     Text := Format(Tr('personal.live.summary', '%d of %d sensors selected.'),
       [Length(FSelectedPIDs), Length(FSupportedPIDs)]);
   lblSummary.Caption := Text;
+end;
+
+{ Commands ------------------------------------------------------------------ }
+
+function TfrmPageLive.Commands: TPersonalCommands;
+begin
+  Result := [pcRefreshSensors, pcRecordLive];
+end;
+
+function TfrmPageLive.CommandEnabled(ACommand: TPersonalCommand): Boolean;
+begin
+  case ACommand of
+    pcRefreshSensors:
+      Result := Connected;
+    pcRecordLive:
+      Result := Connected or FRecording;
+  else
+    Result := False;
+  end;
+end;
+
+function TfrmPageLive.CommandChecked(ACommand: TPersonalCommand): Boolean;
+begin
+  Result := (ACommand = pcRecordLive) and FRecording;
+end;
+
+procedure TfrmPageLive.ExecuteCommand(ACommand: TPersonalCommand);
+begin
+  case ACommand of
+    pcRefreshSensors:
+      RefreshClicked(Self);
+    pcRecordLive:
+      // Start and stop keep the "Record to CSV" check box in step.
+      if FRecording then
+        StopCSVRecording
+      else
+        StartCSVRecording;
+  end;
 end;
 
 end.

@@ -27,7 +27,7 @@ uses
   untPersonalPage;
 
 type
-  TfrmPageAdapter = class(TFrame, IPersonalPage)
+  TfrmPageAdapter = class(TFrame, IPersonalPage, IPersonalCommands)
   strict private
     FHost: IPersonalHost;
     FLoading: Boolean;
@@ -81,6 +81,11 @@ type
     procedure ConnectionChanged(AConnected: Boolean);
     procedure UnitsChanged;
     procedure Translate;
+    // IPersonalCommands
+    function Commands: TPersonalCommands;
+    function CommandEnabled(ACommand: TPersonalCommand): Boolean;
+    function CommandChecked(ACommand: TPersonalCommand): Boolean;
+    procedure ExecuteCommand(ACommand: TPersonalCommand);
   end;
 
 implementation
@@ -680,6 +685,29 @@ begin
     Exit;
   ApplyControlsToSettings;
   FHost.SettingsChanged;
+end;
+
+{ Commands ------------------------------------------------------------------ }
+
+function TfrmPageAdapter.Commands: TPersonalCommands;
+begin
+  Result := [pcRefreshPorts];
+end;
+
+function TfrmPageAdapter.CommandEnabled(ACommand: TPersonalCommand): Boolean;
+begin
+  Result := ACommand = pcRefreshPorts;
+end;
+
+function TfrmPageAdapter.CommandChecked(ACommand: TPersonalCommand): Boolean;
+begin
+  Result := False;
+end;
+
+procedure TfrmPageAdapter.ExecuteCommand(ACommand: TPersonalCommand);
+begin
+  if ACommand = pcRefreshPorts then
+    RefreshPortsClicked(Self);
 end;
 
 end.

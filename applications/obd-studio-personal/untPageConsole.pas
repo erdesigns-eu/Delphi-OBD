@@ -43,7 +43,7 @@ type
       write FOnCommandKey;
   end;
 
-  TfrmPageConsole = class(TFrame, IPersonalPage)
+  TfrmPageConsole = class(TFrame, IPersonalPage, IPersonalCommands)
   strict private
     FHost: IPersonalHost;
     FTitle: TOBDDialogText;
@@ -90,6 +90,11 @@ type
     procedure ConnectionChanged(AConnected: Boolean);
     procedure UnitsChanged;
     procedure Translate;
+    // IPersonalCommands
+    function Commands: TPersonalCommands;
+    function CommandEnabled(ACommand: TPersonalCommand): Boolean;
+    function CommandChecked(ACommand: TPersonalCommand): Boolean;
+    procedure ExecuteCommand(ACommand: TPersonalCommand);
   end;
 
 implementation
@@ -535,6 +540,33 @@ begin
   end;
   Result := FormatDateTime('hh:nn:ss.zzz', ALine.Timestamp) + '  ' + Dir +
     '  ' + ALine.Text;
+end;
+
+{ Commands ------------------------------------------------------------------ }
+
+function TfrmPageConsole.Commands: TPersonalCommands;
+begin
+  Result := [pcClearConsole, pcSaveConsole];
+end;
+
+function TfrmPageConsole.CommandEnabled(ACommand: TPersonalCommand): Boolean;
+begin
+  Result := (FHost <> nil) and (ACommand in Commands);
+end;
+
+function TfrmPageConsole.CommandChecked(ACommand: TPersonalCommand): Boolean;
+begin
+  Result := False;
+end;
+
+procedure TfrmPageConsole.ExecuteCommand(ACommand: TPersonalCommand);
+begin
+  case ACommand of
+    pcClearConsole:
+      ClearButtonClick(Self);
+    pcSaveConsole:
+      SaveButtonClick(Self);
+  end;
 end;
 
 end.

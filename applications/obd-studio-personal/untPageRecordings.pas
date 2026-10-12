@@ -54,7 +54,7 @@ type
     MaxValue: Double;
   end;
 
-  TfrmPageRecordings = class(TFrame, IPersonalPage)
+  TfrmPageRecordings = class(TFrame, IPersonalPage, IPersonalCommands)
   strict private
     FHost: IPersonalHost;
     FRecordings: TList<TRecordingInfo>;
@@ -122,6 +122,11 @@ type
     procedure ConnectionChanged(AConnected: Boolean);
     procedure UnitsChanged;
     procedure Translate;
+    // IPersonalCommands
+    function Commands: TPersonalCommands;
+    function CommandEnabled(ACommand: TPersonalCommand): Boolean;
+    function CommandChecked(ACommand: TPersonalCommand): Boolean;
+    procedure ExecuteCommand(ACommand: TPersonalCommand);
   end;
 
 implementation
@@ -904,6 +909,51 @@ begin
   if Seconds < 0 then
     Seconds := 0;
   FHost.SetRecording(Format('LOG %.2d:%.2d', [Seconds div 60, Seconds mod 60]));
+end;
+
+{ Commands ------------------------------------------------------------------ }
+
+function TfrmPageRecordings.Commands: TPersonalCommands;
+begin
+  Result := [pcRecordSession, pcRefreshRecordings, pcRenameRecording,
+    pcDeleteRecording, pcExportRecording, pcShowRecording];
+end;
+
+function TfrmPageRecordings.CommandEnabled(ACommand: TPersonalCommand): Boolean;
+begin
+  case ACommand of
+    pcRecordSession:
+      Result := Connected or FFullSessionRecording;
+    pcRefreshRecordings, pcShowRecording:
+      Result := FHost <> nil;
+    pcRenameRecording, pcDeleteRecording, pcExportRecording:
+      Result := SelectedFileName <> '';
+  else
+    Result := False;
+  end;
+end;
+
+function TfrmPageRecordings.CommandChecked(ACommand: TPersonalCommand): Boolean;
+begin
+  Result := (ACommand = pcRecordSession) and FFullSessionRecording;
+end;
+
+procedure TfrmPageRecordings.ExecuteCommand(ACommand: TPersonalCommand);
+begin
+  case ACommand of
+    pcRecordSession:
+      RecordSessionClicked(Self);
+    pcRefreshRecordings:
+      RefreshClicked(Self);
+    pcRenameRecording:
+      RenameClicked(Self);
+    pcDeleteRecording:
+      DeleteClicked(Self);
+    pcExportRecording:
+      ExportClicked(Self);
+    pcShowRecording:
+      OpenFolderClicked(Self);
+  end;
 end;
 
 end.

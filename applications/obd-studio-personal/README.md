@@ -176,6 +176,20 @@ command is enabled, checked and translated in one place. The sidebar
 scrolls with the mouse wheel, its scroll bar or the arrow keys when the
 window is too low to show every page.
 
+The buttons of the open page are commands too. In the ribbon they appear
+on a coloured tab named after the page (for example *Trouble codes* with
+the groups *Actions* and *Save and share*); in the menu bar they appear in
+a menu named after the page, between *Tools* and *View*. *Scan vehicle*,
+*Read codes*, *Clear codes* and *Record session* are always at hand: the
+*Diagnosis* group on the Home tab, the Vehicle menu and the Tools menu.
+Running one of them opens its page first, so the result is on screen; the
+session recorder runs in the background. A page offers its buttons through
+`IPersonalCommands` (`untPersonalPage.pas`): which commands it has, whether
+each is enabled or checked (the same rule as its own button) and how to
+run it. The main form creates the actions, ribbon tabs and menu items from
+that at start-up and keeps their state up to date while the program is
+idle.
+
 ## Catalogue coverage
 
 Checked after the catalogue growth in step 2 (12 October 2026):

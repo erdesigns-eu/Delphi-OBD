@@ -88,7 +88,7 @@ type
     Permanent: Boolean;
   end;
 
-  TfrmPageCodes = class(TFrame, IPersonalPage)
+  TfrmPageCodes = class(TFrame, IPersonalPage, IPersonalCommands)
     scMain: TOBDScrollBox;
     pnlHeader: TPanel;
     lblTitle: TLabel;
@@ -170,6 +170,11 @@ type
     procedure ConnectionChanged(AConnected: Boolean);
     procedure UnitsChanged;
     procedure Translate;
+    // IPersonalCommands
+    function Commands: TPersonalCommands;
+    function CommandEnabled(ACommand: TPersonalCommand): Boolean;
+    function CommandChecked(ACommand: TPersonalCommand): Boolean;
+    procedure ExecuteCommand(ACommand: TPersonalCommand);
   end;
 
 implementation
@@ -1325,6 +1330,48 @@ begin
     Result := S.ToString;
   finally
     S.Free;
+  end;
+end;
+
+{ Commands ------------------------------------------------------------------ }
+
+function TfrmPageCodes.Commands: TPersonalCommands;
+begin
+  Result := [pcReadCodes, pcClearCodes, pcLookUpCode, pcSaveCodeReport];
+end;
+
+function TfrmPageCodes.CommandEnabled(ACommand: TPersonalCommand): Boolean;
+begin
+  case ACommand of
+    pcReadCodes:
+      Result := btnRead.Enabled;
+    pcClearCodes:
+      Result := btnClear.Enabled;
+    pcLookUpCode:
+      Result := btnWeb.Enabled;
+    pcSaveCodeReport:
+      Result := btnSave.Enabled;
+  else
+    Result := False;
+  end;
+end;
+
+function TfrmPageCodes.CommandChecked(ACommand: TPersonalCommand): Boolean;
+begin
+  Result := False;
+end;
+
+procedure TfrmPageCodes.ExecuteCommand(ACommand: TPersonalCommand);
+begin
+  case ACommand of
+    pcReadCodes:
+      btnReadClick(Self);
+    pcClearCodes:
+      btnClearClick(Self);
+    pcLookUpCode:
+      btnWebClick(Self);
+    pcSaveCodeReport:
+      btnSaveClick(Self);
   end;
 end;
 

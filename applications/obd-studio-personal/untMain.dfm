@@ -813,4 +813,9 @@ object frmMain: TfrmMain
       end
     end
   end
+  object aeMain: TApplicationEvents
+    OnIdle = aeMainIdle
+    Left = 1160
+    Top = 368
+  end
 end

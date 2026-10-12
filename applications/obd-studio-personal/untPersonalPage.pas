@@ -10,7 +10,11 @@
 //  the status bar and a themed confirmation dialog). Pages therefore do
 //  not use untMain and can be added, removed or reused on their own.
 //
-//  Both interfaces are implemented by TComponent descendants, whose
+//  A page with buttons also implements IPersonalCommands: the main form
+//  then offers those buttons as commands in the ribbon (a coloured tab
+//  for the active page) and the menu bar (a menu for the active page).
+//
+//  The interfaces are implemented by TComponent descendants, whose
 //  reference counting is switched off: holding an IPersonalHost in a
 //  frame does not keep the form alive or free it.
 //
@@ -49,6 +53,38 @@ const
   PAGE_SETTINGS    = 'settings';
 
 type
+  /// <summary>The page buttons the main form also offers in the ribbon
+  /// and the menu bar. Each command belongs to exactly one page.</summary>
+  TPersonalCommand = (
+    // Overview
+    pcScanVehicle, pcSaveVehicleReport,
+    // Trouble codes
+    pcReadCodes, pcClearCodes, pcLookUpCode, pcSaveCodeReport,
+    // Readiness
+    pcRefreshReadiness, pcStartAdvisor, pcStopAdvisor,
+    // Live data
+    pcRefreshSensors, pcRecordLive,
+    // Dashboard
+    pcAddGauge, pcEditDashboard, pcSaveDashboard, pcResetDashboard,
+    // Monitor tests
+    pcReadTests, pcExportTests,
+    // Vehicle info
+    pcReadVehicleInfo, pcCopyVehicleInfo, pcSaveVehicleInfo,
+    // Fuel economy
+    pcResetTrip,
+    // Performance
+    pcArmRun, pcCancelRun,
+    // EV battery
+    pcReadBattery,
+    // Adapter
+    pcRefreshPorts,
+    // Recordings
+    pcRecordSession, pcRefreshRecordings, pcRenameRecording,
+    pcDeleteRecording, pcExportRecording, pcShowRecording,
+    // Console
+    pcClearConsole, pcSaveConsole);
+  TPersonalCommands = set of TPersonalCommand;
+
   /// <summary>Services the main form offers its pages.</summary>
   IPersonalHost = interface
     ['{0B6E2F3C-6E59-4F0B-9C8A-2D1F7B54A311}']
@@ -114,6 +150,25 @@ type
     /// Tr('personal.&lt;page&gt;.&lt;name&gt;', 'English text'). DFM captions
     /// are only design-time placeholders.</summary>
     procedure Translate;
+  end;
+
+  /// <summary>Implemented by pages whose buttons are also offered as
+  /// commands in the ribbon and the menu bar.</summary>
+  IPersonalCommands = interface
+    ['{EAB06835-FE62-4825-92ED-74057F6AB682}']
+    /// <summary>The commands of this page.</summary>
+    function Commands: TPersonalCommands;
+    /// <summary>True when the command can run now: the same rule as the
+    /// Enabled state of the page's own button. The main form asks while
+    /// the application is idle, also while the page is hidden.</summary>
+    function CommandEnabled(ACommand: TPersonalCommand): Boolean;
+    /// <summary>True while an on/off command is on (recording, editing
+    /// the layout); shown as a check mark or a pressed ribbon button.</summary>
+    function CommandChecked(ACommand: TPersonalCommand): Boolean;
+    /// <summary>Runs the command as if the user pressed the page's own
+    /// button. The main form shows the page first, unless the command
+    /// also works in the background (recording a session).</summary>
+    procedure ExecuteCommand(ACommand: TPersonalCommand);
   end;
 
 implementation

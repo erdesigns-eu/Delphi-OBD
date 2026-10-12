@@ -37,7 +37,7 @@ uses
   untPersonalPage;
 
 type
-  TfrmPageDashboard = class(TFrame, IPersonalPage)
+  TfrmPageDashboard = class(TFrame, IPersonalPage, IPersonalCommands)
   strict private
     FHost: IPersonalHost;
     FActive: Boolean;
@@ -88,6 +88,11 @@ type
     procedure ConnectionChanged(AConnected: Boolean);
     procedure UnitsChanged;
     procedure Translate;
+    // IPersonalCommands
+    function Commands: TPersonalCommands;
+    function CommandEnabled(ACommand: TPersonalCommand): Boolean;
+    function CommandChecked(ACommand: TPersonalCommand): Boolean;
+    procedure ExecuteCommand(ACommand: TPersonalCommand);
   end;
 
 implementation
@@ -640,6 +645,37 @@ begin
   else
     lblSummary.Caption := Format(Tr('personal.dashboard.summary',
       '%d gauges · %d live PIDs.'), [Dashboard.Tiles.Count, Length(PIDs)]);
+end;
+
+{ Commands ------------------------------------------------------------------ }
+
+function TfrmPageDashboard.Commands: TPersonalCommands;
+begin
+  Result := [pcAddGauge, pcEditDashboard, pcSaveDashboard, pcResetDashboard];
+end;
+
+function TfrmPageDashboard.CommandEnabled(ACommand: TPersonalCommand): Boolean;
+begin
+  Result := (FHost <> nil) and (ACommand in Commands);
+end;
+
+function TfrmPageDashboard.CommandChecked(ACommand: TPersonalCommand): Boolean;
+begin
+  Result := (ACommand = pcEditDashboard) and Dashboard.EditMode;
+end;
+
+procedure TfrmPageDashboard.ExecuteCommand(ACommand: TPersonalCommand);
+begin
+  case ACommand of
+    pcAddGauge:
+      AddClicked(Self);
+    pcEditDashboard:
+      EditClicked(Self);
+    pcSaveDashboard:
+      SaveClicked(Self);
+    pcResetDashboard:
+      ResetClicked(Self);
+  end;
 end;
 
 end.

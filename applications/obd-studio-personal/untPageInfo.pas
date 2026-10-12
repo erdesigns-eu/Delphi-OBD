@@ -22,7 +22,7 @@ uses
   untPersonalPage;
 
 type
-  TfrmPageInfo = class(TFrame, IPersonalPage)
+  TfrmPageInfo = class(TFrame, IPersonalPage, IPersonalCommands)
   strict private
     FHost: IPersonalHost;
     FActive: Boolean;
@@ -64,6 +64,11 @@ type
     procedure ConnectionChanged(AConnected: Boolean);
     procedure UnitsChanged;
     procedure Translate;
+    // IPersonalCommands
+    function Commands: TPersonalCommands;
+    function CommandEnabled(ACommand: TPersonalCommand): Boolean;
+    function CommandChecked(ACommand: TPersonalCommand): Boolean;
+    procedure ExecuteCommand(ACommand: TPersonalCommand);
   end;
 
 implementation
@@ -576,6 +581,44 @@ procedure TfrmPageInfo.ConnectClicked(Sender: TObject);
 begin
   if FHost <> nil then
     FHost.ShowPage(PAGE_ADAPTER);
+end;
+
+{ Commands ------------------------------------------------------------------ }
+
+function TfrmPageInfo.Commands: TPersonalCommands;
+begin
+  Result := [pcReadVehicleInfo, pcCopyVehicleInfo, pcSaveVehicleInfo];
+end;
+
+function TfrmPageInfo.CommandEnabled(ACommand: TPersonalCommand): Boolean;
+begin
+  case ACommand of
+    pcReadVehicleInfo:
+      Result := btnRead.Enabled;
+    pcCopyVehicleInfo:
+      Result := btnCopy.Enabled;
+    pcSaveVehicleInfo:
+      Result := btnSave.Enabled;
+  else
+    Result := False;
+  end;
+end;
+
+function TfrmPageInfo.CommandChecked(ACommand: TPersonalCommand): Boolean;
+begin
+  Result := False;
+end;
+
+procedure TfrmPageInfo.ExecuteCommand(ACommand: TPersonalCommand);
+begin
+  case ACommand of
+    pcReadVehicleInfo:
+      ReadClicked(Self);
+    pcCopyVehicleInfo:
+      CopyClicked(Self);
+    pcSaveVehicleInfo:
+      SaveClicked(Self);
+  end;
 end;
 
 end.

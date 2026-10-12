@@ -47,7 +47,7 @@ type
     WarmUpsSinceClear: Integer;
   end;
 
-  TfrmPageReadiness = class(TFrame, IPersonalPage)
+  TfrmPageReadiness = class(TFrame, IPersonalPage, IPersonalCommands)
   strict private
     FHost: IPersonalHost;
     FActive: Boolean;
@@ -101,6 +101,11 @@ type
     procedure ConnectionChanged(AConnected: Boolean);
     procedure UnitsChanged;
     procedure Translate;
+    // IPersonalCommands
+    function Commands: TPersonalCommands;
+    function CommandEnabled(ACommand: TPersonalCommand): Boolean;
+    function CommandChecked(ACommand: TPersonalCommand): Boolean;
+    procedure ExecuteCommand(ACommand: TPersonalCommand);
   end;
 
 implementation
@@ -879,6 +884,44 @@ begin
       end;
   finally
     AdvisorGrid.EndUpdate;
+  end;
+end;
+
+{ Commands ------------------------------------------------------------------ }
+
+function TfrmPageReadiness.Commands: TPersonalCommands;
+begin
+  Result := [pcRefreshReadiness, pcStartAdvisor, pcStopAdvisor];
+end;
+
+function TfrmPageReadiness.CommandEnabled(ACommand: TPersonalCommand): Boolean;
+begin
+  case ACommand of
+    pcRefreshReadiness:
+      Result := Connected and not FReading;
+    pcStartAdvisor:
+      Result := Connected and btnStartAdvisor.Enabled;
+    pcStopAdvisor:
+      Result := btnStopAdvisor.Enabled;
+  else
+    Result := False;
+  end;
+end;
+
+function TfrmPageReadiness.CommandChecked(ACommand: TPersonalCommand): Boolean;
+begin
+  Result := False;
+end;
+
+procedure TfrmPageReadiness.ExecuteCommand(ACommand: TPersonalCommand);
+begin
+  case ACommand of
+    pcRefreshReadiness:
+      RefreshClicked(Self);
+    pcStartAdvisor:
+      StartAdvisorClicked(Self);
+    pcStopAdvisor:
+      StopAdvisorClicked(Self);
   end;
 end;
 

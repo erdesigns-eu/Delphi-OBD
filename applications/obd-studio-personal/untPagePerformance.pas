@@ -57,7 +57,7 @@ type
     DistanceM: Double;
   end;
 
-  TfrmPagePerformance = class(TFrame, IPersonalPage)
+  TfrmPagePerformance = class(TFrame, IPersonalPage, IPersonalCommands)
     pnlHeader: TPanel;
     lblTitle: TLabel;
     lblSubtitle: TLabel;
@@ -156,6 +156,11 @@ type
     procedure ConnectionChanged(AConnected: Boolean);
     procedure UnitsChanged;
     procedure Translate;
+    // IPersonalCommands
+    function Commands: TPersonalCommands;
+    function CommandEnabled(ACommand: TPersonalCommand): Boolean;
+    function CommandChecked(ACommand: TPersonalCommand): Boolean;
+    procedure ExecuteCommand(ACommand: TPersonalCommand);
   end;
 
 implementation
@@ -965,6 +970,40 @@ begin
     end;
   finally
     kvSaved.EndUpdate;
+  end;
+end;
+
+{ Commands ------------------------------------------------------------------ }
+
+function TfrmPagePerformance.Commands: TPersonalCommands;
+begin
+  Result := [pcArmRun, pcCancelRun];
+end;
+
+function TfrmPagePerformance.CommandEnabled(ACommand: TPersonalCommand): Boolean;
+begin
+  case ACommand of
+    pcArmRun:
+      Result := btnArmRun.Enabled;
+    pcCancelRun:
+      Result := btnCancelRun.Enabled;
+  else
+    Result := False;
+  end;
+end;
+
+function TfrmPagePerformance.CommandChecked(ACommand: TPersonalCommand): Boolean;
+begin
+  Result := False;
+end;
+
+procedure TfrmPagePerformance.ExecuteCommand(ACommand: TPersonalCommand);
+begin
+  case ACommand of
+    pcArmRun:
+      btnArmRunClick(Self);
+    pcCancelRun:
+      btnCancelRunClick(Self);
   end;
 end;
 

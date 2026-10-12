@@ -44,7 +44,7 @@ type
     ErrorText: string;
   end;
 
-  TfrmPageOverview = class(TFrame, IPersonalPage)
+  TfrmPageOverview = class(TFrame, IPersonalPage, IPersonalCommands)
   strict private
     FHost: IPersonalHost;
     FActive: Boolean;
@@ -101,6 +101,11 @@ type
     procedure ConnectionChanged(AConnected: Boolean);
     procedure UnitsChanged;
     procedure Translate;
+    // IPersonalCommands
+    function Commands: TPersonalCommands;
+    function CommandEnabled(ACommand: TPersonalCommand): Boolean;
+    function CommandChecked(ACommand: TPersonalCommand): Boolean;
+    procedure ExecuteCommand(ACommand: TPersonalCommand);
   end;
 
 implementation
@@ -867,6 +872,40 @@ procedure TfrmPageOverview.ShowReadinessClicked(Sender: TObject);
 begin
   if FHost <> nil then
     FHost.ShowPage(PAGE_READINESS);
+end;
+
+{ Commands ------------------------------------------------------------------ }
+
+function TfrmPageOverview.Commands: TPersonalCommands;
+begin
+  Result := [pcScanVehicle, pcSaveVehicleReport];
+end;
+
+function TfrmPageOverview.CommandEnabled(ACommand: TPersonalCommand): Boolean;
+begin
+  case ACommand of
+    pcScanVehicle:
+      Result := btnScan.Enabled;
+    pcSaveVehicleReport:
+      Result := btnSaveReport.Enabled;
+  else
+    Result := False;
+  end;
+end;
+
+function TfrmPageOverview.CommandChecked(ACommand: TPersonalCommand): Boolean;
+begin
+  Result := False;
+end;
+
+procedure TfrmPageOverview.ExecuteCommand(ACommand: TPersonalCommand);
+begin
+  case ACommand of
+    pcScanVehicle:
+      ScanClicked(Self);
+    pcSaveVehicleReport:
+      SaveReportClicked(Self);
+  end;
 end;
 
 end.

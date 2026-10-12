@@ -45,7 +45,7 @@ uses
   untPersonalPage;
 
 type
-  TfrmPageEV = class(TFrame, IPersonalPage)
+  TfrmPageEV = class(TFrame, IPersonalPage, IPersonalCommands)
     pnlHeader: TPanel;
     lblTitle: TLabel;
     lblSubtitle: TLabel;
@@ -109,6 +109,11 @@ type
     procedure ConnectionChanged(AConnected: Boolean);
     procedure UnitsChanged;
     procedure Translate;
+    // IPersonalCommands
+    function Commands: TPersonalCommands;
+    function CommandEnabled(ACommand: TPersonalCommand): Boolean;
+    function CommandChecked(ACommand: TPersonalCommand): Boolean;
+    procedure ExecuteCommand(ACommand: TPersonalCommand);
   end;
 
 implementation
@@ -753,6 +758,29 @@ begin
   bannerState.Text := Format(Tr('personal.ev.liveText',
     'Profile %s read successfully. Values come from the EV battery catalogue.'),
     [ASnapshot.Vendor]);
+end;
+
+{ Commands ------------------------------------------------------------------ }
+
+function TfrmPageEV.Commands: TPersonalCommands;
+begin
+  Result := [pcReadBattery];
+end;
+
+function TfrmPageEV.CommandEnabled(ACommand: TPersonalCommand): Boolean;
+begin
+  Result := (ACommand = pcReadBattery) and Assigned(FHost) and FHost.Connected;
+end;
+
+function TfrmPageEV.CommandChecked(ACommand: TPersonalCommand): Boolean;
+begin
+  Result := False;
+end;
+
+procedure TfrmPageEV.ExecuteCommand(ACommand: TPersonalCommand);
+begin
+  if ACommand = pcReadBattery then
+    btnReadAgainClick(Self);
 end;
 
 end.

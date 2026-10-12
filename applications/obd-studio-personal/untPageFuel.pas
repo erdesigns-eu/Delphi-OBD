@@ -43,7 +43,7 @@ uses
 type
   TFuelMethod = (fmNone, fmMAF, fmFuelRate);
 
-  TfrmPageFuel = class(TFrame, IPersonalPage)
+  TfrmPageFuel = class(TFrame, IPersonalPage, IPersonalCommands)
     pnlHeader: TPanel;
     lblTitle: TLabel;
     lblSubtitle: TLabel;
@@ -124,6 +124,11 @@ type
     procedure ConnectionChanged(AConnected: Boolean);
     procedure UnitsChanged;
     procedure Translate;
+    // IPersonalCommands
+    function Commands: TPersonalCommands;
+    function CommandEnabled(ACommand: TPersonalCommand): Boolean;
+    function CommandChecked(ACommand: TPersonalCommand): Boolean;
+    procedure ExecuteCommand(ACommand: TPersonalCommand);
   end;
 
 implementation
@@ -768,6 +773,29 @@ begin
     bannerState.Text := Format(Tr('personal.fuel.liveText',
       'Calculated from %s and vehicle speed.'), [MethodText]);
   end;
+end;
+
+{ Commands ------------------------------------------------------------------ }
+
+function TfrmPageFuel.Commands: TPersonalCommands;
+begin
+  Result := [pcResetTrip];
+end;
+
+function TfrmPageFuel.CommandEnabled(ACommand: TPersonalCommand): Boolean;
+begin
+  Result := (ACommand = pcResetTrip) and btnResetTrip.Enabled;
+end;
+
+function TfrmPageFuel.CommandChecked(ACommand: TPersonalCommand): Boolean;
+begin
+  Result := False;
+end;
+
+procedure TfrmPageFuel.ExecuteCommand(ACommand: TPersonalCommand);
+begin
+  if ACommand = pcResetTrip then
+    btnResetTripClick(Self);
 end;
 
 end.
