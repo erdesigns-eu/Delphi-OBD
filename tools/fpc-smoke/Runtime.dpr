@@ -75,7 +75,7 @@ begin
 end;
 
 procedure TestCatalogExtends;
-var Catalog: TOBDOEMJSONCatalog;
+var Catalog: TOBDOEMJSONCatalog; Entry: TOBDOEMDIDEntry;
 begin
   // Shipped brand catalogues inherit the shared template through "extends".
   Catalog := TOBDOEMJSONCatalog.Create(TPath.Combine(ParamStr(4), 'byd.json'));
@@ -91,6 +91,7 @@ begin
     Check(Catalog.Extends = 'renault.json', 'Sister brand names its parent brand');
     Check(Catalog.ManufacturerKey = 'DACIA', 'Sister brand header survives the parent');
     Check(Catalog.DtcExtendedCount = 2460, 'Three-level extends chain loads');
+    Check(Catalog.FindDID($F1A0, Entry) and (Entry.Name = 'dacia_model_code'), 'Sister brand entry replaces the inherited one in place');
   finally Catalog.Free end;
   Catalog := TOBDOEMJSONCatalog.Create(TPath.Combine(TPath.Combine(ParamStr(4), 'motorcycle'), 'ktm.json'));
   try Check(Catalog.RoutineCount = 14, 'Vehicle-class catalog resolves ../_shared base');

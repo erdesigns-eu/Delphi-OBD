@@ -276,6 +276,7 @@ type
     procedure ReadDefaults(Root: TJSONObject);
     procedure LoadExtends(const RelativePath: string);
     procedure LoadSections(Root: TJSONObject);
+    procedure DropOverriddenEntries;
     function ParseHexOrInt(const S: string): Cardinal;
     function ParseDecoder(Obj: TJSONObject): TOBDDecoderSpec;
     function ParseEnumValues(Obj: TJSONObject; const Key: string)
@@ -593,6 +594,144 @@ begin
     LoadExtends(FExtends);
   ReadDefaults(Root);
   LoadSections(Root);
+  if FExtends <> '' then
+    DropOverriddenEntries;
+end;
+
+// For each index, the index of the earlier entry with the same key that it
+// overrides, or -1 when it is the first entry with its key.
+function OverrideTargets(const Keys: TArray<string>): TArray<Integer>;
+var
+  First: TDictionary<string, Integer>;
+  I, Target: Integer;
+begin
+  SetLength(Result, Length(Keys));
+  First := TDictionary<string, Integer>.Create;
+  try
+    for I := 0 to High(Keys) do
+      if First.TryGetValue(Keys[I], Target) then
+        Result[I] := Target
+      else
+      begin
+        Result[I] := -1;
+        First.Add(Keys[I], I);
+      end;
+  finally
+    First.Free;
+  end;
+end;
+
+function EntryKey(A, B: Cardinal): string;
+begin
+  Result := IntToStr(A) + ':' + IntToStr(B);
+end;
+
+procedure TOBDOEMJSONCatalog.DropOverriddenEntries;
+var
+  Keys: TArray<string>;
+  Target: TArray<Integer>;
+  I: Integer;
+begin
+  // Inherited entries load first. A later entry with the same key (the
+  // brand's own) takes the inherited entry's place, so lookups that
+  // return the first match see the override.
+  SetLength(Keys, FDIDs.Count);
+  for I := 0 to FDIDs.Count - 1 do
+    Keys[I] := EntryKey(FDIDs[I].DID, FDIDs[I].EcuAddress);
+  Target := OverrideTargets(Keys);
+  for I := 0 to FDIDs.Count - 1 do
+    if Target[I] >= 0 then
+    begin
+      if Assigned(FDIDs[Target[I]].Decoder.EnumValues) then
+        FDIDs[Target[I]].Decoder.EnumValues.Free;
+      if Assigned(FDIDs[Target[I]].Decoder.BitNames) then
+        FDIDs[Target[I]].Decoder.BitNames.Free;
+      FDIDs[Target[I]] := FDIDs[I];
+    end;
+  for I := FDIDs.Count - 1 downto 0 do
+    if Target[I] >= 0 then
+      FDIDs.Delete(I);
+
+  SetLength(Keys, FRoutines.Count);
+  for I := 0 to FRoutines.Count - 1 do
+    Keys[I] := EntryKey(FRoutines[I].Identifier, FRoutines[I].EcuAddress);
+  Target := OverrideTargets(Keys);
+  for I := 0 to FRoutines.Count - 1 do
+    if Target[I] >= 0 then
+      FRoutines[Target[I]] := FRoutines[I];
+  for I := FRoutines.Count - 1 downto 0 do
+    if Target[I] >= 0 then
+      FRoutines.Delete(I);
+
+  SetLength(Keys, FECUs.Count);
+  for I := 0 to FECUs.Count - 1 do
+    Keys[I] := IntToStr(FECUs[I].Address);
+  Target := OverrideTargets(Keys);
+  for I := 0 to FECUs.Count - 1 do
+    if Target[I] >= 0 then
+      FECUs[Target[I]] := FECUs[I];
+  for I := FECUs.Count - 1 downto 0 do
+    if Target[I] >= 0 then
+      FECUs.Delete(I);
+
+  SetLength(Keys, FCodingBlocks.Count);
+  for I := 0 to FCodingBlocks.Count - 1 do
+    Keys[I] := EntryKey(FCodingBlocks[I].DataIdentifier,
+      FCodingBlocks[I].EcuAddress);
+  Target := OverrideTargets(Keys);
+  for I := 0 to FCodingBlocks.Count - 1 do
+    if Target[I] >= 0 then
+      FCodingBlocks[Target[I]] := FCodingBlocks[I];
+  for I := FCodingBlocks.Count - 1 downto 0 do
+    if Target[I] >= 0 then
+      FCodingBlocks.Delete(I);
+
+  SetLength(Keys, FAdaptations.Count);
+  for I := 0 to FAdaptations.Count - 1 do
+    Keys[I] := EntryKey(FAdaptations[I].Channel, FAdaptations[I].EcuAddress);
+  Target := OverrideTargets(Keys);
+  for I := 0 to FAdaptations.Count - 1 do
+    if Target[I] >= 0 then
+      FAdaptations[Target[I]] := FAdaptations[I];
+  for I := FAdaptations.Count - 1 downto 0 do
+    if Target[I] >= 0 then
+      FAdaptations.Delete(I);
+
+  SetLength(Keys, FActuatorTests.Count);
+  for I := 0 to FActuatorTests.Count - 1 do
+    Keys[I] := EntryKey(FActuatorTests[I].Identifier,
+      FActuatorTests[I].EcuAddress);
+  Target := OverrideTargets(Keys);
+  for I := 0 to FActuatorTests.Count - 1 do
+    if Target[I] >= 0 then
+      FActuatorTests[Target[I]] := FActuatorTests[I];
+  for I := FActuatorTests.Count - 1 downto 0 do
+    if Target[I] >= 0 then
+      FActuatorTests.Delete(I);
+
+  SetLength(Keys, FLivePIDs.Count);
+  for I := 0 to FLivePIDs.Count - 1 do
+    Keys[I] := UpperCase(FLivePIDs[I].Mode) + ':' +
+      EntryKey(FLivePIDs[I].PID, FLivePIDs[I].EcuAddress);
+  Target := OverrideTargets(Keys);
+  for I := 0 to FLivePIDs.Count - 1 do
+    if Target[I] >= 0 then
+      FLivePIDs[Target[I]] := FLivePIDs[I];
+  for I := FLivePIDs.Count - 1 downto 0 do
+    if Target[I] >= 0 then
+      FLivePIDs.Delete(I);
+
+  SetLength(Keys, FDtcExtended.Count);
+  for I := 0 to FDtcExtended.Count - 1 do
+    Keys[I] := UpperCase(FDtcExtended[I].DtcCode) + ':' +
+      IntToStr(FDtcExtended[I].RecordNumber);
+  Target := OverrideTargets(Keys);
+  for I := 0 to FDtcExtended.Count - 1 do
+    if Target[I] >= 0 then
+      FDtcExtended[Target[I]] := FDtcExtended[I];
+  for I := FDtcExtended.Count - 1 downto 0 do
+    if Target[I] >= 0 then
+      FDtcExtended.Delete(I);
 end;
 
 procedure TOBDOEMJSONCatalog.LoadExtends(const RelativePath: string);

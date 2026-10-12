@@ -72,6 +72,7 @@ type
     [Test] procedure JSON_FileNotFoundRaises;
     [Test] procedure JSON_NonObjectRootRaises;
     [Test] procedure JSON_ExtendsLoadsBaseFirst;
+    [Test] procedure JSON_ExtendsBrandEntryReplacesInherited;
     [Test] procedure JSON_ExtendsFromTextNeedsBaseDir;
     [Test] procedure JSON_ExtendsRejectsAbsolutePath;
     [Test] procedure JSON_ExtendsCycleRaises;
@@ -480,6 +481,29 @@ begin
   Cat := TOBDOEMJSONCatalog.CreateFromText(BrandCatalogJSON, FTempRoot);
   try
     Assert.AreEqual(2, Cat.DIDCount);
+  finally
+    Cat.Free;
+  end;
+end;
+
+procedure TOEMCatalogLoaderTests.JSON_ExtendsBrandEntryReplacesInherited;
+var
+  Cat: TOBDOEMJSONCatalog;
+  Entry: TOBDOEMDIDEntry;
+begin
+  WriteFile('_shared/base.json', BaseCatalogJSON);
+  WriteFile('brand.json',
+    '{ "version": 2, "manufacturer_key": "BRAND", "extends": "_shared/base.json",' +
+    '  "dids": [ { "did": "0x0202", "name": "brand_did" },' +
+    '    { "did": "0x0101", "name": "brand_override" } ] }');
+  Cat := TOBDOEMJSONCatalog.Create(TPath.Combine(FTempRoot, 'brand.json'));
+  try
+    // The override takes the inherited entry's place; no duplicate stays.
+    Assert.AreEqual(2, Cat.DIDCount);
+    Assert.AreEqual('brand_override', Cat.DID(0).Name);
+    Assert.AreEqual('brand_did', Cat.DID(1).Name);
+    Assert.IsTrue(Cat.FindDID($0101, Entry));
+    Assert.AreEqual('brand_override', Entry.Name);
   finally
     Cat.Free;
   end;
