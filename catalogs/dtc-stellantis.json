@@ -263,6 +263,2016 @@
       "severity": "critical",
       "description": "PSA — Lost Communication With BSI",
       "verified": false
+    },
+    {
+      "code": "P0342",
+      "description": "Camshaft Position Sensor A Bank 1 Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1031",
+      "description": "HO2S Heater Current Monitor Control Circuit Sensors 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1032",
+      "description": "HO2S Heater Warm Up Control Circuit Sensors 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1105",
+      "description": "Secondary Vacuum Sensor Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1106",
+      "description": "MAP Sensor Circuit Intermittent High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1107",
+      "description": "MAP Sensor Circuit Intermittent Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1108",
+      "description": "BARO To MAP Sensor Circuit Comparison Too High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1109",
+      "description": "Secondary Port Throttle System",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1111",
+      "description": "Intake Air Temperature (IAT) Sensor Circuit Intermittent High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1112",
+      "description": "Intake Air Temperature (IAT) Sensor Circuit Intermittent Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1113",
+      "description": "Intake Resonance Switchover Valve Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1114",
+      "description": "Engine Coolant Temperature (ECT) Sensor Circuit Intermittent Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1115",
+      "description": "Engine Coolant Temperature (ECT) Sensor Circuit Intermittent High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1116",
+      "description": "ECT Signal Unstable Or Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1117",
+      "description": "Engine Coolant Temp Signal Out-Of-Range Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1118",
+      "description": "Engine Coolant Temp Signal Out-Of Range High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1119",
+      "description": "ECT Signal Out Of Rage With TFT Sensor",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1120",
+      "description": "Throttle Position (TP) Sensor 1 Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1121",
+      "description": "TP Sensor Circuit Intermittent High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1122",
+      "description": "TP Sensor Circuit Intermittent Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1125",
+      "description": "Accelerator Pedal Position (APP) System",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1130",
+      "description": "HO2S Circuit Low Variance Bank 1 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1131",
+      "description": "HO2S Circuit Low Variance Bank 1 Sensor 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1132",
+      "description": "H02S Circuit Low Variance Bank 2 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1133",
+      "description": "HO2S Insufficient Switching",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1134",
+      "description": "HO2S Transition Time Ratio",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1135",
+      "description": "HO2S Lean Average Bank 1 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1136",
+      "description": "HO2S Rich Average Bank 1 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1137",
+      "description": "HO2S Bank 1 Sensor 2 Lean Or Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1138",
+      "description": "HO2S Bank 1 Sensor 2 Rich Or High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1139",
+      "description": "HO2S Insufficient Switching Bank 1 Sensor 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1140",
+      "description": "HO2S Transition Time Ratio Bank 1 Sensor 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1141",
+      "description": "HO2S Bank 1 Sensor 2 Average Voltage Level",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1143",
+      "description": "HO2S Bank 1 Sensor 3 Lean Or Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1144",
+      "description": "HO2S Bank 1 Sensor 3 Rich Or High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1145",
+      "description": "HO2S Cross Counts Bank 1 Sensor 3",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1153",
+      "description": "HO2S Insufficient Switching",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1154",
+      "description": "HO2S Transition Time Ratio",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1155",
+      "description": "HO2S Lean Average Bank 2 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1156",
+      "description": "HO2S Rich Average Bank 2 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1157",
+      "description": "HO2S Bank 2 Sensor 2 Lean System Or Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1158",
+      "description": "HO2S Bank 2 Sensor 2 Rich Or High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1159",
+      "description": "HO2S Cross Counts Bank 2 Sensor 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1161",
+      "description": "HO2S Heater Power Stage Circuit Bank 2 Sensor 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1163",
+      "description": "HO2S Bank 2 Sensor 3 Lean System Or Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1164",
+      "description": "HO2S Bank 2 Sensor 3 Rich Or High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1165",
+      "description": "HO2S Cross Counts Bank 2 Sensor 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1170",
+      "description": "Bank To Bank Fuel Trim Offset",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1171",
+      "description": "Fuel System Lean During Acceleration",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1185",
+      "description": "Engine Oil Temperature Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1186",
+      "description": "EOT Circuit Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1187",
+      "description": "EOT Sensor Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1188",
+      "description": "EOT Sensor Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1189",
+      "description": "Engine Oil Pressure Switch Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1190",
+      "description": "Engine Vacuum Leak",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1191",
+      "description": "Intake Air Duct Air Leak",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1200",
+      "description": "Injector Control Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1201",
+      "description": "(Alternative Fuel) Gas Mass Sensor Circuit Range/Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1202",
+      "description": "(Alternative Fuel) Gas Mass Sensor Circuit Low Frequency",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1203",
+      "description": "(Alternative Fuel) Gas Mass Sensor Circuit High Frequency",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1211",
+      "description": "Mass Air Flow Circuit Intermittent High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1212",
+      "description": "Mass Air Flow Circuit Intermittent Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1214",
+      "description": "Injection Pump Timing Offset",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1215",
+      "description": "Ground Fault Detection Indicated",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1216",
+      "description": "Fuel Solenoid Response Time Too Short",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1217",
+      "description": "Fuel Solenoid Response Time Too Long",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1218",
+      "description": "Injection Pump Calibration Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1219",
+      "description": "Throttle Position Sensor Reference Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1220",
+      "description": "Throttle Position (TP) Sensor 2 Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1221",
+      "description": "Throttle Position (TP) Sensor 1-2 Correlation",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1222",
+      "description": "Injector Control Circuit Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1225",
+      "description": "Injector Circuit Cylinder 2 Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1228",
+      "description": "Injector Circuit Cylinder 3 Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1231",
+      "description": "Injector Circuit Cylinder 4 Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1234",
+      "description": "Injector Circuit Cylinder 5 Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1237",
+      "description": "Injector Circuit Cylinder 6 Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1240",
+      "description": "Injector Circuit Cylinder 7 Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1243",
+      "description": "Injector Circuit Cylinder 8 Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1245",
+      "description": "Intake Plenum Switchover Valve",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1250",
+      "description": "Early Fuel Evaporation Heater Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1257",
+      "description": "Supercharger System Overboost",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1258",
+      "description": "Engine Coolant Overtemperature Protection Mode Active",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1260",
+      "description": "Last Test Failed SCC Or Theft Detected Vehicle Immobilized",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1270",
+      "description": "Accelerator Pedal Position Sensor A/D Converter Error",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1271",
+      "description": "APP Sensor 1-2 Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1272",
+      "description": "Accelerator Pedal Position Sensor 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1273",
+      "description": "Accelerator Pedal Position Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1274",
+      "description": "Injectors Wired Incorrectly",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1275",
+      "description": "Accelerator Pedal Position (APP) Sensor 1 Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1276",
+      "description": "Accelerator Pedal Position (APP) Sensor 1 Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1277",
+      "description": "Accelerator Pedal Position Sensor 1 Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1278",
+      "description": "Accelerator Pedal Position Sensor 1 Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1280",
+      "description": "Accelerator Pedal Position (APP) Sensor 2 Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1281",
+      "description": "Accelerator Pedal Position (APP) Sensor 2 Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1282",
+      "description": "Accelerator Pedal Position Sensor 2 Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1283",
+      "description": "Accelerator Pedal Position Sensor 2 Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1285",
+      "description": "Accelerator Pedal Position (APP) Sensor 3 Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1286",
+      "description": "Accelerator Pedal Position (APP) Sensor 3 Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1287",
+      "description": "Accelerator Pedal Position Sensor 3 Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1288",
+      "description": "Accelerator Pedal Position Sensor 3 Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1300",
+      "description": "Ignitor Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1305",
+      "description": "Ignition Coil 2 Primary Feedback Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1310",
+      "description": "Ignition Coil 3 Primary Feedback Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1315",
+      "description": "Ignition Coil 4 Primary Feedback Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1320",
+      "description": "IC Module 4X Ref Circuit Intermittent No Pulses",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1321",
+      "description": "Electronic Ignition System Fault Line",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1322",
+      "description": "EI System Or Ignition Control Missing",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1323",
+      "description": "24X Reference Circuit Low Frequency",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1324",
+      "description": "Crank RPM Too Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1335",
+      "description": "CKP Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1336",
+      "description": "Crankshaft Position (CKP) System Variation Not Learned",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1345",
+      "description": "CKP/CMP Correlation",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1346",
+      "description": "Intake Camshaft Position (CMP) Sensor System Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1350",
+      "description": "Ignition Control System",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1351",
+      "description": "IC Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1352",
+      "description": "IC Output High Pulse Detected When Grounded Cyl 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1353",
+      "description": "IC Output High Pulse Detected When Grounded Cyl 3",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1354",
+      "description": "IC Output High Pulse Detected When Grounded Cyl 4",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1355",
+      "description": "IC Output High Pulse Detected When Grounded Cyl 5",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1356",
+      "description": "IC Output High Pulse Detected When Grounded Cyl 6",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1357",
+      "description": "IC Output High Pulse Detected When Grounded Cyl 7",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1358",
+      "description": "IC Output High Pulse Detected When Grounded Cyl 8",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1359",
+      "description": "Ignition Control Circuit Group A",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1360",
+      "description": "Ignition Control Circuit Group B",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1361",
+      "description": "IC Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1362",
+      "description": "IC Cylinder 2 Not Toggling After Enable",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1363",
+      "description": "IC Cylinder 3 Not Toggling After Enable",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1364",
+      "description": "IC Cylinder 4 Not Toggling After Enable",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1365",
+      "description": "IC Cylinder 5 Not Toggling After Enable",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1366",
+      "description": "IC Cylinder 6 Not Toggling After Enable",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1367",
+      "description": "IC Cylinder 7 Not Toggling After Enable",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1368",
+      "description": "IC Cylinder 8 Not Toggling After Enable",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1370",
+      "description": "IC Module 4X Reference Circuit Too Many Pulses",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1371",
+      "description": "DI Low Resolution Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1372",
+      "description": "Crankshaft Position Sensor Circuit Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1374",
+      "description": "3X Reference Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1375",
+      "description": "24X Reference Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1376",
+      "description": "Ignition Ground Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1377",
+      "description": "IC Module CAM Pulse To 4X Reference Pulse Comparison",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1380",
+      "description": "Misfire Detected Rough Road Data Not Available",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1381",
+      "description": "Misfire Detected No Communication with Brake Control Module",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1390",
+      "description": "Wheel Speed Sensor 1, G-Sensor Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1391",
+      "description": "Wheel Speed Sensor 1, G-Sensor Circuit Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1392",
+      "description": "Wheel Speed Sensor 1, G-Sensor Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1393",
+      "description": "Wheel Speed Sensor 1, G-Sensor Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1394",
+      "description": "Wheel Speed Sensor 1, G-Sensor Circuit Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1395",
+      "description": "Wheel Speed Sensor 2, G-Sensor Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1396",
+      "description": "Wheel Speed Sensor 2, G-Sensor Circuit Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1397",
+      "description": "Wheel Speed Sensor 2, G-Sensor Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1398",
+      "description": "Wheel Speed Sensor 2, G-Sensor Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1399",
+      "description": "Wheel Speed Sensor 2, G-Sensor Circuit Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1403",
+      "description": "Exhaust Gas Recirculation System Valve 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1404",
+      "description": "Exhaust Gas Recirculation System Valve 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1405",
+      "description": "Exhaust Gas Recirculation System Valve 3",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1406",
+      "description": "EGR Valve Pintle Position Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1407",
+      "description": "EGR Air Intrusion In Exhaust Supply To EGR Valve",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1408",
+      "description": "Intake Manifold Pressure Sensor Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1409",
+      "description": "EGR Vacuum System Leak",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1410",
+      "description": "Fuel Tank Pressure System",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1415",
+      "description": "Secondary Air Injection (AIR) System",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1416",
+      "description": "AIR System Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1418",
+      "description": "Secondary Air Injection System Relay A Control Circuit High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1420",
+      "description": "Intake Air Low Pressure Switch Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1421",
+      "description": "Intake Air Low Pressure Switch Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1423",
+      "description": "Intake Air High Pressure Switch Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1431",
+      "description": "Fuel Level Sensor 2 Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1432",
+      "description": "Fuel Level Sensor 2 Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1433",
+      "description": "Fuel Level Sensor 2 Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1441",
+      "description": "Evaporative Emission (EVAP) System Flow During Non-Purge",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1442",
+      "description": "EVAP Vacuum Switch High Voltage During Ignition On",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1450",
+      "description": "Barometric Pressure Sensor Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1451",
+      "description": "Barometric Pressure Sensor Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1460",
+      "description": "Cooling Fan Control System",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1480",
+      "description": "Cooling Fan 1 Control Circuit High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1483",
+      "description": "Engine Coolilng System Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1500",
+      "description": "Starter Signal Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1501",
+      "description": "Vehicle Speed Sensor Circuit Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1502",
+      "description": "Theft Deterrent System No Password Received",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1503",
+      "description": "Theft Deterrent System Password Incorrect",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1504",
+      "description": "Vehicle Speed Output Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1508",
+      "description": "IAC System Low RPM",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1509",
+      "description": "IAC System High RPM",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1510",
+      "description": "Back UP Power Supply",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1511",
+      "description": "Throttle Control System Backup System Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1514",
+      "description": "Throttle Body Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1515",
+      "description": "Control Module Throttle Actuator Position Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1516",
+      "description": "Throttle Actuator Control (TAC) Module Throttle Actuator Position Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1517",
+      "description": "Throttle Actuator Control (TAC) Module Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1518",
+      "description": "Throttle Actuator Control (TAC) Module Serial Data Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1519",
+      "description": "Electronic Throttle Module Low Volts Communication Disable",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1520",
+      "description": "Gear Indicator System",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1521",
+      "description": "Transmission Engaged At High Throttle Angle",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1522",
+      "description": "Park Neutral To Drive Reverse At High RPM",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1523",
+      "description": "Electronic Throttle Control Throttle Return",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1524",
+      "description": "TP Sensor Learned CI Throttle Angle Out Of Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1525",
+      "description": "Throttle Body Service Required",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1526",
+      "description": "TP Sensor Learn Not Complete",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1527",
+      "description": "Transmission Range Pressure Switch Comparison",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1528",
+      "description": "Governor",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1529",
+      "description": "Heated Windshield Request Problem",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1530",
+      "description": "Ignition Timing Adjustment Switch Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1531",
+      "description": "A/C Low Side Temperature Sensor Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1532",
+      "description": "A/C Evaporator Temperature Sensor Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1533",
+      "description": "A/C Evaporator Temperature Sensor Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1534",
+      "description": "A/C High Side Temperature Sensor Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1535",
+      "description": "A/C High Side Temperature Sensor Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1536",
+      "description": "A/C System ECT Overtemperature",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1537",
+      "description": "A/C Request Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1538",
+      "description": "A/C Request Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1539",
+      "description": "Air Conditioning (A/C) Clutch Feedback Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1540",
+      "description": "A/C System High Pressure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1541",
+      "description": "A/C High Side Over Temperature",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1542",
+      "description": "A/C System High Pressure High Temperature",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1543",
+      "description": "A/C System Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1544",
+      "description": "A/C Refrigerant Condition Very Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1545",
+      "description": "A/C Clutch Relay Control Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1546",
+      "description": "Air Conditioning (A/C) Clutch Feedback Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1547",
+      "description": "A/C System Performance Degraded",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1548",
+      "description": "A/C Recirculation Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1554",
+      "description": "Cruise Engaged Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1555",
+      "description": "Electronic Variable Orifice Output",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1558",
+      "description": "Cruise Control Servo Indicates Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1559",
+      "description": "Cruise Control Power Management Mode",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1560",
+      "description": "Cruise Control System Transaxle Not In Drive",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1561",
+      "description": "Cruise Vent Solenoid",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1562",
+      "description": "Cruise Vacuum Solenoid",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1563",
+      "description": "Cruise Vehicle Speed Set Speed Difference Too High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1564",
+      "description": "Cruise Control System Vehicle Accel Too High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1565",
+      "description": "Cruise Servo Position Sensor",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1566",
+      "description": "Cruise Control System Engine RPM Too High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1567",
+      "description": "Cruise Control System Active Braking Control Active",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1568",
+      "description": "Cruise Servo Stroke Greater Than Commanded In Cruise",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1569",
+      "description": "Cruise Servo Stroke High While Not In Cruise",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1570",
+      "description": "Cruise Control System Traction Control Active",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1571",
+      "description": "TCS PWM Circuit No Frequency",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1572",
+      "description": "ASR Active Circuit Low Too Long",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1573",
+      "description": "PCM EBTCM Serial Data Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1574",
+      "description": "Stoplamp Switch Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1575",
+      "description": "Extended Travel Brake Switch Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1576",
+      "description": "BBV Sensor Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1577",
+      "description": "BBV Sensor Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1578",
+      "description": "BBV Sensor Circuit Low Vacuum",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1579",
+      "description": "P/N To D/R At High Throttle Angle",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1580",
+      "description": "Cruise Move Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1581",
+      "description": "Cruise Move Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1582",
+      "description": "Cruise Direction Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1583",
+      "description": "Cruise Direction Circuit High Volume",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1584",
+      "description": "Cruise Control Disabled",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1585",
+      "description": "Cruise Inhibit Control Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1586",
+      "description": "Cruise Control Brake Switch 2 Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1587",
+      "description": "Cruise Control Clutch Control Circuit Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1588",
+      "description": "Cruise Control Clutch Control Circuit High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1599",
+      "description": "Engine Stall Or Near Stall Detected",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1602",
+      "description": "PCM Not Programmed",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1680",
+      "description": "Clutch Released Switch Circuit Open Or Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1681",
+      "description": "No Instrument Panel Cluster CCD J1850 Messages Received",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1682",
+      "description": "Charging System Voltage Too Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1683",
+      "description": "Speed Control Power Relay Or Speed Control 12 Volt Driver Circuit Open Or Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1684",
+      "description": "Battery Disconnected Within Last 50 Starts",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1685",
+      "description": "Skim Invalid Key",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1686",
+      "description": "No SKIM Bus Message Received",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1687",
+      "description": "No Cluster Bus Message",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1688",
+      "description": "Internal Fuel Injection Pump Controller Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1689",
+      "description": "No Communication Between ECM & Injection Pump Module",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1690",
+      "description": "Fuel Injection Pump CKP Sensor Does Not Agree With ECM CKP Sensor",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1691",
+      "description": "Fuel Injection Pump Controller Calibration Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1693",
+      "description": "DTC Detected In ECM Or PCM",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1694",
+      "description": "No CCD Messages Received From ECM",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1695",
+      "description": "No CCD J1850 Message From BCM",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1696",
+      "description": "PCM Failure EEPROM Write Denied",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1697",
+      "description": "PCM Failure SRI Mile Not Stored",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1698",
+      "description": "No CCD Messages Received From PCM",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1699",
+      "description": "No CCD J1850 Messages Received From The Climate Control Module (CCM)",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1719",
+      "description": "Skip Shift Solenoid Circuit Open Or Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1740",
+      "description": "TCC Or OD Solenoid Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1756",
+      "description": "Governor Pressure Not Equal To Target At 15-20 PSI",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1757",
+      "description": "Governor Pressure Above 3 PSI When Request Is 0 PSI",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1762",
+      "description": "Governor Pressure Sensor Offset Improper Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1763",
+      "description": "Governor Pressure Sensor Voltage Too High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1764",
+      "description": "Governor Pressure Sensor Voltage Too Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1765",
+      "description": "Trans 12 Volt Supply Relay Control Circuit Open Or Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1830",
+      "description": "Open Or Shorted Condition Detected In The Clutch Pedal Switch Override Relay Control",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1899",
+      "description": "Park Neutral Position Switch Stuck In Park Or In Gear",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chrysler_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0138",
+      "description": "HO2S12 High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0442",
+      "description": "Medium EVAP Leak",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0455",
+      "description": "Large EVAP Leak",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0601",
+      "description": "Internal PCM Controller Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1192",
+      "description": "Inlet Air Temp Circuit Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1193",
+      "description": "Inlet Air Temp Circuit High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1194",
+      "description": "Incorrect Or Irrational Performance Has Been Detected For The PWM",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1195",
+      "description": "O2 Sensor 1/1 Bank 1 Sensor 1 Slow During Catalyst Monitor",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1196",
+      "description": "O2 Sensor 2/1 Bank 2 Sensor 1 Slow During Catalyst Monitor",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1197",
+      "description": "O2 Sensor 1/2 Bank 1 Sensor 2 Slow During Catalyst Monitor",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1198",
+      "description": "Radiator Temperature Sensor Voltage Too High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1199",
+      "description": "Radiator Temperature Sensor Voltage Too Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1284",
+      "description": "Fuel Injection Pump Battery Voltage Out Of Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1289",
+      "description": "Manifold Tune Valve Solenoid Circuit Open Or Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1290",
+      "description": "CNG Fuel Pressure Too High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1291",
+      "description": "No Temp Rise Seen From Fuel Heaters",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1292",
+      "description": "CNG Pressure Sensor Voltage Too High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1293",
+      "description": "CNG Pressure Sensor Voltage Too Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1295",
+      "description": "Loss Of 5 Volts To TP Sensor",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1296",
+      "description": "Loss Of 5 Volts To MAP Sensor",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1297",
+      "description": "No Change In MAP From Start To Run",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1298",
+      "description": "Lean Operation At Wide Open Throttle",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1299",
+      "description": "Vacuum Leak Found (IAC Fully Seated)",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1388",
+      "description": "Auto Shutdown (ASD) Relay Control Circuit Open Or Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1389",
+      "description": "No Auto Shutdown (ASD) Relay Output Voltage At PCM",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1475",
+      "description": "Auxiliary 5 Volt Output Too High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1476",
+      "description": "Too Little Secondary Air",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1477",
+      "description": "Too Much Secondary Air",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1478",
+      "description": "Battery Temp Sensor Voltage Out Of Limit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1479",
+      "description": "Transmission Fan Relay Circuit Open Or Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1481",
+      "description": "EATX RPM Pulse Generator Signal For Misfire Detection",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1482",
+      "description": "Catalyst Temperature Sensor Circuit Shorted Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1484",
+      "description": "Catalytic Converter Overheat Detected",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1485",
+      "description": "Air Injection Solenoid Circuit Open Or Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1486",
+      "description": "Evap Leak Monitor Pinched Hose",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1487",
+      "description": "Hi Speed Rad Fan CTRL Relay Circuit Open Or Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1488",
+      "description": "Auxiliary 5 Volt Supply Output Too Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1489",
+      "description": "High Speed Fan CTRL Relay Circuit Open Or Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1490",
+      "description": "Low Speed Fan CTRL Relay Circuit Open Or Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1491",
+      "description": "Radiator Fan Control Relay Circuit Open Or Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1492",
+      "description": "Battery Temperature Sensor Voltage Too High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1493",
+      "description": "Battery Temperature Sensor Voltage Too Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1494",
+      "description": "Leak Detection Pump Switch Or Mechanical Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1495",
+      "description": "Leak Detection Pump Solenoid Circuit Open Or Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1496",
+      "description": "5 Volt Supply Output Too Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1498",
+      "description": "High Speed Rad Fan Ground CTRL Rly Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1499",
+      "description": "Open Or Shorted Condition Detected In The Hydraulic Cooling Fan Solenoid Control",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1594",
+      "description": "Charging System Voltage Too High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1595",
+      "description": "Speed Control Solenoid Circuit Open Or Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1596",
+      "description": "Speed Control Switch Always High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1597",
+      "description": "Speed Control Switch Always Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1598",
+      "description": "A/C Pressure Sensor Voltage Too High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/dodge_codes.txt",
+      "verified": false
     }
   ]
 }

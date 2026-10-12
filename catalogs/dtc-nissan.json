@@ -175,6 +175,858 @@
       "related_dids": [],
       "related_routines": [],
       "oem_bulletin": ""
+    },
+    {
+      "code": "P1105",
+      "description": "MAP BARO Pressure Switch Solenoid Valve",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1110",
+      "description": "Intake Valve Timing Control Solenoid",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1120",
+      "description": "Secondary Throttle Position Sensor Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1125",
+      "description": "Tandem Throttle Position Sensor Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1126",
+      "description": "Thermostat Function",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1130",
+      "description": "Swirl Control Valve Control Solenoid Valve",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1135",
+      "description": "Intake Valve Timing Control Circuit Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1140",
+      "description": "Intake Valve Timing Control Position Sensor Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1145",
+      "description": "Intake Valve Timing Control Position Sensor Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1148",
+      "description": "Closed Loop Control Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1165",
+      "description": "Swirl Control Valve Control Vacuum Switch",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1168",
+      "description": "Closed Loop Control Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1210",
+      "description": "Traction Control System Signal Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1211",
+      "description": "ABS TCS Control Unit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1212",
+      "description": "ABS TCS Communication Line",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1217",
+      "description": "Engine Over Temperature Overheat",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1220",
+      "description": "Fuel Pump Control Signal Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1320",
+      "description": "Ignition Signal",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1335",
+      "description": "Crankshaft Position Sensor REF",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1336",
+      "description": "Crankshaft Position Sensor CKPS",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1400",
+      "description": "EGRC Solenoid Valve",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1401",
+      "description": "EGR Temperature Sensor",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1402",
+      "description": "EGR System",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1440",
+      "description": "EVAP Control System Small Leak",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1441",
+      "description": "Vacuum Cut Valve Bypass Valve",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1443",
+      "description": "EVAP Canister Control Vacuum Switch Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1444",
+      "description": "Canister Purge Volume Control Solenoid Valve",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1445",
+      "description": "EVAP Canister Purge Volume Control Valve",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1446",
+      "description": "EVAP Canister Vent Control Valve Closed",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1447",
+      "description": "EVAP Control System Purge Flow Monitoring",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1448",
+      "description": "EVAP Canister Vent Control Valve Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1464",
+      "description": "Fuel Level Sensor Circuit Ground Signal",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1490",
+      "description": "Vacuum Cut Valve Bypass Valve Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1491",
+      "description": "Vacuum Cut Valve Bypass Valve",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1492",
+      "description": "EVAP Canister Purge Control Solenoid Valve Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1493",
+      "description": "EVAP Canister Purge Control Valve Solenoid Valve",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1550",
+      "description": "TCC Solenoid Valve",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1605",
+      "description": "AT Diagnostic Communication Line",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1701",
+      "description": "Fuel Trim",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1705",
+      "description": "Throttle Position Sensor Circuit AT",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1706",
+      "description": "Park Neutral Position PNP Switch",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1760",
+      "description": "Overrun Clutch Solenoid Valve Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1780",
+      "description": "Transmission Control Switch Circuit Overdrive Off Switch Not Cycled During The Self Test",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1781",
+      "description": "Transmission 4x4 Low Switch Out Of Range Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1783",
+      "description": "Transmission Fluid Temperature High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1788",
+      "description": "Pressure Control Solenoid B Circuit Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1789",
+      "description": "Pressure Control Solenoid B Circuit Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1790",
+      "description": "TP Mechanical Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1791",
+      "description": "TP Electric Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1792",
+      "description": "Barometer Pressure Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1793",
+      "description": "Intake Air Volume Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1794",
+      "description": "Powertrain Control Module Battery Direct Power Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1795",
+      "description": "Idle Switch Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1796",
+      "description": "Kick Down Switch Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1797",
+      "description": "P/N Switch Open Or Short Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1798",
+      "description": "Coolant Temperature Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1799",
+      "description": "Hold Switch Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1900",
+      "description": "Turbine Speed Sensor Circuit Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1901",
+      "description": "Torque Converter Clutch Circuit Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/nissan_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1106",
+      "description": "BARO Circuit Range Performance Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1107",
+      "description": "BARO Circuit Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1108",
+      "description": "BARO Circuit High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1121",
+      "description": "Throttle Position Lower Than Expected",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1122",
+      "description": "Throttle Position Higher Than Expected",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1128",
+      "description": "MAP Lower Than Expected",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1129",
+      "description": "MAP Higher Than Expected",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1162",
+      "description": "HO2S11 Circuit Fault Bank 1 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1163",
+      "description": "HO2S11 Slow Response Bank 1 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1164",
+      "description": "HO2S11 Circuit Fault Bank 1 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1166",
+      "description": "HO2S11 Heater Circuit Fault Bank 1 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1167",
+      "description": "HO2S11 Heater Circuit VS+ Fault Bank 1 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1169",
+      "description": "HO2S11 Label Circuit High Voltage Fault Bank 1 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1201",
+      "description": "Cylinder 1 Misfire",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1202",
+      "description": "Cylinder 2 Misfire",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1203",
+      "description": "Cylinder 3 Misfire",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1204",
+      "description": "Cylinder 4 Misfire",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1205",
+      "description": "Cylinder 5 Misfire",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1206",
+      "description": "Cylinder 6 Misfire",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1241",
+      "description": "Throttle Vent Control Motor Circuit 1 Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1242",
+      "description": "Throttle Vent Control Motor Circuit 2 Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1243",
+      "description": "Throttle Position Insufficient",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1244",
+      "description": "Closed Throttle Position Insufficient",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1246",
+      "description": "Accelerator Position Sensor 1 Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1247",
+      "description": "Accelerator Position Sensor 2 Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1248",
+      "description": "Accelerator Position Sensors 1 & 2 Improper Correlation",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1253",
+      "description": "VTEC System Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1259",
+      "description": "VTEC System Malfunction Rear Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1279",
+      "description": "VTEC System Malfunction Front Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1297",
+      "description": "ELD Circuit Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1298",
+      "description": "Electrical Load Detector Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1300",
+      "description": "Random Misfire",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1301",
+      "description": "Cylinder 1 Misfire",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1302",
+      "description": "Cylinder 2 Misfire",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1303",
+      "description": "Cylinder 3 Misfire",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1304",
+      "description": "Cylinder 4 Misfire",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1305",
+      "description": "Cylinder 5 Misfire",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1306",
+      "description": "Cylinder 6 Misfire",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1316",
+      "description": "Spark Plug Voltage Detection Circuit Malfunction Front Bank",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1317",
+      "description": "Spark Plug Voltage Detection Circuit Malfunction Rear Bank",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1318",
+      "description": "Spark Plug Voltage Detection Module Reset Circuit Malfunction Front Bank",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1319",
+      "description": "Spark Plug Voltage Detection Module Reset Circuit Malfunction Rear Bank",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1324",
+      "description": "Knock Sensor Power Source Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1337",
+      "description": "CKP Sensor B Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1359",
+      "description": "CKP TDC Sensor Circuit Connector Disconnection",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1361",
+      "description": "TDC Sensor Intermittent Interruption",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1362",
+      "description": "TDC1 Sensor No Signal",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1366",
+      "description": "TDC2 Sensor Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1367",
+      "description": "TDC2 Sensor No Signal",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1381",
+      "description": "CYP Sensor A Intermittent Interruption",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1382",
+      "description": "CYP Sensor A No Signal",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1386",
+      "description": "CYP Sensor B Intermittent Interruption",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1387",
+      "description": "CYP Sensor B No Signal",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1456",
+      "description": "Evaporative Emission Control System Leak Detected Fuel Tank System",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1457",
+      "description": "Evaporative Emission Control System Leak Detected Control Canister System",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1459",
+      "description": "EVAP Purge Flow Switch Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1498",
+      "description": "EGR Valve Lift Sensor High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1508",
+      "description": "IAC Valve Circuit Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1519",
+      "description": "IAC Valve Circuit Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1607",
+      "description": "ECM Internal Circuit Failure A",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1608",
+      "description": "ECM Internal Circuit Failure B",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1655",
+      "description": "TMA or TMB Signal Line Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1656",
+      "description": "Automatic Transmission System Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1660",
+      "description": "A/T FI Data Line Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1671",
+      "description": "A/T FI Data Line No Signal",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1672",
+      "description": "A/T FI Data Line Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1676",
+      "description": "Traction Control System FI Data Line No Signal",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1677",
+      "description": "Traction Control System FI Data Line Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1678",
+      "description": "FPTDR Signal Line Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1681",
+      "description": "A/T FI Signal A Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1682",
+      "description": "A/T FI Signal A High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1686",
+      "description": "A/T FI Signal B Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1687",
+      "description": "A/T FI Signal B High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1690",
+      "description": "Traction Control System STB Line Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1696",
+      "description": "Traction Control Fuel Cut Signal Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1697",
+      "description": "Traction Control Fuel Cut Signal High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1753",
+      "description": "TCM A/T Lockup Solenoid Valve \"A\" Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1758",
+      "description": "TCM A/T Lockup Solenoid Valve \"B\" Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1709",
+      "description": "Automatic Transmission System Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1738",
+      "description": "Automatic Transmission System Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1739",
+      "description": "Automatic Transmission System Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1768",
+      "description": "Automatic Transmission System Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1773",
+      "description": "Automatic Transmission System Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/infiniti_codes.txt",
+      "verified": false
     }
   ]
 }

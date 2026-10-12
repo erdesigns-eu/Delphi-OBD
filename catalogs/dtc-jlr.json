@@ -328,6 +328,984 @@
       "related_dids": [],
       "related_routines": [],
       "oem_bulletin": ""
+    },
+    {
+      "code": "P1000",
+      "description": "OBD Systems Readiness Test Not Complete",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1104",
+      "description": "Mass Air Flow Sensor Circuit Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1111",
+      "description": "System Pass",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1121",
+      "description": "Pedal Position Sensor A Circuit Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1122",
+      "description": "Pedal Position Sensor A Circuit Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1123",
+      "description": "Pedal Position Sensor A Circuit High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1136",
+      "description": "Control Box Fan Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1137",
+      "description": "Lack Of HO2S12 Switches Sensor Indicates Lean",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1138",
+      "description": "Lack Of HO2S12 Switches Sensor Indicates Rich",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1143",
+      "description": "Air Assisted Injector Control Valve Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1144",
+      "description": "Air Assisted Injector Control Valve Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1157",
+      "description": "Lack Of HO2S22 Switches Sensor Indicates Lean",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1158",
+      "description": "Lack Of HO2S22 Switches Sensor Indicates Rich",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1171",
+      "description": "System Too Lean Banks 1 And 2 (Lean Fuel Fault)",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1172",
+      "description": "System Too Rich Banks 1 And 2 (Rich Fuel Fault)",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1174",
+      "description": "System Too Lean Banks 1 And 2 (Suspect HO2S)",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1175",
+      "description": "System Too Rich Banks 1 And 2 (Suspect HO2S)",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1176",
+      "description": "Long Term Fuel Trim Too Lean Banks 1 And 2 (FMFR)",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1177",
+      "description": "Long Term Fuel Trim Too Rich Banks 1 And 2 (FMFR)",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1178",
+      "description": "Long Term Fuel Trim Too Lean Banks 1 And 2 (AMFR)",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1179",
+      "description": "Long Term Fuel Trim Too Rich Banks 1 And 2 (AMFR)",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1185",
+      "description": "O2 Sensor Heater Circuit Open, Hardware Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1186",
+      "description": "O2 Sensor Heater Circuit Shorted, Hardware Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1187",
+      "description": "O2 Sensor Heater Circuit Open, Inferred Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1188",
+      "description": "O2 Sensor Heater Circuit Resistance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1189",
+      "description": "O2 Sensor Heater Circuit Low Resistance Fault 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1190",
+      "description": "O2 Sensor Heater Circuit Low Resistance Fault 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1191",
+      "description": "O2 Sensor Heater Circuit Open, HArdware Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1192",
+      "description": "O2 Sensor Heater Circuit Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1193",
+      "description": "O2 Sensor Heater Circuit Open, Inferred Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1194",
+      "description": "O2 Sensor Heater Circuit Resistance Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1195",
+      "description": "O2 Sensor Heater Circuit Low Resistance Fault 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1196",
+      "description": "O2 Sensor Heater Circuit Low Resistance Fault 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1198",
+      "description": "Fuel Level Input Circuit High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1199",
+      "description": "Fuel Level Input Circuit Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1201",
+      "description": "Cylinder 1 Injector Circuit Open/Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1202",
+      "description": "Cylinder 2 Injector Circuit Open/Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1203",
+      "description": "Cylinder 3 Injector Circuit Open/Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1204",
+      "description": "Cylinder 4 Injector Circuit Open/Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1205",
+      "description": "Cylinder 5 Injector Circuit Open/Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1206",
+      "description": "Cylinder 6 Injector Circuit Open/Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1207",
+      "description": "Cylinder 7 Injector Circuit Open/Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1208",
+      "description": "Cylinder 8 Injector Circuit Open/Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1221",
+      "description": "Pedal Demand Sensor B Circuit Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1224",
+      "description": "Electronic Throttle Control Position Error",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1226",
+      "description": "Mechanical Guard Circuit Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1227",
+      "description": "Mechanical Guard Circuit Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1228",
+      "description": "Mechanical Guard Circuit High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1229",
+      "description": "Electronic Throttle Control Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1230",
+      "description": "Fuel Pump Relay",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1235",
+      "description": "VSV 1/2/3 Circuit Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1236",
+      "description": "VSV 1 Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1237",
+      "description": "VSV 2 Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1238",
+      "description": "VSV 3 Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1240",
+      "description": "Sensor Power Supply",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1241",
+      "description": "Sensor Power Supply Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1242",
+      "description": "Sensor Power Supply High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1243",
+      "description": "Analog Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1245",
+      "description": "Crank Signal Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1246",
+      "description": "Crank Signal High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1250",
+      "description": "Throttle Valve Spring",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1251",
+      "description": "Throttle Position",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1252",
+      "description": "VSV Stuck On VA/VV",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1253",
+      "description": "VSV Stuck On VR",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1260",
+      "description": "Theft Detected Vehicle Immobilized",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1313",
+      "description": "Misfire Rate Catalyst Damage Fault Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1314",
+      "description": "Misfire Rate Catalyst Damage Fault Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1315",
+      "description": "Persistent Misfire",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1316",
+      "description": "Misfire Rate Exceeds Emissions",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1336",
+      "description": "Crankshaft Camshaft Sensor Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1340",
+      "description": "Camshaft Position Sensor B Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1341",
+      "description": "Camshaft Position Sensor B Circuit Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1361",
+      "description": "Ignition Coil Cylinder 1 No Activation",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1362",
+      "description": "Ignition Coil Cylinder 2 No Activation",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1363",
+      "description": "Ignition Coil Cylinder 3 No Activation",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1364",
+      "description": "Ignition Coil Cylinder 4 No Activation",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1365",
+      "description": "Ignition Coil Cylinder 5 No Activation",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1366",
+      "description": "Ignition Coil Cylinder 6 No Activation",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1367",
+      "description": "Ignition System Failure Group 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1368",
+      "description": "Ignition System Failure Group 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1370",
+      "description": "Insufficient RPM Increase During Spark Test",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1371",
+      "description": "Ignition Coil Cylinder 1 Early Activation Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1372",
+      "description": "Ignition Coil Cylinder 2 Early Activation Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1373",
+      "description": "Ignition Coil Cylinder 3 Early Activation Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1374",
+      "description": "Ignition Coil Cylinder 4 Early Activation Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1375",
+      "description": "Ignition Coil Cylinder 5 Early Activation Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1376",
+      "description": "Ignition Coil Cylinder 6 Early Activation Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1384",
+      "description": "Variable Valve Timing Solenoid A Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1392",
+      "description": "Variable Valve Timing Solenoid A Circuit Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1393",
+      "description": "Variable Valve Timing Solenoid A Circuit High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1396",
+      "description": "Variable Valve Timing Solenoid B Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1397",
+      "description": "Variable Valve Timing Solenoid B Circuit Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1398",
+      "description": "Variable Valve Timing Solenoid B Circuit High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1400",
+      "description": "Exhaust Gas Recirculation Valve Postion Control",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1401",
+      "description": "Exhaust Gas Recirculation Valve Postion Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1408",
+      "description": "Exhaust Gas Recirculation Thermister",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1409",
+      "description": "Exhaust Gas Recirculation Valve Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1440",
+      "description": "Purge Valve Stuck Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1441",
+      "description": "ELC System 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1447",
+      "description": "ELC System Closure Valve Flow",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1448",
+      "description": "ELC System 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1453",
+      "description": "Fuel Tank Pressure Relief Valve Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1454",
+      "description": "Evaporative Emission Control System Vacuum Test",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1475",
+      "description": "Fan Relay Low Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1476",
+      "description": "Fan Relay High Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1508",
+      "description": "Idle Air Control Circuit Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1509",
+      "description": "Idle Air Control Circuit Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1514",
+      "description": "High Load Neutral Drive Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1516",
+      "description": "Gear Change Neutral Drive Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1517",
+      "description": "Cranking Neutral Drive Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1534",
+      "description": "Restraint Deployment Indicator Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1565",
+      "description": "Speed Control Command Switch Out Of Range High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1566",
+      "description": "Speed Control Command Switch Out Range Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1567",
+      "description": "Speed Control Output Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1568",
+      "description": "Speed Control Unable To Hold Speed",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1571",
+      "description": "Brake Switch",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1582",
+      "description": "Electronic Throttle Monitor Data Available",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1600",
+      "description": "Loss Of Kam Power Circuit Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1603",
+      "description": "EEPROM Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1605",
+      "description": "Keep Alive Memory Test Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1606",
+      "description": "ECM Control Relay Output Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1607",
+      "description": "MIL Output Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1608",
+      "description": "Watchdog Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1609",
+      "description": "Internal Control Module CPU To CPU Communication Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1611",
+      "description": "Throttle Target Malfunction 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1612",
+      "description": "Throttle Offset Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1637",
+      "description": "CAN Link ECM ABS Control Module Circuit Network",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1638",
+      "description": "CAN Link ECM INSTM Circuit Network",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1641",
+      "description": "Fuel Pump Primary Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1642",
+      "description": "CAN Link Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1643",
+      "description": "CAN Link Engine Control Module Transmission Control Module Circuit Network",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1646",
+      "description": "Linear O2 Sensor Control Chip Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1647",
+      "description": "Linear O2 Sensor Control Chip Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1648",
+      "description": "Knock Sensor Input Chip",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1696",
+      "description": "CAN Link Engine Control Module Cruise Control Module Circuit Network",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1697",
+      "description": "Cruise Control Distance Control Input Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1700",
+      "description": "Transmission Indeterminate Failure Failed To Neutral",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1720",
+      "description": "Vehicle Speed Meter Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1722",
+      "description": "Stall Speed",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1726",
+      "description": "Engine Overspeed",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1730",
+      "description": "Gear Control Malfunction 2 3 5",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1731",
+      "description": "Inconsistent Gear Ratio",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1734",
+      "description": "Gear Control Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1745",
+      "description": "Pressure Regulator 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1746",
+      "description": "Pressure Regulator 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1747",
+      "description": "Pressure Regulator 3",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1748",
+      "description": "Pressure Regulator 5",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1758",
+      "description": "Pressure Solenoid Control System Incorrect Current",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1775",
+      "description": "Transmission System MIL Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1776",
+      "description": "Ignition Retard Request Duration",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1777",
+      "description": "Ignition Retard Request Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1778",
+      "description": "Transmission Reverse IP Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1779",
+      "description": "Load Control",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1789",
+      "description": "Ignition Supply Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1790",
+      "description": "Ignition Supply Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1791",
+      "description": "Ignition Supply Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1792",
+      "description": "Ignition Supply Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1793",
+      "description": "Ignition Supply Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1794",
+      "description": "Battery Voltage Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1795",
+      "description": "Inconsistent CAN Level",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1796",
+      "description": "CAN Controller Circuit Bus Off",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1797",
+      "description": "CAN TCM ECM Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1798",
+      "description": "CAN TCM INST Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/jaguar_codes.txt",
+      "verified": false
     }
   ]
 }

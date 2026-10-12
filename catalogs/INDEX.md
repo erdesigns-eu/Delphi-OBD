@@ -32,7 +32,7 @@ How the counts are made:
   - **marine**: 6 catalogs / 766 brand-specific entries
   - **motorcycle**: 14 catalogs / 1,108 brand-specific entries
   - **powersports**: 5 catalogs / 376 brand-specific entries
-- **47 DTC catalogs** (`dtc-<oem>.json`) — **2,888 total DTCs**
+- **47 DTC catalogs** (`dtc-<oem>.json`) — **12,864 total DTCs**
 - **2 universal catalogs** (`obd2-pids.json` and `uds-standard.json`)
 - **2 range profiles** (`range-profiles/*.json`) — editable normal bands for OBD Studio values
 - **6 shared base catalogs** (`_shared/*.json`) — **4,968 template entries** stored once instead of per brand
@@ -165,7 +165,21 @@ How the counts are made:
 
 | File | Name | Default source | Entries |
 |---|---|---|---:|
-| `dtc-iso-15031.json` | ISO 15031-6 / SAE J2012 generic DTCs | iso-15031-6 | 2,134 |
+| `dtc-iso-15031.json` | ISO 15031-6 / SAE J2012 generic DTCs | iso-15031-6 | 9,076 |
+| `dtc-vw.json` | VW Audi Group DTC starter (P1 / B1 / U1 ranges) | VW Group P-codes (VAG TPi-derived community) | 669 |
+| `dtc-gm.json` | GM DTC starter (Tech 2 / GDS-2 common P1 / B / U codes) | GM GDS2 / Tech2 community DTCs | 476 |
+| `dtc-ford.json` | Ford DTC starter (FDRS / IDS common P1 / B / U codes) | Ford FORScan / Motorcraft community DTCs | 425 |
+| `dtc-stellantis.json` | Stellantis DTC starter (DiagBox / wiTech common P1 / B / U codes) | Stellantis wiTech / Mopar / Multiecuscan community DTCs | 350 |
+| `dtc-bmw.json` | BMW DTC starter (DME / DSC / CAS / KOMBI common codes) | BMW E-Sys / NCS-Expert community DTCs | 265 |
+| `dtc-mazda.json` | Mazda DTC starter | Mazda M-MDS community DTCs | 243 |
+| `dtc-jlr.json` | Jaguar Land Rover DTC starter | JLR SDD / Pathfinder community DTCs | 188 |
+| `dtc-nissan.json` | Nissan / Infiniti DTC starter | Nissan CONSULT III+ community DTCs | 153 |
+| `dtc-honda.json` | Honda / Acura DTC starter | Honda HDS / Honda-Tech community DTCs | 105 |
+| `dtc-subaru.json` | Subaru DTC starter | Subaru SSM / FreeSSM community DTCs | 101 |
+| `dtc-hmg.json` | Hyundai / Kia / Genesis DTC starter | HMG GDS / KDS / E-GMP community DTCs | 89 |
+| `dtc-toyota.json` | Toyota / Lexus DTC starter | Toyota Techstream / HSD community DTCs | 72 |
+| `dtc-mercedes.json` | Mercedes-Benz DTC starter (XENTRY common P1 / B / U codes) | Mercedes Vediamo / Carly community DTCs | 48 |
+| `dtc-mitsubishi.json` | Mitsubishi Motors DTC starter | Mitsubishi MUT-III community DTCs | 42 |
 | `dtc-lucid.json` | Lucid DTC starter | Lucid community DTCs | 33 |
 | `dtc-dacia.json` | Dacia DTC starter | Dacia CLIP shared with Renault DTCs | 29 |
 | `dtc-rolls-royce.json` | Rolls-Royce DTC starter | Rolls-Royce BMW ISTA shared DTCs | 28 |
@@ -173,44 +187,30 @@ How the counts are made:
 | `dtc-porsche.json` | Porsche DTC starter (PIWIS) | Porsche PIWIS-community / 911uk / Rennlist DTCs | 27 |
 | `dtc-tata.json` | Tata Motors DTC starter | Tata service community DTCs | 27 |
 | `dtc-lada.json` | Lada / AvtoVAZ DTC starter | Lada OPEN diag / Renolink DTCs | 26 |
-| `dtc-jlr.json` | Jaguar Land Rover DTC starter | JLR SDD / Pathfinder community DTCs | 25 |
 | `dtc-mahindra.json` | Mahindra DTC starter | Mahindra service community DTCs | 25 |
 | `dtc-mclaren.json` | McLaren DTC starter | McLaren MDS community DTCs | 25 |
 | `dtc-mini.json` | MINI (BMW Group sub-brand) DTC starter | Mini BMW ISTA / Mini Connected DTCs | 24 |
+| `dtc-suzuki.json` | Suzuki / Maruti DTC starter | Suzuki SDT community DTCs | 24 |
 | `dtc-aston-martin.json` | Aston Martin DTC starter | Aston Martin AMDS community DTCs | 23 |
 | `dtc-smart.json` | smart Automobile DTC starter (Mercedes-Geely JV) | smart XENTRY / Geely diag DTCs | 23 |
-| `dtc-vw.json` | VW Audi Group DTC starter (P1 / B1 / U1 ranges) | VW Group P-codes (VAG TPi-derived community) | 22 |
 | `dtc-ferrari.json` | Ferrari DTC starter (SD3 / Leonardo) | Ferrari SD3 / Leonardo community DTCs | 19 |
 | `dtc-isuzu.json` | Isuzu DTC starter (IDSS-II) | Isuzu IDSS community DTCs | 19 |
 | `dtc-polestar.json` | Polestar DTC starter | Polestar OC / VIDA shared community DTCs | 17 |
 | `dtc-rivian.json` | Rivian DTC starter | Rivian Service Mode community DTCs | 17 |
-| `dtc-bmw.json` | BMW DTC starter (DME / DSC / CAS / KOMBI common codes) | BMW E-Sys / NCS-Expert community DTCs | 16 |
-| `dtc-ford.json` | Ford DTC starter (FDRS / IDS common P1 / B / U codes) | Ford FORScan / Motorcraft community DTCs | 16 |
-| `dtc-gm.json` | GM DTC starter (Tech 2 / GDS-2 common P1 / B / U codes) | GM GDS2 / Tech2 community DTCs | 16 |
 | `dtc-iveco.json` | Iveco DTC starter (J1939 SPN-FMI + EASY) | Iveco E.A.S.Y community DTCs | 16 |
-| `dtc-mercedes.json` | Mercedes-Benz DTC starter (XENTRY common P1 / B / U codes) | Mercedes Vediamo / Carly community DTCs | 16 |
-| `dtc-stellantis.json` | Stellantis DTC starter (DiagBox / wiTech common P1 / B / U codes) | Stellantis wiTech / Mopar / Multiecuscan community DTCs | 15 |
-| `dtc-toyota.json` | Toyota / Lexus DTC starter | Toyota Techstream / HSD community DTCs | 15 |
-| `dtc-hmg.json` | Hyundai / Kia / Genesis DTC starter | HMG GDS / KDS / E-GMP community DTCs | 14 |
-| `dtc-honda.json` | Honda / Acura DTC starter | Honda HDS / Honda-Tech community DTCs | 14 |
 | `dtc-cummins.json` | Cummins DTC starter (J1939 SPN-FMI) | Cummins INSITE community SPN/FMI DTCs | 11 |
-| `dtc-nissan.json` | Nissan / Infiniti DTC starter | Nissan CONSULT III+ community DTCs | 11 |
 | `dtc-renault.json` | Renault / Dacia / Alpine DTC starter | Renault CLIP / Renolink / Pyren / Ddt4all DTCs | 11 |
 | `dtc-tesla.json` | Tesla DTC starter | Tesla Service Mode / TeslaScan community DTCs | 11 |
 | `dtc-volvo.json` | Volvo Cars DTC starter | Volvo VIDA / DiCE community DTCs | 11 |
 | `dtc-detroit.json` | Detroit Diesel DTC starter (J1939 SPN-FMI + GHG17) | Detroit DDDL community SPN/FMI DTCs | 10 |
 | `dtc-man.json` | MAN Truck & Bus DTC starter (J1939 SPN-FMI + MAN-cats) | MAN-cats II community SPN/FMI DTCs | 10 |
-| `dtc-mazda.json` | Mazda DTC starter | Mazda M-MDS community DTCs | 10 |
 | `dtc-volvotrucks.json` | Volvo Trucks / Mack / Renault Trucks DTC starter | Volvo Trucks Tech Tool community SPN/FMI DTCs | 10 |
 | `dtc-geely.json` | Geely / Lynk & Co DTC starter | Geely Holding (Lynk & Co / Zeekr / Lotus / Galaxy) DTCs | 9 |
-| `dtc-mitsubishi.json` | Mitsubishi Motors DTC starter | Mitsubishi MUT-III community DTCs | 9 |
 | `dtc-paccar.json` | PACCAR DTC starter (Peterbilt / Kenworth / DAF) | PACCAR ESA / Davie community SPN/FMI DTCs | 9 |
 | `dtc-scania.json` | Scania DTC starter (J1939 SPN-FMI + SDP3) | Scania SDP3 community SPN/FMI DTCs | 9 |
-| `dtc-subaru.json` | Subaru DTC starter | Subaru SSM / FreeSSM community DTCs | 9 |
 | `dtc-xpeng.json` | Xpeng DTC starter | XPeng XPILOT community DTCs | 9 |
 | `dtc-byd.json` | BYD Auto DTC starter | BYD service / e-Platform community DTCs | 8 |
 | `dtc-nio.json` | NIO DTC starter | NIO Banyan / NIO House community DTCs | 8 |
-| `dtc-suzuki.json` | Suzuki / Maruti DTC starter | Suzuki SDT community DTCs | 8 |
 | `dtc-gwm.json` | Great Wall Motor DTC starter | GWM (Haval / Wey / Tank / ORA / Poer) DTCs | 7 |
 
 ## Universal / standards catalogs

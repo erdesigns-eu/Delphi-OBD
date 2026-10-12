@@ -486,6 +486,3888 @@
       "severity": "critical",
       "description": "Function Restriction Due to Communication Disturbance",
       "verified": false
+    },
+    {
+      "code": "P1101",
+      "description": "Oxygen Sensor Circuit Bank 1 Sensor 1 Voltage Too Low/Air Leak",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1103",
+      "description": "Oxygen Sensor Heating Circuit Bank 1 Sensor 1 Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1104",
+      "description": "Oxygen Sensor Bank 1 Sensor 2 Voltage Too Low/Air Leak",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1105",
+      "description": "Oxygen Sensor Heating Circuit Bank 1 Sensor 2 Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1106",
+      "description": "Oxygen Sensor Circuit Bank 2 Sensor 1 Voltage Too Low/Air Leak",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1107",
+      "description": "Oxygen Sensor Heating Circuit Bank 2 Sensor 1 Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1108",
+      "description": "Oxygen Sensor Heating Circuit Bank 2 Sensor 1 Output Too Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1109",
+      "description": "Oxygen Sensor Circuit Bank 2 Sensor 2 Voltage Too Low/Air Leak",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1110",
+      "description": "Oxygen Sensor Heating Circuit Bank 2 Sensor 2 Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1111",
+      "description": "Oxygen Sensor Control Bank 1 System Too Lean",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1112",
+      "description": "Oxygen Sensor Control Bank 1 System Too Rich",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1113",
+      "description": "Oxygen Sensor Heater Resistance Too High Bank 1 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1114",
+      "description": "Bank 1 Sensor 2 Resistance Too High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1115",
+      "description": "Oxygen Sensor Heater Circuit Short To Ground Bank 1 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1116",
+      "description": "Oxygen Sensor Heater Circuit Open Bank 1 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1117",
+      "description": "Oxygen Sensor Heater Circuit Short To Ground Bank 1 Sensor 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1119",
+      "description": "Oxygen Sensor Heater Circuit Bank 2 Sensor 1 Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1120",
+      "description": "Oxygen Sensor Heater Circuit Bank 2 Sensor 1 Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1121",
+      "description": "Oxygen Sensor Heater Circuit Bank 2 Sensor 2 Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1122",
+      "description": "Oxygen Sensor Heater Circuit Bank 2 Sensor 2 Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1123",
+      "description": "Long Term Fuel Trim Add Air Bank 1 System Too Rich",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1124",
+      "description": "Long Term Fuel Trim Add Air Bank 1 System Too Lean",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1125",
+      "description": "Long Term Fuel Trim Add Air Bank 2 System Too Rich",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1126",
+      "description": "Long Term Fuel Trim Add Air Bank 2 System Too Lean",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1127",
+      "description": "Long Term Fuel Trim Bank 1 System Too Rich",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1128",
+      "description": "Long Term Fuel Trim Bank 1 System Too Lean",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1129",
+      "description": "Long Term Fuel Trim Bank 2 System Too Rich",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1130",
+      "description": "Long Term Fuel Trim Bank 2 System Too Lean",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1131",
+      "description": "Bank 2 Sensor 1 Resistance Too High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1132",
+      "description": "Oxygen Sensor Heating Circuit Bank 1 + 2 Sensor 1 Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1133",
+      "description": "Oxygen Sensor Heating Circuit Bank 1 + 2 Sensor 1 Electrical Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1134",
+      "description": "Oxygen Sensor Heating Circuit Bank 1 + 2 Sensor 2 Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1135",
+      "description": "Oxygen Sensor Heating Circuit Bank 1 + 2 Sensor 2 Electrical Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1137",
+      "description": "Long Term Fuel Trim Add Fuel Bank 1 System Too Rich",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1138",
+      "description": "Long Term Fuel Trim Add Fuel Bank 2 System Too Lean",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1139",
+      "description": "Long Term Fuel Trim Add Fuel Bank 2 System Too Rich",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1140",
+      "description": "Bank 2 Sensor 2 Resistance Too High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1141",
+      "description": "Load Calculation Cross Check Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1142",
+      "description": "Load Calculation Cross Check Lower Limit Exceeded",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1143",
+      "description": "Load Calculation Cross Check Upper Limit Exceeded",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1144",
+      "description": "Mass Or Volume Air Flow Circuit Open/Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1145",
+      "description": "Mass Or Volume Air Flow Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1146",
+      "description": "Mass Or Volume Air Flow Circuit Power Supply Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1147",
+      "description": "Oxygen Sensor Control Bank 2 System Too Lean",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1148",
+      "description": "Oxygen Sensor Control Bank 2 System Too Rich",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1149",
+      "description": "Oxygen Sensor Control Bank 1 Out Of Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1150",
+      "description": "Oxygen Sensor Control Bank 2 Out Of Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1151",
+      "description": "Bank 1 Long Term Fuel Trim Range 1 Lower Lean Limit Exceeded",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1152",
+      "description": "Bank 1 Long Term Fuel Trim Range 2 Lower Lean Limit Exceeded",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1154",
+      "description": "Manifold Switch Over Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1155",
+      "description": "Manifold Absolute Pressure Sensor Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1156",
+      "description": "Manifold Absolute Pressure Sensor Circuit Open/Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1157",
+      "description": "Manifold Absolute Pressure Sensor Circuit Power Supply Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1158",
+      "description": "Manifold Absolute Pressure Sensor Circuit Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1160",
+      "description": "Manifold Temperature Sensor Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1161",
+      "description": "Manifold Temperature Sensor Circuit Open/Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1162",
+      "description": "Fuel Temperature Sensor Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1163",
+      "description": "Fuel Temperature Sensor Circuit Open/Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1164",
+      "description": "Fuel Temperature Sensor Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1165",
+      "description": "Bank 1 Long Term Fuel Trim Range 1 Lower Lean Limit Exceeded",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1166",
+      "description": "Bank 1 Long Term Fuel Trim Range 2 Upper Rich Limit Exceeded",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1171",
+      "description": "Throttle Actuation Potentiometer Signal 2 Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1172",
+      "description": "Throttle Actuation Potentiometer Signal 2 Signal Too Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1173",
+      "description": "Throttle Actuation Potentiometer Signal 2 Signal Too High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1174",
+      "description": "Fuel Trim Bank 1 Different Injection Times",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1176",
+      "description": "Rear Oxygen Sensor Correction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1177",
+      "description": "Oxygen Sensor Correction Behind Catalyst Bank 1 Limit Attained",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1178",
+      "description": "Linear Oxygen Sensor Pump Current Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1179",
+      "description": "Linear Oxygen Sensor Pump Current Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1180",
+      "description": "Linear Oxygen Sensor Pump Current Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1181",
+      "description": "Linear Oxygen Sensor Reference Voltage Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1182",
+      "description": "Linear Oxygen Sensor Reference Voltage Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1183",
+      "description": "Linear Oxygen Sensor Reference Voltage Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1184",
+      "description": "Linear Oxygen Sensor Common Ground Wire Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1185",
+      "description": "Linear Oxygen Sensor Common Ground Wire Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1186",
+      "description": "Linear Oxygen Sensor Common Ground Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1187",
+      "description": "Linear Oxygen Sensor Compensation Resistor Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1188",
+      "description": "Linear Oxygen Sensor Compensation Resistor Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1189",
+      "description": "Linear Oxygen Sensor Compensation Resistor Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1190",
+      "description": "Linear Oxygen Sensor Reference Voltage Incorrect Signal",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1196",
+      "description": "Oxygen Sensor Heater Circuit Bank 1 Sensor 1 Electrical Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1197",
+      "description": "Oxygen Sensor Heater Circuit Bank 2 Sensor 1 Electrical Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1198",
+      "description": "Oxygen Sensor Heater Circuit Bank 1 Sensor 2 Electrical Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1199",
+      "description": "Oxygen Sensor Heater Circuit Bank 2 Sensor 2 Electrical Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1201",
+      "description": "Cylinder 1 Fuel Injector Circuit Electrical Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1202",
+      "description": "Cylinder 2 Fuel Injector Circuit Electrical Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1203",
+      "description": "Cylinder 3 Fuel Injector Circuit Electrical Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1204",
+      "description": "Cylinder 4 Fuel Injector Circuit Electrical Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1205",
+      "description": "Cylinder 5 Fuel Injector Circuit Electrical Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1206",
+      "description": "Cylinder 6 Fuel Injector Circuit Electrical Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1207",
+      "description": "Cylinder 7 Fuel Injector Circuit Electrical Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1208",
+      "description": "Cylinder 8 Fuel Injector Circuit Electrical Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1209",
+      "description": "Intake Valves For Cylinder Shut-Off Short Circuit To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1210",
+      "description": "Intake Valves For Cylinder Shut-Off Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1211",
+      "description": "Intake Valves For Cylinder Shut-Off Open Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1213",
+      "description": "Cylinder 1 Fuel Injector Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1214",
+      "description": "Cylinder 2 Fuel Injector Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1215",
+      "description": "Cylinder 3 Fuel Injector Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1216",
+      "description": "Cylinder 4 Fuel Injector Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1217",
+      "description": "Cylinder 5 Fuel Injector Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1218",
+      "description": "Cylinder 6 Fuel Injector Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1219",
+      "description": "Cylinder 7 Fuel Injector Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1220",
+      "description": "Cylinder 8 Fuel Injector Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1225",
+      "description": "Cylinder 1 Injector Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1226",
+      "description": "Cylinder 2 Injector Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1227",
+      "description": "Cylinder 3 Injector Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1228",
+      "description": "Cylinder 4 Injector Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1229",
+      "description": "Cylinder 5 Injector Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1230",
+      "description": "Cylinder 6 Injector Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1231",
+      "description": "Cylinder 7 Injector Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1232",
+      "description": "Cylinder 8 Injector Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1237",
+      "description": "Cylinder 1 Injector Circuit Open Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1238",
+      "description": "Cylinder 2 Injector Circuit Open Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1239",
+      "description": "Cylinder 3 Injector Circuit Open Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1240",
+      "description": "Cylinder 4 Injector Circuit Open Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1241",
+      "description": "Cylinder 5 Injector Circuit Open Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1242",
+      "description": "Cylinder 6 Injector Circuit Open Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1243",
+      "description": "Cylinder 7 Injector Circuit Open Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1244",
+      "description": "Cylinder 8 Injector Circuit Open Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1245",
+      "description": "Needle Lift Sensor Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1246",
+      "description": "Needle Lift Sensor Circuit Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1247",
+      "description": "Needle Lift Sensor Circuit Open/Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1248",
+      "description": "Injection Start Control Deviation",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1249",
+      "description": "Fuel Consumption Signal Electrical Fault In Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1250",
+      "description": "Fuel Level Too Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1251",
+      "description": "Start Of Injection Solenoid Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1252",
+      "description": "Start Of Injection Solenoid Circuit Open/Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1253",
+      "description": "Fuel Consumption Signal Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1254",
+      "description": "Fuel Consumption Signal Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1255",
+      "description": "Engine Coolant Temperature Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1256",
+      "description": "Engine Coolant Temperature Circuit Open/Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1257",
+      "description": "Engine Coolant System Valve Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1258",
+      "description": "Engine Coolant System Valve Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1259",
+      "description": "Engine Coolant System Valve Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1280",
+      "description": "Fuel Injection Air Control Valve Circuit Flow Too Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1283",
+      "description": "Fuel Injection Air Control Valve Circuit Electrical Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1284",
+      "description": "Fuel Injection Air Control Valve Circuit Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1285",
+      "description": "Fuel Injection Air Control Valve Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1286",
+      "description": "Fuel Injection Air Control Valve Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1287",
+      "description": "Turbocharge Bypass Valve Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1288",
+      "description": "Turbocharge Bypass Valve Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1289",
+      "description": "Turbocharge Bypass Valve Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1300",
+      "description": "Misfire Detected Fuel Level Too Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1319",
+      "description": "Knock Sensor 1 Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1320",
+      "description": "Knock Sensor 2 Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1321",
+      "description": "Knock Sensor 3 Circuit Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1322",
+      "description": "Knock Sensor 3 Circuit High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1323",
+      "description": "Knock Sensor 4 Circuit Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1324",
+      "description": "Knock Sensor 4 Circuit High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1326",
+      "description": "Cylinder 2 Knock Control Limit Attained",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1327",
+      "description": "Cylinder 3 Knock Control Limit Attained",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1328",
+      "description": "Cylinder 4 Knock Control Limit Attained",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1329",
+      "description": "Cylinder 5 Knock Control Limit Attained",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1330",
+      "description": "Cylinder 6 Knock Control Limit Attained",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1331",
+      "description": "Cylinder 7 Knock Control Limit Attained",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1332",
+      "description": "Cylinder 8 Knock Control Limit Attained",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1335",
+      "description": "Engine Torque Monitoring 2 Control Limit Exceeded",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1337",
+      "description": "CMP Sensor Bank 1 Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1338",
+      "description": "CMP Sensor Bank 1 Open Circuit Or Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1339",
+      "description": "Crankshaft Position Engine Speed Sensor Cross Connected",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1341",
+      "description": "Ignition Coil Output Stage 1 Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1342",
+      "description": "Ignition Coil Power Output State 1 Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1343",
+      "description": "Ignition Coil Output Stage 2 Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1345",
+      "description": "Ignition Coil Output Stage 3 Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1346",
+      "description": "Ignition Coil Power Output State 3 Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1347",
+      "description": "Bank 2 Crankshaft Camshaft Position Sensor Signal Out Of Sequence",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1348",
+      "description": "Ignition Coil Power Output Stage 1 Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1349",
+      "description": "Ignition Coil Power Output Stage 2 Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1350",
+      "description": "Ignition Coil Power Output Stage 3 Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1354",
+      "description": "Modulation Piston Displacement Sensor Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1355",
+      "description": "Cylinder 1 Ignition Circuit Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1356",
+      "description": "Cylinder 1 Ignition Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1357",
+      "description": "Cylinder 1 Ignition Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1358",
+      "description": "Cylinder 2 Ignition Circuit Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1359",
+      "description": "Cylinder 2 Ignition Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1360",
+      "description": "Cylinder 2 Ignition Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1361",
+      "description": "Cylinder 3 Ignition Circuit Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1362",
+      "description": "Cylinder 3 Ignition Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1363",
+      "description": "Cylinder 3 Ignition Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1364",
+      "description": "Cylinder 4 Ignition Circuit Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1365",
+      "description": "Cylinder 4 Ignition Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1366",
+      "description": "Cylinder 4 Ignition Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1367",
+      "description": "Cylinder 5 Ignition Circuit Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1368",
+      "description": "Cylinder 5 Ignition Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1369",
+      "description": "Cylinder 5 Ignition Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1370",
+      "description": "Cylinder 6 Ignition Circuit Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1371",
+      "description": "Cylinder 6 Ignition Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1372",
+      "description": "Cylinder 6 Ignition Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1373",
+      "description": "Cylinder 7 Ignition Circuit Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1374",
+      "description": "Cylinder 7 Ignition Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1375",
+      "description": "Cylinder 7 Ignition Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1376",
+      "description": "Cylinder 8 Ignition Circuit Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1377",
+      "description": "Cylinder 8 Ignition Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1378",
+      "description": "Cylinder 8 Ignition Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1386",
+      "description": "Internal Control Module Knock Control Error",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1387",
+      "description": "Control Unit Internal Altitude Sensor",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1388",
+      "description": "Control Unit Internal Throttle Control",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1391",
+      "description": "CMP Sensor Bank 2 Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1392",
+      "description": "CMP Sensor Bank 2 Open Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1393",
+      "description": "Ignition Coil Power Output Stage 1 Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1394",
+      "description": "Ignition Coil Power Output Stage 2 Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1395",
+      "description": "Ignition Coil Power Output Stage 3 Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1396",
+      "description": "Engine Speed Sensor Missing Tooth",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1397",
+      "description": "Engine Speed Wheel Adaptation At Limit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1398",
+      "description": "Engine RPM Signal Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1399",
+      "description": "Engine RPM Signal Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1400",
+      "description": "EGR Valve Circuit Electrical Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1401",
+      "description": "EGR Valve Power Stage Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1402",
+      "description": "EGR Valve Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1403",
+      "description": "EGR Flow Deviation",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1404",
+      "description": "EGR Flow Adaptation Not Carried Out",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1406",
+      "description": "EGR Temperature Sensor Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1407",
+      "description": "EGR Temperature Sensor Signal Too Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1408",
+      "description": "EGR Temperature Sensor Signal Too High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1409",
+      "description": "Tank Ventilation Valve Electrical Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1410",
+      "description": "Tank Ventilation Valve Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1411",
+      "description": "Secondary Air Injection System Bank 2 Flow Too Lean",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1412",
+      "description": "EGR Differential Pressure Sensor Signal Too Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1413",
+      "description": "EGR Differential Pressure Sensor Signal Too High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1414",
+      "description": "Secondary Air Injection System Bank 2 Leak Detected",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1417",
+      "description": "Fuel Level Sensor Signal Too Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1418",
+      "description": "Fuel Level Sensor Signal Too High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1420",
+      "description": "Secondary Air Injection Control Module Electrical Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1421",
+      "description": "Secondary Air Injection Valve Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1422",
+      "description": "Secondary Air Injection Valve Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1423",
+      "description": "Secondary Air Injection System Bank 1 Flow Too Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1424",
+      "description": "Secondary Air Injection System Bank 1 Leak Detected",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1425",
+      "description": "Tank Ventilation Valve Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1426",
+      "description": "Tank Ventilation Valve Open Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1432",
+      "description": "Secondary Air Injection Valve Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1433",
+      "description": "Secondary Air Injection Pump Relay Circuit Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1434",
+      "description": "Secondary Air Injection Pump Relay Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1435",
+      "description": "Secondary Air Injection Pump Relay Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1436",
+      "description": "Secondary Air Injection Pump Relay Circuit Electrical Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1439",
+      "description": "EGR Valve Position Sensor Adaptation At Limit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1440",
+      "description": "EGR Valve Power Stage Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1441",
+      "description": "EGR Valve Circuit Open Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1442",
+      "description": "EGR Valve Position Sensor Signal Too High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1443",
+      "description": "EGR Valve Position Sensor Signal Too Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1444",
+      "description": "EGR Valve Position Sensor Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1445",
+      "description": "Catalyst Temperature Sensor 2 Circuit Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1446",
+      "description": "Catalyst Temperature Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1447",
+      "description": "Catalyst Temperature Circuit Open Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1448",
+      "description": "Catalyst Temperature Sensor 2 Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1449",
+      "description": "Catalyst Temperature Sensor 2 Circuit Open Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1450",
+      "description": "Secondary Air Injection System Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1451",
+      "description": "Secondary Air Injection Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1452",
+      "description": "Secondary Air Injection System Circuit Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1453",
+      "description": "Exhaust Gas Temperature Sensor 1 Open Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1454",
+      "description": "Exhaust Gas Temperature Sensor 1 Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1455",
+      "description": "Exhaust Gas Temperature Sensor 1 Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1456",
+      "description": "Exhaust Gas Temperature Control Bank 1 Limit Attained",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1457",
+      "description": "Exhaust Gas Temperature Sensor 2 Open Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1458",
+      "description": "Exhaust Gas Temperature Sensor 2 Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1459",
+      "description": "Exhaust Gas Temperature Sensor 2 Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1460",
+      "description": "Exhaust Gas Temperature Control Bank 2 Limit Attained",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1461",
+      "description": "Exhaust Gas Temperature Control Bank 1 Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1462",
+      "description": "Exhaust Gas Temperature Control Bank 2 Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1465",
+      "description": "Additive Pump Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1466",
+      "description": "Additive Pump Open Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1467",
+      "description": "EVAP Canister Purge Solenoid Valve Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1468",
+      "description": "EVAP Canister Purge Solenoid Valve Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1469",
+      "description": "EVAP Canister Purge Solenoid Valve Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1470",
+      "description": "EVAP Emission Control System LDP Circuit Electrical Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1471",
+      "description": "EVAP Emission Control System LDP Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1472",
+      "description": "EVAP Emission Control System LDP Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1473",
+      "description": "EVAP Emission Control System LDP Open Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1475",
+      "description": "EVAP Emission Control System LDP Malfunction Signal Circuit Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1476",
+      "description": "EVAP Emission Control System LDP Malfunction Insufficient Vacuum",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1477",
+      "description": "EVAP Emission Control System LDP Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1478",
+      "description": "EVAP Emission Control System LDP Clamped Tube Detected",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1500",
+      "description": "Fuel Pump Relay Electrical Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1501",
+      "description": "Fuel Pump Relay Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1502",
+      "description": "Fuel Pump Relay Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1503",
+      "description": "Load Signal From Generator Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1504",
+      "description": "Intake Air System Bypass Leak Detected",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1505",
+      "description": "Closed Throttle Position Does Not Close Open Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1506",
+      "description": "Closed Throttle Position Switch Does Not Open Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1507",
+      "description": "Idle System Learned Value Lower Limit Attained",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1508",
+      "description": "Idle System Learned Value Upper Limit Attained",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1509",
+      "description": "Idle Air Control Circuit Electrical Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1510",
+      "description": "Idle Air Control Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1511",
+      "description": "Intake Manifold Changeover Valve Circuit Electrical Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1512",
+      "description": "Intake Manifold Changeover Valve Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1513",
+      "description": "Intake Manifold Changeover Valve 2 Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1514",
+      "description": "Intake Manifold Changeover Valve 2 Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1515",
+      "description": "Intake Manifold Changeover Valve Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1516",
+      "description": "Intake Manifold Changeover Valve Circuit Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1517",
+      "description": "Main Relay Circuit Electrical Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1518",
+      "description": "Main Relay Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1519",
+      "description": "Intake Camshaft Control Bank 1 Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1520",
+      "description": "Intake Manifold Changeover Valve 2 Circuit Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1521",
+      "description": "Intake Manifold Changeover Valve 2 Circuit Electrical Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1522",
+      "description": "Intake Camshaft Control Bank 2 Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1523",
+      "description": "Crash Signal From Airbag Control Unit Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1525",
+      "description": "Intake Camshaft Control Circuit Bank 1 Electrical Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1526",
+      "description": "Intake Camshaft Control Circuit Bank 1 Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1527",
+      "description": "Intake Camshaft Control Circuit Bank 1 Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1528",
+      "description": "Intake Camshaft Control Circuit Bank 1 Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1529",
+      "description": "Intake Camshaft Control Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1530",
+      "description": "Intake Camshaft Control Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1531",
+      "description": "Intake Camshaft Control Circuit Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1533",
+      "description": "Intake Camshaft Control Circuit Bank 2 Electrical Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1534",
+      "description": "Intake Camshaft Control Circuit Bank 2 Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1535",
+      "description": "Intake Camshaft Control Circuit Bank 2 Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1536",
+      "description": "Intake Camshaft Control Circuit Bank 2 Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1537",
+      "description": "Engine Shutoff Solenoid Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1538",
+      "description": "Engine Shutoff Solenoid Open Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1539",
+      "description": "Clutch Pedal Switch Signal Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1540",
+      "description": "Vehicle Speed Sensor High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1541",
+      "description": "Fuel Pump Relay Circuit Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1542",
+      "description": "Throttle Actuation Potentiometer Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1543",
+      "description": "Throttle Actuation Potentiometer Signal Too Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1544",
+      "description": "Throttle Actuation Potentiometer Signal Too High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1545",
+      "description": "Throttle Position Control Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1546",
+      "description": "Boost Pressure Control Valve Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1547",
+      "description": "Boost Pressure Control Valve Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1548",
+      "description": "Boost Pressure Control Valve Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1549",
+      "description": "Boost Pressure Control Valve Open Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1550",
+      "description": "Charge Pressure Deviation",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1551",
+      "description": "Barometric Pressure Sensor Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1552",
+      "description": "Barometric Pressure Sensor Circuit Open Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1553",
+      "description": "Barometric Manifold Pressure Signal Ratio Out Of Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1554",
+      "description": "Idle Speed Control Throttle Position Missing Adaptation Conditions",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1555",
+      "description": "Charge Pressure Upper Limit Exceeded",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1556",
+      "description": "Charge Pressure Negative Deviation",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1557",
+      "description": "Charge Pressure Positive Deviation",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1558",
+      "description": "Throttle Actuator Electrical Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1559",
+      "description": "Idle Speed Control Throttle Position Adaptation Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1560",
+      "description": "Maximum Engine Speed Exceeded",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1561",
+      "description": "Quantity Adjuster Deviation",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1562",
+      "description": "Quantity Adjuster Upper Limit Attained",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1563",
+      "description": "Quantity Adjuster Lower Limit Attained",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1564",
+      "description": "Idle Speed Control Throttle Position Low Voltage During Adaptation",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1565",
+      "description": "Idle Speed Control Throttle Position Lower Limit Not Obtained",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1566",
+      "description": "Load Signal From A/C Compressor Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1567",
+      "description": "Load Signal From A/C Compressor No Signal",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1568",
+      "description": "Idle Speed Control Throttle Position Mechanical Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1569",
+      "description": "Switch For CCS Signal Faulty",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1570",
+      "description": "Control Unit Locked",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1571",
+      "description": "Left Engine Mount Solenoid Valve Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1572",
+      "description": "Left Engine Mount Solenoid Valve Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1573",
+      "description": "Left Engine Mount Solenoid Valve Open Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1574",
+      "description": "Left Engine Mount Solenoid Valve Electrical Fault In Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1575",
+      "description": "Right Engine Mount Solenoid Valve Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1576",
+      "description": "Right Engine Mount Solenoid Valve Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1577",
+      "description": "Right Engine Mount Solenoid Valve Open Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1578",
+      "description": "Right Engine Mount Solenoid Valve Electrical Fault In Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1579",
+      "description": "Idle Speed Control Throttle Position Adaptation Not Started",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1580",
+      "description": "Throttle Actuator Bank 1 Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1581",
+      "description": "Idle Speed Control Throttle Position Adaptation Not Carried Out",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1582",
+      "description": "Idle Adaptation At Limit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1583",
+      "description": "Transmission Mount Valves Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1584",
+      "description": "Transmission Mount Valves Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1585",
+      "description": "Transmission Mount Valves Open Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1586",
+      "description": "Engine Mount Solenoid Valves Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1587",
+      "description": "Engine Mount Solenoid Valves Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1588",
+      "description": "Engine Mount Solenoid Valves Open Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1600",
+      "description": "Power Supply Terminal No 15 Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1603",
+      "description": "Internal Control Module Self Check",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1604",
+      "description": "Internal Control Module Driver Error",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1605",
+      "description": "Rough Road Acceleration Sensor Electrical Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1606",
+      "description": "Rough Road Spec Engine Torque ABS ECU Electrical Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1607",
+      "description": "Vehicle Speed Signal Error Message From Instrument Cluster",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1608",
+      "description": "Steering Angle Signal Error Message From Steering Angle Sensor",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1609",
+      "description": "Crash Shut Down Activated",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1612",
+      "description": "Engine Control Module Incorrect Coding",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1613",
+      "description": "MIL Call-Up Circuit Open Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1614",
+      "description": "MIL Call-Up Circuit Transmission Control Module Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1615",
+      "description": "Engine Oil Temperature Sensor Circuit Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1616",
+      "description": "Glow Plug Heater Indicator Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1617",
+      "description": "Glow Plug Heater Indicator Circuit Open Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1618",
+      "description": "Glow Plug Heater Relay Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1619",
+      "description": "Glow Plug Heater Relay Circuit Open Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1620",
+      "description": "Engine Coolant Temperature Signal Open Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1621",
+      "description": "Engine Coolant Temperature Signal Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1622",
+      "description": "Engine Coolant Temperature Signal Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1623",
+      "description": "Data Bus Powertrain No Communication",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1624",
+      "description": "MIL Request Signal Active",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1625",
+      "description": "CAN Bus Unplausible Message From Transmission Control",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1626",
+      "description": "Data Bus Drive Missing Command From M/T",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1627",
+      "description": "Data Bus Powertrain Missing Message From Fuel Injection Pump",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1628",
+      "description": "Data Bus Powertrain Missing Message From Distance Control",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1629",
+      "description": "Data Bus Powertrain Missing Message From Distance Control",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1630",
+      "description": "Accelerator Pedal Position Sensor 1 Signal Too Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1631",
+      "description": "Accelerator Pedal Position Sensor 1 Signal Too High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1632",
+      "description": "Accelerator Pedal Position Sensor 1 Power Supply Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1633",
+      "description": "Accelerator Pedal Position Sensor 2 Signal Too Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1634",
+      "description": "Accelerator Pedal Position Sensor 2 Signal Too High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1635",
+      "description": "Data Bus Powertrain Missing Message From Air Condition Control",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1636",
+      "description": "Data Bus Powertrain Missing Message From Airbag Control",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1637",
+      "description": "Data Bus Powertrain Missing Message From Central Electronic Control",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1638",
+      "description": "Data Bus Powertrain Missing Message From Clutch Control",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1639",
+      "description": "Accelerator Pedal Position Sensor 1/2 Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1640",
+      "description": "Internal Control Module EEPROM Error",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1641",
+      "description": "Check DTC Memory Of Air Condition ECU",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1642",
+      "description": "Check DTC Memory Of Airbag ECU",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1643",
+      "description": "Check DTC Memory Of Central ECU",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1644",
+      "description": "Check DTC Memory Of Clutch ECU",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1645",
+      "description": "Data Bus Powertrain Defect",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1646",
+      "description": "Check DTC Memory Of All Wheel Drive ECU",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1647",
+      "description": "Check Coding Of ECUs In Data Bus Powertrain",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1648",
+      "description": "Data Bus Powertrain Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1649",
+      "description": "Data Bus Powertrain Missing Message From Brake Controller",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1650",
+      "description": "Data Bus Powertrain Missing Message From Instrument Panel ECU",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1651",
+      "description": "Data Bus Powertrain Missing Messages",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1652",
+      "description": "Check DTC Memory Of Transmissions ECU",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1653",
+      "description": "Check DTC Memory Of Brake ECU",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1654",
+      "description": "Check DTC Memory Of Control Panel ECU",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1655",
+      "description": "Check DTC Memory Of Distance Control ECU",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1656",
+      "description": "A/C Clutch Relays Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1657",
+      "description": "A/C Clutch Relays Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1658",
+      "description": "Data Bus Powertrain Range Performance From Distance Control",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1676",
+      "description": "Drive By Wire MIL Circuit Electrical Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1677",
+      "description": "Drive By Wire MIL Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1678",
+      "description": "Drive By Wire MIL Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1679",
+      "description": "Drive By Wire MIL Circuit Open Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1681",
+      "description": "Control Module Programming Not Finished",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1684",
+      "description": "Control Unit Programming Communication Error",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1686",
+      "description": "Control Unit Error Programming",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1690",
+      "description": "MIL Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1691",
+      "description": "MIL Open Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1692",
+      "description": "MIL Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1693",
+      "description": "MIL Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1694",
+      "description": "MIL Open Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1704",
+      "description": "Kick Down Switch Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1711",
+      "description": "Wheel Speed Signal 1 Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1716",
+      "description": "Wheel Speed Signal 2 Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1721",
+      "description": "Wheel Speed Signal 3 Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1723",
+      "description": "Starter Interlock Circuit Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1724",
+      "description": "Starter Interlock Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1726",
+      "description": "Wheel Speed Signal 4 Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1728",
+      "description": "Different Wheel Speed Signals Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1729",
+      "description": "Starter Interlock Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1733",
+      "description": "Tiptronic Switch Down Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1739",
+      "description": "Tiptronic Switch Up Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1741",
+      "description": "Clutch Pressure Adaptation At Limit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1742",
+      "description": "Clutch Torque Adaptation At Limit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1743",
+      "description": "Clutch Slip Control Signal Too High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1744",
+      "description": "Tiptronic Switch Recognition Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1745",
+      "description": "Transmission Control Unit Relay Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1746",
+      "description": "Transmission Control Unit Relay Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1747",
+      "description": "Transmission Control Unit Relay Open Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1748",
+      "description": "Transmission Control Unit Self-Check",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1749",
+      "description": "Transmission Control Unit Incorrect Coding",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1750",
+      "description": "Power Supply Voltage Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1751",
+      "description": "Power Supply Voltage High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1752",
+      "description": "Power Supply Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1760",
+      "description": "Shift Lock Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1761",
+      "description": "Shift Lock Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1762",
+      "description": "Shift Lock Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1763",
+      "description": "Shift Lock Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1765",
+      "description": "Hydraulic Pressure Sensor 2 Adaptation At Limit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1766",
+      "description": "Throttle Angle Signal Stuck Off",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1767",
+      "description": "Throttle Angle Signal Stuck On",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1768",
+      "description": "Hydraulic Pressure Sensor 2 Too High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1769",
+      "description": "Hydraulic Pressure Sensor 2 Too Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1770",
+      "description": "Load Signal Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1771",
+      "description": "Load Signal Stuck Off",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1772",
+      "description": "Load Signal Stuck On",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1773",
+      "description": "Hydraulic Pressure Sensor 1 Too High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1774",
+      "description": "Hydraulic Pressure Sensor 1 Too Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1775",
+      "description": "Hydraulic Pressure Sensor 1 Adaptation At Limit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1778",
+      "description": "Solenoid EV7 Electrical Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1780",
+      "description": "Engine Intervention Readable",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1781",
+      "description": "Engine Torque Reduction Open Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1782",
+      "description": "Engine Torque Reduction Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1784",
+      "description": "Shift Up Down Wire Open Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1785",
+      "description": "Shift Up Down Wire Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1786",
+      "description": "Reversing Light Circuit Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1787",
+      "description": "Reversing Light Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1788",
+      "description": "Reversing Light Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1789",
+      "description": "Idle Speed Intervention Circuit Error Message From Engine Control",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1790",
+      "description": "Transmission Range Display Circuit Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1791",
+      "description": "Transmission Range Display Circuit Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1792",
+      "description": "Transmission Range Display Circuit Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1793",
+      "description": "Output Speed Sensor 2 Circuit No Signal",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1795",
+      "description": "Vehicle Speed Signal Circuit Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1797",
+      "description": "Vehicle Speed Signal Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1798",
+      "description": "Output Speed Sensor 2 Circuit Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1799",
+      "description": "Output Speed Sensor 2 Circuit RPM Too High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1813",
+      "description": "Pressure Control Solenoid 1 Electrical",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1814",
+      "description": "Pressure Control Solenoid 1 Open Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1815",
+      "description": "Pressure Control Solenoid 1 Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1818",
+      "description": "Pressure Control Solenoid 2 Electrical",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1819",
+      "description": "Pressure Control Solenoid 2 Open Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1820",
+      "description": "Pressure Control Solenoid 2 Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1823",
+      "description": "Pressure Control Solenoid 3 Electrical",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1824",
+      "description": "Pressure Control Solenoid 3 Open Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1825",
+      "description": "Pressure Control Solenoid 3 Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1828",
+      "description": "Pressure Control Solenoid 4 Electrical",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1829",
+      "description": "Pressure Control Solenoid 4 Open Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1830",
+      "description": "Pressure Control Solenoid 4 Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1834",
+      "description": "Pressure Control Solenoid 5 Open Short To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1835",
+      "description": "Pressure Control Solenoid 5 Short To B+",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1841",
+      "description": "Engine Transmission Control Do Not Match",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1842",
+      "description": "Check DTC Memory Of Instrument Panel ECU",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1843",
+      "description": "Check DTC Memory Of Distance Control ECU",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1844",
+      "description": "Check DTC Memory Of Central Electronic Control ECU",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1847",
+      "description": "Check DTC Memory Of Brake System ECU",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1848",
+      "description": "Check DTC Memory Of Engine ECU",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1849",
+      "description": "Check DTC Memory Of Transmission ECU",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1850",
+      "description": "CAN Bus Missing Message From Engine Control",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1851",
+      "description": "CAN Bus Missing Message From Brake Control",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1852",
+      "description": "CAN Bus Unplausible Message From Engine Control",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1853",
+      "description": "CAN Bus Unplausible Message From Brake Control",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1854",
+      "description": "CAN Bus Hardware Defective",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1855",
+      "description": "CAN Bus Software Version Control",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1856",
+      "description": "Throttle Pedal Position Sensor A Circuit Error Message From Engine Control",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1857",
+      "description": "Load Signal Error Message From Engine Control",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1858",
+      "description": "Engine Speed Input Circuit Error Message From Engine Control",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1859",
+      "description": "Brake Switch Circuit Error Message From Engine Control",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1860",
+      "description": "Kick Down Switch Error Message From Engine Control",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1861",
+      "description": "Throttle Position Sensor Error Message From ECM",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1862",
+      "description": "Data Bus Powertrain Missing Message From Instrument Panel ECU",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1863",
+      "description": "Data Bus Powertrain Missing Message From Steering Angle Sensor",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1864",
+      "description": "Data Bus Powertrain Missing Message From ADR Control Module",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1865",
+      "description": "Data Bus Powertrain Missing Message From Central Electronics",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1866",
+      "description": "Data Bus Powertrain Missing Messages",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/volkswagen_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0010",
+      "description": "Powertrain Control Module (PCM) failure, Variable valve timing actuator failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0011",
+      "description": "Camshaft variable timing solenoid failure, Engine oil level is too low, The engine is not timed correctly, The engine oil does not meet the manufacturer's requirements, Variable valve timing actuator failure, Worn timing chain",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0012",
+      "description": "Camshaft variable timing solenoid failure, Engine oil level is too low, The engine is not timed correctly, The engine oil does not meet the manufacturer's requirements, Variable valve timing actuator failure, Worn timing chain",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0013",
+      "description": "Powertrain Control Module (PCM) failure, Variable valve timing actuator failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0014",
+      "description": "Camshaft variable timing solenoid failure, Engine oil level is too low, The engine is not timed correctly, The engine oil does not meet the manufacturer's requirements, Variable valve timing actuator failure, Worn timing chain",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0101",
+      "description": "Large vacuum leaks, Split Intake Air Boot or PCV Hose, Defective intake manifold gaskets, Mass Airflow Sensor (MAF), Mass Air Flow Sensor circuit and or wiring problems, Defective Barometric Pressure Sensor, Dirty or contaminated Mass Air Flow Sensing wire or filament, PCM software needs to be updated",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0102",
+      "description": "The Mass Airflow Sensor (MAF) Sensor is unplugged or the wiring is damaged, Loose or corroded electrical terminals in the MAF Sensor circuit, Faulty MAF Sensor",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0113",
+      "description": "Defective Intake Air Temperature Sensor, Dirty air filter, Defective Mass Air Flow Sensor, Faulty or corroded Intake Air Temperature Sensor wiring or connections",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0128",
+      "description": "Defective Engine Thermostat, Defective Engine Coolant Temperature Sensor, Defective Intake Air Temperature Sensor, Defective Cooling System, Low Engine Coolant, Dirty Engine Coolant causing incorrect Coolant Temperature Sensor readings, Defective/always running Engine Cooling fan(s)",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0135",
+      "description": "Defective Oxygen Sensor/Air Fuel Ratio Sensor, defective Oxygen Sensor/Air Fuel Ratio Sensor Heater Circuit, Exhaust System Leak, Intake Air System leak, Low Fuel Pressure, Defective Engine Coolant Temperature Sensor, Defective sensor wiring and or circuit problem, PCM software needs to be updated, Defective PCM",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0171",
+      "description": "Control module software needs to be updated, Vacuum leaks (intake manifold gaskets, vacuum hoses, PCV hoses, etc.), Mass air flow sensor, Plugged fuel filter or weak fuel pump, Plugged or dirty fuel injectors",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0174",
+      "description": "PCM software needs to be updated, Vacuum leaks (Intake Manifold Gaskets, vacuum hoses, PCV hoses, etc.), Faulty Mass Airflow (MAF) Sensor, Plugged Fuel Filter or weak Fuel Pump, Plugged or dirty Fuel Injectors",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0200",
+      "description": "Defective Fuel Injector, Faulty or corroded Fuel Injector, wiring, and or connections, Plugged Fuel Injector, Dirt in the Fuel Injector",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0201",
+      "description": "Defective Fuel Injector, Faulty or corroded Fuel Injector, wiring, and or connections, Plugged Fuel Injector, Dirt in the Fuel Injector",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0202",
+      "description": "Malfunction of the Fuel Injector, Malfunction of the PCM Fuel Injector driver circuit, Defective wiring/connections in the Fuel Injector wiring harness, Defective Fuel Injector power circuit(s)",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0203",
+      "description": "Fuel injector failure, Powertrain Control Module (PCM) failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0205",
+      "description": "Fuel injector failure, Powertrain Control Module (PCM) failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0300",
+      "description": "Worn out spark plugs, ignition wires, coil(s), distributor cap and rotor (when applicable), Incorrect ignition timing, Vacuum leak(s), Low or weak fuel pressure, Improperly functioning EGR system, Defective Mass Air Flow Sensor, Defective Crankshaft and or Camshaft Sensor, Defective Throttle Position Sensor, Mechanical engine problems (i.e.—low compression, leaking head gasket(s), or valve problems)",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0301",
+      "description": "Worn out spark plugs, ignition wires, coil(s), distributor cap and rotor (when applicable), Incorrect ignition timing, Vacuum leak(s), Low or weak fuel pressure, Improperly functioning EGR system, Defective Mass Air Flow Sensor, Defective Crankshaft and or Camshaft Sensor, Defective Throttle Position Sensor, Mechanical engine problems (i.e.—low compression, leaking head gasket(s), or valve problems)",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0302",
+      "description": "Worn out spark plugs, ignition wires, coil(s), distributor cap and rotor (when applicable), Incorrect ignition timing, Vacuum leak(s), Low or weak fuel pressure, Improperly functioning EGR system, Defective Mass Air Flow Sensor, Defective Crankshaft and or Camshaft Sensor, Defective Throttle Position Sensor, Mechanical engine problems (i.e.—low compression, leaking head gasket(s), or valve problems)",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0303",
+      "description": "Worn out spark plugs, ignition wires, coil(s), distributor cap and rotor (when applicable), Incorrect ignition timing, Vacuum leak(s), Low or weak fuel pressure, Improperly functioning EGR system, Defective Mass Air Flow Sensor, Defective Crankshaft and or Camshaft Sensor, Defective Throttle Position Sensor, Mechanical engine problems (i.e.—low compression, leaking head gasket(s), or valve problems)",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0304",
+      "description": "Worn out spark plugs, ignition wires, coil(s), distributor cap and rotor (when applicable), Incorrect ignition timing, Vacuum leak(s), Low or weak fuel pressure, Improperly functioning EGR system, Defective Mass Air Flow Sensor, Defective Crankshaft and or Camshaft Sensor, Defective Throttle Position Sensor, Mechanical engine problems (i.e.—low compression, leaking head gasket(s), or valve problems)",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0401",
+      "description": "Restriction in the EGR passages usually caused by carbon buildup, The EGR Valve is defective, Lack of proper vacuum or electrical signal to the EGR valve, Malfunctioning EGR Vacuum supply solenoid, Lack of proper EGR system feedback to the computer from the: Manifold Absolute Pressure Sensor (MAP), Differential EGR Pressure Feedback Sensor (DPFE), EGR Valve Position Sensor (EVP), EGR Temperature Sensor",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0420",
+      "description": "Inefficient Catalytic Converter(s), Defective Front or Rear Oxygen Sensor(s), Misfiring engines",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0430",
+      "description": "Defective Catalytic Converter, Internal engine damage resulting in high oil consumption and or a leaking Head Gasket has damaged the Catalytic Converter",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0440",
+      "description": "Missing fuel cap, Defective or damaged fuel cap, Distorted or damaged Fuel Tank Filler Neck, Torn or punctured Evaporative system hose(s), Defective Fuel Tank Sending Unit gasket or seal, Split or damaged Carbon Canister, Defective Evaporative Vent Valve and or Evaporative Purge Valve, Defective or damaged fuel tank",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0441",
+      "description": "Missing fuel cap, Stuck open or closed purge valve, Defective or damaged fuel cap, Distorted damaged or cracked Fuel Tank Filler Neck, Torn or punctured Evaporative system hose(s), Defective Fuel Tank Sending Unit gasket or seal, Split or damaged Carbon Canister, Defective Evaporative Vent Valve, Defective or damaged fuel tank",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0442",
+      "description": "Defective or damaged fuel cap, Distorted or damaged Fuel Tank Filler Neck, Small tear or puncture in the Evaporative system hose(s) and or Carbon Canister, Defective Fuel Tank Sending Unit gasket or seal, Small split in a seam of the Carbon Canister, Defective Evaporative Vent Valve and or Evaporative Purge Valve, Defective or damaged Fuel Tank, Defective Fuel Tank Pressure Sensor, Defective Leak Detection Pump, Slightly loose and or worn clamps or hardened O-rings anywhere in the EVAP system",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0455",
+      "description": "Missing fuel cap, Defective or damaged fuel cap, Distorted or damaged Fuel Tank Filler Neck, Torn or punctured Evaporative system hose(s), Defective Fuel Tank Sending Unit gasket or seal, Split or damaged Carbon Canister, Defective Evaporative Vent Valve and or Evaporative Purge Valve, Defective or damaged fuel tank, Defective Fuel Tank Pressure Sensor",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0500",
+      "description": "Defective Vehicle Speed Sensor, Defective Speedometer, Vehicle Speed Sensor wiring or connector, Communication (CAN) bus problems, Defective transmission or differential Vehicle Speed Sensor drive gear",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0501",
+      "description": "Defective Vehicle Speed Sensor, Defective Speedometer, Vehicle Speed Sensor wiring or connector, Communication (CAN) bus problems, Defective transmission or differential Vehicle Speed Sensor drive gear",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0505",
+      "description": "Defective Idle Air Control Motor, Intake Manifold Vacuum leaks, Carbon buildup in the Throttle Body air passages",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0506",
+      "description": "Defective or sticking Idle Air Control Motor, Intake Manifold Vacuum leaks, Carbon buildup in the Throttle Body air passages, Defective Power Steering Pressure Switch",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0507",
+      "description": "Defective or sticking Idle Air Control Motor, Intake Manifold Vacuum leaks, Carbon buildup in the Throttle Body air passages, Defective Coolant Temperature Sensor, Defective Charging System/Alternator, Defective Power Steering Pressure Switch",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0600",
+      "description": "Defective PCM (Power Train Control Module), Defective PCM data bus wiring/connections, Defective PCM data bus ground circuit(s), Defective PCM or other control module controlled output devices, Defective CAN bus communication",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0601",
+      "description": "Lack of proper voltage to the PCM, Defective PCM memory module, Defective PCM ground circuit(s), Defective PCM controlled output devices",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0602",
+      "description": "Powertrain Control Module (PCM) failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0603",
+      "description": "Lack of proper voltage to the Keep Alive Memory connection on the PCM, Defective PCM Keep Alive Memory Module (KAM), Defective PCM ground circuit(s), Defective PCM controlled output devices",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0605",
+      "description": "Lack of proper voltage and or ground to the PCM, Defective PCM ROM memory module, Defective PCM ground circuit(s), Defective PCM controlled output devices",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0700",
+      "description": "Defective Shift Solenoids, Defective Engine Coolant Temperature Sensor, Defective Valve Body, Dirty transmission fluid that restricts the hydraulic passages",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0705",
+      "description": "Defective Transmission Range Sensor (PRNDL input), Defective Transmission Range Sensor (PRNDL input) wiring or connector, Defective Valve Body, Defective manual shift valve linkage, Dirty transmission fluid that restricts the hydraulic passages",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0706",
+      "description": "Defective Transmission Range Sensor (PRNDL input), Defective Transmission Range Sensor (PRNDL input) wiring or connector, Defective Valve Body, Defective manual shift valve linkage, Dirty transmission fluid that restricts the hydraulic passages",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0720",
+      "description": "Defective Output Speed Sensor, Defective Shift Solenoids, Defective Engine Coolant Temperature Sensor, Defective Valve Body, Dirty transmission fluid that restricts the hydraulic passages, Defective Output Speed Sensor wiring or connector",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0730",
+      "description": "Defective Shift Solenoids, Defective Engine Coolant Temperature Sensor, Defective Valve Body, Dirty transmission fluid that restricts the hydraulic passages",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0841",
+      "description": "Transmission Control Module (TCM) failure, Transmission fluid level is low, Transmission fluid pressure sensor failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0842",
+      "description": "Transmission Control Module (TCM) failure, Transmission fluid level is low, Transmission fluid pressure sensor failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0845",
+      "description": "Transmission Control Module (TCM) failure, Transmission fluid level is low, Transmission fluid pressure sensor failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0846",
+      "description": "Transmission Control Module (TCM) failure, Transmission fluid level is low, Transmission fluid pressure sensor failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0847",
+      "description": "Transmission Control Module (TCM) failure, Transmission fluid level is low, Transmission fluid pressure sensor failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0901",
+      "description": "Clutch master cylinder failure, Clutch solenoid failure, Transmission Control Module (TCM) failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0935",
+      "description": "Hydraulic power unit assembly failure, Transmission Control Module (TCM) failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0942",
+      "description": "Hydraulic power unit assembly failure, Transmission Control Module (TCM) failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0944",
+      "description": "Clogged transmission filter, Transmission fluid level is low, Transmission oil pump failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0961",
+      "description": "Transmission shift solenoid failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0A08",
+      "description": "Inverter/converter assembly failure, Powertrain Control Module (PCM) failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0A0D",
+      "description": "High voltage safety device failure, Inverter/converter assembly failure, Power management control module failure, Service disconnect plug is not properly connected, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0A0F",
+      "description": "Hybrid transaxle assembly failure, Internal engine failure, Power management control module failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0A7F",
+      "description": "Poor connections at the HV battery, A problem with the HV battery, ECU issues",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0A80",
+      "description": "High voltage battery assembly failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0B22",
+      "description": "Battery contactor assembly failure, Battery Energy Control Module (BECM) failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0B24",
+      "description": "Battery Energy Control Module (BECM) failure, High voltage battery assembly failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0B26",
+      "description": "Battery Energy Control Module (BECM) failure, High voltage battery assembly failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0B28",
+      "description": "Battery Energy Control Module (BECM) failure, High voltage battery assembly failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0B30",
+      "description": "Battery Energy Control Module (BECM) failure, High voltage battery assembly failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0C00",
+      "description": "Drive motor generator power inverter control module failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0C09",
+      "description": "Drive motor generator assembly failure, Drive motor generator power inverter control module failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0C11",
+      "description": "Coolant system leak, Drive motor generator power inverter control module failure, Engine cooling fan failure, Water pump failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0C14",
+      "description": "Coolant system leak, Drive motor generator power inverter control module failure, Engine cooling fan failure, Water pump failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0C15",
+      "description": "Coolant system leak, Drive motor generator power inverter control module failure, Engine cooling fan failure, Water pump failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2000",
+      "description": "Diesel Particulate Filter (DPF) failure, Intake air leak, Mass Airflow (MAF) sensor is dirty/loss of calibration",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2004",
+      "description": "A failed IMRC actuator, A problem with the intake manifold or linkage, Wiring issues",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2006",
+      "description": "Intake manifold runner control actuator failure, Powertrain Control Module (PCM) failure, Restricted vacuum lines",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2101",
+      "description": "Accelerator Pedal Position (APP) assembly failure, Powertrain Control Module (PCM) failure, Throttle control motor failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2122",
+      "description": "Accelerator Pedal Position (APP) assembly failure, Powertrain Control Module (PCM) failure, Throttle control motor failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2135",
+      "description": "Accelerator Pedal Position (APP) assembly failure, Powertrain Control Module (PCM) failure, Throttle Position Sensor (TPS) failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2138",
+      "description": "Accelerator Pedal Position (APP) assembly failure, Powertrain Control Module (PCM) failure, Throttle Position Sensor (TPS) failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2181",
+      "description": "Engine coolant heater failure, Engine coolant level is too low, Thermostat failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2210",
+      "description": "NOx sensor failure, Powertrain Control Module (PCM) failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2213",
+      "description": "NOx sensor failure, Powertrain Control Module (PCM) failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2237",
+      "description": "Exhaust leak, Oxygen sensor failure, Powertrain Control Module (PCM) failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2238",
+      "description": "Exhaust leak, Oxygen sensor failure, Powertrain Control Module (PCM) failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2251",
+      "description": "Exhaust leak, Oxygen sensor failure, Powertrain Control Module (PCM) failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2302",
+      "description": "Ignition coil failure, Powertrain Control Module (PCM) failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2303",
+      "description": "Ignition coil failure, Powertrain Control Module (PCM) failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2305",
+      "description": "Ignition coil failure, Powertrain Control Module (PCM) failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2308",
+      "description": "Ignition coil failure, Powertrain Control Module (PCM) failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2310",
+      "description": "Ignition coil failure, Powertrain Control Module (PCM) failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2401",
+      "description": "Evap leak detection pump failure, Powertrain Control Module (PCM) failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2402",
+      "description": "Evap leak detection pump failure, Powertrain Control Module (PCM) failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2422",
+      "description": "EVAP vent valve failure, Powertrain Control Module (PCM) failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2431",
+      "description": "Air control solenoid failure, Powertrain Control Module (PCM) failure, Secondary Air System pressure sensor failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2432",
+      "description": "Air control solenoid failure, Powertrain Control Module (PCM) failure, Secondary Air System pressure sensor failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2500",
+      "description": "Alternator failure, Battery failure, Powertrain Control Module (PCM) failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2501",
+      "description": "Alternator failure, Battery failure, Powertrain Control Module (PCM) failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2503",
+      "description": "Alternator failure, Battery failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2509",
+      "description": "Powertrain Control Module (PCM) failure, Powertrain Control Module (PCM) power relay failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P250C",
+      "description": "Oil level sensor failure, Powertrain Control Module (PCM) failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2601",
+      "description": "Coolant Heat Storage (CHS) water pump failure, Coolant Heat Storage (CHS) water pump relay, Powertrain Control Module (PCM) failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2607",
+      "description": "Intake air heater, Powertrain Control Module (PCM) failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2609",
+      "description": "Intake air heater, Powertrain Control Module (PCM) failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2610",
+      "description": "An internal PCM problem, A problem with the PCM power or ground circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2614",
+      "description": "Broken tone ring, Camshaft Position Sensor (CMP) failure, Powertrain Control Module (PCM) failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2706",
+      "description": "Transmission Control Module (TCM) failure, Transmission fluid level is low, Transmission shift solenoid failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2711",
+      "description": "Internal transmission failure, Transmission Control Module (TCM) failure, Transmission fluid level is low, Transmission solenoid failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2714",
+      "description": "Transmission Control Module (TCM) failure, Transmission fluid level is low, Transmission shift solenoid failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2716",
+      "description": "Transmission Control Module (TCM) failure, Transmission fluid level is low, Transmission shift solenoid failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2723",
+      "description": "Transmission Control Module (TCM) failure, Transmission fluid level is low, Transmission shift solenoid failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2803",
+      "description": "Powertrain Control Module (PCM) failure, Transmission Control Module (TCM) failure, Transmission range sensor failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2806",
+      "description": "Powertrain Control Module (PCM) failure, Transmission Control Module (TCM) failure, Transmission range sensor failure, Transmission range sensor is out of adjustment, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2809",
+      "description": "Transmission Control Module (TCM) failure, Transmission fluid level is low, Transmission pressure control solenoid failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2810",
+      "description": "Transmission Control Module (TCM) failure, Transmission fluid level is low, Transmission pressure control solenoid failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2815",
+      "description": "Transmission Control Module (TCM) failure, Transmission fluid level is low, Transmission pressure control solenoid failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2A00",
+      "description": "Exhaust leak, Oxygen sensor failure, Powertrain Control Module (PCM) failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2A01",
+      "description": "Exhaust leak, Oxygen sensor failure, Powertrain Control Module (PCM) failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2A03",
+      "description": "Exhaust leak, Oxygen sensor failure, Powertrain Control Module (PCM) failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2A04",
+      "description": "Exhaust leak, Oxygen sensor failure, Powertrain Control Module (PCM) failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P2BA8",
+      "description": "Faulty NOx Sensors, NOx Sensors harness is open or shorted, NOx Sensors circuit poor electrical connection, Faulty Diesel Particulate Filter (DPF)",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P3000",
+      "description": "Fuel level is too low, High voltage battery assembly failure, High voltage battery is not sufficiently charged",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P3100",
+      "description": "High voltage powertrain control module failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P3400",
+      "description": "Faulty Cylinder Deactivation System",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P3401",
+      "description": "Engine oil level is too low, Powertrain Control Module (PCM) failure, Variable valve timing solenoid failure, Wiring issue",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "B0081",
+      "description": "Wiring issues, Control module problems, A problem with the airbag",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "C0040",
+      "description": "A faulty wheel speed sensor, A problem with the wheel speed sensor circuit, Reluctor issues, A problem with the ABS module",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "U0001",
+      "description": "A faulty wheel speed sensor, A problem with the wheel speed sensor circuit, Reluctor issues, A problem with the ABS module",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "U0073",
+      "description": "A faulty control module, A problem with the CAN bus",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "U0100",
+      "description": "A faulty PCM, A problem with the control module circuit, A problem with the CAN bus",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "U0107",
+      "description": "A dead battery, A faulty TAC module, A problem with TAC module circuit, A problem with the CAN bus",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "U0121",
+      "description": "A dead battery, A faulty ABS module, A problem with ABS module circuit, A problem with the CAN bus",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/audi_codes.txt",
+      "verified": false
     }
   ]
 }

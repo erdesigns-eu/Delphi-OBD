@@ -316,6 +316,198 @@
       "severity": "critical",
       "description": "Lost Communication With Brake System Control Module (Mercedes ESP)",
       "verified": false
+    },
+    {
+      "code": "P1105",
+      "description": "Atmospheric Pressure Sensor In Control Module",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mercedes_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1220",
+      "description": "Fuel Quantity Actuator Y231",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mercedes_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1221",
+      "description": "CAN Communication ETC Or ETS Interrupted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mercedes_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1222",
+      "description": "IFI Accelerator Pedal Position Sensor R252",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mercedes_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1223",
+      "description": "Fuel Rack Position Sensor Y2311",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mercedes_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1335",
+      "description": "CKP Sensor IFI",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mercedes_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1350",
+      "description": "Injection Sensor Solenoid",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mercedes_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1351",
+      "description": "Injection Sensor Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mercedes_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1352",
+      "description": "Needle Lift Sensor",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mercedes_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1401",
+      "description": "EGR Lifting Sender B283",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mercedes_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1404",
+      "description": "EGR Control",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mercedes_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1465",
+      "description": "EPW Power",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mercedes_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1470",
+      "description": "Pressure Control Flap Vacuum Transducer Y312",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mercedes_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1475",
+      "description": "Resonance Intake Line Switchover Valve Y227",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mercedes_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1476",
+      "description": "Resonance Intake Manifold Switchover Valve Y226",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mercedes_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1480",
+      "description": "Preglow Control",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mercedes_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1481",
+      "description": "Glow Plug Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mercedes_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1482",
+      "description": "Preglow Control Module N142",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mercedes_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1520",
+      "description": "Cruise Control Switch S40",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mercedes_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1610",
+      "description": "Voltage Supply Missing Or Relay Module K40",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mercedes_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1611",
+      "description": "IFI Control Module N37",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mercedes_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1612",
+      "description": "IFI Control Module N37 Voltage Circuit 15",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mercedes_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1613",
+      "description": "IFI Control Module N37",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mercedes_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1614",
+      "description": "IFI Control Module N37 Voltage Or Fuel Metering Actuator Y231K1 Or Fuel Rack Position Sensor Y2311",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mercedes_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1615",
+      "description": "IFI Control Module N37 Supply Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mercedes_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1617",
+      "description": "Control Module Fault Or Control Module Not Coded",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mercedes_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1622",
+      "description": "Electrohydraulic Shut-Off Actuator Y11",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mercedes_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1625",
+      "description": "Check Engine MIL",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mercedes_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1630",
+      "description": "Drive Authorization Signal",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mercedes_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1705",
+      "description": "Starter Lock-Out Backup Lamp Switch S161",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mercedes_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1780",
+      "description": "Modulation Pressure Switchover Valve ATCC Y34 Or Upshift Delay Switchover Valve ATCC Y35",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mercedes_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1781",
+      "description": "Upshift Delay Switchover Valve ATCC Y35",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mercedes_codes.txt",
+      "verified": false
     }
   ]
 }
