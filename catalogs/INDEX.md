@@ -1,6 +1,9 @@
 # Catalog index
 
-Generated 2026-05-08 by `tools/generate_catalog_index.py` (re-run on every release).
+Snapshot of the catalogue inventory, first generated on 2026-05-08 and maintained by
+hand since (the generator script is no longer part of the repository). Update the
+affected rows when a catalogue changes; `python3 tools/validate_catalogs.py
+--require-coverage` validates the catalogues themselves.
 
 ## Summary
 - **79 OEM catalogs** — **247,279 total entries** across 5 vehicle classes:

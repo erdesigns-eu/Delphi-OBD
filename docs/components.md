@@ -1,11 +1,37 @@
 # Components reference
 
-One-paragraph summary for every shipped Delphi-OBD component. The
-canonical reference is the XMLDoc in source — every public symbol is
-documented at its declaration. This page gives you a one-screen tour
-so you know what to drop on the form and where to look.
+Summary of every Delphi-OBD component, ordered by palette page. The
+canonical reference is the XMLDoc in source: every public symbol is
+documented at its declaration. This page gives a one-screen tour, so you
+know what to drop on the form and where to look.
 
-## Foundation
+`src/DesignTime/ERD.Design.Registration.pas` registers **225 components on
+14 palette pages**:
+
+| Page | Components | Section |
+|---|---:|---|
+| OBD | 11 | [OBD](#obd) |
+| OBD Services | 15 | [OBD Services](#obd-services) |
+| OBD Diagnostics | 16 | [OBD Diagnostics](#obd-diagnostics) |
+| OBD Coding | 19 | [OBD Coding](#obd-coding) |
+| OBD Calibration | 3 | [OBD Calibration](#obd-calibration) |
+| OBD Flashing | 3 | [OBD Flashing](#obd-flashing) |
+| OBD Catalogs | 3 | [OBD Catalogs](#obd-catalogs) |
+| OBD Dashboard | 10 | [OBD Dashboard](#obd-dashboard) |
+| OBD Visual | 7 | [OBD Visual](#obd-visual) |
+| OBD Studio | 62 | [OBD Studio](#obd-studio) |
+| OBD Studio Pro | 22 | [OBD Studio Pro](#obd-studio-pro) |
+| OBD Dyno | 8 | [OBD Dyno](#obd-dyno) |
+| OBD Radio | 43 | [OBD Radio](#obd-radio) |
+| OBD EEPROM | 3 | [OBD EEPROM](#obd-eeprom) |
+
+A few helper components are not on the palette and are created in code;
+see [Not on the palette](#not-on-the-palette).
+
+## OBD
+
+Connection, adapter and protocol, plus network, session and recording
+components.
 
 ### `TOBDConnection` — `ERD.Connection`
 Owns one transport (Serial / Bluetooth / BLE / Wi-Fi / UDP / FTDI) at a
@@ -28,7 +54,51 @@ DoIP), parses the textual reply back into a `TOBDResponse`, fires
 events on the main thread. Send / SendAsync, Request / RequestAsync.
 Single in-flight async per instance.
 
-## Service mode (OBD-II Modes 01–0A)
+### `TOBDDoIPClient` — `ERD.Protocol.DoIP.Client`
+ISO 13400 DoIP client. Routing activation, vehicle identification,
+diagnostic-message exchange. Plain TCP via `TOBDDoIPPlainTransport`
+or TLS via `TOBDDoIPOpenSSLTransport` (in
+`ERD.Protocol.DoIP.TLS.OpenSSL`).
+
+### `TOBDSecOCCodec` — `ERD.Protocol.SecOC`
+AUTOSAR Secure Onboard Communication codec. Wraps an authentic PDU
+with a freshness counter + AES-128 CMAC. Verifies on the receive
+side. Pluggable key store via `TOBDSecOCKeyStore`.
+
+### `TOBDRecorder` — `ERD.Recorder`
+Captures every protocol-level frame / response / NRC / error to an
+append-only `.obdlog` (JSONL). Use as a forensic / audit trail or
+as the input for `TOBDReplayer`. Optional gzip via `.obdlog.gz`.
+
+### `TOBDReplayer` — `ERD.Replayer`
+Replays a `.obdlog` through `OnEntry`. Two modes: `rmAsFastAsPossible`
+for headless reprocessing, `rmRealTime` for UI demo (gap-capped via
+`MaxGapMs`).
+
+### `TOBDKWP1281Session` — `ERD.Protocol.KWP1281.Session`
+VW KWP1281 (K-line) session around `TKWP1281Codec`. The transport is an
+interface (`IKWP1281Transport`: serial K-line, ELM, TP 2.0, ISO-TP or
+J2534, in the `ERD.Protocol.KWP1281.Transport.*` units), so the host hands
+it in with `SetTransport` before `Connect`. The codec's operations are
+methods of the component: `ReadDTCs`, `ClearDTCs`, `ReadGroup`,
+`ReadEEPROM`, adaptation, login, seed / key and `Recode`.
+
+### `TOBDTP20Session` — `ERD.Protocol.TP20.Session`
+VW TP 2.0 transport session around `TTP20Codec`. Wire the CAN transport
+in code with `SetCANTransport`, then `Connect`, `SendBlock` /
+`ReceiveBlock`, `KeepAlive` and `Disconnect`. `AppId` selects the
+target (radio by default).
+
+### `TOBDJ2534Device`, `TOBDJ2534Channel` — `ERD.J2534.Components`
+SAE J2534 pass-thru. `TOBDJ2534Device` loads the vendor DLL (`DllPath`,
+or pick one from `EnumeratedDevices`) and opens the device;
+`TOBDJ2534Channel` binds to a `Device`, picks `Protocol` / `BaudRate`,
+and offers `Open`, `WriteMsg`, `TryReadMsg` and `InstallPassFilter`.
+
+## OBD Services
+
+OBD-II service modes (01–0A), WWH-OBD and higher-level roll-ups that sit
+on top of `TOBDProtocol`.
 
 ### `TOBDLiveData` — `ERD.Service.LiveData`
 Polls a list of PIDs at a configurable interval (`Poll(APIDs,
@@ -41,11 +111,25 @@ Reads (Mode 03) and clears (Mode 04) Diagnostic Trouble Codes. Returns
 a `TArray<string>` of human-readable codes (`P0420`, `B1234`, …) by
 default, with raw bytes available via the `OnRaw` event.
 
+### `TOBDClearDTC` — `ERD.ClearDTC`
+Single-purpose ClearDiagnosticInformation component covering OBD-II
+Mode 0x04, UDS Service 0x14 (3-byte group selector) and KWP2000
+Service 0x14 (2-byte group word) via the `Dialect` switch. Ships
+with `AutoExecute = False` default — every clear raises
+`EOBDConfig` until the host opts in.
+
 ### `TOBDVIN` — `ERD.Service.VIN`
 Reads the Vehicle Identification Number. Auto-selects between OBD-II
 Service 09 PID 02 (legacy) and UDS DID 0xF190 (modern) based on the
 detected adapter capabilities. Validates the result with
 `TOBDVINValidator` (ISO 3779 check digit).
+
+### `TOBDVINInspector` — `ERD.Service.VINInspector`
+Offline VIN decoder around `TOBDVINDecoder` (no bus traffic). Set `VIN`
+or call `DecodeNow`, then read `Info` or the shortcut properties:
+`Valid`, `WMI` / `VDS` / `VIS`, region, country, manufacturer, check
+digit, model year and plant. Uses the VIN catalogues
+(`TOBDVINCatalog`).
 
 ### `TOBDFreezeFrame` — `ERD.Service.FreezeFrame`
 Reads the freeze-frame snapshot stored against a chosen DTC (Mode 02).
@@ -57,154 +141,6 @@ Reads on-board monitor / readiness flags (Mode 06). Useful for
 emissions pre-checks. Surfaces ready / not-ready flags per monitor
 group plus min / max / current readings for each test ID.
 
-### `TOBDActuator` — `ERD.Service.Actuator`
-Drives Mode 08 actuator routines (door locks, fuel-pump test, fan
-test, …). Takes a TID + arguments, fires the routine, returns the
-ECU's response. Use carefully — these move physical components.
-
-## Coding
-
-### `TOBDSecurityAccess` — `ERD.Coding.SecurityAccess`
-UDS Service 27. Requests a seed at the chosen security level, fires
-`OnComputeKey(Sender; const ASeed; var AKey)` for the host's
-seed-to-key implementation, sends the key, fires `OnUnlocked`.
-
-### `TOBDDataIdentifierIO` — `ERD.Coding.DataIdentifierIO`
-UDS Services 22 / 2E. Read and write Data Identifiers. Strict mode
-requires the response length to match the catalog descriptor; lenient
-mode returns whatever bytes the ECU emits.
-
-### `TOBDRoutineControl` — `ERD.Coding.RoutineControl`
-UDS Service 31. Start / Stop / Get-Result for a routine identifier
-with optional parameters. Useful for OEM service routines (battery
-recoding, brake-bleed, throttle-body adaptation).
-
-### `TOBDFlasher` — `ERD.Coding.Flasher`
-One-shot ECU flasher (UDS RequestDownload / TransferData /
-RequestTransferExit). For a single-binary write without the gate /
-checkpoint / signature ceremony. AutoExecute = False.
-
-### `TOBDUploader` — `ERD.Coding.Uploader`
-Read firmware out of an ECU (UDS RequestUpload / TransferData /
-RequestTransferExit). Streams to a host-supplied stream or file
-with progress events.
-
-### `TOBDFlashSession` — `ERD.Coding.FlashSession`
-Orchestrates a programming-session lifecycle: session switch,
-security access, erase, transfer, verify, reset. Lighter than
-`TOBDFlashPipeline` (no pre-flight checks) but more than just
-`TOBDFlasher`.
-
-### `TOBDUDSWriteMemory` — `ERD.UDS.WriteMemory`
-UDS Service 3D — WriteMemoryByAddress. Direct memory write with
-configurable address / length format bytes. Destructive;
-AutoExecute = False.
-
-### `TOBDKWPWriteID` — `ERD.KWP.WriteID`
-KWP2000 Service 3B — WriteIdentifier. Writes identifying blocks
-(VIN, immobilizer, mileage, …). Destructive; AutoExecute = False.
-
-### `TOBDCodingAuditLog` — `ERD.Coding.AuditLog`
-HMAC-chained audit log for every coding / flashing operation. Each
-entry is `Append-only JSONL`. Verifying the chain catches tampering
-with any historical entry. Built on the AES-128 CMAC primitives in
-`ERD.Protocol.SecOC.*` — no new crypto surface.
-
-### `TOBDCodingSession` — `ERD.Coding.Session`
-Scoped session orchestrator. Acquires security access, performs
-host-supplied write operations, releases the session and emits an
-audit-log envelope. Use as the top-level entry point for any
-multi-step coding operation.
-
-### `TOBDComponentProtectionVAG / BMW / Mercedes / Stellantis`
-`ERD.OEM.ComponentProtection.*`. Vendor-specific component-protection
-flows that pair an immobilizer / theft-protection key with a swapped
-component. Each implements the vendor's specific challenge-response
-ceremony. Destructive; AutoExecute = False.
-
-## Flashing
-
-### `TOBDUDSTransfer` — `ERD.UDS.Transfer`
-Production-grade ISO 14229-1 §14 data-transfer state machine. BSC
-counter, NRC 0x78 retransmit, resumable via `TOBDFlashCheckpoint`,
-per-chunk retry budget. The engine `TOBDFlashPipeline` drives;
-hosts that need raw transfer use this directly.
-
-### `TOBDVoltageGate` — `ERD.Flash.VoltageGate`
-Battery-voltage monitor with a `HoldTimeMs` latch. Refuses to allow a
-flash to start if the voltage isn't stable above the threshold for
-the hold window. Wire this component explicitly in the host application.
-
-### `TOBDFlashPipeline` — `ERD.Flash.Pipeline`
-The full safe-by-default reflash orchestrator: pre-flight checks
-(engine off, voltage floor, ambient temperature, ignition, user
-confirmation), image verify (hash + signature + applicability),
-enter-programming (host routine), transfer, verify, reset, finalise.
-Wraps `TOBDUDSTransfer` and reports phase-by-phase progress through
-`OnPhaseChange` and `OnCheckResult`. **Read
-[`flashing-safety.md`](flashing-safety.md) before going live.**
-
-## Calibration
-
-### `TOBDXCP` — `ERD.Calibration.XCP`
-ASAM MCD-1 XCP master. CONNECT, GET_VERSION, GET_DAQ_LIST, START_STOP_DAQ,
-DOWNLOAD / UPLOAD, SET_CAL_PAGE / GET_CAL_PAGE. Transport-agnostic —
-host wires CAN / CAN-FD / Ethernet / FlexRay / USB via `SetTransport`.
-Sync only.
-
-### `TOBDCCP` — `ERD.Calibration.CCP`
-ASAP1a CCP master, the older sibling of XCP. Same shape, simpler
-state machine, CAN-only.
-
-### `TOBDIsoBus` — `ERD.Speciality.IsoBus`
-ISO 11783 (IsoBus) implement node. NAME registry, address claim,
-plus VT / TC / FS / GNSS sub-protocols in the `ERD.Speciality.IsoBus.*`
-family.
-
-## Network
-
-### `TOBDDoIPClient` — `ERD.Protocol.DoIP.Client`
-ISO 13400 DoIP client. Routing activation, vehicle identification,
-diagnostic-message exchange. Plain TCP via `TOBDDoIPPlainTransport`
-or TLS via `TOBDDoIPOpenSSLTransport` (in
-`ERD.Protocol.DoIP.TLS.OpenSSL`).
-
-### `TOBDSecOCCodec` — `ERD.Protocol.SecOC`
-AUTOSAR Secure Onboard Communication codec. Wraps an authentic PDU
-with a freshness counter + AES-128 CMAC. Verifies on the receive
-side. Pluggable key store via `TOBDSecOCKeyStore`.
-
-## Tooling
-
-### `TOBDRecorder` — `ERD.Recorder`
-Captures every protocol-level frame / response / NRC / error to an
-append-only `.obdlog` (JSONL). Use as a forensic / audit trail or
-as the input for `TOBDReplayer`. Optional gzip via `.obdlog.gz`.
-
-### `TOBDReplayer` — `ERD.Replayer`
-Replays a `.obdlog` through `OnEntry`. Two modes: `rmAsFastAsPossible`
-for headless reprocessing, `rmRealTime` for UI demo (gap-capped via
-`MaxGapMs`).
-
-### `TOBDProtocolMock` — `ERD.Recorder.ProtocolMock`
-Drop-in `TOBDProtocol` replacement that drives `OnFrame` /
-`OnResponse` / `OnNRC` / `OnError` from a recording. Use to run
-integration tests against captures without a live ECU.
-
-### `TOBDLogRedactor` — `ERD.Recorder.Redactor`
-Streams a `.obdlog` through a host-supplied filter and writes a
-redacted copy. Use before sharing a capture (drop sensitive entries
-or wipe payloads of specific service-IDs).
-
-## Service-mode close-out (Phase 5)
-
-### `TOBDClearDTC` — `ERD.ClearDTC`
-Single-purpose ClearDiagnosticInformation component covering OBD-II
-Mode 0x04, UDS Service 0x14 (3-byte group selector) and KWP2000
-Service 0x14 (2-byte group word) via the `Dialect` switch. Ships
-with `AutoExecute = False` default — every clear raises
-`EOBDConfig` until the host opts in.
-
 ### `TOBDOxygenMonitor` — `ERD.OxygenMonitor`
 OBD-II Mode 0x05 oxygen-sensor monitoring component. Walks the
 supported-TID bitmap (0x00 / 0x20 / 0x40 blocks) then issues one
@@ -213,14 +149,35 @@ TestValue, MinLimit, MaxLimit, Pass)` record. Returns an empty
 result set on ISO 15765-4 CAN cars (which is correct — those report
 oxygen monitors under Mode 0x06).
 
-### `TOBDPIDList` — `ERD.PIDList`
-Design-time-editable `TOwnedCollection` of `(Mode, PID, Name,
-Enabled, PollIntervalMs)` items. Drop on a form alongside a
-`TOBDLiveData`; iterate at runtime for `Subscribe` calls.
-`EnabledFor(Mode)` filters by mode and enabled state.
+### `TOBDActuator` — `ERD.Service.Actuator`
+Drives Mode 08 actuator routines (door locks, fuel-pump test, fan
+test, …). Takes a TID + arguments, fires the routine, returns the
+ECU's response. Use carefully — these move physical components.
+
+### `TOBDVehicleHealth` — `ERD.Service.VehicleHealth`
+Composite roll-up. Point its `VIN`, `DTCs`, `LiveData`,
+`OnBoardMonitor` and `FreezeFrame` references at the components on the
+form, optionally set `LivePIDs`, then call `Snapshot` (sync) or
+`SnapshotAsync`; `OnReady` delivers one health report.
+
+### `TOBDDriveCycleAdvisor` — `ERD.Service.DriveCycle`
+Walks the driver through the drive cycle that completes a readiness
+monitor. Static: `GetCycle(Monitor)` returns the steps from the
+drive-cycle catalogue, no bus needed. Live: `Start` polls Mode 01 PID 01
+every `PollIntervalMs` and fires `OnReadiness`, `OnStep`, `OnReady` and
+`OnAllReady`; `AutoStop` ends when `TargetMonitor` (or every monitor) is
+complete.
+
+### `TOBDEVBattery` — `ERD.Service.EVBattery`
+High-voltage battery read-out for supported BEV / PHEV platforms. Set
+`Vendor` to a key from `catalogs/ev-battery/`, wire `Protocol`, then call
+`ReadSnapshot` once or `Start` to poll (`OnSnapshot`). The snapshot holds
+SOC, SOH, pack voltage / current, cell voltages, temperatures and
+charging data where the vendor catalogue defines them; see the
+[EV capability matrix](ev-support-matrix.md).
 
 ### `TOBDDataSource` — `ERD.DataSource`
-TDataSource-style bridge between a Phase-5 service component
+TDataSource-style bridge between a service component
 (`TOBDLiveData / TOBDDTCs / TOBDFreezeFrame / TOBDOnBoardMonitor /
 TOBDVIN`) and any number of consumers. Re-fires the source's
 events with a kind-agnostic payload so consumers don't bind to the
@@ -241,7 +198,9 @@ group), 0xF412 (per-group), 0xF40C (conditions-encountered
 counters) into a structured snapshot. Degrades gracefully on
 rejected secondary DIDs.
 
-## Diagnostics (Phase 6)
+## OBD Diagnostics
+
+UDS, KWP2000 and J1939 read-side services and the OEM catalogue.
 
 ### `TOBDUDS` — `ERD.Diagnostics.UDS`
 UDS session-hub component. Owns the diagnostic-session lifecycle
@@ -329,6 +288,146 @@ Generic components (`TOBDDataIdentifierIO`, `TOBDDTCs`,
 `TOBDUDSReadDID`, `TOBDJ1939DM`, …) resolve raw numeric IDs to
 human-readable names through the registry.
 
+## OBD Coding
+
+Write-side components, on their own page so they stay visually separate
+from the read-only ones. Everything that writes defaults to
+`AutoExecute = False`; see [flashing safety](flashing-safety.md) and the
+[coding cookbook](coding-cookbook.md).
+
+### `TOBDSecurityAccess` — `ERD.Coding.SecurityAccess`
+UDS Service 27. Requests a seed at the chosen security level, fires
+`OnComputeKey(Sender; const ASeed; var AKey)` for the host's
+seed-to-key implementation, sends the key, fires `OnUnlocked`.
+
+### `TOBDDataIdentifierIO` — `ERD.Coding.DataIdentifierIO`
+UDS Services 22 / 2E. Read and write Data Identifiers. Strict mode
+requires the response length to match the catalog descriptor; lenient
+mode returns whatever bytes the ECU emits.
+
+### `TOBDRoutineControl` — `ERD.Coding.RoutineControl`
+UDS Service 31. Start / Stop / Get-Result for a routine identifier
+with optional parameters. Useful for OEM service routines (battery
+recoding, brake-bleed, throttle-body adaptation).
+
+### `TOBDFlasher` — `ERD.Coding.Flasher`
+One-shot ECU flasher (UDS RequestDownload / TransferData /
+RequestTransferExit). For a single-binary write without the gate /
+checkpoint / signature ceremony. AutoExecute = False.
+
+### `TOBDUploader` — `ERD.Coding.Uploader`
+Read firmware out of an ECU (UDS RequestUpload / TransferData /
+RequestTransferExit). Streams to a host-supplied stream or file
+with progress events.
+
+### `TOBDFlashSession` — `ERD.Coding.FlashSession`
+Orchestrates a programming-session lifecycle: session switch,
+security access, erase, transfer, verify, reset. Lighter than
+`TOBDFlashPipeline` (no pre-flight checks) but more than just
+`TOBDFlasher`.
+
+### `TOBDUDSWriteMemory` — `ERD.UDS.WriteMemory`
+UDS Service 3D — WriteMemoryByAddress. Direct memory write with
+configurable address / length format bytes. Destructive;
+AutoExecute = False.
+
+### `TOBDUDSWriteDID` — `ERD.UDS.WriteDID`
+Single-purpose UDS WriteDataByIdentifier (Service 0x2E). Assign
+`Protocol`, set `AutoExecute := True` once the host has consented, then
+call `Write` or `WriteAsync`. The ECU must echo the DID in its positive
+response; a missing or wrong echo raises `EOBDProtocolErr`.
+
+### `TOBDKWPWriteID` — `ERD.KWP.WriteID`
+KWP2000 Service 3B — WriteIdentifier. Writes identifying blocks
+(VIN, immobilizer, mileage, …). Destructive; AutoExecute = False.
+
+### `TOBDCodingAuditLog` — `ERD.Coding.AuditLog`
+HMAC-chained audit log for every coding / flashing operation. Each
+entry is `Append-only JSONL`. Verifying the chain catches tampering
+with any historical entry. Built on the AES-128 CMAC primitives in
+`ERD.Protocol.SecOC.*` — no new crypto surface.
+
+### `TOBDCodingSession` — `ERD.Coding.Session`
+Scoped session orchestrator. Acquires security access, performs
+host-supplied write operations, releases the session and emits an
+audit-log envelope. Use as the top-level entry point for any
+multi-step coding operation.
+
+### `TOBDComponentProtectionVAG / BMW / Mercedes / Stellantis`
+`ERD.OEM.ComponentProtection.*`. Vendor-specific component-protection
+flows that pair an immobilizer / theft-protection key with a swapped
+component. Each implements the vendor's specific challenge-response
+ceremony through the bound `DataIO` (`TOBDDataIdentifierIO`): the host
+supplies the vendor authentication in `AuthFunc`, then calls
+`ReadStatus`, `ReadChallenge` and `Unlock`. Writes go through
+`DataIO`, so its `AutoExecute = False` gate applies.
+
+### `TOBDKeyAdaptationFord / HMG / BMW / Toyota`
+`ERD.OEM.KeyAdaptation.*`. Key and immobiliser adaptation over UDS
+routines: Ford PATS, Hyundai / Kia / Genesis smart-key module, BMW EWS /
+CAS / FEM / BDC and Toyota / Lexus smart key (variant picked from
+`catalogs/key-platforms-toyota.json` by `ChassisCode`). All share the
+base `ListSlots`, `AddKey`, `ClearOneSlot`, `ClearAllKeys` and
+`CheckPin` operations with `PIN` and `ChassisCode` inputs. Every
+operation raises `EOBDConfig` while `AutoExecute = False`, then asks the
+host through `OnConfirmExecute` before it runs; results arrive in
+`OnResult`.
+
+## OBD Calibration
+
+### `TOBDXCP` — `ERD.Calibration.XCP`
+ASAM MCD-1 XCP master. CONNECT, GET_VERSION, GET_DAQ_LIST, START_STOP_DAQ,
+DOWNLOAD / UPLOAD, SET_CAL_PAGE / GET_CAL_PAGE. Transport-agnostic —
+host wires CAN / CAN-FD / Ethernet / FlexRay / USB via `SetTransport`.
+Sync only.
+
+### `TOBDCCP` — `ERD.Calibration.CCP`
+ASAP1a CCP master, the older sibling of XCP. Same shape, simpler
+state machine, CAN-only.
+
+### `TOBDIsoBus` — `ERD.Speciality.IsoBus`
+ISO 11783 (IsoBus) implement node. NAME registry, address claim,
+plus VT / TC / FS / GNSS sub-protocols in the `ERD.Speciality.IsoBus.*`
+family.
+
+The A2L parser (`ERD.Calibration.A2L`) used with XCP is a class, not a
+component.
+
+## OBD Flashing
+
+### `TOBDUDSTransfer` — `ERD.UDS.Transfer`
+Production-grade ISO 14229-1 §14 data-transfer state machine. BSC
+counter, NRC 0x78 retransmit, resumable via `TOBDFlashCheckpoint`,
+per-chunk retry budget. The engine `TOBDFlashPipeline` drives;
+hosts that need raw transfer use this directly.
+
+### `TOBDVoltageGate` — `ERD.Flash.VoltageGate`
+Battery-voltage monitor with a `HoldTimeMs` latch. Refuses to allow a
+flash to start if the voltage isn't stable above the threshold for
+the hold window. Wire this component explicitly in the host application.
+
+### `TOBDFlashPipeline` — `ERD.Flash.Pipeline`
+The full safe-by-default reflash orchestrator: pre-flight checks
+(engine off, voltage floor, ambient temperature, ignition, user
+confirmation), image verify (hash + signature + applicability),
+enter-programming (host routine), transfer, verify, reset, finalise.
+Wraps `TOBDUDSTransfer` and reports phase-by-phase progress through
+`OnPhaseChange` and `OnCheckResult`. **Read
+[`flashing-safety.md`](flashing-safety.md) before going live.**
+
+## OBD Catalogs
+
+Wrappers around the static catalogues, so `CatalogDir` and `AutoLoad`
+can be set in the Object Inspector instead of in code. Each has `Reload`
+and `OnReloaded`; the default directory is `catalogs/` next to the
+executable.
+
+| Component | Unit | Catalogue |
+|---|---|---|
+| `TOBDVINCatalog` | `ERD.Service.VINDecoder.Catalog.Component` | VIN / vPIC schemas used by `TOBDVINInspector` |
+| `TOBDDriveCycleCatalogComp` | `ERD.Service.DriveCycle.Catalog.Component` | Drive-cycle steps per monitor (`RegisteredMonitors`, `RegisterCycle`) |
+| `TOBDEVBatteryCatalogComp` | `ERD.Service.EVBattery.Catalog.Component` | EV battery decode rules per vendor (`VendorKeys`, `Register`) |
+
 ## OBD Dashboard
 
 Visual controls for an OBD-Studio style workshop screen. Every control
@@ -389,6 +488,17 @@ another tile to swap the two; the close button and resize grip show
 hover and pressed states, and close acts on release), layouts saved
 and loaded as JSON, and `Source` to connect every tile to one
 `TOBDLiveData`.
+
+## OBD Visual
+
+| Control | Unit | Purpose |
+|---|---|---|
+| `TOBDTerminal` | `ERD.UI.Terminal` | Adapter conversation viewer: self-painted, append-only monospace list with sent / received / info / warning / error lines (`LogSent`, `LogReceived`, `LogInfo`, `LogWarning`, `LogError`), `MaxLines`, `FollowTail` and timestamps. |
+| `TOBDLogViewer` | `ERD.UI.LogViewer` | Terminal that prefixes each line with a severity tag; implements `IOBDLogSink`, so it can be registered with `TOBDLogger`. |
+| `TOBDDtcList` | `ERD.UI.DtcList` | Self-painted DTC list with severity chips and resizable columns. |
+| `TOBDVINEdit` | `ERD.UI.Pickers` | VIN edit with a validity lamp. |
+| `TOBDPidPicker`, `TOBDOEMPicker` | `ERD.UI.Pickers` | Drop-down pickers for a PID or an OEM (`SelectedPID`, `SelectedOEM`). |
+| `TOBDCANIdEdit` | `ERD.UI.Pickers` | Hex CAN-ID edit. |
 
 The **OBD Visual** page holds the supporting controls (terminal, log
 viewer, DTC list, PID / OEM pickers, VIN and CAN-ID edits). The
@@ -563,7 +673,7 @@ and the inline `TOBDWriteConfirm` strip, never a modal dialog.
 | `TOBDBusSend` | `ERD.UI.BusSend` | One send line: ID, data, period and the periodic switch. `CANIdText`, `DataText`, `PeriodMs`, `Periodic`, `Extended`, `TryParseId`, `TryParseData`, `OnSend`, `OnPeriodicChange`. |
 | `TOBDReplayBar` | `ERD.UI.ReplayBar` | Recording playback: play / pause, position with markers, time and speed. `PositionMs`, `DurationMs`, `Playing`, `Speed`, `Markers`, `Play`, `Pause`, `Seek`. |
 | `TOBDXYChart` | `ERD.UI.XYChart` | Curves over a shared X axis with a left and a right Y axis, earlier runs, peaks and a cursor (power and torque over rpm). `Series`, `AddPoint`, `OnCursorChange`. |
-| `TOBDMapGrid` | `ERD.UI.MapGrid` | Calibration map with axis breakpoints, colour scale, the live operating point and edited cells. `SetAxes`, `Values`, `OperatingPoint`, `OnSelect`, `OnCellEdit`. |
+| `TOBDMapGrid` | `ERD.UI.MapGrid` | Calibration map with axis breakpoints, colour scale, the live operating point and edited cells. `SetAxes`, `Values`, `SetOperatingPoint`, `OnSelect`, `OnCellEdit`. |
 | `TOBDLapTimer` | `ERD.UI.LapTimer` | Drag run timer with state and splits (best / delta). `Splits`, `Start`, `Stop`, `Reset`, `ElapsedMs`, `OnSplit`. |
 | `TOBDGMeter` | `ERD.UI.GMeter` | Friction circle with trail, current point and peak; `Compact` variant. `AddSample`, `MaxG`, `TrailLength`, `PeakG`, `ResetPeak`. |
 | `TOBDCellMatrix` | `ERD.UI.CellMatrix` | HV battery cell voltages per module with module temperatures, outliers, summary and hints. `CellVoltage`, `ModuleTemperature`, `ModuleCount`, `CellsPerModule`, `OnCellClick`. |
@@ -573,23 +683,98 @@ and the inline `TOBDWriteConfirm` strip, never a modal dialog.
 | `TOBDSignalGrid` | `ERD.UI.SignalGrid` | Live measurement values with min / max and a sparkline. `AddSignal`, `PushValue`, `ResetMinMax`. |
 | `TOBDActuatorPanel` | `ERD.UI.ActuatorPanel` | Actuator tests with state, feedback, Start / Stop per row and *Stop all*; each row is a timed test button, an on / off switch, a slider (0..100 %) or a step selector, and can be locked with a reason. `Items` (`Kind`, `Value`, `Steps`, `Locked`, `LockReason`), `AddTest`, `AddControl`, `SetControlValue`, `OnStart`, `OnStop`, `OnStopAll`, `OnValueChange`. |
 
+## OBD Dyno
+
+Non-visual dyno and drive calculators (`ERD.Service.Dyno`). Each has
+published inputs and fires an event per sample, so the host wires one
+next to its PID handler and reads computed values without writing the
+maths itself. They also notify LiveBindings.
+
+| Component | Purpose |
+|---|---|
+| `TOBDDynoCalculator` | Power and torque from speed, rpm, vehicle mass and drag / rolling coefficients (`OnSample`). |
+| `TOBDPowerCurve` | Records (rpm, power, torque) between `Arm` and `Stop`; exposes `Curve`. |
+| `TOBDDragRun` | Start-to-target-speed run: elapsed time, peak power and torque (`OnFinished`). |
+| `TOBDDynoConditions` | SAE J1349 correction factor from ambient temperature, pressure and humidity. |
+| `TOBDFuelEconomyMeter` | L/100 km (or MPG) from MAF or fuel flow and speed. |
+| `TOBDEmissionsEstimator` | CO₂ g/km estimate from MAF and speed. |
+| `TOBDInertialBrake` | Deceleration (g) from speed deltas. |
+| `TOBDTorqueAtWheels` | Splits engine power into drivetrain loss and wheel power (`OnDrivetrainLoss`, 15 % by default). |
+
+## OBD Radio
+
+One radio-code calculator per vendor (`ERD.RadioCode.*`): set `Input`
+(and optionally `VIN`, `ModelHint`, `Region`), call `Calculate` and read
+the result. Every calculator validates the input shape. Algorithms are
+bundled for Peugeot, Renault, Fiat Daiichi, Fiat VP, Hyundai and Ford M;
+code databases are bundled for Becker 4, Becker 5 and Ford V
+(`catalogs/radio-code/`). The other calculators fire `OnCalculate`, so
+the host supplies a licensed algorithm or service. The full inventory
+with sources is in [radio-code algorithms](radio-code-algorithms.md).
+
+| Unit | Components |
+|---|---|
+| `ERD.RadioCode.EuropeanPremium` | `TOBDRadioCodeVW`, `AudiConcert`, `BMW`, `Mercedes`, `Mini`, `Porsche`, `SEAT`, `Skoda`, `Smart` |
+| `ERD.RadioCode.FrenchItalian` | `TOBDRadioCodeCitroen`, `Peugeot`, `Renault`, `FiatDaiichi`, `FiatVP`, `AlfaRomeo`, `Maserati` |
+| `ERD.RadioCode.British` | `TOBDRadioCodeJaguar`, `LandRover`, `Saab`, `Opel` |
+| `ERD.RadioCode.Asian` | `TOBDRadioCodeAcura`, `Honda`, `Hyundai`, `Infiniti`, `Lexus`, `Mazda`, `Mitsubishi`, `Nissan`, `Subaru`, `Suzuki`, `Toyota` |
+| `ERD.RadioCode.American` | `TOBDRadioCodeChrysler`, `FordM`, `GM`, `Visteon` |
+| `ERD.RadioCode.Aftermarket` | `TOBDRadioCodeAlpine`, `Blaupunkt`, `Clarion`, `Becker4`, `Becker5` |
+| `ERD.RadioCode.Volvo` | `TOBDRadioCodeVolvo` |
+| `ERD.RadioCode.FordV` | `TOBDRadioCodeFordV` (in its own unit because of its 7 MB database) |
+| `ERD.Service.VWRadioSAFE` | `TOBDVWRadioSAFE`: reads the VW SAFE code from the radio's EEPROM over KWP1281, through a host `Codec`, a `Transport` or `OnReadEEPROM` |
+
+## OBD EEPROM
+
+`ERD.RadioCode.EEPROM`. Extract a radio code from an EEPROM dump read
+with a chip programmer: set `DumpFile`, call `Extract` and read the code
+from the result.
+`OnExtract` handles variants that store the code elsewhere.
+
+| Component | Radio |
+|---|---|
+| `TOBDRadioCodeEEPROM_VolvoHU` | Volvo HU / SC series (24C01) |
+| `TOBDRadioCodeEEPROM_OpelCD30` | Opel CD30 / CD70 (24C32 / 95640) |
+| `TOBDRadioCodeEEPROM_MercedesBecker` | Mercedes-Benz Becker BE2xxx (24C02) |
+
+## Not on the palette
+
+These are `TComponent` descendants that are not registered on the
+palette. Create them in code.
+
+### `TOBDPIDList` — `ERD.PIDList`
+Design-time-editable `TOwnedCollection` of `(Mode, PID, Name,
+Enabled, PollIntervalMs)` items. Drop on a form alongside a
+`TOBDLiveData`; iterate at runtime for `Subscribe` calls.
+`EnabledFor(Mode)` filters by mode and enabled state.
+
+### `TOBDProtocolMock` — `ERD.Recorder.ProtocolMock`
+Drop-in `TOBDProtocol` replacement that drives `OnFrame` /
+`OnResponse` / `OnNRC` / `OnError` from a recording. Use to run
+integration tests against captures without a live ECU.
+
+### `TOBDLogRedactor` — `ERD.Recorder.Redactor`
+Streams a `.obdlog` through a host-supplied filter and writes a
+redacted copy. Use before sharing a capture (drop sensitive entries
+or wipe payloads of specific service-IDs).
+
 ## Where the code lives
 
-| File | Component family |
+| Folder | Contents |
 |---|---|
-| `src/Connection/ERD.Connection.*` | Connection + 6 transports |
-| `src/Adapter/ERD.Adapter.*` | Adapter, init scripts, capabilities, detection, commands |
-| `src/Protocol/ERD.Protocol.*` | Protocol component + every wire codec (UDS, KWP, J1939, ISO9141, ISO15765, J1850, DoIP, SecOC, LIN, FlexRay, MOST) |
-| `src/Service/ERD.Service.*` | Service-mode components |
-| `src/Coding/ERD.Coding.*` | Coding components + audit log + diff helpers |
-| `src/Flashing/ERD.Flash.*` | Flash pipeline + safety gates + signature backends |
-| `src/Coding/ERD.UDS.*` | UDS write-side helpers (WriteMemory, WriteDID, Transfer) |
-| `src/Coding/ERD.KWP.WriteID.pas` | KWP write-side helper |
-| `src/Diagnostics/ERD.Diagnostics.*` | Phase 6 read-side surface (UDS / KWP / J1939) |
-| `src/Calibration/ERD.Calibration.*` | XCP, CCP, A2L parser |
-| `src/Speciality/ERD.Speciality.*` | IsoBus, Tachograph |
-| `src/Recorder/ERD.Recorder.*`, `ERD.Replayer.pas` | Recorder / replayer / mock / redactor |
-| `src/OEM/ERD.OEM.*` | Per-vendor coding + component protection |
-| `src/Core/ERD.*` | Cross-cutting: types, errors, decoders, catalog, version |
-| `src/UI/ERD.UI.*` | Visual controls: theme, gauges, dashboard and the OBD Visual page |
-| `src/DesignTime/ERD.Design.*` | IDE integration (component palette icons and property/component editors) |
+| `src/Core` | Types, errors, decoders, JSON catalogue store, binary values, CAN routes, version |
+| `src/Collections`, `src/Compat`, `src/Utilities` | Threaded queue, Delphi / FPC compatibility, async tasks, logger, secure settings, string helpers |
+| `src/Connection` | `TOBDConnection` and the transports (serial, Bluetooth, BLE, Wi-Fi, UDP, FTDI, mock) |
+| `src/Adapter` | `TOBDAdapter`, init scripts, capabilities, detection, commands |
+| `src/Protocol` | `TOBDProtocol` and every wire codec (UDS, KWP2000, KWP1281, TP 2.0, J1939, ISO 9141, ISO 15765, J1850, DoIP, SecOC, LIN, FlexRay, MOST), J2534 |
+| `src/Service` | OBD Services components, WWH-OBD, VIN decoder, drive cycle, EV battery, dyno, catalogue components, VW RadioSAFE |
+| `src/Diagnostics` | OBD Diagnostics components (UDS / KWP / J1939 read side) |
+| `src/Coding` | OBD Coding components, per-OEM coding helpers, audit log, diff, component protection, UDS / KWP write helpers |
+| `src/Flashing` | Flash pipeline, UDS transfer, voltage gate, checkpoint, image applicability, OEM flash handshakes, signature backends (`ERD.Signature.*`), J1939 memory access |
+| `src/Calibration` | XCP, CCP, A2L parser |
+| `src/Speciality` | IsoBus, digital tachograph |
+| `src/OEM` | OEM extensions and catalogues, OEM UDS client and sessions, key adaptation |
+| `src/RadioCode` | Radio-code calculators and EEPROM extractors |
+| `src/Recorder` | Recorder, replayer, protocol mock, redactor |
+| `src/UI` | Visual controls: theme, dashboard, OBD Visual, OBD Studio and OBD Studio Pro |
+| `src/DesignTime` | IDE integration: registration, palette icons, property / component editors |

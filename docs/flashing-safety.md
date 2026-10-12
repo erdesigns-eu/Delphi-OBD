@@ -3,9 +3,10 @@
 > ⚠️ **Misuse of the flashing components in this package can permanently
 > brick a vehicle's electronic control unit.** Damage may include disabled
 > accessories, an undriveable car, or unrecoverable ECU failure. The
-> authors and copyright holders accept no responsibility. Read this
-> document in full before using `TOBDFlasher` or any `TOBDCodingSession`
-> against a real vehicle.
+> copyright holder accepts no responsibility (see sections 9 to 11 of
+> the [LICENSE](../LICENSE)). Read this document in full before using
+> `TOBDFlashPipeline`, `TOBDFlasher`, `TOBDUDSTransfer` or any
+> `TOBDCodingSession` against a real vehicle.
 
 ## What "bricking" means
 
@@ -16,8 +17,8 @@ flash-recovery hardware) and in worst cases a replacement unit.
 
 ## Pre-conditions for any real flash
 
-`TOBDFlasher` will *log warnings* and *abort with confirmation* but does
-not enforce these for you. The developer using the component is
+The flashing components *log warnings* and *refuse to run without an
+explicit go-ahead*, but they do not enforce these for you. The developer using the component is
 responsible for verifying:
 
 1. **Stable power.** Battery voltage 12.5 V – 14.4 V (passenger car) or
@@ -38,21 +39,29 @@ responsible for verifying:
 ## Confirmation pattern
 
 Every destructive component (`TOBDFlashPipeline`, `TOBDUDSTransfer`,
-`TOBDFlasher`, `TOBDUDSWriteMemory`, `TOBDDataIdentifierIO`,
-`TOBDRoutineControl`, the per-OEM `TOBDFlashHandshake*`, …) publishes:
+`TOBDFlasher`, `TOBDFlashSession`, `TOBDUDSWriteMemory`,
+`TOBDUDSWriteDID`, `TOBDKWPWriteID`, `TOBDDataIdentifierIO`,
+`TOBDRoutineControl`, `TOBDCodingSession`, the per-OEM
+`TOBDFlashHandshake*`, the key-adaptation components, …) publishes
+`AutoExecute: Boolean`, which defaults to `False`. While it is `False`
+the write is refused (usually with `EOBDConfig`).
 
-- `AutoExecute: Boolean` — defaults `False`.
-- `OnConfirmExecute(Sender; AAddress; ASize; var AAllow: Boolean)`
-  on `TOBDFlashPipeline` (similar shapes on the other components).
-
-The developer must either:
+`TOBDFlashPipeline` additionally publishes
+`OnConfirmExecute(Sender; AAddress; ASize; var AAllow: Boolean)`. The
+developer must either:
 
 1. **Wire `OnConfirmExecute`** to a real UI button / dialog / voice
    confirmation, or
 2. **Set `AutoExecute := True`** explicitly, taking responsibility for
    the operation.
 
-If neither is done, the operation aborts with `EOBDConfig`.
+If neither is done, the flash aborts with `EOBDConfig`. The
+key-adaptation components require both: `AutoExecute = True` *and* an
+`OnConfirmExecute` handler that allows the operation.
+
+For a ready-made confirmation UI, `TOBDWriteConfirm` (OBD Studio Pro
+palette page) is an inline confirmation strip that asks for a backup
+first while `BackupDone` is `False`.
 
 ## Pipeline shape
 
@@ -62,7 +71,7 @@ the lower-level components into one safe-by-default end-to-end run:
 ```
 Pipeline
   ├─ Protocol         := <TOBDProtocol bound to the bus>
-  ├─ AuditLog         := <TOBDCodingAuditLog with HMAC key>
+  ├─ AuditLog         := <TOBDCodingAuditLog with an HMAC chain key>
   ├─ VoltageGate      := <TOBDVoltageGate with SourceFunc wired>
   ├─ CheckpointFile   := 'C:\Logs\flash-<vin>-<ts>.json'
   ├─ AddressFormatBytes := 4
@@ -81,8 +90,8 @@ Pipeline
 ```
 
 A pipeline with NO `VoltageGate` assigned logs a WARN audit-log
-entry at start-of-flash but proceeds — developer choice per
-PLAN.md §785.
+entry at start-of-flash but proceeds — by design, the package surfaces
+the safety primitive but does not force it on you. Wire one.
 
 ## Signature verification
 
@@ -129,14 +138,18 @@ diagnostic adapter can do. Document with the OEM service procedure.
 
 ## Audit log
 
-`TOBDFlasher` writes a `TOBDCodingAuditLog` entry per flash: timestamp,
-VIN, ECU address, firmware hash, signature outcome, transfer result,
-operator (if your application authenticates a user), and per-block
-checksum trail. Keep these — they are how you reconstruct what
-happened if something goes wrong.
+`TOBDFlashPipeline` and `TOBDCodingSession` write `TOBDCodingAuditLog`
+entries as they run: timestamp, session ID, entry kind, target (address,
+DID or OEM key), before / after bytes and a message — for a flash that
+covers the phase changes, check results and the transfer outcome. With
+a key set, every line carries an HMAC-SHA-256 chained to the previous
+line, so tampering with any historical entry is detectable. Keep these
+logs — they are how you reconstruct what happened if something goes
+wrong.
 
 ## Liability
 
-The `LICENSE` file carries the legal disclaimer. Reading and
-understanding this document is part of the responsibility you accept by
-using the flashing components.
+The [LICENSE](../LICENSE) carries the legal terms, including the
+safety notice, the warranty disclaimer and the limitation of liability.
+Reading and understanding this document is part of the responsibility
+you accept by using the flashing components.

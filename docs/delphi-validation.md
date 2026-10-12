@@ -1,14 +1,17 @@
-# Delphi validation handover
+# Delphi validation
 
-The intended UI target is Windows Delphi **VCL only**. FireMonkey and Lazarus UI
-are outside scope. The FPC target is the nonvisual library on Linux x86-64.
-RAD Studio 10.3–12 and Win32/Win64 are intended Delphi targets; they are not yet
-verified by actual Delphi builds in this branch.
+How to validate a Delphi-OBD build in RAD Studio: clean build and DUnitX, IDE
+installation, a VCL review checklist and bench tests.
+
+The UI target is Windows Delphi **VCL only**. FireMonkey and Lazarus UI are
+outside scope. The FPC target is the nonvisual library on Linux x86-64 (see
+[FPC compatibility](fpc-compatibility.md)). RAD Studio 10.3–13.1 on Win32 and
+Win64 are the Delphi targets; day-to-day builds are made with RAD Studio 12.
 
 ## Clean build and DUnitX
 
-1. Use a clean checkout of `claude/v2-phase-1`. Remove old OBD/ERD DCUs, BPLs and
-   DCPs from earlier installations/search paths; do not mix versions.
+1. Use a clean checkout of the branch under test. Remove old OBD/ERD DCUs, BPLs
+   and DCPs from earlier installations/search paths; do not mix versions.
 2. Open a RAD Studio command prompt (`rsvars.bat`) so `BDS` and MSBuild are set.
 3. Set `DUNITX_SOURCE` to DUnitX's `Source` directory. The test project includes
    this path and defines `CI`, so the runner is noninteractive.
@@ -23,8 +26,7 @@ verified by actual Delphi builds in this branch.
 The script rebuilds RT, DT (Win32 IDE package) and tests, stops on failures,
 runs tests from the repository root and requires a nonempty NUnit XML report.
 Results are written to `tests/nunit-<platform>-<config>.xml`. Use Debug as a
-second pass after Release works. This PowerShell/MSBuild workflow has been
-prepared and inspected here; it has **not** been executed on Windows.
+second pass after Release works.
 
 Alternatively open `packages/DelphiOBD_RT.dproj`, then `DelphiOBD_DT.dproj`, then
 `tests/DelphiOBD_Tests.dproj` in the IDE. Build in that order and use the same
@@ -32,12 +34,14 @@ DUnitX search path. Record the Delphi version, platform, build log and test XML.
 
 ## IDE installation and VCL review
 
-Install the Win32 DT BPL after RT builds. Ensure the matching RT BPL is on the
-IDE's DLL search path. Add the matching `build/Win32/Release/rt-dcu` folder
-to the host application's unit search path (adjust platform/configuration as
-needed), or use the source search paths from the tracked projects. Check palette registration, property/component editors and component placement
-on a new VCL form or DataModule. Project/form wizards and About/Splash entries
-are not part of the packages.
+Install only the Win32 DT BPL. It is standalone: it contains every component
+unit and does not require the RT BPL, so do not load RT alongside it in the
+IDE. Add the matching `build/Win32/Release/rt-dcu` folder to the host
+application's unit search path (adjust platform/configuration as needed), or
+use the source search paths from the tracked projects (see
+[installation](install.md)). Check palette registration, property/component
+editors and component placement on a new VCL form or DataModule.
+Project/form wizards and About/Splash entries are not part of the packages.
 Use `CatalogDir` pointing at this checkout's `catalogs` folder in examples;
 the default directory is relative to the executable, not the checkout.
 
@@ -53,7 +57,7 @@ Review these scenarios in a real VCL form, with Windows scaling at
 | DTC list | Empty list, active/pending/history entries, descriptions and long codes. |
 | Trend chart / matrix | Empty chart, one and several channels, window rollover; every matrix preset, scrolling ticker and text longer than the display. |
 | Dashboard | A form hosting `TOBDDashboard`: default layout, edit mode move / swap / resize / remove (close button hover and pressed states), save, load, default layout; `Source` assigned to a live `TOBDLiveData`. |
-| Component palette | All 141 class icons appear; no default missing-icon boxes. Inspect the generated 24px icons at 100 %, 150 % and 200 % IDE scaling in the light and dark IDE themes. |
+| Component palette | All 225 components appear on their 14 palette pages with their own icons; no default missing-icon boxes. Inspect the generated 16, 24 and 32 px icons at 100 %, 150 % and 200 % IDE scaling in the light and dark IDE themes. |
 | Live-test dialog | Close while an action has retained callbacks; late log/status callbacks must not access the freed dialog. |
 
 Save actual Delphi screenshots with the recorded scale/style and surface name
@@ -75,44 +79,45 @@ it is not a guarantee of ECU compatibility.
 Coding/security/flashing needs a separate ECU test setup with the host's consent,
 voltage checks, image verification and ECU-state resume validator configured.
 Verify normal transfer, rejection, disconnect, checkpoint failure and recovery.
-See [flashing safety](flashing-safety.md). These hardware tests are still pending;
-passing FPC tests or a Delphi build does not establish safe ECU flashing.
+See [flashing safety](flashing-safety.md). Passing FPC tests or a Delphi build
+does not establish safe ECU flashing.
 
 
 ## IDE metadata and package dependencies
 
-Projects now include Delphi personality/type metadata, IDE Base/Debug/Release
-configuration entries and their platform inheritance groups. This follows the
-Delphi project structure found in `main`, retaining only Windows/VCL targets.
-Package sources and IDE projects use UTF-8 BOM and CRLF on checkout; these
-formatting choices alone do not establish the cause of an IDE crash.
+Projects include Delphi personality/type metadata, IDE Base/Debug/Release
+configuration entries and their platform inheritance groups, for Windows/VCL
+targets only. Package sources and IDE projects use UTF-8 BOM and CRLF on
+checkout.
 
 `python3 tools/validate_delphi_projects.py` validates metadata, configurations,
-encoding and local references offline. Actual opening/building/installing in
-Delphi remains required. No claim of warning-free Delphi compilation is made.
+encoding and local references offline. It does not replace opening, building
+and installing the packages in Delphi.
 
-Pascal units, program sources, includes, VCL forms and project groups now also
-use CRLF through `.gitattributes`. After pulling into an existing checkout, run
+Pascal units, program sources, includes, VCL forms and project groups use CRLF
+through `.gitattributes`. After pulling into an existing checkout, run
 `python tools/normalize_delphi_eol.py` once: Git may leave unchanged files in their
 previous LF format. This conversion preserves source edits and existing BOMs;
 it does not reset files. New checkouts receive CRLF automatically.
 
+DT is standalone: it `contains` every component unit itself and requires only
+`rtl`, `vcl`, `vclimg`, `designide`, `bindengine` and `bindcomp` — never
+`DelphiOBD_RT`. Loading RT and DT together in the IDE would load the same units
+twice, so install DT only. Both packages have explicit `contains`/DCCReferences;
+`tools/validate_delphi_projects.py` checks them. PNG and LiveBindings components
+need `vclimg`, `bindengine` and `bindcomp`; do not trim these requirements.
+
+## Platform notes
+
 The classic Bluetooth transport checks `TBluetoothManager.ConnectionState`
 against `TBluetoothConnectionState.Connected`, as in Embarcadero's Delphi 12
 Classic Bluetooth sample. It also checks for a missing manager or adapter before
-using the adapter. The unsupported `CurrentAdapter.Activated` reference is removed.
+using the adapter.
 
-DT deliberately requires RT so their component units are loaded once in the IDE.
-Both packages have explicit `contains`/DCCReferences; the package analyzer checks
-reachable repository units against the required runtime package. Do not embed the
-same units in DT while also loading RT. A standalone DT arrangement would need a
-separate, mutually exclusive package architecture. PNG and LiveBindings components
-also require `vclimg` and `bindengine`; the minimal dependencies from a different
-component library cannot be copied indiscriminately.
-
-KWP keepalive en de OEM UDS async worker starten nu nadat `Create` terugkeert,
-met constructor-start-analyse en FPC-regressies. De gemelde Delphi-threadfout
-moet daarnaast tijdens de daadwerkelijke Delphi-run worden gecontroleerd.
+The KWP keepalive thread and the OEM UDS async worker start only after `Create`
+returns; static analysis checks constructor-started threads and the FPC suite
+has regression tests for it. During a Delphi run, watch for thread errors at
+component creation.
 
 The BLE transport uses Delphi 12 LE discovery (`StartDiscovery`,
 `LastDiscoveredDevices`, `DiscoverServices`) and searches the selected service's

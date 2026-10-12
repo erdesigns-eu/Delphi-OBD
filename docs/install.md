@@ -1,5 +1,8 @@
 # Installing the component packages
 
+Delphi-OBD is licensed software: you need a License Agreement with ERDesigns to
+install and use it (see [LICENSE](../LICENSE)).
+
 The packages provide Delphi VCL components and their property/component editors.
 There are no project/form wizards, starter generators, IDE help hooks or
 About/Splash entries. The nonvisual library can also be used with the documented
@@ -7,8 +10,8 @@ FPC compiler profile.
 
 ## Manual Delphi installation
 
-1. Uninstall the comparison package `TEST_DESIGNTIME` if it is installed: it
-   registers the same component classes as the production design-time package.
+1. Uninstall any earlier Delphi-OBD packages (v1 or an older v3 build) so two
+   packages never register the same component classes.
 2. Open `packages/DelphiOBD_DT.dproj`, build Win32 Release, then **Install**.
    DT includes all component source units and does not require `DelphiOBD_RT.bpl`.
    Build RT separately only when your applications use the runtime package.
@@ -20,22 +23,22 @@ FPC compiler profile.
    If Windows still reports a missing file while the BPL exists, check its
    dependent BPLs (including `bindengine` and `bindcomp`) in the RAD Studio `bin`
    directory; Windows uses the same message for a missing dependency.
-4. Create a VCL form or DataModule. The OBD palette categories contain 141
-   components; drop the components you need and configure their properties/events.
+4. Create a VCL form or DataModule. The 14 OBD palette pages contain 225
+   components (see the [component reference](components.md)); drop the
+   components you need and configure their properties/events.
 5. Add the matching `build/<platform>/<config>/rt-dcu` folder to your application's
    unit search path, or use the source search paths in the tracked projects.
 6. Set `CatalogDir` where needed, or deploy `catalogs/` next to the executable.
 
-Do not load RT or TEST_DESIGNTIME alongside DT in the IDE: the standalone DT
-package owns the same component units. Applications can compile from source or
+Do not load RT alongside DT in the IDE: the standalone DT package owns the same
+component units. Applications can compile from source or
 use RT separately.
 
 DT targets Win32 and Win64x. Install the build matching the IDE architecture;
 Win64x requires a Delphi version with that target and a compatible 64-bit IDE.
 RT and tests target Win32 and Win64.
 For clean builds, DUnitX and validation steps, follow
-[the Delphi checklist](delphi-validation.md). Actual Delphi builds and IDE
-installation are still to be validated on Windows.
+[the Delphi checklist](delphi-validation.md).
 
 The component/property editors retain init-command editing, live connection
 checks and flash configuration/safety dialogs. Those are component editing tools,

@@ -1,7 +1,8 @@
 {
   "$comment": [
-    "GetIt package metadata for Delphi-OBD v3. Submitted to GetIt",
-    "after the stable v3.0.0 tag ships; the beta is github-only.",
+    "GetIt package metadata for Delphi-OBD 3. Delphi-OBD is",
+    "proprietary (see LICENSE); this descriptor is only used for",
+    "a GetIt listing published by ERDesigns.",
     "",
     "Schema follows the Embarcadero GetIt package descriptor",
     "format. Update version + supported_studios on every release."
@@ -12,9 +13,9 @@
   "publisher": "ERDesigns",
   "publisher_email": "info@erdesigns.eu",
   "publisher_url": "https://erdesigns.eu",
-  "license": "MIT",
-  "license_url": "https://github.com/erdesigns-eu/Delphi-OBD/blob/v2/LICENSE",
-  "summary": "Production-quality, RAD-first, open-source automotive diagnostics, coding, and flashing for Delphi.",
+  "license": "Proprietary",
+  "license_url": "https://github.com/erdesigns-eu/Delphi-OBD/blob/main/LICENSE",
+  "summary": "Production-quality, RAD-first automotive diagnostics, coding, and flashing components for Delphi.",
   "description": [
     "Component-first RAD package covering diagnostics, coding,",
     "calibration and ECU flashing across modern automotive",
@@ -23,13 +24,14 @@
     "press F9.",
     "",
     "Ships:",
-    "  - 141 registered components (Connection, Adapter, Protocol,",
-    "    DoIP, SecOC, LiveData, DTCs, VIN, FreezeFrame, OnBoard",
-    "    Monitor, Actuator, Coding, Flashing, XCP, CCP, IsoBus,",
-    "    Recorder, Replayer, ...).",
-    "  - OBD Dashboard palette: themed dial and bar gauges, value",
-    "    tiles, trend chart, live data grid, status lamp, connection",
-    "    bar, dot-matrix display and a layout-saving dashboard grid.",
+    "  - 225 registered components on 14 palette pages (Connection,",
+    "    Adapter, Protocol, DoIP, SecOC, J2534, LiveData, DTCs, VIN,",
+    "    FreezeFrame, OnBoardMonitor, Actuator, UDS, KWP2000, J1939,",
+    "    Coding, Flashing, XCP, CCP, IsoBus, Recorder, Replayer,",
+    "    dyno, radio-code and EEPROM calculators, ...).",
+    "  - Themed VCL UI: dashboard gauges, visual widgets and the",
+    "    OBD Studio / OBD Studio Pro application controls (chrome,",
+    "    panels, dialogs) in light and dark palettes.",
     "  - Full UDS / KWP2000 / J1939 / DoIP / SecOC / LIN / FlexRay /",
     "    MOST surfaces.",
     "  - Production-grade flash pipeline with voltage gate, image",
@@ -68,9 +70,9 @@
     "automotive",
     "diagnostics"
   ],
-  "homepage": "https://github.com/erdesigns-eu/Delphi-OBD",
+  "homepage": "https://erdesigns.eu",
   "issues_url": "https://github.com/erdesigns-eu/Delphi-OBD/issues",
-  "documentation_url": "https://github.com/erdesigns-eu/Delphi-OBD/tree/v2/docs",
+  "documentation_url": "https://github.com/erdesigns-eu/Delphi-OBD/tree/main/docs",
   "repository": {
     "type": "git",
     "url": "https://github.com/erdesigns-eu/Delphi-OBD.git"
@@ -79,7 +81,8 @@
     "Delphi 10.3 Rio",
     "Delphi 10.4 Sydney",
     "Delphi 11 Alexandria",
-    "Delphi 12 Athens"
+    "Delphi 12 Athens",
+    "Delphi 13 Florence"
   ],
   "supported_platforms": [
     "Win32",
@@ -96,10 +99,7 @@
       "name": "DelphiOBD_DT",
       "type": "designtime",
       "dpk": "packages/DelphiOBD_DT.dpk",
-      "description": "Delphi-OBD design-time package — component palette icons, property editors and component editors with live-test verbs.",
-      "requires": [
-        "DelphiOBD_RT"
-      ]
+      "description": "Delphi-OBD design-time package — standalone (contains every component unit; does not require DelphiOBD_RT): component palette icons, property editors and component editors with live-test verbs."
     }
   ],
   "search_paths": [

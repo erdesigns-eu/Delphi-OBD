@@ -1,6 +1,6 @@
 # Radio-code algorithms — what's bundled vs what isn't
 
-Delphi-OBD v2 ships **one component per vendor** on the **OBD Radio**
+Delphi-OBD ships **one component per vendor** on the **OBD Radio**
 palette tab. Drop the right one onto a form, set `Input` (and
 optionally `VIN` / `ModelHint` / `Region`), call `Calculate`, read
 `Result_`. Every vendor component validates the input shape (length /
@@ -83,7 +83,8 @@ for sources if you need to wire your own.
 | Component | Status | Notes |
 |---|---|---|
 | `TOBDRadioCodeChrysler`     | 🔌 | TM9 / Panasonic-built. |
-| `TOBDRadioCodeFordM`        | 💡 | Ford "M-prefix" series; full pre-computed serial→code lookup at [`OlegSmelov/ford-radio-codes`](https://github.com/OlegSmelov/ford-radio-codes), Flipper Zero impl at [`DavidB445/fz_fordradiocodes`](https://github.com/DavidB445/fz_fordradiocodes). Will ship as `TOBDRadioCodeFordV` (`ERD.RadioCode.FordV`) once the database is extracted to JSON. |
+| `TOBDRadioCodeFordM`        | ✅ | Ford "M-prefix" series (6 digits, optional leading `M`). Algorithm re-derived from [`OlegSmelov/ford-radio-codes`](https://github.com/OlegSmelov/ford-radio-codes); see also the Flipper Zero implementation at [`DavidB445/fz_fordradiocodes`](https://github.com/DavidB445/fz_fordradiocodes). |
+| `TOBDRadioCodeFordV`        | 📦 | Ford V-series. 999,999-entry database at `catalogs/radio-code/ford-v.json`, imported from the v1 ERDesigns Ford V calculator. Lives in its own unit, `ERD.RadioCode.FordV`, so hosts that don't need it don't link the database. |
 | `TOBDRadioCodeGM`           | 💡 | Delco Theftlock — dealer-call procedure, not a calculation. See [Diesel Place thread](https://www.dieselplace.com/threads/here-is-how-to-unlock-delco-theftlock-radio-that-displays-loc.40705/). |
 | `TOBDRadioCodeVisteon`      | 🔌 | Fiat Stilo / Bravo Visteon — commercial only. |
 
@@ -94,7 +95,7 @@ for sources if you need to wire your own.
 | `TOBDRadioCodeAlpine`       | 🔌 | Commercial only. |
 | `TOBDRadioCodeBlaupunkt`    | 🔌 | BPcalc tools circulate but are closed source. |
 | `TOBDRadioCodeClarion`      | 💡 | C0 / C7 series; community-documented. See [MHH Auto thread](https://mhhauto.com/Thread-Clarion-Code-generator). |
-| `TOBDRadioCodeBecker4`      | 📦 | 10,000-entry database at `catalogs/radio-code/becker4.json`. Imported from [v1 ERDesigns Becker4 calculator](https://github.com/erdesigns-eu/Delphi-OBD/tree/main/src/RadioCode). |
+| `TOBDRadioCodeBecker4`      | 📦 | 10,000-entry database at `catalogs/radio-code/becker4.json`. Imported from the v1 ERDesigns Becker4 calculator. |
 | `TOBDRadioCodeBecker5`      | 📦 | Same shape; `becker5.json`. |
 
 ### Outliers
@@ -138,10 +139,12 @@ end;
 
 ## Wiring `OnCalculate`
 
-Every component (real or stub) accepts a host-supplied
-`OnCalculate` handler. For stubs it's the only path to a result;
-for real / database calculators the host can override by wiring
-the event before calling `Calculate`.
+Every stub component (🔌 / 💡) hands the calculation to a
+host-supplied `OnCalculate` handler; without one, `Calculate` returns
+`Success = False` with a message saying the algorithm is not bundled.
+Components with a bundled algorithm or database (✅ / 📦) compute the
+code themselves and do not fire `OnCalculate`; to replace their
+algorithm, subclass and override `DoCalculate` (see below).
 
 ```pascal
 procedure TForm1.MyHondaCalc(Sender: TObject;
@@ -179,9 +182,16 @@ calculation, no database, no paid service.
 `TOBDVWRadioSAFE` (in `ERD.Service.VWRadioSAFE.pas`) wraps the
 documented sequence. The component owns the per-variant
 EEPROM-offset map (Gamma 5 / Premium IV / Premium V / Rhapsody)
-and the byte-decode rule (BCD vs ASCII). Until the bundled
-KWP1281 codec lands, the host must wire `OnReadEEPROM` and run
-the block exchange itself. Reference: [`mnaberez/vwradio`](https://github.com/mnaberez/vwradio).
+and the byte-decode rule (BCD vs ASCII). `Extract` reads the
+SAFE block through one of three paths, in order of precedence:
+
+1. `Codec` — a host-managed, already connected `TKWP1281Codec`.
+2. `Transport` — a raw `IKWP1281Transport`; the component creates a
+   temporary codec, connects to the radio at `RadioAddress`, reads
+   the block and disconnects.
+3. `OnReadEEPROM` — the host runs the block exchange itself.
+
+Reference: [`mnaberez/vwradio`](https://github.com/mnaberez/vwradio).
 
 ## Adding your own algorithm
 
@@ -202,5 +212,6 @@ initialization
   TOBDRadioCodeRegistry.Default.RegisterClass(TMyBMWCalc);
 ```
 
-Open a PR if your algorithm is public-domain — a real implementation
-beats a stub for every host using the package.
+If the algorithm should become part of the library itself, add it as a
+`DoCalculate` override in the vendor unit with pinned-vector tests (see
+[CONTRIBUTING.md](../CONTRIBUTING.md)) and update the inventory above.
