@@ -459,7 +459,7 @@ icons in the script and run `python3 tools/ui_icons.py --write`.
 | `TOBDSegmented` | `ERD.UI.Segmented` | Segmented choice / filter strip. |
 | `TOBDRangeBar` | `ERD.UI.RangeBar` | A value against its normal band. |
 | `TOBDInspector` | `ERD.UI.Inspector` | Categorised name / value grid with the keyboard and mouse behaviour of the Delphi Object Inspector: in-place editor (Enter commits, Esc reverts), pick lists, check values, ellipsis button, splitter, values that differ from their default in bold. Hold the mouse button and sweep to move the selection; in tablet density the whole category header toggles collapse. |
-| `TOBDSidebar` | `ERD.UI.Sidebar` | Grouped navigation with icons and badges; collapses to icons. |
+| `TOBDSidebar` | `ERD.UI.Sidebar` | Grouped navigation with icons (built-in, image list, or any `TOBDGlyph` through an item's `Glyph`) and badges; collapses to icons. |
 | `TOBDRangeProfile` | `ERD.UI.RangeProfiles` | Non-visual: garage-adjustable normal ranges per PID, loaded from and saved to `catalogs/range-profiles/*.json`. |
 
 ### Panels

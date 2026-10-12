@@ -68,6 +68,7 @@ type
   strict private
     FCaption: string;
     FIcon: TOBDSidebarIcon;
+    FGlyph: TOBDGlyph;
     FImageIndex: Integer;
     FBadge: Integer;
     FBadgeKind: TOBDStatusKind;
@@ -80,6 +81,7 @@ type
     FOnClick: TNotifyEvent;
     procedure SetCaption(const AValue: string);
     procedure SetIcon(AValue: TOBDSidebarIcon);
+    procedure SetGlyph(AValue: TOBDGlyph);
     procedure SetImageIndex(AValue: Integer);
     procedure SetBadge(AValue: Integer);
     procedure SetBadgeKind(AValue: TOBDStatusKind);
@@ -104,6 +106,9 @@ type
     property Caption: string read FCaption write SetCaption;
     /// <summary>Built-in vector icon used when no image list image is assigned.</summary>
     property Icon: TOBDSidebarIcon read FIcon write SetIcon default siNone;
+    /// <summary>Built-in line glyph (the ribbon's set); when not glNone it
+    /// is drawn instead of <see cref="Icon"/>.</summary>
+    property Glyph: TOBDGlyph read FGlyph write SetGlyph default glNone;
     /// <summary>Image list index; -1 uses <see cref="Icon"/>.</summary>
     property ImageIndex: Integer read FImageIndex write SetImageIndex default -1;
     /// <summary>Counter badge value; 0 hides the badge.</summary>
@@ -343,6 +348,7 @@ begin
     Item := TOBDSidebarItem(Source);
     FCaption := Item.FCaption;
     FIcon := Item.FIcon;
+    FGlyph := Item.FGlyph;
     FImageIndex := Item.FImageIndex;
     FBadge := Item.FBadge;
     FBadgeKind := Item.FBadgeKind;
@@ -379,6 +385,14 @@ begin
   if FIcon = AValue then
     Exit;
   FIcon := AValue;
+  Changed(False);
+end;
+
+procedure TOBDSidebarItem.SetGlyph(AValue: TOBDGlyph);
+begin
+  if FGlyph = AValue then
+    Exit;
+  FGlyph := AValue;
   Changed(False);
 end;
 
@@ -1228,6 +1242,8 @@ begin
     Y := ACY - FImages.Height div 2;
     FImages.Draw(ACanvas, X, Y, ImageIndex, EffectiveEnabled(AIndex));
   end
+  else if not PreviewMode and (FItems[AIndex].Glyph <> glNone) then
+    APainter.Glyph(FItems[AIndex].Glyph, ACX, ACY, AColor, 1)
   else
     DrawVectorIcon(APainter, EffectiveIcon(AIndex), ACX, ACY, AColor);
 end;

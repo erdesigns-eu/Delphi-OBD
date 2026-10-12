@@ -86,6 +86,7 @@ type
     [Test] procedure PreviewDraws;
     [Test] procedure ItemsAndSelection;
     [Test] procedure CollapsedDrawsDifferently;
+    [Test] procedure GlyphReplacesIcon;
   end;
 
   [TestFixture]
@@ -423,6 +424,33 @@ begin
   FSidebar.ItemIndex := 1;
   Assert.AreEqual(1, FSidebar.ItemIndex);
   Assert.IsTrue(InkRatio(FSidebar) > 0.01, 'sidebar items not drawn');
+end;
+
+procedure TOBDSidebarTests.GlyphReplacesIcon;
+var
+  Item, Copied: TOBDSidebarItem;
+  WithIcon, WithGlyph: TBitmap;
+begin
+  FSidebar.AutoWidth := False;
+  Item := FSidebar.Items.Add;
+  Item.Caption := 'Flash';
+  Item.Icon := siSettings;
+  WithIcon := RenderControl(FSidebar);
+  try
+    Item.Glyph := glFlash;
+    WithGlyph := RenderControl(FSidebar);
+    try
+      Assert.IsTrue(BitmapsDiffer(WithIcon, WithGlyph, 20),
+        'the glyph is not drawn instead of the icon');
+    finally
+      WithGlyph.Free;
+    end;
+  finally
+    WithIcon.Free;
+  end;
+  Copied := FSidebar.Items.Add;
+  Copied.Assign(Item);
+  Assert.AreEqual(Ord(glFlash), Ord(Copied.Glyph), 'Assign drops the glyph');
 end;
 
 procedure TOBDSidebarTests.CollapsedDrawsDifferently;

@@ -178,6 +178,13 @@ sample data in the form designer): `TOBDPreconditionList`,
 `TOBDSignalGrid` and `TOBDActuatorPanel`, each with its palette icon and
 rendering tests. The Pro panels in the mockups are compositions of these
 controls and the OBD Studio controls.
+`examples/obd-studio-pro` is an OBD Studio Pro example next to the free
+`examples/obd-studio`: the same chrome and simulated Golf VII 1.6 TDI,
+with the twelve Pro panels (ECU network, service functions, coding,
+flash, memory, radio code, keys and immobiliser, dyno, performance,
+measurement, actuators and bus, EV battery) as frames of their own that
+the main form drives through a small page interface. Sidebar items have a
+`Glyph` (any `TOBDGlyph`), drawn instead of the built-in `Icon`.
 The font dialog lists every installed font again, the print dialog's
 printer status no longer overlaps the Pages label, and the selection
 ring on the first colour swatch is no longer clipped.
