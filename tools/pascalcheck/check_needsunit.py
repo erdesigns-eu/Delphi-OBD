@@ -48,6 +48,12 @@ NEEDS = {
     'inet_addr': 'Winapi.Winsock2',
     'StyleServices': 'Vcl.Themes',
     'Clipboard': 'Vcl.Clipbrd',
+    # System.UITypes declares TFontStyle with scoped enums; the bare names
+    # are constants in Vcl.Graphics.
+    'fsBold': 'Vcl.Graphics',
+    'fsItalic': 'Vcl.Graphics',
+    'fsUnderline': 'Vcl.Graphics',
+    'fsStrikeOut': 'Vcl.Graphics',
 }
 
 # Winsock 2 written the way the C header reads, which Delphi's does not.

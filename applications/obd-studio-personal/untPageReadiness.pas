@@ -14,6 +14,7 @@ uses
   System.StrUtils,
   System.Classes,
   System.Math,
+  Vcl.Graphics,
   Vcl.Controls,
   Vcl.Forms,
   Vcl.StdCtrls,

@@ -167,6 +167,22 @@ end.
         self.assertIn('total: 0', self.checker('vcltypes'))
         self.assertIn('total: 0', self.checker('needsunit'))
 
+    def test_bare_font_style_needs_vcl_graphics(self):
+        source = self.source('applications/Page.pas', """unit Page;
+interface
+uses System.UITypes, Vcl.Controls, Vcl.StdCtrls;
+implementation
+procedure Build(L: TLabel);
+begin
+  L.Font.Style := [fsBold];
+  L.Font.Style := [TFontStyle.fsItalic];
+end;
+end.
+""")
+        self.assertIn('total: 1', self.checker('needsunit'))
+        source.write_text(source.read_text().replace('Vcl.Controls,', 'Vcl.Graphics, Vcl.Controls,'))
+        self.assertIn('total: 0', self.checker('needsunit'))
+
     def test_rtl_rect_uses_left_top_and_gdiplus_rect_uses_xy(self):
         source = self.source('src/Rectangles.pas', """unit Rectangles;
 interface

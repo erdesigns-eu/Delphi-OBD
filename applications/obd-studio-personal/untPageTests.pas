@@ -16,6 +16,7 @@ uses
   System.IOUtils,
   System.JSON,
   System.Generics.Collections,
+  Vcl.Graphics,
   Vcl.Controls,
   Vcl.Forms,
   Vcl.StdCtrls,

@@ -12,6 +12,7 @@ interface
 uses
   System.SysUtils,
   System.Classes,
+  Vcl.Graphics,
   Vcl.Controls,
   Vcl.Forms,
   Vcl.StdCtrls,
