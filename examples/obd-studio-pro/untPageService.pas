@@ -39,7 +39,6 @@ type
     procedure edSearchChange(Sender: TObject);
     procedure cbCategoryChange(Sender: TObject);
     procedure tilesCatalogueChange(Sender: TObject);
-    procedure tilesCatalogueItemClick(Sender: TObject; AIndex: Integer);
     procedure tilesCatalogueItemActivate(Sender: TObject; AIndex: Integer);
     procedure btnRunClick(Sender: TObject);
     procedure procServiceNext(Sender: TObject);
@@ -188,12 +187,10 @@ end;
 procedure TfrmService.tilesCatalogueItemActivate(Sender: TObject;
   AIndex: Integer);
 begin
-  LoadService(TileServiceIndex(AIndex));
-end;
-
-procedure TfrmService.tilesCatalogueItemClick(Sender: TObject; AIndex: Integer);
-begin
-  LoadService(TileServiceIndex(AIndex));
+  // OnChange already loaded the selected function; a double-click or Enter
+  // runs it (StartProcedure ignores it while a run is active).
+  if TileServiceIndex(AIndex) = FSelectedService then
+    StartProcedure;
 end;
 
 procedure TfrmService.btnRunClick(Sender: TObject);

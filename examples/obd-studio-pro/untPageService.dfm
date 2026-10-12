@@ -100,7 +100,6 @@ object frmService: TfrmService
         ShowGroups = True
         BorderVisible = True
         OnChange = tilesCatalogueChange
-        OnItemClick = tilesCatalogueItemClick
         OnItemActivate = tilesCatalogueItemActivate
         TabOrder = 2
       end

@@ -51,18 +51,18 @@ key learning procedure keeps running while you look at another page.
 
 | Page | Components |
 | --- | --- |
-| ECU network | `TOBDEcuTopology`, `TOBDEcuList`, `TOBDVehicleInfoCard`, ECU details |
-| Service functions | Function catalogue, `TOBDProcedureView`, `TOBDPreconditionList` |
+| ECU network | `TOBDEcuTopology`, `TOBDEcuList`, `TOBDVehicleInfoCard`, ECU details in a `TOBDKeyValueList` |
+| Service functions | Function catalogue in a `TOBDTileGrid`, `TOBDProcedureView`, `TOBDPreconditionList` |
 | Coding | `TOBDTabs`, `TOBDBitEditor`, `TOBDDiffView`, `TOBDWriteConfirm`, `TOBDSecurityAccessCard`, adaptations in a `TOBDInspector` |
 | Flash | `TOBDPreconditionList`, `TOBDRangeBar` (voltage gate), `TOBDProgressBar` (steps), `TOBDValueTile`, `TOBDBanner`, `TOBDLogViewer` |
-| Memory | `TOBDHexView` with regions, chip details and actions |
-| Radio code | Unit and serial entry, result card |
-| Keys and immobiliser | `TOBDKeySlots`, key learning procedure, `TOBDSecurityAccessCard`, component protection |
-| Dyno | `TOBDXYChart` (power and torque, baseline), run strip, runs, SAE J1349 conditions |
+| Memory | `TOBDHexView` with regions, chip details in a `TOBDKeyValueList`, actions |
+| Radio code | Unit and serial entry, result card, evidence in a `TOBDDataGrid` |
+| Keys and immobiliser | `TOBDKeySlots`, key learning procedure, `TOBDSecurityAccessCard`, component protection in a `TOBDDataGrid` |
+| Dyno | `TOBDXYChart` (power and torque, baseline), run strip, runs in a `TOBDDataGrid`, SAE J1349 conditions and vehicle in `TOBDKeyValueList`s |
 | Performance | `TOBDLapTimer`, `TOBDGMeter`, value tiles and trends |
 | Measurement | `TOBDSignalBrowser`, `TOBDSignalGrid`, `TOBDTrendChart` |
-| Actuators and bus | `TOBDActuatorPanel`, `TOBDBusTrace`, `TOBDBusSend`, `TOBDReplayBar` |
-| EV battery | `TOBDCellMatrix`, value tiles, trend |
+| Actuators and bus | `TOBDActuatorPanel` (buttons, switches, sliders, steps, a locked row), `TOBDBusTrace` (sent and error lines, direction filter), `TOBDBusSend`, `TOBDReplayBar` |
+| EV battery | `TOBDCellMatrix`, value tiles, trend, summary in a `TOBDKeyValueList` |
 
 The layouts follow the approved mockups in `docs/mockups/pro-*.png`
 (`tools/ui_mockups_pro.py`).
@@ -76,22 +76,20 @@ Things to try:
 - Switch to the dark theme or tablet density from the title bar: every
   page follows.
 
-## Not covered by a component yet
+## Built from the gaps
 
-Building the pages showed a few generic pieces the component set does not
-have yet. The pages work around them for now:
+Building the pages first showed a few generic pieces the component set did
+not have. They were mocked up (`data-views` and `pro-actuators-bus-detail`
+in [`docs/mockups`](../../docs/mockups/README.md)), approved and built, and
+the pages now use them:
 
-| Missing piece | Used for | Workaround in this example |
-| --- | --- | --- |
-| Multi-column table (themed list view with columns, sorting, selection) | Dyno runs, ECU details, flash and memory tables, component protection | Fixed-width rows in a `TOBDListBox`, or a read-only `TOBDInspector` |
-| Tile / launcher grid | Service function catalogue | `TOBDCard` with filter chips and a `TOBDListBox` |
-| Read-only key / value list | ECU and chip details | `TOBDInspector` with read-only rows |
-| Per-row controls in `TOBDActuatorPanel` (slider, switch) | Actuator tests with a set point | Generic Start / Stop and progress per row |
-| Direction override in `TOBDBusTrace` | Marking sent frames in the trace | The trace's own direction detection |
-
-The next round of mockups proposes them: see *Next round (proposed)*
-in [`docs/mockups`](../../docs/mockups/README.md) (`data-views`,
-`pro-actuators-bus-detail`).
+| Component | Used for |
+| --- | --- |
+| `TOBDDataGrid` | Dyno runs, radio code evidence, component protection |
+| `TOBDTileGrid` | Service function catalogue |
+| `TOBDKeyValueList` | ECU, chip, dyno condition, vehicle and EV battery details |
+| `TOBDActuatorPanel` row kinds | Switches, set points (slider), steps and locked tests |
+| `TOBDBusTrace` direction | Sent frames, error lines and the direction filter |
 
 ## Using a real vehicle
 
