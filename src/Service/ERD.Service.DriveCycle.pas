@@ -27,6 +27,8 @@
 //
 // History     :
 // 2026-05-10  ERD  Initial implementation.
+// 2026-10-12  ERD  Strip the PID echo before decoding; PID 41 (this drive
+//                  cycle) via ReadMonitorStatus / ReadReadinessThisCycle.
 // ------------------------------------------------------------------------------
 
 unit ERD.Service.DriveCycle;
@@ -119,6 +121,21 @@ type
     /// (one entry per monitor; <c>Supported = False</c> for
     /// monitors the ECU doesn't have).</summary>
     function ReadReadiness: TArray<TOBDMonitorReadiness>;
+
+    /// <summary>Readiness for the current drive cycle (Mode 01
+    /// PID 41). <c>Supported</c> means "enabled this drive cycle".
+    /// Empty when the ECU does not support PID 41.</summary>
+    function ReadReadinessThisCycle: TArray<TOBDMonitorReadiness>;
+
+    /// <summary>Reads and decodes a monitor-status PID: <c>$01</c>
+    /// (since DTCs were cleared, includes MIL and DTC count) or
+    /// <c>$41</c> (this drive cycle).</summary>
+    /// <param name="APID">PID to read: <c>$01</c> or <c>$41</c>.</param>
+    /// <param name="AStatus">Decoded status.</param>
+    /// <param name="AError">Reason when the result is False.</param>
+    /// <returns>True when the ECU answered with a decodable status.</returns>
+    function ReadMonitorStatus(APID: Byte; out AStatus: TOBDMonitorStatus;
+      out AError: string): Boolean;
 
     /// <summary>Catalogue lookup - same as
     /// <see cref="TOBDDriveCycleCatalog.TryGetCycle"/>.
@@ -243,72 +260,27 @@ end;
 
 class function TOBDDriveCycleAdvisor.DecodePID01(const AData: TBytes;
   out AError: string): TArray<TOBDMonitorReadiness>;
-
-  procedure Add(var ARes: TArray<TOBDMonitorReadiness>; AMon: TOBDMonitor;
-    ASup, ACom: Boolean);
-  var
-    Idx: Integer;
-  begin
-    Idx := Length(ARes);
-    SetLength(ARes, Idx + 1);
-    ARes[Idx].Monitor := AMon;
-    ARes[Idx].Supported := ASup;
-    ARes[Idx].Complete := ACom;
-  end;
-
 var
-  B, C, D: Byte;
-  IsDiesel: Boolean;
+  Status: TOBDMonitorStatus;
 begin
   Result := nil;
-  AError := '';
   if Length(AData) < 4 then
   begin
     AError := Format('PID 01 response too short (%d bytes)', [Length(AData)]);
     Exit;
   end;
-  B := AData[1];
-  C := AData[2];
-  D := AData[3];
-  IsDiesel := (B and $08) <> 0;
-
-  // Continuous monitors. "complete" = bit clear.
-  Add(Result, omMisfire, (B and $01) <> 0, (B and $10) = 0);
-  Add(Result, omFuelSystem, (B and $02) <> 0, (B and $20) = 0);
-  Add(Result, omComprehensive, (B and $04) <> 0, (B and $40) = 0);
-
-  // Non-continuous - bit layout depends on engine type
-  // (SAE J1979 Table A2). C carries supported, D carries
-  // "not complete" (so bit clear = complete).
-  if IsDiesel then
-  begin
-    Add(Result, omNMHCCatalyst, (C and $01) <> 0, (D and $01) = 0);
-    Add(Result, omNOxAftertreatment, (C and $02) <> 0, (D and $02) = 0);
-    Add(Result, omBoostPressureSystem, (C and $08) <> 0, (D and $08) = 0);
-    Add(Result, omExhaustGasSensor, (C and $20) <> 0, (D and $20) = 0);
-    Add(Result, omPMFilter, (C and $40) <> 0, (D and $40) = 0);
-    Add(Result, omEGRorVVTSystem, (C and $80) <> 0, (D and $80) = 0);
-  end
-  else
-  begin
-    Add(Result, omCatalyst, (C and $01) <> 0, (D and $01) = 0);
-    Add(Result, omHeatedCatalyst, (C and $02) <> 0, (D and $02) = 0);
-    Add(Result, omEvaporativeSystem, (C and $04) <> 0, (D and $04) = 0);
-    Add(Result, omSecondaryAirSystem, (C and $08) <> 0, (D and $08) = 0);
-    Add(Result, omACRefrigerant, (C and $10) <> 0, (D and $10) = 0);
-    Add(Result, omOxygenSensor, (C and $20) <> 0, (D and $20) = 0);
-    Add(Result, omOxygenSensorHeater, (C and $40) <> 0, (D and $40) = 0);
-    Add(Result, omEGRSystem, (C and $80) <> 0, (D and $80) = 0);
-  end;
+  if DecodeMonitorStatus(AData, Status, AError) then
+    Result := Status.Monitors;
 end;
 
-function TOBDDriveCycleAdvisor.ReadReadinessRaw(out AError: string)
-  : TArray<TOBDMonitorReadiness>;
+function TOBDDriveCycleAdvisor.ReadMonitorStatus(APID: Byte;
+  out AStatus: TOBDMonitorStatus; out AError: string): Boolean;
 var
   Req: TOBDRequest;
   Resp: TOBDResponse;
 begin
-  Result := nil;
+  Result := False;
+  AStatus := Default (TOBDMonitorStatus);
   AError := '';
   if FProtocol = nil then
   begin
@@ -318,18 +290,45 @@ begin
   try
     Req := MakeOBDRequest;
     Req.ServiceID := $01;
-    Req.Data := TBytes.Create($01);
+    Req.Data := TBytes.Create(APID);
     Resp := FProtocol.Send(Req);
     if Resp.IsNegative then
     begin
       AError := Format('NRC 0x%.2X - %s', [Resp.NRC, Resp.NRCText]);
       Exit;
     end;
-    Result := DecodePID01(Resp.Data, AError);
+    // The protocol layer keeps the PID echo: 01 A B C D.
+    Result := DecodeMonitorStatus(OBDPIDPayload(Resp.Data, APID, 4),
+      AStatus, AError);
   except
     on E: Exception do
       AError := E.ClassName + ': ' + E.Message;
   end;
+end;
+
+function TOBDDriveCycleAdvisor.ReadReadinessRaw(out AError: string)
+  : TArray<TOBDMonitorReadiness>;
+var
+  Status: TOBDMonitorStatus;
+begin
+  Result := nil;
+  if ReadMonitorStatus($01, Status, AError) then
+    Result := Status.Monitors;
+end;
+
+function TOBDDriveCycleAdvisor.ReadReadinessThisCycle
+  : TArray<TOBDMonitorReadiness>;
+var
+  Status: TOBDMonitorStatus;
+  Err: string;
+  Handled: Boolean;
+begin
+  Result := nil;
+  if ReadMonitorStatus($41, Status, Err) then
+    Result := Status.Monitors;
+  Handled := False;
+  if (Err <> '') and Assigned(FOnError) then
+    FOnError(Self, oeIO, Err, Handled);
 end;
 
 function TOBDDriveCycleAdvisor.ReadReadiness: TArray<TOBDMonitorReadiness>;

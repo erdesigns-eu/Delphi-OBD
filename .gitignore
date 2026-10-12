@@ -75,3 +75,6 @@ __pycache__/
 # Reproducible local Delphi output and test reports
 /build/
 /tests/nunit-*.xml
+
+# FPC runtime smoke build output
+.tmp-fpc-runtime/

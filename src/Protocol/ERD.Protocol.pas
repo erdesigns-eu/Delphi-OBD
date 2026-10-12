@@ -19,6 +19,7 @@
 //
 // History     :
 // 2026-05-09  ERD  Initial implementation.
+// 2026-10-12  ERD  ResponseHeaders; per-ECU decoding and header-aware frame events.
 // ------------------------------------------------------------------------------
 
 unit ERD.Protocol;
@@ -48,6 +49,7 @@ uses
   ERD.Adapter,
   ERD.Protocol.Types,
   ERD.Protocol.UDS,
+  ERD.Protocol.ELMResponse,
   ERD.Protocol.KWP2000,
   ERD.Protocol.ISO9141,
   ERD.Protocol.J1850,
@@ -90,6 +92,7 @@ type
     FManual: TOBDProtocolID;
     FApplication: TOBDApplicationProtocol;
     FDefaultTimeoutMs: Cardinal;
+    FResponseHeaders: TOBDELMHeaderMode;
 
     // async
     FOwnedTask: TOBDOwnedTask;
@@ -222,6 +225,11 @@ type
     /// <c>0</c>.</summary>
     property DefaultTimeoutMs: Cardinal read FDefaultTimeoutMs
       write FDefaultTimeoutMs default 5000;
+    /// <summary>How the adapter prints headers in front of reply lines.
+    /// <c>ehAuto</c> recognises CAN headers; set <c>ehLegacy</c> after
+    /// sending <c>ATH1</c> on a J1850 / ISO 9141 / KWP vehicle.</summary>
+    property ResponseHeaders: TOBDELMHeaderMode read FResponseHeaders
+      write FResponseHeaders default ehAuto;
 
     /// <summary>Fires for every successful (positive) response on
     /// the main thread.</summary>
@@ -468,9 +476,9 @@ function TOBDProtocol.DecodeResponse(const ARequest: TOBDRequest;
 begin
   case ARequest.Protocol of
     apKWP2000:
-      TOBDKWPCodec.Decode(ARequest, ARawHex, Result);
+      TOBDKWPCodec.Decode(ARequest, ARawHex, Result, FResponseHeaders);
   else
-    TOBDUDSCodec.Decode(ARequest, ARawHex, Result);
+    TOBDUDSCodec.Decode(ARequest, ARawHex, Result, FResponseHeaders);
   end;
   Result.Elapsed := AElapsedMs;
 end;
@@ -598,19 +606,14 @@ end;
 procedure TOBDProtocol.DispatchFrames(const ARawHex: string);
 var
   Lines: TArray<string>;
-  Trimmed, IdToken, Rest: string;
-  I, SpaceAt: Integer;
+  I: Integer;
   Frame: TOBDFrame;
-  IdValue: Int64;
+  Line: TOBDELMLine;
 begin
   // No early-exit on FOnFrame here — multi-cast listeners
   // (TOBDRecorder, custom bus loggers) need frames even when
   // the host doesn't wire a single-cast OnFrame.
   Lines := SplitString(ARawHex, #13#10);
-  if Length(Lines) = 0 then
-    Lines := SplitString(ARawHex, #13);
-  if Length(Lines) = 0 then
-    Lines := SplitString(ARawHex, #10);
   if Length(Lines) = 0 then
   begin
     SetLength(Lines, 1);
@@ -619,8 +622,11 @@ begin
 
   for I := 0 to High(Lines) do
   begin
-    Trimmed := Trim(Lines[I]);
-    if Trimmed = '' then
+    // ELM327 with headers on prefixes each frame with the CAN ID
+    // (3 hex digits for 11-bit, 8 for 29-bit); the parser also
+    // handles spaces off and headers-off segment lines ("0: ...").
+    Line := TOBDELMResponseParser.ParseLine(Lines[I], FResponseHeaders);
+    if Line.Kind in [lkEmpty, lkText, lkLength] then
       Continue;
 
     Frame := Default (TOBDFrame);
@@ -628,26 +634,23 @@ begin
     Frame.Kind := fkRaw;
     Frame.Id := 0;
     Frame.IsExtendedId := False;
-
-    // ELM327 with headers on prefixes each frame with the CAN ID
-    // (3 hex digits for 11-bit, 8 for 29-bit) followed by a space
-    // and the data bytes. Detect by an isolated leading hex token.
-    SpaceAt := Pos(' ', Trimmed);
-    if (SpaceAt > 0) and (SpaceAt in [4, 9]) then
+    Frame.Payload := Line.Bytes;
+    if Line.Kind = lkFrame then
     begin
-      IdToken := Copy(Trimmed, 1, SpaceAt - 1);
-      if TryStrToInt64('$' + IdToken, IdValue) then
-      begin
-        Frame.Id := Cardinal(IdValue);
-        Frame.IsExtendedId := SpaceAt = 9;
-        Rest := Copy(Trimmed, SpaceAt + 1, MaxInt);
-        Frame.Payload := HexToBytes(Rest);
-      end
-      else
-        Frame.Payload := HexToBytes(Trimmed);
-    end
-    else
-      Frame.Payload := HexToBytes(Trimmed);
+      Frame.Id := Line.HeaderId;
+      Frame.IsExtendedId := Line.IsExtendedId;
+      if not Line.IsLegacy and (Length(Line.Bytes) > 0) then
+        case Line.Bytes[0] shr 4 of
+          0:
+            Frame.Kind := fkSingle;
+          1:
+            Frame.Kind := fkFirst;
+          2:
+            Frame.Kind := fkConsecutive;
+          3:
+            Frame.Kind := fkFlowControl;
+        end;
+    end;
 
     FireOnFrame(Frame);
   end;

@@ -85,6 +85,220 @@
         "VoltageMonitor"
       ],
       "max_iso_tp_frame_bytes": 7
+    },
+    {
+      "adapter_key": "vgate_vlinker_fs",
+      "display_name": "Vgate vLinker FS USB",
+      "capabilities": [
+        "CAN",
+        "ISO-TP",
+        "K-Line",
+        "VoltageMonitor",
+        "ProgrammableHeaders"
+      ],
+      "max_iso_tp_frame_bytes": 7,
+      "connection_interfaces": [
+        "USB"
+      ],
+      "chipset": null,
+      "firmware_family": "ELM327-compatible",
+      "elm327_command_level": "v2.x-compatible (vendor claim, unverified)",
+      "stn_extensions": null,
+      "can_fd": false,
+      "j1979_2": null,
+      "iso_tp_long_messages": false,
+      "max_baud": null,
+      "detection": {
+        "ati_contains": [
+          "ELM327",
+          "vLinker FS"
+        ],
+        "at1_contains": [
+          "vLinker FS",
+          "Vgate"
+        ]
+      },
+      "quirks": [
+        "FORScan-oriented adapter; may expose Ford HS-CAN/MS-CAN routing outside the generic ELM profile."
+      ],
+      "notes": "Research placeholder from Vgate product material; exact chipset, baud ceiling and long-message behaviour need bench verification.",
+      "sources": [
+        "https://www.vgatemall.com/products/vlinker-fs-usb"
+      ],
+      "verified": false,
+      "checked": "2026-10-12"
+    },
+    {
+      "adapter_key": "vgate_vlinker_mc_plus",
+      "display_name": "Vgate vLinker MC+",
+      "capabilities": [
+        "CAN",
+        "ISO-TP",
+        "K-Line",
+        "VoltageMonitor",
+        "ProgrammableHeaders"
+      ],
+      "max_iso_tp_frame_bytes": 7,
+      "connection_interfaces": [
+        "Bluetooth Classic",
+        "Bluetooth LE"
+      ],
+      "chipset": null,
+      "firmware_family": "ELM327-compatible",
+      "elm327_command_level": "v2.x-compatible (vendor claim, unverified)",
+      "stn_extensions": null,
+      "can_fd": false,
+      "j1979_2": null,
+      "iso_tp_long_messages": false,
+      "max_baud": null,
+      "detection": {
+        "ati_contains": [
+          "ELM327",
+          "vLinker MC"
+        ],
+        "at1_contains": [
+          "vLinker MC",
+          "Vgate"
+        ]
+      },
+      "quirks": [
+        "BLE transport is not represented by the current TOBDAdapterCapability enum and is stored as metadata only."
+      ],
+      "notes": "Vendor pages describe MC+ as a Bluetooth/BLE ELM327-compatible consumer adapter; command-level and multi-frame limits are unverified.",
+      "sources": [
+        "https://www.vgatemall.com/products/vlinker-mc-plus"
+      ],
+      "verified": false,
+      "checked": "2026-10-12"
+    },
+    {
+      "adapter_key": "vgate_vlinker_fd",
+      "display_name": "Vgate vLinker FD",
+      "capabilities": [
+        "CAN",
+        "CANFD",
+        "ISO-TP",
+        "ISO-TP-LF",
+        "K-Line",
+        "VoltageMonitor",
+        "ProgrammableHeaders",
+        "AdapterMultiFrame"
+      ],
+      "max_iso_tp_frame_bytes": 62,
+      "connection_interfaces": [
+        "Bluetooth LE"
+      ],
+      "chipset": null,
+      "firmware_family": "ELM327-compatible with CAN-FD vendor extensions",
+      "elm327_command_level": "v2.x-compatible (vendor claim, unverified)",
+      "stn_extensions": null,
+      "can_fd": true,
+      "j1979_2": true,
+      "iso_tp_long_messages": true,
+      "max_baud": null,
+      "detection": {
+        "ati_contains": [
+          "ELM327",
+          "vLinker FD"
+        ],
+        "at1_contains": [
+          "vLinker FD",
+          "Vgate"
+        ]
+      },
+      "quirks": [
+        "CAN-FD/J1979-2 command coverage is vendor-specific; runtime detection currently cannot promote this key automatically."
+      ],
+      "notes": "Profile enables CAN-FD sized ISO-TP frames for hosts that explicitly select this adapter after validating it on hardware.",
+      "sources": [
+        "https://www.vgatemall.com/products/vlinker-fd"
+      ],
+      "verified": false,
+      "checked": "2026-10-12"
+    },
+    {
+      "adapter_key": "vgate_vlinker_bm_plus",
+      "display_name": "Vgate vLinker BM+",
+      "capabilities": [
+        "CAN",
+        "ISO-TP",
+        "K-Line",
+        "VoltageMonitor",
+        "ProgrammableHeaders"
+      ],
+      "max_iso_tp_frame_bytes": 7,
+      "connection_interfaces": [
+        "Bluetooth LE"
+      ],
+      "chipset": null,
+      "firmware_family": "ELM327-compatible",
+      "elm327_command_level": "v2.x-compatible (vendor claim, unverified)",
+      "stn_extensions": null,
+      "can_fd": false,
+      "j1979_2": null,
+      "iso_tp_long_messages": false,
+      "max_baud": null,
+      "detection": {
+        "ati_contains": [
+          "ELM327",
+          "vLinker BM"
+        ],
+        "at1_contains": [
+          "vLinker BM",
+          "Vgate"
+        ]
+      },
+      "quirks": [
+        "BMW-app focused profile; no generic CAN-FD capability was confirmed."
+      ],
+      "notes": "Research placeholder for the BM+ BLE adapter; exact AT/ST command coverage is unverified.",
+      "sources": [
+        "https://www.vgatemall.com/products/vlinker-bm-plus"
+      ],
+      "verified": false,
+      "checked": "2026-10-12"
+    },
+    {
+      "adapter_key": "vgate_icar_pro_ble",
+      "display_name": "Vgate iCar Pro BLE",
+      "capabilities": [
+        "CAN",
+        "ISO-TP",
+        "K-Line",
+        "VoltageMonitor",
+        "ProgrammableHeaders"
+      ],
+      "max_iso_tp_frame_bytes": 7,
+      "connection_interfaces": [
+        "Bluetooth LE"
+      ],
+      "chipset": null,
+      "firmware_family": "ELM327 clone class",
+      "elm327_command_level": "v2.x-compatible (vendor claim, unverified)",
+      "stn_extensions": false,
+      "can_fd": false,
+      "j1979_2": false,
+      "iso_tp_long_messages": false,
+      "max_baud": null,
+      "detection": {
+        "ati_contains": [
+          "ELM327",
+          "iCar Pro"
+        ],
+        "at1_contains": [
+          "iCar Pro",
+          "Vgate"
+        ]
+      },
+      "quirks": [
+        "Treat as an ELM327 clone-class adapter until AT@1/AT@2 strings are captured from hardware."
+      ],
+      "notes": "BLE transport metadata is retained for UIs; the current capability enum does not parse BluetoothLE as a runtime capability.",
+      "sources": [
+        "https://www.vgatemall.com/products/icar-pro-ble"
+      ],
+      "verified": false,
+      "checked": "2026-10-12"
     }
   ]
 }

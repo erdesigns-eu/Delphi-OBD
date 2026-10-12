@@ -12,6 +12,7 @@
 //
 //  History     :
 //    2026-05-09  ERD  Initial implementation.
+//    2026-10-12  ERD  Multi-ECU DTC parsing (CAN headers on/off, legacy, UDS).
 //------------------------------------------------------------------------------
 
 unit Tests.ERD.Service;
@@ -29,6 +30,7 @@ uses
   DUnitX.TestFramework,
   ERD.Types,
   ERD.Protocol.Types,
+  ERD.Protocol.UDS,
   ERD.Service.LiveData,
   ERD.Service.DTCs,
   ERD.Service.FreezeFrame,
@@ -60,6 +62,19 @@ type
     [Test] procedure B1234Decodes;
     [Test] procedure U0073Decodes;
     [Test] procedure P0000IsZeroSentinel;
+    /// <summary>Two CAN ECUs with headers on: every code carries the
+    /// header of the ECU that reported it.</summary>
+    [Test] procedure MultiEcuHeadersOn;
+    /// <summary>Headers off: one message per ECU, an ECU with no codes
+    /// contributes nothing.</summary>
+    [Test] procedure MultiEcuHeadersOff;
+    /// <summary>Legacy buses: one 3-code line per message, zero
+    /// padding skipped.</summary>
+    [Test] procedure LegacyLinesPadded;
+    /// <summary>Hand-built responses (empty Messages) still parse.</summary>
+    [Test] procedure HandBuiltResponse;
+    /// <summary>UDS 59 02 from two ECUs keeps status and ECU.</summary>
+    [Test] procedure UDSStatusMaskMultiEcu;
   end;
 
 implementation
@@ -137,6 +152,89 @@ end;
 procedure TDTCsTests.P0000IsZeroSentinel;
 begin
   Assert.AreEqual('P0000', TOBDDTCs.DecodeJ2012($00, $00));
+end;
+
+function DecodeRaw(ASid: Byte; const AData: TBytes;
+  const ARaw: string): TOBDResponse;
+var
+  Req: TOBDRequest;
+begin
+  Req := MakeOBDRequest;
+  Req.ServiceID := ASid;
+  Req.Data := AData;
+  TOBDUDSCodec.Decode(Req, ARaw, Result);
+end;
+
+procedure TDTCsTests.MultiEcuHeadersOn;
+var
+  E: TArray<TOBDDtcEntry>;
+begin
+  E := TOBDDTCs.ParseOBDResponse(DecodeRaw($03, nil,
+    '7E8 04 43 01 03 01'#13'7E9 06 43 02 07 00 01 23'#13#13'>'), $03,
+    dkConfirmed);
+  Assert.AreEqual(3, Integer(Length(E)));
+  Assert.AreEqual('P0301', E[0].Code);
+  Assert.AreEqual('7E8', E[0].Ecu);
+  Assert.AreEqual(Int64($7E8), Int64(E[0].EcuId));
+  Assert.AreEqual('P0700', E[1].Code);
+  Assert.AreEqual('7E9', E[1].Ecu);
+  Assert.AreEqual('P0123', E[2].Code);
+  Assert.AreEqual('7E9', E[2].Ecu);
+end;
+
+procedure TDTCsTests.MultiEcuHeadersOff;
+var
+  E: TArray<TOBDDtcEntry>;
+begin
+  E := TOBDDTCs.ParseOBDResponse(DecodeRaw($03, nil,
+    '43 01 01 33'#13'43 00'#13#13'>'), $03, dkConfirmed);
+  Assert.AreEqual(1, Integer(Length(E)));
+  Assert.AreEqual('P0133', E[0].Code);
+  Assert.AreEqual('', E[0].Ecu);
+end;
+
+procedure TDTCsTests.LegacyLinesPadded;
+var
+  E: TArray<TOBDDtcEntry>;
+begin
+  E := TOBDDTCs.ParseOBDResponse(DecodeRaw($03, nil,
+    '43 01 33 02 00 03 01'#13'43 04 20 00 00 00 00'#13'>'), $03,
+    dkConfirmed);
+  Assert.AreEqual(4, Integer(Length(E)));
+  Assert.AreEqual('P0133', E[0].Code);
+  Assert.AreEqual('P0200', E[1].Code);
+  Assert.AreEqual('P0301', E[2].Code);
+  Assert.AreEqual('P0420', E[3].Code);
+end;
+
+procedure TDTCsTests.HandBuiltResponse;
+var
+  R: TOBDResponse;
+  E: TArray<TOBDDtcEntry>;
+begin
+  R := MakeOBDResponse;
+  R.ServiceID := $47;
+  R.Data := TBytes.Create($02, $01, $01, $C0, $73);
+  E := TOBDDTCs.ParseOBDResponse(R, $07, dkPending);
+  Assert.AreEqual(2, Integer(Length(E)));
+  Assert.AreEqual('P0101', E[0].Code);
+  Assert.AreEqual('U0073', E[1].Code);
+  Assert.IsTrue(E[1].Kind = dkPending);
+end;
+
+procedure TDTCsTests.UDSStatusMaskMultiEcu;
+var
+  E: TArray<TOBDDtcEntry>;
+begin
+  E := TOBDDTCs.ParseUDSResponse(DecodeRaw($19, TBytes.Create($02, $FF),
+    '7E8 07 59 02 FF 01 23 00 09'#13'7E9 07 59 02 FF C0 73 00 08'#13'>'));
+  Assert.AreEqual(2, Integer(Length(E)));
+  Assert.AreEqual('P012300', E[0].Code);
+  Assert.AreEqual('7E8', E[0].Ecu);
+  Assert.AreEqual(9, Integer(E[0].Status));
+  Assert.AreEqual('U007300', E[1].Code);
+  Assert.AreEqual('7E9', E[1].Ecu);
+  Assert.AreEqual(8, Integer(E[1].Status));
 end;
 
 initialization

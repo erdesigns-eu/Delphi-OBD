@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://erdesigns.eu/schema/i18n-catalog-v1.json",
+  "title": "Delphi OBD i18n catalog",
+  "type": "object",
+  "required": [
+    "language",
+    "name",
+    "englishName",
+    "version",
+    "strings"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "language": {
+      "type": "string",
+      "pattern": "^[a-z]{2,3}(-[a-z0-9]{2,8})*$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "englishName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "strings": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {
+        "pattern": "^(ui|service|app|common|status)(\\.[A-Za-z0-9][A-Za-z0-9_-]*)+(\\.plural)?$"
+      },
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "object",
+            "required": [
+              "one",
+              "other"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "one": {
+                "type": "string"
+              },
+              "other": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

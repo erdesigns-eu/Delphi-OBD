@@ -23,6 +23,8 @@
 //
 // History     :
 // 2026-05-09  ERD  Initial implementation.
+// 2026-10-12  ERD  Service 09 read assembles legacy multi-message VINs
+//                  (TOBDVehicleInfoParser) and takes the first ECU.
 // ------------------------------------------------------------------------------
 
 unit ERD.Service.VIN;
@@ -128,6 +130,9 @@ type
 
 implementation
 
+uses
+  ERD.Service.VehicleInfo;
+
 constructor TOBDVIN.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
@@ -195,9 +200,10 @@ end;
 function TOBDVIN.ReadOBDII: TOBDVINResult;
 var
   Resp: TOBDResponse;
+  Msgs: TArray<TOBDInfoTypeMessage>;
+  Items: TArray<string>;
   VIN: string;
-  Bytes: TBytes;
-  Start: Integer;
+  Bare: TOBDInfoTypeMessage;
 begin
   if FProtocol = nil then
     raise EOBDConfig.Create('TOBDVIN: Protocol not assigned');
@@ -205,22 +211,25 @@ begin
   if Resp.IsNegative then
     raise EOBDProtocolErr.CreateFmt('Service 09 PID 02 negative: %s',
       [Resp.NRCText]);
-  // Response Data: <PID echo 0x02> <NODI / message count> <VIN ASCII…>
-  // Some controllers strip the PID echo; some return only the VIN.
-  Bytes := Resp.Data;
-  if (Length(Bytes) >= 2) and (Bytes[0] = OBD_PID_VIN) then
-    Start := 2 // skip PID echo + message count
-  else if Length(Bytes) >= 1 then
-    Start := 1
-  else
-    Start := 0;
-  if Length(Bytes) > Start then
+  // CAN: 49 02 <NODI> <VIN ASCII…>; legacy buses: five numbered
+  // 4-byte messages. Several ECUs may answer; the first wins.
+  VIN := '';
+  Msgs := TOBDVehicleInfoParser.Assemble(Resp, OBD_PID_VIN);
+  if Length(Msgs) > 0 then
   begin
-    SetLength(Bytes, Length(Bytes));
-    VIN := TEncoding.ASCII.GetString(Copy(Bytes, Start, Length(Bytes) - Start));
+    Items := TOBDVehicleInfoParser.TextItems(Msgs[0], 0);
+    if Length(Items) > 0 then
+      VIN := Items[0];
   end
-  else
-    VIN := '';
+  else if Length(Resp.Data) > 0 then
+  begin
+    // Adapters that strip the InfoType echo: printable bytes only.
+    Bare := Default (TOBDInfoTypeMessage);
+    Bare.Data := Resp.Data;
+    Items := TOBDVehicleInfoParser.TextItems(Bare, 0);
+    if Length(Items) > 0 then
+      VIN := Items[0];
+  end;
   Result.RawVIN := Trim(VIN);
   Result.Source := vsOBDII;
   Result.Valid := TOBDVINValidator.IsValid(Result.RawVIN);

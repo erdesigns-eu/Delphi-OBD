@@ -34,6 +34,7 @@ uses
   ERD.UI.ScrollBar,
   ERD.UI.Buttons,
   ERD.UI.Segmented,
+  ERD.I18n,
   ERD.Service.DTCs;
 
 type
@@ -179,6 +180,8 @@ type
     procedure CancelButtonClick(Sender: TObject);
     procedure PrecheckChanged(Sender: TObject);
     procedure FilterStripChange(Sender: TObject);
+    procedure ApplyLanguageDefaults;
+    procedure LanguageChanged(Sender: TObject);
     procedure UpdateFilterStrip;
     procedure LayoutChildren;
     function ConfirmationFillColor: TColor;
@@ -390,16 +393,16 @@ const
 function SystemNameFromCode(const ACode: string): string;
 begin
   if ACode = '' then
-    Exit('Powertrain');
+    Exit(Tr('ui.dtc.system.powertrain', 'Powertrain'));
   case UpCase(ACode[1]) of
     'C':
-      Result := 'Chassis';
+      Result := Tr('ui.dtc.system.chassis', 'Chassis');
     'B':
-      Result := 'Body';
+      Result := Tr('ui.dtc.system.body', 'Body');
     'U':
-      Result := 'Network';
+      Result := Tr('ui.dtc.system.network', 'Network');
   else
-    Result := 'Powertrain';
+    Result := Tr('ui.dtc.system.powertrain', 'Powertrain');
   end;
 end;
 
@@ -554,11 +557,7 @@ begin
   TabStop := True;
 
   FItems := TOBDDtcCollection.Create(Self, TOBDDtcItem);
-  FTitleCaption := 'Diagnostic trouble codes';
-  FReadCaption := 'Read codes';
-  FClearCaption := 'Clear codes…';
-  FConfirmClearCaption := 'Clear codes';
-  FCancelCaption := 'Cancel';
+  ApplyLanguageDefaults;
   FShowEcu := True;
   FConfirmClear := True;
   FSelectedIndex := -1;
@@ -597,13 +596,15 @@ begin
 
   FPrecheckIgnition := TOBDCheckBox.Create(Self);
   FPrecheckIgnition.Parent := Self;
-  FPrecheckIgnition.Caption := 'Ignition on, engine off';
+  FPrecheckIgnition.Caption := Tr('ui.dtc.precheckIgnition',
+    'Ignition on, engine off');
   FPrecheckIgnition.OnChange := PrecheckChanged;
   FPrecheckIgnition.Visible := False;
 
   FPrecheckReport := TOBDCheckBox.Create(Self);
   FPrecheckReport.Parent := Self;
-  FPrecheckReport.Caption := 'Codes saved to the job report';
+  FPrecheckReport.Caption := Tr('ui.dtc.precheckReport',
+    'Codes saved to the job report');
   FPrecheckReport.OnChange := PrecheckChanged;
   FPrecheckReport.Visible := False;
 
@@ -613,10 +614,12 @@ begin
 
   UpdateFilterStrip;
   LayoutChildren;
+  OBDI18n.AddChangeListener(LanguageChanged);
 end;
 
 destructor TOBDDtcPanel.Destroy;
 begin
+  OBDI18n.RemoveChangeListener(LanguageChanged);
   FItems.Free;
   inherited;
 end;
@@ -734,7 +737,7 @@ begin
     begin
       Desc := Entry.Description;
       if Desc = '' then
-        Desc := 'Diagnostic trouble code';
+        Desc := Tr('ui.dtc.defaultDescription', 'Diagnostic trouble code');
       AddCode(Entry.Code, Desc, SystemNameFromCode(Entry.Code), '', Status);
     end;
     FLastRead := Now;
@@ -955,6 +958,23 @@ begin
   end;
 end;
 
+procedure TOBDDtcPanel.ApplyLanguageDefaults;
+begin
+  FTitleCaption := Tr('ui.dtc.title', 'Diagnostic trouble codes');
+  FReadCaption := Tr('ui.dtc.read', 'Read codes');
+  FClearCaption := Tr('ui.dtc.clear', 'Clear codes...');
+  FConfirmClearCaption := Tr('ui.dtc.clearConfirm', 'Clear codes');
+  FCancelCaption := Tr('ui.dtc.cancel', 'Cancel');
+end;
+
+procedure TOBDDtcPanel.LanguageChanged(Sender: TObject);
+begin
+  ApplyLanguageDefaults;
+  UpdateFilterStrip;
+  LayoutChildren;
+  Invalidate;
+end;
+
 procedure TOBDDtcPanel.UpdateFilterStrip;
 var
   Wanted: Integer;
@@ -964,10 +984,13 @@ begin
   FFilterStrip.Items.BeginUpdate;
   try
     FFilterStrip.Items.Clear;
-    FFilterStrip.Items.Add(Format('All %d', [DtcCount]));
-    FFilterStrip.Items.Add(Format('Stored %d', [DtcCount(dsStored)]));
-    FFilterStrip.Items.Add(Format('Pending %d', [DtcCount(dsPending)]));
-    FFilterStrip.Items.Add(Format('Permanent %d', [DtcCount(dsPermanent)]));
+    FFilterStrip.Items.Add(TrFmt('ui.dtc.filter.all', 'All %d', [DtcCount]));
+    FFilterStrip.Items.Add(TrFmt('ui.dtc.filter.stored', 'Stored %d',
+      [DtcCount(dsStored)]));
+    FFilterStrip.Items.Add(TrFmt('ui.dtc.filter.pending', 'Pending %d',
+      [DtcCount(dsPending)]));
+    FFilterStrip.Items.Add(TrFmt('ui.dtc.filter.permanent', 'Permanent %d',
+      [DtcCount(dsPermanent)]));
   finally
     FFilterStrip.Items.EndUpdate;
   end;
@@ -998,8 +1021,10 @@ begin
   FClearButton.Caption := FClearCaption;
   FConfirmButton.Caption := FConfirmClearCaption;
   FCancelButton.Caption := FCancelCaption;
-  FPrecheckIgnition.Caption := 'Ignition on, engine off';
-  FPrecheckReport.Caption := 'Codes saved to the job report';
+  FPrecheckIgnition.Caption := Tr('ui.dtc.precheckIgnition',
+    'Ignition on, engine off');
+  FPrecheckReport.Caption := Tr('ui.dtc.precheckReport',
+    'Codes saved to the job report');
 
   FReadButton.AdjustSize;
   FClearButton.AdjustSize;
@@ -1484,11 +1509,11 @@ function TOBDDtcPanel.StatusText(AStatus: TOBDDtcStatus): string;
 begin
   case AStatus of
     dsPending:
-      Result := 'PENDING';
+      Result := Tr('ui.dtc.status.pending', 'PENDING');
     dsPermanent:
-      Result := 'PERMANENT';
+      Result := Tr('ui.dtc.status.permanent', 'PERMANENT');
   else
-    Result := 'STORED';
+    Result := Tr('ui.dtc.status.stored', 'STORED');
   end;
 end;
 
@@ -1508,13 +1533,18 @@ end;
 function TOBDDtcPanel.FooterText: string;
 begin
   if FLastRead > 0 then
-    Result := 'Last read ' + FormatDateTime('hh:nn:ss', FLastRead)
+    Result := TrFmt('ui.dtc.footer.lastReadAt', 'Last read %s',
+      [FormatDateTime('hh:nn:ss', FLastRead)])
   else if UsePreviewRows then
-    Result := 'Last read 18:42:07'
+    Result := TrFmt('ui.dtc.footer.lastReadAt', 'Last read %s',
+      ['18:42:07'])
   else
-    Result := 'Last read never';
-  Result := Result + Format('  ·  %d codes  ·  %d stored, %d pending, %d permanent',
-    [DtcCount, DtcCount(dsStored), DtcCount(dsPending), DtcCount(dsPermanent)]);
+    Result := Tr('ui.dtc.footer.lastReadNever', 'Last read never');
+  Result := Result + '  ' + WideChar($00B7) + '  ' +
+    TrFmt('ui.dtc.footer.summary',
+    '%d codes - %d stored, %d pending, %d permanent',
+    [DtcCount, DtcCount(dsStored), DtcCount(dsPending),
+    DtcCount(dsPermanent)]);
 end;
 
 procedure TOBDDtcPanel.PaintControl(ACanvas: TCanvas);
@@ -1552,17 +1582,20 @@ begin
     ScaleValue(14);
   Limit := FReadButton.Left - ScaleValue(8);
 
-  Text := Format('%d STORED', [DtcCount(dsStored)]);
+  Text := TrFmt('ui.dtc.header.storedCount', '%d STORED',
+    [DtcCount(dsStored)]);
   ChipW := APainter.ChipWidth(Text);
   if X + ChipW <= Limit then
     Inc(X, APainter.Chip(X, Y - ScaleValue(10), Text, Palette.Danger) + ScaleValue(6));
 
-  Text := Format('%d PENDING', [DtcCount(dsPending)]);
+  Text := TrFmt('ui.dtc.header.pendingCount', '%d PENDING',
+    [DtcCount(dsPending)]);
   ChipW := APainter.ChipWidth(Text);
   if X + ChipW <= Limit then
     Inc(X, APainter.Chip(X, Y - ScaleValue(10), Text, Palette.Warning) + ScaleValue(6));
 
-  Text := Format('%d PERMANENT', [DtcCount(dsPermanent)]);
+  Text := TrFmt('ui.dtc.header.permanentCount', '%d PERMANENT',
+    [DtcCount(dsPermanent)]);
   ChipW := APainter.ChipWidth(Text);
   if X + ChipW <= Limit then
     APainter.Chip(X, Y - ScaleValue(10), Text, APainter.AccentText);
@@ -1588,12 +1621,14 @@ begin
   else
     ColEcu := R;
   ColSys := ColEcu - ScaleValue(118);
-  APainter.Caps(ColStatus, Y + H div 2, 'Status');
-  APainter.Caps(ColCode, Y + H div 2, 'Code');
-  APainter.Caps(ColDesc, Y + H div 2, 'Description');
-  APainter.Caps(ColSys, Y + H div 2, 'System');
+  APainter.Caps(ColStatus, Y + H div 2, Tr('ui.dtc.column.status', 'Status'));
+  APainter.Caps(ColCode, Y + H div 2, Tr('ui.dtc.column.code', 'Code'));
+  APainter.Caps(ColDesc, Y + H div 2,
+    Tr('ui.dtc.column.description', 'Description'));
+  APainter.Caps(ColSys, Y + H div 2, Tr('ui.dtc.column.system', 'System'));
   if FShowEcu then
-    APainter.Caps(ColEcu, Y + H div 2, 'Control unit');
+    APainter.Caps(ColEcu, Y + H div 2,
+      Tr('ui.dtc.column.controlUnit', 'Control unit'));
 end;
 
 procedure TOBDDtcPanel.DrawRows(APainter: TOBDPainter; ACanvas: TCanvas);
@@ -1694,14 +1729,17 @@ begin
     Palette.Background);
   APainter.FillRect(Rect(ScaleValue(1), ATop, ScaleValue(5), ATop + H), Color);
   APainter.Caps(ScaleValue(118), ATop + ScaleValue(16),
-    'Freeze frame · when ' + SourceCode(ASourceIndex) + ' was stored');
+    TrFmt('ui.dtc.freeze.title', 'Freeze frame - when %s was stored',
+    [SourceCode(ASourceIndex)]));
   APainter.Text(ClientWidth - ScaleValue(16), ATop + ScaleValue(16),
-    'Open freeze frame', 11.5, APainter.AccentText, twSemibold, taRightJustify);
+    Tr('ui.dtc.freeze.open', 'Open freeze frame'), 11.5, APainter.AccentText,
+    twSemibold, taRightJustify);
 
   if SourceFreezeCount(ASourceIndex) = 0 then
   begin
     APainter.Text(ScaleValue(118), ATop + H div 2 + ScaleValue(10),
-      'No freeze-frame values are linked to this code.', DTC_META_SIZE,
+      Tr('ui.dtc.freeze.empty',
+      'No freeze-frame values are linked to this code.'), DTC_META_SIZE,
       Palette.GaugeLabel, twRegular, taLeftJustify);
     Exit;
   end;
@@ -1773,18 +1811,22 @@ begin
   if ClearN <= 0 then
     ClearN := DtcCount;
   APainter.Text(L, R.Top + ScaleValue(24),
-    Format('Clear %d diagnostic trouble codes?', [ClearN]), OBD_TEXT_HEADING,
+    TrFmt('ui.dtc.clear.question', 'Clear %d diagnostic trouble codes?',
+    [ClearN]), OBD_TEXT_HEADING,
     Palette.ForegroundText, twBold, taLeftJustify, R.Width - ScaleValue(72));
   APainter.Text(L, R.Top + ScaleValue(48),
-    'Clearing also erases the freeze frames and resets all readiness monitors.',
+    Tr('ui.dtc.clear.noteFrames',
+    'Clearing also erases the freeze frames and resets all readiness monitors.'),
     DTC_META_SIZE, Palette.ForegroundText, twRegular, taLeftJustify,
     R.Width - ScaleValue(72));
   APainter.Text(L, R.Top + ScaleValue(66),
-    'The car will show "not ready" for the emissions test until a full drive cycle is done.',
+    Tr('ui.dtc.clear.noteReadiness',
+    'The car will show "not ready" for the emissions test until a full drive cycle is done.'),
     DTC_META_SIZE, Palette.ForegroundText, twRegular, taLeftJustify,
     R.Width - ScaleValue(72));
   APainter.Text(L, R.Top + ScaleValue(84),
-    'Permanent codes stay until the ECU has seen the fault cleared on its own.',
+    Tr('ui.dtc.clear.notePermanent',
+    'Permanent codes stay until the ECU has seen the fault cleared on its own.'),
     DTC_META_SIZE, Palette.GaugeLabel, twRegular, taLeftJustify,
     R.Width - ScaleValue(72));
 end;
@@ -1798,10 +1840,12 @@ begin
   CX := R.Left + R.Width div 2;
   CY := R.Top + R.Height div 2;
   APainter.GlyphCheck(CX, CY - ScaleValue(22), Palette.Success, 1.4);
-  APainter.Text(CX, CY + ScaleValue(10), 'No trouble codes stored',
+  APainter.Text(CX, CY + ScaleValue(10),
+    Tr('ui.dtc.empty.title', 'No trouble codes stored'),
     OBD_TEXT_HEADING,
     Palette.ForegroundText, twSemibold, taCenter);
-  APainter.Text(CX, CY + ScaleValue(32), 'Read codes to refresh the vehicle status.',
+  APainter.Text(CX, CY + ScaleValue(32),
+    Tr('ui.dtc.empty.subtitle', 'Read codes to refresh the vehicle status.'),
     DTC_FOOTER_SIZE, Palette.GaugeLabel, twRegular, taCenter);
 end;
 

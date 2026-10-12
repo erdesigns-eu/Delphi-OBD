@@ -31,7 +31,8 @@ uses
   ERD.UI.Paint,
   ERD.UI.Control,
   ERD.UI.PopupList,
-  ERD.UI.ScrollBar;
+  ERD.UI.ScrollBar,
+  ERD.I18n;
 
 type
   TOBDInspectorProperty = class;
@@ -491,8 +492,8 @@ begin
   FPickList := TStringList.Create;
   TStringList(FPickList).OnChange := PickListChanged;
   FKind := ivText;
-  FCheckedCaption := 'On';
-  FUncheckedCaption := 'Off';
+  FCheckedCaption := Tr('ui.inspector.boolean.on', 'On');
+  FUncheckedCaption := Tr('ui.inspector.boolean.off', 'Off');
   FLevel := alvNormal;
   FVisible := True;
 end;

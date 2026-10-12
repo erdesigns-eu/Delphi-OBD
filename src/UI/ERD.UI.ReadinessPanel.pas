@@ -29,7 +29,8 @@ uses
   Vcl.Controls,
   ERD.UI.Types,
   ERD.UI.Control,
-  ERD.UI.Paint;
+  ERD.UI.Paint,
+  ERD.I18n;
 
 type
   /// <summary>Readiness panel layout.</summary>
@@ -188,6 +189,7 @@ type
     procedure SetActionText(const AValue: string);
     procedure SetMonitors(AValue: TOBDReadinessMonitorCollection);
     procedure MonitorsChanged(Sender: TObject);
+    procedure LanguageChanged(Sender: TObject);
     procedure DoChange;
     procedure ResetMonitorDefaults;
     function ItemByMonitor(AMonitor: TOBDReadinessMonitor)
@@ -315,39 +317,45 @@ function MonitorName(AMonitor: TOBDReadinessMonitor): string;
 begin
   case AMonitor of
     rmMisfire:
-      Result := 'Misfire';
+      Result := Tr('ui.readiness.monitor.misfire', 'Misfire');
     rmFuelSystem:
-      Result := 'Fuel system';
+      Result := Tr('ui.readiness.monitor.fuelSystem', 'Fuel system');
     rmComponents:
-      Result := 'Comprehensive components';
+      Result := Tr('ui.readiness.monitor.components',
+        'Comprehensive components');
     rmCatalyst:
-      Result := 'Catalyst';
+      Result := Tr('ui.readiness.monitor.catalyst', 'Catalyst');
     rmHeatedCatalyst:
-      Result := 'Heated catalyst';
+      Result := Tr('ui.readiness.monitor.heatedCatalyst', 'Heated catalyst');
     rmEvaporativeSystem:
-      Result := 'Evaporative system';
+      Result := Tr('ui.readiness.monitor.evaporativeSystem',
+        'Evaporative system');
     rmSecondaryAirSystem:
-      Result := 'Secondary air system';
+      Result := Tr('ui.readiness.monitor.secondaryAirSystem',
+        'Secondary air system');
     rmACRefrigerant:
-      Result := 'A/C refrigerant';
+      Result := Tr('ui.readiness.monitor.acRefrigerant', 'A/C refrigerant');
     rmOxygenSensor:
-      Result := 'Oxygen sensor';
+      Result := Tr('ui.readiness.monitor.oxygenSensor', 'Oxygen sensor');
     rmOxygenSensorHeater:
-      Result := 'Oxygen sensor heater';
+      Result := Tr('ui.readiness.monitor.oxygenSensorHeater',
+        'Oxygen sensor heater');
     rmEGRSystem:
-      Result := 'EGR system';
+      Result := Tr('ui.readiness.monitor.egrSystem', 'EGR system');
     rmNMHCCatalyst:
-      Result := 'NMHC catalyst';
+      Result := Tr('ui.readiness.monitor.nmhcCatalyst', 'NMHC catalyst');
     rmNOxSCRAftertreatment:
-      Result := 'NOx / SCR aftertreatment';
+      Result := Tr('ui.readiness.monitor.noxScrAftertreatment',
+        'NOx / SCR aftertreatment');
     rmBoostPressure:
-      Result := 'Boost pressure';
+      Result := Tr('ui.readiness.monitor.boostPressure', 'Boost pressure');
     rmExhaustGasSensor:
-      Result := 'Exhaust gas sensor';
+      Result := Tr('ui.readiness.monitor.exhaustGasSensor',
+        'Exhaust gas sensor');
     rmPMFilter:
-      Result := 'PM filter';
+      Result := Tr('ui.readiness.monitor.pmFilter', 'PM filter');
     rmEGRVVTSystem:
-      Result := 'EGR / VVT system';
+      Result := Tr('ui.readiness.monitor.egrVvtSystem', 'EGR / VVT system');
   else
     Result := '';
   end;
@@ -357,25 +365,34 @@ function DefaultMonitorNote(AMonitor: TOBDReadinessMonitor): string;
 begin
   case AMonitor of
     rmCatalyst, rmHeatedCatalyst:
-      Result := 'Needs a steady cruise after warm-up';
+      Result := Tr('ui.readiness.note.steadyCruise',
+        'Needs a steady cruise after warm-up');
     rmEvaporativeSystem:
-      Result := 'Needs a cold soak and EVAP drive cycle';
+      Result := Tr('ui.readiness.note.evapDriveCycle',
+        'Needs a cold soak and EVAP drive cycle');
     rmSecondaryAirSystem:
-      Result := 'Needs a cold start test';
+      Result := Tr('ui.readiness.note.coldStart', 'Needs a cold start test');
     rmACRefrigerant:
-      Result := 'Needs A/C monitor conditions';
+      Result := Tr('ui.readiness.note.acConditions',
+        'Needs A/C monitor conditions');
     rmOxygenSensor, rmOxygenSensorHeater:
-      Result := 'Needs closed-loop motorway driving';
+      Result := Tr('ui.readiness.note.closedLoopMotorway',
+        'Needs closed-loop motorway driving');
     rmEGRSystem, rmEGRVVTSystem:
-      Result := 'Needs mixed-speed EGR operation';
+      Result := Tr('ui.readiness.note.egrOperation',
+        'Needs mixed-speed EGR operation');
     rmNOxSCRAftertreatment:
-      Result := 'Needs ~20 min of motorway driving';
+      Result := Tr('ui.readiness.note.noxMotorway',
+        'Needs ~20 min of motorway driving');
     rmBoostPressure:
-      Result := 'Needs a boost-pressure drive cycle';
+      Result := Tr('ui.readiness.note.boostCycle',
+        'Needs a boost-pressure drive cycle');
     rmExhaustGasSensor:
-      Result := 'Needs exhaust sensor warm-up';
+      Result := Tr('ui.readiness.note.exhaustWarmup',
+        'Needs exhaust sensor warm-up');
     rmPMFilter:
-      Result := 'Needs a completed DPF regeneration';
+      Result := Tr('ui.readiness.note.dpfRegen',
+        'Needs a completed DPF regeneration');
   else
     Result := '';
   end;
@@ -398,11 +415,11 @@ function MonitorStateText(AState: TOBDMonitorState): string;
 begin
   case AState of
     msComplete:
-      Result := 'Complete';
+      Result := Tr('ui.readiness.state.complete', 'Complete');
     msIncomplete:
-      Result := 'Incomplete';
+      Result := Tr('ui.readiness.state.incomplete', 'Incomplete');
   else
-    Result := 'Not supported';
+    Result := Tr('ui.readiness.state.unsupported', 'Not supported');
   end;
 end;
 
@@ -513,16 +530,18 @@ begin
   FAllowedIncomplete := 0;
   FDistanceSinceClear := -1;
   FWarmUpsSinceClear := -1;
-  FActionText := 'Open readiness';
+  FActionText := Tr('ui.readiness.action.open', 'Open readiness');
   FMonitors := TOBDReadinessMonitorCollection.Create(Self);
   FMonitors.OnChange := MonitorsChanged;
   ResetMonitorDefaults;
   Width := 720;
   Height := 360;
+  OBDI18n.AddChangeListener(LanguageChanged);
 end;
 
 destructor TOBDReadinessPanel.Destroy;
 begin
+  OBDI18n.RemoveChangeListener(LanguageChanged);
   FMonitors.Free;
   inherited;
 end;
@@ -585,6 +604,12 @@ procedure TOBDReadinessPanel.MonitorsChanged(Sender: TObject);
 begin
   FHasData := True;
   DoChange;
+end;
+
+procedure TOBDReadinessPanel.LanguageChanged(Sender: TObject);
+begin
+  FActionText := Tr('ui.readiness.action.open', 'Open readiness');
+  Invalidate;
 end;
 
 procedure TOBDReadinessPanel.ResetMonitorDefaults;
@@ -841,48 +866,54 @@ begin
   if Result <> '' then
     Exit;
   if UsePreviewData then
-    Result := 'Since clear: 42 km · 3 warm-ups';
+    Result := Tr('ui.readiness.sinceClear.preview',
+      'Since clear: 42 km - 3 warm-ups');
   if Result <> '' then
     Exit;
   if (FDistanceSinceClear >= 0) and (FWarmUpsSinceClear >= 0) then
-    Result := Format('Since clear: %d km · %d warm-ups',
+    Result := TrFmt('ui.readiness.sinceClear.distanceAndWarmups',
+      'Since clear: %d km - %d warm-ups',
       [FDistanceSinceClear, FWarmUpsSinceClear])
   else if FDistanceSinceClear >= 0 then
-    Result := Format('Since clear: %d km', [FDistanceSinceClear])
+    Result := TrFmt('ui.readiness.sinceClear.distance',
+      'Since clear: %d km', [FDistanceSinceClear])
   else if FWarmUpsSinceClear >= 0 then
-    Result := Format('Since clear: %d warm-ups', [FWarmUpsSinceClear]);
+    Result := TrFmt('ui.readiness.sinceClear.warmups',
+      'Since clear: %d warm-ups', [FWarmUpsSinceClear]);
 end;
 
 function TOBDReadinessPanel.VisualUpdatedText: string;
 begin
   Result := FUpdatedText;
   if (Result = '') and UsePreviewData then
-    Result := 'Updated 18:42:09';
+    Result := Tr('ui.readiness.updated.preview', 'Updated 18:42:09');
 end;
 
 function TOBDReadinessPanel.InspectionDisplayName: string;
 begin
   case FInspectionRegime of
     irAPK:
-      Result := 'APK';
+      Result := Tr('ui.readiness.inspection.apk', 'APK');
     irKeuring:
-      Result := 'keuring';
+      Result := Tr('ui.readiness.inspection.keuring', 'vehicle inspection');
     irControleTechnique:
-      Result := 'contrôle technique';
+      Result := Tr('ui.readiness.inspection.controleTechnique',
+        'technical inspection');
     irMOT:
-      Result := 'MOT';
+      Result := Tr('ui.readiness.inspection.mot', 'MOT');
     irHUAU:
-      Result := 'HU / AU';
+      Result := Tr('ui.readiness.inspection.huAu', 'HU / AU');
     irNCT:
-      Result := 'NCT';
+      Result := Tr('ui.readiness.inspection.nct', 'NCT');
     irCustom:
       begin
         Result := FInspectionName;
         if Result = '' then
-          Result := 'emissions test';
+          Result := Tr('ui.readiness.inspection.emissionsTest',
+            'emissions test');
       end;
   else
-    Result := 'emissions test';
+    Result := Tr('ui.readiness.inspection.emissionsTest', 'emissions test');
   end;
 end;
 
@@ -1026,27 +1057,35 @@ begin
 
   TextName := InspectionDisplayName;
   if VisualReady then
-    Title := Format('Ready for the %s', [TextName])
+    Title := TrFmt('ui.readiness.banner.ready', 'Ready for the %s',
+      [TextName])
   else
-    Title := Format('Not ready for the %s', [TextName]);
+    Title := TrFmt('ui.readiness.banner.notReady', 'Not ready for the %s',
+      [TextName]);
 
   if VisualReady and (VisualIncompleteCount = 0) then
-    SubText := Format('All %d supported monitors complete',
+    SubText := TrFmt('ui.readiness.banner.allComplete',
+      'All %d supported monitors complete',
       [VisualSupportedCount])
   else
-    SubText := Format('%d of %d supported monitors incomplete — drive cycle needed',
+    SubText := TrFmt('ui.readiness.banner.incomplete',
+      '%d of %d supported monitors incomplete - drive cycle needed',
       [VisualIncompleteCount, VisualSupportedCount]);
   if ACompact then
   begin
     if VisualMilOn then
-      SubText := SubText + ' · MIL on'
+      SubText := SubText + ' ' + WideChar($00B7) + ' ' +
+        Tr('ui.readiness.banner.milOn', 'MIL on')
     else
-      SubText := SubText + ' · MIL off';
+      SubText := SubText + ' ' + WideChar($00B7) + ' ' +
+        Tr('ui.readiness.banner.milOff', 'MIL off');
     SinceText := VisualSinceClearText;
     if SinceText <> '' then
     begin
+      SinceText := StringReplace(SinceText,
+        Tr('ui.readiness.sinceClear.prefix', 'Since clear: '), '', []);
       SinceText := StringReplace(SinceText, 'Since clear: ', '', []);
-      SubText := SubText + ' · ' + SinceText;
+      SubText := SubText + ' ' + WideChar($00B7) + ' ' + SinceText;
     end;
   end;
 
@@ -1072,12 +1111,12 @@ begin
       taLeftJustify, MaxW);
     if VisualMilOn then
     begin
-      MilText := 'MIL ON';
+      MilText := Tr('ui.readiness.mil.on', 'MIL ON');
       MilColor := Palette.Danger;
     end
     else
     begin
-      MilText := 'MIL OFF';
+      MilText := Tr('ui.readiness.mil.off', 'MIL OFF');
       MilColor := Palette.Success;
     end;
     ChipW := P.ChipWidth(MilText);
@@ -1175,33 +1214,42 @@ var
   Y, LX, LY: Integer;
   SourceText, Updated: string;
 begin
-  P.Text(P.S(16), P.S(26), 'Readiness monitors', OBD_TEXT_TITLE, Palette.ForegroundText,
-    twBold);
+  P.Text(P.S(16), P.S(26), Tr('ui.readiness.title.full',
+    'Readiness monitors'), OBD_TEXT_TITLE, Palette.ForegroundText, twBold);
   if VisualCompressionIgnition then
-    SourceText := 'Compression ignition  ·  Mode 01 PID 01'
+    SourceText := Tr('ui.readiness.source.compression',
+      'Compression ignition - Mode 01 PID 01')
   else
-    SourceText := 'Spark ignition  ·  Mode 01 PID 01';
+    SourceText := Tr('ui.readiness.source.spark',
+      'Spark ignition - Mode 01 PID 01');
   P.Text(Width - P.S(16), P.S(26), SourceText, 11.5, Palette.GaugeLabel,
     twRegular, taRightJustify, Width - P.S(32));
   PaintBanner(P, Rect(P.S(16), P.S(50), Width - P.S(16), P.S(122)), False);
 
   Y := P.S(138);
-  PaintGroup(P, 'Continuous', CONTINUOUS_MONITORS, Y);
+  PaintGroup(P, Tr('ui.readiness.group.continuous', 'Continuous'),
+    CONTINUOUS_MONITORS, Y);
   if VisualCompressionIgnition then
-    PaintGroup(P, 'Non-continuous', DIESEL_MONITORS, Y)
+    PaintGroup(P, Tr('ui.readiness.group.nonContinuous', 'Non-continuous'),
+      DIESEL_MONITORS, Y)
   else
-    PaintGroup(P, 'Non-continuous', SPARK_MONITORS, Y);
+    PaintGroup(P, Tr('ui.readiness.group.nonContinuous', 'Non-continuous'),
+      SPARK_MONITORS, Y);
 
   LY := Height - P.S(22);
   LX := P.S(16);
   PaintMonitorIcon(P, msComplete, LX + P.S(6), LY, 0.8);
-  Inc(LX, P.Text(LX + P.S(16), LY, 'Complete', 11.5, Palette.GaugeLabel) +
+  Inc(LX, P.Text(LX + P.S(16), LY,
+    Tr('ui.readiness.state.complete', 'Complete'), 11.5, Palette.GaugeLabel) +
     P.S(36));
   PaintMonitorIcon(P, msIncomplete, LX + P.S(6), LY, 0.8);
-  Inc(LX, P.Text(LX + P.S(16), LY, 'Incomplete', 11.5, Palette.GaugeLabel) +
-    P.S(36));
+  Inc(LX, P.Text(LX + P.S(16), LY,
+    Tr('ui.readiness.state.incomplete', 'Incomplete'), 11.5,
+    Palette.GaugeLabel) + P.S(36));
   PaintMonitorIcon(P, msUnsupported, LX + P.S(6), LY, 0.8);
-  P.Text(LX + P.S(16), LY, 'Not supported', 11.5, Palette.GaugeLabel);
+  P.Text(LX + P.S(16), LY,
+    Tr('ui.readiness.state.unsupported', 'Not supported'), 11.5,
+    Palette.GaugeLabel);
   Updated := VisualUpdatedText;
   if Updated <> '' then
     P.Text(Width - P.S(16), LY, Updated, 11.5, Palette.GaugeLabel,
@@ -1213,7 +1261,8 @@ var
   Gap, CellW, CellH, I, X, Y: Integer;
   Items: array of TOBDReadinessMonitor;
 begin
-  P.Text(P.S(16), P.S(24), 'Readiness', OBD_TEXT_TITLE, Palette.ForegroundText, twBold);
+  P.Text(P.S(16), P.S(24), Tr('ui.readiness.title.compact', 'Readiness'),
+    OBD_TEXT_TITLE, Palette.ForegroundText, twBold);
   if FActionText <> '' then
     P.Text(Width - P.S(16), P.S(24), FActionText, 11.5, P.AccentText,
       twSemibold, taRightJustify);

@@ -17,6 +17,7 @@
 //
 // History     :
 // 2026-05-09  ERD  Initial implementation.
+// 2026-10-12  ERD  Add TOBDEcuMessage, TOBDELMHeaderMode, TOBDResponse.Messages.
 // ------------------------------------------------------------------------------
 
 unit ERD.Protocol.Types;
@@ -136,6 +137,54 @@ type
   end;
 
   /// <summary>
+  /// How the adapter prints the header in front of each reply line.
+  /// </summary>
+  /// <remarks>
+  /// Matches the ELM327 <c>ATH0</c> / <c>ATH1</c> setting. <c>ehAuto</c>
+  /// recognises 11-bit CAN headers (an odd number of hex digits, e.g.
+  /// <c>7E8 06 41 0C …</c>) and 29-bit OBD headers (<c>18DA…</c> /
+  /// <c>18DB…</c>); legacy J1850 / ISO 9141 / KWP headers cannot be told
+  /// apart from data and need <c>ehLegacy</c>.
+  /// </remarks>
+  TOBDELMHeaderMode = (
+    /// <summary>Detect CAN headers per line; otherwise headers off.</summary>
+    ehAuto,
+    /// <summary>Headers off (<c>ATH0</c>, the library default).</summary>
+    ehOff,
+    /// <summary>11-bit CAN identifiers (3 hex digits).</summary>
+    ehCAN11,
+    /// <summary>29-bit CAN identifiers (8 hex digits).</summary>
+    ehCAN29,
+    /// <summary>Legacy 3-byte header plus trailing checksum byte
+    /// (SAE J1850, ISO 9141-2, ISO 14230-4).</summary>
+    ehLegacy);
+
+  /// <summary>
+  /// One complete message from one ECU, reassembled from the
+  /// adapter's text output.
+  /// </summary>
+  /// <remarks>
+  /// A functional OBD request (<c>7DF</c>) can be answered by several
+  /// ECUs; each answer is a separate message. Multi-frame ISO-TP
+  /// answers are joined and trimmed to their announced length.
+  /// </remarks>
+  TOBDEcuMessage = record
+    /// <summary>Header as printed by the adapter (<c>'7E8'</c>,
+    /// <c>'18DAF110'</c>, <c>'486B10'</c>). Empty with headers off.</summary>
+    Header: string;
+    /// <summary>Numeric CAN identifier (or the legacy source address);
+    /// 0 with headers off.</summary>
+    CanId: Cardinal;
+    /// <summary>True for a 29-bit CAN identifier.</summary>
+    IsExtendedId: Boolean;
+    /// <summary>Full message payload, service ID first.</summary>
+    Data: TBytes;
+    /// <summary>False when a multi-frame message ended before its
+    /// announced length was received.</summary>
+    Complete: Boolean;
+  end;
+
+  /// <summary>
   /// Decoded response to a request.
   /// </summary>
   TOBDResponse = record
@@ -144,8 +193,13 @@ type
     /// <summary>Service ID echoed back by the ECU (request SID + 0x40
     /// for positive response on UDS / OBD-II).</summary>
     ServiceID: Byte;
-    /// <summary>Application payload (excludes the service ID).</summary>
+    /// <summary>Application payload (excludes the service ID) of the
+    /// primary message: the first positive answer, else the first
+    /// negative answer. See <c>Messages</c> for every ECU's answer.</summary>
     Data: TBytes;
+    /// <summary>Every ECU message in the reply, in arrival order.
+    /// "Response pending" (<c>7F xx 78</c>) messages are left out.</summary>
+    Messages: TArray<TOBDEcuMessage>;
     /// <summary>Frames seen on the wire that contributed to this
     /// response. Useful for diagnostics / logging.</summary>
     Frames: TArray<TOBDFrame>;
@@ -248,6 +302,19 @@ function BytesToHex(const ABytes: TBytes): string;
 /// <returns>Bytes. Empty when no recognisable hex byte was found.</returns>
 function HexToBytes(const AText: string): TBytes;
 
+/// <summary>
+/// The positive answers of a response, one per ECU message.
+/// </summary>
+/// <param name="AResponse">Decoded response.</param>
+/// <param name="APositiveSID">Positive-response service ID (request
+/// SID + 0x40).</param>
+/// <returns>Messages from <c>AResponse.Messages</c> that start with
+/// <c>APositiveSID</c>. A response built by hand (empty
+/// <c>Messages</c>) yields one message made of <c>ServiceID</c> +
+/// <c>Data</c>, so callers work with mocks and replays too.</returns>
+function OBDPositiveMessages(const AResponse: TOBDResponse;
+  APositiveSID: Byte): TArray<TOBDEcuMessage>;
+
 implementation
 
 function MakeOBDRequest: TOBDRequest;
@@ -268,11 +335,44 @@ begin
   Result.Request := MakeOBDRequest;
   Result.ServiceID := 0;
   Result.Data := nil;
+  Result.Messages := nil;
   Result.Frames := nil;
   Result.Elapsed := 0;
   Result.IsNegative := False;
   Result.NRC := 0;
   Result.NRCText := '';
+end;
+
+function OBDPositiveMessages(const AResponse: TOBDResponse;
+  APositiveSID: Byte): TArray<TOBDEcuMessage>;
+var
+  I, N: Integer;
+begin
+  if Length(AResponse.Messages) = 0 then
+  begin
+    if AResponse.IsNegative or (AResponse.ServiceID <> APositiveSID) then
+      Exit(nil);
+    SetLength(Result, 1);
+    Result[0].Header := '';
+    Result[0].CanId := 0;
+    Result[0].IsExtendedId := False;
+    Result[0].Complete := True;
+    SetLength(Result[0].Data, 1 + Length(AResponse.Data));
+    Result[0].Data[0] := APositiveSID;
+    if Length(AResponse.Data) > 0 then
+      Move(AResponse.Data[0], Result[0].Data[1], Length(AResponse.Data));
+    Exit;
+  end;
+  SetLength(Result, Length(AResponse.Messages));
+  N := 0;
+  for I := 0 to High(AResponse.Messages) do
+    if (Length(AResponse.Messages[I].Data) > 0) and
+      (AResponse.Messages[I].Data[0] = APositiveSID) then
+    begin
+      Result[N] := AResponse.Messages[I];
+      Inc(N);
+    end;
+  SetLength(Result, N);
 end;
 
 function BytesToHex(const ABytes: TBytes): string;

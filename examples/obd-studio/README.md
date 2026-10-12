@@ -6,8 +6,9 @@ small garage: a dashboard with gauges, live data, trouble codes, freeze
 frame, readiness, vehicle details, a workshop job, an adapter log, settings
 and a printable report.
 
-The data comes from `TEngineSimulator` (`untSimulator.pas`): a 2016
-Volkswagen Golf VII 1.6 TDI on a 90 second drive cycle with a sticking EGR
+The data comes from the library simulator `TEngineSimulator`
+(`src/Simulator/ERD.Simulator.Vehicle.pas`): a 2016 Volkswagen Golf VII
+1.6 TDI on a 90 second drive cycle with a sticking EGR
 valve. Every screen therefore shows the same realistic case: P0401 (EGR
 flow insufficient) is stored, the check engine light is on, the EGR error
 in the live data is far below zero, and the EGR readiness monitor is
@@ -25,7 +26,7 @@ incomplete.
    the library sources for all configurations and platforms:
 
    ```
-   ..\..\src;..\..\src\Adapter;..\..\src\Calibration;..\..\src\Coding;..\..\src\Collections;..\..\src\Compat;..\..\src\Connection;..\..\src\Core;..\..\src\Diagnostics;..\..\src\Flashing;..\..\src\OEM;..\..\src\Protocol;..\..\src\RadioCode;..\..\src\Recorder;..\..\src\Service;..\..\src\Speciality;..\..\src\UI;..\..\src\Utilities
+   ..\..\src;..\..\src\Adapter;..\..\src\Calibration;..\..\src\Coding;..\..\src\Collections;..\..\src\Compat;..\..\src\Connection;..\..\src\Core;..\..\src\Diagnostics;..\..\src\Flashing;..\..\src\OEM;..\..\src\Protocol;..\..\src\RadioCode;..\..\src\Recorder;..\..\src\Service;..\..\src\Simulator;..\..\src\Speciality;..\..\src\UI;..\..\src\Utilities
    ```
 
 4. Compile and run (Win32 or Win64).
@@ -62,4 +63,4 @@ vehicle, drop a `TOBDConnection`, an adapter and a `TOBDLiveData` on the
 form, set the `Source` of the dashboard, the trend charts and the live data
 grid (or `Channel.Source` of single gauges) to the `TOBDLiveData`, set
 `cbConnection.Connection` / `Adapter`, and remove `tmrSimulation` and
-`untSimulator`.
+the `ERD.Simulator.Vehicle` dependency.

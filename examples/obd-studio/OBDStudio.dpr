@@ -2,8 +2,7 @@
 
 uses
   Vcl.Forms,
-  untMain in 'untMain.pas' {frmMain},
-  untSimulator in 'untSimulator.pas';
+  untMain in 'untMain.pas' {frmMain};
 
 {$R *.res}
 

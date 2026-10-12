@@ -98,9 +98,11 @@ type
     /// <param name="ARequest">Originating request.</param>
     /// <param name="ARawHex">Raw hex text from the adapter.</param>
     /// <param name="AResponse">Output response.</param>
+    /// <param name="AHeaderMode">How the adapter prints headers.</param>
     /// <returns>True when at least one byte was decoded.</returns>
     class function Decode(const ARequest: TOBDRequest; const ARawHex: string;
-      out AResponse: TOBDResponse): Boolean; static;
+      out AResponse: TOBDResponse;
+      AHeaderMode: TOBDELMHeaderMode = ehAuto): Boolean; static;
 
     /// <summary>
     /// Returns the conventional positive-response service ID for a
@@ -134,13 +136,14 @@ begin
 end;
 
 class function TOBDKWPCodec.Decode(const ARequest: TOBDRequest;
-  const ARawHex: string; out AResponse: TOBDResponse): Boolean;
+  const ARawHex: string; out AResponse: TOBDResponse;
+  AHeaderMode: TOBDELMHeaderMode): Boolean;
 begin
   // KWP2000 and UDS share the on-the-wire response shape; reuse the
   // UDS decoder verbatim. NRC text resolution also goes through the
   // same uds-nrc catalogue (KWP2000 NRCs that overlap UDS use the
   // same numeric values).
-  Result := TOBDUDSCodec.Decode(ARequest, ARawHex, AResponse);
+  Result := TOBDUDSCodec.Decode(ARequest, ARawHex, AResponse, AHeaderMode);
 end;
 
 end.
