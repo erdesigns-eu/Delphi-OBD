@@ -1,0 +1,103 @@
+{
+  "$schema": "../_schema/ev-battery.schema.json",
+  "vendor": "jlr",
+  "label": "Jaguar I-PACE (BECM at 0x7E4/0x7EC)",
+  "ecu": {
+    "request_id_hex": "0x7E4",
+    "response_id_hex": "0x7EC",
+    "notes": "OBDb (CC BY-SA 4.0) community signalset; decoders are not bench validated."
+  },
+  "applicable_models": [
+    "Jaguar I-PACE"
+  ],
+  "fields": [
+    {
+      "field": "soc",
+      "service_hex": "0x22",
+      "did_hex": "0x4910",
+      "offset": 0,
+      "length": 2,
+      "scale": 0.01,
+      "offset_value": 0,
+      "unit": "%",
+      "notes": "OBDb JAGUAR_SOC: State of charge.",
+      "source": "https://github.com/OBDb/Jaguar/blob/main/signalsets/v3/default.json"
+    },
+    {
+      "field": "soh",
+      "service_hex": "0x22",
+      "did_hex": "0x4918",
+      "offset": 0,
+      "length": 1,
+      "scale": 0.5,
+      "offset_value": 0,
+      "unit": "%",
+      "notes": "OBDb JAGUAR_HVB_SOH: Battery state of health, average. Average SOH.",
+      "source": "https://github.com/OBDb/Jaguar/blob/main/signalsets/v3/default.json"
+    },
+    {
+      "field": "pack_voltage",
+      "service_hex": "0x22",
+      "did_hex": "0x490F",
+      "offset": 0,
+      "length": 2,
+      "scale": 0.01,
+      "offset_value": 0,
+      "unit": "V",
+      "notes": "OBDb JAGUAR_HVB_V: High voltage battery voltage.",
+      "source": "https://github.com/OBDb/Jaguar/blob/main/signalsets/v3/default.json"
+    },
+    {
+      "field": "pack_current",
+      "service_hex": "0x22",
+      "did_hex": "0x490C",
+      "offset": 0,
+      "length": 2,
+      "scale": 0.025,
+      "offset_value": 0,
+      "unit": "A",
+      "signed": true,
+      "notes": "OBDb JAGUAR_HVB_CURR: Current.",
+      "source": "https://github.com/OBDb/Jaguar/blob/main/signalsets/v3/default.json"
+    },
+    {
+      "field": "max_cell_voltage",
+      "service_hex": "0x22",
+      "did_hex": "0x4903",
+      "offset": 0,
+      "length": 2,
+      "scale": 0.001,
+      "offset_value": 0,
+      "unit": "V",
+      "notes": "OBDb JAGUAR_HVB_CELL_V_MAX: Cell voltage, maximum.",
+      "source": "https://github.com/OBDb/Jaguar/blob/main/signalsets/v3/default.json"
+    },
+    {
+      "field": "min_cell_voltage",
+      "service_hex": "0x22",
+      "did_hex": "0x4904",
+      "offset": 0,
+      "length": 2,
+      "scale": 0.001,
+      "offset_value": 0,
+      "unit": "V",
+      "notes": "OBDb JAGUAR_HVB_CELL_V_MIN: Cell voltage, minimum.",
+      "source": "https://github.com/OBDb/Jaguar/blob/main/signalsets/v3/default.json"
+    },
+    {
+      "field": "battery_temperature",
+      "service_hex": "0x22",
+      "did_hex": "0x4907",
+      "offset": 0,
+      "length": 1,
+      "scale": 0.5,
+      "offset_value": -40,
+      "unit": "C",
+      "notes": "OBDb JAGUAR_HVB_T: Battery temperature.",
+      "source": "https://github.com/OBDb/Jaguar/blob/main/signalsets/v3/default.json"
+    }
+  ],
+  "unavailable_fields": {
+    "cell_voltages": "No public per-cell decode in the cited source."
+  }
+}

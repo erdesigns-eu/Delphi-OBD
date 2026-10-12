@@ -12,12 +12,18 @@
     { "vendor": "porsche",    "file": "porsche.json",    "coverage": "none",    "primary_source": null },
     { "vendor": "polestar",   "file": "polestar.json",   "coverage": "minimal", "primary_source": "https://www.polestar-forum.com/threads/howto-read-bms-soh-with-car-scanner-elm327.19509/" },
     { "vendor": "mercedes",   "file": "mercedes.json",   "coverage": "none",    "primary_source": null },
-    { "vendor": "stellantis", "file": "stellantis.json", "coverage": "none",    "primary_source": "https://github.com/openvehicles/Open-Vehicle-Monitoring-System-3/issues/719" },
+    { "vendor": "stellantis", "file": "stellantis.json", "coverage": "partial-fiat-500e", "primary_source": "https://github.com/OBDb/Fiat" },
     { "vendor": "honda",      "file": "honda.json",      "coverage": "none",    "primary_source": null },
     { "vendor": "mazda",      "file": "mazda.json",      "coverage": "none",    "primary_source": "https://www.mx30forum.com/threads/obd2-and-our-mx-30.321/" },
     { "vendor": "toyota",     "file": "toyota.json",     "coverage": "none",    "primary_source": "https://www.solterraforum.com/threads/pids-obd-commands.1172/" },
     { "vendor": "ford",       "file": "ford.json",       "coverage": "minimal", "primary_source": "https://www.macheforum.com/" },
-    { "vendor": "gm",         "file": "gm.json",         "coverage": "partial-bolt-only", "primary_source": "https://allev.info/boltpids/" }
+    { "vendor": "gm",         "file": "gm.json",         "coverage": "partial-bolt-only", "primary_source": "https://allev.info/boltpids/" },
+    { "vendor": "mg",         "file": "mg.json",         "coverage": "partial", "primary_source": "https://github.com/OBDb/MG" },
+    { "vendor": "jlr",        "file": "jlr.json",        "coverage": "partial", "primary_source": "https://github.com/OBDb/Jaguar" },
+    { "vendor": "smart",      "file": "smart.json",      "coverage": "partial", "primary_source": "https://github.com/OBDb/Smart" },
+    { "vendor": "subaru",     "file": "subaru.json",     "coverage": "partial", "primary_source": "https://github.com/OBDb/Subaru" },
+    { "vendor": "mini",       "file": "mini.json",       "coverage": "partial", "primary_source": "https://github.com/OBDb/Mini" },
+    { "vendor": "byd",        "file": "byd.json",        "coverage": "minimal", "primary_source": "https://github.com/OBDb/BYD" }
   ],
   "all_sources": [
     "https://github.com/JejuSoul/OBD-PIDs-for-HKMC-EVs",
@@ -40,6 +46,13 @@
     "https://www.solterraforum.com/threads/pids-obd-commands.1172/",
     "https://www.mx30forum.com/threads/obd2-and-our-mx-30.321/",
     "https://www.openvehicles.com/node/2420",
-    "https://github.com/openvehicles/Open-Vehicle-Monitoring-System-3/issues/719"
+    "https://github.com/openvehicles/Open-Vehicle-Monitoring-System-3/issues/719",
+    "https://github.com/OBDb/Fiat",
+    "https://github.com/OBDb/MG",
+    "https://github.com/OBDb/Jaguar",
+    "https://github.com/OBDb/Smart",
+    "https://github.com/OBDb/Subaru",
+    "https://github.com/OBDb/Mini",
+    "https://github.com/OBDb/BYD"
   ]
 }

@@ -156,7 +156,7 @@ class MatrixTests(unittest.TestCase):
     def test_generated_document_matches_catalogues_and_excludes_fixture(self):
         generated = matrix.render()
         self.assertEqual(generated, matrix.TARGET.read_text())
-        self.assertEqual(sum(line.startswith('| ') for line in generated.splitlines()), 16)
+        self.assertEqual(sum(line.startswith('| ') for line in generated.splitlines()), 22)
         self.assertNotIn('| _stub-test |', generated)
         self.assertIn('**Not supported**', generated)
 

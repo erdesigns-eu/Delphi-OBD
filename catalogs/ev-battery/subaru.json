@@ -1,0 +1,88 @@
+{
+  "$schema": "../_schema/ev-battery.schema.json",
+  "vendor": "subaru",
+  "label": "Subaru hybrid HV battery (0x7E7/0x7EF)",
+  "ecu": {
+    "request_id_hex": "0x7E7",
+    "response_id_hex": "0x7EF",
+    "notes": "OBDb (CC BY-SA 4.0) community signalset; decoders are not bench validated. The source does not state which hybrid models use these rules."
+  },
+  "applicable_models": [],
+  "fields": [
+    {
+      "field": "soc",
+      "service_hex": "0x22",
+      "did_hex": "0x1033",
+      "offset": 0,
+      "length": 1,
+      "scale": 0.5,
+      "offset_value": 0,
+      "unit": "%",
+      "notes": "OBDb SUBARU_HVBAT_ST_CHG_7E7: High voltage battery state of charge.",
+      "source": "https://github.com/OBDb/Subaru/blob/main/signalsets/v3/default.json"
+    },
+    {
+      "field": "soh",
+      "service_hex": "0x22",
+      "did_hex": "0x2021",
+      "offset": 0,
+      "length": 1,
+      "scale": 0.5,
+      "offset_value": 0,
+      "unit": "%",
+      "notes": "OBDb SUBARU_HVBAT_ST_HEALTH: High voltage battery state of health.",
+      "source": "https://github.com/OBDb/Subaru/blob/main/signalsets/v3/default.json"
+    },
+    {
+      "field": "pack_voltage",
+      "service_hex": "0x22",
+      "did_hex": "0x2009",
+      "offset": 0,
+      "length": 2,
+      "scale": 0.1,
+      "offset_value": 0,
+      "unit": "V",
+      "notes": "OBDb SUBARU_HVBAT_TOT_V: High voltage battery total voltage.",
+      "source": "https://github.com/OBDb/Subaru/blob/main/signalsets/v3/default.json"
+    },
+    {
+      "field": "pack_current",
+      "service_hex": "0x22",
+      "did_hex": "0x200A",
+      "offset": 0,
+      "length": 2,
+      "scale": 0.1,
+      "offset_value": -200,
+      "unit": "A",
+      "notes": "OBDb SUBARU_HVBAT_CURRENT: High voltage battery current.",
+      "source": "https://github.com/OBDb/Subaru/blob/main/signalsets/v3/default.json"
+    },
+    {
+      "field": "battery_temp_max",
+      "service_hex": "0x22",
+      "did_hex": "0x2022",
+      "offset": 0,
+      "length": 1,
+      "scale": 0.5,
+      "offset_value": -40,
+      "unit": "C",
+      "notes": "OBDb SUBARU_HVBAT_T_MAX: High voltage battery temperature max. OBDb labels the unit percent; the name and -40 offset indicate degrees Celsius.",
+      "source": "https://github.com/OBDb/Subaru/blob/main/signalsets/v3/default.json"
+    },
+    {
+      "field": "battery_temp_min",
+      "service_hex": "0x22",
+      "did_hex": "0x2023",
+      "offset": 0,
+      "length": 1,
+      "scale": 0.5,
+      "offset_value": -40,
+      "unit": "C",
+      "notes": "OBDb SUBARU_HVBAT_T_MIN: High voltage battery temperature min. OBDb labels the unit percent; the name and -40 offset indicate degrees Celsius.",
+      "source": "https://github.com/OBDb/Subaru/blob/main/signalsets/v3/default.json"
+    }
+  ],
+  "unavailable_fields": {
+    "cell_voltages": "No per-cell decode in the cited source."
+  }
+}

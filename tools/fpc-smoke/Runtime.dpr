@@ -438,7 +438,7 @@ var Catalog: TOBDEVBatteryVendorCatalog; Rule: TOBDEVBatteryRule;
 begin
   TOBDEVBatteryCatalog.CatalogDir := ParamStr(4);
   TOBDEVBatteryCatalog.Reload;
-  Check(Length(TOBDEVBatteryCatalog.VendorKeys) = 16, 'All 15 shipped EV vendors plus the fixture load through production parser');
+  Check(Length(TOBDEVBatteryCatalog.VendorKeys) = 22, 'All 21 shipped EV vendors plus the fixture load through production parser');
   Check(TOBDEVBatteryCatalog.TryGet('bmw', Catalog), 'BMW catalog loads');
   Found := False;
   for Rule in Catalog.Rules do if Rule.FieldName = 'pack_current' then begin Found := True; Break end;

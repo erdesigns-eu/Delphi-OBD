@@ -1,0 +1,120 @@
+{
+  "$schema": "../_schema/ev-battery.schema.json",
+  "vendor": "mini",
+  "label": "MINI Cooper SE (SME at 0x6F1/0x607, extended addressing)",
+  "ecu": {
+    "request_id_hex": "0x6F1",
+    "response_id_hex": "0x607",
+    "addressing": "ISOTP_EXTADR",
+    "extended_target_hex": "0x07",
+    "extended_tester_hex": "0xF1",
+    "notes": "OBDb (CC BY-SA 4.0) community signalset; decoders are not bench validated. Same SME addressing as the BMW i3 file."
+  },
+  "applicable_models": [
+    "MINI Cooper SE (F56 BEV)"
+  ],
+  "fields": [
+    {
+      "field": "soc",
+      "service_hex": "0x22",
+      "did_hex": "0xDDBC",
+      "offset": 0,
+      "length": 2,
+      "scale": 0.1,
+      "offset_value": 0,
+      "unit": "%",
+      "notes": "OBDb MINI_HVBAT_SOC: HV battery charge.",
+      "source": "https://github.com/OBDb/Mini/blob/main/signalsets/v3/default.json"
+    },
+    {
+      "field": "soh",
+      "service_hex": "0x22",
+      "did_hex": "0x6335",
+      "offset": 3,
+      "length": 1,
+      "scale": 1,
+      "offset_value": 0,
+      "unit": "%",
+      "notes": "OBDb MINI_HVBAT_SOH: HV battery health.",
+      "source": "https://github.com/OBDb/Mini/blob/main/signalsets/v3/default.json"
+    },
+    {
+      "field": "pack_voltage",
+      "service_hex": "0x22",
+      "did_hex": "0xDD68",
+      "offset": 0,
+      "length": 2,
+      "scale": 0.01,
+      "offset_value": 0,
+      "unit": "V",
+      "notes": "OBDb MINI_HVBAT_VOLT: HV battery voltage.",
+      "source": "https://github.com/OBDb/Mini/blob/main/signalsets/v3/default.json"
+    },
+    {
+      "field": "pack_current",
+      "service_hex": "0x22",
+      "did_hex": "0xDD69",
+      "offset": 0,
+      "length": 4,
+      "scale": 0.01,
+      "offset_value": 0,
+      "unit": "A",
+      "signed": true,
+      "notes": "OBDb MINI_HVBAT_CURR: HV battery current.",
+      "source": "https://github.com/OBDb/Mini/blob/main/signalsets/v3/default.json"
+    },
+    {
+      "field": "max_cell_voltage",
+      "service_hex": "0x22",
+      "did_hex": "0xDDBF",
+      "offset": 2,
+      "length": 2,
+      "scale": 0.001,
+      "offset_value": 0,
+      "unit": "V",
+      "notes": "OBDb MINI_HVBAT_CELL_V_MAX: Highest cell voltage.",
+      "source": "https://github.com/OBDb/Mini/blob/main/signalsets/v3/default.json"
+    },
+    {
+      "field": "min_cell_voltage",
+      "service_hex": "0x22",
+      "did_hex": "0xDDBF",
+      "offset": 0,
+      "length": 2,
+      "scale": 0.001,
+      "offset_value": 0,
+      "unit": "V",
+      "notes": "OBDb MINI_HVBAT_CELL_V_MIN: Lowest cell voltage.",
+      "source": "https://github.com/OBDb/Mini/blob/main/signalsets/v3/default.json"
+    },
+    {
+      "field": "battery_temp_max",
+      "service_hex": "0x22",
+      "did_hex": "0xDDC0",
+      "offset": 2,
+      "length": 2,
+      "scale": 0.01,
+      "offset_value": 0,
+      "unit": "C",
+      "signed": true,
+      "notes": "OBDb MINI_HVBAT_CT_MAX: HV battery cell temperature, maximum.",
+      "source": "https://github.com/OBDb/Mini/blob/main/signalsets/v3/default.json"
+    },
+    {
+      "field": "battery_temp_min",
+      "service_hex": "0x22",
+      "did_hex": "0xDDC0",
+      "offset": 0,
+      "length": 2,
+      "scale": 0.01,
+      "offset_value": 0,
+      "unit": "C",
+      "signed": true,
+      "notes": "OBDb MINI_HVBAT_CT_MIN: HV battery cell temperature, minimum.",
+      "source": "https://github.com/OBDb/Mini/blob/main/signalsets/v3/default.json"
+    }
+  ],
+  "unavailable_fields": {
+    "cell_voltages": "No per-cell decode in the cited source."
+  }
+}
