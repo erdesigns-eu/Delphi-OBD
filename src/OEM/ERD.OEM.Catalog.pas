@@ -48,6 +48,7 @@ uses
 {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
 {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   System.JSON,
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   System.IOUtils,
   ERD.Types,
   ERD.OEM.Registry;

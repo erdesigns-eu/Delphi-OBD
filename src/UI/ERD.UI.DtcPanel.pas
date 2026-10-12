@@ -13,6 +13,8 @@
 //    2026-10-10  ERD  Initial implementation for the OBD Studio controls.
 //    2026-10-12  ERD  Translated texts (ERD.I18n); empty captions show the
 //                     translated default and follow the active language.
+//    2026-10-12  ERD  SystemNameFromCode is public (OBD-Studio Personal
+//                     codes page).
 //------------------------------------------------------------------------------
 
 unit ERD.UI.DtcPanel;
@@ -383,6 +385,10 @@ type
     /// <summary>Keyboard focus is enabled by default.</summary>
     property TabStop default True;
   end;
+
+/// <summary>Translated system name for a trouble code from its first
+/// letter: Powertrain (P), Chassis (C), Body (B) or Network (U).</summary>
+function SystemNameFromCode(const ACode: string): string;
 
 implementation
 

@@ -12,6 +12,8 @@
 //
 //  History     :
 //    2026-10-10  ERD  Initial implementation for the OBD Studio controls.
+//    2026-10-12  ERD  System.Generics.Collections in uses so the inline
+//                     TJSONArray accessors expand (H2443).
 //------------------------------------------------------------------------------
 
 unit ERD.UI.RangeProfiles;
@@ -215,6 +217,7 @@ function OBDRangeLevelOf(AValue, ALow, AHigh, AAlarmMargin: Double)
 implementation
 
 uses
+  System.Generics.Collections,
   System.IOUtils;
 
 const
