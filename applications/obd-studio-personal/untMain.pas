@@ -467,7 +467,15 @@ begin
   APage.Align := alClient;
   FPages := FPages + [APage];
   FKeys := FKeys + [Page.PageKey];
-  Page.Init(Self);
+  // A corrupt user file (dashboard layout, results) must not abort
+  // FormCreate: the VCL swallows that exception and leaves the shell
+  // half built.
+  try
+    Page.Init(Self);
+  except
+    on E: Exception do
+      LogWarning(Page.PageKey + ' page not initialised: ' + E.Message);
+  end;
 end;
 
 procedure TfrmMain.CreatePages;
