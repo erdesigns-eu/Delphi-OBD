@@ -399,6 +399,52 @@ end.
         source.write_text(source.read_text().replace('read FLines;', 'read GetLines;'))
         self.assertIn('total: 0', self.checker('proptype'))
 
+    def test_dfm_property_must_be_published_by_the_component(self):
+        self.source('src/Tile.pas', """unit Tile;
+interface
+uses System.Classes, Vcl.Controls;
+type
+  TTileItem = class(TCollectionItem)
+  published
+    property Caption: string read FCaption write FCaption;
+  end;
+  TTileItems = class(TOwnedCollection)
+  public
+    property Items[Index: Integer]: TTileItem read GetItem; default;
+  end;
+  TTile = class(TCustomControl)
+  public
+    property Busy: Boolean read FBusy write FBusy;
+  published
+    property &Unit: string read FUnit write FUnit;
+    property Tiles: TTileItems read FTiles write SetTiles;
+  end;
+implementation
+end.
+""")
+        form = self.source('examples/app/Main.dfm', """object Main: TForm
+  Caption = 'Main'
+  object Tile1: TTile
+    Left = 8
+    Top = 8
+    Unit = 'km/h'
+    Busy = True
+    Tiles = <
+      item
+        Caption = 'One'
+        Subtitle = 'Two'
+      end>
+  end
+end
+""")
+        out = self.checker('dfmpublished')
+        self.assertIn('total: 2', out)
+        self.assertIn('no published Busy', out)
+        self.assertIn('no published Subtitle', out)
+        form.write_text(form.read_text().replace("    Busy = True\n", '')
+                        .replace("        Subtitle = 'Two'\n", ''))
+        self.assertIn('total: 0', self.checker('dfmpublished'))
+
     def test_event_returning_getter_must_be_invoked_for_event_assignment(self):
         source = self.source('src/Events.pas', """unit Events;
 interface
@@ -696,7 +742,7 @@ end.
         self.assertEqual(len(directives), 5)
 
     def test_missing_optional_form_directory_does_not_crash(self):
-        for name in ('caption', 'dfm', 'dispatch'):
+        for name in ('caption', 'dfm', 'dfmpublished', 'dispatch'):
             with self.subTest(name=name):
                 self.assertIn('total: 0', self.checker(name))
 

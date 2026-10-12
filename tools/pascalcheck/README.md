@@ -111,6 +111,7 @@ compilation or hardware tests.
 | `private` | a private member never used, and a virtual redeclared without `override` |
 | `promote` | a promoted property no ancestor declares (E2147) |
 | `queuedfield` | a `TThread.Queue` closure reading a field its caller was handed as a parameter: two calls in one turn of the message pump deliver the second value twice and the first not at all |
+| `dfmpublished` | a property in a `.dfm` that the component, or the item class of its collection, does not publish ("Property ... does not exist" when the form is created) |
 | `hidemember` | a property named like a method a VCL ancestor declares, such as `Changed` on a `TCollectionItem` (W1009, then E2066 at every call) |
 | `propfield` | a property reading or writing through a field that is a class |
 | `proptype` | a property reading or writing a field of another type, such as a `TStrings` property over a `TStringList` field (E2010) |
