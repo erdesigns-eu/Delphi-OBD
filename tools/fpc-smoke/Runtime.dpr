@@ -73,6 +73,22 @@ begin
     Check(Settings.Scope = ssLocalMachine, 'Settings factory preserves scope');
   finally Settings.Free end;
 end;
+
+procedure TestCatalogExtends;
+var Catalog: TOBDOEMJSONCatalog;
+begin
+  // Shipped brand catalogues inherit the shared template through "extends".
+  Catalog := TOBDOEMJSONCatalog.Create(TPath.Combine(ParamStr(4), 'byd.json'));
+  try
+    Check(Catalog.Extends = '_shared/oem-cars-and-trucks.json', 'Brand catalog names its base');
+    Check(Catalog.ManufacturerKey = 'BYD', 'Brand header survives the base');
+    Check(Catalog.DtcExtendedCount = 2460, 'Inherited DTC extended records load');
+    Check(Catalog.DIDCount = 2030, 'Base and brand DIDs both load');
+  finally Catalog.Free end;
+  Catalog := TOBDOEMJSONCatalog.Create(TPath.Combine(TPath.Combine(ParamStr(4), 'motorcycle'), 'ktm.json'));
+  try Check(Catalog.RoutineCount = 14, 'Vehicle-class catalog resolves ../_shared base');
+  finally Catalog.Free end;
+end;
 procedure TestFutures;
 var P: IOBDPromise<Integer>; Ready: IOBDFuture<Integer>; Calls: Integer; Worker: TThread; Token: IOBDCancellationToken;
 begin
@@ -599,7 +615,7 @@ begin
 end;
 
 begin
-  TestDeferredThreadStart; TestTCP; TestUDP; TestNativeWriteDeadline; TestJSON; TestCatalogFactories; TestFutures; TestQueue; TestRecorder; TestDiagnosticWire; TestFlashRecovery; TestSeedKeyPolicy; TestReplayLimits; TestCheckpoint; TestOwnedTask; TestCancellation; TestReplayDestroyInCallback; TestVoltageSafetyHook; TestBMWCurrent; TestHash;
+  TestDeferredThreadStart; TestTCP; TestUDP; TestNativeWriteDeadline; TestJSON; TestCatalogFactories; TestCatalogExtends; TestFutures; TestQueue; TestRecorder; TestDiagnosticWire; TestFlashRecovery; TestSeedKeyPolicy; TestReplayLimits; TestCheckpoint; TestOwnedTask; TestCancellation; TestReplayDestroyInCallback; TestVoltageSafetyHook; TestBMWCurrent; TestHash;
   Check(J1939_PGN_DM27 = $FD82, 'DM27 all pending PGN');
   Check(J1939_PGN_DM28 = $FD80, 'DM28 permanent PGN');
   Check(J1939_PGN_DM24 = $FDB6, 'DM24 supported SPNs PGN');

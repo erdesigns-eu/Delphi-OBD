@@ -176,13 +176,17 @@ class CatalogIndexTests(unittest.TestCase):
         generated = index.render()
         self.assertEqual(generated.encode('utf-8'), index.TARGET.read_bytes())
         self.assertNotIn('SCHEMA_V2_FIXTURE', generated)
-        oem, dtc, universal, profiles = index.collect()
+        oem, dtc, universal, profiles, shared = index.collect()
         self.assertEqual([row['file'] for row in universal],
                          ['obd2-pids.json', 'uds-standard.json'])
         self.assertTrue(all(row['file'].startswith('dtc-') for row in dtc))
         self.assertEqual(sum(row['total'] for row in oem),
                          sum(sum(row['counts']) for row in oem))
         self.assertEqual(len(profiles), 2)
+        self.assertTrue(shared)
+        self.assertTrue(all(row['file'].startswith('_shared/') for row in shared))
+        bases = {row['file'] for row in shared}
+        self.assertTrue(all(row['base'] in bases for row in oem if row['base']))
 
 
 class SafetyGuideTests(unittest.TestCase):

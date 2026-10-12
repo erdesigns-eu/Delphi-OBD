@@ -22,6 +22,7 @@
 //
 //  History     :
 //    2026-05-12  ERD  Initial fixture.
+//    2026-10-12       "extends" base-catalogue coverage.
 //------------------------------------------------------------------------------
 
 unit Tests.ERD.OEM.CatalogLoader;
@@ -70,6 +71,10 @@ type
     [Test] procedure JSON_AsBaseDIDsAndRoutinesAndECUs;
     [Test] procedure JSON_FileNotFoundRaises;
     [Test] procedure JSON_NonObjectRootRaises;
+    [Test] procedure JSON_ExtendsLoadsBaseFirst;
+    [Test] procedure JSON_ExtendsFromTextNeedsBaseDir;
+    [Test] procedure JSON_ExtendsRejectsAbsolutePath;
+    [Test] procedure JSON_ExtendsCycleRaises;
 
     // ---- ResolveCatalogPath ----
     [Test] procedure Resolve_FindsViaSearchPathOverride;
@@ -429,6 +434,95 @@ begin
       Cat: TOBDOEMJSONCatalog;
     begin
       Cat := TOBDOEMJSONCatalog.CreateFromText('[]');
+      Cat.Free;
+    end,
+    EOBDCatalogError);
+end;
+
+const
+  BaseCatalogJSON =
+    '{ "version": 2, "manufacturer_key": "SHARED", "display_name": "Base",' +
+    '  "applicable_wmis": [], "default_source": "generic-oem-template",' +
+    '  "ecus": [ { "address": "0x7E0", "name": "ecm" } ],' +
+    '  "dids": [ { "did": "0x0101", "name": "base_did" } ],' +
+    '  "dtc_extended_data": [ { "code": "P0300", "record": "0x01",' +
+    '    "kind": "occurrence_counter" } ] }';
+  BrandCatalogJSON =
+    '{ "version": 2, "manufacturer_key": "BRAND", "display_name": "Brand",' +
+    '  "applicable_wmis": ["ABC"], "default_source": "brand-tool",' +
+    '  "extends": "_shared/base.json",' +
+    '  "dids": [ { "did": "0x0202", "name": "brand_did" } ] }';
+
+procedure TOEMCatalogLoaderTests.JSON_ExtendsLoadsBaseFirst;
+var
+  Cat: TOBDOEMJSONCatalog;
+begin
+  WriteFile('_shared/base.json', BaseCatalogJSON);
+  WriteFile('brand.json', BrandCatalogJSON);
+  Cat := TOBDOEMJSONCatalog.Create(TPath.Combine(FTempRoot, 'brand.json'));
+  try
+    // Header comes from the brand, entries from base + brand.
+    Assert.AreEqual('BRAND', Cat.ManufacturerKey);
+    Assert.AreEqual('brand-tool', Cat.DefaultSource);
+    Assert.AreEqual('_shared/base.json', Cat.Extends);
+    Assert.AreEqual(1, Length(Cat.ApplicableWMIs));
+    Assert.AreEqual(2, Cat.DIDCount);
+    Assert.AreEqual('base_did', Cat.DID(0).Name);
+    Assert.AreEqual('generic-oem-template', Cat.DID(0).Source);
+    Assert.AreEqual('brand_did', Cat.DID(1).Name);
+    Assert.AreEqual('brand-tool', Cat.DID(1).Source);
+    Assert.AreEqual(1, Cat.ECUCount);
+    Assert.AreEqual(1, Cat.DtcExtendedCount);
+  finally
+    Cat.Free;
+  end;
+  // The text factory resolves the base against the supplied directory.
+  Cat := TOBDOEMJSONCatalog.CreateFromText(BrandCatalogJSON, FTempRoot);
+  try
+    Assert.AreEqual(2, Cat.DIDCount);
+  finally
+    Cat.Free;
+  end;
+end;
+
+procedure TOEMCatalogLoaderTests.JSON_ExtendsFromTextNeedsBaseDir;
+begin
+  Assert.WillRaise(
+    procedure
+    var
+      Cat: TOBDOEMJSONCatalog;
+    begin
+      Cat := TOBDOEMJSONCatalog.CreateFromText(BrandCatalogJSON);
+      Cat.Free;
+    end,
+    EOBDCatalogError);
+end;
+
+procedure TOEMCatalogLoaderTests.JSON_ExtendsRejectsAbsolutePath;
+begin
+  Assert.WillRaise(
+    procedure
+    var
+      Cat: TOBDOEMJSONCatalog;
+    begin
+      Cat := TOBDOEMJSONCatalog.CreateFromText(
+        '{ "extends": "/etc/base.json" }', FTempRoot);
+      Cat.Free;
+    end,
+    EOBDCatalogError);
+end;
+
+procedure TOEMCatalogLoaderTests.JSON_ExtendsCycleRaises;
+begin
+  WriteFile('_shared/a.json', '{ "extends": "b.json" }');
+  WriteFile('_shared/b.json', '{ "extends": "a.json" }');
+  Assert.WillRaise(
+    procedure
+    var
+      Cat: TOBDOEMJSONCatalog;
+    begin
+      Cat := TOBDOEMJSONCatalog.Create(
+        TPath.Combine(FTempRoot, '_shared/a.json'));
       Cat.Free;
     end,
     EOBDCatalogError);

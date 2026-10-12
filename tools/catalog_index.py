@@ -25,6 +25,8 @@ UNIVERSAL_PREFIXES = ('iso-', 'obd2-', 'uds-')
 FIXTURES = ('test-schema-v2.json',)
 SECTIONS = ('ecus', 'dids', 'routines', 'coding_blocks', 'adaptations',
             'actuator_tests', 'live_pids', 'dtc_extended_data')
+# Shared base catalogues that brand catalogues reference with "extends".
+SHARED_DIR = '_shared'
 
 
 def load(path):
@@ -39,8 +41,23 @@ def total(data):
     return sum(count(data, section) for section in SECTIONS)
 
 
+def verified(data):
+    return sum(1 for section in SECTIONS for entry in data.get(section) or []
+               if isinstance(entry, dict) and entry.get('verified') is True)
+
+
 def is_oem(data):
     return str(data.get('$schema', '')).endswith('/' + OEM_SCHEMA)
+
+
+def inherited(path, data):
+    """Entries a catalogue inherits through its "extends" chain."""
+    base = data.get('extends')
+    if not base:
+        return 0
+    base_path = (path.parent / base).resolve()
+    base_data = load(base_path)
+    return total(base_data) + inherited(base_path, base_data)
 
 
 def collect():
@@ -68,6 +85,16 @@ def collect():
             data = load(path)
             if path.name not in FIXTURES and is_oem(data):
                 oem.append(oem_row(path, data, cls))
+    shared = []
+    for path in sorted((CATALOGS / SHARED_DIR).glob('*.json')):
+        data = load(path)
+        if is_oem(data):
+            shared.append({'file': path.relative_to(CATALOGS).as_posix(),
+                           'name': data.get('display_name', ''),
+                           'extends': data.get('extends', ''),
+                           'counts': [count(data, s) for s in SECTIONS],
+                           'total': total(data),
+                           'users': 0})
     profiles = []
     for path in sorted((CATALOGS / 'range-profiles').glob('*.json')):
         data = load(path)
@@ -78,17 +105,26 @@ def collect():
                          'ranges': count(data, 'ranges')})
     oem.sort(key=lambda row: (row['class'], -row['total']))
     dtc.sort(key=lambda row: -row['count'])
-    return oem, dtc, universal, profiles
+    for row in shared:
+        row['users'] = sum(1 for r in oem if r['base'] == row['file'])
+    return oem, dtc, universal, profiles, shared
 
 
 def oem_row(path, data, cls):
+    base = ''
+    if data.get('extends'):
+        base = (path.parent / data['extends']).resolve().relative_to(
+            CATALOGS).as_posix()
     return {'file': path.relative_to(CATALOGS).as_posix(),
             'class': cls,
             'key': data.get('manufacturer_key', ''),
             'display': data.get('display_name', ''),
             'wmis': data.get('applicable_wmis') or [],
             'counts': [count(data, section) for section in SECTIONS],
-            'total': total(data)}
+            'total': total(data),
+            'base': base,
+            'inherited': inherited(path, data),
+            'verified': verified(data)}
 
 
 def join_and(items, word='and'):
@@ -103,7 +139,7 @@ def cell(text):
 
 
 def render():
-    oem, dtc, universal, profiles = collect()
+    oem, dtc, universal, profiles, shared = collect()
     classes = sorted({row['class'] for row in oem})
     universal_files = join_and('`%s`' % row['file'] for row in universal)
     out = [
@@ -136,8 +172,14 @@ def render():
             % (join_and(('`%s/`' % cls for cls in CLASS_DIRS), 'or'),
                universal_files, 'is' if len(universal) == 1 else 'are',
                join_and('`%s`' % name for name in FIXTURES)),
-            '**Total** is the sum of the %s entries.'
-            % join_and('`%s`' % section for section in SECTIONS),
+            '**Own** is the sum of the catalogue\'s own %s entries: the '
+            'brand-specific data. Generic template entries live once in a '
+            'shared base under `%s/` that the catalogue names in `extends`; '
+            '**Inherited** counts the entries it gets from that base and '
+            '**Base** names it. **Verified** counts own entries marked '
+            '`"verified": true` (confirmed on a vehicle or against a '
+            'specification).'
+            % (join_and('`%s`' % section for section in SECTIONS), SHARED_DIR),
             'DTC catalogues are the top-level `dtc-*.json` files; '
             '**Entries** counts `dtcs`.'):
         out += textwrap.wrap(rule, 82, initial_indent='- ',
@@ -145,13 +187,17 @@ def render():
     out += [
         '',
         '## Summary',
-        '- **%d OEM catalogs** \u2014 **%s total entries** across %d vehicle '
+        '- **%d OEM catalogs** \u2014 **%s brand-specific entries** (plus %s '
+        'inherited from %d shared bases, %s verified) across %d vehicle '
         'classes:' % (len(oem), '{:,}'.format(sum(r['total'] for r in oem)),
+                      '{:,}'.format(sum(r['inherited'] for r in oem)),
+                      len(shared),
+                      '{:,}'.format(sum(r['verified'] for r in oem)),
                       len(classes)),
     ]
     for cls in classes:
         rows = [row for row in oem if row['class'] == cls]
-        out.append('  - **%s**: %d catalogs / %s entries'
+        out.append('  - **%s**: %d catalogs / %s brand-specific entries'
                    % (cls, len(rows),
                       '{:,}'.format(sum(r['total'] for r in rows))))
     out += [
@@ -160,6 +206,24 @@ def render():
         '- **%d universal catalogs** (%s)' % (len(universal), universal_files),
         '- **%d range profiles** (`range-profiles/*.json`) \u2014 editable '
         'normal bands for OBD Studio values' % len(profiles),
+        '- **%d shared base catalogs** (`%s/*.json`) \u2014 **%s template '
+        'entries** stored once instead of per brand'
+        % (len(shared), SHARED_DIR,
+           '{:,}'.format(sum(r['total'] for r in shared))),
+        '',
+        '## Shared base catalogs',
+        '',
+        '| File | Name | Extends | Used by | ECUs | DIDs | Routines | Coding '
+        '| Adapt | Act | Live | DTC ext | **Total** |',
+        '|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|',
+    ]
+    for row in shared:
+        counts = ' | '.join('{:,}'.format(n) for n in row['counts'])
+        out.append('| `%s` | %s | %s | %d | %s | **%s** |'
+                   % (row['file'], cell(row['name']),
+                      '`%s`' % row['extends'] if row['extends'] else '',
+                      row['users'], counts, '{:,}'.format(row['total'])))
+    out += [
         '',
         '## Range profiles',
         '',
@@ -175,9 +239,10 @@ def render():
         out += [
             '## %s' % cls.replace('-', ' ').title(),
             '',
-            '| Brand | Key | WMIs | ECUs | DIDs | Routines | Coding | Adapt '
-            '| Act | Live | DTC ext | **Total** |',
-            '|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|',
+            '| Brand | Key | WMIs | Base | ECUs | DIDs | Routines | Coding '
+            '| Adapt | Act | Live | DTC ext | **Own** | Inherited | Verified |',
+            '|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|'
+            '---:|---:|',
         ]
         for row in oem:
             if row['class'] != cls:
@@ -186,9 +251,13 @@ def render():
             if len(row['wmis']) > 3:
                 wmis += ' +%d' % (len(row['wmis']) - 3)
             counts = ' | '.join('{:,}'.format(n) for n in row['counts'])
-            out.append('| **%s** <sub>`%s`</sub> | `%s` | %s | %s | **%s** |'
+            base = '`%s`' % row['base'].split('/')[-1] if row['base'] else ''
+            out.append('| **%s** <sub>`%s`</sub> | `%s` | %s | %s | %s | '
+                       '**%s** | %s | %s |'
                        % (cell(row['display']), row['file'], row['key'],
-                          wmis, counts, '{:,}'.format(row['total'])))
+                          wmis, base, counts, '{:,}'.format(row['total']),
+                          '{:,}'.format(row['inherited']),
+                          '{:,}'.format(row['verified'])))
         out.append('')
     out += [
         '## DTC catalogs',

@@ -38,6 +38,11 @@
     "default_source": {
       "type": "string"
     },
+    "extends": {
+      "type": "string",
+      "pattern": "^[^/\\\\:][^:]*\\.json$",
+      "description": "Shared base catalogue (path relative to this file, e.g. '_shared/oem-cars-and-trucks.json'). Its entries load before this catalogue's own entries, with the base's default_source."
+    },
     "default_ecu_address": {
       "$ref": "#/$defs/address"
     },

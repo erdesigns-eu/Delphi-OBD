@@ -132,5 +132,59 @@ class CatalogSchemaContractTests(unittest.TestCase):
         self.assertFalse(validator.is_valid(value))
 
 
+class OEMInheritanceTests(unittest.TestCase):
+    """"extends" chains, inherited duplicates and the shared-template budget."""
+
+    OEM = 'https://erdesigns.eu/schema/oem-catalog-v2.json'
+
+    def setUp(self):
+        self.directory = tempfile.TemporaryDirectory()
+        self.addCleanup(self.directory.cleanup)
+        self.root = Path(self.directory.name)
+        (self.root / '_schema').mkdir()
+        (self.root / '_shared').mkdir()
+
+    def write(self, name, **fields):
+        value = {'$schema': self.OEM, **fields}
+        (self.root / name).write_text(json.dumps(value), encoding='utf-8')
+
+    def messages(self):
+        return [item['message'] for item in audit(self.root)['violations']]
+
+    def test_valid_extends_chain_passes(self):
+        self.write('_shared/base.json', dids=[{'did': '0x0001', 'name': 'a'}])
+        self.write('brand.json', extends='_shared/base.json',
+                   dids=[{'did': '0x0002', 'name': 'b'}])
+        self.assertEqual([], self.messages())
+
+    def test_missing_base_is_a_violation(self):
+        self.write('brand.json', extends='_shared/missing.json')
+        self.assertIn('does not exist', self.messages()[0])
+
+    def test_base_outside_the_root_and_absolute_paths_are_rejected(self):
+        self.write('brand.json', extends='../outside.json')
+        self.assertIn('does not exist inside', self.messages()[0])
+        self.write('brand.json', extends='/etc/base.json')
+        self.assertIn('relative path', self.messages()[0])
+
+    def test_cycle_is_a_violation(self):
+        self.write('_shared/a.json', extends='b.json')
+        self.write('_shared/b.json', extends='a.json')
+        self.assertTrue(any('deeper than' in m for m in self.messages()))
+
+    def test_copying_an_inherited_entry_is_a_violation(self):
+        entry = {'did': '0x0001', 'name': 'a'}
+        self.write('_shared/base.json', dids=[entry])
+        self.write('brand.json', extends='_shared/base.json',
+                   dids=[dict(entry, source='brand-tool')])
+        self.assertIn('repeat entries inherited', self.messages()[0])
+
+    def test_template_copied_into_many_brands_exceeds_the_budget(self):
+        rows = [{'did': '0x%04X' % n, 'name': 'd%d' % n} for n in range(1000)]
+        for brand in range(5):
+            self.write('brand%d.json' % brand, dids=rows)
+        self.assertTrue(any('_shared/ base' in m for m in self.messages()))
+
+
 if __name__ == '__main__':
     unittest.main()

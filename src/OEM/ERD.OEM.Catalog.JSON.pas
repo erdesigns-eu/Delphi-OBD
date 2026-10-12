@@ -12,6 +12,14 @@
 // plain decimal. Each catalogue file is one top-level JSON
 // object — see <c>docs/CATALOG_FORMAT.md</c> for the schema.
 //
+// A catalogue may name a shared base catalogue in a top-level
+// <c>"extends"</c> string: a path relative to the catalogue
+// file (e.g. <c>"_shared/oem-generic.json"</c>). The base's
+// entries load first, with the base's own
+// <c>default_source</c> / <c>default_ecu_address</c>; the
+// catalogue's header (key, name, WMIs) and own entries follow.
+// A base may extend another base, up to four levels deep.
+//
 // Author      : Ernst Reidinga (ERDesigns)
 // Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
 // License     : see LICENSE
@@ -19,6 +27,8 @@
 // History     :
 // 2026-05-12  ERD  Initial implementation.
 // 2026-10-08  Validate string values read from catalogue maps.
+// 2026-10-12  Top-level "extends" loads a shared base catalogue
+// before the catalogue's own entries.
 // ------------------------------------------------------------------------------
 
 unit ERD.OEM.Catalog.JSON;
@@ -258,6 +268,14 @@ type
     FActuatorTests: TList<TOBDActuatorTestEntry>;
     FLivePIDs: TList<TOBDLivePIDEntry>;
     FDtcExtended: TList<TOBDDtcExtendedDataEntry>;
+    FBaseDir: string;
+    FExtends: string;
+    FExtendsDepth: Integer;
+    constructor CreateWithBase(const JsonText, BaseDir: string);
+    procedure Initialise(const JsonText, BaseDir: string);
+    procedure ReadDefaults(Root: TJSONObject);
+    procedure LoadExtends(const RelativePath: string);
+    procedure LoadSections(Root: TJSONObject);
     function ParseHexOrInt(const S: string): Cardinal;
     function ParseDecoder(Obj: TJSONObject): TOBDDecoderSpec;
     function ParseEnumValues(Obj: TJSONObject; const Key: string)
@@ -283,8 +301,11 @@ type
     constructor Create(const FilePath: string; ASourceIsText: Boolean = False);
     /// <summary>Loads a catalogue from in-memory JSON text.</summary>
     /// <param name="JsonText">JSON object source.</param>
-    class function CreateFromText(const JsonText: string)
-      : TOBDOEMJSONCatalog; static;
+    /// <param name="BaseDir">Directory an <c>"extends"</c> path is
+    /// resolved against. When empty, a catalogue that extends a
+    /// base raises <see cref="EOBDCatalogError"/>.</param>
+    class function CreateFromText(const JsonText: string;
+      const BaseDir: string = ''): TOBDOEMJSONCatalog; static;
     /// <summary>Frees state.</summary>
     destructor Destroy; override;
 
@@ -326,6 +347,9 @@ type
     /// <summary>Default ECU address applied to entries that omit
     /// it.</summary>
     property DefaultEcuAddress: Word read FDefaultEcuAddress;
+    /// <summary>Base catalogue path named by <c>"extends"</c>;
+    /// empty when the catalogue is self-contained.</summary>
+    property Extends: string read FExtends;
 
     function DIDCount: Integer;
     function DID(Index: Integer): TOBDOEMDIDEntry;
@@ -381,19 +405,42 @@ uses
 type
   TIntegerStringPairList = TList<TPair<Integer, string>>;
 
-class function TOBDOEMJSONCatalog.CreateFromText(const JsonText: string)
-  : TOBDOEMJSONCatalog;
+const
+  // Longest chain of "extends" bases followed before the
+  // catalogue is rejected as cyclic.
+  MaxExtendsDepth = 4;
+
+class function TOBDOEMJSONCatalog.CreateFromText(const JsonText: string;
+  const BaseDir: string): TOBDOEMJSONCatalog;
 begin
-  Result := TOBDOEMJSONCatalog.Create(JsonText, True);
+  Result := TOBDOEMJSONCatalog.CreateWithBase(JsonText, BaseDir);
 end;
 
 constructor TOBDOEMJSONCatalog.Create(const FilePath: string;
   ASourceIsText: Boolean);
-var
-  Value: TJSONValue;
-  JsonText: string;
 begin
   inherited Create;
+  if ASourceIsText then
+    Initialise(FilePath, '')
+  else
+  begin
+    if not TFile.Exists(FilePath) then
+      raise EOBDCatalogError.CreateFmt('Catalog file %s not found', [FilePath]);
+    Initialise(TFile.ReadAllText(FilePath, TEncoding.UTF8),
+      ExtractFileDir(ExpandFileName(FilePath)));
+  end;
+end;
+
+constructor TOBDOEMJSONCatalog.CreateWithBase(const JsonText, BaseDir: string);
+begin
+  inherited Create;
+  Initialise(JsonText, BaseDir);
+end;
+
+procedure TOBDOEMJSONCatalog.Initialise(const JsonText, BaseDir: string);
+var
+  Value: TJSONValue;
+begin
   FDIDs := TList<TOBDOEMDIDEntry>.Create;
   FRoutines := TList<TOBDOEMRoutineEntry>.Create;
   FDtcRanges := TList<TOBDOEMDtcRange>.Create;
@@ -403,15 +450,8 @@ begin
   FActuatorTests := TList<TOBDActuatorTestEntry>.Create;
   FLivePIDs := TList<TOBDLivePIDEntry>.Create;
   FDtcExtended := TList<TOBDDtcExtendedDataEntry>.Create;
+  FBaseDir := BaseDir;
 
-  if ASourceIsText then
-    JsonText := FilePath
-  else
-  begin
-    if not TFile.Exists(FilePath) then
-      raise EOBDCatalogError.CreateFmt('Catalog file %s not found', [FilePath]);
-    JsonText := TFile.ReadAllText(FilePath, TEncoding.UTF8);
-  end;
   Value := TJSONObject.ParseJSONValue(JsonText);
   if not(Value is TJSONObject) then
   begin
@@ -429,13 +469,15 @@ destructor TOBDOEMJSONCatalog.Destroy;
 var
   I: Integer;
 begin
-  for I := 0 to FDIDs.Count - 1 do
-  begin
-    if Assigned(FDIDs[I].Decoder.EnumValues) then
-      FDIDs[I].Decoder.EnumValues.Free;
-    if Assigned(FDIDs[I].Decoder.BitNames) then
-      FDIDs[I].Decoder.BitNames.Free;
-  end;
+  // The lists are nil when the constructor failed before creating them.
+  if Assigned(FDIDs) then
+    for I := 0 to FDIDs.Count - 1 do
+    begin
+      if Assigned(FDIDs[I].Decoder.EnumValues) then
+        FDIDs[I].Decoder.EnumValues.Free;
+      if Assigned(FDIDs[I].Decoder.BitNames) then
+        FDIDs[I].Decoder.BitNames.Free;
+    end;
   FDIDs.Free;
   FRoutines.Free;
   FDtcRanges.Free;
@@ -520,20 +562,24 @@ begin
   end;
 end;
 
-procedure TOBDOEMJSONCatalog.LoadFromJSON(Root: TJSONObject);
-var
-  WMIArr: TJSONArray;
-  I: Integer;
-  Arr: TJSONArray;
+procedure TOBDOEMJSONCatalog.ReadDefaults(Root: TJSONObject);
 begin
-  FVersion := Root.GetValue<Integer>('version', 1);
-  FManufacturerKey := Root.GetValue<string>('manufacturer_key', '');
-  FDisplayName := Root.GetValue<string>('display_name', '');
   FDefaultSource := Root.GetValue<string>('default_source', '');
   FDefaultEcuAddress := 0;
   if Assigned(Root.GetValue('default_ecu_address')) then
     FDefaultEcuAddress :=
       ParseHexOrInt(Root.GetValue<string>('default_ecu_address', '0'));
+end;
+
+procedure TOBDOEMJSONCatalog.LoadFromJSON(Root: TJSONObject);
+var
+  WMIArr: TJSONArray;
+  I: Integer;
+begin
+  FVersion := Root.GetValue<Integer>('version', 1);
+  FManufacturerKey := Root.GetValue<string>('manufacturer_key', '');
+  FDisplayName := Root.GetValue<string>('display_name', '');
+  FExtends := Root.GetValue<string>('extends', '');
 
   WMIArr := Root.GetValue<TJSONArray>('applicable_wmis', nil);
   if Assigned(WMIArr) then
@@ -543,6 +589,69 @@ begin
       FApplicableWMIs[I] := WMIArr.Items[I].Value;
   end;
 
+  if FExtends <> '' then
+    LoadExtends(FExtends);
+  ReadDefaults(Root);
+  LoadSections(Root);
+end;
+
+procedure TOBDOEMJSONCatalog.LoadExtends(const RelativePath: string);
+var
+  Path, SavedBaseDir, SavedSource: string;
+  SavedEcu: Word;
+  Value: TJSONValue;
+  Root: TJSONObject;
+  Nested: string;
+begin
+  if FBaseDir = '' then
+    raise EOBDCatalogError.CreateFmt
+      ('Catalog extends "%s" but has no base directory', [RelativePath]);
+  if (RelativePath = '') or CharInSet(RelativePath[1], ['/', '\']) or
+    (Pos(':', RelativePath) > 0) then
+    raise EOBDCatalogError.CreateFmt
+      ('Catalog "extends" must be a relative path: %s', [RelativePath]);
+  if FExtendsDepth >= MaxExtendsDepth then
+    raise EOBDCatalogError.CreateFmt
+      ('Catalog "extends" chain deeper than %d (cycle?) at %s',
+      [MaxExtendsDepth, RelativePath]);
+  Path := ExpandFileName(IncludeTrailingPathDelimiter(FBaseDir) +
+    StringReplace(StringReplace(RelativePath, '/', PathDelim, [rfReplaceAll]),
+    '\', PathDelim, [rfReplaceAll]));
+  if not TFile.Exists(Path) then
+    raise EOBDCatalogError.CreateFmt('Base catalog %s not found', [Path]);
+
+  Value := TJSONObject.ParseJSONValue(TFile.ReadAllText(Path, TEncoding.UTF8));
+  if not(Value is TJSONObject) then
+  begin
+    Value.Free;
+    raise EOBDCatalogError.CreateFmt('Base catalog %s root must be a JSON object',
+      [Path]);
+  end;
+  SavedBaseDir := FBaseDir;
+  SavedSource := FDefaultSource;
+  SavedEcu := FDefaultEcuAddress;
+  Inc(FExtendsDepth);
+  try
+    Root := TJSONObject(Value);
+    FBaseDir := ExtractFileDir(Path);
+    Nested := Root.GetValue<string>('extends', '');
+    if Nested <> '' then
+      LoadExtends(Nested);
+    ReadDefaults(Root);
+    LoadSections(Root);
+  finally
+    Dec(FExtendsDepth);
+    FBaseDir := SavedBaseDir;
+    FDefaultSource := SavedSource;
+    FDefaultEcuAddress := SavedEcu;
+    Value.Free;
+  end;
+end;
+
+procedure TOBDOEMJSONCatalog.LoadSections(Root: TJSONObject);
+var
+  Arr: TJSONArray;
+begin
   Arr := Root.GetValue<TJSONArray>('ecus', nil);
   if Assigned(Arr) then
     LoadECUs(Arr);
