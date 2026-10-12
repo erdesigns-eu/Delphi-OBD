@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------------
+﻿//------------------------------------------------------------------------------
 //  untWelcome
 //
 //  First-start wizard for OBD-Studio Personal.
@@ -102,6 +102,7 @@ type
     function SelectedCountryCode: string;
     function EulaFileName: string;
     procedure ApplyLanguage;
+    procedure Translate;
   protected
     procedure Resize; override;
   public

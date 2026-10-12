@@ -153,7 +153,7 @@ type
       const AEntry: TOBDDtcEntry);
     procedure AppendWWHRow(var ARows: TArray<TUDSRow>;
       const AEntry: TOBDWWHDtcEntry; APermanent: Boolean);
-    procedure ResolveDtcText(const ACode, AFallback: string;
+    procedure LookupDtcText(const ACode, AFallback: string;
       out ADescription, ASeverity, ASource: string);
     function CurrentFreezeLines: TArray<string>;
     function FormatFreezeValue(const AValue: TFreezeValue): string;
@@ -842,7 +842,7 @@ begin
   end;
 end;
 
-procedure TfrmPageCodes.ResolveDtcText(const ACode, AFallback: string;
+procedure TfrmPageCodes.LookupDtcText(const ACode, AFallback: string;
   out ADescription, ASeverity, ASource: string);
 var
   Info: TOBDDtcInfo;
@@ -892,7 +892,7 @@ begin
   Row.Ecu := AEntry.Ecu;
   Row.SystemName := SystemNameFromCode(AEntry.Code);
   Row.Status := AStatus;
-  ResolveDtcText(AEntry.Code, AEntry.Description, Row.Description, Row.Severity,
+  LookupDtcText(AEntry.Code, AEntry.Description, Row.Description, Row.Severity,
     Row.Source);
   N := Length(ARows);
   SetLength(ARows, N + 1);
@@ -918,7 +918,7 @@ begin
     Row.StatusText := UDSStatusText(AEntry.Status)
   else
     Row.StatusText := Tr('personal.codes.udsNoStatus', 'no status bits');
-  ResolveDtcText(Row.PlainCode, AEntry.Description, Row.Description, Severity,
+  LookupDtcText(Row.PlainCode, AEntry.Description, Row.Description, Severity,
     Source);
   if Source <> '' then
     Row.Source := Row.Source + ' / ' + Source;
@@ -947,7 +947,7 @@ begin
   if APermanent then
     Row.StatusText := Row.StatusText + ', ' +
       Tr('personal.codes.statusPermanent', 'Permanent');
-  ResolveDtcText(Row.PlainCode, '', Row.Description, Severity, Source);
+  LookupDtcText(Row.PlainCode, '', Row.Description, Severity, Source);
   Row.ReadinessGroup := Format('$%.2x', [AEntry.ReadinessGroupIdentifier]);
   Row.WWHClass := WWHClassText(AEntry.WWHClass);
   if Row.WWHClass = '' then
