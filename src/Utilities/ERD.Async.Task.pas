@@ -1,7 +1,8 @@
 ﻿// ------------------------------------------------------------------------------
 // ERD.Async.Task
 // Owned request workers and lifetime-safe main-thread callbacks.
-// Author: ERDesigns and Delphi-OBD contributors
+// Author: Ernst Reidinga (ERDesigns)
+// Copyright: (c) 2024-2026 Ernst Reidinga (ERDesigns)
 // License: see LICENSE
 // ------------------------------------------------------------------------------
 unit ERD.Async.Task;

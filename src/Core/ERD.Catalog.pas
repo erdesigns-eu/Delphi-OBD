@@ -20,7 +20,7 @@
 // the offending file:line. Lookup is by <c>(type, mode, id)</c> tuple.
 //
 // Author      : Ernst Reidinga (ERDesigns)
-// Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
 // License     : see LICENSE
 //
 // References  :
