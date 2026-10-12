@@ -66,6 +66,7 @@ type
     FChangeFolderButton: TOBDButton;
     FOpenFolderButton: TOBDButton;
     FAutoConnectCheck: TOBDCheckBox;
+    FRememberVehiclesCheck: TOBDCheckBox;
     FPrivacyText: TOBDDialogText;
     FSettingsFileLabel: TOBDDialogText;
     FShowLicenceButton: TOBDButton;
@@ -93,6 +94,7 @@ type
     procedure CurrencyChanged(Sender: TObject);
     procedure CountryChanged(Sender: TObject);
     procedure AutoConnectChanged(Sender: TObject);
+    procedure RememberVehiclesChanged(Sender: TObject);
     procedure ChangeFolderClick(Sender: TObject);
     procedure OpenFolderClick(Sender: TObject);
     procedure ShowLicenceClick(Sender: TObject);
@@ -223,6 +225,10 @@ begin
   FPrivacyCard.Parent := FScroll;
   FPrivacyCard.StatusEdge := ceSuccess;
   FPrivacyText := NewText(FPrivacyCard, '', dtsBody);
+  FRememberVehiclesCheck := TOBDCheckBox.Create(Self);
+  FRememberVehiclesCheck.Parent := FPrivacyCard;
+  FRememberVehiclesCheck.Style := csSwitch;
+  FRememberVehiclesCheck.OnChange := RememberVehiclesChanged;
   FSettingsFileLabel := NewText(FPrivacyCard, '', dtsSmall);
 
   FAboutCard := TOBDCard.Create(Self);
@@ -276,7 +282,7 @@ begin
   Inc(RightY, FInspectionCard.Height + Gap);
   FDataCard.SetBounds(RightX, RightY, ColW, 226);
   Inc(RightY, FDataCard.Height + Gap);
-  FPrivacyCard.SetBounds(RightX, RightY, ColW, 210);
+  FPrivacyCard.SetBounds(RightX, RightY, ColW, 250);
   Inc(RightY, FPrivacyCard.Height + Gap);
   FAboutCard.SetBounds(RightX, RightY, ColW, 118);
 
@@ -311,7 +317,8 @@ begin
   FAutoConnectCheck.SetBounds(16, 172, RowW, 30);
 
   FPrivacyText.SetBounds(16, 64, RowW, 78);
-  FSettingsFileLabel.SetBounds(16, 146, RowW, 50);
+  FRememberVehiclesCheck.SetBounds(16, 146, RowW, 30);
+  FSettingsFileLabel.SetBounds(16, 186, RowW, 50);
   FShowLicenceButton.SetBounds(16, 66, 132, 30);
 end;
 
@@ -380,6 +387,8 @@ begin
   FAutoConnectCheck.Caption := Tr('personal.settings.autoconnect',
     'Connect automatically on start');
   FPrivacyCard.Title := Tr('personal.settings.privacy.title', 'Privacy');
+  FRememberVehiclesCheck.Caption := Tr('personal.settings.rememberVehicles',
+    'Remember my vehicles and keep a history per car');
   FPrivacyText.Caption := Tr('personal.settings.privacy.text',
     'Local first: no account, no telemetry and no automatic uploads. ' +
     'Vehicles, logs, recordings and settings stay on this PC.');
@@ -536,6 +545,7 @@ begin
     FCurrencyEdit.Text := Settings.Currency;
     FDataFolderEdit.Text := Settings.DataFolder;
     FAutoConnectCheck.Checked := Settings.AutoConnect;
+    FRememberVehiclesCheck.Checked := Settings.RememberVehicles;
     FSettingsFileLabel.Caption := TrFmt('personal.settings.privacy.file',
       'Settings file: %s', [Settings.FileName]);
   finally
@@ -658,6 +668,16 @@ begin
     Exit;
   FHost.Settings.AutoConnect := FAutoConnectCheck.Checked;
   SettingsChanged;
+end;
+
+procedure TfrmPageSettings.RememberVehiclesChanged(Sender: TObject);
+begin
+  if (FHost = nil) or FLoading then
+    Exit;
+  FHost.Settings.RememberVehicles := FRememberVehiclesCheck.Checked;
+  SettingsChanged;
+  // The Vehicles page shows whether its history is kept.
+  FHost.VehiclesChanged;
 end;
 
 procedure TfrmPageSettings.ChangeFolderClick(Sender: TObject);

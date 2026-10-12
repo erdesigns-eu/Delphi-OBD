@@ -25,6 +25,9 @@ uses
   ERD.Protocol,
   ERD.Protocol.Types,
   ERD.UI.Toast,
+  ERD.UI.Dialogs,
+  ERD.UI.Buttons,
+  ERD.UI.ScrollBox,
   ERD.UI.Card,
   ERD.UI.Chips,
   ERD.UI.DataGrid,
@@ -76,11 +79,11 @@ type
     FReading: Boolean;
     FLastSnapshot: TTestsSnapshot;
     pnlTop: TPanel;
-    lblTitle: TLabel;
-    lblSummary: TLabel;
-    btnRefresh: TButton;
-    btnExport: TButton;
-    Scroll: TScrollBox;
+    lblTitle: TOBDDialogText;
+    lblSummary: TOBDDialogText;
+    btnRefresh: TOBDButton;
+    btnExport: TOBDButton;
+    Scroll: TOBDScrollBox;
     ModeCard: TOBDCard;
     ModeGrid: TOBDDataGrid;
     IPTCard: TOBDCard;
@@ -352,40 +355,47 @@ begin
   pnlTop.Height := 86;
   pnlTop.BevelOuter := bvNone;
   pnlTop.ParentBackground := False;
+  pnlTop.ParentColor := True;
+  pnlTop.ShowCaption := False;
 
-  lblTitle := TLabel.Create(Self);
+  lblTitle := TOBDDialogText.Create(Self);
   lblTitle.Parent := pnlTop;
   lblTitle.Left := 16;
-  lblTitle.Top := 10;
-  lblTitle.Font.Style := [fsBold];
-  lblTitle.Font.Size := 15;
+  lblTitle.Top := 8;
+  lblTitle.Width := 360;
+  lblTitle.Height := 28;
+  lblTitle.Style := dtsHeading;
 
-  lblSummary := TLabel.Create(Self);
+  lblSummary := TOBDDialogText.Create(Self);
   lblSummary.Parent := pnlTop;
   lblSummary.Left := 16;
   lblSummary.Top := 42;
   lblSummary.Width := 700;
-  lblSummary.AutoSize := False;
+  lblSummary.Height := 34;
+  lblSummary.Style := dtsSubtle;
+  lblSummary.WordWrap := True;
 
-  btnRefresh := TButton.Create(Self);
+  btnRefresh := TOBDButton.Create(Self);
   btnRefresh.Parent := pnlTop;
   btnRefresh.Left := 780;
   btnRefresh.Top := 30;
   btnRefresh.Width := 120;
+  btnRefresh.AutoSize := False;
+  btnRefresh.Kind := bkPrimary;
   btnRefresh.OnClick := RefreshClicked;
 
-  btnExport := TButton.Create(Self);
+  btnExport := TOBDButton.Create(Self);
   btnExport.Parent := pnlTop;
   btnExport.Left := 914;
   btnExport.Top := 30;
   btnExport.Width := 120;
+  btnExport.AutoSize := False;
+  btnExport.Kind := bkSecondary;
   btnExport.OnClick := ExportClicked;
 
-  Scroll := TScrollBox.Create(Self);
+  Scroll := TOBDScrollBox.Create(Self);
   Scroll.Parent := Self;
   Scroll.Align := alClient;
-  Scroll.BorderStyle := bsNone;
-  Scroll.VertScrollBar.Tracking := True;
 
   NotesBanner := TOBDBanner.Create(Self);
   NotesBanner.Parent := Scroll;

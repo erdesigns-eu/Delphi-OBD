@@ -76,6 +76,8 @@ type
     FWindowHeight: Integer;
     FWindowMaximized: Boolean;
     FUseRibbon: Boolean;
+    FCurrentVehicle: string;
+    FRememberVehicles: Boolean;
     procedure SetDefaults;
     function GetDataFolder: string;
   public
@@ -132,6 +134,14 @@ type
     /// <summary>Commands in a ribbon (True) or in a classic menu bar
     /// (False, the default).</summary>
     property UseRibbon: Boolean read FUseRibbon write FUseRibbon;
+    /// <summary>Id of the vehicle in the garage that the pages work for
+    /// ('' = none yet).</summary>
+    property CurrentVehicle: string read FCurrentVehicle
+      write FCurrentVehicle;
+    /// <summary>Adds a car to the garage the first time it is connected
+    /// and keeps its history (True, the default).</summary>
+    property RememberVehicles: Boolean read FRememberVehicles
+      write FRememberVehicles;
   end;
 
 function ConnectionKindToText(AKind: TPersonalConnectionKind): string;
@@ -219,6 +229,8 @@ begin
   FWindowHeight := 800;
   FWindowMaximized := False;
   FUseRibbon := False;
+  FCurrentVehicle := '';
+  FRememberVehicles := True;
 end;
 
 function TPersonalSettings.GetDataFolder: string;
@@ -286,6 +298,9 @@ begin
       FWindowMaximized);
     FUseRibbon := SameText(Root.GetValue<string>('commands', 'menu'),
       'ribbon');
+    FCurrentVehicle := Root.GetValue<string>('vehicle', FCurrentVehicle);
+    FRememberVehicles := Root.GetValue<Boolean>('rememberVehicles',
+      FRememberVehicles);
   finally
     Root.Free;
   end;
@@ -328,6 +343,8 @@ begin
       Root.AddPair('commands', 'ribbon')
     else
       Root.AddPair('commands', 'menu');
+    Root.AddPair('vehicle', FCurrentVehicle);
+    Root.AddPair('rememberVehicles', TJSONBool.Create(FRememberVehicles));
     ForceDirectories(ExtractFilePath(FFileName));
     TempName := FFileName + '.tmp';
     TFile.WriteAllText(TempName, Root.Format(2), TEncoding.UTF8);

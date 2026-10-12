@@ -28,6 +28,7 @@ uses
   ERD.I18n,
   ERD.UI.Types,
   ERD.UI.Paint,
+  ERD.UI.Dialogs,
   ERD.UI.Chips,
   ERD.UI.Card,
   ERD.UI.Buttons,
@@ -45,8 +46,8 @@ type
 
   TfrmPageFuel = class(TFrame, IPersonalPage, IPersonalCommands)
     pnlHeader: TPanel;
-    lblTitle: TLabel;
-    lblSubtitle: TLabel;
+    lblTitle: TOBDDialogText;
+    lblSubtitle: TOBDDialogText;
     btnResetTrip: TOBDButton;
     bannerState: TOBDBanner;
     pnlTiles: TPanel;
@@ -60,9 +61,9 @@ type
     chtConsumption: TOBDTrendChart;
     cardMeasure: TOBDCard;
     kvMeasure: TOBDKeyValueList;
-    lblFuelPrice: TLabel;
+    lblFuelPrice: TOBDDialogText;
     edtFuelPrice: TOBDEdit;
-    lblCurrency: TLabel;
+    lblCurrency: TOBDDialogText;
     edtCurrency: TOBDEdit;
     histConsumption: TOBDHistogram;
     procedure btnResetTripClick(Sender: TObject);

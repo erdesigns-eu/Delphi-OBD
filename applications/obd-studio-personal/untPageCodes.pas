@@ -91,8 +91,8 @@ type
   TfrmPageCodes = class(TFrame, IPersonalPage, IPersonalCommands)
     scMain: TOBDScrollBox;
     pnlHeader: TPanel;
-    lblTitle: TLabel;
-    lblSubtitle: TLabel;
+    lblTitle: TOBDDialogText;
+    lblSubtitle: TOBDDialogText;
     segView: TOBDSegmented;
     btnSave: TOBDButton;
     btnClear: TOBDButton;

@@ -21,6 +21,10 @@ uses
   Vcl.ExtCtrls,
   ERD.I18n,
   ERD.UI.Toast,
+  ERD.UI.Dialogs,
+  ERD.UI.Buttons,
+  ERD.UI.Edits,
+  ERD.UI.ScrollBox,
   ERD.UI.Card,
   ERD.UI.Chips,
   ERD.UI.DataGrid,
@@ -56,14 +60,14 @@ type
     FCountryCodes: TArray<string>;
     FLastSnapshot: TReadinessSnapshot;
     pnlTop: TPanel;
-    lblTitle: TLabel;
-    lblSummary: TLabel;
-    lblCountry: TLabel;
-    cmbCountry: TComboBox;
-    btnRefresh: TButton;
-    btnStartAdvisor: TButton;
-    btnStopAdvisor: TButton;
-    Scroll: TScrollBox;
+    lblTitle: TOBDDialogText;
+    lblSummary: TOBDDialogText;
+    lblCountry: TOBDDialogText;
+    cmbCountry: TOBDComboBox;
+    btnRefresh: TOBDButton;
+    btnStartAdvisor: TOBDButton;
+    btnStopAdvisor: TOBDButton;
+    Scroll: TOBDScrollBox;
     ReadinessPanel: TOBDReadinessPanel;
     CycleCard: TOBDCard;
     CycleGrid: TOBDDataGrid;
@@ -283,61 +287,72 @@ begin
   pnlTop.Height := 96;
   pnlTop.BevelOuter := bvNone;
   pnlTop.ParentBackground := False;
+  pnlTop.ParentColor := True;
+  pnlTop.ShowCaption := False;
 
-  lblTitle := TLabel.Create(Self);
+  lblTitle := TOBDDialogText.Create(Self);
   lblTitle.Parent := pnlTop;
   lblTitle.Left := 16;
-  lblTitle.Top := 10;
-  lblTitle.Font.Style := [fsBold];
-  lblTitle.Font.Size := 15;
+  lblTitle.Top := 8;
+  lblTitle.Width := 360;
+  lblTitle.Height := 28;
+  lblTitle.Style := dtsHeading;
 
-  lblSummary := TLabel.Create(Self);
+  lblSummary := TOBDDialogText.Create(Self);
   lblSummary.Parent := pnlTop;
   lblSummary.Left := 16;
   lblSummary.Top := 42;
   lblSummary.Width := 560;
-  lblSummary.AutoSize := False;
+  lblSummary.Height := 40;
+  lblSummary.Style := dtsSubtle;
+  lblSummary.WordWrap := True;
 
-  lblCountry := TLabel.Create(Self);
+  lblCountry := TOBDDialogText.Create(Self);
   lblCountry.Parent := pnlTop;
   lblCountry.Left := 620;
   lblCountry.Top := 14;
+  lblCountry.Width := 150;
+  lblCountry.Height := 18;
+  lblCountry.Style := dtsCaps;
 
-  cmbCountry := TComboBox.Create(Self);
+  cmbCountry := TOBDComboBox.Create(Self);
   cmbCountry.Parent := pnlTop;
   cmbCountry.Left := 620;
   cmbCountry.Top := 36;
   cmbCountry.Width := 120;
-  cmbCountry.Style := csDropDownList;
   cmbCountry.OnChange := CountryChanged;
 
-  btnRefresh := TButton.Create(Self);
+  btnRefresh := TOBDButton.Create(Self);
   btnRefresh.Parent := pnlTop;
   btnRefresh.Left := 760;
   btnRefresh.Top := 34;
   btnRefresh.Width := 110;
+  btnRefresh.AutoSize := False;
+  btnRefresh.Kind := bkPrimary;
   btnRefresh.OnClick := RefreshClicked;
 
-  btnStartAdvisor := TButton.Create(Self);
+  btnStartAdvisor := TOBDButton.Create(Self);
   btnStartAdvisor.Parent := pnlTop;
   btnStartAdvisor.Left := 884;
   btnStartAdvisor.Top := 34;
   btnStartAdvisor.Width := 126;
+  btnStartAdvisor.AutoSize := False;
+  btnStartAdvisor.Kind := bkSecondary;
   btnStartAdvisor.OnClick := StartAdvisorClicked;
 
-  btnStopAdvisor := TButton.Create(Self);
+  btnStopAdvisor := TOBDButton.Create(Self);
   btnStopAdvisor.Parent := pnlTop;
   btnStopAdvisor.Left := 1022;
   btnStopAdvisor.Top := 34;
   btnStopAdvisor.Width := 112;
+  btnStopAdvisor.AutoSize := False;
   btnStopAdvisor.Enabled := False;
+  btnStopAdvisor.Kind := bkSecondary;
   btnStopAdvisor.OnClick := StopAdvisorClicked;
 
-  Scroll := TScrollBox.Create(Self);
+  Scroll := TOBDScrollBox.Create(Self);
   Scroll.Parent := Self;
   Scroll.Align := alClient;
-  Scroll.BorderStyle := bsNone;
-  Scroll.VertScrollBar.Tracking := True;
 
   ReadinessPanel := TOBDReadinessPanel.Create(Self);
   ReadinessPanel.Parent := Scroll;

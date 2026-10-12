@@ -96,6 +96,13 @@ object frmMain: TfrmMain
                 Size = risLarge
               end
               item
+                Action = actPageVehicles
+                Caption = 'My vehicles'
+                Hint = 'Your cars, each with its own history'
+                Glyph = glJobCard
+                Size = risLarge
+              end
+              item
                 Action = actPageCodes
                 Caption = 'Trouble codes'
                 Hint = 'Read and clear the trouble codes'
@@ -318,6 +325,12 @@ object frmMain: TfrmMain
         Group = 'Vehicle'
       end
       item
+        Caption = 'My vehicles'
+        Glyph = glJobCard
+        Tag = 14
+        Group = 'Vehicle'
+      end
+      item
         Caption = 'Trouble codes'
         Glyph = glCodes
         Tag = 1
@@ -509,6 +522,13 @@ object frmMain: TfrmMain
       Category = 'Pages'
       Caption = 'Overview'
       Hint = 'Vehicle, codes and readiness at a glance'
+      OnExecute = actPageExecute
+    end
+    object actPageVehicles: TAction
+      Tag = 14
+      Category = 'Pages'
+      Caption = 'My vehicles'
+      Hint = 'Your cars, each with its own history'
       OnExecute = actPageExecute
     end
     object actPageCodes: TAction
@@ -703,6 +723,9 @@ object frmMain: TfrmMain
       Caption = '&Vehicle'
       object miPageOverview: TMenuItem
         Action = actPageOverview
+      end
+      object miPageVehicles: TMenuItem
+        Action = actPageVehicles
       end
       object miPageCodes: TMenuItem
         Action = actPageCodes

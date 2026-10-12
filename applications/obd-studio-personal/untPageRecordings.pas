@@ -19,18 +19,19 @@ uses
   System.Generics.Collections,
   Vcl.Controls,
   Vcl.Forms,
-  Vcl.StdCtrls,
   Vcl.ExtCtrls,
-  Vcl.ComCtrls,
-  Vcl.Dialogs,
-  Vcl.Graphics,
   ERD.I18n,
   ERD.UI.Toast,
+  ERD.UI.Paint,
   ERD.UI.Dialogs,
+  ERD.UI.Buttons,
+  ERD.UI.Edits,
+  ERD.UI.DataGrid,
+  ERD.UI.KeyValueList,
+  ERD.UI.Card,
+  ERD.UI.FileDialogs,
   ERD.UI.ReplayBar,
   ERD.UI.TrendChart,
-  ERD.UI.Units,
-  ERD.Recorder,
   untSession,
   untPersonalPage;
 
@@ -43,6 +44,7 @@ type
     SizeBytes: Int64;
     Channels: string;
     ChannelCount: Integer;
+    SampleCount: Integer;
   end;
 
   TCSVSeries = record
@@ -60,47 +62,54 @@ type
     FRecordings: TList<TRecordingInfo>;
     FFullSessionRecording: Boolean;
     FFullSessionStarted: TDateTime;
-    pnlTop: TPanel;
-    lblTitle: TLabel;
-    lblSummary: TLabel;
-    edtSearch: TEdit;
-    btnRefresh: TButton;
-    btnFolder: TButton;
-    btnRecordSession: TButton;
+    FUpdatingGrid: Boolean;
+    FUpdatingRecordSwitch: Boolean;
+    FTitle: TOBDDialogText;
+    FSummary: TOBDDialogText;
+    FSearchEdit: TOBDEdit;
+    FRefreshButton: TOBDButton;
+    FFolderButton: TOBDButton;
+    FRecordSessionSwitch: TOBDCheckBox;
+    FReplayCard: TOBDCard;
     replayBar: TOBDReplayBar;
-    pnlLeft: TPanel;
-    lvRecordings: TListView;
-    pnlActions: TPanel;
-    btnRename: TButton;
-    btnDelete: TButton;
-    btnExport: TButton;
-    btnOpenFolder: TButton;
-    splMain: TSplitter;
-    pnlRight: TPanel;
-    memDetails: TMemo;
+    FRecordingsCard: TOBDCard;
+    FRecordingGrid: TOBDDataGrid;
+    FRenameButton: TOBDButton;
+    FDeleteButton: TOBDButton;
+    FExportButton: TOBDButton;
+    FShowButton: TOBDButton;
+    FDetailsCard: TOBDCard;
+    FDetailsList: TOBDKeyValueList;
+    FChartCard: TOBDCard;
     chartReplay: TOBDTrendChart;
     tmrReplay: TTimer;
     tmrSession: TTimer;
     procedure BuildUI;
-    procedure TopResize(Sender: TObject);
-    procedure ActionsResize(Sender: TObject);
+    function NewText(AStyle: TOBDDialogTextStyle): TOBDDialogText;
+    function NewButton(AParent: TWinControl; AKind: TOBDButtonKind;
+      AGlyph: TOBDGlyph): TOBDButton;
+    procedure LayoutControls;
+    procedure ConfigureGridColumns;
     procedure RefreshRecordings;
     procedure ApplyFilter;
-    procedure AddListItem(const AInfo: TRecordingInfo);
+    procedure AddGridRow(AIndex: Integer; const AInfo: TRecordingInfo);
     procedure AnalyzeCSV(const AFileName: string; out AInfo: TRecordingInfo);
     procedure LoadRecording(AIndex: Integer);
     procedure LoadCSVIntoChart(const AFileName: string);
     procedure UpdateDetails(const AInfo: TRecordingInfo);
+    procedure ClearDetails;
+    procedure ClearReplay;
+    procedure UpdateActionButtons;
     procedure SearchChanged(Sender: TObject);
     procedure RefreshClicked(Sender: TObject);
     procedure FolderClicked(Sender: TObject);
-    procedure RecordSessionClicked(Sender: TObject);
+    procedure RecordSessionChanged(Sender: TObject);
     procedure RenameClicked(Sender: TObject);
     procedure DeleteClicked(Sender: TObject);
     procedure ExportClicked(Sender: TObject);
     procedure OpenFolderClicked(Sender: TObject);
-    procedure RecordingSelected(Sender: TObject; Item: TListItem;
-      Selected: Boolean);
+    procedure RecordingGridChanged(Sender: TObject);
+    procedure RecordingGridActivated(Sender: TObject);
     procedure ReplayPlay(Sender: TObject);
     procedure ReplayPause(Sender: TObject);
     procedure ReplaySeek(Sender: TObject; APositionMs: Int64);
@@ -113,6 +122,8 @@ type
     function RecordingsFolder: string;
     function SelectedIndex: Integer;
     function SelectedFileName: string;
+  protected
+    procedure Resize; override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -209,11 +220,12 @@ end;
 function FormatSize(ASize: Int64): string;
 begin
   if ASize > 1024 * 1024 then
-    Result := FormatFloat('0.0 MB', ASize / (1024 * 1024))
+    Result := TrFmt('personal.recordings.sizeMB', '%.1f MB',
+      [ASize / (1024 * 1024)])
   else if ASize > 1024 then
-    Result := FormatFloat('0.0 KB', ASize / 1024)
+    Result := TrFmt('personal.recordings.sizeKB', '%.1f KB', [ASize / 1024])
   else
-    Result := IntToStr(ASize) + ' B';
+    Result := TrFmt('personal.recordings.sizeB', '%d B', [ASize]);
 end;
 
 function LocalFileSize(const AFileName: string): Int64;
@@ -229,13 +241,25 @@ begin
   end;
 end;
 
+function ChannelSummary(const AInfo: TRecordingInfo): string;
+begin
+  Result := TrFmt('personal.recordings.channelSummary', '%d channels',
+    [AInfo.ChannelCount]);
+  if AInfo.Channels <> '' then
+    Result := Result + ': ' + AInfo.Channels;
+end;
+
 { TfrmPageRecordings }
 
 constructor TfrmPageRecordings.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  ParentBackground := False;
   FRecordings := TList<TRecordingInfo>.Create;
   BuildUI;
+  Translate;
+  ClearDetails;
+  ClearReplay;
 end;
 
 destructor TfrmPageRecordings.Destroy;
@@ -245,141 +269,84 @@ begin
   inherited Destroy;
 end;
 
+function TfrmPageRecordings.NewText(AStyle: TOBDDialogTextStyle): TOBDDialogText;
+begin
+  Result := TOBDDialogText.Create(Self);
+  Result.Parent := Self;
+  Result.Style := AStyle;
+  Result.WordWrap := True;
+end;
+
+function TfrmPageRecordings.NewButton(AParent: TWinControl;
+  AKind: TOBDButtonKind; AGlyph: TOBDGlyph): TOBDButton;
+begin
+  Result := TOBDButton.Create(Self);
+  Result.Parent := AParent;
+  Result.Kind := AKind;
+  Result.Glyph := AGlyph;
+  Result.AutoSize := False;
+end;
+
 procedure TfrmPageRecordings.BuildUI;
 begin
   Align := alClient;
-  ParentBackground := False;
 
-  pnlTop := TPanel.Create(Self);
-  pnlTop.Parent := Self;
-  pnlTop.Align := alTop;
-  pnlTop.Height := 76;
-  pnlTop.BevelOuter := bvNone;
-  pnlTop.ParentBackground := False;
-  pnlTop.OnResize := TopResize;
+  FTitle := NewText(dtsHeading);
+  FSummary := NewText(dtsSubtle);
+  FSearchEdit := TOBDEdit.Create(Self);
+  FSearchEdit.Parent := Self;
+  FSearchEdit.OnChange := SearchChanged;
+  FRefreshButton := NewButton(Self, bkSecondary, glRefresh);
+  FRefreshButton.OnClick := RefreshClicked;
+  FFolderButton := NewButton(Self, bkSecondary, glOpen);
+  FFolderButton.OnClick := FolderClicked;
+  FRecordSessionSwitch := TOBDCheckBox.Create(Self);
+  FRecordSessionSwitch.Parent := Self;
+  FRecordSessionSwitch.Style := csSwitch;
+  FRecordSessionSwitch.OnChange := RecordSessionChanged;
 
-  lblTitle := TLabel.Create(Self);
-  lblTitle.Parent := pnlTop;
-  lblTitle.Left := 16;
-  lblTitle.Top := 10;
-  lblTitle.Font.Style := [fsBold];
-  lblTitle.Font.Height := -18;
-
-  lblSummary := TLabel.Create(Self);
-  lblSummary.Parent := pnlTop;
-  lblSummary.Left := 16;
-  lblSummary.Top := 38;
-  lblSummary.Font.Color := clGrayText;
-
-  edtSearch := TEdit.Create(Self);
-  edtSearch.Parent := pnlTop;
-  edtSearch.Top := 22;
-  edtSearch.Width := 220;
-  edtSearch.TextHint := 'Search recordings';
-  edtSearch.OnChange := SearchChanged;
-
-  btnRefresh := TButton.Create(Self);
-  btnRefresh.Parent := pnlTop;
-  btnRefresh.Top := 22;
-  btnRefresh.Width := 78;
-  btnRefresh.OnClick := RefreshClicked;
-
-  btnFolder := TButton.Create(Self);
-  btnFolder.Parent := pnlTop;
-  btnFolder.Top := 22;
-  btnFolder.Width := 94;
-  btnFolder.OnClick := FolderClicked;
-
-  btnRecordSession := TButton.Create(Self);
-  btnRecordSession.Parent := pnlTop;
-  btnRecordSession.Top := 22;
-  btnRecordSession.Width := 128;
-  btnRecordSession.OnClick := RecordSessionClicked;
-
+  FReplayCard := TOBDCard.Create(Self);
+  FReplayCard.Parent := Self;
+  FReplayCard.StatusEdge := ceAccent;
   replayBar := TOBDReplayBar.Create(Self);
-  replayBar.Parent := Self;
-  replayBar.Align := alTop;
-  replayBar.Height := 82;
+  replayBar.Parent := FReplayCard;
   replayBar.OnPlay := ReplayPlay;
   replayBar.OnPause := ReplayPause;
   replayBar.OnSeek := ReplaySeek;
 
-  pnlLeft := TPanel.Create(Self);
-  pnlLeft.Parent := Self;
-  pnlLeft.Align := alLeft;
-  pnlLeft.Width := 560;
-  pnlLeft.BevelOuter := bvNone;
+  FRecordingsCard := TOBDCard.Create(Self);
+  FRecordingsCard.Parent := Self;
+  FRecordingsCard.StatusEdge := ceNeutral;
+  FRecordingGrid := TOBDDataGrid.Create(Self);
+  FRecordingGrid.Parent := FRecordingsCard;
+  FRecordingGrid.EmptyGlyph := glRecord;
+  FRecordingGrid.BorderVisible := True;
+  FRecordingGrid.OnChange := RecordingGridChanged;
+  FRecordingGrid.OnItemActivate := RecordingGridActivated;
+  FRecordingGrid.OnEmptyAction := RefreshClicked;
 
-  pnlActions := TPanel.Create(Self);
-  pnlActions.Parent := pnlLeft;
-  pnlActions.Align := alBottom;
-  pnlActions.Height := 46;
-  pnlActions.BevelOuter := bvNone;
-  pnlActions.OnResize := ActionsResize;
+  FRenameButton := NewButton(FRecordingsCard, bkSecondary, glEdit);
+  FRenameButton.OnClick := RenameClicked;
+  FExportButton := NewButton(FRecordingsCard, bkSecondary, glExport);
+  FExportButton.OnClick := ExportClicked;
+  FShowButton := NewButton(FRecordingsCard, bkSecondary, glOpen);
+  FShowButton.OnClick := OpenFolderClicked;
+  FDeleteButton := NewButton(FRecordingsCard, bkDangerOutline, glClear);
+  FDeleteButton.OnClick := DeleteClicked;
 
-  btnRename := TButton.Create(Self);
-  btnRename.Parent := pnlActions;
-  btnRename.Top := 8;
-  btnRename.Width := 80;
-  btnRename.OnClick := RenameClicked;
+  FDetailsCard := TOBDCard.Create(Self);
+  FDetailsCard.Parent := Self;
+  FDetailsCard.StatusEdge := ceNeutral;
+  FDetailsList := TOBDKeyValueList.Create(Self);
+  FDetailsList.Parent := FDetailsCard;
+  FDetailsList.KeyWidth := 118;
+  FDetailsList.WordWrap := True;
 
-  btnExport := TButton.Create(Self);
-  btnExport.Parent := pnlActions;
-  btnExport.Top := 8;
-  btnExport.Width := 94;
-  btnExport.OnClick := ExportClicked;
-
-  btnOpenFolder := TButton.Create(Self);
-  btnOpenFolder.Parent := pnlActions;
-  btnOpenFolder.Top := 8;
-  btnOpenFolder.Width := 96;
-  btnOpenFolder.OnClick := OpenFolderClicked;
-
-  btnDelete := TButton.Create(Self);
-  btnDelete.Parent := pnlActions;
-  btnDelete.Top := 8;
-  btnDelete.Width := 78;
-  btnDelete.OnClick := DeleteClicked;
-
-  lvRecordings := TListView.Create(Self);
-  lvRecordings.Parent := pnlLeft;
-  lvRecordings.Align := alClient;
-  lvRecordings.ViewStyle := vsReport;
-  lvRecordings.RowSelect := True;
-  lvRecordings.HideSelection := False;
-  lvRecordings.ReadOnly := True;
-  lvRecordings.OnSelectItem := RecordingSelected;
-  lvRecordings.Columns.Add.Caption := 'Name';
-  lvRecordings.Columns.Add.Caption := 'Date';
-  lvRecordings.Columns.Add.Caption := 'Duration';
-  lvRecordings.Columns.Add.Caption := 'Size';
-  lvRecordings.Columns.Add.Caption := 'Channels';
-  lvRecordings.Columns[0].Width := 170;
-  lvRecordings.Columns[1].Width := 130;
-  lvRecordings.Columns[2].Width := 70;
-  lvRecordings.Columns[3].Width := 70;
-  lvRecordings.Columns[4].Width := 240;
-
-  splMain := TSplitter.Create(Self);
-  splMain.Parent := Self;
-  splMain.Align := alLeft;
-  splMain.Width := 6;
-
-  pnlRight := TPanel.Create(Self);
-  pnlRight.Parent := Self;
-  pnlRight.Align := alClient;
-  pnlRight.BevelOuter := bvNone;
-
-  memDetails := TMemo.Create(Self);
-  memDetails.Parent := pnlRight;
-  memDetails.Align := alTop;
-  memDetails.Height := 148;
-  memDetails.ReadOnly := True;
-  memDetails.ScrollBars := ssVertical;
-
+  FChartCard := TOBDCard.Create(Self);
+  FChartCard.Parent := Self;
+  FChartCard.StatusEdge := ceNeutral;
   chartReplay := TOBDTrendChart.Create(Self);
-  chartReplay.Parent := pnlRight;
-  chartReplay.Align := alClient;
+  chartReplay.Parent := FChartCard;
   chartReplay.TimeWindowSec := 600;
   chartReplay.HistorySec := 36000;
   chartReplay.ShowLegend := True;
@@ -394,36 +361,120 @@ begin
   tmrSession.Interval := 1000;
   tmrSession.OnTimer := SessionTimer;
 
-  Translate;
-  TopResize(pnlTop);
-  ActionsResize(pnlActions);
+  ConfigureGridColumns;
+  LayoutControls;
 end;
 
-procedure TfrmPageRecordings.TopResize(Sender: TObject);
-var
-  X: Integer;
+procedure TfrmPageRecordings.Resize;
 begin
-  X := pnlTop.ClientWidth - 16;
-  btnRecordSession.Left := X - btnRecordSession.Width;
-  X := btnRecordSession.Left - 8;
-  btnFolder.Left := X - btnFolder.Width;
-  X := btnFolder.Left - 8;
-  btnRefresh.Left := X - btnRefresh.Width;
-  X := btnRefresh.Left - 8;
-  edtSearch.Left := X - edtSearch.Width;
+  inherited Resize;
+  LayoutControls;
 end;
 
-procedure TfrmPageRecordings.ActionsResize(Sender: TObject);
+procedure TfrmPageRecordings.ConfigureGridColumns;
 var
-  X: Integer;
+  Column: TOBDDataGridColumn;
 begin
-  X := 8;
-  btnRename.Left := X;
-  Inc(X, btnRename.Width + 8);
-  btnExport.Left := X;
-  Inc(X, btnExport.Width + 8);
-  btnOpenFolder.Left := X;
-  btnDelete.Left := pnlActions.ClientWidth - btnDelete.Width - 8;
+  FRecordingGrid.DataColumns.BeginUpdate;
+  try
+    FRecordingGrid.DataColumns.Clear;
+    Column := FRecordingGrid.DataColumns.Add;
+    Column.Caption := Tr('personal.recordings.columnDate', 'Date');
+    Column.Width := 126;
+    Column.Kind := dckMono;
+    Column := FRecordingGrid.DataColumns.Add;
+    Column.Caption := Tr('personal.recordings.columnVehicle', 'Vehicle');
+    Column.Width := 170;
+    Column := FRecordingGrid.DataColumns.Add;
+    Column.Caption := Tr('personal.recordings.columnDuration', 'Duration');
+    Column.Width := 78;
+    Column.Alignment := taRightJustify;
+    Column.Kind := dckMono;
+    Column := FRecordingGrid.DataColumns.Add;
+    Column.Caption := Tr('personal.recordings.columnSizeSamples',
+      'Size / samples');
+    Column.Width := 120;
+    Column.Alignment := taRightJustify;
+    Column := FRecordingGrid.DataColumns.Add;
+    Column.Caption := Tr('personal.recordings.columnChannels', 'Channels');
+    Column.Width := 0;
+  finally
+    FRecordingGrid.DataColumns.EndUpdate;
+  end;
+  FRecordingGrid.SortColumn := 0;
+  FRecordingGrid.SortDescending := True;
+end;
+
+procedure TfrmPageRecordings.LayoutControls;
+var
+  Gap, HeaderH, ReplayH, ContentTop, ContentH, LeftW, RightX, RightW,
+  DetailsH, ButtonTop, ButtonW, X, RightMin: Integer;
+begin
+  if FTitle = nil then
+    Exit;
+  Gap := 16;
+  HeaderH := 88;
+  ReplayH := 88;
+  RightMin := 380;
+
+  FTitle.SetBounds(24, 18, ClientWidth - 48, 28);
+  X := ClientWidth - 24;
+  FRecordSessionSwitch.SetBounds(X - 188, 22, 188, 34);
+  X := FRecordSessionSwitch.Left - 8;
+  FFolderButton.SetBounds(X - 112, 22, 112, 34);
+  X := FFolderButton.Left - 8;
+  FRefreshButton.SetBounds(X - 96, 22, 96, 34);
+  X := FRefreshButton.Left - 8;
+  FSearchEdit.SetBounds(Max(280, X - 240), 22, Min(240, Max(120, X - 280)), 34);
+  FSummary.SetBounds(24, 48, Max(240, FSearchEdit.Left - 40), 34);
+
+  FReplayCard.SetBounds(24, HeaderH, ClientWidth - 48, ReplayH);
+  replayBar.SetBounds(16, 18, FReplayCard.Width - 32, FReplayCard.Height - 36);
+
+  ContentTop := HeaderH + ReplayH + Gap;
+  ContentH := Max(240, ClientHeight - ContentTop - 24);
+  if ClientWidth >= 1040 then
+  begin
+    LeftW := Max(500, Min(640, (ClientWidth - 64) div 2));
+    RightX := 24 + LeftW + Gap;
+    RightW := ClientWidth - RightX - 24;
+  end
+  else
+  begin
+    LeftW := Max(360, ClientWidth - RightMin - 72);
+    if LeftW > 560 then
+      LeftW := 560;
+    RightX := 24 + LeftW + Gap;
+    RightW := ClientWidth - RightX - 24;
+    if RightW < RightMin then
+    begin
+      LeftW := Max(320, ClientWidth - RightMin - 72);
+      RightX := 24 + LeftW + Gap;
+      RightW := ClientWidth - RightX - 24;
+    end;
+  end;
+
+  FRecordingsCard.SetBounds(24, ContentTop, LeftW, ContentH);
+  ButtonTop := FRecordingsCard.Height - 48;
+  ButtonW := (FRecordingsCard.Width - 56) div 4;
+  FRecordingGrid.SetBounds(16, 62, FRecordingsCard.Width - 32,
+    Max(120, ButtonTop - 70));
+  FRenameButton.SetBounds(16, ButtonTop, ButtonW, 32);
+  FExportButton.SetBounds(FRenameButton.Left + ButtonW + 8, ButtonTop,
+    ButtonW, 32);
+  FShowButton.SetBounds(FExportButton.Left + ButtonW + 8, ButtonTop,
+    ButtonW, 32);
+  FDeleteButton.SetBounds(FShowButton.Left + ButtonW + 8, ButtonTop,
+    ButtonW, 32);
+
+  DetailsH := 176;
+  FDetailsCard.SetBounds(RightX, ContentTop, RightW, DetailsH);
+  FDetailsList.SetBounds(16, 62, FDetailsCard.Width - 32,
+    FDetailsCard.Height - 78);
+  FChartCard.SetBounds(RightX, ContentTop + DetailsH + Gap, RightW,
+    Max(160, ContentH - DetailsH - Gap));
+  chartReplay.SetBounds(16, 62, FChartCard.Width - 32,
+    FChartCard.Height - 78);
 end;
 
 function TfrmPageRecordings.Connected: Boolean;
@@ -440,6 +491,7 @@ procedure TfrmPageRecordings.Init(const AHost: IPersonalHost);
 begin
   FHost := AHost;
   RefreshRecordings;
+  UpdateActionButtons;
 end;
 
 procedure TfrmPageRecordings.Activated(AActive: Boolean);
@@ -448,37 +500,61 @@ begin
     RefreshRecordings
   else
     tmrReplay.Enabled := False;
+  UpdateActionButtons;
 end;
 
 procedure TfrmPageRecordings.ConnectionChanged(AConnected: Boolean);
 begin
   if not AConnected then
     StopFullSessionRecording;
+  UpdateActionButtons;
 end;
 
 procedure TfrmPageRecordings.UnitsChanged;
 begin
-  chartReplay.Invalidate;
+  if chartReplay <> nil then
+    chartReplay.Invalidate;
 end;
 
 procedure TfrmPageRecordings.Translate;
 begin
-  lblTitle.Caption := Tr('personal.recordings.title', 'Recordings');
-  btnRefresh.Caption := Tr('personal.recordings.refresh', 'Refresh');
-  btnFolder.Caption := Tr('personal.recordings.folder', 'Open folder');
-  btnRename.Caption := Tr('personal.recordings.rename', 'Rename');
-  btnExport.Caption := Tr('personal.recordings.export', 'Export copy');
-  btnOpenFolder.Caption := Tr('personal.recordings.show', 'Show file');
-  btnDelete.Caption := Tr('personal.recordings.delete', 'Delete');
+  FTitle.Caption := Tr('personal.recordings.title', 'Recordings');
+  FSearchEdit.TextHint := Tr('personal.recordings.searchHint',
+    'Search recordings');
+  FRefreshButton.Caption := Tr('personal.recordings.refresh', 'Refresh');
+  FFolderButton.Caption := Tr('personal.recordings.folder', 'Open folder');
+  FRenameButton.Caption := Tr('personal.recordings.rename', 'Rename');
+  FExportButton.Caption := Tr('personal.recordings.export', 'Export copy');
+  FShowButton.Caption := Tr('personal.recordings.show', 'Show file');
+  FDeleteButton.Caption := Tr('personal.recordings.delete', 'Delete');
   if FFullSessionRecording then
-    btnRecordSession.Caption := Tr('personal.recordings.stopRecord', 'Stop recording')
+    FRecordSessionSwitch.Caption := Tr('personal.recordings.stopRecord',
+      'Stop recording')
   else
-    btnRecordSession.Caption := Tr('personal.recordings.recordNow', 'Record session');
+    FRecordSessionSwitch.Caption := Tr('personal.recordings.recordNow',
+      'Record session');
+  FReplayCard.Title := Tr('personal.recordings.replayTitle', 'Replay');
+  FRecordingsCard.Title := Tr('personal.recordings.browserTitle',
+    'Recorded drives');
+  FDetailsCard.Title := Tr('personal.recordings.detailsTitle',
+    'Recording details');
+  FChartCard.Title := Tr('personal.recordings.chartTitle', 'Signals');
+  FRecordingGrid.EmptyTitle := Tr('personal.recordings.emptyTitle',
+    'No recordings yet');
+  FRecordingGrid.EmptyHint := Tr('personal.recordings.emptyHint',
+    'Record a drive or export live data as CSV to replay it here.');
+  FRecordingGrid.EmptyAction := Tr('personal.recordings.refresh', 'Refresh');
+  ConfigureGridColumns;
+  UpdateActionButtons;
+  LayoutControls;
 end;
 
 function TfrmPageRecordings.RecordingsFolder: string;
 begin
-  Result := FHost.Settings.DataSubFolder('Recordings');
+  if FHost <> nil then
+    Result := FHost.Settings.DataSubFolder('Recordings')
+  else
+    Result := '';
 end;
 
 procedure TfrmPageRecordings.RefreshRecordings;
@@ -486,25 +562,25 @@ var
   Files: TArray<string>;
   FileName: string;
   Info: TRecordingInfo;
+  Folder: string;
 begin
-  if FHost = nil then
+  Folder := RecordingsFolder;
+  if Folder = '' then
+  begin
+    FSummary.Caption := Tr('personal.recordings.summaryUnavailable',
+      'Recording folder is not available yet.');
     Exit;
-  FRecordings.Clear;
-  lvRecordings.Items.BeginUpdate;
-  try
-    lvRecordings.Items.Clear;
-    Files := TDirectory.GetFiles(RecordingsFolder, '*.csv');
-    for FileName in Files do
-    begin
-      AnalyzeCSV(FileName, Info);
-      FRecordings.Add(Info);
-    end;
-    ApplyFilter;
-  finally
-    lvRecordings.Items.EndUpdate;
   end;
-  lblSummary.Caption := Format(Tr('personal.recordings.summary',
-    '%d CSV recordings in %s.'), [FRecordings.Count, RecordingsFolder]);
+  FRecordings.Clear;
+  Files := TDirectory.GetFiles(Folder, '*.csv');
+  for FileName in Files do
+  begin
+    AnalyzeCSV(FileName, Info);
+    FRecordings.Add(Info);
+  end;
+  ApplyFilter;
+  FSummary.Caption := TrFmt('personal.recordings.summary',
+    '%d CSV recordings in %s.', [FRecordings.Count, Folder]);
 end;
 
 procedure TfrmPageRecordings.AnalyzeCSV(const AFileName: string;
@@ -524,6 +600,7 @@ begin
   AInfo.DurationSec := 0;
   AInfo.Channels := '';
   AInfo.ChannelCount := 0;
+  AInfo.SampleCount := 0;
   FS := TFormatSettings.Invariant;
   Lines := TFile.ReadAllLines(AFileName, TEncoding.UTF8);
   if Length(Lines) = 0 then
@@ -546,6 +623,7 @@ begin
     Dec(LastData);
   if LastData > 0 then
   begin
+    AInfo.SampleCount := LastData;
     Fields := CSVFields(Lines[LastData]);
     if Length(Fields) > 1 then
       if TryStrToFloat(Fields[1], Duration, FS) then
@@ -558,45 +636,63 @@ var
   I: Integer;
   Filter, Haystack: string;
 begin
-  Filter := LowerCase(Trim(edtSearch.Text));
-  lvRecordings.Items.BeginUpdate;
+  if FRecordingGrid = nil then
+    Exit;
+  Filter := LowerCase(Trim(FSearchEdit.Text));
+  FUpdatingGrid := True;
+  FRecordingGrid.BeginUpdate;
   try
-    lvRecordings.Items.Clear;
+    FRecordingGrid.Clear;
     for I := 0 to FRecordings.Count - 1 do
     begin
-      Haystack := LowerCase(FRecordings[I].DisplayName + ' ' + FRecordings[I].Channels);
+      Haystack := LowerCase(FRecordings[I].DisplayName + ' ' +
+        FRecordings[I].Channels);
       if (Filter = '') or (Pos(Filter, Haystack) > 0) then
-        AddListItem(FRecordings[I]);
+        AddGridRow(I, FRecordings[I]);
     end;
   finally
-    lvRecordings.Items.EndUpdate;
+    FRecordingGrid.EndUpdate;
+    FUpdatingGrid := False;
   end;
+  if SelectedIndex < 0 then
+  begin
+    ClearDetails;
+    ClearReplay;
+  end;
+  UpdateActionButtons;
 end;
 
-procedure TfrmPageRecordings.AddListItem(const AInfo: TRecordingInfo);
+procedure TfrmPageRecordings.AddGridRow(AIndex: Integer;
+  const AInfo: TRecordingInfo);
 var
-  Item: TListItem;
+  Row: Integer;
+  SizeSamples: string;
 begin
-  Item := lvRecordings.Items.Add;
-  Item.Caption := AInfo.DisplayName;
-  Item.SubItems.Add(FormatDateTime('yyyy-mm-dd hh:nn', AInfo.Modified));
-  Item.SubItems.Add(FormatDuration(AInfo.DurationSec));
-  Item.SubItems.Add(FormatSize(AInfo.SizeBytes));
-  Item.SubItems.Add(Format('%d: %s', [AInfo.ChannelCount, AInfo.Channels]));
+  SizeSamples := TrFmt('personal.recordings.sizeSamples', '%s · %d samples',
+    [FormatSize(AInfo.SizeBytes), AInfo.SampleCount]);
+  Row := FRecordingGrid.AddRow([
+    FormatDateTime(Tr('personal.recordings.dateFormat', 'yyyy-mm-dd hh:nn'),
+      AInfo.Modified),
+    AInfo.DisplayName,
+    FormatDuration(AInfo.DurationSec),
+    SizeSamples,
+    ChannelSummary(AInfo)]);
+  FRecordingGrid.RowData[Row] := AIndex;
 end;
 
 function TfrmPageRecordings.SelectedIndex: Integer;
 var
-  I: Integer;
-  FileName: string;
+  Row: Integer;
 begin
   Result := -1;
-  if lvRecordings.Selected = nil then
+  if FRecordingGrid = nil then
     Exit;
-  FileName := lvRecordings.Selected.Caption;
-  for I := 0 to FRecordings.Count - 1 do
-    if SameText(FRecordings[I].DisplayName, FileName) then
-      Exit(I);
+  Row := FRecordingGrid.SelectedRow;
+  if Row < 0 then
+    Exit;
+  Result := FRecordingGrid.RowData[Row];
+  if (Result < 0) or (Result >= FRecordings.Count) then
+    Result := -1;
 end;
 
 function TfrmPageRecordings.SelectedFileName: string;
@@ -609,22 +705,49 @@ begin
     Result := FRecordings[Index].FileName;
 end;
 
+procedure TfrmPageRecordings.ClearReplay;
+begin
+  if replayBar <> nil then
+  begin
+    replayBar.Playing := False;
+    replayBar.FileName := Tr('personal.recordings.noSelectionTitle',
+      'No recording selected');
+    replayBar.InfoText := Tr('personal.recordings.noSelectionText',
+      'Select a CSV recording to inspect and replay it.');
+    replayBar.DurationMs := 0;
+    replayBar.PositionMs := 0;
+    replayBar.ClearMarkers;
+  end;
+  if tmrReplay <> nil then
+    tmrReplay.Enabled := False;
+  if chartReplay <> nil then
+  begin
+    chartReplay.Source := nil;
+    chartReplay.Channels.Clear;
+    chartReplay.ClearSamples;
+  end;
+end;
+
 procedure TfrmPageRecordings.LoadRecording(AIndex: Integer);
 begin
   if (AIndex < 0) or (AIndex >= FRecordings.Count) then
     Exit;
   replayBar.FileName := FRecordings[AIndex].DisplayName;
-  replayBar.InfoText := Format('%d channels · %s · %s',
-    [FRecordings[AIndex].ChannelCount, FormatDuration(FRecordings[AIndex].DurationSec),
+  replayBar.InfoText := TrFmt('personal.recordings.replayInfo',
+    '%d channels · %s · %s', [FRecordings[AIndex].ChannelCount,
+    FormatDuration(FRecordings[AIndex].DurationSec),
     FormatSize(FRecordings[AIndex].SizeBytes)]);
   replayBar.DurationMs := Round(FRecordings[AIndex].DurationSec * 1000);
   replayBar.PositionMs := 0;
   replayBar.ClearMarkers;
   if replayBar.DurationMs > 0 then
   begin
-    replayBar.AddMarker(replayBar.DurationMs div 4, rpbBookmark, '25%');
-    replayBar.AddMarker(replayBar.DurationMs div 2, rpbNote, '50%');
-    replayBar.AddMarker((replayBar.DurationMs * 3) div 4, rpbDtc, '75%');
+    replayBar.AddMarker(replayBar.DurationMs div 4, rpbBookmark,
+      Tr('personal.recordings.marker25', '25%'));
+    replayBar.AddMarker(replayBar.DurationMs div 2, rpbNote,
+      Tr('personal.recordings.marker50', '50%'));
+    replayBar.AddMarker((replayBar.DurationMs * 3) div 4, rpbDtc,
+      Tr('personal.recordings.marker75', '75%'));
   end;
   LoadCSVIntoChart(FRecordings[AIndex].FileName);
   UpdateDetails(FRecordings[AIndex]);
@@ -702,23 +825,74 @@ begin
       Series[Col].MaxValue, Series[Col].UnitText);
     Channel.Decimals := 1;
     for Row := 0 to High(Series[Col].Values) do
-      chartReplay.AddSampleAt(Col, Series[Col].Times[Row], Series[Col].Values[Row]);
+      chartReplay.AddSampleAt(Col, Series[Col].Times[Row],
+        Series[Col].Values[Row]);
   end;
 end;
 
-procedure TfrmPageRecordings.UpdateDetails(const AInfo: TRecordingInfo);
+procedure TfrmPageRecordings.ClearDetails;
+var
+  Category: string;
 begin
-  memDetails.Lines.BeginUpdate;
+  if FDetailsList = nil then
+    Exit;
+  Category := Tr('personal.recordings.detailsCategory', 'Details');
+  FDetailsList.BeginUpdate;
   try
-    memDetails.Clear;
-    memDetails.Lines.Add('File: ' + AInfo.FileName);
-    memDetails.Lines.Add('Started/modified: ' + FormatDateTime('yyyy-mm-dd hh:nn', AInfo.Modified));
-    memDetails.Lines.Add('Duration: ' + FormatDuration(AInfo.DurationSec));
-    memDetails.Lines.Add('Size: ' + FormatSize(AInfo.SizeBytes));
-    memDetails.Lines.Add('Channels: ' + IntToStr(AInfo.ChannelCount));
-    memDetails.Lines.Add(AInfo.Channels);
+    FDetailsList.Clear;
+    FDetailsList.Add(Category, Tr('personal.recordings.selectionLabel',
+      'Selection'), Tr('personal.recordings.selectionEmpty',
+      'Select a recording to show its metadata.'));
   finally
-    memDetails.Lines.EndUpdate;
+    FDetailsList.EndUpdate;
+  end;
+  FDetailsCard.StatusEdge := ceNeutral;
+end;
+
+procedure TfrmPageRecordings.UpdateDetails(const AInfo: TRecordingInfo);
+var
+  Category: string;
+begin
+  Category := Tr('personal.recordings.detailsCategory', 'Details');
+  FDetailsList.BeginUpdate;
+  try
+    FDetailsList.Clear;
+    FDetailsList.Add(Category, Tr('personal.recordings.fileLabel', 'File'),
+      AInfo.FileName, kvkMono);
+    FDetailsList.Add(Category, Tr('personal.recordings.modifiedLabel',
+      'Started / modified'), FormatDateTime(Tr('personal.recordings.dateFormat',
+      'yyyy-mm-dd hh:nn'), AInfo.Modified), kvkMono);
+    FDetailsList.Add(Category, Tr('personal.recordings.durationLabel',
+      'Duration'), FormatDuration(AInfo.DurationSec), kvkMono);
+    FDetailsList.Add(Category, Tr('personal.recordings.sizeLabel', 'Size'),
+      FormatSize(AInfo.SizeBytes), kvkMono);
+    FDetailsList.Add(Category, Tr('personal.recordings.samplesLabel',
+      'Samples'), IntToStr(AInfo.SampleCount), kvkMono);
+    FDetailsList.Add(Category, Tr('personal.recordings.channelsLabel',
+      'Channels'), ChannelSummary(AInfo));
+  finally
+    FDetailsList.EndUpdate;
+  end;
+  FDetailsCard.StatusEdge := ceAccent;
+end;
+
+procedure TfrmPageRecordings.UpdateActionButtons;
+var
+  HasSelection: Boolean;
+begin
+  HasSelection := SelectedFileName <> '';
+  FRenameButton.Enabled := HasSelection;
+  FDeleteButton.Enabled := HasSelection;
+  FExportButton.Enabled := HasSelection;
+  FShowButton.Enabled := FHost <> nil;
+  FRefreshButton.Enabled := FHost <> nil;
+  FFolderButton.Enabled := FHost <> nil;
+  FUpdatingRecordSwitch := True;
+  try
+    FRecordSessionSwitch.Enabled := Connected or FFullSessionRecording;
+    FRecordSessionSwitch.Checked := FFullSessionRecording;
+  finally
+    FUpdatingRecordSwitch := False;
   end;
 end;
 
@@ -733,16 +907,23 @@ begin
 end;
 
 procedure TfrmPageRecordings.FolderClicked(Sender: TObject);
+var
+  Folder: string;
 begin
-  ShellExecute(Handle, 'open', PChar(RecordingsFolder), nil, nil, SW_SHOWNORMAL);
+  Folder := RecordingsFolder;
+  if Folder <> '' then
+    ShellExecute(Handle, 'open', PChar(Folder), nil, nil, SW_SHOWNORMAL);
 end;
 
-procedure TfrmPageRecordings.RecordSessionClicked(Sender: TObject);
+procedure TfrmPageRecordings.RecordSessionChanged(Sender: TObject);
 begin
+  if FUpdatingRecordSwitch then
+    Exit;
   if FFullSessionRecording then
     StopFullSessionRecording
   else
     StartFullSessionRecording;
+  UpdateActionButtons;
 end;
 
 procedure TfrmPageRecordings.RenameClicked(Sender: TObject);
@@ -753,8 +934,9 @@ begin
   if OldName = '' then
     Exit;
   NewName := TPath.GetFileNameWithoutExtension(OldName);
-  if not InputQuery(Tr('personal.recordings.renameTitle', 'Rename recording'),
-    Tr('personal.recordings.renamePrompt', 'New name'), NewName) then
+  if not OBDInputQuery(Tr('personal.recordings.renameTitle',
+    'Rename recording'), Tr('personal.recordings.renamePrompt', 'New name'),
+    NewName) then
     Exit;
   NewName := Trim(NewName);
   if NewName = '' then
@@ -764,8 +946,10 @@ begin
   NewFile := TPath.Combine(ExtractFilePath(OldName), NewName);
   if TFile.Exists(NewFile) then
   begin
-    FHost.Notify(tkWarning, Tr('personal.recordings.renameExists', 'Rename'),
-      Tr('personal.recordings.renameExistsText', 'A recording with that name already exists.'));
+    if FHost <> nil then
+      FHost.Notify(tkWarning, Tr('personal.recordings.renameExists', 'Rename'),
+        Tr('personal.recordings.renameExistsText',
+        'A recording with that name already exists.'));
     Exit;
   end;
   TFile.Move(OldName, NewFile);
@@ -777,11 +961,12 @@ var
   FileName: string;
 begin
   FileName := SelectedFileName;
-  if FileName = '' then
+  if (FileName = '') or (FHost = nil) then
     Exit;
-  if not FHost.Confirm(dkDanger, Tr('personal.recordings.deleteTitle', 'Delete recording'),
-    Format(Tr('personal.recordings.deleteText', 'Delete %s? This cannot be undone.'),
-      [ExtractFileName(FileName)]), Tr('personal.recordings.deleteConfirm', 'Delete')) then
+  if not FHost.Confirm(dkDanger, Tr('personal.recordings.deleteTitle',
+    'Delete recording'), TrFmt('personal.recordings.deleteText',
+    'Delete %s? This cannot be undone.', [ExtractFileName(FileName)]),
+    Tr('personal.recordings.deleteConfirm', 'Delete')) then
     Exit;
   TFile.Delete(FileName);
   RefreshRecordings;
@@ -789,16 +974,21 @@ end;
 
 procedure TfrmPageRecordings.ExportClicked(Sender: TObject);
 var
-  Dialog: TSaveDialog;
+  Dialog: TOBDSaveDialog;
   FileName: string;
 begin
   FileName := SelectedFileName;
   if FileName = '' then
     Exit;
-  Dialog := TSaveDialog.Create(Self);
+  Dialog := TOBDSaveDialog.Create(Self);
   try
-    Dialog.Filter := 'CSV files (*.csv)|*.csv|All files (*.*)|*.*';
+    Dialog.Title := Tr('personal.recordings.exportTitle', 'Export recording');
+    Dialog.Filter := Tr('personal.recordings.csvFilter',
+      'CSV files (*.csv)|*.csv|All files (*.*)|*.*');
+    Dialog.DefaultExt := 'csv';
     Dialog.FileName := ExtractFileName(FileName);
+    Dialog.InitialDir := ExtractFilePath(FileName);
+    Dialog.Options := [foOverwritePrompt, foPathMustExist];
     if Dialog.Execute then
       TFile.Copy(FileName, Dialog.FileName, True);
   finally
@@ -817,20 +1007,27 @@ begin
     Exit;
   end;
   Params := '/select,"' + FileName + '"';
-  ShellExecute(Handle, 'open', 'explorer.exe', PChar(Params), nil, SW_SHOWNORMAL);
+  ShellExecute(Handle, 'open', 'explorer.exe', PChar(Params), nil,
+    SW_SHOWNORMAL);
 end;
 
-procedure TfrmPageRecordings.RecordingSelected(Sender: TObject; Item: TListItem;
-  Selected: Boolean);
+procedure TfrmPageRecordings.RecordingGridChanged(Sender: TObject);
 begin
-  if Selected then
-    LoadRecording(SelectedIndex);
+  if FUpdatingGrid then
+    Exit;
+  LoadRecording(SelectedIndex);
+  UpdateActionButtons;
+end;
+
+procedure TfrmPageRecordings.RecordingGridActivated(Sender: TObject);
+begin
+  LoadRecording(SelectedIndex);
 end;
 
 procedure TfrmPageRecordings.ReplayPlay(Sender: TObject);
 begin
   replayBar.Playing := True;
-  tmrReplay.Enabled := True;
+  tmrReplay.Enabled := replayBar.DurationMs > 0;
 end;
 
 procedure TfrmPageRecordings.ReplayPause(Sender: TObject);
@@ -872,10 +1069,13 @@ procedure TfrmPageRecordings.StartFullSessionRecording;
 var
   FileName: string;
 begin
+  if FHost = nil then
+    Exit;
   if not Connected then
   begin
-    FHost.Notify(tkInfo, Tr('personal.recordings.connectTitle', 'Record session'),
-      Tr('personal.recordings.connectText', 'Connect to a vehicle before recording a full session.'));
+    FHost.Notify(tkInfo, Tr('personal.recordings.connectTitle',
+      'Record session'), Tr('personal.recordings.connectText',
+      'Connect to a vehicle before recording a full session.'));
     Exit;
   end;
   FileName := TPath.Combine(RecordingsFolder,
@@ -890,10 +1090,12 @@ end;
 
 procedure TfrmPageRecordings.StopFullSessionRecording;
 begin
-  if (FHost <> nil) and (FHost.Session <> nil) and FHost.Session.Recorder.Active then
+  if (FHost <> nil) and (FHost.Session <> nil) and
+    FHost.Session.Recorder.Active then
     FHost.Session.Recorder.Close;
   FFullSessionRecording := False;
-  tmrSession.Enabled := False;
+  if tmrSession <> nil then
+    tmrSession.Enabled := False;
   if FHost <> nil then
     FHost.SetRecording('');
   Translate;
@@ -903,12 +1105,13 @@ procedure TfrmPageRecordings.UpdateSessionRecordingStatus;
 var
   Seconds: Integer;
 begin
-  if not FFullSessionRecording then
+  if (not FFullSessionRecording) or (FHost = nil) then
     Exit;
   Seconds := Round((Now - FFullSessionStarted) * SecsPerDay);
   if Seconds < 0 then
     Seconds := 0;
-  FHost.SetRecording(Format('LOG %.2d:%.2d', [Seconds div 60, Seconds mod 60]));
+  FHost.SetRecording(TrFmt('personal.recordings.recordingStatus',
+    'LOG %.2d:%.2d', [Seconds div 60, Seconds mod 60]));
 end;
 
 { Commands ------------------------------------------------------------------ }
@@ -942,7 +1145,7 @@ procedure TfrmPageRecordings.ExecuteCommand(ACommand: TPersonalCommand);
 begin
   case ACommand of
     pcRecordSession:
-      RecordSessionClicked(Self);
+      RecordSessionChanged(Self);
     pcRefreshRecordings:
       RefreshClicked(Self);
     pcRenameRecording:

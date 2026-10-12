@@ -12,13 +12,16 @@ interface
 uses
   System.SysUtils,
   System.Classes,
-  Vcl.Graphics,
   Vcl.Controls,
   Vcl.Forms,
-  Vcl.StdCtrls,
-  Vcl.ExtCtrls,
   ERD.I18n,
   ERD.Service.VehicleInfo,
+  ERD.UI.Buttons,
+  ERD.UI.Card,
+  ERD.UI.DataGrid,
+  ERD.UI.Dialogs,
+  ERD.UI.KeyValueList,
+  ERD.UI.ScrollBox,
   untPersonalPage;
 
 type
@@ -30,32 +33,32 @@ type
     FReportValid: Boolean;
     FReport: TOBDVehicleInfoReport;
     FLastText: string;
-    pnlHeader: TPanel;
-    lblTitle: TLabel;
-    lblSubtitle: TLabel;
-    btnRead: TButton;
-    btnCopy: TButton;
-    btnSave: TButton;
-    pnlOffline: TPanel;
-    lblOfflineTitle: TLabel;
-    lblOfflineText: TLabel;
-    btnConnect: TButton;
-    pnlContent: TPanel;
-    grpVIN: TGroupBox;
-    grpECUs: TGroupBox;
-    grpDetails: TGroupBox;
-    memVIN: TMemo;
-    lstECUs: TListBox;
-    memDetails: TMemo;
+    FTitle: TOBDDialogText;
+    FSubtitle: TOBDDialogText;
+    FButtonRead: TOBDButton;
+    FButtonCopy: TOBDButton;
+    FButtonSave: TOBDButton;
+    FOfflineCard: TOBDCard;
+    FOfflineTitle: TOBDDialogText;
+    FOfflineText: TOBDDialogText;
+    FButtonConnect: TOBDButton;
+    FScroll: TOBDScrollBox;
+    FECUCard: TOBDCard;
+    FECUGrid: TOBDDataGrid;
+    FVINCard: TOBDCard;
+    FVINList: TOBDKeyValueList;
+    FModeCard: TOBDCard;
+    FModeList: TOBDKeyValueList;
     procedure BuildUI;
-    procedure HeaderResize(Sender: TObject);
-    procedure ContentResize(Sender: TObject);
+    procedure LayoutControls;
     procedure ReadClicked(Sender: TObject);
     procedure CopyClicked(Sender: TObject);
     procedure SaveClicked(Sender: TObject);
     procedure ConnectClicked(Sender: TObject);
     procedure ReadInfo;
     procedure UpdateView;
+  protected
+    procedure Resize; override;
   public
     constructor Create(AOwner: TComponent); override;
     function PageKey: string;
@@ -77,7 +80,9 @@ implementation
 
 uses
   System.IOUtils,
+  System.Math,
   Vcl.Clipbrd,
+  ERD.UI.Paint,
   ERD.UI.Toast,
   ERD.Service.VINDecoder,
   ERD.Service.VINDecoder.Types,
@@ -271,6 +276,168 @@ begin
   end;
 end;
 
+procedure AddVINDecodeRows(AList: TOBDKeyValueList; const AVIN: string);
+var
+  Info: TOBDVINInfo;
+  Item: TOBDKeyValueItem;
+begin
+  AList.BeginUpdate;
+  try
+    AList.Clear;
+    if AVIN = '' then
+    begin
+      Item := AList.Add(Tr('personal.info.vinCategory', 'VIN'),
+        Tr('personal.info.vin', 'VIN'),
+        Tr('personal.info.vinMissing', 'Not reported'), kvkChip);
+      Item.Tone := skWarning;
+      Exit;
+    end;
+
+    Info := TOBDVINDecoder.Decode(AVIN);
+    AList.Add(Tr('personal.info.vinCategory', 'VIN'), Tr('personal.info.vin',
+      'VIN'), AVIN, kvkMono);
+    AList.Add(Tr('personal.info.vinCategory', 'VIN'), Tr('personal.info.wmi',
+      'WMI'), DashIfBlank(Info.WMI), kvkMono);
+    AList.Add(Tr('personal.info.vinCategory', 'VIN'),
+      Tr('personal.info.manufacturer', 'Manufacturer'),
+      DashIfBlank(Info.Manufacturer.Name));
+    if Info.ModelYear > 0 then
+      AList.Add(Tr('personal.info.vehicleCategory', 'Vehicle'),
+        Tr('personal.info.modelYear', 'Model year'), IntToStr(Info.ModelYear))
+    else
+      AList.Add(Tr('personal.info.vehicleCategory', 'Vehicle'),
+        Tr('personal.info.modelYear', 'Model year'), '—');
+    AList.Add(Tr('personal.info.vehicleCategory', 'Vehicle'),
+      Tr('personal.info.body', 'Body'), DashIfBlank(Info.Features.BodyStyle));
+    AList.Add(Tr('personal.info.vehicleCategory', 'Vehicle'),
+      Tr('personal.info.engine', 'Engine'),
+      DashIfBlank(Info.Features.EngineDisplacement));
+    AList.Add(Tr('personal.info.originCategory', 'Origin'),
+      Tr('personal.info.country', 'Country'), DashIfBlank(Info.Country.Name));
+    AList.Add(Tr('personal.info.originCategory', 'Origin'),
+      Tr('personal.info.plant', 'Plant'), DashIfBlank(PlantText(Info)));
+    Item := AList.Add(Tr('personal.info.vinCategory', 'VIN'),
+      Tr('personal.info.checkDigit', 'Check digit'), '', kvkChip);
+    if Info.CheckDigitValid then
+    begin
+      Item.Value := Tr('personal.info.checkDigitValid', 'Valid');
+      Item.Tone := skSuccess;
+    end
+    else
+    begin
+      Item.Value := Tr('personal.info.checkDigitUnknown', 'Not confirmed');
+      Item.Tone := skWarning;
+    end;
+  finally
+    AList.EndUpdate;
+  end;
+end;
+
+function Mode09DetailText(const AText, ACVN: string; AHasCVN: Boolean): string;
+begin
+  Result := DashIfBlank(AText);
+  if AHasCVN then
+    Result := Result + '  ·  CVN ' + ACVN
+  else
+    Result := Result + '  ·  CVN —';
+end;
+
+procedure FillEcuGrid(AGrid: TOBDDataGrid; const AReport: TOBDVehicleInfoReport);
+var
+  I: Integer;
+  Row: Integer;
+
+  procedure AddRow(const AEcu, AKind, ADetail: string; ATone: TOBDStatusKind);
+  begin
+    Row := AGrid.AddRow([AEcu, AKind, ADetail]);
+    AGrid.CellTone[1, Row] := ATone;
+    AGrid.RowAccent[Row] := ATone in [skAccent, skSuccess];
+  end;
+
+begin
+  AGrid.BeginUpdate;
+  try
+    AGrid.Clear;
+    AGrid.EmptyTitle := Tr('personal.info.noEcusTitle', 'No ECU Mode 09 data');
+    AGrid.EmptyHint := Tr('personal.info.noEcusHint',
+      'Read vehicle information to list responding control units.');
+
+    for I := 0 to High(AReport.VINs) do
+      AddRow(EcuLabel(AReport.VINs[I].Ecu, AReport.VINs[I].EcuId),
+        Tr('personal.info.kindVin', 'VIN'), DashIfBlank(AReport.VINs[I].VIN),
+        skSuccess);
+    for I := 0 to High(AReport.EcuNames) do
+      AddRow(EcuLabel(AReport.EcuNames[I].Ecu, AReport.EcuNames[I].EcuId),
+        Tr('personal.info.kindEcuName', 'ECU name'),
+        DashIfBlank(Trim(AReport.EcuNames[I].Acronym + ' ' +
+        AReport.EcuNames[I].Name)), skAccent);
+    for I := 0 to High(AReport.Calibrations) do
+      AddRow(EcuLabel(AReport.Calibrations[I].Ecu,
+        AReport.Calibrations[I].EcuId),
+        Tr('personal.info.kindCalibration', 'Calibration'),
+        Mode09DetailText(AReport.Calibrations[I].CalibrationId,
+        AReport.Calibrations[I].CVN, AReport.Calibrations[I].HasCVN), skAccent);
+    for I := 0 to High(AReport.SerialNumbers) do
+      AddRow(EcuLabel(AReport.SerialNumbers[I].Ecu,
+        AReport.SerialNumbers[I].EcuId),
+        Tr('personal.info.kindSerial', 'Serial'),
+        DashIfBlank(AReport.SerialNumbers[I].Text), skNeutral);
+    for I := 0 to High(AReport.TypeApprovals) do
+      AddRow(EcuLabel(AReport.TypeApprovals[I].Ecu,
+        AReport.TypeApprovals[I].EcuId),
+        Tr('personal.info.kindTypeApproval', 'Type approval'),
+        DashIfBlank(AReport.TypeApprovals[I].Text), skNeutral);
+  finally
+    AGrid.EndUpdate;
+  end;
+end;
+
+procedure FillMode09List(AList: TOBDKeyValueList;
+  const AReport: TOBDVehicleInfoReport);
+var
+  I: Integer;
+begin
+  AList.BeginUpdate;
+  try
+    AList.Clear;
+    AList.Add(Tr('personal.info.summaryCategory', 'Summary'),
+      Tr('personal.info.source', 'Source'), VehicleInfoSourceText(AReport.Source));
+    AList.Add(Tr('personal.info.summaryCategory', 'Summary'),
+      Tr('personal.info.vin', 'VIN'), DashIfBlank(AReport.VIN), kvkMono);
+    AList.Add(Tr('personal.info.summaryCategory', 'Summary'),
+      Tr('personal.info.vinRecords', 'VIN records'),
+      IntToStr(Length(AReport.VINs)));
+    AList.Add(Tr('personal.info.summaryCategory', 'Summary'),
+      Tr('personal.info.ecuNames', 'ECU names'),
+      IntToStr(Length(AReport.EcuNames)));
+    AList.Add(Tr('personal.info.summaryCategory', 'Summary'),
+      Tr('personal.info.calibrations', 'Calibrations'),
+      IntToStr(Length(AReport.Calibrations)));
+    AList.Add(Tr('personal.info.summaryCategory', 'Summary'),
+      Tr('personal.info.serialNumbers', 'Serial numbers'),
+      IntToStr(Length(AReport.SerialNumbers)));
+    AList.Add(Tr('personal.info.summaryCategory', 'Summary'),
+      Tr('personal.info.typeApprovals', 'Type approvals'),
+      IntToStr(Length(AReport.TypeApprovals)));
+
+    for I := 0 to High(AReport.Calibrations) do
+      AList.Add(Tr('personal.info.calibrationCategory', 'Calibration IDs and CVNs'),
+        EcuLabel(AReport.Calibrations[I].Ecu, AReport.Calibrations[I].EcuId),
+        Mode09DetailText(AReport.Calibrations[I].CalibrationId,
+        AReport.Calibrations[I].CVN, AReport.Calibrations[I].HasCVN), kvkMono);
+    for I := 0 to High(AReport.SerialNumbers) do
+      AList.Add(Tr('personal.info.serialCategory', 'Engine serial numbers'),
+        EcuLabel(AReport.SerialNumbers[I].Ecu, AReport.SerialNumbers[I].EcuId),
+        DashIfBlank(AReport.SerialNumbers[I].Text), kvkMono);
+    for I := 0 to High(AReport.TypeApprovals) do
+      AList.Add(Tr('personal.info.approvalCategory', 'Type approval numbers'),
+        EcuLabel(AReport.TypeApprovals[I].Ecu, AReport.TypeApprovals[I].EcuId),
+        DashIfBlank(AReport.TypeApprovals[I].Text), kvkMono);
+  finally
+    AList.EndUpdate;
+  end;
+end;
+
 { TfrmPageInfo }
 
 constructor TfrmPageInfo.Create(AOwner: TComponent);
@@ -280,134 +447,173 @@ begin
 end;
 
 procedure TfrmPageInfo.BuildUI;
+
+  function NewText(AParent: TWinControl; AStyle: TOBDDialogTextStyle;
+    const ACaption: string; AWordWrap: Boolean = False): TOBDDialogText;
+  begin
+    Result := TOBDDialogText.Create(Self);
+    Result.Parent := AParent;
+    Result.Style := AStyle;
+    Result.Caption := ACaption;
+    Result.WordWrap := AWordWrap;
+  end;
+
+  function NewButton(AParent: TWinControl; AKind: TOBDButtonKind;
+    AGlyph: TOBDGlyph; const ACaption: string; AHandler: TNotifyEvent): TOBDButton;
+  begin
+    Result := TOBDButton.Create(Self);
+    Result.Parent := AParent;
+    Result.AutoSize := False;
+    Result.Kind := AKind;
+    Result.Glyph := AGlyph;
+    Result.Caption := ACaption;
+    Result.OnClick := AHandler;
+  end;
+
+  function NewCard(AParent: TWinControl; const ATitle: string;
+    AEdge: TOBDCardEdge = ceNone): TOBDCard;
+  begin
+    Result := TOBDCard.Create(Self);
+    Result.Parent := AParent;
+    Result.Title := ATitle;
+    Result.StatusEdge := AEdge;
+    Result.Padding.SetBounds(16, 8, 16, 14);
+  end;
+
 begin
   Align := alClient;
   ParentBackground := False;
 
-  pnlHeader := TPanel.Create(Self);
-  pnlHeader.Parent := Self;
-  pnlHeader.Align := alTop;
-  pnlHeader.Height := 76;
-  pnlHeader.BevelOuter := bvNone;
-  pnlHeader.ParentBackground := False;
-  pnlHeader.OnResize := HeaderResize;
+  FTitle := NewText(Self, dtsHeading, '');
+  FSubtitle := NewText(Self, dtsSubtle, '', True);
+  FButtonSave := NewButton(Self, bkSecondary, glSave, '', SaveClicked);
+  FButtonCopy := NewButton(Self, bkSecondary, glCopy, '', CopyClicked);
+  FButtonRead := NewButton(Self, bkPrimary, glRead, '', ReadClicked);
+  FButtonRead.Default := True;
 
-  lblTitle := TLabel.Create(Self);
-  lblTitle.Parent := pnlHeader;
-  lblTitle.Left := 16;
-  lblTitle.Top := 10;
-  lblTitle.Font.Size := 13;
-  lblTitle.Font.Style := [fsBold];
+  FOfflineCard := NewCard(Self, '', ceAccent);
+  FOfflineCard.ShowHeader := False;
+  FOfflineCard.Padding.SetBounds(24, 24, 24, 24);
+  FOfflineTitle := NewText(FOfflineCard, dtsHeading, '');
+  FOfflineText := NewText(FOfflineCard, dtsBody, '', True);
+  FButtonConnect := NewButton(FOfflineCard, bkPrimary, glConnect, '',
+    ConnectClicked);
 
-  lblSubtitle := TLabel.Create(Self);
-  lblSubtitle.Parent := pnlHeader;
-  lblSubtitle.Left := 16;
-  lblSubtitle.Top := 38;
-  lblSubtitle.Width := 520;
+  FScroll := TOBDScrollBox.Create(Self);
+  FScroll.Parent := Self;
+  FScroll.LineStep := 72;
 
-  btnSave := TButton.Create(Self);
-  btnSave.Parent := pnlHeader;
-  btnSave.Top := 22;
-  btnSave.Width := 112;
-  btnSave.OnClick := SaveClicked;
+  FECUCard := NewCard(FScroll, '', ceAccent);
+  FECUGrid := TOBDDataGrid.Create(Self);
+  FECUGrid.Parent := FECUCard;
+  FECUGrid.Align := alClient;
+  FECUGrid.BorderVisible := False;
+  FECUGrid.EmptyGlyph := glEcu;
+  with FECUGrid.DataColumns.Add do
+  begin
+    Caption := 'ECU';
+    Width := 92;
+    Sortable := False;
+  end;
+  with FECUGrid.DataColumns.Add do
+  begin
+    Caption := 'Data';
+    Width := 110;
+    Kind := dckChip;
+    Sortable := False;
+  end;
+  with FECUGrid.DataColumns.Add do
+  begin
+    Caption := 'Details';
+    Width := 0;
+    Sortable := False;
+  end;
 
-  btnCopy := TButton.Create(Self);
-  btnCopy.Parent := pnlHeader;
-  btnCopy.Top := 22;
-  btnCopy.Width := 104;
-  btnCopy.OnClick := CopyClicked;
+  FVINCard := NewCard(FScroll, '', ceSuccess);
+  FVINList := TOBDKeyValueList.Create(Self);
+  FVINList.Parent := FVINCard;
+  FVINList.Align := alClient;
+  FVINList.KeyWidth := 132;
+  FVINList.CopyOnHover := True;
+  FVINList.WordWrap := True;
 
-  btnRead := TButton.Create(Self);
-  btnRead.Parent := pnlHeader;
-  btnRead.Top := 22;
-  btnRead.Width := 104;
-  btnRead.Default := True;
-  btnRead.OnClick := ReadClicked;
-
-  pnlOffline := TPanel.Create(Self);
-  pnlOffline.Parent := Self;
-  pnlOffline.Align := alClient;
-  pnlOffline.BevelOuter := bvNone;
-  pnlOffline.ParentBackground := False;
-
-  lblOfflineTitle := TLabel.Create(Self);
-  lblOfflineTitle.Parent := pnlOffline;
-  lblOfflineTitle.Left := 40;
-  lblOfflineTitle.Top := 72;
-  lblOfflineTitle.Font.Size := 14;
-  lblOfflineTitle.Font.Style := [fsBold];
-
-  lblOfflineText := TLabel.Create(Self);
-  lblOfflineText.Parent := pnlOffline;
-  lblOfflineText.Left := 40;
-  lblOfflineText.Top := 108;
-  lblOfflineText.Width := 560;
-  lblOfflineText.WordWrap := True;
-
-  btnConnect := TButton.Create(Self);
-  btnConnect.Parent := pnlOffline;
-  btnConnect.Left := 40;
-  btnConnect.Top := 168;
-  btnConnect.Width := 120;
-  btnConnect.OnClick := ConnectClicked;
-
-  pnlContent := TPanel.Create(Self);
-  pnlContent.Parent := Self;
-  pnlContent.Align := alClient;
-  pnlContent.BevelOuter := bvNone;
-  pnlContent.ParentBackground := False;
-  pnlContent.OnResize := ContentResize;
-
-  grpVIN := TGroupBox.Create(Self);
-  grpVIN.Parent := pnlContent;
-  grpVIN.Padding.SetBounds(8, 18, 8, 8);
-  memVIN := TMemo.Create(Self);
-  memVIN.Parent := grpVIN;
-  memVIN.Align := alClient;
-  memVIN.ReadOnly := True;
-  memVIN.ScrollBars := ssVertical;
-
-  grpECUs := TGroupBox.Create(Self);
-  grpECUs.Parent := pnlContent;
-  grpECUs.Padding.SetBounds(8, 18, 8, 8);
-  lstECUs := TListBox.Create(Self);
-  lstECUs.Parent := grpECUs;
-  lstECUs.Align := alClient;
-
-  grpDetails := TGroupBox.Create(Self);
-  grpDetails.Parent := pnlContent;
-  grpDetails.Padding.SetBounds(8, 18, 8, 8);
-  memDetails := TMemo.Create(Self);
-  memDetails.Parent := grpDetails;
-  memDetails.Align := alClient;
-  memDetails.ReadOnly := True;
-  memDetails.ScrollBars := ssVertical;
+  FModeCard := NewCard(FScroll, '', ceNeutral);
+  FModeList := TOBDKeyValueList.Create(Self);
+  FModeList.Parent := FModeCard;
+  FModeList.Align := alClient;
+  FModeList.KeyWidth := 150;
+  FModeList.CopyOnHover := True;
+  FModeList.WordWrap := True;
 
   Translate;
-  ContentResize(pnlContent);
+  LayoutControls;
 end;
 
-procedure TfrmPageInfo.HeaderResize(Sender: TObject);
+procedure TfrmPageInfo.Resize;
 begin
-  btnSave.Left := pnlHeader.Width - btnSave.Width - 16;
-  btnCopy.Left := btnSave.Left - btnCopy.Width - 8;
-  btnRead.Left := btnCopy.Left - btnRead.Width - 8;
-  lblSubtitle.Width := btnRead.Left - lblSubtitle.Left - 16;
+  inherited;
+  LayoutControls;
 end;
 
-procedure TfrmPageInfo.ContentResize(Sender: TObject);
+procedure TfrmPageInfo.LayoutControls;
+const
+  Pad = 24;
+  Gutter = 16;
+  HeaderH = 96;
+  ButtonH = 40;
 var
-  Available: Integer;
-  LeftWidth: Integer;
+  ContentW: Integer;
+  LeftW: Integer;
+  RightW: Integer;
+  RightX: Integer;
+  Y: Integer;
+  ScrollY: Integer;
+  Wide: Boolean;
+
+  procedure Place(AControl: TControl; AX, AY, AW, AH: Integer);
+  begin
+    AControl.SetBounds(AX, AY - ScrollY, AW, AH);
+  end;
+
 begin
-  Available := pnlContent.ClientWidth - 48;
-  if Available < 640 then
-    Available := 640;
-  LeftWidth := Available div 2;
-  grpECUs.SetBounds(16, 16, LeftWidth, 220);
-  grpDetails.SetBounds(16, 248, LeftWidth, pnlContent.ClientHeight - 264);
-  grpVIN.SetBounds(32 + LeftWidth, 16, Available - LeftWidth,
-    pnlContent.ClientHeight - 32);
+  if ClientWidth <= 0 then
+    Exit;
+
+  FTitle.SetBounds(Pad, 18, Max(160, ClientWidth - 2 * Pad - 360), 28);
+  FSubtitle.SetBounds(Pad, 50, Max(160, ClientWidth - 2 * Pad - 360), 36);
+  FButtonSave.SetBounds(ClientWidth - Pad - 118, 28, 118, ButtonH);
+  FButtonCopy.SetBounds(FButtonSave.Left - Gutter - 112, 28, 112, ButtonH);
+  FButtonRead.SetBounds(FButtonCopy.Left - Gutter - 126, 28, 126, ButtonH);
+
+  FOfflineCard.SetBounds(Pad, HeaderH + Pad, Min(680, Max(320,
+    ClientWidth - 2 * Pad)), 194);
+  FOfflineTitle.SetBounds(24, 24, FOfflineCard.Width - 48, 30);
+  FOfflineText.SetBounds(24, 66, FOfflineCard.Width - 48, 52);
+  FButtonConnect.SetBounds(24, 132, 128, ButtonH);
+
+  FScroll.SetBounds(0, HeaderH, ClientWidth, Max(0, ClientHeight - HeaderH));
+  ScrollY := FScroll.ScrollPosition;
+  ContentW := Max(320, FScroll.ClientWidth - 2 * Pad);
+  Wide := ContentW >= 900;
+
+  if Wide then
+  begin
+    LeftW := Min(430, (ContentW - Gutter) div 2);
+    RightW := ContentW - Gutter - LeftW;
+    RightX := Pad + LeftW + Gutter;
+    Place(FECUCard, Pad, Pad, LeftW, 350);
+    Place(FVINCard, RightX, Pad, RightW, 320);
+    Place(FModeCard, RightX, Pad + 320 + Gutter, RightW, 390);
+  end
+  else
+  begin
+    Y := Pad;
+    Place(FECUCard, Pad, Y, ContentW, 350);
+    Inc(Y, 350 + Gutter);
+    Place(FVINCard, Pad, Y, ContentW, 320);
+    Inc(Y, 320 + Gutter);
+    Place(FModeCard, Pad, Y, ContentW, 390);
+  end;
 end;
 
 function TfrmPageInfo.PageKey: string;
@@ -454,22 +660,25 @@ end;
 
 procedure TfrmPageInfo.Translate;
 begin
-  lblTitle.Caption := Tr('personal.info.title', 'Vehicle information');
-  lblSubtitle.Caption := Tr('personal.info.subtitle',
+  FTitle.Caption := Tr('personal.info.title', 'Vehicle information');
+  FSubtitle.Caption := Tr('personal.info.subtitle',
     'Mode 09 data, control units, calibration IDs, CVNs and local VIN decode.');
-  btnRead.Caption := Tr('personal.info.read', 'Read again');
-  btnCopy.Caption := Tr('personal.info.copy', 'Copy all');
-  btnSave.Caption := Tr('personal.info.save', 'Save text');
-  lblOfflineTitle.Caption := Tr('personal.info.offlineTitle',
+  FButtonRead.Caption := Tr('personal.info.read', 'Read again');
+  FButtonCopy.Caption := Tr('personal.info.copy', 'Copy all');
+  FButtonSave.Caption := Tr('personal.info.save', 'Save text');
+  FOfflineTitle.Caption := Tr('personal.info.offlineTitle',
     'Connect to read vehicle information');
-  lblOfflineText.Caption := Tr('personal.info.offlineText',
+  FOfflineText.Caption := Tr('personal.info.offlineText',
     'Vehicle information is reported by emissions control units over Mode 09.');
-  btnConnect.Caption := Tr('personal.info.connect', 'Connect');
-  grpVIN.Caption := Tr('personal.info.vinCard', 'VIN decoder');
-  grpECUs.Caption := Tr('personal.info.ecuCard', 'ECUs responding');
-  grpDetails.Caption := Tr('personal.info.detailsCard',
-    'Calibration IDs, CVNs and ECU names');
+  FButtonConnect.Caption := Tr('personal.info.connect', 'Connect');
+  FECUCard.Title := Tr('personal.info.ecuCard', 'Control units');
+  FVINCard.Title := Tr('personal.info.vinCard', 'VIN decoder');
+  FModeCard.Title := Tr('personal.info.detailsCard', 'Mode 09 report');
+  FECUGrid.DataColumns[0].Caption := Tr('personal.info.ecuColumn', 'ECU');
+  FECUGrid.DataColumns[1].Caption := Tr('personal.info.dataColumn', 'Data');
+  FECUGrid.DataColumns[2].Caption := Tr('personal.info.detailsColumn', 'Details');
   UpdateView;
+  LayoutControls;
 end;
 
 procedure TfrmPageInfo.UpdateView;
@@ -477,34 +686,72 @@ var
   Online: Boolean;
 begin
   Online := Assigned(FHost) and FHost.Connected;
-  pnlOffline.Visible := not Online;
-  pnlContent.Visible := Online;
-  btnRead.Enabled := Online and not FReading;
-  btnCopy.Enabled := Online and FReportValid and not FReading;
-  btnSave.Enabled := Online and FReportValid and not FReading;
+  FOfflineCard.Visible := not Online;
+  FScroll.Visible := Online;
+  FButtonRead.Enabled := Online and not FReading;
+  FButtonCopy.Enabled := Online and FReportValid and not FReading;
+  FButtonSave.Enabled := Online and FReportValid and not FReading;
+  if FReading then
+    FButtonRead.Caption := Tr('personal.info.readingButton', 'Reading…')
+  else
+    FButtonRead.Caption := Tr('personal.info.read', 'Read again');
+
   if not Online then
+  begin
+    FSubtitle.Caption := Tr('personal.info.subtitle',
+      'Mode 09 data, control units, calibration IDs, CVNs and local VIN decode.');
+    LayoutControls;
     Exit;
+  end;
 
   if FReading then
   begin
-    memVIN.Lines.Text := 'Reading Mode 09 vehicle information…';
-    lstECUs.Items.Text := '';
-    memDetails.Lines.Text := '';
+    FSubtitle.Caption := Tr('personal.info.reading',
+      'Reading Mode 09 vehicle information…');
+    FVINList.Clear;
+    FModeList.Clear;
+    FECUGrid.BeginUpdate;
+    try
+      FECUGrid.Clear;
+      FECUGrid.EmptyTitle := Tr('personal.info.readingTitle', 'Reading vehicle');
+      FECUGrid.EmptyHint := Tr('personal.info.readingHint',
+        'Waiting for control units to answer Mode 09.');
+    finally
+      FECUGrid.EndUpdate;
+    end;
+    LayoutControls;
     Exit;
   end;
 
   if not FReportValid then
   begin
-    memVIN.Lines.Text := 'Press Read again to ask the vehicle for Mode 09 data.';
-    lstECUs.Items.Text := '';
-    memDetails.Lines.Text := '';
+    FSubtitle.Caption := Tr('personal.info.subtitle',
+      'Mode 09 data, control units, calibration IDs, CVNs and local VIN decode.');
+    FVINList.Clear;
+    FModeList.Clear;
+    FECUGrid.BeginUpdate;
+    try
+      FECUGrid.Clear;
+      FECUGrid.EmptyTitle := Tr('personal.info.emptyTitle', 'Read vehicle information');
+      FECUGrid.EmptyHint := Tr('personal.info.emptyHint',
+        'Press Read again to ask the vehicle for VIN and calibration data.');
+    finally
+      FECUGrid.EndUpdate;
+    end;
+    LayoutControls;
     Exit;
   end;
 
-  FillVINLines(memVIN.Lines, FReport.VIN);
-  AddReportEcus(FReport, lstECUs.Items);
-  FillMode09Lines(memDetails.Lines, FReport);
+  FSubtitle.Caption := Format(Tr('personal.info.readSummary',
+    'Mode 09 report read from %d data group(s).'),
+    [Length(FReport.VINs) + Length(FReport.EcuNames) +
+    Length(FReport.Calibrations) + Length(FReport.SerialNumbers) +
+    Length(FReport.TypeApprovals)]);
+  AddVINDecodeRows(FVINList, FReport.VIN);
+  FillEcuGrid(FECUGrid, FReport);
+  FillMode09List(FModeList, FReport);
   FLastText := VehicleInfoReportText(FReport);
+  LayoutControls;
 end;
 
 procedure TfrmPageInfo.ReadInfo;
@@ -591,14 +838,17 @@ begin
 end;
 
 function TfrmPageInfo.CommandEnabled(ACommand: TPersonalCommand): Boolean;
+var
+  Online: Boolean;
 begin
+  Online := Assigned(FHost) and FHost.Connected;
   case ACommand of
     pcReadVehicleInfo:
-      Result := btnRead.Enabled;
+      Result := Online and not FReading;
     pcCopyVehicleInfo:
-      Result := btnCopy.Enabled;
+      Result := Online and FReportValid and not FReading;
     pcSaveVehicleInfo:
-      Result := btnSave.Enabled;
+      Result := Online and FReportValid and not FReading;
   else
     Result := False;
   end;

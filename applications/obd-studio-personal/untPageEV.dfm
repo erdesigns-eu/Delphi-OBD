@@ -19,27 +19,30 @@ object frmPageEV: TfrmPageEV
     ParentColor = True
     ShowCaption = False
     TabOrder = 0
-    object lblTitle: TLabel
+    object lblTitle: TOBDDialogText
       Left = 0
       Top = 4
-      Width = 53
-      Height = 15
+      Width = 320
+      Height = 26
       Caption = 'EV battery'
+      Style = dtsHeading
     end
-    object lblSubtitle: TLabel
+    object lblSubtitle: TOBDDialogText
       Left = 0
       Top = 31
-      Width = 245
-      Height = 15
+      Width = 420
+      Height = 20
       Caption = 'High-voltage battery health and cell voltages'
+      Style = dtsSubtle
     end
-    object lblVendor: TLabel
+    object lblVendor: TOBDDialogText
       Left = 616
       Top = 15
-      Width = 72
-      Height = 15
+      Width = 82
+      Height = 18
       Anchors = [akTop, akRight]
       Caption = 'Vendor profile'
+      Style = dtsCaps
     end
     object cmbVendor: TOBDComboBox
       Left = 700

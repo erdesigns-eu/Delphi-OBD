@@ -23,6 +23,9 @@ uses
   ERD.I18n,
   ERD.UI.Toast,
   ERD.UI.Dialogs,
+  ERD.UI.Paint,
+  ERD.UI.Buttons,
+  ERD.UI.Edits,
   ERD.UI.Units,
   ERD.UI.Control,
   ERD.UI.Dashboard,
@@ -45,14 +48,14 @@ type
     FPendingCol: Integer;
     FPendingRow: Integer;
     pnlTop: TPanel;
-    lblTitle: TLabel;
-    lblSummary: TLabel;
-    cmbPID: TComboBox;
-    cmbGauge: TComboBox;
-    btnAdd: TButton;
-    btnEdit: TButton;
-    btnSave: TButton;
-    btnReset: TButton;
+    lblTitle: TOBDDialogText;
+    lblSummary: TOBDDialogText;
+    cmbPID: TOBDComboBox;
+    cmbGauge: TOBDComboBox;
+    btnAdd: TOBDButton;
+    btnEdit: TOBDButton;
+    btnSave: TOBDButton;
+    btnReset: TOBDButton;
     Dashboard: TOBDDashboard;
     procedure BuildUI;
     procedure TopResize(Sender: TObject);
@@ -216,59 +219,62 @@ begin
   pnlTop.Height := 76;
   pnlTop.BevelOuter := bvNone;
   pnlTop.ParentBackground := False;
+  pnlTop.ParentColor := True;
+  pnlTop.ShowCaption := False;
   pnlTop.OnResize := TopResize;
 
-  lblTitle := TLabel.Create(Self);
+  lblTitle := TOBDDialogText.Create(Self);
   lblTitle.Parent := pnlTop;
   lblTitle.Left := 16;
-  lblTitle.Top := 10;
-  lblTitle.Font.Style := [fsBold];
-  lblTitle.Font.Height := -18;
+  lblTitle.Top := 8;
+  lblTitle.Width := 340;
+  lblTitle.Height := 28;
+  lblTitle.Style := dtsHeading;
 
-  lblSummary := TLabel.Create(Self);
+  lblSummary := TOBDDialogText.Create(Self);
   lblSummary.Parent := pnlTop;
   lblSummary.Left := 16;
   lblSummary.Top := 38;
-  lblSummary.Font.Color := clGrayText;
+  lblSummary.Width := 420;
+  lblSummary.Height := 22;
+  lblSummary.Style := dtsSubtle;
 
-  cmbPID := TComboBox.Create(Self);
+  cmbPID := TOBDComboBox.Create(Self);
   cmbPID.Parent := pnlTop;
-  cmbPID.Style := csDropDownList;
   cmbPID.Top := 22;
   cmbPID.Width := 230;
 
-  cmbGauge := TComboBox.Create(Self);
+  cmbGauge := TOBDComboBox.Create(Self);
   cmbGauge.Parent := pnlTop;
-  cmbGauge.Style := csDropDownList;
   cmbGauge.Top := 22;
   cmbGauge.Width := 112;
-  cmbGauge.Items.Add('Dial gauge');
-  cmbGauge.Items.Add('Bar gauge');
-  cmbGauge.Items.Add('Value tile');
-  cmbGauge.ItemIndex := 2;
 
-  btnAdd := TButton.Create(Self);
+  btnAdd := TOBDButton.Create(Self);
   btnAdd.Parent := pnlTop;
-  btnAdd.Top := 22;
+  btnAdd.Top := 20;
   btnAdd.Width := 74;
+  btnAdd.Kind := bkPrimary;
   btnAdd.OnClick := AddClicked;
 
-  btnEdit := TButton.Create(Self);
+  btnEdit := TOBDButton.Create(Self);
   btnEdit.Parent := pnlTop;
-  btnEdit.Top := 22;
+  btnEdit.Top := 20;
   btnEdit.Width := 84;
+  btnEdit.Kind := bkSecondary;
   btnEdit.OnClick := EditClicked;
 
-  btnSave := TButton.Create(Self);
+  btnSave := TOBDButton.Create(Self);
   btnSave.Parent := pnlTop;
-  btnSave.Top := 22;
+  btnSave.Top := 20;
   btnSave.Width := 78;
+  btnSave.Kind := bkSecondary;
   btnSave.OnClick := SaveClicked;
 
-  btnReset := TButton.Create(Self);
+  btnReset := TOBDButton.Create(Self);
   btnReset.Parent := pnlTop;
-  btnReset.Top := 22;
+  btnReset.Top := 20;
   btnReset.Width := 82;
+  btnReset.Kind := bkSecondary;
   btnReset.OnClick := ResetClicked;
 
   Dashboard := TOBDDashboard.Create(Self);
@@ -302,6 +308,8 @@ begin
   cmbGauge.Left := X - cmbGauge.Width;
   X := cmbGauge.Left - 8;
   cmbPID.Left := X - cmbPID.Width;
+  lblTitle.Width := Max(120, cmbPID.Left - lblTitle.Left - 16);
+  lblSummary.Width := lblTitle.Width;
 end;
 
 function TfrmPageDashboard.Connected: Boolean;
@@ -350,13 +358,31 @@ begin
 end;
 
 procedure TfrmPageDashboard.Translate;
+var
+  GaugeIndex: Integer;
 begin
+  GaugeIndex := cmbGauge.ItemIndex;
+  cmbGauge.Items.BeginUpdate;
+  try
+    cmbGauge.Items.Clear;
+    cmbGauge.Items.Add(Tr('personal.dashboard.gaugeDial', 'Dial gauge'));
+    cmbGauge.Items.Add(Tr('personal.dashboard.gaugeBar', 'Bar gauge'));
+    cmbGauge.Items.Add(Tr('personal.dashboard.gaugeValue', 'Value tile'));
+  finally
+    cmbGauge.Items.EndUpdate;
+  end;
+  if GaugeIndex < 0 then
+    cmbGauge.ItemIndex := 2
+  else
+    cmbGauge.ItemIndex := GaugeIndex;
+
   lblTitle.Caption := Tr('personal.dashboard.title', 'Dashboard');
   btnAdd.Caption := Tr('personal.dashboard.add', 'Add');
   btnSave.Caption := Tr('personal.dashboard.save', 'Save');
   btnReset.Caption := Tr('personal.dashboard.reset', 'Defaults');
   DashboardEditModeChanged(Dashboard);
   UpdateSummary;
+  TopResize(pnlTop);
 end;
 
 function TfrmPageDashboard.LayoutFileName: string;

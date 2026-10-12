@@ -17,6 +17,7 @@ uses
   untPersonalPage in 'untPersonalPage.pas',
   untSettings in 'untSettings.pas',
   untSession in 'untSession.pas',
+  untGarage in 'untGarage.pas',
   untWelcome in 'untWelcome.pas' {frmWelcome},
   untPageOverview in 'untPageOverview.pas' {frmPageOverview: TFrame},
   untPageCodes in 'untPageCodes.pas' {frmPageCodes: TFrame},
@@ -31,7 +32,8 @@ uses
   untPageAdapter in 'untPageAdapter.pas' {frmPageAdapter: TFrame},
   untPageRecordings in 'untPageRecordings.pas' {frmPageRecordings: TFrame},
   untPageConsole in 'untPageConsole.pas' {frmPageConsole: TFrame},
-  untPageSettings in 'untPageSettings.pas' {frmPageSettings: TFrame};
+  untPageSettings in 'untPageSettings.pas' {frmPageSettings: TFrame},
+  untPageVehicles in 'untPageVehicles.pas' {frmPageVehicles: TFrame};
 
 {$R *.res}
 

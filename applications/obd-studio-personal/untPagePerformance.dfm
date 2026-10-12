@@ -19,19 +19,21 @@ object frmPagePerformance: TfrmPagePerformance
     ParentColor = True
     ShowCaption = False
     TabOrder = 0
-    object lblTitle: TLabel
+    object lblTitle: TOBDDialogText
       Left = 0
       Top = 4
-      Width = 68
-      Height = 15
+      Width = 320
+      Height = 26
       Caption = 'Performance'
+      Style = dtsHeading
     end
-    object lblSubtitle: TLabel
+    object lblSubtitle: TOBDDialogText
       Left = 0
       Top = 31
-      Width = 330
-      Height = 15
+      Width = 480
+      Height = 20
       Caption = 'Acceleration runs and estimated power from OBD speed data'
+      Style = dtsSubtle
     end
     object cmbRunType: TOBDComboBox
       Left = 652
@@ -281,26 +283,29 @@ object frmPagePerformance: TfrmPagePerformance
       Padding.Right = 16
       Padding.Bottom = 12
       TabOrder = 1
-      object lblMass: TLabel
+      object lblMass: TOBDDialogText
         Left = 16
         Top = 64
-        Width = 84
-        Height = 15
+        Width = 120
+        Height = 18
         Caption = 'Mass with driver'
+        Style = dtsCaps
       end
-      object lblDragArea: TLabel
+      object lblDragArea: TOBDDialogText
         Left = 146
         Top = 64
-        Width = 73
-        Height = 15
+        Width = 120
+        Height = 18
         Caption = 'Drag area CdA'
+        Style = dtsCaps
       end
-      object lblRolling: TLabel
+      object lblRolling: TOBDDialogText
         Left = 276
         Top = 64
-        Width = 92
-        Height = 15
+        Width = 140
+        Height = 18
         Caption = 'Rolling resistance'
+        Style = dtsCaps
       end
       object edtMass: TOBDEdit
         Left = 16

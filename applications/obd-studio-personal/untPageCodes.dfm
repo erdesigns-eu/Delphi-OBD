@@ -26,25 +26,21 @@ object frmPageCodes: TfrmPageCodes
       ParentColor = True
       ShowCaption = False
       TabOrder = 0
-      object lblTitle: TLabel
+      object lblTitle: TOBDDialogText
         Left = 0
         Top = 2
-        Width = 119
-        Height = 25
+        Width = 300
+        Height = 26
         Caption = 'Trouble codes'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -19
-        Font.Name = 'Segoe UI'
-        Font.Style = [fsBold]
-        ParentFont = False
+        Style = dtsHeading
       end
-      object lblSubtitle: TLabel
+      object lblSubtitle: TOBDDialogText
         Left = 0
         Top = 33
-        Width = 351
-        Height = 15
+        Width = 560
+        Height = 20
         Caption = 'Stored, pending and permanent faults, freeze frame and UDS details.'
+        Style = dtsSubtle
       end
       object segView: TOBDSegmented
         Left = 430

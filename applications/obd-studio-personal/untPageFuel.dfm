@@ -19,19 +19,21 @@ object frmPageFuel: TfrmPageFuel
     ParentColor = True
     ShowCaption = False
     TabOrder = 0
-    object lblTitle: TLabel
+    object lblTitle: TOBDDialogText
       Left = 0
       Top = 4
-      Width = 76
-      Height = 15
+      Width = 320
+      Height = 26
       Caption = 'Fuel economy'
+      Style = dtsHeading
     end
-    object lblSubtitle: TLabel
+    object lblSubtitle: TOBDDialogText
       Left = 0
       Top = 31
-      Width = 230
-      Height = 15
+      Width = 420
+      Height = 20
       Caption = 'Live consumption, trip fuel use and cost'
+      Style = dtsSubtle
     end
     object btnResetTrip: TOBDButton
       Left = 924
@@ -210,19 +212,21 @@ object frmPageFuel: TfrmPageFuel
       Padding.Right = 16
       Padding.Bottom = 12
       TabOrder = 1
-      object lblFuelPrice: TLabel
+      object lblFuelPrice: TOBDDialogText
         Left = 16
         Top = 194
-        Width = 50
-        Height = 15
+        Width = 110
+        Height = 18
         Caption = 'Fuel price'
+        Style = dtsCaps
       end
-      object lblCurrency: TLabel
+      object lblCurrency: TOBDDialogText
         Left = 206
         Top = 194
-        Width = 49
-        Height = 15
+        Width = 110
+        Height = 18
         Caption = 'Currency'
+        Style = dtsCaps
       end
       object kvMeasure: TOBDKeyValueList
         Left = 16

@@ -181,6 +181,7 @@ def note(c, x, y, w, text, icon='info'):
 # (key, glyph, caption, badge)
 NAV = [
     ('Vehicle', [('overview', 'vehicle', 'Overview', None),
+                 ('vehicles', 'job', 'My vehicles', None),
                  ('codes', 'codes', 'Trouble codes', ('5', 'Danger')),
                  ('readiness', 'readiness', 'Readiness', ('2', 'Warning')),
                  ('live', 'live', 'Live data', None),
@@ -2369,7 +2370,7 @@ def settings_page(c, x, y, w):
     ry2 += 16
     sw = [('Keep crash logs on this PC', True),
           ('Keep a connection log', False),
-          ('Remember recent vehicles', True)]
+          ('Remember my vehicles and keep a history per car', True)]
     ph = dn['head'] + dn['row'] * len(sw) + dn['foot']
     card(c, rx, ry2, cw, ph)
     yy = card_head(c, rx, ry2, cw, 'Privacy', 'privacy')
@@ -2400,10 +2401,157 @@ def draw_settings(c):
     return shell(c, 'settings', settings_page)
 
 
+# --------------------------------------------------------------------------
+# My vehicles: every car with its own history
+# --------------------------------------------------------------------------
+
+# (current, name, plate, last connected)
+GARAGE = [(True, 'Golf', 'XK-123-B', '2026-10-12'),
+          (False, 'Polo of Anna', 'GH-451-L', '2026-09-28'),
+          (False, 'Kona Electric', 'P-882-ZT', '2026-08-14'),
+          (False, 'Demo car', '', '2026-10-01')]
+
+# (date, event, tone, summary)
+HISTORY = [('2026-10-12 18:47', 'Scan', 'Danger',
+            '5 trouble codes, MIL on, 2 monitors not ready'),
+           ('2026-10-12 18:44', 'Codes read', 'Danger',
+            'P0401, P0402, P2002 and 2 more'),
+           ('2026-10-12 18:43', 'Readiness', 'Warning',
+            'Not ready for the APK: EGR, catalyst'),
+           ('2026-10-02 08:15', 'Note', 'Accent',
+            'Oil and filter changed at 182,000 km'),
+           ('2026-09-21 17:02', 'Codes cleared', 'Success',
+            'Cleared 2 codes after replacing the EGR valve'),
+           ('2026-09-21 16:40', 'Monitor tests', 'Danger',
+            '1 test failed: EGR flow'),
+           ('2026-08-30 10:12', 'Recording', None,
+            'Commute, 18 min, 24 sensors')]
+
+
+def garage_card(c, x, y, w, h):
+    p, dn = c.p, c.dn
+    rh = dn['row'] - 8
+    card(c, x, y, w, h)
+    ry = card_head(c, x, y, w, 'Vehicles', 'job')
+    c0, c1, c2, c3 = x + 16, x + 44, x + w - 210, x + w - 16
+    ry = colhead(c, x, ry, w, [(c1, 'Name'), (c2, 'Plate'),
+                               (c3, 'Last connected', 'rm')])
+    for i, (cur, name, plate, last) in enumerate(GARAGE):
+        mid = ry + rh / 2
+        if i == 0:
+            selected_row(c, x, ry, w, rh)
+        if cur:
+            glyph(c, 'check', c0 + 10, mid, p.accent_text, 0.9)
+        c.text(c1, mid, name, 12.5, p.ForegroundText,
+               'semibold' if i == 0 else 'regular')
+        c.text(c2, mid, plate, 12.5, p.GaugeLabel, 'mono')
+        c.text(c3, mid, last, 12.5, p.GaugeLabel, 'mono', anchor='rm')
+        ry += rh
+        row_line(c, x, ry, w)
+    note(c, x + 16, ry + 26, w - 32, 'Connecting picks the car by its VIN '
+         'and adds a car that is not in the list yet.')
+    footer(c, x, y, w, h, 'Vehicles: 4')
+
+
+def vehicle_details_card(c, x, y, w):
+    p, dn = c.p, c.dn
+    eh = dn['edit']
+    rh = 20 + eh + 12
+    h = dn['head'] + 12 + rh * 5 + 20 + 64 + 16 + dn['button'] + 16 + \
+        dn['foot']
+    card(c, x, y, w, h, edge=p.accent_text)
+    ry = card_head(c, x, y, w, 'Golf', 'vehicle',
+                   chips=[('CURRENT CAR', p.accent_text)]) + 12
+    cw = (w - 48) / 2
+    rows = [(('Name', 'Golf', False), ('Licence plate', 'XK-123-B', False)),
+            (('Make', 'Volkswagen', False), ('Model', 'Golf VII 1.6 TDI',
+                                             False)),
+            (('Model year', '2016', False), ('Engine (cc)', '1598', False)),
+            (('Fuel', 'Diesel', True),
+             ('Inspection country', 'Same as in Settings (NL)', True)),
+            (('VIN', 'WVWZZZAUZGW123456', False), None)]
+    for left, right in rows:
+        for i, f in enumerate((left, right)):
+            if f is None:
+                continue
+            fx = x + 16 + i * (cw + 16)
+            fw = cw if right is not None else w - 32
+            c.caps(fx, ry + 8, f[0])
+            edit_box(c, fx, ry + 20, fw, f[1], align='left', dropdown=f[2])
+        ry += rh
+    c.caps(x + 16, ry + 8, 'Notes')
+    c.rect(x + 16, ry + 20, w - 32, 64, fill=p.GaugeFace,
+           outline=p.NeutralLight)
+    para(c, x + 26, ry + 36, w - 52, 'Timing belt due at 210,000 km. '
+         'Winter tyres in the garage.', 12.5)
+    ry += 20 + 64 + 16
+    bx = x + 16
+    for t, kind, icn in (('Save changes', 'primary', 'save'),
+                         ('Delete vehicle', 'danger-outline', 'clear')):
+        bx += button(c, bx, ry, t, kind, icon=ic(icn)) + 8
+    footer(c, x, y, w, h, 'Added 2026-03-02  ·  Current car: new results '
+           'are saved in its history')
+    return y + h
+
+
+def history_card(c, x, y, w):
+    p, dn = c.p, c.dn
+    rh = dn['row'] - 8
+    h = dn['head'] + dn['colhead'] + rh * len(HISTORY) + 12 + 44 + \
+        dn['button'] + 16 + dn['foot']
+    card(c, x, y, w, h)
+    ry = card_head(c, x, y, w, 'History', 'clock')
+    c0, c1, c2 = x + 16, x + 160, x + 290
+    ry = colhead(c, x, ry, w, [(c0, 'Date'), (c1, 'Event'),
+                               (c2, 'Summary')])
+    for i, (d, ev, tone, text) in enumerate(HISTORY):
+        mid = ry + rh / 2
+        if i == 0:
+            selected_row(c, x, ry, w, rh)
+        c.text(c0, mid, d, 12, p.GaugeLabel, 'mono')
+        colr = getattr(p, tone) if tone and tone != 'Accent' else (
+            p.accent_text if tone else p.Subtle)
+        chip(c, c1, mid - 10, ev.upper(), colr)
+        c.text(c2, mid, text, 12.5, p.ForegroundText, max_w=x + w - 16 - c2)
+        ry += rh
+        row_line(c, x, ry, w)
+    ry += 12
+    para(c, x + 16, ry + 9, w - 32, '5 trouble codes, MIL on, 2 monitors '
+         'not ready. Ready for the APK: no.', 11.5, p.GaugeLabel, lh=18)
+    ry += 44
+    bx = x + 16
+    for t, kind, icn in (('Add note', 'secondary', 'edit'),
+                         ('Export history', 'secondary', 'export'),
+                         ('Clear history', 'danger-outline', 'clear')):
+        bx += button(c, bx, ry, t, kind, icon=ic(icn)) + 8
+    footer(c, x, y, w, h, 'Entries: 7  ·  kept on this PC, never uploaded')
+    return y + h
+
+
+def vehicles_page(c, x, y, w):
+    y, _ = page_head(c, x, y, w, 'My vehicles', 'Every car keeps its own '
+                     'history: scans, trouble codes, readiness, tests, '
+                     'recordings and your notes.',
+                     [('Add vehicle', 'primary', 'plus'),
+                      ('Use this car', 'secondary', 'check')])
+    lw = round(w * 0.4)
+    rx = x + lw + 16
+    rw = w - lw - 16
+    dy = vehicle_details_card(c, rx, y, rw)
+    hy = history_card(c, rx, dy + 16, rw)
+    garage_card(c, x, y, lw, hy - y)
+    return hy
+
+
+def draw_vehicles(c):
+    return shell(c, 'vehicles', vehicles_page)
+
+
 MOCKUPS = {
     'personal-welcome': (BOTH, 1366, None, draw_welcome),
     'personal-connect': (BOTH, 1366, None, draw_connect),
     'personal-overview': (BOTH, 1366, None, draw_overview),
+    'personal-vehicles': (BOTH, 1366, None, draw_vehicles),
     'personal-codes': (BOTH, 1366, None, draw_codes),
     'personal-codes-uds': (BOTH, 1366, None, draw_codes_uds),
     'personal-readiness': (BOTH, 1366, None, draw_readiness),

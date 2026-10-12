@@ -684,6 +684,7 @@ a `-tablet` variant.
 | `personal-welcome` | First-start wizard (language, licence, units and theme, adapter, vehicle) on the licence step: a short summary, then the full licence the installer showed. |
 | `personal-connect` | Connection and device (Bluetooth, Bluetooth LE, USB, Wi-Fi), the adapter check that tells a genuine adapter from a clone, and the demo car. |
 | `personal-overview` | MIL, codes, inspection readiness and battery at a glance; quick start and recent sessions. |
+| `personal-vehicles` | My vehicles: every car of the user with its details (name, plate, make, model, year, fuel, engine, inspection country, VIN, notes) and its own history of scans, codes, readiness checks, tests, recordings and notes; add, choose, delete, export. |
 | `personal-codes` | Codes per ECU with status chips, the freeze frame with normal ranges, possible causes, offline code lookup, CSV export and clear. |
 | `personal-codes-uds` | The same page on a SAE J1979-2 car: failure type, status, WWH class and readiness group per code, with an explanation of the extra columns. |
 | `personal-readiness` | Monitors since clear and this drive cycle, the national inspection check (example rules) and the drive-cycle advisor. |
@@ -698,7 +699,7 @@ a `-tablet` variant.
 | `personal-ev-battery` | State of health, pack values and cell voltages per module (Hyundai Kona Electric, 98 cells). |
 | `personal-recordings` | Saved sessions with replay, the adapter log and CSV export. |
 | `personal-console` | Adapter console with quick commands and the adapter log settings. |
-| `personal-settings` | Language, appearance, units, inspection country, local privacy options (crash and connection logs), and the licence and third-party notices. |
+| `personal-settings` | Language, appearance, units, inspection country, local privacy options (crash and connection logs, remembering vehicles), and the licence and third-party notices. |
 
 | Light | Dark |
 |---|---|
@@ -708,6 +709,8 @@ a `-tablet` variant.
 | ![](personal-connect-tablet-light.png) | ![](personal-connect-tablet-dark.png) |
 | ![](personal-overview-light.png) | ![](personal-overview-dark.png) |
 | ![](personal-overview-tablet-light.png) | ![](personal-overview-tablet-dark.png) |
+| ![](personal-vehicles-light.png) | ![](personal-vehicles-dark.png) |
+| ![](personal-vehicles-tablet-light.png) | ![](personal-vehicles-tablet-dark.png) |
 | ![](personal-codes-light.png) | ![](personal-codes-dark.png) |
 | ![](personal-codes-tablet-light.png) | ![](personal-codes-tablet-dark.png) |
 | ![](personal-codes-uds-light.png) | ![](personal-codes-uds-dark.png) |

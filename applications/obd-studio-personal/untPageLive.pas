@@ -26,6 +26,11 @@ uses
   ERD.I18n,
   ERD.UI.Toast,
   ERD.UI.Units,
+  ERD.UI.Paint,
+  ERD.UI.Dialogs,
+  ERD.UI.Buttons,
+  ERD.UI.Edits,
+  ERD.UI.ScrollBox,
   ERD.UI.LiveDataGrid,
   ERD.UI.TrendChart,
   ERD.UI.ValueTile,
@@ -46,19 +51,19 @@ type
     FSubscribedPIDs: TBytes;
     FRecordingStarted: TDateTime;
     pnlTop: TPanel;
-    lblTitle: TLabel;
-    lblSummary: TLabel;
-    edtSearch: TEdit;
-    btnRefresh: TButton;
-    btnSnapshot: TButton;
-    chkRecord: TCheckBox;
+    lblTitle: TOBDDialogText;
+    lblSummary: TOBDDialogText;
+    edtSearch: TOBDEdit;
+    btnRefresh: TOBDButton;
+    btnSnapshot: TOBDButton;
+    chkRecord: TOBDCheckBox;
     pcView: TPageControl;
     tabList: TTabSheet;
     tabTiles: TTabSheet;
     splList: TSplitter;
     grdSensors: TOBDLiveDataGrid;
-    sbCharts: TScrollBox;
-    sbTiles: TScrollBox;
+    sbCharts: TOBDScrollBox;
+    sbTiles: TOBDScrollBox;
     tmrRecording: TTimer;
     procedure TopResize(Sender: TObject);
     procedure BuildUI;
@@ -251,51 +256,55 @@ begin
   pnlTop.Height := 74;
   pnlTop.BevelOuter := bvNone;
   pnlTop.ParentBackground := False;
+  pnlTop.ParentColor := True;
+  pnlTop.ShowCaption := False;
   pnlTop.OnResize := TopResize;
 
-  lblTitle := TLabel.Create(Self);
+  lblTitle := TOBDDialogText.Create(Self);
   lblTitle.Parent := pnlTop;
   lblTitle.Left := 16;
-  lblTitle.Top := 10;
-  lblTitle.Font.Style := [fsBold];
-  lblTitle.Font.Height := -18;
+  lblTitle.Top := 8;
+  lblTitle.Width := 360;
+  lblTitle.Height := 28;
+  lblTitle.Style := dtsHeading;
 
-  lblSummary := TLabel.Create(Self);
+  lblSummary := TOBDDialogText.Create(Self);
   lblSummary.Parent := pnlTop;
   lblSummary.Left := 16;
   lblSummary.Top := 38;
-  lblSummary.Font.Color := clGrayText;
+  lblSummary.Width := 480;
+  lblSummary.Height := 22;
+  lblSummary.Style := dtsSubtle;
 
-  chkRecord := TCheckBox.Create(Self);
+  chkRecord := TOBDCheckBox.Create(Self);
   chkRecord.Parent := pnlTop;
-  chkRecord.Caption := 'Record to CSV';
-  chkRecord.Top := 26;
-  chkRecord.Width := 116;
+  chkRecord.Top := 19;
+  chkRecord.Width := 128;
+  chkRecord.Style := csSwitch;
   chkRecord.Anchors := [akTop, akRight];
   chkRecord.OnClick := RecordClicked;
 
-  btnSnapshot := TButton.Create(Self);
+  btnSnapshot := TOBDButton.Create(Self);
   btnSnapshot.Parent := pnlTop;
-  btnSnapshot.Caption := 'Snapshot';
-  btnSnapshot.Top := 22;
+  btnSnapshot.Top := 20;
   btnSnapshot.Width := 88;
+  btnSnapshot.Kind := bkSecondary;
   btnSnapshot.Anchors := [akTop, akRight];
   btnSnapshot.OnClick := SnapshotClicked;
 
-  btnRefresh := TButton.Create(Self);
+  btnRefresh := TOBDButton.Create(Self);
   btnRefresh.Parent := pnlTop;
-  btnRefresh.Caption := 'Refresh';
-  btnRefresh.Top := 22;
+  btnRefresh.Top := 20;
   btnRefresh.Width := 76;
+  btnRefresh.Kind := bkPrimary;
   btnRefresh.Anchors := [akTop, akRight];
   btnRefresh.OnClick := RefreshClicked;
 
-  edtSearch := TEdit.Create(Self);
+  edtSearch := TOBDEdit.Create(Self);
   edtSearch.Parent := pnlTop;
   edtSearch.Top := 22;
   edtSearch.Width := 220;
   edtSearch.Anchors := [akTop, akRight];
-  edtSearch.TextHint := 'Search sensors';
   edtSearch.OnChange := SearchChanged;
 
   pcView := TPageControl.Create(Self);
@@ -321,17 +330,13 @@ begin
   splList.Align := alLeft;
   splList.Width := 6;
 
-  sbCharts := TScrollBox.Create(Self);
+  sbCharts := TOBDScrollBox.Create(Self);
   sbCharts.Parent := tabList;
   sbCharts.Align := alClient;
-  sbCharts.BorderStyle := bsNone;
-  sbCharts.VertScrollBar.Tracking := True;
 
-  sbTiles := TScrollBox.Create(Self);
+  sbTiles := TOBDScrollBox.Create(Self);
   sbTiles.Parent := tabTiles;
   sbTiles.Align := alClient;
-  sbTiles.BorderStyle := bsNone;
-  sbTiles.VertScrollBar.Tracking := True;
 
   tmrRecording := TTimer.Create(Self);
   tmrRecording.Enabled := False;
@@ -354,6 +359,8 @@ begin
   btnRefresh.Left := X - btnRefresh.Width;
   X := btnRefresh.Left - 8;
   edtSearch.Left := X - edtSearch.Width;
+  lblTitle.Width := Max(120, edtSearch.Left - lblTitle.Left - 16);
+  lblSummary.Width := lblTitle.Width;
 end;
 
 function TfrmPageLive.Connected: Boolean;
@@ -427,6 +434,7 @@ begin
   tabTiles.Caption := Tr('personal.live.tiles', 'Value grid');
   edtSearch.TextHint := Tr('personal.live.search', 'Search sensors');
   UpdateSummary;
+  TopResize(pnlTop);
 end;
 
 procedure TfrmPageLive.DiscoverSensors;

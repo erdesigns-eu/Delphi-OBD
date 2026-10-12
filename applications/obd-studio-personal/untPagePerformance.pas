@@ -31,6 +31,7 @@ uses
   ERD.I18n,
   ERD.UI.Types,
   ERD.UI.Paint,
+  ERD.UI.Dialogs,
   ERD.UI.Toast,
   ERD.UI.Chips,
   ERD.UI.Card,
@@ -59,8 +60,8 @@ type
 
   TfrmPagePerformance = class(TFrame, IPersonalPage, IPersonalCommands)
     pnlHeader: TPanel;
-    lblTitle: TLabel;
-    lblSubtitle: TLabel;
+    lblTitle: TOBDDialogText;
+    lblSubtitle: TOBDDialogText;
     cmbRunType: TOBDComboBox;
     btnArmRun: TOBDButton;
     btnCancelRun: TOBDButton;
@@ -79,11 +80,11 @@ type
     cardSaved: TOBDCard;
     kvSaved: TOBDKeyValueList;
     cardSetup: TOBDCard;
-    lblMass: TLabel;
+    lblMass: TOBDDialogText;
     edtMass: TOBDEdit;
-    lblDragArea: TLabel;
+    lblDragArea: TOBDDialogText;
     edtDragArea: TOBDEdit;
-    lblRolling: TLabel;
+    lblRolling: TOBDDialogText;
     edtRolling: TOBDEdit;
     procedure btnArmRunClick(Sender: TObject);
     procedure btnCancelRunClick(Sender: TObject);

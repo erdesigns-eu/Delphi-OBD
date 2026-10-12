@@ -13,6 +13,8 @@
 //  A page with buttons also implements IPersonalCommands: the main form
 //  then offers those buttons as commands in the ribbon (a coloured tab
 //  for the active page) and the menu bar (a menu for the active page).
+//  A page that shows data of the current vehicle also implements
+//  IPersonalVehicleAware to hear when another car is chosen.
 //
 //  The interfaces are implemented by TComponent descendants, whose
 //  reference counting is switched off: holding an IPersonalHost in a
@@ -32,7 +34,8 @@ uses
   ERD.UI.Toast,
   ERD.UI.Dialogs,
   untSettings,
-  untSession;
+  untSession,
+  untGarage;
 
 const
   // Page keys. They are stable: the settings remember the last page by
@@ -83,7 +86,10 @@ type
     pcRecordSession, pcRefreshRecordings, pcRenameRecording,
     pcDeleteRecording, pcExportRecording, pcShowRecording,
     // Console
-    pcClearConsole, pcSaveConsole);
+    pcClearConsole, pcSaveConsole,
+    // Vehicles
+    pcAddVehicle, pcUseVehicle, pcDeleteVehicle, pcAddNote,
+    pcExportHistory);
   TPersonalCommands = set of TPersonalCommand;
 
   /// <summary>Services the main form offers its pages.</summary>
@@ -130,6 +136,25 @@ type
     /// <summary>Shows the red recording indicator in the status bar with
     /// AText (e.g. 'REC 02:14'); an empty text hides it.</summary>
     procedure SetRecording(const AText: string);
+    /// <summary>Every car of the user with its history.</summary>
+    function Garage: TPersonalGarage;
+    /// <summary>The car the pages work for; nil when none is chosen yet.
+    /// Connecting chooses the car with the VIN the car reports.</summary>
+    function CurrentVehicle: TPersonalVehicle;
+    /// <summary>Makes AVehicle (nil = none) the current car, remembers
+    /// the choice and tells the pages.</summary>
+    procedure SelectVehicle(AVehicle: TPersonalVehicle);
+    /// <summary>Call after a page added, edited or deleted a vehicle, or
+    /// changed a history; tells every page.</summary>
+    procedure VehiclesChanged;
+    /// <summary>Adds an entry to the history of the current car. Does
+    /// nothing when there is no current car or when the user switched
+    /// "Remember vehicles" off.</summary>
+    procedure AddHistory(AKind: TPersonalHistoryKind;
+      ALevel: TPersonalHistoryLevel; const ATitle, ADetail: string);
+    /// <summary>Country whose inspection rules apply: the inspection
+    /// country of the current car, or else the one in the settings.</summary>
+    function InspectionCountry: string;
   end;
 
   /// <summary>Implemented by every page frame.</summary>
@@ -170,6 +195,15 @@ type
     /// button. The main form shows the page first, unless the command
     /// also works in the background (recording a session).</summary>
     procedure ExecuteCommand(ACommand: TPersonalCommand);
+  end;
+
+  /// <summary>Implemented by pages that show data of the current
+  /// vehicle.</summary>
+  IPersonalVehicleAware = interface
+    ['{6F1C2A57-3B8E-4D90-A6C4-0E7B2D95F813}']
+    /// <summary>Called when another car becomes the current one, and
+    /// after vehicles or histories were changed (VehiclesChanged).</summary>
+    procedure VehicleChanged;
   end;
 
 implementation

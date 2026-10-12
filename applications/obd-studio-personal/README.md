@@ -10,9 +10,11 @@ offers every feature of OBD Auto Doctor's paid plans, plus extras that suit
 European drivers: inspection checks (APK, keuring, HU/AU, CT, MOT, NCT),
 normal ranges on every value, and European languages.
 
-**Status:** ready to build. All 18 screens are mocked up and the library
-work (step 2) is done (see [Roadmap](#roadmap)). The application itself is
-next; there is no application code yet.
+**Status:** step 3 of the [Roadmap](#roadmap). All 19 screens are mocked
+up, the library work (step 2) is done and every screen is written as a
+page of the application. Every paid OBD Auto Doctor feature except
+reports is in. The application waits for its first full Delphi build and
+the tests on real cars (step 4).
 
 | | |
 |---|---|
@@ -84,7 +86,7 @@ Status:
 | Console for adapter commands | Paid | Console | `TOBDTerminal` | Ready |
 | UDS-based OBD (SAE J1979-2 and WWH-OBD) | Paid | Trouble codes (UDS view), Readiness | `TOBDWWHOBD`, `TOBDWWHReadiness` | Ready, needs a test on a J1979-2 car |
 | Diagnostic report | Paid | — | `TOBDReportPreview` | Later: cloud reporting service |
-| Several vehicles, each with its own history | Paid | Overview (change car) | — | Application work |
+| Several vehicles, each with its own history | Paid | My vehicles | `TOBDDataGrid`, `untGarage.pas` (application) | Ready |
 
 Reports are the only paid feature that is not in the first release. They
 will use the ERDesigns cloud reporting service; that service is a separate
@@ -149,6 +151,7 @@ each in light and dark, desktop and tablet.
 | Welcome | `personal-welcome` | First-start wizard, licence step |
 | Connect | `personal-connect` | Connection and device, adapter check (genuine or clone), demo car |
 | Overview | `personal-overview` | MIL, codes, inspection readiness and battery at a glance; quick start and recent sessions |
+| My vehicles | `personal-vehicles` | Every car with its details and its own history; add, choose, delete, notes, CSV export |
 | Trouble codes | `personal-codes` | Codes per ECU with freeze frame, causes, code lookup and clear |
 | Trouble codes (UDS) | `personal-codes-uds` | The same on a J1979-2 car, with failure-type bytes |
 | Readiness | `personal-readiness` | Monitors since clear and this drive cycle, inspection check, drive-cycle advisor |
@@ -166,6 +169,22 @@ each in light and dark, desktop and tablet.
 | Settings | `personal-settings` | Language, theme, density, units, inspection country, local logs, licence |
 
 Render them with `cd tools && python3 ui_mockups.py --only personal-NAME`.
+
+**My vehicles.** Every car the user connects to is remembered with its
+own history. Connecting picks the car by the VIN it reports and adds a
+car that is not in the list yet, with make and model year from the VIN.
+A car that does not report a VIN (older cars) is taken to be the current
+car, and a car added by hand gets the VIN of the first car it is
+connected to. The pages add an entry to the history of the current car
+when they scan the car, read or clear codes, check readiness, read the
+monitor tests or the vehicle information, save a recording or a
+performance run, or read the EV battery; the user adds notes (for
+example an oil change). A car can have its own inspection country, for
+a car registered abroad. Each car is one JSON file in the `Garage`
+folder of the data folder (at most 2000 history entries per car; the
+oldest go first). *Settings > Privacy > Remember my vehicles* switches
+the whole feature off: no cars are added and nothing is written to a
+history.
 
 Every page is reachable three ways: the sidebar, the commands below the
 title bar and the status bar shortcuts. The commands come as a classic
@@ -378,8 +397,13 @@ was only compiled and run with Free Pascal (non-visual units) and checked
 with pascalcheck. The first Delphi build in step 3 confirms the VCL
 controls and the DUnitX tests.
 
-**Step 3 – Build the application.** Shell, pages, settings, translations,
-first-start wizard and installer, in `applications/obd-studio-personal`.
+**Step 3 – Build the application (in progress).** Shell, pages, settings,
+translations, first-start wizard and installer, in
+`applications/obd-studio-personal`. Written: the shell with menu bar or
+ribbon, all pages including My vehicles, settings, translations, the
+first-start wizard and the installer script. Every page is built from the
+themed library controls, so light and dark look the same everywhere.
+Open: the first full Delphi build and fixing what it finds.
 
 **Step 4 – Test.** Adapter matrix, then real cars: petrol, diesel,
 J1979-2 and EV.

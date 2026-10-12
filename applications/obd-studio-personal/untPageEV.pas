@@ -31,6 +31,7 @@ uses
   ERD.Connection,
   ERD.UI.Types,
   ERD.UI.Paint,
+  ERD.UI.Dialogs,
   ERD.UI.Chips,
   ERD.UI.Card,
   ERD.UI.Buttons,
@@ -47,9 +48,9 @@ uses
 type
   TfrmPageEV = class(TFrame, IPersonalPage, IPersonalCommands)
     pnlHeader: TPanel;
-    lblTitle: TLabel;
-    lblSubtitle: TLabel;
-    lblVendor: TLabel;
+    lblTitle: TOBDDialogText;
+    lblSubtitle: TOBDDialogText;
+    lblVendor: TOBDDialogText;
     cmbVendor: TOBDComboBox;
     btnReadAgain: TOBDButton;
     bannerState: TOBDBanner;

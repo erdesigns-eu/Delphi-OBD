@@ -54,6 +54,7 @@ uses
   ERD.UI.Hint,
   untSettings,
   untSession,
+  untGarage,
   untPersonalPage;
 
 const
@@ -88,6 +89,7 @@ type
     actPageRecordings: TAction;
     actPageConsole: TAction;
     actPageSettings: TAction;
+    actPageVehicles: TAction;
     actThemeLight: TAction;
     actThemeDark: TAction;
     actThemeWindows: TAction;
@@ -109,6 +111,7 @@ type
     miExit: TMenuItem;
     miVehicle: TMenuItem;
     miPageOverview: TMenuItem;
+    miPageVehicles: TMenuItem;
     miPageCodes: TMenuItem;
     miPageReadiness: TMenuItem;
     miPageLive: TMenuItem;
@@ -162,6 +165,7 @@ type
   strict private
     FSettings: TPersonalSettings;
     FSession: TPersonalSession;
+    FGarage: TPersonalGarage;
     FPages: TArray<TControl>;
     FKeys: TArray<string>;
     FPageActions: TArray<TAction>;
@@ -201,6 +205,9 @@ type
     procedure SyncStatus;
     procedure SessionStateChanged(Sender: TObject);
     procedure SessionStatus(Sender: TObject);
+    procedure OpenGarage;
+    procedure MatchVehicle;
+    procedure SaveSettingsQuietly;
     procedure RestoreWindow;
     procedure StoreWindow;
     procedure ShowAbout;
@@ -226,6 +233,13 @@ type
     procedure SettingsChanged;
     function LanguageFolder: string;
     procedure SetRecording(const AText: string);
+    function Garage: TPersonalGarage;
+    function CurrentVehicle: TPersonalVehicle;
+    procedure SelectVehicle(AVehicle: TPersonalVehicle);
+    procedure VehiclesChanged;
+    procedure AddHistory(AKind: TPersonalHistoryKind;
+      ALevel: TPersonalHistoryLevel; const ATitle, ADetail: string);
+    function InspectionCountry: string;
   end;
 
 var
@@ -238,6 +252,8 @@ implementation
 uses
   System.UITypes,
   ERD.Service.Catalog,
+  ERD.Service.VINDecoder,
+  ERD.Service.VINDecoder.Types,
   untWelcome,
   untPageOverview,
   untPageCodes,
@@ -252,7 +268,8 @@ uses
   untPageAdapter,
   untPageRecordings,
   untPageConsole,
-  untPageSettings;
+  untPageSettings,
+  untPageVehicles;
 
 const
   // Status bar panels, in the order of the DFM.
@@ -270,7 +287,7 @@ const
   // "Save and share" group of the page tab.
   SHARE_COMMANDS: TPersonalCommands = [pcSaveVehicleReport, pcSaveCodeReport,
     pcExportTests, pcCopyVehicleInfo, pcSaveVehicleInfo, pcExportRecording,
-    pcShowRecording, pcSaveConsole];
+    pcShowRecording, pcSaveConsole, pcExportHistory];
   // Page commands that are also on the Home tab and in the Vehicle and
   // Tools menus, whatever page is open.
   DIAGNOSIS_COMMANDS: TPersonalCommands = [pcScanVehicle, pcReadCodes,
@@ -287,7 +304,7 @@ begin
       Result := glReport;
     pcReadCodes, pcReadTests:
       Result := glRead;
-    pcClearCodes, pcDeleteRecording, pcClearConsole:
+    pcClearCodes, pcDeleteRecording, pcClearConsole, pcDeleteVehicle:
       Result := glClear;
     pcLookUpCode:
       Result := glGlobe;
@@ -297,15 +314,17 @@ begin
       Result := glStop;
     pcRecordLive, pcRecordSession:
       Result := glRecord;
-    pcAddGauge:
+    pcAddGauge, pcAddVehicle:
       Result := glPlus;
-    pcEditDashboard, pcRenameRecording:
+    pcEditDashboard, pcRenameRecording, pcAddNote:
       Result := glEdit;
+    pcUseVehicle:
+      Result := glCheck;
     pcSaveDashboard, pcSaveVehicleInfo, pcSaveConsole:
       Result := glSave;
     pcResetDashboard, pcResetTrip:
       Result := glUndo;
-    pcExportTests, pcExportRecording:
+    pcExportTests, pcExportRecording, pcExportHistory:
       Result := glExport;
     pcCopyVehicleInfo:
       Result := glCopy;
@@ -324,7 +343,7 @@ begin
   case ACommand of
     pcScanVehicle:
       Result := ricAccent;
-    pcClearCodes, pcDeleteRecording:
+    pcClearCodes, pcDeleteRecording, pcDeleteVehicle:
       Result := ricDanger;
   else
     Result := ricNormal;
@@ -342,17 +361,19 @@ begin
   FPageActions := [actPageOverview, actPageCodes, actPageReadiness,
     actPageLive, actPageDashboard, actPageTests, actPageInfo, actPageFuel,
     actPagePerformance, actPageEV, actPageAdapter, actPageRecordings,
-    actPageConsole, actPageSettings];
+    actPageConsole, actPageSettings, actPageVehicles];
   // Frames and dialogs created at run time pick this theme up as well.
   TOBDTheme.RegisterDefault(OBDTheme);
   FActivity := TStringList.Create;
   FSettings := TPersonalSettings.Create;
   FSettings.Load;
+  FGarage := TPersonalGarage.Create;
+  OpenGarage;
 
   FSession := TPersonalSession.Create(Self);
   FSession.OnStateChanged := SessionStateChanged;
   FSession.OnStatus := SessionStatus;
-  FSession.Inspection.Country := FSettings.InspectionCountry;
+  FSession.Inspection.Country := InspectionCountry;
 
   LoadCatalogs;
   CreatePages;
@@ -439,6 +460,7 @@ begin
   // The session goes before the pages so that no polling thread calls
   // into a page that is being destroyed.
   FreeAndNil(FSession);
+  FreeAndNil(FGarage);
   FreeAndNil(FSettings);
   FreeAndNil(FActivity);
 end;
@@ -495,6 +517,7 @@ begin
   AddPage(TfrmPageRecordings.Create(Self));
   AddPage(TfrmPageConsole.Create(Self));
   AddPage(TfrmPageSettings.Create(Self));
+  AddPage(TfrmPageVehicles.Create(Self));
 end;
 
 function TfrmMain.PageIndex(const AKey: string): Integer;
@@ -593,7 +616,7 @@ begin
   OBDTheme.Mode := FSettings.ThemeMode;
   OBDTheme.Density := FSettings.Density;
   OBDTheme.UnitSystem := FSettings.UnitSystem;
-  FSession.Inspection.Country := FSettings.InspectionCountry;
+  FSession.Inspection.Country := InspectionCountry;
   // The title bar shows the menu bar or the ribbon below it.
   if FSettings.UseRibbon then
     TitleBar.CommandStyle := csRibbon
@@ -1180,6 +1203,9 @@ begin
   SetCommand(actPageOverview, Tr('personal.nav.overview', 'Overview'),
     Tr('personal.nav.overviewHint',
     'Vehicle, codes and readiness at a glance'));
+  SetCommand(actPageVehicles, Tr('personal.nav.vehicles', 'My vehicles'),
+    Tr('personal.nav.vehiclesHint',
+    'Your cars, each with its own history'));
   SetCommand(actPageCodes, Tr('personal.nav.codes', 'Trouble codes'),
     Tr('personal.nav.codesHint', 'Read and clear the trouble codes'));
   SetCommand(actPageReadiness, Tr('personal.nav.readiness', 'Readiness'),
@@ -1365,6 +1391,20 @@ begin
     'Clear the terminal, or read the activity log again'));
   SetCommand(pcSaveConsole, Tr('personal.cmd.saveLog', 'Save log'),
     Tr('personal.cmd.saveLogHint', 'Save the terminal or the activity log'));
+  SetCommand(pcAddVehicle, Tr('personal.cmd.addVehicle', 'Add vehicle'),
+    Tr('personal.cmd.addVehicleHint', 'Add a car to your vehicles'));
+  SetCommand(pcUseVehicle, Tr('personal.cmd.useVehicle', 'Use this car'),
+    Tr('personal.cmd.useVehicleHint',
+    'Make the selected car the current one'));
+  SetCommand(pcDeleteVehicle, Tr('personal.cmd.deleteVehicle',
+    'Delete vehicle'), Tr('personal.cmd.deleteVehicleHint',
+    'Delete the selected car and its history (asks first)'));
+  SetCommand(pcAddNote, Tr('personal.cmd.addNote', 'Add note'),
+    Tr('personal.cmd.addNoteHint',
+    'Write a note in the history, e.g. a repair or an oil change'));
+  SetCommand(pcExportHistory, Tr('personal.cmd.exportHistory',
+    'Export history'), Tr('personal.cmd.exportHistoryHint',
+    'Save the history of the selected car as a CSV file'));
 
   if FDiagnosisGroup <> nil then
     FDiagnosisGroup.Caption := Tr('personal.ribbon.diagnosis', 'Diagnosis');
@@ -1406,6 +1446,9 @@ begin
         else
           Notify(tkSuccess, Tr('personal.shell.connectedTitle', 'Connected'),
             FSession.AdapterName);
+        // Before the pages hear of the connection, so that they work for
+        // the car that is connected.
+        MatchVehicle;
       end;
     plsFailed:
       begin
@@ -1684,7 +1727,19 @@ end;
 
 procedure TfrmMain.SettingsChanged;
 begin
+  // Another data folder holds other vehicles.
+  if (FGarage <> nil) and not SameText(FGarage.Folder,
+    TPath.Combine(FSettings.DataFolder, 'Garage')) then
+  begin
+    OpenGarage;
+    VehiclesChanged;
+  end;
   ApplySettings;
+  SaveSettingsQuietly;
+end;
+
+procedure TfrmMain.SaveSettingsQuietly;
+begin
   try
     FSettings.Save;
   except
@@ -1697,6 +1752,172 @@ procedure TfrmMain.SetRecording(const AText: string);
 begin
   sbMain.Panels[SP_RECORDING].Text := AText;
   sbMain.Panels[SP_RECORDING].Visible := AText <> '';
+end;
+
+{ Vehicles ------------------------------------------------------------------ }
+
+procedure TfrmMain.OpenGarage;
+begin
+  // Every car is a file in the Garage folder of the data folder. A folder
+  // that cannot be read leaves the list empty; the program still runs.
+  try
+    FGarage.Open(FSettings.DataSubFolder('Garage'));
+    if FGarage.LastError <> '' then
+      LogWarning('Vehicles not read: ' + FGarage.LastError);
+  except
+    on E: Exception do
+      LogWarning('Vehicles not loaded: ' + E.Message);
+  end;
+end;
+
+function TfrmMain.Garage: TPersonalGarage;
+begin
+  Result := FGarage;
+end;
+
+function TfrmMain.CurrentVehicle: TPersonalVehicle;
+begin
+  if FGarage = nil then
+    Exit(nil);
+  Result := FGarage.FindById(FSettings.CurrentVehicle);
+end;
+
+function TfrmMain.InspectionCountry: string;
+var
+  Vehicle: TPersonalVehicle;
+begin
+  // A car registered in another country takes that country's rules.
+  Result := FSettings.InspectionCountry;
+  Vehicle := CurrentVehicle;
+  if (Vehicle <> nil) and (Vehicle.InspectionCountry <> '') then
+    Result := Vehicle.InspectionCountry;
+end;
+
+procedure TfrmMain.SelectVehicle(AVehicle: TPersonalVehicle);
+var
+  Id: string;
+begin
+  if AVehicle <> nil then
+    Id := AVehicle.Id
+  else
+    Id := '';
+  if not SameText(Id, FSettings.CurrentVehicle) then
+  begin
+    FSettings.CurrentVehicle := Id;
+    SaveSettingsQuietly;
+    if AVehicle <> nil then
+      Log('Current vehicle: ' + AVehicle.DisplayName);
+  end;
+  FSession.Inspection.Country := InspectionCountry;
+  VehiclesChanged;
+end;
+
+procedure TfrmMain.VehiclesChanged;
+var
+  I: Integer;
+  Aware: IPersonalVehicleAware;
+begin
+  FSession.Inspection.Country := InspectionCountry;
+  for I := 0 to High(FPages) do
+    if Supports(FPages[I], IPersonalVehicleAware, Aware) then
+    try
+      Aware.VehicleChanged;
+    except
+      on E: Exception do
+        LogWarning(FKeys[I] + ': ' + E.Message);
+    end;
+end;
+
+procedure TfrmMain.AddHistory(AKind: TPersonalHistoryKind;
+  ALevel: TPersonalHistoryLevel; const ATitle, ADetail: string);
+var
+  Vehicle: TPersonalVehicle;
+begin
+  if (FGarage = nil) or not FSettings.RememberVehicles then
+    Exit;
+  Vehicle := CurrentVehicle;
+  if Vehicle = nil then
+    Exit;
+  try
+    FGarage.AddHistory(Vehicle, AKind, ALevel, ATitle, ADetail);
+  except
+    on E: Exception do
+      LogWarning('History not saved: ' + E.Message);
+  end;
+  VehiclesChanged;
+end;
+
+procedure TfrmMain.MatchVehicle;
+var
+  VIN: string;
+  Vehicle, Current: TPersonalVehicle;
+  Info: TOBDVINInfo;
+  Added: Boolean;
+begin
+  // Connecting chooses the car with the VIN the car reports, and adds a
+  // car that is not in the list yet. A car without VIN (older cars do
+  // not report it) is taken to be the current car.
+  if (FGarage = nil) or not FSettings.RememberVehicles then
+    Exit;
+  VIN := UpperCase(Trim(FSession.VehicleVIN));
+  Current := CurrentVehicle;
+  Added := False;
+  Vehicle := nil;
+  try
+    if VIN <> '' then
+    begin
+      Vehicle := FGarage.FindByVIN(VIN);
+      // A car the user added by hand and never connected to gets the VIN
+      // of the first car it is connected to.
+      if (Vehicle = nil) and (Current <> nil) and (Current.VIN = '') and
+        (Current.LastSeen = 0) and (Current.History.Count = 0) then
+      begin
+        Vehicle := Current;
+        Vehicle.VIN := VIN;
+      end;
+    end
+    else
+      Vehicle := Current;
+    if Vehicle = nil then
+    begin
+      Vehicle := FGarage.Add('', VIN);
+      Added := True;
+      if FSession.IsDemo then
+        Vehicle.Name := Tr('personal.vehicles.demoName', 'Demo car');
+    end;
+    // Make and model year from the VIN, when the user did not type them.
+    if (VIN <> '') and ((Vehicle.Make = '') or (Vehicle.ModelYear = 0)) then
+    begin
+      Info := TOBDVINDecoder.Decode(VIN);
+      if Vehicle.Make = '' then
+        Vehicle.Make := Info.Manufacturer.Name;
+      if Vehicle.ModelYear = 0 then
+        Vehicle.ModelYear := Info.ModelYear;
+    end;
+    if Vehicle.DisplayName = '' then
+      Vehicle.Name := Tr('personal.vehicles.unnamed', 'My car');
+    Vehicle.LastSeen := Now;
+    FGarage.Save(Vehicle);
+  except
+    on E: Exception do
+    begin
+      LogWarning('Vehicle not saved: ' + E.Message);
+      if (Vehicle = nil) and (VIN <> '') then
+        Vehicle := FGarage.FindByVIN(VIN);
+    end;
+  end;
+  if Vehicle = nil then
+    Exit;
+  if Added then
+    Notify(tkInfo, Tr('personal.vehicles.addedTitle', 'New vehicle'),
+      TrFmt('personal.vehicles.addedText',
+      '%s was added to My vehicles. Its history is kept on this PC.',
+      [Vehicle.DisplayName]))
+  else if Vehicle <> Current then
+    Notify(tkInfo, Tr('personal.vehicles.switchedTitle', 'Vehicle recognised'),
+      TrFmt('personal.vehicles.switchedText', 'Connected to %s.',
+      [Vehicle.DisplayName]));
+  SelectVehicle(Vehicle);
 end;
 
 end.
