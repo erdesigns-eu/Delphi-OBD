@@ -1673,7 +1673,6 @@ begin
     Exit;
   end;
   Cur := ItemIndex;
-  Target := -1;
   Page := System.Math.Max(1, ContentRect.Height div System.Math.Max(1, ItemHeight));
   case Key of
     VK_UP: if Cur < 0 then Target := FindFrom(0, 1)

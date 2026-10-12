@@ -1262,7 +1262,6 @@ begin
       Break;
     end;
   Cols := ColumnCount(NeedsScrollBar);
-  NewIndex := FItemIndex;
   case Key of
     VK_LEFT:
       if Pos > 0 then
