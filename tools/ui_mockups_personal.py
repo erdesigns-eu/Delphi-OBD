@@ -15,10 +15,10 @@ EV battery page uses the 2017 BMW i3 of the Pro mockups.
 import math
 
 import ui_mockups as M
-from ui_mockups import (BOTH, banner, button, button_w, card, checkbox,
+from ui_mockups import (BOTH, button, button_w, card, checkbox,
                         chevron, chip, chip_w, edit_box, glyph, icon_check,
-                        icon_pending, mix, monitor_icon, radio, range_bar,
-                        search_box, segmented, status_color, switch, vbar)
+                        mix, monitor_icon, radio, range_bar, search_box,
+                        segmented, status_color, switch, vbar)
 from ui_mockups_pro import (colhead, danger_ink, dashed, footer, head, hbar,
                             kv_row, link, spark, status_mark, tile, trend,
                             wave)
@@ -102,9 +102,9 @@ def bullets(c, x, y, w, items, size=12.5, color=None, gap=4):
 
 def page_head(c, x, y, w, title, sub=None, buttons=(), extra=()):
     """Page title row: title, sub line and right-aligned buttons. extra
-    adds controls left of the buttons: ('seg', items, selected) or
-    ('combo', caption, text, width). Returns (y below the row, left edge of
-    the controls)."""
+    adds controls left of the buttons: ('seg', items, selected),
+    ('search', hint, width) or ('combo', caption, text, width). Returns
+    (y below the row, left edge of the controls)."""
     p, dn = c.p, c.dn
     h = 52 if c.density == 'desktop' else 64
     c.text(x, y + (14 if sub else h / 2), title, 16, p.ForegroundText,
@@ -119,6 +119,11 @@ def page_head(c, x, y, w, title, sub=None, buttons=(), extra=()):
         if e[0] == 'seg':
             bx = segmented(c, bx - 4, y + (h - dn['seg']) / 2, e[1],
                            e[2]) - 12
+        elif e[0] == 'search':
+            _, hint_text, ew = e
+            search_box(c, bx - 4 - ew, y + (h - dn['edit']) / 2, ew,
+                       hint_text)
+            bx -= ew + 16
         else:
             _, cap, text, ew = e
             edit_box(c, bx - ew, y + (h - dn['edit']) / 2, ew, text,
@@ -436,9 +441,8 @@ def mini_chart(c, x, y, w, h, label, value, unit, vals, lo, hi, colr,
     p = c.p
     card(c, x, y, w, h)
     c.caps(x + 14, y + 18, label)
-    vw = c.text(x + w - 14 - c.tw(unit, 11.5) - 4, y + 18, value, 14,
-                p.ForegroundText, 'bold', anchor='rm')
-    del vw
+    c.text(x + w - 14 - c.tw(unit, 11.5) - 4, y + 18, value, 14,
+           p.ForegroundText, 'bold', anchor='rm')
     c.text(x + w - 14, y + 19, unit, 11.5, p.GaugeLabel, anchor='rm')
     gx0, gx1 = x + 14, x + w - 14
     gy0, gy1 = y + 40, y + h - 24
@@ -954,19 +958,19 @@ def code_details(c, x, y, w):
               sub='Exhaust gas recirculation flow insufficient',
               buttons=[('Search the web', 'secondary', 'globe')])
     body(y + hh)
-    my = footer(c, x, y, w, h, 'Severity: moderate — fix before the next '
-                'inspection. Causes are typical, not a diagnosis.')
-    del my
+    footer(c, x, y, w, h, 'Severity: moderate — fix before the next '
+           'inspection. Causes are typical, not a diagnosis.')
     return y + h
 
 
 def codes_page(c, x, y, w):
-    p, dn = c.p, c.dn
+    dn = c.dn
     y, _ = page_head(c, x, y, w, 'Trouble codes', 'Engine and gearbox · '
                      'read today at 18:42',
                      [('Export CSV', 'secondary', 'export'),
                       ('Clear codes…', 'danger-outline', 'clear'),
-                      ('Read codes', 'primary', 'read')])
+                      ('Read codes', 'primary', 'read')],
+                     [('search', 'Look up any code', 200)])
     fw = 440
     lw = w - fw - 16
     ly = dtc_list(c, x, y, lw)
@@ -1209,7 +1213,6 @@ def advisor_card(c, x, y, w):
 
 
 def readiness_page(c, x, y, w):
-    p, dn = c.p, c.dn
     y, _ = page_head(c, x, y, w, 'Readiness', 'Have the emission '
                      'monitors finished? Needed for the inspection.',
                      [('Read again', 'primary', 'read')],
@@ -1224,8 +1227,6 @@ def readiness_page(c, x, y, w):
     ly = monitors_card(c, x, y, lw)
     ry = rules_card(c, rx, y, rw)
     ry = advisor_card(c, rx, ry + 16, rw)
-    if ry > ly + 16:
-        pass
     return max(ly, ry)
 
 
@@ -1313,7 +1314,7 @@ EGR_BINS = [3, 7, 12, 17, 13, 9, 14, 15, 7, 3]
 
 
 def live_page(c, x, y, w):
-    p, dn = c.p, c.dn
+    p = c.p
     y, _ = page_head(c, x, y, w, 'Live data', 'Engine · 5 of 61 sensors '
                      'selected · 9.2 readings per second',
                      [('Snapshot', 'secondary', 'snapshot'),
@@ -1357,7 +1358,7 @@ GRID = [
 
 
 def grid_page(c, x, y, w):
-    p, dn = c.p, c.dn
+    p = c.p
     y, _ = page_head(c, x, y, w, 'Live data', 'Graphs · 6 sensors · '
                      'last 60 seconds',
                      [('Snapshot', 'secondary', 'snapshot'),
@@ -1388,13 +1389,9 @@ def draw_live_grid(c):
 # Dashboard: gauges in a user layout, and the layout editor
 # --------------------------------------------------------------------------
 
-def rpm_scale(t):
-    return '%g' % t
-
-
 def dash_cells(c, x, y, w, edit=False):
     """The 'Daily driver' layout; returns the bottom."""
-    p, dn = c.p, c.dn
+    p = c.p
     dh = 250 if c.density == 'desktop' else 280
     dw = (w - 32) / 3
     dial_card(c, x, y, dw, dh, 'Engine speed', lo=0, hi=5, v=0.81,
@@ -1680,7 +1677,7 @@ def ipt_card(c, x, y, w):
 
 
 def tests_page(c, x, y, w):
-    p, dn = c.p, c.dn
+    p = c.p
     y, _ = page_head(c, x, y, w, 'Monitor tests', 'Results of the '
                      'on-board tests behind each emission monitor',
                      [('Export CSV', 'secondary', 'export'),
@@ -1711,7 +1708,9 @@ ECU_INFO = [
                         ('VIN', 'WVWZZZAUZGW123456', 'mono'),
                         ('Calibration ID', '04L906021DT 5143', 'mono'),
                         ('Calibration check (CVN)', '6F3A92C1', 'mono'),
-                        ('Engine serial number', 'Not supported', 'off')]),
+                        ('Engine serial number', 'Not supported', 'off'),
+                        ('Type approval (EROTAN)', 'Not supported',
+                         'off')]),
     ('Gearbox  ·  7E9', [('ECU name', 'TCM-TransmissionCtr', 'mono'),
                          ('Calibration ID', '0CW300041H 4012', 'mono'),
                          ('Calibration check (CVN)', 'A1B20C77', 'mono')]),
@@ -1799,7 +1798,6 @@ def vin_card(c, x, y, w):
 
 
 def vehicle_info_page(c, x, y, w):
-    p, dn = c.p, c.dn
     y, _ = page_head(c, x, y, w, 'Vehicle information', 'Numbers the '
                      'control units report about themselves (mode 09)',
                      [('Copy all', 'secondary', 'copy'),
@@ -1978,7 +1976,7 @@ def gps_lap_card(c, x, y, w, h):
 
 
 def performance_page(c, x, y, w):
-    p, dn = c.p, c.dn
+    dn = c.dn
     y, _ = page_head(c, x, y, w, 'Performance', 'Acceleration runs, power '
                      'estimate and lap times from OBD data',
                      [('Runs', 'secondary', 'table'),
