@@ -7,7 +7,7 @@
 //    - TOBDHexView shows the dump and highlighted VIN, radio-code,
 //      immobiliser, mileage and checksum regions.
 //    - TOBDCard, TOBDSegmented, TOBDEdit, TOBDButton,
-//      TOBDPreconditionList, TOBDProgressBar and TOBDListBox make the
+//      TOBDPreconditionList, TOBDProgressBar and TOBDKeyValueList make the
 //      read/write side panel.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
@@ -25,7 +25,7 @@ uses
   ERD.UI.Types, ERD.UI.Paint, ERD.UI.Toast, ERD.UI.Dialogs,
   ERD.UI.Card, ERD.UI.Buttons, ERD.UI.Edits, ERD.UI.Segmented,
   ERD.UI.Progress, ERD.UI.PreconditionList, ERD.UI.HexView,
-  ERD.UI.ItemList,
+  ERD.UI.KeyValueList,
   untProPage, untSimulator;
 
 type
@@ -43,7 +43,7 @@ type
     btnSaveMemory: TOBDButton;
     btnCompareMemory: TOBDButton;
     preMemoryChecks: TOBDPreconditionList;
-    lstMemoryInfo: TOBDListBox;
+    kvMemoryInfo: TOBDKeyValueList;
     procedure btnReadMemoryClick(Sender: TObject);
     procedure btnWriteMemoryClick(Sender: TObject);
     procedure btnSaveMemoryClick(Sender: TObject);
@@ -204,19 +204,24 @@ begin
 end;
 
 procedure TfrmMemory.SetSideInfo(const AStatus: string);
+var
+  Item: TOBDKeyValueItem;
 begin
-  lstMemoryInfo.Items.BeginUpdate;
+  kvMemoryInfo.BeginUpdate;
   try
-    lstMemoryInfo.Items.Clear;
-    lstMemoryInfo.Items.Add('Chip: 24C32 serial EEPROM / 4096 bytes');
-    lstMemoryInfo.Items.Add('Vehicle: 2016 VW Golf VII 1.6 TDI CR');
-    lstMemoryInfo.Items.Add('VIN: WVWZZZAUZGW123456');
-    lstMemoryInfo.Items.Add('Radio: RCD 330 Delphi / address 0x56');
-    lstMemoryInfo.Items.Add('Checksum: stored 5A3C / calculated 5A3C');
-    lstMemoryInfo.Items.Add('Regions: VIN, radio code, mileage, immobilizer');
-    lstMemoryInfo.Items.Add('Status: ' + AStatus);
+    kvMemoryInfo.Clear;
+    kvMemoryInfo.Add('Dump', 'Chip', '24C32 serial EEPROM / 4096 bytes');
+    kvMemoryInfo.Add('Vehicle', 'Vehicle', '2016 VW Golf VII 1.6 TDI CR');
+    kvMemoryInfo.Add('Vehicle', 'VIN', 'WVWZZZAUZGW123456', kvkMono);
+    kvMemoryInfo.Add('Vehicle', 'Radio', 'RCD 330 Delphi / address 0x56');
+    kvMemoryInfo.Add('Catalogue', 'Checksum',
+      'stored 5A3C / calculated 5A3C', kvkMono);
+    kvMemoryInfo.Add('Catalogue', 'Regions',
+      'VIN, radio code, mileage, immobilizer');
+    Item := kvMemoryInfo.Add('State', 'Status', AStatus, kvkTone);
+    Item.Tone := skAccent;
   finally
-    lstMemoryInfo.Items.EndUpdate;
+    kvMemoryInfo.EndUpdate;
   end;
 end;
 

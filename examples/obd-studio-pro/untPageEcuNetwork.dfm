@@ -100,14 +100,14 @@ object frmEcuNetwork: TfrmEcuNetwork
         Padding.Right = 12
         Padding.Bottom = 12
         TabOrder = 0
-        object insEcuDetail: TOBDInspector
+        object kvEcuDetail: TOBDKeyValueList
           Left = 17
           Top = 61
           Width = 622
           Height = 156
           Align = alClient
-          ReadOnly = True
-          SplitterPosition = 145
+          KeyWidth = 145
+          WordWrap = True
           TabOrder = 0
         end
       end

@@ -217,12 +217,31 @@ object frmRadio: TfrmRadio
       FooterText = 'Layout from catalogs/radio-codes/vw-rcd330.json.'
       ShowFooter = True
       TabOrder = 1
-      object lstRadioEvidence: TOBDListBox
+      object grdRadioEvidence: TOBDDataGrid
         Left = 16
         Top = 64
         Width = 600
         Height = 128
-        EmptyText = 'No evidence loaded'
+        DataColumns = <
+          item
+            Caption = 'Field'
+            Width = 116
+            Sortable = False
+          end
+          item
+            Caption = 'Value'
+            Width = 0
+            Sortable = False
+          end
+          item
+            Caption = 'State'
+            Width = 82
+            Kind = dckChip
+            Sortable = False
+          end>
+        EmptyTitle = 'No evidence loaded'
+        EmptyHint = 'Calculate a code to populate EEPROM evidence.'
+        EmptyGlyph = glRadio
         TabOrder = 0
       end
     end

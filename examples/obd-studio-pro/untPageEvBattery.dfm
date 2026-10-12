@@ -286,14 +286,13 @@ object frmEvBattery: TfrmEvBattery
       ParentColor = True
       ShowCaption = False
       TabOrder = 1
-      object insSummary: TOBDInspector
+      object kvSummary: TOBDKeyValueList
         Left = 0
         Top = 0
         Width = 440
         Height = 172
         Align = alTop
-        ReadOnly = True
-        SplitterPosition = 180
+        KeyWidth = 180
         TabOrder = 0
       end
       object preBattery: TOBDPreconditionList

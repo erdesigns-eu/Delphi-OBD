@@ -275,7 +275,7 @@ object frmDyno: TfrmDyno
           TabOrder = 3
         end
       end
-      object insConditions: TOBDInspector
+      object kvConditions: TOBDKeyValueList
         Left = 0
         Top = 192
         Width = 420
@@ -286,11 +286,10 @@ object frmDyno: TfrmDyno
         Margins.Top = 12
         Margins.Right = 0
         Margins.Bottom = 0
-        ReadOnly = True
-        SplitterPosition = 175
+        KeyWidth = 175
         TabOrder = 1
       end
-      object insVehicle: TOBDInspector
+      object kvVehicle: TOBDKeyValueList
         Left = 0
         Top = 372
         Width = 420
@@ -301,7 +300,7 @@ object frmDyno: TfrmDyno
         Margins.Top = 12
         Margins.Right = 0
         Margins.Bottom = 0
-        SplitterPosition = 175
+        KeyWidth = 175
         TabOrder = 2
       end
     end
@@ -341,7 +340,7 @@ object frmDyno: TfrmDyno
         CursorX = 3000.000000000000000000
         TabOrder = 0
       end
-      object insRuns: TOBDInspector
+      object grdRuns: TOBDDataGrid
         Left = 0
         Top = 372
         Width = 740
@@ -352,8 +351,35 @@ object frmDyno: TfrmDyno
         Margins.Top = 12
         Margins.Right = 0
         Margins.Bottom = 0
-        ReadOnly = True
-        SplitterPosition = 160
+        DataColumns = <
+          item
+            Caption = 'Run'
+            Width = 150
+          end
+          item
+            Caption = 'Time (s)'
+            Width = 72
+            Kind = dckNumber
+          end
+          item
+            Caption = 'Power (kW)'
+            Width = 92
+            Kind = dckNumber
+          end
+          item
+            Caption = 'Torque (Nm)'
+            Width = 100
+            Kind = dckNumber
+          end
+          item
+            Caption = 'Correction'
+            Width = 0
+          end>
+        SortColumn = 0
+        SortDescending = True
+        EmptyTitle = 'No dyno runs'
+        EmptyHint = 'Start a connected sweep to record run data.'
+        EmptyGlyph = glChart
         TabOrder = 1
       end
     end

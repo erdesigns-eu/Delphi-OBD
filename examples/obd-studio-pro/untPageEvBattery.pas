@@ -3,7 +3,7 @@
 //
 //  OBD Studio Pro EV battery page for a 2017 BMW i3 94 Ah pack, using
 //  TOBDCellMatrix for the 96 cells, TOBDValueTile summary cards,
-//  TOBDInspector, TOBDPreconditionList and TOBDTrendChart.
+//  TOBDKeyValueList, TOBDPreconditionList and TOBDTrendChart.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
@@ -19,7 +19,7 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.ExtCtrls, Vcl.StdCtrls,
   ERD.UI.Types, ERD.UI.Paint, ERD.UI.Toast, ERD.UI.Dialogs,
   ERD.UI.Card, ERD.UI.Buttons, ERD.UI.ValueTile, ERD.UI.TrendChart,
-  ERD.UI.CellMatrix, ERD.UI.Inspector, ERD.UI.PreconditionList,
+  ERD.UI.CellMatrix, ERD.UI.KeyValueList, ERD.UI.PreconditionList,
   untProPage, untSimulator;
 
 type
@@ -48,7 +48,7 @@ type
     pnlBody: TPanel;
     cellMatrix: TOBDCellMatrix;
     pnlRight: TPanel;
-    insSummary: TOBDInspector;
+    kvSummary: TOBDKeyValueList;
     preBattery: TOBDPreconditionList;
     chtBattery: TOBDTrendChart;
     procedure btnExportReportClick(Sender: TObject);
@@ -71,8 +71,7 @@ type
     procedure UpdateCells;
     procedure UpdateTiles;
     procedure UpdateSummary;
-    procedure SetSummaryValue(AProperty: Integer; const AValue: string;
-      ALevel: TOBDAlertLevel);
+    procedure SetSummaryValue(const AKey, AValue: string; ATone: TOBDStatusKind);
     function BaseCellVoltage(AIndex: Integer): Double;
     function ModuleTemperature(AModule: Integer): Double;
     function CellName(AIndex: Integer): string;
@@ -124,17 +123,20 @@ end;
 
 procedure TfrmEvBattery.ConfigureSummary;
 var
-  Cat: TOBDInspectorCategory;
+  Item: TOBDKeyValueItem;
 begin
-  insSummary.Categories.Clear;
-  Cat := insSummary.Categories.Add;
-  Cat.Caption := 'Cell summary';
-  Cat.AddProperty('Mean cell voltage', '', ivReadOnly);
-  Cat.AddProperty('Spread (max - min)', '', ivReadOnly);
-  Cat.AddProperty('Highest', '', ivReadOnly);
-  Cat.AddProperty('Lowest', '', ivReadOnly);
-  Cat.AddProperty('Balancing', 'off ' + #183 + ' last 2 days ago', ivReadOnly);
-  Cat.AddProperty('Battery', 'BMW i3 94 Ah ' + #183 + ' 96 cells', ivReadOnly);
+  kvSummary.Clear;
+  kvSummary.Add('Cell summary', 'Mean cell voltage', '');
+  Item := kvSummary.Add('Cell summary', 'Spread (max - min)', '', kvkTone);
+  Item.Tone := skWarning;
+  kvSummary.Add('Cell summary', 'Highest', '');
+  Item := kvSummary.Add('Cell summary', 'Lowest', '', kvkTone);
+  Item.Tone := skWarning;
+  Item := kvSummary.Add('Cell summary', 'Balancing',
+    'off ' + #183 + ' last 2 days ago', kvkChip);
+  Item.Tone := skNeutral;
+  kvSummary.Add('Cell summary', 'Battery', 'BMW i3 94 Ah ' + #183 +
+    ' 96 cells');
   UpdateSummary;
 end;
 
@@ -149,18 +151,18 @@ begin
   preBattery.AddPrecondition(pcnNotRequired, 'Charging cable', 'Not required');
 end;
 
-procedure TfrmEvBattery.SetSummaryValue(AProperty: Integer; const AValue: string;
-  ALevel: TOBDAlertLevel);
+procedure TfrmEvBattery.SetSummaryValue(const AKey, AValue: string;
+  ATone: TOBDStatusKind);
 var
-  Prop: TOBDInspectorProperty;
+  I: Integer;
 begin
-  if insSummary.Categories.Count = 0 then
-    Exit;
-  if insSummary.Categories[0].Properties.Count <= AProperty then
-    Exit;
-  Prop := insSummary.Categories[0].Properties[AProperty];
-  Prop.Value := AValue;
-  Prop.Level := ALevel;
+  kvSummary.SetValue(AKey, AValue);
+  for I := 0 to kvSummary.Items.Count - 1 do
+    if SameText(kvSummary.Items[I].Key, AKey) then
+    begin
+      kvSummary.Items[I].Tone := ATone;
+      Break;
+    end;
 end;
 
 procedure TfrmEvBattery.UpdateCells;
@@ -217,16 +219,20 @@ var
   SpreadMv: Double;
 begin
   SpreadMv := (FCellMax - FCellMin) * 1000;
-  SetSummaryValue(0, Format('%.3f V', [FCellAvg]), alvNormal);
-  SetSummaryValue(1, Format('%.0f mV', [SpreadMv]), alvWarning);
-  SetSummaryValue(2, Format('%s ' + #183 + ' %.3f V',
-    [CellName(FMaxIndex), FCellMax]), alvNormal);
-  SetSummaryValue(3, Format('%s ' + #183 + ' %.3f V',
-    [CellName(FMinIndex), FCellMin]), alvWarning);
+  SetSummaryValue('Mean cell voltage', Format('%.3f V', [FCellAvg]),
+    skNeutral);
+  SetSummaryValue('Spread (max - min)', Format('%.0f mV', [SpreadMv]),
+    skWarning);
+  SetSummaryValue('Highest', Format('%s ' + #183 + ' %.3f V',
+    [CellName(FMaxIndex), FCellMax]), skNeutral);
+  SetSummaryValue('Lowest', Format('%s ' + #183 + ' %.3f V',
+    [CellName(FMinIndex), FCellMin]), skWarning);
   if FTestRunning then
-    SetSummaryValue(4, 'checking ' + #183 + ' module load active', alvWarning)
+    SetSummaryValue('Balancing', 'checking ' + #183 + ' module load active',
+      skWarning)
   else
-    SetSummaryValue(4, 'off ' + #183 + ' last 2 days ago', alvNormal);
+    SetSummaryValue('Balancing', 'off ' + #183 + ' last 2 days ago',
+      skNeutral);
 end;
 
 procedure TfrmEvBattery.StartBalanceCheck;

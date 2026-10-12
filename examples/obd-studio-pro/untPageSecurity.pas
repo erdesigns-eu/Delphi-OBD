@@ -6,7 +6,7 @@
 //
 //    - TOBDSecurityAccessCard, TOBDProcedureView, TOBDKeySlots and
 //      TOBDPreconditionList drive the immobilizer workflow.
-//    - TOBDCard, TOBDListBox and TOBDButton show component protection
+//    - TOBDCard, TOBDDataGrid and TOBDButton show component protection
 //      status for the Golf VII sample job.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
@@ -24,7 +24,7 @@ uses
   ERD.UI.Types, ERD.UI.Paint, ERD.UI.Toast, ERD.UI.Dialogs,
   ERD.UI.Card, ERD.UI.Buttons, ERD.UI.PreconditionList,
   ERD.UI.ProcedureView, ERD.UI.SecurityAccessCard, ERD.UI.KeySlots,
-  ERD.UI.ItemList,
+  ERD.UI.DataGrid,
   untProPage, untSimulator;
 
 type
@@ -39,7 +39,7 @@ type
     secAccess: TOBDSecurityAccessCard;
     preKeyLearning: TOBDPreconditionList;
     cdProtection: TOBDCard;
-    lstProtection: TOBDListBox;
+    grdProtection: TOBDDataGrid;
     btnRefreshProtection: TOBDButton;
     procedure btnStartLearningClick(Sender: TObject);
     procedure btnCancelLearningClick(Sender: TObject);
@@ -158,18 +158,33 @@ begin
 end;
 
 procedure TfrmSecurity.FillProtectionList;
+var
+  Row: Integer;
 begin
-  lstProtection.Items.BeginUpdate;
+  grdProtection.BeginUpdate;
   try
-    lstProtection.Items.Clear;
-    lstProtection.Items.Add('19  Gateway               5Q0 907 530 AQ   Not active');
-    lstProtection.Items.Add('17  Instruments           5G1 920 640 B    Not active');
-    lstProtection.Items.Add('5F  Infotainment          5G0 035 020 E    PROTECTED');
-    lstProtection.Items.Add('46  Comfort system        5Q0 959 435 C    Not active');
-    lstProtection.Items.Add('15  Airbag                5Q0 959 655 BJ   Not active');
-    lstProtection.Items.Add('44  Steering assistance   5Q1 909 144 R    Not active');
+    grdProtection.Clear;
+    Row := grdProtection.AddRow(['19', 'Gateway', '5Q0 907 530 AQ',
+      'Not active']);
+    grdProtection.CellTone[3, Row] := skSuccess;
+    Row := grdProtection.AddRow(['17', 'Instruments', '5G1 920 640 B',
+      'Not active']);
+    grdProtection.CellTone[3, Row] := skSuccess;
+    Row := grdProtection.AddRow(['5F', 'Infotainment', '5G0 035 020 E',
+      'Protected']);
+    grdProtection.CellTone[3, Row] := skDanger;
+    grdProtection.RowAccent[Row] := True;
+    Row := grdProtection.AddRow(['46', 'Comfort system', '5Q0 959 435 C',
+      'Not active']);
+    grdProtection.CellTone[3, Row] := skSuccess;
+    Row := grdProtection.AddRow(['15', 'Airbag', '5Q0 959 655 BJ',
+      'Not active']);
+    grdProtection.CellTone[3, Row] := skSuccess;
+    Row := grdProtection.AddRow(['44', 'Steering assistance',
+      '5Q1 909 144 R', 'Not active']);
+    grdProtection.CellTone[3, Row] := skSuccess;
   finally
-    lstProtection.Items.EndUpdate;
+    grdProtection.EndUpdate;
   end;
 end;
 

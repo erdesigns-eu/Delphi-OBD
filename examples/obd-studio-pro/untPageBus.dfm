@@ -67,6 +67,7 @@ object frmBus: TfrmBus
       OnStart = actTestsStart
       OnStop = actTestsStop
       OnStopAll = actTestsStopAll
+      OnValueChange = actTestsValueChange
       TabOrder = 0
     end
   end
@@ -110,6 +111,7 @@ object frmBus: TfrmBus
       Subtitle = 'Powertrain CAN '#183' 500 kbit/s '#183' 2016 Golf VII 1.6 TDI'
       Capacity = 600
       AutoScroll = True
+      ShowDirectionFilter = True
       TabOrder = 0
     end
   end

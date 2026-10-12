@@ -23,7 +23,7 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.ExtCtrls,
   ERD.UI.Types, ERD.UI.Paint, ERD.UI.Toast, ERD.UI.Dialogs,
   ERD.UI.Card, ERD.UI.Buttons, ERD.UI.Edits, ERD.UI.Segmented,
-  ERD.UI.Chips, ERD.UI.HexView, ERD.UI.ItemList,
+  ERD.UI.Chips, ERD.UI.HexView, ERD.UI.DataGrid,
   ERD.RadioCode.Types, ERD.RadioCode, ERD.RadioCode.EuropeanPremium,
   untProPage, untSimulator;
 
@@ -47,7 +47,7 @@ type
     pnlRadioRight: TPanel;
     hexRadio: TOBDHexView;
     cdRadioEvidence: TOBDCard;
-    lstRadioEvidence: TOBDListBox;
+    grdRadioEvidence: TOBDDataGrid;
     procedure btnCalcRadioClick(Sender: TObject);
     procedure btnCopyRadioClick(Sender: TObject);
     procedure btnSaveRadioClick(Sender: TObject);
@@ -199,19 +199,35 @@ begin
 end;
 
 procedure TfrmRadio.SetEvidence(const AText: string);
+var
+  Row: Integer;
+  ResultTone: TOBDStatusKind;
 begin
-  lstRadioEvidence.Items.BeginUpdate;
+  if Pos('Validation failed:', AText) = 1 then
+    ResultTone := skWarning
+  else
+    ResultTone := skSuccess;
+  grdRadioEvidence.BeginUpdate;
   try
-    lstRadioEvidence.Items.Clear;
-    lstRadioEvidence.Items.Add('Brand: Volkswagen');
-    lstRadioEvidence.Items.Add('Unit: RCD 330 (Delphi)');
-    lstRadioEvidence.Items.Add('Vehicle VIN: WVWZZZAUZGW123456');
-    lstRadioEvidence.Items.Add('Serial: ' + edRadioSerial.Text);
-    lstRadioEvidence.Items.Add('EEPROM: 24C32, bytes 0x0038..0x003B');
-    lstRadioEvidence.Items.Add('Note: algorithms are licensed and supplied by the host.');
-    lstRadioEvidence.Items.Add('Result: ' + AText);
+    grdRadioEvidence.Clear;
+    Row := grdRadioEvidence.AddRow(['Brand', 'Volkswagen', 'OK']);
+    grdRadioEvidence.CellTone[2, Row] := skSuccess;
+    Row := grdRadioEvidence.AddRow(['Unit', 'RCD 330 (Delphi)', 'OK']);
+    grdRadioEvidence.CellTone[2, Row] := skSuccess;
+    Row := grdRadioEvidence.AddRow(['Vehicle VIN', 'WVWZZZAUZGW123456', 'OK']);
+    grdRadioEvidence.CellTone[2, Row] := skSuccess;
+    Row := grdRadioEvidence.AddRow(['Serial', edRadioSerial.Text, 'OK']);
+    grdRadioEvidence.CellTone[2, Row] := skSuccess;
+    Row := grdRadioEvidence.AddRow(['EEPROM',
+      '24C32, bytes 0x0038..0x003B', 'OK']);
+    grdRadioEvidence.CellTone[2, Row] := skSuccess;
+    Row := grdRadioEvidence.AddRow(['Note',
+      'Algorithms are licensed and supplied by the host.', 'Info']);
+    grdRadioEvidence.CellTone[2, Row] := skNeutral;
+    Row := grdRadioEvidence.AddRow(['Result', AText, 'State']);
+    grdRadioEvidence.CellTone[2, Row] := ResultTone;
   finally
-    lstRadioEvidence.Items.EndUpdate;
+    grdRadioEvidence.EndUpdate;
   end;
 end;
 

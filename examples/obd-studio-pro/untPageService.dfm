@@ -83,7 +83,7 @@ object frmService: TfrmService
         OnClick = btnRunClick
         TabOrder = 3
       end
-      object lbFunctions: TOBDListBox
+      object tilesCatalogue: TOBDTileGrid
         AlignWithMargins = True
         Left = 17
         Top = 137
@@ -94,8 +94,14 @@ object frmService: TfrmService
         Margins.Right = 0
         Margins.Bottom = 12
         Align = alClient
-        EmptyText = 'No service functions match the filter'
-        OnChange = lbFunctionsChange
+        TileStyle = tgsRow
+        TileWidth = 300
+        TileHeight = 64
+        ShowGroups = True
+        BorderVisible = True
+        OnChange = tilesCatalogueChange
+        OnItemClick = tilesCatalogueItemClick
+        OnItemActivate = tilesCatalogueItemActivate
         TabOrder = 2
       end
     end

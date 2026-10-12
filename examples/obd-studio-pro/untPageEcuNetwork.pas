@@ -5,7 +5,7 @@
 //  topology view, ECU list, ECU details and a vehicle strip.
 //
 //  Components used: TOBDVehicleInfoCard, TOBDEcuTopology, TOBDEcuList,
-//  TOBDCard, TOBDInspector and TOBDButton.
+//  TOBDCard, TOBDKeyValueList and TOBDButton.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
@@ -20,7 +20,7 @@ uses
   Winapi.Windows, System.SysUtils, System.Classes, System.Math, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.ExtCtrls,
   ERD.UI.Types, ERD.UI.Paint, ERD.UI.Toast, ERD.UI.Dialogs,
-  ERD.UI.VehicleCard, ERD.UI.EcuTopology, ERD.UI.Card, ERD.UI.Inspector,
+  ERD.UI.VehicleCard, ERD.UI.EcuTopology, ERD.UI.Card, ERD.UI.KeyValueList,
   ERD.UI.Buttons,
   untProPage, untSimulator;
 
@@ -33,7 +33,7 @@ type
     ecuList: TOBDEcuList;
     pnlRight: TPanel;
     cdEcuDetail: TOBDCard;
-    insEcuDetail: TOBDInspector;
+    kvEcuDetail: TOBDKeyValueList;
     topoNetwork: TOBDEcuTopology;
     procedure btnScanAllClick(Sender: TObject);
     procedure EcuSelect(Sender: TObject; const AAddress: string;
@@ -121,26 +121,6 @@ const
       SystemText: ''; FaultCount: 0; State: ensNoResponse; BusIndex: 4;
       Hardware: 'H05'; Software: '0189')
   );
-
-procedure AddReadOnly(AInspector: TOBDInspector; const ACategory, AName,
-  AValue: string; ALevel: TOBDAlertLevel = alvNormal);
-var
-  Category: TOBDInspectorCategory;
-  Prop: TOBDInspectorProperty;
-  I: Integer;
-begin
-  Category := nil;
-  for I := 0 to AInspector.Categories.Count - 1 do
-    if SameText(AInspector.Categories[I].Caption, ACategory) then
-    begin
-      Category := AInspector.Categories[I];
-      Break;
-    end;
-  if Category = nil then
-    Category := AInspector.AddCategory(ACategory);
-  Prop := Category.AddProperty(AName, AValue, ivReadOnly);
-  Prop.Level := ALevel;
-end;
 
 function FaultText(const ASample: TEcuSample): string;
 begin
@@ -327,7 +307,8 @@ end;
 procedure TfrmEcuNetwork.UpdateDetail;
 var
   I: Integer;
-  Level: TOBDAlertLevel;
+  Item: TOBDKeyValueItem;
+  Tone: TOBDStatusKind;
 begin
   I := FindEcuIndex(FSelectedAddress);
   if I < 0 then
@@ -335,52 +316,64 @@ begin
   cdEcuDetail.Title := ECU_SAMPLES[I].Address + ' ' + ECU_SAMPLES[I].Name;
   case ECU_SAMPLES[I].State of
     ensFaults:
-      cdEcuDetail.StatusEdge := ceDanger;
+      begin
+        cdEcuDetail.StatusEdge := ceDanger;
+        Tone := skDanger;
+      end;
     ensLocked:
-      cdEcuDetail.StatusEdge := ceAccent;
+      begin
+        cdEcuDetail.StatusEdge := ceAccent;
+        Tone := skWarning;
+      end;
     ensNoResponse:
-      cdEcuDetail.StatusEdge := ceNeutral;
+      begin
+        cdEcuDetail.StatusEdge := ceNeutral;
+        Tone := skNeutral;
+      end;
   else
     cdEcuDetail.StatusEdge := ceSuccess;
+    Tone := skSuccess;
   end;
-  insEcuDetail.BeginUpdate;
+  kvEcuDetail.BeginUpdate;
   try
-    insEcuDetail.Clear;
-    AddReadOnly(insEcuDetail, 'Identification', 'Diagnostic address',
-      ECU_SAMPLES[I].Address);
-    AddReadOnly(insEcuDetail, 'Identification', 'Control unit',
-      ECU_SAMPLES[I].Name);
-    AddReadOnly(insEcuDetail, 'Identification', 'Part number',
-      ECU_SAMPLES[I].PartNumber);
-    AddReadOnly(insEcuDetail, 'Identification', 'System',
-      ECU_SAMPLES[I].SystemText);
-    AddReadOnly(insEcuDetail, 'Software', 'Hardware', ECU_SAMPLES[I].Hardware);
-    AddReadOnly(insEcuDetail, 'Software', 'Software', ECU_SAMPLES[I].Software);
-    AddReadOnly(insEcuDetail, 'Software', 'Workshop code',
-      'WSC 01234 '#183' 2026-10-11');
-    AddReadOnly(insEcuDetail, 'Software', 'Protocol', 'UDS on CAN');
-    if ECU_SAMPLES[I].State = ensFaults then
-      Level := alvAlarm
-    else if ECU_SAMPLES[I].State = ensLocked then
-      Level := alvWarning
-    else
-      Level := alvNormal;
-    AddReadOnly(insEcuDetail, 'Status', 'Result', FaultText(ECU_SAMPLES[I]),
-      Level);
+    kvEcuDetail.Clear;
+    kvEcuDetail.Add('Identification', 'Diagnostic address',
+      ECU_SAMPLES[I].Address, kvkMono);
+    kvEcuDetail.Add('Identification', 'Control unit', ECU_SAMPLES[I].Name);
+    kvEcuDetail.Add('Identification', 'Part number',
+      ECU_SAMPLES[I].PartNumber, kvkMono);
+    kvEcuDetail.Add('Identification', 'System', ECU_SAMPLES[I].SystemText);
+    kvEcuDetail.Add('Software', 'Hardware', ECU_SAMPLES[I].Hardware, kvkMono);
+    kvEcuDetail.Add('Software', 'Software', ECU_SAMPLES[I].Software, kvkMono);
+    kvEcuDetail.Add('Software', 'Workshop code',
+      'WSC 01234 '#183' 2026-10-11', kvkMono);
+    kvEcuDetail.Add('Software', 'Protocol', 'UDS on CAN');
+    Item := kvEcuDetail.Add('State', 'Result', FaultText(ECU_SAMPLES[I]),
+      kvkChip);
+    Item.Tone := Tone;
     if ECU_SAMPLES[I].Address = '01' then
-      AddReadOnly(insEcuDetail, 'Status', 'Primary DTC',
-        'P0401 EGR flow insufficient', alvAlarm)
+    begin
+      Item := kvEcuDetail.Add('State', 'Primary DTC',
+        'P0401 EGR flow insufficient', kvkTone);
+      Item.Tone := skDanger;
+    end
     else if ECU_SAMPLES[I].Address = '09' then
-      AddReadOnly(insEcuDetail, 'Coding', 'Long coding',
-        '2D 0B 3C 84 40 1A 00 0C 80 6C 03 12 08 00 51 C0')
+      kvEcuDetail.Add('Coding', 'Long coding',
+        '2D 0B 3C 84 40 1A 00 0C 80 6C 03 12 08 00 51 C0', kvkMono)
     else if ECU_SAMPLES[I].State = ensNoResponse then
-      AddReadOnly(insEcuDetail, 'Status', 'Last response',
-        'No response to address probe', alvWarning)
+    begin
+      Item := kvEcuDetail.Add('State', 'Last response',
+        'No response to address probe', kvkTone);
+      Item.Tone := skWarning;
+    end
     else if ECU_SAMPLES[I].State = ensLocked then
-      AddReadOnly(insEcuDetail, 'Status', 'Access',
-        'Security access required', alvWarning);
+    begin
+      Item := kvEcuDetail.Add('State', 'Access',
+        'Security access required', kvkTone);
+      Item.Tone := skWarning;
+    end;
   finally
-    insEcuDetail.EndUpdate;
+    kvEcuDetail.EndUpdate;
   end;
 end;
 

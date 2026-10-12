@@ -5,7 +5,7 @@
 //  catalogue, preconditions and a running procedure.
 //
 //  Components used: TOBDVehicleInfoCard, TOBDCard, TOBDEdit, TOBDComboBox,
-//  TOBDListBox, TOBDButton, TOBDProcedureView and TOBDPreconditionList.
+//  TOBDTileGrid, TOBDButton, TOBDProcedureView and TOBDPreconditionList.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
@@ -20,7 +20,7 @@ uses
   Winapi.Windows, System.SysUtils, System.Classes, System.Math, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.ExtCtrls,
   ERD.UI.Types, ERD.UI.Paint, ERD.UI.Toast, ERD.UI.Dialogs,
-  ERD.UI.VehicleCard, ERD.UI.Card, ERD.UI.Edits, ERD.UI.ItemList,
+  ERD.UI.VehicleCard, ERD.UI.Card, ERD.UI.Edits, ERD.UI.TileGrid,
   ERD.UI.Buttons, ERD.UI.ProcedureView, ERD.UI.PreconditionList,
   untProPage, untSimulator;
 
@@ -31,14 +31,16 @@ type
     cdCatalogue: TOBDCard;
     edSearch: TOBDEdit;
     cbCategory: TOBDComboBox;
-    lbFunctions: TOBDListBox;
+    tilesCatalogue: TOBDTileGrid;
     btnRun: TOBDButton;
     pnlRight: TPanel;
     procService: TOBDProcedureView;
     preService: TOBDPreconditionList;
     procedure edSearchChange(Sender: TObject);
     procedure cbCategoryChange(Sender: TObject);
-    procedure lbFunctionsChange(Sender: TObject);
+    procedure tilesCatalogueChange(Sender: TObject);
+    procedure tilesCatalogueItemClick(Sender: TObject; AIndex: Integer);
+    procedure tilesCatalogueItemActivate(Sender: TObject; AIndex: Integer);
     procedure btnRunClick(Sender: TObject);
     procedure procServiceNext(Sender: TObject);
     procedure procServiceBack(Sender: TObject);
@@ -46,7 +48,6 @@ type
     procedure procServiceAction(Sender: TObject);
   private
     FHost: IProHost;
-    FVisibleMap: array of Integer;
     FSelectedService: Integer;
     FRunActive: Boolean;
     FRunTick: Integer;
@@ -60,7 +61,9 @@ type
     procedure UpdateProcedureState;
     procedure StartProcedure;
     procedure FinishProcedure;
-    function SelectedVisibleService: Integer;
+    function ServiceGlyph(AIndex: Integer): TOBDGlyph;
+    function ServiceMatchesFilter(AIndex: Integer; const AQuery: string): Boolean;
+    function TileServiceIndex(AIndex: Integer): Integer;
   public
     procedure Init(const AHost: IProHost);
     procedure Tick;
@@ -177,9 +180,20 @@ begin
   RefreshCatalogue;
 end;
 
-procedure TfrmService.lbFunctionsChange(Sender: TObject);
+procedure TfrmService.tilesCatalogueChange(Sender: TObject);
 begin
-  LoadService(SelectedVisibleService);
+  LoadService(TileServiceIndex(tilesCatalogue.ItemIndex));
+end;
+
+procedure TfrmService.tilesCatalogueItemActivate(Sender: TObject;
+  AIndex: Integer);
+begin
+  LoadService(TileServiceIndex(AIndex));
+end;
+
+procedure TfrmService.tilesCatalogueItemClick(Sender: TObject; AIndex: Integer);
+begin
+  LoadService(TileServiceIndex(AIndex));
 end;
 
 procedure TfrmService.btnRunClick(Sender: TObject);
@@ -270,46 +284,76 @@ var
   I: Integer;
   Query: string;
   Category: string;
-  Match: Boolean;
+  FirstAny: Integer;
+  FirstSelectable: Integer;
+  SelectedIndex: Integer;
+  Tile: TOBDTileItem;
 begin
   Query := LowerCase(Trim(edSearch.Text));
   if cbCategory.ItemIndex >= 0 then
     Category := cbCategory.Items[cbCategory.ItemIndex]
   else
     Category := 'All';
-  lbFunctions.Items.BeginUpdate;
+
+  FirstAny := -1;
+  FirstSelectable := -1;
+  SelectedIndex := -1;
+  tilesCatalogue.BeginUpdate;
   try
-    lbFunctions.Items.Clear;
-    SetLength(FVisibleMap, 0);
+    tilesCatalogue.Filter := '';
+    tilesCatalogue.Clear;
     for I := 0 to SERVICE_COUNT - 1 do
     begin
-      Match := (Category = 'All') or SameText(Category,
-        SERVICE_SAMPLES[I].Category);
-      if Match and (Query <> '') then
-        Match := (Pos(Query, LowerCase(SERVICE_SAMPLES[I].Name)) > 0) or
-          (Pos(Query, LowerCase(SERVICE_SAMPLES[I].Ecu)) > 0);
-      if Match then
+      if (Category <> 'All') and not SameText(Category,
+        SERVICE_SAMPLES[I].Category) then
+        Continue;
+
+      Tile := tilesCatalogue.AddTile(SERVICE_SAMPLES[I].Name,
+        SERVICE_SAMPLES[I].Ecu, ServiceGlyph(I), SERVICE_SAMPLES[I].Category);
+      Tile.Tag := I;
+      if SERVICE_SAMPLES[I].Supported then
       begin
-        SetLength(FVisibleMap, Length(FVisibleMap) + 1);
-        FVisibleMap[High(FVisibleMap)] := I;
-        if SERVICE_SAMPLES[I].Supported then
-          lbFunctions.Items.Add(SERVICE_SAMPLES[I].Name + ' - ' +
-            SERVICE_SAMPLES[I].Ecu)
+        if SERVICE_SAMPLES[I].Custom then
+        begin
+          Tile.Badge := 'Garage';
+          Tile.BadgeTone := skAccent;
+        end
         else
-          lbFunctions.Items.Add(SERVICE_SAMPLES[I].Name + ' - not fitted');
+        begin
+          Tile.Badge := 'Ready';
+          Tile.BadgeTone := skSuccess;
+        end;
+      end
+      else
+      begin
+        Tile.Subtitle := 'Not fitted';
+        Tile.Badge := 'Not fitted';
+        Tile.BadgeTone := skNeutral;
+        Tile.Enabled := False;
+      end;
+
+      if ServiceMatchesFilter(I, Query) then
+      begin
+        if FirstAny < 0 then
+          FirstAny := Tile.Index;
+        if SERVICE_SAMPLES[I].Supported and (FirstSelectable < 0) then
+          FirstSelectable := Tile.Index;
+        if SERVICE_SAMPLES[I].Supported and (I = FSelectedService) then
+          SelectedIndex := Tile.Index;
       end;
     end;
-    for I := 0 to High(FVisibleMap) do
-      if FVisibleMap[I] = FSelectedService then
-      begin
-        lbFunctions.ItemIndex := I;
-        Break;
-      end;
-    if (lbFunctions.ItemIndex < 0) and (Length(FVisibleMap) > 0) then
-      lbFunctions.ItemIndex := 0;
+    tilesCatalogue.Filter := Query;
   finally
-    lbFunctions.Items.EndUpdate;
+    tilesCatalogue.EndUpdate;
   end;
+
+  if SelectedIndex < 0 then
+    SelectedIndex := FirstSelectable;
+  tilesCatalogue.ItemIndex := SelectedIndex;
+  if tilesCatalogue.ItemIndex >= 0 then
+    LoadService(TileServiceIndex(tilesCatalogue.ItemIndex))
+  else if FirstAny >= 0 then
+    LoadService(TileServiceIndex(FirstAny));
 end;
 
 procedure TfrmService.LoadService(AIndex: Integer);
@@ -464,11 +508,47 @@ begin
   end;
 end;
 
-function TfrmService.SelectedVisibleService: Integer;
+function TfrmService.ServiceGlyph(AIndex: Integer): TOBDGlyph;
+begin
+  case AIndex of
+    0:
+      Result := glOil;
+    1, 7:
+      Result := glBrake;
+    2:
+      Result := glSteering;
+    3:
+      Result := glBattery;
+    4:
+      Result := glDpfRegen;
+    5:
+      Result := glTpms;
+    9:
+      Result := glFan;
+  else
+    Result := glRoutine;
+  end;
+end;
+
+function TfrmService.ServiceMatchesFilter(AIndex: Integer;
+  const AQuery: string): Boolean;
+begin
+  Result := AQuery = '';
+  if Result or (AIndex < 0) or (AIndex >= SERVICE_COUNT) then
+    Exit;
+
+  Result := (Pos(AQuery, LowerCase(SERVICE_SAMPLES[AIndex].Name)) > 0) or
+    (Pos(AQuery, LowerCase(SERVICE_SAMPLES[AIndex].Ecu)) > 0) or
+    (Pos(AQuery, LowerCase(SERVICE_SAMPLES[AIndex].Category)) > 0);
+  if not Result and not SERVICE_SAMPLES[AIndex].Supported then
+    Result := Pos(AQuery, 'not fitted') > 0;
+end;
+
+function TfrmService.TileServiceIndex(AIndex: Integer): Integer;
 begin
   Result := -1;
-  if (lbFunctions.ItemIndex >= 0) and (lbFunctions.ItemIndex < Length(FVisibleMap)) then
-    Result := FVisibleMap[lbFunctions.ItemIndex];
+  if (AIndex >= 0) and (AIndex < tilesCatalogue.Items.Count) then
+    Result := tilesCatalogue.Items[AIndex].Tag;
 end;
 
 end.

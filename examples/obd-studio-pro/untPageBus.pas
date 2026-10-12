@@ -49,6 +49,7 @@ type
     procedure actTestsStart(Sender: TObject; AIndex: Integer);
     procedure actTestsStop(Sender: TObject; AIndex: Integer);
     procedure actTestsStopAll(Sender: TObject);
+    procedure actTestsValueChange(Sender: TObject; AIndex, AValue: Integer);
     procedure sendFramePeriodicChange(Sender: TObject; APeriodic: Boolean;
       APeriodMs: Integer);
     procedure sendFrameSend(Sender: TObject; AId: Cardinal; AExtended: Boolean;
@@ -66,7 +67,7 @@ type
     procedure AddActuators;
     procedure AddReplayMarkers;
     procedure AddFrame(AId: Cardinal; AExtended: Boolean; const AData: TBytes;
-      const ADecoded: string);
+      const ADecoded: string; ADirection: TOBDBusTraceDirection);
     procedure AddDiagnosticPair(APID: Byte);
     procedure AddPeriodicTraffic;
     procedure CompleteActuator(AIndex: Integer; ASuccess: Boolean);
@@ -104,6 +105,10 @@ var
 begin
   if (AIndex < Low(FActuatorTicks)) or (AIndex > High(FActuatorTicks)) then
     Exit;
+  Item := actTests.Items[AIndex];
+  if Item.Kind <> akButton then
+    Exit;
+
   if (FHost <> nil) and not FHost.Connected then
   begin
     FHost.Notify(tkWarning, 'Not connected',
@@ -115,9 +120,9 @@ begin
     ' on 01 Engine electronics? The test stops automatically.', 'Run') then
     Exit;
 
-  Item := actTests.Items[AIndex];
   Item.State := apsRunning;
   Item.Progress := 0;
+  Item.RemainingSec := ACTUATOR_DURATION[AIndex] div 10;
   Item.Feedback := ActuatorFeedback(AIndex, 0);
   FActuatorTicks[AIndex] := ACTUATOR_DURATION[AIndex];
   if FHost <> nil then
@@ -137,16 +142,66 @@ begin
     StopActuator(I, 'stop all');
 end;
 
+procedure TfrmBus.actTestsValueChange(Sender: TObject; AIndex,
+  AValue: Integer);
+var
+  Item: TOBDActuatorItem;
+  ValueText: string;
+begin
+  if (AIndex < Low(FActuatorTicks)) or (AIndex > High(FActuatorTicks)) then
+    Exit;
+
+  Item := actTests.Items[AIndex];
+  case AIndex of
+    0:
+      ValueText := Format('Fan request %d %% / %d rpm', [AValue,
+        900 + AValue * 22]);
+    1:
+      case AValue of
+        0:
+          ValueText := 'EGR closed';
+        1:
+          ValueText := 'EGR hold';
+      else
+        ValueText := 'EGR open';
+      end;
+    2:
+      if AValue = 0 then
+        ValueText := 'Relay off'
+      else
+        ValueText := 'Relay energized';
+  else
+    ValueText := Format('Value %d', [AValue]);
+  end;
+  Item.Feedback := ValueText;
+  if FHost <> nil then
+    FHost.Log(Format('Actuator page: %s set to %s.',
+      [ACTUATOR_NAMES[AIndex], ValueText]));
+end;
+
 procedure TfrmBus.AddActuators;
 var
   I: Integer;
+  Item: TOBDActuatorItem;
 begin
   actTests.Clear;
-  for I := Low(ACTUATOR_NAMES) to High(ACTUATOR_NAMES) do
-  begin
-    actTests.AddTest(ACTUATOR_NAMES[I], ACTUATOR_IDLE[I]);
+
+  Item := actTests.AddControl(ACTUATOR_NAMES[0], ACTUATOR_IDLE[0], akSlider);
+  Item.Value := 0;
+  Item := actTests.AddControl(ACTUATOR_NAMES[1], ACTUATOR_IDLE[1], akSteps);
+  Item.Steps := 'Closed,Hold,Open';
+  Item.Value := 1;
+  actTests.AddControl(ACTUATOR_NAMES[2], ACTUATOR_IDLE[2], akSwitch);
+  Item := actTests.AddTest(ACTUATOR_NAMES[3], ACTUATOR_IDLE[3]);
+  Item.ButtonCaption := 'Heat';
+  Item := actTests.AddTest(ACTUATOR_NAMES[4], ACTUATOR_IDLE[4]);
+  Item.ButtonCaption := 'Sweep';
+  Item := actTests.AddControl(ACTUATOR_NAMES[5], ACTUATOR_IDLE[5], akSlider);
+  Item.Locked := True;
+  Item.LockReason := 'Engine running';
+
+  for I := Low(FActuatorTicks) to High(FActuatorTicks) do
     FActuatorTicks[I] := 0;
-  end;
 end;
 
 procedure TfrmBus.AddDiagnosticPair(APID: Byte);
@@ -154,15 +209,17 @@ var
   Request: TBytes;
 begin
   Request := Data8($02, $01, APID, $00, $00, $00, $00, $00);
-  AddFrame($7E0, False, Request, 'Mode 01 PID ' + IntToHex(APID, 2));
+  AddFrame($7E0, False, Request, 'Mode 01 PID ' + IntToHex(APID, 2),
+    btfTx);
   AddFrame($7E8, False, PIDResponseData(APID),
-    'Response ' + IntToHex(APID, 2));
+    'Response ' + IntToHex(APID, 2), btfRx);
 end;
 
 procedure TfrmBus.AddFrame(AId: Cardinal; AExtended: Boolean;
-  const AData: TBytes; const ADecoded: string);
+  const AData: TBytes; const ADecoded: string;
+  ADirection: TOBDBusTraceDirection);
 begin
-  traceBus.AddFrame(FBusTimeMs, AId, AExtended, AData, ADecoded);
+  traceBus.AddFrame(FBusTimeMs, AId, AExtended, AData, ADecoded, ADirection);
 end;
 
 procedure TfrmBus.AddPeriodicTraffic;
@@ -180,12 +237,12 @@ begin
 
   AddFrame($280, False, Data8($49, Byte(Load), Byte(Rpm shr 8),
     Byte(Rpm and $FF), Byte(MapValue), $00, Byte(Maf), $0E),
-    Format('Engine %d rpm, load %d %%', [Rpm, Load]));
+    Format('Engine %d rpm, load %d %%', [Rpm, Load]), btfRx);
   AddFrame($288, False, Data8($8C, Byte(Temp), $00, Byte(Speed), $00, $00,
     $00, $00), Format('Thermal %d km/h, coolant %d '#176'C',
-    [Speed, Temp - 40]));
+    [Speed, Temp - 40]), btfRx);
   AddFrame($5A0, False, Data8($02, $00, $00, Byte(Voltage), $0B, $00, $00,
-    $00), Format('Terminal 30 %.1f V', [Voltage / 10.0]));
+    $00), Format('Terminal 30 %.1f V', [Voltage / 10.0]), btfRx);
 end;
 
 procedure TfrmBus.AddReplayMarkers;
@@ -207,6 +264,7 @@ begin
   FActuatorTicks[AIndex] := 0;
   Item := actTests.Items[AIndex];
   Item.Progress := 100;
+  Item.RemainingSec := 0;
   if ASuccess then
   begin
     Item.State := apsDone;
@@ -298,6 +356,7 @@ begin
   FSendCountdown := 0;
   traceBus.Clear;
   traceBus.Capacity := 600;
+  traceBus.ShowDirectionFilter := True;
   traceBus.Subtitle := 'Powertrain CAN ' + #183 + ' 500 kbit/s ' + #183 +
     ' 2016 Golf VII 1.6 TDI';
   AddActuators;
@@ -443,17 +502,17 @@ begin
     'Transmit one frame on the simulated Powertrain CAN?', 'Send') then
     Exit;
 
-  AddFrame(AId, AExtended, AData, 'Manual frame');
+  AddFrame(AId, AExtended, AData, 'Manual frame', btfTx);
   if (AId = $7E0) and (Length(AData) >= 3) and (AData[0] = $02) and
     (AData[1] = $01) then
   begin
     PID := AData[2];
     AddFrame($7E8, False, PIDResponseData(PID),
-      'Response ' + IntToHex(PID, 2));
+      'Response ' + IntToHex(PID, 2), btfRx);
   end
   else
     AddFrame(AId + 8, AExtended, Data8($03, $7F, $22, $31, $00, $00, $00,
-      $00), 'Request out of range');
+      $00), 'Request out of range', btfRx);
 
   if FHost <> nil then
     FHost.Log('Bus page: sent frame ID ' + IntToHex(Integer(AId), 3));
@@ -471,6 +530,7 @@ begin
   Item := actTests.Items[AIndex];
   Item.State := apsIdle;
   Item.Progress := 0;
+  Item.RemainingSec := 0;
   Item.Feedback := ACTUATOR_IDLE[AIndex];
   if FHost <> nil then
     FHost.Log('Actuator page: ' + ACTUATOR_NAMES[AIndex] + ' ' + AReason);
@@ -491,6 +551,9 @@ begin
   else if FTick mod 13 = 0 then
     AddDiagnosticPair(PID_COMMANDED_EGR);
 
+  if FTick mod 41 = 0 then
+    traceBus.AddError(FBusTimeMs, 'Interface warning: CAN error passive sample');
+
   if sendFrame.Periodic then
   begin
     Dec(FSendCountdown);
@@ -500,11 +563,11 @@ begin
         sendFrame.TryParseData(PeriodicData) then
       begin
         AddFrame(PeriodicId, sendFrame.Extended, PeriodicData,
-          'Periodic manual frame');
+          'Periodic manual frame', btfTx);
         if (PeriodicId = $7E0) and (Length(PeriodicData) >= 3) and
           (PeriodicData[0] = $02) and (PeriodicData[1] = $01) then
           AddFrame($7E8, False, PIDResponseData(PeriodicData[2]),
-            'Periodic response ' + IntToHex(PeriodicData[2], 2));
+            'Periodic response ' + IntToHex(PeriodicData[2], 2), btfRx);
       end;
       FSendCountdown := System.Math.Max(1, sendFrame.PeriodMs div 100);
     end;
@@ -526,6 +589,8 @@ begin
       actTests.Items[I].Progress := EnsureRange(Progress, 0, 100);
       actTests.Items[I].Feedback := ActuatorFeedback(I,
         actTests.Items[I].Progress);
+      actTests.Items[I].RemainingSec := System.Math.Max(0,
+        FActuatorTicks[I] div 10);
       if FActuatorTicks[I] = 0 then
         CompleteActuator(I, True);
     end;

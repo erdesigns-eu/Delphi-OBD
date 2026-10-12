@@ -168,12 +168,13 @@ object frmMemory: TfrmMemory
         FooterText = 'Catalogue: VW RCD 330 / Delphi 24C32.'
         TabOrder = 9
       end
-      object lstMemoryInfo: TOBDListBox
+      object kvMemoryInfo: TOBDKeyValueList
         Left = 16
         Top = 482
         Width = 360
         Height = 98
-        EmptyText = 'No dump loaded'
+        KeyWidth = 96
+        WordWrap = True
         TabOrder = 10
       end
     end

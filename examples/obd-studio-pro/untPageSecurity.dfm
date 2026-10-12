@@ -274,12 +274,36 @@ object frmSecurity: TfrmSecurity
       ShowFooter = True
       StatusEdge = ceDanger
       TabOrder = 2
-      object lstProtection: TOBDListBox
+      object grdProtection: TOBDDataGrid
         Left = 16
         Top = 64
         Width = 420
         Height = 136
-        EmptyText = 'No control units scanned'
+        DataColumns = <
+          item
+            Caption = 'Addr'
+            Width = 44
+            Kind = dckMono
+          end
+          item
+            Caption = 'Component'
+            Width = 128
+          end
+          item
+            Caption = 'Part number'
+            Width = 128
+            Kind = dckMono
+          end
+          item
+            Caption = 'State'
+            Width = 96
+            Kind = dckChip
+          end>
+        SortColumn = 0
+        EmptyTitle = 'No control units scanned'
+        EmptyHint = 'Click Refresh after connecting to the vehicle.'
+        EmptyGlyph = glShield
+        BorderVisible = True
         TabOrder = 0
       end
       object btnRefreshProtection: TOBDButton

@@ -2,8 +2,8 @@
 //  untPageDyno
 //
 //  OBD Studio Pro dyno page showing a live power-curve sweep with
-//  TOBDXYChart, TOBDValueTile summary cards and TOBDInspector based
-//  run, conditions and vehicle setup panels.
+//  TOBDXYChart, TOBDValueTile summary cards, TOBDDataGrid run table
+//  and TOBDKeyValueList conditions and vehicle setup panels.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
@@ -19,7 +19,7 @@ uses
   Vcl.Controls, Vcl.Forms, Vcl.ExtCtrls, Vcl.StdCtrls,
   ERD.UI.Types, ERD.UI.Paint, ERD.UI.Toast, ERD.UI.Dialogs,
   ERD.UI.Card, ERD.UI.Buttons, ERD.UI.ValueTile, ERD.UI.XYChart,
-  ERD.UI.Inspector, ERD.Service.Dyno,
+  ERD.UI.DataGrid, ERD.UI.KeyValueList, ERD.Service.Dyno,
   untProPage, untSimulator;
 
 type
@@ -43,15 +43,15 @@ type
     pnlBody: TPanel;
     pnlLeft: TPanel;
     chtPower: TOBDXYChart;
-    insRuns: TOBDInspector;
+    grdRuns: TOBDDataGrid;
     pnlRight: TPanel;
     pnlTiles: TPanel;
     tilePeakPower: TOBDValueTile;
     tilePeakTorque: TOBDValueTile;
     tileWheelPower: TOBDValueTile;
     tileLoss: TOBDValueTile;
-    insConditions: TOBDInspector;
-    insVehicle: TOBDInspector;
+    kvConditions: TOBDKeyValueList;
+    kvVehicle: TOBDKeyValueList;
     dynoConditions: TOBDDynoConditions;
     powerCurve: TOBDPowerCurve;
     procedure btnDynoStartClick(Sender: TObject);
@@ -65,7 +65,7 @@ type
     FPeakPowerRpm: Double;
     FPeakTorqueRpm: Double;
     procedure ConfigureChart;
-    procedure ConfigureInspectors;
+    procedure ConfigureDetails;
     procedure FillBaseline;
     procedure FillCompletedRun;
     procedure StartRun;
@@ -73,8 +73,6 @@ type
     procedure UpdateRunStrip;
     procedure UpdateTiles;
     procedure UpdateRunTable;
-    procedure SetInspectorValue(AInspector: TOBDInspector; ACategory,
-      AProperty: Integer; const AValue: string; ALevel: TOBDAlertLevel);
     function TorqueAt(ARpm, AScale: Double): Double;
     function PowerAt(ARpm, AScale: Double): Double;
     function DynoRpm: Double;
@@ -176,66 +174,23 @@ begin
   UpdateTiles;
 end;
 
-procedure TfrmDyno.ConfigureInspectors;
-var
-  Cat: TOBDInspectorCategory;
+procedure TfrmDyno.ConfigureDetails;
 begin
-  insConditions.Categories.Clear;
-  Cat := insConditions.Categories.Add;
-  Cat.Caption := 'Conditions';
-  Cat.AddProperty('Correction', 'SAE J1349', ivReadOnly);
-  Cat.AddProperty('Air temperature', '18 ' + #176'C', ivReadOnly);
-  Cat.AddProperty('Air pressure', '1 012 hPa', ivReadOnly);
-  Cat.AddProperty('Humidity', '54 %', ivReadOnly);
-  Cat.AddProperty('Correction factor', Format('%.3f',
-    [dynoConditions.CorrectionFactor]), ivReadOnly);
+  kvConditions.Clear;
+  kvConditions.Add('Conditions', 'Correction', 'SAE J1349');
+  kvConditions.Add('Conditions', 'Air temperature', '18 ' + #176'C');
+  kvConditions.Add('Conditions', 'Air pressure', '1 012 hPa');
+  kvConditions.Add('Conditions', 'Humidity', '54 %');
+  kvConditions.Add('Conditions', 'Correction factor', Format('%.3f',
+    [dynoConditions.CorrectionFactor]), kvkMono);
 
-  insVehicle.Categories.Clear;
-  Cat := insVehicle.Categories.Add;
-  Cat.Caption := 'Vehicle setup';
-  Cat.AddProperty('Vehicle', '2016 VW Golf VII 1.6 TDI', ivReadOnly);
-  Cat.AddProperty('Mass with driver', '1 405 kg', ivText);
-  Cat.AddProperty('Tyres', '205/55 R16', ivText);
-  Cat.AddProperty('Gear ratio ' + #183 + ' final', '1.27 ' + #183 + ' 3.45',
-    ivText);
-  Cat.AddProperty('Drag area (Cd' + #183 + 'A)', '0.67 m2', ivText);
-
-  insRuns.Categories.Clear;
-  Cat := insRuns.Categories.Add;
-  Cat.Caption := 'Run 3 current';
-  Cat.AddProperty('Peak power', '79.1 kW', ivReadOnly);
-  Cat.AddProperty('Peak torque', '254 Nm', ivReadOnly);
-  Cat.AddProperty('Correction', 'SAE J1349 ' + #183 + ' CF 0.987',
-    ivReadOnly);
-  Cat.AddProperty('Overlay', 'on', ivCheck).Checked := True;
-  Cat := insRuns.Categories.Add;
-  Cat.Caption := 'Run 2 overlay';
-  Cat.AddProperty('Peak power', '77.4 kW', ivReadOnly);
-  Cat.AddProperty('Peak torque', '246 Nm', ivReadOnly);
-  Cat.AddProperty('Correction', 'SAE J1349 ' + #183 + ' CF 0.989',
-    ivReadOnly);
-  Cat.AddProperty('Overlay', 'on', ivCheck).Checked := True;
-  Cat := insRuns.Categories.Add;
-  Cat.Caption := 'Run 1 cold engine';
-  Cat.AddProperty('Peak power', '76.9 kW', ivReadOnly);
-  Cat.AddProperty('Peak torque', '245 Nm', ivReadOnly);
-  Cat.AddProperty('Correction', 'SAE J1349 ' + #183 + ' CF 0.991',
-    ivReadOnly);
-  Cat.AddProperty('Overlay', 'off', ivCheck).Checked := False;
-end;
-
-procedure TfrmDyno.SetInspectorValue(AInspector: TOBDInspector; ACategory,
-  AProperty: Integer; const AValue: string; ALevel: TOBDAlertLevel);
-var
-  Prop: TOBDInspectorProperty;
-begin
-  if AInspector.Categories.Count <= ACategory then
-    Exit;
-  if AInspector.Categories[ACategory].Properties.Count <= AProperty then
-    Exit;
-  Prop := AInspector.Categories[ACategory].Properties[AProperty];
-  Prop.Value := AValue;
-  Prop.Level := ALevel;
+  kvVehicle.Clear;
+  kvVehicle.Add('Vehicle setup', 'Vehicle', '2016 VW Golf VII 1.6 TDI');
+  kvVehicle.Add('Vehicle setup', 'Mass with driver', '1 405 kg');
+  kvVehicle.Add('Vehicle setup', 'Tyres', '205/55 R16');
+  kvVehicle.Add('Vehicle setup', 'Gear ratio ' + #183 + ' final',
+    '1.27 ' + #183 + ' 3.45');
+  kvVehicle.Add('Vehicle setup', 'Drag area (Cd' + #183 + 'A)', '0.67 m2');
 end;
 
 procedure TfrmDyno.UpdateRunStrip;
@@ -294,13 +249,26 @@ begin
 end;
 
 procedure TfrmDyno.UpdateRunTable;
+var
+  Row: Integer;
 begin
-  SetInspectorValue(insRuns, 0, 0, Format('%.1f kW @ %.0f rpm',
-    [FPeakPower, FPeakPowerRpm]), alvNormal);
-  SetInspectorValue(insRuns, 0, 1, Format('%.0f Nm @ %.0f rpm',
-    [FPeakTorque, FPeakTorqueRpm]), alvNormal);
-  SetInspectorValue(insRuns, 0, 2, Format('SAE J1349 ' + #183 + ' CF %.3f',
-    [dynoConditions.CorrectionFactor]), alvNormal);
+  grdRuns.BeginUpdate;
+  try
+    grdRuns.Clear;
+    Row := grdRuns.AddRow(['Run 3 current', '8.5', Format('%.1f',
+      [FPeakPower]), Format('%.0f', [FPeakTorque]), Format('SAE J1349 ' +
+      #183 + ' CF %.3f', [dynoConditions.CorrectionFactor])]);
+    grdRuns.RowData[Row] := 3;
+    grdRuns.RowAccent[Row] := True;
+    Row := grdRuns.AddRow(['Run 2 overlay', '8.6', '77.4', '246',
+      'SAE J1349 ' + #183 + ' CF 0.989']);
+    grdRuns.RowData[Row] := 2;
+    Row := grdRuns.AddRow(['Run 1 cold engine', '8.7', '76.9', '245',
+      'SAE J1349 ' + #183 + ' CF 0.991']);
+    grdRuns.RowData[Row] := 1;
+  finally
+    grdRuns.EndUpdate;
+  end;
 end;
 
 procedure TfrmDyno.StartRun;
@@ -374,7 +342,7 @@ begin
   dynoConditions.PressureKPa := 101.2;
   dynoConditions.RelHumidity := 54;
   ConfigureChart;
-  ConfigureInspectors;
+  ConfigureDetails;
   UpdateRunTable;
   UpdateRunStrip;
   ConnectionChanged;
