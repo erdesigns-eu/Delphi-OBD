@@ -66,8 +66,8 @@ Status:
 | Clear codes and turn off the MIL | Paid | Trouble codes | `TOBDClearDTC`, `TOBDTaskDialog` | Ready |
 | Manufacturer-specific codes | Paid | Trouble codes (Brand source) | OEM DTC catalogues | Data: 5–22 codes per European brand |
 | Live data charts | Paid | Live data | `TOBDTrendChart` | Ready |
-| Live data grid | Paid | Live data (Grid) | `TOBDTileGrid`, `TOBDValueTile` | Ready |
-| Live data histogram | Paid | Live data (Histogram) | — | Library work: histogram control |
+| Live data grid of graphs | Paid | Live data (Graphs view) | `TOBDTrendChart` | Ready |
+| Live data histogram | Paid | Live data (List view) | — | Library work: histogram control |
 | Save a chart as an image | Paid | Live data (Snapshot) | `TOBDSavePictureDialog` | Ready |
 | Log live data and export to CSV | Paid | Live data, Recordings | `TOBDRecorder` | Library work: CSV logger |
 | Oxygen sensor tests (Mode 05, non-CAN cars) | Paid | Monitor tests | `TOBDOxygenMonitor` | Ready |
@@ -124,14 +124,14 @@ each in light and dark, desktop and tablet.
 | Screen | Mockup | Contents |
 |---|---|---|
 | Welcome | `personal-welcome` | First-start wizard, licence step |
-| Connect | `personal-connect` | Adapter, port and protocol; demo car |
-| Overview | `personal-overview` | Vehicle health, MIL, codes, readiness and key values at a glance |
+| Connect | `personal-connect` | Connection and device, adapter check (genuine or clone), demo car |
+| Overview | `personal-overview` | MIL, codes, inspection readiness and battery at a glance; quick start and recent sessions |
 | Trouble codes | `personal-codes` | Codes per ECU with freeze frame, causes, code lookup and clear |
 | Trouble codes (UDS) | `personal-codes-uds` | The same on a J1979-2 car, with failure-type bytes |
 | Readiness | `personal-readiness` | Monitors since clear and this drive cycle, inspection check, drive-cycle advisor |
-| Live data | `personal-live-data` | Value list with ranges and charts |
-| Live data grid | `personal-live-grid` | Tiles and histogram |
-| Dashboard | `personal-dashboard` | Gauges |
+| Live data | `personal-live-data` | Sensor list with normal ranges, a chart and a histogram |
+| Live data graphs | `personal-live-grid` | A grid of graphs with the normal range as a band |
+| Dashboard | `personal-dashboard` | Dial and bar gauges and value tiles |
 | Dashboard editor | `personal-dashboard-edit` | Choose gauges and values |
 | Monitor tests | `personal-tests` | Mode 06 results, Mode 05 and Mode 08 tabs, in-use performance |
 | Vehicle info | `personal-vehicle-info` | VIN decoder, ECU list, calibration IDs and CVNs |

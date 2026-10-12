@@ -97,6 +97,16 @@ Every component is listed in the [component reference](docs/components.md).
 
 EV catalogue entries describe model-specific data, not brand-wide support.
 
+## Applications
+
+The finished products built on Delphi-OBD live in
+[`applications/`](applications/README.md):
+
+| Application | What it is |
+|---|---|
+| [`applications/obd-studio-personal`](applications/obd-studio-personal/README.md) | OBD-Studio Personal: free OBD diagnostics for personal use, an alternative to OBD Auto Doctor. Design stage: all screens are mocked up |
+| OBD-Studio Professional (planned) | The full library for power users and small garages |
+
 ## Example applications
 
 | Example | What it shows |
@@ -152,6 +162,7 @@ are in the [installation guide](docs/install.md).
 | `catalogs/` | JSON catalogues and their schemas (see [`catalogs/INDEX.md`](catalogs/INDEX.md)) |
 | `data/` | JSON schemas for coding, flash-handshake and image-applicability data |
 | `tests/` | DUnitX test project |
+| `applications/` | Finished products: OBD-Studio Personal (see [`applications/README.md`](applications/README.md)) |
 | `examples/` | OBD Studio and OBD Studio Pro |
 | `assets/` | Design-time palette icons (see [`assets/designtime/README.md`](assets/designtime/README.md)) |
 | `tools/` | Validation, generator and FPC scripts (see [`tools/README.md`](tools/README.md)) |

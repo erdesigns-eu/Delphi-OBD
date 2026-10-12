@@ -652,3 +652,88 @@ controls, and the Pro example pages use them (see
 | ![](data-views-tablet-light.png) | ![](data-views-tablet-dark.png) |
 | ![](pro-actuators-bus-detail-light.png) | ![](pro-actuators-bus-detail-dark.png) |
 | ![](pro-actuators-bus-detail-tablet-light.png) | ![](pro-actuators-bus-detail-tablet-dark.png) |
+
+## OBD-Studio Personal
+
+These are the screens of **OBD-Studio Personal**, the free application
+for personal use in [`applications/obd-studio-personal`](../../applications/obd-studio-personal/README.md).
+They are design mockups: the application is not built yet. The screens
+come from `tools/ui_mockups_personal.py`, which `tools/ui_mockups.py`
+registers, so the usual command renders them
+(`python3 tools/ui_mockups.py --only personal-codes`).
+
+Every screen is drawn 1366 px wide in both densities, so all mockups have
+a `-tablet` variant.
+
+### Decisions
+
+| Topic | Decision |
+|---|---|
+| Composition | Every screen is built from library controls (sidebar, title bar, cards, chips, gauges, charts, lists). Missing parts, such as the histogram, are added to the library first. |
+| Sample cars | A VW Golf VII 1.6 TDI (2016, with EGR and DPF codes) and, on the EV page, a Hyundai Kona Electric. Values agree between pages. |
+| Unsupported functions | Shown greyed out with the reason, not hidden (for example Mode 05 on a CAN car). |
+| Inspection rules | Labelled "Example rules" until each country's rules are checked against the official source. |
+| Lap timer | Shown with a *Needs GPS* chip; the GPS source is an open decision. |
+| Licence | Accepted in the installer and again in the first-start wizard. |
+
+### Screens
+
+| Mockup | Shows |
+|---|---|
+| `personal-welcome` | First-start wizard (language, licence, units and theme, adapter, vehicle) on the licence step, with the same licence text as the installer. |
+| `personal-connect` | Connection and device (Bluetooth, Bluetooth LE, USB, Wi-Fi), the adapter check that tells a genuine adapter from a clone, and the demo car. |
+| `personal-overview` | MIL, codes, inspection readiness and battery at a glance; quick start and recent sessions. |
+| `personal-codes` | Codes per ECU with status chips, the freeze frame with normal ranges, possible causes, offline code lookup, CSV export and clear. |
+| `personal-codes-uds` | The same page on a SAE J1979-2 car: failure type, status, WWH class and readiness group per code, with an explanation of the extra columns. |
+| `personal-readiness` | Monitors since clear and this drive cycle, the national inspection check (example rules) and the drive-cycle advisor. |
+| `personal-live-data` | Sensor list with normal ranges, a chart and a histogram; snapshot and recording. |
+| `personal-live-grid` | A grid of graphs (configurable columns) with the normal range as a band. |
+| `personal-dashboard` | Dial and bar gauges with peaks, and value tiles. |
+| `personal-dashboard-edit` | Dashboard editor: widget list, drop target and the settings of the selected widget. |
+| `personal-tests` | Mode 06 results by monitor (catalogue MIDs) with limits, Mode 05 and Mode 08 tabs (greyed when the car does not support them) and in-use performance tracking. |
+| `personal-vehicle-info` | VIN decoded offline (WMI, plant, vPIC model rules) with an optional online lookup; control units with calibration IDs, CVNs and the type-approval number. |
+| `personal-fuel` | Live and trip consumption, cost and CO₂, how it is measured, and a trip list. |
+| `personal-performance` | Drag run with splits, power estimate and a GPS lap timer (flagged: needs GPS). |
+| `personal-ev-battery` | State of health, pack values and cell voltages per module (Hyundai Kona Electric, 98 cells). |
+| `personal-recordings` | Saved sessions with replay, the adapter log and CSV export. |
+| `personal-console` | Adapter console with quick commands and the adapter log settings. |
+| `personal-settings` | Language, appearance, units, inspection country, privacy switches, and the licence and third-party notices. |
+
+| Light | Dark |
+|---|---|
+| ![](personal-welcome-light.png) | ![](personal-welcome-dark.png) |
+| ![](personal-welcome-tablet-light.png) | ![](personal-welcome-tablet-dark.png) |
+| ![](personal-connect-light.png) | ![](personal-connect-dark.png) |
+| ![](personal-connect-tablet-light.png) | ![](personal-connect-tablet-dark.png) |
+| ![](personal-overview-light.png) | ![](personal-overview-dark.png) |
+| ![](personal-overview-tablet-light.png) | ![](personal-overview-tablet-dark.png) |
+| ![](personal-codes-light.png) | ![](personal-codes-dark.png) |
+| ![](personal-codes-tablet-light.png) | ![](personal-codes-tablet-dark.png) |
+| ![](personal-codes-uds-light.png) | ![](personal-codes-uds-dark.png) |
+| ![](personal-codes-uds-tablet-light.png) | ![](personal-codes-uds-tablet-dark.png) |
+| ![](personal-readiness-light.png) | ![](personal-readiness-dark.png) |
+| ![](personal-readiness-tablet-light.png) | ![](personal-readiness-tablet-dark.png) |
+| ![](personal-live-data-light.png) | ![](personal-live-data-dark.png) |
+| ![](personal-live-data-tablet-light.png) | ![](personal-live-data-tablet-dark.png) |
+| ![](personal-live-grid-light.png) | ![](personal-live-grid-dark.png) |
+| ![](personal-live-grid-tablet-light.png) | ![](personal-live-grid-tablet-dark.png) |
+| ![](personal-dashboard-light.png) | ![](personal-dashboard-dark.png) |
+| ![](personal-dashboard-tablet-light.png) | ![](personal-dashboard-tablet-dark.png) |
+| ![](personal-dashboard-edit-light.png) | ![](personal-dashboard-edit-dark.png) |
+| ![](personal-dashboard-edit-tablet-light.png) | ![](personal-dashboard-edit-tablet-dark.png) |
+| ![](personal-tests-light.png) | ![](personal-tests-dark.png) |
+| ![](personal-tests-tablet-light.png) | ![](personal-tests-tablet-dark.png) |
+| ![](personal-vehicle-info-light.png) | ![](personal-vehicle-info-dark.png) |
+| ![](personal-vehicle-info-tablet-light.png) | ![](personal-vehicle-info-tablet-dark.png) |
+| ![](personal-fuel-light.png) | ![](personal-fuel-dark.png) |
+| ![](personal-fuel-tablet-light.png) | ![](personal-fuel-tablet-dark.png) |
+| ![](personal-performance-light.png) | ![](personal-performance-dark.png) |
+| ![](personal-performance-tablet-light.png) | ![](personal-performance-tablet-dark.png) |
+| ![](personal-ev-battery-light.png) | ![](personal-ev-battery-dark.png) |
+| ![](personal-ev-battery-tablet-light.png) | ![](personal-ev-battery-tablet-dark.png) |
+| ![](personal-recordings-light.png) | ![](personal-recordings-dark.png) |
+| ![](personal-recordings-tablet-light.png) | ![](personal-recordings-tablet-dark.png) |
+| ![](personal-console-light.png) | ![](personal-console-dark.png) |
+| ![](personal-console-tablet-light.png) | ![](personal-console-tablet-dark.png) |
+| ![](personal-settings-light.png) | ![](personal-settings-dark.png) |
+| ![](personal-settings-tablet-light.png) | ![](personal-settings-tablet-dark.png) |

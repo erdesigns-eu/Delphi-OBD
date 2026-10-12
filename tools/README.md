@@ -16,6 +16,7 @@ RAD Studio. All tools return a nonzero status on failed checks.
 | `safety_guide.py` | `docs/flashing-safety.md` → checks `src/DesignTime/ERD.Design.SafetyGuide.pas`, the plain-text guide the IDE shows offline; `--write` regenerates it | Python standard library |
 | `ui_mockups.py` | Theme palettes from `src/UI/ERD.UI.Types.pas` → light/dark PNG mockups under `docs/mockups/`; `--only NAME` renders one, `--out DIR` changes the target | Pillow (`pip install "pillow>=12.3"`) |
 | `ui_mockups_pro.py` | OBD Studio Pro mockups, merged into `ui_mockups.py` (`--only pro-NAME`) | Pillow, via `ui_mockups.py` |
+| `ui_mockups_personal.py` | OBD-Studio Personal screens, merged into `ui_mockups.py` (`--only personal-NAME`) | Pillow, via `ui_mockups.py` |
 | `normalize_delphi_eol.py` | Applies the `.gitattributes` CRLF policy to tracked files in an existing checkout without discarding edits | Git |
 | `fpc_smoke.py` | Eleven original portable units → temporary compiler outputs, 185 executable checks | FPC 3.2.2; `--compiler` / `--rtl` overrides |
 | `setup_fpc_runtime.sh <directory>` | Pinned official FPC source → builds compiler and nonvisual packages outside checkout | FPC bootstrap, Git, make, binutils, GCC, OpenSSL |
