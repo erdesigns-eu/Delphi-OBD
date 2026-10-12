@@ -33,7 +33,8 @@ uses
   Vcl.ImgList,
   ERD.UI.Types,
   ERD.UI.Control,
-  ERD.UI.Paint;
+  ERD.UI.Paint,
+  ERD.I18n;
 
 type
   TOBDStatusBar = class;
@@ -186,6 +187,7 @@ type
     function SizeGripVisible: Boolean;
     function SizeGripRect: TRect;
     function PanelAt(X, Y: Integer): Integer;
+    procedure LanguageChanged(Sender: TObject);
     procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
     procedure CMHintShow(var Message: TCMHintShow); message CM_HINTSHOW;
   private
@@ -422,10 +424,12 @@ begin
   ShowHint := True;
   Height := BarHeight;
   Width := ScaleValue(600);
+  OBDI18n.AddChangeListener(LanguageChanged);
 end;
 
 destructor TOBDStatusBar.Destroy;
 begin
+  OBDI18n.RemoveChangeListener(LanguageChanged);
   FPanels.Free;
   inherited Destroy;
 end;
@@ -469,6 +473,11 @@ begin
   Result := ScaleValue(Metrics.StatusBar);
 end;
 
+procedure TOBDStatusBar.LanguageChanged(Sender: TObject);
+begin
+  Invalidate;
+end;
+
 function TOBDStatusBar.PreviewMode: Boolean;
 begin
   Result := FPreviewPaint or ((FPanels.Count = 0) and IsPreview);
@@ -501,13 +510,15 @@ begin
     Result := FPanels[AIndex].Text
   else
     case AIndex of
-      0: Result := 'Connected';
-      1: Result := 'ELM327 v2.2 ' + WideChar($00B7) + ' COM4';
-      2: Result := 'CAN 11/500';
+      0: Result := Tr('ui.status.preview.connected', 'Connected');
+      1: Result := Tr('ui.status.preview.adapterPort', 'ELM327 v2.2 - COM4');
+      2: Result := Tr('ui.status.preview.protocol', 'CAN 11/500');
       3: Result := '12.6 V';
-      4: Result := 'Reading 7E9 (gearbox)' + WideChar($2026);
+      4: Result := TrFmt('ui.status.preview.readingModule', 'Reading %s',
+        ['7E9 (gearbox)']) + WideChar($2026);
     else
-      Result := '5 codes  ' + WideChar($00B7) + '  MIL on';
+      Result := TrFmt('ui.status.preview.codesMilOn', '%d codes - MIL on',
+        [5]);
     end;
 end;
 

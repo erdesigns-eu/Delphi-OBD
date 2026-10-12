@@ -110,6 +110,7 @@ implementation
 uses
   System.IOUtils,
   System.JSON,
+{$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
 {$IFDEF FPC}SyncObjs{$ELSE}System.SyncObjs{$ENDIF};
 
 const

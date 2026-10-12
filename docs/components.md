@@ -5,21 +5,21 @@ canonical reference is the XMLDoc in source: every public symbol is
 documented at its declaration. This page gives a one-screen tour, so you
 know what to drop on the form and where to look.
 
-`src/DesignTime/ERD.Design.Registration.pas` registers **225 components on
+`src/DesignTime/ERD.Design.Registration.pas` registers **230 components on
 14 palette pages**:
 
 | Page | Components | Section |
 |---|---:|---|
-| OBD | 11 | [OBD](#obd) |
-| OBD Services | 15 | [OBD Services](#obd-services) |
+| OBD | 13 | [OBD](#obd) |
+| OBD Services | 16 | [OBD Services](#obd-services) |
 | OBD Diagnostics | 16 | [OBD Diagnostics](#obd-diagnostics) |
 | OBD Coding | 19 | [OBD Coding](#obd-coding) |
 | OBD Calibration | 3 | [OBD Calibration](#obd-calibration) |
 | OBD Flashing | 3 | [OBD Flashing](#obd-flashing) |
-| OBD Catalogs | 3 | [OBD Catalogs](#obd-catalogs) |
+| OBD Catalogs | 4 | [OBD Catalogs](#obd-catalogs) |
 | OBD Dashboard | 10 | [OBD Dashboard](#obd-dashboard) |
 | OBD Visual | 7 | [OBD Visual](#obd-visual) |
-| OBD Studio | 62 | [OBD Studio](#obd-studio) |
+| OBD Studio | 63 | [OBD Studio](#obd-studio) |
 | OBD Studio Pro | 22 | [OBD Studio Pro](#obd-studio-pro) |
 | OBD Dyno | 8 | [OBD Dyno](#obd-dyno) |
 | OBD Radio | 43 | [OBD Radio](#obd-radio) |
@@ -75,6 +75,25 @@ Replays a `.obdlog` through `OnEntry`. Two modes: `rmAsFastAsPossible`
 for headless reprocessing, `rmRealTime` for UI demo (gap-capped via
 `MaxGapMs`).
 
+### `TOBDCSVLogger` — `ERD.Recorder.CSV`
+Writes wide live-data CSV files: timestamp, elapsed seconds and one
+column per configured Mode 01 PID. `LoggedPIDs` / `SetPIDs` fixes the
+column set at `Start`, `LiveData` subscriptions use the same main-thread
+value fan-out as gauges, and `Separator`, `DecimalSeparator`,
+`IncludeUTF8BOM` and `IncludeUnits` cover Excel and European locale
+exports. The same unit also exposes `TOBDRecordingCSVExporter` for
+long-format `.obdlog` to CSV conversion.
+
+### `TOBDEmulatorConnection` — `ERD.Simulator.ELM327`
+A `TOBDConnection` backed by a built-in ELM327 emulator and a simulated
+car (`ERD.Simulator.Vehicle`: a 2016 VW Golf VII 1.6 TDI with an
+engine and a gearbox ECU). Bind a `TOBDAdapter` to it as to any other
+connection; every service then works without a car or adapter: demo
+mode in an application, and adapter tests without hardware. `Persona`
+picks genuine ELM327 v2.3 or v1.5-clone behaviour, `EnableFaults`
+switches the EGR fault and its codes, `EnableJ1979DIDs` answers J1979-2
+DIDs and `ResponseDelayMs` sets the reply delay.
+
 ### `TOBDKWP1281Session` — `ERD.Protocol.KWP1281.Session`
 VW KWP1281 (K-line) session around `TKWP1281Codec`. The transport is an
 interface (`IKWP1281Transport`: serial K-line, ELM, TP 2.0, ISO-TP or
@@ -123,6 +142,15 @@ Reads the Vehicle Identification Number. Auto-selects between OBD-II
 Service 09 PID 02 (legacy) and UDS DID 0xF190 (modern) based on the
 detected adapter capabilities. Validates the result with
 `TOBDVINValidator` (ISO 3779 check digit).
+
+### `TOBDVehicleInfo` — `ERD.Service.VehicleInfo`
+Mode 09 reader for every answering ECU: VIN, calibration IDs, CVNs, ECU
+names, engine serial numbers, type-approval numbers and in-use
+performance tracking (spark and compression ignition). Each value
+carries the ECU that sent it. `Source` picks Service 09, the J1979-2
+`F8xx` DIDs, or auto (Service 09 with J1979-2 fallback). `ReadAll`
+collects everything in one `TOBDVehicleInfoReport`; `ReadAllAsync`
+delivers it through `OnReport`.
 
 ### `TOBDVINInspector` — `ERD.Service.VINInspector`
 Offline VIN decoder around `TOBDVINDecoder` (no bus traffic). Set `VIN`
@@ -187,16 +215,19 @@ re-subscribes cleanly.
 ### `TOBDWWHOBD` — `ERD.WWHOBD`
 World-Wide Harmonised OBD (heavy-duty, ISO 27145) diagnostic
 component. `ReadBySeverity` enumerates DTCs by ISO 14229-1
-severity mask (Class A immediate, Class B at next halt,
-maintenance only); `ReadByGroup` walks a single ISO 27145-3
-readiness-group ID. DID helpers: `ReadMILUsage` (distance + time
-counters), `ReadDTCCounters` (Class A / B1), `ReadVIN`.
+0x19/0x42 mask record (functional group 0x33, status mask and
+severity mask); `ReadPermanent` uses 0x19/0x55, and `ReadByGroup`
+uses 0x19/0x56 for a DTC readiness-group identifier. DTCs are exposed
+as `P0101-1C` style UDS codes with the failure-type byte also broken
+out. DID helpers use J1979-2 DIDs such as F421 / F44D for MIL
+distance / time and F802 for VIN (with F190 fallback).
 
 ### `TOBDWWHReadiness` — `ERD.WWHOBD.Readiness`
-WWH-OBD monitor-completion reporting. Walks DIDs 0xF411 (major
-group), 0xF412 (per-group), 0xF40C (conditions-encountered
-counters) into a structured snapshot. Degrades gracefully on
-rejected secondary DIDs.
+WWH-OBD / J1979-2 monitor-completion reporting. Decodes DID F401
+(legacy PID 01 payload) into shared `TOBDMonitorReadiness` values and,
+when available, DID F441 (legacy PID 41 payload) for this-drive-cycle
+status. The legacy bitmap/group fields are still filled from the same
+decoded monitor list for compatibility.
 
 ## OBD Diagnostics
 
@@ -427,6 +458,7 @@ executable.
 | `TOBDVINCatalog` | `ERD.Service.VINDecoder.Catalog.Component` | VIN / vPIC schemas used by `TOBDVINInspector` |
 | `TOBDDriveCycleCatalogComp` | `ERD.Service.DriveCycle.Catalog.Component` | Drive-cycle steps per monitor (`RegisteredMonitors`, `RegisterCycle`) |
 | `TOBDEVBatteryCatalogComp` | `ERD.Service.EVBattery.Catalog.Component` | EV battery decode rules per vendor (`VendorKeys`, `Register`) |
+| `TOBDInspectionRules` | `ERD.Service.Inspection.Component` | OBD rules of the periodic vehicle inspections (APK, keuring, HU/AU, contrôle technique, MOT, NCT, …) from `catalogs/inspection/rules.json`; set `Country`, then `Evaluate` returns a verdict (pass, fail, unknown or not applicable) with the reasons. `CatalogFile` empty uses the default file. |
 
 ## OBD Dashboard
 
@@ -586,7 +618,7 @@ Everything around the panels, so a whole application follows the theme.
 
 | Control | Unit | Purpose |
 |---|---|---|
-| `TOBDTitleBar` | `ERD.UI.TitleBar` | Themed caption for any form: app icon, inline menu (`MenuPlacement` title bar or below), title, status chip, `Buttons` collection of extra caption buttons (glyph or image, hint, badge, toggle, `OnClick`) and the system buttons. Keeps resizing and snap layouts. `AppIconStyle` shows the `AppInitials` (`aiInitials`) or the form icon, falling back to the application icon (`aiIcon`); the icon is drawn from the closest image in the .ico (or `MAINICON`) at the caption size rather than an upscaled 16 px one. The system menu (icon click, Alt+Space, caption right-click) is a themed popup menu; double-clicking the icon closes the form. The border is the accent colour while the form is active. `CommandStyle = (csMenu, csRibbon)` switches between menu and `Ribbon` at run time; `QuickAccess` buttons show in ribbon mode. |
+| `TOBDTitleBar` | `ERD.UI.TitleBar` | Themed caption for any form: app icon, inline menu (`MenuPlacement` title bar or below), title, status chip, `Buttons` collection of extra caption buttons (glyph or image, hint, badge, toggle, `OnClick`) and the system buttons. Keeps resizing and snap layouts. `AppIconStyle` shows the `AppInitials` (`aiInitials`) or the form icon, falling back to the application icon (`aiIcon`); the icon is drawn from the closest image in the .ico (or `MAINICON`) at the caption size rather than an upscaled 16 px one. The system menu (icon click, Alt+Space, caption right-click) is a themed popup menu; double-clicking the icon closes the form. The border is the accent colour while the form is active. `CommandStyle = (csMenu, csRibbon)` switches between menu and `Ribbon` at run time; `QuickAccess` buttons show in ribbon mode. Call `MenuChanged` after changing top-level menu captions or visibility at run time so the embedded menu bar measures its items again. |
 | `TOBDMenuBar`, `TOBDPopupMenu` | `ERD.UI.Menus` | Themed `TMainMenu` bar and popup menus that read the standard `TMenuItem` tree (actions, shortcuts, check and radio items, submenus). A separator item with a `Hint` is drawn as a group header; `OnGetItemStyle` sets glyphs and danger items. Leave `Form.Menu` empty when a menu bar or title bar shows the menu. `TOBDMenuBar.AutoSize` (default on) sizes the bar to its items and density height; with `Align = alTop` only the height follows. |
 | `TOBDRibbon` | `ERD.UI.Ribbon` | Tabs with groups of large and small items bound to actions; `ContextualTabs` collection with theme or custom colours; File button opening a `Backstage`; command search (Alt+Q); classic or simplified style; collapsible (Ctrl+F1). While collapsed, clicking a tab opens its groups as an overlay over the form, as in Office; it takes no layout height and closes on a command, Esc or a click elsewhere. |
 | `TOBDBackstage`, `TOBDReportPreview` | `ERD.UI.Backstage` | Full-window page with an accent navigation strip whose items host pages; A4 report preview with zoom and page navigation (`OnPaintPage`). |
@@ -643,6 +675,7 @@ panes in any panel:
 |---|---|---|
 | `TOBDDataGrid` | `ERD.UI.DataGrid` | Table with typed columns (`DataColumns`: text, mono, number, chip, check, icon), click-to-sort headers (numbers sort as numbers), resizable columns, collapsible groups, a check column, disabled and accented rows, and an empty state with a title, hint, glyph and action button. `AddRow`, `AddGroup`, `Cells`, `CellTone`, `RowData`, `RowChecked`, `RowGlyph`, `RowEnabled`, `RowAccent`, `SelectedRow`, `SortColumn`, `OnCheckClick`, `OnSort`, `OnEmptyAction`. |
 | `TOBDTileGrid` | `ERD.UI.TileGrid` | Grid of tiles with glyph, caption, subtitle, badge and count, in group sections with a search `Filter`; `TileStyle` row tiles or large launcher tiles. `Items`, `AddTile`, `ItemIndex`, `OnItemClick`, `OnItemActivate`. |
+| `TOBDHistogram` | `ERD.UI.Histogram` | Value distribution of a live value: bins (`BinCount`, auto or fixed `Min` / `Max`), counts or percentages, a normal band with out-of-band bins in the warning colour, current / mean / median markers and hints per bin. Keeps the samples (`MaxSamples` ring buffer), so changing the range or bin count re-bins without data loss. |
 | `TOBDKeyValueList` | `ERD.UI.KeyValueList` | Read-only labels and values by category, in one or more columns; values as text, mono, chip, link or tone, with copy on hover. `Items`, `Add`, `SetValue`, `ColumnCount`, `KeyWidth`, `OnCopy`, `OnLinkClick`. |
 
 ## OBD Studio Pro
@@ -775,6 +808,6 @@ or wipe payloads of specific service-IDs).
 | `src/Speciality` | IsoBus, digital tachograph |
 | `src/OEM` | OEM extensions and catalogues, OEM UDS client and sessions, key adaptation |
 | `src/RadioCode` | Radio-code calculators and EEPROM extractors |
-| `src/Recorder` | Recorder, replayer, protocol mock, redactor |
+| `src/Recorder` | Recorder, replayer, live-data CSV logger, recording CSV exporter, protocol mock, redactor |
 | `src/UI` | Visual controls: theme, dashboard, OBD Visual, OBD Studio and OBD Studio Pro |
 | `src/DesignTime` | IDE integration: registration, palette icons, property / component editors |

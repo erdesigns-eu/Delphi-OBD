@@ -25,6 +25,10 @@
 // 2026-10-08  ERD  Components/editors only; remove wizards and IDE branding.
 // 2026-10-10  ERD  "OBD Dashboard" and "OBD Studio" palette pages.
 // 2026-10-12  ERD  Header lists all 14 palette pages.
+// 2026-10-12  ERD  Register TOBDEmulatorConnection, TOBDInspectionRules and
+//                  TOBDHistogram.
+// 2026-10-12  ERD  Register TOBDVehicleInfo (Mode 09 reader) and
+//                  TOBDCSVLogger.
 // ------------------------------------------------------------------------------
 
 unit ERD.Design.Registration;
@@ -60,6 +64,7 @@ uses
   ERD.Service.LiveData,
   ERD.Service.DTCs,
   ERD.Service.VIN,
+  ERD.Service.VehicleInfo,
   ERD.Service.VINInspector,
   ERD.Service.FreezeFrame,
   ERD.Service.OnBoardMonitor,
@@ -118,6 +123,7 @@ uses
   ERD.Service.VINDecoder.Catalog.Component,
   ERD.Service.DriveCycle.Catalog.Component,
   ERD.Service.EVBattery.Catalog.Component,
+  ERD.Service.Inspection.Component,
   ERD.UI.Theme,
   ERD.UI.Gauges.Dial,
   ERD.UI.Gauges.Bar,
@@ -190,6 +196,7 @@ uses
   ERD.UI.MapGrid,
   ERD.UI.LapTimer,
   ERD.UI.GMeter,
+  ERD.UI.Histogram,
   ERD.UI.CellMatrix,
   ERD.UI.EcuTopology,
   ERD.UI.KeySlots,
@@ -202,6 +209,8 @@ uses
   ERD.Flash.Pipeline,
   ERD.Recorder,
   ERD.Replayer,
+  ERD.Recorder.CSV,
+  ERD.Simulator.ELM327,
   ERD.RadioCode,
   ERD.RadioCode.EuropeanPremium,
   ERD.RadioCode.FrenchItalian,
@@ -225,7 +234,7 @@ begin
   // Service-mode: higher-level diagnostics that sit on top of
   // TOBDProtocol.
   RegisterComponents('OBD Services', [TOBDLiveData, TOBDDTCs, TOBDVIN,
-    TOBDVINInspector, TOBDFreezeFrame, TOBDOnBoardMonitor, TOBDActuator,
+    TOBDVehicleInfo, TOBDVINInspector, TOBDFreezeFrame, TOBDOnBoardMonitor, TOBDActuator,
     TOBDVehicleHealth, TOBDDriveCycleAdvisor, TOBDEVBattery, TOBDClearDTC,
     TOBDOxygenMonitor, TOBDDataSource, TOBDWWHOBD, TOBDWWHReadiness]);
 
@@ -263,8 +272,13 @@ begin
 
   // Recorder / replayer pair. Drop on a form, point at a
   // TOBDProtocol, capture the entire session for forensic /
-  // offline analysis or replay for tests.
-  RegisterComponents('OBD', [TOBDRecorder, TOBDReplayer]);
+  // offline analysis or replay for tests. TOBDCSVLogger writes
+  // live-data values to a CSV file.
+  RegisterComponents('OBD', [TOBDRecorder, TOBDReplayer, TOBDCSVLogger]);
+
+  // Demo car: a connection backed by the built-in ELM327 emulator and
+  // simulated vehicle. Every screen works without a car or adapter.
+  RegisterComponents('OBD', [TOBDEmulatorConnection]);
 
   // Session / transport components. Foundation for KWP1281,
   // TP2.0 and J2534 work without going through a higher-level
@@ -276,7 +290,7 @@ begin
   // hosts can configure CatalogDir / AutoLoad in the Object
   // Inspector instead of doing it in code.
   RegisterComponents('OBD Catalogs', [TOBDVINCatalog, TOBDDriveCycleCatalogComp,
-    TOBDEVBatteryCatalogComp]);
+    TOBDEVBatteryCatalogComp, TOBDInspectionRules]);
 
   // Dashboard controls. TOBDTheme is the anchor: drop one on a
   // form or data module and every Delphi-OBD control on the form
@@ -316,7 +330,7 @@ begin
   // Data views: a table with columns, a tile grid (catalogues, start
   // pages) and a read-only list of labels and values.
   RegisterComponents('OBD Studio', [TOBDDataGrid, TOBDTileGrid,
-    TOBDKeyValueList]);
+    TOBDKeyValueList, TOBDHistogram]);
   // Themed replacements for the standard dialogs. Right-click one in the
   // form designer and choose Test Dialog to preview it.
   RegisterComponents('OBD Studio', [TOBDOpenDialog, TOBDSaveDialog,

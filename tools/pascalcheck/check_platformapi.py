@@ -6,13 +6,114 @@ import os
 import re
 from common import ROOT, pas_files, load
 
+# FreePascal RTL names the Delphi RTL does not declare (E2003 under dcc32).
+# The FPC runtime check compiles them happily, so nothing else sees them.
+FPC_ONLY = {
+    'defaultformatsettings': 'TFormatSettings.Invariant (or FormatSettings)',
+    'lineending': 'sLineBreak',
+    'directoryseparator': 'PathDelim',
+    'ptruint': 'NativeUInt',
+    'ptrint': 'NativeInt',
+    'sizeint': 'NativeInt',
+    'sizeuint': 'NativeUInt',
+}
+
+# What System.SysUtils.TFormatSettings answers through the type name itself
+# (static class functions, nested type, const). Anything else - Current,
+# Default, User... - is E2003; the user's locale is TFormatSettings.Create.
+FORMAT_SETTINGS_STATIC = {'create', 'invariant', 'terainfo', 'maxeracount'}
+
+
+def fpc_branches(directives):
+    """Offset ranges that only FPC compiles: {$IFDEF FPC} / {$IF DEFINED(FPC)}
+    up to their {$ELSE}, {$ELSEIF} or {$ENDIF}."""
+    ranges, stack = [], []
+    for start, end, text in directives:
+        m = re.match(r'[{(]\*?\$\s*(IFDEF|IFNDEF|IF|ELSEIF|ELSE|ENDIF|IFEND)\b(.*)', text, re.I | re.S)
+        if not m:
+            continue
+        command, rest = m.group(1).upper(), m.group(2)
+        if command in ('IFDEF', 'IFNDEF', 'IF'):
+            fpc = (command == 'IFDEF' and re.match(r'\s*FPC\b', rest, re.I)) or \
+                  (command == 'IF' and re.match(r'\s*DEFINED\s*\(\s*FPC\s*\)\s*[}*]', rest, re.I))
+            stack.append(end if fpc else None)
+        elif stack and command in ('ELSE', 'ELSEIF', 'ENDIF', 'IFEND'):
+            if stack[-1] is not None:
+                ranges.append((stack[-1], start))
+            if command in ('ENDIF', 'IFEND'):
+                stack.pop()
+            else:
+                stack[-1] = None
+    return ranges
+
+
+def tproc_routines(files):
+    """Routine names whose every declaration takes a TProc<...> parameter.
+
+    TProc<T> passes T by value, so an anonymous method written with
+    'const' or 'var' parameters is a different signature (E2010). A name
+    that also has a declaration without TProc is left out: the call could
+    be resolving to that one.
+    """
+    with_tproc, without = set(), set()
+    header = re.compile(
+        r'\b(?:procedure|function|constructor)\s+(?:\w+\s*\.\s*)?(\w+)\s*\(([^)]*)\)', re.I)
+    for path in files:
+        _, src, _, _, _ = load(path)
+        for m in header.finditer(src):
+            name = m.group(1).lower()
+            if re.search(r':\s*TProc\s*<', m.group(2), re.I):
+                with_tproc.add(name)
+            else:
+                without.add(name)
+    return with_tproc - without
+
+
+def enclosing_call(src, at):
+    """Name of the call whose argument list contains offset 'at'."""
+    depth, i = 0, at - 1
+    while i >= 0:
+        c = src[i]
+        if c == ')':
+            depth += 1
+        elif c == '(':
+            if depth == 0:
+                name = re.search(r'(\w+)\s*$', src[:i])
+                return name.group(1).lower() if name else None
+            depth -= 1
+        i -= 1
+    return None
+
+
+ALL_FILES = list(pas_files())
+TPROC_ROUTINES = tproc_routines(ALL_FILES)
+
 bad = []
-for path in pas_files():
+for path in ALL_FILES:
     raw, src, directives, lmap, toks = load(path)
     rel = os.path.relpath(path, ROOT)
 
     def finding(at, why):
         bad.append((rel, src.count('\n', 0, at) + 1, why))
+
+    for match in re.finditer(r'\bprocedure\s*\(\s*(?:const|var)\s+\w', src, re.I):
+        call = enclosing_call(src, match.start())
+        if call in TPROC_ROUTINES:
+            finding(match.start(), f'{call} takes a TProc<...>, whose parameters are by value; '
+                                   'drop const/var in the anonymous method')
+
+    fpc_only_code = fpc_branches(directives)
+    declared = {n.lower() for n in re.findall(r'\b(\w+)\s*:(?!=)', src)}
+    for match in re.finditer(r'(?<![\w.])(' + '|'.join(FPC_ONLY) + r')\b', src, re.I):
+        name = match.group(1).lower()
+        if name in declared or any(a <= match.start() < b for a, b in fpc_only_code):
+            continue
+        finding(match.start(), f'{match.group(1)} is FreePascal-only; Delphi uses {FPC_ONLY[name]}')
+
+    for match in re.finditer(r'(?<![\w.])TFormatSettings\s*\.\s*(\w+)', src, re.I):
+        if match.group(1).lower() not in FORMAT_SETTINGS_STATIC:
+            finding(match.start(), f'TFormatSettings has no static {match.group(1)}; use '
+                                   'TFormatSettings.Create (user locale) or .Invariant')
 
     rect_names = set(re.findall(r'\b(\w+)\s*:\s*TRectF\b', src, re.I))
     for name in rect_names:

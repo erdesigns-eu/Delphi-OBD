@@ -25,6 +25,8 @@
 //
 // History     :
 // 2026-05-09  ERD  Initial implementation.
+// 2026-10-12  ERD  One entry list across every answering ECU; entries carry
+//                  the ECU header (Ecu / EcuId).
 // ------------------------------------------------------------------------------
 
 unit ERD.Service.DTCs;
@@ -93,6 +95,13 @@ type
     /// <summary>Resolved description from <c>ERD.Catalog</c>; empty
     /// when no catalogue match.</summary>
     Description: string;
+    /// <summary>Header of the ECU that reported the code
+    /// (<c>'7E8'</c>, <c>'18DAF110'</c>); empty when the adapter
+    /// prints no headers (<c>ATH0</c>).</summary>
+    Ecu: string;
+    /// <summary>Numeric form of <c>Ecu</c> (CAN identifier); 0 when
+    /// unknown.</summary>
+    EcuId: Cardinal;
   end;
 
   /// <summary>Fires when a DTC read completes.</summary>
@@ -165,6 +174,20 @@ type
     /// <summary>Decodes a 2-byte SAE J2012 raw DTC into its string
     /// form (e.g. <c>$03,$01</c> → <c>"P0301"</c>).</summary>
     class function DecodeJ2012(AHi, ALo: Byte): string; static;
+
+    /// <summary>Parses a Mode 03 / 07 / 0A response into one entry
+    /// list covering every ECU that answered.</summary>
+    /// <param name="AResponse">Decoded response.</param>
+    /// <param name="AMode">Request mode (<c>$03</c>, <c>$07</c> or
+    /// <c>$0A</c>).</param>
+    /// <param name="AKind">Kind stamped on every entry.</param>
+    class function ParseOBDResponse(const AResponse: TOBDResponse;
+      AMode: Byte; AKind: TOBDDtcKind): TArray<TOBDDtcEntry>; static;
+
+    /// <summary>Parses a UDS <c>59 02</c> (reportDTCByStatusMask)
+    /// response, every ECU included.</summary>
+    class function ParseUDSResponse(const AResponse: TOBDResponse)
+      : TArray<TOBDDtcEntry>; static;
   published
     property Protocol: TOBDProtocol read FProtocol write SetProtocol;
     property OnDTCs: TOBDDtcsEvent read FOnDTCs write FOnDTCs;
@@ -318,11 +341,25 @@ begin
   Result := Acc;
 end;
 
+procedure AppendFromEcu(var AAcc: TArray<TOBDDtcEntry>;
+  const APart: TArray<TOBDDtcEntry>; const AMsg: TOBDEcuMessage);
+var
+  I, Base: Integer;
+begin
+  Base := Length(AAcc);
+  SetLength(AAcc, Base + Length(APart));
+  for I := 0 to High(APart) do
+  begin
+    AAcc[Base + I] := APart[I];
+    AAcc[Base + I].Ecu := AMsg.Header;
+    AAcc[Base + I].EcuId := AMsg.CanId;
+  end;
+end;
+
 function TOBDDTCs.ReadOBDMode(AMode: Byte; AKind: TOBDDtcKind)
   : TArray<TOBDDtcEntry>;
 var
   Resp: TOBDResponse;
-  Start: Integer;
 begin
   if FProtocol = nil then
     raise EOBDConfig.Create('TOBDDTCs: Protocol not assigned');
@@ -330,33 +367,44 @@ begin
   if Resp.IsNegative then
     raise EOBDProtocolErr.CreateFmt('OBD Mode 0x%2.2X negative: %s',
       [AMode, Resp.NRCText]);
-  // Some controllers prepend a 1-byte count. Detect by parity:
-  // an odd-length payload means there's a count byte first.
-  if Odd(Length(Resp.Data)) then
-    Start := 1
-  else
-    Start := 0;
-  Result := ParseTwoByteList(Resp.Data, Start, AKind);
+  Result := ParseOBDResponse(Resp, AMode, AKind);
 end;
 
-function TOBDDTCs.ReadUDSStatusMask(AStatusMask: Byte): TArray<TOBDDtcEntry>;
+class function TOBDDTCs.ParseOBDResponse(const AResponse: TOBDResponse;
+  AMode: Byte; AKind: TOBDDtcKind): TArray<TOBDDtcEntry>;
 var
-  Resp: TOBDResponse;
+  Msgs: TArray<TOBDEcuMessage>;
+  Payload: TBytes;
+  I, Start: Integer;
+begin
+  // Every ECU answers separately (CAN: one message per ECU; legacy
+  // buses: one 3-code message per line).
+  Result := nil;
+  Msgs := OBDPositiveMessages(AResponse, AMode + $40);
+  for I := 0 to High(Msgs) do
+  begin
+    Payload := Copy(Msgs[I].Data, 1, MaxInt);
+    // CAN prepends a 1-byte count. Detect by parity: an odd-length
+    // payload means there's a count byte first.
+    if Odd(Length(Payload)) then
+      Start := 1
+    else
+      Start := 0;
+    AppendFromEcu(Result, ParseTwoByteList(Payload, Start, AKind), Msgs[I]);
+  end;
+end;
+
+function ParseUDSStatusList(const AData: TBytes): TArray<TOBDDtcEntry>;
+var
   I, Off, N: Integer;
   Entry: TOBDDtcEntry;
   Acc: TArray<TOBDDtcEntry>;
 begin
-  if FProtocol = nil then
-    raise EOBDConfig.Create('TOBDDTCs: Protocol not assigned');
-  Resp := FProtocol.Request(UDS_SID_ReadDTCInformation,
-    TBytes.Create(UDS_DTC_REPORT_BY_STATUS_MASK, AStatusMask));
-  if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt('UDS 19 02 negative: %s', [Resp.NRCText]);
-  // Response Data: <subFunc echo> <statusAvailMask> [DTC3 STATUS]*
-  if Length(Resp.Data) < 2 then
+  // Data: <subFunc echo> <statusAvailMask> [DTC3 STATUS]*
+  if Length(AData) < 2 then
     Exit(nil);
   Off := 2;
-  N := (Length(Resp.Data) - Off) div 4;
+  N := (Length(AData) - Off) div 4;
   if N <= 0 then
     Exit(nil);
   SetLength(Acc, N);
@@ -365,10 +413,10 @@ begin
     Entry := Default (TOBDDtcEntry);
     Entry.Kind := dkUDSStatusMask;
     SetLength(Entry.Raw, 3);
-    Entry.Raw[0] := Resp.Data[Off + I * 4];
-    Entry.Raw[1] := Resp.Data[Off + I * 4 + 1];
-    Entry.Raw[2] := Resp.Data[Off + I * 4 + 2];
-    Entry.Status := Resp.Data[Off + I * 4 + 3];
+    Entry.Raw[0] := AData[Off + I * 4];
+    Entry.Raw[1] := AData[Off + I * 4 + 1];
+    Entry.Raw[2] := AData[Off + I * 4 + 2];
+    Entry.Status := AData[Off + I * 4 + 3];
     Entry.HasStatus := True;
     // J2012 letter is in the top 2 bits of byte 0; bottom byte goes
     // into the low nibble. UDS DTC is 24 bits — the third byte
@@ -380,6 +428,33 @@ begin
     Acc[I] := Entry;
   end;
   Result := Acc;
+end;
+
+function TOBDDTCs.ReadUDSStatusMask(AStatusMask: Byte): TArray<TOBDDtcEntry>;
+var
+  Resp: TOBDResponse;
+begin
+  if FProtocol = nil then
+    raise EOBDConfig.Create('TOBDDTCs: Protocol not assigned');
+  Resp := FProtocol.Request(UDS_SID_ReadDTCInformation,
+    TBytes.Create(UDS_DTC_REPORT_BY_STATUS_MASK, AStatusMask));
+  if Resp.IsNegative then
+    raise EOBDProtocolErr.CreateFmt('UDS 19 02 negative: %s', [Resp.NRCText]);
+  Result := ParseUDSResponse(Resp);
+end;
+
+class function TOBDDTCs.ParseUDSResponse(const AResponse: TOBDResponse)
+  : TArray<TOBDDtcEntry>;
+var
+  Msgs: TArray<TOBDEcuMessage>;
+  I: Integer;
+begin
+  Result := nil;
+  Msgs := OBDPositiveMessages(AResponse, UDS_SID_ReadDTCInformation +
+    UDS_POSITIVE_RESPONSE_OFFSET);
+  for I := 0 to High(Msgs) do
+    AppendFromEcu(Result, ParseUDSStatusList(Copy(Msgs[I].Data, 1, MaxInt)),
+      Msgs[I]);
 end;
 
 function TOBDDTCs.ReadConfirmed: TArray<TOBDDtcEntry>;

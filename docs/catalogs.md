@@ -34,6 +34,7 @@ catalogs/
 ├─ ev-battery/              EV battery decode rules per vendor (+ _manifest.json)
 ├─ radio-code/              Becker 4 / 5 and Ford V code databases
 ├─ range-profiles/          Editable normal bands for OBD Studio values
+├─ inspection/              National periodic-inspection OBD rules
 ├─ adapter/                 Adapter capabilities and init sequences
 ├─ tacho/                   Digital tachograph data types
 ├─ obd2-pids.json, uds-standard.json, uds-nrc.json, j1939-pgns.json,
@@ -61,7 +62,7 @@ Different catalogue families have their own loaders:
 | `TOBDServiceCatalog.Default` (`ERD.Service.Catalog`) | The richer `obd2-pids.json` and `dtc-*.json` shapes that `TOBDLiveData` and `TOBDDTCs` use for names, units, decoder formulas and DTC text |
 | `TOBDOEMCatalog` component (`ERD.OEM.Catalog`) | `oem/<vendor>/*.json` overlays (DIDs, PIDs, DTCs, SPNs, FMIs, PGNs), registered with the OEM registry |
 | OEM extensions (`ERD.OEM.Catalog.Loader`) | `<vendor>.json` full catalogues, merged over each extension's built-in entries; `SetCatalogSearchPath` overrides the search path |
-| `TOBDVINCatalog`, `TOBDDriveCycleCatalogComp`, `TOBDEVBatteryCatalogComp` | `vin/`, drive-cycle and `ev-battery/` catalogues (OBD Catalogs palette page) |
+| `TOBDVINCatalog`, `TOBDDriveCycleCatalogComp`, `TOBDEVBatteryCatalogComp`, `TOBDInspectionRules` | `vin/`, drive-cycle, `ev-battery/` and `inspection/` catalogues (OBD Catalogs palette page) |
 | `TOBDCodingOptionCatalog.Default` (`ERD.Coding.OptionCatalog`) | Host-supplied coding-option catalogues (`data/schemas/oem-coding-catalog.schema.json`) |
 | `TOBDFlashOEMCatalog` (`ERD.Flash.OEM.Catalog`) | Host-supplied flash-handshake overrides (`data/schemas/oem-flash-handshake-catalog.schema.json`) |
 | `TOBDFlashImageApplicability` (`ERD.Flash.ImageApplicability`) | Firmware-image applicability sidecars (`data/schemas/flash-image-applicability.schema.json`) |
@@ -238,6 +239,38 @@ that differ from its parent.
 merely repeat an inherited one, and fails when an entry is copied
 identically into more than five unrelated catalogues beyond the
 `SHARED_ENTRY_BUDGET` — move such data into a `_shared/` base instead.
+
+### Inspection rules (`inspection/rules.json`)
+
+The inspection catalogue records researched national OBD checks for periodic
+roadworthiness inspections. `TOBDInspectionRules` and
+`TOBDInspectionCatalog` load `catalogs/inspection/rules.json` and evaluate a
+snapshot made from readiness monitors, MIL state, confirmed-DTC count, fuel
+type and first-registration date. Entries keep `verified: false` until
+ERDesigns reviews the current national manual; unknown national details stay
+`null`, causing the evaluator to return `unknown` rather than inventing a
+pass/fail result.
+
+```json
+{
+  "$schema": "https://erdesigns.eu/schema/inspection-rules.json",
+  "schema_version": 1,
+  "entries": [
+    {
+      "country_code": "GB",
+      "inspection_name": "MOT",
+      "fuel_types": ["petrol", "diesel", "other"],
+      "mil_on_fails": true,
+      "readiness_required": false,
+      "max_incomplete_monitors": null,
+      "dtc_confirmed_fails": false,
+      "sources": ["https://www.gov.uk/guidance/mot-inspection-manual-for-private-passenger-and-light-commercial-vehicles"],
+      "verified": false,
+      "checked": "2026-10-12"
+    }
+  ]
+}
+```
 
 ## Adding an entry
 

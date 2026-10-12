@@ -25,6 +25,7 @@
 // 2026-05-10  ERD  Initial implementation. Algorithm
 // re-derived from SAE J1979 / ISO 15031-5;
 // no v1 code copied.
+// 2026-10-12  ERD  ReadMILStatus strips the PID echo (read byte A, not 01).
 // ------------------------------------------------------------------------------
 
 unit ERD.Service.VehicleHealth;
@@ -218,7 +219,8 @@ type
 implementation
 
 uses
-{$IFDEF FPC}DateUtils{$ELSE}System.DateUtils{$ENDIF};
+{$IFDEF FPC}DateUtils{$ELSE}System.DateUtils{$ENDIF},
+  ERD.Service.DriveCycle.Types;
 
 { ---- TOBDVehicleHealthReport ----------------------------------------------- }
 
@@ -387,6 +389,7 @@ out AError: string): Boolean;
 var
   Req: TOBDRequest;
   Resp: TOBDResponse;
+  Payload: TBytes;
   A, B, C, D: Byte;
 begin
   Result := False;
@@ -409,16 +412,18 @@ begin
       AError := Format('NRC 0x%.2X — %s', [Resp.NRC, Resp.NRCText]);
       Exit;
     end;
-    if Length(Resp.Data) < 4 then
+    // The protocol layer keeps the PID echo: 01 A B C D.
+    Payload := OBDPIDPayload(Resp.Data, $01, 4);
+    if Length(Payload) < 4 then
     begin
       AError := Format('PID 01 response too short (%d bytes)',
-        [Length(Resp.Data)]);
+        [Length(Payload)]);
       Exit;
     end;
-    A := Resp.Data[0];
-    B := Resp.Data[1];
-    C := Resp.Data[2];
-    D := Resp.Data[3];
+    A := Payload[0];
+    B := Payload[1];
+    C := Payload[2];
+    D := Payload[3];
 
     AStatus.MILOn := (A and $80) <> 0;
     AStatus.DTCCount := A and $7F;

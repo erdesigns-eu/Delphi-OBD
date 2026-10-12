@@ -10,6 +10,7 @@
 //
 //  History     :
 //    2026-05-09  ERD  Initial implementation.
+//    2026-10-12  ERD  Vgate rows and detection hints.
 //------------------------------------------------------------------------------
 
 unit Tests.ERD.Adapter.Capabilities;
@@ -44,6 +45,11 @@ type
     [Test] procedure LoadFromJSONMerges;
     /// <summary>Registering with empty key raises.</summary>
     [Test] procedure RegisterEmptyKeyRaises;
+    /// <summary>The built-in Vgate vLinker FD row supports CAN FD.</summary>
+    [Test] procedure VgateFDBuiltinPresent;
+    /// <summary>LoadFromJSON reads the detection hints and
+    /// TryMatchIdentity uses them.</summary>
+    [Test] procedure LoadFromJSONReadsDetectionHints;
   end;
 
 implementation
@@ -138,6 +144,42 @@ begin
       TOBDAdapterCapabilityRegistry.Default.Register(E);
     end,
     EOBDConfig);
+end;
+
+procedure TAdapterCapabilitiesTests.VgateFDBuiltinPresent;
+var
+  E: TOBDAdapterCapabilityEntry;
+begin
+  Assert.IsTrue(TOBDAdapterCapabilityRegistry.Default.TryFind(
+    'vgate_vlinker_fd', E));
+  Assert.IsTrue(acCANFD in E.Capabilities);
+  Assert.AreEqual<Cardinal>(62, E.MaxIsoTpFrameBytes);
+  Assert.IsTrue(TOBDAdapterCapabilityRegistry.Default.TryMatchIdentity(
+    'ELM327 v2.3', 'Vgate vLinker FD', E));
+  Assert.AreEqual('vgate_vlinker_fd', E.AdapterKey);
+end;
+
+procedure TAdapterCapabilitiesTests.LoadFromJSONReadsDetectionHints;
+var
+  E: TOBDAdapterCapabilityEntry;
+begin
+  FTempFile := TPath.Combine(TPath.GetTempPath,
+    'caps-' + TGuid.NewGuid.ToString + '.json');
+  TFile.WriteAllText(FTempFile,
+    '{ "version": 1, "type": "adapter-capabilities", "entries": [' +
+    '{ "adapter_key": "test_chip_43", "display_name": "Test 43", ' +
+    '  "capabilities": ["CAN"], "max_iso_tp_frame_bytes": 7, ' +
+    '  "detection": { "ati_contains": ["ELM327", "TestChip 43"], ' +
+    '  "at1_contains": ["TestChip 43"] } }' +
+    '] }', TEncoding.UTF8);
+  Assert.AreEqual(1, TOBDAdapterCapabilityRegistry.Default.LoadFromJSON(
+    FTempFile));
+  Assert.IsTrue(TOBDAdapterCapabilityRegistry.Default.TryFind(
+    'test_chip_43', E));
+  Assert.AreEqual<NativeInt>(2, Length(E.InfoHints));
+  Assert.IsTrue(TOBDAdapterCapabilityRegistry.Default.TryMatchIdentity(
+    'ELM327 v2.1 TestChip 43', '', E));
+  Assert.AreEqual('test_chip_43', E.AdapterKey);
 end;
 
 initialization

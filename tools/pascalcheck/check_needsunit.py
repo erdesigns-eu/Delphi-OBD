@@ -48,6 +48,27 @@ NEEDS = {
     'inet_addr': 'Winapi.Winsock2',
     'StyleServices': 'Vcl.Themes',
     'Clipboard': 'Vcl.Clipbrd',
+    # System.UITypes declares TFontStyle with scoped enums; the bare names
+    # are constants in Vcl.Graphics.
+    'fsBold': 'Vcl.Graphics',
+    'fsItalic': 'Vcl.Graphics',
+    'fsUnderline': 'Vcl.Graphics',
+    'fsStrikeOut': 'Vcl.Graphics',
+    # Vcl.StdCtrls enums, set on the edit and list wrappers in ERD.UI.
+    'ecUpperCase': 'Vcl.StdCtrls',
+    'ecLowerCase': 'Vcl.StdCtrls',
+    'ecNormal': 'Vcl.StdCtrls',
+    'ssVertical': 'Vcl.StdCtrls',
+    'ssHorizontal': 'Vcl.StdCtrls',
+    'ssBoth': 'Vcl.StdCtrls',
+    'csDropDownList': 'Vcl.StdCtrls',
+    'csDropDown': 'Vcl.StdCtrls',
+    'cbChecked': 'Vcl.StdCtrls',
+    'cbUnchecked': 'Vcl.StdCtrls',
+    'cbGrayed': 'Vcl.StdCtrls',
+    'tlTop': 'Vcl.StdCtrls',
+    'tlCenter': 'Vcl.StdCtrls',
+    'tlBottom': 'Vcl.StdCtrls',
 }
 
 # Winsock 2 written the way the C header reads, which Delphi's does not.

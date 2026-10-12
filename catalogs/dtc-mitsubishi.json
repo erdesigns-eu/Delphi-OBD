@@ -122,6 +122,204 @@
       "severity": "critical",
       "description": "Lost Communication With Engine Control Module (Mitsubishi LIN/CAN)",
       "verified": false
+    },
+    {
+      "code": "P1100",
+      "description": "Induction Control Motor Position Sensor Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mitsubishi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1101",
+      "description": "Traction Control Vacuum Solenoid Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mitsubishi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1102",
+      "description": "Traction Control Ventilation Solenoid Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mitsubishi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1103",
+      "description": "Turbocharger Wastegate Actuator",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mitsubishi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1104",
+      "description": "Turbocharger Wastegate Solenoid",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mitsubishi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1105",
+      "description": "Fuel Pressure Solenoid",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mitsubishi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1294",
+      "description": "Target Idle Speed Not Reached",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mitsubishi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1295",
+      "description": "No 5 Volt Supply To TP Sensor",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mitsubishi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1296",
+      "description": "No 5 Volt Supply To MAP Sensor",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mitsubishi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1297",
+      "description": "No Charge In MAP From Start To Run",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mitsubishi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1300",
+      "description": "Ignition Timing Adjustment Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mitsubishi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1390",
+      "description": "Timing Belt Skipped One Tooth Or More",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mitsubishi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1391",
+      "description": "Intermittent Loss Of CMP Or CKP Sensor Signals",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mitsubishi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1400",
+      "description": "Manifold Differential Pressure Sensor Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mitsubishi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1443",
+      "description": "EVAP Purge Control Solenoid 2 Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mitsubishi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1486",
+      "description": "EVAP Leak Monitor Pinched Hose Detected",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mitsubishi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1487",
+      "description": "High Speed Radiator Fan Control Relay Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mitsubishi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1489",
+      "description": "High Speed Condenser Fan Control Relay Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mitsubishi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1490",
+      "description": "Low Speed Fan Control Relay Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mitsubishi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1492",
+      "description": "Battery Temperature Sensor High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mitsubishi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1494",
+      "description": "EVAP Ventilation Switch Or Mechanical Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mitsubishi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1495",
+      "description": "EVAP Ventilation Solenoid Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mitsubishi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1496",
+      "description": "5 Volt Supply Output Too Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mitsubishi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1500",
+      "description": "Alternator FR Terminal Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mitsubishi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1600",
+      "description": "Serial Communication Link",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mitsubishi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1696",
+      "description": "PCM Failure EEPROM Write Denied",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mitsubishi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1698",
+      "description": "No CCD Messages From TCM",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mitsubishi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1715",
+      "description": "Pulse Generator Assembly",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mitsubishi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1750",
+      "description": "Solenoid Assembly",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mitsubishi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1791",
+      "description": "PCM ECT Level Signal To TCM Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mitsubishi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1899",
+      "description": "P/N Position Transaxle Range Switch Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mitsubishi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1751",
+      "description": "A/T Control Relay",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mitsubishi_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1795",
+      "description": "Throttle Position Input Circuit To TCM",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mitsubishi_codes.txt",
+      "verified": false
     }
   ]
 }

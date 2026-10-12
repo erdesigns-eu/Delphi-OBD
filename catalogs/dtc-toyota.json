@@ -306,6 +306,348 @@
       "related_dids": [],
       "related_routines": [],
       "oem_bulletin": ""
+    },
+    {
+      "code": "P1100",
+      "description": "BARO Sensor Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1120",
+      "description": "Accelerator Pedal Position Sensor Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1121",
+      "description": "Accelerator Pedal Position Sensor Range Performance Problem",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1125",
+      "description": "Throttle Control Motor Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1126",
+      "description": "Magnetic Clutch Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1127",
+      "description": "ETCS Actuator Power Source Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1128",
+      "description": "Throttle Control Motor Lock",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1129",
+      "description": "Electric Throttle Control System",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1130",
+      "description": "Air/Fuel Sensor Circuit Range Performance Bank 1 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1133",
+      "description": "Air/Fuel Sensor Circuit Response Bank 1 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1150",
+      "description": "Air/Fuel Sensor Circuit Range Performance Bank 1 Sensor 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1153",
+      "description": "Air/Fuel Sensor Circuit Response Bank 1 Sensor 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1155",
+      "description": "Air/Fuel Sensor Heater Circuit Bank 1 Sensor 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1200",
+      "description": "Fuel Pump Relay Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1300",
+      "description": "Igniter Circuit Malfunction No 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1305",
+      "description": "Igniter Circuit Malfunction No 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1335",
+      "description": "No Crankshaft Position Sensor Signal Engine Running",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1400",
+      "description": "Sub-Throttle Position Sensor",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1401",
+      "description": "Sub-Throttle Position Sensor Range Performance Problem",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1405",
+      "description": "Turbo Pressure Sensor Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1406",
+      "description": "Turbo Pressure Sensor Range Performance Problem",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1410",
+      "description": "EGR Valve Position Sensor Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1411",
+      "description": "EGR Valve Position Sensor Circuit Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1500",
+      "description": "Starter Signal Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1510",
+      "description": "Boost Pressure Control Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1511",
+      "description": "Boost Pressure Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1512",
+      "description": "Boost Pressure High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1520",
+      "description": "Stop Lamp Switch Signal Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1565",
+      "description": "Cruise Control Main Switch Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1600",
+      "description": "ECM BATT Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1605",
+      "description": "Knock Control CPU",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1630",
+      "description": "Traction Control System",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1633",
+      "description": "ECM",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1652",
+      "description": "Idle Air Control Valve Control Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1656",
+      "description": "OCV Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1658",
+      "description": "Wastegate Valve Control Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1661",
+      "description": "EGR Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1662",
+      "description": "EGR Bypass Valve Control Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1700",
+      "description": "Vehicle Speed Sensor 2 Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1705",
+      "description": "Direct Clutch Speed Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1765",
+      "description": "Linear Shift Solenoid Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1780",
+      "description": "Park Neutral Position Switch Malfunction Only For A/T",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1895",
+      "description": "TCM To ECM Torque Reduction Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/toyota_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1310",
+      "description": "Igniter Circuit Malfunction No 3",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/lexus_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1315",
+      "description": "Igniter Circuit Malfunction No 4",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/lexus_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1320",
+      "description": "Igniter Circuit Malfunction No 5",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/lexus_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1325",
+      "description": "Igniter Circuit Malfunction No 6",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/lexus_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1330",
+      "description": "Igniter Circuit Malfunction No 7",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/lexus_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1340",
+      "description": "Igniter Circuit Malfunction No 8",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/lexus_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1345",
+      "description": "VVT Sensor Circuit Malfunction Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/lexus_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1346",
+      "description": "VVT Sensor Range Performance Problem Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/lexus_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1350",
+      "description": "VVT Sensor Circuit Malfunction Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/lexus_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1351",
+      "description": "VVT Sensor Range Performance Problem Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/lexus_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1354",
+      "description": "VVT System Malfunction Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/lexus_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1566",
+      "description": "Cruise Control Main Switch Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/lexus_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1645",
+      "description": "Body ECU Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/lexus_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1663",
+      "description": "OCV Circuit Malfunction Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/lexus_codes.txt",
+      "verified": false
     }
   ]
 }

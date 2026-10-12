@@ -74,6 +74,116 @@
           "max_iso_tp_frame_bytes": {
             "type": "integer",
             "minimum": 0
+          },
+          "connection_interfaces": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true
+          },
+          "chipset": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "firmware_family": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "elm327_command_level": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "stn_extensions": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "can_fd": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "j1979_2": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "iso_tp_long_messages": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "max_baud": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "detection": {
+            "type": "object",
+            "properties": {
+              "ati_contains": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "at1_contains": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "at2_contains": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "sti_contains": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": false
+          },
+          "quirks": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "notes": {
+            "type": "string"
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "uniqueItems": true
+          },
+          "verified": {
+            "type": "boolean"
+          },
+          "checked": {
+            "type": "string",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
           }
         },
         "additionalProperties": false

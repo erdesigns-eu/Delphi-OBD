@@ -43,7 +43,7 @@ for name in tracked():
               'BOM' if now.startswith(BOM) else 'none'))
         total += 1
 
-for base in ('src', 'tests', 'packages', 'examples', 'forms', 'components', 'units', 'build', '.'):
+for base in ('src', 'tests', 'packages', 'examples', 'applications', 'forms', 'components', 'units', 'build', '.'):
     d = os.path.join(ROOT, base)
     if not os.path.isdir(d):
         continue

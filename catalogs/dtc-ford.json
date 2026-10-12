@@ -306,6 +306,2460 @@
       "severity": "critical",
       "description": "Control Module Communication Bus 'A' Off (Ford HS-CAN)",
       "verified": false
+    },
+    {
+      "code": "P1001",
+      "description": "KOER Test Cannot Be Completed",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1039",
+      "description": "Vehicle Speed Signal Missing or Improper",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1051",
+      "description": "Brake Switch Signal Missing or Improper",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1100",
+      "description": "Mass Air Flow Sensor Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1101",
+      "description": "Mass Air Flow Sensor Out of Self-Test Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1105",
+      "description": "Dual Alternator Upper Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1106",
+      "description": "Dual Alternator Lower Fault Manifold Absolute Pressure (MAP) Sensor Circuit Intermittent High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1107",
+      "description": "Dual Alternator Lower Circuit Malfunction Manifold Absolute Pressure (MAP) Sensor Circuit Intermittent Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1108",
+      "description": "Dual Alternator Battery Lamp Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1109",
+      "description": "IAT - B Sensor Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1111",
+      "description": "System Pass",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1112",
+      "description": "Intake Air Temperature Sensor Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1114",
+      "description": "Engine Coolant Temperature (ECT) Sensor Circuit Intermittent Low Voltage IAT - B Circuit Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1115",
+      "description": "Engine Coolant Temperature (ECT) Sensor Circuit Intermittent High Voltage IAT - B Circuit High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1116",
+      "description": "Engine Coolant Temperature Sensor is Out of Self-Test Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1117",
+      "description": "Engine Coolant Temperature Sensor Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1118",
+      "description": "Manifold Absolute Temperature Circuit Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1119",
+      "description": "Manifold Absolute Temperature Circuit High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1120",
+      "description": "Throttle Position Sensor Out of Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1121",
+      "description": "Throttle Position Sensor Inconsistent with Mass Air Flow Sensor",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1122",
+      "description": "Throttle Position (TP) Sensor Circuit Intermittent Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1123",
+      "description": "Throttle Position Sensor In Range But Higher Than Expected",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1124",
+      "description": "Throttle Position Sensor Out of Self-Test Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1125",
+      "description": "Throttle Position Sensor Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1127",
+      "description": "Exhaust Not Warm Enough Downstream O2 Sensor Not Tested",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1128",
+      "description": "Upstream Heated Oxygen Sensor Signals Reversed",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1129",
+      "description": "Downstream Heated Oxygen Sensor Signals Reversed",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1130",
+      "description": "Lack of Upstream Heated Oxygen Sensor Switch Adaptive Fuel Limit Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1132",
+      "description": "Lack of Upstream Heated Oxygen Sensor Switch Sensor Indicates Rich Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1133",
+      "description": "Bank 1 Fuel Control Shifted Lean",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1134",
+      "description": "Bank 1 Fuel Control Shifted Rich",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1135",
+      "description": "Pedal Position Sensor A Circuit Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1137",
+      "description": "Lack of Downstream Heated Oxygen Sensor Switch Sensor Indicates Lean Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1138",
+      "description": "Lack of Downstream Heated Oxygen Sensor Switch Sensor Indicates Rich Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1139",
+      "description": "Water In Fuel Indicator Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1140",
+      "description": "Water In Fuel Condition",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1141",
+      "description": "Fuel Restriction Indicator Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1142",
+      "description": "Fuel Restriction Condition",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1150",
+      "description": "Lack of Upstream Heated Oxygen Sensor Switch Adaptive Fuel Limit Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1151",
+      "description": "Lack of Upstream Heated Oxygen Sensor Switch Sensor Indicates Lean Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1152",
+      "description": "Lack of Upstream Heated Oxygen Sensor Switch Sensor Indicates Rich Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1153",
+      "description": "Bank 2 Fuel Control Shifted Lean",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1154",
+      "description": "Bank 2 Fuel Control Shifted Rich",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1155",
+      "description": "Alternative Fuel Controller",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1157",
+      "description": "Lack of Downstream Heated Oxygen Sensor Switch Sensor Indicates Lean Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1158",
+      "description": "Lack of Downstream Heated Oxygen Sensor Switch Sensor Indicates Rich Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1168",
+      "description": "Fuel Rail Sensor In-Range Low Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1169",
+      "description": "Fuel Rail Sensor In-Range High Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1170",
+      "description": "ESO Engine Shut Off Solenoid Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1171",
+      "description": "Rotor Sensor Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1172",
+      "description": "Rotor Control Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1173",
+      "description": "Rotor Calibration Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1174",
+      "description": "Cam Sensor Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1175",
+      "description": "Cam Control Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1176",
+      "description": "Cam Calibration Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1177",
+      "description": "Synchronization Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1180",
+      "description": "Fuel Delivery System Malfunction Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1181",
+      "description": "Fuel Delivery System Malfunction High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1183",
+      "description": "Engine Oil Temperature Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1184",
+      "description": "Engine Oil Temperature Out Of Self Test Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1185",
+      "description": "FTS High Fuel Pump Temperature Sensor High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1186",
+      "description": "FTS Low Fuel Pump Temperature Sensor Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1187",
+      "description": "Variant Selection",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1188",
+      "description": "Calibration Memory Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1189",
+      "description": "Pump Speed Signal Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1190",
+      "description": "Calibration Resistor Out Of Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1191",
+      "description": "Key Line Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1192",
+      "description": "Voltage External",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1193",
+      "description": "EGR Drive Overcurrent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1194",
+      "description": "ECU A/D Converter",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1195",
+      "description": "SCP HBCC Failed To Initialize",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1196",
+      "description": "Key Off Voltage High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1197",
+      "description": "Key Off Voltage Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1198",
+      "description": "Pump Rotor Control Underfueling",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1209",
+      "description": "Injector Control Pressure System Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1210",
+      "description": "Injector Control Pressure Above Expected Level",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1211",
+      "description": "Injector Control Pressure Sensor Above Below Desired",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1212",
+      "description": "Injector Control Pressure Not Detected During Crank",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1213",
+      "description": "Start Injector Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1214",
+      "description": "Pedal Position Sensor B Circuit Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1215",
+      "description": "Pedal Position Sensor C Circuit Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1216",
+      "description": "Pedal Position Sensor C Circuit High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1217",
+      "description": "Pedal Position Sensor C Circuit Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1218",
+      "description": "CID High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1219",
+      "description": "CID Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1220",
+      "description": "Series Throttle Control Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1221",
+      "description": "Traction Control System Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1222",
+      "description": "Traction Control Output Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1223",
+      "description": "Pedal Demand Sensor B Circuit High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1224",
+      "description": "Throttle Position Sensor B Out of Self-Test Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1227",
+      "description": "Wastegate Failed Closed Over Pressure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1228",
+      "description": "Wastegate Failed Open Under Pressure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1229",
+      "description": "Intercooler Pump Driver Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1230",
+      "description": "Open Power to Fuel Pump Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1231",
+      "description": "High Speed Fuel Pump Relay Activated",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1232",
+      "description": "Low Speed Fuel Pump Primary Circuit Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1233",
+      "description": "Fuel Pump Driver Module Off-Line",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1234",
+      "description": "Fuel Pump Driver Module Off-Line",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1235",
+      "description": "Fuel Pump Control Out of Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1236",
+      "description": "Fuel Pump Control Out of Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1237",
+      "description": "Fuel Pump Secondary Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1238",
+      "description": "Fuel Pump Secondary Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1239",
+      "description": "Speed Fuel Pump Positive Feed Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1243",
+      "description": "Second Fuel Pump Faulty or Ground Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1244",
+      "description": "Alternator Load Input Failed High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1245",
+      "description": "Alternator Load Input Failed Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1246",
+      "description": "Alternator Load Input Failed",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1247",
+      "description": "Turbo Boost Pressure Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1248",
+      "description": "Turbo Boost Pressure Not Detected",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1249",
+      "description": "Wastegate Control Valve Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1250",
+      "description": "Lack of Power to FPRC Solenoid",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1252",
+      "description": "Pedal Correlation PDS1 and LPDS High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1253",
+      "description": "Pedal Correlation PDS1 and LPDS Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1254",
+      "description": "Pedal Correlation PDS2 and LPDS High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1255",
+      "description": "Pedal Correlation PDS2 and LPDS Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1256",
+      "description": "Pedal Correlation PDS1 and HPDS",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1257",
+      "description": "Pedal Correlation PDS2 and HPDS",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1258",
+      "description": "Pedal Correlation PDS1 and PDS2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1260",
+      "description": "Theft Detected Engine Disabled",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1261",
+      "description": "Cylinder #1 High To Low Side Short",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1262",
+      "description": "Cylinder #2 High To Low Side Short",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1263",
+      "description": "Cylinder #3 High To Low Side Short",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1264",
+      "description": "Cylinder #4 High To Low Side Short",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1265",
+      "description": "Cylinder #5 High To Low Side Short",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1266",
+      "description": "Cylinder #6 High To Low Side Short",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1267",
+      "description": "Cylinder #7 High To Low Side Short",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1268",
+      "description": "Cylinder #8 High To Low Side Short",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1270",
+      "description": "Engine RPM or Vehicle Speed Limiter Reached",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1271",
+      "description": "Cylinder #1 High To Low Side Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1272",
+      "description": "Cylinder #2 High To Low Side Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1273",
+      "description": "Cylinder #3 High To Low Side Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1274",
+      "description": "Cylinder #4 High To Low Side Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1275",
+      "description": "Cylinder #5 High To Low Side Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1276",
+      "description": "Cylinder #6 High To Low Side Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1277",
+      "description": "Cylinder #7 High To Low Side Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1278",
+      "description": "Cylinder #8 High To Low Side Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1280",
+      "description": "Injection Control Pressure Out Of Range Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1281",
+      "description": "Injection Control Pressure Out Of Range High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1282",
+      "description": "Excessive Injection Control Pressure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1283",
+      "description": "IPR Circuit Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1284",
+      "description": "Aborted KOER ICP Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1285",
+      "description": "Cylinder Head Over Temp Sensed",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1286",
+      "description": "Fuel Pulse In Range But Lower Than Expected",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1287",
+      "description": "Fuel Pulse In Range But Higher Than Expected",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1288",
+      "description": "Cylinder Head Temperature Sensor Out of Self-Test Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1289",
+      "description": "Cylinder Head Temperature Sensor Signal Greater Than Self-Test Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1290",
+      "description": "Cylinder Head Temperature Sensor Signal Less Than Self-Test Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1291",
+      "description": "Injector High Side Short To GND Or VBATT Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1292",
+      "description": "Injector High Side Short To GND Or VBATT Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1293",
+      "description": "Injector High Side Open Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1294",
+      "description": "Injector High Side Open Bank 2 Target Idle Not Reached",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1295",
+      "description": "Multi-faults Bank 1 With Low Side Shorts",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1296",
+      "description": "Multi-faults Bank 2 With Low Side Shorts",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1297",
+      "description": "Injector High Sides Shorted Together",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1298",
+      "description": "IDM Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1299",
+      "description": "Cylinder Head Temperature Sensor Detected Engine Overheating Condition",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1300",
+      "description": "Boost Calibration Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1301",
+      "description": "Boost Calibration High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1302",
+      "description": "Boost Calibration Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1303",
+      "description": "EGR Calibration Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1304",
+      "description": "EGR Calibration High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1305",
+      "description": "EGR Calibration Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1306",
+      "description": "Kickdown Relay Pull In Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1307",
+      "description": "Kickdown Relay Hold Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1308",
+      "description": "A/C Clutch Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1309",
+      "description": "Misfire Detection Monitor Not Enabled",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1316",
+      "description": "Injector Circuit IDM Codes Detected",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1317",
+      "description": "Injector Circuit IDM Codes Not Updated",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1340",
+      "description": "Camshaft Position Sensor B Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1351",
+      "description": "Ignition Diagnostic Monitor Circuit Input Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1352",
+      "description": "Ignition Coil A Primary Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1353",
+      "description": "Ignition Coil B Primary Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1354",
+      "description": "Ignition Coil C Primary Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1355",
+      "description": "Ignition Coil D Primary Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1356",
+      "description": "Loss of Ignition Diagnostic Module Input to PCM",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1357",
+      "description": "Ignition Diagnostic Monitor Pulsewidth Not Defined",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1358",
+      "description": "Ignition Diagnostic Monitor Signal Out of Self-Test Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1359",
+      "description": "Spark Output Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1360",
+      "description": "Ignition Coil A Secondary Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1361",
+      "description": "Ignition Control (IC) Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1362",
+      "description": "Ignition Coil C Secondary Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1363",
+      "description": "Ignition Coil D Secondary Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1364",
+      "description": "Ignition Coil Primary Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1365",
+      "description": "Ignition Coil Secondary Circuit Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1369",
+      "description": "Engine Temperature Light Monitor Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1380",
+      "description": "VCT Solenoid Valve Circuit Short or Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1381",
+      "description": "Cam Timing Advance is Excessive",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1383",
+      "description": "Cam Timing Advance is Excessive",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1385",
+      "description": "Variable Cam Timing Solenoid B Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1386",
+      "description": "Variable Cam Timing Overadvanced Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1388",
+      "description": "Variable Cam Timing Overretarded Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1389",
+      "description": "Glow Plug Circuit High Side Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1390",
+      "description": "Octane Adjust Out of Self-Test Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1391",
+      "description": "Glow Plug Circuit Low Input Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1392",
+      "description": "Glow Plug Circuit High Input Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1393",
+      "description": "Glow Plug Circuit Low Input Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1394",
+      "description": "Glow Plug Circuit High Input Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1395",
+      "description": "Glow Plug Monitor Fault Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1396",
+      "description": "Glow Plug Monitor Fault Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1397",
+      "description": "System Voltage Out Of Self Test Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1399",
+      "description": "Glow Plug Circuit High Side High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1400",
+      "description": "Differential Pressure Feedback Electronic Sensor Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1401",
+      "description": "Differential Pressure Feedback Electronic Sensor Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1402",
+      "description": "EGR Metering Orifice Restricted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1403",
+      "description": "Differential Pressure Feedback Electronic Sensor Hoses Reversed",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1404",
+      "description": "IAT - B Circuit Malfunction Exhaust Gas Recirculation Closed Position Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1405",
+      "description": "Differential Pressure Feedback Electronic Sensor Circuit Upstream Hose",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1406",
+      "description": "Differential Pressure Feedback Electronic Sensor Circuit Downstream Hose",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1407",
+      "description": "EGR No Flow Detected",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1408",
+      "description": "EGR Flow Out of Self-Test Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1409",
+      "description": "EGR Vacuum Regulator Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1410",
+      "description": "EGR Barometric Pressure Sensor VREF Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1411",
+      "description": "Secondary Air is Not Being Diverted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1413",
+      "description": "Secondary Air Injection System Monitor Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1414",
+      "description": "Secondary Air Injection System Monitor Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1431",
+      "description": "Misfire Monitor Disabled Unable to Learn Trigger Wheel Profile",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1442",
+      "description": "Secondary Air Injection System Monitor Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1443",
+      "description": "Evaporative Emission Control System Vacuum System Purge Control Solenoid or Purge Control Valve Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1444",
+      "description": "Purge Flow Sensor Circuit Input Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1445",
+      "description": "Purge Flow Sensor Circuit Input High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1451",
+      "description": "EVAP Control System Canister Vent Solenoid Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1452",
+      "description": "Inability of Evaporative Emission Control System to Bleed Fuel Tank",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1455",
+      "description": "Substantial Leak or Blockage in Evaporative Emission Control System",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1457",
+      "description": "Unable To Pull Vacuum In Tank",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1460",
+      "description": "Wide Open Throttle Air Conditioning Cutoff Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1461",
+      "description": "Air Conditioning Pressure Sensor Circuit Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1462",
+      "description": "Air Conditioning Pressure Sensor Circuit High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1463",
+      "description": "Air Conditioning Pressure Sensor Insufficient Pressure Change",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1464",
+      "description": "ACCS to PCM High During Self-Test",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1465",
+      "description": "A/C Relay Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1466",
+      "description": "A/C Refrigerant Temperature Sensor Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1469",
+      "description": "Low Air Conditioning Cycling Period",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1473",
+      "description": "Fan Secondary High with Fans Off",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1474",
+      "description": "Low Fan Control Primary Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1479",
+      "description": "High Fan Control Primary Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1480",
+      "description": "Fan Secondary Low with Low Fans On",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1481",
+      "description": "Fan Secondary Low with High Fans On",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1482",
+      "description": "SCP",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1483",
+      "description": "Power to Cooling Fan Exceeded Normal Draw",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1484",
+      "description": "Variable Load Control Module Pin 1 Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1485",
+      "description": "EGRV Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1500",
+      "description": "Vehicle Speed Sensor Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1501",
+      "description": "Programmable Speedometer & Odometer Module Vehicle Speed Sensor Intermittent Circuit Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1502",
+      "description": "Invalid or Missing Vehicle Speed Message or Brake Data",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1504",
+      "description": "Intake Air Control Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1505",
+      "description": "Idle Air Control System at Adaptive Clip",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1506",
+      "description": "Idle Air Control Over Speed Error",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1507",
+      "description": "Idle Air Control Under Speed Error",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1512",
+      "description": "Intake Manifold Runner Control Stuck Closed",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1513",
+      "description": "Intake Manifold Runner Control Stuck Closed",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1516",
+      "description": "Intake Manifold Runner Control Input Error",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1517",
+      "description": "Intake Manifold Runner Control Input Error",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1519",
+      "description": "Intake Manifold Runner Control Stuck Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1520",
+      "description": "Intake Manifold Runner Control Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1530",
+      "description": "Open or Short to A/C Compressor Clutch Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1531",
+      "description": "Invalid Test Accelerator Pedal Movement",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1532",
+      "description": "IMCC Circuit Malfunction Bank B",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1533",
+      "description": "AAI Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1534",
+      "description": "Inertia Switch Activated",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1536",
+      "description": "Parking Brake Switch Circuit Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1537",
+      "description": "Intake Manifold Runner Control Stuck Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1538",
+      "description": "Intake Manifold Runner Control Stuck Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1539",
+      "description": "Power to A/C Compressor Clutch Circuit Exceeded Normal Current Draw",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1549",
+      "description": "Intake Manifold Temperature Valve Vacuum Actuator Connection",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1550",
+      "description": "Power Steering Pressure Sensor Out of Self-Test Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1565",
+      "description": "Speed Control Command Switch Out of Range High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1566",
+      "description": "Speed Control Command Switch Out of Range Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1567",
+      "description": "Speed Control Output Circuit Continuity",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1568",
+      "description": "Speed Control Unable to Hold Speed",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1572",
+      "description": "Brake Pedal Switch Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1573",
+      "description": "Throttle Position Not Available",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1574",
+      "description": "Throttle Position Sensor Disagreement Between Sensors",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1575",
+      "description": "Pedal Position Out of Self Test Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1576",
+      "description": "Pedal Position Not Available",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1577",
+      "description": "Pedal Position Sensor Disagreement Between Sensors",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1578",
+      "description": "ETC Power Less Than Demand",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1579",
+      "description": "ETC In Power Limiting Mode",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1580",
+      "description": "Electronic Throttle Monitor PCM Override",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1581",
+      "description": "Electronic Throttle Monitor Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1582",
+      "description": "Electronic Throttle Monitor Data Available",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1583",
+      "description": "Electronic Throttle Monitor Cruise Disable",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1584",
+      "description": "Throttle Control Detected ETB Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1585",
+      "description": "Throttle Control Unit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1586",
+      "description": "Throttle Control Unit Throttle Position Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1587",
+      "description": "Throttle Control Unit Modulated Command Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1588",
+      "description": "Throttle Control Unit Detected Loss of Return Spring",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1589",
+      "description": "Throttle Control Unit Unable To Control Desired Throttle Angle",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1600",
+      "description": "Loss of KAM Power Open Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1605",
+      "description": "PCM Keep Alive Memory Test Error",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1625",
+      "description": "Voltage to Vehicle Load Control Module Fan Circuit Not Detected",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1626",
+      "description": "Voltage to Vehicle Load Control Module Circuit Not Detected",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1634",
+      "description": "Data Output Link Circuit Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1635",
+      "description": "Tire Axle Ratio Out of Acceptable Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1636",
+      "description": "Inductive Signature Chip Communication Error",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1639",
+      "description": "Vehicle ID Block Corrupted or Not Programmed",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1640",
+      "description": "Powertrain DTCs Available in Another Module",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1641",
+      "description": "Fuel Pump Primary Circuit Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1642",
+      "description": "Fuel Pump Monitor Circuit High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1643",
+      "description": "Fuel Pump Monitor Circuit Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1644",
+      "description": "Fuel Pump Speed Control Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1650",
+      "description": "Power Steering Pressure Switch Out of Self-Test Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1651",
+      "description": "Power Steering Pressure Switch Input Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1656",
+      "description": "CAN Link PCM PCM Circuit Network",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1657",
+      "description": "CAN Link Chip Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1660",
+      "description": "Output Circuit Check Signal High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1661",
+      "description": "Output Circuit Check Signal Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1662",
+      "description": "IDM_EN Circuit Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1663",
+      "description": "Fuel Demand Command Signal Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1667",
+      "description": "CI Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1668",
+      "description": "PCM IDM Communications Error",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1670",
+      "description": "Electronic Feedback Signal Not Detected",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1690",
+      "description": "Wastegate Solenoid Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1700",
+      "description": "Transmission system problems",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1701",
+      "description": "Reverse Engagement Error",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1702",
+      "description": "Transmission system problems",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1703",
+      "description": "Brake On Off Switch Out of Self-Test Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1704",
+      "description": "Transmission system problems",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1705",
+      "description": "Manual Lever Position Sensor Out of Self-Test Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1706",
+      "description": "High Vehicle Speed Observed in Park",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1707",
+      "description": "Transfer Case Neutral Indicator Hard Fault Present",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1709",
+      "description": "Park or Neutral Position Switch Out of Self-Test Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1710",
+      "description": "Transmission system problems",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1711",
+      "description": "Transmission Fluid Temperature Sensor Out of Self-Test Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1712",
+      "description": "Trans Torque Reduction Request Signal Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1713",
+      "description": "TFT Sensor In Range Failure Low Value",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1714",
+      "description": "SSA Inductive Signature Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1715",
+      "description": "SSB Inductive Signature Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1716",
+      "description": "SSC Inductive Signature Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1717",
+      "description": "SSD Inductive Signature Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1718",
+      "description": "TFT Sensor In Range Failure High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1720",
+      "description": "Vehicle Speed Meter Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1721",
+      "description": "Gear 1 Incorrect Ratio",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1722",
+      "description": "Gear 2 Incorrect Ratio",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1723",
+      "description": "Gear 3 Incorrect Ratio",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1724",
+      "description": "Gear 4 Incorrect Ratio",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1725",
+      "description": "Insufficient Engine Speed Increase During Self Test",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1726",
+      "description": "Insufficient Engine Speed Decrease During Self Test",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1727",
+      "description": "Coast Clutch Solenoid Inductive Signature Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1728",
+      "description": "Transmission Slip Error",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1729",
+      "description": "4x4 Low Switch Error",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1731",
+      "description": "1-2 Shift Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1732",
+      "description": "2-3 Shift Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1733",
+      "description": "3-4 Shift Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1740",
+      "description": "Transmission system problems",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1741",
+      "description": "Torque Converter Clutch Control Error",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1742",
+      "description": "Torque Converter Clutch Solenoid Faulty",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1743",
+      "description": "Torque Converter Clutch Solenoid Faulty",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1744",
+      "description": "Torque Converter Clutch System Stuck in Off Position",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1745",
+      "description": "Transmission system problems",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1746",
+      "description": "Electronic Pressure Control Solenoid A Open Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1747",
+      "description": "Electronic Pressure Control Solenoid A Short Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1748",
+      "description": "EPC Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1749",
+      "description": "Electronic Pressure Control Solenoid Failed Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1751",
+      "description": "Shift Solenoid A Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1754",
+      "description": "Coast Clutch Solenoid Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1756",
+      "description": "Shift Solenoid B Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1760",
+      "description": "Transmission system problems",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1761",
+      "description": "Shift Solenoid C Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1762",
+      "description": "Overdrive Band Failed Off",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1766",
+      "description": "Shift Solenoid D Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1767",
+      "description": "Torque Converter Clutch Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1768",
+      "description": "Performance Normal Winter Mode Input Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1770",
+      "description": "Clutch Solenoid Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1779",
+      "description": "Transmission Control Indicator Lamp Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1780",
+      "description": "Transmission Control Switch Circuit is Out of Self-Test Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1781",
+      "description": "4x4 Low Switch is Out of Self-Test Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1782",
+      "description": "P/ES Circuit Out Of Self Test Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1783",
+      "description": "Transmission Over-Temperature Condition",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1784",
+      "description": "Transmission Mechanical Failure First And Reverse",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1785",
+      "description": "Transmission Mechanical Failure First And Second",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1786",
+      "description": "3-2 Downshift Error",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1787",
+      "description": "2-1 Downshift Error",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1788",
+      "description": "Pressure Control Solenoid B Open Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1789",
+      "description": "Pressure Control Solenoid B Short Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1795",
+      "description": "Idle Switch Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1804",
+      "description": "Transmission 4-Wheel Drive High Indicator Circuit Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1806",
+      "description": "Transmission 4-Wheel Drive High Indicator Short Circuit To Battery",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1808",
+      "description": "Transmission 4-Wheel Drive Low Indicator Circuit Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1810",
+      "description": "TFP Valve Position Switch Circuit Transmission 4-Wheel Drive Low Indicator Short Circuit To Battery",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1812",
+      "description": "Transmission 4-Wheel Drive Mode Select Circuit Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1815",
+      "description": "Transmission 4-Wheel Drive Mode Select Short Circuit To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1819",
+      "description": "Transmission Neutral Safety Switch Short Circuit To Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1820",
+      "description": "Transmission Transfer Case Clockwise Shift Relay Coil Circuit Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1822",
+      "description": "Transmission Transfer Case Clockwise Shift Relay Coil Short Circuit To Battery",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1824",
+      "description": "Transmission 4-Wheel Drive Clutch Relay Circuit Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1826",
+      "description": "Transmission 4-Wheel Drive Low Clutch Relay Circuit To Battery",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1828",
+      "description": "Transmission Transfer Case Counter Clockwise Shift Relay Coil Circuit Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1830",
+      "description": "Transmission Transfer Case Counter Clockwise Shift Relay Coil Short Circuit To Battery",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1832",
+      "description": "Transmission Transfer Case Differential Lock-Up Solenoid Circuit Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1834",
+      "description": "Transmission Transfer Case Differential Lock-Up Solenoid Short Circuit To Battery",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1838",
+      "description": "Transmission Transfer Case Shift Motor Circuit Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1846",
+      "description": "Transmission Transfer Case Contact Plate A Circuit Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1850",
+      "description": "Transmission Transfer Case Contact Plate B Circuit Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1854",
+      "description": "Transmission Transfer Case Contact Plate C Circuit Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1858",
+      "description": "Transmission Transfer Case Contact Plate D Circuit Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1866",
+      "description": "Transmission Transfer Case System Concern Servicing Required",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1867",
+      "description": "Transmission Transfer Case Contact Plate General Circuit Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1876",
+      "description": "Transmission Transfer Case 2-Wheel Drive Solenoid Circuit Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1877",
+      "description": "Transmission Transfer Case 2-Wheel Drive Solenoid Circuit Short To Battery",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1881",
+      "description": "Engine Coolant Level Switch Circuit Failure GEM",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1882",
+      "description": "Engine Coolant Level Switch Circuit Short to Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1883",
+      "description": "Engine Coolant Level Switch Circuit Failure GEM",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1884",
+      "description": "Engine Coolant Level Lamp Circuit Short to Ground",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1891",
+      "description": "Transmission Transfer Case Contact Plate Ground Return Open Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1900",
+      "description": "Output Shaft Speed (OSS) Circuit Intermittent Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1901",
+      "description": "Turbine Shaft Speed (TSS) Circuit Intermittent Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1902",
+      "description": "Kickdown Solenoid Relay Control Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1903",
+      "description": "Kickdown Solenoid Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1904",
+      "description": "Kickdown Solenoid Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/ford_codes.txt",
+      "verified": false
     }
   ]
 }

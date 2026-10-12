@@ -76,6 +76,7 @@ jobs:
           python3 tools/designtime_icons.py
           python3 tools/designtime_resources.py
           python3 tools/ui_icons.py
+          python3 tools/personal_strings.py
           python3 tools/safety_guide.py
           python3 tools/validate_delphi_projects.py
       - name: Validate every catalog against its local schema

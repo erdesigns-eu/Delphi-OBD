@@ -104,6 +104,7 @@
         <DCCReference Include="..\src\Collections\ERD.Collections.ThreadedQueue.pas"/>
         <DCCReference Include="..\src\Core\ERD.Version.pas"/>
         <DCCReference Include="..\src\Core\ERD.Types.pas"/>
+        <DCCReference Include="..\src\Core\ERD.I18n.pas"/>
         <DCCReference Include="..\src\Core\ERD.Errors.pas"/>
         <DCCReference Include="..\src\Core\ERD.Decoders.pas"/>
         <DCCReference Include="..\src\Core\ERD.Catalog.pas"/>
@@ -132,6 +133,7 @@
         <DCCReference Include="..\src\Protocol\ERD.Protocol.Types.pas"/>
         <DCCReference Include="..\src\Protocol\ERD.Protocol.ISO15765.pas"/>
         <DCCReference Include="..\src\Protocol\ERD.Protocol.UDS.pas"/>
+        <DCCReference Include="..\src\Protocol\ERD.Protocol.ELMResponse.pas"/>
         <DCCReference Include="..\src\Protocol\ERD.Protocol.KWP2000.pas"/>
         <DCCReference Include="..\src\Protocol\ERD.KWP.Catalog.pas"/>
         <DCCReference Include="..\src\Protocol\ERD.Protocol.KWP1281.pas"/>
@@ -171,6 +173,8 @@
         <DCCReference Include="..\src\Service\ERD.Service.Dyno.pas"/>
         <DCCReference Include="..\src\Service\ERD.Service.DTCs.pas"/>
         <DCCReference Include="..\src\Service\ERD.Service.VIN.pas"/>
+        <DCCReference Include="..\src\Service\ERD.Service.VehicleInfo.pas"/>
+        <DCCReference Include="..\src\Service\ERD.Service.Inspection.pas"/>
         <DCCReference Include="..\src\Service\ERD.Service.VINDecoder.Types.pas"/>
         <DCCReference Include="..\src\Service\ERD.Service.VINDecoder.pas"/>
         <DCCReference Include="..\src\Service\ERD.Service.VINInspector.pas"/>
@@ -228,6 +232,7 @@
         <DCCReference Include="..\src\Service\ERD.Service.EVBattery.Catalog.pas"/>
         <DCCReference Include="..\src\Service\ERD.Service.EVBattery.pas"/>
         <DCCReference Include="..\src\Service\ERD.Service.EVBattery.Catalog.Component.pas"/>
+        <DCCReference Include="..\src\Service\ERD.Service.Inspection.Component.pas"/>
         <DCCReference Include="..\src\Service\ERD.Service.Actuator.pas"/>
         <DCCReference Include="..\src\Service\ERD.Service.VWRadioSAFE.pas"/>
         <DCCReference Include="..\src\Coding\ERD.Coding.SecurityAccess.pas"/>
@@ -369,6 +374,9 @@
         <DCCReference Include="..\src\Recorder\ERD.Replayer.pas"/>
         <DCCReference Include="..\src\Recorder\ERD.Recorder.ProtocolMock.pas"/>
         <DCCReference Include="..\src\Recorder\ERD.Recorder.Redactor.pas"/>
+        <DCCReference Include="..\src\Recorder\ERD.Recorder.CSV.pas"/>
+        <DCCReference Include="..\src\Simulator\ERD.Simulator.Vehicle.pas"/>
+        <DCCReference Include="..\src\Simulator\ERD.Simulator.ELM327.pas"/>
         <DCCReference Include="..\src\RadioCode\ERD.RadioCode.Types.pas"/>
         <DCCReference Include="..\src\RadioCode\ERD.RadioCode.pas"/>
         <DCCReference Include="..\src\RadioCode\ERD.RadioCode.EuropeanPremium.pas"/>
@@ -438,10 +446,10 @@
         <DCCReference Include="..\src\UI\ERD.UI.Hint.pas"/>
         <DCCReference Include="..\src\UI\ERD.UI.ScrollBar.pas"/>
         <DCCReference Include="..\src\UI\ERD.UI.ItemList.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.ShellControls.pas"/>
         <DCCReference Include="..\src\UI\ERD.UI.DataGrid.pas"/>
         <DCCReference Include="..\src\UI\ERD.UI.TileGrid.pas"/>
         <DCCReference Include="..\src\UI\ERD.UI.KeyValueList.pas"/>
-        <DCCReference Include="..\src\UI\ERD.UI.ShellControls.pas"/>
         <DCCReference Include="..\src\UI\ERD.UI.FileDialogs.pas"/>
         <DCCReference Include="..\src\UI\ERD.UI.PrintDialogs.pas"/>
         <DCCReference Include="..\src\UI\ERD.UI.FontDialog.pas"/>
@@ -463,6 +471,7 @@
         <DCCReference Include="..\src\UI\ERD.UI.MapGrid.pas"/>
         <DCCReference Include="..\src\UI\ERD.UI.LapTimer.pas"/>
         <DCCReference Include="..\src\UI\ERD.UI.GMeter.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.Histogram.pas"/>
         <DCCReference Include="..\src\UI\ERD.UI.CellMatrix.pas"/>
         <DCCReference Include="..\src\UI\ERD.UI.EcuTopology.pas"/>
         <DCCReference Include="..\src\UI\ERD.UI.KeySlots.pas"/>

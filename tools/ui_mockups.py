@@ -4324,8 +4324,15 @@ def register_pro():
     MOCKUPS.update(ui_mockups_pro.MOCKUPS)
 
 
+def register_personal():
+    """Add the OBD-Studio Personal screens (tools/ui_mockups_personal.py)."""
+    import ui_mockups_personal
+    MOCKUPS.update(ui_mockups_personal.MOCKUPS)
+
+
 def main():
     register_pro()
+    register_personal()
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument('--out', type=Path, default=DEFAULT_OUT)
     ap.add_argument('--only', choices=sorted(MOCKUPS))

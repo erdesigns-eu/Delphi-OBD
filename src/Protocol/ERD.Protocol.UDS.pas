@@ -24,6 +24,7 @@
 //
 // History     :
 // 2026-05-09  ERD  Initial implementation codec.
+// 2026-10-12  ERD  Decode multi-frame / multi-ECU adapter text per ECU.
 // ------------------------------------------------------------------------------
 
 unit ERD.Protocol.UDS;
@@ -43,7 +44,8 @@ uses
 {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   ERD.Types,
   ERD.Catalog,
-  ERD.Protocol.Types;
+  ERD.Protocol.Types,
+  ERD.Protocol.ELMResponse;
 
 const
   /// <summary>UDS positive-response offset (added to the request
@@ -120,10 +122,20 @@ type
     /// <param name="ARequest">The originating request.</param>
     /// <param name="ARawHex">Raw hex text from the adapter (one or
     /// more concatenated lines).</param>
-    /// <param name="AResponse">Output response.</param>
+    /// <param name="AResponse">Output response. <c>Messages</c> holds
+    /// every ECU's answer; <c>Data</c> the primary one (first positive,
+    /// else first negative answer).</param>
+    /// <param name="AHeaderMode">How the adapter prints headers
+    /// (<c>ATH0</c> / <c>ATH1</c>); <c>ehAuto</c> detects CAN headers.</param>
     /// <returns>True when at least one byte was decoded.</returns>
+    /// <remarks>Multi-frame text (<c>014</c> / <c>0:</c> / <c>1:</c>
+    /// lines, or headers-on ISO-TP frames) is reassembled per ECU and
+    /// "response pending" (<c>7F xx 78</c>) messages are skipped; when
+    /// only a pending message arrived the response is negative with
+    /// NRC <c>0x78</c>.</remarks>
     class function Decode(const ARequest: TOBDRequest; const ARawHex: string;
-      out AResponse: TOBDResponse): Boolean; static;
+      out AResponse: TOBDResponse;
+      AHeaderMode: TOBDELMHeaderMode = ehAuto): Boolean; static;
 
     /// <summary>
     /// Returns the conventional positive-response service ID for a
@@ -172,16 +184,67 @@ begin
 end;
 
 class function TOBDUDSCodec.Decode(const ARequest: TOBDRequest;
-  const ARawHex: string; out AResponse: TOBDResponse): Boolean;
+  const ARawHex: string; out AResponse: TOBDResponse;
+  AHeaderMode: TOBDELMHeaderMode): Boolean;
 var
+  All, Kept: TArray<TOBDEcuMessage>;
   Bytes: TBytes;
   Expected: Byte;
+  I, Primary, KeptCount: Integer;
+  PendingSeen: Boolean;
 begin
   AResponse := MakeOBDResponse;
   AResponse.Request := ARequest;
-  Bytes := HexToBytes(ARawHex);
-  if Length(Bytes) = 0 then
-    Exit(False);
+  Expected := ExpectedPositiveResponse(ARequest.ServiceID);
+
+  All := TOBDELMResponseParser.Split(ARawHex, Expected, AHeaderMode);
+  SetLength(Kept, Length(All));
+  KeptCount := 0;
+  PendingSeen := False;
+  for I := 0 to High(All) do
+    if TOBDELMResponseParser.IsResponsePending(All[I].Data) then
+      PendingSeen := True
+    else if Length(All[I].Data) > 0 then
+    begin
+      Kept[KeptCount] := All[I];
+      Inc(KeptCount);
+    end;
+  SetLength(Kept, KeptCount);
+  AResponse.Messages := Kept;
+
+  if KeptCount = 0 then
+  begin
+    if not PendingSeen then
+      Exit(False);
+    // Only "response pending" arrived before the adapter gave up.
+    AResponse.IsNegative := True;
+    AResponse.ServiceID := ARequest.ServiceID;
+    AResponse.NRC := UDS_NRC_ResponsePending;
+    AResponse.NRCText := ResolveNRCText(AResponse.NRC);
+    Exit(True);
+  end;
+
+  // Primary message: first positive answer, else first negative
+  // answer to this service, else the first message.
+  Primary := -1;
+  for I := 0 to KeptCount - 1 do
+    if Kept[I].Data[0] = Expected then
+    begin
+      Primary := I;
+      Break;
+    end;
+  if Primary < 0 then
+    for I := 0 to KeptCount - 1 do
+      if (Length(Kept[I].Data) >= 3) and
+        (Kept[I].Data[0] = UDS_NEGATIVE_RESPONSE) and
+        (Kept[I].Data[1] = ARequest.ServiceID) then
+      begin
+        Primary := I;
+        Break;
+      end;
+  if Primary < 0 then
+    Primary := 0;
+  Bytes := Kept[Primary].Data;
 
   // Negative response: 7F <SID> <NRC>
   if (Bytes[0] = UDS_NEGATIVE_RESPONSE) and (Length(Bytes) >= 3) then
@@ -194,21 +257,11 @@ begin
     Exit(True);
   end;
 
-  Expected := ExpectedPositiveResponse(ARequest.ServiceID);
+  // A mismatched service ID is not a hard fault (some chips strip the
+  // SID echo); the protocol component reports it via OnError.
   AResponse.ServiceID := Bytes[0];
   if Length(Bytes) > 1 then
-  begin
-    SetLength(AResponse.Data, Length(Bytes) - 1);
-    Move(Bytes[1], AResponse.Data[0], Length(Bytes) - 1);
-  end;
-
-  // Mismatched service ID is not a hard fault — some chips strip the
-  // SID echo. Caller can compare AResponse.ServiceID with Expected
-  // and decide.
-  if (Expected = 0) or (AResponse.ServiceID = Expected) then
-    // expected match (or no expectation).
-      ;
-
+    AResponse.Data := Copy(Bytes, 1, Length(Bytes) - 1);
   Result := True;
 end;
 

@@ -8,7 +8,7 @@ protocol code.
 Delphi-OBD is **proprietary software** by ERDesigns. Use requires a licence;
 see [License](#license).
 
-- **225 components** on **14 palette pages**, from transports and protocols to
+- **230 components** on **14 palette pages**, from transports and protocols to
   a themed VCL UI kit and complete workshop-style panels.
 - Units use the `ERD.` namespace; component classes use `TOBD` names.
 - The UI and IDE integration use Delphi **VCL**. The non-visual library also
@@ -55,16 +55,16 @@ are no project or form wizards.
 
 | Page | Components | Contents |
 |---|---:|---|
-| OBD | 11 | Connection, adapter, protocol, DoIP client, SecOC codec, recorder and replayer, KWP1281 and TP 2.0 sessions, J2534 device and channel |
-| OBD Services | 15 | Live data, DTCs, clear DTCs, freeze frame, VIN, VIN inspector, on-board monitor (Mode 06), oxygen monitor, actuator tests, vehicle health, drive-cycle advisor, EV battery, data source, WWH-OBD and WWH-OBD readiness |
+| OBD | 13 | Connection, adapter, protocol, DoIP client, SecOC codec, recorder and replayer, live-data CSV logger, emulator connection (demo car), KWP1281 and TP 2.0 sessions, J2534 device and channel |
+| OBD Services | 16 | Live data, DTCs, clear DTCs, freeze frame, VIN, vehicle information (Mode 09), VIN inspector, on-board monitor (Mode 06), oxygen monitor, actuator tests, vehicle health, drive-cycle advisor, EV battery, data source, WWH-OBD and WWH-OBD readiness |
 | OBD Diagnostics | 16 | UDS and KWP2000 diagnostic services (reset, memory, DIDs, DTCs, I/O control, routines, periodic and dynamic DIDs), J1939 and J1939 DM messages, OEM catalogue |
 | OBD Coding | 19 | Security access, DID I/O, routines, flasher, uploader, flash session, UDS memory/DID writes, KWP write-ID, coding session and audit log, component protection (VAG, BMW, Mercedes, Stellantis), key adaptation (Ford, HMG, BMW, Toyota) |
 | OBD Calibration | 3 | XCP, CCP, ISO 11783 IsoBus |
 | OBD Flashing | 3 | UDS transfer, voltage gate, flash pipeline |
-| OBD Catalogs | 3 | VIN, drive-cycle and EV battery catalogues |
+| OBD Catalogs | 4 | VIN, drive-cycle, EV battery and inspection-rules catalogues |
 | OBD Dashboard | 10 | Theme, dashboard host, dial and bar gauges, value tile, trend chart, live-data grid, status lamp, connection bar, matrix display |
 | OBD Visual | 7 | Terminal, log viewer, DTC list, VIN edit, PID and OEM pickers, CAN-ID edit |
-| OBD Studio | 62 | Themed UI kit: common controls, window chrome (title bar, menu bar, ribbon, backstage, tabs, toolbar, status bar), layout and input controls, lists and shell browsing, data views, themed standard dialogs, and the workshop panels (vehicle info, DTCs, readiness, freeze frame, range profile, report preview) |
+| OBD Studio | 63 | Themed UI kit: common controls, window chrome (title bar, menu bar, ribbon, backstage, tabs, toolbar, status bar), layout and input controls, lists and shell browsing, data views and histogram, themed standard dialogs, and the workshop panels (vehicle info, DTCs, readiness, freeze frame, range profile, report preview) |
 | OBD Studio Pro | 22 | Building blocks for coding, flashing, security, measurement, bus and dyno screens: preconditions, procedure view, write confirmation, timeline, diff and hex views, bit editor, bus trace / send / replay, XY chart, map grid, lap timer, G-meter, cell matrix, key slots, signal browser and grid, ECU topology and list, actuator panel |
 | OBD Dyno | 8 | Dyno calculator, power curve, drag run, SAE J1349 conditions, fuel economy, emissions estimate, inertial brake, wheel torque |
 | OBD Radio | 43 | 42 radio-code calculators plus the VW RadioSAFE reader |
@@ -96,6 +96,16 @@ Every component is listed in the [component reference](docs/components.md).
 | Signing | BCrypt, OpenSSL, host-supplied HSM driver, post-quantum (Dilithium / Falcon / SPHINCS+ via liboqs) |
 
 EV catalogue entries describe model-specific data, not brand-wide support.
+
+## Applications
+
+The finished products built on Delphi-OBD live in
+[`applications/`](applications/README.md):
+
+| Application | What it is |
+|---|---|
+| [`applications/obd-studio-personal`](applications/obd-studio-personal/README.md) | OBD-Studio Personal: free OBD diagnostics for personal use, an alternative to OBD Auto Doctor. Library work done, application next |
+| OBD-Studio Professional (planned) | The full library for power users and small garages |
 
 ## Example applications
 
@@ -152,6 +162,7 @@ are in the [installation guide](docs/install.md).
 | `catalogs/` | JSON catalogues and their schemas (see [`catalogs/INDEX.md`](catalogs/INDEX.md)) |
 | `data/` | JSON schemas for coding, flash-handshake and image-applicability data |
 | `tests/` | DUnitX test project |
+| `applications/` | Finished products: OBD-Studio Personal (see [`applications/README.md`](applications/README.md)) |
 | `examples/` | OBD Studio and OBD Studio Pro |
 | `assets/` | Design-time palette icons (see [`assets/designtime/README.md`](assets/designtime/README.md)) |
 | `tools/` | Validation, generator and FPC scripts (see [`tools/README.md`](tools/README.md)) |

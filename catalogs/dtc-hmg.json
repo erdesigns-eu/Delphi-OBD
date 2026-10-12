@@ -236,6 +236,456 @@
         "sensing_camera_dynamic"
       ],
       "oem_bulletin": ""
+    },
+    {
+      "code": "P1102",
+      "description": "HO2S11 Heater Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1105",
+      "description": "HO2S12 Heater Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1115",
+      "description": "H02S12 Heater Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1117",
+      "description": "HO2S12 Heater Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1123",
+      "description": "Long Term Fuel Trim Adaptive Air System Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1124",
+      "description": "Long Term Fuel Trim Adaptive Air System High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1127",
+      "description": "Long Term Fuel Trim Multiplicative Air System Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1128",
+      "description": "Long Term Fuel Trim Multiplicative Air System High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1140",
+      "description": "Load Calculation Cross Check",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1170",
+      "description": "HO2S11 Circuit Voltage Stuck At Mid-Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1195",
+      "description": "EGR Boost Or Pressure Sensor Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1196",
+      "description": "Ignition Switch Start Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1213",
+      "description": "Fuel Injector 1 Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1214",
+      "description": "Fuel Injector 2 Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1215",
+      "description": "Fuel Injector 3 Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1216",
+      "description": "Fuel Injector 4 Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1225",
+      "description": "Fuel Injector 1 Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1226",
+      "description": "Fuel Injector 2 Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1227",
+      "description": "Fuel Injector 3 Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1228",
+      "description": "Fuel Injector 4 Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1250",
+      "description": "Pressure Regulator Control Solenoid Valve Open Or Short",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1252",
+      "description": "Pressure Regulator Control Solenoid Valve No. 2 Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1307",
+      "description": "Chassis Acceleration Sensor Signal Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1308",
+      "description": "Chassis Acceleration Sensor Signal Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1309",
+      "description": "Chassis Acceleration Sensor Signal High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1345",
+      "description": "No SGC Signal 1.6L",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1386",
+      "description": "Knock Sensor Control Zero Test",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1401",
+      "description": "EGR Control Solenoid Circuit Signal Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1402",
+      "description": "EGR Control Solenoid Circuit Signal High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1410",
+      "description": "EVAP Purge Control Solenoid Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1412",
+      "description": "EGR Differential Pressure Sensor Signal Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1413",
+      "description": "EGR Differential Pressure Sensor Signal High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1425",
+      "description": "EVAP Purge Control Solenoid Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1449",
+      "description": "Canister Drain Cut Valve Open Or Short 1.8L",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1450",
+      "description": "Excessive Vacuum Leak",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1455",
+      "description": "Fuel Tank Sending Unit Open Or Short 1.8L",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1457",
+      "description": "Purge Solenoid Valve Low System Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1458",
+      "description": "A/C Compressor Clutch Signal Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1485",
+      "description": "EGR Vent Control Solenoid Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1486",
+      "description": "EGR Vacuum Control Solenoid Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1487",
+      "description": "EGR Boost Sensor Solenoid Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1496",
+      "description": "EGR Stepper Motor Malfunction Circuit 1 1.8L",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1497",
+      "description": "EGR Stepper Motor Malfunction Circuit 2 1.8L",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1498",
+      "description": "EGR Stepper Motor Malfunction Circuit 3 1.8L",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1499",
+      "description": "EGR Stepper Motor Malfunction Circuit 4 1.8L",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1500",
+      "description": "No Vehicle Speed Signal to TCM",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1505",
+      "description": "Idle Air Control Valve Opening Coil Voltage Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1506",
+      "description": "Idle Air Control Valve Opening Coil Voltage High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1507",
+      "description": "Idle Air Control Valve Closing Coil Voltage Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1508",
+      "description": "Idle Air Control Valve Closing Coil Voltage High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1510",
+      "description": "Idle Air Control Valve Closing Coil High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1513",
+      "description": "Idle Air Control Valve Closing Coil Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1515",
+      "description": "A/T To M/T Codification",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1523",
+      "description": "VICS Solenoid Valve",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1552",
+      "description": "Idle Air Control Valve Opening Coil Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1553",
+      "description": "Idle Air Control Valve Opening Coil High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1586",
+      "description": "A/T To M/T Codification",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1606",
+      "description": "Chassis Accelerator Sensor Signal Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1608",
+      "description": "PCM Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1611",
+      "description": "MIL Request Circuit Voltage Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1614",
+      "description": "MIL Request Circuit Voltage High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1616",
+      "description": "Chassis Accelerator Sensor Signal Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1617",
+      "description": "Chassis Accelerator Sensor Signal High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1624",
+      "description": "TCM To PCM MIL Request Signal Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1631",
+      "description": "Alternator T Open Or No Power Output 1.8L",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1632",
+      "description": "Battery Voltage Detection Circuit for Alternator Regulator 1.8L",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1633",
+      "description": "Battery Overcharge",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1634",
+      "description": "Alternator B Open 1.8L",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1655",
+      "description": "Unused Power Stage 'B'",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1660",
+      "description": "Power Stage Group 'B'",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1665",
+      "description": "Power Stage Group 'A'",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1743",
+      "description": "Torque Converter Clutch Solenoid Valve Open Or Short",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1794",
+      "description": "Battery Or Circuit Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1795",
+      "description": "4WD Switch Signal Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1797",
+      "description": "Clutch Pedal Switch MT Or P/N Switch Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/kia_codes.txt",
+      "verified": false
     }
   ]
 }

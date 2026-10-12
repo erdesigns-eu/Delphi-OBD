@@ -23,7 +23,7 @@ FPC compiler profile.
    If Windows still reports a missing file while the BPL exists, check its
    dependent BPLs (including `bindengine` and `bindcomp`) in the RAD Studio `bin`
    directory; Windows uses the same message for a missing dependency.
-4. Create a VCL form or DataModule. The 14 OBD palette pages contain 225
+4. Create a VCL form or DataModule. The 14 OBD palette pages contain 230
    components (see the [component reference](components.md)); drop the
    components you need and configure their properties/events.
 5. Add the matching `build/<platform>/<config>/rt-dcu` folder to your application's

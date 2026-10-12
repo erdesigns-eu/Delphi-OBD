@@ -90,70 +90,70 @@
     },
     {
       "id": "0x81",
-      "name": "Catalyst Monitor — Bank 1, Sensor 1 (Test 1)",
+      "name": "Manufacturer-defined test $81",
       "length": 7,
       "decoder": "raw",
       "description": ""
     },
     {
       "id": "0x82",
-      "name": "Catalyst Monitor — Bank 1, Sensor 2 (Test 2)",
+      "name": "Manufacturer-defined test $82",
       "length": 7,
       "decoder": "raw",
       "description": ""
     },
     {
       "id": "0x83",
-      "name": "Catalyst Monitor — Bank 2, Sensor 1",
+      "name": "Manufacturer-defined test $83",
       "length": 7,
       "decoder": "raw",
       "description": ""
     },
     {
       "id": "0x84",
-      "name": "Catalyst Monitor — Bank 2, Sensor 2",
+      "name": "Manufacturer-defined test $84",
       "length": 7,
       "decoder": "raw",
       "description": ""
     },
     {
       "id": "0x85",
-      "name": "Evap Monitor (0.040)",
+      "name": "Manufacturer-defined test $85",
       "length": 7,
       "decoder": "raw",
       "description": ""
     },
     {
       "id": "0x86",
-      "name": "Evap Monitor (0.020)",
+      "name": "Manufacturer-defined test $86",
       "length": 7,
       "decoder": "raw",
       "description": ""
     },
     {
       "id": "0x87",
-      "name": "Evap Monitor (Cap Off)",
+      "name": "Manufacturer-defined test $87",
       "length": 7,
       "decoder": "raw",
       "description": ""
     },
     {
       "id": "0xA1",
-      "name": "Egr Monitor",
+      "name": "Manufacturer-defined test $A1",
       "length": 7,
       "decoder": "raw",
       "description": ""
     },
     {
       "id": "0xA2",
-      "name": "Pcv Monitor",
+      "name": "Manufacturer-defined test $A2",
       "length": 7,
       "decoder": "raw",
       "description": ""
     },
     {
       "id": "0xB1",
-      "name": "Cold-Start Emission Reduction Monitor",
+      "name": "Manufacturer-defined test $B1",
       "length": 7,
       "decoder": "raw",
       "description": ""

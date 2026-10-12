@@ -314,6 +314,1500 @@
       "severity": "critical",
       "description": "FlexRay — Bus Off Error Frame (FRMs / chassis)",
       "verified": false
+    },
+    {
+      "code": "P1083",
+      "description": "Fuel Control Mixture Lean Bank 1 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1084",
+      "description": "Fuel Control Mixture Rich Bank 1 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1085",
+      "description": "Fuel Control Mixture Lean Bank 2 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1086",
+      "description": "Fuel Control Mixture Rich Bank 2 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1087",
+      "description": "O2 Sensor Circuit Slow Response in Lean Control Range Bank 1 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1088",
+      "description": "O2 Sensor Circuit Slow Response in Rich Control Range Bank 1 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1089",
+      "description": "O2 Sensor Circuit Slow Response in Lean Control Range Bank 1 Sensor 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1090",
+      "description": "Pre-Catalyst Fuel Trim Too Lean Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1091",
+      "description": "Pre-Catalyst Fuel Trim Too Rich Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1092",
+      "description": "Pre-Catalyst Fuel Trim Too Lean Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1093",
+      "description": "Pre-Catalyst Fuel Trim Too Rich Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1094",
+      "description": "O2 Sensor Circuit Slow Response in Rich Control Range Bank 2 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1095",
+      "description": "O2 Sensor Circuit Slow Switching From Lean to Rich Bank 1 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1096",
+      "description": "O2 Sensor Circuit Slow Switching From Lean to Rich Bank 2 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1097",
+      "description": "O2 Sensor Circuit Slow Response After Coast Down Fuel Cut-off Bank 1 Sensor 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1098",
+      "description": "O2 Sensor Circuit Slow Response After Coast Down Fuel Cutoff Bank 2 Sensor 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1111",
+      "description": "Engine Coolant Temperature Radiator Outlet Sensor Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1112",
+      "description": "Engine Coolant Temperature Radiator Outlet Sensor High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1115",
+      "description": "Coolant Temperature Sensor Plausibility",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1116",
+      "description": "Mass Or Volume Air Flow Circuit Range Performance Problem Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1117",
+      "description": "Mass Or Volume Air Flow Circuit Low Input Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1118",
+      "description": "Mass Or Volume Air Flow Circuit High Input Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1120",
+      "description": "Pedal Position Sensor Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1121",
+      "description": "Pedal Position Sensor 1 Range Performance Problem",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1122",
+      "description": "Pedal Position Sensor 1 Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1123",
+      "description": "Pedal Position Sensor 1 High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1132",
+      "description": "O2 Sensor Heater Control Circuit Bank 1 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1133",
+      "description": "O2 Sensor Heater Control Circuit Bank 2 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1134",
+      "description": "O2 Sensor Heater Circuit Signal Intermittent Bank 1 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1135",
+      "description": "O2 Sensor Heater Circuit Low Voltage Bank 1 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1136",
+      "description": "O2 Sensor Heater Circuit High Voltage Bank 1 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1137",
+      "description": "O2 Sensor Heater Circuit Signal Intermittent Bank 1 Sensor 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1138",
+      "description": "O2 Sensor Heater Circuit Low Voltage Bank 1 Sensor 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1139",
+      "description": "O2 Sensor Heater Circuit High Voltage Bank 1 Sensor 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1140",
+      "description": "Mass Or Volume Air Flow Circuit Range Performance Problem",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1145",
+      "description": "Solenoid Valve Running Losses Control Circuit Electrical",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1151",
+      "description": "O2 Sensor Heater Circuit Signal Intermittent Bank 2 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1152",
+      "description": "O2 Sensor Heater Circuit Low Voltage Bank 2 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1153",
+      "description": "O2 Sensor Heater Circuit High Voltage Bank 2 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1155",
+      "description": "O2 Sensor Heater Circuit Intermittent Bank 2 Sensor 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1156",
+      "description": "O2 Sensor Heater Circuit Low Voltage Bank 2 Sensor 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1157",
+      "description": "O2 Sensor Heater Circuit High Voltage Bank 2 Sensor 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1158",
+      "description": "Fuel Trim Adaptation Additive Bank 1 Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1159",
+      "description": "Fuel Trim Adaptation Additive Bank 1 High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1160",
+      "description": "Fuel Trim Adaptation Additive Bank 2 Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1161",
+      "description": "Fuel Trim Adaptation Additive Bank 2 High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1162",
+      "description": "Fuel Trim Adaptation Additive Per Ignition Bank 1 Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1163",
+      "description": "Fuel Trim Adaptation Additive Per Ignition Bank 1 High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1164",
+      "description": "Fuel Trim Adaptation Additive Per Ignition Bank 2 Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1165",
+      "description": "Fuel Trim Adaptation Additive Per Ignition Bank 2 High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1174",
+      "description": "Fuel Trim Adaptation Additive Bank 1 Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1175",
+      "description": "Fuel Trim Adaptation Additive Bank 2 Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1176",
+      "description": "O2 Sensor Slow Response Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1177",
+      "description": "O2 Sensor Slow Response Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1178",
+      "description": "O2 Sensor Signal Circuit Slow Switching From Rich to Lean Bank 1 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1179",
+      "description": "O2 Sensor Signal Circuit Slow Switching From Rich to Lean Bank 2 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1180",
+      "description": "O2 Sensor Signal Circuit Slow Switching From Rich to Lean Bank 1 Sensor 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1181",
+      "description": "O2 Sensor Signal Circuit Slow Switching From Rich to Lean Bank 2 Sensor 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1182",
+      "description": "O2 Sensor Bank 1 Sensor 2 Open Circuit During Coast Down Fuel Cut-off",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1183",
+      "description": "O2 Sensor Bank 2 Sensor 2 Open Circuit During Coast Down Fuel Cut-off",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1186",
+      "description": "O2 Sensor Heater Control Circuit Bank 1 Sensor 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1187",
+      "description": "O2 Sensor Heater Control Circuit Bank 2 Sensor 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1188",
+      "description": "Fuel Control Bank 1 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1189",
+      "description": "Fuel Control Bank 2 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1190",
+      "description": "Pre-Catalyst Fuel Trim System Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1191",
+      "description": "Pre-Catalyst Fuel Trim System Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1192",
+      "description": "Post-Catalyst Fuel Trim System Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1193",
+      "description": "Post-Catalyst Fuel Trim System Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1221",
+      "description": "Pedal Position Sensor 2 Range Performance Problem",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1222",
+      "description": "Pedal Position Sensor 2 Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1223",
+      "description": "Pedal Position Sensor 2 High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1270",
+      "description": "Control Module Self-Test Torque Monitoring",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1271",
+      "description": "Ambient Air Pressure Sensor Electrical",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1283",
+      "description": "Switching Solenoid for Air Assisted Injection Valves Bank 1 Control Circuit Electrical",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1284",
+      "description": "Switching Solenoid for Air Assisted Injection Valves Bank 1 Control Circuit Signal Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1285",
+      "description": "Switching Solenoid for Air Assisted Injection Valves Bank 1 Control Circuit Signal High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1287",
+      "description": "Switching Solenoid for Air Assisted Injection Valves Bank 2 Control Circuit Electrical",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1288",
+      "description": "Switching Solenoid for Air Assisted Injection Valves Bank 2 Control Circuit Signal Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1289",
+      "description": "Switching Solenoid for Air Assisted Injection Valves Bank 2 Control Circuit Signal High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1313",
+      "description": "A Camshaft Position Plausibility",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1317",
+      "description": "B Camshaft Position Plausibility",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1327",
+      "description": "Knock Sensor 2 Bank 1 Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1328",
+      "description": "Knock Sensor 2 Bank 1 High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1332",
+      "description": "Knock Sensor 4 Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1333",
+      "description": "Knock Sensor 4 High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1340",
+      "description": "Multiple Cylinder Misfire During Start",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1341",
+      "description": "Multiple Cylinder Misfire With Fuel Cut-off",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1342",
+      "description": "Misfire During Start Cylinder 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1343",
+      "description": "Misfire Cylinder 1 With Fuel Cut-off",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1344",
+      "description": "Misfire During Start Cylinder 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1345",
+      "description": "Misfire Cylinder 2 With Fuel Cut-off",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1346",
+      "description": "Misfire During Start Cylinder 3",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1347",
+      "description": "Misfire Cylinder 3 With Fuel Cut-off",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1348",
+      "description": "Misfire During Start Cylinder 4",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1349",
+      "description": "Misfire Cylinder 4 With Fuel Cut-off",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1350",
+      "description": "Misfire During Start Cylinder 5",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1351",
+      "description": "Misfire Cylinder 5 With Fuel Cut-off",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1352",
+      "description": "Misfire During Start Cylinder 6",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1353",
+      "description": "Misfire Cylinder 6 With Fuel Cut-off",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1354",
+      "description": "Misfire During Start Cylinder 7",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1355",
+      "description": "Misfire Cylinder 7 With Fuel Cut-off",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1356",
+      "description": "Misfire During Start Cylinder 8",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1357",
+      "description": "Misfire Cylinder 8 With Fuel Cut-off",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1358",
+      "description": "Misfire During Start Cylinder 9",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1359",
+      "description": "Misfire Cylinder 9 With Fuel Cut-off",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1360",
+      "description": "Misfire During Start Cylinder 10",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1361",
+      "description": "Misfire Cylinder 10 With Fuel Cut-off",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1362",
+      "description": "Misfire During Start Cylinder 11",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1363",
+      "description": "Misfire Cylinder 11 With Fuel Cut-off",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1364",
+      "description": "Misfire During Start Cylinder 12",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1365",
+      "description": "Misfire Cylinder 12 With Fuel Cut-off",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1384",
+      "description": "Knock Sensor 3 Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1385",
+      "description": "Knock Sensor 4 Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1386",
+      "description": "Control Module Self-test Knock Control Baseline Test Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1396",
+      "description": "Crankshaft Position Sensor Segment Timing Plausibility",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1397",
+      "description": "Camshaft Position Sensor B Circuit Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1400",
+      "description": "Heated Catalyst Battery Voltage or Current Too Low During Heating Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1401",
+      "description": "Heated Catalyst Current Too High During Heating Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1402",
+      "description": "Heated Catalyst Power Switch Overtemperature Condition Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1403",
+      "description": "Carbon Canister Shut Off Valve Control Circuit Electrical",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1404",
+      "description": "Heated Catalyst Current Too High During Heating Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1405",
+      "description": "Heated Catalyst Power Switch Overtemperature Condition Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1406",
+      "description": "Heated Catalyst Internal Control Module Checksum ROM Error",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1413",
+      "description": "Secondary Air Injection Pump Relay Control Circuit Signal Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1414",
+      "description": "Secondary Air Injection System Monitor Circuit High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1420",
+      "description": "Secondary Air Valve Control Circuit Electrical",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1421",
+      "description": "Secondary Air System Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1422",
+      "description": "Secondary Air System Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1432",
+      "description": "Secondary Air Injection System Incorrect Flow Detected",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1438",
+      "description": "Purge Control Valve Control Open Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1439",
+      "description": "Purge Control Valve Control Circuit Signal Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1440",
+      "description": "Purge Control Valve Control Circuit Signal High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1441",
+      "description": "Leakage Diagnostic Pump Control Open Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1442",
+      "description": "Leakage Diagnostic Pump Control Circuit Signal Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1443",
+      "description": "Leakage Diagnostic Pump Control Circuit Signal High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1444",
+      "description": "Diagnostic Module Tank Leakage DM-TL Pump Control Open Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1445",
+      "description": "Diagnostic Module Tank Leakage DM-TL Pump Control Circuit Signal Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1446",
+      "description": "Diagnostic Module Tank Leakage DM-TL Pump Control Circuit Signal High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1447",
+      "description": "Diagnostic Module Tank Leakage DM-TL Pump Too High During Switching",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1448",
+      "description": "Diagnostic Module Tank Leakage DM-TL Pump Too Low During Switching",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1449",
+      "description": "Diagnostic Module Tank Leakage DM-TL Pump Too High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1450",
+      "description": "Diagnostic Module Tank Leakage DM-TL Switching Solenoid Open Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1451",
+      "description": "Diagnostic Module Tank Leakage DM-TL Switching Solenoid Control Circuit Signal Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1452",
+      "description": "Diagnostic Module Tank Leakage DM-TL Switching Solenoid Control Circuit Signal High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1453",
+      "description": "Secondary Air Injection Pump Relay Control Circuit Electrical",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1454",
+      "description": "Secondary Air Injection Pump With Series Resistor Control Circuit Electrical",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1456",
+      "description": "Heated Catalyst Heater Power Supply Open Circuit Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1457",
+      "description": "Heated Catalyst Heater Power Switch Temperature Sensor Electrical Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1459",
+      "description": "Heated Catalyst Heater Power Supply Open Circuit Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1460",
+      "description": "Heated Catalyst Heater Power Switch Temperature Sensor Electrical Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1461",
+      "description": "Heated Catalyst Gate Voltage Signal Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1462",
+      "description": "Heated Catalyst Internal Control Module Checksum ROM Error",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1463",
+      "description": "Heated Catalyst Battery Temperature Sensor 1 Electrical",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1464",
+      "description": "Heated Catalyst Battery Temperature Sensor 2 Electrical",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1465",
+      "description": "Heated Catalyst Battery Temperature Sensor 1 or 2 Plausibility",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1466",
+      "description": "Heated Catalyst Power Switch Temperature Sensor Plausibility",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1467",
+      "description": "Heated Catalyst Comparison Battery Voltages of Power Switches Plausibility",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1468",
+      "description": "Heated Catalyst Battery Disconnecting Switch Plausibility",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1470",
+      "description": "Leakage Diagnostic Pump Control Circuit Electrical",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1472",
+      "description": "Diagnostic Module Tank Leakage DM-TL Switching Solenoid Control Circuit Electrical",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1473",
+      "description": "Diagnostic Module Tank Leakage DM-TL Pump Current Plausibility",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1475",
+      "description": "Leakage Diagnostic Pump Reed Switch Did Not Close",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1476",
+      "description": "Leakage Diagnostic Pump Clamped Tube",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1477",
+      "description": "Leakage Diagnostic Pump Reed Switch Did Not Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1500",
+      "description": "Idle Speed Control Valve Stuck Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1501",
+      "description": "Idle Speed Control Valve Stuck Closed",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1502",
+      "description": "Idle Speed Control Valve Closing Solenoid Control Circuit Signal High Or Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1503",
+      "description": "Idle Speed Control Valve Closing Solenoid Control Circuit Signal Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1504",
+      "description": "Idle Speed Control Valve Closing Solenoid Control Open Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1505",
+      "description": "Idle Speed Control Valve Closing Solenoid Control Circuit Electrical",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1506",
+      "description": "Idle Speed Control Valve Open Solenoid Control Circuit Signal High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1507",
+      "description": "Idle Speed Control Valve Open Solenoid Control Circuit Signal Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1508",
+      "description": "Idle Speed Control Valve Opening Solenoid Control Open Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1509",
+      "description": "Idle Speed Control Valve Opening Solenoid Control Circuit Electrical",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1510",
+      "description": "Idle Speed Control Valve Stuck",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1511",
+      "description": "DISA Control Circuit Electrical",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1512",
+      "description": "DISA Control Circuit Signal Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1513",
+      "description": "DISA Control Circuit Signal High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1519",
+      "description": "A Camshaft Position Actuator Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1520",
+      "description": "B Camshaft Position Actuator Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1522",
+      "description": "A Camshaft Position Actuator Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1523",
+      "description": "A Camshaft Position Actuator Signal Low Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1524",
+      "description": "A Camshaft Position Actuator Signal High Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1525",
+      "description": "A Camshaft Position Actuator Control Open Circuit Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1526",
+      "description": "A Camshaft Position Actuator Control Open Circuit Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1527",
+      "description": "A Camshaft Position Actuator Control Circuit Signal Low Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1528",
+      "description": "A Camshaft Position Actuator Control Circuit Signal High Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1529",
+      "description": "B Camshaft Position Actuator Control Circuit Signal Low Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1530",
+      "description": "B Camshaft Position Actuator Control Circuit Signal High Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1531",
+      "description": "B Camshaft Position Actuator Control Open Circuit Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1532",
+      "description": "B Camshaft Position Actuator Control Open Circuit Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1533",
+      "description": "B Camshaft Position Actuator Control Circuit Signal Low Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1534",
+      "description": "B Camshaft Position Actuator Control Circuit Signal High Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1540",
+      "description": "Pedal Position Sensor",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1541",
+      "description": "Pedal Position Sensor Double Error",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1542",
+      "description": "Pedal Position Sensor Electrical",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1543",
+      "description": "Pedal Position Sensor",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1544",
+      "description": "Pedal Position Sensor",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1545",
+      "description": "Pedal Position Sensor",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1546",
+      "description": "Pedal Position Sensor",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1550",
+      "description": "Idle Speed Control Valve Closing Solenoid Control Circuit Electrical",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1551",
+      "description": "A Camshaft Position Actuator Control Open Circuit Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1552",
+      "description": "A Camshaft Position Actuator Control Open Circuit Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1556",
+      "description": "A Camshaft Position Actuator Control Open Circuit Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1560",
+      "description": "B Camshaft Position Actuator Control Open Circuit Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1564",
+      "description": "Control Module Selection",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1565",
+      "description": "B Camshaft Position Actuator Control Open Circuit Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1569",
+      "description": "A Camshaft Position Actuator Control Open Circuit Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1580",
+      "description": "Throttle Valve Mechanically Stuck",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1581",
+      "description": "B Camshaft Position Actuator Control Open Circuit Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1589",
+      "description": "Control Module Self Test Knock Control Test Pulse Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1593",
+      "description": "DISA Control Circuit Electrical",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1594",
+      "description": "B Camshaft Position Actuator Control Open Circuit Bank 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1602",
+      "description": "Control Module Self Test Control Module Defective",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1603",
+      "description": "Control Module Self Test Torque Monitoring",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1604",
+      "description": "Control Module Self Test Speed Monitoring",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1607",
+      "description": "CAN Version",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1608",
+      "description": "Serial Communicating Link Control Module",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1609",
+      "description": "Serial Communicating Link EML",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1611",
+      "description": "Serial Communicating Link Transmission Control Module",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1619",
+      "description": "MAP Cooling Control Circuit Signal Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1620",
+      "description": "MAP Cooling Control Circuit Signal High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1622",
+      "description": "MAP Cooling Control Circuit Electrical",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1623",
+      "description": "Pedal Position Sensor Potentiometer Supply",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1624",
+      "description": "Pedal Position Sensor Potentiometer Supply Channel 1 Electrical",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1625",
+      "description": "Pedal Position Sensor Potentiometer Supply Channel 2 Electrical",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1632",
+      "description": "Throttle Valve Adaptation Adaptation Condition Not Met",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1633",
+      "description": "Throttle Valve Adaptation Limp Home Position",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1634",
+      "description": "Throttle Valve Adaptation Spring Test Failed",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1635",
+      "description": "Throttle Valve Adaptation Lower Mechanical Stop Not Adapted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1636",
+      "description": "Throttle Valve Control Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1637",
+      "description": "Throttle Valve Position Control Control Deviation",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1638",
+      "description": "Throttle Valve Position Control Throttle Stuck Temporarily",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1639",
+      "description": "Throttle Valve Position Control Throttle Stuck Permanently",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1640",
+      "description": "Internal Control Module ROM RAM Error",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1690",
+      "description": "Malfunction Indicator Lamp MIL Electrical",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1738",
+      "description": "Pressure Control Solenoid C Electrical",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1743",
+      "description": "Pressure Control Solenoid E Electrical",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1744",
+      "description": "Pressure Control Solenoid A Electrical",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1746",
+      "description": "Transmission Control Module Output Stage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1747",
+      "description": "CAN Bus Monitoring",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1748",
+      "description": "Transmission Control Module Self Test",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1749",
+      "description": "Secondary Pressure Solenoid Communication Error",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1750",
+      "description": "Secondary Pressure Solenoid Circuit Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1751",
+      "description": "Secondary Pressure Solenoid Open Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1761",
+      "description": "Shift Solenoid Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1765",
+      "description": "CAN Throttle Valve",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1770",
+      "description": "CAN Torque Interface",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1780",
+      "description": "CAN Torque Reduction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/bmw_codes.txt",
+      "verified": false
     }
   ]
 }

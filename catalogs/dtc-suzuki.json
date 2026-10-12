@@ -114,6 +114,102 @@
       "severity": "critical",
       "description": "Control Module Communication Bus 'A' Off (Suzuki HS-CAN)",
       "verified": false
+    },
+    {
+      "code": "P1250",
+      "description": "EFE Heater Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/suzuki_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1408",
+      "description": "Maniforld Differential Pressure Sensor Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/suzuki_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1410",
+      "description": "Fuel Tank Pressure Control Solenoid Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/suzuki_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1451",
+      "description": "Barometric Pressure Sensor Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/suzuki_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1460",
+      "description": "Radiator Fan Control System Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/suzuki_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1500",
+      "description": "Engine Starter Signal Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/suzuki_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1510",
+      "description": "PCM Backup Power Supply Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/suzuki_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1530",
+      "description": "Ignition Timing Adjustment Switch Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/suzuki_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1600",
+      "description": "PCM TCM Serial Communication Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/suzuki_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1700",
+      "description": "TCM Throttle Position Sensor Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/suzuki_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1705",
+      "description": "TCM ECT Sensor Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/suzuki_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1710",
+      "description": "Back-Up Signal For Speed Sensor Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/suzuki_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1715",
+      "description": "PNP Switch Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/suzuki_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1717",
+      "description": "AT Drive Range Signal Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/suzuki_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1875",
+      "description": "4WD Low Switch Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/suzuki_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1895",
+      "description": "TCM To ECM Torque Reduction Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/suzuki_codes.txt",
+      "verified": false
     }
   ]
 }

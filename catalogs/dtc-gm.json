@@ -290,6 +290,2766 @@
       "related_dids": [],
       "related_routines": [],
       "oem_bulletin": ""
+    },
+    {
+      "code": "P1031",
+      "description": "HO2S Heater Current Monitor Control Circuit Sensors 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1032",
+      "description": "HO2S Heater Warm Up Control Circuit Sensors 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1105",
+      "description": "Secondary Vacuum Sensor Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1106",
+      "description": "MAP Sensor Circuit Intermittent High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1107",
+      "description": "MAP Sensor Circuit Intermittent Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1108",
+      "description": "BARO To MAP Sensor Circuit Comparison Too High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1109",
+      "description": "Secondary Port Throttle System",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1111",
+      "description": "Intake Air Temperature (IAT) Sensor Circuit Intermittent High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1112",
+      "description": "Intake Air Temperature (IAT) Sensor Circuit Intermittent Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1113",
+      "description": "Intake Resonance Switchover Valve Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1114",
+      "description": "Engine Coolant Temperature (ECT) Sensor Circuit Intermittent Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1115",
+      "description": "Engine Coolant Temperature (ECT) Sensor Circuit Intermittent High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1116",
+      "description": "ECT Signal Unstable Or Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1117",
+      "description": "Engine Coolant Temp Signal Out Of Range Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1118",
+      "description": "Engine Coolant Temp Signal Out Of Range High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1119",
+      "description": "ECT Signal Out Of Range With TFT Sensor",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1120",
+      "description": "Throttle Position (TP) Sensor 1 Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1121",
+      "description": "TP Sensor Circuit Intermittent High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1122",
+      "description": "TP Sensor Circuit Intermittent Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1125",
+      "description": "Accelerator Pedal Position (APP) System",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1130",
+      "description": "HO2S Circuit Low Variance Bank 1 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1131",
+      "description": "HO2S Circuit Low Variance Bank 1 Sensor 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1132",
+      "description": "H02S Circuit Low Variance Bank 2 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1134",
+      "description": "HO2S Transition Time Ratio",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1135",
+      "description": "HO2S Lean Average Bank 1 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1136",
+      "description": "HO2S Rich Average Bank 1 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1137",
+      "description": "HO2S Bank 1 Sensor 2 Lean Or Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1138",
+      "description": "HO2S Bank 1 Sensor 2 Rich Or High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1139",
+      "description": "HO2S Insufficient Switching Bank 1 Sensor 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1140",
+      "description": "HO2S Transition Time Ratio Bank 1 Sensor 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1141",
+      "description": "HO2S Bank 1 Sensor 2 Average Voltage Level",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1143",
+      "description": "HO2S Bank 1 Sensor 3 Lean Or Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1144",
+      "description": "HO2S Bank 1 Sensor 3 Rich Or High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1145",
+      "description": "HO2S Cross Counts Bank 1 Sensor 3",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1153",
+      "description": "HO2S Insufficient Switching",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1154",
+      "description": "HO2S Transition Time Ratio",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1155",
+      "description": "HO2S Lean Average Bank 2 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1156",
+      "description": "HO2S Rich Average Bank 2 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1157",
+      "description": "HO2S Bank 2 Sensor 2 Lean System Or Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1158",
+      "description": "HO2S Bank 2 Sensor 2 Rich Or High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1159",
+      "description": "HO2S Cross Counts Bank 2 Sensor 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1161",
+      "description": "HO2S Heater Power Stage Circuit Bank 2 Sensor 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1163",
+      "description": "HO2S Bank 2 Sensor 3 Lean System Or Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1164",
+      "description": "HO2S Bank 2 Sensor 3 Rich Or High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1165",
+      "description": "HO2S Cross Counts Bank 2 Sensor 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1170",
+      "description": "Bank To Bank Fuel Trim Offset",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1171",
+      "description": "Fuel System Lean During Acceleration",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1185",
+      "description": "Engine Oil Temperature Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1186",
+      "description": "EOT Circuit Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1187",
+      "description": "EOT Sensor Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1188",
+      "description": "EOT Sensor Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1189",
+      "description": "Engine Oil Pressure Switch Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1190",
+      "description": "Engine Vacuum Leak",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1191",
+      "description": "Intake Air Duct Air Leak",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1200",
+      "description": "Injector Control Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1201",
+      "description": "Alternative Fuel Gas Mass Sensor Circuit Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1202",
+      "description": "Alternative Fuel Gas Mass Sensor Circuit Low Frequency",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1203",
+      "description": "Alternative Fuel Gas Mass Sensor Circuit High Frequency",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1211",
+      "description": "Mass Air Flow Circuit Intermittent High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1212",
+      "description": "Mass Air Flow Circuit Intermittent Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1214",
+      "description": "Injection Pump Timing Offset",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1215",
+      "description": "Ground Fault Detection Indicated",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1217",
+      "description": "Fuel Solenoid Response Time Too Long",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1218",
+      "description": "Injection Pump Calibration Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1219",
+      "description": "Throttle Position Sensor Reference Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1220",
+      "description": "Throttle Position (TP) Sensor 2 Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1221",
+      "description": "Throttle Position (TP) Sensor 1 2 Correlation",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1222",
+      "description": "Injector Control Circuit Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1225",
+      "description": "Injector Circuit Cylinder 2 Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1228",
+      "description": "Injector Circuit Cylinder 3 Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1231",
+      "description": "Injector Circuit Cylinder 4 Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1234",
+      "description": "Injector Circuit Cylinder 5 Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1237",
+      "description": "Injector Circuit Cylinder 6 Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1240",
+      "description": "Injector Circuit Cylinder 7 Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1243",
+      "description": "Injector Circuit Cylinder 8 Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1245",
+      "description": "Intake Plenum Switchover Valve",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1250",
+      "description": "Early Fuel Evaporation Heater Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1257",
+      "description": "Supercharger System Overboost",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1258",
+      "description": "Engine Coolant Overtemperature Protection Mode Active",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1260",
+      "description": "Last Test Failed SCC Or Theft Detected Vehicle Immobilized",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1270",
+      "description": "Accelerator Pedal Position Sensor A/D Converter Error",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1271",
+      "description": "APP Sensor 1 2 Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1272",
+      "description": "Accelerator Pedal Position Sensor 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1273",
+      "description": "Accelerator Pedal Position Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1274",
+      "description": "Injectors Wired Incorrectly",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1275",
+      "description": "Accelerator Pedal Position (APP) Sensor 1 Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1276",
+      "description": "Accelerator Pedal Position (APP) Sensor 1 Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1277",
+      "description": "Accelerator Pedal Position Sensor 1 Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1278",
+      "description": "Accelerator Pedal Position Sensor 1 Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1280",
+      "description": "Accelerator Pedal Position (APP) Sensor 2 Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1281",
+      "description": "Accelerator Pedal Position (APP) Sensor 2 Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1282",
+      "description": "Accelerator Pedal Position Sensor 2 Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1283",
+      "description": "Accelerator Pedal Position Sensor 2 Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1285",
+      "description": "Accelerator Pedal Position (APP) Sensor 3 Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1286",
+      "description": "Accelerator Pedal Position (APP) Sensor 3 Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1287",
+      "description": "Accelerator Pedal Position Sensor 3 Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1288",
+      "description": "Accelerator Pedal Position Sensor 3 Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1300",
+      "description": "Ignitor Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1305",
+      "description": "Ignition Coil 2 Primary Feedback Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1310",
+      "description": "Ignition Coil 3 Primary Feedback Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1315",
+      "description": "Ignition Coil 4 Primary Feedback Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1320",
+      "description": "IC Module 4X Ref Circuit Intermittent No Pulses",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1321",
+      "description": "Electronic Ignition System Fault Line",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1322",
+      "description": "EI System Or Ignition Control Missing",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1323",
+      "description": "24X Reference Circuit Low Frequency",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1324",
+      "description": "Crank RPM Too Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1335",
+      "description": "CKP Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1336",
+      "description": "Crankshaft Position (CKP) System Variation Not Learned",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1345",
+      "description": "CKP/CMP Correlation",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1346",
+      "description": "Intake Camshaft Position (CMP) Sensor System Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1350",
+      "description": "Ignition Control System",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1351",
+      "description": "IC Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1352",
+      "description": "IC Output High Pulse Detected When Grounded Cyl 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1353",
+      "description": "IC Output High Pulse Detected When Grounded Cyl 3",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1354",
+      "description": "IC Output High Pulse Detected When Grounded Cyl 4",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1355",
+      "description": "IC Output High Pulse Detected When Grounded Cyl 5",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1356",
+      "description": "IC Output High Pulse Detected When Grounded Cyl 6",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1357",
+      "description": "IC Output High Pulse Detected When Grounded Cyl 7",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1358",
+      "description": "IC Output High Pulse Detected When Grounded Cyl 8",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1359",
+      "description": "Ignition Control Circuit Group A",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1360",
+      "description": "Ignition Control Circuit Group B",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1361",
+      "description": "IC Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1362",
+      "description": "IC Cylinder 2 Not Toggling After Enable",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1363",
+      "description": "IC Cylinder 3 Not Toggling After Enable",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1364",
+      "description": "IC Cylinder 4 Not Toggling After Enable",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1365",
+      "description": "IC Cylinder 5 Not Toggling After Enable",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1366",
+      "description": "IC Cylinder 6 Not Toggling After Enable",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1367",
+      "description": "IC Cylinder 7 Not Toggling After Enable",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1368",
+      "description": "IC Cylinder 8 Not Toggling After Enable",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1370",
+      "description": "IC Module 4X Reference Circuit Too Many Pulses",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1371",
+      "description": "DI Low Resolution Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1372",
+      "description": "Crankshaft Position Sensor Circuit Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1374",
+      "description": "3X Reference Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1375",
+      "description": "24X Reference Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1376",
+      "description": "Ignition Ground Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1377",
+      "description": "IC Module CAM Pulse To 4X Reference Pulse Comparison",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1380",
+      "description": "Misfire Detected Rough Road Data Not Available",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1381",
+      "description": "Misfire Detected No Communication with Brake Control Module",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1390",
+      "description": "Wheel Speed Sensor 1 G-Sensor Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1391",
+      "description": "Wheel Speed Sensor 1 G-Sensor Circuit Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1392",
+      "description": "Wheel Speed Sensor 1 G-Sensor Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1393",
+      "description": "Wheel Speed Sensor 1 G-Sensor Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1394",
+      "description": "Wheel Speed Sensor 1 G-Sensor Circuit Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1395",
+      "description": "Wheel Speed Sensor 2 G-Sensor Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1396",
+      "description": "Wheel Speed Sensor 2 G-Sensor Circuit Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1397",
+      "description": "Wheel Speed Sensor 2 G-Sensor Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1398",
+      "description": "Wheel Speed Sensor 2 G-Sensor Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1399",
+      "description": "Wheel Speed Sensor 2 G-Sensor Circuit Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1403",
+      "description": "Exhaust Gas Recirculation System Valve 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1404",
+      "description": "Exhaust Gas Recirculation System Valve 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1405",
+      "description": "Exhaust Gas Recirculation System Valve 3",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1406",
+      "description": "EGR Valve Pintle Position Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1407",
+      "description": "EGR Air Intrusion In Exhaust Supply To EGR Valve",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1408",
+      "description": "Intake Manifold Pressure Sensor Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1409",
+      "description": "EGR Vacuum System Leak",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1410",
+      "description": "Fuel Tank Pressure System",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1415",
+      "description": "Secondary Air Injection (AIR) System",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1416",
+      "description": "AIR System Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1418",
+      "description": "Secondary Air Injection System Relay A Control Circuit High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1420",
+      "description": "Intake Air Low Pressure Switch Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1421",
+      "description": "Intake Air Low Pressure Switch Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1423",
+      "description": "Intake Air High Pressure Switch Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1431",
+      "description": "Fuel Level Sensor 2 Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1432",
+      "description": "Fuel Level Sensor 2 Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1433",
+      "description": "Fuel Level Sensor 2 Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1441",
+      "description": "Evaporative Emission (EVAP) System Flow During Non-Purge",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1442",
+      "description": "EVAP Vacuum Switch High Voltage During Ignition On",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1450",
+      "description": "Barometric Pressure Sensor Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1451",
+      "description": "Barometric Pressure Sensor Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1460",
+      "description": "Cooling Fan Control System",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1480",
+      "description": "Cooling Fan 1 Control Circuit High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1483",
+      "description": "Engine Coolilng System Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1500",
+      "description": "Starter Signal Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1501",
+      "description": "Vehicle Speed Sensor Circuit Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1502",
+      "description": "Theft Deterrent System No Password Received",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1503",
+      "description": "Theft Deterrent System Password Incorrect",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1504",
+      "description": "Vehicle Speed Output Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1508",
+      "description": "IAC System Low RPM",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1509",
+      "description": "IAC System High RPM",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1510",
+      "description": "Back UP Power Supply",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1511",
+      "description": "Throttle Control System Backup System Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1514",
+      "description": "Throttle Body Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1515",
+      "description": "Control Module Throttle Actuator Position Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1516",
+      "description": "Throttle Actuator Control (TAC) Module Throttle Actuator Position Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1517",
+      "description": "Throttle Actuator Control (TAC) Module Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1518",
+      "description": "Throttle Actuator Control (TAC) Module Serial Data Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1519",
+      "description": "Electronic Throttle Module Low Volts Communication Disable",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1520",
+      "description": "Gear Indicator System",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1521",
+      "description": "Transmission Engaged At High Throttle Angle",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1522",
+      "description": "Park Neutral To Drive Reverse At High RPM",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1523",
+      "description": "Electronic Throttle Control Throttle Return",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1524",
+      "description": "TP Sensor Learned CI Throttle Angle Out Of Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1525",
+      "description": "Throttle Body Service Required",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1526",
+      "description": "TP Sensor Learn Not Complete",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1527",
+      "description": "Transmission Range Pressure Switch Comparison",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1528",
+      "description": "Governor",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1529",
+      "description": "Heated Windshield Request Problem",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1530",
+      "description": "Ignition Timing Adjustment Switch Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1531",
+      "description": "A/C Low Side Temerature Sensor Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1532",
+      "description": "A/C Evaporator Temperature Sensor Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1533",
+      "description": "A/C Evaporator Temperature Sensor Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1534",
+      "description": "A/C High Side Temperature Sensor Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1535",
+      "description": "A/C High Side Temperature Sensor Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1536",
+      "description": "A/C System ECT Overtemperature",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1537",
+      "description": "A/C Request Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1538",
+      "description": "A/C Request Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1539",
+      "description": "Air Conditioning (A/C) Clutch Feedback Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1540",
+      "description": "A/C System High Pressure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1541",
+      "description": "A/C High Side Over Temperature",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1542",
+      "description": "A/C System High Pressure High Temperature",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1543",
+      "description": "A/C System Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1544",
+      "description": "A/C Refrigerant Condition Very Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1545",
+      "description": "A/C Clutch Relay Control Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1546",
+      "description": "Air Conditioning (A/C) Clutch Feedback Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1547",
+      "description": "A/C System Performance Degraded",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1548",
+      "description": "A/C Recirculation Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1554",
+      "description": "Cruise Engaged Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1555",
+      "description": "Electronic Variable Orifice Output",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1558",
+      "description": "Cruise Control Servo Indicates Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1559",
+      "description": "Cruise Control Power Management Mode",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1560",
+      "description": "Cruise Control System Transaxle Not In Drive",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1561",
+      "description": "Cruise Vent Solenoid",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1562",
+      "description": "Cruise Vacuum Solenoid",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1563",
+      "description": "Cruise Vehicle Speed Set Speed Difference Too High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1564",
+      "description": "Cruise Control System Vehicle Accel Too High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1565",
+      "description": "Cruise Servo Position Sensor",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1566",
+      "description": "Cruise Control System Engine RPM Too High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1567",
+      "description": "Cruise Control System Active Braking Control Active",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1568",
+      "description": "Cruise Servo Stroke Greater Than Commanded In Cruise",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1569",
+      "description": "Cruise Servo Stroke High While Not In Cruise",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1570",
+      "description": "Cruise Control System Traction Control Active",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1571",
+      "description": "TCS PWM Circuit No Frequency",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1572",
+      "description": "ASR Active Circuit Low Too Long",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1573",
+      "description": "PCM EBTCM Serial Data Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1574",
+      "description": "Stoplamp Switch Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1575",
+      "description": "Extended Travel Brake Switch Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1576",
+      "description": "BBV Sensor Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1577",
+      "description": "BBV Sensor Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1578",
+      "description": "BBV Sensor Circuit Low Vacuum",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1579",
+      "description": "P/N To D/R At High Throttle Angle",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1580",
+      "description": "Cruise Move Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1581",
+      "description": "Cruise Move Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1582",
+      "description": "Cruise Direction Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1583",
+      "description": "Cruise Direction Circuit High Volume",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1584",
+      "description": "Cruise Control Disabled",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1585",
+      "description": "Cruise Inhibit Control Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1586",
+      "description": "Cruise Control Brake Switch 2 Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1587",
+      "description": "Cruise Control Clutch Control Circuit Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1588",
+      "description": "Cruise Control Clutch Control Circuit High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1599",
+      "description": "Engine Stall Or Near Stall Detected",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1600",
+      "description": "PCM Battery",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1601",
+      "description": "Serial Communication Problem With Device 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1602",
+      "description": "Loss Of EBTCM Serial Data",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1603",
+      "description": "Loss Of SDM Serial Data",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1604",
+      "description": "Loss Of IPC Serial Data",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1605",
+      "description": "Loss Of HVAX Serial Data",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1606",
+      "description": "Serial Communication Problem With Device 6",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1607",
+      "description": "Serial Communication Problem With Device 7",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1608",
+      "description": "Serial Communication Problem With Device 8",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1609",
+      "description": "Loss Of TCS Serial Data",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1610",
+      "description": "Loss Of PZM Serial Data",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1611",
+      "description": "Loss Of CVRTD Serial Data",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1612",
+      "description": "Loss Of IPM Serial Data",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1613",
+      "description": "Loss Of DIM Serial Data",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1614",
+      "description": "Loss Of RIM Serial Data",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1615",
+      "description": "Loss Of VTD Serial Data",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1617",
+      "description": "Engine Oil Level Switch Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1619",
+      "description": "Engine Oil Life Monitor Reset Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1620",
+      "description": "Low Coolant Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1621",
+      "description": "PCM Memory Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1622",
+      "description": "Cylinder Select",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1623",
+      "description": "Transmission Temp Pull-Up Resistor",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1624",
+      "description": "Customer Snapshot Data Available",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1625",
+      "description": "PCM System Reset",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1626",
+      "description": "Theft Deterrent Fuel Enable Signal Lost",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1627",
+      "description": "A/D Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1628",
+      "description": "ECT Pull-Up Resistor",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1629",
+      "description": "Theft Deterrent System Cranking Signal",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1630",
+      "description": "Theft Deterrent Learn Mode Active",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1631",
+      "description": "Theft Deterrent Start Enable Signal Not Correct",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1632",
+      "description": "Theft Deterrent System Fuel Disabled",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1633",
+      "description": "Ignition Supply Power Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1634",
+      "description": "Ignition 1 Power Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1635",
+      "description": "5 Volt Reference 1 Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1636",
+      "description": "PCM Stack Overrun",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1637",
+      "description": "Generator L-Terminal Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1638",
+      "description": "Generator F-Terminal Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1639",
+      "description": "5 Volt Reference 2 Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1640",
+      "description": "Driver 1 Input High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1641",
+      "description": "FC Relay 1 Control Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1642",
+      "description": "FC Relay 2 And 3 Control Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1643",
+      "description": "Engine Speed Output Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1644",
+      "description": "TP Output Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1645",
+      "description": "EVAP Solenoid Output Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1646",
+      "description": "Driver 1 Line 6",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1647",
+      "description": "Driver 1 Line 7",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1650",
+      "description": "Driver 2 Input High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1651",
+      "description": "Fan 1 Relay Control Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1652",
+      "description": "Powertrain Induced Chassis Pitch Output Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1653",
+      "description": "Oil Level Lamp Control Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1654",
+      "description": "Service Throttle Soon Lamp Control Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1655",
+      "description": "EVAP Purge Solenoid Control Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1656",
+      "description": "Driver 2 Line 6",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1657",
+      "description": "1 4 Upshift Solenoid Control Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1658",
+      "description": "Starter Enable Relay Control Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1660",
+      "description": "Cooling Fans Control Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1661",
+      "description": "MIL Control Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1662",
+      "description": "Cruise Control Inhibit Control Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1663",
+      "description": "Oil Life Lamp Control Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1664",
+      "description": "1 4 Upshift Lamp Control Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1665",
+      "description": "Driver 3 Line 5",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1666",
+      "description": "Driver 3 Line 6",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1667",
+      "description": "Reverse Inhibit Solenoid Control Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1669",
+      "description": "ABS Unit Expected",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1670",
+      "description": "Driver 4",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1671",
+      "description": "Driver 4 Line 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1672",
+      "description": "Low Engine Oil Level Lamp Control Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1673",
+      "description": "Engine Hot Lamp Control Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1674",
+      "description": "Tachometer Control Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1675",
+      "description": "EVAP Vent Solenoid Control Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1676",
+      "description": "Driver 4 Line 6",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1677",
+      "description": "Driver 4 Line 7",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1680",
+      "description": "Driver 5",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1681",
+      "description": "Driver 5 Line 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1682",
+      "description": "Driver 5 Line 2",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1683",
+      "description": "Driver 5 Line 3",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1684",
+      "description": "Driver 5 Line 4",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1685",
+      "description": "Driver 5 Line 5",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1686",
+      "description": "Driver 5 Line 6",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1687",
+      "description": "Driver 5 Line 7",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1689",
+      "description": "Delivered Torque Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1690",
+      "description": "ECM Loop Overrun",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1691",
+      "description": "Coolant Gage Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1692",
+      "description": "Coolant Gage Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1693",
+      "description": "Tachometer Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1694",
+      "description": "Tachometer Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1695",
+      "description": "Remote Keyless Entry Circuit Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1696",
+      "description": "Remote Keyless Entry Voltage High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1700",
+      "description": "Transmission MIL Request",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1701",
+      "description": "Transmission MIL Request Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1705",
+      "description": "P/N Signal Output Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1740",
+      "description": "Transmission Torque Reduction Request Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1743",
+      "description": "TP Signal From ECM",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1760",
+      "description": "ECM Supply Voltage Interrupted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1779",
+      "description": "Engine Torque Delivered To TCM Signal",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1780",
+      "description": "Park Neutral Position (PNP) Switch Circuit Engine Torque Signal Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1790",
+      "description": "Transmission Control Module Checksum",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1791",
+      "description": "Transmission Control Module Loop",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1792",
+      "description": "Transmission Control Module Reprogrammable Memory",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1793",
+      "description": "Transmission Control Module Stack Overrun",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1795",
+      "description": "CAN Bus Throttle Body Position",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1800",
+      "description": "TCM Power Control Relay Circuit Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1801",
+      "description": "Performance Selector Switch Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1804",
+      "description": "Ground Control Relay",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1810",
+      "description": "TFP Valve Position Switch Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1811",
+      "description": "Maximum Adapt And Long Shift",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1812",
+      "description": "Transmission Over Temperature Condition",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1813",
+      "description": "Torque Control",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1814",
+      "description": "Torque Converter Overstressed",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1815",
+      "description": "Transmission Range Switch Start In Wrong Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1816",
+      "description": "TFP Valve Position Switch Park Neutral With Drive Ratio",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1817",
+      "description": "TFP Valve Position Switch Reverse With Drive Ratio",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1818",
+      "description": "TFP Valve Position Switch Drive Without Drive Ratio",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1819",
+      "description": "Internal Mode Switch No Start Wrong Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1820",
+      "description": "Internal Mode Switch Circuit A Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1822",
+      "description": "Internal Mode Switch Circuit B High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1823",
+      "description": "Internal Mode Switch Circuit P Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1825",
+      "description": "Internal Mode Switch Illegal Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1826",
+      "description": "Internal Mode Switch Circuit C High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1831",
+      "description": "PC Solenoid Power Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1833",
+      "description": "A/T Solenoids Power Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1835",
+      "description": "Kick-Down Switch",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1836",
+      "description": "Kick-Down Switch Failed Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1837",
+      "description": "Kick-Down Switch Failed Short",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1842",
+      "description": "1 2 Shift Solenoid Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1843",
+      "description": "1 2 Shift Solenoid Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1844",
+      "description": "Torque Reduction Signal Circuit Desired By TCM",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1845",
+      "description": "Transmission Gear Ratio Output Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1847",
+      "description": "2 3 Shift Solenoid Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1850",
+      "description": "Brake Band Apply Solenoid Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1851",
+      "description": "Brake Band Apply Solenoid Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1852",
+      "description": "Brake Band Apply Solenoid Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1853",
+      "description": "Brake Band Apply Solenoid High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1860",
+      "description": "TCC PWM Solenoid Circuit Electrical",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1864",
+      "description": "Torque Converter Clutch Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1868",
+      "description": "Transmission Fluid Life",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1870",
+      "description": "Transmission Component Slipping",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1871",
+      "description": "Undefined Gear Ratio",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1873",
+      "description": "TCC Stator Temp Switch Circuit Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1874",
+      "description": "TCC Stator Temp Switch Circuit High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1875",
+      "description": "4WD Low Switch Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1884",
+      "description": "TCC Enable Shift Light Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1886",
+      "description": "Shift Timing Solenoid",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1887",
+      "description": "TCC Release Switch Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1890",
+      "description": "ECM Data Input Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1891",
+      "description": "Throttle Position Sensor PWM Signal Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1892",
+      "description": "Throttle Position Sensor PWM Signal High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1893",
+      "description": "Engine Torque Signal Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1894",
+      "description": "Engine Torque Signal High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1895",
+      "description": "TCM To ECM Torque Reduction Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/gm_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0342",
+      "description": "Camshaft Position Sensor A Bank 1 Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/chevy_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P0171",
+      "description": "System Lean Bank 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/buick_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1192",
+      "description": "Inlet Air Temp Circuit Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1193",
+      "description": "Inlet Air Temp Circuit High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1194",
+      "description": "Incorrect Or Irrational Performance Has Been Detected For The PWM",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1195",
+      "description": "O2 Sensor 1/1 (Bank 1 Sensor 1) Slow During Catalyst Monitor",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1196",
+      "description": "O2 Sensor 2/1 (Bank 2 Sensor 1) Slow During Catalyst Monitor",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1197",
+      "description": "O2 Sensor 1/2 (Bank 1 Sensor 2) Slow During Catalyst Monitor",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1198",
+      "description": "Radiator Temperature Sensor Voltage Too High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1199",
+      "description": "Radiator Temperature Sensor Voltage Too Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1284",
+      "description": "Fuel Injection Pump Battery Voltage Out Of Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1289",
+      "description": "Manifold Tune Valve Solenoid Circuit Open Or Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1290",
+      "description": "CNG Fuel Pressure Too High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1291",
+      "description": "No Temp Rise Seen From Fuel Heaters",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1292",
+      "description": "CNG Pressure Sensor Voltage Too High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1293",
+      "description": "CNG Pressure Sensor Voltage Too Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1294",
+      "description": "Target Idle Not Reached",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1295",
+      "description": "Loss Of 5 Volts To TP Sensor",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1296",
+      "description": "Loss Of 5 Volts To MAP Sensor",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1297",
+      "description": "No Change In MAP From Start To Run",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1298",
+      "description": "Lean Operation At Wide Open Throttle",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1299",
+      "description": "Vacuum Leak Found IAC Fully Seated",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1388",
+      "description": "Auto Shutdown ASD Relay Control Circuit Open Or Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1389",
+      "description": "No Auto Shutdown ASD Relay Output Voltage At PCM",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1481",
+      "description": "EATX RPM pulse generator signal for misfire detection",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1482",
+      "description": "Catalyst Temperature Sensor Circuit Shorted Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1484",
+      "description": "Catalytic Converter Overheat Detected",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1485",
+      "description": "Air Injection Solenoid Circuit Open Or Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1486",
+      "description": "Evap Leak Monitor Pinched Hose",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1487",
+      "description": "Hi Speed Rad Fan CTRL Relay Circuit Open Or Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1488",
+      "description": "Auxiliary 5 Volt Supply Output Too Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1489",
+      "description": "High Speed Fan CTRL Relay Circuit Open Or Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1490",
+      "description": "Low Speed Fan CTRL Relay Circuit Open Or Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1491",
+      "description": "Radiator Fan Control Relay Circuit Open Or Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1492",
+      "description": "Battery Temperature Sensor Voltage Too High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1493",
+      "description": "Battery Temperature Sensor Voltage Too Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1494",
+      "description": "Leak Detection Pump Switch Or Mechanical Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1495",
+      "description": "Leak Detection Pump Solenoid Circuit Open Or Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1496",
+      "description": "5 Volt Supply Output Too Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1498",
+      "description": "High speed Rad Fan Ground CTRL Rly Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1499",
+      "description": "Open Or Shorted Condition Detected In The Hydraulic Cooling Fan Solenoid Control",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1594",
+      "description": "Charging System Voltage Too High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1595",
+      "description": "Speed Control Solenoid Circuit Open Or Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1596",
+      "description": "Speed Control Switch Always High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1597",
+      "description": "Speed Control Switch Always Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1598",
+      "description": "A/C Pressure Sensor Voltage Too High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1688",
+      "description": "Internal Fuel Injection Pump Controller Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1697",
+      "description": "PCM Failure SRI Mile Not Stored",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1698",
+      "description": "No CCD Messages Received From PCM",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1699",
+      "description": "No CCD J1850 Messages Received From The Climate Control Module CCM",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1719",
+      "description": "Skip Shift Solenoid Circuit Open Or Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1756",
+      "description": "Governor Pressure Not Equal To Target At 15-20 PSI",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1757",
+      "description": "Governor Pressure Above 3 PSI When Request Is 0 PSI",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1762",
+      "description": "Governor Pressure Sensor Offset Improper Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1763",
+      "description": "Governor Pressure Sensor Voltage Too High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1764",
+      "description": "Governor Pressure Sensor Voltage Too Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1765",
+      "description": "Trans 12 Volt Supply Relay Control Circuit Open Or Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1830",
+      "description": "Open Or Shorted Condition Detected In The Clutch Pedal Switch Over-Ride Relay Control",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1899",
+      "description": "Park Neutral Position Switch Stuck In Park or In Gear",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/pontiac_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1349",
+      "description": "Intake Camshaft Position System",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/geo_codes.txt",
+      "verified": false
     }
   ]
 }

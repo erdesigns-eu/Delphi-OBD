@@ -18,6 +18,99 @@ component is in `docs/components.md`, and the outdated component index
 GetIt manifest (`packages/getit-package.json`) is removed; Delphi-OBD is not
 distributed through GetIt.
 
+### OBD services
+
+- `TOBDWWHOBD` now uses the ISO 14229-1 WWH-OBD DTC sub-functions
+  correctly (`19 42`, `19 55`, `19 56`), decodes severity/class bits and
+  exposes UDS DTC failure-type bytes as `P0101-1C` style codes.
+- `TOBDWWHOBD` / `TOBDWWHReadiness` now use the SAE J1979-2 F4xx/F8xx
+  DIDs for MIL counters, VIN and readiness monitor status.
+
+### Recording
+
+- Added `ERD.Recorder.CSV` with `TOBDCSVLogger` for wide live-data CSV logs
+  and `TOBDRecordingCSVExporter` for long-format `.obdlog` CSV export. The
+  writer supports RFC 4180 quoting, UTF-8 BOMs, CRLF rows, semicolon
+  separators and invariant decimal separators for local-first spreadsheet
+  workflows.
+
+### Protocol and adapters
+
+- `ERD.Protocol.ELMResponse` splits ELM327 replies per ECU (headers on or
+  off, CAN 11/29-bit, legacy headers, ISO-TP multi-frame blocks) before
+  decoding; the protocol layer no longer mixes replies of different ECUs
+  and checks the PID echo.
+- `TOBDDTCs` reads stored, pending and permanent codes from every ECU that
+  answers and groups them per ECU.
+- PID 41 (monitor status this drive cycle) for the drive-cycle and
+  readiness services.
+- Adapter detection: catalogue entries carry ATI / AT@1 detection hints;
+  `TOBDAdapterCapabilityRegistry.TryMatchIdentity` resolves ELM327-compatible
+  products, with built-in Vgate vLinker FS / MC+ / FD / BM+ and iCar Pro
+  rows.
+
+### Vehicle information and inspection
+
+- `ERD.Service.VehicleInfo`: Mode 09 reader for VIN, calibration IDs, CVNs,
+  ECU name, engine serial number, type-approval number and in-use
+  performance tracking, per ECU. `TOBDVehicleInfo` is on the **OBD
+  Services** page.
+- `ERD.Service.Inspection` and `TOBDInspectionRules` (**OBD Catalogs**):
+  European periodic-inspection OBD rules (APK, keuring, HU/AU, CT, MOT, NCT
+  and more) from `catalogs/inspection/rules.json`, with a pass / fail /
+  not-applicable evaluator and the sources of every rule. An empty
+  `CatalogFile` uses the default file (the design-time path is no longer
+  stored).
+
+### Simulator and localisation
+
+- `ERD.Simulator.Vehicle` and `ERD.Simulator.ELM327`: the demo car moves
+  from `examples/obd-studio` into the library. `TOBDEmulatorConnection`
+  (**OBD** page) is a connection backed by an ELM327 emulator (echo,
+  headers, spaces, multi-ECU replies, Mode 09 blocks, J1979-2 DIDs), so
+  every screen works without a car or adapter.
+- `ERD.I18n`: run-time translation with `Tr`, `TrFmt` and `TrPlural`,
+  JSON catalogues in `languages/` for the 38 official national languages
+  of the European countries (English, then draft translations from
+  Беларуская to Українська), CLDR plural categories
+  (`OBDPluralCategory`: zero, one, two, few, many, other), Windows
+  LANGID mapping for all of them, a catalogue `status` (draft /
+  reviewed) and change notification. The DTC, readiness, connection, status bar and
+  inspector controls follow the selected language. Translated captions
+  are defaults: they are not stored in the DFM, and a caption set in the
+  Object Inspector is kept when the language changes.
+  `TOBDReadinessPanel.ShowAction` and `TOBDHistogram.ShowTitle` hide the
+  action text and the header.
+  `tools/i18n_check.py` checks key and placeholder parity.
+
+### OBD Studio controls
+
+- `TOBDHistogram`: themed histogram for live data, with bins, statistics
+  (mean, median, deviation) and normal-range shading.
+
+### Catalogues
+
+- Generic code texts grow from 2,134 to 9,076 (B0, C0 and U0 codes, newer
+  P2 codes such as P20EE) and manufacturer code texts by about 3,300, from
+  Wal33D/dtc-database (MIT). Mode 06 manufacturer test IDs $81–$B1 now
+  carry neutral names.
+
+### Applications
+
+- New `applications/obd-studio-personal`: OBD-Studio Personal, a free
+  application for personal use and an alternative to OBD Auto Doctor. It
+  has a shell with a sidebar, title bar and status bar; 14 pages; a
+  first-start wizard with licence acceptance; settings stored locally
+  (`%APPDATA%`); one vehicle session that queues the adapter jobs; a demo
+  car on the ELM327 emulator; and an Inno Setup script. The application
+  strings live in `languages/` next to it, with `personal.*` keys.
+  `tools/personal_strings.py` generates the English catalogue from the code
+  and audits the translations (CI). The catalogue schema allows the
+  `personal` key prefix.
+- `pascalcheck` DFM checks now pair each `.dfm` with its own `.pas` file,
+  so two projects with the same unit name (`untMain`) no longer mix up
+  their components.
+
 ### OBD Dashboard
 
 A themed VCL control set for workshop dashboards, on the
@@ -251,7 +344,7 @@ the **OBD Dyno** page.
 
 ### Design time
 
-- 225 registered components on 14 palette pages.
+- 230 registered components on 14 palette pages.
 - Palette icons are generated in the ERDesigns colours by
   `tools/designtime_icons.py` and compiled into
   `src/DesignTime/ERD.Design.Icons.res` by

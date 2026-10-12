@@ -7,14 +7,18 @@ uses
   cthreads, cwstring, SysUtils, Classes, SyncObjs, System.Diagnostics, System.JSON, System.IOUtils,
   ERD.Compat.Functions, ERD.Compat.Socket, ERD.OEM.Catalog.JSON, ERD.SecureSettings,
   ERD.Connection, ERD.Connection.Mock, ERD.Connection.Types, ERD.Adapter,
-  ERD.Protocol, ERD.Protocol.Types, ERD.Coding.DataIdentifierIO, ERD.OEM.SeedKey,
+  ERD.Protocol, ERD.Protocol.Types, ERD.Protocol.ELMResponse, ERD.Protocol.UDS, ERD.Service.DTCs, ERD.Service.VehicleInfo,
+  ERD.WWHOBD, ERD.WWHOBD.Readiness,
+  ERD.Coding.DataIdentifierIO, ERD.OEM.SeedKey,
   ERD.Flash.VoltageGate, ERD.Service.EVBattery, ERD.Service.EVBattery.Catalog,
-  ERD.Service.EVBattery.Types,
+  ERD.Service.EVBattery.Types, ERD.Service.DriveCycle.Types, ERD.Service.LiveData,
+  ERD.Service.Inspection,
   ERD.OEM.UdsClient, ERD.OEM.UdsClient.Async, ERD.Diagnostics.KWP,
   ERD.Async.Task, ERD.Service.VehicleHealth, ERD.Async, ERD.Collections.ThreadedQueue, ERD.Types, ERD.JSON,
-  ERD.Recorder, ERD.Replayer, ERD.Flash.Checkpoint, ERD.UDS.Transfer, ERD.Flash.Pipeline,
+  ERD.Recorder, ERD.Replayer, ERD.Recorder.CSV, ERD.Flash.Checkpoint, ERD.UDS.Transfer, ERD.Flash.Pipeline,
   ERD.Protocol.DoIP.TLS.OpenSSL, ERD.Protocol.J1939,
-  ERD.Connection.WiFi, ERD.Connection.UDP, ERD.Connection.Settings;
+  ERD.Connection.WiFi, ERD.Connection.UDP, ERD.Connection.Settings, ERD.I18n,
+  ERD.Simulator.Vehicle, ERD.Simulator.ELM327, ERD.Adapter.Capabilities;
 var
   Checks: Integer;
 procedure Check(Condition: Boolean; const Message_: string);
@@ -462,6 +466,27 @@ begin
     except on E: EOBDProtocolErr do Check(True, 'Truncated EV array rejected') end;
   finally Decoder.Free end;
 end;
+procedure TestInspectionEvaluation;
+var Rule: TOBDInspectionRule; Readiness: TArray<TOBDMonitorReadiness>;
+  Result_: TOBDInspectionResult;
+begin
+  TOBDInspectionCatalog.CatalogFile := TPath.Combine(TPath.Combine(ParamStr(4), 'inspection'), 'rules.json');
+  TOBDInspectionCatalog.Reload;
+  Check(TOBDInspectionCatalog.TryGetRule('NL', Rule), 'Inspection catalog includes Netherlands APK');
+  Check((not Rule.Verified) and (Length(Rule.Sources) > 0), 'Inspection rule exposes source and verification state');
+  SetLength(Readiness, 1);
+  Readiness[0].Monitor := omCatalyst; Readiness[0].Supported := True; Readiness[0].Complete := False;
+  Result_ := TOBDInspectionCatalog.EvaluateCountry('GB', Readiness, False, 0, iftPetrol, EncodeDate(2012,1,1));
+  Check(Result_.Verdict = ivPass, 'MOT rule ignores incomplete readiness monitors');
+  Result_ := TOBDInspectionCatalog.EvaluateCountry('GB', Readiness, True, 0, iftPetrol, EncodeDate(2012,1,1));
+  Check((Result_.Verdict = ivFail) and (Result_.Reasons[0].Kind = irkMILOn), 'MOT rule fails an illuminated MIL');
+  Rule := Default(TOBDInspectionRule); Rule.CountryCode := 'ZZ'; Rule.FuelTypes := [iftPetrol];
+  Rule.InspectionName := 'runtime'; Rule.MILOnFails := itsNo; Rule.DTCConfirmedFails := itsNo;
+  Rule.ReadinessRequired := itsYes; Rule.MaxIncomplete[iftPetrol].Known := True;
+  Rule.MaxIncomplete[iftPetrol].Count := 0; TOBDInspectionCatalog.RegisterRule(Rule);
+  Result_ := TOBDInspectionCatalog.EvaluateCountry('ZZ', Readiness, False, 0, iftPetrol, EncodeDate(2020,1,1));
+  Check((Result_.Verdict = ivFail) and (Result_.IncompleteMonitorCount = 1), 'Inspection readiness allowance is enforced');
+end;
 procedure TestCancellation;
 var Task: TOBDOwnedTask; Started: TEvent; Before: TStopwatch; Finished: Boolean;
   Gate: TOBDVoltageGate;
@@ -551,12 +576,63 @@ begin
     Gate.Stop;
   finally Gate.Free; Observer.Ready.Free; Observer.Free end;
 end;
+procedure TestAdapterMatch;
+var E: TOBDAdapterCapabilityEntry; Reg: TOBDAdapterCapabilityRegistry;
+begin
+  Reg := TOBDAdapterCapabilityRegistry.Default;
+  Check(Reg.TryMatchIdentity('ELM327 v2.3', 'Vgate vLinker MC+ VL-0001', E) and
+    (E.AdapterKey = 'vgate_vlinker_mc_plus'), 'Vgate vLinker MC+ matched from AT@1');
+  Check(Reg.TryMatchIdentity('ELM327 v2.2 vLinker FD', '', E) and
+    (E.AdapterKey = 'vgate_vlinker_fd') and (E.MaxIsoTpFrameBytes = 62), 'Vgate vLinker FD matched from ATI');
+  Check(not Reg.TryMatchIdentity('ELM327 v2.3', 'Vgate', E), 'Vendor-only AT@1 is ambiguous');
+  Check(not Reg.TryMatchIdentity('ELM327 v1.5', 'OBDII to RS232 Interpreter', E), 'Generic ELM327 matches no product');
+  Check(Reg.LoadFromJSON(TPath.Combine(TPath.Combine(ParamStr(4), 'adapter'), 'capabilities.json')) > 0,
+    'Adapter capability catalogue loads');
+  Check(Reg.TryMatchIdentity('ELM327 v2.3', 'vLinker BM+', E) and (E.AdapterKey = 'vgate_vlinker_bm_plus'),
+    'Catalogue detection hints survive LoadFromJSON');
+end;
 procedure TestHash;
 var Hash: TBytes; Hex: string; B: Byte;
 begin
   Hash := TOBDFlashCheckpoint.ComputeImageHash(TBytes.Create(97,98,99));
   Hex := ''; for B in Hash do Hex := Hex + LowerCase(IntToHex(B,2));
   Check(Hex = 'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad', 'SHA256 known vector');
+end;
+type
+  TI18nListener = class
+    Calls: Integer;
+    procedure Changed(Sender: TObject);
+  end;
+procedure TI18nListener.Changed(Sender: TObject);
+begin Inc(Calls) end;
+procedure TestI18nFallback;
+var Translator: TOBDTranslator; Listener: TI18nListener; Dir: string; I: Integer;
+begin
+  Translator := TOBDTranslator.Create; Listener := TI18nListener.Create;
+  try
+    Check(Translator.Tr('app.navigation.dashboard', '') = 'Dashboard', 'Built-in English i18n fallback');
+    Translator.LoadLanguageFromString('{"language":"nl","name":"Nederlands","englishName":"Dutch","version":1,"strings":{"ui.test.value":"Waarde","ui.test.count.plural":{"one":"%d code","other":"%d codes"}}}');
+    Translator.CurrentLanguage := 'nl-BE';
+    Check(Translator.Tr('ui.test.value', 'Value') = 'Waarde', 'Base language fallback');
+    Check(Translator.TrPlural('ui.test.count', 2, '%d item', '%d items') = '%d codes', 'Plural one/other lookup');
+    Check(Translator.TrFmt('ui.dtc.filter.all', 'All %d', [3]) = 'All 3', 'Format placeholder lookup');
+    Translator.AddChangeListener(Listener.Changed);
+    Translator.CurrentLanguage := 'fr';
+    Check(Listener.Calls = 1, 'I18n change notification');
+    Translator.RemoveChangeListener(Listener.Changed);
+    Translator.CurrentLanguage := 'de';
+    Check(Listener.Calls = 1, 'I18n listener removal');
+    Dir := TPath.Combine(TPath.GetDirectoryName(ParamStr(4)), 'languages');
+    for I := Low(OBD_LANGUAGE_CODES) to High(OBD_LANGUAGE_CODES) do
+      Translator.LoadLanguageFile(TPath.Combine(Dir, OBD_LANGUAGE_CODES[I] + '.json'));
+    Translator.CurrentLanguage := 'de';
+    Check(Translator.Tr('ui.dtc.title', '') = 'Fehlercodes', 'Shipped German i18n catalog loads');
+    Check(Length(Translator.AvailableLanguages(Dir)) = Length(OBD_LANGUAGE_CODES), 'Language folder scan');
+    Translator.CurrentLanguage := 'pl';
+    Check(Translator.TrPlural('ui.dtc.codeCount', 5, '', '') <> Translator.TrPlural('ui.dtc.codeCount', 2, '', ''), 'Polish many/few plural forms');
+    Check((OBDPluralCategory('ru', 21) = pcOne) and (OBDPluralCategory('ru', 12) = pcMany) and (OBDPluralCategory('sl', 2) = pcTwo) and (OBDPluralCategory('lv', 10) = pcZero) and (OBDPluralCategory('fr', 0) = pcOne), 'CLDR plural categories');
+    Check((OBDLanguageCodeFromLangId($0814) = 'nn') and (OBDLanguageCodeFromLangId($141A) = 'bs') and (OBDLanguageCodeFromLangId($0411) = 'en'), 'Windows LANGID language mapping');
+  finally Translator.Free; Listener.Free end;
 end;
 type
   TReceiver = class
@@ -568,6 +644,36 @@ procedure TReceiver.Receive(Sender: TObject; const Bytes: TBytes);
 begin
   Data := Copy(Bytes);
   Ready.SetEvent;
+end;
+
+procedure TestSimVehicle;
+var Vehicle: TOBDSimVehicle;
+begin
+  Vehicle := TOBDSimVehicle.Create;
+  try
+    Check(Vehicle.Response($00) = '41 00 BE 3F A8 13', 'Simulator engine support bitmap');
+    Check(Vehicle.Response(OBD_SIM_PID_ENGINE_SPEED) <> 'NO DATA', 'Simulator engine speed response');
+    Vehicle.ClearDTCs;
+    Check(Vehicle.CodesCleared, 'Simulator Mode 04 state clears codes');
+  finally Vehicle.Free end;
+end;
+procedure TestSimELMFormats;
+const CR = #13;
+var Emu: TOBDELM327Emulator;
+begin
+  Emu := TOBDELM327Emulator.Create;
+  try
+    Check(Emu.Execute('ATZ') = 'ATZ' + CR + 'ELM327 v2.3' + CR + '>', 'Simulator ATZ banner');
+    Emu.Execute('ATE0');
+    Check(Emu.Execute('0100') = '41 00 BE 3F A8 13' + CR + '41 00 00 18 00 13' + CR + '>', 'Simulator headers-off 0100');
+    Emu.Execute('ATS0');
+    Check(Emu.Execute('0100') = '4100BE3FA813' + CR + '410000180013' + CR + '>', 'Simulator spaces-off 0100');
+    Emu.Execute('ATS1');
+    Check(Emu.Execute('0902') = '014' + CR + '0: 49 02 01 57 56 57' + CR + '1: 5A 5A 5A 41 55 5A 47' + CR + '2: 57 31 32 33 34 35 36' + CR + '>', 'Simulator VIN headers-off block');
+    Emu.Execute('ATH1');
+    Check(Emu.Execute('0902') = '7E8 10 14 49 02 01 57 56 57' + CR + '7E8 21 5A 5A 5A 41 55 5A 47' + CR + '7E8 22 57 31 32 33 34 35 36' + CR + '>', 'Simulator VIN headers-on frames');
+    Check(Emu.Execute('03') = '7E8 04 43 01 04 01' + CR + '7E9 02 43 00' + CR + '>', 'Simulator multi-ECU DTC frames');
+  finally Emu.Free end;
 end;
 procedure TestTCP;
 var Transport: TOBDWiFiTransport; Settings: TOBDWiFiSettings; Receiver: TReceiver;
@@ -602,6 +708,142 @@ begin
     except on E: EOBDError do Check(Watch.ElapsedMilliseconds < 2000, 'Native write deadline bounds blocked send') end;
   finally Connection.Free end;
 end;
+procedure TestELMResponse;
+const CR = #13;
+var M: TArray<TOBDEcuMessage>; Req: TOBDRequest; Resp: TOBDResponse;
+begin
+  M := TOBDELMResponseParser.Split('41 00 BE 3F A8 13');
+  Check((Length(M) = 1) and (BytesToHex(M[0].Data) = '41 00 BE 3F A8 13'), 'ELM headers-off single line');
+  M := TOBDELMResponseParser.Split('014' + CR + '0: 49 02 01 57 56 57' + CR + '1: 5A 5A 5A 41 55 5A 47' + CR + '2: 57 31 32 33 34 35 36');
+  Check((Length(M) = 1) and (Length(M[0].Data) = 20) and M[0].Complete and (M[0].Data[19] = $36), 'ELM headers-off multi-frame VIN');
+  M := TOBDELMResponseParser.Split('013'#13#10'0:4904013033 4C'#13#10'1:39303630323141'#13#10'2:4C202020202000');
+  Check((Length(M) = 1) and (Length(M[0].Data) = 19) and (M[0].Data[18] = $20), 'ELM multi-frame padding trimmed (spaces off)');
+  M := TOBDELMResponseParser.Split('7E8 10 14 49 02 01 57 56 57' + CR + '7E9 03 41 0D 00' + CR + '7E8 21 5A 5A 5A 41 55 5A 47' + CR + '7E8 22 57 31 32 33 34 35 36');
+  Check((Length(M) = 2) and (M[0].CanId = $7E8) and M[0].Complete and (Length(M[0].Data) = 20) and (BytesToHex(M[1].Data) = '41 0D 00'), 'ELM interleaved headers-on ECUs');
+  M := TOBDELMResponseParser.Split('7E8064100BE3FA813');
+  Check((Length(M) = 1) and (M[0].Header = '7E8') and (BytesToHex(M[0].Data) = '41 00 BE 3F A8 13'), 'ELM headers on, spaces off');
+  M := TOBDELMResponseParser.Split('18 DA F1 10 03 41 0D 32');
+  Check((Length(M) = 1) and M[0].IsExtendedId and (M[0].CanId = $18DAF110) and (BytesToHex(M[0].Data) = '41 0D 32'), 'ELM 29-bit header');
+  M := TOBDELMResponseParser.Split('48 6B 10 41 0C 1A F8 5E', -1, ehLegacy);
+  Check((Length(M) = 1) and (M[0].CanId = $10) and (BytesToHex(M[0].Data) = '41 0C 1A F8'), 'ELM legacy header and checksum');
+  M := TOBDELMResponseParser.Split('SEARCHING...' + CR + 'BUS INIT: ...OK' + CR + '41 0C 1A F8');
+  Check((Length(M) = 1) and (BytesToHex(M[0].Data) = '41 0C 1A F8'), 'ELM status lines skipped');
+  M := TOBDELMResponseParser.Split('7E8 10 14 49 02 01 57 56 57');
+  Check((Length(M) = 1) and not M[0].Complete, 'ELM truncated multi-frame incomplete');
+  Req := MakeOBDRequest; Req.ServiceID := $22;
+  Check(TOBDUDSCodec.Decode(Req, '7F 22 78' + CR + '62 F1 90 41', Resp) and not Resp.IsNegative and (BytesToHex(Resp.Data) = 'F1 90 41') and (Length(Resp.Messages) = 1), 'UDS decode skips response pending');
+  Check(TOBDUDSCodec.Decode(Req, '7F 22 78', Resp) and Resp.IsNegative and (Resp.NRC = $78), 'UDS decode pending-only is NRC 78');
+  Check(TOBDUDSCodec.Decode(Req, '62 F1 90' + #13#10 + '31', Resp) and (BytesToHex(Resp.Data) = 'F1 90 31'), 'UDS decode joins wrapped line');
+  Req.ServiceID := $01;
+  Check(TOBDUDSCodec.Decode(Req, '7F 01 12' + CR + '41 00 BE 3F A8 13', Resp) and not Resp.IsNegative and (BytesToHex(Resp.Data) = '00 BE 3F A8 13') and (Length(Resp.Messages) = 2), 'UDS decode prefers positive ECU');
+end;
+
+procedure TestCSVLogger;
+var
+  Stream: TMemoryStream; Writer: TOBDCSVWriter; Bytes: TBytes;
+  Logger: TOBDCSVLogger; V: TOBDPIDValue; FileName: string; Lines, Rows: TStringList;
+  Options: TOBDRecordingCSVExportOptions; Entry: TOBDLogEntry;
+begin
+  Check(TOBDCSVWriter.BuildRow(['a,b', 'a"b'], ',') = '"a,b","a""b"', 'CSV RFC4180 quoting');
+  Check(TOBDCSVWriter.BuildRow(['a,b', 'c'], ';') = 'a,b;c', 'CSV semicolon leaves comma data alone');
+  Check(TOBDCSVWriter.FormatNumber(12.5, ',') = '12,5', 'CSV decimal comma invariant');
+  Stream := TMemoryStream.Create;
+  try
+    Writer := TOBDCSVWriter.Create(Stream, False);
+    try
+      Writer.IncludeUTF8BOM := True; Writer.WriteRow(['x']);
+      try Writer.DecimalSeparator := ','; Check(False, 'CSV separator/decimal conflict accepted')
+      except on E: EOBDCSVError do Check(True, 'CSV separator/decimal conflict rejected') end;
+    finally Writer.Free end;
+    SetLength(Bytes, Stream.Size); Stream.Position := 0; Stream.ReadBuffer(Bytes[0], Length(Bytes));
+    Check((Length(Bytes) >= 6) and (Bytes[0] = $EF) and (Bytes[1] = $BB) and (Bytes[2] = $BF) and (Bytes[Length(Bytes)-2] = 13) and (Bytes[Length(Bytes)-1] = 10), 'CSV BOM and CRLF');
+  finally Stream.Free end;
+
+  FileName := TPath.Combine(ParamStr(1), 'live-data.csv'); Lines := TStringList.Create; Logger := TOBDCSVLogger.Create(nil);
+  try
+    Logger.FileName := FileName; Logger.IncludeUTF8BOM := False; Logger.SetPIDs(TBytes.Create($0C, $0D)); Logger.Start;
+    V := Default(TOBDPIDValue); V.PID := $0C; V.Value := 1500; V.Unit_ := 'rpm'; V.Description := 'Engine RPM'; Logger.PushValue(V);
+    V.Value := 1600; Logger.PushValue(V); Logger.Stop;
+    Lines.LoadFromFile(FileName);
+    Check((Lines.Count = 3) and (Pos('Engine RPM [rpm],Vehicle speed [km/h]', Lines[0]) > 0), 'CSV logger header with units');
+    Check((Pos(',1500,', Lines[1]) > 0) and (Pos(',1600,', Lines[2]) > 0), 'CSV logger missing cells and stop flush');
+  finally
+    Logger.Free; Lines.Free; if TFile.Exists(FileName) then TFile.Delete(FileName);
+  end;
+
+  Options := DefaultOBDRecordingCSVExportOptions; Options.IncludeUTF8BOM := False; Rows := TStringList.Create;
+  try
+    Entry := Default(TOBDLogEntry); Entry.Timestamp := EncodeDate(2026, 10, 12) + EncodeTime(12, 0, 0, 0);
+    Entry.Kind := leResponse; Entry.ServiceID := $41; Entry.HasServiceID := True; Entry.Raw := TBytes.Create($0C, $1A, $F8);
+    TOBDRecordingCSVExporter.ExportEntriesToStrings([Entry], Rows, Options);
+    Check((Rows.Count = 2) and (Pos('0x41,0x0C,0C 1A F8,Engine RPM,1726,rpm', Rows[1]) > 0), 'CSV recording export decodes Mode 01');
+  finally Rows.Free end;
+end;
+
+procedure TestDTCsMultiEcu;
+var Req: TOBDRequest; Resp: TOBDResponse; E: TArray<TOBDDtcEntry>;
+begin
+  Req := MakeOBDRequest; Req.ServiceID := $03;
+  TOBDUDSCodec.Decode(Req, '7E8 04 43 01 03 01'#13'7E9 06 43 02 07 00 01 23'#13#13'>', Resp);
+  E := TOBDDTCs.ParseOBDResponse(Resp, $03, dkConfirmed);
+  Check((Length(E) = 3) and (E[0].Ecu = '7E8') and (E[2].Code = 'P0123') and (E[2].EcuId = $7E9), 'DTCs grouped per ECU');
+  TOBDUDSCodec.Decode(Req, '43 01 33 02 00 03 01'#13'43 04 20 00 00 00 00'#13'>', Resp);
+  E := TOBDDTCs.ParseOBDResponse(Resp, $03, dkConfirmed);
+  Check((Length(E) = 4) and (E[3].Code = 'P0420'), 'DTCs legacy multi-line');
+end;
+
+procedure TestVehicleInfo;
+var Req: TOBDRequest; Resp: TOBDResponse; M: TArray<TOBDInfoTypeMessage>; T: TArray<string>; P: TOBDInUsePerformance;
+begin
+  Req := MakeOBDRequest; Req.ServiceID := $09; Req.Data := TBytes.Create($02);
+  TOBDUDSCodec.Decode(Req, '49 02 01 00 00 00 57'#13'49 02 02 56 57 5A 5A'#13'49 02 03 5A 41 55 5A'#13'49 02 04 47 57 31 32'#13'49 02 05 33 34 35 36'#13'>', Resp);
+  M := TOBDVehicleInfoParser.Assemble(Resp, $02);
+  T := TOBDVehicleInfoParser.TextItems(M[0], 0);
+  Check((Length(M) = 1) and (Length(T) = 1) and (T[0] = 'WVWZZZAUZGW123456'), 'Service 09 legacy VIN assembled');
+  Req.Data := TBytes.Create($08);
+  TOBDUDSCodec.Decode(Req, '7E8 10 23 49 08 10 00 64 00'#13'7E8 21 C8 00 0A 00 14 00 00'#13'7E8 22 00 00 05 00 0A 00 00'#13'7E8 23 00 00 01 00 02 00 00'#13'7E8 24 00 00 00 00 00 03 00'#13'7E8 25 06 00 00 00 00 00 00'#13'>', Resp);
+  M := TOBDVehicleInfoParser.Assemble(Resp, $08);
+  P := TOBDVehicleInfoParser.InUsePerformance(M[0]);
+  Check((Length(P.Monitors) = 7) and (P.Monitors[0].Key = 'catalyst_b1') and (Abs(P.Monitors[0].Ratio - 0.5) < 1e-9), 'Service 09 in-use performance ratio');
+end;
+procedure TestWWHOBD;
+var Req: TOBDRequest; Resp: TOBDResponse; E: TArray<TOBDWWHDtcEntry>;
+  Status: TOBDMonitorStatus; Err: string; Mock: TScriptedTransport;
+  Transport: IOBDConnectionTransport; Connection: TOBDConnection;
+  Adapter: TOBDAdapter; Protocol: TOBDProtocol; WWH: TOBDWWHOBD;
+begin
+  Check((WWHOBD_SEV_MAINTENANCE_ONLY = $20) and (WWHOBD_SEV_CHECK_AT_NEXT_HALT = $40) and (WWHOBD_SEV_CHECK_IMMEDIATELY = $80), 'WWH-OBD severity bit constants');
+  Check((TOBDWWHOBD.ClassifySeverity($80) = wcCheckNow) and (TOBDWWHOBD.ClassifyWWHClass($02) = wcClassA), 'WWH-OBD severity and class decode');
+  Req := MakeOBDRequest; Req.Protocol := apWWHOBD; Req.ServiceID := $19; Req.Data := TBytes.Create($42,$33,$FF,$E0);
+  TOBDUDSCodec.Decode(Req, '7E8 10 0B 59 42 33 FF E0 01'#13'7E8 21 82 01 01 1C 09 00 00'#13'7E9 10 0B 59 42 33 FF E0 01'#13'7E9 21 24 41 23 2A 08 00 00'#13'>', Resp);
+  E := TOBDWWHOBD.ParseBySeverityResponse(Resp);
+  Check((Length(E) = 2) and (E[0].Code = 'P0101-1C') and (E[0].PlainCode = 'P0101') and (E[0].FailureTypeByte = $1C) and (E[0].Ecu = '7E8') and (E[1].WWHClass = wcClassB1), 'WWH-OBD 19 42 multi-ECU DTC parse');
+  Resp := MakeOBDResponse; Resp.ServiceID := $59; Resp.Data := TBytes.Create($55,$33,$FF,$01,$01,$01,$1C,$09);
+  E := TOBDWWHOBD.ParsePermanentResponse(Resp);
+  Check((Length(E) = 1) and (E[0].Code = 'P0101-1C') and (E[0].StatusByte = $09), 'WWH-OBD 19 55 permanent DTC parse');
+  Resp.Data := TBytes.Create($56,$33,$FF,$01,$05,$01,$01,$1C,$09);
+  E := TOBDWWHOBD.ParseReadinessGroupResponse(Resp);
+  Check((Length(E) = 1) and (E[0].ReadinessGroupIdentifier = $05), 'WWH-OBD 19 56 readiness-group DTC parse');
+  Check(DecodeMonitorStatus(OBDPIDPayload(TBytes.Create($01,$81,$07,$65,$24), $01, 4), Status, Err) and Status.MILOn and (Status.DTCCount = 1) and (Length(Status.Monitors) = 11) and Status.Monitors[5].Supported and (not Status.Monitors[5].Complete), 'J1979-2 F401/F441 monitor status payload');
+
+  Mock := TScriptedTransport.Create; Transport := Mock; Mock.SimulateOpen;
+  Connection := TOBDConnection.Create(nil); Adapter := TOBDAdapter.Create(nil);
+  Protocol := TOBDProtocol.Create(nil); WWH := TOBDWWHOBD.Create(nil);
+  try
+    Connection.CustomTransport := Transport; Connection.Open;
+    Adapter.Connection := Connection; Protocol.Adapter := Adapter;
+    Protocol.Application := apWWHOBD; WWH.Protocol := Protocol;
+    Mock.Reply := '59 42 33 FF E0 01 82 01 01 1C 09';
+    E := WWH.ReadBySeverity;
+    Check((Length(E) = 1) and (Pos('19 42 33 FF E0', Mock.WrittenString) > 0), 'WWH-OBD component sends 19 42 FGID status severity');
+    Mock.ClearWritten; Mock.Reply := '59 55 33 FF 01 01 01 1C 09';
+    E := WWH.ReadPermanent;
+    Check((Length(E) = 1) and (Pos('19 55 33', Mock.WrittenString) > 0), 'WWH-OBD component sends 19 55 FGID');
+    Mock.ClearWritten; Mock.Reply := '59 56 33 FF 01 05 01 01 1C 09';
+    E := WWH.ReadByGroup($05);
+    Check((Length(E) = 1) and (Pos('19 56 33 05', Mock.WrittenString) > 0), 'WWH-OBD component sends 19 56 FGID readiness group');
+  finally WWH.Free; Protocol.Free; Adapter.Free; Connection.Free; Transport := nil end;
+end;
 procedure TestUDP;
 var Transport: TOBDUDPTransport; Settings: TOBDUDPSettings; Receiver: TReceiver;
 begin
@@ -623,7 +865,7 @@ begin
 end;
 
 begin
-  TestDeferredThreadStart; TestTCP; TestUDP; TestNativeWriteDeadline; TestJSON; TestCatalogFactories; TestCatalogExtends; TestFutures; TestQueue; TestRecorder; TestDiagnosticWire; TestFlashRecovery; TestSeedKeyPolicy; TestReplayLimits; TestCheckpoint; TestOwnedTask; TestCancellation; TestReplayDestroyInCallback; TestVoltageSafetyHook; TestBMWCurrent; TestHash;
+  TestSimVehicle; TestSimELMFormats;   TestDeferredThreadStart; TestTCP; TestUDP; TestNativeWriteDeadline; TestJSON; TestCatalogFactories; TestCatalogExtends; TestFutures; TestQueue; TestRecorder; TestCSVLogger; TestDiagnosticWire; TestFlashRecovery; TestSeedKeyPolicy; TestReplayLimits; TestCheckpoint; TestOwnedTask; TestCancellation; TestReplayDestroyInCallback; TestVoltageSafetyHook; TestBMWCurrent; TestInspectionEvaluation; TestAdapterMatch; TestHash; TestELMResponse; TestDTCsMultiEcu; TestVehicleInfo; TestWWHOBD; TestI18nFallback;
   Check(J1939_PGN_DM27 = $FD82, 'DM27 all pending PGN');
   Check(J1939_PGN_DM28 = $FD80, 'DM28 permanent PGN');
   Check(J1939_PGN_DM24 = $FDB6, 'DM24 supported SPNs PGN');

@@ -167,6 +167,37 @@ end.
         self.assertIn('total: 0', self.checker('vcltypes'))
         self.assertIn('total: 0', self.checker('needsunit'))
 
+    def test_bare_font_style_needs_vcl_graphics(self):
+        source = self.source('applications/Page.pas', """unit Page;
+interface
+uses System.UITypes, Vcl.Controls, Vcl.StdCtrls;
+implementation
+procedure Build(L: TLabel);
+begin
+  L.Font.Style := [fsBold];
+  L.Font.Style := [TFontStyle.fsItalic];
+end;
+end.
+""")
+        self.assertIn('total: 1', self.checker('needsunit'))
+        source.write_text(source.read_text().replace('Vcl.Controls,', 'Vcl.Graphics, Vcl.Controls,'))
+        self.assertIn('total: 0', self.checker('needsunit'))
+
+    def test_edit_char_case_needs_vcl_stdctrls(self):
+        source = self.source('applications/Console.pas', """unit Console;
+interface
+uses Vcl.Controls, Vcl.Forms, ERD.UI.Edits;
+implementation
+procedure Build(E: TOBDEdit);
+begin
+  E.CharCase := ecUpperCase;
+end;
+end.
+""")
+        self.assertIn('total: 1', self.checker('needsunit'))
+        source.write_text(source.read_text().replace('Vcl.Forms,', 'Vcl.Forms, Vcl.StdCtrls,'))
+        self.assertIn('total: 0', self.checker('needsunit'))
+
     def test_rtl_rect_uses_left_top_and_gdiplus_rect_uses_xy(self):
         source = self.source('src/Rectangles.pas', """unit Rectangles;
 interface
@@ -246,6 +277,93 @@ end.
                           .replace('Manager.GetPairedDevices', 'Manager.LastDiscoveredDevices')
                           .replace('Device.GetCharacteristic(Service, Guid)', 'Service.Characteristics')
                           .replace('PChar(Name)', 'PAnsiChar(AnsiString(Name))'))
+        self.assertIn('total: 0', self.checker('platformapi'))
+
+    def test_fpc_only_rtl_names_outside_fpc_branches(self):
+        source = self.source('src/Fmt.pas', """unit Fmt;
+interface
+uses System.SysUtils;
+implementation
+function Settings: TFormatSettings;
+begin
+  Result := DefaultFormatSettings;
+  Result.DecimalSeparator := '.';
+  Writeln('a' + LineEnding);
+end;
+function Size: {$IFDEF FPC}SizeInt{$ELSE}NativeInt{$ENDIF};
+begin
+  Result := 0;
+end;
+end.
+""")
+        self.assertIn('total: 2', self.checker('platformapi'))
+        source.write_text(source.read_text()
+                          .replace('DefaultFormatSettings', 'TFormatSettings.Invariant')
+                          .replace('LineEnding', 'sLineBreak'))
+        self.assertIn('total: 0', self.checker('platformapi'))
+
+    def test_format_settings_static_members(self):
+        source = self.source('applications/Price.pas', """unit Price;
+interface
+uses System.SysUtils;
+implementation
+function Parse(const S: string): Double;
+var
+  FormatSettings: TFormatSettings;
+begin
+  FormatSettings := TFormatSettings.Current;
+  if not TryStrToFloat(S, Result, FormatSettings) then
+    Result := StrToFloat(S, TFormatSettings.Invariant);
+  FormatSettings := TFormatSettings.Create('en-US');
+end;
+end.
+""")
+        output = self.checker('platformapi')
+        self.assertIn('total: 1', output)
+        self.assertIn('Price.pas:9', output)
+        source.write_text(source.read_text().replace('TFormatSettings.Current', 'TFormatSettings.Create'))
+        self.assertIn('total: 0', self.checker('platformapi'))
+
+    def test_const_anonymous_method_passed_to_tproc_parameter(self):
+        self.source('applications/Session.pas', """unit Session;
+interface
+uses System.SysUtils;
+type
+  TSession = class
+  public
+    procedure SendRaw(ACommand: string; AReply: TProc<string>);
+    procedure RunJob(const ADone: TProc);
+  end;
+implementation
+procedure TSession.SendRaw(ACommand: string; AReply: TProc<string>);
+begin
+  AReply(ACommand);
+end;
+procedure TSession.RunJob(const ADone: TProc);
+begin
+  ADone();
+end;
+end.
+""")
+        page = self.source('applications/Page.pas', """unit Page;
+interface
+implementation
+uses Session;
+procedure Send(S: TSession; Other: TObject);
+begin
+  S.SendRaw('ATZ',
+    procedure(const AReply: string)
+    begin
+      Writeln(AReply);
+    end);
+  Other.Foo(procedure(const X: string) begin end);
+end;
+end.
+""")
+        output = self.checker('platformapi')
+        self.assertIn('total: 1', output)
+        self.assertIn('Page.pas:8', output)
+        page.write_text(page.read_text().replace('procedure(const AReply', 'procedure(AReply'))
         self.assertIn('total: 0', self.checker('platformapi'))
 
     def test_platform_attributes_and_misqualified_system_routines(self):

@@ -18,6 +18,8 @@
 // 2026-05-09  ERD  Initial implementation: ATZ → ATE0 → ATI → AT@1 → AT@2
 // → optional STI sequence with clone-signature
 // heuristic.
+// 2026-10-12  ERD  ELM327-compatible products (Vgate vLinker, iCar Pro)
+//                  resolve their adapter key through the registry's hints.
 // ------------------------------------------------------------------------------
 
 unit ERD.Adapter.Detection;
@@ -37,7 +39,8 @@ uses
 {$IFDEF FPC}Classes{$ELSE}System.Classes{$ENDIF},
   System.RegularExpressions,
   ERD.Types,
-  ERD.Adapter.Types;
+  ERD.Adapter.Types,
+  ERD.Adapter.Capabilities;
 
 type
   /// <summary>
@@ -242,6 +245,7 @@ var
   Resp: TOBDAdapterResponse;
   InfoLine: string;
   ATIRecognised: Boolean;
+  Entry: TOBDAdapterCapabilityEntry;
 begin
   if ASender = nil then
     raise EOBDAdapter.Create('Detect: command sender is nil');
@@ -312,10 +316,18 @@ begin
     end;
   end;
 
-  // Adapter key — best-effort canonicalisation.
+  // Adapter key — best-effort canonicalisation. ELM327-compatible
+  // products that name themselves in ATI / AT@1 / AT@2 (Vgate vLinker and
+  // similar) resolve through the capability registry's detection hints.
   case AIdentity.Family of
     afELM327:
-      AIdentity.AdapterKey := 'elm327';
+      if TOBDAdapterCapabilityRegistry.Default.TryMatchIdentity(
+        AIdentity.InfoResponse, AIdentity.Description + ' ' +
+        AIdentity.DeviceIdentifier, Entry) and
+        (Entry.Family = afELM327) then
+        AIdentity.AdapterKey := Entry.AdapterKey
+      else
+        AIdentity.AdapterKey := 'elm327';
     afOBDLink:
       begin
         if Pos('MX', UpperCase(AIdentity.STInfo + AIdentity.Description)) > 0

@@ -25,6 +25,7 @@
 // async + progress for Detect / Init /
 // WriteATCommand / WriteSTCommand /
 // WriteOBDCommand.
+// 2026-10-12  ERD  A successful "BUS INIT: ...OK" line is not an error.
 // ------------------------------------------------------------------------------
 
 unit ERD.Adapter;
@@ -551,6 +552,10 @@ begin
   for I := 0 to High(Result.Lines) do
   begin
     Upper := UpperCase(Result.Lines[I]);
+    // K-line protocols announce a successful wake-up as
+    // "BUS INIT: ...OK" before the data; only a failed init is an error.
+    if StartsText('BUS INIT', Upper) and EndsText('OK', Upper) then
+      Continue;
     for Keyword in ERROR_KEYWORDS do
       if Pos(Keyword, Upper) > 0 then
       begin

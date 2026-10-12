@@ -3,7 +3,9 @@
 //
 //  TOBDSidebar - themed navigation sidebar for the OBD Studio shell. It paints
 //  grouped navigation items, badges, a pinned footer and a collapse toggle with
-//  the shared OBD Studio theme and density metrics.
+//  the shared OBD Studio theme and density metrics. When the items do not fit
+//  above the footer the body scrolls (mouse wheel, themed scroll bar,
+//  keyboard); the header, footer and collapse toggle stay where they are.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
 //  Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
@@ -11,6 +13,8 @@
 //
 //  History     :
 //    2026-10-10  ERD  Initial implementation for the OBD Studio controls.
+//    2026-10-12  ERD  The body scrolls when the items do not fit; the
+//                     selected item is kept in view.
 //------------------------------------------------------------------------------
 
 unit ERD.UI.Sidebar;
@@ -174,6 +178,10 @@ type
     FHoverIndex: Integer;
     FCollapseHover: Boolean;
     FKeyboardFocus: Boolean;
+    FScrollY: Integer;
+    FBarHot: Boolean;
+    FBarDragging: Boolean;
+    FBarDragOffset: Integer;
     FOnChange: TNotifyEvent;
     FOnItemClick: TOBDSidebarItemEvent;
     FOnCollapsedChanged: TNotifyEvent;
@@ -211,6 +219,17 @@ type
     function ItemWidth: Integer;
     function IconCenterX: Integer;
     function FooterBlockTop: Integer;
+    function BodyBottom: Integer;
+    function BodyItemRect(ATop: Integer): TRect;
+    function ContentHeight: Integer;
+    function MaxScroll: Integer;
+    function NeedsScrollBar: Boolean;
+    function BarWidth: Integer;
+    function ScrollBarRect: TRect;
+    function ScrollThumb: TRect;
+    procedure ScrollTo(APos: Integer);
+    procedure ClampScroll;
+    procedure SetBarHot(AValue: Boolean);
     function CollapseRect: TRect;
     function CollapseHit(X, Y: Integer): Boolean;
     function CollapsedHintFor(AIndex: Integer): string;
@@ -223,8 +242,8 @@ type
     procedure ItemsChanged;
     procedure ActivateItem(AIndex: Integer);
     procedure DrawHeader(APainter: TOBDPainter);
-    procedure DrawItem(APainter: TOBDPainter; ACanvas: TCanvas; AIndex,
-      ATop: Integer);
+    procedure DrawItem(APainter: TOBDPainter; ACanvas: TCanvas;
+      AIndex: Integer; const R: TRect);
     procedure DrawBody(APainter: TOBDPainter; ACanvas: TCanvas);
     procedure DrawFooter(APainter: TOBDPainter; ACanvas: TCanvas);
     procedure DrawCollapse(APainter: TOBDPainter; const R: TRect);
@@ -238,6 +257,7 @@ type
     procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
     procedure CMHintShow(var Message: TCMHintShow); message CM_HINTSHOW;
     procedure WMGetDlgCode(var Message: TWMGetDlgCode); message WM_GETDLGCODE;
+    procedure CMMouseWheel(var Message: TCMMouseWheel); message CM_MOUSEWHEEL;
   protected
     /// <summary>Clears the image list reference when it is freed.</summary>
     /// <param name="AComponent">Component inserted or removed.</param>
@@ -259,6 +279,15 @@ type
     /// <param name="Y">Mouse Y.</param>
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState;
       X, Y: Integer); override;
+    /// <summary>Ends a scroll bar drag.</summary>
+    /// <param name="Button">Mouse button.</param>
+    /// <param name="Shift">Modifier keys.</param>
+    /// <param name="X">Mouse X.</param>
+    /// <param name="Y">Mouse Y.</param>
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState;
+      X, Y: Integer); override;
+    /// <summary>Keeps the scroll position in range.</summary>
+    procedure Resize; override;
     /// <summary>Keyboard navigation and activation.</summary>
     /// <param name="Key">Virtual key.</param>
     /// <param name="Shift">Modifier keys.</param>
@@ -271,6 +300,13 @@ type
     destructor Destroy; override;
     /// <summary>Re-applies automatic width after density changes.</summary>
     procedure DensityChanged; override;
+    /// <summary>Scrolls the items with the mouse wheel while the pointer
+    /// is over the sidebar, also when another control has the focus.</summary>
+    /// <param name="Message">WM_MOUSEWHEEL message.</param>
+    procedure MouseWheelHandler(var Message: TMessage); override;
+    /// <summary>Scrolls the body so that an item is fully visible.</summary>
+    /// <param name="AIndex">Item index; footer items are always visible.</param>
+    procedure EnsureVisible(AIndex: Integer);
     /// <summary>Returns the item under a client point, or -1.</summary>
     /// <param name="X">Client X.</param>
     /// <param name="Y">Client Y.</param>
@@ -320,6 +356,9 @@ type
   end;
 
 implementation
+
+uses
+  ERD.UI.ScrollBar;
 
 const
   PREVIEW_COUNT = 8;
@@ -538,6 +577,13 @@ procedure TOBDSidebar.DensityChanged;
 begin
   ApplyAutoWidth;
   inherited DensityChanged;
+  ClampScroll;
+end;
+
+procedure TOBDSidebar.Resize;
+begin
+  inherited;
+  ClampScroll;
 end;
 
 procedure TOBDSidebar.SetItems(AValue: TOBDSidebarItems);
@@ -554,6 +600,7 @@ begin
   if FItemIndex = AValue then
     Exit;
   FItemIndex := AValue;
+  EnsureVisible(FItemIndex);
   Invalidate;
   if Assigned(FOnChange) then
     FOnChange(Self);
@@ -567,6 +614,8 @@ begin
   FHoverIndex := -1;
   FCollapseHover := False;
   ApplyAutoWidth;
+  ClampScroll;
+  EnsureVisible(FItemIndex);
   UpdateCollapsedHint;
   Invalidate;
   if Assigned(FOnCollapsedChanged) then
@@ -858,6 +907,153 @@ begin
     Result := Height - ScaleValue(16) - N * NavStride;
 end;
 
+function TOBDSidebar.BodyBottom: Integer;
+begin
+  // Bottom of the scrolling body: just above the footer separator.
+  Result := FooterBlockTop - ScaleValue(10);
+end;
+
+function TOBDSidebar.BodyItemRect(ATop: Integer): TRect;
+var
+  Right: Integer;
+begin
+  // Body items leave room for the scroll bar when it is shown.
+  if NeedsScrollBar then
+    Right := ScrollBarRect.Left - ScaleValue(4)
+  else
+    Right := ItemLeft + ItemWidth;
+  if Right < ItemLeft then
+    Right := ItemLeft;
+  Result := Rect(ItemLeft, ATop, Right, ATop + NavHeight);
+end;
+
+function TOBDSidebar.ContentHeight: Integer;
+var
+  Groups: TStringList;
+  I, J, Y: Integer;
+  G: string;
+  Any: Boolean;
+begin
+  // Height of the group headers and body items, unscrolled.
+  Y := 0;
+  Any := False;
+  Groups := TStringList.Create;
+  try
+    Groups.CaseSensitive := True;
+    for I := 0 to EffectiveCount - 1 do
+    begin
+      if not EffectiveVisible(I) or EffectiveFooter(I) then
+        Continue;
+      G := EffectiveGroup(I);
+      if G <> '' then
+      begin
+        if Groups.IndexOf(G) >= 0 then
+          Continue;
+        Groups.Add(G);
+        Inc(Y, ScaleValue(30));
+        for J := 0 to EffectiveCount - 1 do
+          if EffectiveVisible(J) and not EffectiveFooter(J) and
+            (EffectiveGroup(J) = G) then
+          begin
+            Inc(Y, NavStride);
+            Any := True;
+          end;
+      end
+      else
+      begin
+        Inc(Y, NavStride);
+        Any := True;
+      end;
+    end;
+  finally
+    Groups.Free;
+  end;
+  if Any then
+    Dec(Y, NavGap);
+  Result := Y;
+end;
+
+function TOBDSidebar.MaxScroll: Integer;
+begin
+  Result := System.Math.Max(0, ContentHeight -
+    System.Math.Max(0, BodyBottom - BodyTop));
+end;
+
+function TOBDSidebar.NeedsScrollBar: Boolean;
+begin
+  Result := (BodyBottom > BodyTop) and (MaxScroll > 0);
+end;
+
+function TOBDSidebar.BarWidth: Integer;
+begin
+  if Density = dnTablet then
+    Result := ScaleValue(16)
+  else
+    Result := ScaleValue(10);
+end;
+
+function TOBDSidebar.ScrollBarRect: TRect;
+begin
+  if not NeedsScrollBar then
+    Exit(Rect(0, 0, 0, 0));
+  Result := Rect(Width - ScaleValue(1) - BarWidth, BodyTop,
+    Width - ScaleValue(1), BodyBottom);
+end;
+
+function TOBDSidebar.ScrollThumb: TRect;
+begin
+  Result := OBDScrollThumbRect(ScrollBarRect, True, 0,
+    System.Math.Max(0, ContentHeight - 1), BodyBottom - BodyTop, FScrollY,
+    FBarHot, FBarDragging);
+end;
+
+procedure TOBDSidebar.ScrollTo(APos: Integer);
+var
+  P: TPoint;
+begin
+  APos := EnsureRange(APos, 0, MaxScroll);
+  if APos = FScrollY then
+    Exit;
+  FScrollY := APos;
+  // The items move under a resting pointer: hover what is there now.
+  FHoverIndex := -1;
+  if HandleAllocated and GetCursorPos(P) then
+  begin
+    P := ScreenToClient(P);
+    if PtInRect(ClientRect, P) and not CollapseHit(P.X, P.Y) then
+      FHoverIndex := ItemAt(P.X, P.Y);
+  end;
+  UpdateCollapsedHint;
+  Invalidate;
+end;
+
+procedure TOBDSidebar.ClampScroll;
+begin
+  FScrollY := EnsureRange(FScrollY, 0, MaxScroll);
+end;
+
+procedure TOBDSidebar.SetBarHot(AValue: Boolean);
+begin
+  if FBarHot = AValue then
+    Exit;
+  FBarHot := AValue;
+  Invalidate;
+end;
+
+procedure TOBDSidebar.EnsureVisible(AIndex: Integer);
+var
+  R: TRect;
+begin
+  if (AIndex < 0) or (AIndex >= EffectiveCount) or
+    not EffectiveVisible(AIndex) or EffectiveFooter(AIndex) then
+    Exit;
+  R := ItemRect(AIndex);
+  if R.Top < BodyTop then
+    ScrollTo(FScrollY - (BodyTop - R.Top))
+  else if R.Bottom > BodyBottom then
+    ScrollTo(FScrollY + (R.Bottom - BodyBottom));
+end;
+
 function TOBDSidebar.CollapseRect: TRect;
 begin
   Result := Rect(0, 0, 0, 0);
@@ -1008,6 +1204,7 @@ begin
   if (FHoverIndex >= EffectiveCount) or
     ((FHoverIndex >= 0) and not EffectiveVisible(FHoverIndex)) then
     FHoverIndex := -1;
+  ClampScroll;
   UpdateCollapsedHint;
   Invalidate;
 end;
@@ -1027,6 +1224,7 @@ var
   P: TOBDPainter;
   Pal: TOBDThemePalette;
 begin
+  ClampScroll;
   Pal := Palette;
   P := TOBDPainter.Create(ACanvas, Pal, ScaleValue(96));
   try
@@ -1060,52 +1258,68 @@ end;
 procedure TOBDSidebar.DrawBody(APainter: TOBDPainter; ACanvas: TCanvas);
 var
   Groups: TStringList;
-  I, J, Y, FooterTop: Integer;
+  I, J, Y, ViewTop, ViewBottom, Save: Integer;
   G: string;
 begin
-  Y := BodyTop;
-  FooterTop := FooterBlockTop - ScaleValue(10);
-  Groups := TStringList.Create;
+  ViewTop := BodyTop;
+  ViewBottom := BodyBottom;
+  if ViewBottom <= ViewTop then
+    Exit;
+  Y := ViewTop - FScrollY;
+  // Items scrolled partly out of the body are cut off at its edges, so
+  // they never paint over the header or the footer.
+  Save := SaveDC(ACanvas.Handle);
   try
-    Groups.CaseSensitive := True;
-    for I := 0 to EffectiveCount - 1 do
-    begin
-      if not EffectiveVisible(I) or EffectiveFooter(I) then
-        Continue;
-      G := EffectiveGroup(I);
-      if G <> '' then
+    IntersectClipRect(ACanvas.Handle, 0, ViewTop, Width, ViewBottom);
+    Groups := TStringList.Create;
+    try
+      Groups.CaseSensitive := True;
+      for I := 0 to EffectiveCount - 1 do
       begin
-        if Groups.IndexOf(G) >= 0 then
+        if not EffectiveVisible(I) or EffectiveFooter(I) then
           Continue;
-        Groups.Add(G);
-        if FCollapsed then
-          APainter.HLine(ScaleValue(14), Y + ScaleValue(15),
-            Width - ScaleValue(28), Palette.NeutralLight)
-        else
-          APainter.Caps(ScaleValue(20), Y + ScaleValue(15), G,
-            taLeftJustify, Palette.GaugeLabel, Width - ScaleValue(40));
-        Inc(Y, ScaleValue(30));
-        for J := 0 to EffectiveCount - 1 do
-          if EffectiveVisible(J) and not EffectiveFooter(J) and
-            (EffectiveGroup(J) = G) then
+        G := EffectiveGroup(I);
+        if G <> '' then
+        begin
+          if Groups.IndexOf(G) >= 0 then
+            Continue;
+          Groups.Add(G);
+          if (Y + ScaleValue(30) > ViewTop) and (Y < ViewBottom) then
           begin
-            if Y + NavHeight > FooterTop then
-              Exit;
-            DrawItem(APainter, ACanvas, J, Y);
-            Inc(Y, NavStride);
+            if FCollapsed then
+              APainter.HLine(ScaleValue(14), Y + ScaleValue(15),
+                Width - ScaleValue(28), Palette.NeutralLight)
+            else
+              APainter.Caps(ScaleValue(20), Y + ScaleValue(15), G,
+                taLeftJustify, Palette.GaugeLabel, Width - ScaleValue(40));
           end;
-      end
-      else
-      begin
-        if Y + NavHeight > FooterTop then
-          Exit;
-        DrawItem(APainter, ACanvas, I, Y);
-        Inc(Y, NavStride);
+          Inc(Y, ScaleValue(30));
+          for J := 0 to EffectiveCount - 1 do
+            if EffectiveVisible(J) and not EffectiveFooter(J) and
+              (EffectiveGroup(J) = G) then
+            begin
+              if (Y + NavHeight > ViewTop) and (Y < ViewBottom) then
+                DrawItem(APainter, ACanvas, J, BodyItemRect(Y));
+              Inc(Y, NavStride);
+            end;
+        end
+        else
+        begin
+          if (Y + NavHeight > ViewTop) and (Y < ViewBottom) then
+            DrawItem(APainter, ACanvas, I, BodyItemRect(Y));
+          Inc(Y, NavStride);
+        end;
       end;
+    finally
+      Groups.Free;
     end;
   finally
-    Groups.Free;
+    RestoreDC(ACanvas.Handle, Save);
   end;
+  if NeedsScrollBar then
+    OBDPaintScrollBar(APainter, ScrollBarRect, True, 0,
+      System.Math.Max(0, ContentHeight - 1), ViewBottom - ViewTop, FScrollY,
+      FBarHot, FBarDragging);
 end;
 
 procedure TOBDSidebar.DrawFooter(APainter: TOBDPainter; ACanvas: TCanvas);
@@ -1121,7 +1335,8 @@ begin
   for I := 0 to EffectiveCount - 1 do
     if EffectiveVisible(I) and EffectiveFooter(I) then
     begin
-      DrawItem(APainter, ACanvas, I, Y);
+      DrawItem(APainter, ACanvas, I, Rect(ItemLeft, Y, ItemLeft + ItemWidth,
+        Y + NavHeight));
       Inc(Y, NavStride);
     end;
   if FShowCollapseButton then
@@ -1129,16 +1344,14 @@ begin
 end;
 
 procedure TOBDSidebar.DrawItem(APainter: TOBDPainter; ACanvas: TCanvas;
-  AIndex, ATop: Integer);
+  AIndex: Integer; const R: TRect);
 var
-  R: TRect;
   CX, CY, Badge, BadgeTop: Integer;
   TextColor, IconColor, Fill: TColor;
   Selected, Hovered, Enabled: Boolean;
   Weight: TOBDTextWeight;
   Strength: Single;
 begin
-  R := Rect(ItemLeft, ATop, ItemLeft + ItemWidth, ATop + NavHeight);
   Selected := AIndex = SelectedIndexForPaint;
   Hovered := (AIndex = FHoverIndex) and EffectiveEnabled(AIndex);
   Enabled := EffectiveEnabled(AIndex);
@@ -1179,7 +1392,11 @@ begin
     Weight := twRegular;
   end;
 
-  CX := IconCenterX;
+  // A scroll bar narrows the body items; collapsed icons stay centred.
+  if FCollapsed then
+    CX := (R.Left + R.Right) div 2
+  else
+    CX := IconCenterX;
   CY := R.Top + R.Height div 2;
   DrawIcon(APainter, ACanvas, AIndex, CX, CY, IconColor);
 
@@ -1195,11 +1412,12 @@ begin
   else
   begin
     APainter.Text(ScaleValue(54), CY, EffectiveCaption(AIndex),
-      SIDEBAR_TEXT_SIZE, TextColor, Weight, taLeftJustify, Width - ScaleValue(88));
+      SIDEBAR_TEXT_SIZE, TextColor, Weight, taLeftJustify,
+      System.Math.Max(0, R.Right - ScaleValue(80)));
     if Badge > 0 then
     begin
       BadgeTop := CY - ScaleValue(9);
-      APainter.Badge(Width - ScaleValue(20), BadgeTop, IntToStr(Badge),
+      APainter.Badge(R.Right - ScaleValue(12), BadgeTop, IntToStr(Badge),
         APainter.StatusColor(EffectiveBadgeKind(AIndex)));
     end;
   end;
@@ -1381,7 +1599,9 @@ begin
   for I := 0 to EffectiveCount - 1 do
   begin
     R := ItemRect(I);
-    if not R.IsEmpty and PtInRect(R, Point(X, Y)) then
+    // Body items scrolled out of the body cannot be hit.
+    if not R.IsEmpty and PtInRect(R, Point(X, Y)) and
+      (EffectiveFooter(I) or ((Y >= BodyTop) and (Y < BodyBottom))) then
       Exit(I);
   end;
 end;
@@ -1409,7 +1629,7 @@ begin
     Exit;
   end;
 
-  Y := BodyTop;
+  Y := BodyTop - FScrollY;
   Groups := TStringList.Create;
   try
     Groups.CaseSensitive := True;
@@ -1429,14 +1649,14 @@ begin
             (EffectiveGroup(J) = G) then
           begin
             if J = Index then
-              Exit(Rect(ItemLeft, Y, ItemLeft + ItemWidth, Y + NavHeight));
+              Exit(BodyItemRect(Y));
             Inc(Y, NavStride);
           end;
       end
       else
       begin
         if I = Index then
-          Exit(Rect(ItemLeft, Y, ItemLeft + ItemWidth, Y + NavHeight));
+          Exit(BodyItemRect(Y));
         Inc(Y, NavStride);
       end;
     end;
@@ -1447,10 +1667,21 @@ end;
 
 procedure TOBDSidebar.MouseMove(Shift: TShiftState; X, Y: Integer);
 var
-  NewHover: Integer;
+  NewHover, Travel: Integer;
   NewCollapse: Boolean;
+  Bar, Thumb: TRect;
 begin
   inherited;
+  if FBarDragging then
+  begin
+    Bar := ScrollBarRect;
+    Thumb := ScrollThumb;
+    Travel := Bar.Height - Thumb.Height;
+    if Travel > 0 then
+      ScrollTo(Round((Y - FBarDragOffset - Bar.Top) / Travel * MaxScroll));
+    Exit;
+  end;
+  SetBarHot(NeedsScrollBar and PtInRect(ScrollBarRect, Point(X, Y)));
   NewHover := ItemAt(X, Y);
   NewCollapse := CollapseHit(X, Y);
   if NewCollapse then
@@ -1468,6 +1699,7 @@ procedure TOBDSidebar.MouseDown(Button: TMouseButton; Shift: TShiftState;
   X, Y: Integer);
 var
   Index: Integer;
+  Thumb: TRect;
 begin
   inherited;
   if Button <> mbLeft then
@@ -1475,6 +1707,23 @@ begin
   FKeyboardFocus := False;
   if CanFocus then
     SetFocus;
+  if NeedsScrollBar and PtInRect(ScrollBarRect, Point(X, Y)) then
+  begin
+    // Drag the thumb, or page up / down with a click on the track.
+    Thumb := ScrollThumb;
+    if (Y >= Thumb.Top) and (Y < Thumb.Bottom) then
+    begin
+      FBarDragging := True;
+      FBarDragOffset := Y - Thumb.Top;
+      MouseCapture := True;
+      Invalidate;
+    end
+    else if Y < Thumb.Top then
+      ScrollTo(FScrollY - (BodyBottom - BodyTop))
+    else
+      ScrollTo(FScrollY + (BodyBottom - BodyTop));
+    Exit;
+  end;
   if CollapseHit(X, Y) then
   begin
     Collapsed := not FCollapsed;
@@ -1485,6 +1734,19 @@ begin
   begin
     ItemIndex := Index;
     ActivateItem(Index);
+  end;
+end;
+
+procedure TOBDSidebar.MouseUp(Button: TMouseButton; Shift: TShiftState;
+  X, Y: Integer);
+begin
+  inherited;
+  if FBarDragging then
+  begin
+    FBarDragging := False;
+    MouseCapture := False;
+    SetBarHot(NeedsScrollBar and PtInRect(ScrollBarRect, Point(X, Y)));
+    Invalidate;
   end;
 end;
 
@@ -1516,6 +1778,7 @@ begin
   begin
     FKeyboardFocus := True;
     ItemIndex := NewIndex;
+    EnsureVisible(NewIndex);
   end;
   Key := 0;
 end;
@@ -1531,6 +1794,8 @@ end;
 procedure TOBDSidebar.CMMouseLeave(var Message: TMessage);
 begin
   inherited;
+  if not FBarDragging then
+    SetBarHot(False);
   if (FHoverIndex <> -1) or FCollapseHover then
   begin
     FHoverIndex := -1;
@@ -1562,6 +1827,31 @@ procedure TOBDSidebar.WMGetDlgCode(var Message: TWMGetDlgCode);
 begin
   inherited;
   Message.Result := Message.Result or DLGC_WANTARROWS;
+end;
+
+procedure TOBDSidebar.MouseWheelHandler(var Message: TMessage);
+begin
+  // The VCL hands the wheel to the focused control; the sidebar takes it
+  // itself when it is under the pointer and has something to scroll.
+  if MaxScroll > 0 then
+  begin
+    ScrollTo(FScrollY - Sign(SmallInt(HiWord(DWORD(Message.WParam)))) *
+      NavStride * 3);
+    Message.Result := 1;
+  end
+  else
+    inherited MouseWheelHandler(Message);
+end;
+
+procedure TOBDSidebar.CMMouseWheel(var Message: TCMMouseWheel);
+begin
+  if MaxScroll > 0 then
+  begin
+    ScrollTo(FScrollY - Sign(Message.WheelDelta) * NavStride * 3);
+    Message.Result := 1;
+  end
+  else
+    inherited;
 end;
 
 end.

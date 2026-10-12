@@ -147,6 +147,1404 @@
       "severity": "critical",
       "description": "Control Module Communication Bus 'A' Off (Mazda HS-CAN)",
       "verified": false
+    },
+    {
+      "code": "P1000",
+      "description": "OBD II Monitor Testing Not Completed",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1001",
+      "description": "Unable to Achieve Self-Test Function Or SCP Error",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1100",
+      "description": "Mass Air Flow Sensor Circuit Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1101",
+      "description": "Mass Air Flow Sensor Circuit Out Of Self-Test Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1102",
+      "description": "Mass Air Flow Sensor Signal Inconsistent With Throttle Position Sensor",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1103",
+      "description": "Mass Air Flow Sensor Signal Inconsistent With Engine Speed",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1110",
+      "description": "Intake Air Temperature Sensor Signal Dynamic Chamber Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1112",
+      "description": "Intake Air Temperature Sensor Circuit Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1113",
+      "description": "Intake Air Temperature Sensor Signal Dynamic Chamber Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1114",
+      "description": "Intake Air Temperature Sensor Circuit Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1116",
+      "description": "ECT Sensor Circuit Out Of Self Test Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1117",
+      "description": "ECT Sensor Signal Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1120",
+      "description": "Throttle Position Sensor Out Of Range Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1121",
+      "description": "Throttle Position Sensor Signal Not Consistent With Mass Air Flow Signal",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1122",
+      "description": "Throttle Position Stuck Closed",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1123",
+      "description": "Throttle Position Stuck Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1124",
+      "description": "Throttle Position Sensor Signal Out Of Self Test Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1125",
+      "description": "Throttle Position Sensor Signal Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1126",
+      "description": "Throttle Position Narrow Range Sensor Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1127",
+      "description": "HO2S Bank 1 Sensor 2 Heater Not On During Key On Engine Running Self Test",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1128",
+      "description": "HO2S Bank 1 Sensor 1 Signals Swapped In Key On Engine Running Self Test",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1129",
+      "description": "Downstream H02S Sensors Swapped",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1130",
+      "description": "HO2S Bank 1 Sensor 1 Not Switching Fuel Control Limit Reached",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1131",
+      "description": "HO2S Bank 1 Sensor 1 Signal Below 0.45v AF Ratio Too Lean",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1132",
+      "description": "HO2S Bank 1 Sensor 1 Signal Above 0.45v AF Ratio Too Rich",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1133",
+      "description": "Bank 1 Fuel Control Shifted Lean",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1134",
+      "description": "Bank 1 Fuel Control Shifted Rich",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1135",
+      "description": "HO2S Bank 1 Sensor 1 Heater Circuit Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1136",
+      "description": "HO2S Bank 1 Sensor 1 Heater Circuit High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1137",
+      "description": "HO2S Bank 1 Sensor 2 Not Switching Fuel Control Limit Reached",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1138",
+      "description": "HO2S Bank 1 Sensor 2 Signal Above 0.45v AF Ratio Too Rich",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1141",
+      "description": "HO2S Bank 1 Sensor 2 Heater Circuit Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1142",
+      "description": "HO2S Bank 1 Sensor 2 Heater Circuit High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1143",
+      "description": "HO2S Bank 1 Sensor 3 Signal Below 0.45v AF Ratio Too Lean",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1144",
+      "description": "HO2S Bank 1 Sensor 3 Signal Above 0.45v AF Ratio Too Rich",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1150",
+      "description": "HO2S Bank 2 Sensor 1 Not Switching Fuel Control Limit Reached",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1151",
+      "description": "HO2S Bank 2 Sensor 1 Signal Below 0.45v AF Ratio Too Lean",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1152",
+      "description": "HO2S Bank 2 Sensor 1 Signal Above 0.45v AF Ratio Too Rich",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1153",
+      "description": "Bank 2 Fuel Control Shifted Lean FAOSC",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1154",
+      "description": "Bank 2 Fuel Control Shifted Rich FAOSC",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1169",
+      "description": "HO2S Bank 1 Sensor 1 Circuit Fixed Bank 1 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1170",
+      "description": "HO2S Bank 1 Sensor 1 Circuit Fixed Bank 1 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1173",
+      "description": "HO2S Bank 2 Sensor 1 Circuit Fixed Bank 2 Sensor 1",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1182",
+      "description": "Fuel Shut Off Solenoid Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1189",
+      "description": "Pump Speed Signal",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1190",
+      "description": "Calibration Resistor Out Of Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1191",
+      "description": "TP Controlled Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1194",
+      "description": "ECM PCM A D Converter",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1195",
+      "description": "EGR Boost Sensor Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1196",
+      "description": "Ignition Switch Start Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1197",
+      "description": "Mileage Switch Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1213",
+      "description": "Start Injector Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1221",
+      "description": "Traction Control System",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1222",
+      "description": "Traction Control Output Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1226",
+      "description": "Control Sleeve Sensor Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1235",
+      "description": "Fuel Pump Control Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1236",
+      "description": "Fuel Pump Control Out Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1248",
+      "description": "Turbo Boost Pressure Not Detected",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1250",
+      "description": "Pressure Regulator Control Solenoid Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1251",
+      "description": "Air Mixture Solenoid Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1252",
+      "description": "Pressure Regulator Control Solenoid 2 Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1260",
+      "description": "Anti-Theft System Signal Detected Engine Disabled",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1270",
+      "description": "Engine RPM or Vehicle Speed Limit Reached",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1279",
+      "description": "Control Sleeve Sensor Circuit Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1298",
+      "description": "Injector Driver Module Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1309",
+      "description": "Misfire Detection Monitor",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1312",
+      "description": "Injection Pump Timing Actuator Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1318",
+      "description": "Injection Timing Piston Position Sensor Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1319",
+      "description": "Injection Timing Piston Position Sensor Circuit Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1345",
+      "description": "No CMP or SGC Signal",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1351",
+      "description": "Ignition Diagnostic Monitor Signal Lost To PCM Or Out Of Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1352",
+      "description": "Ignition Coil A Primary Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1353",
+      "description": "Ignition Coil B Primary Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1354",
+      "description": "Ignition Coil C Primary Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1358",
+      "description": "Ignition Diagnostic Monitor Signal Out Of Self Test Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1359",
+      "description": "SPOUT Signal Lost To Powertrain Control Module Or Out Of Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1360",
+      "description": "Ignition Coil A Secondary Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1361",
+      "description": "Ignition Coil B Secondary Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1362",
+      "description": "Ignition Coil C Secondary Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1364",
+      "description": "Ignition Coil Primary Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1365",
+      "description": "Ignition Coil Secondary Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1382",
+      "description": "Camshaft Position Timing Solenoid 1 Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1387",
+      "description": "Camshaft Position Timing Solenoid 2 Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1390",
+      "description": "Octane Adjust Shorting Bar Out Or Circuit Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1400",
+      "description": "DPFE Sensor Circuit Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1401",
+      "description": "DPFE Sensor Circuit High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1402",
+      "description": "EGR Valve Position Sensor Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1405",
+      "description": "DPFE Sensor Upstream Hose Off Or Plugged",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1406",
+      "description": "DPFE Sensor Downstream Hose Off Or Plugged",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1407",
+      "description": "No EGR Flow Detected",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1408",
+      "description": "EGR System Flow Out Of Key On Engine Running Self Test Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1409",
+      "description": "EGR Vacuum Regulator Solenoid Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1410",
+      "description": "EGR Boost Solenoid Valve Stuck",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1412",
+      "description": "Exhaust Gas Recirculation Valve Frozen",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1415",
+      "description": "Air Pump Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1416",
+      "description": "Port Air Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1417",
+      "description": "Port Air Relief Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1418",
+      "description": "Split Air 1 Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1419",
+      "description": "Split Air 2 Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1439",
+      "description": "Floor Temp Switch Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1443",
+      "description": "EVAP System Purge Flow Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1444",
+      "description": "EVAP Purge Flow Sensor Circuit Low Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1445",
+      "description": "EVAP Purge Flow Sensor Circuit High Voltage",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1446",
+      "description": "Evaporative Vacuum Solenoid Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1449",
+      "description": "Evaporative Check Solenoid Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1450",
+      "description": "Unable To Bleed Up Fuel Tank Vacuum",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1451",
+      "description": "Canister Vent Solenoid Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1455",
+      "description": "Fuel Tank Level Sensor Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1456",
+      "description": "Fuel Tank Temperature Sensor Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1457",
+      "description": "Purge Solenoid Control System",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1458",
+      "description": "A/C Compressor Clutch Signal Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1475",
+      "description": "Fan Relay Low Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1476",
+      "description": "Fan Relay High Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1508",
+      "description": "Idle Air Control Circuit Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1509",
+      "description": "Idle Air Control Circuit Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1514",
+      "description": "High Load Neutral Drive Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1516",
+      "description": "Gear Change Neutral Drive Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1517",
+      "description": "Cranking Neutral Drive Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1534",
+      "description": "Restraint Deployment Indicator Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1562",
+      "description": "Powertrain Control Module +B Voltage Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1566",
+      "description": "TCM B+ Voltage Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1569",
+      "description": "IMRC Circuit Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1570",
+      "description": "IMRC Circuit High",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1600",
+      "description": "Loss Of KAM Power Circuit Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1601",
+      "description": "Powertrain Control Module Communication Line To TCM Error",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1602",
+      "description": "Powertrain Control Module Communication Line To TCM Error, Immobilizer System Communication Error With Powertrain Control Module",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1603",
+      "description": "Immobilizer System Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1604",
+      "description": "Immobilizer System Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1605",
+      "description": "Powertrain Control Module Keep Alive Memory Test Error",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1608",
+      "description": "Powertrain Control Module ECM CPU DTC Test Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1609",
+      "description": "Powertrain Control Module ECM CPU Knock Sensor Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1621",
+      "description": "Immobilizer System Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1622",
+      "description": "Immobilizer System Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1623",
+      "description": "Immobilizer System Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1624",
+      "description": "Immobilizer System Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1627",
+      "description": "Powertrain Control Module ECM TCS Line Communication Error",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1628",
+      "description": "Powertrain Control Module ECM TCS Any Line Communication Error",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1630",
+      "description": "Alternator Regulator 1 Control Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1631",
+      "description": "Generator Output Voltage Signal No Output",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1632",
+      "description": "Battery Voltage Detection Circuit for Alternator Regulator",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1633",
+      "description": "Battery Overcharge Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1634",
+      "description": "Generator Terminal B Circuit Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1645",
+      "description": "Fuel Pump Resistor Switch Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1649",
+      "description": "Fuel Injection Pump Module",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1650",
+      "description": "Power Steering Pressure Switch Out Of Range Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1651",
+      "description": "Power Steering Pressure Switch Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1652",
+      "description": "Power Steering Pressure Switch Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1680",
+      "description": "Metering Oil Pump Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1682",
+      "description": "Metering Oil Pump Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1683",
+      "description": "Metering Oil Pump Temperature Sensor Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1684",
+      "description": "Metering Oil Pump Position Sensor Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1685",
+      "description": "Metering Oil Pump Stepping Motor Cont Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1686",
+      "description": "Metering Oil Pump Stepping Motor Cont Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1687",
+      "description": "Metering Oil Pump Stepping Motor Cont Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1688",
+      "description": "Metering Oil Pump Stepping Motor Cont Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1689",
+      "description": "Oil Pressure Control Solenoid Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1690",
+      "description": "Wastegate Solenoid Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1691",
+      "description": "Turbo Pressure Control Solenoid Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1692",
+      "description": "Turbo Control Solenoid Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1693",
+      "description": "Turbo Charge Control Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1694",
+      "description": "Turbo Charge Relief Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1701",
+      "description": "Transmission Range Sensor Reverse Engagement Error",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1702",
+      "description": "Transmission Range Sensor Circuit Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1703",
+      "description": "Brake On Off Switch Out Of Self Test Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1705",
+      "description": "Transmission Range Sensor Out Of Self Test Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1706",
+      "description": "High Vehicle Speed Observed In Park",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1708",
+      "description": "Clutch Switch Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1709",
+      "description": "Clutch Pedal Position Switch Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1710",
+      "description": "Transmission Control Module Solenoid Internal Ground Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1711",
+      "description": "Transmission Fluid Temperature Sensor Circuit Out Of Self Test Range",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1713",
+      "description": "Transmission Fluid Temperature Sensor Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1714",
+      "description": "Shift Solenoid 1 Mechanical Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1715",
+      "description": "Shift Solenoid 2 Mechanical Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1716",
+      "description": "Shift Solenoid 3 Mechanical Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1717",
+      "description": "Shift Solenoid 4 Mechanical Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1718",
+      "description": "Transmission Fluid Temperature Sensor Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1719",
+      "description": "Engine Torque Signal",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1720",
+      "description": "Vehicle Speed Sensor 2 Signal Error",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1721",
+      "description": "Gear 1 Incorrect Ratio",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1722",
+      "description": "Gear 2 Incorrect Ratio",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1723",
+      "description": "Gear 3 Incorrect Ratio",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1724",
+      "description": "Gear 4 Incorrect Ratio",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1729",
+      "description": "Transmission 4x4 Low Switch Error",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1735",
+      "description": "First Gear Switch Circuit Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1736",
+      "description": "Second Gear Switch Circuit Failure",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1737",
+      "description": "Lockup Solenoid",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1738",
+      "description": "Shift Time Error",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1739",
+      "description": "Slip Solenoid",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1740",
+      "description": "Torque Converter Clutch Solenoid Mechanical Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1741",
+      "description": "Torque Converter Clutch Control Electrical Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1742",
+      "description": "Torque Converter Clutch Solenoid Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1743",
+      "description": "Torque Converter Clutch Failed On TCIL Is On",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1744",
+      "description": "Torque Converter Clutch Solenoid Mechanical Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1745",
+      "description": "Line Pressure Solenoid",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1746",
+      "description": "Electronic Pressure Control Solenoid Circuit Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1747",
+      "description": "Electronic Pressure Control Solenoid Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1748",
+      "description": "Pressure Control Solenoid A",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1749",
+      "description": "Electronic Pressure Control Solenoid Circuit Low",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1751",
+      "description": "Transmission Shift Solenoid A Mechanical Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1752",
+      "description": "Transmission Shift Solenoid A Circuit Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1754",
+      "description": "Transmission Coast Clutch Solenoid Electrical Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1756",
+      "description": "Transmission Shift Solenoid B Mechanical Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1757",
+      "description": "Transmission Shift Solenoid B Circuit Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1759",
+      "description": "2-4 Brake Failsafe Valve Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1761",
+      "description": "Transmission Shift Solenoid 3 Mechanical Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1762",
+      "description": "Transmission SS3 SS4 OD Band Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1763",
+      "description": "Low And Reverse Brake Pressure Switch Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1764",
+      "description": "Low And Reverse Brake Failsafe Valve Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1765",
+      "description": "Transmission 3-2 Timing Solenoid Valve",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1767",
+      "description": "Torque Converter Clutch Solenoid Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1770",
+      "description": "Clutch Solenoid Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1771",
+      "description": "Throttle Position Sensor Circuit Open To Transmission Control Module",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1772",
+      "description": "Throttle Position Sensor Circuit Shorted To Transmission Control Module",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1775",
+      "description": "Torque Down Signal 1 Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1776",
+      "description": "Torque Down Signal 2 Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1777",
+      "description": "Torque Down Response Signal Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1780",
+      "description": "Transmission Control Switch Circuit, Overdrive Off Switch Not Cycled During The Self Test",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1781",
+      "description": "Transmission 4x4 Low Switch Out Of Range Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1783",
+      "description": "Transmission Fluid Temperature High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1788",
+      "description": "Pressure Control Solenoid B Circuit Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1789",
+      "description": "Pressure Control Solenoid B Circuit Shorted",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1790",
+      "description": "TP Mechanical Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1791",
+      "description": "TP Electric Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1792",
+      "description": "Barometer Pressure Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1793",
+      "description": "Intake Air Volume Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1794",
+      "description": "Powertrain Control Module Battery Direct Power Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1795",
+      "description": "Idle Switch Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1796",
+      "description": "Kick Down Switch Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1797",
+      "description": "P/N Switch Open Or Short Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1798",
+      "description": "Coolant Temperature Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1799",
+      "description": "Hold Switch Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1900",
+      "description": "Turbine Speed Sensor Circuit Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1901",
+      "description": "Torque Converter Clutch Circuit Intermittent",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/mazda_codes.txt",
+      "verified": false
     }
   ]
 }

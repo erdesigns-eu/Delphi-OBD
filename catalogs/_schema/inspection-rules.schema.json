@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://erdesigns.eu/schema/inspection-rules.json",
+  "title": "inspection-rules",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "entries"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schema_version": { "const": 1 },
+    "description": { "type": "string" },
+    "checked": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "country_code",
+          "country_name",
+          "inspection_name",
+          "fuel_types",
+          "mil_on_fails",
+          "readiness_required",
+          "max_incomplete_monitors",
+          "dtc_confirmed_fails",
+          "sources",
+          "verified",
+          "checked"
+        ],
+        "properties": {
+          "country_code": { "type": "string", "pattern": "^[A-Z]{2}$" },
+          "country_name": { "type": "string" },
+          "inspection_name": { "type": "string" },
+          "applies_from": {
+            "anyOf": [
+              { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+              { "type": "null" }
+            ]
+          },
+          "fuel_types": {
+            "type": "array",
+            "items": { "enum": ["petrol", "diesel", "other"] },
+            "uniqueItems": true,
+            "minItems": 1
+          },
+          "mil_on_fails": { "type": ["boolean", "null"] },
+          "mil_bulb_check": { "type": ["boolean", "null"] },
+          "readiness_required": { "type": ["boolean", "null"] },
+          "max_incomplete_monitors": {
+            "type": ["object", "null"],
+            "properties": {
+              "petrol": { "type": ["integer", "null"], "minimum": 0 },
+              "diesel": { "type": ["integer", "null"], "minimum": 0 },
+              "other": { "type": ["integer", "null"], "minimum": 0 }
+            },
+            "additionalProperties": false
+          },
+          "monitors_excluded": {
+            "type": "array",
+            "items": { "type": "string" },
+            "uniqueItems": true
+          },
+          "dtc_confirmed_fails": { "type": ["boolean", "null"] },
+          "obd_replaces_tailpipe": { "type": ["boolean", "null"] },
+          "obd_supplements_tailpipe": { "type": ["boolean", "null"] },
+          "vehicles": { "type": "string" },
+          "notes": { "type": "string" },
+          "sources": {
+            "type": "array",
+            "items": { "type": "string", "format": "uri" },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "verified": { "type": "boolean" },
+          "checked": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

@@ -28,7 +28,7 @@ from common import ROOT, SKIP
 EXT = ('.pas', '.dfm', '.dpr', '.dproj', '.dpk', '.inc')
 
 def files():
-    for base in ('src', 'examples', 'tests', 'units', 'forms', 'components', 'build', 'packages', 'cli',
+    for base in ('src', 'examples', 'applications', 'tests', 'units', 'forms', 'components', 'build', 'packages', 'cli',
                  'shell-extension', '.'):
         d = os.path.join(ROOT, base)
         if not os.path.isdir(d):

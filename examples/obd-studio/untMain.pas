@@ -22,7 +22,7 @@
 //    - TOBDToastManager, TOBDDialog, TOBDHintStyle and TOBDPopupMenu.
 //
 //  Every control is placed in the form designer (untMain.dfm). The data
-//  comes from TEngineSimulator (untSimulator.pas): a diesel with a
+//  comes from TEngineSimulator (ERD.Simulator.Vehicle): a diesel with a
 //  sticking EGR valve, so every screen shows a realistic case. Replace
 //  the simulator with a TOBDLiveData / TOBDConnection to use a car.
 //
@@ -51,7 +51,7 @@ uses
   ERD.UI.DtcPanel, ERD.UI.FreezeFrameView, ERD.UI.RangeProfiles,
   ERD.UI.RangeEditor, ERD.UI.ReadinessPanel, ERD.UI.VehicleCard,
   ERD.UI.Inspector, ERD.UI.Terminal, ERD.UI.LogViewer,
-  untSimulator;
+  ERD.Simulator.Vehicle;
 
 type
   TfrmMain = class(TForm)
@@ -365,9 +365,9 @@ begin
   for I := Low(SIM_PIDS) to High(SIM_PIDS) do
     grdLive.AddPID(SIM_PIDS[I].PID, SIM_PIDS[I].Name);
   // Checked rows are plotted in the chart (see grdLiveCheckChanged).
-  grdLive.SetChecked(PID_ENGINE_SPEED, True);
-  grdLive.SetChecked(PID_COMMANDED_EGR, True);
-  grdLive.SetChecked(PID_EGR_ERROR, True);
+  grdLive.SetChecked(OBD_SIM_PID_ENGINE_SPEED, True);
+  grdLive.SetChecked(OBD_SIM_PID_COMMANDED_EGR, True);
+  grdLive.SetChecked(OBD_SIM_PID_EGR_ERROR, True);
 
   FSyncing := True;
   try
@@ -804,12 +804,12 @@ begin
   if FTicks mod 10 = 0 then
     PollAdapter;
 
-  if not FEgrWarned and (FSim.Value(PID_EGR_ERROR) < -20) then
+  if not FEgrWarned and (FSim.Value(OBD_SIM_PID_EGR_ERROR) < -20) then
   begin
     FEgrWarned := True;
     lvLog.Warn(Format('EGR error %.1f %% at %.0f rpm: actual EGR flow is ' +
-      'far below commanded', [FSim.Value(PID_EGR_ERROR),
-      FSim.Value(PID_ENGINE_SPEED)]));
+      'far below commanded', [FSim.Value(OBD_SIM_PID_EGR_ERROR),
+      FSim.Value(OBD_SIM_PID_ENGINE_SPEED)]));
     // mxTicker is nil once a saved layout replaced the designed tiles.
     if mxTicker <> nil then
       mxTicker.ShowAlert('EGR FLOW LOW', alvWarning);
@@ -824,7 +824,7 @@ var
   Chart: TOBDTrendChart;
   Matrix: TOBDMatrixDisplay;
 begin
-  cbConnection.Battery.PushValue(FSim.Value(PID_MODULE_VOLTAGE));
+  cbConnection.Battery.PushValue(FSim.Value(OBD_SIM_PID_MODULE_VOLTAGE));
   // Walk the tiles rather than the form fields: a layout loaded from
   // JSON replaces the designed tiles with new controls.
   for I := 0 to dshMain.Tiles.Count - 1 do
@@ -873,7 +873,7 @@ begin
   begin
     for I := Low(SIM_PIDS) to High(SIM_PIDS) do
       ffView.SetLive(SIM_PIDS[I].PID, FSim.Value(SIM_PIDS[I].PID));
-    rbrCharging.Value := FSim.Value(PID_MODULE_VOLTAGE);
+    rbrCharging.Value := FSim.Value(OBD_SIM_PID_MODULE_VOLTAGE);
   end;
 end;
 
@@ -893,8 +893,8 @@ var
   Speed, Coolant: Double;
   SpeedUnit, TempUnit: string;
 begin
-  Speed := FSim.Value(PID_VEHICLE_SPEED);
-  Coolant := FSim.Value(PID_COOLANT);
+  Speed := FSim.Value(OBD_SIM_PID_VEHICLE_SPEED);
+  Coolant := FSim.Value(OBD_SIM_PID_COOLANT);
   if OBDTheme.UnitSystem = usImperial then
   begin
     Speed := Speed * 0.621371;
@@ -908,9 +908,9 @@ begin
     TempUnit := 'C';
   end;
   Result := Format('GOLF 1.6 TDI   %.0f RPM   %.0f %s   COOLANT %.0f %s   ' +
-    'EGR ERROR %.0f %%   %.1f V', [FSim.Value(PID_ENGINE_SPEED), Speed,
-    SpeedUnit, Coolant, TempUnit, FSim.Value(PID_EGR_ERROR),
-    FSim.Value(PID_MODULE_VOLTAGE)]);
+    'EGR ERROR %.0f %%   %.1f V', [FSim.Value(OBD_SIM_PID_ENGINE_SPEED), Speed,
+    SpeedUnit, Coolant, TempUnit, FSim.Value(OBD_SIM_PID_EGR_ERROR),
+    FSim.Value(OBD_SIM_PID_MODULE_VOLTAGE)]);
   if FCodesRead and MilOn then
     Result := Result + '   CHECK ENGINE: P0401';
 end;
@@ -1347,29 +1347,29 @@ begin
     ffView.Title := 'Exhaust gas recirculation flow insufficient';
     ffView.Subtitle := 'Freeze frame 0 - ' + ECU_ENGINE;
     ffView.HeaderInfo := '128 310 km - 2 days ago';
-    ffView.AddValue(PID_ENGINE_SPEED, 'engine_speed', 'Engine speed', 2140,
+    ffView.AddValue(OBD_SIM_PID_ENGINE_SPEED, 'engine_speed', 'Engine speed', 2140,
       'rpm', 0);
-    ffView.AddValue(PID_ENGINE_LOAD, 'calculated_load', 'Calculated load',
+    ffView.AddValue(OBD_SIM_PID_ENGINE_LOAD, 'calculated_load', 'Calculated load',
       62.4, '%', 1);
-    ffView.AddValue(PID_COOLANT, 'coolant_temp', 'Coolant temperature', 84,
+    ffView.AddValue(OBD_SIM_PID_COOLANT, 'coolant_temp', 'Coolant temperature', 84,
       DEG_C, 0);
-    ffView.AddValue(PID_VEHICLE_SPEED, 'vehicle_speed', 'Vehicle speed', 78,
+    ffView.AddValue(OBD_SIM_PID_VEHICLE_SPEED, 'vehicle_speed', 'Vehicle speed', 78,
       'km/h', 0);
-    ffView.AddValue(PID_MAP, 'intake_map', 'Intake manifold pressure', 152,
+    ffView.AddValue(OBD_SIM_PID_MAP, 'intake_map', 'Intake manifold pressure', 152,
       'kPa', 0);
     ffView.AddValue(0, 'boost_desired', 'Boost desired pressure', 168,
       'kPa', 0);
-    ffView.AddValue(PID_INTAKE_TEMP, 'intake_air_temp',
+    ffView.AddValue(OBD_SIM_PID_INTAKE_TEMP, 'intake_air_temp',
       'Intake air temperature', 31, DEG_C, 0);
-    ffView.AddValue(PID_MAF, 'maf', 'Mass air flow', 18.4, 'g/s', 1);
-    ffView.AddValue(PID_COMMANDED_EGR, 'commanded_egr', 'Commanded EGR', 38,
+    ffView.AddValue(OBD_SIM_PID_MAF, 'maf', 'Mass air flow', 18.4, 'g/s', 1);
+    ffView.AddValue(OBD_SIM_PID_COMMANDED_EGR, 'commanded_egr', 'Commanded EGR', 38,
       '%', 1);
-    ffView.AddValue(PID_EGR_ERROR, 'egr_error', 'EGR error', -31.5, '%', 1);
-    ffView.AddValue(PID_DPF_DP, 'dpf_dp', 'DPF differential pressure', 4.2,
+    ffView.AddValue(OBD_SIM_PID_EGR_ERROR, 'egr_error', 'EGR error', -31.5, '%', 1);
+    ffView.AddValue(OBD_SIM_PID_DPF_DP, 'dpf_dp', 'DPF differential pressure', 4.2,
       'kPa', 1);
-    ffView.AddValue(PID_MODULE_VOLTAGE, 'control_module_voltage',
+    ffView.AddValue(OBD_SIM_PID_MODULE_VOLTAGE, 'control_module_voltage',
       'Control module voltage', 14.1, 'V', 1);
-    ffView.AddText(PID_FUEL_SYSTEM, 'fuel_system_status',
+    ffView.AddText(OBD_SIM_PID_FUEL_SYSTEM, 'fuel_system_status',
       'Fuel system status', 'Closed loop');
   finally
     ffView.EndUpdate;

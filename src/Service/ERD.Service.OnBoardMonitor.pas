@@ -4,11 +4,10 @@
 // TOBDOnBoardMonitor — non-visual component that reads OBD-II
 // Mode 06 on-board monitoring test results.
 //
-// Mode 06 returns one or more (TID, ComponentID, UnitAndScale,
-// TestValue, Min, Max) tuples per Monitor ID (MID). On CAN
-// controllers each tuple is 9 bytes wide:
+// Mode 06 returns one or more CAN records per Monitor ID (MID).
+// On CAN controllers each 9-byte record repeats the MID:
 //
-// TID (1) | CID (1) | Unit/Scale (1) | TestValue (2 BE)
+// MID (1) | TID (1) | UASID (1) | TestValue (2 BE)
 // | Min (2 BE) | Max (2 BE)
 //
 // The component returns a flat list of TOBDMonitorResult records;
@@ -24,6 +23,7 @@
 //
 // History     :
 // 2026-05-09  ERD  Follow-up — close-out deferrals.
+// 2026-10-12  ERD  Parse J1979 CAN Mode 06 records (MID TID UASID TV MIN MAX).
 // ------------------------------------------------------------------------------
 
 unit ERD.Service.OnBoardMonitor;
@@ -60,9 +60,9 @@ type
     MID: Byte;
     /// <summary>Test ID (TID).</summary>
     TID: Byte;
-    /// <summary>Component ID (CID, sometimes "OBDMID-bound TID").</summary>
+    /// <summary>Legacy non-CAN component ID; CAN records set this to 0.</summary>
     ComponentID: Byte;
-    /// <summary>Unit and scaling code.</summary>
+    /// <summary>Unit and scaling code (UASID on CAN).</summary>
     UnitAndScale: Byte;
     /// <summary>Measured test value (raw 16-bit signed).</summary>
     TestValue: SmallInt;
@@ -193,22 +193,20 @@ begin
     raise EOBDProtocolErr.CreateFmt('Mode 06 MID 0x%2.2X negative: %s',
       [AMID, Resp.NRCText]);
 
-  // Response Data: <MID echo> [TID CID UnitScale Val(2) Min(2) Max(2)]+
-  if Length(Resp.Data) < 1 then
+  // Response Data: [MID TID UASID TestValue(2) Min(2) Max(2)]+
+  if Length(Resp.Data) < 9 then
     Exit(nil);
   Off := 0;
-  if Resp.Data[0] = AMID then
-    Off := 1;
-  N := (Length(Resp.Data) - Off) div 9;
+  N := Length(Resp.Data) div 9;
   if N <= 0 then
     Exit(nil);
   SetLength(Acc, N);
   for I := 0 to N - 1 do
   begin
     Entry := Default (TOBDMonitorResult);
-    Entry.MID := AMID;
-    Entry.TID := Resp.Data[Off + 0];
-    Entry.ComponentID := Resp.Data[Off + 1];
+    Entry.MID := Resp.Data[Off + 0];
+    Entry.TID := Resp.Data[Off + 1];
+    Entry.ComponentID := 0;
     Entry.UnitAndScale := Resp.Data[Off + 2];
     Entry.TestValue := SmallInt((Word(Resp.Data[Off + 3]) shl 8) or
       Word(Resp.Data[Off + 4]));

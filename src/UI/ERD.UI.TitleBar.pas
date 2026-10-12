@@ -331,6 +331,10 @@ type
     /// <summary>Caption fill, so the embedded menu bar blends in.</summary>
     /// <returns>Caption colour for the current activation state.</returns>
     function SurfaceColor: TColor;
+    /// <summary>Re-measures and repaints the embedded menu bar. Call it
+    /// after changing captions or the visibility of top-level menu items
+    /// at run time (a language switch, a menu for the active page).</summary>
+    procedure MenuChanged;
   published
     /// <summary>Extra caption buttons between the status chip and system buttons.</summary>
     property Buttons: TOBDCaptionButtons read FButtons write SetButtons;
@@ -1429,6 +1433,14 @@ begin
     R := MenuBarRect;
     FMenuBar.SetBounds(R.Left, R.Top, R.Width, R.Height);
   end;
+end;
+
+procedure TOBDTitleBar.MenuChanged;
+begin
+  UpdateChildLayout;
+  if FMenuBar <> nil then
+    FMenuBar.Invalidate;
+  Invalidate;
 end;
 
 procedure TOBDTitleBar.UpdateCommandSurface;

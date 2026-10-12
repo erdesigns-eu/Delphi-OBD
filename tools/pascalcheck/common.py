@@ -33,7 +33,7 @@ SKIP = ('Virtual-TreeView-master', '__history', 'Win32', '/typescript/')
 
 def pas_files(include_components=True):
     seen = set()
-    bases = ['src', 'examples', 'packages', 'units', 'forms', 'cli', 'tools', 'build', 'shell-extension',
+    bases = ['src', 'examples', 'applications', 'packages', 'units', 'forms', 'cli', 'tools', 'build', 'shell-extension',
              'workbench', 'tests']
     if include_components: bases.append('components')
     for base in bases:
@@ -50,7 +50,7 @@ def pas_files(include_components=True):
             p = os.path.join(ROOT, f)
             if p not in seen: seen.add(p); yield p
 
-DFM_BASES = ('src', 'examples', 'forms', 'components', 'units', 'workbench', 'shell-extension')
+DFM_BASES = ('src', 'examples', 'applications', 'forms', 'components', 'units', 'workbench', 'shell-extension')
 
 def dfm_files(bases=DFM_BASES):
     """Every form file in the checkout, in one place.

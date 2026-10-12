@@ -39,6 +39,7 @@ uses
   ERD.UI.Paint,
   ERD.UI.Units,
   ERD.UI.Binding,
+  ERD.I18n,
   ERD.Connection.Types,
   ERD.Connection,
   ERD.Adapter,
@@ -78,6 +79,7 @@ type
     procedure SetVIN(const AValue: string);
     procedure HandleBattery(Sender: TObject);
     procedure HandlePoll(Sender: TObject);
+    procedure LanguageChanged(Sender: TObject);
     procedure UpdatePollTimer;
     function LinkText: string;
     function LinkColor: TColor;
@@ -147,10 +149,12 @@ begin
   FBattery.PID := $42;
   FBattery.OnValue := HandleBattery;
   FBattery.OnStateChange := HandleBattery;
+  OBDI18n.AddChangeListener(LanguageChanged);
 end;
 
 destructor TOBDConnectionBar.Destroy;
 begin
+  OBDI18n.RemoveChangeListener(LanguageChanged);
   FPollTimer.Free;
   FBattery.Free;
   inherited;
@@ -259,6 +263,11 @@ begin
   Invalidate;
 end;
 
+procedure TOBDConnectionBar.LanguageChanged(Sender: TObject);
+begin
+  Invalidate;
+end;
+
 procedure TOBDConnectionBar.UpdatePollTimer;
 var
   Want: Boolean;
@@ -308,13 +317,13 @@ function TOBDConnectionBar.LinkText: string;
 begin
   case FLinkState of
     lnkConnecting:
-      Result := 'Connecting';
+      Result := Tr('ui.connection.state.connecting', 'Connecting');
     lnkConnected:
-      Result := 'Connected';
+      Result := Tr('ui.connection.state.connected', 'Connected');
     lnkError:
-      Result := 'Error';
+      Result := Tr('ui.connection.state.error', 'Error');
   else
-    Result := 'Disconnected';
+    Result := Tr('ui.connection.state.disconnected', 'Disconnected');
   end;
 end;
 
@@ -401,7 +410,7 @@ begin
     P.Ellipse(X, (Height - Dot) / 2, Dot, Dot, DotColor, clNone);
     Inc(X, Dot + ScaleValue(6));
     if IsPreview and (FConnection = nil) and (FLinkState = lnkDisconnected) then
-      S := 'Connected'
+      S := Tr('ui.connection.state.connected', 'Connected')
     else
       S := LinkText;
     Inc(X, P.Text(X, Height div 2, S, TextSize, EffectiveForeground,
@@ -412,23 +421,27 @@ begin
       S := 'ELM327 v1.5';
     if S = '' then
       S := '--';
-    DrawSegment(P, X, 'Adapter', S, EffectiveForeground);
+    DrawSegment(P, X, Tr('ui.connection.segment.adapter', 'Adapter'), S,
+      EffectiveForeground);
 
     S := FProtocolText;
     if (S = '') and IsPreview then
       S := 'ISO 15765-4 CAN';
     if S = '' then
       S := '--';
-    DrawSegment(P, X, 'Protocol', S, EffectiveForeground);
+    DrawSegment(P, X, Tr('ui.connection.segment.protocol', 'Protocol'), S,
+      EffectiveForeground);
 
-    DrawSegment(P, X, 'Battery', BatteryText, BatteryColor);
+    DrawSegment(P, X, Tr('ui.connection.segment.battery', 'Battery'),
+      BatteryText, BatteryColor);
 
     S := FVIN;
     if (S = '') and IsPreview then
       S := 'WVWZZZ1KZAW000000';
     if S = '' then
       S := '--';
-    DrawSegment(P, X, 'VIN', S, EffectiveForeground);
+    DrawSegment(P, X, Tr('ui.connection.segment.vin', 'VIN'), S,
+      EffectiveForeground);
   finally
     P.Free;
   end;

@@ -162,6 +162,558 @@
       "related_dids": [],
       "related_routines": [],
       "oem_bulletin": ""
+    },
+    {
+      "code": "P1087",
+      "description": "Tumble Generator Valve #2 LH Position Sensor Circuit High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1088",
+      "description": "Tumble Generator Valve #1 RH Position Sensor Circuit Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1089",
+      "description": "Tumble Generator Valve #1 RH Position Sensor Circuit High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1090",
+      "description": "Tumble Generator Valve #1 RH Malfunction Stuck Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1091",
+      "description": "Tumble Generator Valve #1 RH Malfunction Stuck Close",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1092",
+      "description": "Tumble Generator Valve #2 LH Malfunction Stuck Open",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1093",
+      "description": "Tumble Generator Valve #2 LH Malfunction Stuck Close",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1094",
+      "description": "Tumble Generator Valve Circuit #1 Open Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1095",
+      "description": "Tumble Generator Valve Circuit #1 Over Current",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1096",
+      "description": "Tumble Generator Valve Circuit #2 Open Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1097",
+      "description": "Tumble Generator Valve Circuit #2 Over Current",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1100",
+      "description": "Starter Switch Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1101",
+      "description": "Neutral Position Switch Circuit Malfunction M/T",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1102",
+      "description": "Pressure Sources Solenoid Valve Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1103",
+      "description": "Pressure Sources Switching Solenoid Valve Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1104",
+      "description": "Engine Torque Control Signal Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1106",
+      "description": "Engine Torque Control Signal 2 Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1107",
+      "description": "AIR System Diagnosis Solenoid Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1110",
+      "description": "Atmospheric Pressure Sensor Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1111",
+      "description": "Atmospheric Pressure Sensor High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1112",
+      "description": "Atmospheric Pressure Sensor Range Performance Problem",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1115",
+      "description": "Engine Torque Control Cut Signal Circuit High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1116",
+      "description": "Engine Torque Control Cut Signal Circuit Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1120",
+      "description": "Starter Switch High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1121",
+      "description": "Neutral Position Switch Circuit Low Input AT Vehicles",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1122",
+      "description": "Pressure Sources Switching Valve Circuit High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1124",
+      "description": "TCS Signal Circuit High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1130",
+      "description": "Front Oxygen Sensor Circuit Malfunction Open Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1131",
+      "description": "Front Oxygen Sensor Circuit Malfunction Short Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1134",
+      "description": "Front Oxygen AF Sensor Microcomputer Problem",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1137",
+      "description": "Front Oxygen AF Sensor Circuit Range Performance Problem",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1139",
+      "description": "Front Oxygen AF Sensor #1 Heater Circuit Performance Range Problem",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1141",
+      "description": "Mass Air Flow Sensor Circuit High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1142",
+      "description": "Mass Air Flow Sensor Circuit Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1143",
+      "description": "Pressure Sensor Circuit Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1144",
+      "description": "Pressure Sensor Circuit High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1146",
+      "description": "Pressure Sensor Circuit Range Performance Problem High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1150",
+      "description": "Front Oxygen Sensor Heater Circuit High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1151",
+      "description": "Rear Oxygen Sensor Heater Circuit High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1230",
+      "description": "Fuel Pump Control Unit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1244",
+      "description": "Wastegate Control Solenoid Valve Malfunction Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1245",
+      "description": "Wastegate Control Solenoid Valve Malfunction Fail Safe",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1301",
+      "description": "Fire Due To Increased Exhaust Temperature",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1312",
+      "description": "Exhaust Temperature Sensor Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1325",
+      "description": "Knock Sensor Circuit Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1400",
+      "description": "Fuel Tank Pressure Control Solenoid Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1401",
+      "description": "Fuel Tank Pressure Control System Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1402",
+      "description": "Fuel Level Pressure Sensor Circuit Fault",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1420",
+      "description": "Fuel Tank Pressure Control Solenoid High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1421",
+      "description": "Exhaust Gas Recirculation Circuit High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1422",
+      "description": "EVAP Purge Control Solenoid Valve Circuit High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1423",
+      "description": "EVAP Vent Control High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1440",
+      "description": "Fuel Tank Pressure Control System Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1441",
+      "description": "Fuel Tank Pressure Control System High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1442",
+      "description": "Fuel Level Sensor Circuit Range Performance",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1443",
+      "description": "EVAP Control System Vent Control Function Problem",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1480",
+      "description": "Cooling Fan Relay 1 Circuit High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1500",
+      "description": "Radiator Fan Relay 1 Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1501",
+      "description": "Idle Control System Malfunction Fail Safe",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1502",
+      "description": "Radiator Fan Function Problem",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1507",
+      "description": "Idle Control System Malfunction Fail Safe",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1510",
+      "description": "Idle Air Control Solenoid Signal 1 Circuit Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1511",
+      "description": "Idle Air Control Solenoid Signal 1 Circuit High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1512",
+      "description": "Idle Air Control Solenoid Signal 2 Circuit Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1513",
+      "description": "Idle Air Control Solenoid Signal 2 Circuit High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1514",
+      "description": "Idle Air Control Solenoid Signal 3 Circuit Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1515",
+      "description": "Idle Air Control Solenoid Signal 3 Circuit High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1516",
+      "description": "Idle Air Control Solenoid Signal 4 Circuit Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1517",
+      "description": "Idle Air Control Solenoid Signal 4 Circuit High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1518",
+      "description": "Starter Switch Circuit Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1520",
+      "description": "Radiator Fan Relay 1 Circuit High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1540",
+      "description": "Vehicle Speed Sensor Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1544",
+      "description": "High Exhaust Temperature Detected",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1560",
+      "description": "Back-Up Voltage Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1590",
+      "description": "Neutral Position Switch Circuit High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1591",
+      "description": "Neutral Position Switch Circuit Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1592",
+      "description": "Neutral Position Switch Circuit MT Model",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1594",
+      "description": "Automatic Transmission Diagnosis Input Signal Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1595",
+      "description": "Automatic Transmission Diagnosis Input Signal Circuit Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1596",
+      "description": "Automatic Transmission Diagnosis Input Signal Circuit High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1698",
+      "description": "Engine Torque Control Cut Signal Circuit Low Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1699",
+      "description": "Engine Torque Control Cut Signal Circuit High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1700",
+      "description": "Throttle Position Sensor Circuit Malfunction AT",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1701",
+      "description": "Cruise Control Set Signal Circuit Malfunction AT",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1702",
+      "description": "Auto Trans Diagnosis Input Signal Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1703",
+      "description": "Low Clutch Timing Control Solenoid Valve Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1704",
+      "description": "2-4 Brake Timing Solenoid Valve Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1705",
+      "description": "2-4 Brake Pressure Solenoid Valve Solenoid D Circuit",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1711",
+      "description": "Engine Torque Control Signal 1 Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1712",
+      "description": "Engine Torque Control Signal 2 Circuit Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1722",
+      "description": "Auto Trans Diagnosis Input Signal High Input",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
+    },
+    {
+      "code": "P1742",
+      "description": "Auto Trans Diagnosis Input Signal Malfunction",
+      "source": "Wal33D/dtc-database (MIT) data/source-data/subaru_codes.txt",
+      "verified": false
     }
   ]
 }
