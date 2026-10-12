@@ -248,6 +248,29 @@ end.
                           .replace('PChar(Name)', 'PAnsiChar(AnsiString(Name))'))
         self.assertIn('total: 0', self.checker('platformapi'))
 
+    def test_fpc_only_rtl_names_outside_fpc_branches(self):
+        source = self.source('src/Fmt.pas', """unit Fmt;
+interface
+uses System.SysUtils;
+implementation
+function Settings: TFormatSettings;
+begin
+  Result := DefaultFormatSettings;
+  Result.DecimalSeparator := '.';
+  Writeln('a' + LineEnding);
+end;
+function Size: {$IFDEF FPC}SizeInt{$ELSE}NativeInt{$ENDIF};
+begin
+  Result := 0;
+end;
+end.
+""")
+        self.assertIn('total: 2', self.checker('platformapi'))
+        source.write_text(source.read_text()
+                          .replace('DefaultFormatSettings', 'TFormatSettings.Invariant')
+                          .replace('LineEnding', 'sLineBreak'))
+        self.assertIn('total: 0', self.checker('platformapi'))
+
     def test_platform_attributes_and_misqualified_system_routines(self):
         source = self.source('src/Shell.pas', """unit Shell;
 interface
