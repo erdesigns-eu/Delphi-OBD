@@ -606,7 +606,7 @@ type
 procedure TI18nListener.Changed(Sender: TObject);
 begin Inc(Calls) end;
 procedure TestI18nFallback;
-var Translator: TOBDTranslator; Listener: TI18nListener; Dir: string;
+var Translator: TOBDTranslator; Listener: TI18nListener; Dir: string; I: Integer;
 begin
   Translator := TOBDTranslator.Create; Listener := TI18nListener.Create;
   try
@@ -623,13 +623,15 @@ begin
     Translator.CurrentLanguage := 'de';
     Check(Listener.Calls = 1, 'I18n listener removal');
     Dir := TPath.Combine(TPath.GetDirectoryName(ParamStr(4)), 'languages');
-    Translator.LoadLanguageFile(TPath.Combine(Dir, 'en.json'));
-    Translator.LoadLanguageFile(TPath.Combine(Dir, 'nl.json'));
-    Translator.LoadLanguageFile(TPath.Combine(Dir, 'de.json'));
-    Translator.LoadLanguageFile(TPath.Combine(Dir, 'fr.json'));
+    for I := Low(OBD_LANGUAGE_CODES) to High(OBD_LANGUAGE_CODES) do
+      Translator.LoadLanguageFile(TPath.Combine(Dir, OBD_LANGUAGE_CODES[I] + '.json'));
     Translator.CurrentLanguage := 'de';
     Check(Translator.Tr('ui.dtc.title', '') = 'Fehlercodes', 'Shipped German i18n catalog loads');
-    Check(Length(Translator.AvailableLanguages(Dir)) = 4, 'Language folder scan');
+    Check(Length(Translator.AvailableLanguages(Dir)) = Length(OBD_LANGUAGE_CODES), 'Language folder scan');
+    Translator.CurrentLanguage := 'pl';
+    Check(Translator.TrPlural('ui.dtc.codeCount', 5, '', '') <> Translator.TrPlural('ui.dtc.codeCount', 2, '', ''), 'Polish many/few plural forms');
+    Check((OBDPluralCategory('ru', 21) = pcOne) and (OBDPluralCategory('ru', 12) = pcMany) and (OBDPluralCategory('sl', 2) = pcTwo) and (OBDPluralCategory('lv', 10) = pcZero) and (OBDPluralCategory('fr', 0) = pcOne), 'CLDR plural categories');
+    Check((OBDLanguageCodeFromLangId($0814) = 'nn') and (OBDLanguageCodeFromLangId($141A) = 'bs') and (OBDLanguageCodeFromLangId($0411) = 'en'), 'Windows LANGID language mapping');
   finally Translator.Free; Listener.Free end;
 end;
 type

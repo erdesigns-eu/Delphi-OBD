@@ -63,7 +63,7 @@ Status:
 | Readiness monitors, this drive cycle (PID 41) | Free | Readiness | `TOBDDriveCycleAdvisor`, `TOBDReadinessPanel` | Ready |
 | Live data, list view | Free (limited) | Live data | `TOBDLiveData`, `TOBDLiveDataGrid` | Ready |
 | Supported adapters: ELM327 (USB, Bluetooth, Wi-Fi), OBDLink | Free | Connect | `TOBDAdapter`, `TOBDConnection`, `TOBDConnectionBar` | Ready, needs the [adapter tests](#adapters) |
-| User interface in several languages | Free | Settings | `ERD.I18n`, `languages/*.json` (English, Dutch, German, French) | Ready |
+| User interface in several languages | Free | Settings | `ERD.I18n`, `languages/*.json` (38 European languages, CLDR plurals) | Ready |
 | Freeze frame | Paid | Trouble codes | `TOBDFreezeFrame`, `TOBDFreezeFrameView` | Ready |
 | Clear codes and turn off the MIL | Paid | Trouble codes | `TOBDClearDTC`, `TOBDTaskDialog` | Ready |
 | Manufacturer-specific codes | Paid | Trouble codes (Brand source) | OEM DTC catalogues | Data: 11–669 codes per European brand; see [coverage](#catalogue-coverage) |
@@ -229,8 +229,11 @@ the tests run without hardware.
 
 ## Europe
 
-- **Languages.** English, Nederlands, Deutsch and Français first; Español,
-  Italiano, Polski and Português next.
+- **Languages.** All official national languages of the European
+  countries, 38 in all, from Български to Українська (see
+  [Localisation](../../docs/i18n.md#languages)). English is the source;
+  the other catalogues are drafts until a native speaker has reviewed
+  them, and Settings says so next to the language name.
 - **Units.** Metric by default: km/h, °C, kPa, l/100 km. km/l, and mpg for
   the UK and Ireland, as options.
 - **Inspections.** The readiness check knows the national rules: APK (NL),
@@ -270,8 +273,9 @@ OBD-Studio Professional can use it too:
   (`TOBDInspectionRules`, `catalogs/inspection`).
 - CSV logger and CSV export for recordings (`TOBDCSVLogger`).
 - Histogram control (`TOBDHistogram`).
-- Translation support with English, Dutch, German and French (`ERD.I18n`,
-  `languages/`).
+- Translation support (`ERD.I18n`, `languages/`) with all 38 official
+  national languages of the European countries and the plural rules
+  they need.
 - Vgate vLinker detection profile.
 - Engine simulator in the library, with an ELM327 emulator on top for the
   demo car and for adapter tests without hardware

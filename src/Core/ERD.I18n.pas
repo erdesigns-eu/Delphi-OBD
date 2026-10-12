@@ -10,6 +10,8 @@
 // History     :
 // 2026-10-12  ERD  Initial implementation.
 // 2026-10-12  ERD  Built-in English texts for TOBDHistogram.
+// 2026-10-12  ERD  CLDR plural categories, all European languages,
+//                  catalogue status.
 // ------------------------------------------------------------------------------
 
 unit ERD.I18n;
@@ -44,14 +46,31 @@ type
     EnglishName: string;
     /// <summary>Catalogue file path.</summary>
     FileName: string;
+    /// <summary>Review status from the catalogue: <c>draft</c> (not yet
+    /// reviewed by a native speaker), <c>reviewed</c>, or empty.</summary>
+    Status: string;
   end;
 
-  /// <summary>One/other plural strings from an i18n catalogue.</summary>
+  /// <summary>CLDR cardinal plural category.</summary>
+  TOBDPluralCategory = (pcZero, pcOne, pcTwo, pcFew, pcMany, pcOther);
+
+  /// <summary>Plural strings from an i18n catalogue, one per CLDR
+  /// category. Empty categories fall back to <c>OtherText</c>.</summary>
   TOBDPluralText = record
     /// <summary>Text used when the count is one.</summary>
     OneText: string;
     /// <summary>Text used for every other count.</summary>
     OtherText: string;
+    /// <summary>CLDR "zero" form (Latvian).</summary>
+    ZeroText: string;
+    /// <summary>CLDR "two" form (Slovenian, Irish, Maltese).</summary>
+    TwoText: string;
+    /// <summary>CLDR "few" form (Slavic, Baltic, Romanian, Irish,
+    /// Maltese).</summary>
+    FewText: string;
+    /// <summary>CLDR "many" form (Polish, Russian, Ukrainian,
+    /// Belarusian, Irish, Maltese).</summary>
+    ManyText: string;
   end;
 
   /// <summary>
@@ -72,7 +91,7 @@ type
         constructor Create;
         destructor Destroy; override;
         procedure AddString(const AKey, AValue: string);
-        procedure AddPlural(const AKey, AOne, AOther: string);
+        procedure AddPlural(const AKey: string; const AText: TOBDPluralText);
         function TryString(const AKey: string; out AValue: string): Boolean;
         function TryPlural(const AKey: string; out AValue: TOBDPluralText): Boolean;
         property Language: string read FLanguage write FLanguage;
@@ -114,7 +133,8 @@ type
     function Tr(const AKey, ADefault: string): string;
     /// <summary>Looks up and formats a translation using Delphi Format syntax.</summary>
     function TrFmt(const AKey, ADefault: string; const AArgs: array of const): string;
-    /// <summary>Looks up a one/other plural translation.</summary>
+    /// <summary>Looks up a plural translation and picks the CLDR plural
+    /// form of the language that supplied it.</summary>
     function TrPlural(const AKey: string; ACount: Int64; const AOneDefault,
       AOtherDefault: string): string;
     /// <summary>Registers a callback fired after language data changes.</summary>
@@ -134,6 +154,24 @@ function TrPlural(const AKey: string; ACount: Int64; const AOneDefault,
   AOtherDefault: string): string;
 /// <summary>Returns the operating-system UI language when it is supported.</summary>
 function OBDDefaultLanguageCode: string;
+/// <summary>Maps a Windows LANGID to a supported language code, or
+/// <c>en</c>.</summary>
+function OBDLanguageCodeFromLangId(ALangId: Word): string;
+/// <summary>Returns <c>True</c> for a code in
+/// <see cref="OBD_LANGUAGE_CODES"/>.</summary>
+function OBDIsSupportedLanguage(const ACode: string): Boolean;
+/// <summary>CLDR cardinal plural category of a whole number in a
+/// language (the base language of <c>ALanguage</c> is used).</summary>
+function OBDPluralCategory(const ALanguage: string; ACount: Int64): TOBDPluralCategory;
+
+const
+  /// <summary>Languages shipped in <c>languages/</c>: the official
+  /// national languages of the European countries.</summary>
+  OBD_LANGUAGE_CODES: array [0 .. 37] of string = (
+    'be', 'bg', 'bs', 'ca', 'cs', 'da', 'de', 'el', 'en', 'es', 'et', 'fi',
+    'fr', 'ga', 'hr', 'hu', 'is', 'it', 'lb', 'lt', 'lv', 'mk', 'mt', 'nb',
+    'nl', 'nn', 'pl', 'pt', 'rm', 'ro', 'ru', 'sk', 'sl', 'sq', 'sr', 'sv',
+    'tr', 'uk');
 
 implementation
 
@@ -414,6 +452,37 @@ begin
     Result := Copy(Result, 1, P - 1);
 end;
 
+function IsOneOf(const AValue: string; const AList: array of string): Boolean;
+var
+  I: Integer;
+begin
+  for I := Low(AList) to High(AList) do
+    if AValue = AList[I] then
+      Exit(True);
+  Result := False;
+end;
+
+function PluralTextFor(const AText: TOBDPluralText;
+  ACategory: TOBDPluralCategory): string;
+begin
+  case ACategory of
+    pcZero:
+      Result := AText.ZeroText;
+    pcOne:
+      Result := AText.OneText;
+    pcTwo:
+      Result := AText.TwoText;
+    pcFew:
+      Result := AText.FewText;
+    pcMany:
+      Result := AText.ManyText;
+  else
+    Result := '';
+  end;
+  if Result = '' then
+    Result := AText.OtherText;
+end;
+
 function SameListener(A, B: TNotifyEvent): Boolean;
 begin
   Result := (TMethod(A).Code = TMethod(B).Code) and
@@ -440,14 +509,10 @@ begin
   FStrings.AddOrSetValue(AKey, AValue);
 end;
 
-procedure TOBDTranslator.TLanguageCatalog.AddPlural(const AKey, AOne,
-  AOther: string);
-var
-  Item: TOBDPluralText;
+procedure TOBDTranslator.TLanguageCatalog.AddPlural(const AKey: string;
+  const AText: TOBDPluralText);
 begin
-  Item.OneText := AOne;
-  Item.OtherText := AOther;
-  FPlurals.AddOrSetValue(AKey, Item);
+  FPlurals.AddOrSetValue(AKey, AText);
 end;
 
 function TOBDTranslator.TLanguageCatalog.TryString(const AKey: string;
@@ -481,6 +546,7 @@ end;
 procedure TOBDTranslator.LoadBuiltInEnglish;
 var
   Catalog: TLanguageCatalog;
+  Plural: TOBDPluralText;
   I: Integer;
 begin
   Catalog := TLanguageCatalog.Create;
@@ -492,9 +558,12 @@ begin
       Catalog.AddString(BUILTIN_ENGLISH_STRINGS[I].Key,
         BUILTIN_ENGLISH_STRINGS[I].Value);
     for I := Low(BUILTIN_ENGLISH_PLURALS) to High(BUILTIN_ENGLISH_PLURALS) do
-      Catalog.AddPlural(BUILTIN_ENGLISH_PLURALS[I].Key,
-        BUILTIN_ENGLISH_PLURALS[I].OneText,
-        BUILTIN_ENGLISH_PLURALS[I].OtherText);
+    begin
+      Plural := Default(TOBDPluralText);
+      Plural.OneText := BUILTIN_ENGLISH_PLURALS[I].OneText;
+      Plural.OtherText := BUILTIN_ENGLISH_PLURALS[I].OtherText;
+      Catalog.AddPlural(BUILTIN_ENGLISH_PLURALS[I].Key, Plural);
+    end;
     LoadCatalog(Catalog);
     Catalog := nil;
   finally
@@ -553,6 +622,7 @@ procedure TOBDTranslator.LoadLanguageFromString(const AText: string);
 var
   Root, StringsObj, PluralObj: TJSONObject;
   Pair: TJSONPair;
+  Plural: TOBDPluralText;
   Catalog: TLanguageCatalog;
   CurrentCode: string;
   Changed: Boolean;
@@ -574,9 +644,13 @@ begin
       else if Pair.JsonValue is TJSONObject then
       begin
         PluralObj := TJSONObject(Pair.JsonValue);
-        Catalog.AddPlural(Pair.JsonString.Value,
-          PluralObj.GetValue<string>('one', ''),
-          PluralObj.GetValue<string>('other', ''));
+        Plural.ZeroText := PluralObj.GetValue<string>('zero', '');
+        Plural.OneText := PluralObj.GetValue<string>('one', '');
+        Plural.TwoText := PluralObj.GetValue<string>('two', '');
+        Plural.FewText := PluralObj.GetValue<string>('few', '');
+        Plural.ManyText := PluralObj.GetValue<string>('many', '');
+        Plural.OtherText := PluralObj.GetValue<string>('other', '');
+        Catalog.AddPlural(Pair.JsonString.Value, Plural);
       end
       else
         raise EOBDConfig.Create('Language JSON: string or plural object expected for ' +
@@ -639,6 +713,7 @@ begin
           Info.Name := Root.GetValue<string>('name', Info.Code);
           Info.EnglishName := Root.GetValue<string>('englishName', Info.Name);
           Info.FileName := FileName;
+          Info.Status := Root.GetValue<string>('status', '');
           Acc.Add(Info);
         finally
           Root.Free;
@@ -708,24 +783,12 @@ begin
   try
     Code := FCurrentLanguage;
     if FindPluralLocked(Code, PluralKey, Text) then
-    begin
-      if ACount = 1 then
-        Exit(Text.OneText);
-      Exit(Text.OtherText);
-    end;
+      Exit(PluralTextFor(Text, OBDPluralCategory(Code, ACount)));
     Base := BaseLanguage(Code);
     if (Base <> Code) and FindPluralLocked(Base, PluralKey, Text) then
-    begin
-      if ACount = 1 then
-        Exit(Text.OneText);
-      Exit(Text.OtherText);
-    end;
+      Exit(PluralTextFor(Text, OBDPluralCategory(Base, ACount)));
     if FindPluralLocked('en', PluralKey, Text) then
-    begin
-      if ACount = 1 then
-        Exit(Text.OneText);
-      Exit(Text.OtherText);
-    end;
+      Exit(PluralTextFor(Text, OBDPluralCategory('en', ACount)));
     if ACount = 1 then
       Result := AOneDefault
     else
@@ -818,22 +881,184 @@ begin
   Result := OBDI18n.TrPlural(AKey, ACount, AOneDefault, AOtherDefault);
 end;
 
-function OBDDefaultLanguageCode: string;
-{$IFDEF MSWINDOWS}
-var
-  Lang: Word;
+function OBDIsSupportedLanguage(const ACode: string): Boolean;
 begin
-  Lang := GetUserDefaultUILanguage and $03FF;
-  case Lang of
-    $13:
-      Result := 'nl';
-    $07:
-      Result := 'de';
-    $0C:
-      Result := 'fr';
+  Result := IsOneOf(NormaliseLanguageCode(ACode), OBD_LANGUAGE_CODES);
+end;
+
+function OBDLanguageCodeFromLangId(ALangId: Word): string;
+var
+  Primary, Sub: Word;
+begin
+  Primary := ALangId and $03FF;
+  Sub := ALangId shr 10;
+  case Primary of
+    $02: Result := 'bg';
+    $03: Result := 'ca';
+    $05: Result := 'cs';
+    $06: Result := 'da';
+    $07: Result := 'de';
+    $08: Result := 'el';
+    $0A: Result := 'es';
+    $0B: Result := 'fi';
+    $0C: Result := 'fr';
+    $0E: Result := 'hu';
+    $0F: Result := 'is';
+    $10: Result := 'it';
+    $13: Result := 'nl';
+    $14:
+      // SUBLANG_NORWEGIAN_NYNORSK = 2, otherwise Bokmal.
+      if Sub = $02 then
+        Result := 'nn'
+      else
+        Result := 'nb';
+    $15: Result := 'pl';
+    $16: Result := 'pt';
+    $17: Result := 'rm';
+    $18: Result := 'ro';
+    $19: Result := 'ru';
+    $1A:
+      // Croatian (1, 4), Bosnian (5, 8), Serbian and Montenegrin (rest).
+      case Sub of
+        $01, $04: Result := 'hr';
+        $05, $08: Result := 'bs';
+      else
+        Result := 'sr';
+      end;
+    $1B: Result := 'sk';
+    $1C: Result := 'sq';
+    $1D: Result := 'sv';
+    $1F: Result := 'tr';
+    $22: Result := 'uk';
+    $23: Result := 'be';
+    $24: Result := 'sl';
+    $25: Result := 'et';
+    $26: Result := 'lv';
+    $27: Result := 'lt';
+    $2F: Result := 'mk';
+    $3A: Result := 'mt';
+    $3C: Result := 'ga';
+    $6E: Result := 'lb';
   else
     Result := 'en';
   end;
+end;
+
+function OBDPluralCategory(const ALanguage: string; ACount: Int64): TOBDPluralCategory;
+var
+  Lang: string;
+  N: Int64;
+  I10, I100: Integer;
+begin
+  Lang := BaseLanguage(ALanguage);
+  N := Abs(ACount);
+  I10 := Integer(N mod 10);
+  I100 := Integer(N mod 100);
+  Result := pcOther;
+  if Lang = 'fr' then
+  begin
+    if N <= 1 then
+      Result := pcOne;
+  end
+  else if IsOneOf(Lang, ['is', 'mk']) then
+  begin
+    if (I10 = 1) and (I100 <> 11) then
+      Result := pcOne;
+  end
+  else if Lang = 'lv' then
+  begin
+    if (I10 = 0) or ((I100 >= 11) and (I100 <= 19)) then
+      Result := pcZero
+    else if I10 = 1 then
+      Result := pcOne;
+  end
+  else if Lang = 'lt' then
+  begin
+    if (I100 >= 11) and (I100 <= 19) then
+      Result := pcOther
+    else if I10 = 1 then
+      Result := pcOne
+    else if I10 >= 2 then
+      Result := pcFew;
+  end
+  else if Lang = 'pl' then
+  begin
+    if N = 1 then
+      Result := pcOne
+    else if (I10 >= 2) and (I10 <= 4) and not ((I100 >= 12) and (I100 <= 14)) then
+      Result := pcFew
+    else
+      Result := pcMany;
+  end
+  else if IsOneOf(Lang, ['ru', 'uk', 'be']) then
+  begin
+    if (I10 = 1) and (I100 <> 11) then
+      Result := pcOne
+    else if (I10 >= 2) and (I10 <= 4) and not ((I100 >= 12) and (I100 <= 14)) then
+      Result := pcFew
+    else
+      Result := pcMany;
+  end
+  else if IsOneOf(Lang, ['cs', 'sk']) then
+  begin
+    if N = 1 then
+      Result := pcOne
+    else if (N >= 2) and (N <= 4) then
+      Result := pcFew;
+  end
+  else if IsOneOf(Lang, ['hr', 'sr', 'bs']) then
+  begin
+    if (I10 = 1) and (I100 <> 11) then
+      Result := pcOne
+    else if (I10 >= 2) and (I10 <= 4) and not ((I100 >= 12) and (I100 <= 14)) then
+      Result := pcFew;
+  end
+  else if Lang = 'sl' then
+  begin
+    if I100 = 1 then
+      Result := pcOne
+    else if I100 = 2 then
+      Result := pcTwo
+    else if (I100 = 3) or (I100 = 4) then
+      Result := pcFew;
+  end
+  else if Lang = 'ro' then
+  begin
+    if N = 1 then
+      Result := pcOne
+    else if (N = 0) or ((I100 >= 1) and (I100 <= 19)) then
+      Result := pcFew;
+  end
+  else if Lang = 'ga' then
+  begin
+    if N = 1 then
+      Result := pcOne
+    else if N = 2 then
+      Result := pcTwo
+    else if (N >= 3) and (N <= 6) then
+      Result := pcFew
+    else if (N >= 7) and (N <= 10) then
+      Result := pcMany;
+  end
+  else if Lang = 'mt' then
+  begin
+    if N = 1 then
+      Result := pcOne
+    else if N = 2 then
+      Result := pcTwo
+    else if (N = 0) or ((I100 >= 3) and (I100 <= 10)) then
+      Result := pcFew
+    else if (I100 >= 11) and (I100 <= 19) then
+      Result := pcMany;
+  end
+  else if N = 1 then
+    Result := pcOne;
+end;
+
+function OBDDefaultLanguageCode: string;
+{$IFDEF MSWINDOWS}
+begin
+  Result := OBDLanguageCodeFromLangId(GetUserDefaultUILanguage);
 end;
 {$ELSE}
 var
@@ -845,7 +1070,11 @@ begin
   if Env = '' then
     Env := GetEnvironmentVariable('LANG');
   Env := BaseLanguage(Env);
-  if (Env = 'nl') or (Env = 'de') or (Env = 'fr') then
+  if Env = 'no' then
+    Env := 'nb'
+  else if Env = 'sh' then
+    Env := 'sr';
+  if OBDIsSupportedLanguage(Env) then
     Result := Env
   else
     Result := 'en';

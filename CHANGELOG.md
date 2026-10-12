@@ -70,8 +70,12 @@ distributed through GetIt.
   headers, spaces, multi-ECU replies, Mode 09 blocks, J1979-2 DIDs), so
   every screen works without a car or adapter.
 - `ERD.I18n`: run-time translation with `Tr`, `TrFmt` and `TrPlural`,
-  JSON catalogues in `languages/` (English, Dutch, German, French) and
-  change notification. The DTC, readiness, connection, status bar and
+  JSON catalogues in `languages/` for the 38 official national languages
+  of the European countries (English, then draft translations from
+  Беларуская to Українська), CLDR plural categories
+  (`OBDPluralCategory`: zero, one, two, few, many, other), Windows
+  LANGID mapping for all of them, a catalogue `status` (draft /
+  reviewed) and change notification. The DTC, readiness, connection, status bar and
   inspector controls follow the selected language. Translated captions
   are defaults: they are not stored in the DFM, and a caption set in the
   Object Inspector is kept when the language changes.

@@ -50,16 +50,37 @@
             ],
             "additionalProperties": false,
             "properties": {
+              "zero": {
+                "type": "string"
+              },
               "one": {
+                "type": "string"
+              },
+              "two": {
+                "type": "string"
+              },
+              "few": {
+                "type": "string"
+              },
+              "many": {
                 "type": "string"
               },
               "other": {
                 "type": "string"
               }
-            }
+            },
+            "description": "CLDR plural categories. one and other are required; zero, two, few and many are used by the languages that have them (see tools/i18n_check.py)."
           }
         ]
       }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "reviewed"
+      ],
+      "description": "draft: not yet reviewed by a native speaker; reviewed: checked by a native speaker."
     }
   }
 }

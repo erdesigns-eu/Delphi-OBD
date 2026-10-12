@@ -54,6 +54,23 @@ class I18nCheckTests(unittest.TestCase):
         self.assertIn("placeholder mismatch", joined)
         self.assertIn("source key missing", joined)
 
+    def test_requires_language_plural_categories(self):
+        self.write_catalog("en", {"ui.sample.count.plural": {"one": "%d item", "other": "%d items"}})
+        self.write_catalog("pl", {"ui.sample.count.plural": {
+            "one": "%d kod", "few": "%d kody", "many": "%d kod\u00f3w", "other": "%d kodu"}})
+        report = i18n_check.audit(WORK / "languages", WORK / "src")
+        self.assertEqual([], report["issues"])
+        self.write_catalog("pl", {"ui.sample.count.plural": {"one": "%d kod", "other": "%d kodu"}})
+        with self.assertRaisesRegex(ValueError, "one, few, many, other"):
+            i18n_check.audit(WORK / "languages", WORK / "src")
+
+    def test_checks_placeholders_of_extra_plural_forms(self):
+        self.write_catalog("en", {"ui.sample.count.plural": {"one": "%d item", "other": "%d items"}})
+        self.write_catalog("sl", {"ui.sample.count.plural": {
+            "one": "%d koda", "two": "kodi", "few": "%d kode", "other": "%d kod"}})
+        report = i18n_check.audit(WORK / "languages", WORK / "src")
+        self.assertIn("sl: placeholder mismatch for ui.sample.count.plural.two", "\n".join(report["issues"]))
+
 
 if __name__ == "__main__":
     unittest.main()

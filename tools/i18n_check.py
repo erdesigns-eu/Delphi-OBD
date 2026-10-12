@@ -39,16 +39,49 @@ def placeholders(text: str) -> tuple[str, ...]:
     return tuple(match.group(0) for match in PLACEHOLDER_RE.finditer(text))
 
 
-def flatten_strings(strings: dict) -> dict[str, str]:
+# CLDR cardinal plural categories that whole numbers reach, per language.
+# Must match OBDPluralCategory in src/Core/ERD.I18n.pas. Fraction-only
+# categories (for example "many" in Czech) and the French, Spanish,
+# Italian, Portuguese and Catalan "many" for exact millions are not used.
+PLURAL_CATEGORIES = {
+    "lv": ("zero", "one", "other"),
+    "lt": ("one", "few", "other"),
+    "cs": ("one", "few", "other"),
+    "sk": ("one", "few", "other"),
+    "hr": ("one", "few", "other"),
+    "sr": ("one", "few", "other"),
+    "bs": ("one", "few", "other"),
+    "ro": ("one", "few", "other"),
+    "pl": ("one", "few", "many", "other"),
+    "ru": ("one", "few", "many", "other"),
+    "uk": ("one", "few", "many", "other"),
+    "be": ("one", "few", "many", "other"),
+    "sl": ("one", "two", "few", "other"),
+    "ga": ("one", "two", "few", "many", "other"),
+    "mt": ("one", "two", "few", "many", "other"),
+}
+DEFAULT_PLURAL_CATEGORIES = ("one", "other")
+ALL_PLURAL_CATEGORIES = ("zero", "one", "two", "few", "many", "other")
+
+
+def plural_categories(code: str) -> tuple[str, ...]:
+    return PLURAL_CATEGORIES.get(code.split("-")[0], DEFAULT_PLURAL_CATEGORIES)
+
+
+def flatten_strings(strings: dict, code: str = "en") -> dict[str, str]:
     flat = {}
+    expected = set(plural_categories(code))
     for key, value in strings.items():
         if isinstance(value, str):
             flat[key] = value
         elif isinstance(value, dict):
-            if set(value) != {"one", "other"}:
-                raise ValueError(f"{key}: plural entries must contain one and other")
-            flat[key + ".one"] = value["one"]
-            flat[key + ".other"] = value["other"]
+            if set(value) != expected:
+                raise ValueError(
+                    f"{code}: {key}: plural entries must contain exactly "
+                    f"{', '.join(c for c in ALL_PLURAL_CATEGORIES if c in expected)}")
+            for category in ALL_PLURAL_CATEGORIES:
+                if category in value:
+                    flat[key + "." + category] = value[category]
         else:
             raise ValueError(f"{key}: value must be a string or plural object")
     return flat
@@ -73,25 +106,47 @@ def load_catalogs(language_dir: Path):
         strings = doc.get("strings")
         if not isinstance(strings, dict):
             raise ValueError(f"{path}: strings must be an object")
+        if path.stem != code:
+            raise ValueError(f"{path}: file name must match language code {code}")
         catalogs[code] = doc
-        flattened[code] = flatten_strings(strings)
+        flattened[code] = flatten_strings(strings, code)
     if "en" not in catalogs:
         raise ValueError("languages/en.json is required")
     return catalogs, flattened
 
 
+def base_key(key: str) -> str:
+    """Strips the plural category from a flattened plural key."""
+    return key.rpartition(".")[0] if ".plural." in key else key
+
+
+def english_key(key: str, english: dict[str, str]) -> str | None:
+    """Maps a flattened key to its English counterpart (plural forms map
+    to the English "other" form)."""
+    if key in english:
+        return key
+    base, _, category = key.rpartition(".")
+    if category in ALL_PLURAL_CATEGORIES and base + ".other" in english:
+        return base + ".other"
+    return None
+
+
 def compare_catalogs(flattened: dict[str, dict[str, str]]):
     issues = []
-    en_keys = set(flattened["en"])
+    english = flattened["en"]
+    en_base = {base_key(key) for key in english}
     for code, strings in sorted(flattened.items()):
-        keys = set(strings)
-        for key in sorted(en_keys - keys):
+        bases = {base_key(key) for key in strings}
+        for key in sorted(en_base - bases):
             issues.append(f"{code}: missing key {key}")
-        for key in sorted(keys - en_keys):
+        for key in sorted(bases - en_base):
             issues.append(f"{code}: extra key {key}")
-        for key in sorted(en_keys & keys):
-            expected = placeholders(flattened["en"][key])
-            actual = placeholders(strings[key])
+        for key, text in sorted(strings.items()):
+            source = english_key(key, english)
+            if source is None:
+                continue
+            expected = placeholders(english[source])
+            actual = placeholders(text)
             if expected != actual:
                 issues.append(f"{code}: placeholder mismatch for {key}: {actual} != {expected}")
     return issues
