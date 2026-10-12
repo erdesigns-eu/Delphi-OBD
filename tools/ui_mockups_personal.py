@@ -27,7 +27,7 @@ import ui_mockups_pro as P
 
 APP = 'OBD-Studio Personal'
 CAR = 'VW Golf VII 1.6 TDI  ·  2016'
-EV_CAR = 'BMW i3 94 Ah  ·  2017'
+EV_CAR = 'Hyundai Kona Electric 64 kWh  ·  2020'
 
 
 # --------------------------------------------------------------------------
@@ -1578,20 +1578,20 @@ def page_tabs(c, x, y, w, items):
 
 
 MODE06 = [
-    ('EGR monitor · bank 1', [
+    ('EGR monitor bank 1', 'MID $31', [
         ('Manufacturer test $85', '−31.5', '%', -20.0, 20.0, 'fail'),
         ('Manufacturer test $86', '4.2', '%', -20.0, 20.0, 'ok')]),
-    ('Boost pressure monitor · bank 1', [
+    ('Boost pressure control monitor bank 1', 'MID $85', [
         ('Manufacturer test $91', '12.4', 'kPa', 0, 35.0, 'ok'),
         ('Manufacturer test $92', '2.1', 'kPa', 0, 15.0, 'ok')]),
-    ('NOx catalyst monitor · bank 1', [
+    ('NOx catalyst monitor bank 1', 'MID $98', [
         ('Manufacturer test $A1', '—', '', None, None, 'skip')]),
-    ('PM filter monitor · bank 1', [
+    ('PM filter monitor bank 1', 'MID $B0', [
         ('Manufacturer test $B1', '—', '', None, None, 'skip')]),
-    ('Exhaust gas sensor · bank 1 sensor 1', [
+    ('O2 sensor monitor bank 1 sensor 1', 'MID $01', [
         ('Manufacturer test $81', '0.74', 'V', 0.45, 1.10, 'ok')]),
-    ('Misfire · cylinders 1–4', [
-        ('Misfires, average of 10 drive cycles', '0 · 0 · 2 · 0',
+    ('Misfire cylinders 1–4', 'MID $A2–$A5', [
+        ('Misfire counts, 10-cycle average', '0 · 0 · 2 · 0',
          'count', None, None, 'ok')]),
 ]
 
@@ -1603,7 +1603,7 @@ IPT = [('NOx catalyst', 211, 498), ('PM filter', 88, 498),
 def mode06_card(c, x, y, w):
     p, dn = c.p, c.dn
     rh = dn['cell'] + 4
-    n = sum(len(g[1]) for g in MODE06)
+    n = sum(len(g[2]) for g in MODE06)
     h = dn['colhead'] * (1 + len(MODE06)) + n * rh + dn['foot']
     card(c, x, y, w, h)
     cres = x + w - 16
@@ -1615,8 +1615,8 @@ def mode06_card(c, x, y, w):
                               (cmin, 'Min', 'rm'), (cmax, 'Max', 'rm'),
                               (cbar0, 'Within limits'),
                               (cres, 'Result', 'rm')])
-    for group, rows in MODE06:
-        ry = caps_line(c, x, ry, w, group)
+    for group, mid_id, rows in MODE06:
+        ry = caps_line(c, x, ry, w, group, mid_id)
         for name, v, u, lo, hi, st in rows:
             mid = ry + rh / 2
             if st == 'fail':
@@ -1758,8 +1758,8 @@ def ecu_card(c, x, y, w):
 def vin_card(c, x, y, w):
     p, dn = c.p, c.dn
     rh = 28
-    h = (dn['head'] + 76 + 8 + len(VIN_OFFLINE) * rh + 16 + dn['colhead'] +
-         dn['row'] + len(VIN_ONLINE) * rh + 8 + 44)
+    h = (dn['head'] + 76 + dn['colhead'] + 8 + len(VIN_OFFLINE) * rh + 8 +
+         dn['colhead'] + dn['row'] + len(VIN_ONLINE) * rh + 8 + 44)
     card(c, x, y, w, h)
     ry = card_head(c, x, y, w, 'VIN decoder', 'vin')
     vx = x + 16
@@ -1774,16 +1774,16 @@ def vin_card(c, x, y, w):
         c.caps(vx + max(pw, cw) / 2, vy + 28, cap, anchor='mm')
         vx += max(pw, cw) + 10
     ry += 76
-    c.hline(x + 1, ry, w - 2, p.NeutralLight)
+    ry = caps_line(c, x, ry, w, 'Offline', 'WMI · plants · vPIC model rules')
     ry += 8
     for k, v in VIN_OFFLINE:
         kv_row(c, x + 16, ry + rh / 2, w - 32, k, v,
                colr=p.GaugeLabel if k == 'Check digit' else None)
         ry += rh
-    ry += 16
-    ry = caps_line(c, x, ry, w, 'Offline · WMI and model catalogue')
+    ry += 8
+    ry = caps_line(c, x, ry, w, 'Online', 'optional')
     mid = ry + dn['row'] / 2
-    switch(c, x + 16, mid, True, 'Also look up online (NHTSA vPIC)')
+    switch(c, x + 16, mid, True, 'Look up at NHTSA vPIC')
     chip(c, x + w - 16 - chip_w(c, 'PARTLY LISTED'), mid - 10,
          'PARTLY LISTED', p.Warning)
     ry += dn['row']
@@ -2010,7 +2010,427 @@ def draw_performance(c):
     return shell(c, 'performance', performance_page)
 
 
-# @@SCREENS@@
+# --------------------------------------------------------------------------
+# EV battery: health, cells, history (an extra over OBD Auto Doctor)
+# --------------------------------------------------------------------------
+
+KONA_CELLS = [3.688 + 0.005 * math.sin(i * 0.9) + 0.003 * math.cos(i * 2.3)
+              for i in range(98)]
+KONA_CELLS[60] = 3.676
+KONA_CELLS[11] = 3.698
+
+
+def cell_grid(c, x, y, w, h, cells, cols=14):
+    """Cell voltages as a heat grid (TOBDCellMatrix without modules)."""
+    p, dn = c.p, c.dn
+    card(c, x, y, w, h)
+    ry = card_head(c, x, y, w, 'Cell voltages', 'ev',
+                   sub='%d cells in series' % len(cells))
+    lo, hi = min(cells), max(cells)
+    mean = sum(cells) / len(cells)
+    lx = x + w - 16
+    for k, v in reversed((('Lowest', '%.3f V' % lo), ('Mean', '%.3f V' %
+                          mean), ('Highest', '%.3f V' % hi))):
+        tw = max(c.tw(v, 12.5, 'bold'), c.tw(k.upper(), 10.5, 'semibold'))
+        c.caps(lx - tw, y + dn['head'] / 2 - 9, k)
+        c.text(lx - tw, y + dn['head'] / 2 + 10, v, 12.5, p.ForegroundText,
+               'bold')
+        lx -= tw + 24
+    rows = (len(cells) + cols - 1) // cols
+    gx, gy = x + 16, ry + 16
+    gw = w - 32
+    gh = y + h - 44 - gy
+    cw, ch = gw / cols, gh / rows
+    for i, v in enumerate(cells):
+        cx = gx + (i % cols) * cw
+        cy = gy + (i // cols) * ch
+        t = (v - lo) / ((hi - lo) or 1)
+        if v == lo:
+            fill = mix(p.Warning, p.GaugeFace, 0.55)
+        else:
+            fill = mix(p.Accent, p.GaugeFace, 0.12 + 0.4 * t)
+        c.rect(cx + 2, cy + 2, cw - 4, ch - 4, fill=fill,
+               outline=p.Warning if v == lo else None,
+               width=2 if v == lo else 1)
+        c.text(cx + 8, cy + 14, str(i + 1), 10.5, p.GaugeLabel)
+        c.text(cx + cw - 8, cy + ch - 12, '%.3f' % v, 11.5,
+               p.ForegroundText, 'semibold', anchor='rm')
+    note(c, x + 16, y + h - 22, w - 32, 'Cell 61 is lowest: 12 mV under '
+         'the mean. A spread under 30 mV is normal at rest.')
+    return y + h
+
+
+SOH_HISTORY = [97.4, 97.2, 97.1, 96.7, 96.5, 96.1, 95.9, 95.6, 95.2, 94.9,
+               94.6, 94.4, 94.2, 94.0]
+
+
+def ev_page(c, x, y, w):
+    p, dn = c.p, c.dn
+    y, _ = page_head(c, x, y, w, 'EV battery', 'High-voltage battery · '
+                     'battery management ECU 7E4',
+                     [('Export CSV', 'secondary', 'export'),
+                      ('Read again', 'primary', 'read')])
+    tiles = [('State of health', '94', '%', 'from the battery ECU', None,
+              p.Success),
+             ('State of charge', '64', '%', 'display 61 %', None, None),
+             ('Pack voltage', '361.4', 'V', '98 cells', None, None),
+             ('Current', '−2.4', 'A', 'auxiliaries', None, None),
+             ('Temperature', '21–24', '°C', '4 sensors', None, None),
+             ('Isolation', '3 120', 'kΩ', 'no fault', None, None)]
+    tw = (w - 5 * 12) / 6
+    th = 92 if c.density == 'desktop' else 104
+    for i, (k, v, u, sub, colr, edge) in enumerate(tiles):
+        tile(c, x + i * (tw + 12), y, tw, th, k, v, u, sub, colr=colr,
+             edge=edge, size=20)
+    y += th + 16
+    rw = 380
+    lw = w - rw - 16
+    rx = x + lw + 16
+    kv = [('Energy charged', '14 210 kWh'),
+          ('Energy used', '13 655 kWh'),
+          ('Charge put in', '39 870 Ah'),
+          ('Operating time', '2 310 h'),
+          ('Odometer', '61 480 km')]
+    sh = dn['head'] + 12 + 28 * len(kv) + 8
+    card(c, rx, y, rw, sh)
+    yy = card_head(c, rx, y, rw, 'Lifetime', 'clock') + 12
+    for k, v in kv:
+        kv_row(c, rx + 16, yy + 14, rw - 32, k, v)
+        yy += 28
+    hy = y + sh + 16
+    hh = 236 if c.density == 'desktop' else 260
+    trend(c, rx, hy, rw, hh, 'Health history', [
+        ('SoH', SOH_HISTORY, p.Success)], 90, 100, '%',
+        xl=('Oct 2025', 'today'))
+    gh = sh + 16 + hh
+    cell_grid(c, x, y, lw, gh, KONA_CELLS)
+    y += gh + 16
+    y = wbanner(c, x, y, w, 'info', 'Community decoder',
+                'Battery values come from the EV battery catalogue. This '
+                'decoder has not been checked on a real Kona yet: compare '
+                'state of charge with the car’s own display.')
+    return y
+
+
+def draw_ev_battery(c):
+    return shell(c, 'ev', ev_page, sub=EV_CAR, off=(),
+                 status={'proto': 'ISO 15765-4 CAN 11/500',
+                         'right': 'EV · 0 codes'})
+
+
+# --------------------------------------------------------------------------
+# Recordings: saved sessions and replay
+# --------------------------------------------------------------------------
+
+SESSIONS = [
+    ('Today 18:42', '12:18', ('CODES', 'LIVE', 'LOG'), '2.4 MB',
+     '24 sensors · 5 codes · freeze frame'),
+    ('Yesterday 07:51', '34:02', ('LIVE', 'TRIP'), '5.1 MB',
+     'Fuel economy trip · 8 sensors'),
+    ('9 Oct 2026', '08:44', ('LIVE', 'LOG'), '1.2 MB',
+     'Drive cycle for the APK'),
+    ('3 Oct 2026', '02:10', ('CODES',), '0.2 MB', 'Codes · freeze frame'),
+    ('28 Sep 2026', '21:37', ('LIVE', 'PERF'), '3.8 MB',
+     'Track day · 6 runs'),
+]
+
+
+def replay_strip(c, x, y, w):
+    """TOBDReplayBar for a saved session; returns the bottom."""
+    p, dn = c.p, c.dn
+    h = 76 if c.density == 'desktop' else 92
+    card(c, x, y, w, h)
+    mid = y + h / 2
+    bx = x + 16
+    for g, primary in (('back', False), ('play', True), ('forward', False)):
+        s = dn['button']
+        fill = p.Accent if primary else p.GaugeFace
+        c.rect(bx, mid - s / 2, s, s, fill=fill,
+               outline=None if primary else p.NeutralLight)
+        glyph(c, g, bx + s / 2, mid, p.on_accent if primary else
+              p.ForegroundText, 1, bg=fill)
+        bx += s + 6
+    tx = bx + 12
+    c.text(tx, mid - 10, 'Replaying: today 18:42', 12.5, p.ForegroundText,
+           'semibold')
+    c.text(tx, mid + 10, 'Pages show the recorded data', 11.5,
+           p.GaugeLabel)
+    sx0 = tx + 230
+    sl = segmented(c, x + w - 16, mid - dn['seg'] / 2,
+                   ['1×', '2×', '4×'], 0)
+    sx1 = sl - 120
+    frac = 0.30
+    c.rrect(sx0, mid - 3, sx1 - sx0, 6, 3, fill=p.NeutralLight)
+    c.rrect(sx0, mid - 3, (sx1 - sx0) * frac, 6, 3, fill=p.Accent)
+    for f, colr in ((0.12, p.Danger), (0.48, p.Subtle), (0.81, p.Warning)):
+        mx = sx0 + (sx1 - sx0) * f
+        c.rect(mx - 1.5, mid - 16, 3, 9, fill=colr)
+    k = 16
+    c.ellipse(sx0 + (sx1 - sx0) * frac - k / 2, mid - k / 2, k, k,
+              fill=p.GaugeFace, outline=p.accent_text, width=2)
+    c.text(sx1 + 16, mid, '03:42 / 12:18', 12.5, p.ForegroundText,
+           'semibold')
+    return y + h
+
+
+def recordings_page(c, x, y, w):
+    p, dn = c.p, c.dn
+    y, _ = page_head(c, x, y, w, 'Recordings', 'Sessions are saved on this '
+                     'PC. Nothing is uploaded.',
+                     [('Import…', 'secondary', 'open'),
+                      ('Record now', 'primary', 'record')])
+    y = replay_strip(c, x, y, w) + 16
+    rw = 340
+    lw = w - rw - 16
+    rh = dn['row']
+    th = dn['head'] + dn['colhead'] + rh * len(SESSIONS)
+    card(c, x, y, lw, th)
+    ry = card_head(c, x, y, lw, 'Sessions', 'replay',
+                   chips=[('5', p.accent_text)])
+    search_box(c, x + lw - 16 - 200, y + (dn['head'] - dn['edit']) / 2, 200,
+               'Search sessions')
+    c0, c1, c2, c3 = x + 16, x + 180, x + 270, x + lw - 16
+    ry = colhead(c, x, ry, lw, [(c0, 'Date'), (c1, 'Length'),
+                                (c2, 'Contents'), (c3, 'Size', 'rm')])
+    for i, (d, dur, tags, size, what) in enumerate(SESSIONS):
+        mid = ry + rh / 2
+        if i == 0:
+            selected_row(c, x, ry, lw, rh)
+        c.text(c0, mid, d, 12.5, p.ForegroundText,
+               'semibold' if i == 0 else 'regular')
+        c.text(c1, mid, dur, 12.5, p.GaugeLabel)
+        cx = c2
+        for t in tags:
+            cx += chip(c, cx, mid - 19, t, {'CODES': p.Danger,
+                                             'LOG': p.Subtle}.get(
+                                                 t, p.accent_text)) + 4
+        c.text(c2, mid + 11, what, 11.5, p.GaugeLabel, max_w=c3 - c2 - 70)
+        c.text(c3, mid, size, 12.5, p.GaugeLabel, anchor='rm')
+        ry += rh
+        if i < len(SESSIONS) - 1:
+            row_line(c, x, ry, lw)
+    rx = x + lw + 16
+    kv = [('Vehicle', 'Golf VII 1.6 TDI'),
+          ('Started', '12 Oct 2026, 18:42'),
+          ('Length', '12 min 18 s'),
+          ('Adapter', 'OBDLink MX+'),
+          ('Protocol', 'CAN 11/500'),
+          ('Sensors', '24 · 9.2 per second'),
+          ('Codes', '5 · 1 freeze frame'),
+          ('Adapter log', '1 412 lines')]
+    dh = dn['head'] + 12 + 28 * len(kv) + 8 + dn['button'] + 24
+    dh = max(dh, th)
+    card(c, rx, y, rw, dh)
+    yy = card_head(c, rx, y, rw, 'Session', 'info') + 12
+    for k, v in kv:
+        kv_row(c, rx + 16, yy + 14, rw - 32, k, v)
+        yy += 28
+    by = y + dh - 16 - dn['button']
+    bx = rx + 16
+    for t, kind, icn in (('Replay', 'primary', 'play'),
+                         ('Export CSV', 'secondary', 'export'),
+                         ('Delete', 'danger-outline', None)):
+        bx += button(c, bx, by, t, kind, icon=icn and ic(icn)) + 8
+    return y + max(th, dh)
+
+
+def draw_recordings(c):
+    return shell(c, 'recordings', recordings_page,
+                 status={'right': 'Replay · 03:42 / 12:18', 'rec': False})
+
+
+# --------------------------------------------------------------------------
+# Adapter console: AT / OBD terminal and the adapter log
+# --------------------------------------------------------------------------
+
+CONSOLE = [
+    ('18:42:01.120', 'tx', 'ATZ'),
+    ('18:42:01.910', 'rx', 'ELM327 v1.4b'),
+    ('18:42:02.004', 'tx', 'STI'),
+    ('18:42:02.031', 'rx', 'STN2255 v5.10.3'),
+    ('18:42:02.110', 'tx', 'ATRV'),
+    ('18:42:02.138', 'rx', '14.1V'),
+    ('18:42:02.201', 'tx', 'ATSP0'),
+    ('18:42:02.226', 'rx', 'OK'),
+    ('18:42:02.302', 'tx', '0100'),
+    ('18:42:02.360', 'rx', 'SEARCHING...'),
+    ('18:42:03.512', 'rx', '7E8 06 41 00 98 3B A0 13'),
+    ('18:42:03.514', 'rx', '7E9 06 41 00 98 18 80 11'),
+    ('18:42:04.020', 'tx', '03'),
+    ('18:42:04.071', 'rx', '7E8 06 43 02 04 01 20 02'),
+    ('18:42:04.073', 'rx', '7E9 04 43 01 C1 21'),
+    ('18:42:04.400', 'tx', '07'),
+    ('18:42:04.452', 'rx', '7E8 04 47 01 02 99'),
+    ('18:42:04.455', 'rx', '7E9 02 47 00'),
+    ('18:42:05.002', 'tx', '0105'),
+    ('18:42:05.049', 'rx', '7E8 03 41 05 80'),
+]
+
+QUICK_CMDS = [('ATZ', 'Reset the adapter'), ('ATI', 'Adapter version'),
+              ('ATRV', 'Battery voltage'), ('ATDP', 'Current protocol'),
+              ('0100', 'Supported PIDs'), ('03', 'Stored codes')]
+
+
+def console_page(c, x, y, w):
+    p, dn = c.p, c.dn
+    y, _ = page_head(c, x, y, w, 'Adapter console', 'Type AT and OBD '
+                     'commands; the adapter answers as it is',
+                     [('Save log…', 'secondary', 'save'),
+                      ('Clear', 'secondary', 'clear')])
+    rw = 320
+    lw = w - rw - 16
+    lh = 22 if c.density == 'desktop' else 26
+    ih = dn['edit'] + 24
+    th = 12 + lh * len(CONSOLE) + 12 + ih
+    card(c, x, y, lw, th, fill=p.GaugeFace)
+    ty = y + 12
+    for t, d, text in CONSOLE:
+        mid = ty + lh / 2
+        c.text(x + 16, mid, t, 11.5, p.Subtle, 'mono')
+        tx = x + 16 + c.tw('18:42:05.049', 11.5, 'mono') + 16
+        if d == 'tx':
+            c.text(tx, mid, '›', 12.5, p.accent_text, 'monobold')
+            c.text(tx + 18, mid, text, 12.5, p.accent_text, 'monobold')
+        else:
+            c.text(tx + 18, mid, text, 12.5, p.ForegroundText, 'mono')
+            if text.startswith('7E8 06 43'):
+                c.text(x + lw - 32, mid, 'P0401 · P2002', 11.5,
+                       p.GaugeLabel, anchor='rm')
+            elif text.startswith('7E9 04 43'):
+                c.text(x + lw - 32, mid, 'U0121', 11.5, p.GaugeLabel,
+                       anchor='rm')
+            elif text.startswith('7E8 04 47'):
+                c.text(x + lw - 32, mid, 'P0299 pending', 11.5,
+                       p.GaugeLabel, anchor='rm')
+            elif text.startswith('7E8 03 41 05'):
+                c.text(x + lw - 32, mid, 'Coolant 88 °C', 11.5,
+                       p.GaugeLabel, anchor='rm')
+        ty += lh
+    vbar(c, x + lw - 10, y + 8, ty - y - 8, 0.85, 0.6)
+    iy = y + th - ih
+    c.hline(x + 1, iy, lw - 2, p.NeutralLight)
+    bw = button_w(c, 'Send', ic('forward'))
+    edit_box(c, x + 16, iy + 12, lw - 32 - bw - 8, '010C', focused=True,
+             align='left')
+    button(c, x + lw - 16 - bw, iy + 12 + (dn['edit'] - dn['button']) / 2,
+           'Send', 'primary', icon=ic('forward'))
+    # Quick commands.
+    rx = x + lw + 16
+    rh = dn['cell']
+    qh = dn['head'] + rh * len(QUICK_CMDS)
+    card(c, rx, y, rw, qh)
+    ry = card_head(c, rx, y, rw, 'Quick commands', 'terminal')
+    for cmd, what in QUICK_CMDS:
+        mid = ry + rh / 2
+        c.text(rx + 16, mid, cmd, 12.5, p.accent_text, 'monobold')
+        c.text(rx + 76, mid, what, 12.5, p.ForegroundText)
+        chevron(c, rx + rw - 20, mid, p.Subtle)
+        ry += rh
+        row_line(c, rx, ry, rw)
+    ly = y + qh + 16
+    sh = th - qh - 16
+    card(c, rx, ly, rw, sh)
+    ry = card_head(c, rx, ly, rw, 'Adapter log', 'log')
+    srow = dn['row']
+    switch(c, rx + 16, ry + srow / 2, True, 'Log every command to a file')
+    ry += srow
+    c.caps(rx + 16, ry + 8, 'Keep logs for')
+    edit_box(c, rx + 16, ry + 20, rw - 32, '30 days', dropdown=True)
+    ry += 20 + dn['edit'] + 22
+    para(c, rx + 16, ry, rw - 32, 'Logs stay on this PC. Attach one when '
+         'you report an adapter problem.', 11.5, p.GaugeLabel, lh=18,
+         max_y=ly + sh - 12)
+    return y + th
+
+
+def draw_console(c):
+    return shell(c, 'console', console_page)
+
+
+# --------------------------------------------------------------------------
+# Settings: language, appearance, units, inspection, privacy, licence
+# --------------------------------------------------------------------------
+
+LANGS = [('English', True, True), ('Nederlands', False, True),
+         ('Deutsch', False, True), ('Français', False, True),
+         ('Español', False, False), ('Italiano', False, False),
+         ('Polski', False, False), ('Português', False, False)]
+
+
+def settings_page(c, x, y, w):
+    p, dn = c.p, c.dn
+    y, _ = page_head(c, x, y, w, 'Settings', 'Saved for this Windows user')
+    cw = (w - 16) / 2
+    # Left column.
+    rh = dn['row'] - 8
+    lh = dn['head'] + 8 + rh * 4 + 8 + 30
+    card(c, x, y, cw, lh)
+    ry = card_head(c, x, y, cw, 'Language', 'globe') + 8
+    for i, (name, on, ready) in enumerate(LANGS):
+        lx = x + 16 + (i // 4) * (cw / 2)
+        mid = ry + (i % 4) * rh + rh / 2
+        tw = radio(c, lx, mid, on, name, disabled=not ready)
+        if not ready:
+            c.text(lx + tw + 8, mid, 'later', 11.5, p.Subtle)
+    note(c, x + 16, y + lh - 22, cw - 32, 'More European languages follow; '
+         'translations are plain text files.')
+    ly = y + lh + 16
+    ah = dn['head'] + 2 * dn['row'] + 8
+    card(c, x, ly, cw, ah)
+    ry = card_head(c, x, ly, cw, 'Appearance', 'sun')
+    for label, items, sel in (('Theme', ['Light', 'Dark', 'Windows'], 2),
+                              ('Size', ['Desktop', 'Touch screen'], 0)):
+        mid = ry + dn['row'] / 2
+        c.text(x + 16, mid, label, 12.5, p.GaugeLabel)
+        segmented(c, x + cw - 16, mid - dn['seg'] / 2, items, sel)
+        ry += dn['row']
+    ly += ah + 16
+    ly = P.form_card(c, x, ly, cw, 'Units', 'calculator', [
+        ('Distance and speed', 'km · km/h', 'combo'),
+        ('Fuel economy', 'l/100 km', 'combo'),
+        ('Temperature', '°C', 'combo'),
+        ('Pressure', 'kPa', 'combo'),
+        ('Currency', '€ (EUR)', 'combo')])
+    # Right column.
+    rx = x + cw + 16
+    ry2 = P.form_card(c, rx, y, cw, 'Inspection', 'flag', [
+        ('Country', 'Netherlands · APK', 'combo'),
+        ('Next inspection', '14 Mar 2027', 'edit')],
+        note='Readiness is checked against these rules.')
+    ry2 += 16
+    sw = [('Look up VINs online (NHTSA vPIC)', True),
+          ('Check for updates', True),
+          ('Send anonymous crash reports', False)]
+    ph = dn['head'] + dn['row'] * len(sw) + dn['foot']
+    card(c, rx, ry2, cw, ph)
+    yy = card_head(c, rx, ry2, cw, 'Privacy', 'privacy')
+    for label, on in sw:
+        switch(c, rx + 16, yy + dn['row'] / 2, on, label)
+        yy += dn['row']
+    footer(c, rx, ry2, cw, ph, 'No account, no tracking. Your data stays '
+           'on this PC.')
+    ry2 += ph + 16
+    kv = [('Version', '1.0.0'),
+          ('Licence', 'Free for personal use · v1.0'),
+          ('Accepted', '12 Oct 2026, 18:40'),
+          ('Catalogues', 'October 2026')]
+    ah2 = dn['head'] + 12 + 28 * len(kv) + 12 + dn['button'] + 16
+    card(c, rx, ry2, cw, ah2)
+    yy = card_head(c, rx, ry2, cw, 'About', 'info') + 12
+    for k, v in kv:
+        kv_row(c, rx + 16, yy + 14, cw - 32, k, v)
+        yy += 28
+    bx = rx + 16
+    by = ry2 + ah2 - 16 - dn['button']
+    for t in ('View licence', 'Third-party notices', 'Check for updates'):
+        bx += button(c, bx, by, t, 'secondary') + 8
+    return max(ly, ry2 + ah2)
+
+
+def draw_settings(c):
+    return shell(c, 'settings', settings_page)
+
+
 MOCKUPS = {
     'personal-welcome': (BOTH, 1366, None, draw_welcome),
     'personal-connect': (BOTH, 1366, None, draw_connect),
@@ -2026,4 +2446,8 @@ MOCKUPS = {
     'personal-vehicle-info': (BOTH, 1366, None, draw_vehicle_info),
     'personal-fuel': (BOTH, 1366, None, draw_fuel),
     'personal-performance': (BOTH, 1366, None, draw_performance),
+    'personal-ev-battery': (BOTH, 1366, None, draw_ev_battery),
+    'personal-recordings': (BOTH, 1366, None, draw_recordings),
+    'personal-console': (BOTH, 1366, None, draw_console),
+    'personal-settings': (BOTH, 1366, None, draw_settings),
 }
