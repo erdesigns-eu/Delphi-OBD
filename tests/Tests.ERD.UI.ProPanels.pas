@@ -10,6 +10,7 @@
 //
 //  History     :
 //    2026-10-11  ERD  Initial implementation for the OBD Studio Pro controls.
+//    2026-10-12  ERD  Added actuator row-kind behaviour tests.
 //------------------------------------------------------------------------------
 
 unit Tests.ERD.UI.ProPanels;
@@ -104,6 +105,11 @@ type
   TOBDActuatorPanelTests = class
   strict private
     FPanel: TOBDActuatorPanel;
+    FStartCount: Integer;
+    FValueChangeCount: Integer;
+    FLastValue: Integer;
+    procedure Started(Sender: TObject; AIndex: Integer);
+    procedure ValueChanged(Sender: TObject; AIndex, AValue: Integer);
   public
     [Setup] procedure Setup;
     [TearDown] procedure TearDown;
@@ -111,6 +117,10 @@ type
     [Test] procedure EmptyStillDraws;
     [Test] procedure TabletDiffers;
     [Test] procedure AddTestAndClampProgress;
+    [Test] procedure KindsDraw;
+    [Test] procedure ValueClampsPerKind;
+    [Test] procedure LockedIgnoresStart;
+    [Test] procedure SwitchToggleFiresValueChange;
   end;
 
 implementation
@@ -383,11 +393,27 @@ procedure TOBDActuatorPanelTests.Setup;
 begin
   FPanel := TOBDActuatorPanel.Create(nil);
   FPanel.SetBounds(0, 0, 560, 430);
+  FStartCount := 0;
+  FValueChangeCount := 0;
+  FLastValue := -1;
 end;
 
 procedure TOBDActuatorPanelTests.TearDown;
 begin
   FreeAndNil(FPanel);
+end;
+
+
+procedure TOBDActuatorPanelTests.Started(Sender: TObject; AIndex: Integer);
+begin
+  Inc(FStartCount);
+end;
+
+procedure TOBDActuatorPanelTests.ValueChanged(Sender: TObject; AIndex,
+  AValue: Integer);
+begin
+  Inc(FValueChangeCount);
+  FLastValue := AValue;
 end;
 
 procedure TOBDActuatorPanelTests.PreviewDraws;
@@ -428,6 +454,70 @@ begin
   Assert.AreEqual(1, FPanel.Count);
   Assert.AreEqual(Integer(apsRunning), Integer(FPanel.Items[0].State));
   Assert.AreEqual(100, FPanel.Items[0].Progress);
+end;
+
+
+procedure TOBDActuatorPanelTests.KindsDraw;
+var
+  A, B: TBitmap;
+  ButtonOnly: TOBDActuatorPanel;
+begin
+  FPanel.AddControl('Radiator fan', '60 %', akSlider).Value := 60;
+  FPanel.AddControl('Coolant pump', 'Low', akSteps).Steps := 'Off,Low,High';
+  FPanel.AddControl('Fuel pump relay', 'Relay on', akSwitch).Value := 1;
+  FPanel.AddControl('Glow plugs', 'Ready', akButton).ButtonCaption := 'Run 10 s';
+  A := RenderControl(FPanel);
+  ButtonOnly := TOBDActuatorPanel.Create(nil);
+  try
+    ButtonOnly.SetBounds(0, 0, 560, 430);
+    ButtonOnly.AddTest('Radiator fan', '60 %');
+    ButtonOnly.AddTest('Coolant pump', 'Low');
+    ButtonOnly.AddTest('Fuel pump relay', 'Relay on');
+    ButtonOnly.AddTest('Glow plugs', 'Ready');
+    B := RenderControl(ButtonOnly);
+    try
+      Assert.IsTrue(BitmapsDiffer(A, B, 20), 'row kinds render like buttons');
+    finally
+      B.Free;
+    end;
+  finally
+    ButtonOnly.Free;
+    A.Free;
+  end;
+end;
+
+procedure TOBDActuatorPanelTests.ValueClampsPerKind;
+var
+  Item: TOBDActuatorItem;
+begin
+  Item := FPanel.AddControl('EGR valve', 'Position', akSlider);
+  Item.Value := 150;
+  Assert.AreEqual(100, Item.Value);
+  Item := FPanel.AddControl('Coolant pump', 'Flow', akSteps);
+  Item.Steps := 'Off,Low,High';
+  Item.Value := 99;
+  Assert.AreEqual(2, Item.Value);
+end;
+
+procedure TOBDActuatorPanelTests.LockedIgnoresStart;
+var
+  Item: TOBDActuatorItem;
+begin
+  Item := FPanel.AddControl('Starter motor', 'Engine running', akButton);
+  Item.Locked := True;
+  FPanel.OnStart := Started;
+  FPanel.ActivateControl(0);
+  Assert.AreEqual(0, FStartCount);
+end;
+
+procedure TOBDActuatorPanelTests.SwitchToggleFiresValueChange;
+begin
+  FPanel.AddControl('Fuel pump relay', 'Relay off', akSwitch);
+  FPanel.OnValueChange := ValueChanged;
+  FPanel.ActivateControl(0);
+  Assert.AreEqual(1, FPanel.Items[0].Value);
+  Assert.AreEqual(1, FValueChangeCount);
+  Assert.AreEqual(1, FLastValue);
 end;
 
 initialization

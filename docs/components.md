@@ -526,6 +526,15 @@ Building blocks used by the dialogs, also available on their own:
 | `TOBDFileList` | `ERD.UI.ShellControls` | Files of a `Directory` filtered by `Mask`: sortable details view or icon view. |
 | `TOBDColorSwatches`, `TOBDColorSpectrum` | `ERD.UI.ColorDialog` | Colour swatch grid and HSV picker. |
 
+Data views (mockup sheet *data-views*), for tables, catalogues and detail
+panes in any panel:
+
+| Control | Unit | Purpose |
+|---|---|---|
+| `TOBDDataGrid` | `ERD.UI.DataGrid` | Table with typed columns (`DataColumns`: text, mono, number, chip, check, icon), click-to-sort headers (numbers sort as numbers), resizable columns, collapsible groups, a check column, disabled and accented rows, and an empty state with a title, hint, glyph and action button. `AddRow`, `AddGroup`, `Cells`, `CellTone`, `RowData`, `RowChecked`, `RowGlyph`, `RowEnabled`, `RowAccent`, `SelectedRow`, `SortColumn`, `OnCheckClick`, `OnSort`, `OnEmptyAction`. |
+| `TOBDTileGrid` | `ERD.UI.TileGrid` | Grid of tiles with glyph, caption, subtitle, badge and count, in group sections with a search `Filter`; `TileStyle` row tiles or large launcher tiles. `Items`, `AddTile`, `ItemIndex`, `OnItemClick`, `OnItemActivate`. |
+| `TOBDKeyValueList` | `ERD.UI.KeyValueList` | Read-only labels and values by category, in one or more columns; values as text, mono, chip, link or tone, with copy on hover. `Items`, `Add`, `SetValue`, `ColumnCount`, `KeyWidth`, `OnCopy`, `OnLinkClick`. |
+
 ## OBD Studio Pro
 
 Building blocks for coding, flashing, security, performance,
@@ -550,7 +559,7 @@ and the inline `TOBDWriteConfirm` strip, never a modal dialog.
 | `TOBDDiffView` | `ERD.UI.DiffView` | Before / after comparison of coding or adaptation values, "Only changes" switch, revert per row and *Revert all*. `Rows`, `ChangedCount`, `OnlyChanges`, `OnRevert`, `OnRevertAll`. |
 | `TOBDHexView` | `ERD.UI.HexView` | Memory / EEPROM dump with offset, hex and ASCII columns, coloured catalogue regions, compare highlighting and a keyboard caret. `Data`, `CompareData`, `BaseAddress`, `BytesPerRow`, `Regions`, `AddRegion`, `LoadFromStream`, `OnSelectionChange`. |
 | `TOBDBitEditor` | `ERD.UI.BitEditor` | Long coding editor: bytes, the bits and multi-bit options of the selected byte from label definitions, changed bits against the original. `Coding`, `OriginalCoding`, `Labels`, `AddBitLabel`, `AddOptionLabel`, `ChangedCount`, `OnChange`. |
-| `TOBDBusTrace` | `ERD.UI.BusTrace` | CAN trace (time, ID, DLC, data, decoded text) in a ring buffer with filter, pause and changed-byte colouring. `Capacity`, `Paused`, `AutoScroll`, `FilterText`, `AddFrame`, `FrameCount`. |
+| `TOBDBusTrace` | `ERD.UI.BusTrace` | CAN trace (time, ID, DLC, data, decoded text) in a ring buffer with filter, pause and changed-byte colouring; received, sent and error lines with an All / Received / Sent / Errors filter. `Capacity`, `Paused`, `AutoScroll`, `FilterText`, `AddFrame` (optionally with a direction), `AddError`, `DirectionFilter`, `ShowDirectionFilter`, `FrameCount`, `VisibleCount`. |
 | `TOBDBusSend` | `ERD.UI.BusSend` | One send line: ID, data, period and the periodic switch. `CANIdText`, `DataText`, `PeriodMs`, `Periodic`, `Extended`, `TryParseId`, `TryParseData`, `OnSend`, `OnPeriodicChange`. |
 | `TOBDReplayBar` | `ERD.UI.ReplayBar` | Recording playback: play / pause, position with markers, time and speed. `PositionMs`, `DurationMs`, `Playing`, `Speed`, `Markers`, `Play`, `Pause`, `Seek`. |
 | `TOBDXYChart` | `ERD.UI.XYChart` | Curves over a shared X axis with a left and a right Y axis, earlier runs, peaks and a cursor (power and torque over rpm). `Series`, `AddPoint`, `OnCursorChange`. |
@@ -562,7 +571,7 @@ and the inline `TOBDWriteConfirm` strip, never a modal dialog.
 | `TOBDKeySlots` | `ERD.UI.KeySlots` | Key learning slots with their state. `Slots`, `Cols`, `AddSlot`, `OnSlotClick`. |
 | `TOBDSignalBrowser` | `ERD.UI.SignalBrowser` | A2L measurement objects by group with search and a check to measure. `Signals`, `FilterText`, `AddSignal`, `OnCheckChange`. |
 | `TOBDSignalGrid` | `ERD.UI.SignalGrid` | Live measurement values with min / max and a sparkline. `AddSignal`, `PushValue`, `ResetMinMax`. |
-| `TOBDActuatorPanel` | `ERD.UI.ActuatorPanel` | Actuator tests with state, feedback, Start / Stop per row and *Stop all*. `Items`, `AddTest`, `OnStart`, `OnStop`, `OnStopAll`. |
+| `TOBDActuatorPanel` | `ERD.UI.ActuatorPanel` | Actuator tests with state, feedback, Start / Stop per row and *Stop all*; each row is a timed test button, an on / off switch, a slider (0..100 %) or a step selector, and can be locked with a reason. `Items` (`Kind`, `Value`, `Steps`, `Locked`, `LockReason`), `AddTest`, `AddControl`, `SetControlValue`, `OnStart`, `OnStop`, `OnStopAll`, `OnValueChange`. |
 
 ## Where the code lives
 

@@ -166,6 +166,9 @@ uses
   ERD.UI.ScrollBar,
   ERD.UI.ItemList,
   ERD.UI.ShellControls,
+  ERD.UI.DataGrid,
+  ERD.UI.TileGrid,
+  ERD.UI.KeyValueList,
   ERD.UI.FileDialogs,
   ERD.UI.PrintDialogs,
   ERD.UI.FontDialog,
@@ -310,6 +313,10 @@ begin
   RegisterComponents('OBD Studio', [TOBDListBox, TOBDBreadcrumb,
     TOBDPlacesPane, TOBDFolderTree, TOBDFileList, TOBDColorSwatches,
     TOBDColorSpectrum]);
+  // Data views: a table with columns, a tile grid (catalogues, start
+  // pages) and a read-only list of labels and values.
+  RegisterComponents('OBD Studio', [TOBDDataGrid, TOBDTileGrid,
+    TOBDKeyValueList]);
   // Themed replacements for the standard dialogs. Right-click one in the
   // form designer and choose Test Dialog to preview it.
   RegisterComponents('OBD Studio', [TOBDOpenDialog, TOBDSaveDialog,

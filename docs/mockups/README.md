@@ -629,18 +629,20 @@ mockups have a `-tablet` variant. The panels are drawn 1366 px wide.
 | ![](pro-ev-battery-light.png) | ![](pro-ev-battery-dark.png) |
 | ![](pro-ev-battery-tablet-light.png) | ![](pro-ev-battery-tablet-dark.png) |
 
-### Next round (proposed)
+### Data views and Pro additions (approved, built)
 
 Building the OBD Studio Pro example (`examples/obd-studio-pro`) showed
-what the component set still misses. The pages work around it for now
-(see the example's README). These mockups are for review; nothing here is
-built yet.
+what the component set still missed. These mockups were approved and are
+built: the three data views are common controls on the **OBD Studio**
+palette page, the actuator and bus changes extend the existing Pro
+controls, and the Pro example pages use them (see
+[`docs/components.md`](../components.md)).
 
-| Component | Proposal |
+| Component | What it is |
 |---|---|
-| `TOBDDataGrid` | Common control (OBD Studio page) on `TOBDCustomItemList`: columns with caption, width, alignment and a cell kind (text, mono, number, chip, check box, icon); click a header to sort, drag a divider to resize; collapsible groups; the existing `EmptyText` with an optional action. For dyno runs, component protection, flash history, ECU and memory tables. |
-| `TOBDTileGrid` | Common control on `TOBDCustomItemList`: tiles with icon, title, subtitle and a badge in groups; `TileStyle` `tsRow` (icon left, catalogues) or `tsLarge` (icon on top, launcher with a counter); disabled tiles for functions the vehicle does not have. For the service catalogue and a start page. |
-| `TOBDKeyValueList` | Common control: read-only label / value rows in categories; values can be mono, coloured, a chip, a link or wrap over lines; copy button on hover; `Columns` 1 or 2. For ECU, chip and vehicle details. |
+| `TOBDDataGrid` | Common control (OBD Studio page) on `TOBDCustomItemList`: columns with caption, width, alignment and a cell kind (text, mono, number, chip, check box, icon); click a header to sort, drag a divider to resize; collapsible groups; an empty state with a title, hint, glyph and an optional action. For dyno runs, component protection, flash history, ECU and memory tables. |
+| `TOBDTileGrid` | Common control: tiles with icon, title, subtitle and a badge in groups; `TileStyle` `tgsRow` (icon left, catalogues) or `tgsLarge` (icon on top, launcher with a counter); disabled tiles for functions the vehicle does not have; a search `Filter`. For the service catalogue and a start page. |
+| `TOBDKeyValueList` | Common control: read-only label / value rows in categories; values can be mono, coloured, a chip, a link or wrap over lines; copy button on hover; `ColumnCount` 1 or 2. For ECU, chip and vehicle details. |
 | `TOBDActuatorPanel` | Adds `Kind` per row: `akButton` (timed run), `akSwitch`, `akSlider` (set point) and `akSteps` (Off / Low / High), with a Stop button and timer on running rows, and a `Locked` state with a reason. As in the approved `pro-actuators-bus` mockup. |
 | `TOBDBusTrace` | Direction set by the caller (`AddFrame(..., btfTx)`) instead of guessed from the ID, Tx rows marked, error frames (`AddError`), and a direction filter. |
 

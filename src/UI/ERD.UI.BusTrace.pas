@@ -10,6 +10,7 @@
 //
 //  History     :
 //    2026-10-11  ERD  Initial implementation for the OBD Studio Pro controls.
+//    2026-10-12  ERD  Added caller direction, error rows and direction filters.
 //------------------------------------------------------------------------------
 unit ERD.UI.BusTrace;
 
@@ -32,12 +33,25 @@ uses
   ERD.UI.ScrollBar;
 
 type
-  /// <summary>Direction inferred for a CAN trace row.</summary>
+  /// <summary>Direction supplied or inferred for a CAN trace row.</summary>
   TOBDBusTraceDirection = (
     /// <summary>Frame received from the bus.</summary>
     btfRx,
     /// <summary>Frame sent by the tester.</summary>
-    btfTx);
+    btfTx,
+    /// <summary>Error frame reported by the interface.</summary>
+    btfError);
+
+  /// <summary>Direction filter for visible trace rows.</summary>
+  TOBDBusTraceFilter = (
+    /// <summary>Show every stored row.</summary>
+    btdAll,
+    /// <summary>Show received frames.</summary>
+    btdReceived,
+    /// <summary>Show sent frames.</summary>
+    btdSent,
+    /// <summary>Show error rows.</summary>
+    btdErrors);
 
   /// <summary>One CAN trace frame stored by the ring buffer.</summary>
   TOBDBusTraceFrame = record
@@ -73,6 +87,8 @@ type
     FPaused: Boolean;
     FAutoScroll: Boolean;
     FFilterText: string;
+    FDirectionFilter: TOBDBusTraceFilter;
+    FShowDirectionFilter: Boolean;
     FScrollPos: Integer;
     FScrollHover: Boolean;
     FDraggingScroll: Boolean;
@@ -86,6 +102,8 @@ type
     procedure SetPaused(AValue: Boolean);
     procedure SetAutoScroll(AValue: Boolean);
     procedure SetFilterText(const AValue: string);
+    procedure SetDirectionFilter(AValue: TOBDBusTraceFilter);
+    procedure SetShowDirectionFilter(AValue: Boolean);
     procedure SetScrollPos(AValue: Integer);
     function HeaderHeight: Integer;
     function FilterHeight: Integer;
@@ -105,10 +123,12 @@ type
     function LastForId(AId: Cardinal; out AFrame: TOBDBusTraceFrame): Boolean;
     function ScrollThumbRect: TRect;
     function PauseButtonRect: TRect;
+    function DirectionSegmentRect(AFilter: TOBDBusTraceFilter): TRect;
     function IdColor(APainter: TOBDPainter; AId: Cardinal): TColor;
     procedure DoChange;
     procedure TrimCapacity;
     procedure DrawHeader(APainter: TOBDPainter);
+    procedure DrawDirectionFilter(APainter: TOBDPainter);
     procedure DrawFilters(APainter: TOBDPainter);
     procedure DrawColumns(APainter: TOBDPainter);
     procedure DrawRows(APainter: TOBDPainter; ACanvas: TCanvas);
@@ -120,7 +140,7 @@ type
   protected
     /// <summary>Paints the trace table.</summary>
     procedure PaintControl(ACanvas: TCanvas); override;
-    /// <summary>Handles pause and scroll-bar clicks.</summary>
+    /// <summary>Handles pause, direction filter and scroll-bar clicks.</summary>
     /// <param name="Button">Mouse button.</param>
     /// <param name="Shift">Shift state.</param>
     /// <param name="X">Client X.</param>
@@ -160,14 +180,28 @@ type
     /// <summary>Returns the card surface colour.</summary>
     /// <returns>Surface colour.</returns>
     function SurfaceColor: TColor;
-    /// <summary>Adds a frame to the ring buffer.</summary>
+    /// <summary>Adds a frame to the ring buffer and infers the direction.</summary>
     /// <param name="ATimeMs">Time in milliseconds.</param>
     /// <param name="AId">CAN identifier.</param>
     /// <param name="AExtended">True for a 29-bit identifier.</param>
     /// <param name="AData">Data bytes.</param>
     /// <param name="ADecoded">Decoded text.</param>
     procedure AddFrame(ATimeMs: Int64; AId: Cardinal; AExtended: Boolean;
-      const AData: TBytes; const ADecoded: string);
+      const AData: TBytes; const ADecoded: string); overload;
+    /// <summary>Adds a frame to the ring buffer with a caller-supplied direction.</summary>
+    /// <param name="ATimeMs">Time in milliseconds.</param>
+    /// <param name="AId">CAN identifier.</param>
+    /// <param name="AExtended">True for a 29-bit identifier.</param>
+    /// <param name="AData">Data bytes.</param>
+    /// <param name="ADecoded">Decoded text.</param>
+    /// <param name="ADirection">Direction to store with the row.</param>
+    procedure AddFrame(ATimeMs: Int64; AId: Cardinal; AExtended: Boolean;
+      const AData: TBytes; const ADecoded: string;
+      ADirection: TOBDBusTraceDirection); overload;
+    /// <summary>Adds an error-frame row to the ring buffer.</summary>
+    /// <param name="ATimeMs">Time in milliseconds.</param>
+    /// <param name="AText">Error description.</param>
+    procedure AddError(ATimeMs: Int64; const AText: string);
     /// <summary>Clears all frames.</summary>
     procedure Clear;
     /// <summary>Returns one frame by storage index.</summary>
@@ -177,6 +211,9 @@ type
     /// <summary>Number of frames in storage.</summary>
     /// <returns>Frame count.</returns>
     function FrameCount: Integer;
+    /// <summary>Number of rows visible after text and direction filters.</summary>
+    /// <returns>Visible row count.</returns>
+    function VisibleCount: Integer;
   published
     /// <summary>Header title.</summary>
     property Title: string read FTitle write SetTitle;
@@ -190,6 +227,12 @@ type
     property AutoScroll: Boolean read FAutoScroll write SetAutoScroll default True;
     /// <summary>Simple textual filter for ID or decoded text.</summary>
     property FilterText: string read FFilterText write SetFilterText;
+    /// <summary>Direction subset shown in the trace; storage is unchanged.</summary>
+    property DirectionFilter: TOBDBusTraceFilter read FDirectionFilter
+      write SetDirectionFilter default btdAll;
+    /// <summary>Shows a clickable All / Received / Sent / Errors filter in the header.</summary>
+    property ShowDirectionFilter: Boolean read FShowDirectionFilter
+      write SetShowDirectionFilter default False;
     /// <summary>Desktop or tablet row sizes.</summary>
     property Density;
     /// <summary>Takes density from the current theme.</summary>
@@ -225,6 +268,17 @@ begin
     Result[I] := Byte((Length(AText) * 17 + I * 37) and $FF);
 end;
 
+function DirectionFilterLabel(AFilter: TOBDBusTraceFilter): string;
+begin
+  case AFilter of
+    btdReceived: Result := 'Received';
+    btdSent: Result := 'Sent';
+    btdErrors: Result := 'Errors';
+  else
+    Result := 'All';
+  end;
+end;
+
 { TOBDBusTrace }
 
 constructor TOBDBusTrace.Create(AOwner: TComponent);
@@ -234,6 +288,7 @@ begin
   FSubtitle := 'Powertrain CAN';
   FCapacity := 5000;
   FAutoScroll := True;
+  FDirectionFilter := btdAll;
   FFrames := TList<TOBDBusTraceFrame>.Create;
   Width := 780;
   Height := 420;
@@ -312,6 +367,23 @@ begin
   DoChange;
 end;
 
+procedure TOBDBusTrace.SetDirectionFilter(AValue: TOBDBusTraceFilter);
+begin
+  if FDirectionFilter = AValue then
+    Exit;
+  FDirectionFilter := AValue;
+  SetScrollPos(0);
+  DoChange;
+end;
+
+procedure TOBDBusTrace.SetShowDirectionFilter(AValue: Boolean);
+begin
+  if FShowDirectionFilter = AValue then
+    Exit;
+  FShowDirectionFilter := AValue;
+  Invalidate;
+end;
+
 procedure TOBDBusTrace.SetScrollPos(AValue: Integer);
 begin
   AValue := EnsureRange(AValue, 0, MaxScroll);
@@ -386,10 +458,10 @@ end;
 
 function TOBDBusTrace.SourceFrame(AIndex: Integer): TOBDBusTraceFrame;
 const
-  IDS: array[0..7] of Cardinal = ($7E0, $7E8, $280, $288, $1A0, $5A0, $7E0, $7E8);
-  TXT: array[0..7] of string = ('UDS diagnostic session', 'Positive response',
-    'Engine data', 'Body status', 'Wheel speed', 'Gateway', 'Read VIN',
-    'VIN response');
+  IDS: array[0..7] of Cardinal = ($7E0, $7E8, $280, $7E0, $7E8, $7E0, 0, $1A0);
+  TXT: array[0..7] of string = ('Diagnostic session extended', 'Positive response',
+    'Engine 1, 1248 rpm', 'Read VIN', 'VIN first frame', 'Flow control',
+    'Error frame, stuff error, TEC 8', 'Brakes 1');
 var
   I: Integer;
 begin
@@ -402,12 +474,20 @@ begin
     Result.Data := MakeBytes(TXT[AIndex]);
     Result.Decoded := TXT[AIndex];
     Result.ChangedMask := 0;
-    if AIndex in [2, 3, 5] then
+    if AIndex in [2, 4] then
       Result.ChangedMask := Byte(1 shl (AIndex mod 8));
     Result.Count := AIndex * 10 + 1;
     Result.CycleMs := AIndex * 10;
-    if (AIndex = 0) or (AIndex = 6) then
+    if AIndex in [0, 3, 5] then
       Result.Direction := btfTx
+    else if AIndex = 6 then
+    begin
+      Result.Direction := btfError;
+      Result.DLC := 0;
+      SetLength(Result.Data, 0);
+      Result.Count := 1;
+      Result.CycleMs := 0;
+    end
     else
       Result.Direction := btfRx;
   end
@@ -447,12 +527,27 @@ end;
 
 function TOBDBusTrace.FrameMatches(const AFrame: TOBDBusTraceFrame): Boolean;
 var
-  S: string;
+  S, IdText: string;
 begin
+  case FDirectionFilter of
+    btdReceived:
+      if AFrame.Direction <> btfRx then
+        Exit(False);
+    btdSent:
+      if AFrame.Direction <> btfTx then
+        Exit(False);
+    btdErrors:
+      if AFrame.Direction <> btfError then
+        Exit(False);
+  end;
   if FFilterText = '' then
     Exit(True);
   S := UpperCase(FFilterText);
-  Result := (Pos(S, UpperCase(Format('%.3x', [AFrame.Id]))) > 0) or
+  if AFrame.Direction = btfError then
+    IdText := '-'
+  else
+    IdText := Format('%.3x', [AFrame.Id]);
+  Result := (Pos(S, UpperCase(IdText)) > 0) or
     (Pos(S, UpperCase(AFrame.Decoded)) > 0);
 end;
 
@@ -462,7 +557,7 @@ var
 begin
   Result := False;
   for I := FFrames.Count - 1 downto 0 do
-    if FFrames[I].Id = AId then
+    if (FFrames[I].Direction <> btfError) and (FFrames[I].Id = AId) then
     begin
       AFrame := FFrames[I];
       Exit(True);
@@ -487,6 +582,22 @@ begin
   Result := Rect(ClientWidth - ScaleValue(16) - W,
     Y - ScaleValue(Metrics.Button) div 2, ClientWidth - ScaleValue(16),
     Y + ScaleValue(Metrics.Button) div 2);
+end;
+
+function TOBDBusTrace.DirectionSegmentRect(AFilter: TOBDBusTraceFilter): TRect;
+var
+  TotalW, SegW, H, TopY, RightX, Index: Integer;
+begin
+  H := ScaleValue(Metrics.Segment);
+  TotalW := ScaleValue(304);
+  RightX := PauseButtonRect.Left - ScaleValue(8);
+  TopY := (HeaderHeight - H) div 2;
+  SegW := TotalW div 4;
+  Index := Ord(AFilter);
+  Result := Rect(RightX - TotalW + Index * SegW, TopY,
+    RightX - TotalW + (Index + 1) * SegW, TopY + H);
+  if AFilter = btdErrors then
+    Result.Right := RightX;
 end;
 
 function TOBDBusTrace.IdColor(APainter: TOBDPainter; AId: Cardinal): TColor;
@@ -522,9 +633,26 @@ end;
 procedure TOBDBusTrace.AddFrame(ATimeMs: Int64; AId: Cardinal;
   AExtended: Boolean; const AData: TBytes; const ADecoded: string);
 var
+  Dir: TOBDBusTraceDirection;
+begin
+  Dir := btfRx;
+  if (AId >= $700) and (Length(AData) > 0) and (AData[0] < $10) then
+    Dir := btfTx;
+  AddFrame(ATimeMs, AId, AExtended, AData, ADecoded, Dir);
+end;
+
+procedure TOBDBusTrace.AddFrame(ATimeMs: Int64; AId: Cardinal;
+  AExtended: Boolean; const AData: TBytes; const ADecoded: string;
+  ADirection: TOBDBusTraceDirection);
+var
   F, Last: TOBDBusTraceFrame;
   I: Integer;
 begin
+  if ADirection = btfError then
+  begin
+    AddError(ATimeMs, ADecoded);
+    Exit;
+  end;
   F.TimeMs := ATimeMs;
   F.Id := AId;
   F.Extended := AExtended;
@@ -534,9 +662,7 @@ begin
   F.ChangedMask := 0;
   F.Count := 1;
   F.CycleMs := 0;
-  F.Direction := btfRx;
-  if (AId >= $700) and (Length(AData) > 0) and (AData[0] < $10) then
-    F.Direction := btfTx;
+  F.Direction := ADirection;
   if LastForId(AId, Last) then
   begin
     F.Count := Last.Count + 1;
@@ -548,6 +674,27 @@ begin
     if not BytesEqual(F.Data, Last.Data) and (F.ChangedMask = 0) then
       F.ChangedMask := 1;
   end;
+  FFrames.Add(F);
+  TrimCapacity;
+  if FAutoScroll and not FPaused then
+    FScrollPos := MaxScroll;
+  DoChange;
+end;
+
+procedure TOBDBusTrace.AddError(ATimeMs: Int64; const AText: string);
+var
+  F: TOBDBusTraceFrame;
+begin
+  F.TimeMs := ATimeMs;
+  F.Id := 0;
+  F.Extended := False;
+  F.DLC := 0;
+  SetLength(F.Data, 0);
+  F.Decoded := AText;
+  F.ChangedMask := 0;
+  F.Count := 1;
+  F.CycleMs := 0;
+  F.Direction := btfError;
   FFrames.Add(F);
   TrimCapacity;
   if FAutoScroll and not FPaused then
@@ -574,22 +721,65 @@ begin
   Result := FFrames.Count;
 end;
 
+function TOBDBusTrace.VisibleCount: Integer;
+begin
+  Result := FilteredCount;
+end;
+
+procedure TOBDBusTrace.DrawDirectionFilter(APainter: TOBDPainter);
+var
+  F: TOBDBusTraceFilter;
+  R, AllR: TRect;
+  Fill, Ink: TColor;
+begin
+  AllR := Rect(DirectionSegmentRect(btdAll).Left,
+    DirectionSegmentRect(btdAll).Top, DirectionSegmentRect(btdErrors).Right,
+    DirectionSegmentRect(btdErrors).Bottom);
+  APainter.RoundRect(AllR.Left, AllR.Top, AllR.Width, AllR.Height,
+    ScaleValue(6), Palette.GaugeFace, Palette.NeutralLight);
+  for F := Low(TOBDBusTraceFilter) to High(TOBDBusTraceFilter) do
+  begin
+    R := DirectionSegmentRect(F);
+    if F = FDirectionFilter then
+    begin
+      Fill := APainter.AccentText;
+      Ink := APainter.OnAccent;
+      APainter.RoundRect(R.Left + ScaleValue(2), R.Top + ScaleValue(2),
+        R.Width - ScaleValue(4), R.Height - ScaleValue(4), ScaleValue(4),
+        Fill, Fill);
+    end
+    else
+      Ink := Palette.GaugeLabel;
+    if F <> btdAll then
+      APainter.VLine(R.Left, R.Top + ScaleValue(5), R.Height - ScaleValue(10),
+        Palette.NeutralLight);
+    APainter.Text(R.Left + R.Width div 2, R.Top + R.Height div 2,
+      DirectionFilterLabel(F), OBD_TEXT_SMALL, Ink, twSemibold, taCenter,
+      R.Width - ScaleValue(8));
+  end;
+end;
+
 procedure TOBDBusTrace.DrawHeader(APainter: TOBDPainter);
 var
-  Y, X, W: Integer;
+  Y, X, W, MaxText: Integer;
   State: TOBDControlState;
   Caption: string;
 begin
   Y := HeaderHeight div 2;
   APainter.Glyph(glCanBus, ScaleValue(26), Y, APainter.AccentText, 1);
+  MaxText := ClientWidth - ScaleValue(260);
+  if FShowDirectionFilter then
+    MaxText := DirectionSegmentRect(btdAll).Left - ScaleValue(58);
   APainter.Text(ScaleValue(46), Y - ScaleValue(8), FTitle, OBD_TEXT_TITLE,
-    Palette.ForegroundText, twBold, taLeftJustify, ClientWidth - ScaleValue(260));
+    Palette.ForegroundText, twBold, taLeftJustify, MaxText);
   APainter.Text(ScaleValue(46), Y + ScaleValue(12), FSubtitle, TRACE_META,
-    Palette.GaugeLabel, twRegular, taLeftJustify, ClientWidth - ScaleValue(260));
+    Palette.GaugeLabel, twRegular, taLeftJustify, MaxText);
   X := ScaleValue(46) + APainter.TextWidth(FTitle, OBD_TEXT_TITLE, twBold) +
     ScaleValue(12);
   if SourceCount > 0 then
     APainter.Chip(X, Y - ScaleValue(10), 'RECORDING', Palette.Danger);
+  if FShowDirectionFilter then
+    DrawDirectionFilter(APainter);
   Caption := 'Pause';
   if FPaused then
     Caption := 'Resume';
@@ -655,7 +845,8 @@ procedure TOBDBusTrace.DrawRows(APainter: TOBDPainter; ACanvas: TCanvas);
 var
   Save, I, B, Top, Mid, DataX, CycleX, CountX, Bx, Bw: Integer;
   F: TOBDBusTraceFrame;
-  Text: string;
+  Text, IdText, DlcText, CycleText, CountText: string;
+  DirColor, DecodeColor: TColor;
 begin
   Save := SaveDC(ACanvas.Handle);
   try
@@ -672,43 +863,82 @@ begin
       begin
         F := FilteredFrame(I);
         Mid := Top + RowHeight div 2;
-        APainter.FillRect(Rect(ScaleValue(1), Top + ScaleValue(4),
-          ScaleValue(5), Top + RowHeight - ScaleValue(4)), IdColor(APainter, F.Id));
+        if F.Direction = btfTx then
+        begin
+          APainter.FillRect(Rect(ScaleValue(1), Top, ClientWidth - ScaleValue(1),
+            Top + RowHeight), APainter.Tint(Palette.Accent, 0.07));
+          APainter.FillRect(Rect(ScaleValue(1), Top + ScaleValue(4),
+            ScaleValue(4), Top + RowHeight - ScaleValue(4)), Palette.Accent);
+        end
+        else if F.Direction = btfError then
+        begin
+          APainter.FillRect(Rect(ScaleValue(1), Top, ClientWidth - ScaleValue(1),
+            Top + RowHeight), APainter.Tint(Palette.Danger, 0.10));
+          APainter.FillRect(Rect(ScaleValue(1), Top + ScaleValue(4),
+            ScaleValue(4), Top + RowHeight - ScaleValue(4)), Palette.Danger);
+        end
+        else
+          APainter.FillRect(Rect(ScaleValue(1), Top + ScaleValue(4),
+            ScaleValue(5), Top + RowHeight - ScaleValue(4)), IdColor(APainter, F.Id));
         APainter.Text(ScaleValue(16), Mid, Format('%.3f', [F.TimeMs / 1000]),
           TRACE_TEXT, Palette.GaugeLabel, twMono);
-        APainter.Text(ScaleValue(92), Mid, Format('%.3x', [F.Id]), TRACE_TEXT,
-          Palette.ForegroundText, twMonoBold);
-        if F.Direction = btfTx then
-          Text := 'Tx'
-        else
-          Text := 'Rx';
-        APainter.Text(ScaleValue(150), Mid, Text, TRACE_META,
-          IfThen(F.Direction = btfTx, APainter.AccentText, Palette.GaugeLabel),
-          twSemibold);
-        APainter.Text(ScaleValue(196), Mid, IntToStr(F.DLC), TRACE_TEXT,
-          Palette.GaugeLabel, twMono);
-        for B := 0 to F.DLC - 1 do
+        if F.Direction = btfError then
         begin
-          Bx := DataX + B * Bw;
-          if ((F.ChangedMask shr B) and 1) <> 0 then
-            APainter.RoundRect(Bx - ScaleValue(2), Top + ScaleValue(3),
-              Bw - ScaleValue(4), RowHeight - ScaleValue(6), ScaleValue(4),
-              APainter.Tint(Palette.Accent, 0.18), clNone);
-          APainter.Text(Bx + (Bw - ScaleValue(4)) div 2, Mid,
-            Format('%.2x', [F.Data[B]]), TRACE_TEXT,
-            IfThen(((F.ChangedMask shr B) and 1) <> 0, APainter.AccentText,
-            Palette.ForegroundText), twMonoBold, taCenter);
-        end;
-        if F.CycleMs > 0 then
-          Text := IntToStr(F.CycleMs)
+          IdText := '-';
+          DlcText := '-';
+          CycleText := '-';
+          CountText := '-';
+          Text := 'Err';
+          DirColor := APainter.DangerInk;
+          DecodeColor := APainter.DangerInk;
+        end
         else
-          Text := '-';
-        APainter.Text(CycleX, Mid, Text, TRACE_TEXT, Palette.GaugeLabel, twMono);
+        begin
+          IdText := Format('%.3x', [F.Id]);
+          DlcText := IntToStr(F.DLC);
+          if F.Direction = btfTx then
+          begin
+            Text := 'Tx';
+            DirColor := APainter.AccentText;
+          end
+          else
+          begin
+            Text := 'Rx';
+            DirColor := Palette.GaugeLabel;
+          end;
+          if F.CycleMs > 0 then
+            CycleText := IntToStr(F.CycleMs)
+          else
+            CycleText := '-';
+          CountText := IntToStr(F.Count);
+          DecodeColor := Palette.GaugeLabel;
+        end;
+        APainter.Text(ScaleValue(92), Mid, IdText, TRACE_TEXT,
+          Palette.ForegroundText, twMonoBold);
+        APainter.Text(ScaleValue(150), Mid, Text, TRACE_META, DirColor,
+          twSemibold);
+        APainter.Text(ScaleValue(196), Mid, DlcText, TRACE_TEXT,
+          Palette.GaugeLabel, twMono);
+        if F.Direction <> btfError then
+          for B := 0 to F.DLC - 1 do
+          begin
+            Bx := DataX + B * Bw;
+            if ((F.ChangedMask shr B) and 1) <> 0 then
+              APainter.RoundRect(Bx - ScaleValue(2), Top + ScaleValue(3),
+                Bw - ScaleValue(4), RowHeight - ScaleValue(6), ScaleValue(4),
+                APainter.Tint(Palette.Accent, 0.18), clNone);
+            APainter.Text(Bx + (Bw - ScaleValue(4)) div 2, Mid,
+              Format('%.2x', [F.Data[B]]), TRACE_TEXT,
+              IfThen(((F.ChangedMask shr B) and 1) <> 0, APainter.AccentText,
+              Palette.ForegroundText), twMonoBold, taCenter);
+          end;
+        APainter.Text(CycleX, Mid, CycleText, TRACE_TEXT, Palette.GaugeLabel,
+          twMono);
         if F.Decoded <> '' then
           APainter.Text(CycleX + ScaleValue(70), Mid, F.Decoded, TRACE_META,
-            Palette.GaugeLabel, twRegular, taLeftJustify,
+            DecodeColor, twRegular, taLeftJustify,
             CountX - CycleX - ScaleValue(110));
-        APainter.Text(CountX, Mid, IntToStr(F.Count), TRACE_TEXT,
+        APainter.Text(CountX, Mid, CountText, TRACE_TEXT,
           Palette.GaugeLabel, twMono, taRightJustify);
       end;
       Inc(Top, RowHeight);
@@ -780,12 +1010,20 @@ procedure TOBDBusTrace.MouseDown(Button: TMouseButton; Shift: TShiftState; X,
   Y: Integer);
 var
   Thumb, Track: TRect;
+  F: TOBDBusTraceFilter;
 begin
   inherited;
   if (Button <> mbLeft) or not Enabled then
     Exit;
   if CanFocus and not Focused then
     SetFocus;
+  if FShowDirectionFilter then
+    for F := Low(TOBDBusTraceFilter) to High(TOBDBusTraceFilter) do
+      if PtInRect(DirectionSegmentRect(F), Point(X, Y)) then
+      begin
+        DirectionFilter := F;
+        Exit;
+      end;
   if PtInRect(PauseButtonRect, Point(X, Y)) then
   begin
     FDownPause := True;

@@ -494,6 +494,21 @@
     "type": "RCDATA",
     "size": 24
   },
+  "TOBDDATAGRID16_PNG": {
+    "file": "palette/TOBDDATAGRID16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDDATAGRID32_PNG": {
+    "file": "palette/TOBDDATAGRID32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDDATAGRID_PNG": {
+    "file": "palette/TOBDDATAGRID.png",
+    "type": "RCDATA",
+    "size": 24
+  },
   "TOBDDATAIDENTIFIERIO16_PNG": {
     "file": "palette/TOBDDATAIDENTIFIERIO16.png",
     "type": "RCDATA",
@@ -1196,6 +1211,21 @@
   },
   "TOBDKEYSLOTS_PNG": {
     "file": "palette/TOBDKEYSLOTS.png",
+    "type": "RCDATA",
+    "size": 24
+  },
+  "TOBDKEYVALUELIST16_PNG": {
+    "file": "palette/TOBDKEYVALUELIST16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDKEYVALUELIST32_PNG": {
+    "file": "palette/TOBDKEYVALUELIST32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDKEYVALUELIST_PNG": {
+    "file": "palette/TOBDKEYVALUELIST.png",
     "type": "RCDATA",
     "size": 24
   },
@@ -2816,6 +2846,21 @@
   },
   "TOBDTHEME_PNG": {
     "file": "palette/TOBDTHEME.png",
+    "type": "RCDATA",
+    "size": 24
+  },
+  "TOBDTILEGRID16_PNG": {
+    "file": "palette/TOBDTILEGRID16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDTILEGRID32_PNG": {
+    "file": "palette/TOBDTILEGRID32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDTILEGRID_PNG": {
+    "file": "palette/TOBDTILEGRID.png",
     "type": "RCDATA",
     "size": 24
   },

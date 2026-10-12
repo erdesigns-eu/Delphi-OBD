@@ -437,6 +437,9 @@
         <DCCReference Include="..\src\UI\ERD.UI.Hint.pas"/>
         <DCCReference Include="..\src\UI\ERD.UI.ScrollBar.pas"/>
         <DCCReference Include="..\src\UI\ERD.UI.ItemList.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.DataGrid.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.TileGrid.pas"/>
+        <DCCReference Include="..\src\UI\ERD.UI.KeyValueList.pas"/>
         <DCCReference Include="..\src\UI\ERD.UI.ShellControls.pas"/>
         <DCCReference Include="..\src\UI\ERD.UI.FileDialogs.pas"/>
         <DCCReference Include="..\src\UI\ERD.UI.PrintDialogs.pas"/>

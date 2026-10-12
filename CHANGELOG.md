@@ -185,6 +185,13 @@ flash, memory, radio code, keys and immobiliser, dyno, performance,
 measurement, actuators and bus, EV battery) as frames of their own that
 the main form drives through a small page interface. Sidebar items have a
 `Glyph` (any `TOBDGlyph`), drawn instead of the built-in `Icon`.
+Three data views join the common controls on the **OBD Studio** page:
+`TOBDDataGrid` (typed, sortable and resizable columns, groups, check
+column and an empty state), `TOBDTileGrid` (grouped, searchable tiles)
+and `TOBDKeyValueList` (read-only labels and values by category).
+`TOBDActuatorPanel` rows can be switches, sliders or step selectors and
+can be locked with a reason; `TOBDBusTrace` shows sent and error lines
+and filters by direction. The Pro example uses them.
 The font dialog lists every installed font again, the print dialog's
 printer status no longer overlaps the Pages label, and the selection
 ring on the first colour swatch is no longer clipped.

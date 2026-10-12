@@ -10,6 +10,7 @@
 //
 //  History     :
 //    2026-10-11  ERD  Initial implementation for the OBD Studio Pro controls.
+//    2026-10-12  ERD  Added bus trace direction and error tests.
 //------------------------------------------------------------------------------
 unit Tests.ERD.UI.ProData;
 
@@ -77,6 +78,9 @@ type
     [Test] procedure TabletDensityDiffers;
     [Test] procedure CapacityTrimsFrames;
     [Test] procedure ChangedBytesAreRecorded;
+    [Test] procedure DirectionIsKept;
+    [Test] procedure AddErrorAddsErrorRow;
+    [Test] procedure DirectionFilterHidesRows;
   end;
 
   [TestFixture]
@@ -333,6 +337,35 @@ begin
   FTrace.AddFrame(10, $280, False, Bytes([$01, $03]), 'second');
   Assert.AreEqual(2, FTrace.FrameCount);
   Assert.AreEqual(Integer(2), Integer(FTrace.Frame(1).ChangedMask));
+end;
+
+
+procedure TOBDBusTraceTests.DirectionIsKept;
+begin
+  FTrace.AddFrame(0, $280, False, Bytes([$01]), 'forced tx', btfTx);
+  Assert.AreEqual(Integer(btfTx), Integer(FTrace.Frame(0).Direction));
+end;
+
+procedure TOBDBusTraceTests.AddErrorAddsErrorRow;
+begin
+  FTrace.AddError(12, 'stuff error');
+  Assert.AreEqual(1, FTrace.FrameCount);
+  Assert.AreEqual(Integer(btfError), Integer(FTrace.Frame(0).Direction));
+  Assert.AreEqual('stuff error', FTrace.Frame(0).Decoded);
+end;
+
+procedure TOBDBusTraceTests.DirectionFilterHidesRows;
+begin
+  FTrace.AddFrame(0, $280, False, Bytes([$01]), 'rx', btfRx);
+  FTrace.AddFrame(1, $7E0, False, Bytes([$02]), 'tx', btfTx);
+  FTrace.AddError(2, 'bus error');
+  Assert.AreEqual(3, FTrace.VisibleCount);
+  FTrace.DirectionFilter := btdReceived;
+  Assert.AreEqual(1, FTrace.VisibleCount);
+  FTrace.DirectionFilter := btdSent;
+  Assert.AreEqual(1, FTrace.VisibleCount);
+  FTrace.DirectionFilter := btdErrors;
+  Assert.AreEqual(1, FTrace.VisibleCount);
 end;
 
 { TOBDBusSendTests }

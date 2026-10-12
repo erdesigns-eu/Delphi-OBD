@@ -92,7 +92,7 @@ class DelphiProjectTests(unittest.TestCase):
 class ResourceTests(unittest.TestCase):
     def test_every_registered_class_has_exact_reproducible_resource(self):
         data, count = resources.build()
-        self.assertEqual(count, 222)
+        self.assertEqual(count, 225)
         self.assertEqual(data, resources.TARGET.read_bytes())
         # The Win32 resource stream starts with the required 32-byte null header.
         self.assertEqual(struct.unpack_from('<II', data), (0, 32))
@@ -128,7 +128,7 @@ class ResourceTests(unittest.TestCase):
 class IconTests(unittest.TestCase):
     def test_tracked_icons_match_the_generator(self):
         files = icons.build()
-        self.assertEqual(len(files), 222 * len(icons.ICON_SIZES) + 2)
+        self.assertEqual(len(files), 225 * len(icons.ICON_SIZES) + 2)
         for rel, data in files.items():
             self.assertEqual(data, (icons.ASSETS / rel).read_bytes(), rel)
         tracked = {p.name for p in icons.PALETTE.glob('*.png')}
