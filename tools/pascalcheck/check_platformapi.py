@@ -18,6 +18,11 @@ FPC_ONLY = {
     'sizeuint': 'NativeUInt',
 }
 
+# What System.SysUtils.TFormatSettings answers through the type name itself
+# (static class functions, nested type, const). Anything else - Current,
+# Default, User... - is E2003; the user's locale is TFormatSettings.Create.
+FORMAT_SETTINGS_STATIC = {'create', 'invariant', 'terainfo', 'maxeracount'}
+
 
 def fpc_branches(directives):
     """Offset ranges that only FPC compiles: {$IFDEF FPC} / {$IF DEFINED(FPC)}
@@ -104,6 +109,11 @@ for path in ALL_FILES:
         if name in declared or any(a <= match.start() < b for a, b in fpc_only_code):
             continue
         finding(match.start(), f'{match.group(1)} is FreePascal-only; Delphi uses {FPC_ONLY[name]}')
+
+    for match in re.finditer(r'(?<![\w.])TFormatSettings\s*\.\s*(\w+)', src, re.I):
+        if match.group(1).lower() not in FORMAT_SETTINGS_STATIC:
+            finding(match.start(), f'TFormatSettings has no static {match.group(1)}; use '
+                                   'TFormatSettings.Create (user locale) or .Invariant')
 
     rect_names = set(re.findall(r'\b(\w+)\s*:\s*TRectF\b', src, re.I))
     for name in rect_names:

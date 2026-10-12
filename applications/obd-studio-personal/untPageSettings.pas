@@ -602,7 +602,7 @@ var
 begin
   if (FHost = nil) or FLoading then
     Exit;
-  FormatSettings := TFormatSettings.Current;
+  FormatSettings := TFormatSettings.Create;
   if not TryStrToFloat(Trim(FFuelPriceEdit.Text), Value, FormatSettings) then
     if not TryStrToFloat(Trim(FFuelPriceEdit.Text), Value,
       TFormatSettings.Invariant) then

@@ -302,6 +302,28 @@ end.
                           .replace('LineEnding', 'sLineBreak'))
         self.assertIn('total: 0', self.checker('platformapi'))
 
+    def test_format_settings_static_members(self):
+        source = self.source('applications/Price.pas', """unit Price;
+interface
+uses System.SysUtils;
+implementation
+function Parse(const S: string): Double;
+var
+  FormatSettings: TFormatSettings;
+begin
+  FormatSettings := TFormatSettings.Current;
+  if not TryStrToFloat(S, Result, FormatSettings) then
+    Result := StrToFloat(S, TFormatSettings.Invariant);
+  FormatSettings := TFormatSettings.Create('en-US');
+end;
+end.
+""")
+        output = self.checker('platformapi')
+        self.assertIn('total: 1', output)
+        self.assertIn('Price.pas:9', output)
+        source.write_text(source.read_text().replace('TFormatSettings.Current', 'TFormatSettings.Create'))
+        self.assertIn('total: 0', self.checker('platformapi'))
+
     def test_const_anonymous_method_passed_to_tproc_parameter(self):
         self.source('applications/Session.pas', """unit Session;
 interface
