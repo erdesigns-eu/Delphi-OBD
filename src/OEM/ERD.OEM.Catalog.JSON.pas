@@ -851,7 +851,7 @@ begin
       Entry.EcuAddress := ParseHexOrInt(EcuStr)
     else
       Entry.EcuAddress := FDefaultEcuAddress;
-    Entry.Decoder := ParseDecoder(Item.GetValue<TJSONObject>('decoder'));
+    Entry.Decoder := ParseDecoder(Item.GetValue<TJSONObject>('decoder', nil));
     FDIDs.Add(Entry);
   end;
 end;
@@ -1062,7 +1062,7 @@ begin
   Result := nil;
   if Obj = nil then
     Exit;
-  ValuesObj := Obj.GetValue<TJSONObject>(Key);
+  ValuesObj := Obj.GetValue<TJSONObject>(Key, nil);
   if ValuesObj = nil then
     Exit;
   Acc := TIntegerStringPairList.Create;
@@ -1091,7 +1091,7 @@ begin
   Result := nil;
   if Obj = nil then
     Exit;
-  BitsObj := Obj.GetValue<TJSONObject>(Key);
+  BitsObj := Obj.GetValue<TJSONObject>(Key, nil);
   if BitsObj = nil then
     Exit;
   Acc := TIntegerStringPairList.Create;
@@ -1132,7 +1132,7 @@ begin
       Entry.EcuAddress := FDefaultEcuAddress;
     Entry.PayloadSize := Item.GetValue<Integer>('payload_size', 0);
 
-    FieldsArr := Item.GetValue<TJSONArray>('fields');
+    FieldsArr := Item.GetValue<TJSONArray>('fields', nil);
     if Assigned(FieldsArr) then
     begin
       SetLength(Entry.Fields, FieldsArr.Count);
@@ -1252,7 +1252,7 @@ begin
     else
       Entry.EcuAddress := FDefaultEcuAddress;
     Entry.FrameOffset := Item.GetValue<Integer>('frame_offset', 0);
-    Decoder := Item.GetValue<TJSONObject>('decoder');
+    Decoder := Item.GetValue<TJSONObject>('decoder', nil);
     if Assigned(Decoder) then
     begin
       Entry.DecoderKindStr := Decoder.GetValue<string>('kind', '');
@@ -1289,7 +1289,7 @@ begin
     Entry.Description := Item.GetValue<string>('description', '');
     Entry.Source := Item.GetValue<string>('source', FDefaultSource);
     Entry.Verified := Item.GetValue<Boolean>('verified', False);
-    Decoder := Item.GetValue<TJSONObject>('decoder');
+    Decoder := Item.GetValue<TJSONObject>('decoder', nil);
     if Assigned(Decoder) then
     begin
       Entry.DecoderKindStr := Decoder.GetValue<string>('kind', '');
