@@ -303,6 +303,26 @@ end.
                           .replace('FDialog.FB := 1;', 'FDialog.OnApply(nil);'))
         self.assertIn('total: 0', self.checker('visibility'))
 
+    def test_property_must_not_hide_an_inherited_vcl_method(self):
+        source = self.source('src/Row.pas', """unit Row;
+interface
+uses System.Classes;
+type
+  TRow = class(TCollectionItem)
+  strict private
+    FChanged: Boolean;
+    FCaption: string;
+  published
+    property Changed: Boolean read FChanged write FChanged;
+    property Caption: string read FCaption write FCaption;
+  end;
+implementation
+end.
+""")
+        self.assertIn('total: 1', self.checker('hidemember'))
+        source.write_text(source.read_text().replace('property Changed:', 'property IsChanged:'))
+        self.assertIn('total: 0', self.checker('hidemember'))
+
     def test_property_field_must_have_the_property_type(self):
         source = self.source('src/Step.pas', """unit Step;
 interface

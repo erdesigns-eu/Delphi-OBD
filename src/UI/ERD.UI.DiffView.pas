@@ -41,12 +41,12 @@ type
     FLocation: string;
     FBeforeValue: string;
     FAfterValue: string;
-    FChanged: Boolean;
+    FIsChanged: Boolean;
     procedure SetName(const AValue: string);
     procedure SetLocation(const AValue: string);
     procedure SetBeforeValue(const AValue: string);
     procedure SetAfterValue(const AValue: string);
-    procedure SetChanged(AValue: Boolean);
+    procedure SetIsChanged(AValue: Boolean);
     procedure DoChanged;
   protected
     /// <summary>Returns the row name in the collection editor.</summary>
@@ -67,7 +67,7 @@ type
     /// <summary>Value that will be written or was written after the edit.</summary>
     property AfterValue: string read FAfterValue write SetAfterValue;
     /// <summary>Whether the row changed and receives accent styling.</summary>
-    property Changed: Boolean read FChanged write SetChanged default False;
+    property IsChanged: Boolean read FIsChanged write SetIsChanged default False;
   end;
 
   /// <summary>Owned collection of diff rows.</summary>
@@ -257,7 +257,7 @@ begin
     FLocation := Row.Location;
     FBeforeValue := Row.BeforeValue;
     FAfterValue := Row.AfterValue;
-    FChanged := Row.Changed;
+    FIsChanged := Row.IsChanged;
     DoChanged;
   end
   else
@@ -292,11 +292,11 @@ begin
   DoChanged;
 end;
 
-procedure TOBDDiffRow.SetChanged(AValue: Boolean);
+procedure TOBDDiffRow.SetIsChanged(AValue: Boolean);
 begin
-  if FChanged = AValue then
+  if FIsChanged = AValue then
     Exit;
-  FChanged := AValue;
+  FIsChanged := AValue;
   DoChanged;
 end;
 
@@ -393,7 +393,7 @@ begin
   Result.Name := AName;
   Result.BeforeValue := ABefore;
   Result.AfterValue := AAfter;
-  Result.Changed := AChanged;
+  Result.IsChanged := AChanged;
   DoChanged;
 end;
 
@@ -543,7 +543,7 @@ begin
   if UsePreviewData then
     Result := AIndex in [1, 2, 3]
   else
-    Result := FRows[AIndex].Changed;
+    Result := FRows[AIndex].IsChanged;
 end;
 
 function TOBDDiffView.VisibleByFilter(AIndex: Integer): Boolean;
