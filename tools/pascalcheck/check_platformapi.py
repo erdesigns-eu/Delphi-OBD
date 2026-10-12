@@ -42,13 +42,60 @@ def fpc_branches(directives):
     return ranges
 
 
+def tproc_routines(files):
+    """Routine names whose every declaration takes a TProc<...> parameter.
+
+    TProc<T> passes T by value, so an anonymous method written with
+    'const' or 'var' parameters is a different signature (E2010). A name
+    that also has a declaration without TProc is left out: the call could
+    be resolving to that one.
+    """
+    with_tproc, without = set(), set()
+    header = re.compile(
+        r'\b(?:procedure|function|constructor)\s+(?:\w+\s*\.\s*)?(\w+)\s*\(([^)]*)\)', re.I)
+    for path in files:
+        _, src, _, _, _ = load(path)
+        for m in header.finditer(src):
+            name = m.group(1).lower()
+            if re.search(r':\s*TProc\s*<', m.group(2), re.I):
+                with_tproc.add(name)
+            else:
+                without.add(name)
+    return with_tproc - without
+
+
+def enclosing_call(src, at):
+    """Name of the call whose argument list contains offset 'at'."""
+    depth, i = 0, at - 1
+    while i >= 0:
+        c = src[i]
+        if c == ')':
+            depth += 1
+        elif c == '(':
+            if depth == 0:
+                name = re.search(r'(\w+)\s*$', src[:i])
+                return name.group(1).lower() if name else None
+            depth -= 1
+        i -= 1
+    return None
+
+
+ALL_FILES = list(pas_files())
+TPROC_ROUTINES = tproc_routines(ALL_FILES)
+
 bad = []
-for path in pas_files():
+for path in ALL_FILES:
     raw, src, directives, lmap, toks = load(path)
     rel = os.path.relpath(path, ROOT)
 
     def finding(at, why):
         bad.append((rel, src.count('\n', 0, at) + 1, why))
+
+    for match in re.finditer(r'\bprocedure\s*\(\s*(?:const|var)\s+\w', src, re.I):
+        call = enclosing_call(src, match.start())
+        if call in TPROC_ROUTINES:
+            finding(match.start(), f'{call} takes a TProc<...>, whose parameters are by value; '
+                                   'drop const/var in the anonymous method')
 
     fpc_only_code = fpc_branches(directives)
     declared = {n.lower() for n in re.findall(r'\b(\w+)\s*:(?!=)', src)}

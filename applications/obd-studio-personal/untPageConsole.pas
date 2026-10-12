@@ -448,7 +448,7 @@ begin
   FTerminal.LogSent(Command);
   FHost.Log('Console TX: ' + Command);
   FHost.Session.SendRaw(Command,
-    procedure(const AReply: string)
+    procedure(AReply: string)
     var
       Lines: TStringList;
       I: Integer;

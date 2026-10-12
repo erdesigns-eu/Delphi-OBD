@@ -302,6 +302,48 @@ end.
                           .replace('LineEnding', 'sLineBreak'))
         self.assertIn('total: 0', self.checker('platformapi'))
 
+    def test_const_anonymous_method_passed_to_tproc_parameter(self):
+        self.source('applications/Session.pas', """unit Session;
+interface
+uses System.SysUtils;
+type
+  TSession = class
+  public
+    procedure SendRaw(ACommand: string; AReply: TProc<string>);
+    procedure RunJob(const ADone: TProc);
+  end;
+implementation
+procedure TSession.SendRaw(ACommand: string; AReply: TProc<string>);
+begin
+  AReply(ACommand);
+end;
+procedure TSession.RunJob(const ADone: TProc);
+begin
+  ADone();
+end;
+end.
+""")
+        page = self.source('applications/Page.pas', """unit Page;
+interface
+implementation
+uses Session;
+procedure Send(S: TSession; Other: TObject);
+begin
+  S.SendRaw('ATZ',
+    procedure(const AReply: string)
+    begin
+      Writeln(AReply);
+    end);
+  Other.Foo(procedure(const X: string) begin end);
+end;
+end.
+""")
+        output = self.checker('platformapi')
+        self.assertIn('total: 1', output)
+        self.assertIn('Page.pas:8', output)
+        page.write_text(page.read_text().replace('procedure(const AReply', 'procedure(AReply'))
+        self.assertIn('total: 0', self.checker('platformapi'))
+
     def test_platform_attributes_and_misqualified_system_routines(self):
         source = self.source('src/Shell.pas', """unit Shell;
 interface
