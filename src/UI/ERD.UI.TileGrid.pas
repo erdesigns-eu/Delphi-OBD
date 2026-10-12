@@ -163,6 +163,7 @@ type
     FBarDragging: Boolean;
     FBarDragOffset: Integer;
     FLastMouse: TPoint;
+    FSkipClick: Boolean;
     FUpdateCount: Integer;
     FOnChange: TNotifyEvent;
     FOnItemClick: TOBDTileEvent;
@@ -237,7 +238,8 @@ type
     /// <param name="Y">Mouse Y.</param>
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,
       Y: Integer); override;
-    /// <summary>Activates the tile under the mouse.</summary>
+    /// <summary>Activates the tile under the mouse (a single click only
+    /// fires OnItemClick).</summary>
     procedure DblClick; override;
     /// <summary>Moves selection and activates with Enter or Space.</summary>
     /// <param name="Key">Virtual key.</param>
@@ -310,7 +312,8 @@ type
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
     /// <summary>Fires when the user clicks a tile.</summary>
     property OnItemClick: TOBDTileEvent read FOnItemClick write FOnItemClick;
-    /// <summary>Fires when a tile is activated.</summary>
+    /// <summary>Fires once when a tile is double-clicked or Enter / Space is
+    /// pressed on it.</summary>
     property OnItemActivate: TOBDTileEvent read FOnItemActivate
       write FOnItemActivate;
   end;
@@ -1151,6 +1154,8 @@ var
 begin
   inherited;
   FLastMouse := Point(X, Y);
+  // The release after a double-click is not another click.
+  FSkipClick := ssDouble in Shift;
   if CanFocus and not Focused then
     SetFocus;
   if (Button = mbLeft) and NeedsScrollBar and PtInRect(ScrollBarRect,
@@ -1208,13 +1213,15 @@ begin
     Invalidate;
     Exit;
   end;
+  if FSkipClick then
+  begin
+    FSkipClick := False;
+    Exit;
+  end;
   Index := TileAt(X, Y);
   if (Button = mbLeft) and (Index >= 0) and (Index = FItemIndex) and
     TileSelectable(Index) then
-  begin
     DoItemClick(Index);
-    DoItemActivate(Index);
-  end;
 end;
 
 procedure TOBDTileGrid.DblClick;

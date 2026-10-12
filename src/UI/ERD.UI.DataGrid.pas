@@ -205,6 +205,7 @@ type
     procedure EnsureCellArrays(var AEntry: TGridEntry; ACol: Integer);
     procedure RebuildVisible;
     procedure GridChanged;
+    procedure RefreshRows(AResort: Boolean);
     procedure SortRows;
     function CompareEntries(const A, B: TGridEntry): Integer;
     function HeaderBounds: TRect;
@@ -571,14 +572,38 @@ procedure TOBDDataGrid.GridChanged;
 begin
   if FUpdateCount > 0 then
     Exit;
-  SortRows;
+  RefreshRows(True);
+end;
+
+procedure TOBDDataGrid.RefreshRows(AResort: Boolean);
+var
+  ID, GroupEntry, I, NewIndex: Integer;
+begin
+  // Keep the selection on the same row (or group header) while rows move
+  // because of sorting, new rows or a group opening or closing.
+  ID := SelectedRowID;
+  GroupEntry := -1;
+  if (ID < 0) and VisibleIsGroup(ItemIndex) then
+    GroupEntry := VisibleEntry(ItemIndex);
+  if AResort then
+    SortRows;
   RebuildVisible;
   ItemsChanged;
+  NewIndex := -1;
+  if ID >= 0 then
+    NewIndex := VisibleIndexOfRowID(ID)
+  else if GroupEntry >= 0 then
+    for I := 0 to High(FVisible) do
+      if FVisible[I] = GroupEntry then
+      begin
+        NewIndex := I;
+        Break;
+      end;
+  if ((ID >= 0) or (GroupEntry >= 0)) and (NewIndex <> ItemIndex) then
+    ItemIndex := NewIndex;
 end;
 
 procedure TOBDDataGrid.SetSortColumn(AValue: Integer);
-var
-  ID: Integer;
 begin
   if AValue < -1 then
     AValue := -1;
@@ -586,30 +611,18 @@ begin
     AValue := FDataColumns.Count - 1;
   if FSortColumn = AValue then
     Exit;
-  ID := SelectedRowID;
   FSortColumn := AValue;
-  SortRows;
-  RebuildVisible;
-  ItemsChanged;
-  if ID >= 0 then
-    ItemIndex := VisibleIndexOfRowID(ID);
+  RefreshRows(True);
   if Assigned(FOnSort) then
     FOnSort(Self, FSortColumn, FSortDescending);
 end;
 
 procedure TOBDDataGrid.SetSortDescending(AValue: Boolean);
-var
-  ID: Integer;
 begin
   if FSortDescending = AValue then
     Exit;
-  ID := SelectedRowID;
   FSortDescending := AValue;
-  SortRows;
-  RebuildVisible;
-  ItemsChanged;
-  if ID >= 0 then
-    ItemIndex := VisibleIndexOfRowID(ID);
+  RefreshRows(True);
   if Assigned(FOnSort) then
     FOnSort(Self, FSortColumn, FSortDescending);
 end;
@@ -671,10 +684,11 @@ end;
 function TOBDDataGrid.AddRow(const AValues: array of string): Integer;
 var
   E: TGridEntry;
-  I, N: Integer;
+  I, N, ID: Integer;
 begin
   E := Default(TGridEntry);
   E.RowID := FNextRowID;
+  ID := E.RowID;
   Inc(FNextRowID);
   E.Enabled := True;
   E.Glyph := glNone;
@@ -687,8 +701,15 @@ begin
   N := Length(FRows);
   SetLength(FRows, N + 1);
   FRows[N] := E;
-  Result := GetRowCount - 1;
   GridChanged;
+  // Sorting may have moved the new row: return where it is now.
+  Result := -1;
+  for I := 0 to High(FRows) do
+    if not FRows[I].IsGroup and (FRows[I].RowID = ID) then
+    begin
+      Result := DataIndexOfEntry(I);
+      Break;
+    end;
 end;
 
 function TOBDDataGrid.AddGroup(const ACaption: string): Integer;
@@ -812,8 +833,7 @@ begin
   if (I >= 0) and (FRows[I].Expanded <> AValue) then
   begin
     FRows[I].Expanded := AValue;
-    RebuildVisible;
-    ItemsChanged;
+    RefreshRows(False);
   end;
 end;
 
@@ -1405,12 +1425,15 @@ begin
     SetLength(E.Tones, FDataColumns.Count);
     for I := 0 to High(E.Tones) do
       E.Tones[I] := skNeutral;
-    if AIndex = 3 then
-      E.Tones[2] := skDanger
-    else if AIndex = 5 then
-      E.Tones[2] := skAccent
-    else
-      E.Tones[2] := skSuccess;
+    if Length(E.Tones) > 2 then
+    begin
+      if AIndex = 3 then
+        E.Tones[2] := skDanger
+      else if AIndex = 5 then
+        E.Tones[2] := skAccent
+      else
+        E.Tones[2] := skSuccess;
+    end;
   end
   else
   begin
@@ -1745,10 +1768,12 @@ end;
 
 procedure TOBDDataGrid.SortRows;
 var
-  Start, Stop, I, J: Integer;
-  T: TGridEntry;
+  Start, Stop: Integer;
 
   procedure SortRange(ALo, AHi: Integer);
+  var
+    I, J: Integer;
+    T: TGridEntry;
   begin
     for I := ALo to AHi - 1 do
       for J := I + 1 to AHi do

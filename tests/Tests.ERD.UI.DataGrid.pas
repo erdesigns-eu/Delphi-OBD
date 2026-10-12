@@ -46,6 +46,9 @@ type
     [Test] procedure SortNumericDescending;
     [Test] procedure SortKeepsSelection;
     [Test] procedure GroupCollapseHidesRows;
+    [Test] procedure AddRowWhileSortedReturnsItsIndex;
+    [Test] procedure ExpandGroupKeepsSelection;
+    [Test] procedure PreviewWithFewColumnsDraws;
     [Test] procedure CheckToggleFiresEvent;
     [Test] procedure ColumnResizeRespectsMinWidth;
   end;
@@ -152,6 +155,44 @@ begin
   FGrid.GroupExpanded[0] := False;
   Assert.AreEqual(1, FGrid.ItemCount);
   Assert.AreEqual(2, FGrid.RowCount);
+end;
+
+procedure TOBDDataGridTests.AddRowWhileSortedReturnsItsIndex;
+var
+  R: Integer;
+begin
+  FGrid.SortColumn := 0;
+  FGrid.AddRow(['B']);
+  FGrid.AddRow(['C']);
+  R := FGrid.AddRow(['A']);
+  Assert.AreEqual(0, R);
+  Assert.AreEqual('A', FGrid.Cells[0, R]);
+end;
+
+procedure TOBDDataGridTests.ExpandGroupKeepsSelection;
+begin
+  FGrid.AddGroup('First');
+  FGrid.AddRow(['a']);
+  FGrid.AddRow(['b']);
+  FGrid.AddGroup('Second');
+  FGrid.AddRow(['c']);
+  FGrid.RowData[2] := 3;
+  FGrid.GroupExpanded[0] := False;
+  // Visible: First, Second, c.
+  FGrid.ItemIndex := 2;
+  Assert.AreEqual(2, FGrid.SelectedRow);
+  FGrid.GroupExpanded[0] := True;
+  // Visible: First, a, b, Second, c - the selection follows row c.
+  Assert.AreEqual(4, FGrid.ItemIndex);
+  Assert.AreEqual(NativeInt(3), FGrid.RowData[FGrid.SelectedRow]);
+end;
+
+procedure TOBDDataGridTests.PreviewWithFewColumnsDraws;
+begin
+  while FGrid.DataColumns.Count > 2 do
+    FGrid.DataColumns.Delete(FGrid.DataColumns.Count - 1);
+  FGrid.ForcePreview := True;
+  Assert.IsTrue(InkRatio(FGrid) > 0.01, 'preview with two columns is empty');
 end;
 
 procedure TOBDDataGridTests.CheckToggleFiresEvent;

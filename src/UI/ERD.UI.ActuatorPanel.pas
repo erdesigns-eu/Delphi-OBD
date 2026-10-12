@@ -122,10 +122,11 @@ type
     property Kind: TOBDActuatorKind read FKind write SetKind default akButton;
     /// <summary>Caption for <see cref="akButton"/> rows; empty shows Start.</summary>
     property ButtonCaption: string read FButtonCaption write SetButtonCaption;
+    /// <summary>Comma-separated captions for <see cref="akSteps"/> rows. Streamed
+    /// before <see cref="Value"/> so a stored step survives loading.</summary>
+    property Steps: string read FSteps write SetSteps;
     /// <summary>Current switch, slider or step value, clamped by <see cref="Kind"/>.</summary>
     property Value: Integer read FValue write SetValue default 0;
-    /// <summary>Comma-separated captions for <see cref="akSteps"/> rows.</summary>
-    property Steps: string read FSteps write SetSteps;
     /// <summary>Disables input, dims the row and shows the locked state.</summary>
     property Locked: Boolean read FLocked write SetLocked default False;
     /// <summary>Reason shown on the feedback line while <see cref="Locked"/> is True.</summary>
