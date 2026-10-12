@@ -48,6 +48,12 @@ type
     [Test] procedure ParseInfoLineVariants;
     /// <summary>Nil sender raises EOBDAdapter.</summary>
     [Test] procedure NilSenderRaises;
+    /// <summary>A Vgate vLinker MC+ naming itself in AT@1 resolves to
+    /// its own adapter key.</summary>
+    [Test] procedure DetectsVgateVLinkerMC;
+    /// <summary>An AT@1 reply that only names the vendor matches no
+    /// single product and stays on the generic ELM327 key.</summary>
+    [Test] procedure VendorOnlyReplyStaysGeneric;
   end;
 
 implementation
@@ -234,6 +240,41 @@ begin
       TOBDAdapterDetector.Detect(nil, Identity);
     end,
     EOBDAdapter);
+end;
+
+procedure TAdapterDetectionTests.DetectsVgateVLinkerMC;
+var
+  S: TScriptedSender;
+  Sender: IOBDAdapterCommandSender;
+  Identity: TOBDAdapterIdentity;
+begin
+  S := TScriptedSender.Create;
+  Sender := S;
+  S.Map('ATZ',  'ELM327 v2.3');
+  S.Map('ATE0', 'OK');
+  S.Map('ATI',  'ELM327 v2.3');
+  S.Map('AT@1', 'Vgate vLinker MC+');
+  S.Map('AT@2', 'VL-MC-0001');
+  Assert.IsTrue(TOBDAdapterDetector.Detect(Sender, Identity));
+  Assert.AreEqual(Ord(afELM327), Ord(Identity.Family));
+  Assert.AreEqual('vgate_vlinker_mc_plus', Identity.AdapterKey);
+  Assert.IsFalse(Identity.IsClone);
+end;
+
+procedure TAdapterDetectionTests.VendorOnlyReplyStaysGeneric;
+var
+  S: TScriptedSender;
+  Sender: IOBDAdapterCommandSender;
+  Identity: TOBDAdapterIdentity;
+begin
+  S := TScriptedSender.Create;
+  Sender := S;
+  S.Map('ATZ',  'ELM327 v2.3');
+  S.Map('ATE0', 'OK');
+  S.Map('ATI',  'ELM327 v2.3');
+  S.Map('AT@1', 'Vgate');
+  Assert.IsTrue(TOBDAdapterDetector.Detect(Sender, Identity));
+  Assert.AreEqual('elm327', Identity.AdapterKey);
 end;
 
 initialization

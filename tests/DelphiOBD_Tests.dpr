@@ -32,6 +32,7 @@ uses
   DUnitX.TestFramework,
   ERD.Version in '..\src\Core\ERD.Version.pas',
   ERD.Types in '..\src\Core\ERD.Types.pas',
+  ERD.I18n in '..\src\Core\ERD.I18n.pas',
   ERD.Errors in '..\src\Core\ERD.Errors.pas',
   ERD.Decoders in '..\src\Core\ERD.Decoders.pas',
   ERD.Catalog in '..\src\Core\ERD.Catalog.pas',
@@ -109,6 +110,7 @@ uses
   ERD.Service.DTCs in '..\src\Service\ERD.Service.DTCs.pas',
   ERD.Service.VIN in '..\src\Service\ERD.Service.VIN.pas',
   ERD.Service.VehicleInfo in '..\src\Service\ERD.Service.VehicleInfo.pas',
+  ERD.Service.Inspection in '..\src\Service\ERD.Service.Inspection.pas',
   ERD.Service.VINDecoder.Types in '..\src\Service\ERD.Service.VINDecoder.Types.pas',
   ERD.Service.VINDecoder in '..\src\Service\ERD.Service.VINDecoder.pas',
   ERD.Service.VINInspector in '..\src\Service\ERD.Service.VINInspector.pas',
@@ -124,6 +126,7 @@ uses
   ERD.Service.EVBattery.Catalog in '..\src\Service\ERD.Service.EVBattery.Catalog.pas',
   ERD.Service.EVBattery in '..\src\Service\ERD.Service.EVBattery.pas',
   ERD.Service.EVBattery.Catalog.Component in '..\src\Service\ERD.Service.EVBattery.Catalog.Component.pas',
+  ERD.Service.Inspection.Component in '..\src\Service\ERD.Service.Inspection.Component.pas',
   ERD.Service.Actuator in '..\src\Service\ERD.Service.Actuator.pas',
   ERD.Service.VWRadioSAFE in '..\src\Service\ERD.Service.VWRadioSAFE.pas',
   ERD.Coding.SecurityAccess in '..\src\Coding\ERD.Coding.SecurityAccess.pas',
@@ -196,6 +199,9 @@ uses
   ERD.Replayer in '..\src\Recorder\ERD.Replayer.pas',
   ERD.Recorder.ProtocolMock in '..\src\Recorder\ERD.Recorder.ProtocolMock.pas',
   ERD.Recorder.Redactor in '..\src\Recorder\ERD.Recorder.Redactor.pas',
+  ERD.Recorder.CSV in '..\src\Recorder\ERD.Recorder.CSV.pas',
+  ERD.Simulator.Vehicle in '..\src\Simulator\ERD.Simulator.Vehicle.pas',
+  ERD.Simulator.ELM327 in '..\src\Simulator\ERD.Simulator.ELM327.pas',
   ERD.RadioCode.Types in '..\src\RadioCode\ERD.RadioCode.Types.pas',
   ERD.RadioCode in '..\src\RadioCode\ERD.RadioCode.pas',
   ERD.RadioCode.EuropeanPremium in '..\src\RadioCode\ERD.RadioCode.EuropeanPremium.pas',
@@ -290,6 +296,7 @@ uses
   ERD.UI.MapGrid             in '..\src\UI\ERD.UI.MapGrid.pas',
   ERD.UI.LapTimer            in '..\src\UI\ERD.UI.LapTimer.pas',
   ERD.UI.GMeter              in '..\src\UI\ERD.UI.GMeter.pas',
+  ERD.UI.Histogram in '..\src\UI\ERD.UI.Histogram.pas',
   ERD.UI.CellMatrix          in '..\src\UI\ERD.UI.CellMatrix.pas',
   ERD.UI.EcuTopology         in '..\src\UI\ERD.UI.EcuTopology.pas',
   ERD.UI.KeySlots            in '..\src\UI\ERD.UI.KeySlots.pas',
@@ -348,6 +355,11 @@ uses
   Tests.ERD.Service.VINDecoder in 'Tests.ERD.Service.VINDecoder.pas',
   Tests.ERD.Service.VehicleInfo in 'Tests.ERD.Service.VehicleInfo.pas',
   Tests.ERD.Protocol.ELMResponse in 'Tests.ERD.Protocol.ELMResponse.pas',
+  Tests.ERD.I18n in 'Tests.ERD.I18n.pas',
+  Tests.ERD.UI.Histogram in 'Tests.ERD.UI.Histogram.pas',
+  Tests.ERD.Simulator in 'Tests.ERD.Simulator.pas',
+  Tests.ERD.Service.Inspection in 'Tests.ERD.Service.Inspection.pas',
+  Tests.ERD.WWHOBD in 'Tests.ERD.WWHOBD.pas',
   Tests.ERD.Service.VINInspector in 'Tests.ERD.Service.VINInspector.pas',
   Tests.ERD.Service.VehicleHealth in 'Tests.ERD.Service.VehicleHealth.pas',
   Tests.ERD.Service.DriveCycle in 'Tests.ERD.Service.DriveCycle.pas',
@@ -397,7 +409,8 @@ uses
   Tests.ERD.Flashing.Signature in 'Tests.ERD.Flashing.Signature.pas',
   Tests.ERD.Flashing.OEMHandshakes in 'Tests.ERD.Flashing.OEMHandshakes.pas',
   Tests.ERD.Flashing.Followups in 'Tests.ERD.Flashing.Followups.pas',
-  Tests.ERD.Recorder in 'Tests.ERD.Recorder.pas';
+  Tests.ERD.Recorder in 'Tests.ERD.Recorder.pas',
+  Tests.ERD.Recorder.CSV in 'Tests.ERD.Recorder.CSV.pas';
 
 {$IFDEF CI}
 var

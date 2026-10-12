@@ -10,6 +10,8 @@
 //
 //  History     :
 //    2026-10-10  ERD  Initial implementation for the OBD Studio controls.
+//    2026-10-12  ERD  Translated On/Off captions; empty captions show the
+//                     translated default and follow the active language.
 //------------------------------------------------------------------------------
 
 unit ERD.UI.Inspector;
@@ -101,6 +103,10 @@ type
     procedure SetChecked(AValue: Boolean);
     procedure SetCheckedCaption(const AValue: string);
     procedure SetUncheckedCaption(const AValue: string);
+    function GetCheckedCaption: string;
+    function GetUncheckedCaption: string;
+    function IsCheckedCaptionStored: Boolean;
+    function IsUncheckedCaptionStored: Boolean;
     procedure SetReadOnly(AValue: Boolean);
     procedure SetLevel(AValue: TOBDAlertLevel);
     procedure SetHint(const AValue: string);
@@ -144,10 +150,14 @@ type
     property PickList: TStrings read FPickList write SetPickList;
     /// <summary>Boolean state for check rows. Value mirrors True or False.</summary>
     property Checked: Boolean read FChecked write SetChecked default False;
-    /// <summary>Caption drawn when Checked is True.</summary>
-    property CheckedCaption: string read FCheckedCaption write SetCheckedCaption;
-    /// <summary>Caption drawn when Checked is False.</summary>
-    property UncheckedCaption: string read FUncheckedCaption write SetUncheckedCaption;
+    /// <summary>Caption drawn when Checked is True. Empty (the default)
+    /// shows the translated "On".</summary>
+    property CheckedCaption: string read GetCheckedCaption
+      write SetCheckedCaption stored IsCheckedCaptionStored;
+    /// <summary>Caption drawn when Checked is False. Empty (the default)
+    /// shows the translated "Off".</summary>
+    property UncheckedCaption: string read GetUncheckedCaption
+      write SetUncheckedCaption stored IsUncheckedCaptionStored;
     /// <summary>True when the text part of an ellipsis row is read-only.</summary>
     property ReadOnly: Boolean read FReadOnly write SetReadOnly default False;
     /// <summary>Alert level used to colour read-only values and row edge.</summary>
@@ -338,6 +348,7 @@ type
     procedure OpenPickList(AProperty: TOBDInspectorProperty);
     procedure SelectPickListPrefix(AProperty: TOBDInspectorProperty; Ch: Char);
     procedure FirePropertyChanged(AProperty: TOBDInspectorProperty);
+    procedure LanguageChanged(Sender: TObject);
     procedure DrawCategory(APainter: TOBDPainter; ACategory: TOBDInspectorCategory;
       const R: TRect);
     procedure DrawProperty(APainter: TOBDPainter; AProperty: TOBDInspectorProperty;
@@ -492,8 +503,6 @@ begin
   FPickList := TStringList.Create;
   TStringList(FPickList).OnChange := PickListChanged;
   FKind := ivText;
-  FCheckedCaption := Tr('ui.inspector.boolean.on', 'On');
-  FUncheckedCaption := Tr('ui.inspector.boolean.off', 'Off');
   FLevel := alvNormal;
   FVisible := True;
 end;
@@ -518,8 +527,8 @@ begin
     FKind := P.Kind;
     FPickList.Assign(P.PickList);
     FChecked := P.Checked;
-    FCheckedCaption := P.CheckedCaption;
-    FUncheckedCaption := P.UncheckedCaption;
+    FCheckedCaption := P.FCheckedCaption;
+    FUncheckedCaption := P.FUncheckedCaption;
     FReadOnly := P.ReadOnly;
     FLevel := P.Level;
     FHint := P.Hint;
@@ -574,7 +583,7 @@ procedure TOBDInspectorProperty.SetValue(const AValue: string);
 begin
   if FKind = ivCheck then
   begin
-    FChecked := SameText(AValue, 'True') or SameText(AValue, FCheckedCaption) or
+    FChecked := SameText(AValue, 'True') or SameText(AValue, CheckedCaption) or
       SameText(AValue, 'On') or (AValue = '1');
     if FChecked then
       FValue := 'True'
@@ -648,6 +657,32 @@ begin
     Exit;
   FUncheckedCaption := AValue;
   Changed(False);
+end;
+
+function TOBDInspectorProperty.GetCheckedCaption: string;
+begin
+  if FCheckedCaption <> '' then
+    Result := FCheckedCaption
+  else
+    Result := Tr('ui.inspector.boolean.on', 'On');
+end;
+
+function TOBDInspectorProperty.GetUncheckedCaption: string;
+begin
+  if FUncheckedCaption <> '' then
+    Result := FUncheckedCaption
+  else
+    Result := Tr('ui.inspector.boolean.off', 'Off');
+end;
+
+function TOBDInspectorProperty.IsCheckedCaptionStored: Boolean;
+begin
+  Result := FCheckedCaption <> '';
+end;
+
+function TOBDInspectorProperty.IsUncheckedCaptionStored: Boolean;
+begin
+  Result := FUncheckedCaption <> '';
 end;
 
 procedure TOBDInspectorProperty.SetReadOnly(AValue: Boolean);
@@ -904,14 +939,21 @@ begin
   FPopup := TOBDPopupList.Create(Self);
   FPopup.OnCloseUp := PopupCloseUp;
   ApplyEditorTheme;
+  OBDI18n.AddChangeListener(LanguageChanged);
 end;
 
 destructor TOBDInspector.Destroy;
 begin
+  OBDI18n.RemoveChangeListener(LanguageChanged);
   FPopup.Free;
   FEditor.Free;
   FCategories.Free;
   inherited;
+end;
+
+procedure TOBDInspector.LanguageChanged(Sender: TObject);
+begin
+  Invalidate;
 end;
 
 procedure TOBDInspector.Assign(Source: TPersistent);

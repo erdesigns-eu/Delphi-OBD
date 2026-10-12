@@ -141,4 +141,7 @@ begin
   Assert.AreEqual(Ord(irkBeforeAppliesFrom), Ord(Result_.Reasons[0].Kind));
 end;
 
+initialization
+  TDUnitX.RegisterTestFixture(TInspectionCatalogTests);
+
 end.

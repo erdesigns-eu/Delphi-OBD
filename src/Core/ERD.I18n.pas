@@ -9,6 +9,7 @@
 //
 // History     :
 // 2026-10-12  ERD  Initial implementation.
+// 2026-10-12  ERD  Built-in English texts for TOBDHistogram.
 // ------------------------------------------------------------------------------
 
 unit ERD.I18n;
@@ -156,7 +157,7 @@ type
   end;
 
 const
-  BUILTIN_ENGLISH_STRINGS: array [0 .. 212] of TOBDBuiltInString = (
+  BUILTIN_ENGLISH_STRINGS: array [0 .. 218] of TOBDBuiltInString = (
     (Key: 'app.dashboard.health'; Value: 'Vehicle health'),
     (Key: 'app.dashboard.quickActions'; Value: 'Quick actions'),
     (Key: 'app.dashboard.title'; Value: 'Vehicle dashboard'),
@@ -275,6 +276,12 @@ const
     (Key: 'ui.font.searchFonts'; Value: 'Search fonts'),
     (Key: 'ui.font.strikeout'; Value: 'Strikeout'),
     (Key: 'ui.font.underline'; Value: 'Underline'),
+    (Key: 'ui.histogram.marker.mean'; Value: 'mean'),
+    (Key: 'ui.histogram.marker.median'; Value: 'median'),
+    (Key: 'ui.histogram.marker.now'; Value: 'now'),
+    (Key: 'ui.histogram.noSamples'; Value: 'No samples'),
+    (Key: 'ui.histogram.summary'; Value: '%d samples | mean %s | min %s | max %s'),
+    (Key: 'ui.histogram.title'; Value: 'Histogram'),
     (Key: 'ui.inspector.boolean.off'; Value: 'Off'),
     (Key: 'ui.inspector.boolean.on'; Value: 'On'),
     (Key: 'ui.range.applyEngineCodes'; Value: 'Apply to engine codes'),

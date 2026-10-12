@@ -58,7 +58,7 @@ each piece independently testable, mockable, and replaceable.
 | Flashing | `TOBDUDSTransfer`, `TOBDFlashPipeline`, `TOBDVoltageGate` | Production-grade reflash with safety gates |
 | Calibration | `TOBDXCP`, `TOBDCCP`, `TOBDIsoBus` | ASAM MCD-1 / ISO 11783 |
 | Speciality | Dyno calculators, radio-code calculators, EEPROM extractors, `TOBDVWRadioSAFE` | Domain calculators on top of live data or dumps |
-| Tooling | `TOBDRecorder`, `TOBDReplayer`, `TOBDProtocolMock` | Capture / replay sessions |
+| Tooling | `TOBDRecorder`, `TOBDReplayer`, `TOBDCSVLogger`, `TOBDProtocolMock` | Capture / replay sessions and CSV exports |
 | Network / sessions | `TOBDDoIPClient`, `TOBDSecOCCodec`, `TOBDKWP1281Session`, `TOBDTP20Session`, `TOBDJ2534Device`, `TOBDJ2534Channel` | DoIP, AUTOSAR SecOC, VW legacy sessions, J2534 pass-thru |
 | Protocol | `TOBDProtocol` | Codec dispatch + main-thread events |
 | Adapter | `TOBDAdapter` | AT / ST handshake, capability detection |
@@ -72,6 +72,21 @@ Source layout follows the layer split:
 `src/UI` · `src/DesignTime`. See the
 [component reference](components.md#where-the-code-lives) for what each
 folder holds.
+
+## Recording and CSV export
+
+`TOBDRecorder` remains the protocol-level capture format: one JSONL entry
+per frame, response, NRC, error or info record, optionally gzip-compressed.
+`TOBDReplayer` and `TOBDProtocolMock` consume that file for replay and
+fixtures.
+
+For spreadsheet workflows, `TOBDCSVLogger` records live Mode 01 data in a
+wide format: timestamp, elapsed seconds and one fixed column per configured
+PID. `TOBDRecordingCSVExporter` converts existing `.obdlog` recordings to a
+long CSV format with timestamp, kind, service, PID/DID, raw hex and decoded
+Mode 01 values where the catalogue or built-in decoder can resolve them.
+Both outputs are local files only; the library does not upload recordings or
+CSV exports.
 
 ## Threading model
 

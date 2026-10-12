@@ -479,6 +479,21 @@
     "type": "RCDATA",
     "size": 24
   },
+  "TOBDCSVLOGGER16_PNG": {
+    "file": "palette/TOBDCSVLOGGER16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDCSVLOGGER32_PNG": {
+    "file": "palette/TOBDCSVLOGGER32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDCSVLOGGER_PNG": {
+    "file": "palette/TOBDCSVLOGGER.png",
+    "type": "RCDATA",
+    "size": 24
+  },
   "TOBDDASHBOARD16_PNG": {
     "file": "palette/TOBDDASHBOARD16.png",
     "type": "RCDATA",
@@ -794,6 +809,21 @@
     "type": "RCDATA",
     "size": 24
   },
+  "TOBDEMULATORCONNECTION16_PNG": {
+    "file": "palette/TOBDEMULATORCONNECTION16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDEMULATORCONNECTION32_PNG": {
+    "file": "palette/TOBDEMULATORCONNECTION32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDEMULATORCONNECTION_PNG": {
+    "file": "palette/TOBDEMULATORCONNECTION.png",
+    "type": "RCDATA",
+    "size": 24
+  },
   "TOBDEVBATTERY16_PNG": {
     "file": "palette/TOBDEVBATTERY16.png",
     "type": "RCDATA",
@@ -1034,6 +1064,21 @@
     "type": "RCDATA",
     "size": 24
   },
+  "TOBDHISTOGRAM16_PNG": {
+    "file": "palette/TOBDHISTOGRAM16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDHISTOGRAM32_PNG": {
+    "file": "palette/TOBDHISTOGRAM32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDHISTOGRAM_PNG": {
+    "file": "palette/TOBDHISTOGRAM.png",
+    "type": "RCDATA",
+    "size": 24
+  },
   "TOBDINERTIALBRAKE16_PNG": {
     "file": "palette/TOBDINERTIALBRAKE16.png",
     "type": "RCDATA",
@@ -1046,6 +1091,21 @@
   },
   "TOBDINERTIALBRAKE_PNG": {
     "file": "palette/TOBDINERTIALBRAKE.png",
+    "type": "RCDATA",
+    "size": 24
+  },
+  "TOBDINSPECTIONRULES16_PNG": {
+    "file": "palette/TOBDINSPECTIONRULES16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDINSPECTIONRULES32_PNG": {
+    "file": "palette/TOBDINSPECTIONRULES32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
+  "TOBDINSPECTIONRULES_PNG": {
+    "file": "palette/TOBDINSPECTIONRULES.png",
     "type": "RCDATA",
     "size": 24
   },
@@ -3194,6 +3254,16 @@
     "type": "RCDATA",
     "size": 24
   },
+  "TOBDVEHICLEINFO16_PNG": {
+    "file": "palette/TOBDVEHICLEINFO16.png",
+    "type": "RCDATA",
+    "size": 16
+  },
+  "TOBDVEHICLEINFO32_PNG": {
+    "file": "palette/TOBDVEHICLEINFO32.png",
+    "type": "RCDATA",
+    "size": 32
+  },
   "TOBDVEHICLEINFOCARD16_PNG": {
     "file": "palette/TOBDVEHICLEINFOCARD16.png",
     "type": "RCDATA",
@@ -3206,6 +3276,11 @@
   },
   "TOBDVEHICLEINFOCARD_PNG": {
     "file": "palette/TOBDVEHICLEINFOCARD.png",
+    "type": "RCDATA",
+    "size": 24
+  },
+  "TOBDVEHICLEINFO_PNG": {
+    "file": "palette/TOBDVEHICLEINFO.png",
     "type": "RCDATA",
     "size": 24
   },

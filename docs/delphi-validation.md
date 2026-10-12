@@ -57,7 +57,7 @@ Review these scenarios in a real VCL form, with Windows scaling at
 | DTC list | Empty list, active/pending/history entries, descriptions and long codes. |
 | Trend chart / matrix | Empty chart, one and several channels, window rollover; every matrix preset, scrolling ticker and text longer than the display. |
 | Dashboard | A form hosting `TOBDDashboard`: default layout, edit mode move / swap / resize / remove (close button hover and pressed states), save, load, default layout; `Source` assigned to a live `TOBDLiveData`. |
-| Component palette | All 225 components appear on their 14 palette pages with their own icons; no default missing-icon boxes. Inspect the generated 16, 24 and 32 px icons at 100 %, 150 % and 200 % IDE scaling in the light and dark IDE themes. |
+| Component palette | All 230 components appear on their 14 palette pages with their own icons; no default missing-icon boxes. Inspect the generated 16, 24 and 32 px icons at 100 %, 150 % and 200 % IDE scaling in the light and dark IDE themes. |
 | Live-test dialog | Close while an action has retained callbacks; late log/status callbacks must not access the freed dialog. |
 
 Save actual Delphi screenshots with the recorded scale/style and surface name

@@ -15,6 +15,8 @@
 // 2026-05-09  ERD  Initial implementation: registry + JSON loader + built-in
 // fallback rows for ELM327 / OBDLink MX / OBDLink EX /
 // J2534 / DoIP.
+// 2026-10-12  ERD  Detection hints (ATI / AT@1) per entry, built-in Vgate
+//                  vLinker and iCar Pro rows, TryMatchIdentity.
 // ------------------------------------------------------------------------------
 
 unit ERD.Adapter.Capabilities;
@@ -55,6 +57,14 @@ type
     /// (7 for classic CAN, 62 for CAN-FD, larger for DoIP). 0 means
     /// unknown.</summary>
     MaxIsoTpFrameBytes: Cardinal;
+    /// <summary>Texts that must all appear in the <c>ATI</c> reply for
+    /// this entry to match (case-insensitive). Empty: not matched on
+    /// <c>ATI</c>.</summary>
+    InfoHints: TArray<string>;
+    /// <summary>Texts of which any may appear in the <c>AT@1</c> or
+    /// <c>AT@2</c> reply (case-insensitive); each one found adds to the
+    /// match score.</summary>
+    DescriptionHints: TArray<string>;
   end;
 
   /// <summary>
@@ -108,6 +118,20 @@ type
     /// <param name="AEntry">Output entry, valid only when True.</param>
     /// <returns>True when a matching entry exists.</returns>
     function TryFind(const AAdapterKey: string;
+      out AEntry: TOBDAdapterCapabilityEntry): Boolean;
+    /// <summary>
+    /// Finds the entry whose detection hints best match an adapter's
+    /// identity replies.
+    /// </summary>
+    /// <param name="AInfo">The <c>ATI</c> reply.</param>
+    /// <param name="ADescription">The <c>AT@1</c> reply, plus the
+    /// <c>AT@2</c> reply if available.</param>
+    /// <param name="AEntry">Output entry, valid only when True.</param>
+    /// <returns>True when exactly one entry has the highest score.
+    /// <c>InfoHints</c> score only when all of them are present; each
+    /// <c>DescriptionHints</c> text found scores one. A tie (for example
+    /// a reply that only names the vendor) matches nothing.</returns>
+    function TryMatchIdentity(const AInfo, ADescription: string;
       out AEntry: TOBDAdapterCapabilityEntry): Boolean;
   end;
 
@@ -207,9 +231,55 @@ begin
   Result := False;
 end;
 
+function HintsScore(const AHints: TArray<string>; const AText: string;
+  ARequireAll: Boolean): Integer;
+var
+  Upper: string;
+  I: Integer;
+begin
+  Result := 0;
+  if Length(AHints) = 0 then
+    Exit;
+  Upper := UpperCase(AText);
+  for I := 0 to High(AHints) do
+    if (AHints[I] <> '') and (Pos(UpperCase(AHints[I]), Upper) > 0) then
+      Inc(Result)
+    else if ARequireAll then
+      Exit(0);
+end;
+
+function TOBDAdapterCapabilityRegistry.TryMatchIdentity(const AInfo,
+  ADescription: string; out AEntry: TOBDAdapterCapabilityEntry): Boolean;
+var
+  I, Score, Best, BestIndex: Integer;
+  Tie: Boolean;
+begin
+  Best := 0;
+  BestIndex := -1;
+  Tie := False;
+  for I := 0 to FEntries.Count - 1 do
+  begin
+    Score := HintsScore(FEntries[I].InfoHints, AInfo, True) +
+      HintsScore(FEntries[I].DescriptionHints, ADescription, False);
+    if Score > Best then
+    begin
+      Best := Score;
+      BestIndex := I;
+      Tie := False;
+    end
+    else if (Score > 0) and (Score = Best) then
+      Tie := True;
+  end;
+  Result := (BestIndex >= 0) and not Tie;
+  if Result then
+    AEntry := FEntries[BestIndex];
+end;
+
 procedure TOBDAdapterCapabilityRegistry.SeedBuiltins;
   procedure Add(const AKey, ADisplay: string; AFamily: TOBDAdapterFamily;
-    ACaps: TOBDAdapterCapabilities; AMaxIsoTp: Cardinal);
+    ACaps: TOBDAdapterCapabilities; AMaxIsoTp: Cardinal;
+    const AInfoHints: TArray<string> = nil;
+    const ADescriptionHints: TArray<string> = nil);
   var
     E: TOBDAdapterCapabilityEntry;
   begin
@@ -218,6 +288,8 @@ procedure TOBDAdapterCapabilityRegistry.SeedBuiltins;
     E.Family := AFamily;
     E.Capabilities := ACaps;
     E.MaxIsoTpFrameBytes := AMaxIsoTp;
+    E.InfoHints := AInfoHints;
+    E.DescriptionHints := ADescriptionHints;
     Register(E);
   end;
 
@@ -240,6 +312,45 @@ begin
     acAdapterMultiFrame], 62);
   Add('doip', 'Diagnostics over IP gateway', afDoIP, [acDoIP, acISOTPLongFrame,
     acAdapterMultiFrame], 1500);
+  // Vgate adapters: ELM327-compatible firmware that names the product in
+  // ATI or AT@1. Same rows and hints as catalogs/adapter/capabilities.json
+  // (vendor material, not yet bench-verified).
+  Add('vgate_vlinker_fs', 'Vgate vLinker FS USB', afELM327, [acCAN, acISOTP,
+    acKLine, acVoltageMonitor, acProgrammableHeaders], 7,
+    TArray<string>.Create('ELM327', 'vLinker FS'),
+    TArray<string>.Create('vLinker FS', 'Vgate'));
+  Add('vgate_vlinker_mc_plus', 'Vgate vLinker MC+', afELM327, [acCAN, acISOTP,
+    acKLine, acVoltageMonitor, acProgrammableHeaders], 7,
+    TArray<string>.Create('ELM327', 'vLinker MC'),
+    TArray<string>.Create('vLinker MC', 'Vgate'));
+  Add('vgate_vlinker_fd', 'Vgate vLinker FD', afELM327, [acCAN, acCANFD, acISOTP,
+    acISOTPLongFrame, acKLine, acVoltageMonitor, acProgrammableHeaders,
+    acAdapterMultiFrame], 62,
+    TArray<string>.Create('ELM327', 'vLinker FD'),
+    TArray<string>.Create('vLinker FD', 'Vgate'));
+  Add('vgate_vlinker_bm_plus', 'Vgate vLinker BM+', afELM327, [acCAN, acISOTP,
+    acKLine, acVoltageMonitor, acProgrammableHeaders], 7,
+    TArray<string>.Create('ELM327', 'vLinker BM'),
+    TArray<string>.Create('vLinker BM', 'Vgate'));
+  Add('vgate_icar_pro_ble', 'Vgate iCar Pro BLE', afELM327, [acCAN, acISOTP,
+    acKLine, acVoltageMonitor, acProgrammableHeaders], 7,
+    TArray<string>.Create('ELM327', 'iCar Pro'),
+    TArray<string>.Create('iCar Pro', 'Vgate'));
+end;
+
+function ReadStringArray(AObject: TJSONObject;
+  const AName: string): TArray<string>;
+var
+  Arr: TJSONArray;
+  I: Integer;
+begin
+  Result := nil;
+  if (AObject = nil) or not (AObject.GetValue(AName) is TJSONArray) then
+    Exit;
+  Arr := AObject.GetValue(AName) as TJSONArray;
+  SetLength(Result, Arr.Count);
+  for I := 0 to Arr.Count - 1 do
+    Result[I] := Arr.Items[I].Value;
 end;
 
 function TOBDAdapterCapabilityRegistry.LoadFromJSON(const AFileName
@@ -307,6 +418,8 @@ begin
       E.DisplayName := '';
       E.Capabilities := [];
       E.MaxIsoTpFrameBytes := 0;
+      E.InfoHints := nil;
+      E.DescriptionHints := nil;
 
       KeyVal := EntryObj.GetValue('adapter_key');
       if KeyVal <> nil then
@@ -336,6 +449,14 @@ begin
           if TryParseCapability(CapStr, Cap) then
             Include(E.Capabilities, Cap);
         end;
+      end;
+
+      if EntryObj.GetValue('detection') is TJSONObject then
+      begin
+        E.InfoHints := ReadStringArray(EntryObj.GetValue('detection')
+          as TJSONObject, 'ati_contains');
+        E.DescriptionHints := ReadStringArray(EntryObj.GetValue('detection')
+          as TJSONObject, 'at1_contains');
       end;
 
       Register(E);

@@ -14,6 +14,8 @@
 //
 // History     :
 // 2026-10-12  ERD  Initial implementation.
+// 2026-10-12  ERD  Translated texts (ERD.I18n); empty Title shows the
+//                  translated default; ShowTitle hides the header.
 // ------------------------------------------------------------------------------
 
 unit ERD.UI.Histogram;
@@ -34,7 +36,8 @@ uses
   Vcl.Forms,
   ERD.UI.Types,
   ERD.UI.Control,
-  ERD.UI.Paint;
+  ERD.UI.Paint,
+  ERD.I18n;
 
 type
   /// <summary>Vertical axis units for the histogram.</summary>
@@ -101,6 +104,7 @@ type
   TOBDHistogram = class(TOBDCustomControl, IOBDSurface)
   strict private
     FTitle: string;
+    FShowTitle: Boolean;
     FUnitText: string;
     FMin: Double;
     FMax: Double;
@@ -123,6 +127,10 @@ type
     FOnBinClick: TOBDHistogramBinClickEvent;
     FOnChange: TNotifyEvent;
     procedure SetTitle(const AValue: string);
+    function GetTitle: string;
+    function IsTitleStored: Boolean;
+    procedure SetShowTitle(AValue: Boolean);
+    procedure LanguageChanged(Sender: TObject);
     procedure SetUnitText(const AValue: string);
     procedure SetMin(AValue: Double);
     procedure SetMax(AValue: Double);
@@ -241,8 +249,12 @@ type
     /// <summary>Median retained sample.</summary>
     property Median: Double read GetMedian;
   published
-    /// <summary>Optional card title.</summary>
-    property Title: string read FTitle write SetTitle;
+    /// <summary>Card title. Empty (the default) shows the translated
+    /// default title, which follows the active language.</summary>
+    property Title: string read GetTitle write SetTitle stored IsTitleStored;
+    /// <summary>Shows the card header with the title and the sample
+    /// summary.</summary>
+    property ShowTitle: Boolean read FShowTitle write SetShowTitle default True;
     /// <summary>Unit suffix displayed on labels and hints.</summary>
     property UnitText: string read FUnitText write SetUnitText;
     /// <summary>Manual value-axis minimum when AutoRange is False.</summary>
@@ -404,7 +416,7 @@ constructor TOBDHistogram.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FSamples := TList<Double>.Create;
-  FTitle := 'Histogram';
+  FShowTitle := True;
   FMin := DEFAULT_MIN;
   FMax := DEFAULT_MAX;
   FAutoRange := True;
@@ -419,12 +431,19 @@ begin
   Width := 420;
   Height := 260;
   RefreshStats;
+  OBDI18n.AddChangeListener(LanguageChanged);
 end;
 
 destructor TOBDHistogram.Destroy;
 begin
+  OBDI18n.RemoveChangeListener(LanguageChanged);
   FSamples.Free;
   inherited;
+end;
+
+procedure TOBDHistogram.LanguageChanged(Sender: TObject);
+begin
+  Invalidate;
 end;
 
 procedure TOBDHistogram.DensityChanged;
@@ -446,6 +465,27 @@ begin
   if FTitle = AValue then
     Exit;
   FTitle := AValue;
+  Invalidate;
+end;
+
+function TOBDHistogram.GetTitle: string;
+begin
+  if FTitle <> '' then
+    Result := FTitle
+  else
+    Result := Tr('ui.histogram.title', 'Histogram');
+end;
+
+function TOBDHistogram.IsTitleStored: Boolean;
+begin
+  Result := FTitle <> '';
+end;
+
+procedure TOBDHistogram.SetShowTitle(AValue: Boolean);
+begin
+  if FShowTitle = AValue then
+    Exit;
+  FShowTitle := AValue;
   Invalidate;
 end;
 
@@ -741,7 +781,7 @@ end;
 
 function TOBDHistogram.HeaderHeight: Integer;
 begin
-  if FTitle <> '' then
+  if FShowTitle then
     Result := ScaleValue(Metrics.Head)
   else
     Result := ScaleValue(12);
@@ -887,19 +927,19 @@ var
   X, Y: Integer;
   Summary: string;
 begin
-  if FTitle = '' then
+  if not FShowTitle then
     Exit;
   Y := R.Top + R.Height div 2;
   P.Glyph(glChart, R.Left + P.S(26), Y, P.AccentText, 1);
   X := R.Left + P.S(46);
-  P.Text(X, Y - P.S(8), FTitle, OBD_TEXT_TITLE, Palette.ForegroundText,
+  P.Text(X, Y - P.S(8), Title, OBD_TEXT_TITLE, Palette.ForegroundText,
     twBold, taLeftJustify, R.Width - P.S(90));
   if FStats.Count > 0 then
-    Summary := Format('%d samples | mean %s | min %s | max %s',
-      [FStats.Count, FormatValue(FStats.Mean, True),
+    Summary := TrFmt('ui.histogram.summary',
+      '%d samples | mean %s | min %s | max %s', [FStats.Count, FormatValue(FStats.Mean, True),
       FormatValue(FStats.Minimum, True), FormatValue(FStats.Maximum, True)])
   else
-    Summary := 'No samples';
+    Summary := Tr('ui.histogram.noSamples', 'No samples');
   P.Text(X, Y + P.S(11), Summary, OBD_TEXT_SMALL, Palette.GaugeLabel,
     twRegular, taLeftJustify, R.Width - P.S(90));
   P.HLine(R.Left + P.S(1), R.Bottom - P.S(1), R.Width - P.S(2),
@@ -1036,14 +1076,16 @@ var
   Last: Double;
 begin
   if FShowMeanLine and (FStats.Count > 0) then
-    PaintMarker(P, APlot, AMin, AMax, FStats.Mean, 'mean', Palette.Success, 0);
+    PaintMarker(P, APlot, AMin, AMax, FStats.Mean,
+      Tr('ui.histogram.marker.mean', 'mean'), Palette.Success, 0);
   if FShowMedianLine and (FStats.Count > 0) then
-    PaintMarker(P, APlot, AMin, AMax, FStats.Median, 'median', Palette.GaugeLabel,
-      P.S(16));
+    PaintMarker(P, APlot, AMin, AMax, FStats.Median,
+      Tr('ui.histogram.marker.median', 'median'), Palette.GaugeLabel, P.S(16));
   if FShowCurrentMarker and (FSamples.Count > 0) then
   begin
     Last := FSamples[FSamples.Count - 1];
-    PaintMarker(P, APlot, AMin, AMax, Last, 'now', P.AccentText, P.S(32));
+    PaintMarker(P, APlot, AMin, AMax, Last,
+      Tr('ui.histogram.marker.now', 'now'), P.AccentText, P.S(32));
   end;
 end;
 
@@ -1095,7 +1137,7 @@ begin
     PaintHoverLabel(P, Plot, Bins);
     if (Length(Samples) = 0) and (not IsPreview) then
       P.Text(Plot.Left + Plot.Width div 2, Plot.Top + Plot.Height div 2,
-        'No data', OBD_TEXT_BODY, Palette.GaugeLabel, twRegular, taCenter);
+        Tr('status.noData', 'No data'), OBD_TEXT_BODY, Palette.GaugeLabel, twRegular, taCenter);
   finally
     P.Free;
   end;

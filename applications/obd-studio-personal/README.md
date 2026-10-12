@@ -10,8 +10,9 @@ offers every feature of OBD Auto Doctor's paid plans, plus extras that suit
 European drivers: inspection checks (APK, keuring, HU/AU, CT, MOT, NCT),
 normal ranges on every value, and European languages.
 
-**Status:** design. All 18 screens are mocked up and the library work comes
-next (see [Roadmap](#roadmap)). There is no application code yet.
+**Status:** ready to build. All 18 screens are mocked up and the library
+work (step 2) is done (see [Roadmap](#roadmap)). The application itself is
+next; there is no application code yet.
 
 | | |
 |---|---|
@@ -25,6 +26,7 @@ next (see [Roadmap](#roadmap)). There is no application code yet.
 - [Feature parity with OBD Auto Doctor](#feature-parity-with-obd-auto-doctor)
 - [Extras](#extras)
 - [Not in this version](#not-in-this-version)
+- [Local first](#local-first)
 - [Screens](#screens)
 - [Catalogue coverage](#catalogue-coverage)
 - [Third-party data licences](#third-party-data-licences)
@@ -56,30 +58,30 @@ Status:
 |---|---|---|---|---|
 | Read stored, pending and permanent codes (Modes 03, 07, 0A) | Free | Trouble codes | `TOBDDTCs`, `TOBDDtcList`, `TOBDDtcPanel` | Ready |
 | Look up any code without a car | Free | Trouble codes (search) | `TOBDServiceCatalog`, `dtc-iso-15031.json` | Data |
-| Several ECUs (engine, gearbox, …) | Free | Trouble codes, Vehicle info | `TOBDEcuList` | Library work: group codes by ECU |
+| Several ECUs (engine, gearbox, …) | Free | Trouble codes, Vehicle info | `TOBDEcuList`, `TOBDDTCs` (ECU per code) | Ready |
 | Readiness monitors, since codes were cleared | Free | Readiness | `TOBDReadinessPanel` | Ready |
-| Readiness monitors, this drive cycle (PID 41) | Free | Readiness | `TOBDReadinessPanel` | Library work: PID 41 |
+| Readiness monitors, this drive cycle (PID 41) | Free | Readiness | `TOBDDriveCycleAdvisor`, `TOBDReadinessPanel` | Ready |
 | Live data, list view | Free (limited) | Live data | `TOBDLiveData`, `TOBDLiveDataGrid` | Ready |
 | Supported adapters: ELM327 (USB, Bluetooth, Wi-Fi), OBDLink | Free | Connect | `TOBDAdapter`, `TOBDConnection`, `TOBDConnectionBar` | Ready, needs the [adapter tests](#adapters) |
-| User interface in several languages | Free | Settings | — | Library work: translations |
+| User interface in several languages | Free | Settings | `ERD.I18n`, `languages/*.json` (English, Dutch, German, French) | Ready |
 | Freeze frame | Paid | Trouble codes | `TOBDFreezeFrame`, `TOBDFreezeFrameView` | Ready |
 | Clear codes and turn off the MIL | Paid | Trouble codes | `TOBDClearDTC`, `TOBDTaskDialog` | Ready |
-| Manufacturer-specific codes | Paid | Trouble codes (Brand source) | OEM DTC catalogues | Data: 5–22 codes per European brand |
+| Manufacturer-specific codes | Paid | Trouble codes (Brand source) | OEM DTC catalogues | Data: 11–669 codes per European brand; see [coverage](#catalogue-coverage) |
 | Live data charts | Paid | Live data | `TOBDTrendChart` | Ready |
 | Live data grid of graphs | Paid | Live data (Graphs view) | `TOBDTrendChart` | Ready |
-| Live data histogram | Paid | Live data (List view) | — | Library work: histogram control |
+| Live data histogram | Paid | Live data (List view) | `TOBDHistogram` | Ready |
 | Save a chart as an image | Paid | Live data (Snapshot) | `TOBDSavePictureDialog` | Ready |
-| Log live data and export to CSV | Paid | Live data, Recordings | `TOBDRecorder` | Library work: CSV logger |
+| Log live data and export to CSV | Paid | Live data, Recordings | `TOBDRecorder`, `TOBDCSVLogger` | Ready |
 | Oxygen sensor tests (Mode 05, non-CAN cars) | Paid | Monitor tests | `TOBDOxygenMonitor` | Ready |
 | On-board monitor test results (Mode 06) | Paid | Monitor tests | `TOBDOnBoardMonitor`, Mode 06 catalogues | Ready; see the [TID note](#catalogue-coverage) |
 | On-board system tests, e.g. EVAP leak test (Mode 08) | Paid | Monitor tests | `TOBDActuator` (safety gate) | Ready |
-| In-use performance tracking (Mode 09) | Paid | Monitor tests | — | Library work: Mode 09 reader |
+| In-use performance tracking (Mode 09) | Paid | Monitor tests | `TOBDVehicleInfo` | Ready |
 | VIN | Paid | Vehicle info | `TOBDVIN` | Ready |
-| Calibration IDs, CVNs, ECU name, engine serial number, type-approval number | Paid | Vehicle info | — | Library work: Mode 09 reader |
+| Calibration IDs, CVNs, ECU name, engine serial number, type-approval number | Paid | Vehicle info | `TOBDVehicleInfo` | Ready |
 | Fuel consumption | Paid | Fuel economy | `TOBDFuelEconomyMeter` | Ready |
 | Dashboard with gauges | Paid | Dashboard | `TOBDDashboard`, `TOBDDialGauge`, `TOBDBarGauge` | Ready |
 | Console for adapter commands | Paid | Console | `TOBDTerminal` | Ready |
-| UDS-based OBD (SAE J1979-2 and WWH-OBD) | Paid | Trouble codes (UDS view), Readiness | `TOBDWWHOBD`, `TOBDWWHReadiness` | Library work: WWH-OBD fixes, J1979-2 |
+| UDS-based OBD (SAE J1979-2 and WWH-OBD) | Paid | Trouble codes (UDS view), Readiness | `TOBDWWHOBD`, `TOBDWWHReadiness` | Ready, needs a test on a J1979-2 car |
 | Diagnostic report | Paid | — | `TOBDReportPreview` | Later: cloud reporting service |
 | Several vehicles, each with its own history | Paid | Overview (change car) | — | Application work |
 
@@ -94,18 +96,18 @@ Features that OBD Auto Doctor does not offer, or offers in a simpler form:
 | Extra | Screen | Library parts |
 |---|---|---|
 | Normal range on every value, with an out-of-range warning | Live data, Dashboard, Trouble codes (freeze frame) | `TOBDRangeProfile`, `TOBDRangeBar`, `catalogs/range-profiles` |
-| Inspection check: "would this car pass the APK, keuring, HU/AU, CT, MOT or NCT readiness check?" | Readiness, Overview | Inspection-rules catalogue (new) |
+| Inspection check: "would this car pass the APK, keuring, HU/AU, CT, MOT or NCT readiness check?" | Readiness, Overview | `TOBDInspectionRules`, `catalogs/inspection` |
 | Drive-cycle advisor: how to drive to complete the unfinished monitors | Readiness | `TOBDDriveCycleAdvisor`, `drive-cycle-generic.json` |
 | Offline VIN decoder: maker, plant, model year and vPIC model rules without internet | Vehicle info | `TOBDVINCatalog`, `TOBDVINInspector`, `catalogs/vin` |
 | Dashboard editor: choose gauges, values and layout | Dashboard (edit) | `TOBDDashboard`, `TOBDPidPicker` |
 | Recording and replay of a session, including the raw adapter log | Recordings | `TOBDRecorder`, `TOBDReplayer`, `TOBDReplayBar`, `TOBDLogViewer` |
 | Trip fuel cost and CO₂ | Fuel economy | `TOBDFuelEconomyMeter`, `TOBDEmissionsEstimator` |
 | Performance: drag runs with splits (for example ¼ mile), estimated power curve | Performance | `TOBDDragRun`, `TOBDDynoCalculator`, `TOBDPowerCurve` |
-| Saved runs with CSV export | Performance | `TOBDDragRun`, CSV logger (new) |
+| Saved runs with CSV export | Performance | `TOBDDragRun`, `TOBDCSVLogger` |
 | UDS failure-type bytes on J1979-2 cars (for example P0101-1C) | Trouble codes (UDS view) | `TOBDWWHOBD` |
 | EV battery health: state of health, cell voltages, temperatures | EV battery | `TOBDEVBattery`, `TOBDCellMatrix`, `catalogs/ev-battery` |
 | Light and dark themes, desktop and tablet density | All | `TOBDTheme` |
-| Demo car: try every screen without a car or adapter | Connect | Engine simulator (move from `examples/obd-studio` into the library) |
+| Demo car: try every screen without a car or adapter | Connect | `TOBDEmulatorConnection` (`ERD.Simulator.Vehicle`, `ERD.Simulator.ELM327`) |
 
 ## Not in this version
 
@@ -118,6 +120,23 @@ Features that OBD Auto Doctor does not offer, or offers in a simpler form:
 - **Professional features.** UDS and KWP coding, flashing, key adaptation,
   radio codes, actuator tests other than Mode 08, J1939 trucks and
   workshop use belong to OBD-Studio Professional.
+
+## Local first
+
+OBD-Studio Personal is local first:
+
+- **Everything works offline.** Code texts, normal ranges, VIN decoding,
+  inspection rules, drive-cycle advice, translations and the demo car ship
+  with the application and load from local files. No feature needs an
+  internet connection or an account.
+- **Data stays on the PC.** Vehicles, sessions, recordings, settings and
+  logs are stored for the Windows user on this computer. Nothing is sent to
+  ERDesigns or anyone else.
+- **Open formats.** Settings and vehicles are JSON, exports are CSV, so the
+  user can back up, move or delete their data without the application.
+- **Online is opt-in.** A later online feature, such as reports through the
+  ERDesigns cloud service, is off by default, asks before anything leaves
+  the PC, and the application stays fully usable without it.
 
 ## Screens
 
@@ -149,24 +168,23 @@ Render them with `cd tools && python3 ui_mockups.py --only personal-NAME`.
 
 ## Catalogue coverage
 
-Checked after the catalogue expansion (PR #37):
+Checked after the catalogue growth in step 2 (12 October 2026):
 
 | Area | Coverage | Notes |
 |---|---|---|
-| Generic code texts | 2,134 (`dtc-iso-15031.json`) | P0 1,081, P2 654, P3 98, U0 300, P1 1. 528 are our own verified texts; 1,606 come from python-OBD |
-| Body and chassis codes | None | No generic B0 or C0 texts. Show the code with "Body" or "Chassis" and no text until they are added |
-| Recent P2 codes | Gaps | For example P20EE (SCR NOx catalyst efficiency), common on European diesels |
-| Manufacturer codes | 5–22 per European brand | VW 22, BMW 16, Mercedes 16, Ford 16, Stellantis 15, Toyota 15, Hyundai/Kia 14, Volvo 7, Renault 5. Far below what a paid tool offers |
+| Generic code texts | 9,076 (`dtc-iso-15031.json`) | P0 3,704, P2 3,495, P3 155, P1 1, B0 189, C0 478, U0 1,054. 528 are our own verified texts; 1,606 come from python-OBD and 6,942 from Wal33D/dtc-database |
+| Body and chassis codes | 189 B0, 478 C0 | Generic texts from Wal33D/dtc-database, not verified yet |
+| Recent P2 codes | 3,495 | Includes the newer SCR and particulate codes such as P20EE |
+| Manufacturer codes | 11–669 per European brand | VW 669, Ford 425, Stellantis 350, BMW 265, JLR 188, Hyundai/Kia 89, Toyota 72, Mercedes 48, Dacia 29, Porsche 27, Mini 24, Smart 23, Renault 11, Volvo 11. Mercedes, Renault and Volvo are still thin |
 | Mode 01 PIDs | 205 | Enough for live data |
 | J1979-2 DIDs | 328 | Enough for UDS-based OBD |
-| Mode 06 | 87 monitor IDs, 22 test IDs, unit table | Test IDs $81–$B1 in `mode06-tids.json` carry generic names, but these IDs are defined by each manufacturer. Show them as "Manufacturer test $xx" unless a brand catalogue names them |
+| Mode 06 | 87 monitor IDs, 22 test IDs, unit table | Test IDs $81–$B1 are defined by each manufacturer; `mode06-tids.json` now names them neutrally ("Manufacturer-defined test $81") unless a brand catalogue names them |
 | VIN | 914 WMIs, 20 plants, 24,158 vPIC model rules | Offline decoding works for most European makes |
 | EV battery | Hyundai/Kia: per-cell voltages and state of health. BMW i3: minimum and maximum cell voltage only | None validated on a real car yet |
 
-Before the release, the manufacturer codes for the main European brands
-(VW group, Stellantis, Renault, BMW, Mercedes, Ford Europe, Volvo, Toyota,
-Hyundai/Kia) and the generic B0, C0 and newer P2 codes need to grow. Every
-imported entry stays `"verified": false` until it is checked.
+Before the release, the manufacturer codes for Mercedes, Renault and Volvo
+need to grow further. Every imported entry stays `"verified": false` until
+it is checked.
 
 ## Third-party data licences
 
@@ -177,6 +195,7 @@ Part of the catalogue data comes from open sources with their own licences
 |---|---|---|
 | OBDb | CC BY-SA 4.0 | Mode 01 PIDs, J1979-2 DIDs, brand DIDs, EV decoders |
 | python-OBD | GPL-2.0-or-later | Generic code texts, Mode 06 names and units, Mode 09 names |
+| Wal33D/dtc-database | MIT | Generic B0, C0, P and U code texts; manufacturer code texts |
 | J1939-Framework, decoda | MIT | J1939 (not used by Personal) |
 | vininfo | BSD-3-Clause | WMIs |
 
@@ -203,10 +222,10 @@ is tested with:
 | OBDLink MX+ | Bluetooth | STN extensions, pairing and reconnect |
 | OBDLink EX | USB | STN extensions |
 | OBDLink CX | Bluetooth LE | BLE transport |
-| Vgate vLinker (MC+, FS, BM) | Bluetooth, USB | Needs a profile in `catalogs/adapter/capabilities.json` |
+| Vgate vLinker (MC+, FS, BM) | Bluetooth, USB | Detection profile in `catalogs/adapter/capabilities.json`; the identity hints still need a check on real adapters |
 
-An ELM327 emulator, built on the engine simulator, lets the tests run
-without hardware.
+`TOBDEmulatorConnection` (an ELM327 emulator on the engine simulator) lets
+the tests run without hardware.
 
 ## Europe
 
@@ -238,25 +257,33 @@ The licence is accepted twice:
 **Step 1 – Design (done).** Scope agreed, all screens mocked up, catalogue
 coverage checked.
 
-**Step 2 – Library work.** Everything below goes into the library, so that
+**Step 2 – Library work (done).** Everything went into the library, so that
 OBD-Studio Professional can use it too:
 
-- Fix the WWH-OBD service bugs and add SAE J1979-2 support.
-- Read codes from every ECU and group them by ECU.
-- PID 41 (monitor status this drive cycle).
+- WWH-OBD service fixes and SAE J1979-2 support (`TOBDWWHOBD`,
+  `TOBDWWHReadiness`).
+- Codes from every ECU, each code tagged with its ECU (`TOBDDTCs`).
+- PID 41, monitor status this drive cycle (`TOBDDriveCycleAdvisor`).
 - Mode 09 reader: calibration IDs, CVNs, ECU name, engine serial number,
-  type-approval number and in-use performance tracking.
-- Inspection-rules catalogue (APK, keuring, HU/AU, CT, MOT, NCT).
-- CSV logger and CSV export for recordings.
-- Histogram control.
-- Translation support, with English, Dutch, German and French.
-- Vgate vLinker adapter profile.
-- Move the engine simulator from `examples/obd-studio` into the library
-  for the demo car, and build an ELM327 emulator on it for adapter tests
-  without hardware.
-- Grow the generic and European manufacturer code texts; fix the Mode 06
+  type-approval number and in-use performance tracking (`TOBDVehicleInfo`).
+- Inspection-rules catalogue for APK, keuring, HU/AU, CT, MOT and NCT
+  (`TOBDInspectionRules`, `catalogs/inspection`).
+- CSV logger and CSV export for recordings (`TOBDCSVLogger`).
+- Histogram control (`TOBDHistogram`).
+- Translation support with English, Dutch, German and French (`ERD.I18n`,
+  `languages/`).
+- Vgate vLinker detection profile.
+- Engine simulator in the library, with an ELM327 emulator on top for the
+  demo car and for adapter tests without hardware
+  (`TOBDEmulatorConnection`).
+- More generic and European manufacturer code texts; neutral Mode 06
   test-ID names.
-- Add `applications/` to the pascalcheck checks.
+- `applications/` in the pascalcheck checks.
+
+Still open from step 2: no Delphi compiler was available, so the new code
+was only compiled and run with Free Pascal (non-visual units) and checked
+with pascalcheck. The first Delphi build in step 3 confirms the VCL
+controls and the DUnitX tests.
 
 **Step 3 – Build the application.** Shell, pages, settings, translations,
 first-start wizard and installer, in `applications/obd-studio-personal`.
@@ -279,3 +306,4 @@ Agreed on 12 October 2026:
 | 5 | Tablet density | Both densities in the first release |
 | 6 | Online VIN lookup | Local only: the offline decoder, no online lookup |
 | 7 | Crash reports and update checks | Local only: crash logs stay on the PC, no automatic update check; **Get updates** opens the download page in the browser |
+| 8 | Architecture | Local first: every feature works offline with local data; any later online feature is opt-in (see [Local first](#local-first)) |

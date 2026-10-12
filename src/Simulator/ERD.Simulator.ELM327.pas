@@ -18,6 +18,7 @@
 //
 // History     :
 // 2026-10-12  ERD  Initial implementation.
+// 2026-10-12  ERD  Use invariant ATRV formatting and serialize responder teardown.
 // ------------------------------------------------------------------------------
 
 unit ERD.Simulator.ELM327;
@@ -128,6 +129,8 @@ type
     FBuffer: string;
     FResponseDelayMs: Cardinal;
     FWorker: TThread;
+    FWorkerLock: TCriticalSection;
+    FClosing: Boolean;
     FKeepOpenOnClose: Boolean;
     procedure WaitForWorker;
     procedure StartResponder(const AText: string);
@@ -225,6 +228,12 @@ begin
   else
     Result := 0;
   end;
+end;
+
+function InvariantFloatFormatSettings: TFormatSettings;
+begin
+  Result := DefaultFormatSettings;
+  Result.DecimalSeparator := '.';
 end;
 
 function BytesNoSpaces(const AText: string): string;
@@ -538,6 +547,7 @@ procedure TOBDELM327Emulator.ExecuteAT(const ANormalized: string;
 var
   Arg: string;
   Id: Cardinal;
+  FS: TFormatSettings;
 begin
   if ANormalized = 'ATZ' then
   begin
@@ -554,7 +564,10 @@ begin
   else if ANormalized = 'AT@1' then
     ALines.Add(DeviceDescription)
   else if ANormalized = 'ATRV' then
-    ALines.Add(Format('%.1fV', [FVehicle.Value(OBD_SIM_PID_MODULE_VOLTAGE)]))
+  begin
+    FS := InvariantFloatFormatSettings;
+    ALines.Add(Format('%.1fV', [FVehicle.Value(OBD_SIM_PID_MODULE_VOLTAGE)], FS));
+  end
   else if ANormalized = 'ATD' then
   begin
     ResetAdapter;
@@ -805,14 +818,17 @@ begin
   FEmulator := TOBDELM327Emulator.Create;
   FOwnsEmulator := True;
   FResponseDelayMs := 15;
+  FWorkerLock := TCriticalSection.Create;
 end;
 
 destructor TOBDELM327EmulatorTransport.Destroy;
 begin
   FKeepOpenOnClose := False;
   Close;
+  WaitForWorker;
   if FOwnsEmulator then
     FEmulator.Free;
+  FWorkerLock.Free;
   inherited;
 end;
 
@@ -833,6 +849,14 @@ end;
 
 procedure TOBDELM327EmulatorTransport.Open;
 begin
+  FWorkerLock.Enter;
+  try
+    FClosing := False;
+  finally
+    FWorkerLock.Leave;
+  end;
+  if State = csOpen then
+    Exit;
   SetState(csOpening);
   SetState(csOpen);
 end;
@@ -841,8 +865,14 @@ procedure TOBDELM327EmulatorTransport.WaitForWorker;
 var
   Worker: TThread;
 begin
-  Worker := FWorker;
-  FWorker := nil;
+  Worker := nil;
+  FWorkerLock.Enter;
+  try
+    Worker := FWorker;
+    FWorker := nil;
+  finally
+    FWorkerLock.Leave;
+  end;
   if Worker = nil then
     Exit;
   Worker.WaitFor;
@@ -856,13 +886,22 @@ end;
 
 procedure TOBDELM327EmulatorTransport.Close;
 begin
+  FWorkerLock.Enter;
+  try
+    FClosing := True;
+  finally
+    FWorkerLock.Leave;
+  end;
   if FKeepOpenOnClose then
   begin
     WaitForWorker;
     Exit;
   end;
   if State = csClosed then
+  begin
+    WaitForWorker;
     Exit;
+  end;
   SetState(csClosing);
   WaitForWorker;
   SetState(csClosed);
@@ -878,16 +917,23 @@ begin
   Self_ := Self;
   TextCopy := AText;
   DelayCopy := FResponseDelayMs;
-  FWorker := TThread.CreateAnonymousThread(
-    procedure
-    begin
-      if DelayCopy > 0 then
-        TThread.Sleep(DelayCopy);
-      if Self_.State = csOpen then
-        Self_.DeliverBytes(TEncoding.ASCII.GetBytes(TextCopy));
-    end);
-  FWorker.FreeOnTerminate := False;
-  FWorker.Start;
+  FWorkerLock.Enter;
+  try
+    if FClosing then
+      Exit;
+    FWorker := TThread.CreateAnonymousThread(
+      procedure
+      begin
+        if DelayCopy > 0 then
+          TThread.Sleep(DelayCopy);
+        if Self_.State = csOpen then
+          Self_.DeliverBytes(TEncoding.ASCII.GetBytes(TextCopy));
+      end);
+    FWorker.FreeOnTerminate := False;
+    FWorker.Start;
+  finally
+    FWorkerLock.Leave;
+  end;
 end;
 
 function TOBDELM327EmulatorTransport.WriteBytes(const ABytes: TBytes): Integer;
@@ -939,7 +985,7 @@ end;
 
 procedure TOBDEmulatorConnection.Open;
 begin
-  if (FTransportObject <> nil) and (FTransportObject.State <> csOpen) then
+  if FTransportObject <> nil then
     FTransportObject.Open;
   inherited Open;
 end;

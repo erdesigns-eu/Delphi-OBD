@@ -11,6 +11,8 @@
 //
 //  History     :
 //    2026-10-10  ERD  Initial implementation for the OBD Studio controls.
+//    2026-10-12  ERD  Translated texts (ERD.I18n); empty captions show the
+//                     translated default and follow the active language.
 //------------------------------------------------------------------------------
 
 unit ERD.UI.DtcPanel;
@@ -180,7 +182,16 @@ type
     procedure CancelButtonClick(Sender: TObject);
     procedure PrecheckChanged(Sender: TObject);
     procedure FilterStripChange(Sender: TObject);
-    procedure ApplyLanguageDefaults;
+    function GetTitleCaption: string;
+    function GetReadCaption: string;
+    function GetClearCaption: string;
+    function GetConfirmClearCaption: string;
+    function GetCancelCaption: string;
+    function IsTitleCaptionStored: Boolean;
+    function IsReadCaptionStored: Boolean;
+    function IsClearCaptionStored: Boolean;
+    function IsConfirmClearCaptionStored: Boolean;
+    function IsCancelCaptionStored: Boolean;
     procedure LanguageChanged(Sender: TObject);
     procedure UpdateFilterStrip;
     procedure LayoutChildren;
@@ -330,17 +341,26 @@ type
   published
     /// <summary>Streamed trouble-code rows.</summary>
     property Items: TOBDDtcCollection read FItems write SetItems;
-    /// <summary>Header title.</summary>
-    property TitleCaption: string read FTitleCaption write SetTitleCaption;
-    /// <summary>Caption of the primary read button.</summary>
-    property ReadCaption: string read FReadCaption write SetReadCaption;
-    /// <summary>Caption of the header clear button.</summary>
-    property ClearCaption: string read FClearCaption write SetClearCaption;
-    /// <summary>Caption of the inline destructive confirmation button.</summary>
-    property ConfirmClearCaption: string read FConfirmClearCaption
-      write SetConfirmClearCaption;
-    /// <summary>Caption of the inline cancel button.</summary>
-    property CancelCaption: string read FCancelCaption write SetCancelCaption;
+    /// <summary>Header title. Empty (the default) shows the translated
+    /// default text, which follows the active language.</summary>
+    property TitleCaption: string read GetTitleCaption write SetTitleCaption
+      stored IsTitleCaptionStored;
+    /// <summary>Caption of the primary read button. Empty (the default)
+    /// shows the translated default text.</summary>
+    property ReadCaption: string read GetReadCaption write SetReadCaption
+      stored IsReadCaptionStored;
+    /// <summary>Caption of the header clear button. Empty (the default)
+    /// shows the translated default text.</summary>
+    property ClearCaption: string read GetClearCaption write SetClearCaption
+      stored IsClearCaptionStored;
+    /// <summary>Caption of the inline destructive confirmation button.
+    /// Empty (the default) shows the translated default text.</summary>
+    property ConfirmClearCaption: string read GetConfirmClearCaption
+      write SetConfirmClearCaption stored IsConfirmClearCaptionStored;
+    /// <summary>Caption of the inline cancel button. Empty (the default)
+    /// shows the translated default text.</summary>
+    property CancelCaption: string read GetCancelCaption write SetCancelCaption
+      stored IsCancelCaptionStored;
     /// <summary>Shows the ECU column.</summary>
     property ShowEcu: Boolean read FShowEcu write SetShowEcu default True;
     /// <summary>When True, clear uses inline confirmation before firing OnClearCodes.</summary>
@@ -557,7 +577,6 @@ begin
   TabStop := True;
 
   FItems := TOBDDtcCollection.Create(Self, TOBDDtcItem);
-  ApplyLanguageDefaults;
   FShowEcu := True;
   FConfirmClear := True;
   FSelectedIndex := -1;
@@ -567,28 +586,28 @@ begin
 
   FReadButton := TOBDButton.Create(Self);
   FReadButton.Parent := Self;
-  FReadButton.Caption := FReadCaption;
+  FReadButton.Caption := ReadCaption;
   FReadButton.Kind := bkPrimary;
   FReadButton.Glyph := glRead;
   FReadButton.OnClick := ReadButtonClick;
 
   FClearButton := TOBDButton.Create(Self);
   FClearButton.Parent := Self;
-  FClearButton.Caption := FClearCaption;
+  FClearButton.Caption := ClearCaption;
   FClearButton.Kind := bkDangerOutline;
   FClearButton.Glyph := glClear;
   FClearButton.OnClick := ClearButtonClick;
 
   FCancelButton := TOBDButton.Create(Self);
   FCancelButton.Parent := Self;
-  FCancelButton.Caption := FCancelCaption;
+  FCancelButton.Caption := CancelCaption;
   FCancelButton.Kind := bkSecondary;
   FCancelButton.OnClick := CancelButtonClick;
   FCancelButton.Visible := False;
 
   FConfirmButton := TOBDButton.Create(Self);
   FConfirmButton.Parent := Self;
-  FConfirmButton.Caption := FConfirmClearCaption;
+  FConfirmButton.Caption := ConfirmClearCaption;
   FConfirmButton.Kind := bkDanger;
   FConfirmButton.Glyph := glClear;
   FConfirmButton.OnClick := ConfirmButtonClick;
@@ -632,11 +651,11 @@ begin
   begin
     Panel := TOBDDtcPanel(Source);
     FItems.Assign(Panel.Items);
-    FTitleCaption := Panel.TitleCaption;
-    FReadCaption := Panel.ReadCaption;
-    FClearCaption := Panel.ClearCaption;
-    FConfirmClearCaption := Panel.ConfirmClearCaption;
-    FCancelCaption := Panel.CancelCaption;
+    FTitleCaption := Panel.FTitleCaption;
+    FReadCaption := Panel.FReadCaption;
+    FClearCaption := Panel.FClearCaption;
+    FConfirmClearCaption := Panel.FConfirmClearCaption;
+    FCancelCaption := Panel.FCancelCaption;
     FShowEcu := Panel.ShowEcu;
     FConfirmClear := Panel.ConfirmClear;
     FLastRead := Panel.LastRead;
@@ -775,7 +794,7 @@ begin
   if FReadCaption = AValue then
     Exit;
   FReadCaption := AValue;
-  FReadButton.Caption := AValue;
+  FReadButton.Caption := ReadCaption;
   LayoutChildren;
   Invalidate;
 end;
@@ -785,7 +804,7 @@ begin
   if FClearCaption = AValue then
     Exit;
   FClearCaption := AValue;
-  FClearButton.Caption := AValue;
+  FClearButton.Caption := ClearCaption;
   LayoutChildren;
   Invalidate;
 end;
@@ -795,7 +814,7 @@ begin
   if FConfirmClearCaption = AValue then
     Exit;
   FConfirmClearCaption := AValue;
-  FConfirmButton.Caption := AValue;
+  FConfirmButton.Caption := ConfirmClearCaption;
   LayoutChildren;
   Invalidate;
 end;
@@ -805,7 +824,7 @@ begin
   if FCancelCaption = AValue then
     Exit;
   FCancelCaption := AValue;
-  FCancelButton.Caption := AValue;
+  FCancelButton.Caption := CancelCaption;
   LayoutChildren;
   Invalidate;
 end;
@@ -958,18 +977,73 @@ begin
   end;
 end;
 
-procedure TOBDDtcPanel.ApplyLanguageDefaults;
+function TOBDDtcPanel.GetTitleCaption: string;
 begin
-  FTitleCaption := Tr('ui.dtc.title', 'Diagnostic trouble codes');
-  FReadCaption := Tr('ui.dtc.read', 'Read codes');
-  FClearCaption := Tr('ui.dtc.clear', 'Clear codes...');
-  FConfirmClearCaption := Tr('ui.dtc.clearConfirm', 'Clear codes');
-  FCancelCaption := Tr('ui.dtc.cancel', 'Cancel');
+  if FTitleCaption <> '' then
+    Result := FTitleCaption
+  else
+    Result := Tr('ui.dtc.title', 'Diagnostic trouble codes');
+end;
+
+function TOBDDtcPanel.GetReadCaption: string;
+begin
+  if FReadCaption <> '' then
+    Result := FReadCaption
+  else
+    Result := Tr('ui.dtc.read', 'Read codes');
+end;
+
+function TOBDDtcPanel.GetClearCaption: string;
+begin
+  if FClearCaption <> '' then
+    Result := FClearCaption
+  else
+    Result := Tr('ui.dtc.clear', 'Clear codes...');
+end;
+
+function TOBDDtcPanel.GetConfirmClearCaption: string;
+begin
+  if FConfirmClearCaption <> '' then
+    Result := FConfirmClearCaption
+  else
+    Result := Tr('ui.dtc.clearConfirm', 'Clear codes');
+end;
+
+function TOBDDtcPanel.GetCancelCaption: string;
+begin
+  if FCancelCaption <> '' then
+    Result := FCancelCaption
+  else
+    Result := Tr('ui.dtc.cancel', 'Cancel');
+end;
+
+function TOBDDtcPanel.IsTitleCaptionStored: Boolean;
+begin
+  Result := FTitleCaption <> '';
+end;
+
+function TOBDDtcPanel.IsReadCaptionStored: Boolean;
+begin
+  Result := FReadCaption <> '';
+end;
+
+function TOBDDtcPanel.IsClearCaptionStored: Boolean;
+begin
+  Result := FClearCaption <> '';
+end;
+
+function TOBDDtcPanel.IsConfirmClearCaptionStored: Boolean;
+begin
+  Result := FConfirmClearCaption <> '';
+end;
+
+function TOBDDtcPanel.IsCancelCaptionStored: Boolean;
+begin
+  Result := FCancelCaption <> '';
 end;
 
 procedure TOBDDtcPanel.LanguageChanged(Sender: TObject);
 begin
-  ApplyLanguageDefaults;
   UpdateFilterStrip;
   LayoutChildren;
   Invalidate;
@@ -1017,10 +1091,10 @@ begin
   if FReadButton = nil then
     Exit;
 
-  FReadButton.Caption := FReadCaption;
-  FClearButton.Caption := FClearCaption;
-  FConfirmButton.Caption := FConfirmClearCaption;
-  FCancelButton.Caption := FCancelCaption;
+  FReadButton.Caption := ReadCaption;
+  FClearButton.Caption := ClearCaption;
+  FConfirmButton.Caption := ConfirmClearCaption;
+  FCancelButton.Caption := CancelCaption;
   FPrecheckIgnition.Caption := Tr('ui.dtc.precheckIgnition',
     'Ignition on, engine off');
   FPrecheckReport.Caption := Tr('ui.dtc.precheckReport',
@@ -1576,9 +1650,9 @@ var
   Text: string;
 begin
   Y := HeaderHeight div 2;
-  APainter.Text(ScaleValue(16), Y, FTitleCaption, DTC_TITLE_SIZE,
+  APainter.Text(ScaleValue(16), Y, TitleCaption, DTC_TITLE_SIZE,
     Palette.ForegroundText, twBold, taLeftJustify);
-  X := ScaleValue(16) + APainter.TextWidth(FTitleCaption, DTC_TITLE_SIZE, twBold) +
+  X := ScaleValue(16) + APainter.TextWidth(TitleCaption, DTC_TITLE_SIZE, twBold) +
     ScaleValue(14);
   Limit := FReadButton.Left - ScaleValue(8);
 

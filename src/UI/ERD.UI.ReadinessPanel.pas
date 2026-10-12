@@ -13,6 +13,8 @@
 //
 //  History     :
 //    2026-10-10  ERD  Initial implementation for the OBD Studio controls.
+//    2026-10-12  ERD  Translated texts (ERD.I18n); empty ActionText and
+//                     monitor notes show the translated default; ShowAction.
 //------------------------------------------------------------------------------
 
 unit ERD.UI.ReadinessPanel;
@@ -129,7 +131,9 @@ type
     /// <summary>Completion state for this monitor.</summary>
     property State: TOBDMonitorState read FState write SetState
       default msUnsupported;
-    /// <summary>Mechanic-facing note shown on incomplete monitor tiles.</summary>
+    /// <summary>Mechanic-facing note shown on incomplete monitor tiles.
+    /// Empty (the default) shows the translated default note for the
+    /// monitor.</summary>
     property Note: string read FNote write SetNote;
   end;
 
@@ -171,6 +175,7 @@ type
     FSinceClearText: string;
     FUpdatedText: string;
     FActionText: string;
+    FShowAction: Boolean;
     FMonitors: TOBDReadinessMonitorCollection;
     FHasData: Boolean;
     FUpdateDepth: Integer;
@@ -187,6 +192,9 @@ type
     procedure SetSinceClearText(const AValue: string);
     procedure SetUpdatedText(const AValue: string);
     procedure SetActionText(const AValue: string);
+    function GetActionText: string;
+    function IsActionTextStored: Boolean;
+    procedure SetShowAction(AValue: Boolean);
     procedure SetMonitors(AValue: TOBDReadinessMonitorCollection);
     procedure MonitorsChanged(Sender: TObject);
     procedure LanguageChanged(Sender: TObject);
@@ -286,8 +294,13 @@ type
     property SinceClearText: string read FSinceClearText write SetSinceClearText;
     /// <summary>Legend timestamp text.</summary>
     property UpdatedText: string read FUpdatedText write SetUpdatedText;
-    /// <summary>Compact-layout action label.</summary>
-    property ActionText: string read FActionText write SetActionText;
+    /// <summary>Compact-layout action label. Empty (the default) shows the
+    /// translated default text, which follows the active language.</summary>
+    property ActionText: string read GetActionText write SetActionText
+      stored IsActionTextStored;
+    /// <summary>Shows the compact-layout action label.</summary>
+    property ShowAction: Boolean read FShowAction write SetShowAction
+      default True;
     /// <summary>Editable monitor states and notes.</summary>
     property Monitors: TOBDReadinessMonitorCollection read FMonitors
       write SetMonitors;
@@ -530,7 +543,7 @@ begin
   FAllowedIncomplete := 0;
   FDistanceSinceClear := -1;
   FWarmUpsSinceClear := -1;
-  FActionText := Tr('ui.readiness.action.open', 'Open readiness');
+  FShowAction := True;
   FMonitors := TOBDReadinessMonitorCollection.Create(Self);
   FMonitors.OnChange := MonitorsChanged;
   ResetMonitorDefaults;
@@ -608,7 +621,6 @@ end;
 
 procedure TOBDReadinessPanel.LanguageChanged(Sender: TObject);
 begin
-  FActionText := Tr('ui.readiness.action.open', 'Open readiness');
   Invalidate;
 end;
 
@@ -627,7 +639,7 @@ begin
       Item := FMonitors.Add;
       Item.Monitor := M;
       Item.State := msUnsupported;
-      Item.Note := DefaultMonitorNote(M);
+      Item.Note := '';
     end;
   finally
     FMonitors.OnChange := SavedOnChange;
@@ -749,6 +761,27 @@ begin
   Invalidate;
 end;
 
+function TOBDReadinessPanel.GetActionText: string;
+begin
+  if FActionText <> '' then
+    Result := FActionText
+  else
+    Result := Tr('ui.readiness.action.open', 'Open readiness');
+end;
+
+function TOBDReadinessPanel.IsActionTextStored: Boolean;
+begin
+  Result := FActionText <> '';
+end;
+
+procedure TOBDReadinessPanel.SetShowAction(AValue: Boolean);
+begin
+  if FShowAction = AValue then
+    Exit;
+  FShowAction := AValue;
+  Invalidate;
+end;
+
 procedure TOBDReadinessPanel.SetMonitors(AValue: TOBDReadinessMonitorCollection);
 begin
   FMonitors.Assign(AValue);
@@ -829,10 +862,10 @@ begin
   if UsePreviewData then
     Exit(DefaultMonitorNote(AMonitor));
   Item := ItemByMonitor(AMonitor);
-  if Item <> nil then
+  if (Item <> nil) and (Item.Note <> '') then
     Result := Item.Note
   else
-    Result := '';
+    Result := DefaultMonitorNote(AMonitor);
 end;
 
 function TOBDReadinessPanel.VisualSupportedCount: Integer;
@@ -1263,8 +1296,8 @@ var
 begin
   P.Text(P.S(16), P.S(24), Tr('ui.readiness.title.compact', 'Readiness'),
     OBD_TEXT_TITLE, Palette.ForegroundText, twBold);
-  if FActionText <> '' then
-    P.Text(Width - P.S(16), P.S(24), FActionText, 11.5, P.AccentText,
+  if FShowAction then
+    P.Text(Width - P.S(16), P.S(24), ActionText, 11.5, P.AccentText,
       twSemibold, taRightJustify);
   PaintBanner(P, Rect(P.S(16), P.S(44), Width - P.S(16), P.S(100)), True);
 

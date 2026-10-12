@@ -7,7 +7,7 @@ real vehicles and real users.
 
 | Application | Audience | Status |
 |---|---|---|
-| [`obd-studio-personal`](obd-studio-personal/README.md) | Car owners and enthusiasts. Free for personal, non-commercial use | Design: all screens mocked, library work next |
+| [`obd-studio-personal`](obd-studio-personal/README.md) | Car owners and enthusiasts. Free for personal, non-commercial use | Library work done; building the application next |
 | `obd-studio-professional` (planned) | Power users and small garages. Adds the full library: UDS and KWP coding, flashing, key adaptation, radio codes, multi-vehicle workshop | Not started |
 
 ## Rules for every application

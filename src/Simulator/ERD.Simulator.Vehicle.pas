@@ -17,6 +17,7 @@
 //
 // History     :
 // 2026-10-12  ERD  Initial implementation.
+// 2026-10-12  ERD  Correct freeze-frame, Mode 06, IPT and diesel readiness data.
 // ------------------------------------------------------------------------------
 
 unit ERD.Simulator.Vehicle;
@@ -607,9 +608,11 @@ begin
       end;
     OBD_SIM_PID_MONITOR_STATUS:
       begin
+        if FReadinessReset then
+          Exit(OBDBytes([$00, $0F, $EB, $EB]));
         if FCodesCleared then
-          Exit(OBDBytes([$00, $07, $65, $00]));
-        Exit(OBDBytes([$81, $07, $65, $00]));
+          Exit(OBDBytes([$00, $0F, $EB, $00]));
+        Exit(OBDBytes([$81, $0F, $EB, $00]));
       end;
     OBD_SIM_PID_FUEL_SYSTEM:
       Exit(OBDBytes([$01, $00]));
@@ -622,10 +625,8 @@ begin
     OBD_SIM_PID_MONITOR_DRIVE:
       begin
         if FReadinessReset then
-          Exit(OBDBytes([$00, $07, $7F, $00]));
-        if FCodesCleared then
-          Exit(OBDBytes([$00, $07, $65, $00]));
-        Exit(OBDBytes([$81, $07, $65, $00]));
+          Exit(OBDBytes([$00, $0F, $EB, $EB]));
+        Exit(OBDBytes([$00, $0F, $EB, $00]));
       end;
   end;
 
@@ -678,20 +679,23 @@ end;
 function TOBDSimVehicle.Mode02Payload(AECU: TOBDSimECU;
   const ARequest: TBytes): TBytes;
 var
-  PID: Byte;
+  PID, Frame: Byte;
   Data: TBytes;
 begin
   SetLength(Result, 0);
-  if (AECU <> secuEngine) or FCodesCleared or (Length(ARequest) < 2) then
+  if (AECU <> secuEngine) or FCodesCleared or (Length(ARequest) < 3) then
     Exit;
   PID := ARequest[1];
+  Frame := ARequest[2];
+  if Frame <> 0 then
+    Exit;
   if PID = $02 then
     Data := OBDBytes([$04, $01])
   else
     Data := Mode01Data(secuEngine, PID, True);
   if Length(Data) = 0 then
     Exit;
-  Result := OBDBytes([$42, PID]);
+  Result := OBDBytes([$42, PID, Frame]);
   AppendBytes(Result, Data);
 end;
 
@@ -716,9 +720,9 @@ begin
     $00:
       Result := OBDBytes([$46, $00, $C0, $00, $00, $00]);
     $01:
-      Result := OBDBytes([$46, $01, $01, $00, $64, $00, $00, $00, $C8]);
+      Result := OBDBytes([$46, $01, $01, $0A, $00, $64, $00, $00, $00, $C8]);
     $02:
-      Result := OBDBytes([$46, $02, $01, $00, $B4, $00, $00, $00, $96]);
+      Result := OBDBytes([$46, $02, $01, $0A, $00, $B4, $00, $00, $00, $96]);
   end;
 end;
 
@@ -745,9 +749,9 @@ begin
   case InfoType of
     $00:
       if AECU = secuEngine then
-        Result := OBDBytes([$49, $00, $55, $40, $00, $00])
+        Result := OBDBytes([$49, $00, $54, $60, $00, $00])
       else
-        Result := OBDBytes([$49, $00, $15, $40, $00, $00]);
+        Result := OBDBytes([$49, $00, $14, $40, $00, $00]);
     $02:
       if AECU = secuEngine then
       begin
@@ -773,10 +777,6 @@ begin
           for I := Low(CVN_TRANS) to High(CVN_TRANS) do
             AppendByte(Result, CVN_TRANS[I]);
       end;
-    $08:
-      if AECU = secuEngine then
-        Result := OBDBytes([$49, $08, $01, $00, $18, $00, $17, $00, $20,
-          $00, $1D, $00, $19, $00, $16, $00, $11, $00, $0F]);
     $0A:
       begin
         if AECU = secuEngine then
@@ -786,6 +786,12 @@ begin
         Result := OBDBytes([$49, $0A, $01]);
         AppendAscii(Result, Text);
       end;
+    $0B:
+      if AECU = secuEngine then
+        Result := OBDBytes([$49, $0B, $12, $00, $18, $00, $17, $00, $14,
+          $00, $18, $00, $12, $00, $17, $00, $10, $00, $16, $00, $11,
+          $00, $16, $00, $15, $00, $17, $00, $13, $00, $18, $00, $16,
+          $00, $18, $00, $17, $00, $17]);
   end;
 end;
 

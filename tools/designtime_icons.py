@@ -427,6 +427,8 @@ DESIGNS = {
     'TOBDSecOCCodec': Tagged('SEC', two('lock', {4})),
     'TOBDRecorder': [('n', [G['record'][0]]), ('bad', [G['record'][1]])],
     'TOBDReplayer': two('replay', {2}),
+    'TOBDCSVLogger': Tagged('CSV', one('table')),
+    'TOBDEmulatorConnection': Tagged('SIM', two('connect', {3})),
     'TOBDKWP1281Session': Tagged('1281', one('signal')),
     'TOBDTP20Session': Tagged('TP20', [('a', WAVE)]),
     'TOBDJ2534Device': Tagged('2534', two('vci', {5})),
@@ -434,6 +436,7 @@ DESIGNS = {
     # Services
     'TOBDLiveData': one('live'), 'TOBDDTCs': one('codes', 'warn'),
     'TOBDVIN': two('vin', {1, 2, 3}),
+    'TOBDVehicleInfo': Tagged('M09', two('vin', {1, 2, 3})),
     'TOBDVINInspector': badge(two('vin', {1, 2, 3}), one('search')),
     'TOBDFreezeFrame': [('a', SNOWFLAKE)],
     'TOBDOnBoardMonitor': two('test', {2}),
@@ -469,6 +472,7 @@ DESIGNS = {
     'TOBDVINCatalog': Tagged('VIN', [('n', BOOK[:2]), ('a', BOOK[2:])]),
     'TOBDDriveCycleCatalogComp': Tagged('DRV', [('n', BOOK[:2]), ('a', BOOK[2:])]),
     'TOBDEVBatteryCatalogComp': Tagged('EV', [('n', BOOK[:2]), ('a', BOOK[2:])]),
+    'TOBDInspectionRules': Tagged('INSP', [('n', BOOK[:2]), ('a', BOOK[2:])]),
     # Dashboard
     'TOBDTheme': [('n', [('circle', 0, 0, 7)]), ('a', [('pie', 0, 0, 7, -90, 180)])],
     'TOBDDashboard': [('n', [('rect', -7, -6, 8, 12, 1.5), ('rect', 3, -6, 4, 5, 1),
@@ -605,6 +609,9 @@ DESIGNS = {
                      ('a', [('box', -7, -7, 5.5, 5.5, 1)])],
     'TOBDKeyValueList': [('n', [P((-7, y), (-3, y)) for y in (-5, 0, 5)]),
                          ('a', [P((0, y), (7, y)) for y in (-5, 0, 5)])],
+    'TOBDHistogram': [('n', [P((-7, 7), (7, 7))]),
+                      ('a', [('box', x, 6 - h, 2.5, h, 0.5)
+                             for x, h in ((-6.5, 4), (-3.25, 9), (0, 12), (3.25, 6))])],
     'TOBDColorSwatches': [(col, [('box', -7 + (i % 3) * 5, -7 + (i // 3) * 5, 4, 4, 1)])
                           for i, col in enumerate(('a', 'ok', 'info', 'bad', 'warn', 'a',
                                                    'n', 'info', 'ok'))],

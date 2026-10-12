@@ -9,6 +9,8 @@
 //
 // History     :
 // 2026-10-12  ERD  Initial implementation.
+// 2026-10-12  ERD  Empty CatalogFile means the default file; the IDE path is
+//                  no longer streamed into the DFM.
 // ------------------------------------------------------------------------------
 
 unit ERD.Service.Inspection.Component;
@@ -64,7 +66,8 @@ type
       AFuelType: TOBDInspectionFuelType; AFirstRegistration: TDateTime)
       : TOBDInspectionResult;
   published
-    /// <summary>JSON catalogue file. Defaults to catalogs/inspection/rules.json next to the executable.</summary>
+    /// <summary>JSON catalogue file. Empty (the default) uses
+    /// catalogs/inspection/rules.json next to the executable.</summary>
     property CatalogFile: string read FCatalogFile write SetCatalogFile;
     /// <summary>ISO 3166-1 alpha-2 country code used by Evaluate.</summary>
     property Country: string read FCountry write FCountry;
@@ -81,7 +84,6 @@ constructor TOBDInspectionRules.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FAutoLoad := True;
-  FCatalogFile := TOBDInspectionCatalog.CatalogFile;
 end;
 
 procedure TOBDInspectionRules.SetCatalogFile(const AValue: string);

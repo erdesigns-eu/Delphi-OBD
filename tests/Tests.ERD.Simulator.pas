@@ -9,6 +9,7 @@
 //
 //  History     :
 //    2026-10-12  ERD  Initial implementation.
+//    2026-10-12  ERD  Cover freeze-frame, IPT, Mode 06 and diesel readiness fixes.
 //------------------------------------------------------------------------------
 
 unit Tests.ERD.Simulator;
@@ -43,12 +44,25 @@ type
     [Test] procedure Mode03MultiECU;
     /// <summary>Unknown physical ECU requests produce NO DATA.</summary>
     [Test] procedure PhysicalNoData;
+    /// <summary>Mode 02 replies echo the requested freeze-frame number.</summary>
+    [Test] procedure Mode02FreezeFrameEchoesFrame;
+    /// <summary>Mode 09 advertises and returns compression-ignition IPT.</summary>
+    [Test] procedure Mode09CompressionIptNodi;
+    /// <summary>Mode 06 records use the CAN MID/TID/UASID layout.</summary>
+    [Test] procedure Mode06RecordsUseCanLayout;
+    /// <summary>PID 01 / 41 report diesel readiness bits after a clear.</summary>
+    [Test] procedure PID01DieselReadiness;
+    /// <summary>The service parser accepts CAN Mode 06 records.</summary>
+    [Test] procedure OnBoardMonitorParsesCanMode06Record;
   end;
 
 implementation
 
 uses
   {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF},
+  ERD.Adapter,
+  ERD.Protocol,
+  ERD.Service.OnBoardMonitor,
   ERD.Simulator.Vehicle,
   ERD.Simulator.ELM327;
 
@@ -171,6 +185,136 @@ begin
     Assert.AreEqual('NO DATA' + CR + '>', Emu.Execute('0100'));
   finally
     Emu.Free;
+  end;
+end;
+
+procedure TSimulatorTests.Mode02FreezeFrameEchoesFrame;
+var
+  Emu: TOBDELM327Emulator;
+begin
+  Emu := TOBDELM327Emulator.Create;
+  try
+    DisableEcho(Emu);
+    Assert.AreEqual('42 0C 00 21 70' + CR + '>', Emu.Execute('020C00'));
+    Assert.AreEqual('NO DATA' + CR + '>', Emu.Execute('020C01'));
+    Assert.AreEqual('NO DATA' + CR + '>', Emu.Execute('020C'));
+  finally
+    Emu.Free;
+  end;
+end;
+
+procedure TSimulatorTests.Mode09CompressionIptNodi;
+var
+  Vehicle: TOBDSimVehicle;
+  Responses: TOBDSimECUResponses;
+begin
+  Vehicle := TOBDSimVehicle.Create;
+  try
+    Responses := Vehicle.HandleRequest(OBD_SIM_ENGINE_REQUEST_ID,
+      TBytes.Create($09, $00));
+    Assert.AreEqual(1, Integer(Length(Responses)));
+    Assert.AreEqual($54, Integer(Responses[0].Payload[2]));
+    Assert.AreEqual($60, Integer(Responses[0].Payload[3]));
+
+    Responses := Vehicle.HandleRequest(OBD_SIM_TRANSMISSION_REQUEST_ID,
+      TBytes.Create($09, $00));
+    Assert.AreEqual(1, Integer(Length(Responses)));
+    Assert.AreEqual($14, Integer(Responses[0].Payload[2]));
+    Assert.AreEqual($40, Integer(Responses[0].Payload[3]));
+
+    Responses := Vehicle.HandleRequest(OBD_SIM_ENGINE_REQUEST_ID,
+      TBytes.Create($09, $0B));
+    Assert.AreEqual(1, Integer(Length(Responses)));
+    Assert.AreEqual($0B, Integer(Responses[0].Payload[1]));
+    Assert.AreEqual($12, Integer(Responses[0].Payload[2]));
+    Assert.AreEqual(39, Integer(Length(Responses[0].Payload)));
+
+    Responses := Vehicle.HandleRequest(OBD_SIM_ENGINE_REQUEST_ID,
+      TBytes.Create($09, $08));
+    Assert.AreEqual(0, Integer(Length(Responses)));
+  finally
+    Vehicle.Free;
+  end;
+end;
+
+procedure TSimulatorTests.Mode06RecordsUseCanLayout;
+var
+  Vehicle: TOBDSimVehicle;
+  Responses: TOBDSimECUResponses;
+begin
+  Vehicle := TOBDSimVehicle.Create;
+  try
+    Responses := Vehicle.HandleRequest(OBD_SIM_ENGINE_REQUEST_ID,
+      TBytes.Create($06, $01));
+    Assert.AreEqual(1, Integer(Length(Responses)));
+    Assert.AreEqual(10, Integer(Length(Responses[0].Payload)));
+    Assert.AreEqual($46, Integer(Responses[0].Payload[0]));
+    Assert.AreEqual($01, Integer(Responses[0].Payload[1]));
+    Assert.AreEqual($01, Integer(Responses[0].Payload[2]));
+    Assert.AreEqual($0A, Integer(Responses[0].Payload[3]));
+    Assert.AreEqual($00C8, Integer((Word(Responses[0].Payload[8]) shl 8) or
+      Word(Responses[0].Payload[9])));
+  finally
+    Vehicle.Free;
+  end;
+end;
+
+procedure TSimulatorTests.PID01DieselReadiness;
+var
+  Vehicle: TOBDSimVehicle;
+begin
+  Vehicle := TOBDSimVehicle.Create;
+  try
+    Assert.AreEqual('41 01 81 0F EB 00',
+      Vehicle.Response(OBD_SIM_PID_MONITOR_STATUS));
+    Assert.AreEqual('41 41 00 0F EB 00',
+      Vehicle.Response(OBD_SIM_PID_MONITOR_DRIVE));
+
+    Vehicle.ClearDTCs;
+
+    Assert.AreEqual('41 01 00 0F EB EB',
+      Vehicle.Response(OBD_SIM_PID_MONITOR_STATUS));
+    Assert.AreEqual('41 41 00 0F EB EB',
+      Vehicle.Response(OBD_SIM_PID_MONITOR_DRIVE));
+  finally
+    Vehicle.Free;
+  end;
+end;
+
+procedure TSimulatorTests.OnBoardMonitorParsesCanMode06Record;
+var
+  Connection: TOBDEmulatorConnection;
+  Adapter: TOBDAdapter;
+  Protocol: TOBDProtocol;
+  Monitor: TOBDOnBoardMonitor;
+  Results: TArray<TOBDMonitorResult>;
+begin
+  Connection := TOBDEmulatorConnection.Create(nil);
+  Adapter := TOBDAdapter.Create(nil);
+  Protocol := TOBDProtocol.Create(nil);
+  Monitor := TOBDOnBoardMonitor.Create(nil);
+  try
+    Connection.ResponseDelayMs := 0;
+    Connection.Open;
+    Adapter.Connection := Connection;
+    Protocol.Adapter := Adapter;
+    Monitor.Protocol := Protocol;
+
+    Results := Monitor.Read($01);
+
+    Assert.AreEqual(1, Integer(Length(Results)));
+    Assert.AreEqual($01, Integer(Results[0].MID));
+    Assert.AreEqual($01, Integer(Results[0].TID));
+    Assert.AreEqual(0, Integer(Results[0].ComponentID));
+    Assert.AreEqual($0A, Integer(Results[0].UnitAndScale));
+    Assert.AreEqual(100, Integer(Results[0].TestValue));
+    Assert.AreEqual(0, Integer(Results[0].MinLimit));
+    Assert.AreEqual(200, Integer(Results[0].MaxLimit));
+  finally
+    Monitor.Free;
+    Protocol.Free;
+    Adapter.Free;
+    Connection.Free;
   end;
 end;
 

@@ -1,40 +1,30 @@
 ﻿// ------------------------------------------------------------------------------
 // ERD.WWHOBD
 //
-// TOBDWWHOBD — World-Wide Harmonised OBD (heavy-duty OBD per
-// ISO 27145-1..5). On modern HD/diesel vehicles WWH-OBD overlays
-// the classic OBD-II surface with a UDS-based DTC and readiness
-// surface that distinguishes DTC severity classes A / B1 / B2 / C
-// (ISO 14229-1 §11.3.5.4 DTCSeverityMask) — Class A is emission-
-// critical and lights the MIL immediately; Class B1/B2 may need
-// two-trip confirmation; Class C is informational.
+// TOBDWWHOBD - World-Wide Harmonised OBD / SAE J1979-2 diagnostic
+// surface over UDS. WWH-OBD uses ISO 14229-1 ReadDTCInformation
+// sub-functions and J1979-2 data identifiers for OBD-style data.
 //
-// This component covers the WWH-OBD diagnostic surface:
-// - Read DTCs by severity mask (0x19 sub 0x42)
-// - Read DTCs by readiness-group ID (0x19 sub 0x55)
-// - DTC class counters (DIDs 0xF418 / 0xF419)
-// - Distance / time-with-MIL (DIDs 0xF402 / 0xF407)
-// - VIN (DID 0xF190 — same as the generic TOBDVIN; we expose
-// it here too because HD techs frequently want the bundle
-// in one call)
-//
-// TOBDWWHReadiness in a sibling unit covers the monitor-completion
-// flags (DIDs 0xF411 / 0xF412 / 0xF40C).
+// This component covers:
+// - Read WWH-OBD DTCs by mask record (0x19 sub 0x42)
+// - Read permanent WWH-OBD DTCs (0x19 sub 0x55)
+// - Read DTCs for a readiness-group identifier (0x19 sub 0x56)
+// - Distance / time-with-MIL using J1979-2 DIDs F421 / F44D
+// - VIN using J1979-2 DID F802 with UDS F190 fallback
 //
 // Author      : Ernst Reidinga (ERDesigns)
 // Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
 // License     : see LICENSE
 //
 // References  :
-// - ISO 27145-1:2012 — General requirements for WWH-OBD
-// - ISO 27145-2:2012 — Common data dictionary
-// - ISO 27145-3:2012 — Common message dictionary
-// - ISO 14229-1:2020 § 11.3 (ReadDTCInformation) — sub-functions
-// 0x42 (DTC by severity mask) and 0x55 (WWH-OBD by readiness
-// group ID)
+// - ISO 27145-1:2012 - General requirements for WWH-OBD
+// - ISO 27145-3:2012 - Common message dictionary
+// - ISO 14229-1:2020 section 11.3 (ReadDTCInformation)
+// - SAE J1979-2 - UDS data identifiers for OBD information
 //
 // History     :
 // 2026-05-11  ERD  Initial implementation.
+// 2026-10-12  ERD  Correct J1979-2 DIDs and WWH-OBD DTC parsing.
 // ------------------------------------------------------------------------------
 
 unit ERD.WWHOBD;
@@ -59,85 +49,147 @@ uses
   ERD.Types,
   ERD.Protocol.Types,
   ERD.Protocol.UDS,
-  ERD.Protocol;
+  ERD.Protocol,
+  ERD.Service.DTCs;
 
 const
-  /// <summary>UDS 0x19 sub-function 0x42 — report DTC by severity
-  /// information.</summary>
-  UDS_DTC_REPORT_BY_SEVERITY_MASK = $42;
+  /// <summary>UDS 0x19 sub-function 0x42 - reportWWHOBDDTCByMaskRecord.</summary>
+  UDS_DTC_REPORT_WWHOBD_BY_MASK_RECORD = $42;
+  /// <summary>Compatibility alias for sub-function 0x42.</summary>
+  UDS_DTC_REPORT_BY_SEVERITY_MASK = UDS_DTC_REPORT_WWHOBD_BY_MASK_RECORD;
 
-  /// <summary>UDS 0x19 sub-function 0x55 — report WWH-OBD DTC by
-  /// readiness-group ID.</summary>
-  UDS_DTC_REPORT_WWHOBD_BY_GROUP = $55;
+  /// <summary>UDS 0x19 sub-function 0x55 - reportWWHOBDDTCWithPermanentStatus.</summary>
+  UDS_DTC_REPORT_WWHOBD_WITH_PERMANENT_STATUS = $55;
+  /// <summary>UDS 0x19 sub-function 0x56 - reportDTCInformationByDTCReadinessGroupIdentifier.</summary>
+  UDS_DTC_REPORT_DTC_BY_READINESS_GROUP = $56;
+  /// <summary>Compatibility alias for the corrected readiness-group sub-function.</summary>
+  UDS_DTC_REPORT_WWHOBD_BY_GROUP = UDS_DTC_REPORT_DTC_BY_READINESS_GROUP;
 
-  /// <summary>"Check at next halt" severity bit per ISO 14229-1
-  /// §11.3.5.4.</summary>
-  WWHOBD_SEV_CHECK_AT_NEXT_HALT = $20;
-  /// <summary>"Check immediately" severity bit (Class A escalation).
-  /// </summary>
-  WWHOBD_SEV_CHECK_IMMEDIATELY = $40;
-  /// <summary>"Maintenance only" severity bit (no MIL).</summary>
-  WWHOBD_SEV_MAINTENANCE_ONLY = $80;
+  /// <summary>WWH-OBD functional group identifier for emissions-related systems.</summary>
+  WWHOBD_FUNCTIONAL_GROUP_EMISSIONS = $33;
+  /// <summary>Default DTC status mask requesting every status bit.</summary>
+  WWHOBD_DTC_STATUS_MASK_ALL = $FF;
 
-  /// <summary>UDS DID — distance travelled with MIL on (km).</summary>
-  WWHOBD_DID_DistanceMILOn = $F402;
-  /// <summary>UDS DID — time run with MIL on (minutes).</summary>
-  WWHOBD_DID_TimeMILOn = $F407;
-  /// <summary>UDS DID — major group readiness summary.</summary>
-  WWHOBD_DID_MajorGroupReady = $F411;
-  /// <summary>UDS DID — readiness-group-specific status.</summary>
-  WWHOBD_DID_ReadinessGroupStat = $F412;
-  /// <summary>UDS DID — monitoring conditions encountered
-  /// counter.</summary>
-  WWHOBD_DID_OBDMonCondCount = $F40C;
-  /// <summary>UDS DID — DTC counter (class A by default; varies
-  /// per OEM).</summary>
-  WWHOBD_DID_DTCCounter = $F418;
-  /// <summary>UDS DID — second DTC counter byte (e.g. Class B1
-  /// pending).</summary>
-  WWHOBD_DID_DTCCounter2 = $F419;
-  /// <summary>UDS DID — VIN (ISO 27145-2 alias of the standard
-  /// VIN DID).</summary>
-  WWHOBD_DID_VIN = $F190;
+  /// <summary>DTCSeverityMask bit 5: maintenanceOnly.</summary>
+  WWHOBD_SEV_MAINTENANCE_ONLY = $20;
+  /// <summary>DTCSeverityMask bit 6: checkAtNextHalt.</summary>
+  WWHOBD_SEV_CHECK_AT_NEXT_HALT = $40;
+  /// <summary>DTCSeverityMask bit 7: checkImmediately.</summary>
+  WWHOBD_SEV_CHECK_IMMEDIATELY = $80;
+  /// <summary>Mask for the ISO 14229-1 DTC severity bits.</summary>
+  WWHOBD_SEV_MASK = WWHOBD_SEV_MAINTENANCE_ONLY or
+    WWHOBD_SEV_CHECK_AT_NEXT_HALT or WWHOBD_SEV_CHECK_IMMEDIATELY;
+
+  /// <summary>DTC class bit 0: class 0 / no WWH emission class.</summary>
+  WWHOBD_DTC_CLASS_0 = $01;
+  /// <summary>DTC class bit 1: WWH-OBD Class A.</summary>
+  WWHOBD_DTC_CLASS_A = $02;
+  /// <summary>DTC class bit 2: WWH-OBD Class B1.</summary>
+  WWHOBD_DTC_CLASS_B1 = $04;
+  /// <summary>DTC class bit 3: WWH-OBD Class B2.</summary>
+  WWHOBD_DTC_CLASS_B2 = $08;
+  /// <summary>DTC class bit 4: WWH-OBD Class C.</summary>
+  WWHOBD_DTC_CLASS_C = $10;
+  /// <summary>Mask for the ISO 14229-1 DTC class bits.</summary>
+  WWHOBD_DTC_CLASS_MASK = WWHOBD_DTC_CLASS_0 or WWHOBD_DTC_CLASS_A or
+    WWHOBD_DTC_CLASS_B1 or WWHOBD_DTC_CLASS_B2 or WWHOBD_DTC_CLASS_C;
+
+  /// <summary>J1979-2 DID F401 - monitor status since DTCs cleared (PID 01 payload).</summary>
+  WWHOBD_DID_MonitorStatusSinceClear = $F401;
+  /// <summary>J1979-2 DID F421 - distance travelled with MIL on (PID 21 payload).</summary>
+  WWHOBD_DID_DistanceMILOn = $F421;
+  /// <summary>J1979-2 DID F430 - warm-ups since DTCs cleared (PID 30 payload).</summary>
+  WWHOBD_DID_WarmUpsSinceClear = $F430;
+  /// <summary>J1979-2 DID F431 - distance since DTCs cleared (PID 31 payload).</summary>
+  WWHOBD_DID_DistanceSinceClear = $F431;
+  /// <summary>J1979-2 DID F441 - monitor status this drive cycle (PID 41 payload).</summary>
+  WWHOBD_DID_MonitorStatusThisCycle = $F441;
+  /// <summary>J1979-2 DID F44D - engine run time with MIL on (PID 4D payload).</summary>
+  WWHOBD_DID_TimeMILOn = $F44D;
+  /// <summary>J1979-2 DID F44E - time since DTCs cleared (PID 4E payload).</summary>
+  WWHOBD_DID_TimeSinceClear = $F44E;
+  /// <summary>J1979-2 DID F802 - VIN (Mode 09 InfoType 02 payload).</summary>
+  WWHOBD_DID_VIN = $F802;
+  /// <summary>UDS DID F190 - VIN fallback for vehicles that omit F802.</summary>
+  WWHOBD_DID_UDS_VIN = $F190;
+  /// <summary>J1979-2 DID F804 - calibration identification.</summary>
+  WWHOBD_DID_CALID = $F804;
+  /// <summary>J1979-2 DID F806 - calibration verification number.</summary>
+  WWHOBD_DID_CVN = $F806;
+  /// <summary>J1979-2 DID F808 - in-use performance tracking, spark ignition.</summary>
+  WWHOBD_DID_IPT_Spark = $F808;
+  /// <summary>J1979-2 DID F80A - ECU name.</summary>
+  WWHOBD_DID_ECUName = $F80A;
+  /// <summary>J1979-2 DID F80B - in-use performance tracking, compression ignition.</summary>
+  WWHOBD_DID_IPT_Compression = $F80B;
+
+  /// <summary>Compatibility alias: use WWHOBD_DID_MonitorStatusSinceClear.</summary>
+  WWHOBD_DID_MajorGroupReady = WWHOBD_DID_MonitorStatusSinceClear;
+  /// <summary>Compatibility alias: use WWHOBD_DID_MonitorStatusThisCycle.</summary>
+  WWHOBD_DID_ReadinessGroupStat = WWHOBD_DID_MonitorStatusThisCycle;
 
 type
   /// <summary>
-  /// WWH-OBD DTC severity class.
+  /// WWH-OBD DTC severity or class label.
   /// </summary>
   /// <remarks>
-  /// Maps the high three bits of the severity byte returned by
-  /// sub-function 0x42 to a coarser human-readable label.
+  /// The first five values are the legacy severity labels returned by
+  /// <see cref="ClassifySeverity"/>. The appended values represent the
+  /// DTC class bits carried in severity-byte bits 0..4.
   /// </remarks>
   TOBDWWHDtcClass = (
-    /// <summary>Severity byte = 0 — class not reported.</summary>
+    /// <summary>No severity or class bit was reported.</summary>
     wcUnknown,
-    /// <summary>"Maintenance only" bit set — no MIL impact.</summary>
+    /// <summary>maintenanceOnly severity bit set.</summary>
     wcMaintenance,
-    /// <summary>"Check at next halt" only — Class B.</summary>
+    /// <summary>checkAtNextHalt severity bit set.</summary>
     wcCheckHalt,
-    /// <summary>"Check immediately" only — Class A.</summary>
+    /// <summary>checkImmediately severity bit set.</summary>
     wcCheckNow,
-    /// <summary>Both "check halt" and "check now" set — Class A
-    /// escalation.</summary>
-    wcCheckBoth);
+    /// <summary>Both checkAtNextHalt and checkImmediately bits set.</summary>
+    wcCheckBoth,
+    /// <summary>DTCClass_0 bit set.</summary>
+    wcClass0,
+    /// <summary>WWH-OBD DTC Class A.</summary>
+    wcClassA,
+    /// <summary>WWH-OBD DTC Class B1.</summary>
+    wcClassB1,
+    /// <summary>WWH-OBD DTC Class B2.</summary>
+    wcClassB2,
+    /// <summary>WWH-OBD DTC Class C.</summary>
+    wcClassC);
 
   /// <summary>
   /// One WWH-OBD DTC entry.
   /// </summary>
   TOBDWWHDtcEntry = record
-    /// <summary>5-character J2012 DTC code (e.g. P0420).</summary>
+    /// <summary>UDS/J1979-2 DTC string including failure-type suffix, e.g. P0101-1C.</summary>
     Code: string;
-    /// <summary>Severity byte verbatim.</summary>
+    /// <summary>Plain two-byte SAE J2012 DTC string, e.g. P0101.</summary>
+    PlainCode: string;
+    /// <summary>Failure type byte, the third byte of the UDS DTC.</summary>
+    FailureTypeByte: Byte;
+    /// <summary>Severity byte verbatim; zero for sub-functions that do not return it.</summary>
     SeverityByte: Byte;
-    /// <summary>UDS status mask (testFailed bits).</summary>
+    /// <summary>UDS status mask (statusOfDTC).</summary>
     StatusByte: Byte;
-    /// <summary>Decoded severity class.</summary>
+    /// <summary>Legacy coarse severity classification from bits 7..5.</summary>
     DtcClass: TOBDWWHDtcClass;
-    /// <summary>Functional-unit byte that follows the severity
-    /// byte in sub 0x42 records.</summary>
+    /// <summary>WWH-OBD DTC class decoded from bits 4..0.</summary>
+    WWHClass: TOBDWWHDtcClass;
+    /// <summary>Functional group identifier from the response preamble.</summary>
+    FunctionalGroupIdentifier: Byte;
+    /// <summary>Compatibility alias of FunctionalGroupIdentifier.</summary>
     FunctionalUnit: Byte;
-    /// <summary>Raw bytes for this record exactly as returned by
-    /// the ECU.</summary>
+    /// <summary>Readiness group identifier for sub-function 0x56 responses.</summary>
+    ReadinessGroupIdentifier: Byte;
+    /// <summary>DTCFormatIdentifier from the response preamble.</summary>
+    DTCFormatIdentifier: Byte;
+    /// <summary>Header of the ECU that reported the code.</summary>
+    Ecu: string;
+    /// <summary>Numeric CAN identifier of the reporting ECU, or zero when unknown.</summary>
+    EcuId: Cardinal;
+    /// <summary>Raw record bytes exactly as returned by the ECU.</summary>
     Raw: TBytes;
   end;
 
@@ -152,21 +204,12 @@ type
   /// <summary>
   /// WWH-OBD heavy-duty diagnostic component.
   /// </summary>
-  /// <remarks>
-  /// Drop the component on a form and assign <c>Protocol</c> to a
-  /// connected, UDS-capable <see cref="TOBDProtocol"/>.
-  /// <see cref="ReadBySeverity"/> enumerates every DTC whose
-  /// severity byte intersects <see cref="SeverityMask"/>;
-  /// <see cref="ReadByGroup"/> walks a single ISO 27145-3
-  /// readiness-group ID. The DID-driven helpers
-  /// (<see cref="ReadMILUsage"/>, <see cref="ReadDTCCounters"/>,
-  /// <see cref="ReadVIN"/>) wrap a single UDS ReadDataByIdentifier
-  /// per call.
-  /// </remarks>
   TOBDWWHOBD = class(TComponent)
   strict private
     FProtocol: TOBDProtocol;
     FSeverityMask: Byte;
+    FStatusMask: Byte;
+    FFunctionalGroupIdentifier: Byte;
     FOwnedTask: TOBDOwnedTask;
     FAsyncLock: TCriticalSection;
     FAsyncInFlight: Boolean;
@@ -175,7 +218,9 @@ type
     FOnError: TOBDConnectionErrorEvent;
     procedure GuardSingleAsync;
     procedure ReleaseAsync;
-    function DoReadBySeverity(AMask: Byte): TArray<TOBDWWHDtcEntry>;
+    function DoReadBySeverity(AStatusMask, ASeverityMask: Byte)
+      : TArray<TOBDWWHDtcEntry>;
+    function DoReadPermanent: TArray<TOBDWWHDtcEntry>;
     function DoReadByGroup(AGroupId: Byte): TArray<TOBDWWHDtcEntry>;
     function DoReadDID(ADID: Word; AExpectedBytes: Integer): TBytes;
     function DecodeBigEndian(const AData: TBytes; AOffset: Integer;
@@ -195,121 +240,88 @@ type
     destructor Destroy; override;
 
     /// <summary>
-    /// Reads every DTC whose severity byte intersects
-    /// <see cref="SeverityMask"/>.
+    /// Reads WWH-OBD DTCs with 0x19 sub-function 0x42.
     /// </summary>
-    /// <returns>Decoded DTC entries in wire order.</returns>
-    /// <remarks>Blocks. From GUI code prefer
-    /// <see cref="ReadBySeverityAsync"/>.</remarks>
-    /// <exception cref="EOBDConfig">
-    /// <c>Protocol</c> is not assigned.
-    /// </exception>
-    /// <exception cref="EOBDProtocolErr">
-    /// ECU returned a negative response.
-    /// </exception>
+    /// <returns>Decoded DTC entries in wire order, across all answering ECUs.</returns>
     function ReadBySeverity: TArray<TOBDWWHDtcEntry>;
 
     /// <summary>
-    /// Reads every WWH-OBD DTC for readiness group
-    /// <c>AGroupId</c>.
+    /// Reads WWH-OBD DTCs with permanent status using 0x19 sub-function 0x55.
     /// </summary>
-    /// <param name="AGroupId">ISO 27145-3 functional-group ID.</param>
+    /// <returns>Decoded permanent DTC entries.</returns>
+    function ReadPermanent: TArray<TOBDWWHDtcEntry>;
+
+    /// <summary>
+    /// Reads WWH-OBD DTCs for a DTC readiness-group identifier using
+    /// 0x19 sub-function 0x56.
+    /// </summary>
+    /// <param name="AGroupId">DTCReadinessGroupIdentifier.</param>
     /// <returns>Decoded DTC entries.</returns>
-    /// <exception cref="EOBDConfig">
-    /// <c>Protocol</c> is not assigned.
-    /// </exception>
-    /// <exception cref="EOBDProtocolErr">
-    /// ECU returned a negative response.
-    /// </exception>
     function ReadByGroup(AGroupId: Byte): TArray<TOBDWWHDtcEntry>;
 
     /// <summary>
-    /// Reads the MIL-on usage counters.
+    /// Reads the MIL-on usage counters from J1979-2 DIDs F421 and F44D.
     /// </summary>
-    /// <param name="ADistanceKm">Out: kilometres driven with MIL
-    /// illuminated (DID 0xF402).</param>
-    /// <param name="ATimeMinutes">Out: minutes run with MIL
-    /// illuminated (DID 0xF407).</param>
-    /// <remarks>Fires <c>OnMILUsage</c> on completion.</remarks>
-    /// <exception cref="EOBDConfig">
-    /// <c>Protocol</c> is not assigned.
-    /// </exception>
-    /// <exception cref="EOBDProtocolErr">
-    /// One of the DID reads returned a negative or short
-    /// response.
-    /// </exception>
+    /// <param name="ADistanceKm">Out: kilometres driven with MIL illuminated.</param>
+    /// <param name="ATimeMinutes">Out: minutes run with MIL illuminated.</param>
     procedure ReadMILUsage(out ADistanceKm: UInt32; out ATimeMinutes: UInt32);
 
     /// <summary>
-    /// Reads the Class A and Class B1 DTC counters.
+    /// Counts Class A and Class B1 DTCs from the 0x42 WWH-OBD DTC list.
     /// </summary>
-    /// <param name="AClassA">Out: Class A counter (DID
-    /// 0xF418).</param>
-    /// <param name="AClassB1">Out: Class B1 counter (DID
-    /// 0xF419).</param>
-    /// <exception cref="EOBDConfig">
-    /// <c>Protocol</c> is not assigned.
-    /// </exception>
-    /// <exception cref="EOBDProtocolErr">
-    /// One of the DID reads returned a negative or short
-    /// response.
-    /// </exception>
+    /// <param name="AClassA">Out: number of Class A DTCs.</param>
+    /// <param name="AClassB1">Out: number of Class B1 DTCs.</param>
     procedure ReadDTCCounters(out AClassA: UInt32; out AClassB1: UInt32);
 
     /// <summary>
-    /// Reads the VIN via DID 0xF190.
+    /// Reads the VIN via J1979-2 DID F802, falling back to UDS DID F190.
     /// </summary>
     /// <returns>The VIN as ASCII; trimmed of trailing padding.</returns>
-    /// <exception cref="EOBDConfig">
-    /// <c>Protocol</c> is not assigned.
-    /// </exception>
-    /// <exception cref="EOBDProtocolErr">
-    /// ECU returned a negative or short response.
-    /// </exception>
     function ReadVIN: string;
 
-    /// <summary>
-    /// Maps a severity byte to a <see cref="TOBDWWHDtcClass"/>.
-    /// </summary>
-    /// <param name="AByte">Severity byte from a sub-0x42 entry.</param>
-    /// <returns>Coarse severity class.</returns>
+    /// <summary>Maps severity byte bits 7..5 to a coarse severity label.</summary>
     class function ClassifySeverity(AByte: Byte): TOBDWWHDtcClass; static;
+    /// <summary>Maps severity byte bits 4..0 to the WWH-OBD DTC class.</summary>
+    class function ClassifyWWHClass(AByte: Byte): TOBDWWHDtcClass; static;
+    /// <summary>Formats the two-byte SAE J2012 portion of a WWH-OBD DTC.</summary>
+    class function PlainDTCCode(AHi, AMid: Byte): string; static;
+    /// <summary>Formats a three-byte UDS DTC as P0101-1C.</summary>
+    class function FormatDTC(AHi, AMid, AFailureType: Byte): string; static;
+
+    /// <summary>Parses all positive 0x59/0x42 ECU answers.</summary>
+    class function ParseBySeverityResponse(const AResponse: TOBDResponse)
+      : TArray<TOBDWWHDtcEntry>; static;
+    /// <summary>Parses all positive 0x59/0x55 ECU answers.</summary>
+    class function ParsePermanentResponse(const AResponse: TOBDResponse)
+      : TArray<TOBDWWHDtcEntry>; static;
+    /// <summary>Parses all positive 0x59/0x56 ECU answers.</summary>
+    class function ParseReadinessGroupResponse(const AResponse: TOBDResponse)
+      : TArray<TOBDWWHDtcEntry>; static;
 
     /// <summary>Non-blocking <see cref="ReadBySeverity"/>.</summary>
-    /// <remarks>
-    /// Spawns a worker thread; reports completion via
-    /// <c>OnDTCs</c> or failure via <c>OnError</c> on the main
-    /// thread. Only one async read may be in flight at a time.
-    /// </remarks>
-    /// <exception cref="EOBDConfig">
-    /// Another async read is already in flight.
-    /// </exception>
     procedure ReadBySeverityAsync;
-
+    /// <summary>Non-blocking <see cref="ReadPermanent"/>.</summary>
+    procedure ReadPermanentAsync;
     /// <summary>Non-blocking <see cref="ReadByGroup"/>.</summary>
-    /// <param name="AGroupId">ISO 27145-3 functional-group ID.</param>
-    /// <exception cref="EOBDConfig">
-    /// Another async read is already in flight.
-    /// </exception>
+    /// <param name="AGroupId">DTCReadinessGroupIdentifier.</param>
     procedure ReadByGroupAsync(AGroupId: Byte);
-
     /// <summary>Non-blocking <see cref="ReadMILUsage"/>.</summary>
-    /// <exception cref="EOBDConfig">
-    /// Another async read is already in flight.
-    /// </exception>
     procedure ReadMILUsageAsync;
   published
     /// <summary>Protocol stack to read through. Required.</summary>
     property Protocol: TOBDProtocol read FProtocol write SetProtocol;
 
-    /// <summary>
-    /// Default severity-mask filter applied to
-    /// <see cref="ReadBySeverity"/>. Default <c>0xE0</c> (every
-    /// MIL-eligible severity bit).
-    /// </summary>
+    /// <summary>Functional group identifier. Default 0x33 for emissions systems.</summary>
+    property FunctionalGroupIdentifier: Byte read FFunctionalGroupIdentifier
+      write FFunctionalGroupIdentifier default WWHOBD_FUNCTIONAL_GROUP_EMISSIONS;
+
+    /// <summary>Status-mask filter used by 0x19/0x42. Default 0xFF.</summary>
+    property StatusMask: Byte read FStatusMask write FStatusMask
+      default WWHOBD_DTC_STATUS_MASK_ALL;
+
+    /// <summary>Severity-mask filter used by 0x19/0x42. Default 0xE0.</summary>
     property SeverityMask: Byte read FSeverityMask write FSeverityMask
-      default WWHOBD_SEV_MAINTENANCE_ONLY or WWHOBD_SEV_CHECK_AT_NEXT_HALT or
-      WWHOBD_SEV_CHECK_IMMEDIATELY;
+      default WWHOBD_SEV_MASK;
 
     /// <summary>Fires on DTC-sweep completion. Main thread.</summary>
     property OnDTCs: TOBDWWHDtcsEvent read FOnDTCs write FOnDTCs;
@@ -329,8 +341,9 @@ begin
   inherited Create(AOwner);
   FAsyncLock := TCriticalSection.Create;
   FOwnedTask := TOBDOwnedTask.Create;
-  FSeverityMask := WWHOBD_SEV_MAINTENANCE_ONLY or
-    WWHOBD_SEV_CHECK_AT_NEXT_HALT or WWHOBD_SEV_CHECK_IMMEDIATELY;
+  FSeverityMask := WWHOBD_SEV_MASK;
+  FStatusMask := WWHOBD_DTC_STATUS_MASK_ALL;
+  FFunctionalGroupIdentifier := WWHOBD_FUNCTIONAL_GROUP_EMISSIONS;
 end;
 
 destructor TOBDWWHOBD.Destroy;
@@ -346,6 +359,8 @@ procedure TOBDWWHOBD.SetProtocol(AValue: TOBDProtocol);
 begin
   if FProtocol = AValue then
     Exit;
+  if FOwnedTask <> nil then
+    FOwnedTask.Quiesce;
   if FProtocol <> nil then
     FProtocol.RemoveFreeNotification(Self);
   FProtocol := AValue;
@@ -390,13 +405,10 @@ begin
 end;
 
 class function TOBDWWHOBD.ClassifySeverity(AByte: Byte): TOBDWWHDtcClass;
-const
-  HighBits = WWHOBD_SEV_MAINTENANCE_ONLY or WWHOBD_SEV_CHECK_AT_NEXT_HALT or
-    WWHOBD_SEV_CHECK_IMMEDIATELY;
 var
   Hi: Byte;
 begin
-  Hi := AByte and HighBits;
+  Hi := AByte and WWHOBD_SEV_MASK;
   if Hi = 0 then
     Exit(wcUnknown);
   if (Hi and WWHOBD_SEV_CHECK_IMMEDIATELY) <> 0 then
@@ -411,6 +423,34 @@ begin
   Result := wcMaintenance;
 end;
 
+class function TOBDWWHOBD.ClassifyWWHClass(AByte: Byte): TOBDWWHDtcClass;
+var
+  Lo: Byte;
+begin
+  Lo := AByte and WWHOBD_DTC_CLASS_MASK;
+  if (Lo and WWHOBD_DTC_CLASS_A) <> 0 then
+    Exit(wcClassA);
+  if (Lo and WWHOBD_DTC_CLASS_B1) <> 0 then
+    Exit(wcClassB1);
+  if (Lo and WWHOBD_DTC_CLASS_B2) <> 0 then
+    Exit(wcClassB2);
+  if (Lo and WWHOBD_DTC_CLASS_C) <> 0 then
+    Exit(wcClassC);
+  if (Lo and WWHOBD_DTC_CLASS_0) <> 0 then
+    Exit(wcClass0);
+  Result := wcUnknown;
+end;
+
+class function TOBDWWHOBD.PlainDTCCode(AHi, AMid: Byte): string;
+begin
+  Result := TOBDDTCs.DecodeJ2012(AHi, AMid);
+end;
+
+class function TOBDWWHOBD.FormatDTC(AHi, AMid, AFailureType: Byte): string;
+begin
+  Result := PlainDTCCode(AHi, AMid) + '-' + IntToHex(AFailureType, 2);
+end;
+
 function TOBDWWHOBD.DecodeBigEndian(const AData: TBytes; AOffset: Integer;
   ABytes: Integer): UInt32;
 var
@@ -421,108 +461,201 @@ begin
     Result := (Result shl 8) or AData[AOffset + I];
 end;
 
-function DecodeWWHJ2012(AHi: Byte; ALo: Byte): string;
-const
-  Prefix: array [0 .. 3] of Char = ('P', 'C', 'B', 'U');
+procedure AppendWWHFromEcu(var AAcc: TArray<TOBDWWHDtcEntry>;
+  const APart: TArray<TOBDWWHDtcEntry>; const AMsg: TOBDEcuMessage);
 var
-  PrefixIdx: Integer;
+  I, Base: Integer;
 begin
-  PrefixIdx := (AHi shr 6) and $03;
-  Result := Prefix[PrefixIdx] + IntToHex((AHi shr 4) and $03, 1) +
-    IntToHex(AHi and $0F, 1) + IntToHex((ALo shr 4) and $0F, 1) +
-    IntToHex(ALo and $0F, 1);
+  Base := Length(AAcc);
+  SetLength(AAcc, Base + Length(APart));
+  for I := 0 to High(APart) do
+  begin
+    AAcc[Base + I] := APart[I];
+    AAcc[Base + I].Ecu := AMsg.Header;
+    AAcc[Base + I].EcuId := AMsg.CanId;
+  end;
 end;
 
-function TOBDWWHOBD.DoReadBySeverity(AMask: Byte): TArray<TOBDWWHDtcEntry>;
+function ParseSeverityPayload(const AData: TBytes): TArray<TOBDWWHDtcEntry>;
+var
+  Off, Count: Integer;
+  FGID, FormatId: Byte;
+  Entry: TOBDWWHDtcEntry;
+begin
+  Result := nil;
+  if (Length(AData) < 5) or (AData[0] <> UDS_DTC_REPORT_WWHOBD_BY_MASK_RECORD) then
+    Exit;
+  FGID := AData[1];
+  FormatId := AData[4];
+  Off := 5;
+  Count := 0;
+  while Off + 5 <= Length(AData) do
+  begin
+    Entry := Default (TOBDWWHDtcEntry);
+    Entry.SeverityByte := AData[Off];
+    Entry.PlainCode := TOBDWWHOBD.PlainDTCCode(AData[Off + 1], AData[Off + 2]);
+    Entry.FailureTypeByte := AData[Off + 3];
+    Entry.Code := TOBDWWHOBD.FormatDTC(AData[Off + 1], AData[Off + 2],
+      AData[Off + 3]);
+    Entry.StatusByte := AData[Off + 4];
+    Entry.DtcClass := TOBDWWHOBD.ClassifySeverity(Entry.SeverityByte);
+    Entry.WWHClass := TOBDWWHOBD.ClassifyWWHClass(Entry.SeverityByte);
+    Entry.FunctionalGroupIdentifier := FGID;
+    Entry.FunctionalUnit := FGID;
+    Entry.DTCFormatIdentifier := FormatId;
+    Entry.Raw := Copy(AData, Off, 5);
+    SetLength(Result, Count + 1);
+    Result[Count] := Entry;
+    Inc(Count);
+    Inc(Off, 5);
+  end;
+end;
+
+function ParseFourByteDtcPayload(const AData: TBytes; ASubFunction: Byte;
+  AHasReadinessGroup: Boolean): TArray<TOBDWWHDtcEntry>;
+var
+  Off, Count: Integer;
+  FGID, FormatId, GroupId: Byte;
+  Entry: TOBDWWHDtcEntry;
+begin
+  Result := nil;
+  if (Length(AData) < 4) or (AData[0] <> ASubFunction) then
+    Exit;
+  FGID := AData[1];
+  FormatId := AData[3];
+  GroupId := 0;
+  if AHasReadinessGroup then
+  begin
+    if Length(AData) < 5 then
+      Exit;
+    GroupId := AData[4];
+    Off := 5;
+  end
+  else
+    Off := 4;
+  Count := 0;
+  while Off + 4 <= Length(AData) do
+  begin
+    Entry := Default (TOBDWWHDtcEntry);
+    Entry.PlainCode := TOBDWWHOBD.PlainDTCCode(AData[Off], AData[Off + 1]);
+    Entry.FailureTypeByte := AData[Off + 2];
+    Entry.Code := TOBDWWHOBD.FormatDTC(AData[Off], AData[Off + 1],
+      AData[Off + 2]);
+    Entry.StatusByte := AData[Off + 3];
+    Entry.DtcClass := wcUnknown;
+    Entry.WWHClass := wcUnknown;
+    Entry.FunctionalGroupIdentifier := FGID;
+    Entry.FunctionalUnit := FGID;
+    Entry.ReadinessGroupIdentifier := GroupId;
+    Entry.DTCFormatIdentifier := FormatId;
+    Entry.Raw := Copy(AData, Off, 4);
+    SetLength(Result, Count + 1);
+    Result[Count] := Entry;
+    Inc(Count);
+    Inc(Off, 4);
+  end;
+end;
+
+class function TOBDWWHOBD.ParseBySeverityResponse(const AResponse: TOBDResponse)
+  : TArray<TOBDWWHDtcEntry>;
+var
+  Msgs: TArray<TOBDEcuMessage>;
+  Part: TArray<TOBDWWHDtcEntry>;
+  I: Integer;
+begin
+  Result := nil;
+  Msgs := OBDPositiveMessages(AResponse, UDS_SID_ReadDTCInformation +
+    UDS_POSITIVE_RESPONSE_OFFSET);
+  for I := 0 to High(Msgs) do
+  begin
+    Part := ParseSeverityPayload(Copy(Msgs[I].Data, 1, MaxInt));
+    AppendWWHFromEcu(Result, Part, Msgs[I]);
+  end;
+end;
+
+class function TOBDWWHOBD.ParsePermanentResponse(const AResponse: TOBDResponse)
+  : TArray<TOBDWWHDtcEntry>;
+var
+  Msgs: TArray<TOBDEcuMessage>;
+  Part: TArray<TOBDWWHDtcEntry>;
+  I: Integer;
+begin
+  Result := nil;
+  Msgs := OBDPositiveMessages(AResponse, UDS_SID_ReadDTCInformation +
+    UDS_POSITIVE_RESPONSE_OFFSET);
+  for I := 0 to High(Msgs) do
+  begin
+    Part := ParseFourByteDtcPayload(Copy(Msgs[I].Data, 1, MaxInt),
+      UDS_DTC_REPORT_WWHOBD_WITH_PERMANENT_STATUS, False);
+    AppendWWHFromEcu(Result, Part, Msgs[I]);
+  end;
+end;
+
+class function TOBDWWHOBD.ParseReadinessGroupResponse(
+  const AResponse: TOBDResponse): TArray<TOBDWWHDtcEntry>;
+var
+  Msgs: TArray<TOBDEcuMessage>;
+  Part: TArray<TOBDWWHDtcEntry>;
+  I: Integer;
+begin
+  Result := nil;
+  Msgs := OBDPositiveMessages(AResponse, UDS_SID_ReadDTCInformation +
+    UDS_POSITIVE_RESPONSE_OFFSET);
+  for I := 0 to High(Msgs) do
+  begin
+    Part := ParseFourByteDtcPayload(Copy(Msgs[I].Data, 1, MaxInt),
+      UDS_DTC_REPORT_DTC_BY_READINESS_GROUP, True);
+    AppendWWHFromEcu(Result, Part, Msgs[I]);
+  end;
+end;
+
+function TOBDWWHOBD.DoReadBySeverity(AStatusMask, ASeverityMask: Byte)
+  : TArray<TOBDWWHDtcEntry>;
 var
   Resp: TOBDResponse;
   Req: TBytes;
-  Off: Integer;
-  Acc: TList<TOBDWWHDtcEntry>;
-  Entry: TOBDWWHDtcEntry;
 begin
   if FProtocol = nil then
     raise EOBDConfig.Create('TOBDWWHOBD: Protocol not assigned');
-  SetLength(Req, 2);
-  Req[0] := UDS_DTC_REPORT_BY_SEVERITY_MASK;
-  Req[1] := AMask;
+  Req := TBytes.Create(UDS_DTC_REPORT_WWHOBD_BY_MASK_RECORD,
+    FFunctionalGroupIdentifier, AStatusMask, ASeverityMask);
   Resp := FProtocol.Request(UDS_SID_ReadDTCInformation, Req);
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt('ReadDTCBySeverity negative: %s',
+    raise EOBDProtocolErr.CreateFmt('WWH-OBD 19 42 negative: %s',
       [Resp.NRCText]);
+  Result := ParseBySeverityResponse(Resp);
+end;
 
-  // Response per ISO 14229-1 §11.3.5.4:
-  // <subFunc> <DTCStatusAvailMask> [ <severityByte>
-  // <functionalUnit>
-  // <DTC hi> <DTC mid> <DTC lo>
-  // <statusOfDTC> ]*
-  // Skip the subFunc + status-avail-mask preamble (2 bytes); each
-  // record is exactly 6 bytes long.
-  Acc := TList<TOBDWWHDtcEntry>.Create;
-  try
-    Off := 2;
-    while Off + 6 <= Length(Resp.Data) do
-    begin
-      FOwnedTask.CheckCancelled;
-      Entry := Default (TOBDWWHDtcEntry);
-      Entry.SeverityByte := Resp.Data[Off + 0];
-      Entry.FunctionalUnit := Resp.Data[Off + 1];
-      Entry.Code := DecodeWWHJ2012(Resp.Data[Off + 2], Resp.Data[Off + 3]);
-      Entry.StatusByte := Resp.Data[Off + 5];
-      Entry.DtcClass := ClassifySeverity(Entry.SeverityByte);
-      Entry.Raw := Copy(Resp.Data, Off, 6);
-      Acc.Add(Entry);
-      Inc(Off, 6);
-    end;
-    Result := Acc.ToArray;
-  finally
-    Acc.Free;
-  end;
+function TOBDWWHOBD.DoReadPermanent: TArray<TOBDWWHDtcEntry>;
+var
+  Resp: TOBDResponse;
+  Req: TBytes;
+begin
+  if FProtocol = nil then
+    raise EOBDConfig.Create('TOBDWWHOBD: Protocol not assigned');
+  Req := TBytes.Create(UDS_DTC_REPORT_WWHOBD_WITH_PERMANENT_STATUS,
+    FFunctionalGroupIdentifier);
+  Resp := FProtocol.Request(UDS_SID_ReadDTCInformation, Req);
+  if Resp.IsNegative then
+    raise EOBDProtocolErr.CreateFmt('WWH-OBD 19 55 negative: %s',
+      [Resp.NRCText]);
+  Result := ParsePermanentResponse(Resp);
 end;
 
 function TOBDWWHOBD.DoReadByGroup(AGroupId: Byte): TArray<TOBDWWHDtcEntry>;
 var
   Resp: TOBDResponse;
   Req: TBytes;
-  Off: Integer;
-  Acc: TList<TOBDWWHDtcEntry>;
-  Entry: TOBDWWHDtcEntry;
 begin
   if FProtocol = nil then
     raise EOBDConfig.Create('TOBDWWHOBD: Protocol not assigned');
-  SetLength(Req, 2);
-  Req[0] := UDS_DTC_REPORT_WWHOBD_BY_GROUP;
-  Req[1] := AGroupId;
+  Req := TBytes.Create(UDS_DTC_REPORT_DTC_BY_READINESS_GROUP,
+    FFunctionalGroupIdentifier, AGroupId);
   Resp := FProtocol.Request(UDS_SID_ReadDTCInformation, Req);
   if Resp.IsNegative then
-    raise EOBDProtocolErr.CreateFmt('ReadDTCByGroup(0x%.2x) negative: %s',
+    raise EOBDProtocolErr.CreateFmt('WWH-OBD 19 56 group 0x%.2x negative: %s',
       [AGroupId, Resp.NRCText]);
-
-  // Per ISO 14229-1 §11.3.5.13:
-  // <subFunc> <functionalGroupId> <severityAvailMask>
-  // <statusAvailMask> [ <DTC hi mid lo> <statusOfDTC>
-  // <severityByte> ]*
-  // Preamble = 4 bytes; each record is 5 bytes.
-  Acc := TList<TOBDWWHDtcEntry>.Create;
-  try
-    Off := 4;
-    while Off + 5 <= Length(Resp.Data) do
-    begin
-      FOwnedTask.CheckCancelled;
-      Entry := Default (TOBDWWHDtcEntry);
-      Entry.Code := DecodeWWHJ2012(Resp.Data[Off + 0], Resp.Data[Off + 1]);
-      Entry.StatusByte := Resp.Data[Off + 3];
-      Entry.SeverityByte := Resp.Data[Off + 4];
-      Entry.FunctionalUnit := AGroupId;
-      Entry.DtcClass := ClassifySeverity(Entry.SeverityByte);
-      Entry.Raw := Copy(Resp.Data, Off, 5);
-      Acc.Add(Entry);
-      Inc(Off, 5);
-    end;
-    Result := Acc.ToArray;
-  finally
-    Acc.Free;
-  end;
+  Result := ParseReadinessGroupResponse(Resp);
 end;
 
 function TOBDWWHOBD.DoReadDID(ADID: Word; AExpectedBytes: Integer): TBytes;
@@ -532,14 +665,15 @@ var
 begin
   if FProtocol = nil then
     raise EOBDConfig.Create('TOBDWWHOBD: Protocol not assigned');
-  SetLength(Req, 2);
-  Req[0] := Byte((ADID shr 8) and $FF);
-  Req[1] := Byte(ADID and $FF);
+  Req := TBytes.Create(Hi(ADID), Lo(ADID));
   Resp := FProtocol.Request(UDS_SID_ReadDataByIdentifier, Req);
   if Resp.IsNegative then
     raise EOBDProtocolErr.CreateFmt('ReadDID 0x%.4x negative: %s',
       [ADID, Resp.NRCText]);
-  // Response is <DID-hi> <DID-lo> <data...>.
+  if (Length(Resp.Data) < 2) or (Resp.Data[0] <> Hi(ADID)) or
+    (Resp.Data[1] <> Lo(ADID)) then
+    raise EOBDProtocolErr.CreateFmt('ReadDID 0x%.4x: mismatched response',
+      [ADID]);
   if Length(Resp.Data) < 2 + AExpectedBytes then
     raise EOBDProtocolErr.CreateFmt
       ('ReadDID 0x%.4x: short response (%d, wanted >= %d)',
@@ -549,7 +683,13 @@ end;
 
 function TOBDWWHOBD.ReadBySeverity: TArray<TOBDWWHDtcEntry>;
 begin
-  Result := DoReadBySeverity(FSeverityMask);
+  Result := DoReadBySeverity(FStatusMask, FSeverityMask);
+  FireDTCs(Result);
+end;
+
+function TOBDWWHOBD.ReadPermanent: TArray<TOBDWWHDtcEntry>;
+begin
+  Result := DoReadPermanent;
   FireDTCs(Result);
 end;
 
@@ -564,10 +704,8 @@ procedure TOBDWWHOBD.ReadMILUsage(out ADistanceKm: UInt32;
 var
   Body: TBytes;
 begin
-  // DID 0xF402: 2 bytes (km), big-endian.
   Body := DoReadDID(WWHOBD_DID_DistanceMILOn, 2);
   ADistanceKm := DecodeBigEndian(Body, 0, 2);
-  // DID 0xF407: 2 bytes (minutes), big-endian.
   Body := DoReadDID(WWHOBD_DID_TimeMILOn, 2);
   ATimeMinutes := DecodeBigEndian(Body, 0, 2);
   FireMILUsage(ADistanceKm, ATimeMinutes);
@@ -575,26 +713,44 @@ end;
 
 procedure TOBDWWHOBD.ReadDTCCounters(out AClassA: UInt32; out AClassB1: UInt32);
 var
-  Body: TBytes;
+  Entries: TArray<TOBDWWHDtcEntry>;
+  I: Integer;
 begin
-  // Each counter is reported as a 2-byte big-endian field per
-  // ISO 27145-2 §6.1.
-  Body := DoReadDID(WWHOBD_DID_DTCCounter, 2);
-  AClassA := DecodeBigEndian(Body, 0, 2);
-  Body := DoReadDID(WWHOBD_DID_DTCCounter2, 2);
-  AClassB1 := DecodeBigEndian(Body, 0, 2);
+  AClassA := 0;
+  AClassB1 := 0;
+  Entries := DoReadBySeverity(WWHOBD_DTC_STATUS_MASK_ALL, WWHOBD_SEV_MASK);
+  for I := 0 to High(Entries) do
+    case Entries[I].WWHClass of
+      wcClassA:
+        Inc(AClassA);
+      wcClassB1:
+        Inc(AClassB1);
+    end;
 end;
 
 function TOBDWWHOBD.ReadVIN: string;
 var
   Body: TBytes;
-  I: Integer;
+  I, Offset, Count: Integer;
 begin
-  Body := DoReadDID(WWHOBD_DID_VIN, 17);
-  // ISO 27145-2: ASCII padded to 17 chars.
-  SetLength(Result, Length(Body));
-  for I := 0 to High(Body) do
-    Result[I + 1] := Char(Body[I]);
+  try
+    Body := DoReadDID(WWHOBD_DID_VIN, 17);
+  except
+    on E: EOBDProtocolErr do
+      Body := DoReadDID(WWHOBD_DID_UDS_VIN, 17);
+  end;
+  Offset := 0;
+  Count := Length(Body);
+  if (Length(Body) >= 18) and (Body[0] > 0) then
+  begin
+    Offset := 1;
+    Count := 17;
+  end
+  else if Count > 17 then
+    Count := 17;
+  SetLength(Result, Count);
+  for I := 0 to Count - 1 do
+    Result[I + 1] := Char(Body[Offset + I]);
   Result := Trim(Result);
 end;
 
@@ -611,6 +767,33 @@ begin
         try
           try
             Self_.ReadBySeverity;
+          except
+            on E: Exception do
+              Self_.FireError(oeIO, E.Message);
+          end;
+        finally
+          Self_.ReleaseAsync;
+        end;
+      end);
+  except
+    ReleaseAsync;
+    raise;
+  end;
+end;
+
+procedure TOBDWWHOBD.ReadPermanentAsync;
+var
+  Self_: TOBDWWHOBD;
+begin
+  GuardSingleAsync;
+  try
+    Self_ := Self;
+    FOwnedTask.Start(
+      procedure
+      begin
+        try
+          try
+            Self_.ReadPermanent;
           except
             on E: Exception do
               Self_.FireError(oeIO, E.Message);
