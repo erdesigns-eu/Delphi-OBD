@@ -35,7 +35,7 @@
       "type": "object",
       "minProperties": 1,
       "propertyNames": {
-        "pattern": "^(ui|service|app|common|status)(\\.[A-Za-z0-9][A-Za-z0-9_-]*)+(\\.plural)?$"
+        "pattern": "^(ui|service|app|common|status|personal)(\\.[A-Za-z0-9][A-Za-z0-9_-]*)+(\\.plural)?$"
       },
       "additionalProperties": {
         "oneOf": [

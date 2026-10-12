@@ -1,0 +1,38 @@
+{
+  "$schema": "../../../languages/_schema/i18n-catalog.schema.json",
+  "language": "en",
+  "name": "English",
+  "englishName": "English",
+  "version": 1,
+  "strings": {
+    "personal.common.cancel": "Cancel",
+    "personal.nav.groupDrive": "Drive",
+    "personal.nav.groupTests": "Tests",
+    "personal.nav.groupTools": "Tools",
+    "personal.nav.groupVehicle": "Vehicle",
+    "personal.shell.about": "About OBD-Studio Personal",
+    "personal.shell.aboutText": "OBD-Studio Personal %s\r\nFree for personal, non-commercial use.\r\nBuilt with the Delphi-OBD components by ERDesigns.\r\n\r\nSettings: %s\r\nYour data: %s",
+    "personal.shell.connect": "Connect",
+    "personal.shell.connectedTitle": "Connected",
+    "personal.shell.demoText": "You are looking at the built-in demo car. Connect an adapter on the Adapter page to read your own car.",
+    "personal.shell.demoTitle": "Demo car",
+    "personal.shell.density": "Tablet density (larger controls for touch)",
+    "personal.shell.disconnect": "Disconnect",
+    "personal.shell.failedTitle": "Not connected",
+    "personal.shell.logConnected": "Connected: %s, %s",
+    "personal.shell.logDisconnected": "Disconnected",
+    "personal.shell.logFailed": "Connection failed: %s",
+    "personal.shell.themeDark": "Switch to the dark theme",
+    "personal.shell.themeLight": "Switch to the light theme",
+    "personal.status.codes.plural": {
+      "one": "%d code",
+      "other": "%d codes"
+    },
+    "personal.status.connected": "Connected",
+    "personal.status.connecting": "Connecting",
+    "personal.status.demo": "Demo car",
+    "personal.status.failed": "Connection failed",
+    "personal.status.milOn": "MIL on",
+    "personal.status.offline": "Not connected"
+  }
+}

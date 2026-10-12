@@ -33,6 +33,7 @@ next; there is no application code yet.
 - [Adapters](#adapters)
 - [Europe](#europe)
 - [Licence acceptance](#licence-acceptance)
+- [Build](#build)
 - [Roadmap](#roadmap)
 - [Decisions](#decisions)
 
@@ -254,6 +255,71 @@ The licence is accepted twice:
    by the same full text (`personal-welcome`) and stores the accepted
    version for the Windows user. When a later update changes the licence version, the application
    asks again.
+
+## Build
+
+1. Build and install `packages/DelphiOBD_DT` (Win32) so the components are
+   on the palette (see [Installation](../../docs/install.md)). The
+   application compiles the library from source, so the runtime package is
+   not needed.
+2. Open `OBDStudioPersonal.dpr` in RAD Studio. The `.dproj` is created by
+   the IDE and is not in the repository.
+3. In *Project > Options > Building > Delphi Compiler > Search path*, add
+   the library sources for all configurations and platforms:
+
+   ```
+   ..\..\src;..\..\src\Adapter;..\..\src\Calibration;..\..\src\Coding;..\..\src\Collections;..\..\src\Compat;..\..\src\Connection;..\..\src\Core;..\..\src\Diagnostics;..\..\src\Flashing;..\..\src\OEM;..\..\src\Protocol;..\..\src\RadioCode;..\..\src\Recorder;..\..\src\Service;..\..\src\Simulator;..\..\src\Speciality;..\..\src\UI;..\..\src\Utilities
+   ```
+
+4. Compile (Win64 or Win32). The output goes to `Win64\Release` (or
+   `Win32\...`) under this folder.
+5. Before the first run, put the data files next to the executable, in the
+   same layout as the installer:
+
+   | Next to the `.exe` | Copy from |
+   |---|---|
+   | `catalogs\` | `catalogs\` in the repository (all `*.json` and `SOURCES.md`) |
+   | `languages\` | `languages\*.json` in the repository (library strings) |
+   | `languages\personal\` | `languages\*.json` in this folder (application strings) |
+   | `EULA.md` | this folder |
+
+   Without `catalogs\` the program still starts, but code texts, normal
+   ranges, VIN decoding and inspection rules are empty. Without
+   `languages\` it runs in English.
+
+### Application strings
+
+The application's texts are written in the code as
+`Tr('personal.<page>.<name>', 'English text')`, with `TrFmt` for
+placeholders and `TrPlural` for counts. The English catalogue
+`languages/en.json` is generated from those calls:
+
+```
+python3 tools/personal_strings.py --write
+```
+
+Run it after adding or changing a text. Without `--write` (as in CI) it
+checks that `en.json` is current and audits every translation in
+`languages/` for missing keys, placeholders and plural forms.
+`--missing CODE` prints the English strings a translation still lacks.
+
+### Installer
+
+`installer/OBDStudioPersonal.iss` builds the setup with Inno Setup 6.3 or
+later:
+
+```
+iscc applications\obd-studio-personal\installer\OBDStudioPersonal.iss
+iscc /DPlatform=Win32 applications\obd-studio-personal\installer\OBDStudioPersonal.iss
+```
+
+The setup installs per user (no administrator rights), shows the licence,
+and installs the program with the catalogues, both sets of language files,
+`EULA.md` and the data source notices. Its wizard is offered in English
+and in every European language that ships with Inno Setup. Settings stay
+in `%APPDATA%\ERDesigns\OBD-Studio Personal`; logs, reports, recordings
+and dashboards in `Documents\OBD-Studio Personal`. Uninstalling
+leaves both alone.
 
 ## Roadmap
 

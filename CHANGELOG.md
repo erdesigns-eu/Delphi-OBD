@@ -95,6 +95,22 @@ distributed through GetIt.
   Wal33D/dtc-database (MIT). Mode 06 manufacturer test IDs $81–$B1 now
   carry neutral names.
 
+### Applications
+
+- New `applications/obd-studio-personal`: OBD-Studio Personal, a free
+  application for personal use and an alternative to OBD Auto Doctor. It
+  has a shell with a sidebar, title bar and status bar; 14 pages; a
+  first-start wizard with licence acceptance; settings stored locally
+  (`%APPDATA%`); one vehicle session that queues the adapter jobs; a demo
+  car on the ELM327 emulator; and an Inno Setup script. The application
+  strings live in `languages/` next to it, with `personal.*` keys.
+  `tools/personal_strings.py` generates the English catalogue from the code
+  and audits the translations (CI). The catalogue schema allows the
+  `personal` key prefix.
+- `pascalcheck` DFM checks now pair each `.dfm` with its own `.pas` file,
+  so two projects with the same unit name (`untMain`) no longer mix up
+  their components.
+
 ### OBD Dashboard
 
 A themed VCL control set for workshop dashboards, on the

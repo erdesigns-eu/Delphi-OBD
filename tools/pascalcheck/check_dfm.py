@@ -6,17 +6,19 @@ A missing published field makes the form fail to load at run time with
 import os, re, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from common import ROOT, dfm_files
-from typemap import all_units
+from symbols import UnitSyms
 
-US = all_units()
 problems = []
 
 for path in sorted(dfm_files()):
     f = os.path.relpath(path, ROOT)
-    base = os.path.basename(path)[:-4]
-    u = US.get(base.lower())
-    if u is None:
+    # The form's own unit is the .pas beside the .dfm. Looking the unit up
+    # by name would pick an arbitrary one when several projects have a
+    # unit of the same name (every application has an untMain).
+    sibling = path[:-4] + '.pas'
+    if not os.path.isfile(sibling):
         problems.append((f, '-', 'no matching .pas unit')); continue
+    u = UnitSyms(sibling)
     lines = open(path, encoding='utf-8', errors='replace').read().split('\n')
     m = re.match(r'object (\w+): (\w+)', lines[0].strip())
     if not m: continue

@@ -232,7 +232,7 @@ end;
 
 function InvariantFloatFormatSettings: TFormatSettings;
 begin
-  Result := DefaultFormatSettings;
+  Result := TFormatSettings.Invariant;
   Result.DecimalSeparator := '.';
 end;
 
