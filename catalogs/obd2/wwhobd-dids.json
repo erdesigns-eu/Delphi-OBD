@@ -4,6 +4,20 @@
   "type": "uds-did",
   "entries": [
     {
+      "id": "0xF184",
+      "name": "Programmingdate",
+      "length": 1,
+      "decoder": "raw",
+      "description": "Last reprogramming date"
+    },
+    {
+      "id": "0xF186",
+      "name": "Activediagnosticsession",
+      "length": 1,
+      "decoder": "raw",
+      "description": "Currently active UDS session"
+    },
+    {
       "id": "0xF190",
       "name": "Vin",
       "length": 1,
@@ -39,18 +53,2230 @@
       "description": "ECU name string"
     },
     {
-      "id": "0xF184",
-      "name": "Programmingdate",
-      "length": 1,
-      "decoder": "raw",
-      "description": "Last reprogramming date"
+      "id": "0xF400",
+      "name": "Supported OBD DIDs F401-F420",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 00 (supported PIDs bitmap)"
     },
     {
-      "id": "0xF186",
-      "name": "Activediagnosticsession",
+      "id": "0xF401",
+      "name": "Monitor Status Since DTCs Cleared",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 01. Monitor status since DTCs cleared (bitmap)"
+    },
+    {
+      "id": "0xF402",
+      "name": "Freeze DTC",
+      "length": 2,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 02. DTC that caused the freeze frame"
+    },
+    {
+      "id": "0xF403",
+      "name": "Fuel System Status",
+      "length": 2,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 03. Fuel system 1 / 2 status (2 bytes)"
+    },
+    {
+      "id": "0xF404",
+      "name": "Calculated Engine Load",
       "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.39215686,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 04. Calculated engine load (A/255 * 100)"
+    },
+    {
+      "id": "0xF405",
+      "name": "Engine Coolant Temperature",
+      "length": 1,
+      "unit": "°C",
+      "decoder": "linear",
+      "offset": -40,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 05. Coolant temperature (A - 40)"
+    },
+    {
+      "id": "0xF406",
+      "name": "Short Term Fuel Trim Bank 1",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.78125,
+      "offset": -100,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 06. STFT bank 1 ((A/1.28) - 100)"
+    },
+    {
+      "id": "0xF407",
+      "name": "Long Term Fuel Trim Bank 1",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.78125,
+      "offset": -100,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 07. LTFT bank 1"
+    },
+    {
+      "id": "0xF408",
+      "name": "Short Term Fuel Trim Bank 2",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.78125,
+      "offset": -100,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 08. STFT bank 2"
+    },
+    {
+      "id": "0xF409",
+      "name": "Long Term Fuel Trim Bank 2",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.78125,
+      "offset": -100,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 09. LTFT bank 2"
+    },
+    {
+      "id": "0xF40A",
+      "name": "Fuel Pressure kPa",
+      "length": 1,
+      "unit": "kPa",
+      "decoder": "linear",
+      "scale": 3,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 0A. Fuel pressure (A * 3 kPa, gauge)"
+    },
+    {
+      "id": "0xF40B",
+      "name": "Intake Manifold Pressure",
+      "length": 1,
+      "unit": "kPa",
+      "decoder": "linear",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 0B. Intake manifold absolute pressure (A kPa)"
+    },
+    {
+      "id": "0xF40C",
+      "name": "Engine RPM",
+      "length": 2,
+      "unit": "rpm",
+      "decoder": "rpm",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 0C. Engine RPM ((256*A + B) / 4)"
+    },
+    {
+      "id": "0xF40D",
+      "name": "Vehicle Speed",
+      "length": 1,
+      "unit": "km/h",
+      "decoder": "speed",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 0D. Vehicle speed (A km/h)"
+    },
+    {
+      "id": "0xF40E",
+      "name": "Timing Advance",
+      "length": 1,
+      "unit": "deg",
+      "decoder": "linear",
+      "scale": 0.5,
+      "offset": -64,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 0E. Timing advance ((A/2) - 64) deg before TDC"
+    },
+    {
+      "id": "0xF40F",
+      "name": "Intake Air Temperature",
+      "length": 1,
+      "unit": "°C",
+      "decoder": "linear",
+      "offset": -40,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 0F. Intake air temperature (A - 40)"
+    },
+    {
+      "id": "0xF410",
+      "name": "Mass Air Flow",
+      "length": 2,
+      "unit": "g/s",
+      "decoder": "maf",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 10. MAF rate ((256*A + B) / 100) g/s"
+    },
+    {
+      "id": "0xF411",
+      "name": "Throttle Position",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.39215686,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 11. Throttle position (A/255 * 100)"
+    },
+    {
+      "id": "0xF412",
+      "name": "Commanded Secondary Air Status",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 12. Commanded secondary air status"
+    },
+    {
+      "id": "0xF413",
+      "name": "Oxygen Sensors Present 2 Bank",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 13. O2 sensors present (2-bank bitmap)"
+    },
+    {
+      "id": "0xF414",
+      "name": "O2 Sensor Bank 1 Sensor 1",
+      "length": 2,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 14. Bank 1 sensor 1 voltage / fuel-trim"
+    },
+    {
+      "id": "0xF415",
+      "name": "O2 Sensor Bank 1 Sensor 2",
+      "length": 2,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 15. Bank 1 sensor 2 voltage / fuel-trim"
+    },
+    {
+      "id": "0xF416",
+      "name": "O2 Sensor Bank 1 Sensor 3",
+      "length": 2,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 16. Bank 1 sensor 3 voltage / fuel-trim"
+    },
+    {
+      "id": "0xF417",
+      "name": "O2 Sensor Bank 1 Sensor 4",
+      "length": 2,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 17. Bank 1 sensor 4 voltage / fuel-trim"
+    },
+    {
+      "id": "0xF418",
+      "name": "O2 Sensor Bank 2 Sensor 1",
+      "length": 2,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 18. Bank 2 sensor 1 voltage / fuel-trim"
+    },
+    {
+      "id": "0xF419",
+      "name": "O2 Sensor Bank 2 Sensor 2",
+      "length": 2,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 19. Bank 2 sensor 2 voltage / fuel-trim"
+    },
+    {
+      "id": "0xF41A",
+      "name": "O2 Sensor Bank 2 Sensor 3",
+      "length": 2,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 1A. Bank 2 sensor 3 voltage / fuel-trim"
+    },
+    {
+      "id": "0xF41B",
+      "name": "O2 Sensor Bank 2 Sensor 4",
+      "length": 2,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 1B. Bank 2 sensor 4 voltage / fuel-trim"
+    },
+    {
+      "id": "0xF41C",
+      "name": "OBD Standard Supported",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 1C. OBD standard the vehicle conforms to"
+    },
+    {
+      "id": "0xF41D",
+      "name": "Oxygen Sensors Present 4 Bank",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 1D. O2 sensors present (4-bank bitmap)"
+    },
+    {
+      "id": "0xF41E",
+      "name": "Auxiliary Input Status",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 1E. Aux input status (PTO etc.)"
+    },
+    {
+      "id": "0xF41F",
+      "name": "Run Time Since Engine Start",
+      "length": 2,
+      "unit": "s",
+      "decoder": "linear",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 1F. Run time since engine start (256*A + B) seconds"
+    },
+    {
+      "id": "0xF420",
+      "name": "Supported OBD DIDs F421-F440",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 20 (supported PIDs bitmap)"
+    },
+    {
+      "id": "0xF421",
+      "name": "Distance With MIL On",
+      "length": 2,
+      "unit": "km",
+      "decoder": "linear",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 21. Distance traveled with MIL on (256*A + B) km"
+    },
+    {
+      "id": "0xF422",
+      "name": "Fuel Rail Pressure Relative Manifold",
+      "length": 2,
+      "unit": "kPa",
+      "decoder": "linear",
+      "scale": 0.079,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 22. Fuel rail pressure relative to manifold (((256*A + B) * 0.079)) kPa"
+    },
+    {
+      "id": "0xF423",
+      "name": "Fuel Rail Gauge Pressure",
+      "length": 2,
+      "unit": "kPa",
+      "decoder": "linear",
+      "scale": 10,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 23. Fuel rail gauge pressure ((256*A + B) * 10) kPa"
+    },
+    {
+      "id": "0xF424",
+      "name": "O2 Sensor 1 Wide Range Equivalence Ratio / Voltage",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 24. Fields: Lambda value, Equivalence Ratio Bank 1, Sensor 1; Wide Range O2S Voltage, O2 Sensor Bank 1, Sensor 1 [V]"
+    },
+    {
+      "id": "0xF425",
+      "name": "O2 Sensor 2 Wide Range Equivalence Ratio / Voltage",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 25. Fields: Lambda value, Equivalence Ratio Bank 1, Sensor 2; Wide Range O2S Voltage, O2 Sensor Bank 1, Sensor 2 [V]"
+    },
+    {
+      "id": "0xF426",
+      "name": "O2 Sensor 3 Wide Range Equivalence Ratio / Voltage",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 26. Fields: Lambda value, Equivalence Ratio Bank 1, Sensor 3; Wide Range O2S Voltage, O2 Sensor Bank 1, Sensor 3 [V]"
+    },
+    {
+      "id": "0xF427",
+      "name": "O2 Sensor 4 Wide Range Equivalence Ratio / Voltage",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 27. Fields: Lambda value, Equivalence Ratio Bank 1, Sensor 4; Wide Range O2S Voltage, O2 Sensor Bank 1, Sensor 4 [V]"
+    },
+    {
+      "id": "0xF428",
+      "name": "O2 Sensor 5 Wide Range Equivalence Ratio / Voltage",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 28. Fields: Lambda value, Equivalence Ratio Bank 2, Sensor 1; Wide Range O2S Voltage, O2 Sensor Bank 2, Sensor 1 [V]"
+    },
+    {
+      "id": "0xF429",
+      "name": "O2 Sensor 6 Wide Range Equivalence Ratio / Voltage",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 29. Fields: Lambda value, Equivalence Ratio Bank 2, Sensor 2; Wide Range O2S Voltage, O2 Sensor Bank 2, Sensor 2 [V]"
+    },
+    {
+      "id": "0xF42A",
+      "name": "O2 Sensor 7 Wide Range Equivalence Ratio / Voltage",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 2A. Fields: Lambda value, Equivalence Ratio Bank 2, Sensor 3; Wide Range O2S Voltage, O2 Sensor Bank 2, Sensor 3 [V]"
+    },
+    {
+      "id": "0xF42B",
+      "name": "O2 Sensor 8 Wide Range Equivalence Ratio / Voltage",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 2B. Fields: Lambda value, Equivalence Ratio Bank 2, Sensor 4; Wide Range O2S Voltage, O2 Sensor Bank 2, Sensor 4 [V]"
+    },
+    {
+      "id": "0xF42C",
+      "name": "Commanded EGR",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.39215686,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 2C. Commanded EGR (A/255 * 100)"
+    },
+    {
+      "id": "0xF42D",
+      "name": "EGR Error",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.78125,
+      "offset": -100,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 2D. EGR error ((A/1.28) - 100)"
+    },
+    {
+      "id": "0xF42E",
+      "name": "Commanded Evap Purge",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.39215686,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 2E. Commanded evap purge (A/255 * 100)"
+    },
+    {
+      "id": "0xF42F",
+      "name": "Fuel Tank Level",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.39215686,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 2F. Fuel tank level (A/255 * 100)"
+    },
+    {
+      "id": "0xF430",
+      "name": "Warm Ups Since DTC Cleared",
+      "length": 1,
+      "decoder": "linear",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 30. Number of warm-ups since DTCs cleared"
+    },
+    {
+      "id": "0xF431",
+      "name": "Distance Since DTC Cleared",
+      "length": 2,
+      "unit": "km",
+      "decoder": "linear",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 31. Distance since DTCs cleared (256*A + B) km"
+    },
+    {
+      "id": "0xF432",
+      "name": "Evap System Vapor Pressure",
+      "length": 2,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 32. Fields: Evap system vapor pressure [kPa]"
+    },
+    {
+      "id": "0xF433",
+      "name": "Absolute Barometric Pressure",
+      "length": 1,
+      "unit": "kPa",
+      "decoder": "linear",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 33. Absolute barometric pressure (A kPa)"
+    },
+    {
+      "id": "0xF434",
+      "name": "O2 Sensor 1 Wide Range Equivalence Ratio / Current",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 34. Fields: Lambda value, Equivalence Ratio Bank 1, Sensor 1; Wide Range O2S Current, O2 Sensor Bank 1, Sensor 1 [mA]"
+    },
+    {
+      "id": "0xF435",
+      "name": "O2 Sensor 2 Wide Range Equivalence Ratio / Current",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 35. Fields: Lambda value, Equivalence Ratio Bank 1, Sensor 2; Wide Range O2S Current, O2 Sensor Bank 1, Sensor 2 [mA]"
+    },
+    {
+      "id": "0xF436",
+      "name": "O2 Sensor 3 Wide Range Equivalence Ratio / Current",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 36. Fields: Lambda value, Equivalence Ratio Bank 1, Sensor 3; Wide Range O2S Current, O2 Sensor Bank 1, Sensor 3 [mA]"
+    },
+    {
+      "id": "0xF437",
+      "name": "O2 Sensor 4 Wide Range Equivalence Ratio / Current",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 37. Fields: Lambda value, Equivalence Ratio Bank 1, Sensor 4; Wide Range O2S Current, O2 Sensor Bank 1, Sensor 4 [mA]"
+    },
+    {
+      "id": "0xF438",
+      "name": "O2 Sensor 5 Wide Range Equivalence Ratio / Current",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 38. Fields: Lambda value, Equivalence Ratio Bank 2, Sensor 1; Wide Range O2S Current, O2 Sensor Bank 2, Sensor 1 [mA]"
+    },
+    {
+      "id": "0xF439",
+      "name": "O2 Sensor 6 Wide Range Equivalence Ratio / Current",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 39. Fields: Lambda value, Equivalence Ratio Bank 2, Sensor 2; Wide Range O2S Current, O2 Sensor Bank 2, Sensor 2 [mA]"
+    },
+    {
+      "id": "0xF43A",
+      "name": "O2 Sensor 7 Wide Range Equivalence Ratio / Current",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 3A. Fields: Lambda value, Equivalence Ratio Bank 2, Sensor 3; Wide Range O2S Current, O2 Sensor Bank 2, Sensor 3 [mA]"
+    },
+    {
+      "id": "0xF43B",
+      "name": "O2 Sensor 8 Wide Range Equivalence Ratio / Current",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 3B. Fields: Lambda value, Equivalence Ratio Bank 2, Sensor 4; Wide Range O2S Current, O2 Sensor Bank 2, Sensor 4 [mA]"
+    },
+    {
+      "id": "0xF43C",
+      "name": "Catalyst Temperature Bank 1 Sensor 1",
+      "length": 2,
+      "unit": "°C",
+      "decoder": "linear",
+      "scale": 0.1,
+      "offset": -40,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 3C. Catalyst temperature B1S1 (((256*A + B) / 10) - 40)"
+    },
+    {
+      "id": "0xF43D",
+      "name": "Catalyst Temperature Bank 2 Sensor 1",
+      "length": 2,
+      "unit": "°C",
+      "decoder": "linear",
+      "scale": 0.1,
+      "offset": -40,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 3D. Catalyst temperature B2S1"
+    },
+    {
+      "id": "0xF43E",
+      "name": "Catalyst Temperature Bank 1 Sensor 2",
+      "length": 2,
+      "unit": "°C",
+      "decoder": "linear",
+      "scale": 0.1,
+      "offset": -40,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 3E. Catalyst temperature B1S2"
+    },
+    {
+      "id": "0xF43F",
+      "name": "Catalyst Temperature Bank 2 Sensor 2",
+      "length": 2,
+      "unit": "°C",
+      "decoder": "linear",
+      "scale": 0.1,
+      "offset": -40,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 3F. Catalyst temperature B2S2"
+    },
+    {
+      "id": "0xF440",
+      "name": "Supported OBD DIDs F441-F460",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 40 (supported PIDs bitmap)"
+    },
+    {
+      "id": "0xF441",
+      "name": "Monitor Status This Drive Cycle",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 41. Fields: Comprehensive component monitoring completed; Fuel system monitoring completed; Misfire monitoring completed; Comprehensive component monitoring enabled; Fuel system monitoring enabled; Misfire monitoring enabled; EGR system monitoring; Oxygen sensor heater monitoring; …"
+    },
+    {
+      "id": "0xF442",
+      "name": "Control Module Voltage",
+      "length": 2,
+      "unit": "V",
+      "decoder": "linear",
+      "scale": 0.001,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 42. Control module voltage ((256*A + B) / 1000) V"
+    },
+    {
+      "id": "0xF443",
+      "name": "Absolute Load Value",
+      "length": 2,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.39215686,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 43. Absolute load value ((256*A + B) * 100/255)"
+    },
+    {
+      "id": "0xF444",
+      "name": "Commanded Air Fuel Equivalence Ratio",
+      "length": 2,
+      "decoder": "linear",
+      "scale": 3.05e-05,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 44. Commanded equivalence ratio ((256*A + B) * 0.0000305)"
+    },
+    {
+      "id": "0xF445",
+      "name": "Relative Throttle Position",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.39215686,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 45. Relative throttle position (A/255 * 100)"
+    },
+    {
+      "id": "0xF446",
+      "name": "Ambient Air Temperature",
+      "length": 1,
+      "unit": "°C",
+      "decoder": "linear",
+      "offset": -40,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 46. Ambient air temperature (A - 40)"
+    },
+    {
+      "id": "0xF447",
+      "name": "Absolute Throttle Position B",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.3921568627,
+      "max": 100,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 47. Absolute throttle position B"
+    },
+    {
+      "id": "0xF448",
+      "name": "Absolute Throttle Position C",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.3921568627,
+      "max": 100,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 48. Absolute throttle position C"
+    },
+    {
+      "id": "0xF449",
+      "name": "Accelerator Pedal Position D",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.3921568627,
+      "max": 100,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 49. Accelerator pedal position D"
+    },
+    {
+      "id": "0xF44A",
+      "name": "Accelerator Pedal Position E",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.3921568627,
+      "max": 100,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 4A. Accelerator pedal position E"
+    },
+    {
+      "id": "0xF44B",
+      "name": "Accelerator Pedal Position F",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.3921568627,
+      "max": 100,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 4B. Accelerator pedal position F"
+    },
+    {
+      "id": "0xF44C",
+      "name": "Commanded Throttle Actuator",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.39215686,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 4C. Commanded throttle actuator (A/255 * 100)"
+    },
+    {
+      "id": "0xF44D",
+      "name": "Time Run With MIL On",
+      "length": 2,
+      "unit": "min",
+      "decoder": "linear",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 4D. Time run with MIL on (256*A + B) min"
+    },
+    {
+      "id": "0xF44E",
+      "name": "Time Since DTC Cleared",
+      "length": 2,
+      "unit": "min",
+      "decoder": "linear",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 4E. Time since DTCs cleared (256*A + B) min"
+    },
+    {
+      "id": "0xF44F",
+      "name": "Maximum Values: Equivalence Ratio, O2 Voltage, O2 Current, MAP",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 4F. Fields: Maximum value for equivalence ratio; Maximum value for oxygen sensor voltage [V]; Maximum value for oxygen sensor current [mA]; Maximum value for intake manifold absolute pressure (MAP) [kPa]"
+    },
+    {
+      "id": "0xF450",
+      "name": "Maximum Mass Air Flow Rate",
+      "length": 1,
+      "unit": "g/s",
+      "decoder": "linear",
+      "scale": 10,
+      "max": 2550,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 50. Maximum value for air flow rate from mass air flow sensor"
+    },
+    {
+      "id": "0xF451",
+      "name": "Fuel Type",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 51. Fuel type (enum byte per ISO 15031-6)"
+    },
+    {
+      "id": "0xF452",
+      "name": "Ethanol Fuel Percentage",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.39215686,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 52. Ethanol fuel percentage (A/255 * 100)"
+    },
+    {
+      "id": "0xF453",
+      "name": "Absolute Evap System Vapor Pressure",
+      "length": 2,
+      "unit": "kPa",
+      "decoder": "linear",
+      "scale": 0.005,
+      "max": 327.675,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 53. Normally obtained from a sensor located in the fuel tank or a sensor in an evaporative system vapor line"
+    },
+    {
+      "id": "0xF454",
+      "name": "Evap System Vapor Pressure (wide)",
+      "length": 2,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 54. Fields: Evap system vapor pressure (wide) [kPa]"
+    },
+    {
+      "id": "0xF455",
+      "name": "Short Term Secondary O2 Sensor Fuel Trim (bank 1)",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.78125,
+      "offset": -100,
+      "min": -100,
+      "max": 99.22,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 55. Short term secondary O2 sensor fuel trim (bank 1)"
+    },
+    {
+      "id": "0xF456",
+      "name": "Long Term Secondary O2 Sensor Fuel Trim (bank 1)",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.78125,
+      "offset": -100,
+      "min": -100,
+      "max": 99.22,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 56. Long term secondary O2 sensor fuel trim (bank 1)"
+    },
+    {
+      "id": "0xF457",
+      "name": "Short Term Secondary O2 Sensor Fuel Trim (bank 2)",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.78125,
+      "offset": -100,
+      "min": -100,
+      "max": 99.22,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 57. Short term secondary O2 sensor fuel trim (bank 2)"
+    },
+    {
+      "id": "0xF458",
+      "name": "Long Term Secondary O2 Sensor Fuel Trim (bank 2)",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.78125,
+      "offset": -100,
+      "min": -100,
+      "max": 99.22,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 58. Long term secondary O2 sensor fuel trim (bank 2)"
+    },
+    {
+      "id": "0xF459",
+      "name": "Fuel Rail Pressure (absolute)",
+      "length": 2,
+      "unit": "kPa",
+      "decoder": "linear",
+      "scale": 10,
+      "max": 655350,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 59. Fuel rail pressure at the engine when the reading is absolute (referenced to vacuum)"
+    },
+    {
+      "id": "0xF45A",
+      "name": "Relative Accelerator Pedal Position",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.39215686,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 5A. Relative accelerator pedal position"
+    },
+    {
+      "id": "0xF45B",
+      "name": "Hybrid Battery Pack Remaining Life",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.39215686,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 5B. Hybrid battery pack remaining life (A/255 * 100)"
+    },
+    {
+      "id": "0xF45C",
+      "name": "Engine Oil Temperature",
+      "length": 1,
+      "unit": "°C",
+      "decoder": "linear",
+      "offset": -40,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 5C. Engine oil temperature (A - 40)"
+    },
+    {
+      "id": "0xF45D",
+      "name": "Fuel Injection Timing",
+      "length": 2,
+      "unit": "deg",
+      "decoder": "linear",
+      "scale": 0.0078125,
+      "offset": -210,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 5D. Fuel injection timing (((256*A + B) / 128) - 210)"
+    },
+    {
+      "id": "0xF45E",
+      "name": "Engine Fuel Rate",
+      "length": 2,
+      "unit": "L/h",
+      "decoder": "linear",
+      "scale": 0.05,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 5E. Engine fuel rate (((256*A + B) / 20)) L/h"
+    },
+    {
+      "id": "0xF45F",
+      "name": "Emission Requirements to Which Vehicle is Designed",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 5F. Fields: Emission requirements to which vehicle is designed"
+    },
+    {
+      "id": "0xF460",
+      "name": "Supported OBD DIDs F461-F480",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 60 (supported PIDs bitmap)"
+    },
+    {
+      "id": "0xF461",
+      "name": "Demanded Engine Torque",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "offset": -125,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 61. Driver-demanded engine percent torque (A - 125)"
+    },
+    {
+      "id": "0xF462",
+      "name": "Actual Engine Torque",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "offset": -125,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 62. Actual engine percent torque (A - 125)"
+    },
+    {
+      "id": "0xF463",
+      "name": "Engine Reference Torque",
+      "length": 2,
+      "unit": "Nm",
+      "decoder": "linear",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 63. Engine reference torque (256*A + B) Nm"
+    },
+    {
+      "id": "0xF464",
+      "name": "Engine Percent Torque Data",
+      "length": 5,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 64. Engine percent torque data (5 bytes: idle / point1..4)"
+    },
+    {
+      "id": "0xF465",
+      "name": "Auxiliary Input / Output Supported",
+      "length": 2,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 65. Fields: Recommended gear; Glow plug lamp status; Manual Trans Neutral Gear Status; Auto Trans Neutral Drive Status; Power Take Off (PTO) Output Status"
+    },
+    {
+      "id": "0xF466",
+      "name": "Mass Air Flow Sensor A / B",
+      "length": 5,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 66. Fields: Mass Air Flow Sensor A [g/s]; Mass Air Flow Sensor B [g/s]"
+    },
+    {
+      "id": "0xF467",
+      "name": "Engine Coolant Temperature Alt",
+      "length": 3,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 67. Engine coolant temperature, sensor 1 / 2 (alt encoding)"
+    },
+    {
+      "id": "0xF468",
+      "name": "Intake Air Temperature Sensor",
+      "length": 7,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 68. Intake air temperature, sensor 1 / 2"
+    },
+    {
+      "id": "0xF469",
+      "name": "Commanded / Actual EGR and EGR Error",
+      "length": 7,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 69. Fields: Commanded EGR A duty cycle/position [%]; Actual EGR A duty cycle/position [%]; EGR A error [%]; Commanded EGR B duty cycle/position [%]; Actual EGR B duty cycle/position [%]; EGR B error [%]"
+    },
+    {
+      "id": "0xF46A",
+      "name": "Commanded Diesel Intake Air Flow Control",
+      "length": 5,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 6A. Fields: Commanded intake air flow A control [%]; Relative intake air flow A position [%]; Commanded intake air flow B control [%]; Relative intake air flow B position [%]"
+    },
+    {
+      "id": "0xF46B",
+      "name": "Exhaust Gas Recirc Temperature",
+      "length": 5,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 6B. Exhaust gas recirculation temperature"
+    },
+    {
+      "id": "0xF46C",
+      "name": "Commanded Throttle Actuator Control and Relative Throttle Position",
+      "length": 5,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 6C. Fields: Commanded Throttle Actuator A Control [%]; Relative Throttle A Position [%]; Commanded Throttle Actuator B Control [%]; Relative Throttle B Position [%]"
+    },
+    {
+      "id": "0xF46D",
+      "name": "Fuel Pressure Control System",
+      "length": 11,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 6D. Fields: Commanded Fuel Rail Pressure A [kPa]; Fuel Rail Pressure A [kPa]; Fuel Rail Temperature A [°C]; Commanded Fuel Rail Pressure B [kPa]; Fuel Rail Pressure B [kPa]; Fuel Rail Temperature B [°C]"
+    },
+    {
+      "id": "0xF46E",
+      "name": "Injection Pressure Control System",
+      "length": 9,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 6E. Fields: Commanded injection control pressure A [kPa]; Injection control pressure A [kPa]; Commanded injection control pressure B [kPa]; Injection control pressure B [kPa]"
+    },
+    {
+      "id": "0xF470",
+      "name": "Boost Pressure Control",
+      "length": 10,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 70. Boost pressure control"
+    },
+    {
+      "id": "0xF471",
+      "name": "Vgt Control",
+      "length": 6,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 71. Variable geometry turbo (VGT) control"
+    },
+    {
+      "id": "0xF472",
+      "name": "Wastegate Control",
+      "length": 5,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 72. Fields: Commanded wastegate A position [%]; Wastegate A position [%]; Commanded wastegate B position [%]; Wastegate B position [%]"
+    },
+    {
+      "id": "0xF473",
+      "name": "Exhaust Pressure",
+      "length": 5,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 73. Exhaust pressure (sensor 1 / 2)"
+    },
+    {
+      "id": "0xF474",
+      "name": "Turbocharger RPM",
+      "length": 5,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 74. Fields: Turbocharger A speed [rpm]; Turbocharger B speed [rpm]"
+    },
+    {
+      "id": "0xF475",
+      "name": "Turbocharger A Temperature",
+      "length": 7,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 75. Fields: Turbocharger A compressor inlet temperature [°C]; Turbocharger A compressor outlet temperature [°C]; Turbocharger A turbine inlet temperature [°C]; Turbocharger A turbine outlet temperature [°C]"
+    },
+    {
+      "id": "0xF476",
+      "name": "Turbocharger B Temperature",
+      "length": 7,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 76. Fields: Turbocharger B compressor inlet temperature [°C]; Turbocharger B compressor outlet temperature [°C]; Turbocharger B turbine inlet temperature [°C]; Turbocharger B turbine outlet temperature [°C]"
+    },
+    {
+      "id": "0xF477",
+      "name": "Charge Air Cooler Temperature",
+      "length": 5,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 77. Fields: Charge air cooler temperature bank 1, sensor 1 [°C]; Charge air cooler temperature bank 1, sensor 2 [°C]; Charge air cooler temperature bank 2, sensor 1 [°C]; Charge air cooler temperature bank 2, sensor 2 [°C]"
+    },
+    {
+      "id": "0xF478",
+      "name": "EGT Bank 1",
+      "length": 9,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 78. Exhaust gas temperature, bank 1 (4 sensors)"
+    },
+    {
+      "id": "0xF479",
+      "name": "EGT Bank 2",
+      "length": 9,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 79. Exhaust gas temperature, bank 2 (4 sensors)"
+    },
+    {
+      "id": "0xF47A",
+      "name": "Diesel Particulate Filter Bank 1 Pressure",
+      "length": 7,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 7A. Fields: Particulate filter bank 1 delta pressure [kPa]; Particulate filter bank 1 inlet pressure [kPa]; Particulate filter bank 1 outlet pressure [kPa]"
+    },
+    {
+      "id": "0xF47B",
+      "name": "Diesel Particulate Filter Bank 2 Pressure",
+      "length": 7,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 7B. Fields: Particulate filter bank 2 delta pressure [kPa]; Particulate filter bank 2 inlet pressure [kPa]; Particulate filter bank 2 outlet pressure [kPa]"
+    },
+    {
+      "id": "0xF47C",
+      "name": "Diesel Particulate Filter Temperature",
+      "length": 9,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 7C. Fields: Particulate filter bank 1 inlet temperature [°C]; Particulate filter bank 1 outlet temperature [°C]; Particulate filter bank 2 inlet temperature [°C]; Particulate filter bank 2 outlet temperature [°C]"
+    },
+    {
+      "id": "0xF47E",
+      "name": "NTE Control Area Status (Diesel)",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 7E. Fields: NTE deficiency for PM active area; Inside manufacturer-specific PM NTE carve-out area; Outside PM control area; Inside PM control area"
+    },
+    {
+      "id": "0xF47F",
+      "name": "Engine Run Time",
+      "length": 13,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 7F. Engine run time (5-byte block: total / total since codes cleared)"
+    },
+    {
+      "id": "0xF480",
+      "name": "Supported OBD DIDs F481-F4A0",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 80 (supported PIDs bitmap)"
+    },
+    {
+      "id": "0xF481",
+      "name": "Engine Run Time for AECD #1-#5",
+      "length": 41,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 81. Fields: Total run time with EI-AECD #1 timer 1 active [s]; Total run time with EI-AECD #1 timer 2 active [s]; Total run time with EI-AECD #2 timer 1 active [s]; Total run time with EI-AECD #2 timer 2 active [s]; Total run time with EI-AECD #3 timer 1 active [s]; Total run time with EI-AECD #3 timer 2 active [s]; Total run time with EI-AECD #4 timer 1 active [s]; Total run time with EI-AECD #4 timer 2 active [s]; …"
+    },
+    {
+      "id": "0xF482",
+      "name": "Engine Run Time for AECD #6-#10",
+      "length": 41,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 82. Fields: Total run time with EI-AECD #6 timer 1 active [s]; Total run time with EI-AECD #6 timer 2 active [s]; Total run time with EI-AECD #7 timer 1 active [s]; Total run time with EI-AECD #7 timer 2 active [s]; Total run time with EI-AECD #8 timer 1 active [s]; Total run time with EI-AECD #8 timer 2 active [s]; Total run time with EI-AECD #9 timer 1 active [s]; Total run time with EI-AECD #9 timer 2 active [s]; …"
+    },
+    {
+      "id": "0xF483",
+      "name": "NOx Sensor Concentration",
+      "length": 9,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 83. Fields: NOx concentration bank 1, sensor 1; NOx concentration bank 1, sensor 2; NOx concentration bank 2, sensor 1; NOx concentration bank 2, sensor 2"
+    },
+    {
+      "id": "0xF484",
+      "name": "Manifold Surface Temperature",
+      "length": 1,
+      "unit": "°C",
+      "decoder": "linear",
+      "offset": -40,
+      "min": -40,
+      "max": 215,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 84. Manifold surface temperature"
+    },
+    {
+      "id": "0xF485",
+      "name": "NOx Reagent System",
+      "length": 10,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 85. Fields: Average reagent consumption [L/h]; Average demanded reagent consumption [L/h]; Reagent tank level [%]; Run time with NOx warning active [s]"
+    },
+    {
+      "id": "0xF486",
+      "name": "Particulate Matter (PM) Sensor",
+      "length": 5,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 86. Fields: PM mass concentration bank 1, sensor 1; PM mass concentration bank 2, sensor 1"
+    },
+    {
+      "id": "0xF488",
+      "name": "SCR Inducement System",
+      "length": 13,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 88. Fields: SCR inducement system active; SCR inducement for NOx emissions too high; SCR inducement for reagent consumption deviation; SCR inducement for incorrect reagent; SCR inducement for reagent level too low; SCR inducement for NOx emissions too high in the 10,000-20,000 km history block; SCR inducement for reagent consumption deviation in the 10,000-20,000 km history block; SCR inducement for incorrect reagent in the 10,000-20,000 km history block; …"
+    },
+    {
+      "id": "0xF489",
+      "name": "Engine Run Time for AECD #11-#15",
+      "length": 41,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 89. Fields: Total run time with EI-AECD #11 timer 1 active [s]; Total run time with EI-AECD #11 timer 2 active [s]; Total run time with EI-AECD #12 timer 1 active [s]; Total run time with EI-AECD #12 timer 2 active [s]; Total run time with EI-AECD #13 timer 1 active [s]; Total run time with EI-AECD #13 timer 2 active [s]; Total run time with EI-AECD #14 timer 1 active [s]; Total run time with EI-AECD #14 timer 2 active [s]; …"
+    },
+    {
+      "id": "0xF48A",
+      "name": "Engine Run Time for AECD #16-#20",
+      "length": 41,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 8A. Fields: Total run time with EI-AECD #16 timer 1 active [s]; Total run time with EI-AECD #16 timer 2 active [s]; Total run time with EI-AECD #17 timer 1 active [s]; Total run time with EI-AECD #17 timer 2 active [s]; Total run time with EI-AECD #18 timer 1 active [s]; Total run time with EI-AECD #18 timer 2 active [s]; Total run time with EI-AECD #19 timer 1 active [s]; Total run time with EI-AECD #19 timer 2 active [s]; …"
+    },
+    {
+      "id": "0xF48B",
+      "name": "Diesel Aftertreatment Status",
+      "length": 7,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 8B. Fields: NOx adsorber desulfurization in progress; NOx adsorber regen in progress; Particulate filter regen in progress; Normalized trigger for particulate filter regen [%]; Average time between particulate filter regens [min]; Average distance between particulate filter regens [km]; Particulate filter regen type"
+    },
+    {
+      "id": "0xF48C",
+      "name": "O2 Sensor (Wide Range) Concentration Sensors 1-2",
+      "length": 17,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 8C. Fields: O2 concentration bank 1, sensor 1 [%]; O2 concentration bank 1, sensor 2 [%]; O2 concentration bank 2, sensor 1 [%]; O2 concentration bank 2, sensor 2 [%]; O2 sensor lambda bank 1, sensor 1; O2 sensor lambda bank 1, sensor 2; O2 sensor lambda bank 2, sensor 1; O2 sensor lambda bank 2, sensor 2"
+    },
+    {
+      "id": "0xF48D",
+      "name": "Absolute Throttle Position G",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.3921568627,
+      "max": 100,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 8D. Absolute Throttle Position G"
+    },
+    {
+      "id": "0xF48E",
+      "name": "Engine Friction - Percent Torque",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "offset": -125,
+      "min": -125,
+      "max": 130,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 8E. Engine Friction - Percent Torque"
+    },
+    {
+      "id": "0xF48F",
+      "name": "PM Sensor Output",
+      "length": 7,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 8F. Fields: PM sensor bank 1, sensor 1 regenerating; PM sensor bank 1, sensor 1 measuring; PM sensor normalized output bank 1, sensor 1 [%]; PM sensor bank 2, sensor 1 regenerating; PM sensor bank 2, sensor 1 measuring; PM sensor normalized output bank 2, sensor 1 [%]"
+    },
+    {
+      "id": "0xF490",
+      "name": "WWH-OBD Vehicle OBD System Information",
+      "length": 3,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 90. Fields: Engine hours with the continuous MI active [h]; Emission system readiness; Vehicle malfunction indicator status; MI display strategy"
+    },
+    {
+      "id": "0xF491",
+      "name": "WWH-OBD ECU OBD System Information",
+      "length": 5,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 91. Fields: ECU engine hours with the continuous MI active [h]; Highest ECU class B1 malfunction counter [h]; ECU malfunction indicator status"
+    },
+    {
+      "id": "0xF492",
+      "name": "Fuel System Control",
+      "length": 2,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 92. Fields: Idle fuel balance control 2 in closed loop; Fuel injection timing control 2 in closed loop; Fuel injection quantity control 2 in closed loop; Fuel pressure control 2 in closed loop; Idle fuel balance control 1 in closed loop; Fuel injection timing control 1 in closed loop; Fuel injection quantity control 1 in closed loop; Fuel pressure control 1 in closed loop"
+    },
+    {
+      "id": "0xF493",
+      "name": "WWH-OBD Vehicle OBD Counters Support",
+      "length": 3,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 93. Fields: Cumulative engine hours with the continuous MI active [h]"
+    },
+    {
+      "id": "0xF494",
+      "name": "NOx Warning and Inducement System",
+      "length": 12,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 94. Fields: NOx warning system active; Engine hours with incorrect reagent quality [h]; Engine hours with incorrect reagent consumption [h]; Engine hours with reagent dosing interrupted [h]; Engine hours with an impeded EGR valve [h]; Engine hours with a NOx control monitoring system fault [h]; Level three inducement status; Level two inducement status; …"
+    },
+    {
+      "id": "0xF495",
+      "name": "SCR Catalyst NH3 Storage",
+      "length": 9,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 95. Fields: Target SCR catalyst A NH3 storage [g/L]; Actual SCR catalyst A NH3 storage [g/L]; Target SCR catalyst B NH3 storage [g/L]; Actual SCR catalyst B NH3 storage [g/L]"
+    },
+    {
+      "id": "0xF496",
+      "name": "Hydrocarbon Doser",
+      "length": 6,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 96. Fields: Hydrocarbon doser flow rate [g/s]; Hydrocarbon doser injector duty cycle [%]; Aftertreatment fuel pressure [kPa]"
+    },
+    {
+      "id": "0xF497",
+      "name": "NOx Mass Emission Rate",
+      "length": 5,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 97. Fields: Engine-out NOx mass emission rate [g/s]; Tailpipe NOx mass emission rate [g/s]"
+    },
+    {
+      "id": "0xF49A",
+      "name": "Hybrid EV Vehicle System Data",
+      "length": 6,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 9A. Hybrid/EV vehicle system data (battery / voltage / temperature)"
+    },
+    {
+      "id": "0xF49B",
+      "name": "Diesel Aftertreatment",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 9B. Diesel after-treatment status (DPF, urea)"
+    },
+    {
+      "id": "0xF49C",
+      "name": "O2 Sensor (Wide Range) Concentration Sensors 3-4",
+      "length": 17,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 9C. Fields: O2 concentration bank 1, sensor 3 [%]; O2 concentration bank 1, sensor 4 [%]; O2 concentration bank 2, sensor 3 [%]; O2 concentration bank 2, sensor 4 [%]; O2 sensor lambda bank 1, sensor 3; O2 sensor lambda bank 1, sensor 4; O2 sensor lambda bank 2, sensor 3; O2 sensor lambda bank 2, sensor 4"
+    },
+    {
+      "id": "0xF49D",
+      "name": "Engine Fuel Rate (Alternate) / Vehicle Fuel Rate",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 9D. Fields: Engine fuel rate (alternate) [g/s]; Vehicle fuel rate [g/s]"
+    },
+    {
+      "id": "0xF49E",
+      "name": "Engine Exhaust Flow Rate",
+      "length": 2,
+      "unit": "kg/h",
+      "decoder": "linear",
+      "scale": 0.2,
+      "max": 13107,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 9E. Engine exhaust flow rate"
+    },
+    {
+      "id": "0xF49F",
+      "name": "Fuel System Percentage Use",
+      "length": 9,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID 9F. Fields: Fuel system A use percentage bank 1 [%]; Fuel system B use percentage bank 1 [%]; Fuel system A use percentage bank 2 [%]; Fuel system B use percentage bank 2 [%]; Fuel system A use percentage bank 3 [%]; Fuel system B use percentage bank 3 [%]; Fuel system A use percentage bank 4 [%]; Fuel system B use percentage bank 4 [%]"
+    },
+    {
+      "id": "0xF4A0",
+      "name": "Supported OBD DIDs F4A1-F4C0",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID A0 (supported PIDs bitmap)"
+    },
+    {
+      "id": "0xF4A1",
+      "name": "NOx Sensor Corrected Data",
+      "length": 9,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID A1. Fields: Corrected NOx concentration bank 1, sensor 1; Corrected NOx concentration bank 1, sensor 2; Corrected NOx concentration bank 2, sensor 1; Corrected NOx concentration bank 2, sensor 2"
+    },
+    {
+      "id": "0xF4A2",
+      "name": "Cylinder Fuel Rate",
+      "length": 2,
+      "unit": "mg/stroke",
+      "decoder": "linear",
+      "scale": 0.03125,
+      "max": 2047.96875,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID A2. Cylinder fuel rate"
+    },
+    {
+      "id": "0xF4A3",
+      "name": "Evap System Vapor Pressure (Extended)",
+      "length": 9,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID A3. Fields: Evap system sealed; Evap system vapor pressure A [kPa]; Evap system vapor pressure A, wide range [kPa]; Evap system vapor pressure B [kPa]; Evap system vapor pressure B, wide range [kPa]"
+    },
+    {
+      "id": "0xF4A4",
+      "name": "Transmission Actual Gear",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID A4. Fields: Transmission actual gear; Transmission actual gear ratio"
+    },
+    {
+      "id": "0xF4A5",
+      "name": "Commanded DEF Dosing",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID A5. Fields: Commanded DEF dosing [%]; DEF used in the current driving cycle [L]"
+    },
+    {
+      "id": "0xF4A6",
+      "name": "Odometer",
+      "length": 4,
+      "unit": "km",
+      "decoder": "linear",
+      "scale": 0.1,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID A6. Odometer (4 bytes / 0.1 km)"
+    },
+    {
+      "id": "0xF4A7",
+      "name": "NOx Sensor Corrected",
+      "length": 9,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID A7. NOx sensor corrected (4 sensors, ppm)"
+    },
+    {
+      "id": "0xF4A8",
+      "name": "NOx Sensor Corrected Data (Sensors 3-4)",
+      "length": 9,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID A8. Fields: Corrected NOx concentration bank 1, sensor 3; Corrected NOx concentration bank 1, sensor 4; Corrected NOx concentration bank 2, sensor 3; Corrected NOx concentration bank 2, sensor 4"
+    },
+    {
+      "id": "0xF4AA",
+      "name": "Maximum Current Vehicle Speed Limit",
+      "length": 1,
+      "unit": "km/h",
+      "decoder": "linear",
+      "max": 255,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID AA. Maximum current vehicle speed limit"
+    },
+    {
+      "id": "0xF4AB",
+      "name": "Alternative Fuel Rail Pressure / Temperature",
+      "length": 9,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID AB. Fields: Alternative fuel rail pressure [kPa]; Alternative fuel rail temperature [°C]; Alternative fuel tank pressure [kPa]; Alternative fuel tank pressure, wide range [kPa]; Alternative fuel tank temperature [°C]"
+    },
+    {
+      "id": "0xF4AC",
+      "name": "DEF Doser A Dosing Mode",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID AC. Fields: DEF doser A dosing mode; DEF doser A maximum dosing rate [kg/h]"
+    },
+    {
+      "id": "0xF4AE",
+      "name": "Evap System Purge Pressure",
+      "length": 5,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID AE. Fields: Evap system purge pressure [kPa]; Evap system purge pressure, wide range [kPa]"
+    },
+    {
+      "id": "0xF4AF",
+      "name": "Commanded Fresh Air Flow",
+      "length": 2,
+      "unit": "kg/h",
+      "decoder": "linear",
+      "scale": 0.05,
+      "max": 3276.75,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID AF. Commanded fresh air flow"
+    },
+    {
+      "id": "0xF4B0",
+      "name": "EGR Mass Flow Rate",
+      "length": 5,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID B0. Fields: EGR mass flow rate A [kg/h]; EGR mass flow rate B [kg/h]"
+    },
+    {
+      "id": "0xF4B1",
+      "name": "Fuel System Status (Extended)",
+      "length": 6,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID B1. Fields: Fuel system bank 2 in open loop due to a malfunction; Fuel system bank 2 in closed loop; Fuel system bank 2 in open loop; Fuel system bank 1 in open loop due to a malfunction; Fuel system bank 1 in closed loop; Fuel system bank 1 in open loop; Short term fuel trim bank 1, compression ignition [%]; Long term fuel trim bank 1, compression ignition [%]; …"
+    },
+    {
+      "id": "0xF4B2",
+      "name": "Traction Battery Pack State of Health",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.3921568627,
+      "max": 100,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID B2. Traction battery pack State of Health"
+    },
+    {
+      "id": "0xF4B3",
+      "name": "HV Battery Charge Rate",
+      "length": 19,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID B3. Fields: HV battery actual charge rate [kW]; HV battery pack A actual charge rate [kW]; HV battery pack B actual charge rate [kW]; HV battery pack C actual charge rate [kW]; HV battery pack D actual charge rate [kW]; HV battery pack E actual charge rate [kW]; HV battery pack F actual charge rate [kW]; HV battery pack G actual charge rate [kW]; …"
+    },
+    {
+      "id": "0xF4B4",
+      "name": "HV Battery Temperature",
+      "length": 10,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID B4. Fields: HV battery temperature [°C]; HV battery pack A temperature [°C]; HV battery pack B temperature [°C]; HV battery pack C temperature [°C]; HV battery pack D temperature [°C]; HV battery pack E temperature [°C]; HV battery pack F temperature [°C]; HV battery pack G temperature [°C]; …"
+    },
+    {
+      "id": "0xF4B5",
+      "name": "HV Battery Current",
+      "length": 19,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID B5. Fields: HV battery current [A]; HV battery pack A current [A]; HV battery pack B current [A]; HV battery pack C current [A]; HV battery pack D current [A]; HV battery pack E current [A]; HV battery pack F current [A]; HV battery pack G current [A]; …"
+    },
+    {
+      "id": "0xF4B6",
+      "name": "HV Battery Voltage",
+      "length": 19,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID B6. Fields: HV battery voltage [V]; HV battery pack A voltage [V]; HV battery pack B voltage [V]; HV battery pack C voltage [V]; HV battery pack D voltage [V]; HV battery pack E voltage [V]; HV battery pack F voltage [V]; HV battery pack G voltage [V]; …"
+    },
+    {
+      "id": "0xF4B7",
+      "name": "HV Battery Cell Temperatures",
+      "length": 7,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID B7. Fields: HV battery minimum cell temperature [°C]; HV battery maximum cell temperature [°C]; HV battery average cell temperature [°C]; HV battery bus bar temperature [°C]; HV battery coolant temperature [°C]; HV battery thermal state"
+    },
+    {
+      "id": "0xF4B8",
+      "name": "HV Battery Active Time since Cell Balancing",
+      "length": 2,
+      "unit": "min",
+      "decoder": "linear",
+      "max": 65535,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID B8. HV battery active time since cell balancing"
+    },
+    {
+      "id": "0xF4B9",
+      "name": "HV Battery Cell Voltage Min / Max",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID B9. Fields: HV battery minimum cell voltage [V]; HV battery maximum cell voltage [V]"
+    },
+    {
+      "id": "0xF4BA",
+      "name": "HV Battery Power and Current Limits",
+      "length": 5,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID BA. Fields: HV battery continuous rated power available [%]; HV battery continuous charge current limit [A]; HV battery continuous discharge current limit [A]"
+    },
+    {
+      "id": "0xF4BB",
+      "name": "HV Battery Cumulative Energy In",
+      "length": 37,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID BB. Fields: HV battery cumulative energy in [kWh]; HV battery pack A cumulative energy in [kWh]; HV battery pack B cumulative energy in [kWh]; HV battery pack C cumulative energy in [kWh]; HV battery pack D cumulative energy in [kWh]; HV battery pack E cumulative energy in [kWh]; HV battery pack F cumulative energy in [kWh]; HV battery pack G cumulative energy in [kWh]; …"
+    },
+    {
+      "id": "0xF4BC",
+      "name": "HV Battery Cumulative Energy Out",
+      "length": 37,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID BC. Fields: HV battery cumulative energy out [kWh]; HV battery pack A cumulative energy out [kWh]; HV battery pack B cumulative energy out [kWh]; HV battery pack C cumulative energy out [kWh]; HV battery pack D cumulative energy out [kWh]; HV battery pack E cumulative energy out [kWh]; HV battery pack F cumulative energy out [kWh]; HV battery pack G cumulative energy out [kWh]; …"
+    },
+    {
+      "id": "0xF4BD",
+      "name": "HV Battery Total Energy Throughput",
+      "length": 37,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID BD. Fields: HV battery total energy throughput [kWh]; HV battery pack A total energy throughput [kWh]; HV battery pack B total energy throughput [kWh]; HV battery pack C total energy throughput [kWh]; HV battery pack D total energy throughput [kWh]; HV battery pack E total energy throughput [kWh]; HV battery pack F total energy throughput [kWh]; HV battery pack G total energy throughput [kWh]; …"
+    },
+    {
+      "id": "0xF4BE",
+      "name": "HV Battery State of Health",
+      "length": 10,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID BE. Fields: HV battery state of health [%]; HV battery pack A state of health [%]; HV battery pack B state of health [%]; HV battery pack C state of health [%]; HV battery pack D state of health [%]; HV battery pack E state of health [%]; HV battery pack F state of health [%]; HV battery pack G state of health [%]; …"
+    },
+    {
+      "id": "0xF4BF",
+      "name": "HV Battery Recommended Minimum State of Charge",
+      "length": 19,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID BF. Fields: HV battery recommended minimum state of charge [%]; HV battery pack A recommended minimum state of charge [%]; HV battery pack B recommended minimum state of charge [%]; HV battery pack C recommended minimum state of charge [%]; HV battery pack D recommended minimum state of charge [%]; HV battery pack E recommended minimum state of charge [%]; HV battery pack F recommended minimum state of charge [%]; HV battery pack G recommended minimum state of charge [%]; …"
+    },
+    {
+      "id": "0xF4C0",
+      "name": "Supported OBD DIDs F4C1-F4E0",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID C0 (supported PIDs bitmap)"
+    },
+    {
+      "id": "0xF4C1",
+      "name": "HV Battery Recommended Maximum State of Charge",
+      "length": 19,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID C1. Fields: HV battery recommended maximum state of charge [%]; HV battery pack A recommended maximum state of charge [%]; HV battery pack B recommended maximum state of charge [%]; HV battery pack C recommended maximum state of charge [%]; HV battery pack D recommended maximum state of charge [%]; HV battery pack E recommended maximum state of charge [%]; HV battery pack F recommended maximum state of charge [%]; HV battery pack G recommended maximum state of charge [%]; …"
+    },
+    {
+      "id": "0xF4C2",
+      "name": "HV Battery Discharge Energy Capacity",
+      "length": 28,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID C2. Fields: HV battery discharge energy capacity [kWh]; HV battery pack A discharge energy capacity [kWh]; HV battery pack B discharge energy capacity [kWh]; HV battery pack C discharge energy capacity [kWh]; HV battery pack D discharge energy capacity [kWh]; HV battery pack E discharge energy capacity [kWh]; HV battery pack F discharge energy capacity [kWh]; HV battery pack G discharge energy capacity [kWh]; …"
+    },
+    {
+      "id": "0xF4C3",
+      "name": "Fuel Level Input A / B",
+      "length": 3,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID C3. Fields: Fuel level input A [%]; Fuel level input B [%]"
+    },
+    {
+      "id": "0xF4C4",
+      "name": "Exhaust Particulate Control Diagnostic Time / Count",
+      "length": 8,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID C4. Fields: Exhaust particulate control diagnostic time [s]; Exhaust particulate control diagnostic count"
+    },
+    {
+      "id": "0xF4C5",
+      "name": "Low-Pressure Fuel Pressure",
+      "length": 5,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID C5. Fields: Low-pressure fuel pressure A [kPa]; Low-pressure fuel pressure B [kPa]"
+    },
+    {
+      "id": "0xF4C6",
+      "name": "Particulate Control and Warning System",
+      "length": 8,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID C6. Fields: Particulate warning system active; Engine hours with the particulate filter removed or blocked [h]; Engine hours with a liquid reagent injection system failure [h]; Engine hours with a particulate control monitoring system fault [h]; Particulate level three inducement status; Particulate level two inducement status; Particulate level one inducement status"
+    },
+    {
+      "id": "0xF4C7",
+      "name": "Distance since Module Reflash or Replacement",
+      "length": 2,
+      "unit": "km",
+      "decoder": "linear",
+      "max": 65535,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID C7. Distance since module reflash or replacement"
+    },
+    {
+      "id": "0xF4C8",
+      "name": "Engine Friction Percent Torque",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "offset": -125,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID C8. Engine friction — percent torque"
+    },
+    {
+      "id": "0xF4C9",
+      "name": "O2 Sensor (Wide Range) Concentration Sensors 5-6",
+      "length": 17,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID C9. Fields: O2 concentration bank 1, sensor 5 [%]; O2 concentration bank 1, sensor 6 [%]; O2 concentration bank 2, sensor 5 [%]; O2 concentration bank 2, sensor 6 [%]; O2 sensor lambda bank 1, sensor 5; O2 sensor lambda bank 1, sensor 6; O2 sensor lambda bank 2, sensor 5; O2 sensor lambda bank 2, sensor 6"
+    },
+    {
+      "id": "0xF4CB",
+      "name": "Exhaust Pressure Sensor 2",
+      "length": 5,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID CB. Fields: Exhaust pressure bank 1, sensor 2 [kPa]; Exhaust pressure bank 2, sensor 2 [kPa]"
+    },
+    {
+      "id": "0xF4CC",
+      "name": "Electric Motor Speed",
+      "length": 17,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID CC. Fields: Electric motor A speed [rpm]; Electric motor B speed [rpm]; Electric motor C speed [rpm]; Electric motor D speed [rpm]; Electric motor E speed [rpm]; Electric motor F speed [rpm]; Electric motor G speed [rpm]; Electric motor H speed [rpm]"
+    },
+    {
+      "id": "0xF4CD",
+      "name": "Electric Motor Torque",
+      "length": 17,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID CD. Fields: Electric motor A torque [Nm]; Electric motor B torque [Nm]; Electric motor C torque [Nm]; Electric motor D torque [Nm]; Electric motor E torque [Nm]; Electric motor F torque [Nm]; Electric motor G torque [Nm]; Electric motor H torque [Nm]"
+    },
+    {
+      "id": "0xF4CE",
+      "name": "Evap System Vapor Pressure C / D",
+      "length": 9,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID CE. Fields: Evap system vapor pressure C [kPa]; Evap system vapor pressure C, wide range [kPa]; Evap system vapor pressure D [kPa]; Evap system vapor pressure D, wide range [kPa]"
+    },
+    {
+      "id": "0xF4CF",
+      "name": "Catalyst Temperature A-D",
+      "length": 9,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID CF. Fields: Catalyst temperature A [°C]; Catalyst temperature B [°C]; Catalyst temperature C [°C]; Catalyst temperature D [°C]"
+    },
+    {
+      "id": "0xF4D0",
+      "name": "HV Battery Reserve Energy",
+      "length": 7,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID D0. Fields: Distance since state of health update [km]; HV battery remaining reserve energy [kWh]; HV battery initial reserve energy [kWh]"
+    },
+    {
+      "id": "0xF4D1",
+      "name": "HV Battery Charging Limit / Power",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID D1. Fields: HV battery charging limit [kW]; HV battery charging power [kW]"
+    },
+    {
+      "id": "0xF4D2",
+      "name": "State of Certified Range / Energy",
+      "length": 3,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID D2. Fields: State of certified range supported; State of certified energy supported; State of certified energy [%]; State of certified range [%]"
+    },
+    {
+      "id": "0xF4D3",
+      "name": "Engine Odometer",
+      "length": 4,
+      "unit": "km",
+      "decoder": "linear",
+      "scale": 0.1,
+      "max": 429496729.5,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID D3. Engine odometer"
+    },
+    {
+      "id": "0xF4D4",
+      "name": "HV Battery Power over the Last Second",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID D4. Fields: HV battery power over the last second [kW]"
+    },
+    {
+      "id": "0xF4D5",
+      "name": "Fuel Cell System Data",
+      "length": 11,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID D5. Fields: Fuel cell system voltage [V]; Fuel cell fuel consumption [g/s]; Fuel cell current over the last second [A]; Fuel cell power over the last second [kW]"
+    },
+    {
+      "id": "0xF4D6",
+      "name": "Propulsion System Active Trips since DTCs Cleared",
+      "length": 2,
+      "decoder": "linear",
+      "max": 65535,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID D6. Propulsion system active trips since DTCs cleared"
+    },
+    {
+      "id": "0xF4D7",
+      "name": "DEF Doser B Dosing",
+      "length": 5,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID D7. Fields: DEF doser B commanded dosing [%]; DEF doser B dosing mode; DEF doser B maximum dosing rate [kg/h]"
+    },
+    {
+      "id": "0xF4D8",
+      "name": "Battery Capacity Calculation",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID D8. Fields: Battery capacity calculation"
+    },
+    {
+      "id": "0xF4D9",
+      "name": "HV Battery Calculated Usable Energy",
+      "length": 4,
+      "unit": "kWh",
+      "decoder": "linear",
+      "scale": 0.001,
+      "max": 4294967.295,
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID D9. HV battery calculated usable energy"
+    },
+    {
+      "id": "0xF4DA",
+      "name": "HV Battery Current over the Last Second",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID DA. Fields: HV battery current over the last second [A]"
+    },
+    {
+      "id": "0xF4DC",
+      "name": "Engine Run Time for AECD #21-#25",
+      "length": 41,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 01 PID DC. Fields: Total run time with EI-AECD #21 timer 1 active [s]; Total run time with EI-AECD #21 timer 2 active [s]; Total run time with EI-AECD #22 timer 1 active [s]; Total run time with EI-AECD #22 timer 2 active [s]; Total run time with EI-AECD #23 timer 1 active [s]; Total run time with EI-AECD #23 timer 2 active [s]; Total run time with EI-AECD #24 timer 1 active [s]; Total run time with EI-AECD #24 timer 2 active [s]; …"
+    },
+    {
+      "id": "0xF601",
+      "name": "O2 Sensor Monitor Bank 1 Sensor 1",
       "decoder": "raw",
-      "description": "Currently active UDS session"
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 01 (test results)"
+    },
+    {
+      "id": "0xF602",
+      "name": "O2 Sensor Monitor Bank 1 Sensor 2",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 02 (test results)"
+    },
+    {
+      "id": "0xF603",
+      "name": "O2 Sensor Monitor Bank 1 Sensor 3",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 03 (test results)"
+    },
+    {
+      "id": "0xF604",
+      "name": "O2 Sensor Monitor Bank 1 Sensor 4",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 04 (test results)"
+    },
+    {
+      "id": "0xF605",
+      "name": "O2 Sensor Monitor Bank 2 Sensor 1",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 05 (test results)"
+    },
+    {
+      "id": "0xF606",
+      "name": "O2 Sensor Monitor Bank 2 Sensor 2",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 06 (test results)"
+    },
+    {
+      "id": "0xF607",
+      "name": "O2 Sensor Monitor Bank 2 Sensor 3",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 07 (test results)"
+    },
+    {
+      "id": "0xF608",
+      "name": "O2 Sensor Monitor Bank 2 Sensor 4",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 08 (test results)"
+    },
+    {
+      "id": "0xF609",
+      "name": "O2 Sensor Monitor Bank 3 Sensor 1",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 09 (test results)"
+    },
+    {
+      "id": "0xF60A",
+      "name": "O2 Sensor Monitor Bank 3 Sensor 2",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 0A (test results)"
+    },
+    {
+      "id": "0xF60B",
+      "name": "O2 Sensor Monitor Bank 3 Sensor 3",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 0B (test results)"
+    },
+    {
+      "id": "0xF60C",
+      "name": "O2 Sensor Monitor Bank 3 Sensor 4",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 0C (test results)"
+    },
+    {
+      "id": "0xF60D",
+      "name": "O2 Sensor Monitor Bank 4 Sensor 1",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 0D (test results)"
+    },
+    {
+      "id": "0xF60E",
+      "name": "O2 Sensor Monitor Bank 4 Sensor 2",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 0E (test results)"
+    },
+    {
+      "id": "0xF60F",
+      "name": "O2 Sensor Monitor Bank 4 Sensor 3",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 0F (test results)"
+    },
+    {
+      "id": "0xF610",
+      "name": "O2 Sensor Monitor Bank 4 Sensor 4",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 10 (test results)"
+    },
+    {
+      "id": "0xF620",
+      "name": "Supported MIDs [21-40]",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 20 (test results)"
+    },
+    {
+      "id": "0xF621",
+      "name": "Catalyst Monitor Bank 1",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 21 (test results)"
+    },
+    {
+      "id": "0xF622",
+      "name": "Catalyst Monitor Bank 2",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 22 (test results)"
+    },
+    {
+      "id": "0xF623",
+      "name": "Catalyst Monitor Bank 3",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 23 (test results)"
+    },
+    {
+      "id": "0xF624",
+      "name": "Catalyst Monitor Bank 4",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 24 (test results)"
+    },
+    {
+      "id": "0xF631",
+      "name": "EGR Monitor Bank 1",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 31 (test results)"
+    },
+    {
+      "id": "0xF632",
+      "name": "EGR Monitor Bank 2",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 32 (test results)"
+    },
+    {
+      "id": "0xF633",
+      "name": "EGR Monitor Bank 3",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 33 (test results)"
+    },
+    {
+      "id": "0xF634",
+      "name": "EGR Monitor Bank 4",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 34 (test results)"
+    },
+    {
+      "id": "0xF635",
+      "name": "VVT Monitor Bank 1",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 35 (test results)"
+    },
+    {
+      "id": "0xF636",
+      "name": "VVT Monitor Bank 2",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 36 (test results)"
+    },
+    {
+      "id": "0xF637",
+      "name": "VVT Monitor Bank 3",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 37 (test results)"
+    },
+    {
+      "id": "0xF638",
+      "name": "VVT Monitor Bank 4",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 38 (test results)"
+    },
+    {
+      "id": "0xF639",
+      "name": "EVAP Monitor (Cap Off / 0.150\")",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 39 (test results)"
+    },
+    {
+      "id": "0xF63A",
+      "name": "EVAP Monitor (0.090\")",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 3A (test results)"
+    },
+    {
+      "id": "0xF63B",
+      "name": "EVAP Monitor (0.040\")",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 3B (test results)"
+    },
+    {
+      "id": "0xF63C",
+      "name": "EVAP Monitor (0.020\")",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 3C (test results)"
+    },
+    {
+      "id": "0xF63D",
+      "name": "Purge Flow Monitor",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 3D (test results)"
+    },
+    {
+      "id": "0xF640",
+      "name": "Supported MIDs [41-60]",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 40 (test results)"
+    },
+    {
+      "id": "0xF641",
+      "name": "O2 Sensor Heater Monitor Bank 1 Sensor 1",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 41 (test results)"
+    },
+    {
+      "id": "0xF642",
+      "name": "O2 Sensor Heater Monitor Bank 1 Sensor 2",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 42 (test results)"
+    },
+    {
+      "id": "0xF643",
+      "name": "O2 Sensor Heater Monitor Bank 1 Sensor 3",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 43 (test results)"
+    },
+    {
+      "id": "0xF644",
+      "name": "O2 Sensor Heater Monitor Bank 1 Sensor 4",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 44 (test results)"
+    },
+    {
+      "id": "0xF645",
+      "name": "O2 Sensor Heater Monitor Bank 2 Sensor 1",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 45 (test results)"
+    },
+    {
+      "id": "0xF646",
+      "name": "O2 Sensor Heater Monitor Bank 2 Sensor 2",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 46 (test results)"
+    },
+    {
+      "id": "0xF647",
+      "name": "O2 Sensor Heater Monitor Bank 2 Sensor 3",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 47 (test results)"
+    },
+    {
+      "id": "0xF648",
+      "name": "O2 Sensor Heater Monitor Bank 2 Sensor 4",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 48 (test results)"
+    },
+    {
+      "id": "0xF649",
+      "name": "O2 Sensor Heater Monitor Bank 3 Sensor 1",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 49 (test results)"
+    },
+    {
+      "id": "0xF64A",
+      "name": "O2 Sensor Heater Monitor Bank 3 Sensor 2",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 4A (test results)"
+    },
+    {
+      "id": "0xF64B",
+      "name": "O2 Sensor Heater Monitor Bank 3 Sensor 3",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 4B (test results)"
+    },
+    {
+      "id": "0xF64C",
+      "name": "O2 Sensor Heater Monitor Bank 3 Sensor 4",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 4C (test results)"
+    },
+    {
+      "id": "0xF64D",
+      "name": "O2 Sensor Heater Monitor Bank 4 Sensor 1",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 4D (test results)"
+    },
+    {
+      "id": "0xF64E",
+      "name": "O2 Sensor Heater Monitor Bank 4 Sensor 2",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 4E (test results)"
+    },
+    {
+      "id": "0xF64F",
+      "name": "O2 Sensor Heater Monitor Bank 4 Sensor 3",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 4F (test results)"
+    },
+    {
+      "id": "0xF650",
+      "name": "O2 Sensor Heater Monitor Bank 4 Sensor 4",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 50 (test results)"
+    },
+    {
+      "id": "0xF660",
+      "name": "Supported MIDs [61-80]",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 60 (test results)"
+    },
+    {
+      "id": "0xF661",
+      "name": "Heated Catalyst Monitor Bank 1",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 61 (test results)"
+    },
+    {
+      "id": "0xF662",
+      "name": "Heated Catalyst Monitor Bank 2",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 62 (test results)"
+    },
+    {
+      "id": "0xF663",
+      "name": "Heated Catalyst Monitor Bank 3",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 63 (test results)"
+    },
+    {
+      "id": "0xF664",
+      "name": "Heated Catalyst Monitor Bank 4",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 64 (test results)"
+    },
+    {
+      "id": "0xF671",
+      "name": "Secondary Air Monitor 1",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 71 (test results)"
+    },
+    {
+      "id": "0xF672",
+      "name": "Secondary Air Monitor 2",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 72 (test results)"
+    },
+    {
+      "id": "0xF673",
+      "name": "Secondary Air Monitor 3",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 73 (test results)"
+    },
+    {
+      "id": "0xF674",
+      "name": "Secondary Air Monitor 4",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 74 (test results)"
+    },
+    {
+      "id": "0xF680",
+      "name": "Supported MIDs [81-A0]",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 80 (test results)"
+    },
+    {
+      "id": "0xF681",
+      "name": "Fuel System Monitor Bank 1",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 81 (test results)"
+    },
+    {
+      "id": "0xF682",
+      "name": "Fuel System Monitor Bank 2",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 82 (test results)"
+    },
+    {
+      "id": "0xF683",
+      "name": "Fuel System Monitor Bank 3",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 83 (test results)"
+    },
+    {
+      "id": "0xF684",
+      "name": "Fuel System Monitor Bank 4",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 84 (test results)"
+    },
+    {
+      "id": "0xF685",
+      "name": "Boost Pressure Control Monitor Bank 1",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 85 (test results)"
+    },
+    {
+      "id": "0xF686",
+      "name": "Boost Pressure Control Monitor Bank 2",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 86 (test results)"
+    },
+    {
+      "id": "0xF690",
+      "name": "NOx Absorber Monitor Bank 1",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 90 (test results)"
+    },
+    {
+      "id": "0xF691",
+      "name": "NOx Absorber Monitor Bank 2",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 91 (test results)"
+    },
+    {
+      "id": "0xF698",
+      "name": "NOx Catalyst Monitor Bank 1",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 98 (test results)"
+    },
+    {
+      "id": "0xF699",
+      "name": "NOx Catalyst Monitor Bank 2",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID 99 (test results)"
+    },
+    {
+      "id": "0xF6A0",
+      "name": "Supported MIDs [A1-C0]",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID A0 (test results)"
+    },
+    {
+      "id": "0xF6A1",
+      "name": "Misfire Monitor General Data",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID A1 (test results)"
+    },
+    {
+      "id": "0xF6A2",
+      "name": "Misfire Cylinder 1 Data",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID A2 (test results)"
+    },
+    {
+      "id": "0xF6A3",
+      "name": "Misfire Cylinder 2 Data",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID A3 (test results)"
+    },
+    {
+      "id": "0xF6A4",
+      "name": "Misfire Cylinder 3 Data",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID A4 (test results)"
+    },
+    {
+      "id": "0xF6A5",
+      "name": "Misfire Cylinder 4 Data",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID A5 (test results)"
+    },
+    {
+      "id": "0xF6A6",
+      "name": "Misfire Cylinder 5 Data",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID A6 (test results)"
+    },
+    {
+      "id": "0xF6A7",
+      "name": "Misfire Cylinder 6 Data",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID A7 (test results)"
+    },
+    {
+      "id": "0xF6A8",
+      "name": "Misfire Cylinder 7 Data",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID A8 (test results)"
+    },
+    {
+      "id": "0xF6A9",
+      "name": "Misfire Cylinder 8 Data",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID A9 (test results)"
+    },
+    {
+      "id": "0xF6AA",
+      "name": "Misfire Cylinder 9 Data",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID AA (test results)"
+    },
+    {
+      "id": "0xF6AB",
+      "name": "Misfire Cylinder 10 Data",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID AB (test results)"
+    },
+    {
+      "id": "0xF6AC",
+      "name": "Misfire Cylinder 11 Data",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID AC (test results)"
+    },
+    {
+      "id": "0xF6AD",
+      "name": "Misfire Cylinder 12 Data",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID AD (test results)"
+    },
+    {
+      "id": "0xF6B0",
+      "name": "PM Filter Monitor Bank 1",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID B0 (test results)"
+    },
+    {
+      "id": "0xF6B1",
+      "name": "PM Filter Monitor Bank 2",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 06 OBDMID B1 (test results)"
+    },
+    {
+      "id": "0xF800",
+      "name": "Supported InfoTypes 01-20",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 09 InfoType 00"
+    },
+    {
+      "id": "0xF802",
+      "name": "Vehicle Identification Number",
+      "length": 17,
+      "decoder": "ascii",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 09 InfoType 02"
+    },
+    {
+      "id": "0xF804",
+      "name": "Calibration ID",
+      "length": 16,
+      "decoder": "ascii",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 09 InfoType 04"
+    },
+    {
+      "id": "0xF806",
+      "name": "Calibration Verification Numbers",
+      "length": 4,
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 09 InfoType 06"
+    },
+    {
+      "id": "0xF808",
+      "name": "In-use Performance Tracking (Spark Ignition)",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 09 InfoType 08"
+    },
+    {
+      "id": "0xF80A",
+      "name": "ECU Name",
+      "length": 20,
+      "decoder": "ascii",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 09 InfoType 0A"
+    },
+    {
+      "id": "0xF80B",
+      "name": "In-use Performance Tracking (Compression Ignition)",
+      "decoder": "raw",
+      "description": "J1979-2 OBD-on-UDS equivalent of Service 09 InfoType 0B"
     },
     {
       "id": "0xFD00",
@@ -157,5 +2383,6 @@
       "decoder": "raw",
       "description": "Warm-up cycles since DTC clear"
     }
-  ]
+  ],
+  "source": "J1979-2 DID mapping (F4xx = Service 01 PID, F6xx = Service 06 OBDMID, F8xx = Service 09 InfoType); names from OBDb SAEJ1979 (CC BY-SA 4.0) and python-OBD (GPL-2.0+)"
 }

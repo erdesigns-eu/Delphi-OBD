@@ -1,9 +1,11 @@
 {
   "$schema": "../_schema/ev-battery.schema.json",
   "vendor": "stellantis",
-  "label": "Stellantis e-CMP (Peugeot e-208/e-2008, Opel Corsa-e/Mokka-e, Citroen e-C4, DS3 Crossback E-Tense, Jeep Avenger, Vauxhall Vivaro-e). Fiat 500e (Mini-platform) decode is separate.",
+  "label": "Stellantis: Fiat 500e (2020+, BPCM at 0x18DA44F1/0x18DAF144). e-CMP models (Peugeot e-208/e-2008, Opel Corsa-e/Mokka-e, Citroen e-C4, DS3 Crossback E-Tense, Jeep Avenger) have no public decode.",
   "ecu": {
-    "notes": " CAN addressing is not publicly documented; this catalog has no executable rules."
+    "request_id_hex": "0x18DA44F1",
+    "response_id_hex": "0x18DAF144",
+    "notes": "29-bit addressing for the Fiat 500e battery pack control module, from the OBDb Fiat signalset (CC BY-SA 4.0). pack_voltage is read from a different module (0x6B4/0x694). e-CMP CAN addressing is not publicly documented."
   },
   "applicable_models": [
     "Peugeot e-208",
@@ -15,9 +17,123 @@
     "Jeep Avenger EV",
     "Fiat 500e"
   ],
-  "fields": [],
+  "fields": [
+    {
+      "field": "soc",
+      "service_hex": "0x22",
+      "did_hex": "0xA010",
+      "offset": 3,
+      "length": 1,
+      "scale": 0.3921568627,
+      "offset_value": 0,
+      "unit": "%",
+      "ecu_request_id_hex": "0x18DA44F1",
+      "ecu_response_id_hex": "0x18DAF144",
+      "notes": "OBDb Fiat_HVBAT_ST_CHG: HV battery state of charge. Fiat 500e (2020+) per the OBDb Fiat signalset.",
+      "source": "https://github.com/OBDb/Fiat/blob/main/signalsets/v3/default.json"
+    },
+    {
+      "field": "soh",
+      "service_hex": "0x22",
+      "did_hex": "0xA029",
+      "offset": 0,
+      "length": 2,
+      "scale": 0.0015259022,
+      "offset_value": 0,
+      "unit": "%",
+      "ecu_request_id_hex": "0x18DA44F1",
+      "ecu_response_id_hex": "0x18DAF144",
+      "notes": "OBDb Fiat_HVBAT_SOH: HV battery state of health. Fiat 500e (2020+) per the OBDb Fiat signalset.",
+      "source": "https://github.com/OBDb/Fiat/blob/main/signalsets/v3/default.json"
+    },
+    {
+      "field": "pack_current",
+      "service_hex": "0x22",
+      "did_hex": "0xA00A",
+      "offset": 0,
+      "length": 2,
+      "scale": 0.05,
+      "offset_value": -1638.4,
+      "unit": "A",
+      "ecu_request_id_hex": "0x18DA44F1",
+      "ecu_response_id_hex": "0x18DAF144",
+      "notes": "OBDb Fiat_HVBAT_CURRENT: HV battery current. Fiat 500e (2020+) per the OBDb Fiat signalset.",
+      "source": "https://github.com/OBDb/Fiat/blob/main/signalsets/v3/default.json"
+    },
+    {
+      "field": "max_cell_voltage",
+      "service_hex": "0x22",
+      "did_hex": "0xA009",
+      "offset": 2,
+      "length": 2,
+      "scale": 0.001,
+      "offset_value": 0,
+      "unit": "V",
+      "ecu_request_id_hex": "0x18DA44F1",
+      "ecu_response_id_hex": "0x18DAF144",
+      "notes": "OBDb Fiat_MAX_CELL_V: Highest cell voltage. Fiat 500e (2020+) per the OBDb Fiat signalset.",
+      "source": "https://github.com/OBDb/Fiat/blob/main/signalsets/v3/default.json"
+    },
+    {
+      "field": "min_cell_voltage",
+      "service_hex": "0x22",
+      "did_hex": "0xA009",
+      "offset": 4,
+      "length": 2,
+      "scale": 0.001,
+      "offset_value": 0,
+      "unit": "V",
+      "ecu_request_id_hex": "0x18DA44F1",
+      "ecu_response_id_hex": "0x18DAF144",
+      "notes": "OBDb Fiat_MIN_CELL_V: Lowest cell voltage. Fiat 500e (2020+) per the OBDb Fiat signalset.",
+      "source": "https://github.com/OBDb/Fiat/blob/main/signalsets/v3/default.json"
+    },
+    {
+      "field": "battery_temp_max",
+      "service_hex": "0x22",
+      "did_hex": "0xA009",
+      "offset": 8,
+      "length": 2,
+      "scale": 1,
+      "offset_value": -32768,
+      "unit": "C",
+      "ecu_request_id_hex": "0x18DA44F1",
+      "ecu_response_id_hex": "0x18DAF144",
+      "notes": "OBDb Fiat_MAX_CELL_T: Highest battery temperature. Fiat 500e (2020+) per the OBDb Fiat signalset.",
+      "source": "https://github.com/OBDb/Fiat/blob/main/signalsets/v3/default.json"
+    },
+    {
+      "field": "battery_temp_min",
+      "service_hex": "0x22",
+      "did_hex": "0xA009",
+      "offset": 10,
+      "length": 2,
+      "scale": 1,
+      "offset_value": -32768,
+      "unit": "C",
+      "ecu_request_id_hex": "0x18DA44F1",
+      "ecu_response_id_hex": "0x18DAF144",
+      "notes": "OBDb Fiat_MIN_CELL_T: Lowest battery temperature. Fiat 500e (2020+) per the OBDb Fiat signalset.",
+      "source": "https://github.com/OBDb/Fiat/blob/main/signalsets/v3/default.json"
+    },
+    {
+      "field": "pack_voltage",
+      "service_hex": "0x22",
+      "did_hex": "0xD815",
+      "offset": 0,
+      "length": 2,
+      "scale": 0.0625,
+      "offset_value": 0,
+      "unit": "V",
+      "ecu_request_id_hex": "0x6B4",
+      "ecu_response_id_hex": "0x694",
+      "notes": "OBDb Fiat_HVBAT_VOLT: High voltage battery voltage. Fiat 500e (2020+) per the OBDb Fiat signalset.",
+      "source": "https://github.com/OBDb/Fiat/blob/main/signalsets/v3/default.json"
+    }
+  ],
   "notes": "e-CMP requires a special 16-pin OBD adapter cable to expose the diagnostic CAN. Community apps (Car Scanner) include SOH, SOC, battery temperature, per-cell V and module temperatures, but no open-source repository publishes the per-DID byte map. OVMS Github issue #719 tracks an unfinished port. See https://github.com/openvehicles/Open-Vehicle-Monitoring-System-3/issues/719 .",
   "unavailable_fields": {
-    "all": "Field not documented for this vendor at byte-level in any open public source."
+    "e_cmp": "e-CMP (Peugeot / Opel / Citroen / DS / Jeep) fields are not documented at byte level in any open public source.",
+    "cell_voltages": "No public per-cell decode for the Fiat 500e."
   }
 }

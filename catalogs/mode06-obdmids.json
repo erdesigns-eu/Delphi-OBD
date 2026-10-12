@@ -1,7 +1,7 @@
 {
   "$schema": "https://erdesigns.eu/schema/monitor-id.json",
   "schema_version": 1,
-  "spec": "ISO 15031-5 Annex B OBDMID list",
+  "spec": "SAE J1979 / ISO 15031-5 OBDMID list (names via python-OBD, GPL-2.0+)",
   "description": "Mode 06 OBDMID names. Add OEM-specific OBDMIDs without recompiling.",
   "entries": [
     {
@@ -37,6 +37,42 @@
       "name": "O2 Sensor Monitor Bank 2 Sensor 4"
     },
     {
+      "obdmid": "0x09",
+      "name": "O2 Sensor Monitor Bank 3 Sensor 1"
+    },
+    {
+      "obdmid": "0x0A",
+      "name": "O2 Sensor Monitor Bank 3 Sensor 2"
+    },
+    {
+      "obdmid": "0x0B",
+      "name": "O2 Sensor Monitor Bank 3 Sensor 3"
+    },
+    {
+      "obdmid": "0x0C",
+      "name": "O2 Sensor Monitor Bank 3 Sensor 4"
+    },
+    {
+      "obdmid": "0x0D",
+      "name": "O2 Sensor Monitor Bank 4 Sensor 1"
+    },
+    {
+      "obdmid": "0x0E",
+      "name": "O2 Sensor Monitor Bank 4 Sensor 2"
+    },
+    {
+      "obdmid": "0x0F",
+      "name": "O2 Sensor Monitor Bank 4 Sensor 3"
+    },
+    {
+      "obdmid": "0x10",
+      "name": "O2 Sensor Monitor Bank 4 Sensor 4"
+    },
+    {
+      "obdmid": "0x20",
+      "name": "Supported MIDs [21-40]"
+    },
+    {
       "obdmid": "0x21",
       "name": "Catalyst Monitor Bank 1"
     },
@@ -45,100 +81,276 @@
       "name": "Catalyst Monitor Bank 2"
     },
     {
+      "obdmid": "0x23",
+      "name": "Catalyst Monitor Bank 3"
+    },
+    {
+      "obdmid": "0x24",
+      "name": "Catalyst Monitor Bank 4"
+    },
+    {
       "obdmid": "0x31",
-      "name": "EGR Monitor"
+      "name": "EGR Monitor Bank 1"
     },
     {
       "obdmid": "0x32",
-      "name": "VVT Monitor"
+      "name": "EGR Monitor Bank 2"
+    },
+    {
+      "obdmid": "0x33",
+      "name": "EGR Monitor Bank 3"
+    },
+    {
+      "obdmid": "0x34",
+      "name": "EGR Monitor Bank 4"
+    },
+    {
+      "obdmid": "0x35",
+      "name": "VVT Monitor Bank 1"
+    },
+    {
+      "obdmid": "0x36",
+      "name": "VVT Monitor Bank 2"
+    },
+    {
+      "obdmid": "0x37",
+      "name": "VVT Monitor Bank 3"
+    },
+    {
+      "obdmid": "0x38",
+      "name": "VVT Monitor Bank 4"
     },
     {
       "obdmid": "0x39",
-      "name": "EVAP Monitor (Cap off)"
+      "name": "EVAP Monitor (Cap Off / 0.150\")"
     },
     {
       "obdmid": "0x3A",
-      "name": "EVAP Monitor (0.040)"
+      "name": "EVAP Monitor (0.090\")"
     },
     {
       "obdmid": "0x3B",
-      "name": "EVAP Monitor (0.020)"
+      "name": "EVAP Monitor (0.040\")"
+    },
+    {
+      "obdmid": "0x3C",
+      "name": "EVAP Monitor (0.020\")"
+    },
+    {
+      "obdmid": "0x3D",
+      "name": "Purge Flow Monitor"
+    },
+    {
+      "obdmid": "0x40",
+      "name": "Supported MIDs [41-60]"
     },
     {
       "obdmid": "0x41",
-      "name": "Oxygen Sensor Heater Monitor Bank 1 Sensor 1"
+      "name": "O2 Sensor Heater Monitor Bank 1 Sensor 1"
     },
     {
       "obdmid": "0x42",
-      "name": "Oxygen Sensor Heater Monitor Bank 1 Sensor 2"
+      "name": "O2 Sensor Heater Monitor Bank 1 Sensor 2"
     },
     {
       "obdmid": "0x43",
-      "name": "Oxygen Sensor Heater Monitor Bank 2 Sensor 1"
+      "name": "O2 Sensor Heater Monitor Bank 1 Sensor 3"
     },
     {
       "obdmid": "0x44",
-      "name": "Oxygen Sensor Heater Monitor Bank 2 Sensor 2"
+      "name": "O2 Sensor Heater Monitor Bank 1 Sensor 4"
+    },
+    {
+      "obdmid": "0x45",
+      "name": "O2 Sensor Heater Monitor Bank 2 Sensor 1"
+    },
+    {
+      "obdmid": "0x46",
+      "name": "O2 Sensor Heater Monitor Bank 2 Sensor 2"
+    },
+    {
+      "obdmid": "0x47",
+      "name": "O2 Sensor Heater Monitor Bank 2 Sensor 3"
+    },
+    {
+      "obdmid": "0x48",
+      "name": "O2 Sensor Heater Monitor Bank 2 Sensor 4"
+    },
+    {
+      "obdmid": "0x49",
+      "name": "O2 Sensor Heater Monitor Bank 3 Sensor 1"
+    },
+    {
+      "obdmid": "0x4A",
+      "name": "O2 Sensor Heater Monitor Bank 3 Sensor 2"
+    },
+    {
+      "obdmid": "0x4B",
+      "name": "O2 Sensor Heater Monitor Bank 3 Sensor 3"
+    },
+    {
+      "obdmid": "0x4C",
+      "name": "O2 Sensor Heater Monitor Bank 3 Sensor 4"
+    },
+    {
+      "obdmid": "0x4D",
+      "name": "O2 Sensor Heater Monitor Bank 4 Sensor 1"
+    },
+    {
+      "obdmid": "0x4E",
+      "name": "O2 Sensor Heater Monitor Bank 4 Sensor 2"
+    },
+    {
+      "obdmid": "0x4F",
+      "name": "O2 Sensor Heater Monitor Bank 4 Sensor 3"
+    },
+    {
+      "obdmid": "0x50",
+      "name": "O2 Sensor Heater Monitor Bank 4 Sensor 4"
+    },
+    {
+      "obdmid": "0x60",
+      "name": "Supported MIDs [61-80]"
     },
     {
       "obdmid": "0x61",
-      "name": "Misfire Monitor — General"
+      "name": "Heated Catalyst Monitor Bank 1"
+    },
+    {
+      "obdmid": "0x62",
+      "name": "Heated Catalyst Monitor Bank 2"
+    },
+    {
+      "obdmid": "0x63",
+      "name": "Heated Catalyst Monitor Bank 3"
+    },
+    {
+      "obdmid": "0x64",
+      "name": "Heated Catalyst Monitor Bank 4"
     },
     {
       "obdmid": "0x71",
-      "name": "Misfire Cylinder 1"
+      "name": "Secondary Air Monitor 1"
     },
     {
       "obdmid": "0x72",
-      "name": "Misfire Cylinder 2"
+      "name": "Secondary Air Monitor 2"
     },
     {
       "obdmid": "0x73",
-      "name": "Misfire Cylinder 3"
+      "name": "Secondary Air Monitor 3"
     },
     {
       "obdmid": "0x74",
-      "name": "Misfire Cylinder 4"
+      "name": "Secondary Air Monitor 4"
     },
     {
-      "obdmid": "0x75",
-      "name": "Misfire Cylinder 5"
+      "obdmid": "0x80",
+      "name": "Supported MIDs [81-A0]"
     },
     {
-      "obdmid": "0x76",
-      "name": "Misfire Cylinder 6"
+      "obdmid": "0x81",
+      "name": "Fuel System Monitor Bank 1"
     },
     {
-      "obdmid": "0x77",
-      "name": "Misfire Cylinder 7"
+      "obdmid": "0x82",
+      "name": "Fuel System Monitor Bank 2"
     },
     {
-      "obdmid": "0x78",
-      "name": "Misfire Cylinder 8"
+      "obdmid": "0x83",
+      "name": "Fuel System Monitor Bank 3"
+    },
+    {
+      "obdmid": "0x84",
+      "name": "Fuel System Monitor Bank 4"
+    },
+    {
+      "obdmid": "0x85",
+      "name": "Boost Pressure Control Monitor Bank 1"
+    },
+    {
+      "obdmid": "0x86",
+      "name": "Boost Pressure Control Monitor Bank 2"
+    },
+    {
+      "obdmid": "0x90",
+      "name": "NOx Absorber Monitor Bank 1"
+    },
+    {
+      "obdmid": "0x91",
+      "name": "NOx Absorber Monitor Bank 2"
+    },
+    {
+      "obdmid": "0x98",
+      "name": "NOx Catalyst Monitor Bank 1"
+    },
+    {
+      "obdmid": "0x99",
+      "name": "NOx Catalyst Monitor Bank 2"
+    },
+    {
+      "obdmid": "0xA0",
+      "name": "Supported MIDs [A1-C0]"
     },
     {
       "obdmid": "0xA1",
-      "name": "PM Filter Monitor Bank 1"
+      "name": "Misfire Monitor General Data"
     },
     {
       "obdmid": "0xA2",
-      "name": "PM Filter Monitor Bank 2"
+      "name": "Misfire Cylinder 1 Data"
+    },
+    {
+      "obdmid": "0xA3",
+      "name": "Misfire Cylinder 2 Data"
+    },
+    {
+      "obdmid": "0xA4",
+      "name": "Misfire Cylinder 3 Data"
+    },
+    {
+      "obdmid": "0xA5",
+      "name": "Misfire Cylinder 4 Data"
+    },
+    {
+      "obdmid": "0xA6",
+      "name": "Misfire Cylinder 5 Data"
+    },
+    {
+      "obdmid": "0xA7",
+      "name": "Misfire Cylinder 6 Data"
+    },
+    {
+      "obdmid": "0xA8",
+      "name": "Misfire Cylinder 7 Data"
+    },
+    {
+      "obdmid": "0xA9",
+      "name": "Misfire Cylinder 8 Data"
+    },
+    {
+      "obdmid": "0xAA",
+      "name": "Misfire Cylinder 9 Data"
+    },
+    {
+      "obdmid": "0xAB",
+      "name": "Misfire Cylinder 10 Data"
+    },
+    {
+      "obdmid": "0xAC",
+      "name": "Misfire Cylinder 11 Data"
+    },
+    {
+      "obdmid": "0xAD",
+      "name": "Misfire Cylinder 12 Data"
+    },
+    {
+      "obdmid": "0xB0",
+      "name": "PM Filter Monitor Bank 1"
     },
     {
       "obdmid": "0xB1",
-      "name": "NMHC Catalyst Bank 1"
-    },
-    {
-      "obdmid": "0xB2",
-      "name": "NMHC Catalyst Bank 2"
-    },
-    {
-      "obdmid": "0xC1",
-      "name": "NOx Adsorber Bank 1"
-    },
-    {
-      "obdmid": "0xC2",
-      "name": "NOx Adsorber Bank 2"
+      "name": "PM Filter Monitor Bank 2"
     }
   ]
 }

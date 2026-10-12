@@ -24,7 +24,7 @@ def render():
         'validated in this branch. “Full” in older manifest labels does not mean complete',
         'brand or model support. Only `fields` are executable; `passive_can_fields` and',
         '`phase1_fields` are supplementary source notes, not implemented polling rules.', '',
-        'All 15 vendor files load in the FPC runtime regression. BMW DD69 has signed-current',
+        f'All {len(manifest["vendor_files"])} vendor files load in the FPC runtime regression. BMW DD69 has signed-current',
         'golden vectors; declared array lengths also have regressions. Other field maps',
         'still require ECU-specific captured responses or bench confirmation.', '',
         '| Vendor | Declared models | ECU request / response | Executable rules | Available fields | Source |',
@@ -52,8 +52,10 @@ def render():
     files = {p.stem for p in CATALOGS.glob('*.json') if not p.name.startswith('_')}
     if files != seen:
         raise ValueError('Manifest does not match vendor files')
+    empty = sum(1 for entry in manifest['vendor_files']
+                if not json.loads((CATALOGS / entry['file']).read_text(encoding='utf-8'))['fields'])
     rows += ['', '## Integration limits', '',
-        '- The seven empty catalogues expose no executable UDS measurements. Tesla needs a',
+        f'- The {empty} empty catalogues expose no executable UDS measurements. Tesla needs a',
         '  separate passive CAN integration; an empty UDS catalogue is not Tesla support.',
         '- VW and other maps can contain multiple ECU/model variants of a field. Select the',
         '  exact matching rule and route before polling; rule count is not measurement count.',
@@ -76,7 +78,7 @@ def main():
             raise ValueError('EV matrix is stale; run this tool with --write')
     except (OSError, ValueError, KeyError) as exc:
         parser.exit(1, f'{exc}\n')
-    print('EV capability matrix verified against all 15 vendor catalogues.')
+    print('EV capability matrix verified against all vendor catalogues.')
 
 
 if __name__ == '__main__':

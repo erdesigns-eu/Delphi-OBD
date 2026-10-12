@@ -1,0 +1,108 @@
+{
+  "$schema": "../_schema/ev-battery.schema.json",
+  "vendor": "smart",
+  "label": "smart fortwo / forfour EQ (BMS at 0x7E7/0x7EF)",
+  "ecu": {
+    "request_id_hex": "0x7E7",
+    "response_id_hex": "0x7EF",
+    "notes": "OBDb (CC BY-SA 4.0) community signalset; decoders are not bench validated."
+  },
+  "applicable_models": [
+    "smart EQ fortwo (453)",
+    "smart EQ forfour (453)"
+  ],
+  "fields": [
+    {
+      "field": "pack_voltage",
+      "service_hex": "0x22",
+      "did_hex": "0x0204",
+      "offset": 8,
+      "length": 2,
+      "scale": 0.015625,
+      "offset_value": 0,
+      "unit": "V",
+      "notes": "OBDb SMART_ED_HV_V: HV battery voltage.",
+      "source": "https://github.com/OBDb/Smart/blob/main/signalsets/v3/default.json"
+    },
+    {
+      "field": "pack_current",
+      "service_hex": "0x22",
+      "did_hex": "0x0203",
+      "offset": 0,
+      "length": 2,
+      "scale": 0.03125,
+      "offset_value": 0,
+      "unit": "A",
+      "signed": true,
+      "notes": "OBDb SMART_ED_HV_A: HV battery current.",
+      "source": "https://github.com/OBDb/Smart/blob/main/signalsets/v3/default.json"
+    },
+    {
+      "field": "cell_voltage_max",
+      "service_hex": "0x22",
+      "did_hex": "0x0207",
+      "offset": 0,
+      "length": 2,
+      "scale": 0.001,
+      "offset_value": 1.5,
+      "unit": "V",
+      "notes": "OBDb SMART_ED_ADC_V_MAX: Cell voltage reference, maximum.",
+      "source": "https://github.com/OBDb/Smart/blob/main/signalsets/v3/default.json"
+    },
+    {
+      "field": "cell_voltage_min",
+      "service_hex": "0x22",
+      "did_hex": "0x0207",
+      "offset": 2,
+      "length": 2,
+      "scale": 0.001,
+      "offset_value": 1.5,
+      "unit": "V",
+      "notes": "OBDb SMART_ED_ADC_V_MIN: Cell voltage reference, minimum.",
+      "source": "https://github.com/OBDb/Smart/blob/main/signalsets/v3/default.json"
+    },
+    {
+      "field": "cell_voltage_avg",
+      "service_hex": "0x22",
+      "did_hex": "0x0207",
+      "offset": 4,
+      "length": 2,
+      "scale": 0.001,
+      "offset_value": 0,
+      "unit": "V",
+      "notes": "OBDb SMART_ED_ADC_V_AVG: Cell voltage reference, average.",
+      "source": "https://github.com/OBDb/Smart/blob/main/signalsets/v3/default.json"
+    },
+    {
+      "field": "battery_temperature",
+      "service_hex": "0x22",
+      "did_hex": "0x0201",
+      "offset": 0,
+      "length": 2,
+      "scale": 0.015625,
+      "offset_value": 0,
+      "unit": "C",
+      "signed": true,
+      "notes": "OBDb SMART_ED_HV_T: HV battery temperature.",
+      "source": "https://github.com/OBDb/Smart/blob/main/signalsets/v3/default.json"
+    },
+    {
+      "field": "cell_voltages",
+      "service_hex": "0x22",
+      "did_hex": "0x0208",
+      "offset": 0,
+      "length": 186,
+      "scale": 0.001,
+      "offset_value": 0,
+      "unit": "V[]",
+      "notes": "OBDb SMART_ED_CELL_V1..V93: 93 big-endian uint16 cell voltages in millivolts.",
+      "source": "https://github.com/OBDb/Smart/blob/main/signalsets/v3/default.json",
+      "array": true,
+      "element_size": 2
+    }
+  ],
+  "unavailable_fields": {
+    "soc": "Not published for this ECU in the cited source.",
+    "soh": "Only a raw, unscaled SOH byte is published (DID 0x0310 byte 10)."
+  }
+}

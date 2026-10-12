@@ -5,81 +5,562 @@
   "kind": "j1939-spn",
   "source": "SAE J1939-71:2024 Appendix B (subset)",
   "entries": [
-    { "spn": 51,   "name": "Engine Throttle Position",
-                   "unit": "%", "category": "engine" },
-    { "spn": 84,   "name": "Wheel-Based Vehicle Speed",
-                   "unit": "km/h", "category": "vehicle" },
-    { "spn": 91,   "name": "Accelerator Pedal Position 1",
-                   "unit": "%", "category": "engine" },
-    { "spn": 92,   "name": "Engine Percent Load At Current Speed",
-                   "unit": "%", "category": "engine" },
-    { "spn": 94,   "name": "Engine Fuel Delivery Pressure",
-                   "unit": "kPa", "category": "engine" },
-    { "spn": 96,   "name": "Fuel Level 1",
-                   "unit": "%", "category": "vehicle" },
-    { "spn": 100,  "name": "Engine Oil Pressure",
-                   "unit": "kPa", "category": "engine" },
-    { "spn": 102,  "name": "Engine Intake Manifold #1 Pressure",
-                   "unit": "kPa", "category": "engine" },
-    { "spn": 105,  "name": "Engine Intake Manifold 1 Temperature",
-                   "unit": "°C", "category": "engine" },
-    { "spn": 108,  "name": "Barometric Pressure",
-                   "unit": "kPa", "category": "ambient" },
-    { "spn": 110,  "name": "Engine Coolant Temperature",
-                   "unit": "°C", "category": "engine" },
-    { "spn": 132,  "name": "Engine Mass Air Flow Rate",
-                   "unit": "kg/h", "category": "engine" },
-    { "spn": 158,  "name": "Battery Potential / Power Input 1",
-                   "unit": "V", "category": "electrical" },
-    { "spn": 175,  "name": "Engine Oil Temperature 1",
-                   "unit": "°C", "category": "engine" },
-    { "spn": 190,  "name": "Engine Speed",
-                   "unit": "rpm", "category": "engine" },
-    { "spn": 411,  "name": "Engine Exhaust Gas Recirculation 1 Differential Pressure",
-                   "unit": "kPa", "category": "emissions" },
-    { "spn": 412,  "name": "Engine EGR 1 Temperature",
-                   "unit": "°C", "category": "emissions" },
-    { "spn": 441,  "name": "Auxiliary Temperature 1",
-                   "unit": "°C", "category": "engine" },
-    { "spn": 524,  "name": "Selected Gear",
-                   "unit": "gear", "category": "transmission" },
-    { "spn": 627,  "name": "Charging System Indicator",
-                   "unit": "bit", "category": "electrical" },
-    { "spn": 639,  "name": "J1939 Network 1",
-                   "unit": "—", "category": "network" },
-    { "spn": 651,  "name": "Engine Injector Cylinder #1",
-                   "unit": "—", "category": "engine" },
-    { "spn": 729,  "name": "Engine Glow Plug Lamp",
-                   "unit": "bit", "category": "engine" },
-    { "spn": 1136, "name": "Engine ECU Temperature",
-                   "unit": "°C", "category": "engine" },
-    { "spn": 1209, "name": "Engine Exhaust Pressure 1",
-                   "unit": "kPa", "category": "emissions" },
-    { "spn": 1213, "name": "Malfunction Indicator Lamp",
-                   "unit": "bit", "category": "diagnostics" },
-    { "spn": 1761, "name": "Aftertreatment 1 Diesel Exhaust Fluid Tank Volume",
-                   "unit": "%", "category": "aftertreatment" },
-    { "spn": 2630, "name": "Engine Charge Air Cooler Outlet Temperature",
-                   "unit": "°C", "category": "engine" },
-    { "spn": 3216, "name": "Aftertreatment 1 Intake NOx",
-                   "unit": "ppm", "category": "aftertreatment" },
-    { "spn": 3217, "name": "Aftertreatment 1 Intake O2",
-                   "unit": "%", "category": "aftertreatment" },
-    { "spn": 3226, "name": "Aftertreatment 1 Outlet NOx",
-                   "unit": "ppm", "category": "aftertreatment" },
-    { "spn": 3242, "name": "Aftertreatment 1 DPF Intake Temperature",
-                   "unit": "°C", "category": "aftertreatment" },
-    { "spn": 3246, "name": "Aftertreatment 1 DPF Outlet Temperature",
-                   "unit": "°C", "category": "aftertreatment" },
-    { "spn": 3251, "name": "Aftertreatment 1 DPF Differential Pressure",
-                   "unit": "kPa", "category": "aftertreatment" },
-    { "spn": 3464, "name": "Engine Throttle Actuator 1 Control Command",
-                   "unit": "%", "category": "engine" },
-    { "spn": 3719, "name": "Aftertreatment 1 DPF Soot Load Percent",
-                   "unit": "%", "category": "aftertreatment" },
-    { "spn": 4364, "name": "Aftertreatment 1 SCR Conversion Efficiency",
-                   "unit": "%", "category": "aftertreatment" },
-    { "spn": 5018, "name": "Aftertreatment 1 SCR Catalyst Reagent Pressure",
-                   "unit": "kPa", "category": "aftertreatment" }
+    {
+      "spn": 22,
+      "name": "Engine Extended Crankcase Blow-by Pressure",
+      "unit": "kPa",
+      "category": "engine"
+    },
+    {
+      "spn": 51,
+      "name": "Engine Throttle Position",
+      "unit": "%",
+      "category": "engine"
+    },
+    {
+      "spn": 70,
+      "name": "Parking Brake Switch",
+      "category": "vehicle"
+    },
+    {
+      "spn": 84,
+      "name": "Wheel-Based Vehicle Speed",
+      "unit": "km/h",
+      "category": "vehicle"
+    },
+    {
+      "spn": 91,
+      "name": "Accelerator Pedal Position 1",
+      "unit": "%",
+      "category": "engine"
+    },
+    {
+      "spn": 92,
+      "name": "Engine Percent Load At Current Speed",
+      "unit": "%",
+      "category": "engine"
+    },
+    {
+      "spn": 94,
+      "name": "Engine Fuel Delivery Pressure",
+      "unit": "kPa",
+      "category": "engine"
+    },
+    {
+      "spn": 96,
+      "name": "Fuel Level 1",
+      "unit": "%",
+      "category": "vehicle"
+    },
+    {
+      "spn": 98,
+      "name": "Engine Oil Level",
+      "unit": "%",
+      "category": "engine"
+    },
+    {
+      "spn": 100,
+      "name": "Engine Oil Pressure",
+      "unit": "kPa",
+      "category": "engine"
+    },
+    {
+      "spn": 101,
+      "name": "Engine Crankcase Pressure",
+      "unit": "kPa",
+      "category": "engine"
+    },
+    {
+      "spn": 102,
+      "name": "Engine Intake Manifold #1 Pressure",
+      "unit": "kPa",
+      "category": "engine"
+    },
+    {
+      "spn": 105,
+      "name": "Engine Intake Manifold 1 Temperature",
+      "unit": "°C",
+      "category": "engine"
+    },
+    {
+      "spn": 108,
+      "name": "Barometric Pressure",
+      "unit": "kPa",
+      "category": "ambient"
+    },
+    {
+      "spn": 109,
+      "name": "Engine Coolant Pressure",
+      "unit": "kPa",
+      "category": "engine"
+    },
+    {
+      "spn": 110,
+      "name": "Engine Coolant Temperature",
+      "unit": "°C",
+      "category": "engine"
+    },
+    {
+      "spn": 111,
+      "name": "Engine Coolant Level",
+      "unit": "%",
+      "category": "engine"
+    },
+    {
+      "spn": 119,
+      "name": "Hydraulic Retarder Pressure",
+      "unit": "kPa",
+      "category": "retarder"
+    },
+    {
+      "spn": 120,
+      "name": "Hydraulic Retarder Oil Temperature",
+      "unit": "°C",
+      "category": "retarder"
+    },
+    {
+      "spn": 123,
+      "name": "Clutch Pressure",
+      "unit": "kPa",
+      "category": "transmission"
+    },
+    {
+      "spn": 124,
+      "name": "Transmission Oil Level",
+      "unit": "%",
+      "category": "transmission"
+    },
+    {
+      "spn": 126,
+      "name": "Transmission Filter Differential Pressure",
+      "unit": "kPa",
+      "category": "transmission"
+    },
+    {
+      "spn": 127,
+      "name": "Transmission Oil Pressure",
+      "unit": "kPa",
+      "category": "transmission"
+    },
+    {
+      "spn": 132,
+      "name": "Engine Mass Air Flow Rate",
+      "unit": "kg/h",
+      "category": "engine"
+    },
+    {
+      "spn": 158,
+      "name": "Battery Potential / Power Input 1",
+      "unit": "V",
+      "category": "electrical"
+    },
+    {
+      "spn": 175,
+      "name": "Engine Oil Temperature 1",
+      "unit": "°C",
+      "category": "engine"
+    },
+    {
+      "spn": 177,
+      "name": "Transmission Oil Temperature 1",
+      "unit": "°C",
+      "category": "transmission"
+    },
+    {
+      "spn": 183,
+      "name": "Fuel Rate",
+      "unit": "L/h",
+      "category": "engine"
+    },
+    {
+      "spn": 190,
+      "name": "Engine Speed",
+      "unit": "rpm",
+      "category": "engine"
+    },
+    {
+      "spn": 237,
+      "name": "Vehicle Number Identifier",
+      "category": "vehicle"
+    },
+    {
+      "spn": 247,
+      "name": "Engine Total Hours of Operation",
+      "unit": "h",
+      "category": "engine"
+    },
+    {
+      "spn": 250,
+      "name": "Engine total fuel used",
+      "unit": "L",
+      "category": "engine"
+    },
+    {
+      "spn": 411,
+      "name": "Engine Exhaust Gas Recirculation 1 Differential Pressure",
+      "unit": "kPa",
+      "category": "emissions"
+    },
+    {
+      "spn": 412,
+      "name": "Engine EGR 1 Temperature",
+      "unit": "°C",
+      "category": "emissions"
+    },
+    {
+      "spn": 441,
+      "name": "Auxiliary Temperature 1",
+      "unit": "°C",
+      "category": "engine"
+    },
+    {
+      "spn": 513,
+      "name": "Percent Torque",
+      "unit": "%",
+      "category": "engine"
+    },
+    {
+      "spn": 522,
+      "name": "Percent Clutch Slip",
+      "unit": "%",
+      "category": "transmission"
+    },
+    {
+      "spn": 523,
+      "name": "Transmission Current Gear",
+      "category": "transmission"
+    },
+    {
+      "spn": 524,
+      "name": "Selected Gear",
+      "unit": "gear",
+      "category": "transmission"
+    },
+    {
+      "spn": 558,
+      "name": "Accelerator Pedal 1 Low Idle Switch",
+      "category": "engine"
+    },
+    {
+      "spn": 559,
+      "name": "Accelerator Pedal Kickdown Switch",
+      "category": "engine"
+    },
+    {
+      "spn": 571,
+      "name": "Retarder Enable - Brake Assist Switch",
+      "category": "retarder"
+    },
+    {
+      "spn": 597,
+      "name": "Brake Switch",
+      "category": "vehicle"
+    },
+    {
+      "spn": 598,
+      "name": "Clutch Switch",
+      "category": "vehicle"
+    },
+    {
+      "spn": 627,
+      "name": "Charging System Indicator",
+      "unit": "bit",
+      "category": "electrical"
+    },
+    {
+      "spn": 639,
+      "name": "J1939 Network 1",
+      "unit": "—",
+      "category": "network"
+    },
+    {
+      "spn": 651,
+      "name": "Engine Injector Cylinder #1",
+      "unit": "—",
+      "category": "engine"
+    },
+    {
+      "spn": 729,
+      "name": "Engine Glow Plug Lamp",
+      "unit": "bit",
+      "category": "engine"
+    },
+    {
+      "spn": 904,
+      "name": "Front Axe Speed",
+      "unit": "km/h",
+      "category": "brakes"
+    },
+    {
+      "spn": 905,
+      "name": "Relative Speed; Front Axle, Left Wheel",
+      "unit": "km/h",
+      "category": "brakes"
+    },
+    {
+      "spn": 906,
+      "name": "Relative Speed; Front Axle, Right Wheel",
+      "unit": "km/h",
+      "category": "brakes"
+    },
+    {
+      "spn": 907,
+      "name": "Relative Speed; Rear Axle 1, Left Wheel",
+      "unit": "km/h",
+      "category": "brakes"
+    },
+    {
+      "spn": 908,
+      "name": "Relative Speed; Rear Axle 1, Right Wheel",
+      "unit": "km/h",
+      "category": "brakes"
+    },
+    {
+      "spn": 909,
+      "name": "Relative Speed; Rear Axle 2, Left Wheel",
+      "unit": "km/h",
+      "category": "brakes"
+    },
+    {
+      "spn": 910,
+      "name": "Relative Speed; Rear Axle 2, Right Wheel",
+      "unit": "km/h",
+      "category": "brakes"
+    },
+    {
+      "spn": 914,
+      "name": "Service distance",
+      "unit": "km",
+      "category": "vehicle"
+    },
+    {
+      "spn": 917,
+      "name": "High resolution total vehicle distance",
+      "unit": "m",
+      "category": "vehicle"
+    },
+    {
+      "spn": 976,
+      "name": "PTO State",
+      "category": "vehicle"
+    },
+    {
+      "spn": 1136,
+      "name": "Engine ECU Temperature",
+      "unit": "°C",
+      "category": "engine"
+    },
+    {
+      "spn": 1209,
+      "name": "Engine Exhaust Pressure 1",
+      "unit": "kPa",
+      "category": "emissions"
+    },
+    {
+      "spn": 1213,
+      "name": "Malfunction Indicator Lamp",
+      "unit": "bit",
+      "category": "diagnostics"
+    },
+    {
+      "spn": 1243,
+      "name": "ABS Fully Operational",
+      "category": "brakes"
+    },
+    {
+      "spn": 1612,
+      "name": "Driver 1 Working State",
+      "category": "tachograph"
+    },
+    {
+      "spn": 1613,
+      "name": "Driver 2 Working State",
+      "category": "tachograph"
+    },
+    {
+      "spn": 1615,
+      "name": "Driver 1 Card",
+      "category": "tachograph"
+    },
+    {
+      "spn": 1616,
+      "name": "Driver 2 Card",
+      "category": "tachograph"
+    },
+    {
+      "spn": 1625,
+      "name": "Driver 1 Identification",
+      "category": "vehicle"
+    },
+    {
+      "spn": 1626,
+      "name": "Driver 2 Identification",
+      "category": "vehicle"
+    },
+    {
+      "spn": 1761,
+      "name": "Aftertreatment 1 Diesel Exhaust Fluid Tank Volume",
+      "unit": "%",
+      "category": "aftertreatment"
+    },
+    {
+      "spn": 1809,
+      "name": "Lateral Acceleration",
+      "unit": "m/s²",
+      "category": "vehicle"
+    },
+    {
+      "spn": 1820,
+      "name": "Ramp/Wheel chairlift",
+      "category": "body"
+    },
+    {
+      "spn": 1821,
+      "name": "Position of doors",
+      "category": "body"
+    },
+    {
+      "spn": 2630,
+      "name": "Engine Charge Air Cooler Outlet Temperature",
+      "unit": "°C",
+      "category": "engine"
+    },
+    {
+      "spn": 2970,
+      "name": "Accelerator Pedal 2 Low Idle Switch",
+      "category": "engine"
+    },
+    {
+      "spn": 3026,
+      "name": "Transmission Oil Level Measurement Status",
+      "category": "transmission"
+    },
+    {
+      "spn": 3027,
+      "name": "Transmission Oil Level High / Low",
+      "unit": "L",
+      "category": "transmission"
+    },
+    {
+      "spn": 3028,
+      "name": "Transmission Oil Level Countdown Timer",
+      "category": "transmission"
+    },
+    {
+      "spn": 3216,
+      "name": "Aftertreatment 1 Intake NOx",
+      "unit": "ppm",
+      "category": "aftertreatment"
+    },
+    {
+      "spn": 3217,
+      "name": "Aftertreatment 1 Intake O2",
+      "unit": "%",
+      "category": "aftertreatment"
+    },
+    {
+      "spn": 3226,
+      "name": "Aftertreatment 1 Outlet NOx",
+      "unit": "ppm",
+      "category": "aftertreatment"
+    },
+    {
+      "spn": 3242,
+      "name": "Aftertreatment 1 DPF Intake Temperature",
+      "unit": "°C",
+      "category": "aftertreatment"
+    },
+    {
+      "spn": 3246,
+      "name": "Aftertreatment 1 DPF Outlet Temperature",
+      "unit": "°C",
+      "category": "aftertreatment"
+    },
+    {
+      "spn": 3251,
+      "name": "Aftertreatment 1 DPF Differential Pressure",
+      "unit": "kPa",
+      "category": "aftertreatment"
+    },
+    {
+      "spn": 3353,
+      "name": "Alternator 1 Status",
+      "category": "electrical"
+    },
+    {
+      "spn": 3354,
+      "name": "Alternator 2 Status",
+      "category": "electrical"
+    },
+    {
+      "spn": 3355,
+      "name": "Alternator 3 Status",
+      "category": "electrical"
+    },
+    {
+      "spn": 3356,
+      "name": "Alternator 4 Status",
+      "category": "electrical"
+    },
+    {
+      "spn": 3411,
+      "name": "Status 2 of doors",
+      "category": "body"
+    },
+    {
+      "spn": 3413,
+      "name": "Open Status Door 1",
+      "category": "body"
+    },
+    {
+      "spn": 3416,
+      "name": "Open Status Door 2",
+      "category": "body"
+    },
+    {
+      "spn": 3419,
+      "name": "Open Status Door 3",
+      "category": "body"
+    },
+    {
+      "spn": 3422,
+      "name": "Open Status Door 3",
+      "category": "body"
+    },
+    {
+      "spn": 3464,
+      "name": "Engine Throttle Actuator 1 Control Command",
+      "unit": "%",
+      "category": "engine"
+    },
+    {
+      "spn": 3719,
+      "name": "Aftertreatment 1 DPF Soot Load Percent",
+      "unit": "%",
+      "category": "aftertreatment"
+    },
+    {
+      "spn": 3948,
+      "name": "At least one PTO engaged",
+      "category": "pto"
+    },
+    {
+      "spn": 4364,
+      "name": "Aftertreatment 1 SCR Conversion Efficiency",
+      "unit": "%",
+      "category": "aftertreatment"
+    },
+    {
+      "spn": 5018,
+      "name": "Aftertreatment 1 SCR Catalyst Reagent Pressure",
+      "unit": "kPa",
+      "category": "aftertreatment"
+    },
+    {
+      "spn": 5054,
+      "name": "High resolution engine total fuel used",
+      "unit": "L",
+      "category": "engine"
+    }
   ]
 }

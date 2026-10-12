@@ -229,6 +229,7 @@ contains
   ERD.OEM.McLaren in '..\src\OEM\ERD.OEM.McLaren.pas',
   ERD.OEM.Porsche in '..\src\OEM\ERD.OEM.Porsche.pas',
   ERD.OEM.BYD in '..\src\OEM\ERD.OEM.BYD.pas',
+  ERD.OEM.CatalogBrands in '..\src\OEM\ERD.OEM.CatalogBrands.pas',
   ERD.OEM.Geely in '..\src\OEM\ERD.OEM.Geely.pas',
   ERD.OEM.GreatWall in '..\src\OEM\ERD.OEM.GreatWall.pas',
   ERD.OEM.NIO in '..\src\OEM\ERD.OEM.NIO.pas',

@@ -7,21 +7,21 @@
     {
       "id": "01",
       "name": "Monitor Status Since DTCs Cleared",
-      "length": 1,
+      "length": 4,
       "decoder": "bitfield",
       "description": "Monitor status since DTCs cleared (bitmap)"
     },
     {
       "id": "02",
       "name": "Freeze DTC",
-      "length": 1,
+      "length": 2,
       "decoder": "bitfield",
       "description": "DTC that caused the freeze frame"
     },
     {
       "id": "03",
       "name": "Fuel System Status",
-      "length": 1,
+      "length": 2,
       "decoder": "bitfield",
       "description": "Fuel system 1 / 2 status (2 bytes)"
     },
@@ -169,56 +169,56 @@
     {
       "id": "14",
       "name": "O2 Sensor Bank 1 Sensor 1",
-      "length": 1,
+      "length": 2,
       "decoder": "bitfield",
       "description": "Bank 1 sensor 1 voltage / fuel-trim"
     },
     {
       "id": "15",
       "name": "O2 Sensor Bank 1 Sensor 2",
-      "length": 1,
+      "length": 2,
       "decoder": "bitfield",
       "description": "Bank 1 sensor 2 voltage / fuel-trim"
     },
     {
       "id": "16",
       "name": "O2 Sensor Bank 1 Sensor 3",
-      "length": 1,
+      "length": 2,
       "decoder": "bitfield",
       "description": "Bank 1 sensor 3 voltage / fuel-trim"
     },
     {
       "id": "17",
       "name": "O2 Sensor Bank 1 Sensor 4",
-      "length": 1,
+      "length": 2,
       "decoder": "bitfield",
       "description": "Bank 1 sensor 4 voltage / fuel-trim"
     },
     {
       "id": "18",
       "name": "O2 Sensor Bank 2 Sensor 1",
-      "length": 1,
+      "length": 2,
       "decoder": "bitfield",
       "description": "Bank 2 sensor 1 voltage / fuel-trim"
     },
     {
       "id": "19",
       "name": "O2 Sensor Bank 2 Sensor 2",
-      "length": 1,
+      "length": 2,
       "decoder": "bitfield",
       "description": "Bank 2 sensor 2 voltage / fuel-trim"
     },
     {
       "id": "1A",
       "name": "O2 Sensor Bank 2 Sensor 3",
-      "length": 1,
+      "length": 2,
       "decoder": "bitfield",
       "description": "Bank 2 sensor 3 voltage / fuel-trim"
     },
     {
       "id": "1B",
       "name": "O2 Sensor Bank 2 Sensor 4",
-      "length": 1,
+      "length": 2,
       "decoder": "bitfield",
       "description": "Bank 2 sensor 4 voltage / fuel-trim"
     },
@@ -278,6 +278,62 @@
       "description": "Fuel rail gauge pressure ((256*A + B) * 10) kPa"
     },
     {
+      "id": "24",
+      "name": "O2 Sensor 1 Wide Range Equivalence Ratio / Voltage",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "Fields: Lambda value, Equivalence Ratio Bank 1, Sensor 1; Wide Range O2S Voltage, O2 Sensor Bank 1, Sensor 1 [V]"
+    },
+    {
+      "id": "25",
+      "name": "O2 Sensor 2 Wide Range Equivalence Ratio / Voltage",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "Fields: Lambda value, Equivalence Ratio Bank 1, Sensor 2; Wide Range O2S Voltage, O2 Sensor Bank 1, Sensor 2 [V]"
+    },
+    {
+      "id": "26",
+      "name": "O2 Sensor 3 Wide Range Equivalence Ratio / Voltage",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "Fields: Lambda value, Equivalence Ratio Bank 1, Sensor 3; Wide Range O2S Voltage, O2 Sensor Bank 1, Sensor 3 [V]"
+    },
+    {
+      "id": "27",
+      "name": "O2 Sensor 4 Wide Range Equivalence Ratio / Voltage",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "Fields: Lambda value, Equivalence Ratio Bank 1, Sensor 4; Wide Range O2S Voltage, O2 Sensor Bank 1, Sensor 4 [V]"
+    },
+    {
+      "id": "28",
+      "name": "O2 Sensor 5 Wide Range Equivalence Ratio / Voltage",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "Fields: Lambda value, Equivalence Ratio Bank 2, Sensor 1; Wide Range O2S Voltage, O2 Sensor Bank 2, Sensor 1 [V]"
+    },
+    {
+      "id": "29",
+      "name": "O2 Sensor 6 Wide Range Equivalence Ratio / Voltage",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "Fields: Lambda value, Equivalence Ratio Bank 2, Sensor 2; Wide Range O2S Voltage, O2 Sensor Bank 2, Sensor 2 [V]"
+    },
+    {
+      "id": "2A",
+      "name": "O2 Sensor 7 Wide Range Equivalence Ratio / Voltage",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "Fields: Lambda value, Equivalence Ratio Bank 2, Sensor 3; Wide Range O2S Voltage, O2 Sensor Bank 2, Sensor 3 [V]"
+    },
+    {
+      "id": "2B",
+      "name": "O2 Sensor 8 Wide Range Equivalence Ratio / Voltage",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "Fields: Lambda value, Equivalence Ratio Bank 2, Sensor 4; Wide Range O2S Voltage, O2 Sensor Bank 2, Sensor 4 [V]"
+    },
+    {
       "id": "2C",
       "name": "Commanded EGR",
       "length": 1,
@@ -330,12 +386,75 @@
       "description": "Distance since DTCs cleared (256*A + B) km"
     },
     {
+      "id": "32",
+      "name": "Evap System Vapor Pressure",
+      "length": 2,
+      "decoder": "bitfield",
+      "description": "Fields: Evap system vapor pressure [kPa]"
+    },
+    {
       "id": "33",
       "name": "Absolute Barometric Pressure",
       "length": 1,
       "unit": "kPa",
       "decoder": "linear",
       "description": "Absolute barometric pressure (A kPa)"
+    },
+    {
+      "id": "34",
+      "name": "O2 Sensor 1 Wide Range Equivalence Ratio / Current",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "Fields: Lambda value, Equivalence Ratio Bank 1, Sensor 1; Wide Range O2S Current, O2 Sensor Bank 1, Sensor 1 [mA]"
+    },
+    {
+      "id": "35",
+      "name": "O2 Sensor 2 Wide Range Equivalence Ratio / Current",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "Fields: Lambda value, Equivalence Ratio Bank 1, Sensor 2; Wide Range O2S Current, O2 Sensor Bank 1, Sensor 2 [mA]"
+    },
+    {
+      "id": "36",
+      "name": "O2 Sensor 3 Wide Range Equivalence Ratio / Current",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "Fields: Lambda value, Equivalence Ratio Bank 1, Sensor 3; Wide Range O2S Current, O2 Sensor Bank 1, Sensor 3 [mA]"
+    },
+    {
+      "id": "37",
+      "name": "O2 Sensor 4 Wide Range Equivalence Ratio / Current",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "Fields: Lambda value, Equivalence Ratio Bank 1, Sensor 4; Wide Range O2S Current, O2 Sensor Bank 1, Sensor 4 [mA]"
+    },
+    {
+      "id": "38",
+      "name": "O2 Sensor 5 Wide Range Equivalence Ratio / Current",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "Fields: Lambda value, Equivalence Ratio Bank 2, Sensor 1; Wide Range O2S Current, O2 Sensor Bank 2, Sensor 1 [mA]"
+    },
+    {
+      "id": "39",
+      "name": "O2 Sensor 6 Wide Range Equivalence Ratio / Current",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "Fields: Lambda value, Equivalence Ratio Bank 2, Sensor 2; Wide Range O2S Current, O2 Sensor Bank 2, Sensor 2 [mA]"
+    },
+    {
+      "id": "3A",
+      "name": "O2 Sensor 7 Wide Range Equivalence Ratio / Current",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "Fields: Lambda value, Equivalence Ratio Bank 2, Sensor 3; Wide Range O2S Current, O2 Sensor Bank 2, Sensor 3 [mA]"
+    },
+    {
+      "id": "3B",
+      "name": "O2 Sensor 8 Wide Range Equivalence Ratio / Current",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "Fields: Lambda value, Equivalence Ratio Bank 2, Sensor 4; Wide Range O2S Current, O2 Sensor Bank 2, Sensor 4 [mA]"
     },
     {
       "id": "3C",
@@ -376,6 +495,13 @@
       "scale": 0.1,
       "offset": -40,
       "description": "Catalyst temperature B2S2"
+    },
+    {
+      "id": "41",
+      "name": "Monitor Status This Drive Cycle",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "Fields: Comprehensive component monitoring completed; Fuel system monitoring completed; Misfire monitoring completed; Comprehensive component monitoring enabled; Fuel system monitoring enabled; Misfire monitoring enabled; EGR system monitoring; Oxygen sensor heater monitoring; …"
     },
     {
       "id": "42",
@@ -422,6 +548,56 @@
       "description": "Ambient air temperature (A - 40)"
     },
     {
+      "id": "47",
+      "name": "Absolute Throttle Position B",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.3921568627,
+      "max": 100,
+      "description": "Absolute throttle position B"
+    },
+    {
+      "id": "48",
+      "name": "Absolute Throttle Position C",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.3921568627,
+      "max": 100,
+      "description": "Absolute throttle position C"
+    },
+    {
+      "id": "49",
+      "name": "Accelerator Pedal Position D",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.3921568627,
+      "max": 100,
+      "description": "Accelerator pedal position D"
+    },
+    {
+      "id": "4A",
+      "name": "Accelerator Pedal Position E",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.3921568627,
+      "max": 100,
+      "description": "Accelerator pedal position E"
+    },
+    {
+      "id": "4B",
+      "name": "Accelerator Pedal Position F",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.3921568627,
+      "max": 100,
+      "description": "Accelerator pedal position F"
+    },
+    {
       "id": "4C",
       "name": "Commanded Throttle Actuator",
       "length": 1,
@@ -447,6 +623,23 @@
       "description": "Time since DTCs cleared (256*A + B) min"
     },
     {
+      "id": "4F",
+      "name": "Maximum Values: Equivalence Ratio, O2 Voltage, O2 Current, MAP",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "Fields: Maximum value for equivalence ratio; Maximum value for oxygen sensor voltage [V]; Maximum value for oxygen sensor current [mA]; Maximum value for intake manifold absolute pressure (MAP) [kPa]"
+    },
+    {
+      "id": "50",
+      "name": "Maximum Mass Air Flow Rate",
+      "length": 1,
+      "unit": "g/s",
+      "decoder": "linear",
+      "scale": 10,
+      "max": 2550,
+      "description": "Maximum value for air flow rate from mass air flow sensor"
+    },
+    {
       "id": "51",
       "name": "Fuel Type",
       "length": 1,
@@ -461,6 +654,81 @@
       "decoder": "linear",
       "scale": 0.39215686,
       "description": "Ethanol fuel percentage (A/255 * 100)"
+    },
+    {
+      "id": "53",
+      "name": "Absolute Evap System Vapor Pressure",
+      "length": 2,
+      "unit": "kPa",
+      "decoder": "linear",
+      "scale": 0.005,
+      "max": 327.675,
+      "description": "Normally obtained from a sensor located in the fuel tank or a sensor in an evaporative system vapor line"
+    },
+    {
+      "id": "54",
+      "name": "Evap System Vapor Pressure (wide)",
+      "length": 2,
+      "decoder": "bitfield",
+      "description": "Fields: Evap system vapor pressure (wide) [kPa]"
+    },
+    {
+      "id": "55",
+      "name": "Short Term Secondary O2 Sensor Fuel Trim (bank 1)",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.78125,
+      "offset": -100,
+      "min": -100,
+      "max": 99.22,
+      "description": "Short term secondary O2 sensor fuel trim (bank 1)"
+    },
+    {
+      "id": "56",
+      "name": "Long Term Secondary O2 Sensor Fuel Trim (bank 1)",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.78125,
+      "offset": -100,
+      "min": -100,
+      "max": 99.22,
+      "description": "Long term secondary O2 sensor fuel trim (bank 1)"
+    },
+    {
+      "id": "57",
+      "name": "Short Term Secondary O2 Sensor Fuel Trim (bank 2)",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.78125,
+      "offset": -100,
+      "min": -100,
+      "max": 99.22,
+      "description": "Short term secondary O2 sensor fuel trim (bank 2)"
+    },
+    {
+      "id": "58",
+      "name": "Long Term Secondary O2 Sensor Fuel Trim (bank 2)",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.78125,
+      "offset": -100,
+      "min": -100,
+      "max": 99.22,
+      "description": "Long term secondary O2 sensor fuel trim (bank 2)"
+    },
+    {
+      "id": "59",
+      "name": "Fuel Rail Pressure (absolute)",
+      "length": 2,
+      "unit": "kPa",
+      "decoder": "linear",
+      "scale": 10,
+      "max": 655350,
+      "description": "Fuel rail pressure at the engine when the reading is absolute (referenced to vacuum)"
     },
     {
       "id": "5A",
@@ -509,6 +777,13 @@
       "description": "Engine fuel rate (((256*A + B) / 20)) L/h"
     },
     {
+      "id": "5F",
+      "name": "Emission Requirements to Which Vehicle is Designed",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "Fields: Emission requirements to which vehicle is designed"
+    },
+    {
       "id": "61",
       "name": "Demanded Engine Torque",
       "length": 1,
@@ -537,111 +812,432 @@
     {
       "id": "64",
       "name": "Engine Percent Torque Data",
-      "length": 1,
+      "length": 5,
       "decoder": "bitfield",
       "description": "Engine percent torque data (5 bytes: idle / point1..4)"
     },
     {
-      "id": "66",
-      "name": "Mass Air Flow Sensor B",
+      "id": "65",
+      "name": "Auxiliary Input / Output Supported",
       "length": 2,
-      "unit": "g/s",
-      "decoder": "linear",
-      "scale": 0.03125,
-      "description": "MAF sensor B / dual-MAF systems (g/s, 0.03125 scale)"
+      "decoder": "bitfield",
+      "description": "Fields: Recommended gear; Glow plug lamp status; Manual Trans Neutral Gear Status; Auto Trans Neutral Drive Status; Power Take Off (PTO) Output Status"
+    },
+    {
+      "id": "66",
+      "name": "Mass Air Flow Sensor A / B",
+      "length": 5,
+      "decoder": "bitfield",
+      "description": "Fields: Mass Air Flow Sensor A [g/s]; Mass Air Flow Sensor B [g/s]"
     },
     {
       "id": "67",
       "name": "Engine Coolant Temperature Alt",
-      "length": 1,
+      "length": 3,
       "decoder": "bitfield",
       "description": "Engine coolant temperature, sensor 1 / 2 (alt encoding)"
     },
     {
       "id": "68",
       "name": "Intake Air Temperature Sensor",
-      "length": 1,
+      "length": 7,
       "decoder": "bitfield",
       "description": "Intake air temperature, sensor 1 / 2"
     },
     {
+      "id": "69",
+      "name": "Commanded / Actual EGR and EGR Error",
+      "length": 7,
+      "decoder": "bitfield",
+      "description": "Fields: Commanded EGR A duty cycle/position [%]; Actual EGR A duty cycle/position [%]; EGR A error [%]; Commanded EGR B duty cycle/position [%]; Actual EGR B duty cycle/position [%]; EGR B error [%]"
+    },
+    {
+      "id": "6A",
+      "name": "Commanded Diesel Intake Air Flow Control",
+      "length": 5,
+      "decoder": "bitfield",
+      "description": "Fields: Commanded intake air flow A control [%]; Relative intake air flow A position [%]; Commanded intake air flow B control [%]; Relative intake air flow B position [%]"
+    },
+    {
       "id": "6B",
       "name": "Exhaust Gas Recirc Temperature",
-      "length": 1,
+      "length": 5,
       "decoder": "bitfield",
       "description": "Exhaust gas recirculation temperature"
     },
     {
+      "id": "6C",
+      "name": "Commanded Throttle Actuator Control and Relative Throttle Position",
+      "length": 5,
+      "decoder": "bitfield",
+      "description": "Fields: Commanded Throttle Actuator A Control [%]; Relative Throttle A Position [%]; Commanded Throttle Actuator B Control [%]; Relative Throttle B Position [%]"
+    },
+    {
+      "id": "6D",
+      "name": "Fuel Pressure Control System",
+      "length": 11,
+      "decoder": "bitfield",
+      "description": "Fields: Commanded Fuel Rail Pressure A [kPa]; Fuel Rail Pressure A [kPa]; Fuel Rail Temperature A [°C]; Commanded Fuel Rail Pressure B [kPa]; Fuel Rail Pressure B [kPa]; Fuel Rail Temperature B [°C]"
+    },
+    {
+      "id": "6E",
+      "name": "Injection Pressure Control System",
+      "length": 9,
+      "decoder": "bitfield",
+      "description": "Fields: Commanded injection control pressure A [kPa]; Injection control pressure A [kPa]; Commanded injection control pressure B [kPa]; Injection control pressure B [kPa]"
+    },
+    {
       "id": "70",
       "name": "Boost Pressure Control",
-      "length": 1,
+      "length": 10,
       "decoder": "bitfield",
       "description": "Boost pressure control"
     },
     {
       "id": "71",
       "name": "Vgt Control",
-      "length": 1,
+      "length": 6,
       "decoder": "bitfield",
       "description": "Variable geometry turbo (VGT) control"
     },
     {
+      "id": "72",
+      "name": "Wastegate Control",
+      "length": 5,
+      "decoder": "bitfield",
+      "description": "Fields: Commanded wastegate A position [%]; Wastegate A position [%]; Commanded wastegate B position [%]; Wastegate B position [%]"
+    },
+    {
       "id": "73",
       "name": "Exhaust Pressure",
-      "length": 1,
+      "length": 5,
       "decoder": "bitfield",
       "description": "Exhaust pressure (sensor 1 / 2)"
     },
     {
+      "id": "74",
+      "name": "Turbocharger RPM",
+      "length": 5,
+      "decoder": "bitfield",
+      "description": "Fields: Turbocharger A speed [rpm]; Turbocharger B speed [rpm]"
+    },
+    {
+      "id": "75",
+      "name": "Turbocharger A Temperature",
+      "length": 7,
+      "decoder": "bitfield",
+      "description": "Fields: Turbocharger A compressor inlet temperature [°C]; Turbocharger A compressor outlet temperature [°C]; Turbocharger A turbine inlet temperature [°C]; Turbocharger A turbine outlet temperature [°C]"
+    },
+    {
+      "id": "76",
+      "name": "Turbocharger B Temperature",
+      "length": 7,
+      "decoder": "bitfield",
+      "description": "Fields: Turbocharger B compressor inlet temperature [°C]; Turbocharger B compressor outlet temperature [°C]; Turbocharger B turbine inlet temperature [°C]; Turbocharger B turbine outlet temperature [°C]"
+    },
+    {
+      "id": "77",
+      "name": "Charge Air Cooler Temperature",
+      "length": 5,
+      "decoder": "bitfield",
+      "description": "Fields: Charge air cooler temperature bank 1, sensor 1 [°C]; Charge air cooler temperature bank 1, sensor 2 [°C]; Charge air cooler temperature bank 2, sensor 1 [°C]; Charge air cooler temperature bank 2, sensor 2 [°C]"
+    },
+    {
       "id": "78",
       "name": "EGT Bank 1",
-      "length": 1,
+      "length": 9,
       "decoder": "bitfield",
       "description": "Exhaust gas temperature, bank 1 (4 sensors)"
     },
     {
       "id": "79",
       "name": "EGT Bank 2",
-      "length": 1,
+      "length": 9,
       "decoder": "bitfield",
       "description": "Exhaust gas temperature, bank 2 (4 sensors)"
     },
     {
+      "id": "7A",
+      "name": "Diesel Particulate Filter Bank 1 Pressure",
+      "length": 7,
+      "decoder": "bitfield",
+      "description": "Fields: Particulate filter bank 1 delta pressure [kPa]; Particulate filter bank 1 inlet pressure [kPa]; Particulate filter bank 1 outlet pressure [kPa]"
+    },
+    {
+      "id": "7B",
+      "name": "Diesel Particulate Filter Bank 2 Pressure",
+      "length": 7,
+      "decoder": "bitfield",
+      "description": "Fields: Particulate filter bank 2 delta pressure [kPa]; Particulate filter bank 2 inlet pressure [kPa]; Particulate filter bank 2 outlet pressure [kPa]"
+    },
+    {
+      "id": "7C",
+      "name": "Diesel Particulate Filter Temperature",
+      "length": 9,
+      "decoder": "bitfield",
+      "description": "Fields: Particulate filter bank 1 inlet temperature [°C]; Particulate filter bank 1 outlet temperature [°C]; Particulate filter bank 2 inlet temperature [°C]; Particulate filter bank 2 outlet temperature [°C]"
+    },
+    {
       "id": "7E",
-      "name": "Engine Run Time With MIL On",
-      "length": 2,
-      "unit": "min",
-      "decoder": "linear",
-      "description": "Engine run time while MIL on (minutes)"
+      "name": "NTE Control Area Status (Diesel)",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "Fields: NTE deficiency for PM active area; Inside manufacturer-specific PM NTE carve-out area; Outside PM control area; Inside PM control area"
     },
     {
       "id": "7F",
       "name": "Engine Run Time",
-      "length": 1,
+      "length": 13,
       "decoder": "bitfield",
       "description": "Engine run time (5-byte block: total / total since codes cleared)"
     },
     {
+      "id": "81",
+      "name": "Engine Run Time for AECD #1-#5",
+      "length": 41,
+      "decoder": "bitfield",
+      "description": "Fields: Total run time with EI-AECD #1 timer 1 active [s]; Total run time with EI-AECD #1 timer 2 active [s]; Total run time with EI-AECD #2 timer 1 active [s]; Total run time with EI-AECD #2 timer 2 active [s]; Total run time with EI-AECD #3 timer 1 active [s]; Total run time with EI-AECD #3 timer 2 active [s]; Total run time with EI-AECD #4 timer 1 active [s]; Total run time with EI-AECD #4 timer 2 active [s]; …"
+    },
+    {
+      "id": "82",
+      "name": "Engine Run Time for AECD #6-#10",
+      "length": 41,
+      "decoder": "bitfield",
+      "description": "Fields: Total run time with EI-AECD #6 timer 1 active [s]; Total run time with EI-AECD #6 timer 2 active [s]; Total run time with EI-AECD #7 timer 1 active [s]; Total run time with EI-AECD #7 timer 2 active [s]; Total run time with EI-AECD #8 timer 1 active [s]; Total run time with EI-AECD #8 timer 2 active [s]; Total run time with EI-AECD #9 timer 1 active [s]; Total run time with EI-AECD #9 timer 2 active [s]; …"
+    },
+    {
       "id": "83",
-      "name": "NOx Sensor",
-      "length": 2,
-      "unit": "ppm",
+      "name": "NOx Sensor Concentration",
+      "length": 9,
+      "decoder": "bitfield",
+      "description": "Fields: NOx concentration bank 1, sensor 1; NOx concentration bank 1, sensor 2; NOx concentration bank 2, sensor 1; NOx concentration bank 2, sensor 2"
+    },
+    {
+      "id": "84",
+      "name": "Manifold Surface Temperature",
+      "length": 1,
+      "unit": "°C",
       "decoder": "linear",
-      "description": "NOx sensor reading (256*A + B) ppm"
+      "offset": -40,
+      "min": -40,
+      "max": 215,
+      "description": "Manifold surface temperature"
+    },
+    {
+      "id": "85",
+      "name": "NOx Reagent System",
+      "length": 10,
+      "decoder": "bitfield",
+      "description": "Fields: Average reagent consumption [L/h]; Average demanded reagent consumption [L/h]; Reagent tank level [%]; Run time with NOx warning active [s]"
+    },
+    {
+      "id": "86",
+      "name": "Particulate Matter (PM) Sensor",
+      "length": 5,
+      "decoder": "bitfield",
+      "description": "Fields: PM mass concentration bank 1, sensor 1; PM mass concentration bank 2, sensor 1"
+    },
+    {
+      "id": "88",
+      "name": "SCR Inducement System",
+      "length": 13,
+      "decoder": "bitfield",
+      "description": "Fields: SCR inducement system active; SCR inducement for NOx emissions too high; SCR inducement for reagent consumption deviation; SCR inducement for incorrect reagent; SCR inducement for reagent level too low; SCR inducement for NOx emissions too high in the 10,000-20,000 km history block; SCR inducement for reagent consumption deviation in the 10,000-20,000 km history block; SCR inducement for incorrect reagent in the 10,000-20,000 km history block; …"
+    },
+    {
+      "id": "89",
+      "name": "Engine Run Time for AECD #11-#15",
+      "length": 41,
+      "decoder": "bitfield",
+      "description": "Fields: Total run time with EI-AECD #11 timer 1 active [s]; Total run time with EI-AECD #11 timer 2 active [s]; Total run time with EI-AECD #12 timer 1 active [s]; Total run time with EI-AECD #12 timer 2 active [s]; Total run time with EI-AECD #13 timer 1 active [s]; Total run time with EI-AECD #13 timer 2 active [s]; Total run time with EI-AECD #14 timer 1 active [s]; Total run time with EI-AECD #14 timer 2 active [s]; …"
+    },
+    {
+      "id": "8A",
+      "name": "Engine Run Time for AECD #16-#20",
+      "length": 41,
+      "decoder": "bitfield",
+      "description": "Fields: Total run time with EI-AECD #16 timer 1 active [s]; Total run time with EI-AECD #16 timer 2 active [s]; Total run time with EI-AECD #17 timer 1 active [s]; Total run time with EI-AECD #17 timer 2 active [s]; Total run time with EI-AECD #18 timer 1 active [s]; Total run time with EI-AECD #18 timer 2 active [s]; Total run time with EI-AECD #19 timer 1 active [s]; Total run time with EI-AECD #19 timer 2 active [s]; …"
+    },
+    {
+      "id": "8B",
+      "name": "Diesel Aftertreatment Status",
+      "length": 7,
+      "decoder": "bitfield",
+      "description": "Fields: NOx adsorber desulfurization in progress; NOx adsorber regen in progress; Particulate filter regen in progress; Normalized trigger for particulate filter regen [%]; Average time between particulate filter regens [min]; Average distance between particulate filter regens [km]; Particulate filter regen type"
+    },
+    {
+      "id": "8C",
+      "name": "O2 Sensor (Wide Range) Concentration Sensors 1-2",
+      "length": 17,
+      "decoder": "bitfield",
+      "description": "Fields: O2 concentration bank 1, sensor 1 [%]; O2 concentration bank 1, sensor 2 [%]; O2 concentration bank 2, sensor 1 [%]; O2 concentration bank 2, sensor 2 [%]; O2 sensor lambda bank 1, sensor 1; O2 sensor lambda bank 1, sensor 2; O2 sensor lambda bank 2, sensor 1; O2 sensor lambda bank 2, sensor 2"
+    },
+    {
+      "id": "8D",
+      "name": "Absolute Throttle Position G",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.3921568627,
+      "max": 100,
+      "description": "Absolute Throttle Position G"
+    },
+    {
+      "id": "8E",
+      "name": "Engine Friction - Percent Torque",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "offset": -125,
+      "min": -125,
+      "max": 130,
+      "description": "Engine Friction - Percent Torque"
+    },
+    {
+      "id": "8F",
+      "name": "PM Sensor Output",
+      "length": 7,
+      "decoder": "bitfield",
+      "description": "Fields: PM sensor bank 1, sensor 1 regenerating; PM sensor bank 1, sensor 1 measuring; PM sensor normalized output bank 1, sensor 1 [%]; PM sensor bank 2, sensor 1 regenerating; PM sensor bank 2, sensor 1 measuring; PM sensor normalized output bank 2, sensor 1 [%]"
+    },
+    {
+      "id": "90",
+      "name": "WWH-OBD Vehicle OBD System Information",
+      "length": 3,
+      "decoder": "bitfield",
+      "description": "Fields: Engine hours with the continuous MI active [h]; Emission system readiness; Vehicle malfunction indicator status; MI display strategy"
+    },
+    {
+      "id": "91",
+      "name": "WWH-OBD ECU OBD System Information",
+      "length": 5,
+      "decoder": "bitfield",
+      "description": "Fields: ECU engine hours with the continuous MI active [h]; Highest ECU class B1 malfunction counter [h]; ECU malfunction indicator status"
+    },
+    {
+      "id": "92",
+      "name": "Fuel System Control",
+      "length": 2,
+      "decoder": "bitfield",
+      "description": "Fields: Idle fuel balance control 2 in closed loop; Fuel injection timing control 2 in closed loop; Fuel injection quantity control 2 in closed loop; Fuel pressure control 2 in closed loop; Idle fuel balance control 1 in closed loop; Fuel injection timing control 1 in closed loop; Fuel injection quantity control 1 in closed loop; Fuel pressure control 1 in closed loop"
+    },
+    {
+      "id": "93",
+      "name": "WWH-OBD Vehicle OBD Counters Support",
+      "length": 3,
+      "decoder": "bitfield",
+      "description": "Fields: Cumulative engine hours with the continuous MI active [h]"
+    },
+    {
+      "id": "94",
+      "name": "NOx Warning and Inducement System",
+      "length": 12,
+      "decoder": "bitfield",
+      "description": "Fields: NOx warning system active; Engine hours with incorrect reagent quality [h]; Engine hours with incorrect reagent consumption [h]; Engine hours with reagent dosing interrupted [h]; Engine hours with an impeded EGR valve [h]; Engine hours with a NOx control monitoring system fault [h]; Level three inducement status; Level two inducement status; …"
+    },
+    {
+      "id": "95",
+      "name": "SCR Catalyst NH3 Storage",
+      "length": 9,
+      "decoder": "bitfield",
+      "description": "Fields: Target SCR catalyst A NH3 storage [g/L]; Actual SCR catalyst A NH3 storage [g/L]; Target SCR catalyst B NH3 storage [g/L]; Actual SCR catalyst B NH3 storage [g/L]"
+    },
+    {
+      "id": "96",
+      "name": "Hydrocarbon Doser",
+      "length": 6,
+      "decoder": "bitfield",
+      "description": "Fields: Hydrocarbon doser flow rate [g/s]; Hydrocarbon doser injector duty cycle [%]; Aftertreatment fuel pressure [kPa]"
+    },
+    {
+      "id": "97",
+      "name": "NOx Mass Emission Rate",
+      "length": 5,
+      "decoder": "bitfield",
+      "description": "Fields: Engine-out NOx mass emission rate [g/s]; Tailpipe NOx mass emission rate [g/s]"
     },
     {
       "id": "9A",
       "name": "Hybrid EV Vehicle System Data",
-      "length": 1,
+      "length": 6,
       "decoder": "bitfield",
       "description": "Hybrid/EV vehicle system data (battery / voltage / temperature)"
     },
     {
       "id": "9B",
       "name": "Diesel Aftertreatment",
-      "length": 1,
+      "length": 4,
       "decoder": "bitfield",
       "description": "Diesel after-treatment status (DPF, urea)"
+    },
+    {
+      "id": "9C",
+      "name": "O2 Sensor (Wide Range) Concentration Sensors 3-4",
+      "length": 17,
+      "decoder": "bitfield",
+      "description": "Fields: O2 concentration bank 1, sensor 3 [%]; O2 concentration bank 1, sensor 4 [%]; O2 concentration bank 2, sensor 3 [%]; O2 concentration bank 2, sensor 4 [%]; O2 sensor lambda bank 1, sensor 3; O2 sensor lambda bank 1, sensor 4; O2 sensor lambda bank 2, sensor 3; O2 sensor lambda bank 2, sensor 4"
+    },
+    {
+      "id": "9D",
+      "name": "Engine Fuel Rate (Alternate) / Vehicle Fuel Rate",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "Fields: Engine fuel rate (alternate) [g/s]; Vehicle fuel rate [g/s]"
+    },
+    {
+      "id": "9E",
+      "name": "Engine Exhaust Flow Rate",
+      "length": 2,
+      "unit": "kg/h",
+      "decoder": "linear",
+      "scale": 0.2,
+      "max": 13107,
+      "description": "Engine exhaust flow rate"
+    },
+    {
+      "id": "9F",
+      "name": "Fuel System Percentage Use",
+      "length": 9,
+      "decoder": "bitfield",
+      "description": "Fields: Fuel system A use percentage bank 1 [%]; Fuel system B use percentage bank 1 [%]; Fuel system A use percentage bank 2 [%]; Fuel system B use percentage bank 2 [%]; Fuel system A use percentage bank 3 [%]; Fuel system B use percentage bank 3 [%]; Fuel system A use percentage bank 4 [%]; Fuel system B use percentage bank 4 [%]"
+    },
+    {
+      "id": "A1",
+      "name": "NOx Sensor Corrected Data",
+      "length": 9,
+      "decoder": "bitfield",
+      "description": "Fields: Corrected NOx concentration bank 1, sensor 1; Corrected NOx concentration bank 1, sensor 2; Corrected NOx concentration bank 2, sensor 1; Corrected NOx concentration bank 2, sensor 2"
+    },
+    {
+      "id": "A2",
+      "name": "Cylinder Fuel Rate",
+      "length": 2,
+      "unit": "mg/stroke",
+      "decoder": "linear",
+      "scale": 0.03125,
+      "max": 2047.96875,
+      "description": "Cylinder fuel rate"
+    },
+    {
+      "id": "A3",
+      "name": "Evap System Vapor Pressure (Extended)",
+      "length": 9,
+      "decoder": "bitfield",
+      "description": "Fields: Evap system sealed; Evap system vapor pressure A [kPa]; Evap system vapor pressure A, wide range [kPa]; Evap system vapor pressure B [kPa]; Evap system vapor pressure B, wide range [kPa]"
+    },
+    {
+      "id": "A4",
+      "name": "Transmission Actual Gear",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "Fields: Transmission actual gear; Transmission actual gear ratio"
+    },
+    {
+      "id": "A5",
+      "name": "Commanded DEF Dosing",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "Fields: Commanded DEF dosing [%]; DEF used in the current driving cycle [L]"
     },
     {
       "id": "A6",
@@ -655,30 +1251,224 @@
     {
       "id": "A7",
       "name": "NOx Sensor Corrected",
-      "length": 1,
+      "length": 9,
       "decoder": "bitfield",
       "description": "NOx sensor corrected (4 sensors, ppm)"
     },
     {
-      "id": "AB",
-      "name": "NOx Sensor Alternative",
-      "length": 1,
+      "id": "A8",
+      "name": "NOx Sensor Corrected Data (Sensors 3-4)",
+      "length": 9,
       "decoder": "bitfield",
-      "description": "NOx sensor (alternative encoding) ppm"
+      "description": "Fields: Corrected NOx concentration bank 1, sensor 3; Corrected NOx concentration bank 1, sensor 4; Corrected NOx concentration bank 2, sensor 3; Corrected NOx concentration bank 2, sensor 4"
+    },
+    {
+      "id": "AA",
+      "name": "Maximum Current Vehicle Speed Limit",
+      "length": 1,
+      "unit": "km/h",
+      "decoder": "linear",
+      "max": 255,
+      "description": "Maximum current vehicle speed limit"
+    },
+    {
+      "id": "AB",
+      "name": "Alternative Fuel Rail Pressure / Temperature",
+      "length": 9,
+      "decoder": "bitfield",
+      "description": "Fields: Alternative fuel rail pressure [kPa]; Alternative fuel rail temperature [°C]; Alternative fuel tank pressure [kPa]; Alternative fuel tank pressure, wide range [kPa]; Alternative fuel tank temperature [°C]"
+    },
+    {
+      "id": "AC",
+      "name": "DEF Doser A Dosing Mode",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "Fields: DEF doser A dosing mode; DEF doser A maximum dosing rate [kg/h]"
+    },
+    {
+      "id": "AE",
+      "name": "Evap System Purge Pressure",
+      "length": 5,
+      "decoder": "bitfield",
+      "description": "Fields: Evap system purge pressure [kPa]; Evap system purge pressure, wide range [kPa]"
+    },
+    {
+      "id": "AF",
+      "name": "Commanded Fresh Air Flow",
+      "length": 2,
+      "unit": "kg/h",
+      "decoder": "linear",
+      "scale": 0.05,
+      "max": 3276.75,
+      "description": "Commanded fresh air flow"
+    },
+    {
+      "id": "B0",
+      "name": "EGR Mass Flow Rate",
+      "length": 5,
+      "decoder": "bitfield",
+      "description": "Fields: EGR mass flow rate A [kg/h]; EGR mass flow rate B [kg/h]"
+    },
+    {
+      "id": "B1",
+      "name": "Fuel System Status (Extended)",
+      "length": 6,
+      "decoder": "bitfield",
+      "description": "Fields: Fuel system bank 2 in open loop due to a malfunction; Fuel system bank 2 in closed loop; Fuel system bank 2 in open loop; Fuel system bank 1 in open loop due to a malfunction; Fuel system bank 1 in closed loop; Fuel system bank 1 in open loop; Short term fuel trim bank 1, compression ignition [%]; Long term fuel trim bank 1, compression ignition [%]; …"
+    },
+    {
+      "id": "B2",
+      "name": "Traction Battery Pack State of Health",
+      "length": 1,
+      "unit": "%",
+      "decoder": "linear",
+      "scale": 0.3921568627,
+      "max": 100,
+      "description": "Traction battery pack State of Health"
+    },
+    {
+      "id": "B3",
+      "name": "HV Battery Charge Rate",
+      "length": 19,
+      "decoder": "bitfield",
+      "description": "Fields: HV battery actual charge rate [kW]; HV battery pack A actual charge rate [kW]; HV battery pack B actual charge rate [kW]; HV battery pack C actual charge rate [kW]; HV battery pack D actual charge rate [kW]; HV battery pack E actual charge rate [kW]; HV battery pack F actual charge rate [kW]; HV battery pack G actual charge rate [kW]; …"
+    },
+    {
+      "id": "B4",
+      "name": "HV Battery Temperature",
+      "length": 10,
+      "decoder": "bitfield",
+      "description": "Fields: HV battery temperature [°C]; HV battery pack A temperature [°C]; HV battery pack B temperature [°C]; HV battery pack C temperature [°C]; HV battery pack D temperature [°C]; HV battery pack E temperature [°C]; HV battery pack F temperature [°C]; HV battery pack G temperature [°C]; …"
+    },
+    {
+      "id": "B5",
+      "name": "HV Battery Current",
+      "length": 19,
+      "decoder": "bitfield",
+      "description": "Fields: HV battery current [A]; HV battery pack A current [A]; HV battery pack B current [A]; HV battery pack C current [A]; HV battery pack D current [A]; HV battery pack E current [A]; HV battery pack F current [A]; HV battery pack G current [A]; …"
+    },
+    {
+      "id": "B6",
+      "name": "HV Battery Voltage",
+      "length": 19,
+      "decoder": "bitfield",
+      "description": "Fields: HV battery voltage [V]; HV battery pack A voltage [V]; HV battery pack B voltage [V]; HV battery pack C voltage [V]; HV battery pack D voltage [V]; HV battery pack E voltage [V]; HV battery pack F voltage [V]; HV battery pack G voltage [V]; …"
+    },
+    {
+      "id": "B7",
+      "name": "HV Battery Cell Temperatures",
+      "length": 7,
+      "decoder": "bitfield",
+      "description": "Fields: HV battery minimum cell temperature [°C]; HV battery maximum cell temperature [°C]; HV battery average cell temperature [°C]; HV battery bus bar temperature [°C]; HV battery coolant temperature [°C]; HV battery thermal state"
+    },
+    {
+      "id": "B8",
+      "name": "HV Battery Active Time since Cell Balancing",
+      "length": 2,
+      "unit": "min",
+      "decoder": "linear",
+      "max": 65535,
+      "description": "HV battery active time since cell balancing"
+    },
+    {
+      "id": "B9",
+      "name": "HV Battery Cell Voltage Min / Max",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "Fields: HV battery minimum cell voltage [V]; HV battery maximum cell voltage [V]"
+    },
+    {
+      "id": "BA",
+      "name": "HV Battery Power and Current Limits",
+      "length": 5,
+      "decoder": "bitfield",
+      "description": "Fields: HV battery continuous rated power available [%]; HV battery continuous charge current limit [A]; HV battery continuous discharge current limit [A]"
+    },
+    {
+      "id": "BB",
+      "name": "HV Battery Cumulative Energy In",
+      "length": 37,
+      "decoder": "bitfield",
+      "description": "Fields: HV battery cumulative energy in [kWh]; HV battery pack A cumulative energy in [kWh]; HV battery pack B cumulative energy in [kWh]; HV battery pack C cumulative energy in [kWh]; HV battery pack D cumulative energy in [kWh]; HV battery pack E cumulative energy in [kWh]; HV battery pack F cumulative energy in [kWh]; HV battery pack G cumulative energy in [kWh]; …"
+    },
+    {
+      "id": "BC",
+      "name": "HV Battery Cumulative Energy Out",
+      "length": 37,
+      "decoder": "bitfield",
+      "description": "Fields: HV battery cumulative energy out [kWh]; HV battery pack A cumulative energy out [kWh]; HV battery pack B cumulative energy out [kWh]; HV battery pack C cumulative energy out [kWh]; HV battery pack D cumulative energy out [kWh]; HV battery pack E cumulative energy out [kWh]; HV battery pack F cumulative energy out [kWh]; HV battery pack G cumulative energy out [kWh]; …"
+    },
+    {
+      "id": "BD",
+      "name": "HV Battery Total Energy Throughput",
+      "length": 37,
+      "decoder": "bitfield",
+      "description": "Fields: HV battery total energy throughput [kWh]; HV battery pack A total energy throughput [kWh]; HV battery pack B total energy throughput [kWh]; HV battery pack C total energy throughput [kWh]; HV battery pack D total energy throughput [kWh]; HV battery pack E total energy throughput [kWh]; HV battery pack F total energy throughput [kWh]; HV battery pack G total energy throughput [kWh]; …"
+    },
+    {
+      "id": "BE",
+      "name": "HV Battery State of Health",
+      "length": 10,
+      "decoder": "bitfield",
+      "description": "Fields: HV battery state of health [%]; HV battery pack A state of health [%]; HV battery pack B state of health [%]; HV battery pack C state of health [%]; HV battery pack D state of health [%]; HV battery pack E state of health [%]; HV battery pack F state of health [%]; HV battery pack G state of health [%]; …"
+    },
+    {
+      "id": "BF",
+      "name": "HV Battery Recommended Minimum State of Charge",
+      "length": 19,
+      "decoder": "bitfield",
+      "description": "Fields: HV battery recommended minimum state of charge [%]; HV battery pack A recommended minimum state of charge [%]; HV battery pack B recommended minimum state of charge [%]; HV battery pack C recommended minimum state of charge [%]; HV battery pack D recommended minimum state of charge [%]; HV battery pack E recommended minimum state of charge [%]; HV battery pack F recommended minimum state of charge [%]; HV battery pack G recommended minimum state of charge [%]; …"
+    },
+    {
+      "id": "C1",
+      "name": "HV Battery Recommended Maximum State of Charge",
+      "length": 19,
+      "decoder": "bitfield",
+      "description": "Fields: HV battery recommended maximum state of charge [%]; HV battery pack A recommended maximum state of charge [%]; HV battery pack B recommended maximum state of charge [%]; HV battery pack C recommended maximum state of charge [%]; HV battery pack D recommended maximum state of charge [%]; HV battery pack E recommended maximum state of charge [%]; HV battery pack F recommended maximum state of charge [%]; HV battery pack G recommended maximum state of charge [%]; …"
+    },
+    {
+      "id": "C2",
+      "name": "HV Battery Discharge Energy Capacity",
+      "length": 28,
+      "decoder": "bitfield",
+      "description": "Fields: HV battery discharge energy capacity [kWh]; HV battery pack A discharge energy capacity [kWh]; HV battery pack B discharge energy capacity [kWh]; HV battery pack C discharge energy capacity [kWh]; HV battery pack D discharge energy capacity [kWh]; HV battery pack E discharge energy capacity [kWh]; HV battery pack F discharge energy capacity [kWh]; HV battery pack G discharge energy capacity [kWh]; …"
     },
     {
       "id": "C3",
-      "name": "Supported Pids C1 E0",
-      "length": 1,
+      "name": "Fuel Level Input A / B",
+      "length": 3,
       "decoder": "bitfield",
-      "description": "PIDs supported in 0xC1-0xE0 (4-byte bitmask)"
+      "description": "Fields: Fuel level input A [%]; Fuel level input B [%]"
     },
     {
       "id": "C4",
-      "name": "Fuel Cetane Rating",
-      "length": 1,
+      "name": "Exhaust Particulate Control Diagnostic Time / Count",
+      "length": 8,
+      "decoder": "bitfield",
+      "description": "Fields: Exhaust particulate control diagnostic time [s]; Exhaust particulate control diagnostic count"
+    },
+    {
+      "id": "C5",
+      "name": "Low-Pressure Fuel Pressure",
+      "length": 5,
+      "decoder": "bitfield",
+      "description": "Fields: Low-pressure fuel pressure A [kPa]; Low-pressure fuel pressure B [kPa]"
+    },
+    {
+      "id": "C6",
+      "name": "Particulate Control and Warning System",
+      "length": 8,
+      "decoder": "bitfield",
+      "description": "Fields: Particulate warning system active; Engine hours with the particulate filter removed or blocked [h]; Engine hours with a liquid reagent injection system failure [h]; Engine hours with a particulate control monitoring system fault [h]; Particulate level three inducement status; Particulate level two inducement status; Particulate level one inducement status"
+    },
+    {
+      "id": "C7",
+      "name": "Distance since Module Reflash or Replacement",
+      "length": 2,
+      "unit": "km",
       "decoder": "linear",
-      "description": "Fuel cetane rating (diesel)"
+      "max": 65535,
+      "description": "Distance since module reflash or replacement"
     },
     {
       "id": "C8",
@@ -688,6 +1478,139 @@
       "decoder": "linear",
       "offset": -125,
       "description": "Engine friction — percent torque"
+    },
+    {
+      "id": "C9",
+      "name": "O2 Sensor (Wide Range) Concentration Sensors 5-6",
+      "length": 17,
+      "decoder": "bitfield",
+      "description": "Fields: O2 concentration bank 1, sensor 5 [%]; O2 concentration bank 1, sensor 6 [%]; O2 concentration bank 2, sensor 5 [%]; O2 concentration bank 2, sensor 6 [%]; O2 sensor lambda bank 1, sensor 5; O2 sensor lambda bank 1, sensor 6; O2 sensor lambda bank 2, sensor 5; O2 sensor lambda bank 2, sensor 6"
+    },
+    {
+      "id": "CB",
+      "name": "Exhaust Pressure Sensor 2",
+      "length": 5,
+      "decoder": "bitfield",
+      "description": "Fields: Exhaust pressure bank 1, sensor 2 [kPa]; Exhaust pressure bank 2, sensor 2 [kPa]"
+    },
+    {
+      "id": "CC",
+      "name": "Electric Motor Speed",
+      "length": 17,
+      "decoder": "bitfield",
+      "description": "Fields: Electric motor A speed [rpm]; Electric motor B speed [rpm]; Electric motor C speed [rpm]; Electric motor D speed [rpm]; Electric motor E speed [rpm]; Electric motor F speed [rpm]; Electric motor G speed [rpm]; Electric motor H speed [rpm]"
+    },
+    {
+      "id": "CD",
+      "name": "Electric Motor Torque",
+      "length": 17,
+      "decoder": "bitfield",
+      "description": "Fields: Electric motor A torque [Nm]; Electric motor B torque [Nm]; Electric motor C torque [Nm]; Electric motor D torque [Nm]; Electric motor E torque [Nm]; Electric motor F torque [Nm]; Electric motor G torque [Nm]; Electric motor H torque [Nm]"
+    },
+    {
+      "id": "CE",
+      "name": "Evap System Vapor Pressure C / D",
+      "length": 9,
+      "decoder": "bitfield",
+      "description": "Fields: Evap system vapor pressure C [kPa]; Evap system vapor pressure C, wide range [kPa]; Evap system vapor pressure D [kPa]; Evap system vapor pressure D, wide range [kPa]"
+    },
+    {
+      "id": "CF",
+      "name": "Catalyst Temperature A-D",
+      "length": 9,
+      "decoder": "bitfield",
+      "description": "Fields: Catalyst temperature A [°C]; Catalyst temperature B [°C]; Catalyst temperature C [°C]; Catalyst temperature D [°C]"
+    },
+    {
+      "id": "D0",
+      "name": "HV Battery Reserve Energy",
+      "length": 7,
+      "decoder": "bitfield",
+      "description": "Fields: Distance since state of health update [km]; HV battery remaining reserve energy [kWh]; HV battery initial reserve energy [kWh]"
+    },
+    {
+      "id": "D1",
+      "name": "HV Battery Charging Limit / Power",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "Fields: HV battery charging limit [kW]; HV battery charging power [kW]"
+    },
+    {
+      "id": "D2",
+      "name": "State of Certified Range / Energy",
+      "length": 3,
+      "decoder": "bitfield",
+      "description": "Fields: State of certified range supported; State of certified energy supported; State of certified energy [%]; State of certified range [%]"
+    },
+    {
+      "id": "D3",
+      "name": "Engine Odometer",
+      "length": 4,
+      "unit": "km",
+      "decoder": "linear",
+      "scale": 0.1,
+      "max": 429496729.5,
+      "description": "Engine odometer"
+    },
+    {
+      "id": "D4",
+      "name": "HV Battery Power over the Last Second",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "Fields: HV battery power over the last second [kW]"
+    },
+    {
+      "id": "D5",
+      "name": "Fuel Cell System Data",
+      "length": 11,
+      "decoder": "bitfield",
+      "description": "Fields: Fuel cell system voltage [V]; Fuel cell fuel consumption [g/s]; Fuel cell current over the last second [A]; Fuel cell power over the last second [kW]"
+    },
+    {
+      "id": "D6",
+      "name": "Propulsion System Active Trips since DTCs Cleared",
+      "length": 2,
+      "decoder": "linear",
+      "max": 65535,
+      "description": "Propulsion system active trips since DTCs cleared"
+    },
+    {
+      "id": "D7",
+      "name": "DEF Doser B Dosing",
+      "length": 5,
+      "decoder": "bitfield",
+      "description": "Fields: DEF doser B commanded dosing [%]; DEF doser B dosing mode; DEF doser B maximum dosing rate [kg/h]"
+    },
+    {
+      "id": "D8",
+      "name": "Battery Capacity Calculation",
+      "length": 1,
+      "decoder": "bitfield",
+      "description": "Fields: Battery capacity calculation"
+    },
+    {
+      "id": "D9",
+      "name": "HV Battery Calculated Usable Energy",
+      "length": 4,
+      "unit": "kWh",
+      "decoder": "linear",
+      "scale": 0.001,
+      "max": 4294967.295,
+      "description": "HV battery calculated usable energy"
+    },
+    {
+      "id": "DA",
+      "name": "HV Battery Current over the Last Second",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": "Fields: HV battery current over the last second [A]"
+    },
+    {
+      "id": "DC",
+      "name": "Engine Run Time for AECD #21-#25",
+      "length": 41,
+      "decoder": "bitfield",
+      "description": "Fields: Total run time with EI-AECD #21 timer 1 active [s]; Total run time with EI-AECD #21 timer 2 active [s]; Total run time with EI-AECD #22 timer 1 active [s]; Total run time with EI-AECD #22 timer 2 active [s]; Total run time with EI-AECD #23 timer 1 active [s]; Total run time with EI-AECD #23 timer 2 active [s]; Total run time with EI-AECD #24 timer 1 active [s]; Total run time with EI-AECD #24 timer 2 active [s]; …"
     }
   ]
 }

@@ -293,6 +293,7 @@
         <DCCReference Include="..\src\OEM\ERD.OEM.McLaren.pas"/>
         <DCCReference Include="..\src\OEM\ERD.OEM.Porsche.pas"/>
         <DCCReference Include="..\src\OEM\ERD.OEM.BYD.pas"/>
+        <DCCReference Include="..\src\OEM\ERD.OEM.CatalogBrands.pas"/>
         <DCCReference Include="..\src\OEM\ERD.OEM.Geely.pas"/>
         <DCCReference Include="..\src\OEM\ERD.OEM.GreatWall.pas"/>
         <DCCReference Include="..\src\OEM\ERD.OEM.NIO.pas"/>
