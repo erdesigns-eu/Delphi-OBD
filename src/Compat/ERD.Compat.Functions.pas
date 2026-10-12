@@ -1,7 +1,8 @@
 ﻿// ------------------------------------------------------------------------------
 // ERD.Compat.Functions
 // Managed function-reference signatures for Free Pascal 3.3.1 or later.
-// Author: ERDesigns and Delphi-OBD contributors
+// Author: Ernst Reidinga (ERDesigns)
+// Copyright: (c) 2024-2026 Ernst Reidinga (ERDesigns)
 // License: see LICENSE
 // ------------------------------------------------------------------------------
 unit ERD.Compat.Functions;

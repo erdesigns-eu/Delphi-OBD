@@ -5,7 +5,7 @@
 //  has a non-empty message and a Pascal-style identifier.
 //
 //  Author      : Ernst Reidinga (ERDesigns)
-//  Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
+//  Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
 //  License     : see LICENSE
 //
 //  History     :

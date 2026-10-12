@@ -6,10 +6,11 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for filing a bug. The more detail, the faster we can fix.
+        The more detail, the faster the bug can be fixed.
 
-        For security issues affecting flashing or signature verification,
-        do **not** file a public issue — see [SECURITY.md](../SECURITY.md).
+        Report security issues, especially in flashing or signature
+        verification, privately to ERDesigns at
+        [info@erdesigns.be](mailto:info@erdesigns.be) rather than in an issue.
 
   - type: textarea
     id: what-happened
@@ -43,7 +44,7 @@ body:
     id: delphi-version
     attributes:
       label: Delphi version
-      placeholder: "12 Athens / 11 Alexandria / 10.4 Sydney / 10.3 Rio"
+      placeholder: "13 Florence / 12 Athens / 11 Alexandria / 10.4 Sydney / 10.3 Rio"
     validations:
       required: true
 
@@ -51,7 +52,7 @@ body:
     id: package-version
     attributes:
       label: Delphi-OBD version
-      placeholder: "v2.0.0-alpha.X / commit hash"
+      placeholder: "3.0.0-alpha.0 / commit hash"
     validations:
       required: true
 

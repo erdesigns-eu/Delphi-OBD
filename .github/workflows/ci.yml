@@ -8,16 +8,15 @@
 #  default config below assumes self-hosted runners labelled
 #  'rad-studio-12', 'rad-studio-11', 'rad-studio-10.4', 'rad-studio-10.3'.
 #  The Windows-build job is gated off until a runner is wired up; the
-#  hygiene job runs on every push so style and JSON catalogues are
-#  validated from day one.
+#  hygiene, Python and FPC jobs run on every push and pull request.
 #-------------------------------------------------------------------------------
 name: CI
 
 on:
   push:
-    branches: [main, v2, 'v2/**', 'claude/v2-phase-1']
+    branches: [main]
   pull_request:
-    branches: [main, v2]
+    branches: [main]
   workflow_dispatch: {}
 
 permissions:
@@ -36,10 +35,11 @@ jobs:
       - name: File header presence on .pas files
         run: |
           set -e
-          # Every .pas file must begin with the standard header marker.
+          # Every .pas file must begin with the standard header marker
+          # (after the optional UTF-8 BOM): "// " followed by dashes.
           missing=""
           for f in $(find src tests -name '*.pas' 2>/dev/null); do
-            if ! head -1 "$f" | grep -q "^//-\{20,\}"; then
+            if ! head -1 "$f" | sed 's/^\xEF\xBB\xBF//' | grep -qE '^// ?-{20,}'; then
               missing="$missing\n$f"
             fi
           done
@@ -69,12 +69,14 @@ jobs:
         run: python3 -m pip install -r tools/requirements-validation.txt
       - name: Test catalogue and repository tooling
         run: python3 -m unittest discover -s tools -p 'test_*.py' -v
-      - name: Check generated EV support matrix and IDE resources
+      - name: Check generated documents and IDE resources
         run: |
           python3 tools/ev_support_matrix.py
+          python3 tools/catalog_index.py
           python3 tools/designtime_icons.py
           python3 tools/designtime_resources.py
           python3 tools/ui_icons.py
+          python3 tools/safety_guide.py
           python3 tools/validate_delphi_projects.py
       - name: Validate every catalog against its local schema
         run: python3 tools/validate_catalogs.py --require-coverage
@@ -107,9 +109,9 @@ jobs:
   build:
     name: Build & test (Delphi ${{ matrix.delphi }})
     needs: [guard]
-    # Phase 0: build matrix is configured but the job is gated off until
+    # The build matrix is configured but the job is gated off until
     # self-hosted Windows runners with RAD Studio are wired up. See
-    # packages/README.md for runner setup notes.
+    # packages/README.md for the runner requirements.
     if: false
     runs-on: [self-hosted, windows, 'rad-studio-${{ matrix.delphi }}']
     strategy:

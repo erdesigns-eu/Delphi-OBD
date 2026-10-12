@@ -2,7 +2,8 @@
 // ERD.Collections.ThreadedQueue
 // Bounded FIFO with per-operation timeouts on Delphi and FPC.
 // Owners must join all producers/consumers before destroying the queue.
-// Author: ERDesigns and Delphi-OBD contributors
+// Author: Ernst Reidinga (ERDesigns)
+// Copyright: (c) 2024-2026 Ernst Reidinga (ERDesigns)
 // License: see LICENSE
 // ------------------------------------------------------------------------------
 unit ERD.Collections.ThreadedQueue;

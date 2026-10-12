@@ -3,9 +3,13 @@
 //
 // TOBDFlashSafetyDlg — modal warning dialog shown by the
 // destructive component editors (Flasher, UDSTransfer,
-// FlashPipeline). Reminds the host of the safety contract
-// before they wire one of these onto a form, and offers to open
-// <c>docs/flashing-safety.md</c> in the host's default browser.
+// FlashPipeline) and by the pipeline validation report. Reminds
+// the host of the safety contract before they wire one of these
+// onto a form, and shows the full flashing safety guide below the
+// reminder. The guide text is compiled into the design-time
+// package (ERD.Design.SafetyGuide, generated from
+// <c>docs/flashing-safety.md</c>), so no browser or internet
+// connection is needed.
 //
 // This form is never registered on the palette — it is owned by
 // the design-time package and only constructed from a component
@@ -17,6 +21,8 @@
 //
 // History     :
 // 2026-05-10  ERD  Initial implementation.
+// 2026-10-12  ERD  Show the built-in safety guide in the dialog
+//                  instead of opening it online.
 // ------------------------------------------------------------------------------
 
 unit ERD.Design.Forms.FlashSafety;
@@ -41,17 +47,19 @@ uses
   Vcl.Imaging.PngImage;
 
 type
-  /// <summary>Modal flashing-safety reminder.</summary>
+  /// <summary>Modal flashing-safety reminder with the full, built-in
+  /// flashing safety guide.</summary>
   TOBDFlashSafetyDlg = class(TForm)
     pnlBody: TPanel;
     pnlButtons: TPanel;
     btnClose: TButton;
-    btnOpenGuide: TButton;
     lblWarning: TLabel;
-    procedure btnOpenGuideClick(Sender: TObject);
+    memGuide: TMemo;
+    procedure FormCreate(Sender: TObject);
   end;
 
-  /// <summary>Convenience launcher.</summary>
+  /// <summary>Show the flashing-safety reminder and the full safety
+  /// guide in a modal dialog.</summary>
 procedure ShowFlashSafetyDialog;
 
 implementation
@@ -59,14 +67,11 @@ implementation
 {$R *.dfm}
 
 uses
-  Winapi.ShellAPI,
-  Winapi.Windows;
+  ERD.Design.SafetyGuide;
 
-procedure TOBDFlashSafetyDlg.btnOpenGuideClick(Sender: TObject);
+procedure TOBDFlashSafetyDlg.FormCreate(Sender: TObject);
 begin
-  ShellExecute(Handle, 'open',
-    'https://github.com/erdesigns-eu/delphi-obd/blob/main/docs/flashing-safety.md',
-    nil, nil, SW_SHOWNORMAL);
+  memGuide.Lines.Text := OBDFlashSafetyGuideText;
 end;
 
 procedure ShowFlashSafetyDialog;

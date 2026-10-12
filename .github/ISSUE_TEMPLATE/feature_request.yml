@@ -6,9 +6,8 @@ body:
   - type: markdown
     attributes:
       value: |
-        Before opening, please skim [`PLAN.md`](../PLAN.md). If the feature
-        is already in scope for v1, tick the relevant box in your PR; if
-        it's a scope change, this issue is the right place to discuss it.
+        Check the [component reference](https://github.com/erdesigns-eu/Delphi-OBD/blob/main/docs/components.md) and the
+        [changelog](https://github.com/erdesigns-eu/Delphi-OBD/blob/main/CHANGELOG.md) first; the feature may already exist.
 
   - type: textarea
     id: problem
@@ -38,9 +37,10 @@ body:
     attributes:
       label: Scope impact
       options:
-        - "Within v1 scope (already in PLAN.md)"
-        - "Adds to v1 scope"
-        - "Post-1.0"
+        - "Extends an existing component"
+        - "New component"
+        - "Catalog / data addition"
+        - "Tooling / documentation"
         - "Not sure"
     validations:
       required: true

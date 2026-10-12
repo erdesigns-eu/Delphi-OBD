@@ -59,8 +59,9 @@ a SHA-256 known vector, checkpoint replacement/failure, DID wire parsing,
 partial and blocked stream writes, full-cursor flash recovery, block-counter wrap,
 EV catalog/decoder vectors, and real TLS certificate verification. A generated
 RSA signature is verified by the native OpenSSL signature driver and tampered
-messages are rejected. See [the high-priority report](high-priority-fixes-2026-10-08.md)
-for the tested cases and explicit hardware/Delphi limitations.
+messages are rejected. The smoke programs in `tools/fpc-smoke/` are the
+authoritative list of tested cases; hardware and Delphi behaviour are outside
+their scope.
 
 Async request start and joining an owned request worker require the main thread.
 Configure components before starting work; borrowed-protocol changes quiesce the
@@ -86,12 +87,17 @@ DM27 is `0xFD82`, DM28 is `0xFD80`; both now route separately. The unverified
 `J1939_PGN_DM32` alias of DM31 has been removed rather than advertising an
 incorrect standard identifier. Only the listed diagnostic messages are claimed.
 
-## Local validation, 2026-10-08
+## Local validation
 
-- 107 applicable static checkers: no findings, including hints.
-- Nine analyzer regression tests and twelve catalog-auditor regression tests pass.
-- All 248 catalogs have schema coverage and zero violations.
+Last run on 2026-10-12:
+
+- All 102 static checkers (`python3 tools/pascalcheck/run.py -v`): no findings,
+  including hints.
+- 37 analyzer regression tests and 12 catalog-auditor regression tests pass.
+- All 250 catalogs have schema coverage and zero violations
+  (`python3 tools/validate_catalogs.py --require-coverage`).
 - Every unit declaration matches its filename; source, tests and packages
   have no old unit-namespace references.
-- FPC compiles and executes original repository sources. Delphi builds, DUnitX,
-  hardware sessions and GitHub Actions execution are not established by this run.
+- FPC compiles and executes original repository sources. This run does not
+  cover Delphi builds, DUnitX or hardware sessions; see
+  [Delphi validation](delphi-validation.md) for those.

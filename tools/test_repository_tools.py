@@ -6,10 +6,13 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+import catalog_index as index
 import designtime_icons as icons
 import designtime_resources as resources
 import ev_support_matrix as matrix
 import fpc_runtime as runtime
+import re
+import safety_guide as guide
 import validate_delphi_projects as projects
 import xml.etree.ElementTree as ET
 
@@ -166,6 +169,55 @@ class MatrixTests(unittest.TestCase):
             with patch.object(matrix, 'CATALOGS', folder):
                 with self.assertRaisesRegex(ValueError, 'vendor mismatch'):
                     matrix.render()
+
+
+class CatalogIndexTests(unittest.TestCase):
+    def test_generated_index_matches_catalogues_and_excludes_fixture(self):
+        generated = index.render()
+        self.assertEqual(generated.encode('utf-8'), index.TARGET.read_bytes())
+        self.assertNotIn('SCHEMA_V2_FIXTURE', generated)
+        oem, dtc, universal, profiles = index.collect()
+        self.assertEqual([row['file'] for row in universal],
+                         ['obd2-pids.json', 'uds-standard.json'])
+        self.assertTrue(all(row['file'].startswith('dtc-') for row in dtc))
+        self.assertEqual(sum(row['total'] for row in oem),
+                         sum(sum(row['counts']) for row in oem))
+        self.assertEqual(len(profiles), 2)
+
+
+class SafetyGuideTests(unittest.TestCase):
+    @staticmethod
+    def decode(unit):
+        """The guide lines held by the generated Pascal constant."""
+        body = unit.split('of string = (', 1)[1].split('\r\n\r\nfunction', 1)[0]
+        lines, current = [], ''
+        for token in re.findall(r"'(?:[^']|'')*'|#\$[0-9A-F]{4}|[,)]", body):
+            if token in (',', ')'):
+                lines.append(current)
+                current = ''
+            elif token.startswith('#$'):
+                current += chr(int(token[2:], 16))
+            else:
+                current += token[1:-1].replace("''", "'")
+        return lines
+
+    def test_generated_unit_matches_the_guide(self):
+        text = guide.to_text(guide.SOURCE.read_text(encoding='utf-8'))
+        unit = guide.UNIT.read_bytes()
+        self.assertEqual(guide.pascal_unit(text).encode('ascii'), unit)
+        self.assertEqual(self.decode(unit.decode('ascii')), text)
+        self.assertEqual(text[0], 'Flashing safety')
+
+    def test_inline_markup_is_removed_but_code_is_kept(self):
+        self.assertEqual(guide.inline('**Wire `OnConfirm`** to *a* `T*` [doc](x.md)'),
+                         'Wire OnConfirm to a T* doc')
+
+    def test_long_lines_and_quotes_stay_within_literal_limits(self):
+        line = "it's " * 80 + '\u2014 \u26a0\ufe0f'
+        lines = guide.pascal_lines(line)
+        self.assertTrue(all(len(source) < 100 for source in lines))
+        unit = 'of string = (\r\n' + '\r\n'.join(lines) + ');\r\n\r\nfunction'
+        self.assertEqual(self.decode(unit), [line])
 
 
 if __name__ == '__main__':

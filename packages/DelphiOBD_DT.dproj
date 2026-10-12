@@ -471,6 +471,7 @@
         <DCCReference Include="..\src\DesignTime\ERD.Design.Registration.pas"/>
         <DCCReference Include="..\src\DesignTime\ERD.Design.Editors.pas"/>
         <DCCReference Include="..\src\DesignTime\ERD.Design.DialogEditors.pas"/>
+        <DCCReference Include="..\src\DesignTime\ERD.Design.SafetyGuide.pas"/>
         <DCCReference Include="..\src\DesignTime\ERD.Design.Forms.FlashSafety.pas">
             <Form>OBDFlashSafetyDlg</Form>
         </DCCReference>

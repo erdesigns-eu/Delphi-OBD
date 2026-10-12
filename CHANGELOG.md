@@ -2,13 +2,29 @@
 
 ## 3.0.0-alpha.0
 
+### Licensing
+
+Delphi-OBD is now proprietary software of ERDesigns. The MIT License is
+replaced by the Delphi-OBD Proprietary License (`LICENSE`): use requires a
+licence agreement with ERDesigns, and licensees may distribute the run-time
+parts royalty-free inside their own compiled applications. Copies of earlier
+versions that were obtained under an open-source licence remain governed by
+that licence.
+
+The README, the development guide (`CONTRIBUTING.md`), `STYLE.md` and the
+documents in `docs/` are brought up to date with the code: every registered
+component is in `docs/components.md`, and the outdated component index
+(`docs/components/README.md`) and design-package comparison are removed. The
+GetIt manifest (`packages/getit-package.json`) is removed; Delphi-OBD is not
+distributed through GetIt.
+
 ### OBD Dashboard
 
 A themed VCL control set for workshop dashboards, on the
 **OBD Dashboard** palette page (`src/UI`):
 
 - `TOBDTheme` — ERDesigns light and dark palettes (from the
-  erdesigns.eu site colours), Windows system colours, or automatic
+  erdesigns.be site colours), Windows system colours, or automatic
   light / dark; metric or imperial units for every connected control.
 - `TOBDDialGauge`, `TOBDBarGauge`, `TOBDValueTile` — gauges with
   warning / alarm thresholds, stale-data display and unit conversion.
@@ -235,13 +251,21 @@ the **OBD Dyno** page.
 
 ### Design time
 
-- 174 registered components.
+- 225 registered components on 14 palette pages.
 - Palette icons are generated in the ERDesigns colours by
   `tools/designtime_icons.py` and compiled into
   `src/DesignTime/ERD.Design.Icons.res` by
   `tools/designtime_resources.py`, as 16, 24 and 32 px `RCDATA` PNGs
   named `<CLASS>16_PNG`, `<CLASS>_PNG` and `<CLASS>32_PNG` (the names
   the IDE loads palette icons from).
+- The flashing safety guide is built into the design-time package: the
+  "Read flashing safety guide" verb and the pipeline validation report's
+  "Open safety guide" button show the full guide in the IDE instead of
+  opening it online. `tools/safety_guide.py` generates
+  `ERD.Design.SafetyGuide` from `docs/flashing-safety.md`; CI checks that
+  it is up to date.
+- `catalogs/INDEX.md` is generated again, by `tools/catalog_index.py`,
+  and checked by CI.
 
 ### Upgrading from 2.x
 

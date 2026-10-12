@@ -7,7 +7,7 @@
 // used by every other layer. Has no dependencies beyond the System RTL.
 //
 // Author      : Ernst Reidinga (ERDesigns)
-// Copyright   : (c) 2026 ERDesigns and Delphi-OBD contributors
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
 // License     : see LICENSE
 //
 // References  :

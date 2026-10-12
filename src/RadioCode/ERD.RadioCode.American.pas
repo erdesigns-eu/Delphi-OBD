@@ -6,17 +6,17 @@
 //
 // TOBDRadioCodeChrysler  Chrysler / Jeep / Dodge (4 digits)
 // TOBDRadioCodeFordM     Ford "M-prefix" series (6 digits;
-// optional leading M). Database lookup
-// ships separately (TOBDRadioCodeFordV
-// in ERD.RadioCode.FordV).
+// optional leading M). Algorithm
+// bundled.
 // TOBDRadioCodeGM        GM Delco Theftlock (4-digit pre-code).
 // Real codes are dealer-issued; no
 // public algorithm.
 // TOBDRadioCodeVisteon   Visteon Fiat-Stilo / Bravo (6 digits).
 // Algorithm proprietary (PELock).
 //
-// All four ship as OnCalculate stubs. The Ford "V-series" with
-// the bundled 100,000-entry serial->code database lives in the
+// Chrysler, GM and Visteon ship as OnCalculate stubs. The Ford
+// "V-series" with the bundled 999,999-entry serial->code database
+// lives in the
 // separate <c>ERD.RadioCode.FordV</c> unit so a host
 // that doesn't need it doesn't drag the database in.
 //

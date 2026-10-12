@@ -6,7 +6,7 @@
   `<CLASS>16_PNG`, `<CLASS>_PNG` and `<CLASS>32_PNG`, the names the IDE looks
   up (Delphi 10.2.2 and later); other names or resource types are ignored and
   the palette falls back to the default component icon.
-- `delphi-obd-mark.png`: 128px package mark (GetIt listing), drawn from the dial
+- `delphi-obd-mark.png`: 128px Delphi-OBD product mark, drawn from the dial
   gauge icon.
 - `resources.json`: resource name, type, size and PNG path for every icon.
 

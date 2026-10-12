@@ -15,9 +15,10 @@
 // TOBDRadioCodeAlfaRomeo      Alfa Romeo radios (1 letter + 7 digits)
 // TOBDRadioCodeMaserati       Maserati radios (14 alphanum)
 //
-// Algorithms NOT bundled. Each component validates the input
-// shape; the host wires <c>OnCalculate</c> to supply the
-// actual calculation. See docs/radio-code-algorithms.md.
+// Peugeot, Renault, Fiat Daiichi and Fiat VP algorithms are
+// bundled. The other components validate the input shape; the
+// host wires <c>OnCalculate</c> to supply the actual
+// calculation. See docs/radio-code-algorithms.md.
 //
 // Author      : Ernst Reidinga (ERDesigns)
 // Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
@@ -26,6 +27,8 @@
 // History     :
 // 2026-05-10  ERD  Initial implementation. Validation
 // re-derived from the v1 vendor units.
+// 2026-10-12  ERD  Header lists the bundled algorithms; drop
+// references to the separate calculator projects.
 // ------------------------------------------------------------------------------
 
 unit ERD.RadioCode.FrenchItalian;
@@ -59,9 +62,7 @@ type
 
   /// <summary>Peugeot factory radios. Input: 4-digit suffix of the
   /// barcode that starts with C7 (NOT the radio's serial number).
-  /// Algorithm <b>bundled</b> — derived from the working
-  /// open-source ERDesigns Peugeot calculator
-  /// (https://github.com/erdesigns-eu/Peugeot-Calculator).</summary>
+  /// Algorithm <b>bundled</b>.</summary>
   TOBDRadioCodePeugeot = class(TOBDRadioCode)
   protected
     function DoValidate(const AInput: string; out AReason: string)
@@ -77,9 +78,7 @@ type
   /// <summary>Renault pre-2004 (Tuner List / Update List). Serial:
   /// one letter + three digits (e.g. <c>C123</c>). The pair
   /// <c>A0</c> is reserved (would divide-by-zero internally).
-  /// Algorithm <b>bundled</b> — derived from the working
-  /// open-source ERDesigns Renault calculator
-  /// (https://github.com/erdesigns-eu/Renault-Calculator).</summary>
+  /// Algorithm <b>bundled</b>.</summary>
   TOBDRadioCodeRenault = class(TOBDRadioCode)
   protected
     function DoValidate(const AInput: string; out AReason: string)
@@ -93,10 +92,7 @@ type
   end;
 
   /// <summary>Fiat / Lancia Daiichi-Pioneer factory radios. Input:
-  /// last 4 digits of the serial number. Algorithm <b>bundled</b>
-  /// — derived from the working open-source ERDesigns
-  /// Fiat-Daiichi calculator
-  /// (https://github.com/erdesigns-eu/Fiat-Daiichi-Calculator).</summary>
+  /// last 4 digits of the serial number. Algorithm <b>bundled</b>.</summary>
   TOBDRadioCodeFiatDaiichi = class(TOBDRadioCode)
   protected
     function DoValidate(const AInput: string; out AReason: string)
@@ -111,10 +107,7 @@ type
 
   /// <summary>Fiat / Lancia Continental VP1 / VP2 factory radios.
   /// Input: last 4 digits of the serial number. Algorithm
-  /// <b>bundled</b> — derived from the working open-source
-  /// ERDesigns Fiat-VP1-VP2 calculator
-  /// (https://github.com/erdesigns-eu/Fiat-VP1-VP2-Calculator).
-  /// VP1 and VP2 use the same calculation.</summary>
+  /// <b>bundled</b>. VP1 and VP2 use the same calculation.</summary>
   TOBDRadioCodeFiatVP = class(TOBDRadioCode)
   protected
     function DoValidate(const AInput: string; out AReason: string)
@@ -188,7 +181,7 @@ function TOBDRadioCodePeugeot.Description: string;
 begin
   Result := 'Peugeot factory radios. Input: the 4 digits at the end of the ' +
     'barcode that starts with C7 (NOT the radio''s serial number). ' +
-    'Algorithm bundled (ERDesigns Peugeot-Calculator).';
+    'Algorithm bundled.';
 end;
 
 function TOBDRadioCodePeugeot.DoValidate(const AInput: string;
@@ -234,7 +227,7 @@ function TOBDRadioCodeRenault.Description: string;
 begin
   Result := 'Renault Tuner List / Update List radios (pre-2004). Input: ' +
     'one letter + three digits (e.g. C123) — the last 4 of the ' +
-    'pre-code. Algorithm bundled (ERDesigns Renault-Calculator).';
+    'pre-code. Algorithm bundled.';
 end;
 
 function TOBDRadioCodeRenault.DoValidate(const AInput: string;
@@ -292,8 +285,7 @@ end;
 function TOBDRadioCodeFiatDaiichi.Description: string;
 begin
   Result := 'Fiat / Lancia Daiichi-Pioneer factory radios. Input: last 4 ' +
-    'digits of the serial number. Algorithm bundled ' +
-    '(ERDesigns Fiat-Daiichi-Calculator).';
+    'digits of the serial number. Algorithm bundled.';
 end;
 
 function TOBDRadioCodeFiatDaiichi.DoValidate(const AInput: string;
@@ -403,8 +395,7 @@ function TOBDRadioCodeFiatVP.Description: string;
 begin
   Result := 'Fiat / Lancia Continental VP1 / VP2 factory radios. Input: ' +
     'last 4 digits of the serial number. Both VP1 and VP2 use the ' +
-    'same calculation. Algorithm bundled ' +
-    '(ERDesigns Fiat-VP1-VP2-Calculator).';
+    'same calculation. Algorithm bundled.';
 end;
 
 function TOBDRadioCodeFiatVP.DoValidate(const AInput: string;

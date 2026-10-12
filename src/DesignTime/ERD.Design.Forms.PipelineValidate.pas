@@ -5,7 +5,8 @@
 // <c>TOBDFlashPipeline</c> component editor's "Validate
 // configuration" verb. Renders a list of design-time issues
 // (missing protocol, missing voltage gate, AutoExecute true,
-// missing audit log) and offers to open the safety guide.
+// missing audit log) and offers to open the safety guide, which
+// is built into the design-time package (no browser needed).
 //
 // Author      : Ernst Reidinga (ERDesigns)
 // Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
@@ -13,6 +14,8 @@
 //
 // History     :
 // 2026-05-10  ERD  Initial implementation.
+// 2026-10-12  ERD  "Open safety guide" shows the built-in guide
+//                  instead of opening it online.
 // ------------------------------------------------------------------------------
 
 unit ERD.Design.Forms.PipelineValidate;
@@ -68,14 +71,11 @@ implementation
 {$R *.dfm}
 
 uses
-  Winapi.ShellAPI,
-  Winapi.Windows;
+  ERD.Design.Forms.FlashSafety;
 
 procedure TOBDPipelineValidateDlg.btnOpenGuideClick(Sender: TObject);
 begin
-  ShellExecute(Handle, 'open',
-    'https://github.com/erdesigns-eu/delphi-obd/blob/main/docs/flashing-safety.md',
-    nil, nil, SW_SHOWNORMAL);
+  ShowFlashSafetyDialog;
 end;
 
 procedure ShowPipelineValidation(const AComponentName: string;

@@ -7,11 +7,10 @@
 // referenced from runtime code. The IDE calls <c>Register</c> when the
 // design-time package is installed.
 //
-// Component categories used:
-// - "OBD" — non-visual diagnostic and protocol components
-// - "OBD OEM" — vendor-specific coding helpers
-// - "OBD Dashboard" — theme controller and dashboard controls
-// - "OBD Visual" — diagnostic list and edit controls
+// Palette pages (14): OBD, OBD Services, OBD Diagnostics, OBD Coding,
+// OBD Calibration, OBD Flashing, OBD Catalogs, OBD Dashboard, OBD Visual,
+// OBD Studio, OBD Studio Pro, OBD Dyno, OBD Radio and OBD EEPROM.
+// docs/components.md lists every component per page.
 //
 // Author      : Ernst Reidinga (ERDesigns)
 // Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
@@ -25,6 +24,7 @@
 //
 // 2026-10-08  ERD  Components/editors only; remove wizards and IDE branding.
 // 2026-10-10  ERD  "OBD Dashboard" and "OBD Studio" palette pages.
+// 2026-10-12  ERD  Header lists all 14 palette pages.
 // ------------------------------------------------------------------------------
 
 unit ERD.Design.Registration;

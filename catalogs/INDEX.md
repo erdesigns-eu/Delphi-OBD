@@ -1,6 +1,23 @@
 # Catalog index
 
-Generated 2026-05-08 by `tools/generate_catalog_index.py` (re-run on every release).
+Inventory of the OEM, DTC, universal and range-profile catalogues. This file is
+generated from the catalogue files by `python3 tools/catalog_index.py --write`;
+do not edit it by hand. CI runs `python3 tools/catalog_index.py` and fails when
+this file is out of date. `python3 tools/validate_catalogs.py --require-coverage`
+validates the catalogues themselves. All other catalogue files (standard OBD-II /
+UDS / J1939 / KWP data, OEM overlays, VIN, EV battery, radio code, adapter,
+tachograph, key platforms, service routines and drive cycles) are described in
+[`docs/catalogs.md`](../docs/catalogs.md).
+
+How the counts are made:
+
+- An OEM catalogue is a file with the `oem-catalog-v2` schema at the top level of
+  `catalogs/` (cars and trucks) or in `agricultural/`, `marine/`, `motorcycle/` or
+  `powersports/`. `obd2-pids.json` and `uds-standard.json` are listed as universal
+  catalogues, and `test-schema-v2.json` (a schema test fixture) is not counted.
+- **Total** is the sum of the `ecus`, `dids`, `routines`, `coding_blocks`,
+  `adaptations`, `actuator_tests`, `live_pids` and `dtc_extended_data` entries.
+- DTC catalogues are the top-level `dtc-*.json` files; **Entries** counts `dtcs`.
 
 ## Summary
 - **79 OEM catalogs** — **247,279 total entries** across 5 vehicle classes:
@@ -10,15 +27,15 @@ Generated 2026-05-08 by `tools/generate_catalog_index.py` (re-run on every relea
   - **motorcycle**: 14 catalogs / 3,292 entries
   - **powersports**: 5 catalogs / 1,131 entries
 - **47 DTC catalogs** (`dtc-<oem>.json`) — **1,282 total DTCs**
-- **2 universal catalogs** (ISO 15031 / UDS / OBD-II PIDs)
+- **2 universal catalogs** (`obd2-pids.json` and `uds-standard.json`)
 - **2 range profiles** (`range-profiles/*.json`) — editable normal bands for OBD Studio values
 
 ## Range profiles
 
-| Profile | File | Vehicle | Source |
-|---|---|---|---|
-| Generic | `range-profiles/generic.json` | Generic OBD-II vehicle | generic workshop defaults |
-| VAG 1.6 TDI | `range-profiles/vag-16-tdi.json` | VW 1.6 TDI (EA189/EA288 era) | generic workshop defaults adjusted for VW/Audi/Skoda/Seat 1.6 TDI |
+| Profile | File | Vehicle | Source | Ranges |
+|---|---|---|---|---:|
+| `generic` | `range-profiles/generic.json` | Generic OBD-II vehicle | generic workshop defaults | 15 |
+| `vag-16-tdi` | `range-profiles/vag-16-tdi.json` | VW 1.6 TDI (EA189/EA288 era) | generic workshop defaults adjusted for VW/Audi/Skoda/Seat 1.6 TDI | 15 |
 
 ## Agricultural
 
@@ -180,5 +197,5 @@ Generated 2026-05-08 by `tools/generate_catalog_index.py` (re-run on every relea
 
 | File | Name | DIDs | Routines | Total |
 |---|---|---:|---:|---:|
-| `obd2-pids.json` |  | 84 | 0 | 84 |
-| `uds-standard.json` |  | 31 | 4 | 35 |
+| `obd2-pids.json` | ISO 15031-6 / SAE J1979 OBD-II Service 01 PIDs | 84 | 0 | 84 |
+| `uds-standard.json` | ISO 14229-1 Universal UDS DIDs | 31 | 4 | 35 |

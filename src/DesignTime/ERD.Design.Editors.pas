@@ -24,8 +24,8 @@
 // TOBDDestructiveComponentEditor
 // Adds a "Flashing safety" verb to every destructive
 // component (TOBDFlasher, TOBDUDSTransfer, TOBDFlashPipeline)
-// that pops a reminder up front and opens
-// docs/flashing-safety.md.
+// that pops a reminder up front together with the full flashing
+// safety guide (built into the package; no browser needed).
 // TOBDFlashPipelineComponentEditor
 // On top of the destructive verbs, exposes "Validate
 // configuration" — runs the configured Checks at design-
@@ -273,9 +273,9 @@ type
   /// <summary>Component editor that adds a "Flashing safety"
   /// reminder verb to every destructive component (Flasher,
   /// UDSTransfer, FlashPipeline). Clicking the verb shows a
-  /// modal warning and opens
-  /// <c>docs/flashing-safety.md</c> in the host's default
-  /// browser / editor.</summary>
+  /// modal warning together with the full flashing safety guide,
+  /// which is compiled into the design-time package
+  /// (<c>ERD.Design.SafetyGuide</c>).</summary>
   TOBDDestructiveComponentEditor = class(TComponentEditor)
   public
     function GetVerb(Index: Integer): string; override;
