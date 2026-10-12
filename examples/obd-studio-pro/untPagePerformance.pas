@@ -292,7 +292,7 @@ begin
       FinishRun(True);
     end;
     Percent := EnsureRange(FRunDistance / 402.336 * 100, 0, 100);
-    if Assigned(FHost) then
+    if FRunning and Assigned(FHost) then
       FHost.SetProgress('Drag run', Round(Percent));
   end
   else if Assigned(FHost) and FHost.Connected then

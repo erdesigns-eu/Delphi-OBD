@@ -226,6 +226,7 @@ end;
 procedure TfrmBus.ConnectionChanged;
 var
   I: Integer;
+  WasRunning: Boolean;
 begin
   if FHost = nil then
     Exit;
@@ -237,9 +238,14 @@ begin
   end
   else
   begin
+    WasRunning := False;
     for I := Low(FActuatorTicks) to High(FActuatorTicks) do
+    begin
+      WasRunning := WasRunning or (FActuatorTicks[I] > 0);
       StopActuator(I, 'connection dropped');
-    FHost.LogWarning('Bus page: actuator tests stopped because the adapter disconnected');
+    end;
+    if WasRunning then
+      FHost.LogWarning('Bus page: actuator tests stopped because the adapter disconnected');
   end;
 end;
 
@@ -407,8 +413,7 @@ end;
 procedure TfrmBus.replayBarSeek(Sender: TObject; APositionMs: Int64);
 begin
   if FHost <> nil then
-    FHost.SetProgress('Replay position ' + replayBar.FormatTime(APositionMs),
-      Integer(Round(APositionMs * 100 / replayBar.DurationMs)));
+    FHost.Log('Bus page: replay moved to ' + replayBar.FormatTime(APositionMs));
 end;
 
 procedure TfrmBus.replayBarSpeedChange(Sender: TObject; ASpeed: Double);
@@ -535,13 +540,11 @@ begin
   NextPos := replayBar.PositionMs + Round(100 * replayBar.Speed);
   if NextPos >= replayBar.DurationMs then
   begin
-    replayBar.Seek(replayBar.DurationMs);
+    replayBar.PositionMs := replayBar.DurationMs;
     replayBar.Pause;
-    if FHost <> nil then
-      FHost.SetProgress('', -1);
   end
   else
-    replayBar.Seek(NextPos);
+    replayBar.PositionMs := NextPos;
 end;
 
 end.

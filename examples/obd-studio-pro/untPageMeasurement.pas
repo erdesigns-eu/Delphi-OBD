@@ -174,7 +174,6 @@ begin
   end
   else
   begin
-    FHost.SetProgress('', -1);
     FHost.LogWarning('Measurement page: DAQ stopped because the adapter disconnected');
   end;
 end;
@@ -186,7 +185,6 @@ begin
   AddBrowserSignals;
   ConfigureMap;
   RebuildSelection;
-  ConnectionChanged;
 end;
 
 procedure TfrmMeasurement.PushMapPoint;
