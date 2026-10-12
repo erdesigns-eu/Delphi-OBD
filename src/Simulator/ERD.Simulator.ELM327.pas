@@ -865,7 +865,6 @@ procedure TOBDELM327EmulatorTransport.WaitForWorker;
 var
   Worker: TThread;
 begin
-  Worker := nil;
   FWorkerLock.Enter;
   try
     Worker := FWorker;
