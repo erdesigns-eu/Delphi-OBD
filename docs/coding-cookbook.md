@@ -1,21 +1,30 @@
 # Coding cookbook
 
-End-to-end walkthroughs for vendor-specific coding flows. The runtime
-components (`TOBDDataIdentifierIO`, `TOBDSecurityAccess`,
-`TOBDRoutineControl`, `TOBDCodingSession`, plus the OEM-specific
-component-protection helpers) handle the wire side; this page shows
-how to wire them up for each platform.
+Walkthroughs for ECU coding with Delphi-OBD. The run-time components
+(`TOBDUDS`, `TOBDSecurityAccess`, `TOBDDataIdentifierIO`,
+`TOBDRoutineControl`, `TOBDCodingSession`, `TOBDCodingAuditLog`, the
+component-protection and key-adaptation components) handle the wire side.
+The per-OEM helper classes in `src/Coding/` (`TOBDCodingVAG`,
+`TOBDCodingBMW`, `TOBDCodingMercedes`, `TOBDCodingStellantis`,
+`TOBDCodingFord`, `TOBDCodingHMG`, `TOBDCodingHonda`, `TOBDCodingToyota`)
+only parse and edit coding buffers in memory; they never touch the bus.
 
-> **Heads-up.** Coding writes to the ECU. Mistakes can immobilize
-> the vehicle, store new DTCs, or break safety functions. Test on a
-> bench first whenever practical. The destructive components in
-> Delphi-OBD ship `AutoExecute = False` by default — keep them that
-> way, wire `OnConfirmExecute`, and only flip the flag when you mean
-> it.
+> **Heads-up.** Coding writes to the ECU. Mistakes can immobilize the
+> vehicle, store new DTCs, or break safety functions. Test on a bench
+> first whenever practical. Every write-side component ships with
+> `AutoExecute = False` and refuses to write until you set it to `True`
+> — do that only right before a write the user has confirmed.
+
+DIDs, routine IDs and security levels differ per ECU, model year and
+software version. The constants in the examples below (`CodingDID`,
+`ApplyRoutine`, `CodingLevel`, …) are placeholders: take the real values
+from the OEM catalogue (`catalogs/<vendor>.json`, `TOBDOEMCatalog`) or
+the ECU's documentation.
 
 ## The shared scaffolding
 
-Every coding flow starts the same:
+Every coding flow starts with the usual chain, an extended diagnostic
+session and security access:
 
 ```pascal
 Connection.SerialSettings.Port := 'COM3';
@@ -25,187 +34,267 @@ Adapter.Connection := Connection;
 Adapter.Detect;
 
 Protocol.Adapter := Adapter;
-```
 
-From here the per-vendor wiring picks up.
+UDS.Protocol := Protocol;
+UDS.KeepAlive := True;               //  TesterPresent while the session is open
+UDS.Open($03);                       //  extendedDiagnosticSession
 
-## Volkswagen / Audi / Skoda / SEAT (VAG)
-
-VAG ECUs use long coding (`0x22 / 0x2E` against DIDs in the
-`0x01xx` range) plus a separate "coding" service via short codes for
-older platforms. The `TOBDCodingCatalogVAG` loader (in
-`ERD.Coding.Catalog.VAG`) reads `.lbl` label files and surfaces
-the option list to the host.
-
-```pascal
 SecurityAccess.Protocol := Protocol;
-SecurityAccess.RequestSeedLevel := $03;     //  long-coding level
-SecurityAccess.OnComputeKey := procedure(Sender: TObject;
-                                         const ASeed: TBytes;
-                                         var AKey: TBytes)
-begin
-  AKey := VAGSeedToKeyLevel3(ASeed);
-end;
-SecurityAccess.Unlock;
+SecurityAccess.OnComputeKey := ComputeKey;
+SecurityAccess.Unlock(CodingLevel);  //  odd requestSeed level; sendKey = level + 1
 
 DataIO.Protocol := Protocol;
-DataIO.AutoExecute := False;
-DataIO.OnConfirmExecute := HandleUserConfirm;
-DataIO.WriteDID($0107, LongCodingBytes);    //  module 09 (BCM) coding string
-
-CP_VAG.Protocol := Protocol;                //  immobilizer pairing
-CP_VAG.AdaptKey(NewKeyTransponderID);       //  destructive — confirm path
+Routine.Protocol := Protocol;
 ```
 
-The `TOBDComponentProtectionVAG` component handles the immobilizer
-challenge-response. For ME7 / Simos / EDC engine ECUs the VAG flow is
-the same shape; the security-access level changes (`$03` for coding,
-`$05` for adaptation, `$09` for service routines).
+The seed → key transform is vendor-specific and is never shipped with
+Delphi-OBD. Supply it through `OnComputeKey` (or the functional
+`SeedToKey` property, which takes precedence):
+
+```pascal
+procedure TForm1.ComputeKey(Sender: TObject; ALevel: Byte;
+  const ASeed: TBytes; var AKey: TBytes);
+begin
+  AKey := MySeedToKey(ALevel, ASeed);  //  your licensed algorithm
+end;
+```
+
+`OnComputeKey` runs on the thread that called `Unlock` / `UnlockAsync`,
+so keep it thread-safe. `Unlock` raises `EOBDProtocolErr` when the ECU
+returns a negative response.
+
+## Writing coding safely: `TOBDCodingSession`
+
+For anything beyond a single experimental write, use `TOBDCodingSession`.
+It snapshots the current values, writes the new ones, reads them back and
+rolls back to the snapshot when a write or verify fails. With an
+`AuditLog` attached every step is logged.
+
+```pascal
+var
+  Steps: TArray<TOBDCodingStep>;
+begin
+  SetLength(Steps, 1);
+  Steps[0].DID := CodingDID;
+  Steps[0].NewValue := NewCoding;
+
+  Coding.Protocol := Protocol;
+  Coding.AuditLog := AuditLog;          //  TOBDCodingAuditLog
+  Coding.VerifyAfterWrite := True;
+  Coding.RollbackOnFail := True;
+  Coding.AutoExecute := True;           //  only after the user confirmed
+  Coding.Apply(Steps);                  //  Steps[i].OldValue holds the snapshot
+
+  case Coding.Outcome of
+    coCommitted:  ShowMessage('Coding written and verified');
+    coRolledBack: ShowMessage('Write failed; original coding restored');
+    coFailed:     ShowMessage('Write failed; check the audit log');
+  end;
+end;
+```
+
+Set `DryRun := True` to take the snapshot and log the planned writes to
+the audit log without writing. For a
+plain write without the transaction, use `DataIO.Write(CodingDID,
+NewCoding)` (also gated by `AutoExecute`). `TOBDWriteConfirm` (OBD
+Studio Pro palette page) is a ready-made confirmation strip for the UI.
+
+## Volkswagen / Audi / Skoda / SEAT / Cupra (VAG)
+
+VAG UDS ECUs keep their long coding in a DID as a byte buffer;
+`TOBDCodingVAG` edits it by byte and bit (bit 0 = LSB), and
+`TOBDLabelFileVAG` parses VCDS-style `.LBL` label files that name the
+bytes and bits.
+
+```pascal
+var
+  Coding: TBytes;
+  Labels: TOBDVAGLabelFile;
+begin
+  Coding := DataIO.ReadOne(CodingDID);
+  Labels := TOBDLabelFileVAG.ParseFile('C:\Labels\5Q0-937-08x.lbl');
+  //  Labels.Entries[i]: Byte_, BitStart / BitEnd, Description, Values
+
+  TOBDCodingVAG.SetBit(Coding, 4, 0, True);   //  byte 4, bit 0
+  Memo1.Text := TOBDCodingVAG.FormatLongCoding(Coding);
+  //  write it back through TOBDCodingSession (see above)
+end;
+```
+
+`TOBDCodingVAG.EncodeAdaptation` / `DecodeAdaptation` cover the
+channel-based adaptations of the Mk4–Mk6 era. KWP1281 and KWP2000 ECUs
+use `TOBDKWP1281Session` / `TOBDKWPWriteID` instead of UDS DIDs.
+
+Component Protection (instrument cluster, infotainment, comfort module)
+uses `TOBDComponentProtectionVAG`. It reads the CP status and challenge
+and writes the authorisation through a `TOBDDataIdentifierIO`; the
+challenge → authorisation transform comes from the dealer back-end
+(GeKo / SVM) and is supplied by the host:
+
+```pascal
+CP_VAG.DataIO := DataIO;
+CP_VAG.AuthFunc :=
+  function(const AChallenge: TBytes): TBytes
+  begin
+    Result := MyDealerBackend.Authorise(AChallenge);
+  end;
+if CP_VAG.ReadStatus <> CP_STATUS_OK then  //  0 = not locked
+  CP_VAG.Unlock;  //  raises EOBDProtocolErr if the lock does not clear
+```
 
 ## BMW
 
-BMW ECUs use FA / SVT (Fahrzeugauftrag / SVT vehicle order) coding,
-delivered as binary blobs written to specific control units via
-`0x2E`. Newer F/G/U-series chassis use ISTA-style flash + code via
-DoIP; older E-series use K-line / DCAN.
+BMW coding data (NCS / CAFD) is a list of parameter entries.
+`TOBDCodingBMW` parses the entries, finds one by parameter ID and writes
+a new value in place; `ParseVehicleOrder` reads the vehicle order (FA).
 
 ```pascal
-SecurityAccess.RequestSeedLevel := $03;
-SecurityAccess.OnComputeKey := procedure(Sender: TObject;
-                                         const ASeed: TBytes;
-                                         var AKey: TBytes)
+var
+  Buffer: TBytes;
+  Entries: TArray<TOBDBMWCAFDEntry>;
+  Entry: TOBDBMWCAFDEntry;
 begin
-  AKey := BMWSeedToKey(ASeed);              //  vendor-specific
+  Buffer := DataIO.ReadOne(CodingDID);
+  Entries := TOBDCodingBMW.ParseEntries(Buffer);
+  if TOBDCodingBMW.FindEntry(Entries, ParameterID, Entry) then
+    TOBDCodingBMW.WriteValue(Buffer, Entry, NewValue);
+  //  write Buffer back through TOBDCodingSession, then run the
+  //  ECU's apply routine if it needs one:
+  Routine.AutoExecute := True;
+  Routine.Start(ApplyRoutine);
 end;
-SecurityAccess.Unlock;
-
-DataIO.WriteDID($CFA0, FABytes);            //  Fahrzeugauftrag
-DataIO.WriteDID($CFA1, SVTBytes);           //  Soll-Verbau-Tabelle
-
-Routine.Protocol := Protocol;
-Routine.Start($FF00);                       //  apply coding routine
-
-CP_BMW.Protocol := Protocol;
-CP_BMW.PairISN(KombiISN);                   //  immobilizer pairing
 ```
 
-For F/G/U chassis use a `TOBDDoIPClient` instead of an
-ELM327 / OBDLink chain; the rest is identical.
+F / G / U-series vehicles are reached over Ethernet: put a
+`TOBDDoIPClient` in front of the protocol instead of an ELM327 / OBDLink
+chain. `TOBDComponentProtectionBMW` (status / challenge / authorisation
+DIDs configurable) and `TOBDKeyAdaptationBMW` cover the immobiliser
+side.
 
 ## Mercedes-Benz
 
-Mercedes uses SCN (Software Calibration Number) coding via XENTRY-style
-service routines. Modern (W213+) cars require online SCN authorization;
-legacy (W211 / W212) coding is offline. The
-`TOBDComponentProtectionMercedes` component handles the variant-specific
-ceremony.
+`TOBDCodingMercedes` edits variant coding by bit and by field and
+decodes / encodes the SCN (Software Calibration Number) field.
+`TOBDComponentProtectionMercedes` handles the CP exchange.
 
 ```pascal
-SecurityAccess.RequestSeedLevel := $07;     //  SCN level
-SecurityAccess.Unlock;
-
-Routine.Start($02FF, ScnPayload);           //  apply SCN
-
-CP_Mercedes.Protocol := Protocol;
-CP_Mercedes.RegisterControlUnit(ECUSerial); //  variant coding
+Buffer := DataIO.ReadOne(VariantCodingDID);
+TOBDCodingMercedes.SetBit(Buffer, BitIndex, True);
+ScnText := TOBDCodingMercedes.DecodeSCN(DataIO.ReadOne(ScnDID));
 ```
+
+Recent models require online SCN authorisation from the OEM back-end;
+Delphi-OBD only transports the bytes.
 
 ## Stellantis (FCA / PSA / Opel)
 
-Stellantis platforms run a unified ECU-coding flow across the FCA / PSA
-brands post-merger. The key surface is `0x2E` writes against `0xF1xx`
-identifiers plus security-access levels `$01` / `$02` / `$03` /
-`$05` per platform.
+FCA / Stellantis modules share a per-vehicle configuration map
+(Proxi). After a module swap, `TOBDCodingStellantis` reads and edits the
+Proxi parameters so the new module can be aligned:
 
 ```pascal
-SecurityAccess.RequestSeedLevel := $02;
-SecurityAccess.Unlock;
-
-DataIO.WriteDID($F190, VINBytes);
-DataIO.WriteDID($F1A0, ConfigBytes);
-
-CP_Stellantis.Protocol := Protocol;
-CP_Stellantis.PairBSI(BSISerial);           //  body computer pairing
+Buffer := DataIO.ReadOne(ProxiDID);
+TOBDCodingStellantis.SetParam(Buffer, ParameterID, NewValue);
 ```
+
+`TOBDComponentProtectionStellantis` covers the protected modules.
 
 ## Ford / Lincoln
 
-Ford uses As-Built data — a ~30-byte coding string per module. Ford
-service-mode is `$03` (defaults to engineering / dev); production
-coding tools use `$01` and write via `0x2E` against
-`0xDExx` / `0xDFxx` DIDs.
+Ford modules carry AsBuilt data: named hex sections with a checksum at
+the end of each line. Edit a byte and re-seal the checksum before you
+write the section back:
 
 ```pascal
-SecurityAccess.RequestSeedLevel := $01;
-SecurityAccess.OnComputeKey := procedure(Sender: TObject;
-                                         const ASeed: TBytes;
-                                         var AKey: TBytes)
+var
+  Section: TOBDFordAsBuiltSection;
 begin
-  AKey := FordAsBuiltSeedToKey(ASeed);
+  Section := TOBDCodingFord.ParseSection(AsBuiltLine);  //  e.g. '726-01-01 ...'
+  TOBDCodingFord.SetByte(Section, 2, $1A);
+  TOBDCodingFord.SealChecksum(Section);
+  //  Section.Data is the new block; write it through TOBDCodingSession
 end;
-SecurityAccess.Unlock;
-
-DataIO.WriteDID($DE00, AsBuiltBlock);
 ```
+
+`TOBDKeyAdaptationFord` programs and erases keys (see below).
 
 ## Hyundai / Kia / Genesis (HMG)
 
-HMG uses CDS (Component Diagnostic Specification) variant coding via
-short variant blocks. Recent HMG ECUs additionally require an SVK
-(Software Version Keying) handshake at session start.
-
-```pascal
-SecurityAccess.RequestSeedLevel := $03;
-SecurityAccess.Unlock;
-
-Routine.Start($DD01, VariantBytes);         //  variant coding
-```
+HMG modules expose options as configuration words (1, 2 or 4 bytes)
+addressed by a 16-bit option ID. `TOBDCodingHMG.GetOption` /
+`SetOption` read and change them in the buffer.
+`TOBDKeyAdaptationHMG` handles key programming.
 
 ## Honda / Acura
 
-Honda historically used K-line / FCS-style flat coding. Newer HDS-
-era Honda runs UDS over CAN with `0x2E` against vendor-specific DIDs.
-
-```pascal
-DataIO.WriteDID($0100, HondaConfigByteArray);
-```
+Honda body and cluster ECUs expose a flat array of one-byte
+personalisation entries. `TOBDCodingHonda.GetEntry` / `SetEntry` (and
+`SetEntryRanged` for range-checked writes) edit them by index.
 
 ## Toyota / Lexus
 
-Toyota CARSCAN runs UDS over CAN with `0x2E` against `0xF1xx` DIDs.
-Toyota security-access on `$01` / `$05` is by design straightforward —
-the seed/key is published in the GTS service docs.
+Toyota customisation menus are paged option tables with 16-bit option
+IDs. `TOBDCodingToyota.ParseMenu` lists them; `GetOption` / `SetOption`
+read and change values. `TOBDKeyAdaptationToyota` handles key
+programming.
+
+## Coding-option catalogues
+
+To show options by name instead of by byte and bit, load a host-supplied
+coding-option catalogue (format in [catalogs.md](catalogs.md)) with
+`TOBDCodingOptionCatalog.Default.LoadFile`, look an option up with
+`TryFindOption(Vendor, Module, Name, …)` and pass its addressing record
+to the matching helper above.
+
+## Key adaptation
+
+`TOBDKeyAdaptationFord`, `TOBDKeyAdaptationHMG`, `TOBDKeyAdaptationBMW`
+and `TOBDKeyAdaptationToyota` share one surface: `ListSlots`, `AddKey`,
+`ClearOneSlot`, `ClearAllKeys` and `CheckPin`, each returning a
+`TOBDKeyAdaptResult` (`Success`, `Message`, `Slots`). Changing operations
+need **both** `AutoExecute = True` and an `OnConfirmExecute` handler that
+allows the operation:
 
 ```pascal
-SecurityAccess.RequestSeedLevel := $01;
-SecurityAccess.Unlock;
+procedure TForm1.KeyConfirm(Sender: TObject; AOp: TOBDKeyAdaptOp;
+  ASlotIndex: Byte; var ACanProceed: Boolean);
+begin
+  ACanProceed := MessageDlg('Program a new key?', mtConfirmation,
+    [mbYes, mbNo], 0) = mrYes;
+end;
 
-DataIO.WriteDID($F190, ConfigBytes);
+KeyFord.Protocol := Protocol;
+KeyFord.PIN := EditPin.Text;
+KeyFord.OnConfirmExecute := KeyConfirm;
+KeyFord.AutoExecute := True;
+R := KeyFord.AddKey;  //  R: TOBDKeyAdaptResult
 ```
+
+Some platforms also need `ChassisCode`.
 
 ## Common pitfalls
 
-- **Wrong session.** UDS coding is in `extendedDiagnosticSession`
-  (`0x10 0x03`), not `defaultSession` (`0x10 0x01`). Use
-  `TOBDCodingSession` to put the ECU in the right session for you.
-- **Stale security access.** Most ECUs time out the unlocked window
-  after ~5 s of bus silence. Either keep traffic flowing or
-  immediately follow `Unlock` with the write.
-- **Coding without an audit log.** Every coding starter wires a
-  `TOBDCodingAuditLog`. Don't disable it — even on a bench, you'll
-  thank yourself later.
-- **Auto-execute on production hardware.** `AutoExecute = True`
-  skips the host's `OnConfirmExecute`. Only enable it for
-  unattended automation against a bench, and never on a customer
-  vehicle.
+- **Wrong session.** UDS coding runs in `extendedDiagnosticSession`
+  (`TOBDUDS.Open($03)`), not the default session. Programming runs in
+  `programmingSession` (`$02`).
+- **Stale security access.** Most ECUs drop the unlocked state after a
+  few seconds of bus silence or a session change. Keep `UDS.KeepAlive`
+  on and follow `Unlock` with the write.
+- **Coding without an audit log.** Attach a `TOBDCodingAuditLog` to
+  `TOBDCodingSession`; with a key set it is tamper-evident. Even on a
+  bench you will want it later.
+- **`AutoExecute` left on.** Set it right before a confirmed write and
+  back to `False` afterwards. Never leave it on in unattended code that
+  runs against customer vehicles.
 
 ## Where the wire-level reference lives
 
-- UDS coding services: `ERD.Protocol.UDS.pas` + `ERD.UDS.WriteMemory.pas`.
-- KWP2000 coding services: `ERD.Protocol.KWP2000.pas` + `ERD.KWP.WriteID.pas`.
-- Vendor specifics: `src/OEM/ERD.OEM.*.pas`.
-- Component protection: `src/OEM/ERD.OEM.ComponentProtection.*.pas`.
+- UDS write services: `src/Coding/ERD.UDS.WriteDID.pas`,
+  `src/Coding/ERD.UDS.WriteMemory.pas`, `src/Coding/ERD.Coding.*.pas`.
+- KWP2000 write services: `src/Coding/ERD.KWP.WriteID.pas`.
+- Per-OEM coding helpers: `src/Coding/ERD.Coding.<Vendor>.pas`.
+- Component protection: `src/Coding/ERD.OEM.ComponentProtection.*.pas`.
+- Key adaptation and OEM sessions: `src/OEM/ERD.OEM.*.pas`.
 
-Every public surface is XMLDoc'd at declaration. The walkthroughs
-above only show the component-level wiring — the wire-level details
-are in source.
+Every public surface is XMLDoc'd at declaration. The walkthroughs above
+show the component-level wiring; the wire-level details are in source.

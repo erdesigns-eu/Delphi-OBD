@@ -15,8 +15,10 @@ incomplete.
 
 ## Building
 
-1. Build and install the packages in `packages/` (`DelphiOBD_RT`, then
-   `DelphiOBD_DT`) so the components are on the palette.
+1. Build and install `packages/DelphiOBD_DT` (Win32) so the components are
+   on the palette. The design-time package is standalone; the runtime package
+   is not needed because the example compiles the library from source (see
+   [Installation](../../docs/install.md)).
 2. Open `OBDStudio.dpr` in RAD Studio. The `.dproj` is created by the IDE
    and is not in the repository.
 3. In *Project > Options > Building > Delphi Compiler > Search path*, add
