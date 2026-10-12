@@ -222,6 +222,50 @@
     {
       "code": "0xFFC6",
       "text": "Genset Total Hours — Active"
+    },
+    {
+      "code": "0xFE6B",
+      "text": "Driver's Identification"
+    },
+    {
+      "code": "0xF000",
+      "text": "Electronic Retarder Controller 1"
+    },
+    {
+      "code": "0xFEFB",
+      "text": "Retarder Fluid"
+    },
+    {
+      "code": "0xFD09",
+      "text": "High Resolution Fuel Consumption (Liquid)"
+    },
+    {
+      "code": "0xFE6C",
+      "text": "Tachograph"
+    },
+    {
+      "code": "0xFE4E",
+      "text": "Door Control 1"
+    },
+    {
+      "code": "0xFDA4",
+      "text": "PTO Drive Engagement"
+    },
+    {
+      "code": "0xFEC0",
+      "text": "Service Information"
+    },
+    {
+      "code": "0xFDA5",
+      "text": "Door Control 2"
+    },
+    {
+      "code": "0xF009",
+      "text": "Vehicle Dynamic Stability Control 2"
+    },
+    {
+      "code": "0xFEBF",
+      "text": "Wheel Speed Information"
     }
   ]
 }

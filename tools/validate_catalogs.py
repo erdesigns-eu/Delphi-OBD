@@ -5,6 +5,13 @@ Install tools/requirements-validation.txt. Unknown/missing schemas are reported
 as uncovered, never inferred from a filename. Use --require-coverage for a full
 coverage gate. A passing partial audit does not establish data provenance or
 ECU compatibility. External schema references never trigger network requests.
+
+OEM catalogues may name a shared base in "extends"; the audit checks that the
+base exists inside the catalogue root, is an OEM catalogue and does not form a
+cycle, that no catalogue repeats an entry it already inherits, and that the
+number of entries copied verbatim into SHARED_COPY_LIMIT or more brand
+catalogues stays within SHARED_ENTRY_BUDGET (move such entries to a base in
+_shared/ instead of copying them).
 """
 from __future__ import annotations
 
@@ -68,11 +75,82 @@ def validate_manifest(root, path, value, report):
                 'path': f'/vendor_files/{index}', 'message': message})
 
 
+OEM_SCHEMA = "https://erdesigns.eu/schema/oem-catalog-v2.json"
+OEM_SECTIONS = ("ecus", "dids", "routines", "coding_blocks", "adaptations",
+                "actuator_tests", "live_pids", "dtc_extended_data")
+# An entry copied verbatim into this many brand catalogues counts as shared
+# template data that belongs in a _shared/ base.
+SHARED_COPY_LIMIT = 5
+# Shared entries still present in brand catalogues. Lower this when more of
+# the template moves into a base; it must never grow.
+SHARED_ENTRY_BUDGET = 966
+MAX_EXTENDS_DEPTH = 4
+
+
+def entry_signature(section, entry):
+    """Entry identity ignoring provenance (source / verified)."""
+    body = {k: v for k, v in entry.items() if k not in ("source", "verified")}
+    return section, json.dumps(body, sort_keys=True)
+
+
+def own_signatures(catalog):
+    return {entry_signature(section, entry)
+            for section in OEM_SECTIONS
+            for entry in catalog.get(section) or [] if isinstance(entry, dict)}
+
+
+def inherited_signatures(root, path, catalog, depth=0):
+    """Signatures inherited through "extends"; raises ValueError on a bad chain."""
+    base = catalog.get("extends")
+    if not base:
+        return set()
+    if depth >= MAX_EXTENDS_DEPTH:
+        raise ValueError(f"extends chain deeper than {MAX_EXTENDS_DEPTH} (cycle?)")
+    if not isinstance(base, str) or base.startswith(("/", "\\")) or ":" in base:
+        raise ValueError(f"extends must be a relative path: {base!r}")
+    candidate = (path.parent / base).resolve()
+    if not candidate.is_relative_to(root) or not candidate.is_file():
+        raise ValueError(f"extends target {base} does not exist inside the catalog root")
+    parent = read_json(candidate)
+    if not isinstance(parent, dict) or parent.get("$schema") != OEM_SCHEMA:
+        raise ValueError(f"extends target {base} is not an OEM catalog")
+    return own_signatures(parent) | inherited_signatures(root, candidate, parent, depth + 1)
+
+
+def validate_oem_inheritance(root, oem, report):
+    """Check "extends" chains, redundant inherited copies and template spread."""
+    copies = {}
+    for path, catalog in oem:
+        relative = str(path.relative_to(root))
+        try:
+            inherited = inherited_signatures(root, path, catalog)
+        except (ValueError, OSError) as exc:
+            report["violations"].append({"file": relative, "path": "/extends",
+                                         "message": str(exc)})
+            continue
+        own = own_signatures(catalog)
+        redundant = len(own & inherited)
+        if redundant:
+            report["violations"].append({"file": relative, "path": "",
+                "message": f"{redundant} entries repeat entries inherited through extends"})
+        if "_shared" not in path.relative_to(root).parts:
+            for signature in own:
+                copies[signature] = copies.get(signature, 0) + 1
+    shared = sum(1 for n in copies.values() if n >= SHARED_COPY_LIMIT)
+    report["shared_entries"] = shared
+    if shared > SHARED_ENTRY_BUDGET:
+        report["violations"].append({"file": "", "path": "",
+            "message": f"{shared} entries are copied into {SHARED_COPY_LIMIT}+ brand catalogs "
+                       f"(budget {SHARED_ENTRY_BUDGET}); move shared template data to a "
+                       f"_shared/ base and reference it with extends"})
+
+
 def audit(root: Path):
     root = root.resolve()
     schemas = {}
     registry = Registry(retrieve=deny_remote)
     report = {"checked": [], "uncovered": [], "violations": []}
+    oem = []
     for path in sorted((root / "_schema").glob("*.json")):
         schema = read_json(path)
         Draft202012Validator.check_schema(schema)
@@ -91,6 +169,8 @@ def audit(root: Path):
             continue
         if isinstance(value, dict):
             validate_manifest(root, path, value, report)
+            if value.get("$schema") == OEM_SCHEMA and path.name != "test-schema-v2.json":
+                oem.append((path, value))
         declaration = value.get("$schema", "") if isinstance(value, dict) else ""
         target = schemas.get(declaration) if isinstance(declaration, str) else None
         if isinstance(declaration, str) and declaration.startswith("."):
@@ -111,6 +191,7 @@ def audit(root: Path):
                                          for part in error.absolute_path),
                 "message": error.message,
             })
+    validate_oem_inheritance(root, oem, report)
     return report
 
 
@@ -126,6 +207,7 @@ def main():
         args.report.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n",
                                encoding="utf-8")
     print(f"Schema checked: {len(report['checked'])}; uncovered: {len(report['uncovered'])}; "
+          f"shared template entries: {report['shared_entries']}/{SHARED_ENTRY_BUDGET}; "
           f"violations: {len(report['violations'])}")
     for issue in report["violations"][:10]:
         print(f"{issue['file']} {issue['path']}: {issue['message']}")

@@ -6,156 +6,2135 @@
   "applicable_wmis": [],
   "default_source": "iso-15031-6 / sae-j1979",
   "dids": [
-    { "did": "0x0001", "name": "monitor_status_since_dtcs_cleared",   "description": "Monitor status since DTCs cleared (bitmap)",                            "verified": true, "decoder": { "kind": "hex" } },
-    { "did": "0x0002", "name": "freeze_dtc",                          "description": "DTC that caused the freeze frame",                                       "verified": true, "decoder": { "kind": "hex" } },
-    { "did": "0x0003", "name": "fuel_system_status",                  "description": "Fuel system 1 / 2 status (2 bytes)",                                      "verified": true, "decoder": { "kind": "hex" } },
-    { "did": "0x0004", "name": "calculated_engine_load",              "description": "Calculated engine load (A/255 * 100)",                                    "verified": true,
-      "decoder": { "kind": "uint8", "scale": 0.39215686, "unit": "%" } },
-    { "did": "0x0005", "name": "engine_coolant_temperature",          "description": "Coolant temperature (A - 40)",                                            "verified": true,
-      "decoder": { "kind": "uint8", "scale": 1, "offset": -40, "unit": "C" } },
-    { "did": "0x0006", "name": "short_term_fuel_trim_bank_1",         "description": "STFT bank 1 ((A/1.28) - 100)",                                            "verified": true,
-      "decoder": { "kind": "uint8", "scale": 0.78125, "offset": -100, "unit": "%" } },
-    { "did": "0x0007", "name": "long_term_fuel_trim_bank_1",          "description": "LTFT bank 1",                                                              "verified": true,
-      "decoder": { "kind": "uint8", "scale": 0.78125, "offset": -100, "unit": "%" } },
-    { "did": "0x0008", "name": "short_term_fuel_trim_bank_2",         "description": "STFT bank 2",                                                              "verified": true,
-      "decoder": { "kind": "uint8", "scale": 0.78125, "offset": -100, "unit": "%" } },
-    { "did": "0x0009", "name": "long_term_fuel_trim_bank_2",          "description": "LTFT bank 2",                                                              "verified": true,
-      "decoder": { "kind": "uint8", "scale": 0.78125, "offset": -100, "unit": "%" } },
-    { "did": "0x000A", "name": "fuel_pressure_kpa",                   "description": "Fuel pressure (A * 3 kPa, gauge)",                                        "verified": true,
-      "decoder": { "kind": "uint8", "scale": 3, "unit": "kPa" } },
-    { "did": "0x000B", "name": "intake_manifold_pressure",            "description": "Intake manifold absolute pressure (A kPa)",                               "verified": true,
-      "decoder": { "kind": "uint8", "scale": 1, "unit": "kPa" } },
-    { "did": "0x000C", "name": "engine_rpm",                          "description": "Engine RPM ((256*A + B) / 4)",                                            "verified": true,
-      "decoder": { "kind": "uint16_be", "scale": 0.25, "unit": "rpm" } },
-    { "did": "0x000D", "name": "vehicle_speed",                       "description": "Vehicle speed (A km/h)",                                                  "verified": true,
-      "decoder": { "kind": "uint8", "scale": 1, "unit": "km/h" } },
-    { "did": "0x000E", "name": "timing_advance",                      "description": "Timing advance ((A/2) - 64) deg before TDC",                              "verified": true,
-      "decoder": { "kind": "uint8", "scale": 0.5, "offset": -64, "unit": "deg" } },
-    { "did": "0x000F", "name": "intake_air_temperature",              "description": "Intake air temperature (A - 40)",                                          "verified": true,
-      "decoder": { "kind": "uint8", "scale": 1, "offset": -40, "unit": "C" } },
-    { "did": "0x0010", "name": "mass_air_flow",                       "description": "MAF rate ((256*A + B) / 100) g/s",                                         "verified": true,
-      "decoder": { "kind": "uint16_be", "scale": 0.01, "unit": "g/s" } },
-    { "did": "0x0011", "name": "throttle_position",                   "description": "Throttle position (A/255 * 100)",                                          "verified": true,
-      "decoder": { "kind": "uint8", "scale": 0.39215686, "unit": "%" } },
-    { "did": "0x0012", "name": "commanded_secondary_air_status",      "description": "Commanded secondary air status",                                            "verified": true, "decoder": { "kind": "hex" } },
-    { "did": "0x0013", "name": "oxygen_sensors_present_2_bank",       "description": "O2 sensors present (2-bank bitmap)",                                        "verified": true, "decoder": { "kind": "hex" } },
-    { "did": "0x0014", "name": "o2_sensor_b1s1",                      "description": "Bank 1 sensor 1 voltage / fuel-trim",                                       "verified": true, "decoder": { "kind": "hex" } },
-    { "did": "0x0015", "name": "o2_sensor_b1s2",                      "description": "Bank 1 sensor 2 voltage / fuel-trim",                                       "verified": true, "decoder": { "kind": "hex" } },
-    { "did": "0x0016", "name": "o2_sensor_b1s3",                      "description": "Bank 1 sensor 3 voltage / fuel-trim",                                       "verified": true, "decoder": { "kind": "hex" } },
-    { "did": "0x0017", "name": "o2_sensor_b1s4",                      "description": "Bank 1 sensor 4 voltage / fuel-trim",                                       "verified": true, "decoder": { "kind": "hex" } },
-    { "did": "0x0018", "name": "o2_sensor_b2s1",                      "description": "Bank 2 sensor 1 voltage / fuel-trim",                                       "verified": true, "decoder": { "kind": "hex" } },
-    { "did": "0x0019", "name": "o2_sensor_b2s2",                      "description": "Bank 2 sensor 2 voltage / fuel-trim",                                       "verified": true, "decoder": { "kind": "hex" } },
-    { "did": "0x001A", "name": "o2_sensor_b2s3",                      "description": "Bank 2 sensor 3 voltage / fuel-trim",                                       "verified": true, "decoder": { "kind": "hex" } },
-    { "did": "0x001B", "name": "o2_sensor_b2s4",                      "description": "Bank 2 sensor 4 voltage / fuel-trim",                                       "verified": true, "decoder": { "kind": "hex" } },
-    { "did": "0x001C", "name": "obd_standard_supported",              "description": "OBD standard the vehicle conforms to",                                      "verified": true, "decoder": { "kind": "hex" } },
-    { "did": "0x001D", "name": "oxygen_sensors_present_4_bank",       "description": "O2 sensors present (4-bank bitmap)",                                        "verified": true, "decoder": { "kind": "hex" } },
-    { "did": "0x001E", "name": "auxiliary_input_status",              "description": "Aux input status (PTO etc.)",                                                "verified": true, "decoder": { "kind": "hex" } },
-    { "did": "0x001F", "name": "run_time_since_engine_start",         "description": "Run time since engine start (256*A + B) seconds",                           "verified": true,
-      "decoder": { "kind": "uint16_be", "scale": 1, "unit": "s" } },
-    { "did": "0x0021", "name": "distance_with_mil_on",                "description": "Distance traveled with MIL on (256*A + B) km",                              "verified": true,
-      "decoder": { "kind": "uint16_be", "scale": 1, "unit": "km" } },
-    { "did": "0x0022", "name": "fuel_rail_pressure_relative_manifold","description": "Fuel rail pressure relative to manifold (((256*A + B) * 0.079)) kPa",       "verified": true,
-      "decoder": { "kind": "uint16_be", "scale": 0.079, "unit": "kPa" } },
-    { "did": "0x0023", "name": "fuel_rail_gauge_pressure",            "description": "Fuel rail gauge pressure ((256*A + B) * 10) kPa",                           "verified": true,
-      "decoder": { "kind": "uint16_be", "scale": 10, "unit": "kPa" } },
-    { "did": "0x002C", "name": "commanded_egr",                       "description": "Commanded EGR (A/255 * 100)",                                                "verified": true,
-      "decoder": { "kind": "uint8", "scale": 0.39215686, "unit": "%" } },
-    { "did": "0x002D", "name": "egr_error",                           "description": "EGR error ((A/1.28) - 100)",                                                "verified": true,
-      "decoder": { "kind": "uint8", "scale": 0.78125, "offset": -100, "unit": "%" } },
-    { "did": "0x002E", "name": "commanded_evap_purge",                "description": "Commanded evap purge (A/255 * 100)",                                         "verified": true,
-      "decoder": { "kind": "uint8", "scale": 0.39215686, "unit": "%" } },
-    { "did": "0x002F", "name": "fuel_tank_level",                     "description": "Fuel tank level (A/255 * 100)",                                              "verified": true,
-      "decoder": { "kind": "uint8", "scale": 0.39215686, "unit": "%" } },
-    { "did": "0x0030", "name": "warm_ups_since_dtc_cleared",          "description": "Number of warm-ups since DTCs cleared",                                       "verified": true,
-      "decoder": { "kind": "uint8" } },
-    { "did": "0x0031", "name": "distance_since_dtc_cleared",          "description": "Distance since DTCs cleared (256*A + B) km",                                  "verified": true,
-      "decoder": { "kind": "uint16_be", "unit": "km" } },
-    { "did": "0x0033", "name": "absolute_barometric_pressure",        "description": "Absolute barometric pressure (A kPa)",                                       "verified": true,
-      "decoder": { "kind": "uint8", "unit": "kPa" } },
-    { "did": "0x003C", "name": "catalyst_temperature_b1s1",           "description": "Catalyst temperature B1S1 (((256*A + B) / 10) - 40)",                         "verified": true,
-      "decoder": { "kind": "uint16_be", "scale": 0.1, "offset": -40, "unit": "C" } },
-    { "did": "0x003D", "name": "catalyst_temperature_b2s1",           "description": "Catalyst temperature B2S1",                                                  "verified": true,
-      "decoder": { "kind": "uint16_be", "scale": 0.1, "offset": -40, "unit": "C" } },
-    { "did": "0x003E", "name": "catalyst_temperature_b1s2",           "description": "Catalyst temperature B1S2",                                                  "verified": true,
-      "decoder": { "kind": "uint16_be", "scale": 0.1, "offset": -40, "unit": "C" } },
-    { "did": "0x003F", "name": "catalyst_temperature_b2s2",           "description": "Catalyst temperature B2S2",                                                  "verified": true,
-      "decoder": { "kind": "uint16_be", "scale": 0.1, "offset": -40, "unit": "C" } },
-    { "did": "0x0042", "name": "control_module_voltage",              "description": "Control module voltage ((256*A + B) / 1000) V",                              "verified": true,
-      "decoder": { "kind": "uint16_be", "scale": 0.001, "unit": "V" } },
-    { "did": "0x0043", "name": "absolute_load_value",                 "description": "Absolute load value ((256*A + B) * 100/255)",                                  "verified": true,
-      "decoder": { "kind": "uint16_be", "scale": 0.39215686, "unit": "%" } },
-    { "did": "0x0044", "name": "commanded_air_fuel_equivalence_ratio","description": "Commanded equivalence ratio ((256*A + B) * 0.0000305)",                      "verified": true,
-      "decoder": { "kind": "uint16_be", "scale": 0.0000305 } },
-    { "did": "0x0045", "name": "relative_throttle_position",          "description": "Relative throttle position (A/255 * 100)",                                    "verified": true,
-      "decoder": { "kind": "uint8", "scale": 0.39215686, "unit": "%" } },
-    { "did": "0x0046", "name": "ambient_air_temperature",             "description": "Ambient air temperature (A - 40)",                                             "verified": true,
-      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
-    { "did": "0x004C", "name": "commanded_throttle_actuator",         "description": "Commanded throttle actuator (A/255 * 100)",                                     "verified": true,
-      "decoder": { "kind": "uint8", "scale": 0.39215686, "unit": "%" } },
-    { "did": "0x004D", "name": "time_run_with_mil_on",                "description": "Time run with MIL on (256*A + B) min",                                          "verified": true,
-      "decoder": { "kind": "uint16_be", "unit": "min" } },
-    { "did": "0x004E", "name": "time_since_dtc_cleared",              "description": "Time since DTCs cleared (256*A + B) min",                                       "verified": true,
-      "decoder": { "kind": "uint16_be", "unit": "min" } },
-    { "did": "0x0051", "name": "fuel_type",                           "description": "Fuel type (enum byte per ISO 15031-6)",                                          "verified": true, "decoder": { "kind": "hex" } },
-    { "did": "0x0052", "name": "ethanol_fuel_percentage",             "description": "Ethanol fuel percentage (A/255 * 100)",                                          "verified": true,
-      "decoder": { "kind": "uint8", "scale": 0.39215686, "unit": "%" } },
-    { "did": "0x005A", "name": "relative_accelerator_pedal_position", "description": "Relative accelerator pedal position",                                            "verified": true,
-      "decoder": { "kind": "uint8", "scale": 0.39215686, "unit": "%" } },
-    { "did": "0x005B", "name": "hybrid_battery_pack_remaining_life",  "description": "Hybrid battery pack remaining life (A/255 * 100)",                              "verified": true,
-      "decoder": { "kind": "uint8", "scale": 0.39215686, "unit": "%" } },
-    { "did": "0x005C", "name": "engine_oil_temperature",              "description": "Engine oil temperature (A - 40)",                                                 "verified": true,
-      "decoder": { "kind": "uint8", "offset": -40, "unit": "C" } },
-    { "did": "0x005D", "name": "fuel_injection_timing",               "description": "Fuel injection timing (((256*A + B) / 128) - 210)",                              "verified": true,
-      "decoder": { "kind": "uint16_be", "scale": 0.0078125, "offset": -210, "unit": "deg" } },
-    { "did": "0x005E", "name": "engine_fuel_rate",                    "description": "Engine fuel rate (((256*A + B) / 20)) L/h",                                       "verified": true,
-      "decoder": { "kind": "uint16_be", "scale": 0.05, "unit": "L/h" } },
-    { "did": "0x0061", "name": "demanded_engine_torque",              "description": "Driver-demanded engine percent torque (A - 125)",                                 "verified": true,
-      "decoder": { "kind": "uint8", "offset": -125, "unit": "%" } },
-    { "did": "0x0062", "name": "actual_engine_torque",                "description": "Actual engine percent torque (A - 125)",                                          "verified": true,
-      "decoder": { "kind": "uint8", "offset": -125, "unit": "%" } },
-    { "did": "0x0063", "name": "engine_reference_torque",             "description": "Engine reference torque (256*A + B) Nm",                                          "verified": true,
-      "decoder": { "kind": "uint16_be", "unit": "Nm" } },
-    { "did": "0x0064", "name": "engine_percent_torque_data",          "description": "Engine percent torque data (5 bytes: idle / point1..4)",                          "verified": true,
-      "decoder": { "kind": "hex" } },
-    { "did": "0x0066", "name": "mass_air_flow_sensor_b",              "description": "MAF sensor B / dual-MAF systems (g/s, 0.03125 scale)",                            "verified": true,
-      "decoder": { "kind": "uint16_be", "scale": 0.03125, "unit": "g/s" } },
-    { "did": "0x0067", "name": "engine_coolant_temperature_alt",      "description": "Engine coolant temperature, sensor 1 / 2 (alt encoding)",                         "verified": true,
-      "decoder": { "kind": "hex" } },
-    { "did": "0x0068", "name": "intake_air_temperature_sensor",       "description": "Intake air temperature, sensor 1 / 2",                                            "verified": true,
-      "decoder": { "kind": "hex" } },
-    { "did": "0x006B", "name": "exhaust_gas_recirc_temperature",      "description": "Exhaust gas recirculation temperature",                                            "verified": true,
-      "decoder": { "kind": "hex" } },
-    { "did": "0x0070", "name": "boost_pressure_control",              "description": "Boost pressure control",                                                           "verified": true,
-      "decoder": { "kind": "hex" } },
-    { "did": "0x0071", "name": "vgt_control",                         "description": "Variable geometry turbo (VGT) control",                                            "verified": true,
-      "decoder": { "kind": "hex" } },
-    { "did": "0x0073", "name": "exhaust_pressure",                    "description": "Exhaust pressure (sensor 1 / 2)",                                                  "verified": true,
-      "decoder": { "kind": "hex" } },
-    { "did": "0x0078", "name": "egt_bank_1",                          "description": "Exhaust gas temperature, bank 1 (4 sensors)",                                      "verified": true,
-      "decoder": { "kind": "hex" } },
-    { "did": "0x0079", "name": "egt_bank_2",                          "description": "Exhaust gas temperature, bank 2 (4 sensors)",                                      "verified": true,
-      "decoder": { "kind": "hex" } },
-    { "did": "0x007E", "name": "engine_run_time_with_mil_on",         "description": "Engine run time while MIL on (minutes)",                                           "verified": true,
-      "decoder": { "kind": "uint16_be", "unit": "min" } },
-    { "did": "0x007F", "name": "engine_run_time",                     "description": "Engine run time (5-byte block: total / total since codes cleared)",                "verified": true,
-      "decoder": { "kind": "hex" } },
-    { "did": "0x0083", "name": "nox_sensor",                          "description": "NOx sensor reading (256*A + B) ppm",                                                "verified": true,
-      "decoder": { "kind": "uint16_be", "unit": "ppm" } },
-    { "did": "0x009A", "name": "hybrid_ev_vehicle_system_data",       "description": "Hybrid/EV vehicle system data (battery / voltage / temperature)",                  "verified": true,
-      "decoder": { "kind": "hex" } },
-    { "did": "0x009B", "name": "diesel_aftertreatment",               "description": "Diesel after-treatment status (DPF, urea)",                                        "verified": true,
-      "decoder": { "kind": "hex" } },
-    { "did": "0x00A6", "name": "odometer",                            "description": "Odometer (4 bytes / 0.1 km)",                                                      "verified": true,
-      "decoder": { "kind": "uint32_be", "scale": 0.1, "unit": "km" } },
-    { "did": "0x00A7", "name": "nox_sensor_corrected",                "description": "NOx sensor corrected (4 sensors, ppm)",                                            "verified": true,
-      "decoder": { "kind": "hex" } },
-    { "did": "0x00AB", "name": "nox_sensor_alternative",              "description": "NOx sensor (alternative encoding) ppm",                                           "verified": true,
-      "decoder": { "kind": "hex" } },
-    { "did": "0x00C3", "name": "supported_pids_c1_e0",                "description": "PIDs supported in 0xC1-0xE0 (4-byte bitmask)",                                     "verified": true,
-      "decoder": { "kind": "hex" } },
-    { "did": "0x00C4", "name": "fuel_cetane_rating",                  "description": "Fuel cetane rating (diesel)",                                                       "verified": true,
-      "decoder": { "kind": "uint8" } },
-    { "did": "0x00C8", "name": "engine_friction_percent_torque",      "description": "Engine friction — percent torque",                                                  "verified": true,
-      "decoder": { "kind": "uint8", "offset": -125, "unit": "%" } }
+    {
+      "did": "0x0001",
+      "name": "monitor_status_since_dtcs_cleared",
+      "description": "Monitor status since DTCs cleared (bitmap)",
+      "verified": true,
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0x0002",
+      "name": "freeze_dtc",
+      "description": "DTC that caused the freeze frame",
+      "verified": true,
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0x0003",
+      "name": "fuel_system_status",
+      "description": "Fuel system 1 / 2 status (2 bytes)",
+      "verified": true,
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0x0004",
+      "name": "calculated_engine_load",
+      "description": "Calculated engine load (A/255 * 100)",
+      "verified": true,
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.39215686,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0x0005",
+      "name": "engine_coolant_temperature",
+      "description": "Coolant temperature (A - 40)",
+      "verified": true,
+      "decoder": {
+        "kind": "uint8",
+        "scale": 1,
+        "offset": -40,
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0x0006",
+      "name": "short_term_fuel_trim_bank_1",
+      "description": "STFT bank 1 ((A/1.28) - 100)",
+      "verified": true,
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.78125,
+        "offset": -100,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0x0007",
+      "name": "long_term_fuel_trim_bank_1",
+      "description": "LTFT bank 1",
+      "verified": true,
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.78125,
+        "offset": -100,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0x0008",
+      "name": "short_term_fuel_trim_bank_2",
+      "description": "STFT bank 2",
+      "verified": true,
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.78125,
+        "offset": -100,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0x0009",
+      "name": "long_term_fuel_trim_bank_2",
+      "description": "LTFT bank 2",
+      "verified": true,
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.78125,
+        "offset": -100,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0x000A",
+      "name": "fuel_pressure_kpa",
+      "description": "Fuel pressure (A * 3 kPa, gauge)",
+      "verified": true,
+      "decoder": {
+        "kind": "uint8",
+        "scale": 3,
+        "unit": "kPa"
+      }
+    },
+    {
+      "did": "0x000B",
+      "name": "intake_manifold_pressure",
+      "description": "Intake manifold absolute pressure (A kPa)",
+      "verified": true,
+      "decoder": {
+        "kind": "uint8",
+        "scale": 1,
+        "unit": "kPa"
+      }
+    },
+    {
+      "did": "0x000C",
+      "name": "engine_rpm",
+      "description": "Engine RPM ((256*A + B) / 4)",
+      "verified": true,
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.25,
+        "unit": "rpm"
+      }
+    },
+    {
+      "did": "0x000D",
+      "name": "vehicle_speed",
+      "description": "Vehicle speed (A km/h)",
+      "verified": true,
+      "decoder": {
+        "kind": "uint8",
+        "scale": 1,
+        "unit": "km/h"
+      }
+    },
+    {
+      "did": "0x000E",
+      "name": "timing_advance",
+      "description": "Timing advance ((A/2) - 64) deg before TDC",
+      "verified": true,
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "offset": -64,
+        "unit": "deg"
+      }
+    },
+    {
+      "did": "0x000F",
+      "name": "intake_air_temperature",
+      "description": "Intake air temperature (A - 40)",
+      "verified": true,
+      "decoder": {
+        "kind": "uint8",
+        "scale": 1,
+        "offset": -40,
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0x0010",
+      "name": "mass_air_flow",
+      "description": "MAF rate ((256*A + B) / 100) g/s",
+      "verified": true,
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "g/s"
+      }
+    },
+    {
+      "did": "0x0011",
+      "name": "throttle_position",
+      "description": "Throttle position (A/255 * 100)",
+      "verified": true,
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.39215686,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0x0012",
+      "name": "commanded_secondary_air_status",
+      "description": "Commanded secondary air status",
+      "verified": true,
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0x0013",
+      "name": "oxygen_sensors_present_2_bank",
+      "description": "O2 sensors present (2-bank bitmap)",
+      "verified": true,
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0x0014",
+      "name": "o2_sensor_b1s1",
+      "description": "Bank 1 sensor 1 voltage / fuel-trim",
+      "verified": true,
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0x0015",
+      "name": "o2_sensor_b1s2",
+      "description": "Bank 1 sensor 2 voltage / fuel-trim",
+      "verified": true,
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0x0016",
+      "name": "o2_sensor_b1s3",
+      "description": "Bank 1 sensor 3 voltage / fuel-trim",
+      "verified": true,
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0x0017",
+      "name": "o2_sensor_b1s4",
+      "description": "Bank 1 sensor 4 voltage / fuel-trim",
+      "verified": true,
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0x0018",
+      "name": "o2_sensor_b2s1",
+      "description": "Bank 2 sensor 1 voltage / fuel-trim",
+      "verified": true,
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0x0019",
+      "name": "o2_sensor_b2s2",
+      "description": "Bank 2 sensor 2 voltage / fuel-trim",
+      "verified": true,
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0x001A",
+      "name": "o2_sensor_b2s3",
+      "description": "Bank 2 sensor 3 voltage / fuel-trim",
+      "verified": true,
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0x001B",
+      "name": "o2_sensor_b2s4",
+      "description": "Bank 2 sensor 4 voltage / fuel-trim",
+      "verified": true,
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0x001C",
+      "name": "obd_standard_supported",
+      "description": "OBD standard the vehicle conforms to",
+      "verified": true,
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0x001D",
+      "name": "oxygen_sensors_present_4_bank",
+      "description": "O2 sensors present (4-bank bitmap)",
+      "verified": true,
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0x001E",
+      "name": "auxiliary_input_status",
+      "description": "Aux input status (PTO etc.)",
+      "verified": true,
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0x001F",
+      "name": "run_time_since_engine_start",
+      "description": "Run time since engine start (256*A + B) seconds",
+      "verified": true,
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 1,
+        "unit": "s"
+      }
+    },
+    {
+      "did": "0x0021",
+      "name": "distance_with_mil_on",
+      "description": "Distance traveled with MIL on (256*A + B) km",
+      "verified": true,
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 1,
+        "unit": "km"
+      }
+    },
+    {
+      "did": "0x0022",
+      "name": "fuel_rail_pressure_relative_manifold",
+      "description": "Fuel rail pressure relative to manifold (((256*A + B) * 0.079)) kPa",
+      "verified": true,
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.079,
+        "unit": "kPa"
+      }
+    },
+    {
+      "did": "0x0023",
+      "name": "fuel_rail_gauge_pressure",
+      "description": "Fuel rail gauge pressure ((256*A + B) * 10) kPa",
+      "verified": true,
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 10,
+        "unit": "kPa"
+      }
+    },
+    {
+      "did": "0x0024",
+      "name": "o2_sensor_1_wide_range_equivalence_ratio_voltage",
+      "description": "Fields: Lambda value, Equivalence Ratio Bank 1, Sensor 1; Wide Range O2S Voltage, O2 Sensor Bank 1, Sensor 1 [V]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0025",
+      "name": "o2_sensor_2_wide_range_equivalence_ratio_voltage",
+      "description": "Fields: Lambda value, Equivalence Ratio Bank 1, Sensor 2; Wide Range O2S Voltage, O2 Sensor Bank 1, Sensor 2 [V]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0026",
+      "name": "o2_sensor_3_wide_range_equivalence_ratio_voltage",
+      "description": "Fields: Lambda value, Equivalence Ratio Bank 1, Sensor 3; Wide Range O2S Voltage, O2 Sensor Bank 1, Sensor 3 [V]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0027",
+      "name": "o2_sensor_4_wide_range_equivalence_ratio_voltage",
+      "description": "Fields: Lambda value, Equivalence Ratio Bank 1, Sensor 4; Wide Range O2S Voltage, O2 Sensor Bank 1, Sensor 4 [V]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0028",
+      "name": "o2_sensor_5_wide_range_equivalence_ratio_voltage",
+      "description": "Fields: Lambda value, Equivalence Ratio Bank 2, Sensor 1; Wide Range O2S Voltage, O2 Sensor Bank 2, Sensor 1 [V]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0029",
+      "name": "o2_sensor_6_wide_range_equivalence_ratio_voltage",
+      "description": "Fields: Lambda value, Equivalence Ratio Bank 2, Sensor 2; Wide Range O2S Voltage, O2 Sensor Bank 2, Sensor 2 [V]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x002A",
+      "name": "o2_sensor_7_wide_range_equivalence_ratio_voltage",
+      "description": "Fields: Lambda value, Equivalence Ratio Bank 2, Sensor 3; Wide Range O2S Voltage, O2 Sensor Bank 2, Sensor 3 [V]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x002B",
+      "name": "o2_sensor_8_wide_range_equivalence_ratio_voltage",
+      "description": "Fields: Lambda value, Equivalence Ratio Bank 2, Sensor 4; Wide Range O2S Voltage, O2 Sensor Bank 2, Sensor 4 [V]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x002C",
+      "name": "commanded_egr",
+      "description": "Commanded EGR (A/255 * 100)",
+      "verified": true,
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.39215686,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0x002D",
+      "name": "egr_error",
+      "description": "EGR error ((A/1.28) - 100)",
+      "verified": true,
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.78125,
+        "offset": -100,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0x002E",
+      "name": "commanded_evap_purge",
+      "description": "Commanded evap purge (A/255 * 100)",
+      "verified": true,
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.39215686,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0x002F",
+      "name": "fuel_tank_level",
+      "description": "Fuel tank level (A/255 * 100)",
+      "verified": true,
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.39215686,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0x0030",
+      "name": "warm_ups_since_dtc_cleared",
+      "description": "Number of warm-ups since DTCs cleared",
+      "verified": true,
+      "decoder": {
+        "kind": "uint8"
+      }
+    },
+    {
+      "did": "0x0031",
+      "name": "distance_since_dtc_cleared",
+      "description": "Distance since DTCs cleared (256*A + B) km",
+      "verified": true,
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km"
+      }
+    },
+    {
+      "did": "0x0032",
+      "name": "evap_system_vapor_pressure",
+      "description": "The pressure signal is normally obtained from a sensor located in the fuel tank or a sensor in an evaporative system vapor line",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.00025,
+        "unit": "kPa"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0033",
+      "name": "absolute_barometric_pressure",
+      "description": "Absolute barometric pressure (A kPa)",
+      "verified": true,
+      "decoder": {
+        "kind": "uint8",
+        "unit": "kPa"
+      }
+    },
+    {
+      "did": "0x0034",
+      "name": "o2_sensor_1_wide_range_equivalence_ratio_current",
+      "description": "Fields: Lambda value, Equivalence Ratio Bank 1, Sensor 1; Wide Range O2S Current, O2 Sensor Bank 1, Sensor 1 [mA]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0035",
+      "name": "o2_sensor_2_wide_range_equivalence_ratio_current",
+      "description": "Fields: Lambda value, Equivalence Ratio Bank 1, Sensor 2; Wide Range O2S Current, O2 Sensor Bank 1, Sensor 2 [mA]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0036",
+      "name": "o2_sensor_3_wide_range_equivalence_ratio_current",
+      "description": "Fields: Lambda value, Equivalence Ratio Bank 1, Sensor 3; Wide Range O2S Current, O2 Sensor Bank 1, Sensor 3 [mA]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0037",
+      "name": "o2_sensor_4_wide_range_equivalence_ratio_current",
+      "description": "Fields: Lambda value, Equivalence Ratio Bank 1, Sensor 4; Wide Range O2S Current, O2 Sensor Bank 1, Sensor 4 [mA]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0038",
+      "name": "o2_sensor_5_wide_range_equivalence_ratio_current",
+      "description": "Fields: Lambda value, Equivalence Ratio Bank 2, Sensor 1; Wide Range O2S Current, O2 Sensor Bank 2, Sensor 1 [mA]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0039",
+      "name": "o2_sensor_6_wide_range_equivalence_ratio_current",
+      "description": "Fields: Lambda value, Equivalence Ratio Bank 2, Sensor 2; Wide Range O2S Current, O2 Sensor Bank 2, Sensor 2 [mA]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x003A",
+      "name": "o2_sensor_7_wide_range_equivalence_ratio_current",
+      "description": "Fields: Lambda value, Equivalence Ratio Bank 2, Sensor 3; Wide Range O2S Current, O2 Sensor Bank 2, Sensor 3 [mA]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x003B",
+      "name": "o2_sensor_8_wide_range_equivalence_ratio_current",
+      "description": "Fields: Lambda value, Equivalence Ratio Bank 2, Sensor 4; Wide Range O2S Current, O2 Sensor Bank 2, Sensor 4 [mA]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x003C",
+      "name": "catalyst_temperature_b1s1",
+      "description": "Catalyst temperature B1S1 (((256*A + B) / 10) - 40)",
+      "verified": true,
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -40,
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0x003D",
+      "name": "catalyst_temperature_b2s1",
+      "description": "Catalyst temperature B2S1",
+      "verified": true,
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -40,
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0x003E",
+      "name": "catalyst_temperature_b1s2",
+      "description": "Catalyst temperature B1S2",
+      "verified": true,
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -40,
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0x003F",
+      "name": "catalyst_temperature_b2s2",
+      "description": "Catalyst temperature B2S2",
+      "verified": true,
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -40,
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0x0041",
+      "name": "monitor_status_this_drive_cycle",
+      "description": "Fields: Comprehensive component monitoring completed; Fuel system monitoring completed; Misfire monitoring completed; Comprehensive component monitoring enabled; Fuel system monitoring enabled; Misfire monitoring enabled; EGR system monitoring; Oxygen sensor heater monitoring; …",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0042",
+      "name": "control_module_voltage",
+      "description": "Control module voltage ((256*A + B) / 1000) V",
+      "verified": true,
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      }
+    },
+    {
+      "did": "0x0043",
+      "name": "absolute_load_value",
+      "description": "Absolute load value ((256*A + B) * 100/255)",
+      "verified": true,
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.39215686,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0x0044",
+      "name": "commanded_air_fuel_equivalence_ratio",
+      "description": "Commanded equivalence ratio ((256*A + B) * 0.0000305)",
+      "verified": true,
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 3.05e-05
+      }
+    },
+    {
+      "did": "0x0045",
+      "name": "relative_throttle_position",
+      "description": "Relative throttle position (A/255 * 100)",
+      "verified": true,
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.39215686,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0x0046",
+      "name": "ambient_air_temperature",
+      "description": "Ambient air temperature (A - 40)",
+      "verified": true,
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0x0047",
+      "name": "absolute_throttle_position_b",
+      "description": "Absolute throttle position B",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0048",
+      "name": "absolute_throttle_position_c",
+      "description": "Absolute throttle position C",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0049",
+      "name": "accelerator_pedal_position_d",
+      "description": "Accelerator pedal position D",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x004A",
+      "name": "accelerator_pedal_position_e",
+      "description": "Accelerator pedal position E",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x004B",
+      "name": "accelerator_pedal_position_f",
+      "description": "Accelerator pedal position F",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x004C",
+      "name": "commanded_throttle_actuator",
+      "description": "Commanded throttle actuator (A/255 * 100)",
+      "verified": true,
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.39215686,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0x004D",
+      "name": "time_run_with_mil_on",
+      "description": "Time run with MIL on (256*A + B) min",
+      "verified": true,
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "min"
+      }
+    },
+    {
+      "did": "0x004E",
+      "name": "time_since_dtc_cleared",
+      "description": "Time since DTCs cleared (256*A + B) min",
+      "verified": true,
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "min"
+      }
+    },
+    {
+      "did": "0x004F",
+      "name": "maximum_values_equivalence_ratio_o2_voltage_o2_current_map",
+      "description": "Fields: Maximum value for equivalence ratio; Maximum value for oxygen sensor voltage [V]; Maximum value for oxygen sensor current [mA]; Maximum value for intake manifold absolute pressure (MAP) [kPa]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0050",
+      "name": "maximum_mass_air_flow_rate",
+      "description": "Maximum value for air flow rate from mass air flow sensor",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 10,
+        "unit": "g/s"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0051",
+      "name": "fuel_type",
+      "description": "Fuel type (enum byte per ISO 15031-6)",
+      "verified": true,
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0x0052",
+      "name": "ethanol_fuel_percentage",
+      "description": "Ethanol fuel percentage (A/255 * 100)",
+      "verified": true,
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.39215686,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0x0053",
+      "name": "absolute_evap_system_vapor_pressure",
+      "description": "Normally obtained from a sensor located in the fuel tank or a sensor in an evaporative system vapor line",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.005,
+        "unit": "kPa"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0054",
+      "name": "evap_system_vapor_pressure_wide",
+      "description": "The pressure signal is normally obtained from a sensor located in the fuel tank or a sensor in an evaporative system vapor line",
+      "decoder": {
+        "kind": "int16_be",
+        "scale": 0.001,
+        "unit": "kPa"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0055",
+      "name": "short_term_secondary_o2_sensor_fuel_trim_bank_1",
+      "description": "Short term secondary O2 sensor fuel trim (bank 1)",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.78125,
+        "offset": -100,
+        "unit": "%"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0056",
+      "name": "long_term_secondary_o2_sensor_fuel_trim_bank_1",
+      "description": "Long term secondary O2 sensor fuel trim (bank 1)",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.78125,
+        "offset": -100,
+        "unit": "%"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0057",
+      "name": "short_term_secondary_o2_sensor_fuel_trim_bank_2",
+      "description": "Short term secondary O2 sensor fuel trim (bank 2)",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.78125,
+        "offset": -100,
+        "unit": "%"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0058",
+      "name": "long_term_secondary_o2_sensor_fuel_trim_bank_2",
+      "description": "Long term secondary O2 sensor fuel trim (bank 2)",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.78125,
+        "offset": -100,
+        "unit": "%"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0059",
+      "name": "fuel_rail_pressure_absolute",
+      "description": "Fuel rail pressure at the engine when the reading is absolute (referenced to vacuum)",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 10,
+        "unit": "kPa"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x005A",
+      "name": "relative_accelerator_pedal_position",
+      "description": "Relative accelerator pedal position",
+      "verified": true,
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.39215686,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0x005B",
+      "name": "hybrid_battery_pack_remaining_life",
+      "description": "Hybrid battery pack remaining life (A/255 * 100)",
+      "verified": true,
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.39215686,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0x005C",
+      "name": "engine_oil_temperature",
+      "description": "Engine oil temperature (A - 40)",
+      "verified": true,
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "C"
+      }
+    },
+    {
+      "did": "0x005D",
+      "name": "fuel_injection_timing",
+      "description": "Fuel injection timing (((256*A + B) / 128) - 210)",
+      "verified": true,
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0078125,
+        "offset": -210,
+        "unit": "deg"
+      }
+    },
+    {
+      "did": "0x005E",
+      "name": "engine_fuel_rate",
+      "description": "Engine fuel rate (((256*A + B) / 20)) L/h",
+      "verified": true,
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.05,
+        "unit": "L/h"
+      }
+    },
+    {
+      "did": "0x005F",
+      "name": "emission_requirements_to_which_vehicle_is_designed",
+      "description": "Fields: Emission requirements to which vehicle is designed",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0061",
+      "name": "demanded_engine_torque",
+      "description": "Driver-demanded engine percent torque (A - 125)",
+      "verified": true,
+      "decoder": {
+        "kind": "uint8",
+        "offset": -125,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0x0062",
+      "name": "actual_engine_torque",
+      "description": "Actual engine percent torque (A - 125)",
+      "verified": true,
+      "decoder": {
+        "kind": "uint8",
+        "offset": -125,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0x0063",
+      "name": "engine_reference_torque",
+      "description": "Engine reference torque (256*A + B) Nm",
+      "verified": true,
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "Nm"
+      }
+    },
+    {
+      "did": "0x0064",
+      "name": "engine_percent_torque_data",
+      "description": "Engine percent torque data (5 bytes: idle / point1..4)",
+      "verified": true,
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0x0065",
+      "name": "auxiliary_input_output_supported",
+      "description": "Fields: Recommended gear; Glow plug lamp status; Manual Trans Neutral Gear Status; Auto Trans Neutral Drive Status; Power Take Off (PTO) Output Status",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0066",
+      "name": "mass_air_flow_sensor_a_b",
+      "description": "Fields: Mass Air Flow Sensor A [g/s]; Mass Air Flow Sensor B [g/s]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0067",
+      "name": "engine_coolant_temperature_alt",
+      "description": "Engine coolant temperature, sensor 1 / 2 (alt encoding)",
+      "verified": true,
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0x0068",
+      "name": "intake_air_temperature_sensor",
+      "description": "Intake air temperature, sensor 1 / 2",
+      "verified": true,
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0x0069",
+      "name": "commanded_actual_egr_and_egr_error",
+      "description": "Fields: Commanded EGR A duty cycle/position [%]; Actual EGR A duty cycle/position [%]; EGR A error [%]; Commanded EGR B duty cycle/position [%]; Actual EGR B duty cycle/position [%]; EGR B error [%]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x006A",
+      "name": "commanded_diesel_intake_air_flow_control",
+      "description": "Fields: Commanded intake air flow A control [%]; Relative intake air flow A position [%]; Commanded intake air flow B control [%]; Relative intake air flow B position [%]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x006B",
+      "name": "exhaust_gas_recirc_temperature",
+      "description": "Exhaust gas recirculation temperature",
+      "verified": true,
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0x006C",
+      "name": "commanded_throttle_actuator_control_and_relative_throttle_position",
+      "description": "Fields: Commanded Throttle Actuator A Control [%]; Relative Throttle A Position [%]; Commanded Throttle Actuator B Control [%]; Relative Throttle B Position [%]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x006D",
+      "name": "fuel_pressure_control_system",
+      "description": "Fields: Commanded Fuel Rail Pressure A [kPa]; Fuel Rail Pressure A [kPa]; Fuel Rail Temperature A [°C]; Commanded Fuel Rail Pressure B [kPa]; Fuel Rail Pressure B [kPa]; Fuel Rail Temperature B [°C]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x006E",
+      "name": "injection_pressure_control_system",
+      "description": "Fields: Commanded injection control pressure A [kPa]; Injection control pressure A [kPa]; Commanded injection control pressure B [kPa]; Injection control pressure B [kPa]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0070",
+      "name": "boost_pressure_control",
+      "description": "Boost pressure control",
+      "verified": true,
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0x0071",
+      "name": "vgt_control",
+      "description": "Variable geometry turbo (VGT) control",
+      "verified": true,
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0x0072",
+      "name": "wastegate_control",
+      "description": "Fields: Commanded wastegate A position [%]; Wastegate A position [%]; Commanded wastegate B position [%]; Wastegate B position [%]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0073",
+      "name": "exhaust_pressure",
+      "description": "Exhaust pressure (sensor 1 / 2)",
+      "verified": true,
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0x0074",
+      "name": "turbocharger_rpm",
+      "description": "Fields: Turbocharger A speed [rpm]; Turbocharger B speed [rpm]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0075",
+      "name": "turbocharger_a_temperature",
+      "description": "Fields: Turbocharger A compressor inlet temperature [°C]; Turbocharger A compressor outlet temperature [°C]; Turbocharger A turbine inlet temperature [°C]; Turbocharger A turbine outlet temperature [°C]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0076",
+      "name": "turbocharger_b_temperature",
+      "description": "Fields: Turbocharger B compressor inlet temperature [°C]; Turbocharger B compressor outlet temperature [°C]; Turbocharger B turbine inlet temperature [°C]; Turbocharger B turbine outlet temperature [°C]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0077",
+      "name": "charge_air_cooler_temperature",
+      "description": "Fields: Charge air cooler temperature bank 1, sensor 1 [°C]; Charge air cooler temperature bank 1, sensor 2 [°C]; Charge air cooler temperature bank 2, sensor 1 [°C]; Charge air cooler temperature bank 2, sensor 2 [°C]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0078",
+      "name": "egt_bank_1",
+      "description": "Exhaust gas temperature, bank 1 (4 sensors)",
+      "verified": true,
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0x0079",
+      "name": "egt_bank_2",
+      "description": "Exhaust gas temperature, bank 2 (4 sensors)",
+      "verified": true,
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0x007A",
+      "name": "diesel_particulate_filter_bank_1_pressure",
+      "description": "Fields: Particulate filter bank 1 delta pressure [kPa]; Particulate filter bank 1 inlet pressure [kPa]; Particulate filter bank 1 outlet pressure [kPa]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x007B",
+      "name": "diesel_particulate_filter_bank_2_pressure",
+      "description": "Fields: Particulate filter bank 2 delta pressure [kPa]; Particulate filter bank 2 inlet pressure [kPa]; Particulate filter bank 2 outlet pressure [kPa]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x007C",
+      "name": "diesel_particulate_filter_temperature",
+      "description": "Fields: Particulate filter bank 1 inlet temperature [°C]; Particulate filter bank 1 outlet temperature [°C]; Particulate filter bank 2 inlet temperature [°C]; Particulate filter bank 2 outlet temperature [°C]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x007E",
+      "name": "nte_control_area_status_diesel",
+      "description": "Fields: NTE deficiency for PM active area; Inside manufacturer-specific PM NTE carve-out area; Outside PM control area; Inside PM control area",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x007F",
+      "name": "engine_run_time",
+      "description": "Engine run time (5-byte block: total / total since codes cleared)",
+      "verified": true,
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0x0081",
+      "name": "engine_run_time_for_aecd_1_5",
+      "description": "Fields: Total run time with EI-AECD #1 timer 1 active [s]; Total run time with EI-AECD #1 timer 2 active [s]; Total run time with EI-AECD #2 timer 1 active [s]; Total run time with EI-AECD #2 timer 2 active [s]; Total run time with EI-AECD #3 timer 1 active [s]; Total run time with EI-AECD #3 timer 2 active [s]; Total run time with EI-AECD #4 timer 1 active [s]; Total run time with EI-AECD #4 timer 2 active [s]; …",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0082",
+      "name": "engine_run_time_for_aecd_6_10",
+      "description": "Fields: Total run time with EI-AECD #6 timer 1 active [s]; Total run time with EI-AECD #6 timer 2 active [s]; Total run time with EI-AECD #7 timer 1 active [s]; Total run time with EI-AECD #7 timer 2 active [s]; Total run time with EI-AECD #8 timer 1 active [s]; Total run time with EI-AECD #8 timer 2 active [s]; Total run time with EI-AECD #9 timer 1 active [s]; Total run time with EI-AECD #9 timer 2 active [s]; …",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0083",
+      "name": "nox_sensor_concentration",
+      "description": "Fields: NOx concentration bank 1, sensor 1; NOx concentration bank 1, sensor 2; NOx concentration bank 2, sensor 1; NOx concentration bank 2, sensor 2",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0084",
+      "name": "manifold_surface_temperature",
+      "description": "Manifold surface temperature",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "C"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0085",
+      "name": "nox_reagent_system",
+      "description": "Fields: Average reagent consumption [L/h]; Average demanded reagent consumption [L/h]; Reagent tank level [%]; Run time with NOx warning active [s]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0086",
+      "name": "particulate_matter_pm_sensor",
+      "description": "Fields: PM mass concentration bank 1, sensor 1; PM mass concentration bank 2, sensor 1",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0088",
+      "name": "scr_inducement_system",
+      "description": "Fields: SCR inducement system active; SCR inducement for NOx emissions too high; SCR inducement for reagent consumption deviation; SCR inducement for incorrect reagent; SCR inducement for reagent level too low; SCR inducement for NOx emissions too high in the 10,000-20,000 km history block; SCR inducement for reagent consumption deviation in the 10,000-20,000 km history block; SCR inducement for incorrect reagent in the 10,000-20,000 km history block; …",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0089",
+      "name": "engine_run_time_for_aecd_11_15",
+      "description": "Fields: Total run time with EI-AECD #11 timer 1 active [s]; Total run time with EI-AECD #11 timer 2 active [s]; Total run time with EI-AECD #12 timer 1 active [s]; Total run time with EI-AECD #12 timer 2 active [s]; Total run time with EI-AECD #13 timer 1 active [s]; Total run time with EI-AECD #13 timer 2 active [s]; Total run time with EI-AECD #14 timer 1 active [s]; Total run time with EI-AECD #14 timer 2 active [s]; …",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x008A",
+      "name": "engine_run_time_for_aecd_16_20",
+      "description": "Fields: Total run time with EI-AECD #16 timer 1 active [s]; Total run time with EI-AECD #16 timer 2 active [s]; Total run time with EI-AECD #17 timer 1 active [s]; Total run time with EI-AECD #17 timer 2 active [s]; Total run time with EI-AECD #18 timer 1 active [s]; Total run time with EI-AECD #18 timer 2 active [s]; Total run time with EI-AECD #19 timer 1 active [s]; Total run time with EI-AECD #19 timer 2 active [s]; …",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x008B",
+      "name": "diesel_aftertreatment_status",
+      "description": "Fields: NOx adsorber desulfurization in progress; NOx adsorber regen in progress; Particulate filter regen in progress; Normalized trigger for particulate filter regen [%]; Average time between particulate filter regens [min]; Average distance between particulate filter regens [km]; Particulate filter regen type",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x008C",
+      "name": "o2_sensor_wide_range_concentration_sensors_1_2",
+      "description": "Fields: O2 concentration bank 1, sensor 1 [%]; O2 concentration bank 1, sensor 2 [%]; O2 concentration bank 2, sensor 1 [%]; O2 concentration bank 2, sensor 2 [%]; O2 sensor lambda bank 1, sensor 1; O2 sensor lambda bank 1, sensor 2; O2 sensor lambda bank 2, sensor 1; O2 sensor lambda bank 2, sensor 2",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x008D",
+      "name": "absolute_throttle_position_g",
+      "description": "Absolute Throttle Position G",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x008E",
+      "name": "engine_friction_percent_torque",
+      "description": "Engine Friction - Percent Torque",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -125,
+        "unit": "%"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x008F",
+      "name": "pm_sensor_output",
+      "description": "Fields: PM sensor bank 1, sensor 1 regenerating; PM sensor bank 1, sensor 1 measuring; PM sensor normalized output bank 1, sensor 1 [%]; PM sensor bank 2, sensor 1 regenerating; PM sensor bank 2, sensor 1 measuring; PM sensor normalized output bank 2, sensor 1 [%]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0090",
+      "name": "wwh_obd_vehicle_obd_system_information",
+      "description": "Fields: Engine hours with the continuous MI active [h]; Emission system readiness; Vehicle malfunction indicator status; MI display strategy",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0091",
+      "name": "wwh_obd_ecu_obd_system_information",
+      "description": "Fields: ECU engine hours with the continuous MI active [h]; Highest ECU class B1 malfunction counter [h]; ECU malfunction indicator status",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0092",
+      "name": "fuel_system_control",
+      "description": "Fields: Idle fuel balance control 2 in closed loop; Fuel injection timing control 2 in closed loop; Fuel injection quantity control 2 in closed loop; Fuel pressure control 2 in closed loop; Idle fuel balance control 1 in closed loop; Fuel injection timing control 1 in closed loop; Fuel injection quantity control 1 in closed loop; Fuel pressure control 1 in closed loop",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0093",
+      "name": "wwh_obd_vehicle_obd_counters_support",
+      "description": "Fields: Cumulative engine hours with the continuous MI active [h]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0094",
+      "name": "nox_warning_and_inducement_system",
+      "description": "Fields: NOx warning system active; Engine hours with incorrect reagent quality [h]; Engine hours with incorrect reagent consumption [h]; Engine hours with reagent dosing interrupted [h]; Engine hours with an impeded EGR valve [h]; Engine hours with a NOx control monitoring system fault [h]; Level three inducement status; Level two inducement status; …",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0095",
+      "name": "scr_catalyst_nh3_storage",
+      "description": "Fields: Target SCR catalyst A NH3 storage [g/L]; Actual SCR catalyst A NH3 storage [g/L]; Target SCR catalyst B NH3 storage [g/L]; Actual SCR catalyst B NH3 storage [g/L]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0096",
+      "name": "hydrocarbon_doser",
+      "description": "Fields: Hydrocarbon doser flow rate [g/s]; Hydrocarbon doser injector duty cycle [%]; Aftertreatment fuel pressure [kPa]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x0097",
+      "name": "nox_mass_emission_rate",
+      "description": "Fields: Engine-out NOx mass emission rate [g/s]; Tailpipe NOx mass emission rate [g/s]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x009A",
+      "name": "hybrid_ev_vehicle_system_data",
+      "description": "Hybrid/EV vehicle system data (battery / voltage / temperature)",
+      "verified": true,
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0x009B",
+      "name": "diesel_aftertreatment",
+      "description": "Diesel after-treatment status (DPF, urea)",
+      "verified": true,
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0x009C",
+      "name": "o2_sensor_wide_range_concentration_sensors_3_4",
+      "description": "Fields: O2 concentration bank 1, sensor 3 [%]; O2 concentration bank 1, sensor 4 [%]; O2 concentration bank 2, sensor 3 [%]; O2 concentration bank 2, sensor 4 [%]; O2 sensor lambda bank 1, sensor 3; O2 sensor lambda bank 1, sensor 4; O2 sensor lambda bank 2, sensor 3; O2 sensor lambda bank 2, sensor 4",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x009D",
+      "name": "engine_fuel_rate_alternate_vehicle_fuel_rate",
+      "description": "Fields: Engine fuel rate (alternate) [g/s]; Vehicle fuel rate [g/s]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x009E",
+      "name": "engine_exhaust_flow_rate",
+      "description": "Engine exhaust flow rate",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.2,
+        "unit": "kg/h"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x009F",
+      "name": "fuel_system_percentage_use",
+      "description": "Fields: Fuel system A use percentage bank 1 [%]; Fuel system B use percentage bank 1 [%]; Fuel system A use percentage bank 2 [%]; Fuel system B use percentage bank 2 [%]; Fuel system A use percentage bank 3 [%]; Fuel system B use percentage bank 3 [%]; Fuel system A use percentage bank 4 [%]; Fuel system B use percentage bank 4 [%]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00A1",
+      "name": "nox_sensor_corrected_data",
+      "description": "Fields: Corrected NOx concentration bank 1, sensor 1; Corrected NOx concentration bank 1, sensor 2; Corrected NOx concentration bank 2, sensor 1; Corrected NOx concentration bank 2, sensor 2",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00A2",
+      "name": "cylinder_fuel_rate",
+      "description": "Cylinder fuel rate",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.03125,
+        "unit": "mg/stroke"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00A3",
+      "name": "evap_system_vapor_pressure_extended",
+      "description": "Fields: Evap system sealed; Evap system vapor pressure A [kPa]; Evap system vapor pressure A, wide range [kPa]; Evap system vapor pressure B [kPa]; Evap system vapor pressure B, wide range [kPa]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00A4",
+      "name": "transmission_actual_gear",
+      "description": "Fields: Transmission actual gear; Transmission actual gear ratio",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00A5",
+      "name": "commanded_def_dosing",
+      "description": "Fields: Commanded DEF dosing [%]; DEF used in the current driving cycle [L]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00A6",
+      "name": "odometer",
+      "description": "Odometer (4 bytes / 0.1 km)",
+      "verified": true,
+      "decoder": {
+        "kind": "uint32_be",
+        "scale": 0.1,
+        "unit": "km"
+      }
+    },
+    {
+      "did": "0x00A7",
+      "name": "nox_sensor_corrected",
+      "description": "NOx sensor corrected (4 sensors, ppm)",
+      "verified": true,
+      "decoder": {
+        "kind": "hex"
+      }
+    },
+    {
+      "did": "0x00A8",
+      "name": "nox_sensor_corrected_data_sensors_3_4",
+      "description": "Fields: Corrected NOx concentration bank 1, sensor 3; Corrected NOx concentration bank 1, sensor 4; Corrected NOx concentration bank 2, sensor 3; Corrected NOx concentration bank 2, sensor 4",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00AA",
+      "name": "maximum_current_vehicle_speed_limit",
+      "description": "Maximum current vehicle speed limit",
+      "decoder": {
+        "kind": "uint8",
+        "unit": "km/h"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00AB",
+      "name": "alternative_fuel_rail_pressure_temperature",
+      "description": "Fields: Alternative fuel rail pressure [kPa]; Alternative fuel rail temperature [°C]; Alternative fuel tank pressure [kPa]; Alternative fuel tank pressure, wide range [kPa]; Alternative fuel tank temperature [°C]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00AC",
+      "name": "def_doser_a_dosing_mode",
+      "description": "Fields: DEF doser A dosing mode; DEF doser A maximum dosing rate [kg/h]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00AE",
+      "name": "evap_system_purge_pressure",
+      "description": "Fields: Evap system purge pressure [kPa]; Evap system purge pressure, wide range [kPa]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00AF",
+      "name": "commanded_fresh_air_flow",
+      "description": "Commanded fresh air flow",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.05,
+        "unit": "kg/h"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00B0",
+      "name": "egr_mass_flow_rate",
+      "description": "Fields: EGR mass flow rate A [kg/h]; EGR mass flow rate B [kg/h]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00B1",
+      "name": "fuel_system_status_extended",
+      "description": "Fields: Fuel system bank 2 in open loop due to a malfunction; Fuel system bank 2 in closed loop; Fuel system bank 2 in open loop; Fuel system bank 1 in open loop due to a malfunction; Fuel system bank 1 in closed loop; Fuel system bank 1 in open loop; Short term fuel trim bank 1, compression ignition [%]; Long term fuel trim bank 1, compression ignition [%]; …",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00B2",
+      "name": "traction_battery_pack_state_of_health",
+      "description": "Traction battery pack State of Health",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.3921568627,
+        "unit": "%"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00B3",
+      "name": "hv_battery_charge_rate",
+      "description": "Fields: HV battery actual charge rate [kW]; HV battery pack A actual charge rate [kW]; HV battery pack B actual charge rate [kW]; HV battery pack C actual charge rate [kW]; HV battery pack D actual charge rate [kW]; HV battery pack E actual charge rate [kW]; HV battery pack F actual charge rate [kW]; HV battery pack G actual charge rate [kW]; …",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00B4",
+      "name": "hv_battery_temperature",
+      "description": "Fields: HV battery temperature [°C]; HV battery pack A temperature [°C]; HV battery pack B temperature [°C]; HV battery pack C temperature [°C]; HV battery pack D temperature [°C]; HV battery pack E temperature [°C]; HV battery pack F temperature [°C]; HV battery pack G temperature [°C]; …",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00B5",
+      "name": "hv_battery_current",
+      "description": "Fields: HV battery current [A]; HV battery pack A current [A]; HV battery pack B current [A]; HV battery pack C current [A]; HV battery pack D current [A]; HV battery pack E current [A]; HV battery pack F current [A]; HV battery pack G current [A]; …",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00B6",
+      "name": "hv_battery_voltage",
+      "description": "Fields: HV battery voltage [V]; HV battery pack A voltage [V]; HV battery pack B voltage [V]; HV battery pack C voltage [V]; HV battery pack D voltage [V]; HV battery pack E voltage [V]; HV battery pack F voltage [V]; HV battery pack G voltage [V]; …",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00B7",
+      "name": "hv_battery_cell_temperatures",
+      "description": "Fields: HV battery minimum cell temperature [°C]; HV battery maximum cell temperature [°C]; HV battery average cell temperature [°C]; HV battery bus bar temperature [°C]; HV battery coolant temperature [°C]; HV battery thermal state",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00B8",
+      "name": "hv_battery_active_time_since_cell_balancing",
+      "description": "HV battery active time since cell balancing",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "min"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00B9",
+      "name": "hv_battery_cell_voltage_min_max",
+      "description": "Fields: HV battery minimum cell voltage [V]; HV battery maximum cell voltage [V]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00BA",
+      "name": "hv_battery_power_and_current_limits",
+      "description": "Fields: HV battery continuous rated power available [%]; HV battery continuous charge current limit [A]; HV battery continuous discharge current limit [A]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00BB",
+      "name": "hv_battery_cumulative_energy_in",
+      "description": "Fields: HV battery cumulative energy in [kWh]; HV battery pack A cumulative energy in [kWh]; HV battery pack B cumulative energy in [kWh]; HV battery pack C cumulative energy in [kWh]; HV battery pack D cumulative energy in [kWh]; HV battery pack E cumulative energy in [kWh]; HV battery pack F cumulative energy in [kWh]; HV battery pack G cumulative energy in [kWh]; …",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00BC",
+      "name": "hv_battery_cumulative_energy_out",
+      "description": "Fields: HV battery cumulative energy out [kWh]; HV battery pack A cumulative energy out [kWh]; HV battery pack B cumulative energy out [kWh]; HV battery pack C cumulative energy out [kWh]; HV battery pack D cumulative energy out [kWh]; HV battery pack E cumulative energy out [kWh]; HV battery pack F cumulative energy out [kWh]; HV battery pack G cumulative energy out [kWh]; …",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00BD",
+      "name": "hv_battery_total_energy_throughput",
+      "description": "Fields: HV battery total energy throughput [kWh]; HV battery pack A total energy throughput [kWh]; HV battery pack B total energy throughput [kWh]; HV battery pack C total energy throughput [kWh]; HV battery pack D total energy throughput [kWh]; HV battery pack E total energy throughput [kWh]; HV battery pack F total energy throughput [kWh]; HV battery pack G total energy throughput [kWh]; …",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00BE",
+      "name": "hv_battery_state_of_health",
+      "description": "Fields: HV battery state of health [%]; HV battery pack A state of health [%]; HV battery pack B state of health [%]; HV battery pack C state of health [%]; HV battery pack D state of health [%]; HV battery pack E state of health [%]; HV battery pack F state of health [%]; HV battery pack G state of health [%]; …",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00BF",
+      "name": "hv_battery_recommended_minimum_state_of_charge",
+      "description": "Fields: HV battery recommended minimum state of charge [%]; HV battery pack A recommended minimum state of charge [%]; HV battery pack B recommended minimum state of charge [%]; HV battery pack C recommended minimum state of charge [%]; HV battery pack D recommended minimum state of charge [%]; HV battery pack E recommended minimum state of charge [%]; HV battery pack F recommended minimum state of charge [%]; HV battery pack G recommended minimum state of charge [%]; …",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00C1",
+      "name": "hv_battery_recommended_maximum_state_of_charge",
+      "description": "Fields: HV battery recommended maximum state of charge [%]; HV battery pack A recommended maximum state of charge [%]; HV battery pack B recommended maximum state of charge [%]; HV battery pack C recommended maximum state of charge [%]; HV battery pack D recommended maximum state of charge [%]; HV battery pack E recommended maximum state of charge [%]; HV battery pack F recommended maximum state of charge [%]; HV battery pack G recommended maximum state of charge [%]; …",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00C2",
+      "name": "hv_battery_discharge_energy_capacity",
+      "description": "Fields: HV battery discharge energy capacity [kWh]; HV battery pack A discharge energy capacity [kWh]; HV battery pack B discharge energy capacity [kWh]; HV battery pack C discharge energy capacity [kWh]; HV battery pack D discharge energy capacity [kWh]; HV battery pack E discharge energy capacity [kWh]; HV battery pack F discharge energy capacity [kWh]; HV battery pack G discharge energy capacity [kWh]; …",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00C3",
+      "name": "fuel_level_input_a_b",
+      "description": "Fields: Fuel level input A [%]; Fuel level input B [%]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00C4",
+      "name": "exhaust_particulate_control_diagnostic_time_count",
+      "description": "Fields: Exhaust particulate control diagnostic time [s]; Exhaust particulate control diagnostic count",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00C5",
+      "name": "low_pressure_fuel_pressure",
+      "description": "Fields: Low-pressure fuel pressure A [kPa]; Low-pressure fuel pressure B [kPa]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00C6",
+      "name": "particulate_control_and_warning_system",
+      "description": "Fields: Particulate warning system active; Engine hours with the particulate filter removed or blocked [h]; Engine hours with a liquid reagent injection system failure [h]; Engine hours with a particulate control monitoring system fault [h]; Particulate level three inducement status; Particulate level two inducement status; Particulate level one inducement status",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00C7",
+      "name": "distance_since_module_reflash_or_replacement",
+      "description": "Distance since module reflash or replacement",
+      "decoder": {
+        "kind": "uint16_be",
+        "unit": "km"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00C8",
+      "name": "engine_friction_percent_torque",
+      "description": "Engine friction — percent torque",
+      "verified": true,
+      "decoder": {
+        "kind": "uint8",
+        "offset": -125,
+        "unit": "%"
+      }
+    },
+    {
+      "did": "0x00C9",
+      "name": "o2_sensor_wide_range_concentration_sensors_5_6",
+      "description": "Fields: O2 concentration bank 1, sensor 5 [%]; O2 concentration bank 1, sensor 6 [%]; O2 concentration bank 2, sensor 5 [%]; O2 concentration bank 2, sensor 6 [%]; O2 sensor lambda bank 1, sensor 5; O2 sensor lambda bank 1, sensor 6; O2 sensor lambda bank 2, sensor 5; O2 sensor lambda bank 2, sensor 6",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00CB",
+      "name": "exhaust_pressure_sensor_2",
+      "description": "Fields: Exhaust pressure bank 1, sensor 2 [kPa]; Exhaust pressure bank 2, sensor 2 [kPa]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00CC",
+      "name": "electric_motor_speed",
+      "description": "Fields: Electric motor A speed [rpm]; Electric motor B speed [rpm]; Electric motor C speed [rpm]; Electric motor D speed [rpm]; Electric motor E speed [rpm]; Electric motor F speed [rpm]; Electric motor G speed [rpm]; Electric motor H speed [rpm]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00CD",
+      "name": "electric_motor_torque",
+      "description": "Fields: Electric motor A torque [Nm]; Electric motor B torque [Nm]; Electric motor C torque [Nm]; Electric motor D torque [Nm]; Electric motor E torque [Nm]; Electric motor F torque [Nm]; Electric motor G torque [Nm]; Electric motor H torque [Nm]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00CE",
+      "name": "evap_system_vapor_pressure_c_d",
+      "description": "Fields: Evap system vapor pressure C [kPa]; Evap system vapor pressure C, wide range [kPa]; Evap system vapor pressure D [kPa]; Evap system vapor pressure D, wide range [kPa]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00CF",
+      "name": "catalyst_temperature_a_d",
+      "description": "Fields: Catalyst temperature A [°C]; Catalyst temperature B [°C]; Catalyst temperature C [°C]; Catalyst temperature D [°C]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00D0",
+      "name": "hv_battery_reserve_energy",
+      "description": "Fields: Distance since state of health update [km]; HV battery remaining reserve energy [kWh]; HV battery initial reserve energy [kWh]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00D1",
+      "name": "hv_battery_charging_limit_power",
+      "description": "Fields: HV battery charging limit [kW]; HV battery charging power [kW]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00D2",
+      "name": "state_of_certified_range_energy",
+      "description": "Fields: State of certified range supported; State of certified energy supported; State of certified energy [%]; State of certified range [%]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00D3",
+      "name": "engine_odometer",
+      "description": "Engine odometer",
+      "decoder": {
+        "kind": "uint32_be",
+        "scale": 0.1,
+        "unit": "km"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00D4",
+      "name": "hv_battery_power_over_the_last_second",
+      "description": "Energy over the last second, 0.000001 Wh/s per bit, shown as average power",
+      "decoder": {
+        "kind": "int32_be",
+        "scale": 3.6e-06,
+        "unit": "kW"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00D5",
+      "name": "fuel_cell_system_data",
+      "description": "Fields: Fuel cell system voltage [V]; Fuel cell fuel consumption [g/s]; Fuel cell current over the last second [A]; Fuel cell power over the last second [kW]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00D6",
+      "name": "propulsion_system_active_trips_since_dtcs_cleared",
+      "description": "Propulsion system active trips since DTCs cleared",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00D7",
+      "name": "def_doser_b_dosing",
+      "description": "Fields: DEF doser B commanded dosing [%]; DEF doser B dosing mode; DEF doser B maximum dosing rate [kg/h]",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00D8",
+      "name": "battery_capacity_calculation",
+      "description": "Fields: Battery capacity calculation",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00D9",
+      "name": "hv_battery_calculated_usable_energy",
+      "description": "HV battery calculated usable energy",
+      "decoder": {
+        "kind": "uint32_be",
+        "scale": 0.001,
+        "unit": "kWh"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00DA",
+      "name": "hv_battery_current_over_the_last_second",
+      "description": "Charge over the last second, 0.000001 Ah/s per bit, shown as average current",
+      "decoder": {
+        "kind": "int32_be",
+        "scale": 0.0036,
+        "unit": "A"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x00DC",
+      "name": "engine_run_time_for_aecd_21_25",
+      "description": "Fields: Total run time with EI-AECD #21 timer 1 active [s]; Total run time with EI-AECD #21 timer 2 active [s]; Total run time with EI-AECD #22 timer 1 active [s]; Total run time with EI-AECD #22 timer 2 active [s]; Total run time with EI-AECD #23 timer 1 active [s]; Total run time with EI-AECD #23 timer 2 active [s]; Total run time with EI-AECD #24 timer 1 active [s]; Total run time with EI-AECD #24 timer 2 active [s]; …",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb SAEJ1979 signalset (CC BY-SA 4.0)",
+      "verified": false
+    }
   ]
 }

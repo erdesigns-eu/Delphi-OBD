@@ -61,6 +61,69 @@
       "description": ""
     },
     {
+      "id": "0x09",
+      "name": "O2 Sensor Monitor Bank 3 Sensor 1",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x0A",
+      "name": "O2 Sensor Monitor Bank 3 Sensor 2",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x0B",
+      "name": "O2 Sensor Monitor Bank 3 Sensor 3",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x0C",
+      "name": "O2 Sensor Monitor Bank 3 Sensor 4",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x0D",
+      "name": "O2 Sensor Monitor Bank 4 Sensor 1",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x0E",
+      "name": "O2 Sensor Monitor Bank 4 Sensor 2",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x0F",
+      "name": "O2 Sensor Monitor Bank 4 Sensor 3",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x10",
+      "name": "O2 Sensor Monitor Bank 4 Sensor 4",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x20",
+      "name": "Supported MIDs [21-40]",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": ""
+    },
+    {
       "id": "0x21",
       "name": "Catalyst Monitor Bank 1",
       "length": 7,
@@ -75,169 +138,477 @@
       "description": ""
     },
     {
+      "id": "0x23",
+      "name": "Catalyst Monitor Bank 3",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x24",
+      "name": "Catalyst Monitor Bank 4",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
       "id": "0x31",
-      "name": "EGR Monitor",
+      "name": "EGR Monitor Bank 1",
       "length": 7,
       "decoder": "raw",
       "description": ""
     },
     {
       "id": "0x32",
-      "name": "VVT Monitor",
+      "name": "EGR Monitor Bank 2",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x33",
+      "name": "EGR Monitor Bank 3",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x34",
+      "name": "EGR Monitor Bank 4",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x35",
+      "name": "VVT Monitor Bank 1",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x36",
+      "name": "VVT Monitor Bank 2",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x37",
+      "name": "VVT Monitor Bank 3",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x38",
+      "name": "VVT Monitor Bank 4",
       "length": 7,
       "decoder": "raw",
       "description": ""
     },
     {
       "id": "0x39",
-      "name": "EVAP Monitor (Cap off)",
+      "name": "EVAP Monitor (Cap Off / 0.150\")",
       "length": 7,
       "decoder": "raw",
       "description": ""
     },
     {
       "id": "0x3A",
-      "name": "EVAP Monitor (0.040)",
+      "name": "EVAP Monitor (0.090\")",
       "length": 7,
       "decoder": "raw",
       "description": ""
     },
     {
       "id": "0x3B",
-      "name": "EVAP Monitor (0.020)",
+      "name": "EVAP Monitor (0.040\")",
       "length": 7,
       "decoder": "raw",
       "description": ""
     },
     {
+      "id": "0x3C",
+      "name": "EVAP Monitor (0.020\")",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x3D",
+      "name": "Purge Flow Monitor",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x40",
+      "name": "Supported MIDs [41-60]",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": ""
+    },
+    {
       "id": "0x41",
-      "name": "Oxygen Sensor Heater Monitor Bank 1 Sensor 1",
+      "name": "O2 Sensor Heater Monitor Bank 1 Sensor 1",
       "length": 7,
       "decoder": "raw",
       "description": ""
     },
     {
       "id": "0x42",
-      "name": "Oxygen Sensor Heater Monitor Bank 1 Sensor 2",
+      "name": "O2 Sensor Heater Monitor Bank 1 Sensor 2",
       "length": 7,
       "decoder": "raw",
       "description": ""
     },
     {
       "id": "0x43",
-      "name": "Oxygen Sensor Heater Monitor Bank 2 Sensor 1",
+      "name": "O2 Sensor Heater Monitor Bank 1 Sensor 3",
       "length": 7,
       "decoder": "raw",
       "description": ""
     },
     {
       "id": "0x44",
-      "name": "Oxygen Sensor Heater Monitor Bank 2 Sensor 2",
+      "name": "O2 Sensor Heater Monitor Bank 1 Sensor 4",
       "length": 7,
       "decoder": "raw",
       "description": ""
     },
     {
+      "id": "0x45",
+      "name": "O2 Sensor Heater Monitor Bank 2 Sensor 1",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x46",
+      "name": "O2 Sensor Heater Monitor Bank 2 Sensor 2",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x47",
+      "name": "O2 Sensor Heater Monitor Bank 2 Sensor 3",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x48",
+      "name": "O2 Sensor Heater Monitor Bank 2 Sensor 4",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x49",
+      "name": "O2 Sensor Heater Monitor Bank 3 Sensor 1",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x4A",
+      "name": "O2 Sensor Heater Monitor Bank 3 Sensor 2",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x4B",
+      "name": "O2 Sensor Heater Monitor Bank 3 Sensor 3",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x4C",
+      "name": "O2 Sensor Heater Monitor Bank 3 Sensor 4",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x4D",
+      "name": "O2 Sensor Heater Monitor Bank 4 Sensor 1",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x4E",
+      "name": "O2 Sensor Heater Monitor Bank 4 Sensor 2",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x4F",
+      "name": "O2 Sensor Heater Monitor Bank 4 Sensor 3",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x50",
+      "name": "O2 Sensor Heater Monitor Bank 4 Sensor 4",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x60",
+      "name": "Supported MIDs [61-80]",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": ""
+    },
+    {
       "id": "0x61",
-      "name": "Misfire Monitor — General",
+      "name": "Heated Catalyst Monitor Bank 1",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x62",
+      "name": "Heated Catalyst Monitor Bank 2",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x63",
+      "name": "Heated Catalyst Monitor Bank 3",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x64",
+      "name": "Heated Catalyst Monitor Bank 4",
       "length": 7,
       "decoder": "raw",
       "description": ""
     },
     {
       "id": "0x71",
-      "name": "Misfire Cylinder 1",
+      "name": "Secondary Air Monitor 1",
       "length": 7,
       "decoder": "raw",
       "description": ""
     },
     {
       "id": "0x72",
-      "name": "Misfire Cylinder 2",
+      "name": "Secondary Air Monitor 2",
       "length": 7,
       "decoder": "raw",
       "description": ""
     },
     {
       "id": "0x73",
-      "name": "Misfire Cylinder 3",
+      "name": "Secondary Air Monitor 3",
       "length": 7,
       "decoder": "raw",
       "description": ""
     },
     {
       "id": "0x74",
-      "name": "Misfire Cylinder 4",
+      "name": "Secondary Air Monitor 4",
       "length": 7,
       "decoder": "raw",
       "description": ""
     },
     {
-      "id": "0x75",
-      "name": "Misfire Cylinder 5",
+      "id": "0x80",
+      "name": "Supported MIDs [81-A0]",
+      "length": 4,
+      "decoder": "bitfield",
+      "description": ""
+    },
+    {
+      "id": "0x81",
+      "name": "Fuel System Monitor Bank 1",
       "length": 7,
       "decoder": "raw",
       "description": ""
     },
     {
-      "id": "0x76",
-      "name": "Misfire Cylinder 6",
+      "id": "0x82",
+      "name": "Fuel System Monitor Bank 2",
       "length": 7,
       "decoder": "raw",
       "description": ""
     },
     {
-      "id": "0x77",
-      "name": "Misfire Cylinder 7",
+      "id": "0x83",
+      "name": "Fuel System Monitor Bank 3",
       "length": 7,
       "decoder": "raw",
       "description": ""
     },
     {
-      "id": "0x78",
-      "name": "Misfire Cylinder 8",
+      "id": "0x84",
+      "name": "Fuel System Monitor Bank 4",
       "length": 7,
       "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x85",
+      "name": "Boost Pressure Control Monitor Bank 1",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x86",
+      "name": "Boost Pressure Control Monitor Bank 2",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x90",
+      "name": "NOx Absorber Monitor Bank 1",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x91",
+      "name": "NOx Absorber Monitor Bank 2",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x98",
+      "name": "NOx Catalyst Monitor Bank 1",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0x99",
+      "name": "NOx Catalyst Monitor Bank 2",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0xA0",
+      "name": "Supported MIDs [A1-C0]",
+      "length": 4,
+      "decoder": "bitfield",
       "description": ""
     },
     {
       "id": "0xA1",
-      "name": "PM Filter Monitor Bank 1",
+      "name": "Misfire Monitor General Data",
       "length": 7,
       "decoder": "raw",
       "description": ""
     },
     {
       "id": "0xA2",
-      "name": "PM Filter Monitor Bank 2",
+      "name": "Misfire Cylinder 1 Data",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0xA3",
+      "name": "Misfire Cylinder 2 Data",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0xA4",
+      "name": "Misfire Cylinder 3 Data",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0xA5",
+      "name": "Misfire Cylinder 4 Data",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0xA6",
+      "name": "Misfire Cylinder 5 Data",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0xA7",
+      "name": "Misfire Cylinder 6 Data",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0xA8",
+      "name": "Misfire Cylinder 7 Data",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0xA9",
+      "name": "Misfire Cylinder 8 Data",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0xAA",
+      "name": "Misfire Cylinder 9 Data",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0xAB",
+      "name": "Misfire Cylinder 10 Data",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0xAC",
+      "name": "Misfire Cylinder 11 Data",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0xAD",
+      "name": "Misfire Cylinder 12 Data",
+      "length": 7,
+      "decoder": "raw",
+      "description": ""
+    },
+    {
+      "id": "0xB0",
+      "name": "PM Filter Monitor Bank 1",
       "length": 7,
       "decoder": "raw",
       "description": ""
     },
     {
       "id": "0xB1",
-      "name": "NMHC Catalyst Bank 1",
-      "length": 7,
-      "decoder": "raw",
-      "description": ""
-    },
-    {
-      "id": "0xB2",
-      "name": "NMHC Catalyst Bank 2",
-      "length": 7,
-      "decoder": "raw",
-      "description": ""
-    },
-    {
-      "id": "0xC1",
-      "name": "NOx Adsorber Bank 1",
-      "length": 7,
-      "decoder": "raw",
-      "description": ""
-    },
-    {
-      "id": "0xC2",
-      "name": "NOx Adsorber Bank 2",
+      "name": "PM Filter Monitor Bank 2",
       "length": 7,
       "decoder": "raw",
       "description": ""

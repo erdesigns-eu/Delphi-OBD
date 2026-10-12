@@ -1,0 +1,28 @@
+{
+  "$schema": "../_schema/ev-battery.schema.json",
+  "vendor": "byd",
+  "label": "BYD HV battery state of charge (0x7E7/0x7EF)",
+  "ecu": {
+    "request_id_hex": "0x7E7",
+    "response_id_hex": "0x7EF",
+    "notes": "OBDb (CC BY-SA 4.0) community signalset; decoders are not bench validated."
+  },
+  "applicable_models": [],
+  "fields": [
+    {
+      "field": "soc",
+      "service_hex": "0x22",
+      "did_hex": "0x0005",
+      "offset": 0,
+      "length": 1,
+      "scale": 1,
+      "offset_value": 0,
+      "unit": "%",
+      "notes": "OBDb BYD_HVBAT_ST_CHG: High voltage battery state of charge. OBDb flags this command as debug (dbg): unconfirmed.",
+      "source": "https://github.com/OBDb/BYD/blob/main/signalsets/v3/default.json"
+    }
+  ],
+  "unavailable_fields": {
+    "all_other": "Only the HV battery SOC is published in the cited source; voltage, current, temperatures and cells are not."
+  }
+}

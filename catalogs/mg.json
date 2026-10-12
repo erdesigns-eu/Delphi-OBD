@@ -1,0 +1,1734 @@
+{
+  "$schema": "https://erdesigns.eu/schema/oem-catalog-v2.json",
+  "version": 2,
+  "manufacturer_key": "SAIC-MG",
+  "display_name": "SAIC Motor — MG",
+  "applicable_wmis": [
+    "LSJ"
+  ],
+  "default_source": "OBDb/MG signalset (CC BY-SA 4.0)",
+  "extends": "_shared/oem-cars-and-trucks.json",
+  "dids": [
+    {
+      "did": "0x0112",
+      "name": "12v_supply_voltage",
+      "description": "12V supply voltage",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.1,
+        "unit": "V"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0x1940",
+      "name": "transmission_fluid_temperature_ecu_10513229",
+      "description": "Transmission fluid temperature, ECU 10513229",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB001",
+      "name": "front_left_tire_pressure",
+      "description": "Fields: Front left tire pressure [kPa] (byte 0); Front right tire pressure [kPa] (byte 1); Rear right tire pressure [kPa] (byte 2); Rear left tire pressure [kPa] (byte 3)",
+      "ecu_address": "0x724",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB001",
+      "name": "current",
+      "description": "Fields: Current [A] (byte 0); HV battery module 01 min voltage [V] (byte 0); HV battery module 01 max voltage [V] (byte 2); HV battery module 01 min temperature [°C] (byte 4); HV battery module 01 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB001",
+      "name": "current",
+      "description": "Current",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.2,
+        "offset": -409.6,
+        "unit": "A"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB001",
+      "name": "hv_battery_module_01_min_voltage",
+      "description": "Fields: HV battery module 01 min voltage [V] (byte 0); HV battery module 01 max voltage [V] (byte 2); HV battery module 01 min temperature [°C] (byte 4); HV battery module 01 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB003",
+      "name": "front_left_tire_temperature",
+      "description": "Fields: Front left tire temperature [°C] (byte 0); Front right tire temperature [°C] (byte 1); Rear right tire temperature [°C] (byte 2); Rear left tire temperature [°C] (byte 3)",
+      "ecu_address": "0x724",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB003",
+      "name": "max_current",
+      "description": "Max current",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.434782609,
+        "unit": "A"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB003",
+      "name": "max_current",
+      "description": "Alternative decodings: Max current [A] (byte 0); Max Current [A] (byte 0)",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.434782609,
+        "unit": "A"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB009",
+      "name": "hv_battery_module_02_min_voltage",
+      "description": "Fields: HV battery module 02 min voltage [V] (byte 0); HV battery module 02 max voltage [V] (byte 2); HV battery module 02 min temperature [°C] (byte 4); HV battery module 02 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB009",
+      "name": "hv_battery_module_02_min_voltage",
+      "description": "Fields: HV battery module 02 min voltage [V] (byte 0); HV battery module 02 max voltage [V] (byte 2); HV battery module 02 min temperature [°C] (byte 4); HV battery module 02 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB00F",
+      "name": "charging",
+      "description": "Charging",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB00F",
+      "name": "charging",
+      "description": "Charging",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB010",
+      "name": "voltage",
+      "description": "Voltage",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01030927835,
+        "unit": "V"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB010",
+      "name": "voltage",
+      "description": "Alternative decodings: Voltage [V] (byte 0); Voltage [V] (byte 0)",
+      "ecu_address": "0x7E4",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01030927835,
+        "unit": "V"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB011",
+      "name": "hv_battery_module_03_min_voltage",
+      "description": "Fields: HV battery module 03 min voltage [V] (byte 0); Battery module B011 raw value (byte 0); HV battery module 03 max voltage [V] (byte 2); HV battery module 03 min temperature [°C] (byte 4); HV battery module 03 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB011",
+      "name": "hv_battery_module_03_min_voltage",
+      "description": "Fields: HV battery module 03 min voltage [V] (byte 0); HV battery module 03 max voltage [V] (byte 2); HV battery module 03 min temperature [°C] (byte 4); HV battery module 03 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB013",
+      "name": "vehicle_unlocked",
+      "description": "Fields: Vehicle unlocked (byte 3, bit 7, 1 bit(s))",
+      "ecu_address": "0x745",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB019",
+      "name": "hv_battery_module_04_min_voltage",
+      "description": "Fields: HV battery module 04 min voltage [V] (byte 0); HV battery module 04 max voltage [V] (byte 2); HV battery module 04 min temperature [°C] (byte 4); HV battery module 04 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB019",
+      "name": "hv_battery_module_04_min_voltage",
+      "description": "Fields: HV battery module 04 min voltage [V] (byte 0); HV battery module 04 max voltage [V] (byte 2); HV battery module 04 min temperature [°C] (byte 4); HV battery module 04 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB021",
+      "name": "hv_battery_module_05_min_voltage",
+      "description": "Fields: HV battery module 05 min voltage [V] (byte 0); HV battery module 05 max voltage [V] (byte 2); HV battery module 05 min temperature [°C] (byte 4); HV battery module 05 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB021",
+      "name": "hv_battery_module_05_min_voltage",
+      "description": "Fields: HV battery module 05 min voltage [V] (byte 0); HV battery module 05 max voltage [V] (byte 2); HV battery module 05 min temperature [°C] (byte 4); HV battery module 05 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB022",
+      "name": "dc_dc_converter_low_voltage_current",
+      "description": "DC-DC converter low-voltage current",
+      "ecu_address": "0x785",
+      "decoder": {
+        "kind": "int16_be",
+        "unit": "A"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB025",
+      "name": "dc_dc_converter_load",
+      "description": "Alternative decodings: DC/DC converter load [%] (byte 0); DC-DC converter power load [A] (byte 0)",
+      "ecu_address": "0x785",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.25,
+        "unit": "%"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB026",
+      "name": "dc_dc_converter_temperature",
+      "description": "DC/DC converter temperature",
+      "ecu_address": "0x785",
+      "decoder": {
+        "kind": "uint16_be",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB029",
+      "name": "hv_battery_module_06_min_voltage",
+      "description": "Fields: HV battery module 06 min voltage [V] (byte 0); HV battery module 06 max voltage [V] (byte 2); HV battery module 06 min temperature [°C] (byte 4); HV battery module 06 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB029",
+      "name": "hv_battery_module_06_min_voltage",
+      "description": "Fields: HV battery module 06 min voltage [V] (byte 0); HV battery module 06 max voltage [V] (byte 2); HV battery module 06 min temperature [°C] (byte 4); HV battery module 06 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB034",
+      "name": "engine_oil_temperature",
+      "description": "Engine oil temperature",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.75,
+        "offset": -48,
+        "unit": "°C"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB036",
+      "name": "engine_oil_pressure",
+      "description": "Engine oil pressure",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.0229,
+        "unit": "kPa"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB041",
+      "name": "hv_battery_bus_voltage",
+      "description": "HV battery bus voltage",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.25,
+        "unit": "V"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB041",
+      "name": "hv_battery_bus_voltage",
+      "description": "HV battery bus voltage",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.25,
+        "unit": "V"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB041",
+      "name": "hv_battery_bus_voltage",
+      "description": "HV battery bus voltage",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.25,
+        "unit": "V"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB042",
+      "name": "high_voltage_battery_voltage",
+      "description": "High voltage battery voltage",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.25,
+        "unit": "V"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB042",
+      "name": "hv_battery_voltage",
+      "description": "HV battery voltage",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.25,
+        "unit": "V"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB042",
+      "name": "hv_battery_voltage",
+      "description": "HV battery voltage",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.25,
+        "unit": "V"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB043",
+      "name": "high_voltage_battery_current",
+      "description": "High voltage battery current",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.025,
+        "offset": -1000,
+        "unit": "mA"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB043",
+      "name": "hv_battery_current",
+      "description": "HV battery current",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.025,
+        "offset": -1000,
+        "unit": "A"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB043",
+      "name": "fuel_tank_level",
+      "description": "Fuel tank level",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "L"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB043",
+      "name": "hv_battery_current",
+      "description": "HV battery current",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.025,
+        "offset": -1000,
+        "unit": "A"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB045",
+      "name": "hv_battery_internal_resistance",
+      "description": "HV battery internal resistance",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.5
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB045",
+      "name": "hv_battery_internal_resistance",
+      "description": "HV battery internal resistance",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.5
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB046",
+      "name": "state_of_charge",
+      "description": "State of charge",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "%"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB046",
+      "name": "hv_battery_raw_charge",
+      "description": "HV battery raw charge",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "%"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB047",
+      "name": "hv_battery_error_code",
+      "description": "HV battery error code",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB047",
+      "name": "hv_battery_error_code",
+      "description": "HV battery error code",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB048",
+      "name": "is_charging",
+      "description": "Fields: Is charging (byte 0, bit 6, 1 bit(s)); Is DC fast charging (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB048",
+      "name": "battery_module_b048_raw_value",
+      "description": "Fields: Battery module B048 raw value (byte 0); BMS Status (byte 0); HV battery is charging? (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB048",
+      "name": "hv_battery_is_charging",
+      "description": "Fields: HV battery is charging? (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB049",
+      "name": "hv_battery_main_relay_b_state",
+      "description": "HV battery main relay b state",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB049",
+      "name": "hv_battery_main_relay_b_state",
+      "description": "HV battery main relay B state",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB04A",
+      "name": "hv_battery_main_relay_g_state",
+      "description": "HV battery main relay g state",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB04A",
+      "name": "hv_battery_main_relay_g_state",
+      "description": "HV battery main relay G state",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB052",
+      "name": "hv_battery_main_relay_p_state",
+      "description": "HV battery main relay p state",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB052",
+      "name": "hv_battery_main_relay_p_state",
+      "description": "HV battery main relay P state",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB056",
+      "name": "hv_battery_temperature",
+      "description": "HV battery temperature",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB056",
+      "name": "hv_battery_temperature",
+      "description": "Fields: HV battery temperature [°C] (byte 0); Battery module B056 raw value (byte 0)",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB056",
+      "name": "hv_battery_temperature",
+      "description": "HV battery temperature",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB058",
+      "name": "highest_cell_voltage",
+      "description": "Highest cell voltage",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB058",
+      "name": "highest_cell_voltage",
+      "description": "Highest cell voltage",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB059",
+      "name": "lowest_cell_voltage",
+      "description": "Lowest cell voltage",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB059",
+      "name": "lowest_cell_voltage",
+      "description": "Lowest cell voltage",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.001,
+        "unit": "V"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB05C",
+      "name": "hv_battery_coolant_temperature",
+      "description": "HV battery coolant temperature",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB05C",
+      "name": "hv_battery_coolant_temperature",
+      "description": "HV battery coolant temperature",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB05C",
+      "name": "hv_battery_coolant_temperature",
+      "description": "HV battery coolant temperature",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.5,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB061",
+      "name": "state_of_health",
+      "description": "State of health",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB061",
+      "name": "hv_battery_health",
+      "description": "Alternative decodings: HV battery health [%] (byte 0); Battery module B061 raw value (byte 0)",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB061",
+      "name": "hv_battery_health",
+      "description": "HV battery health",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "unit": "%"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB0A3",
+      "name": "hv_battery_module_07_min_voltage",
+      "description": "Fields: HV battery module 07 min voltage [V] (byte 0); HV battery module 07 max voltage [V] (byte 2); HV battery module 07 min temperature [°C] (byte 4); HV battery module 07 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB0A3",
+      "name": "hv_battery_module_07_min_voltage",
+      "description": "Fields: HV battery module 07 min voltage [V] (byte 0); HV battery module 07 max voltage [V] (byte 2); HV battery module 07 min temperature [°C] (byte 4); HV battery module 07 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB0AB",
+      "name": "hv_battery_module_08_min_voltage",
+      "description": "Fields: HV battery module 08 min voltage [V] (byte 0); HV battery module 08 max voltage [V] (byte 2); HV battery module 08 min temperature [°C] (byte 4); HV battery module 08 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB0AB",
+      "name": "hv_battery_module_08_min_voltage",
+      "description": "Fields: HV battery module 08 min voltage [V] (byte 0); HV battery module 08 max voltage [V] (byte 2); HV battery module 08 min temperature [°C] (byte 4); HV battery module 08 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB0B3",
+      "name": "hv_battery_module_09_min_voltage",
+      "description": "Fields: HV battery module 09 min voltage [V] (byte 0); HV battery module 09 max voltage [V] (byte 2); HV battery module 09 min temperature [°C] (byte 4); HV battery module 09 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB0B3",
+      "name": "hv_battery_module_09_min_voltage",
+      "description": "Fields: HV battery module 09 min voltage [V] (byte 0); HV battery module 09 max voltage [V] (byte 2); HV battery module 09 min temperature [°C] (byte 4); HV battery module 09 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB0BB",
+      "name": "hv_battery_module_10_min_voltage",
+      "description": "Fields: HV battery module 10 min voltage [V] (byte 0); HV battery module 10 max voltage [V] (byte 2); HV battery module 10 min temperature [°C] (byte 4); HV battery module 10 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB0BB",
+      "name": "hv_battery_module_10_min_voltage",
+      "description": "Fields: HV battery module 10 min voltage [V] (byte 0); HV battery module 10 max voltage [V] (byte 2); HV battery module 10 min temperature [°C] (byte 4); HV battery module 10 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB0C3",
+      "name": "hv_battery_module_11_min_voltage",
+      "description": "Fields: HV battery module 11 min voltage [V] (byte 0); HV battery module 11 max voltage [V] (byte 2); HV battery module 11 min temperature [°C] (byte 4); HV battery module 11 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB0C3",
+      "name": "hv_battery_module_11_min_voltage",
+      "description": "Fields: HV battery module 11 min voltage [V] (byte 0); HV battery module 11 max voltage [V] (byte 2); HV battery module 11 min temperature [°C] (byte 4); HV battery module 11 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB0CB",
+      "name": "hv_battery_module_12_min_voltage",
+      "description": "Fields: HV battery module 12 min voltage [V] (byte 0); HV battery module 12 max voltage [V] (byte 2); HV battery module 12 min temperature [°C] (byte 4); HV battery module 12 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB0CB",
+      "name": "hv_battery_module_12_min_voltage",
+      "description": "Fields: HV battery module 12 min voltage [V] (byte 0); HV battery module 12 max voltage [V] (byte 2); HV battery module 12 min temperature [°C] (byte 4); HV battery module 12 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB0CE",
+      "name": "hv_battery_range_count",
+      "description": "HV battery range count",
+      "ecu_address": "0x781",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB0CE",
+      "name": "hv_battery_range_count",
+      "description": "HV battery range count",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB0DB",
+      "name": "hv_battery_module_13_min_voltage",
+      "description": "Fields: HV battery module 13 min voltage [V] (byte 0); HV battery module 13 max voltage [V] (byte 2); HV battery module 13 min temperature [°C] (byte 4); HV battery module 13 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB0DB",
+      "name": "hv_battery_module_13_min_voltage",
+      "description": "Fields: HV battery module 13 min voltage [V] (byte 0); HV battery module 13 max voltage [V] (byte 2); HV battery module 13 min temperature [°C] (byte 4); HV battery module 13 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB0DC",
+      "name": "hv_battery_module_14_min_voltage",
+      "description": "Fields: HV battery module 14 min voltage [V] (byte 0); HV battery module 14 max voltage [V] (byte 2); HV battery module 14 min temperature [°C] (byte 4); HV battery module 14 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB0DC",
+      "name": "hv_battery_module_14_min_voltage",
+      "description": "Fields: HV battery module 14 min voltage [V] (byte 0); HV battery module 14 max voltage [V] (byte 2); HV battery module 14 min temperature [°C] (byte 4); HV battery module 14 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB0DD",
+      "name": "hv_battery_module_15_min_voltage",
+      "description": "Fields: HV battery module 15 min voltage [V] (byte 0); HV battery module 15 max voltage [V] (byte 2); HV battery module 15 min temperature [°C] (byte 4); HV battery module 15 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB0DD",
+      "name": "hv_battery_module_15_min_voltage",
+      "description": "Fields: HV battery module 15 min voltage [V] (byte 0); HV battery module 15 max voltage [V] (byte 2); HV battery module 15 min temperature [°C] (byte 4); HV battery module 15 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB0DE",
+      "name": "hv_battery_module_16_min_voltage",
+      "description": "Fields: HV battery module 16 min voltage [V] (byte 0); HV battery module 16 max voltage [V] (byte 2); HV battery module 16 min temperature [°C] (byte 4); HV battery module 16 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB0DE",
+      "name": "hv_battery_module_16_min_voltage",
+      "description": "Fields: HV battery module 16 min voltage [V] (byte 0); HV battery module 16 max voltage [V] (byte 2); HV battery module 16 min temperature [°C] (byte 4); HV battery module 16 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB101",
+      "name": "odometer",
+      "description": "Alternative decodings: Odometer [km] (byte 0); Odometer reading, raw count (byte 0)",
+      "ecu_address": "0x760",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB10E",
+      "name": "hv_battery_module_17_min_voltage",
+      "description": "Fields: HV battery module 17 min voltage [V] (byte 0); HV battery module 17 max voltage [V] (byte 2); HV battery module 17 min temperature [°C] (byte 4); HV battery module 17 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB10E",
+      "name": "hv_battery_module_17_min_voltage",
+      "description": "Fields: HV battery module 17 min voltage [V] (byte 0); HV battery module 17 max voltage [V] (byte 2); HV battery module 17 min temperature [°C] (byte 4); HV battery module 17 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB10F",
+      "name": "hv_battery_module_18_min_voltage",
+      "description": "Fields: HV battery module 18 min voltage [V] (byte 0); HV battery module 18 max voltage [V] (byte 2); HV battery module 18 min temperature [°C] (byte 4); HV battery module 18 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB10F",
+      "name": "hv_battery_module_18_min_voltage",
+      "description": "Fields: HV battery module 18 min voltage [V] (byte 0); HV battery module 18 max voltage [V] (byte 2); HV battery module 18 min temperature [°C] (byte 4); HV battery module 18 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB110",
+      "name": "hv_battery_module_19_min_voltage",
+      "description": "Fields: HV battery module 19 min voltage [V] (byte 0); Battery module B110 raw value (byte 0); HV battery module 19 max voltage [V] (byte 2); HV battery module 19 min temperature [°C] (byte 4); HV battery module 19 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB110",
+      "name": "hv_battery_module_19_min_voltage",
+      "description": "Fields: HV battery module 19 min voltage [V] (byte 0); HV battery module 19 max voltage [V] (byte 2); HV battery module 19 min temperature [°C] (byte 4); HV battery module 19 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB111",
+      "name": "hv_battery_module_20_min_voltage",
+      "description": "Fields: HV battery module 20 min voltage [V] (byte 0); Battery module B111 raw value (byte 0); HV battery module 20 max voltage [V] (byte 2); HV battery module 20 min temperature [°C] (byte 4); HV battery module 20 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB111",
+      "name": "hv_battery_module_20_min_voltage",
+      "description": "Fields: HV battery module 20 min voltage [V] (byte 0); HV battery module 20 max voltage [V] (byte 2); HV battery module 20 min temperature [°C] (byte 4); HV battery module 20 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB112",
+      "name": "hv_battery_module_21_min_voltage",
+      "description": "Fields: HV battery module 21 min voltage [V] (byte 0); Battery module B112 raw value (byte 0); HV battery module 21 max voltage [V] (byte 2); HV battery module 21 min temperature [°C] (byte 4); HV battery module 21 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB112",
+      "name": "hv_battery_module_21_min_voltage",
+      "description": "Fields: HV battery module 21 min voltage [V] (byte 0); HV battery module 21 max voltage [V] (byte 2); HV battery module 21 min temperature [°C] (byte 4); HV battery module 21 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB113",
+      "name": "hv_battery_module_22_min_voltage",
+      "description": "Fields: HV battery module 22 min voltage [V] (byte 0); Battery module B113 raw value (byte 0); HV battery module 22 max voltage [V] (byte 2); HV battery module 22 min temperature [°C] (byte 4); HV battery module 22 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB113",
+      "name": "hv_battery_module_22_min_voltage",
+      "description": "Fields: HV battery module 22 min voltage [V] (byte 0); HV battery module 22 max voltage [V] (byte 2); HV battery module 22 min temperature [°C] (byte 4); HV battery module 22 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB114",
+      "name": "hv_battery_module_23_min_voltage",
+      "description": "Fields: HV battery module 23 min voltage [V] (byte 0); Battery module B114 raw value (byte 0); HV battery module 23 max voltage [V] (byte 2); HV battery module 23 min temperature [°C] (byte 4); HV battery module 23 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB114",
+      "name": "hv_battery_module_23_min_voltage",
+      "description": "Fields: HV battery module 23 min voltage [V] (byte 0); HV battery module 23 max voltage [V] (byte 2); HV battery module 23 min temperature [°C] (byte 4); HV battery module 23 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB115",
+      "name": "hv_battery_module_24_min_voltage",
+      "description": "Fields: HV battery module 24 min voltage [V] (byte 0); Battery module B115 raw value (byte 0); HV battery module 24 max voltage [V] (byte 2); HV battery module 24 min temperature [°C] (byte 4); HV battery module 24 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7DF",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB115",
+      "name": "hv_battery_module_24_min_voltage",
+      "description": "Fields: HV battery module 24 min voltage [V] (byte 0); HV battery module 24 max voltage [V] (byte 2); HV battery module 24 min temperature [°C] (byte 4); HV battery module 24 max temperature [°C] (byte 5)",
+      "ecu_address": "0x7E5",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB120",
+      "name": "brake_pedal",
+      "description": "Brake pedal",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "%"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB140",
+      "name": "knock_sensor_voltage",
+      "description": "Knock sensor voltage",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint8",
+        "scale": 0.01960784314,
+        "unit": "V"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB143",
+      "name": "misfires_cylinder_1",
+      "description": "Misfires, cylinder 1",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB144",
+      "name": "misfires_cylinder_2",
+      "description": "Misfires, cylinder 2",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB145",
+      "name": "misfires_cylinder_3",
+      "description": "Misfires, cylinder 3",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB146",
+      "name": "misfires_cylinder_4",
+      "description": "Misfires, cylinder 4",
+      "ecu_address": "0x7E0",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB18C",
+      "name": "ignition_state",
+      "description": "Ignition state",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB309",
+      "name": "motor_coolant_temperature",
+      "description": "Motor coolant temperature",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB401",
+      "name": "motor_torque",
+      "description": "Motor torque",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint16_be",
+        "offset": -32767,
+        "unit": "Nm"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB402",
+      "name": "motor_speed",
+      "description": "Motor speed",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint16_be",
+        "offset": -32767,
+        "unit": "rpm"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB405",
+      "name": "motor_temperature",
+      "description": "Motor temperature",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB423",
+      "name": "transmission_fluid_temperature_ecu_10472701_and_11194479",
+      "description": "Transmission fluid temperature, ECU 10472701 and 11194479",
+      "ecu_address": "0x7E1",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB580",
+      "name": "dc_dc_converter_mode",
+      "description": "DC/DC converter mode",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB581",
+      "name": "dc_dc_converter_input_current",
+      "description": "DC/DC converter input current",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -3276.7,
+        "unit": "A"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB582",
+      "name": "dc_dc_converter_input_voltage",
+      "description": "DC/DC converter input voltage",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "V"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB583",
+      "name": "dc_dc_converter_output_current",
+      "description": "DC/DC converter output current",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "A"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB584",
+      "name": "dc_dc_converter_output_voltage",
+      "description": "DC/DC converter output voltage",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "V"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB587",
+      "name": "dc_dc_converter_temperature_vehicle_control_unit",
+      "description": "DC/DC converter temperature, vehicle control unit",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB703",
+      "name": "hv_contactor_closed",
+      "description": "Fields: HV contactor closed (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB705",
+      "name": "hv_battery_voltage_vehicle_control_unit",
+      "description": "HV battery voltage, vehicle control unit",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "V"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB712",
+      "name": "charge_current_limit",
+      "description": "Charge current limit",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "unit": "A"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB71B",
+      "name": "charger_connected",
+      "description": "Fields: Charger connected (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB900",
+      "name": "gear_selector_code",
+      "description": "Gear selector code",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xB921",
+      "name": "odometer",
+      "description": "Fields: Odometer [km] (byte 0)",
+      "ecu_address": "0x710",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xBA00",
+      "name": "vehicle_reported_speed",
+      "description": "Vehicle reported speed",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.01,
+        "offset": -200,
+        "unit": "km/h"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xBA40",
+      "name": "parking_brake_applied",
+      "description": "Fields: Parking brake applied (byte 0)",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xBB01",
+      "name": "a_c_power",
+      "description": "A/C power",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint16_be"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xBB05",
+      "name": "external_temperature",
+      "description": "External temperature",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint8",
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xBB06",
+      "name": "hood_open",
+      "description": "Fields: Hood open (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xBB91",
+      "name": "radiator_fan_state",
+      "description": "Radiator fan state",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD001",
+      "name": "vehicle_gateway_status",
+      "description": "Vehicle gateway status",
+      "ecu_address": "0x710",
+      "decoder": {
+        "kind": "uint8"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD112",
+      "name": "door_open_boot",
+      "description": "Fields: Door open, boot (byte 0, bit 2, 1 bit(s)); Door open, bonnet (byte 0, bit 3, 1 bit(s)); Door open, RH rear (byte 0, bit 4, 1 bit(s)); Door open, LH rear (byte 0, bit 5, 1 bit(s)); Door open, passenger (byte 0, bit 6, 1 bit(s)); Door open, driver (byte 0, bit 7, 1 bit(s))",
+      "ecu_address": "0x7E3",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xD117",
+      "name": "headlights_on",
+      "description": "Fields: Headlights on (byte 0, bit 0, 1 bit(s))",
+      "ecu_address": "0x740",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE00F",
+      "name": "blower_speed",
+      "description": "Fields: Blower speed (byte 0); Blower speed (byte 0)",
+      "ecu_address": "0x750",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE013",
+      "name": "face_vent_outlet_temperature",
+      "description": "Alternative decodings: Face vent outlet temperature [°C] (byte 0); FL face outlet temperature [°C] (byte 0)",
+      "ecu_address": "0x750",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -30,
+        "unit": "°C"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE01B",
+      "name": "ambient_temperature_climate_control",
+      "description": "Alternative decodings: Ambient temperature, climate control [°C] (byte 0); Ambient temperature, raw count (byte 0)",
+      "ecu_address": "0x750",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE01C",
+      "name": "cabin_heater_temperature",
+      "description": "Cabin heater temperature",
+      "ecu_address": "0x750",
+      "decoder": {
+        "kind": "uint16_be",
+        "scale": 0.1,
+        "offset": -40,
+        "unit": "°C"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE101",
+      "name": "odometer_body_control_module",
+      "description": "Fields: Odometer, body control module [km] (byte 0)",
+      "ecu_address": "0x740",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    },
+    {
+      "did": "0xE209",
+      "name": "front_left_tire_pressure",
+      "description": "Fields: Front left tire pressure [kPa] (byte 0); Front right tire pressure [kPa] (byte 1); Rear left tire pressure [kPa] (byte 2); Rear right tire pressure [kPa] (byte 3); Front left tire temperature [°C] (byte 4); Front right tire temperature [°C] (byte 5); Rear left tire temperature [°C] (byte 6); Rear right tire temperature [°C] (byte 7)",
+      "ecu_address": "0x740",
+      "decoder": {
+        "kind": "hex"
+      },
+      "source": "OBDb/MG signalset (CC BY-SA 4.0)",
+      "verified": false
+    }
+  ]
+}

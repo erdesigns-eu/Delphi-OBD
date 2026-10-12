@@ -90,7 +90,7 @@ Every component is listed in the [component reference](docs/components.md).
 | OEM key adaptation | BMW, Ford, HMG, Toyota: UDS-routine driven, `AutoExecute = False` by default |
 | VIN decoding | WMI / VDS / VIS via vPIC (~24,000 NHTSA schemas) |
 | Drive-cycle advisor | ISO 15031-7 per-monitor cycle catalogue + Mode 01 PID 01 readiness decoder |
-| EV battery health | 15 vendor catalogues: SOC / SOH / cell voltages / pack temperatures / charging power ([capability matrix](docs/ev-support-matrix.md)) |
+| EV battery health | 21 vendor catalogues: SOC / SOH / cell voltages / pack temperatures / charging power ([capability matrix](docs/ev-support-matrix.md)) |
 | Radio codes | 42 calculators. Bundled algorithms for Peugeot, Renault, Fiat (Daiichi, VP), Hyundai and Ford M; bundled code databases for Becker 4, Becker 5 and Ford V; `OnCalculate` stubs for the rest ([inventory](docs/radio-code-algorithms.md)) |
 | EEPROM extractors | Volvo HU, Opel CD30, Mercedes Becker: load `.bin` / `.eep` and decode at the documented offset |
 | Signing | BCrypt, OpenSSL, host-supplied HSM driver, post-quantum (Dilithium / Falcon / SPHINCS+ via liboqs) |

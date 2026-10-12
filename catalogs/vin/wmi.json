@@ -2,8 +2,1472 @@
   "$schema": "../_schema/vin-wmi.schema.json",
   "schema_version": 1,
   "spec": "ISO 3780 (WMI)",
-  "description": "World Manufacturer Identifier (3-char) to manufacturer name map.",
+  "description": "World Manufacturer Identifier (3-char) to manufacturer name map. Additional entries merged from vininfo (BSD-3-Clause); unverified against NHTSA vPIC.",
   "entries": [
+    {
+      "wmi": "007",
+      "name": "Koenigsegg"
+    },
+    {
+      "wmi": "034",
+      "name": "Carvia"
+    },
+    {
+      "wmi": "112",
+      "name": "Volkswagen"
+    },
+    {
+      "wmi": "115",
+      "name": "Mercedes-Benz"
+    },
+    {
+      "wmi": "117",
+      "name": "Volkswagen"
+    },
+    {
+      "wmi": "123",
+      "name": "Mercedes-Benz"
+    },
+    {
+      "wmi": "124",
+      "name": "Chevrolet"
+    },
+    {
+      "wmi": "137",
+      "name": "Hummer"
+    },
+    {
+      "wmi": "178",
+      "name": "Jaguar"
+    },
+    {
+      "wmi": "17V",
+      "name": "Ford"
+    },
+    {
+      "wmi": "19",
+      "name": "Acura"
+    },
+    {
+      "wmi": "19X",
+      "name": "Honda"
+    },
+    {
+      "wmi": "1A4",
+      "name": "Chrysler"
+    },
+    {
+      "wmi": "1A8",
+      "name": "Chrysler"
+    },
+    {
+      "wmi": "1B",
+      "name": "Dodge"
+    },
+    {
+      "wmi": "1B3",
+      "name": "Dodge"
+    },
+    {
+      "wmi": "1C",
+      "name": "Chrysler"
+    },
+    {
+      "wmi": "1C3",
+      "name": "Chrysler"
+    },
+    {
+      "wmi": "1C4",
+      "name": "Dodge"
+    },
+    {
+      "wmi": "1C6",
+      "name": "Chrysler"
+    },
+    {
+      "wmi": "1C8",
+      "name": "Chrysler"
+    },
+    {
+      "wmi": "1CN",
+      "name": "Lincoln"
+    },
+    {
+      "wmi": "1D",
+      "name": "Dodge"
+    },
+    {
+      "wmi": "1D3",
+      "name": "Dodge"
+    },
+    {
+      "wmi": "1F",
+      "name": "Ford"
+    },
+    {
+      "wmi": "1F2",
+      "name": "Subaru"
+    },
+    {
+      "wmi": "1F9",
+      "name": "FWD."
+    },
+    {
+      "wmi": "1FA",
+      "name": "Ford"
+    },
+    {
+      "wmi": "1FB",
+      "name": "Ford"
+    },
+    {
+      "wmi": "1FC",
+      "name": "Ford"
+    },
+    {
+      "wmi": "1FD",
+      "name": "Ford"
+    },
+    {
+      "wmi": "1FM",
+      "name": "Ford"
+    },
+    {
+      "wmi": "1FT",
+      "name": "Ford"
+    },
+    {
+      "wmi": "1FU",
+      "name": "Freightliner"
+    },
+    {
+      "wmi": "1FV",
+      "name": "Freightliner"
+    },
+    {
+      "wmi": "1G",
+      "name": "General Motors"
+    },
+    {
+      "wmi": "1G1",
+      "name": "Chevrolet"
+    },
+    {
+      "wmi": "1G2",
+      "name": "Pontiac"
+    },
+    {
+      "wmi": "1G3",
+      "name": "Oldsmobile"
+    },
+    {
+      "wmi": "1G4",
+      "name": "Buick"
+    },
+    {
+      "wmi": "1G6",
+      "name": "Cadillac"
+    },
+    {
+      "wmi": "1G8",
+      "name": "Saturn"
+    },
+    {
+      "wmi": "1G9",
+      "name": "Google"
+    },
+    {
+      "wmi": "1GA",
+      "name": "Chevrolet"
+    },
+    {
+      "wmi": "1GB",
+      "name": "Chevrolet USA"
+    },
+    {
+      "wmi": "1GC",
+      "name": "Chevrolet"
+    },
+    {
+      "wmi": "1GD",
+      "name": "GMC"
+    },
+    {
+      "wmi": "1GE",
+      "name": "Cadillac"
+    },
+    {
+      "wmi": "1GG",
+      "name": "Isuzu"
+    },
+    {
+      "wmi": "1GH",
+      "name": "Oldsmobile"
+    },
+    {
+      "wmi": "1GJ",
+      "name": "GMC"
+    },
+    {
+      "wmi": "1GK",
+      "name": "GMC"
+    },
+    {
+      "wmi": "1GM",
+      "name": "Pontiac"
+    },
+    {
+      "wmi": "1GN",
+      "name": "Chevrolet"
+    },
+    {
+      "wmi": "1GT",
+      "name": "GMC"
+    },
+    {
+      "wmi": "1GY",
+      "name": "Cadillac"
+    },
+    {
+      "wmi": "1H",
+      "name": "Honda"
+    },
+    {
+      "wmi": "1HD",
+      "name": "Harley-Davidson"
+    },
+    {
+      "wmi": "1HT",
+      "name": "International Truck and Engine Corp"
+    },
+    {
+      "wmi": "1J",
+      "name": "Jeep"
+    },
+    {
+      "wmi": "1J4",
+      "name": "Jeep"
+    },
+    {
+      "wmi": "1J8",
+      "name": "Jeep"
+    },
+    {
+      "wmi": "1JN",
+      "name": "Nissan"
+    },
+    {
+      "wmi": "1L",
+      "name": "Lincoln"
+    },
+    {
+      "wmi": "1L1",
+      "name": "Lincoln"
+    },
+    {
+      "wmi": "1L4",
+      "name": "Jeep"
+    },
+    {
+      "wmi": "1LN",
+      "name": "Lincoln"
+    },
+    {
+      "wmi": "1M",
+      "name": "Mercury"
+    },
+    {
+      "wmi": "1M1",
+      "name": "Mack"
+    },
+    {
+      "wmi": "1M2",
+      "name": "Mack"
+    },
+    {
+      "wmi": "1M3",
+      "name": "Mack"
+    },
+    {
+      "wmi": "1M4",
+      "name": "Mack"
+    },
+    {
+      "wmi": "1M9",
+      "name": "Mynatt"
+    },
+    {
+      "wmi": "1ME",
+      "name": "Mercury"
+    },
+    {
+      "wmi": "1N",
+      "name": "Nissan"
+    },
+    {
+      "wmi": "1NX",
+      "name": "NUMMI"
+    },
+    {
+      "wmi": "1P3",
+      "name": "Plymouth"
+    },
+    {
+      "wmi": "1P4",
+      "name": "Plymouth"
+    },
+    {
+      "wmi": "1PY",
+      "name": "John Deere"
+    },
+    {
+      "wmi": "1R9",
+      "name": "Roadrunner"
+    },
+    {
+      "wmi": "1TK",
+      "name": "Scion"
+    },
+    {
+      "wmi": "1V1",
+      "name": "Volkswagen USA (Commercials)"
+    },
+    {
+      "wmi": "1V2",
+      "name": "Volkswagen"
+    },
+    {
+      "wmi": "1V4",
+      "name": "Nissan"
+    },
+    {
+      "wmi": "1VW",
+      "name": "Volkswagen"
+    },
+    {
+      "wmi": "1XK",
+      "name": "Kenworth"
+    },
+    {
+      "wmi": "1XP",
+      "name": "Peterbilt"
+    },
+    {
+      "wmi": "1Y1",
+      "name": "Chevrolet"
+    },
+    {
+      "wmi": "1YV",
+      "name": "Mazda"
+    },
+    {
+      "wmi": "1Z3",
+      "name": "Mitsubishi"
+    },
+    {
+      "wmi": "1Z7",
+      "name": "Mitsubishi"
+    },
+    {
+      "wmi": "1ZV",
+      "name": "Ford"
+    },
+    {
+      "wmi": "1ZW",
+      "name": "Mercury"
+    },
+    {
+      "wmi": "210",
+      "name": "Ford"
+    },
+    {
+      "wmi": "2A4",
+      "name": "Chrysler"
+    },
+    {
+      "wmi": "2A8",
+      "name": "Chrysler Canada"
+    },
+    {
+      "wmi": "2B3",
+      "name": "Dodge"
+    },
+    {
+      "wmi": "2B4",
+      "name": "Dodge"
+    },
+    {
+      "wmi": "2B5",
+      "name": "Dodge"
+    },
+    {
+      "wmi": "2B6",
+      "name": "Dodge"
+    },
+    {
+      "wmi": "2B7",
+      "name": "Dodge"
+    },
+    {
+      "wmi": "2B8",
+      "name": "Dodge"
+    },
+    {
+      "wmi": "2BP",
+      "name": "Bombardier"
+    },
+    {
+      "wmi": "2C3",
+      "name": "Dodge"
+    },
+    {
+      "wmi": "2C4",
+      "name": "Chrysler Canada"
+    },
+    {
+      "wmi": "2C7",
+      "name": "Dodge"
+    },
+    {
+      "wmi": "2C8",
+      "name": "Chrysler"
+    },
+    {
+      "wmi": "2CK",
+      "name": "Pontiac"
+    },
+    {
+      "wmi": "2CN",
+      "name": "Chevrolet"
+    },
+    {
+      "wmi": "2CT",
+      "name": "General Motors"
+    },
+    {
+      "wmi": "2D3",
+      "name": "Dodge"
+    },
+    {
+      "wmi": "2D4",
+      "name": "Dodge Canada"
+    },
+    {
+      "wmi": "2D6",
+      "name": "Dodge"
+    },
+    {
+      "wmi": "2D7",
+      "name": "Dodge"
+    },
+    {
+      "wmi": "2D8",
+      "name": "Dodge Canada"
+    },
+    {
+      "wmi": "2DG",
+      "name": "Ontario Drive & Gear"
+    },
+    {
+      "wmi": "2F",
+      "name": "Ford"
+    },
+    {
+      "wmi": "2FA",
+      "name": "Ford"
+    },
+    {
+      "wmi": "2FB",
+      "name": "Ford"
+    },
+    {
+      "wmi": "2FC",
+      "name": "Ford"
+    },
+    {
+      "wmi": "2FM",
+      "name": "Ford"
+    },
+    {
+      "wmi": "2FT",
+      "name": "Ford"
+    },
+    {
+      "wmi": "2FU",
+      "name": "Freightliner"
+    },
+    {
+      "wmi": "2FV",
+      "name": "Freightliner"
+    },
+    {
+      "wmi": "2FZ",
+      "name": "Sterling"
+    },
+    {
+      "wmi": "2G",
+      "name": "General Motors"
+    },
+    {
+      "wmi": "2G1",
+      "name": "Chevrolet"
+    },
+    {
+      "wmi": "2G2",
+      "name": "Pontiac"
+    },
+    {
+      "wmi": "2G3",
+      "name": "Oldsmobile"
+    },
+    {
+      "wmi": "2G4",
+      "name": "Buick"
+    },
+    {
+      "wmi": "2G6",
+      "name": "Cadillac"
+    },
+    {
+      "wmi": "2G9",
+      "name": "Gnome Homes"
+    },
+    {
+      "wmi": "2GC",
+      "name": "Chevrolet"
+    },
+    {
+      "wmi": "2GE",
+      "name": "Cadillac"
+    },
+    {
+      "wmi": "2GK",
+      "name": "GMC"
+    },
+    {
+      "wmi": "2GN",
+      "name": "Chevrolet Canada"
+    },
+    {
+      "wmi": "2GT",
+      "name": "GMC"
+    },
+    {
+      "wmi": "2H",
+      "name": "Honda"
+    },
+    {
+      "wmi": "2HG",
+      "name": "Honda"
+    },
+    {
+      "wmi": "2HH",
+      "name": "Acura"
+    },
+    {
+      "wmi": "2HJ",
+      "name": "Honda"
+    },
+    {
+      "wmi": "2HK",
+      "name": "Honda"
+    },
+    {
+      "wmi": "2HM",
+      "name": "Hyundai"
+    },
+    {
+      "wmi": "2HN",
+      "name": "Acura"
+    },
+    {
+      "wmi": "2L",
+      "name": "Lincoln"
+    },
+    {
+      "wmi": "2L1",
+      "name": "Lincoln"
+    },
+    {
+      "wmi": "2LM",
+      "name": "Lincoln"
+    },
+    {
+      "wmi": "2LN",
+      "name": "Lincoln"
+    },
+    {
+      "wmi": "2M",
+      "name": "Mercury"
+    },
+    {
+      "wmi": "2NV",
+      "name": "Nova"
+    },
+    {
+      "wmi": "2P3",
+      "name": "Plymouth"
+    },
+    {
+      "wmi": "2P4",
+      "name": "Plymouth"
+    },
+    {
+      "wmi": "2S2",
+      "name": "Suzuki"
+    },
+    {
+      "wmi": "2S3",
+      "name": "Suzuki Canada"
+    },
+    {
+      "wmi": "2T",
+      "name": "Toyota"
+    },
+    {
+      "wmi": "2T2",
+      "name": "Lexus"
+    },
+    {
+      "wmi": "2TP",
+      "name": "Triple E"
+    },
+    {
+      "wmi": "2V4",
+      "name": "Volkswagen"
+    },
+    {
+      "wmi": "2V8",
+      "name": "Volkswagen"
+    },
+    {
+      "wmi": "2W",
+      "name": "Western Star"
+    },
+    {
+      "wmi": "2WK",
+      "name": "Western Star"
+    },
+    {
+      "wmi": "2WL",
+      "name": "Western Star"
+    },
+    {
+      "wmi": "2WM",
+      "name": "Western Star"
+    },
+    {
+      "wmi": "309",
+      "name": "Chevrolet"
+    },
+    {
+      "wmi": "363",
+      "name": "Spyker"
+    },
+    {
+      "wmi": "3A",
+      "name": "Chrysler Mexico"
+    },
+    {
+      "wmi": "3A4",
+      "name": "Chrysler"
+    },
+    {
+      "wmi": "3A8",
+      "name": "Chrysler"
+    },
+    {
+      "wmi": "3B6",
+      "name": "Dodge"
+    },
+    {
+      "wmi": "3B7",
+      "name": "Dodge Mexico"
+    },
+    {
+      "wmi": "3C",
+      "name": "Chrysler"
+    },
+    {
+      "wmi": "3C3",
+      "name": "Fiat"
+    },
+    {
+      "wmi": "3C4",
+      "name": "Chrysler"
+    },
+    {
+      "wmi": "3C6",
+      "name": "RAM"
+    },
+    {
+      "wmi": "3C7",
+      "name": "Ram"
+    },
+    {
+      "wmi": "3C8",
+      "name": "Chrysler"
+    },
+    {
+      "wmi": "3CZ",
+      "name": "Honda Mexico"
+    },
+    {
+      "wmi": "3D",
+      "name": "Dodge"
+    },
+    {
+      "wmi": "3D3",
+      "name": "Dodge"
+    },
+    {
+      "wmi": "3D4",
+      "name": "Dodge"
+    },
+    {
+      "wmi": "3F",
+      "name": "Ford"
+    },
+    {
+      "wmi": "3FA",
+      "name": "Ford"
+    },
+    {
+      "wmi": "3FE",
+      "name": "Ford"
+    },
+    {
+      "wmi": "3G",
+      "name": "General Motors"
+    },
+    {
+      "wmi": "3G0",
+      "name": "Saab"
+    },
+    {
+      "wmi": "3G1",
+      "name": "Chevrolet"
+    },
+    {
+      "wmi": "3G2",
+      "name": "Pontiac"
+    },
+    {
+      "wmi": "3G5",
+      "name": "Buick"
+    },
+    {
+      "wmi": "3G7",
+      "name": "Pontiac"
+    },
+    {
+      "wmi": "3GC",
+      "name": "Chevrolet Mexico"
+    },
+    {
+      "wmi": "3GD",
+      "name": "GMC"
+    },
+    {
+      "wmi": "3GK",
+      "name": "GMC"
+    },
+    {
+      "wmi": "3GN",
+      "name": "Chevrolet Mexico"
+    },
+    {
+      "wmi": "3GS",
+      "name": "Saturn"
+    },
+    {
+      "wmi": "3GT",
+      "name": "GMC"
+    },
+    {
+      "wmi": "3GV",
+      "name": "Chevrolet"
+    },
+    {
+      "wmi": "3GY",
+      "name": "Cadillac"
+    },
+    {
+      "wmi": "3H",
+      "name": "Honda"
+    },
+    {
+      "wmi": "3JB",
+      "name": "BRP"
+    },
+    {
+      "wmi": "3KP",
+      "name": "Kia"
+    },
+    {
+      "wmi": "3LN",
+      "name": "Lincoln"
+    },
+    {
+      "wmi": "3MD",
+      "name": "Mazda"
+    },
+    {
+      "wmi": "3ME",
+      "name": "Mercury Mexico"
+    },
+    {
+      "wmi": "3MY",
+      "name": "Mazda Mexico"
+    },
+    {
+      "wmi": "3MZ",
+      "name": "Mazda"
+    },
+    {
+      "wmi": "3N",
+      "name": "Nissan"
+    },
+    {
+      "wmi": "3N6",
+      "name": "Chevrolet"
+    },
+    {
+      "wmi": "3NE",
+      "name": "Polaris"
+    },
+    {
+      "wmi": "3NS",
+      "name": "Polaris"
+    },
+    {
+      "wmi": "3P3",
+      "name": "Plymouth"
+    },
+    {
+      "wmi": "3TM",
+      "name": "Toyota Mexico"
+    },
+    {
+      "wmi": "3VV",
+      "name": "Volkswagen"
+    },
+    {
+      "wmi": "3VW",
+      "name": "Volkswagen"
+    },
+    {
+      "wmi": "460",
+      "name": "Mercedes-Benz"
+    },
+    {
+      "wmi": "46J",
+      "name": "Federal Motors Inc"
+    },
+    {
+      "wmi": "4A",
+      "name": "Mitsubishi"
+    },
+    {
+      "wmi": "4B3",
+      "name": "Dodge"
+    },
+    {
+      "wmi": "4C3",
+      "name": "Chrysler"
+    },
+    {
+      "wmi": "4EN",
+      "name": "Emergency One"
+    },
+    {
+      "wmi": "4F",
+      "name": "Mazda"
+    },
+    {
+      "wmi": "4G1",
+      "name": "Chevrolet"
+    },
+    {
+      "wmi": "4GD",
+      "name": "Opel"
+    },
+    {
+      "wmi": "4J",
+      "name": "Mercedes-Benz"
+    },
+    {
+      "wmi": "4JG",
+      "name": "Mercedes-Benz"
+    },
+    {
+      "wmi": "4M",
+      "name": "Mercury"
+    },
+    {
+      "wmi": "4N2",
+      "name": "Nissan"
+    },
+    {
+      "wmi": "4NU",
+      "name": "Isuzu"
+    },
+    {
+      "wmi": "4P1",
+      "name": "Pierce Manufacturing Inc"
+    },
+    {
+      "wmi": "4RK",
+      "name": "Nova"
+    },
+    {
+      "wmi": "4S",
+      "name": "Subaru-Isuzu"
+    },
+    {
+      "wmi": "4S2",
+      "name": "Isuzu"
+    },
+    {
+      "wmi": "4S3",
+      "name": "Subaru"
+    },
+    {
+      "wmi": "4S4",
+      "name": "Subaru"
+    },
+    {
+      "wmi": "4S6",
+      "name": "Honda"
+    },
+    {
+      "wmi": "4T",
+      "name": "Toyota"
+    },
+    {
+      "wmi": "4T9",
+      "name": "Lumen Motors"
+    },
+    {
+      "wmi": "4UF",
+      "name": "Arctic Cat Inc."
+    },
+    {
+      "wmi": "4US",
+      "name": "BMW"
+    },
+    {
+      "wmi": "4UZ",
+      "name": "Frt-Thomas"
+    },
+    {
+      "wmi": "4V",
+      "name": "Volvo"
+    },
+    {
+      "wmi": "4V1",
+      "name": "Volvo"
+    },
+    {
+      "wmi": "4V2",
+      "name": "Volvo"
+    },
+    {
+      "wmi": "4V3",
+      "name": "Volvo"
+    },
+    {
+      "wmi": "4V4",
+      "name": "Volvo"
+    },
+    {
+      "wmi": "4V5",
+      "name": "Volvo"
+    },
+    {
+      "wmi": "4V6",
+      "name": "Volvo"
+    },
+    {
+      "wmi": "4VL",
+      "name": "Volvo"
+    },
+    {
+      "wmi": "4VM",
+      "name": "Volvo"
+    },
+    {
+      "wmi": "4VZ",
+      "name": "Volvo"
+    },
+    {
+      "wmi": "538",
+      "name": "Zero"
+    },
+    {
+      "wmi": "54D",
+      "name": "Chevrolet"
+    },
+    {
+      "wmi": "55",
+      "name": "Mercedes-Benz"
+    },
+    {
+      "wmi": "55S",
+      "name": "Mercedes-Benz"
+    },
+    {
+      "wmi": "56K",
+      "name": "Indian"
+    },
+    {
+      "wmi": "58A",
+      "name": "Lexus"
+    },
+    {
+      "wmi": "5BZ",
+      "name": "Nissan"
+    },
+    {
+      "wmi": "5F",
+      "name": "Honda"
+    },
+    {
+      "wmi": "5FR",
+      "name": "Acura"
+    },
+    {
+      "wmi": "5G",
+      "name": "Hummer"
+    },
+    {
+      "wmi": "5GA",
+      "name": "Buick"
+    },
+    {
+      "wmi": "5GN",
+      "name": "Hummer"
+    },
+    {
+      "wmi": "5GR",
+      "name": "Hummer"
+    },
+    {
+      "wmi": "5GT",
+      "name": "Hummer"
+    },
+    {
+      "wmi": "5GZ",
+      "name": "Saturn"
+    },
+    {
+      "wmi": "5HD",
+      "name": "Harley-Davidson"
+    },
+    {
+      "wmi": "5J",
+      "name": "Honda"
+    },
+    {
+      "wmi": "5J6",
+      "name": "Honda"
+    },
+    {
+      "wmi": "5J8",
+      "name": "Acura"
+    },
+    {
+      "wmi": "5KB",
+      "name": "Honda"
+    },
+    {
+      "wmi": "5L",
+      "name": "Lincoln"
+    },
+    {
+      "wmi": "5N1",
+      "name": "Infinity"
+    },
+    {
+      "wmi": "5N3",
+      "name": "Infiniti"
+    },
+    {
+      "wmi": "5NA",
+      "name": "Nissan"
+    },
+    {
+      "wmi": "5NM",
+      "name": "Hyundai"
+    },
+    {
+      "wmi": "5NP",
+      "name": "Hyundai"
+    },
+    {
+      "wmi": "5S3",
+      "name": "Saab"
+    },
+    {
+      "wmi": "5T",
+      "name": "Toyota"
+    },
+    {
+      "wmi": "5U",
+      "name": "BMW"
+    },
+    {
+      "wmi": "5UX",
+      "name": "BMW"
+    },
+    {
+      "wmi": "5X",
+      "name": "Hyundai/Kia"
+    },
+    {
+      "wmi": "5XX",
+      "name": "Kia"
+    },
+    {
+      "wmi": "5XY",
+      "name": "Kia"
+    },
+    {
+      "wmi": "5Y2",
+      "name": "Pontiac"
+    },
+    {
+      "wmi": "5YF",
+      "name": "Toyota"
+    },
+    {
+      "wmi": "5YJ",
+      "name": "Tesla"
+    },
+    {
+      "wmi": "5YM",
+      "name": "BMW"
+    },
+    {
+      "wmi": "5Z6",
+      "name": "Suzuki"
+    },
+    {
+      "wmi": "602",
+      "name": "Toyota"
+    },
+    {
+      "wmi": "6AB",
+      "name": "MAN"
+    },
+    {
+      "wmi": "6AL",
+      "name": "Windsor Caravans"
+    },
+    {
+      "wmi": "6F",
+      "name": "Ford"
+    },
+    {
+      "wmi": "6F4",
+      "name": "Nissan"
+    },
+    {
+      "wmi": "6F5",
+      "name": "Kenworth"
+    },
+    {
+      "wmi": "6FP",
+      "name": "Ford"
+    },
+    {
+      "wmi": "6G",
+      "name": "General Motors"
+    },
+    {
+      "wmi": "6G1",
+      "name": "Holden"
+    },
+    {
+      "wmi": "6G2",
+      "name": "Pontiac"
+    },
+    {
+      "wmi": "6G3",
+      "name": "Chevrolet Australia"
+    },
+    {
+      "wmi": "6H",
+      "name": "Holden"
+    },
+    {
+      "wmi": "6H8",
+      "name": "Holden"
+    },
+    {
+      "wmi": "6MM",
+      "name": "Mitsubishi"
+    },
+    {
+      "wmi": "6T1",
+      "name": "Toyota"
+    },
+    {
+      "wmi": "6U9",
+      "name": "Privately Imported car in Australia"
+    },
+    {
+      "wmi": "795",
+      "name": "Bugatti"
+    },
+    {
+      "wmi": "7A3",
+      "name": "Honda"
+    },
+    {
+      "wmi": "7FA",
+      "name": "Honda"
+    },
+    {
+      "wmi": "7SA",
+      "name": "Tesla Motors USA"
+    },
+    {
+      "wmi": "8A1",
+      "name": "Renault"
+    },
+    {
+      "wmi": "8AC",
+      "name": "Mercedes Benz"
+    },
+    {
+      "wmi": "8AD",
+      "name": "Peugeot"
+    },
+    {
+      "wmi": "8AF",
+      "name": "Ford"
+    },
+    {
+      "wmi": "8AG",
+      "name": "Chevrolet"
+    },
+    {
+      "wmi": "8AJ",
+      "name": "Toyota"
+    },
+    {
+      "wmi": "8AK",
+      "name": "Suzuki"
+    },
+    {
+      "wmi": "8AP",
+      "name": "Fiat"
+    },
+    {
+      "wmi": "8AT",
+      "name": "Iveco"
+    },
+    {
+      "wmi": "8AW",
+      "name": "Volkswagen"
+    },
+    {
+      "wmi": "8BC",
+      "name": "Citroën"
+    },
+    {
+      "wmi": "8BR",
+      "name": "Mercedes-Benz Argentina"
+    },
+    {
+      "wmi": "8BT",
+      "name": "Mercedes-Benz Argentina"
+    },
+    {
+      "wmi": "8C3",
+      "name": "Honda"
+    },
+    {
+      "wmi": "8GD",
+      "name": "Peugeot"
+    },
+    {
+      "wmi": "8GG",
+      "name": "Chevrolet"
+    },
+    {
+      "wmi": "8LD",
+      "name": "Chevrolet"
+    },
+    {
+      "wmi": "92T",
+      "name": "Bajaj"
+    },
+    {
+      "wmi": "932",
+      "name": "Harley-Davidson"
+    },
+    {
+      "wmi": "935",
+      "name": "Citroën"
+    },
+    {
+      "wmi": "936",
+      "name": "Peugeot"
+    },
+    {
+      "wmi": "93H",
+      "name": "Honda"
+    },
+    {
+      "wmi": "93R",
+      "name": "Toyota"
+    },
+    {
+      "wmi": "93U",
+      "name": "Audi"
+    },
+    {
+      "wmi": "93V",
+      "name": "Audi"
+    },
+    {
+      "wmi": "93W",
+      "name": "Fiat Professional"
+    },
+    {
+      "wmi": "93X",
+      "name": "Mitsubishi"
+    },
+    {
+      "wmi": "93Y",
+      "name": "Renault"
+    },
+    {
+      "wmi": "93Z",
+      "name": "Iveco"
+    },
+    {
+      "wmi": "94D",
+      "name": "Nissan"
+    },
+    {
+      "wmi": "953",
+      "name": "VW Trucks / MAN"
+    },
+    {
+      "wmi": "95P",
+      "name": "CAOA / Hyundai"
+    },
+    {
+      "wmi": "95V",
+      "name": "Dafra"
+    },
+    {
+      "wmi": "96P",
+      "name": "Kawasaki"
+    },
+    {
+      "wmi": "97N",
+      "name": "Triumph"
+    },
+    {
+      "wmi": "988",
+      "name": "Jeep"
+    },
+    {
+      "wmi": "98M",
+      "name": "BMW"
+    },
+    {
+      "wmi": "98P",
+      "name": "DAF Trucks"
+    },
+    {
+      "wmi": "98R",
+      "name": "Chery"
+    },
+    {
+      "wmi": "99A",
+      "name": "Audi"
+    },
+    {
+      "wmi": "99J",
+      "name": "JLR Jaguar Land Rover"
+    },
+    {
+      "wmi": "99Z",
+      "name": "BMW M"
+    },
+    {
+      "wmi": "9BD",
+      "name": "Fiat Automóveis"
+    },
+    {
+      "wmi": "9BF",
+      "name": "Ford"
+    },
+    {
+      "wmi": "9BG",
+      "name": "Chevrolet"
+    },
+    {
+      "wmi": "9BH",
+      "name": "Hyundai Motor Company / Hyundai"
+    },
+    {
+      "wmi": "9BM",
+      "name": "Mercedes-Benz"
+    },
+    {
+      "wmi": "9BR",
+      "name": "Toyota"
+    },
+    {
+      "wmi": "9BS",
+      "name": "Scania"
+    },
+    {
+      "wmi": "9BV",
+      "name": "Volvo Trucks"
+    },
+    {
+      "wmi": "9BW",
+      "name": "Volkswagen"
+    },
+    {
+      "wmi": "9C2",
+      "name": "Honda Motorcycles"
+    },
+    {
+      "wmi": "9C6",
+      "name": "Yamaha"
+    },
+    {
+      "wmi": "9CD",
+      "name": "Suzuki Motorcycles"
+    },
+    {
+      "wmi": "9FB",
+      "name": "Renault"
+    },
+    {
+      "wmi": "9GA",
+      "name": "Chevrolet"
+    },
+    {
+      "wmi": "9UJ",
+      "name": "Chery"
+    },
+    {
+      "wmi": "9UK",
+      "name": "Lifan"
+    },
+    {
+      "wmi": "9UW",
+      "name": "Kia"
+    },
     {
       "wmi": "AAV",
       "name": "Volkswagen"
@@ -25,6 +1489,66 @@
       "name": "Toyota"
     },
     {
+      "wmi": "B01",
+      "name": "Cadillac"
+    },
+    {
+      "wmi": "CF1",
+      "name": "Renault"
+    },
+    {
+      "wmi": "CL9",
+      "name": "Wallyscar"
+    },
+    {
+      "wmi": "DA4",
+      "name": "Jeep"
+    },
+    {
+      "wmi": "EDB",
+      "name": "Mercedes-Benz"
+    },
+    {
+      "wmi": "FM2",
+      "name": "Mercury"
+    },
+    {
+      "wmi": "FSM",
+      "name": "FSM"
+    },
+    {
+      "wmi": "FV1",
+      "name": "Renault"
+    },
+    {
+      "wmi": "FV3",
+      "name": "Peugeot"
+    },
+    {
+      "wmi": "FV7",
+      "name": "Citroen"
+    },
+    {
+      "wmi": "G4G",
+      "name": "Buick"
+    },
+    {
+      "wmi": "G61",
+      "name": "Cadillac"
+    },
+    {
+      "wmi": "GA1",
+      "name": "Renault"
+    },
+    {
+      "wmi": "GKA",
+      "name": "GMC"
+    },
+    {
+      "wmi": "JA",
+      "name": "Isuzu"
+    },
+    {
       "wmi": "JA3",
       "name": "Mitsubishi"
     },
@@ -33,16 +1557,76 @@
       "name": "Mitsubishi"
     },
     {
-      "wmi": "JA",
+      "wmi": "JAC",
       "name": "Isuzu"
+    },
+    {
+      "wmi": "JAE",
+      "name": "Acura"
+    },
+    {
+      "wmi": "JB3",
+      "name": "Dodge"
+    },
+    {
+      "wmi": "JC1",
+      "name": "Fiat Automobiles/Mazda"
     },
     {
       "wmi": "JD",
       "name": "Daihatsu"
     },
     {
+      "wmi": "JDA",
+      "name": "Daihatsu"
+    },
+    {
       "wmi": "JF",
       "name": "Subaru"
+    },
+    {
+      "wmi": "JF1",
+      "name": "Subaru / Scion"
+    },
+    {
+      "wmi": "JF2",
+      "name": "Subaru"
+    },
+    {
+      "wmi": "JF4",
+      "name": "Saab"
+    },
+    {
+      "wmi": "JFS",
+      "name": "Subaru"
+    },
+    {
+      "wmi": "JGN",
+      "name": "Chevrolet"
+    },
+    {
+      "wmi": "JH",
+      "name": "Honda"
+    },
+    {
+      "wmi": "JH1",
+      "name": "Honda"
+    },
+    {
+      "wmi": "JH2",
+      "name": "Honda"
+    },
+    {
+      "wmi": "JH3",
+      "name": "Honda"
+    },
+    {
+      "wmi": "JH4",
+      "name": "Honda"
+    },
+    {
+      "wmi": "JH5",
+      "name": "Honda"
     },
     {
       "wmi": "JHA",
@@ -89,32 +1673,16 @@
       "name": "Honda"
     },
     {
-      "wmi": "JH1",
-      "name": "Honda"
-    },
-    {
-      "wmi": "JH2",
-      "name": "Honda"
-    },
-    {
-      "wmi": "JH3",
-      "name": "Honda"
-    },
-    {
-      "wmi": "JH4",
-      "name": "Honda"
-    },
-    {
-      "wmi": "JH5",
-      "name": "Honda"
-    },
-    {
       "wmi": "JK",
       "name": "Kawasaki"
     },
     {
       "wmi": "JL5",
       "name": "Mitsubishi"
+    },
+    {
+      "wmi": "JM",
+      "name": "Mazda"
     },
     {
       "wmi": "JM1",
@@ -137,44 +1705,152 @@
       "name": "Infinity"
     },
     {
-      "wmi": "JS",
-      "name": "Suzuki"
+      "wmi": "JNK",
+      "name": "Infiniti"
     },
     {
-      "wmi": "JT3",
-      "name": "Toyota"
+      "wmi": "JNR",
+      "name": "Infiniti"
+    },
+    {
+      "wmi": "JNT",
+      "name": "Infiniti"
+    },
+    {
+      "wmi": "JNX",
+      "name": "Infiniti"
+    },
+    {
+      "wmi": "JS",
+      "name": "Suzuki"
     },
     {
       "wmi": "JT",
       "name": "Lexus"
     },
     {
+      "wmi": "JT3",
+      "name": "Toyota"
+    },
+    {
+      "wmi": "JT6",
+      "name": "Lexus"
+    },
+    {
+      "wmi": "JT8",
+      "name": "Lexus"
+    },
+    {
+      "wmi": "JTD",
+      "name": "Toyota"
+    },
+    {
+      "wmi": "JTE",
+      "name": "Toyota"
+    },
+    {
+      "wmi": "JTH",
+      "name": "Lexus"
+    },
+    {
+      "wmi": "JTJ",
+      "name": "Lexus"
+    },
+    {
+      "wmi": "JTK",
+      "name": "Scion"
+    },
+    {
+      "wmi": "JTL",
+      "name": "Scion"
+    },
+    {
+      "wmi": "JTM",
+      "name": "Toyota"
+    },
+    {
+      "wmi": "JTN",
+      "name": "Scion"
+    },
+    {
+      "wmi": "JTS",
+      "name": "Toyota"
+    },
+    {
       "wmi": "JY",
       "name": "Yamaha"
+    },
+    {
+      "wmi": "KC4",
+      "name": "Dodge"
     },
     {
       "wmi": "KL",
       "name": "Daewoo"
     },
     {
-      "wmi": "KM",
-      "name": "Hyundai"
+      "wmi": "KL1",
+      "name": "Chevrolet"
     },
     {
-      "wmi": "KMY",
-      "name": "Daelim"
+      "wmi": "KL2",
+      "name": "Pontiac"
+    },
+    {
+      "wmi": "KL4",
+      "name": "Buick"
+    },
+    {
+      "wmi": "KL5",
+      "name": "Suzuki"
+    },
+    {
+      "wmi": "KL7",
+      "name": "Chevrolet"
+    },
+    {
+      "wmi": "KL8",
+      "name": "Chevrolet"
+    },
+    {
+      "wmi": "KLA",
+      "name": "Chevrolet"
+    },
+    {
+      "wmi": "KLM",
+      "name": "Lincoln"
+    },
+    {
+      "wmi": "KM",
+      "name": "Hyundai"
     },
     {
       "wmi": "KM1",
       "name": "Hyosung"
     },
     {
+      "wmi": "KMH",
+      "name": "Genesis"
+    },
+    {
+      "wmi": "KMY",
+      "name": "Daelim"
+    },
+    {
       "wmi": "KN",
       "name": "Kia"
     },
     {
+      "wmi": "KN1",
+      "name": "Nissan"
+    },
+    {
       "wmi": "KNM",
       "name": "Renault"
+    },
+    {
+      "wmi": "KP",
+      "name": "SsangYong"
     },
     {
       "wmi": "KPA",
@@ -183,6 +1859,50 @@
     {
       "wmi": "KPT",
       "name": "SsangYong"
+    },
+    {
+      "wmi": "KRX",
+      "name": "BMW"
+    },
+    {
+      "wmi": "L4B",
+      "name": "Xingyue Group"
+    },
+    {
+      "wmi": "L4C",
+      "name": "Buick"
+    },
+    {
+      "wmi": "L56",
+      "name": "Renault Samsung"
+    },
+    {
+      "wmi": "L5C",
+      "name": "KangDi)"
+    },
+    {
+      "wmi": "L5K",
+      "name": "Zhejiang Yongkang"
+    },
+    {
+      "wmi": "L5N",
+      "name": "Zhejiang Taotao"
+    },
+    {
+      "wmi": "L5Y",
+      "name": "Merato Motorcycle Taizhou Zhongneng"
+    },
+    {
+      "wmi": "L6T",
+      "name": "Geely"
+    },
+    {
+      "wmi": "L85",
+      "name": "Zhejiang Yongkang Huabao Electric Appliance"
+    },
+    {
+      "wmi": "L8X",
+      "name": "Zhejiang Summit Huawin Motorcycle"
     },
     {
       "wmi": "LAE",
@@ -195,6 +1915,10 @@
     {
       "wmi": "LAN",
       "name": "Changzhou Yamasaki"
+    },
+    {
+      "wmi": "LB2",
+      "name": "Geely"
     },
     {
       "wmi": "LBB",
@@ -213,8 +1937,12 @@
       "name": "Yamaha"
     },
     {
-      "wmi": "LB2",
-      "name": "Geely"
+      "wmi": "LBV",
+      "name": "BMW Brilliance"
+    },
+    {
+      "wmi": "LC0",
+      "name": "BYD Bus"
     },
     {
       "wmi": "LCE",
@@ -241,12 +1969,12 @@
       "name": "Zhongtong Coach"
     },
     {
-      "wmi": "LET",
-      "name": "Jiangling-Isuzu"
-    },
-    {
       "wmi": "LE4",
       "name": "Beijing Benz"
+    },
+    {
+      "wmi": "LET",
+      "name": "Jiangling-Isuzu"
     },
     {
       "wmi": "LFB",
@@ -255,6 +1983,10 @@
     {
       "wmi": "LFG",
       "name": "Taizhou Chuanl "
+    },
+    {
+      "wmi": "LFM",
+      "name": "FAW Toyota"
     },
     {
       "wmi": "LFP",
@@ -285,24 +2017,40 @@
       "name": "Qoros"
     },
     {
-      "wmi": "LGX",
-      "name": "BYD"
+      "wmi": "LGJ",
+      "name": "Dongfeng Fengshen"
     },
     {
-      "wmi": "LHB",
-      "name": "Beijing Automotive Industry Holding"
+      "wmi": "LGW",
+      "name": "Great Wall (Havel)"
+    },
+    {
+      "wmi": "LGX",
+      "name": "BYD"
     },
     {
       "wmi": "LH1",
       "name": "FAW"
     },
     {
-      "wmi": "LJC",
-      "name": "JAC"
+      "wmi": "LHB",
+      "name": "Beijing Automotive Industry Holding"
+    },
+    {
+      "wmi": "LHG",
+      "name": "Guangzhou Honda"
     },
     {
       "wmi": "LJ1",
       "name": "JAC"
+    },
+    {
+      "wmi": "LJC",
+      "name": "JAC"
+    },
+    {
+      "wmi": "LJD",
+      "name": "Dongfeng Yueda Kia"
     },
     {
       "wmi": "LKL",
@@ -317,8 +2065,20 @@
       "name": "Linhai"
     },
     {
+      "wmi": "LLV",
+      "name": "Lifan"
+    },
+    {
       "wmi": "LMC",
       "name": "Suzuki"
+    },
+    {
+      "wmi": "LMG",
+      "name": "GAC Trumpchi"
+    },
+    {
+      "wmi": "LPA",
+      "name": "Changan PSA (DS Automobiles)"
     },
     {
       "wmi": "LPR",
@@ -329,8 +2089,16 @@
       "name": "Polestar"
     },
     {
+      "wmi": "LRB",
+      "name": "Buick China"
+    },
+    {
       "wmi": "LRW",
       "name": "Tesla"
+    },
+    {
+      "wmi": "LS5",
+      "name": "Changan Suzuki"
     },
     {
       "wmi": "LSG",
@@ -361,6 +2129,22 @@
       "name": "Honda"
     },
     {
+      "wmi": "LV3",
+      "name": "National Electric Vehicle Sweden AB"
+    },
+    {
+      "wmi": "LVG",
+      "name": "GAC Toyota"
+    },
+    {
+      "wmi": "LVH",
+      "name": "Dongfeng Honda"
+    },
+    {
+      "wmi": "LVR",
+      "name": "Changan Mazda"
+    },
+    {
       "wmi": "LVS",
       "name": "Ford"
     },
@@ -369,16 +2153,20 @@
       "name": "Chery"
     },
     {
+      "wmi": "LVY",
+      "name": "Volvo"
+    },
+    {
       "wmi": "LVZ",
       "name": "Dong Feng Sokon Motor Company"
     },
     {
-      "wmi": "LV3",
-      "name": "National Electric Vehicle Sweden AB"
+      "wmi": "LWV",
+      "name": "GAC Fiat"
     },
     {
-      "wmi": "LZM",
-      "name": "MAN"
+      "wmi": "LYV",
+      "name": "Volvo China"
     },
     {
       "wmi": "LZE",
@@ -389,8 +2177,16 @@
       "name": "Shaanxi"
     },
     {
+      "wmi": "LZM",
+      "name": "MAN"
+    },
+    {
       "wmi": "LZP",
       "name": "Baotian"
+    },
+    {
+      "wmi": "LZW",
+      "name": "SAIC GM Wuling"
     },
     {
       "wmi": "LZY",
@@ -401,32 +2197,20 @@
       "name": "Chongqing Shuangzing Mech & Elec"
     },
     {
-      "wmi": "L4B",
-      "name": "Xingyue Group"
+      "wmi": "MA1",
+      "name": "Mahindra & Mahindra"
     },
     {
-      "wmi": "L5C",
-      "name": "KangDi)"
+      "wmi": "MA3",
+      "name": "Suzuki"
     },
     {
-      "wmi": "L5K",
-      "name": "Zhejiang Yongkang"
+      "wmi": "MA6",
+      "name": "GM"
     },
     {
-      "wmi": "L5N",
-      "name": "Zhejiang Taotao"
-    },
-    {
-      "wmi": "L5Y",
-      "name": "Merato Motorcycle Taizhou Zhongneng"
-    },
-    {
-      "wmi": "L85",
-      "name": "Zhejiang Yongkang Huabao Electric Appliance"
-    },
-    {
-      "wmi": "L8X",
-      "name": "Zhejiang Summit Huawin Motorcycle"
+      "wmi": "MA7",
+      "name": "Mitsubishi"
     },
     {
       "wmi": "MAB",
@@ -453,20 +2237,8 @@
       "name": "Tata Motors"
     },
     {
-      "wmi": "MA1",
-      "name": "Mahindra & Mahindra"
-    },
-    {
-      "wmi": "MA3",
-      "name": "Suzuki"
-    },
-    {
-      "wmi": "MA6",
-      "name": "GM"
-    },
-    {
-      "wmi": "MA7",
-      "name": "Mitsubishi"
+      "wmi": "MB1",
+      "name": "Ashok Leyland"
     },
     {
       "wmi": "MB8",
@@ -485,8 +2257,8 @@
       "name": "Mercedes-Benz"
     },
     {
-      "wmi": "MB1",
-      "name": "Ashok Leyland"
+      "wmi": "MC2",
+      "name": "Volvo"
     },
     {
       "wmi": "MCA",
@@ -497,20 +2269,16 @@
       "name": "GM"
     },
     {
-      "wmi": "MC2",
-      "name": "Volvo"
-    },
-    {
-      "wmi": "MDH",
-      "name": "Nissan"
-    },
-    {
       "wmi": "MD2",
       "name": "Bajaj"
     },
     {
       "wmi": "MD9",
       "name": "Shuttle Cars"
+    },
+    {
+      "wmi": "MDH",
+      "name": "Nissan"
     },
     {
       "wmi": "MEC",
@@ -533,20 +2301,24 @@
       "name": "Honda"
     },
     {
+      "wmi": "ML3",
+      "name": "Mitsubishi Thailand"
+    },
+    {
       "wmi": "MLC",
       "name": "Suzuki"
     },
     {
-      "wmi": "NAA",
-      "name": "Peugeot"
-    },
-    {
-      "wmi": "NAP",
-      "name": "Pars Khodro"
-    },
-    {
       "wmi": "MLH",
       "name": "Honda"
+    },
+    {
+      "wmi": "MM0",
+      "name": "Mazda"
+    },
+    {
+      "wmi": "MM8",
+      "name": "Mazda"
     },
     {
       "wmi": "MMA",
@@ -577,10 +2349,6 @@
       "name": "Holden"
     },
     {
-      "wmi": "MM8",
-      "name": "Mazda"
-    },
-    {
       "wmi": "MNB",
       "name": "Ford"
     },
@@ -589,20 +2357,20 @@
       "name": "Nissan"
     },
     {
-      "wmi": "MPA",
-      "name": "Isuzu"
-    },
-    {
       "wmi": "MP1",
       "name": "Isuzu"
     },
     {
-      "wmi": "MRH",
-      "name": "Honda"
+      "wmi": "MPA",
+      "name": "Isuzu"
     },
     {
       "wmi": "MR0",
       "name": "Toyota"
+    },
+    {
+      "wmi": "MRH",
+      "name": "Honda"
     },
     {
       "wmi": "MS0",
@@ -611,6 +2379,14 @@
     {
       "wmi": "MS3",
       "name": "Suzuki"
+    },
+    {
+      "wmi": "NAA",
+      "name": "Peugeot"
+    },
+    {
+      "wmi": "NAP",
+      "name": "Pars Khodro"
     },
     {
       "wmi": "NLA",
@@ -622,6 +2398,10 @@
     },
     {
       "wmi": "NLH",
+      "name": "Hyundai"
+    },
+    {
+      "wmi": "NLJ",
       "name": "Hyundai"
     },
     {
@@ -637,20 +2417,20 @@
       "name": "TEMSA"
     },
     {
-      "wmi": "NMB",
-      "name": "Mercedes-Benz"
-    },
-    {
-      "wmi": "NMC",
-      "name": "BMC"
-    },
-    {
       "wmi": "NM0",
       "name": "Ford"
     },
     {
       "wmi": "NM4",
       "name": "Tofaş"
+    },
+    {
+      "wmi": "NMB",
+      "name": "Mercedes-Benz"
+    },
+    {
+      "wmi": "NMC",
+      "name": "BMC"
     },
     {
       "wmi": "NMT",
@@ -685,6 +2465,10 @@
       "name": "Steyr"
     },
     {
+      "wmi": "RF3",
+      "name": "Aeon"
+    },
+    {
       "wmi": "RFB",
       "name": "Kymco"
     },
@@ -701,8 +2485,8 @@
       "name": "CPI"
     },
     {
-      "wmi": "RF3",
-      "name": "Aeon"
+      "wmi": "SA9",
+      "name": "OX Global"
     },
     {
       "wmi": "SAB",
@@ -713,24 +2497,28 @@
       "name": "Jaguar"
     },
     {
-      "wmi": "SAL",
-      "name": "Land Rover"
+      "wmi": "SAH",
+      "name": "Honda"
     },
     {
       "wmi": "SAJ",
       "name": "Jaguar"
     },
     {
+      "wmi": "SAL",
+      "name": "Land Rover"
+    },
+    {
       "wmi": "SAR",
       "name": "Rover"
     },
     {
-      "wmi": "SAX",
-      "name": "Austin-Rover"
+      "wmi": "SAT",
+      "name": "Triumph"
     },
     {
-      "wmi": "SA9",
-      "name": "OX Global"
+      "wmi": "SAX",
+      "name": "Austin-Rover"
     },
     {
       "wmi": "SB1",
@@ -793,6 +2581,14 @@
       "name": "Honda"
     },
     {
+      "wmi": "SJA",
+      "name": "Bentley"
+    },
+    {
+      "wmi": "SJK",
+      "name": "Infiniti"
+    },
+    {
       "wmi": "SJN",
       "name": "Nissan"
     },
@@ -809,6 +2605,22 @@
       "name": "Triumph"
     },
     {
+      "wmi": "SNE",
+      "name": "Jeep"
+    },
+    {
+      "wmi": "SNT",
+      "name": "Honda"
+    },
+    {
+      "wmi": "STE",
+      "name": "Toyota"
+    },
+    {
+      "wmi": "SU9",
+      "name": "Solaris"
+    },
+    {
       "wmi": "SUF",
       "name": "Fiat"
     },
@@ -821,8 +2633,8 @@
       "name": "FSO-Daewoo"
     },
     {
-      "wmi": "SU9",
-      "name": "Solaris"
+      "wmi": "SUR",
+      "name": "Land Rover"
     },
     {
       "wmi": "SUU",
@@ -831,6 +2643,10 @@
     {
       "wmi": "SWV",
       "name": "TA-NO "
+    },
+    {
+      "wmi": "TC3",
+      "name": "Chrysler"
     },
     {
       "wmi": "TCC",
@@ -843,6 +2659,10 @@
     {
       "wmi": "TK9",
       "name": "SOR"
+    },
+    {
+      "wmi": "TM9",
+      "name": "Škoda"
     },
     {
       "wmi": "TMA",
@@ -865,16 +2685,16 @@
       "name": "Tatra"
     },
     {
-      "wmi": "TM9",
-      "name": "Škoda"
+      "wmi": "TN9",
+      "name": "Karosa"
+    },
+    {
+      "wmi": "TNB",
+      "name": "Skoda"
     },
     {
       "wmi": "TNE",
       "name": "TAZ"
-    },
-    {
-      "wmi": "TN9",
-      "name": "Karosa"
     },
     {
       "wmi": "TRA",
@@ -907,6 +2727,22 @@
     {
       "wmi": "TYB",
       "name": "Mitsubishi"
+    },
+    {
+      "wmi": "U5Y",
+      "name": "Kia"
+    },
+    {
+      "wmi": "U6Y",
+      "name": "Kia"
+    },
+    {
+      "wmi": "USY",
+      "name": "Kia"
+    },
+    {
+      "wmi": "UU",
+      "name": "Dacia"
     },
     {
       "wmi": "UU1",
@@ -949,12 +2785,12 @@
       "name": "UTB"
     },
     {
-      "wmi": "U5Y",
-      "name": "Kia"
+      "wmi": "V0L",
+      "name": "Opel"
     },
     {
-      "wmi": "U6Y",
-      "name": "Kia"
+      "wmi": "VA0",
+      "name": "ÖAF"
     },
     {
       "wmi": "VAG",
@@ -967,6 +2803,10 @@
     {
       "wmi": "VBK",
       "name": "KTM"
+    },
+    {
+      "wmi": "VF0",
+      "name": "Ford"
     },
     {
       "wmi": "VF1",
@@ -985,6 +2825,10 @@
       "name": "Talbot"
     },
     {
+      "wmi": "VF5",
+      "name": "Iveco Unic SA"
+    },
+    {
       "wmi": "VF6",
       "name": "Renault"
     },
@@ -1001,8 +2845,40 @@
       "name": "Bugatti"
     },
     {
+      "wmi": "VFB",
+      "name": "Renault"
+    },
+    {
+      "wmi": "VFE",
+      "name": "IvecoBus"
+    },
+    {
+      "wmi": "VFF",
+      "name": "Peugeot"
+    },
+    {
+      "wmi": "VFG",
+      "name": "Citroen"
+    },
+    {
+      "wmi": "VFJ",
+      "name": "Renault"
+    },
+    {
+      "wmi": "VFZ",
+      "name": "Citroen"
+    },
+    {
       "wmi": "VG5",
       "name": "MBK"
+    },
+    {
+      "wmi": "VH8",
+      "name": "Microcar"
+    },
+    {
+      "wmi": "VLG",
+      "name": "Aixam"
     },
     {
       "wmi": "VLU",
@@ -1025,6 +2901,34 @@
       "name": "Renault-Nissan"
     },
     {
+      "wmi": "VR7",
+      "name": "Citroën"
+    },
+    {
+      "wmi": "VS1",
+      "name": "Iveco"
+    },
+    {
+      "wmi": "VS3",
+      "name": "Peugeot"
+    },
+    {
+      "wmi": "VS5",
+      "name": "Renault"
+    },
+    {
+      "wmi": "VS6",
+      "name": "Ford"
+    },
+    {
+      "wmi": "VS7",
+      "name": "Citroën"
+    },
+    {
+      "wmi": "VS9",
+      "name": "Carrocerias Ayats"
+    },
+    {
       "wmi": "VSA",
       "name": "Mercedes-Benz"
     },
@@ -1045,16 +2949,12 @@
       "name": "Opel"
     },
     {
-      "wmi": "VS6",
-      "name": "Ford"
+      "wmi": "VSY",
+      "name": "Renault"
     },
     {
-      "wmi": "VS7",
-      "name": "Citroën"
-    },
-    {
-      "wmi": "VS9",
-      "name": "Carrocerias Ayats"
+      "wmi": "VSZ",
+      "name": "Seat"
     },
     {
       "wmi": "VTH",
@@ -1073,8 +2973,20 @@
       "name": "TAURO"
     },
     {
+      "wmi": "VW1",
+      "name": "Renault"
+    },
+    {
+      "wmi": "VW2",
+      "name": "Volkswagen"
+    },
+    {
       "wmi": "VWA",
       "name": "Nissan"
+    },
+    {
+      "wmi": "VWG",
+      "name": "Volkswagen Spain"
     },
     {
       "wmi": "VWV",
@@ -1085,20 +2997,92 @@
       "name": "Zastava / Yugo Serbia"
     },
     {
-      "wmi": "WAG",
-      "name": "Neoplan"
+      "wmi": "VY1",
+      "name": "Volvo"
     },
     {
-      "wmi": "WAU",
-      "name": "Audi"
+      "wmi": "W00",
+      "name": "Opel"
+    },
+    {
+      "wmi": "W04",
+      "name": "Buick"
+    },
+    {
+      "wmi": "W06",
+      "name": "Cadillac"
+    },
+    {
+      "wmi": "W08",
+      "name": "Saturn"
+    },
+    {
+      "wmi": "W09",
+      "name": "RUF"
+    },
+    {
+      "wmi": "W0L",
+      "name": "Opel"
+    },
+    {
+      "wmi": "W0S",
+      "name": "Opel Special Vehicles"
+    },
+    {
+      "wmi": "W0V",
+      "name": "Opel"
+    },
+    {
+      "wmi": "W1",
+      "name": "Mercedes-Benz"
+    },
+    {
+      "wmi": "W1K",
+      "name": "Mercedes"
+    },
+    {
+      "wmi": "W1N",
+      "name": "Mercedes"
     },
     {
       "wmi": "WA1",
       "name": "Audi"
     },
     {
+      "wmi": "WAG",
+      "name": "Neoplan"
+    },
+    {
+      "wmi": "WAP",
+      "name": "BMW Alpine"
+    },
+    {
+      "wmi": "WAU",
+      "name": "Audi"
+    },
+    {
+      "wmi": "WAV",
+      "name": "Audi"
+    },
+    {
+      "wmi": "WAX",
+      "name": "SsangYong"
+    },
+    {
+      "wmi": "WB",
+      "name": "BMW"
+    },
+    {
+      "wmi": "WB1",
+      "name": "BMW"
+    },
+    {
       "wmi": "WBA",
       "name": "BMW"
+    },
+    {
+      "wmi": "WBD",
+      "name": "Mercedes-Benz"
     },
     {
       "wmi": "WBS",
@@ -1109,12 +3093,40 @@
       "name": "BMW"
     },
     {
+      "wmi": "WBX",
+      "name": "BMW"
+    },
+    {
       "wmi": "WBY",
       "name": "BMW"
     },
     {
-      "wmi": "WB1",
-      "name": "BMW"
+      "wmi": "WCD",
+      "name": "Mercedes-Benz (Sprinter)"
+    },
+    {
+      "wmi": "WD0",
+      "name": "Dodge"
+    },
+    {
+      "wmi": "WD2",
+      "name": "Dodge"
+    },
+    {
+      "wmi": "WD3",
+      "name": "Daimler AG (Sprinter)"
+    },
+    {
+      "wmi": "WD4",
+      "name": "Daimler AG (Sprinter)"
+    },
+    {
+      "wmi": "WD5",
+      "name": "Dodge"
+    },
+    {
+      "wmi": "WD8",
+      "name": "Mercedes-Benz"
     },
     {
       "wmi": "WDA",
@@ -1137,16 +3149,64 @@
       "name": "Mercedes-Benz"
     },
     {
+      "wmi": "WDP",
+      "name": "Mercedes-Benz (Sprinter)"
+    },
+    {
+      "wmi": "WDR",
+      "name": "Mercedes-Benz (Sprinter)"
+    },
+    {
+      "wmi": "WDW",
+      "name": "Dodge"
+    },
+    {
+      "wmi": "WDX",
+      "name": "Dodge"
+    },
+    {
+      "wmi": "WDY",
+      "name": "Mercedes-Benz (Sprinter)"
+    },
+    {
+      "wmi": "WDZ",
+      "name": "Mercedes-Benz (Sprinter)"
+    },
+    {
+      "wmi": "WE0",
+      "name": "Ford"
+    },
+    {
       "wmi": "WEB",
       "name": "Evobus"
+    },
+    {
+      "wmi": "WF0",
+      "name": "Ford"
+    },
+    {
+      "wmi": "WF1",
+      "name": "Renault"
+    },
+    {
+      "wmi": "WF3",
+      "name": "Peugeot"
+    },
+    {
+      "wmi": "WF7",
+      "name": "Citroen"
+    },
+    {
+      "wmi": "WFD",
+      "name": "Fliegl"
     },
     {
       "wmi": "WJM",
       "name": "Iveco"
     },
     {
-      "wmi": "WF0",
-      "name": "Ford"
+      "wmi": "WJR",
+      "name": "Irmscher"
     },
     {
       "wmi": "WKE",
@@ -1159,6 +3219,10 @@
     {
       "wmi": "WMA",
       "name": "MAN"
+    },
+    {
+      "wmi": "WMB",
+      "name": "Audi"
     },
     {
       "wmi": "WME",
@@ -1177,6 +3241,10 @@
       "name": "MINI"
     },
     {
+      "wmi": "WNK",
+      "name": "Toyota"
+    },
+    {
       "wmi": "WP0",
       "name": "Porsche"
     },
@@ -1185,44 +3253,32 @@
       "name": "Porsche"
     },
     {
+      "wmi": "WS0",
+      "name": "Ford"
+    },
+    {
       "wmi": "WSM",
       "name": "Schmitz-Cargobull"
     },
     {
-      "wmi": "W09",
-      "name": "RUF"
-    },
-    {
-      "wmi": "W0L",
-      "name": "Opel"
-    },
-    {
-      "wmi": "W0V",
-      "name": "Opel"
-    },
-    {
-      "wmi": "W1K",
-      "name": "Mercedes"
-    },
-    {
-      "wmi": "W1N",
-      "name": "Mercedes"
-    },
-    {
-      "wmi": "WAP",
-      "name": "BMW Alpine"
+      "wmi": "WSS",
+      "name": "Seat"
     },
     {
       "wmi": "WUA",
       "name": "Audi"
     },
     {
-      "wmi": "WVG",
+      "wmi": "WUW",
       "name": "Volkswagen"
     },
     {
-      "wmi": "WVW",
+      "wmi": "WV",
       "name": "Volkswagen"
+    },
+    {
+      "wmi": "WV0",
+      "name": "Ford"
     },
     {
       "wmi": "WV1",
@@ -1237,6 +3293,66 @@
       "name": "Volkswagen "
     },
     {
+      "wmi": "WVG",
+      "name": "Volkswagen"
+    },
+    {
+      "wmi": "WVW",
+      "name": "Volkswagen"
+    },
+    {
+      "wmi": "WVZ",
+      "name": "Volkswagen"
+    },
+    {
+      "wmi": "WWD",
+      "name": "Mercedes-Benz"
+    },
+    {
+      "wmi": "WWW",
+      "name": "Volkswagen"
+    },
+    {
+      "wmi": "WYG",
+      "name": "Volkswagen"
+    },
+    {
+      "wmi": "WYW",
+      "name": "Volkswagen"
+    },
+    {
+      "wmi": "WZW",
+      "name": "Volkswagen"
+    },
+    {
+      "wmi": "X1M",
+      "name": "PAZ"
+    },
+    {
+      "wmi": "X4X",
+      "name": "BMW"
+    },
+    {
+      "wmi": "X7L",
+      "name": "Renault"
+    },
+    {
+      "wmi": "X7M",
+      "name": "Hyundai"
+    },
+    {
+      "wmi": "X96",
+      "name": "Mercedes-Benz"
+    },
+    {
+      "wmi": "XL4",
+      "name": "Lightyear"
+    },
+    {
+      "wmi": "XL9",
+      "name": "Spyker"
+    },
+    {
       "wmi": "XLB",
       "name": "Volvo"
     },
@@ -1249,20 +3365,20 @@
       "name": "DAF"
     },
     {
-      "wmi": "XL4",
-      "name": "Lightyear"
-    },
-    {
-      "wmi": "XL9",
-      "name": "Spyker"
-    },
-    {
       "wmi": "XMC",
       "name": "Mitsubishi"
     },
     {
       "wmi": "XMG",
       "name": "VDL"
+    },
+    {
+      "wmi": "XNC",
+      "name": "Mitsubishi"
+    },
+    {
+      "wmi": "XP7",
+      "name": "Tesla Germany"
     },
     {
       "wmi": "XTA",
@@ -1309,32 +3425,32 @@
       "name": "Hyundai-Kia"
     },
     {
-      "wmi": "X1M",
-      "name": "PAZ"
+      "wmi": "XWF",
+      "name": "Opel"
     },
     {
-      "wmi": "X4X",
-      "name": "BMW"
+      "wmi": "XXX",
+      "name": "Honda"
     },
     {
-      "wmi": "X7L",
-      "name": "Renault"
+      "wmi": "Y3M",
+      "name": "MAZ"
     },
     {
-      "wmi": "X7M",
-      "name": "Hyundai"
+      "wmi": "Y6D",
+      "name": "Zaporozhets"
     },
     {
       "wmi": "YAR",
       "name": "Toyota"
     },
     {
-      "wmi": "YBW",
-      "name": "Volkswagen"
-    },
-    {
       "wmi": "YB1",
       "name": "Volvo"
+    },
+    {
+      "wmi": "YBW",
+      "name": "Volkswagen"
     },
     {
       "wmi": "YCM",
@@ -1349,12 +3465,16 @@
       "name": "Lynx"
     },
     {
+      "wmi": "YH4",
+      "name": "Fisker"
+    },
+    {
       "wmi": "YK1",
       "name": "Saab-Valmet"
     },
     {
-      "wmi": "YSC",
-      "name": "Cadillac"
+      "wmi": "YMB",
+      "name": "Skoda"
     },
     {
       "wmi": "YS2",
@@ -1369,39 +3489,27 @@
       "name": "Scania"
     },
     {
+      "wmi": "YSC",
+      "name": "Cadillac"
+    },
+    {
+      "wmi": "YT9",
+      "name": "Koenigsegg"
+    },
+    {
+      "wmi": "YT9",
+      "name": "Carvia"
+    },
+    {
       "wmi": "YTN",
       "name": "Saab"
-    },
-    {
-      "wmi": "YT9",
-      "name": "Koenigsegg"
-    },
-    {
-      "wmi": "007",
-      "name": "Koenigsegg"
-    },
-    {
-      "wmi": "YT9",
-      "name": "Carvia"
-    },
-    {
-      "wmi": "034",
-      "name": "Carvia"
     },
     {
       "wmi": "YU7",
       "name": "Husaberg"
     },
     {
-      "wmi": "YVV",
-      "name": "Polestar"
-    },
-    {
       "wmi": "YV1",
-      "name": "Volvo"
-    },
-    {
-      "wmi": "YV4",
       "name": "Volvo"
     },
     {
@@ -1413,16 +3521,40 @@
       "name": "Volvo"
     },
     {
-      "wmi": "Y3M",
-      "name": "MAZ"
+      "wmi": "YV4",
+      "name": "Volvo"
     },
     {
-      "wmi": "Y6D",
-      "name": "Zaporozhets"
+      "wmi": "YVV",
+      "name": "Polestar"
+    },
+    {
+      "wmi": "Z12",
+      "name": "Opel"
+    },
+    {
+      "wmi": "Z3B",
+      "name": "Chevrolet"
+    },
+    {
+      "wmi": "Z8M",
+      "name": "Marussia"
+    },
+    {
+      "wmi": "ZA9",
+      "name": "Lamborghini"
     },
     {
       "wmi": "ZAA",
       "name": "Autobianchi"
+    },
+    {
+      "wmi": "ZAC",
+      "name": "FCA"
+    },
+    {
+      "wmi": "ZAF",
+      "name": "Fiat"
     },
     {
       "wmi": "ZAM",
@@ -1437,32 +3569,20 @@
       "name": "Alfa Romeo"
     },
     {
-      "wmi": "ZA9",
-      "name": "Lamborghini"
+      "wmi": "ZAS",
+      "name": "Alfa"
     },
     {
       "wmi": "ZBN",
       "name": "Benelli"
     },
     {
-      "wmi": "ZCG",
-      "name": "Cagiva SpA / MV Agusta"
-    },
-    {
       "wmi": "ZCF",
       "name": "Iveco"
     },
     {
-      "wmi": "ZDC",
-      "name": "Honda"
-    },
-    {
-      "wmi": "ZDM",
-      "name": "Ducati"
-    },
-    {
-      "wmi": "ZDF",
-      "name": "Ferrari"
+      "wmi": "ZCG",
+      "name": "Cagiva SpA / MV Agusta"
     },
     {
       "wmi": "ZD0",
@@ -1477,7 +3597,23 @@
       "name": "Aprilia"
     },
     {
+      "wmi": "ZDC",
+      "name": "Honda"
+    },
+    {
+      "wmi": "ZDF",
+      "name": "Ferrari"
+    },
+    {
+      "wmi": "ZDM",
+      "name": "Ducati"
+    },
+    {
       "wmi": "ZFA",
+      "name": "Fiat"
+    },
+    {
+      "wmi": "ZFB",
       "name": "Fiat"
     },
     {
@@ -1487,6 +3623,10 @@
     {
       "wmi": "ZFF",
       "name": "Ferrari"
+    },
+    {
+      "wmi": "ZGA",
+      "name": "IvecoBus"
     },
     {
       "wmi": "ZGU",
@@ -1513,708 +3653,12 @@
       "name": "Lancia"
     },
     {
-      "wmi": "Z8M",
-      "name": "Marussia"
+      "wmi": "ZN6",
+      "name": "Maserati"
     },
     {
-      "wmi": "137",
-      "name": "Hummer"
-    },
-    {
-      "wmi": "1B3",
-      "name": "Dodge"
-    },
-    {
-      "wmi": "1C3",
-      "name": "Chrysler"
-    },
-    {
-      "wmi": "1C4",
-      "name": "Dodge"
-    },
-    {
-      "wmi": "1C6",
-      "name": "Chrysler"
-    },
-    {
-      "wmi": "1D3",
-      "name": "Dodge"
-    },
-    {
-      "wmi": "1FA",
-      "name": "Ford"
-    },
-    {
-      "wmi": "1FB",
-      "name": "Ford"
-    },
-    {
-      "wmi": "1FC",
-      "name": "Ford"
-    },
-    {
-      "wmi": "1FD",
-      "name": "Ford"
-    },
-    {
-      "wmi": "1FM",
-      "name": "Ford"
-    },
-    {
-      "wmi": "1FT",
-      "name": "Ford"
-    },
-    {
-      "wmi": "1FU",
-      "name": "Freightliner"
-    },
-    {
-      "wmi": "1FV",
-      "name": "Freightliner"
-    },
-    {
-      "wmi": "1F9",
-      "name": "FWD."
-    },
-    {
-      "wmi": "1G",
-      "name": "General Motors"
-    },
-    {
-      "wmi": "1GC",
-      "name": "Chevrolet"
-    },
-    {
-      "wmi": "1GT",
-      "name": "GMC"
-    },
-    {
-      "wmi": "1G1",
-      "name": "Chevrolet"
-    },
-    {
-      "wmi": "1G2",
-      "name": "Pontiac"
-    },
-    {
-      "wmi": "1G3",
-      "name": "Oldsmobile"
-    },
-    {
-      "wmi": "1G4",
-      "name": "Buick"
-    },
-    {
-      "wmi": "1G6",
-      "name": "Cadillac"
-    },
-    {
-      "wmi": "1G8",
-      "name": "Saturn"
-    },
-    {
-      "wmi": "1GM",
-      "name": "Pontiac"
-    },
-    {
-      "wmi": "1GN",
-      "name": "Chevrolet"
-    },
-    {
-      "wmi": "1GY",
-      "name": "Cadillac"
-    },
-    {
-      "wmi": "1H",
-      "name": "Honda"
-    },
-    {
-      "wmi": "1HD",
-      "name": "Harley-Davidson"
-    },
-    {
-      "wmi": "1HT",
-      "name": "International Truck and Engine Corp"
-    },
-    {
-      "wmi": "1J4",
-      "name": "Jeep"
-    },
-    {
-      "wmi": "1J8",
-      "name": "Jeep"
-    },
-    {
-      "wmi": "1L",
-      "name": "Lincoln"
-    },
-    {
-      "wmi": "1ME",
-      "name": "Mercury"
-    },
-    {
-      "wmi": "1M1",
-      "name": "Mack"
-    },
-    {
-      "wmi": "1M2",
-      "name": "Mack"
-    },
-    {
-      "wmi": "1M3",
-      "name": "Mack"
-    },
-    {
-      "wmi": "1M4",
-      "name": "Mack"
-    },
-    {
-      "wmi": "1M9",
-      "name": "Mynatt"
-    },
-    {
-      "wmi": "1N",
-      "name": "Nissan"
-    },
-    {
-      "wmi": "1NX",
-      "name": "NUMMI"
-    },
-    {
-      "wmi": "1P3",
-      "name": "Plymouth"
-    },
-    {
-      "wmi": "1PY",
-      "name": "John Deere"
-    },
-    {
-      "wmi": "1R9",
-      "name": "Roadrunner"
-    },
-    {
-      "wmi": "1VW",
-      "name": "Volkswagen"
-    },
-    {
-      "wmi": "1XK",
-      "name": "Kenworth"
-    },
-    {
-      "wmi": "1XP",
-      "name": "Peterbilt"
-    },
-    {
-      "wmi": "1YV",
-      "name": "Mazda"
-    },
-    {
-      "wmi": "1ZV",
-      "name": "Ford"
-    },
-    {
-      "wmi": "2A4",
-      "name": "Chrysler"
-    },
-    {
-      "wmi": "2BP",
-      "name": "Bombardier"
-    },
-    {
-      "wmi": "2B3",
-      "name": "Dodge"
-    },
-    {
-      "wmi": "2B7",
-      "name": "Dodge"
-    },
-    {
-      "wmi": "2C3",
-      "name": "Dodge"
-    },
-    {
-      "wmi": "2CN",
-      "name": "Chevrolet"
-    },
-    {
-      "wmi": "2D3",
-      "name": "Dodge"
-    },
-    {
-      "wmi": "2FA",
-      "name": "Ford"
-    },
-    {
-      "wmi": "2FB",
-      "name": "Ford"
-    },
-    {
-      "wmi": "2FC",
-      "name": "Ford"
-    },
-    {
-      "wmi": "2FM",
-      "name": "Ford"
-    },
-    {
-      "wmi": "2FT",
-      "name": "Ford"
-    },
-    {
-      "wmi": "2FU",
-      "name": "Freightliner"
-    },
-    {
-      "wmi": "2FV",
-      "name": "Freightliner"
-    },
-    {
-      "wmi": "2FZ",
-      "name": "Sterling"
-    },
-    {
-      "wmi": "2G",
-      "name": "General Motors"
-    },
-    {
-      "wmi": "2GC",
-      "name": "Chevrolet"
-    },
-    {
-      "wmi": "2G1",
-      "name": "Chevrolet"
-    },
-    {
-      "wmi": "2G2",
-      "name": "Pontiac"
-    },
-    {
-      "wmi": "2G3",
-      "name": "Oldsmobile"
-    },
-    {
-      "wmi": "2G4",
-      "name": "Buick"
-    },
-    {
-      "wmi": "2HG",
-      "name": "Honda"
-    },
-    {
-      "wmi": "2HK",
-      "name": "Honda"
-    },
-    {
-      "wmi": "2HJ",
-      "name": "Honda"
-    },
-    {
-      "wmi": "2HM",
-      "name": "Hyundai"
-    },
-    {
-      "wmi": "2M",
-      "name": "Mercury"
-    },
-    {
-      "wmi": "2NV",
-      "name": "Nova"
-    },
-    {
-      "wmi": "2P3",
-      "name": "Plymouth"
-    },
-    {
-      "wmi": "2T2",
-      "name": "Lexus"
-    },
-    {
-      "wmi": "2T",
-      "name": "Toyota"
-    },
-    {
-      "wmi": "2TP",
-      "name": "Triple E"
-    },
-    {
-      "wmi": "2V4",
-      "name": "Volkswagen"
-    },
-    {
-      "wmi": "2V8",
-      "name": "Volkswagen"
-    },
-    {
-      "wmi": "2WK",
-      "name": "Western Star"
-    },
-    {
-      "wmi": "2WL",
-      "name": "Western Star"
-    },
-    {
-      "wmi": "2WM",
-      "name": "Western Star"
-    },
-    {
-      "wmi": "363",
-      "name": "Spyker"
-    },
-    {
-      "wmi": "3C4",
-      "name": "Chrysler"
-    },
-    {
-      "wmi": "3C6",
-      "name": "RAM"
-    },
-    {
-      "wmi": "3D3",
-      "name": "Dodge"
-    },
-    {
-      "wmi": "3D4",
-      "name": "Dodge"
-    },
-    {
-      "wmi": "3FA",
-      "name": "Ford"
-    },
-    {
-      "wmi": "3FE",
-      "name": "Ford"
-    },
-    {
-      "wmi": "3G",
-      "name": "General Motors"
-    },
-    {
-      "wmi": "3H",
-      "name": "Honda"
-    },
-    {
-      "wmi": "3JB",
-      "name": "BRP"
-    },
-    {
-      "wmi": "3MD",
-      "name": "Mazda"
-    },
-    {
-      "wmi": "3MZ",
-      "name": "Mazda"
-    },
-    {
-      "wmi": "3N",
-      "name": "Nissan"
-    },
-    {
-      "wmi": "3NS",
-      "name": "Polaris"
-    },
-    {
-      "wmi": "3NE",
-      "name": "Polaris"
-    },
-    {
-      "wmi": "3P3",
-      "name": "Plymouth"
-    },
-    {
-      "wmi": "3VW",
-      "name": "Volkswagen"
-    },
-    {
-      "wmi": "46J",
-      "name": "Federal Motors Inc"
-    },
-    {
-      "wmi": "4EN",
-      "name": "Emergency One"
-    },
-    {
-      "wmi": "4F",
-      "name": "Mazda"
-    },
-    {
-      "wmi": "4JG",
-      "name": "Mercedes-Benz"
-    },
-    {
-      "wmi": "4M",
-      "name": "Mercury"
-    },
-    {
-      "wmi": "4P1",
-      "name": "Pierce Manufacturing Inc"
-    },
-    {
-      "wmi": "4RK",
-      "name": "Nova"
-    },
-    {
-      "wmi": "4S",
-      "name": "Subaru-Isuzu"
-    },
-    {
-      "wmi": "4T",
-      "name": "Toyota"
-    },
-    {
-      "wmi": "4T9",
-      "name": "Lumen Motors"
-    },
-    {
-      "wmi": "4UF",
-      "name": "Arctic Cat Inc."
-    },
-    {
-      "wmi": "4US",
-      "name": "BMW"
-    },
-    {
-      "wmi": "4UZ",
-      "name": "Frt-Thomas"
-    },
-    {
-      "wmi": "4V1",
-      "name": "Volvo"
-    },
-    {
-      "wmi": "4V2",
-      "name": "Volvo"
-    },
-    {
-      "wmi": "4V3",
-      "name": "Volvo"
-    },
-    {
-      "wmi": "4V4",
-      "name": "Volvo"
-    },
-    {
-      "wmi": "4V5",
-      "name": "Volvo"
-    },
-    {
-      "wmi": "4V6",
-      "name": "Volvo"
-    },
-    {
-      "wmi": "4VL",
-      "name": "Volvo"
-    },
-    {
-      "wmi": "4VM",
-      "name": "Volvo"
-    },
-    {
-      "wmi": "4VZ",
-      "name": "Volvo"
-    },
-    {
-      "wmi": "538",
-      "name": "Zero"
-    },
-    {
-      "wmi": "5F",
-      "name": "Honda"
-    },
-    {
-      "wmi": "5G",
-      "name": "Hummer"
-    },
-    {
-      "wmi": "5J",
-      "name": "Honda"
-    },
-    {
-      "wmi": "5L",
-      "name": "Lincoln"
-    },
-    {
-      "wmi": "5N1",
-      "name": "Infinity"
-    },
-    {
-      "wmi": "5NP",
-      "name": "Hyundai"
-    },
-    {
-      "wmi": "5T",
-      "name": "Toyota"
-    },
-    {
-      "wmi": "5YJ",
-      "name": "Tesla"
-    },
-    {
-      "wmi": "5XY",
-      "name": "Kia"
-    },
-    {
-      "wmi": "5UX",
-      "name": "BMW"
-    },
-    {
-      "wmi": "56K",
-      "name": "Indian"
-    },
-    {
-      "wmi": "6AB",
-      "name": "MAN"
-    },
-    {
-      "wmi": "6F4",
-      "name": "Nissan"
-    },
-    {
-      "wmi": "6F5",
-      "name": "Kenworth"
-    },
-    {
-      "wmi": "6FP",
-      "name": "Ford"
-    },
-    {
-      "wmi": "6G1",
-      "name": "Holden"
-    },
-    {
-      "wmi": "6G2",
-      "name": "Pontiac"
-    },
-    {
-      "wmi": "6H8",
-      "name": "Holden"
-    },
-    {
-      "wmi": "6MM",
-      "name": "Mitsubishi"
-    },
-    {
-      "wmi": "6T1",
-      "name": "Toyota"
-    },
-    {
-      "wmi": "6U9",
-      "name": "Privately Imported car in Australia"
-    },
-    {
-      "wmi": "795",
-      "name": "Bugatti"
-    },
-    {
-      "wmi": "8AD",
-      "name": "Peugeot"
-    },
-    {
-      "wmi": "8AF",
-      "name": "Ford"
-    },
-    {
-      "wmi": "8AG",
-      "name": "Chevrolet"
-    },
-    {
-      "wmi": "8AJ",
-      "name": "Toyota"
-    },
-    {
-      "wmi": "8AK",
-      "name": "Suzuki"
-    },
-    {
-      "wmi": "8AP",
+      "wmi": "ZSA",
       "name": "Fiat"
-    },
-    {
-      "wmi": "8AW",
-      "name": "Volkswagen"
-    },
-    {
-      "wmi": "8A1",
-      "name": "Renault"
-    },
-    {
-      "wmi": "8GD",
-      "name": "Peugeot"
-    },
-    {
-      "wmi": "8GG",
-      "name": "Chevrolet"
-    },
-    {
-      "wmi": "8LD",
-      "name": "Chevrolet"
-    },
-    {
-      "wmi": "935",
-      "name": "Citroën"
-    },
-    {
-      "wmi": "936",
-      "name": "Peugeot"
-    },
-    {
-      "wmi": "93H",
-      "name": "Honda"
-    },
-    {
-      "wmi": "93R",
-      "name": "Toyota"
-    },
-    {
-      "wmi": "93U",
-      "name": "Audi"
-    },
-    {
-      "wmi": "93V",
-      "name": "Audi"
-    },
-    {
-      "wmi": "93X",
-      "name": "Mitsubishi"
-    },
-    {
-      "wmi": "93Y",
-      "name": "Renault"
-    },
-    {
-      "wmi": "94D",
-      "name": "Nissan"
-    },
-    {
-      "wmi": "9BF",
-      "name": "Ford"
-    },
-    {
-      "wmi": "9BG",
-      "name": "Chevrolet"
-    },
-    {
-      "wmi": "9BM",
-      "name": "Mercedes-Benz"
-    },
-    {
-      "wmi": "9BR",
-      "name": "Toyota"
-    },
-    {
-      "wmi": "9BS",
-      "name": "Scania"
-    },
-    {
-      "wmi": "9BW",
-      "name": "Volkswagen"
-    },
-    {
-      "wmi": "9FB",
-      "name": "Renault"
-    },
-    {
-      "wmi": "9GA",
-      "name": "Chevrolet"
     }
   ]
 }

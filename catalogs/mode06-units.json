@@ -1,194 +1,502 @@
 {
   "$schema": "https://erdesigns.eu/schema/monitor-units.json",
   "schema_version": 1,
-  "spec": "ISO 15031-5 Annex B.3 Units & Scaling table",
+  "spec": "SAE J1979 / ISO 15031-5 Unit and Scaling IDs (table via python-OBD UnitsAndScaling.py, GPL-2.0+)",
   "description": "Mode 06 Unit-and-Scaling identifiers. Each entry combines a scale factor and a unit string.",
   "entries": [
     {
       "ucsid": "0x01",
-      "scale": 1.0,
       "unit": "count",
-      "description": "Raw count"
+      "scale": 1
     },
     {
       "ucsid": "0x02",
-      "scale": 0.1,
       "unit": "count",
-      "description": "Count, 0.1 resolution"
+      "scale": 0.1
     },
     {
       "ucsid": "0x03",
-      "scale": 0.01,
       "unit": "count",
-      "description": "Count, 0.01 resolution"
+      "scale": 0.01
     },
     {
       "ucsid": "0x04",
-      "scale": 0.001,
       "unit": "count",
-      "description": "Count, 0.001 resolution"
+      "scale": 0.001
     },
     {
       "ucsid": "0x05",
-      "scale": 3.05e-05,
       "unit": "count",
-      "description": "Count, 1/32768"
+      "scale": 3.05e-05
     },
     {
       "ucsid": "0x06",
-      "scale": 0.000305,
       "unit": "count",
-      "description": "Count, 1/3276.8"
+      "scale": 0.000305
     },
     {
       "ucsid": "0x07",
-      "scale": 0.25,
       "unit": "rpm",
-      "description": "Engine speed"
+      "scale": 0.25
     },
     {
       "ucsid": "0x08",
-      "scale": 0.01,
       "unit": "km/h",
-      "description": "Vehicle speed"
+      "scale": 0.01
     },
     {
       "ucsid": "0x09",
-      "scale": 1.0,
       "unit": "km/h",
-      "description": "Vehicle speed"
+      "scale": 1
     },
     {
       "ucsid": "0x0A",
-      "scale": 0.122,
       "unit": "mV",
-      "description": "Voltage"
+      "scale": 0.122
     },
     {
       "ucsid": "0x0B",
-      "scale": 0.001,
       "unit": "V",
-      "description": "Voltage"
+      "scale": 0.001
     },
     {
       "ucsid": "0x0C",
-      "scale": 0.01,
       "unit": "V",
-      "description": "Voltage"
+      "scale": 0.01
     },
     {
       "ucsid": "0x0D",
-      "scale": 1.0,
       "unit": "mA",
-      "description": "Current"
+      "scale": 0.00390625
+    },
+    {
+      "ucsid": "0x0E",
+      "unit": "A",
+      "scale": 0.001
+    },
+    {
+      "ucsid": "0x0F",
+      "unit": "A",
+      "scale": 0.01
     },
     {
       "ucsid": "0x10",
-      "scale": 1.0,
       "unit": "ms",
-      "description": "Time period"
+      "scale": 1
     },
     {
       "ucsid": "0x11",
-      "scale": 100.0,
       "unit": "ms",
-      "description": "Long time period"
+      "scale": 100
     },
     {
       "ucsid": "0x12",
-      "scale": 1.0,
       "unit": "s",
-      "description": "Time"
+      "scale": 1
+    },
+    {
+      "ucsid": "0x13",
+      "unit": "mOhm",
+      "scale": 1
     },
     {
       "ucsid": "0x14",
-      "scale": 0.000305,
-      "unit": "kPa",
-      "description": "Gauge pressure"
+      "unit": "Ohm",
+      "scale": 1
     },
     {
       "ucsid": "0x15",
-      "scale": 0.001,
-      "unit": "kPa",
-      "description": "Air pressure"
+      "unit": "kOhm",
+      "scale": 1
     },
     {
       "ucsid": "0x16",
-      "scale": 0.01,
-      "unit": "kPa",
-      "description": "Pressure"
+      "unit": "°C",
+      "scale": 0.1,
+      "offset": -40.0
     },
     {
       "ucsid": "0x17",
-      "scale": 0.1,
       "unit": "kPa",
-      "description": "Pressure"
+      "scale": 0.01
     },
     {
       "ucsid": "0x18",
-      "scale": 1.0,
       "unit": "kPa",
-      "description": "Pressure"
+      "scale": 0.0117
     },
     {
       "ucsid": "0x19",
-      "scale": 10.0,
       "unit": "kPa",
-      "description": "Pressure"
+      "scale": 0.079
+    },
+    {
+      "ucsid": "0x1A",
+      "unit": "kPa",
+      "scale": 1
+    },
+    {
+      "ucsid": "0x1B",
+      "unit": "kPa",
+      "scale": 10
+    },
+    {
+      "ucsid": "0x1C",
+      "unit": "deg",
+      "scale": 0.01
+    },
+    {
+      "ucsid": "0x1D",
+      "unit": "deg",
+      "scale": 0.5
+    },
+    {
+      "ucsid": "0x1E",
+      "unit": "ratio",
+      "scale": 3.05e-05
+    },
+    {
+      "ucsid": "0x1F",
+      "unit": "ratio",
+      "scale": 0.05
     },
     {
       "ucsid": "0x20",
-      "scale": 0.01,
-      "unit": "%",
-      "description": "Percent"
+      "unit": "ratio",
+      "scale": 0.00390625
     },
     {
       "ucsid": "0x21",
-      "scale": 0.001525,
-      "unit": "%",
-      "description": "%, 0..100 over uint16"
+      "unit": "mHz",
+      "scale": 1
     },
     {
       "ucsid": "0x22",
-      "scale": 3.05e-05,
-      "unit": "lambda",
-      "description": "Equivalence ratio"
+      "unit": "Hz",
+      "scale": 1
+    },
+    {
+      "ucsid": "0x23",
+      "unit": "kHz",
+      "scale": 1
     },
     {
       "ucsid": "0x24",
-      "scale": 1.0,
-      "unit": "°C",
-      "description": "Temperature"
+      "unit": "count",
+      "scale": 1
     },
     {
       "ucsid": "0x25",
-      "scale": 0.1,
-      "unit": "°C",
-      "description": "Temperature, 0.1 res."
+      "unit": "km",
+      "scale": 1
     },
     {
       "ucsid": "0x26",
+      "unit": "mV/ms",
+      "scale": 0.1
+    },
+    {
+      "ucsid": "0x27",
+      "unit": "g/s",
+      "scale": 0.01
+    },
+    {
+      "ucsid": "0x28",
+      "unit": "g/s",
+      "scale": 1
+    },
+    {
+      "ucsid": "0x29",
+      "unit": "Pa/s",
+      "scale": 0.25
+    },
+    {
+      "ucsid": "0x2A",
+      "unit": "kg/h",
+      "scale": 0.001
+    },
+    {
+      "ucsid": "0x2B",
+      "unit": "count",
+      "scale": 1
+    },
+    {
+      "ucsid": "0x2C",
+      "unit": "g",
       "scale": 0.01,
-      "unit": "°C",
-      "description": "Temperature, 0.01 res."
+      "description": "Per cylinder"
+    },
+    {
+      "ucsid": "0x2D",
+      "unit": "mg",
+      "scale": 0.01,
+      "description": "Per stroke"
+    },
+    {
+      "ucsid": "0x2E",
+      "unit": "bool",
+      "scale": 1,
+      "description": "Boolean: any non-zero byte is true"
+    },
+    {
+      "ucsid": "0x2F",
+      "unit": "%",
+      "scale": 0.01
     },
     {
       "ucsid": "0x30",
-      "scale": 3.05e-05,
-      "unit": "g/s",
-      "description": "Mass flow rate"
+      "unit": "%",
+      "scale": 0.001526
     },
     {
       "ucsid": "0x31",
-      "scale": 0.000305,
-      "unit": "g/s",
-      "description": "Mass flow rate"
+      "unit": "L",
+      "scale": 0.001
     },
     {
       "ucsid": "0x32",
+      "unit": "in",
+      "scale": 3.05e-05
+    },
+    {
+      "ucsid": "0x33",
+      "unit": "ratio",
+      "scale": 0.00024414
+    },
+    {
+      "ucsid": "0x34",
+      "unit": "min",
+      "scale": 1
+    },
+    {
+      "ucsid": "0x35",
+      "unit": "ms",
+      "scale": 10
+    },
+    {
+      "ucsid": "0x36",
+      "unit": "g",
+      "scale": 0.01
+    },
+    {
+      "ucsid": "0x37",
+      "unit": "g",
+      "scale": 0.1
+    },
+    {
+      "ucsid": "0x38",
+      "unit": "g",
+      "scale": 1
+    },
+    {
+      "ucsid": "0x39",
+      "unit": "%",
       "scale": 0.01,
+      "offset": -327.68
+    },
+    {
+      "ucsid": "0x3A",
+      "unit": "g",
+      "scale": 0.001
+    },
+    {
+      "ucsid": "0x3B",
+      "unit": "g",
+      "scale": 0.0001
+    },
+    {
+      "ucsid": "0x3C",
+      "unit": "us",
+      "scale": 0.1
+    },
+    {
+      "ucsid": "0x3D",
+      "unit": "mA",
+      "scale": 0.01
+    },
+    {
+      "ucsid": "0x3E",
+      "unit": "mm²",
+      "scale": 6.103516e-05
+    },
+    {
+      "ucsid": "0x3F",
+      "unit": "L",
+      "scale": 0.01
+    },
+    {
+      "ucsid": "0x40",
+      "unit": "ppm",
+      "scale": 1
+    },
+    {
+      "ucsid": "0x41",
+      "unit": "uA",
+      "scale": 0.01
+    },
+    {
+      "ucsid": "0x81",
+      "unit": "count",
+      "scale": 1,
+      "signed": true
+    },
+    {
+      "ucsid": "0x82",
+      "unit": "count",
+      "scale": 0.1,
+      "signed": true
+    },
+    {
+      "ucsid": "0x83",
+      "unit": "count",
+      "scale": 0.01,
+      "signed": true
+    },
+    {
+      "ucsid": "0x84",
+      "unit": "count",
+      "scale": 0.001,
+      "signed": true
+    },
+    {
+      "ucsid": "0x85",
+      "unit": "count",
+      "scale": 3.05e-05,
+      "signed": true
+    },
+    {
+      "ucsid": "0x86",
+      "unit": "count",
+      "scale": 0.000305,
+      "signed": true
+    },
+    {
+      "ucsid": "0x87",
+      "unit": "ppm",
+      "scale": 1,
+      "signed": true
+    },
+    {
+      "ucsid": "0x8A",
+      "unit": "mV",
+      "scale": 0.122,
+      "signed": true
+    },
+    {
+      "ucsid": "0x8B",
+      "unit": "V",
+      "scale": 0.001,
+      "signed": true
+    },
+    {
+      "ucsid": "0x8C",
+      "unit": "V",
+      "scale": 0.01,
+      "signed": true
+    },
+    {
+      "ucsid": "0x8D",
+      "unit": "mA",
+      "scale": 0.00390625,
+      "signed": true
+    },
+    {
+      "ucsid": "0x8E",
+      "unit": "A",
+      "scale": 0.001,
+      "signed": true
+    },
+    {
+      "ucsid": "0x90",
+      "unit": "ms",
+      "scale": 1,
+      "signed": true
+    },
+    {
+      "ucsid": "0x96",
+      "unit": "°C",
+      "scale": 0.1,
+      "signed": true
+    },
+    {
+      "ucsid": "0x99",
+      "unit": "kPa",
+      "scale": 0.1,
+      "signed": true
+    },
+    {
+      "ucsid": "0x9C",
+      "unit": "deg",
+      "scale": 0.01,
+      "signed": true
+    },
+    {
+      "ucsid": "0x9D",
+      "unit": "deg",
+      "scale": 0.5,
+      "signed": true
+    },
+    {
+      "ucsid": "0xA8",
       "unit": "g/s",
-      "description": "Mass flow rate"
+      "scale": 1,
+      "signed": true
+    },
+    {
+      "ucsid": "0xA9",
+      "unit": "Pa/s",
+      "scale": 0.25,
+      "signed": true
+    },
+    {
+      "ucsid": "0xAD",
+      "unit": "mg",
+      "scale": 0.01,
+      "signed": true,
+      "description": "Per stroke"
+    },
+    {
+      "ucsid": "0xAE",
+      "unit": "mg",
+      "scale": 0.1,
+      "signed": true,
+      "description": "Per stroke"
+    },
+    {
+      "ucsid": "0xAF",
+      "unit": "%",
+      "scale": 0.01,
+      "signed": true
+    },
+    {
+      "ucsid": "0xB0",
+      "unit": "%",
+      "scale": 0.003052,
+      "signed": true
+    },
+    {
+      "ucsid": "0xB1",
+      "unit": "mV/s",
+      "scale": 2,
+      "signed": true
+    },
+    {
+      "ucsid": "0xFC",
+      "unit": "kPa",
+      "scale": 0.01,
+      "signed": true
+    },
+    {
+      "ucsid": "0xFD",
+      "unit": "kPa",
+      "scale": 0.001,
+      "signed": true
+    },
+    {
+      "ucsid": "0xFE",
+      "unit": "Pa",
+      "scale": 0.25,
+      "signed": true
     }
   ]
 }

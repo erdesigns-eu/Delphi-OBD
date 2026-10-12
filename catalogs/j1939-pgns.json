@@ -507,6 +507,61 @@
       "default_priority": 6,
       "tx_rate_ms": 1000,
       "spec_section": "J1939-75 §6.4"
+    },
+    {
+      "pgn": "0xFE6B",
+      "mnemonic": "DI",
+      "name": "Driver's Identification"
+    },
+    {
+      "pgn": "0xF000",
+      "mnemonic": "ERC1",
+      "name": "Electronic Retarder Controller 1"
+    },
+    {
+      "pgn": "0xFEFB",
+      "mnemonic": "RF",
+      "name": "Retarder Fluid"
+    },
+    {
+      "pgn": "0xFD09",
+      "mnemonic": "HRLFC",
+      "name": "High Resolution Fuel Consumption (Liquid)"
+    },
+    {
+      "pgn": "0xFE6C",
+      "mnemonic": "TCO1",
+      "name": "Tachograph"
+    },
+    {
+      "pgn": "0xFE4E",
+      "mnemonic": "DC1",
+      "name": "Door Control 1"
+    },
+    {
+      "pgn": "0xFDA4",
+      "mnemonic": "PTODE",
+      "name": "PTO Drive Engagement"
+    },
+    {
+      "pgn": "0xFEC0",
+      "mnemonic": "SERV",
+      "name": "Service Information"
+    },
+    {
+      "pgn": "0xFDA5",
+      "mnemonic": "DC2",
+      "name": "Door Control 2"
+    },
+    {
+      "pgn": "0xF009",
+      "mnemonic": "VDC2",
+      "name": "Vehicle Dynamic Stability Control 2"
+    },
+    {
+      "pgn": "0xFEBF",
+      "mnemonic": "EBC2",
+      "name": "Wheel Speed Information"
     }
   ]
 }

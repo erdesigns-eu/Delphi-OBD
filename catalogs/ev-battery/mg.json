@@ -1,0 +1,103 @@
+{
+  "$schema": "../_schema/ev-battery.schema.json",
+  "vendor": "mg",
+  "label": "SAIC MG ZS EV (BMS at 0x781/0x789)",
+  "ecu": {
+    "request_id_hex": "0x781",
+    "response_id_hex": "0x789",
+    "notes": "OBDb (CC BY-SA 4.0) community signalset; decoders are not bench validated."
+  },
+  "applicable_models": [
+    "MG ZS EV (first generation)"
+  ],
+  "fields": [
+    {
+      "field": "soc",
+      "service_hex": "0x22",
+      "did_hex": "0xB046",
+      "offset": 0,
+      "length": 2,
+      "scale": 0.1,
+      "offset_value": 0,
+      "unit": "%",
+      "notes": "OBDb MG_SOC: State of charge.",
+      "source": "https://github.com/OBDb/MG/blob/main/signalsets/v3/default.json"
+    },
+    {
+      "field": "soh",
+      "service_hex": "0x22",
+      "did_hex": "0xB061",
+      "offset": 0,
+      "length": 2,
+      "scale": 0.01,
+      "offset_value": 0,
+      "unit": "%",
+      "notes": "OBDb MG_SOH: State of health.",
+      "source": "https://github.com/OBDb/MG/blob/main/signalsets/v3/default.json"
+    },
+    {
+      "field": "pack_voltage",
+      "service_hex": "0x22",
+      "did_hex": "0xB042",
+      "offset": 0,
+      "length": 2,
+      "scale": 0.25,
+      "offset_value": 0,
+      "unit": "V",
+      "notes": "OBDb MG_HBAT_V: High voltage battery voltage.",
+      "source": "https://github.com/OBDb/MG/blob/main/signalsets/v3/default.json"
+    },
+    {
+      "field": "pack_current",
+      "service_hex": "0x22",
+      "did_hex": "0xB043",
+      "offset": 0,
+      "length": 2,
+      "scale": 0.025,
+      "offset_value": -1000,
+      "unit": "A",
+      "notes": "OBDb MG_HBAT_C: High voltage battery current. OBDb labels this rule milliamps; the identical B043 rule on the 0x7DF/0x7ED variant is labelled amps.",
+      "source": "https://github.com/OBDb/MG/blob/main/signalsets/v3/default.json"
+    },
+    {
+      "field": "max_cell_voltage",
+      "service_hex": "0x22",
+      "did_hex": "0xB058",
+      "offset": 0,
+      "length": 2,
+      "scale": 0.001,
+      "offset_value": 0,
+      "unit": "V",
+      "notes": "OBDb MG_HVBAT_CELL_V_MAX_GEN1: Highest cell voltage.",
+      "source": "https://github.com/OBDb/MG/blob/main/signalsets/v3/default.json"
+    },
+    {
+      "field": "min_cell_voltage",
+      "service_hex": "0x22",
+      "did_hex": "0xB059",
+      "offset": 0,
+      "length": 2,
+      "scale": 0.001,
+      "offset_value": 0,
+      "unit": "V",
+      "notes": "OBDb MG_HVBAT_CELL_V_MIN_GEN1: Lowest cell voltage.",
+      "source": "https://github.com/OBDb/MG/blob/main/signalsets/v3/default.json"
+    },
+    {
+      "field": "battery_temperature",
+      "service_hex": "0x22",
+      "did_hex": "0xB056",
+      "offset": 0,
+      "length": 1,
+      "scale": 0.5,
+      "offset_value": -40,
+      "unit": "C",
+      "notes": "OBDb MG_HVBAT_TEMP_GEN1: HV battery temperature.",
+      "source": "https://github.com/OBDb/MG/blob/main/signalsets/v3/default.json"
+    }
+  ],
+  "unavailable_fields": {
+    "cell_voltages": "Per-cell rules exist in OBDb for later MG models on other headers; not mapped here.",
+    "min_max_pack_temp": "Only a single pack temperature is published for this ECU."
+  }
+}

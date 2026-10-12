@@ -41,6 +41,12 @@
           },
           "description": {
             "type": "string"
+          },
+          "offset": {
+            "type": "number"
+          },
+          "signed": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
