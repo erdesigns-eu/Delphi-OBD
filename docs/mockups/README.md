@@ -628,3 +628,25 @@ mockups have a `-tablet` variant. The panels are drawn 1366 px wide.
 | ![](pro-actuators-bus-tablet-light.png) | ![](pro-actuators-bus-tablet-dark.png) |
 | ![](pro-ev-battery-light.png) | ![](pro-ev-battery-dark.png) |
 | ![](pro-ev-battery-tablet-light.png) | ![](pro-ev-battery-tablet-dark.png) |
+
+### Next round (proposed)
+
+Building the OBD Studio Pro example (`examples/obd-studio-pro`) showed
+what the component set still misses. The pages work around it for now
+(see the example's README). These mockups are for review; nothing here is
+built yet.
+
+| Component | Proposal |
+|---|---|
+| `TOBDDataGrid` | Common control (OBD Studio page) on `TOBDCustomItemList`: columns with caption, width, alignment and a cell kind (text, mono, number, chip, check box, icon); click a header to sort, drag a divider to resize; collapsible groups; the existing `EmptyText` with an optional action. For dyno runs, component protection, flash history, ECU and memory tables. |
+| `TOBDTileGrid` | Common control on `TOBDCustomItemList`: tiles with icon, title, subtitle and a badge in groups; `TileStyle` `tsRow` (icon left, catalogues) or `tsLarge` (icon on top, launcher with a counter); disabled tiles for functions the vehicle does not have. For the service catalogue and a start page. |
+| `TOBDKeyValueList` | Common control: read-only label / value rows in categories; values can be mono, coloured, a chip, a link or wrap over lines; copy button on hover; `Columns` 1 or 2. For ECU, chip and vehicle details. |
+| `TOBDActuatorPanel` | Adds `Kind` per row: `akButton` (timed run), `akSwitch`, `akSlider` (set point) and `akSteps` (Off / Low / High), with a Stop button and timer on running rows, and a `Locked` state with a reason. As in the approved `pro-actuators-bus` mockup. |
+| `TOBDBusTrace` | Direction set by the caller (`AddFrame(..., btfTx)`) instead of guessed from the ID, Tx rows marked, error frames (`AddError`), and a direction filter. |
+
+| Light | Dark |
+|---|---|
+| ![](data-views-light.png) | ![](data-views-dark.png) |
+| ![](data-views-tablet-light.png) | ![](data-views-tablet-dark.png) |
+| ![](pro-actuators-bus-detail-light.png) | ![](pro-actuators-bus-detail-dark.png) |
+| ![](pro-actuators-bus-detail-tablet-light.png) | ![](pro-actuators-bus-detail-tablet-dark.png) |

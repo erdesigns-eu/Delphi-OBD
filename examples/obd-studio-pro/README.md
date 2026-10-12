@@ -89,7 +89,9 @@ have yet. The pages work around them for now:
 | Per-row controls in `TOBDActuatorPanel` (slider, switch) | Actuator tests with a set point | Generic Start / Stop and progress per row |
 | Direction override in `TOBDBusTrace` | Marking sent frames in the trace | The trace's own direction detection |
 
-These are candidates for the next round of mockups.
+The next round of mockups proposes them: see *Next round (proposed)*
+in [`docs/mockups`](../../docs/mockups/README.md) (`data-views`,
+`pro-actuators-bus-detail`).
 
 ## Using a real vehicle
 

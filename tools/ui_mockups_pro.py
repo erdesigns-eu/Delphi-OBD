@@ -2608,6 +2608,551 @@ def draw_ev_battery(c):
     cell_matrix(c, L, y, lw, ry - y)
     return ry
 
+# --------------------------------------------------------------------------
+# Next round: generic data views and the Pro additions found while
+# building the OBD Studio Pro example (examples/obd-studio-pro)
+# --------------------------------------------------------------------------
+
+def grid_head(c, x, y, w, cols, sort=None, desc=True):
+    """TOBDDataGrid header: caps captions, dividers and the sort mark.
+    cols are (x, label, anchor); sort is the index of the sorted column."""
+    p = c.p
+    ch = c.dn['colhead']
+    c.rect(x + 1, y, w - 2, ch, fill=p.header())
+    c.hline(x + 1, y + ch - 1, w - 2, p.NeutralLight)
+    for i, (cx, t, anchor) in enumerate(cols):
+        if i:
+            dx = cx - 10 if anchor != 'rm' else cx - c.tw(
+                t.upper(), 10.5, 'semibold') - 10 - (14 if i == sort else 0)
+            c.vline(dx, y + 6, ch - 12, p.NeutralLight)
+        if anchor == 'rm' and i == sort:
+            tw = c.tw(t.upper(), 10.5, 'semibold')
+            c.caps(cx - 14, y + ch / 2, t, color=p.ForegroundText, anchor='rm')
+            mx = cx - 4
+        elif anchor == 'mm':
+            c.caps(cx, y + ch / 2, t, anchor='mm')
+            continue
+        else:
+            tw = c.caps(cx, y + ch / 2, t, anchor=anchor,
+                        color=p.ForegroundText if i == sort else None)
+            mx = cx + tw + 10
+        if i == sort:
+            cy = y + ch / 2
+            if desc:
+                c.line([(mx - 4, cy - 2), (mx, cy + 2), (mx + 4, cy - 2)],
+                       p.accent_text, 1.4)
+            else:
+                M.sort_mark(c, mx, cy, p.accent_text)
+    return y + ch
+
+
+def grid_row_fill(c, x, y, w, h, state):
+    p = c.p
+    if state == 'sel':
+        c.rect(x + 1, y, w - 2, h, fill=p.tint(p.Accent, 0.16 if not p.dark
+                                                else 0.26))
+        c.rect(x + 1, y + 6, 3, h - 12, fill=p.Accent)
+    elif state == 'hover':
+        c.rect(x + 1, y, w - 2, h, fill=mix(p.ForegroundText, p.GaugeFace,
+                                            0.05))
+
+
+DYNO_RUNS = [
+    ('Run 5', '12 Oct 09:42', '80.3', '3 950', '257', 'SAE J1349', 'BEST',
+     True, 'sel'),
+    ('Run 4', '12 Oct 09:31', '79.1', '3 900', '254', 'SAE J1349', 'OK',
+     True, 'hover'),
+    ('Run 3', '12 Oct 09:20', '77.4', '4 000', '246', 'SAE J1349', 'OK',
+     False, ''),
+    ('Run 2', '12 Oct 09:08', '76.9', '3 850', '245', 'DIN 70020', 'COLD',
+     False, ''),
+    ('Run 1', '12 Oct 08:57', '–', '–', '–', 'SAE J1349', 'ABORTED',
+     False, ''),
+]
+
+
+def data_grid_runs(c, x, y, w):
+    """TOBDDataGrid: sorted, aligned columns and the cell kinds."""
+    p, dn = c.p, c.dn
+    row = dn['ff_row'] + 4
+    h = dn['head'] + dn['colhead'] + row * len(DYNO_RUNS) + dn['foot']
+    card(c, x, y, w, h)
+    ry = head(c, x, y, w, 'Runs', icon='dyno',
+              chips=[('5 RUNS', p.Subtle)],
+              buttons=[('Compare', 'secondary', None),
+                       ('Export…', 'secondary', None)])
+    R = x + w - 16
+    cols = [(x + 16, 'Run', 'lm'), (x + 200, 'Date', 'lm'),
+            (x + 440, 'Peak power kW', 'rm'), (x + 560, 'At rpm', 'rm'),
+            (x + 700, 'Peak torque Nm', 'rm'), (x + 730, 'Correction', 'lm'),
+            (x + 880, 'Status', 'lm'), (R - 24, 'Overlay', 'mm')]
+    ry = grid_head(c, x, ry, w, cols, sort=2)
+    for name, date, pw, rpm, tq, corr, st, on, state in DYNO_RUNS:
+        grid_row_fill(c, x, ry, w, row, state)
+        mid = ry + row / 2
+        dim = st == 'ABORTED'
+        ink = mix(p.Subtle, p.GaugeFace, 0.3) if dim else p.ForegroundText
+        glyph(c, 'powercurve', x + 24, mid, p.accent_text if state == 'sel'
+              else p.Subtle, 1)
+        c.text(x + 40, mid, name, 12.5, ink, 'semibold')
+        c.text(x + 200, mid, date, 12.5, p.GaugeLabel)
+        c.text(x + 440, mid, pw, 12.5, ink, 'monobold' if not dim else 'mono',
+               anchor='rm')
+        c.text(x + 560, mid, rpm, 12.5, p.GaugeLabel, 'mono', anchor='rm')
+        c.text(x + 700, mid, tq, 12.5, ink, 'monobold' if not dim else 'mono',
+               anchor='rm')
+        c.text(x + 730, mid, corr, 12.5, p.GaugeLabel)
+        colr = {'BEST': p.Success, 'OK': p.Subtle, 'COLD': p.Warning,
+                'ABORTED': p.Danger}[st]
+        chip(c, x + 880, mid - 9, st, colr, filled=st == 'BEST', size=9.5,
+             h=18)
+        if not dim:
+            M.checkbox(c, R - 24 - dn['check'] / 2, mid,
+                       'checked' if on else 'unchecked', '')
+        ry += row
+        if state != 'sel':
+            c.hline(x + 1, ry - 1, w - 2, p.NeutralLight)
+    footer(c, x, y, w, h, 'Sorted by peak power · click a header to sort, '
+           'drag a divider to resize · double-click opens the run')
+    return y + h
+
+
+PROTECTION_GROUPS = [
+    ('Immobiliser', [('17', 'Instruments', '5G1920741A', 'OK'),
+                     ('01', 'Engine electronics', '04L906056HT', 'OK')]),
+    ('Component protection', [('5F', 'Infotainment', '5G0035867A',
+                               'ACTIVE'),
+                              ('08', 'Climatronic', '5G0907044EM', 'OK'),
+                              ('A5', 'Front camera', '3Q0980653',
+                               'NO REPLY')]),
+]
+
+
+def data_grid_groups(c, x, y, w):
+    """TOBDDataGrid with groups (collapsible) and a status chip column."""
+    p, dn = c.p, c.dn
+    row = dn['ff_row'] + 4
+    gh = dn['colhead'] + 4
+    n = sum(len(r) for _, r in PROTECTION_GROUPS)
+    h = dn['head'] + dn['colhead'] + gh * len(PROTECTION_GROUPS) + row * n + \
+        dn['foot']
+    card(c, x, y, w, h)
+    ry = head(c, x, y, w, 'Component protection', icon='shield')
+    R = x + w - 16
+    ry = grid_head(c, x, ry, w, [(x + 16, 'Unit', 'lm'),
+                                 (x + 230, 'Part number', 'lm'),
+                                 (R, 'State', 'rm')], sort=0, desc=False)
+    for gname, rows in PROTECTION_GROUPS:
+        c.rect(x + 1, ry, w - 2, gh, fill=mix(p.NeutralLight, p.GaugeFace,
+                                               0.7))
+        chevron(c, x + 22, ry + gh / 2, p.Subtle, 'down')
+        c.text(x + 36, ry + gh / 2, gname, 12.5, p.ForegroundText, 'bold')
+        c.text(x + 42 + c.tw(gname, 12.5, 'bold'), ry + gh / 2,
+               '(%d)' % len(rows), 12, p.GaugeLabel)
+        ry += gh
+        c.hline(x + 1, ry - 1, w - 2, p.NeutralLight)
+        for addr, name, part, st in rows:
+            mid = ry + row / 2
+            c.text(x + 36, mid, addr, 12.5, p.GaugeLabel, 'monobold')
+            c.text(x + 64, mid, name, 12.5, p.ForegroundText,
+                   max_w=230 - 64 - 10)
+            c.text(x + 230, mid, part, 12.5, p.ForegroundText, 'mono')
+            colr = {'OK': p.Success, 'ACTIVE': p.Danger,
+                    'NO REPLY': p.Subtle}[st]
+            cw = chip_w(c, st, 9.5)
+            chip(c, R - cw, mid - 9, st, colr, size=9.5, h=18)
+            ry += row
+            c.hline(x + 1, ry - 1, w - 2, p.NeutralLight)
+    footer(c, x, y, w, h, 'Grouped by system · 1 unit protected')
+    return y + h
+
+
+def data_grid_empty(c, x, y, w, h):
+    """TOBDDataGrid with no rows: the columns stay, EmptyText in the middle,
+    and an optional action."""
+    p = c.p
+    card(c, x, y, w, h)
+    ry = head(c, x, y, w, 'Flash history', icon='flash')
+    R = x + w - 16
+    ry = grid_head(c, x, ry, w, [(x + 16, 'Date', 'lm'),
+                                 (x + 150, 'Control unit', 'lm'),
+                                 (x + 330, 'Software', 'lm'),
+                                 (R, 'Result', 'rm')], sort=0)
+    cy = ry + (y + h - ry) / 2 - 18
+    glyph(c, 'flash', x + w / 2, cy - 22, p.Subtle, 2)
+    c.text(x + w / 2, cy + 12, 'No flash sessions on this vehicle yet',
+           13, p.ForegroundText, 'semibold', anchor='mm')
+    c.text(x + w / 2, cy + 32, 'Every flash is listed here with its backup.',
+           12, p.GaugeLabel, anchor='mm')
+    bw = button_w(c, 'Open flash')
+    button(c, x + (w - bw) / 2, cy + 50, 'Open flash', 'secondary')
+    return y + h
+
+
+TILE_GROUPS = [
+    ('Maintenance', [('oil', 'Oil service reset', '17 Instruments', 'hover'),
+                     ('batteryreg', 'Battery registration', '19 Gateway',
+                      'ok'),
+                     ('regen', 'DPF regeneration', '01 Engine electronics',
+                      'new'),
+                     ('injector', 'Glow plug test', '01 Engine · garage',
+                      'custom')]),
+    ('Brakes and chassis', [('brake', 'Parking brake service',
+                             '53 Parking brake', 'sel'),
+                            ('bleed', 'Brake bleeding', '03 Brakes', 'ok'),
+                            ('steering', 'Steering angle calibration',
+                             '44 Steering assist', 'ok'),
+                            ('suspension', 'Air suspension calibration',
+                             'Not fitted', 'off')]),
+]
+
+
+def tile_grid_rows(c, x, y, w, cols=4):
+    """TOBDTileGrid, TileStyle = tsRow: icon left, title and subtitle,
+    groups, badge, selected / hover / disabled tiles."""
+    p = c.p
+    th = 60 if c.density == 'desktop' else 72
+    gh = 30
+    rows = sum((len(t) + cols - 1) // cols for _, t in TILE_GROUPS)
+    h = 12 + len(TILE_GROUPS) * gh + rows * (th + 8) + 4
+    card(c, x, y, w, h)
+    tw = (w - 32 - (cols - 1) * 8) / cols
+    ry = y + 12
+    for gname, tiles in TILE_GROUPS:
+        c.caps(x + 16, ry + gh / 2 - 2, gname + ' · %d' % len(tiles))
+        ry += gh
+        for i, (icon, name, sub, st) in enumerate(tiles):
+            tx = x + 16 + (i % cols) * (tw + 8)
+            ty = ry + (i // cols) * (th + 8)
+            off = st == 'off'
+            if st == 'sel':
+                fill = p.tint(p.Accent, 0.12 if not p.dark else 0.18)
+            elif st == 'hover':
+                fill = mix(p.ForegroundText, p.GaugeFace, 0.05)
+            else:
+                fill = p.GaugeFace
+            c.rect(tx, ty, tw, th, fill=fill,
+                   outline=p.accent_text if st == 'sel' else (
+                       p.NeutralDark if st == 'hover' else p.NeutralLight),
+                   width=1.5 if st == 'sel' else 1)
+            faded = mix(p.Subtle, p.GaugeFace, 0.55)
+            glyph(c, icon, tx + 26, ty + th / 2, faded if off
+                  else p.accent_text, 1.5, bg=fill)
+            badge_t = {'new': ('NEW', p.Success),
+                       'custom': ('GARAGE', p.accent_text)}.get(st)
+            bw = chip_w(c, badge_t[0], 9) + 8 if badge_t else 0
+            c.text(tx + 50, ty + th / 2 - 9, name, 12.5,
+                   faded if off else p.ForegroundText, 'semibold',
+                   max_w=tw - 58)
+            c.text(tx + 50, ty + th / 2 + 10, sub, 11.5,
+                   faded if off else p.GaugeLabel, max_w=tw - 58 - bw)
+            if badge_t:
+                chip(c, tx + tw - bw, ty + th - 24, badge_t[0], badge_t[1],
+                     size=9, h=18)
+        ry += ((len(tiles) + cols - 1) // cols) * (th + 8)
+    return y + h
+
+
+LAUNCHER = [('codes', 'Read codes', 'All control units', '3'),
+            ('live', 'Live data', 'Gauges and trends', None),
+            ('readiness', 'Readiness', 'Inspection check', None),
+            ('wrench', 'Service', 'Resets and calibrations', None),
+            ('battery', 'Battery test', '12 V and charging', None),
+            ('report', 'Report', 'For the customer', None)]
+
+
+def tile_grid_large(c, x, y, w):
+    """TOBDTileGrid, TileStyle = tsLarge: icon on top (launcher)."""
+    p = c.p
+    cols = len(LAUNCHER)
+    th = 112 if c.density == 'desktop' else 128
+    h = 16 + th + 16
+    card(c, x, y, w, h)
+    tw = (w - 32 - (cols - 1) * 12) / cols
+    for i, (icon, name, sub, count) in enumerate(LAUNCHER):
+        tx = x + 16 + i * (tw + 12)
+        ty = y + 16
+        hover = i == 1
+        fill = mix(p.ForegroundText, p.GaugeFace, 0.05) if hover \
+            else p.GaugeFace
+        c.rect(tx, ty, tw, th, fill=fill, outline=p.NeutralDark if hover
+               else p.NeutralLight)
+        glyph(c, icon, tx + tw / 2, ty + 34, p.accent_text, 2, bg=fill)
+        if count:
+            M.badge(c, tx + tw / 2 + 30, ty + 12, count, p.Danger)
+        c.text(tx + tw / 2, ty + 70, name, 13, p.ForegroundText, 'semibold',
+               anchor='mm', max_w=tw - 16)
+        c.text(tx + tw / 2, ty + 90, sub, 11.5, p.GaugeLabel, anchor='mm',
+               max_w=tw - 16)
+    return y + h
+
+
+def kv_list(c, x, y, w, groups, hover=None, title=None, icon=None,
+            columns=1):
+    """TOBDKeyValueList: read-only label / value rows in categories.
+    Values may be mono, coloured, a chip, a link or wrap over lines.
+    hover is (group, row) of the row that shows the copy button."""
+    p, dn = c.p, c.dn
+    row = dn['ff_row']
+    gh = 30
+    # height
+    total = 0
+    for _, rows in groups:
+        lines = 0
+        for r in rows:
+            lines += len(r[1]) if isinstance(r[1], list) else 1
+        n = (len(rows) + columns - 1) // columns if columns > 1 else 0
+        total += gh + (n * row if columns > 1 else
+                       sum((len(r[1]) if isinstance(r[1], list) else 1)
+                           for r in rows) * row - sum(
+                           (len(r[1]) - 1) * (row - 18)
+                           for r in rows if isinstance(r[1], list)))
+    h = (dn['head'] if title else 0) + 8 + total + 8
+    card(c, x, y, w, h)
+    ry = head(c, x, y, w, title, icon=icon) if title else y
+    ry += 8
+    colw = (w - 32 - (columns - 1) * 24) / columns
+    kw = min(150, colw * 0.42)
+    for gi, (gname, rows) in enumerate(groups):
+        c.caps(x + 16, ry + gh / 2, gname)
+        c.hline(x + 16 + c.tw(gname.upper(), 10.5, 'semibold') + 10,
+                ry + gh / 2, w - 32 - c.tw(gname.upper(), 10.5, 'semibold')
+                - 10, p.NeutralLight)
+        ry += gh
+        cy0 = ry
+        for ri, r in enumerate(rows):
+            k, v = r[0], r[1]
+            kind = r[2] if len(r) > 2 else ''
+            col = ri % columns if columns > 1 else 0
+            lx = x + 16 + col * (colw + 24)
+            if columns > 1:
+                ry = cy0 + (ri // columns) * row
+            lines = v if isinstance(v, list) else [v]
+            rh = row + (len(lines) - 1) * 18
+            if hover == (gi, ri):
+                c.rect(lx - 8, ry, colw + 16, rh,
+                       fill=mix(p.ForegroundText, p.GaugeFace, 0.05))
+                glyph(c, 'copy', lx + colw - 8, ry + row / 2, p.Subtle, 1)
+            c.text(lx, ry + row / 2, k, 12.5, p.GaugeLabel, max_w=kw - 8)
+            vx = lx + kw
+            vmax = colw - kw - (24 if hover == (gi, ri) else 0)
+            for li, line in enumerate(lines):
+                yy = ry + row / 2 + li * 18
+                if kind == 'chip':
+                    colr = p.Danger if 'FAULT' in line else p.Success
+                    chip(c, vx, yy - 9, line, colr, size=9.5, h=18)
+                elif kind == 'link':
+                    link(c, vx, yy, line)
+                elif kind == 'warn':
+                    c.text(vx, yy, line, 12.5, p.Warning if not p.dark else
+                           mix(p.Warning, (255, 255, 255), 0.2), 'semibold',
+                           max_w=vmax)
+                else:
+                    c.text(vx, yy, line, 12.5, p.ForegroundText,
+                           'mono' if kind == 'mono' else 'semibold',
+                           max_w=vmax)
+            if columns == 1:
+                ry += rh
+        if columns > 1:
+            ry = cy0 + ((len(rows) + columns - 1) // columns) * row
+    return y + h
+
+
+ECU_KV = [
+    ('Identification', [('Part number', '5Q0937084CK', 'mono'),
+                        ('Hardware', '5Q0937084AN · H45', 'mono'),
+                        ('Software', '0254 · BCM MQB'),
+                        ('Serial', '00001234567890', 'mono')]),
+    ('Coding', [('Long coding', ['2D 0B 3C 84 40 1A 00 0C',
+                                 '80 6C 03 12 08 00 51 C0'], 'mono'),
+                ('Workshop code', 'WSC 01234 · 2026-10-11')]),
+    ('State', [('Fault memory', '1 FAULT', 'chip'),
+               ('Last change', 'Long coding · J. de Vries'),
+               ('Label file', '5Q0-937-08X.clb', 'link')]),
+]
+
+CHIP_KV = [
+    ('Chip', [('Type', '24C32 EEPROM'), ('Size', '4 096 bytes', 'mono'),
+              ('Bus', 'I²C · 400 kHz'), ('Address', '0x50', 'mono'),
+              ('Page size', '32 bytes', 'mono'), ('Voltage', '3.3 V')]),
+    ('Dump', [('File', 'RCD330_24C32.bin', 'link'),
+              ('Read', '12 Oct · 2 reads equal'),
+              ('Checksum', 'CRC32 9A1F 22C4', 'mono'),
+              ('Differences', '2 bytes since backup', 'warn')]),
+]
+
+
+def draw_data_views(c):
+    """Sheet: the generic data views planned for the next round."""
+    L, W = 16, c.w - 32
+    y = 16
+    y = sheet_title(c, L, y, 'TOBDDataGrid',
+                    'columns with sort, alignment and cell kinds (text, '
+                    'mono, chip, check box, icon)')
+    y = data_grid_runs(c, L, y, W) + 16
+    hw = (W - 16) / 2
+    b = data_grid_groups(c, L, y, hw)
+    data_grid_empty(c, L + hw + 16, y, hw, b - y)
+    y = b + 24
+    y = sheet_title(c, L, y, 'TOBDTileGrid',
+                    'TileStyle = tsRow: groups, badges, selected / hover / '
+                    'not available')
+    y = tile_grid_rows(c, L, y, W) + 16
+    y = sheet_title(c, L, y, 'TOBDTileGrid',
+                    'TileStyle = tsLarge: launcher tiles with a counter')
+    y = tile_grid_large(c, L, y, W) + 24
+    y = sheet_title(c, L, y, 'TOBDKeyValueList',
+                    'read-only details: categories, mono values, chips, '
+                    'links, wrapping, copy on hover')
+    lw = 460
+    b1 = kv_list(c, L, y, lw, ECU_KV, hover=(0, 0),
+                 title='09 Central electrics', icon='ecu')
+    b2 = kv_list(c, L + lw + 16, y, W - lw - 16, CHIP_KV, columns=2,
+                 title='Radio EEPROM', icon='eeprom')
+    return max(b1, b2)
+
+
+ACTUATOR_ROWS = [
+    ('Radiator fan', 'slider', 0.6, '60 %', 'Fan speed 2 140 rpm', 'run',
+     '00:24'),
+    ('Coolant pump', 'steps', 1, '', 'Flow 12 l/min', 'run', '00:08'),
+    ('Fuel pump relay', 'switch', True, '', 'Relay on · 4.8 A', 'done', ''),
+    ('Glow plugs', 'button', 'Run 10 s', '', 'No current on cylinder 3',
+     'fail', ''),
+    ('EGR valve', 'slider', 0.0, '0 %', 'Position 2 %', 'idle', ''),
+    ('Starter motor', 'button', 'Crank 3 s', '',
+     'Not available while the engine runs', 'locked', ''),
+]
+
+
+def actuator_rows(c, x, y, w):
+    """TOBDActuatorPanel row kinds (akSlider, akSteps, akSwitch, akButton)
+    and the row states (idle, running, done, failed, locked)."""
+    p, dn = c.p, c.dn
+    row = dn['row'] + 12
+    h = dn['head'] + row * len(ACTUATOR_ROWS) + dn['foot']
+    card(c, x, y, w, h)
+    ry = head(c, x, y, w, 'Actuator tests', icon='routine',
+              chips=[('2 ACTIVE', p.accent_text)],
+              sub='01 Engine electronics · ignition on',
+              buttons=[('Stop all', 'danger', None)])
+    cx0 = x + w * 0.38
+    sw = w * 0.26
+    for name, kind, val, label, fb, st, timer in ACTUATOR_ROWS:
+        mid = ry + row / 2
+        locked = st == 'locked'
+        if st == 'run':
+            c.rect(x + 1, ry + 8, 4, row - 16, fill=p.Accent)
+        ink = mix(p.Subtle, p.GaugeFace, 0.4) if locked else p.ForegroundText
+        c.text(x + 20, mid - 9, name, 13, ink, 'semibold', max_w=w * 0.34)
+        fcol = {'run': p.accent_text, 'fail': danger_ink(p),
+                'done': p.Success}.get(st, p.GaugeLabel)
+        if locked:
+            glyph(c, 'lock', x + 27, mid + 10, p.Subtle, 0.8)
+            c.text(x + 38, mid + 10, fb, 12, p.GaugeLabel, max_w=w * 0.34)
+        else:
+            c.text(x + 20, mid + 10, fb, 12, fcol, max_w=w * 0.34)
+        if kind == 'slider':
+            slider(c, cx0, mid, sw, val, label)
+        elif kind == 'steps':
+            M.segmented_at(c, cx0, mid - dn['seg'] / 2,
+                           ['Off', 'Low', 'High'], val)
+        elif kind == 'switch':
+            switch(c, cx0, mid, val, 'Relay on')
+        else:
+            button(c, cx0, mid - dn['button'] / 2, val, 'secondary',
+                   state='disabled' if locked else 'normal')
+        R = x + w - 16
+        if st == 'run':
+            bw = button_w(c, 'Stop')
+            button(c, R - bw, mid - dn['button'] / 2, 'Stop', 'secondary')
+            tw = chip_w(c, timer, 9.5, mono=True)
+            chip(c, R - bw - 8 - tw, mid - 10, timer, p.accent_text,
+                 size=9.5, mono=True, h=20)
+        elif st in ('done', 'fail'):
+            t, colr = ('DONE', p.Success) if st == 'done' else ('FAILED',
+                                                                 p.Danger)
+            chip(c, R - chip_w(c, t, 9.5), mid - 10, t, colr, size=9.5, h=20)
+        elif locked:
+            chip(c, R - chip_w(c, 'LOCKED', 9.5), mid - 10, 'LOCKED',
+                 p.Subtle, size=9.5, h=20)
+        ry += row
+        c.hline(x + 1, ry - 1, w - 2, p.NeutralLight)
+    footer(c, x, y, w, h, 'Moving a slider, a step or a switch starts the '
+           'test · tests stop after 30 s or when the connection drops.')
+    return y + h
+
+
+DIR_TRACE = [
+    ('0.000', '7E0', 'Tx', '02 10 03 00 00 00 00 00', 'Diagnostic session '
+     'extended'),
+    ('0.012', '7E8', 'Rx', '06 50 03 00 32 01 F4 00', 'Positive response'),
+    ('0.018', '280', 'Rx', '49 0E 6E 13 0E 22 00 1F', 'Engine 1 · 1 248 rpm'),
+    ('0.020', '7E0', 'Tx', '03 22 F1 90 00 00 00 00', 'Read VIN'),
+    ('0.031', '7E8', 'Rx', '10 14 62 F1 90 57 56 57', 'VIN (first frame)'),
+    ('0.032', '7E0', 'Tx', '30 00 00 00 00 00 00 00', 'Flow control'),
+    ('0.047', '—', 'Err', '', 'Error frame · stuff error · TEC 8'),
+    ('0.050', '1A0', 'Rx', '18 00 C8 1F FE FE 00 FF', 'Brakes 1'),
+]
+
+
+def trace_direction(c, x, y, w):
+    """TOBDBusTrace with the direction supplied by the caller: Tx rows are
+    marked, error frames get their own row, and a direction filter."""
+    p, dn = c.p, c.dn
+    row = dn['row'] - 16
+    h = dn['head'] + dn['colhead'] + row * len(DIR_TRACE) + dn['foot']
+    card(c, x, y, w, h)
+    ry = head(c, x, y, w, 'CAN trace', icon='bus',
+              sub='Powertrain CAN · 500 kbit/s',
+              chips=[('RECORDING', p.Danger)])
+    segmented(c, x + w - 16, y + (dn['head'] - dn['seg']) / 2,
+              ['All', 'Received', 'Sent', 'Errors'], 0)
+    col_t, col_id, col_dir = x + 16, x + 92, x + 150
+    col_data, col_dec = x + 200, x + 200 + 8 * 30 + 24
+    ry = colhead(c, x, ry, w, [(col_t, 'Time'), (col_id, 'ID'),
+                               (col_dir, 'Dir'), (col_data, 'Data'),
+                               (col_dec, 'Decoded')])
+    for t, ident, d, data, dec in DIR_TRACE:
+        mid = ry + row / 2
+        if d == 'Tx':
+            c.rect(x + 1, ry, w - 2, row, fill=p.tint(p.Accent, 0.07 if
+                                                       not p.dark else 0.12))
+            c.rect(x + 1, ry + 4, 3, row - 8, fill=p.Accent)
+        elif d == 'Err':
+            c.rect(x + 1, ry, w - 2, row, fill=p.tint(p.Danger, 0.10 if
+                                                       not p.dark else 0.16))
+            c.rect(x + 1, ry + 4, 3, row - 8, fill=p.Danger)
+        c.text(col_t, mid, t, 12.5, p.GaugeLabel, 'mono')
+        c.text(col_id, mid, ident, 12.5, p.ForegroundText, 'monobold')
+        dcol = {'Tx': p.accent_text, 'Err': danger_ink(p)}.get(d,
+                                                              p.GaugeLabel)
+        c.text(col_dir, mid, d, 12, dcol, 'semibold')
+        for i, b in enumerate(data.split()):
+            c.text(col_data + i * 30 + 13, mid, b, 12.5, p.ForegroundText,
+                   'mono', anchor='mm')
+        c.text(col_dec, mid, dec, 12.5, danger_ink(p) if d == 'Err'
+               else p.GaugeLabel, max_w=x + w - 16 - col_dec)
+        ry += row
+        c.hline(x + 1, ry - 1, w - 2, p.NeutralLight)
+    footer(c, x, y, w, h, 'AddFrame(..., btfTx) marks frames the tester '
+           'sent; AddError adds error frames · 3 sent · 4 received · 1 error')
+    return y + h
+
+
+def draw_actuators_bus_detail(c):
+    """Sheet: actuator row kinds and states; bus trace direction."""
+    L, W = 16, c.w - 32
+    y = 16
+    y = sheet_title(c, L, y, 'TOBDActuatorPanel',
+                    'Kind per row: slider, steps, switch, button · states '
+                    'idle, running, done, failed, locked')
+    y = actuator_rows(c, L, y, W) + 24
+    y = sheet_title(c, L, y, 'TOBDBusTrace',
+                    'direction set by the caller, error frames, direction '
+                    'filter')
+    return trace_direction(c, L, y, W)
+
 
 MOCKUPS = {
     'pro-workflow': (BOTH, 1100, None, draw_workflow),
@@ -2625,4 +3170,7 @@ MOCKUPS = {
     'pro-measurement': (BOTH, 1366, None, draw_measurement),
     'pro-actuators-bus': (BOTH, 1366, None, draw_actuators_bus),
     'pro-ev-battery': (BOTH, 1366, None, draw_ev_battery),
+    'data-views': (BOTH, 1100, None, draw_data_views),
+    'pro-actuators-bus-detail': (BOTH, 1100, None,
+                                 draw_actuators_bus_detail),
 }
