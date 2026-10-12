@@ -195,7 +195,7 @@ under those terms remain governed by them; this and later versions are not.
 
 ## Contact
 
-ERDesigns: [info@erdesigns.eu](mailto:info@erdesigns.eu) ·
-[erdesigns.eu](https://erdesigns.eu)
+ERDesigns: [info@erdesigns.be](mailto:info@erdesigns.be) ·
+[erdesigns.be](https://erdesigns.be)
 
 For licences, support, development work and security reports.

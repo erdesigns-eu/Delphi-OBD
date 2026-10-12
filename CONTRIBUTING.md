@@ -127,4 +127,4 @@ vehicle. Brick risk is real; care here is non-negotiable. See
 Report bugs with the Delphi version, OS, adapter (chip + firmware) and, ideally,
 a `.obdlog` capture from `TOBDRecorder`. Report security issues, especially in
 flashing or signature verification, privately to ERDesigns at
-[info@erdesigns.eu](mailto:info@erdesigns.eu).
+[info@erdesigns.be](mailto:info@erdesigns.be).

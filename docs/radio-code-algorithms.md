@@ -46,10 +46,10 @@ for sources if you need to wire your own.
 | Component | Status | Notes |
 |---|---|---|
 | `TOBDRadioCodeCitroen`      | 🔌 | PSA-branded; same family as Peugeot. |
-| `TOBDRadioCodePeugeot`      | ✅ | Source: [`erdesigns-eu/Peugeot-Calculator`](https://github.com/erdesigns-eu/Peugeot-Calculator). Input: 4-digit C7-barcode suffix (NOT the serial). |
-| `TOBDRadioCodeRenault`      | ✅ | Source: [`erdesigns-eu/Renault-Calculator`](https://github.com/erdesigns-eu/Renault-Calculator). Pre-2004 (Tuner List / Update List). |
-| `TOBDRadioCodeFiatDaiichi`  | ✅ | Source: [`erdesigns-eu/Fiat-Daiichi-Calculator`](https://github.com/erdesigns-eu/Fiat-Daiichi-Calculator). |
-| `TOBDRadioCodeFiatVP`       | ✅ | Source: [`erdesigns-eu/Fiat-VP1-VP2-Calculator`](https://github.com/erdesigns-eu/Fiat-VP1-VP2-Calculator). VP1 + VP2 share one calculation. |
+| `TOBDRadioCodePeugeot`      | ✅ | Input: 4-digit C7-barcode suffix (NOT the serial). |
+| `TOBDRadioCodeRenault`      | ✅ | Pre-2004 (Tuner List / Update List). |
+| `TOBDRadioCodeFiatDaiichi`  | ✅ | Daiichi-Pioneer units. Input: last 4 digits of the serial. |
+| `TOBDRadioCodeFiatVP`       | ✅ | Continental units. Input: last 4 digits of the serial. VP1 + VP2 share one calculation. |
 | `TOBDRadioCodeAlfaRomeo`    | 🔌 | Blaupunkt-built; closed source. |
 | `TOBDRadioCodeMaserati`     | 🔌 | Becker / Blaupunkt-built; closed source. |
 

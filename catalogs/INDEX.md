@@ -1,9 +1,24 @@
 # Catalog index
 
-Snapshot of the catalogue inventory, first generated on 2026-05-08 and maintained by
-hand since (the generator script is no longer part of the repository). Update the
-affected rows when a catalogue changes; `python3 tools/validate_catalogs.py
---require-coverage` validates the catalogues themselves.
+Inventory of the OEM, DTC, universal and range-profile catalogues. It was first
+generated on 2026-05-08 and is maintained by hand since (the generator script is
+no longer part of the repository). Every count below was checked against the
+catalogue files on 2026-10-12. Update the affected rows when a catalogue changes;
+`python3 tools/validate_catalogs.py --require-coverage` validates the catalogues
+themselves. All other catalogue files (standard OBD-II / UDS / J1939 / KWP data,
+OEM overlays, VIN, EV battery, radio code, adapter, tachograph, key platforms,
+service routines and drive cycles) are described in
+[`docs/catalogs.md`](../docs/catalogs.md).
+
+How the counts are made:
+
+- An OEM catalogue is a file with the `oem-catalog-v2` schema at the top level of
+  `catalogs/` (cars and trucks) or in `agricultural/`, `marine/`, `motorcycle/` or
+  `powersports/`. `obd2-pids.json` and `uds-standard.json` are listed as universal
+  catalogues, and `test-schema-v2.json` (a schema test fixture) is not counted.
+- **Total** is the sum of the `ecus`, `dids`, `routines`, `coding_blocks`,
+  `adaptations`, `actuator_tests`, `live_pids` and `dtc_extended_data` entries.
+- DTC catalogues are the top-level `dtc-*.json` files; **Entries** counts `dtcs`.
 
 ## Summary
 - **79 OEM catalogs** — **247,279 total entries** across 5 vehicle classes:
@@ -13,7 +28,7 @@ affected rows when a catalogue changes; `python3 tools/validate_catalogs.py
   - **motorcycle**: 14 catalogs / 3,292 entries
   - **powersports**: 5 catalogs / 1,131 entries
 - **47 DTC catalogs** (`dtc-<oem>.json`) — **1,282 total DTCs**
-- **2 universal catalogs** (ISO 15031 / UDS / OBD-II PIDs)
+- **2 universal catalogs** (`obd2-pids.json`, `uds-standard.json`)
 - **2 range profiles** (`range-profiles/*.json`) — editable normal bands for OBD Studio values
 
 ## Range profiles
