@@ -183,6 +183,21 @@ end.
         source.write_text(source.read_text().replace('Vcl.Controls,', 'Vcl.Graphics, Vcl.Controls,'))
         self.assertIn('total: 0', self.checker('needsunit'))
 
+    def test_edit_char_case_needs_vcl_stdctrls(self):
+        source = self.source('applications/Console.pas', """unit Console;
+interface
+uses Vcl.Controls, Vcl.Forms, ERD.UI.Edits;
+implementation
+procedure Build(E: TOBDEdit);
+begin
+  E.CharCase := ecUpperCase;
+end;
+end.
+""")
+        self.assertIn('total: 1', self.checker('needsunit'))
+        source.write_text(source.read_text().replace('Vcl.Forms,', 'Vcl.Forms, Vcl.StdCtrls,'))
+        self.assertIn('total: 0', self.checker('needsunit'))
+
     def test_rtl_rect_uses_left_top_and_gdiplus_rect_uses_xy(self):
         source = self.source('src/Rectangles.pas', """unit Rectangles;
 interface

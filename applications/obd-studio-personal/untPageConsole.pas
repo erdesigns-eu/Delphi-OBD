@@ -15,6 +15,7 @@ uses
   System.IOUtils,
   Vcl.Controls,
   Vcl.Forms,
+  Vcl.StdCtrls,
   Vcl.Dialogs,
   ERD.I18n,
   ERD.UI.Paint,
