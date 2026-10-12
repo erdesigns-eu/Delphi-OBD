@@ -303,6 +303,33 @@ end.
                           .replace('FDialog.FB := 1;', 'FDialog.OnApply(nil);'))
         self.assertIn('total: 0', self.checker('visibility'))
 
+    def test_property_field_must_have_the_property_type(self):
+        source = self.source('src/Step.pas', """unit Step;
+interface
+uses System.Classes;
+type
+  TStep = class(TCollectionItem)
+  strict private
+    FLines: TStringList;
+    FName: UnicodeString;
+    FCount: Longint;
+    function GetLines: TStrings;
+  published
+    property Lines: TStrings read FLines;
+    property Name: string read FName write FName;
+    property Count: Integer read FCount write FCount;
+  end;
+implementation
+function TStep.GetLines: TStrings;
+begin
+  Result := FLines;
+end;
+end.
+""")
+        self.assertIn('total: 1', self.checker('proptype'))
+        source.write_text(source.read_text().replace('read FLines;', 'read GetLines;'))
+        self.assertIn('total: 0', self.checker('proptype'))
+
     def test_event_returning_getter_must_be_invoked_for_event_assignment(self):
         source = self.source('src/Events.pas', """unit Events;
 interface

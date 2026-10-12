@@ -60,6 +60,7 @@ type
     FActionCaption: string;
     procedure SetCaption(const AValue: string);
     procedure SetTitle(const AValue: string);
+    function GetInstructions: TStrings;
     procedure SetInstructions(AValue: TStrings);
     procedure SetPictureCaption(const AValue: string);
     procedure SetGlyph(AValue: TOBDGlyph);
@@ -87,7 +88,7 @@ type
     /// <summary>Heading of the current step.</summary>
     property Title: string read FTitle write SetTitle;
     /// <summary>Numbered instruction lines wrapped in the body.</summary>
-    property Instructions: TStrings read FInstructions write SetInstructions;
+    property Instructions: TStrings read GetInstructions write SetInstructions;
     /// <summary>Caption displayed under the optional picture.</summary>
     property PictureCaption: string read FPictureCaption write SetPictureCaption;
     /// <summary>Built-in glyph used by the step illustration placeholder.</summary>
@@ -428,6 +429,11 @@ begin
     Exit;
   FGlyph := AValue;
   DoChanged;
+end;
+
+function TOBDProcedureStep.GetInstructions: TStrings;
+begin
+  Result := FInstructions;
 end;
 
 procedure TOBDProcedureStep.SetInstructions(AValue: TStrings);

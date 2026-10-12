@@ -112,6 +112,7 @@ compilation or hardware tests.
 | `promote` | a promoted property no ancestor declares (E2147) |
 | `queuedfield` | a `TThread.Queue` closure reading a field its caller was handed as a parameter: two calls in one turn of the message pump deliver the second value twice and the first not at all |
 | `propfield` | a property reading or writing through a field that is a class |
+| `proptype` | a property reading or writing a field of another type, such as a `TStrings` property over a `TStringList` field (E2010) |
 | `rtl` | a `System.IOUtils.TPath` member the RTL does not have |
 | `rtlshadow` | a unit-level routine shadowing an RTL one it can reach |
 | `shadow` | a field hiding an enumeration value the same unit reads |
