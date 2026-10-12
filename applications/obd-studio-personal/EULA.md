@@ -105,18 +105,13 @@ doubt, have the vehicle checked by a qualified professional.
 
 ## 9. Privacy
 
-The Software works offline and stores your vehicles, recordings and
-settings on your computer. It does not need an account and does not show
-adverts. The online functions are optional and can be switched off under
-**Settings › Privacy**:
+The Software works offline. It stores your vehicles, recordings,
+settings and crash logs on your computer and does not send them, or any
+other data, to ERDesigns or anyone else. It does not need an account and
+does not show adverts. The VIN is decoded on your computer.
 
-- **Online VIN lookup** sends the VIN to the NHTSA vPIC service.
-- **Check for updates** sends the Software version to ERDesigns.
-- **Anonymous crash reports** are sent to ERDesigns only if you switch
-  them on.
-
-The privacy notice that comes with the Software describes these functions
-in full.
+**Get updates** under **Settings** only opens the ERDesigns download page
+in your web browser; the Software itself does not check for updates.
 
 ## 10. Updates and changes to this Licence
 

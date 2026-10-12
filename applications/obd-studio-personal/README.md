@@ -32,7 +32,7 @@ next (see [Roadmap](#roadmap)). There is no application code yet.
 - [Europe](#europe)
 - [Licence acceptance](#licence-acceptance)
 - [Roadmap](#roadmap)
-- [Open decisions](#open-decisions)
+- [Decisions](#decisions)
 
 ## Feature parity with OBD Auto Doctor
 
@@ -97,12 +97,11 @@ Features that OBD Auto Doctor does not offer, or offers in a simpler form:
 | Inspection check: "would this car pass the APK, keuring, HU/AU, CT, MOT or NCT readiness check?" | Readiness, Overview | Inspection-rules catalogue (new) |
 | Drive-cycle advisor: how to drive to complete the unfinished monitors | Readiness | `TOBDDriveCycleAdvisor`, `drive-cycle-generic.json` |
 | Offline VIN decoder: maker, plant, model year and vPIC model rules without internet | Vehicle info | `TOBDVINCatalog`, `TOBDVINInspector`, `catalogs/vin` |
-| Optional online VIN lookup (NHTSA vPIC) | Vehicle info | Application work (HTTPS request) |
 | Dashboard editor: choose gauges, values and layout | Dashboard (edit) | `TOBDDashboard`, `TOBDPidPicker` |
 | Recording and replay of a session, including the raw adapter log | Recordings | `TOBDRecorder`, `TOBDReplayer`, `TOBDReplayBar`, `TOBDLogViewer` |
 | Trip fuel cost and CO₂ | Fuel economy | `TOBDFuelEconomyMeter`, `TOBDEmissionsEstimator` |
 | Performance: drag runs with splits (for example ¼ mile), estimated power curve | Performance | `TOBDDragRun`, `TOBDDynoCalculator`, `TOBDPowerCurve` |
-| Lap timer | Performance | `TOBDLapTimer` (needs GPS, see [Open decisions](#open-decisions)) |
+| Saved runs with CSV export | Performance | `TOBDDragRun`, CSV logger (new) |
 | UDS failure-type bytes on J1979-2 cars (for example P0101-1C) | Trouble codes (UDS view) | `TOBDWWHOBD` |
 | EV battery health: state of health, cell voltages, temperatures | EV battery | `TOBDEVBattery`, `TOBDCellMatrix`, `catalogs/ev-battery` |
 | Light and dark themes, desktop and tablet density | All | `TOBDTheme` |
@@ -112,6 +111,10 @@ Features that OBD Auto Doctor does not offer, or offers in a simpler form:
 
 - **Reports.** Later, through the ERDesigns cloud reporting service.
 - **G-meter.** Dropped for now; `TOBDGMeter` exists, so it can come back.
+- **Lap timer.** Needs a GPS source; left out for now.
+- **Online functions.** Personal works offline: no online VIN lookup, no
+  automatic update check and no crash reports sent anywhere.
+  **Get updates** in Settings opens the download page in the browser.
 - **Professional features.** UDS and KWP coding, flashing, key adaptation,
   radio codes, actuator tests other than Mode 08, J1939 trucks and
   workshop use belong to OBD-Studio Professional.
@@ -136,11 +139,11 @@ each in light and dark, desktop and tablet.
 | Monitor tests | `personal-tests` | Mode 06 results, Mode 05 and Mode 08 tabs, in-use performance |
 | Vehicle info | `personal-vehicle-info` | VIN decoder, ECU list, calibration IDs and CVNs |
 | Fuel economy | `personal-fuel` | Trip consumption, cost and CO₂ |
-| Performance | `personal-performance` | Acceleration runs, power curve and lap timer |
+| Performance | `personal-performance` | Acceleration runs, power curve and saved runs |
 | EV battery | `personal-ev-battery` | State of health and cell voltages |
 | Recordings | `personal-recordings` | Saved sessions, replay and CSV export |
 | Console | `personal-console` | Adapter commands and responses |
-| Settings | `personal-settings` | Language, theme, density, units, inspection country, privacy, licence |
+| Settings | `personal-settings` | Language, theme, density, units, inspection country, local logs, licence |
 
 Render them with `cd tools && python3 ui_mockups.py --only personal-NAME`.
 
@@ -177,9 +180,9 @@ Part of the catalogue data comes from open sources with their own licences
 | J1939-Framework, decoda | MIT | J1939 (not used by Personal) |
 | vininfo | BSD-3-Clause | WMIs |
 
-The application itself is proprietary. Shipping GPL and CC BY-SA data with
-it needs a decision ([Open decisions](#open-decisions)), ideally with legal
-advice. Whatever the decision, the application will:
+The application itself is proprietary. All of this data is included for
+now; how the GPL and CC BY-SA data ships is settled before the release
+(see [Decisions](#decisions)). In any case the application will:
 
 - ship the catalogues as separate data files, not compiled into the
   executable;
@@ -263,14 +266,16 @@ J1979-2 and EV.
 
 **Step 5 – Release.**
 
-## Open decisions
+## Decisions
 
-| # | Question | Assumed for now |
+Agreed on 12 October 2026:
+
+| # | Question | Decision |
 |---|---|---|
-| 1 | How to handle the GPL-2.0+ and CC BY-SA 4.0 catalogue data: ship it as separate files with notices, replace it with our own texts, or ask the authors for permission | Separate files with notices; get legal advice |
-| 2 | How many manufacturer code texts are needed before the release | Main European brands first |
-| 3 | GPS for the lap timer: GPS receiver (NMEA over COM), Windows location, or leave the lap timer out | Mocked with a "Needs GPS" chip |
-| 4 | Installer technology | Inno Setup |
-| 5 | Ship the tablet density in the first release | Mocked; decide after building the desktop layout |
-| 6 | Online VIN lookup: NHTSA vPIC is US-centred; keep it as an option next to the offline decoder | Optional, with a switch under Settings › Privacy |
-| 7 | Crash reports and update checks: which service receives them, and the privacy notice that describes them | Crash reports off by default |
+| 1 | GPL-2.0+ and CC BY-SA 4.0 catalogue data | Include all of it now; how it ships is settled before the release |
+| 2 | How many manufacturer code texts | As many as possible, from open sources with the source on every entry |
+| 3 | Lap timer and GPS | Left out for now |
+| 4 | Installer | Inno Setup |
+| 5 | Tablet density | Both densities in the first release |
+| 6 | Online VIN lookup | Local only: the offline decoder, no online lookup |
+| 7 | Crash reports and update checks | Local only: crash logs stay on the PC, no automatic update check; **Get updates** opens the download page in the browser |

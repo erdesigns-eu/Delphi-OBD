@@ -673,7 +673,8 @@ a `-tablet` variant.
 | Sample cars | A VW Golf VII 1.6 TDI (2016, with EGR and DPF codes) and, on the EV page, a Hyundai Kona Electric. Values agree between pages. |
 | Unsupported functions | Shown greyed out with the reason, not hidden (for example Mode 05 on a CAN car). |
 | Inspection rules | Labelled "Example rules" until each country's rules are checked against the official source. |
-| Lap timer | Shown with a *Needs GPS* chip; the GPS source is an open decision. |
+| Lap timer | Left out: the performance page shows drag runs, the power estimate and saved runs. |
+| Privacy | Local only: no online VIN lookup, no automatic update check, crash logs stay on the PC. |
 | Licence | Accepted in the installer and again in the first-start wizard. |
 
 ### Screens
@@ -691,13 +692,13 @@ a `-tablet` variant.
 | `personal-dashboard` | Dial and bar gauges with peaks, and value tiles. |
 | `personal-dashboard-edit` | Dashboard editor: widget list, drop target and the settings of the selected widget. |
 | `personal-tests` | Mode 06 results by monitor (catalogue MIDs) with limits, Mode 05 and Mode 08 tabs (greyed when the car does not support them) and in-use performance tracking. |
-| `personal-vehicle-info` | VIN decoded offline (WMI, plant, vPIC model rules) with an optional online lookup; control units with calibration IDs, CVNs and the type-approval number. |
+| `personal-vehicle-info` | VIN decoded on the PC (WMI, plant, model rules) plus engine data the car reports; control units with calibration IDs, CVNs and the type-approval number. |
 | `personal-fuel` | Live and trip consumption, cost and CO₂, how it is measured, and a trip list. |
-| `personal-performance` | Drag run with splits, power estimate and a GPS lap timer (flagged: needs GPS). |
+| `personal-performance` | Drag run with splits, power estimate, saved runs with CSV export and the power-estimate set-up. |
 | `personal-ev-battery` | State of health, pack values and cell voltages per module (Hyundai Kona Electric, 98 cells). |
 | `personal-recordings` | Saved sessions with replay, the adapter log and CSV export. |
 | `personal-console` | Adapter console with quick commands and the adapter log settings. |
-| `personal-settings` | Language, appearance, units, inspection country, privacy switches, and the licence and third-party notices. |
+| `personal-settings` | Language, appearance, units, inspection country, local privacy options (crash and connection logs), and the licence and third-party notices. |
 
 | Light | Dark |
 |---|---|

@@ -481,8 +481,8 @@ LICENCE_TEXT = [
      'Do not operate the software while driving. Performance tools are for '
      'closed tracks only. Clearing trouble codes does not repair the car.'),
     ('4. Privacy',
-     'OBD-Studio works offline. The online VIN lookup (NHTSA vPIC) and the '
-     'update check are optional; switch them off in Settings › Privacy.'),
+     'OBD-Studio works offline and sends nothing over the internet. Your '
+     'vehicles, recordings and crash logs stay on this PC.'),
     ('5. No warranty',
      'The software is provided as is, without warranty of any kind.'),
 ]
@@ -1726,10 +1726,10 @@ VIN_OFFLINE = [('Manufacturer', 'Volkswagen AG'),
                ('Serial number', '123456'),
                ('Check digit', 'Not used in Europe')]
 
-VIN_ONLINE = [('Make', 'VOLKSWAGEN', 'ok'),
-              ('Model', 'Not listed', 'off'),
-              ('Engine', 'Not listed', 'off'),
-              ('Body class', 'Not listed', 'off')]
+VIN_EQUIPMENT = [('Engine code', 'CXXB · 1.6 TDI 81 kW'),
+                 ('Emission standard', 'Euro 6'),
+                 ('Fuel', 'Diesel'),
+                 ('Body', 'Hatchback, 5 doors')]
 
 
 def ecu_card(c, x, y, w):
@@ -1760,7 +1760,7 @@ def vin_card(c, x, y, w):
     p, dn = c.p, c.dn
     rh = 28
     h = (dn['head'] + 76 + dn['colhead'] + 8 + len(VIN_OFFLINE) * rh + 8 +
-         dn['colhead'] + dn['row'] + len(VIN_ONLINE) * rh + 8 + 44)
+         dn['colhead'] + 8 + len(VIN_EQUIPMENT) * rh + 8 + 44)
     card(c, x, y, w, h)
     ry = card_head(c, x, y, w, 'VIN decoder', 'vin')
     vx = x + 16
@@ -1775,27 +1775,20 @@ def vin_card(c, x, y, w):
         c.caps(vx + max(pw, cw) / 2, vy + 28, cap, anchor='mm')
         vx += max(pw, cw) + 10
     ry += 76
-    ry = caps_line(c, x, ry, w, 'Offline', 'WMI · plants · vPIC model rules')
+    ry = caps_line(c, x, ry, w, 'From the VIN', 'WMI · plants · model rules')
     ry += 8
     for k, v in VIN_OFFLINE:
         kv_row(c, x + 16, ry + rh / 2, w - 32, k, v,
                colr=p.GaugeLabel if k == 'Check digit' else None)
         ry += rh
     ry += 8
-    ry = caps_line(c, x, ry, w, 'Online', 'optional')
-    mid = ry + dn['row'] / 2
-    switch(c, x + 16, mid, True, 'Look up at NHTSA vPIC')
-    chip(c, x + w - 16 - chip_w(c, 'PARTLY LISTED'), mid - 10,
-         'PARTLY LISTED', p.Warning)
-    ry += dn['row']
-    for k, v, st in VIN_ONLINE:
-        kv_row(c, x + 16, ry + rh / 2, w - 32, k, v,
-               colr=p.Subtle if st == 'off' else None,
-               weight='regular' if st == 'off' else 'semibold')
+    ry = caps_line(c, x, ry, w, 'From the car', 'mode 09 · engine data')
+    ry += 8
+    for k, v in VIN_EQUIPMENT:
+        kv_row(c, x + 16, ry + rh / 2, w - 32, k, v)
         ry += rh
-    note(c, x + 16, ry + 22, w - 32, 'Only the VIN is sent. vPIC lists cars '
-         'sold in the USA; most European models are only partly listed.',
-         icon='privacy')
+    note(c, x + 16, ry + 22, w - 32, 'Decoded on this PC from the built-in '
+         'catalogues. The VIN is never sent anywhere.', icon='privacy')
     return y + h
 
 
@@ -1917,70 +1910,46 @@ def draw_fuel(c):
 
 
 # --------------------------------------------------------------------------
-# Performance: acceleration runs, dyno estimate, GPS lap timer
+# Performance: acceleration runs, dyno estimate, saved runs
 # --------------------------------------------------------------------------
 
-LAPS = [('1', '1:42.81', '+1.74', 'Out lap'),
-        ('2', '1:41.07', 'best', ''),
-        ('3', '1:41.66', '+0.59', ''),
-        ('4', '0:58.20', '−0.24', 'running')]
+SAVED_RUNS = [('¼ mile', '12 Oct · 18:52', '17.62 s', '129 km/h', '+0.14'),
+              ('¼ mile', '12 Oct · 18:47', '17.48 s', '130 km/h', 'best'),
+              ('0–100 km/h', '12 Oct · 18:40', '8.41 s', '96 kW', 'best'),
+              ('80–120 km/h', '12 Oct · 18:36', '6.92 s', '94 kW', 'best'),
+              ('0–100 km/h', '10 Oct · 17:15', '8.66 s', '93 kW', '+0.25')]
 
 
-def track(c, x, y, w, h):
-    """Simple circuit outline with the car position."""
-    p = c.p
-    pts = [(0.10, 0.75), (0.10, 0.35), (0.22, 0.12), (0.45, 0.10),
-           (0.55, 0.30), (0.72, 0.18), (0.90, 0.25), (0.92, 0.55),
-           (0.70, 0.62), (0.60, 0.88), (0.30, 0.90), (0.10, 0.75)]
-    xy = [(x + a * w, y + b * h) for a, b in pts]
-    c.line(xy, p.NeutralLight, 9)
-    c.line(xy, p.NeutralDark, 2)
-    sx, sy = xy[0]
-    c.rect(sx - 8, sy - 1.5, 16, 3, fill=p.ForegroundText)
-    cx, cy = xy[6]
-    c.ellipse(cx - 7, cy - 7, 14, 14, fill=p.Accent, outline=p.GaugeFace,
-              width=2)
-
-
-def gps_lap_card(c, x, y, w, h):
+def saved_runs_card(c, x, y, w, h):
+    """Saved acceleration runs (TOBDDragRun results) with CSV export."""
     p, dn = c.p, c.dn
     card(c, x, y, w, h)
-    ry = card_head(c, x, y, w, 'Lap timer', 'location',
-                   chips=[('NEEDS GPS', p.Warning)])
-    tw = round(w * 0.42)
-    track(c, x + 16, ry + 16, tw - 16, h - (ry - y) - 72)
-    c.text(x + 16, y + h - 44, 'Zandvoort · 4.26 km', 12.5,
-           p.ForegroundText, 'semibold')
-    c.text(x + 16, y + h - 22, 'GPS 10 Hz · 11 satellites', 11.5,
-           p.GaugeLabel)
-    lx = x + tw + 16
-    lw = w - tw - 32
-    c.caps(lx, ry + 22, 'Current lap')
-    vw = c.text(lx, ry + 52, '0:58.20', 22, p.ForegroundText, 'bold')
-    c.text(lx + vw + 10, ry + 54, '−0.24', 14, p.Success, 'bold')
-    ty = colhead(c, lx - 8, ry + 76, lw + 16, [(lx, 'Lap'),
-                                               (lx + 48, 'Time'),
-                                               (lx + lw, 'vs best', 'rm')])
-    row = min(30, dn['row'] - 12)
-    for n, t, d, sub in LAPS:
+    ry = card_head(c, x, y, w, 'Saved runs', 'table',
+                   buttons=[('Export CSV', 'secondary', 'export')])
+    cols = [x + 16, x + round(w * 0.30), x + round(w * 0.56),
+            x + round(w * 0.74), x + w - 16]
+    ty = colhead(c, x, ry, w, [(cols[0], 'Run'), (cols[1], 'Date'),
+                               (cols[2], 'Result'), (cols[3], 'Peak'),
+                               (cols[4], 'vs best', 'rm')])
+    row = min(36, dn['row'] - 6)
+    for name, when, res, peak, d in SAVED_RUNS:
         mid = ty + row / 2
-        c.text(lx, mid, n, 12.5, p.GaugeLabel)
-        c.text(lx + 48, mid, t, 12.5, p.ForegroundText,
-               'bold' if d == 'best' else 'regular')
-        if sub:
-            c.text(lx + 128, mid, sub, 11.5, p.GaugeLabel)
-        colr = p.Success if d in ('best',) or d.startswith('−') else \
-            danger_ink(p)
-        c.text(lx + lw, mid, d, 12.5, colr, 'semibold', anchor='rm')
+        c.text(cols[0], mid, name, 12.5, p.ForegroundText, 'semibold')
+        c.text(cols[1], mid, when, 12.5, p.GaugeLabel)
+        c.text(cols[2], mid, res, 12.5, p.ForegroundText,
+               'bold' if d == 'best' else 'semibold')
+        c.text(cols[3], mid, peak, 12.5, p.GaugeLabel)
+        colr = p.Success if d == 'best' else danger_ink(p)
+        c.text(cols[4], mid, d, 12.5, colr, 'semibold', anchor='rm')
         ty += row
-        c.hline(lx - 8, ty - 1, lw + 16, p.NeutralLight)
+        c.hline(x + 1, ty - 1, w - 2, p.NeutralLight)
     return y + h
 
 
 def performance_page(c, x, y, w):
     dn = c.dn
-    y, _ = page_head(c, x, y, w, 'Performance', 'Acceleration runs, power '
-                     'estimate and lap times from OBD data',
+    y, _ = page_head(c, x, y, w, 'Performance', 'Acceleration runs and a '
+                     'power estimate from OBD data',
                      [('Runs', 'secondary', 'table'),
                       ('New run', 'primary', 'play')])
     y = wbanner(c, x, y, w, 'warning', 'Closed tracks only',
@@ -1994,7 +1963,7 @@ def performance_page(c, x, y, w):
     y += h + 16
     gw = round(w * 0.56)
     gh = 300 if c.density == 'desktop' else 330
-    gps_lap_card(c, x, y, gw, gh)
+    saved_runs_card(c, x, y, gw, gh)
     fx = x + gw + 16
     fw = w - gw - 16
     P.form_card(c, fx, y, fw, 'Power estimate set-up', 'calculator', [
@@ -2398,17 +2367,17 @@ def settings_page(c, x, y, w):
         ('Next inspection', '14 Mar 2027', 'edit')],
         note='Readiness is checked against these rules.')
     ry2 += 16
-    sw = [('Look up VINs online (NHTSA vPIC)', True),
-          ('Check for updates', True),
-          ('Send anonymous crash reports', False)]
+    sw = [('Keep crash logs on this PC', True),
+          ('Keep a connection log', False),
+          ('Remember recent vehicles', True)]
     ph = dn['head'] + dn['row'] * len(sw) + dn['foot']
     card(c, rx, ry2, cw, ph)
     yy = card_head(c, rx, ry2, cw, 'Privacy', 'privacy')
     for label, on in sw:
         switch(c, rx + 16, yy + dn['row'] / 2, on, label)
         yy += dn['row']
-    footer(c, rx, ry2, cw, ph, 'No account, no tracking. Your data stays '
-           'on this PC.')
+    footer(c, rx, ry2, cw, ph, 'Works offline. No account, no tracking; '
+           'nothing leaves this PC.')
     ry2 += ph + 16
     kv = [('Version', '1.0.0'),
           ('Licence', 'Free for personal use · v1.0'),
@@ -2422,7 +2391,7 @@ def settings_page(c, x, y, w):
         yy += 28
     bx = rx + 16
     by = ry2 + ah2 - 16 - dn['button']
-    for t in ('View licence', 'Third-party notices', 'Check for updates'):
+    for t in ('View licence', 'Third-party notices', 'Get updates'):
         bx += button(c, bx, by, t, 'secondary') + 8
     return max(ly, ry2 + ah2)
 
