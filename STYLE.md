@@ -5,12 +5,12 @@ package. The principle is **code-as-documentation**: a developer should be
 able to navigate the source and understand the system without reading any
 external documentation.
 
-External markdown (README, PLAN, CONTRIBUTING, this file, safety docs) covers
-disclaimers, quick-starts, the architectural plan, and policy. Everything
+External markdown (README, CONTRIBUTING, this file and `docs/`) covers
+disclaimers, quick-starts, architecture, safety and policy. Everything
 about behaviour, units, parameters, ranges, side-effects, lifetimes, and
 threading lives in the source.
 
-If a future contributor asks "where is X documented?", the answer should
+If a developer asks "where is X documented?", the answer should
 always be "in the source above the symbol that does X."
 
 ---
@@ -19,36 +19,40 @@ always be "in the source above the symbol that does X."
 
 Every `.pas` file begins with the header below. The template lives at
 [`src/HEADER.template.pas`](src/HEADER.template.pas). Fields in `<…>` are
-mandatory; copy the template and fill them in.
+mandatory; copy the template and fill them in. CI checks that the first line
+(after the UTF-8 BOM) is the `// ---…` marker.
 
 ```pascal
-//------------------------------------------------------------------------------
-//  <Unit name>
+// ------------------------------------------------------------------------------
+// <Unit name>
 //
-//  <One-line summary of what the unit does.>
+// <One-line summary of what the unit does.>
 //
-//  <Optional multi-line description: scope, important behaviours, references
-//   to specifications (e.g. "Implements ISO 15765-2 Network Layer Services").>
+// <Optional multi-line description: scope, important behaviours, references
+// to specifications (e.g. "Implements ISO 15765-2 Network Layer Services").>
 //
-//  Author      : Ernst Reidinga (ERDesigns)
-//  Co-authors  : <Name>, <Name>
-//  Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
-//  License     : MIT — see LICENSE
+// Author      : Ernst Reidinga (ERDesigns)
+// Co-authors  : <Name>, <Name>
+// Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+// License     : see LICENSE
 //
-//  References  :
-//    - <Spec / standard / source URL or DOI>
-//    - <…>
+// References  :
+// - <Spec / standard / source URL or DOI>
+// - <…>
 //
-//  History     :
-//    yyyy-mm-dd  <Initial>  <Short note>
-//    yyyy-mm-dd  <Initial>  <Short note>
+// History     :
+// yyyy-mm-dd  <Initial>  <Short note>
 //
-//  Future work :
-//    - <Planned addition or known gap>
-//------------------------------------------------------------------------------
+// Future work :
+// - <Planned addition or known gap>
+// ------------------------------------------------------------------------------
 
 unit ERD.<Layer>.<Detail>;
 ```
+
+The copyright holder is always Ernst Reidinga (ERDesigns). `Co-authors` names
+people who wrote substantial parts of the unit; remove the line when there are
+none.
 
 The `History` block is append-only; do not rewrite or rebase it. Use it to
 track behavioural changes that future readers need to know about. Trivial
@@ -88,9 +92,7 @@ Specifics:
   surface these directly.
 - **First sentence** is a single line that ends with a period. The IDE
   shows just this in tooltips.
-- **`<param>`** for every parameter. Even self-evident ones. The
-  CI hygiene job rejects PRs whose public methods are missing parameter
-  docs.
+- **`<param>`** for every parameter. Even self-evident ones.
 - **`<returns>`** for every function (not procedures).
 - **`<remarks>`** for behavioural caveats: threading, blocking, side
   effects, ownership, exceptions raised, units of measure.
@@ -275,9 +277,8 @@ Do not pepper the codebase with these. The default code path must work on
 - **Every public method that can take more than a few milliseconds
   ships in two forms.** A synchronous `Foo` that blocks until done, and
   a non-blocking `FooAsync` that returns immediately and reports via
-  events. See [`PLAN.md` §3.7](PLAN.md) for the full contract,
-  cancellation rules, in-flight policy, and the table of methods this
-  applies to.
+  events. See [`docs/architecture.md`](docs/architecture.md) for the
+  full contract, cancellation rules and in-flight policy.
 - **All events fire on the main thread.** Use `TThread.Queue` (not
   `Synchronize`) from worker threads. There is no opt-out.
 - **No `Application.ProcessMessages`.** Ever.
@@ -316,7 +317,7 @@ procedure ReadVINAsync;
   transfer progress to ~10 Hz. Fires on the main thread on the host
   component. Document the specific phase sequence in the component's
   XMLDoc on `OnProgress` so consumers know what to expect. See
-  [`PLAN.md` §3.7](PLAN.md) for the full contract.
+  [`docs/architecture.md`](docs/architecture.md) for the full contract.
 
 ---
 
@@ -347,13 +348,12 @@ procedure ReadVINAsync;
 
 ## 9. UI framework boundary
 
-- `src/Core`, `src/Connection`, `src/Adapter`, `src/Protocol`,
-  `src/Services` — **no `Vcl.*`, no `FMX.*`**. CI fails the build if
-  these strings appear.
-- `src/DesignTime` is the only place VCL is allowed (the IDE itself is
-  VCL).
-- Example applications may use VCL or FMX as appropriate per
-  example.
+- `Vcl.*` is allowed only in `src/UI` (the visual components) and
+  `src/DesignTime` (the IDE itself is VCL). Every other folder is
+  non-visual and must also compile with Free Pascal.
+- `FMX.*` is not allowed anywhere: FireMonkey is out of scope.
+- CI enforces both rules (`tools/pascalcheck/check_runtime.py`).
+- The example applications in `examples/` are VCL applications.
 
 ---
 
@@ -361,8 +361,9 @@ procedure ReadVINAsync;
 
 - One `Tests.<unit>.pas` per source unit where possible.
 - DUnitX `[TestFixture]` / `[Test]` attributes.
-- Capture-driven for protocol-shaped inputs: store binary fixtures under
-  `tests/fixtures/`, load them in `Setup`.
+- Capture-driven for protocol-shaped inputs: use recorded or synthesised
+  frames as test data (`TOBDReplayer`, the mock connection and protocol in
+  `src/Connection` and `src/Recorder`), never a live ECU.
 - One assertion per concept. Multiple assertions per test method are fine
   if they verify the same concept.
 - Tests are public symbols too — XMLDoc the fixture class and any non-
@@ -388,8 +389,8 @@ in CI.
 If a reviewer asks "where is the doc for this?" and the answer is "I'll
 add it," the change is incomplete. Doc lives in the same PR as the code.
 
-If reading the source from top to bottom does not tell the next contributor
-what they need to know, the source is wrong, not the next contributor.
+If reading the source from top to bottom does not tell the next developer
+what they need to know, the source is wrong, not the next developer.
 
 Delphi IDE `.dproj` files and package `.dpk` files use UTF-8 BOM and CRLF on
 checkout, enforced by `.gitattributes`. Pascal `.pas`, `.dpr`, `.inc`, VCL `.dfm`

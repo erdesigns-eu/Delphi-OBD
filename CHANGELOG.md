@@ -2,6 +2,20 @@
 
 ## 3.0.0-alpha.0
 
+### Licensing
+
+Delphi-OBD is now proprietary software of ERDesigns. The MIT License is
+replaced by the Delphi-OBD Proprietary License (`LICENSE`): use requires a
+licence agreement with ERDesigns, and licensees may distribute the run-time
+parts royalty-free inside their own compiled applications. Copies of earlier
+versions that were obtained under an open-source licence remain governed by
+that licence.
+
+The README, the development guide (`CONTRIBUTING.md`), `STYLE.md` and the
+documents in `docs/` are brought up to date with the code: every registered
+component is in `docs/components.md`, and the outdated component index
+(`docs/components/README.md`) and design-package comparison are removed.
+
 ### OBD Dashboard
 
 A themed VCL control set for workshop dashboards, on the
@@ -235,7 +249,7 @@ the **OBD Dyno** page.
 
 ### Design time
 
-- 174 registered components.
+- 225 registered components on 14 palette pages.
 - Palette icons are generated in the ERDesigns colours by
   `tools/designtime_icons.py` and compiled into
   `src/DesignTime/ERD.Design.Icons.res` by

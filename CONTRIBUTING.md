@@ -1,85 +1,130 @@
-# Contributing to Delphi-OBD
+# Developing Delphi-OBD
 
-Thanks for considering a contribution. This document covers how to work with
-the codebase. The code style is in [`STYLE.md`](STYLE.md). Read both before opening a PR.
+Delphi-OBD is proprietary software developed and maintained by ERDesigns (see
+[`LICENSE`](LICENSE)). The repository is private and does not accept outside
+contributions or unsolicited pull requests. This guide is for ERDesigns and for
+developers who work on the code under a written agreement with ERDesigns.
+
+Read [`STYLE.md`](STYLE.md) for the code conventions.
 
 ## Ground rules
 
 1. **Code-as-documentation.** Every unit, class, method, property, event,
-   record, and interface is XMLDoc'd in the source. External markdown is
-   reserved for disclaimers, quick-starts, and policy. If you add a public
-   surface, document it in the source.
-2. **No CLA.** This project is MIT licensed; contributions are accepted under
-   the same license (inbound = outbound). You retain copyright on your
-   contributions.
-3. **Sign-off optional.** A `Signed-off-by:` trailer on commits is appreciated
-   but not required.
+   record and interface carries XMLDoc in the source. Markdown under `docs/`
+   is for cross-cutting topics only. A new public surface must be documented
+   in the source.
+2. **Ownership.** Work on the code is done for ERDesigns. Unless a written
+   agreement says otherwise, ERDesigns must hold all rights in every change,
+   so that it can be shipped under the Delphi-OBD licence. Do not copy code
+   or data from sources whose licence does not allow that.
+3. **Confidentiality.** Do not publish the source, packages, catalogue data
+   or documentation, and do not paste them into public services.
+4. **Third-party material.** Cite the public source for every algorithm or
+   data set in the unit header (`References`) or in the catalogue file, and
+   check that its licence allows use in a commercial product.
 
-## Branching and commits
+## Branches and commits
 
-- `main` — active development. Do not commit here directly; PR into it.
-- Feature branches off `main`: `main/phase-N-shortname`
-  (e.g. `main/phase-2-connection`).
+- `main` is the integration branch. Work on a short-lived feature branch and
+  merge it through a pull request.
 - Conventional commit subjects: `feat:`, `fix:`, `docs:`, `test:`,
   `refactor:`, `chore:`. Imperative mood, no trailing period.
 - Squash-merge into `main` is the default. Keep the squashed message clean.
 
 ## Pull requests
 
-1. Open against `main`.
-2. CI must be green.
-3. Every public symbol you add or change must have current XMLDoc.
-4. Tests for new behaviour. DUnitX. Capture-driven where the input is a wire
-   format (see `tests/fixtures/`).
-5. Link the issue if there is one.
+1. Open against `main` and fill in the pull-request template.
+2. The CI checks must be green.
+3. Every public symbol you add or change has current XMLDoc.
+4. New behaviour has DUnitX tests in `tests/`. Where the input is a wire
+   format, use recorded or synthesised frames (`TOBDReplayer`, the mock
+   connection and protocol), never a live ECU.
+5. Add an entry to [`CHANGELOG.md`](CHANGELOG.md).
+6. Update the documentation that the change affects (see below).
 
-## Filing issues
+## Adding a component
 
-- Use the bug or feature template.
-- For bugs: include Delphi version, OS, adapter (chip + firmware), and
-  ideally a `.obdlog` capture from `TOBDRecorder`.
-- For security issues affecting flashing or signature verification: do
-  **not** open a public issue — email the maintainer
-  (address in the package About box once Phase 11 lands).
+A new component needs all of the following (the repository tests check most
+of them):
 
-## Catalogue contributions
+- the unit in both `packages/DelphiOBD_RT.dpk` / `.dproj` and
+  `packages/DelphiOBD_DT.dpk` / `.dproj`, and in `tests/DelphiOBD_Tests.dpr` /
+  `.dproj`;
+- a `RegisterComponents` entry in `src/DesignTime/ERD.Design.Registration.pas`;
+- a palette icon: add it to `DESIGNS` in `tools/designtime_icons.py`, then run
+  `python3 tools/designtime_icons.py --write` and
+  `python3 tools/designtime_resources.py --write`;
+- the registered component count in `tools/test_repository_tools.py`;
+- an entry in [`docs/components.md`](docs/components.md) and, if the page
+  count changes, in the palette table of [`README.md`](README.md).
 
-Adding a PID, DTC, DID, J1939 PGN, or any other catalogue entry:
+Visual components follow `TOBDTheme` and its `Density` setting, and are built
+from the small themed controls on the OBD Studio page. Make a mockup first
+(`tools/ui_mockups.py`, see [`docs/mockups/README.md`](docs/mockups/README.md)).
 
-- Edit the JSON file under `catalogs/`.
-- Schema is in `catalogs/_schema/`; loader will reject malformed entries
-  with a clear error pointing to the offending file:line.
-- No Pascal recompile required.
-- One catalogue PR per logical group (e.g. "add Mode 06 MIDs for diesel
-  particulate filter monitor").
+## Catalogue data
 
-## OEM extension contributions
+Adding a PID, DTC, DID, J1939 PGN or any other catalogue entry:
 
-OEM-specific decoders go in `catalogs/oem/<vendor>/` and use the OEM
-extension registry. Per-vendor coding components (`TOBDCodingVAG`,
-`TOBDCodingBMW`, …) live in `src/Coding/`. See `ERD.OEM.Registry.pas` for
-the registration pattern once Phase 6 lands.
+- Edit the JSON file under `catalogs/`. The schemas are in
+  `catalogs/_schema/`; the loader rejects malformed entries with an error
+  pointing at the file.
+- No recompile is needed.
+- Run `python3 tools/validate_catalogs.py --require-coverage`.
+- Keep one logical group per change (for example "add Mode 06 MIDs for the
+  diesel particulate filter monitor").
 
-## Local development
+See [`docs/catalogs.md`](docs/catalogs.md) for the layout and the formats.
 
-For Delphi, use the tracked `.dproj` files and the commands in
-[the Delphi validation checklist](docs/delphi-validation.md). Build RT,
-then DT, then run DUnitX from the repository root. VCL is the only UI target.
+## OEM extensions
 
-For Python checks and FPC, see [tools/README.md](tools/README.md).
-CI currently runs static analysis, catalogue schemas and both FPC profiles.
-Delphi builds remain disabled until a configured Windows runner is available;
-coverage tooling is not bundled. Report checks that were not run explicitly.
+OEM-specific data lives in `catalogs/oem/<vendor>/` and the vendor's
+`dtc-<oem>.json` / `<oem>.json` files. Vendor extensions implement
+`IOBDOEMExtension` (`ERD.OEM.Extensions`) and register themselves at unit
+initialisation with `TOBDOEMRegistry.RegisterExtension`; see `src/OEM/` for
+examples. Per-vendor coding helpers (`TOBDCodingVAG`, `TOBDCodingBMW`, …) live
+in `src/Coding/`.
+
+## Local checks
+
+For Delphi, use the tracked `.dproj` files and
+[the Delphi validation checklist](docs/delphi-validation.md)
+(`tools/validate_delphi.ps1` builds the packages and runs DUnitX). VCL is the
+only UI target.
+
+The Python checks need no Delphi and run on any machine (see
+[`tools/README.md`](tools/README.md)):
+
+```sh
+python3 -m unittest discover -s tools -p 'test_*.py' -v
+python3 tools/pascalcheck/run.py -v
+python3 tools/validate_delphi_projects.py
+python3 tools/validate_catalogs.py --require-coverage
+```
+
+CI runs the repository hygiene checks, these Python checks, the generated-file
+checks and both FPC profiles. The Delphi build job stays disabled until a
+Windows runner with RAD Studio is available, so build and test in Delphi
+locally before merging, and say in the pull request which checks you ran.
 
 ## Hardware-affecting changes
 
-Any change touching `src/Flashing/`, `src/Coding/`, `src/Signature/`, or
-`ERD.UDS.WriteDID`, `ERD.UDS.WriteMemory`, `ERD.UDS.Transfer` requires:
+Any change to `src/Flashing/`, `src/Coding/`, the key-adaptation units in
+`src/OEM/`, or `ERD.UDS.WriteDID`, `ERD.UDS.WriteMemory` or `ERD.UDS.Transfer`
+requires:
 
-- An issue describing the change and the test plan.
-- Tests against captured fixtures (no real-ECU dependency in CI).
-- A note on the PR confirming that bench testing was performed and what
-  vehicle/ECU was used.
+- a description of the change and the test plan;
+- tests against captured data (no real-ECU dependency in CI);
+- a note in the pull request that bench testing was done, and on which
+  vehicle / ECU.
 
-Brick risk is real; care here is non-negotiable.
-ßß
+Keep `AutoExecute = False` as the default for anything that writes to a
+vehicle. Brick risk is real; care here is non-negotiable. See
+[`docs/flashing-safety.md`](docs/flashing-safety.md).
+
+## Reporting problems
+
+Report bugs with the Delphi version, OS, adapter (chip + firmware) and, ideally,
+a `.obdlog` capture from `TOBDRecorder`. Report security issues, especially in
+flashing or signature verification, privately to ERDesigns at
+[info@erdesigns.eu](mailto:info@erdesigns.eu).

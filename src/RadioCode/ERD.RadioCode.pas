@@ -69,7 +69,7 @@ type
   ///
   /// <para>Many production radio-code algorithms are
   /// proprietary / licensed and are NOT bundled with this
-  /// open-source distribution. For those vendors, the default
+  /// distribution. For those vendors, the default
   /// <c>DoCalculate</c> fires the <c>OnCalculate</c> event so the
   /// host can supply the algorithm (their own implementation, a
   /// licensed code-service call, or a network round-trip). If
@@ -357,7 +357,7 @@ begin
   begin
     Result.Success := False;
     Result.Message :=
-      Format('Algorithm for "%s" is not bundled in this open-source ' +
+      Format('Algorithm for "%s" is not bundled in this ' +
       'distribution. Wire OnCalculate to supply your own ' +
       '(reverse-engineered, licensed, or network-service) ' + 'implementation.',
       [DisplayName]);

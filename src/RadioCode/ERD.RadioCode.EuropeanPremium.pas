@@ -17,7 +17,7 @@
 // TOBDRadioCodeSmart         Smart (Mercedes, alphanumeric)
 //
 // IMPORTANT: production radio-code algorithms for these vendors
-// are proprietary and licensed; this open-source distribution
+// are proprietary and licensed; this distribution
 // does NOT bundle them. Each component validates the input
 // shape (length / prefix / character set per vendor) and then
 // fires <c>OnCalculate</c> for the host to supply the
