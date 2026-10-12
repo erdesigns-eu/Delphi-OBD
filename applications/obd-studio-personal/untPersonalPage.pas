@@ -44,6 +44,7 @@ const
   PAGE_DASHBOARD   = 'dashboard';
   PAGE_TESTS       = 'tests';
   PAGE_INFO        = 'info';
+  PAGE_VEHICLES    = 'vehicles';
   PAGE_FUEL        = 'fuel';
   PAGE_PERFORMANCE = 'performance';
   PAGE_EV          = 'ev';
