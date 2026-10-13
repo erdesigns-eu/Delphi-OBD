@@ -1,8 +1,9 @@
 ﻿program ERDComponentsSmoke;
 {$APPTYPE CONSOLE}
 uses
-  System.SysUtils, System.Classes, System.Types, Vcl.Forms, Vcl.Controls,
+  System.SysUtils, System.Classes, System.Types, System.Math, Vcl.Forms, Vcl.Controls,
   Winapi.Windows, Vcl.StdCtrls, Vcl.Graphics, Vcl.ImgList,
+  ERD.Components.TimePicker,
   ERD.Components.CheckListBox,
   ERD.Components.ScrollBar, ERD.Components.KeyValueList,
   ERD.Components.CommonControls, ERD.Components.MediaControls, ERD.Components.TrackBar,
@@ -13,6 +14,12 @@ uses
   Showcase in '../demo/Showcase.pas',
   ERD.Components.SpinEdit, ERD.Components.Edits, ERD.Components.PopupList, ERD.Components.TitleBar, ERD.Components.StatusBar, ERD.Components.Theme, ERD.Components.Ribbon;
 type
+  TTimeProbe = class(TERDTimePicker)
+  public
+    procedure TypeText(const Value: string);
+    procedure PressKey(Value: Word);
+    procedure ClickAt(X, Y: Integer);
+  end;
   TCheckListProbe = class(TERDCheckListBox)
   public
     procedure PressAt(X, Y: Integer);
@@ -44,6 +51,22 @@ type
     procedure Changed(Sender: TObject);
   end;
 var Checks: Integer;
+procedure TTimeProbe.TypeText(const Value: string);
+var I: Integer; Key: Char;
+begin
+  for I := 1 to Length(Value) do
+  begin Key := Value[I]; KeyPress(Key) end;
+end;
+procedure TTimeProbe.PressKey(Value: Word);
+begin
+  KeyDown(Value, []);
+end;
+procedure TTimeProbe.ClickAt(X, Y: Integer);
+begin
+  MouseDown(mbLeft, [], X, Y);
+  MouseUp(mbLeft, [], X, Y);
+end;
+
 procedure TCheckListProbe.PressAt(X, Y: Integer);
 begin
   MouseDown(mbLeft, [], X, Y);
@@ -674,6 +697,150 @@ begin
   end;
 end;
 
+procedure TestTimePicker;
+var Form: TForm; Picker: TTimeProbe; Stored, Copy: TERDTimePicker;
+  Counter: TChangeProbe; Bitmap: TBitmap; Stream: TMemoryStream;
+  Theme: TERDTheme; Mode: TERDThemeMode; R: TRect;
+  SavedFormat: TFormatSettings; I: Integer; Rejected: Boolean;
+  procedure CheckTime(Hour, Minute, Second, Millisecond: Word; const MessageText: string);
+  var H, M, S, MS: Word;
+  begin
+    DecodeTime(Picker.Time, H, M, S, MS);
+    Check((H = Hour) and (M = Minute) and (S = Second) and (MS = Millisecond), MessageText);
+  end;
+begin
+  RegisterClass(TERDTimePicker);
+  SavedFormat := FormatSettings;
+  Form := TForm.CreateNew(nil);
+  Counter := TChangeProbe.Create;
+  Bitmap := TBitmap.Create;
+  Stream := TMemoryStream.Create;
+  try
+    Stored := TERDTimePicker.Create(nil);
+    try
+      Stored.Time := EncodeTime(13, 30, 45, 321);
+      Stored.TimeFormat := tf12Hour;
+      Stored.ShowSeconds := True;
+      Stored.ShowSpinButtons := False;
+      Stored.ReadOnly := True;
+      Stored.RenderTo(Bitmap);
+      Check(not Stored.HandleAllocated, 'TimePicker renders before parenting without creating a window');
+      Stream.WriteComponent(Stored);
+    finally Stored.Free end;
+    Stream.Position := 0;
+    Copy := TERDTimePicker(Stream.ReadComponent(nil));
+    try
+      Check(SameValue(Copy.Time, EncodeTime(13, 30, 45, 321)) and
+        (Copy.TimeFormat = tf12Hour) and Copy.ShowSeconds and not Copy.ShowSpinButtons and
+        Copy.ReadOnly, 'TimePicker DFM preserves time, format, seconds, spin buttons and readonly');
+    finally Copy.Free end;
+    Picker := TTimeProbe.Create(Form);
+    Picker.Parent := Form;
+    Picker.OnChange := Counter.Changed;
+    Check((Picker.Time = 0) and (Picker.TimeFormat = tf24Hour) and not Picker.ShowSeconds and
+      Picker.ShowSpinButtons and Picker.TabStop, 'TimePicker defaults');
+    Picker.Time := EncodeTime(23, 59, 45, 321);
+    I := Counter.Changes;
+    Picker.Time := Picker.Time;
+    Check(Counter.Changes = I, 'Unchanged time does not raise OnChange');
+    Picker.ActiveSegment := tsHour;
+    Picker.Step(1);
+    CheckTime(0, 59, 45, 321, 'Hour wraps without carrying into minutes');
+    Picker.Step(-1);
+    CheckTime(23, 59, 45, 321, 'Hour wraps backwards');
+    Picker.ActiveSegment := tsMinute;
+    Picker.Step(1);
+    CheckTime(23, 0, 45, 321, 'Minute wraps without changing hour or seconds');
+    Picker.ShowSeconds := True;
+    Picker.ActiveSegment := tsSecond;
+    Picker.Step(15);
+    CheckTime(23, 0, 0, 321, 'Second wraps and retains milliseconds');
+    Picker.ActiveSegment := tsHour;
+    Picker.TypeText('13');
+    Picker.TypeText('47');
+    Picker.TypeText('52');
+    CheckTime(13, 47, 52, 321, 'Digit input enters complete time through segments');
+    Picker.ActiveSegment := tsMinute;
+    Picker.PressKey(VK_HOME);
+    CheckTime(13, 0, 52, 321, 'Home selects minimum for active field');
+    Picker.PressKey(VK_END);
+    CheckTime(13, 59, 52, 321, 'End selects maximum for active field');
+    Picker.ActiveSegment := tsHour;
+    Picker.TypeText('29');
+    CheckTime(2, 59, 52, 321, 'Invalid second digit is rejected rather than creating hour 29');
+    Picker.TimeFormat := tf12Hour;
+    Picker.Time := EncodeTime(0, 15, 30, 0);
+    Picker.ActiveSegment := tsHour;
+    Picker.Step(1);
+    CheckTime(1, 15, 30, 0, '12-hour field wraps from 12 to 1 within AM');
+    Picker.ActiveSegment := tsPeriod;
+    Picker.TypeText('p');
+    CheckTime(13, 15, 30, 0, 'PM typing preserves minute and seconds');
+    Picker.Step(1);
+    CheckTime(1, 15, 30, 0, 'AM/PM stepping toggles by twelve hours');
+    FormatSettings.TimeSeparator := '.';
+    FormatSettings.TimeAMString := 'vorm';
+    FormatSettings.TimePMString := 'nam';
+    Check(Pos('01.15.30 vorm', Picker.DisplayText) = 1, 'Display respects locale separator and period labels');
+    Picker.TypeText('n');
+    CheckTime(13, 15, 30, 0, 'Locale period initial selects PM');
+    Picker.ShowSeconds := False;
+    Picker.ActiveSegment := tsSecond;
+    Check((Picker.ActiveSegment = tsMinute) and Picker.SegmentRect(tsSecond).IsEmpty,
+      'Hidden seconds cannot remain active or receive mouse hits');
+    Picker.ActiveSegment := tsPeriod;
+    Picker.TimeFormat := tf24Hour;
+    Check(Picker.ActiveSegment = tsMinute, 'Hidden period cannot remain active');
+    Picker.ReadOnly := True;
+    I := Counter.Changes;
+    Picker.TypeText('12');
+    Picker.Step(1);
+    Picker.PressKey(VK_END);
+    Check(Counter.Changes = I, 'Readonly blocks digits, stepping and End');
+    Picker.ReadOnly := False;
+    Picker.Enabled := False;
+    Picker.Step(1);
+    Picker.TypeText('12');
+    Check(Counter.Changes = I, 'Disabled picker blocks user edits');
+    Picker.Enabled := True;
+    Picker.Time := EncodeDate(2026, 10, 13) + 0.5;
+    CheckTime(12, 0, 0, 0, 'Date part is normalized out of a time value');
+    Picker.Time := -0.5;
+    CheckTime(12, 0, 0, 0, 'Negative TDateTime follows absolute fractional time convention');
+    Rejected := False;
+    try Picker.Time := NaN except on E: EArgumentException do Rejected := True end;
+    Check(Rejected, 'NaN time is rejected');
+    Rejected := False;
+    try Picker.Time := Infinity except on E: EArgumentException do Rejected := True end;
+    Check(Rejected, 'Infinite time is rejected');
+    Form.Show;
+    Application.ProcessMessages;
+    R := Picker.SegmentRect(tsHour);
+    Picker.ClickAt((R.Left + R.Right) div 2, Picker.Height div 2);
+    Check(Picker.Focused and (Picker.ActiveSegment = tsHour), 'Mouse selects and focuses hour segment');
+    Picker.PressKey(VK_RIGHT);
+    Check(Picker.ActiveSegment = tsMinute, 'Right skips hidden seconds and navigates fields');
+    Picker.PressKey(VK_RIGHT);
+    Check(Picker.ActiveSegment = tsHour, 'Right wraps through visible fields');
+    Picker.ClickAt(Picker.Width - 10, Picker.Height div 4);
+    CheckTime(13, 0, 0, 0, 'Spin button changes the active field once on click');
+    Theme := TERDTheme.Create(Form);
+    Picker.Theme := Theme;
+    for Mode := Low(TERDThemeMode) to High(TERDThemeMode) do
+    begin
+      Theme.Mode := Mode;
+      Picker.RenderTo(Bitmap);
+      Check((Bitmap.Width = Picker.Width) and (Bitmap.Height = Picker.Height), 'TimePicker renders for each theme');
+    end;
+  finally
+    FormatSettings := SavedFormat;
+    Bitmap.Free;
+    Stream.Free;
+    Form.Free;
+    Counter.Free;
+  end;
+end;
+
 procedure TestCheckListBox;
 var Form: TForm; List: TCheckListProbe; Copy: TERDCheckListBox;
   Counter: TCheckListCounter; Stream: TMemoryStream; Bitmap: TBitmap;
@@ -843,6 +1010,7 @@ begin
     TestCommonControls;
     TestFeedbackRegressions;
     TestCheckListBox;
+    TestTimePicker;
     Writeln(Checks, ' VCL runtime checks passed.');
   except on E: Exception do begin Writeln(E.ClassName, ': ', E.Message); Halt(1) end end;
 end.

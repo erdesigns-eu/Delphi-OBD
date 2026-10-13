@@ -10,6 +10,7 @@ requires
   vclx,
   designide;
 contains
+  ERD.Components.TimePicker in '..\src\UI\ERD.Components.TimePicker.pas',
   ERD.Components.CheckListBox in '..\src\UI\ERD.Components.CheckListBox.pas',
   ERD.Components.PropertyEditors in '..\src\DesignTime\ERD.Components.PropertyEditors.pas',
   ERD.Components.NativeSelection in '..\src\UI\ERD.Components.NativeSelection.pas',

@@ -1,6 +1,7 @@
 ﻿unit Showcase;
 interface
 uses
+  ERD.Components.TimePicker,
   ERD.Components.CheckListBox,
   ERD.Components.MediaControls, ERD.Components.CommonControls, ERD.Components.VirtualTree, ERD.Components.VT.BaseTree, ERD.Components.VT.Types, ERD.Components.VT.Header,
   Vcl.StdCtrls,
@@ -64,6 +65,9 @@ type
   PPlaylistDemoData = ^TPlaylistDemoData;
 
   TShowcaseForm = class(TForm)
+    DemoTimePicker: TERDTimePicker;
+    DemoTimePicker12: TERDTimePicker;
+    LabelTimePicker: TLabel;
     DemoCheckListBox: TERDCheckListBox;
     LabelCheckListBox: TLabel;
     TitleBar: TERDTitleBar;
@@ -564,6 +568,7 @@ type
     procedure BreadcrumbNavigate(Sender: TObject; const Path: string);
     procedure SearchChannels(Sender: TObject);
     procedure CheckListChanged(Sender: TObject; Index: Integer);
+    procedure TimeChanged(Sender: TObject);
     procedure OpenFile(Sender: TObject);
     procedure IconClicked(Sender: TObject);
   end;
@@ -867,6 +872,11 @@ begin
   finally DemoBreadcrumb.Items.EndUpdate end;
   StatusBar.Panels[0].Text := 'Navigate: ' + Path;
 end;
+procedure TShowcaseForm.TimeChanged(Sender: TObject);
+begin
+  StatusBar.Panels[0].Text := 'Time: ' + TERDTimePicker(Sender).DisplayText;
+end;
+
 procedure TShowcaseForm.CheckListChanged(Sender: TObject; Index: Integer);
 begin
   StatusBar.Panels[0].Text := Format('%s: %d checked',

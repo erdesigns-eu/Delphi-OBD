@@ -279,3 +279,25 @@ disabled items, events, batchwijzigingen, verplaatsen, streaming, thema's en scr
 Die VCL-tests vereisen Delphi/Windows en zijn niet uitgevoerd in de cloudomgeving.
 
 Een losse toggle-switch is niet nodig: `TERDCheckBox.Style=csSwitch` biedt die al.
+
+## TimePicker
+
+`TERDTimePicker` biedt bewerkbare tijdsegmenten in plaats van een vrije tekstmasker.
+`Time` is de tijdfractie van een Delphi `TDateTime`; een meegegeven datumdeel wordt
+verwijderd. Milliseconden blijven behouden, ook als ze niet worden getoond.
+
+- `TimeFormat`: `tf24Hour` (standaard) of `tf12Hour`, met een apart AM/PM-segment.
+- `ShowSeconds` toont het optionele secondenveld. De locale bepaalt het
+  scheidingsteken en de AM/PM-labels.
+- Klik op een segment of gebruik Left/Right. Typ cijfers; na twee cijfers of
+  een ondubbelzinnig eerste cijfer gaat de selectie door naar het volgende veld.
+  Ongeldige cijfers worden geweigerd. Een invoerpauze van 1,5 s begint een nieuwe invoer.
+- Up/Down en de optionele spin-knoppen wijzigen het geselecteerde veld.
+  Elk veld loopt rond zonder carry naar andere velden. Home/End kiest de veldgrens.
+  Het muiswiel wijzigt alleen een gefocuste, bewerkbare picker.
+- `ReadOnly` laat segmentselectie toe maar blokkeert gebruikerswijzigingen.
+  De applicatie kan `Time` nog steeds wijzigen. `OnChange` meldt een gewijzigde tijd.
+
+De Inputs-pagina toont zowel 24h met seconden als 12h. Windows-smoketests omvatten
+invoer, wrap, AM/PM, locale, readonly, disabled, muis, spin, DFM en renderen zonder
+window-handle. Deze VCL-tests moeten nog in Delphi op Windows worden uitgevoerd.

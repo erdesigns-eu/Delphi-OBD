@@ -3851,6 +3851,27 @@
               Enabled = False
             end>
         end
+        object LabelTimePicker: TLabel
+          Left = 16
+          Top = 2530
+          Caption = 'TERDTimePicker - type / Left-Right / Up-Down; 24h and 12h'
+        end
+        object DemoTimePicker: TERDTimePicker
+          Left = 16
+          Top = 2556
+          Width = 220
+          Time = 0.5625
+          ShowSeconds = True
+          OnChange = TimeChanged
+        end
+        object DemoTimePicker12: TERDTimePicker
+          Left = 256
+          Top = 2556
+          Width = 220
+          Time = 0.5625
+          TimeFormat = tf12Hour
+          OnChange = TimeChanged
+        end
       end
     end
     object LayoutPage: TERDPanel
