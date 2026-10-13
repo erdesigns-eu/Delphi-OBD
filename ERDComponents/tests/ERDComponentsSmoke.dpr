@@ -8,11 +8,19 @@ uses
   Showcase in '../demo/Showcase.pas',
   ERD.Components.SpinEdit, ERD.Components.Edits, ERD.Components.PopupList, ERD.Components.TitleBar, ERD.Components.StatusBar, ERD.Components.Theme, ERD.Components.Ribbon;
 type
+  TFocusProbe = class(TERDButton)
+  public
+    function CuesVisible: Boolean;
+  end;
   TChangeProbe = class
     Changes: Integer;
     procedure Changed(Sender: TObject);
   end;
 var Checks: Integer;
+function TFocusProbe.CuesVisible: Boolean;
+begin
+  Result := FocusCuesVisible;
+end;
 procedure TChangeProbe.Changed(Sender: TObject);
 begin
   Inc(Changes);
@@ -262,7 +270,16 @@ begin
       Check(Form.Choices.Top = Form.Ribbon.Top + Form.Ribbon.Height,
         'Choices remain below ribbon after command switching');
     end;
+    Check(Form.Ribbon.Backstage = Form.DemoBackstage, 'Ribbon File is linked to the real backstage');
+    Form.ShowBackstage(nil);
+    Check(Form.DemoBackstage.Visible, 'Backstage opens');
+    Check(not Form.Sidebar.Visible and not Form.Choices.Visible, 'Backstage replaces the demo navigation');
+    Form.DemoBackstage.Close;
+    Check(Form.Sidebar.Visible and Form.Choices.Visible, 'Closing backstage restores navigation');
+    Check(Form.Choices.Top = Form.Ribbon.Top + Form.Ribbon.Height, 'Closing backstage restores chrome order');
     Form.Theme.Mode := tmERDesignsDark;
+    Check(Form.ThemeChoice.Items.Count = Ord(High(TERDThemeMode)) - Ord(tmERDesignsLight) + 1,
+      'Demo lists every explicit theme');
     Check(Form.DemoDialog.Palette.Background = Form.Theme.Palette.Background,
       'General dialog follows the selected theme');
     Check(Form.DemoOpenDialog.Palette.Background = Form.Theme.Palette.Background,
@@ -293,6 +310,80 @@ begin
   end;
 end;
 
+procedure TestWindowsFocusCuesAndAutoSave;
+var
+  Form: TForm;
+  Button: TFocusProbe;
+  Title: TERDTitleBar;
+  Probe: TChangeProbe;
+  AlwaysShow: BOOL;
+  R: TRect;
+  I: Integer;
+  Mode: TERDThemeMode;
+  SavedState: Boolean;
+  Stream: TMemoryStream;
+  Restored: TERDTitleBar;
+begin
+  Form := TForm.CreateNew(nil);
+  Probe := TChangeProbe.Create;
+  Stream := TMemoryStream.Create;
+  try
+    Button := TFocusProbe.Create(Form);
+    Button.Parent := Form;
+    AlwaysShow := False;
+    SystemParametersInfo(SPI_GETKEYBOARDCUES, 0, @AlwaysShow, 0);
+    SendMessage(Button.Handle, WM_QUERYUISTATE, 0, 0);
+    SendMessage(Form.Handle, WM_CHANGEUISTATE, UIS_SET or (UISF_HIDEFOCUS shl 16), 0);
+    Check(Button.CuesVisible = Boolean(AlwaysShow), 'Hidden focus cues respect Windows accessibility setting');
+    SendMessage(Form.Handle, WM_CHANGEUISTATE, UIS_CLEAR or (UISF_HIDEFOCUS shl 16), 0);
+    Check(Button.CuesVisible, 'Cleared Windows hide-focus state reveals cues');
+    Title := TERDTitleBar.Create(Form);
+    Title.Parent := Form;
+    Title.Width := 900;
+    Check(not Title.AutoSaveVisible, 'AutoSave starts hidden');
+    Title.AutoSaveVisible := True;
+    Title.OnAutoSaveChange := Probe.Changed;
+    R := Title.AutoSaveBounds;
+    Check(not R.IsEmpty, 'Visible AutoSave has a hit target');
+    SendMessage(Title.Handle, WM_LBUTTONDOWN, MK_LBUTTON,
+      LPARAM(MakeLParam(R.Left + R.Width div 2, R.Top + R.Height div 2)));
+    SendMessage(Title.Handle, WM_LBUTTONUP, 0,
+      LPARAM(MakeLParam(R.Left + R.Width div 2, R.Top + R.Height div 2)));
+    Check(Title.AutoSave and (Probe.Changes = 1), 'Mouse toggle changes AutoSave exactly once');
+    SendMessage(Title.Handle, WM_KEYDOWN, VK_SPACE, 0);
+    SendMessage(Title.Handle, WM_KEYDOWN, VK_SPACE, $40000000);
+    SendMessage(Title.Handle, WM_KEYUP, VK_SPACE, 0);
+    Check(not Title.AutoSave and (Probe.Changes = 2), 'Space toggles AutoSave exactly once');
+    Title.AutoSave := True;
+    Title.AutoSaveVisible := False;
+    Check(Title.AutoSaveBounds.IsEmpty, 'Hidden AutoSave releases caption space');
+    Title.AutoSaveVisible := True;
+    SavedState := Title.AutoSave;
+    for I := 1 to 2 do
+    begin
+      Title.CommandStyle := csMenu;
+      Title.CommandStyle := csRibbon;
+    end;
+    Check(Title.AutoSave = SavedState, 'Command switching preserves AutoSave state');
+    Title.OnAutoSaveChange := nil;
+    RegisterClass(TERDTitleBar);
+    Stream.WriteComponent(Title);
+    Stream.Position := 0;
+    Restored := TERDTitleBar(Stream.ReadComponent(nil));
+    try
+      Check(Restored.AutoSaveVisible and Restored.AutoSave, 'AutoSave survives DFM streaming');
+    finally
+      Restored.Free;
+    end;
+    for Mode := tmOfficeWordLight to High(TERDThemeMode) do
+      Check(ERDThemeName(Mode) <> '', 'Every Office profile has a display name');
+  finally
+    Stream.Free;
+    Form.Free;
+    Probe.Free;
+  end;
+end;
+
 begin
   try
     Application.Initialize;
@@ -302,6 +393,7 @@ begin
     TestPopupRowsAndCommandSwitch;
     TestComboMouseChange;
     TestDemoLayoutAndSpinMargins;
+    TestWindowsFocusCuesAndAutoSave;
     Writeln(Checks, ' VCL runtime checks passed.');
   except on E: Exception do begin Writeln(E.ClassName, ': ', E.Message); Halt(1) end end;
 end.

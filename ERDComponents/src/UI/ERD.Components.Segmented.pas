@@ -363,7 +363,7 @@ begin
       end;
       P.Text(R.Left + R.Width div 2, R.Top + R.Height div 2,
         FItems[FItemIndex], SEGMENT_TEXT_SIZE, Ink, twSemibold, taCenter);
-      if Focused and not IsPreview then
+      if Focused and FocusCuesVisible and not IsPreview then
         P.FocusRing(R.Left, R.Top, R.Width, R.Height);
     end;
   finally

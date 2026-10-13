@@ -183,7 +183,6 @@ type
     FSubtitle: string;
     FHoverIndex: Integer;
     FCollapseHover: Boolean;
-    FKeyboardFocus: Boolean;
     FScrollY: Integer;
     FBarHot: Boolean;
     FBarDragging: Boolean;
@@ -1441,7 +1440,7 @@ begin
     end;
   end;
 
-  if Focused and FKeyboardFocus and (AIndex = FItemIndex) then
+  if Focused and FocusCuesVisible and (AIndex = FItemIndex) then
     APainter.FocusRing(R.Left, R.Top, R.Width, R.Height, ScaleValue(6));
 end;
 
@@ -1629,7 +1628,6 @@ begin
   inherited;
   if Button <> mbLeft then
     Exit;
-  FKeyboardFocus := False;
   if CanFocus then
     SetFocus;
   if NeedsScrollBar and PtInRect(ScrollBarRect, Point(X, Y)) then
@@ -1701,7 +1699,6 @@ begin
   end;
   if NewIndex >= 0 then
   begin
-    FKeyboardFocus := True;
     ItemIndex := NewIndex;
     EnsureVisible(NewIndex);
   end;

@@ -164,7 +164,6 @@ type
     FLeftHover: Boolean;
     FRightHover: Boolean;
     FNewTabHover: Boolean;
-    FKeyboardFocus: Boolean;
     FOnChange: TNotifyEvent;
     FOnChanging: TERDTabChangingEvent;
     FOnClose: TERDTabCloseEvent;
@@ -1215,9 +1214,9 @@ begin
       DrawChevron(P, RightOverflowRect, False, FRightHover);
     end;
     // No frame around the strip: the focus ring is drawn on the selected
-    // tab only, and only while the keyboard is used to move between tabs.
+    // tab according to the Windows focus cue visibility state.
     I := SelectedIndexForPaint;
-    if Focused and FKeyboardFocus and (I >= 0) then
+    if Focused and FocusCuesVisible and (I >= 0) then
     begin
       R := TabRect(P, I);
       InflateRect(R, -ScaleValue(2), -ScaleValue(2));
@@ -1266,7 +1265,6 @@ begin
   inherited;
   if Button <> mbLeft then
     Exit;
-  FKeyboardFocus := False;
   SetFocus;
   if FLeftHover then
   begin
@@ -1314,11 +1312,6 @@ var
   I: Integer;
 begin
   inherited;
-  if not FKeyboardFocus then
-  begin
-    FKeyboardFocus := True;
-    Invalidate;
-  end;
   if (Key = Ord('W')) and (ssCtrl in Shift) and (FTabStyle = tsDocument) then
   begin
     CloseTab(FTabIndex);

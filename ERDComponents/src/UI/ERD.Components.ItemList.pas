@@ -833,7 +833,7 @@ begin
                 R.Left + ScaleValue(3), R.Bottom - ScaleValue(4)),
                 Palette.Accent);
             DrawItem(P, I, R, Sel, Hot);
-            if Focused and (I = FItemIndex) and FMultiSelect and
+            if Focused and FocusCuesVisible and (I = FItemIndex) and FMultiSelect and
               not Sel then
               P.FrameRect(R, Palette.NeutralLight);
           end;

@@ -175,6 +175,14 @@ type
   /// <summary>Themed application title bar that replaces the native form caption.</summary>
   TERDTitleBar = class(TERDCustomControl, IERDSurface)
   strict private
+    FAutoSaveVisible: Boolean;
+    FAutoSave: Boolean;
+    FAutoSaveCaption: string;
+    FAutoSaveWidth: Integer;
+    FAutoSaveHot: Boolean;
+    FAutoSavePressed: Boolean;
+    FAutoSaveSpacePressed: Boolean;
+    FOnAutoSaveChange: TNotifyEvent;
     FButtons: TERDCaptionButtons;
     FQuickAccess: TERDCaptionButtons;
     FImages: TCustomImageList;
@@ -206,6 +214,12 @@ type
     FPressedQuick: TERDCaptionButton;
     FOnButtonClick: TERDTitleButtonEvent;
     FOnCommandStyleChange: TNotifyEvent;
+    procedure SetAutoSaveVisible(AValue: Boolean);
+    procedure SetAutoSave(AValue: Boolean);
+    procedure SetAutoSaveCaption(const AValue: string);
+    procedure SetAutoSaveWidth(AValue: Integer);
+    function AutoSaveRect: TRect;
+    procedure DrawAutoSave(APainter: TERDPainter);
     procedure SetButtons(AValue: TERDCaptionButtons);
     procedure SetQuickAccess(AValue: TERDCaptionButtons);
     procedure SetImages(AValue: TCustomImageList);
@@ -227,6 +241,7 @@ type
     procedure SetActiveBorder(AValue: Boolean);
     procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
     procedure CMHintShow(var Message: TCMHintShow); message CM_HINTSHOW;
+    procedure CMDialogKey(var Message: TCMDialogKey); message CM_DIALOGKEY;
     procedure WMNCHitTest(var Message: TWMNCHitTest); message WM_NCHITTEST;
     function CaptionHitTest(const AScreenPoint: TPoint): Integer;
     function CaptionHeight: Integer;
@@ -299,6 +314,9 @@ type
     /// <summary>Paints the title bar and caption controls.</summary>
     /// <param name="ACanvas">Target canvas.</param>
     procedure PaintControl(ACanvas: TCanvas); override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure KeyUp(var Key: Word; Shift: TShiftState); override;
+    procedure DoExit; override;
     /// <summary>Applies the hook and menu layout after streaming.</summary>
     procedure Loaded; override;
     /// <summary>Docks the bar to the top and hooks the new parent form.
@@ -341,7 +359,17 @@ type
     /// after changing captions or the visibility of top-level menu items
     /// at run time (a language switch, a menu for the active page).</summary>
     procedure MenuChanged;
+    /// <summary>Current hit rectangle; empty when hidden or there is no room.</summary>
+    property AutoSaveBounds: TRect read AutoSaveRect;
   published
+    /// <summary>Optional AutoSave toggle before the quick-access commands.</summary>
+    property AutoSaveVisible: Boolean read FAutoSaveVisible write SetAutoSaveVisible default False;
+    /// <summary>Application-defined AutoSave state; this control performs no file I/O.</summary>
+    property AutoSave: Boolean read FAutoSave write SetAutoSave default False;
+    property AutoSaveCaption: string read FAutoSaveCaption write SetAutoSaveCaption;
+    property AutoSaveWidth: Integer read FAutoSaveWidth write SetAutoSaveWidth default 145;
+    /// <summary>Fires after the state changes, outside DFM loading.</summary>
+    property OnAutoSaveChange: TNotifyEvent read FOnAutoSaveChange write FOnAutoSaveChange;
     /// <summary>Extra caption buttons between the status chip and system buttons.</summary>
     property Buttons: TERDCaptionButtons read FButtons write SetButtons;
     /// <summary>Ribbon quick-access buttons shown in <c>csRibbon</c> mode.</summary>
@@ -774,6 +802,8 @@ begin
   ShowHint := True;
   FButtons := TERDCaptionButtons.Create(Self);
   FQuickAccess := TERDCaptionButtons.Create(Self);
+  FAutoSaveCaption := 'AutoSave';
+  FAutoSaveWidth := 145;
   FMenuPlacement := mpTitleBar;
   FCommandStyle := csMenu;
   FAppInitials := 'OS';
@@ -835,6 +865,154 @@ begin
       // it tears down its children, so give it back its own window proc.
       UnhookParentForm;
   end;
+end;
+
+procedure TERDTitleBar.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Enabled and FAutoSaveVisible and not AutoSaveRect.IsEmpty and
+    (Shift = []) and (Key = VK_SPACE) then
+  begin
+    FAutoSaveSpacePressed := True;
+    Key := 0;
+  end;
+end;
+
+procedure TERDTitleBar.KeyUp(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if (Key = VK_SPACE) and FAutoSaveSpacePressed then
+  begin
+    FAutoSaveSpacePressed := False;
+    if Enabled and FAutoSaveVisible and not AutoSaveRect.IsEmpty then
+      AutoSave := not FAutoSave;
+    Key := 0;
+  end;
+end;
+
+procedure TERDTitleBar.DoExit;
+begin
+  FAutoSaveSpacePressed := False;
+  inherited;
+end;
+
+procedure TERDTitleBar.CMDialogKey(var Message: TCMDialogKey);
+begin
+  if Focused and Enabled and FAutoSaveVisible and not AutoSaveRect.IsEmpty and
+    (Message.CharCode = VK_RETURN) and (KeyDataToShiftState(Message.KeyData) = []) then
+  begin
+    if (Message.KeyData and $40000000) = 0 then AutoSave := not FAutoSave;
+    Message.Result := 1;
+  end
+  else inherited;
+end;
+
+procedure TERDTitleBar.SetAutoSaveVisible(AValue: Boolean);
+begin
+  if FAutoSaveVisible = AValue then Exit;
+  FAutoSaveVisible := AValue;
+  if not AValue then
+  begin
+    FAutoSaveHot := False;
+    FAutoSaveSpacePressed := False;
+    if FAutoSavePressed then MouseCapture := False;
+    FAutoSavePressed := False;
+  end;
+  UpdateChildLayout;
+  Invalidate;
+end;
+
+procedure TERDTitleBar.SetAutoSave(AValue: Boolean);
+begin
+  if FAutoSave = AValue then Exit;
+  FAutoSave := AValue;
+  Invalidate;
+  if not (csLoading in ComponentState) and Assigned(FOnAutoSaveChange) then
+    FOnAutoSaveChange(Self);
+end;
+
+procedure TERDTitleBar.SetAutoSaveCaption(const AValue: string);
+begin
+  if FAutoSaveCaption = AValue then Exit;
+  FAutoSaveCaption := AValue;
+  Invalidate;
+end;
+
+procedure TERDTitleBar.SetAutoSaveWidth(AValue: Integer);
+begin
+  AValue := System.Math.Max(72, AValue);
+  if FAutoSaveWidth = AValue then Exit;
+  FAutoSaveWidth := AValue;
+  UpdateChildLayout;
+  Invalidate;
+end;
+
+function TERDTitleBar.AutoSaveRect: TRect;
+var L, RightEdge, Count: Integer;
+begin
+  Result := Rect(0, 0, 0, 0);
+  if not FAutoSaveVisible then Exit;
+  L := AppIconRect.Right + ScaleValue(10);
+  RightEdge := ExtraButtonsLeft - ScaleValue(80);
+  if FCommandStyle = csRibbon then
+  begin
+    Count := VisibleButtonCount(FQuickAccess);
+    if Count = 0 then Count := PreviewButtonCount(True);
+    Dec(RightEdge, Count * ScaleValue(30) + ScaleValue(12));
+  end;
+  RightEdge := System.Math.Min(L + ScaleValue(FAutoSaveWidth), RightEdge);
+  if RightEdge - L < ScaleValue(72) then Exit;
+  Result := Rect(L, ScaleValue(6), RightEdge, CaptionHeight - ScaleValue(6));
+end;
+
+procedure TERDTitleBar.DrawAutoSave(APainter: TERDPainter);
+var
+  R: TRect;
+  X, CY, W, H, Knob, KnobX, TextX: Integer;
+  Fill, Ink, LabelInk: TColor;
+  StateText: string;
+begin
+  R := AutoSaveRect;
+  if R.IsEmpty then Exit;
+  CY := R.Top + R.Height div 2;
+  W := ScaleValue(44);
+  H := ScaleValue(20);
+  X := R.Right - W - ScaleValue(4);
+  LabelInk := Palette.ForegroundText;
+  if not Enabled then LabelInk := Palette.Subtle;
+  if FAutoSaveHot and Enabled then
+    APainter.RoundRect(R.Left, R.Top, R.Width, R.Height, ScaleValue(4),
+      ERDMixColor(Palette.ForegroundText, SurfaceColor, 0.06), clNone);
+  APainter.Text(R.Left + ScaleValue(4), CY, FAutoSaveCaption, 11.5,
+    LabelInk, twRegular, taLeftJustify, System.Math.Max(0, X - R.Left - ScaleValue(10)));
+  if FAutoSave and Enabled then
+  begin
+    Fill := Palette.Accent;
+    Ink := APainter.OnAccent;
+  end
+  else
+  begin
+    Fill := Palette.NeutralLight;
+    Ink := Palette.ForegroundText;
+  end;
+  APainter.RoundRect(X, CY - H div 2, W, H, H div 2, Fill, clNone);
+  Knob := H - ScaleValue(6);
+  if FAutoSave then
+  begin
+    KnobX := X + W - H div 2 - Knob div 2;
+    TextX := X + ScaleValue(11);
+    StateText := 'On';
+  end
+  else
+  begin
+    KnobX := X + H div 2 - Knob div 2;
+    TextX := X + W - ScaleValue(12);
+    StateText := 'Off';
+  end;
+  APainter.Ellipse(KnobX, CY - Knob div 2, Knob, Knob, Ink, clNone);
+  APainter.Text(TextX, CY, StateText, 9, Ink, twSemibold, taCenter);
+  if Focused and FocusCuesVisible then
+    APainter.FocusRing(R.Left, R.Top, R.Width, R.Height, ScaleValue(4));
 end;
 
 procedure TERDTitleBar.SetButtons(AValue: TERDCaptionButtons);
@@ -990,6 +1168,7 @@ end;
 procedure TERDTitleBar.CMMouseLeave(var Message: TMessage);
 begin
   inherited;
+  FAutoSaveHot := False;
   if FPressedButton = nil then
     FHoverButton := nil;
   if FPressedQuick = nil then
@@ -1216,8 +1395,11 @@ begin
 end;
 
 function TERDTitleBar.QuickAccessLeft: Integer;
+var R: TRect;
 begin
   Result := AppIconRect.Right + ScaleValue(10);
+  R := AutoSaveRect;
+  if not R.IsEmpty then Result := R.Right + ScaleValue(8);
 end;
 
 function TERDTitleBar.MenuBarRect: TRect;
@@ -1232,7 +1414,7 @@ begin
     Result := Rect(0, CaptionHeight, Width, CaptionHeight + MenuHeight);
     Exit;
   end;
-  L := AppIconRect.Right + ScaleValue(10);
+  L := QuickAccessLeft;
   if (FCommandStyle = csRibbon) and (VisibleButtonCount(FQuickAccess) > 0) then
     L := L + VisibleButtonCount(FQuickAccess) * ScaleValue(30) + ScaleValue(12);
   W := FMenuBar.ItemsWidth;
@@ -1423,7 +1605,8 @@ function TERDTitleBar.PointInCommandButton(X, Y: Integer): Boolean;
 begin
   Result := (SystemButtonAt(X, Y) <> sbNone) or
     (ButtonAt(FButtons, X, Y) <> nil) or (QuickAt(X, Y) <> nil) or
-    PtInRect(StatusRect, Point(X, Y)) or PtInRect(AppIconRect, Point(X, Y));
+    PtInRect(StatusRect, Point(X, Y)) or PtInRect(AppIconRect, Point(X, Y)) or
+    PtInRect(AutoSaveRect, Point(X, Y));
 end;
 
 function TERDTitleBar.PointInCaptionDragArea(X, Y: Integer): Boolean;
@@ -1946,6 +2129,7 @@ begin
       P.HLine(0, 0, Width, LineColor);
     end;
     DrawAppIcon(P, ACanvas, AppIconRect);
+    DrawAutoSave(P);
     DrawSystemButtons(P);
     DrawButtonCollection(P, ACanvas, FButtons, False);
     if FButtons.Count = 0 then
@@ -1957,7 +2141,7 @@ begin
       if FQuickAccess.Count = 0 then
         DrawPreviewButtons(P, ACanvas, True);
     end;
-    L := AppIconRect.Right + ScaleValue(10);
+    L := QuickAccessLeft;
     if FCommandStyle = csRibbon then
     begin
       if VisibleButtonCount(FQuickAccess) > 0 then
@@ -2244,16 +2428,19 @@ procedure TERDTitleBar.MouseMove(Shift: TShiftState; X, Y: Integer);
 var
   NewSystem: TERDSystemButton;
   NewButton, NewQuick: TERDCaptionButton;
+  AutoHot: Boolean;
 begin
   inherited;
+  AutoHot := PtInRect(AutoSaveRect, Point(X, Y));
   NewSystem := SystemButtonAt(X, Y);
   if NewSystem = sbMaximize then
     NewSystem := sbNone;
   NewButton := ButtonAt(FButtons, X, Y);
   NewQuick := QuickAt(X, Y);
-  if (FHoverSystem <> NewSystem) or (FHoverButton <> NewButton) or
+  if (FAutoSaveHot <> AutoHot) or (FHoverSystem <> NewSystem) or (FHoverButton <> NewButton) or
     (FHoverQuick <> NewQuick) then
   begin
+    FAutoSaveHot := AutoHot;
     FHoverSystem := NewSystem;
     FHoverButton := NewButton;
     FHoverQuick := NewQuick;
@@ -2291,6 +2478,14 @@ begin
   end;
   if Button <> mbLeft then
     Exit;
+  if Enabled and PtInRect(AutoSaveRect, Point(X, Y)) then
+  begin
+    if TabStop and CanFocus then SetFocus;
+    FAutoSavePressed := True;
+    MouseCapture := True;
+    Invalidate;
+    Exit;
+  end;
   FPressedSystem := SystemButtonAt(X, Y);
   if FPressedSystem = sbMaximize then
     FPressedSystem := sbNone;
@@ -2313,6 +2508,15 @@ begin
   inherited;
   if Button <> mbLeft then
     Exit;
+  if FAutoSavePressed then
+  begin
+    FAutoSavePressed := False;
+    MouseCapture := False;
+    if Enabled and PtInRect(AutoSaveRect, Point(X, Y)) then
+      AutoSave := not FAutoSave;
+    Invalidate;
+    Exit;
+  end;
   SystemHit := SystemButtonAt(X, Y);
   if SystemHit = sbMaximize then
     SystemHit := sbNone;

@@ -1757,15 +1757,18 @@ end;
 
 procedure TERDPainter.FocusRing(X, Y, W, H, ARadius: Single);
 var
-  Gap, Radius: Single;
+  Inset, Radius: Single;
 begin
-  Gap := SF(3);
+  // Keep the stroke inside its control/item bounds, including rows that
+  // touch a clipped viewport edge. A 2px stroke needs a 1px centre inset.
+  Inset := SF(1);
+  if (W <= 2 * Inset) or (H <= 2 * Inset) then Exit;
   if ARadius > 0 then
-    Radius := ARadius + Gap
+    Radius := System.Math.Max(0, ARadius - Inset)
   else
     Radius := SF(2);
-  RoundRect(X - Gap, Y - Gap, W + 2 * Gap, H + 2 * Gap, Radius, clNone,
-    AccentText, SF(2));
+  RoundRect(X + Inset, Y + Inset, W - 2 * Inset, H - 2 * Inset, Radius,
+    clNone, AccentText, SF(2));
 end;
 
 procedure TERDPainter.CheckBox(X, CY: Integer; ASize: Integer;

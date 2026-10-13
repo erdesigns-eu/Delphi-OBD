@@ -663,7 +663,7 @@ begin
           clNone);
         P.Text(Round(CellX), Round(CellY), IntToStr(DayOf(D)), ERD_TEXT_BODY,
           P.ContrastInk(Fill), twSemibold, taCenter);
-        if Focused and not IsPreview then
+        if Focused and FocusCuesVisible and not IsPreview then
           P.FocusRing(CellX - Size / 2 - P.S(2), CellY - Size / 2 - P.S(2),
             Size + P.S(4), Size + P.S(4), Size / 2 + P.S(2));
         Continue;

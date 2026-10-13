@@ -54,9 +54,12 @@ type
     /// when one is applied. See <see cref="WindowsPalette"/>.</summary>
     tmWindows,
     tmOfficeLight, tmOfficeDark,
-    tmOceanLight, tmOceanDark,
-    tmForestLight, tmForestDark,
-    tmHighContrast);
+    tmOfficeWordLight, tmOfficeWordDark,
+    tmOfficeExcelLight, tmOfficeExcelDark,
+    tmOfficeAccessLight, tmOfficeAccessDark,
+    tmOfficePowerPointLight, tmOfficePowerPointDark,
+    tmOfficeOutlookLight, tmOfficeOutlookDark,
+    tmOfficeOneNoteLight, tmOfficeOneNoteDark);
 
   /// <summary>One palette. Every visual reads only these slots —
   /// the resolution chain (per-component Style ▸ Theme ▸ active
@@ -286,7 +289,12 @@ implementation
 function ERDThemeName(Mode: TERDThemeMode): string;
 const Names: array[TERDThemeMode] of string = ('Automatic',
   'ERDesigns Light', 'ERDesigns Dark', 'Windows', 'Office Light', 'Office Dark',
-  'Ocean Light', 'Ocean Dark', 'Forest Light', 'Forest Dark', 'High Contrast');
+  'Office Word Light', 'Office Word Dark',
+  'Office Excel Light', 'Office Excel Dark',
+  'Office Access Light', 'Office Access Dark',
+  'Office PowerPoint Light', 'Office PowerPoint Dark',
+  'Office Outlook Light', 'Office Outlook Dark',
+  'Office OneNote Light', 'Office OneNote Dark');
 begin
   Result := Names[Mode];
 end;

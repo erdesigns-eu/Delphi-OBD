@@ -1080,7 +1080,7 @@ begin
   if (FTileStyle = tgsLarge) and (Item.Count > 0) then
     APainter.Badge((ARect.Left + ARect.Right) div 2 + ScaleValue(30),
       ARect.Top + ScaleValue(12), IntToStr(Item.Count), Palette.Danger);
-  if ASelected and Focused then
+  if ASelected and Focused and FocusCuesVisible then
     APainter.FocusRing(ARect.Left, ARect.Top, ARect.Width, ARect.Height,
       ScaleValue(4));
 end;

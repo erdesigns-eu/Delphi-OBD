@@ -20,6 +20,7 @@ library. De hele map kan naar een eigen repository worden verplaatst.
    `Showcase.dfm` bevat de componenten, ribboncollecties en alle 320 iconknoppen;
    je kunt ze rechtstreeks in de Delphi-formdesigner bekijken en bewerken.
    De demo gebruikt `TERDTitleBar`; met de keuze Ribbon/Menu wissel je van commandosurface.
+   De File-knop opent een echte backstage met eigen Information- en Settings-pagina’s.
    De voorbeeldpagina’s gebruiken `TERDTabs` en `TERDPanel`, zonder standaard PageControl.
    Alle 59 geregistreerde componenten staan in de DFM: de sidebar navigeert naar
    iconen, invoer, layout, data, bestanden/kleuren en dialogs/notificaties.
@@ -33,8 +34,9 @@ BPL-uitvoer: `$(BDSCOMMONDIR)/Bpl/ERDComponents/<platform>`.
 ## Themes en ribbonvorm
 
 Standaard is **ERDesigns Light**, ook als er geen theme-controller is. Een
-`TERDTheme` biedt ERDesigns Light/Dark, Windows, Office Light/Dark, Ocean
-Light/Dark, Forest Light/Dark en High Contrast. Automatic is optioneel.
+`TERDTheme` biedt ERDesigns Light/Dark, Windows en Office Light/Dark, met
+Office Word, Excel, Access, PowerPoint, Outlook en OneNote elk in Light/Dark.
+Automatic is optioneel. Focusranden volgen de Windows focus-cue-instellingen.
 `ERDThemeName` levert de weergavenaam; custom palettes blijven ondersteund.
 
 De ribbon heeft drie onafhankelijke keuzes:
@@ -139,3 +141,12 @@ semantische synoniemen delen bewust een symbool.
 Generatoren: `tools/build_icons.py` (Pascal), `tools/export_icons.py` (SVGs, preview
 met dezelfde geometrie en de afzonderlijke componentpalet-bitmaps). Beide werken
 zonder de oorspronkelijke OBD-repository. Bronlicentie: [LICENSE](LICENSE).
+
+De titlebar heeft een optionele AutoSave-toggle (`AutoSaveVisible`, standaard False).
+`AutoSave` bewaart de aan/uit-status en `OnAutoSaveChange` meldt wijzigingen aan
+je applicatie. `AutoSaveCaption` en `AutoSaveWidth` bepalen de presentatie.
+De toggle slaat zelf geen bestanden op. Met `TabStop = True` kun je hem via Tab
+focussen en met Space/Enter schakelen. De demo toont hem naast Save/Undo/Redo.
+
+Zie [de Office-vergelijking](docs/office-ribbon-review.md) voor de resterende
+algemene verschillen met de aangeleverde Office-screenshot.

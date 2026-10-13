@@ -277,7 +277,7 @@ end;
 
 function TERDInteractiveControl.HasFocus: Boolean;
 begin
-  Result := Focused and not IsPreview;
+  Result := Focused and FocusCuesVisible and not IsPreview;
 end;
 
 procedure TERDInteractiveControl.Click;

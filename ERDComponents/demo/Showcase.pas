@@ -514,6 +514,11 @@ type
     BackstageInfo: TERDPanel;
     BackstageSettings: TERDPanel;
     BackstageInfoText: TLabel;
+    OpenBackstageButton: TERDButton;
+    procedure QuickAccessClicked(Sender: TObject);
+    procedure AutoSaveChanged(Sender: TObject);
+    procedure ShowBackstage(Sender: TObject);
+    procedure BackstageClosed(Sender: TObject);
     procedure LayoutChrome(Sender: TObject);
     procedure PageSelected(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -607,6 +612,35 @@ begin
   DemoPopupMenu.Popup(P.X, P.Y);
 end;
 
+procedure TShowcaseForm.QuickAccessClicked(Sender: TObject);
+begin
+  StatusBar.Panels[0].Text := TERDCaptionButton(Sender).Hint + ' command clicked';
+end;
+
+procedure TShowcaseForm.AutoSaveChanged(Sender: TObject);
+begin
+  if TitleBar.AutoSave then
+    StatusBar.Panels[0].Text := 'AutoSave on'
+  else
+    StatusBar.Panels[0].Text := 'AutoSave off';
+end;
+
+procedure TShowcaseForm.ShowBackstage(Sender: TObject);
+begin
+  Sidebar.Visible := False;
+  Choices.Visible := False;
+  DemoBackstage.Show;
+  DemoBackstage.BringToFront;
+  LayoutChrome(Self);
+end;
+
+procedure TShowcaseForm.BackstageClosed(Sender: TObject);
+begin
+  Sidebar.Visible := True;
+  Choices.Visible := True;
+  LayoutChrome(Self);
+end;
+
 procedure TShowcaseForm.LayoutChrome(Sender: TObject);
 var Y: Integer;
 begin
@@ -619,7 +653,8 @@ begin
     Ribbon.SetBounds(0, Y, Chrome.ClientWidth, Ribbon.Height);
     if Ribbon.Visible then Inc(Y, Ribbon.Height);
     Choices.SetBounds(0, Y, Chrome.ClientWidth, Choices.Height);
-    Chrome.Height := Y + Choices.Height;
+    if Choices.Visible then Inc(Y, Choices.Height);
+    Chrome.Height := Y;
   finally
     Chrome.EnableAlign;
   end;
@@ -633,7 +668,6 @@ begin
   DataPage.Visible := PageTabs.TabIndex = 3;
   FilesColorsPage.Visible := PageTabs.TabIndex = 4;
   DialogsPage.Visible := PageTabs.TabIndex = 5;
-  if LayoutPage.Visible then DemoBackstage.Show;
 end;
 
 procedure TShowcaseForm.CommandSelected(Sender: TObject);

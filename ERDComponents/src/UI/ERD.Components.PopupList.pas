@@ -211,32 +211,12 @@ begin
 end;
 
 procedure TERDPopupList.PaintBar;
-var
-  DC: HDC;
-  C: TCanvas;
-  P: TERDPainter;
+var R: TRect;
 begin
-  if not NeedsBar then
-    Exit;
-  DC := GetDC(Handle);
-  try
-    C := TCanvas.Create;
-    try
-      C.Handle := DC;
-      P := TERDPainter.Create(C, FPalette, FPPI);
-      try
-        ERDPaintScrollBar(P, BarRect, True, 0, Items.Count - 1, VisibleRows,
-          TopIndex, FBarHot, FBarDragging);
-      finally
-        P.Free;
-      end;
-      C.Handle := 0;
-    finally
-      C.Free;
-    end;
-  finally
-    ReleaseDC(Handle, DC);
-  end;
+  if not HandleAllocated or not NeedsBar then Exit;
+  R := BarRect;
+  InvalidateRect(Handle, @R, False);
+  UpdateWindow(Handle);
 end;
 
 procedure TERDPopupList.BarMouseDown(Y: Integer);
@@ -278,7 +258,8 @@ begin
   if not HandleAllocated or (AIndex < 0) or (AIndex >= Items.Count) then
     Exit;
   R := ItemRect(AIndex);
-  // No erase: the owner-drawn row paints its full rectangle.
+  if NeedsBar then R.Right := System.Math.Min(R.Right, BarRect.Left);
+  // Hover changes only the row; leave the scrollbar untouched.
   InvalidateRect(Handle, @R, False);
 end;
 
@@ -341,29 +322,49 @@ end;
 
 procedure TERDPopupList.PaintRows(ADC: HDC);
 var
-  I, Saved: Integer;
+  I: Integer;
   R: TRect;
   State: TOwnerDrawState;
+  Buffer: TBitmap;
+  Painter: TERDPainter;
 begin
-  Saved := SaveDC(ADC);
-  Canvas.Lock;
-  Canvas.Handle := ADC;
+  if (ClientWidth <= 0) or (ClientHeight <= 0) then Exit;
+  Buffer := TBitmap.Create;
   try
-    Canvas.Brush.Color := FPalette.GaugeFace;
-    Canvas.FillRect(ClientRect);
-    for I := TopIndex to Items.Count - 1 do
-    begin
-      if SendMessage(Handle, LB_GETITEMRECT, I, LPARAM(@R)) = LB_ERR then Break;
-      if R.Top >= ClientHeight then Break;
-      if R.Bottom <= 0 then Continue;
-      State := [];
-      if I = ItemIndex then Include(State, odSelected);
-      DrawItem(I, R, State);
+    Buffer.SetSize(ClientWidth, ClientHeight);
+    Canvas.Lock;
+    try
+      Canvas.Handle := Buffer.Canvas.Handle;
+      Canvas.Brush.Color := FPalette.GaugeFace;
+      Canvas.FillRect(ClientRect);
+      for I := TopIndex to Items.Count - 1 do
+      begin
+        if SendMessage(Handle, LB_GETITEMRECT, I, LPARAM(@R)) = LB_ERR then Break;
+        if R.Top >= ClientHeight then Break;
+        if R.Bottom <= 0 then Continue;
+        State := [];
+        if I = ItemIndex then Include(State, odSelected);
+        DrawItem(I, R, State);
+      end;
+    finally
+      Canvas.Handle := 0;
+      Canvas.Unlock;
     end;
+    if NeedsBar then
+    begin
+      Painter := TERDPainter.Create(Buffer.Canvas, FPalette, FPPI);
+      try
+        ERDPaintScrollBar(Painter, BarRect, True, 0, Items.Count - 1,
+          VisibleRows, TopIndex, FBarHot, FBarDragging);
+      finally
+        Painter.Free;
+      end;
+    end;
+    // Rows and scrollbar reach the window together; the paint DC clips
+    // this copy to the dirty region, so row hover never clears the bar.
+    BitBlt(ADC, 0, 0, ClientWidth, ClientHeight, Buffer.Canvas.Handle, 0, 0, SRCCOPY);
   finally
-    Canvas.Handle := 0;
-    Canvas.Unlock;
-    RestoreDC(ADC, Saved);
+    Buffer.Free;
   end;
 end;
 
@@ -372,9 +373,6 @@ var
   Pt: TPoint;
   Hot: Boolean;
   DC: HDC;
-  R, Bar: TRect;
-  Brush: HBRUSH;
-  Saved: Integer;
   PaintInfo: TPaintStruct;
   Index: Integer;
 begin
@@ -389,7 +387,6 @@ begin
         finally
           EndPaint(Handle, PaintInfo);
         end;
-        PaintBar;
         Message.Result := 0;
         Exit;
       end;
@@ -416,27 +413,8 @@ begin
         Exit;
       end;
     WM_ERASEBKGND:
-      if HandleAllocated then
       begin
-        // Fill around the overlay bar so it does not flash.
-        DC := TWMEraseBkgnd(Message).DC;
-        Saved := SaveDC(DC);
-        try
-          if NeedsBar then
-          begin
-            Bar := BarRect;
-            ExcludeClipRect(DC, Bar.Left, Bar.Top, Bar.Right, Bar.Bottom);
-          end;
-          R := Rect(0, 0, ClientWidth, ClientHeight);
-          Brush := CreateSolidBrush(ColorToRGB(FPalette.GaugeFace));
-          try
-            Winapi.Windows.FillRect(DC, R, Brush);
-          finally
-            DeleteObject(Brush);
-          end;
-        finally
-          RestoreDC(DC, Saved);
-        end;
+        // PaintRows supplies the complete background in its buffer.
         Message.Result := 1;
         Exit;
       end;
@@ -528,8 +506,6 @@ begin
   end;
   inherited WndProc(Message);
   case Message.Msg of
-    WM_PAINT:
-      PaintBar;
     WM_KEYDOWN, WM_MOUSEWHEEL, WM_TIMER, WM_LBUTTONDOWN, WM_MOUSEMOVE,
     WM_VSCROLL, LB_SETCURSEL, LB_SETTOPINDEX, LB_RESETCONTENT:
       CheckTopChanged;

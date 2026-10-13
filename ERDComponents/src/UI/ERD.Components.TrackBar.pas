@@ -460,7 +460,7 @@ begin
         P.RoundRect(X0, CY - TrackH / 2, TX - X0, TrackH, TrackH / 2, Fill,
           clNone);
     end;
-    if Focused and not IsPreview then
+    if Focused and FocusCuesVisible and not IsPreview then
       P.FocusRing(TX - T / 2 - P.S(3), CY - T / 2 - P.S(3), T + P.S(6),
         T + P.S(6), T / 2 + P.S(3));
     if (FHot or FDragging) and Enabled then

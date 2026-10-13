@@ -641,7 +641,7 @@ begin
       end;
       Inc(TopY, SectionHeight(FSections[S]));
     end;
-    if Focused then
+    if Focused and FocusCuesVisible then
       Painter.FocusRing(0, 0, Width, Height, 0);
   finally
     Painter.Free;
@@ -822,7 +822,7 @@ begin
     HY := HR.Top + Round(FHue / 360 * HR.Height);
     Painter.FrameRect(Rect(HR.Left - ScaleValue(3), HY - ScaleValue(2),
       HR.Right + ScaleValue(3), HY + ScaleValue(2)), Palette.ForegroundText);
-    if Focused then
+    if Focused and FocusCuesVisible then
       Painter.FocusRing(0, 0, Width, Height, 0);
   finally
     Painter.Free;

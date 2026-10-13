@@ -23,6 +23,8 @@ class LibraryTests(unittest.TestCase):
         self.assertNotIn('TPageControl', dfm)
         self.assertNotIn('TTabSheet', dfm)
         self.assertIn('object PageTabs: TERDTabs', dfm)
+        self.assertIn('Backstage = DemoBackstage', dfm)
+        self.assertIn('OnFileClick = ShowBackstage', dfm)
 
     def test_showcase_fields_do_not_collide_with_event_methods(self):
         source = (ROOT/'demo/Showcase.pas').read_text(encoding='utf-8-sig')

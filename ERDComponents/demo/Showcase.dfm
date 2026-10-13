@@ -15,6 +15,10 @@
     BorderWidth = 0
     OnResize = LayoutChrome
     object TitleBar: TERDTitleBar
+      TabStop = True
+      AutoSaveVisible = True
+      AutoSave = True
+      OnAutoSaveChange = AutoSaveChanged
       Left = 0
       Top = 0
       Width = 1280
@@ -34,6 +38,17 @@
         item
           Icon.BuiltIn = ei003Opslaan
           Hint = 'Save'
+          OnClick = QuickAccessClicked
+        end
+        item
+          Icon.BuiltIn = ei010Ongedaan
+          Hint = 'Undo'
+          OnClick = QuickAccessClicked
+        end
+        item
+          Icon.BuiltIn = ei011Opnieuw
+          Hint = 'Redo'
+          OnClick = QuickAccessClicked
         end>
       Buttons = <
         item
@@ -43,6 +58,8 @@
         end>
     end
     object Ribbon: TERDRibbon
+      Backstage = DemoBackstage
+      OnFileClick = ShowBackstage
       Left = 0
       Top = 48
       Width = 1280
@@ -130,11 +147,18 @@
           'Windows'
           'Office Light'
           'Office Dark'
-          'Ocean Light'
-          'Ocean Dark'
-          'Forest Light'
-          'Forest Dark'
-          'High Contrast'
+          'Office Word Light'
+          'Office Word Dark'
+          'Office Excel Light'
+          'Office Excel Dark'
+          'Office Access Light'
+          'Office Access Dark'
+          'Office PowerPoint Light'
+          'Office PowerPoint Dark'
+          'Office Outlook Light'
+          'Office Outlook Dark'
+          'Office OneNote Light'
+          'Office OneNote Dark'
         )
         ItemIndex = 0
         OnChange = ThemeSelected
@@ -3740,30 +3764,15 @@
           Top = 286
           Caption = 'TERDBackstage'
         end
-        object DemoBackstage: TERDBackstage
-          Visible = True
-          Align = alNone
+        object OpenBackstageButton: TERDButton
           Left = 16
           Top = 312
-          Width = 460
-          Height = 220
-          Items = <
-            item Caption = 'Information' Page = BackstageInfo end
-            item Caption = 'Settings' Page = BackstageSettings end
-          >
-          object BackstageInfo: TERDPanel
-            HeaderHeight = 32
-            Caption = 'Application information'
-            object BackstageInfoText: TLabel
-              Left = 12
-              Top = 48
-              Caption = 'A page supplied by your application.'
-            end
-          end
-          object BackstageSettings: TERDPanel
-            HeaderHeight = 32
-            Caption = 'Application settings'
-          end
+          Width = 280
+          Height = 44
+          AutoSize = False
+          Caption = 'Open backstage (File)'
+          Icon.BuiltIn = ei005Bestand
+          OnClick = ShowBackstage
         end
         object LabelTabs: TLabel
           Left = 506
@@ -4342,6 +4351,33 @@
       Caption = 'Show dialog'
       Icon.BuiltIn = ei028Info
       OnClick = ShowDialog
+    end
+  end
+  object DemoBackstage: TERDBackstage
+    Visible = False
+    Align = alClient
+    Left = 0
+    Top = 48
+    Width = 1280
+    Height = 668
+    OnClose = BackstageClosed
+    ItemIndex = 0
+    Items = <
+      item Caption = 'Information' Page = BackstageInfo end
+      item Caption = 'Settings' Page = BackstageSettings end
+    >
+    object BackstageInfo: TERDPanel
+      HeaderHeight = 32
+      Caption = 'Application information'
+      object BackstageInfoText: TLabel
+        Left = 12
+        Top = 48
+        Caption = 'A page supplied by your application.'
+      end
+    end
+    object BackstageSettings: TERDPanel
+      HeaderHeight = 32
+      Caption = 'Application settings'
     end
   end
 end

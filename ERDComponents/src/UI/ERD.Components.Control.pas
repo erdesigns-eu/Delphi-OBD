@@ -244,6 +244,9 @@ type
     /// theme's density while <see cref="ParentDensity"/> is True;
     /// setting it clears <c>ParentDensity</c>. Published by the
     /// Application controls.</summary>
+    function GetFocusCuesVisible: Boolean;
+    property FocusCuesVisible: Boolean read GetFocusCuesVisible;
+
     property Density: TERDDensity read GetDensity write SetDensity
       stored IsDensityStored;
     /// <summary>True: follow <c>TERDTheme.Density</c>. False: use
@@ -1019,9 +1022,20 @@ begin
   Message.Result := 1;
 end;
 
+function TERDCustomControl.GetFocusCuesVisible: Boolean;
+var AlwaysShow: BOOL;
+begin
+  AlwaysShow := False;
+  SystemParametersInfo(SPI_GETKEYBOARDCUES, 0, @AlwaysShow, 0);
+  Result := AlwaysShow or (HandleAllocated and
+    ((SendMessage(Handle, WM_QUERYUISTATE, 0, 0) and UISF_HIDEFOCUS) = 0));
+end;
+
 procedure TERDCustomControl.WndProc(var Message: TMessage);
 var
   Host: IERDTileHost;
+  UIRoot: HWND;
+  UIAction: Integer;
 begin
   // The tile host takes every mouse message in edit mode, so the VCL
   // never arms its own leave tracking: the host arms TrackMouseEvent and
@@ -1038,7 +1052,24 @@ begin
       Exit;
     end;
   end;
+  UIAction := 0;
+  if Message.Msg = WM_LBUTTONDOWN then UIAction := UIS_SET
+  else if (Message.Msg = WM_KEYDOWN) and
+    (Message.WParam in [VK_TAB, VK_LEFT, VK_RIGHT, VK_UP, VK_DOWN,
+      VK_HOME, VK_END, VK_PRIOR, VK_NEXT, VK_SPACE, VK_RETURN]) then
+    UIAction := UIS_CLEAR;
+  if (UIAction <> 0) and HandleAllocated then
+  begin
+    UIRoot := GetAncestor(Handle, GA_ROOT);
+    if UIRoot = 0 then UIRoot := Handle;
+    SendMessage(UIRoot, WM_CHANGEUISTATE,
+      WPARAM(UIAction or (UISF_HIDEFOCUS shl 16)), 0);
+  end;
   inherited WndProc(Message);
+  if (Message.Msg = WM_SETFOCUS) or (Message.Msg = WM_KILLFOCUS) or
+    (Message.Msg = CM_ENTER) or (Message.Msg = CM_EXIT) or
+    (Message.Msg = WM_UPDATEUISTATE) or (Message.Msg = WM_SETTINGCHANGE) then
+    Invalidate;
 end;
 
 procedure TERDCustomControl.Paint;

@@ -239,7 +239,7 @@ begin
   begin
     if VCLStyleIsDark then Mode := tmERDesignsDark else Mode := tmERDesignsLight;
   end;
-  if Mode in [tmERDesignsDark, tmOfficeDark, tmOceanDark, tmForestDark, tmHighContrast] then
+  if Mode in [tmERDesignsDark, tmOfficeDark, tmOfficeWordDark, tmOfficeExcelDark, tmOfficeAccessDark, tmOfficePowerPointDark, tmOfficeOutlookDark, tmOfficeOneNoteDark] then
     Result := BRAND_PALETTE_DARK
   else Result := BRAND_PALETTE_LIGHT;
   case Mode of
@@ -249,23 +249,78 @@ begin
     tmOfficeDark:
       begin Result.Background := $00202020; Result.GaugeFace := $002A2A2A;
         Result.Accent := $00F6A13B; Result.NeutralLight := $00484848 end;
-    tmOceanLight:
-      begin Result.Background := $00FCF6ED; Result.GaugeFace := $00FFFDF9;
-        Result.Accent := $00A16903; Result.NeutralLight := $00EFDAC8 end;
-    tmOceanDark:
-      begin Result.Background := $002A170F; Result.GaugeFace := $003D2817;
-        Result.Accent := $00F8BD38; Result.NeutralLight := $00554133 end;
-    tmForestLight:
-      begin Result.Background := $00F1F7EF; Result.GaugeFace := clWhite;
-        Result.Accent := $003D8015; Result.NeutralLight := $00D8E4CC end;
-    tmForestDark:
-      begin Result.Background := $00162E05; Result.GaugeFace := $00243B0D;
-        Result.Accent := $0080DE4A; Result.NeutralLight := $00346616 end;
-    tmHighContrast:
-      begin Result.Background := clBlack; Result.GaugeFace := clBlack;
-        Result.ForegroundText := clWhite; Result.Subtle := clWhite;
-        Result.NeutralLight := clWhite; Result.Accent := clYellow;
-        Result.Success := clLime; Result.Warning := clYellow; Result.Danger := $006666FF end;
+    tmOfficeWordLight:
+      begin
+        Result.Background := $00F5F5F5; Result.GaugeFace := clWhite;
+        Result.NeutralLight := $00D8D8D8;
+        Result.Accent := $00BD5A18;
+      end;
+    tmOfficeWordDark:
+      begin
+        Result.Background := $00202020; Result.GaugeFace := $002A2A2A;
+        Result.NeutralLight := $00484848;
+        Result.Accent := $00E88D4F;
+      end;
+    tmOfficeExcelLight:
+      begin
+        Result.Background := $00F5F5F5; Result.GaugeFace := clWhite;
+        Result.NeutralLight := $00D8D8D8;
+        Result.Accent := $00417C10;
+      end;
+    tmOfficeExcelDark:
+      begin
+        Result.Background := $00202020; Result.GaugeFace := $002A2A2A;
+        Result.NeutralLight := $00484848;
+        Result.Accent := $007FBB3E;
+      end;
+    tmOfficeAccessLight:
+      begin
+        Result.Background := $00F5F5F5; Result.GaugeFace := clWhite;
+        Result.NeutralLight := $00D8D8D8;
+        Result.Accent := $003A37A4;
+      end;
+    tmOfficeAccessDark:
+      begin
+        Result.Background := $00202020; Result.GaugeFace := $002A2A2A;
+        Result.NeutralLight := $00484848;
+        Result.Accent := $007573DD;
+      end;
+    tmOfficePowerPointLight:
+      begin
+        Result.Background := $00F5F5F5; Result.GaugeFace := clWhite;
+        Result.NeutralLight := $00D8D8D8;
+        Result.Accent := $002647D2;
+      end;
+    tmOfficePowerPointDark:
+      begin
+        Result.Background := $00202020; Result.GaugeFace := $002A2A2A;
+        Result.NeutralLight := $00484848;
+        Result.Accent := $00688BF2;
+      end;
+    tmOfficeOutlookLight:
+      begin
+        Result.Background := $00F5F5F5; Result.GaugeFace := clWhite;
+        Result.NeutralLight := $00D8D8D8;
+        Result.Accent := $00D47800;
+      end;
+    tmOfficeOutlookDark:
+      begin
+        Result.Background := $00202020; Result.GaugeFace := $002A2A2A;
+        Result.NeutralLight := $00484848;
+        Result.Accent := $00F1A755;
+      end;
+    tmOfficeOneNoteLight:
+      begin
+        Result.Background := $00F5F5F5; Result.GaugeFace := clWhite;
+        Result.NeutralLight := $00D8D8D8;
+        Result.Accent := $00AA1977;
+      end;
+    tmOfficeOneNoteDark:
+      begin
+        Result.Background := $00202020; Result.GaugeFace := $002A2A2A;
+        Result.NeutralLight := $00484848;
+        Result.Accent := $00EA7ABA;
+      end;
   end;
   Result.GaugeNeedle := Result.Accent;
   Result.GaugeLabel := Result.Subtle;

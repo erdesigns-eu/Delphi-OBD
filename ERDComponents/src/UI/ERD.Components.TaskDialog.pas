@@ -859,7 +859,7 @@ begin
     Painter.Text(ScaleValue(30), Mid + ScaleValue(10), FNote,
       ERD_TEXT_SMALL, Palette.GaugeLabel, twRegular, taLeftJustify,
       Width - ScaleValue(44));
-    if Focused and not IsPreview then
+    if Focused and FocusCuesVisible and not IsPreview then
       Painter.FocusRing(0, 0, Width, Height);
   finally
     Painter.Free;

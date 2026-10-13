@@ -663,7 +663,7 @@ begin
     Painter.Text(R.Right + ScaleValue(10), Height div 2, NameAt(FSelected),
       ERD_TEXT_BODY, Palette.ForegroundText, twRegular, taLeftJustify,
       System.Math.Max(1, Width - R.Right - ScaleValue(12)));
-    if Focused then
+    if Focused and FocusCuesVisible then
       Painter.FocusRing(0, 0, Width, Height, 0);
   finally
     Painter.Free;
