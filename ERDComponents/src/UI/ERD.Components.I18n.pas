@@ -35,17 +35,6 @@ uses
 {$IFDEF FPC}Generics.Collections{$ELSE}System.Generics.Collections{$ENDIF},
   System.Types;
 
-function ParseERDJSONObject(const Text: string): TJSONObject;
-var Value: TJSONValue;
-begin
-  Value := TJSONObject.ParseJSONValue(Text);
-  if not (Value is TJSONObject) then
-  begin
-    Value.Free;
-    raise EConvertError.Create('Expected a JSON object');
-  end;
-  Result := TJSONObject(Value);
-end;
 
 type
   /// <summary>Metadata for a language catalogue discovered on disk.</summary>
@@ -187,12 +176,23 @@ const
 
 implementation
 
-uses
-  {$IFDEF FPC}SysUtils{$ELSE}System.SysUtils{$ENDIF}
 {$IFDEF MSWINDOWS}
-  , {$IFDEF FPC}Windows{$ELSE}Winapi.Windows{$ENDIF}
+uses
+  {$IFDEF FPC}Windows{$ELSE}Winapi.Windows{$ENDIF};
 {$ENDIF}
-  ;
+
+function ParseERDJSONObject(const Text: string): TJSONObject;
+var Value: TJSONValue;
+begin
+  Value := TJSONObject.ParseJSONValue(Text);
+  if not (Value is TJSONObject) then
+  begin
+    Value.Free;
+    raise EConvertError.Create('Expected a JSON object');
+  end;
+  Result := TJSONObject(Value);
+end;
+
 
 type
   TERDBuiltInString = record

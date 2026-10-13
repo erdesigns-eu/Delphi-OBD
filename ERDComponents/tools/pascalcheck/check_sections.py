@@ -37,12 +37,19 @@ CLASSDECL = re.compile(
 def scan(clean, rel):
     """[(rel, line, message)] for one unit's comment-stripped source."""
     out = []
+    in_interface = False
     state = None        # what column one last opened
     pending = None      # (keyword, line) of a section still without content
     for idx, raw in enumerate(clean.split('\n'), 1):
         line = raw.rstrip()
         if not line.strip():
             continue
+        if line.strip().lower() == "interface":
+            in_interface = True
+        elif line.strip().lower() == "implementation":
+            in_interface = False
+        elif in_interface and BEGIN.match(line.strip()):
+            out.append((rel, idx, "routine body is not allowed in the interface section"))
         col0 = not line[0].isspace()
         # A section keyword alone on its line opens the section wherever it
         # is indented; the compiler does not care and neither should this.

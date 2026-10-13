@@ -2,6 +2,7 @@
 import hashlib
 import json
 import tempfile
+import sys
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -12,6 +13,14 @@ import validate
 ROOT=Path(__file__).resolve().parents[1]
 
 class LibraryTests(unittest.TestCase):
+    def test_interface_routine_bodies_are_rejected(self):
+        sys.path.insert(0, str(ROOT/"tools/pascalcheck"))
+        from check_sections import scan
+        invalid = "interface\nfunction Parse: Integer;\nbegin\n  Result := 1;\nend;\nimplementation\nend."
+        self.assertTrue(any("interface section" in message for _, _, message in scan(invalid, "sample.pas")))
+        valid = "interface\nfunction Parse: Integer;\nimplementation\nfunction Parse: Integer;\nbegin\n  Result := 1;\nend;\nend."
+        self.assertEqual(scan(valid, "sample.pas"), [])
+
     def test_independent_library_projects_and_resource_coverage(self):
         validate.validate()
 
