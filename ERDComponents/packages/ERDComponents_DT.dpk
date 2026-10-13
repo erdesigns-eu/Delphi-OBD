@@ -7,6 +7,7 @@ requires
   rtl,
   vcl,
   vclimg,
+  vclx,
   designide;
 contains
   ERD.Components.Anim in '..\src\UI\ERD.Components.Anim.pas',
@@ -41,6 +42,7 @@ contains
   ERD.Components.PrintDialogs in '..\src\UI\ERD.Components.PrintDialogs.pas',
   ERD.Components.Progress in '..\src\UI\ERD.Components.Progress.pas',
   ERD.Components.RangeBar in '..\src\UI\ERD.Components.RangeBar.pas',
+  ERD.Components.Registration in '..\src\DesignTime\ERD.Components.Registration.pas',
   ERD.Components.Ribbon in '..\src\UI\ERD.Components.Ribbon.pas',
   ERD.Components.ScrollBar in '..\src\UI\ERD.Components.ScrollBar.pas',
   ERD.Components.ScrollBox in '..\src\UI\ERD.Components.ScrollBox.pas',
@@ -59,5 +61,28 @@ contains
   ERD.Components.ToolBar in '..\src\UI\ERD.Components.ToolBar.pas',
   ERD.Components.TrackBar in '..\src\UI\ERD.Components.TrackBar.pas',
   ERD.Components.Types in '..\src\UI\ERD.Components.Types.pas',
-  ERD.Components.Registration in '..\src\DesignTime\ERD.Components.Registration.pas';
+  ERD.Components.VT in '..\vendor\VirtualTreeView\Source\ERD.Components.VT.pas',
+  ERD.Components.VT.Accessibility in '..\vendor\VirtualTreeView\Source\ERD.Components.VT.Accessibility.pas',
+  ERD.Components.VT.AccessibilityFactory in '..\vendor\VirtualTreeView\Source\ERD.Components.VT.AccessibilityFactory.pas',
+  ERD.Components.VT.Actions in '..\vendor\VirtualTreeView\Source\ERD.Components.VT.Actions.pas',
+  ERD.Components.VT.AncestorVCL in '..\vendor\VirtualTreeView\Source\ERD.Components.VT.AncestorVCL.pas',
+  ERD.Components.VT.BaseAncestorVCL in '..\vendor\VirtualTreeView\Source\ERD.Components.VT.BaseAncestorVCL.pas',
+  ERD.Components.VT.BaseTree in '..\vendor\VirtualTreeView\Source\ERD.Components.VT.BaseTree.pas',
+  ERD.Components.VT.Classes in '..\vendor\VirtualTreeView\Source\ERD.Components.VT.Classes.pas',
+  ERD.Components.VT.ClipBoard in '..\vendor\VirtualTreeView\Source\ERD.Components.VT.ClipBoard.pas',
+  ERD.Components.VT.Colors in '..\vendor\VirtualTreeView\Source\ERD.Components.VT.Colors.pas',
+  ERD.Components.VT.DataObject in '..\vendor\VirtualTreeView\Source\ERD.Components.VT.DataObject.pas',
+  ERD.Components.VT.DragImage in '..\vendor\VirtualTreeView\Source\ERD.Components.VT.DragImage.pas',
+  ERD.Components.VT.DragnDrop in '..\vendor\VirtualTreeView\Source\ERD.Components.VT.DragnDrop.pas',
+  ERD.Components.VT.DrawTree in '..\vendor\VirtualTreeView\Source\ERD.Components.VT.DrawTree.pas',
+  ERD.Components.VT.EditLink in '..\vendor\VirtualTreeView\Source\ERD.Components.VT.EditLink.pas',
+  ERD.Components.VT.Export in '..\vendor\VirtualTreeView\Source\ERD.Components.VT.Export.pas',
+  ERD.Components.VT.Header in '..\vendor\VirtualTreeView\Source\ERD.Components.VT.Header.pas',
+  ERD.Components.VT.HeaderPopup in '..\vendor\VirtualTreeView\Source\ERD.Components.VT.HeaderPopup.pas',
+  ERD.Components.VT.StyleHooks in '..\vendor\VirtualTreeView\Source\ERD.Components.VT.StyleHooks.pas',
+  ERD.Components.VT.Types in '..\vendor\VirtualTreeView\Source\ERD.Components.VT.Types.pas',
+  ERD.Components.VT.Utils in '..\vendor\VirtualTreeView\Source\ERD.Components.VT.Utils.pas',
+  ERD.Components.VT.WorkerThread in '..\vendor\VirtualTreeView\Source\ERD.Components.VT.WorkerThread.pas',
+  ERD.Components.VirtualTree in '..\src\UI\ERD.Components.VirtualTree.pas';
+
 end.

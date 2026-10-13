@@ -74,6 +74,20 @@ class LibraryTests(unittest.TestCase):
                      'TaskDialog', 'ToastManager', 'HintStyle', 'PopupMenu']:
             self.assertIn(f'object Demo{name}: TERD{name}\n    Theme = Theme', dfm)
 
+    def test_tree_engine_is_namespaced_and_package_coverage_is_complete(self):
+        manifest = json.loads((ROOT/'vendor/VirtualTreeView/upstream.json').read_text())
+        self.assertEqual(manifest['version'], 'V8.5')
+        for entry in manifest['files']:
+            path = ROOT/'vendor/VirtualTreeView'/entry['path']
+            self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), entry['sha256'])
+            text = path.read_text(encoding='utf-8-sig')
+            self.assertIn('ERD.Components.VT', text)
+            self.assertIn('Mozilla Public License', text)
+            for kind in ['RT', 'DT']:
+                package = (ROOT/f'packages/ERDComponents_{kind}.dpk').read_text(encoding='utf-8-sig')
+                self.assertIn(path.stem + ' in ', package)
+        self.assertTrue((ROOT/'vendor/VirtualTreeView/LICENSE.MPL-1.1.txt').is_file())
+
     def test_interface_routine_bodies_are_rejected(self):
         sys.path.insert(0, str(ROOT/"tools/pascalcheck"))
         from check_sections import scan

@@ -1,0 +1,141 @@
+{
+  "upstream": "https://github.com/JAM-Software/Virtual-TreeView",
+  "version": "V8.5",
+  "commit": "eb27351b454ce330007d6c80f13250aa7e939918",
+  "license": "MPL-1.1 (selected from upstream dual license)",
+  "namespace": "ERD.Components.VT",
+  "files": [
+    {
+      "upstream": "Source/VirtualTrees.Accessibility.pas",
+      "path": "Source/ERD.Components.VT.Accessibility.pas",
+      "original_sha256": "a48ac725de2dc4af73bb77ef6884a2dafc2217f079f63c29218732bbd5f56245",
+      "sha256": "23232129076d44f4136cc70f4d726b49d0ed06897932977137bfec7d2905430a"
+    },
+    {
+      "upstream": "Source/VirtualTrees.AccessibilityFactory.pas",
+      "path": "Source/ERD.Components.VT.AccessibilityFactory.pas",
+      "original_sha256": "1b450fb54463f3743bb0a265942f696706bee58f9e2fc777ca3fed7faf778e9b",
+      "sha256": "55c6729aa52ad20d162ed7d19e7040028d1be7b3a3aee67a11ba78a19c25e517"
+    },
+    {
+      "upstream": "Source/VirtualTrees.Actions.pas",
+      "path": "Source/ERD.Components.VT.Actions.pas",
+      "original_sha256": "169d7d63454c8c213e7ada8e85da9f7abde0844816a2074e68a02436d651d91a",
+      "sha256": "fd35b490a7a7b95e9ba158957ff92e8f8dfa10aee62d4c3692ce6d7350af38d9"
+    },
+    {
+      "upstream": "Source/VirtualTrees.Classes.pas",
+      "path": "Source/ERD.Components.VT.Classes.pas",
+      "original_sha256": "99c67c32bac9b4175938450d57e6fe42c0422eed49e8514949d1dff4646b6442",
+      "sha256": "62f280302a98b1b8a7f743588a8802a3123f969655c256570f5dc6c7c921c0c3"
+    },
+    {
+      "upstream": "Source/VirtualTrees.ClipBoard.pas",
+      "path": "Source/ERD.Components.VT.ClipBoard.pas",
+      "original_sha256": "869a108ab95584b1a586c3d231d721e19fa9effdc9ea9c540e532220df714be0",
+      "sha256": "8fd52cc71a8fb88454ba50a983a011256d7061ad67ca66b766685f5442308c88"
+    },
+    {
+      "upstream": "Source/VirtualTrees.Colors.pas",
+      "path": "Source/ERD.Components.VT.Colors.pas",
+      "original_sha256": "30601009848f416eccf0ef15e43e5e0da837593a74e4085db37c76f2882c787f",
+      "sha256": "8fdba055701fb9f2130c215cdfeb11f4c448bf5e9207dc76dd2d43ec500c573d"
+    },
+    {
+      "upstream": "Source/VirtualTrees.DataObject.pas",
+      "path": "Source/ERD.Components.VT.DataObject.pas",
+      "original_sha256": "eb06d6411fb4af7fa223cce079ea9adfc79a017abc0a4fb1ca72e8d024428fbc",
+      "sha256": "7d221913a6b1db3a41a620f0e4ebf700f584a73a88f494aacb5368d548e3d312"
+    },
+    {
+      "upstream": "Source/VirtualTrees.DragImage.pas",
+      "path": "Source/ERD.Components.VT.DragImage.pas",
+      "original_sha256": "b71f26e5e34f95e39955def88f0887c8363f504a2855b221499e25b8674e716f",
+      "sha256": "10c272b2c02844ca2b61c2cddb805ff50d5dd93cde12ffe94d071e9ed6d4d984"
+    },
+    {
+      "upstream": "Source/VirtualTrees.DragnDrop.pas",
+      "path": "Source/ERD.Components.VT.DragnDrop.pas",
+      "original_sha256": "4cedd9c2b510b0ea64facc6d3d170e9a6e293eb7e378bbb3e90f53296ce8f5d7",
+      "sha256": "92b29e394e2837fb79ed530f64341b6cd31e4f356fc4cc460c787a8210013838"
+    },
+    {
+      "upstream": "Source/VirtualTrees.DrawTree.pas",
+      "path": "Source/ERD.Components.VT.DrawTree.pas",
+      "original_sha256": "82b611134d5e51dedb78aa73c3e567a500e5357ff00b4a02d3b1495548a3c1ff",
+      "sha256": "19cea91abb598eaa1c2b946911be2fe3e65a0af1a2765fdf60c7fece40b7c1b7"
+    },
+    {
+      "upstream": "Source/VirtualTrees.EditLink.pas",
+      "path": "Source/ERD.Components.VT.EditLink.pas",
+      "original_sha256": "52c57cf91a9c4c63139d2259da89e5a55acc274eb897075910306ccfa10c50f9",
+      "sha256": "cc6048fd9c0c61c3eabeedc28d7c6167a6dcc21c525f2ac9ab744fc8a5bec078"
+    },
+    {
+      "upstream": "Source/VirtualTrees.Export.pas",
+      "path": "Source/ERD.Components.VT.Export.pas",
+      "original_sha256": "7120b85c7e22bf8c92bb62a34a860d9465aa84e0f8cf172bd00abaa8e88e36df",
+      "sha256": "cdce7fa6078dfff66edc29337ceedec09d235ab2978a8a075624f06f81de9fe5"
+    },
+    {
+      "upstream": "Source/VirtualTrees.Header.pas",
+      "path": "Source/ERD.Components.VT.Header.pas",
+      "original_sha256": "62614725874d636e4b20b06b7fa3b19db7037f0441da11353045fafc9f1a33ca",
+      "sha256": "9a499cf529ae9f301ed3bae387c21bd86615a272ebf8349c93ef392b502f8040"
+    },
+    {
+      "upstream": "Source/VirtualTrees.HeaderPopup.pas",
+      "path": "Source/ERD.Components.VT.HeaderPopup.pas",
+      "original_sha256": "9409e1d360c7f5938a716b31fd6f8a72b744186b73a5f8a86cd84b8fd01c3624",
+      "sha256": "7ff63d3c64dfbae8852a2c8d267b45251155ee3d8c72109697e75c572c40c907"
+    },
+    {
+      "upstream": "Source/VirtualTrees.pas",
+      "path": "Source/ERD.Components.VT.pas",
+      "original_sha256": "e783dad084498b015fdb162841cec0e7610771b30c8bd2d88cff65c8129dc8a2",
+      "sha256": "125ec074d1c90bd64114a787fd70e4a54706ba058ee0021d44d3ed5591493887"
+    },
+    {
+      "upstream": "Source/VirtualTrees.BaseTree.pas",
+      "path": "Source/ERD.Components.VT.BaseTree.pas",
+      "original_sha256": "ba45dd13a1586cb8b8cf633d64582e61a39092b8f0737edff94d1607a06ebb3f",
+      "sha256": "dc07d954694b8587cb6d6fde9a93bc3f6d40473484a8c2762b753501efa64c9d"
+    },
+    {
+      "upstream": "Source/VirtualTrees.AncestorVcl.pas",
+      "path": "Source/ERD.Components.VT.AncestorVCL.pas",
+      "original_sha256": "b2af874ceb8b38f2fdf2aa0ba0ef3270770025be07c9f890faeb8d09bd01be55",
+      "sha256": "e3368becb20631c5a314c2fa229fd46d5b041e727c33b25e46181164dbf34cc9"
+    },
+    {
+      "upstream": "Source/VirtualTrees.BaseAncestorVcl.pas",
+      "path": "Source/ERD.Components.VT.BaseAncestorVCL.pas",
+      "original_sha256": "df705c90f146cfb87ea4cdc0c98dd63fab0579a5bacb824929f437c9abc6c216",
+      "sha256": "e8cd7e80ca2ffa64fead5763cddbe1e13cbcdefd3f6589c3e6752f710b8bf799"
+    },
+    {
+      "upstream": "Source/VirtualTrees.StyleHooks.pas",
+      "path": "Source/ERD.Components.VT.StyleHooks.pas",
+      "original_sha256": "4f59a506fd46c119dc812745750afef069e1ccc7b4d90bd33e07c7925c2407d0",
+      "sha256": "e2163cd3172955a1712e8c55f0cf23b2a7873db53dff3a6dfa56cd9274f7af6d"
+    },
+    {
+      "upstream": "Source/VirtualTrees.Types.pas",
+      "path": "Source/ERD.Components.VT.Types.pas",
+      "original_sha256": "546f3308cb880137aab7815390f92635d4f21726c35aadfe612d8d642826d11d",
+      "sha256": "5ad9f82697de543e10efcc000f4e040f61be8b11dbe3a8fa8bfb904fb4d9a3d7"
+    },
+    {
+      "upstream": "Source/VirtualTrees.Utils.pas",
+      "path": "Source/ERD.Components.VT.Utils.pas",
+      "original_sha256": "4831801cf5623627e62d549341274c127680db757ffec8501a49c6e161df4c3f",
+      "sha256": "d8c82d210ddfc364c8f1ff767d86cd67a76c07458238c18651c4593b377faf38"
+    },
+    {
+      "upstream": "Source/VirtualTrees.WorkerThread.pas",
+      "path": "Source/ERD.Components.VT.WorkerThread.pas",
+      "original_sha256": "94a4f1dc93e3de263821ffbf3eab84bf6cddea906e88fa806704b1919907a511",
+      "sha256": "8573c268594ab7acca7f25763ef69d793e3b4a69288bb90381680684c0aa1771"
+    }
+  ]
+}

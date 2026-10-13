@@ -7,7 +7,7 @@
     <Config Condition="'$(Config)'==''">Release</Config>
     <Platform Condition="'$(Platform)'==''">Win32</Platform>
     <DCC_Namespace>System;Winapi;Vcl;Data;Xml;$(DCC_Namespace)</DCC_Namespace>
-    <DCC_UnitSearchPath>..\src\UI;..\demo;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+    <DCC_UnitSearchPath>..\src\UI;..\demo;..\vendor\VirtualTreeView\Source;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
     <DCC_DcuOutput>..\build\$(Platform)\$(Config)\test-dcu</DCC_DcuOutput>
     <DCC_DcpOutput>..\build\$(Platform)\$(Config)</DCC_DcpOutput>
     <DCC_BplOutput>..\build\$(Platform)\$(Config)</DCC_BplOutput>

@@ -2,7 +2,7 @@
 interface
 procedure Register;
 implementation
-uses System.Classes, DesignIntf, ERD.Components.Backstage,
+uses System.Classes, DesignIntf, ERD.Components.VirtualTree, ERD.Components.Backstage,
   ERD.Components.Buttons,
   ERD.Components.Calendar,
   ERD.Components.Card,
@@ -46,6 +46,7 @@ uses System.Classes, DesignIntf, ERD.Components.Backstage,
 procedure Register;
 begin
   RegisterComponents('ERDesigns Components', [
+    TERDVirtualStringTree,
     TERDTheme,
     TERDCard,
     TERDButton,

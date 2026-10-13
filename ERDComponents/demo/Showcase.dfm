@@ -49,13 +49,15 @@
           Icon.BuiltIn = ei011Opnieuw
           Hint = 'Redo'
           OnClick = QuickAccessClicked
-        end>
+        end
+      >
       Buttons = <
         item
           Icon.BuiltIn = ei027Instellingen
           Hint = 'Light / dark'
           OnClick = ToggleTheme
-        end>
+        end
+      >
     end
     object Ribbon: TERDRibbon
       Backstage = DemoBackstage
@@ -294,12 +296,25 @@
       Height = 36
       Align = alTop
       Tabs = <
-        item Caption = 'Icons / themes' end
-        item Caption = 'Inputs' end
-        item Caption = 'Layout' end
-        item Caption = 'Data' end
-        item Caption = 'Files / colors' end
-        item Caption = 'Dialogs / notifications' end>
+        item
+          Caption = 'Icons / themes'
+        end
+        item
+          Caption = 'Inputs'
+        end
+        item
+          Caption = 'Layout'
+        end
+        item
+          Caption = 'Data'
+        end
+        item
+          Caption = 'Files / colors'
+        end
+        item
+          Caption = 'Dialogs / notifications'
+        end
+      >
       TabIndex = 0
       OnChange = PageSelected
     end
@@ -3786,8 +3801,12 @@
           Width = 460
           Height = 220
           Tabs = <
-            item Caption = 'First tab' end
-            item Caption = 'Second tab' end
+            item
+              Caption = 'First tab'
+            end
+            item
+              Caption = 'Second tab'
+            end
           >
         end
         object LabelToolBar: TLabel
@@ -3802,8 +3821,16 @@
           Width = 460
           Height = 220
           Items = <
-            item Caption = 'Open' Icon.BuiltIn = ei002Openen OnClick = OpenFile end
-            item Caption = 'Dialog' Icon.BuiltIn = ei028Info OnClick = ShowDialog end
+            item
+              Caption = 'Open'
+              Icon.BuiltIn = ei002Openen
+              OnClick = OpenFile
+            end
+            item
+              Caption = 'Dialog'
+              Icon.BuiltIn = ei028Info
+              OnClick = ShowDialog
+            end
           >
         end
         object LabelProgressBar: TLabel
@@ -3866,7 +3893,10 @@
           Categories = <
             item Caption = 'General'
               Properties = <
-                item Name = 'Title' Value = 'Example' end
+                item
+                  Name = 'Title'
+                  Value = 'Example'
+                end
                 item Name = 'Mode' Value = 'Light' Kind = ivPickList
                   PickList.Strings = ('Light' 'Dark') end
               >
@@ -3885,8 +3915,14 @@
           Width = 460
           Height = 220
           DataColumns = <
-            item Caption = 'Name' Width = 220 end
-            item Caption = 'Status' Width = 120 end
+            item
+              Caption = 'Name'
+              Width = 220
+            end
+            item
+              Caption = 'Status'
+              Width = 120
+            end
           >
         end
         object LabelTileGrid: TLabel
@@ -3901,8 +3937,14 @@
           Width = 460
           Height = 220
           Items = <
-            item Caption = 'Files' Icon.BuiltIn = ei005Bestand end
-            item Caption = 'Settings' Icon.BuiltIn = ei027Instellingen end
+            item
+              Caption = 'Files'
+              Icon.BuiltIn = ei005Bestand
+            end
+            item
+              Caption = 'Settings'
+              Icon.BuiltIn = ei027Instellingen
+            end
           >
         end
         object LabelKeyValueList: TLabel
@@ -3917,8 +3959,14 @@
           Width = 460
           Height = 220
           Items = <
-            item Key = 'Application' Value = 'Demo' end
-            item Key = 'Theme' Value = 'ERDesigns Light' end
+            item
+              Key = 'Application'
+              Value = 'Demo'
+            end
+            item
+              Key = 'Theme'
+              Value = 'ERDesigns Light'
+            end
           >
         end
         object LabelHistogram: TLabel
@@ -3933,6 +3981,41 @@
           Width = 460
           Height = 220
           Title = 'Sample distribution'
+        end
+        object LabelVirtualStringTree: TLabel
+          Left = 16
+          Top = 826
+          Caption = 'TERDVirtualStringTree - lazy playlist groups'
+        end
+        object DemoVirtualStringTree: TERDVirtualStringTree
+          Left = 16
+          Top = 852
+          Width = 950
+          Height = 300
+          Theme = Theme
+          Header.AutoSizeIndex = 1
+          Header.Columns = <
+            item
+              Text = 'Playlist / channel'
+              Width = 380
+            end
+            item
+              Text = 'Type'
+              Width = 130
+            end
+            item
+              Text = 'Quality'
+              Width = 100
+            end>
+          TreeOptions.MiscOptions = [toCheckSupport, toFullRepaintOnResize, toInitOnSave, toWheelPanning]
+          TreeOptions.SelectionOptions = [toFullRowSelect, toMultiSelect]
+          NodeDataSize = 8
+          RootNodeCount = 20
+          OnGetText = TreeGetText
+          OnInitNode = TreeInitNode
+          OnInitChildren = TreeInitChildren
+          OnCompareNodes = TreeCompareNodes
+          OnHeaderClick = TreeHeaderClick
         end
       end
     end
@@ -4363,8 +4446,14 @@
     OnClose = BackstageClosed
     ItemIndex = 0
     Items = <
-      item Caption = 'Information' Page = BackstageInfo end
-      item Caption = 'Settings' Page = BackstageSettings end
+      item
+        Caption = 'Information'
+        Page = BackstageInfo
+      end
+      item
+        Caption = 'Settings'
+        Page = BackstageSettings
+      end
     >
     object BackstageInfo: TERDPanel
       HeaderHeight = 32

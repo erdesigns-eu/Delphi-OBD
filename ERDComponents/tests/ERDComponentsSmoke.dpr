@@ -5,6 +5,7 @@ uses
   Winapi.Windows, Vcl.StdCtrls, Vcl.Graphics, Vcl.ImgList,
   ERD.Components.Types, ERD.Components.Icons, ERD.Components.IconCatalog,
   ERD.Components.Buttons, ERD.Components.Panel, ERD.Components.Chips,
+  ERD.Components.VirtualTree, ERD.Components.VT.BaseTree, ERD.Components.VT.Types,
   Showcase in '../demo/Showcase.pas',
   ERD.Components.SpinEdit, ERD.Components.Edits, ERD.Components.PopupList, ERD.Components.TitleBar, ERD.Components.StatusBar, ERD.Components.Theme, ERD.Components.Ribbon;
 type
@@ -413,6 +414,55 @@ begin
   end;
 end;
 
+procedure TestVirtualTreeThemeAndLazyNodes;
+var
+  Form: TShowcaseForm;
+  Tree: TERDVirtualStringTree;
+  Node, Child: PVirtualNode;
+  Mode: TERDThemeMode;
+  TextBefore, TextAfter: string;
+  Rect: TRect;
+  Snapshot: TBitmap;
+begin
+  Form := TShowcaseForm.Create(nil);
+  Snapshot := TBitmap.Create;
+  try
+    Tree := Form.DemoVirtualStringTree;
+    Check(Tree.RootNodeCount = 20, 'Virtual tree has twenty lazy root groups');
+    Node := Tree.GetFirst;
+    Check(Node <> nil, 'First virtual node exists');
+    Tree.ValidateNode(Node, False);
+    Check(vsHasChildren in Node.States, 'Root advertises lazy children');
+    Check(Node.ChildCount = 0, 'Collapsed group has no initialized channel nodes');
+    Tree.Expanded[Node] := True;
+    Check(Node.ChildCount = 1000, 'Expanding initializes the requested thousand child nodes');
+    Child := Tree.GetFirstChild(Node);
+    Check(Child <> nil, 'Expanded group exposes a channel');
+    Form.TreeGetText(Tree, Child, 0, ttNormal, TextBefore);
+    Tree.SortTree(0, sdDescending, False);
+    Form.TreeGetText(Tree, Child, 0, ttNormal, TextAfter);
+    Check(TextBefore = TextAfter, 'Sorting preserves node model identity');
+    for Mode := tmERDesignsLight to High(TERDThemeMode) do
+    begin
+      Form.Theme.Mode := Mode;
+      Check(Tree.Color = Form.Theme.Palette.GaugeFace, 'Tree background follows theme');
+      Check(Tree.Header.Font.Color = Form.Theme.Palette.ForegroundText, 'Header text follows theme');
+      Check(Tree.Colors.SelectionTextColor = Form.Theme.Palette.ForegroundText, 'Selection text follows theme');
+      Snapshot.SetSize(Tree.Width, Tree.Height);
+      Tree.PaintTo(Snapshot.Canvas.Handle, 0, 0);
+    end;
+    Tree.Selected[Child] := True;
+    Check(Tree.Selected[Child], 'Native selection API remains available');
+    Rect := Tree.GetDisplayRect(Child, 0, False);
+    Check(Rect.Bottom > Rect.Top, 'Expanded child has layout geometry');
+    Tree.Clear;
+    Check(Tree.RootNodeCount = 0, 'Clear releases virtual nodes');
+  finally
+    Snapshot.Free;
+    Form.Free;
+  end;
+end;
+
 begin
   try
     Application.Initialize;
@@ -423,6 +473,7 @@ begin
     TestComboMouseChange;
     TestDemoLayoutAndSpinMargins;
     TestWindowsFocusCuesAndAutoSave;
+    TestVirtualTreeThemeAndLazyNodes;
     Writeln(Checks, ' VCL runtime checks passed.');
   except on E: Exception do begin Writeln(E.ClassName, ': ', E.Message); Halt(1) end end;
 end.

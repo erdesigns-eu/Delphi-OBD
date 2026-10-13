@@ -130,6 +130,10 @@ for path in sorted(dfm_files()):
             if stack:
                 stack.pop()
             continue
+        if s == '>':
+            if stack and isinstance(stack[-1], tuple):
+                stack.pop()
+            continue
         if s == 'end>':
             if stack:
                 stack.pop()               # the item

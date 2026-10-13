@@ -1,6 +1,7 @@
 ﻿unit Showcase;
 interface
 uses
+  ERD.Components.VirtualTree, ERD.Components.VT.BaseTree, ERD.Components.VT.Types, ERD.Components.VT.Header,
   Vcl.StdCtrls,
   ERD.Components.Backstage,
   ERD.Components.Buttons,
@@ -56,6 +57,11 @@ uses
   ERD.Components.Sidebar,
   ERD.Components.TitleBar;
 type
+  TPlaylistDemoData = record
+    Id, GroupId: Cardinal;
+  end;
+  PPlaylistDemoData = ^TPlaylistDemoData;
+
   TShowcaseForm = class(TForm)
     TitleBar: TERDTitleBar;
     Sidebar: TERDSidebar;
@@ -515,6 +521,16 @@ type
     BackstageSettings: TERDPanel;
     BackstageInfoText: TLabel;
     OpenBackstageButton: TERDButton;
+    DemoVirtualStringTree: TERDVirtualStringTree;
+    LabelVirtualStringTree: TLabel;
+    procedure TreeGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
+      TextType: TVSTTextType; var CellText: string);
+    procedure TreeInitNode(Sender: TBaseVirtualTree; ParentNode, Node: PVirtualNode;
+      var InitialStates: TVirtualNodeInitStates);
+    procedure TreeInitChildren(Sender: TBaseVirtualTree; Node: PVirtualNode; var ChildCount: Cardinal);
+    procedure TreeCompareNodes(Sender: TBaseVirtualTree; Node1, Node2: PVirtualNode;
+      Column: TColumnIndex; var Result: Integer);
+    procedure TreeHeaderClick(Sender: TVTHeader; HitInfo: TVTHeaderHitInfo);
     procedure QuickAccessClicked(Sender: TObject);
     procedure AutoSaveChanged(Sender: TObject);
     procedure ShowBackstage(Sender: TObject);
@@ -610,6 +626,72 @@ var P: TPoint;
 begin
   P := TControl(Sender).ClientToScreen(Point(0, TControl(Sender).Height));
   DemoPopupMenu.Popup(P.X, P.Y);
+end;
+
+procedure TShowcaseForm.TreeGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
+  Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
+var Data: PPlaylistDemoData;
+begin
+  if not (vsInitialized in Node.States) then Sender.ValidateNode(Node, False);
+  Data := Sender.GetNodeData(Node);
+  if Data.GroupId = 0 then
+  begin
+    if Column = 0 then CellText := Format('Playlist %d', [Data.Id])
+    else if Column = 1 then CellText := 'Group' else CellText := '';
+  end
+  else
+    case Column of
+      0: CellText := Format('Channel %d.%d', [Data.GroupId, Data.Id]);
+      1: CellText := 'Live TV';
+      2: if Odd(Data.Id) then CellText := 'HD' else CellText := '4K';
+    end;
+end;
+
+procedure TShowcaseForm.TreeInitNode(Sender: TBaseVirtualTree; ParentNode, Node: PVirtualNode;
+  var InitialStates: TVirtualNodeInitStates);
+var Data, ParentData: PPlaylistDemoData;
+begin
+  Data := Sender.GetNodeData(Node);
+  Data.Id := Node.Index + 1;
+  Data.GroupId := 0;
+  Node.CheckType := ctCheckBox;
+  if Sender.GetNodeLevel(Node) = 0 then Include(InitialStates, ivsHasChildren)
+  else
+  begin
+    ParentData := Sender.GetNodeData(Node.Parent);
+    Data.GroupId := ParentData.Id;
+  end;
+end;
+
+procedure TShowcaseForm.TreeInitChildren(Sender: TBaseVirtualTree; Node: PVirtualNode;
+  var ChildCount: Cardinal);
+begin
+  if Sender.GetNodeLevel(Node) = 0 then ChildCount := 1000 else ChildCount := 0;
+end;
+
+procedure TShowcaseForm.TreeCompareNodes(Sender: TBaseVirtualTree; Node1, Node2: PVirtualNode;
+  Column: TColumnIndex; var Result: Integer);
+var LeftText, RightText: string;
+begin
+  TreeGetText(Sender, Node1, Column, ttNormal, LeftText);
+  TreeGetText(Sender, Node2, Column, ttNormal, RightText);
+  Result := CompareText(LeftText, RightText);
+end;
+
+procedure TShowcaseForm.TreeHeaderClick(Sender: TVTHeader; HitInfo: TVTHeaderHitInfo);
+begin
+  if HitInfo.Column < 0 then Exit;
+  if Sender.SortColumn = HitInfo.Column then
+  begin
+    if Sender.SortDirection = sdAscending then Sender.SortDirection := sdDescending
+    else Sender.SortDirection := sdAscending;
+  end
+  else
+  begin
+    Sender.SortColumn := HitInfo.Column;
+    Sender.SortDirection := sdAscending;
+  end;
+  DemoVirtualStringTree.SortTree(Sender.SortColumn, Sender.SortDirection, False);
 end;
 
 procedure TShowcaseForm.QuickAccessClicked(Sender: TObject);

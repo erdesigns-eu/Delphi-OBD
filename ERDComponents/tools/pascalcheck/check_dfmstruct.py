@@ -19,7 +19,7 @@ BARE_RE = re.compile(r'^(object|inline|inherited)\s+[A-Za-z_][A-Za-z0-9_]*$', re
 print('=== DFM files that do not close what they opened ===')
 total = 0
 for path in sorted(dfm_files()):
-    src = open(path, encoding='utf-8', errors='replace').read()
+    src = open(path, encoding='utf-8-sig', errors='replace').read()
     stack = []
     coll = 0
     problem = None

@@ -57,5 +57,6 @@
   "TERDReplaceDialog",
   "TERDTaskDialog",
   "TERDMenuItem",
-  "TERDPanel"
+  "TERDPanel",
+  "TERDVirtualStringTree"
 ]

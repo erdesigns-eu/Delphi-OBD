@@ -4,7 +4,7 @@ Zelfstandige algemene **Delphi VCL**-componentlibrary. Dit zijn onafhankelijke
 kopieën: Delphi-OBD wordt niet aangepast en heeft geen afhankelijkheid van deze
 library. De hele map kan naar een eigen repository worden verplaatst.
 
-- **59 paletcomponenten**: algemene invoer, navigatie, containers, grids, dialogen,
+- **60 paletcomponenten**: algemene invoer, navigatie, containers, grids, dialogen,
   applicatiechrome, theming en feedback. Zie `assets/components.json`.
 - **320 ingebouwde vectoriconen**, met stabiele identifiers en schaalbare SVGs.
 - Eigen namespace `ERD.Components.*`, classes `TERD*`, interfaces `IERD*`.
@@ -22,7 +22,7 @@ library. De hele map kan naar een eigen repository worden verplaatst.
    De demo gebruikt `TERDTitleBar`; met de keuze Ribbon/Menu wissel je van commandosurface.
    De File-knop opent een echte backstage met eigen Information- en Settings-pagina’s.
    De voorbeeldpagina’s gebruiken `TERDTabs` en `TERDPanel`, zonder standaard PageControl.
-   Alle 59 geregistreerde componenten staan in de DFM: de sidebar navigeert naar
+   Alle 60 geregistreerde componenten staan in de DFM: de sidebar navigeert naar
    iconen, invoer, layout, data, bestanden/kleuren en dialogs/notificaties.
    Dialogknoppen openen de bijbehorende component; toast, hints en popupmenu hebben eigen voorbeelden.
 
@@ -152,3 +152,31 @@ focussen en met Space/Enter schakelen. De demo toont hem naast Save/Undo/Redo.
 
 Zie [de Office-vergelijking](docs/office-ribbon-review.md) voor de resterende
 algemene verschillen met de aangeleverde Office-screenshot.
+
+## Virtual Treeview
+
+`TERDVirtualStringTree` gebruikt de officiële JAM Software **Virtual Treeview V8.5**
+VCL-engine. De engine is meegeleverd onder `ERD.Components.VT.*`: je hoeft de
+originele Virtual Treeview-package niet te installeren en beide varianten kunnen
+naast elkaar bestaan. Dit is een ERD-themevariant van de bestaande engine;
+virtualisatie, node-data, selectie, sorting, drag/drop en bestaande events blijven
+onderdeel van die engine.
+
+De component bindt aan `TERDTheme` en stijlt header, rijachtergrond, selectie,
+checkboxes/radio, uitklappijlen, rand en native scrollbar-presentatie. De originele
+Windows scrollbar-geometrie en bediening blijven behouden. Eigen draw-events en
+custom checkbox-images blijven bruikbaar. De `RowHeight`, `HeaderHeight` en
+`AlternateRows` zijn instelbaar; de hoogtes schalen met DPI.
+
+De DFM-demo bevat twintig playlistgroepen met elk duizend lazy child-items,
+checkboxes, meerdere kolommen en sortering via een headerklik. De data wordt door
+de gebruikelijke `OnGetText` / `OnInitNode` / `OnInitChildren` callbacks geleverd.
+Gebruik in migratiecode `ERD.Components.VirtualTree` en, waar nodig, de
+namespaced `ERD.Components.VT.Types`, `.BaseTree` en `.Header` units. Native
+nodepointers van de twee verschillende engines moeten niet worden uitgewisseld.
+
+Herkomst, pin, hashes, licentie en de beperkte engine-aanpassingen staan in
+[vendor/VirtualTreeView](vendor/VirtualTreeView/README.md). Die bronbestanden
+vallen onder MPL 1.1 en behouden de oorspronkelijke credits; ze vallen niet
+onder de licentie van onze eigen units. De core gebruikt alleen de VCL-runtime,
+zonder FMX- of upstream-designtime-units.

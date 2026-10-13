@@ -1,0 +1,188 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{8D4B7F30-D235-5020-BAEF-6C1B25276F85}</ProjectGuid>
+        <ProjectVersion>20.2</ProjectVersion>
+        <MainSource>ERDComponents_RT.dpk</MainSource>
+        <AppType>Package</AppType>
+        <Config Condition="'$(Config)'==''">Release</Config>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
+        <DCC_Namespace>System;Winapi;Vcl;Data;Xml;$(DCC_Namespace)</DCC_Namespace>
+        <DCC_UnitSearchPath>..\src\UI;..\src\DesignTime;..\build\$(Platform)\$(Config);..\vendor\VirtualTreeView\Source;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_DcuOutput>..\build\$(Platform)\$(Config)\rt-dcu</DCC_DcuOutput>
+        <DCC_DcpOutput>..\build\$(Platform)\$(Config)</DCC_DcpOutput>
+        <DCC_BplOutput>$(BDSCOMMONDIR)\Bpl\ERDComponents\$(Platform)</DCC_BplOutput>
+        <DCC_ExeOutput>$(Platform)\$(Config)</DCC_ExeOutput>
+        <DCC_Define>$(DCC_Define)</DCC_Define>
+        <DCC_AssertionsAtRuntime>true</DCC_AssertionsAtRuntime>
+        <FrameworkType>VCL</FrameworkType>
+        <Base>True</Base>
+        <ProjectName>ERDComponents_RT</ProjectName>
+        <TargetedPlatforms>3</TargetedPlatforms>
+        <ProjectName Condition="'$(ProjectName)'==''">ERDComponents_RT</ProjectName>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Base)'=='true') or '$(Base_Win64)'!=''">
+        <Base_Win64>true</Base_Win64>
+        <DCC_BplOutput>$(BDSCOMMONDIR)\Bpl\ERDComponents\$(Platform)</DCC_BplOutput>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_1)'!=''">
+        <Cfg_1>true</Cfg_1>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_2)'!=''">
+        <Cfg_2>true</Cfg_2>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win32)'!=''">
+        <Cfg_2_Win32>true</Cfg_2_Win32>
+        <CfgParent>Cfg_2</CfgParent>
+        <Cfg_2>true</Cfg_2>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base)'!=''">
+        <GenDll>true</GenDll>
+        <GenPackage>true</GenPackage>
+        <SanitizedProjectName>ERDComponents_RT</SanitizedProjectName>
+        <VerInfo_Locale>1043</VerInfo_Locale>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_Win64)'!=''">
+        <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
+        <BT_BuildType>Debug</BT_BuildType>
+        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Locale>1033</VerInfo_Locale>
+        <BCC_EnableBatchCompilation>true</BCC_EnableBatchCompilation>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1)'!=''">
+        <DCC_DebugInformation>2</DCC_DebugInformation>
+        <DCC_LocalDebugSymbols>true</DCC_LocalDebugSymbols>
+        <DCC_Optimize>false</DCC_Optimize>
+        <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2)'!=''">
+        <DCC_DebugInformation>0</DCC_DebugInformation>
+        <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
+        <DCC_Optimize>true</DCC_Optimize>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+        <VerInfo_Locale>1043</VerInfo_Locale>
+    </PropertyGroup>
+    <ItemGroup>
+        <DelphiCompile Include="$(MainSource)">
+            <MainSource>ERDComponents_RT.dpk</MainSource>
+        </DelphiCompile>
+        <DCCReference Include="..\src\UI\ERD.Components.Anim.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.Backstage.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.Buttons.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.Calendar.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.Card.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.Chips.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.ColorDialog.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.Control.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.DataGrid.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.Dialogs.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.Edits.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.FileDialogs.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.FindDialogs.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.FontDialog.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.GDIP.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.Hint.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.Histogram.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.I18n.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.IconCatalog.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.IconData.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.Icons.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.Inspector.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.ItemList.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.KeyValueList.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.Memo.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.Menus.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.Paint.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.Panel.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.PopupList.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.PrintDialogs.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.Progress.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.RangeBar.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.Ribbon.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.ScrollBar.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.ScrollBox.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.Segmented.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.ShellControls.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.Sidebar.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.SpinEdit.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.Splitter.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.StatusBar.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.Tabs.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.TaskDialog.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.Theme.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.TileGrid.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.TitleBar.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.Toast.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.ToolBar.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.TrackBar.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.Types.pas"/>
+    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.pas"/>
+    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.Accessibility.pas"/>
+    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.AccessibilityFactory.pas"/>
+    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.Actions.pas"/>
+    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.AncestorVCL.pas"/>
+    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.BaseAncestorVCL.pas"/>
+    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.BaseTree.pas"/>
+    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.Classes.pas"/>
+    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.ClipBoard.pas"/>
+    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.Colors.pas"/>
+    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.DataObject.pas"/>
+    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.DragImage.pas"/>
+    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.DragnDrop.pas"/>
+    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.DrawTree.pas"/>
+    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.EditLink.pas"/>
+    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.Export.pas"/>
+    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.Header.pas"/>
+    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.HeaderPopup.pas"/>
+    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.StyleHooks.pas"/>
+    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.Types.pas"/>
+    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.Utils.pas"/>
+    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.WorkerThread.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.VirtualTree.pas"/>
+    <BuildConfiguration Include="Base">
+            <Key>Base</Key>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Debug">
+            <Key>Cfg_1</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+        <BuildConfiguration Include="Release">
+            <Key>Cfg_2</Key>
+            <CfgParent>Base</CfgParent>
+        </BuildConfiguration>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Delphi.Personality.12</Borland.Personality>
+        <Borland.ProjectType>Package</Borland.ProjectType>
+        <BorlandProject>
+            <Delphi.Personality>
+                <Source>
+                    <Source Name="MainSource">ERDComponents_RT.dpk</Source>
+                </Source>
+                <Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dcloffice2k290.bpl">Microsoft Office 2000 Sample Automation Server Wrapper Components</Excluded_Packages>
+                    <Excluded_Packages Name="$(BDSBIN)\dclofficexp290.bpl">Microsoft Office XP Sample Automation Server Wrapper Components</Excluded_Packages>
+                </Excluded_Packages>
+            </Delphi.Personality>
+            <Platforms>
+                <Platform value="Win32">True</Platform>
+                <Platform value="Win64">True</Platform>
+            </Platforms>
+        </BorlandProject>
+        <ProjectFileVersion>12</ProjectFileVersion>
+    </ProjectExtensions>
+    <Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets"/>
+    <Import Project="$(BDS)\Bin\CodeGear.Delphi.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Delphi.Targets')"/>
+    <Import Project="$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj" Condition="Exists('$(APPDATA)\Embarcadero\$(BDSAPPDATABASEDIR)\$(PRODUCTVERSION)\UserTools.proj')"/>
+</Project>

@@ -20,7 +20,18 @@ def validate():
         path=ROOT/f"assets/svg/{i['id']:03}.svg";require(path.is_file(),'Missing '+str(path))
         ET.parse(path)
     sources={}
-    for path in (ROOT/'src').rglob('*.pas'):
+    vendor_root=ROOT/'vendor/VirtualTreeView'
+    manifest=json.loads((vendor_root/'upstream.json').read_text())
+    require(manifest['version']=='V8.5' and manifest['commit']=='eb27351b454ce330007d6c80f13250aa7e939918','Pinned Virtual Treeview revision')
+    vendor_paths=[]
+    for entry in manifest['files']:
+        path=vendor_root/entry['path']
+        require(hashlib.sha256(path.read_bytes()).hexdigest()==entry['sha256'],'Modified vendor source hash: '+path.name)
+        require('FMX' not in path.name.upper(),'FMX vendor source is out of scope')
+        vendor_paths.append(path)
+    require(len(vendor_paths)==22,'VCL engine closure')
+    require((vendor_root/'LICENSE.MPL-1.1.txt').is_file(),'Missing Virtual Treeview license')
+    for path in list((ROOT/'src').rglob('*.pas'))+vendor_paths:
         raw=path.read_bytes();require(raw.startswith(b'\xef\xbb\xbf'),'Missing BOM: '+path.name)
         require(b'\n' not in raw.replace(b'\r\n',b''),'Non-CRLF source: '+path.name)
         text=raw.decode('utf-8-sig');code=re.sub(r'//[^\n]*|\{[^}]*\}|\(\*.*?\*\)',' ',text,flags=re.S)
@@ -31,6 +42,13 @@ def validate():
         for uses in re.findall(r'\buses\s+(.*?);',code,re.S|re.I):
             for dependency in re.findall(r'\bERD\.[\w.]+',uses):
                 require(dependency.startswith('ERD.Components.'),'External repository dependency: '+dependency)
+    # FMX alternatives occur only in upstream conditional uses clauses.
+    excluded_fmx={'ERD.Components.VT.AncestorFMX','ERD.Components.VT.BaseAncestorFMX'}
+    for path in vendor_paths:
+        code=re.sub(r'//[^\n]*|\{[^}]*\}|\(\*.*?\*\)',' ',path.read_text(encoding='utf-8-sig'),flags=re.S)
+        for uses in re.findall(r'\buses\s+(.*?);',code,re.S|re.I):
+            for dependency in re.findall(r'\bERD\.Components\.[\w.]+',uses):
+                require(dependency.lower() in {name.lower() for name in sources} or dependency in excluded_fmx,'Missing vendor dependency '+dependency)
     for path in ROOT.rglob('*.dproj'):
         raw=path.read_bytes();require(raw.startswith(b'\xef\xbb\xbf'),'Project BOM: '+path.name)
         require(b'\n' not in raw.replace(b'\r\n',b''),'Project CRLF: '+path.name)
@@ -67,7 +85,7 @@ def validate():
     components=json.loads((ROOT/'assets/components.json').read_text())
     require(names=={c.upper() for c in components},'Palette icon/class registration mismatch')
     require('TERDPanel' in components,'Panel missing from palette')
-    print(f'{len(sources)} independent units, {len(components)} palette components, 320 vector icons and all projects/resources verified.')
+    print(f'{len(sources)-len(vendor_paths)} ERD units + {len(vendor_paths)} pinned VCL engine units, {len(components)} palette components, 320 vector icons and all projects/resources verified.')
 if __name__=='__main__':
     try:validate()
     except (ValueError,OSError,ET.ParseError) as error:
