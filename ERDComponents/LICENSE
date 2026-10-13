@@ -1,0 +1,201 @@
+Delphi-OBD Proprietary License
+Version 1.0 - October 2026
+
+Copyright (c) 2024-2026 Ernst Reidinga (ERDesigns). All rights reserved.
+
+Delphi-OBD is proprietary software. It is licensed, not sold. No rights are
+granted except those expressly set out in this License and in a License
+Agreement with ERDesigns.
+
+
+1. DEFINITIONS
+
+"ERDesigns" means Ernst Reidinga, trading as ERDesigns, the owner of the
+Software.
+
+"Software" means Delphi-OBD in all its forms: source code, compiled units and
+packages (including .dcu, .dcp and .bpl files), design-time packages and
+resources, catalogue data, schemas, tools, scripts, examples, documentation
+and any updates, fixes or new versions that ERDesigns makes available.
+
+"License Agreement" means a separate written agreement, order confirmation,
+invoice or e-mail from ERDesigns that grants you a licence to the Software
+and states its scope (for example the number of developers, the term and any
+additional rights).
+
+"Application" means a software product that you develop, that uses the
+Software, and that adds substantial functionality of its own beyond the
+Software. A component library, SDK, framework or other developer tool is not
+an Application.
+
+"You" means the person or legal entity that holds a License Agreement, and
+its employees who use the Software on its behalf.
+
+
+2. NO RIGHTS WITHOUT A LICENSE AGREEMENT
+
+Unless you hold a valid License Agreement, you may not use, copy, compile,
+modify, distribute or otherwise exploit the Software or any part of it.
+Having access to a copy of the Software, its source repository or its
+documentation does not grant you a licence.
+
+
+3. LICENSE GRANT
+
+Subject to this License and to a valid License Agreement, ERDesigns grants
+you a non-exclusive, non-transferable and non-sublicensable licence, for the
+term and the number of developers stated in the License Agreement, to:
+
+  a) install and use the Software, including the design-time package, on
+     the development computers of the licensed developers;
+  b) use and modify the source code to develop, build, test and maintain
+     your Applications;
+  c) distribute, royalty-free, the run-time parts of the Software in compiled
+     form only, as an integral part of your Applications, together with the
+     catalogue files that those Applications need at run time; and
+  d) make a reasonable number of backup copies.
+
+If the License Agreement and this License conflict, the License Agreement
+prevails.
+
+
+4. RESTRICTIONS
+
+Except as expressly permitted in the License Agreement, you may not:
+
+  a) distribute, publish, sell, rent, lease, lend, sublicense or otherwise
+     make available the source code, the design-time package, or any
+     compiled units or packages (.dcu, .dcp, .bpl) in a form that allows a
+     third party to develop software with them;
+  b) use the Software to create a product that competes with it, such as a
+     component library, SDK or other developer tool for vehicle
+     diagnostics;
+  c) give anyone other than the licensed developers access to the Software;
+  d) remove, alter or obscure any copyright notice, licence header or
+     safety notice in the Software;
+  e) use the names "ERDesigns" or "Delphi-OBD", or any logo of ERDesigns,
+     to endorse or promote your products without prior written permission;
+     or
+  f) use the Software in breach of applicable law (see section 8).
+
+
+5. CONFIDENTIALITY
+
+The source code, design and documentation of the Software are confidential
+information and trade secrets of ERDesigns. You must keep them confidential,
+protect them with at least the care you use for your own confidential
+information (and never less than reasonable care), and use them only as
+permitted by this License.
+
+
+6. OWNERSHIP
+
+ERDesigns retains all rights, title and interest, including all intellectual
+property rights, in and to the Software, including any copies and
+modifications of it. All rights not expressly granted are reserved. Your own
+Application code remains yours.
+
+
+7. THIRD-PARTY MATERIAL
+
+Parts of the Software implement or reference public standards (for example
+SAE, ISO and ECE specifications) and publicly available third-party sources,
+which are identified in the source files and documentation. Third-party
+material remains subject to its own terms. Vehicle manufacturer names and
+trademarks belong to their owners and are used for identification only; their
+use does not imply any affiliation or endorsement.
+
+The Software does not include any manufacturer's confidential algorithms,
+seed/key functions, credentials or databases. You are responsible for
+obtaining any licence, authorisation or access that you need for such
+material or for any manufacturer service that you use with the Software.
+
+
+8. LAWFUL AND RESPONSIBLE USE
+
+You may use the Software, and Applications built with it, only on vehicles,
+control units and devices that you own or that you are authorised by the
+owner to work on. You are solely responsible for complying with all laws and
+regulations that apply to your use, including those on vehicle safety and
+type approval, emissions, odometer readings, immobilisers and keys,
+anti-theft systems and radio codes. You may not use the Software for theft,
+fraud, odometer tampering, the defeat of emission controls or any other
+unlawful purpose.
+
+
+9. SAFETY NOTICE
+
+The Software includes ECU coding, ECU flashing, key adaptation, component
+protection and EEPROM functionality. Misuse of these features can
+permanently damage or "brick" an electronic control unit in a vehicle, with
+consequences ranging from non-functional accessories to an undriveable or
+unsafe vehicle. ERDesigns accepts no responsibility for any such damage. By
+using the coding, flashing or other write functionality you accept full
+responsibility for the consequences.
+
+Read docs/flashing-safety.md before using TOBDFlasher, TOBDFlashPipeline,
+TOBDCodingSession or any other component that writes to a real vehicle.
+
+
+10. DISCLAIMER OF WARRANTY
+
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE SOFTWARE IS PROVIDED
+"AS IS" AND "AS AVAILABLE", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE, ACCURACY AND NON-INFRINGEMENT. ERDESIGNS DOES NOT WARRANT
+THAT THE SOFTWARE OR ITS CATALOGUE DATA IS ERROR-FREE, COMPLETE OR SUITABLE
+FOR ANY PARTICULAR VEHICLE.
+
+
+11. LIMITATION OF LIABILITY
+
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, ERDESIGNS SHALL NOT BE
+LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL OR PUNITIVE
+DAMAGES, OR FOR ANY LOSS OF PROFITS, REVENUE, DATA OR BUSINESS, OR FOR ANY
+DAMAGE TO VEHICLES, CONTROL UNITS OR OTHER PROPERTY, ARISING OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THIS LICENSE, HOWEVER CAUSED. ERDESIGNS' TOTAL
+LIABILITY SHALL NOT EXCEED THE FEES YOU PAID FOR THE SOFTWARE IN THE TWELVE
+(12) MONTHS BEFORE THE EVENT GIVING RISE TO THE CLAIM. NOTHING IN THIS
+LICENSE LIMITS LIABILITY THAT CANNOT BE LIMITED UNDER APPLICABLE LAW, SUCH AS
+LIABILITY FOR INTENT OR GROSS NEGLIGENCE.
+
+
+12. TERM AND TERMINATION
+
+This License lasts for the term stated in the License Agreement. It ends
+automatically if you breach it and do not remedy the breach within thirty
+(30) days of written notice from ERDesigns. When it ends, you must stop using
+the Software and delete all copies in your possession. Copies of your
+Applications that you lawfully distributed to end users before the License
+ended remain licensed to those end users. Sections 4 to 7, 10, 11 and 14
+survive termination.
+
+
+13. EARLIER OPEN-SOURCE RELEASES
+
+Earlier versions of Delphi-OBD were made publicly available under open-source
+licence terms, including the MIT License. Copies of those earlier versions
+that were obtained under those terms remain governed by them. This License
+applies to the version of the Software in which it is included, to all later
+versions, and to all material that was not previously published under an
+open-source licence.
+
+
+14. GENERAL
+
+This License is governed by Belgian law. The United Nations Convention on
+Contracts for the International Sale of Goods does not apply. The courts of
+the judicial district in which ERDesigns has its principal place of business
+in Belgium have exclusive jurisdiction over any dispute arising from it,
+unless mandatory law provides otherwise. If any provision is held
+unenforceable, the remaining provisions stay in effect. ERDesigns may assign
+this License; you may not assign it without ERDesigns' prior written consent.
+A failure to enforce any provision is not a waiver of it.
+
+
+CONTACT
+
+For licensing, support and security reports, contact ERDesigns:
+
+  E-mail : info@erdesigns.be
+  Web    : https://erdesigns.be

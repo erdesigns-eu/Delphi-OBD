@@ -1,0 +1,681 @@
+﻿//------------------------------------------------------------------------------
+//  ERD.Components.Toast
+//
+//  Non-activating themed toast notifications for Application.
+//
+//    TERDToastManager  creates top-most no-activate popup toast windows,
+//                      stacks them over the owner form or in the corner of
+//                      the screen (Placement), tracks duration and raises
+//                      action / dismiss events.
+//
+//  Author      : Ernst Reidinga (ERDesigns)
+//  Copyright   : (c) 2024-2026 Ernst Reidinga (ERDesigns)
+//  License     : see LICENSE
+//
+//  History     :
+//    2026-10-10  ERD  Initial implementation.
+//------------------------------------------------------------------------------
+
+unit ERD.Components.Toast;
+
+interface
+
+uses
+  Winapi.Windows,
+  Winapi.Messages,
+  System.Types,
+  System.SysUtils,
+  System.Classes,
+  System.Math,
+  Vcl.Graphics,
+  Vcl.Controls,
+  Vcl.Forms,
+  Vcl.ExtCtrls,
+  Vcl.Themes,
+  ERD.Components.Types,
+  ERD.Components.Theme,
+  ERD.Components.Paint;
+
+type
+  /// <summary>Toast severity and accent colour.</summary>
+  TERDToastKind = (
+    /// <summary>Information toast.</summary>
+    tkInfo,
+    /// <summary>Success toast.</summary>
+    tkSuccess,
+    /// <summary>Warning toast.</summary>
+    tkWarning,
+    /// <summary>Danger toast.</summary>
+    tkDanger);
+
+  /// <summary>Toast stack anchor.</summary>
+  TERDToastPosition = (
+    /// <summary>Bottom right of the owner client area or work area.</summary>
+    tpBottomRight,
+    /// <summary>Top right of the owner client area or work area.</summary>
+    tpTopRight,
+    /// <summary>Bottom centre of the owner client area or work area.</summary>
+    tpBottomCenter);
+
+  /// <summary>Where the toast stack is shown.</summary>
+  TERDToastPlacement = (
+    /// <summary>Over the owner form's client area (falls back to the
+    /// screen while the form is hidden or minimised).</summary>
+    tlForm,
+    /// <summary>In the corner of the work area of the monitor that shows
+    /// the owner form, on top of other windows, so notifications are seen
+    /// while the application is not maximised or not in front.</summary>
+    tlScreen);
+
+  /// <summary>Toast event carrying the toast identifier.</summary>
+  /// <param name="Sender">Toast manager.</param>
+  /// <param name="AId">Toast identifier.</param>
+  TERDToastEvent = procedure(Sender: TObject; AId: Integer) of object;
+
+  /// <summary>Creates and manages themed toast notifications.</summary>
+  TERDToastManager = class(TComponent, IERDThemeAware)
+  private
+    FTheme: TERDTheme;
+    FDensity: TERDDensity;
+    FPosition: TERDToastPosition;
+    FPlacement: TERDToastPlacement;
+    FDuration: Cardinal;
+    FMaxVisible: Integer;
+    FMargin: Integer;
+    FNextId: Integer;
+    FToasts: TList;
+    FOnAction: TERDToastEvent;
+    FOnDismiss: TERDToastEvent;
+    procedure SetTheme(AValue: TERDTheme);
+    procedure SetDensity(AValue: TERDDensity);
+    procedure SetPosition(AValue: TERDToastPosition);
+    procedure SetPlacement(AValue: TERDToastPlacement);
+    function StackArea: TRect;
+    procedure SetDuration(AValue: Cardinal);
+    procedure SetMaxVisible(AValue: Integer);
+    procedure SetMargin(AValue: Integer);
+    function GetPalette: TERDThemePalette;
+    function FindToast(AId: Integer): Integer;
+    procedure ToastAction(AId: Integer; AOnAction: TNotifyEvent);
+    procedure ToastDismissed(AId: Integer);
+  protected
+    /// <summary>Clears theme references when they are removed.</summary>
+    /// <param name="AComponent">Removed component.</param>
+    /// <param name="Operation">Notification operation.</param>
+    procedure Notification(AComponent: TComponent;
+      Operation: TOperation); override;
+  public
+    /// <summary>Creates the manager with a 5000 ms duration.</summary>
+    /// <param name="AOwner">Component owner.</param>
+    constructor Create(AOwner: TComponent); override;
+    /// <summary>Dismisses all toasts and releases resources.</summary>
+    destructor Destroy; override;
+    /// <summary>Receives theme changes and repaints visible toasts.</summary>
+    procedure ThemeChanged;
+    /// <summary>Shows a toast and returns its identifier.</summary>
+    /// <param name="AKind">Toast kind.</param>
+    /// <param name="ATitle">Bold title.</param>
+    /// <param name="AText">Body text.</param>
+    /// <param name="AActionCaption">Optional action link caption.</param>
+    /// <param name="AOnAction">Optional per-toast action handler.</param>
+    /// <returns>Toast identifier.</returns>
+    function Show(AKind: TERDToastKind; const ATitle, AText: string;
+      const AActionCaption: string = ''; AOnAction: TNotifyEvent = nil)
+      : Integer;
+    /// <summary>Dismisses one toast by identifier.</summary>
+    /// <param name="AId">Toast identifier.</param>
+    procedure Dismiss(AId: Integer);
+    /// <summary>Dismisses every visible toast.</summary>
+    procedure DismissAll;
+    /// <summary>Repositions all visible toasts.</summary>
+    procedure Restack;
+    /// <summary>Palette currently used by toast windows.</summary>
+    /// <returns>Resolved palette.</returns>
+    property Palette: TERDThemePalette read GetPalette;
+  published
+    /// <summary>Optional explicit theme. nil = default theme or VCL style.</summary>
+    property Theme: TERDTheme read FTheme write SetTheme;
+    /// <summary>Desktop or tablet sizing.</summary>
+    property Density: TERDDensity read FDensity write SetDensity
+      default dnDesktop;
+    /// <summary>Toast stack anchor.</summary>
+    property Position: TERDToastPosition read FPosition write SetPosition
+      default tpBottomRight;
+    /// <summary>Over the owner form or in the corner of the screen.</summary>
+    property Placement: TERDToastPlacement read FPlacement write SetPlacement
+      default tlForm;
+    /// <summary>Visible duration in milliseconds; 0 keeps toasts sticky.</summary>
+    property Duration: Cardinal read FDuration write SetDuration default 5000;
+    /// <summary>Maximum number of visible toasts.</summary>
+    property MaxVisible: Integer read FMaxVisible write SetMaxVisible default 3;
+    /// <summary>Distance from the owner area or work area edge.</summary>
+    property Margin: Integer read FMargin write SetMargin default 16;
+    /// <summary>Fires when an action link is clicked.</summary>
+    property OnAction: TERDToastEvent read FOnAction write FOnAction;
+    /// <summary>Fires after a toast is dismissed.</summary>
+    property OnDismiss: TERDToastEvent read FOnDismiss write FOnDismiss;
+  end;
+
+implementation
+
+type
+  TToastWindow = class(TCustomControl)
+  strict private
+    FManager: TERDToastManager;
+    FId: Integer;
+    FKind: TERDToastKind;
+    FTitle: string;
+    FText: string;
+    FActionCaption: string;
+    FOnAction: TNotifyEvent;
+    FDuration: Cardinal;
+    FElapsed: Cardinal;
+    FTimer: TTimer;
+    FHover: Boolean;
+    FClosing: Boolean;
+    function AccentColor(const P: TERDThemePalette): TColor;
+    function ActionRect: TRect;
+    function CloseRect: TRect;
+    procedure TimerTick(Sender: TObject);
+    procedure WMMouseActivate(var Message: TWMMouseActivate);
+      message WM_MOUSEACTIVATE;
+    procedure CMMouseEnter(var Message: TMessage); message CM_MOUSEENTER;
+    procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
+    procedure WMEraseBkgnd(var Message: TWMEraseBkgnd); message WM_ERASEBKGND;
+    procedure PaintTo(ACanvas: TCanvas);
+  protected
+    procedure CreateParams(var Params: TCreateParams); override;
+    procedure Paint; override;
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X,
+      Y: Integer); override;
+  public
+    constructor CreateToast(AOwner: TComponent; AManager: TERDToastManager;
+      AId: Integer; AKind: TERDToastKind; const ATitle, AText,
+      AActionCaption: string; AOnAction: TNotifyEvent; ADuration: Cardinal);
+    procedure ShowNoActivate(const R: TRect);
+    property Id: Integer read FId;
+  end;
+
+function FallbackPalette: TERDThemePalette;
+begin
+  Result := BRAND_PALETTE_LIGHT;
+end;
+
+{ TToastWindow }
+
+constructor TToastWindow.CreateToast(AOwner: TComponent;
+  AManager: TERDToastManager; AId: Integer; AKind: TERDToastKind;
+  const ATitle, AText, AActionCaption: string; AOnAction: TNotifyEvent;
+  ADuration: Cardinal);
+begin
+  inherited Create(AOwner);
+  ControlStyle := ControlStyle + [csOpaque];
+  FManager := AManager;
+  FId := AId;
+  FKind := AKind;
+  FTitle := ATitle;
+  FText := AText;
+  FActionCaption := AActionCaption;
+  FOnAction := AOnAction;
+  FDuration := ADuration;
+  Width := 340;
+  Height := 64;
+  FTimer := TTimer.Create(Self);
+  FTimer.Interval := 40;
+  FTimer.OnTimer := TimerTick;
+  FTimer.Enabled := FDuration > 0;
+end;
+
+procedure TToastWindow.CreateParams(var Params: TCreateParams);
+begin
+  inherited CreateParams(Params);
+  Params.Style := (Params.Style and not WS_CHILD) or WS_POPUP or
+    WS_CLIPCHILDREN or WS_CLIPSIBLINGS;
+  Params.ExStyle := Params.ExStyle or WS_EX_NOACTIVATE or WS_EX_TOOLWINDOW or
+    WS_EX_TOPMOST;
+  Params.WindowClass.Style := Params.WindowClass.Style or CS_SAVEBITS or
+    CS_DROPSHADOW;
+end;
+
+procedure TToastWindow.WMMouseActivate(var Message: TWMMouseActivate);
+begin
+  Message.Result := MA_NOACTIVATE;
+end;
+
+procedure TToastWindow.WMEraseBkgnd(var Message: TWMEraseBkgnd);
+begin
+  // Paint covers every pixel from an off-screen buffer.
+  Message.Result := 1;
+end;
+
+procedure TToastWindow.CMMouseEnter(var Message: TMessage);
+begin
+  inherited;
+  FHover := True;
+  Invalidate;
+end;
+
+procedure TToastWindow.CMMouseLeave(var Message: TMessage);
+begin
+  inherited;
+  FHover := False;
+  Invalidate;
+end;
+
+function TToastWindow.AccentColor(const P: TERDThemePalette): TColor;
+begin
+  case FKind of
+    tkSuccess:
+      Result := P.Success;
+    tkWarning:
+      Result := P.Warning;
+    tkDanger:
+      Result := P.Danger;
+  else
+    Result := P.Accent;
+  end;
+end;
+
+function TToastWindow.ActionRect: TRect;
+var
+  P: TERDThemePalette;
+  Painter: TERDPainter;
+  B: TBitmap;
+  W: Integer;
+begin
+  Result := Rect(0, 0, 0, 0);
+  if FActionCaption = '' then
+    Exit;
+  P := FManager.Palette;
+  B := TBitmap.Create;
+  try
+    B.SetSize(1, 1);
+    Painter := TERDPainter.Create(B.Canvas, P, Screen.PixelsPerInch);
+    try
+      W := Painter.TextWidth(FActionCaption, ERD_TEXT_BODY, twSemibold) + 8;
+    finally
+      Painter.Free;
+    end;
+  finally
+    B.Free;
+  end;
+  Result := Rect(Width - 14 - W, 32, Width - 10, Height - 6);
+end;
+
+function TToastWindow.CloseRect: TRect;
+begin
+  Result := Rect(Width - 32, 4, Width - 4, 32);
+end;
+
+procedure TToastWindow.ShowNoActivate(const R: TRect);
+begin
+  SetBounds(R.Left, R.Top, R.Width, R.Height);
+  HandleNeeded;
+  SetWindowPos(Handle, HWND_TOPMOST, R.Left, R.Top, R.Width, R.Height,
+    SWP_NOACTIVATE or SWP_SHOWWINDOW);
+  Invalidate;
+end;
+
+procedure TToastWindow.TimerTick(Sender: TObject);
+var
+  R: TRect;
+begin
+  if FHover or FClosing then
+    Exit;
+  Inc(FElapsed, FTimer.Interval);
+  // Only the countdown strip changes between ticks.
+  if HandleAllocated then
+  begin
+    R := Rect(0, Height - 4, Width, Height);
+    InvalidateRect(Handle, @R, False);
+  end;
+  if (FDuration > 0) and (FElapsed >= FDuration) then
+  begin
+    FClosing := True;
+    FManager.Dismiss(FId);
+  end;
+end;
+
+procedure TToastWindow.Paint;
+var
+  Buffer: TBitmap;
+begin
+  if (Width <= 0) or (Height <= 0) then
+    Exit;
+  Buffer := TBitmap.Create;
+  try
+    Buffer.SetSize(Width, Height);
+    PaintTo(Buffer.Canvas);
+    Canvas.Draw(0, 0, Buffer);
+  finally
+    Buffer.Free;
+  end;
+end;
+
+procedure TToastWindow.PaintTo(ACanvas: TCanvas);
+var
+  P: TERDThemePalette;
+  Painter: TERDPainter;
+  C, Ink: TColor;
+  R, A: TRect;
+  TimerW: Integer;
+  Ratio: Double;
+begin
+  P := FManager.Palette;
+  C := AccentColor(P);
+  Painter := TERDPainter.Create(ACanvas, P, Screen.PixelsPerInch);
+  try
+    R := Rect(0, 0, Width, Height);
+    Painter.FillRect(R, P.GaugeFace);
+    Painter.FrameRect(R, P.NeutralLight);
+    Painter.FillRect(Rect(0, 0, 4, Height), C);
+    case FKind of
+      tkSuccess:
+        Painter.GlyphCheck(24, 22, C, 1.1);
+      tkDanger:
+        Painter.InkText(24, 22, '!', 16, C, twBold);
+      tkWarning:
+        Painter.GlyphPending(24, 22, C, 1.1);
+    else
+      Painter.InkText(24, 22, 'i', 16, C, twBold);
+    end;
+    Painter.Text(44, 22, FTitle, ERD_TEXT_BODY, P.ForegroundText, twBold,
+      taLeftJustify, Width - 86);
+    Painter.Text(44, 44, FText, ERD_TEXT_BODY, P.GaugeLabel, twRegular,
+      taLeftJustify, Width - 120);
+    Ink := P.Subtle;
+    if FHover and PtInRect(CloseRect, ScreenToClient(Mouse.CursorPos)) then
+      Ink := P.ForegroundText;
+    Painter.Lines([ERDPointF(Width - 22, 14), ERDPointF(Width - 14, 22)],
+      Ink, 1.6);
+    Painter.Lines([ERDPointF(Width - 14, 14), ERDPointF(Width - 22, 22)],
+      Ink, 1.6);
+    A := ActionRect;
+    if not A.IsEmpty then
+      Painter.Text(A.Right - 4, 44, FActionCaption, ERD_TEXT_BODY,
+      Painter.AccentText,
+        twSemibold, taRightJustify);
+    if FDuration > 0 then
+    begin
+      Ratio := 1 - EnsureRange(FElapsed / FDuration, 0, 1);
+      TimerW := Round((Width - 4) * Ratio);
+      Painter.FillRect(Rect(4, Height - 3, 4 + TimerW, Height - 1), C);
+    end;
+  finally
+    Painter.Free;
+  end;
+end;
+
+procedure TToastWindow.MouseUp(Button: TMouseButton; Shift: TShiftState; X,
+  Y: Integer);
+begin
+  inherited;
+  if Button <> mbLeft then
+    Exit;
+  if PtInRect(CloseRect, Point(X, Y)) then
+    FManager.Dismiss(FId)
+  else if PtInRect(ActionRect, Point(X, Y)) then
+    FManager.ToastAction(FId, FOnAction);
+end;
+
+{ TERDToastManager }
+
+constructor TERDToastManager.Create(AOwner: TComponent);
+begin
+  inherited Create(AOwner);
+  FDensity := dnDesktop;
+  FPosition := tpBottomRight;
+  FPlacement := tlForm;
+  FDuration := 5000;
+  FMaxVisible := 3;
+  FMargin := 16;
+  FNextId := 1;
+  FToasts := TList.Create;
+end;
+
+destructor TERDToastManager.Destroy;
+begin
+  DismissAll;
+  FToasts.Free;
+  SetTheme(nil);
+  inherited;
+end;
+
+procedure TERDToastManager.Notification(AComponent: TComponent;
+  Operation: TOperation);
+begin
+  inherited;
+  if (Operation = opRemove) and (AComponent = FTheme) then
+    FTheme := nil;
+end;
+
+procedure TERDToastManager.ThemeChanged;
+var
+  I: Integer;
+begin
+  for I := 0 to FToasts.Count - 1 do
+    TToastWindow(FToasts[I]).Invalidate;
+end;
+
+function TERDToastManager.GetPalette: TERDThemePalette;
+begin
+  if FTheme <> nil then
+    Result := FTheme.Palette
+  else if TERDTheme.GetDefault <> nil then
+    Result := TERDTheme.GetDefault.Palette
+  else
+    Result := FallbackPalette;
+end;
+
+procedure TERDToastManager.SetTheme(AValue: TERDTheme);
+begin
+  if FTheme = AValue then
+    Exit;
+  if FTheme <> nil then
+  begin
+    FTheme.Detach(Self);
+    FTheme.RemoveFreeNotification(Self);
+  end;
+  FTheme := AValue;
+  if FTheme <> nil then
+  begin
+    FTheme.FreeNotification(Self);
+    FTheme.Attach(Self);
+  end;
+  ThemeChanged;
+end;
+
+procedure TERDToastManager.SetDensity(AValue: TERDDensity);
+begin
+  if FDensity = AValue then
+    Exit;
+  FDensity := AValue;
+  Restack;
+end;
+
+procedure TERDToastManager.SetPosition(AValue: TERDToastPosition);
+begin
+  if FPosition = AValue then
+    Exit;
+  FPosition := AValue;
+  Restack;
+end;
+
+procedure TERDToastManager.SetPlacement(AValue: TERDToastPlacement);
+begin
+  if FPlacement = AValue then
+    Exit;
+  FPlacement := AValue;
+  Restack;
+end;
+
+procedure TERDToastManager.SetDuration(AValue: Cardinal);
+begin
+  FDuration := AValue;
+end;
+
+procedure TERDToastManager.SetMaxVisible(AValue: Integer);
+begin
+  if AValue < 1 then
+    AValue := 1;
+  if FMaxVisible = AValue then
+    Exit;
+  FMaxVisible := AValue;
+  while FToasts.Count > FMaxVisible do
+    Dismiss(TToastWindow(FToasts[0]).Id);
+  Restack;
+end;
+
+procedure TERDToastManager.SetMargin(AValue: Integer);
+begin
+  if AValue < 0 then
+    AValue := 0;
+  if FMargin = AValue then
+    Exit;
+  FMargin := AValue;
+  Restack;
+end;
+
+function TERDToastManager.FindToast(AId: Integer): Integer;
+var
+  I: Integer;
+begin
+  Result := -1;
+  for I := 0 to FToasts.Count - 1 do
+    if TToastWindow(FToasts[I]).Id = AId then
+      Exit(I);
+end;
+
+function TERDToastManager.Show(AKind: TERDToastKind; const ATitle,
+  AText: string; const AActionCaption: string; AOnAction: TNotifyEvent)
+  : Integer;
+var
+  Toast: TToastWindow;
+begin
+  Result := FNextId;
+  Inc(FNextId);
+  Toast := TToastWindow.CreateToast(nil, Self, Result, AKind, ATitle, AText,
+    AActionCaption, AOnAction, FDuration);
+  FToasts.Add(Toast);
+  while FToasts.Count > FMaxVisible do
+    Dismiss(TToastWindow(FToasts[0]).Id);
+  Restack;
+end;
+
+procedure TERDToastManager.Dismiss(AId: Integer);
+var
+  I: Integer;
+  Toast: TToastWindow;
+begin
+  I := FindToast(AId);
+  if I < 0 then
+    Exit;
+  Toast := TToastWindow(FToasts[I]);
+  FToasts.Delete(I);
+  if Toast.HandleAllocated then
+    ShowWindow(Toast.Handle, SW_HIDE);
+  Toast.Free;
+  ToastDismissed(AId);
+  Restack;
+end;
+
+procedure TERDToastManager.DismissAll;
+begin
+  while FToasts.Count > 0 do
+    Dismiss(TToastWindow(FToasts[FToasts.Count - 1]).Id);
+end;
+
+procedure TERDToastManager.ToastAction(AId: Integer; AOnAction: TNotifyEvent);
+begin
+  if Assigned(AOnAction) then
+    AOnAction(Self);
+  if Assigned(FOnAction) then
+    FOnAction(Self, AId);
+end;
+
+procedure TERDToastManager.ToastDismissed(AId: Integer);
+begin
+  if Assigned(FOnDismiss) then
+    FOnDismiss(Self, AId);
+end;
+
+function TERDToastManager.StackArea: TRect;
+var
+  OwnerForm: TCustomForm;
+  Shown: Boolean;
+  Mon: TMonitor;
+begin
+  OwnerForm := nil;
+  if Owner is TCustomForm then
+    OwnerForm := TCustomForm(Owner)
+  else if Application.MainForm <> nil then
+    OwnerForm := Application.MainForm;
+  Shown := (OwnerForm <> nil) and OwnerForm.Visible and
+    OwnerForm.HandleAllocated and not IsIconic(OwnerForm.Handle);
+
+  if (FPlacement = tlForm) and Shown then
+  begin
+    Result := OwnerForm.ClientRect;
+    Result.TopLeft := OwnerForm.ClientToScreen(Result.TopLeft);
+    Result.BottomRight := OwnerForm.ClientToScreen(Result.BottomRight);
+    Exit;
+  end;
+
+  // Screen corner: the work area (without the task bar) of the monitor
+  // that shows the form.
+  if (OwnerForm <> nil) and OwnerForm.HandleAllocated then
+    Mon := Screen.MonitorFromWindow(OwnerForm.Handle, mdNearest)
+  else
+    Mon := Screen.MonitorFromWindow(Application.Handle, mdNearest);
+  if Mon <> nil then
+    Result := Mon.WorkareaRect
+  else
+    Result := Screen.WorkAreaRect;
+end;
+
+procedure TERDToastManager.Restack;
+var
+  Area: TRect;
+  I, W, H, Gap, X, Y: Integer;
+  R: TRect;
+  Metrics: TERDDensityMetrics;
+begin
+  if FToasts.Count = 0 then
+    Exit;
+
+  Area := StackArea;
+
+  Metrics := DensityMetrics(FDensity);
+  W := 340;
+  if Metrics.Button > 30 then
+    W := 380;
+  H := 64;
+  Gap := 12;
+
+  for I := 0 to FToasts.Count - 1 do
+  begin
+    case FPosition of
+      tpTopRight:
+        begin
+          X := Area.Right - FMargin - W;
+          Y := Area.Top + FMargin + I * (H + Gap);
+        end;
+      tpBottomCenter:
+        begin
+          X := Area.Left + (Area.Width - W) div 2;
+          Y := Area.Bottom - FMargin - H - (FToasts.Count - 1 - I) *
+            (H + Gap);
+        end;
+    else
+      begin
+        X := Area.Right - FMargin - W;
+        Y := Area.Bottom - FMargin - H - (FToasts.Count - 1 - I) *
+          (H + Gap);
+      end;
+    end;
+    R := Rect(X, Y, X + W, Y + H);
+    TToastWindow(FToasts[I]).ShowNoActivate(R);
+  end;
+end;
+
+end.

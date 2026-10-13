@@ -1,0 +1,11 @@
+build/
+__pycache__/
+*.dcu
+*.bpl
+*.dcp
+*.local
+*.identcache
+*.dproj.local
+!src/DesignTime/ERD.Components.Palette.res
+!packages/ERDComponents_RT.res
+!packages/ERDComponents_DT.res

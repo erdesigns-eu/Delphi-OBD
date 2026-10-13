@@ -1,0 +1,18 @@
+{
+  "packages/ERDComponents_RT.dproj": [
+    "Win32",
+    "Win64"
+  ],
+  "packages/ERDComponents_DT.dproj": [
+    "Win32",
+    "Win64x"
+  ],
+  "demo/ERDComponentsDemo.dproj": [
+    "Win32",
+    "Win64"
+  ],
+  "tests/ERDComponentsSmoke.dproj": [
+    "Win32",
+    "Win64"
+  ]
+}
