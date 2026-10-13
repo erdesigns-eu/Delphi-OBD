@@ -530,7 +530,7 @@ begin
         // A press on the owner's field is left to the owner, which toggles
         // the list itself (like clicking a Windows combo box while open).
         if (FOwnerControl <> nil) and FOwnerControl.HandleAllocated and
-          (Msg.hwnd = FOwnerControl.Handle) and PtInRect(FFieldRect, Msg.pt) then
+          ((Msg.hwnd = FOwnerControl.Handle) or IsChild(FOwnerControl.Handle, Msg.hwnd)) and PtInRect(FFieldRect, Msg.pt) then
           Exit;
         // Any other press closes the list and is swallowed, as with the
         // standard combo box drop-down.

@@ -146,9 +146,18 @@ type
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
   end;
 
-  /// <summary>Themed drop-down list.</summary>
+  TERDComboStyle = (ecsDropDownList, ecsDropDown);
+  TERDComboFilterMode = (cfsNone, cfsPrefix, cfsContains);
+  /// <summary>Themed drop-down list, optionally editable and filterable.</summary>
   TERDComboBox = class(TERDCustomControl)
   strict private
+    FInput: TEdit;
+    FStyle: TERDComboStyle;
+    FFilterMode: TERDComboFilterMode;
+    FAutoComplete, FReadOnly, FSyncInput, FSuppressCompletion: Boolean;
+    FFilterText: string;
+    FFilteredItems: TStringList;
+    FFilterMap: TArray<Integer>;
     FItems: TStrings;
     FItemIndex: Integer;
     FPopup: TERDPopupList;
@@ -159,6 +168,21 @@ type
     FOnChange: TNotifyEvent;
     FOnDropDown: TNotifyEvent;
     FOnCloseUp: TNotifyEvent;
+    procedure SetStyle(Value: TERDComboStyle);
+    procedure SetFilterMode(Value: TERDComboFilterMode);
+    procedure SetFilterText(const Value: string);
+    procedure SetText(const Value: string);
+    procedure SetReadOnly(Value: Boolean);
+    procedure InputChanged(Sender: TObject);
+    procedure InputKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure InputKeyPress(Sender: TObject; var Key: Char);
+    procedure InputFocusChanged(Sender: TObject);
+    procedure LayoutInput;
+    procedure SyncInput;
+    procedure RebuildFilter;
+    function ExactIndex(const Value: string): Integer;
+    function GetFilteredCount: Integer;
+    function IsTextStored: Boolean;
     procedure SetItems(AValue: TStrings);
     procedure SetItemIndex(AValue: Integer);
     function GetText: string;
@@ -178,6 +202,7 @@ type
     procedure WMGetDlgCode(var Message: TWMGetDlgCode); message WM_GETDLGCODE;
     procedure WMKillFocus(var Message: TWMKillFocus); message WM_KILLFOCUS;
   protected
+    procedure Resize; override;
     /// <summary>Called when the user picks another item; fires
     /// <see cref="OnChange"/>. Descendants override it to react without
     /// taking over the event.</summary>
@@ -197,6 +222,13 @@ type
     destructor Destroy; override;
     /// <summary>Re-sizes for the new density.</summary>
     procedure DensityChanged; override;
+    procedure ThemeChanged; override;
+    procedure SetFocus; override;
+    function Focused: Boolean; override;
+    procedure GetChildren(Proc: TGetChildProc; Root: TComponent); override;
+    function FilteredIndex(Index: Integer): Integer;
+    property Editor: TEdit read FInput;
+    property FilteredCount: Integer read GetFilteredCount;
     /// <summary>Opens the list under the box.</summary>
     procedure DropDown;
     /// <summary>Closes the list.</summary>
@@ -204,10 +236,15 @@ type
     procedure CloseUp(AAccept: Boolean);
     /// <summary>The selected item, or '' when ItemIndex is -1.
     /// </summary>
-    property Text: string read GetText;
     /// <summary>True while the list is open.</summary>
     property DroppedDown: Boolean read IsOpen;
   published
+    property Style: TERDComboStyle read FStyle write SetStyle default ecsDropDownList;
+    property FilterMode: TERDComboFilterMode read FFilterMode write SetFilterMode default cfsNone;
+    property FilterText: string read FFilterText write SetFilterText stored False;
+    property AutoComplete: Boolean read FAutoComplete write FAutoComplete default True;
+    property ReadOnly: Boolean read FReadOnly write SetReadOnly default False;
+    property Text: string read GetText write SetText stored IsTextStored;
     /// <summary>Height follows the density.</summary>
     property AutoSize default True;
     /// <summary>Items to choose from.</summary>
@@ -286,6 +323,9 @@ begin
   inherited;
   if (Message.Msg = WM_GETDLGCODE) and (Message.WParam = VK_RETURN) and
     (Parent is TERDEdit) and TERDEdit(Parent).WantReturnKey then
+    Message.Result := Message.Result or DLGC_WANTMESSAGE;
+  if (Message.Msg = WM_GETDLGCODE) and (Parent is TERDComboBox) and
+    (Message.WParam = VK_RETURN) and TERDComboBox(Parent).DroppedDown then
     Message.Result := Message.Result or DLGC_WANTMESSAGE;
   case Message.Msg of
     WM_SETFOCUS, WM_PAINT, WM_SETTEXT, WM_SETFONT, WM_SIZE,
@@ -577,6 +617,23 @@ constructor TERDComboBox.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   ControlStyle := ControlStyle - [csDoubleClicks];
+  FStyle := ecsDropDownList;
+  FFilterMode := cfsNone;
+  FAutoComplete := True;
+  FFilteredItems := TStringList.Create;
+  FInput := TERDInnerEdit.Create(Self);
+  FInput.Parent := Self;
+  FInput.BorderStyle := bsNone;
+  FInput.AutoSize := False;
+  FInput.ParentColor := False;
+  FInput.ParentFont := False;
+  FInput.Visible := False;
+  FInput.TabStop := False;
+  FInput.OnChange := InputChanged;
+  FInput.OnKeyDown := InputKeyDown;
+  FInput.OnKeyPress := InputKeyPress;
+  FInput.OnEnter := InputFocusChanged;
+  FInput.OnExit := InputFocusChanged;
   FItems := TStringList.Create;
   TStringList(FItems).OnChange := ItemsChanged;
   FItemIndex := -1;
@@ -591,6 +648,10 @@ destructor TERDComboBox.Destroy;
 begin
   if FPopup <> nil then
     FPopup.OnCloseUp := nil;
+  FInput.OnChange := nil;
+  FInput.OnEnter := nil;
+  FInput.OnExit := nil;
+  FFilteredItems.Free;
   FItems.Free;
   inherited Destroy;
 end;
@@ -604,6 +665,9 @@ procedure TERDComboBox.ItemsChanged(Sender: TObject);
 begin
   if FItemIndex >= FItems.Count then
     FItemIndex := FItems.Count - 1;
+  RebuildFilter;
+  if FStyle = ecsDropDownList then Invalidate
+  else if FItemIndex >= 0 then SyncInput;
   Invalidate;
 end;
 
@@ -614,11 +678,13 @@ begin
   if FItemIndex = AValue then
     Exit;
   FItemIndex := AValue;
+  SyncInput;
   Invalidate;
 end;
 
 function TERDComboBox.GetText: string;
 begin
+  if (FStyle = ecsDropDown) and (FInput <> nil) then Exit(FInput.Text);
   if (FItemIndex >= 0) and (FItemIndex < FItems.Count) then
     Result := FItems[FItemIndex]
   else
@@ -630,6 +696,7 @@ begin
   if FMono = AValue then
     Exit;
   FMono := AValue;
+  LayoutInput;
   Invalidate;
 end;
 
@@ -639,18 +706,18 @@ begin
 end;
 
 procedure TERDComboBox.ChangeIndex(AIndex: Integer);
+var OldText: string; OldIndex: Integer;
 begin
-  AIndex := EnsureRange(AIndex, -1, FItems.Count - 1);
-  if AIndex = FItemIndex then
-    Exit;
-  FItemIndex := AIndex;
-  Invalidate;
-  Change;
+  OldText := GetText;
+  OldIndex := FItemIndex;
+  SetItemIndex(AIndex);
+  FFilterText := '';
+  if (OldIndex <> FItemIndex) or (OldText <> GetText) then Change;
 end;
 
 procedure TERDComboBox.Change;
 begin
-  if Assigned(FOnChange) then
+  if Assigned(FOnChange) and not (csLoading in ComponentState) then
     FOnChange(Self);
 end;
 
@@ -662,6 +729,7 @@ end;
 procedure TERDComboBox.DropDown;
 var
   TopLeft, BottomRight: TPoint;
+  Index, I: Integer;
 begin
   if IsOpen or not Enabled or (FItems.Count = 0) then
     Exit;
@@ -672,10 +740,14 @@ begin
   end;
   if Assigned(FOnDropDown) then
     FOnDropDown(Self);
+  RebuildFilter;
+  Index := -1;
+  for I := 0 to High(FFilterMap) do if FFilterMap[I] = FItemIndex then Index := I;
+  if (Index < 0) and (Length(FFilterMap) > 0) then Index := 0;
   TopLeft := ClientToScreen(Point(0, 0));
   BottomRight := ClientToScreen(Point(Width, Height));
   FPopup.Popup(Self, Rect(TopLeft.X, TopLeft.Y, BottomRight.X, BottomRight.Y),
-    FItems, FItemIndex, Palette, ScaleValue(96),
+    FFilteredItems, Index, Palette, ScaleValue(96),
     ScaleValue(Metrics.CompactRow), FDropDownCount);
   Invalidate;
 end;
@@ -689,8 +761,8 @@ end;
 procedure TERDComboBox.PopupCloseUp(Sender: TObject; AAccepted: Boolean;
   AIndex: Integer);
 begin
-  if AAccepted and (AIndex >= 0) then
-    ChangeIndex(AIndex);
+  if AAccepted and (AIndex >= 0) and (AIndex < Length(FFilterMap)) then
+    ChangeIndex(FFilterMap[AIndex]);
   Invalidate;
   if Assigned(FOnCloseUp) then
     FOnCloseUp(Self);
@@ -722,6 +794,8 @@ begin
   inherited;
   if not Enabled then
     CloseUp(False);
+  if FInput <> nil then FInput.Enabled := Enabled;
+  LayoutInput;
   Invalidate;
 end;
 
@@ -770,6 +844,7 @@ begin
   if AutoSize and not (csLoading in ComponentState) then
     AdjustSize;
   inherited DensityChanged;
+  LayoutInput;
 end;
 
 function TERDComboBox.CanAutoSize(var NewWidth, NewHeight: Integer): Boolean;
@@ -785,10 +860,8 @@ begin
   begin
     if CanFocus and not Focused then
       SetFocus;
-    if IsOpen then
-      CloseUp(False)
-    else
-      DropDown;
+    if (FStyle = ecsDropDownList) or (X >= Width - ScaleValue(32)) then
+      if IsOpen then CloseUp(False) else DropDown;
   end;
   inherited MouseDown(Button, Shift, X, Y);
 end;
@@ -797,6 +870,17 @@ procedure TERDComboBox.KeyDown(var Key: Word; Shift: TShiftState);
 var
   Handled: Boolean;
 begin
+  if not Enabled then Exit;
+  if FStyle = ecsDropDown then
+  begin
+    if IsOpen and (Key in [VK_UP, VK_DOWN, VK_PRIOR, VK_NEXT, VK_RETURN, VK_ESCAPE, VK_F4]) then
+      Handled := FPopup.HandleKey(Key, Shift)
+    else if (Key = VK_F4) or ((Key = VK_DOWN) and (Shift = [])) or
+      ((Key = VK_DOWN) and (ssAlt in Shift)) then begin DropDown; Handled := True end
+    else Handled := False;
+    if Handled then Key := 0 else inherited;
+    Exit;
+  end;
   if IsOpen then
     Handled := FPopup.HandleKey(Key, Shift)
   else
@@ -841,6 +925,156 @@ begin
   inherited KeyPress(Key);
 end;
 
+function TERDComboBox.IsTextStored: Boolean;
+begin Result := FStyle = ecsDropDown end;
+function TERDComboBox.ExactIndex(const Value: string): Integer;
+var I: Integer;
+begin
+  Result := -1;
+  for I := 0 to FItems.Count - 1 do if SameText(Value, FItems[I]) then Exit(I);
+end;
+procedure TERDComboBox.SetText(const Value: string);
+begin
+  if FStyle = ecsDropDownList then begin SetItemIndex(ExactIndex(Value)); Exit end;
+  FSyncInput := True;
+  try FInput.Text := Value; FItemIndex := ExactIndex(Value) finally FSyncInput := False end;
+  FFilterText := '';
+  RebuildFilter;
+  Invalidate;
+end;
+procedure TERDComboBox.SyncInput;
+begin
+  if FInput = nil then Exit;
+  FSyncInput := True;
+  try
+    if (FItemIndex >= 0) and (FItemIndex < FItems.Count) then FInput.Text := FItems[FItemIndex]
+    else FInput.Text := '';
+  finally FSyncInput := False end;
+end;
+procedure TERDComboBox.SetStyle(Value: TERDComboStyle);
+begin
+  if FStyle = Value then Exit;
+  CloseUp(False);
+  FStyle := Value;
+  TabStop := Value = ecsDropDownList;
+  FInput.TabStop := Value = ecsDropDown;
+  FInput.Visible := Value = ecsDropDown;
+  FFilterText := '';
+  SyncInput;
+  LayoutInput;
+  Invalidate;
+end;
+procedure TERDComboBox.SetReadOnly(Value: Boolean);
+begin FReadOnly := Value; FInput.ReadOnly := Value end;
+procedure TERDComboBox.SetFilterMode(Value: TERDComboFilterMode);
+begin FFilterMode := Value; RebuildFilter end;
+procedure TERDComboBox.SetFilterText(const Value: string);
+begin FFilterText := Value; RebuildFilter end;
+procedure TERDComboBox.RebuildFilter;
+var I, Selected: Integer; Match: Boolean;
+begin
+  if (FItems = nil) or (FFilteredItems = nil) then Exit;
+  FFilteredItems.Clear;
+  FFilterMap := nil;
+  for I := 0 to FItems.Count - 1 do
+  begin
+    case FFilterMode of
+      cfsPrefix: Match := StartsText(FFilterText, FItems[I]);
+      cfsContains: Match := ContainsText(FItems[I], FFilterText);
+    else Match := True;
+    end;
+    if Match then
+    begin
+      FFilteredItems.Add(FItems[I]);
+      SetLength(FFilterMap, Length(FFilterMap) + 1);
+      FFilterMap[High(FFilterMap)] := I;
+    end;
+  end;
+  if IsOpen then
+  begin
+    Selected := FPopup.ItemIndex;
+    FPopup.Items.Assign(FFilteredItems);
+    if FFilteredItems.Count > 0 then FPopup.ItemIndex := EnsureRange(Selected, 0, FFilteredItems.Count - 1)
+    else FPopup.ItemIndex := -1;
+    FPopup.EmptyText := 'No matching items';
+  end;
+end;
+function TERDComboBox.GetFilteredCount: Integer;
+begin Result := Length(FFilterMap) end;
+function TERDComboBox.FilteredIndex(Index: Integer): Integer;
+begin
+  if (Index < 0) or (Index >= Length(FFilterMap)) then raise EArgumentOutOfRangeException.Create('Filtered index');
+  Result := FFilterMap[Index];
+end;
+procedure TERDComboBox.InputChanged(Sender: TObject);
+var Query: string; I: Integer;
+begin
+  if FSyncInput or (FStyle <> ecsDropDown) then Exit;
+  Query := FInput.Text;
+  FFilterText := Query;
+  FItemIndex := ExactIndex(Query);
+  if FAutoComplete and not FSuppressCompletion and (Query <> '') and
+    (FInput.SelStart = Length(Query)) and (FInput.SelLength = 0) then
+    for I := 0 to FItems.Count - 1 do
+      if StartsText(Query, FItems[I]) then
+      begin
+        FSyncInput := True;
+        try
+          FInput.Text := FItems[I];
+          FInput.SelStart := Length(Query);
+          FInput.SelLength := Length(FItems[I]) - Length(Query);
+          FItemIndex := I;
+        finally FSyncInput := False end;
+        Break;
+      end;
+  RebuildFilter;
+  if (FFilterMode <> cfsNone) and Focused and HandleAllocated and not IsOpen then DropDown;
+  Invalidate;
+  Change;
+end;
+procedure TERDComboBox.InputKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  FSuppressCompletion := (Key = VK_BACK) or (Key = VK_DELETE);
+  KeyDown(Key, Shift);
+end;
+procedure TERDComboBox.InputKeyPress(Sender: TObject; var Key: Char);
+begin
+  if Key >= ' ' then FSuppressCompletion := False;
+  // Printable characters continue into the native edit; preserve app OnKeyPress.
+  inherited KeyPress(Key);
+end;
+procedure TERDComboBox.InputFocusChanged(Sender: TObject);
+begin if not Focused then CloseUp(False); Invalidate end;
+procedure TERDComboBox.LayoutInput;
+var H, Margin: Integer;
+begin
+  if FInput = nil then Exit;
+  if FMono then FInput.Font.Name := 'Consolas' else FInput.Font.Name := 'Segoe UI';
+  FInput.Font.Height := TextFontHeight(EDIT_TEXT_SIZE, ScaleValue(96));
+  FInput.Font.Color := Palette.ForegroundText;
+  FInput.Color := Palette.GaugeFace;
+  if not Enabled then begin FInput.Font.Color := Palette.Subtle; FInput.Color := Palette.Background end;
+  H := Max(1, Min(ERDFontLineHeight(FInput.Font), Height - ScaleValue(4)));
+  FInput.SetBounds(ScaleValue(10), (Height - H) div 2, Max(0, Width - ScaleValue(44)), H);
+  if FInput.HandleAllocated then
+  begin
+    Margin := Max(2, ScaleValue(2));
+    SendMessage(FInput.Handle, EM_SETMARGINS, EC_LEFTMARGIN or EC_RIGHTMARGIN, LPARAM(Margin or (Margin shl 16)));
+  end;
+end;
+procedure TERDComboBox.Resize;
+begin inherited; LayoutInput end;
+procedure TERDComboBox.ThemeChanged;
+begin inherited; LayoutInput end;
+procedure TERDComboBox.SetFocus;
+begin if FStyle = ecsDropDown then FInput.SetFocus else inherited end;
+function TERDComboBox.Focused: Boolean;
+begin Result := inherited Focused or ((FInput <> nil) and FInput.Focused) end;
+procedure TERDComboBox.GetChildren(Proc: TGetChildProc; Root: TComponent);
+begin
+  // Only public combo properties are streamed, not the internal native editor.
+end;
+
 procedure TERDComboBox.PaintControl(ACanvas: TCanvas);
 var
   P: TERDPainter;
@@ -861,8 +1095,10 @@ begin
     else
       Weight := twRegular;
     CY := Height div 2;
-    P.Text(P.S(10), CY, GetText, EDIT_TEXT_SIZE, Ink, Weight, taLeftJustify,
-      Width - P.S(36));
+    LayoutInput;
+    if FStyle = ecsDropDownList then
+      P.Text(P.S(10), CY, GetText, EDIT_TEXT_SIZE, Ink, Weight, taLeftJustify,
+        Width - P.S(36));
     P.GlyphChevron(Width - P.SF(14), CY, Palette.Subtle, True);
   finally
     P.Free;

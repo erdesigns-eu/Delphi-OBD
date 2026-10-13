@@ -394,3 +394,20 @@ Windows-smoketests zijn toegevoegd voor DropZone-filtering (incl. Unicode-paden)
 CommandPalette-search/actions en Rating-invoer/streaming. Deze tests vereisen nog
 uitvoering in Delphi op Windows; OLE-drag-feedback en de zoekdialoog zijn niet
 visueel getest in de cloudomgeving.
+
+## Bewerkbare ComboBox
+
+`TERDComboBox.Style=ecsDropDownList` blijft de standaard. Met `ecsDropDown` krijgt
+hij native tekstinvoer (incl. selectie/clipboard) met onze themed selectie.
+`FilterMode` kiest geen filtering, prefix of contains; filtering is case-insensitive.
+`AutoComplete=True` vult een prefix aan en selecteert de suffix zodat je verder kunt
+typen. Backspace/Delete vullen niet meteen opnieuw aan. `ReadOnly` blokkeert typen,
+maar laat kiezen uit de dropdown toe. `Text` kan in editable stijl ook vrije tekst zijn.
+
+De popup behoudt een mapping naar de oorspronkelijke `Items`: `ItemIndex` verandert
+niet van betekenis bij filtering. `FilterText`, `FilteredCount` en `FilteredIndex`
+bieden dezelfde filtering aan de applicatie. De native editor is bereikbaar via
+`Editor`; de DFM bewaart de openbare properties en vrije tekst, niet die interne control.
+`OnChange` meldt gebruikersinvoer of een keuze; programmatische setters zijn stil.
+De Inputs-demo bevat een zoekcombo en Windows-smoketests voor filtering, indexmapping,
+autocomplete, Backspace en DFM zijn toegevoegd (nog niet op Windows uitgevoerd).

@@ -767,6 +767,65 @@ begin
   end;
 end;
 
+procedure TestEditableCombo;
+var Form: TForm; Combo, Copy: TERDComboBox; Counter: TChangeProbe;
+  Popup: TERDPopupList; I: Integer; Stream: TMemoryStream;
+begin
+  RegisterClass(TERDComboBox);
+  Form := TForm.CreateNew(nil);
+  Counter := TChangeProbe.Create;
+  Stream := TMemoryStream.Create;
+  try
+    Combo := TERDComboBox.Create(Form);
+    Combo.Parent := Form;
+    Combo.Items.Add('Belgium'); Combo.Items.Add('Netherlands');
+    Combo.Items.Add('Belgium HD'); Combo.Items.Add('France');
+    Check((Combo.Style = ecsDropDownList) and Combo.AutoComplete, 'Legacy combo defaults preserved');
+    Combo.Style := ecsDropDown;
+    Combo.FilterMode := cfsContains;
+    Combo.FilterText := 'BEL';
+    Check((Combo.FilteredCount = 2) and (Combo.FilteredIndex(0) = 0) and
+      (Combo.FilteredIndex(1) = 2), 'Filtering retains original item indices');
+    Combo.FilterText := 'land';
+    Check((Combo.FilteredCount = 1) and (Combo.FilteredIndex(0) = 1), 'Contains filter can match middle of text');
+    Combo.FilterMode := cfsPrefix;
+    Check(Combo.FilteredCount = 0, 'Prefix filter does not match middle');
+    Combo.FilterText := 'bel';
+    Combo.OnChange := Counter.Changed;
+    Form.Show; Application.ProcessMessages;
+    Combo.SetFocus;
+    Combo.DropDown;
+    Popup := nil;
+    for I := 0 to Combo.ComponentCount - 1 do if Combo.Components[I] is TERDPopupList then
+      Popup := TERDPopupList(Combo.Components[I]);
+    Check((Popup <> nil) and Popup.IsOpen and (Popup.Items.Count = 2), 'Editable combo opens filtered popup');
+    Popup.ItemIndex := 1;
+    Popup.CloseUp(True);
+    Check((Combo.ItemIndex = 2) and (Combo.Text = 'Belgium HD') and (Counter.Changes = 1),
+      'Filtered popup commits original index exactly once');
+    Combo.FilterMode := cfsNone;
+    Combo.Text := '';
+    Combo.Editor.Perform(WM_CHAR, Ord('B'), 0);
+    Check((Combo.Text = 'Belgium') and (Combo.Editor.SelLength = 6), 'Native typing completes and selects suffix');
+    Combo.Editor.Perform(WM_CHAR, Ord('e'), 0);
+    Check((Combo.Text = 'Belgium') and (Combo.Editor.SelLength = 5), 'Next character replaces completion suffix');
+    Combo.Editor.Perform(WM_KEYDOWN, VK_BACK, 0);
+    Combo.Editor.Perform(WM_CHAR, VK_BACK, 0);
+    Check(Combo.Text = 'Be', 'Backspace removes suffix without immediately restoring it');
+    Combo.AutoComplete := False;
+    Combo.Text := 'custom text';
+    Check(Combo.ItemIndex = -1, 'Editable combo permits free text outside Items');
+    Combo.OnChange := nil;
+    Stream.WriteComponent(Combo);
+    Stream.Position := 0;
+    Copy := TERDComboBox(Stream.ReadComponent(nil));
+    try
+      Check((Copy.Style = ecsDropDown) and (Copy.Text = 'custom text') and (Copy.Items.Count = 4), 'Combo DFM preserves style and free text');
+      Check(Copy.ControlCount = 1, 'Combo stream does not duplicate native editor');
+    finally Copy.Free end;
+  finally Stream.Free; Form.Free; Counter.Free end;
+end;
+
 procedure TestRating;
 var Form: TForm; Rating: TRatingProbe; Copy, Stored: TERDRating;
   Counter: TChangeProbe; Bitmap: TBitmap; Stream: TMemoryStream; I: Integer;
@@ -1440,6 +1499,7 @@ begin
     TestDropZone;
     TestCommandPalette;
     TestRating;
+    TestEditableCombo;
     Writeln(Checks, ' VCL runtime checks passed.');
   except on E: Exception do begin Writeln(E.ClassName, ': ', E.Message); Halt(1) end end;
 end.

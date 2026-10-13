@@ -3959,6 +3959,25 @@
           Value = 4.5
           ReadOnly = True
         end
+        object SearchComboLabel: TLabel
+          Left = 16
+          Top = 3330
+          Caption = 'Editable ComboBox - contains filter, autocomplete and original Items index'
+        end
+        object SearchCombo: TERDComboBox
+          Left = 16
+          Top = 3356
+          Width = 460
+          Style = ecsDropDown
+          FilterMode = cfsContains
+          Items.Strings = (
+            'Belgium'
+            'Netherlands'
+            'Belgium HD'
+            'France'
+            'Germany')
+          OnChange = SearchComboChanged
+        end
       end
     end
     object LayoutPage: TERDPanel
