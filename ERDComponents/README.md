@@ -345,3 +345,16 @@ De Inputs-demo bevat een switch om `Active` te wijzigen.
 Windows-smoketests voor LinkLabel en LoadingIndicator zijn toegevoegd: activeren,
 disabled state, renderen zonder window, DFM en het stoppen/hervatten van de timer
 bij zichtbaarheidswijzigingen. Ook deze tests zijn hier niet op Windows uitgevoerd.
+
+## DropZone
+
+`TERDDropZone` accepteert bestaande bestanden vanuit Explorer via OLE `CF_HDROP`,
+met themed drag-feedback en een copy-cursor. Hij verplaatst of opent bestanden niet.
+`FileMasks` bevat wildcard-masks gescheiden met `;` (leeg of `*` = alle bestanden).
+Niet-passende bestanden worden uitgefilterd. `AllowDirectories=False` en
+`AllowMultiple=True` zijn standaard; bij single-select wordt een drop met meerdere
+passende items geweigerd. `AcceptDrops=False` of disabled blokkeert de drop.
+`OnFilesDropped` ontvangt tijdelijk de gefilterde `TStrings`; kopieer deze als je ze
+wilt bewaren. `DropFiles` gebruikt hetzelfde pad voor bestanden uit een dialoog.
+Klikken/Space levert `OnClick` voor een eigen browse-actie; de demo gebruikt onze OpenDialog.
+OLE wordt op de UI-thread geregistreerd en bij handle-recreatie/opruimen vrijgegeven.

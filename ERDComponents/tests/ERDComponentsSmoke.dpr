@@ -1,8 +1,10 @@
 ﻿program ERDComponentsSmoke;
 {$APPTYPE CONSOLE}
 uses
+  System.IOUtils,
   System.SysUtils, System.Classes, System.Types, System.Math, Vcl.Forms, Vcl.Controls,
   Winapi.Windows, Vcl.StdCtrls, Vcl.Graphics, Vcl.ImgList,
+  ERD.Components.DropZone,
   ERD.Components.LoadingIndicator,
   ERD.Components.LinkLabel,
   ERD.Components.Calendar, ERD.Components.DateTimePicker,
@@ -17,6 +19,11 @@ uses
   Showcase in '../demo/Showcase.pas',
   ERD.Components.SpinEdit, ERD.Components.Edits, ERD.Components.PopupList, ERD.Components.TitleBar, ERD.Components.StatusBar, ERD.Components.Theme, ERD.Components.Ribbon;
 type
+  TDropCounter = class
+    Count, FileCount: Integer;
+    FirstFile: string;
+    procedure Dropped(Sender: TObject; Files: TStrings);
+  end;
   TLoadingProbe = class(TERDLoadingIndicator)
   public
     procedure NextFrame;
@@ -68,6 +75,9 @@ type
     procedure Changed(Sender: TObject);
   end;
 var Checks: Integer;
+procedure TDropCounter.Dropped(Sender: TObject; Files: TStrings);
+begin Inc(Count); FileCount := Files.Count; FirstFile := Files[0] end;
+
 procedure TLoadingProbe.NextFrame;
 begin Advance end;
 
@@ -731,6 +741,53 @@ begin
   end;
 end;
 
+procedure TestDropZone;
+var Zone: TERDDropZone; Counter: TDropCounter; Files, Accepted: TStringList;
+  Root, First, Second, Other: string; Id: TGUID; Bitmap: TBitmap;
+begin
+  CreateGUID(Id);
+  Root := TPath.Combine(TPath.GetTempPath, 'ERD-drop-' + GUIDToString(Id));
+  CreateDir(Root);
+  First := TPath.Combine(Root, 'één.m3u');
+  Second := TPath.Combine(Root, 'UPPER.M3U8');
+  Other := TPath.Combine(Root, 'notes.txt');
+  Zone := TERDDropZone.Create(nil);
+  Counter := TDropCounter.Create;
+  Files := TStringList.Create;
+  Accepted := TStringList.Create;
+  Bitmap := TBitmap.Create;
+  try
+    TFile.WriteAllText(First, '#EXTM3U');
+    TFile.WriteAllText(Second, '#EXTM3U');
+    TFile.WriteAllText(Other, 'notes');
+    Zone.FileMasks := '*.m3u;*.m3u8';
+    Zone.OnFilesDropped := Counter.Dropped;
+    Check(Zone.AcceptsFile(First) and Zone.AcceptsFile(Second), 'Unicode paths and case-insensitive masks are accepted');
+    Check(not Zone.AcceptsFile(Other) and not Zone.AcceptsFile(Root) and not Zone.AcceptsFile(Other + '.missing'),
+      'Wrong mask, directories and missing files are rejected');
+    Files.Add(Other); Files.Add(First); Files.Add(Second);
+    Check(Zone.DropFiles(Files) and (Counter.FileCount = 2) and (Counter.FirstFile = First),
+      'Drop delivers only matching files in source order');
+    Check(Files.Count = 3, 'Source list remains owned and unchanged by caller');
+    Zone.AllowMultiple := False;
+    Check(not Zone.DropFiles(Files) and (Counter.Count = 1), 'Multiple matching files rejected in single mode');
+    Files.Delete(2);
+    Check(Zone.DropFiles(Files) and (Counter.FileCount = 1), 'Single mode accepts one remaining filtered file');
+    Zone.AcceptDrops := False;
+    Check(not Zone.DropFiles(Files), 'AcceptDrops false blocks delivery');
+    Zone.AcceptDrops := True; Zone.Enabled := False;
+    Check(not Zone.DropFiles(Files), 'Disabled drop zone blocks delivery');
+    Zone.Enabled := True; Zone.AllowDirectories := True;
+    Files.Clear; Files.Add(Root);
+    Check(Zone.FilterFiles(Files, Accepted) and (Accepted[0] = Root), 'Opt-in directory drops are supported');
+    Zone.RenderTo(Bitmap);
+    Check(not Zone.HandleAllocated, 'DropZone preview does not initialize an OLE window');
+  finally
+    Bitmap.Free; Zone.Free; Files.Free; Accepted.Free; Counter.Free;
+    TDirectory.Delete(Root, True);
+  end;
+end;
+
 procedure TestLoadingIndicator;
 var Form: TForm; Loading: TLoadingProbe; Stored, Copy: TERDLoadingIndicator;
   Bitmap: TBitmap; Stream: TMemoryStream; I, Frame: Integer;
@@ -1223,6 +1280,7 @@ begin
     TestDateSegmentsAndDateTime;
     TestLinkLabel;
     TestLoadingIndicator;
+    TestDropZone;
     Writeln(Checks, ' VCL runtime checks passed.');
   except on E: Exception do begin Writeln(E.ClassName, ': ', E.Message); Halt(1) end end;
 end.

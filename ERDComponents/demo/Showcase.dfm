@@ -3916,6 +3916,22 @@
           Checked = True
           OnChange = LoadingChanged
         end
+        object LabelDropZone: TLabel
+          Left = 16
+          Top = 2920
+          Caption = 'TERDDropZone - Explorer files, masks and optional folders'
+        end
+        object DemoDropZone: TERDDropZone
+          Left = 16
+          Top = 2946
+          Width = 460
+          Height = 160
+          Caption = 'Drop files here'
+          Description = 'or click to browse'
+          FileMasks = '*'
+          OnFilesDropped = FilesDropped
+          OnClick = BrowseDropFiles
+        end
       end
     end
     object LayoutPage: TERDPanel

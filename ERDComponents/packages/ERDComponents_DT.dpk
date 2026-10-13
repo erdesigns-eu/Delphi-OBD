@@ -10,6 +10,7 @@ requires
   vclx,
   designide;
 contains
+  ERD.Components.DropZone in '..\src\UI\ERD.Components.DropZone.pas',
   ERD.Components.LoadingIndicator in '..\src\UI\ERD.Components.LoadingIndicator.pas',
   ERD.Components.LinkLabel in '..\src\UI\ERD.Components.LinkLabel.pas',
   ERD.Components.DateTimePicker in '..\src\UI\ERD.Components.DateTimePicker.pas',

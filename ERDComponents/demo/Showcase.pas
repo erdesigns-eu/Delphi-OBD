@@ -1,6 +1,7 @@
 ﻿unit Showcase;
 interface
 uses
+  ERD.Components.DropZone,
   ERD.Components.LoadingIndicator,
   ERD.Components.LinkLabel,
   ERD.Components.DateTimePicker,
@@ -80,6 +81,8 @@ type
     LabelTimePicker: TLabel;
     DemoCheckListBox: TERDCheckListBox;
     LabelCheckListBox: TLabel;
+    DemoDropZone: TERDDropZone;
+    LabelDropZone: TLabel;
     TitleBar: TERDTitleBar;
     Sidebar: TERDSidebar;
     CommandChoice: TERDComboBox;
@@ -582,6 +585,8 @@ type
     procedure DateTimeChanged(Sender: TObject);
     procedure LinkClicked(Sender: TObject);
     procedure LoadingChanged(Sender: TObject);
+    procedure FilesDropped(Sender: TObject; Files: TStrings);
+    procedure BrowseDropFiles(Sender: TObject);
     procedure OpenFile(Sender: TObject);
     procedure IconClicked(Sender: TObject);
   end;
@@ -885,6 +890,15 @@ begin
   finally DemoBreadcrumb.Items.EndUpdate end;
   StatusBar.Panels[0].Text := 'Navigate: ' + Path;
 end;
+procedure TShowcaseForm.FilesDropped(Sender: TObject; Files: TStrings);
+begin
+  StatusBar.Panels[0].Text := Format('%d file(s): %s', [Files.Count, ExtractFileName(Files[0])]);
+end;
+procedure TShowcaseForm.BrowseDropFiles(Sender: TObject);
+begin
+  if DemoOpenDialog.Execute then DemoDropZone.DropFiles(DemoOpenDialog.Files);
+end;
+
 procedure TShowcaseForm.LoadingChanged(Sender: TObject);
 begin
   DemoLoadingIndicator.Active := LoadingToggle.Checked;

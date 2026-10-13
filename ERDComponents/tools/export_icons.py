@@ -58,6 +58,7 @@ def resource(name,payload):
 
 # Per-class icons, not one placeholder shared by every component.
 COMPONENT_ICONS={
+    'TERDDropZone': 18,
     'TERDLoadingIndicator': 16,
     'TERDLinkLabel': 148,
     'TERDDateTimePicker': 156,
