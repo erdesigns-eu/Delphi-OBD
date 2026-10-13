@@ -36,7 +36,6 @@ uses System.Classes, DesignIntf, ERD.Components.Backstage,
   ERD.Components.StatusBar,
   ERD.Components.Tabs,
   ERD.Components.TaskDialog,
-  ERD.Components.Terminal,
   ERD.Components.Theme,
   ERD.Components.TileGrid,
   ERD.Components.TitleBar,
@@ -48,7 +47,6 @@ procedure Register;
 begin
   RegisterComponents('ERDesigns Components', [
     TERDTheme,
-    TERDTerminal,
     TERDCard,
     TERDButton,
     TERDCheckBox,

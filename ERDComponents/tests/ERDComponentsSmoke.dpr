@@ -2,10 +2,11 @@
 {$APPTYPE CONSOLE}
 uses
   System.SysUtils, System.Classes, System.Types, Vcl.Forms, Vcl.Controls,
-  Winapi.Windows, Vcl.Graphics, Vcl.ImgList,
+  Winapi.Windows, Vcl.StdCtrls, Vcl.Graphics, Vcl.ImgList,
   ERD.Components.Types, ERD.Components.Icons, ERD.Components.IconCatalog,
   ERD.Components.Buttons, ERD.Components.Panel, ERD.Components.Chips,
-  ERD.Components.Edits, ERD.Components.PopupList, ERD.Components.TitleBar, ERD.Components.StatusBar, ERD.Components.Theme, ERD.Components.Ribbon;
+  Showcase in '../demo/Showcase.pas',
+  ERD.Components.SpinEdit, ERD.Components.Edits, ERD.Components.PopupList, ERD.Components.TitleBar, ERD.Components.StatusBar, ERD.Components.Theme, ERD.Components.Ribbon;
 type
   TChangeProbe = class
     Changes: Integer;
@@ -240,6 +241,58 @@ begin
   end;
 end;
 
+procedure TestDemoLayoutAndSpinMargins;
+var
+  Form: TShowcaseForm;
+  Spin: TERDSpinEdit;
+  NativeEdit: TWinControl;
+  Margins: LRESULT;
+  I: Integer;
+begin
+  Form := TShowcaseForm.Create(nil);
+  try
+    for I := 1 to 3 do
+    begin
+      Form.CommandChoice.ItemIndex := 1;
+      Form.CommandSelected(Form.CommandChoice);
+      Check(Form.Choices.Top = Form.TitleBar.Height, 'Choices follow titlebar in menu mode');
+      Form.CommandChoice.ItemIndex := 0;
+      Form.CommandSelected(Form.CommandChoice);
+      Check(Form.Ribbon.Top = Form.TitleBar.Height, 'Ribbon follows titlebar');
+      Check(Form.Choices.Top = Form.Ribbon.Top + Form.Ribbon.Height,
+        'Choices remain below ribbon after command switching');
+    end;
+    Form.Theme.Mode := tmERDesignsDark;
+    Check(Form.DemoDialog.Palette.Background = Form.Theme.Palette.Background,
+      'General dialog follows the selected theme');
+    Check(Form.DemoOpenDialog.Palette.Background = Form.Theme.Palette.Background,
+      'File dialog follows the selected theme');
+    Check(Form.DemoToastManager.Palette.Background = Form.Theme.Palette.Background,
+      'Toast follows the selected theme');
+    Check(Form.DemoHintStyle.Palette.Background = Form.Theme.Palette.Background,
+      'Hint follows the selected theme');
+    Form.Theme.Mode := tmOfficeLight;
+    Check(Form.DemoToastManager.Palette.Background = Form.Theme.Palette.Background,
+      'Toast follows a later theme change');
+    Form.PageTabs.TabIndex := 1;
+    Check(Form.InputsPage.Visible and not Form.IconsPage.Visible, 'ERD tabs select the input page');
+    Spin := Form.DemoSpinEdit;
+    Spin.Alignment := taLeftJustify;
+    Spin.Alignment := taRightJustify;
+    Spin.Mono := True;
+    NativeEdit := nil;
+    for I := 0 to Spin.ControlCount - 1 do
+      if Spin.Controls[I] is TCustomEdit then
+        NativeEdit := TWinControl(Spin.Controls[I]);
+    Check(NativeEdit <> nil, 'SpinEdit hosts a native edit');
+    Margins := SendMessage(NativeEdit.Handle, EM_GETMARGINS, 0, 0);
+    Check((Margins and $FFFF) >= 2, 'Native edit reserves left caret space');
+    Check(((Margins shr 16) and $FFFF) >= 2, 'Right-aligned edit reserves end caret space');
+  finally
+    Form.Free;
+  end;
+end;
+
 begin
   try
     Application.Initialize;
@@ -248,6 +301,7 @@ begin
     TestThemesAndRibbon;
     TestPopupRowsAndCommandSwitch;
     TestComboMouseChange;
+    TestDemoLayoutAndSpinMargins;
     Writeln(Checks, ' VCL runtime checks passed.');
   except on E: Exception do begin Writeln(E.ClassName, ': ', E.Message); Halt(1) end end;
 end.

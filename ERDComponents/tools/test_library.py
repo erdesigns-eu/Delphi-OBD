@@ -20,6 +20,9 @@ class LibraryTests(unittest.TestCase):
         shown = set(re.findall(r'object \w+: (TERD\w+)', dfm))
         self.assertEqual(registered - shown, set())
         self.assertIn('OnClick = ExecuteDemoDialog', dfm)
+        self.assertNotIn('TPageControl', dfm)
+        self.assertNotIn('TTabSheet', dfm)
+        self.assertIn('object PageTabs: TERDTabs', dfm)
 
     def test_showcase_fields_do_not_collide_with_event_methods(self):
         source = (ROOT/'demo/Showcase.pas').read_text(encoding='utf-8-sig')
@@ -60,6 +63,14 @@ class LibraryTests(unittest.TestCase):
                 if stack and stack[-1].startswith('terd') and name in collection_properties:
                     self.assertIn(name, properties(stack[-1]), f'{stack[-1]}.{name}')
                 collection_depth = line.count('<') - line.count('>')
+
+    def test_demo_notifications_and_dialogs_are_bound_to_the_form_theme(self):
+        dfm = (ROOT/'demo/Showcase.dfm').read_text(encoding='utf-8-sig')
+        for name in ['Dialog', 'OpenDialog', 'SaveDialog', 'OpenPictureDialog',
+                     'SavePictureDialog', 'FolderDialog', 'PrintDialog', 'PageSetupDialog',
+                     'FontDialog', 'ColorDialog', 'FindDialog', 'ReplaceDialog',
+                     'TaskDialog', 'ToastManager', 'HintStyle', 'PopupMenu']:
+            self.assertIn(f'object Demo{name}: TERD{name}\n    Theme = Theme', dfm)
 
     def test_interface_routine_bodies_are_rejected(self):
         sys.path.insert(0, str(ROOT/"tools/pascalcheck"))

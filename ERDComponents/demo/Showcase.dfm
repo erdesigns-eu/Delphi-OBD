@@ -6,160 +6,175 @@
   Caption = 'ERD Components - general VCL showcase'
   Position = poScreenCenter
   OnCreate = FormCreate
-  object TitleBar: TERDTitleBar
+  object Chrome: TERDPanel
     Left = 0
     Top = 0
     Width = 1280
-    Height = 48
-    Align = alTop
-    Title = 'ERD Components'
-    Subtitle = 'General VCL showcase'
-    AppInitials = 'ERD'
-    CommandStyle = csRibbon
-    MenuPlacement = mpBelow
-    Ribbon = Ribbon
-    Menu = MainMenu
-    QuickAccess = <
-      item
-        Icon.BuiltIn = ei003Opslaan
-        Hint = 'Save'
-      end>
-    Buttons = <
-      item
-        Icon.BuiltIn = ei027Instellingen
-        Hint = 'Light / dark'
-        OnClick = ToggleTheme
-      end>
-  end
-  object Ribbon: TERDRibbon
-    Left = 0
-    Top = 48
-    Width = 1280
-    Height = 156
-    Align = alTop
-    Tabs = <
-      item
-        Caption = 'General'
-        Groups = <
-          item
-            Caption = 'Application'
-            Items = <
-              item
-                Caption = 'Open'
-                Icon.BuiltIn = ei002Openen
-                Size = risLarge
-                OnClick = OpenFile
-              end
-              item
-                Caption = 'Dialog'
-                Icon.BuiltIn = ei028Info
-                Size = risLarge
-                OnClick = ShowDialog
-              end
-              item
-                Caption = 'Light / dark'
-                Icon.BuiltIn = ei027Instellingen
-                Size = risLarge
-                OnClick = ToggleTheme
-              end
-            >
-          end
-        >
-      end
-      item
-        Caption = 'Media'
-        Groups = <
-          item
-            Caption = 'Player'
-            Items = <
-              item
-                Caption = 'Play'
-                Icon.BuiltIn = ei161Afspelen
-                Size = risLarge
-              end
-              item
-                Caption = 'Pause'
-                Icon.BuiltIn = ei162Pauzeren
-                Size = risLarge
-              end
-              item
-                Caption = 'Teletext'
-                Icon.BuiltIn = ei249Teletext
-                Size = risLarge
-              end
-              item
-                Caption = 'Subtitles'
-                Icon.BuiltIn = ei192Ondertiteling
-                Size = risLarge
-              end
-            >
-          end
-        >
-      end
-    >
-  end
-  object Choices: TERDPanel
-    Left = 0
-    Top = 204
-    Width = 970
-    Height = 40
+    Height = 244
     Align = alTop
     BorderWidth = 0
-    object ThemeChoice: TERDComboBox
+    OnResize = LayoutChrome
+    object TitleBar: TERDTitleBar
       Left = 0
-      Top = 2
-      Width = 220
-      Height = 34
-      Items.Strings = (
-        'ERDesigns Light'
-        'ERDesigns Dark'
-        'Windows'
-        'Office Light'
-        'Office Dark'
-        'Ocean Light'
-        'Ocean Dark'
-        'Forest Light'
-        'Forest Dark'
-        'High Contrast'
-      )
-      ItemIndex = 0
-      OnChange = ThemeSelected
+      Top = 0
+      Width = 1280
+      Height = 48
+      Align = alNone
+      Anchors = [akLeft, akTop, akRight]
+      OnResize = LayoutChrome
+      OnCommandStyleChange = LayoutChrome
+      Title = 'ERD Components'
+      Subtitle = 'General VCL showcase'
+      AppInitials = 'ERD'
+      CommandStyle = csRibbon
+      MenuPlacement = mpBelow
+      Ribbon = Ribbon
+      Menu = MainMenu
+      QuickAccess = <
+        item
+          Icon.BuiltIn = ei003Opslaan
+          Hint = 'Save'
+        end>
+      Buttons = <
+        item
+          Icon.BuiltIn = ei027Instellingen
+          Hint = 'Light / dark'
+          OnClick = ToggleTheme
+        end>
     end
-    object AppearanceChoice: TERDComboBox
-      Left = 240
-      Top = 2
-      Width = 220
-      Height = 34
-      Items.Strings = (
-        'ERDesigns ribbon'
-        'Office ribbon'
-        'Flat ribbon'
-      )
-      ItemIndex = 0
-      OnChange = AppearanceSelected
+    object Ribbon: TERDRibbon
+      Left = 0
+      Top = 48
+      Width = 1280
+      Height = 156
+      Align = alNone
+      Anchors = [akLeft, akTop, akRight]
+      OnResize = LayoutChrome
+      Tabs = <
+        item
+          Caption = 'General'
+          Groups = <
+            item
+              Caption = 'Application'
+              Items = <
+                item
+                  Caption = 'Open'
+                  Icon.BuiltIn = ei002Openen
+                  Size = risLarge
+                  OnClick = OpenFile
+                end
+                item
+                  Caption = 'Dialog'
+                  Icon.BuiltIn = ei028Info
+                  Size = risLarge
+                  OnClick = ShowDialog
+                end
+                item
+                  Caption = 'Light / dark'
+                  Icon.BuiltIn = ei027Instellingen
+                  Size = risLarge
+                  OnClick = ToggleTheme
+                end
+              >
+            end
+          >
+        end
+        item
+          Caption = 'Media'
+          Groups = <
+            item
+              Caption = 'Player'
+              Items = <
+                item
+                  Caption = 'Play'
+                  Icon.BuiltIn = ei161Afspelen
+                  Size = risLarge
+                end
+                item
+                  Caption = 'Pause'
+                  Icon.BuiltIn = ei162Pauzeren
+                  Size = risLarge
+                end
+                item
+                  Caption = 'Teletext'
+                  Icon.BuiltIn = ei249Teletext
+                  Size = risLarge
+                end
+                item
+                  Caption = 'Subtitles'
+                  Icon.BuiltIn = ei192Ondertiteling
+                  Size = risLarge
+                end
+              >
+            end
+          >
+        end
+      >
     end
-    object LayoutChoice: TERDComboBox
-      Left = 480
-      Top = 2
-      Width = 220
-      Height = 34
-      Items.Strings = (
-        'Classic layout'
-        'Simplified layout'
-      )
-      ItemIndex = 0
-      OnChange = LayoutSelected
-    end
-    object CommandChoice: TERDComboBox
-      Left = 720
-      Top = 2
-      Width = 220
-      Height = 34
-      Items.Strings = (
-        'Ribbon'
-        'Menu')
-      ItemIndex = 0
-      OnChange = CommandSelected
+    object Choices: TERDPanel
+      Left = 0
+      Top = 204
+      Width = 970
+      Height = 40
+      Align = alNone
+      Anchors = [akLeft, akTop, akRight]
+      BorderWidth = 0
+      object ThemeChoice: TERDComboBox
+        Left = 0
+        Top = 2
+        Width = 220
+        Height = 34
+        Items.Strings = (
+          'ERDesigns Light'
+          'ERDesigns Dark'
+          'Windows'
+          'Office Light'
+          'Office Dark'
+          'Ocean Light'
+          'Ocean Dark'
+          'Forest Light'
+          'Forest Dark'
+          'High Contrast'
+        )
+        ItemIndex = 0
+        OnChange = ThemeSelected
+      end
+      object AppearanceChoice: TERDComboBox
+        Left = 240
+        Top = 2
+        Width = 220
+        Height = 34
+        Items.Strings = (
+          'ERDesigns ribbon'
+          'Office ribbon'
+          'Flat ribbon'
+        )
+        ItemIndex = 0
+        OnChange = AppearanceSelected
+      end
+      object LayoutChoice: TERDComboBox
+        Left = 480
+        Top = 2
+        Width = 220
+        Height = 34
+        Items.Strings = (
+          'Classic layout'
+          'Simplified layout'
+        )
+        ItemIndex = 0
+        OnChange = LayoutSelected
+      end
+      object CommandChoice: TERDComboBox
+        Left = 720
+        Top = 2
+        Width = 220
+        Height = 34
+        Items.Strings = (
+          'Ribbon'
+          'Menu')
+        ItemIndex = 0
+        OnChange = CommandSelected
+      end
     end
   end
   object Sidebar: TERDSidebar
@@ -241,15 +256,33 @@
       end
     >
   end
-  object DemoPages: TPageControl
+  object DemoPages: TERDPanel
     Left = 200
     Top = 204
     Width = 1080
     Height = 512
     Align = alClient
-    ActivePage = IconsPage
-    object IconsPage: TTabSheet
-      Caption = 'Icons / themes'
+    BorderWidth = 0
+    object PageTabs: TERDTabs
+      Left = 0
+      Top = 0
+      Width = 1080
+      Height = 36
+      Align = alTop
+      Tabs = <
+        item Caption = 'Icons / themes' end
+        item Caption = 'Inputs' end
+        item Caption = 'Layout' end
+        item Caption = 'Data' end
+        item Caption = 'Files / colors' end
+        item Caption = 'Dialogs / notifications' end>
+      TabIndex = 0
+      OnChange = PageSelected
+    end
+    object IconsPage: TERDPanel
+      Align = alClient
+      BorderWidth = 0
+      Visible = True
         object Gallery: TERDScrollBox
           Left = 0
           Top = 0
@@ -3487,8 +3520,10 @@
           end
         end
     end
-    object InputsPage: TTabSheet
-      Caption = 'Inputs'
+    object InputsPage: TERDPanel
+      Align = alClient
+      BorderWidth = 0
+      Visible = False
       object InputsScroll: TERDScrollBox
         Align = alClient
         object LabelCheckBox: TLabel
@@ -3668,8 +3703,10 @@
         end
       end
     end
-    object LayoutPage: TTabSheet
-      Caption = 'Layout'
+    object LayoutPage: TERDPanel
+      Align = alClient
+      BorderWidth = 0
+      Visible = False
       object LayoutScroll: TERDScrollBox
         Align = alClient
         object LabelCard: TLabel
@@ -3800,22 +3837,12 @@
         end
       end
     end
-    object DataPage: TTabSheet
-      Caption = 'Data'
+    object DataPage: TERDPanel
+      Align = alClient
+      BorderWidth = 0
+      Visible = False
       object DataScroll: TERDScrollBox
         Align = alClient
-        object LabelTerminal: TLabel
-          Left = 16
-          Top = 16
-          Caption = 'TERDTerminal'
-        end
-        object DemoTerminal: TERDTerminal
-          Align = alNone
-          Left = 16
-          Top = 42
-          Width = 460
-          Height = 220
-        end
         object LabelInspector: TLabel
           Left = 506
           Top = 16
@@ -3900,8 +3927,10 @@
         end
       end
     end
-    object FilesColorsPage: TTabSheet
-      Caption = 'FilesColors'
+    object FilesColorsPage: TERDPanel
+      Align = alClient
+      BorderWidth = 0
+      Visible = False
       object FilesColorsScroll: TERDScrollBox
         Align = alClient
         object LabelBreadcrumb: TLabel
@@ -3978,8 +4007,10 @@
         end
       end
     end
-    object DialogsPage: TTabSheet
-      Caption = 'Dialogs / notifications'
+    object DialogsPage: TERDPanel
+      Align = alClient
+      BorderWidth = 0
+      Visible = False
       object DialogsScroll: TERDScrollBox
         Align = alClient
         object LaunchDialog: TERDButton
@@ -4223,6 +4254,7 @@
     end
   end
   object DemoDialog: TERDDialog
+    Theme = Theme
     Left = 16
     Top = 650
     Title = 'General dialog'
@@ -4230,50 +4262,62 @@
     Buttons = [mbOK]
   end
   object DemoOpenDialog: TERDOpenDialog
+    Theme = Theme
     Left = 56
     Top = 650
   end
   object DemoSaveDialog: TERDSaveDialog
+    Theme = Theme
     Left = 96
     Top = 650
   end
   object DemoOpenPictureDialog: TERDOpenPictureDialog
+    Theme = Theme
     Left = 136
     Top = 650
   end
   object DemoSavePictureDialog: TERDSavePictureDialog
+    Theme = Theme
     Left = 176
     Top = 650
   end
   object DemoFolderDialog: TERDFolderDialog
+    Theme = Theme
     Left = 216
     Top = 650
   end
   object DemoPrintDialog: TERDPrintDialog
+    Theme = Theme
     Left = 256
     Top = 650
   end
   object DemoPageSetupDialog: TERDPageSetupDialog
+    Theme = Theme
     Left = 296
     Top = 650
   end
   object DemoFontDialog: TERDFontDialog
+    Theme = Theme
     Left = 336
     Top = 650
   end
   object DemoColorDialog: TERDColorDialog
+    Theme = Theme
     Left = 376
     Top = 650
   end
   object DemoFindDialog: TERDFindDialog
+    Theme = Theme
     Left = 416
     Top = 650
   end
   object DemoReplaceDialog: TERDReplaceDialog
+    Theme = Theme
     Left = 456
     Top = 650
   end
   object DemoTaskDialog: TERDTaskDialog
+    Theme = Theme
     Left = 16
     Top = 690
     Title = 'Task dialog'
@@ -4281,14 +4325,17 @@
     Text = 'General application task.'
   end
   object DemoToastManager: TERDToastManager
+    Theme = Theme
     Left = 56
     Top = 690
   end
   object DemoHintStyle: TERDHintStyle
+    Theme = Theme
     Left = 96
     Top = 690
   end
   object DemoPopupMenu: TERDPopupMenu
+    Theme = Theme
     Left = 136
     Top = 690
     object PopupAction: TERDMenuItem

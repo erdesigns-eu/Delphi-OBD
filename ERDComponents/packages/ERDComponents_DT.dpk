@@ -52,7 +52,6 @@ contains
   ERD.Components.StatusBar in '..\src\UI\ERD.Components.StatusBar.pas',
   ERD.Components.Tabs in '..\src\UI\ERD.Components.Tabs.pas',
   ERD.Components.TaskDialog in '..\src\UI\ERD.Components.TaskDialog.pas',
-  ERD.Components.Terminal in '..\src\UI\ERD.Components.Terminal.pas',
   ERD.Components.Theme in '..\src\UI\ERD.Components.Theme.pas',
   ERD.Components.TileGrid in '..\src\UI\ERD.Components.TileGrid.pas',
   ERD.Components.TitleBar in '..\src\UI\ERD.Components.TitleBar.pas',

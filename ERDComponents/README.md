@@ -4,7 +4,7 @@ Zelfstandige algemene **Delphi VCL**-componentlibrary. Dit zijn onafhankelijke
 kopieën: Delphi-OBD wordt niet aangepast en heeft geen afhankelijkheid van deze
 library. De hele map kan naar een eigen repository worden verplaatst.
 
-- **60 paletcomponenten**: algemene invoer, navigatie, containers, grids, dialogen,
+- **59 paletcomponenten**: algemene invoer, navigatie, containers, grids, dialogen,
   applicatiechrome, theming en feedback. Zie `assets/components.json`.
 - **320 ingebouwde vectoriconen**, met stabiele identifiers en schaalbare SVGs.
 - Eigen namespace `ERD.Components.*`, classes `TERD*`, interfaces `IERD*`.
@@ -20,7 +20,8 @@ library. De hele map kan naar een eigen repository worden verplaatst.
    `Showcase.dfm` bevat de componenten, ribboncollecties en alle 320 iconknoppen;
    je kunt ze rechtstreeks in de Delphi-formdesigner bekijken en bewerken.
    De demo gebruikt `TERDTitleBar`; met de keuze Ribbon/Menu wissel je van commandosurface.
-   Alle 60 geregistreerde componenten staan in de DFM: de sidebar navigeert naar
+   De voorbeeldpagina’s gebruiken `TERDTabs` en `TERDPanel`, zonder standaard PageControl.
+   Alle 59 geregistreerde componenten staan in de DFM: de sidebar navigeert naar
    iconen, invoer, layout, data, bestanden/kleuren en dialogs/notificaties.
    Dialogknoppen openen de bijbehorende component; toast, hints en popupmenu hebben eigen voorbeelden.
 

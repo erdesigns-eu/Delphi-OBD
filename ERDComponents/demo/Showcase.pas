@@ -1,7 +1,6 @@
 ﻿unit Showcase;
 interface
 uses
-  Vcl.ComCtrls,
   Vcl.StdCtrls,
   ERD.Components.Backstage,
   ERD.Components.Buttons,
@@ -32,7 +31,6 @@ uses
   ERD.Components.Splitter,
   ERD.Components.Tabs,
   ERD.Components.TaskDialog,
-  ERD.Components.Terminal,
   ERD.Components.TileGrid,
   ERD.Components.Toast,
   ERD.Components.ToolBar,
@@ -402,9 +400,10 @@ type
     IconButton318: TERDButton;
     IconButton319: TERDButton;
     IconButton320: TERDButton;
-    DemoPages: TPageControl;
-    IconsPage: TTabSheet;
-    DemoTerminal: TERDTerminal;
+    Chrome: TERDPanel;
+    PageTabs: TERDTabs;
+    DemoPages: TERDPanel;
+    IconsPage: TERDPanel;
     DemoCard: TERDCard;
     DemoCheckBox: TERDCheckBox;
     DemoRadioButton: TERDRadioButton;
@@ -453,15 +452,15 @@ type
     DemoFindDialog: TERDFindDialog;
     DemoReplaceDialog: TERDReplaceDialog;
     DemoTaskDialog: TERDTaskDialog;
-    InputsPage: TTabSheet;
+    InputsPage: TERDPanel;
     InputsScroll: TERDScrollBox;
-    LayoutPage: TTabSheet;
+    LayoutPage: TERDPanel;
     LayoutScroll: TERDScrollBox;
-    DataPage: TTabSheet;
+    DataPage: TERDPanel;
     DataScroll: TERDScrollBox;
-    FilesColorsPage: TTabSheet;
+    FilesColorsPage: TERDPanel;
     FilesColorsScroll: TERDScrollBox;
-    DialogsPage: TTabSheet;
+    DialogsPage: TERDPanel;
     DialogsScroll: TERDScrollBox;
     LabelCheckBox: TLabel;
     LabelRadioButton: TLabel;
@@ -484,7 +483,6 @@ type
     LabelProgressBar: TLabel;
     LabelScrollBar: TLabel;
     LabelSplitter: TLabel;
-    LabelTerminal: TLabel;
     LabelInspector: TLabel;
     LabelDataGrid: TLabel;
     LabelTileGrid: TLabel;
@@ -516,6 +514,8 @@ type
     BackstageInfo: TERDPanel;
     BackstageSettings: TERDPanel;
     BackstageInfoText: TLabel;
+    procedure LayoutChrome(Sender: TObject);
+    procedure PageSelected(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure CommandSelected(Sender: TObject);
     procedure ExecuteDemoDialog(Sender: TObject);
@@ -541,16 +541,13 @@ begin
   TitleBar.Menu := MainMenu;
   TitleBar.Ribbon := Ribbon;
   TitleBar.CommandStyle := csRibbon;
+  LayoutChrome(Self);
+  PageSelected(Self);
   StatusBar.Panels[2].Control := StatusHost;
   DemoDataGrid.AddRow(['Example file', 'Ready']);
   DemoDataGrid.AddRow(['Another item', 'Pending']);
   DemoHistogram.AddSamples([12, 18, 20, 22, 25, 28, 30, 34]);
   DemoColorSwatches.AddSection('Example colors', [clRed, clGreen, clBlue, clYellow, clWhite, clBlack]);
-  DemoTerminal.LogInfo('Application initialized');
-  DemoTerminal.LogSent('Example request');
-  DemoTerminal.LogReceived('Example response');
-  DemoTerminal.LogWarning('Example warning');
-  DemoTerminal.LogError('Example error');
   Bitmap := TBitmap.Create;
   try
     Bitmap.SetSize(24, 24);
@@ -569,12 +566,11 @@ procedure TShowcaseForm.SidebarSelected(Sender: TObject; AItem: TERDSidebarItem)
 begin
   if AItem.Tag < 0 then
   begin
-    DemoPages.ActivePageIndex := -AItem.Tag;
-    if DemoPages.ActivePage = LayoutPage then DemoBackstage.Show;
+    PageTabs.TabIndex := -AItem.Tag;
   end
   else
   begin
-    DemoPages.ActivePage := IconsPage;
+    PageTabs.TabIndex := 0;
     Gallery.ScrollPosition := AItem.Tag;
   end;
   StatusBar.Panels[0].Text := AItem.Caption;
@@ -611,12 +607,42 @@ begin
   DemoPopupMenu.Popup(P.X, P.Y);
 end;
 
+procedure TShowcaseForm.LayoutChrome(Sender: TObject);
+var Y: Integer;
+begin
+  if csLoading in ComponentState then Exit;
+  if (Chrome = nil) or (TitleBar = nil) or (Ribbon = nil) or (Choices = nil) then Exit;
+  Chrome.DisableAlign;
+  try
+    TitleBar.SetBounds(0, 0, Chrome.ClientWidth, TitleBar.Height);
+    Y := TitleBar.Height;
+    Ribbon.SetBounds(0, Y, Chrome.ClientWidth, Ribbon.Height);
+    if Ribbon.Visible then Inc(Y, Ribbon.Height);
+    Choices.SetBounds(0, Y, Chrome.ClientWidth, Choices.Height);
+    Chrome.Height := Y + Choices.Height;
+  finally
+    Chrome.EnableAlign;
+  end;
+end;
+
+procedure TShowcaseForm.PageSelected(Sender: TObject);
+begin
+  IconsPage.Visible := PageTabs.TabIndex = 0;
+  InputsPage.Visible := PageTabs.TabIndex = 1;
+  LayoutPage.Visible := PageTabs.TabIndex = 2;
+  DataPage.Visible := PageTabs.TabIndex = 3;
+  FilesColorsPage.Visible := PageTabs.TabIndex = 4;
+  DialogsPage.Visible := PageTabs.TabIndex = 5;
+  if LayoutPage.Visible then DemoBackstage.Show;
+end;
+
 procedure TShowcaseForm.CommandSelected(Sender: TObject);
 begin
   if CommandChoice.ItemIndex = 1 then
     TitleBar.CommandStyle := csMenu
   else
     TitleBar.CommandStyle := csRibbon;
+  LayoutChrome(Self);
 end;
 
 procedure TShowcaseForm.ThemeSelected(Sender: TObject);
@@ -644,6 +670,7 @@ var Dialog: TERDDialog;
 begin
   Dialog := TERDDialog.Create(Self);
   try
+    Dialog.Theme := Theme;
     Dialog.Title := 'ERD Components'; Dialog.Text := 'General dialog, without OBD dependencies.';
     Dialog.Kind := dkInfo; Dialog.Buttons := [mbOK]; Dialog.Execute;
   finally Dialog.Free end;
@@ -652,7 +679,9 @@ procedure TShowcaseForm.OpenFile(Sender: TObject);
 var Dialog: TERDOpenDialog;
 begin
   Dialog := TERDOpenDialog.Create(Self);
-  try if Dialog.Execute then StatusBar.Panels[0].Text := 'File selected';
+  try
+    Dialog.Theme := Theme;
+    if Dialog.Execute then StatusBar.Panels[0].Text := 'File selected';
   finally Dialog.Free end;
 end;
 procedure TShowcaseForm.IconClicked(Sender: TObject);

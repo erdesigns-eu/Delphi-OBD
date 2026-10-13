@@ -243,6 +243,23 @@ begin
   Result := -Round(ASize * APPI / 96);
 end;
 
+type
+  // Native edits need end padding so a right-aligned final character
+  // does not share the last drawable pixel with the caret.
+  TERDInnerEdit = class(TEdit)
+  protected
+    procedure CreateWnd; override;
+  end;
+
+procedure TERDInnerEdit.CreateWnd;
+var Margin: Integer;
+begin
+  inherited;
+  Margin := Max(2, MulDiv(2, Font.PixelsPerInch, 96));
+  SendMessage(Handle, EM_SETMARGINS, EC_LEFTMARGIN or EC_RIGHTMARGIN,
+    LPARAM(Margin or (Margin shl 16)));
+end;
+
 { TERDEdit }
 
 constructor TERDEdit.Create(AOwner: TComponent);
@@ -251,7 +268,7 @@ begin
   Width := 180;
   Height := 26;
   TabStop := False;
-  FEdit := TEdit.Create(Self);
+  FEdit := TERDInnerEdit.Create(Self);
   FEdit.Parent := Self;
   FEdit.BorderStyle := bsNone;
   FEdit.AutoSize := False;
@@ -285,6 +302,7 @@ end;
 procedure TERDEdit.SetAlignment(AValue: TAlignment);
 begin
   FEdit.Alignment := AValue;
+  LayoutInner;
 end;
 
 function TERDEdit.GetReadOnly: Boolean;
@@ -445,7 +463,7 @@ end;
 
 procedure TERDEdit.LayoutInner;
 var
-  FontH, Pad, EH: Integer;
+  FontH, Pad, EH, Margin: Integer;
 begin
   if FEdit = nil then
     Exit;
@@ -463,6 +481,12 @@ begin
   EH := Max(1, Min(ERDFontLineHeight(FEdit.Font), Height - ScaleValue(4)));
   FEdit.SetBounds(Pad, (Height - EH) div 2,
     Max(0, Width - 2 * Pad - TrailingSpace), EH);
+  if FEdit.HandleAllocated then
+  begin
+    Margin := Max(2, ScaleValue(2));
+    SendMessage(FEdit.Handle, EM_SETMARGINS, EC_LEFTMARGIN or EC_RIGHTMARGIN,
+      LPARAM(Margin or (Margin shl 16)));
+  end;
   SyncInnerLook;
 end;
 
