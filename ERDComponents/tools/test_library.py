@@ -19,7 +19,47 @@ class LibraryTests(unittest.TestCase):
         dfm = (ROOT/'demo/Showcase.dfm').read_text(encoding='utf-8-sig')
         shown = set(re.findall(r'object \w+: (TERD\w+)', dfm))
         self.assertEqual(registered - shown, set())
-        self.assertIn('OnClick = LaunchDialog', dfm)
+        self.assertIn('OnClick = ExecuteDemoDialog', dfm)
+
+    def test_showcase_fields_do_not_collide_with_event_methods(self):
+        source = (ROOT/'demo/Showcase.pas').read_text(encoding='utf-8-sig')
+        declaration = source.split('TShowcaseForm = class(TForm)', 1)[1].split('  end;', 1)[0]
+        fields = {n.lower() for n in re.findall(r'^\s+(\w+): \w+;', declaration, re.M)}
+        methods = {n.lower() for n in re.findall(r'procedure (\w+)\(', declaration)}
+        self.assertFalse(fields & methods, fields & methods)
+
+    def test_showcase_project_collection_properties_exist(self):
+        sys.path.insert(0, str(ROOT/'tools/pascalcheck'))
+        from typemap import all_units
+        classes = {name: ti for unit in all_units().values() for name, ti in unit.types.items()}
+        def properties(name, seen=None):
+            seen = set() if seen is None else seen
+            if name in seen or name not in classes: return set()
+            seen.add(name)
+            ti = classes[name]
+            result = {n.lower() for n in ti.props}
+            for parent in ti.parents: result |= properties(parent.lower(), seen)
+            return result
+        dfm = (ROOT/'demo/Showcase.dfm').read_text(encoding='utf-8-sig')
+        stack = []
+        collection_depth = 0
+        collection_properties = {'items', 'tabs', 'datacolumns', 'categories', 'panels', 'buttons', 'quickaccess', 'steps'}
+        for line in dfm.splitlines():
+            line = line.strip()
+            if collection_depth:
+                collection_depth += line.count('<') - line.count('>')
+                continue
+            match = re.match(r'object \w+: (\w+)', line)
+            if match: stack.append(match.group(1).lower()); continue
+            if line == 'end':
+                if stack: stack.pop()
+                continue
+            match = re.match(r'(\w+)\s*=\s*<', line)
+            if match:
+                name = match.group(1).lower()
+                if stack and stack[-1].startswith('terd') and name in collection_properties:
+                    self.assertIn(name, properties(stack[-1]), f'{stack[-1]}.{name}')
+                collection_depth = line.count('<') - line.count('>')
 
     def test_interface_routine_bodies_are_rejected(self):
         sys.path.insert(0, str(ROOT/"tools/pascalcheck"))

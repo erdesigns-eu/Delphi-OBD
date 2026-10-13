@@ -21,6 +21,7 @@ unit ERD.Components.FontDialog;
 interface
 
 uses
+  System.UITypes,
   Winapi.Windows,
   Winapi.Messages,
   System.Types,

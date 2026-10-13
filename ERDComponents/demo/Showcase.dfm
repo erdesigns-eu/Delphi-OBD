@@ -3739,7 +3739,7 @@
           Top = 312
           Width = 460
           Height = 220
-          Items = <
+          Tabs = <
             item Caption = 'First tab' end
             item Caption = 'Second tab' end
           >
@@ -3990,7 +3990,7 @@
           AutoSize = False
           Caption = 'TERDDialog'
           Tag = 0
-          OnClick = LaunchDialog
+          OnClick = ExecuteDemoDialog
         end
         object LaunchOpenDialog: TERDButton
           Left = 326
@@ -4000,7 +4000,7 @@
           AutoSize = False
           Caption = 'TERDOpenDialog'
           Tag = 1
-          OnClick = LaunchDialog
+          OnClick = ExecuteDemoDialog
         end
         object LaunchSaveDialog: TERDButton
           Left = 636
@@ -4010,7 +4010,7 @@
           AutoSize = False
           Caption = 'TERDSaveDialog'
           Tag = 2
-          OnClick = LaunchDialog
+          OnClick = ExecuteDemoDialog
         end
         object LaunchOpenPictureDialog: TERDButton
           Left = 16
@@ -4020,7 +4020,7 @@
           AutoSize = False
           Caption = 'TERDOpenPictureDialog'
           Tag = 3
-          OnClick = LaunchDialog
+          OnClick = ExecuteDemoDialog
         end
         object LaunchSavePictureDialog: TERDButton
           Left = 326
@@ -4030,7 +4030,7 @@
           AutoSize = False
           Caption = 'TERDSavePictureDialog'
           Tag = 4
-          OnClick = LaunchDialog
+          OnClick = ExecuteDemoDialog
         end
         object LaunchFolderDialog: TERDButton
           Left = 636
@@ -4040,7 +4040,7 @@
           AutoSize = False
           Caption = 'TERDFolderDialog'
           Tag = 5
-          OnClick = LaunchDialog
+          OnClick = ExecuteDemoDialog
         end
         object LaunchPrintDialog: TERDButton
           Left = 16
@@ -4050,7 +4050,7 @@
           AutoSize = False
           Caption = 'TERDPrintDialog'
           Tag = 6
-          OnClick = LaunchDialog
+          OnClick = ExecuteDemoDialog
         end
         object LaunchPageSetupDialog: TERDButton
           Left = 326
@@ -4060,7 +4060,7 @@
           AutoSize = False
           Caption = 'TERDPageSetupDialog'
           Tag = 7
-          OnClick = LaunchDialog
+          OnClick = ExecuteDemoDialog
         end
         object LaunchFontDialog: TERDButton
           Left = 636
@@ -4070,7 +4070,7 @@
           AutoSize = False
           Caption = 'TERDFontDialog'
           Tag = 8
-          OnClick = LaunchDialog
+          OnClick = ExecuteDemoDialog
         end
         object LaunchColorDialog: TERDButton
           Left = 16
@@ -4080,7 +4080,7 @@
           AutoSize = False
           Caption = 'TERDColorDialog'
           Tag = 9
-          OnClick = LaunchDialog
+          OnClick = ExecuteDemoDialog
         end
         object LaunchFindDialog: TERDButton
           Left = 326
@@ -4090,7 +4090,7 @@
           AutoSize = False
           Caption = 'TERDFindDialog'
           Tag = 10
-          OnClick = LaunchDialog
+          OnClick = ExecuteDemoDialog
         end
         object LaunchReplaceDialog: TERDButton
           Left = 636
@@ -4100,7 +4100,7 @@
           AutoSize = False
           Caption = 'TERDReplaceDialog'
           Tag = 11
-          OnClick = LaunchDialog
+          OnClick = ExecuteDemoDialog
         end
         object LaunchTaskDialog: TERDButton
           Left = 16
@@ -4110,7 +4110,7 @@
           AutoSize = False
           Caption = 'TERDTaskDialog'
           Tag = 12
-          OnClick = LaunchDialog
+          OnClick = ExecuteDemoDialog
         end
         object LaunchShowToast: TERDButton
           Left = 16

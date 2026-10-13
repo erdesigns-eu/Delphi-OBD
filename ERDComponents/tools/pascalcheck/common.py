@@ -77,7 +77,8 @@ def dfm_files(bases=DFM_BASES):
                         yield p
 
 def load(path):
-    src = open(path, encoding='utf-8', errors='replace').read()
+    with open(path, encoding='utf-8', errors='replace') as source_file:
+        src = source_file.read()
     clean, directives = strip_code(src)
     return src, clean, directives, linemap(src), list(tokens(clean))
 

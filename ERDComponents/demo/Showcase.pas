@@ -518,7 +518,7 @@ type
     BackstageInfoText: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure CommandSelected(Sender: TObject);
-    procedure LaunchDialog(Sender: TObject);
+    procedure ExecuteDemoDialog(Sender: TObject);
     procedure ShowToast(Sender: TObject);
     procedure ShowPopup(Sender: TObject);
     procedure SidebarSelected(Sender: TObject; AItem: TERDSidebarItem);
@@ -580,7 +580,7 @@ begin
   StatusBar.Panels[0].Text := AItem.Caption;
 end;
 
-procedure TShowcaseForm.LaunchDialog(Sender: TObject);
+procedure TShowcaseForm.ExecuteDemoDialog(Sender: TObject);
 begin
   case TComponent(Sender).Tag of
     0: DemoDialog.Execute;
