@@ -17,6 +17,8 @@ library. De hele map kan naar een eigen repository worden verplaatst.
 3. Build en Install. DT bevat alle componentbronunits; geen eigen runtime-BPL nodig.
 4. De componenten verschijnen op `ERDesigns Components`.
 5. Open `demo/ERDComponentsDemo.dproj` voor het voorbeeldprogramma.
+   `Showcase.dfm` bevat de componenten, ribboncollecties en alle 320 iconknoppen;
+   je kunt ze rechtstreeks in de Delphi-formdesigner bekijken en bewerken.
 
 `ERDComponents_RT` is apart beschikbaar voor applicaties die runtime-packages
 gebruiken (Win32/Win64). Installeer RT niet daarnaast in dezelfde IDE: standalone

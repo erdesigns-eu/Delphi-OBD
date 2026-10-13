@@ -1,5 +1,5 @@
 ﻿program ERDComponentsDemo;
-uses Vcl.Forms, Showcase in 'Showcase.pas';
+uses Vcl.Forms, Showcase in 'Showcase.pas' {MainForm};
 begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
