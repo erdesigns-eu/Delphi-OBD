@@ -41,10 +41,13 @@ uses
   ERD.Components.SpinEdit,
   ERD.Components.Segmented,
   ERD.Components.Chips,
-  ERD.Components.Dialogs,
-  ERD.Components.Backstage;
+  ERD.Components.Dialogs;
 
 type
+  /// <summary>Application-provided page content for the print dialog.</summary>
+  TERDPrintPaintPageEvent = procedure(Sender: TObject; ACanvas: TCanvas;
+    const APaperRect: TRect; APageIndex: Integer; AScale: Single) of object;
+
   /// <summary>Printed pages requested by <see cref="TERDPrintDialog"/>.
   /// </summary>
   TERDPrintRange = (
@@ -92,7 +95,7 @@ type
     FPrinterIndex: Integer;
     FPrinterName: string;
     FOrientation: TPrinterOrientation;
-    FOnPaintPage: TERDReportPaintPageEvent;
+    FOnPaintPage: TERDPrintPaintPageEvent;
     procedure SetCopies(AValue: Integer);
     procedure SetFromPage(AValue: Integer);
     procedure SetToPage(AValue: Integer);
@@ -143,7 +146,7 @@ type
     property Orientation: TPrinterOrientation read FOrientation
       write FOrientation default poPortrait;
     /// <summary>Fires to paint the first report page in the preview.</summary>
-    property OnPaintPage: TERDReportPaintPageEvent read FOnPaintPage
+    property OnPaintPage: TERDPrintPaintPageEvent read FOnPaintPage
       write FOnPaintPage;
   end;
 
@@ -230,7 +233,7 @@ type
     FPaperWidthMM: Double;
     FPaperHeightMM: Double;
     FOrientation: TPrinterOrientation;
-    FOnPaintPage: TERDReportPaintPageEvent;
+    FOnPaintPage: TERDPrintPaintPageEvent;
     function PaperRect: TRect;
     function PageBackground: TColor;
     procedure SetOrientation(AValue: TPrinterOrientation);
@@ -241,7 +244,7 @@ type
     procedure SetPaper(APaperWidthMM, APaperHeightMM: Double);
     property Orientation: TPrinterOrientation read FOrientation
       write SetOrientation;
-    property OnPaintPage: TERDReportPaintPageEvent read FOnPaintPage
+    property OnPaintPage: TERDPrintPaintPageEvent read FOnPaintPage
       write FOnPaintPage;
   end;
 
