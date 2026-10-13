@@ -375,3 +375,22 @@ hun Action uit; alleen commando's zonder Action gebruiken `OnExecute`.
 `Search` levert stabiele collection-IDs; `ExecuteCommand(ID)` valideert opnieuw.
 `LastCommand` bevat de gekozen Key. De applicatie kiest zelf een shortcut om de
 palette te openen; de DFM-demo heeft Ctrl+K, een knop en drie werkende voorbeeldcommando's.
+
+## Rating
+
+`TERDRating` toont standaard vijf gevulde sterren, met `Value`, `MaxStars`,
+`AllowHalf`, `AllowClear` en `ReadOnly`. Hover geeft een preview; een geldige
+muis-release kiest de waarde, release buiten de control annuleert. Op dezelfde
+waarde klikken wist de rating als `AllowClear=True`. Left/Right/Up/Down wijzigen
+de waarde, Home/End kiest de grens en Delete/Backspace wist indien toegestaan.
+`OnChange` meldt een gewijzigde waarde. Waarden worden geclamped en afgerond naar
+hele of halve stappen. `ReadOnly` blokkeert gebruikersinvoer, niet API-wijzigingen.
+
+Zonder `Icon` worden echte volle/halve sterren getekend. Een built-in icon,
+imagelist of eigen glyph kan de symbolen vervangen. De Inputs-demo toont zowel
+bewerkbare halve sterren als readonly ratings. De component gebruikt Windows-focuscues.
+
+Windows-smoketests zijn toegevoegd voor DropZone-filtering (incl. Unicode-paden),
+CommandPalette-search/actions en Rating-invoer/streaming. Deze tests vereisen nog
+uitvoering in Delphi op Windows; OLE-drag-feedback en de zoekdialoog zijn niet
+visueel getest in de cloudomgeving.

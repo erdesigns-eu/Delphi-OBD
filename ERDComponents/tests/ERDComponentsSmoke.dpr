@@ -4,6 +4,7 @@ uses
   System.IOUtils,
   System.SysUtils, System.Classes, System.Types, System.Math, Vcl.Forms, Vcl.Controls,
   Winapi.Windows, Vcl.ActnList, Vcl.StdCtrls, Vcl.Graphics, Vcl.ImgList,
+  ERD.Components.Rating,
   ERD.Components.CommandPalette,
   ERD.Components.DropZone,
   ERD.Components.LoadingIndicator,
@@ -20,6 +21,13 @@ uses
   Showcase in '../demo/Showcase.pas',
   ERD.Components.SpinEdit, ERD.Components.Edits, ERD.Components.PopupList, ERD.Components.TitleBar, ERD.Components.StatusBar, ERD.Components.Theme, ERD.Components.Ribbon;
 type
+  TRatingProbe = class(TERDRating)
+  public
+    procedure PressAt(X, Y: Integer);
+    procedure ReleaseAt(X, Y: Integer);
+    procedure PressKey(Key: Word);
+    procedure PreviewAt(X, Y: Integer);
+  end;
   TCommandCounter = class
     Count: Integer;
     LastKey: string;
@@ -81,6 +89,15 @@ type
     procedure Changed(Sender: TObject);
   end;
 var Checks: Integer;
+procedure TRatingProbe.PressAt(X, Y: Integer);
+begin MouseDown(mbLeft, [], X, Y) end;
+procedure TRatingProbe.ReleaseAt(X, Y: Integer);
+begin MouseUp(mbLeft, [], X, Y) end;
+procedure TRatingProbe.PressKey(Key: Word);
+begin KeyDown(Key, []) end;
+procedure TRatingProbe.PreviewAt(X, Y: Integer);
+begin MouseMove([], X, Y) end;
+
 procedure TCommandCounter.Executed(Sender: TObject; Command: TERDCommandItem);
 begin Inc(Count); LastKey := Command.Key end;
 
@@ -750,6 +767,78 @@ begin
   end;
 end;
 
+procedure TestRating;
+var Form: TForm; Rating: TRatingProbe; Copy, Stored: TERDRating;
+  Counter: TChangeProbe; Bitmap: TBitmap; Stream: TMemoryStream; I: Integer;
+begin
+  RegisterClass(TERDRating);
+  Form := TForm.CreateNew(nil);
+  Counter := TChangeProbe.Create;
+  Bitmap := TBitmap.Create;
+  Stream := TMemoryStream.Create;
+  try
+    Rating := TRatingProbe.Create(Form);
+    Rating.Parent := Form;
+    Rating.OnChange := Counter.Changed;
+    Check((Rating.MaxStars = 5) and not Rating.AllowHalf and Rating.AllowClear and (Rating.Value = 0), 'Rating defaults');
+    Rating.Value := 3.7;
+    Check(Rating.Value = 4, 'Whole rating rounds to nearest integer');
+    Rating.AllowHalf := True;
+    Rating.Value := 3.7;
+    Check(Rating.Value = 3.5, 'Half rating rounds to nearest half');
+    Rating.Value := 20;
+    Check(Rating.Value = 5, 'Rating clamps maximum');
+    Rating.Value := -2;
+    Check(Rating.Value = 0, 'Rating clamps minimum');
+    Rating.PressKey(VK_RIGHT);
+    Check(Rating.Value = 0.5, 'Keyboard advances a half step');
+    Rating.PressKey(VK_END);
+    Check(Rating.Value = 5, 'End chooses maximum rating');
+    Rating.PressKey(VK_HOME);
+    Check(Rating.Value = 0, 'Home clears when allowed');
+    Rating.AllowClear := False;
+    Rating.PressKey(VK_HOME);
+    Check(Rating.Value = 0.5, 'Home respects minimum nonzero value when clearing disabled');
+    Rating.Value := 0;
+    I := Counter.Changes;
+    Rating.PressKey(VK_DELETE);
+    Check((Rating.Value = 0) and (Counter.Changes = I), 'Delete has no effect when clearing disabled');
+    Rating.AllowClear := True;
+    Form.Show; Application.ProcessMessages;
+    Rating.PressAt(8, Rating.Height div 2);
+    Rating.ReleaseAt(8, Rating.Height div 2);
+    Check(Rating.Value = 0.5, 'Left half of first star selects half value');
+    Rating.PressAt(8, Rating.Height div 2);
+    Rating.ReleaseAt(8, Rating.Height div 2);
+    Check(Rating.Value = 0, 'Clicking selected value clears rating');
+    Rating.PressAt(8, Rating.Height div 2);
+    Rating.ReleaseAt(Rating.Width + 2, Rating.Height div 2);
+    Check(Rating.Value = 0, 'Releasing outside cancels rating selection');
+    Rating.PreviewAt(32, Rating.Height div 2);
+    Check((Rating.PreviewValue > 0) and (Rating.Value = 0), 'Hover previews without changing stored rating');
+    Rating.ReadOnly := True;
+    I := Counter.Changes;
+    Rating.PressAt(8, Rating.Height div 2);
+    Rating.ReleaseAt(8, Rating.Height div 2);
+    Rating.PressKey(VK_END);
+    Check(Counter.Changes = I, 'Readonly blocks mouse and keyboard changes');
+    Rating.Value := 4.5;
+    Rating.MaxStars := 3;
+    Check(Rating.Value = 3, 'Changing star count clamps existing value');
+    Stored := TERDRating.Create(nil);
+    try
+      Stored.AllowHalf := True; Stored.Value := 4.5; Stored.ReadOnly := True;
+      Stored.RenderTo(Bitmap);
+      Check(not Stored.HandleAllocated, 'Filled and half-filled stars render without a window');
+      Stream.WriteComponent(Stored);
+    finally Stored.Free end;
+    Stream.Position := 0;
+    Copy := TERDRating(Stream.ReadComponent(nil));
+    try Check(Copy.AllowHalf and Copy.ReadOnly and (Copy.Value = 4.5), 'Rating DFM roundtrip')
+    finally Copy.Free end;
+  finally Bitmap.Free; Stream.Free; Form.Free; Counter.Free end;
+end;
+
 procedure TestCommandPalette;
 var Palette, Copy: TERDCommandPalette; First, Other: TERDCommandItem;
   Counter: TCommandCounter; ActionCounter: TChangeProbe; Action: TAction;
@@ -1350,6 +1439,7 @@ begin
     TestLoadingIndicator;
     TestDropZone;
     TestCommandPalette;
+    TestRating;
     Writeln(Checks, ' VCL runtime checks passed.');
   except on E: Exception do begin Writeln(E.ClassName, ': ', E.Message); Halt(1) end end;
 end.

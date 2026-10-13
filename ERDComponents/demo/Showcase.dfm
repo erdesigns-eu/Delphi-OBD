@@ -3940,6 +3940,25 @@
           Caption = 'Command palette (Ctrl+K)'
           OnClick = OpenCommands
         end
+        object RatingLabel: TLabel
+          Left = 16
+          Top = 3220
+          Caption = 'TERDRating - half stars, hover preview and readonly'
+        end
+        object DemoRating: TERDRating
+          Left = 16
+          Top = 3246
+          AllowHalf = True
+          Value = 3.5
+          OnChange = RatingChanged
+        end
+        object RatingReadOnly: TERDRating
+          Left = 256
+          Top = 3246
+          AllowHalf = True
+          Value = 4.5
+          ReadOnly = True
+        end
       end
     end
     object LayoutPage: TERDPanel

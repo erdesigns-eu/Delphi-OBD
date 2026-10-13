@@ -1,6 +1,7 @@
 ﻿unit Showcase;
 interface
 uses
+  ERD.Components.Rating,
   ERD.Components.CommandPalette,
   ERD.Components.DropZone,
   ERD.Components.LoadingIndicator,
@@ -86,6 +87,9 @@ type
     LabelDropZone: TLabel;
     DemoCommandPalette: TERDCommandPalette;
     ShowCommands: TERDButton;
+    DemoRating: TERDRating;
+    RatingReadOnly: TERDRating;
+    RatingLabel: TLabel;
     TitleBar: TERDTitleBar;
     Sidebar: TERDSidebar;
     CommandChoice: TERDComboBox;
@@ -588,6 +592,7 @@ type
     procedure DateTimeChanged(Sender: TObject);
     procedure LinkClicked(Sender: TObject);
     procedure LoadingChanged(Sender: TObject);
+    procedure RatingChanged(Sender: TObject);
     procedure OpenCommands(Sender: TObject);
     procedure ShowcaseKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure CommandExecuted(Sender: TObject; Command: TERDCommandItem);
@@ -920,6 +925,11 @@ begin
   else if Command.Key = 'open' then OpenFile(Self)
   else if Command.Key = 'dialog' then ShowDialog(Self);
   StatusBar.Panels[0].Text := 'Command: ' + Command.DisplayCaption;
+end;
+
+procedure TShowcaseForm.RatingChanged(Sender: TObject);
+begin
+  StatusBar.Panels[0].Text := Format('Rating: %.1f / %d', [DemoRating.Value, DemoRating.MaxStars]);
 end;
 
 procedure TShowcaseForm.LoadingChanged(Sender: TObject);

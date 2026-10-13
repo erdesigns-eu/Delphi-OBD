@@ -91,6 +91,7 @@
     <DCCReference Include="..\src\UI\ERD.Components.LoadingIndicator.pas"/>
     <DCCReference Include="..\src\UI\ERD.Components.DropZone.pas"/>
     <DCCReference Include="..\src\UI\ERD.Components.CommandPalette.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.Rating.pas"/>
     <DCCReference Include="..\src\UI\ERD.Components.Calendar.pas"/>
     <DCCReference Include="..\src\UI\ERD.Components.Card.pas"/>
     <DCCReference Include="..\src\UI\ERD.Components.Chips.pas"/>
