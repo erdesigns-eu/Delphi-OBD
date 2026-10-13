@@ -70,5 +70,6 @@
   "TERDDateTimePicker",
   "TERDLinkLabel",
   "TERDLoadingIndicator",
-  "TERDDropZone"
+  "TERDDropZone",
+  "TERDCommandPalette"
 ]

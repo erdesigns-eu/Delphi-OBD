@@ -6,6 +6,8 @@
   Caption = 'ERD Components - general VCL showcase'
   Position = poScreenCenter
   OnCreate = FormCreate
+  KeyPreview = True
+  OnKeyDown = ShowcaseKeyDown
   object Chrome: TERDPanel
     Left = 0
     Top = 0
@@ -3932,6 +3934,12 @@
           OnFilesDropped = FilesDropped
           OnClick = BrowseDropFiles
         end
+        object ShowCommands: TERDButton
+          Left = 16
+          Top = 3140
+          Caption = 'Command palette (Ctrl+K)'
+          OnClick = OpenCommands
+        end
       end
     end
     object LayoutPage: TERDPanel
@@ -4559,6 +4567,32 @@
     Title = 'General dialog'
     Text = 'Example dialog content.'
     Buttons = [mbOK]
+  end
+  object DemoCommandPalette: TERDCommandPalette
+    Theme = Theme
+    Commands = <
+      item
+        Key = 'open'
+        Caption = 'Open file'
+        Category = 'Files'
+        Keywords = 'browse import playlist'
+        Icon.BuiltIn = ei002Openen
+      end
+      item
+        Key = 'theme'
+        Caption = 'Switch light / dark'
+        Category = 'Appearance'
+        Keywords = 'theme colors'
+        Icon.BuiltIn = ei027Instellingen
+      end
+      item
+        Key = 'dialog'
+        Caption = 'Show example dialog'
+        Category = 'Application'
+        Keywords = 'message help'
+        Icon.BuiltIn = ei028Info
+      end>
+    OnExecute = CommandExecuted
   end
   object DemoOpenDialog: TERDOpenDialog
     Theme = Theme

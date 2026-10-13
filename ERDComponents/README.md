@@ -358,3 +358,20 @@ passende items geweigerd. `AcceptDrops=False` of disabled blokkeert de drop.
 wilt bewaren. `DropFiles` gebruikt hetzelfde pad voor bestanden uit een dialoog.
 Klikken/Space levert `OnClick` voor een eigen browse-actie; de demo gebruikt onze OpenDialog.
 OLE wordt op de UI-thread geregistreerd en bij handle-recreatie/opruimen vrijgegeven.
+
+## CommandPalette
+
+`TERDCommandPalette` opent via `Execute` een themed zoekdialoog met onze SearchEdit,
+scrollende lijst en buttons. `Commands` is een DFM-collectie met `Key`, `Caption`,
+`Category`, `Keywords`, `ShortcutText`, `Icon`, `Enabled`, `Visible` en optionele
+`Action`. Een lege caption/shortcut valt terug op de Action. Niet-beschikbare acties
+worden weggelaten. Zoeken is case-insensitive en vereist dat alle zoekwoorden ergens
+in caption, categorie, keywords of key voorkomen; volgorde volgt de collectie.
+
+Up/Down selecteert vanuit het zoekveld, Enter/dubbelklik/Run voert uit, Escape
+annuleert. De dialog sluit vóór uitvoering van de Action of `OnExecute`, zodat een
+commando veilig een volgende dialog kan openen. Action-backed commando's voeren
+hun Action uit; alleen commando's zonder Action gebruiken `OnExecute`.
+`Search` levert stabiele collection-IDs; `ExecuteCommand(ID)` valideert opnieuw.
+`LastCommand` bevat de gekozen Key. De applicatie kiest zelf een shortcut om de
+palette te openen; de DFM-demo heeft Ctrl+K, een knop en drie werkende voorbeeldcommando's.

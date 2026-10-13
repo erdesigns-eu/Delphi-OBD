@@ -3,7 +3,8 @@
 uses
   System.IOUtils,
   System.SysUtils, System.Classes, System.Types, System.Math, Vcl.Forms, Vcl.Controls,
-  Winapi.Windows, Vcl.StdCtrls, Vcl.Graphics, Vcl.ImgList,
+  Winapi.Windows, Vcl.ActnList, Vcl.StdCtrls, Vcl.Graphics, Vcl.ImgList,
+  ERD.Components.CommandPalette,
   ERD.Components.DropZone,
   ERD.Components.LoadingIndicator,
   ERD.Components.LinkLabel,
@@ -19,6 +20,11 @@ uses
   Showcase in '../demo/Showcase.pas',
   ERD.Components.SpinEdit, ERD.Components.Edits, ERD.Components.PopupList, ERD.Components.TitleBar, ERD.Components.StatusBar, ERD.Components.Theme, ERD.Components.Ribbon;
 type
+  TCommandCounter = class
+    Count: Integer;
+    LastKey: string;
+    procedure Executed(Sender: TObject; Command: TERDCommandItem);
+  end;
   TDropCounter = class
     Count, FileCount: Integer;
     FirstFile: string;
@@ -75,6 +81,9 @@ type
     procedure Changed(Sender: TObject);
   end;
 var Checks: Integer;
+procedure TCommandCounter.Executed(Sender: TObject; Command: TERDCommandItem);
+begin Inc(Count); LastKey := Command.Key end;
+
 procedure TDropCounter.Dropped(Sender: TObject; Files: TStrings);
 begin Inc(Count); FileCount := Files.Count; FirstFile := Files[0] end;
 
@@ -741,6 +750,65 @@ begin
   end;
 end;
 
+procedure TestCommandPalette;
+var Palette, Copy: TERDCommandPalette; First, Other: TERDCommandItem;
+  Counter: TCommandCounter; ActionCounter: TChangeProbe; Action: TAction;
+  IDs: TArray<Integer>; SavedID: Integer; Stream: TMemoryStream;
+begin
+  RegisterClass(TERDCommandPalette);
+  Palette := TERDCommandPalette.Create(nil);
+  Counter := TCommandCounter.Create;
+  ActionCounter := TChangeProbe.Create;
+  Action := TAction.Create(nil);
+  Stream := TMemoryStream.Create;
+  try
+    Palette.OnExecute := Counter.Executed;
+    First := Palette.Commands.Add;
+    First.Key := 'open'; First.Caption := 'Open playlist'; First.Category := 'Files';
+    First.Keywords := 'import m3u'; First.ShortcutText := 'Ctrl+O';
+    Other := Palette.Commands.Add;
+    Other.Key := 'tv'; Other.Caption := 'Play channel'; Other.Category := 'Live TV'; Other.Keywords := 'Belgium stream';
+    IDs := Palette.Search('M3U files');
+    Check((Length(IDs) = 1) and (IDs[0] = First.ID), 'Command search matches all case-insensitive words across fields');
+    IDs := Palette.Search('Belgium live');
+    Check((Length(IDs) = 1) and (IDs[0] = Other.ID), 'Command search covers category and keywords');
+    Check(Length(Palette.Search('missing')) = 0, 'Unknown search gives no results');
+    Other.Enabled := False;
+    Check(Length(Palette.Search('')) = 1, 'Disabled commands omitted from palette');
+    Check(not Palette.ExecuteCommand(Other.ID), 'Disabled commands cannot execute');
+    First.Visible := False;
+    Check(Length(Palette.Search('')) = 0, 'Hidden commands omitted');
+    First.Visible := True;
+    Check(Palette.ExecuteCommand(First.ID) and (Counter.Count = 1) and (Counter.LastKey = 'open') and
+      (Palette.LastCommand = 'open'), 'Command without Action invokes OnExecute');
+    Action.Caption := '&Save file'; Action.ShortCut := ShortCut(Ord('S'), [ssCtrl]);
+    Action.OnExecute := ActionCounter.Changed;
+    Other.Enabled := True; Other.Caption := ''; Other.Action := Action;
+    Check((Other.DisplayCaption = 'Save file') and (Other.DisplayShortcut <> ''), 'Action supplies missing caption and shortcut');
+    Check(Palette.ExecuteCommand(Other.ID) and (ActionCounter.Changes = 1) and (Counter.Count = 1),
+      'Action-backed commands execute Action without duplicate OnExecute');
+    Action.Enabled := False;
+    Check(not Palette.ExecuteCommand(Other.ID), 'Disabled Action cannot execute');
+    Action.Free; Action := nil;
+    Check(Other.Action = nil, 'FreeNotification clears action reference');
+    SavedID := First.ID;
+    First.Index := 1;
+    Check(Palette.ExecuteCommand(SavedID), 'Collection ID survives reordering');
+    First.Free;
+    Check(not Palette.ExecuteCommand(SavedID), 'Deleted command ID cannot execute another item');
+    Palette.OnExecute := nil;
+    Palette.Commands[0].Caption := 'Stored command';
+    Palette.Commands[0].Icon.BuiltIn := ei028Info;
+    Stream.WriteComponent(Palette);
+    Stream.Position := 0;
+    Copy := TERDCommandPalette(Stream.ReadComponent(nil));
+    try
+      Check((Copy.Commands.Count = 1) and (Copy.Commands[0].Key = 'tv') and
+        (Copy.Commands[0].Icon.BuiltIn = ei028Info), 'Command collection and icon survive DFM streaming');
+    finally Copy.Free end;
+  finally Stream.Free; Action.Free; Palette.Free; Counter.Free; ActionCounter.Free end;
+end;
+
 procedure TestDropZone;
 var Zone: TERDDropZone; Counter: TDropCounter; Files, Accepted: TStringList;
   Root, First, Second, Other: string; Id: TGUID; Bitmap: TBitmap;
@@ -1281,6 +1349,7 @@ begin
     TestLinkLabel;
     TestLoadingIndicator;
     TestDropZone;
+    TestCommandPalette;
     Writeln(Checks, ' VCL runtime checks passed.');
   except on E: Exception do begin Writeln(E.ClassName, ': ', E.Message); Halt(1) end end;
 end.

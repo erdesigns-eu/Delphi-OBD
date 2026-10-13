@@ -1,6 +1,7 @@
 ﻿unit Showcase;
 interface
 uses
+  ERD.Components.CommandPalette,
   ERD.Components.DropZone,
   ERD.Components.LoadingIndicator,
   ERD.Components.LinkLabel,
@@ -83,6 +84,8 @@ type
     LabelCheckListBox: TLabel;
     DemoDropZone: TERDDropZone;
     LabelDropZone: TLabel;
+    DemoCommandPalette: TERDCommandPalette;
+    ShowCommands: TERDButton;
     TitleBar: TERDTitleBar;
     Sidebar: TERDSidebar;
     CommandChoice: TERDComboBox;
@@ -585,6 +588,9 @@ type
     procedure DateTimeChanged(Sender: TObject);
     procedure LinkClicked(Sender: TObject);
     procedure LoadingChanged(Sender: TObject);
+    procedure OpenCommands(Sender: TObject);
+    procedure ShowcaseKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure CommandExecuted(Sender: TObject; Command: TERDCommandItem);
     procedure FilesDropped(Sender: TObject; Files: TStrings);
     procedure BrowseDropFiles(Sender: TObject);
     procedure OpenFile(Sender: TObject);
@@ -897,6 +903,23 @@ end;
 procedure TShowcaseForm.BrowseDropFiles(Sender: TObject);
 begin
   if DemoOpenDialog.Execute then DemoDropZone.DropFiles(DemoOpenDialog.Files);
+end;
+
+procedure TShowcaseForm.ShowcaseKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if (Key = Ord('K')) and (Shift = [ssCtrl]) then
+  begin Key := 0; OpenCommands(Self) end;
+end;
+procedure TShowcaseForm.OpenCommands(Sender: TObject);
+begin
+  DemoCommandPalette.Execute;
+end;
+procedure TShowcaseForm.CommandExecuted(Sender: TObject; Command: TERDCommandItem);
+begin
+  if Command.Key = 'theme' then ToggleTheme(Self)
+  else if Command.Key = 'open' then OpenFile(Self)
+  else if Command.Key = 'dialog' then ShowDialog(Self);
+  StatusBar.Panels[0].Text := 'Command: ' + Command.DisplayCaption;
 end;
 
 procedure TShowcaseForm.LoadingChanged(Sender: TObject);
