@@ -4058,22 +4058,78 @@
         object LabelTabs: TLabel
           Left = 506
           Top = 286
-          Caption = 'TERDTabs'
+          Caption = 'TERDTabs - drag / Ctrl+Shift+arrows / Ctrl+Shift+D'
         end
         object DemoTabs: TERDTabs
-          Align = alNone
           Left = 506
           Top = 312
           Width = 460
-          Height = 220
+          Height = 36
+          TabStyle = tsDocument
+          AllowReorder = True
+          AllowDetach = True
+          ShowNewTab = True
+          TabIndex = 0
+          OnNewTab = NewDocumentTab
+          OnClose = DocumentTabClosing
+          OnClosed = DocumentTabClosed
+          OnReordered = DocumentTabReordered
+          OnDetached = DocumentTabDetached
+          OnAttached = DocumentTabAttached
           Tabs = <
             item
-              Caption = 'First tab'
+              Caption = 'First document'
+              Page = DocumentOne
             end
             item
-              Caption = 'Second tab'
+              Caption = 'Modified document'
+              Modified = True
+              Page = DocumentTwo
+            end>
+        end
+        object DocumentHost: TERDPanel
+          Left = 506
+          Top = 348
+          Width = 460
+          Height = 184
+          object DocumentOne: TERDPanel
+            Align = alClient
+            BorderWidth = 0
+            Visible = False
+            object DocumentOneText: TERDDialogText
+              Left = 16
+              Top = 16
+              Width = 420
+              Height = 44
+              Caption = 'Drag the tab to reorder or detach. Content follows the same tab.'
             end
-          >
+            object DocumentOneEdit: TERDEdit
+              Left = 16
+              Top = 76
+              Width = 400
+              Text = 'Edit this, then detach and return the tab'
+              OnChange = DocumentEdited
+            end
+          end
+          object DocumentTwo: TERDPanel
+            Align = alClient
+            BorderWidth = 0
+            Visible = False
+            object DocumentTwoText: TERDDialogText
+              Left = 16
+              Top = 16
+              Width = 420
+              Height = 44
+              Caption = 'Modified tab: closing asks for confirmation; detaching keeps its content.'
+            end
+            object DocumentTwoEdit: TERDEdit
+              Left = 16
+              Top = 76
+              Width = 400
+              Text = 'Another document'
+              OnChange = DocumentEdited
+            end
+          end
         end
         object LabelToolBar: TLabel
           Left = 16

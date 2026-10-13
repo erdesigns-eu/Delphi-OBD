@@ -4,6 +4,7 @@ uses
   System.IOUtils,
   System.SysUtils, System.Classes, System.Types, System.Math, Vcl.Forms, Vcl.Controls,
   Winapi.Windows, Vcl.ActnList, Vcl.StdCtrls, Vcl.Graphics, Vcl.ImgList,
+  ERD.Components.Tabs,
   ERD.Components.Rating,
   ERD.Components.CommandPalette,
   ERD.Components.DropZone,
@@ -21,6 +22,23 @@ uses
   Showcase in '../demo/Showcase.pas',
   ERD.Components.SpinEdit, ERD.Components.Edits, ERD.Components.PopupList, ERD.Components.TitleBar, ERD.Components.StatusBar, ERD.Components.Theme, ERD.Components.Ribbon;
 type
+  TTabProbe = class(TERDTabs)
+  public
+    procedure PressAt(X, Y: Integer);
+    procedure ReleaseAt(X, Y: Integer);
+    procedure DragTo(X, Y: Integer);
+    procedure PressKey(Key: Word; Shift: TShiftState);
+  end;
+  TTabCounter = class
+    Changes, ClosedCount, Reorders: Integer;
+    VetoClose, VetoMove, VetoDetach: Boolean;
+    procedure Changed(Sender: TObject);
+    procedure Closing(Sender: TObject; Index: Integer; var CanClose: Boolean);
+    procedure Reordering(Sender: TObject; OldIndex, NewIndex: Integer; var Allow: Boolean);
+    procedure Reordered(Sender: TObject; OldIndex, NewIndex: Integer);
+    procedure Detaching(Sender: TObject; Index: Integer; var Allow: Boolean);
+    procedure Closed(Sender: TObject; TabID: Integer; Page: TWinControl);
+  end;
   TEditProbe = class(TERDEdit)
   public
     procedure RevealByKeyboard;
@@ -98,6 +116,27 @@ type
     procedure Changed(Sender: TObject);
   end;
 var Checks: Integer;
+procedure TTabProbe.PressAt(X, Y: Integer);
+begin MouseDown(mbLeft, [], X, Y) end;
+procedure TTabProbe.ReleaseAt(X, Y: Integer);
+begin MouseUp(mbLeft, [], X, Y) end;
+procedure TTabProbe.DragTo(X, Y: Integer);
+begin MouseMove([ssLeft], X, Y) end;
+procedure TTabProbe.PressKey(Key: Word; Shift: TShiftState);
+begin KeyDown(Key, Shift) end;
+procedure TTabCounter.Changed(Sender: TObject);
+begin Inc(Changes) end;
+procedure TTabCounter.Closing(Sender: TObject; Index: Integer; var CanClose: Boolean);
+begin CanClose := not VetoClose end;
+procedure TTabCounter.Reordering(Sender: TObject; OldIndex, NewIndex: Integer; var Allow: Boolean);
+begin Allow := not VetoMove end;
+procedure TTabCounter.Reordered(Sender: TObject; OldIndex, NewIndex: Integer);
+begin Inc(Reorders) end;
+procedure TTabCounter.Detaching(Sender: TObject; Index: Integer; var Allow: Boolean);
+begin Allow := not VetoDetach end;
+procedure TTabCounter.Closed(Sender: TObject; TabID: Integer; Page: TWinControl);
+begin Inc(ClosedCount) end;
+
 procedure TEditProbe.RevealByKeyboard;
 var Key: Word;
 begin Key := Ord('V'); KeyDown(Key, [ssAlt]) end;
@@ -787,6 +826,100 @@ begin
     Form.Free;
     Counter.Free;
   end;
+end;
+
+procedure TestDocumentTabs;
+var Form: TForm; Tabs: TTabProbe; Host: TERDPanel;
+  Pages: array[0..2] of TERDPanel; Items: array[0..2] of TERDTabItem;
+  Counter: TTabCounter; Edit: TERDEdit; R, Target: TRect; I, SelectedID, Changes: Integer;
+  Window: TCustomForm; Stored, Copy: TERDTabs; Stream: TMemoryStream;
+begin
+  RegisterClass(TERDTabs);
+  Form := TForm.CreateNew(nil);
+  Counter := TTabCounter.Create;
+  Stream := TMemoryStream.Create;
+  try
+    Form.ClientWidth := 800; Form.ClientHeight := 420;
+    Host := TERDPanel.Create(Form);
+    Host.Parent := Form; Host.SetBounds(0, 44, 640, 300);
+    Tabs := TTabProbe.Create(Form);
+    Tabs.Parent := Form; Tabs.SetBounds(0, 0, 640, 36); Tabs.TabStyle := tsDocument;
+    Check(not Tabs.AllowReorder and not Tabs.AllowDetach, 'Tab drag features are opt-in');
+    Tabs.AllowReorder := True; Tabs.AllowDetach := True;
+    for I := 0 to 2 do
+    begin
+      Pages[I] := TERDPanel.Create(Form); Pages[I].Parent := Host; Pages[I].Align := alClient;
+      Items[I] := Tabs.Tabs.Add; Items[I].Caption := 'Document ' + IntToStr(I);
+      Items[I].Page := Pages[I];
+    end;
+    Edit := TERDEdit.Create(Pages[1]); Edit.Parent := Pages[1]; Edit.Text := 'Retain this content';
+    Tabs.TabIndex := 1;
+    Tabs.OnChange := Counter.Changed; Tabs.OnClose := Counter.Closing;
+    Tabs.OnClosed := Counter.Closed; Tabs.OnReordering := Counter.Reordering;
+    Tabs.OnReordered := Counter.Reordered; Tabs.OnDetaching := Counter.Detaching;
+    Form.Show; Application.ProcessMessages;
+    SelectedID := Items[1].ID;
+    Check(Pages[1].Visible and not Pages[0].Visible and not Pages[2].Visible, 'Only selected attached Page is visible');
+    Check(Tabs.MoveTab(0, 2) and (Tabs.Tabs[Tabs.TabIndex].ID = SelectedID) and
+      Pages[1].Visible and (Counter.Reorders = 1), 'Reordering retains selected item and Page');
+    Counter.VetoMove := True;
+    Check(not Tabs.MoveTab(0, 1) and (Counter.Reorders = 1), 'Reorder can be vetoed');
+    Counter.VetoMove := False;
+    R := Tabs.TabBounds(0); Target := Tabs.TabBounds(1);
+    Tabs.PressAt((R.Left + R.Right) div 2, Tabs.Height div 2);
+    Tabs.DragTo(Target.Right - 24, Tabs.Height div 2);
+    Check(Tabs.DragInProgress and (Tabs.Tabs[0].ID = SelectedID), 'Drag shows marker without moving data immediately');
+    Tabs.PressKey(VK_ESCAPE, []);
+    Tabs.ReleaseAt(Target.Right - 24, Tabs.Height div 2);
+    Check((Tabs.Tabs[0].ID = SelectedID) and not Tabs.DragInProgress, 'Escape cancels pending drag');
+    Counter.VetoDetach := True;
+    Check(not Tabs.DetachTab(Items[1].Index, Point(200, 200)) and (Pages[1].Parent = Host), 'Detach can be vetoed');
+    Counter.VetoDetach := False;
+    Check(Tabs.DetachTab(Items[1].Index, Point(200, 200)), 'Page-backed tab detaches');
+    Window := Tabs.DetachedWindow(Items[1].Index);
+    Check((Window <> nil) and Items[1].Detached and (Pages[1].Parent = Window) and
+      (Edit.Owner = Pages[1]) and (Edit.Text = 'Retain this content'), 'Detached host uses same Page and content objects');
+    Window.Close;
+    Application.ProcessMessages;
+    Check(not Items[1].Detached and (Pages[1].Parent = Host) and (Pages[1].Align = alClient) and
+      (Tabs.Tabs[Tabs.TabIndex].ID = SelectedID) and (Edit.Text = 'Retain this content'), 'Closing detached window reattaches and preserves content');
+    R := Tabs.CloseButtonBounds(Items[0].Index);
+    Tabs.PressAt((R.Left + R.Right) div 2, (R.Top + R.Bottom) div 2);
+    Check(Tabs.Tabs.Count = 3, 'Close waits for release');
+    Tabs.ReleaseAt(Tabs.Width + 5, Tabs.Height div 2);
+    Check(Tabs.Tabs.Count = 3, 'Release away cancels close');
+    Counter.VetoClose := True;
+    Tabs.CloseTab(Items[0].Index);
+    Check((Tabs.Tabs.Count = 3) and (Counter.ClosedCount = 0), 'Close veto preserves tab');
+    Counter.VetoClose := False;
+    Tabs.CloseTab(Items[0].Index);
+    Check((Tabs.Tabs.Count = 2) and (Tabs.Tabs[Tabs.TabIndex].ID = SelectedID) and not Pages[0].Visible,
+      'Closing another tab keeps selected document');
+    Changes := Counter.Changes;
+    Tabs.CloseTab(Items[1].Index);
+    Check((Tabs.Tabs.Count = 1) and (Counter.Changes = Changes + 1) and Pages[2].Visible,
+      'Closing selected tab notifies when replacement has same index');
+    // Destroying a tabstrip must not destroy a Page owned by the host form.
+    Check(Tabs.DetachTab(0, Point(220, 220)), 'Last tab can detach');
+    Tabs.OnChange := nil; Tabs.OnClosed := nil;
+    Tabs.Free;
+    Application.ProcessMessages;
+    Check((Pages[2].Parent = Host) and (Pages[2].Owner = Form), 'Destroying source restores detached content before freeing host');
+    Stored := TERDTabs.Create(nil);
+    try
+      Stored.TabStyle := tsDocument; Stored.AllowReorder := True; Stored.AllowDetach := True;
+      Stored.Tabs.Add.Caption := 'Temporary'; Stored.TabIndex := 0;
+      Stored.CloseTab(0);
+      Check((Stored.Tabs.Count = 0) and (Stored.TabIndex = -1), 'Closing last tab leaves a valid empty selection');
+      Stored.Tabs.Add.Caption := 'Stored'; Stored.TabIndex := 0;
+      Stream.WriteComponent(Stored);
+    finally Stored.Free end;
+    Stream.Position := 0;
+    Copy := TERDTabs(Stream.ReadComponent(nil));
+    try Check(Copy.AllowReorder and Copy.AllowDetach and (Copy.TabIndex = 0) and
+      (Copy.Tabs.Count = 1) and not Copy.Tabs[0].Detached, 'Tab DFM persists config and starts attached')
+    finally Copy.Free end;
+  finally Stream.Free; Form.Free; Counter.Free end;
 end;
 
 procedure TestEditPasswordAndValidation;
@@ -1590,6 +1723,7 @@ begin
     TestRating;
     TestEditableCombo;
     TestEditPasswordAndValidation;
+    TestDocumentTabs;
     Writeln(Checks, ' VCL runtime checks passed.');
   except on E: Exception do begin Writeln(E.ClassName, ': ', E.Message); Halt(1) end end;
 end.

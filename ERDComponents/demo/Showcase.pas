@@ -465,6 +465,13 @@ type
     DemoPopupMenu: TERDPopupMenu;
     DemoBackstage: TERDBackstage;
     DemoTabs: TERDTabs;
+    DocumentHost: TERDPanel;
+    DocumentOne: TERDPanel;
+    DocumentTwo: TERDPanel;
+    DocumentOneText: TERDDialogText;
+    DocumentTwoText: TERDDialogText;
+    DocumentOneEdit: TERDEdit;
+    DocumentTwoEdit: TERDEdit;
     DemoToolBar: TERDToolBar;
     DemoProgressBar: TERDProgressBar;
     DemoDialog: TERDDialog;
@@ -600,6 +607,13 @@ type
     procedure LoadingChanged(Sender: TObject);
     procedure RatingChanged(Sender: TObject);
     procedure SearchComboChanged(Sender: TObject);
+    procedure NewDocumentTab(Sender: TObject);
+    procedure DocumentEdited(Sender: TObject);
+    procedure DocumentTabClosing(Sender: TObject; Index: Integer; var CanClose: Boolean);
+    procedure DocumentTabClosed(Sender: TObject; TabID: Integer; Page: TWinControl);
+    procedure DocumentTabReordered(Sender: TObject; OldIndex, NewIndex: Integer);
+    procedure DocumentTabDetached(Sender: TObject; Index: Integer; Window: TCustomForm);
+    procedure DocumentTabAttached(Sender: TObject; Index: Integer);
     procedure ValidateExample(Sender: TObject; const Text: string;
       var State: TERDEditValidationState; var MessageText: string);
     procedure OpenCommands(Sender: TObject);
@@ -942,6 +956,74 @@ begin
   if Trim(Text) = '' then begin State := evsError; MessageText := 'A name is required.' end
   else if Length(Trim(Text)) < 4 then begin State := evsWarning; MessageText := 'Use at least four characters.' end
   else begin State := evsSuccess; MessageText := 'The name is valid.' end;
+end;
+
+procedure TShowcaseForm.DocumentEdited(Sender: TObject);
+var Control: TControl; I: Integer;
+begin
+  Control := TControl(Sender);
+  while Control <> nil do
+  begin
+    for I := 0 to DemoTabs.Tabs.Count - 1 do
+      if DemoTabs.Tabs[I].Page = Control then
+      begin DemoTabs.Tabs[I].Modified := True; Exit end;
+    Control := Control.Parent;
+  end;
+end;
+
+procedure TShowcaseForm.NewDocumentTab(Sender: TObject);
+var Page: TERDPanel; Edit: TERDEdit; Text: TERDDialogText; Item: TERDTabItem;
+begin
+  Page := TERDPanel.Create(Self);
+  Page.Parent := DocumentHost;
+  Page.Align := alClient;
+  Page.BorderWidth := 0;
+  Page.Visible := False;
+  Text := TERDDialogText.Create(Page);
+  Text.Parent := Page;
+  Text.SetBounds(16, 16, 420, 40);
+  Text.Caption := 'Drag this tab to reorder or outside the strip to detach.';
+  Edit := TERDEdit.Create(Page);
+  Edit.Parent := Page;
+  Edit.SetBounds(16, 76, 400, 32);
+  Edit.Text := 'Editable document content';
+  Edit.OnChange := DocumentEdited;
+  Item := DemoTabs.Tabs.Add;
+  Item.Caption := 'New document ' + IntToStr(Item.ID + 1);
+  Item.Page := Page;
+  DemoTabs.TabIndex := Item.Index;
+end;
+procedure TShowcaseForm.DocumentTabClosing(Sender: TObject; Index: Integer; var CanClose: Boolean);
+var Dialog: TERDDialog;
+begin
+  if not DemoTabs.Tabs[Index].Modified then Exit;
+  Dialog := TERDDialog.Create(Self);
+  try
+    Dialog.Theme := Theme;
+    Dialog.Title := 'Close modified document?';
+    Dialog.Text := 'This demo tab is marked as modified. Close it?';
+    Dialog.Kind := dkWarning;
+    Dialog.Buttons := [mbYes, mbNo];
+    Dialog.DefaultButton := mbNo;
+    CanClose := Dialog.Execute = mrYes;
+  finally Dialog.Free end;
+end;
+procedure TShowcaseForm.DocumentTabClosed(Sender: TObject; TabID: Integer; Page: TWinControl);
+begin
+  Page.Free;
+  StatusBar.Panels[0].Text := 'Document closed';
+end;
+procedure TShowcaseForm.DocumentTabReordered(Sender: TObject; OldIndex, NewIndex: Integer);
+begin
+  StatusBar.Panels[0].Text := Format('Tab moved: %d -> %d', [OldIndex + 1, NewIndex + 1]);
+end;
+procedure TShowcaseForm.DocumentTabDetached(Sender: TObject; Index: Integer; Window: TCustomForm);
+begin
+  StatusBar.Panels[0].Text := 'Detached: ' + DemoTabs.Tabs[Index].Caption;
+end;
+procedure TShowcaseForm.DocumentTabAttached(Sender: TObject; Index: Integer);
+begin
+  StatusBar.Panels[0].Text := 'Returned: ' + DemoTabs.Tabs[Index].Caption;
 end;
 
 procedure TShowcaseForm.SearchComboChanged(Sender: TObject);

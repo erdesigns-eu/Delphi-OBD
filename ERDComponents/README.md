@@ -430,3 +430,37 @@ SearchEdit en SpinEdit erven deze mogelijkheden; hun knoppen blijven naast het
 invoerveld, boven de melding. De Inputs-demo toont een password-edit en live
 validatie. Windows-smoketests voor selectie, reveal, validatie en DFM zijn toegevoegd,
 maar hier niet in Delphi op Windows uitgevoerd.
+
+## Documenttabs: sluiten, herschikken en losmaken
+
+`TERDTabs` bewaart selectie op collection-ID: verplaatsen of het sluiten van een
+eerdere tab behoudt het geselecteerde document. `Tabs[Index].Page` koppelt optioneel
+een `TWinControl` (bijvoorbeeld een panel) aan de tab. De tabstrip beheert de zichtbaarheid;
+de applicatie blijft eigenaar van de Page. Iedere tab heeft een eigen Page en een
+Page mag de tabstrip zelf niet bevatten. Zonder Page blijft de bestaande OnChange-aanpak werken.
+
+- In document-stijl sluit het kruisje pas bij mouse-release op dezelfde knop.
+  Ctrl+W of `CloseTab(Index)` gebruikt hetzelfde `OnClose`-veto. `OnClosed` volgt
+  na verwijderen en levert collection-ID plus Page voor eigen cleanup.
+- `AllowReorder=True` laat slepen met invoegmarkering en overflow-autoscroll toe.
+  Release voert de verplaatsing uit; Escape/capture-verlies annuleert.
+  Ctrl+Shift+Left/Right werkt ook. `MoveTab` is tevens programmatisch beschikbaar.
+  `OnReordering` kan weigeren; `OnReordered` meldt de nieuwe positie.
+- `AllowDetach=True` laat een tab met Page buiten de strip slepen, of losmaken met
+  Ctrl+Shift+D / `DetachTab(Index, ScreenPoint)`. Dezelfde Page verhuist naar een
+  themed venster met onze TitleBar. De tab blijft als item bewaard maar is tijdelijk
+  verborgen; `Detached` en `DetachedWindow` laten de runtime-status zien.
+- Sluiten van het losse venster of Return to tabs brengt de Page terug naar haar
+  oorspronkelijke parent, align, anchors en bounds. `AttachTab` doet hetzelfde.
+  `OnDetaching` kan weigeren; `OnDetached` en `OnAttached` melden de overgang.
+  Detach-state wordt niet opgeslagen in de DFM. Bij opruimen van de tabstrip worden
+  losse Pages eerst teruggeplaatst, zodat het losse venster ze niet vernietigt.
+
+Herschikken en losmaken zijn standaard uitgeschakeld. De Layout-pagina van de
+DFM-demo bevat echte documentpanels, bewerkbare tekst, een modified-tab-veto en
+new-tab/close/reorder/detach/return. Page-verwijzingen zijn via de IDE-keuzelijst te kiezen.
+
+Windows-smoketests zijn toegevoegd voor tab-identiteit, Page-selectie, close/reorder/
+detach-veto's, drag-annulering, dezelfde inhoud in een los venster, terugplaatsen,
+opruimen en DFM. Deze VCL-tests en visuele drag/DPI-checks zijn nog niet uitgevoerd
+in de cloudomgeving; hiervoor is Delphi op Windows nodig.
