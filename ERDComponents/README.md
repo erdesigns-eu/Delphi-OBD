@@ -256,3 +256,26 @@ De titlebar biedt hover en pressed voor alle systeemknoppen. De maximize-knop
 gebruikt de non-clientroute van het formulier en DWM voor Windows 11 Snap.
 Snap en de visuele VCL-weergave moeten op Windows worden gecontroleerd;
 de Python-controles vervangen geen Delphi-build of IDE-installatietest.
+
+## CheckListBox
+
+`TERDCheckListBox` gebruikt dezelfde lijstbasis, themed scrollbar, selectie en
+Windows-focuscues als `TERDListBox`. `Items` is een DFM-bewerkbare collectie:
+elk item heeft `Caption`, `State` (`cbUnchecked`, `cbChecked`, `cbGrayed`) en
+`Enabled`. Check-state blijft bij het item wanneer je items verplaatst of verwijdert.
+
+- `Checked[Index]`, `State[Index]` en `CheckedCount` lezen/wijzigen de checks.
+- Een klik op de caption selecteert; klikken op de checkbox of Space togglet.
+  `CheckOnClick=True` laat ook de hele rij togglen.
+- `AllowGrayed=True` maakt de gebruikerscyclus unchecked → checked → grayed.
+- `OnClickCheck(Sender, Index)` meldt een gebruikerscheck, los van `OnChange`
+  voor rijselectie. Programmatic state-wijzigingen roepen dit event niet aan.
+- `CheckAll(State, IncludeDisabled=False)` past meerdere items in één batch aan.
+  Disabled items worden standaard overgeslagen; de applicatie kan ze expliciet wijzigen.
+
+De Inputs-pagina van de DFM-demo bevat checked, unchecked, grayed en disabled
+voorbeelden. De Windows-smoketest controleert muis/Space, annuleren van een klik,
+disabled items, events, batchwijzigingen, verplaatsen, streaming, thema's en scrollen.
+Die VCL-tests vereisen Delphi/Windows en zijn niet uitgevoerd in de cloudomgeving.
+
+Een losse toggle-switch is niet nodig: `TERDCheckBox.Style=csSwitch` biedt die al.

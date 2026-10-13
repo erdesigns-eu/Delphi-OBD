@@ -104,6 +104,7 @@
     <DCCReference Include="..\src\UI\ERD.Components.IconData.pas"/>
     <DCCReference Include="..\src\UI\ERD.Components.Icons.pas"/>
     <DCCReference Include="..\src\UI\ERD.Components.Inspector.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.CheckListBox.pas"/>
     <DCCReference Include="..\src\UI\ERD.Components.ItemList.pas"/>
     <DCCReference Include="..\src\UI\ERD.Components.KeyValueList.pas"/>
     <DCCReference Include="..\src\UI\ERD.Components.Memo.pas"/>

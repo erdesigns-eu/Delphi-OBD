@@ -3,6 +3,7 @@
 uses
   System.SysUtils, System.Classes, System.Types, Vcl.Forms, Vcl.Controls,
   Winapi.Windows, Vcl.StdCtrls, Vcl.Graphics, Vcl.ImgList,
+  ERD.Components.CheckListBox,
   ERD.Components.ScrollBar, ERD.Components.KeyValueList,
   ERD.Components.CommonControls, ERD.Components.MediaControls, ERD.Components.TrackBar,
   ERD.Components.ShellControls,
@@ -12,6 +13,16 @@ uses
   Showcase in '../demo/Showcase.pas',
   ERD.Components.SpinEdit, ERD.Components.Edits, ERD.Components.PopupList, ERD.Components.TitleBar, ERD.Components.StatusBar, ERD.Components.Theme, ERD.Components.Ribbon;
 type
+  TCheckListProbe = class(TERDCheckListBox)
+  public
+    procedure PressAt(X, Y: Integer);
+    procedure ReleaseAt(X, Y: Integer);
+    procedure Space;
+  end;
+  TCheckListCounter = class
+    Count, LastIndex: Integer;
+    procedure Checked(Sender: TObject; Index: Integer);
+  end;
   TSearchProbe = class(TERDSearchEdit)
   public
     procedure EnterSearch;
@@ -33,6 +44,26 @@ type
     procedure Changed(Sender: TObject);
   end;
 var Checks: Integer;
+procedure TCheckListProbe.PressAt(X, Y: Integer);
+begin
+  MouseDown(mbLeft, [], X, Y);
+end;
+procedure TCheckListProbe.ReleaseAt(X, Y: Integer);
+begin
+  MouseUp(mbLeft, [], X, Y);
+end;
+procedure TCheckListProbe.Space;
+var Key: Word;
+begin
+  Key := VK_SPACE;
+  KeyDown(Key, []);
+end;
+procedure TCheckListCounter.Checked(Sender: TObject; Index: Integer);
+begin
+  Inc(Count);
+  LastIndex := Index;
+end;
+
 procedure TSearchProbe.EnterSearch;
 var Key: Word;
 begin
@@ -643,6 +674,102 @@ begin
   end;
 end;
 
+procedure TestCheckListBox;
+var Form: TForm; List: TCheckListProbe; Copy: TERDCheckListBox;
+  Counter: TCheckListCounter; Stream: TMemoryStream; Bitmap: TBitmap;
+  Row: TRect; Item: TERDCheckListItem; I: Integer; Mode: TERDThemeMode;
+  Theme: TERDTheme;
+begin
+  RegisterClass(TERDCheckListBox);
+  Form := TForm.CreateNew(nil);
+  Counter := TCheckListCounter.Create;
+  Stream := TMemoryStream.Create;
+  Bitmap := TBitmap.Create;
+  try
+    List := TCheckListProbe.Create(Form);
+    List.Parent := Form;
+    List.SetBounds(0, 0, 400, 160);
+    List.OnClickCheck := Counter.Checked;
+    Item := List.Items.Add;
+    Item.Caption := 'Live TV';
+    List.Items.Add.Caption := 'Movies';
+    List.Items.Add.Caption := 'Unavailable';
+    List.Items[2].Enabled := False;
+    Check((List.ItemCount = 3) and (List.CheckedCount = 0), 'Checklist defaults and item count');
+    Row := List.ItemRect(0);
+    List.PressAt(Row.Left + 80, (Row.Top + Row.Bottom) div 2);
+    List.ReleaseAt(Row.Left + 80, (Row.Top + Row.Bottom) div 2);
+    Check((List.ItemIndex = 0) and not List.Checked[0], 'Caption selects without checking');
+    List.PressAt(Row.Left + 14, (Row.Top + Row.Bottom) div 2);
+    List.ReleaseAt(Row.Left + 14, (Row.Top + Row.Bottom) div 2);
+    Check(List.Checked[0] and (Counter.Count = 1) and (Counter.LastIndex = 0),
+      'Checkbox click checks once and reports index');
+    List.PressAt(Row.Left + 14, (Row.Top + Row.Bottom) div 2);
+    List.ReleaseAt(Row.Left + 80, (Row.Top + Row.Bottom) div 2);
+    Check(List.Checked[0] and (Counter.Count = 1), 'Release away from checkbox cancels toggle');
+    List.AllowGrayed := True;
+    List.Space;
+    Check(List.State[0] = cbGrayed, 'Space cycles checked to grayed');
+    List.Space;
+    Check(List.State[0] = cbUnchecked, 'Space cycles grayed to unchecked');
+    List.AllowGrayed := False;
+    List.Space;
+    List.Space;
+    Check(List.State[0] = cbUnchecked, 'Without AllowGrayed Space uses two states');
+    I := Counter.Count;
+    List.Toggle(2);
+    List.Enabled := False;
+    List.Toggle(0);
+    List.Enabled := True;
+    Check((Counter.Count = I) and not List.Checked[2] and not List.Checked[0],
+      'Disabled control and item block user checks');
+    List.CheckOnClick := True;
+    List.PressAt(Row.Left + 80, (Row.Top + Row.Bottom) div 2);
+    List.ReleaseAt(Row.Left + 80, (Row.Top + Row.Bottom) div 2);
+    Check(List.Checked[0], 'CheckOnClick enables caption toggle');
+    I := Counter.Count;
+    List.CheckAll(cbChecked);
+    Check((List.CheckedCount = 2) and not List.Checked[2], 'CheckAll skips disabled items');
+    List.CheckAll(cbChecked, True);
+    Check((List.CheckedCount = 3) and (Counter.Count = I), 'Programmatic batch has no user event');
+    List.Items[0].State := cbGrayed;
+    Item.Index := 1;
+    Check((List.Items[1] = Item) and (List.State[1] = cbGrayed), 'State follows item when reordered');
+    List.Items.Delete(0);
+    Check((List.Items[0] = Item) and (List.State[0] = cbGrayed), 'Removing earlier row preserves remaining state');
+    // Stream the palette class rather than the test-only descendant.
+    Copy := TERDCheckListBox.Create(nil);
+    try
+      Copy.Items.Assign(List.Items);
+      Copy.AllowGrayed := True;
+      Stream.WriteComponent(Copy);
+    finally Copy.Free end;
+    Stream.Position := 0;
+    Copy := TERDCheckListBox(Stream.ReadComponent(nil));
+    try
+      Check((Copy.ItemCount = 2) and (Copy.State[0] = cbGrayed) and
+        not Copy.Items[1].Enabled and Copy.Items[1].Checked, 'DFM stream preserves caption/state/enabled');
+    finally Copy.Free end;
+    Theme := TERDTheme.Create(Form);
+    List.Theme := Theme;
+    for Mode := Low(TERDThemeMode) to High(TERDThemeMode) do
+    begin
+      Theme.Mode := Mode;
+      List.RenderTo(Bitmap);
+      Check((Bitmap.Width = List.Width) and (Bitmap.Height = List.Height), 'Checklist renders in each theme');
+    end;
+    List.Items.BeginUpdate;
+    try
+      for I := 1 to 40 do List.Items.Add.Caption := 'Extra ' + IntToStr(I);
+    finally List.Items.EndUpdate end;
+    List.ItemIndex := List.ItemCount - 1;
+    List.EnsureVisible(List.ItemIndex);
+    Check(List.ScrollPos > 0, 'Checklist keyboard selection can reach rows below viewport');
+    List.Items.Clear;
+    Check((List.ItemCount = 0) and (List.CheckedCount = 0) and (List.ItemIndex = -1), 'Clear resets item selection');
+  finally Bitmap.Free; Stream.Free; Form.Free; Counter.Free end;
+end;
+
 procedure TestFeedbackRegressions;
 var Form: TForm; Values: TERDKeyValueList; Tags: TERDTagEdit;
   Token: TERDTagToken; Ribbon: TERDRibbon; Group: TERDRibbonGroup;
@@ -715,6 +842,7 @@ begin
     TestVirtualTreeThemeAndLazyNodes;
     TestCommonControls;
     TestFeedbackRegressions;
+    TestCheckListBox;
     Writeln(Checks, ' VCL runtime checks passed.');
   except on E: Exception do begin Writeln(E.ClassName, ': ', E.Message); Halt(1) end end;
 end.

@@ -64,5 +64,6 @@
   "TERDTagEdit",
   "TERDExpander",
   "TERDSeekBar",
-  "TERDRangeSlider"
+  "TERDRangeSlider",
+  "TERDCheckListBox"
 ]

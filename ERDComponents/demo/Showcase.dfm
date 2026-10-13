@@ -3822,6 +3822,35 @@
           Position = 65
           ShowValue = True
         end
+        object LabelCheckListBox: TLabel
+          Left = 16
+          Top = 2260
+          Caption = 'TERDCheckListBox - Space or checkbox to check; caption selects'
+        end
+        object DemoCheckListBox: TERDCheckListBox
+          Left = 16
+          Top = 2286
+          Width = 460
+          Height = 220
+          AllowGrayed = True
+          OnClickCheck = CheckListChanged
+          Items = <
+            item
+              Caption = 'Live TV'
+              State = cbChecked
+            end
+            item
+              Caption = 'Movies / VOD'
+            end
+            item
+              Caption = 'Series - partially selected'
+              State = cbGrayed
+            end
+            item
+              Caption = 'Unavailable source'
+              Enabled = False
+            end>
+        end
       end
     end
     object LayoutPage: TERDPanel

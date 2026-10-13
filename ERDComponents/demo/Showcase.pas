@@ -1,6 +1,7 @@
 ﻿unit Showcase;
 interface
 uses
+  ERD.Components.CheckListBox,
   ERD.Components.MediaControls, ERD.Components.CommonControls, ERD.Components.VirtualTree, ERD.Components.VT.BaseTree, ERD.Components.VT.Types, ERD.Components.VT.Header,
   Vcl.StdCtrls,
   ERD.Components.Backstage,
@@ -63,6 +64,8 @@ type
   PPlaylistDemoData = ^TPlaylistDemoData;
 
   TShowcaseForm = class(TForm)
+    DemoCheckListBox: TERDCheckListBox;
+    LabelCheckListBox: TLabel;
     TitleBar: TERDTitleBar;
     Sidebar: TERDSidebar;
     CommandChoice: TERDComboBox;
@@ -560,6 +563,7 @@ type
     procedure BreadcrumbChoices(Sender: TObject; const Path: string; Choices: TERDPlaces);
     procedure BreadcrumbNavigate(Sender: TObject; const Path: string);
     procedure SearchChannels(Sender: TObject);
+    procedure CheckListChanged(Sender: TObject; Index: Integer);
     procedure OpenFile(Sender: TObject);
     procedure IconClicked(Sender: TObject);
   end;
@@ -863,6 +867,12 @@ begin
   finally DemoBreadcrumb.Items.EndUpdate end;
   StatusBar.Panels[0].Text := 'Navigate: ' + Path;
 end;
+procedure TShowcaseForm.CheckListChanged(Sender: TObject; Index: Integer);
+begin
+  StatusBar.Panels[0].Text := Format('%s: %d checked',
+    [DemoCheckListBox.Items[Index].Caption, DemoCheckListBox.CheckedCount]);
+end;
+
 procedure TShowcaseForm.SearchChannels(Sender: TObject);
 begin
   StatusBar.Panels[0].Text := 'Search: ' + DemoSearchEdit.Text;
