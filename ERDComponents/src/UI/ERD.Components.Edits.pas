@@ -247,8 +247,11 @@ type
   // Native edits need end padding so a right-aligned final character
   // does not share the last drawable pixel with the caret.
   TERDInnerEdit = class(TEdit)
+  private
+    procedure PositionEndCaret;
   protected
     procedure CreateWnd; override;
+    procedure WndProc(var Message: TMessage); override;
   end;
 
 procedure TERDInnerEdit.CreateWnd;
@@ -258,6 +261,30 @@ begin
   Margin := Max(2, MulDiv(2, Font.PixelsPerInch, 96));
   SendMessage(Handle, EM_SETMARGINS, EC_LEFTMARGIN or EC_RIGHTMARGIN,
     LPARAM(Margin or (Margin shl 16)));
+end;
+
+procedure TERDInnerEdit.PositionEndCaret;
+var Caret: TPoint; Margins: LRESULT; RightMargin, X: Integer;
+begin
+  if not HandleAllocated or not Focused or (Alignment <> taRightJustify) or
+    (BiDiMode <> bdLeftToRight) or (SelLength <> 0) or
+    (SelStart <> Length(Text)) or not GetCaretPos(Caret) then Exit;
+  Margins := SendMessage(Handle, EM_GETMARGINS, 0, 0);
+  RightMargin := Integer((Margins shr 16) and $FFFF);
+  // The logical end of a right-aligned single-line edit is its right
+  // text edge, not the native caret's sometimes rounded glyph position.
+  X := Max(0, Min(ClientWidth - 1, ClientWidth - RightMargin));
+  if Caret.X <> X then SetCaretPos(X, Caret.Y);
+end;
+
+procedure TERDInnerEdit.WndProc(var Message: TMessage);
+begin
+  inherited;
+  case Message.Msg of
+    WM_SETFOCUS, WM_PAINT, WM_SETTEXT, WM_SETFONT, WM_SIZE,
+    WM_KEYUP, WM_CHAR, WM_LBUTTONDOWN, WM_LBUTTONUP, EM_SETSEL, EM_SETMARGINS:
+      PositionEndCaret;
+  end;
 end;
 
 { TERDEdit }

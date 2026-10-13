@@ -62,6 +62,7 @@ type
     procedure InvalidateItem(AIndex: Integer);
     procedure PaintFrame;
     procedure PaintRows(ADC: HDC);
+    procedure DrawRow(ACanvas: TCanvas; Index: Integer; Rect: TRect; State: TOwnerDrawState);
     function NeedsBar: Boolean;
     function BarRect: TRect;
     function ThumbRect: TRect;
@@ -332,23 +333,16 @@ begin
   Buffer := TBitmap.Create;
   try
     Buffer.SetSize(ClientWidth, ClientHeight);
-    Canvas.Lock;
-    try
-      Canvas.Handle := Buffer.Canvas.Handle;
-      Canvas.Brush.Color := FPalette.GaugeFace;
-      Canvas.FillRect(ClientRect);
-      for I := TopIndex to Items.Count - 1 do
-      begin
-        if SendMessage(Handle, LB_GETITEMRECT, I, LPARAM(@R)) = LB_ERR then Break;
-        if R.Top >= ClientHeight then Break;
-        if R.Bottom <= 0 then Continue;
-        State := [];
-        if I = ItemIndex then Include(State, odSelected);
-        DrawItem(I, R, State);
-      end;
-    finally
-      Canvas.Handle := 0;
-      Canvas.Unlock;
+    Buffer.Canvas.Brush.Color := FPalette.GaugeFace;
+    Buffer.Canvas.FillRect(ClientRect);
+    for I := TopIndex to Items.Count - 1 do
+    begin
+      if SendMessage(Handle, LB_GETITEMRECT, I, LPARAM(@R)) = LB_ERR then Break;
+      if R.Top >= ClientHeight then Break;
+      if R.Bottom <= 0 then Continue;
+      State := [];
+      if I = ItemIndex then Include(State, odSelected);
+      DrawRow(Buffer.Canvas, I, R, State);
     end;
     if NeedsBar then
     begin
@@ -732,13 +726,19 @@ end;
 
 procedure TERDPopupList.DrawItem(Index: Integer; Rect: TRect;
   State: TOwnerDrawState);
+begin
+  DrawRow(Canvas, Index, Rect, State);
+end;
+
+procedure TERDPopupList.DrawRow(ACanvas: TCanvas; Index: Integer; Rect: TRect;
+  State: TOwnerDrawState);
 var
   P: TERDPainter;
   Fill, Ink: TColor;
   Weight: TERDTextWeight;
   Selected, Hot: Boolean;
 begin
-  P := TERDPainter.Create(Canvas, FPalette, FPPI);
+  P := TERDPainter.Create(ACanvas, FPalette, FPPI);
   try
     Fill := FPalette.GaugeFace;
     Ink := FPalette.ForegroundText;

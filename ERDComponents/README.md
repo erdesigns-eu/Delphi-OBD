@@ -144,7 +144,9 @@ zonder de oorspronkelijke OBD-repository. Bronlicentie: [LICENSE](LICENSE).
 
 De titlebar heeft een optionele AutoSave-toggle (`AutoSaveVisible`, standaard False).
 `AutoSave` bewaart de aan/uit-status en `OnAutoSaveChange` meldt wijzigingen aan
-je applicatie. `AutoSaveCaption` en `AutoSaveWidth` bepalen de presentatie.
+je applicatie. `AutoSaveCaption` bepaalt de tekst. De breedte volgt de gemeten tekst;
+`AutoSavePadding` is de ruimte tot de toggle (standaard 8 logische pixels, DPI-geschaald).
+`AutoSaveWidth = 0` kiest automatische breedte; een hogere waarde begrenst de maximale breedte.
 De toggle slaat zelf geen bestanden op. Met `TabStop = True` kun je hem via Tab
 focussen en met Space/Enter schakelen. De demo toont hem naast Save/Undo/Redo.
 

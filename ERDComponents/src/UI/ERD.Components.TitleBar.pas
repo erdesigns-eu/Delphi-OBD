@@ -179,6 +179,10 @@ type
     FAutoSave: Boolean;
     FAutoSaveCaption: string;
     FAutoSaveWidth: Integer;
+    FAutoSavePadding: Integer;
+    FAutoSaveMeasuredText: string;
+    FAutoSaveMeasuredPPI: Integer;
+    FAutoSaveMeasuredWidth: Integer;
     FAutoSaveHot: Boolean;
     FAutoSavePressed: Boolean;
     FAutoSaveSpacePressed: Boolean;
@@ -218,6 +222,8 @@ type
     procedure SetAutoSave(AValue: Boolean);
     procedure SetAutoSaveCaption(const AValue: string);
     procedure SetAutoSaveWidth(AValue: Integer);
+    procedure SetAutoSavePadding(AValue: Integer);
+    function AutoSaveTextWidth: Integer;
     function AutoSaveRect: TRect;
     procedure DrawAutoSave(APainter: TERDPainter);
     procedure SetButtons(AValue: TERDCaptionButtons);
@@ -314,6 +320,7 @@ type
     /// <summary>Paints the title bar and caption controls.</summary>
     /// <param name="ACanvas">Target canvas.</param>
     procedure PaintControl(ACanvas: TCanvas); override;
+    procedure WndProc(var Message: TMessage); override;
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
     procedure KeyUp(var Key: Word; Shift: TShiftState); override;
     procedure DoExit; override;
@@ -367,7 +374,10 @@ type
     /// <summary>Application-defined AutoSave state; this control performs no file I/O.</summary>
     property AutoSave: Boolean read FAutoSave write SetAutoSave default False;
     property AutoSaveCaption: string read FAutoSaveCaption write SetAutoSaveCaption;
-    property AutoSaveWidth: Integer read FAutoSaveWidth write SetAutoSaveWidth default 145;
+    /// <summary>Optional maximum width in logical pixels; zero sizes to the text.</summary>
+    property AutoSaveWidth: Integer read FAutoSaveWidth write SetAutoSaveWidth default 0;
+    /// <summary>Space between the caption and toggle, in 96-DPI logical pixels.</summary>
+    property AutoSavePadding: Integer read FAutoSavePadding write SetAutoSavePadding default 8;
     /// <summary>Fires after the state changes, outside DFM loading.</summary>
     property OnAutoSaveChange: TNotifyEvent read FOnAutoSaveChange write FOnAutoSaveChange;
     /// <summary>Extra caption buttons between the status chip and system buttons.</summary>
@@ -803,7 +813,7 @@ begin
   FButtons := TERDCaptionButtons.Create(Self);
   FQuickAccess := TERDCaptionButtons.Create(Self);
   FAutoSaveCaption := 'AutoSave';
-  FAutoSaveWidth := 145;
+  FAutoSavePadding := 8;
   FMenuPlacement := mpTitleBar;
   FCommandStyle := csMenu;
   FAppInitials := 'OS';
@@ -935,20 +945,50 @@ procedure TERDTitleBar.SetAutoSaveCaption(const AValue: string);
 begin
   if FAutoSaveCaption = AValue then Exit;
   FAutoSaveCaption := AValue;
+  UpdateChildLayout;
   Invalidate;
 end;
 
 procedure TERDTitleBar.SetAutoSaveWidth(AValue: Integer);
 begin
-  AValue := System.Math.Max(72, AValue);
+  AValue := System.Math.Max(0, AValue);
   if FAutoSaveWidth = AValue then Exit;
   FAutoSaveWidth := AValue;
   UpdateChildLayout;
   Invalidate;
 end;
 
+procedure TERDTitleBar.SetAutoSavePadding(AValue: Integer);
+begin
+  AValue := System.Math.Max(0, AValue);
+  if FAutoSavePadding = AValue then Exit;
+  FAutoSavePadding := AValue;
+  UpdateChildLayout;
+  Invalidate;
+end;
+
+function TERDTitleBar.AutoSaveTextWidth: Integer;
+var Buffer: TBitmap; Painter: TERDPainter; PPI: Integer;
+begin
+  PPI := ScaleValue(96);
+  if (FAutoSaveMeasuredText <> FAutoSaveCaption) or (FAutoSaveMeasuredPPI <> PPI) then
+  begin
+    Buffer := TBitmap.Create;
+    try
+      Buffer.SetSize(1, 1);
+      Painter := TERDPainter.Create(Buffer.Canvas, Palette, PPI);
+      try
+        FAutoSaveMeasuredWidth := Painter.TextWidth(FAutoSaveCaption, 11.5, twRegular);
+      finally Painter.Free end;
+    finally Buffer.Free end;
+    FAutoSaveMeasuredText := FAutoSaveCaption;
+    FAutoSaveMeasuredPPI := PPI;
+  end;
+  Result := FAutoSaveMeasuredWidth;
+end;
+
 function TERDTitleBar.AutoSaveRect: TRect;
-var L, RightEdge, Count: Integer;
+var L, RightEdge, Count, DesiredWidth, Gap: Integer;
 begin
   Result := Rect(0, 0, 0, 0);
   if not FAutoSaveVisible then Exit;
@@ -960,15 +1000,20 @@ begin
     if Count = 0 then Count := PreviewButtonCount(True);
     Dec(RightEdge, Count * ScaleValue(30) + ScaleValue(12));
   end;
-  RightEdge := System.Math.Min(L + ScaleValue(FAutoSaveWidth), RightEdge);
-  if RightEdge - L < ScaleValue(72) then Exit;
+  Gap := ScaleValue(FAutoSavePadding);
+  if FAutoSaveCaption = '' then Gap := 0;
+  DesiredWidth := AutoSaveTextWidth + Gap + ScaleValue(44 + 8);
+  if FAutoSaveWidth > 0 then
+    DesiredWidth := System.Math.Min(DesiredWidth, ScaleValue(FAutoSaveWidth));
+  RightEdge := System.Math.Min(L + DesiredWidth, RightEdge);
+  if RightEdge - L < ScaleValue(44 + 8) then Exit;
   Result := Rect(L, ScaleValue(6), RightEdge, CaptionHeight - ScaleValue(6));
 end;
 
 procedure TERDTitleBar.DrawAutoSave(APainter: TERDPainter);
 var
   R: TRect;
-  X, CY, W, H, Knob, KnobX, TextX: Integer;
+  X, CY, W, H, Knob, KnobX, TextX, LabelWidth, Gap: Integer;
   Fill, Ink, LabelInk: TColor;
   StateText: string;
 begin
@@ -977,14 +1022,18 @@ begin
   CY := R.Top + R.Height div 2;
   W := ScaleValue(44);
   H := ScaleValue(20);
-  X := R.Right - W - ScaleValue(4);
+  Gap := ScaleValue(FAutoSavePadding);
+  if FAutoSaveCaption = '' then Gap := 0;
+  LabelWidth := System.Math.Min(AutoSaveTextWidth,
+    System.Math.Max(0, R.Width - W - Gap - ScaleValue(8)));
+  X := R.Left + ScaleValue(4) + LabelWidth + Gap;
   LabelInk := Palette.ForegroundText;
   if not Enabled then LabelInk := Palette.Subtle;
   if FAutoSaveHot and Enabled then
     APainter.RoundRect(R.Left, R.Top, R.Width, R.Height, ScaleValue(4),
       ERDMixColor(Palette.ForegroundText, SurfaceColor, 0.06), clNone);
   APainter.Text(R.Left + ScaleValue(4), CY, FAutoSaveCaption, 11.5,
-    LabelInk, twRegular, taLeftJustify, System.Math.Max(0, X - R.Left - ScaleValue(10)));
+    LabelInk, twRegular, taLeftJustify, LabelWidth);
   if FAutoSave and Enabled then
   begin
     Fill := Palette.Accent;
@@ -1204,17 +1253,31 @@ begin
   Message.HintInfo^.CursorRect := R;
 end;
 
+procedure TERDTitleBar.WndProc(var Message: TMessage);
+begin
+  if not (csDesigning in ComponentState) and (FHookedForm <> nil) and
+    FHookedForm.HandleAllocated then
+    case Message.Msg of
+      WM_NCMOUSEMOVE, WM_NCMOUSELEAVE, WM_NCLBUTTONDOWN, WM_NCLBUTTONUP,
+      WM_NCLBUTTONDBLCLK, WM_NCRBUTTONDOWN, WM_NCRBUTTONUP, WM_NCRBUTTONDBLCLK:
+        begin
+          // Non-client gestures belong to the top-level window even when
+          // this caption control is nested in a panel or another container.
+          Message.Result := SendMessage(FHookedForm.Handle, Message.Msg,
+            Message.WParam, Message.LParam);
+          Exit;
+        end;
+    end;
+  inherited;
+end;
+
 procedure TERDTitleBar.WMNCHitTest(var Message: TWMNCHitTest);
+var Hit: Integer;
 begin
   inherited;
-  if (csDesigning in ComponentState) or (Message.Result <> HTCLIENT) then
-    Exit;
-  // The bar is a child window covering the form's caption area, so the
-  // form never sees WM_NCHITTEST there. Let it fall through to the form
-  // (whose hooked hit test answers HTCAPTION, HTMAXBUTTON or a resize
-  // edge) wherever the bar has no control of its own.
-  if CaptionHitTest(Point(Message.XPos, Message.YPos)) <> HTCLIENT then
-    Message.Result := HTTRANSPARENT;
+  if (csDesigning in ComponentState) or (Message.Result <> HTCLIENT) then Exit;
+  Hit := CaptionHitTest(Point(Message.XPos, Message.YPos));
+  if Hit <> HTCLIENT then Message.Result := Hit;
 end;
 
 function TERDTitleBar.CaptionHitTest(const AScreenPoint: TPoint): Integer;

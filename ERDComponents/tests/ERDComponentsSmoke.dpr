@@ -255,6 +255,7 @@ var
   Spin: TERDSpinEdit;
   NativeEdit: TWinControl;
   Margins: LRESULT;
+  Caret: TPoint;
   I: Integer;
 begin
   Form := TShowcaseForm.Create(nil);
@@ -305,6 +306,14 @@ begin
     Margins := SendMessage(NativeEdit.Handle, EM_GETMARGINS, 0, 0);
     Check((Margins and $FFFF) >= 2, 'Native edit reserves left caret space');
     Check(((Margins shr 16) and $FFFF) >= 2, 'Right-aligned edit reserves end caret space');
+    Form.Show;
+    Spin.Value := 18;
+    Spin.SetFocus;
+    Spin.SelStart := Length(Spin.Text);
+    Spin.SelLength := 0;
+    Check(GetCaretPos(Caret), 'Native spin caret is available');
+    Check(Caret.X = NativeEdit.ClientWidth - Integer((Margins shr 16) and $FFFF),
+      'Right-aligned caret is at the text edge after the final digit');
   finally
     Form.Free;
   end;
@@ -317,7 +326,9 @@ var
   Title: TERDTitleBar;
   Probe: TChangeProbe;
   AlwaysShow: BOOL;
-  R: TRect;
+  R, Wider: TRect;
+  P: TPoint;
+  Panel: TERDPanel;
   I: Integer;
   Mode: TERDThemeMode;
   SavedState: Boolean;
@@ -328,6 +339,7 @@ begin
   Probe := TChangeProbe.Create;
   Stream := TMemoryStream.Create;
   try
+    Form.ClientWidth := 1000;
     Button := TFocusProbe.Create(Form);
     Button.Parent := Form;
     AlwaysShow := False;
@@ -345,6 +357,22 @@ begin
     Title.OnAutoSaveChange := Probe.Changed;
     R := Title.AutoSaveBounds;
     Check(not R.IsEmpty, 'Visible AutoSave has a hit target');
+    Check(Title.AutoSavePadding = 8, 'AutoSave defaults to 8 logical pixels between caption and toggle');
+    Title.AutoSavePadding := 24;
+    Wider := Title.AutoSaveBounds;
+    Check(Wider.Width = R.Width + MulDiv(16, Title.CurrentPPI, 96), 'Padding adds the requested space without stretching the caption');
+    Title.AutoSavePadding := 8;
+    Title.AutoSaveCaption := 'Automatically save changes';
+    Wider := Title.AutoSaveBounds;
+    Check(Wider.Width > R.Width, 'Longer AutoSave captions reserve more space');
+    Title.AutoSaveCaption := 'AutoSave';
+    Panel := TERDPanel.Create(Form);
+    Panel.Parent := Form;
+    Panel.Align := alClient;
+    Title.Parent := Panel;
+    P := Title.ClientToScreen(Point(Title.Width div 2, Title.Height div 2));
+    Check(SendMessage(Title.Handle, WM_NCHITTEST, 0,
+      LPARAM(MakeLParam(P.X, P.Y))) = HTCAPTION, 'Nested titlebar exposes a native caption drag hit');
     SendMessage(Title.Handle, WM_LBUTTONDOWN, MK_LBUTTON,
       LPARAM(MakeLParam(R.Left + R.Width div 2, R.Top + R.Height div 2)));
     SendMessage(Title.Handle, WM_LBUTTONUP, 0,
@@ -372,6 +400,7 @@ begin
     Restored := TERDTitleBar(Stream.ReadComponent(nil));
     try
       Check(Restored.AutoSaveVisible and Restored.AutoSave, 'AutoSave survives DFM streaming');
+      Check(Restored.AutoSavePadding = 8, 'AutoSave padding survives DFM streaming');
     finally
       Restored.Free;
     end;
