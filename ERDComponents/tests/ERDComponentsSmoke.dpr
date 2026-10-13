@@ -21,6 +21,15 @@ uses
   Showcase in '../demo/Showcase.pas',
   ERD.Components.SpinEdit, ERD.Components.Edits, ERD.Components.PopupList, ERD.Components.TitleBar, ERD.Components.StatusBar, ERD.Components.Theme, ERD.Components.Ribbon;
 type
+  TEditProbe = class(TERDEdit)
+  public
+    procedure RevealByKeyboard;
+  end;
+  TValidationProbe = class
+    Calls: Integer;
+    procedure ValidateText(Sender: TObject; const Text: string;
+      var State: TERDEditValidationState; var MessageText: string);
+  end;
   TRatingProbe = class(TERDRating)
   public
     procedure PressAt(X, Y: Integer);
@@ -89,6 +98,19 @@ type
     procedure Changed(Sender: TObject);
   end;
 var Checks: Integer;
+procedure TEditProbe.RevealByKeyboard;
+var Key: Word;
+begin Key := Ord('V'); KeyDown(Key, [ssAlt]) end;
+procedure TValidationProbe.ValidateText(Sender: TObject; const Text: string;
+  var State: TERDEditValidationState; var MessageText: string);
+begin
+  Inc(Calls);
+  if Text = '' then begin State := evsError; MessageText := 'Required' end
+  else if Length(Text) < 4 then begin State := evsWarning; MessageText := 'Use four characters' end
+  else begin State := evsSuccess; MessageText := '' end;
+  TERDEdit(Sender).Validate; // Reentrant request must not call the validator again.
+end;
+
 procedure TRatingProbe.PressAt(X, Y: Integer);
 begin MouseDown(mbLeft, [], X, Y) end;
 procedure TRatingProbe.ReleaseAt(X, Y: Integer);
@@ -767,6 +789,68 @@ begin
   end;
 end;
 
+procedure TestEditPasswordAndValidation;
+var Form: TForm; Edit: TEditProbe; Native: TEdit; Validator: TValidationProbe;
+  Copy, Stored: TERDEdit; Counter: TChangeProbe; Stream: TMemoryStream;
+  Bitmap: TBitmap; BaseHeight, Calls: Integer;
+begin
+  RegisterClass(TERDEdit);
+  Form := TForm.CreateNew(nil);
+  Validator := TValidationProbe.Create;
+  Counter := TChangeProbe.Create;
+  Stream := TMemoryStream.Create;
+  Bitmap := TBitmap.Create;
+  try
+    Edit := TEditProbe.Create(Form);
+    Edit.Parent := Form;
+    Edit.Text := 'Example';
+    Edit.PasswordChar := #8226;
+    Edit.ShowPasswordButton := True;
+    Edit.OnChange := Counter.Changed;
+    Form.Show; Application.ProcessMessages; Edit.SetFocus;
+    Edit.SelStart := 1; Edit.SelLength := 3;
+    Native := TEdit(Edit.Controls[0]);
+    Check(Native.PasswordChar = #8226, 'Configured password character is applied to native editor');
+    Edit.RevealByKeyboard;
+    Check(Edit.PasswordVisible and (Native.PasswordChar = #0) and
+      (Edit.SelStart = 1) and (Edit.SelLength = 3) and (Edit.Text = 'Example') and
+      (Counter.Changes = 0), 'Password reveal preserves text and selection without OnChange');
+    Edit.RevealByKeyboard;
+    Check(not Edit.PasswordVisible and (Native.PasswordChar = #8226), 'Keyboard hides password again');
+    Check(Native.Left + Native.Width <= Edit.Width - 32, 'Native edit reserves room for reveal button');
+    Edit.PasswordChar := #0;
+    Edit.OnValidate := Validator.ValidateText;
+    Edit.ValidateOnChange := True;
+    BaseHeight := Edit.Height;
+    Edit.Text := '';
+    Check((Edit.ValidationState = evsError) and (Edit.ValidationText = 'Required') and
+      (Edit.Height > BaseHeight), 'Validation error grows message below field');
+    Calls := Validator.Calls;
+    Check(not Edit.Validate and (Validator.Calls = Calls + 1), 'Validation reports failure and guards recursion');
+    Edit.Text := 'abc';
+    Check((Edit.ValidationState = evsWarning) and Edit.Validate, 'Warning is displayed but not invalid');
+    Edit.Text := 'valid';
+    Check((Edit.ValidationState = evsSuccess) and (Edit.ValidationText = '') and
+      (Edit.Height = BaseHeight), 'Successful validation clears message and restores field height');
+    Stored := TERDEdit.Create(nil);
+    try
+      Stored.PasswordChar := #8226; Stored.ShowPasswordButton := True;
+      Stored.PasswordVisible := True; Stored.Text := 'Example';
+      Stored.ValidationState := evsError; Stored.ValidationText := 'Example message';
+      Stored.RenderTo(Bitmap);
+      Check(not Stored.HandleAllocated, 'Password/validation preview works without a window');
+      Stream.WriteComponent(Stored);
+    finally Stored.Free end;
+    Stream.Position := 0;
+    Copy := TERDEdit(Stream.ReadComponent(nil));
+    try
+      Check((Copy.PasswordChar = #8226) and Copy.ShowPasswordButton and not Copy.PasswordVisible and
+        (Copy.ValidationState = evsError) and (Copy.ValidationText = 'Example message') and
+        (Copy.Text = 'Example') and (Copy.ControlCount = 1), 'Edit DFM preserves config and masks visibility on reload');
+    finally Copy.Free end;
+  finally Bitmap.Free; Stream.Free; Form.Free; Validator.Free; Counter.Free end;
+end;
+
 procedure TestEditableCombo;
 var Form: TForm; Combo, Copy: TERDComboBox; Counter: TChangeProbe;
   Popup: TERDPopupList; I: Integer; Stream: TMemoryStream;
@@ -812,6 +896,11 @@ begin
     Combo.Editor.Perform(WM_KEYDOWN, VK_BACK, 0);
     Combo.Editor.Perform(WM_CHAR, VK_BACK, 0);
     Check(Combo.Text = 'Be', 'Backspace removes suffix without immediately restoring it');
+    Combo.Editor.SelStart := 1; Combo.Editor.SelLength := 1;
+    Combo.Editor.Perform(WM_CLEAR, 0, 0);
+    Check(Combo.Text = 'B', 'Native delete command is not undone by completion');
+    Combo.Editor.Perform(WM_UNDO, 0, 0);
+    Check(Combo.Text = 'Be', 'Native undo restores edit without completion');
     Combo.AutoComplete := False;
     Combo.Text := 'custom text';
     Check(Combo.ItemIndex = -1, 'Editable combo permits free text outside Items');
@@ -1500,6 +1589,7 @@ begin
     TestCommandPalette;
     TestRating;
     TestEditableCombo;
+    TestEditPasswordAndValidation;
     Writeln(Checks, ' VCL runtime checks passed.');
   except on E: Exception do begin Writeln(E.ClassName, ': ', E.Message); Halt(1) end end;
 end.

@@ -3978,6 +3978,34 @@
             'Germany')
           OnChange = SearchComboChanged
         end
+        object PasswordEditLabel: TLabel
+          Left = 16
+          Top = 3430
+          Caption = 'Edit password - eye button or Alt+V to show/hide'
+        end
+        object PasswordEdit: TERDEdit
+          Left = 16
+          Top = 3456
+          Width = 460
+          PasswordChar = #8226
+          ShowPasswordButton = True
+          Text = 'Example password'
+        end
+        object ValidationEditLabel: TLabel
+          Left = 16
+          Top = 3530
+          Caption = 'Edit validation - required name, warning for short text'
+        end
+        object ValidationEdit: TERDEdit
+          Left = 16
+          Top = 3556
+          Width = 460
+          TextHint = 'Enter a name'
+          ValidateOnChange = True
+          ValidationState = evsError
+          ValidationText = 'A name is required.'
+          OnValidate = ValidateExample
+        end
       end
     end
     object LayoutPage: TERDPanel

@@ -353,7 +353,7 @@ end;
 
 function TERDSpinEdit.TrailingSpace: Integer;
 begin
-  Result := ButtonWidth;
+  Result := inherited TrailingSpace + ButtonWidth;
 end;
 
 function TERDSpinEdit.ButtonWidth: Integer;
@@ -366,9 +366,9 @@ end;
 
 function TERDSpinEdit.ButtonAt(X, Y: Integer): Integer;
 begin
-  if (X < Width - ButtonWidth) or (X >= Width) or (Y < 0) or (Y >= Height) then
+  if (X < Width - ButtonWidth) or (X >= Width) or (Y < 0) or (Y >= EditFieldHeight) then
     Result := BTN_NONE
-  else if Y < Height div 2 then
+  else if Y < EditFieldHeight div 2 then
     Result := BTN_UP
   else
     Result := BTN_DOWN;
@@ -464,10 +464,10 @@ begin
   try
     BW := ButtonWidth;
     X0 := Width - BW;
-    Mid := Height div 2;
+    Mid := EditFieldHeight div 2;
     H := P.S(1);
     // Divider between the text and the buttons.
-    P.FillRect(Rect(X0, H + P.S(3), X0 + H, Height - H - P.S(3)),
+    P.FillRect(Rect(X0, H + P.S(3), X0 + H, EditFieldHeight - H - P.S(3)),
       Palette.NeutralLight);
     CX := X0 + BW div 2;
     D := P.SF(3.5);
@@ -476,7 +476,7 @@ begin
       if B = BTN_UP then
         R := Rect(X0 + H, H * 2, Width - H * 2, Mid)
       else
-        R := Rect(X0 + H, Mid, Width - H * 2, Height - H * 2);
+        R := Rect(X0 + H, Mid, Width - H * 2, EditFieldHeight - H * 2);
       if not Enabled or ReadOnly then
         Ink := ERDMixColor(Palette.Subtle, Palette.GaugeFace, 0.6)
       else if FDownButton = B then

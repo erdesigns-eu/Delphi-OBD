@@ -92,6 +92,10 @@ type
     RatingLabel: TLabel;
     SearchCombo: TERDComboBox;
     SearchComboLabel: TLabel;
+    PasswordEdit: TERDEdit;
+    ValidationEdit: TERDEdit;
+    PasswordEditLabel: TLabel;
+    ValidationEditLabel: TLabel;
     TitleBar: TERDTitleBar;
     Sidebar: TERDSidebar;
     CommandChoice: TERDComboBox;
@@ -596,6 +600,8 @@ type
     procedure LoadingChanged(Sender: TObject);
     procedure RatingChanged(Sender: TObject);
     procedure SearchComboChanged(Sender: TObject);
+    procedure ValidateExample(Sender: TObject; const Text: string;
+      var State: TERDEditValidationState; var MessageText: string);
     procedure OpenCommands(Sender: TObject);
     procedure ShowcaseKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure CommandExecuted(Sender: TObject; Command: TERDCommandItem);
@@ -928,6 +934,14 @@ begin
   else if Command.Key = 'open' then OpenFile(Self)
   else if Command.Key = 'dialog' then ShowDialog(Self);
   StatusBar.Panels[0].Text := 'Command: ' + Command.DisplayCaption;
+end;
+
+procedure TShowcaseForm.ValidateExample(Sender: TObject; const Text: string;
+  var State: TERDEditValidationState; var MessageText: string);
+begin
+  if Trim(Text) = '' then begin State := evsError; MessageText := 'A name is required.' end
+  else if Length(Trim(Text)) < 4 then begin State := evsWarning; MessageText := 'Use at least four characters.' end
+  else begin State := evsSuccess; MessageText := 'The name is valid.' end;
 end;
 
 procedure TShowcaseForm.SearchComboChanged(Sender: TObject);

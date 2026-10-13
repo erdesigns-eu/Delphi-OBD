@@ -222,7 +222,7 @@ begin
 end;
 function TERDSearchEdit.TrailingSpace: Integer;
 begin
-  Result := ScaleValue(56);
+  Result := inherited TrailingSpace + ScaleValue(56);
 end;
 procedure TERDSearchEdit.SetSearchDelay(Value: Integer);
 begin
@@ -273,14 +273,14 @@ begin
   inherited;
   P := TERDPainter.Create(ACanvas, Palette, ScaleValue(96));
   try
-    P.Glyph(glSearch, Width - ScaleValue(16), Height div 2, Palette.Subtle);
-    if Text <> '' then P.Glyph(glClose, Width - ScaleValue(42), Height div 2, Palette.Subtle);
+    P.Glyph(glSearch, Width - ScaleValue(16), EditFieldHeight div 2, Palette.Subtle);
+    if Text <> '' then P.Glyph(glClose, Width - ScaleValue(42), EditFieldHeight div 2, Palette.Subtle);
   finally P.Free end;
 end;
 procedure TERDSearchEdit.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   inherited;
-  if (Button <> mbLeft) or not Enabled then Exit;
+  if (Button <> mbLeft) or not Enabled or (Y >= EditFieldHeight) then Exit;
   if X >= Width - ScaleValue(28) then ExecuteSearch
   else if (X >= Width - ScaleValue(56)) and not ReadOnly then
   begin

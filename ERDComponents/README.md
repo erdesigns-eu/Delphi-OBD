@@ -411,3 +411,22 @@ bieden dezelfde filtering aan de applicatie. De native editor is bereikbaar via
 `OnChange` meldt gebruikersinvoer of een keuze; programmatische setters zijn stil.
 De Inputs-demo bevat een zoekcombo en Windows-smoketests voor filtering, indexmapping,
 autocomplete, Backspace en DFM zijn toegevoegd (nog niet op Windows uitgevoerd).
+
+## Wachtwoord en validatie in Edit
+
+`TERDEdit.PasswordChar` gebruikt native password-masking. `ShowPasswordButton`
+toont de eye-knop; klikken of Alt+V wisselt `PasswordVisible`. Tonen/verbergen
+behoudt tekst en selectie en roept `OnChange` niet aan. De zichtbaarheidsstatus
+wordt niet in de DFM opgeslagen; het masker en de knopinstelling wel.
+
+`ValidationState` kiest normaal/success/warning/error en `ValidationText` toont een
+wrapped melding onder het invoerveld. `AutoSize` vergroot de hoogte; bij
+`AutoSize=False` reserveert de applicatie zelf genoeg hoogte voor de melding.
+`OnValidate(Sender, Text, State, MessageText)` bepaalt status en tekst. `Validate`
+roept dit event expliciet aan en geeft False bij error; `ValidateOnChange` is
+standaard False en `ValidateOnExit` True. Reentrant Validate-aanroepen zijn beschermd.
+
+SearchEdit en SpinEdit erven deze mogelijkheden; hun knoppen blijven naast het
+invoerveld, boven de melding. De Inputs-demo toont een password-edit en live
+validatie. Windows-smoketests voor selectie, reveal, validatie en DFM zijn toegevoegd,
+maar hier niet in Delphi op Windows uitgevoerd.

@@ -46,13 +46,33 @@ uses
   ERD.Components.PopupList;
 
 type
+  TERDEditValidationState = (evsNone, evsSuccess, evsWarning, evsError);
+  TERDEditValidateEvent = procedure(Sender: TObject; const Text: string;
+    var State: TERDEditValidationState; var MessageText: string) of object;
   /// <summary>Themed single-line edit.</summary>
   TERDEdit = class(TERDCustomControl)
   strict private
+    FPasswordChar: Char;
+    FPasswordVisible, FShowPasswordButton, FRevealDown, FRevealHot: Boolean;
+    FValidationState: TERDEditValidationState;
+    FValidationText: string;
+    FValidateOnChange, FValidateOnExit, FValidating: Boolean;
+    FOnValidate: TERDEditValidateEvent;
     FWantReturnKey: Boolean;
     FEdit: TEdit;
     FMono: Boolean;
     FOnChange: TNotifyEvent;
+    procedure SetPasswordChar(Value: Char);
+    procedure SetPasswordVisible(Value: Boolean);
+    procedure SetShowPasswordButton(Value: Boolean);
+    procedure SyncPassword;
+    procedure SetValidationState(Value: TERDEditValidationState);
+    procedure SetValidationText(const Value: string);
+    procedure ApplyValidation(State: TERDEditValidationState; const MessageText: string);
+    function ValidationMessageHeight(AWidth: Integer): Integer;
+    function PasswordButtonRect: TRect;
+    procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
+    procedure WMCaptureChanged(var Message: TMessage); message WM_CAPTURECHANGED;
     function GetText: string;
     procedure SetText(const AValue: string);
     function GetAlignment: TAlignment;
@@ -83,6 +103,11 @@ type
   protected
     /// <summary>Places the inner edit: one text line high, centred
     /// vertically, inset by the padding and <see cref="TrailingSpace"/>.</summary>
+    function EditFieldHeight: Integer;
+    procedure DoExit; override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
     procedure LayoutInner;
     /// <summary>Width reserved at the right edge for an adornment that a
     /// descendant paints (for example a validity lamp).</summary>
@@ -100,6 +125,9 @@ type
   public
     /// <summary>Creates the edit with its inner VCL edit.</summary>
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
+    procedure GetChildren(Proc: TGetChildProc; Root: TComponent); override;
+    function Validate: Boolean;
     /// <summary>Re-sizes and re-places the inner edit.</summary>
     procedure DensityChanged; override;
     /// <summary>Focuses the inner edit.</summary>
@@ -114,6 +142,14 @@ type
     /// <summary>Length of the selection.</summary>
     property SelLength: Integer read GetSelLength write SetSelLength;
   published
+    property PasswordChar: Char read FPasswordChar write SetPasswordChar default #0;
+    property PasswordVisible: Boolean read FPasswordVisible write SetPasswordVisible stored False;
+    property ShowPasswordButton: Boolean read FShowPasswordButton write SetShowPasswordButton default False;
+    property ValidationState: TERDEditValidationState read FValidationState write SetValidationState default evsNone;
+    property ValidationText: string read FValidationText write SetValidationText;
+    property ValidateOnChange: Boolean read FValidateOnChange write FValidateOnChange default False;
+    property ValidateOnExit: Boolean read FValidateOnExit write FValidateOnExit default True;
+    property OnValidate: TERDEditValidateEvent read FOnValidate write FOnValidate;
     /// <summary>Height follows the density.</summary>
     property AutoSize default True;
     /// <summary>Edit text.</summary>
@@ -202,6 +238,7 @@ type
     procedure WMGetDlgCode(var Message: TWMGetDlgCode); message WM_GETDLGCODE;
     procedure WMKillFocus(var Message: TWMKillFocus); message WM_KILLFOCUS;
   protected
+    procedure PrepareNativeCommand(MessageID: Cardinal);
     procedure Resize; override;
     /// <summary>Called when the user picks another item; fires
     /// <see cref="OnChange"/>. Descendants override it to react without
@@ -234,8 +271,6 @@ type
     /// <summary>Closes the list.</summary>
     /// <param name="AAccept">Take the highlighted item.</param>
     procedure CloseUp(AAccept: Boolean);
-    /// <summary>The selected item, or '' when ItemIndex is -1.
-    /// </summary>
     /// <summary>True while the list is open.</summary>
     property DroppedDown: Boolean read IsOpen;
   published
@@ -320,6 +355,7 @@ end;
 
 procedure TERDInnerEdit.WndProc(var Message: TMessage);
 begin
+  if Parent is TERDComboBox then TERDComboBox(Parent).PrepareNativeCommand(Message.Msg);
   inherited;
   if (Message.Msg = WM_GETDLGCODE) and (Message.WParam = VK_RETURN) and
     (Parent is TERDEdit) and TERDEdit(Parent).WantReturnKey then
@@ -339,6 +375,9 @@ end;
 constructor TERDEdit.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FPasswordChar := #0;
+  FValidationState := evsNone;
+  FValidateOnExit := True;
   Width := 180;
   Height := 26;
   TabStop := False;
@@ -460,6 +499,7 @@ end;
 function TERDEdit.TrailingSpace: Integer;
 begin
   Result := 0;
+  if FShowPasswordButton and (FPasswordChar <> #0) then Result := ScaleValue(32);
 end;
 
 procedure TERDEdit.SelectAll;
@@ -487,12 +527,14 @@ end;
 
 procedure TERDEdit.Change;
 begin
+  if FValidateOnChange then Validate;
   if Assigned(FOnChange) then
     FOnChange(Self);
 end;
 
 procedure TERDEdit.InnerFocusChange(Sender: TObject);
 begin
+  if FEdit.Focused then DoEnter else DoExit;
   Invalidate;
 end;
 
@@ -511,6 +553,7 @@ procedure TERDEdit.CMEnabledChanged(var Message: TMessage);
 begin
   inherited;
   FEdit.Enabled := Enabled;
+  if not Enabled then begin FRevealDown := False; FRevealHot := False; MouseCapture := False end;
   SyncInnerLook;
   Invalidate;
 end;
@@ -552,8 +595,8 @@ begin
   // A borderless edit draws its text at the top of its window, so the
   // window is exactly one text line high and centred in the frame; that
   // centres the text itself.
-  EH := Max(1, Min(ERDFontLineHeight(FEdit.Font), Height - ScaleValue(4)));
-  FEdit.SetBounds(Pad, (Height - EH) div 2,
+  EH := Max(1, Min(ERDFontLineHeight(FEdit.Font), EditFieldHeight - ScaleValue(4)));
+  FEdit.SetBounds(Pad, (EditFieldHeight - EH) div 2,
     Max(0, Width - 2 * Pad - TrailingSpace), EH);
   if FEdit.HandleAllocated then
   begin
@@ -586,7 +629,7 @@ end;
 function TERDEdit.CanAutoSize(var NewWidth, NewHeight: Integer): Boolean;
 begin
   Result := True;
-  NewHeight := ScaleValue(Metrics.Edit);
+  NewHeight := ScaleValue(Metrics.Edit) + ValidationMessageHeight(NewWidth);
 end;
 
 procedure TERDEdit.MouseDown(Button: TMouseButton; Shift: TShiftState;
@@ -594,22 +637,161 @@ procedure TERDEdit.MouseDown(Button: TMouseButton; Shift: TShiftState;
 begin
   if (Button = mbLeft) and FEdit.CanFocus then
     FEdit.SetFocus;
+  if (Button = mbLeft) and Enabled and FShowPasswordButton and (FPasswordChar <> #0) and
+    PtInRect(PasswordButtonRect, Point(X, Y)) then
+  begin FRevealDown := True; FRevealHot := True; MouseCapture := True; Invalidate end;
   inherited MouseDown(Button, Shift, X, Y);
 end;
 
 procedure TERDEdit.PaintControl(ACanvas: TCanvas);
-var
-  P: TERDPainter;
+var P: TERDPainter; R: TRect; Ink: TColor; CX, CY: Integer;
 begin
   SyncInnerLook;
   P := TERDPainter.Create(ACanvas, Palette, ScaleValue(96));
   try
-    P.EditFrame(Rect(0, 0, Width, Height), FEdit.Focused and not IsPreview,
-      Enabled);
-  finally
-    P.Free;
-  end;
+    R := Rect(0, 0, Width, EditFieldHeight);
+    P.EditFrame(R, FEdit.Focused and not IsPreview, Enabled);
+    Ink := Palette.Subtle;
+    case FValidationState of
+      evsSuccess: Ink := Palette.Success;
+      evsWarning: Ink := Palette.Warning;
+      evsError: Ink := Palette.Danger;
+    end;
+    if not Enabled then Ink := P.DisabledText;
+    if FValidationState <> evsNone then P.FrameRect(R, Ink);
+    if FValidationText <> '' then
+      P.WrapText(Rect(P.S(8), EditFieldHeight + P.S(4), Width - P.S(8), Height),
+        FValidationText, ERD_TEXT_CAPS, Ink);
+    if FShowPasswordButton and (FPasswordChar <> #0) then
+    begin
+      R := PasswordButtonRect;
+      if Enabled and FRevealHot then
+        if FRevealDown then P.FillRect(R, P.Tint(Palette.Accent, 0.2))
+        else P.FillRect(R, P.Tint(Palette.Accent, 0.1));
+      Ink := Palette.Subtle;
+      if not Enabled then Ink := P.DisabledText else if FRevealHot then Ink := Palette.Accent;
+      CX := (R.Left + R.Right) div 2;
+      CY := (R.Top + R.Bottom) div 2;
+      P.Ellipse(CX - P.S(7), CY - P.S(4), P.S(14), P.S(8), clNone, Ink);
+      P.Ellipse(CX - P.S(2), CY - P.S(2), P.S(4), P.S(4), Ink, clNone);
+      if FPasswordVisible then P.Lines([ERDPointF(CX - P.S(7), CY + P.S(6)),
+        ERDPointF(CX + P.S(7), CY - P.S(6))], Ink, P.SF(1.2));
+    end;
+  finally P.Free end;
 end;
+
+destructor TERDEdit.Destroy;
+begin
+  FEdit.OnEnter := nil; FEdit.OnExit := nil; FEdit.OnChange := nil;
+  inherited;
+end;
+procedure TERDEdit.GetChildren(Proc: TGetChildProc; Root: TComponent);
+begin
+  // Stream properties, never duplicate the private native text editor.
+end;
+procedure TERDEdit.SyncPassword;
+var Start, Count: Integer;
+begin
+  if FEdit = nil then Exit;
+  Start := 0; Count := 0;
+  if FEdit.HandleAllocated then begin Start := FEdit.SelStart; Count := FEdit.SelLength end;
+  if FPasswordVisible then FEdit.PasswordChar := #0 else FEdit.PasswordChar := FPasswordChar;
+  if FEdit.HandleAllocated then begin FEdit.SelStart := Start; FEdit.SelLength := Count end;
+  FEdit.Invalidate;
+end;
+procedure TERDEdit.SetPasswordChar(Value: Char);
+begin FPasswordChar := Value; SyncPassword; LayoutInner; Invalidate end;
+procedure TERDEdit.SetPasswordVisible(Value: Boolean);
+begin
+  if FPasswordVisible = Value then Exit;
+  FPasswordVisible := Value;
+  SyncPassword;
+  Invalidate;
+end;
+procedure TERDEdit.SetShowPasswordButton(Value: Boolean);
+begin FShowPasswordButton := Value; LayoutInner; Invalidate end;
+function TERDEdit.PasswordButtonRect: TRect;
+begin
+  Result := Rect(Max(0, Width - TrailingSpace), ScaleValue(2),
+    Min(Width - ScaleValue(2), Width - TrailingSpace + ScaleValue(32)), EditFieldHeight - ScaleValue(2));
+end;
+function TERDEdit.ValidationMessageHeight(AWidth: Integer): Integer;
+var Bitmap: TBitmap; P: TERDPainter;
+begin
+  Result := 0;
+  if FValidationText = '' then Exit;
+  Bitmap := TBitmap.Create;
+  try
+    Bitmap.SetSize(1, 1);
+    P := TERDPainter.Create(Bitmap.Canvas, Palette, ScaleValue(96));
+    try
+      Result := P.WrapText(Rect(0, 0, Max(1, AWidth - P.S(16)), 4096),
+        FValidationText, ERD_TEXT_CAPS, Palette.Subtle) + P.S(8);
+    finally P.Free end;
+  finally Bitmap.Free end;
+end;
+function TERDEdit.EditFieldHeight: Integer;
+begin
+  Result := Height;
+  if FValidationText <> '' then Result := Max(ScaleValue(Metrics.Edit), Height - ValidationMessageHeight(Width));
+end;
+procedure TERDEdit.ApplyValidation(State: TERDEditValidationState; const MessageText: string);
+begin
+  if (FValidationState = State) and (FValidationText = MessageText) then Exit;
+  FValidationState := State; FValidationText := MessageText;
+  if AutoSize then AdjustSize;
+  LayoutInner;
+  Invalidate;
+end;
+procedure TERDEdit.SetValidationState(Value: TERDEditValidationState);
+begin ApplyValidation(Value, FValidationText) end;
+procedure TERDEdit.SetValidationText(const Value: string);
+begin ApplyValidation(FValidationState, Value) end;
+function TERDEdit.Validate: Boolean;
+var State: TERDEditValidationState; MessageText: string;
+begin
+  if FValidating then Exit(FValidationState <> evsError);
+  FValidating := True;
+  try
+    State := FValidationState; MessageText := FValidationText;
+    if Assigned(FOnValidate) then FOnValidate(Self, Text, State, MessageText);
+    ApplyValidation(State, MessageText);
+    Result := State <> evsError;
+  finally FValidating := False end;
+end;
+procedure TERDEdit.DoExit;
+begin
+  if FValidateOnExit and not (csDestroying in ComponentState) then Validate;
+  inherited;
+end;
+procedure TERDEdit.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Enabled and FShowPasswordButton and (FPasswordChar <> #0) and
+    (Key = Ord('V')) and (Shift = [ssAlt]) then
+  begin Key := 0; PasswordVisible := not PasswordVisible end;
+end;
+procedure TERDEdit.MouseMove(Shift: TShiftState; X, Y: Integer);
+var Hot: Boolean;
+begin
+  inherited;
+  Hot := FShowPasswordButton and (FPasswordChar <> #0) and PtInRect(PasswordButtonRect, Point(X, Y));
+  if Hot <> FRevealHot then begin FRevealHot := Hot; Invalidate end;
+end;
+procedure TERDEdit.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var Reveal: Boolean;
+begin
+  Reveal := FRevealDown and Enabled and (Button = mbLeft) and PtInRect(PasswordButtonRect, Point(X, Y));
+  FRevealDown := False;
+  MouseCapture := False;
+  if Reveal then PasswordVisible := not PasswordVisible;
+  inherited;
+  Invalidate;
+end;
+procedure TERDEdit.CMMouseLeave(var Message: TMessage);
+begin inherited; FRevealHot := False; Invalidate end;
+procedure TERDEdit.WMCaptureChanged(var Message: TMessage);
+begin inherited; FRevealDown := False; Invalidate end;
 
 { TERDComboBox }
 
@@ -1020,7 +1202,7 @@ begin
       begin
         FSyncInput := True;
         try
-          FInput.Text := FItems[I];
+          FInput.SelText := Copy(FItems[I], Length(Query) + 1, MaxInt);
           FInput.SelStart := Length(Query);
           FInput.SelLength := Length(FItems[I]) - Length(Query);
           FItemIndex := I;
@@ -1032,9 +1214,17 @@ begin
   Invalidate;
   Change;
 end;
+procedure TERDComboBox.PrepareNativeCommand(MessageID: Cardinal);
+begin
+  case MessageID of
+    WM_CUT, WM_CLEAR, WM_UNDO, EM_UNDO: FSuppressCompletion := True;
+    WM_PASTE: FSuppressCompletion := False;
+  end;
+end;
 procedure TERDComboBox.InputKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
-  FSuppressCompletion := (Key = VK_BACK) or (Key = VK_DELETE);
+  FSuppressCompletion := (Key = VK_BACK) or (Key = VK_DELETE) or
+    ((ssCtrl in Shift) and ((Key = Ord('X')) or (Key = Ord('Z'))));
   KeyDown(Key, Shift);
 end;
 procedure TERDComboBox.InputKeyPress(Sender: TObject; var Key: Char);
