@@ -51,11 +51,32 @@ type
     property OnDropDown: TNotifyEvent read FOnDropDown write FOnDropDown;
   end;
 
+  TERDTagToken = class(TERDInteractiveControl)
+  private
+    FCanClose: Boolean;
+    FClosePressed: Boolean;
+    FOnClose: TNotifyEvent;
+    function CloseBounds: TRect;
+  protected
+    procedure PaintControl(ACanvas: TCanvas); override;
+    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+  public
+    constructor Create(AOwner: TComponent); override;
+    property CanClose: Boolean read FCanClose write FCanClose;
+    property OnClose: TNotifyEvent read FOnClose write FOnClose;
+  end;
+  TERDExpanderHeader = class(TERDButton)
+  protected
+    procedure PaintControl(ACanvas: TCanvas); override;
+  end;
+
   TERDTagEdit = class(TERDPanel)
   private
     FTags: TStringList;
     FEditor: TERDEdit;
-    FButtons: TObjectList<TERDButton>;
+    FButtons: TObjectList<TERDTagToken>;
     FReadOnly: Boolean;
     FAllowDuplicates: Boolean;
     FLayouting: Boolean;
@@ -120,6 +141,74 @@ type
     property OnExpandedChange: TNotifyEvent read FOnExpandedChange write FOnExpandedChange;
   end;
 implementation
+constructor TERDTagToken.Create(AOwner: TComponent);
+begin
+  inherited;
+  AutoSize := False;
+  FCanClose := True;
+  Height := 26;
+end;
+function TERDTagToken.CloseBounds: TRect;
+begin
+  Result := Rect(Width - ScaleValue(26), 0, Width, Height);
+end;
+procedure TERDTagToken.PaintControl(ACanvas: TCanvas);
+var P: TERDPainter; Fill: TColor; AvailableTextWidth: Integer;
+begin
+  P := TERDPainter.Create(ACanvas, Palette, ScaleValue(96));
+  try
+    Fill := P.Tint(Palette.Accent, 0.12);
+    if Hover then Fill := P.Tint(Palette.Accent, 0.2);
+    P.RoundRect(P.S(2), P.S(2), Max(0, Width - P.S(4)), Max(0, Height - P.S(4)),
+      (Height - P.S(4)) / 2, Fill, Palette.NeutralLight);
+    AvailableTextWidth := Width - P.S(16);
+    if FCanClose then Dec(AvailableTextWidth, P.S(24));
+    P.Text(P.S(8), Height div 2, Caption, ERD_TEXT_BODY, Palette.ForegroundText,
+      twRegular, taLeftJustify, Max(0, AvailableTextWidth));
+    if FCanClose then P.Glyph(glClose, Width - P.S(14), Height div 2, Palette.Subtle, 0.65);
+    if HasFocus then P.FocusRing(P.S(3), P.S(3), Max(0, Width - P.S(6)),
+      Max(0, Height - P.S(6)), (Height - P.S(6)) / 2);
+  finally P.Free end;
+end;
+procedure TERDTagToken.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin
+  FClosePressed := FCanClose and (Button = mbLeft) and PtInRect(CloseBounds, Point(X, Y));
+  inherited;
+end;
+procedure TERDTagToken.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var Remove: Boolean;
+begin
+  Remove := FClosePressed and Enabled and FCanClose and (Button = mbLeft) and
+    PtInRect(CloseBounds, Point(X, Y));
+  FClosePressed := False;
+  inherited;
+  if Remove and Assigned(FOnClose) then FOnClose(Self);
+end;
+procedure TERDTagToken.KeyDown(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  if Enabled and FCanClose and (Key in [VK_DELETE, VK_BACK]) then
+  begin
+    Key := 0;
+    if Assigned(FOnClose) then FOnClose(Self);
+  end;
+end;
+procedure TERDExpanderHeader.PaintControl(ACanvas: TCanvas);
+var P: TERDPainter; Fill: TColor;
+begin
+  P := TERDPainter.Create(ACanvas, Palette, ScaleValue(96));
+  try
+    Fill := P.HeaderFill;
+    if Hover then Fill := P.Tint(Palette.Accent, 0.08);
+    if Pressed then Fill := P.Tint(Palette.Accent, 0.16);
+    P.FillRect(ClientRect, Fill);
+    P.HLine(0, Height - 1, Width, Palette.NeutralLight);
+    P.Glyph(Glyph, P.S(14), Height div 2, Palette.Subtle, 0.8);
+    P.Text(P.S(30), Height div 2, Caption, ERD_TEXT_BODY, Palette.ForegroundText,
+      twSemibold, taLeftJustify, Max(0, Width - P.S(38)));
+    if HasFocus then P.FrameRect(Rect(P.S(3), P.S(3), Width - P.S(3), Height - P.S(3)), Palette.Accent);
+  finally P.Free end;
+end;
 constructor TERDSearchEdit.Create(AOwner: TComponent);
 begin
   inherited;
@@ -233,6 +322,8 @@ begin
       HasFocus, Glyph, Icon);
     P.Button(Rect(SplitX, M, Width - M, Height - M), '', Kind, InteractionState,
       False, glChevronDown);
+    P.VLine(SplitX, M + P.S(5), Max(0, Height - 2 * M - P.S(10)),
+      P.ContrastInk(Palette.Accent));
   finally P.Free end;
 end;
 procedure TERDSplitButton.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
@@ -281,7 +372,7 @@ begin
   inherited;
   FTags := TStringList.Create;
   FTags.OnChange := TagsChanged;
-  FButtons := TObjectList<TERDButton>.Create(True);
+  FButtons := TObjectList<TERDTagToken>.Create(True);
   FEditor := TERDEdit.Create(Self);
   FEditor.Parent := Self;
   FEditor.AutoSize := False;
@@ -337,7 +428,10 @@ end;
 procedure TERDTagEdit.RemoveTagClick(Sender: TObject);
 begin
   FRemovingClick := True;
-  try RemoveTag(TControl(Sender).Tag) finally FRemovingClick := False end;
+  try
+    RemoveTag(TControl(Sender).Tag);
+    if FEditor <> nil then FEditor.SetFocus;
+  finally FRemovingClick := False end;
 end;
 procedure TERDTagEdit.RebuildTags(var Message: TMessage);
 begin
@@ -357,7 +451,7 @@ begin
   end;
 end;
 procedure TERDTagEdit.TagsChanged(Sender: TObject);
-var I: Integer; Button: TERDButton;
+var I: Integer; Button: TERDTagToken;
 begin
   if FButtons = nil then Exit;
   if FRemovingClick then
@@ -369,23 +463,22 @@ begin
   FButtons.Clear;
   for I := 0 to FTags.Count - 1 do
   begin
-    Button := TERDButton.Create(Self);
+    Button := TERDTagToken.Create(Self);
     Button.Parent := Self;
     Button.Theme := Theme;
     Button.Tag := I;
-    Button.Kind := bkSecondary;
     Button.Caption := FTags[I];
-    if not FReadOnly then Button.Glyph := glClose;
+    Button.CanClose := not FReadOnly;
     Button.AutoSize := False;
     Button.TabStop := not FReadOnly;
-    Button.OnClick := RemoveTagClick;
+    Button.OnClose := RemoveTagClick;
     FButtons.Add(Button);
   end;
   LayoutTags;
   if (Sender <> nil) and Assigned(FOnChange) and not (csLoading in ComponentState) then FOnChange(Self);
 end;
 procedure TERDTagEdit.LayoutTags;
-var X, Y, H, W, Gap: Integer; Button: TERDButton;
+var X, Y, H, W, Gap: Integer; Button: TERDTagToken;
 begin
   if (FButtons = nil) or (FEditor = nil) or FLayouting then Exit;
   FLayouting := True;
@@ -431,7 +524,7 @@ begin
   if (Operation = opRemove) and (AComponent = FEditor) then FEditor := nil;
 end;
 procedure TERDTagEdit.ThemeChanged;
-var Button: TERDButton;
+var Button: TERDTagToken;
 begin
   inherited;
   if FEditor <> nil then FEditor.Theme := Theme;
@@ -454,7 +547,7 @@ begin
   FExpanded := True;
   FExpandedHeight := 160;
   FHidden := TList<TControl>.Create;
-  FHeader := TERDButton.Create(Self);
+  FHeader := TERDExpanderHeader.Create(Self);
   FHeader.Parent := Self;
   FHeader.Align := alTop;
   FHeader.AutoSize := False;

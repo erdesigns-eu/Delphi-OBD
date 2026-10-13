@@ -10,6 +10,8 @@ requires
   vclx,
   designide;
 contains
+  ERD.Components.PropertyEditors in '..\src\DesignTime\ERD.Components.PropertyEditors.pas',
+  ERD.Components.NativeSelection in '..\src\UI\ERD.Components.NativeSelection.pas',
   ERD.Components.MediaControls in '..\src\UI\ERD.Components.MediaControls.pas',
   ERD.Components.CommonControls in '..\src\UI\ERD.Components.CommonControls.pas',
   ERD.Components.Anim in '..\src\UI\ERD.Components.Anim.pas',

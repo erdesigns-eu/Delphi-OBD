@@ -217,6 +217,8 @@ type
     FKind: TERDRibbonItemKind;
     FDropDownMenu: TPopupMenu;
     FDown: Boolean;
+    FGroupIndex: Integer;
+    FAllowAllUp: Boolean;
     FEnabled: Boolean;
     FVisible: Boolean;
     FColor: TERDRibbonItemColor;
@@ -234,6 +236,7 @@ type
     procedure SetSize(AValue: TERDRibbonItemSize);
     procedure SetKind(AValue: TERDRibbonItemKind);
     procedure SetDropDownMenu(AValue: TPopupMenu);
+    procedure SetGroupIndex(Value: Integer);
     procedure SetDown(AValue: Boolean);
     procedure SetEnabled(AValue: Boolean);
     procedure SetVisible(AValue: Boolean);
@@ -276,6 +279,8 @@ type
     property DropDownMenu: TPopupMenu read FDropDownMenu write SetDropDownMenu;
     /// <summary>Checked state for toggle commands.</summary>
     property Down: Boolean read FDown write SetDown default False;
+    property GroupIndex: Integer read FGroupIndex write SetGroupIndex default 0;
+    property AllowAllUp: Boolean read FAllowAllUp write FAllowAllUp default False;
     /// <summary>Whether the item can be activated.</summary>
     property Enabled: Boolean read FEnabled write SetEnabled default True;
     /// <summary>Whether the item participates in layout.</summary>
@@ -751,7 +756,7 @@ procedure TERDRibbonActionLink.SetChecked(Value: Boolean);
 begin
   if FClient <> nil then
   begin
-    FClient.FDown := Value;
+    FClient.SetDown(Value);
     FClient.ItemChanged;
   end;
 end;
@@ -1079,8 +1084,23 @@ begin
   ItemChanged;
 end;
 
-procedure TERDRibbonItem.SetDown(AValue: Boolean);
+procedure TERDRibbonItem.SetGroupIndex(Value: Integer);
 begin
+  if Value < 0 then raise EArgumentOutOfRangeException.Create('GroupIndex must be nonnegative');
+  if FGroupIndex = Value then Exit;
+  FGroupIndex := Value;
+  SetDown(FDown);
+  ItemChanged;
+end;
+procedure TERDRibbonItem.SetDown(AValue: Boolean);
+var I: Integer; Peer: TERDRibbonItem;
+begin
+  if AValue and (FGroupIndex > 0) and (Collection <> nil) then
+    for I := 0 to Collection.Count - 1 do
+    begin
+      Peer := TERDRibbonItem(Collection.Items[I]);
+      if (Peer <> Self) and (Peer.GroupIndex = FGroupIndex) and Peer.Down then Peer.Down := False;
+    end;
   if FDown = AValue then
     Exit;
   FDown := AValue;
@@ -1123,7 +1143,8 @@ begin
   if not FEnabled then
     Exit;
   if FKind = rikToggle then
-    Down := not Down;
+    if (FGroupIndex > 0) and not FAllowAllUp then Down := True
+    else Down := not Down;
   if FAction <> nil then
     FAction.Execute;
   if Assigned(FOnClick) then
@@ -2382,12 +2403,18 @@ begin
   AItem.FRect := R;
   AItem.FDropRect := Rect(0, 0, 0, 0);
   Fill := clNone;
-  if (AItem = FHoverItem) or (AItem = FPressedItem) or AItem.Down then
-    Fill := ERDMixColor(Palette.ForegroundText, Palette.GaugeFace, 0.07);
+  if AItem.Enabled and (AItem = FPressedItem) and (AItem = FHoverItem) then
+    Fill := APainter.Tint(Palette.Accent, 0.3)
+  else if AItem.Down then
+    Fill := APainter.Tint(Palette.Accent, IfThen(AItem.Enabled, 0.16, 0.06))
+  else if AItem.Enabled and (AItem = FHoverItem) then
+    Fill := APainter.Tint(Palette.Accent, 0.08);
   if Fill <> clNone then
+  begin
     APainter.FillRect(R, Fill);
-  if (AItem = FHoverItem) or (AItem = FPressedItem) or AItem.Down then
-    APainter.FrameRect(R, Palette.NeutralLight);
+    if AItem.Down or (AItem = FPressedItem) then APainter.FrameRect(R, APainter.AccentText)
+    else APainter.FrameRect(R, Palette.NeutralLight);
+  end;
   GlyphColor := APainter.AccentText;
   if AItem.Color = ricDanger then
     GlyphColor := Palette.Danger;
@@ -2444,16 +2471,17 @@ begin
   if AItem.Kind in [rikDropDown, rikSplit] then
     AItem.FDropRect := Rect(R.Right - ScaleValue(20), R.Top, R.Right,
       R.Bottom);
-  if AItem.Down or (AItem = FPressedItem) then
+  if AItem.Down or (AItem.Enabled and (AItem = FPressedItem) and (AItem = FHoverItem)) then
   begin
-    Fill := APainter.Tint(Palette.Accent, IfThen(APainter.Dark, 0.26, 0.16));
+    if AItem.Enabled and (AItem = FPressedItem) and (AItem = FHoverItem) then
+      Fill := APainter.Tint(Palette.Accent, 0.3)
+    else Fill := APainter.Tint(Palette.Accent, IfThen(AItem.Enabled, 0.16, 0.06));
     APainter.FillRect(R, Fill);
     APainter.FrameRect(R, APainter.AccentText);
   end
-  else if AItem = FHoverItem then
+  else if AItem.Enabled and (AItem = FHoverItem) then
   begin
-    APainter.FillRect(R, ERDMixColor(Palette.ForegroundText,
-      Palette.GaugeFace, 0.07));
+    APainter.FillRect(R, APainter.Tint(Palette.Accent, 0.08));
     APainter.FrameRect(R, Palette.NeutralLight);
   end;
   Ink := Palette.ForegroundText;
@@ -2765,6 +2793,7 @@ begin
   if (It <> nil) and It.Enabled then
   begin
     FPressedItem := It;
+    FHoverItem := It;
     FFocusedItem := It;
     Invalidate;
   end

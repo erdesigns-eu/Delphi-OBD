@@ -212,6 +212,7 @@ type
     FOldFormWindowProc: TWndMethod;
     FHoverSystem: TERDSystemButton;
     FPressedSystem: TERDSystemButton;
+    FNativeMaxTracking: Boolean;
     FHoverButton: TERDCaptionButton;
     FPressedButton: TERDCaptionButton;
     FHoverQuick: TERDCaptionButton;
@@ -474,12 +475,15 @@ type
     AValue: Pointer; ASize: DWORD): HRESULT; stdcall;
   TERDDwmExtendFrameIntoClientArea = function(AHandle: HWND;
     const AMargins: TERDDwmMargins): HRESULT; stdcall;
+  TERDDwmDefWindowProc = function(AHandle: HWND; Msg: UINT; WParam: WPARAM;
+    LParam: LPARAM; var ResultValue: LRESULT): BOOL; stdcall;
   TERDRtlGetVersion = function(var AInfo: TERDOSVersionInfo): LongInt; stdcall;
 
 var
   GDwmApi: HMODULE = 0;
   GDwmSetWindowAttribute: TERDDwmSetWindowAttribute = nil;
   GDwmExtendFrameIntoClientArea: TERDDwmExtendFrameIntoClientArea = nil;
+  GDwmDefWindowProc: TERDDwmDefWindowProc = nil;
   GWindowsBuild: Integer = -1;
 
 /// <summary>Creates an icon of ASize pixels from the best image of AIcon.
@@ -586,6 +590,7 @@ begin
   GDwmApi := LoadLibrary('dwmapi.dll');
   if GDwmApi <> 0 then
   begin
+    @GDwmDefWindowProc := GetProcAddress(GDwmApi, 'DwmDefWindowProc');
     @GDwmSetWindowAttribute := GetProcAddress(GDwmApi, 'DwmSetWindowAttribute');
     @GDwmExtendFrameIntoClientArea := GetProcAddress(GDwmApi,
       'DwmExtendFrameIntoClientArea');
@@ -1943,6 +1948,7 @@ var
   C: TPoint;
   NewHover: TERDSystemButton;
   Track: TTrackMouseEvent;
+  DwmHandled: BOOL;
 begin
   NewHover := sbNone;
   if FHookedForm <> nil then
@@ -1966,22 +1972,34 @@ begin
     Track.dwHoverTime := 0;
     TrackMouseEvent(Track);
   end;
-  if Assigned(FOldFormWindowProc) then
-    FOldFormWindowProc(Message);
+  EnsureDwmApi;
+  DwmHandled := False;
+  if (FHookedForm <> nil) and Assigned(GDwmDefWindowProc) then
+    DwmHandled := GDwmDefWindowProc(FHookedForm.Handle, Message.Msg, Message.WParam,
+      Message.LParam, Message.Result);
+  if not DwmHandled and Assigned(FOldFormWindowProc) then FOldFormWindowProc(Message);
 end;
 
 procedure TERDTitleBar.HandleNCLButtonDown(var Message: TMessage);
 begin
-  if Message.WParam = HTMAXBUTTON then
+  if (Message.WParam = HTMAXBUTTON) and (FHookedForm <> nil) then
   begin
     FPressedSystem := sbMaximize;
     FHoverSystem := sbMaximize;
+    FNativeMaxTracking := True;
     Invalidate;
-    Message.Result := 0;
+    try
+      // Windows owns tracking, maximize/restore and the Snap interaction.
+      Message.Result := DefWindowProc(FHookedForm.Handle, Message.Msg,
+        Message.WParam, Message.LParam);
+    finally
+      FNativeMaxTracking := False;
+      FPressedSystem := sbNone;
+      Invalidate;
+    end;
     Exit;
   end;
-  if Assigned(FOldFormWindowProc) then
-    FOldFormWindowProc(Message);
+  if Assigned(FOldFormWindowProc) then FOldFormWindowProc(Message);
 end;
 
 procedure TERDTitleBar.HandleNCLButtonUp(var Message: TMessage);
@@ -1989,6 +2007,11 @@ var
   C: TPoint;
   Hit: TERDSystemButton;
 begin
+  if FNativeMaxTracking and (FHookedForm <> nil) then
+  begin
+    Message.Result := DefWindowProc(FHookedForm.Handle, Message.Msg, Message.WParam, Message.LParam);
+    Exit;
+  end;
   if FPressedSystem = sbMaximize then
   begin
     Hit := sbNone;
@@ -2294,11 +2317,13 @@ begin
       Ink := Palette.ForegroundText
     else
       Ink := ERDMixColor(Palette.Subtle, Palette.GaugeFace, 0.6);
-    if (FHoverSystem = Btn) or (FPressedSystem = Btn) then
+    if not Enabled then Ink := APainter.DisabledText;
+    if Enabled and (FHoverSystem = Btn) then
     begin
       if Btn = sbClose then
       begin
         Fill := Palette.Danger;
+        if FPressedSystem = Btn then Fill := ERDMixColor(clBlack, Palette.Danger, 0.22);
         Ink := clWhite;
       end
       else
@@ -2492,12 +2517,17 @@ var
   NewSystem: TERDSystemButton;
   NewButton, NewQuick: TERDCaptionButton;
   AutoHot: Boolean;
+  ScreenPoint: TPoint;
 begin
   inherited;
   AutoHot := PtInRect(AutoSaveRect, Point(X, Y));
   NewSystem := SystemButtonAt(X, Y);
-  if NewSystem = sbMaximize then
-    NewSystem := sbNone;
+  if (NewSystem = sbMaximize) and (FHookedForm <> nil) and FHookedForm.HandleAllocated then
+  begin
+    ScreenPoint := ClientToScreen(Point(X, Y));
+    SendMessage(FHookedForm.Handle, WM_NCMOUSEMOVE, HTMAXBUTTON,
+      LPARAM(MakeLParam(ScreenPoint.X, ScreenPoint.Y)));
+  end;
   NewButton := ButtonAt(FButtons, X, Y);
   NewQuick := QuickAt(X, Y);
   if (FAutoSaveHot <> AutoHot) or (FHoverSystem <> NewSystem) or (FHoverButton <> NewButton) or
@@ -2550,8 +2580,7 @@ begin
     Exit;
   end;
   FPressedSystem := SystemButtonAt(X, Y);
-  if FPressedSystem = sbMaximize then
-    FPressedSystem := sbNone;
+  FHoverSystem := FPressedSystem;
   FPressedButton := ButtonAt(FButtons, X, Y);
   FPressedQuick := QuickAt(X, Y);
   if (FPressedSystem <> sbNone) or (FPressedButton <> nil) or
@@ -2581,8 +2610,6 @@ begin
     Exit;
   end;
   SystemHit := SystemButtonAt(X, Y);
-  if SystemHit = sbMaximize then
-    SystemHit := sbNone;
   ButtonHit := ButtonAt(FButtons, X, Y);
   QuickHit := QuickAt(X, Y);
   if (FPressedSystem <> sbNone) and (FPressedSystem = SystemHit) then

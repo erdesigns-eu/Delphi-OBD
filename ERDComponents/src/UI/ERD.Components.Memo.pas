@@ -170,13 +170,13 @@ type
 
 implementation
 
-uses
+uses ERD.Components.NativeSelection,
   ERD.Components.ScrollBar;
 
 type
   // Memo that tells its owner after anything that can scroll it, and
   // takes the wheel itself (it has no Windows scroll bar).
-  TERDInnerMemo = class(TMemo)
+  TERDInnerMemo = class(TERDSelectionMemo)
   protected
     procedure WndProc(var Message: TMessage); override;
   end;

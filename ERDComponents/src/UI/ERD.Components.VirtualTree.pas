@@ -40,6 +40,8 @@ type
     procedure Paint; override;
     function DoSetOffsetXY(Value: TPoint; Options: TScrollUpdateOptions; ClipRect: PRect = nil): Boolean; override;
     function GetClientRect: TRect; override;
+    procedure DoBeforeCellPaint(Canvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
+      CellPaintMode: TVTCellPaintMode; CellRect: TRect; var ContentRect: TRect); override;
     procedure DoAfterItemPaint(Canvas: TCanvas; Node: PVirtualNode; ItemRect: TRect); override;
     function GetVclStyleEnabled: Boolean; override;
     function UseAdvancedHeaderDraw: Boolean; override;
@@ -106,7 +108,7 @@ begin
   Ctl3D := False;
   BorderStyle := TFormBorderStyle.bsNone;
   StyleElements := [];
-  TreeOptions.PaintOptions := TreeOptions.PaintOptions - [toThemeAware, toUseExplorerTheme, toShowTreeLines, toShowRoot, toFullVertGridLines] + [toHideFocusRect];
+  TreeOptions.PaintOptions := TreeOptions.PaintOptions - [toThemeAware, toUseExplorerTheme, toShowTreeLines, toFullVertGridLines] + [toHideFocusRect, toShowRoot];
   Header.Options := Header.Options + [hoVisible, hoColumnResize, hoShowSortGlyphs];
   SetTheme(TERDTheme.FindOnOwner(Self));
   ApplyTheme;
@@ -174,7 +176,8 @@ begin
 end;
 
 procedure TERDVirtualStringTree.ApplyTheme;
-var P: TERDThemePalette; PPI, CheckSize, I: Integer; Bitmap: TBitmap;
+var P: TERDThemePalette; PPI, CheckSize, I, OldHeight, NewHeight: Integer; Bitmap: TBitmap;
+  Node: PVirtualNode;
   CheckPainter: TERDPainter; CheckState: TCheckBoxState; ItemEnabled, Hot: Boolean;
 begin
   if FApplyingTheme or (FRowHeight = 0) or (csDestroying in ComponentState) then Exit;
@@ -225,7 +228,21 @@ begin
     Font.Color := P.ForegroundText;
     Header.Font.Assign(Font);
     Header.Height := MulDiv(FHeaderHeight, PPI, 96);
-    DefaultNodeHeight := MulDiv(FRowHeight, PPI, 96);
+    OldHeight := DefaultNodeHeight;
+    NewHeight := MulDiv(FRowHeight, PPI, 96);
+    if OldHeight <> NewHeight then
+    begin
+      BeginUpdate;
+      try
+        DefaultNodeHeight := NewHeight;
+        Node := GetFirstNoInit;
+        while Node <> nil do
+        begin
+          if Node.NodeHeight = OldHeight then NodeHeight[Node] := NewHeight;
+          Node := GetNextNoInit(Node);
+        end;
+      finally EndUpdate end;
+    end;
     Colors.BorderColor := P.NeutralLight;
     Colors.DisabledColor := P.Subtle;
     Colors.TreeLineColor := P.NeutralLight;
@@ -298,8 +315,11 @@ end;
 
 procedure TERDVirtualStringTree.DoAdvancedHeaderDraw(var PaintInfo: THeaderPaintInfo;
   const Elements: THeaderPaintElements);
-var P: TERDPainter; R: TRect; Fill: TColor;
+var P: TERDPainter; R: TRect; Fill: TColor; X: Integer; SavedFont: TFont;
 begin
+  SavedFont := TFont.Create;
+  SavedFont.Assign(PaintInfo.TargetCanvas.Font);
+  try
   if hpeBackground in Elements then
   begin
     R := PaintInfo.PaintRectangle;
@@ -321,9 +341,19 @@ begin
   try
     if (hpeText in Elements) and (PaintInfo.Column <> nil) then
     begin
-      R := PaintInfo.TextRectangle;
-      P.Caps(R.Left + P.S(4), (R.Top + R.Bottom) div 2, PaintInfo.Column.Text,
-        taLeftJustify, Palette.ForegroundText, Max(0, R.Width - P.S(8)));
+      // TextRectangle is the measured caption, not the available column width.
+      R := PaintInfo.PaintRectangle;
+      Inc(R.Left, P.S(8));
+      Dec(R.Right, P.S(8));
+      if PaintInfo.ShowHeaderGlyph then R.Left := Max(R.Left, PaintInfo.TextRectangle.Left);
+      if PaintInfo.ShowSortGlyph then R.Right := Min(R.Right, PaintInfo.SortGlyphPos.X - P.S(4));
+      case PaintInfo.Column.Alignment of
+        taRightJustify: X := R.Right;
+        taCenter: X := (R.Left + R.Right) div 2;
+      else X := R.Left;
+      end;
+      P.Caps(X, (R.Top + R.Bottom) div 2, PaintInfo.Column.Text,
+        PaintInfo.Column.Alignment, Palette.ForegroundText, Max(0, R.Width));
     end;
     if (hpeSortGlyph in Elements) and PaintInfo.ShowSortGlyph then
       if Header.SortDirection = sdAscending then
@@ -332,6 +362,10 @@ begin
       else P.Glyph(glChevronDown, PaintInfo.SortGlyphPos.X + PaintInfo.SortGlyphSize.cx div 2,
           PaintInfo.SortGlyphPos.Y + PaintInfo.SortGlyphSize.cy div 2, Palette.Accent, 0.7);
   finally P.Free end;
+  finally
+    PaintInfo.TargetCanvas.Font.Assign(SavedFont);
+    SavedFont.Free;
+  end;
   inherited;
 end;
 
@@ -465,6 +499,13 @@ begin
   inherited;
   SyncScrollBars;
 end;
+procedure TERDVirtualStringTree.DoBeforeCellPaint(Canvas: TCanvas; Node: PVirtualNode;
+  Column: TColumnIndex; CellPaintMode: TVTCellPaintMode; CellRect: TRect; var ContentRect: TRect);
+begin
+  // Reset each cell before measuring/drawing, then preserve application customization.
+  Canvas.Font.Assign(Font);
+  inherited;
+end;
 procedure TERDVirtualStringTree.DoAfterItemPaint(Canvas: TCanvas; Node: PVirtualNode; ItemRect: TRect);
 var P: TERDPainter; AlwaysShow: LongBool; ShowCues: Boolean;
 begin
@@ -476,8 +517,9 @@ begin
       SystemParametersInfo(SPI_GETKEYBOARDCUES, 0, @AlwaysShow, 0);
       ShowCues := AlwaysShow or ((SendMessage(Handle, WM_QUERYUISTATE, 0, 0) and UISF_HIDEFOCUS) = 0);
       if (Node = FocusedNode) and ShowCues then
-        P.FocusRing(ItemRect.Left + P.S(2), ItemRect.Top + P.S(2),
-          Max(0, Min(ItemRect.Width, ClientWidth) - P.S(4)), Max(0, ItemRect.Height - P.S(4)), P.S(2));
+        P.FrameRect(Rect(Max(0, ItemRect.Left) + P.S(4), ItemRect.Top + P.S(4),
+          Min(ItemRect.Right, ClientWidth) - P.S(4), ItemRect.Bottom - P.S(4)),
+          Palette.Accent, 1);
       if vsSelected in Node.States then
         P.FillRect(Rect(ItemRect.Left, ItemRect.Top + P.S(4), ItemRect.Left + P.S(3),
         ItemRect.Bottom - P.S(4)), Palette.Accent);
@@ -486,8 +528,19 @@ begin
   inherited;
 end;
 procedure TERDVirtualStringTree.WndProc(var Message: TMessage);
-var Steps, Distance: Integer; Lines: Cardinal;
+var Steps, Distance, UIAction: Integer; Lines: Cardinal; UIRoot: HWND;
 begin
+  UIAction := 0;
+  if Message.Msg = WM_LBUTTONDOWN then UIAction := UIS_SET
+  else if (Message.Msg = WM_KEYDOWN) and
+    (Message.WParam in [VK_TAB, VK_LEFT, VK_RIGHT, VK_UP, VK_DOWN,
+      VK_HOME, VK_END, VK_PRIOR, VK_NEXT, VK_SPACE, VK_RETURN]) then UIAction := UIS_CLEAR;
+  if (UIAction <> 0) and HandleAllocated then
+  begin
+    UIRoot := GetAncestor(Handle, GA_ROOT);
+    if UIRoot = 0 then UIRoot := Handle;
+    SendMessage(UIRoot, WM_CHANGEUISTATE, WPARAM(UIAction or (UISF_HIDEFOCUS shl 16)), 0);
+  end;
   if (Message.Msg = WM_MOUSEWHEEL) and Enabled and (FVerticalBar <> nil) then
   begin
     Inc(FWheelRemainder, SmallInt(HiWord(Message.WParam)));
@@ -508,6 +561,7 @@ begin
     Exit;
   end;
   inherited;
+  if Message.Msg in [WM_UPDATEUISTATE, WM_SETTINGCHANGE, WM_SETFOCUS, WM_KILLFOCUS] then Invalidate;
   if Message.Msg = WM_SIZE then SyncScrollBars;
   if Message.Msg = WM_DPICHANGED then ThemeChanged;
 end;

@@ -220,3 +220,39 @@ De DFM-demo toont alle aanvullingen op de invoerpagina. Windows-smoketests
 controleren onder andere zoeken, tagopslag, splitbediening, inklappen en slidergrenzen.
 Deze VCL-runtimechecks moeten in Delphi op Windows worden uitgevoerd; de
 cloudcontrole valideert broncode, DFM, packages en resources.
+
+## Selectie en navigatie
+
+Edit, SpinEdit, SearchEdit en Memo behouden native Windows-tekstbewerking, maar
+tekenen de geselecteerde tekst met de ERD-accentkleur en contrasterende tekst.
+De selectie wordt samen met de native inhoud gebufferd weergegeven. Memo gebruikt
+native regel- en karakterposities voor multiline-selectie, wrapping en scrollen.
+
+Breadcrumb-chevrons openen een ERD-popup. In bestandspadmodus bevat die de
+submappen; bij algemene Items vult `OnDropDown(Sender, Path, Choices)` de keuzes
+met caption/path-paren. Selectie levert het pad of applicatie-ID via `OnNavigate`.
+Alt+Down/F4 opent het menu van het gefocuste segment. De demo toont playlist-
+navigatie met landen, Live TV/VOD/Series en kanaalcategorieën.
+
+TagEdit gebruikt verwijderbare chips met een kruisje rechts. Klikken op de caption
+verwijdert niets; het kruisje of Delete/Backspace op een gefocuste chip verwijdert
+de tag. Expander gebruikt een themed, links uitgelijnde header in plaats van een
+gewone knop. SplitButton heeft een verticale scheidingslijn tussen beide acties.
+
+## Ribbon-states en IDE-keuzelijsten
+
+Ribbon-items met `Kind=rikToggle` werken als losse checkbox-toggles. Met dezelfde
+positieve `GroupIndex` binnen één ribbon-groep werken ze als radioknoppen.
+`AllowAllUp` bepaalt of de gekozen radioknop opnieuw uit kan. Hover, pressed,
+checked en disabled hebben afzonderlijke weergaven.
+
+De designtime-package registreert expliciete keuzelijsten voor enum-properties
+en componentverwijzingen, ook op collection-items en geneste properties.
+`Icon.BuiltIn` heeft daarnaast een zoekbare dialoog met iconvoorbeelden.
+Backstage `Page` biedt compatibele controls uit het formulier aan; themes,
+imagelists, actions en popupmenu's gebruiken dezelfde typecontrole.
+
+De titlebar biedt hover en pressed voor alle systeemknoppen. De maximize-knop
+gebruikt de non-clientroute van het formulier en DWM voor Windows 11 Snap.
+Snap en de visuele VCL-weergave moeten op Windows worden gecontroleerd;
+de Python-controles vervangen geen Delphi-build of IDE-installatietest.

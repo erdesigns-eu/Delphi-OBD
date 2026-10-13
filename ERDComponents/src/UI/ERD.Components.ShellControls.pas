@@ -35,7 +35,8 @@ uses
   System.Masks,
   System.Generics.Collections,
   Vcl.Graphics,
-  Vcl.Controls,
+  Vcl.Controls, Vcl.Menus,
+  ERD.Components.Menus,
   ERD.Components.Control,
   ERD.Components.ItemList,
   ERD.Components.Paint;
@@ -86,6 +87,9 @@ type
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
   end;
 
+  TERDBreadcrumbDropDownEvent = procedure(Sender: TObject; const Path: string;
+    Choices: TERDPlaces) of object;
+
   /// <summary>Clickable breadcrumb path bar.</summary>
   TERDBreadcrumb = class(TERDCustomControl)
   strict private
@@ -94,6 +98,13 @@ type
     FHotIndex: Integer;
     FFocusedIndex: Integer;
     FOnNavigate: TERDPathEvent;
+    FOnDropDown: TERDBreadcrumbDropDownEvent;
+    FPopup: TERDPopupMenu;
+    FChoices: TERDPlaces;
+    FHotChevron: Boolean;
+    procedure ChoiceClick(Sender: TObject);
+    procedure NavigateTarget(const Target: string);
+    function HitPart(X, Y: Integer; out Chevron: Boolean): Integer;
     procedure SetItems(Value: TERDPlaces);
     procedure ItemsChanged(Sender: TObject);
     procedure SetPath(const AValue: string);
@@ -113,6 +124,7 @@ type
     /// <summary>Creates the control.</summary>
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure DropDown(Index: Integer);
   published
     /// <summary>Current path.</summary>
     property Items: TERDPlaces read FItems write SetItems;
@@ -122,6 +134,7 @@ type
     /// <summary>Parent density.</summary>
     property ParentDensity;
     /// <summary>Navigation event.</summary>
+    property OnDropDown: TERDBreadcrumbDropDownEvent read FOnDropDown write FOnDropDown;
     property OnNavigate: TERDPathEvent read FOnNavigate write FOnNavigate;
   end;
 
@@ -408,6 +421,7 @@ type
     Caption: string;
     Path: string;
     Bounds: TRect;
+    ChevronBounds: TRect;
   end;
 
 function CleanPath(const APath: string): string;
@@ -718,6 +732,7 @@ end;
 
 destructor TERDBreadcrumb.Destroy;
 begin
+  FChoices.Free;
   FItems.Free;
   inherited;
 end;
@@ -736,6 +751,8 @@ begin
   inherited Create(AOwner);
   FItems := TERDPlaces.Create(Self);
   FItems.OnChange := ItemsChanged;
+  FPopup := TERDPopupMenu.Create(Self);
+  FChoices := TERDPlaces.Create(Self);
   Width := 360;
   Height := 32;
   TabStop := True;
@@ -784,189 +801,208 @@ begin
     VK_RIGHT: FFocusedIndex := Min(High(Parts), FFocusedIndex + 1);
     VK_HOME: FFocusedIndex := 0;
     VK_END: FFocusedIndex := High(Parts);
+    VK_F4, VK_DOWN:
+      begin
+        if (Key <> VK_F4) and not (ssAlt in Shift) then Exit;
+        DropDown(EnsureRange(FFocusedIndex, 0, High(Parts)));
+      end;
     VK_RETURN, VK_SPACE:
       begin
         FFocusedIndex := EnsureRange(FFocusedIndex, 0, High(Parts));
-        if FItems.Count = 0 then SetPath(Parts[FFocusedIndex].Path);
-        if Assigned(FOnNavigate) then FOnNavigate(Self, Parts[FFocusedIndex].Path);
+        NavigateTarget(Parts[FFocusedIndex].Path);
       end;
   else Exit;
   end;
   Key := 0;
   Invalidate;
 end;
+procedure LayoutBreadcrumb(const Path: string; Items: TERDPlaces; Painter: TERDPainter;
+  Width, Height: Integer; out Parts: TArray<TBreadPart>; out First: Integer; out Overflow: TRect);
+var I, X, W, Total, Pad, Chev, OverflowW: Integer;
+begin
+  BuildBreadItems(Path, Items, Parts);
+  First := 0;
+  Pad := Painter.S(10);
+  Chev := Painter.S(18);
+  Overflow := Rect(0, 0, 0, 0);
+  OverflowW := Painter.TextWidth('...', ERD_TEXT_BODY) + 2 * Pad + Chev;
+  while First < High(Parts) do
+  begin
+    Total := Painter.S(12);
+    if First > 0 then Inc(Total, OverflowW);
+    for I := First to High(Parts) do Inc(Total, Painter.TextWidth(Parts[I].Caption, ERD_TEXT_BODY) + 2 * Pad + Chev);
+    if Total <= Width then Break;
+    Inc(First);
+  end;
+  X := Painter.S(6);
+  if First > 0 then
+  begin
+    Overflow := Rect(X, Painter.S(3), X + OverflowW, Height - Painter.S(3));
+    Inc(X, OverflowW);
+  end;
+  for I := First to High(Parts) do
+  begin
+    W := Painter.TextWidth(Parts[I].Caption, ERD_TEXT_BODY) + 2 * Pad;
+    Parts[I].Bounds := Rect(X, Painter.S(3), X + W, Height - Painter.S(3));
+    Parts[I].ChevronBounds := Rect(X + W, Painter.S(3), X + W + Chev, Height - Painter.S(3));
+    Inc(X, W + Chev);
+  end;
+end;
 procedure TERDBreadcrumb.PaintControl(ACanvas: TCanvas);
-var
-  P: TERDPainter;
-  Parts: TArray<TBreadPart>;
-  I, First, Pad, Chev, X, W, Total, H: Integer;
-  R: TRect;
-  C: TColor;
+var P: TERDPainter; Parts: TArray<TBreadPart>; First, I: Integer; Overflow, R: TRect; C: TColor;
 begin
   P := TERDPainter.Create(ACanvas, Palette, ScaleValue(96));
   try
     P.FillRect(ClientRect, Palette.GaugeFace);
     P.FrameRect(ClientRect, Palette.NeutralLight);
-    BuildBreadItems(FPath, FItems, Parts);
-    Pad := ScaleValue(10);
-    Chev := ScaleValue(18);
-    First := 0;
-    while First < Length(Parts) do
-    begin
-      Total := 0;
-      for I := First to High(Parts) do
-        Inc(Total, P.TextWidth(Parts[I].Caption, ERD_TEXT_BODY) + 2 * Pad +
-          Chev);
-      if (Total <= Width - ScaleValue(10)) or (First = High(Parts)) then
-        Break;
-      Inc(First);
-    end;
-    X := ScaleValue(6);
-    H := Height - ScaleValue(6);
-    if First > 0 then
-    begin
-      W := P.TextWidth('...', ERD_TEXT_BODY) + 2 * Pad;
-      R := Rect(X, (Height - H) div 2, X + W, (Height + H) div 2);
-      if FHotIndex = 0 then
-        P.FillRect(R, P.Tint(Palette.Accent, 0.12));
-      P.Text(R.Left + Pad, Height div 2, '...', ERD_TEXT_BODY,
-        Palette.ForegroundText, twRegular, taLeftJustify, R.Width - 2 * Pad);
-      Inc(X, W + Chev);
-      P.Glyph(glChevronRight, X - Chev div 2, Height div 2, Palette.Subtle,
-        0.8);
-    end;
+    LayoutBreadcrumb(FPath, FItems, P, Width, Height, Parts, First, Overflow);
+    if not Overflow.IsEmpty then
+      P.Text(Overflow.Left + P.S(10), Height div 2, '...', ERD_TEXT_BODY, Palette.ForegroundText);
     for I := First to High(Parts) do
     begin
-      W := P.TextWidth(Parts[I].Caption, ERD_TEXT_BODY) + 2 * Pad;
-      R := Rect(X, (Height - H) div 2, X + W, (Height + H) div 2);
-      if I - First + Ord(First > 0) = FHotIndex then
-        P.FillRect(R, P.Tint(Palette.Accent, 0.12));
+      R := Parts[I].Bounds;
+      if (I = FHotIndex) and not FHotChevron then P.FillRect(R, P.Tint(Palette.Accent, 0.12));
       if Focused and FocusCuesVisible and (I = FFocusedIndex) then
-        P.FocusRing(R.Left + P.S(2), R.Top + P.S(2), Max(0, R.Width - P.S(4)),
-          Max(0, R.Height - P.S(4)), P.S(2));
+        P.FocusRing(R.Left + P.S(2), R.Top + P.S(2), Max(0, R.Width - P.S(4)), Max(0, R.Height - P.S(4)), P.S(2));
       C := Palette.ForegroundText;
-      if I = High(Parts) then
-        C := P.AccentText;
-      P.Text(R.Left + Pad, Height div 2, Parts[I].Caption, ERD_TEXT_BODY,
-        C, twRegular, taLeftJustify, R.Width - 2 * Pad);
-      Inc(X, W);
-      if I < High(Parts) then
-      begin
-        P.Glyph(glChevronRight, X + Chev div 2, Height div 2, Palette.Subtle,
-          0.8);
-        Inc(X, Chev);
-      end;
+      if I = High(Parts) then C := P.AccentText;
+      P.Text(R.Left + P.S(10), Height div 2, Parts[I].Caption, ERD_TEXT_BODY, C,
+        twRegular, taLeftJustify, Max(0, R.Width - P.S(20)));
+      R := Parts[I].ChevronBounds;
+      if (I = FHotIndex) and FHotChevron then P.FillRect(R, P.Tint(Palette.Accent, 0.12));
+      P.Glyph(glChevronRight, (R.Left + R.Right) div 2, Height div 2, Palette.Subtle, 0.8);
     end;
-  finally
-    P.Free;
-  end;
+  finally P.Free end;
 end;
-
-procedure TERDBreadcrumb.MouseMove(Shift: TShiftState; X, Y: Integer);
-var
-  P: TERDPainter;
-  B: TBitmap;
-  Parts: TArray<TBreadPart>;
-  I, First, Pad, Chev, PX, W, Total, Index: Integer;
+function TERDBreadcrumb.HitPart(X, Y: Integer; out Chevron: Boolean): Integer;
+var Bitmap: TBitmap; P: TERDPainter; Parts: TArray<TBreadPart>; First, I: Integer; Overflow: TRect;
 begin
-  inherited;
-  B := TBitmap.Create;
+  Result := -1;
+  Chevron := False;
+  Bitmap := TBitmap.Create;
   try
-    B.SetSize(1, 1);
-    P := TERDPainter.Create(B.Canvas, Palette, ScaleValue(96));
+    Bitmap.SetSize(1, 1);
+    P := TERDPainter.Create(Bitmap.Canvas, Palette, ScaleValue(96));
     try
-      BuildBreadItems(FPath, FItems, Parts);
-      Pad := ScaleValue(10);
-      Chev := ScaleValue(18);
-      First := 0;
-      while First < Length(Parts) do
-      begin
-        Total := 0;
-        for I := First to High(Parts) do
-          Inc(Total, P.TextWidth(Parts[I].Caption, ERD_TEXT_BODY) +
-            2 * Pad + Chev);
-        if (Total <= Width - ScaleValue(10)) or (First = High(Parts)) then
-          Break;
-        Inc(First);
-      end;
-      PX := ScaleValue(6);
-      Index := 0;
-      SetHotIndex(-1);
-      if First > 0 then
-      begin
-        W := P.TextWidth('...', ERD_TEXT_BODY) + 2 * Pad;
-        if PtInRect(Rect(PX, 0, PX + W, Height), Point(X, Y)) then
-          SetHotIndex(0);
-        Inc(PX, W + Chev);
-        Inc(Index);
-      end;
+      LayoutBreadcrumb(FPath, FItems, P, Width, Height, Parts, First, Overflow);
+      if not Overflow.IsEmpty and PtInRect(Overflow, Point(X, Y)) then Exit(-2);
       for I := First to High(Parts) do
       begin
-        W := P.TextWidth(Parts[I].Caption, ERD_TEXT_BODY) + 2 * Pad;
-        if PtInRect(Rect(PX, 0, PX + W, Height), Point(X, Y)) then
+        if PtInRect(Parts[I].Bounds, Point(X, Y)) then Exit(I);
+        if PtInRect(Parts[I].ChevronBounds, Point(X, Y)) then
         begin
-          SetHotIndex(Index);
-          Break;
+          Chevron := True;
+          Exit(I);
         end;
-        Inc(PX, W + Chev);
-        Inc(Index);
       end;
-    finally
-      P.Free;
-    end;
-  finally
-    B.Free;
-  end;
+    finally P.Free end;
+  finally Bitmap.Free end;
 end;
-
-procedure TERDBreadcrumb.MouseUp(Button: TMouseButton; Shift: TShiftState; X,
-  Y: Integer);
-var
-  Parts: TArray<TBreadPart>;
-  Target, First: Integer;
-  B: TBitmap;
-  P: TERDPainter;
-  I, Pad, Chev, Total: Integer;
+procedure TERDBreadcrumb.MouseMove(Shift: TShiftState; X, Y: Integer);
+var Chevron: Boolean; Index: Integer;
+begin
+  inherited;
+  Index := HitPart(X, Y, Chevron);
+  if FHotChevron <> Chevron then
+  begin
+    FHotChevron := Chevron;
+    Invalidate;
+  end;
+  SetHotIndex(Index);
+end;
+procedure TERDBreadcrumb.NavigateTarget(const Target: string);
+begin
+  if FItems.Count = 0 then SetPath(Target);
+  if Assigned(FOnNavigate) then FOnNavigate(Self, Target);
+end;
+procedure TERDBreadcrumb.ChoiceClick(Sender: TObject);
+var Index: Integer;
+begin
+  Index := TMenuItem(Sender).Tag;
+  if (Index >= 0) and (Index < FChoices.Count) then NavigateTarget(FChoices[Index].Path);
+end;
+procedure TERDBreadcrumb.DropDown(Index: Integer);
+var Parts: TArray<TBreadPart>; Bitmap: TBitmap; P: TERDPainter; First, I: Integer;
+  Overflow, Anchor: TRect; Search: TSearchRec; Entry: TERDPlace; MenuItem: TERDMenuItem;
+  Target: string; ScreenPoint: TPoint;
+begin
+  if not Enabled then Exit;
+  Bitmap := TBitmap.Create;
+  try
+    Bitmap.SetSize(1, 1);
+    P := TERDPainter.Create(Bitmap.Canvas, Palette, ScaleValue(96));
+    try LayoutBreadcrumb(FPath, FItems, P, Width, Height, Parts, First, Overflow)
+    finally P.Free end;
+  finally Bitmap.Free end;
+  if (Index < -1) or (Index > High(Parts)) then Exit;
+  FChoices.Clear;
+  if Index = -1 then
+  begin
+    Anchor := Overflow;
+    for I := 0 to First - 1 do
+    begin
+      Entry := FChoices.Add;
+      Entry.Caption := Parts[I].Caption;
+      Entry.Path := Parts[I].Path;
+    end;
+  end
+  else
+  begin
+    Target := Parts[Index].Path;
+    Anchor := Parts[Index].ChevronBounds;
+    if (FItems.Count = 0) and DirectoryExists(Target) then
+      if FindFirst(IncludeTrailingPathDelimiter(Target) + '*', faAnyFile, Search) = 0 then
+      try
+        repeat
+          if ((Search.Attr and faDirectory) <> 0) and
+            ((Search.Attr and ERD_HIDDEN_ATTR) = 0) and (Search.Name <> '.') and (Search.Name <> '..') then
+          begin
+            Entry := FChoices.Add;
+            Entry.Caption := Search.Name;
+            Entry.Path := IncludeTrailingPathDelimiter(Target) + Search.Name;
+          end;
+        until FindNext(Search) <> 0;
+      finally FindClose(Search) end;
+    if Assigned(FOnDropDown) then FOnDropDown(Self, Target, FChoices);
+  end;
+  FPopup.Items.Clear;
+  FPopup.Theme := Theme;
+  FPopup.PopupComponent := Self;
+  for I := 0 to FChoices.Count - 1 do
+  begin
+    MenuItem := TERDMenuItem.Create(FPopup);
+    MenuItem.Caption := FChoices[I].Caption;
+    MenuItem.Tag := I;
+    MenuItem.OnClick := ChoiceClick;
+    FPopup.Items.Add(MenuItem);
+  end;
+  if FChoices.Count = 0 then
+  begin
+    MenuItem := TERDMenuItem.Create(FPopup);
+    MenuItem.Caption := 'No items';
+    MenuItem.Enabled := False;
+    FPopup.Items.Add(MenuItem);
+  end;
+  ScreenPoint := ClientToScreen(Point(Anchor.Left, Anchor.Bottom));
+  FPopup.Popup(ScreenPoint.X, ScreenPoint.Y);
+end;
+procedure TERDBreadcrumb.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var Chevron: Boolean; Index: Integer; Parts: TArray<TBreadPart>;
 begin
   inherited;
   if (Button <> mbLeft) or not Enabled then Exit;
   if CanFocus then SetFocus;
-  MouseMove(Shift, X, Y);
-  if FHotIndex < 0 then Exit;
-  BuildBreadItems(FPath, FItems, Parts);
-  B := TBitmap.Create;
-  try
-    B.SetSize(1, 1);
-    P := TERDPainter.Create(B.Canvas, Palette, ScaleValue(96));
-    try
-      Pad := ScaleValue(10);
-      Chev := ScaleValue(18);
-      First := 0;
-      while First < Length(Parts) do
-      begin
-        Total := 0;
-        for I := First to High(Parts) do
-          Inc(Total, P.TextWidth(Parts[I].Caption, ERD_TEXT_BODY) +
-            2 * Pad + Chev);
-        if (Total <= Width - ScaleValue(10)) or (First = High(Parts)) then
-          Break;
-        Inc(First);
-      end;
-    finally
-      P.Free;
-    end;
-  finally
-    B.Free;
-  end;
-  Target := FHotIndex + First;
-  if First > 0 then
-    Dec(Target);
-  if (Target >= 0) and (Target <= High(Parts)) then
+  Index := HitPart(X, Y, Chevron);
+  if Index = -2 then DropDown(-1)
+  else if Index >= 0 then
   begin
-    FFocusedIndex := Target;
-    if FItems.Count = 0 then SetPath(Parts[Target].Path);
-    if Assigned(FOnNavigate) then
-      FOnNavigate(Self, Parts[Target].Path);
+    FFocusedIndex := Index;
+    if Chevron then DropDown(Index)
+    else
+    begin
+      BuildBreadItems(FPath, FItems, Parts);
+      if Index < Length(Parts) then NavigateTarget(Parts[Index].Path);
+    end;
   end;
 end;
 

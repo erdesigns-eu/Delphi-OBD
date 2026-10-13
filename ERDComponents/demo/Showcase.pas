@@ -557,6 +557,8 @@ type
     procedure LayoutSelected(Sender: TObject);
     procedure ToggleTheme(Sender: TObject);
     procedure ShowDialog(Sender: TObject);
+    procedure BreadcrumbChoices(Sender: TObject; const Path: string; Choices: TERDPlaces);
+    procedure BreadcrumbNavigate(Sender: TObject; const Path: string);
     procedure SearchChannels(Sender: TObject);
     procedure OpenFile(Sender: TObject);
     procedure IconClicked(Sender: TObject);
@@ -800,6 +802,66 @@ begin
     Dialog.Title := 'ERD Components'; Dialog.Text := 'General dialog, without OBD dependencies.';
     Dialog.Kind := dkInfo; Dialog.Buttons := [mbOK]; Dialog.Execute;
   finally Dialog.Free end;
+end;
+procedure TShowcaseForm.BreadcrumbChoices(Sender: TObject; const Path: string; Choices: TERDPlaces);
+  procedure AddChoice(const Caption, Id: string);
+  var Item: TERDPlace;
+  begin
+    Item := Choices.Add;
+    Item.Caption := Caption;
+    Item.Path := Id;
+  end;
+begin
+  if Path = 'playlists' then
+  begin
+    AddChoice('Belgium', 'country:be');
+    AddChoice('Netherlands', 'country:nl');
+  end
+  else if Copy(Path, 1, 8) = 'country:' then
+  begin
+    AddChoice('Live TV', 'live');
+    AddChoice('VOD', 'vod');
+    AddChoice('Series', 'series');
+  end
+  else if Path = 'live' then
+  begin
+    AddChoice('Sports', 'sports');
+    AddChoice('News', 'news');
+    AddChoice('Music', 'music');
+  end;
+end;
+procedure TShowcaseForm.BreadcrumbNavigate(Sender: TObject; const Path: string);
+var Country: string;
+  procedure AddPart(const Caption, Id: string);
+  var Item: TERDPlace;
+  begin
+    Item := DemoBreadcrumb.Items.Add;
+    Item.Caption := Caption;
+    Item.Path := Id;
+  end;
+begin
+  Country := 'country:be';
+  if DemoBreadcrumb.Items.Count > 1 then Country := DemoBreadcrumb.Items[1].Path;
+  if Copy(Path, 1, 8) = 'country:' then Country := Path;
+  DemoBreadcrumb.Items.BeginUpdate;
+  try
+    DemoBreadcrumb.Items.Clear;
+    AddPart('Playlists', 'playlists');
+    if Path <> 'playlists' then
+    begin
+      if Country = 'country:nl' then AddPart('Netherlands', Country) else AddPart('Belgium', Country);
+      if Path = 'live' then AddPart('Live TV', 'live')
+      else if Path = 'vod' then AddPart('VOD', 'vod')
+      else if Path = 'series' then AddPart('Series', 'series')
+      else if (Path = 'sports') or (Path = 'news') or (Path = 'music') then
+      begin
+        AddPart('Live TV', 'live');
+        if Path = 'sports' then AddPart('Sports', Path)
+        else if Path = 'news' then AddPart('News', Path) else AddPart('Music', Path);
+      end;
+    end;
+  finally DemoBreadcrumb.Items.EndUpdate end;
+  StatusBar.Panels[0].Text := 'Navigate: ' + Path;
 end;
 procedure TShowcaseForm.SearchChannels(Sender: TObject);
 begin

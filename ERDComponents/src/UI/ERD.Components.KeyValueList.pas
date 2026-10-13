@@ -757,7 +757,10 @@ begin
           X + ColW, RowY + RowHeight);
         AddEntry(kvvRow, I, R, VR, CopyR, '');
         if Cols = 1 then
-          Inc(Y, RH)
+        begin
+          Inc(Y, RH);
+          RowY := Y;
+        end
         else
           RowMax := System.Math.Max(RowMax, RH);
         Inc(N);

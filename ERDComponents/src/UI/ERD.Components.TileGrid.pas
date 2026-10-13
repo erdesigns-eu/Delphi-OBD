@@ -995,7 +995,7 @@ procedure TERDTileGrid.DrawSampleTile(APainter: TERDPainter; const ARect: TRect;
   ABadgeTone: TERDStatusKind; ASelected, AHot, AEnabled: Boolean; AIcon: TERDIcon);
 var
   Fill, Outline, Ink, LabelInk, GlyphInk: TColor;
-  Pad, BadgeW: Integer;
+  Pad, BadgeW, CaptionY: Integer;
 begin
   if ASelected then
   begin
@@ -1051,11 +1051,14 @@ begin
     BadgeW := 0;
     if ABadge <> '' then
       BadgeW := APainter.ChipWidth(ABadge, False, ERD_TEXT_CAPS) + Pad;
+    CaptionY := (ARect.Top + ARect.Bottom) div 2;
+    if ASubtitle <> '' then Dec(CaptionY, ScaleValue(9));
     APainter.Text(ARect.Left + ScaleValue(50),
-      (ARect.Top + ARect.Bottom) div 2 - ScaleValue(9), ACaption,
+      CaptionY, ACaption,
       ERD_TEXT_BODY, Ink, twSemibold, taLeftJustify,
       ARect.Width - ScaleValue(58));
-    APainter.Text(ARect.Left + ScaleValue(50),
+    if ASubtitle <> '' then
+      APainter.Text(ARect.Left + ScaleValue(50),
       (ARect.Top + ARect.Bottom) div 2 + ScaleValue(10), ASubtitle,
       ERD_TEXT_SMALL, LabelInk, twRegular, taLeftJustify,
       ARect.Width - ScaleValue(58) - BadgeW);

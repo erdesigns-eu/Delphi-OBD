@@ -106,21 +106,28 @@
               Items = <
                 item
                   Caption = 'Play'
+                  Kind = rikToggle
+                  GroupIndex = 1
+                  Down = True
                   Icon.BuiltIn = ei161Afspelen
                   Size = risLarge
                 end
                 item
                   Caption = 'Pause'
+                  Kind = rikToggle
+                  GroupIndex = 1
                   Icon.BuiltIn = ei162Pauzeren
                   Size = risLarge
                 end
                 item
                   Caption = 'Teletext'
+                  Kind = rikToggle
                   Icon.BuiltIn = ei249Teletext
                   Size = risLarge
                 end
                 item
                   Caption = 'Subtitles'
+                  Kind = rikToggle
                   Icon.BuiltIn = ei192Ondertiteling
                   Size = risLarge
                 end
@@ -4106,6 +4113,8 @@
           Caption = 'TERDBreadcrumb'
         end
         object DemoBreadcrumb: TERDBreadcrumb
+          OnDropDown = BreadcrumbChoices
+          OnNavigate = BreadcrumbNavigate
           Items = <
             item
               Caption = 'Playlists'

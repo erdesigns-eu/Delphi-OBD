@@ -3,7 +3,7 @@
 uses
   System.SysUtils, System.Classes, System.Types, Vcl.Forms, Vcl.Controls,
   Winapi.Windows, Vcl.StdCtrls, Vcl.Graphics, Vcl.ImgList,
-  ERD.Components.ScrollBar,
+  ERD.Components.ScrollBar, ERD.Components.KeyValueList,
   ERD.Components.CommonControls, ERD.Components.MediaControls, ERD.Components.TrackBar,
   ERD.Components.ShellControls,
   ERD.Components.Types, ERD.Components.Icons, ERD.Components.IconCatalog,
@@ -643,6 +643,65 @@ begin
   end;
 end;
 
+procedure TestFeedbackRegressions;
+var Form: TForm; Values: TERDKeyValueList; Tags: TERDTagEdit;
+  Token: TERDTagToken; Ribbon: TERDRibbon; Group: TERDRibbonGroup;
+  First, Second, Independent: TERDRibbonItem; Y, I: Integer;
+  FoundFirst, FoundSecond: Boolean;
+begin
+  Form := TForm.CreateNew(nil);
+  try
+    Values := TERDKeyValueList.Create(Form);
+    Values.Parent := Form;
+    Values.SetBounds(0, 0, 400, 160);
+    Values.SetValue('Application', 'Demo');
+    Values.SetValue('Theme', 'ERDesigns Light');
+    FoundFirst := False;
+    FoundSecond := False;
+    for Y := 0 to Values.Height - 1 do
+    begin
+      I := Values.RowAt(50, Y);
+      FoundFirst := FoundFirst or (I = 0);
+      FoundSecond := FoundSecond or (I = 1);
+    end;
+    Check(FoundFirst and FoundSecond, 'Key/value rows occupy distinct reachable rows');
+    Tags := TERDTagEdit.Create(Form);
+    Tags.Parent := Form;
+    Tags.SetBounds(0, 180, 400, 80);
+    Tags.AddTag('Live TV');
+    Token := nil;
+    for I := 0 to Tags.ControlCount - 1 do
+      if Tags.Controls[I] is TERDTagToken then Token := TERDTagToken(Tags.Controls[I]);
+    Check(Token <> nil, 'Tag creates a themed token');
+    Token.Perform(WM_LBUTTONDOWN, MK_LBUTTON, MakeLParam(8, Token.Height div 2));
+    Token.Perform(WM_LBUTTONUP, 0, MakeLParam(8, Token.Height div 2));
+    Check(Tags.Tags.Count = 1, 'Clicking tag caption does not remove tag');
+    Token.Perform(WM_LBUTTONDOWN, MK_LBUTTON, MakeLParam(Token.Width - 14, Token.Height div 2));
+    Token.Perform(WM_LBUTTONUP, 0, MakeLParam(Token.Width - 14, Token.Height div 2));
+    Application.ProcessMessages;
+    Check(Tags.Tags.Count = 0, 'Clicking tag close glyph removes tag');
+    Ribbon := TERDRibbon.Create(Form);
+    Group := Ribbon.Tabs.Add.Groups.Add;
+    First := Group.Items.Add;
+    Second := Group.Items.Add;
+    Independent := Group.Items.Add;
+    First.Kind := rikToggle;
+    Second.Kind := rikToggle;
+    Independent.Kind := rikToggle;
+    First.GroupIndex := 1;
+    Second.GroupIndex := 1;
+    First.Execute;
+    Second.Execute;
+    Check(Second.Down and not First.Down, 'Radio ribbon items exclude peers');
+    Second.Execute;
+    Check(Second.Down, 'Radio item remains selected without AllowAllUp');
+    Independent.Execute;
+    Check(Independent.Down and Second.Down, 'Independent toggle preserves radio choice');
+    Independent.Execute;
+    Check(not Independent.Down, 'Independent ribbon toggle can be unchecked');
+  finally Form.Free end;
+end;
+
 begin
   try
     Application.Initialize;
@@ -655,6 +714,7 @@ begin
     TestWindowsFocusCuesAndAutoSave;
     TestVirtualTreeThemeAndLazyNodes;
     TestCommonControls;
+    TestFeedbackRegressions;
     Writeln(Checks, ' VCL runtime checks passed.');
   except on E: Exception do begin Writeln(E.ClassName, ': ', E.Message); Halt(1) end end;
 end.

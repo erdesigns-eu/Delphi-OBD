@@ -236,6 +236,8 @@ type
 
 implementation
 
+uses ERD.Components.NativeSelection;
+
 const
   EDIT_TEXT_SIZE = ERD_TEXT_BODY;
   SEARCH_RESET_MS = 1000;
@@ -248,7 +250,7 @@ end;
 type
   // Native edits need end padding so a right-aligned final character
   // does not share the last drawable pixel with the caret.
-  TERDInnerEdit = class(TEdit)
+  TERDInnerEdit = class(TERDSelectionEdit)
   private
     procedure PositionEndCaret;
   protected
