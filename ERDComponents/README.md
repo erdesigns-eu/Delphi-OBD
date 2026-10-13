@@ -166,8 +166,9 @@ virtualisatie, node-data, selectie, sorting, drag/drop en bestaande events blijv
 onderdeel van die engine.
 
 De component bindt aan `TERDTheme` en stijlt header, rijachtergrond, selectie,
-checkboxes/radio, uitklappijlen, rand en native scrollbar-presentatie. De originele
-Windows scrollbar-geometrie en bediening blijven behouden. Eigen draw-events en
+checkboxes/radio, uitklappijlen, rand en eigen `TERDScrollBar`-controls. Native Windows-scrollbars worden
+uitgeschakeld; de eigen controls en het muiswiel gebruiken de scrolloffsets van
+de engine. Het muiswiel volgt de Windows-instelling voor regels per notch. Eigen draw-events en
 custom checkbox-images blijven bruikbaar. De `RowHeight`, `HeaderHeight` en
 `AlternateRows` zijn instelbaar; de hoogtes schalen met DPI.
 

@@ -4,7 +4,8 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.Classes, System.Types, System.SysUtils,
-  System.Math, System.UITypes, Vcl.Controls, Vcl.Graphics, Vcl.StdCtrls, Vcl.Forms,
+  System.Math, System.UITypes, Vcl.Controls, Vcl.Graphics, Vcl.StdCtrls, Vcl.Forms, Vcl.ImgList,
+  ERD.Components.ScrollBar,
   ERD.Components.Types, ERD.Components.Theme, ERD.Components.Paint,
   ERD.Components.VT, ERD.Components.VT.Types, ERD.Components.VT.Header;
 
@@ -13,22 +14,34 @@ type
   TERDVirtualStringTree = class(TERDVTVirtualStringTree, IERDThemeAware)
   private
     FTheme: TERDTheme;
+    FVerticalBar: TERDScrollBar;
+    FHorizontalBar: TERDScrollBar;
+    FThemedChecks: TImageList;
+    FSyncingScroll: Boolean;
+    FWheelRemainder: Integer;
     FApplyingTheme: Boolean;
     FRowHeight: Integer;
     FHeaderHeight: Integer;
     FAlternateRows: Boolean;
+    procedure SyncScrollBars;
+    procedure ScrollChanged(Sender: TObject);
     procedure SetTheme(Value: TERDTheme);
     procedure SetRowHeight(Value: Integer);
     procedure SetHeaderHeight(Value: Integer);
     procedure SetAlternateRows(Value: Boolean);
     function GetThemePalette: TERDThemePalette;
     procedure ApplyTheme;
-    procedure PaintThemedScrollBars;
+
   protected
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     procedure Loaded; override;
     procedure CreateWnd; override;
     procedure WndProc(var Message: TMessage); override;
+    procedure Paint; override;
+    function DoSetOffsetXY(Value: TPoint; Options: TScrollUpdateOptions; ClipRect: PRect = nil): Boolean; override;
+    function GetClientRect: TRect; override;
+    procedure UpdateScrollBars(DoRepaint: Boolean); override;
+    procedure DoAfterItemPaint(Canvas: TCanvas; Node: PVirtualNode; ItemRect: TRect); override;
     function GetVclStyleEnabled: Boolean; override;
     function UseAdvancedHeaderDraw: Boolean; override;
     procedure DoHeaderDrawQueryElements(var PaintInfo: THeaderPaintInfo;
@@ -46,10 +59,13 @@ type
     destructor Destroy; override;
     procedure ThemeChanged;
     property Palette: TERDThemePalette read GetThemePalette;
+    property VerticalScrollBar: TERDScrollBar read FVerticalBar;
+    property HorizontalScrollBar: TERDScrollBar read FHorizontalBar;
   published
+    property BorderStyle default TFormBorderStyle.bsNone;
     property Theme: TERDTheme read FTheme write SetTheme;
     /// <summary>Default row height in 96-DPI logical pixels; individual node heights remain available.</summary>
-    property RowHeight: Integer read FRowHeight write SetRowHeight default 26;
+    property RowHeight: Integer read FRowHeight write SetRowHeight default 32;
     property HeaderHeight: Integer read FHeaderHeight write SetHeaderHeight default 30;
     property AlternateRows: Boolean read FAlternateRows write SetAlternateRows default True;
   end;
@@ -57,15 +73,40 @@ type
 implementation
 
 constructor TERDVirtualStringTree.Create(AOwner: TComponent);
+var Bitmap: TBitmap; I: Integer;
 begin
   inherited;
-  FRowHeight := 26;
+  FVerticalBar := TERDScrollBar.Create(Self);
+  FVerticalBar.Parent := Self;
+  FVerticalBar.TabStop := False;
+  FVerticalBar.Visible := False;
+  FVerticalBar.OnChange := ScrollChanged;
+  FHorizontalBar := TERDScrollBar.Create(Self);
+  FHorizontalBar.Parent := Self;
+  FHorizontalBar.Kind := sbHorizontal;
+  FHorizontalBar.TabStop := False;
+  FHorizontalBar.Visible := False;
+  FHorizontalBar.OnChange := ScrollChanged;
+  ScrollBarOptions.ScrollBars := TScrollStyle.ssNone;
+  FThemedChecks := TImageList.Create(Self);
+  FThemedChecks.Width := 18;
+  FThemedChecks.Height := 18;
+  Bitmap := TBitmap.Create;
+  try
+    Bitmap.SetSize(18, 18);
+    Bitmap.Canvas.Brush.Color := clWhite;
+    Bitmap.Canvas.FillRect(Rect(0, 0, 18, 18));
+    for I := 0 to 20 do FThemedChecks.Add(Bitmap, nil);
+  finally Bitmap.Free end;
+  CustomCheckImages := FThemedChecks;
+  FRowHeight := 32;
   FHeaderHeight := 30;
   FAlternateRows := True;
   ParentFont := False;
   Ctl3D := False;
+  BorderStyle := TFormBorderStyle.bsNone;
   StyleElements := [];
-  TreeOptions.PaintOptions := TreeOptions.PaintOptions - [toThemeAware, toUseExplorerTheme];
+  TreeOptions.PaintOptions := TreeOptions.PaintOptions - [toThemeAware, toUseExplorerTheme, toShowTreeLines, toShowRoot, toFullVertGridLines] + [toHideFocusRect];
   Header.Options := Header.Options + [hoVisible, hoColumnResize, hoShowSortGlyphs];
   SetTheme(TERDTheme.FindOnOwner(Self));
   ApplyTheme;
@@ -133,13 +174,51 @@ begin
 end;
 
 procedure TERDVirtualStringTree.ApplyTheme;
-var P: TERDThemePalette; PPI: Integer;
+var P: TERDThemePalette; PPI, CheckSize, I: Integer; Bitmap: TBitmap;
+  CheckPainter: TERDPainter; CheckState: TCheckBoxState; ItemEnabled, Hot: Boolean;
 begin
   if FApplyingTheme or (FRowHeight = 0) or (csDestroying in ComponentState) then Exit;
   FApplyingTheme := True;
   try
     P := Palette;
     PPI := CurrentPPI;
+    CheckSize := MulDiv(18, PPI, 96);
+    if FThemedChecks <> nil then
+    begin
+      Bitmap := TBitmap.Create;
+      CheckPainter := nil;
+      BeginUpdate;
+      try
+        FThemedChecks.Clear;
+        FThemedChecks.Width := CheckSize;
+        FThemedChecks.Height := CheckSize;
+        Bitmap.SetSize(CheckSize, CheckSize);
+        CheckPainter := TERDPainter.Create(Bitmap.Canvas, P, PPI);
+        for I := 0 to 20 do
+        begin
+          Bitmap.Canvas.Brush.Color := P.GaugeFace;
+          Bitmap.Canvas.FillRect(Rect(0, 0, CheckSize, CheckSize));
+          if I > 0 then
+          begin
+            ItemEnabled := ((I - 1) mod 4) <> 3;
+            Hot := ((I - 1) mod 4) in [1, 2];
+            if I <= 8 then
+              CheckPainter.RadioButton(0, CheckSize div 2, 18, I >= 5, ItemEnabled, Hot, False)
+            else
+            begin
+              if I >= 17 then CheckState := cbGrayed
+              else if I >= 13 then CheckState := cbChecked else CheckState := cbUnchecked;
+              CheckPainter.CheckBox(0, CheckSize div 2, 18, CheckState, ItemEnabled, Hot, False);
+            end;
+          end;
+          FThemedChecks.AddMasked(Bitmap, P.GaugeFace);
+        end;
+      finally
+        CheckPainter.Free;
+        Bitmap.Free;
+        EndUpdate;
+      end;
+    end;
     Color := P.GaugeFace;
     Font.Name := 'Segoe UI';
     Font.Height := -MulDiv(13, PPI, 96);
@@ -153,10 +232,12 @@ begin
     Colors.GridLineColor := P.NeutralLight;
     Colors.HotColor := P.ForegroundText;
     Colors.HeaderHotColor := P.Accent;
-    Colors.FocusedSelectionColor := ERDMixColor(P.Accent, P.GaugeFace, 0.16);
-    Colors.FocusedSelectionBorderColor := P.Accent;
-    Colors.UnfocusedSelectionColor := ERDMixColor(P.ForegroundText, P.GaugeFace, 0.06);
-    Colors.UnfocusedSelectionBorderColor := P.NeutralLight;
+    Colors.FocusedSelectionColor := ERDMixColor(P.Accent, P.GaugeFace, 0.12);
+    Colors.FocusedSelectionBorderColor := Colors.FocusedSelectionColor;
+    Colors.UnfocusedSelectionColor := Colors.FocusedSelectionColor;
+    Colors.UnfocusedSelectionBorderColor := Colors.UnfocusedSelectionColor;
+    if FVerticalBar <> nil then FVerticalBar.Theme := FTheme;
+    if FHorizontalBar <> nil then FHorizontalBar.Theme := FTheme;
     Colors.SelectionTextColor := P.ForegroundText;
     Colors.UnfocusedColor := P.ForegroundText;
     Colors.DropMarkColor := P.Accent;
@@ -171,7 +252,7 @@ procedure TERDVirtualStringTree.ThemeChanged;
 begin
   ApplyTheme;
   Invalidate;
-  if HandleAllocated then PaintThemedScrollBars;
+  if HandleAllocated then SyncScrollBars;
 end;
 
 procedure TERDVirtualStringTree.SetRowHeight(Value: Integer);
@@ -212,7 +293,7 @@ procedure TERDVirtualStringTree.DoHeaderDrawQueryElements(var PaintInfo: THeader
   var Elements: THeaderPaintElements);
 begin
   inherited;
-  Include(Elements, hpeBackground);
+  Elements := Elements + [hpeBackground, hpeText, hpeSortGlyph];
 end;
 
 procedure TERDVirtualStringTree.DoAdvancedHeaderDraw(var PaintInfo: THeaderPaintInfo;
@@ -222,18 +303,35 @@ begin
   if hpeBackground in Elements then
   begin
     R := PaintInfo.PaintRectangle;
-    Fill := ERDMixColor(Palette.ForegroundText, Palette.GaugeFace, 0.03);
+    P := TERDPainter.Create(PaintInfo.TargetCanvas, Palette, CurrentPPI);
+    try Fill := P.HeaderFill finally P.Free end;
     if PaintInfo.IsDownIndex then Fill := ERDMixColor(Palette.Accent, Palette.GaugeFace, 0.16)
     else if PaintInfo.IsHoverIndex then Fill := ERDMixColor(Palette.Accent, Palette.GaugeFace, 0.08);
     P := TERDPainter.Create(PaintInfo.TargetCanvas, Palette, CurrentPPI);
     try
       P.FillRect(R, Fill);
+      P.HLine(R.Left, R.Top, R.Width, Palette.NeutralLight);
+      if R.Left = 0 then P.VLine(R.Left, R.Top, R.Height, Palette.NeutralLight);
       P.HLine(R.Left, R.Bottom - 1, R.Width, Palette.NeutralLight);
       if PaintInfo.ShowRightBorder then
         P.VLine(R.Right - 1, R.Top + P.S(5), Max(0, R.Height - P.S(10)), Palette.NeutralLight);
     finally P.Free end;
   end;
-  // Preserve application callbacks and the engine's text/sort/image/checkbox layout.
+  P := TERDPainter.Create(PaintInfo.TargetCanvas, Palette, CurrentPPI);
+  try
+    if (hpeText in Elements) and (PaintInfo.Column <> nil) then
+    begin
+      R := PaintInfo.TextRectangle;
+      P.Caps(R.Left + P.S(4), (R.Top + R.Bottom) div 2, PaintInfo.Column.Text,
+        taLeftJustify, Palette.ForegroundText, Max(0, R.Width - P.S(8)));
+    end;
+    if (hpeSortGlyph in Elements) and PaintInfo.ShowSortGlyph then
+      if Header.SortDirection = sdAscending then
+        P.Glyph(glChevronUp, PaintInfo.SortGlyphPos.X + PaintInfo.SortGlyphSize.cx div 2,
+          PaintInfo.SortGlyphPos.Y + PaintInfo.SortGlyphSize.cy div 2, Palette.Accent, 0.7)
+      else P.Glyph(glChevronDown, PaintInfo.SortGlyphPos.X + PaintInfo.SortGlyphSize.cx div 2,
+          PaintInfo.SortGlyphPos.Y + PaintInfo.SortGlyphSize.cy div 2, Palette.Accent, 0.7);
+  finally P.Free end;
   inherited;
 end;
 
@@ -267,7 +365,7 @@ procedure TERDVirtualStringTree.PaintCheckImage(Canvas: TCanvas; const ImageInfo
 var P: TERDPainter; Size, CY, StateIndex: Integer; State: TCheckBoxState;
   ItemEnabled, Hot: Boolean;
 begin
-  if (CustomCheckImages <> nil) or (ImageInfo.Index < 1) or (ImageInfo.Index > 20) then
+  if ((CustomCheckImages <> nil) and (CustomCheckImages <> FThemedChecks)) or (ImageInfo.Index < 1) or (ImageInfo.Index > 20) then
   begin
     inherited;
     Exit;
@@ -291,76 +389,126 @@ begin
   finally P.Free end;
 end;
 
-procedure TERDVirtualStringTree.PaintThemedScrollBars;
-var DC: HDC; C: TCanvas; P: TERDPainter; WindowRect, VRect, HRect: TRect;
-  procedure DrawBar(ObjectId: Longint; Vertical: Boolean);
-  var Info: TScrollBarInfo; R, Thumb: TRect; ArrowSize, Centre: Integer;
-    FirstGlyph, LastGlyph: TERDGlyph;
-  begin
-    FillChar(Info, SizeOf(Info), 0);
-    Info.cbSize := SizeOf(Info);
-    if not GetScrollBarInfo(Handle, ObjectId, Info) or
-      ((Info.rgstate[0] and STATE_SYSTEM_INVISIBLE) <> 0) then Exit;
-    R := Info.rcScrollBar;
-    OffsetRect(R, -WindowRect.Left, -WindowRect.Top);
-    if Vertical then VRect := R else HRect := R;
-    P.FillRect(R, Palette.Background);
-    ArrowSize := Info.dxyLineButton;
-    if Vertical then
-    begin
-      Centre := R.Left + R.Width div 2;
-      FirstGlyph := glChevronUp; LastGlyph := glChevronDown;
-      P.Glyph(FirstGlyph, Centre, R.Top + ArrowSize div 2, Palette.Subtle, 0.6);
-      P.Glyph(LastGlyph, Centre, R.Bottom - ArrowSize div 2, Palette.Subtle, 0.6);
-      Thumb := Rect(R.Left + P.S(4), R.Top + Info.xyThumbTop,
-        R.Right - P.S(4), R.Top + Info.xyThumbBottom);
-    end
-    else
-    begin
-      Centre := R.Top + R.Height div 2;
-      P.Glyph(glChevronLeft, R.Left + ArrowSize div 2, Centre, Palette.Subtle, 0.6);
-      P.Glyph(glChevronRight, R.Right - ArrowSize div 2, Centre, Palette.Subtle, 0.6);
-      Thumb := Rect(R.Left + Info.xyThumbTop, R.Top + P.S(4),
-        R.Left + Info.xyThumbBottom, R.Bottom - P.S(4));
-    end;
-    if not Thumb.IsEmpty and ((Info.rgstate[3] and STATE_SYSTEM_INVISIBLE) = 0) then
-      P.RoundRect(Thumb.Left, Thumb.Top, Thumb.Width, Thumb.Height, P.S(4), Palette.Subtle, clNone);
-  end;
+function TERDVirtualStringTree.GetClientRect: TRect;
 begin
-  if not HandleAllocated or (csDestroying in ComponentState) then Exit;
-  DC := GetWindowDC(Handle);
-  if DC = 0 then Exit;
-  C := TCanvas.Create;
-  try
-    C.Handle := DC;
-    GetWindowRect(Handle, WindowRect);
-    VRect := Rect(0, 0, 0, 0); HRect := VRect;
-    P := TERDPainter.Create(C, Palette, CurrentPPI);
-    try
-      DrawBar(Integer(OBJID_VSCROLL), True);
-      DrawBar(Integer(OBJID_HSCROLL), False);
-      if not VRect.IsEmpty and not HRect.IsEmpty then
-        P.FillRect(Rect(VRect.Left, HRect.Top, VRect.Right, HRect.Bottom), Palette.Background);
-      if BorderStyle = TFormBorderStyle.bsSingle then
-        P.FrameRect(Rect(0, 0, WindowRect.Width, WindowRect.Height), Palette.NeutralLight);
-    finally P.Free end;
-  finally
-    C.Handle := 0;
-    C.Free;
-    ReleaseDC(Handle, DC);
-  end;
+  Result := inherited GetClientRect;
+  if csDestroying in ComponentState then Exit;
+  InflateRect(Result, -1, -1);
+  if (FVerticalBar <> nil) and FVerticalBar.Visible then Dec(Result.Right, FVerticalBar.Width);
+  if (FHorizontalBar <> nil) and FHorizontalBar.Visible then Dec(Result.Bottom, FHorizontalBar.Height);
+  Result.Right := Max(Result.Left, Result.Right);
+  Result.Bottom := Max(Result.Top, Result.Bottom);
 end;
-
-procedure TERDVirtualStringTree.WndProc(var Message: TMessage);
+procedure TERDVirtualStringTree.Paint;
+var P: TERDPainter; R: TRect;
 begin
   inherited;
-  case Message.Msg of
-    WM_NCPAINT, WM_PAINT, WM_VSCROLL, WM_HSCROLL, WM_NCMOUSEMOVE,
-    WM_NCLBUTTONUP, WM_SIZE:
-      PaintThemedScrollBars;
-    WM_DPICHANGED:
-      ThemeChanged;
-  end;
+  R := inherited GetClientRect;
+  P := TERDPainter.Create(Canvas, Palette, CurrentPPI);
+  try P.FrameRect(R, Palette.NeutralLight) finally P.Free end;
 end;
-
+function TERDVirtualStringTree.DoSetOffsetXY(Value: TPoint; Options: TScrollUpdateOptions; ClipRect: PRect): Boolean;
+var View: TRect;
+begin
+  View := GetClientRect;
+  if ClipRect = nil then ClipRect := @View;
+  Result := inherited DoSetOffsetXY(Value, Options, ClipRect);
+  SyncScrollBars;
+end;
+procedure TERDVirtualStringTree.ScrollChanged(Sender: TObject);
+begin
+  if FSyncingScroll then Exit;
+  if Sender = FVerticalBar then OffsetY := -FVerticalBar.Position
+  else if Sender = FHorizontalBar then OffsetX := -FHorizontalBar.Position;
+  SyncScrollBars;
+end;
+procedure TERDVirtualStringTree.SyncScrollBars;
+var R: TRect; Size, ViewWidth, ViewHeight, I: Integer; NeedV, NeedH: Boolean;
+begin
+  if FSyncingScroll or not HandleAllocated or (FVerticalBar = nil) or
+    (FHorizontalBar = nil) or (csDestroying in ComponentState) then Exit;
+  FSyncingScroll := True;
+  try
+    Winapi.Windows.GetClientRect(Handle, R);
+    Size := MulDiv(14, CurrentPPI, 96);
+    NeedV := False;
+    NeedH := False;
+    for I := 0 to 2 do
+    begin
+      ViewWidth := Max(0, R.Width - 2 - Ord(NeedV) * Size);
+      ViewHeight := Max(0, R.Height - 2 - Ord(NeedH) * Size);
+      NeedV := Int64(RangeY) > ViewHeight;
+      NeedH := RangeX > ViewWidth;
+    end;
+    ViewWidth := Max(0, R.Width - 2 - Ord(NeedV) * Size);
+    ViewHeight := Max(0, R.Height - 2 - Ord(NeedH) * Size);
+    FVerticalBar.Visible := NeedV;
+    FHorizontalBar.Visible := NeedH;
+    FVerticalBar.SetBounds(R.Right - Size - 1, 1, Size, ViewHeight);
+    FHorizontalBar.SetBounds(1, R.Bottom - Size - 1, ViewWidth, Size);
+    FVerticalBar.Max := Integer(Min(Int64(MaxInt), Max(Int64(0), Int64(RangeY) - 1)));
+    FVerticalBar.PageSize := Max(1, ViewHeight);
+    FVerticalBar.SmallChange := DefaultNodeHeight;
+    FVerticalBar.LargeChange := Max(1, ViewHeight);
+    FVerticalBar.Position := Integer(Min(Int64(MaxInt), Max(Int64(0), -Int64(OffsetY))));
+    if OffsetY <> -FVerticalBar.Position then OffsetY := -FVerticalBar.Position;
+    FHorizontalBar.Max := Max(0, RangeX - 1);
+    FHorizontalBar.PageSize := Max(1, ViewWidth);
+    FHorizontalBar.Position := Integer(Min(Int64(MaxInt), Max(Int64(0), -Int64(OffsetX))));
+    if OffsetX <> -FHorizontalBar.Position then OffsetX := -FHorizontalBar.Position;
+    FVerticalBar.BringToFront;
+    FHorizontalBar.BringToFront;
+  finally FSyncingScroll := False end;
+end;
+procedure TERDVirtualStringTree.UpdateScrollBars(DoRepaint: Boolean);
+begin
+  inherited;
+  SyncScrollBars;
+end;
+procedure TERDVirtualStringTree.DoAfterItemPaint(Canvas: TCanvas; Node: PVirtualNode; ItemRect: TRect);
+var P: TERDPainter; AlwaysShow: LongBool; ShowCues: Boolean;
+begin
+  if (Node <> nil) and Focused then
+  begin
+    P := TERDPainter.Create(Canvas, Palette, CurrentPPI);
+    try
+      AlwaysShow := False;
+      SystemParametersInfo(SPI_GETKEYBOARDCUES, 0, @AlwaysShow, 0);
+      ShowCues := AlwaysShow or ((SendMessage(Handle, WM_QUERYUISTATE, 0, 0) and UISF_HIDEFOCUS) = 0);
+      if (Node = FocusedNode) and ShowCues then
+        P.FocusRing(ItemRect.Left + P.S(2), ItemRect.Top + P.S(2),
+          Max(0, Min(ItemRect.Width, ClientWidth) - P.S(4)), Max(0, ItemRect.Height - P.S(4)), P.S(2));
+      if vsSelected in Node.States then
+        P.FillRect(Rect(ItemRect.Left, ItemRect.Top + P.S(4), ItemRect.Left + P.S(3),
+        ItemRect.Bottom - P.S(4)), Palette.Accent);
+    finally P.Free end;
+  end;
+  inherited;
+end;
+procedure TERDVirtualStringTree.WndProc(var Message: TMessage);
+var Steps, Distance: Integer; Lines: Cardinal;
+begin
+  if (Message.Msg = WM_MOUSEWHEEL) and Enabled and (FVerticalBar <> nil) then
+  begin
+    Inc(FWheelRemainder, SmallInt(HiWord(Message.WParam)));
+    Steps := FWheelRemainder div WHEEL_DELTA;
+    FWheelRemainder := FWheelRemainder mod WHEEL_DELTA;
+    if Steps <> 0 then
+    begin
+      Lines := 3;
+      SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, @Lines, 0);
+      if Lines = WHEEL_PAGESCROLL then Distance := ClientHeight
+      else Distance := Integer(Min(Int64(MaxInt), Int64(DefaultNodeHeight) * Lines));
+      if (LoWord(Message.WParam) and MK_SHIFT) <> 0 then
+        OffsetX := Integer(EnsureRange(Int64(OffsetX) + Int64(Steps) * Distance, -Int64(MaxInt), Int64(0)))
+      else OffsetY := Integer(EnsureRange(Int64(OffsetY) + Int64(Steps) * Distance, -Int64(MaxInt), Int64(0)));
+      SyncScrollBars;
+    end;
+    Message.Result := 1;
+    Exit;
+  end;
+  inherited;
+  if Message.Msg = WM_SIZE then SyncScrollBars;
+  if Message.Msg = WM_DPICHANGED then ThemeChanged;
+end;
 end.

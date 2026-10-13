@@ -3,6 +3,7 @@
 uses
   System.SysUtils, System.Classes, System.Types, Vcl.Forms, Vcl.Controls,
   Winapi.Windows, Vcl.StdCtrls, Vcl.Graphics, Vcl.ImgList,
+  ERD.Components.ScrollBar,
   ERD.Components.CommonControls, ERD.Components.MediaControls, ERD.Components.TrackBar,
   ERD.Components.ShellControls,
   ERD.Components.Types, ERD.Components.Icons, ERD.Components.IconCatalog,
@@ -465,6 +466,16 @@ begin
     Check(vsHasChildren in Node.States, 'Root advertises lazy children');
     Check(Node.ChildCount = 0, 'Collapsed group has no initialized channel nodes');
     Tree.Expanded[Node] := True;
+    Check(Tree.Handle <> 0, 'Tree window is created');
+    Check(Tree.VerticalScrollBar.Visible, 'Expanded tree uses its ERD vertical scrollbar');
+    Check((GetWindowLong(Tree.Handle, GWL_STYLE) and WS_VSCROLL) = 0, 'Native vertical scrollbar is absent');
+    Tree.OffsetY := 0;
+    Tree.Perform(WM_MOUSEWHEEL, WPARAM($FF880000), 0);
+    Check(Tree.OffsetY < 0, 'Mouse wheel scrolls expanded virtual tree');
+    Check(Tree.VerticalScrollBar.Position = -Tree.OffsetY, 'Tree and scrollbar positions agree after wheel');
+    Tree.VerticalScrollBar.Position := 500;
+    Check(Tree.OffsetY = -Tree.VerticalScrollBar.Position, 'ERD scrollbar scrolls the engine');
+    Tree.OffsetY := 0;
     Check(Node.ChildCount = 1000, 'Expanding initializes the requested thousand child nodes');
     Child := Tree.GetFirstChild(Node);
     Check(Child <> nil, 'Expanded group exposes a channel');
