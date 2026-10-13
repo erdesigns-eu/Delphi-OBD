@@ -10,6 +10,8 @@ requires
   vclx,
   designide;
 contains
+  ERD.Components.MediaControls in '..\src\UI\ERD.Components.MediaControls.pas',
+  ERD.Components.CommonControls in '..\src\UI\ERD.Components.CommonControls.pas',
   ERD.Components.Anim in '..\src\UI\ERD.Components.Anim.pas',
   ERD.Components.Backstage in '..\src\UI\ERD.Components.Backstage.pas',
   ERD.Components.Buttons in '..\src\UI\ERD.Components.Buttons.pas',

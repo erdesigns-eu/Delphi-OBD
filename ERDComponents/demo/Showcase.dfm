@@ -3610,6 +3610,9 @@
           Caption = 'TERDBanner'
         end
         object DemoBanner: TERDBanner
+          ShowClose = True
+          ActionCaption = 'Details'
+          OnAction = ShowDialog
           Align = alNone
           Left = 506
           Top = 312
@@ -3739,6 +3742,78 @@
             'First item'
             'Second item'
             'Third item')
+        end
+        object CommonControlsLabel: TLabel
+          Left = 16
+          Top = 1906
+          Caption = 'Search / split button / tags / expander / vertical slider'
+        end
+        object DemoSearchEdit: TERDSearchEdit
+          Left = 16
+          Top = 1932
+          Width = 300
+          TextHint = 'Search channels'
+          OnSearch = SearchChannels
+        end
+        object DemoSplitButton: TERDSplitButton
+          Left = 336
+          Top = 1932
+          Caption = 'Open'
+          DropDownMenu = DemoPopupMenu
+          OnClick = OpenFile
+        end
+        object DemoTagEdit: TERDTagEdit
+          Left = 16
+          Top = 1990
+          Width = 460
+          Height = 120
+          Tags.Strings = (
+            'Live TV'
+            'HD'
+            'Favorites')
+        end
+        object DemoExpander: TERDExpander
+          Left = 506
+          Top = 1990
+          Width = 360
+          Height = 160
+          Caption = 'Advanced filters'
+          ExpandedHeight = 160
+          object ExpanderText: TLabel
+            Left = 16
+            Top = 54
+            Caption = 'Editable content; collapse using the header.'
+          end
+        end
+        object DemoSeekBar: TERDSeekBar
+          Left = 16
+          Top = 2190
+          Width = 460
+          Height = 32
+          Max = 3600
+          Position = 900
+          BufferedPosition = 1800
+          ShowValue = True
+          Suffix = ' s'
+        end
+        object DemoRangeSlider: TERDRangeSlider
+          Left = 506
+          Top = 2190
+          Width = 460
+          Height = 32
+          Position = 20
+          UpperValue = 80
+          ShowValue = True
+        end
+        object DemoVerticalTrackBar: TERDTrackBar
+          Left = 896
+          Top = 1932
+          Width = 60
+          Height = 220
+          AutoSize = False
+          Orientation = toVertical
+          Position = 65
+          ShowValue = True
         end
       end
     end
@@ -4031,6 +4106,19 @@
           Caption = 'TERDBreadcrumb'
         end
         object DemoBreadcrumb: TERDBreadcrumb
+          Items = <
+            item
+              Caption = 'Playlists'
+              Path = 'playlists'
+            end
+            item
+              Caption = 'Belgium'
+              Path = 'country:be'
+            end
+            item
+              Caption = 'Live TV'
+              Path = 'live'
+            end>
           Align = alNone
           Left = 16
           Top = 42

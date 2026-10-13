@@ -77,7 +77,9 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>ERDComponents_RT.dpk</MainSource>
         </DelphiCompile>
-        <DCCReference Include="..\src\UI\ERD.Components.Anim.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.MediaControls.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.CommonControls.pas"/>
+    <DCCReference Include="..\src\UI\ERD.Components.Anim.pas"/>
     <DCCReference Include="..\src\UI\ERD.Components.Backstage.pas"/>
     <DCCReference Include="..\src\UI\ERD.Components.Buttons.pas"/>
     <DCCReference Include="..\src\UI\ERD.Components.Calendar.pas"/>

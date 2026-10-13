@@ -58,5 +58,11 @@
   "TERDTaskDialog",
   "TERDMenuItem",
   "TERDPanel",
-  "TERDVirtualStringTree"
+  "TERDVirtualStringTree",
+  "TERDSearchEdit",
+  "TERDSplitButton",
+  "TERDTagEdit",
+  "TERDExpander",
+  "TERDSeekBar",
+  "TERDRangeSlider"
 ]

@@ -3,12 +3,26 @@
 uses
   System.SysUtils, System.Classes, System.Types, Vcl.Forms, Vcl.Controls,
   Winapi.Windows, Vcl.StdCtrls, Vcl.Graphics, Vcl.ImgList,
+  ERD.Components.CommonControls, ERD.Components.MediaControls, ERD.Components.TrackBar,
+  ERD.Components.ShellControls,
   ERD.Components.Types, ERD.Components.Icons, ERD.Components.IconCatalog,
   ERD.Components.Buttons, ERD.Components.Panel, ERD.Components.Chips,
   ERD.Components.VirtualTree, ERD.Components.VT.BaseTree, ERD.Components.VT.Types,
   Showcase in '../demo/Showcase.pas',
   ERD.Components.SpinEdit, ERD.Components.Edits, ERD.Components.PopupList, ERD.Components.TitleBar, ERD.Components.StatusBar, ERD.Components.Theme, ERD.Components.Ribbon;
 type
+  TSearchProbe = class(TERDSearchEdit)
+  public
+    procedure EnterSearch;
+  end;
+  TTrackProbe = class(TERDTrackBar)
+  public
+    procedure ClickAt(X, Y: Integer);
+  end;
+  TRangeProbe = class(TERDRangeSlider)
+  public
+    procedure Step(Key: Word);
+  end;
   TFocusProbe = class(TERDButton)
   public
     function CuesVisible: Boolean;
@@ -18,6 +32,22 @@ type
     procedure Changed(Sender: TObject);
   end;
 var Checks: Integer;
+procedure TSearchProbe.EnterSearch;
+var Key: Word;
+begin
+  Key := VK_RETURN;
+  KeyDown(Key, []);
+end;
+procedure TTrackProbe.ClickAt(X, Y: Integer);
+begin
+  MouseDown(mbLeft, [], X, Y);
+  MouseUp(mbLeft, [], X, Y);
+end;
+procedure TRangeProbe.Step(Key: Word);
+begin
+  KeyDown(Key, []);
+end;
+
 function TFocusProbe.CuesVisible: Boolean;
 begin
   Result := FocusCuesVisible;
@@ -463,6 +493,145 @@ begin
   end;
 end;
 
+procedure TestCommonControls;
+var
+  Form: TForm;
+  Search: TSearchProbe;
+  Tags, TagsCopy: TERDTagEdit;
+  Split: TERDSplitButton;
+  Expander, ExpanderCopy: TERDExpander;
+  Content, IntentionallyHidden: TERDButton;
+  Track: TTrackProbe;
+  Range: TRangeProbe;
+  Counter: TChangeProbe;
+  Stream: TMemoryStream;
+  Bitmap: TBitmap;
+  OriginalHeight: Integer;
+begin
+  RegisterClasses([TERDTagEdit, TERDExpander, TERDButton]);
+  Form := TForm.CreateNew(nil);
+  Counter := TChangeProbe.Create;
+  Stream := TMemoryStream.Create;
+  Bitmap := TBitmap.Create;
+  try
+    Form.SetBounds(20, 20, 800, 600);
+    Search := TSearchProbe.Create(Form);
+    Search.Parent := Form;
+    Search.OnSearch := Counter.Changed;
+    Search.SearchDelay := 0;
+    Search.Text := 'live';
+    Check(Counter.Changes = 1, 'SearchDelay=0 dispatches a changed query');
+    Search.EnterSearch;
+    Check(Counter.Changes = 2, 'Enter executes search immediately');
+    Search.SearchDelay := 40;
+    Search.Text := 'live t';
+    Search.Text := 'live tv';
+    Check(Counter.Changes = 2, 'Debounce does not dispatch intermediate queries');
+    Sleep(80);
+    Application.ProcessMessages;
+    Check(Counter.Changes = 3, 'Debounce dispatches one final query');
+
+    Tags := TERDTagEdit.Create(Form);
+    Tags.Parent := Form;
+    Tags.Top := 50;
+    Check(Tags.AddTag(' HD '), 'Tag accepts nonempty trimmed text');
+    Check(Tags.Tags[0] = 'HD', 'Stored tag is trimmed');
+    Check(not Tags.AddTag('hd'), 'Duplicate tags are case-insensitively rejected');
+    Tags.Editor.Text := 'Live TV';
+    Tags.CommitText;
+    Check((Tags.Tags.Count = 2) and (Tags.Editor.Text = ''), 'Commit adds tag and clears input');
+    Tags.ReadOnly := True;
+    Tags.RemoveTag(0);
+    Check((Tags.Tags.Count = 2) and not Tags.AddTag('Blocked'), 'ReadOnly blocks user/API mutations');
+    Tags.ReadOnly := False;
+    Stream.WriteComponent(Tags);
+    Stream.Position := 0;
+    TagsCopy := TERDTagEdit(Stream.ReadComponent(nil));
+    try Check(TagsCopy.Tags.Text = Tags.Tags.Text, 'Tags survive component streaming')
+    finally TagsCopy.Free end;
+    Stream.Clear;
+
+    Split := TERDSplitButton.Create(Form);
+    Split.Parent := Form;
+    Split.SetBounds(300, 10, 180, 40);
+    Split.AutoSize := False;
+    Split.OnClick := Counter.Changed;
+    Split.OnDropDown := Counter.Changed;
+    Counter.Changes := 0;
+    Split.Perform(WM_LBUTTONDOWN, MK_LBUTTON, MakeLParam(20, 20));
+    Split.Perform(WM_LBUTTONUP, 0, MakeLParam(20, 20));
+    Check(Counter.Changes = 1, 'Split primary region triggers one action');
+    Split.OnClick := nil;
+    Split.Perform(WM_LBUTTONDOWN, MK_LBUTTON, MakeLParam(Split.Width - 12, 20));
+    Split.Perform(WM_LBUTTONUP, 0, MakeLParam(Split.Width - 12, 20));
+    Check(Counter.Changes = 2, 'Split arrow dispatches dropdown without primary action');
+
+    Expander := TERDExpander.Create(Form);
+    Expander.Parent := Form;
+    Expander.Top := 200;
+    Content := TERDButton.Create(Expander);
+    Content.Name := 'ContentSample';
+    Content.Parent := Expander;
+    Content.Top := 60;
+    IntentionallyHidden := TERDButton.Create(Expander);
+    IntentionallyHidden.Name := 'IntentionallyHidden';
+    IntentionallyHidden.Parent := Expander;
+    IntentionallyHidden.Visible := False;
+    OriginalHeight := Expander.Height;
+    Expander.Expanded := False;
+    Check(not Content.Visible and (Expander.Height < OriginalHeight), 'Collapse hides content and reduces height');
+    Expander.Expanded := True;
+    Check(Content.Visible and not IntentionallyHidden.Visible, 'Expand preserves intentional child visibility');
+    Check(Expander.Height = OriginalHeight, 'Expanded height is restored');
+    Expander.Expanded := False;
+    Stream.WriteComponent(Expander);
+    Stream.Position := 0;
+    ExpanderCopy := TERDExpander(Stream.ReadComponent(nil));
+    try
+      Check(not ExpanderCopy.Expanded, 'Collapsed state survives streaming');
+      ExpanderCopy.Expanded := True;
+      Check(ExpanderCopy.Height = OriginalHeight, 'Collapsed streaming preserves expanded height');
+      Check(ExpanderCopy.FindComponent('ContentSample') <> nil, 'Expander streams editable children');
+      Check(TControl(ExpanderCopy.FindComponent('ContentSample')).Visible,
+        'Expanded copy restores child visibility after collapsed streaming');
+      Check(not TControl(ExpanderCopy.FindComponent('IntentionallyHidden')).Visible,
+        'Collapsed streaming preserves intentionally hidden children');
+    finally ExpanderCopy.Free end;
+
+    Track := TTrackProbe.Create(Form);
+    Track.Parent := Form;
+    Track.AutoSize := False;
+    Track.Orientation := toVertical;
+    Track.SetBounds(500, 10, 40, 220);
+    Track.ClickAt(20, 10);
+    Check(Track.Position > 90, 'Vertical track increases towards top');
+    Track.ClickAt(20, 210);
+    Check(Track.Position < 10, 'Vertical track decreases towards bottom');
+    Track.RenderTo(Bitmap);
+    Check((Bitmap.Width = Track.Width) and (Bitmap.Height = Track.Height), 'Vertical track renders at control dimensions');
+
+    Range := TRangeProbe.Create(Form);
+    Range.Parent := Form;
+    Range.Position := 20;
+    Range.UpperValue := 80;
+    Range.ActiveThumb := rtUpper;
+    Range.Step(VK_RIGHT);
+    Check((Range.Position = 20) and (Range.UpperValue = 81), 'Upper-thumb keys preserve lower value');
+    Range.Position := 99;
+    Check(Range.Position = 81, 'Lower thumb cannot cross upper thumb');
+    Range.UpperValue := 0;
+    Check(Range.UpperValue = 81, 'Upper thumb cannot cross lower thumb');
+    Range.Max := 50;
+    Check((Range.Position = 50) and (Range.UpperValue = 50), 'Range bounds clamp both handles');
+    Range.RenderTo(Bitmap);
+  finally
+    Bitmap.Free;
+    Stream.Free;
+    Form.Free;
+    Counter.Free;
+  end;
+end;
+
 begin
   try
     Application.Initialize;
@@ -474,6 +643,7 @@ begin
     TestDemoLayoutAndSpinMargins;
     TestWindowsFocusCuesAndAutoSave;
     TestVirtualTreeThemeAndLazyNodes;
+    TestCommonControls;
     Writeln(Checks, ' VCL runtime checks passed.');
   except on E: Exception do begin Writeln(E.ClassName, ': ', E.Message); Halt(1) end end;
 end.

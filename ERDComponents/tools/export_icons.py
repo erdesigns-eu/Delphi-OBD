@@ -58,6 +58,8 @@ def resource(name,payload):
 
 # Per-class icons, not one placeholder shared by every component.
 COMPONENT_ICONS={
+ 'TERDSeekBar':223,'TERDRangeSlider':264,
+ 'TERDSearchEdit':14,'TERDSplitButton':161,'TERDTagEdit':116,'TERDExpander':48,
  'TERDColorSpectrum':120,'TERDColorSwatches':120,'TERDRangeBar':111,
  'TERDTheme':27,'TERDCard':62,'TERDVirtualStringTree':87,'TERDPanel':48,
  'TERDButton':161,'TERDCheckBox':63,'TERDRadioButton':261,'TERDChip':116,

@@ -90,12 +90,18 @@ type
   TERDBreadcrumb = class(TERDCustomControl)
   strict private
     FPath: string;
+    FItems: TERDPlaces;
     FHotIndex: Integer;
+    FFocusedIndex: Integer;
     FOnNavigate: TERDPathEvent;
+    procedure SetItems(Value: TERDPlaces);
+    procedure ItemsChanged(Sender: TObject);
     procedure SetPath(const AValue: string);
     procedure SetHotIndex(AValue: Integer);
     procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
   protected
+    procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure WMGetDlgCode(var Message: TWMGetDlgCode); message WM_GETDLGCODE;
     /// <summary>Paints the path.</summary>
     procedure PaintControl(ACanvas: TCanvas); override;
     /// <summary>Tracks hover.</summary>
@@ -106,8 +112,10 @@ type
   public
     /// <summary>Creates the control.</summary>
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
   published
     /// <summary>Current path.</summary>
+    property Items: TERDPlaces read FItems write SetItems;
     property Path: string read FPath write SetPath;
     /// <summary>Density.</summary>
     property Density;
@@ -692,12 +700,46 @@ end;
 
 { TERDBreadcrumb }
 
+procedure BuildBreadItems(const APath: string; Items: TERDPlaces; out Parts: TArray<TBreadPart>);
+var I: Integer;
+begin
+  if Items.Count = 0 then
+  begin
+    BuildBread(APath, Parts);
+    Exit;
+  end;
+  SetLength(Parts, Items.Count);
+  for I := 0 to Items.Count - 1 do
+  begin
+    Parts[I].Caption := Items[I].Caption;
+    Parts[I].Path := Items[I].Path;
+  end;
+end;
+
+destructor TERDBreadcrumb.Destroy;
+begin
+  FItems.Free;
+  inherited;
+end;
+procedure TERDBreadcrumb.SetItems(Value: TERDPlaces);
+begin
+  FItems.Assign(Value);
+end;
+procedure TERDBreadcrumb.ItemsChanged(Sender: TObject);
+begin
+  FHotIndex := -1;
+  Invalidate;
+end;
+
 constructor TERDBreadcrumb.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FItems := TERDPlaces.Create(Self);
+  FItems.OnChange := ItemsChanged;
   Width := 360;
   Height := 32;
-  TabStop := False;
+  TabStop := True;
+  FFocusedIndex := 0;
   FHotIndex := -1;
 end;
 
@@ -705,7 +747,7 @@ procedure TERDBreadcrumb.SetPath(const AValue: string);
 var
   S: string;
 begin
-  S := CleanPath(AValue);
+  if FItems.Count > 0 then S := AValue else S := CleanPath(AValue);
   if FPath = S then
     Exit;
   FPath := S;
@@ -726,6 +768,33 @@ begin
   SetHotIndex(-1);
 end;
 
+procedure TERDBreadcrumb.WMGetDlgCode(var Message: TWMGetDlgCode);
+begin
+  inherited;
+  Message.Result := Message.Result or DLGC_WANTARROWS;
+end;
+procedure TERDBreadcrumb.KeyDown(var Key: Word; Shift: TShiftState);
+var Parts: TArray<TBreadPart>;
+begin
+  inherited;
+  BuildBreadItems(FPath, FItems, Parts);
+  if Length(Parts) = 0 then Exit;
+  case Key of
+    VK_LEFT: FFocusedIndex := Max(0, FFocusedIndex - 1);
+    VK_RIGHT: FFocusedIndex := Min(High(Parts), FFocusedIndex + 1);
+    VK_HOME: FFocusedIndex := 0;
+    VK_END: FFocusedIndex := High(Parts);
+    VK_RETURN, VK_SPACE:
+      begin
+        FFocusedIndex := EnsureRange(FFocusedIndex, 0, High(Parts));
+        if FItems.Count = 0 then SetPath(Parts[FFocusedIndex].Path);
+        if Assigned(FOnNavigate) then FOnNavigate(Self, Parts[FFocusedIndex].Path);
+      end;
+  else Exit;
+  end;
+  Key := 0;
+  Invalidate;
+end;
 procedure TERDBreadcrumb.PaintControl(ACanvas: TCanvas);
 var
   P: TERDPainter;
@@ -738,7 +807,7 @@ begin
   try
     P.FillRect(ClientRect, Palette.GaugeFace);
     P.FrameRect(ClientRect, Palette.NeutralLight);
-    BuildBread(FPath, Parts);
+    BuildBreadItems(FPath, FItems, Parts);
     Pad := ScaleValue(10);
     Chev := ScaleValue(18);
     First := 0;
@@ -748,7 +817,7 @@ begin
       for I := First to High(Parts) do
         Inc(Total, P.TextWidth(Parts[I].Caption, ERD_TEXT_BODY) + 2 * Pad +
           Chev);
-      if (First = 0) or (Total <= Width - ScaleValue(10)) then
+      if (Total <= Width - ScaleValue(10)) or (First = High(Parts)) then
         Break;
       Inc(First);
     end;
@@ -772,6 +841,9 @@ begin
       R := Rect(X, (Height - H) div 2, X + W, (Height + H) div 2);
       if I - First + Ord(First > 0) = FHotIndex then
         P.FillRect(R, P.Tint(Palette.Accent, 0.12));
+      if Focused and FocusCuesVisible and (I = FFocusedIndex) then
+        P.FocusRing(R.Left + P.S(2), R.Top + P.S(2), Max(0, R.Width - P.S(4)),
+          Max(0, R.Height - P.S(4)), P.S(2));
       C := Palette.ForegroundText;
       if I = High(Parts) then
         C := P.AccentText;
@@ -803,7 +875,7 @@ begin
     B.SetSize(1, 1);
     P := TERDPainter.Create(B.Canvas, Palette, ScaleValue(96));
     try
-      BuildBread(FPath, Parts);
+      BuildBreadItems(FPath, FItems, Parts);
       Pad := ScaleValue(10);
       Chev := ScaleValue(18);
       First := 0;
@@ -813,7 +885,7 @@ begin
         for I := First to High(Parts) do
           Inc(Total, P.TextWidth(Parts[I].Caption, ERD_TEXT_BODY) +
             2 * Pad + Chev);
-        if (First = 0) or (Total <= Width - ScaleValue(10)) then
+        if (Total <= Width - ScaleValue(10)) or (First = High(Parts)) then
           Break;
         Inc(First);
       end;
@@ -857,9 +929,11 @@ var
   I, Pad, Chev, Total: Integer;
 begin
   inherited;
-  if (Button <> mbLeft) or (FHotIndex < 0) then
-    Exit;
-  BuildBread(FPath, Parts);
+  if (Button <> mbLeft) or not Enabled then Exit;
+  if CanFocus then SetFocus;
+  MouseMove(Shift, X, Y);
+  if FHotIndex < 0 then Exit;
+  BuildBreadItems(FPath, FItems, Parts);
   B := TBitmap.Create;
   try
     B.SetSize(1, 1);
@@ -874,7 +948,7 @@ begin
         for I := First to High(Parts) do
           Inc(Total, P.TextWidth(Parts[I].Caption, ERD_TEXT_BODY) +
             2 * Pad + Chev);
-        if (First = 0) or (Total <= Width - ScaleValue(10)) then
+        if (Total <= Width - ScaleValue(10)) or (First = High(Parts)) then
           Break;
         Inc(First);
       end;
@@ -889,9 +963,10 @@ begin
     Dec(Target);
   if (Target >= 0) and (Target <= High(Parts)) then
   begin
-    SetPath(Parts[Target].Path);
+    FFocusedIndex := Target;
+    if FItems.Count = 0 then SetPath(Parts[Target].Path);
     if Assigned(FOnNavigate) then
-      FOnNavigate(Self, FPath);
+      FOnNavigate(Self, Parts[Target].Path);
   end;
 end;
 

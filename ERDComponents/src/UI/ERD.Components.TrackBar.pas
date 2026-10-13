@@ -39,8 +39,11 @@ uses
 
 type
   /// <summary>Themed horizontal slider.</summary>
+  TERDTrackOrientation = (toHorizontal, toVertical);
+
   TERDTrackBar = class(TERDCustomControl)
   strict private
+    FOrientation: TERDTrackOrientation;
     FMin: Integer;
     FMax: Integer;
     FPosition: Integer;
@@ -52,14 +55,19 @@ type
     FHot: Boolean;
     FDragging: Boolean;
     FOnChange: TNotifyEvent;
-    procedure SetMin(AValue: Integer);
-    procedure SetMax(AValue: Integer);
-    procedure SetPosition(AValue: Integer);
+    procedure SetOrientation(Value: TERDTrackOrientation);
+    function MousePosition(X, Y: Integer): Integer;
     procedure SetFrequency(AValue: Integer);
     procedure SetShowValue(AValue: Boolean);
     procedure SetSuffix(const AValue: string);
+  protected
+    procedure SetMin(AValue: Integer); virtual;
+    procedure SetMax(AValue: Integer); virtual;
+    procedure SetPosition(AValue: Integer); virtual;
+    procedure DragTo(Value: Integer); virtual;
+    procedure PaintTrackExtras(P: TERDPainter; Center, StartPos, EndPos, ThumbPos: Integer); virtual;
     function ThumbSize: Integer;
-    function ValueWidth: Integer;
+    function ValueWidth: Integer; virtual;
     function TrackLeft: Integer;
     function TrackRight: Integer;
     function PositionToX(APosition: Integer): Integer;
@@ -126,6 +134,7 @@ type
     procedure DensityChanged; override;
   published
     /// <summary>Lowest position.</summary>
+    property Orientation: TERDTrackOrientation read FOrientation write SetOrientation default toHorizontal;
     property Min: Integer read FMin write SetMin default 0;
     /// <summary>Highest position.</summary>
     property Max: Integer read FMax write SetMax default 100;
@@ -231,6 +240,25 @@ begin
   Invalidate;
 end;
 
+procedure TERDTrackBar.SetOrientation(Value: TERDTrackOrientation);
+var OldWidth: Integer;
+begin
+  if FOrientation = Value then Exit;
+  FOrientation := Value;
+  if not (csLoading in ComponentState) then
+  begin
+    OldWidth := Width;
+    SetBounds(Left, Top, Height, OldWidth);
+    if AutoSize then AdjustSize;
+  end;
+  Invalidate;
+end;
+function TERDTrackBar.MousePosition(X, Y: Integer): Integer;
+begin
+  if FOrientation = toVertical then Result := XToPosition(TrackLeft + TrackRight - Y)
+  else Result := XToPosition(X);
+end;
+
 procedure TERDTrackBar.Loaded;
 begin
   inherited Loaded;
@@ -246,7 +274,8 @@ end;
 function TERDTrackBar.CanAutoSize(var NewWidth, NewHeight: Integer): Boolean;
 begin
   Result := True;
-  NewHeight := ScaleValue(Metrics.Edit);
+  if FOrientation = toVertical then NewWidth := ScaleValue(Metrics.Edit)
+  else NewHeight := ScaleValue(Metrics.Edit);
 end;
 
 procedure TERDTrackBar.DensityChanged;
@@ -283,7 +312,9 @@ end;
 
 function TERDTrackBar.TrackRight: Integer;
 begin
-  Result := Width - ValueWidth - ThumbSize div 2 - ScaleValue(2);
+  if FOrientation = toVertical then
+    Result := Height - Ord(FShowValue) * ScaleValue(Metrics.Edit) - ThumbSize div 2 - ScaleValue(2)
+  else Result := Width - ValueWidth - ThumbSize div 2 - ScaleValue(2);
 end;
 
 function TERDTrackBar.PositionToX(APosition: Integer): Integer;
@@ -352,7 +383,7 @@ begin
   if TabStop and CanFocus then
     SetFocus;
   FDragging := True;
-  SetPosition(XToPosition(X));
+  DragTo(MousePosition(X, Y));
   Invalidate;
 end;
 
@@ -360,7 +391,7 @@ procedure TERDTrackBar.MouseMove(Shift: TShiftState; X, Y: Integer);
 begin
   inherited MouseMove(Shift, X, Y);
   if FDragging then
-    SetPosition(XToPosition(X));
+    DragTo(MousePosition(X, Y));
 end;
 
 procedure TERDTrackBar.MouseUp(Button: TMouseButton; Shift: TShiftState;
@@ -408,6 +439,14 @@ begin
   Result := True;
 end;
 
+procedure TERDTrackBar.DragTo(Value: Integer);
+begin
+  SetPosition(Value);
+end;
+procedure TERDTrackBar.PaintTrackExtras(P: TERDPainter; Center, StartPos, EndPos, ThumbPos: Integer);
+begin
+  // Descendants add buffered regions before the thumb is painted.
+end;
 procedure TERDTrackBar.PaintControl(ACanvas: TCanvas);
 var
   P: TERDPainter;
@@ -417,6 +456,46 @@ var
 begin
   P := TERDPainter.Create(ACanvas, Palette, ScaleValue(96));
   try
+    if FOrientation = toVertical then
+    begin
+      CY := Width div 2;
+      X0 := TrackLeft;
+      X1 := TrackRight;
+      TX := X0 + X1 - PositionToX(FPosition);
+      T := ThumbSize;
+      Track := Palette.NeutralLight;
+      Fill := Palette.Accent;
+      Thumb := Palette.GaugeFace;
+      if not Enabled then
+      begin
+        Fill := Palette.Subtle;
+        Thumb := EffectiveBackground;
+      end;
+      if X1 > X0 then
+      begin
+        P.RoundRect(CY - P.S(2), X0, P.S(4), X1 - X0, P.S(2), Track, clNone);
+        if X1 > TX then P.RoundRect(CY - P.S(2), TX, P.S(4), X1 - TX, P.S(2), Fill, clNone);
+      end;
+      PaintTrackExtras(P, CY, X0, X1, TX);
+      if (FFrequency > 0) and (FMax > FMin) and ((FMax - FMin) div FFrequency <= 200) then
+      begin
+        Tick := FMin;
+        I := 0;
+        while (Tick <= FMax) and (I <= 200) do
+        begin
+          P.FillRect(Rect(CY + T div 2 + P.S(1), X0 + X1 - PositionToX(Tick),
+            CY + T div 2 + P.S(4), X0 + X1 - PositionToX(Tick) + P.S(1)), Palette.Subtle);
+          Inc(Tick, FFrequency);
+          Inc(I);
+        end;
+      end;
+      if Focused and FocusCuesVisible and not IsPreview then
+        P.FocusRing(CY - T / 2 - P.S(3), TX - T / 2 - P.S(3), T + P.S(6), T + P.S(6), T / 2 + P.S(3));
+      P.Ellipse(CY - T / 2, TX - T / 2, T, T, Thumb, Fill, P.SF(2));
+      if FShowValue then P.Text(CY, Height - ScaleValue(Metrics.Edit) div 2,
+        IntToStr(FPosition) + FSuffix, ERD_TEXT_BODY, Palette.ForegroundText, twSemibold, taCenter);
+      Exit;
+    end;
     CY := Height div 2;
     X0 := TrackLeft;
     X1 := TrackRight;
@@ -460,6 +539,7 @@ begin
         P.RoundRect(X0, CY - TrackH / 2, TX - X0, TrackH, TrackH / 2, Fill,
           clNone);
     end;
+    PaintTrackExtras(P, CY, X0, X1, TX);
     if Focused and FocusCuesVisible and not IsPreview then
       P.FocusRing(TX - T / 2 - P.S(3), CY - T / 2 - P.S(3), T + P.S(6),
         T + P.S(6), T / 2 + P.S(3));

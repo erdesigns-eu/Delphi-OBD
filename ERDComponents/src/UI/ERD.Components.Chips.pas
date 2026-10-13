@@ -34,7 +34,7 @@ uses
   Vcl.Graphics,
   Vcl.Controls,
   ERD.Components.Control,
-  ERD.Components.Paint;
+  ERD.Components.Types, ERD.Components.Paint, ERD.Components.Buttons;
 
 type
   /// <summary>Status pill.</summary>
@@ -107,11 +107,22 @@ type
   /// </summary>
   TERDBanner = class(TERDCustomControl, IERDSurface)
   strict private
+    FCloseButton: TERDButton;
+    FActionButton: TERDButton;
+    FShowClose: Boolean;
+    FActionCaption: string;
+    FOnClose: TNotifyEvent;
+    FOnAction: TNotifyEvent;
     FKind: TERDBannerKind;
     FTitle: string;
     FText: string;
     FAlertIcon: Boolean;
     FIconSize: Integer;
+    procedure SetShowClose(Value: Boolean);
+    procedure SetActionCaption(const Value: string);
+    procedure CloseClick(Sender: TObject);
+    procedure ActionClick(Sender: TObject);
+    procedure LayoutActions;
     procedure SetKind(AValue: TERDBannerKind);
     procedure SetTitle(const AValue: string);
     procedure SetText(const AValue: string);
@@ -121,6 +132,8 @@ type
     function TextLeft: Integer;
     function TextRight: Integer;
   protected
+    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
+    procedure Resize; override;
     procedure PaintControl(ACanvas: TCanvas); override;
     function CanAutoSize(var NewWidth, NewHeight: Integer): Boolean; override;
     procedure AdjustClientRect(var Rect: TRect); override;
@@ -129,6 +142,7 @@ type
     constructor Create(AOwner: TComponent); override;
     /// <summary>Re-sizes for the new density.</summary>
     procedure DensityChanged; override;
+    procedure ThemeChanged; override;
     /// <summary>The tinted banner fill; children paint their
     /// background in it.</summary>
     /// <returns>Fill colour.</returns>
@@ -136,6 +150,10 @@ type
   published
     /// <summary>Height follows the density (56 px desktop, 68 px
     /// tablet).</summary>
+    property ShowClose: Boolean read FShowClose write SetShowClose default False;
+    property ActionCaption: string read FActionCaption write SetActionCaption;
+    property OnClose: TNotifyEvent read FOnClose write FOnClose;
+    property OnAction: TNotifyEvent read FOnAction write FOnAction;
     property AutoSize default True;
     /// <summary>Colour and icon.</summary>
     property Kind: TERDBannerKind read FKind write SetKind default bnInfo;
@@ -330,12 +348,82 @@ end;
 constructor TERDBanner.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FCloseButton := TERDButton.Create(Self);
+  FCloseButton.Parent := Self;
+  FCloseButton.AutoSize := False;
+  FCloseButton.Kind := bkGhost;
+  FCloseButton.Glyph := glClose;
+  FCloseButton.Visible := False;
+  FCloseButton.OnClick := CloseClick;
+  FActionButton := TERDButton.Create(Self);
+  FActionButton.Parent := Self;
+  FActionButton.Kind := bkSecondary;
+  FActionButton.Visible := False;
+  FActionButton.OnClick := ActionClick;
   ControlStyle := ControlStyle + [csAcceptsControls];
   FKind := bnInfo;
   FIconSize := 18;
   Width := 420;
   Height := 56;
   AutoSize := True;
+end;
+
+procedure TERDBanner.SetShowClose(Value: Boolean);
+begin
+  FShowClose := Value;
+  FCloseButton.Visible := Value;
+  LayoutActions;
+end;
+procedure TERDBanner.SetActionCaption(const Value: string);
+begin
+  FActionCaption := Value;
+  FActionButton.Caption := Value;
+  FActionButton.Visible := Value <> '';
+  LayoutActions;
+end;
+procedure TERDBanner.CloseClick(Sender: TObject);
+begin
+  Visible := False;
+  if Assigned(FOnClose) then FOnClose(Self);
+end;
+procedure TERDBanner.ActionClick(Sender: TObject);
+begin
+  if Assigned(FOnAction) then FOnAction(Self);
+end;
+procedure TERDBanner.LayoutActions;
+var RightEdge, H: Integer;
+begin
+  if (FCloseButton = nil) or (FActionButton = nil) then Exit;
+  H := ScaleValue(Metrics.Edit);
+  RightEdge := Width - ScaleValue(8);
+  if FShowClose then
+  begin
+    FCloseButton.SetBounds(RightEdge - H, (Height - H) div 2, H, H);
+    Dec(RightEdge, H + ScaleValue(8));
+  end;
+  if FActionCaption <> '' then
+    FActionButton.SetBounds(RightEdge - FActionButton.Width, (Height - H) div 2, FActionButton.Width, H);
+  Invalidate;
+end;
+procedure TERDBanner.Notification(AComponent: TComponent; Operation: TOperation);
+begin
+  inherited;
+  if Operation = opRemove then
+  begin
+    if AComponent = FCloseButton then FCloseButton := nil;
+    if AComponent = FActionButton then FActionButton := nil;
+  end;
+end;
+procedure TERDBanner.ThemeChanged;
+begin
+  inherited;
+  if FCloseButton <> nil then FCloseButton.Theme := Theme;
+  if FActionButton <> nil then FActionButton.Theme := Theme;
+end;
+procedure TERDBanner.Resize;
+begin
+  inherited;
+  LayoutActions;
 end;
 
 procedure TERDBanner.SetKind(AValue: TERDBannerKind);

@@ -4,7 +4,7 @@ Zelfstandige algemene **Delphi VCL**-componentlibrary. Dit zijn onafhankelijke
 kopieën: Delphi-OBD wordt niet aangepast en heeft geen afhankelijkheid van deze
 library. De hele map kan naar een eigen repository worden verplaatst.
 
-- **60 paletcomponenten**: algemene invoer, navigatie, containers, grids, dialogen,
+- **66 paletcomponenten**: algemene invoer, navigatie, containers, grids, dialogen,
   applicatiechrome, theming en feedback. Zie `assets/components.json`.
 - **320 ingebouwde vectoriconen**, met stabiele identifiers en schaalbare SVGs.
 - Eigen namespace `ERD.Components.*`, classes `TERD*`, interfaces `IERD*`.
@@ -22,7 +22,7 @@ library. De hele map kan naar een eigen repository worden verplaatst.
    De demo gebruikt `TERDTitleBar`; met de keuze Ribbon/Menu wissel je van commandosurface.
    De File-knop opent een echte backstage met eigen Information- en Settings-pagina’s.
    De voorbeeldpagina’s gebruiken `TERDTabs` en `TERDPanel`, zonder standaard PageControl.
-   Alle 60 geregistreerde componenten staan in de DFM: de sidebar navigeert naar
+   Alle 66 geregistreerde componenten staan in de DFM: de sidebar navigeert naar
    iconen, invoer, layout, data, bestanden/kleuren en dialogs/notificaties.
    Dialogknoppen openen de bijbehorende component; toast, hints en popupmenu hebben eigen voorbeelden.
 
@@ -180,3 +180,39 @@ Herkomst, pin, hashes, licentie en de beperkte engine-aanpassingen staan in
 vallen onder MPL 1.1 en behouden de oorspronkelijke credits; ze vallen niet
 onder de licentie van onze eigen units. De core gebruikt alleen de VCL-runtime,
 zonder FMX- of upstream-designtime-units.
+
+## Algemene controls en media
+
+- `TERDSearchEdit`: `TERDEdit` met zoeken/wissen, Enter en `SearchDelay`
+  (standaard 300 ms; 0 = direct). `OnChange` volgt elke tekstwijziging;
+  `OnSearch` levert de uiteindelijke query. `ExecuteSearch` zoekt onmiddellijk.
+- `TERDSplitButton`: hoofdactie via `OnClick`, aparte menuactie via
+  `DropDownMenu` / `OnDropDown`. F4 of Alt+Down opent het menu;
+  Enter/Space voert de hoofdactie uit. Gebruikt dezelfde iconbronnen als Button.
+- `TERDTagEdit`: `Tags`-collectie, Enter om tekst toe te voegen, Backspace op
+  een leeg invoerveld om de laatste tag te verwijderen. Tags hebben een
+  verwijderknop; `ReadOnly` en `AllowDuplicates` zijn instelbaar.
+- `TERDExpander`: bewerkbare container met inklapbare header. `ExpandedHeight`
+  bewaart de uitgeklapte hoogte in logische pixels. Reeds verborgen controls
+  blijven verborgen wanneer je opnieuw uitklapt; uitklappen herstelt de inhoud.
+- `TERDTrackBar.Orientation`: horizontaal of verticaal; verticaal stijgt de
+  waarde naar boven. Muis, toetsenbord en muiswiel blijven beschikbaar.
+- `TERDBanner`: `ShowClose`, `ActionCaption`, `OnClose` en `OnAction`.
+  Sluiten zet `Visible=False`; met `Visible=True` kan de applicatie hem terug
+  tonen. Eigen child-controls blijven mogelijk.
+- `TERDBreadcrumb.Items`: caption/path-paren voor algemene navigatie. De `Path`
+  van een item is een applicatie-ID, geen verplicht bestandspad. `OnNavigate`
+  ontvangt dat ID; de applicatie beheert de navigatie. Zonder Items blijft de
+  bestaande bestandspadmodus actief. Pijlen/Home/End en Enter/Space bedienen de items.
+- `TERDSeekBar`: TrackBar met `BufferedPosition`; `OnSeek` volgt een afgeronde
+  muisactie of een wijziging via toetsenbord/muiswiel. `OnChange` blijft
+  beschikbaar tijdens slepen. De applicatie levert duur, positie en buffering.
+- `TERDRangeSlider`: twee handles binnen `Min..Max`. `Position` / `LowerValue`
+  is de ondergrens, `UpperValue` de bovengrens. Handles kunnen elkaar niet
+  passeren. `ActiveThumb` bepaalt welke handle toetsenbord/muiswiel bedient;
+  Space wisselt handle. Beide oriëntaties worden ondersteund.
+
+De DFM-demo toont alle aanvullingen op de invoerpagina. Windows-smoketests
+controleren onder andere zoeken, tagopslag, splitbediening, inklappen en slidergrenzen.
+Deze VCL-runtimechecks moeten in Delphi op Windows worden uitgevoerd; de
+cloudcontrole valideert broncode, DFM, packages en resources.

@@ -1,7 +1,7 @@
 ﻿unit Showcase;
 interface
 uses
-  ERD.Components.VirtualTree, ERD.Components.VT.BaseTree, ERD.Components.VT.Types, ERD.Components.VT.Header,
+  ERD.Components.MediaControls, ERD.Components.CommonControls, ERD.Components.VirtualTree, ERD.Components.VT.BaseTree, ERD.Components.VT.Types, ERD.Components.VT.Header,
   Vcl.StdCtrls,
   ERD.Components.Backstage,
   ERD.Components.Buttons,
@@ -414,6 +414,15 @@ type
     DemoCheckBox: TERDCheckBox;
     DemoRadioButton: TERDRadioButton;
     DemoChip: TERDChip;
+    DemoSeekBar: TERDSeekBar;
+    DemoRangeSlider: TERDRangeSlider;
+    DemoSearchEdit: TERDSearchEdit;
+    DemoSplitButton: TERDSplitButton;
+    DemoTagEdit: TERDTagEdit;
+    DemoExpander: TERDExpander;
+    ExpanderText: TLabel;
+    DemoVerticalTrackBar: TERDTrackBar;
+    CommonControlsLabel: TLabel;
     DemoBanner: TERDBanner;
     DemoEdit: TERDEdit;
     DemoSegmented: TERDSegmented;
@@ -548,6 +557,7 @@ type
     procedure LayoutSelected(Sender: TObject);
     procedure ToggleTheme(Sender: TObject);
     procedure ShowDialog(Sender: TObject);
+    procedure SearchChannels(Sender: TObject);
     procedure OpenFile(Sender: TObject);
     procedure IconClicked(Sender: TObject);
   end;
@@ -790,6 +800,10 @@ begin
     Dialog.Title := 'ERD Components'; Dialog.Text := 'General dialog, without OBD dependencies.';
     Dialog.Kind := dkInfo; Dialog.Buttons := [mbOK]; Dialog.Execute;
   finally Dialog.Free end;
+end;
+procedure TShowcaseForm.SearchChannels(Sender: TObject);
+begin
+  StatusBar.Panels[0].Text := 'Search: ' + DemoSearchEdit.Text;
 end;
 procedure TShowcaseForm.OpenFile(Sender: TObject);
 var Dialog: TERDOpenDialog;

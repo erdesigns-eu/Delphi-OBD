@@ -49,6 +49,7 @@ type
   /// <summary>Themed single-line edit.</summary>
   TERDEdit = class(TERDCustomControl)
   strict private
+    FWantReturnKey: Boolean;
     FEdit: TEdit;
     FMono: Boolean;
     FOnChange: TNotifyEvent;
@@ -116,6 +117,7 @@ type
     /// <summary>Height follows the density.</summary>
     property AutoSize default True;
     /// <summary>Edit text.</summary>
+    property WantReturnKey: Boolean read FWantReturnKey write FWantReturnKey default False;
     property Text: string read GetText write SetText;
     /// <summary>Text alignment.</summary>
     property Alignment: TAlignment read GetAlignment write SetAlignment
@@ -280,6 +282,9 @@ end;
 procedure TERDInnerEdit.WndProc(var Message: TMessage);
 begin
   inherited;
+  if (Message.Msg = WM_GETDLGCODE) and (Message.WParam = VK_RETURN) and
+    (Parent is TERDEdit) and TERDEdit(Parent).WantReturnKey then
+    Message.Result := Message.Result or DLGC_WANTMESSAGE;
   case Message.Msg of
     WM_SETFOCUS, WM_PAINT, WM_SETTEXT, WM_SETFONT, WM_SIZE,
     WM_KEYUP, WM_CHAR, WM_LBUTTONDOWN, WM_LBUTTONUP, EM_SETSEL, EM_SETMARGINS:
