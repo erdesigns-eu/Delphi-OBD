@@ -51,6 +51,7 @@ type
     FOwnerControl: TWinControl;
     FFieldRect: TRect;
     FBarDragging: Boolean;
+    FRowPressed: Boolean;
     FBarHot: Boolean;
     FBarDragOffset: Integer;
     FLastTop: Integer;
@@ -375,6 +376,7 @@ var
   Brush: HBRUSH;
   Saved: Integer;
   PaintInfo: TPaintStruct;
+  Index: Integer;
 begin
   case Message.Msg of
     WM_PAINT:
@@ -448,6 +450,18 @@ begin
           Message.Result := 0;
           Exit;
         end;
+        // Do not enter the native listbox tracking loop: it can consume
+        // button-up before VCL dispatches the MouseUp override.
+        Index := ItemAtPos(Pt, True);
+        FRowPressed := Index >= 0;
+        if FRowPressed then
+        begin
+          ItemIndex := Index;
+          MouseCapture := True;
+          Invalidate;
+        end;
+        Message.Result := 0;
+        Exit;
       end;
     WM_MOUSEMOVE:
       begin
@@ -491,6 +505,16 @@ begin
           Message.Result := 0;
           Exit;
         end;
+        if FRowPressed then
+        begin
+          FRowPressed := False;
+          MouseCapture := False;
+          Index := ItemAtPos(Pt, True);
+          if Index >= 0 then ItemIndex := Index;
+          CloseUp(Index >= 0);
+        end;
+        Message.Result := 0;
+        Exit;
       end;
     CM_MOUSELEAVE:
       begin
@@ -636,9 +660,10 @@ var
   LIndex: Integer;
 begin
   LIndex := ItemIndex;
-  if FBarDragging then
+  if FBarDragging or FRowPressed then
   begin
     FBarDragging := False;
+    FRowPressed := False;
     MouseCapture := False;
   end;
   if HandleAllocated then

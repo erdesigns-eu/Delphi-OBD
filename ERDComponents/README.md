@@ -20,6 +20,9 @@ library. De hele map kan naar een eigen repository worden verplaatst.
    `Showcase.dfm` bevat de componenten, ribboncollecties en alle 320 iconknoppen;
    je kunt ze rechtstreeks in de Delphi-formdesigner bekijken en bewerken.
    De demo gebruikt `TERDTitleBar`; met de keuze Ribbon/Menu wissel je van commandosurface.
+   Alle 60 geregistreerde componenten staan in de DFM: de sidebar navigeert naar
+   iconen, invoer, layout, data, bestanden/kleuren en dialogs/notificaties.
+   Dialogknoppen openen de bijbehorende component; toast, hints en popupmenu hebben eigen voorbeelden.
 
 `ERDComponents_RT` is apart beschikbaar voor applicaties die runtime-packages
 gebruiken (Win32/Win64). Installeer RT niet daarnaast in dezelfde IDE: standalone

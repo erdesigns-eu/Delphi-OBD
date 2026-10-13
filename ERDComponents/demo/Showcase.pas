@@ -1,16 +1,66 @@
 ﻿unit Showcase;
 interface
 uses
-  System.Classes, System.SysUtils, System.Types, Vcl.Forms, Vcl.Controls,
-  Vcl.Graphics, Vcl.ImgList, Vcl.Dialogs, Vcl.Menus,
-  ERD.Components.Paint, ERD.Components.Types, ERD.Components.Theme, ERD.Components.Icons,
-  ERD.Components.IconCatalog, ERD.Components.Buttons, ERD.Components.Chips,
-  ERD.Components.Panel, ERD.Components.StatusBar, ERD.Components.ScrollBox,
-  ERD.Components.Ribbon, ERD.Components.Menus, ERD.Components.Dialogs,
-  ERD.Components.TitleBar, ERD.Components.FileDialogs, ERD.Components.Edits;
+  Vcl.ComCtrls,
+  Vcl.StdCtrls,
+  ERD.Components.Backstage,
+  ERD.Components.Buttons,
+  ERD.Components.Calendar,
+  ERD.Components.Card,
+  ERD.Components.Chips,
+  ERD.Components.ColorDialog,
+  ERD.Components.DataGrid,
+  ERD.Components.Dialogs,
+  ERD.Components.Edits,
+  ERD.Components.FileDialogs,
+  ERD.Components.FindDialogs,
+  ERD.Components.FontDialog,
+  ERD.Components.Hint,
+  ERD.Components.Histogram,
+  ERD.Components.Inspector,
+  ERD.Components.ItemList,
+  ERD.Components.KeyValueList,
+  ERD.Components.Memo,
+  ERD.Components.Menus,
+  ERD.Components.PrintDialogs,
+  ERD.Components.Progress,
+  ERD.Components.RangeBar,
+  ERD.Components.ScrollBar,
+  ERD.Components.Segmented,
+  ERD.Components.ShellControls,
+  ERD.Components.SpinEdit,
+  ERD.Components.Splitter,
+  ERD.Components.Tabs,
+  ERD.Components.TaskDialog,
+  ERD.Components.Terminal,
+  ERD.Components.TileGrid,
+  ERD.Components.Toast,
+  ERD.Components.ToolBar,
+  ERD.Components.TrackBar,
+  System.Classes,
+  System.SysUtils,
+  System.Types,
+  Vcl.Forms,
+  Vcl.Controls,
+  Vcl.Graphics,
+  Vcl.ImgList,
+  Vcl.Dialogs,
+  Vcl.Menus,
+  ERD.Components.Paint,
+  ERD.Components.Types,
+  ERD.Components.Theme,
+  ERD.Components.Icons,
+  ERD.Components.IconCatalog,
+  ERD.Components.Panel,
+  ERD.Components.StatusBar,
+  ERD.Components.ScrollBox,
+  ERD.Components.Ribbon,
+  ERD.Components.Sidebar,
+  ERD.Components.TitleBar;
 type
   TShowcaseForm = class(TForm)
     TitleBar: TERDTitleBar;
+    Sidebar: TERDSidebar;
     CommandChoice: TERDComboBox;
     Theme: TERDTheme;
     Ribbon: TERDRibbon;
@@ -352,8 +402,126 @@ type
     IconButton318: TERDButton;
     IconButton319: TERDButton;
     IconButton320: TERDButton;
+    DemoPages: TPageControl;
+    IconsPage: TTabSheet;
+    DemoTerminal: TERDTerminal;
+    DemoCard: TERDCard;
+    DemoCheckBox: TERDCheckBox;
+    DemoRadioButton: TERDRadioButton;
+    DemoChip: TERDChip;
+    DemoBanner: TERDBanner;
+    DemoEdit: TERDEdit;
+    DemoSegmented: TERDSegmented;
+    DemoRangeBar: TERDRangeBar;
+    DemoInspector: TERDInspector;
+    DemoMenuBar: TERDMenuBar;
+    DemoPopupMenu: TERDPopupMenu;
+    DemoBackstage: TERDBackstage;
+    DemoTabs: TERDTabs;
+    DemoToolBar: TERDToolBar;
+    DemoProgressBar: TERDProgressBar;
+    DemoDialog: TERDDialog;
+    DemoToastManager: TERDToastManager;
+    DemoHintStyle: TERDHintStyle;
+    DemoScrollBar: TERDScrollBar;
+    DemoSplitter: TERDSplitter;
+    DemoSpinEdit: TERDSpinEdit;
+    DemoTrackBar: TERDTrackBar;
+    DemoMemo: TERDMemo;
+    DemoCalendar: TERDCalendar;
+    DemoDatePicker: TERDDatePicker;
+    DemoListBox: TERDListBox;
+    DemoBreadcrumb: TERDBreadcrumb;
+    DemoPlacesPane: TERDPlacesPane;
+    DemoFolderTree: TERDFolderTree;
+    DemoFileList: TERDFileList;
+    DemoColorSwatches: TERDColorSwatches;
+    DemoColorSpectrum: TERDColorSpectrum;
+    DemoDataGrid: TERDDataGrid;
+    DemoTileGrid: TERDTileGrid;
+    DemoKeyValueList: TERDKeyValueList;
+    DemoHistogram: TERDHistogram;
+    DemoOpenDialog: TERDOpenDialog;
+    DemoSaveDialog: TERDSaveDialog;
+    DemoOpenPictureDialog: TERDOpenPictureDialog;
+    DemoSavePictureDialog: TERDSavePictureDialog;
+    DemoFolderDialog: TERDFolderDialog;
+    DemoPrintDialog: TERDPrintDialog;
+    DemoPageSetupDialog: TERDPageSetupDialog;
+    DemoFontDialog: TERDFontDialog;
+    DemoColorDialog: TERDColorDialog;
+    DemoFindDialog: TERDFindDialog;
+    DemoReplaceDialog: TERDReplaceDialog;
+    DemoTaskDialog: TERDTaskDialog;
+    InputsPage: TTabSheet;
+    InputsScroll: TERDScrollBox;
+    LayoutPage: TTabSheet;
+    LayoutScroll: TERDScrollBox;
+    DataPage: TTabSheet;
+    DataScroll: TERDScrollBox;
+    FilesColorsPage: TTabSheet;
+    FilesColorsScroll: TERDScrollBox;
+    DialogsPage: TTabSheet;
+    DialogsScroll: TERDScrollBox;
+    LabelCheckBox: TLabel;
+    LabelRadioButton: TLabel;
+    LabelChip: TLabel;
+    LabelBanner: TLabel;
+    LabelEdit: TLabel;
+    LabelSegmented: TLabel;
+    LabelRangeBar: TLabel;
+    LabelSpinEdit: TLabel;
+    LabelTrackBar: TLabel;
+    LabelMemo: TLabel;
+    LabelCalendar: TLabel;
+    LabelDatePicker: TLabel;
+    LabelListBox: TLabel;
+    LabelCard: TLabel;
+    LabelMenuBar: TLabel;
+    LabelBackstage: TLabel;
+    LabelTabs: TLabel;
+    LabelToolBar: TLabel;
+    LabelProgressBar: TLabel;
+    LabelScrollBar: TLabel;
+    LabelSplitter: TLabel;
+    LabelTerminal: TLabel;
+    LabelInspector: TLabel;
+    LabelDataGrid: TLabel;
+    LabelTileGrid: TLabel;
+    LabelKeyValueList: TLabel;
+    LabelHistogram: TLabel;
+    LabelBreadcrumb: TLabel;
+    LabelPlacesPane: TLabel;
+    LabelFolderTree: TLabel;
+    LabelFileList: TLabel;
+    LabelColorSwatches: TLabel;
+    LabelColorSpectrum: TLabel;
+    LaunchDialog: TERDButton;
+    LaunchOpenDialog: TERDButton;
+    LaunchSaveDialog: TERDButton;
+    LaunchOpenPictureDialog: TERDButton;
+    LaunchSavePictureDialog: TERDButton;
+    LaunchFolderDialog: TERDButton;
+    LaunchPrintDialog: TERDButton;
+    LaunchPageSetupDialog: TERDButton;
+    LaunchFontDialog: TERDButton;
+    LaunchColorDialog: TERDButton;
+    LaunchFindDialog: TERDButton;
+    LaunchReplaceDialog: TERDButton;
+    LaunchTaskDialog: TERDButton;
+    LaunchShowToast: TERDButton;
+    LaunchShowPopup: TERDButton;
+    HintSample: TLabel;
+    PopupAction: TERDMenuItem;
+    BackstageInfo: TERDPanel;
+    BackstageSettings: TERDPanel;
+    BackstageInfoText: TLabel;
     procedure FormCreate(Sender: TObject);
     procedure CommandSelected(Sender: TObject);
+    procedure LaunchDialog(Sender: TObject);
+    procedure ShowToast(Sender: TObject);
+    procedure ShowPopup(Sender: TObject);
+    procedure SidebarSelected(Sender: TObject; AItem: TERDSidebarItem);
     procedure ThemeSelected(Sender: TObject);
     procedure AppearanceSelected(Sender: TObject);
     procedure LayoutSelected(Sender: TObject);
@@ -374,6 +542,15 @@ begin
   TitleBar.Ribbon := Ribbon;
   TitleBar.CommandStyle := csRibbon;
   StatusBar.Panels[2].Control := StatusHost;
+  DemoDataGrid.AddRow(['Example file', 'Ready']);
+  DemoDataGrid.AddRow(['Another item', 'Pending']);
+  DemoHistogram.AddSamples([12, 18, 20, 22, 25, 28, 30, 34]);
+  DemoColorSwatches.AddSection('Example colors', [clRed, clGreen, clBlue, clYellow, clWhite, clBlack]);
+  DemoTerminal.LogInfo('Application initialized');
+  DemoTerminal.LogSent('Example request');
+  DemoTerminal.LogReceived('Example response');
+  DemoTerminal.LogWarning('Example warning');
+  DemoTerminal.LogError('Example error');
   Bitmap := TBitmap.Create;
   try
     Bitmap.SetSize(24, 24);
@@ -386,6 +563,52 @@ begin
   finally
     Bitmap.Free;
   end;
+end;
+
+procedure TShowcaseForm.SidebarSelected(Sender: TObject; AItem: TERDSidebarItem);
+begin
+  if AItem.Tag < 0 then
+  begin
+    DemoPages.ActivePageIndex := -AItem.Tag;
+    if DemoPages.ActivePage = LayoutPage then DemoBackstage.Show;
+  end
+  else
+  begin
+    DemoPages.ActivePage := IconsPage;
+    Gallery.ScrollPosition := AItem.Tag;
+  end;
+  StatusBar.Panels[0].Text := AItem.Caption;
+end;
+
+procedure TShowcaseForm.LaunchDialog(Sender: TObject);
+begin
+  case TComponent(Sender).Tag of
+    0: DemoDialog.Execute;
+    1: DemoOpenDialog.Execute;
+    2: DemoSaveDialog.Execute;
+    3: DemoOpenPictureDialog.Execute;
+    4: DemoSavePictureDialog.Execute;
+    5: DemoFolderDialog.Execute;
+    6: DemoPrintDialog.Execute;
+    7: DemoPageSetupDialog.Execute;
+    8: DemoFontDialog.Execute;
+    9: DemoColorDialog.Execute;
+    10: DemoFindDialog.Execute;
+    11: DemoReplaceDialog.Execute;
+    12: DemoTaskDialog.Execute;
+  end;
+end;
+
+procedure TShowcaseForm.ShowToast(Sender: TObject);
+begin
+  DemoToastManager.Show(tkInfo, 'ERD Components', 'Example toast notification.');
+end;
+
+procedure TShowcaseForm.ShowPopup(Sender: TObject);
+var P: TPoint;
+begin
+  P := TControl(Sender).ClientToScreen(Point(0, TControl(Sender).Height));
+  DemoPopupMenu.Popup(P.X, P.Y);
 end;
 
 procedure TShowcaseForm.CommandSelected(Sender: TObject);

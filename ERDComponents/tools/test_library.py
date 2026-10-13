@@ -1,6 +1,7 @@
 """Integrity/portability regressions for generated assets and independent sources."""
 import hashlib
 import json
+import re
 import tempfile
 import sys
 import unittest
@@ -13,6 +14,13 @@ import validate
 ROOT=Path(__file__).resolve().parents[1]
 
 class LibraryTests(unittest.TestCase):
+    def test_showcase_contains_every_registered_component(self):
+        registered = set(json.loads((ROOT/'assets/components.json').read_text()))
+        dfm = (ROOT/'demo/Showcase.dfm').read_text(encoding='utf-8-sig')
+        shown = set(re.findall(r'object \w+: (TERD\w+)', dfm))
+        self.assertEqual(registered - shown, set())
+        self.assertIn('OnClick = LaunchDialog', dfm)
+
     def test_interface_routine_bodies_are_rejected(self):
         sys.path.insert(0, str(ROOT/"tools/pascalcheck"))
         from check_sections import scan

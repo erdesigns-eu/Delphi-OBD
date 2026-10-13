@@ -5,8 +5,18 @@ uses
   Winapi.Windows, Vcl.Graphics, Vcl.ImgList,
   ERD.Components.Types, ERD.Components.Icons, ERD.Components.IconCatalog,
   ERD.Components.Buttons, ERD.Components.Panel, ERD.Components.Chips,
-  ERD.Components.PopupList, ERD.Components.TitleBar, ERD.Components.StatusBar, ERD.Components.Theme, ERD.Components.Ribbon;
+  ERD.Components.Edits, ERD.Components.PopupList, ERD.Components.TitleBar, ERD.Components.StatusBar, ERD.Components.Theme, ERD.Components.Ribbon;
+type
+  TChangeProbe = class
+    Changes: Integer;
+    procedure Changed(Sender: TObject);
+  end;
 var Checks: Integer;
+procedure TChangeProbe.Changed(Sender: TObject);
+begin
+  Inc(Changes);
+end;
+
 procedure Check(Value: Boolean; const Text: string);
 begin
   Inc(Checks);
@@ -179,11 +189,54 @@ begin
         if ColorToRGB(Bitmap.Canvas.Pixels[X, Y]) <>
           ColorToRGB(BRAND_PALETTE_LIGHT.GaugeFace) then Inc(InkPixels);
     Check(InkPixels > 10, 'Unselected popup row paints visible text');
-    Popup.CloseUp(False);
+    SendMessage(Popup.Handle, WM_LBUTTONDOWN, MK_LBUTTON,
+      LPARAM(MakeLParam(R.Left + 20, R.Top + 12)));
+    SendMessage(Popup.Handle, WM_LBUTTONUP, 0,
+      LPARAM(MakeLParam(R.Left + 20, R.Top + 12)));
+    Check(not Popup.IsOpen, 'Mouse selection closes the popup');
+    Check(Popup.ItemIndex = 1, 'Mouse selection accepts the clicked row');
   finally
     Bitmap.Free;
     Items.Free;
     Form.Free;
+  end;
+end;
+
+procedure TestComboMouseChange;
+var
+  Form: TForm;
+  Combo: TERDComboBox;
+  Popup: TERDPopupList;
+  Probe: TChangeProbe;
+  I: Integer;
+  R: TRect;
+begin
+  Form := TForm.CreateNew(nil);
+  Probe := TChangeProbe.Create;
+  try
+    Combo := TERDComboBox.Create(Form);
+    Combo.Parent := Form;
+    Combo.Items.Add('First');
+    Combo.Items.Add('Second');
+    Combo.ItemIndex := 0;
+    Combo.OnChange := Probe.Changed;
+    Combo.DropDown;
+    Popup := nil;
+    for I := 0 to Combo.ComponentCount - 1 do
+      if Combo.Components[I] is TERDPopupList then
+        Popup := TERDPopupList(Combo.Components[I]);
+    Check(Popup <> nil, 'Combo creates its dropdown');
+    SendMessage(Popup.Handle, LB_GETITEMRECT, 1, LPARAM(@R));
+    SendMessage(Popup.Handle, WM_LBUTTONDOWN, MK_LBUTTON,
+      LPARAM(MakeLParam(R.Left + 20, R.Top + 12)));
+    SendMessage(Popup.Handle, WM_LBUTTONUP, 0,
+      LPARAM(MakeLParam(R.Left + 20, R.Top + 12)));
+    Check(Combo.ItemIndex = 1, 'Combo accepts a mouse-selected item');
+    Check(Probe.Changes = 1, 'Mouse selection fires OnChange exactly once');
+    Check(not Combo.DroppedDown, 'Combo closes after mouse selection');
+  finally
+    Form.Free;
+    Probe.Free;
   end;
 end;
 
@@ -194,6 +247,7 @@ begin
     TestHostedStatusPanels;
     TestThemesAndRibbon;
     TestPopupRowsAndCommandSwitch;
+    TestComboMouseChange;
     Writeln(Checks, ' VCL runtime checks passed.');
   except on E: Exception do begin Writeln(E.ClassName, ': ', E.Message); Halt(1) end end;
 end.
