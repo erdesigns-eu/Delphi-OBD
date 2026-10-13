@@ -3,6 +3,7 @@
 uses
   System.SysUtils, System.Classes, System.Types, System.Math, Vcl.Forms, Vcl.Controls,
   Winapi.Windows, Vcl.StdCtrls, Vcl.Graphics, Vcl.ImgList,
+  ERD.Components.LoadingIndicator,
   ERD.Components.LinkLabel,
   ERD.Components.Calendar, ERD.Components.DateTimePicker,
   ERD.Components.TimePicker,
@@ -16,6 +17,10 @@ uses
   Showcase in '../demo/Showcase.pas',
   ERD.Components.SpinEdit, ERD.Components.Edits, ERD.Components.PopupList, ERD.Components.TitleBar, ERD.Components.StatusBar, ERD.Components.Theme, ERD.Components.Ribbon;
 type
+  TLoadingProbe = class(TERDLoadingIndicator)
+  public
+    procedure NextFrame;
+  end;
   TLinkProbe = class(TERDLinkLabel)
   public
     procedure Activate;
@@ -63,6 +68,9 @@ type
     procedure Changed(Sender: TObject);
   end;
 var Checks: Integer;
+procedure TLoadingProbe.NextFrame;
+begin Advance end;
+
 procedure TLinkProbe.Activate;
 begin Click end;
 procedure TLinkProbe.PressEnter;
@@ -723,6 +731,65 @@ begin
   end;
 end;
 
+procedure TestLoadingIndicator;
+var Form: TForm; Loading: TLoadingProbe; Stored, Copy: TERDLoadingIndicator;
+  Bitmap: TBitmap; Stream: TMemoryStream; I, Frame: Integer;
+begin
+  RegisterClass(TERDLoadingIndicator);
+  Form := TForm.CreateNew(nil);
+  Bitmap := TBitmap.Create;
+  Stream := TMemoryStream.Create;
+  try
+    Stored := TERDLoadingIndicator.Create(nil);
+    try
+      Check(Stored.Active and Stored.RespectAnimations and not Stored.IsAnimating,
+        'Loading defaults: active, respects OS animation, no timer before showing');
+      Stored.Caption := 'Loading';
+      Stored.Active := False;
+      Stored.RespectAnimations := False;
+      Stored.RenderTo(Bitmap);
+      Check(not Stored.HandleAllocated, 'Loading indicator renders without a window');
+      Stream.WriteComponent(Stored);
+    finally Stored.Free end;
+    Stream.Position := 0;
+    Copy := TERDLoadingIndicator(Stream.ReadComponent(nil));
+    try
+      Check(not Copy.Active and not Copy.RespectAnimations and (Copy.Caption = 'Loading'),
+        'Loading indicator DFM stores active, animation option and caption');
+    finally Copy.Free end;
+    Loading := TLoadingProbe.Create(Form);
+    Loading.Parent := Form;
+    Loading.RespectAnimations := False;
+    for I := 1 to 12 do Loading.NextFrame;
+    Check(Loading.FrameIndex = 0, 'Spinner wraps after twelve frames');
+    Loading.Active := False;
+    Loading.NextFrame;
+    Check(Loading.FrameIndex = 0, 'Inactive spinner does not advance');
+    Loading.Active := True;
+    Loading.Enabled := False;
+    Loading.NextFrame;
+    Check(Loading.FrameIndex = 0, 'Disabled spinner does not advance');
+    Loading.Enabled := True;
+    Form.Show;
+    Application.ProcessMessages;
+    Check(Loading.IsAnimating, 'Visible active spinner starts its timer');
+    Loading.Visible := False;
+    Application.ProcessMessages;
+    Check(not Loading.IsAnimating, 'Hiding spinner stops timer');
+    Loading.Visible := True;
+    Application.ProcessMessages;
+    Check(Loading.IsAnimating, 'Showing spinner resumes timer');
+    Frame := Loading.FrameIndex;
+    Loading.Active := False;
+    Application.ProcessMessages;
+    Check(not Loading.IsAnimating and (Loading.FrameIndex = Frame), 'Stopping preserves frame and disables timer');
+    Loading.Active := True;
+    Form.Hide;
+    Application.ProcessMessages;
+    Check(not Loading.IsAnimating, 'Hiding parent form stops spinner timer');
+  finally Bitmap.Free; Stream.Free; Form.Free end;
+end;
+
 procedure TestLinkLabel;
 var Link: TLinkProbe; Counter: TChangeProbe; Bitmap: TBitmap;
 begin
@@ -1155,6 +1222,7 @@ begin
     TestTimePicker;
     TestDateSegmentsAndDateTime;
     TestLinkLabel;
+    TestLoadingIndicator;
     Writeln(Checks, ' VCL runtime checks passed.');
   except on E: Exception do begin Writeln(E.ClassName, ': ', E.Message); Halt(1) end end;
 end.

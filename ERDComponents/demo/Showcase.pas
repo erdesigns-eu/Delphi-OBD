@@ -1,6 +1,7 @@
 ﻿unit Showcase;
 interface
 uses
+  ERD.Components.LoadingIndicator,
   ERD.Components.LinkLabel,
   ERD.Components.DateTimePicker,
   ERD.Components.TimePicker,
@@ -67,6 +68,9 @@ type
   PPlaylistDemoData = ^TPlaylistDemoData;
 
   TShowcaseForm = class(TForm)
+    DemoLoadingIndicator: TERDLoadingIndicator;
+    LoadingToggle: TERDCheckBox;
+    LabelLoadingIndicator: TLabel;
     DemoLinkLabel: TERDLinkLabel;
     LabelLinkLabel: TLabel;
     DemoDateTimePicker: TERDDateTimePicker;
@@ -577,6 +581,7 @@ type
     procedure TimeChanged(Sender: TObject);
     procedure DateTimeChanged(Sender: TObject);
     procedure LinkClicked(Sender: TObject);
+    procedure LoadingChanged(Sender: TObject);
     procedure OpenFile(Sender: TObject);
     procedure IconClicked(Sender: TObject);
   end;
@@ -880,6 +885,11 @@ begin
   finally DemoBreadcrumb.Items.EndUpdate end;
   StatusBar.Panels[0].Text := 'Navigate: ' + Path;
 end;
+procedure TShowcaseForm.LoadingChanged(Sender: TObject);
+begin
+  DemoLoadingIndicator.Active := LoadingToggle.Checked;
+end;
+
 procedure TShowcaseForm.LinkClicked(Sender: TObject);
 begin
   StatusBar.Panels[0].Text := 'Link clicked: ' + DemoLinkLabel.URL;

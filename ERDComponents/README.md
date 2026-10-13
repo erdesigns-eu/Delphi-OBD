@@ -332,3 +332,16 @@ Windows-focuscues, Enter/Space en een optioneel `Icon` (built-in, imagelist of g
 `AutoOpen=False` is standaard: de applicatie handelt de klik af via `OnClick`.
 Met `AutoOpen=True` of `OpenLink` opent Windows de `URL` met de bijbehorende app.
 `Visited` en `AlwaysUnderline` zijn instelbaar. De demo meldt klikken in de statusbar.
+
+## LoadingIndicator
+
+`TERDLoadingIndicator` is een themed spinner voor onbekende voortgang, met optionele
+`Caption` en `Active` (standaard True). De timer draait alleen wanneer de control
+zichtbaar en enabled is, en nooit in de designer. `RespectAnimations=True` volgt
+Windows' instelling voor client-area-animaties; bij uitgeschakelde animaties blijft
+een statische indicator zichtbaar. `IsAnimating` laat zien of de timer actief is.
+De Inputs-demo bevat een switch om `Active` te wijzigen.
+
+Windows-smoketests voor LinkLabel en LoadingIndicator zijn toegevoegd: activeren,
+disabled state, renderen zonder window, DFM en het stoppen/hervatten van de timer
+bij zichtbaarheidswijzigingen. Ook deze tests zijn hier niet op Windows uitgevoerd.

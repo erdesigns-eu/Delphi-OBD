@@ -3898,6 +3898,24 @@
           Icon.BuiltIn = ei028Info
           OnClick = LinkClicked
         end
+        object LabelLoadingIndicator: TLabel
+          Left = 16
+          Top = 2810
+          Caption = 'TERDLoadingIndicator - follows Windows animation settings'
+        end
+        object DemoLoadingIndicator: TERDLoadingIndicator
+          Left = 16
+          Top = 2836
+          Caption = 'Loading playlists...'
+        end
+        object LoadingToggle: TERDCheckBox
+          Left = 256
+          Top = 2836
+          Caption = 'Active'
+          Style = csSwitch
+          Checked = True
+          OnChange = LoadingChanged
+        end
       end
     end
     object LayoutPage: TERDPanel
