@@ -15,7 +15,7 @@
 //
 //  The date picker shows the date in the edit frame (DisplayFormat, or
 //  the short date format of the locale). Click it, press F4 or Alt+Down
-//  to open the calendar; Enter or a click on a day takes the date, Esc or
+//  on its calendar button to open it; Enter or a click takes the date, Esc or
 //  a click elsewhere closes it. While closed, Up / Down change the date
 //  by a day.
 //
@@ -167,17 +167,40 @@ type
     property OnDateClick: TNotifyEvent read FOnDateClick write FOnDateClick;
   end;
 
+  TERDDateSegment = (dsDay, dsMonth, dsYear);
+  TERDDatePart = record
+    Text: string;
+    Segment: TERDDateSegment;
+    Editable: Boolean;
+    Bounds: TRect;
+  end;
+  TERDDateParts = TArray<TERDDatePart>;
+
   /// <summary>Date field with a drop-down calendar.</summary>
   TERDDatePicker = class(TERDCustomControl)
   strict private
     FDate: TDate;
     FDisplayFormat: string;
+    FReadOnly: Boolean;
+    FShowCalendarButton: Boolean;
+    FSegment: TERDDateSegment;
+    FDigits: string;
+    FInputTick: UInt64;
     FFirstDay: TERDFirstDayOfWeek;
     FPopup: TERDCalendar;
     FAppEvents: TApplicationEvents;
     FOnChange: TNotifyEvent;
     FOnDropDown: TNotifyEvent;
     FOnCloseUp: TNotifyEvent;
+    procedure SetReadOnly(Value: Boolean);
+    procedure SetShowCalendarButton(Value: Boolean);
+    procedure SetActiveSegment(Value: TERDDateSegment);
+    function BuildParts(P: TERDPainter): TERDDateParts;
+    function ActiveTokenLength: Integer;
+    procedure MoveSegment(Delta: Integer);
+    procedure EnterDigit(Digit: Char);
+    procedure AssignSegment(Value: Integer);
+    procedure ResetInput;
     procedure SetDate(AValue: TDate);
     procedure SetDisplayFormat(const AValue: string);
     procedure AppMessage(var Msg: TMsg; var Handled: Boolean);
@@ -210,6 +233,7 @@ type
     /// <param name="Key">Virtual key; 0 when handled.</param>
     /// <param name="Shift">Shift state.</param>
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure KeyPress(var Key: Char); override;
     /// <summary>Repaints the focus line.</summary>
     procedure DoEnter; override;
     /// <summary>Closes the calendar.</summary>
@@ -234,9 +258,14 @@ type
     /// <summary>The date as shown in the field.</summary>
     /// <returns>Formatted date.</returns>
     function DisplayText: string;
+    function SegmentRect(Segment: TERDDateSegment): TRect;
+    procedure Step(Delta: Integer);
+    property ActiveSegment: TERDDateSegment read FSegment write SetActiveSegment;
   published
     /// <summary>Selected date.</summary>
     property Date: TDate read FDate write SetDate;
+    property ReadOnly: Boolean read FReadOnly write SetReadOnly default False;
+    property ShowCalendarButton: Boolean read FShowCalendarButton write SetShowCalendarButton default True;
     /// <summary>FormatDateTime pattern for the field (e.g.
     /// 'dd-mm-yyyy'); empty uses the short date format of the locale.
     /// </summary>
@@ -471,7 +500,7 @@ end;
 procedure TERDCalendar.WMGetDlgCode(var Message: TWMGetDlgCode);
 begin
   inherited;
-  Message.Result := Message.Result or DLGC_WANTARROWS;
+  Message.Result := Message.Result or DLGC_WANTARROWS or DLGC_WANTCHARS;
 end;
 
 procedure TERDCalendar.DoEnter;
@@ -747,6 +776,8 @@ begin
   inherited Create(AOwner);
   ControlStyle := ControlStyle - [csAcceptsControls, csDoubleClicks];
   FDate := TodayDate;
+  FShowCalendarButton := True;
+  FSegment := dsDay;
   Width := 160;
   Height := 26;
   TabStop := True;
@@ -755,6 +786,9 @@ end;
 
 procedure TERDDatePicker.SetDate(AValue: TDate);
 begin
+  if IsNan(AValue) or IsInfinite(AValue) or (Abs(AValue) > EncodeDate(9999, 12, 31) + 1) or
+    (Trunc(AValue) < EncodeDate(1, 1, 1)) or (Trunc(AValue) > EncodeDate(9999, 12, 31)) then
+    raise EArgumentOutOfRangeException.Create('Date must be between years 1 and 9999');
   AValue := Trunc(AValue);
   if SameValue(FDate, AValue) then
     Exit;
@@ -768,6 +802,7 @@ begin
   if FDisplayFormat = AValue then
     Exit;
   FDisplayFormat := AValue;
+  SetActiveSegment(FSegment);
   Invalidate;
 end;
 
@@ -810,7 +845,7 @@ var
   Mon: TMonitor;
   W, H, X, Y: Integer;
 begin
-  if IsOpen or not Enabled or not HandleAllocated then
+  if IsOpen or not Enabled or FReadOnly or not HandleAllocated then
     Exit;
   if FPopup = nil then
     FPopup := TERDCalendarPopup.CreatePopup(Self);
@@ -859,7 +894,7 @@ begin
   if not IsOpen then
     Exit;
   ShowWindow(FPopup.Handle, SW_HIDE);
-  if AAccept then
+  if AAccept and not FReadOnly and Enabled then
     SetDate(FPopup.Date);
   Invalidate;
   if Assigned(FOnCloseUp) then
@@ -918,7 +953,7 @@ end;
 procedure TERDDatePicker.WMGetDlgCode(var Message: TWMGetDlgCode);
 begin
   inherited;
-  Message.Result := Message.Result or DLGC_WANTARROWS;
+  Message.Result := Message.Result or DLGC_WANTARROWS or DLGC_WANTCHARS;
 end;
 
 procedure TERDDatePicker.WMKillFocus(var Message: TWMKillFocus);
@@ -929,12 +964,15 @@ end;
 
 procedure TERDDatePicker.DoEnter;
 begin
+  ResetInput;
+  SetActiveSegment(FSegment);
   inherited DoEnter;
   Invalidate;
 end;
 
 procedure TERDDatePicker.DoExit;
 begin
+  ResetInput;
   CloseUp(False);
   inherited DoExit;
   Invalidate;
@@ -942,66 +980,251 @@ end;
 
 procedure TERDDatePicker.MouseDown(Button: TMouseButton; Shift: TShiftState;
   X, Y: Integer);
+var Segment: TERDDateSegment;
 begin
-  if (Button = mbLeft) and Enabled then
+  inherited;
+  if (Button <> mbLeft) or not Enabled then Exit;
+  if CanFocus then SetFocus;
+  ResetInput;
+  if FShowCalendarButton and (X >= Width - ScaleValue(34)) then
   begin
-    if CanFocus and not Focused then
-      SetFocus;
-    if IsOpen then
-      CloseUp(False)
-    else
-      DropDown;
+    if IsOpen then CloseUp(False) else DropDown;
+    Exit;
   end;
-  inherited MouseDown(Button, Shift, X, Y);
+  if IsOpen then CloseUp(False);
+  for Segment := Low(TERDDateSegment) to High(TERDDateSegment) do
+    if PtInRect(SegmentRect(Segment), Point(X, Y)) then
+    begin SetActiveSegment(Segment); Exit end;
 end;
 
 procedure TERDDatePicker.KeyDown(var Key: Word; Shift: TShiftState);
-var
-  Handled: Boolean;
+var Handled: Boolean; Y, M, D: Word;
 begin
   Handled := True;
   if IsOpen then
     case Key of
-      VK_ESCAPE:
-        CloseUp(False);
-      VK_RETURN:
-        CloseUp(True);
-      VK_F4:
-        CloseUp(True);
-      VK_UP:
-        if ssAlt in Shift then
-          CloseUp(True)
-        else
-          Handled := FPopup.HandleKey(Key, Shift);
+      VK_ESCAPE: CloseUp(False);
+      VK_RETURN, VK_F4: CloseUp(True);
     else
-      if (Key = VK_DOWN) and (ssAlt in Shift) then
-        CloseUp(True)
-      else
-        // Enter / Space in the calendar click the date and close it.
-        Handled := FPopup.HandleKey(Key, Shift);
+      if (Key = VK_UP) and (ssAlt in Shift) then CloseUp(True)
+      else Handled := FPopup.HandleKey(Key, Shift);
     end
-  else
+  else if (Key = VK_F4) or ((Key = VK_DOWN) and (ssAlt in Shift)) then DropDown
+  else if Shift = [] then
     case Key of
-      VK_DOWN:
-        if ssAlt in Shift then
-          DropDown
-        else
-          SetDate(FDate - 1);
-      VK_UP:
-        SetDate(FDate + 1);
-      VK_F4:
-        DropDown;
+      VK_LEFT: MoveSegment(-1);
+      VK_RIGHT: MoveSegment(1);
+      VK_UP: Step(1);
+      VK_DOWN: Step(-1);
       VK_PRIOR:
-        SetDate(IncMonth(FDate, 1));
+        if Enabled and not FReadOnly and (FDate < EncodeDate(9999, 12, 1)) then Date := IncMonth(FDate, 1);
       VK_NEXT:
-        SetDate(IncMonth(FDate, -1));
-    else
-      Handled := False;
-    end;
-  if Handled then
-    Key := 0
-  else
-    inherited KeyDown(Key, Shift);
+        if Enabled and not FReadOnly and (FDate >= EncodeDate(1, 2, 1)) then Date := IncMonth(FDate, -1);
+      VK_HOME, VK_END:
+        if Enabled and not FReadOnly then
+        begin
+          ResetInput;
+          DecodeDate(FDate, Y, M, D);
+          if Key = VK_HOME then AssignSegment(1)
+          else case FSegment of
+            dsDay: AssignSegment(DaysInAMonth(Y, M));
+            dsMonth: AssignSegment(12);
+            dsYear: AssignSegment(9999);
+          end;
+        end;
+      VK_ESCAPE, VK_BACK: ResetInput;
+    else Handled := False;
+    end
+  else Handled := False;
+  if Handled then Key := 0 else inherited;
+end;
+procedure TERDDatePicker.KeyPress(var Key: Char);
+begin
+  inherited;
+  if not Enabled or FReadOnly or IsOpen then Exit;
+  if (Key >= '0') and (Key <= '9') then begin EnterDigit(Key); Key := #0 end
+  else if (Key = FormatSettings.DateSeparator) or (Key = '/') or (Key = '-') or (Key = '.') then
+  begin MoveSegment(1); Key := #0 end;
+end;
+
+procedure TERDDatePicker.ResetInput;
+begin
+  FDigits := '';
+  FInputTick := 0;
+end;
+procedure TERDDatePicker.SetReadOnly(Value: Boolean);
+begin
+  if FReadOnly = Value then Exit;
+  FReadOnly := Value;
+  ResetInput;
+  if Value then CloseUp(False);
+  Invalidate;
+end;
+procedure TERDDatePicker.SetShowCalendarButton(Value: Boolean);
+begin
+  if FShowCalendarButton = Value then Exit;
+  FShowCalendarButton := Value;
+  Invalidate;
+end;
+function TERDDatePicker.BuildParts(P: TERDPainter): TERDDateParts;
+var Pattern, Token, Text: string; I, Start, X, W, N: Integer; C, Quote: Char;
+  Part: TERDDatePart;
+begin
+  Result := nil;
+  Pattern := FDisplayFormat;
+  if Pattern = '' then Pattern := FormatSettings.ShortDateFormat;
+  if SameText(Pattern, 'ddddd') then Pattern := FormatSettings.ShortDateFormat;
+  if SameText(Pattern, 'dddddd') then Pattern := FormatSettings.LongDateFormat;
+  I := 1;
+  X := P.S(10);
+  while I <= Length(Pattern) do
+  begin
+    Part.Editable := False;
+    Part.Segment := dsDay;
+    C := Pattern[I];
+    if CharInSet(C, ['A'..'Z']) then C := Chr(Ord(C) + 32);
+    Start := I;
+    if (C = #39) or (C = '"') then
+    begin
+      Quote := Pattern[I];
+      Inc(I);
+      while (I <= Length(Pattern)) and (Pattern[I] <> Quote) do Inc(I);
+      if I <= Length(Pattern) then Inc(I);
+    end
+    else if CharInSet(C, ['a'..'z']) then
+    begin
+      Inc(I);
+      while (I <= Length(Pattern)) and SameText(Pattern[I], C) do Inc(I);
+      N := I - Start;
+      if ((C = 'd') and (N <= 2)) or (C = 'm') or (C = 'y') then
+      begin
+        Part.Editable := True;
+        case C of 'm': Part.Segment := dsMonth; 'y': Part.Segment := dsYear end;
+      end;
+    end
+    else Inc(I);
+    Token := Copy(Pattern, Start, I - Start);
+    Text := FormatDateTime(Token, FDate);
+    W := Ceil(P.TextWidth(Text, ERD_TEXT_BODY, twRegular));
+    Part.Text := Text;
+    Part.Bounds := Rect(X, P.S(3), X + W, Height - P.S(3));
+    SetLength(Result, Length(Result) + 1);
+    Result[High(Result)] := Part;
+    Inc(X, W);
+  end;
+end;
+function TERDDatePicker.SegmentRect(Segment: TERDDateSegment): TRect;
+var Bitmap: TBitmap; P: TERDPainter; Part: TERDDatePart;
+begin
+  Result := Rect(0, 0, 0, 0);
+  Bitmap := TBitmap.Create;
+  try
+    Bitmap.SetSize(1, 1);
+    P := TERDPainter.Create(Bitmap.Canvas, Palette, ScaleValue(96));
+    try
+      for Part in BuildParts(P) do
+        if Part.Editable and (Part.Segment = Segment) then
+        begin Result := Part.Bounds; Exit end;
+    finally P.Free end;
+  finally Bitmap.Free end;
+end;
+procedure TERDDatePicker.SetActiveSegment(Value: TERDDateSegment);
+var Segment: TERDDateSegment;
+begin
+  ResetInput;
+  if SegmentRect(Value).IsEmpty then
+    for Segment := Low(TERDDateSegment) to High(TERDDateSegment) do
+      if not SegmentRect(Segment).IsEmpty then begin Value := Segment; Break end;
+  FSegment := Value;
+  Invalidate;
+end;
+procedure TERDDatePicker.MoveSegment(Delta: Integer);
+var Order: array[0..2] of TERDDateSegment; Count, I, Current: Integer;
+  Bitmap: TBitmap; P: TERDPainter; Part: TERDDatePart;
+  Seen: set of TERDDateSegment;
+begin
+  Seen := [];
+  Count := 0;
+  Current := 0;
+  Bitmap := TBitmap.Create;
+  try
+    Bitmap.SetSize(1, 1);
+    P := TERDPainter.Create(Bitmap.Canvas, Palette, ScaleValue(96));
+    try
+      for Part in BuildParts(P) do
+        if Part.Editable and not (Part.Segment in Seen) then
+        begin
+          Include(Seen, Part.Segment);
+          Order[Count] := Part.Segment;
+          if Part.Segment = FSegment then Current := Count;
+          Inc(Count);
+        end;
+    finally P.Free end;
+  finally Bitmap.Free end;
+  if Count = 0 then Exit;
+  I := (Current + Delta + Count) mod Count;
+  SetActiveSegment(Order[I]);
+end;
+function TERDDatePicker.ActiveTokenLength: Integer;
+begin
+  Result := 2;
+  if FSegment = dsYear then
+  begin
+    Result := 4;
+    if (Pos('yyyy', LowerCase(FDisplayFormat)) = 0) and (Pos('yy', LowerCase(FDisplayFormat)) > 0) then Result := 2
+    else if (FDisplayFormat = '') and (Pos('yyyy', LowerCase(FormatSettings.ShortDateFormat)) = 0) and
+      (Pos('yy', LowerCase(FormatSettings.ShortDateFormat)) > 0) then Result := 2;
+  end;
+end;
+procedure TERDDatePicker.AssignSegment(Value: Integer);
+var Y, M, D: Word;
+begin
+  DecodeDate(FDate, Y, M, D);
+  case FSegment of
+    dsDay: D := Value;
+    dsMonth: M := Value;
+    dsYear: Y := Value;
+  end;
+  D := Min(D, DaysInAMonth(Y, M));
+  Date := EncodeDate(Y, M, D);
+end;
+procedure TERDDatePicker.Step(Delta: Integer);
+var Y, M, D: Word; Value, Maximum: Integer;
+begin
+  if not Enabled or FReadOnly then Exit;
+  ResetInput;
+  DecodeDate(FDate, Y, M, D);
+  case FSegment of
+    dsDay: begin Value := D; Maximum := DaysInAMonth(Y, M) end;
+    dsMonth: begin Value := M; Maximum := 12 end;
+  else begin Value := Y; Maximum := 9999 end;
+  end;
+  Value := (Value - 1 + Delta mod Maximum) mod Maximum;
+  if Value < 0 then Inc(Value, Maximum);
+  AssignSegment(Value + 1);
+end;
+procedure TERDDatePicker.EnterDigit(Digit: Char);
+var Y, M, D: Word; Value, Maximum, Digits, BaseYear: Integer;
+begin
+  Digits := ActiveTokenLength;
+  if (GetTickCount64 - FInputTick > 1500) or (Length(FDigits) >= Digits) then ResetInput;
+  FInputTick := GetTickCount64;
+  DecodeDate(FDate, Y, M, D);
+  case FSegment of
+    dsDay: Maximum := DaysInAMonth(Y, M);
+    dsMonth: Maximum := 12;
+  else if Digits = 2 then Maximum := 99 else Maximum := 9999;
+  end;
+  if not TryStrToInt(FDigits + Digit, Value) or (Value > Maximum) then Exit;
+  FDigits := FDigits + Digit;
+  if (FSegment = dsYear) and (Digits = 2) then
+  begin
+    BaseYear := YearOf(System.SysUtils.Date) - FormatSettings.TwoDigitYearCenturyWindow;
+    Value := (BaseYear div 100) * 100 + Value;
+    if Value < BaseYear then Inc(Value, 100);
+  end;
+  if Value > 0 then AssignSegment(Value);
+  if (Length(FDigits) = Digits) or ((FSegment <> dsYear) and (Value > Maximum div 10)) then MoveSegment(1);
 end;
 
 procedure TERDDatePicker.PaintControl(ACanvas: TCanvas);
@@ -1010,6 +1233,7 @@ var
   Ink, Glyph: TColor;
   CY: Integer;
   GX, GY, GW, GH: Single;
+  Parts: TERDDateParts; Part: TERDDatePart; R: TRect;
 begin
   P := TERDPainter.Create(ACanvas, Palette, ScaleValue(96));
   try
@@ -1026,8 +1250,19 @@ begin
       Glyph := Ink;
     end;
     CY := Height div 2;
-    P.Text(P.S(10), CY, DisplayText, ERD_TEXT_BODY, Ink, twRegular,
-      taLeftJustify, Width - P.S(40));
+    Parts := BuildParts(P);
+    for Part in Parts do
+    begin
+      R := Part.Bounds;
+      if FShowCalendarButton then R.Right := Min(R.Right, Width - P.S(36));
+      if R.Right <= R.Left then Continue;
+      if Enabled then Ink := Palette.ForegroundText else Ink := P.DisabledText;
+      if Part.Editable and (Part.Segment = FSegment) and Focused and not IsPreview then
+      begin P.FillRect(R, Palette.Accent); Ink := P.ContrastInk(Palette.Accent) end;
+      P.Text(R.Left, CY, Part.Text, ERD_TEXT_BODY, Ink, twRegular,
+        taLeftJustify, R.Width);
+    end;
+    if not FShowCalendarButton then Exit;
     // Calendar glyph: a page with a header bar and two rings.
     GW := P.SF(12);
     GH := P.SF(11);

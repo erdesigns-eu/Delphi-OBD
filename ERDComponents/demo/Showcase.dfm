@@ -3872,6 +3872,19 @@
           TimeFormat = tf12Hour
           OnChange = TimeChanged
         end
+        object LabelDateTimePicker: TLabel
+          Left = 16
+          Top = 2620
+          Caption = 'TERDDateTimePicker - editable date segments + calendar + time'
+        end
+        object DemoDateTimePicker: TERDDateTimePicker
+          Left = 16
+          Top = 2646
+          Width = 460
+          DateFormat = 'dd/mm/yyyy'
+          ShowSeconds = True
+          OnChange = DateTimeChanged
+        end
       end
     end
     object LayoutPage: TERDPanel

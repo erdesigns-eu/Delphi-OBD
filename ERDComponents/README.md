@@ -301,3 +301,26 @@ verwijderd. Milliseconden blijven behouden, ook als ze niet worden getoond.
 De Inputs-pagina toont zowel 24h met seconden als 12h. Windows-smoketests omvatten
 invoer, wrap, AM/PM, locale, readonly, disabled, muis, spin, DFM en renderen zonder
 window-handle. Deze VCL-tests moeten nog in Delphi op Windows worden uitgevoerd.
+
+## DateTimePicker en datumsegmenten
+
+`TERDDatePicker` heeft nu bewerkbare dag-, maand- en jaarvelden. Hun volgorde
+volgt `DisplayFormat` of het locale korte datumformaat; maandnamen blijven
+met cijfers te wijzigen. Weekdagtekst en quoted literals zijn geen invoervelden.
+Left/Right wisselt velden, cijfers vullen het actieve veld, Up/Down wijzigt het
+veld met wrap en Home/End kiest de veldgrens. Een ongeldige dag wordt bij een
+maand-/jaarwijziging geclamped naar de laatste dag. De kalenderknop, F4 of
+Alt+Down opent de bestaande kalender. `ReadOnly` blokkeert gebruikerswijzigingen;
+`ShowCalendarButton` kan de knop verbergen.
+
+`TERDDateTimePicker` combineert die date-editor met `TERDTimePicker` in één
+component. `DateTime` bewaart de volledige datum en tijd; datumwijzigingen behouden
+de tijd en omgekeerd. Een programmatische wijziging van beide velden levert één
+`OnChange` op. `DateFormat`, `TimeFormat`, `ShowSeconds`, `ReadOnly` en `FirstDay`
+zijn in de IDE instelbaar. De velden zijn via `DateEditor` en `TimeEditor` bereikbaar
+voor focus/segmentselectie. Tab wisselt tussen de velden; de kalender-events lopen
+via de samengestelde component. De interne editors worden niet apart gestreamd.
+
+De Inputs-demo toont de DateTimePicker. Windows-smoketests voor schrikkeljaren,
+invoer, datumvolgorde, readonly, events, tijdbehoud en DFM zijn toegevoegd, maar
+vereisen nog uitvoering in Delphi op Windows.

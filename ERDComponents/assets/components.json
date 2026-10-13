@@ -66,5 +66,6 @@
   "TERDSeekBar",
   "TERDRangeSlider",
   "TERDCheckListBox",
-  "TERDTimePicker"
+  "TERDTimePicker",
+  "TERDDateTimePicker"
 ]

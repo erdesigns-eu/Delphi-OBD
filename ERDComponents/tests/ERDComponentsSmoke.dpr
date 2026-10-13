@@ -3,6 +3,7 @@
 uses
   System.SysUtils, System.Classes, System.Types, System.Math, Vcl.Forms, Vcl.Controls,
   Winapi.Windows, Vcl.StdCtrls, Vcl.Graphics, Vcl.ImgList,
+  ERD.Components.Calendar, ERD.Components.DateTimePicker,
   ERD.Components.TimePicker,
   ERD.Components.CheckListBox,
   ERD.Components.ScrollBar, ERD.Components.KeyValueList,
@@ -14,6 +15,11 @@ uses
   Showcase in '../demo/Showcase.pas',
   ERD.Components.SpinEdit, ERD.Components.Edits, ERD.Components.PopupList, ERD.Components.TitleBar, ERD.Components.StatusBar, ERD.Components.Theme, ERD.Components.Ribbon;
 type
+  TDateProbe = class(TERDDatePicker)
+  public
+    procedure TypeText(const Value: string);
+    procedure PressKey(Value: Word);
+  end;
   TTimeProbe = class(TERDTimePicker)
   public
     procedure TypeText(const Value: string);
@@ -51,6 +57,14 @@ type
     procedure Changed(Sender: TObject);
   end;
 var Checks: Integer;
+procedure TDateProbe.TypeText(const Value: string);
+var I: Integer; Key: Char;
+begin
+  for I := 1 to Length(Value) do begin Key := Value[I]; KeyPress(Key) end;
+end;
+procedure TDateProbe.PressKey(Value: Word);
+begin KeyDown(Value, []) end;
+
 procedure TTimeProbe.TypeText(const Value: string);
 var I: Integer; Key: Char;
 begin
@@ -697,6 +711,93 @@ begin
   end;
 end;
 
+procedure TestDateSegmentsAndDateTime;
+var Picker: TDateProbe; Combined, Copy: TERDDateTimePicker; Counter: TChangeProbe;
+  Stream: TMemoryStream; Bitmap: TBitmap; I: Integer; R: TRect;
+begin
+  RegisterClass(TERDDateTimePicker);
+  Picker := TDateProbe.Create(nil);
+  Combined := TERDDateTimePicker.Create(nil);
+  Counter := TChangeProbe.Create;
+  Stream := TMemoryStream.Create;
+  Bitmap := TBitmap.Create;
+  try
+    Picker.DisplayFormat := 'dd/mm/yyyy';
+    Picker.Date := EncodeDate(2024, 1, 31);
+    Picker.ActiveSegment := dsMonth;
+    Picker.Step(1);
+    Check(Picker.Date = EncodeDate(2024, 2, 29), 'Changing month clamps to leap-day');
+    Picker.ActiveSegment := dsYear;
+    Picker.Step(1);
+    Check(Picker.Date = EncodeDate(2025, 2, 28), 'Changing leap year clamps to valid day');
+    Picker.ActiveSegment := dsDay;
+    Picker.Step(1);
+    Check(Picker.Date = EncodeDate(2025, 2, 1), 'Day wraps within selected month');
+    Picker.TypeText('27');
+    Picker.TypeText('10');
+    Picker.TypeText('2026');
+    Check(Picker.Date = EncodeDate(2026, 10, 27), 'Date digits follow day/month/year segments');
+    Picker.DisplayFormat := 'yyyy-mm-dd';
+    Picker.ActiveSegment := dsYear;
+    Picker.PressKey(VK_RIGHT);
+    Check(Picker.ActiveSegment = dsMonth, 'Segment navigation follows custom format order');
+    Picker.PressKey(VK_RIGHT);
+    Check(Picker.ActiveSegment = dsDay, 'ISO date navigation reaches day after month');
+    Picker.DisplayFormat := 'dddd, dd mmmm yyyy';
+    R := Picker.SegmentRect(dsDay);
+    Check(R.Left > 10, 'Weekday text stays outside editable day segment');
+    Picker.DisplayFormat := 'mmmm yyyy';
+    Picker.ActiveSegment := dsDay;
+    Check(Picker.ActiveSegment = dsMonth, 'Missing date field cannot remain active');
+    Picker.PressKey(VK_RIGHT);
+    Check(Picker.ActiveSegment = dsYear, 'Month/year format skips missing day');
+    Picker.ReadOnly := True;
+    Picker.Step(1);
+    Picker.TypeText('2030');
+    Check(Picker.Date = EncodeDate(2026, 10, 27), 'Readonly date blocks keyboard and stepping');
+    Picker.RenderTo(Bitmap);
+    Check(not Picker.HandleAllocated, 'Segmented DatePicker renders without a window');
+    Combined.DateFormat := 'dd/mm/yyyy';
+    Combined.ShowSeconds := True;
+    Combined.TimeFormat := tf12Hour;
+    Combined.OnChange := Counter.Changed;
+    Combined.DateTime := EncodeDate(2024, 2, 29) + EncodeTime(13, 14, 15, 321);
+    Check(Counter.Changes = 1, 'DateTime assignment raises one event for both fields');
+    Combined.DateEditor.ActiveSegment := dsYear;
+    Combined.DateEditor.Step(1);
+    Check(SameValue(Combined.DateTime, EncodeDate(2025, 2, 28) + EncodeTime(13, 14, 15, 321)),
+      'Date editing preserves time and milliseconds');
+    Combined.TimeEditor.ActiveSegment := tsMinute;
+    Combined.TimeEditor.Step(1);
+    Check(SameValue(Combined.DateTime, EncodeDate(2025, 2, 28) + EncodeTime(13, 15, 15, 321)),
+      'Time editing preserves date');
+    Combined.DateTime := -1.75;
+    Check(SameValue(Combined.DateTime, -1.75), 'DateTime retains pre-epoch negative-date convention');
+    I := Counter.Changes;
+    Combined.DateTime := Combined.DateTime;
+    Check(Counter.Changes = I, 'Unchanged DateTime does not notify');
+    Combined.ReadOnly := True;
+    Combined.DateEditor.Step(1);
+    Combined.TimeEditor.Step(1);
+    Check((Counter.Changes = I) and Combined.DateEditor.ReadOnly and Combined.TimeEditor.ReadOnly,
+      'Combined readonly applies to both editors');
+    Combined.Enabled := False;
+    Check(not Combined.DateEditor.Enabled and not Combined.TimeEditor.Enabled, 'Combined disable reaches both fields');
+    Combined.Enabled := True;
+    Combined.RenderTo(Bitmap);
+    Check(not Combined.HandleAllocated, 'DateTime preview renders without a window');
+    Combined.OnChange := nil;
+    Stream.WriteComponent(Combined);
+    Stream.Position := 0;
+    Copy := TERDDateTimePicker(Stream.ReadComponent(nil));
+    try
+      Check(SameValue(Copy.DateTime, Combined.DateTime) and Copy.ReadOnly and Copy.ShowSeconds and
+        (Copy.DateFormat = Combined.DateFormat) and (Copy.TimeFormat = tf12Hour), 'DateTime DFM roundtrip');
+      Check(Copy.ControlCount = 2, 'Streaming does not duplicate internal date/time editors');
+    finally Copy.Free end;
+  finally Bitmap.Free; Stream.Free; Picker.Free; Combined.Free; Counter.Free end;
+end;
+
 procedure TestTimePicker;
 var Form: TForm; Picker: TTimeProbe; Stored, Copy: TERDTimePicker;
   Counter: TChangeProbe; Bitmap: TBitmap; Stream: TMemoryStream;
@@ -1011,6 +1112,7 @@ begin
     TestFeedbackRegressions;
     TestCheckListBox;
     TestTimePicker;
+    TestDateSegmentsAndDateTime;
     Writeln(Checks, ' VCL runtime checks passed.');
   except on E: Exception do begin Writeln(E.ClassName, ': ', E.Message); Halt(1) end end;
 end.
