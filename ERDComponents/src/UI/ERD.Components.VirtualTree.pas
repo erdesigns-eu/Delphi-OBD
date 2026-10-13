@@ -4,7 +4,7 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.Classes, System.Types, System.SysUtils,
-  System.Math, Vcl.Controls, Vcl.Graphics, Vcl.StdCtrls,
+  System.Math, System.UITypes, Vcl.Controls, Vcl.Graphics, Vcl.StdCtrls,
   ERD.Components.Types, ERD.Components.Theme, ERD.Components.Paint,
   ERD.Components.VT, ERD.Components.VT.Types, ERD.Components.VT.Header;
 
@@ -21,7 +21,7 @@ type
     procedure SetRowHeight(Value: Integer);
     procedure SetHeaderHeight(Value: Integer);
     procedure SetAlternateRows(Value: Boolean);
-    function GetPalette: TERDThemePalette;
+    function GetThemePalette: TERDThemePalette;
     procedure ApplyTheme;
     procedure PaintThemedScrollBars;
   protected
@@ -45,7 +45,7 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure ThemeChanged;
-    property Palette: TERDThemePalette read GetPalette;
+    property Palette: TERDThemePalette read GetThemePalette;
   published
     property Theme: TERDTheme read FTheme write SetTheme;
     /// <summary>Default row height in 96-DPI logical pixels; individual node heights remain available.</summary>
@@ -99,7 +99,7 @@ begin
   ThemeChanged;
 end;
 
-function TERDVirtualStringTree.GetPalette: TERDThemePalette;
+function TERDVirtualStringTree.GetThemePalette: TERDThemePalette;
 var Source: TERDTheme;
 begin
   Source := FTheme;
