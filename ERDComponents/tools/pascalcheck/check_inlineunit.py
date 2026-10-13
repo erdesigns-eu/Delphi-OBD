@@ -37,7 +37,7 @@ INLINE_NEEDS = {
 # OBD controls - must name Winapi.Windows too.
 INHERITED_INLINE_NEEDS = {
     # MulDiv (Winapi.Windows) and TControl.CurrentPPI (Vcl.Controls).
-    'ScaleValue': (('Winapi.Windows', 'Vcl.Controls'), 'erd.ui.control'),
+    'ScaleValue': (('Winapi.Windows', 'Vcl.Controls', 'ERD.Components.Control'), 'erd.components.control'),
 }
 
 # System.Classes re-declares these System.Types helpers as inline wrappers,
@@ -86,7 +86,9 @@ for path in pas_files():
                              f'which this unit does not name'))
             break
     for name, (units, via) in INHERITED_INLINE_NEEDS.items():
-        if via not in used:
+        if name.lower() in declared:
+            continue
+        if via not in used and not any(unit.startswith('erd.components.') for unit in used):
             continue
         m = re.search(r'(?<![\w.])' + name + r'\s*\(', clean)
         if not m:

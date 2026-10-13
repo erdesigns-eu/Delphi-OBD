@@ -3,7 +3,7 @@ interface
 uses
   Winapi.Windows, System.Classes, System.Types, System.SysUtils, System.Math,
   Vcl.Controls, Vcl.Graphics, ERD.Components.Types, ERD.Components.Paint,
-  ERD.Components.TrackBar;
+  ERD.Components.Control, ERD.Components.TrackBar;
 type
   TERDSeekBar = class(TERDTrackBar)
   private

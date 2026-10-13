@@ -106,7 +106,6 @@ type
   protected
     procedure Resize; override;
     procedure Loaded; override;
-    procedure GetChildren(Proc: TGetChildProc; Root: TComponent); override;
     procedure PaintControl(ACanvas: TCanvas); override;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
@@ -114,6 +113,7 @@ type
     destructor Destroy; override;
     procedure DensityChanged; override;
     procedure ThemeChanged; override;
+    procedure GetChildren(Proc: TGetChildProc; Root: TComponent); override;
   published
     property Expanded: Boolean read FExpanded write SetExpanded default True;
     property ExpandedHeight: Integer read FExpandedHeight write SetExpandedHeight default 160;

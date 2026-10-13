@@ -127,7 +127,7 @@ PUBLIC_VIRTUALS = {
     'bringtofront', 'sendtoback', 'setfocus', 'paintto', 'flipchildren',
     'defaulthandler', 'dispatch', 'afterconstruction', 'beforedestruction',
     'safecallexception', 'tostring', 'equals', 'gethashcode', 'getnamepath',
-    'getparentcomponent', 'hasparent', 'setsubcomponent',
+    'getparentcomponent', 'hasparent', 'setsubcomponent', 'getchildren',
     'loadfromfile', 'savetofile', 'loadfromstream', 'savetostream',
     'close', 'closequery',
 }

@@ -29,6 +29,35 @@ class CheckerRegressionTests(unittest.TestCase):
         self.assertIn('total:', result.stdout)
         return result.stdout
 
+    def test_inherited_inline_requires_the_declaring_component_unit(self):
+        self.source('src/Sample.pas', """unit Sample;
+interface
+uses Winapi.Windows, Vcl.Controls, ERD.Components.TrackBar;
+type TSample = class(TERDTrackBar)
+procedure Draw;
+end;
+implementation
+procedure TSample.Draw;
+begin Width := ScaleValue(20); end;
+end.
+""")
+        self.assertIn('ERD.Components.Control', self.checker('inlineunit'))
+
+    def test_getchildren_override_must_remain_public(self):
+        self.source('src/Sample.pas', """unit Sample;
+interface
+uses System.Classes, Vcl.Controls;
+type TSample = class(TCustomControl)
+protected
+procedure GetChildren(Proc: TGetChildProc; Root: TComponent); override;
+end;
+implementation
+procedure TSample.GetChildren(Proc: TGetChildProc; Root: TComponent);
+begin inherited; end;
+end.
+""")
+        self.assertIn('GetChildren is protected', self.checker('override'))
+
     def test_anonymous_dynamic_array_cannot_be_returned_as_tarray(self):
         source = self.source('src/Arrays.pas', """unit Arrays;
 interface

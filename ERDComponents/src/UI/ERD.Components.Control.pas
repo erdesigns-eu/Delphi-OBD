@@ -262,7 +262,7 @@ type
     /// </summary>
     destructor Destroy; override;
     /// <summary>IERDThemeAware: repaints with the new palette.</summary>
-    procedure ThemeChanged; // IERDThemeAware
+    procedure ThemeChanged; virtual; // IERDThemeAware
     /// <summary>IERDDensityAware: the effective density changed.
     /// Subclasses that size or place child controls by density
     /// override this and call <c>inherited</c>.</summary>
