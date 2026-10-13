@@ -19,3 +19,8 @@ All other engine behavior is retained.
 Vendor source is checked by manifest hashes, namespace/dependency closure
 and package coverage; the ERD wrapper/demo are checked by pascalcheck.
 The licensed Delphi Windows build/runtime tests must still be run.
+
+Engine class declarations also use the TERDVT prefix (mapping in upstream.json).
+Delphi registers component ancestry by RTTI class name, independent of unit
+namespaces. Renaming these classes prevents collisions with an installed original
+Virtual Treeview. Records and event names remain unchanged.

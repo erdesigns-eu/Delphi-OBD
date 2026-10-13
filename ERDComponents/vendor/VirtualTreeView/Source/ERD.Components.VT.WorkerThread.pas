@@ -14,15 +14,15 @@ uses
 
 type
   // internal worker thread
-  TWorkerThread = class(TThread)
+  TERDVTWorkerThread = class(TThread)
   private
-    FCurrentTree: TBaseVirtualTree;
+    FCurrentTree: TERDVTBaseVirtualTree;
     FWaiterList: TThreadList;
     FRefCount: Integer;
     FWorkEvent: THandle;
     class procedure EnsureCreated();
     class procedure Dispose(CanBlock: Boolean);
-    procedure WaitForValidationTermination(Tree: TBaseVirtualTree);
+    procedure WaitForValidationTermination(Tree: TERDVTBaseVirtualTree);
   protected
     procedure Execute; override;
   public
@@ -33,8 +33,8 @@ type
     class procedure AddThreadReference;
     class procedure ReleaseThreadReference(ACanBlock: Boolean = False);
 
-    class procedure AddTree(Tree: TBaseVirtualTree);
-    class procedure RemoveTree(pTree: TBaseVirtualTree; pWaitForValidationTermination: Boolean);
+    class procedure AddTree(Tree: TERDVTBaseVirtualTree);
+    class procedure RemoveTree(pTree: TERDVTBaseVirtualTree; pWaitForValidationTermination: Boolean);
   end;
 
 
@@ -49,24 +49,24 @@ uses
   System.SysUtils;
 
 type
-  TBaseVirtualTreeCracker = class(TBaseVirtualTree)
+  TERDVTBaseVirtualTreeCracker = class(TERDVTBaseVirtualTree)
   end;
 
 var
-  WorkerThread: TWorkerThread = nil;
+  WorkerThread: TERDVTWorkerThread = nil;
 
 //----------------- TWorkerThread --------------------------------------------------------------------------------------
 
-class procedure TWorkerThread.EnsureCreated();
+class procedure TERDVTWorkerThread.EnsureCreated();
 begin
   if not Assigned(WorkerThread) then
     // Create worker thread, initialize it and send it to its wait loop.
-    WorkerThread := TWorkerThread.Create();
+    WorkerThread := TERDVTWorkerThread.Create();
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class procedure TWorkerThread.Dispose(CanBlock: Boolean);
+class procedure TERDVTWorkerThread.Dispose(CanBlock: Boolean);
 var
   LRef: TThread;
 begin
@@ -81,15 +81,15 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class procedure TWorkerThread.AddThreadReference;
+class procedure TERDVTWorkerThread.AddThreadReference;
 begin
-  TWorkerThread.EnsureCreated();
+  TERDVTWorkerThread.EnsureCreated();
   InterlockedIncrement(WorkerThread.FRefCount);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class procedure TWorkerThread.ReleaseThreadReference(ACanBlock: Boolean);
+class procedure TERDVTWorkerThread.ReleaseThreadReference(ACanBlock: Boolean);
 begin
   if Assigned(WorkerThread) then
   begin
@@ -102,7 +102,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-constructor TWorkerThread.Create();
+constructor TERDVTWorkerThread.Create();
 
 begin
   FWaiterList := TThreadList.Create;
@@ -116,7 +116,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-destructor TWorkerThread.Destroy;
+destructor TERDVTWorkerThread.Destroy;
 
 begin
   // First let the ancestor stop the thread before freeing our resources.
@@ -127,7 +127,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TWorkerThread.WaitForValidationTermination(Tree: TBaseVirtualTree);
+procedure TERDVTWorkerThread.WaitForValidationTermination(Tree: TERDVTBaseVirtualTree);
 begin
   // Wait for any references to this tree to be released.
   while FCurrentTree = Tree do
@@ -139,7 +139,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TWorkerThread.Execute();
+procedure TERDVTWorkerThread.Execute();
 
 // Does some background tasks, like validating tree caches.
 
@@ -147,7 +147,7 @@ var
   EnterStates: TVirtualTreeStates;
   lExceptAddr: Pointer;
   lException: TObject;
-  lCurrentTree: TBaseVirtualTree;
+  lCurrentTree: TERDVTBaseVirtualTree;
 begin
   TThread.NameThreadForDebugging('VirtualTrees.TWorkerThread');
   while not Terminated do
@@ -178,14 +178,14 @@ begin
     if Assigned(lCurrentTree) then
     begin
       try
-        TBaseVirtualTreeCracker(lCurrentTree).ChangeTreeStatesAsync([tsValidating], [tsUseCache, tsValidationNeeded]);
+        TERDVTBaseVirtualTreeCracker(lCurrentTree).ChangeTreeStatesAsync([tsValidating], [tsUseCache, tsValidationNeeded]);
         FCurrentTree := lCurrentTree;
         EnterStates := [];
-        if not (tsStopValidation in FCurrentTree.TreeStates) and TBaseVirtualTreeCracker(FCurrentTree).DoValidateCache then
+        if not (tsStopValidation in FCurrentTree.TreeStates) and TERDVTBaseVirtualTreeCracker(FCurrentTree).DoValidateCache then
           EnterStates := [tsUseCache];
       finally
         FCurrentTree := nil; // Important: Clear variable before calling ChangeTreeStatesAsync() to prevent deadlock in WaitForValidationTermination(). See issue #1001
-        TBaseVirtualTreeCracker(lCurrentTree).ChangeTreeStatesAsync(EnterStates, [tsValidating, tsStopValidation]);
+        TERDVTBaseVirtualTreeCracker(lCurrentTree).ChangeTreeStatesAsync(EnterStates, [tsValidating, tsStopValidation]);
       end;
     end;
   except
@@ -204,14 +204,14 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class procedure TWorkerThread.AddTree(Tree: TBaseVirtualTree);
+class procedure TERDVTWorkerThread.AddTree(Tree: TERDVTBaseVirtualTree);
 
 begin
   Assert(Assigned(Tree), 'Tree must not be nil.');
-  TWorkerThread.EnsureCreated();
+  TERDVTWorkerThread.EnsureCreated();
 
   // Remove validation stop flag, just in case it is still set.
-  TBaseVirtualTreeCracker(Tree).DoStateChange([], [tsStopValidation]);
+  TERDVTBaseVirtualTreeCracker(Tree).DoStateChange([], [tsStopValidation]);
   with WorkerThread.FWaiterList.LockList do
   try
     if IndexOf(Tree) = -1 then
@@ -225,7 +225,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class procedure TWorkerThread.RemoveTree(pTree: TBaseVirtualTree; pWaitForValidationTermination: Boolean);
+class procedure TERDVTWorkerThread.RemoveTree(pTree: TERDVTBaseVirtualTree; pWaitForValidationTermination: Boolean);
 begin
   if not Assigned(WorkerThread) then
     exit;

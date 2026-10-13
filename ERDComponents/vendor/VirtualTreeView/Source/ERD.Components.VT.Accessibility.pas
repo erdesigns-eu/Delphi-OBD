@@ -19,11 +19,11 @@ uses
   ERD.Components.VT, ERD.Components.VT.AccessibilityFactory, ERD.Components.VT.BaseTree;
 
 type
-  TVirtualTreeAccessibility = class(TInterfacedObject, IDispatch, IAccessible)
+  TERDVTVirtualTreeAccessibility = class(TInterfacedObject, IDispatch, IAccessible)
   private
-    FVirtualTree: TVirtualStringTree;
+    FVirtualTree: TERDVTVirtualStringTree;
   public
-    constructor Create(AVirtualTree: TVirtualStringTree);
+    constructor Create(AVirtualTree: TERDVTVirtualStringTree);
     /// Register the default accessible provider of Virtual TreeView
     class procedure RegisterDefaultAccessibleProviders();
 
@@ -62,7 +62,7 @@ type
       ArgErr: Pointer): HRESULT; stdcall;
   end;
 
-  TVirtualTreeItemAccessibility = class(TVirtualTreeAccessibility, IAccessible)
+  TERDVTVirtualTreeItemAccessibility = class(TERDVTVirtualTreeAccessibility, IAccessible)
     public
     { IAccessibility }
     function Get_accParent(out ppdispParent: IDispatch): HResult; stdcall;
@@ -79,7 +79,7 @@ type
     function Get_accFocus(out pvarChild: OleVariant): HRESULT; stdcall;
   end;
 
-  TVTMultiColumnItemAccessibility = class(TVirtualTreeItemAccessibility, IAccessible)
+  TERDVTVTMultiColumnItemAccessibility = class(TERDVTVirtualTreeItemAccessibility, IAccessible)
   strict private
     function GetItemDescription(varChild: OleVariant; out pszDescription: WideString; IncludeMainColumn: boolean): HResult; stdcall;
   public
@@ -88,19 +88,19 @@ type
     function Get_accDescription(varChild: OleVariant; out pszDescription: WideString): HResult; stdcall;
   end;
 
-  TVTDefaultAccessibleProvider = class(TInterfacedObject, IVTAccessibleProvider)
+  TERDVTVTDefaultAccessibleProvider = class(TInterfacedObject, IVTAccessibleProvider)
   public
-    function CreateIAccessible(ATree: TBaseVirtualTree): IAccessible;
+    function CreateIAccessible(ATree: TERDVTBaseVirtualTree): IAccessible;
   end;
 
-  TVTDefaultAccessibleItemProvider = class(TInterfacedObject, IVTAccessibleProvider)
+  TERDVTVTDefaultAccessibleItemProvider = class(TInterfacedObject, IVTAccessibleProvider)
   public
-    function CreateIAccessible(ATree: TBaseVirtualTree): IAccessible;
+    function CreateIAccessible(ATree: TERDVTBaseVirtualTree): IAccessible;
   end;
 
-  TVTMultiColumnAccessibleItemProvider = class(TInterfacedObject, IVTAccessibleProvider)
+  TERDVTVTMultiColumnAccessibleItemProvider = class(TInterfacedObject, IVTAccessibleProvider)
   public
-    function CreateIAccessible(ATree: TBaseVirtualTree): IAccessible;
+    function CreateIAccessible(ATree: TERDVTBaseVirtualTree): IAccessible;
   end;
 
 implementation
@@ -113,12 +113,12 @@ uses
 type
 
 /// For getting access to protected members of this class
-THackVirtualStringTree = class(TVirtualStringTree)
+TERDVTHackVirtualStringTree = class(TERDVTVirtualStringTree)
 end;
 
 { TVirtualTreeAccessibility }
 //----------------------------------------------------------------------------------------------------------------------
-constructor TVirtualTreeAccessibility.Create(AVirtualTree: TVirtualStringTree);
+constructor TERDVTVirtualTreeAccessibility.Create(AVirtualTree: TERDVTVirtualStringTree);
 // assigns the parent and current fields, and lets the control's IAccessible object know its address.
 begin
   inherited Create;
@@ -127,14 +127,14 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TVirtualTreeAccessibility.accDoDefaultAction(varChild: OleVariant): HResult;
+function TERDVTVirtualTreeAccessibility.accDoDefaultAction(varChild: OleVariant): HResult;
 // a default action is not supported.
 begin
   Result := DISP_E_MEMBERNOTFOUND;
 end;
 //----------------------------------------------------------------------------------------------------------------------
 
-function TVirtualTreeAccessibility.accHitTest(xLeft: Integer; yTop: Integer; out pvarChild: OleVariant): HResult;
+function TERDVTVirtualTreeAccessibility.accHitTest(xLeft: Integer; yTop: Integer; out pvarChild: OleVariant): HResult;
 // returns the iAccessible object at the given point, if applicable.
 var
   Pt: TPoint;
@@ -165,7 +165,7 @@ begin
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
-function TVirtualTreeAccessibility.accLocation(out pxLeft: Integer;
+function TERDVTVirtualTreeAccessibility.accLocation(out pxLeft: Integer;
   out pyTop: Integer; out pcxWidth: Integer;
   out pcyHeight: Integer; varChild: OleVariant): HResult;
 // returns the location of the VirtualStringTree object.
@@ -196,7 +196,7 @@ begin
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
-function TVirtualTreeAccessibility.accNavigate(navDir: Integer; varStart: OleVariant;
+function TERDVTVirtualTreeAccessibility.accNavigate(navDir: Integer; varStart: OleVariant;
   out pvarEndUpAt: OleVariant): HResult;
 // This is not supported.
 begin
@@ -204,7 +204,7 @@ begin
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
-function TVirtualTreeAccessibility.Get_accSelection(out pvarChildren: OleVariant): HResult;
+function TERDVTVirtualTreeAccessibility.Get_accSelection(out pvarChildren: OleVariant): HResult;
 // returns the selected child ID, if any.
 begin
   Result := s_false;
@@ -217,7 +217,7 @@ begin
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
-function TVirtualTreeAccessibility.GetIDsOfNames(const IID: TGUID;
+function TERDVTVirtualTreeAccessibility.GetIDsOfNames(const IID: TGUID;
   Names: Pointer; NameCount, LocaleID: Integer; DispIDs: Pointer): HRESULT;
 // Not supported.
 begin
@@ -225,7 +225,7 @@ begin
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
-function TVirtualTreeAccessibility.GetTypeInfo(Index, LocaleID: Integer;
+function TERDVTVirtualTreeAccessibility.GetTypeInfo(Index, LocaleID: Integer;
   out TypeInfo): HRESULT;
 // not supported.
 begin
@@ -233,7 +233,7 @@ begin
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
-function TVirtualTreeAccessibility.GetTypeInfoCount(
+function TERDVTVirtualTreeAccessibility.GetTypeInfoCount(
   out Count: Integer): HRESULT;
 // not supported.
 begin
@@ -241,7 +241,7 @@ begin
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
-function TVirtualTreeAccessibility.Get_accChild(varChild: OleVariant; out ppdispChild: IDispatch): HResult;
+function TERDVTVirtualTreeAccessibility.Get_accChild(varChild: OleVariant; out ppdispChild: IDispatch): HResult;
 // returns the iAccessible child, whicfh represents the focused item.
 begin
   if varChild = CHILDID_SELF then
@@ -254,7 +254,7 @@ begin
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
-function TVirtualTreeAccessibility.Get_accChildCount(out pcountChildren: Integer): HResult;
+function TERDVTVirtualTreeAccessibility.Get_accChildCount(out pcountChildren: Integer): HResult;
 // Returns the number 1 for the one child: The focused item.
 begin
   pcountChildren := 1;
@@ -262,14 +262,14 @@ begin
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
-function TVirtualTreeAccessibility.Get_accDefaultAction(varChild: OleVariant; out pszDefaultAction: WideString): HResult;
+function TERDVTVirtualTreeAccessibility.Get_accDefaultAction(varChild: OleVariant; out pszDefaultAction: WideString): HResult;
 // Not supported.
 begin
   Result := DISP_E_MEMBERNOTFOUND;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
-function TVirtualTreeAccessibility.Get_accDescription(varChild: OleVariant; out pszDescription: WideString): HResult;
+function TERDVTVirtualTreeAccessibility.Get_accDescription(varChild: OleVariant; out pszDescription: WideString): HResult;
 // returns the hint of the control, if assigned.
 begin
   pszDescription := '';
@@ -284,7 +284,7 @@ begin
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
-function TVirtualTreeAccessibility.Get_accFocus(out pvarChild: OleVariant): HResult;
+function TERDVTVirtualTreeAccessibility.Get_accFocus(out pvarChild: OleVariant): HResult;
 // returns the child ID of 1, if assigned.
 begin
   Result := s_false;
@@ -299,14 +299,14 @@ begin
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
-function TVirtualTreeAccessibility.Get_accHelp(varChild: OleVariant; out pszHelp: WideString): HResult;
+function TERDVTVirtualTreeAccessibility.Get_accHelp(varChild: OleVariant; out pszHelp: WideString): HResult;
 // Not supported.
 begin
   Result := DISP_E_MEMBERNOTFOUND;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
-function TVirtualTreeAccessibility.Get_accHelpTopic(out pszHelpFile: WideString; varChild: OleVariant;
+function TERDVTVirtualTreeAccessibility.Get_accHelpTopic(out pszHelpFile: WideString; varChild: OleVariant;
                           out pidTopic: Integer): HResult;
 // Returns the HelpContext ID, if present.
 begin
@@ -322,7 +322,7 @@ begin
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
-function TVirtualTreeAccessibility.Get_accKeyboardShortcut(varChild: OleVariant; out pszKeyboardShortcut: WideString): HResult;
+function TERDVTVirtualTreeAccessibility.Get_accKeyboardShortcut(varChild: OleVariant; out pszKeyboardShortcut: WideString): HResult;
 // Not supported.
 begin
   pszKeyboardShortcut := '';
@@ -330,7 +330,7 @@ begin
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
-function TVirtualTreeAccessibility.Get_accName(varChild: OleVariant; out pszName: WideString): HResult;
+function TERDVTVirtualTreeAccessibility.Get_accName(varChild: OleVariant; out pszName: WideString): HResult;
 // if set, returns the new published AccessibleName property.
 // if not set, tries the name and class name properties.
 // otherwise, returns the default text.
@@ -363,7 +363,7 @@ begin
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
-function TVirtualTreeAccessibility.Get_accParent(out ppdispParent: IDispatch): HResult;
+function TERDVTVirtualTreeAccessibility.Get_accParent(out ppdispParent: IDispatch): HResult;
 // Returns false, the tree itself does not have a parent.
 var
   hParent: HWND;
@@ -386,7 +386,7 @@ begin
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
-function TVirtualTreeAccessibility.Get_accRole(varChild: OleVariant; out pvarRole: OleVariant): HResult;
+function TERDVTVirtualTreeAccessibility.Get_accRole(varChild: OleVariant; out pvarRole: OleVariant): HResult;
 // tells MSAA that it is a TreeView.
 begin
   Result := S_OK;
@@ -408,7 +408,7 @@ begin
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
-function TVirtualTreeAccessibility.accSelect(flagsSelect: Integer; varChild: OleVariant): HResult;
+function TERDVTVirtualTreeAccessibility.accSelect(flagsSelect: Integer; varChild: OleVariant): HResult;
 var
   lIndexToSelect: Cardinal;
   i: Integer;
@@ -439,13 +439,13 @@ begin
     Result := S_OK;
   end;
   if (flagsSelect and SELFLAG_EXTENDSELECTION) <> 0 then begin
-    THackVirtualStringTree(FVirtualTree).HandleClickSelection(FVirtualTree.FocusedNode, lNode, [ssShift], False);
+    TERDVTHackVirtualStringTree(FVirtualTree).HandleClickSelection(FVirtualTree.FocusedNode, lNode, [ssShift], False);
     Result := S_OK;
   end;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
-function TVirtualTreeAccessibility.Get_accState(varChild: OleVariant; out pvarState: OleVariant): HResult;
+function TERDVTVirtualTreeAccessibility.Get_accState(varChild: OleVariant; out pvarState: OleVariant): HResult;
 // returns the state of the control.
 const
   IsEnabled: array[Boolean] of Integer = (STATE_SYSTEM_UNAVAILABLE, 0);
@@ -479,7 +479,7 @@ begin
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
-function TVirtualTreeAccessibility.Get_accValue(varChild: OleVariant; out pszValue: WideString): HResult;
+function TERDVTVirtualTreeAccessibility.Get_accValue(varChild: OleVariant; out pszValue: WideString): HResult;
 // the TreeView control itself does not have a value, returning false here.
 begin
   RESULT := S_FALSE;
@@ -493,7 +493,7 @@ begin
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
-function TVirtualTreeAccessibility.Invoke(DispID: Integer; const IID: TGUID;
+function TERDVTVirtualTreeAccessibility.Invoke(DispID: Integer; const IID: TGUID;
   LocaleID: Integer; Flags: Word; var Params; VarResult, ExcepInfo,
   ArgErr: Pointer): HRESULT;
 // not supported.
@@ -502,14 +502,14 @@ begin
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
-function TVirtualTreeAccessibility.Set_accName(varChild: OleVariant; const pszName: WideString): HResult; stdcall;
+function TERDVTVirtualTreeAccessibility.Set_accName(varChild: OleVariant; const pszName: WideString): HResult; stdcall;
 // not supported.
 begin
   Result := DISP_E_MEMBERNOTFOUND;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
-function TVirtualTreeAccessibility.Set_accValue(varChild: OleVariant; const pszValue: WideString): HResult;
+function TERDVTVirtualTreeAccessibility.Set_accValue(varChild: OleVariant; const pszValue: WideString): HResult;
 // not supported.
 begin
   Result := DISP_E_MEMBERNOTFOUND
@@ -518,7 +518,7 @@ end;
 { TVirtualTreeItemAccessibility }
 
 //----------------------------------------------------------------------------------------------------------------------
-function TVirtualTreeItemAccessibility.accLocation(out pxLeft, pyTop, pcxWidth,
+function TERDVTVirtualTreeItemAccessibility.accLocation(out pxLeft, pyTop, pcxWidth,
   pcyHeight: Integer; varChild: OleVariant): HResult;
 // returns the location of the current accessible item.
 var
@@ -542,7 +542,7 @@ begin
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
-function TVirtualTreeItemAccessibility.Get_accChild(varChild: OleVariant; out ppdispChild: IDispatch): HResult;
+function TERDVTVirtualTreeItemAccessibility.Get_accChild(varChild: OleVariant; out ppdispChild: IDispatch): HResult;
 // the item does not have children. Returning false.
 begin
   ppdispChild := nil;
@@ -550,7 +550,7 @@ begin
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
-function TVirtualTreeItemAccessibility.Get_accChildCount(out pcountChildren: Integer): HResult;
+function TERDVTVirtualTreeItemAccessibility.Get_accChildCount(out pcountChildren: Integer): HResult;
 // the item itself does not have children, returning 0.
 begin
   pcountChildren := 0;
@@ -558,14 +558,14 @@ begin
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
-function TVirtualTreeItemAccessibility.Get_accDescription(varChild: OleVariant; out pszDescription: WideString): HResult;
+function TERDVTVirtualTreeItemAccessibility.Get_accDescription(varChild: OleVariant; out pszDescription: WideString): HResult;
 // not supported for an item.
 begin
   Result := DISP_E_MEMBERNOTFOUND;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
-function TVirtualTreeItemAccessibility.Get_accFocus(out pvarChild: OleVariant): HResult;
+function TERDVTVirtualTreeItemAccessibility.Get_accFocus(out pvarChild: OleVariant): HResult;
 begin
   // must override this or we get an infinite loop when using MS narrator
   // when navigating using the arrow keys.
@@ -577,7 +577,7 @@ begin
   end;
 end;
 
-function TVirtualTreeItemAccessibility.Get_accName(varChild: OleVariant; out pszName: WideString): HResult;
+function TERDVTVirtualTreeItemAccessibility.Get_accName(varChild: OleVariant; out pszName: WideString): HResult;
 // the name is the node's caption.
 var
   kind: TVTImageKind;
@@ -607,7 +607,7 @@ begin
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
-function TVirtualTreeItemAccessibility.Get_accParent(out ppdispParent: IDispatch): HResult;
+function TERDVTVirtualTreeItemAccessibility.Get_accParent(out ppdispParent: IDispatch): HResult;
 // tells MSAA that the VritualStringTree is its parent.
 begin
   result := S_FALSE;
@@ -619,7 +619,7 @@ begin
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
-function TVirtualTreeItemAccessibility.Get_accRole(varChild: OleVariant; out pvarRole: OleVariant): HResult;
+function TERDVTVirtualTreeItemAccessibility.Get_accRole(varChild: OleVariant; out pvarRole: OleVariant): HResult;
 // tells MSAA that it is a TreeView item as opposed to the TreeView itself.
 begin
   Result := S_OK;
@@ -633,7 +633,7 @@ begin
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
-function TVirtualTreeItemAccessibility.Get_accState(varChild: OleVariant; out pvarState: OleVariant): HResult;
+function TERDVTVirtualTreeItemAccessibility.Get_accState(varChild: OleVariant; out pvarState: OleVariant): HResult;
 // Tells MSAA the state the item is in.
 const
   IsEnabled: array[Boolean] of Integer = (STATE_SYSTEM_UNAVAILABLE, 0);
@@ -667,7 +667,7 @@ begin
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
-function TVirtualTreeItemAccessibility.Get_accValue(varChild: OleVariant; out pszValue: WideString): HResult;
+function TERDVTVirtualTreeItemAccessibility.Get_accValue(varChild: OleVariant; out pszValue: WideString): HResult;
 // for a TreeView item, the value is the nesting level number, 0-based.
 begin
   pszValue := '';
@@ -683,7 +683,7 @@ end;
 
 { TVTMultiColumnItemAccessibility }
 
-function TVTMultiColumnItemAccessibility.GetItemDescription(
+function TERDVTVTMultiColumnItemAccessibility.GetItemDescription(
   varChild: OleVariant; out pszDescription: WideString;
   IncludeMainColumn: boolean): HResult;
 var
@@ -737,13 +737,13 @@ begin
   end;
 end;
 
-function TVTMultiColumnItemAccessibility.Get_accDescription(
+function TERDVTVTMultiColumnItemAccessibility.Get_accDescription(
   varChild: OleVariant; out pszDescription: WideString): HResult;
 begin
   result := GetItemDescription(varChild, pszDescription, false)
 end;
 
-function TVTMultiColumnItemAccessibility.Get_accName(varChild: OleVariant;
+function TERDVTVTMultiColumnItemAccessibility.Get_accName(varChild: OleVariant;
   out pszName: WideString): HResult;
 begin
   result := GetItemDescription(varChild, pszName, true)
@@ -751,53 +751,53 @@ end;
 
 { TVTDefaultAccessibleProvider }
 
-function TVTDefaultAccessibleProvider.CreateIAccessible(ATree: TBaseVirtualTree): IAccessible;
+function TERDVTVTDefaultAccessibleProvider.CreateIAccessible(ATree: TERDVTBaseVirtualTree): IAccessible;
 begin
-  result := TVirtualTreeAccessibility.Create(TVirtualStringTree(ATree));
+  result := TERDVTVirtualTreeAccessibility.Create(TERDVTVirtualStringTree(ATree));
 end;
 
 { TVTDefaultAccessibleItemProvider }
 
-function TVTDefaultAccessibleItemProvider.CreateIAccessible(ATree: TBaseVirtualTree): IAccessible;
+function TERDVTVTDefaultAccessibleItemProvider.CreateIAccessible(ATree: TERDVTBaseVirtualTree): IAccessible;
 begin
-  result := TVirtualTreeItemAccessibility.Create(TVirtualStringTree(ATree));
+  result := TERDVTVirtualTreeItemAccessibility.Create(TERDVTVirtualStringTree(ATree));
 end;
 
 { TVTMultiColumnAccessibleItemProvider }
 
-function TVTMultiColumnAccessibleItemProvider.CreateIAccessible(ATree: TBaseVirtualTree): IAccessible;
+function TERDVTVTMultiColumnAccessibleItemProvider.CreateIAccessible(ATree: TERDVTBaseVirtualTree): IAccessible;
 begin
   result := nil;
-  if TVirtualStringTree(ATree).Header.UseColumns then
-    result := TVTMultiColumnItemAccessibility.Create(TVirtualStringTree(ATree));
+  if TERDVTVirtualStringTree(ATree).Header.UseColumns then
+    result := TERDVTVTMultiColumnItemAccessibility.Create(TERDVTVirtualStringTree(ATree));
 end;
 
 var
-  DefaultAccessibleProvider: TVTDefaultAccessibleProvider;
-  DefaultAccessibleItemProvider: TVTDefaultAccessibleItemProvider;
-  MultiColumnAccessibleProvider: TVTMultiColumnAccessibleItemProvider;
+  DefaultAccessibleProvider: TERDVTVTDefaultAccessibleProvider;
+  DefaultAccessibleItemProvider: TERDVTVTDefaultAccessibleItemProvider;
+  MultiColumnAccessibleProvider: TERDVTVTMultiColumnAccessibleItemProvider;
 
-class procedure TVirtualTreeAccessibility.RegisterDefaultAccessibleProviders();
+class procedure TERDVTVirtualTreeAccessibility.RegisterDefaultAccessibleProviders();
 begin
   if DefaultAccessibleProvider = nil then
   begin
-    DefaultAccessibleProvider := TVTDefaultAccessibleProvider.Create;
-    TVTAccessibilityFactory.GetAccessibilityFactory.RegisterAccessibleProvider(DefaultAccessibleProvider);
+    DefaultAccessibleProvider := TERDVTVTDefaultAccessibleProvider.Create;
+    TERDVTVTAccessibilityFactory.GetAccessibilityFactory.RegisterAccessibleProvider(DefaultAccessibleProvider);
   end;
   if DefaultAccessibleItemProvider = nil then
   begin
-    DefaultAccessibleItemProvider := TVTDefaultAccessibleItemProvider.Create;
-    TVTAccessibilityFactory.GetAccessibilityFactory.RegisterAccessibleProvider(DefaultAccessibleItemProvider);
+    DefaultAccessibleItemProvider := TERDVTVTDefaultAccessibleItemProvider.Create;
+    TERDVTVTAccessibilityFactory.GetAccessibilityFactory.RegisterAccessibleProvider(DefaultAccessibleItemProvider);
   end;
   if MultiColumnAccessibleProvider = nil then
   begin
-    MultiColumnAccessibleProvider := TVTMultiColumnAccessibleItemProvider.Create;
-    TVTAccessibilityFactory.GetAccessibilityFactory.RegisterAccessibleProvider(MultiColumnAccessibleProvider);
+    MultiColumnAccessibleProvider := TERDVTVTMultiColumnAccessibleItemProvider.Create;
+    TERDVTVTAccessibilityFactory.GetAccessibilityFactory.RegisterAccessibleProvider(MultiColumnAccessibleProvider);
   end;
 end;
 
 
 initialization
-  TVirtualTreeAccessibility.RegisterDefaultAccessibleProviders();
+  TERDVTVirtualTreeAccessibility.RegisterDefaultAccessibleProviders();
 
 end.

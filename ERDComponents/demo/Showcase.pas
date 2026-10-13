@@ -532,14 +532,14 @@ type
     OpenBackstageButton: TERDButton;
     DemoVirtualStringTree: TERDVirtualStringTree;
     LabelVirtualStringTree: TLabel;
-    procedure TreeGetText(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
+    procedure TreeGetText(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
       TextType: TVSTTextType; var CellText: string);
-    procedure TreeInitNode(Sender: TBaseVirtualTree; ParentNode, Node: PVirtualNode;
+    procedure TreeInitNode(Sender: TERDVTBaseVirtualTree; ParentNode, Node: PVirtualNode;
       var InitialStates: TVirtualNodeInitStates);
-    procedure TreeInitChildren(Sender: TBaseVirtualTree; Node: PVirtualNode; var ChildCount: Cardinal);
-    procedure TreeCompareNodes(Sender: TBaseVirtualTree; Node1, Node2: PVirtualNode;
+    procedure TreeInitChildren(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode; var ChildCount: Cardinal);
+    procedure TreeCompareNodes(Sender: TERDVTBaseVirtualTree; Node1, Node2: PVirtualNode;
       Column: TColumnIndex; var Result: Integer);
-    procedure TreeHeaderClick(Sender: TVTHeader; HitInfo: TVTHeaderHitInfo);
+    procedure TreeHeaderClick(Sender: TERDVTVTHeader; HitInfo: TVTHeaderHitInfo);
     procedure QuickAccessClicked(Sender: TObject);
     procedure AutoSaveChanged(Sender: TObject);
     procedure ShowBackstage(Sender: TObject);
@@ -638,7 +638,7 @@ begin
   DemoPopupMenu.Popup(P.X, P.Y);
 end;
 
-procedure TShowcaseForm.TreeGetText(Sender: TBaseVirtualTree; Node: PVirtualNode;
+procedure TShowcaseForm.TreeGetText(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode;
   Column: TColumnIndex; TextType: TVSTTextType; var CellText: string);
 var Data: PPlaylistDemoData;
 begin
@@ -657,7 +657,7 @@ begin
     end;
 end;
 
-procedure TShowcaseForm.TreeInitNode(Sender: TBaseVirtualTree; ParentNode, Node: PVirtualNode;
+procedure TShowcaseForm.TreeInitNode(Sender: TERDVTBaseVirtualTree; ParentNode, Node: PVirtualNode;
   var InitialStates: TVirtualNodeInitStates);
 var Data, ParentData: PPlaylistDemoData;
 begin
@@ -673,13 +673,13 @@ begin
   end;
 end;
 
-procedure TShowcaseForm.TreeInitChildren(Sender: TBaseVirtualTree; Node: PVirtualNode;
+procedure TShowcaseForm.TreeInitChildren(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode;
   var ChildCount: Cardinal);
 begin
   if Sender.GetNodeLevel(Node) = 0 then ChildCount := 1000 else ChildCount := 0;
 end;
 
-procedure TShowcaseForm.TreeCompareNodes(Sender: TBaseVirtualTree; Node1, Node2: PVirtualNode;
+procedure TShowcaseForm.TreeCompareNodes(Sender: TERDVTBaseVirtualTree; Node1, Node2: PVirtualNode;
   Column: TColumnIndex; var Result: Integer);
 var LeftText, RightText: string;
 begin
@@ -688,7 +688,7 @@ begin
   Result := CompareText(LeftText, RightText);
 end;
 
-procedure TShowcaseForm.TreeHeaderClick(Sender: TVTHeader; HitInfo: TVTHeaderHitInfo);
+procedure TShowcaseForm.TreeHeaderClick(Sender: TERDVTVTHeader; HitInfo: TVTHeaderHitInfo);
 begin
   if HitInfo.Column < 0 then Exit;
   if Sender.SortColumn = HitInfo.Column then

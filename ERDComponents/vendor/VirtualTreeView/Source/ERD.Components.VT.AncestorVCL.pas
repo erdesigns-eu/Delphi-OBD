@@ -28,16 +28,16 @@ uses
   ERD.Components.VT.BaseTree;
 
 type
-  TVTRenderOLEDataEvent = procedure(Sender: TBaseVirtualTree; const FormatEtcIn: TFormatEtc; out Medium: TStgMedium;
+  TVTRenderOLEDataEvent = procedure(Sender: TERDVTBaseVirtualTree; const FormatEtcIn: TFormatEtc; out Medium: TStgMedium;
     ForClipboard: Boolean; var Result: HRESULT) of object;
 
-  TVTAncestorVcl = class abstract(TBaseVirtualTree)
+  TERDVTVTAncestorVcl = class abstract(TERDVTBaseVirtualTree)
   private
     FOnRenderOLEData: TVTRenderOLEDataEvent;     // application/descendant defined clipboard formats
 
   protected
     function GetHintWindowClass: THintWindowClass; override;
-    class function GetTreeFromDataObject(const DataObject: TVTDragDataObject): TBaseVirtualTree; deprecated 'Use class TVTDragManager.GetTreeFromDataObject() instead';
+    class function GetTreeFromDataObject(const DataObject: TVTDragDataObject): TERDVTBaseVirtualTree; deprecated 'Use class TVTDragManager.GetTreeFromDataObject() instead';
     function DoRenderOLEData(const FormatEtcIn: TFormatEtc; out Medium: TStgMedium; ForClipboard: Boolean): HRESULT; override;
     property OnRenderOLEData: TVTRenderOLEDataEvent read FOnRenderOLEData write FOnRenderOLEData;
   public //methods
@@ -45,7 +45,7 @@ type
  end;
 
    // The trees need an own hint window class because of Unicode output and adjusted font.
-  TVirtualTreeHintWindow = class(THintWindow)
+  TERDVTVirtualTreeHintWindow = class(THintWindow)
   strict private
     FHintData: TVTHintData;
     FTextHeight: TDimension;
@@ -78,11 +78,11 @@ resourcestring
   SClipboardFailed = 'Clipboard operation failed.';
 
 type
-  TBVTCracker = class(TBaseVirtualTree);
+  TERDVTBVTCracker = class(TERDVTBaseVirtualTree);
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TVTAncestorVcl.DoRenderOLEData(const FormatEtcIn: TFormatEtc; out Medium: TStgMedium; ForClipboard: Boolean): HRESULT;
+function TERDVTVTAncestorVcl.DoRenderOLEData(const FormatEtcIn: TFormatEtc; out Medium: TStgMedium; ForClipboard: Boolean): HRESULT;
 begin
   Result := E_FAIL;
   if Assigned(FOnRenderOLEData) then
@@ -91,17 +91,17 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TVTAncestorVcl.GetHintWindowClass: THintWindowClass;
+function TERDVTVTAncestorVcl.GetHintWindowClass: THintWindowClass;
 
 // Returns the default hint window class used for the tree. Descendants can override it to use their own classes.
 
 begin
-  Result := TVirtualTreeHintWindow;
+  Result := TERDVTVirtualTreeHintWindow;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class function TVTAncestorVcl.GetTreeFromDataObject(const DataObject: TVTDragDataObject): TBaseVirtualTree;
+class function TERDVTVTAncestorVcl.GetTreeFromDataObject(const DataObject: TVTDragDataObject): TERDVTBaseVirtualTree;
 
 // Returns the owner/sender of the given data object by means of a special clipboard format
 // or nil if the sender is in another process or no virtual tree at all.
@@ -131,7 +131,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TVTAncestorVcl.PasteFromClipboard(): Boolean;
+function TERDVTVTAncestorVcl.PasteFromClipboard(): Boolean;
 
 // Reads what is currently on the clipboard into the tree (if the format is supported).
 // Note: If the application wants to have text or special formats to be inserted then it must implement
@@ -139,7 +139,7 @@ function TVTAncestorVcl.PasteFromClipboard(): Boolean;
 
 var
   Data: IDataObject;
-  Source: TBaseVirtualTree;
+  Source: TERDVTBaseVirtualTree;
 
 begin
   Result := False;
@@ -150,7 +150,7 @@ begin
     else
     begin
       // Try to get the source tree of the operation to optimize the operation.
-      Source := TVTDragManager.GetTreeFromDataObject(Data);
+      Source := TERDVTVTDragManager.GetTreeFromDataObject(Data);
       Result := ProcessOLEData(Source, Data, FocusedNode, DefaultPasteMode, Assigned(Source) and
         (tsCutPending in Source.TreeStates));
       if Assigned(Source) then
@@ -166,7 +166,7 @@ end;
 
 //----------------- TVirtualTreeHintWindow -----------------------------------------------------------------------------
 
-procedure TVirtualTreeHintWindow.CMTextChanged(var Message: TMessage);
+procedure TERDVTVirtualTreeHintWindow.CMTextChanged(var Message: TMessage);
 
 begin
   // swallow this message to prevent the ancestor from resizing the window (we don't use the caption anyway)
@@ -174,7 +174,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVirtualTreeHintWindow.WMEraseBkgnd(var Message: TWMEraseBkgnd);
+procedure TERDVTVirtualTreeHintWindow.WMEraseBkgnd(var Message: TWMEraseBkgnd);
 
 // The control is fully painted by own code so don't erase its background as this causes flickering.
 
@@ -184,7 +184,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVirtualTreeHintWindow.CreateParams(var Params: TCreateParams);
+procedure TERDVTVirtualTreeHintWindow.CreateParams(var Params: TCreateParams);
 
 begin
   inherited CreateParams(Params);
@@ -198,7 +198,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVirtualTreeHintWindow.Paint();
+procedure TERDVTVirtualTreeHintWindow.Paint();
 var
   R: TRect;
   Y: Integer;
@@ -217,7 +217,7 @@ begin
   begin
     // Do actual painting only in the very first run.
     // If the given node is nil then we have to display a header hint.
-    if (Node = nil) or (TBVTCracker(Tree).HintMode <> hmToolTip) then
+    if (Node = nil) or (TERDVTBVTCracker(Tree).HintMode <> hmToolTip) then
     begin
       Canvas.Font := Screen.HintFont;
       Canvas.Font.Height := MulDiv(Canvas.Font.Height, Tree.ScaledPixels(96), Screen.PixelsPerInch); // See issue #992
@@ -236,16 +236,16 @@ begin
 
     HintKind := vhkText;
     if Assigned(Node) then
-      TBVTCracker(Tree).DoGetHintKind(Node, Column, HintKind);
+      TERDVTBVTCracker(Tree).DoGetHintKind(Node, Column, HintKind);
 
     if HintKind = vhkOwnerDraw then
     begin
-      TBVTCracker(Tree).DoDrawHint(Canvas, Node, R, Column);
+      TERDVTBVTCracker(Tree).DoDrawHint(Canvas, Node, R, Column);
     end
     else
       with Canvas do
       begin
-        if TBVTCracker(Tree).VclStyleEnabled  then
+        if TERDVTBVTCracker(Tree).VclStyleEnabled  then
         begin
           InflateRect(R, -1, -1); // Fixes missing border when VCL styles are used
           LDetails := StyleServices(Tree).GetElementDetails(thHintNormal);
@@ -269,10 +269,10 @@ begin
           Font.Color := clInfoText;
           Pen.Color := clBlack;
           Brush.Color := clInfoBk;
-          if StyleServices(Tree).Enabled and ((toThemeAware in TBVTCracker(Tree).TreeOptions.PaintOptions) or
-             (toUseExplorerTheme in TBVTCracker(Tree).TreeOptions.PaintOptions)) then
+          if StyleServices(Tree).Enabled and ((toThemeAware in TERDVTBVTCracker(Tree).TreeOptions.PaintOptions) or
+             (toUseExplorerTheme in TERDVTBVTCracker(Tree).TreeOptions.PaintOptions)) then
           begin
-            if toUseExplorerTheme in TBVTCracker(Tree).TreeOptions.PaintOptions then // ToolTip style
+            if toUseExplorerTheme in TERDVTBVTCracker(Tree).TreeOptions.PaintOptions then // ToolTip style
               StyleServices(Tree).DrawElement(Canvas.Handle, StyleServices(Tree).GetElementDetails(tttStandardNormal), R {$IF CompilerVersion >= 34}, nil, FCurrentPPI{$IFEND})
             else
               begin // Hint style
@@ -284,7 +284,7 @@ begin
               end;
           end
           else
-            if TBVTCracker(Tree).VclStyleEnabled then
+            if TERDVTBVTCracker(Tree).VclStyleEnabled then
               StyleServices(Tree).DrawElement(Canvas.Handle, StyleServices(Tree).GetElementDetails(tttStandardNormal), R {$IF CompilerVersion >= 34}, nil, FCurrentPPI{$IFEND})
             else
               Rectangle(R);
@@ -304,14 +304,14 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TVirtualTreeHintWindow.StyleServices(AControl: TControl): TCustomStyleServices;
+function TERDVTVirtualTreeHintWindow.StyleServices(AControl: TControl): TCustomStyleServices;
 begin
   Result := VTStyleServices(AControl);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TVirtualTreeHintWindow.CalcHintRect(MaxWidth: Integer; const AHint: string; AData: Pointer): TRect;
+function TERDVTVirtualTreeHintWindow.CalcHintRect(MaxWidth: Integer; const AHint: string; AData: Pointer): TRect;
 
 var
   TM: TTextMetric;
@@ -346,7 +346,7 @@ begin
           if Column <= NoColumn then
           begin
             BidiMode := Tree.BidiMode;
-            Alignment := TBVTCracker(Tree).Alignment;
+            Alignment := TERDVTBVTCracker(Tree).Alignment;
           end
           else
           begin
@@ -357,7 +357,7 @@ begin
           if BidiMode <> bdLeftToRight then
             ChangeBidiModeAlignment(Alignment);
 
-          if (Node = nil) or (TBVTCracker(Tree).HintMode <> hmToolTip) then
+          if (Node = nil) or (TERDVTBVTCracker(Tree).HintMode <> hmToolTip) then
           begin
             Canvas.Font := Screen.HintFont;
             Canvas.Font.Height := MulDiv(Canvas.Font.Height, Tree.ScaledPixels(96), Screen.PixelsPerInch); // See issue #992
@@ -365,7 +365,7 @@ begin
           else
           begin
             Canvas.Font := Tree.Font;
-            with TBVTCracker(Tree) do
+            with TERDVTBVTCracker(Tree) do
               DoPaintText(Node, Self.Canvas, Column, ttNormal);
           end;
 
@@ -376,7 +376,7 @@ begin
             Result := Rect(0, 0, 0, 0)
           else
           begin
-            if Assigned(Node) and (TBVTCracker(Tree).HintMode = hmToolTip) then
+            if Assigned(Node) and (TERDVTBVTCracker(Tree).HintMode = hmToolTip) then
             begin
               // Determine actual line break style depending on what was returned by the methods and what's in the node.
               if LineBreakStyle = hlbDefault then
@@ -397,9 +397,9 @@ begin
                 // in the caption (limited by carriage return), which results in unoptimal overlay of the tooltip.
                 Winapi.Windows.DrawTextW(Canvas.Handle, PWideChar(HintText), Length(HintText), R, DT_CALCRECT or DT_WORDBREAK);
                 if BidiMode = bdLeftToRight then
-                  Result.Right := R.Right + TBVTCracker(Tree).TextMargin
+                  Result.Right := R.Right + TERDVTBVTCracker(Tree).TextMargin
                 else
-                  Result.Left := R.Left - TBVTCracker(Tree).TextMargin + 1;
+                  Result.Left := R.Left - TERDVTBVTCracker(Tree).TextMargin + 1;
                 Result.Bottom := R.Bottom;
 
                 Inc(Result.Right);
@@ -418,7 +418,7 @@ begin
               end
               else
               begin
-                Result := TBVTCracker(Tree).LastHintRect; // = Tree.GetDisplayRect(Node, Column, True, True, True); see TBaseVirtualTree.CMHintShow
+                Result := TERDVTBVTCracker(Tree).LastHintRect; // = Tree.GetDisplayRect(Node, Column, True, True, True); see TBaseVirtualTree.CMHintShow
 
                 { Fixes issue #623
 
@@ -438,11 +438,11 @@ begin
 
                   //Space on right--taken from the code in the hmHint branch below.
                   if Assigned(Tree) then
-                    Inc(Result.Right, TBVTCracker(Tree).TextMargin + TBVTCracker(Tree).Margin + Tree.ScaledPixels(4));
+                    Inc(Result.Right, TERDVTBVTCracker(Tree).TextMargin + TERDVTBVTCracker(Tree).Margin + Tree.ScaledPixels(4));
                 end;
                 // Fix ends.
 
-                if toShowHorzGridLines in TBVTCracker(Tree).TreeOptions.PaintOptions then
+                if toShowHorzGridLines in TERDVTBVTCracker(Tree).TreeOptions.PaintOptions then
                   Dec(Result.Bottom);
               end;
 
@@ -470,8 +470,8 @@ begin
                 Original logic was adding FTextHeight. Changed it to add FMargin instead and
                 it looks OK even if the hint font is larger.
               }
-              Inc(Result.Right, TBVTCracker(Tree).TextMargin
-                  + TBVTCracker(Tree).Margin + Tree.ScaledPixels(4)); //Issue #623 space on right
+              Inc(Result.Right, TERDVTBVTCracker(Tree).TextMargin
+                  + TERDVTBVTCracker(Tree).Margin + Tree.ScaledPixels(4)); //Issue #623 space on right
                   //+ FTextHeight); // Old code: We are extending the width here, but the text height scales with the text width and has a similar value as AveCharWdith * 2.
             end;
           end;
@@ -485,7 +485,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TVirtualTreeHintWindow.IsHintMsg(var Msg: TMsg): Boolean;
+function TERDVTVirtualTreeHintWindow.IsHintMsg(var Msg: TMsg): Boolean;
 
 // The VCL is a bit too generous when telling that an existing hint can be cancelled. Need to specify further here.
 

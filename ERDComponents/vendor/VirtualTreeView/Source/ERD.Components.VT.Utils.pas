@@ -1622,11 +1622,11 @@ end;
 //----------------------------------------------------------------------------------------------------------------------
 
 type
-  TCustomImageListCast = class(TCustomImageList);
+  TERDVTCustomImageListCast = class(TCustomImageList);
 
 procedure DrawImage(ImageList: TCustomImageList; Index: Integer; Canvas: TCanvas; X, Y: Integer; Style: Cardinal; Enabled: Boolean);
 begin
-  TCustomImageListCast(ImageList).DoDraw(Index, Canvas, X, Y, Style, Enabled)
+  TERDVTCustomImageListCast(ImageList).DoDraw(Index, Canvas, X, Y, Style, Enabled)
 end;
 
 //----------------------------------------------------------------------------------------------------------------------

@@ -159,7 +159,7 @@ type
   PCardinal = ^Cardinal;
 
   // The exception used by the trees.
-  EVirtualTreeError = class(Exception);
+  EERDVTVirtualTreeError = class(Exception);
 
   // Limits the speed interval which can be used for auto scrolling (milliseconds).
   TAutoScrollInterval = 1 .. 1000;
@@ -873,7 +873,7 @@ const
   DefaultStringOptions    = [toSaveCaptions, toAutoAcceptEditChange];
 
 type
-  TCustomVirtualTreeOptions = class(TPersistent)
+  TERDVTCustomVirtualTreeOptions = class(TPersistent)
   private
     FOwner            : TCustomControl;
     FPaintOptions     : TVTPaintOptions;
@@ -908,9 +908,9 @@ type
     property Owner: TCustomControl read FOwner;
   end;
 
-  TTreeOptionsClass = class of TCustomVirtualTreeOptions;
+  TERDVTTreeOptionsClass = class of TERDVTCustomVirtualTreeOptions;
 
-  TVirtualTreeOptions = class(TCustomVirtualTreeOptions)
+  TERDVTVirtualTreeOptions = class(TERDVTCustomVirtualTreeOptions)
   published
     property AnimationOptions;
     property AutoOptions;
@@ -920,7 +920,7 @@ type
     property SelectionOptions;
   end;
 
-  TCustomStringTreeOptions = class(TCustomVirtualTreeOptions)
+  TERDVTCustomStringTreeOptions = class(TERDVTCustomVirtualTreeOptions)
   private
     FStringOptions : TVTStringOptions;
     procedure SetStringOptions(const Value : TVTStringOptions);
@@ -931,7 +931,7 @@ type
     property StringOptions : TVTStringOptions read FStringOptions write SetStringOptions default DefaultStringOptions;
   end;
 
-  TStringTreeOptions = class(TCustomStringTreeOptions)
+  TERDVTStringTreeOptions = class(TERDVTCustomStringTreeOptions)
   published
     property AnimationOptions;
     property AutoOptions;
@@ -949,7 +949,7 @@ type
   );
 
   // A class to manage scroll bar aspects.
-  TScrollBarOptions = class(TPersistent)
+  TERDVTScrollBarOptions = class(TPersistent)
   private
     FAlwaysVisible           : Boolean;
     FOwner                   : TCustomControl;
@@ -1217,7 +1217,7 @@ uses
   ;
 
 type
-  TVTCracker = class(TBaseVirtualTree);
+  TERDVTVTCracker = class(TERDVTBaseVirtualTree);
 
 
 { TVirtualNode }
@@ -1379,7 +1379,7 @@ end;
 
 //----------------- TCustomVirtualTreeOptions --------------------------------------------------------------------------
 
-constructor TCustomVirtualTreeOptions.Create(AOwner : TCustomControl);
+constructor TERDVTCustomVirtualTreeOptions.Create(AOwner : TCustomControl);
 begin
   FOwner := AOwner;
 
@@ -1392,14 +1392,14 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TCustomVirtualTreeOptions.SetAnimationOptions(const Value : TVTAnimationOptions);
+procedure TERDVTCustomVirtualTreeOptions.SetAnimationOptions(const Value : TVTAnimationOptions);
 begin
   FAnimationOptions := Value;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TCustomVirtualTreeOptions.SetAutoOptions(const Value : TVTAutoOptions);
+procedure TERDVTCustomVirtualTreeOptions.SetAutoOptions(const Value : TVTAutoOptions);
 var
   ChangedOptions : TVTAutoOptions;
 begin
@@ -1416,14 +1416,14 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TCustomVirtualTreeOptions.InternalSetMiscOptions(const Value : TVTMiscOptions);
+procedure TERDVTCustomVirtualTreeOptions.InternalSetMiscOptions(const Value : TVTMiscOptions);
 begin
   FMiscOptions := Value;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TCustomVirtualTreeOptions.SetMiscOptions(const Value : TVTMiscOptions);
+procedure TERDVTCustomVirtualTreeOptions.SetMiscOptions(const Value : TVTMiscOptions);
 var
   ToBeSet, ToBeCleared : TVTMiscOptions;
 begin
@@ -1433,7 +1433,7 @@ begin
     ToBeCleared := FMiscOptions - Value;
     FMiscOptions := Value;
 
-    with TVTCracker(FOwner) do
+    with TERDVTVTCracker(FOwner) do
       if not (csLoading in ComponentState) and HandleAllocated then
       begin
         if toCheckSupport in ToBeSet + ToBeCleared then
@@ -1462,7 +1462,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TCustomVirtualTreeOptions.SetPaintOptions(const Value : TVTPaintOptions);
+procedure TERDVTCustomVirtualTreeOptions.SetPaintOptions(const Value : TVTPaintOptions);
 var
   ToBeSet, ToBeCleared : TVTPaintOptions;
   Run                  : PVirtualNode;
@@ -1479,7 +1479,7 @@ begin
       Include(FPaintOptions, toShowRoot);
       Include(ToBeSet, toShowRoot);
     end; //if
-    with TVTCracker(FOwner) do
+    with TERDVTVTCracker(FOwner) do
     begin
       HandleWasAllocated := HandleAllocated;
 
@@ -1560,7 +1560,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TCustomVirtualTreeOptions.SetSelectionOptions(const Value : TVTSelectionOptions);
+procedure TERDVTCustomVirtualTreeOptions.SetSelectionOptions(const Value : TVTSelectionOptions);
 var
   ToBeSet, ToBeCleared : TVTSelectionOptions;
 begin
@@ -1570,7 +1570,7 @@ begin
     ToBeCleared := FSelectionOptions - Value;
     FSelectionOptions := Value;
 
-    with TVTCracker(FOwner) do
+    with TERDVTVTCracker(FOwner) do
     begin
       if (toMultiSelect in (ToBeCleared + ToBeSet)) or ([toLevelSelectConstraint, toSiblingSelectConstraint] * ToBeSet <> []) then
         ClearSelection;
@@ -1596,18 +1596,18 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TCustomVirtualTreeOptions.StyleServices(AControl : TControl) : TCustomStyleServices;
+function TERDVTCustomVirtualTreeOptions.StyleServices(AControl : TControl) : TCustomStyleServices;
 begin
   Result := VTStyleServices(FOwner);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TCustomVirtualTreeOptions.AssignTo(Dest : TPersistent);
+procedure TERDVTCustomVirtualTreeOptions.AssignTo(Dest : TPersistent);
 begin
-  if Dest is TCustomVirtualTreeOptions then
+  if Dest is TERDVTCustomVirtualTreeOptions then
   begin
-    with Dest as TCustomVirtualTreeOptions do
+    with Dest as TERDVTCustomVirtualTreeOptions do
     begin
       PaintOptions := Self.PaintOptions;
       AnimationOptions := Self.AnimationOptions;
@@ -1622,7 +1622,7 @@ end;
 
 //----------------- TCustomStringTreeOptions ---------------------------------------------------------------------------
 
-constructor TCustomStringTreeOptions.Create(AOwner : TCustomControl);
+constructor TERDVTCustomStringTreeOptions.Create(AOwner : TCustomControl);
 begin
   inherited;
   FStringOptions := DefaultStringOptions;
@@ -1630,7 +1630,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TCustomStringTreeOptions.SetStringOptions(const Value : TVTStringOptions);
+procedure TERDVTCustomStringTreeOptions.SetStringOptions(const Value : TVTStringOptions);
 var
   ChangedOptions : TVTStringOptions;
 begin
@@ -1647,11 +1647,11 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TCustomStringTreeOptions.AssignTo(Dest : TPersistent);
+procedure TERDVTCustomStringTreeOptions.AssignTo(Dest : TPersistent);
 begin
-  if Dest is TCustomStringTreeOptions then
+  if Dest is TERDVTCustomStringTreeOptions then
   begin
-    with Dest as TCustomStringTreeOptions do
+    with Dest as TERDVTCustomStringTreeOptions do
     begin
       StringOptions := Self.StringOptions;
       EditOptions := Self.EditOptions;
@@ -1664,7 +1664,7 @@ end;
 
 //----------------- TScrollBarOptions ----------------------------------------------------------------------------------
 
-constructor TScrollBarOptions.Create(AOwner : TCustomControl);
+constructor TERDVTScrollBarOptions.Create(AOwner : TCustomControl);
 begin
   inherited Create;
 
@@ -1678,31 +1678,31 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TScrollBarOptions.SetAlwaysVisible(Value : Boolean);
+procedure TERDVTScrollBarOptions.SetAlwaysVisible(Value : Boolean);
 begin
   if FAlwaysVisible <> Value then
   begin
     FAlwaysVisible := Value;
     if not (csLoading in FOwner.ComponentState) and FOwner.HandleAllocated then
-      TVTCracker(FOwner).RecreateWnd;
+      TERDVTVTCracker(FOwner).RecreateWnd;
   end;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TScrollBarOptions.SetScrollBars(Value : TScrollStyle);
+procedure TERDVTScrollBarOptions.SetScrollBars(Value : TScrollStyle);
 begin
   if FScrollBars <> Value then
   begin
     FScrollBars := Value;
     if not (csLoading in FOwner.ComponentState) and FOwner.HandleAllocated then
-      TVTCracker(FOwner).RecreateWnd;
+      TERDVTVTCracker(FOwner).RecreateWnd;
   end;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TScrollBarOptions.SetScrollBarStyle(Value : TScrollBarStyle);
+procedure TERDVTScrollBarOptions.SetScrollBarStyle(Value : TScrollBarStyle);
 
 begin
   if FScrollBarStyle <> Value then
@@ -1713,7 +1713,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TScrollBarOptions.GetOwner : TPersistent;
+function TERDVTScrollBarOptions.GetOwner : TPersistent;
 
 begin
   Result := FOwner;
@@ -1721,16 +1721,16 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TScrollBarOptions.Assign(Source : TPersistent);
+procedure TERDVTScrollBarOptions.Assign(Source : TPersistent);
 
 begin
-  if Source is TScrollBarOptions then
+  if Source is TERDVTScrollBarOptions then
   begin
-    AlwaysVisible := TScrollBarOptions(Source).AlwaysVisible;
-    HorizontalIncrement := TScrollBarOptions(Source).HorizontalIncrement;
-    ScrollBars := TScrollBarOptions(Source).ScrollBars;
-    ScrollBarStyle := TScrollBarOptions(Source).ScrollBarStyle;
-    VerticalIncrement := TScrollBarOptions(Source).VerticalIncrement;
+    AlwaysVisible := TERDVTScrollBarOptions(Source).AlwaysVisible;
+    HorizontalIncrement := TERDVTScrollBarOptions(Source).HorizontalIncrement;
+    ScrollBars := TERDVTScrollBarOptions(Source).ScrollBars;
+    ScrollBarStyle := TERDVTScrollBarOptions(Source).ScrollBarStyle;
+    VerticalIncrement := TERDVTScrollBarOptions(Source).VerticalIncrement;
   end
   else
     inherited;

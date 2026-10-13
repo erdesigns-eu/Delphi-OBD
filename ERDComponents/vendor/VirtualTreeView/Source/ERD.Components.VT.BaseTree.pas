@@ -56,7 +56,7 @@ type
     TVTBaseAncestor        = TVTBaseAncestorFMX;
     TCanvas                = FMX.Graphics.TCanvas;
   {$ELSE}
-    TVTBaseAncestor        = TVTBaseAncestorVcl;
+    TVTBaseAncestor        = TERDVTVTBaseAncestorVcl;
     TCanvas                = Vcl.Graphics.TCanvas;
     TFormatEtcArray        = ERD.Components.VT.Types.TFormatEtcArray;
   {$ENDIF}
@@ -70,7 +70,7 @@ type
   TDimension               = ERD.Components.VT.Types.TDimension;
   TColumnIndex             = ERD.Components.VT.Types.TColumnIndex;
   TColumnPosition          = ERD.Components.VT.Types.TColumnPosition;
-  EVirtualTreeError        = ERD.Components.VT.Types.EVirtualTreeError;
+  EERDVTVirtualTreeError        = ERD.Components.VT.Types.EERDVTVirtualTreeError;
   TAutoScrollInterval      = ERD.Components.VT.Types.TAutoScrollInterval;
   TVTScrollIncrement       = ERD.Components.VT.Types.TVTScrollIncrement;
   TFormatArray             = ERD.Components.VT.Types.TFormatArray;
@@ -89,14 +89,14 @@ type
   TVTExportMode            = ERD.Components.VT.Types.TVTExportMode;
   TVTStringOption          = ERD.Components.VT.Types.TVTStringOption;
   TVTStringOptions         = ERD.Components.VT.Types.TVTStringOptions;
-  TCustomVirtualTreeOptions= ERD.Components.VT.Types.TCustomVirtualTreeOptions;
-  TVirtualTreeOptions      = ERD.Components.VT.Types.TVirtualTreeOptions;
-  TTreeOptionsClass        = ERD.Components.VT.Types.TTreeOptionsClass;
-  TCustomStringTreeOptions = ERD.Components.VT.Types.TCustomStringTreeOptions;
-  TStringTreeOptions       = ERD.Components.VT.Types.TStringTreeOptions;
+  TERDVTCustomVirtualTreeOptions= ERD.Components.VT.Types.TERDVTCustomVirtualTreeOptions;
+  TERDVTVirtualTreeOptions      = ERD.Components.VT.Types.TERDVTVirtualTreeOptions;
+  TERDVTTreeOptionsClass        = ERD.Components.VT.Types.TERDVTTreeOptionsClass;
+  TERDVTCustomStringTreeOptions = ERD.Components.VT.Types.TERDVTCustomStringTreeOptions;
+  TERDVTStringTreeOptions       = ERD.Components.VT.Types.TERDVTStringTreeOptions;
 
   TScrollBarStyle          = ERD.Components.VT.Types.TScrollBarStyle;
-  TScrollBarOptions        = ERD.Components.VT.Types.TScrollBarOptions;
+  TERDVTScrollBarOptions        = ERD.Components.VT.Types.TERDVTScrollBarOptions;
 
   TVTColumnOption          = ERD.Components.VT.Types.TVTColumnOption;
   TVTColumnOptions         = ERD.Components.VT.Types.TVTColumnOptions;
@@ -106,19 +106,19 @@ type
   TCheckState              = ERD.Components.VT.Types.TCheckState;
   TVTDropMarkMode          = ERD.Components.VT.Types.TVTDropMarkMode;
   TScrollDirections        = ERD.Components.VT.Types.TScrollDirections;
-  TVirtualTreeColumn       = ERD.Components.VT.Header.TVirtualTreeColumn;
-  TVirtualTreeColumns      = ERD.Components.VT.Header.TVirtualTreeColumns;
-  TVirtualTreeColumnClass  = ERD.Components.VT.Header.TVirtualTreeColumnClass;
+  TERDVTVirtualTreeColumn       = ERD.Components.VT.Header.TERDVTVirtualTreeColumn;
+  TERDVTVirtualTreeColumns      = ERD.Components.VT.Header.TERDVTVirtualTreeColumns;
+  TERDVTVirtualTreeColumnClass  = ERD.Components.VT.Header.TERDVTVirtualTreeColumnClass;
   TColumnsArray            = ERD.Components.VT.Header.TColumnsArray;
   TCardinalArray           = ERD.Components.VT.Header.TCardinalArray;
   TIndexArray              = ERD.Components.VT.Header.TIndexArray;
 
-  TVTColors                = ERD.Components.VT.Colors.TVTColors;
+  TERDVTVTColors                = ERD.Components.VT.Colors.TERDVTVTColors;
   //
 
 type
-  TBaseVirtualTree = class;
-  TVirtualTreeClass = class of TBaseVirtualTree;
+  TERDVTBaseVirtualTree = class;
+  TERDVTVirtualTreeClass = class of TERDVTBaseVirtualTree;
 
 
   // This record must already be defined here and not later because otherwise BCB users will not be able
@@ -134,7 +134,7 @@ type
   PVTReference = ^TVTReference;
   TVTReference = record
     Process: Cardinal;
-    Tree: TBaseVirtualTree;
+    Tree: TERDVTBaseVirtualTree;
   end;
 
 
@@ -144,11 +144,11 @@ type
     ['{C4B25559-14DA-446B-8901-0C879000EB16}']
     procedure ForceDragLeave; stdcall;
     function GetDataObject: IDataObject; stdcall;
-    function GetDragSource: TBaseVirtualTree; stdcall;
+    function GetDragSource: TERDVTBaseVirtualTree; stdcall;
     function GetIsDropTarget: Boolean; stdcall;
 
     property DataObject: IDataObject read GetDataObject;
-    property DragSource: TBaseVirtualTree read GetDragSource;
+    property DragSource: TERDVTBaseVirtualTree read GetDragSource;
     property IsDropTarget: Boolean read GetIsDropTarget;
   end;
 
@@ -156,7 +156,7 @@ type
 
   PVTHintData = ^TVTHintData;
   TVTHintData = record
-    Tree: TBaseVirtualTree;
+    Tree: TERDVTBaseVirtualTree;
     Node: PVirtualNode;
     Column: TColumnIndex;
     HintRect: TRect;            // used for draw trees only, string trees get the size from the hint string
@@ -174,7 +174,7 @@ type
     function BeginEdit: Boolean; stdcall;                  // Called when editing actually starts.
     function CancelEdit: Boolean; stdcall;                 // Called when editing has been cancelled by the tree.
     function EndEdit: Boolean; stdcall;                     // Called when editing has been finished by the tree. Returns True if successful, False if edit mode is still active.
-    function PrepareEdit(Tree: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex): Boolean; stdcall;
+    function PrepareEdit(Tree: TERDVTBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex): Boolean; stdcall;
                                                            // Called after creation to allow a setup.
     procedure ProcessMessage(var Message: TMessage); stdcall;
                                                            // Used to forward messages to the edit window(s)-
@@ -182,187 +182,187 @@ type
   end;
 
 
-  TVTNodeExportEvent   = procedure (Sender: TBaseVirtualTree; aExportType: TVTExportType; Node: PVirtualNode) of object;
-  TVTColumnExportEvent = procedure (Sender: TBaseVirtualTree; aExportType: TVTExportType; Column: TVirtualTreeColumn) of object;
-  TVTTreeExportEvent   = procedure(Sender: TBaseVirtualTree; aExportType: TVTExportType) of object;
+  TVTNodeExportEvent   = procedure (Sender: TERDVTBaseVirtualTree; aExportType: TVTExportType; Node: PVirtualNode) of object;
+  TVTColumnExportEvent = procedure (Sender: TERDVTBaseVirtualTree; aExportType: TVTExportType; Column: TERDVTVirtualTreeColumn) of object;
+  TVTTreeExportEvent   = procedure(Sender: TERDVTBaseVirtualTree; aExportType: TVTExportType) of object;
 
-  TClipboardFormats = class(TStringList)
+  TERDVTClipboardFormats = class(TStringList)
   private
-    FOwner: TBaseVirtualTree;
+    FOwner: TERDVTBaseVirtualTree;
   public
-    constructor Create(AOwner: TBaseVirtualTree); virtual;
+    constructor Create(AOwner: TERDVTBaseVirtualTree); virtual;
 
     function Add(const S: string): Integer; override;
     procedure Insert(Index: Integer; const S: string); override;
-    property Owner: TBaseVirtualTree read FOwner;
+    property Owner: TERDVTBaseVirtualTree read FOwner;
   end;
 
   // ----- Event prototypes:
 
   // node enumeration
-  TVTGetNodeProc = reference to procedure(Sender: TBaseVirtualTree; Node: PVirtualNode; Data: Pointer; var Abort: Boolean);
+  TVTGetNodeProc = reference to procedure(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode; Data: Pointer; var Abort: Boolean);
   // node events
-  TVTChangingEvent = procedure(Sender: TBaseVirtualTree; Node: PVirtualNode; var Allowed: Boolean) of object;
-  TVTCheckChangingEvent = procedure(Sender: TBaseVirtualTree; Node: PVirtualNode; var NewState: TCheckState;
+  TVTChangingEvent = procedure(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode; var Allowed: Boolean) of object;
+  TVTCheckChangingEvent = procedure(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode; var NewState: TCheckState;
     var Allowed: Boolean) of object;
-  TVTChangeEvent = procedure(Sender: TBaseVirtualTree; Node: PVirtualNode) of object;
+  TVTChangeEvent = procedure(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode) of object;
   /// <summary>
   /// Cells can be empty
   /// </summary>
-  TVTChangeCellEvent = procedure(Sender: TBaseVirtualTree; const Cells: TVTCellArray) of object;
-  TVTStructureChangeEvent = procedure(Sender: TBaseVirtualTree; Node: PVirtualNode; Reason: TChangeReason) of object;
-  TVTEditCancelEvent = procedure(Sender: TBaseVirtualTree; Column: TColumnIndex) of object;
-  TVTEditChangingEvent = procedure(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
+  TVTChangeCellEvent = procedure(Sender: TERDVTBaseVirtualTree; const Cells: TVTCellArray) of object;
+  TVTStructureChangeEvent = procedure(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode; Reason: TChangeReason) of object;
+  TVTEditCancelEvent = procedure(Sender: TERDVTBaseVirtualTree; Column: TColumnIndex) of object;
+  TVTEditChangingEvent = procedure(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
     var Allowed: Boolean) of object;
-  TVTEditChangeEvent = procedure(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex) of object;
-  TVTFreeNodeEvent = procedure(Sender: TBaseVirtualTree; Node: PVirtualNode) of object;
-  TVTFocusChangingEvent = procedure(Sender: TBaseVirtualTree; OldNode, NewNode: PVirtualNode; OldColumn,
+  TVTEditChangeEvent = procedure(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex) of object;
+  TVTFreeNodeEvent = procedure(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode) of object;
+  TVTFocusChangingEvent = procedure(Sender: TERDVTBaseVirtualTree; OldNode, NewNode: PVirtualNode; OldColumn,
     NewColumn: TColumnIndex; var Allowed: Boolean) of object;
-  TVTFocusChangeEvent = procedure(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex) of object;
-  TVTAddToSelectionEvent = procedure(Sender: TBaseVirtualTree; Node: PVirtualNode) of object;
-  TVTRemoveFromSelectionEvent = procedure(Sender: TBaseVirtualTree; Node: PVirtualNode) of object;
-  TVTGetImageEvent = procedure(Sender: TBaseVirtualTree; Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex;
+  TVTFocusChangeEvent = procedure(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex) of object;
+  TVTAddToSelectionEvent = procedure(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode) of object;
+  TVTRemoveFromSelectionEvent = procedure(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode) of object;
+  TVTGetImageEvent = procedure(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex;
     var Ghosted: Boolean; var ImageIndex: TImageIndex) of object;
-  TVTGetImageExEvent = procedure(Sender: TBaseVirtualTree; Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex;
+  TVTGetImageExEvent = procedure(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex;
     var Ghosted: Boolean; var ImageIndex: TImageIndex; var ImageList: TCustomImageList) of object;
-  TVTGetImageTextEvent = procedure(Sender: TBaseVirtualTree; Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex;
+  TVTGetImageTextEvent = procedure(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex;
     var ImageText: string) of object;
-  TVTHotNodeChangeEvent = procedure(Sender: TBaseVirtualTree; OldNode, NewNode: PVirtualNode) of object;
-  TVTInitChildrenEvent = procedure(Sender: TBaseVirtualTree; Node: PVirtualNode; var ChildCount: Cardinal) of object;
-  TVTInitNodeEvent = procedure(Sender: TBaseVirtualTree; ParentNode, Node: PVirtualNode;
+  TVTHotNodeChangeEvent = procedure(Sender: TERDVTBaseVirtualTree; OldNode, NewNode: PVirtualNode) of object;
+  TVTInitChildrenEvent = procedure(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode; var ChildCount: Cardinal) of object;
+  TVTInitNodeEvent = procedure(Sender: TERDVTBaseVirtualTree; ParentNode, Node: PVirtualNode;
     var InitialStates: TVirtualNodeInitStates) of object;
-  TVTPopupEvent = procedure(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; const P: TPoint;
+  TVTPopupEvent = procedure(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; const P: TPoint;
     var AskParent: Boolean; var PopupMenu: TPopupMenu) of object;
-  TVTHelpContextEvent = procedure(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
+  TVTHelpContextEvent = procedure(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
     var HelpContext: Integer) of object;
-  TVTCreateEditorEvent = procedure(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
+  TVTCreateEditorEvent = procedure(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
     out EditLink: IVTEditLink) of object;
-  TVTSaveTreeEvent = procedure(Sender: TBaseVirtualTree; Stream: TStream) of object;
-  TVTSaveNodeEvent = procedure(Sender: TBaseVirtualTree; Node: PVirtualNode; Stream: TStream) of object;
-  TVTBeforeGetCheckStateEvent = procedure(Sender: TBaseVirtualTree; Node: PVirtualNode) of object;
+  TVTSaveTreeEvent = procedure(Sender: TERDVTBaseVirtualTree; Stream: TStream) of object;
+  TVTSaveNodeEvent = procedure(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode; Stream: TStream) of object;
+  TVTBeforeGetCheckStateEvent = procedure(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode) of object;
 
   // header/column events
   TVTHeaderAddPopupItemEvent = procedure(const Sender: TObject; const Column: TColumnIndex; var Cmd: TAddPopupItemType) of object;
-  TVTHeaderClickEvent = procedure(Sender: TVTHeader; HitInfo: TVTHeaderHitInfo) of object;
-  TVTHeaderMouseEvent = procedure(Sender: TVTHeader; Button: TMouseButton; Shift: TShiftState; X, Y: TDimension) of object;
-  TVTHeaderMouseMoveEvent = procedure(Sender: TVTHeader; Shift: TShiftState; X, Y: TDimension) of object;
-  TVTBeforeHeaderHeightTrackingEvent = procedure(Sender: TVTHeader; Shift: TShiftState) of object;
-  TVTAfterHeaderHeightTrackingEvent = procedure(Sender: TVTHeader) of object;
-  TVTHeaderHeightTrackingEvent = procedure(Sender: TVTHeader; var P: TPoint; Shift: TShiftState; var Allowed: Boolean) of object;
-  TVTHeaderHeightDblClickResizeEvent = procedure(Sender: TVTHeader; var P: TPoint; Shift: TShiftState; var Allowed: Boolean) of object;
-  TVTHeaderNotifyEvent = procedure(Sender: TVTHeader; Column: TColumnIndex) of object;
-  TVTHeaderDraggingEvent = procedure(Sender: TVTHeader; Column: TColumnIndex; var Allowed: Boolean) of object;
-  TVTHeaderDraggedEvent = procedure(Sender: TVTHeader; Column: TColumnIndex; OldPosition: Integer) of object;
-  TVTHeaderDraggedOutEvent = procedure(Sender: TVTHeader; Column: TColumnIndex; DropPosition: TPoint) of object;
-  TVTHeaderPaintEvent = procedure(Sender: TVTHeader; HeaderCanvas: TCanvas; Column: TVirtualTreeColumn; R: TRect; Hover,
+  TVTHeaderClickEvent = procedure(Sender: TERDVTVTHeader; HitInfo: TVTHeaderHitInfo) of object;
+  TVTHeaderMouseEvent = procedure(Sender: TERDVTVTHeader; Button: TMouseButton; Shift: TShiftState; X, Y: TDimension) of object;
+  TVTHeaderMouseMoveEvent = procedure(Sender: TERDVTVTHeader; Shift: TShiftState; X, Y: TDimension) of object;
+  TVTBeforeHeaderHeightTrackingEvent = procedure(Sender: TERDVTVTHeader; Shift: TShiftState) of object;
+  TVTAfterHeaderHeightTrackingEvent = procedure(Sender: TERDVTVTHeader) of object;
+  TVTHeaderHeightTrackingEvent = procedure(Sender: TERDVTVTHeader; var P: TPoint; Shift: TShiftState; var Allowed: Boolean) of object;
+  TVTHeaderHeightDblClickResizeEvent = procedure(Sender: TERDVTVTHeader; var P: TPoint; Shift: TShiftState; var Allowed: Boolean) of object;
+  TVTHeaderNotifyEvent = procedure(Sender: TERDVTVTHeader; Column: TColumnIndex) of object;
+  TVTHeaderDraggingEvent = procedure(Sender: TERDVTVTHeader; Column: TColumnIndex; var Allowed: Boolean) of object;
+  TVTHeaderDraggedEvent = procedure(Sender: TERDVTVTHeader; Column: TColumnIndex; OldPosition: Integer) of object;
+  TVTHeaderDraggedOutEvent = procedure(Sender: TERDVTVTHeader; Column: TColumnIndex; DropPosition: TPoint) of object;
+  TVTHeaderPaintEvent = procedure(Sender: TERDVTVTHeader; HeaderCanvas: TCanvas; Column: TERDVTVirtualTreeColumn; R: TRect; Hover,
     Pressed: Boolean; DropMark: TVTDropMarkMode) of object;
-  TVTHeaderPaintQueryElementsEvent = procedure(Sender: TVTHeader; var PaintInfo: THeaderPaintInfo;
+  TVTHeaderPaintQueryElementsEvent = procedure(Sender: TERDVTVTHeader; var PaintInfo: THeaderPaintInfo;
     var Elements: THeaderPaintElements) of object;
-  TVTAdvancedHeaderPaintEvent = procedure(Sender: TVTHeader; var PaintInfo: THeaderPaintInfo;
+  TVTAdvancedHeaderPaintEvent = procedure(Sender: TERDVTVTHeader; var PaintInfo: THeaderPaintInfo;
     const Elements: THeaderPaintElements) of object;
-  TVTBeforeAutoFitColumnsEvent = procedure(Sender: TVTHeader; var SmartAutoFitType: TSmartAutoFitType) of object;
-  TVTBeforeAutoFitColumnEvent = procedure(Sender: TVTHeader; Column: TColumnIndex; var SmartAutoFitType: TSmartAutoFitType;
+  TVTBeforeAutoFitColumnsEvent = procedure(Sender: TERDVTVTHeader; var SmartAutoFitType: TSmartAutoFitType) of object;
+  TVTBeforeAutoFitColumnEvent = procedure(Sender: TERDVTVTHeader; Column: TColumnIndex; var SmartAutoFitType: TSmartAutoFitType;
     var Allowed: Boolean) of object;
-  TVTAfterAutoFitColumnEvent = procedure(Sender: TVTHeader; Column: TColumnIndex) of object;
-  TVTAfterAutoFitColumnsEvent = procedure(Sender: TVTHeader) of object;
-  TVTColumnCheckChangingEvent = procedure(Sender: TVTHeader; Column: TColumnIndex; var NewState: TCheckState;
+  TVTAfterAutoFitColumnEvent = procedure(Sender: TERDVTVTHeader; Column: TColumnIndex) of object;
+  TVTAfterAutoFitColumnsEvent = procedure(Sender: TERDVTVTHeader) of object;
+  TVTColumnCheckChangingEvent = procedure(Sender: TERDVTVTHeader; Column: TColumnIndex; var NewState: TCheckState;
     var Allowed: Boolean) of object;
-  TVTColumnClickEvent = procedure (Sender: TBaseVirtualTree; Column: TColumnIndex; Shift: TShiftState) of object;
-  TVTColumnDblClickEvent = procedure (Sender: TBaseVirtualTree; Column: TColumnIndex; Shift: TShiftState) of object;
-  TColumnChangeEvent = procedure(const Sender: TBaseVirtualTree; const Column: TColumnIndex; Visible: Boolean) of object;
-  TVTColumnWidthDblClickResizeEvent = procedure(Sender: TVTHeader; Column: TColumnIndex; Shift: TShiftState; P: TPoint;
+  TVTColumnClickEvent = procedure (Sender: TERDVTBaseVirtualTree; Column: TColumnIndex; Shift: TShiftState) of object;
+  TVTColumnDblClickEvent = procedure (Sender: TERDVTBaseVirtualTree; Column: TColumnIndex; Shift: TShiftState) of object;
+  TColumnChangeEvent = procedure(const Sender: TERDVTBaseVirtualTree; const Column: TColumnIndex; Visible: Boolean) of object;
+  TVTColumnWidthDblClickResizeEvent = procedure(Sender: TERDVTVTHeader; Column: TColumnIndex; Shift: TShiftState; P: TPoint;
     var Allowed: Boolean) of object;
-  TVTBeforeColumnWidthTrackingEvent = procedure(Sender: TVTHeader; Column: TColumnIndex; Shift: TShiftState) of object;
-  TVTAfterColumnWidthTrackingEvent = procedure(Sender: TVTHeader; Column: TColumnIndex) of object;
-  TVTColumnWidthTrackingEvent = procedure(Sender: TVTHeader; Column: TColumnIndex; Shift: TShiftState; var TrackPoint: TPoint; P: TPoint;
+  TVTBeforeColumnWidthTrackingEvent = procedure(Sender: TERDVTVTHeader; Column: TColumnIndex; Shift: TShiftState) of object;
+  TVTAfterColumnWidthTrackingEvent = procedure(Sender: TERDVTVTHeader; Column: TColumnIndex) of object;
+  TVTColumnWidthTrackingEvent = procedure(Sender: TERDVTVTHeader; Column: TColumnIndex; Shift: TShiftState; var TrackPoint: TPoint; P: TPoint;
     var Allowed: Boolean) of object;
-  TVTGetHeaderCursorEvent = procedure(Sender: TVTHeader; var Cursor: TVTCursor) of object;
-  TVTBeforeGetMaxColumnWidthEvent = procedure(Sender: TVTHeader; Column: TColumnIndex; var UseSmartColumnWidth: Boolean) of object;
-  TVTAfterGetMaxColumnWidthEvent = procedure(Sender: TVTHeader; Column: TColumnIndex; var MaxWidth: TDimension) of object;
-  TVTCanSplitterResizeColumnEvent = procedure(Sender: TVTHeader; P: TPoint; Column: TColumnIndex; var Allowed: Boolean) of object;
-  TVTCanSplitterResizeHeaderEvent = procedure(Sender: TVTHeader; P: TPoint; var Allowed: Boolean) of object;
+  TVTGetHeaderCursorEvent = procedure(Sender: TERDVTVTHeader; var Cursor: TVTCursor) of object;
+  TVTBeforeGetMaxColumnWidthEvent = procedure(Sender: TERDVTVTHeader; Column: TColumnIndex; var UseSmartColumnWidth: Boolean) of object;
+  TVTAfterGetMaxColumnWidthEvent = procedure(Sender: TERDVTVTHeader; Column: TColumnIndex; var MaxWidth: TDimension) of object;
+  TVTCanSplitterResizeColumnEvent = procedure(Sender: TERDVTVTHeader; P: TPoint; Column: TColumnIndex; var Allowed: Boolean) of object;
+  TVTCanSplitterResizeHeaderEvent = procedure(Sender: TERDVTVTHeader; P: TPoint; var Allowed: Boolean) of object;
 
   // move, copy and node tracking events
-  TVTNodeMovedEvent = procedure(Sender: TBaseVirtualTree; Node: PVirtualNode) of object;
-  TVTNodeMovingEvent = procedure(Sender: TBaseVirtualTree; Node, Target: PVirtualNode;
+  TVTNodeMovedEvent = procedure(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode) of object;
+  TVTNodeMovingEvent = procedure(Sender: TERDVTBaseVirtualTree; Node, Target: PVirtualNode;
     var Allowed: Boolean) of object;
-  TVTNodeCopiedEvent = procedure(Sender: TBaseVirtualTree; Node: PVirtualNode) of object;
-  TVTNodeCopyingEvent = procedure(Sender: TBaseVirtualTree; Node, Target: PVirtualNode;
+  TVTNodeCopiedEvent = procedure(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode) of object;
+  TVTNodeCopyingEvent = procedure(Sender: TERDVTBaseVirtualTree; Node, Target: PVirtualNode;
     var Allowed: Boolean) of object;
-  TVTNodeClickEvent = procedure(Sender: TBaseVirtualTree; const HitInfo: THitInfo) of object;
-  TVTNodeHeightTrackingEvent = procedure(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; Shift: TShiftState;
+  TVTNodeClickEvent = procedure(Sender: TERDVTBaseVirtualTree; const HitInfo: THitInfo) of object;
+  TVTNodeHeightTrackingEvent = procedure(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; Shift: TShiftState;
     var TrackPoint: TPoint; P: TPoint; var Allowed: Boolean) of object;
-  TVTNodeHeightDblClickResizeEvent = procedure(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
+  TVTNodeHeightDblClickResizeEvent = procedure(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
     Shift: TShiftState; P: TPoint; var Allowed: Boolean) of object;
-  TVTCanSplitterResizeNodeEvent = procedure(Sender: TBaseVirtualTree; P: TPoint; Node: PVirtualNode;
+  TVTCanSplitterResizeNodeEvent = procedure(Sender: TERDVTBaseVirtualTree; P: TPoint; Node: PVirtualNode;
     Column: TColumnIndex; var Allowed: Boolean) of object;
 
-  TVTGetUserClipboardFormatsEvent = procedure(Sender: TBaseVirtualTree; var Formats: TFormatEtcArray) of object;
+  TVTGetUserClipboardFormatsEvent = procedure(Sender: TERDVTBaseVirtualTree; var Formats: TFormatEtcArray) of object;
 
   // drag'n drop/OLE events
-  TVTCreateDragManagerEvent = procedure(Sender: TBaseVirtualTree; out DragManager: IVTDragManager) of object;
-  TVTCreateDataObjectEvent = procedure(Sender: TBaseVirtualTree; out IDataObject: TVTDragDataObject) of object;
-  TVTDragAllowedEvent = procedure(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
+  TVTCreateDragManagerEvent = procedure(Sender: TERDVTBaseVirtualTree; out DragManager: IVTDragManager) of object;
+  TVTCreateDataObjectEvent = procedure(Sender: TERDVTBaseVirtualTree; out IDataObject: TVTDragDataObject) of object;
+  TVTDragAllowedEvent = procedure(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
     var Allowed: Boolean) of object;
-  TVTDragOverEvent = procedure(Sender: TBaseVirtualTree; Source: TObject; Shift: TShiftState; State: TDragState;
+  TVTDragOverEvent = procedure(Sender: TERDVTBaseVirtualTree; Source: TObject; Shift: TShiftState; State: TDragState;
     Pt: TPoint; Mode: TDropMode; var Effect: Integer; var Accept: Boolean) of object;
-  TVTDragDropEvent = procedure(Sender: TBaseVirtualTree; Source: TObject; DataObject: TVTDragDataObject;
+  TVTDragDropEvent = procedure(Sender: TERDVTBaseVirtualTree; Source: TObject; DataObject: TVTDragDataObject;
     Formats: TFormatArray; Shift: TShiftState; Pt: TPoint; var Effect: Integer; Mode: TDropMode) of object;
 
   // paint events
-  TVTBeforeItemEraseEvent = procedure(Sender: TBaseVirtualTree; TargetCanvas: TCanvas; Node: PVirtualNode; ItemRect: TRect;
+  TVTBeforeItemEraseEvent = procedure(Sender: TERDVTBaseVirtualTree; TargetCanvas: TCanvas; Node: PVirtualNode; ItemRect: TRect;
     var ItemColor: TColor; var EraseAction: TItemEraseAction) of object;
-  TVTAfterItemEraseEvent = procedure(Sender: TBaseVirtualTree; TargetCanvas: TCanvas; Node: PVirtualNode;
+  TVTAfterItemEraseEvent = procedure(Sender: TERDVTBaseVirtualTree; TargetCanvas: TCanvas; Node: PVirtualNode;
     ItemRect: TRect) of object;
-  TVTBeforeItemPaintEvent = procedure(Sender: TBaseVirtualTree; TargetCanvas: TCanvas; Node: PVirtualNode;
+  TVTBeforeItemPaintEvent = procedure(Sender: TERDVTBaseVirtualTree; TargetCanvas: TCanvas; Node: PVirtualNode;
     ItemRect: TRect; var CustomDraw: Boolean) of object;
-  TVTAfterItemPaintEvent = procedure(Sender: TBaseVirtualTree; TargetCanvas: TCanvas; Node: PVirtualNode;
+  TVTAfterItemPaintEvent = procedure(Sender: TERDVTBaseVirtualTree; TargetCanvas: TCanvas; Node: PVirtualNode;
     ItemRect: TRect) of object;
-  TVTBeforeCellPaintEvent = procedure(Sender: TBaseVirtualTree; TargetCanvas: TCanvas; Node: PVirtualNode;
+  TVTBeforeCellPaintEvent = procedure(Sender: TERDVTBaseVirtualTree; TargetCanvas: TCanvas; Node: PVirtualNode;
     Column: TColumnIndex; CellPaintMode: TVTCellPaintMode; CellRect: TRect; var ContentRect: TRect) of object;
-  TVTAfterCellPaintEvent = procedure(Sender: TBaseVirtualTree; TargetCanvas: TCanvas; Node: PVirtualNode;
+  TVTAfterCellPaintEvent = procedure(Sender: TERDVTBaseVirtualTree; TargetCanvas: TCanvas; Node: PVirtualNode;
     Column: TColumnIndex; CellRect: TRect) of object;
-  TVTPaintEvent = procedure(Sender: TBaseVirtualTree; TargetCanvas: TCanvas) of object;
-  TVTBackgroundPaintEvent = procedure(Sender: TBaseVirtualTree; TargetCanvas: TCanvas; R: TRect;
+  TVTPaintEvent = procedure(Sender: TERDVTBaseVirtualTree; TargetCanvas: TCanvas) of object;
+  TVTBackgroundPaintEvent = procedure(Sender: TERDVTBaseVirtualTree; TargetCanvas: TCanvas; R: TRect;
     var Handled: Boolean) of object;
-  TVTGetLineStyleEvent = procedure(Sender: TBaseVirtualTree; var Bits: Pointer) of object;
-  TVTMeasureItemEvent = procedure(Sender: TBaseVirtualTree; TargetCanvas: TCanvas; Node: PVirtualNode;
+  TVTGetLineStyleEvent = procedure(Sender: TERDVTBaseVirtualTree; var Bits: Pointer) of object;
+  TVTMeasureItemEvent = procedure(Sender: TERDVTBaseVirtualTree; TargetCanvas: TCanvas; Node: PVirtualNode;
     var NodeHeight: TDimension) of object;
-  TVTPaintText = procedure(Sender: TBaseVirtualTree; const TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
+  TVTPaintText = procedure(Sender: TERDVTBaseVirtualTree; const TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
     TextType: TVSTTextType) of object;
 
-  TVTPrepareButtonImagesEvent = procedure(Sender: TBaseVirtualTree; const APlusBM : TBitmap; const APlusHotBM :TBitmap;
+  TVTPrepareButtonImagesEvent = procedure(Sender: TERDVTBaseVirtualTree; const APlusBM : TBitmap; const APlusHotBM :TBitmap;
                                           const APlusSelectedHotBM :TBitmap; const AMinusBM : TBitmap; const AMinusHotBM : TBitmap;
                                           const AMinusSelectedHotBM :TBitmap; var ASize : TSize) of object;
 
-  TVTColumnHeaderSpanningEvent = procedure(Sender: TVTHeader; Column: TColumnIndex; var Count: Integer) of object;
+  TVTColumnHeaderSpanningEvent = procedure(Sender: TERDVTVTHeader; Column: TColumnIndex; var Count: Integer) of object;
 
   // search, sort
-  TVTCompareEvent = procedure(Sender: TBaseVirtualTree; Node1, Node2: PVirtualNode; Column: TColumnIndex;
+  TVTCompareEvent = procedure(Sender: TERDVTBaseVirtualTree; Node1, Node2: PVirtualNode; Column: TColumnIndex;
     var Result: Integer) of object;
-  TVTIncrementalSearchEvent = procedure(Sender: TBaseVirtualTree; Node: PVirtualNode; const SearchText: string;
+  TVTIncrementalSearchEvent = procedure(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode; const SearchText: string;
     var Result: Integer) of object;
 
   // operations
-  TVTOperationEvent = procedure(Sender: TBaseVirtualTree; OperationKind: TVTOperationKind) of object;
+  TVTOperationEvent = procedure(Sender: TERDVTBaseVirtualTree; OperationKind: TVTOperationKind) of object;
 
   TVTHintKind = (vhkText, vhkOwnerDraw);
-  TVTHintKindEvent = procedure(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; var Kind: TVTHintKind) of object;
-  TVTDrawHintEvent = procedure(Sender: TBaseVirtualTree; HintCanvas: TCanvas; Node: PVirtualNode; R: TRect; Column: TColumnIndex) of object;
-  TVTGetHintSizeEvent = procedure(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; var R: TRect) of object;
+  TVTHintKindEvent = procedure(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; var Kind: TVTHintKind) of object;
+  TVTDrawHintEvent = procedure(Sender: TERDVTBaseVirtualTree; HintCanvas: TCanvas; Node: PVirtualNode; R: TRect; Column: TColumnIndex) of object;
+  TVTGetHintSizeEvent = procedure(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex; var R: TRect) of object;
 
   // miscellaneous
-  TVTBeforeDrawLineImageEvent = procedure(Sender: TBaseVirtualTree; Node: PVirtualNode; Level: Integer; var PosX: TDimension) of object;
-  TVTGetNodeDataSizeEvent = procedure(Sender: TBaseVirtualTree; var NodeDataSize: Integer) of object;
-  TVTKeyActionEvent = procedure(Sender: TBaseVirtualTree; var CharCode: Word; var Shift: TShiftState;
+  TVTBeforeDrawLineImageEvent = procedure(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode; Level: Integer; var PosX: TDimension) of object;
+  TVTGetNodeDataSizeEvent = procedure(Sender: TERDVTBaseVirtualTree; var NodeDataSize: Integer) of object;
+  TVTKeyActionEvent = procedure(Sender: TERDVTBaseVirtualTree; var CharCode: Word; var Shift: TShiftState;
     var DoDefault: Boolean) of object;
-  TVTScrollEvent = procedure(Sender: TBaseVirtualTree; DeltaX, DeltaY: TDimension) of object;
-  TVTUpdatingEvent = procedure(Sender: TBaseVirtualTree; State: TVTUpdateState) of object;
-  TVTGetCursorEvent = procedure(Sender: TBaseVirtualTree; var Cursor: TCursor) of object;
-  TVTStateChangeEvent = procedure(Sender: TBaseVirtualTree; Enter, Leave: TVirtualTreeStates) of object;
-  TVTGetCellIsEmptyEvent = procedure(Sender: TBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
+  TVTScrollEvent = procedure(Sender: TERDVTBaseVirtualTree; DeltaX, DeltaY: TDimension) of object;
+  TVTUpdatingEvent = procedure(Sender: TERDVTBaseVirtualTree; State: TVTUpdateState) of object;
+  TVTGetCursorEvent = procedure(Sender: TERDVTBaseVirtualTree; var Cursor: TCursor) of object;
+  TVTStateChangeEvent = procedure(Sender: TERDVTBaseVirtualTree; Enter, Leave: TVirtualTreeStates) of object;
+  TVTGetCellIsEmptyEvent = procedure(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
     var IsEmpty: Boolean) of object;
-  TVTScrollBarShowEvent = procedure(Sender: TBaseVirtualTree; Bar: Integer; Show: Boolean) of object;
+  TVTScrollBarShowEvent = procedure(Sender: TERDVTBaseVirtualTree; Bar: Integer; Show: Boolean) of object;
 
   // Helper types for node iterations.
   TGetFirstNodeProc = function: PVirtualNode of object;
@@ -400,7 +400,7 @@ type
   TVTVirtualNodeEnumeration = record
   private
     FMode: TVZVirtualNodeEnumerationMode;
-    FTree: TBaseVirtualTree;
+    FTree: TERDVTBaseVirtualTree;
     // GetNextXxx parameters:
     FConsiderChildrenAbove: Boolean;
     FNode: PVirtualNode;
@@ -420,15 +420,15 @@ type
   end;
 
   // ----- TBaseVirtualTree
-  TBaseVirtualTree = class abstract(TVTBaseAncestor)
+  TERDVTBaseVirtualTree = class abstract(TVTBaseAncestor)
   private
     FTotalInternalDataSize: Cardinal;            // Cache of the sum of the necessary internal data size for all tree
     FBorderStyle: TBorderStyle;
-    FHeader: TVTHeader;
+    FHeader: TERDVTVTHeader;
     FRoot: PVirtualNode;
     FDefaultNodeHeight,
     FIndent: TDimension;
-    FOptions: TCustomVirtualTreeOptions;
+    FOptions: TERDVTCustomVirtualTreeOptions;
     FUpdateCount: Cardinal;                      // update stopper, updates of the tree control are only done if = 0
     FSynchUpdateCount: Cardinal;                 // synchronizer, causes all events which are usually done via timers
                                                  // to happen immediately, regardless of the normal update state
@@ -514,7 +514,7 @@ type
     FStateChangeLink,
     FCustomCheckChangeLink: TChangeLink;         // connections to the image lists
     FOldFontChange: TNotifyEvent;                // helper method pointer for tracking font changes in the off screen buffer
-    FColors: TVTColors;                          // class comprising all customizable colors in the tree
+    FColors: TERDVTVTColors;                          // class comprising all customizable colors in the tree
     FButtonStyle: TVTButtonStyle;                // style of the tree buttons
     FButtonFillMode: TVTButtonFillMode;          // for rectangular tree buttons only: how to fill them
     FLineStyle: TVTLineStyle;                    // style of the tree lines
@@ -539,12 +539,12 @@ type
     FDragType: TVTDragType;                      // used to switch between OLE and VCL drag'n drop
     FDragWidth,
     FDragHeight: Integer;                        // size of the drag image, the larger the more CPU power is needed
-    FClipboardFormats: TClipboardFormats;        // a list of clipboard format descriptions enabled for this tree
+    FClipboardFormats: TERDVTClipboardFormats;        // a list of clipboard format descriptions enabled for this tree
     FLastVCLDragTarget: PVirtualNode;            // A node cache for VCL drag'n drop (keywords: DragLeave on DragDrop).
     FVCLDragEffect: Integer;                     // A cache for VCL drag'n drop to keep the current drop effect.
 
     // scroll support
-    FScrollBarOptions: TScrollBarOptions;        // common properties of horizontal and vertical scrollbar
+    FScrollBarOptions: TERDVTScrollBarOptions;        // common properties of horizontal and vertical scrollbar
     FAutoScrollInterval: TAutoScrollInterval;    // determines speed of auto scrolling
     FAutoScrollDelay: Cardinal;                  // amount of milliseconds to wait until autoscrolling becomes active
     FAutoExpandDelay: Cardinal;                  // amount of milliseconds to wait until a node is expanded if it is the
@@ -827,8 +827,8 @@ type
     procedure SetCheckImageKind(Value: TCheckImageKind);
     procedure SetCheckState(Node: PVirtualNode; Value: TCheckState);
     procedure SetCheckType(Node: PVirtualNode; Value: TCheckType);
-    procedure SetClipboardFormats(const Value: TClipboardFormats);
-    procedure SetColors(const Value: TVTColors);
+    procedure SetClipboardFormats(const Value: TERDVTClipboardFormats);
+    procedure SetColors(const Value: TERDVTVTColors);
     procedure SetCustomCheckImages(const Value: TCustomImageList);
     procedure SetDefaultNodeHeight(Value: TDimension);
     procedure SetDisabled(Node: PVirtualNode; Value: Boolean);
@@ -838,7 +838,7 @@ type
     procedure SetFocusedNode(Value: PVirtualNode);
     procedure SetFullyVisible(Node: PVirtualNode; Value: Boolean);
     procedure SetHasChildren(Node: PVirtualNode; Value: Boolean);
-    procedure SetHeader(const Value: TVTHeader);
+    procedure SetHeader(const Value: TERDVTVTHeader);
     procedure SetHotNode(Value: PVirtualNode);
     procedure SetFiltered(Node: PVirtualNode; Value: Boolean);
     procedure SetImages(const Value: TCustomImageList);
@@ -854,9 +854,9 @@ type
     procedure SetOffsetX(const Value: TDimension);
     procedure SetOffsetXY(const Value: TPoint);
     procedure SetOffsetY(const Value: TDimension);
-    procedure SetOptions(const Value: TCustomVirtualTreeOptions);
+    procedure SetOptions(const Value: TERDVTCustomVirtualTreeOptions);
     procedure SetRootNodeCount(Value: Cardinal);
-    procedure SetScrollBarOptions(Value: TScrollBarOptions);
+    procedure SetScrollBarOptions(Value: TERDVTScrollBarOptions);
     procedure SetSearchOption(const Value: TVTIncrementalSearch);
     procedure SetSelected(Node: PVirtualNode; Value: Boolean);
     procedure SetSelectionCurveRadius(const Value: Cardinal);
@@ -1072,7 +1072,7 @@ type
     procedure DoHeaderDragged(Column: TColumnIndex; OldPosition: TColumnPosition); virtual;
     procedure DoHeaderDraggedOut(Column: TColumnIndex; DropPosition: TPoint); virtual;
     function DoHeaderDragging(Column: TColumnIndex): Boolean; virtual;
-    procedure DoHeaderDraw(Canvas: TCanvas; Column: TVirtualTreeColumn; R: TRect; Hover, Pressed: Boolean;
+    procedure DoHeaderDraw(Canvas: TCanvas; Column: TERDVTVirtualTreeColumn; R: TRect; Hover, Pressed: Boolean;
       DropMark: TVTDropMarkMode); virtual;
     procedure DoHeaderDrawQueryElements(var PaintInfo: THeaderPaintInfo; var Elements: THeaderPaintElements); virtual;
     procedure DoHeaderMouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: TDimension); virtual;
@@ -1138,10 +1138,10 @@ type
     function GetCheckedCount: Integer;
     function GetCheckImage(Node: PVirtualNode; ImgCheckType: TCheckType = ctNone;
       ImgCheckState: TCheckState = csUncheckedNormal; ImgEnabled: Boolean = True): Integer; virtual;
-    function GetColumnClass: TVirtualTreeColumnClass; virtual;
+    function GetColumnClass: TERDVTVirtualTreeColumnClass; virtual;
     function GetDefaultHintKind: TVTHintKind; virtual;
     function GetDoubleBuffered: Boolean; {$if CompilerVersion >= 36}override;{$ifend}
-    function GetHeaderClass: TVTHeaderClass; virtual;
+    function GetHeaderClass: TERDVTVTHeaderClass; virtual;
     function GetHintWindowClass: THintWindowClass; virtual; abstract;
     procedure GetImageIndex(var Info: TVTPaintInfo; Kind: TVTImageKind; InfoIndex: TVTImageInfoIndex); virtual;
     function GetImageSize(Node: PVirtualNode; Kind: TVTImageKind = TVTImageKind.ikNormal; Column: TColumnIndex = 0; IncludePadding: Boolean = True): TSize; virtual;
@@ -1149,7 +1149,7 @@ type
     function GetMaxRightExtend: TDimension; virtual;
     procedure GetNativeClipboardFormats(var Formats: TFormatEtcArray); virtual;
     function GetOperationCanceled: Boolean;
-    function GetOptionsClass: TTreeOptionsClass; virtual;
+    function GetOptionsClass: TERDVTTreeOptionsClass; virtual;
     function GetSelectedCount(): Integer; override;
 
     // multicell support
@@ -1219,7 +1219,7 @@ type
 
     procedure InternalCacheNode(Node: PVirtualNode); virtual;
     procedure InternalClearSelection; virtual;
-    procedure InternalConnectNode(Node, Destination: PVirtualNode; Target: TBaseVirtualTree; Mode: TVTNodeAttachMode); virtual;
+    procedure InternalConnectNode(Node, Destination: PVirtualNode; Target: TERDVTBaseVirtualTree; Mode: TVTNodeAttachMode); virtual;
     function InternalData(Node: PVirtualNode): Pointer;
     procedure InternalDisconnectNode(Node: PVirtualNode; KeepFocus: Boolean; Reindex: Boolean = True; ParentClearing: Boolean = False); virtual;
     procedure InternalSetFocusedColumn(const index : TColumnIndex);
@@ -1272,7 +1272,7 @@ type
     procedure ToggleSelection(StartNode, EndNode: PVirtualNode); virtual;
     procedure TrySetFocus();
     procedure UnselectNodes(StartNode, EndNode: PVirtualNode); virtual;
-    procedure UpdateColumnCheckState(Col: TVirtualTreeColumn);
+    procedure UpdateColumnCheckState(Col: TERDVTVirtualTreeColumn);
     procedure UpdateDesigner; virtual;
     procedure UpdateEditBounds; virtual;
     procedure UpdateHeaderRect; virtual;
@@ -1304,8 +1304,8 @@ type
     property ButtonStyle: TVTButtonStyle read FButtonStyle write SetButtonStyle default bsRectangle;
     property ChangeDelay: Cardinal read FChangeDelay write FChangeDelay default 0;
     property CheckImageKind: TCheckImageKind read FCheckImageKind write SetCheckImageKind stored False default ckSystemDefault; // deprecated, see issue #622
-    property ClipboardFormats: TClipboardFormats read FClipboardFormats write SetClipboardFormats;
-    property Colors: TVTColors read FColors write SetColors;
+    property ClipboardFormats: TERDVTClipboardFormats read FClipboardFormats write SetClipboardFormats;
+    property Colors: TERDVTVTColors read FColors write SetColors;
     property CustomCheckImages: TCustomImageList read FCustomCheckImages write SetCustomCheckImages;
     property DefaultHintKind: TVTHintKind read GetDefaultHintKind;
     property DefaultNodeHeight: TDimension read FDefaultNodeHeight write SetDefaultNodeHeight stored IsStored_DefaultNodeHeight;
@@ -1349,12 +1349,12 @@ type
     property RangeX: TDimension read GetRangeX;// Returns the width of the virtual tree in pixels, (not ClientWidth). If there are columns it returns the total width of all of them; otherwise it returns the maximum of the all the line's data widths.
     property RangeY: TNodeHeight read FRangeY;
     property RootNodeCount: Cardinal read GetRootNodeCount write SetRootNodeCount default 0;
-    property ScrollBarOptions: TScrollBarOptions read FScrollBarOptions write SetScrollBarOptions;
+    property ScrollBarOptions: TERDVTScrollBarOptions read FScrollBarOptions write SetScrollBarOptions;
     property SelectionBlendFactor: Byte read FSelectionBlendFactor write FSelectionBlendFactor default 128;
     property SelectionCurveRadius: Cardinal read FSelectionCurveRadius write SetSelectionCurveRadius default 0;
     property StateImages: TCustomImageList read FStateImages write SetStateImages;
     property TextMargin: TDimension read FTextMargin write SetTextMargin stored IsStored_TextMargin;
-    property TreeOptions: TCustomVirtualTreeOptions read FOptions write SetOptions;
+    property TreeOptions: TERDVTCustomVirtualTreeOptions read FOptions write SetOptions;
     property WantTabs: Boolean read FWantTabs write FWantTabs default False;
     property SyncCheckstateWithSelection[Node: PVirtualNode]: Boolean read GetSyncCheckstateWithSelection;
 
@@ -1524,7 +1524,7 @@ type
     procedure Clear; virtual;
     procedure ClearChecked;
     procedure ClearSelection(); overload; inline;
-    function CopyTo(Source: PVirtualNode; Tree: TBaseVirtualTree; Mode: TVTNodeAttachMode;
+    function CopyTo(Source: PVirtualNode; Tree: TERDVTBaseVirtualTree; Mode: TVTNodeAttachMode;
       ChildrenOnly: Boolean): PVirtualNode; overload;
     function CopyTo(Source, Target: PVirtualNode; Mode: TVTNodeAttachMode;
       ChildrenOnly: Boolean): PVirtualNode; overload;
@@ -1648,7 +1648,7 @@ type
     procedure LoadFromStream(Stream: TStream); virtual;
     procedure MeasureItemHeight(const Canvas: TCanvas; Node: PVirtualNode); virtual;
     procedure MoveTo(Source, Target: PVirtualNode; Mode: TVTNodeAttachMode; ChildrenOnly: Boolean); overload;
-    procedure MoveTo(Node: PVirtualNode; Tree: TBaseVirtualTree; Mode: TVTNodeAttachMode;
+    procedure MoveTo(Node: PVirtualNode; Tree: TERDVTBaseVirtualTree; Mode: TVTNodeAttachMode;
       ChildrenOnly: Boolean); overload;
     procedure PaintTree(TargetCanvas: TCanvas; Window: TRect; Target: TPoint; PaintOptions: TVTInternalPaintOptions;
       PixelFormat: TPixelFormat = pfDevice); virtual;
@@ -1656,7 +1656,7 @@ type
     procedure Print(Printer: TPrinter; PrintHeader: Boolean);
     function ProcessDrop(const DataObject: TVTDragDataObject; TargetNode: PVirtualNode; var Effect: Integer; Mode:
       TVTNodeAttachMode): Boolean;
-    function ProcessOLEData(Source: TBaseVirtualTree; const DataObject: IDataObject; TargetNode: PVirtualNode;
+    function ProcessOLEData(Source: TERDVTBaseVirtualTree; const DataObject: IDataObject; TargetNode: PVirtualNode;
                             Mode: TVTNodeAttachMode; Optimized: Boolean): Boolean;
     procedure RepaintNode(Node: PVirtualNode);
     procedure ReinitChildren(Node: PVirtualNode; Recursive: Boolean; ForceReinit: Boolean = False); virtual;
@@ -1784,7 +1784,7 @@ type
     property Font;
     property FullyVisible[Node: PVirtualNode]: Boolean read GetFullyVisible write SetFullyVisible;
     property HasChildren[Node: PVirtualNode]: Boolean read GetHasChildren write SetHasChildren;
-    property Header: TVTHeader read FHeader write SetHeader;
+    property Header: TERDVTVTHeader read FHeader write SetHeader;
     property HotNode: PVirtualNode read FCurrentHotNode write SetHotNode;
     property HotColumn: TColumnIndex read FCurrentHotColumn;
     property IsDisabled[Node: PVirtualNode]: Boolean read GetDisabled write SetDisabled;
@@ -1814,15 +1814,15 @@ type
     property DoubleBuffered: Boolean read GetDoubleBuffered write SetDoubleBuffered default True;
   end;
 
-  TVTDrawNodeEvent = procedure(Sender: TBaseVirtualTree; const PaintInfo: TVTPaintInfo) of object;
-  TVTGetCellContentMarginEvent = procedure(Sender: TBaseVirtualTree; HintCanvas: TCanvas; Node: PVirtualNode;
+  TVTDrawNodeEvent = procedure(Sender: TERDVTBaseVirtualTree; const PaintInfo: TVTPaintInfo) of object;
+  TVTGetCellContentMarginEvent = procedure(Sender: TERDVTBaseVirtualTree; HintCanvas: TCanvas; Node: PVirtualNode;
     Column: TColumnIndex; CellContentMarginType: TVTCellContentMarginType; var CellContentMargin: TPoint) of object;
-  TVTGetNodeWidthEvent = procedure(Sender: TBaseVirtualTree; HintCanvas: TCanvas; Node: PVirtualNode;
+  TVTGetNodeWidthEvent = procedure(Sender: TERDVTBaseVirtualTree; HintCanvas: TCanvas; Node: PVirtualNode;
     Column: TColumnIndex; var NodeWidth: TDimension) of object;
 
 
 // utility routines
-function TreeFromNode(Node: PVirtualNode): TBaseVirtualTree;
+function TreeFromNode(Node: PVirtualNode): TERDVTBaseVirtualTree;
 
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1871,10 +1871,10 @@ const
 
 type
   //These allow us access to protected members in the classes
-  TVirtualTreeColumnsCracker = class(TVirtualTreeColumns);
-  TVTHeaderCracker = class(TVTHeader);
-  TVirtualTreeColumnCracker = class(TVirtualTreeColumn);
-  TBaseVirtualTreeCracker = class(TBaseVirtualTree);
+  TERDVTVirtualTreeColumnsCracker = class(TERDVTVirtualTreeColumns);
+  TERDVTVTHeaderCracker = class(TERDVTVTHeader);
+  TERDVTVirtualTreeColumnCracker = class(TERDVTVirtualTreeColumn);
+  TERDVTBaseVirtualTreeCracker = class(TERDVTBaseVirtualTree);
 
   // streaming support
   TMagicID = array[0..5] of WideChar;
@@ -1936,7 +1936,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TreeFromNode(Node: PVirtualNode): TBaseVirtualTree;
+function TreeFromNode(Node: PVirtualNode): TERDVTBaseVirtualTree;
 
 // Returns the tree the node currently belongs to or nil if the node is not attached to a tree.
 
@@ -1947,14 +1947,14 @@ begin
   while Assigned(Node) and (Node.NextSibling <> Node) do
     Node := Node.Parent;
   if Assigned(Node) then
-    Result := TBaseVirtualTree(Node.Parent)
+    Result := TERDVTBaseVirtualTree(Node.Parent)
   else
     Result := nil;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SelectCells(StartNode: PVirtualNode; StartColumn: TColumnIndex; EndNode: PVirtualNode; EndColumn: TColumnIndex; AddOnly: Boolean);
+procedure TERDVTBaseVirtualTree.SelectCells(StartNode: PVirtualNode; StartColumn: TColumnIndex; EndNode: PVirtualNode; EndColumn: TColumnIndex; AddOnly: Boolean);
 var
   S, E: TVTCell;
 begin
@@ -1963,7 +1963,7 @@ begin
   SelectCells(S, E, AddOnly);
 end;
 
-procedure TBaseVirtualTree.SelectCells(const StartCell, EndCell: TVTCell; AddOnly: Boolean);
+procedure TERDVTBaseVirtualTree.SelectCells(const StartCell, EndCell: TVTCell; AddOnly: Boolean);
 begin
   InternalSelectCells(StartCell, EndCell, AddOnly);
   ChangeCell(FSelectedCells);
@@ -1971,7 +1971,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.UnselectCells(StartNode: PVirtualNode; StartColumn: TColumnIndex; EndNode: PVirtualNode; EndColumn: TColumnIndex);
+procedure TERDVTBaseVirtualTree.UnselectCells(StartNode: PVirtualNode; StartColumn: TColumnIndex; EndNode: PVirtualNode; EndColumn: TColumnIndex);
 var
   S, E: TVTCell;
 begin
@@ -1983,7 +1983,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.ClearCellSelection;
+procedure TERDVTBaseVirtualTree.ClearCellSelection;
 begin
   InternalClearCellSelection;
   ChangeCell([]);
@@ -1991,7 +1991,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.IsCellSelected(Node: PVirtualNode; Column: TColumnIndex): Boolean;
+function TERDVTBaseVirtualTree.IsCellSelected(Node: PVirtualNode; Column: TColumnIndex): Boolean;
 begin
   Result := InternalIsCellSelected(Node, Column);
 end;
@@ -2185,7 +2185,7 @@ begin
   // Native clipboard format. Needs a new identifier and has an average priority to allow other formats to take over.
   // This format is supposed to use the IStream storage format but unfortunately this does not work when
   // OLEFlushClipboard is used. Hence it is disabled until somebody finds a solution.
-  CF_VIRTUALTREE := RegisterVTClipboardFormat(CFSTR_VIRTUALTREE, TBaseVirtualTree, 50, TYMED_HGLOBAL {or TYMED_ISTREAM});
+  CF_VIRTUALTREE := RegisterVTClipboardFormat(CFSTR_VIRTUALTREE, TERDVTBaseVirtualTree, 50, TYMED_HGLOBAL {or TYMED_ISTREAM});
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -2218,7 +2218,7 @@ end;
 
 //----------------- TClipboardFormats ----------------------------------------------------------------------------------
 
-constructor TClipboardFormats.Create(AOwner: TBaseVirtualTree);
+constructor TERDVTClipboardFormats.Create(AOwner: TERDVTBaseVirtualTree);
 
 begin
   FOwner := AOwner;
@@ -2228,17 +2228,17 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TClipboardFormats.Add(const S: string): Integer;
+function TERDVTClipboardFormats.Add(const S: string): Integer;
 
 // Restrict additions to the clipbard formats to only those which are registered with the owner tree or one of its
 // ancestors.
 
 var
   Format: Word;
-  RegisteredClass: TVirtualTreeClass;
+  RegisteredClass: TERDVTVirtualTreeClass;
 
 begin
-  RegisteredClass := TClipboardFormatList.FindFormat(S, Format);
+  RegisteredClass := TERDVTClipboardFormatList.FindFormat(S, Format);
   if Assigned(RegisteredClass) and FOwner.ClassType.InheritsFrom(RegisteredClass) then
     Result := inherited Add(S)
   else
@@ -2247,24 +2247,24 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TClipboardFormats.Insert(Index: Integer; const S: string);
+procedure TERDVTClipboardFormats.Insert(Index: Integer; const S: string);
 
 // Restrict additions to the clipbard formats to only those which are registered with the owner tree or one of its
 // ancestors.
 
 var
   Format: Word;
-  RegisteredClass: TVirtualTreeClass;
+  RegisteredClass: TERDVTVirtualTreeClass;
 
 begin
-  RegisteredClass := TClipboardFormatList.FindFormat(S, Format);
+  RegisteredClass := TERDVTClipboardFormatList.FindFormat(S, Format);
   if Assigned(RegisteredClass) and FOwner.ClassType.InheritsFrom(RegisteredClass) then
     inherited Insert(Index, S);
 end;
 
 //----------------- TBaseVirtualTree -----------------------------------------------------------------------------------
 
-constructor TBaseVirtualTree.Create(AOwner: TComponent);
+constructor TERDVTBaseVirtualTree.Create(AOwner: TComponent);
 
 begin
   InitializeGlobalStructures();
@@ -2282,7 +2282,7 @@ begin
   FDefaultNodeHeight := cInitialDefaultNodeHeight;
   FDragOperations := [doCopy, doMove];
   FHotCursor := crDefault;
-  FScrollBarOptions := TScrollBarOptions.Create(Self);
+  FScrollBarOptions := TERDVTScrollBarOptions.Create(Self);
   FFocusedColumn := NoColumn;
   FDragImageKind := diComplete;
   FLastSelectionLevel := -1;
@@ -2335,7 +2335,7 @@ begin
   FDragHeight := 350;
   FDragWidth := 200;
 
-  FColors := TVTColors.Create(Self);
+  FColors := TERDVTVTColors.Create(Self);
   FEditDelay := 1000;
 
   FAnimationDuration := 200;
@@ -2344,7 +2344,7 @@ begin
   FNodeAlignment := naProportional;
   FLineStyle := lsDotted;
   FIncrementalSearch := isNone;
-  FClipboardFormats := TClipboardFormats.Create(Self);
+  FClipboardFormats := TERDVTClipboardFormats.Create(Self);
   FOptions := GetOptionsClass.Create(Self);
 
   Touch.InteractiveGestures := [igPan, igPressAndTap];
@@ -2353,12 +2353,12 @@ begin
     igoPanGutter, igoParentPassthrough];
 
   if not (csDesigning in ComponentState) then //Don't create worker thread in IDE, there is no use for it
-    TWorkerThread.AddThreadReference();
+    TERDVTWorkerThread.AddThreadReference();
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-destructor TBaseVirtualTree.Destroy();
+destructor TERDVTBaseVirtualTree.Destroy();
 var
   WasValidating: Boolean;
 begin
@@ -2372,7 +2372,7 @@ begin
   end;// if
   FOptions.InternalSetMiscOptions(FOptions.MiscOptions - [toReadOnly]); //SetMiscOptions has side effects
   // Make sure there is no reference remaining to the releasing tree.
-  TWorkerThread.ReleaseThreadReference(IsLibrary); // see issue #1245
+  TERDVTWorkerThread.ReleaseThreadReference(IsLibrary); // see issue #1245
   StopWheelPanning;
   CancelEditNode;
 
@@ -2428,7 +2428,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.AdjustTotalCount(Node: PVirtualNode; Value: Integer; Relative: Boolean = False);
+procedure TERDVTBaseVirtualTree.AdjustTotalCount(Node: PVirtualNode; Value: Integer; Relative: Boolean = False);
 
 // Sets a node's total count to the given value and recursively adjusts the parent's total count
 // (actually, the adjustment is done iteratively to avoid function call overheads).
@@ -2456,7 +2456,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.AdjustTotalHeight(Node: PVirtualNode; Value: TNodeHeight; Relative: Boolean = False);
+procedure TERDVTBaseVirtualTree.AdjustTotalHeight(Node: PVirtualNode; Value: TNodeHeight; Relative: Boolean = False);
 
 // Sets a node's total height to the given value and recursively adjusts the parent's total height.
 
@@ -2490,7 +2490,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.BackgroundPictureChanged(Sender: TObject);
+procedure TERDVTBaseVirtualTree.BackgroundPictureChanged(Sender: TObject);
 
 // Invalidates the prepared background image whenever the background picture changes.
 
@@ -2511,7 +2511,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.CalculateCacheEntryCount: Integer;
+function TERDVTBaseVirtualTree.CalculateCacheEntryCount: Integer;
 
 // Calculates the size of the position cache.
 
@@ -2524,7 +2524,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.CalculateVerticalAlignments(var PaintInfo: TVTPaintInfo; var VButtonAlign: TDimension);
+procedure TERDVTBaseVirtualTree.CalculateVerticalAlignments(var PaintInfo: TVTPaintInfo; var VButtonAlign: TDimension);
 
 // Calculates the vertical alignment of the given node and its associated expand/collapse button during
 // a node paint cycle depending on the required node alignment style.
@@ -2561,7 +2561,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.ChangeCheckState(Node: PVirtualNode; Value: TCheckState): Boolean;
+function TERDVTBaseVirtualTree.ChangeCheckState(Node: PVirtualNode; Value: TCheckState): Boolean;
 
 // Sets the check state of the node according to the given value and the node's check type.
 // If the check state must be propagated to the parent nodes and one of them refuses to change then
@@ -2734,7 +2734,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.CollectSelectedNodesLTR(MainColumn: Integer; NodeLeft, NodeRight: TDimension; Alignment: TAlignment;
+function TERDVTBaseVirtualTree.CollectSelectedNodesLTR(MainColumn: Integer; NodeLeft, NodeRight: TDimension; Alignment: TAlignment;
   OldRect, NewRect: TRect): Boolean;
 
 // Helper routine used when a draw selection takes place. This version handles left-to-right directionality.
@@ -2887,7 +2887,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.CollectSelectedNodesRTL(MainColumn: Integer; NodeLeft, NodeRight: TDimension; Alignment: TAlignment;
+function TERDVTBaseVirtualTree.CollectSelectedNodesRTL(MainColumn: Integer; NodeLeft, NodeRight: TDimension; Alignment: TAlignment;
   OldRect, NewRect: TRect): Boolean;
 
 // Helper routine used when a draw selection takes place. This version handles right-to-left directionality.
@@ -3054,7 +3054,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.ClearNodeBackground(const PaintInfo: TVTPaintInfo; UseBackground, Floating: Boolean;
+procedure TERDVTBaseVirtualTree.ClearNodeBackground(const PaintInfo: TVTPaintInfo; UseBackground, Floating: Boolean;
   R: TRect);
 
 // Erases a node's background depending on what the application decides to do.
@@ -3140,7 +3140,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.CompareNodePositions(Node1, Node2: PVirtualNode; ConsiderChildrenAbove: Boolean = False): Integer;
+function TERDVTBaseVirtualTree.CompareNodePositions(Node1, Node2: PVirtualNode; ConsiderChildrenAbove: Boolean = False): Integer;
 
 // Tries hard and smart to quickly determine whether Node1's structural position is before Node2's position.
 // If ConsiderChildrenAbove is True, the nodes will be compared with their visual order in mind.
@@ -3201,7 +3201,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DrawLineImage(const PaintInfo: TVTPaintInfo; X, Y, H, VAlign: TDimension; Style: TVTLineType;
+procedure TERDVTBaseVirtualTree.DrawLineImage(const PaintInfo: TVTPaintInfo; X, Y, H, VAlign: TDimension; Style: TVTLineType;
   Reverse: Boolean);
 
 // Draws (depending on Style) one of the 5 line types of the tree.
@@ -3263,7 +3263,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.FindInPositionCache(Node: PVirtualNode; var CurrentPos: TNodeHeight): PVirtualNode;
+function TERDVTBaseVirtualTree.FindInPositionCache(Node: PVirtualNode; var CurrentPos: TNodeHeight): PVirtualNode;
 
 // Looks through the position cache and returns the node whose top position is the largest one which is smaller or equal
 // to the position of the given node.
@@ -3296,7 +3296,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.FindInPositionCache(Position: TDimension; var CurrentPos: TNodeHeight): PVirtualNode;
+function TERDVTBaseVirtualTree.FindInPositionCache(Position: TDimension; var CurrentPos: TNodeHeight): PVirtualNode;
 
 // Looks through the position cache and returns the node whose top position is the largest one which is smaller or equal
 // to the given vertical position.
@@ -3332,7 +3332,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.FixupTotalCount(Node: PVirtualNode);
+procedure TERDVTBaseVirtualTree.FixupTotalCount(Node: PVirtualNode);
 
 // Called after loading a subtree from stream. The child count in each node is already set but not
 // their total count.
@@ -3353,7 +3353,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.FixupTotalHeight(Node: PVirtualNode);
+procedure TERDVTBaseVirtualTree.FixupTotalHeight(Node: PVirtualNode);
 
 // Called after loading a subtree from stream. The individual height of each node is set already,
 // but their total height needs an adjustment depending on their visibility state.
@@ -3388,7 +3388,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetBackgroundBitmap(Source: TVTBackground; aBkgColor: TColor): TBitmap;
+function TERDVTBaseVirtualTree.GetBackgroundBitmap(Source: TVTBackground; aBkgColor: TColor): TBitmap;
 
 // Prepares and returns the background bitmap ready to be drawn.  Creates a new bitmap if it
 // hasn't been created yet or if preparation settings have changed.
@@ -3423,7 +3423,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetBottomNode: PVirtualNode;
+function TERDVTBaseVirtualTree.GetBottomNode: PVirtualNode;
 
 begin
   Result := GetNodeAt(0, ClientHeight - 1);
@@ -3431,7 +3431,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetCheckedCount: Integer;
+function TERDVTBaseVirtualTree.GetCheckedCount: Integer;
 
 var
   Node: PVirtualNode;
@@ -3448,7 +3448,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetCheckState(Node: PVirtualNode): TCheckState;
+function TERDVTBaseVirtualTree.GetCheckState(Node: PVirtualNode): TCheckState;
 
 begin
   if Assigned(FOnBeforeGetCheckState) then
@@ -3459,7 +3459,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetCheckType(Node: PVirtualNode): TCheckType;
+function TERDVTBaseVirtualTree.GetCheckType(Node: PVirtualNode): TCheckType;
 
 begin
   Result := Node.CheckType;
@@ -3467,7 +3467,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetChildCount(Node: PVirtualNode): Cardinal;
+function TERDVTBaseVirtualTree.GetChildCount(Node: PVirtualNode): Cardinal;
 begin
   if (Node = nil) or (Node = FRoot) then
     Exit(FRoot.ChildCount);
@@ -3478,7 +3478,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetChildrenInitialized(Node: PVirtualNode): Boolean;
+function TERDVTBaseVirtualTree.GetChildrenInitialized(Node: PVirtualNode): Boolean;
 
 begin
   Result := not (vsHasChildren in Node.States) or (Node.ChildCount > 0);
@@ -3486,7 +3486,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetCutCopyCount: Integer;
+function TERDVTBaseVirtualTree.GetCutCopyCount: Integer;
 
 var
   Node: PVirtualNode;
@@ -3503,7 +3503,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetDisabled(Node: PVirtualNode): Boolean;
+function TERDVTBaseVirtualTree.GetDisabled(Node: PVirtualNode): Boolean;
 
 begin
   Result := Assigned(Node) and (vsDisabled in Node.States);
@@ -3511,7 +3511,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 // whether the sync of checkbox with selection is allowed for this node
-function TBaseVirtualTree.GetSyncCheckstateWithSelection(Node: PVirtualNode): Boolean;
+function TERDVTBaseVirtualTree.GetSyncCheckstateWithSelection(Node: PVirtualNode): Boolean;
 
 begin
   Result := (toSyncCheckboxesWithSelection in FOptions.SelectionOptions)
@@ -3522,7 +3522,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetDragManager: IVTDragManager;
+function TERDVTBaseVirtualTree.GetDragManager: IVTDragManager;
 
 // Returns the internal drag manager interface. If this does not yet exist then it is created here.
 
@@ -3531,7 +3531,7 @@ begin
   begin
     FDragManager := DoCreateDragManager;
     if FDragManager = nil then
-      FDragManager := TVTDragManager.Create(Self) as IVTDragManager;
+      FDragManager := TERDVTVTDragManager.Create(Self) as IVTDragManager;
   end;
 
   Result := FDragManager;
@@ -3539,7 +3539,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetExpanded(Node: PVirtualNode): Boolean;
+function TERDVTBaseVirtualTree.GetExpanded(Node: PVirtualNode): Boolean;
 
 begin
   if Assigned(Node) then
@@ -3550,7 +3550,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetFiltered(Node: PVirtualNode): Boolean;
+function TERDVTBaseVirtualTree.GetFiltered(Node: PVirtualNode): Boolean;
 
 begin
   Result := vsFiltered in Node.States;
@@ -3558,7 +3558,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetFullyVisible(Node: PVirtualNode): Boolean;
+function TERDVTBaseVirtualTree.GetFullyVisible(Node: PVirtualNode): Boolean;
 
 // Determines whether the given node has the visibility flag set as well as all its parents are expanded.
 
@@ -3571,7 +3571,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetHasChildren(Node: PVirtualNode): Boolean;
+function TERDVTBaseVirtualTree.GetHasChildren(Node: PVirtualNode): Boolean;
 
 begin
   if Assigned(Node) then
@@ -3582,7 +3582,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetMultiline(Node: PVirtualNode): Boolean;
+function TERDVTBaseVirtualTree.GetMultiline(Node: PVirtualNode): Boolean;
 
 begin
   Result := Assigned(Node) and (Node <> FRoot) and (vsMultiline in Node.States);
@@ -3590,7 +3590,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetNodeHeight(Node: PVirtualNode): TNodeHeight;
+function TERDVTBaseVirtualTree.GetNodeHeight(Node: PVirtualNode): TNodeHeight;
 
 begin
   if Assigned(Node) and (Node <> FRoot) then
@@ -3611,7 +3611,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetNodeParent(Node: PVirtualNode): PVirtualNode;
+function TERDVTBaseVirtualTree.GetNodeParent(Node: PVirtualNode): PVirtualNode;
 
 begin
   if Assigned(Node) and (Node.Parent <> FRoot) then
@@ -3622,7 +3622,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetOffset(pElement: TVTElement; pNode: PVirtualNode): TDimension;
+function TERDVTBaseVirtualTree.GetOffset(pElement: TVTElement; pNode: PVirtualNode): TDimension;
 // Calculates the offset of the given element
 var
   lOffsets: TVTOffsets;
@@ -3631,7 +3631,7 @@ begin
   Exit(lOffsets[pElement]);
 end;
 
-procedure TBaseVirtualTree.GetOffsets(pNode: PVirtualNode; out pOffsets: TVTOffsets; pElement: TVTElement = TVTElement.ofsEndOfClientArea; pColumn: Integer = NoColumn);
+procedure TERDVTBaseVirtualTree.GetOffsets(pNode: PVirtualNode; out pOffsets: TVTOffsets; pElement: TVTElement = TVTElement.ofsEndOfClientArea; pColumn: Integer = NoColumn);
 // Calculates the offset up to the given element and supplies them in an array.
 var
   lNodeLevel: Integer;
@@ -3701,7 +3701,7 @@ begin
   pOffsets[TVTElement.ofsEndOfClientArea] := Max(FRangeX, ClientWidth) - FTextMargin;
 end;
 
-function TBaseVirtualTree.GetOffsetXY: TPoint;
+function TERDVTBaseVirtualTree.GetOffsetXY: TPoint;
 
 begin
   Result := Point(FOffsetX, FOffsetY);
@@ -3709,12 +3709,12 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetRangeX: TDimension;
+function TERDVTBaseVirtualTree.GetRangeX: TDimension;
 begin
   Result := Max(0, FRangeX);
 end;
 
-function TBaseVirtualTree.GetRootNodeCount: Cardinal;
+function TERDVTBaseVirtualTree.GetRootNodeCount: Cardinal;
 
 begin
   Result := FRoot.ChildCount;
@@ -3722,7 +3722,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetSelected(Node: PVirtualNode): Boolean;
+function TERDVTBaseVirtualTree.GetSelected(Node: PVirtualNode): Boolean;
 
 begin
   Result := Assigned(Node) and (vsSelected in Node.States);
@@ -3730,7 +3730,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetSelectedCount: Integer;
+function TERDVTBaseVirtualTree.GetSelectedCount: Integer;
 begin
   // Entries already marked for removal must not be counted any more, otherwise this reports a stale value while
   // OnRemoveFromSelection / OnChange run (issue #1197). FSelectionMarkedCount is 0 outside those windows.
@@ -3739,14 +3739,14 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetSelectedCellCount: Integer;
+function TERDVTBaseVirtualTree.GetSelectedCellCount: Integer;
 begin
   Exit(FSelectedCellCount);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetSelectedData<T>: TArray<T>;
+function TERDVTBaseVirtualTree.GetSelectedData<T>: TArray<T>;
 var
   lItem: PVirtualNode;
   i: Integer;
@@ -3765,7 +3765,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetTopNode: PVirtualNode;
+function TERDVTBaseVirtualTree.GetTopNode: PVirtualNode;
 
 var
   Dummy: TDimension;
@@ -3776,7 +3776,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetTotalCount(): Cardinal;
+function TERDVTBaseVirtualTree.GetTotalCount(): Cardinal;
 
 begin
   Assert(GetCurrentThreadId = MainThreadId, 'UI controls may only be used in UI thread.'); // FUpdateCount is not thread-safe! So do not write it in non-UI threads.
@@ -3792,14 +3792,14 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetVclStyleEnabled: Boolean;
+function TERDVTBaseVirtualTree.GetVclStyleEnabled: Boolean;
 begin
   Exit(FVclStyleEnabled);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetVerticalAlignment(Node: PVirtualNode): Byte;
+function TERDVTBaseVirtualTree.GetVerticalAlignment(Node: PVirtualNode): Byte;
 
 begin
   Result := Node.Align;
@@ -3807,7 +3807,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetVisible(Node: PVirtualNode): Boolean;
+function TERDVTBaseVirtualTree.GetVisible(Node: PVirtualNode): Boolean;
 
 // Determines if the given node is marked as being visible.
 
@@ -3823,7 +3823,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetVisiblePath(Node: PVirtualNode): Boolean;
+function TERDVTBaseVirtualTree.GetVisiblePath(Node: PVirtualNode): Boolean;
 
 // Determines if all parents of the given node are expanded and have the visibility flag set.
 
@@ -3840,7 +3840,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.HandleClickSelection(LastFocused, NewNode: PVirtualNode; Shift: TShiftState;
+procedure TERDVTBaseVirtualTree.HandleClickSelection(LastFocused, NewNode: PVirtualNode; Shift: TShiftState;
   DragPending: Boolean);
 var
   ClickedCell: TVTCell;
@@ -3961,7 +3961,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.HandleDrawSelection(X, Y: TDimension): Boolean;
+function TERDVTBaseVirtualTree.HandleDrawSelection(X, Y: TDimension): Boolean;
 
 // Handles multi-selection with a focus rectangle.
 // Result is True if something changed in selection.
@@ -4046,7 +4046,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.HasVisibleNextSibling(Node: PVirtualNode): Boolean;
+function TERDVTBaseVirtualTree.HasVisibleNextSibling(Node: PVirtualNode): Boolean;
 
 // Helper method to determine if the given node has a visible next sibling. This is needed to
 // draw correct tree lines.
@@ -4066,7 +4066,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.HasVisiblePreviousSibling(Node: PVirtualNode): Boolean;
+function TERDVTBaseVirtualTree.HasVisiblePreviousSibling(Node: PVirtualNode): Boolean;
 
 // Helper method to determine if the given node has a visible previous sibling. This is needed to
 // draw correct tree lines.
@@ -4086,7 +4086,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.ImageListChange(Sender: TObject);
+procedure TERDVTBaseVirtualTree.ImageListChange(Sender: TObject);
 
 begin
   if not (csDestroying in ComponentState) then
@@ -4095,7 +4095,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.InitializeFirstColumnValues(var PaintInfo: TVTPaintInfo);
+procedure TERDVTBaseVirtualTree.InitializeFirstColumnValues(var PaintInfo: TVTPaintInfo);
 
 // Determines initial index, position and cell size of the first visible column.
 
@@ -4115,7 +4115,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.InitRecursive(Node: PVirtualNode; Levels: Cardinal = MaxInt; pVisibleOnly: Boolean = True);
+procedure TERDVTBaseVirtualTree.InitRecursive(Node: PVirtualNode; Levels: Cardinal = MaxInt; pVisibleOnly: Boolean = True);
 
 // Initializes a node and optionally its children up to a certain level.
 // The sepcified number of levels are latrive to the givne Node.
@@ -4139,7 +4139,7 @@ begin
   end;
 end;
 
-procedure TBaseVirtualTree.InitRootNode(OldSize: Cardinal = 0);
+procedure TERDVTBaseVirtualTree.InitRootNode(OldSize: Cardinal = 0);
 
 // Reinitializes the root node.
 
@@ -4172,7 +4172,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.InterruptValidation(pWaitForValidationTermination: Boolean = True);
+procedure TERDVTBaseVirtualTree.InterruptValidation(pWaitForValidationTermination: Boolean = True);
 
 var
   WasValidating: Boolean;
@@ -4181,14 +4181,14 @@ begin
 
   // Check the worker thread existance. It might already be gone (usually on destruction of the last tree).
   WasValidating := (tsValidating in FStates);
-  TWorkerThread.RemoveTree(Self, pWaitForValidationTermination);
+  TERDVTWorkerThread.RemoveTree(Self, pWaitForValidationTermination);
   if WasValidating then
     InvalidateCache();
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.IsFirstVisibleChild(Parent, Node: PVirtualNode): Boolean;
+function TERDVTBaseVirtualTree.IsFirstVisibleChild(Parent, Node: PVirtualNode): Boolean;
 
 // Helper method to check if Node is the same as the first visible child of Parent.
 
@@ -4206,7 +4206,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.IsLastVisibleChild(Parent, Node: PVirtualNode): Boolean;
+function TERDVTBaseVirtualTree.IsLastVisibleChild(Parent, Node: PVirtualNode): Boolean;
 
 // Helper method to check if Node is the same as the last visible child of Parent.
 
@@ -4224,7 +4224,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.MakeNewNode: PVirtualNode;
+function TERDVTBaseVirtualTree.MakeNewNode: PVirtualNode;
 
 var
   Size: Cardinal;
@@ -4257,7 +4257,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.PackArray({*}const TheArray: TNodeArray; Count: Integer): Integer; assembler;
+function TERDVTBaseVirtualTree.PackArray({*}const TheArray: TNodeArray; Count: Integer): Integer; assembler;
 // *This is an optimization to get as near as possible with the PUREPASCAL code without the
 //  compiler generating a _DynArrayAddRef call. We still modify the array's content via pointers.
 
@@ -4349,7 +4349,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.PackSelection: Boolean;
+function TERDVTBaseVirtualTree.PackSelection: Boolean;
 
 // Drops the entries that InternalRemoveFromSelection has marked for removal and updates the selection count
 // accordingly. Returns True if the array was actually shortened.
@@ -4373,7 +4373,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.PrepareBitmaps(NeedButtons, NeedLines: Boolean);
+procedure TERDVTBaseVirtualTree.PrepareBitmaps(NeedButtons, NeedLines: Boolean);
 
 // initializes the contents of the internal bitmaps
 
@@ -4619,7 +4619,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetAlignment(const Value: TAlignment);
+procedure TERDVTBaseVirtualTree.SetAlignment(const Value: TAlignment);
 
 begin
   if FAlignment <> Value then
@@ -4632,7 +4632,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetAnimationDuration(const Value: Cardinal);
+procedure TERDVTBaseVirtualTree.SetAnimationDuration(const Value: Cardinal);
 
 begin
   FAnimationDuration := Value;
@@ -4651,7 +4651,7 @@ end;
     set the flag BackgroundTransparentExternalType explicitly in order to properly do
     transparent painting.
 }
-procedure TBaseVirtualTree.SetBackground(const Value: TVTBackground);
+procedure TERDVTBaseVirtualTree.SetBackground(const Value: TVTBackground);
 
 begin
   FBackground.Assign(Value);
@@ -4660,7 +4660,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetBackGroundImageTransparent(const Value: Boolean);
+procedure TERDVTBaseVirtualTree.SetBackGroundImageTransparent(const Value: Boolean);
 
 begin
   if Value <> FBackGroundImageTransparent then
@@ -4672,7 +4672,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetBackgroundOffset(const Index: Integer; const Value: TDimension);
+procedure TERDVTBaseVirtualTree.SetBackgroundOffset(const Index: Integer; const Value: TDimension);
 
 begin
   case Index of
@@ -4693,7 +4693,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetBorderStyle(Value: TBorderStyle);
+procedure TERDVTBaseVirtualTree.SetBorderStyle(Value: TBorderStyle);
 
 begin
   if FBorderStyle <> Value then
@@ -4705,7 +4705,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetBottomNode(Node: PVirtualNode);
+procedure TERDVTBaseVirtualTree.SetBottomNode(Node: PVirtualNode);
 
 var
   Run: PVirtualNode;
@@ -4730,7 +4730,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetBottomSpace(const Value: TDimension);
+procedure TERDVTBaseVirtualTree.SetBottomSpace(const Value: TDimension);
 
 begin
   if FBottomSpace <> Value then
@@ -4742,7 +4742,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetButtonFillMode(const Value: TVTButtonFillMode);
+procedure TERDVTBaseVirtualTree.SetButtonFillMode(const Value: TVTButtonFillMode);
 
 begin
   if FButtonFillMode <> Value then
@@ -4762,7 +4762,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetButtonStyle(const Value: TVTButtonStyle);
+procedure TERDVTBaseVirtualTree.SetButtonStyle(const Value: TVTButtonStyle);
 
 begin
   if FButtonStyle <> Value then
@@ -4779,7 +4779,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetCheckState(Node: PVirtualNode; Value: TCheckState);
+procedure TERDVTBaseVirtualTree.SetCheckState(Node: PVirtualNode; Value: TCheckState);
 
 begin
   if (Node.CheckState <> Value) and DoChecking(Node, Value) then
@@ -4788,7 +4788,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetCheckStateForAll(aCheckState: TCheckState; pSelectedOnly: Boolean; pExcludeDisabled: Boolean = True);
+procedure TERDVTBaseVirtualTree.SetCheckStateForAll(aCheckState: TCheckState; pSelectedOnly: Boolean; pExcludeDisabled: Boolean = True);
 
 // Changes the check state for all or for all seledcted nodes.
 // aCheckState: The new check state.
@@ -4824,7 +4824,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetCheckType(Node: PVirtualNode; Value: TCheckType);
+procedure TERDVTBaseVirtualTree.SetCheckType(Node: PVirtualNode; Value: TCheckType);
 
 begin
   if (Node.CheckType <> Value) and not (toReadOnly in FOptions.MiscOptions) then
@@ -4851,7 +4851,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetChildCount(Node: PVirtualNode; NewChildCount: Cardinal);
+procedure TERDVTBaseVirtualTree.SetChildCount(Node: PVirtualNode; NewChildCount: Cardinal);
 
 // Changes a node's child structure to accomodate the new child count. This is used to add or delete
 // child nodes to/from the end of the node's child list. To insert or delete a specific node a separate
@@ -4956,7 +4956,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetClipboardFormats(const Value: TClipboardFormats);
+procedure TERDVTBaseVirtualTree.SetClipboardFormats(const Value: TERDVTClipboardFormats);
 
 var
   I: Integer;
@@ -4971,7 +4971,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetColors(const Value: TVTColors);
+procedure TERDVTBaseVirtualTree.SetColors(const Value: TERDVTVTColors);
 
 begin
   FColors.Assign(Value);
@@ -4979,7 +4979,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetCheckImageKind(Value: TCheckImageKind);
+procedure TERDVTBaseVirtualTree.SetCheckImageKind(Value: TCheckImageKind);
 begin
   if (Value < Low(Value)) or (Value> High(Value)) then
     Value := ckSystemDefault;
@@ -5000,7 +5000,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetCustomCheckImages(const Value: TCustomImageList);
+procedure TERDVTBaseVirtualTree.SetCustomCheckImages(const Value: TCustomImageList);
 
 begin
   if FCustomCheckImages <> Value then
@@ -5030,7 +5030,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetDefaultNodeHeight(Value: TDimension);
+procedure TERDVTBaseVirtualTree.SetDefaultNodeHeight(Value: TDimension);
 
 begin
   if Value = 0 then
@@ -5055,7 +5055,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetDisabled(Node: PVirtualNode; Value: Boolean);
+procedure TERDVTBaseVirtualTree.SetDisabled(Node: PVirtualNode; Value: Boolean);
 
 begin
   if Assigned(Node) and (Value xor (vsDisabled in Node.States)) then
@@ -5072,21 +5072,21 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetDoubleBuffered(const Value: Boolean);
+procedure TERDVTBaseVirtualTree.SetDoubleBuffered(const Value: Boolean);
 begin
   // empty by intention, we do our own buffering
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetDoubleBuffered: Boolean;
+function TERDVTBaseVirtualTree.GetDoubleBuffered: Boolean;
 begin
   Result := True; // we do our own buffering
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetEmptyListMessage(const Value: string);
+procedure TERDVTBaseVirtualTree.SetEmptyListMessage(const Value: string);
 
 begin
   if Value <> EmptyListMessage then
@@ -5098,7 +5098,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetExpanded(Node: PVirtualNode; Value: Boolean);
+procedure TERDVTBaseVirtualTree.SetExpanded(Node: PVirtualNode; Value: Boolean);
 
 begin
   if Assigned(Node) and (Node <> FRoot) and (Value xor (vsExpanded in Node.States)) then
@@ -5107,7 +5107,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetFocusedColumn(Value: TColumnIndex);
+procedure TERDVTBaseVirtualTree.SetFocusedColumn(Value: TColumnIndex);
 
 begin
   if (FFocusedColumn <> Value) and
@@ -5132,7 +5132,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetFocusedNode(Value: PVirtualNode);
+procedure TERDVTBaseVirtualTree.SetFocusedNode(Value: PVirtualNode);
 
 begin
   // Issue #1379: Setting the node that is already focused must not have side effects,
@@ -5149,7 +5149,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetFullyVisible(Node: PVirtualNode; Value: Boolean);
+procedure TERDVTBaseVirtualTree.SetFullyVisible(Node: PVirtualNode; Value: Boolean);
 
 // This method ensures that a node is visible and all its parent nodes are expanded and also visible
 // if Value is True. Otherwise the visibility flag of the node is reset but the expand state
@@ -5176,7 +5176,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetHasChildren(Node: PVirtualNode; Value: Boolean);
+procedure TERDVTBaseVirtualTree.SetHasChildren(Node: PVirtualNode; Value: Boolean);
 
 begin
   if Assigned(Node) and not (toReadOnly in FOptions.MiscOptions) then
@@ -5193,7 +5193,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetHeader(const Value: TVTHeader);
+procedure TERDVTBaseVirtualTree.SetHeader(const Value: TERDVTVTHeader);
 
 begin
   FHeader.Assign(Value);
@@ -5201,7 +5201,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetHotNode(Value: PVirtualNode);
+procedure TERDVTBaseVirtualTree.SetHotNode(Value: PVirtualNode);
 
 begin
   FCurrentHotNode := Value;
@@ -5210,7 +5210,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetFiltered(Node: PVirtualNode; Value: Boolean);
+procedure TERDVTBaseVirtualTree.SetFiltered(Node: PVirtualNode; Value: Boolean);
 
 // Sets the 'filtered' flag of the given node according to Value and updates all dependent states.
 
@@ -5281,7 +5281,7 @@ begin
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
-procedure TBaseVirtualTree.SetImages(const Value: TCustomImageList);
+procedure TERDVTBaseVirtualTree.SetImages(const Value: TCustomImageList);
 
 begin
   if FImages <> Value then
@@ -5304,7 +5304,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetIndent(Value: TDimension);
+procedure TERDVTBaseVirtualTree.SetIndent(Value: TDimension);
 
 begin
   if FIndent <> Value then
@@ -5320,7 +5320,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetLineMode(const Value: TVTLineMode);
+procedure TERDVTBaseVirtualTree.SetLineMode(const Value: TVTLineMode);
 
 begin
   if FLineMode <> Value then
@@ -5333,7 +5333,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetLineStyle(const Value: TVTLineStyle);
+procedure TERDVTBaseVirtualTree.SetLineStyle(const Value: TVTLineStyle);
 
 begin
   if FLineStyle <> Value then
@@ -5350,7 +5350,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetMargin(Value: TDimension);
+procedure TERDVTBaseVirtualTree.SetMargin(Value: TDimension);
 
 begin
   if FMargin <> Value then
@@ -5363,7 +5363,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetMultiline(Node: PVirtualNode; const Value: Boolean);
+procedure TERDVTBaseVirtualTree.SetMultiline(Node: PVirtualNode; const Value: Boolean);
 
 begin
   if Assigned(Node) and (Node <> FRoot) then
@@ -5381,7 +5381,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetNodeAlignment(const Value: TVTNodeAlignment);
+procedure TERDVTBaseVirtualTree.SetNodeAlignment(const Value: TVTNodeAlignment);
 
 begin
   if FNodeAlignment <> Value then
@@ -5394,7 +5394,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetNodeData(pNode: PVirtualNode; pUserData: Pointer);
+procedure TERDVTBaseVirtualTree.SetNodeData(pNode: PVirtualNode; pUserData: Pointer);
 
   // Can be used to set user data of a PVirtualNode with the size of a pointer, useful for setting
   // A pointer to a record or a reference to a class instance.
@@ -5409,7 +5409,7 @@ begin
   Include(pNode.States, vsOnFreeNodeCallRequired);
 end;
 
-procedure TBaseVirtualTree.SetNodeData<T>(pNode: PVirtualNode; pUserData: T);
+procedure TERDVTBaseVirtualTree.SetNodeData<T>(pNode: PVirtualNode; pUserData: T);
 
   // Can be used to set user data of a PVirtualNode to a class instance.
 
@@ -5417,7 +5417,7 @@ begin
   pNode.SetData<T>(pUserData);
 end;
 
-procedure TBaseVirtualTree.SetNodeData(pNode: PVirtualNode; const pUserData: IInterface);
+procedure TERDVTBaseVirtualTree.SetNodeData(pNode: PVirtualNode; const pUserData: IInterface);
 
   // Can be used to set user data of a PVirtualNode to a class instance,
   // will take care about reference counting.
@@ -5428,7 +5428,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetNodeDataSize(Value: Integer);
+procedure TERDVTBaseVirtualTree.SetNodeDataSize(Value: Integer);
 
 var
   LastRootCount: Cardinal;
@@ -5450,7 +5450,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetNodeHeight(Node: PVirtualNode; Value: TNodeHeight);
+procedure TERDVTBaseVirtualTree.SetNodeHeight(Node: PVirtualNode; Value: TNodeHeight);
 
 var
   Difference: TDimension;
@@ -5488,7 +5488,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetNodeParent(Node: PVirtualNode; const Value: PVirtualNode);
+procedure TERDVTBaseVirtualTree.SetNodeParent(Node: PVirtualNode; const Value: PVirtualNode);
 
 begin
   if Assigned(Node) and Assigned(Value) and (Node.Parent <> Value) then
@@ -5497,7 +5497,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetOffsetX(const Value: TDimension);
+procedure TERDVTBaseVirtualTree.SetOffsetX(const Value: TDimension);
 
 begin
   DoSetOffsetXY(Point(Value, FOffsetY), DefaultScrollUpdateFlags);
@@ -5505,7 +5505,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetOffsetXY(const Value: TPoint);
+procedure TERDVTBaseVirtualTree.SetOffsetXY(const Value: TPoint);
 
 begin
   DoSetOffsetXY(Value, DefaultScrollUpdateFlags);
@@ -5513,7 +5513,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetOffsetY(const Value: TDimension);
+procedure TERDVTBaseVirtualTree.SetOffsetY(const Value: TDimension);
 
 begin
   DoSetOffsetXY(Point(FOffsetX, Value), DefaultScrollUpdateFlags);
@@ -5521,7 +5521,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetOnPrepareButtonImages(const Value: TVTPrepareButtonImagesEvent);
+procedure TERDVTBaseVirtualTree.SetOnPrepareButtonImages(const Value: TVTPrepareButtonImagesEvent);
 begin
   FOnPrepareButtonImages := Value;
   PrepareBitmaps(True, False);
@@ -5529,7 +5529,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetOptions(const Value: TCustomVirtualTreeOptions);
+procedure TERDVTBaseVirtualTree.SetOptions(const Value: TERDVTCustomVirtualTreeOptions);
 
 begin
   FOptions.Assign(Value);
@@ -5537,14 +5537,14 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetRangeX(value: TDimension);
+procedure TERDVTBaseVirtualTree.SetRangeX(value: TDimension);
 begin
   FRangeX := value;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetRootNodeCount(Value: Cardinal);
+procedure TERDVTBaseVirtualTree.SetRootNodeCount(Value: Cardinal);
 
 begin
   // Don't set the root node count until all other properties (in particular the OnInitNode event) have been set.
@@ -5565,7 +5565,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetScrollBarOptions(Value: TScrollBarOptions);
+procedure TERDVTBaseVirtualTree.SetScrollBarOptions(Value: TERDVTScrollBarOptions);
 
 begin
   FScrollBarOptions.Assign(Value);
@@ -5573,7 +5573,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetSearchOption(const Value: TVTIncrementalSearch);
+procedure TERDVTBaseVirtualTree.SetSearchOption(const Value: TVTIncrementalSearch);
 
 begin
   if FIncrementalSearch <> Value then
@@ -5590,7 +5590,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetSelected(Node: PVirtualNode; Value: Boolean);
+procedure TERDVTBaseVirtualTree.SetSelected(Node: PVirtualNode; Value: Boolean);
 
 begin
   if not FSelectionLocked and Assigned(Node) and (Node <> FRoot) and (Value xor (vsSelected in Node.States)) then
@@ -5629,7 +5629,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetSelectionCurveRadius(const Value: Cardinal);
+procedure TERDVTBaseVirtualTree.SetSelectionCurveRadius(const Value: Cardinal);
 
 begin
   if FSelectionCurveRadius <> Value then
@@ -5642,7 +5642,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetStateImages(const Value: TCustomImageList);
+procedure TERDVTBaseVirtualTree.SetStateImages(const Value: TCustomImageList);
 
 begin
   if FStateImages <> Value then
@@ -5665,7 +5665,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetTextMargin(Value: TDimension);
+procedure TERDVTBaseVirtualTree.SetTextMargin(Value: TDimension);
 
 begin
   if FTextMargin <> Value then
@@ -5681,7 +5681,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetTopNode(Node: PVirtualNode);
+procedure TERDVTBaseVirtualTree.SetTopNode(Node: PVirtualNode);
 
 var
   R: TRect;
@@ -5705,7 +5705,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetUpdateState(Updating: Boolean);
+procedure TERDVTBaseVirtualTree.SetUpdateState(Updating: Boolean);
 
 begin
   // The check for visibility is necessary otherwise the tree is automatically shown when
@@ -5717,7 +5717,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetVerticalAlignment(Node: PVirtualNode; Value: Byte);
+procedure TERDVTBaseVirtualTree.SetVerticalAlignment(Node: PVirtualNode; Value: Byte);
 
 begin
   if Value > 100 then
@@ -5732,7 +5732,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetVisible(Node: PVirtualNode; Value: Boolean);
+procedure TERDVTBaseVirtualTree.SetVisible(Node: PVirtualNode; Value: Boolean);
 
 // Sets the visibility style of the given node according to Value.
 
@@ -5791,7 +5791,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetVisiblePath(Node: PVirtualNode; Value: Boolean);
+procedure TERDVTBaseVirtualTree.SetVisiblePath(Node: PVirtualNode; Value: Boolean);
 
 // If Value is True then all parent nodes of Node are expanded.
 
@@ -5811,7 +5811,7 @@ begin
 end;
 
 // ----------------------------------------------------------------------------------------------------------------------
-procedure TBaseVirtualTree.PrepareBackGroundPicture(Source: TVTBackground;
+procedure TERDVTBaseVirtualTree.PrepareBackGroundPicture(Source: TVTBackground;
   DrawingBitmap: TBitmap; DrawingBitmapWidth: TDimension; DrawingBitmapHeight: TDimension; ABkgcolor: TColor);
 const
   DST = $00AA0029; // Ternary Raster Operation - Destination unchanged
@@ -5848,7 +5848,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.StaticBackground(Source: TVTBackground; Target: TCanvas; OffsetPosition: TPoint; R: TRect; aBkgColor: TColor);
+procedure TERDVTBaseVirtualTree.StaticBackground(Source: TVTBackground; Target: TCanvas; OffsetPosition: TPoint; R: TRect; aBkgColor: TColor);
 
 // Draws the given source graphic so that it stays static in the given rectangle which is relative to the target bitmap.
 // The graphic is aligned so that it always starts at the upper left corner of the target canvas.
@@ -5887,7 +5887,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.StopTimer(ID: Integer);
+procedure TERDVTBaseVirtualTree.StopTimer(ID: Integer);
 
 begin
   if HandleAllocated then
@@ -5896,7 +5896,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetWindowTheme(const Theme: string);
+procedure TERDVTBaseVirtualTree.SetWindowTheme(const Theme: string);
 
 begin
   FChangingTheme := True;
@@ -5907,14 +5907,14 @@ end;
 //----------------------------------------------------------------------------------------------------------------------
 
 //used by TCustomVirtualTreeOptions
-procedure TBaseVirtualTree.SetVisibleCount(value : Cardinal);
+procedure TERDVTBaseVirtualTree.SetVisibleCount(value : Cardinal);
 begin
   FVisibleCount := value;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.TileBackground(Source: TVTBackground; Target: TCanvas; Offset: TPoint; R: TRect; aBkgColor: TColor);
+procedure TERDVTBaseVirtualTree.TileBackground(Source: TVTBackground; Target: TCanvas; Offset: TPoint; R: TRect; aBkgColor: TColor);
 
 // Draws the given source graphic so that it tiles into the given rectangle which is relative to the target bitmap.
 // The graphic is aligned so that it always starts at the upper left corner of the target canvas.
@@ -5964,7 +5964,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.ToggleCallback(Step, StepSize: Integer; Data: Pointer): Boolean;
+function TERDVTBaseVirtualTree.ToggleCallback(Step, StepSize: Integer; Data: Pointer): Boolean;
 
 var
   Column: TColumnIndex;
@@ -6086,7 +6086,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.CMColorChange(var Message: TMessage);
+procedure TERDVTBaseVirtualTree.CMColorChange(var Message: TMessage);
 
 begin
   if not (csLoading in ComponentState) then
@@ -6099,7 +6099,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.CMCtl3DChanged(var Message: TMessage);
+procedure TERDVTBaseVirtualTree.CMCtl3DChanged(var Message: TMessage);
 
 begin
   inherited;
@@ -6109,7 +6109,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.CMBiDiModeChanged(var Message: TMessage);
+procedure TERDVTBaseVirtualTree.CMBiDiModeChanged(var Message: TMessage);
 
 begin
   inherited;
@@ -6122,23 +6122,23 @@ begin
     FEffectiveOffsetX := 0;
 
   if toAutoBidiColumnOrdering in FOptions.AutoOptions then
-    TVirtualTreeColumnsCracker(FHeader.Columns).ReorderColumns(UseRightToLeftAlignment);
+    TERDVTVirtualTreeColumnsCracker(FHeader.Columns).ReorderColumns(UseRightToLeftAlignment);
   FHeader.Invalidate(nil);
 end;
 
-procedure TBaseVirtualTree.CMBorderChanged(var Message: TMessage);
+procedure TERDVTBaseVirtualTree.CMBorderChanged(var Message: TMessage);
 begin
   inherited;
   if VclStyleEnabled and (seBorder in StyleElements) then
     RecreateWnd;
 end;
 
-procedure TBaseVirtualTree.CMParentDoubleBufferedChange(var Message: TMessage);
+procedure TERDVTBaseVirtualTree.CMParentDoubleBufferedChange(var Message: TMessage);
 begin
   // empty by intention, we do our own buffering
 end;
 
-procedure TBaseVirtualTree.CMStyleChanged(var Message: TMessage);
+procedure TERDVTBaseVirtualTree.CMStyleChanged(var Message: TMessage);
 begin
   VclStyleChanged;
   RecreateWnd;
@@ -6146,7 +6146,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.CMDenySubclassing(var Message: TMessage);
+procedure TERDVTBaseVirtualTree.CMDenySubclassing(var Message: TMessage);
 
 // If a Windows XP Theme Manager component is used in the application it will try to subclass all controls which do not
 // explicitly deny this. Virtual Treeview knows how to handle XP themes so it does not need subclassing.
@@ -6157,7 +6157,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.CMDrag(var Message: TCMDrag);
+procedure TERDVTBaseVirtualTree.CMDrag(var Message: TCMDrag);
 
 var
   S: TObject;
@@ -6256,7 +6256,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.CMEnabledChanged(var Message: TMessage);
+procedure TERDVTBaseVirtualTree.CMEnabledChanged(var Message: TMessage);
 
 begin
   inherited;
@@ -6268,7 +6268,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.CMFontChanged(var Message: TMessage);
+procedure TERDVTBaseVirtualTree.CMFontChanged(var Message: TMessage);
 
 var
   HeaderMessage: TMessage;
@@ -6281,12 +6281,12 @@ begin
   HeaderMessage.WParam := 0;
   HeaderMessage.LParam := 0;
   HeaderMessage.Result := 0;
-  TVTHeaderCracker(FHeader).HandleMessage(HeaderMessage);
+  TERDVTVTHeaderCracker(FHeader).HandleMessage(HeaderMessage);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.CMHintShow(var Message: TCMHintShow);
+procedure TERDVTBaseVirtualTree.CMHintShow(var Message: TCMHintShow);
 
 // Determines hint message (tooltip) and out-of-hint rect.
 // Note: A special handling is needed here because we cannot pass wide strings back to the caller.
@@ -6345,7 +6345,7 @@ begin
           CursorRect := FHeaderRect;
           // Convert the cursor rectangle into real client coordinates.
           OffsetRect(CursorRect, 0, -Integer(FHeader.Height));
-          HitInfo.HitColumn :=  TVirtualTreeColumnsCracker(FHeader.Columns).GetColumnAndBounds(CursorPos, CursorRect.Left, CursorRect.Right);
+          HitInfo.HitColumn :=  TERDVTVirtualTreeColumnsCracker(FHeader.Columns).GetColumnAndBounds(CursorPos, CursorRect.Left, CursorRect.Right);
           if (HitInfo.HitColumn > NoColumn) and not (csLButtonDown in ControlState) and
             (FHeader.Columns[HitInfo.HitColumn].Hint <> '') then
             HintStr := FHeader.Columns[HitInfo.HitColumn].Hint;
@@ -6368,7 +6368,7 @@ begin
           CursorRect := FHeaderRect;
           // Convert the cursor rectangle into real client coordinates.
           OffsetRect(CursorRect, 0, -Integer(FHeader.Height));
-          HitInfo.HitColumn := TVirtualTreeColumnsCracker(FHeader.Columns).GetColumnAndBounds(CursorPos, CursorRect.Left, CursorRect.Right);
+          HitInfo.HitColumn := TERDVTVirtualTreeColumnsCracker(FHeader.Columns).GetColumnAndBounds(CursorPos, CursorRect.Left, CursorRect.Right);
           // align the vertical hint position on the bottom bound of the header, but
           // avoid overlapping of mouse cursor and hint
           HintPos.Y := Max(HintPos.Y, ClientToScreen(Point(0, CursorRect.Bottom)).Y);
@@ -6547,7 +6547,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.CMHintShowPause(var Message: TCMHintShowPause);
+procedure TERDVTBaseVirtualTree.CMHintShowPause(var Message: TCMHintShowPause);
 
 // Tells the application that the tree (and only the tree) does not want a delayed tool tip.
 // Normal hints / header hints use the default delay (except for the first time).
@@ -6559,7 +6559,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.CMMouseEnter(var Message: TMessage);
+procedure TERDVTBaseVirtualTree.CMMouseEnter(var Message: TMessage);
 begin
   DoMouseEnter();
   inherited;
@@ -6567,7 +6567,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.CMMouseLeave(var Message: TMessage);
+procedure TERDVTBaseVirtualTree.CMMouseLeave(var Message: TMessage);
 
 var
   LeaveStates: TVirtualTreeStates;
@@ -6594,7 +6594,7 @@ begin
 
   if Assigned(Header) then
   begin
-    with TVirtualTreeColumnsCracker(Header.Columns) do
+    with TERDVTVirtualTreeColumnsCracker(Header.Columns) do
     begin
       DownIndex := NoColumn;
       HoverIndex := NoColumn;
@@ -6607,7 +6607,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.CMMouseWheel(var Message: TCMMouseWheel);
+procedure TERDVTBaseVirtualTree.CMMouseWheel(var Message: TCMMouseWheel);
 
 var
   ScrollAmount: TDimension;
@@ -6668,7 +6668,7 @@ begin
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
-procedure TBaseVirtualTree.CMSysColorChange(var Message: TMessage);
+procedure TERDVTBaseVirtualTree.CMSysColorChange(var Message: TMessage);
 
 begin
   inherited;
@@ -6678,7 +6678,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.TVMGetItem(var Message: TMessage);
+procedure TERDVTBaseVirtualTree.TVMGetItem(var Message: TMessage);
 
 // Screen reader support function. The method returns information about a particular node.
 
@@ -6756,7 +6756,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.TVMGetItemRect(var Message: TMessage);
+procedure TERDVTBaseVirtualTree.TVMGetItemRect(var Message: TMessage);
 
 // Screen read support function. This method returns a node's display rectangle.
 
@@ -6778,7 +6778,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.TVMGetNextItem(var Message: TMessage);
+procedure TERDVTBaseVirtualTree.TVMGetNextItem(var Message: TMessage);
 
 // Screen read support function. This method returns a node depending on the requested case.
 
@@ -6823,7 +6823,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.WMCancelMode(var Message: TWMCancelMode);
+procedure TERDVTBaseVirtualTree.WMCancelMode(var Message: TWMCancelMode);
 
 begin
   // Clear any transient state.
@@ -6844,7 +6844,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.WMChar(var Message: TWMChar);
+procedure TERDVTBaseVirtualTree.WMChar(var Message: TWMChar);
 
 begin
   if tsIncrementalSearchPending in FStates then
@@ -6858,7 +6858,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.WMContextMenu(var Message: TWMContextMenu);
+procedure TERDVTBaseVirtualTree.WMContextMenu(var Message: TWMContextMenu);
 
 // This method is called when a popup menu is about to be displayed.
 // We have to cancel some pending states here to avoid interferences.
@@ -6882,7 +6882,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.WMCopy(var Message: TWMCopy);
+procedure TERDVTBaseVirtualTree.WMCopy(var Message: TWMCopy);
 
 begin
   CopyToClipboard;
@@ -6890,7 +6890,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.WMCut(var Message: TWMCut);
+procedure TERDVTBaseVirtualTree.WMCut(var Message: TWMCut);
 
 begin
   CutToClipboard;
@@ -6898,7 +6898,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.WMEnable(var Message: TWMEnable);
+procedure TERDVTBaseVirtualTree.WMEnable(var Message: TWMEnable);
 
 begin
   inherited;
@@ -6907,7 +6907,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.WMEraseBkgnd(var Message: TWMEraseBkgnd);
+procedure TERDVTBaseVirtualTree.WMEraseBkgnd(var Message: TWMEraseBkgnd);
 
 begin
   Message.Result := 1;
@@ -6915,7 +6915,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.WMGetDlgCode(var Message: TWMGetDlgCode);
+procedure TERDVTBaseVirtualTree.WMGetDlgCode(var Message: TWMGetDlgCode);
 
 begin
   Message.Result := DLGC_WANTCHARS or DLGC_WANTARROWS;
@@ -6925,7 +6925,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.WMHScroll(var Message: TWMHScroll);
+procedure TERDVTBaseVirtualTree.WMHScroll(var Message: TWMHScroll);
 
   //--------------- local functions -------------------------------------------
 
@@ -6990,7 +6990,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.WMKeyDown(var Message: TWMKeyDown);
+procedure TERDVTBaseVirtualTree.WMKeyDown(var Message: TWMKeyDown);
 
 // Keyboard event handling for node focus, selection, node specific popup menus and help invokation.
 // For a detailed description of every action done here read the help.
@@ -7743,7 +7743,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.WMKeyUp(var Message: TWMKeyUp);
+procedure TERDVTBaseVirtualTree.WMKeyUp(var Message: TWMKeyUp);
 
 begin
   inherited;
@@ -7756,7 +7756,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.WMKillFocus(var Msg: TWMKillFocus);
+procedure TERDVTBaseVirtualTree.WMKillFocus(var Msg: TWMKillFocus);
 
 var
   Form: TCustomForm;
@@ -7812,7 +7812,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.WMLButtonDblClk(var Message: TWMLButtonDblClk);
+procedure TERDVTBaseVirtualTree.WMLButtonDblClk(var Message: TWMLButtonDblClk);
 
 var
   HitInfo: THitInfo;
@@ -7836,7 +7836,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.WMLButtonDown(var Message: TWMLButtonDown);
+procedure TERDVTBaseVirtualTree.WMLButtonDown(var Message: TWMLButtonDown);
 
 var
   HitInfo: THitInfo;
@@ -7852,7 +7852,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.WMLButtonUp(var Message: TWMLButtonUp);
+procedure TERDVTBaseVirtualTree.WMLButtonUp(var Message: TWMLButtonUp);
 
 var
   HitInfo: THitInfo;
@@ -7869,7 +7869,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.WMMButtonDblClk(var Message: TWMMButtonDblClk);
+procedure TERDVTBaseVirtualTree.WMMButtonDblClk(var Message: TWMMButtonDblClk);
 
 var
   HitInfo: THitInfo;
@@ -7889,7 +7889,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.WMMButtonDown(var Message: TWMMButtonDown);
+procedure TERDVTBaseVirtualTree.WMMButtonDown(var Message: TWMMButtonDown);
 
 var
   HitInfo: THitInfo;
@@ -7924,7 +7924,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.WMMButtonUp(var Message: TWMMButtonUp);
+procedure TERDVTBaseVirtualTree.WMMButtonUp(var Message: TWMMButtonUp);
 
 var
   HitInfo: THitInfo;
@@ -7948,7 +7948,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.WMNCCalcSize(var Message: TWMNCCalcSize);
+procedure TERDVTBaseVirtualTree.WMNCCalcSize(var Message: TWMNCCalcSize);
 
 begin
   inherited;
@@ -7961,7 +7961,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.WMNCDestroy(var Message: TWMNCDestroy);
+procedure TERDVTBaseVirtualTree.WMNCDestroy(var Message: TWMNCDestroy);
 
 // Used to release a reference of the drag manager. This is the only reliable way we get notified about
 // window destruction, because of the automatic release of a window if its parent window is freed.
@@ -7980,7 +7980,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.WMNCHitTest(var Message: TWMNCHitTest);
+procedure TERDVTBaseVirtualTree.WMNCHitTest(var Message: TWMNCHitTest);
 
 begin
   inherited;
@@ -7992,7 +7992,7 @@ end;
 //----------------------------------------------------------------------------------------------------------------------
 
 
-procedure TBaseVirtualTree.WMNCPaint(var Message: TWMNCPaint);
+procedure TERDVTBaseVirtualTree.WMNCPaint(var Message: TWMNCPaint);
 
 var
   DC: HDC;
@@ -8052,7 +8052,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.WMPaint(var Message: TWMPaint);
+procedure TERDVTBaseVirtualTree.WMPaint(var Message: TWMPaint);
 var
   DC: HDC;
   HeaderTarget: TRect;
@@ -8111,7 +8111,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.WMPaste(var Message: TWMPaste);
+procedure TERDVTBaseVirtualTree.WMPaste(var Message: TWMPaste);
 
 begin
   PasteFromClipboard;
@@ -8119,7 +8119,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.WMPrint(var Message: TWMPrint);
+procedure TERDVTBaseVirtualTree.WMPrint(var Message: TWMPrint);
 
 // This message is sent to request that the tree draws itself to a given device context. This includes not only
 // the client area but also the non-client area (header!).
@@ -8137,7 +8137,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.WMRButtonDblClk(var Message: TWMRButtonDblClk);
+procedure TERDVTBaseVirtualTree.WMRButtonDblClk(var Message: TWMRButtonDblClk);
 
 var
   HitInfo: THitInfo;
@@ -8157,7 +8157,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.WMRButtonDown(var Message: TWMRButtonDown);
+procedure TERDVTBaseVirtualTree.WMRButtonDown(var Message: TWMRButtonDown);
 
 var
   HitInfo: THitInfo;
@@ -8186,7 +8186,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.WMRButtonUp(var Message: TWMRButtonUp);
+procedure TERDVTBaseVirtualTree.WMRButtonUp(var Message: TWMRButtonUp);
 
 // handle right click selection and node specific popup menu
 
@@ -8220,7 +8220,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.WMSetCursor(var Message: TWMSetCursor);
+procedure TERDVTBaseVirtualTree.WMSetCursor(var Message: TWMSetCursor);
 
 // Sets the hot node mouse cursor for the tree. Cursor changes for the header are handled in Header.HandleMessage.
 
@@ -8237,7 +8237,7 @@ begin
     // Allow header to handle cursor and return control's default if it did nothing
     if (CursorWnd = Handle) and not (tsPanning in FStates) then
     begin
-      if not TVTHeaderCracker(FHeader).HandleMessage(TMessage(Message)) then
+      if not TERDVTVTHeaderCracker(FHeader).HandleMessage(TMessage(Message)) then
       begin
         // Apply own cursors only if there is no global cursor set.
         if Screen.Cursor = crDefault then
@@ -8288,7 +8288,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.WMSetFocus(var Msg: TWMSetFocus);
+procedure TERDVTBaseVirtualTree.WMSetFocus(var Msg: TWMSetFocus);
 
 begin
   inherited;
@@ -8298,7 +8298,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.WMSize(var Message: TWMSize);
+procedure TERDVTBaseVirtualTree.WMSize(var Message: TWMSize);
 
 begin
   inherited;
@@ -8311,8 +8311,8 @@ begin
   try
     DoStateChange([tsSizing]);
     // This call will invalidate the entire non-client area which needs recalculation on resize.
-    TVTHeaderCracker(FHeader).RescaleHeader;
-    TVTHeaderCracker(FHeader).UpdateSpringColumns;
+    TERDVTVTHeaderCracker(FHeader).RescaleHeader;
+    TERDVTVTHeaderCracker(FHeader).UpdateSpringColumns;
     UpdateScrollBars(True);
 
     if (tsEditing in FStates) and not FHeader.UseColumns then
@@ -8324,7 +8324,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.WMThemeChanged(var Message: TMessage);
+procedure TERDVTBaseVirtualTree.WMThemeChanged(var Message: TMessage);
 
 begin
   inherited;
@@ -8343,7 +8343,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.WMTimer(var Message: TWMTimer);
+procedure TERDVTBaseVirtualTree.WMTimer(var Message: TWMTimer);
 
 // centralized timer handling happens here
 
@@ -8394,7 +8394,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.WMVScroll(var Message: TWMVScroll);
+procedure TERDVTBaseVirtualTree.WMVScroll(var Message: TWMVScroll);
 
   //--------------- local functions -------------------------------------------
 
@@ -8457,7 +8457,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.AddToSelection(Node: PVirtualNode; NotifySynced: Boolean);
+procedure TERDVTBaseVirtualTree.AddToSelection(Node: PVirtualNode; NotifySynced: Boolean);
 
 var
   Changed: Boolean;
@@ -8488,7 +8488,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.AddToSelection(const NewItems: TNodeArray; NewLength: Integer; ForceInsert: Boolean = False);
+procedure TERDVTBaseVirtualTree.AddToSelection(const NewItems: TNodeArray; NewLength: Integer; ForceInsert: Boolean = False);
 
 // Adds the given items all at once into the current selection array. NewLength is the amount of
 // nodes to add (necessary to allow NewItems to be larger than the actual used entries).
@@ -8519,7 +8519,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.AdjustPaintCellRect(var PaintInfo: TVTPaintInfo; var NextNonEmpty: TColumnIndex);
+procedure TERDVTBaseVirtualTree.AdjustPaintCellRect(var PaintInfo: TVTPaintInfo; var NextNonEmpty: TColumnIndex);
 
 // Used in descendants to modify the paint rectangle of the current column while painting a certain node.
 
@@ -8531,7 +8531,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.AdjustPanningCursor(X, Y: TDimension);
+procedure TERDVTBaseVirtualTree.AdjustPanningCursor(X, Y: TDimension);
 
 // Triggered by a mouse move when wheel panning/scrolling is active.
 // Loads the proper cursor which indicates into which direction scrolling is done.
@@ -8632,7 +8632,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.AdviseChangeEvent(StructureChange: Boolean; Node: PVirtualNode; Reason: TChangeReason);
+procedure TERDVTBaseVirtualTree.AdviseChangeEvent(StructureChange: Boolean; Node: PVirtualNode; Reason: TChangeReason);
 
 // Used to register a delayed change event. If StructureChange is False then we have a selection change event (without
 // a specific reason) otherwise it is a structure change.
@@ -8665,7 +8665,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.AdviseChangeCellEvent(const Cells: TVTCellArray);
+procedure TERDVTBaseVirtualTree.AdviseChangeCellEvent(const Cells: TVTCellArray);
 begin
   if tsChangeCellPending in FStates then
     StopTimer(ChangeCellTimer)
@@ -8675,7 +8675,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.AllocateInternalDataArea(Size: Cardinal): Cardinal;
+function TERDVTBaseVirtualTree.AllocateInternalDataArea(Size: Cardinal): Cardinal;
 
 // Simple registration method to be called by each descendant to claim their internal data area.
 // Result is the offset from the begin of the node to the internal data area of the calling tree class.
@@ -8689,7 +8689,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.Animate(Steps, Duration: Cardinal; Callback: TVTAnimationCallback; Data: Pointer);
+procedure TERDVTBaseVirtualTree.Animate(Steps, Duration: Cardinal; Callback: TVTAnimationCallback; Data: Pointer);
 
 // This method does the calculation part of an animation as used for node toggling and hint animations.
 // Steps is the maximum amount of animation steps to do and Duration determines the milliseconds the animation
@@ -8769,7 +8769,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.StartOperation(OperationKind: TVTOperationKind);
+procedure TERDVTBaseVirtualTree.StartOperation(OperationKind: TVTOperationKind);
 
 // Called to indicate that a long-running operation has been started.
 
@@ -8782,7 +8782,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.CalculateSelectionRect(X, Y: TDimension): Boolean;
+function TERDVTBaseVirtualTree.CalculateSelectionRect(X, Y: TDimension): Boolean;
 
 // Recalculates old and new selection rectangle given that X, Y are new mouse coordinates.
 // Returns True if there was a change since the last call.
@@ -8814,7 +8814,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.CanAutoScroll: Boolean;
+function TERDVTBaseVirtualTree.CanAutoScroll: Boolean;
 
 // Determines if auto scrolling is currently allowed.
 
@@ -8836,7 +8836,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.CanShowDragImage: Boolean;
+function TERDVTBaseVirtualTree.CanShowDragImage: Boolean;
 
 // Determines whether a drag image should be shown.
 
@@ -8846,7 +8846,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.CanSplitterResizeNode(P: TPoint; Node: PVirtualNode; Column: TColumnIndex): Boolean;
+function TERDVTBaseVirtualTree.CanSplitterResizeNode(P: TPoint; Node: PVirtualNode; Column: TColumnIndex): Boolean;
 
 begin
   Result := (toNodeHeightResize in FOptions.MiscOptions) and Assigned(Node) and (Node <> FRoot) and
@@ -8856,7 +8856,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.Change(Node: PVirtualNode);
+procedure TERDVTBaseVirtualTree.Change(Node: PVirtualNode);
 
 begin
   AdviseChangeEvent(False, Node, crIgnore);
@@ -8872,7 +8872,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.ChangeCell(const Cells: TVTCellArray);
+procedure TERDVTBaseVirtualTree.ChangeCell(const Cells: TVTCellArray);
 begin
   AdviseChangeCellEvent(Cells);
 
@@ -8887,7 +8887,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.ChangeScale(M, D: Integer{$if CompilerVersion >= 31}; isDpiChange: Boolean{$ifend});
+procedure TERDVTBaseVirtualTree.ChangeScale(M, D: Integer{$if CompilerVersion >= 31}; isDpiChange: Boolean{$ifend});
 begin
   if (M <> D) then
   begin
@@ -8907,7 +8907,7 @@ begin
   if (M <> D) then
   begin
     // Scale header
-    TVTHeaderCracker(FHeader).ChangeScale(M, D);
+    TERDVTVTHeaderCracker(FHeader).ChangeScale(M, D);
     // Scale utility images, #796
     if FCheckImageKind = ckSystemDefault then begin
       FreeAndNil(FCheckImages);
@@ -8921,7 +8921,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.ScaleNodeHeights(M, D: TDimension);
+procedure TERDVTBaseVirtualTree.ScaleNodeHeights(M, D: TDimension);
 var
   Run: PVirtualNode;
   lNewNodeTotalHeight: TNodeHeight;
@@ -8951,7 +8951,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.ChangeTreeStatesAsync(EnterStates, LeaveStates: TVirtualTreeStates);
+procedure TERDVTBaseVirtualTree.ChangeTreeStatesAsync(EnterStates, LeaveStates: TVirtualTreeStates);
 begin
   //TODO: If this works reliable, move to TWorkerThread
   if not (csDestroying in ComponentState) then
@@ -8972,7 +8972,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.CheckParentCheckState(Node: PVirtualNode; NewCheckState: TCheckState): Boolean;
+function TERDVTBaseVirtualTree.CheckParentCheckState(Node: PVirtualNode; NewCheckState: TCheckState): Boolean;
 
 // Checks all siblings of node to determine which check state Node's parent must get.
 
@@ -9042,7 +9042,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.ClearTempCache;
+procedure TERDVTBaseVirtualTree.ClearTempCache;
 
 // make sure the temporary node cache is in a reliable state
 
@@ -9053,7 +9053,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.ColumnIsEmpty(Node: PVirtualNode; Column: TColumnIndex): Boolean;
+function TERDVTBaseVirtualTree.ColumnIsEmpty(Node: PVirtualNode; Column: TColumnIndex): Boolean;
 
 // Returns True if the given column is to be considered as being empty. This will usually be determined by
 // descendants as the base tree implementation has not enough information to decide.
@@ -9066,7 +9066,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.ComputeRTLOffset(ExcludeScrollBar: Boolean): TDimension;
+function TERDVTBaseVirtualTree.ComputeRTLOffset(ExcludeScrollBar: Boolean): TDimension;
 
 // Computes the horizontal offset needed when all columns are automatically right aligned (in RTL bidi mode).
 // ExcludeScrollBar determines if the left-hand vertical scrollbar is to be included (if visible) or not.
@@ -9093,7 +9093,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.CountLevelDifference(Node1, Node2: PVirtualNode): Integer;
+function TERDVTBaseVirtualTree.CountLevelDifference(Node1, Node2: PVirtualNode): Integer;
 
 // This method counts how many indentation levels the given nodes are apart. If both nodes have the same parent then the
 // difference is 0 otherwise the result is basically GetNodeLevel(Node2) - GetNodeLevel(Node1), but with sign.
@@ -9124,7 +9124,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.CountVisibleChildren(Node: PVirtualNode): Cardinal;
+function TERDVTBaseVirtualTree.CountVisibleChildren(Node: PVirtualNode): Cardinal;
 
 // Returns the number of visible child nodes of the given node.
 
@@ -9147,7 +9147,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.CreateParams(var Params: TCreateParams);
+procedure TERDVTBaseVirtualTree.CreateParams(var Params: TCreateParams);
 
 const
   ScrollBar: array[TScrollStyle] of Cardinal = (0, WS_HSCROLL, WS_VSCROLL, WS_HSCROLL or WS_VSCROLL);
@@ -9181,7 +9181,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.CreateWnd;
+procedure TERDVTBaseVirtualTree.CreateWnd;
 
 // Initializes data which depends on a valid window handle.
 
@@ -9212,9 +9212,9 @@ begin
   // Because of the special recursion and update stopper when creating the window (or resizing it)
   // we have to manually trigger the auto size calculation here.
   if hsNeedScaling in FHeader.States then
-    TVTHeaderCracker(FHeader).RescaleHeader;
+    TERDVTVTHeaderCracker(FHeader).RescaleHeader;
   if hoAutoResize in FHeader.Options then
-    TVirtualTreeColumnsCracker(FHeader.Columns).AdjustAutoSize(InvalidColumn);
+    TERDVTVirtualTreeColumnsCracker(FHeader.Columns).AdjustAutoSize(InvalidColumn);
 
   PrepareBitmaps(True, True);
 
@@ -9228,7 +9228,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.FakeReadIdent(Reader: TReader);
+procedure TERDVTBaseVirtualTree.FakeReadIdent(Reader: TReader);
 begin
   Assert(Reader.NextValue = vaIdent);
   Reader.ReadIdent;
@@ -9236,14 +9236,14 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DecVisibleCount;
+procedure TERDVTBaseVirtualTree.DecVisibleCount;
 begin
   System.Dec(FVisibleCount);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DefineProperties(Filer: TFiler);
+procedure TERDVTBaseVirtualTree.DefineProperties(Filer: TFiler);
 
 // There were heavy changes in some properties during development of VT. This method helps to make migration easier
 // by reading old properties manually and put them into the new properties as appropriate.
@@ -9258,18 +9258,18 @@ begin
   inherited;
 
   // The header can prevent writing columns altogether.
-  if TVTHeaderCracker(FHeader).CanWriteColumns then
+  if TERDVTVTHeaderCracker(FHeader).CanWriteColumns then
   begin
     // Check if we inherit from an ancestor form (Visual Form Inheritance).
     StoreIt := Filer.Ancestor = nil;
     // If there is an ancestor then save columns only if they are different to the base set.
     if not StoreIt then
-      StoreIt := not FHeader.Columns.Equals(TBaseVirtualTree(Filer.Ancestor).FHeader.Columns);
+      StoreIt := not FHeader.Columns.Equals(TERDVTBaseVirtualTree(Filer.Ancestor).FHeader.Columns);
   end
   else
     StoreIt := False;
 
-  Filer.DefineProperty('Columns', TVTHeaderCracker(FHeader).ReadColumns, TVTHeaderCracker(FHeader).WriteColumns, StoreIt);
+  Filer.DefineProperty('Columns', TERDVTVTHeaderCracker(FHeader).ReadColumns, TERDVTVTHeaderCracker(FHeader).WriteColumns, StoreIt);
 
   // #622 made old DFMs incompatible with new VTW - so the program is compiled successfully
   //    and then suddenly crashes at user site in runtime.
@@ -9280,7 +9280,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.DetermineDropMode(const P: TPoint; var HitInfo: THitInfo; var NodeRect: TRect): TDropMode;
+function TERDVTBaseVirtualTree.DetermineDropMode(const P: TPoint; var HitInfo: THitInfo; var NodeRect: TRect): TDropMode;
 
 // Determine the DropMode.
 
@@ -9315,7 +9315,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DetermineHiddenChildrenFlag(Node: PVirtualNode);
+procedure TERDVTBaseVirtualTree.DetermineHiddenChildrenFlag(Node: PVirtualNode);
 
 // Update the hidden children flag of the given node.
 
@@ -9345,7 +9345,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DetermineHiddenChildrenFlagAllNodes;
+procedure TERDVTBaseVirtualTree.DetermineHiddenChildrenFlagAllNodes;
 
 var
   Run: PVirtualNode;
@@ -9361,7 +9361,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DetermineHitPositionLTR(var HitInfo: THitInfo; Offset, Right: TDimension;
+procedure TERDVTBaseVirtualTree.DetermineHitPositionLTR(var HitInfo: THitInfo; Offset, Right: TDimension;
   Alignment: TAlignment);
 
 // This method determines the hit position within a node with left-to-right orientation.
@@ -9472,7 +9472,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DetermineHitPositionRTL(var HitInfo: THitInfo; Offset, Right: TDimension; Alignment: TAlignment);
+procedure TERDVTBaseVirtualTree.DetermineHitPositionRTL(var HitInfo: THitInfo; Offset, Right: TDimension; Alignment: TAlignment);
 
 // This method determines the hit position within a node with right-to-left orientation.
 
@@ -9611,7 +9611,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.DetermineLineImageAndSelectLevel(Node: PVirtualNode; var LineImage: TLineImage): Integer;
+function TERDVTBaseVirtualTree.DetermineLineImageAndSelectLevel(Node: PVirtualNode; var LineImage: TLineImage): Integer;
 
 // This method is used during paint cycles and initializes an array of line type IDs. These IDs are used to paint
 // the tree lines in front of the given node.
@@ -9746,7 +9746,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.DetermineNextCheckState(CheckType: TCheckType; CheckState: TCheckState): TCheckState;
+function TERDVTBaseVirtualTree.DetermineNextCheckState(CheckType: TCheckType; CheckState: TCheckState): TCheckState;
 
 // Determines the next check state in case the user click the check image or pressed the space key.
 
@@ -9767,7 +9767,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.DetermineScrollDirections(X, Y: TDimension): TScrollDirections;
+function TERDVTBaseVirtualTree.DetermineScrollDirections(X, Y: TDimension): TScrollDirections;
 
 // Determines which direction the client area must be scrolled depending on the given position.
 
@@ -9820,7 +9820,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoAddToSelection(Node: PVirtualNode);
+procedure TERDVTBaseVirtualTree.DoAddToSelection(Node: PVirtualNode);
 begin
   if Assigned(FOnAddToSelection) then
     FOnAddToSelection(Self, Node);
@@ -9828,13 +9828,13 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.UseAdvancedHeaderDraw: Boolean;
+function TERDVTBaseVirtualTree.UseAdvancedHeaderDraw: Boolean;
 begin
   Result := (hoOwnerDraw in Header.Options) and Assigned(FOnAdvancedHeaderDraw) and
     Assigned(FOnHeaderDrawQueryElements) and not (csDesigning in ComponentState);
 end;
 
-procedure TBaseVirtualTree.DoAdvancedHeaderDraw(var PaintInfo: THeaderPaintInfo; const Elements: THeaderPaintElements);
+procedure TERDVTBaseVirtualTree.DoAdvancedHeaderDraw(var PaintInfo: THeaderPaintInfo; const Elements: THeaderPaintElements);
 
 begin
   if Assigned(FOnAdvancedHeaderDraw) then
@@ -9843,7 +9843,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoAfterCellPaint(Canvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex; CellRect: TRect);
+procedure TERDVTBaseVirtualTree.DoAfterCellPaint(Canvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex; CellRect: TRect);
 
 begin
   if Assigned(FOnAfterCellPaint) then
@@ -9852,7 +9852,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoAfterItemErase(Canvas: TCanvas; Node: PVirtualNode; ItemRect: TRect);
+procedure TERDVTBaseVirtualTree.DoAfterItemErase(Canvas: TCanvas; Node: PVirtualNode; ItemRect: TRect);
 
 begin
   if Assigned(FOnAfterItemErase) then
@@ -9861,7 +9861,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoAfterItemPaint(Canvas: TCanvas; Node: PVirtualNode; ItemRect: TRect);
+procedure TERDVTBaseVirtualTree.DoAfterItemPaint(Canvas: TCanvas; Node: PVirtualNode; ItemRect: TRect);
 
 begin
   if Assigned(FOnAfterItemPaint) then
@@ -9870,7 +9870,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoAfterPaint(Canvas: TCanvas);
+procedure TERDVTBaseVirtualTree.DoAfterPaint(Canvas: TCanvas);
 
 begin
   if Assigned(FOnAfterPaint) then
@@ -9879,7 +9879,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoAutoScroll(X, Y: TDimension);
+procedure TERDVTBaseVirtualTree.DoAutoScroll(X, Y: TDimension);
 
 begin
   FScrollDirections := DetermineScrollDirections(X, Y);
@@ -9908,7 +9908,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.DoBeforeDrag(Node: PVirtualNode; Column: TColumnIndex): Boolean;
+function TERDVTBaseVirtualTree.DoBeforeDrag(Node: PVirtualNode; Column: TColumnIndex): Boolean;
 
 begin
   Result := False;
@@ -9918,7 +9918,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoBeforeCellPaint(Canvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
+procedure TERDVTBaseVirtualTree.DoBeforeCellPaint(Canvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
   CellPaintMode: TVTCellPaintMode; CellRect: TRect; var ContentRect: TRect);
 
 var
@@ -9944,7 +9944,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoBeforeItemErase(Canvas: TCanvas; Node: PVirtualNode; ItemRect: TRect; var Color: TColor;
+procedure TERDVTBaseVirtualTree.DoBeforeItemErase(Canvas: TCanvas; Node: PVirtualNode; ItemRect: TRect; var Color: TColor;
   var EraseAction: TItemEraseAction);
 
 begin
@@ -9954,7 +9954,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.DoBeforeItemPaint(Canvas: TCanvas; Node: PVirtualNode; ItemRect: TRect): Boolean;
+function TERDVTBaseVirtualTree.DoBeforeItemPaint(Canvas: TCanvas; Node: PVirtualNode; ItemRect: TRect): Boolean;
 
 begin
   // By default custom draw will not be used, so the tree handles drawing the node.
@@ -9965,7 +9965,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoBeforePaint(Canvas: TCanvas);
+procedure TERDVTBaseVirtualTree.DoBeforePaint(Canvas: TCanvas);
 
 begin
   if Assigned(FOnBeforePaint) then
@@ -9974,7 +9974,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.DoCancelEdit(): Boolean;
+function TERDVTBaseVirtualTree.DoCancelEdit(): Boolean;
 
 // Called when the current edit action or a pending edit must be cancelled.
 
@@ -9984,7 +9984,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.DoEndEdit(pCancel: Boolean = False): Boolean;
+function TERDVTBaseVirtualTree.DoEndEdit(pCancel: Boolean = False): Boolean;
 
 // Called to finish a current edit action or stop the edit timer if an edit operation is pending.
 // Pass True if the edit should be cancelled, pass False if the new text should be used and saved.
@@ -10015,7 +10015,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoCanEdit(Node: PVirtualNode; Column: TColumnIndex; var Allowed: Boolean);
+procedure TERDVTBaseVirtualTree.DoCanEdit(Node: PVirtualNode; Column: TColumnIndex; var Allowed: Boolean);
 
 begin
   if Assigned(FOnEditing) then
@@ -10024,7 +10024,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoCanSplitterResizeNode(P: TPoint; Node: PVirtualNode; Column: TColumnIndex;
+procedure TERDVTBaseVirtualTree.DoCanSplitterResizeNode(P: TPoint; Node: PVirtualNode; Column: TColumnIndex;
   var Allowed: Boolean);
 
 begin
@@ -10034,7 +10034,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoChange(Node: PVirtualNode);
+procedure TERDVTBaseVirtualTree.DoChange(Node: PVirtualNode);
 
 begin
   StopTimer(ChangeTimer);
@@ -10049,7 +10049,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoChangeCell(const Cells: TVTCellArray);
+procedure TERDVTBaseVirtualTree.DoChangeCell(const Cells: TVTCellArray);
 begin
   StopTimer(ChangeCellTimer);
   if Assigned(FOnChangeCell) then
@@ -10061,7 +10061,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoCheckClick(Node: PVirtualNode; NewCheckState: TCheckState);
+procedure TERDVTBaseVirtualTree.DoCheckClick(Node: PVirtualNode; NewCheckState: TCheckState);
 
 begin
   if ChangeCheckState(Node, NewCheckState) then
@@ -10080,7 +10080,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoChecked(Node: PVirtualNode);
+procedure TERDVTBaseVirtualTree.DoChecked(Node: PVirtualNode);
 
 begin
   if Assigned(FOnChecked) then
@@ -10091,7 +10091,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.DoChecking(Node: PVirtualNode; var NewCheckState: TCheckState): Boolean;
+function TERDVTBaseVirtualTree.DoChecking(Node: PVirtualNode; var NewCheckState: TCheckState): Boolean;
 
 // Determines if a node is allowed to change its check state to NewCheckState.
 
@@ -10108,7 +10108,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoCollapsed(Node: PVirtualNode);
+procedure TERDVTBaseVirtualTree.DoCollapsed(Node: PVirtualNode);
 var
   lFirstSelected: PVirtualNode;
   lParent: PVirtualNode;
@@ -10139,7 +10139,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.DoCollapsing(Node: PVirtualNode): Boolean;
+function TERDVTBaseVirtualTree.DoCollapsing(Node: PVirtualNode): Boolean;
 
 begin
   Result := True;
@@ -10149,7 +10149,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoColumnChecked(Column: TColumnIndex);
+procedure TERDVTBaseVirtualTree.DoColumnChecked(Column: TColumnIndex);
 begin
   if Assigned(FOnColumnChecked) then
     FOnColumnChecked(Self.FHeader, Column);
@@ -10157,7 +10157,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.DoColumnChecking(Column: TColumnIndex; var NewCheckState: TCheckState): Boolean;
+function TERDVTBaseVirtualTree.DoColumnChecking(Column: TColumnIndex; var NewCheckState: TCheckState): Boolean;
 
 // Determines if a column is allowed to change its check state to NewCheckState.
 
@@ -10169,7 +10169,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoColumnClick(Column: TColumnIndex; Shift: TShiftState);
+procedure TERDVTBaseVirtualTree.DoColumnClick(Column: TColumnIndex; Shift: TShiftState);
 
 begin
   if Assigned(FOnColumnClick) then
@@ -10178,7 +10178,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoColumnDblClick(Column: TColumnIndex; Shift: TShiftState);
+procedure TERDVTBaseVirtualTree.DoColumnDblClick(Column: TColumnIndex; Shift: TShiftState);
 
 begin
   if Assigned(FOnColumnDblClick) then
@@ -10187,7 +10187,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoColumnHeaderSpanning(Column: TColumnIndex; var Count: Integer);
+procedure TERDVTBaseVirtualTree.DoColumnHeaderSpanning(Column: TColumnIndex; var Count: Integer);
 begin
   if Assigned(FOnColumnHeaderSpanning) then
     FOnColumnHeaderSpanning(Self.Header, Column, Count);
@@ -10195,7 +10195,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoColumnResize(Column: TColumnIndex);
+procedure TERDVTBaseVirtualTree.DoColumnResize(Column: TColumnIndex);
 
 var
   R: TRect;
@@ -10243,7 +10243,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoColumnVisibilityChanged(const Column: TColumnIndex; Visible: Boolean);
+procedure TERDVTBaseVirtualTree.DoColumnVisibilityChanged(const Column: TColumnIndex; Visible: Boolean);
   // Triggers the OnColumnVisibilityChanged event.</summary>
 begin
   if Assigned(OnColumnVisibilityChanged) then
@@ -10252,7 +10252,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.DoCompare(Node1, Node2: PVirtualNode; Column: TColumnIndex): Integer;
+function TERDVTBaseVirtualTree.DoCompare(Node1, Node2: PVirtualNode; Column: TColumnIndex): Integer;
 
 begin
   Result := 0;
@@ -10262,7 +10262,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.DoCreateDataObject: IDataObject;
+function TERDVTBaseVirtualTree.DoCreateDataObject: IDataObject;
 
 begin
   Result := nil;
@@ -10272,7 +10272,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.DoCreateDragManager: IVTDragManager;
+function TERDVTBaseVirtualTree.DoCreateDragManager: IVTDragManager;
 
 begin
   Result := nil;
@@ -10282,7 +10282,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.DoCreateEditor(Node: PVirtualNode; Column: TColumnIndex): IVTEditLink;
+function TERDVTBaseVirtualTree.DoCreateEditor(Node: PVirtualNode; Column: TColumnIndex): IVTEditLink;
 
 begin
   Result := nil;
@@ -10292,7 +10292,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoDragging(P: TPoint);
+procedure TERDVTBaseVirtualTree.DoDragging(P: TPoint);
 
 // Initiates finally the drag'n drop operation and returns after DD is finished.
 
@@ -10385,7 +10385,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoDragExpand;
+procedure TERDVTBaseVirtualTree.DoDragExpand;
 begin
   StopTimer(ExpandTimer);
   if Assigned(FDropTargetNode) and (vsHasChildren in FDropTargetNode.States) and
@@ -10398,7 +10398,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.DoDragOver(Source: TObject; Shift: TShiftState; State: TDragState; Pt: TPoint; Mode: TDropMode;
+function TERDVTBaseVirtualTree.DoDragOver(Source: TObject; Shift: TShiftState; State: TDragState; Pt: TPoint; Mode: TDropMode;
   var Effect: Integer): Boolean;
 
 begin
@@ -10409,7 +10409,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoDragDrop(Source: TObject; const DataObject: TVTDragDataObject; const Formats: TFormatArray;
+procedure TERDVTBaseVirtualTree.DoDragDrop(Source: TObject; const DataObject: TVTDragDataObject; const Formats: TFormatArray;
   Shift: TShiftState; Pt: TPoint; var Effect: Integer; Mode: TDropMode);
 
 begin
@@ -10419,7 +10419,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoBeforeDrawLineImage(Node: PVirtualNode; Level: Integer; var XPos: TDimension);
+procedure TERDVTBaseVirtualTree.DoBeforeDrawLineImage(Node: PVirtualNode; Level: Integer; var XPos: TDimension);
 
 begin
   if Assigned(FOnBeforeDrawLineImage) then
@@ -10428,7 +10428,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoEdit;
+procedure TERDVTBaseVirtualTree.DoEdit;
 
 begin
   Application.CancelHint;
@@ -10463,7 +10463,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoEndDrag(Target: TObject; X, Y: TDimension);
+procedure TERDVTBaseVirtualTree.DoEndDrag(Target: TObject; X, Y: TDimension);
 
 // Does some housekeeping for VCL drag'n drop;
 
@@ -10475,7 +10475,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoEndOperation(OperationKind: TVTOperationKind);
+procedure TERDVTBaseVirtualTree.DoEndOperation(OperationKind: TVTOperationKind);
 
 begin
   if Assigned(FOnEndOperation) then
@@ -10484,7 +10484,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoEnter();
+procedure TERDVTBaseVirtualTree.DoEnter();
 begin
   inherited;
   EnsureNodeSelected(False);
@@ -10492,7 +10492,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoExpanded(Node: PVirtualNode);
+procedure TERDVTBaseVirtualTree.DoExpanded(Node: PVirtualNode);
 
 begin
   if Assigned(FOnExpanded) then
@@ -10503,7 +10503,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.DoExpanding(Node: PVirtualNode): Boolean;
+function TERDVTBaseVirtualTree.DoExpanding(Node: PVirtualNode): Boolean;
 
 begin
   Result := True;
@@ -10513,7 +10513,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoFocusChange(Node: PVirtualNode; Column: TColumnIndex);
+procedure TERDVTBaseVirtualTree.DoFocusChange(Node: PVirtualNode; Column: TColumnIndex);
 
 begin
   if Assigned(FOnFocusChanged) then
@@ -10528,7 +10528,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.DoFocusChanging(OldNode, NewNode: PVirtualNode; OldColumn, NewColumn: TColumnIndex): Boolean;
+function TERDVTBaseVirtualTree.DoFocusChanging(OldNode, NewNode: PVirtualNode; OldColumn, NewColumn: TColumnIndex): Boolean;
 
 begin
   Result := (OldColumn = NewColumn) or FHeader.AllowFocus(NewColumn);
@@ -10538,7 +10538,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoFocusNode(Node: PVirtualNode; Ask: Boolean);
+procedure TERDVTBaseVirtualTree.DoFocusNode(Node: PVirtualNode; Ask: Boolean);
 
 begin
   if not (tsEditing in FStates) or EndEditNode then
@@ -10585,7 +10585,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoFreeNode(Node: PVirtualNode);
+procedure TERDVTBaseVirtualTree.DoFreeNode(Node: PVirtualNode);
 
 var
   IntfData: IInterface;
@@ -10624,7 +10624,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.DoGetCellContentMargin(Node: PVirtualNode; Column: TColumnIndex;
+function TERDVTBaseVirtualTree.DoGetCellContentMargin(Node: PVirtualNode; Column: TColumnIndex;
   CellContentMarginType: TVTCellContentMarginType = ccmtAllSides; Canvas: TCanvas = nil): TPoint;
 
 // Determines the margins of the content rectangle caused by DoBeforeCellPaint.
@@ -10666,7 +10666,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoGetCursor(var Cursor: TCursor);
+procedure TERDVTBaseVirtualTree.DoGetCursor(var Cursor: TCursor);
 
 begin
   if Assigned(FOnGetCursor) then
@@ -10675,7 +10675,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoGetHeaderCursor(var Cursor: TVTCursor);
+procedure TERDVTBaseVirtualTree.DoGetHeaderCursor(var Cursor: TVTCursor);
 
 begin
   if Assigned(FOnGetHeaderCursor) then
@@ -10684,7 +10684,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.DoGetImageIndex(Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex;
+function TERDVTBaseVirtualTree.DoGetImageIndex(Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex;
   var Ghosted: Boolean; var Index: TImageIndex): TCustomImageList;
 
 // Queries the application/descendant about certain image properties for a node.
@@ -10709,7 +10709,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoGetImageText(Node: PVirtualNode; Kind: TVTImageKind;
+procedure TERDVTBaseVirtualTree.DoGetImageText(Node: PVirtualNode; Kind: TVTImageKind;
   Column: TColumnIndex; var ImageText: string);
 
 // Queries the application/descendant about alternative image text for a node.
@@ -10721,7 +10721,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoGetLineStyle(var Bits: Pointer);
+procedure TERDVTBaseVirtualTree.DoGetLineStyle(var Bits: Pointer);
 
 begin
   if Assigned(FOnGetLineStyle) then
@@ -10730,7 +10730,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.DoGetNodeHint(Node: PVirtualNode; Column: TColumnIndex;
+function TERDVTBaseVirtualTree.DoGetNodeHint(Node: PVirtualNode; Column: TColumnIndex;
   var LineBreakStyle: TVTTooltipLineBreakStyle): string;
 
 begin
@@ -10740,7 +10740,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.DoGetNodeTooltip(Node: PVirtualNode; Column: TColumnIndex;
+function TERDVTBaseVirtualTree.DoGetNodeTooltip(Node: PVirtualNode; Column: TColumnIndex;
   var LineBreakStyle: TVTTooltipLineBreakStyle): string;
 
 begin
@@ -10750,7 +10750,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.DoGetNodeExtraWidth(Node: PVirtualNode; Column: TColumnIndex; Canvas: TCanvas = nil): TDimension;
+function TERDVTBaseVirtualTree.DoGetNodeExtraWidth(Node: PVirtualNode; Column: TColumnIndex; Canvas: TCanvas = nil): TDimension;
 
 // Returns the pixel width of extra space occupied by node contents (for example, static text).
 
@@ -10760,7 +10760,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.DoGetNodeWidth(Node: PVirtualNode; Column: TColumnIndex; Canvas: TCanvas = nil): TDimension;
+function TERDVTBaseVirtualTree.DoGetNodeWidth(Node: PVirtualNode; Column: TColumnIndex; Canvas: TCanvas = nil): TDimension;
 
 // Returns the pixel width of a node.
 
@@ -10770,7 +10770,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.DoGetPopupMenu(Node: PVirtualNode; Column: TColumnIndex; Position: TPoint): TPopupMenu;
+function TERDVTBaseVirtualTree.DoGetPopupMenu(Node: PVirtualNode; Column: TColumnIndex; Position: TPoint): TPopupMenu;
 
 // Queries the application whether there is a node specific popup menu.
 
@@ -10799,7 +10799,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoGetUserClipboardFormats(var Formats: TFormatEtcArray);
+procedure TERDVTBaseVirtualTree.DoGetUserClipboardFormats(var Formats: TFormatEtcArray);
 
 begin
   if Assigned(FOnGetUserClipboardFormats) then
@@ -10808,7 +10808,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoHeaderAddPopupItem(const Column: TColumnIndex; var Cmd: TAddPopupItemType);
+procedure TERDVTBaseVirtualTree.DoHeaderAddPopupItem(const Column: TColumnIndex; var Cmd: TAddPopupItemType);
 
 begin
   if Assigned(FOnHeaderAddPopupItem) then
@@ -10818,7 +10818,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoHeaderClick(const HitInfo: TVTHeaderHitInfo);
+procedure TERDVTBaseVirtualTree.DoHeaderClick(const HitInfo: TVTHeaderHitInfo);
 
 begin
   if Assigned(FOnHeaderClick) then
@@ -10827,7 +10827,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoHeaderDblClick(const HitInfo: TVTHeaderHitInfo);
+procedure TERDVTBaseVirtualTree.DoHeaderDblClick(const HitInfo: TVTHeaderHitInfo);
 
 begin
   if Assigned(FOnHeaderDblClick) then
@@ -10836,7 +10836,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoHeaderDragged(Column: TColumnIndex; OldPosition: TColumnPosition);
+procedure TERDVTBaseVirtualTree.DoHeaderDragged(Column: TColumnIndex; OldPosition: TColumnPosition);
 
 begin
   if Assigned(FOnHeaderDragged) then
@@ -10845,7 +10845,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoHeaderDraggedOut(Column: TColumnIndex; DropPosition: TPoint);
+procedure TERDVTBaseVirtualTree.DoHeaderDraggedOut(Column: TColumnIndex; DropPosition: TPoint);
 
 begin
   if Assigned(FOnHeaderDraggedOut) then
@@ -10854,7 +10854,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.DoHeaderDragging(Column: TColumnIndex): Boolean;
+function TERDVTBaseVirtualTree.DoHeaderDragging(Column: TColumnIndex): Boolean;
 
 begin
   Result := True;
@@ -10864,7 +10864,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoHeaderDraw(Canvas: TCanvas; Column: TVirtualTreeColumn; R: TRect; Hover, Pressed: Boolean;
+procedure TERDVTBaseVirtualTree.DoHeaderDraw(Canvas: TCanvas; Column: TERDVTVirtualTreeColumn; R: TRect; Hover, Pressed: Boolean;
   DropMark: TVTDropMarkMode);
 
 begin
@@ -10874,7 +10874,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoHeaderDrawQueryElements(var PaintInfo: THeaderPaintInfo; var Elements: THeaderPaintElements);
+procedure TERDVTBaseVirtualTree.DoHeaderDrawQueryElements(var PaintInfo: THeaderPaintInfo; var Elements: THeaderPaintElements);
 
 begin
   if Assigned(FOnHeaderDrawQueryElements) then
@@ -10883,7 +10883,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoHeaderMouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: TDimension);
+procedure TERDVTBaseVirtualTree.DoHeaderMouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: TDimension);
 
 begin
   if Assigned(FOnHeaderMouseDown) then
@@ -10892,7 +10892,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoHeaderMouseMove(Shift: TShiftState; X, Y: TDimension);
+procedure TERDVTBaseVirtualTree.DoHeaderMouseMove(Shift: TShiftState; X, Y: TDimension);
 
 begin
   if Assigned(FOnHeaderMouseMove) then
@@ -10901,7 +10901,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoHeaderMouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: TDimension);
+procedure TERDVTBaseVirtualTree.DoHeaderMouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: TDimension);
 
 begin
   if Assigned(FOnHeaderMouseUp) then
@@ -10910,7 +10910,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoHotChange(Old, New: PVirtualNode);
+procedure TERDVTBaseVirtualTree.DoHotChange(Old, New: PVirtualNode);
 
 begin
   if Assigned(FOnHotChange) then
@@ -10919,7 +10919,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.DoIncrementalSearch(Node: PVirtualNode; const Text: string): Integer;
+function TERDVTBaseVirtualTree.DoIncrementalSearch(Node: PVirtualNode; const Text: string): Integer;
 
 begin
   Result := 0;
@@ -10929,7 +10929,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.DoInitChildren(Node: PVirtualNode; var ChildCount: Cardinal): Boolean;
+function TERDVTBaseVirtualTree.DoInitChildren(Node: PVirtualNode; var ChildCount: Cardinal): Boolean;
 /// The function calls the OnInitChildren and returns True if the event was called; it returns False if the caller can expect that no changes have been made to ChildCount
 begin
   if Assigned(FOnInitChildren) then
@@ -10943,7 +10943,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoInitNode(Parent, Node: PVirtualNode; var InitStates: TVirtualNodeInitStates);
+procedure TERDVTBaseVirtualTree.DoInitNode(Parent, Node: PVirtualNode; var InitStates: TVirtualNodeInitStates);
 
 begin
   if Assigned(FOnInitNode) then
@@ -10952,7 +10952,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.DoKeyAction(var CharCode: Word; var Shift: TShiftState): Boolean;
+function TERDVTBaseVirtualTree.DoKeyAction(var CharCode: Word; var Shift: TShiftState): Boolean;
 
 begin
   Result := True;
@@ -10962,7 +10962,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoLoadUserData(Node: PVirtualNode; Stream: TStream);
+procedure TERDVTBaseVirtualTree.DoLoadUserData(Node: PVirtualNode; Stream: TStream);
 
 begin
   if Assigned(FOnLoadNode) then
@@ -10974,7 +10974,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoMeasureItem(TargetCanvas: TCanvas; Node: PVirtualNode; var NodeHeight: TDimension);
+procedure TERDVTBaseVirtualTree.DoMeasureItem(TargetCanvas: TCanvas; Node: PVirtualNode; var NodeHeight: TDimension);
 
 begin
   if not (vsInitialized in Node.States) then
@@ -10985,7 +10985,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoMouseEnter();
+procedure TERDVTBaseVirtualTree.DoMouseEnter();
 
 begin
   if Assigned(FOnMouseEnter) then
@@ -10994,7 +10994,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoMouseLeave;
+procedure TERDVTBaseVirtualTree.DoMouseLeave;
 
 begin
   if Assigned(FOnMouseLeave) then
@@ -11003,7 +11003,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoNodeCopied(Node: PVirtualNode);
+procedure TERDVTBaseVirtualTree.DoNodeCopied(Node: PVirtualNode);
 
 begin
   if Assigned(FOnNodeCopied) then
@@ -11012,7 +11012,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.DoNodeCopying(Node, NewParent: PVirtualNode): Boolean;
+function TERDVTBaseVirtualTree.DoNodeCopying(Node, NewParent: PVirtualNode): Boolean;
 
 begin
   Result := True;
@@ -11022,7 +11022,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoNodeClick(const HitInfo: THitInfo);
+procedure TERDVTBaseVirtualTree.DoNodeClick(const HitInfo: THitInfo);
 
 begin
   if Assigned(FOnNodeClick) then
@@ -11031,7 +11031,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoNodeDblClick(const HitInfo: THitInfo);
+procedure TERDVTBaseVirtualTree.DoNodeDblClick(const HitInfo: THitInfo);
 
 begin
   if Assigned(FOnNodeDblClick) then
@@ -11040,7 +11040,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.DoNodeHeightDblClickResize(Node: PVirtualNode; Column: TColumnIndex; Shift: TShiftState;
+function TERDVTBaseVirtualTree.DoNodeHeightDblClickResize(Node: PVirtualNode; Column: TColumnIndex; Shift: TShiftState;
   P: TPoint): Boolean;
 
 begin
@@ -11051,7 +11051,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.DoNodeHeightTracking(Node: PVirtualNode; Column: TColumnIndex; Shift: TShiftState;
+function TERDVTBaseVirtualTree.DoNodeHeightTracking(Node: PVirtualNode; Column: TColumnIndex; Shift: TShiftState;
   var TrackPoint: TPoint; P: TPoint): Boolean;
 
 begin
@@ -11062,7 +11062,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoNodeMoved(Node: PVirtualNode);
+procedure TERDVTBaseVirtualTree.DoNodeMoved(Node: PVirtualNode);
 
 begin
   if Assigned(FOnNodeMoved) then
@@ -11071,7 +11071,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.DoNodeMoving(Node, NewParent: PVirtualNode): Boolean;
+function TERDVTBaseVirtualTree.DoNodeMoving(Node, NewParent: PVirtualNode): Boolean;
 
 begin
   Result := True;
@@ -11081,7 +11081,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.DoPaintBackground(Canvas: TCanvas; R: TRect): Boolean;
+function TERDVTBaseVirtualTree.DoPaintBackground(Canvas: TCanvas; R: TRect): Boolean;
 
 begin
   Result := False;
@@ -11091,7 +11091,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoPaintDropMark(Canvas: TCanvas; Node: PVirtualNode; R: TRect);
+procedure TERDVTBaseVirtualTree.DoPaintDropMark(Canvas: TCanvas; Node: PVirtualNode; R: TRect);
 
 // draws the drop mark into the given rectangle
 // Note: Changed properties of the given canvas should be reset to their previous values.
@@ -11134,12 +11134,12 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoPaintNode(var PaintInfo: TVTPaintInfo);
+procedure TERDVTBaseVirtualTree.DoPaintNode(var PaintInfo: TVTPaintInfo);
 
 begin
 end;
 
-procedure TBaseVirtualTree.DoPaintText(Node: PVirtualNode; const Canvas: TCanvas; Column: TColumnIndex; TextType: TVSTTextType);
+procedure TERDVTBaseVirtualTree.DoPaintText(Node: PVirtualNode; const Canvas: TCanvas; Column: TColumnIndex; TextType: TVSTTextType);
 begin
   if Assigned(FOnPaintText) then
     FOnPaintText(Self, Canvas, Node, Column, TextType);
@@ -11147,7 +11147,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoPopupMenu(Node: PVirtualNode; Column: TColumnIndex; Position: TPoint);
+procedure TERDVTBaseVirtualTree.DoPopupMenu(Node: PVirtualNode; Column: TColumnIndex; Position: TPoint);
 
 // Support for node dependent popup menus.
 
@@ -11169,7 +11169,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoRemoveFromSelection(Node: PVirtualNode);
+procedure TERDVTBaseVirtualTree.DoRemoveFromSelection(Node: PVirtualNode);
 
 begin
   if Assigned(FOnRemoveFromSelection) then
@@ -11178,7 +11178,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoReset(Node: PVirtualNode);
+procedure TERDVTBaseVirtualTree.DoReset(Node: PVirtualNode);
 
 begin
   if Assigned(FOnResetNode) then
@@ -11187,7 +11187,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoSaveUserData(Node: PVirtualNode; Stream: TStream);
+procedure TERDVTBaseVirtualTree.DoSaveUserData(Node: PVirtualNode; Stream: TStream);
 
 begin
   if Assigned(FOnSaveNode) then
@@ -11199,7 +11199,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoScroll(DeltaX, DeltaY: TDimension);
+procedure TERDVTBaseVirtualTree.DoScroll(DeltaX, DeltaY: TDimension);
 
 begin
   if Assigned(FOnScroll) then
@@ -11208,7 +11208,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.DoSetOffsetXY(Value: TPoint; Options: TScrollUpdateOptions; ClipRect: PRect = nil): Boolean;
+function TERDVTBaseVirtualTree.DoSetOffsetXY(Value: TPoint; Options: TScrollUpdateOptions; ClipRect: PRect = nil): Boolean;
 
 // Actual offset setter used to scroll the client area, update scroll bars and invalidating the header (all optional).
 // Returns True if the offset really changed otherwise False is returned.
@@ -11333,7 +11333,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoShowScrollBar(Bar: Integer; Show: Boolean);
+procedure TERDVTBaseVirtualTree.DoShowScrollBar(Bar: Integer; Show: Boolean);
 
 begin
   ShowScrollBar(Bar, Show);
@@ -11344,7 +11344,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoStartDrag(var DragObject: TDragObject);
+procedure TERDVTBaseVirtualTree.DoStartDrag(var DragObject: TDragObject);
 
 begin
   inherited;
@@ -11357,7 +11357,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoStartOperation(OperationKind: TVTOperationKind);
+procedure TERDVTBaseVirtualTree.DoStartOperation(OperationKind: TVTOperationKind);
 
 begin
   if Assigned(FOnStartOperation) then
@@ -11366,7 +11366,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoStateChange(Enter: TVirtualTreeStates; Leave: TVirtualTreeStates = []);
+procedure TERDVTBaseVirtualTree.DoStateChange(Enter: TVirtualTreeStates; Leave: TVirtualTreeStates = []);
 
 var
   ActualEnter,
@@ -11386,7 +11386,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoStructureChange(Node: PVirtualNode; Reason: TChangeReason);
+procedure TERDVTBaseVirtualTree.DoStructureChange(Node: PVirtualNode; Reason: TChangeReason);
 
 begin
   StopTimer(StructureChangeTimer);
@@ -11402,7 +11402,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoTimerScroll;
+procedure TERDVTBaseVirtualTree.DoTimerScroll;
 
 var
   P,
@@ -11528,7 +11528,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoUpdating(State: TVTUpdateState);
+procedure TERDVTBaseVirtualTree.DoUpdating(State: TVTUpdateState);
 
 begin
   if Assigned(FOnUpdating) then
@@ -11537,7 +11537,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.DoValidateCache(): Boolean;
+function TERDVTBaseVirtualTree.DoValidateCache(): Boolean;
 
 // This method fills the cache, which is used to speed up searching for nodes.
 // The strategy is simple: Take the current number of visible nodes and distribute evenly a number of marks
@@ -11641,7 +11641,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DragAndDrop(AllowedEffects: Dword; const DataObject: TVTDragDataObject; var DragEffect: Integer);
+procedure TERDVTBaseVirtualTree.DragAndDrop(AllowedEffects: Dword; const DataObject: TVTDragDataObject; var DragEffect: Integer);
 var
   lDragEffect: DWord; // required for type compatibility with SHDoDragDrop
 begin
@@ -11652,7 +11652,7 @@ begin
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DragCanceled;
+procedure TERDVTBaseVirtualTree.DragCanceled;
 
 // Does some housekeeping for VCL drag'n drop;
 
@@ -11664,7 +11664,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.DragDrop(const DataObject: TVTDragDataObject; KeyState: Integer; Pt: TPoint;
+function TERDVTBaseVirtualTree.DragDrop(const DataObject: TVTDragDataObject; KeyState: Integer; Pt: TPoint;
   var Effect: Integer): HResult;
 
 var
@@ -11729,7 +11729,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.DragEnter(KeyState: Integer; Pt: TPoint; var Effect: Integer): HResult;
+function TERDVTBaseVirtualTree.DragEnter(KeyState: Integer; Pt: TPoint; var Effect: Integer): HResult;
 
 // callback routine for the drop target interface
 
@@ -11791,7 +11791,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DragFinished;
+procedure TERDVTBaseVirtualTree.DragFinished;
 
 // Called by DragCancelled or EndDrag to make up for the still missing mouse button up messages.
 // These are important for such important things like popup menus.
@@ -11818,7 +11818,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DragLeave;
+procedure TERDVTBaseVirtualTree.DragLeave;
 
 var
   Effect: Integer;
@@ -11840,7 +11840,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.DragOver(Source: TObject; KeyState: Integer; DragState: TDragState; Pt: TPoint;
+function TERDVTBaseVirtualTree.DragOver(Source: TObject; KeyState: Integer; DragState: TDragState; Pt: TPoint;
   var Effect: Integer): HResult;
 
 // callback routine for the drop target interface
@@ -11978,7 +11978,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DrawDottedHLine(const PaintInfo: TVTPaintInfo; Left, Right, Top: TDimension);
+procedure TERDVTBaseVirtualTree.DrawDottedHLine(const PaintInfo: TVTPaintInfo; Left, Right, Top: TDimension);
 // Draws a horizontal line with alternating pixels
 var
   R: TRect;
@@ -11990,7 +11990,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DrawDottedVLine(const PaintInfo: TVTPaintInfo; Top, Bottom, Left: TDimension);
+procedure TERDVTBaseVirtualTree.DrawDottedVLine(const PaintInfo: TVTPaintInfo; Top, Bottom, Left: TDimension);
 // Draws a vertical line with alternating pixels
 var
   R: TRect;
@@ -12002,7 +12002,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DrawGridLine(Canvas: TCanvas; R: TRect);
+procedure TERDVTBaseVirtualTree.DrawGridLine(Canvas: TCanvas; R: TRect);
 begin
   Canvas.Brush.Color := FColors.GridLineColor;
   Canvas.Brush.Style := bsSolid;
@@ -12012,7 +12012,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DrawGridHLine(const PaintInfo: TVTPaintInfo; Left, Right, Top: TDimension);
+procedure TERDVTBaseVirtualTree.DrawGridHLine(const PaintInfo: TVTPaintInfo; Left, Right, Top: TDimension);
 // Draws a horizontal grid line
 var
   R: TRect;
@@ -12024,7 +12024,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DrawGridVLine(const PaintInfo: TVTPaintInfo; Top, Bottom, Left: TDimension; pFixedColumn: Boolean = False);
+procedure TERDVTBaseVirtualTree.DrawGridVLine(const PaintInfo: TVTPaintInfo; Top, Bottom, Left: TDimension; pFixedColumn: Boolean = False);
 // Draws a vertical grid line
 var
   R: TRect;
@@ -12047,7 +12047,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.EndOperation(OperationKind: TVTOperationKind);
+procedure TERDVTBaseVirtualTree.EndOperation(OperationKind: TVTOperationKind);
 
 // Called to indicate that a long-running operation has finished.
 
@@ -12059,7 +12059,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.EnsureNodeFocused();
+procedure TERDVTBaseVirtualTree.EnsureNodeFocused();
 begin
   if FocusedNode = nil then
     FocusedNode := Self.GetFirstSelected();
@@ -12069,7 +12069,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.EnsureNodeSelected(pAfterDeletion: Boolean);
+procedure TERDVTBaseVirtualTree.EnsureNodeSelected(pAfterDeletion: Boolean);
 begin
   if IsEmpty then
     exit; // Nothing to do
@@ -12093,7 +12093,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.FindNodeInSelection(P: PVirtualNode; var Index: Integer; LowBound,
+function TERDVTBaseVirtualTree.FindNodeInSelection(P: PVirtualNode; var Index: Integer; LowBound,
   HighBound: Integer): Boolean;
 
 // Search routine to find a specific node in the selection array.
@@ -12132,7 +12132,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.FinishChunkHeader(Stream: TStream; StartPos, EndPos: Integer);
+procedure TERDVTBaseVirtualTree.FinishChunkHeader(Stream: TStream; StartPos, EndPos: Integer);
 
 // used while streaming out a node to finally write out the size of the chunk
 
@@ -12152,7 +12152,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.FontChanged(AFont: TObject);
+procedure TERDVTBaseVirtualTree.FontChanged(AFont: TObject);
 
 // Little helper function for font changes (as they are not tracked in TBitmap/TCanvas.OnChange).
 
@@ -12165,7 +12165,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetBorderDimensions: TSize;
+function TERDVTBaseVirtualTree.GetBorderDimensions: TSize;
 
 // Returns the overall width of the current window border, depending on border styles.
 // Note: these numbers represent the system's standards not special properties, which can be set for TWinControl
@@ -12199,7 +12199,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetCheckImage(Node: PVirtualNode; ImgCheckType: TCheckType = ctNone; ImgCheckState:
+function TERDVTBaseVirtualTree.GetCheckImage(Node: PVirtualNode; ImgCheckType: TCheckType = ctNone; ImgCheckState:
   TCheckState = csUncheckedNormal; ImgEnabled: Boolean = True): Integer;
 
 // Determines the index into the check image list for the given node depending on the check type
@@ -12290,23 +12290,23 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetColumnClass: TVirtualTreeColumnClass;
+function TERDVTBaseVirtualTree.GetColumnClass: TERDVTVirtualTreeColumnClass;
 
 begin
-  Result := TVirtualTreeColumn;
+  Result := TERDVTVirtualTreeColumn;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetHeaderClass: TVTHeaderClass;
+function TERDVTBaseVirtualTree.GetHeaderClass: TERDVTVTHeaderClass;
 
 begin
-  Result := TVTHeader;
+  Result := TERDVTVTHeader;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.GetImageIndex(var Info: TVTPaintInfo; Kind: TVTImageKind; InfoIndex: TVTImageInfoIndex);
+procedure TERDVTBaseVirtualTree.GetImageIndex(var Info: TVTPaintInfo; Kind: TVTImageKind; InfoIndex: TVTImageInfoIndex);
 
 // Retrieves the image index and an eventual customized image list for drawing.
 
@@ -12325,7 +12325,7 @@ begin
   end;
 end;
 
-function TBaseVirtualTree.GetImageSize(Node: PVirtualNode; Kind: TVTImageKind = TVTImageKind.ikNormal; Column: TColumnIndex = 0; IncludePadding: Boolean = True): TSize;
+function TERDVTBaseVirtualTree.GetImageSize(Node: PVirtualNode; Kind: TVTImageKind = TVTImageKind.ikNormal; Column: TColumnIndex = 0; IncludePadding: Boolean = True): TSize;
 
 // Determines whether the given node has got an image of the given kind in the given column.
 // Returns the size of the image, or (0,0) if no image is available
@@ -12362,14 +12362,14 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.IsEmpty: Boolean;
+function TERDVTBaseVirtualTree.IsEmpty: Boolean;
 begin
   Result := (Self.ChildCount[nil] = 0);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetNodeImageSize(Node: PVirtualNode): TSize;
+function TERDVTBaseVirtualTree.GetNodeImageSize(Node: PVirtualNode): TSize;
 
   // Returns the size of an image
   // Override if you need different sized images for certain nodes.
@@ -12379,7 +12379,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetMaxRightExtend(): TDimension;
+function TERDVTBaseVirtualTree.GetMaxRightExtend(): TDimension;
 
 // Determines the maximum with of the currently visible part of the tree, depending on the length
 // of the node texts. This method is used for determining the horizontal scroll range if no columns are used.
@@ -12433,19 +12433,19 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.GetNativeClipboardFormats(var Formats: TFormatEtcArray);
+procedure TERDVTBaseVirtualTree.GetNativeClipboardFormats(var Formats: TFormatEtcArray);
 
 // Returns the supported clipboard formats of the tree.
 
 begin
-  TClipboardFormatList.EnumerateFormats(TVirtualTreeClass(ClassType), Formats, FClipboardFormats);
+  TERDVTClipboardFormatList.EnumerateFormats(TERDVTVirtualTreeClass(ClassType), Formats, FClipboardFormats);
   // Ask application/descendants for self defined formats.
   DoGetUserClipboardFormats(Formats);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetOperationCanceled;
+function TERDVTBaseVirtualTree.GetOperationCanceled;
 
 begin
   Result := FOperationCanceled and (FOperationCount > 0);
@@ -12453,15 +12453,15 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetOptionsClass: TTreeOptionsClass;
+function TERDVTBaseVirtualTree.GetOptionsClass: TERDVTTreeOptionsClass;
 
 begin
-  Result := TCustomVirtualTreeOptions;
+  Result := TERDVTCustomVirtualTreeOptions;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.HandleHotTrack(X, Y: TDimension);
+procedure TERDVTBaseVirtualTree.HandleHotTrack(X, Y: TDimension);
 
 // Updates the current "hot" node.
 
@@ -12521,7 +12521,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.HandleIncrementalSearch(CharCode: Word);
+procedure TERDVTBaseVirtualTree.HandleIncrementalSearch(CharCode: Word);
 
 var
   Run, Stop: PVirtualNode;
@@ -12787,7 +12787,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.HandleMouseDblClick(var Message: TWMMouse; const HitInfo: THitInfo);
+procedure TERDVTBaseVirtualTree.HandleMouseDblClick(var Message: TWMMouse; const HitInfo: THitInfo);
 
 var
   Node: PVirtualNode;
@@ -12872,7 +12872,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.HandleCheckboxClick(pHitNode: PVirtualNode; pKeys: LongInt);
+procedure TERDVTBaseVirtualTree.HandleCheckboxClick(pHitNode: PVirtualNode; pKeys: LongInt);
 var
   NewCheckState: TCheckState;
 begin
@@ -12888,7 +12888,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.HandleMouseDown(var Message: TWMMouse; var HitInfo: THitInfo);
+procedure TERDVTBaseVirtualTree.HandleMouseDown(var Message: TWMMouse; var HitInfo: THitInfo);
 
 // centralized mouse button down handling
 
@@ -13270,7 +13270,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.HandleMouseUp(var Message: TWMMouse; const HitInfo: THitInfo);
+procedure TERDVTBaseVirtualTree.HandleMouseUp(var Message: TWMMouse; const HitInfo: THitInfo);
 
 // Counterpart to the mouse down handler.
 
@@ -13342,7 +13342,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.HasImage(Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex): Boolean;
+function TERDVTBaseVirtualTree.HasImage(Node: PVirtualNode; Kind: TVTImageKind; Column: TColumnIndex): Boolean;
 
 // Determines whether the given node has got an image of the given kind in the given column.
 // Returns True if so, otherwise False.
@@ -13364,7 +13364,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.HasPopupMenu(Node: PVirtualNode; Column: TColumnIndex; Pos: TPoint): Boolean;
+function TERDVTBaseVirtualTree.HasPopupMenu(Node: PVirtualNode; Column: TColumnIndex; Pos: TPoint): Boolean;
 
 // Determines whether the tree got a popup menu, either in its PopupMenu property, via the OnGetPopupMenu event or
 // through inheritance. The latter case must be checked by the descendant which must override this method.
@@ -13375,14 +13375,14 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.IncVisibleCount;
+procedure TERDVTBaseVirtualTree.IncVisibleCount;
 begin
   System.Inc(FVisibleCount);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.InitChildren(Node: PVirtualNode);
+procedure TERDVTBaseVirtualTree.InitChildren(Node: PVirtualNode);
 
 // Initiates the initialization of the child number of the given node.
 
@@ -13404,7 +13404,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.InitNode(Node: PVirtualNode);
+procedure TERDVTBaseVirtualTree.InitNode(Node: PVirtualNode);
 
 // Initiates the initialization of the given node to allow the application to load needed data for it.
 
@@ -13487,7 +13487,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.InternalAddFromStream(Stream: TStream; Version: Integer; Node: PVirtualNode);
+procedure TERDVTBaseVirtualTree.InternalAddFromStream(Stream: TStream; Version: Integer; Node: PVirtualNode);
 
 // Loads all details for Node (including its children) from the given stream.
 // Because the new nodes might be selected this method also fixes the selection array.
@@ -13558,7 +13558,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.InternalAddToSelection(Node: PVirtualNode; ForceInsert: Boolean): Boolean;
+function TERDVTBaseVirtualTree.InternalAddToSelection(Node: PVirtualNode; ForceInsert: Boolean): Boolean;
 var
   lSingletonNodeArray: TNodeArray;
 begin
@@ -13570,7 +13570,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.InternalAddToSelection(const NewItems: TNodeArray; NewLength: Integer;
+function TERDVTBaseVirtualTree.InternalAddToSelection(const NewItems: TNodeArray; NewLength: Integer;
   ForceInsert: Boolean): Boolean;
 
 // Internal version of method AddToSelection which does not trigger OnChange events
@@ -13694,7 +13694,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.InternalCacheNode(Node: PVirtualNode);
+procedure TERDVTBaseVirtualTree.InternalCacheNode(Node: PVirtualNode);
 
 // Adds the given node to the temporary node cache (used when collecting possibly large amounts of nodes).
 
@@ -13717,7 +13717,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.InternalClearSelection();
+procedure TERDVTBaseVirtualTree.InternalClearSelection();
 
 var
   lNode: PVirtualNode;
@@ -13748,7 +13748,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.InternalConnectNode(Node, Destination: PVirtualNode; Target: TBaseVirtualTree;
+procedure TERDVTBaseVirtualTree.InternalConnectNode(Node, Destination: PVirtualNode; Target: TERDVTBaseVirtualTree;
   Mode: TVTNodeAttachMode);
 
 // Connects Node with Destination depending on Mode.
@@ -13890,7 +13890,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.InternalData(Node: PVirtualNode): Pointer;
+function TERDVTBaseVirtualTree.InternalData(Node: PVirtualNode): Pointer;
 
 begin
   Result := nil;
@@ -13898,7 +13898,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.InternalDisconnectNode(Node: PVirtualNode; KeepFocus: Boolean; Reindex: Boolean = True; ParentClearing: Boolean = False);
+procedure TERDVTBaseVirtualTree.InternalDisconnectNode(Node: PVirtualNode; KeepFocus: Boolean; Reindex: Boolean = True; ParentClearing: Boolean = False);
 
 // Disconnects the given node from its parent and siblings. The node's pointer are not reset so they can still be used
 // after return from this method (probably a very short time only!).
@@ -13978,7 +13978,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.InternalRemoveFromSelection(Node: PVirtualNode);
+procedure TERDVTBaseVirtualTree.InternalRemoveFromSelection(Node: PVirtualNode);
 
 // Special version to mark a node to be no longer in the current selection. PackArray must
 // be used to remove finally those entries.
@@ -14008,14 +14008,14 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.InternalSetFocusedColumn(const index: TColumnIndex);
+procedure TERDVTBaseVirtualTree.InternalSetFocusedColumn(const index: TColumnIndex);
 begin
   FFocusedColumn := index;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.InvalidateCache;
+procedure TERDVTBaseVirtualTree.InvalidateCache;
 
 // Marks the cache as invalid.
 
@@ -14026,7 +14026,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.MarkCutCopyCells;
+procedure TERDVTBaseVirtualTree.MarkCutCopyCells;
 var
   I: Integer;
   LCell: TVTCell;
@@ -14041,7 +14041,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.MarkCutCopyNodes;
+procedure TERDVTBaseVirtualTree.MarkCutCopyNodes;
 
 // Sets the vsCutOrCopy style in every currently selected but not disabled node to indicate it is
 // now part of a clipboard operation.
@@ -14066,7 +14066,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.Loaded;
+procedure TERDVTBaseVirtualTree.Loaded;
 
 var
   LastRootCount: Cardinal;
@@ -14099,18 +14099,18 @@ begin
   // when auto resize is enabled.
   Updating;
   try
-    TVTHeaderCracker(FHeader).UpdateMainColumn;
-    TVirtualTreeColumnsCracker(FHeader.Columns).FixPositions;
+    TERDVTVTHeaderCracker(FHeader).UpdateMainColumn;
+    TERDVTVirtualTreeColumnsCracker(FHeader.Columns).FixPositions;
     if toAutoBidiColumnOrdering in FOptions.AutoOptions then
-      TVirtualTreeColumnsCracker(FHeader.Columns).ReorderColumns(UseRightToLeftAlignment);
+      TERDVTVirtualTreeColumnsCracker(FHeader.Columns).ReorderColumns(UseRightToLeftAlignment);
     // Because of the special recursion and update stopper when creating the window (or resizing it)
     // we have to manually trigger the auto size calculation here.
     if hsNeedScaling in FHeader.States then
-      TVTHeaderCracker(FHeader).RescaleHeader
+      TERDVTVTHeaderCracker(FHeader).RescaleHeader
     else
-      TVTHeaderCracker(FHeader).RecalculateHeader;
+      TERDVTVTHeaderCracker(FHeader).RecalculateHeader;
     if hoAutoResize in FHeader.Options then
-      TVirtualTreeColumnsCracker(FHeader.Columns).AdjustAutoSize(InvalidColumn, True);
+      TERDVTVirtualTreeColumnsCracker(FHeader.Columns).AdjustAutoSize(InvalidColumn, True);
   finally
     Updated;
   end;
@@ -14118,7 +14118,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.MainColumnChanged;
+procedure TERDVTBaseVirtualTree.MainColumnChanged;
 
 begin
   DoCancelEdit;
@@ -14127,7 +14127,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.MouseMove(Shift: TShiftState; X, Y: TDimension);
+procedure TERDVTBaseVirtualTree.MouseMove(Shift: TShiftState; X, Y: TDimension);
 
 var
   R: TRect;
@@ -14186,7 +14186,7 @@ begin
     if tsNodeHeightTracking in FStates then
     begin
       // Handle height tracking.
-      if DoNodeHeightTracking(FHeightTrackNode, FHeightTrackColumn, TVTHeaderCracker(FHeader).GetShiftState, FHeightTrackPoint, Point(X, Y)) then
+      if DoNodeHeightTracking(FHeightTrackNode, FHeightTrackColumn, TERDVTVTHeaderCracker(FHeader).GetShiftState, FHeightTrackPoint, Point(X, Y)) then
       begin
         // Avoid negative (or zero) node heights.
         if FHeightTrackPoint.Y >= Y then
@@ -14241,7 +14241,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.Notification(AComponent: TComponent; Operation: TOperation);
+procedure TERDVTBaseVirtualTree.Notification(AComponent: TComponent; Operation: TOperation);
 
 begin
   if (AComponent <> Self) and (Operation = opRemove) then
@@ -14287,7 +14287,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.OriginalWMNCPaint(DC: HDC);
+procedure TERDVTBaseVirtualTree.OriginalWMNCPaint(DC: HDC);
 
 // Unfortunately, the painting for the non-client area in TControl is not always correct and does also not consider
 // existing clipping regions, so it has been modified here to take this into account.
@@ -14349,7 +14349,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.Paint;
+procedure TERDVTBaseVirtualTree.Paint;
 
 // Window paint routine. Used when the tree window needs to be updated.
 
@@ -14412,7 +14412,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.PaintCheckImage(Canvas: TCanvas; const ImageInfo: TVTImageInfo; Selected: Boolean);
+procedure TERDVTBaseVirtualTree.PaintCheckImage(Canvas: TCanvas; const ImageInfo: TVTImageInfo; Selected: Boolean);
 
 var
   ForegroundColor: COLORREF;
@@ -14519,7 +14519,7 @@ end;
 //----------------------------------------------------------------------------------------------------------------------
 
 
-procedure TBaseVirtualTree.PaintImage(var PaintInfo: TVTPaintInfo; ImageInfoIndex: TVTImageInfoIndex; DoOverlay: Boolean);
+procedure TERDVTBaseVirtualTree.PaintImage(var PaintInfo: TVTPaintInfo; ImageInfoIndex: TVTImageInfoIndex; DoOverlay: Boolean);
 const
   Style: array[TImageType] of Cardinal = (0, ILD_MASK);
 var
@@ -14599,7 +14599,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.PaintNodeButton(Canvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex; const R: TRect;
+procedure TERDVTBaseVirtualTree.PaintNodeButton(Canvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex; const R: TRect;
   ButtonX, ButtonY: TDimension; BidiMode: TBiDiMode);
 
 var
@@ -14664,7 +14664,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.PaintTreeLines(const PaintInfo: TVTPaintInfo; IndentSize: TDimension; const LineImage: TLineImage);
+procedure TERDVTBaseVirtualTree.PaintTreeLines(const PaintInfo: TVTPaintInfo; IndentSize: TDimension; const LineImage: TLineImage);
 
 var
   I: Integer;
@@ -14746,7 +14746,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.PaintSelectionRectangle(Target: TCanvas; WindowOrgX: TDimension; const SelectionRect: TRect;
+procedure TERDVTBaseVirtualTree.PaintSelectionRectangle(Target: TCanvas; WindowOrgX: TDimension; const SelectionRect: TRect;
   TargetRect: TRect);
 
 // Helper routine to draw a selection rectangle in the mode determined by DrawSelectionMode.
@@ -14786,7 +14786,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.PrepareCell(var PaintInfo: TVTPaintInfo; WindowOrgX, MaxWidth: TDimension);
+procedure TERDVTBaseVirtualTree.PrepareCell(var PaintInfo: TVTPaintInfo; WindowOrgX, MaxWidth: TDimension);
 
 // This method is called immediately before a cell's content is drawn und is responsible to paint selection colors etc.
 
@@ -15018,15 +15018,15 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class procedure TBaseVirtualTree.RaiseVTError(const Msg: string; HelpContext: Integer);
+class procedure TERDVTBaseVirtualTree.RaiseVTError(const Msg: string; HelpContext: Integer);
 
 begin
-  raise EVirtualTreeError.CreateHelp(Msg, HelpContext);
+  raise EERDVTVirtualTreeError.CreateHelp(Msg, HelpContext);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.ReadChunk(Stream: TStream; Version: Integer; Node: PVirtualNode; ChunkType,
+function TERDVTBaseVirtualTree.ReadChunk(Stream: TStream; Version: Integer; Node: PVirtualNode; ChunkType,
   ChunkSize: Integer): Boolean;
 
 // Called while loading a tree structure, Node is already valid (allocated) at this point.
@@ -15161,7 +15161,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.ReadNode(Stream: TStream; Version: Integer; Node: PVirtualNode);
+procedure TERDVTBaseVirtualTree.ReadNode(Stream: TStream; Version: Integer; Node: PVirtualNode);
 
 // Reads the anchor chunk of each node and initiates reading the sub chunks for this node
 
@@ -15195,7 +15195,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.RedirectFontChangeEvent(Canvas: TCanvas);
+procedure TERDVTBaseVirtualTree.RedirectFontChangeEvent(Canvas: TCanvas);
 
 begin
   if @Canvas.Font.OnChange <> @FOldFontChange then
@@ -15207,7 +15207,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.RemoveFromSelection(Node: PVirtualNode);
+procedure TERDVTBaseVirtualTree.RemoveFromSelection(Node: PVirtualNode);
 
 var
   Index: Integer;
@@ -15246,7 +15246,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.UpdateNextNodeToSelect(Node: PVirtualNode);
+procedure TERDVTBaseVirtualTree.UpdateNextNodeToSelect(Node: PVirtualNode);
 
 // save a potential node to select after the currently selected node will be deleted.
 // This will make the VT to behave more like the Win32 TreeView, which always selecta a new node if the currently
@@ -15267,7 +15267,7 @@ end;//if Assigned(Node);
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.ResetRangeAnchor;
+procedure TERDVTBaseVirtualTree.ResetRangeAnchor;
 
 // Called when there is no selected node anymore and the selection range anchor needs a new value.
 
@@ -15278,7 +15278,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.RestoreFontChangeEvent(Canvas: TCanvas);
+procedure TERDVTBaseVirtualTree.RestoreFontChangeEvent(Canvas: TCanvas);
 
 begin
   Canvas.Font.OnChange := FOldFontChange;
@@ -15287,7 +15287,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SelectNodes(StartNode, EndNode: PVirtualNode; AddOnly: Boolean);
+procedure TERDVTBaseVirtualTree.SelectNodes(StartNode, EndNode: PVirtualNode; AddOnly: Boolean);
 
 // Selects a range of nodes and unselects all other eventually selected nodes which are not in this range if
 // AddOnly is False.
@@ -15349,7 +15349,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SetFocusedNodeAndColumn(Node: PVirtualNode; Column: TColumnIndex);
+procedure TERDVTBaseVirtualTree.SetFocusedNodeAndColumn(Node: PVirtualNode; Column: TColumnIndex);
 
 var
   OldColumn: TColumnIndex;
@@ -15381,7 +15381,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SkipNode(Stream: TStream);
+procedure TERDVTBaseVirtualTree.SkipNode(Stream: TStream);
 
 // Skips the data for the next node in the given stream (including the child nodes).
 
@@ -15402,7 +15402,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.StartWheelPanning(Position: TPoint);
+procedure TERDVTBaseVirtualTree.StartWheelPanning(Position: TPoint);
 
 // Called when wheel panning should start. A little helper window is created to indicate the reference position,
 // which determines in which direction and how far wheel panning/scrolling will happen.
@@ -15477,7 +15477,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.StopWheelPanning;
+procedure TERDVTBaseVirtualTree.StopWheelPanning;
 
 // Stops panning if currently active and destroys the helper window.
 
@@ -15500,7 +15500,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.StructureChange(Node: PVirtualNode; Reason: TChangeReason);
+procedure TERDVTBaseVirtualTree.StructureChange(Node: PVirtualNode; Reason: TChangeReason);
 
 begin
   AdviseChangeEvent(True, Node, Reason);
@@ -15516,7 +15516,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.StyleServices(AControl: TControl): TCustomStyleServices;
+function TERDVTBaseVirtualTree.StyleServices(AControl: TControl): TCustomStyleServices;
 begin
   if AControl = nil then
     AControl := Self;
@@ -15525,7 +15525,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.SuggestDropEffect(Source: TObject; Shift: TShiftState; Pt: TPoint;
+function TERDVTBaseVirtualTree.SuggestDropEffect(Source: TObject; Shift: TShiftState; Pt: TPoint;
   AllowedEffects: Integer): Integer;
 
 // determines the drop action to take if the drag'n drop operation ends on this tree
@@ -15587,7 +15587,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.ToggleSelection(StartNode, EndNode: PVirtualNode);
+procedure TERDVTBaseVirtualTree.ToggleSelection(StartNode, EndNode: PVirtualNode);
 
 // Switchs the selection state of a range of nodes.
 // Note: This method is specifically designed to help selecting ranges with the keyboard and considers therefore
@@ -15664,7 +15664,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.TrySetFocus();
+procedure TERDVTBaseVirtualTree.TrySetFocus();
 begin
   if Visible and CanFocus then
   begin
@@ -15679,7 +15679,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.UnselectNodes(StartNode, EndNode: PVirtualNode);
+procedure TERDVTBaseVirtualTree.UnselectNodes(StartNode, EndNode: PVirtualNode);
 
 // Deselects a range of nodes.
 // EndNode must be visible while StartNode must not as in the case where the last focused node is the start node
@@ -15731,7 +15731,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.InternalAddToCellSelection(const Cell: TVTCell; ForceInsert: Boolean): Boolean;
+function TERDVTBaseVirtualTree.InternalAddToCellSelection(const Cell: TVTCell; ForceInsert: Boolean): Boolean;
 var
   i: Integer;
 begin
@@ -15755,7 +15755,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.InternalRemoveFromCellSelection(const Cell: TVTCell);
+procedure TERDVTBaseVirtualTree.InternalRemoveFromCellSelection(const Cell: TVTCell);
 var
   i, j: Integer;
 begin
@@ -15774,7 +15774,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.InternalClearCellSelection;
+procedure TERDVTBaseVirtualTree.InternalClearCellSelection;
 var
   i: Integer;
   LColumnIndex: TColumnIndex;
@@ -15797,7 +15797,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.IsCellSelectionEnabled: Boolean;
+function TERDVTBaseVirtualTree.IsCellSelectionEnabled: Boolean;
 begin
   Result := (toMultiSelect in FOptions.SelectionOptions) and
             (toMultiCellSelect in FOptions.SelectionOptions) and
@@ -15807,7 +15807,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.AddToCellSelection(const Cell: TVTCell; ForceInsert: Boolean);
+procedure TERDVTBaseVirtualTree.AddToCellSelection(const Cell: TVTCell; ForceInsert: Boolean);
 begin
   if FSelectionLocked or not IsCellSelectionEnabled then
     Exit;
@@ -15823,7 +15823,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.RemoveFromCellSelection(const Cell: TVTCell);
+procedure TERDVTBaseVirtualTree.RemoveFromCellSelection(const Cell: TVTCell);
 begin
   if FSelectionLocked or not IsCellSelectionEnabled then
     Exit;
@@ -15837,7 +15837,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.InternalIsCellSelected(Node: PVirtualNode; Column: TColumnIndex): Boolean;
+function TERDVTBaseVirtualTree.InternalIsCellSelected(Node: PVirtualNode; Column: TColumnIndex): Boolean;
 var
   i: Integer;
 begin
@@ -15849,14 +15849,14 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.InternalIsCellSelected(const Cell: TVTCell): Boolean;
+function TERDVTBaseVirtualTree.InternalIsCellSelected(const Cell: TVTCell): Boolean;
 begin
   Result := InternalIsCellSelected(Cell.Node, Cell.Column);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.InternalSelectCells(StartCell, EndCell: TVTCell; AddOnly: Boolean);
+procedure TERDVTBaseVirtualTree.InternalSelectCells(StartCell, EndCell: TVTCell; AddOnly: Boolean);
 type
   TNextColFunc = function (Column: TColumnIndex; ConsiderAllowFocus: Boolean = False): TColumnIndex of object;
 var
@@ -15930,7 +15930,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.InternalUnselectCells(StartCell, EndCell: TVTCell);
+procedure TERDVTBaseVirtualTree.InternalUnselectCells(StartCell, EndCell: TVTCell);
 var
   NodeFrom, NodeTo, NodeIter: PVirtualNode;
   ColFrom, ColTo, ColIter: TColumnIndex;
@@ -16027,7 +16027,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.ToggleCellSelection(StartCell, EndCell: TVTCell);
+procedure TERDVTBaseVirtualTree.ToggleCellSelection(StartCell, EndCell: TVTCell);
 var
   NodeFrom, NodeTo, NodeIter: PVirtualNode;
   ColFrom, ColTo, ColIter: TColumnIndex;
@@ -16159,7 +16159,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.UpdateColumnCheckState(Col: TVirtualTreeColumn);
+procedure TERDVTBaseVirtualTree.UpdateColumnCheckState(Col: TERDVTVirtualTreeColumn);
 var
   NewCheckState: TCheckState;
 begin
@@ -16173,7 +16173,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.UpdateDesigner;
+procedure TERDVTBaseVirtualTree.UpdateDesigner;
 
 var
   ParentForm: TCustomForm;
@@ -16189,7 +16189,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.UpdateHeaderRect();
+procedure TERDVTBaseVirtualTree.UpdateHeaderRect();
 
 // Calculates the rectangle the header occupies in non-client area.
 // These coordinates are in window rectangle.
@@ -16240,7 +16240,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.UpdateEditBounds;
+procedure TERDVTBaseVirtualTree.UpdateEditBounds;
 
 // Used to update the bounds of the current node editor if editing is currently active.
 
@@ -16329,7 +16329,7 @@ const // Region identifiers for GetRandomRgn
 
 function GetRandomRgn(DC: HDC; Rgn: HRGN; iNum: Integer): Integer; stdcall; external 'GDI32.DLL';
 
-procedure TBaseVirtualTree.ValidateCache();
+procedure TERDVTBaseVirtualTree.ValidateCache();
 
 // Starts cache validation if not already done by adding this instance to the worker thread's waiter list
 // (if not already there) and signalling the thread it can start validating.
@@ -16342,13 +16342,13 @@ begin
   if (tsValidationNeeded in FStates) and (FVisibleCount > CacheThreshold) then
   begin
     // Tell the thread this tree needs actually something to do.
-    TWorkerThread.AddTree(Self);
+    TERDVTWorkerThread.AddTree(Self);
   end;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.ValidateNodeDataSize(var Size: Integer);
+procedure TERDVTBaseVirtualTree.ValidateNodeDataSize(var Size: Integer);
 
 begin
   Size := SizeOf(Pointer);
@@ -16358,7 +16358,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.VclStyleChanged();
+procedure TERDVTBaseVirtualTree.VclStyleChanged();
 
   // Updates the member FVclStyleEnabled, should be called initially and when the VCL style changes
 
@@ -16370,7 +16370,7 @@ end;
 //----------------------------------------------------------------------------------------------------------------------
 
 //PROFILE-NO
-procedure TBaseVirtualTree.WndProc(var Message: TMessage);
+procedure TERDVTBaseVirtualTree.WndProc(var Message: TMessage);
 
 var
   Handled: Boolean;
@@ -16380,7 +16380,7 @@ begin
 
   // Try the header whether it needs to take this message.
   if Assigned(FHeader) and (FHeader.States <> []) then
-    Handled := TVTHeaderCracker(FHeader).HandleMessage(Message);
+    Handled := TERDVTVTHeaderCracker(FHeader).HandleMessage(Message);
   if not Handled then
   begin
     // For auto drag mode, let tree handle itself, instead of TControl.
@@ -16401,7 +16401,7 @@ begin
     end;
 
     if not Handled and Assigned(FHeader) then
-      Handled := TVTHeaderCracker(FHeader).HandleMessage(Message);
+      Handled := TERDVTVTHeaderCracker(FHeader).HandleMessage(Message);
 
     if not Handled then
     begin
@@ -16415,7 +16415,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.WriteChunks(Stream: TStream; Node: PVirtualNode);
+procedure TERDVTBaseVirtualTree.WriteChunks(Stream: TStream; Node: PVirtualNode);
 
 // Writes the core chunks for Node into the stream.
 // Note: descendants can optionally override this method to add other node specific chunks.
@@ -16483,7 +16483,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.WriteNode(Stream: TStream; Node: PVirtualNode);
+procedure TERDVTBaseVirtualTree.WriteNode(Stream: TStream; Node: PVirtualNode);
 
 // Writes the "cover" chunk for Node to Stream and initiates writing child nodes and chunks.
 
@@ -16517,7 +16517,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.AbsoluteIndex(Node: PVirtualNode): Cardinal;
+function TERDVTBaseVirtualTree.AbsoluteIndex(Node: PVirtualNode): Cardinal;
 
 begin
   Result := 0;
@@ -16542,7 +16542,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.AddChild(Parent: PVirtualNode; UserData: Pointer = nil): PVirtualNode;
+function TERDVTBaseVirtualTree.AddChild(Parent: PVirtualNode; UserData: Pointer = nil): PVirtualNode;
 
 // Adds a new node to the given parent node. This is simply done by increasing the child count of the
 // parent node. If Parent is nil then the new node is added as (last) top level node.
@@ -16559,21 +16559,21 @@ begin
     Result := nil;
 end;
 
-function TBaseVirtualTree.AddChild(Parent: PVirtualNode; const UserData: IInterface): PVirtualNode;
+function TERDVTBaseVirtualTree.AddChild(Parent: PVirtualNode; const UserData: IInterface): PVirtualNode;
 begin
   UserData._AddRef();
   Result := AddChild(Parent, Pointer(UserData));
   Include(Result.States, vsReleaseCallOnUserDataRequired);
 end;
 
-function TBaseVirtualTree.AddChild(Parent: PVirtualNode; const UserData: TObject): PVirtualNode;
+function TERDVTBaseVirtualTree.AddChild(Parent: PVirtualNode; const UserData: TObject): PVirtualNode;
 begin
   Result := AddChild(Parent, Pointer(UserData));
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.AddFromStream(Stream: TStream; TargetNode: PVirtualNode);
+procedure TERDVTBaseVirtualTree.AddFromStream(Stream: TStream; TargetNode: PVirtualNode);
 
 // loads nodes from the given stream and adds them to TargetNode
 // the current content is not cleared before the load process starts (see also LoadFromStream)
@@ -16629,7 +16629,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.AfterConstruction;
+procedure TERDVTBaseVirtualTree.AfterConstruction;
 
 begin
   inherited;
@@ -16640,11 +16640,11 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.Assign(Source: TPersistent);
+procedure TERDVTBaseVirtualTree.Assign(Source: TPersistent);
 
 begin
-  if (Source is TBaseVirtualTree) and not (toReadOnly in FOptions.MiscOptions) then
-    with Source as TBaseVirtualTree do
+  if (Source is TERDVTBaseVirtualTree) and not (toReadOnly in FOptions.MiscOptions) then
+    with Source as TERDVTBaseVirtualTree do
     begin
       Self.Align := Align;
       Self.Anchors := Anchors;
@@ -16709,7 +16709,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.AutoScale();
+procedure TERDVTBaseVirtualTree.AutoScale();
 
 // If toAutoChangeScale is set, this method ensures that the default node height is set correctly.
 
@@ -16733,7 +16733,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.BeginDrag(Immediate: Boolean; Threshold: Integer);
+procedure TERDVTBaseVirtualTree.BeginDrag(Immediate: Boolean; Threshold: Integer);
 
 // Reintroduced method to allow to start OLE drag'n drop as well as VCL drag'n drop.
 
@@ -16760,7 +16760,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.BeginSynch;
+procedure TERDVTBaseVirtualTree.BeginSynch;
 
 // Starts the synchronous update mode (if not already active).
 
@@ -16798,7 +16798,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.BeginUpdate;
+procedure TERDVTBaseVirtualTree.BeginUpdate;
 
 begin
   Assert(GetCurrentThreadId = MainThreadId, 'UI controls like ' + Classname + ' should only be manipulated through the main thread.');
@@ -16817,7 +16817,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.CancelCutOrCopy;
+procedure TERDVTBaseVirtualTree.CancelCutOrCopy;
 
 // Resets nodes which are marked as being cut.
 
@@ -16840,7 +16840,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.CancelEditNode: Boolean;
+function TERDVTBaseVirtualTree.CancelEditNode: Boolean;
 
 // Called by the application or the current edit link to cancel the edit action.
 
@@ -16853,7 +16853,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.CancelOperation;
+procedure TERDVTBaseVirtualTree.CancelOperation;
 
 // Called by the application to cancel a long-running operation.
 
@@ -16864,7 +16864,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.CanEdit(Node: PVirtualNode; Column: TColumnIndex): Boolean;
+function TERDVTBaseVirtualTree.CanEdit(Node: PVirtualNode; Column: TColumnIndex): Boolean;
 
 // Returns True if the given node can be edited.
 
@@ -16876,7 +16876,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.CanFocus: Boolean;
+function TERDVTBaseVirtualTree.CanFocus: Boolean;
 
 var
   Form: TCustomForm;
@@ -16893,7 +16893,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.Clear;
+procedure TERDVTBaseVirtualTree.Clear;
 
 begin
   if (not IsEmpty and not (toReadOnly in FOptions.MiscOptions)) or (csDestroying in ComponentState) then
@@ -16931,7 +16931,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.ClearChecked;
+procedure TERDVTBaseVirtualTree.ClearChecked;
 
 var
   Node: PVirtualNode;
@@ -16948,21 +16948,21 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.ClearSelection();
+procedure TERDVTBaseVirtualTree.ClearSelection();
 begin
   ClearSelection(True);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.ClearDragManager;
+procedure TERDVTBaseVirtualTree.ClearDragManager;
 begin
   Pointer(FDragManager) := nil;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.ClearSelection(pFireChangeEvent: Boolean);
+procedure TERDVTBaseVirtualTree.ClearSelection(pFireChangeEvent: Boolean);
 
 var
   Node: PVirtualNode;
@@ -17008,7 +17008,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.CopyTo(Source: PVirtualNode; Tree: TBaseVirtualTree; Mode: TVTNodeAttachMode;
+function TERDVTBaseVirtualTree.CopyTo(Source: PVirtualNode; Tree: TERDVTBaseVirtualTree; Mode: TVTNodeAttachMode;
   ChildrenOnly: Boolean): PVirtualNode;
 
 // A simplified CopyTo method to allow to copy nodes to the root of another tree.
@@ -17019,7 +17019,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.CopyTo(Source, Target: PVirtualNode; Mode: TVTNodeAttachMode;
+function TERDVTBaseVirtualTree.CopyTo(Source, Target: PVirtualNode; Mode: TVTNodeAttachMode;
   ChildrenOnly: Boolean): PVirtualNode;
 
 // Copies Source and all its child nodes to Target.
@@ -17029,7 +17029,7 @@ function TBaseVirtualTree.CopyTo(Source, Target: PVirtualNode; Mode: TVTNodeAtta
 // ChildrenOnly determines whether to copy also the source node or only its child nodes.
 
 var
-  TargetTree: TBaseVirtualTree;
+  TargetTree: TERDVTBaseVirtualTree;
   Stream: TMemoryStream;
 
 begin
@@ -17117,7 +17117,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DeleteChildren(Node: PVirtualNode; ResetHasChildren: Boolean = False);
+procedure TERDVTBaseVirtualTree.DeleteChildren(Node: PVirtualNode; ResetHasChildren: Boolean = False);
 
 // Removes all children and their children from memory without changing the vsHasChildren style by default.
 
@@ -17209,7 +17209,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DeleteNode(Node: PVirtualNode; Reindex: Boolean; ParentClearing: Boolean);
+procedure TERDVTBaseVirtualTree.DeleteNode(Node: PVirtualNode; Reindex: Boolean; ParentClearing: Boolean);
 
 var
   LastTop,
@@ -17294,14 +17294,14 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DeleteNode(Node: PVirtualNode; pReIndex: Boolean = True);
+procedure TERDVTBaseVirtualTree.DeleteNode(Node: PVirtualNode; pReIndex: Boolean = True);
 begin
   DeleteNode(Node, pReIndex, False);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DeleteNodes(const pNodes: TNodeArray);
+procedure TERDVTBaseVirtualTree.DeleteNodes(const pNodes: TNodeArray);
 
    // Deletes all given nodes.
    // Best performance is achieved if nodes are sorted by parent
@@ -17327,7 +17327,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DeleteSelectedNodes;
+procedure TERDVTBaseVirtualTree.DeleteSelectedNodes;
 
 // Deletes all currently selected nodes (including their child nodes).
 
@@ -17344,7 +17344,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.Dragging: Boolean;
+function TERDVTBaseVirtualTree.Dragging: Boolean;
 
 begin
   // Check for both OLE drag'n drop as well as VCL drag'n drop.
@@ -17353,7 +17353,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.EditNode(Node: PVirtualNode; Column: TColumnIndex): Boolean;
+function TERDVTBaseVirtualTree.EditNode(Node: PVirtualNode; Column: TColumnIndex): Boolean;
 
 // Application triggered edit event for the given node.
 // Returns True if the tree started editing otherwise False.
@@ -17383,7 +17383,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.EndEditNode: Boolean;
+function TERDVTBaseVirtualTree.EndEditNode: Boolean;
 
 // Called to finish a current edit action or stop the edit timer if an edit operation is pending.
 // Returns True if editing was successfully ended or the control was not in edit mode
@@ -17398,7 +17398,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.EndSynch;
+procedure TERDVTBaseVirtualTree.EndSynch;
 
 begin
   if FSynchUpdateCount > 0 then
@@ -17418,7 +17418,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.EndUpdate;
+procedure TERDVTBaseVirtualTree.EndUpdate;
 
 begin
   if FUpdateCount = 0 then
@@ -17468,7 +17468,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.ExecuteAction(Action: TBasicAction): Boolean;
+function TERDVTBaseVirtualTree.ExecuteAction(Action: TBasicAction): Boolean;
 
 // Some support for standard actions.
 
@@ -17510,7 +17510,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.FinishCutOrCopy;
+procedure TERDVTBaseVirtualTree.FinishCutOrCopy;
 
 // Deletes nodes which are marked as being cutted.
 
@@ -17533,7 +17533,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.FlushClipboard;
+procedure TERDVTBaseVirtualTree.FlushClipboard;
 
 // Used to render the data which is currently on the clipboard (finishes delayed rendering).
 
@@ -17549,7 +17549,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.FullCollapse(Node: PVirtualNode = nil);
+procedure TERDVTBaseVirtualTree.FullCollapse(Node: PVirtualNode = nil);
 
 // This routine collapses all expanded nodes in the subtree given by Node or the whole tree if Node is FRoot or nil.
 // Only nodes which are expanded will be collapsed. This excludes uninitialized nodes but nodes marked as visible
@@ -17591,7 +17591,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.FullExpand(Node: PVirtualNode = nil);
+procedure TERDVTBaseVirtualTree.FullExpand(Node: PVirtualNode = nil);
 
 // This routine expands all collapsed nodes in the subtree given by Node or the whole tree if Node is FRoot or nil.
 // All nodes on the way down are initialized so this procedure might take a long time.
@@ -17648,7 +17648,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetControlsAlignment: TAlignment;
+function TERDVTBaseVirtualTree.GetControlsAlignment: TAlignment;
 
 begin
   Result := FAlignment;
@@ -17656,7 +17656,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetDisplayRect(Node: PVirtualNode; Column: TColumnIndex; TextOnly: Boolean;
+function TERDVTBaseVirtualTree.GetDisplayRect(Node: PVirtualNode; Column: TColumnIndex; TextOnly: Boolean;
   Unclipped: Boolean = False; ApplyCellContentMargin: Boolean = False): TRect;
 
 // Determines the client coordinates the given node covers, depending on scrolling, expand state etc.
@@ -17827,7 +17827,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetEffectivelyFiltered(Node: PVirtualNode): Boolean;
+function TERDVTBaseVirtualTree.GetEffectivelyFiltered(Node: PVirtualNode): Boolean;
 
 // Checks if a node is effectively filtered out. This depends on the nodes state and the paint options.
 
@@ -17840,7 +17840,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetEffectivelyVisible(Node: PVirtualNode): Boolean;
+function TERDVTBaseVirtualTree.GetEffectivelyVisible(Node: PVirtualNode): Boolean;
 
 begin
   Result := (vsVisible in Node.States) and not IsEffectivelyFiltered[Node];
@@ -17848,7 +17848,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetFirst(ConsiderChildrenAbove: Boolean = False): PVirtualNode;
+function TERDVTBaseVirtualTree.GetFirst(ConsiderChildrenAbove: Boolean = False): PVirtualNode;
 
 // Returns the first node in the tree while optionally considering toChildrenAbove.
 
@@ -17887,7 +17887,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetFirstChecked(State: TCheckState = csCheckedNormal;
+function TERDVTBaseVirtualTree.GetFirstChecked(State: TCheckState = csCheckedNormal;
   ConsiderChildrenAbove: Boolean = False): PVirtualNode;
 
 // Returns the first node in the tree with the given check state.
@@ -17898,7 +17898,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetFirstChild(Node: PVirtualNode): PVirtualNode;
+function TERDVTBaseVirtualTree.GetFirstChild(Node: PVirtualNode): PVirtualNode;
 
 // Returns the first child of the given node. The result node is initialized before exit.
 
@@ -17925,7 +17925,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetFirstChildNoInit(Node: PVirtualNode): PVirtualNode;
+function TERDVTBaseVirtualTree.GetFirstChildNoInit(Node: PVirtualNode): PVirtualNode;
 // Determines the first child of the given node but does not initialize it.
 
 begin
@@ -17942,7 +17942,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetFirstCutCopy(ConsiderChildrenAbove: Boolean = False): PVirtualNode;
+function TERDVTBaseVirtualTree.GetFirstCutCopy(ConsiderChildrenAbove: Boolean = False): PVirtualNode;
 
 // Returns the first node in the tree which is currently marked for a clipboard operation.
 // See also GetNextCutCopy for comments on initialization.
@@ -17953,7 +17953,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetFirstInitialized(ConsiderChildrenAbove: Boolean = False): PVirtualNode;
+function TERDVTBaseVirtualTree.GetFirstInitialized(ConsiderChildrenAbove: Boolean = False): PVirtualNode;
 
 // Returns the first node which is already initialized.
 
@@ -17965,7 +17965,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetFirstLeaf: PVirtualNode;
+function TERDVTBaseVirtualTree.GetFirstLeaf: PVirtualNode;
 
 // Returns the first node in the tree which has currently no children.
 // The result is initialized if necessary.
@@ -17976,7 +17976,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetFirstLevel(NodeLevel: Cardinal): PVirtualNode;
+function TERDVTBaseVirtualTree.GetFirstLevel(NodeLevel: Cardinal): PVirtualNode;
 
 // Returns the first node in the tree on a specific level.
 // The result is initialized if necessary.
@@ -17995,7 +17995,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetFirstNoInit(ConsiderChildrenAbove: Boolean = False): PVirtualNode;
+function TERDVTBaseVirtualTree.GetFirstNoInit(ConsiderChildrenAbove: Boolean = False): PVirtualNode;
 
 // Returns the first node in the tree while optionally considering toChildrenAbove.
 // No initialization is performed.
@@ -18025,7 +18025,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetFirstSelected(ConsiderChildrenAbove: Boolean = False): PVirtualNode;
+function TERDVTBaseVirtualTree.GetFirstSelected(ConsiderChildrenAbove: Boolean = False): PVirtualNode;
 
 // Returns the first node in the current selection while optionally considering toChildrenAbove.
 
@@ -18035,7 +18035,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetFirstVisible(Node: PVirtualNode = nil; ConsiderChildrenAbove: Boolean = True;
+function TERDVTBaseVirtualTree.GetFirstVisible(Node: PVirtualNode = nil; ConsiderChildrenAbove: Boolean = True;
   IncludeFiltered: Boolean = False): PVirtualNode;
 
 // Returns the first visible node in the tree while optionally considering toChildrenAbove.
@@ -18133,7 +18133,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetFirstVisibleChild(Node: PVirtualNode; IncludeFiltered: Boolean = False): PVirtualNode;
+function TERDVTBaseVirtualTree.GetFirstVisibleChild(Node: PVirtualNode; IncludeFiltered: Boolean = False): PVirtualNode;
 
 // Returns the first visible child node of Node. If necessary nodes are initialized on demand.
 
@@ -18149,7 +18149,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetFirstVisibleChildNoInit(Node: PVirtualNode; IncludeFiltered: Boolean = False): PVirtualNode;
+function TERDVTBaseVirtualTree.GetFirstVisibleChildNoInit(Node: PVirtualNode; IncludeFiltered: Boolean = False): PVirtualNode;
 
 // Returns the first visible child node of Node.
 
@@ -18164,7 +18164,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetFirstVisibleNoInit(Node: PVirtualNode = nil;
+function TERDVTBaseVirtualTree.GetFirstVisibleNoInit(Node: PVirtualNode = nil;
   ConsiderChildrenAbove: Boolean = True; IncludeFiltered: Boolean = False): PVirtualNode;
 
 // Returns the first visible node in the tree or given subtree while optionally considering toChildrenAbove.
@@ -18245,7 +18245,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.GetHitTestInfoAt(X, Y: TDimension; Relative: Boolean; var HitInfo: THitInfo; ShiftState: TShiftState=[]);
+procedure TERDVTBaseVirtualTree.GetHitTestInfoAt(X, Y: TDimension; Relative: Boolean; var HitInfo: THitInfo; ShiftState: TShiftState=[]);
 
 // Determines the node that occupies the specified point or nil if there's none. The parameter Relative determines
 // whether to consider X and Y as being client coordinates (if True) or as being absolute tree coordinates.
@@ -18307,7 +18307,7 @@ begin
 
       if FHeader.UseColumns then
       begin
-        HitInfo.HitColumn := TVirtualTreeColumnsCracker(FHeader.Columns).GetColumnAndBounds(Point(X, Y), ColLeft, ColRight, False);
+        HitInfo.HitColumn := TERDVTVirtualTreeColumnsCracker(FHeader.Columns).GetColumnAndBounds(Point(X, Y), ColLeft, ColRight, False);
         // If auto column spanning is enabled then look for the last non empty column.
         if toAutoSpanColumns in FOptions.AutoOptions then
         begin
@@ -18380,7 +18380,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetLast(Node: PVirtualNode = nil; ConsiderChildrenAbove: Boolean = False): PVirtualNode;
+function TERDVTBaseVirtualTree.GetLast(Node: PVirtualNode = nil; ConsiderChildrenAbove: Boolean = False): PVirtualNode;
 
 // Returns the very last node in the tree branch given by Node and initializes the nodes all the way down including the
 // result. toChildrenAbove is optionally considered. By using Node = nil the very last node in the tree is returned.
@@ -18404,7 +18404,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetLastInitialized(Node: PVirtualNode = nil;
+function TERDVTBaseVirtualTree.GetLastInitialized(Node: PVirtualNode = nil;
   ConsiderChildrenAbove: Boolean = False): PVirtualNode;
 
 // Returns the very last initialized child node in the tree branch given by Node.
@@ -18417,7 +18417,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetLastNoInit(Node: PVirtualNode = nil; ConsiderChildrenAbove: Boolean = False): PVirtualNode;
+function TERDVTBaseVirtualTree.GetLastNoInit(Node: PVirtualNode = nil; ConsiderChildrenAbove: Boolean = False): PVirtualNode;
 
 // Returns the very last node in the tree branch given by Node without initialization.
 
@@ -18440,7 +18440,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetLastChild(Node: PVirtualNode): PVirtualNode;
+function TERDVTBaseVirtualTree.GetLastChild(Node: PVirtualNode): PVirtualNode;
 
 // Determines the last child of the given node and initializes it if there is one.
 
@@ -18467,7 +18467,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetLastChildNoInit(Node: PVirtualNode): PVirtualNode;
+function TERDVTBaseVirtualTree.GetLastChildNoInit(Node: PVirtualNode): PVirtualNode;
 
 // Determines the last child of the given node but does not initialize it.
 
@@ -18485,7 +18485,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetLastSelected(ConsiderChildrenAbove: Boolean = False): PVirtualNode;
+function TERDVTBaseVirtualTree.GetLastSelected(ConsiderChildrenAbove: Boolean = False): PVirtualNode;
 
 // Returns the last node in the current selection while optionally considering toChildrenAbove.
 
@@ -18495,7 +18495,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetLastVisible(Node: PVirtualNode = nil; ConsiderChildrenAbove: Boolean = True;
+function TERDVTBaseVirtualTree.GetLastVisible(Node: PVirtualNode = nil; ConsiderChildrenAbove: Boolean = True;
   IncludeFiltered: Boolean = False): PVirtualNode;
 
 // Returns the very last visible node in the tree while optionally considering toChildrenAbove.
@@ -18518,7 +18518,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetLastVisibleChild(Node: PVirtualNode; IncludeFiltered: Boolean = False): PVirtualNode;
+function TERDVTBaseVirtualTree.GetLastVisibleChild(Node: PVirtualNode; IncludeFiltered: Boolean = False): PVirtualNode;
 
 // Determines the last visible child of the given node and initializes it if necessary.
 
@@ -18541,7 +18541,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetLastVisibleChildNoInit(Node: PVirtualNode; IncludeFiltered: Boolean = False): PVirtualNode;
+function TERDVTBaseVirtualTree.GetLastVisibleChildNoInit(Node: PVirtualNode; IncludeFiltered: Boolean = False): PVirtualNode;
 
 // Determines the last visible child of the given node without initialization.
 
@@ -18561,7 +18561,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetLastVisibleNoInit(Node: PVirtualNode = nil;
+function TERDVTBaseVirtualTree.GetLastVisibleNoInit(Node: PVirtualNode = nil;
   ConsiderChildrenAbove: Boolean = True; IncludeFiltered: Boolean = False): PVirtualNode;
 
 // Returns the very last visible node in the tree while optionally considering toChildrenAbove.
@@ -18636,7 +18636,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetMaxColumnWidth(Column: TColumnIndex; UseSmartColumnWidth: Boolean = False): TDimension;
+function TERDVTBaseVirtualTree.GetMaxColumnWidth(Column: TColumnIndex; UseSmartColumnWidth: Boolean = False): TDimension;
 
 // This method determines the width of the largest node in the given column.
 // If UseSmartColumnWidth is True then only the visible nodes which are in view will be considered
@@ -18721,7 +18721,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetNext(Node: PVirtualNode; ConsiderChildrenAbove: Boolean = False): PVirtualNode;
+function TERDVTBaseVirtualTree.GetNext(Node: PVirtualNode; ConsiderChildrenAbove: Boolean = False): PVirtualNode;
 
 // Returns next node in tree while optionally considering toChildrenAbove. The Result will be initialized if needed.
 
@@ -18805,7 +18805,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetNextChecked(Node: PVirtualNode; State: TCheckState = csCheckedNormal;
+function TERDVTBaseVirtualTree.GetNextChecked(Node: PVirtualNode; State: TCheckState = csCheckedNormal;
   ConsiderChildrenAbove: Boolean = False): PVirtualNode;
 
 begin
@@ -18823,14 +18823,14 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetNextChecked(Node: PVirtualNode; ConsiderChildrenAbove: Boolean): PVirtualNode;
+function TERDVTBaseVirtualTree.GetNextChecked(Node: PVirtualNode; ConsiderChildrenAbove: Boolean): PVirtualNode;
 begin
   Result := Self.GetNextChecked(Node, csCheckedNormal, ConsiderChildrenAbove);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetNextCutCopy(Node: PVirtualNode; ConsiderChildrenAbove: Boolean = False): PVirtualNode;
+function TERDVTBaseVirtualTree.GetNextCutCopy(Node: PVirtualNode; ConsiderChildrenAbove: Boolean = False): PVirtualNode;
 
 // Returns the next node in the tree which is currently marked for a clipboard operation. Since only visible nodes can
 // be marked (or they are hidden after they have been marked) it is not necessary to initialize nodes to check for
@@ -18854,7 +18854,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetNextInitialized(Node: PVirtualNode; ConsiderChildrenAbove: Boolean = False): PVirtualNode;
+function TERDVTBaseVirtualTree.GetNextInitialized(Node: PVirtualNode; ConsiderChildrenAbove: Boolean = False): PVirtualNode;
 
 // Returns the next node in tree which is initialized.
 
@@ -18867,7 +18867,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetNextLeaf(Node: PVirtualNode): PVirtualNode;
+function TERDVTBaseVirtualTree.GetNextLeaf(Node: PVirtualNode): PVirtualNode;
 
 // Returns the next node in the tree which has currently no children.
 // The result is initialized if necessary.
@@ -18885,7 +18885,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetNextLevel(Node: PVirtualNode; NodeLevel: Cardinal): PVirtualNode;
+function TERDVTBaseVirtualTree.GetNextLevel(Node: PVirtualNode; NodeLevel: Cardinal): PVirtualNode;
 
 // Returns the next node in the tree on a specific level.
 // The result is initialized if necessary.
@@ -18934,7 +18934,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetNextNoInit(Node: PVirtualNode; ConsiderChildrenAbove: Boolean): PVirtualNode;
+function TERDVTBaseVirtualTree.GetNextNoInit(Node: PVirtualNode; ConsiderChildrenAbove: Boolean): PVirtualNode;
 
 // Optimized version of GetNext performing no initialization, but optionally considering toChildrenAbove.
 
@@ -19001,7 +19001,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetNextSelected(Node: PVirtualNode; ConsiderChildrenAbove: Boolean = False): PVirtualNode;
+function TERDVTBaseVirtualTree.GetNextSelected(Node: PVirtualNode; ConsiderChildrenAbove: Boolean = False): PVirtualNode;
 
 // Returns the next node in the tree which is currently selected. Since children of unitialized nodes cannot be
 // in the current selection (because they simply do not exist yet) it is not necessary to initialize nodes here.
@@ -19025,7 +19025,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetNextSibling(Node: PVirtualNode): PVirtualNode;
+function TERDVTBaseVirtualTree.GetNextSibling(Node: PVirtualNode): PVirtualNode;
 
 // Returns the next sibling of Node and initializes it if necessary.
 
@@ -19041,7 +19041,7 @@ begin
   end;
 end;
 
-function TBaseVirtualTree.GetNextSiblingNoInit(Node: PVirtualNode): PVirtualNode;
+function TERDVTBaseVirtualTree.GetNextSiblingNoInit(Node: PVirtualNode): PVirtualNode;
 
 // Returns the next sibling of Node.
 
@@ -19057,7 +19057,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetNextVisible(Node: PVirtualNode; ConsiderChildrenAbove: Boolean = True): PVirtualNode;
+function TERDVTBaseVirtualTree.GetNextVisible(Node: PVirtualNode; ConsiderChildrenAbove: Boolean = True): PVirtualNode;
 
 // Returns next node in tree, with regard to Node, which is visible.
 // Nodes which need an initialization (including the result) are initialized.
@@ -19184,7 +19184,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetNextVisibleNoInit(Node: PVirtualNode; ConsiderChildrenAbove: Boolean = True): PVirtualNode;
+function TERDVTBaseVirtualTree.GetNextVisibleNoInit(Node: PVirtualNode; ConsiderChildrenAbove: Boolean = True): PVirtualNode;
 
 // Returns the next node in tree, with regard to Node, which is visible.
 // No initialization is done.
@@ -19285,7 +19285,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetNextVisibleSibling(Node: PVirtualNode; IncludeFiltered: Boolean = False): PVirtualNode;
+function TERDVTBaseVirtualTree.GetNextVisibleSibling(Node: PVirtualNode; IncludeFiltered: Boolean = False): PVirtualNode;
 
 // Returns the next visible sibling after Node. Initialization is done implicitly.
 
@@ -19301,7 +19301,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetNextVisibleSiblingNoInit(Node: PVirtualNode; IncludeFiltered: Boolean = False): PVirtualNode;
+function TERDVTBaseVirtualTree.GetNextVisibleSiblingNoInit(Node: PVirtualNode; IncludeFiltered: Boolean = False): PVirtualNode;
 
 // Returns the next visible sibling after Node.
 
@@ -19317,7 +19317,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetNodeAt(X, Y: TDimension): PVirtualNode;
+function TERDVTBaseVirtualTree.GetNodeAt(X, Y: TDimension): PVirtualNode;
 
 // Overloaded variant of GetNodeAt to easy life of application developers which do not need to have the exact
 // top position returned and always use client coordinates.
@@ -19329,14 +19329,14 @@ begin
   Result := GetNodeAt(X, Y, True, Dummy);
 end;
 
-function TBaseVirtualTree.GetNodeAt(const P: TPoint): PVirtualNode;
+function TERDVTBaseVirtualTree.GetNodeAt(const P: TPoint): PVirtualNode;
 begin
   Result := GetNodeAt(P.X, P.Y);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetNodeAt(X, Y: TDimension; Relative: Boolean; var NodeTop: TDimension): PVirtualNode;
+function TERDVTBaseVirtualTree.GetNodeAt(X, Y: TDimension; Relative: Boolean; var NodeTop: TDimension): PVirtualNode;
 
 // This method returns the node that occupies the specified point, or nil if there's none.
 // If Releative is True then X and Y are given in client coordinates otherwise they are considered as being
@@ -19391,7 +19391,7 @@ end;
 //----------------------------------------------------------------------------------------------------------------------
 
 
-function TBaseVirtualTree.GetNodeData(Node: PVirtualNode): Pointer;
+function TERDVTBaseVirtualTree.GetNodeData(Node: PVirtualNode): Pointer;
 
 // Returns the address of the user defined data area in the node.
 
@@ -19408,7 +19408,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetNodeData<T>(pNode: PVirtualNode): T;
+function TERDVTBaseVirtualTree.GetNodeData<T>(pNode: PVirtualNode): T;
 
 // Returns the associated data converted to the class given in the generic part of the function.
 
@@ -19424,7 +19424,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetInterfaceFromNodeData<T>(pNode: PVirtualNode): T;
+function TERDVTBaseVirtualTree.GetInterfaceFromNodeData<T>(pNode: PVirtualNode): T;
 begin
   if Assigned(pNode) then
     Result := T(Self.GetNodeData(pNode)^)
@@ -19434,7 +19434,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetNodeDataAt<T>(pXCoord, pYCoord: Integer): T;
+function TERDVTBaseVirtualTree.GetNodeDataAt<T>(pXCoord, pYCoord: Integer): T;
 
 // Returns the associated data at the specified coordinates converted to the type given in the generic part of the function.
 
@@ -19447,7 +19447,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetFirstSelectedNodeData<T>(): T;
+function TERDVTBaseVirtualTree.GetFirstSelectedNodeData<T>(): T;
 
 // Returns of the first selected node associated data converted to the type given in the generic part of the function.
 
@@ -19457,7 +19457,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetNodeLevel(Node: PVirtualNode): Cardinal;
+function TERDVTBaseVirtualTree.GetNodeLevel(Node: PVirtualNode): Cardinal;
 
 // returns the level of the given node
 
@@ -19481,7 +19481,7 @@ end;
 //----------------------------------------------------------------------------------------------------------------------
 // Function introduced to avoid spaghetti code to fix setting of FLastSelectionLevel
 // at various places that now needs to avoid setting it for a disabled node
-function TBaseVirtualTree.GetNodeLevelForSelectConstraint(Node: PVirtualNode): integer;
+function TERDVTBaseVirtualTree.GetNodeLevelForSelectConstraint(Node: PVirtualNode): integer;
 begin
   if Assigned(Node) and not (vsDisabled in Node.States) then
     result := GetNodeLevel(Node)
@@ -19492,7 +19492,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetPrevious(Node: PVirtualNode; ConsiderChildrenAbove: Boolean = False): PVirtualNode;
+function TERDVTBaseVirtualTree.GetPrevious(Node: PVirtualNode; ConsiderChildrenAbove: Boolean = False): PVirtualNode;
 
 // Returns previous node in tree. If ConsiderChildrenAbove is True the function considers
 // whether toChildrenAbove is currently set, otherwise the result will always be the previous
@@ -19563,7 +19563,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetPreviousChecked(Node: PVirtualNode; State: TCheckState = csCheckedNormal;
+function TERDVTBaseVirtualTree.GetPreviousChecked(Node: PVirtualNode; State: TCheckState = csCheckedNormal;
   ConsiderChildrenAbove: Boolean = False): PVirtualNode;
 
 begin
@@ -19581,7 +19581,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetPreviousCutCopy(Node: PVirtualNode; ConsiderChildrenAbove: Boolean = False): PVirtualNode;
+function TERDVTBaseVirtualTree.GetPreviousCutCopy(Node: PVirtualNode; ConsiderChildrenAbove: Boolean = False): PVirtualNode;
 
 // Returns the previous node in the tree which is currently marked for a clipboard operation. Since only visible nodes can
 // be marked (or they are hidden after they have been marked) it is not necessary to initialize nodes to check for
@@ -19605,7 +19605,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetPreviousInitialized(Node: PVirtualNode; ConsiderChildrenAbove: Boolean = False): PVirtualNode;
+function TERDVTBaseVirtualTree.GetPreviousInitialized(Node: PVirtualNode; ConsiderChildrenAbove: Boolean = False): PVirtualNode;
 
 // Returns the previous node in tree which is initialized.
 
@@ -19618,7 +19618,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetPreviousLeaf(Node: PVirtualNode): PVirtualNode;
+function TERDVTBaseVirtualTree.GetPreviousLeaf(Node: PVirtualNode): PVirtualNode;
 
 // Returns the previous node in the tree which has currently no children.
 // The result is initialized if necessary.
@@ -19636,7 +19636,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetPreviousLevel(Node: PVirtualNode; NodeLevel: Cardinal): PVirtualNode;
+function TERDVTBaseVirtualTree.GetPreviousLevel(Node: PVirtualNode; NodeLevel: Cardinal): PVirtualNode;
 
 // Returns the previous node in the tree on a specific level.
 // The result is initialized if necessary.
@@ -19701,7 +19701,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetPreviousNoInit(Node: PVirtualNode; ConsiderChildrenAbove: Boolean = False): PVirtualNode;
+function TERDVTBaseVirtualTree.GetPreviousNoInit(Node: PVirtualNode; ConsiderChildrenAbove: Boolean = False): PVirtualNode;
 
 // Returns previous node in tree, optionally considering toChildrenAbove. No initialization is performed.
 
@@ -19762,7 +19762,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetPreviousSelected(Node: PVirtualNode; ConsiderChildrenAbove: Boolean = False): PVirtualNode;
+function TERDVTBaseVirtualTree.GetPreviousSelected(Node: PVirtualNode; ConsiderChildrenAbove: Boolean = False): PVirtualNode;
 
 // Returns the previous node in the tree which is currently selected. Since children of unitialized nodes cannot be
 // in the current selection (because they simply do not exist yet) it is not necessary to initialize nodes here.
@@ -19786,7 +19786,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetPreviousSibling(Node: PVirtualNode): PVirtualNode;
+function TERDVTBaseVirtualTree.GetPreviousSibling(Node: PVirtualNode): PVirtualNode;
 
 // Returns the previous sibling of Node and initializes it if necessary.
 
@@ -19802,7 +19802,7 @@ begin
   end;
 end;
 
-function TBaseVirtualTree.GetPreviousSiblingNoInit(Node: PVirtualNode): PVirtualNode;
+function TERDVTBaseVirtualTree.GetPreviousSiblingNoInit(Node: PVirtualNode): PVirtualNode;
 
 // Returns the previous sibling of Node
 
@@ -19818,7 +19818,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetPreviousVisible(Node: PVirtualNode; ConsiderChildrenAbove: Boolean = True): PVirtualNode;
+function TERDVTBaseVirtualTree.GetPreviousVisible(Node: PVirtualNode; ConsiderChildrenAbove: Boolean = True): PVirtualNode;
 
 // Returns the previous node in tree, with regard to Node, which is visible.
 // Nodes which need an initialization (including the result) are initialized.
@@ -19943,7 +19943,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetPreviousVisibleNoInit(Node: PVirtualNode;
+function TERDVTBaseVirtualTree.GetPreviousVisibleNoInit(Node: PVirtualNode;
   ConsiderChildrenAbove: Boolean = True): PVirtualNode;
 
 // Returns the previous node in tree, with regard to Node, which is visible.
@@ -20044,7 +20044,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetPreviousVisibleSibling(Node: PVirtualNode; IncludeFiltered: Boolean = False): PVirtualNode;
+function TERDVTBaseVirtualTree.GetPreviousVisibleSibling(Node: PVirtualNode; IncludeFiltered: Boolean = False): PVirtualNode;
 
 // Returns the previous visible sibling before Node. Initialization is done implicitly.
 
@@ -20060,7 +20060,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetPreviousVisibleSiblingNoInit(Node: PVirtualNode;
+function TERDVTBaseVirtualTree.GetPreviousVisibleSiblingNoInit(Node: PVirtualNode;
   IncludeFiltered: Boolean = False): PVirtualNode;
 
 // Returns the previous visible sibling before Node.
@@ -20077,7 +20077,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.Nodes(ConsiderChildrenAbove: Boolean): TVTVirtualNodeEnumeration;
+function TERDVTBaseVirtualTree.Nodes(ConsiderChildrenAbove: Boolean): TVTVirtualNodeEnumeration;
 
 // Enumeration for all nodes
 
@@ -20089,7 +20089,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.CheckedNodes(State: TCheckState; ConsiderChildrenAbove: Boolean): TVTVirtualNodeEnumeration;
+function TERDVTBaseVirtualTree.CheckedNodes(State: TCheckState; ConsiderChildrenAbove: Boolean): TVTVirtualNodeEnumeration;
 
 // Enumeration for all checked nodes
 
@@ -20102,7 +20102,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.ChildNodes(Node: PVirtualNode): TVTVirtualNodeEnumeration;
+function TERDVTBaseVirtualTree.ChildNodes(Node: PVirtualNode): TVTVirtualNodeEnumeration;
 
 // Enumeration for child nodes
 
@@ -20114,7 +20114,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.CutCopyNodes(ConsiderChildrenAbove: Boolean): TVTVirtualNodeEnumeration;
+function TERDVTBaseVirtualTree.CutCopyNodes(ConsiderChildrenAbove: Boolean): TVTVirtualNodeEnumeration;
 
 // Enumeration for cut copy node
 
@@ -20126,7 +20126,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.CutToClipboard;
+procedure TERDVTBaseVirtualTree.CutToClipboard;
 begin
   if (toReadOnly in TreeOptions.MiscOptions)  then
     exit;
@@ -20135,7 +20135,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.InitializedNodes(ConsiderChildrenAbove: Boolean): TVTVirtualNodeEnumeration;
+function TERDVTBaseVirtualTree.InitializedNodes(ConsiderChildrenAbove: Boolean): TVTVirtualNodeEnumeration;
 
 // Enumeration for initialized nodes
 
@@ -20147,7 +20147,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.LeafNodes: TVTVirtualNodeEnumeration;
+function TERDVTBaseVirtualTree.LeafNodes: TVTVirtualNodeEnumeration;
 
 // Enumeration for leaf nodes
 
@@ -20158,7 +20158,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.LevelNodes(NodeLevel: Cardinal): TVTVirtualNodeEnumeration;
+function TERDVTBaseVirtualTree.LevelNodes(NodeLevel: Cardinal): TVTVirtualNodeEnumeration;
 
 // Enumeration for level nodes
 
@@ -20168,7 +20168,7 @@ begin
   Result.FNodeLevel := NodeLevel;
 end;
 
-function TBaseVirtualTree.LineWidth: TDimension;
+function TERDVTBaseVirtualTree.LineWidth: TDimension;
 // Returns the width in pixels that should be used to draw grid lines, see issue #1203
 begin
   // Always use line width of 1 for older Delphi versions.
@@ -20184,7 +20184,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.NoInitNodes(ConsiderChildrenAbove: Boolean): TVTVirtualNodeEnumeration;
+function TERDVTBaseVirtualTree.NoInitNodes(ConsiderChildrenAbove: Boolean): TVTVirtualNodeEnumeration;
 
 // Enumeration for no init nodes
 begin
@@ -20195,7 +20195,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.SelectedCells: TVTCellArray;
+function TERDVTBaseVirtualTree.SelectedCells: TVTCellArray;
 begin
   if FSelectedCellCount = 0 then
     Result := [] else
@@ -20209,7 +20209,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.SelectedNodes(ConsiderChildrenAbove: Boolean): TVTVirtualNodeEnumeration;
+function TERDVTBaseVirtualTree.SelectedNodes(ConsiderChildrenAbove: Boolean): TVTVirtualNodeEnumeration;
 
 // Enumeration for selected nodes
 
@@ -20221,7 +20221,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.VisibleNodes(Node: PVirtualNode; ConsiderChildrenAbove: Boolean;
+function TERDVTBaseVirtualTree.VisibleNodes(Node: PVirtualNode; ConsiderChildrenAbove: Boolean;
   IncludeFiltered: Boolean): TVTVirtualNodeEnumeration;
 
 // Enumeration for visible nodes
@@ -20236,7 +20236,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.VisibleChildNodes(Node: PVirtualNode; IncludeFiltered: Boolean): TVTVirtualNodeEnumeration;
+function TERDVTBaseVirtualTree.VisibleChildNodes(Node: PVirtualNode; IncludeFiltered: Boolean): TVTVirtualNodeEnumeration;
 
 // Enumeration for visible child nodes
 
@@ -20249,7 +20249,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.VisibleChildNoInitNodes(Node: PVirtualNode; IncludeFiltered: Boolean): TVTVirtualNodeEnumeration;
+function TERDVTBaseVirtualTree.VisibleChildNoInitNodes(Node: PVirtualNode; IncludeFiltered: Boolean): TVTVirtualNodeEnumeration;
 
 // Enumeration for visible child no init nodes
 
@@ -20262,7 +20262,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.VisibleNoInitNodes(Node: PVirtualNode; ConsiderChildrenAbove: Boolean;
+function TERDVTBaseVirtualTree.VisibleNoInitNodes(Node: PVirtualNode; ConsiderChildrenAbove: Boolean;
   IncludeFiltered: Boolean): TVTVirtualNodeEnumeration;
 
 // Enumeration for visible no init nodes
@@ -20277,7 +20277,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetSortedCutCopySet(Resolve: Boolean): TNodeArray;
+function TERDVTBaseVirtualTree.GetSortedCutCopySet(Resolve: Boolean): TNodeArray;
 
 // Same as GetSortedSelection but with nodes marked as being part in the current cut/copy set (e.g. for clipboard).
 
@@ -20357,7 +20357,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetSortedSelection(Resolve: Boolean): TNodeArray;
+function TERDVTBaseVirtualTree.GetSortedSelection(Resolve: Boolean): TNodeArray;
 
 // Returns a list of selected nodes sorted in logical order, that is, as they appear in the tree.
 // If Resolve is True then nodes which are children of other selected nodes are not put into the new array.
@@ -20429,7 +20429,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.GetTextInfo(Node: PVirtualNode; Column: TColumnIndex; const AFont: TFont; var R: TRect;
+procedure TERDVTBaseVirtualTree.GetTextInfo(Node: PVirtualNode; Column: TColumnIndex; const AFont: TFont; var R: TRect;
   var Text: string);
 
 // Generic base method for editors, hint windows etc. to get some info about a node.
@@ -20443,7 +20443,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetTreeRect: TRect;
+function TERDVTBaseVirtualTree.GetTreeRect: TRect;
 
 // Returns the true size of the tree in pixels. This size is at least ClientHeight x ClientWidth and depends on
 // the expand state, header size etc.
@@ -20456,7 +20456,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetVisibleParent(Node: PVirtualNode; IncludeFiltered: Boolean = False): PVirtualNode;
+function TERDVTBaseVirtualTree.GetVisibleParent(Node: PVirtualNode; IncludeFiltered: Boolean = False): PVirtualNode;
 
 // Returns the first (nearest) parent node of Node which is visible.
 // This method is one of the seldom cases where the hidden root node could be returned.
@@ -20472,7 +20472,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetTopInvisibleParent(Node: PVirtualNode): PVirtualNode;
+function TERDVTBaseVirtualTree.GetTopInvisibleParent(Node: PVirtualNode): PVirtualNode;
 
 // Returns the last (furthest) parent node of Node which is invisible.
 
@@ -20497,7 +20497,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.HasAsParent(Node, PotentialParent: PVirtualNode): Boolean;
+function TERDVTBaseVirtualTree.HasAsParent(Node, PotentialParent: PVirtualNode): Boolean;
 
 // Determines whether Node has got PotentialParent as one of its parents.
 
@@ -20517,7 +20517,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.InsertNode(Node: PVirtualNode; Mode: TVTNodeAttachMode; UserData: Pointer = nil): PVirtualNode;
+function TERDVTBaseVirtualTree.InsertNode(Node: PVirtualNode; Mode: TVTNodeAttachMode; UserData: Pointer = nil): PVirtualNode;
 
 // Adds a new node relative to Node. The final position is determined by Mode.
 // UserData can be used to set the first SizeOf(Pointer) bytes of the user data area to an initial value which can be used
@@ -20590,7 +20590,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.InvalidateChildren(Node: PVirtualNode; Recursive: Boolean);
+procedure TERDVTBaseVirtualTree.InvalidateChildren(Node: PVirtualNode; Recursive: Boolean);
 
 // Invalidates Node and its immediate children.
 // If Recursive is True then all grandchildren are invalidated as well.
@@ -20624,7 +20624,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.InvalidateColumn(Column: TColumnIndex);
+procedure TERDVTBaseVirtualTree.InvalidateColumn(Column: TColumnIndex);
 
 // Invalidates the client area part of a column.
 
@@ -20642,7 +20642,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.InvalidateNode(Node: PVirtualNode): TRect;
+function TERDVTBaseVirtualTree.InvalidateNode(Node: PVirtualNode): TRect;
 
 // Initiates repaint of the given node and returns the just invalidated rectangle.
 
@@ -20662,7 +20662,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.InvalidateToBottom(Node: PVirtualNode);
+procedure TERDVTBaseVirtualTree.InvalidateToBottom(Node: PVirtualNode);
 
 // Initiates repaint of client area starting at given node. If this node is not visible or not yet initialized
 // then nothing happens.
@@ -20692,7 +20692,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.InvertSelection(VisibleOnly: Boolean);
+procedure TERDVTBaseVirtualTree.InvertSelection(VisibleOnly: Boolean);
 
 // Inverts the current selection (so nodes which are selected become unselected and vice versa).
 // If VisibleOnly is True then only visible nodes are considered.
@@ -20739,7 +20739,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.IsEditing: Boolean;
+function TERDVTBaseVirtualTree.IsEditing: Boolean;
 
 begin
   Result := tsEditing in FStates;
@@ -20747,7 +20747,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.IsMouseSelecting: Boolean;
+function TERDVTBaseVirtualTree.IsMouseSelecting: Boolean;
 
 begin
   Result := (tsDrawSelPending in FStates) or (tsDrawSelecting in FStates);
@@ -20755,7 +20755,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.IsStored_BackgroundOffsetXY(const Index: Integer): Boolean;
+function TERDVTBaseVirtualTree.IsStored_BackgroundOffsetXY(const Index: Integer): Boolean;
 begin
   case Index of
     0:
@@ -20771,42 +20771,42 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.IsStored_BottomSpace: Boolean;
+function TERDVTBaseVirtualTree.IsStored_BottomSpace: Boolean;
 begin
   Result:= CompareValue(FBottomSpace, 0)<>EqualsValue;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.IsStored_DefaultNodeHeight: Boolean;
+function TERDVTBaseVirtualTree.IsStored_DefaultNodeHeight: Boolean;
 begin
   Result:= CompareValue(FDefaultNodeHeight, cInitialDefaultNodeHeight)<>EqualsValue;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.IsStored_Indent: Boolean;
+function TERDVTBaseVirtualTree.IsStored_Indent: Boolean;
 begin
   Result:= CompareValue(FIndent, 18)<>EqualsValue;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.IsStored_Margin: Boolean;
+function TERDVTBaseVirtualTree.IsStored_Margin: Boolean;
 begin
   Result:= CompareValue(FMargin, 4)<>EqualsValue;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.IsStored_TextMargin: Boolean;
+function TERDVTBaseVirtualTree.IsStored_TextMargin: Boolean;
 begin
   Result:= CompareValue(FTextMargin, cDefaultTextMargin) <> EqualsValue;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.IsUpdating: Boolean;
+function TERDVTBaseVirtualTree.IsUpdating: Boolean;
 // The tree does currently not update its window because a BeginUpdate has not yet ended.
 begin
   Exit(UpdateCount > 0);
@@ -20814,7 +20814,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.IterateSubtree(StartNode: PVirtualNode; Callback: TVTGetNodeProc; Data: Pointer;
+function TERDVTBaseVirtualTree.IterateSubtree(StartNode: PVirtualNode; Callback: TVTGetNodeProc; Data: Pointer;
   Filter: TVirtualNodeStates = []; DoInit: Boolean = False; ChildNodesOnly: Boolean = False): PVirtualNode;
 
 // Iterates through the all children and grandchildren etc. of Node (or the entire tree if Node = nil)
@@ -20920,7 +20920,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.LoadFromFile(const FileName: TFileName);
+procedure TERDVTBaseVirtualTree.LoadFromFile(const FileName: TFileName);
 
 var
   FileStream: TFileStream;
@@ -20936,7 +20936,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.LoadFromStream(Stream: TStream);
+procedure TERDVTBaseVirtualTree.LoadFromStream(Stream: TStream);
 
 // Clears the current content of the tree and loads a new structure from the given stream.
 
@@ -20993,7 +20993,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.MeasureItemHeight(const Canvas: TCanvas; Node: PVirtualNode);
+procedure TERDVTBaseVirtualTree.MeasureItemHeight(const Canvas: TCanvas; Node: PVirtualNode);
 
 // If the height of the given node has not yet been measured then do it now.
 
@@ -21032,7 +21032,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.MoveTo(Node: PVirtualNode; Tree: TBaseVirtualTree; Mode: TVTNodeAttachMode;
+procedure TERDVTBaseVirtualTree.MoveTo(Node: PVirtualNode; Tree: TERDVTBaseVirtualTree; Mode: TVTNodeAttachMode;
   ChildrenOnly: Boolean);
 
 // A simplified method to allow to move nodes to the root of another tree.
@@ -21043,14 +21043,14 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.MoveTo(Source, Target: PVirtualNode; Mode: TVTNodeAttachMode; ChildrenOnly: Boolean);
+procedure TERDVTBaseVirtualTree.MoveTo(Source, Target: PVirtualNode; Mode: TVTNodeAttachMode; ChildrenOnly: Boolean);
 
 // Moves the given node (and all its children) to Target. Source must belong to the tree instance which calls this
 // MoveTo method. Mode determines how to connect Source to Target.
 // This method might involve a change of the tree if Target belongs to a different tree than Source.
 
 var
-  TargetTree: TBaseVirtualTree;
+  TargetTree: TERDVTBaseVirtualTree;
   Allowed: Boolean;
   NewNode: PVirtualNode;
   Stream: TMemoryStream;
@@ -21220,7 +21220,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.PaintTree(TargetCanvas: TCanvas; Window: TRect; Target: TPoint;
+procedure TERDVTBaseVirtualTree.PaintTree(TargetCanvas: TCanvas; Window: TRect; Target: TPoint;
   PaintOptions: TVTInternalPaintOptions; PixelFormat: TPixelFormat);
 
 // This is the core paint routine of the tree. It is responsible for maintaining the paint cycles per node as well
@@ -21440,7 +21440,7 @@ begin
                   InitializeFirstColumnValues(PaintInfo);
 
                 // Now go through all visible columns (there's still one run if columns aren't used).
-                with TVirtualTreeColumnsCracker(FHeader.Columns) do
+                with TERDVTVirtualTreeColumnsCracker(FHeader.Columns) do
                 begin
                   while ((PaintInfo.Column > InvalidColumn) or not UseColumns)
                     and (PaintInfo.CellRect.Left < Window.Right) do
@@ -21651,7 +21651,7 @@ begin
                     if coVisible in Items[NextColumn].Options then
                       with PaintInfo do
                       begin
-                        TVirtualTreeColumnCracker(Items[NextColumn]).GetAbsoluteBounds(CellRect.Left, CellRect.Right);
+                        TERDVTVirtualTreeColumnCracker(Items[NextColumn]).GetAbsoluteBounds(CellRect.Left, CellRect.Right);
                         CellRect.Bottom := Node.NodeHeight;
                         ContentRect.Bottom := Node.NodeHeight;
                       end;
@@ -21864,7 +21864,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.PrepareDragImage(HotSpot: TPoint; const DataObject: TVTDragDataObject);
+procedure TERDVTBaseVirtualTree.PrepareDragImage(HotSpot: TPoint; const DataObject: TVTDragDataObject);
 
 // Initiates an image drag operation. HotSpot is the position of the mouse in client coordinates.
 
@@ -21874,13 +21874,13 @@ var
   PaintRect: TRect;
   LocalSpot,
   PaintTarget: TPoint;
-  lDragImage: TVTDragImage;                    // drag image management
+  lDragImage: TERDVTVTDragImage;                    // drag image management
   Image: TBitmap;
 
 begin
   if CanShowDragImage then
   begin
-    lDragImage := TVTDragImage.Create(Self);
+    lDragImage := TERDVTVTDragImage.Create(Self);
     try
       // Determine the drag rectangle which is a square around the hot spot. Operate in virtual tree space.
       LocalSpot := HotSpot;
@@ -21938,7 +21938,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.Print(Printer: TPrinter; PrintHeader: Boolean);
+procedure TERDVTBaseVirtualTree.Print(Printer: TPrinter; PrintHeader: Boolean);
 
 var
   SaveTreeFont: TFont;                 // Remembers the tree's current font.
@@ -22090,7 +22090,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.ProcessDrop(const DataObject: TVTDragDataObject; TargetNode: PVirtualNode; var Effect: Integer;
+function TERDVTBaseVirtualTree.ProcessDrop(const DataObject: TVTDragDataObject; TargetNode: PVirtualNode; var Effect: Integer;
   Mode: TVTNodeAttachMode): Boolean;
 
 // Recreates the (sub) tree structure serialized into memory and provided by DataObject. The new nodes are attached to
@@ -22099,7 +22099,7 @@ function TBaseVirtualTree.ProcessDrop(const DataObject: TVTDragDataObject; Targe
 // recreated, otherwise False.
 
 var
-  Source: TBaseVirtualTree;
+  Source: TERDVTBaseVirtualTree;
 
 begin
   Result := False;
@@ -22109,7 +22109,7 @@ begin
   begin
     BeginUpdate;
     // try to get the source tree of the operation
-    Source := TVTDragManager.GetTreeFromDataObject(DataObject);
+    Source := TERDVTVTDragManager.GetTreeFromDataObject(DataObject);
     if Assigned(Source) then
       Source.BeginUpdate;
     try
@@ -22144,14 +22144,14 @@ end;
 
 type
   // needed to handle OLE global memory objects
-  TOLEMemoryStream = class(TCustomMemoryStream)
+  TERDVTOLEMemoryStream = class(TCustomMemoryStream)
   public
     function Write(const Buffer; Count: Integer): Integer; override;
   end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TOLEMemoryStream.Write(const Buffer; Count: Integer): Integer;
+function TERDVTOLEMemoryStream.Write(const Buffer; Count: Integer): Integer;
 
 begin
   raise EStreamError.CreateRes(PResStringRec(@SCantWriteResourceStreamError));
@@ -22159,7 +22159,7 @@ end;
 
 //----------------- TBaseVirtualTree -----------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoDrawHint(Canvas: TCanvas; Node: PVirtualNode; R:
+procedure TERDVTBaseVirtualTree.DoDrawHint(Canvas: TCanvas; Node: PVirtualNode; R:
     TRect; Column: TColumnIndex);
 
 begin
@@ -22169,7 +22169,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoGetHintSize(Node: PVirtualNode; Column:
+procedure TERDVTBaseVirtualTree.DoGetHintSize(Node: PVirtualNode; Column:
     TColumnIndex; var R: TRect);
 
 begin
@@ -22179,7 +22179,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.DoGetHintKind(Node: PVirtualNode; Column:
+procedure TERDVTBaseVirtualTree.DoGetHintKind(Node: PVirtualNode; Column:
     TColumnIndex; var Kind: TVTHintKind);
 
 begin
@@ -22191,7 +22191,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.GetDefaultHintKind: TVTHintKind;
+function TERDVTBaseVirtualTree.GetDefaultHintKind: TVTHintKind;
 
 begin
   Result := vhkText;
@@ -22199,7 +22199,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.ProcessOLEData(Source: TBaseVirtualTree; const DataObject: IDataObject; TargetNode: PVirtualNode;
+function TERDVTBaseVirtualTree.ProcessOLEData(Source: TERDVTBaseVirtualTree; const DataObject: IDataObject; TargetNode: PVirtualNode;
   Mode: TVTNodeAttachMode; Optimized: Boolean): Boolean;
 
 // Recreates the (sub) tree structure serialized into memory and provided by DataObject. The new nodes are attached to
@@ -22294,8 +22294,8 @@ begin
                     // Get the total size of data to retrieve.
                     I := PCardinal(Data)^;
                     Inc(PCardinal(Data));
-                    Stream := TOLEMemoryStream.Create;
-                    TOLEMemoryStream(Stream).SetPointer(Data, I);
+                    Stream := TERDVTOLEMemoryStream.Create;
+                    TERDVTOLEMemoryStream(Stream).SetPointer(Data, I);
                   end;
                 end;
 
@@ -22342,7 +22342,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.ReinitChildren(Node: PVirtualNode; Recursive:
+procedure TERDVTBaseVirtualTree.ReinitChildren(Node: PVirtualNode; Recursive:
     Boolean; ForceReinit: Boolean = False);
 
 // Forces all child nodes of Node to be reinitialized.
@@ -22372,7 +22372,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.ReinitNode(Node: PVirtualNode; Recursive: Boolean;
+procedure TERDVTBaseVirtualTree.ReinitNode(Node: PVirtualNode; Recursive: Boolean;
     ForceReinit: Boolean = False);
 
 // Reinitializes Node if it has previously been initialized
@@ -22401,7 +22401,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.RepaintNode(Node: PVirtualNode);
+procedure TERDVTBaseVirtualTree.RepaintNode(Node: PVirtualNode);
 
 // Causes an immediate repaint of the given node.
 
@@ -22418,7 +22418,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.ResetNode(Node: PVirtualNode);
+procedure TERDVTBaseVirtualTree.ResetNode(Node: PVirtualNode);
 
 // Deletes all children of the given node and marks it as being uninitialized.
 
@@ -22439,7 +22439,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SaveToFile(const FileName: TFileName);
+procedure TERDVTBaseVirtualTree.SaveToFile(const FileName: TFileName);
 
 // Saves the entire content of the tree into a file (see further notes in SaveToStream).
 
@@ -22457,7 +22457,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SaveToStream(Stream: TStream; Node: PVirtualNode = nil);
+procedure TERDVTBaseVirtualTree.SaveToStream(Stream: TStream; Node: PVirtualNode = nil);
 
 // Saves Node and all its children to Stream. If Node is nil then all top level nodes will be stored.
 // Note: You should be careful about assuming what is actually saved. The problem here is that we are dealing with
@@ -22500,7 +22500,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.ScrollIntoView(Node: PVirtualNode; Center: Boolean; Horizontally: Boolean = False): Boolean;
+function TERDVTBaseVirtualTree.ScrollIntoView(Node: PVirtualNode; Center: Boolean; Horizontally: Boolean = False): Boolean;
 
 // Scrolls the tree so that the given node is in the client area and returns True if the tree really has been
 // scrolled (e.g. to avoid further updates) else returns False. If extened focus is enabled then the tree will also
@@ -22574,14 +22574,14 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.ScaledPixels(pPixels: TDimension): TDimension;
+function TERDVTBaseVirtualTree.ScaledPixels(pPixels: TDimension): TDimension;
 
    /// Returns the given pixels scaled to the current dpi assuming that we designed at 96dpi (100%)
 begin
   Result := MulDiv(pPixels, {$if CompilerVersion > 31}Self.FCurrentPPI{$else}Screen.PixelsPerInch{$ifend}, 96);
 end;
 
-function TBaseVirtualTree.ScrollIntoView(Column: TColumnIndex; Center: Boolean; Node: PVirtualNode = nil): Boolean;
+function TERDVTBaseVirtualTree.ScrollIntoView(Column: TColumnIndex; Center: Boolean; Node: PVirtualNode = nil): Boolean;
 
 // Scrolls the columns so that the given column is in the client area and returns True if the columns really have been
 // scrolled (e.g. to avoid further updates) else returns False.
@@ -22640,7 +22640,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SelectAll(VisibleOnly: Boolean);
+procedure TERDVTBaseVirtualTree.SelectAll(VisibleOnly: Boolean);
 
 // Select all nodes in the tree.
 // If VisibleOnly is True then only visible nodes are selected.
@@ -22682,7 +22682,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.Sort(Node: PVirtualNode; Column: TColumnIndex; Direction: TSortDirection; DoInit: Boolean = True);
+procedure TERDVTBaseVirtualTree.Sort(Node: PVirtualNode; Column: TColumnIndex; Direction: TSortDirection; DoInit: Boolean = True);
 
 // Sorts the given node. The application is queried about how to sort via the OnCompareNodes event.
 // Column is simply passed to the the compare function so the application can also sort in a particular column.
@@ -22887,7 +22887,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.SortTree(Column: TColumnIndex; Direction: TSortDirection; DoInit: Boolean = True);
+procedure TERDVTBaseVirtualTree.SortTree(Column: TColumnIndex; Direction: TSortDirection; DoInit: Boolean = True);
 
   //--------------- local function --------------------------------------------
 
@@ -22948,7 +22948,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.ToggleNode(Node: PVirtualNode);
+procedure TERDVTBaseVirtualTree.ToggleNode(Node: PVirtualNode);
 
 // Changes a node's expand state to the opposite state.
 
@@ -23409,7 +23409,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.UpdateHorizontalRange;
+procedure TERDVTBaseVirtualTree.UpdateHorizontalRange;
 
 begin
   if FHeader.UseColumns then
@@ -23420,7 +23420,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.UpdateHorizontalScrollBar(DoRepaint: Boolean);
+procedure TERDVTBaseVirtualTree.UpdateHorizontalScrollBar(DoRepaint: Boolean);
 
 var
   ScrollInfo: TScrollInfo;
@@ -23487,7 +23487,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.UpdateRanges;
+procedure TERDVTBaseVirtualTree.UpdateRanges;
 
 begin
   UpdateVerticalRange;
@@ -23496,7 +23496,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.UpdateScrollBars(DoRepaint: Boolean);
+procedure TERDVTBaseVirtualTree.UpdateScrollBars(DoRepaint: Boolean);
 
 // adjusts scrollbars to reflect current size and paint offset of the tree
 
@@ -23511,7 +23511,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.UpdateStyleElements;
+procedure TERDVTBaseVirtualTree.UpdateStyleElements;
 begin
   inherited;
   UpdateHeaderRect;
@@ -23520,7 +23520,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.UpdateVerticalRange;
+procedure TERDVTBaseVirtualTree.UpdateVerticalRange;
 
 begin
   // Total node height includes the height of the invisible root node.
@@ -23529,7 +23529,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-  procedure TBaseVirtualTree.UpdateVerticalScrollBar(DoRepaint: Boolean);
+  procedure TERDVTBaseVirtualTree.UpdateVerticalScrollBar(DoRepaint: Boolean);
 
 var
   ScrollInfo: TScrollInfo;
@@ -23584,7 +23584,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBaseVirtualTree.UseRightToLeftReading: Boolean;
+function TERDVTBaseVirtualTree.UseRightToLeftReading: Boolean;
 
 // The tree can handle right-to-left reading also on non-middle-east systems, so we cannot use the same function as
 // it is implemented in TControl.
@@ -23595,7 +23595,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.ValidateChildren(Node: PVirtualNode; Recursive: Boolean);
+procedure TERDVTBaseVirtualTree.ValidateChildren(Node: PVirtualNode; Recursive: Boolean);
 
 // Ensures that the children of the given node (and all their children, if Recursive is True) are initialized.
 // Node must already be initialized
@@ -23619,7 +23619,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBaseVirtualTree.ValidateNode(Node: PVirtualNode; Recursive: Boolean);
+procedure TERDVTBaseVirtualTree.ValidateNode(Node: PVirtualNode; Recursive: Boolean);
 
 // Ensures that the given node (and all its children, if Recursive is True) are initialized.
 

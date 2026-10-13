@@ -34,7 +34,7 @@ uses
 
 type
   // Helper classes to speed up rendering text formats for clipboard and drag'n drop transfers.
-  TBufferedRawByteString = class
+  TERDVTBufferedRawByteString = class
   private
     FStart,
     FPosition,
@@ -49,7 +49,7 @@ type
     property AsString: RawByteString read GetAsString;
   end;
 
-  TBufferedString = class
+  TERDVTBufferedString = class
   private
     FStart,
     FPosition,
@@ -72,7 +72,7 @@ implementation
 const
   AllocIncrement = 2 shl 11;  // Must be a power of 2.
 
-destructor TBufferedRawByteString.Destroy;
+destructor TERDVTBufferedRawByteString.Destroy;
 
 begin
   FreeMem(FStart);
@@ -81,7 +81,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBufferedRawByteString.GetAsString: RawByteString;
+function TERDVTBufferedRawByteString.GetAsString: RawByteString;
 
 begin
   SetString(Result, FStart, FPosition - FStart);
@@ -89,7 +89,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBufferedRawByteString.Add(const S: RawByteString);
+procedure TERDVTBufferedRawByteString.Add(const S: RawByteString);
 
 var
   NewLen,
@@ -115,7 +115,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBufferedRawByteString.AddNewLine;
+procedure TERDVTBufferedRawByteString.AddNewLine;
 
 var
   NewLen,
@@ -141,7 +141,7 @@ end;
 
 //----------------- TBufferedString --------------------------------------------------------------------------------
 
-destructor TBufferedString.Destroy;
+destructor TERDVTBufferedString.Destroy;
 
 begin
   FreeMem(FStart);
@@ -150,7 +150,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TBufferedString.GetAsString: string;
+function TERDVTBufferedString.GetAsString: string;
 
 begin
   SetString(Result, FStart, FPosition - FStart);
@@ -158,7 +158,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBufferedString.Add(const S: string);
+procedure TERDVTBufferedString.Add(const S: string);
 
 var
   NewLen,
@@ -186,7 +186,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TBufferedString.AddNewLine;
+procedure TERDVTBufferedString.AddNewLine;
 
 var
   NewLen,

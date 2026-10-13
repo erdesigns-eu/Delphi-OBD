@@ -160,7 +160,8 @@ algemene verschillen met de aangeleverde Office-screenshot.
 `TERDVirtualStringTree` gebruikt de officiële JAM Software **Virtual Treeview V8.5**
 VCL-engine. De engine is meegeleverd onder `ERD.Components.VT.*`: je hoeft de
 originele Virtual Treeview-package niet te installeren en beide varianten kunnen
-naast elkaar bestaan. Dit is een ERD-themevariant van de bestaande engine;
+naast elkaar bestaan. Ook de engineclasses hebben eigen RTTI-namen met prefix
+`TERDVT`; de palettecomponent heet `TERDVirtualStringTree`. Dit is een ERD-themevariant van de bestaande engine;
 virtualisatie, node-data, selectie, sorting, drag/drop en bestaande events blijven
 onderdeel van die engine.
 

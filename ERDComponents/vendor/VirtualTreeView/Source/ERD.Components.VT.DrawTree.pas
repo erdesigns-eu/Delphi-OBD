@@ -24,11 +24,11 @@ type
 {$IFDEF VT_FMX}
   TVTAncestor = TVTAncestorFMX;
 {$ELSE}
-  TVTAncestor = TVTAncestorVcl;
+  TVTAncestor = TERDVTVTAncestorVcl;
 {$ENDIF}
 
   // Tree descendant to let an application draw its stuff itself.
-  TCustomVirtualDrawTree = class(TVTAncestor)
+  TERDVTCustomVirtualDrawTree = class(TVTAncestor)
   private
     FOnDrawNode: TVTDrawNodeEvent;
     FOnGetCellContentMargin: TVTGetCellContentMarginEvent;
@@ -48,12 +48,12 @@ type
   {$if CompilerVersion >= 33}
   [ComponentPlatformsAttribute(pfidWindows)]
   {$ifend}
-  TVirtualDrawTree = class(TCustomVirtualDrawTree)
+  TERDVTVirtualDrawTree = class(TERDVTCustomVirtualDrawTree)
   private
-    function GetOptions: TVirtualTreeOptions;
-    procedure SetOptions(const Value: TVirtualTreeOptions);
+    function GetOptions: TERDVTVirtualTreeOptions;
+    procedure SetOptions(const Value: TERDVTVirtualTreeOptions);
   protected
-    function GetOptionsClass: TTreeOptionsClass; override;
+    function GetOptionsClass: TERDVTTreeOptionsClass; override;
   public
     property Canvas;
     property LastDragEffect;
@@ -132,7 +132,7 @@ type
     property TabOrder;
     property TabStop default True;
     property TextMargin;
-    property TreeOptions: TVirtualTreeOptions read GetOptions write SetOptions;
+    property TreeOptions: TERDVTVirtualTreeOptions read GetOptions write SetOptions;
     property Visible;
     property WantTabs;
 
@@ -286,7 +286,7 @@ uses
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TCustomVirtualDrawTree.DoGetCellContentMargin(Node: PVirtualNode; Column: TColumnIndex;
+function TERDVTCustomVirtualDrawTree.DoGetCellContentMargin(Node: PVirtualNode; Column: TColumnIndex;
   CellContentMarginType: TVTCellContentMarginType = ccmtAllSides; Canvas: TCanvas = nil): TPoint;
 
 begin
@@ -300,7 +300,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TCustomVirtualDrawTree.DoGetNodeWidth(Node: PVirtualNode; Column: TColumnIndex; Canvas: TCanvas = nil): TDimension;
+function TERDVTCustomVirtualDrawTree.DoGetNodeWidth(Node: PVirtualNode; Column: TColumnIndex; Canvas: TCanvas = nil): TDimension;
 
 begin
   Result := 2 * TextMargin;
@@ -313,14 +313,14 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TCustomVirtualDrawTree.DoPaintNode(var PaintInfo: TVTPaintInfo);
+procedure TERDVTCustomVirtualDrawTree.DoPaintNode(var PaintInfo: TVTPaintInfo);
 
 begin
   if Assigned(FOnDrawNode) then
     FOnDrawNode(Self, PaintInfo);
 end;
 
-function TCustomVirtualDrawTree.GetDefaultHintKind: TVTHintKind;
+function TERDVTCustomVirtualDrawTree.GetDefaultHintKind: TVTHintKind;
 
 begin
   Result := vhkOwnerDraw;
@@ -328,15 +328,15 @@ end;
 
 //----------------- TVirtualDrawTree -----------------------------------------------------------------------------------
 
-function TVirtualDrawTree.GetOptions: TVirtualTreeOptions;
+function TERDVTVirtualDrawTree.GetOptions: TERDVTVirtualTreeOptions;
 
 begin
-  Result := inherited TreeOptions as TVirtualTreeOptions;
+  Result := inherited TreeOptions as TERDVTVirtualTreeOptions;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVirtualDrawTree.SetOptions(const Value: TVirtualTreeOptions);
+procedure TERDVTVirtualDrawTree.SetOptions(const Value: TERDVTVirtualTreeOptions);
 
 begin
   TreeOptions.Assign(Value);
@@ -344,16 +344,16 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TVirtualDrawTree.GetOptionsClass: TTreeOptionsClass;
+function TERDVTVirtualDrawTree.GetOptionsClass: TERDVTTreeOptionsClass;
 
 begin
-  Result := TVirtualTreeOptions;
+  Result := TERDVTVirtualTreeOptions;
 end;
 
 initialization
-  TCustomStyleEngine.RegisterStyleHook(TVirtualDrawTree, TVclStyleScrollBarsHook);
+  TCustomStyleEngine.RegisterStyleHook(TERDVTVirtualDrawTree, TERDVTVclStyleScrollBarsHook);
 
 finalization
-  TCustomStyleEngine.UnRegisterStyleHook(TVirtualDrawTree, TVclStyleScrollBarsHook);
+  TCustomStyleEngine.UnRegisterStyleHook(TERDVTVirtualDrawTree, TERDVTVclStyleScrollBarsHook);
 
 end.

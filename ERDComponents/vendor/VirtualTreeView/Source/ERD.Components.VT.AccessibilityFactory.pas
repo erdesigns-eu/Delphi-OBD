@@ -46,13 +46,13 @@ uses
 type
   IVTAccessibleProvider = interface
     ['{8B76176B-C1F2-4C5C-99B4-2444FABE495C}']
-    function CreateIAccessible(ATree: TBaseVirtualTree): IAccessible;
+    function CreateIAccessible(ATree: TERDVTBaseVirtualTree): IAccessible;
   end;
 
-  TVTAccessibilityFactory = class(TObject)
+  TERDVTVTAccessibilityFactory = class(TObject)
   strict private class var
     FAccessibilityAvailable: Boolean;
-    FVTAccessibleFactory: TVTAccessibilityFactory;
+    FVTAccessibleFactory: TERDVTVTAccessibilityFactory;
   strict private
     FAccessibleProviders: TInterfaceList;
   private
@@ -61,7 +61,7 @@ type
     constructor Create;
     destructor Destroy; override;
     function CreateIAccessible(ATree: TCustomControl): IAccessible;
-    class function GetAccessibilityFactory: TVTAccessibilityFactory; static;
+    class function GetAccessibilityFactory: TERDVTVTAccessibilityFactory; static;
     procedure RegisterAccessibleProvider(const AProvider: IVTAccessibleProvider);
     procedure UnRegisterAccessibleProvider(const AProvider: IVTAccessibleProvider);
   end;
@@ -71,18 +71,18 @@ implementation
 
 { TVTAccessibilityFactory }
 
-constructor TVTAccessibilityFactory.Create;
+constructor TERDVTVTAccessibilityFactory.Create;
 begin
   inherited Create;
   FAccessibleProviders := TInterfaceList.Create;
   FAccessibleProviders.Clear;
 end;
 
-function TVTAccessibilityFactory.CreateIAccessible(ATree: TCustomControl): IAccessible;
+function TERDVTVTAccessibilityFactory.CreateIAccessible(ATree: TCustomControl): IAccessible;
 var
   I: Integer;
   TmpIAccessible: IAccessible;
-  lTree: TBaseVirtualTree;
+  lTree: TERDVTBaseVirtualTree;
 // returns an IAccessible.
 // 1. If the Accessible property of the passed-in tree is nil,
 // the first registered element will be returned.
@@ -94,7 +94,7 @@ var
 // The index for these should all be greater than 0, e g the IAccessible for the tree itself should always be registered first, then any IAccessible items.
 begin
   Result := nil;
-  lTree := (ATree as TBaseVirtualTree);
+  lTree := (ATree as TERDVTBaseVirtualTree);
   if lTree <> nil then
   begin
     if lTree.Accessible = nil then
@@ -129,33 +129,33 @@ begin
   end;
 end;
 
-destructor TVTAccessibilityFactory.Destroy;
+destructor TERDVTVTAccessibilityFactory.Destroy;
 begin
   FAccessibleProviders.Free;
   FAccessibleProviders := nil;
   inherited Destroy;
 end;
 
-class procedure TVTAccessibilityFactory.FreeFactory;
+class procedure TERDVTVTAccessibilityFactory.FreeFactory;
 begin
   FVTAccessibleFactory.Free;
 end;
 
-procedure TVTAccessibilityFactory.RegisterAccessibleProvider(const AProvider: IVTAccessibleProvider);
+procedure TERDVTVTAccessibilityFactory.RegisterAccessibleProvider(const AProvider: IVTAccessibleProvider);
 // Ads a provider if it is not already registered
 begin
   if FAccessibleProviders.IndexOf(AProvider) < 0 then
     FAccessibleProviders.Add(AProvider)
 end;
 
-procedure TVTAccessibilityFactory.UnRegisterAccessibleProvider(const AProvider: IVTAccessibleProvider);
+procedure TERDVTVTAccessibilityFactory.UnRegisterAccessibleProvider(const AProvider: IVTAccessibleProvider);
 // Unregisters/removes an IAccessible provider if it is present
 begin
   if FAccessibleProviders.IndexOf(AProvider) >= 0 then
     FAccessibleProviders.Remove(AProvider);
 end;
 
-class function TVTAccessibilityFactory.GetAccessibilityFactory: TVTAccessibilityFactory;
+class function TERDVTVTAccessibilityFactory.GetAccessibilityFactory: TERDVTVTAccessibilityFactory;
 // Accessibility helper function to create a singleton class that will create or return
 // the IAccessible interface for the tree and the focused node.
 
@@ -167,7 +167,7 @@ begin
   begin
     // Check to see if the class has already been created.
     if FVTAccessibleFactory = nil then
-      FVTAccessibleFactory := TVTAccessibilityFactory.Create;
+      FVTAccessibleFactory := TERDVTVTAccessibilityFactory.Create;
     Result := FVTAccessibleFactory;
   end
   else
@@ -177,6 +177,6 @@ end;
 initialization
 
 finalization
-  TVTAccessibilityFactory.FreeFactory;
+  TERDVTVTAccessibilityFactory.FreeFactory;
 
 end.

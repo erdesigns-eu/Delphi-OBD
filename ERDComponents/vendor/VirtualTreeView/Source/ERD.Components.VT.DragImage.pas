@@ -35,7 +35,7 @@ type
     );
 
   // Class to manage header and tree drag image during a drag'n drop operation.
-  TVTDragImage = class
+  TERDVTVTDragImage = class
   private
     FOwner         : TCustomControl;
     FBackImage,                              // backup of overwritten screen area
@@ -67,7 +67,7 @@ uses
 
 //----------------- TVTDragImage ---------------------------------------------------------------------------------------
 
-constructor TVTDragImage.Create(AOwner : TCustomControl);
+constructor TERDVTVTDragImage.Create(AOwner : TCustomControl);
 begin
   FOwner := AOwner;
   FRestriction := dmrNone;
@@ -76,7 +76,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-destructor TVTDragImage.Destroy;
+destructor TERDVTVTDragImage.Destroy;
 begin
   EndDrag;
 
@@ -85,7 +85,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVTDragImage.EndDrag;
+procedure TERDVTVTDragImage.EndDrag;
 begin
   FStates := FStates - [disInDrag, disPrepared];
   FBackImage.Free;
@@ -98,7 +98,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVTDragImage.PrepareDrag(DragImage : TBitmap; HotSpot : TPoint; const DataObject : IDataObject; pColorKey: TColor = clWindow);
+procedure TERDVTVTDragImage.PrepareDrag(DragImage : TBitmap; HotSpot : TPoint; const DataObject : IDataObject; pColorKey: TColor = clWindow);
 // Creates all necessary structures to do alpha blended dragging using the given image.
 // ImagePostion and HotSpot are given in screen coordinates. The first determines where to place the drag image while
 // the second is the initial mouse position.

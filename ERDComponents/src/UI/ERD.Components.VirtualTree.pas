@@ -10,7 +10,7 @@ uses
 
 type
   /// <summary>Virtual Treeview V8.5 with ERD palettes and drawing; node/event API is retained.</summary>
-  TERDVirtualStringTree = class(TVirtualStringTree, IERDThemeAware)
+  TERDVirtualStringTree = class(TERDVTVirtualStringTree, IERDThemeAware)
   private
     FTheme: TERDTheme;
     FApplyingTheme: Boolean;

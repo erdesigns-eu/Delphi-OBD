@@ -88,6 +88,18 @@ class LibraryTests(unittest.TestCase):
                 self.assertIn(path.stem + ' in ', package)
         self.assertTrue((ROOT/'vendor/VirtualTreeView/LICENSE.MPL-1.1.txt').is_file())
 
+    def test_vendor_class_names_cannot_collide_with_original_tree_registration(self):
+        manifest = json.loads((ROOT/'vendor/VirtualTreeView/upstream.json').read_text())
+        self.assertEqual(manifest['classRenames']['TVirtualStringTree'], 'TERDVTVirtualStringTree')
+        self.assertEqual(manifest['classRenames']['TBaseVirtualTree'], 'TERDVTBaseVirtualTree')
+        for entry in manifest['files']:
+            text = (ROOT/'vendor/VirtualTreeView'/entry['path']).read_text(encoding='utf-8-sig')
+            code = re.sub(r"//[^\n]*|\{[^}]*\}|\(\*.*?\*\)|'(?:''|[^'])*'", ' ', text, flags=re.S)
+            for name in re.findall(r'\b(\w+)\s*=\s*class\b', code, re.I):
+                self.assertTrue(name.startswith(('TERDVT', 'EERDVT')), name)
+        wrapper = (ROOT/'src/UI/ERD.Components.VirtualTree.pas').read_text(encoding='utf-8-sig')
+        self.assertIn('TERDVirtualStringTree = class(TERDVTVirtualStringTree', wrapper)
+
     def test_interface_routine_bodies_are_rejected(self):
         sys.path.insert(0, str(ROOT/"tools/pascalcheck"))
         from check_sections import scan

@@ -28,7 +28,7 @@ uses
   ERD.Components.VT.Types;
 
 type
-  TVTBaseAncestorVcl = class abstract(TCustomControl)
+  TERDVTVTBaseAncestorVcl = class abstract(TCustomControl)
   private
     // MSAA support
     FAccessible: IAccessible;                    // The IAccessible interface to the window itself.
@@ -193,7 +193,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TVTBaseAncestorVcl.RenderOLEData(const FormatEtcIn: TFormatEtc; out Medium: TStgMedium; ForClipboard: Boolean): HResult;
+function TERDVTVTBaseAncestorVcl.RenderOLEData(const FormatEtcIn: TFormatEtc; out Medium: TStgMedium; ForClipboard: Boolean): HResult;
 
 // Returns a memory expression of all currently selected nodes in the Medium structure.
 // Note: The memory requirement of this method might be very high. This depends however on the requested storage format.
@@ -289,7 +289,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVTBaseAncestorVcl.CopyToClipboard;
+procedure TERDVTVTBaseAncestorVcl.CopyToClipboard;
 
 var
   lDataObject: IDataObject;
@@ -298,7 +298,7 @@ begin
   // multicell support copy
   if GetSelectedCellCount > 0 then
   begin
-    lDataObject := TVTDataObject.Create(Self, True);
+    lDataObject := TERDVTVTDataObject.Create(Self, True);
     if OleSetClipboard(lDataObject) = S_OK then
     begin
       MarkCutCopyCells;
@@ -311,7 +311,7 @@ begin
   // regular fullrow copy
   if GetSelectedCount > 0 then
   begin
-    lDataObject := TVTDataObject.Create(Self, True);
+    lDataObject := TERDVTVTDataObject.Create(Self, True);
     if OleSetClipboard(lDataObject) = S_OK then
     begin
       MarkCutCopyNodes;
@@ -323,7 +323,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TVTBaseAncestorVcl.CreateSystemImageSet: TImageList;
+function TERDVTVTBaseAncestorVcl.CreateSystemImageSet: TImageList;
 
 // Creates a system check image set.
 // Note: the DarkCheckImages and FlatImages image lists must already be filled, as some images from them are copied here.
@@ -454,13 +454,13 @@ begin
   end;
 end;
 
-procedure TVTBaseAncestorVcl.CutToClipboard;
+procedure TERDVTVTBaseAncestorVcl.CutToClipboard;
 var
   lDataObject: IDataObject;
 begin
   if (GetSelectedCount > 0) then
   begin
-    lDataObject := TVTDataObject.Create(Self, True);
+    lDataObject := TERDVTVTDataObject.Create(Self, True);
     if OleSetClipboard(lDataObject) = S_OK then
     begin
       MarkCutCopyNodes;
@@ -470,7 +470,7 @@ begin
   end;
 end;
 
-destructor TVTBaseAncestorVcl.Destroy;
+destructor TERDVTVTBaseAncestorVcl.Destroy;
 begin
   // Disconnect all remote MSAA connections
   if Assigned(AccessibleItem) then begin
@@ -487,7 +487,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TVTBaseAncestorVcl.PrepareDottedBrush(CurrentDottedBrush: TBrush; Bits: Pointer; const BitsLinesCount: Word): TBrush;
+function TERDVTVTBaseAncestorVcl.PrepareDottedBrush(CurrentDottedBrush: TBrush; Bits: Pointer; const BitsLinesCount: Word): TBrush;
 begin
   if Assigned(CurrentDottedBrush) then
     begin
@@ -503,28 +503,28 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TVTBaseAncestorVcl.RedrawWindow(const lprcUpdate: TRect; hrgnUpdate: HRGN; flags: UINT): BOOL;
+function TERDVTVTBaseAncestorVcl.RedrawWindow(const lprcUpdate: TRect; hrgnUpdate: HRGN; flags: UINT): BOOL;
 begin
   Result:= Winapi.Windows.RedrawWindow(Handle, lprcUpdate, hrgnUpdate, flags);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TVTBaseAncestorVcl.RedrawWindow(lprcUpdate: PRect; hrgnUpdate: HRGN; flags: UINT): BOOL;
+function TERDVTVTBaseAncestorVcl.RedrawWindow(lprcUpdate: PRect; hrgnUpdate: HRGN; flags: UINT): BOOL;
 begin
   Result:= Winapi.Windows.RedrawWindow(Handle, lprcUpdate, hrgnUpdate, flags);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TVTBaseAncestorVcl.InvalidateRect(lpRect: PRect; bErase: BOOL): BOOL;
+function TERDVTVTBaseAncestorVcl.InvalidateRect(lpRect: PRect; bErase: BOOL): BOOL;
 begin
   Result:= WinApi.Windows.InvalidateRect(Handle, lpRect, bErase);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVTBaseAncestorVcl.NotifyAccessibleEvent(pEvent: DWord = EVENT_OBJECT_STATECHANGE);
+procedure TERDVTVTBaseAncestorVcl.NotifyAccessibleEvent(pEvent: DWord = EVENT_OBJECT_STATECHANGE);
 begin
   if Assigned(AccessibleItem) then
     NotifyWinEvent(pEvent, Handle, OBJID_CLIENT, CHILDID_SELF);
@@ -532,23 +532,23 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TVTBaseAncestorVcl.UpdateWindow(): BOOL;
+function TERDVTVTBaseAncestorVcl.UpdateWindow(): BOOL;
 begin
   Result:= WinApi.Windows.UpdateWindow(Handle);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVTBaseAncestorVcl.WMGetObject(var Message: TMessage);
+procedure TERDVTVTBaseAncestorVcl.WMGetObject(var Message: TMessage);
 
 begin
-  if TVTAccessibilityFactory.GetAccessibilityFactory <> nil then
+  if TERDVTVTAccessibilityFactory.GetAccessibilityFactory <> nil then
   begin
     // Create the IAccessibles for the tree view and tree view items, if necessary.
     if Accessible = nil then
-      Accessible := TVTAccessibilityFactory.GetAccessibilityFactory.CreateIAccessible(Self);
+      Accessible := TERDVTVTAccessibilityFactory.GetAccessibilityFactory.CreateIAccessible(Self);
     if AccessibleItem = nil then
-      AccessibleItem := TVTAccessibilityFactory.GetAccessibilityFactory.CreateIAccessible(Self);
+      AccessibleItem := TERDVTVTAccessibilityFactory.GetAccessibilityFactory.CreateIAccessible(Self);
     if Cardinal(Message.LParam) = OBJID_CLIENT then
       if Assigned(Accessible) then
         Message.Result := LresultFromObject(IID_IAccessible, Message.WParam, Accessible)
@@ -559,47 +559,47 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVTBaseAncestorVcl.ShowScrollBar(Bar: Integer; AShow: Boolean);
+procedure TERDVTVTBaseAncestorVcl.ShowScrollBar(Bar: Integer; AShow: Boolean);
 begin
   WinApi.Windows.ShowScrollBar(Handle, Bar, AShow);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TVTBaseAncestorVcl.SendWM_SETREDRAW(Updating: Boolean): LRESULT;
+function TERDVTVTBaseAncestorVcl.SendWM_SETREDRAW(Updating: Boolean): LRESULT;
 begin
   Result:= SendMessage(Handle, WM_SETREDRAW, Ord(not Updating), 0);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TVTBaseAncestorVcl.SetScrollInfo(Bar: Integer; const ScrollInfo: TScrollInfo; Redraw: Boolean): TDimension;
+function TERDVTVTBaseAncestorVcl.SetScrollInfo(Bar: Integer; const ScrollInfo: TScrollInfo; Redraw: Boolean): TDimension;
 begin
   Result:= WinApi.Windows.SetScrollInfo(Handle, Bar, ScrollInfo, Redraw);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVTBaseAncestorVcl.SetWindowTheme(const Theme: string);
+procedure TERDVTVTBaseAncestorVcl.SetWindowTheme(const Theme: string);
 begin
   Winapi.UxTheme.SetWindowTheme(Handle, PWideChar(Theme), nil);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TVTBaseAncestorVcl.GetScrollInfo(Bar: Integer; var ScrollInfo: TScrollInfo): Boolean;
+function TERDVTVTBaseAncestorVcl.GetScrollInfo(Bar: Integer; var ScrollInfo: TScrollInfo): Boolean;
 begin
   Result:= WinApi.Windows.GetScrollInfo(Handle, Bar, ScrollInfo);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TVTBaseAncestorVcl.GetScrollPos(Bar: Integer): TDimension;
+function TERDVTVTBaseAncestorVcl.GetScrollPos(Bar: Integer): TDimension;
 begin
   Result:= WinApi.Windows.GetScrollPos(Handle, Bar);
 end;
 
-function TVTBaseAncestorVcl.GetTextMetrics(Canvas: TCanvas; var TM: TTextMetric): BOOL;
+function TERDVTVTBaseAncestorVcl.GetTextMetrics(Canvas: TCanvas; var TM: TTextMetric): BOOL;
 begin
   Result:= WinApi.Windows.GetTextMetrics(Canvas.Handle, TM);
 end;

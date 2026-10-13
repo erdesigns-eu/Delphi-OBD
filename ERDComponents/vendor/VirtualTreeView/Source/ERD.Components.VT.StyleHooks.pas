@@ -49,27 +49,27 @@ const
 
 type
   // XE2+ VCL Style
-  TVclStyleScrollBarsHook = class(TScrollingStyleHook)
+  TERDVTVclStyleScrollBarsHook = class(TScrollingStyleHook)
   {$ifdef NOT_USE_VCL_STYLEHOOK}
   strict private type
   {$REGION 'TVclStyleScrollBarWindow'}
-      TScrollWindow = class(TWinControl)
+      TERDVTScrollWindow = class(TWinControl)
       strict private
-        FStyleHook: TVclStyleScrollBarsHook;
+        FStyleHook: TERDVTVclStyleScrollBarsHook;
         FVertical: Boolean;
         procedure WMNCHitTest(var Msg: TWMNCHitTest); message WM_NCHITTEST;
         procedure WMEraseBkgnd(var Msg: TMessage); message WM_ERASEBKGND;
         procedure WMPaint(var Msg: TWMPaint); message WM_PAINT;
       public
         constructor Create(AOwner: TComponent); override;
-        property StyleHook: TVclStyleScrollBarsHook read FStyleHook write FStyleHook;
+        property StyleHook: TERDVTVclStyleScrollBarsHook read FStyleHook write FStyleHook;
         property Vertical: Boolean read FVertical write FVertical;
       end;
   {$ENDREGION}
   private
-    FHorzScrollWnd: TScrollWindow;
+    FHorzScrollWnd: TERDVTScrollWindow;
     FLeftButtonDown: Boolean;
-    FVertScrollWnd: TScrollWindow;
+    FVertScrollWnd: TERDVTScrollWindow;
 
     procedure WMEraseBkgnd(var Msg: TWMEraseBkgnd); message WM_ERASEBKGND;
     procedure WMKeyDown(var Msg: TMessage); message WM_KEYDOWN;
@@ -103,8 +103,8 @@ type
     procedure DrawHorzScrollBar(DC: HDC); virtual;
     procedure DrawVertScrollBar(DC: HDC); virtual;
     procedure PaintScroll; override;
-    property HorzScrollWnd: TScrollWindow read FHorzScrollWnd;
-    property VertScrollWnd: TScrollWindow read FVertScrollWnd;
+    property HorzScrollWnd: TERDVTScrollWindow read FHorzScrollWnd;
+    property VertScrollWnd: TERDVTScrollWindow read FVertScrollWnd;
     property LeftButtonDown: Boolean read FLeftButtonDown;
     {$ifend}
   public
@@ -157,14 +157,14 @@ end;
 
 
 type
-  TBaseVirtualTreeCracker = class(TBaseVirtualTree)
+  TERDVTBaseVirtualTreeCracker = class(TERDVTBaseVirtualTree)
   end;
 
 
 // XE2+ VCL Style
 { TVclStyleScrollBarsHook }
 
-procedure TVclStyleScrollBarsHook.CalcScrollBarsRect();
+procedure TERDVTVclStyleScrollBarsHook.CalcScrollBarsRect();
 
   procedure CalcVerticalRects;
   var
@@ -201,7 +201,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-constructor TVclStyleScrollBarsHook.Create(AControl: TWinControl);
+constructor TERDVTVclStyleScrollBarsHook.Create(AControl: TWinControl);
 begin
   inherited;
   {$ifdef NOT_USE_VCL_STYLEHOOK}
@@ -216,7 +216,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-class procedure TVclStyleScrollBarsHook.DrawExpandArrow(pBitmap: TBitmap; pExpanded: Boolean; pColor: TColor);
+class procedure TERDVTVclStyleScrollBarsHook.DrawExpandArrow(pBitmap: TBitmap; pExpanded: Boolean; pColor: TColor);
 const
   Size: TRect = (Left: 0; Top: 0; Right: 12; Bottom: 12);
   ArrowPoints: array[Boolean, 0..5] of TPoint = (
@@ -244,7 +244,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVclStyleScrollBarsHook.UpdateScroll;
+procedure TERDVTVclStyleScrollBarsHook.UpdateScroll;
 var
   R: TRect;
   HeaderHeight: Integer;
@@ -255,16 +255,16 @@ begin
      InitScrollBars();
 
   HeaderHeight := 0;
-  if (hoVisible in TBaseVirtualTree(Control).Header.Options) then
-    Inc(HeaderHeight, TBaseVirtualTree(Control).Header.Height);
+  if (hoVisible in TERDVTBaseVirtualTree(Control).Header.Options) then
+    Inc(HeaderHeight, TERDVTBaseVirtualTree(Control).Header.Height);
 
-  PaddingSize := TBaseVirtualTreeCracker(Control).BorderWidth;
-  if TBaseVirtualTreeCracker(Control).BevelKind <> bkNone then
+  PaddingSize := TERDVTBaseVirtualTreeCracker(Control).BorderWidth;
+  if TERDVTBaseVirtualTreeCracker(Control).BevelKind <> bkNone then
   begin
-    if TBaseVirtualTreeCracker(Control).BevelInner <> bvNone then
-      Inc(PaddingSize, TBaseVirtualTreeCracker(Control).BevelWidth);
-    if TBaseVirtualTreeCracker(Control).BevelOuter <> bvNone then
-      Inc(PaddingSize, TBaseVirtualTreeCracker(Control).BevelWidth);
+    if TERDVTBaseVirtualTreeCracker(Control).BevelInner <> bvNone then
+      Inc(PaddingSize, TERDVTBaseVirtualTreeCracker(Control).BevelWidth);
+    if TERDVTBaseVirtualTreeCracker(Control).BevelOuter <> bvNone then
+      Inc(PaddingSize, TERDVTBaseVirtualTreeCracker(Control).BevelWidth);
   end;
 
   BorderSize := 0;
@@ -324,7 +324,7 @@ begin
 
 end;
 
-procedure TVclStyleScrollBarsHook.CMUpdateVclStyleScrollbars(var Msg: TMessage);
+procedure TERDVTVclStyleScrollBarsHook.CMUpdateVclStyleScrollbars(var Msg: TMessage);
 begin
   CalcScrollBarsRect;
   PaintScroll;
@@ -334,7 +334,7 @@ end;
 
 {$ifdef NOT_USE_VCL_STYLEHOOK}
 
-function TVclStyleScrollBarsHook.NCMousePosToClient(const P: TPoint): TPoint;
+function TERDVTVclStyleScrollBarsHook.NCMousePosToClient(const P: TPoint): TPoint;
 begin
   Result := P;
   ScreenToClient(Handle, Result);
@@ -349,14 +349,14 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TVclStyleScrollBarsHook.PointInTreeHeader(const P: TPoint): Boolean;
+function TERDVTVclStyleScrollBarsHook.PointInTreeHeader(const P: TPoint): Boolean;
 begin
-  Result := TBaseVirtualTree(Control).Header.InHeader(P);
+  Result := TERDVTBaseVirtualTree(Control).Header.InHeader(P);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVclStyleScrollBarsHook.DrawHorzScrollBar(DC: HDC);
+procedure TERDVTVclStyleScrollBarsHook.DrawHorzScrollBar(DC: HDC);
 var
   B: TBitmap;
   Details: TThemedElementDetails;
@@ -406,7 +406,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVclStyleScrollBarsHook.DrawVertScrollBar(DC: HDC);
+procedure TERDVTVclStyleScrollBarsHook.DrawVertScrollBar(DC: HDC);
 var
   B: TBitmap;
   Details: TThemedElementDetails;
@@ -460,7 +460,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVclStyleScrollBarsHook.MouseLeave;
+procedure TERDVTVclStyleScrollBarsHook.MouseLeave;
 begin
   inherited;
   if VertSliderState = tsThumbBtnVertHot then
@@ -486,7 +486,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVclStyleScrollBarsHook.WMCaptureChanged(var Msg: TMessage);
+procedure TERDVTVclStyleScrollBarsHook.WMCaptureChanged(var Msg: TMessage);
 begin
   if VertScrollWnd.Visible and VertScrollWnd.Enabled then
   begin
@@ -524,7 +524,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-destructor TVclStyleScrollBarsHook.Destroy;
+destructor TERDVTVclStyleScrollBarsHook.Destroy;
 begin
   FVertScrollWnd.StyleHook := nil;
   FreeAndNil(FVertScrollWnd);
@@ -535,14 +535,14 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVclStyleScrollBarsHook.WMEraseBkgnd(var Msg: TWMEraseBkgnd);
+procedure TERDVTVclStyleScrollBarsHook.WMEraseBkgnd(var Msg: TWMEraseBkgnd);
 begin
   Handled := True;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVclStyleScrollBarsHook.PaintScroll;
+procedure TERDVTVclStyleScrollBarsHook.PaintScroll;
 begin
   if FVertScrollWnd.HandleAllocated then
   begin
@@ -558,7 +558,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVclStyleScrollBarsHook.WMKeyDown(var Msg: TMessage);
+procedure TERDVTVclStyleScrollBarsHook.WMKeyDown(var Msg: TMessage);
 begin
   CallDefaultProc(TMessage(Msg));
   PaintScroll;
@@ -567,7 +567,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVclStyleScrollBarsHook.WMKeyUp(var Msg: TMessage);
+procedure TERDVTVclStyleScrollBarsHook.WMKeyUp(var Msg: TMessage);
 begin
   CallDefaultProc(TMessage(Msg));
   PaintScroll;
@@ -576,7 +576,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVclStyleScrollBarsHook.WMLButtonDown(var Msg: TWMMouse);
+procedure TERDVTVclStyleScrollBarsHook.WMLButtonDown(var Msg: TWMMouse);
 begin
   CallDefaultProc(TMessage(Msg));
   UpdateScroll;
@@ -585,19 +585,19 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVclStyleScrollBarsHook.InitScrollBars;
+procedure TERDVTVclStyleScrollBarsHook.InitScrollBars;
 begin
-  FVertScrollWnd := TScrollWindow.CreateParented(GetParent(Control.Handle));
+  FVertScrollWnd := TERDVTScrollWindow.CreateParented(GetParent(Control.Handle));
   FVertScrollWnd.StyleHook := Self;
   FVertScrollWnd.Vertical := True;
 
-  FHorzScrollWnd := TScrollWindow.CreateParented(GetParent(Control.Handle));
+  FHorzScrollWnd := TERDVTScrollWindow.CreateParented(GetParent(Control.Handle));
   FHorzScrollWnd.StyleHook := Self;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVclStyleScrollBarsHook.WMLButtonUp(var Msg: TWMMouse);
+procedure TERDVTVclStyleScrollBarsHook.WMLButtonUp(var Msg: TWMMouse);
 var
   P: TPoint;
 begin
@@ -646,7 +646,7 @@ begin
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
-procedure TVclStyleScrollBarsHook.WMNCLButtonDown(var Msg: TWMMouse);
+procedure TERDVTVclStyleScrollBarsHook.WMNCLButtonDown(var Msg: TWMMouse);
 var
   P: TPoint;
   SF: TScrollInfo;
@@ -706,7 +706,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVclStyleScrollBarsHook.WMNCLButtonUp(var Msg: TWMMouse);
+procedure TERDVTVclStyleScrollBarsHook.WMNCLButtonUp(var Msg: TWMMouse);
 var
   P: TPoint;
 begin
@@ -767,14 +767,14 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVclStyleScrollBarsHook.WMNCLButtonDblClk(var Msg: TWMMouse);
+procedure TERDVTVclStyleScrollBarsHook.WMNCLButtonDblClk(var Msg: TWMMouse);
 begin
   WMNCLButtonDown(Msg);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVclStyleScrollBarsHook.WMNCPaint(var Msg: TMessage);
+procedure TERDVTVclStyleScrollBarsHook.WMNCPaint(var Msg: TMessage);
 begin
   //if (tsWindowCreating in TBaseVirtualTree(Control).TreeStates) then
   //  UpdateScrollBarWindow;
@@ -783,7 +783,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVclStyleScrollBarsHook.WMHScroll(var Msg: TWMHScroll);
+procedure TERDVTVclStyleScrollBarsHook.WMHScroll(var Msg: TWMHScroll);
 begin
   CallDefaultProc(TMessage(Msg));
   PaintScroll;
@@ -792,7 +792,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVclStyleScrollBarsHook.WMMouseWheel(var Msg: TMessage);
+procedure TERDVTVclStyleScrollBarsHook.WMMouseWheel(var Msg: TMessage);
 begin
   CallDefaultProc(TMessage(Msg));
   CalcScrollBarsRect;
@@ -802,7 +802,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVclStyleScrollBarsHook.WMMouseMove(var Msg: TWMMouse);
+procedure TERDVTVclStyleScrollBarsHook.WMMouseMove(var Msg: TWMMouse);
 var
   SF: TScrollInfo;
   OverrideMax: Integer;
@@ -891,7 +891,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVclStyleScrollBarsHook.WMNCMouseMove(var Msg: TWMMouse);
+procedure TERDVTVclStyleScrollBarsHook.WMNCMouseMove(var Msg: TWMMouse);
 var
   P: TPoint;
   MustUpdateScroll: Boolean;
@@ -992,7 +992,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVclStyleScrollBarsHook.WMSize(var Msg: TMessage);
+procedure TERDVTVclStyleScrollBarsHook.WMSize(var Msg: TMessage);
 begin
   CallDefaultProc(TMessage(Msg));
   UpdateScroll;
@@ -1002,10 +1002,10 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVclStyleScrollBarsHook.WMMove(var Msg: TMessage);
+procedure TERDVTVclStyleScrollBarsHook.WMMove(var Msg: TMessage);
 begin
   CallDefaultProc(TMessage(Msg));
-  if not(tsWindowCreating in TBaseVirtualTree(Control).TreeStates) then
+  if not(tsWindowCreating in TERDVTBaseVirtualTree(Control).TreeStates) then
   begin
     UpdateScroll;
     PaintScroll;
@@ -1015,14 +1015,14 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVclStyleScrollBarsHook.WMPosChanged(var Msg: TMessage);
+procedure TERDVTVclStyleScrollBarsHook.WMPosChanged(var Msg: TMessage);
 begin
   WMMove(Msg);
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVclStyleScrollBarsHook.WMVScroll(var Msg: TWMVScroll);
+procedure TERDVTVclStyleScrollBarsHook.WMVScroll(var Msg: TWMVScroll);
 begin
   CallDefaultProc(TMessage(Msg));
   PaintScroll;
@@ -1033,7 +1033,7 @@ end;
 
 { TVclStyleScrollBarsHook.TVclStyleScrollBarWindow }
 
-constructor TVclStyleScrollBarsHook.TScrollWindow.Create(AOwner: TComponent);
+constructor TERDVTVclStyleScrollBarsHook.TERDVTScrollWindow.Create(AOwner: TComponent);
 begin
   inherited;
   ControlStyle := ControlStyle + [csOverrideStylePaint];
@@ -1043,21 +1043,21 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVclStyleScrollBarsHook.TScrollWindow.WMEraseBkgnd(var Msg: TMessage);
+procedure TERDVTVclStyleScrollBarsHook.TERDVTScrollWindow.WMEraseBkgnd(var Msg: TMessage);
 begin
   Msg.Result := 1;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVclStyleScrollBarsHook.TScrollWindow.WMNCHitTest(var Msg: TWMNCHitTest);
+procedure TERDVTVclStyleScrollBarsHook.TERDVTScrollWindow.WMNCHitTest(var Msg: TWMNCHitTest);
 begin
   Msg.Result := HTTRANSPARENT;
 end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVclStyleScrollBarsHook.TScrollWindow.WMPaint(var Msg: TWMPaint);
+procedure TERDVTVclStyleScrollBarsHook.TERDVTScrollWindow.WMPaint(var Msg: TWMPaint);
 var
   PS: TPaintStruct;
   DC: HDC;

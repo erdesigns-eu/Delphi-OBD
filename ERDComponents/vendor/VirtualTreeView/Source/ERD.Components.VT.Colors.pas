@@ -15,7 +15,7 @@ uses
 
 type
   //class to collect all switchable colors into one place
-  TVTColors = class(TPersistent)
+  TERDVTVTColors = class(TPersistent)
   private type
     TVTColorEnum = (
 	    cDisabledColor
@@ -113,15 +113,15 @@ uses
   ERD.Components.VT.BaseTree;
 
 type
-  TBaseVirtualTreeCracker = class(TBaseVirtualTree);
+  TERDVTBaseVirtualTreeCracker = class(TERDVTBaseVirtualTree);
 
-  TVTColorsHelper = class helper for TVTColors
-    function TreeView : TBaseVirtualTreeCracker;
+  TERDVTVTColorsHelper = class helper for TERDVTVTColors
+    function TreeView : TERDVTBaseVirtualTreeCracker;
   end;
 
   //----------------- TVTColors ------------------------------------------------------------------------------------------
 
-constructor TVTColors.Create(AOwner : TCustomControl);
+constructor TERDVTVTColors.Create(AOwner : TCustomControl);
 var
   CE : TVTColorEnum;
 begin
@@ -132,7 +132,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TVTColors.GetBackgroundColor : TColor;
+function TERDVTVTColors.GetBackgroundColor : TColor;
 begin
   //XE2 VCL Style
   if TreeView.VclStyleEnabled and (seClient in FOwner.StyleElements) then
@@ -143,7 +143,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TVTColors.GetColor(const Index : TVTColorEnum) : TColor;
+function TERDVTVTColors.GetColor(const Index : TVTColorEnum) : TColor;
 begin
   //Only try to fetch the color via StyleServices if theses are enabled
   //Return default/user defined color otherwise
@@ -184,7 +184,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TVTColors.GetHeaderFontColor : TColor;
+function TERDVTVTColors.GetHeaderFontColor : TColor;
 begin
   //XE2+ VCL Style
   if TreeView.VclStyleEnabled and (seFont in FOwner.StyleElements) then
@@ -195,7 +195,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TVTColors.GetNodeFontColor : TColor;
+function TERDVTVTColors.GetNodeFontColor : TColor;
 begin
   if TreeView.VclStyleEnabled and (seFont in FOwner.StyleElements) then
     StyleServices.GetElementColor(StyleServices.GetElementDetails(ttItemNormal), ecTextColor, Result)
@@ -205,7 +205,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TVTColors.GetSelectedNodeFontColor(Focused : boolean) : TColor;
+function TERDVTVTColors.GetSelectedNodeFontColor(Focused : boolean) : TColor;
 begin
   if Focused then
   begin
@@ -222,7 +222,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVTColors.SetColor(const Index : TVTColorEnum; const Value : TColor);
+procedure TERDVTVTColors.SetColor(const Index : TVTColorEnum; const Value : TColor);
 begin
   if FColors[Index] <> Value then
   begin
@@ -248,7 +248,7 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-function TVTColors.StyleServices(AControl : TControl) : TCustomStyleServices;
+function TERDVTVTColors.StyleServices(AControl : TControl) : TCustomStyleServices;
 begin
   if AControl = nil then
     AControl := FOwner;
@@ -257,11 +257,11 @@ end;
 
 //----------------------------------------------------------------------------------------------------------------------
 
-procedure TVTColors.Assign(Source : TPersistent);
+procedure TERDVTVTColors.Assign(Source : TPersistent);
 begin
-  if Source is TVTColors then
+  if Source is TERDVTVTColors then
   begin
-    FColors := TVTColors(Source).FColors;
+    FColors := TERDVTVTColors(Source).FColors;
     if TreeView.UpdateCount = 0 then
       TreeView.Invalidate;
   end
@@ -271,9 +271,9 @@ end;
 
 { TVTColorsHelper }
 
-function TVTColorsHelper.TreeView : TBaseVirtualTreeCracker;
+function TERDVTVTColorsHelper.TreeView : TERDVTBaseVirtualTreeCracker;
 begin
-  Result := TBaseVirtualTreeCracker(FOwner);
+  Result := TERDVTBaseVirtualTreeCracker(FOwner);
 end;
 
 end.

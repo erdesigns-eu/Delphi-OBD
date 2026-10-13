@@ -16,11 +16,11 @@ uses Winapi.Windows,
      ERD.Components.VT,
      ERD.Components.VT.Classes;
 
-function ContentToHTML(Tree: TCustomVirtualStringTree; Source: TVSTTextSourceType; const Caption: string = ''): String;
-function ContentToRTF(Tree: TCustomVirtualStringTree; Source: TVSTTextSourceType): RawByteString;
-function ContentToUnicodeString(Tree: TCustomVirtualStringTree; Source: TVSTTextSourceType; const Separator: string): string;
-function ContentToClipboard(Tree: TCustomVirtualStringTree; Format: Word; Source: TVSTTextSourceType): HGLOBAL;
-procedure ContentToCustom(Tree: TCustomVirtualStringTree; Source: TVSTTextSourceType);
+function ContentToHTML(Tree: TERDVTCustomVirtualStringTree; Source: TVSTTextSourceType; const Caption: string = ''): String;
+function ContentToRTF(Tree: TERDVTCustomVirtualStringTree; Source: TVSTTextSourceType): RawByteString;
+function ContentToUnicodeString(Tree: TERDVTCustomVirtualStringTree; Source: TVSTTextSourceType; const Separator: string): string;
+function ContentToClipboard(Tree: TERDVTCustomVirtualStringTree; Format: Word; Source: TVSTTextSourceType): HGLOBAL;
+procedure ContentToCustom(Tree: TERDVTCustomVirtualStringTree; Source: TVSTTextSourceType);
 
 implementation
 
@@ -39,7 +39,7 @@ uses
   ERD.Components.VT.BaseTree;
 
 type
-  TCustomVirtualStringTreeCracker = class(TCustomVirtualStringTree)
+  TERDVTCustomVirtualStringTreeCracker = class(TERDVTCustomVirtualStringTree)
   end;
 
 const
@@ -48,14 +48,14 @@ const
 
 
 
-function ContentToHTML(Tree: TCustomVirtualStringTree; Source: TVSTTextSourceType; const Caption: string): String;
+function ContentToHTML(Tree: TERDVTCustomVirtualStringTree; Source: TVSTTextSourceType; const Caption: string): String;
 
 // Renders the current tree content (depending on Source) as HTML text encoded in UTF-8.
 // If Caption is not empty then it is used to create and fill the header for the table built here.
 // Based on ideas and code from Frank van den Bergh and Andreas Hörstemeier.
 
 var
-  Buffer: TBufferedString;
+  Buffer: TERDVTBufferedString;
 
   //--------------- local functions -------------------------------------------
 
@@ -147,14 +147,14 @@ var
   BidiMode: TBidiMode;
 
   CellPadding: String;
-  CrackTree: TCustomVirtualStringTreeCracker;
+  CrackTree: TERDVTCustomVirtualStringTreeCracker;
   lGetCellTextEventArgs: TVSTGetCellTextEventArgs;
   MulticellSelected: Boolean; // multicell support
 begin
-  CrackTree := TCustomVirtualStringTreeCracker(Tree);
+  CrackTree := TERDVTCustomVirtualStringTreeCracker(Tree);
 
   CrackTree.StartOperation(TVTOperationKind.okExport);
-  Buffer := TBufferedString.Create;
+  Buffer := TERDVTBufferedString.Create;
   lGetCellTextEventArgs.ExportType := TVTExportType.etHtml;
   try
     // For customization by the application or descendants we use again the redirected font change event.
@@ -445,7 +445,7 @@ begin
           CrackTree.DoGetText(lGetCellTextEventArgs);
           CellText := THtmlEncoding.HTML.Encode(lGetCellTextEventArgs.CellText);
           Buffer.Add(CellText);
-          if not lGetCellTextEventArgs.StaticText.IsEmpty and (toShowStaticText in TStringTreeOptions(CrackTree.TreeOptions).StringOptions) then
+          if not lGetCellTextEventArgs.StaticText.IsEmpty and (toShowStaticText in TERDVTStringTreeOptions(CrackTree.TreeOptions).StringOptions) then
             Buffer.Add(' ' + lGetCellTextEventArgs.StaticText);
           Buffer.Add('</td>');
         end;
@@ -471,7 +471,7 @@ begin
   end;
 end;
 
-function ContentToRTF(Tree: TCustomVirtualStringTree; Source: TVSTTextSourceType): RawByteString;
+function ContentToRTF(Tree: TERDVTCustomVirtualStringTree; Source: TVSTTextSourceType): RawByteString;
 
 // Renders the current tree content (depending on Source) as RTF (rich text).
 // Based on ideas and code from Frank van den Bergh and Andreas Hoerstemeier.
@@ -482,7 +482,7 @@ var
   CurrentFontIndex,
   CurrentFontColor,
   CurrentFontSize: Integer;
-  Buffer: TBufferedRawByteString;
+  Buffer: TERDVTBufferedRawByteString;
 
   //--------------- local functions -------------------------------------------
 
@@ -611,13 +611,13 @@ var
   Alignment: TAlignment;
   BidiMode: TBidiMode;
   LocaleBuffer: array [0..1] of Char;
-  CrackTree: TCustomVirtualStringTreeCracker;
+  CrackTree: TERDVTCustomVirtualStringTreeCracker;
   lGetCellTextEventArgs: TVSTGetCellTextEventArgs;
   MulticellSelected: Boolean; // multicell support
 begin
-  CrackTree := TCustomVirtualStringTreeCracker(Tree);
+  CrackTree := TERDVTCustomVirtualStringTreeCracker(Tree);
 
-  Buffer := TBufferedRawByteString.Create;
+  Buffer := TERDVTBufferedRawByteString.Create;
   lGetCellTextEventArgs.ExportType := TVTExportType.etRtf;
   CrackTree.StartOperation(TVTOperationKind.okExport);
   try
@@ -780,7 +780,7 @@ begin
           begin
             TextPlusFont(lGetCellTextEventArgs.CellText, CrackTree.Canvas.Font);
           end;
-          if not lGetCellTextEventArgs.StaticText.IsEmpty and (toShowStaticText in TStringTreeOptions(CrackTree.TreeOptions).StringOptions) then
+          if not lGetCellTextEventArgs.StaticText.IsEmpty and (toShowStaticText in TERDVTStringTreeOptions(CrackTree.TreeOptions).StringOptions) then
           begin
             CrackTree.DoPaintText(Run, CrackTree.Canvas, Index, ttStatic);
             TextPlusFont(' ' + lGetCellTextEventArgs.StaticText, CrackTree.Canvas.Font);
@@ -832,12 +832,12 @@ begin
 end;
 
 
-function ContentToUnicodeString(Tree: TCustomVirtualStringTree; Source: TVSTTextSourceType; const Separator: string): string;
+function ContentToUnicodeString(Tree: TERDVTCustomVirtualStringTree; Source: TVSTTextSourceType; const Separator: string): string;
 
 // Renders the current tree content (depending on Source) as Unicode text.
 // If an entry contains the separator char then it is wrapped with double quotation marks.
 var
-  Buffer: TBufferedString;
+  Buffer: TERDVTBufferedString;
 
   procedure CheckQuotingAndAppend(const pText: string);
   begin
@@ -855,17 +855,17 @@ var
   Run, Save: PVirtualNode;
 
   Columns: TColumnsArray;
-  LastColumn: TVirtualTreeColumn;
+  LastColumn: TERDVTVirtualTreeColumn;
   Level, MaxLevel: Cardinal;
   Index,
   I: Integer;
-  CrackTree: TCustomVirtualStringTreeCracker;
+  CrackTree: TERDVTCustomVirtualStringTreeCracker;
   lGetCellTextEventArgs: TVSTGetCellTextEventArgs;
   MulticellSelected: Boolean;
 begin
-  CrackTree := TCustomVirtualStringTreeCracker(Tree);
+  CrackTree := TERDVTCustomVirtualStringTreeCracker(Tree);
 
-  Buffer := TBufferedString.Create;
+  Buffer := TERDVTBufferedString.Create;
   lGetCellTextEventArgs.ExportType := TVTExportType.etText;
   CrackTree.StartOperation(TVTOperationKind.okExport);
   try
@@ -940,7 +940,7 @@ begin
             CrackTree.DoGetText(lGetCellTextEventArgs);
             if Index = CrackTree.Header.MainColumn then
               Buffer.Add(Copy(Tabs, 1, Integer(CrackTree.GetNodeLevel(Run)) * Length(Separator)));
-            if not lGetCellTextEventArgs.StaticText.IsEmpty and (toShowStaticText in TStringTreeOptions(CrackTree.TreeOptions).StringOptions) then
+            if not lGetCellTextEventArgs.StaticText.IsEmpty and (toShowStaticText in TERDVTStringTreeOptions(CrackTree.TreeOptions).StringOptions) then
               CheckQuotingAndAppend(lGetCellTextEventArgs.CellText + ' ' + lGetCellTextEventArgs.StaticText)
             else
               CheckQuotingAndAppend(lGetCellTextEventArgs.CellText);
@@ -977,7 +977,7 @@ begin
   end;
 end;
 
-function ContentToClipboard(Tree: TCustomVirtualStringTree; Format: Word; Source: TVSTTextSourceType): HGLOBAL;
+function ContentToClipboard(Tree: TERDVTCustomVirtualStringTree; Format: Word; Source: TVSTTextSourceType): HGLOBAL;
 
 // This method constructs a shareable memory object filled with string data in the required format. Supported are:
 // CF_TEXT - plain ANSI text (Unicode text is converted using the user's current locale)
@@ -1047,9 +1047,9 @@ var
   WS: string;
   lUtf8String: Utf8string;
   P: Pointer;
-  CrackTree: TCustomVirtualStringTreeCracker;
+  CrackTree: TERDVTCustomVirtualStringTreeCracker;
 begin
-  CrackTree := TCustomVirtualStringTreeCracker(Tree);
+  CrackTree := TERDVTCustomVirtualStringTreeCracker(Tree);
 
   Result := 0;
   DataSize := 0;
@@ -1100,7 +1100,7 @@ begin
   end;
 end;
 
-procedure ContentToCustom(Tree: TCustomVirtualStringTree; Source: TVSTTextSourceType);
+procedure ContentToCustom(Tree: TERDVTCustomVirtualStringTree; Source: TVSTTextSourceType);
 
 // Generic export procedure which polls the application at every stage of the export.
 
@@ -1110,9 +1110,9 @@ var
   GetNextNode: TGetNextNodeProc;
   RenderColumns: Boolean;
   Columns: TColumnsArray;
-  CrackTree: TCustomVirtualStringTreeCracker;
+  CrackTree: TERDVTCustomVirtualStringTreeCracker;
 begin
-  CrackTree := TCustomVirtualStringTreeCracker(Tree);
+  CrackTree := TERDVTCustomVirtualStringTreeCracker(Tree);
 
   CrackTree.StartOperation(TVTOperationKind.okExport);
   try
