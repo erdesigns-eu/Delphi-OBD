@@ -40,7 +40,6 @@ type
     procedure Paint; override;
     function DoSetOffsetXY(Value: TPoint; Options: TScrollUpdateOptions; ClipRect: PRect = nil): Boolean; override;
     function GetClientRect: TRect; override;
-    procedure UpdateScrollBars(DoRepaint: Boolean); override;
     procedure DoAfterItemPaint(Canvas: TCanvas; Node: PVirtualNode; ItemRect: TRect); override;
     function GetVclStyleEnabled: Boolean; override;
     function UseAdvancedHeaderDraw: Boolean; override;
@@ -55,6 +54,7 @@ type
     procedure PaintCheckImage(Canvas: TCanvas; const ImageInfo: TVTImageInfo;
       Selected: Boolean); override;
   public
+    procedure UpdateScrollBars(DoRepaint: Boolean); override;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure ThemeChanged;
@@ -87,7 +87,7 @@ begin
   FHorizontalBar.TabStop := False;
   FHorizontalBar.Visible := False;
   FHorizontalBar.OnChange := ScrollChanged;
-  ScrollBarOptions.ScrollBars := TScrollStyle.ssNone;
+  ScrollBarOptions.ScrollBars := System.UITypes.TScrollStyle.ssNone;
   FThemedChecks := TImageList.Create(Self);
   FThemedChecks.Width := 18;
   FThemedChecks.Height := 18;
