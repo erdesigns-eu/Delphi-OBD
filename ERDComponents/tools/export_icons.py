@@ -66,7 +66,7 @@ COMPONENT_ICONS={
  'TERDScrollBox':48,'TERDSplitter':48,'TERDSpinEdit':307,'TERDTrackBar':264,
  'TERDMemo':102,'TERDCalendar':155,'TERDDatePicker':154,
  'TERDTitleBar':41,'TERDMenuBar':57,'TERDPopupMenu':60,'TERDMenuItem':40,
- 'TERDRibbon':112,'TERDBackstage':5,'TERDReportPreview':23,'TERDTabs':49,
+ 'TERDRibbon':112,'TERDBackstage':5,'TERDTabs':49,
  'TERDToolBar':48,'TERDStatusBar':153,'TERDProgressBar':232,'TERDDialog':28,
  'TERDToastManager':39,'TERDDataGrid':87,'TERDTileGrid':59,'TERDKeyValueList':61,
  'TERDInspector':27,'TERDHistogram':111,'TERDHintStyle':29,'TERDTaskDialog':151,

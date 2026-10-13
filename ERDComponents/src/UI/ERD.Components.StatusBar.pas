@@ -70,7 +70,7 @@ type
 
   /// <summary>One streamable status-bar panel.</summary>
   TERDStatusPanel = class(TCollectionItem)
-  strict private
+  private
     FControl: TControl;
     FOriginalParent: TWinControl;
     FOriginalBounds: TRect;

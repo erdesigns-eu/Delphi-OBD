@@ -3,7 +3,7 @@
 interface
 
 uses
-  System.Classes, System.Types, System.SysUtils, Vcl.Controls, Vcl.Graphics,
+  Winapi.Windows, System.Classes, System.Types, System.SysUtils, Vcl.Controls, Vcl.Graphics,
   ERD.Components.Types, ERD.Components.Control, ERD.Components.Paint;
 
 type

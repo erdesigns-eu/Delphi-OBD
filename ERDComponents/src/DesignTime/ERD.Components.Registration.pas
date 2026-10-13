@@ -67,7 +67,6 @@ begin
     TERDPopupMenu,
     TERDRibbon,
     TERDBackstage,
-    TERDReportPreview,
     TERDTabs,
     TERDToolBar,
     TERDStatusBar,
