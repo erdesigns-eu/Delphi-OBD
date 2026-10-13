@@ -29,7 +29,9 @@ library. De hele map kan naar een eigen repository worden verplaatst.
 `ERDComponents_RT` is apart beschikbaar voor applicaties die runtime-packages
 gebruiken (Win32/Win64). Installeer RT niet daarnaast in dezelfde IDE: standalone
 DT bevat dezelfde units. Bronapplicaties voegen `src/UI` aan hun zoekpad toe.
-BPL-uitvoer: `$(BDSCOMMONDIR)/Bpl/ERDComponents/<platform>`.
+BPL-uitvoer: `$(BDSCOMMONDIR)/Bpl` voor Win32, en
+`$(BDSCOMMONDIR)/Bpl/<platform>` voor de 64-bit targets. Win32 gebruikt de
+standaard Delphi-locatie zodat de 32-bit IDE de package op naam kan laden.
 
 ## Themes en ribbonvorm
 

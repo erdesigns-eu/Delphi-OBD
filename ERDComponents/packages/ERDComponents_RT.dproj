@@ -10,7 +10,8 @@
         <DCC_UnitSearchPath>..\src\UI;..\src\DesignTime;..\build\$(Platform)\$(Config);..\vendor\VirtualTreeView\Source;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_DcuOutput>..\build\$(Platform)\$(Config)\rt-dcu</DCC_DcuOutput>
         <DCC_DcpOutput>..\build\$(Platform)\$(Config)</DCC_DcpOutput>
-        <DCC_BplOutput>$(BDSCOMMONDIR)\Bpl\ERDComponents\$(Platform)</DCC_BplOutput>
+        <DCC_BplOutput Condition="'$(Platform)'=='Win32'">$(BDSCOMMONDIR)\Bpl</DCC_BplOutput>
+        <DCC_BplOutput Condition="'$(Platform)'!='Win32'">$(BDSCOMMONDIR)\Bpl\$(Platform)</DCC_BplOutput>
         <DCC_ExeOutput>$(Platform)\$(Config)</DCC_ExeOutput>
         <DCC_Define>$(DCC_Define)</DCC_Define>
         <DCC_AssertionsAtRuntime>true</DCC_AssertionsAtRuntime>
@@ -25,7 +26,8 @@
     </PropertyGroup>
     <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Base)'=='true') or '$(Base_Win64)'!=''">
         <Base_Win64>true</Base_Win64>
-        <DCC_BplOutput>$(BDSCOMMONDIR)\Bpl\ERDComponents\$(Platform)</DCC_BplOutput>
+        <DCC_BplOutput Condition="'$(Platform)'=='Win32'">$(BDSCOMMONDIR)\Bpl</DCC_BplOutput>
+        <DCC_BplOutput Condition="'$(Platform)'!='Win32'">$(BDSCOMMONDIR)\Bpl\$(Platform)</DCC_BplOutput>
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
