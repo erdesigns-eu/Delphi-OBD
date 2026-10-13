@@ -1,0 +1,1913 @@
+{
+  "source_commit": "e43fd7b7608cfc87cb43f9fa46bacc1a2e413cc1",
+  "scope": "Delphi VCL UI extraction review; no code migration performed",
+  "units": [
+    {
+      "file": "src/UI/ERD.UI.ActuatorPanel.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.ScrollBar",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDActuatorItem",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDActuatorCollection",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDActuatorPanel",
+          "TOBDCustomControl, IOBDSurface"
+        ]
+      ],
+      "category": "OBD"
+    },
+    {
+      "file": "src/UI/ERD.UI.Anim.pas",
+      "deps": [],
+      "classes": [],
+      "category": "basis"
+    },
+    {
+      "file": "src/UI/ERD.UI.Backstage.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.ScrollBar",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDBackstageItem",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDBackstageItems",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDBackstage",
+          "TOBDCustomControl"
+        ],
+        [
+          "TOBDReportPreview",
+          "TOBDCustomControl"
+        ]
+      ],
+      "category": "algemeen"
+    },
+    {
+      "file": "src/UI/ERD.UI.Binding.pas",
+      "deps": [
+        "ERD.Service.LiveData"
+      ],
+      "classes": [
+        [
+          "TOBDChannelBinding",
+          "TPersistent"
+        ]
+      ],
+      "category": "databinding"
+    },
+    {
+      "file": "src/UI/ERD.UI.BitEditor.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.ScrollBar",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDBitLabelItem",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDBitLabelCollection",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDBitEditor",
+          "TOBDCustomControl, IOBDSurface"
+        ]
+      ],
+      "category": "optioneel"
+    },
+    {
+      "file": "src/UI/ERD.UI.BusSend.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDBusSend",
+          "TOBDCustomControl, IOBDSurface"
+        ]
+      ],
+      "category": "OBD"
+    },
+    {
+      "file": "src/UI/ERD.UI.BusTrace.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.ScrollBar",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDBusTrace",
+          "TOBDCustomControl, IOBDSurface"
+        ]
+      ],
+      "category": "OBD"
+    },
+    {
+      "file": "src/UI/ERD.UI.Buttons.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDInteractiveControl",
+          "TOBDCustomControl"
+        ],
+        [
+          "TOBDButton",
+          "TOBDInteractiveControl"
+        ],
+        [
+          "TOBDCheckBox",
+          "TOBDInteractiveControl"
+        ],
+        [
+          "TOBDRadioButton",
+          "TOBDInteractiveControl"
+        ]
+      ],
+      "category": "algemeen"
+    },
+    {
+      "file": "src/UI/ERD.UI.Calendar.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDCalendar",
+          "TOBDCustomControl"
+        ],
+        [
+          "TOBDDatePicker",
+          "TOBDCustomControl"
+        ],
+        [
+          "TOBDCalendarPopup",
+          "TOBDCalendar"
+        ]
+      ],
+      "category": "algemeen"
+    },
+    {
+      "file": "src/UI/ERD.UI.Card.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDCard",
+          "TOBDCustomControl, IOBDSurface"
+        ]
+      ],
+      "category": "algemeen"
+    },
+    {
+      "file": "src/UI/ERD.UI.CellMatrix.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDCellMatrix",
+          "TOBDCustomControl, IOBDSurface"
+        ]
+      ],
+      "category": "OBD"
+    },
+    {
+      "file": "src/UI/ERD.UI.Chips.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint"
+      ],
+      "classes": [
+        [
+          "TOBDChip",
+          "TOBDGraphicControl"
+        ],
+        [
+          "TOBDBadge",
+          "TOBDGraphicControl"
+        ],
+        [
+          "TOBDBanner",
+          "TOBDCustomControl, IOBDSurface"
+        ]
+      ],
+      "category": "algemeen"
+    },
+    {
+      "file": "src/UI/ERD.UI.ColorDialog.pas",
+      "deps": [
+        "ERD.UI.Buttons",
+        "ERD.UI.Control",
+        "ERD.UI.Dialogs",
+        "ERD.UI.Edits",
+        "ERD.UI.Paint",
+        "ERD.UI.SpinEdit",
+        "ERD.UI.Theme",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDColorSwatches",
+          "TOBDCustomControl"
+        ],
+        [
+          "TOBDColorSpectrum",
+          "TOBDCustomControl"
+        ],
+        [
+          "TOBDColorDialog",
+          "TOBDCommonDialog"
+        ]
+      ],
+      "category": "algemeen"
+    },
+    {
+      "file": "src/UI/ERD.UI.ConnectionBar.pas",
+      "deps": [
+        "ERD.Adapter",
+        "ERD.Connection",
+        "ERD.Connection.Types",
+        "ERD.I18n",
+        "ERD.Service.LiveData",
+        "ERD.UI.Binding",
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.Types",
+        "ERD.UI.Units"
+      ],
+      "classes": [
+        [
+          "TOBDConnectionBar",
+          "TOBDCustomControl"
+        ]
+      ],
+      "category": "OBD"
+    },
+    {
+      "file": "src/UI/ERD.UI.Control.pas",
+      "deps": [
+        "ERD.UI.Paint",
+        "ERD.UI.Theme",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDCustomControl",
+          "TCustomControl, IOBDThemeAware, IOBDDensityAware"
+        ],
+        [
+          "TOBDGraphicControl",
+          "TGraphicControl, IOBDThemeAware"
+        ]
+      ],
+      "category": "basis"
+    },
+    {
+      "file": "src/UI/ERD.UI.Dashboard.pas",
+      "deps": [
+        "ERD.JSON",
+        "ERD.Service.LiveData",
+        "ERD.UI.Control",
+        "ERD.UI.Gauges.Bar",
+        "ERD.UI.Gauges.Dial",
+        "ERD.UI.LiveDataGrid",
+        "ERD.UI.MatrixDisplay",
+        "ERD.UI.StatusLamp",
+        "ERD.UI.TrendChart",
+        "ERD.UI.Types",
+        "ERD.UI.ValueTile"
+      ],
+      "classes": [
+        [
+          "TOBDDashboardTile",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDDashboardTiles",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDDashboard",
+          "TOBDCustomControl, IOBDTileHost"
+        ]
+      ],
+      "category": "databinding"
+    },
+    {
+      "file": "src/UI/ERD.UI.DataGrid.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.ItemList",
+        "ERD.UI.Paint",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDDataGridColumn",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDDataGridColumns",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDDataGrid",
+          "TOBDCustomItemList"
+        ]
+      ],
+      "category": "algemeen"
+    },
+    {
+      "file": "src/UI/ERD.UI.Dialogs.pas",
+      "deps": [
+        "ERD.UI.Buttons",
+        "ERD.UI.Control",
+        "ERD.UI.Edits",
+        "ERD.UI.Paint",
+        "ERD.UI.Theme",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDDialogText",
+          "TOBDCustomControl"
+        ],
+        [
+          "TOBDDialogFooter",
+          "TOBDCustomControl, IOBDSurface"
+        ],
+        [
+          "TOBDDialogWindow",
+          "TForm, IOBDSurface"
+        ],
+        [
+          "TOBDCommonDialog",
+          "TComponent, IOBDThemeAware"
+        ],
+        [
+          "TOBDDialog",
+          "TComponent, IOBDThemeAware"
+        ],
+        [
+          "TOBDControlAccess",
+          "TOBDCustomControl"
+        ]
+      ],
+      "category": "algemeen"
+    },
+    {
+      "file": "src/UI/ERD.UI.DiffView.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.ScrollBar",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDDiffRow",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDDiffRowCollection",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDDiffView",
+          "TOBDCustomControl, IOBDSurface"
+        ]
+      ],
+      "category": "optioneel"
+    },
+    {
+      "file": "src/UI/ERD.UI.DtcList.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.ScrollBar",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDDtcList",
+          "TOBDCustomControl"
+        ]
+      ],
+      "category": "OBD"
+    },
+    {
+      "file": "src/UI/ERD.UI.DtcPanel.pas",
+      "deps": [
+        "ERD.I18n",
+        "ERD.Service.DTCs",
+        "ERD.UI.Buttons",
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.ScrollBar",
+        "ERD.UI.Segmented",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDDtcItem",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDDtcCollection",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDDtcPanel",
+          "TOBDCustomControl, IOBDSurface"
+        ]
+      ],
+      "category": "OBD"
+    },
+    {
+      "file": "src/UI/ERD.UI.EcuTopology.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.ScrollBar",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDEcuBusItem",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDEcuBusCollection",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDEcuItem",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDEcuCollection",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDEcuTopology",
+          "TOBDCustomControl, IOBDSurface"
+        ],
+        [
+          "TOBDEcuList",
+          "TOBDCustomControl, IOBDSurface"
+        ]
+      ],
+      "category": "OBD"
+    },
+    {
+      "file": "src/UI/ERD.UI.Edits.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.PopupList"
+      ],
+      "classes": [
+        [
+          "TOBDEdit",
+          "TOBDCustomControl"
+        ],
+        [
+          "TOBDComboBox",
+          "TOBDCustomControl"
+        ]
+      ],
+      "category": "algemeen"
+    },
+    {
+      "file": "src/UI/ERD.UI.FileDialogs.pas",
+      "deps": [
+        "ERD.UI.Buttons",
+        "ERD.UI.Chips",
+        "ERD.UI.Control",
+        "ERD.UI.Dialogs",
+        "ERD.UI.Edits",
+        "ERD.UI.Paint",
+        "ERD.UI.ShellControls",
+        "ERD.UI.Theme",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDCustomFileDialog",
+          "TOBDCommonDialog"
+        ],
+        [
+          "TOBDOpenDialog",
+          "TOBDCustomFileDialog"
+        ],
+        [
+          "TOBDSaveDialog",
+          "TOBDCustomFileDialog"
+        ],
+        [
+          "TOBDOpenPictureDialog",
+          "TOBDOpenDialog"
+        ],
+        [
+          "TOBDSavePictureDialog",
+          "TOBDSaveDialog"
+        ],
+        [
+          "TOBDFolderDialog",
+          "TOBDCommonDialog"
+        ]
+      ],
+      "category": "algemeen"
+    },
+    {
+      "file": "src/UI/ERD.UI.FindDialogs.pas",
+      "deps": [
+        "ERD.UI.Buttons",
+        "ERD.UI.Dialogs",
+        "ERD.UI.Edits",
+        "ERD.UI.Paint",
+        "ERD.UI.Segmented",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDFindDialog",
+          "TOBDCommonDialog"
+        ],
+        [
+          "TOBDReplaceDialog",
+          "TOBDFindDialog"
+        ]
+      ],
+      "category": "algemeen"
+    },
+    {
+      "file": "src/UI/ERD.UI.FontDialog.pas",
+      "deps": [
+        "ERD.UI.Buttons",
+        "ERD.UI.Control",
+        "ERD.UI.Dialogs",
+        "ERD.UI.Edits",
+        "ERD.UI.ItemList",
+        "ERD.UI.Paint",
+        "ERD.UI.Theme",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDFontDialog",
+          "TOBDCommonDialog"
+        ]
+      ],
+      "category": "algemeen"
+    },
+    {
+      "file": "src/UI/ERD.UI.FreezeFrameView.pas",
+      "deps": [
+        "ERD.Service.LiveData",
+        "ERD.UI.Buttons",
+        "ERD.UI.Control",
+        "ERD.UI.Inspector",
+        "ERD.UI.Paint",
+        "ERD.UI.RangeProfiles",
+        "ERD.UI.ScrollBar",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDFreezeFrameView",
+          "TOBDCustomControl, IOBDSurface"
+        ]
+      ],
+      "category": "OBD"
+    },
+    {
+      "file": "src/UI/ERD.UI.GDIP.pas",
+      "deps": [],
+      "classes": [],
+      "category": "basis"
+    },
+    {
+      "file": "src/UI/ERD.UI.GMeter.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDGMeter",
+          "TOBDCustomControl, IOBDSurface"
+        ]
+      ],
+      "category": "optioneel"
+    },
+    {
+      "file": "src/UI/ERD.UI.Gauges.Bar.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Gauges.Base",
+        "ERD.UI.Gauges.Types",
+        "ERD.UI.Types",
+        "ERD.UI.Units"
+      ],
+      "classes": [
+        [
+          "TOBDBarGauge",
+          "TOBDGaugeBase"
+        ]
+      ],
+      "category": "databinding"
+    },
+    {
+      "file": "src/UI/ERD.UI.Gauges.Base.pas",
+      "deps": [
+        "ERD.Service.LiveData",
+        "ERD.UI.Anim",
+        "ERD.UI.Binding",
+        "ERD.UI.Control",
+        "ERD.UI.Gauges.Types",
+        "ERD.UI.Theme",
+        "ERD.UI.Types",
+        "ERD.UI.Units"
+      ],
+      "classes": [
+        [
+          "TOBDGaugeAlerts",
+          "TPersistent"
+        ],
+        [
+          "TOBDGaugeBase",
+          "TOBDCustomControl"
+        ]
+      ],
+      "category": "databinding"
+    },
+    {
+      "file": "src/UI/ERD.UI.Gauges.Dial.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.GDIP",
+        "ERD.UI.Gauges.Base",
+        "ERD.UI.Gauges.Types",
+        "ERD.UI.Types",
+        "ERD.UI.Units"
+      ],
+      "classes": [
+        [
+          "TOBDDialGauge",
+          "TOBDGaugeBase"
+        ]
+      ],
+      "category": "databinding"
+    },
+    {
+      "file": "src/UI/ERD.UI.Gauges.Types.pas",
+      "deps": [],
+      "classes": [],
+      "category": "databinding"
+    },
+    {
+      "file": "src/UI/ERD.UI.HexView.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.ScrollBar",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDHexRegionItem",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDHexRegionCollection",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDHexView",
+          "TOBDCustomControl, IOBDSurface"
+        ]
+      ],
+      "category": "optioneel"
+    },
+    {
+      "file": "src/UI/ERD.UI.Hint.pas",
+      "deps": [
+        "ERD.UI.Paint",
+        "ERD.UI.Theme",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDHintWindow",
+          "THintWindow"
+        ],
+        [
+          "TOBDHintStyle",
+          "TComponent, IOBDThemeAware"
+        ]
+      ],
+      "category": "algemeen"
+    },
+    {
+      "file": "src/UI/ERD.UI.Histogram.pas",
+      "deps": [
+        "ERD.I18n",
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDHistogram",
+          "TOBDCustomControl, IOBDSurface"
+        ]
+      ],
+      "category": "i18n"
+    },
+    {
+      "file": "src/UI/ERD.UI.IconData.pas",
+      "deps": [],
+      "classes": [],
+      "category": "basis"
+    },
+    {
+      "file": "src/UI/ERD.UI.Inspector.pas",
+      "deps": [
+        "ERD.I18n",
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.PopupList",
+        "ERD.UI.ScrollBar",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDInspectorProperty",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDInspectorPropertyCollection",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDInspectorCategory",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDInspectorCategoryCollection",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDInspector",
+          "TOBDCustomControl"
+        ],
+        [
+          "TOBDInspectorEdit",
+          "TEdit"
+        ]
+      ],
+      "category": "i18n"
+    },
+    {
+      "file": "src/UI/ERD.UI.ItemList.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.ScrollBar",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDCustomItemList",
+          "TOBDCustomControl"
+        ],
+        [
+          "TOBDListBox",
+          "TOBDCustomItemList"
+        ]
+      ],
+      "category": "algemeen"
+    },
+    {
+      "file": "src/UI/ERD.UI.KeySlots.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDKeySlotItem",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDKeySlotCollection",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDKeySlots",
+          "TOBDCustomControl, IOBDSurface"
+        ]
+      ],
+      "category": "OBD"
+    },
+    {
+      "file": "src/UI/ERD.UI.KeyValueList.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.ScrollBar",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDKeyValueItem",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDKeyValueItems",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDKeyValueList",
+          "TOBDCustomControl"
+        ]
+      ],
+      "category": "algemeen"
+    },
+    {
+      "file": "src/UI/ERD.UI.LapTimer.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDLapSplit",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDLapSplitCollection",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDLapTimer",
+          "TOBDCustomControl, IOBDSurface"
+        ]
+      ],
+      "category": "optioneel"
+    },
+    {
+      "file": "src/UI/ERD.UI.LiveDataGrid.pas",
+      "deps": [
+        "ERD.Service.Catalog",
+        "ERD.Service.LiveData",
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.ScrollBar",
+        "ERD.UI.Types",
+        "ERD.UI.Units"
+      ],
+      "classes": [
+        [
+          "TOBDLiveDataGrid",
+          "TOBDCustomControl"
+        ]
+      ],
+      "category": "OBD"
+    },
+    {
+      "file": "src/UI/ERD.UI.LogViewer.pas",
+      "deps": [
+        "ERD.Logger.Sinks",
+        "ERD.UI.Terminal"
+      ],
+      "classes": [
+        [
+          "TOBDLogViewer",
+          "TOBDTerminal, IOBDLogSink"
+        ]
+      ],
+      "category": "databinding"
+    },
+    {
+      "file": "src/UI/ERD.UI.MapGrid.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDMapGrid",
+          "TOBDCustomControl, IOBDSurface"
+        ]
+      ],
+      "category": "optioneel"
+    },
+    {
+      "file": "src/UI/ERD.UI.MatrixDisplay.pas",
+      "deps": [
+        "ERD.Service.LiveData",
+        "ERD.UI.Binding",
+        "ERD.UI.Control",
+        "ERD.UI.GDIP",
+        "ERD.UI.Gauges.Base",
+        "ERD.UI.Types",
+        "ERD.UI.Units"
+      ],
+      "classes": [
+        [
+          "TOBDMatrixDisplay",
+          "TOBDCustomControl"
+        ]
+      ],
+      "category": "databinding"
+    },
+    {
+      "file": "src/UI/ERD.UI.Memo.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.ScrollBar",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDMemo",
+          "TOBDCustomControl"
+        ],
+        [
+          "TOBDInnerMemo",
+          "TMemo"
+        ]
+      ],
+      "category": "algemeen"
+    },
+    {
+      "file": "src/UI/ERD.UI.Menus.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.Theme",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDPopupMenu",
+          "TPopupMenu"
+        ],
+        [
+          "TOBDMenuBar",
+          "TOBDCustomControl"
+        ],
+        [
+          "TOBDMenuPopupWindow",
+          "TCustomControl"
+        ],
+        [
+          "TOBDMenuSession",
+          "TComponent"
+        ]
+      ],
+      "category": "algemeen"
+    },
+    {
+      "file": "src/UI/ERD.UI.Paint.pas",
+      "deps": [
+        "ERD.UI.GDIP",
+        "ERD.UI.IconData",
+        "ERD.UI.Types"
+      ],
+      "classes": [],
+      "category": "basis"
+    },
+    {
+      "file": "src/UI/ERD.UI.Pickers.pas",
+      "deps": [
+        "ERD.Service.Catalog",
+        "ERD.Service.VINDecoder",
+        "ERD.UI.Control",
+        "ERD.UI.Edits",
+        "ERD.UI.Paint"
+      ],
+      "classes": [
+        [
+          "TOBDVINEdit",
+          "TOBDEdit"
+        ],
+        [
+          "TOBDPidPicker",
+          "TOBDComboBox"
+        ],
+        [
+          "TOBDOEMPicker",
+          "TOBDComboBox"
+        ],
+        [
+          "TOBDCANIdEdit",
+          "TOBDEdit"
+        ]
+      ],
+      "category": "OBD"
+    },
+    {
+      "file": "src/UI/ERD.UI.PopupList.pas",
+      "deps": [
+        "ERD.UI.Paint",
+        "ERD.UI.ScrollBar",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDPopupList",
+          "TCustomListBox"
+        ]
+      ],
+      "category": "algemeen"
+    },
+    {
+      "file": "src/UI/ERD.UI.PreconditionList.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDPreconditionItem",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDPreconditionCollection",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDPreconditionList",
+          "TOBDCustomControl, IOBDSurface"
+        ]
+      ],
+      "category": "OBD"
+    },
+    {
+      "file": "src/UI/ERD.UI.PrintDialogs.pas",
+      "deps": [
+        "ERD.UI.Backstage",
+        "ERD.UI.Buttons",
+        "ERD.UI.Chips",
+        "ERD.UI.Control",
+        "ERD.UI.Dialogs",
+        "ERD.UI.Edits",
+        "ERD.UI.Paint",
+        "ERD.UI.Segmented",
+        "ERD.UI.SpinEdit",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDPrintDialog",
+          "TOBDCommonDialog"
+        ],
+        [
+          "TOBDPageSetupDialog",
+          "TOBDCommonDialog"
+        ]
+      ],
+      "category": "algemeen"
+    },
+    {
+      "file": "src/UI/ERD.UI.ProcedureView.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDProcedureStep",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDProcedureStepCollection",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDProcedureLiveValue",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDProcedureLiveValueCollection",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDProcedureView",
+          "TOBDCustomControl, IOBDSurface"
+        ]
+      ],
+      "category": "OBD"
+    },
+    {
+      "file": "src/UI/ERD.UI.Progress.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDProgressStep",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDProgressSteps",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDProgressBar",
+          "TOBDCustomControl"
+        ]
+      ],
+      "category": "algemeen"
+    },
+    {
+      "file": "src/UI/ERD.UI.RangeBar.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDRangeBar",
+          "TOBDGraphicControl"
+        ]
+      ],
+      "category": "algemeen"
+    },
+    {
+      "file": "src/UI/ERD.UI.RangeEditor.pas",
+      "deps": [
+        "ERD.UI.Buttons",
+        "ERD.UI.Control",
+        "ERD.UI.Edits",
+        "ERD.UI.Paint",
+        "ERD.UI.RangeProfiles",
+        "ERD.UI.ScrollBar",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDRangeEdit",
+          "TOBDEdit"
+        ],
+        [
+          "TOBDRangeEditor",
+          "TOBDCustomControl, IOBDSurface"
+        ]
+      ],
+      "category": "optioneel"
+    },
+    {
+      "file": "src/UI/ERD.UI.RangeProfiles.pas",
+      "deps": [
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDValueRange",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDValueRanges",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDRangeProfile",
+          "TComponent"
+        ]
+      ],
+      "category": "optioneel"
+    },
+    {
+      "file": "src/UI/ERD.UI.ReadinessPanel.pas",
+      "deps": [
+        "ERD.I18n",
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDReadinessMonitorItem",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDReadinessMonitorCollection",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDReadinessPanel",
+          "TOBDCustomControl, IOBDSurface"
+        ]
+      ],
+      "category": "OBD"
+    },
+    {
+      "file": "src/UI/ERD.UI.ReplayBar.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDReplayMarkerItem",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDReplayMarkerCollection",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDReplayBar",
+          "TOBDCustomControl, IOBDSurface"
+        ]
+      ],
+      "category": "OBD"
+    },
+    {
+      "file": "src/UI/ERD.UI.Ribbon.pas",
+      "deps": [
+        "ERD.UI.Backstage",
+        "ERD.UI.Control",
+        "ERD.UI.Menus",
+        "ERD.UI.Paint",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDRibbonItems",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDRibbonGroups",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDRibbonTabs",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDContextualTabSets",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDRibbonItem",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDRibbonGroup",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDRibbonTab",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDContextualTabSet",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDRibbon",
+          "TOBDCustomControl"
+        ],
+        [
+          "TOBDRibbonPeek",
+          "TCustomControl"
+        ],
+        [
+          "TOBDRibbonActionLink",
+          "TActionLink"
+        ]
+      ],
+      "category": "algemeen"
+    },
+    {
+      "file": "src/UI/ERD.UI.ScrollBar.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDScrollBar",
+          "TOBDCustomControl"
+        ]
+      ],
+      "category": "algemeen"
+    },
+    {
+      "file": "src/UI/ERD.UI.ScrollBox.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.ScrollBar",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDScrollBox",
+          "TOBDCustomControl, IOBDSurface"
+        ]
+      ],
+      "category": "algemeen"
+    },
+    {
+      "file": "src/UI/ERD.UI.SecurityAccessCard.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDSecurityAccessCard",
+          "TOBDCustomControl, IOBDSurface"
+        ]
+      ],
+      "category": "OBD"
+    },
+    {
+      "file": "src/UI/ERD.UI.Segmented.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint"
+      ],
+      "classes": [
+        [
+          "TOBDSegmented",
+          "TOBDCustomControl"
+        ]
+      ],
+      "category": "algemeen"
+    },
+    {
+      "file": "src/UI/ERD.UI.ShellControls.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.IconData",
+        "ERD.UI.ItemList",
+        "ERD.UI.Paint",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDPlace",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDPlaces",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDBreadcrumb",
+          "TOBDCustomControl"
+        ],
+        [
+          "TOBDPlacesPane",
+          "TOBDCustomItemList"
+        ],
+        [
+          "TOBDFolderTree",
+          "TOBDCustomItemList"
+        ],
+        [
+          "TOBDFileList",
+          "TOBDCustomItemList"
+        ]
+      ],
+      "category": "algemeen"
+    },
+    {
+      "file": "src/UI/ERD.UI.Sidebar.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.ScrollBar",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDSidebarItem",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDSidebarItems",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDSidebar",
+          "TOBDCustomControl"
+        ]
+      ],
+      "category": "algemeen"
+    },
+    {
+      "file": "src/UI/ERD.UI.SignalBrowser.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.ScrollBar",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDSignalItem",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDSignalCollection",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDSignalBrowser",
+          "TOBDCustomControl, IOBDSurface"
+        ]
+      ],
+      "category": "OBD"
+    },
+    {
+      "file": "src/UI/ERD.UI.SignalGrid.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDSignalGridItem",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDSignalGridCollection",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDSignalGrid",
+          "TOBDCustomControl, IOBDSurface"
+        ]
+      ],
+      "category": "OBD"
+    },
+    {
+      "file": "src/UI/ERD.UI.SpinEdit.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Edits",
+        "ERD.UI.Paint",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDSpinEdit",
+          "TOBDEdit"
+        ]
+      ],
+      "category": "algemeen"
+    },
+    {
+      "file": "src/UI/ERD.UI.Splitter.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDSplitter",
+          "TOBDCustomControl"
+        ]
+      ],
+      "category": "algemeen"
+    },
+    {
+      "file": "src/UI/ERD.UI.StatusBar.pas",
+      "deps": [
+        "ERD.I18n",
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDStatusPanel",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDStatusPanels",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDStatusBar",
+          "TOBDCustomControl"
+        ]
+      ],
+      "category": "i18n"
+    },
+    {
+      "file": "src/UI/ERD.UI.StatusLamp.pas",
+      "deps": [
+        "ERD.Service.LiveData",
+        "ERD.UI.Binding",
+        "ERD.UI.Control",
+        "ERD.UI.GDIP",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDStatusLamp",
+          "TOBDCustomControl"
+        ]
+      ],
+      "category": "databinding"
+    },
+    {
+      "file": "src/UI/ERD.UI.Tabs.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDTabItem",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDTabItems",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDTabs",
+          "TOBDCustomControl"
+        ]
+      ],
+      "category": "algemeen"
+    },
+    {
+      "file": "src/UI/ERD.UI.TaskDialog.pas",
+      "deps": [
+        "ERD.UI.Buttons",
+        "ERD.UI.Control",
+        "ERD.UI.Dialogs",
+        "ERD.UI.Paint",
+        "ERD.UI.Progress",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDTaskButtonItem",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDTaskButtons",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDTaskRadioButtonItem",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDTaskRadioButtons",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDTaskProgress",
+          "TPersistent"
+        ],
+        [
+          "TOBDTaskDialog",
+          "TOBDCommonDialog"
+        ]
+      ],
+      "category": "algemeen"
+    },
+    {
+      "file": "src/UI/ERD.UI.Terminal.pas",
+      "deps": [
+        "ERD.UI.Paint",
+        "ERD.UI.ScrollBar",
+        "ERD.UI.Theme",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDTerminal",
+          "TCustomControl, IOBDThemeAware"
+        ]
+      ],
+      "category": "algemeen"
+    },
+    {
+      "file": "src/UI/ERD.UI.Theme.pas",
+      "deps": [
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDTheme",
+          "TComponent"
+        ]
+      ],
+      "category": "basis"
+    },
+    {
+      "file": "src/UI/ERD.UI.TileGrid.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.ScrollBar",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDTileItem",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDTileItems",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDTileGrid",
+          "TOBDCustomControl"
+        ]
+      ],
+      "category": "algemeen"
+    },
+    {
+      "file": "src/UI/ERD.UI.Timeline.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.ScrollBar",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDTimelineEntry",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDTimelineEntryCollection",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDTimeline",
+          "TOBDCustomControl, IOBDSurface"
+        ]
+      ],
+      "category": "optioneel"
+    },
+    {
+      "file": "src/UI/ERD.UI.TitleBar.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Menus",
+        "ERD.UI.Paint",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDCaptionButton",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDCaptionButtons",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDTitleBar",
+          "TOBDCustomControl, IOBDSurface"
+        ],
+        [
+          "TOBDHookedFormAccess",
+          "TCustomForm"
+        ]
+      ],
+      "category": "algemeen"
+    },
+    {
+      "file": "src/UI/ERD.UI.Toast.pas",
+      "deps": [
+        "ERD.UI.Paint",
+        "ERD.UI.Theme",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDToastManager",
+          "TComponent, IOBDThemeAware"
+        ]
+      ],
+      "category": "algemeen"
+    },
+    {
+      "file": "src/UI/ERD.UI.ToolBar.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Menus",
+        "ERD.UI.Paint",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDToolItemActionLink",
+          "TActionLink"
+        ],
+        [
+          "TOBDToolItem",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDToolItems",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDToolBar",
+          "TOBDCustomControl"
+        ]
+      ],
+      "category": "algemeen"
+    },
+    {
+      "file": "src/UI/ERD.UI.TrackBar.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDTrackBar",
+          "TOBDCustomControl"
+        ]
+      ],
+      "category": "algemeen"
+    },
+    {
+      "file": "src/UI/ERD.UI.TrendChart.pas",
+      "deps": [
+        "ERD.Service.LiveData",
+        "ERD.UI.Binding",
+        "ERD.UI.Control",
+        "ERD.UI.Gauges.Types",
+        "ERD.UI.Types",
+        "ERD.UI.Units"
+      ],
+      "classes": [
+        [
+          "TOBDTrendChannel",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDTrendChannels",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDTrendChart",
+          "TOBDCustomControl"
+        ]
+      ],
+      "category": "databinding"
+    },
+    {
+      "file": "src/UI/ERD.UI.Types.pas",
+      "deps": [],
+      "classes": [],
+      "category": "basis"
+    },
+    {
+      "file": "src/UI/ERD.UI.Units.pas",
+      "deps": [
+        "ERD.UI.Types"
+      ],
+      "classes": [],
+      "category": "databinding"
+    },
+    {
+      "file": "src/UI/ERD.UI.ValueTile.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Gauges.Base",
+        "ERD.UI.Gauges.Types",
+        "ERD.UI.Types",
+        "ERD.UI.Units"
+      ],
+      "classes": [
+        [
+          "TOBDValueTile",
+          "TOBDGaugeBase"
+        ]
+      ],
+      "category": "databinding"
+    },
+    {
+      "file": "src/UI/ERD.UI.VehicleCard.pas",
+      "deps": [
+        "ERD.Protocol.VIN",
+        "ERD.Service.VINDecoder",
+        "ERD.Service.VINDecoder.Types",
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDVehicleInfoCard",
+          "TOBDCustomControl, IOBDSurface"
+        ]
+      ],
+      "category": "OBD"
+    },
+    {
+      "file": "src/UI/ERD.UI.WriteConfirm.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDWriteConfirm",
+          "TOBDCustomControl"
+        ]
+      ],
+      "category": "OBD"
+    },
+    {
+      "file": "src/UI/ERD.UI.XYChart.pas",
+      "deps": [
+        "ERD.UI.Control",
+        "ERD.UI.Paint",
+        "ERD.UI.Types"
+      ],
+      "classes": [
+        [
+          "TOBDXYSeries",
+          "TCollectionItem"
+        ],
+        [
+          "TOBDXYSeriesCollection",
+          "TOwnedCollection"
+        ],
+        [
+          "TOBDXYChart",
+          "TOBDCustomControl, IOBDSurface"
+        ]
+      ],
+      "category": "optioneel"
+    }
+  ]
+}
