@@ -2,7 +2,7 @@
 interface
 procedure Register;
 implementation
-uses ERD.Components.DateTimePicker, ERD.Components.TimePicker, ERD.Components.CheckListBox, ERD.Components.PropertyEditors, ERD.Components.PopupList, ERD.Components.NativeSelection, ERD.Components.Icons, ERD.Components.Control, ERD.Components.MediaControls, ERD.Components.CommonControls, System.Classes, DesignIntf, ERD.Components.VirtualTree, ERD.Components.Backstage,
+uses ERD.Components.LinkLabel, ERD.Components.DateTimePicker, ERD.Components.TimePicker, ERD.Components.CheckListBox, ERD.Components.PropertyEditors, ERD.Components.PopupList, ERD.Components.NativeSelection, ERD.Components.Icons, ERD.Components.Control, ERD.Components.MediaControls, ERD.Components.CommonControls, System.Classes, DesignIntf, ERD.Components.VirtualTree, ERD.Components.Backstage,
   ERD.Components.Buttons,
   ERD.Components.Calendar,
   ERD.Components.Card,
@@ -46,6 +46,7 @@ uses ERD.Components.DateTimePicker, ERD.Components.TimePicker, ERD.Components.Ch
 procedure Register;
 begin
   RegisterERDPropertyEditors([
+    TERDLinkLabel,
     TERDDateTimePicker,
     TERDTimePicker,
     TERDCheckListBox, TERDCheckListItem, TERDCheckListItems,
@@ -172,6 +173,7 @@ begin
     TERDTrackBar,
     TERDVirtualStringTree]);
   RegisterComponents('ERDesigns Components', [
+    TERDLinkLabel,
     TERDDateTimePicker,
     TERDTimePicker,
     TERDCheckListBox,

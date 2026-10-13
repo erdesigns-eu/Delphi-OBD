@@ -9,6 +9,7 @@ requires
   vclimg,
   vclx;
 contains
+  ERD.Components.LinkLabel in '..\src\UI\ERD.Components.LinkLabel.pas',
   ERD.Components.DateTimePicker in '..\src\UI\ERD.Components.DateTimePicker.pas',
   ERD.Components.TimePicker in '..\src\UI\ERD.Components.TimePicker.pas',
   ERD.Components.CheckListBox in '..\src\UI\ERD.Components.CheckListBox.pas',

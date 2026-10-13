@@ -3885,6 +3885,19 @@
           ShowSeconds = True
           OnChange = DateTimeChanged
         end
+        object LabelLinkLabel: TLabel
+          Left = 16
+          Top = 2710
+          Caption = 'TERDLinkLabel - mouse / Enter / Space, visited state and optional icon'
+        end
+        object DemoLinkLabel: TERDLinkLabel
+          Left = 16
+          Top = 2736
+          Caption = 'ERDesigns website'
+          URL = 'https://erdesigns.be'
+          Icon.BuiltIn = ei028Info
+          OnClick = LinkClicked
+        end
       end
     end
     object LayoutPage: TERDPanel

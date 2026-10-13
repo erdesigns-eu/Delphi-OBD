@@ -324,3 +324,11 @@ via de samengestelde component. De interne editors worden niet apart gestreamd.
 De Inputs-demo toont de DateTimePicker. Windows-smoketests voor schrikkeljaren,
 invoer, datumvolgorde, readonly, events, tijdbehoud en DFM zijn toegevoegd, maar
 vereisen nog uitvoering in Delphi op Windows.
+
+## LinkLabel
+
+`TERDLinkLabel` biedt themed linktekst met hover/pressed/disabled/visited states,
+Windows-focuscues, Enter/Space en een optioneel `Icon` (built-in, imagelist of glyph).
+`AutoOpen=False` is standaard: de applicatie handelt de klik af via `OnClick`.
+Met `AutoOpen=True` of `OpenLink` opent Windows de `URL` met de bijbehorende app.
+`Visited` en `AlwaysUnderline` zijn instelbaar. De demo meldt klikken in de statusbar.

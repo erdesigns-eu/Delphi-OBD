@@ -1,6 +1,7 @@
 ﻿unit Showcase;
 interface
 uses
+  ERD.Components.LinkLabel,
   ERD.Components.DateTimePicker,
   ERD.Components.TimePicker,
   ERD.Components.CheckListBox,
@@ -66,6 +67,8 @@ type
   PPlaylistDemoData = ^TPlaylistDemoData;
 
   TShowcaseForm = class(TForm)
+    DemoLinkLabel: TERDLinkLabel;
+    LabelLinkLabel: TLabel;
     DemoDateTimePicker: TERDDateTimePicker;
     LabelDateTimePicker: TLabel;
     DemoTimePicker: TERDTimePicker;
@@ -573,6 +576,7 @@ type
     procedure CheckListChanged(Sender: TObject; Index: Integer);
     procedure TimeChanged(Sender: TObject);
     procedure DateTimeChanged(Sender: TObject);
+    procedure LinkClicked(Sender: TObject);
     procedure OpenFile(Sender: TObject);
     procedure IconClicked(Sender: TObject);
   end;
@@ -876,6 +880,11 @@ begin
   finally DemoBreadcrumb.Items.EndUpdate end;
   StatusBar.Panels[0].Text := 'Navigate: ' + Path;
 end;
+procedure TShowcaseForm.LinkClicked(Sender: TObject);
+begin
+  StatusBar.Panels[0].Text := 'Link clicked: ' + DemoLinkLabel.URL;
+end;
+
 procedure TShowcaseForm.DateTimeChanged(Sender: TObject);
 begin
   StatusBar.Panels[0].Text := 'Date/time: ' + DemoDateTimePicker.DisplayText;

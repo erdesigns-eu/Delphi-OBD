@@ -3,6 +3,7 @@
 uses
   System.SysUtils, System.Classes, System.Types, System.Math, Vcl.Forms, Vcl.Controls,
   Winapi.Windows, Vcl.StdCtrls, Vcl.Graphics, Vcl.ImgList,
+  ERD.Components.LinkLabel,
   ERD.Components.Calendar, ERD.Components.DateTimePicker,
   ERD.Components.TimePicker,
   ERD.Components.CheckListBox,
@@ -15,6 +16,11 @@ uses
   Showcase in '../demo/Showcase.pas',
   ERD.Components.SpinEdit, ERD.Components.Edits, ERD.Components.PopupList, ERD.Components.TitleBar, ERD.Components.StatusBar, ERD.Components.Theme, ERD.Components.Ribbon;
 type
+  TLinkProbe = class(TERDLinkLabel)
+  public
+    procedure Activate;
+    procedure PressEnter;
+  end;
   TDateProbe = class(TERDDatePicker)
   public
     procedure TypeText(const Value: string);
@@ -57,6 +63,12 @@ type
     procedure Changed(Sender: TObject);
   end;
 var Checks: Integer;
+procedure TLinkProbe.Activate;
+begin Click end;
+procedure TLinkProbe.PressEnter;
+var Key: Word;
+begin Key := VK_RETURN; KeyDown(Key, []) end;
+
 procedure TDateProbe.TypeText(const Value: string);
 var I: Integer; Key: Char;
 begin
@@ -711,6 +723,35 @@ begin
   end;
 end;
 
+procedure TestLinkLabel;
+var Link: TLinkProbe; Counter: TChangeProbe; Bitmap: TBitmap;
+begin
+  Link := TLinkProbe.Create(nil);
+  Counter := TChangeProbe.Create;
+  Bitmap := TBitmap.Create;
+  try
+    Link.OnClick := Counter.Changed;
+    Check(not Link.AutoOpen and not Link.Visited, 'Link does not auto-open by default');
+    Link.URL := 'https://erdesigns.be';
+    Link.Activate;
+    Check(Link.Visited and (Counter.Changes = 1), 'Link click marks visited and notifies');
+    Link.URL := 'https://erdesigns.be/products';
+    Check(not Link.Visited, 'New URL resets visited state');
+    Link.PressEnter;
+    Check(Link.Visited and (Counter.Changes = 2), 'Enter activates link');
+    Link.Enabled := False;
+    Link.Activate;
+    Link.PressEnter;
+    Check((Counter.Changes = 2) and not Link.OpenLink, 'Disabled link cannot activate or launch URL');
+    Link.Enabled := True;
+    Link.URL := '';
+    Check(not Link.OpenLink, 'Empty URL is not launched');
+    Link.Icon.BuiltIn := ei028Info;
+    Link.RenderTo(Bitmap);
+    Check(not Link.HandleAllocated and (Bitmap.Width = Link.Width), 'Link with icon renders without a window');
+  finally Bitmap.Free; Link.Free; Counter.Free end;
+end;
+
 procedure TestDateSegmentsAndDateTime;
 var Picker: TDateProbe; Combined, Copy: TERDDateTimePicker; Counter: TChangeProbe;
   Stream: TMemoryStream; Bitmap: TBitmap; I: Integer; R: TRect;
@@ -1113,6 +1154,7 @@ begin
     TestCheckListBox;
     TestTimePicker;
     TestDateSegmentsAndDateTime;
+    TestLinkLabel;
     Writeln(Checks, ' VCL runtime checks passed.');
   except on E: Exception do begin Writeln(E.ClassName, ': ', E.Message); Halt(1) end end;
 end.
