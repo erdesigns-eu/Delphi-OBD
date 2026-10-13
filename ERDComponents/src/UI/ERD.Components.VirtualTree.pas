@@ -4,7 +4,7 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.Classes, System.Types, System.SysUtils,
-  System.Math, System.UITypes, Vcl.Controls, Vcl.Graphics, Vcl.StdCtrls,
+  System.Math, System.UITypes, Vcl.Controls, Vcl.Graphics, Vcl.StdCtrls, Vcl.Forms,
   ERD.Components.Types, ERD.Components.Theme, ERD.Components.Paint,
   ERD.Components.VT, ERD.Components.VT.Types, ERD.Components.VT.Header;
 
@@ -341,7 +341,7 @@ begin
       DrawBar(Integer(OBJID_HSCROLL), False);
       if not VRect.IsEmpty and not HRect.IsEmpty then
         P.FillRect(Rect(VRect.Left, HRect.Top, VRect.Right, HRect.Bottom), Palette.Background);
-      if BorderStyle = bsSingle then
+      if BorderStyle = TFormBorderStyle.bsSingle then
         P.FrameRect(Rect(0, 0, WindowRect.Width, WindowRect.Height), Palette.NeutralLight);
     finally P.Free end;
   finally
