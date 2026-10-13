@@ -6,17 +6,34 @@
   Caption = 'ERD Components - general VCL showcase'
   Position = poScreenCenter
   OnCreate = FormCreate
-  object MenuBar: TERDMenuBar
+  object TitleBar: TERDTitleBar
     Left = 0
     Top = 0
     Width = 1080
-    Height = 30
+    Height = 48
     Align = alTop
+    Title = 'ERD Components'
+    Subtitle = 'General VCL showcase'
+    AppInitials = 'ERD'
+    CommandStyle = csRibbon
+    MenuPlacement = mpBelow
+    Ribbon = Ribbon
     Menu = MainMenu
+    QuickAccess = <
+      item
+        Icon.BuiltIn = ei003Opslaan
+        Hint = 'Save'
+      end>
+    Buttons = <
+      item
+        Icon.BuiltIn = ei027Instellingen
+        Hint = 'Light / dark'
+        OnClick = ToggleTheme
+      end>
   end
   object Ribbon: TERDRibbon
     Left = 0
-    Top = 30
+    Top = 48
     Width = 1080
     Height = 156
     Align = alTop
@@ -166,6 +183,17 @@
         )
         ItemIndex = 0
         OnChange = LayoutSelected
+      end
+      object CommandChoice: TERDComboBox
+        Left = 720
+        Top = 2
+        Width = 220
+        Height = 34
+        Items.Strings = (
+          'Ribbon'
+          'Menu')
+        ItemIndex = 0
+        OnChange = CommandSelected
       end
     end
     object IconButton001: TERDButton

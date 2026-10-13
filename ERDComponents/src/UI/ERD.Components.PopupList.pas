@@ -60,6 +60,7 @@ type
     procedure SetHotIndex(AValue: Integer);
     procedure InvalidateItem(AIndex: Integer);
     procedure PaintFrame;
+    procedure PaintRows(ADC: HDC);
     function NeedsBar: Boolean;
     function BarRect: TRect;
     function ThumbRect: TRect;
@@ -337,6 +338,34 @@ begin
   end;
 end;
 
+procedure TERDPopupList.PaintRows(ADC: HDC);
+var
+  I, Saved: Integer;
+  R: TRect;
+  State: TOwnerDrawState;
+begin
+  Saved := SaveDC(ADC);
+  Canvas.Lock;
+  Canvas.Handle := ADC;
+  try
+    Canvas.Brush.Color := FPalette.GaugeFace;
+    Canvas.FillRect(ClientRect);
+    for I := TopIndex to Items.Count - 1 do
+    begin
+      if SendMessage(Handle, LB_GETITEMRECT, I, LPARAM(@R)) = LB_ERR then Break;
+      if R.Top >= ClientHeight then Break;
+      if R.Bottom <= 0 then Continue;
+      State := [];
+      if I = ItemIndex then Include(State, odSelected);
+      DrawItem(I, R, State);
+    end;
+  finally
+    Canvas.Handle := 0;
+    Canvas.Unlock;
+    RestoreDC(ADC, Saved);
+  end;
+end;
+
 procedure TERDPopupList.WndProc(var Message: TMessage);
 var
   Pt: TPoint;
@@ -345,8 +374,29 @@ var
   R, Bar: TRect;
   Brush: HBRUSH;
   Saved: Integer;
+  PaintInfo: TPaintStruct;
 begin
   case Message.Msg of
+    WM_PAINT:
+      begin
+        // WS_POPUP does not receive VCL child owner-draw reflection.
+        // Paint visible rows directly instead of relying on WM_DRAWITEM.
+        DC := BeginPaint(Handle, PaintInfo);
+        try
+          PaintRows(DC);
+        finally
+          EndPaint(Handle, PaintInfo);
+        end;
+        PaintBar;
+        Message.Result := 0;
+        Exit;
+      end;
+    WM_PRINTCLIENT:
+      begin
+        PaintRows(HDC(Message.WParam));
+        Message.Result := 0;
+        Exit;
+      end;
     WM_NCCALCSIZE:
       begin
         // Reserve a 1 px non-client frame for the themed border.

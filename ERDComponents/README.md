@@ -19,6 +19,7 @@ library. De hele map kan naar een eigen repository worden verplaatst.
 5. Open `demo/ERDComponentsDemo.dproj` voor het voorbeeldprogramma.
    `Showcase.dfm` bevat de componenten, ribboncollecties en alle 320 iconknoppen;
    je kunt ze rechtstreeks in de Delphi-formdesigner bekijken en bewerken.
+   De demo gebruikt `TERDTitleBar`; met de keuze Ribbon/Menu wissel je van commandosurface.
 
 `ERDComponents_RT` is apart beschikbaar voor applicaties die runtime-packages
 gebruiken (Win32/Win64). Installeer RT niet daarnaast in dezelfde IDE: standalone

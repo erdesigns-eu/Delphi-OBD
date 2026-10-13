@@ -2,10 +2,10 @@
 {$APPTYPE CONSOLE}
 uses
   System.SysUtils, System.Classes, System.Types, Vcl.Forms, Vcl.Controls,
-  Vcl.Graphics, Vcl.ImgList,
+  Winapi.Windows, Vcl.Graphics, Vcl.ImgList,
   ERD.Components.Types, ERD.Components.Icons, ERD.Components.IconCatalog,
   ERD.Components.Buttons, ERD.Components.Panel, ERD.Components.Chips,
-  ERD.Components.StatusBar, ERD.Components.Theme, ERD.Components.Ribbon;
+  ERD.Components.PopupList, ERD.Components.TitleBar, ERD.Components.StatusBar, ERD.Components.Theme, ERD.Components.Ribbon;
 var Checks: Integer;
 procedure Check(Value: Boolean; const Text: string);
 begin
@@ -139,12 +139,61 @@ begin
   finally Bitmap.Free; Ribbon.Free; Theme.Free end;
 end;
 
+procedure TestPopupRowsAndCommandSwitch;
+var
+  Form: TForm;
+  Popup: TERDPopupList;
+  TitleBar: TERDTitleBar;
+  Ribbon: TERDRibbon;
+  Items: TStringList;
+  Bitmap: TBitmap;
+  R: TRect;
+  X, Y, InkPixels: Integer;
+begin
+  Form := TForm.CreateNew(nil);
+  Items := TStringList.Create;
+  Bitmap := TBitmap.Create;
+  try
+    TitleBar := TERDTitleBar.Create(Form);
+    TitleBar.Parent := Form;
+    Ribbon := TERDRibbon.Create(Form);
+    Ribbon.Parent := Form;
+    TitleBar.Ribbon := Ribbon;
+    TitleBar.CommandStyle := csRibbon;
+    Check(Ribbon.Visible, 'Ribbon shown in ribbon command mode');
+    TitleBar.CommandStyle := csMenu;
+    Check(not Ribbon.Visible, 'Ribbon hidden in menu command mode');
+    TitleBar.CommandStyle := csRibbon;
+    Check(Ribbon.Visible, 'Ribbon restored after switching back');
+    Popup := TERDPopupList.Create(Form);
+    Items.Add('First item');
+    Items.Add('Visible second item');
+    Popup.Popup(Form, Rect(100, 100, 320, 130), Items, 0,
+      BRAND_PALETTE_LIGHT, 96, 28, 8);
+    Bitmap.SetSize(Popup.ClientWidth, Popup.ClientHeight);
+    SendMessage(Popup.Handle, WM_PRINTCLIENT, Bitmap.Canvas.Handle, PRF_CLIENT);
+    SendMessage(Popup.Handle, LB_GETITEMRECT, 1, LPARAM(@R));
+    InkPixels := 0;
+    for Y := R.Top + 4 to R.Bottom - 5 do
+      for X := R.Left + 8 to R.Right - 20 do
+        if ColorToRGB(Bitmap.Canvas.Pixels[X, Y]) <>
+          ColorToRGB(BRAND_PALETTE_LIGHT.GaugeFace) then Inc(InkPixels);
+    Check(InkPixels > 10, 'Unselected popup row paints visible text');
+    Popup.CloseUp(False);
+  finally
+    Bitmap.Free;
+    Items.Free;
+    Form.Free;
+  end;
+end;
+
 begin
   try
     Application.Initialize;
     TestIconLifetimeAndStreaming;
     TestHostedStatusPanels;
     TestThemesAndRibbon;
+    TestPopupRowsAndCommandSwitch;
     Writeln(Checks, ' VCL runtime checks passed.');
   except on E: Exception do begin Writeln(E.ClassName, ': ', E.Message); Halt(1) end end;
 end.

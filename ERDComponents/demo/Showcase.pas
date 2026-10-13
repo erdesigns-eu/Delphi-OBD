@@ -7,9 +7,11 @@ uses
   ERD.Components.IconCatalog, ERD.Components.Buttons, ERD.Components.Chips,
   ERD.Components.Panel, ERD.Components.StatusBar, ERD.Components.ScrollBox,
   ERD.Components.Ribbon, ERD.Components.Menus, ERD.Components.Dialogs,
-  ERD.Components.FileDialogs, ERD.Components.Edits;
+  ERD.Components.TitleBar, ERD.Components.FileDialogs, ERD.Components.Edits;
 type
   TShowcaseForm = class(TForm)
+    TitleBar: TERDTitleBar;
+    CommandChoice: TERDComboBox;
     Theme: TERDTheme;
     Ribbon: TERDRibbon;
     ThemeChoice: TERDComboBox;
@@ -20,7 +22,6 @@ type
     BadgeOne: TERDBadge;
     BadgeTwo: TERDBadge;
     DownloadButton: TERDButton;
-    MenuBar: TERDMenuBar;
     MainMenu: TMainMenu;
     FileMenu: TERDMenuItem;
     OpenMenu: TERDMenuItem;
@@ -352,6 +353,7 @@ type
     IconButton319: TERDButton;
     IconButton320: TERDButton;
     procedure FormCreate(Sender: TObject);
+    procedure CommandSelected(Sender: TObject);
     procedure ThemeSelected(Sender: TObject);
     procedure AppearanceSelected(Sender: TObject);
     procedure LayoutSelected(Sender: TObject);
@@ -367,6 +369,10 @@ implementation
 procedure TShowcaseForm.FormCreate(Sender: TObject);
 var Bitmap: TBitmap;
 begin
+  Menu := nil;
+  TitleBar.Menu := MainMenu;
+  TitleBar.Ribbon := Ribbon;
+  TitleBar.CommandStyle := csRibbon;
   StatusBar.Panels[2].Control := StatusHost;
   Bitmap := TBitmap.Create;
   try
@@ -380,6 +386,14 @@ begin
   finally
     Bitmap.Free;
   end;
+end;
+
+procedure TShowcaseForm.CommandSelected(Sender: TObject);
+begin
+  if CommandChoice.ItemIndex = 1 then
+    TitleBar.CommandStyle := csMenu
+  else
+    TitleBar.CommandStyle := csRibbon;
 end;
 
 procedure TShowcaseForm.ThemeSelected(Sender: TObject);
