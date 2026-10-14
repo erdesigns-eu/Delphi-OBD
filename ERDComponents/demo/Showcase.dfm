@@ -4597,23 +4597,6 @@ object ShowcaseForm: TShowcaseForm
           AutoSize = False
           Caption = 'Preview diagnostics appear when Inputs is selected.'
         end
-        object UnicodeTextPreview: TERDTextInput
-          Left = 16
-          Top = 42
-          Width = 460
-          Height = 28
-          TabOrder = 0
-          Text = 'Caf'#233' '#55357#56397#55356#57341' '#55356#56807#55356#56810' '#55357#56425#8205#55357#564187
-        end
-        object UnicodePasswordPreview: TERDTextInput
-          Left = 16
-          Top = 82
-          Width = 460
-          Height = 28
-          TabOrder = 1
-          PasswordChar = #8226
-          Text = 'Unicode '#55357#56595
-        end
       end
     end
     object LayoutPage: TERDPanel

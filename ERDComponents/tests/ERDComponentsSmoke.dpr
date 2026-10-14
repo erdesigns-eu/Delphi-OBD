@@ -2055,7 +2055,7 @@ procedure TestShowcaseUnicodePreviewWindows;
 var Form: TShowcaseForm; DC: HDC; R: TRect;
   procedure CheckPreview(Input: TERDTextInput);
   begin
-    Check(Input <> nil, 'Unicode preview is streamed into showcase field');
+    Check(Input <> nil, 'Unicode preview is created into showcase field');
     Check(Input.Parent = Form.InputsScroll, 'Unicode preview belongs to Inputs scroll box');
     Check(Input.Visible and Input.Enabled, 'Unicode preview is visible and enabled');
     Check(IsWindowVisible(Input.Handle), 'Unicode preview HWND is visible after selecting Inputs');

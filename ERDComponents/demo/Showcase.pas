@@ -76,8 +76,6 @@ type
   PPlaylistDemoData = ^TPlaylistDemoData;
 
   TShowcaseForm = class(TForm)
-    UnicodeTextPreview: TERDTextInput;
-    UnicodePasswordPreview: TERDTextInput;
     LabelUnicodePreview: TLabel;
     LabelUnicodeState: TLabel;
     RibbonInputs: TERDPanel;
@@ -648,14 +646,58 @@ type
     procedure BrowseDropFiles(Sender: TObject);
     procedure OpenFile(Sender: TObject);
     procedure IconClicked(Sender: TObject);
+  public
+    // Runtime-only previews: do not let the form designer manage these fields.
+    UnicodeTextPreview: TERDTextInput;
+    UnicodePasswordPreview: TERDTextInput;
+    procedure CreateUnicodePreviews;
   end;
 var MainForm: TShowcaseForm;
 implementation
 {$R *.dfm}
 
+procedure TShowcaseForm.CreateUnicodePreviews;
+var Preview: TERDTextInput;
+  procedure Configure(AInput: TERDTextInput; const AName: string; ATop, ATabOrder: Integer);
+  begin
+    AInput.Name := AName;
+    AInput.Parent := InputsScroll;
+    AInput.SetBounds(MulDiv(16, CurrentPPI, 96), MulDiv(ATop, CurrentPPI, 96),
+      MulDiv(460, CurrentPPI, 96), MulDiv(28, CurrentPPI, 96));
+    AInput.TabOrder := ATabOrder;
+  end;
+begin
+  // Also accept forms saved before the previews became runtime-only.
+  if UnicodeTextPreview = nil then
+  begin
+    Preview := FindComponent('UnicodeTextPreview') as TERDTextInput;
+    if Preview = nil then
+    begin
+      Preview := TERDTextInput.Create(Self);
+      Configure(Preview, 'UnicodeTextPreview', 42, 0);
+      Preview.Text := 'Caf' + #$00E9 + ' ' + #$D83D#$DC4D#$D83C#$DFFD +
+        ' ' + #$D83C#$DDE7#$D83C#$DDEA + ' ' + #$D83D#$DC69#$200D#$D83D#$DCBB;
+    end;
+    UnicodeTextPreview := Preview;
+  end;
+  if UnicodePasswordPreview = nil then
+  begin
+    Preview := FindComponent('UnicodePasswordPreview') as TERDTextInput;
+    if Preview = nil then
+    begin
+      Preview := TERDTextInput.Create(Self);
+      Configure(Preview, 'UnicodePasswordPreview', 82, 1);
+      Preview.PasswordChar := #$2022;
+      Preview.Text := 'Unicode ' + #$D83D#$DD13;
+    end;
+    UnicodePasswordPreview := Preview;
+  end;
+end;
+
 procedure TShowcaseForm.FormCreate(Sender: TObject);
 var Bitmap: TBitmap;
 begin
+  CreateUnicodePreviews;
   Menu := nil;
   TitleBar.Menu := MainMenu;
   TitleBar.Ribbon := Ribbon;
