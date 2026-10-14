@@ -1,7 +1,7 @@
 ﻿program ERDComponentsSmoke;
 {$APPTYPE CONSOLE}
 uses
-  ERD.Components.Control, ERD.Components.LanguageServices, ERD.Components.TextLayout, ERD.Components.CodeEditor, ERD.Components.Syntax,
+  ERD.Components.Paint, ERD.Components.Control, ERD.Components.LanguageServices, ERD.Components.TextLayout, ERD.Components.CodeEditor, ERD.Components.Syntax,
   ERD.Components.TextModel, ERD.Components.TextInput,
   System.IOUtils,
   System.SysUtils, System.Classes, System.Types, System.Math, Vcl.Forms, Vcl.Controls, Vcl.ExtCtrls,
@@ -36,6 +36,8 @@ type
   public
     function RowCount: Integer;
     procedure FoldMouse(Action: Integer; Outside: Boolean = False);
+    function FoldPixel(Guide: Boolean): TColor;
+    function GutterBackground: TColor;
   end;
   TEditKeyFilter = class
   public
@@ -290,6 +292,21 @@ begin
     1: MouseDown(mbLeft, [], X, Y);
     2: MouseUp(mbLeft, [], X, Y);
   end;
+end;
+function TCodeEditorProbe.GutterBackground: TColor;
+begin Result := ColorToRGB(ERDMixColor(Palette.Background, Palette.ForegroundText, 0.08)); end;
+
+function TCodeEditorProbe.FoldPixel(Guide: Boolean): TColor;
+var Bitmap: TBitmap; View: TRect; X, Y: Integer;
+begin
+  Bitmap := TBitmap.Create;
+  try
+    RenderTo(Bitmap); View := TextViewport;
+    X := View.Left - ScaleValue(13); Y := View.Top + RowHeight + 1;
+    if not Guide then
+    begin Dec(X, ScaleValue(3)); Y := View.Top + RowHeight div 2 - ScaleValue(3); end;
+    Result := ColorToRGB(Bitmap.Canvas.Pixels[X, Y]);
+  finally Bitmap.Free; end;
 end;
 function TCodeEditorProbe.RowCount: Integer;
 begin Result := Length(VisualRows); end;
@@ -2181,6 +2198,7 @@ begin
     Check((Edit.SelStart = ReferenceStart) and (Edit.SelLength = ReferenceLength),
       'Double-click selects same word range as native Windows edit');
     Check(Edit.SelLength > 0, 'Second mouse-down does not collapse double-click selection');
+    Check(Edit.Editor.SelText = 'two', 'Double-click excludes trailing spaces and adjacent words');
     Edit.ReadOnly := True;
     Edit.Editor.Perform(WM_CHAR, Ord('X'), 0);
     Check(Edit.Text = 'one two three', 'ReadOnly edit remains selectable but blocks typing');
@@ -2387,6 +2405,7 @@ begin
       X := Layout.X(1); Y := Layout.X(3); Layout.Range(1, 2, L, R);
       Check((Y > X) and (L <= X) and (R >= Y), 'Colour emoji caret and selection use the same layout');
       Check(Layout.Width >= Y, 'Layout width contains final emoji trailing edge');
+      Check(Layout.Hit(Y + 20) = 3, 'Native hit testing stops at final emoji boundary');
       CachedWidth := Layout.Width;
     finally Layout.Free; end;
     Layout := TERDTextLayoutLine.Create(Bitmap.Canvas, 'A' + #$D83D#$DE00);
@@ -2417,7 +2436,8 @@ begin
     'const pattern = /[{}]/g;' + #13#10 +
     'const text = `braces { }`;' + #13#10 + 'const sum = 1+2;';
   Analysis := Provider.Analyze(Source);
-  Check(TokenKind('export') = skKeyword, 'TypeScript keyword highlighting');
+  Check(TokenKind('export') = skModuleKeyword, 'TypeScript module keyword highlighting');
+  Check(TokenKind('interface') = skInterfaceKeyword, 'TypeScript interface keyword highlighting');
   Check(TokenKind('string') = skKeyword, 'TypeScript type highlighting');
   Check(TokenKind('//') = skComment, 'TypeScript line comments');
   Check(TokenKind('/[{}]/g') = skString, 'TypeScript regexp hides braces from folding');
@@ -2427,6 +2447,8 @@ begin
   for Span in Analysis.Spans do
     if Span.Start = I then Check((Span.Kind = skNumber) and (Span.Count = 1),
       'Numeric token stops before addition operator');
+  Source := 'export class Example {}'; Analysis := Provider.Analyze(Source);
+  Check(TokenKind('class') = skClassKeyword, 'TypeScript class keyword highlighting');
   Source := 'Const const'; Analysis := Provider.Analyze(Source); KeywordCount := 0;
   for Span in Analysis.Spans do if Span.Kind = skKeyword then Inc(KeywordCount);
   Check(KeywordCount = 1, 'TypeScript keywords are case sensitive');
@@ -2446,7 +2468,13 @@ begin
     Editor.SetBounds(8, 8, 480, 180); Form.Show; Editor.SetFocus;
     Original := 'function run() {' + #13#10 + '  return true;' + #13#10 + '}' + #13#10;
     Editor.Text := Original; Editor.SelStart := 0; Rows := Editor.RowCount;
+    Editor.ShowFoldGuides := True;
+    Check(Editor.FoldPixel(True) <> Editor.GutterBackground, 'Expanded fold has a visible connector');
+    Editor.ShowFoldGuides := False;
+    Check(Editor.FoldPixel(True) = Editor.GutterBackground, 'Guide property hides connector');
+    Editor.ShowFoldGuides := True;
     Editor.FoldMouse(0); Check(Editor.Cursor = crArrow, 'Fold gutter uses the arrow cursor');
+    Check(Editor.FoldPixel(False) <> Editor.GutterBackground, 'Fold hover paints a visible fill');
     Editor.FoldMouse(1); Check(Editor.RowCount = Rows, 'Fold waits for mouse release');
     Editor.FoldMouse(0, True); Editor.FoldMouse(2, True);
     Check(Editor.RowCount = Rows, 'Releasing outside cancels fold click');
@@ -2511,10 +2539,17 @@ begin
     Editor.Text := '// comment'; Editor.SelStart := Length(Editor.Text);
     Editor.Perform(WM_CHAR, Ord('('), 0);
     Check(Editor.Text = '// comment(', 'Delimiters inside line comments are ordinary input');
+    Check(Editor.KeywordColors.Count = Length(ERDTypeScriptKeywords), 'Every TypeScript keyword has a colour entry');
+    TERDKeywordColor(Editor.KeywordColors.Items[0]).Color := clFuchsia;
+    Editor.SelectionPadding := 4;
     Editor.Language := clJSON; Editor.TabWidth := 4;
     Stream.WriteComponent(Editor); Stream.Position := 0;
     Restored := TERDCodeEditor(Stream.ReadComponent(nil));
-    try Check((Restored.Language = clJSON) and (Restored.TabWidth = 4), 'Code editor settings stream correctly');
+    try
+      Check((Restored.Language = clJSON) and (Restored.TabWidth = 4), 'Code editor settings stream correctly');
+      Check((Restored.KeywordColors.Count = Editor.KeywordColors.Count) and
+        (TERDKeywordColor(Restored.KeywordColors.Items[0]).Color = clFuchsia), 'Per-keyword colours stream without duplicate entries');
+      Check(Restored.SelectionPadding = 4, 'Selection padding streams correctly');
     finally Restored.Free; end;
   finally Stream.Free; Form.Free; end;
 end;

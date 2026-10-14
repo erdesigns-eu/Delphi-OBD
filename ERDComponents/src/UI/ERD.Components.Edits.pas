@@ -81,6 +81,8 @@ type
     procedure SetAlignment(AValue: TAlignment);
     function GetReadOnly: Boolean;
     procedure SetReadOnly(AValue: Boolean);
+    function GetSelectionPadding: Integer;
+    procedure SetSelectionPadding(Value: Integer);
     function GetMaxLength: Integer;
     procedure SetMaxLength(AValue: Integer);
     function GetNumbersOnly: Boolean;
@@ -167,6 +169,7 @@ type
     property ReadOnly: Boolean read GetReadOnly write SetReadOnly
       default False;
     /// <summary>Maximum number of characters; 0 = no limit.</summary>
+    property SelectionPadding: Integer read GetSelectionPadding write SetSelectionPadding default 2;
     property MaxLength: Integer read GetMaxLength write SetMaxLength
       default 0;
     /// <summary>Accepts digits only.</summary>
@@ -409,6 +412,10 @@ begin
   FEdit.ReadOnly := AValue;
 end;
 
+function TERDEdit.GetSelectionPadding: Integer;
+begin Result := FEdit.SelectionPadding; end;
+procedure TERDEdit.SetSelectionPadding(Value: Integer);
+begin FEdit.SelectionPadding := Value; end;
 function TERDEdit.GetMaxLength: Integer;
 begin
   Result := FEdit.MaxLength;

@@ -5,7 +5,7 @@ uses System.SysUtils, System.Generics.Collections;
 type
   TERDCodeLanguage = (clPlainText, clPascal, clJSON, clTypeScript);
   TERDSyntaxKind = (skText, skKeyword, skIdentifier, skNumber, skString,
-    skComment, skSymbol, skDirective);
+    skComment, skSymbol, skDirective, skInterfaceKeyword, skClassKeyword, skModuleKeyword);
   TERDSyntaxSpan = record
     Start, Count: Integer;
     Kind: TERDSyntaxKind;
@@ -28,6 +28,7 @@ type
     constructor Create(Language: TERDCodeLanguage);
     function Analyze(const Text: UnicodeString): TERDSyntaxAnalysis;
   end;
+function ERDTypeScriptKeywords: TArray<string>;
 implementation
 const
   PASCAL_KEYWORDS = '|and|array|as|asm|begin|case|class|const|constructor|destructor|'+
@@ -37,13 +38,15 @@ const
     'procedure|program|property|protected|public|published|raise|record|repeat|'+
     'resourcestring|set|shl|shr|specialize|string|then|threadvar|to|try|type|'+
     'unit|until|uses|var|virtual|while|with|xor|true|false|';
-  TYPESCRIPT_KEYWORDS = '|abstract|any|as|asserts|async|await|bigint|boolean|break|'+
+  TYPESCRIPT_KEYWORDS = '|abstract|accessor|any|as|assert|asserts|async|await|bigint|boolean|break|'+
     'case|catch|class|const|constructor|continue|debugger|declare|default|delete|'+
     'do|else|enum|export|extends|false|finally|for|from|function|get|if|implements|'+
-    'import|in|infer|instanceof|interface|is|keyof|let|module|namespace|never|new|'+
-    'null|number|object|of|override|private|protected|public|readonly|require|'+
+    'global|import|in|infer|instanceof|interface|intrinsic|is|keyof|let|module|namespace|never|new|'+
+    'null|number|object|of|out|override|package|private|protected|public|readonly|require|'+
     'return|satisfies|set|static|string|super|switch|symbol|this|throw|true|try|'+
-    'type|typeof|undefined|unknown|var|void|while|with|yield|';
+    'type|typeof|undefined|unique|unknown|using|var|void|while|with|yield|';
+function ERDTypeScriptKeywords: TArray<string>;
+begin Result := Copy(TYPESCRIPT_KEYWORDS, 2, Length(TYPESCRIPT_KEYWORDS) - 2).Split(['|']); end;
 constructor TERDBasicSyntaxProvider.Create(Language: TERDCodeLanguage);
 begin inherited Create; FLanguage := Language; end;
 function TERDBasicSyntaxProvider.Analyze(const Text: UnicodeString): TERDSyntaxAnalysis;
@@ -173,6 +176,12 @@ begin
         if ((FLanguage = clPascal) and (Pos('|' + Word + '|', PASCAL_KEYWORDS) > 0)) or
           ((FLanguage = clTypeScript) and (Pos('|' + Word + '|', TYPESCRIPT_KEYWORDS) > 0)) or
           ((FLanguage = clJSON) and ((Word = 'true') or (Word = 'false') or (Word = 'null'))) then Kind := skKeyword;
+        if (FLanguage = clTypeScript) and (Kind = skKeyword) then
+        begin
+          if Word = 'interface' then Kind := skInterfaceKeyword
+          else if Word = 'class' then Kind := skClassKeyword
+          else if (Word = 'export') or (Word = 'import') or (Word = 'from') then Kind := skModuleKeyword;
+        end;
         if FLanguage = clPascal then
         begin
           // Lightweight structural folding; exact semantic folds can be supplied by a provider.
@@ -196,7 +205,7 @@ begin
       if FLanguage = clTypeScript then
         case Kind of
           skIdentifier, skNumber, skString: ExpectExpression := False;
-          skKeyword: ExpectExpression := (Word = 'return') or (Word = 'throw') or
+          skKeyword, skInterfaceKeyword, skClassKeyword, skModuleKeyword: ExpectExpression := (Word = 'return') or (Word = 'throw') or
             (Word = 'case') or (Word = 'yield') or (Word = 'await') or
             (Word = 'typeof') or (Word = 'void') or (Word = 'delete') or (Word = 'new');
           skSymbol: ExpectExpression := not CharInSet(Text[Start + 1], [')',']','}']);

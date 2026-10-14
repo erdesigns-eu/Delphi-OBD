@@ -7,6 +7,27 @@ uses Winapi.Windows, Winapi.Messages, System.Classes, System.SysUtils,
   Vcl.Graphics, ERD.Components.Control, ERD.Components.TextInput, ERD.Components.Syntax, ERD.Components.LanguageServices, ERD.Components.PopupList;
 type
   TERDCodeEditor = class;
+  TERDKeywordColor = class(TCollectionItem)
+  private
+    FKeyword: string;
+    FColor: TColor;
+    procedure SetKeyword(const Value: string);
+    procedure SetColor(Value: TColor);
+  protected
+    function GetDisplayName: string; override;
+  public
+    constructor Create(Collection: TCollection); override;
+    procedure Assign(Source: TPersistent); override;
+  published
+    property Keyword: string read FKeyword write SetKeyword;
+    property Color: TColor read FColor write SetColor default clDefault;
+  end;
+  TERDKeywordColors = class(TOwnedCollection)
+  protected
+    procedure Update(Item: TCollectionItem); override;
+  public
+    constructor Create(Owner: TPersistent);
+  end;
   TERDLanguageResponseSink = class(TInterfacedObject, IERDLanguageResponses)
   private
     FEditor: TERDCodeEditor;
@@ -32,6 +53,7 @@ type
   private
     FLanguage: TERDCodeLanguage;
     FProvider: IERDSyntaxProvider;
+    FKeywordColors: TERDKeywordColors;
     FAnalysis: TERDSyntaxAnalysis;
     FAnalyzedText: UnicodeString;
     FAnalysisValid: Boolean;
@@ -39,6 +61,7 @@ type
     FShowLineNumbers, FShowFolding, FShowFoldGuides: Boolean;
     FHotFold, FPressedFold: Integer;
     FTabWidth: Integer;
+    FInterfaceKeywordColor, FClassKeywordColor, FModuleKeywordColor: TColor;
     FTabHandled: Boolean;
     FAutoCloseDelimiters, FSmartHome, FShowIndentGuides, FShowBracketMatch: Boolean;
     FDiagnostics: TArray<TERDCodeDiagnostic>;
@@ -66,6 +89,8 @@ type
     FLastLanguageResult: TERDLanguageRequestKind;
     FOnLanguageResults: TNotifyEvent;
     FOnNavigate: TERDCodeNavigateEvent;
+    procedure SetKeywordColors(Value: TERDKeywordColors);
+    function ResolveKeywordColor(const Word: string; Kind: TERDSyntaxKind): TColor;
     procedure SetLanguageService(const Value: IERDCodeLanguageService);
     procedure SetDocumentUri(const Value: UnicodeString);
     function SnapshotCurrent(const Snapshot: TERDLanguageRequest): Boolean;
@@ -88,7 +113,11 @@ type
     function FoldAtPoint(X, Y: Integer): Integer;
     procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
     procedure WMCaptureChanged(var Message: TMessage); message WM_CAPTURECHANGED;
+    procedure WMSetCursor(var Message: TWMSetCursor); message WM_SETCURSOR;
     procedure SetTabWidth(Value: Integer);
+    procedure SetInterfaceKeywordColor(Value: TColor);
+    procedure SetClassKeywordColor(Value: TColor);
+    procedure SetModuleKeywordColor(Value: TColor);
     function FoldHiddenStart(const Fold: TERDSyntaxFold): Integer;
     function FoldHiddenFinish(const Fold: TERDSyntaxFold): Integer;
     function FoldIndex(Position: Integer): Integer;
@@ -114,6 +143,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    class function FoldInteractionRevision: Integer; static;
     function RequestCompletion: Boolean;
     function RequestHover(Position: Integer = -1): Boolean;
     function RequestDefinition(Position: Integer = -1): Boolean;
@@ -157,6 +187,10 @@ type
     property Language: TERDCodeLanguage read FLanguage write SetLanguage default clTypeScript;
     property ShowLineNumbers: Boolean read FShowLineNumbers write SetShowLineNumbers default True;
     property ShowFolding: Boolean read FShowFolding write SetShowFolding default True;
+    property KeywordColors: TERDKeywordColors read FKeywordColors write SetKeywordColors;
+    property InterfaceKeywordColor: TColor read FInterfaceKeywordColor write SetInterfaceKeywordColor default clDefault;
+    property ClassKeywordColor: TColor read FClassKeywordColor write SetClassKeywordColor default clDefault;
+    property ModuleKeywordColor: TColor read FModuleKeywordColor write SetModuleKeywordColor default clDefault;
     property ShowFoldGuides: Boolean read FShowFoldGuides write SetShowFoldGuides default True;
     property AutoCloseDelimiters: Boolean read FAutoCloseDelimiters write FAutoCloseDelimiters default True;
     property SmartHome: Boolean read FSmartHome write FSmartHome default True;
@@ -166,7 +200,76 @@ type
   end;
 implementation
 uses System.RegularExpressions, ERD.Components.Paint;
+constructor TERDKeywordColor.Create(Collection: TCollection);
+begin
+  inherited;
+  FColor := clDefault;
+end;
+procedure TERDKeywordColor.SetKeyword(const Value: string);
+begin if FKeyword = Value then Exit; FKeyword := Value; Changed(False); end;
+procedure TERDKeywordColor.SetColor(Value: TColor);
+begin if FColor = Value then Exit; FColor := Value; Changed(False); end;
+function TERDKeywordColor.GetDisplayName: string;
+begin if FKeyword = '' then Result := inherited GetDisplayName else Result := FKeyword; end;
+procedure TERDKeywordColor.Assign(Source: TPersistent);
+begin
+  if Source is TERDKeywordColor then
+  begin FKeyword := TERDKeywordColor(Source).Keyword; FColor := TERDKeywordColor(Source).Color; Changed(False); end
+  else inherited;
+end;
+constructor TERDKeywordColors.Create(Owner: TPersistent);
+begin inherited Create(Owner, TERDKeywordColor); end;
+procedure TERDKeywordColors.Update(Item: TCollectionItem);
+begin
+  inherited;
+  if GetOwner is TERDCodeEditor then TERDCodeEditor(GetOwner).Invalidate;
+end;
+procedure TERDCodeEditor.SetKeywordColors(Value: TERDKeywordColors);
+begin FKeywordColors.Assign(Value); end;
+function TERDCodeEditor.ResolveKeywordColor(const Word: string; Kind: TERDSyntaxKind): TColor;
+var I: Integer; Entry: TERDKeywordColor; Dark: Boolean;
+begin
+  for I := FKeywordColors.Count - 1 downto 0 do
+  begin
+    Entry := TERDKeywordColor(FKeywordColors.Items[I]);
+    if (Entry.Keyword = Word) and (Entry.Color <> clDefault) then Exit(Entry.Color);
+  end;
+  Dark := ERDIsDarkPalette(Palette); Result := Palette.Accent;
+  case Kind of
+    skInterfaceKeyword:
+      begin
+        Result := FInterfaceKeywordColor;
+        if Result = clDefault then if Dark then Result := $00FFD080 else Result := $00AA5500;
+      end;
+    skClassKeyword:
+      begin
+        Result := FClassKeywordColor;
+        if Result = clDefault then if Dark then Result := $00B0DF70 else Result := $006E7800;
+      end;
+    skModuleKeyword:
+      begin
+        Result := FModuleKeywordColor;
+        if Result = clDefault then if Dark then Result := $00E8A8C8 else Result := $00802080;
+      end;
+  else
+    if Pos('|' + Word + '|', '|any|bigint|boolean|intrinsic|never|number|object|string|symbol|unique|unknown|void|') > 0 then
+    begin if Dark then Result := $00FFD080 else Result := $00AA5500; end
+    else if Pos('|' + Word + '|', '|break|case|catch|continue|debugger|default|do|else|finally|for|if|return|switch|throw|try|while|yield|await|') > 0 then
+    begin if Dark then Result := $00E8A8C8 else Result := $00802080; end
+    else if Pos('|' + Word + '|', '|abstract|accessor|async|declare|out|override|private|protected|public|readonly|static|') > 0 then
+    begin if Dark then Result := $00D8BEA0 else Result := $00906040; end
+    else if Pos('|' + Word + '|', '|const|constructor|enum|function|get|global|let|namespace|package|set|type|using|var|module|') > 0 then
+    begin if Dark then Result := $00B0DF70 else Result := $006E7800; end
+    else if Pos('|' + Word + '|', '|true|false|null|undefined|this|super|') > 0 then
+      Result := Palette.Warning
+    else if Pos('|' + Word + '|', '|as|asserts|delete|extends|implements|in|infer|instanceof|is|keyof|new|of|satisfies|typeof|') > 0 then
+    begin if Dark then Result := $00E0A0F0 else Result := $00903090; end;
+  end;
+end;
+class function TERDCodeEditor.FoldInteractionRevision: Integer;
+begin Result := 2; end;
 constructor TERDCodeEditor.Create(AOwner: TComponent);
+var Word: string;
 begin
   inherited Create(AOwner);
   FCollapsed := TList<Integer>.Create;
@@ -175,6 +278,9 @@ begin
   FSearchIndex := -1;
   FLanguage := clTypeScript;
   FTabWidth := 2;
+  FInterfaceKeywordColor := clDefault;
+  FClassKeywordColor := clDefault;
+  FModuleKeywordColor := clDefault;
   FAutoMemberCompletion := True;
   FAutoCloseDelimiters := True;
   FSmartHome := True;
@@ -184,6 +290,11 @@ begin
   FShowFolding := True;
   FShowFoldGuides := True;
   FHotFold := -1; FPressedFold := -1;
+  FKeywordColors := TERDKeywordColors.Create(Self);
+  FKeywordColors.BeginUpdate;
+  try
+    for Word in ERDTypeScriptKeywords do TERDKeywordColor(FKeywordColors.Add).Keyword := Word;
+  finally FKeywordColors.EndUpdate; end;
   FProvider := TERDBasicSyntaxProvider.Create(FLanguage);
   WordWrap := False; WantTabs := True; AutoSelect := False;
   Font.Name := 'Consolas';
@@ -193,7 +304,7 @@ begin
   if FResponseObject <> nil then FResponseObject.Detach;
   CancelLanguageRequests; FResponses := nil; FResponseObject := nil;
   if FCompletionPopup <> nil then FCompletionPopup.OnCloseUp := nil;
-  FCollapsed.Free; inherited Destroy;
+  FKeywordColors.Free; FCollapsed.Free; inherited Destroy;
 end;
 constructor TERDLanguageResponseSink.Create(Editor: TERDCodeEditor);
 begin inherited Create; FEditor := Editor; end;
@@ -617,6 +728,12 @@ begin
   Before := Text; TextModel.ReplaceSelection(Value); Changed(Before);
   SelStart := Position + 1; SelLength := Selected;
 end;
+procedure TERDCodeEditor.SetInterfaceKeywordColor(Value: TColor);
+begin FInterfaceKeywordColor := Value; Invalidate; end;
+procedure TERDCodeEditor.SetClassKeywordColor(Value: TColor);
+begin FClassKeywordColor := Value; Invalidate; end;
+procedure TERDCodeEditor.SetModuleKeywordColor(Value: TColor);
+begin FModuleKeywordColor := Value; Invalidate; end;
 procedure TERDCodeEditor.SetTabWidth(Value: Integer);
 begin FTabWidth := EnsureRange(Value, 1, 16); Invalidate; end;
 function TERDCodeEditor.TextViewport: TRect;
@@ -776,7 +893,9 @@ begin
     A := Max(Start, Span.Start); B := Min(Start + Count, Span.Start + Span.Count);
     if A >= B then Continue;
     case Span.Kind of
-      skKeyword, skDirective: Ink := Palette.Accent;
+      skKeyword, skInterfaceKeyword, skClassKeyword, skModuleKeyword:
+        Ink := ResolveKeywordColor(Copy(Text, Span.Start + 1, Span.Count), Span.Kind);
+      skDirective: Ink := Palette.Accent;
       skNumber: Ink := Palette.Warning;
       skString: Ink := Palette.Success;
       skComment: Ink := Palette.Subtle;
@@ -897,7 +1016,7 @@ end;
 procedure TERDCodeEditor.PaintControl(ACanvas: TCanvas);
 var Rows: TArray<TERDTextRow>; I, J, Number, Y, H, Index, X: Integer;
     R, View, ButtonRect: TRect; Saved, CenterX, CenterY, Arm: Integer; Diagnostic: TERDCodeDiagnostic;
-    Fold: TERDSyntaxFold; Painter: TERDPainter;
+    Fold: TERDSyntaxFold; Painter: TERDPainter; GutterFill, GuideInk, ButtonInk, ButtonFill: TColor;
     DiagnosticFound: Boolean; RowFinish: Integer; Severity: TERDDiagnosticSeverity;
 begin
   inherited PaintControl(ACanvas);
@@ -905,9 +1024,13 @@ begin
   Rows := VisualRows; View := TextViewport; H := RowHeight;
   R := inherited TextViewport; R.Right := View.Left - ScaleValue(3);
   Saved := SaveDC(ACanvas.Handle);
+  Painter := TERDPainter.Create(ACanvas, Palette, ScaleValue(96));
   try
+    GutterFill := ERDMixColor(Palette.Background, Palette.ForegroundText, 0.08);
+    GuideInk := ERDMixColor(GutterFill, Palette.ForegroundText, 0.40);
     IntersectClipRect(ACanvas.Handle, R.Left, R.Top, R.Right, R.Bottom);
-    ACanvas.Brush.Color := Palette.Background; ACanvas.FillRect(R);
+    Painter.FillRect(R, GutterFill);
+    Painter.VLine(R.Right - 1, R.Top, R.Height, ERDMixColor(GutterFill, Palette.ForegroundText, 0.25));
     ACanvas.Font.Assign(Font); ACanvas.Font.Color := Palette.Subtle;
     SetBkMode(ACanvas.Handle, TRANSPARENT);
     Number := 1; J := 0;
@@ -949,39 +1072,35 @@ begin
             if not FCollapsed.Contains(Fold.Start) and
               (Rows[I].Start > LineStart(Fold.Start)) and (Rows[I].Start < FoldHiddenFinish(Fold)) then
             begin
-              ACanvas.MoveTo(CenterX, Y);
               if (I = High(Rows)) or (Rows[I + 1].Start >= FoldHiddenFinish(Fold)) then
               begin
-                ACanvas.LineTo(CenterX, CenterY);
-                ACanvas.LineTo(ButtonRect.Right + ScaleValue(2), CenterY);
+                Painter.VLine(CenterX, Y, H div 2 + 1, GuideInk);
+                Painter.HLine(CenterX, CenterY, ButtonRect.Right + ScaleValue(2) - CenterX, GuideInk);
               end
-              else ACanvas.LineTo(CenterX, Y + H);
+              else Painter.VLine(CenterX, Y, H, GuideInk);
             end;
         Index := FoldIndex(Rows[I].Start);
         if Index >= 0 then
         begin
           if FShowFoldGuides and not FCollapsed.Contains(FAnalysis.Folds[Index].Start) then
-          begin ACanvas.MoveTo(CenterX, CenterY); ACanvas.LineTo(CenterX, Y + H); end;
-          ACanvas.Brush.Style := bsSolid; ACanvas.Brush.Color := Palette.Background;
-          ACanvas.Pen.Color := Palette.Subtle;
+            Painter.VLine(CenterX, CenterY, H - H div 2, GuideInk);
+          ButtonFill := ERDMixColor(GutterFill, Palette.Accent, 0.12); ButtonInk := Palette.Accent;
           if (FHotFold = FAnalysis.Folds[Index].Start) and Enabled then
           begin
-            ACanvas.Pen.Color := Palette.Accent;
-            if FPressedFold = FHotFold then ACanvas.Brush.Color := Palette.Accent;
+            ButtonInk := Palette.Accent;
+            ButtonFill := ERDMixColor(Palette.Background, Palette.Accent, 0.30);
+            if FPressedFold = FHotFold then
+            begin ButtonFill := Palette.Accent; ButtonInk := Painter.ContrastInk(ButtonFill); end;
           end;
-          ACanvas.Rectangle(ButtonRect);
-          if (FPressedFold = FHotFold) and (FHotFold = FAnalysis.Folds[Index].Start) then
-          begin
-            Painter := TERDPainter.Create(ACanvas, Palette, ScaleValue(96));
-            try ACanvas.Pen.Color := Painter.ContrastInk(Palette.Accent); finally Painter.Free; end;
-          end;
-          ACanvas.MoveTo(CenterX - Arm, CenterY); ACanvas.LineTo(CenterX + Arm + 1, CenterY);
+          Painter.RoundRect(ButtonRect.Left, ButtonRect.Top, ButtonRect.Width, ButtonRect.Height,
+            ScaleValue(3), ButtonFill, ButtonInk);
+          Painter.HLine(CenterX - Arm, CenterY, Arm * 2 + 1, ButtonInk);
           if FCollapsed.Contains(FAnalysis.Folds[Index].Start) then
-          begin ACanvas.MoveTo(CenterX, CenterY - Arm); ACanvas.LineTo(CenterX, CenterY + Arm + 1); end;
+            Painter.VLine(CenterX, CenterY - Arm, Arm * 2 + 1, ButtonInk);
         end;
       end;
     end;
-  finally RestoreDC(ACanvas.Handle, Saved); end;
+  finally Painter.Free; RestoreDC(ACanvas.Handle, Saved); end;
 end;
 procedure TERDCodeEditor.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var Fold: Integer; View: TRect;
@@ -1017,6 +1136,19 @@ begin
     Invalidate; Exit;
   end;
   inherited MouseUp(Button, Shift, X, Y);
+end;
+procedure TERDCodeEditor.WMSetCursor(var Message: TWMSetCursor);
+var P: TPoint; View, OuterView: TRect;
+begin
+  if (Message.HitTest = HTCLIENT) and GetCursorPos(P) then
+  begin
+    P := ScreenToClient(P); View := TextViewport; OuterView := inherited TextViewport;
+    if (P.X >= OuterView.Left) and (P.X < View.Left) then
+      Winapi.Windows.SetCursor(LoadCursor(0, IDC_ARROW))
+    else Winapi.Windows.SetCursor(LoadCursor(0, IDC_IBEAM));
+    Message.Result := 1; Exit;
+  end;
+  inherited;
 end;
 procedure TERDCodeEditor.CMMouseLeave(var Message: TMessage);
 begin

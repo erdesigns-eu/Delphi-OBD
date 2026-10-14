@@ -4,7 +4,7 @@
 interface
 uses
   Winapi.Windows, Winapi.Messages, Winapi.Imm,
-  System.Classes, System.SysUtils, System.Types, System.Math,
+  System.Classes, System.SysUtils, System.Types, System.Math, System.Character,
   Vcl.Controls, Vcl.Forms, Vcl.Graphics, Vcl.Clipbrd, Vcl.ExtCtrls, Vcl.StdCtrls, System.UITypes,
   ERD.Components.TextLayout, ERD.Components.Control, ERD.Components.TextModel, ERD.Components.Menus;
 type
@@ -17,7 +17,9 @@ type
     destructor Destroy; override;
     function X(APosition: Integer): Integer;
     function Width: Integer;
+    function Hit(X: Integer): Integer;
     procedure Range(APosition, ALength: Integer; out ALeft, ARight: Integer);
+    function VisualRanges(Position, Count: Integer): TArray<TRect>;
     procedure Draw(AX, AY: Integer);
   end;
   TERDTextInput = class(TERDCustomControl)
@@ -38,12 +40,13 @@ type
     FHint, FComposition: UnicodeString;
     FReadOnly, FPasswordVisible, FSelecting, FCaretCreated: Boolean;
     FPasswordChar, FPendingSurrogate: WideChar;
-    FMaxLength, FScroll: Integer;
+    FMaxLength, FScroll, FSelectionPadding: Integer;
     FOnChange, FOnSelectionChange: TNotifyEvent;
     function GetCanUndo: Boolean;
     function GetCanRedo: Boolean;
     function SelectionFill: TColor;
     procedure SetHideSelection(Value: Boolean);
+    procedure SetSelectionPadding(Value: Integer);
     function TextInset: Integer;
     procedure SetBorderStyle(Value: TBorderStyle);
     procedure SetAlignment(Value: TAlignment);
@@ -52,6 +55,7 @@ type
     procedure EnsureWordAttributes;
     function WordLeft(Position: Integer): Integer;
     function WordRight(Position: Integer): Integer;
+    procedure WordBounds(Position: Integer; out Start, Finish: Integer);
     procedure SelectWord(Position: Integer);
     procedure ExtendSelection(Position: Integer);
     procedure EditMenuClick(Sender: TObject);
@@ -89,6 +93,8 @@ type
     procedure WndProc(var Message: TMessage); override;
     function DefaultEditMenu: TERDPopupMenu;
     procedure DoContextPopup(MousePos: TPoint; var Handled: Boolean); override;
+    procedure PaintSelection(ACanvas: TCanvas; Line: TERDTextLayoutLine;
+      Position, Count, X, Y, H: Integer; Fill, Ink: TColor);
     procedure PaintControl(ACanvas: TCanvas); override;
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
@@ -119,6 +125,7 @@ type
     property SelStart: Integer read GetSelStart write SetSelStart;
     property SelLength: Integer read GetSelLength write SetSelLength;
   published
+    property SelectionPadding: Integer read FSelectionPadding write SetSelectionPadding default 2;
     property HideSelection: Boolean read FHideSelection write SetHideSelection default True;
     property AutoSelect: Boolean read FAutoSelect write FAutoSelect default False;
     property Alignment: TAlignment read FAlignment write SetAlignment default taLeftJustify;
@@ -253,6 +260,7 @@ begin
   FModel := TERDTextModel.Create;
   FBorderStyle := bsSingle;
   FHideSelection := True;
+  FSelectionPadding := 2;
   Cursor := crIBeam;
   FAlignment := taLeftJustify;
   FCharCase := ecNormal;
@@ -277,6 +285,11 @@ function TERDTextInput.SelectionFill: TColor;
 begin
   if Focused then Result := Palette.Accent
   else Result := ERDMixColor(Palette.Accent, Palette.GaugeFace, 0.2);
+end;
+procedure TERDTextInput.SetSelectionPadding(Value: Integer);
+begin
+  Value := EnsureRange(Value, 0, 32); if FSelectionPadding = Value then Exit;
+  FSelectionPadding := Value; UpdateCaret; Invalidate;
 end;
 procedure TERDTextInput.SetHideSelection(Value: Boolean);
 begin FHideSelection := Value; Invalidate; end;
@@ -467,7 +480,7 @@ begin
   // SCRIPT_LOGATTR is one byte. Its low bit is fSoftBreak, as used by EDIT.
   Analysis := 0;
   if ScriptBreak(PWideChar(Text), Length(Text), @Analysis, @FWordAttributes[0]) < 0 then
-    raise EInvalidOperation.Create('Unable to find text word boundaries');
+    raise System.SysUtils.Exception.Create('Unable to find text word boundaries');
 end;
 function TERDTextInput.WordLeft(Position: Integer): Integer;
 begin
@@ -482,18 +495,43 @@ begin
   while (Result < Length(Text)) and ((FWordAttributes[Result] and 1) = 0) do Inc(Result);
   if FModel.Snap(Result) <> Result then Result := FModel.Next(Result);
 end;
+procedure TERDTextInput.WordBounds(Position: Integer; out Start, Finish: Integer);
+  function Kind(At: Integer): Integer;
+  var C: WideChar;
+  begin
+    C := Text[At + 1];
+    if TCharacter.IsWhiteSpace(C) then Exit(0);
+    if TCharacter.IsLetterOrDigit(C) or (C = '_') or (C = '$') then Exit(1);
+    Result := 2;
+  end;
+var Category, Previous: Integer;
+begin
+  Position := FModel.Snap(EnsureRange(Position, 0, Length(Text)));
+  if Position = Length(Text) then Position := FModel.Previous(Position);
+  Start := Position; Finish := Position; if Text = '' then Exit;
+  Finish := FModel.Next(Position); Category := Kind(Position);
+  // Punctuation and emoji select one complete grapheme. Words and whitespace
+  // expand within their own category; never include trailing spaces in a word.
+  if Category = 2 then Exit;
+  while Start > 0 do
+  begin
+    Previous := FModel.Previous(Start); if Kind(Previous) <> Category then Break;
+    Start := Previous;
+  end;
+  while Finish < Length(Text) do
+  begin if Kind(Finish) <> Category then Break; Finish := FModel.Next(Finish); end;
+end;
 procedure TERDTextInput.SelectWord(Position: Integer);
 begin
   Position := FModel.Snap(Position);
-  FWordStart := WordLeft(FModel.Next(Position));
-  FWordEnd := WordRight(FModel.Next(Position));
+  WordBounds(Position, FWordStart, FWordEnd);
   FWordSelecting := True; FModel.Select(FWordStart, FWordEnd); Changed(Text);
 end;
 procedure TERDTextInput.ExtendSelection(Position: Integer);
 var Start, Finish: Integer;
 begin
   if not FWordSelecting then begin MoveTo(Position, True); Exit; end;
-  Start := WordLeft(FModel.Next(Position)); Finish := WordRight(FModel.Next(Position));
+  WordBounds(Position, Start, Finish);
   if Position < FWordStart then FModel.Select(FWordEnd, Start)
   else if Position > FWordEnd then FModel.Select(FWordStart, Finish)
   else FModel.Select(FWordStart, FWordEnd);
@@ -506,24 +544,50 @@ begin
   Changed(Text);
 end;
 function TERDTextInput.HitPosition(X: Integer): Integer;
-var Line: TERDTextLayoutLine; Boundary, Distance, BestDistance, TextX: Integer;
+var Line: TERDTextLayoutLine; Candidate, Before, After, TextX: Integer;
 begin
   Canvas.Font.Assign(Font); Line := TERDTextLayoutLine.Create(Canvas, DisplayText);
   try
-    Result := 0; BestDistance := MaxInt;
-    TextX := X - LineOrigin(Line.Width) + FScroll;
-    // Use exactly the stops used by caret painting, including emoji clusters
-    // and the end-of-line trailing edge. Never hit the middle of a grapheme.
-    for Boundary in FModel.Boundaries do
-    begin
-      Distance := Abs(Line.X(DisplayPosition(Boundary)) - TextX);
-      if Distance < BestDistance then
-      begin BestDistance := Distance; Result := Boundary; end;
-    end;
+    TextX := X - LineOrigin(Line.Width) + FScroll; Candidate := Line.Hit(TextX);
+    if (FPasswordChar <> #0) and not FPasswordVisible then
+      Exit(FModel.Boundaries[EnsureRange(Candidate, 0, High(FModel.Boundaries))]);
+    Before := FModel.Snap(Candidate); After := Before;
+    if Before <> Candidate then After := FModel.Next(Before);
+    Result := Before;
+    if Abs(Line.X(After) - TextX) < Abs(Line.X(Before) - TextX) then Result := After;
   finally Line.Free; end;
 end;
+function TERDTextLayoutLine.Hit(X: Integer): Integer;
+begin Result := FDirectWrite.Hit(X); end;
+function TERDTextLayoutLine.VisualRanges(Position, Count: Integer): TArray<TRect>;
+begin Result := FDirectWrite.VisualRanges(Position, Count); end;
+procedure TERDTextInput.PaintSelection(ACanvas: TCanvas; Line: TERDTextLayoutLine;
+  Position, Count, X, Y, H: Integer; Fill, Ink: TColor);
+var R, Bounds: TRect; Ranges: TArray<TRect>; Clip, Part: HRGN; Saved, Padding: Integer;
+begin
+  if Count <= 0 then Exit;
+  Ranges := Line.VisualRanges(Position, Count); if Length(Ranges) = 0 then Exit;
+  Padding := ScaleValue(FSelectionPadding);
+  if Self is TERDTextArea then Padding := 0;
+  Clip := CreateRectRgn(0, 0, 0, 0);
+  try
+    for R in Ranges do
+    begin
+      Bounds := Rect(X + R.Left, Y - Padding, X + R.Right, Y + H + Padding);
+      if Bounds.Right <= Bounds.Left then Continue;
+      ACanvas.Brush.Color := Fill; ACanvas.FillRect(Bounds);
+      Part := CreateRectRgn(Bounds.Left, Bounds.Top, Bounds.Right, Bounds.Bottom);
+      try CombineRgn(Clip, Clip, Part, RGN_OR); finally DeleteObject(Part); end;
+    end;
+    Saved := SaveDC(ACanvas.Handle);
+    try
+      ExtSelectClipRgn(ACanvas.Handle, Clip, RGN_AND);
+      SetTextColor(ACanvas.Handle, ColorToRGB(Ink)); Line.Draw(X, Y);
+    finally RestoreDC(ACanvas.Handle, Saved); end;
+  finally DeleteObject(Clip); end;
+end;
 procedure TERDTextInput.PaintControl(ACanvas: TCanvas);
-var P: TERDPainter; Line: TERDTextLayoutLine; R, SR: TRect; Saved, SavedSelection, I, L, H, Y, TextHeight: Integer;
+var P: TERDPainter; Line: TERDTextLayoutLine; R: TRect; Saved, L, H, Y, TextHeight: Integer;
     S: UnicodeString; Ink, Fill: TColor;
 begin
   P := TERDPainter.Create(ACanvas, Palette, ScaleValue(96));
@@ -555,25 +619,10 @@ begin
       Line := TERDTextLayoutLine.Create(ACanvas, S);
       try
         Line.Draw(LineOrigin(Line.Width) - FScroll, Y);
-        // Paint each selected grapheme's visual range; handles disjoint bidi runs.
         if (Focused or not FHideSelection) and (SelLength > 0) then
-          for I := 0 to High(FModel.Boundaries) - 1 do
-            if (FModel.Boundaries[I] >= SelStart) and
-              (FModel.Boundaries[I + 1] <= SelStart + SelLength) then
-            begin
-              Line.Range(DisplayPosition(FModel.Boundaries[I]),
-                DisplayPosition(FModel.Boundaries[I + 1]) -
-                DisplayPosition(FModel.Boundaries[I]), L, H);
-              SR := Rect(LineOrigin(Line.Width) + Min(L,H) - FScroll, Y,
-                LineOrigin(Line.Width) + Max(L,H) - FScroll, Y + TextHeight);
-              ACanvas.Brush.Color := Fill; ACanvas.FillRect(SR);
-              SavedSelection := SaveDC(ACanvas.Handle);
-              try
-                IntersectClipRect(ACanvas.Handle, SR.Left, SR.Top, SR.Right, SR.Bottom);
-                SetTextColor(ACanvas.Handle, ColorToRGB(Ink));
-                Line.Draw(LineOrigin(Line.Width) - FScroll, Y);
-              finally RestoreDC(ACanvas.Handle, SavedSelection); end;
-            end;
+          PaintSelection(ACanvas, Line, DisplayPosition(SelStart),
+            DisplayPosition(SelStart + SelLength) - DisplayPosition(SelStart),
+            LineOrigin(Line.Width) - FScroll, Y, TextHeight, Fill, Ink);
         if FComposition <> '' then
         begin
           L := LineOrigin(Line.Width) + Line.X(DisplayPosition(FModel.Caret)) - FScroll;
@@ -771,7 +820,12 @@ begin
   end;
 end;
 procedure TERDTextInput.DblClick;
-begin SelectWord(FModel.Caret); inherited; end;
+begin
+  // VCL dispatches DblClick as well as MouseDown(ssDouble). The latter already
+  // selects the clicked word; selecting again at its trailing edge selects spaces.
+  if not FWordSelecting then SelectWord(FModel.Caret);
+  inherited;
+end;
 procedure TERDTextInput.DoEnter;
 begin
   if FAutoSelect and (GetKeyState(VK_LBUTTON) >= 0) then FModel.Select(0, Length(Text));
@@ -1056,7 +1110,7 @@ begin
   finally Rows.Free; end;
 end;
 function TERDTextArea.RowHeight: Integer;
-begin Canvas.Font.Assign(Font); Result := Max(1, Canvas.TextHeight('Mg')); end;
+begin Canvas.Font.Assign(Font); Result := Max(1, Canvas.TextHeight('Mg') + 2 * ScaleValue(FSelectionPadding)); end;
 function TERDTextArea.VisibleRowCount: Integer;
 begin Result := Max(1, TextViewport.Height div RowHeight); end;
 function TERDTextArea.RowForPosition(Position: Integer): Integer;
@@ -1098,23 +1152,22 @@ begin
   finally Line.Free; end;
 end;
 function TERDTextArea.HitRow(X, Y: Integer): Integer;
-var Row, Boundary, Distance, Best, TextX: Integer; Line: TERDTextLayoutLine;
+var Row, Candidate, Before, After, TextX: Integer; Line: TERDTextLayoutLine;
 begin
   BuildRows;
   Row := EnsureRange(FFirstRow + (Y - TextViewport.Top) div RowHeight, 0, High(FRows));
   Line := TERDTextLayoutLine.Create(Canvas, RowText(Row));
   try
-    Result := FRows[Row].Start; Best := MaxInt; TextX := X - LineOrigin(Line.Width) + FScroll;
-    for Boundary in FModel.Boundaries do
-      if (Boundary >= FRows[Row].Start) and (Boundary <= FRows[Row].Start + FRows[Row].Count) then
-      begin
-        Distance := Abs(Line.X(Boundary - FRows[Row].Start) - TextX);
-        if Distance < Best then begin Best := Distance; Result := Boundary; end;
-      end;
+    TextX := X - LineOrigin(Line.Width) + FScroll;
+    Candidate := FRows[Row].Start + Line.Hit(TextX);
+    Before := FModel.Snap(Candidate); After := Before;
+    if Before <> Candidate then After := Min(FModel.Next(Before), FRows[Row].Start + FRows[Row].Count);
+    Result := Before;
+    if Abs(Line.X(After - FRows[Row].Start) - TextX) < Abs(Line.X(Before - FRows[Row].Start) - TextX) then Result := After;
   finally Line.Free; end;
 end;
 procedure TERDTextArea.PaintControl(ACanvas: TCanvas);
-var P: TERDPainter; Saved, Row, H, Y, I, L, R, ClipSaved: Integer;
+var P: TERDPainter; Saved, Row, H, Y, I, L, R: Integer;
     Bounds, Selection: TRect; Line: TERDTextLayoutLine; Ink, Fill: TColor;
 begin
   BuildRows; H := RowHeight; P := TERDPainter.Create(ACanvas, Palette, ScaleValue(96));
@@ -1150,21 +1203,9 @@ begin
         PaintTextLine(ACanvas, FRows[Row].Start, FRows[Row].Count,
           LineOrigin(Line.Width) - FScroll, Y, Line);
         if (Focused or not FHideSelection) and (SelLength > 0) then
-          for I := 0 to High(FModel.Boundaries) - 1 do
-            if (FModel.Boundaries[I] >= Max(SelStart, FRows[Row].Start)) and
-              (FModel.Boundaries[I + 1] <= Min(SelStart + SelLength, FRows[Row].Start + FRows[Row].Count)) then
-            begin
-              Line.Range(FModel.Boundaries[I] - FRows[Row].Start,
-                FModel.Boundaries[I + 1] - FModel.Boundaries[I], L, R);
-              Selection := Rect(LineOrigin(Line.Width) + L - FScroll, Y,
-                LineOrigin(Line.Width) + R - FScroll, Y + H);
-              ACanvas.Brush.Color := Fill; ACanvas.FillRect(Selection);
-              ClipSaved := SaveDC(ACanvas.Handle);
-              try
-                IntersectClipRect(ACanvas.Handle, Selection.Left, Selection.Top, Selection.Right, Selection.Bottom);
-                SetTextColor(ACanvas.Handle, ColorToRGB(Ink)); Line.Draw(LineOrigin(Line.Width) - FScroll, Y);
-              finally RestoreDC(ACanvas.Handle, ClipSaved); end;
-            end;
+          PaintSelection(ACanvas, Line, Max(SelStart, FRows[Row].Start) - FRows[Row].Start,
+            Min(SelStart + SelLength, FRows[Row].Start + FRows[Row].Count) - Max(SelStart, FRows[Row].Start),
+            LineOrigin(Line.Width) - FScroll, Y, H, Fill, Ink);
         I := FRows[Row].Start + FRows[Row].Count;
         if (Focused or not FHideSelection) and (I < Length(Text)) and (Text[I + 1] = #13) and
           (SelStart <= I) and (SelStart + SelLength > I) then

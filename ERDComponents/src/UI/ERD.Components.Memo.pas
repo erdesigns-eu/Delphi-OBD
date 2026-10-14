@@ -57,6 +57,8 @@ type
     procedure SetText(const AValue: string);
     function GetReadOnly: Boolean;
     procedure SetReadOnly(AValue: Boolean);
+    function GetSelectionPadding: Integer;
+    procedure SetSelectionPadding(Value: Integer);
     function GetMaxLength: Integer;
     procedure SetMaxLength(AValue: Integer);
     function GetWordWrap: Boolean;
@@ -149,6 +151,7 @@ type
     property ReadOnly: Boolean read GetReadOnly write SetReadOnly
       default False;
     /// <summary>Maximum number of characters; 0 = no limit.</summary>
+    property SelectionPadding: Integer read GetSelectionPadding write SetSelectionPadding default 2;
     property MaxLength: Integer read GetMaxLength write SetMaxLength
       default 0;
     /// <summary>Wraps long lines at the right edge.</summary>
@@ -269,6 +272,10 @@ begin
   FMemo.ReadOnly := AValue;
 end;
 
+function TERDMemo.GetSelectionPadding: Integer;
+begin Result := FMemo.SelectionPadding; end;
+procedure TERDMemo.SetSelectionPadding(Value: Integer);
+begin FMemo.SelectionPadding := Value; end;
 function TERDMemo.GetMaxLength: Integer;
 begin
   Result := FMemo.MaxLength;

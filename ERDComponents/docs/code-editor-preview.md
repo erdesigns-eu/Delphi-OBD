@@ -137,3 +137,23 @@ lines of at most 8192 UTF-16 code units. The key includes font and line metrics;
 theme colours are applied when drawing. The cache retains no canvas or control
 objects. This avoids reshaping unchanged text for caret measurement and repaint;
 Windows/VM timings still need measurement.
+
+The gutter has a contrasting theme-derived fill, a right divider, rounded accent
+fold buttons, and native arrow-cursor handling. The demo header identifies this
+implementation as **Fold UI v2**. Expanded folds have visible connector lines.
+
+`SelectionPadding` (default 2, in 96-DPI pixels per vertical side) makes the
+single-line highlight taller. It is published on the shared input, Edit and Memo.
+In multiline inputs, padding adds room to the row height; highlights stay within
+their row to avoid erasing neighbouring text.
+Selection painting unions DirectWrite visual ranges and draws selected text once
+per visible row, preserving disjoint bidirectional selections. Native DirectWrite
+hit-testing replaces the former scan of every grapheme during mouse movement.
+
+`KeywordColors` exposes every TypeScript keyword as an editable collection item.
+Set its `Color` for an individual override; `clDefault` uses the light/dark default
+for its keyword group. Defaults distinguish interfaces, classes, modules, types,
+control flow, declarations, modifiers, literals and operators. The broad
+`InterfaceKeywordColor`, `ClassKeywordColor` and `ModuleKeywordColor` properties
+remain available; individual overrides take precedence. Keyword matching is case
+sensitive and does not colour occurrences inside comments or strings.

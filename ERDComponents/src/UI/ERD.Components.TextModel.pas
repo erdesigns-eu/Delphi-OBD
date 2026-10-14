@@ -2581,10 +2581,15 @@ end;
 function TERDTextModel.Previous(APosition: Integer): Integer;
 begin Result := Snap(Max(0, APosition - 1)); end;
 function TERDTextModel.Next(APosition: Integer): Integer;
-var B: Integer;
+var L, H, M: Integer;
 begin
-  for B in FBoundaries do if B > APosition then Exit(B);
-  Result := Length(FText);
+  L := 0; H := High(FBoundaries);
+  while L < H do
+  begin
+    M := L + (H - L) div 2;
+    if FBoundaries[M] <= APosition then L := M + 1 else H := M;
+  end;
+  Result := FBoundaries[L];
 end;
 function TERDTextModel.WordKind(APosition: Integer): Byte;
 var C: Cardinal; I: Integer;

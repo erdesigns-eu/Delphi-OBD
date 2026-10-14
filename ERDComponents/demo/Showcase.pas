@@ -770,7 +770,8 @@ begin
   Button.SetBounds(MulDiv(208, CurrentPPI, 96), MulDiv(8, CurrentPPI, 96),
     MulDiv(100, CurrentPPI, 96), MulDiv(28, CurrentPPI, 96));
   Instructions := TLabel.Create(Self); Instructions.Parent := Header;
-  Instructions.Caption := 'Example provider: type console. / Ctrl+Space; F1 info; F12 definition';
+  Instructions.Caption := 'Fold UI v' + IntToStr(TERDCodeEditor.FoldInteractionRevision) +
+    ' - hover / press +/-; console. / Ctrl+Space; F1 info; F12 definition';
   Instructions.Left := MulDiv(320, CurrentPPI, 96); Instructions.Top := MulDiv(15, CurrentPPI, 96);
   CodeSearchQuery := TERDEdit.Create(Self); CodeSearchQuery.Parent := Header;
   CodeSearchQuery.TextHint := 'Find'; CodeSearchQuery.Text := 'command';
@@ -797,6 +798,7 @@ begin
   CodeEditor.AlignWithMargins := True;
   CodeEditor.Margins.SetBounds(8, 0, 8, 8);
   CodeEditor.Language := clTypeScript;
+  CodeEditor.ShowFolding := True; CodeEditor.ShowFoldGuides := True;
   CodeEditor.Text :=
     '// TypeScript preview - Unicode: Caf' + #$00E9 + ' ' + #$D83D#$DCBB + #13#10 +
     'export interface Command {' + #13#10 +

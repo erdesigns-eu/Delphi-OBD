@@ -17,7 +17,9 @@ type
     constructor Create(ACanvas: TCanvas; const Text: UnicodeString);
     function X(Position: Integer): Integer;
     function Width: Integer;
+    function Hit(X: Integer): Integer;
     procedure Range(Position, Count: Integer; out Left, Right: Integer);
+    function VisualRanges(Position, Count: Integer): TArray<TRect>;
     procedure Draw(X, Y: Integer);
   end;
 function ERDTextLayoutABIValid: Boolean;
@@ -124,7 +126,7 @@ type
     procedure ReservedIERDWriteLayout_GetOverhangMetrics; stdcall;
     procedure ReservedIERDWriteLayout_GetClusterMetrics; stdcall;
     procedure ReservedIERDWriteLayout_DetermineMinWidth; stdcall;
-    procedure ReservedIERDWriteLayout_HitTestPoint; stdcall;
+    function HitTestPoint(X, Y: Single; out Trailing, Inside: BOOL; out Hit: TERDWriteHit): HRESULT; stdcall;
     function HitTestTextPosition(Position: Cardinal; Trailing: BOOL; out X, Y: Single; out Hit: TERDWriteHit): HRESULT; stdcall;
     function HitTestTextRange(Position, Count: Cardinal; X, Y: Single; Hits: Pointer; Capacity: Cardinal; out Actual: Cardinal): HRESULT; stdcall;
   end;
@@ -471,6 +473,14 @@ begin
   Checked((FLayout as IERDWriteLayout).HitTestTextPosition(CP, Trailing, PX, PY, Hit));
   Result := Round(PX);
 end;
+function TERDDirectWriteLine.Hit(X: Integer): Integer;
+var Trailing, Inside: BOOL; HitInfo: TERDWriteHit;
+begin
+  if FText = '' then Exit(0);
+  Checked((FLayout as IERDWriteLayout).HitTestPoint(X, 0, Trailing, Inside, HitInfo));
+  Result := HitInfo.Position; if Trailing then Inc(Result, HitInfo.Count);
+  Result := EnsureRange(Result, 0, Length(FText));
+end;
 function TERDDirectWriteLine.Width: Integer;
 var Metrics: TERDWriteMetrics;
 begin Checked((FLayout as IERDWriteLayout).GetMetrics(Metrics)); Result := Ceil(Metrics.WidthTrailing); end;
@@ -490,6 +500,20 @@ begin
   if Actual > 1 then for I := 1 to Actual - 1 do
   begin L := Min(L, Hits[I].Left); R := Max(R, Hits[I].Left + Hits[I].Width); end;
   Left := Floor(L); Right := Ceil(R);
+end;
+function TERDDirectWriteLine.VisualRanges(Position, Count: Integer): TArray<TRect>;
+var Hits: TArray<TERDWriteHit>; Actual, I: Cardinal; Status: HRESULT;
+begin
+  Result := nil; Position := EnsureRange(Position, 0, Length(FText));
+  Count := Min(Count, Length(FText) - Position); if Count <= 0 then Exit;
+  Actual := 0;
+  Status := (FLayout as IERDWriteLayout).HitTestTextRange(Position, Count, 0, 0, nil, 0, Actual);
+  if Actual = 0 then begin Checked(Status); Exit; end;
+  SetLength(Hits, Actual);
+  Checked((FLayout as IERDWriteLayout).HitTestTextRange(Position, Count, 0, 0, @Hits[0], Length(Hits), Actual));
+  SetLength(Result, Actual);
+  for I := 0 to Actual - 1 do
+    Result[I] := Rect(Floor(Hits[I].Left), 0, Ceil(Hits[I].Left + Hits[I].Width), FLineHeight);
 end;
 procedure TERDDirectWriteLine.Draw(X, Y: Integer);
 var Clip: TRect; Target: IERDWriteTarget; Renderer: IERDWriteRenderer; DC: HDC;
