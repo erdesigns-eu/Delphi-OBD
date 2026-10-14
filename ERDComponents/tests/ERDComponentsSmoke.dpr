@@ -892,7 +892,12 @@ begin
     Tabs.CloseTab(Items[0].Index);
     Check((Tabs.Tabs.Count = 3) and (Counter.ClosedCount = 0), 'Close veto preserves tab');
     Counter.VetoClose := False;
-    Tabs.CloseTab(Items[0].Index);
+    R := Tabs.CloseButtonBounds(Items[0].Index);
+    Tabs.Perform(WM_LBUTTONDOWN, MK_LBUTTON,
+      MakeLParam((R.Left + R.Right) div 2, (R.Top + R.Bottom) div 2));
+    Check(Tabs.Tabs.Count = 3, 'Native close press waits for release');
+    Tabs.Perform(WM_LBUTTONUP, 0,
+      MakeLParam((R.Left + R.Right) div 2, (R.Top + R.Bottom) div 2));
     Check((Tabs.Tabs.Count = 2) and (Tabs.Tabs[Tabs.TabIndex].ID = SelectedID) and not Pages[0].Visible,
       'Closing another tab keeps selected document');
     Changes := Counter.Changes;

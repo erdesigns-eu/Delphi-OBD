@@ -224,7 +224,8 @@ begin
     end;
     Color := P.GaugeFace;
     Font.Name := 'Segoe UI';
-    Font.Height := -MulDiv(13, PPI, 96);
+    Font.Height := -Max(1, Round(ERD_TEXT_BODY * PPI / 96));
+    Font.Style := [];
     Font.Color := P.ForegroundText;
     Header.Font.Assign(Font);
     Header.Height := MulDiv(FHeaderHeight, PPI, 96);

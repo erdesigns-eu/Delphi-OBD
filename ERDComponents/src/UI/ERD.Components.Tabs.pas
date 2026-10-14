@@ -185,6 +185,7 @@ type
     FShowNewTab: Boolean;
     FHoverIndex: Integer;
     FPressedIndex: Integer;
+    FHandlingMouseUp: Boolean;
     FCloseHoverIndex: Integer;
     FScrollOffset: Integer;
     FLeftHover: Boolean;
@@ -263,6 +264,7 @@ type
       Operation: TOperation); override;
     /// <summary>Paints the tab strip.</summary>
     /// <param name="ACanvas">Target canvas.</param>
+    procedure WndProc(var Message: TMessage); override;
     procedure PaintControl(ACanvas: TCanvas); override;
     /// <summary>Updates hover state.</summary>
     /// <param name="Shift">Modifier keys.</param>
@@ -978,7 +980,8 @@ begin
   finally
     P.Free;
   end;
-  Result := Rect(LeftPad, 0, Width - RightPad, Height);
+  if (FTabStyle = tsDocument) and FShowNewTab then Inc(RightPad, ScaleValue(42));
+  Result := Rect(LeftPad, 0, Max(LeftPad, Width - RightPad), Height);
 end;
 
 function TERDTabs.LeftOverflowRect: TRect;
@@ -1008,6 +1011,7 @@ begin
         W := TabWidth(P, I);
         Inc(X, W);
       end;
+    X := Min(X, TabArea.Right);
     Result := Rect(X, ScaleValue(1), X + ScaleValue(42), Height - ScaleValue(1));
   finally
     P.Free;
@@ -1071,8 +1075,9 @@ function TERDTabs.MaxScrollOffset(APainter: TERDPainter): Integer;
 var
   A: TRect;
 begin
-  A := Rect(ScaleValue(28), 0, Width - ScaleValue(28), Height);
+  A := TabArea;
   Result := TotalTabWidth(APainter) - A.Width;
+  if (FTabStyle = tsDocument) and FShowNewTab then Dec(Result, ScaleValue(42));
   if Result < 0 then
     Result := 0;
 end;
@@ -1146,7 +1151,7 @@ var
   R: TRect;
 begin
   Result := -1;
-  if FTabStyle <> tsDocument then
+  if (FTabStyle <> tsDocument) or not PtInRect(TabArea, Point(X, Y)) then
     Exit;
   P := TERDPainter.Create(Canvas, Palette, ScaleValue(96));
   try
@@ -1538,7 +1543,7 @@ begin
   UpdateDragTarget(FLastMouse.X, FLastMouse.Y);
 end;
 procedure TERDTabs.WMCaptureChanged(var Message: TMessage);
-begin inherited; ResetInteraction end;
+begin inherited; if not FHandlingMouseUp then ResetInteraction end;
 procedure TERDTabs.CMEnabledChanged(var Message: TMessage);
 begin inherited; if not Enabled then ResetInteraction end;
 
@@ -1707,6 +1712,18 @@ begin
       R.Right - ScaleValue(8), Height), APainter.AccentText);
 end;
 
+procedure TERDTabs.WndProc(var Message: TMessage);
+begin
+  if Message.Msg = WM_LBUTTONUP then
+  begin
+    // VCL releases capture before dispatching MouseUp. Keep the pending
+    // close/drag identity until MouseUp has consumed it.
+    FHandlingMouseUp := True;
+    try inherited finally FHandlingMouseUp := False end;
+  end
+  else inherited;
+end;
+
 procedure TERDTabs.PaintControl(ACanvas: TCanvas);
 var
   P: TERDPainter;
@@ -1714,9 +1731,15 @@ var
   R: TRect;
   Pal: TERDThemePalette;
   Total: Integer;
+  Buffer: TBitmap;
+  Area: TRect;
 begin
   Pal := Palette;
-  P := TERDPainter.Create(ACanvas, Pal, ScaleValue(96));
+  if (Width <= 0) or (Height <= 0) then Exit;
+  Buffer := TBitmap.Create;
+  try
+  Buffer.SetSize(Width, Height);
+  P := TERDPainter.Create(Buffer.Canvas, Pal, ScaleValue(96));
   try
     if FTabStyle = tsDocument then
       P.FillRect(ClientRect, Pal.Background)
@@ -1727,13 +1750,7 @@ begin
       FScrollOffset := MaxScrollOffset(P);
     for I := 0 to EffectiveCount - 1 do
       if EffectiveVisible(I) then
-        DrawTab(P, ACanvas, I);
-    DrawNewTab(P, NewTabRect);
-    if Total > Width then
-    begin
-      DrawChevron(P, LeftOverflowRect, True, FLeftHover);
-      DrawChevron(P, RightOverflowRect, False, FRightHover);
-    end;
+        DrawTab(P, Buffer.Canvas, I);
     if FDragging and FAllowReorder and (FDragTarget >= 0) and (FDragTarget < FItems.Count) and
       PtInRect(ClientRect, FLastMouse) then
     begin
@@ -1747,12 +1764,28 @@ begin
     if Focused and FocusCuesVisible and (I >= 0) then
     begin
       R := TabRect(P, I);
-      InflateRect(R, -ScaleValue(2), -ScaleValue(2));
+      InflateRect(R, -ScaleValue(4), -ScaleValue(4));
       P.FocusRing(R.Left, R.Top, R.Width, R.Height, ScaleValue(4));
     end;
-  finally
-    P.Free;
-  end;
+    // Copy only the tab viewport, including its drag/focus cues.
+    if FTabStyle = tsDocument then ACanvas.Brush.Color := Pal.Background
+    else ACanvas.Brush.Color := Pal.GaugeFace;
+    ACanvas.FillRect(ClientRect);
+    Area := TabArea;
+    if not Area.IsEmpty then
+      BitBlt(ACanvas.Handle, Area.Left, Area.Top, Area.Width, Area.Height,
+        Buffer.Canvas.Handle, Area.Left, Area.Top, SRCCOPY);
+  finally P.Free end;
+  P := TERDPainter.Create(ACanvas, Pal, ScaleValue(96));
+  try
+    DrawNewTab(P, NewTabRect);
+    if Total > Width then
+    begin
+      DrawChevron(P, LeftOverflowRect, True, FLeftHover);
+      DrawChevron(P, RightOverflowRect, False, FRightHover);
+    end;
+  finally P.Free end;
+  finally Buffer.Free end;
 end;
 
 procedure TERDTabs.MouseMove(Shift: TShiftState; X, Y: Integer);
