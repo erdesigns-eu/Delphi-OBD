@@ -102,3 +102,8 @@ TSVM adapter needs the engine's API and its position-encoding conventions.
 Windows smoke tests cover result copying, supersession/cancellation, document
 versions, caret changes, worker-thread rejection, destruction, completion undo,
 ReadOnly/MaxLength, definition selection and keyboard popup acceptance.
+
+Active completion sessions refresh for identifier characters and backspace within
+the current prefix, including while the previous request is pending. Removing the
+member-access dot or entering punctuation ends that continuation. Old replies are
+rejected by the existing version/caret snapshot checks.

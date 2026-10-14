@@ -2275,6 +2275,16 @@ begin
     Editor.Perform(WM_CHAR, Ord('.'), 0);
     Check((Service.Requests = Version + 1) and (Service.Snapshot.TriggerCharacter = '.') and
       (Service.Snapshot.Text = 'console.') and (Service.Snapshot.Caret = 8), 'Dot requests member completion after insertion');
+    Old := Service.Snapshot; Version := Service.Requests;
+    Editor.Perform(WM_CHAR, Ord('l'), 0);
+    Check((Service.Requests = Version + 1) and (Service.Snapshot.Text = 'console.l'),
+      'Typing a member prefix refreshes pending completion');
+    Check(not Sink.Completion(Old, nil), 'Prefix refresh rejects the old dot response');
+    Version := Service.Requests; Editor.Perform(WM_KEYDOWN, VK_BACK, 0); Editor.Perform(WM_CHAR, 8, 0);
+    Check((Service.Requests = Version + 1) and (Service.Snapshot.Text = 'console.'),
+      'Backspace refreshes completion within its prefix');
+    Version := Service.Requests; Editor.Perform(WM_KEYDOWN, VK_BACK, 0); Editor.Perform(WM_CHAR, 8, 0);
+    Check((Service.Requests = Version) and (Editor.Text = 'console'), 'Removing the member dot ends prefix completion');
     Editor.Text := 'console?'; Editor.SelStart := 8; Version := Service.Requests;
     Editor.Perform(WM_CHAR, Ord('.'), 0);
     Check((Service.Requests = Version + 1) and (Service.Snapshot.Text = 'console?.'), 'Optional-chain dot requests member completion');

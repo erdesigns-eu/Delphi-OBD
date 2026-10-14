@@ -3,7 +3,7 @@
 {$B-}
 interface
 uses Winapi.Windows, Winapi.Messages, System.Classes, System.SysUtils,
-  System.Types, System.Math, System.Generics.Collections, Vcl.Controls,
+  System.Types, System.Math, System.Character, System.Generics.Collections, Vcl.Controls,
   Vcl.Graphics, ERD.Components.Control, ERD.Components.TextInput, ERD.Components.Syntax, ERD.Components.LanguageServices, ERD.Components.PopupList;
 type
   TERDCodeEditor = class;
@@ -85,6 +85,7 @@ type
     FDocumentUri, FLanguageError, FHoverText: UnicodeString;
     FCompletionItems: TArray<TERDCompletionItem>;
     FCompletionStamp: TERDLanguageRequest;
+    FCompletionWordStart: Integer;
     FCompletionPopup: TERDPopupList;
     FSuppressLanguageChar: Word;
     FLastLanguageResult: TERDLanguageRequestKind;
@@ -374,7 +375,13 @@ begin
     Snapshot.Position := TextModel.Snap(Position); FPending[Kind] := Snapshot.ID;
     FLanguageError := '';
     if Kind = lrCompletion then
-    begin FCompletionItems := nil; FCompletionStamp.ID := 0; if FCompletionPopup <> nil then FCompletionPopup.CloseUp(False); end;
+    begin
+      FCompletionWordStart := Snapshot.Caret;
+      while (FCompletionWordStart > 0) and
+        (Text[FCompletionWordStart].IsLetterOrDigit or CharInSet(Text[FCompletionWordStart], ['_', '$'])) do Dec(FCompletionWordStart);
+      FCompletionItems := nil; FCompletionStamp.ID := 0;
+      if FCompletionPopup <> nil then FCompletionPopup.CloseUp(False);
+    end;
     FLanguageService.Request(Snapshot, FResponses);
   except on E: Exception do
     begin
@@ -1271,10 +1278,13 @@ begin
 end;
 procedure TERDCodeEditor.WMChar(var Message: TWMChar);
 var C: Char; Position, Start: Integer; Prefix, Before, Value: UnicodeString;
-    Closing: Char; Span: TERDSyntaxSpan; Suppress: Boolean;
+    Closing: Char; Span: TERDSyntaxSpan; Suppress, ContinueCompletion: Boolean; WordStart: Integer;
 begin
   if (FSuppressLanguageChar <> 0) and (Message.CharCode = FSuppressLanguageChar) then
   begin FSuppressLanguageChar := 0; Exit; end;
+  ContinueCompletion := (FLanguageService <> nil) and not ReadOnly and
+    ((FPending[lrCompletion] <> 0) or (FCompletionStamp.ID <> 0));
+  WordStart := FCompletionWordStart; Before := Text;
   if Message.CharCode = 9 then
   begin
     if FTabHandled then begin FTabHandled := False; Exit; end;
@@ -1305,6 +1315,7 @@ begin
       begin Before := Text; TextModel.DeleteBackward; Changed(Before); end;
     end
     else ReplaceSelection(C);
+    if ContinueCompletion and (C = #8) and (Text <> Before) and (TextModel.Caret >= WordStart) then RequestCompletion;
     Exit;
   end;
   if (Message.CharCode = 13) and not ReadOnly and WantReturns then
@@ -1349,5 +1360,8 @@ begin
     Exit;
   end;
   inherited;
+  Position := TextModel.Caret;
+  if ContinueCompletion and (Before <> Text) and (Position >= WordStart) and (Position > 0) and
+    (Text[Position].IsLetterOrDigit or CharInSet(Text[Position], ['_', '$'])) then RequestCompletion;
 end;
 end.
