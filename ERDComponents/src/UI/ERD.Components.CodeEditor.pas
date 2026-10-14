@@ -4,8 +4,20 @@
 interface
 uses Winapi.Windows, Winapi.Messages, System.Classes, System.SysUtils,
   System.Types, System.Math, System.Generics.Collections, Vcl.Controls,
-  Vcl.Graphics, ERD.Components.Control, ERD.Components.TextInput, ERD.Components.Syntax;
+  Vcl.Graphics, ERD.Components.Control, ERD.Components.TextInput, ERD.Components.Syntax, ERD.Components.LanguageServices, ERD.Components.PopupList;
 type
+  TERDCodeEditor = class;
+  TERDLanguageResponseSink = class(TInterfacedObject, IERDLanguageResponses)
+  private
+    FEditor: TERDCodeEditor;
+  public
+    constructor Create(Editor: TERDCodeEditor);
+    procedure Detach;
+    function Completion(const Request: TERDLanguageRequest; const Items: TArray<TERDCompletionItem>): Boolean;
+    function Hover(const Request: TERDLanguageRequest; const Text: UnicodeString): Boolean;
+    function Definition(const Request: TERDLanguageRequest; const Target: TERDDefinitionTarget): Boolean;
+  end;
+  TERDCodeNavigateEvent = procedure(Sender: TObject; const Target: TERDDefinitionTarget) of object;
   TERDCodeSearchRequestEvent = procedure(Sender: TObject; Replacing: Boolean) of object;
   TERDCodeSearchOption = (soMatchCase, soWholeWord, soRegex);
   TERDCodeSearchOptions = set of TERDCodeSearchOption;
@@ -37,6 +49,27 @@ type
     FSearchOptions: TERDCodeSearchOptions;
     FSearchMatches: TArray<TERDCodeSearchMatch>;
     FSearchScopeStart, FSearchScopeCount, FSearchIndex: Integer;
+    FLanguageService: IERDCodeLanguageService;
+    FResponseObject: TERDLanguageResponseSink;
+    FResponses: IERDLanguageResponses;
+    FPending: array[TERDLanguageRequestKind] of Int64;
+    FVersion, FRequestID: Int64;
+    FLastCaret, FLastAnchor: Integer;
+    FTrackCaret: Boolean;
+    FDocumentUri, FLanguageError, FHoverText: UnicodeString;
+    FCompletionItems: TArray<TERDCompletionItem>;
+    FCompletionStamp: TERDLanguageRequest;
+    FCompletionPopup: TERDPopupList;
+    FSuppressLanguageChar: Word;
+    FLastLanguageResult: TERDLanguageRequestKind;
+    FOnLanguageResults: TNotifyEvent;
+    FOnNavigate: TERDCodeNavigateEvent;
+    procedure SetLanguageService(const Value: IERDCodeLanguageService);
+    procedure SetDocumentUri(const Value: UnicodeString);
+    function SnapshotCurrent(const Snapshot: TERDLanguageRequest): Boolean;
+    function AcceptResponse(const Snapshot: TERDLanguageRequest; Kind: TERDLanguageRequestKind): Boolean;
+    function IssueRequest(Kind: TERDLanguageRequestKind; Position: Integer): Boolean;
+    procedure CompletionClosed(Sender: TObject; Accepted: Boolean; Index: Integer);
     procedure RefreshSearch;
     procedure SetShowIndentGuides(Value: Boolean);
     procedure SetShowBracketMatch(Value: Boolean);
@@ -65,12 +98,28 @@ type
       Line: TERDTextLayoutLine); override;
     procedure PaintControl(ACanvas: TCanvas); override;
     procedure UpdateCaret; override;
+    procedure DoExit; override;
     procedure Changed(const ABefore: UnicodeString); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    function RequestCompletion: Boolean;
+    function RequestHover(Position: Integer = -1): Boolean;
+    function RequestDefinition(Position: Integer = -1): Boolean;
+    procedure CancelLanguageRequests;
+    function PublishCompletions(const Request: TERDLanguageRequest; const Items: TArray<TERDCompletionItem>): Boolean;
+    function PublishHover(const Request: TERDLanguageRequest; const Text: UnicodeString): Boolean;
+    function PublishDefinition(const Request: TERDLanguageRequest; const Target: TERDDefinitionTarget): Boolean;
+    function Completions: TArray<TERDCompletionItem>;
+    function ApplyCompletion(Index: Integer): Boolean;
+    property LanguageService: IERDCodeLanguageService read FLanguageService write SetLanguageService;
+    property DocumentUri: UnicodeString read FDocumentUri write SetDocumentUri;
+    property DocumentVersion: Int64 read FVersion;
+    property LanguageError: UnicodeString read FLanguageError;
+    property LanguageResultKind: TERDLanguageRequestKind read FLastLanguageResult;
+    property HoverText: UnicodeString read FHoverText;
     function SetSearch(const Pattern: UnicodeString; Options: TERDCodeSearchOptions = [];
       ScopeStart: Integer = 0; ScopeCount: Integer = -1): Boolean;
     procedure ClearSearch;
@@ -92,6 +141,8 @@ type
     function SyntaxAnalysis: TERDSyntaxAnalysis;
     property SyntaxProvider: IERDSyntaxProvider read FProvider write SetProvider;
   published
+    property OnLanguageResults: TNotifyEvent read FOnLanguageResults write FOnLanguageResults;
+    property OnNavigate: TERDCodeNavigateEvent read FOnNavigate write FOnNavigate;
     property OnSearchRequested: TERDCodeSearchRequestEvent read FOnSearchRequested write FOnSearchRequested;
     property Language: TERDCodeLanguage read FLanguage write SetLanguage default clTypeScript;
     property ShowLineNumbers: Boolean read FShowLineNumbers write SetShowLineNumbers default True;
@@ -108,6 +159,7 @@ constructor TERDCodeEditor.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FCollapsed := TList<Integer>.Create;
+  FResponseObject := TERDLanguageResponseSink.Create(Self); FResponses := FResponseObject;
   FSearchScopeCount := -1;
   FSearchIndex := -1;
   FLanguage := clTypeScript;
@@ -123,7 +175,154 @@ begin
   Font.Name := 'Consolas';
 end;
 destructor TERDCodeEditor.Destroy;
-begin FCollapsed.Free; inherited Destroy; end;
+begin
+  if FResponseObject <> nil then FResponseObject.Detach;
+  CancelLanguageRequests; FResponses := nil; FResponseObject := nil;
+  if FCompletionPopup <> nil then FCompletionPopup.OnCloseUp := nil;
+  FCollapsed.Free; inherited Destroy;
+end;
+constructor TERDLanguageResponseSink.Create(Editor: TERDCodeEditor);
+begin inherited Create; FEditor := Editor; end;
+procedure TERDLanguageResponseSink.Detach;
+begin FEditor := nil; end;
+function TERDLanguageResponseSink.Completion(const Request: TERDLanguageRequest; const Items: TArray<TERDCompletionItem>): Boolean;
+begin Result := (GetCurrentThreadId = MainThreadID) and (FEditor <> nil); if Result then Result := FEditor.PublishCompletions(Request, Items); end;
+function TERDLanguageResponseSink.Hover(const Request: TERDLanguageRequest; const Text: UnicodeString): Boolean;
+begin Result := (GetCurrentThreadId = MainThreadID) and (FEditor <> nil); if Result then Result := FEditor.PublishHover(Request, Text); end;
+function TERDLanguageResponseSink.Definition(const Request: TERDLanguageRequest; const Target: TERDDefinitionTarget): Boolean;
+begin Result := (GetCurrentThreadId = MainThreadID) and (FEditor <> nil); if Result then Result := FEditor.PublishDefinition(Request, Target); end;
+procedure TERDCodeEditor.SetLanguageService(const Value: IERDCodeLanguageService);
+begin CancelLanguageRequests; FLanguageService := Value; FLanguageError := ''; end;
+procedure TERDCodeEditor.SetDocumentUri(const Value: UnicodeString);
+begin if FDocumentUri = Value then Exit; CancelLanguageRequests; FDocumentUri := Value; Inc(FVersion); end;
+procedure TERDCodeEditor.DoExit;
+begin CancelLanguageRequests; inherited; end;
+procedure TERDCodeEditor.CancelLanguageRequests;
+var Kind: TERDLanguageRequestKind; Pending: array[TERDLanguageRequestKind] of Int64;
+begin
+  // Invalidate every request before invoking any provider/user callback.
+  for Kind := Low(TERDLanguageRequestKind) to High(TERDLanguageRequestKind) do
+  begin Pending[Kind] := FPending[Kind]; FPending[Kind] := 0; end;
+  FCompletionItems := nil; FCompletionStamp.ID := 0; FHoverText := '';
+  if FCompletionPopup <> nil then FCompletionPopup.CloseUp(False);
+  for Kind := Low(TERDLanguageRequestKind) to High(TERDLanguageRequestKind) do
+    if (Pending[Kind] <> 0) and (FLanguageService <> nil) then
+      try FLanguageService.Cancel(Pending[Kind]); except on E: Exception do FLanguageError := E.Message; end;
+end;
+function TERDCodeEditor.SnapshotCurrent(const Snapshot: TERDLanguageRequest): Boolean;
+begin
+  Result := (Snapshot.Version = FVersion) and (Snapshot.Text = Text) and
+    (Snapshot.DocumentUri = FDocumentUri) and (Snapshot.Caret = TextModel.Caret) and (Snapshot.Anchor = TextModel.Anchor);
+end;
+function TERDCodeEditor.AcceptResponse(const Snapshot: TERDLanguageRequest; Kind: TERDLanguageRequestKind): Boolean;
+begin
+  Result := (GetCurrentThreadId = MainThreadID) and (Snapshot.Kind = Kind) and
+    (Snapshot.ID <> 0) and (Snapshot.ID = FPending[Kind]) and SnapshotCurrent(Snapshot);
+end;
+function TERDCodeEditor.IssueRequest(Kind: TERDLanguageRequestKind; Position: Integer): Boolean;
+var Snapshot: TERDLanguageRequest; Old: Int64;
+begin
+  Result := FLanguageService <> nil; if not Result then Exit;
+  Snapshot := Default(TERDLanguageRequest);
+  Old := FPending[Kind]; FPending[Kind] := 0;
+  try
+    if Old <> 0 then FLanguageService.Cancel(Old);
+    Inc(FRequestID); Snapshot.ID := FRequestID; Snapshot.Kind := Kind;
+    Snapshot.Version := FVersion; Snapshot.Text := Text; Snapshot.DocumentUri := FDocumentUri;
+    Snapshot.Caret := TextModel.Caret; Snapshot.Anchor := TextModel.Anchor;
+    if Position < 0 then Position := Snapshot.Caret;
+    Snapshot.Position := TextModel.Snap(Position); FPending[Kind] := Snapshot.ID;
+    FLanguageError := '';
+    if Kind = lrCompletion then
+    begin FCompletionItems := nil; FCompletionStamp.ID := 0; if FCompletionPopup <> nil then FCompletionPopup.CloseUp(False); end;
+    FLanguageService.Request(Snapshot, FResponses);
+  except on E: Exception do
+    begin
+      if FPending[Kind] = Snapshot.ID then FPending[Kind] := 0;
+      FLanguageError := E.Message; Result := False;
+      FLastLanguageResult := Kind;
+      if Assigned(FOnLanguageResults) then FOnLanguageResults(Self);
+    end;
+  end;
+end;
+function TERDCodeEditor.RequestCompletion: Boolean;
+begin Result := IssueRequest(lrCompletion, -1); end;
+function TERDCodeEditor.RequestHover(Position: Integer): Boolean;
+begin Result := IssueRequest(lrHover, Position); end;
+function TERDCodeEditor.RequestDefinition(Position: Integer): Boolean;
+begin Result := IssueRequest(lrDefinition, Position); end;
+function TERDCodeEditor.Completions: TArray<TERDCompletionItem>;
+begin Result := Copy(FCompletionItems); end;
+function TERDCodeEditor.PublishCompletions(const Request: TERDLanguageRequest; const Items: TArray<TERDCompletionItem>): Boolean;
+var Item: TERDCompletionItem; Valid: TList<TERDCompletionItem>; Labels: TStringList; P: TPoint;
+begin
+  Result := AcceptResponse(Request, lrCompletion); if not Result then Exit;
+  Valid := TList<TERDCompletionItem>.Create; Labels := TStringList.Create;
+  try
+    for Item in Items do
+      if (Item.Start >= 0) and (Item.Start <= Length(Text)) and (Item.Count >= 0) and
+        (Item.Count <= Length(Text) - Item.Start) and (TextModel.Snap(Item.Start) = Item.Start) and
+        (TextModel.Snap(Item.Start + Item.Count) = Item.Start + Item.Count) then
+      begin
+        Valid.Add(Item);
+        if Item.Detail = '' then Labels.Add(Item.LabelText) else Labels.Add(Item.LabelText + '  -  ' + Item.Detail);
+      end;
+    FPending[lrCompletion] := 0; FCompletionItems := Valid.ToArray; FCompletionStamp := Request;
+    if Focused and (Labels.Count > 0) then
+    begin
+      if FCompletionPopup = nil then
+      begin FCompletionPopup := TERDPopupList.Create(Self); FCompletionPopup.OnCloseUp := CompletionClosed; end;
+      if not GetCaretPos(P) then P := Point(TextViewport.Left, TextViewport.Top);
+      P := ClientToScreen(P);
+      FCompletionPopup.Popup(Self, Rect(P.X, P.Y, P.X + ScaleValue(320), P.Y + RowHeight),
+        Labels, 0, Palette, ScaleValue(96), ScaleValue(28), 8);
+    end;
+  finally Labels.Free; Valid.Free; end;
+  FLastLanguageResult := lrCompletion;
+  if Assigned(FOnLanguageResults) then FOnLanguageResults(Self);
+end;
+procedure TERDCodeEditor.CompletionClosed(Sender: TObject; Accepted: Boolean; Index: Integer);
+begin
+  if Accepted then ApplyCompletion(Index);
+  FCompletionItems := nil; FCompletionStamp.ID := 0;
+end;
+function TERDCodeEditor.ApplyCompletion(Index: Integer): Boolean;
+var Item: TERDCompletionItem; Before, Value: UnicodeString;
+begin
+  Result := not ReadOnly and (Index >= 0) and (Index < Length(FCompletionItems)) and
+    (FCompletionStamp.ID <> 0) and SnapshotCurrent(FCompletionStamp);
+  if not Result then Exit;
+  Item := FCompletionItems[Index]; Value := NormalizeInput(Item.InsertText); Before := Text;
+  if (MaxLength > 0) and (Length(Text) - Item.Count + Length(Value) > MaxLength) then Exit(False);
+  TextModel.ReplaceRange(Item.Start, Item.Count, Value); Changed(Before);
+  FCompletionItems := nil; FCompletionStamp.ID := 0;
+end;
+function TERDCodeEditor.PublishHover(const Request: TERDLanguageRequest; const Text: UnicodeString): Boolean;
+begin
+  Result := AcceptResponse(Request, lrHover); if not Result then Exit;
+  FPending[lrHover] := 0; FHoverText := Text; FLastLanguageResult := lrHover;
+  if Assigned(FOnLanguageResults) then FOnLanguageResults(Self);
+end;
+function TERDCodeEditor.PublishDefinition(const Request: TERDLanguageRequest; const Target: TERDDefinitionTarget): Boolean;
+begin
+  Result := AcceptResponse(Request, lrDefinition); if not Result then Exit;
+  if not Target.Found then
+  begin
+    FPending[lrDefinition] := 0; FLastLanguageResult := lrDefinition;
+    if Assigned(FOnLanguageResults) then FOnLanguageResults(Self); Exit;
+  end;
+  if (Target.Start < 0) or (Target.Count < 0) or (Target.Count > MaxInt - Target.Start) then Exit(False);
+  if (Target.DocumentUri = '') or (Target.DocumentUri = FDocumentUri) then
+  begin
+    if (Target.Start > Length(Text)) or (Target.Count > Length(Text) - Target.Start) then Exit(False);
+    if (TextModel.Snap(Target.Start) <> Target.Start) or (TextModel.Snap(Target.Start + Target.Count) <> Target.Start + Target.Count) then Exit(False);
+    FPending[lrDefinition] := 0; TextModel.Select(Target.Start, Target.Start + Target.Count); Changed(Text);
+  end
+  else FPending[lrDefinition] := 0;
+  FLastLanguageResult := lrDefinition;
+  if Assigned(FOnLanguageResults) then FOnLanguageResults(Self);
+  if Assigned(FOnNavigate) then FOnNavigate(Self, Target);
+end;
 procedure TERDCodeEditor.Analyze;
 var Span: TERDSyntaxSpan; Fold: TERDSyntaxFold;
     Spans: TList<TERDSyntaxSpan>; Folds: TList<TERDSyntaxFold>;
@@ -159,7 +358,7 @@ end;
 procedure TERDCodeEditor.SetLanguage(Value: TERDCodeLanguage);
 begin
   if FLanguage = Value then Exit;
-  FLanguage := Value; SetProvider(TERDBasicSyntaxProvider.Create(Value));
+  CancelLanguageRequests; FLanguage := Value; SetProvider(TERDBasicSyntaxProvider.Create(Value));
 end;
 procedure TERDCodeEditor.SetShowLineNumbers(Value: Boolean);
 begin
@@ -448,8 +647,19 @@ begin
   finally Visible.Free; end;
 end;
 procedure TERDCodeEditor.UpdateCaret;
-var Fold: TERDSyntaxFold; Expanded: Boolean;
+var Fold: TERDSyntaxFold; Expanded, CaretMoved: Boolean;
 begin
+  if TextModel <> nil then
+  begin
+    CaretMoved := FTrackCaret and ((FLastCaret <> TextModel.Caret) or (FLastAnchor <> TextModel.Anchor));
+    FLastCaret := TextModel.Caret; FLastAnchor := TextModel.Anchor; FTrackCaret := True;
+    if CaretMoved then CancelLanguageRequests;
+  end;
+  if (FCompletionStamp.ID <> 0) and not SnapshotCurrent(FCompletionStamp) then
+  begin
+    FCompletionItems := nil; FCompletionStamp.ID := 0;
+    if FCompletionPopup <> nil then FCompletionPopup.CloseUp(False);
+  end;
   Expanded := False;
   if (FCollapsed <> nil) and (FCollapsed.Count > 0) then
   begin
@@ -466,6 +676,7 @@ procedure TERDCodeEditor.Changed(const ABefore: UnicodeString);
 begin
   if ABefore <> Text then
   begin
+    Inc(FVersion); CancelLanguageRequests;
     // Editing invalidates structural offsets. Keep the text, expand stale folds.
     FDiagnostics := nil;
     RefreshSearch;
@@ -734,6 +945,29 @@ end;
 procedure TERDCodeEditor.KeyDown(var Key: Word; Shift: TShiftState);
 var Before: UnicodeString; Position, Spaces, Start: Integer;
 begin
+  FSuppressLanguageChar := 0;
+  if (Key = VK_ESCAPE) and (FPending[lrCompletion] <> 0) then
+  begin CancelLanguageRequests; FSuppressLanguageChar := 27; Key := 0; Exit; end;
+  if (FCompletionPopup <> nil) and FCompletionPopup.IsOpen then
+  begin
+    if (Key = VK_TAB) and (Shift = []) then
+    begin FSuppressLanguageChar := 9; FCompletionPopup.CloseUp(True); Key := 0; Exit; end;
+    if Key in [VK_RETURN, VK_TAB, VK_ESCAPE] then
+      case Key of VK_RETURN: FSuppressLanguageChar := 13; VK_TAB: FSuppressLanguageChar := 9; VK_ESCAPE: FSuppressLanguageChar := 27; end;
+    if FCompletionPopup.HandleKey(Key, Shift) then Exit;
+  end;
+  if (FLanguageService <> nil) and
+    (((Key = VK_SPACE) and (ssCtrl in Shift) and not (ssAlt in Shift)) or
+      ((Key in [VK_F1, VK_F12]) and (Shift = []))) then
+  begin
+    if Assigned(OnKeyDown) then OnKeyDown(Self, Key, Shift); if Key = 0 then Exit;
+    case Key of
+      VK_SPACE: begin FSuppressLanguageChar := 32; RequestCompletion; end;
+      VK_F1: RequestHover;
+      VK_F12: RequestDefinition;
+    end;
+    Key := 0; Exit;
+  end;
   if ((Key = VK_F3) and not (ssCtrl in Shift) and not (ssAlt in Shift)) or
     ((ssCtrl in Shift) and not (ssAlt in Shift) and Assigned(FOnSearchRequested) and
       (Key in [Ord('F'), Ord('H')])) then
@@ -777,6 +1011,8 @@ procedure TERDCodeEditor.WMChar(var Message: TWMChar);
 var C: Char; Position, Start: Integer; Prefix, Before, Value: UnicodeString;
     Closing: Char;
 begin
+  if (FSuppressLanguageChar <> 0) and (Message.CharCode = FSuppressLanguageChar) then
+  begin FSuppressLanguageChar := 0; Exit; end;
   if Message.CharCode = 9 then
   begin
     if FTabHandled then begin FTabHandled := False; Exit; end;

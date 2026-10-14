@@ -21,6 +21,8 @@ This stage provides:
   searches, wrapping navigation and match highlighting.
 - Unicode editing, emoji, selection, clipboard, undo/redo and the themed edit menu
   inherited from the text engine.
+- Provider-driven completion popup, hover data and definition navigation
+  (Ctrl+Space / F1 / F12), with versioned snapshots and safe cancellation.
 - Error, warning, information and hint diagnostics, with underlines and gutter
   markers. Diagnostic metadata is available through `Diagnostics` and `DiagnosticAt`.
 
@@ -77,8 +79,10 @@ comments; it is not a complete Pascal parser.
 Folding changes the view, never the document. Navigation into a hidden range expands
 it. Edits expand folds whose stored offsets are now stale. Highlighting and folding
 currently analyse the whole string; the current model is not designed for very large
-files. There is no language server, autocomplete, diagnostics producer, quick-fix UI,
-hover popup, diff view or debugger in this stage. See [the roadmap](code-editor-roadmap.md)
+files. There is no bundled language server or diagnostics producer, quick-fix UI,
+automatic hover popup, diff view or debugger in this stage. A language-service
+provider contract now supplies completion, hover data and definitions; see
+[the TSVM adapter guide](language-service-adapter.md). See [the roadmap](code-editor-roadmap.md)
 for the remaining IDE features and the scalable document/provider architecture.
 
 The Windows smoke suite covers tokenisation, fold integrity, caret expansion,

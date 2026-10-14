@@ -14,6 +14,7 @@ contains
   ERD.Components.TextLayout in '..\src\UI\ERD.Components.TextLayout.pas',
   ERD.Components.TextInput in '..\src\UI\ERD.Components.TextInput.pas',
   ERD.Components.Syntax in '..\src\UI\ERD.Components.Syntax.pas',
+  ERD.Components.LanguageServices in '..\src\UI\ERD.Components.LanguageServices.pas',
   ERD.Components.CodeEditor in '..\src\UI\ERD.Components.CodeEditor.pas',
   ERD.Components.Rating in '..\src\UI\ERD.Components.Rating.pas',
   ERD.Components.CommandPalette in '..\src\UI\ERD.Components.CommandPalette.pas',

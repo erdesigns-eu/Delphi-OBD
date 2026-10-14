@@ -1,7 +1,7 @@
 ﻿program ERDComponentsSmoke;
 {$APPTYPE CONSOLE}
 uses
-  ERD.Components.TextLayout, ERD.Components.CodeEditor, ERD.Components.Syntax,
+  ERD.Components.LanguageServices, ERD.Components.TextLayout, ERD.Components.CodeEditor, ERD.Components.Syntax,
   ERD.Components.TextModel, ERD.Components.TextInput,
   System.IOUtils,
   System.SysUtils, System.Classes, System.Types, System.Math, Vcl.Forms, Vcl.Controls, Vcl.ExtCtrls,
@@ -24,6 +24,14 @@ uses
   Showcase in '../demo/Showcase.pas',
   ERD.Components.SpinEdit, ERD.Components.Edits, ERD.Components.PopupList, ERD.Components.TitleBar, ERD.Components.StatusBar, ERD.Components.Theme, ERD.Components.Ribbon;
 type
+  TLanguageServiceProbe = class(TInterfacedObject, IERDCodeLanguageService)
+  public
+    Snapshot: TERDLanguageRequest;
+    Responses: IERDLanguageResponses;
+    Requests, Cancels: Integer;
+    procedure Request(const Value: TERDLanguageRequest; const Reply: IERDLanguageResponses);
+    procedure Cancel(RequestID: Int64);
+  end;
   TCodeEditorProbe = class(TERDCodeEditor)
   public
     function RowCount: Integer;
@@ -264,6 +272,11 @@ procedure TChangeProbe.Changed(Sender: TObject);
 begin
   Inc(Changes);
 end;
+
+procedure TLanguageServiceProbe.Request(const Value: TERDLanguageRequest; const Reply: IERDLanguageResponses);
+begin Snapshot := Value; Responses := Reply; Inc(Requests); end;
+procedure TLanguageServiceProbe.Cancel(RequestID: Int64);
+begin Inc(Cancels); end;
 
 function TCodeEditorProbe.RowCount: Integer;
 begin Result := Length(VisualRows); end;
@@ -2173,6 +2186,67 @@ begin
   finally Form.Free; Filter.Free; end;
 end;
 
+procedure TestCodeLanguageServices;
+var Form: TForm; Editor, Temporary: TERDCodeEditor; Service: TLanguageServiceProbe;
+    ServiceReference: IERDCodeLanguageService; Sink: IERDLanguageResponses;
+    Old, Current: TERDLanguageRequest; Items: TArray<TERDCompletionItem>;
+    Target: TERDDefinitionTarget; Version: Int64; Worker: TThread; OffThreadAccepted: Boolean;
+begin
+  Form := TForm.Create(nil); Service := TLanguageServiceProbe.Create; ServiceReference := Service;
+  try
+    Editor := TERDCodeEditor.Create(Form); Editor.Parent := Form;
+    Editor.LanguageService := ServiceReference; Editor.DocumentUri := 'memory:///test.ts';
+    Editor.Text := 'con'; Editor.SelStart := 3;
+    Check(Editor.RequestCompletion, 'Language provider receives completion request');
+    Old := Service.Snapshot; Sink := Service.Responses;
+    Check((Old.Text = 'con') and (Old.Caret = 3) and (Old.DocumentUri = Editor.DocumentUri), 'Language request contains full source snapshot and URI');
+    Editor.RequestCompletion; Current := Service.Snapshot;
+    SetLength(Items, 1); Items[0].Start := 0; Items[0].Count := 3;
+    Items[0].LabelText := 'console'; Items[0].InsertText := 'console';
+    Check(not Sink.Completion(Old, Items) and (Service.Cancels > 0), 'Superseded request is cancelled and rejected');
+    Check(Sink.Completion(Current, Items), 'Newest completion result accepted');
+    Items[0].InsertText := 'mutated';
+    Check(Editor.Completions[0].InsertText = 'console', 'Completion results are copied');
+    Check(Editor.ApplyCompletion(0) and (Editor.Text = 'console'), 'Completion replaces provider range');
+    Editor.Undo; Check((Editor.Text = 'con') and (Editor.SelStart = 3), 'Completion undo restores source and original caret');
+    Editor.RequestHover; Old := Service.Snapshot; Version := Editor.DocumentVersion;
+    Editor.ReplaceSelection('x'); Editor.Undo;
+    Check((Editor.Text = Old.Text) and (Editor.DocumentVersion > Version) and not Sink.Hover(Old, 'stale'),
+      'Edit then Undo still rejects old result for identical source');
+    Editor.RequestHover; Old := Service.Snapshot; Editor.SelStart := 0; Editor.SelStart := 3;
+    Check(not Sink.Hover(Old, 'stale caret'), 'Caret moving away and back invalidates old request');
+    Editor.RequestHover; Current := Service.Snapshot;
+    OffThreadAccepted := True;
+    Worker := TThread.CreateAnonymousThread(procedure begin OffThreadAccepted := Sink.Hover(Current, 'wrong thread'); end);
+    Worker.FreeOnTerminate := False;
+    try Worker.Start; Worker.WaitFor; finally Worker.Free; end;
+    Check(not OffThreadAccepted, 'Provider response on worker thread rejected without touching VCL');
+    Check(Sink.Hover(Current, 'console documentation') and (Editor.HoverText = 'console documentation'), 'Hover result is available to host');
+    Editor.RequestHover; Old := Service.Snapshot; Editor.CancelLanguageRequests;
+    Check(not Sink.Hover(Old, 'cancelled'), 'Explicit cancellation rejects delayed result');
+    Editor.RequestCompletion; Current := Service.Snapshot; Items[0].InsertText := 'console';
+    Sink.Completion(Current, Items); Editor.ReadOnly := True;
+    Check(not Editor.ApplyCompletion(0) and (Editor.Text = 'con'), 'ReadOnly blocks completion application');
+    Editor.ReadOnly := False; Editor.MaxLength := 3;
+    Check(not Editor.ApplyCompletion(0), 'MaxLength rejects oversized completion'); Editor.MaxLength := 0;
+    Editor.RequestDefinition; Current := Service.Snapshot; Target := Default(TERDDefinitionTarget);
+    Target.Found := True; Target.Start := 0; Target.Count := 3;
+    Check(Sink.Definition(Current, Target) and (Editor.SelStart = 0) and (Editor.SelLength = 3), 'Same-document definition selects target');
+    Editor.RequestDefinition; Current := Service.Snapshot; Target := Default(TERDDefinitionTarget);
+    Check(Sink.Definition(Current, Target), 'No-definition result completes request without navigation');
+    Editor.Text := 'con'; Editor.SelStart := 3; Form.Show; Editor.SetFocus;
+    Editor.RequestCompletion; Current := Service.Snapshot; Items[0].InsertText := 'console';
+    Check(Sink.Completion(Current, Items), 'Focused completion result opens popup');
+    Editor.Perform(WM_KEYDOWN, VK_RETURN, 0); Editor.Perform(WM_CHAR, 13, 0);
+    Check(Editor.Text = 'console', 'Enter accepts completion without inserting newline');
+    Editor.Undo; Check(Editor.Text = 'con', 'Keyboard completion remains one undo transaction');
+    Temporary := TERDCodeEditor.Create(nil);
+    try Temporary.LanguageService := ServiceReference; Temporary.RequestHover; Old := Service.Snapshot; Sink := Service.Responses;
+    finally Temporary.Free; end;
+    Check(not Sink.Hover(Old, 'late'), 'Retained response sink is safe after editor destruction');
+  finally Form.Free; end;
+end;
+
 procedure TestCodeEditorSearch;
 var Form: TForm; Editor: TCodeEditorProbe; Matches: TArray<TERDCodeSearchMatch>;
     Before: UnicodeString; Rows: Integer;
@@ -2579,6 +2653,7 @@ begin
     TestSyntaxAndCodeEditor;
     TestSharedColorEmoji;
     TestCodeEditorSearch;
+    TestCodeLanguageServices;
     TestWindowsEditInteractionParity;
     TestMigratedShowcaseTextWindows;
     TestTextInputEditMenu;

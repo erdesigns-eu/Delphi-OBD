@@ -1,7 +1,7 @@
 ﻿unit Showcase;
 interface
 uses
-  ERD.Components.CodeEditor, ERD.Components.Syntax,
+  ERD.Components.LanguageServices, ERD.Components.CodeEditor, ERD.Components.Syntax,
   ERD.Components.TextInput,
   ERD.Components.Rating,
   ERD.Components.CommandPalette,
@@ -654,6 +654,8 @@ type
     CodeSearchStatus: TLabel;
     UnicodeTextPreview: TERDTextInput;
     UnicodePasswordPreview: TERDTextInput;
+    procedure CodeLanguageResults(Sender: TObject);
+    procedure CodeNavigated(Sender: TObject; const Target: TERDDefinitionTarget);
     procedure CodeSearchChanged(Sender: TObject);
     procedure CodeSearchClicked(Sender: TObject);
     procedure CodeDocumentChanged(Sender: TObject);
@@ -666,6 +668,56 @@ type
 var MainForm: TShowcaseForm;
 implementation
 {$R *.dfm}
+type
+  TShowcaseLanguageService = class(TInterfacedObject, IERDCodeLanguageService)
+  public
+    procedure Request(const Snapshot: TERDLanguageRequest; const Responses: IERDLanguageResponses);
+    procedure Cancel(RequestID: Int64);
+  end;
+procedure TShowcaseLanguageService.Cancel(RequestID: Int64);
+begin end;
+procedure TShowcaseLanguageService.Request(const Snapshot: TERDLanguageRequest; const Responses: IERDLanguageResponses);
+const Names: array[0..6] of string = ('console', 'const', 'Command', 'CommandRegistry', 'commands', 'Promise', 'register');
+var Start, Finish, I, At: Integer; Prefix, Word, Marker: UnicodeString;
+    Items: TArray<TERDCompletionItem>; Target: TERDDefinitionTarget;
+  function Identifier(C: Char): Boolean;
+  begin Result := C in ['a'..'z','A'..'Z','0'..'9','_','$']; end;
+begin
+  // A small synchronous sample adapter, not a TypeScript analyser or TSVM.
+  Start := Snapshot.Position; Finish := Start;
+  while (Start > 0) and Identifier(Snapshot.Text[Start]) do Dec(Start);
+  while (Finish < Length(Snapshot.Text)) and Identifier(Snapshot.Text[Finish + 1]) do Inc(Finish);
+  Prefix := Copy(Snapshot.Text, Start + 1, Snapshot.Position - Start);
+  Word := Copy(Snapshot.Text, Start + 1, Finish - Start);
+  case Snapshot.Kind of
+    lrCompletion:
+      begin
+        Items := nil;
+        for I := Low(Names) to High(Names) do
+          if SameText(Copy(Names[I], 1, Length(Prefix)), Prefix) then
+          begin
+            SetLength(Items, Length(Items) + 1);
+            Items[High(Items)].LabelText := Names[I]; Items[High(Items)].InsertText := Names[I];
+            Items[High(Items)].Detail := 'Example provider'; Items[High(Items)].Start := Start;
+            Items[High(Items)].Count := Finish - Start;
+          end;
+        Responses.Completion(Snapshot, Items);
+      end;
+    lrHover: Responses.Hover(Snapshot, 'Example provider info: ' + Word + ' - replace this adapter with TSVM.');
+    lrDefinition:
+      begin
+        Target := Default(TERDDefinitionTarget); At := 0; Marker := '';
+        if Word <> '' then
+        begin
+          Marker := 'interface ' + Word; At := Pos(Marker, Snapshot.Text);
+          if At = 0 then begin Marker := 'class ' + Word; At := Pos(Marker, Snapshot.Text); end;
+        end;
+        Target.Found := At > 0;
+        if Target.Found then begin Target.Start := At - 1 + Length(Marker) - Length(Word); Target.Count := Length(Word); end;
+        Responses.Definition(Snapshot, Target);
+      end;
+  end;
+end;
 
 procedure TShowcaseForm.CreateCodePreview;
 var Header: TERDPanel; Button: TERDButton; Instructions: TLabel;
@@ -703,7 +755,7 @@ begin
   Button.SetBounds(MulDiv(208, CurrentPPI, 96), MulDiv(8, CurrentPPI, 96),
     MulDiv(100, CurrentPPI, 96), MulDiv(28, CurrentPPI, 96));
   Instructions := TLabel.Create(Self); Instructions.Parent := Header;
-  Instructions.Caption := 'TypeScript - pairs, smart Home, Tab / Shift+Tab, gutter folds';
+  Instructions.Caption := 'Example provider: Ctrl+Space completion, F1 info, F12 definition';
   Instructions.Left := MulDiv(320, CurrentPPI, 96); Instructions.Top := MulDiv(15, CurrentPPI, 96);
   CodeSearchQuery := TERDEdit.Create(Self); CodeSearchQuery.Parent := Header;
   CodeSearchQuery.TextHint := 'Find'; CodeSearchQuery.Text := 'command';
@@ -751,12 +803,26 @@ begin
     '    return true;' + #13#10 +
     '  }' + #13#10 +
     '}' + #13#10;
+  CodeEditor.LanguageService := TShowcaseLanguageService.Create;
+  CodeEditor.OnLanguageResults := CodeLanguageResults; CodeEditor.OnNavigate := CodeNavigated;
   CodeEditor.OnSearchRequested := CodeSearchRequested;
   CodeEditor.OnChange := CodeDocumentChanged;
   CodeSearchChanged(Self);
   PageTabs.Tabs.Add.Caption := 'Code';
   PageTabs.BringToFront;
 end;
+
+procedure TShowcaseForm.CodeLanguageResults(Sender: TObject);
+begin
+  if CodeEditor.LanguageError <> '' then CodeSearchStatus.Caption := CodeEditor.LanguageError
+  else case CodeEditor.LanguageResultKind of
+    lrCompletion: CodeSearchStatus.Caption := IntToStr(Length(CodeEditor.Completions)) + ' suggestions from example provider';
+    lrHover: CodeSearchStatus.Caption := CodeEditor.HoverText;
+    lrDefinition: CodeSearchStatus.Caption := 'Definition request completed (example provider)';
+  end;
+end;
+procedure TShowcaseForm.CodeNavigated(Sender: TObject; const Target: TERDDefinitionTarget);
+begin CodeSearchStatus.Caption := 'Example definition at UTF-16 offset ' + IntToStr(Target.Start); end;
 
 procedure TShowcaseForm.CodeSearchChanged(Sender: TObject);
 var Options: TERDCodeSearchOptions;
