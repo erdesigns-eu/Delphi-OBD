@@ -20,7 +20,11 @@ Invalid isolated surrogate code units become U+FFFD.
 
 The preview supports arrows, Home/End, Shift selection, Ctrl+word navigation,
 Backspace/Delete, clipboard, undo/redo, mouse drag selection with edge
-scrolling, double-click word selection, hints, read-only mode and passwords.
+scrolling, double-click word selection, hints, read-only mode and passwords. The default editing context menu is
+themed and opens with right-click, Shift+F10 or the menu key. It offers
+Undo/Redo, Cut/Copy/Paste/Delete and Select all, enabling commands according
+to selection, clipboard and read-only/password state. An assigned PopupMenu
+or a handled OnContextPopup event takes priority.
 Word selection currently groups whitespace, ASCII punctuation and remaining
 text; it is not a full Unicode word-break implementation. Passwords draw one
 mask character per grapheme and block copying even while revealed. Clipboard
@@ -53,7 +57,7 @@ These Windows tests have not been run in the Linux development environment.
 Before replacing the existing inputs, verify IME/candidate placement,
 selection painting and caret geometry with mixed directional text, emoji
 font fallback, DPI/font changes, mouse capture and keyboard behavior on
-Windows. Accessibility/UI Automation, multiline layout, context menus,
+Windows. Accessibility/UI Automation, multiline layout,
 standard edit-message compatibility, and composition attributes/cursor
 placement need further implementation. This is a standalone preview, not
 an announced migration of Memo, ComboBox, SpinEdit, Inspector or picker

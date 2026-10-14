@@ -23,6 +23,10 @@ uses
   Showcase in '../demo/Showcase.pas',
   ERD.Components.SpinEdit, ERD.Components.Edits, ERD.Components.PopupList, ERD.Components.TitleBar, ERD.Components.StatusBar, ERD.Components.Theme, ERD.Components.Ribbon;
 type
+  TTextInputProbe = class(TERDTextInput)
+  public
+    function EditMenu: TERDPopupMenu;
+  end;
   TPalettePopupProbe = class
     OwnerForm: TForm;
     Timer: TTimer;
@@ -2017,6 +2021,32 @@ begin
 end;
 
 
+function TTextInputProbe.EditMenu: TERDPopupMenu;
+begin Result := DefaultEditMenu; end;
+procedure TestTextInputEditMenu;
+var Form: TForm; Input: TTextInputProbe; Menu: TERDPopupMenu;
+begin
+  Form := TForm.Create(nil);
+  try
+    Input := TTextInputProbe.Create(Form); Input.Parent := Form;
+    Input.Text := 'Unicode ' + #$D83D#$DD12; Input.SelectAll;
+    Menu := Input.EditMenu;
+    Check(Menu.Items.Count = 9, 'Themed input menu contains editing commands and separators');
+    Check(Menu.Items[3].Enabled and Menu.Items[4].Enabled, 'Selection enables Cut and Copy');
+    Menu.Items[4].Click; Check(Clipboard.AsText = Input.Text, 'Menu copies Unicode text');
+    Input.ReadOnly := True; Menu := Input.EditMenu;
+    Check(Menu.Items[4].Enabled and not Menu.Items[3].Enabled and not Menu.Items[6].Enabled,
+      'ReadOnly menu permits Copy but prevents modification');
+    Input.ReadOnly := False; Input.PasswordChar := #$2022; Menu := Input.EditMenu;
+    Check(not Menu.Items[3].Enabled and not Menu.Items[4].Enabled, 'Password menu disables Cut and Copy');
+    Input.PasswordChar := #0; Input.SelectAll; Menu := Input.EditMenu;
+    Menu.Items[6].Click; Check(Input.Text = '', 'Menu Delete removes selection');
+    Menu := Input.EditMenu; Check(Menu.Items[0].Enabled, 'Menu Undo enabled after deletion');
+    Menu.Items[0].Click; Check(Input.Text <> '', 'Menu Undo restores Unicode text');
+    Menu := Input.EditMenu; Check(Menu.Items[1].Enabled, 'Menu Redo enabled after undo');
+  finally Form.Free; end;
+end;
+
 procedure CheckGraphemes(const S: UnicodeString; const Expected: array of Integer);
 var Actual: TArray<Integer>; I: Integer;
 begin
@@ -2080,8 +2110,9 @@ begin
 end;
 
 procedure TestSelfPaintedTextInput;
-var Form: TForm; Input: TERDTextInput; Bitmap: TBitmap; ClassName: array[0..63] of Char;
-    X, Y, DarkPixels: Integer; C: TColor;
+var Form: TForm; Input: TERDTextInput; Bitmap: TBitmap; Other: TERDTextInput; ClassName: array[0..63] of Char;
+    X, Y, DarkPixels, FocusedClickPosition: Integer; C: TColor;
+    BeforeEnd, AfterEnd, RepeatedEnd: TPoint;
 begin
   Form := TForm.Create(nil); Bitmap := TBitmap.Create;
   try
@@ -2111,6 +2142,28 @@ begin
     Check(Input.Text = 'secret', 'Reveal preserves underlying password text');
     Input.ReadOnly := True; Input.ReplaceSelection('changed');
     Check(Input.Text = 'secret', 'ReadOnly blocks replacement');
+    Input.ReadOnly := False; Input.PasswordChar := #0; Input.PasswordVisible := False;
+    Input.Text := 'ABC' + #$D83D#$DD12;
+    Input.SelStart := 3; Input.SelLength := 0;
+    Check(GetCaretPos(BeforeEnd), 'Caret available before final emoji');
+    Input.Perform(WM_KEYDOWN, VK_RIGHT, 0);
+    Check(Input.SelStart = Length(Input.Text), 'Right arrow moves past whole final emoji');
+    Check(GetCaretPos(AfterEnd) and (AfterEnd.X > BeforeEnd.X), 'End caret lies after final emoji');
+    Input.Perform(WM_KEYDOWN, VK_RIGHT, 0);
+    Check(GetCaretPos(RepeatedEnd) and (RepeatedEnd.X = AfterEnd.X), 'Right at end preserves caret position');
+    Input.Perform(WM_KEYDOWN, VK_LEFT, 0);
+    Check(Input.SelStart = 3, 'Left from end moves before whole final emoji');
+    Other := TERDTextInput.Create(Form); Other.Parent := Form; Other.Top := 50;
+    Input.Text := 'ABCDEFGHIJ';
+    Input.Perform(WM_LBUTTONDOWN, MK_LBUTTON, LPARAM((14 shl 16) or 34));
+    Input.Perform(WM_LBUTTONUP, 0, LPARAM((14 shl 16) or 34));
+    FocusedClickPosition := Input.SelStart;
+    Check(FocusedClickPosition > 0, 'Focused click places caret inside text');
+    Other.SetFocus; Input.SelStart := Length(Input.Text);
+    Input.Perform(WM_LBUTTONDOWN, MK_LBUTTON, LPARAM((14 shl 16) or 34));
+    Input.Perform(WM_LBUTTONUP, 0, LPARAM((14 shl 16) or 34));
+    Check(Input.Focused and (Input.SelStart = FocusedClickPosition), 'First unfocused click places caret at clicked position');
+
   finally Bitmap.Free; Form.Free; end;
 end;
 
@@ -2144,6 +2197,7 @@ begin
     TestNativeTextPainting;
     TestUnicodeTextModel;
     TestSelfPaintedTextInput;
+    TestTextInputEditMenu;
     TestShowcaseUnicodePreviewWindows;
     Writeln(Checks, ' VCL runtime checks passed.');
   except on E: Exception do begin Writeln(E.ClassName, ': ', E.Message); Halt(1) end end;

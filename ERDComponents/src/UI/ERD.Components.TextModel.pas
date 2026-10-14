@@ -23,6 +23,8 @@ type
     procedure Remember;
     function GetSelStart: Integer;
     function GetSelLength: Integer;
+    function GetCanUndo: Boolean;
+    function GetCanRedo: Boolean;
   public
     constructor Create;
     destructor Destroy; override;
@@ -44,6 +46,8 @@ type
     property Caret: Integer read FCaret;
     property SelStart: Integer read GetSelStart;
     property SelLength: Integer read GetSelLength;
+    property CanUndo: Boolean read GetCanUndo;
+    property CanRedo: Boolean read GetCanRedo;
     property Boundaries: TArray<Integer> read FBoundaries;
   end;
 function ERDGraphemeBoundaries(const AText: UnicodeString): TArray<Integer>;
@@ -2642,6 +2646,10 @@ begin
   if SelLength = 0 then Select(FCaret, Next(FCaret));
   ReplaceSelection('');
 end;
+function TERDTextModel.GetCanUndo: Boolean;
+begin Result := FUndo.Count > 0; end;
+function TERDTextModel.GetCanRedo: Boolean;
+begin Result := FRedo.Count > 0; end;
 procedure TERDTextModel.Undo;
 var S: TERDTextSnapshot;
 begin

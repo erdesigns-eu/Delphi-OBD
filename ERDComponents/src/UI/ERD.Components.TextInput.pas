@@ -5,17 +5,19 @@ uses
   Winapi.Windows, Winapi.Messages, Winapi.Imm,
   System.Classes, System.SysUtils, System.Types, System.Math,
   Vcl.Controls, Vcl.Graphics, Vcl.Clipbrd, Vcl.ExtCtrls,
-  ERD.Components.Control, ERD.Components.TextModel;
+  ERD.Components.Control, ERD.Components.TextModel, ERD.Components.Menus;
 type
   TERDTextInput = class(TERDCustomControl)
   private
     FModel: TERDTextModel;
     FDragTimer: TTimer;
+    FContextMenu: TERDPopupMenu;
     FHint, FComposition: UnicodeString;
     FReadOnly, FPasswordVisible, FSelecting, FCaretCreated: Boolean;
     FPasswordChar, FPendingSurrogate: WideChar;
     FMaxLength, FScroll: Integer;
     FOnChange, FOnSelectionChange: TNotifyEvent;
+    procedure EditMenuClick(Sender: TObject);
     procedure DragTick(Sender: TObject);
     function GetInputText: UnicodeString;
     procedure SetText(const AValue: UnicodeString);
@@ -30,7 +32,6 @@ type
     procedure SetSelLength(AValue: Integer);
     function DisplayText: UnicodeString;
     function DisplayPosition(APosition: Integer): Integer;
-    function ModelPosition(APosition: Integer): Integer;
     procedure UpdateCaret;
     procedure Changed(const ABefore: UnicodeString);
     procedure MoveTo(APosition: Integer; AExtend: Boolean);
@@ -43,6 +44,8 @@ type
     procedure WMUniChar(var Message: TMessage); message WM_UNICHAR;
     procedure WMGetDlgCode(var Message: TMessage); message WM_GETDLGCODE;
   protected
+    function DefaultEditMenu: TERDPopupMenu;
+    procedure DoContextPopup(MousePos: TPoint; var Handled: Boolean); override;
     procedure PaintControl(ACanvas: TCanvas); override;
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
@@ -76,7 +79,7 @@ type
     property OnSelectionChange: TNotifyEvent read FOnSelectionChange write FOnSelectionChange;
   end;
 implementation
-uses ERD.Components.Paint, ERD.Components.Types;
+uses Vcl.Menus, ERD.Components.Paint, ERD.Components.Types;
 type
   // Opaque Uniscribe handle; declarations avoid dependency on SDK unit variants.
   TERDShapedLine = class
@@ -87,7 +90,6 @@ type
     constructor Create(ACanvas: TCanvas; const AText: UnicodeString);
     destructor Destroy; override;
     function X(APosition: Integer): Integer;
-    function Position(AX: Integer): Integer;
     function Width: Integer;
     procedure Range(APosition, ALength: Integer; out ALeft, ARight: Integer);
     procedure Draw(AX, AY: Integer);
@@ -98,8 +100,6 @@ function ScriptStringAnalyse(DC: HDC; Text: Pointer; Count, Glyphs, Charset: Int
 function ScriptStringFree(var Analysis: Pointer): HRESULT; stdcall; external 'usp10.dll';
 function ScriptStringCPtoX(Analysis: Pointer; Position: Integer; Trailing: BOOL;
   var X: Integer): HRESULT; stdcall; external 'usp10.dll';
-function ScriptStringXtoCP(Analysis: Pointer; X: Integer; var Position, Trailing: Integer): HRESULT;
-  stdcall; external 'usp10.dll';
 function ScriptString_pSize(Analysis: Pointer): PSize; stdcall; external 'usp10.dll';
 function ScriptStringOut(Analysis: Pointer; X, Y: Integer; Options: UINT;
   Rect: PRect; MinSel, MaxSel: Integer; Disabled: BOOL): HRESULT;
@@ -117,20 +117,18 @@ end;
 destructor TERDShapedLine.Destroy;
 begin if FAnalysis <> nil then ScriptStringFree(FAnalysis); inherited; end;
 function TERDShapedLine.X(APosition: Integer): Integer;
+var CP: Integer; Trailing: BOOL; Status: HRESULT;
 begin
   Result := 0;
-  if FAnalysis <> nil then ScriptStringCPtoX(FAnalysis,
-    EnsureRange(APosition, 0, Length(FText)), False, Result);
-end;
-function TERDShapedLine.Position(AX: Integer): Integer;
-var Trailing: Integer;
-begin
-  Result := 0; Trailing := 0;
-  if FAnalysis <> nil then
-  begin
-    ScriptStringXtoCP(FAnalysis, AX, Result, Trailing);
-    Result := EnsureRange(Result + Trailing, 0, Length(FText));
-  end;
+  if FAnalysis = nil then Exit;
+  CP := EnsureRange(APosition, 0, Length(FText));
+  // CPtoX takes a character index. The end is the last character's
+  // trailing edge, not the leading edge of a nonexistent extra character.
+  Trailing := CP = Length(FText);
+  if Trailing then Dec(CP);
+  Status := ScriptStringCPtoX(FAnalysis, CP, Trailing, Result);
+  if Status < 0 then
+    raise EInvalidOperation.Create('Unable to map text caret position');
 end;
 function TERDShapedLine.Width: Integer;
 begin Result := 0; if FAnalysis <> nil then Result := ScriptString_pSize(FAnalysis)^.cx; end;
@@ -207,11 +205,6 @@ begin
   for I := 0 to High(FModel.Boundaries) do
     if FModel.Boundaries[I] <= APosition then Result := I;
 end;
-function TERDTextInput.ModelPosition(APosition: Integer): Integer;
-begin
-  if (FPasswordChar = #0) or FPasswordVisible then Result := FModel.Snap(APosition)
-  else Result := FModel.Boundaries[EnsureRange(APosition, 0, High(FModel.Boundaries))];
-end;
 procedure TERDTextInput.UpdateCaret;
 var Line: TERDShapedLine; X, H: Integer; C: HIMC; Form: TCompositionForm;
 begin
@@ -249,10 +242,20 @@ begin
   Changed(Text);
 end;
 function TERDTextInput.HitPosition(X: Integer): Integer;
-var Line: TERDShapedLine;
+var Line: TERDShapedLine; Boundary, Distance, BestDistance, TextX: Integer;
 begin
   Canvas.Font.Assign(Font); Line := TERDShapedLine.Create(Canvas, DisplayText);
-  try Result := ModelPosition(Line.Position(X - ScaleValue(6) + FScroll));
+  try
+    Result := 0; BestDistance := MaxInt;
+    TextX := X - ScaleValue(6) + FScroll;
+    // Use exactly the stops used by caret painting, including emoji clusters
+    // and the end-of-line trailing edge. Never hit the middle of a grapheme.
+    for Boundary in FModel.Boundaries do
+    begin
+      Distance := Abs(Line.X(DisplayPosition(Boundary)) - TextX);
+      if Distance < BestDistance then
+      begin BestDistance := Distance; Result := Boundary; end;
+    end;
   finally Line.Free; end;
 end;
 procedure TERDTextInput.PaintControl(ACanvas: TCanvas);
@@ -432,10 +435,12 @@ begin FComposition := ''; Invalidate; inherited; end;
 procedure TERDTextInput.WMGetDlgCode(var Message: TMessage);
 begin inherited; Message.Result := Message.Result or DLGC_WANTARROWS or DLGC_WANTCHARS; end;
 procedure TERDTextInput.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var Position: Integer;
 begin
   inherited;
   if Button <> mbLeft then Exit;
-  SetFocus; MoveTo(HitPosition(X), ssShift in Shift);
+  Position := HitPosition(X);
+  SetFocus; MoveTo(Position, ssShift in Shift);
   FSelecting := True; MouseCapture := True; FDragTimer.Enabled := True;
 end;
 procedure TERDTextInput.MouseMove(Shift: TShiftState; X, Y: Integer);
@@ -482,6 +487,68 @@ begin
 end;
 procedure TERDTextInput.Resize;
 begin inherited; UpdateCaret; end;
+function TERDTextInput.DefaultEditMenu: TERDPopupMenu;
+  procedure Add(const Caption: string; Command: Integer; Shortcut: TShortCut);
+  var Item: TERDMenuItem;
+  begin
+    Item := TERDMenuItem.Create(FContextMenu);
+    Item.Caption := Caption; Item.Tag := Command; Item.ShortCut := Shortcut;
+    if Command >= 0 then Item.OnClick := EditMenuClick;
+    FContextMenu.Items.Add(Item);
+  end;
+begin
+  if FContextMenu = nil then
+  begin
+    FContextMenu := TERDPopupMenu.Create(Self);
+    Add('&Undo', 0, ShortCut(Ord('Z'), [ssCtrl]));
+    Add('&Redo', 1, ShortCut(Ord('Y'), [ssCtrl]));
+    Add('-', -1, 0);
+    Add('Cu&t', 2, ShortCut(Ord('X'), [ssCtrl]));
+    Add('&Copy', 3, ShortCut(Ord('C'), [ssCtrl]));
+    Add('&Paste', 4, ShortCut(Ord('V'), [ssCtrl]));
+    Add('&Delete', 5, ShortCut(VK_DELETE, []));
+    Add('-', -1, 0);
+    Add('Select &all', 6, ShortCut(Ord('A'), [ssCtrl]));
+  end;
+  FContextMenu.Theme := Theme; FContextMenu.Density := Density;
+  FContextMenu.Items[0].Enabled := Enabled and not ReadOnly and FModel.CanUndo;
+  FContextMenu.Items[1].Enabled := Enabled and not ReadOnly and FModel.CanRedo;
+  FContextMenu.Items[3].Enabled := Enabled and not ReadOnly and (SelLength > 0) and (FPasswordChar = #0);
+  FContextMenu.Items[4].Enabled := Enabled and (SelLength > 0) and (FPasswordChar = #0);
+  FContextMenu.Items[5].Enabled := Enabled and not ReadOnly and Clipboard.HasFormat(CF_UNICODETEXT);
+  FContextMenu.Items[6].Enabled := Enabled and not ReadOnly and (SelLength > 0);
+  FContextMenu.Items[8].Enabled := Enabled and (Text <> '') and (SelLength < Length(Text));
+  Result := FContextMenu;
+end;
+procedure TERDTextInput.EditMenuClick(Sender: TObject);
+begin
+  case TMenuItem(Sender).Tag of
+    0: Undo;
+    1: Redo;
+    2: CutToClipboard;
+    3: CopyToClipboard;
+    4: PasteFromClipboard;
+    5: ReplaceSelection('');
+    6: SelectAll;
+  end;
+end;
+procedure TERDTextInput.DoContextPopup(MousePos: TPoint; var Handled: Boolean);
+var Point: TPoint; Menu: TERDPopupMenu;
+begin
+  inherited;
+  if Handled or (PopupMenu <> nil) or not Enabled then Exit;
+  SetFocus;
+  if (MousePos.X = -1) and (MousePos.Y = -1) then
+  begin
+    if not GetCaretPos(Point) then Point := System.Types.Point(ScaleValue(6), Height div 2);
+    Inc(Point.Y, Canvas.TextHeight('Mg'));
+    Point := ClientToScreen(Point);
+  end
+  else Point := ClientToScreen(MousePos);
+  Handled := True;
+  Menu := DefaultEditMenu; Menu.PopupComponent := Self;
+  Menu.Popup(Point.X, Point.Y);
+end;
 procedure TERDTextInput.SelectAll;
 begin FModel.Select(0, Length(Text)); Changed(Text); end;
 procedure TERDTextInput.CopyToClipboard;
