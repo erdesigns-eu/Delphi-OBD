@@ -6,10 +6,14 @@ uses
   ERD.Components.Control, ERD.Components.Types, ERD.Components.Paint;
 type
   TERDSelectionEdit = class(TEdit)
+  private
+    FRedrawDepth: Integer;
   protected
     procedure WndProc(var Message: TMessage); override;
   end;
   TERDSelectionMemo = class(TMemo)
+  private
+    FRedrawDepth: Integer;
   protected
     procedure WndProc(var Message: TMessage); override;
   end;
@@ -22,12 +26,24 @@ type
 
   TERDNativeEditAccess = class(TCustomEdit)
   public
+    procedure PaintNativeClient(DC: HDC);
     property HideSelection;
     property PasswordChar;
     property Text;
     property Font;
     property Color;
   end;
+procedure TERDNativeEditAccess.PaintNativeClient(DC: HDC);
+var Message: TMessage;
+begin
+  Message.Msg := WM_PRINTCLIENT;
+  Message.WParam := WPARAM(DC);
+  Message.LParam := PRF_CLIENT;
+  Message.Result := 0;
+  // Bypass VCL's WM_PRINTCLIENT handler and invoke the native EDIT proc.
+  DefaultHandler(Message);
+end;
+
 function TERDSelectionControlAccess.SelectionPalette: TERDThemePalette;
 begin
   Result := Palette;
@@ -168,6 +184,56 @@ begin
     C.Free;
   end;
 end;
+function PaintBufferedSelection(Editor: TCustomEdit; var Message: TMessage): Boolean;
+var DC: HDC; Info: TPaintStruct; Bitmap: TBitmap;
+begin
+  Result := (Message.Msg = WM_PAINT) and (Message.WParam = 0) and
+    (Editor.Parent is TERDCustomControl);
+  if not Result then Exit;
+  DC := BeginPaint(Editor.Handle, Info);
+  Bitmap := TBitmap.Create;
+  try
+    Bitmap.SetSize(Max(1, Editor.ClientWidth), Max(1, Editor.ClientHeight));
+    Bitmap.Canvas.Brush.Color := TERDNativeEditAccess(Editor).Color;
+    Bitmap.Canvas.FillRect(Rect(0, 0, Bitmap.Width, Bitmap.Height));
+    TERDNativeEditAccess(Editor).PaintNativeClient(Bitmap.Canvas.Handle);
+    DrawSelection(Editor, Bitmap.Canvas.Handle);
+    BitBlt(DC, 0, 0, Bitmap.Width, Bitmap.Height, Bitmap.Canvas.Handle, 0, 0, SRCCOPY);
+    Message.Result := 0;
+  finally Bitmap.Free; EndPaint(Editor.Handle, Info) end;
+end;
+
+function SelectionInput(const Message: TMessage): Boolean;
+begin
+  case Message.Msg of
+    WM_SETFOCUS, WM_KILLFOCUS, WM_SETTEXT, WM_KEYDOWN, WM_KEYUP, WM_CHAR,
+    WM_LBUTTONDOWN, WM_LBUTTONUP, WM_LBUTTONDBLCLK, WM_TIMER, WM_HSCROLL, WM_VSCROLL, WM_MOUSEWHEEL,
+    EM_SETSEL, WM_CUT, WM_PASTE, WM_CLEAR, WM_UNDO, EM_UNDO: Result := True;
+    WM_MOUSEMOVE: Result := (Message.WParam and MK_LBUTTON) <> 0;
+  else Result := False;
+  end;
+end;
+
+function SuspendSelectionDrawing(Editor: TCustomEdit; const Message: TMessage;
+  var Depth: Integer): Boolean;
+begin
+  Result := SelectionInput(Message) and Editor.HandleAllocated and
+    (Editor.Parent is TERDCustomControl) and ((Depth > 0) or IsWindowVisible(Editor.Handle));
+  // Establish initial mouse focus while WS_VISIBLE is still present.
+  if Result and (Message.Msg = WM_LBUTTONDOWN) and not Editor.Focused and Editor.CanFocus then
+    Editor.SetFocus;
+  if not Result then Exit;
+  Inc(Depth);
+  if Depth = 1 then SendMessage(Editor.Handle, WM_SETREDRAW, 0, 0);
+end;
+procedure ResumeSelectionDrawing(Editor: TCustomEdit; var Depth: Integer);
+begin
+  Dec(Depth);
+  if Depth <> 0 then Exit;
+  SendMessage(Editor.Handle, WM_SETREDRAW, 1, 0);
+  RedrawWindow(Editor.Handle, nil, 0, RDW_INVALIDATE or RDW_UPDATENOW);
+end;
+
 procedure PaintSelectionOverlay(Editor: TCustomEdit; const Message: TMessage);
 var DC: HDC;
 begin
@@ -203,15 +269,25 @@ begin
 end;
 
 procedure TERDSelectionEdit.WndProc(var Message: TMessage);
+var Suspended: Boolean;
 begin
-  inherited;
+  if PaintBufferedSelection(Self, Message) then Exit;
+  Suspended := SuspendSelectionDrawing(Self, Message, FRedrawDepth);
+  try inherited finally
+    if Suspended then ResumeSelectionDrawing(Self, FRedrawDepth);
+  end;
   PaintSelectionOverlay(Self, Message);
-  RefreshSelection(Self, Message);
+  if not Suspended and (FRedrawDepth = 0) then RefreshSelection(Self, Message);
 end;
 procedure TERDSelectionMemo.WndProc(var Message: TMessage);
+var Suspended: Boolean;
 begin
-  inherited;
+  if PaintBufferedSelection(Self, Message) then Exit;
+  Suspended := SuspendSelectionDrawing(Self, Message, FRedrawDepth);
+  try inherited finally
+    if Suspended then ResumeSelectionDrawing(Self, FRedrawDepth);
+  end;
   PaintSelectionOverlay(Self, Message);
-  RefreshSelection(Self, Message);
+  if not Suspended and (FRedrawDepth = 0) then RefreshSelection(Self, Message);
 end;
 end.

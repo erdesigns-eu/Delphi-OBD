@@ -336,6 +336,8 @@ type
 
 implementation
 
+uses ERD.Components.NativeSelection;
+
 { TERDToolItemActionLink ----------------------------------------------------- }
 
 procedure TERDToolItemActionLink.AssignClient(AClient: TObject);
@@ -652,7 +654,7 @@ begin
   Height := ToolHeight;
   Width := ScaleValue(640);
 
-  FSearchEdit := TEdit.Create(Self);
+  FSearchEdit := TERDSelectionEdit.Create(Self);
   FSearchEdit.Parent := Self;
   FSearchEdit.BorderStyle := bsNone;
   FSearchEdit.AutoSize := False;

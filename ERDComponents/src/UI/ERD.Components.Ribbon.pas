@@ -670,6 +670,7 @@ type
 implementation
 
 uses
+  ERD.Components.NativeSelection,
   ERD.Components.Backstage;
 
 const
@@ -1619,7 +1620,7 @@ begin
   FShowSearch := True;
   FSearchHint := 'Search commands  Alt+Q';
   FRibbonStyle := rsClassic;
-  FSearchEdit := TEdit.Create(Self);
+  FSearchEdit := TERDSelectionEdit.Create(Self);
   FSearchEdit.Parent := Self;
   FSearchEdit.BorderStyle := bsNone;
   FSearchEdit.AutoSize := False;

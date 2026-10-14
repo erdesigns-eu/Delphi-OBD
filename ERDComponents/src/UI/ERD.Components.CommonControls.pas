@@ -260,7 +260,7 @@ begin
 end;
 procedure TERDTagToken.PaintControl(ACanvas: TCanvas);
 var P: TERDPainter; Fill, Base, Border, Ink: TColor; AvailableTextWidth: Integer;
-  R: TRect; CX, CY, Half: Single; Strength: Single;
+  CX, CY, Half, Diameter: Single; Strength: Single;
 begin
   P := TERDPainter.Create(ACanvas, Palette, ScaleValue(96));
   try
@@ -281,14 +281,14 @@ begin
       twRegular, taLeftJustify, Max(0, AvailableTextWidth));
     if FCanClose then
     begin
-      R := CloseBounds;
       CX := Width - P.SF(8) - P.SF(FCloseIconSize) / 2;
       CY := Height / 2;
       if Enabled and FCloseHot then
       begin
         if FClosePressed then Fill := ERDMixColor(Base, Fill, 0.6)
         else Fill := ERDMixColor(Base, Fill, 0.35);
-        P.RoundRect(R.Left, R.Top, R.Width, R.Height, P.SF(4), Fill, clNone);
+        Diameter := Min(Height - P.SF(8), P.SF(FCloseIconSize + 6));
+        P.Ellipse(CX - Diameter / 2, CY - Diameter / 2, Diameter, Diameter, Fill, clNone);
         Ink := P.ContrastInk(Fill);
       end;
       Half := P.SF(FCloseIconSize) / 2;

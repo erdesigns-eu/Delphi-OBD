@@ -472,8 +472,10 @@ type
 
 implementation
 
+uses ERD.Components.NativeSelection;
+
 type
-  TERDInspectorEdit = class(TEdit)
+  TERDInspectorEdit = class(TERDSelectionEdit)
   protected
     procedure WMGetDlgCode(var Message: TWMGetDlgCode); message WM_GETDLGCODE;
   public
