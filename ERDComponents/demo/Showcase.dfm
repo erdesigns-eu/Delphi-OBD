@@ -4589,6 +4589,14 @@ object ShowcaseForm: TShowcaseForm
           Height = 15
           Caption = 'Self-painted Unicode preview - accents, emoji and password'
         end
+        object LabelUnicodeState: TLabel
+          Left = 16
+          Top = 112
+          Width = 1000
+          Height = 15
+          AutoSize = False
+          Caption = 'Preview diagnostics appear when Inputs is selected.'
+        end
         object UnicodeTextPreview: TERDTextInput
           Left = 16
           Top = 42

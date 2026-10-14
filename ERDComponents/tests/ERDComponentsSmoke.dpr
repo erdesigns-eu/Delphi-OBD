@@ -2051,6 +2051,34 @@ begin
     Check(M.Text = 'A' + #$FFFD + 'B', 'Invalid surrogate replaced without corrupting UTF-16');
   finally M.Free; end;
 end;
+procedure TestShowcaseUnicodePreviewWindows;
+var Form: TShowcaseForm; DC: HDC; R: TRect;
+  procedure CheckPreview(Input: TERDTextInput);
+  begin
+    Check(Input <> nil, 'Unicode preview is streamed into showcase field');
+    Check(Input.Parent = Form.InputsScroll, 'Unicode preview belongs to Inputs scroll box');
+    Check(Input.Visible and Input.Enabled, 'Unicode preview is visible and enabled');
+    Check(IsWindowVisible(Input.Handle), 'Unicode preview HWND is visible after selecting Inputs');
+    GetClientRect(Input.Handle, R);
+    Check((R.Width > 0) and (R.Height > 0), 'Unicode preview HWND has nonzero client bounds');
+    Input.Repaint;
+    DC := GetDC(Input.Handle);
+    try
+      Check(GetPixel(DC,0,0) <> GetPixel(DC,3,R.Height div 2), 'Unicode preview paints its border on screen');
+    finally ReleaseDC(Input.Handle, DC); end;
+    Input.SetFocus;
+    Check(GetFocus = Input.Handle, 'Unicode preview accepts focus in showcase');
+  end;
+begin
+  Form := TShowcaseForm.Create(nil);
+  try
+    Form.Show; Form.PageTabs.TabIndex := 1; Form.PageSelected(Form);
+    Application.ProcessMessages;
+    CheckPreview(Form.UnicodeTextPreview);
+    CheckPreview(Form.UnicodePasswordPreview);
+  finally Form.Free; end;
+end;
+
 procedure TestSelfPaintedTextInput;
 var Form: TForm; Input: TERDTextInput; Bitmap: TBitmap; ClassName: array[0..63] of Char;
     X, Y, DarkPixels: Integer; C: TColor;
@@ -2116,6 +2144,7 @@ begin
     TestNativeTextPainting;
     TestUnicodeTextModel;
     TestSelfPaintedTextInput;
+    TestShowcaseUnicodePreviewWindows;
     Writeln(Checks, ' VCL runtime checks passed.');
   except on E: Exception do begin Writeln(E.ClassName, ': ', E.Message); Halt(1) end end;
 end.
