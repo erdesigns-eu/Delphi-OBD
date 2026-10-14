@@ -92,6 +92,7 @@ type
     FOnNavigate: TERDCodeNavigateEvent;
     procedure SetKeywordColors(Value: TERDKeywordColors);
     function ResolveKeywordColor(const Word: string; Kind: TERDSyntaxKind): TColor;
+    procedure SyncLanguageDocument;
     procedure SetLanguageService(const Value: IERDCodeLanguageService);
     procedure SetDocumentUri(const Value: UnicodeString);
     function SnapshotCurrent(const Snapshot: TERDLanguageRequest): Boolean;
@@ -318,10 +319,17 @@ function TERDLanguageResponseSink.Hover(const Request: TERDLanguageRequest; cons
 begin Result := (GetCurrentThreadId = MainThreadID) and (FEditor <> nil); if Result then Result := FEditor.PublishHover(Request, Text); end;
 function TERDLanguageResponseSink.Definition(const Request: TERDLanguageRequest; const Target: TERDDefinitionTarget): Boolean;
 begin Result := (GetCurrentThreadId = MainThreadID) and (FEditor <> nil); if Result then Result := FEditor.PublishDefinition(Request, Target); end;
+procedure TERDCodeEditor.SyncLanguageDocument;
+var Service: IERDCodeDocumentService;
+begin
+  if Supports(FLanguageService, IERDCodeDocumentService, Service) then
+    try Service.DocumentChanged(FDocumentUri, Text, FVersion);
+    except on E: Exception do FLanguageError := E.Message; end;
+end;
 procedure TERDCodeEditor.SetLanguageService(const Value: IERDCodeLanguageService);
-begin CancelLanguageRequests; FLanguageService := Value; FLanguageError := ''; end;
+begin CancelLanguageRequests; FLanguageService := Value; FLanguageError := ''; SyncLanguageDocument; end;
 procedure TERDCodeEditor.SetDocumentUri(const Value: UnicodeString);
-begin if FDocumentUri = Value then Exit; CancelLanguageRequests; FDocumentUri := Value; Inc(FVersion); end;
+begin if FDocumentUri = Value then Exit; CancelLanguageRequests; FDocumentUri := Value; Inc(FVersion); SyncLanguageDocument; end;
 procedure TERDCodeEditor.DoExit;
 begin
   FHotFold := -1;
@@ -855,6 +863,7 @@ begin
     InvalidateTextLayout;
   end;
   inherited Changed(ABefore);
+  if ABefore <> Text then SyncLanguageDocument;
 end;
 procedure TERDCodeEditor.ToggleFold(Position: Integer);
 var I: Integer; Fold: TERDSyntaxFold;

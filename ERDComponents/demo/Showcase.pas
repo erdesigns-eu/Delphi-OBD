@@ -1,7 +1,7 @@
 ﻿unit Showcase;
 interface
 uses
-  ERD.Components.LanguageServices, ERD.Components.CodeEditor, ERD.Components.Syntax,
+  ERD.Components.LSP, ERD.Components.LanguageServices, ERD.Components.CodeEditor, ERD.Components.Syntax,
   ERD.Components.TextInput,
   ERD.Components.Rating,
   ERD.Components.CommandPalette,
@@ -649,11 +649,16 @@ type
     // Runtime-only previews: do not let the form designer manage these fields.
     CodePage: TERDPanel;
     CodeEditor: TERDCodeEditor;
+    CodeUsingNativeService: Boolean;
     CodeSearchQuery, CodeSearchReplacement: TERDEdit;
     CodeSearchRegex, CodeSearchCase, CodeSearchWord: TERDCheckBox;
     CodeSearchStatus: TLabel;
     UnicodeTextPreview: TERDTextInput;
     UnicodePasswordPreview: TERDTextInput;
+    procedure CodeConnectCompiler(Sender: TObject);
+    procedure CodeCompilerError(Sender: TObject);
+    procedure CodeCompilerDiagnostics(Sender: TObject; const DocumentUri, SourceText: UnicodeString;
+      const Diagnostics: TArray<TERDCodeDiagnostic>);
     procedure CodeLanguageResults(Sender: TObject);
     procedure CodeNavigated(Sender: TObject; const Target: TERDDefinitionTarget);
     procedure CodeSearchChanged(Sender: TObject);
@@ -769,10 +774,14 @@ begin
   Button.Caption := 'Diagnostics'; Button.OnClick := CodeDiagnosticsClicked;
   Button.SetBounds(MulDiv(208, CurrentPPI, 96), MulDiv(8, CurrentPPI, 96),
     MulDiv(100, CurrentPPI, 96), MulDiv(28, CurrentPPI, 96));
+  Button := TERDButton.Create(Self); Button.Parent := Header; Button.Caption := 'Connect TSVM...';
+  Button.OnClick := CodeConnectCompiler;
+  Button.SetBounds(MulDiv(320, CurrentPPI, 96), MulDiv(8, CurrentPPI, 96),
+    MulDiv(120, CurrentPPI, 96), MulDiv(28, CurrentPPI, 96));
   Instructions := TLabel.Create(Self); Instructions.Parent := Header;
   Instructions.Caption := 'Fold UI v' + IntToStr(TERDCodeEditor.FoldInteractionRevision) +
     ' - hover / press +/-; console. / Ctrl+Space; F1 info; F12 definition';
-  Instructions.Left := MulDiv(320, CurrentPPI, 96); Instructions.Top := MulDiv(15, CurrentPPI, 96);
+  Instructions.Left := MulDiv(452, CurrentPPI, 96); Instructions.Top := MulDiv(15, CurrentPPI, 96);
   CodeSearchQuery := TERDEdit.Create(Self); CodeSearchQuery.Parent := Header;
   CodeSearchQuery.TextHint := 'Find'; CodeSearchQuery.Text := 'command';
   CodeSearchQuery.SetBounds(MulDiv(8, CurrentPPI, 96), MulDiv(48, CurrentPPI, 96),
@@ -829,17 +838,45 @@ begin
   PageTabs.BringToFront;
 end;
 
+procedure TShowcaseForm.CodeConnectCompiler(Sender: TObject);
+var Dialog: TERDOpenDialog; Service: TERDStdioLanguageService;
+begin
+  Dialog := TERDOpenDialog.Create(Self);
+  try
+    Dialog.Filter := 'ERD compiler|erd-compiler.exe|Programs|*.exe';
+    if not Dialog.Execute then Exit;
+    Service := TERDStdioLanguageService.Create(Dialog.FileName);
+    Service.OnDiagnostics := CodeCompilerDiagnostics; Service.OnError := CodeCompilerError;
+    CodeUsingNativeService := True;
+    CodeEditor.DocumentUri := 'file:///showcase.ts'; CodeEditor.LanguageService := Service;
+    CodeSearchStatus.Caption := 'TSVM connected - compiler diagnostics and language queries';
+    CodeEditor.SetFocus;
+  finally Dialog.Free; end;
+end;
+procedure TShowcaseForm.CodeCompilerError(Sender: TObject);
+begin CodeSearchStatus.Caption := TERDStdioLanguageService(Sender).LastError; end;
+procedure TShowcaseForm.CodeCompilerDiagnostics(Sender: TObject; const DocumentUri, SourceText: UnicodeString;
+  const Diagnostics: TArray<TERDCodeDiagnostic>);
+begin
+  if DocumentUri <> CodeEditor.DocumentUri then Exit;
+  if CodeEditor.PublishDiagnostics(SourceText, Diagnostics) then
+    CodeSearchStatus.Caption := IntToStr(Length(Diagnostics)) + ' compiler diagnostics';
+end;
 procedure TShowcaseForm.CodeLanguageResults(Sender: TObject);
 begin
   if CodeEditor.LanguageError <> '' then CodeSearchStatus.Caption := CodeEditor.LanguageError
   else case CodeEditor.LanguageResultKind of
-    lrCompletion: CodeSearchStatus.Caption := IntToStr(Length(CodeEditor.Completions)) + ' suggestions from example provider';
+    lrCompletion:
+      if CodeUsingNativeService then CodeSearchStatus.Caption := IntToStr(Length(CodeEditor.Completions)) + ' compiler suggestions'
+      else CodeSearchStatus.Caption := IntToStr(Length(CodeEditor.Completions)) + ' suggestions from example provider';
     lrHover: CodeSearchStatus.Caption := CodeEditor.HoverText;
-    lrDefinition: CodeSearchStatus.Caption := 'Definition request completed (example provider)';
+    lrDefinition:
+      if CodeUsingNativeService then CodeSearchStatus.Caption := 'Compiler definition request completed'
+      else CodeSearchStatus.Caption := 'Definition request completed (example provider)';
   end;
 end;
 procedure TShowcaseForm.CodeNavigated(Sender: TObject; const Target: TERDDefinitionTarget);
-begin CodeSearchStatus.Caption := 'Example definition at UTF-16 offset ' + IntToStr(Target.Start); end;
+begin CodeSearchStatus.Caption := 'Definition at UTF-16 offset ' + IntToStr(Target.Start); end;
 
 procedure TShowcaseForm.CodeSearchChanged(Sender: TObject);
 var Options: TERDCodeSearchOptions;

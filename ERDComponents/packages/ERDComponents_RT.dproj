@@ -85,6 +85,7 @@
         <DCCReference Include="..\src\UI\ERD.Components.Syntax.pas"/>
         <DCCReference Include="..\src\UI\ERD.Components.LanguageServices.pas"/>
         <DCCReference Include="..\src\UI\ERD.Components.CodeEditor.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.LSP.pas"/>
     <DCCReference Include="..\src\UI\ERD.Components.MediaControls.pas"/>
     <DCCReference Include="..\src\UI\ERD.Components.CommonControls.pas"/>
     <DCCReference Include="..\src\UI\ERD.Components.Anim.pas"/>

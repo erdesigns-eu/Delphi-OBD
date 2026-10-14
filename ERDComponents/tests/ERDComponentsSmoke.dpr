@@ -1,9 +1,9 @@
 ﻿program ERDComponentsSmoke;
 {$APPTYPE CONSOLE}
 uses
-  ERD.Components.Paint, ERD.Components.Control, ERD.Components.LanguageServices, ERD.Components.TextLayout, ERD.Components.CodeEditor, ERD.Components.Syntax,
+  ERD.Components.LSP, ERD.Components.Paint, ERD.Components.Control, ERD.Components.LanguageServices, ERD.Components.TextLayout, ERD.Components.CodeEditor, ERD.Components.Syntax,
   ERD.Components.TextModel, ERD.Components.TextInput,
-  System.IOUtils,
+  System.IOUtils, System.JSON,
   System.SysUtils, System.Classes, System.Types, System.Math, Vcl.Forms, Vcl.Controls, Vcl.ExtCtrls,
   Winapi.Windows, Vcl.Clipbrd, Vcl.ActnList, Vcl.StdCtrls, Vcl.Graphics, Vcl.ImgList,
   ERD.Components.Tabs, ERD.Components.Memo, ERD.Components.Menus,
@@ -2725,8 +2725,95 @@ begin
   finally Form.Free; end;
 end;
 
+procedure RunLSPTransportFixture;
+var Header, Line, Method, Uri: string; Size, I, Version: Integer; Read, Written: DWORD;
+    ByteValue: Byte; Bytes: TBytes; JSON, Params, Document, Position, Range: TJSONObject;
+    ResultValue: TJSONValue; MessageValue: TJSONObject; Items: TJSONArray;
+  procedure Send(Value: TJSONObject);
+  var Payload, Frame: TBytes; Prefix: AnsiString;
+  begin
+    try Payload := TEncoding.UTF8.GetBytes(Value.ToJSON); finally Value.Free; end;
+    Prefix := AnsiString('Content-Length: ' + IntToStr(Length(Payload)) + #13#10#13#10);
+    Frame := TEncoding.ASCII.GetBytes(string(Prefix)); I := Length(Frame);
+    SetLength(Frame, I + Length(Payload)); if Length(Payload) > 0 then Move(Payload[0], Frame[I], Length(Payload));
+    if not WriteFile(GetStdHandle(STD_OUTPUT_HANDLE), Frame[0], Length(Frame), Written, nil) then RaiseLastOSError;
+  end;
+begin
+  // This child mode is a protocol fixture, not a TypeScript semantic service.
+  while True do
+  begin
+    Header := ''; Size := -1;
+    while not Header.EndsWith(#13#10#13#10) do
+    begin
+      if not ReadFile(GetStdHandle(STD_INPUT_HANDLE), ByteValue, 1, Read, nil) or (Read = 0) then Exit;
+      Header := Header + Char(ByteValue); if Length(Header) > 8192 then Halt(2);
+    end;
+    for Line in Header.Split([#13, #10]) do
+      if SameText(Copy(Line, 1, 15), 'Content-Length:') then Size := StrToInt(Trim(Copy(Line, 16, MaxInt)));
+    if (Size <= 0) or (Size > 16 * 1024 * 1024) then Halt(2);
+    SetLength(Bytes, Size); I := 0;
+    while I < Size do
+    begin
+      if not ReadFile(GetStdHandle(STD_INPUT_HANDLE), Bytes[I], Size - I, Read, nil) or (Read = 0) then Exit;
+      Inc(I, Read);
+    end;
+    JSON := TJSONObject.ParseJSONValue(TEncoding.UTF8.GetString(Bytes)) as TJSONObject;
+    try
+      Method := JSON.GetValue<string>('method'); Params := JSON.GetValue('params') as TJSONObject;
+      if Method = 'exit' then Exit;
+      if (Method = 'textDocument/didOpen') or (Method = 'textDocument/didChange') then
+      begin
+        Document := Params.GetValue('textDocument') as TJSONObject;
+        Uri := Document.GetValue<string>('uri'); Version := Document.GetValue<Integer>('version');
+        Document := TJSONObject.Create.AddPair('uri', Uri).AddPair('version', TJSONNumber.Create(Version));
+        Document.AddPair('diagnostics', TJSONArray.Create);
+        Send(TJSONObject.Create.AddPair('jsonrpc', '2.0').AddPair('method', 'textDocument/publishDiagnostics').AddPair('params', Document));
+        Continue;
+      end;
+      if JSON.GetValue('id') = nil then Continue;
+      ResultValue := TJSONNull.Create;
+      if Method = 'initialize' then
+      begin ResultValue.Free; ResultValue := TJSONObject.Create.AddPair('capabilities', TJSONObject.Create); end
+      else if Method = 'textDocument/completion' then
+      begin
+        ResultValue.Free; Position := Params.GetValue('position') as TJSONObject;
+        Range := TJSONObject.Create.AddPair('start', Position.Clone as TJSONValue).AddPair('end', Position.Clone as TJSONValue);
+        Document := TJSONObject.Create.AddPair('label', 'fixtureMember').AddPair('detail', 'transport fixture');
+        Document.AddPair('textEdit', TJSONObject.Create.AddPair('range', Range).AddPair('newText', 'fixtureMember'));
+        Items := TJSONArray.Create; Items.AddElement(Document); ResultValue := Items;
+      end;
+      MessageValue := TJSONObject.Create.AddPair('jsonrpc', '2.0').AddPair('id', JSON.GetValue('id').Clone as TJSONValue);
+      MessageValue.AddPair('result', ResultValue); Send(MessageValue);
+    finally JSON.Free; end;
+  end;
+end;
+
+procedure TestStdioLanguageAdapter;
+var Form: TForm; Editor: TERDCodeEditor; Service: IERDCodeLanguageService; Deadline: UInt64;
+begin
+  Form := TForm.Create(nil);
+  try
+    Editor := TERDCodeEditor.Create(Form); Editor.Parent := Form; Editor.SetBounds(0, 0, 440, 180);
+    Editor.Text := 'const icon = "' + #$D83D#$DE00 + '"; icon.';
+    Editor.SelStart := Length(Editor.Text); Form.Show; Editor.SetFocus;
+    Service := TERDStdioLanguageService.Create(ParamStr(0));
+    Editor.LanguageService := Service; Service := nil;
+    Check(Editor.RequestCompletion, 'Stdio adapter queues a completion without blocking the UI');
+    Deadline := GetTickCount64 + 10000;
+    while (Length(Editor.Completions) = 0) and (GetTickCount64 < Deadline) do
+    begin Application.ProcessMessages; CheckSynchronize(0); Sleep(1); end;
+    Check((Length(Editor.Completions) = 1) and (Editor.Completions[0].LabelText = 'fixtureMember'),
+      'Stdio adapter delivers parsed completion on the UI thread');
+    Check(Editor.ApplyCompletion(0), 'Stdio completion replacement range is accepted');
+    Check(Pos('fixtureMember', Editor.Text) > 0, 'UTF-8 frames preserve UTF-16 emoji replacement positions');
+    Editor.LanguageService := nil; CheckSynchronize(0);
+    Check(Editor.Text <> '', 'Stopping stdio adapter preserves the editor document');
+  finally Form.Free; end;
+end;
+
 begin
   try
+    if (ParamCount > 0) and (ParamStr(1) = 'lsp') then begin RunLSPTransportFixture; Halt(0); end;
     Application.Initialize;
     TestIconLifetimeAndStreaming;
     TestHostedStatusPanels;
@@ -2761,6 +2848,7 @@ begin
     TestSharedColorEmoji;
     TestCodeEditorSearch;
     TestCodeLanguageServices;
+    TestStdioLanguageAdapter;
     TestWindowsEditInteractionParity;
     TestMigratedShowcaseTextWindows;
     TestTextInputEditMenu;

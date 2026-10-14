@@ -30,5 +30,10 @@ type
     procedure Request(const Snapshot: TERDLanguageRequest; const Responses: IERDLanguageResponses);
     procedure Cancel(RequestID: Int64);
   end;
+  // Optional document notifications, independent of caret-triggered queries.
+  IERDCodeDocumentService = interface
+    ['{A2F64377-887F-45B5-8189-C9406A9E8570}']
+    procedure DocumentChanged(const Uri, Text: UnicodeString; Version: Int64);
+  end;
 implementation
 end.
