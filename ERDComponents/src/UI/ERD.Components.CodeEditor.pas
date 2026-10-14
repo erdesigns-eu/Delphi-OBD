@@ -328,7 +328,7 @@ begin
   if Assigned(FOnNavigate) then FOnNavigate(Self, Target);
 end;
 procedure TERDCodeEditor.Analyze;
-var Span: TERDSyntaxSpan; Fold: TERDSyntaxFold;
+var Span, ValidSpan: TERDSyntaxSpan; Fold: TERDSyntaxFold;
     Spans: TList<TERDSyntaxSpan>; Folds: TList<TERDSyntaxFold>;
 begin
   if FAnalysisValid and (FAnalyzedText = Text) then Exit;
@@ -340,7 +340,10 @@ begin
   try
     for Span in FAnalysis.Spans do
       if (Span.Start >= 0) and (Span.Start < Length(Text)) and (Span.Count > 0) then
-      begin Span.Count := Min(Span.Count, Length(Text) - Span.Start); Spans.Add(Span); end;
+      begin
+        ValidSpan := Span;
+        ValidSpan.Count := Min(Span.Count, Length(Text) - Span.Start); Spans.Add(ValidSpan);
+      end;
     for Fold in FAnalysis.Folds do
       if (Fold.Start >= 0) and (Fold.Finish <= Length(Text)) and
         (Fold.Start < Fold.Finish) and (FoldHiddenStart(Fold) < FoldHiddenFinish(Fold)) then
@@ -532,15 +535,15 @@ begin
   FBracketText := Text; FBracketCaret := TextModel.Caret;
   FBracketOpening := -1; FBracketClosing := -1; FBracketValid := True;
   Candidate := TextModel.Caret;
-  if (Candidate >= Length(Text)) or not (Text[Candidate + 1] in ['(',')','[',']','{','}']) then
+  if (Candidate >= Length(Text)) or not CharInSet(Text[Candidate + 1], ['(',')','[',']','{','}']) then
     Dec(Candidate);
   if (Candidate < 0) or (Candidate >= Length(Text)) or
-    not (Text[Candidate + 1] in ['(',')','[',']','{','}']) then Exit;
+    not CharInSet(Text[Candidate + 1], ['(',')','[',']','{','}']) then Exit;
   Analyze; Stack := TList<Integer>.Create;
   try
     for I := 0 to Length(Text) - 1 do
     begin
-      C := Text[I + 1]; if not (C in ['(',')','[',']','{','}']) then Continue;
+      C := Text[I + 1]; if not CharInSet(C, ['(',')','[',']','{','}']) then Continue;
       // Token interiors and their opening character both belong to literals.
       Excluded := False;
       for Span in FAnalysis.Spans do
@@ -548,7 +551,7 @@ begin
           (I >= Span.Start) and (I < Span.Start + Span.Count) then
         begin Excluded := True; Break; end;
       if Excluded then Continue;
-      if C in ['(','[','{'] then Stack.Add(I)
+      if CharInSet(C, ['(','[','{']) then Stack.Add(I)
       else if Stack.Count > 0 then
       begin
         Top := Stack.Last; First := Text[Top + 1];
@@ -573,8 +576,8 @@ begin
   Result := False; if not FAutoCloseDelimiters or ReadOnly then Exit;
   Position := SelStart; Selected := SelLength;
   if (Selected = 0) and (Position < Length(Text)) and
-    (C in [')',']','}',#39,'"','`']) and (Text[Position + 1] = C) and
-    ((C in [#39,'"','`']) or not LiteralAt(Position)) then
+    CharInSet(C, [')',']','}',#39,'"','`']) and (Text[Position + 1] = C) and
+    (CharInSet(C, [#39,'"','`']) or not LiteralAt(Position)) then
   begin MoveTo(Position + 1, False); Exit(True); end;
   if LiteralAt(Position) then Exit;
   Analyze;
@@ -590,8 +593,8 @@ begin
   end;
   if Closing = #0 then Exit;
   // Apostrophes/quotes inside an identifier are ordinary input.
-  if (C in [#39,'"','`']) and (Selected = 0) and (Position > 0) and
-    ((Text[Position] in ['a'..'z','A'..'Z','0'..'9','_','$']) or (Ord(Text[Position]) >= $80)) then Exit;
+  if CharInSet(C, [#39,'"','`']) and (Selected = 0) and (Position > 0) and
+    (CharInSet(Text[Position], ['a'..'z','A'..'Z','0'..'9','_','$']) or (Ord(Text[Position]) >= $80)) then Exit;
   Value := C + SelText + Closing;
   Result := True;
   if (MaxLength > 0) and (Length(Text) - Selected + Length(Value) > MaxLength) then Exit;
@@ -745,7 +748,7 @@ begin
 end;
 function TERDCodeEditor.PublishDiagnostics(const SourceText: UnicodeString;
   const Items: TArray<TERDCodeDiagnostic>): Boolean;
-var Item: TERDCodeDiagnostic; Valid: TList<TERDCodeDiagnostic>;
+var Item, ValidItem: TERDCodeDiagnostic; Valid: TList<TERDCodeDiagnostic>;
 begin
   // An asynchronous validator may finish after the document changed.
   Result := SourceText = Text; if not Result then Exit;
@@ -754,8 +757,9 @@ begin
     for Item in Items do
       if (Item.Start >= 0) and (Item.Start <= Length(Text)) and (Item.Count >= 0) then
       begin
-        Item.Count := Min(Item.Count, Length(Text) - Item.Start);
-        Valid.Add(Item);
+        ValidItem := Item;
+        ValidItem.Count := Min(Item.Count, Length(Text) - Item.Start);
+        Valid.Add(ValidItem);
       end;
     FDiagnostics := Valid.ToArray;
   finally Valid.Free; end;
@@ -795,7 +799,7 @@ begin
     if FShowIndentGuides and (FTabWidth > 0) then
     begin
       Position := Start; Column := 0; ACanvas.Pen.Color := Palette.Subtle;
-      while (Position < Start + Count) and (Text[Position + 1] in [' ', #9]) do
+      while (Position < Start + Count) and CharInSet(Text[Position + 1], [' ', #9]) do
       begin
         if Text[Position + 1] = #9 then Inc(Column, FTabWidth - Column mod FTabWidth)
         else Inc(Column);
@@ -989,7 +993,7 @@ begin
     if Key = VK_HOME then
     begin
       Start := LineStart(TextModel.Caret); Position := Start;
-      while (Position < Length(Text)) and (Text[Position + 1] in [' ', #9]) do Inc(Position);
+      while (Position < Length(Text)) and CharInSet(Text[Position + 1], [' ', #9]) do Inc(Position);
       if TextModel.Caret = Position then Position := Start;
       MoveTo(Position, ssShift in Shift); Key := 0; Exit;
     end;
@@ -1023,7 +1027,7 @@ begin
     IndentSelection(False); Exit;
   end;
   if not ReadOnly and FAutoCloseDelimiters and
-    (((Message.CharCode = 8) and (GetKeyState(VK_CONTROL) >= 0)) or (Char(Message.CharCode) in ['(',')','[',']','{','}',#39,'"','`'])) then
+    (((Message.CharCode = 8) and (GetKeyState(VK_CONTROL) >= 0)) or CharInSet(Char(Message.CharCode), ['(',')','[',']','{','}',#39,'"','`'])) then
   begin
     C := Char(Message.CharCode); KeyPress(C); if C = #0 then Exit;
     if (C = #8) and (GetKeyState(VK_CONTROL) >= 0) and (SelLength = 0) and
@@ -1054,11 +1058,11 @@ begin
     C := #13; KeyPress(C); if C = #0 then Exit;
     if C <> #13 then begin ReplaceSelection(C); Exit; end;
     Position := SelStart; Start := LineStart(Position); Prefix := '';
-    while (Start < Position) and (Text[Start + 1] in [' ', #9]) do
+    while (Start < Position) and CharInSet(Text[Start + 1], [' ', #9]) do
     begin Prefix := Prefix + Text[Start + 1]; Inc(Start); end;
     Value := #13#10 + Prefix;
     if (SelLength = 0) and (Position > 0) and not LiteralAt(Position) and
-      (Text[Position] in ['{','[','(']) then
+      CharInSet(Text[Position], ['{','[','(']) then
     begin
       Value := Value + StringOfChar(' ', FTabWidth);
       if (Position < Length(Text)) and
