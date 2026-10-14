@@ -4015,140 +4015,140 @@ object ShowcaseForm: TShowcaseForm
         TabOrder = 0
         object LabelCheckBox: TLabel
           Left = 16
-          Top = 16
+          Top = 136
           Width = 80
           Height = 15
           Caption = 'TERDCheckBox'
         end
         object LabelRadioButton: TLabel
           Left = 506
-          Top = 16
+          Top = 136
           Width = 94
           Height = 15
           Caption = 'TERDRadioButton'
         end
         object LabelChip: TLabel
           Left = 16
-          Top = 286
+          Top = 406
           Width = 53
           Height = 15
           Caption = 'TERDChip'
         end
         object DemoChip: TERDChip
           Left = 16
-          Top = 312
+          Top = 432
           Width = 16
           Height = 20
           Caption = 'Status chip'
         end
         object LabelBanner: TLabel
           Left = 506
-          Top = 286
+          Top = 406
           Width = 65
           Height = 15
           Caption = 'TERDBanner'
         end
         object LabelEdit: TLabel
           Left = 16
-          Top = 556
+          Top = 676
           Width = 48
           Height = 15
           Caption = 'TERDEdit'
         end
         object LabelSegmented: TLabel
           Left = 506
-          Top = 556
+          Top = 676
           Width = 88
           Height = 15
           Caption = 'TERDSegmented'
         end
         object LabelRangeBar: TLabel
           Left = 16
-          Top = 826
+          Top = 946
           Width = 78
           Height = 15
           Caption = 'TERDRangeBar'
         end
         object DemoRangeBar: TERDRangeBar
           Left = 16
-          Top = 852
+          Top = 972
           Width = 460
           Height = 220
           Value = 45.000000000000000000
         end
         object LabelSpinEdit: TLabel
           Left = 506
-          Top = 826
+          Top = 946
           Width = 71
           Height = 15
           Caption = 'TERDSpinEdit'
         end
         object LabelTrackBar: TLabel
           Left = 16
-          Top = 1096
+          Top = 1216
           Width = 72
           Height = 15
           Caption = 'TERDTrackBar'
         end
         object LabelMemo: TLabel
           Left = 506
-          Top = 1096
+          Top = 1216
           Width = 63
           Height = 15
           Caption = 'TERDMemo'
         end
         object LabelCalendar: TLabel
           Left = 16
-          Top = 1366
+          Top = 1486
           Width = 75
           Height = 15
           Caption = 'TERDCalendar'
         end
         object LabelDatePicker: TLabel
           Left = 506
-          Top = 1366
+          Top = 1486
           Width = 84
           Height = 15
           Caption = 'TERDDatePicker'
         end
         object LabelListBox: TLabel
           Left = 16
-          Top = 1636
+          Top = 1756
           Width = 65
           Height = 15
           Caption = 'TERDListBox'
         end
         object CommonControlsLabel: TLabel
           Left = 16
-          Top = 1906
+          Top = 2026
           Width = 279
           Height = 15
           Caption = 'Search / split button / tags / expander / vertical slider'
         end
         object LabelCheckListBox: TLabel
           Left = 16
-          Top = 2260
+          Top = 2380
           Width = 339
           Height = 15
           Caption = 'TERDCheckListBox - Space or checkbox to check; caption selects'
         end
         object LabelTimePicker: TLabel
           Left = 16
-          Top = 2530
+          Top = 2650
           Width = 316
           Height = 15
           Caption = 'TERDTimePicker - type / Left-Right / Up-Down; 24h and 12h'
         end
         object LabelDateTimePicker: TLabel
           Left = 16
-          Top = 2620
+          Top = 2740
           Width = 341
           Height = 15
           Caption = 'TERDDateTimePicker - editable date segments + calendar + time'
         end
         object LabelLinkLabel: TLabel
           Left = 16
-          Top = 2710
+          Top = 2830
           Width = 369
           Height = 15
           Caption = 
@@ -4157,28 +4157,28 @@ object ShowcaseForm: TShowcaseForm
         end
         object LabelLoadingIndicator: TLabel
           Left = 16
-          Top = 2810
+          Top = 2930
           Width = 320
           Height = 15
           Caption = 'TERDLoadingIndicator - follows Windows animation settings'
         end
         object LabelDropZone: TLabel
           Left = 16
-          Top = 2920
+          Top = 3040
           Width = 306
           Height = 15
           Caption = 'TERDDropZone - Explorer files, masks and optional folders'
         end
         object RatingLabel: TLabel
           Left = 16
-          Top = 3220
+          Top = 3340
           Width = 272
           Height = 15
           Caption = 'TERDRating - half stars, hover preview and readonly'
         end
         object SearchComboLabel: TLabel
           Left = 16
-          Top = 3330
+          Top = 3450
           Width = 396
           Height = 15
           Caption = 
@@ -4187,40 +4187,40 @@ object ShowcaseForm: TShowcaseForm
         end
         object PasswordEditLabel: TLabel
           Left = 16
-          Top = 3430
+          Top = 3550
           Width = 261
           Height = 15
           Caption = 'Edit password - eye button or Alt+V to show/hide'
         end
         object ValidationEditLabel: TLabel
           Left = 16
-          Top = 3530
+          Top = 3650
           Width = 282
           Height = 15
           Caption = 'Edit validation - required name, warning for short text'
         end
         object DemoCheckBox: TERDCheckBox
           Left = 16
-          Top = 42
+          Top = 162
           Width = 112
           Height = 30
-          TabOrder = 0
+          TabOrder = 2
           Caption = 'Enabled option'
         end
         object DemoRadioButton: TERDRadioButton
           Left = 506
-          Top = 42
+          Top = 162
           Width = 100
           Height = 30
-          TabOrder = 1
+          TabOrder = 3
           Caption = 'Radio choice'
         end
         object DemoBanner: TERDBanner
           Left = 506
-          Top = 312
+          Top = 432
           Width = 460
           Height = 56
-          TabOrder = 2
+          TabOrder = 4
           ShowClose = True
           ActionCaption = 'Details'
           OnAction = ShowDialog
@@ -4228,18 +4228,18 @@ object ShowcaseForm: TShowcaseForm
         end
         object DemoEdit: TERDEdit
           Left = 16
-          Top = 582
+          Top = 702
           Width = 460
           Height = 26
-          TabOrder = 3
+          TabOrder = 5
           Text = 'Editable text'
         end
         object DemoSegmented: TERDSegmented
           Left = 506
-          Top = 582
+          Top = 702
           Width = 143
           Height = 32
-          TabOrder = 4
+          TabOrder = 6
           Items.Strings = (
             'One'
             'Two'
@@ -4247,54 +4247,54 @@ object ShowcaseForm: TShowcaseForm
         end
         object DemoSpinEdit: TERDSpinEdit
           Left = 506
-          Top = 852
+          Top = 972
           Width = 460
           Height = 26
-          TabOrder = 5
+          TabOrder = 7
           Text = '12'
           Value = 12.000000000000000000
           Increment = 1.000000000000000000
         end
         object DemoTrackBar: TERDTrackBar
           Left = 16
-          Top = 1122
+          Top = 1242
           Width = 460
           Height = 26
-          TabOrder = 6
+          TabOrder = 8
           Position = 35
         end
         object DemoMemo: TERDMemo
           Left = 506
-          Top = 1122
+          Top = 1242
           Width = 460
           Height = 220
-          TabOrder = 7
+          TabOrder = 9
           Lines.Strings = (
             'Editable memo text'
             'Second line')
         end
         object DemoCalendar: TERDCalendar
           Left = 16
-          Top = 1392
+          Top = 1512
           Width = 240
           Height = 268
-          TabOrder = 8
+          TabOrder = 10
           Date = 46309.000000000000000000
         end
         object DemoDatePicker: TERDDatePicker
           Left = 506
-          Top = 1392
+          Top = 1512
           Width = 460
           Height = 26
-          TabOrder = 9
+          TabOrder = 11
           Date = 46309.000000000000000000
         end
         object DemoListBox: TERDListBox
           Left = 16
-          Top = 1662
+          Top = 1782
           Width = 460
           Height = 220
-          TabOrder = 10
+          TabOrder = 12
           TabStop = True
           Items.Strings = (
             'First item'
@@ -4304,30 +4304,30 @@ object ShowcaseForm: TShowcaseForm
         end
         object DemoSearchEdit: TERDSearchEdit
           Left = 16
-          Top = 1932
+          Top = 2052
           Width = 300
           Height = 26
-          TabOrder = 11
+          TabOrder = 13
           Text = ''
           TextHint = 'Search channels'
           OnSearch = SearchChannels
         end
         object DemoSplitButton: TERDSplitButton
           Left = 336
-          Top = 1932
+          Top = 2052
           Width = 93
           Height = 38
-          TabOrder = 12
+          TabOrder = 14
           OnClick = OpenFile
           Caption = 'Open'
           DropDownMenu = DemoPopupMenu
         end
         object DemoTagEdit: TERDTagEdit
           Left = 16
-          Top = 1990
+          Top = 2110
           Width = 460
           Height = 120
-          TabOrder = 13
+          TabOrder = 15
           Tags.Strings = (
             'Live TV'
             'HD'
@@ -4335,10 +4335,10 @@ object ShowcaseForm: TShowcaseForm
         end
         object DemoExpander: TERDExpander
           Left = 506
-          Top = 1990
+          Top = 2110
           Width = 360
           Height = 160
-          TabOrder = 14
+          TabOrder = 16
           Caption = 'Advanced filters'
           object ExpanderText: TLabel
             Left = 16
@@ -4350,10 +4350,10 @@ object ShowcaseForm: TShowcaseForm
         end
         object DemoSeekBar: TERDSeekBar
           Left = 16
-          Top = 2190
+          Top = 2310
           Width = 460
           Height = 26
-          TabOrder = 15
+          TabOrder = 17
           Max = 3600
           Position = 900
           ShowValue = True
@@ -4362,20 +4362,20 @@ object ShowcaseForm: TShowcaseForm
         end
         object DemoRangeSlider: TERDRangeSlider
           Left = 506
-          Top = 2190
+          Top = 2310
           Width = 460
           Height = 26
-          TabOrder = 16
+          TabOrder = 18
           Position = 20
           ShowValue = True
           UpperValue = 80
         end
         object DemoVerticalTrackBar: TERDTrackBar
           Left = 896
-          Top = 1932
+          Top = 2052
           Width = 60
           Height = 220
-          TabOrder = 17
+          TabOrder = 19
           Orientation = toVertical
           Position = 65
           ShowValue = True
@@ -4383,10 +4383,10 @@ object ShowcaseForm: TShowcaseForm
         end
         object DemoCheckListBox: TERDCheckListBox
           Left = 16
-          Top = 2286
+          Top = 2406
           Width = 460
           Height = 220
-          TabOrder = 18
+          TabOrder = 20
           Items = <
             item
               Caption = 'Live TV'
@@ -4409,30 +4409,30 @@ object ShowcaseForm: TShowcaseForm
         end
         object DemoTimePicker: TERDTimePicker
           Left = 16
-          Top = 2556
+          Top = 2676
           Width = 220
           Height = 26
-          TabOrder = 19
+          TabOrder = 21
           Time = 0.562500000000000000
           ShowSeconds = True
           OnChange = TimeChanged
         end
         object DemoTimePicker12: TERDTimePicker
           Left = 256
-          Top = 2556
+          Top = 2676
           Width = 220
           Height = 26
-          TabOrder = 20
+          TabOrder = 22
           Time = 0.562500000000000000
           TimeFormat = tf12Hour
           OnChange = TimeChanged
         end
         object DemoDateTimePicker: TERDDateTimePicker
           Left = 16
-          Top = 2646
+          Top = 2766
           Width = 460
           Height = 26
-          TabOrder = 21
+          TabOrder = 23
           DateTime = 46309.000000000000000000
           DateFormat = 'dd/mm/yyyy'
           ShowSeconds = True
@@ -4440,11 +4440,11 @@ object ShowcaseForm: TShowcaseForm
         end
         object DemoLinkLabel: TERDLinkLabel
           Left = 16
-          Top = 2736
+          Top = 2856
           Width = 133
           Height = 32
           Cursor = crHandPoint
-          TabOrder = 22
+          TabOrder = 24
           OnClick = LinkClicked
           Caption = 'ERDesigns website'
           URL = 'https://erdesigns.be'
@@ -4452,18 +4452,18 @@ object ShowcaseForm: TShowcaseForm
         end
         object DemoLoadingIndicator: TERDLoadingIndicator
           Left = 16
-          Top = 2836
+          Top = 2956
           Width = 137
           Height = 32
-          TabOrder = 23
+          TabOrder = 25
           Caption = 'Loading playlists...'
         end
         object LoadingStyleChoice: TERDComboBox
           Left = 500
-          Top = 2836
+          Top = 2956
           Width = 200
           Height = 26
-          TabOrder = 24
+          TabOrder = 26
           Items.Strings = (
             'Spinner'
             'Ring'
@@ -4475,10 +4475,10 @@ object ShowcaseForm: TShowcaseForm
         end
         object LoadingSizeChoice: TERDComboBox
           Left = 720
-          Top = 2836
+          Top = 2956
           Width = 160
           Height = 26
-          TabOrder = 25
+          TabOrder = 27
           Items.Strings = (
             '16 px'
             '24 px'
@@ -4490,10 +4490,10 @@ object ShowcaseForm: TShowcaseForm
         end
         object LoadingToggle: TERDCheckBox
           Left = 256
-          Top = 2836
+          Top = 2956
           Width = 79
           Height = 30
-          TabOrder = 26
+          TabOrder = 28
           Caption = 'Active'
           State = cbChecked
           Style = csSwitch
@@ -4501,10 +4501,10 @@ object ShowcaseForm: TShowcaseForm
         end
         object DemoDropZone: TERDDropZone
           Left = 16
-          Top = 2946
+          Top = 3066
           Width = 460
           Height = 160
-          TabOrder = 27
+          TabOrder = 29
           OnClick = BrowseDropFiles
           Caption = 'Drop files here'
           Description = 'or click to browse'
@@ -4514,39 +4514,39 @@ object ShowcaseForm: TShowcaseForm
         end
         object ShowCommands: TERDButton
           Left = 16
-          Top = 3140
+          Top = 3260
           Width = 175
           Height = 38
-          TabOrder = 28
+          TabOrder = 30
           OnClick = OpenCommands
           Caption = 'Command palette (Ctrl+K)'
         end
         object DemoRating: TERDRating
           Left = 16
-          Top = 3246
+          Top = 3366
           Width = 128
           Height = 32
-          TabOrder = 29
+          TabOrder = 31
           Value = 3.500000000000000000
           AllowHalf = True
           OnChange = RatingChanged
         end
         object RatingReadOnly: TERDRating
           Left = 256
-          Top = 3246
+          Top = 3366
           Width = 128
           Height = 32
-          TabOrder = 30
+          TabOrder = 32
           Value = 4.500000000000000000
           AllowHalf = True
           ReadOnly = True
         end
         object SearchCombo: TERDComboBox
           Left = 16
-          Top = 3356
+          Top = 3476
           Width = 460
           Height = 26
-          TabOrder = 31
+          TabOrder = 33
           TabStop = False
           Style = ecsDropDown
           FilterMode = cfsContains
@@ -4561,20 +4561,20 @@ object ShowcaseForm: TShowcaseForm
         end
         object PasswordEdit: TERDEdit
           Left = 16
-          Top = 3456
+          Top = 3576
           Width = 460
           Height = 26
-          TabOrder = 32
+          TabOrder = 34
           PasswordChar = #8226
           ShowPasswordButton = True
           Text = 'Example password'
         end
         object ValidationEdit: TERDEdit
           Left = 16
-          Top = 3556
+          Top = 3676
           Width = 460
           Height = 46
-          TabOrder = 33
+          TabOrder = 35
           ValidationState = evsError
           ValidationText = 'A name is required.'
           ValidateOnChange = True
@@ -4584,25 +4584,25 @@ object ShowcaseForm: TShowcaseForm
         end
         object LabelUnicodePreview: TLabel
           Left = 16
-          Top = 3640
+          Top = 16
           Width = 460
           Height = 15
           Caption = 'Self-painted Unicode preview - accents, emoji and password'
         end
         object UnicodeTextPreview: TERDTextInput
           Left = 16
-          Top = 3668
+          Top = 42
           Width = 460
           Height = 28
-          TabOrder = 34
+          TabOrder = 0
           Text = 'Caf'#233' '#55357#56397#55356#57341' '#55356#56807#55356#56810' '#55357#56425#8205#55357#564187
         end
         object UnicodePasswordPreview: TERDTextInput
           Left = 16
-          Top = 3710
+          Top = 82
           Width = 460
           Height = 28
-          TabOrder = 35
+          TabOrder = 1
           PasswordChar = #8226
           Text = 'Unicode '#55357#56595
         end

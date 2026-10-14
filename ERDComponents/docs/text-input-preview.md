@@ -4,7 +4,7 @@
 window or child editor. Its text and themed selection are drawn together into
 the ERD paint buffer, avoiding native selection painting. The existing Edit,
 Memo and composite controls retain their restored native implementation for
-now. The two new examples are at the end of the showcase Inputs page.
+now. The two new examples are at the top of the showcase Inputs page.
 
 `TERDTextModel` stores validated UTF-16 Unicode independently of windows,
 fonts, themes or layout. Public positions (`SelStart`, `SelLength`) are
