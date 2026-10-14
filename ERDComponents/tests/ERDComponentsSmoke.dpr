@@ -2,7 +2,7 @@
 {$APPTYPE CONSOLE}
 uses
   System.IOUtils,
-  System.SysUtils, System.Classes, System.Types, System.Math, Vcl.Forms, Vcl.Controls,
+  System.SysUtils, System.Classes, System.Types, System.Math, Vcl.Forms, Vcl.Controls, Vcl.ExtCtrls,
   Winapi.Windows, Vcl.ActnList, Vcl.StdCtrls, Vcl.Graphics, Vcl.ImgList,
   ERD.Components.Tabs, ERD.Components.Memo,
   ERD.Components.Rating,
@@ -22,6 +22,13 @@ uses
   Showcase in '../demo/Showcase.pas',
   ERD.Components.SpinEdit, ERD.Components.Edits, ERD.Components.PopupList, ERD.Components.TitleBar, ERD.Components.StatusBar, ERD.Components.Theme, ERD.Components.Ribbon;
 type
+  TPalettePopupProbe = class
+    OwnerForm: TForm;
+    Timer: TTimer;
+    SawPopup, OwnerEnabled, NoButtons, TopAnchored: Boolean;
+    Attempts: Integer;
+    procedure InspectPopup(Sender: TObject);
+  end;
   TTabProbe = class(TERDTabs)
   public
     procedure PressAt(X, Y: Integer);
@@ -1221,6 +1228,62 @@ begin
   finally Bitmap.Free; Stream.Free; Form.Free; Counter.Free end;
 end;
 
+procedure TPalettePopupProbe.InspectPopup(Sender: TObject);
+var Window: TCustomForm; I: Integer; Search: TERDSearchEdit;
+begin
+  Window := Screen.ActiveCustomForm;
+  Inc(Attempts);
+  if (Window = nil) or (Window = OwnerForm) then
+  begin
+    if Attempts >= 40 then begin Timer.Enabled := False; PostQuitMessage(1) end;
+    Exit;
+  end;
+  Timer.Enabled := False;
+  SawPopup := TForm(Window).BorderStyle = bsNone;
+  OwnerEnabled := IsWindowEnabled(OwnerForm.Handle);
+  TopAnchored := Window.Top < OwnerForm.Top + OwnerForm.Height div 3;
+  NoButtons := True;
+  Search := nil;
+  for I := 0 to Window.ControlCount - 1 do
+  begin
+    if Window.Controls[I] is TERDButton then NoButtons := False;
+    if Window.Controls[I] is TERDSearchEdit then Search := TERDSearchEdit(Window.Controls[I]);
+  end;
+  if Search <> nil then
+  begin
+    Search.Text := 'playlist';
+    SendMessage(GetFocus, WM_KEYDOWN, VK_RETURN, 0);
+    if TForm(Window).ModalResult = mrNone then TForm(Window).ModalResult := mrCancel;
+  end
+  else TForm(Window).ModalResult := mrCancel;
+end;
+
+procedure TestCommandPalettePopup;
+var Form: TForm; Palette: TERDCommandPalette; Probe: TPalettePopupProbe;
+  Counter: TCommandCounter;
+begin
+  Form := TForm.CreateNew(nil);
+  Probe := TPalettePopupProbe.Create;
+  Counter := TCommandCounter.Create;
+  try
+    Form.SetBounds(100, 100, 800, 600);
+    Palette := TERDCommandPalette.Create(Form);
+    Palette.OnExecute := Counter.Executed;
+    Palette.Commands.Add.Caption := 'Open playlist';
+    Palette.Commands[0].Key := 'open';
+    Probe.OwnerForm := Form;
+    Probe.Timer := TTimer.Create(Form);
+    Probe.Timer.Enabled := False;
+    Probe.Timer.Interval := 50;
+    Probe.Timer.OnTimer := Probe.InspectPopup;
+    Form.Show;
+    Probe.Timer.Enabled := True;
+    Check(Palette.Execute and (Counter.Count = 1), 'Palette search Enter executes after popup closes');
+    Check(Probe.SawPopup and Probe.OwnerEnabled and Probe.NoButtons and Probe.TopAnchored,
+      'Command palette is a top-anchored popup without dialog buttons or disabled owner');
+  finally Form.Free; Probe.Free; Counter.Free end;
+end;
+
 procedure TestCommandPalette;
 var Palette, Copy: TERDCommandPalette; First, Other: TERDCommandItem;
   Counter: TCommandCounter; ActionCounter: TChangeProbe; Action: TAction;
@@ -1821,6 +1884,7 @@ begin
     TestLoadingIndicator;
     TestDropZone;
     TestCommandPalette;
+    TestCommandPalettePopup;
     TestRating;
     TestEditableCombo;
     TestEditPasswordAndValidation;

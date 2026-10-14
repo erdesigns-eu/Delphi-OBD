@@ -2,7 +2,7 @@
 interface
 uses
   System.Classes, System.SysUtils, System.Types, System.Math, System.Generics.Collections,
-  Winapi.Windows, Vcl.Controls, Vcl.Graphics, Vcl.ActnList, Vcl.Menus, Vcl.Forms,
+  Winapi.Windows, Winapi.Messages, Vcl.Controls, Vcl.Graphics, Vcl.ActnList, Vcl.Menus, Vcl.Forms,
   ERD.Components.Types, ERD.Components.Control, ERD.Components.Paint,
   ERD.Components.Icons, ERD.Components.Dialogs, ERD.Components.CommonControls,
   ERD.Components.ItemList, ERD.Components.Buttons;
@@ -55,14 +55,17 @@ type
     property Items[Index: Integer]: TERDCommandItem read GetItem write SetItem; default;
   end;
   TERDCommandExecuteEvent = procedure(Sender: TObject; Command: TERDCommandItem) of object;
-  /// <summary>Searchable action dialog. Applications choose the shortcut used to open it.</summary>
+  /// <summary>Searchable command popup anchored near the top of the active window.</summary>
   TERDCommandPalette = class(TERDCommonDialog)
   private
     FCommands: TERDCommands;
+    FPaletteWidth, FMaxVisibleResults: Integer;
     FSession: TObject;
     FExecuting: Boolean;
     FLastCommand: string;
     FOnExecute: TERDCommandExecuteEvent;
+    procedure SetPaletteWidth(Value: Integer);
+    procedure SetMaxVisibleResults(Value: Integer);
     procedure SetCommands(Value: TERDCommands);
   protected
     function DefaultTitle: string; override;
@@ -77,12 +80,29 @@ type
     procedure Refresh;
     property LastCommand: string read FLastCommand;
   published
+    property PaletteWidth: Integer read FPaletteWidth write SetPaletteWidth default 620;
+    property MaxVisibleResults: Integer read FMaxVisibleResults write SetMaxVisibleResults default 8;
     property Commands: TERDCommands read FCommands write SetCommands;
     /// <summary>Used when a command has no Action. Action-backed commands execute the Action.</summary>
     property OnExecute: TERDCommandExecuteEvent read FOnExecute write FOnExecute;
   end;
 implementation
 type
+  TERDCommandWindow = class(TERDDialogWindow)
+  private
+    FAnchor: TRect;
+    FWorkArea: TRect;
+    procedure HitTest(var Message: TWMNCHitTest); message WM_NCHITTEST;
+    procedure LostActivation(Sender: TObject);
+  protected
+    procedure Paint; override;
+    procedure DoShow; override;
+    procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
+  public
+    procedure AnchorTo(Form: TCustomForm);
+    function RunPalette: TModalResult;
+  end;
   TERDPaletteSession = class;
   TERDCommandResults = class(TERDCustomItemList)
   private
@@ -91,6 +111,7 @@ type
     function GetItemCount: Integer; override;
     function GetItemText(AIndex: Integer): string; override;
     function ItemHeight: Integer; override;
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
     procedure DrawItem(APainter: TERDPainter; AIndex: Integer;
       const ARect: TRect; ASelected, AHot: Boolean); override;
   public
@@ -100,23 +121,93 @@ type
   TERDPaletteSession = class
   private
     FPalette: TERDCommandPalette;
-    FWindow: TERDDialogWindow;
+    FWindow: TERDCommandWindow;
     FSearch: TERDSearchEdit;
     FList: TERDCommandResults;
-    FRun: TERDButton;
     FMatches: TArray<Integer>;
     FRefreshing: Boolean;
     FSelectedID: Integer;
     procedure SearchChanged(Sender: TObject);
     procedure SearchKey(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure Accept(Sender: TObject);
-    procedure SelectionChanged(Sender: TObject);
     function ItemAt(Index: Integer): TERDCommandItem;
   public
     constructor Create(Palette: TERDCommandPalette);
     destructor Destroy; override;
     procedure Refresh;
   end;
+procedure TERDCommandWindow.AnchorTo(Form: TCustomForm);
+var Monitor: TMonitor;
+begin
+  if Form <> nil then
+  begin
+    PopupMode := pmExplicit;
+    PopupParent := Form;
+    FAnchor.TopLeft := Form.ClientToScreen(Point(0, 0));
+    FAnchor.BottomRight := Form.ClientToScreen(Point(Form.ClientWidth, Form.ClientHeight));
+    Monitor := Screen.MonitorFromWindow(Form.Handle, mdNearest);
+  end
+  else Monitor := Screen.MonitorFromWindow(Application.Handle, mdNearest);
+  if Monitor <> nil then FWorkArea := Monitor.WorkareaRect else FWorkArea := Screen.DesktopRect;
+  if Form = nil then FAnchor := FWorkArea;
+  OnDeactivate := LostActivation;
+end;
+
+procedure TERDCommandWindow.Paint;
+var P: TERDPainter;
+begin
+  P := TERDPainter.Create(Canvas, Palette, PPI);
+  try
+    P.FillRect(ClientRect, Palette.GaugeFace);
+    P.FrameRect(ClientRect, Palette.NeutralLight);
+    P.HLine(Dp(1), Dp(47), ClientWidth - Dp(2), Palette.NeutralLight);
+  finally P.Free end;
+end;
+
+procedure TERDCommandWindow.DoShow;
+begin
+  inherited;
+  Left := EnsureRange(FAnchor.Left + (FAnchor.Width - Width) div 2,
+    FWorkArea.Left, Max(FWorkArea.Left, FWorkArea.Right - Width));
+  Top := EnsureRange(FAnchor.Top + Dp(16), FWorkArea.Top,
+    Max(FWorkArea.Top, FWorkArea.Bottom - Height));
+end;
+
+procedure TERDCommandWindow.HitTest(var Message: TWMNCHitTest);
+begin Message.Result := HTCLIENT end;
+procedure TERDCommandWindow.MouseMove(Shift: TShiftState; X, Y: Integer);
+begin end;
+procedure TERDCommandWindow.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+begin end;
+procedure TERDCommandWindow.LostActivation(Sender: TObject);
+begin ModalResult := mrCancel end;
+
+function TERDCommandWindow.RunPalette: TModalResult;
+begin
+  ModalResult := mrNone;
+  Show;
+  try
+    // The owner stays enabled: clicking outside dismisses the popup.
+    while Visible and (ModalResult = mrNone) and not Application.Terminated do
+      Application.HandleMessage;
+    Result := ModalResult;
+  finally Hide end;
+end;
+
+procedure TERDCommandResults.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var Index: Integer;
+begin
+  inherited;
+  if Button <> mbLeft then Exit;
+  Index := ItemAt(X, Y);
+  if (Index >= 0) and (Index = ItemIndex) then FSession.Accept(Self);
+end;
+
+procedure TERDCommandPalette.SetPaletteWidth(Value: Integer);
+begin FPaletteWidth := EnsureRange(Value, 280, 1200) end;
+procedure TERDCommandPalette.SetMaxVisibleResults(Value: Integer);
+begin FMaxVisibleResults := EnsureRange(Value, 1, 20); Refresh end;
+
 constructor TERDCommandItem.Create(Collection: TCollection);
 begin
   inherited;
@@ -192,7 +283,12 @@ begin Items[Index].Assign(Value) end;
 procedure TERDCommands.Update(Item: TCollectionItem);
 begin inherited; if GetOwner is TERDCommandPalette then TERDCommandPalette(GetOwner).Refresh end;
 constructor TERDCommandPalette.Create(AOwner: TComponent);
-begin inherited; FCommands := TERDCommands.Create(Self) end;
+begin
+  inherited;
+  FPaletteWidth := 620;
+  FMaxVisibleResults := 8;
+  FCommands := TERDCommands.Create(Self);
+end;
 destructor TERDCommandPalette.Destroy;
 begin FreeAndNil(FCommands); inherited end;
 function TERDCommandPalette.DefaultTitle: string;
@@ -261,7 +357,10 @@ begin
       if (I < FCommands.Count) and (FCommands[I].Action <> nil) then FCommands[I].Action.Update;
     Session := TERDPaletteSession.Create(Self);
     FSession := Session;
-    if RunWindow(Session.FWindow) = mrOk then Selected := Session.FSelectedID;
+    DoShow;
+    try
+      if Session.FWindow.RunPalette = mrOk then Selected := Session.FSelectedID;
+    finally DoClose end;
   finally FSession := nil; Session.Free; FExecuting := False end;
   if Selected >= 0 then Result := ExecuteCommand(Selected);
 end;
@@ -277,7 +376,7 @@ begin
   if Item <> nil then Result := Item.DisplayCaption;
 end;
 function TERDCommandResults.ItemHeight: Integer;
-begin Result := ScaleValue(52) end;
+begin Result := ScaleValue(44) end;
 procedure TERDCommandResults.RefreshItems;
 begin ItemsChanged end;
 procedure TERDCommandResults.DrawItem(APainter: TERDPainter; AIndex: Integer;
@@ -312,24 +411,21 @@ begin
   inherited Create;
   FPalette := Palette;
   FSelectedID := -1;
-  FWindow := Palette.NewWindow;
-  FWindow.SetLayout(620, 400);
+  FWindow := TERDCommandWindow.CreateWindow(Application, Palette.Theme, Palette.Density, Palette.Title);
+  FWindow.AnchorTo(Screen.ActiveCustomForm);
+  FWindow.ClientWidth := Min(FWindow.Dp(Palette.PaletteWidth), FWindow.FWorkArea.Width - FWindow.Dp(24));
   FSearch := TERDSearchEdit.Create(FWindow);
   FWindow.Adopt(FSearch);
-  FWindow.Place(FSearch, 16, 16, 588, 32);
+  FSearch.SetBounds(FWindow.Dp(8), FWindow.Dp(8), FWindow.ClientWidth - FWindow.Dp(16), FWindow.Dp(32));
   FSearch.TextHint := 'Search commands...';
   FSearch.SearchDelay := 0;
   FSearch.OnSearch := SearchChanged;
   FSearch.OnKeyDown := SearchKey;
   FList := TERDCommandResults.CreateResults(FWindow, Self);
   FWindow.Adopt(FList);
-  FWindow.Place(FList, 16, 64, 588, 316);
+  FList.SetBounds(FWindow.Dp(1), FWindow.Dp(48), FWindow.ClientWidth - FWindow.Dp(2), FWindow.Dp(44));
   FList.EmptyText := 'No matching commands';
   FList.OnItemActivate := Accept;
-  FList.OnChange := SelectionChanged;
-  FRun := FWindow.AddButton('Run', bkPrimary, mrNone);
-  FRun.OnClick := Accept;
-  FWindow.AddButton('Close', bkGhost, mrCancel);
   FWindow.InitialFocus := FSearch;
   Refresh;
 end;
@@ -348,12 +444,11 @@ begin
     FMatches := FPalette.Search(FSearch.Text);
     FList.RefreshItems;
     if Length(FMatches) > 0 then FList.ItemIndex := 0 else FList.ItemIndex := -1;
-    SelectionChanged(Self);
+    FList.Height := Min(Max(1, Length(FMatches)), FPalette.MaxVisibleResults) * FWindow.Dp(44);
+    FList.Height := Min(FList.Height, Max(FWindow.Dp(44), FWindow.FWorkArea.Height - FWindow.Dp(80)));
+    FWindow.ClientHeight := FList.Top + FList.Height + FWindow.Dp(8);
   finally FRefreshing := False end;
 end;
-procedure TERDPaletteSession.SelectionChanged(Sender: TObject);
-var Item: TERDCommandItem;
-begin Item := ItemAt(FList.ItemIndex); FRun.Enabled := (Item <> nil) and Item.CanExecute end;
 procedure TERDPaletteSession.SearchChanged(Sender: TObject);
 begin Refresh end;
 procedure TERDPaletteSession.SearchKey(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -362,6 +457,8 @@ begin
   case Key of
     VK_DOWN: if Length(FMatches) > 0 then FList.ItemIndex := Min(Length(FMatches) - 1, FList.ItemIndex + 1);
     VK_UP: if Length(FMatches) > 0 then FList.ItemIndex := Max(0, FList.ItemIndex - 1);
+    VK_NEXT: if Length(FMatches) > 0 then FList.ItemIndex := Min(Length(FMatches) - 1, FList.ItemIndex + FPalette.MaxVisibleResults);
+    VK_PRIOR: if Length(FMatches) > 0 then FList.ItemIndex := Max(0, FList.ItemIndex - FPalette.MaxVisibleResults);
     VK_RETURN: Accept(Self);
     VK_ESCAPE: FWindow.ModalResult := mrCancel;
   else Exit;

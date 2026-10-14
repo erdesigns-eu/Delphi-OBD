@@ -370,15 +370,18 @@ OLE wordt op de UI-thread geregistreerd en bij handle-recreatie/opruimen vrijgeg
 
 ## CommandPalette
 
-`TERDCommandPalette` opent via `Execute` een themed zoekdialoog met onze SearchEdit,
-scrollende lijst en buttons. `Commands` is een DFM-collectie met `Key`, `Caption`,
+`TERDCommandPalette` opent via `Execute` een compacte command-popup bovenaan het
+actieve venster, met een SearchEdit en scrollende resultaten. Er is geen titelbalk
+of buttonfooter. `PaletteWidth` (620) en `MaxVisibleResults` (8) bepalen de grootte;
+de hoogte volgt het aantal resultaten. Het hoofdvenster blijft ingeschakeld en
+een klik buiten de popup sluit hem. `Commands` is een DFM-collectie met `Key`, `Caption`,
 `Category`, `Keywords`, `ShortcutText`, `Icon`, `Enabled`, `Visible` en optionele
 `Action`. Een lege caption/shortcut valt terug op de Action. Niet-beschikbare acties
 worden weggelaten. Zoeken is case-insensitive en vereist dat alle zoekwoorden ergens
 in caption, categorie, keywords of key voorkomen; volgorde volgt de collectie.
 
-Up/Down selecteert vanuit het zoekveld, Enter/dubbelklik/Run voert uit, Escape
-annuleert. De dialog sluit vóór uitvoering van de Action of `OnExecute`, zodat een
+Up/Down en PageUp/PageDown selecteren vanuit het zoekveld; Enter of een enkele
+klik voert uit, Escape annuleert. De popup sluit vóór uitvoering van de Action of `OnExecute`, zodat een
 commando veilig een volgende dialog kan openen. Action-backed commando's voeren
 hun Action uit; alleen commando's zonder Action gebruiken `OnExecute`.
 `Search` levert stabiele collection-IDs; `ExecuteCommand(ID)` valideert opnieuw.
