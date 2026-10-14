@@ -56,6 +56,7 @@ type
     FVersion, FRequestID: Int64;
     FLastCaret, FLastAnchor: Integer;
     FTrackCaret: Boolean;
+    FAutoMemberCompletion: Boolean;
     FDocumentUri, FLanguageError, FHoverText: UnicodeString;
     FCompletionItems: TArray<TERDCompletionItem>;
     FCompletionStamp: TERDLanguageRequest;
@@ -68,7 +69,7 @@ type
     procedure SetDocumentUri(const Value: UnicodeString);
     function SnapshotCurrent(const Snapshot: TERDLanguageRequest): Boolean;
     function AcceptResponse(const Snapshot: TERDLanguageRequest; Kind: TERDLanguageRequestKind): Boolean;
-    function IssueRequest(Kind: TERDLanguageRequestKind; Position: Integer): Boolean;
+    function IssueRequest(Kind: TERDLanguageRequestKind; Position: Integer; Trigger: WideChar = #0): Boolean;
     procedure CompletionClosed(Sender: TObject; Accepted: Boolean; Index: Integer);
     procedure RefreshSearch;
     procedure SetShowIndentGuides(Value: Boolean);
@@ -141,6 +142,7 @@ type
     function SyntaxAnalysis: TERDSyntaxAnalysis;
     property SyntaxProvider: IERDSyntaxProvider read FProvider write SetProvider;
   published
+    property AutoMemberCompletion: Boolean read FAutoMemberCompletion write FAutoMemberCompletion default True;
     property OnLanguageResults: TNotifyEvent read FOnLanguageResults write FOnLanguageResults;
     property OnNavigate: TERDCodeNavigateEvent read FOnNavigate write FOnNavigate;
     property OnSearchRequested: TERDCodeSearchRequestEvent read FOnSearchRequested write FOnSearchRequested;
@@ -164,6 +166,7 @@ begin
   FSearchIndex := -1;
   FLanguage := clTypeScript;
   FTabWidth := 2;
+  FAutoMemberCompletion := True;
   FAutoCloseDelimiters := True;
   FSmartHome := True;
   FShowIndentGuides := True;
@@ -219,7 +222,7 @@ begin
   Result := (GetCurrentThreadId = MainThreadID) and (Snapshot.Kind = Kind) and
     (Snapshot.ID <> 0) and (Snapshot.ID = FPending[Kind]) and SnapshotCurrent(Snapshot);
 end;
-function TERDCodeEditor.IssueRequest(Kind: TERDLanguageRequestKind; Position: Integer): Boolean;
+function TERDCodeEditor.IssueRequest(Kind: TERDLanguageRequestKind; Position: Integer; Trigger: WideChar): Boolean;
 var Snapshot: TERDLanguageRequest; Old: Int64;
 begin
   Result := FLanguageService <> nil; if not Result then Exit;
@@ -228,6 +231,7 @@ begin
   try
     if Old <> 0 then FLanguageService.Cancel(Old);
     Inc(FRequestID); Snapshot.ID := FRequestID; Snapshot.Kind := Kind;
+    Snapshot.TriggerCharacter := Trigger;
     Snapshot.Version := FVersion; Snapshot.Text := Text; Snapshot.DocumentUri := FDocumentUri;
     Snapshot.Caret := TextModel.Caret; Snapshot.Anchor := TextModel.Anchor;
     if Position < 0 then Position := Snapshot.Caret;
@@ -1009,7 +1013,7 @@ begin
 end;
 procedure TERDCodeEditor.WMChar(var Message: TWMChar);
 var C: Char; Position, Start: Integer; Prefix, Before, Value: UnicodeString;
-    Closing: Char;
+    Closing: Char; Span: TERDSyntaxSpan; Suppress: Boolean;
 begin
   if (FSuppressLanguageChar <> 0) and (Message.CharCode = FSuppressLanguageChar) then
   begin FSuppressLanguageChar := 0; Exit; end;
@@ -1069,6 +1073,22 @@ begin
       end;
     end;
     ReplaceSelection(Value); Exit;
+  end;
+  if (Message.CharCode = Ord('.')) and FAutoMemberCompletion and
+    (FLanguage = clTypeScript) and not ReadOnly and (FLanguageService <> nil) then
+  begin
+    Before := Text; Start := SelStart; Value := SelText; inherited;
+    Position := TextModel.Caret;
+    if (Before = Text) or (Position <> Start + 1) or
+      (Length(Text) <> Length(Before) - Length(Value) + 1) or (Text[Position] <> '.') then Exit;
+    Analyze; Suppress := False;
+    for Span in FAnalysis.Spans do
+      if (Span.Kind in [skComment, skString, skDirective]) and
+        (Position - 1 >= Span.Start) and (Position - 1 < Span.Start + Span.Count) then
+      begin Suppress := True; Break; end;
+    if (Position > 1) and (Text[Position - 1] = '.') then Suppress := True;
+    if not Suppress then IssueRequest(lrCompletion, Position, '.');
+    Exit;
   end;
   inherited;
 end;

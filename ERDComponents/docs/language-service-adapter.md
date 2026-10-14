@@ -13,7 +13,7 @@ procedure Cancel(RequestID: Int64);
 ```
 
 `Snapshot.Kind` is `lrCompletion`, `lrHover` or `lrDefinition`. It includes a
-unique request ID, monotonic document version, URI, full source text, caret,
+unique request ID, monotonic document version, URI, full source text, trigger character, caret,
 selection anchor and requested position. All positions are **zero-based UTF-16
 code-unit offsets**, not bytes or grapheme indices. Set `Editor.DocumentUri`
 when attaching a file. Changing it invalidates requests and advances the version.
@@ -51,12 +51,20 @@ Insertion is plain text; snippets, additional edits and commit characters are
 future work. ReadOnly and MaxLength are respected. Applying a completion is one
 undo transaction and restores the original selection/caret on Undo.
 
-Ctrl+Space or `RequestCompletion` requests suggestions. When the editor has focus,
+Ctrl+Space or `RequestCompletion` requests suggestions, with TriggerCharacter=#0.
+In TypeScript mode, typing `.` automatically requests completion after insertion,
+with TriggerCharacter='.' and Position/Caret immediately after the dot. This also
+passes optional-chain source (`?.`) intact to the provider. Comments and strings
+are skipped, and consecutive dots do not issue additional requests. Disable this
+behaviour with `AutoMemberCompletion=False`. The provider determines valid member
+access and supplies its members; the editor does not infer TypeScript types.
+Template-interpolation triggers remain limited by the current opaque template-string
+lexer; manual completion is still available there. When the editor has focus,
 accepted items open its themed popup at the caret. Arrow keys choose an item;
 Enter or Tab accepts; Escape dismisses. The acceptance key does not also insert
 a newline/tab. `Completions` returns a copy, and `ApplyCompletion(Index)` allows a
 host to supply another presentation. Typing or moving the caret invalidates the
-popup; automatic re-query/filtering while typing is not implemented yet.
+popup; automatic prefix re-query/filtering while typing is not implemented yet.
 
 ## Hover and definitions
 
@@ -82,7 +90,7 @@ version and URI with `Editor.DocumentVersion` / `DocumentUri` before publishing;
 the original diagnostic method only checks source-text equality.
 
 Signature help, references, rename, formatting, quick fixes, semantic tokens,
-automatic completion triggers, workspace edits and LSP are subsequent stages.
+additional completion triggers, workspace edits and LSP are subsequent stages.
 They should reuse the same snapshot/cancellation rules. This provider is not
 stored in DFM files; bind it when opening an editor/document.
 

@@ -8,6 +8,7 @@ type
     ID, Version: Int64;
     DocumentUri, Text: UnicodeString;
     Caret, Anchor, Position: Integer;
+    TriggerCharacter: WideChar; // #0 for manual invocation, dot for member access.
   end;
   TERDCompletionItem = record
     LabelText, InsertText, Detail, Documentation: UnicodeString;

@@ -678,7 +678,8 @@ procedure TShowcaseLanguageService.Cancel(RequestID: Int64);
 begin end;
 procedure TShowcaseLanguageService.Request(const Snapshot: TERDLanguageRequest; const Responses: IERDLanguageResponses);
 const Names: array[0..6] of string = ('console', 'const', 'Command', 'CommandRegistry', 'commands', 'Promise', 'register');
-var Start, Finish, I, At: Integer; Prefix, Word, Marker: UnicodeString;
+var Start, Finish, I, At, ReceiverStart, ReceiverEnd: Integer; Prefix, Word, Marker, Receiver: UnicodeString;
+    Candidates: TArray<string>;
     Items: TArray<TERDCompletionItem>; Target: TERDDefinitionTarget;
   function Identifier(C: Char): Boolean;
   begin Result := C in ['a'..'z','A'..'Z','0'..'9','_','$']; end;
@@ -693,11 +694,25 @@ begin
     lrCompletion:
       begin
         Items := nil;
-        for I := Low(Names) to High(Names) do
-          if SameText(Copy(Names[I], 1, Length(Prefix)), Prefix) then
+        if (Start > 0) and (Snapshot.Text[Start] = '.') then
+        begin
+          ReceiverEnd := Start - 1;
+          if (ReceiverEnd > 0) and (Snapshot.Text[ReceiverEnd] = '?') then Dec(ReceiverEnd);
+          ReceiverStart := ReceiverEnd;
+          while (ReceiverStart > 0) and Identifier(Snapshot.Text[ReceiverStart]) do Dec(ReceiverStart);
+          Receiver := Copy(Snapshot.Text, ReceiverStart + 1, ReceiverEnd - ReceiverStart);
+          if Receiver = 'console' then Candidates := TArray<string>.Create('log', 'warn', 'error', 'info')
+          else if Receiver = 'commands' then Candidates := TArray<string>.Create('get', 'set', 'has', 'clear')
+          else if Receiver = 'command' then Candidates := TArray<string>.Create('id', 'title', 'run')
+          else Candidates := nil;
+        end
+        else
+        begin SetLength(Candidates, Length(Names)); for I := Low(Names) to High(Names) do Candidates[I] := Names[I]; end;
+        for I := 0 to High(Candidates) do
+          if SameText(Copy(Candidates[I], 1, Length(Prefix)), Prefix) then
           begin
             SetLength(Items, Length(Items) + 1);
-            Items[High(Items)].LabelText := Names[I]; Items[High(Items)].InsertText := Names[I];
+            Items[High(Items)].LabelText := Candidates[I]; Items[High(Items)].InsertText := Candidates[I];
             Items[High(Items)].Detail := 'Example provider'; Items[High(Items)].Start := Start;
             Items[High(Items)].Count := Finish - Start;
           end;
@@ -755,7 +770,7 @@ begin
   Button.SetBounds(MulDiv(208, CurrentPPI, 96), MulDiv(8, CurrentPPI, 96),
     MulDiv(100, CurrentPPI, 96), MulDiv(28, CurrentPPI, 96));
   Instructions := TLabel.Create(Self); Instructions.Parent := Header;
-  Instructions.Caption := 'Example provider: Ctrl+Space completion, F1 info, F12 definition';
+  Instructions.Caption := 'Example provider: type console. / Ctrl+Space; F1 info; F12 definition';
   Instructions.Left := MulDiv(320, CurrentPPI, 96); Instructions.Top := MulDiv(15, CurrentPPI, 96);
   CodeSearchQuery := TERDEdit.Create(Self); CodeSearchQuery.Parent := Header;
   CodeSearchQuery.TextHint := 'Find'; CodeSearchQuery.Text := 'command';

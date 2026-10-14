@@ -2240,6 +2240,24 @@ begin
     Editor.Perform(WM_KEYDOWN, VK_RETURN, 0); Editor.Perform(WM_CHAR, 13, 0);
     Check(Editor.Text = 'console', 'Enter accepts completion without inserting newline');
     Editor.Undo; Check(Editor.Text = 'con', 'Keyboard completion remains one undo transaction');
+    Editor.Text := 'console'; Editor.SelStart := 7; Version := Service.Requests;
+    Editor.Perform(WM_CHAR, Ord('.'), 0);
+    Check((Service.Requests = Version + 1) and (Service.Snapshot.TriggerCharacter = '.') and
+      (Service.Snapshot.Text = 'console.') and (Service.Snapshot.Caret = 8), 'Dot requests member completion after insertion');
+    Editor.Text := 'console?'; Editor.SelStart := 8; Version := Service.Requests;
+    Editor.Perform(WM_CHAR, Ord('.'), 0);
+    Check((Service.Requests = Version + 1) and (Service.Snapshot.Text = 'console?.'), 'Optional-chain dot requests member completion');
+    Editor.Text := '// console'; Editor.SelStart := Length(Editor.Text); Version := Service.Requests;
+    Editor.Perform(WM_CHAR, Ord('.'), 0);
+    Check(Service.Requests = Version, 'Dot in line comment does not trigger completion');
+    Editor.Text := '"console"'; Editor.SelStart := 8; Version := Service.Requests;
+    Editor.Perform(WM_CHAR, Ord('.'), 0);
+    Check(Service.Requests = Version, 'Dot in string does not trigger completion');
+    Editor.AutoMemberCompletion := False; Editor.Text := 'console'; Editor.SelStart := 7; Version := Service.Requests;
+    Editor.Perform(WM_CHAR, Ord('.'), 0);
+    Check(Service.Requests = Version, 'Automatic member completion can be disabled');
+    Editor.AutoMemberCompletion := True; Editor.RequestCompletion;
+    Check(Service.Snapshot.TriggerCharacter = #0, 'Manual completion has no trigger character');
     Temporary := TERDCodeEditor.Create(nil);
     try Temporary.LanguageService := ServiceReference; Temporary.RequestHover; Old := Service.Snapshot; Sink := Service.Responses;
     finally Temporary.Free; end;
