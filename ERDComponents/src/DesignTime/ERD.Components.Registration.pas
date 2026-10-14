@@ -146,8 +146,6 @@ begin
     TERDSearchEdit,
     TERDSeekBar,
     TERDSegmented,
-    TERDSelectionEdit,
-    TERDSelectionMemo,
     TERDSidebar,
     TERDSidebarItem,
     TERDSidebarItems,
