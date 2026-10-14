@@ -1,6 +1,7 @@
 ﻿unit Showcase;
 interface
 uses
+  ERD.Components.CodeEditor, ERD.Components.Syntax,
   ERD.Components.TextInput,
   ERD.Components.Rating,
   ERD.Components.CommandPalette,
@@ -646,13 +647,91 @@ type
     procedure IconClicked(Sender: TObject);
   public
     // Runtime-only previews: do not let the form designer manage these fields.
+    CodePage: TERDPanel;
+    CodeEditor: TERDCodeEditor;
     UnicodeTextPreview: TERDTextInput;
     UnicodePasswordPreview: TERDTextInput;
+    procedure CreateCodePreview;
+    procedure CodeFoldClicked(Sender: TObject);
+    procedure CodeDiagnosticsClicked(Sender: TObject);
     procedure CreateUnicodePreviews;
   end;
 var MainForm: TShowcaseForm;
 implementation
 {$R *.dfm}
+
+procedure TShowcaseForm.CreateCodePreview;
+var Header: TERDPanel; Button: TERDButton; Instructions: TLabel;
+begin
+  CodePage := TERDPanel.Create(Self);
+  CodePage.Name := 'CodePreviewPage'; CodePage.Parent := DemoPages;
+  CodePage.Align := alClient; CodePage.Visible := False;
+  Header := TERDPanel.Create(Self); Header.Parent := CodePage;
+  Header.Align := alTop; Header.Height := MulDiv(48, CurrentPPI, 96);
+  Button := TERDButton.Create(Self); Button.Parent := Header;
+  Button.Caption := 'Fold all'; Button.Tag := 1; Button.OnClick := CodeFoldClicked;
+  Button.SetBounds(MulDiv(8, CurrentPPI, 96), MulDiv(8, CurrentPPI, 96),
+    MulDiv(88, CurrentPPI, 96), MulDiv(28, CurrentPPI, 96));
+  Button := TERDButton.Create(Self); Button.Parent := Header;
+  Button.Caption := 'Unfold all'; Button.Tag := 0; Button.OnClick := CodeFoldClicked;
+  Button.SetBounds(MulDiv(104, CurrentPPI, 96), MulDiv(8, CurrentPPI, 96),
+    MulDiv(96, CurrentPPI, 96), MulDiv(28, CurrentPPI, 96));
+  Button := TERDButton.Create(Self); Button.Parent := Header;
+  Button.Caption := 'Diagnostics'; Button.OnClick := CodeDiagnosticsClicked;
+  Button.SetBounds(MulDiv(208, CurrentPPI, 96), MulDiv(8, CurrentPPI, 96),
+    MulDiv(100, CurrentPPI, 96), MulDiv(28, CurrentPPI, 96));
+  Instructions := TLabel.Create(Self); Instructions.Parent := Header;
+  Instructions.Caption := 'TypeScript - gutter folds, Tab / Shift+Tab, auto-indent';
+  Instructions.Left := MulDiv(320, CurrentPPI, 96); Instructions.Top := MulDiv(15, CurrentPPI, 96);
+  CodeEditor := TERDCodeEditor.Create(Self); CodeEditor.Name := 'TypeScriptPreview';
+  CodeEditor.Parent := CodePage; CodeEditor.Align := alClient;
+  CodeEditor.AlignWithMargins := True;
+  CodeEditor.Margins.SetBounds(8, 0, 8, 8);
+  CodeEditor.Language := clTypeScript;
+  CodeEditor.Text :=
+    '// TypeScript preview - Unicode: Caf' + #$00E9 + ' ' + #$D83D#$DCBB + #13#10 +
+    'export interface Command {' + #13#10 +
+    '  readonly id: string;' + #13#10 +
+    '  title: string;' + #13#10 +
+    '  run(): Promise<void>;' + #13#10 +
+    '}' + #13#10#13#10 +
+    'export class CommandRegistry {' + #13#10 +
+    '  private readonly commands = new Map<string, Command>();' + #13#10#13#10 +
+    '  register(command: Command): void {' + #13#10 +
+    '    this.commands.set(command.id, command);' + #13#10 +
+    '  }' + #13#10#13#10 +
+    '  async execute(id: string): Promise<boolean> {' + #13#10 +
+    '    const command = this.commands.get(id);' + #13#10 +
+    '    if (!command) {' + #13#10 +
+    '      return false;' + #13#10 +
+    '    }' + #13#10 +
+    '    await command.run();' + #13#10 +
+    '    return true;' + #13#10 +
+    '  }' + #13#10 +
+    '}' + #13#10;
+  PageTabs.Tabs.Add.Caption := 'Code';
+  PageTabs.BringToFront;
+end;
+
+procedure TShowcaseForm.CodeDiagnosticsClicked(Sender: TObject);
+var Items: TArray<TERDCodeDiagnostic>; Source: UnicodeString; At: Integer;
+begin
+  Source := CodeEditor.Text; At := Pos('command.run()', Source);
+  if At = 0 then Exit;
+  SetLength(Items, 1); Items[0].Start := At - 1; Items[0].Count := Length('command.run()');
+  Items[0].Severity := dsWarning; Items[0].Source := 'Showcase host';
+  Items[0].Code := 'DEMO001';
+  Items[0].MessageText := 'Example host diagnostic: edits clear stale ranges.';
+  CodeEditor.PublishDiagnostics(Source, Items);
+  CodeEditor.SelStart := At - 1; CodeEditor.SetFocus;
+end;
+
+procedure TShowcaseForm.CodeFoldClicked(Sender: TObject);
+begin
+  if TERDButton(Sender).Tag = 1 then CodeEditor.FoldAll
+  else CodeEditor.UnfoldAll;
+  CodeEditor.SetFocus;
+end;
 
 procedure TShowcaseForm.CreateUnicodePreviews;
 var Preview: TERDTextInput;
@@ -696,6 +775,7 @@ procedure TShowcaseForm.FormCreate(Sender: TObject);
 var Bitmap: TBitmap;
 begin
   CreateUnicodePreviews;
+  CreateCodePreview;
   Menu := nil;
   TitleBar.Menu := MainMenu;
   TitleBar.Ribbon := Ribbon;
@@ -935,6 +1015,7 @@ begin
   DataPage.Visible := PageTabs.TabIndex = 3;
   FilesColorsPage.Visible := PageTabs.TabIndex = 4;
   DialogsPage.Visible := PageTabs.TabIndex = 5;
+  if CodePage <> nil then CodePage.Visible := PageTabs.TabIndex = 6;
 end;
 
 procedure TShowcaseForm.CommandSelected(Sender: TObject);

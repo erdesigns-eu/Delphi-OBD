@@ -1,6 +1,7 @@
 ﻿program ERDComponentsSmoke;
 {$APPTYPE CONSOLE}
 uses
+  ERD.Components.CodeEditor, ERD.Components.Syntax,
   ERD.Components.TextModel, ERD.Components.TextInput,
   System.IOUtils,
   System.SysUtils, System.Classes, System.Types, System.Math, Vcl.Forms, Vcl.Controls, Vcl.ExtCtrls,
@@ -23,6 +24,10 @@ uses
   Showcase in '../demo/Showcase.pas',
   ERD.Components.SpinEdit, ERD.Components.Edits, ERD.Components.PopupList, ERD.Components.TitleBar, ERD.Components.StatusBar, ERD.Components.Theme, ERD.Components.Ribbon;
 type
+  TCodeEditorProbe = class(TERDCodeEditor)
+  public
+    function RowCount: Integer;
+  end;
   TEditKeyFilter = class
   public
     Calls: Integer;
@@ -259,6 +264,9 @@ procedure TChangeProbe.Changed(Sender: TObject);
 begin
   Inc(Changes);
 end;
+
+function TCodeEditorProbe.RowCount: Integer;
+begin Result := Length(VisualRows); end;
 
 procedure Check(Value: Boolean; const Text: string);
 begin
@@ -2165,6 +2173,94 @@ begin
   finally Form.Free; Filter.Free; end;
 end;
 
+procedure TestSyntaxAndCodeEditor;
+var Provider: IERDSyntaxProvider; Analysis: TERDSyntaxAnalysis; Span: TERDSyntaxSpan;
+    Source, Original: UnicodeString; I, KeywordCount, Rows: Integer;
+    Form: TForm; Editor: TCodeEditorProbe; Items: TArray<TERDCodeDiagnostic>;
+    Diagnostic: TERDCodeDiagnostic; Stream: TMemoryStream; Restored: TERDCodeEditor;
+  function TokenKind(const Token: string): TERDSyntaxKind;
+  var Item: TERDSyntaxSpan; At: Integer;
+  begin
+    At := Pos(Token, Source) - 1; Result := skText;
+    for Item in Analysis.Spans do
+      if Item.Start = At then Exit(Item.Kind);
+  end;
+begin
+  Provider := TERDBasicSyntaxProvider.Create(clTypeScript);
+  Source := 'export interface Item {' + #13#10 +
+    '  title: string; // } ignored' + #13#10 +
+    '  value: number;' + #13#10 + '}' + #13#10 +
+    'const pattern = /[{}]/g;' + #13#10 +
+    'const text = `braces { }`;' + #13#10 + 'const sum = 1+2;';
+  Analysis := Provider.Analyze(Source);
+  Check(TokenKind('export') = skKeyword, 'TypeScript keyword highlighting');
+  Check(TokenKind('string') = skKeyword, 'TypeScript type highlighting');
+  Check(TokenKind('//') = skComment, 'TypeScript line comments');
+  Check(TokenKind('/[{}]/g') = skString, 'TypeScript regexp hides braces from folding');
+  Check(TokenKind('`braces') = skString, 'TypeScript template string highlighting');
+  Check(Length(Analysis.Folds) = 1, 'TypeScript folds ignore comments, regexps and strings');
+  I := Pos('1+2', Source) - 1;
+  for Span in Analysis.Spans do
+    if Span.Start = I then Check((Span.Kind = skNumber) and (Span.Count = 1),
+      'Numeric token stops before addition operator');
+  Source := 'Const const'; Analysis := Provider.Analyze(Source); KeywordCount := 0;
+  for Span in Analysis.Spans do if Span.Kind = skKeyword then Inc(KeywordCount);
+  Check(KeywordCount = 1, 'TypeScript keywords are case sensitive');
+  Provider := TERDBasicSyntaxProvider.Create(clPascal);
+  Source := 'BEGIN' + #13#10 + '  S := ''end''; // end' + #13#10 + 'END;';
+  Analysis := Provider.Analyze(Source);
+  Check((TokenKind('BEGIN') = skKeyword) and (Length(Analysis.Folds) = 1),
+    'Pascal provider ignores end inside comments and strings');
+  Provider := TERDBasicSyntaxProvider.Create(clJSON);
+  Source := '{' + #13#10 + ' "key": [true, 1]' + #13#10 + '}';
+  Analysis := Provider.Analyze(Source);
+  Check((TokenKind('true') = skKeyword) and (Length(Analysis.Folds) = 1), 'JSON provider folds multiline objects');
+
+  RegisterClass(TERDCodeEditor); RegisterClass(TCodeEditorProbe); Form := TForm.Create(nil); Stream := TMemoryStream.Create;
+  try
+    Editor := TCodeEditorProbe.Create(Form); Editor.Parent := Form;
+    Editor.SetBounds(8, 8, 480, 180); Form.Show; Editor.SetFocus;
+    Original := 'function run() {' + #13#10 + '  return true;' + #13#10 + '}' + #13#10;
+    Editor.Text := Original; Editor.SelStart := 0; Rows := Editor.RowCount;
+    Editor.ToggleFold(0);
+    Check((Editor.RowCount < Rows) and (Editor.Text = Original), 'Folding changes rows without changing document');
+    Editor.SelStart := Pos('return', Original) - 1;
+    Check(Editor.RowCount = Rows, 'Moving caret into hidden text expands fold');
+    Editor.SelectAll; Editor.IndentSelection;
+    Check(Editor.Text = '  function run() {' + #13#10 + '    return true;' + #13#10 + '  }' + #13#10,
+      'Indent operates on selected logical lines');
+    Editor.Undo;
+    Check((Editor.Text = Original) and (Editor.SelStart = 0) and (Editor.SelLength = Length(Original)),
+      'Indent is one undo transaction and restores original selection');
+    Editor.Text := '  const value = 1;'; Editor.SelStart := Length(Editor.Text);
+    Editor.Perform(WM_CHAR, 13, 0);
+    Check(Editor.Text = '  const value = 1;' + #13#10 + '  ', 'Enter keeps leading indentation');
+    Editor.Text := ''; Editor.Perform(WM_KEYDOWN, VK_TAB, 0); Editor.Perform(WM_CHAR, 9, 0);
+    Check(Editor.Text = '  ', 'Tab inserts one configured indentation');
+    Editor.ReadOnly := True; Editor.IndentSelection;
+    Check(Editor.Text = '  ', 'ReadOnly prevents indentation'); Editor.ReadOnly := False;
+    Editor.Text := Original;
+    SetLength(Items, 2);
+    Items[0].Start := Pos('return', Original) - 1; Items[0].Count := 6;
+    Items[0].Severity := dsWarning; Items[0].MessageText := 'Host warning';
+    Items[1] := Items[0]; Items[1].Severity := dsError; Items[1].MessageText := 'Host error';
+    Check(Editor.PublishDiagnostics(Original, Items), 'Host diagnostics accept matching source snapshot');
+    Items[0].MessageText := 'Mutated';
+    Check(Editor.Diagnostics[0].MessageText = 'Host warning', 'Published diagnostics are copied');
+    Check(Editor.DiagnosticAt(Items[0].Start, Diagnostic) and (Diagnostic.Severity = dsError),
+      'Overlapping diagnostic lookup returns highest severity');
+    Check(not Editor.PublishDiagnostics('old source', Items) and (Length(Editor.Diagnostics) = 2),
+      'Stale diagnostic response rejected without replacing current ranges');
+    Editor.SelStart := Length(Editor.Text); Editor.ReplaceSelection(' ');
+    Check(Length(Editor.Diagnostics) = 0, 'Document edits clear outdated diagnostic offsets');
+    Editor.Language := clJSON; Editor.TabWidth := 4;
+    Stream.WriteComponent(Editor); Stream.Position := 0;
+    Restored := TERDCodeEditor(Stream.ReadComponent(nil));
+    try Check((Restored.Language = clJSON) and (Restored.TabWidth = 4), 'Code editor settings stream correctly');
+    finally Restored.Free; end;
+  finally Stream.Free; Form.Free; end;
+end;
+
 procedure TestMultilineTextEngine;
 var Form: TForm; Memo, Restored: TERDMemo; Area: TERDTextArea; P, Q: TPoint; Count: Integer;
     Stream: TMemoryStream;
@@ -2344,6 +2440,7 @@ begin
     TestUnicodeTextModel;
     TestSelfPaintedTextInput;
     TestMultilineTextEngine;
+    TestSyntaxAndCodeEditor;
     TestWindowsEditInteractionParity;
     TestMigratedShowcaseTextWindows;
     TestTextInputEditMenu;

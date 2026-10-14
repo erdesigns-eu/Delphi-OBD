@@ -8,6 +8,19 @@ uses
   Vcl.Controls, Vcl.Graphics, Vcl.Clipbrd, Vcl.ExtCtrls, Vcl.StdCtrls, System.UITypes,
   ERD.Components.Control, ERD.Components.TextModel, ERD.Components.Menus;
 type
+  // Opaque Uniscribe handle; declarations avoid dependency on SDK unit variants.
+  TERDTextLayoutLine = class
+  private
+    FAnalysis: Pointer;
+    FText: UnicodeString;
+  public
+    constructor Create(ACanvas: TCanvas; const AText: UnicodeString);
+    destructor Destroy; override;
+    function X(APosition: Integer): Integer;
+    function Width: Integer;
+    procedure Range(APosition, ALength: Integer; out ALeft, ARight: Integer);
+    procedure Draw(AX, AY: Integer);
+  end;
   TERDTextInput = class(TERDCustomControl)
   private
     FModel: TERDTextModel;
@@ -33,7 +46,6 @@ type
     function SelectionFill: TColor;
     procedure SetHideSelection(Value: Boolean);
     function TextInset: Integer;
-    function LineOrigin(AWidth: Integer): Integer;
     procedure SetBorderStyle(Value: TBorderStyle);
     procedure SetAlignment(Value: TAlignment);
     function GetSelText: UnicodeString;
@@ -66,6 +78,7 @@ type
     procedure WMUniChar(var Message: TMessage); message WM_UNICHAR;
     procedure WMGetDlgCode(var Message: TMessage); message WM_GETDLGCODE;
   protected
+    function LineOrigin(AWidth: Integer): Integer; virtual;
     property TextModel: TERDTextModel read FModel;
     procedure SetInputText(const AValue: UnicodeString); virtual;
     function NormalizeInput(const Value: UnicodeString): UnicodeString; virtual;
@@ -139,8 +152,6 @@ type
     FLayoutWidth: Integer;
     FLayoutFont: HFONT;
     FFirstRow, FPreferredX: Integer;
-    procedure BuildRows;
-    function RowHeight: Integer;
     function RowForPosition(Position: Integer): Integer;
     function RowText(Index: Integer): UnicodeString;
     function HitRow(X, Y: Integer): Integer;
@@ -148,10 +159,22 @@ type
     procedure LinesChanged(Sender: TObject);
     procedure SetLines(Value: TStrings);
     procedure SetWordWrap(Value: Boolean);
-    procedure ScrollRows(Value: Integer);
     procedure WMChar(var Message: TWMChar); message WM_CHAR;
     procedure WMGetDlgCode(var Message: TMessage); message WM_GETDLGCODE;
   protected
+    function TextViewport: TRect; virtual;
+    function LineOrigin(AWidth: Integer): Integer; override;
+    procedure BuildRows;
+    function RowHeight: Integer;
+    procedure ScrollRows(Value: Integer);
+    procedure InvalidateTextLayout;
+    function VisualRows: TArray<TERDTextRow>;
+    procedure FilterRows(var Rows: TArray<TERDTextRow>); virtual;
+    procedure PaintRowBackground(ACanvas: TCanvas; Row: Integer; const R: TRect); virtual;
+    procedure PaintTextOverlay(ACanvas: TCanvas; Start, Count, X, Y: Integer;
+      Line: TERDTextLayoutLine); virtual;
+    procedure PaintTextLine(ACanvas: TCanvas; Start, Count, X, Y: Integer;
+      Line: TERDTextLayoutLine); virtual;
     procedure SetInputText(const AValue: UnicodeString); override;
     function NormalizeInput(const Value: UnicodeString): UnicodeString; override;
     procedure UpdateCaret; override;
@@ -191,19 +214,6 @@ type
   public
     property PopupMenu;
   end;
-  // Opaque Uniscribe handle; declarations avoid dependency on SDK unit variants.
-  TERDShapedLine = class
-  private
-    FAnalysis: Pointer;
-    FText: UnicodeString;
-  public
-    constructor Create(ACanvas: TCanvas; const AText: UnicodeString);
-    destructor Destroy; override;
-    function X(APosition: Integer): Integer;
-    function Width: Integer;
-    procedure Range(APosition, ALength: Integer; out ALeft, ARight: Integer);
-    procedure Draw(AX, AY: Integer);
-  end;
 function ScriptBreak(Text: PWideChar; Count: Integer; Analysis, Attributes: Pointer): HRESULT;
   stdcall; external 'usp10.dll';
 function ScriptStringAnalyse(DC: HDC; Text: Pointer; Count, Glyphs, Charset: Integer;
@@ -216,7 +226,7 @@ function ScriptString_pSize(Analysis: Pointer): PSize; stdcall; external 'usp10.
 function ScriptStringOut(Analysis: Pointer; X, Y: Integer; Options: UINT;
   Rect: PRect; MinSel, MaxSel: Integer; Disabled: BOOL): HRESULT;
   stdcall; external 'usp10.dll';
-constructor TERDShapedLine.Create(ACanvas: TCanvas; const AText: UnicodeString);
+constructor TERDTextLayoutLine.Create(ACanvas: TCanvas; const AText: UnicodeString);
 begin
   inherited Create; FText := AText;
   SelectObject(ACanvas.Handle, ACanvas.Font.Handle);
@@ -226,9 +236,9 @@ begin
       nil, nil, nil, nil, nil, FAnalysis) < 0 then
       raise EInvalidOperation.Create('Unable to shape text');
 end;
-destructor TERDShapedLine.Destroy;
+destructor TERDTextLayoutLine.Destroy;
 begin if FAnalysis <> nil then ScriptStringFree(FAnalysis); inherited; end;
-function TERDShapedLine.X(APosition: Integer): Integer;
+function TERDTextLayoutLine.X(APosition: Integer): Integer;
 var CP: Integer; Trailing: BOOL; Status: HRESULT;
 begin
   Result := 0;
@@ -242,9 +252,9 @@ begin
   if Status < 0 then
     raise EInvalidOperation.Create('Unable to map text caret position');
 end;
-function TERDShapedLine.Width: Integer;
+function TERDTextLayoutLine.Width: Integer;
 begin Result := 0; if FAnalysis <> nil then Result := ScriptString_pSize(FAnalysis)^.cx; end;
-procedure TERDShapedLine.Range(APosition, ALength: Integer; out ALeft, ARight: Integer);
+procedure TERDTextLayoutLine.Range(APosition, ALength: Integer; out ALeft, ARight: Integer);
 var LastX: Integer;
 begin
   ALeft := X(APosition); LastX := ALeft;
@@ -252,7 +262,7 @@ begin
     ScriptStringCPtoX(FAnalysis, APosition + ALength - 1, True, LastX);
   ARight := Max(ALeft, LastX); ALeft := Min(ALeft, LastX);
 end;
-procedure TERDShapedLine.Draw(AX, AY: Integer);
+procedure TERDTextLayoutLine.Draw(AX, AY: Integer);
 begin if FAnalysis <> nil then ScriptStringOut(FAnalysis, AX, AY, 0, nil, -1, -1, False); end;
 function SingleLine(const S: UnicodeString): UnicodeString;
 begin
@@ -441,11 +451,11 @@ begin
     if FModel.Boundaries[I] <= APosition then Result := I;
 end;
 procedure TERDTextInput.UpdateCaret;
-var Line: TERDShapedLine; X, H: Integer; C: HIMC; Form: TCompositionForm;
+var Line: TERDTextLayoutLine; X, H: Integer; C: HIMC; Form: TCompositionForm;
 begin
   if not HandleAllocated or (FModel = nil) then Exit;
   Canvas.Font.Assign(Font); H := Canvas.TextHeight('Mg');
-  Line := TERDShapedLine.Create(Canvas, DisplayText);
+  Line := TERDTextLayoutLine.Create(Canvas, DisplayText);
   try
     X := Line.X(DisplayPosition(FModel.Caret));
     if X - FScroll > ClientWidth - 2 * TextInset then FScroll := X - ClientWidth + 2 * TextInset;
@@ -520,9 +530,9 @@ begin
   Changed(Text);
 end;
 function TERDTextInput.HitPosition(X: Integer): Integer;
-var Line: TERDShapedLine; Boundary, Distance, BestDistance, TextX: Integer;
+var Line: TERDTextLayoutLine; Boundary, Distance, BestDistance, TextX: Integer;
 begin
-  Canvas.Font.Assign(Font); Line := TERDShapedLine.Create(Canvas, DisplayText);
+  Canvas.Font.Assign(Font); Line := TERDTextLayoutLine.Create(Canvas, DisplayText);
   try
     Result := 0; BestDistance := MaxInt;
     TextX := X - LineOrigin(Line.Width) + FScroll;
@@ -537,7 +547,7 @@ begin
   finally Line.Free; end;
 end;
 procedure TERDTextInput.PaintControl(ACanvas: TCanvas);
-var P: TERDPainter; Line: TERDShapedLine; R, SR: TRect; Saved, SavedSelection, I, L, H, Y, TextHeight: Integer;
+var P: TERDPainter; Line: TERDTextLayoutLine; R, SR: TRect; Saved, SavedSelection, I, L, H, Y, TextHeight: Integer;
     S: UnicodeString; Ink, Fill: TColor;
 begin
   P := TERDPainter.Create(ACanvas, Palette, ScaleValue(96));
@@ -566,7 +576,7 @@ begin
     end
     else
     begin
-      Line := TERDShapedLine.Create(ACanvas, S);
+      Line := TERDTextLayoutLine.Create(ACanvas, S);
       try
         Line.Draw(LineOrigin(Line.Width) - FScroll, Y);
         // Paint each selected grapheme's visual range; handles disjoint bidi runs.
@@ -990,13 +1000,40 @@ begin
   if FWordWrap = Value then Exit;
   FWordWrap := Value; FLayoutWidth := -1; FScroll := 0; UpdateCaret; Invalidate;
 end;
+function TERDTextArea.TextViewport: TRect;
+begin Result := ClientRect; InflateRect(Result, -TextInset, -TextInset); end;
+function TERDTextArea.LineOrigin(AWidth: Integer): Integer;
+var R: TRect;
+begin
+  R := TextViewport; Result := R.Left;
+  if AWidth <= R.Width then
+    case Alignment of
+      taRightJustify: Inc(Result, R.Width - AWidth);
+      taCenter: Inc(Result, (R.Width - AWidth) div 2);
+    end;
+end;
+procedure TERDTextArea.InvalidateTextLayout;
+begin FLayoutWidth := -1; Invalidate; end;
+function TERDTextArea.VisualRows: TArray<TERDTextRow>;
+begin BuildRows; Result := FRows; end;
+procedure TERDTextArea.FilterRows(var Rows: TArray<TERDTextRow>);
+begin end;
+procedure TERDTextArea.PaintRowBackground(ACanvas: TCanvas; Row: Integer; const R: TRect);
+begin end;
+procedure TERDTextArea.PaintTextOverlay(ACanvas: TCanvas; Start, Count, X, Y: Integer;
+  Line: TERDTextLayoutLine);
+begin end;
+procedure TERDTextArea.PaintTextLine(ACanvas: TCanvas; Start, Count, X, Y: Integer;
+  Line: TERDTextLayoutLine);
+begin Line.Draw(X, Y); end;
+
 procedure TERDTextArea.BuildRows;
 var Rows: TList<TERDTextRow>; Row: TERDTextRow; Start, Finish, NextStart,
-    At, LastFit, LastSpace, Boundary, Available, PreviousBoundary, Advance, LeftX, RightX: Integer; Line: TERDShapedLine;
+    At, LastFit, LastSpace, Boundary, Available, PreviousBoundary, Advance, LeftX, RightX: Integer; Line: TERDTextLayoutLine;
   procedure AddRow(AStart, AEnd: Integer);
   begin Row.Start := AStart; Row.Count := AEnd - AStart; Rows.Add(Row); end;
 begin
-  Available := Max(1, ClientWidth - 2 * TextInset);
+  Available := Max(1, TextViewport.Width);
   if (Length(FRows) > 0) and (FLayoutText = Text) and
     (FLayoutWidth = Available) and (FLayoutFont = Font.Handle) then Exit;
   Canvas.Font.Assign(Font); Rows := TList<TERDTextRow>.Create;
@@ -1011,7 +1048,7 @@ begin
       else
         while At < Finish do
         begin
-          Line := TERDShapedLine.Create(Canvas, Copy(Text, At + 1, Finish - At));
+          Line := TERDTextLayoutLine.Create(Canvas, Copy(Text, At + 1, Finish - At));
           try
             if Line.Width <= Available then LastFit := Finish
             else
@@ -1034,7 +1071,7 @@ begin
         end;
       Start := NextStart;
     until Start > Length(Text);
-    FRows := Rows.ToArray;
+    FRows := Rows.ToArray; FilterRows(FRows);
     FLayoutText := Text; FLayoutWidth := Available; FLayoutFont := Font.Handle;
     FFirstRow := EnsureRange(FFirstRow, 0, Max(0, Length(FRows) - VisibleRowCount));
   finally Rows.Free; end;
@@ -1042,7 +1079,7 @@ end;
 function TERDTextArea.RowHeight: Integer;
 begin Canvas.Font.Assign(Font); Result := Max(1, Canvas.TextHeight('Mg')); end;
 function TERDTextArea.VisibleRowCount: Integer;
-begin Result := Max(1, (ClientHeight - 2 * TextInset) div RowHeight); end;
+begin Result := Max(1, TextViewport.Height div RowHeight); end;
 function TERDTextArea.RowForPosition(Position: Integer): Integer;
 var I: Integer;
 begin
@@ -1052,23 +1089,23 @@ end;
 function TERDTextArea.RowText(Index: Integer): UnicodeString;
 begin Result := Copy(Text, FRows[Index].Start + 1, FRows[Index].Count); end;
 procedure TERDTextArea.UpdateCaret;
-var Row, H, X, Y, Page: Integer; Line: TERDShapedLine; C: HIMC; Form: TCompositionForm;
+var Row, H, X, Y, Page: Integer; Line: TERDTextLayoutLine; C: HIMC; Form: TCompositionForm;
 begin
   if not HandleAllocated or (FModel = nil) then Exit;
   BuildRows; Row := RowForPosition(FModel.Caret); H := RowHeight;
   Page := VisibleRowCount;
   if Row < FFirstRow then FFirstRow := Row;
   if Row >= FFirstRow + Page then FFirstRow := Row - Page + 1;
-  Line := TERDShapedLine.Create(Canvas, RowText(Row));
+  Line := TERDTextLayoutLine.Create(Canvas, RowText(Row));
   try
     X := Line.X(EnsureRange(FModel.Caret - FRows[Row].Start, 0, FRows[Row].Count));
     if FWordWrap then FScroll := 0
     else
     begin
-      if X - FScroll > ClientWidth - 2 * TextInset then FScroll := X - ClientWidth + 2 * TextInset;
+      if X - FScroll > TextViewport.Width then FScroll := X - TextViewport.Width;
       if X < FScroll then FScroll := X;
     end;
-    X := LineOrigin(Line.Width) + X - FScroll; Y := TextInset + (Row - FFirstRow) * H;
+    X := LineOrigin(Line.Width) + X - FScroll; Y := TextViewport.Top + (Row - FFirstRow) * H;
     if FCaretCreated then SetCaretPos(X, Y);
     if Focused then
     begin
@@ -1082,11 +1119,11 @@ begin
   finally Line.Free; end;
 end;
 function TERDTextArea.HitRow(X, Y: Integer): Integer;
-var Row, Boundary, Distance, Best, TextX: Integer; Line: TERDShapedLine;
+var Row, Boundary, Distance, Best, TextX: Integer; Line: TERDTextLayoutLine;
 begin
   BuildRows;
-  Row := EnsureRange(FFirstRow + (Y - TextInset) div RowHeight, 0, High(FRows));
-  Line := TERDShapedLine.Create(Canvas, RowText(Row));
+  Row := EnsureRange(FFirstRow + (Y - TextViewport.Top) div RowHeight, 0, High(FRows));
+  Line := TERDTextLayoutLine.Create(Canvas, RowText(Row));
   try
     Result := FRows[Row].Start; Best := MaxInt; TextX := X - LineOrigin(Line.Width) + FScroll;
     for Boundary in FModel.Boundaries do
@@ -1099,7 +1136,7 @@ begin
 end;
 procedure TERDTextArea.PaintControl(ACanvas: TCanvas);
 var P: TERDPainter; Saved, Row, H, Y, I, L, R, ClipSaved: Integer;
-    Bounds, Selection: TRect; Line: TERDShapedLine; Ink, Fill: TColor;
+    Bounds, Selection: TRect; Line: TERDTextLayoutLine; Ink, Fill: TColor;
 begin
   BuildRows; H := RowHeight; P := TERDPainter.Create(ACanvas, Palette, ScaleValue(96));
   try
@@ -1109,7 +1146,7 @@ begin
     if not Focused then
       if BorderStyle = bsNone then Ink := Font.Color else Ink := Palette.ForegroundText;
   finally P.Free; end;
-  Bounds := ClientRect; InflateRect(Bounds, -TextInset, -TextInset);
+  Bounds := TextViewport;
   Saved := SaveDC(ACanvas.Handle);
   try
     IntersectClipRect(ACanvas.Handle, Bounds.Left, Bounds.Top, Bounds.Right, Bounds.Bottom);
@@ -1120,15 +1157,17 @@ begin
     if Text = '' then
     begin
       SetTextColor(ACanvas.Handle, ColorToRGB(Palette.Subtle));
-      TextOutW(ACanvas.Handle, TextInset, TextInset, PWideChar(FHint), Length(FHint));
+      TextOutW(ACanvas.Handle, Bounds.Left, Bounds.Top, PWideChar(FHint), Length(FHint));
     end;
     for Row := FFirstRow to High(FRows) do
     begin
-      Y := TextInset + (Row - FFirstRow) * H;
+      Y := TextViewport.Top + (Row - FFirstRow) * H;
       if Y >= Bounds.Bottom then Break;
-      Line := TERDShapedLine.Create(ACanvas, RowText(Row));
+      Line := TERDTextLayoutLine.Create(ACanvas, RowText(Row));
       try
-        Line.Draw(LineOrigin(Line.Width) - FScroll, Y);
+        PaintRowBackground(ACanvas, Row, Rect(Bounds.Left, Y, Bounds.Right, Y + H));
+        PaintTextLine(ACanvas, FRows[Row].Start, FRows[Row].Count,
+          LineOrigin(Line.Width) - FScroll, Y, Line);
         if (Focused or not FHideSelection) and (SelLength > 0) then
           for I := 0 to High(FModel.Boundaries) - 1 do
             if (FModel.Boundaries[I] >= Max(SelStart, FRows[Row].Start)) and
@@ -1161,12 +1200,14 @@ begin
           ACanvas.Pen.Color := Palette.Accent; ACanvas.MoveTo(L, Y + H - 1);
           ACanvas.LineTo(L + ACanvas.TextWidth(FComposition), Y + H - 1);
         end;
+        PaintTextOverlay(ACanvas, FRows[Row].Start, FRows[Row].Count,
+          LineOrigin(Line.Width) - FScroll, Y, Line);
       finally Line.Free; end;
     end;
   finally RestoreDC(ACanvas.Handle, Saved); end;
 end;
 procedure TERDTextArea.KeyDown(var Key: Word; Shift: TShiftState);
-var Row, Target, X, Preferred: Integer; Line: TERDShapedLine;
+var Row, Target, X, Preferred: Integer; Line: TERDTextLayoutLine;
 begin
   if not (Key in [VK_UP, VK_DOWN, VK_PRIOR, VK_NEXT, VK_HOME, VK_END]) then
   begin inherited; Exit; end;
@@ -1185,7 +1226,7 @@ begin
   end
   else
   begin
-    Line := TERDShapedLine.Create(Canvas, RowText(Row));
+    Line := TERDTextLayoutLine.Create(Canvas, RowText(Row));
     try
       if FPreferredX < 0 then FPreferredX := LineOrigin(Line.Width) +
         Line.X(Min(FRows[Row].Count, FModel.Caret - FRows[Row].Start)) - FScroll;
@@ -1198,7 +1239,7 @@ begin
       VK_NEXT: Inc(Target, Max(1, ClientHeight div RowHeight));
     end;
     Target := EnsureRange(Target, 0, High(FRows));
-    X := HitRow(Preferred, TextInset + (Target - FFirstRow) * RowHeight + RowHeight div 2);
+    X := HitRow(Preferred, TextViewport.Top + (Target - FFirstRow) * RowHeight + RowHeight div 2);
     MoveTo(X, ssShift in Shift); FPreferredX := Preferred;
   end;
   Key := 0;
@@ -1223,10 +1264,10 @@ var P: TPoint;
 begin
   if not FSelecting or not MouseCapture then begin FDragTimer.Enabled := False; Exit; end;
   GetCursorPos(P); P := ScreenToClient(P);
-  if P.Y < TextInset then ScrollRows(FFirstRow - 1)
-  else if P.Y > ClientHeight - TextInset then ScrollRows(FFirstRow + 1)
+  if P.Y < TextViewport.Top then ScrollRows(FFirstRow - 1)
+  else if P.Y > TextViewport.Bottom then ScrollRows(FFirstRow + 1)
   else Exit;
-  ExtendSelection(HitRow(P.X, EnsureRange(P.Y, TextInset, ClientHeight - TextInset)));
+  ExtendSelection(HitRow(P.X, EnsureRange(P.Y, TextViewport.Top, TextViewport.Bottom - 1)));
 end;
 procedure TERDTextArea.WMChar(var Message: TWMChar);
 var C: Char;
@@ -1246,17 +1287,17 @@ begin
   if FWantReturns and (Message.WParam = VK_RETURN) then Message.Result := Message.Result or DLGC_WANTMESSAGE;
 end;
 procedure TERDTextArea.ScrollRows(Value: Integer);
-var Row: Integer; Line: TERDShapedLine;
+var Row: Integer; Line: TERDTextLayoutLine;
 begin
   BuildRows;
   FFirstRow := EnsureRange(Value, 0, Max(0, Length(FRows) - VisibleRowCount));
   Invalidate;
   if FCaretCreated then
   begin
-    Row := RowForPosition(FModel.Caret); Line := TERDShapedLine.Create(Canvas, RowText(Row));
+    Row := RowForPosition(FModel.Caret); Line := TERDTextLayoutLine.Create(Canvas, RowText(Row));
     try
       SetCaretPos(LineOrigin(Line.Width) + Line.X(Min(FRows[Row].Count,
-        FModel.Caret - FRows[Row].Start)) - FScroll, TextInset + (Row - FFirstRow) * RowHeight);
+        FModel.Caret - FRows[Row].Start)) - FScroll, TextViewport.Top + (Row - FFirstRow) * RowHeight);
     finally Line.Free; end;
   end;
 end;

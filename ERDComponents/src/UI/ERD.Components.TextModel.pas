@@ -37,6 +37,7 @@ type
     function NextWord(APosition: Integer): Integer;
     function WordKind(APosition: Integer): Byte;
     procedure ReplaceSelection(const AValue: UnicodeString; AMaxLength: Integer = 0);
+    procedure ReplaceRange(Start, Count: Integer; const Value: UnicodeString);
     procedure DeleteBackward;
     procedure DeleteForward;
     procedure ClearUndo;
@@ -2636,6 +2637,16 @@ begin
   // A pasted combining mark/ZWJ can join the cluster on either side.
   if Snap(Cut) <> Cut then Cut := Next(Cut);
   Select(Cut, Cut);
+end;
+procedure TERDTextModel.ReplaceRange(Start, Count: Integer; const Value: UnicodeString);
+var Before: TERDTextSnapshot; Finish: Integer;
+begin
+  Before := Snapshot; Start := EnsureRange(Start, 0, Length(FText));
+  Finish := Start + Min(Max(0, Count), Length(FText) - Start);
+  if Snap(Finish) <> Finish then Finish := Next(Finish);
+  Select(Start, Finish); ReplaceSelection(Value);
+  if Before.Text = FText then Select(Before.Anchor, Before.Caret)
+  else FUndo[FUndo.Count - 1] := Before;
 end;
 procedure TERDTextModel.DeleteBackward;
 begin
