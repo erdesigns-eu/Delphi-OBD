@@ -15,6 +15,11 @@ type
   end;
 implementation
 type
+  TERDSelectionControlAccess = class(TERDCustomControl)
+  public
+    function SelectionPalette: TERDThemePalette;
+  end;
+
   TERDNativeEditAccess = class(TCustomEdit)
   public
     property HideSelection;
@@ -23,6 +28,11 @@ type
     property Font;
     property Color;
   end;
+function TERDSelectionControlAccess.SelectionPalette: TERDThemePalette;
+begin
+  Result := Palette;
+end;
+
 procedure DrawSelection(Editor: TCustomEdit; Target: HDC);
 var E: TERDNativeEditAccess; C: TCanvas; Palette: TERDThemePalette; P: TERDPainter;
   FormatRect, Clip, R: TRect; Metrics: TTextMetric; Source, Run: string;
@@ -46,7 +56,7 @@ begin
   StartSel := E.SelStart;
   EndSel := Min(Length(Source), StartSel + E.SelLength);
   if EndSel <= StartSel then Exit;
-  Palette := TERDCustomControl(E.Parent).Palette;
+  Palette := TERDSelectionControlAccess(E.Parent).SelectionPalette;
   Fill := Palette.Accent;
   Ink := Palette.ForegroundText;
   if E.Focused then

@@ -133,7 +133,6 @@ var Next, Step: Single;
 begin
   if not Enabled or FReadOnly or (Shift <> []) then begin inherited; Exit end;
   if FAllowHalf then Step := 0.5 else Step := 1;
-  Next := FValue;
   case Key of
     VK_RIGHT, VK_UP: Next := FValue + Step;
     VK_LEFT, VK_DOWN: Next := FValue - Step;
