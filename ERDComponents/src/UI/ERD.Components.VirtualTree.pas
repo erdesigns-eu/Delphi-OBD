@@ -561,7 +561,8 @@ begin
     Exit;
   end;
   inherited;
-  if Message.Msg in [WM_UPDATEUISTATE, WM_SETTINGCHANGE, WM_SETFOCUS, WM_KILLFOCUS] then Invalidate;
+  if (Message.Msg = WM_UPDATEUISTATE) or (Message.Msg = WM_SETTINGCHANGE) or
+    (Message.Msg = WM_SETFOCUS) or (Message.Msg = WM_KILLFOCUS) then Invalidate;
   if Message.Msg = WM_SIZE then SyncScrollBars;
   if Message.Msg = WM_DPICHANGED then ThemeChanged;
 end;

@@ -1239,16 +1239,8 @@ begin
   try
     P.EditFrame(Rect(0, 0, Width, Height),
       (Focused or IsOpen) and not IsPreview, Enabled);
-    if Enabled then
-    begin
-      Ink := Palette.ForegroundText;
-      Glyph := Palette.Subtle;
-    end
-    else
-    begin
-      Ink := ERDMixColor(Palette.Subtle, Palette.GaugeFace, 0.6);
-      Glyph := Ink;
-    end;
+    if Enabled then Glyph := Palette.Subtle
+    else Glyph := ERDMixColor(Palette.Subtle, Palette.GaugeFace, 0.6);
     CY := Height div 2;
     Parts := BuildParts(P);
     for Part in Parts do
