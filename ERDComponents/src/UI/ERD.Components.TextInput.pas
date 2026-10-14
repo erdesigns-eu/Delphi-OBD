@@ -500,8 +500,8 @@ procedure TERDTextInput.WordBounds(Position: Integer; out Start, Finish: Integer
   var C: WideChar;
   begin
     C := Text[At + 1];
-    if TCharacter.IsWhiteSpace(C) then Exit(0);
-    if TCharacter.IsLetterOrDigit(C) or (C = '_') or (C = '$') then Exit(1);
+    if C.IsWhiteSpace then Exit(0);
+    if C.IsLetterOrDigit or (C = '_') or (C = '$') then Exit(1);
     Result := 2;
   end;
 var Category, Previous: Integer;
