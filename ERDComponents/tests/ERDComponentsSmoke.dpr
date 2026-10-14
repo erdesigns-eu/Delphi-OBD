@@ -288,13 +288,13 @@ begin
   View := TextViewport; X := View.Left - ScaleValue(13); Y := View.Top + RowHeight div 2;
   if Outside then X := View.Left + ScaleValue(30);
   case Action of
-    0: MouseMove([], X, Y);
-    1: MouseDown(mbLeft, [], X, Y);
-    2: MouseUp(mbLeft, [], X, Y);
+    0: Perform(WM_MOUSEMOVE, 0, MakeLParam(X, Y));
+    1: Perform(WM_LBUTTONDOWN, MK_LBUTTON, MakeLParam(X, Y));
+    2: Perform(WM_LBUTTONUP, 0, MakeLParam(X, Y));
   end;
 end;
 function TCodeEditorProbe.GutterBackground: TColor;
-begin Result := ColorToRGB(ERDMixColor(Palette.Background, Palette.ForegroundText, 0.08)); end;
+begin Result := ColorToRGB(ERDMixColor(Palette.Background, Palette.ForegroundText, 0.92)); end;
 
 function TCodeEditorProbe.FoldPixel(Guide: Boolean): TColor;
 var Bitmap: TBitmap; View: TRect; X, Y: Integer;
@@ -2702,6 +2702,29 @@ begin
   finally Bitmap.Free; Form.Free; end;
 end;
 
+procedure TestCodeGutterThemeContrast;
+var Form: TForm; Theme: TERDTheme; Editor: TCodeEditorProbe; C: COLORREF;
+  function Brightness(Color: COLORREF): Integer;
+  begin Result := (GetRValue(Color) + GetGValue(Color) + GetBValue(Color)) div 3; end;
+begin
+  Form := TForm.Create(nil);
+  try
+    Theme := TERDTheme.Create(Form);
+    Editor := TCodeEditorProbe.Create(Form); Editor.Parent := Form; Editor.Theme := Theme;
+    Editor.SetBounds(0, 0, 360, 180);
+    Editor.Text := 'function run() {' + #13#10 + '  return true;' + #13#10 + '}';
+    Editor.ShowFoldGuides := False; Form.Show; Editor.FoldMouse(0, True);
+    Theme.Mode := tmERDesignsLight;
+    C := Editor.FoldPixel(True);
+    Check(Brightness(C) > 180, 'Light-theme gutter stays light');
+    Check(Brightness(Editor.FoldPixel(False)) > 180, 'Idle light fold button is neutral');
+    Theme.Mode := tmERDesignsDark;
+    C := Editor.FoldPixel(True);
+    Check(Brightness(C) < 100, 'Dark-theme gutter stays dark');
+    Check(Brightness(Editor.FoldPixel(False)) < 100, 'Idle dark fold button is neutral');
+  finally Form.Free; end;
+end;
+
 begin
   try
     Application.Initialize;
@@ -2734,6 +2757,7 @@ begin
     TestSelfPaintedTextInput;
     TestMultilineTextEngine;
     TestSyntaxAndCodeEditor;
+    TestCodeGutterThemeContrast;
     TestSharedColorEmoji;
     TestCodeEditorSearch;
     TestCodeLanguageServices;

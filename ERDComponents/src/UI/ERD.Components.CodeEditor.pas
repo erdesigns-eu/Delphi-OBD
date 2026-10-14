@@ -60,6 +60,7 @@ type
     FCollapsed: TList<Integer>;
     FShowLineNumbers, FShowFolding, FShowFoldGuides: Boolean;
     FHotFold, FPressedFold: Integer;
+    FHandlingFoldRelease: Boolean;
     FTabWidth: Integer;
     FInterfaceKeywordColor, FClassKeywordColor, FModuleKeywordColor: TColor;
     FTabHandled: Boolean;
@@ -114,6 +115,7 @@ type
     procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
     procedure WMCaptureChanged(var Message: TMessage); message WM_CAPTURECHANGED;
     procedure WMSetCursor(var Message: TWMSetCursor); message WM_SETCURSOR;
+    procedure WMLButtonUp(var Message: TWMLButtonUp); message WM_LBUTTONUP;
     procedure SetTabWidth(Value: Integer);
     procedure SetInterfaceKeywordColor(Value: TColor);
     procedure SetClassKeywordColor(Value: TColor);
@@ -1026,11 +1028,11 @@ begin
   Saved := SaveDC(ACanvas.Handle);
   Painter := TERDPainter.Create(ACanvas, Palette, ScaleValue(96));
   try
-    GutterFill := ERDMixColor(Palette.Background, Palette.ForegroundText, 0.08);
-    GuideInk := ERDMixColor(GutterFill, Palette.ForegroundText, 0.40);
+    GutterFill := ERDMixColor(Palette.Background, Palette.ForegroundText, 0.92);
+    GuideInk := ERDMixColor(GutterFill, Palette.ForegroundText, 0.60);
     IntersectClipRect(ACanvas.Handle, R.Left, R.Top, R.Right, R.Bottom);
     Painter.FillRect(R, GutterFill);
-    Painter.VLine(R.Right - 1, R.Top, R.Height, ERDMixColor(GutterFill, Palette.ForegroundText, 0.25));
+    Painter.VLine(R.Right - 1, R.Top, R.Height, ERDMixColor(GutterFill, Palette.ForegroundText, 0.75));
     ACanvas.Font.Assign(Font); ACanvas.Font.Color := Palette.Subtle;
     SetBkMode(ACanvas.Handle, TRANSPARENT);
     Number := 1; J := 0;
@@ -1084,13 +1086,13 @@ begin
         begin
           if FShowFoldGuides and not FCollapsed.Contains(FAnalysis.Folds[Index].Start) then
             Painter.VLine(CenterX, CenterY, H - H div 2, GuideInk);
-          ButtonFill := ERDMixColor(GutterFill, Palette.Accent, 0.12); ButtonInk := Palette.Accent;
+          ButtonFill := GutterFill; ButtonInk := ERDMixColor(GutterFill, Palette.ForegroundText, 0.35);
           if (FHotFold = FAnalysis.Folds[Index].Start) and Enabled then
           begin
             ButtonInk := Palette.Accent;
-            ButtonFill := ERDMixColor(Palette.Background, Palette.Accent, 0.30);
+            ButtonFill := ERDMixColor(GutterFill, Palette.Accent, 0.78);
             if FPressedFold = FHotFold then
-            begin ButtonFill := Palette.Accent; ButtonInk := Painter.ContrastInk(ButtonFill); end;
+            begin ButtonFill := Palette.Accent; ButtonInk := clWhite; end;
           end;
           Painter.RoundRect(ButtonRect.Left, ButtonRect.Top, ButtonRect.Width, ButtonRect.Height,
             ScaleValue(3), ButtonFill, ButtonInk);
@@ -1154,9 +1156,17 @@ procedure TERDCodeEditor.CMMouseLeave(var Message: TMessage);
 begin
   inherited; FHotFold := -1; Cursor := crIBeam; Invalidate;
 end;
+procedure TERDCodeEditor.WMLButtonUp(var Message: TWMLButtonUp);
+begin
+  // VCL releases capture before dispatching the virtual MouseUp callback.
+  FHandlingFoldRelease := True;
+  try inherited; finally FHandlingFoldRelease := False; end;
+end;
 procedure TERDCodeEditor.WMCaptureChanged(var Message: TMessage);
 begin
-  inherited; FPressedFold := -1; Invalidate;
+  inherited;
+  if not FHandlingFoldRelease then FPressedFold := -1;
+  Invalidate;
 end;
 procedure TERDCodeEditor.IndentSelection(Outdent: Boolean);
 var Start, Finish, At, RemoveCount: Integer; Before, Replacement, Prefix: UnicodeString;
