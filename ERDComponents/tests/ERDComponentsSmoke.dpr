@@ -4,7 +4,7 @@ uses
   System.IOUtils,
   System.SysUtils, System.Classes, System.Types, System.Math, Vcl.Forms, Vcl.Controls,
   Winapi.Windows, Vcl.ActnList, Vcl.StdCtrls, Vcl.Graphics, Vcl.ImgList,
-  ERD.Components.Tabs,
+  ERD.Components.Tabs, ERD.Components.Memo,
   ERD.Components.Rating,
   ERD.Components.CommandPalette,
   ERD.Components.DropZone,
@@ -859,6 +859,59 @@ begin
     Form.Free;
     Counter.Free;
   end;
+end;
+
+procedure TestNativeTextPainting;
+var Form: TForm; Theme: TERDTheme; Edit: TERDEdit; Memo: TERDMemo;
+  Other: TButton; Native: TWinControl; I, J, BeforeInk, AfterInk: Integer;
+  function PixelCount(Window: TWinControl; Color: TColor; Match: Boolean): Integer;
+  var DC: HDC; X, Y: Integer; RGB: COLORREF;
+  begin
+    Result := 0;
+    RedrawWindow(Window.Handle, nil, 0, RDW_INVALIDATE or RDW_UPDATENOW);
+    DC := GetDC(Window.Handle);
+    try
+      RGB := ColorToRGB(Color);
+      for Y := 0 to Window.ClientHeight - 1 do
+        for X := 0 to Window.ClientWidth - 1 do
+          if (GetPixel(DC, X, Y) = RGB) = Match then Inc(Result);
+    finally ReleaseDC(Window.Handle, DC) end;
+  end;
+begin
+  Form := TForm.CreateNew(nil);
+  try
+    Form.SetBounds(100, 100, 520, 320);
+    Theme := TERDTheme.Create(Form);
+    Edit := TERDEdit.Create(Form); Edit.Parent := Form; Edit.Theme := Theme;
+    Edit.SetBounds(12, 12, 400, 28);
+    Memo := TERDMemo.Create(Form); Memo.Parent := Form; Memo.Theme := Theme;
+    Memo.SetBounds(12, 56, 400, 100);
+    Other := TButton.Create(Form); Other.Parent := Form; Other.Top := 180;
+    Form.Show; Other.SetFocus; Application.ProcessMessages;
+    for J := 0 to 1 do
+    begin
+      Native := nil;
+      if J = 0 then
+      begin
+        for I := 0 to Edit.ControlCount - 1 do
+          if Edit.Controls[I] is TCustomEdit then Native := TWinControl(Edit.Controls[I]);
+      end
+      else
+        for I := 0 to Memo.ControlCount - 1 do
+          if Memo.Controls[I] is TCustomEdit then Native := TWinControl(Memo.Controls[I]);
+      Check(Native <> nil, 'Edit/Memo have a native text window');
+      Native.Perform(WM_SETTEXT, 0, LPARAM(PChar('')));
+      BeforeInk := PixelCount(Native, TEdit(Native).Color, False);
+      Native.Perform(WM_SETTEXT, 0, LPARAM(PChar('Visible before focus')));
+      AfterInk := PixelCount(Native, TEdit(Native).Color, False);
+      Check(AfterInk > BeforeInk + 10, 'Unfocused native text is painted after invalidation');
+      Native.SetFocus;
+      Native.Perform(EM_SETSEL, 0, 7);
+      Check(PixelCount(Native, Theme.Palette.Accent, True) > 10,
+        'Selected native text uses the ERD accent fill');
+      Other.SetFocus;
+    end;
+  finally Form.Free end;
 end;
 
 procedure TestDocumentTabs;
@@ -1762,6 +1815,7 @@ begin
     TestEditableCombo;
     TestEditPasswordAndValidation;
     TestDocumentTabs;
+    TestNativeTextPainting;
     Writeln(Checks, ' VCL runtime checks passed.');
   except on E: Exception do begin Writeln(E.ClassName, ': ', E.Message); Halt(1) end end;
 end.
