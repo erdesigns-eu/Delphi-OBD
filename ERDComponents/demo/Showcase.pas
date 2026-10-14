@@ -77,7 +77,6 @@ type
 
   TShowcaseForm = class(TForm)
     LabelUnicodePreview: TLabel;
-    LabelUnicodeState: TLabel;
     RibbonInputs: TERDPanel;
     RibbonSearch: TERDSearchEdit;
     RibbonCombo: TERDComboBox;
@@ -606,7 +605,6 @@ type
     procedure BackstageClosed(Sender: TObject);
     procedure LayoutChrome(Sender: TObject);
     procedure PageSelected(Sender: TObject);
-    procedure UpdateUnicodePreviewStatus;
     procedure FormCreate(Sender: TObject);
     procedure CommandSelected(Sender: TObject);
     procedure ExecuteDemoDialog(Sender: TObject);
@@ -933,46 +931,10 @@ procedure TShowcaseForm.PageSelected(Sender: TObject);
 begin
   IconsPage.Visible := PageTabs.TabIndex = 0;
   InputsPage.Visible := PageTabs.TabIndex = 1;
-  if InputsPage.Visible then UpdateUnicodePreviewStatus;
   LayoutPage.Visible := PageTabs.TabIndex = 2;
   DataPage.Visible := PageTabs.TabIndex = 3;
   FilesColorsPage.Visible := PageTabs.TabIndex = 4;
   DialogsPage.Visible := PageTabs.TabIndex = 5;
-end;
-
-procedure TShowcaseForm.UpdateUnicodePreviewStatus;
-  function Describe(Input: TERDTextInput): string;
-  var Bitmap: TBitmap; R: TRect; Frame, Face: TColor; DC: HDC;
-      NativePaint: Boolean;
-  begin
-    if Input = nil then Exit('not loaded from DFM');
-    if Input.Parent <> InputsScroll then Exit('unexpected parent');
-    Winapi.Windows.GetClientRect(Input.Handle, R);
-    Result := Format('V%d W%d %dx%d',
-      [Ord(Input.Visible), Ord(IsWindowVisible(Input.Handle)),
-       R.Width, R.Height]);
-    Bitmap := TBitmap.Create;
-    try
-      try
-        Input.RenderTo(Bitmap);
-        Frame := ColorToRGB(Bitmap.Canvas.Pixels[0,0]);
-        Face := ColorToRGB(Bitmap.Canvas.Pixels[3,Bitmap.Height div 2]);
-        Result := Result + ' B' + IntToStr(Ord(Frame <> Face));
-        Input.Repaint;
-        DC := GetDC(Input.Handle);
-        try
-          NativePaint := GetPixel(DC, 0, 0) <> GetPixel(DC, 3, R.Height div 2);
-          Result := Result + ' S' + IntToStr(Ord(NativePaint));
-        finally ReleaseDC(Input.Handle, DC); end;
-      except
-        on E: Exception do Result := Result + ', paint error: ' + E.Message;
-      end;
-    finally Bitmap.Free; end;
-  end;
-begin
-  if LabelUnicodeState = nil then Exit;
-  LabelUnicodeState.Caption := 'Text: ' + Describe(UnicodeTextPreview) +
-    ' | Password: ' + Describe(UnicodePasswordPreview);
 end;
 
 procedure TShowcaseForm.CommandSelected(Sender: TObject);

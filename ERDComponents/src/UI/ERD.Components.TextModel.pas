@@ -39,6 +39,7 @@ type
     procedure ReplaceSelection(const AValue: UnicodeString; AMaxLength: Integer = 0);
     procedure DeleteBackward;
     procedure DeleteForward;
+    procedure ClearUndo;
     procedure Undo;
     procedure Redo;
     property Text: UnicodeString read FText;
@@ -2650,6 +2651,8 @@ function TERDTextModel.GetCanUndo: Boolean;
 begin Result := FUndo.Count > 0; end;
 function TERDTextModel.GetCanRedo: Boolean;
 begin Result := FRedo.Count > 0; end;
+procedure TERDTextModel.ClearUndo;
+begin FUndo.Clear; FRedo.Clear; end;
 procedure TERDTextModel.Undo;
 var S: TERDTextSnapshot;
 begin

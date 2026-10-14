@@ -3,7 +3,7 @@
 //
 //  Themed text entry and pick list for the Application controls.
 //
-//    TERDEdit      single-line edit: a borderless VCL edit inside a
+//    TERDEdit      single-line edit: the ERD text engine inside a
 //                  painted frame (1 px border, 2 px orange when
 //                  focused, background fill when disabled). Mono
 //                  switches to Consolas for VINs, CAN IDs and files.
@@ -41,6 +41,7 @@ uses
   Vcl.Controls,
   Vcl.Forms,
   Vcl.StdCtrls,
+  ERD.Components.TextInput,
   ERD.Components.Control,
   ERD.Components.Paint,
   ERD.Components.PopupList;
@@ -60,7 +61,7 @@ type
     FValidateOnChange, FValidateOnExit, FValidating: Boolean;
     FOnValidate: TERDEditValidateEvent;
     FWantReturnKey: Boolean;
-    FEdit: TEdit;
+    FEdit: TERDTextInput;
     FMono: Boolean;
     FOnChange: TNotifyEvent;
     procedure SetPasswordChar(Value: Char);
@@ -98,6 +99,7 @@ type
     procedure InnerKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure InnerKeyPress(Sender: TObject; var Key: Char);
+    procedure InnerKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure SyncInnerLook;
     procedure CMEnabledChanged(var Message: TMessage);
       message CM_ENABLEDCHANGED;
@@ -125,7 +127,7 @@ type
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState;
       X, Y: Integer); override;
   public
-    /// <summary>Creates the edit with its inner VCL edit.</summary>
+    /// <summary>Creates the edit with its self-painted text input.</summary>
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure GetChildren(Proc: TGetChildProc; Root: TComponent); override;
@@ -140,6 +142,7 @@ type
     /// <returns>Focus flag.</returns>
     function Focused: Boolean; override;
     /// <summary>Start of the selection.</summary>
+    property Editor: TERDTextInput read FEdit;
     property SelStart: Integer read GetSelStart write SetSelStart;
     /// <summary>Length of the selection.</summary>
     property SelLength: Integer read GetSelLength write SetSelLength;
@@ -189,7 +192,7 @@ type
   /// <summary>Themed drop-down list, optionally editable and filterable.</summary>
   TERDComboBox = class(TERDCustomControl)
   strict private
-    FInput: TEdit;
+    FInput: TERDTextInput;
     FStyle: TERDComboStyle;
     FFilterMode: TERDComboFilterMode;
     FAutoComplete, FReadOnly, FSyncInput, FSuppressCompletion: Boolean;
@@ -214,6 +217,7 @@ type
     procedure InputChanged(Sender: TObject);
     procedure InputKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure InputKeyPress(Sender: TObject; var Key: Char);
+    procedure InputKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure InputFocusChanged(Sender: TObject);
     procedure LayoutInput;
     procedure SyncInput;
@@ -266,7 +270,7 @@ type
     function Focused: Boolean; override;
     procedure GetChildren(Proc: TGetChildProc; Root: TComponent); override;
     function FilteredIndex(Index: Integer): Integer;
-    property Editor: TEdit read FInput;
+    property Editor: TERDTextInput read FInput;
     property FilteredCount: Integer read GetFilteredCount;
     /// <summary>Opens the list under the box.</summary>
     procedure DropDown;
@@ -310,7 +314,6 @@ type
 
 implementation
 
-uses ERD.Components.NativeSelection;
 
 const
   EDIT_TEXT_SIZE = ERD_TEXT_BODY;
@@ -322,39 +325,17 @@ begin
 end;
 
 type
-  // Native edits need end padding so a right-aligned final character
-  // does not share the last drawable pixel with the caret.
-  TERDInnerEdit = class(TERDSelectionEdit)
-  private
-    procedure PositionEndCaret;
+  TERDInnerEdit = class(TERDTextInput)
   protected
-    procedure CreateWnd; override;
+    procedure BeforeEditCommand(MessageID: Cardinal); override;
     procedure WndProc(var Message: TMessage); override;
   end;
 
-procedure TERDInnerEdit.CreateWnd;
-var Margin: Integer;
+procedure TERDInnerEdit.BeforeEditCommand(MessageID: Cardinal);
 begin
   inherited;
-  Margin := Max(2, MulDiv(2, Font.PixelsPerInch, 96));
-  SendMessage(Handle, EM_SETMARGINS, EC_LEFTMARGIN or EC_RIGHTMARGIN,
-    LPARAM(Margin or (Margin shl 16)));
+  if Parent is TERDComboBox then TERDComboBox(Parent).PrepareNativeCommand(MessageID);
 end;
-
-procedure TERDInnerEdit.PositionEndCaret;
-var Caret: TPoint; Margins: LRESULT; RightMargin, X: Integer;
-begin
-  if not HandleAllocated or not Focused or (Alignment <> taRightJustify) or
-    (BiDiMode <> bdLeftToRight) or (SelLength <> 0) or
-    (SelStart <> Length(Text)) or not GetCaretPos(Caret) then Exit;
-  Margins := SendMessage(Handle, EM_GETMARGINS, 0, 0);
-  RightMargin := Integer((Margins shr 16) and $FFFF);
-  // The logical end of a right-aligned single-line edit is its right
-  // text edge, not the native caret's sometimes rounded glyph position.
-  X := Max(0, Min(ClientWidth - 1, ClientWidth - RightMargin));
-  if Caret.X <> X then SetCaretPos(X, Caret.Y);
-end;
-
 procedure TERDInnerEdit.WndProc(var Message: TMessage);
 begin
   if Parent is TERDComboBox then TERDComboBox(Parent).PrepareNativeCommand(Message.Msg);
@@ -365,11 +346,7 @@ begin
   if (Message.Msg = WM_GETDLGCODE) and (Parent is TERDComboBox) and
     (Message.WParam = VK_RETURN) and TERDComboBox(Parent).DroppedDown then
     Message.Result := Message.Result or DLGC_WANTMESSAGE;
-  case Message.Msg of
-    WM_SETFOCUS, WM_PAINT, WM_SETTEXT, WM_SETFONT, WM_SIZE,
-    WM_KEYUP, WM_CHAR, WM_LBUTTONDOWN, WM_LBUTTONUP, EM_SETSEL, EM_SETMARGINS:
-      PositionEndCaret;
-  end;
+
 end;
 
 { TERDEdit }
@@ -387,6 +364,7 @@ begin
   FEdit.Parent := Self;
   FEdit.BorderStyle := bsNone;
   FEdit.AutoSize := False;
+  FEdit.AutoSelect := True;
   FEdit.ParentFont := False;
   FEdit.ParentColor := False;
   FEdit.TabStop := True;
@@ -395,6 +373,7 @@ begin
   FEdit.OnExit := InnerFocusChange;
   FEdit.OnKeyDown := InnerKeyDown;
   FEdit.OnKeyPress := InnerKeyPress;
+  FEdit.OnKeyUp := InnerKeyUp;
   AutoSize := True;
   LayoutInner;
 end;
@@ -551,6 +530,8 @@ begin
   KeyPress(Key);
 end;
 
+procedure TERDEdit.InnerKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin KeyUp(Key, Shift); end;
 procedure TERDEdit.CMEnabledChanged(var Message: TMessage);
 begin
   inherited;
@@ -582,7 +563,7 @@ end;
 
 procedure TERDEdit.LayoutInner;
 var
-  FontH, Pad, EH, Margin: Integer;
+  FontH, Pad, EH: Integer;
 begin
   if FEdit = nil then
     Exit;
@@ -594,18 +575,10 @@ begin
   if FEdit.Font.Height <> FontH then
     FEdit.Font.Height := FontH;
   Pad := ScaleValue(10);
-  // A borderless edit draws its text at the top of its window, so the
-  // window is exactly one text line high and centred in the frame; that
-  // centres the text itself.
-  EH := Max(1, Min(ERDFontLineHeight(FEdit.Font), EditFieldHeight - ScaleValue(4)));
+  // The text engine centres its own glyphs; keep the full interior height.
+  EH := Max(1, EditFieldHeight - ScaleValue(4));
   FEdit.SetBounds(Pad, (EditFieldHeight - EH) div 2,
     Max(0, Width - 2 * Pad - TrailingSpace), EH);
-  if FEdit.HandleAllocated then
-  begin
-    Margin := Max(2, ScaleValue(2));
-    SendMessage(FEdit.Handle, EM_SETMARGINS, EC_LEFTMARGIN or EC_RIGHTMARGIN,
-      LPARAM(Margin or (Margin shl 16)));
-  end;
   SyncInnerLook;
 end;
 
@@ -697,7 +670,7 @@ begin
   if FEdit = nil then Exit;
   Start := 0; Count := 0;
   if FEdit.HandleAllocated then begin Start := FEdit.SelStart; Count := FEdit.SelLength end;
-  if FPasswordVisible then FEdit.PasswordChar := #0 else FEdit.PasswordChar := FPasswordChar;
+  FEdit.PasswordChar := FPasswordChar; FEdit.PasswordVisible := FPasswordVisible;
   if FEdit.HandleAllocated then begin FEdit.SelStart := Start; FEdit.SelLength := Count end;
   FEdit.Invalidate;
 end;
@@ -818,6 +791,7 @@ begin
   FInput.Parent := Self;
   FInput.BorderStyle := bsNone;
   FInput.AutoSize := False;
+  FInput.AutoSelect := True;
   FInput.ParentColor := False;
   FInput.ParentFont := False;
   FInput.Visible := False;
@@ -825,6 +799,7 @@ begin
   FInput.OnChange := InputChanged;
   FInput.OnKeyDown := InputKeyDown;
   FInput.OnKeyPress := InputKeyPress;
+  FInput.OnKeyUp := InputKeyUp;
   FInput.OnEnter := InputFocusChanged;
   FInput.OnExit := InputFocusChanged;
   FItems := TStringList.Create;
@@ -1245,10 +1220,12 @@ begin
   // Printable characters continue into the native edit; preserve app OnKeyPress.
   inherited KeyPress(Key);
 end;
+procedure TERDComboBox.InputKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin KeyUp(Key, Shift); end;
 procedure TERDComboBox.InputFocusChanged(Sender: TObject);
 begin if not Focused then CloseUp(False); Invalidate end;
 procedure TERDComboBox.LayoutInput;
-var H, Margin: Integer;
+var H: Integer;
 begin
   if FInput = nil then Exit;
   if FMono then FInput.Font.Name := 'Consolas' else FInput.Font.Name := 'Segoe UI';
@@ -1256,13 +1233,9 @@ begin
   FInput.Font.Color := Palette.ForegroundText;
   FInput.Color := Palette.GaugeFace;
   if not Enabled then begin FInput.Font.Color := Palette.Subtle; FInput.Color := Palette.Background end;
-  H := Max(1, Min(ERDFontLineHeight(FInput.Font), Height - ScaleValue(4)));
+  H := Max(1, Height - ScaleValue(4));
   FInput.SetBounds(ScaleValue(10), (Height - H) div 2, Max(0, Width - ScaleValue(44)), H);
-  if FInput.HandleAllocated then
-  begin
-    Margin := Max(2, ScaleValue(2));
-    SendMessage(FInput.Handle, EM_SETMARGINS, EC_LEFTMARGIN or EC_RIGHTMARGIN, LPARAM(Margin or (Margin shl 16)));
-  end;
+
 end;
 procedure TERDComboBox.Resize;
 begin inherited; LayoutInput end;

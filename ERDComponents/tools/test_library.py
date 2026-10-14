@@ -117,6 +117,17 @@ class LibraryTests(unittest.TestCase):
         valid = "interface\nfunction Parse: Integer;\nimplementation\nfunction Parse: Integer;\nbegin\n  Result := 1;\nend;\nend."
         self.assertEqual(scan(valid, "sample.pas"), [])
 
+    def test_all_text_consumers_use_erd_engine(self):
+        for path in (ROOT/'src/UI').glob('*.pas'):
+            text = path.read_text(encoding='utf-8-sig')
+            self.assertNotRegex(text, r'\b(?:TEdit|TMemo|TERDSelectionEdit|TERDSelectionMemo)\.Create\s*\(')
+            self.assertNotIn('ERD.Components.NativeSelection', text)
+        edit = (ROOT/'src/UI/ERD.Components.Edits.pas').read_text(encoding='utf-8-sig')
+        memo = (ROOT/'src/UI/ERD.Components.Memo.pas').read_text(encoding='utf-8-sig')
+        self.assertIn('FEdit: TERDTextInput;', edit)
+        self.assertIn('FInput: TERDTextInput;', edit)
+        self.assertIn('FMemo: TERDTextArea;', memo)
+
     def test_pinned_unicode_tables_and_conformance_cases(self):
         import subprocess
         subprocess.run([sys.executable, str(ROOT/'tools/build_unicode_tables.py'), '--check'], check=True)

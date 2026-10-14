@@ -23,6 +23,11 @@ uses
   Showcase in '../demo/Showcase.pas',
   ERD.Components.SpinEdit, ERD.Components.Edits, ERD.Components.PopupList, ERD.Components.TitleBar, ERD.Components.StatusBar, ERD.Components.Theme, ERD.Components.Ribbon;
 type
+  TEditKeyFilter = class
+  public
+    Calls: Integer;
+    procedure Filter(Sender: TObject; var Key: Char);
+  end;
   TTextInputProbe = class(TERDTextInput)
   public
     function EditMenu: TERDPopupMenu;
@@ -529,8 +534,7 @@ procedure TestDemoLayoutAndSpinMargins;
 var
   Form: TShowcaseForm;
   Spin: TERDSpinEdit;
-  NativeEdit: TWinControl;
-  Margins: LRESULT;
+  NativeEdit: TERDTextInput;
   Caret: TPoint;
   I: Integer;
 begin
@@ -576,19 +580,16 @@ begin
     Spin.Mono := True;
     NativeEdit := nil;
     for I := 0 to Spin.ControlCount - 1 do
-      if Spin.Controls[I] is TCustomEdit then
-        NativeEdit := TWinControl(Spin.Controls[I]);
-    Check(NativeEdit <> nil, 'SpinEdit hosts a native edit');
-    Margins := SendMessage(NativeEdit.Handle, EM_GETMARGINS, 0, 0);
-    Check((Margins and $FFFF) >= 2, 'Native edit reserves left caret space');
-    Check(((Margins shr 16) and $FFFF) >= 2, 'Right-aligned edit reserves end caret space');
+      if Spin.Controls[I] is TERDTextInput then
+        NativeEdit := TERDTextInput(Spin.Controls[I]);
+    Check(NativeEdit <> nil, 'SpinEdit hosts the self-painted ERD text engine');
     Form.Show;
     Spin.Value := 18;
     Spin.SetFocus;
     Spin.SelStart := Length(Spin.Text);
     Spin.SelLength := 0;
     Check(GetCaretPos(Caret), 'Native spin caret is available');
-    Check(Caret.X = NativeEdit.ClientWidth - Integer((Margins shr 16) and $FFFF),
+    Check(Caret.X = NativeEdit.ClientWidth - MulDiv(2, NativeEdit.CurrentPPI, 96),
       'Right-aligned caret is at the text edge after the final digit');
   finally
     Form.Free;
@@ -927,10 +928,16 @@ begin
   end;
 end;
 
-procedure TestNativeTextPainting;
+procedure TestTextPainting;
 var Form: TForm; Theme: TERDTheme; Edit: TERDEdit; Memo: TERDMemo;
   Other: TButton; Native: TWinControl; I, J, BeforeInk, AfterInk: Integer;
-  Ch: Char;
+  Ch: Char; Back: TColor;
+  procedure AssignValue(const S: string);
+  begin
+    if J = 0 then Edit.Text := S else Memo.Lines.Text := S;
+  end;
+  function CurrentValue: string;
+  begin if J = 0 then Result := Edit.Text else Result := TrimRight(Memo.Lines.Text); end;
   function PixelCount(Window: TWinControl; Color: TColor; Match, Repaint: Boolean): Integer;
   var DC: HDC; X, Y: Integer; RGB: COLORREF;
   begin
@@ -961,27 +968,29 @@ begin
       if J = 0 then
       begin
         for I := 0 to Edit.ControlCount - 1 do
-          if Edit.Controls[I] is TCustomEdit then Native := TWinControl(Edit.Controls[I]);
+          if Edit.Controls[I] is TERDTextInput then Native := TWinControl(Edit.Controls[I]);
       end
       else
         for I := 0 to Memo.ControlCount - 1 do
-          if Memo.Controls[I] is TCustomEdit then Native := TWinControl(Memo.Controls[I]);
-      Check(Native <> nil, 'Edit/Memo have a native text window');
-      Native.Perform(WM_SETTEXT, 0, LPARAM(PChar('')));
-      BeforeInk := PixelCount(Native, TEdit(Native).Color, False, True);
-      Native.Perform(WM_SETTEXT, 0, LPARAM(PChar('Visible before focus')));
-      AfterInk := PixelCount(Native, TEdit(Native).Color, False, True);
+          if Memo.Controls[I] is TERDTextArea then Native := TWinControl(Memo.Controls[I]);
+      Check(Native <> nil, 'Edit/Memo have a text window');
+      Back := TERDTextInput(Native).Color;
+      AssignValue('');
+      BeforeInk := PixelCount(Native, Back, False, True);
+      AssignValue('Visible before focus');
+      AfterInk := PixelCount(Native, Back, False, True);
       Check(AfterInk > BeforeInk + 10, 'Unfocused native text is painted after invalidation');
       Native.SetFocus;
-      Native.Perform(WM_SETTEXT, 0, LPARAM(PChar('')));
-      BeforeInk := PixelCount(Native, TEdit(Native).Color, False, True);
+      AssignValue('');
+      BeforeInk := PixelCount(Native, Back, False, True);
       for Ch in 'Typed text' do Native.Perform(WM_CHAR, Ord(Ch), 0);
-      AfterInk := PixelCount(Native, TEdit(Native).Color, False, True);
-      Check((TEdit(Native).Text = 'Typed text') and (AfterInk > BeforeInk + 10),
+      AfterInk := PixelCount(Native, Back, False, True);
+      Check((CurrentValue = 'Typed text') and (AfterInk > BeforeInk + 10),
         'Typing updates both native text and visible glyphs for Edit and Memo');
       Native.Perform(EM_SETSEL, 0, 7);
+      Native.Repaint;
       Check(PixelCount(Native, Theme.Palette.Accent, True, False) > 10,
-        'Selection already uses ERD accent before another paint/message cycle');
+        'Selection uses ERD accent in text engine paint');
       Other.SetFocus;
     end;
   finally Form.Free end;
@@ -1097,7 +1106,7 @@ begin
 end;
 
 procedure TestEditPasswordAndValidation;
-var Form: TForm; Edit: TEditProbe; Native: TEdit; Validator: TValidationProbe;
+var Form: TForm; Edit: TEditProbe; Native: TERDTextInput; Validator: TValidationProbe;
   Copy, Stored: TERDEdit; Counter: TChangeProbe; Stream: TMemoryStream;
   Bitmap: TBitmap; BaseHeight, Calls: Integer;
 begin
@@ -1116,10 +1125,10 @@ begin
     Edit.OnChange := Counter.Changed;
     Form.Show; Application.ProcessMessages; Edit.SetFocus;
     Edit.SelStart := 1; Edit.SelLength := 3;
-    Native := TEdit(Edit.Controls[0]);
+    Native := Edit.Editor;
     Check(Native.PasswordChar = #8226, 'Configured password character is applied to native editor');
     Edit.RevealByKeyboard;
-    Check(Edit.PasswordVisible and (Native.PasswordChar = #0) and
+    Check(Edit.PasswordVisible and Native.PasswordVisible and
       (Edit.SelStart = 1) and (Edit.SelLength = 3) and (Edit.Text = 'Example') and
       (Counter.Changes = 0), 'Password reveal preserves text and selection without OnChange');
     Edit.RevealByKeyboard;
@@ -1127,7 +1136,7 @@ begin
     Edit.Perform(WM_LBUTTONDOWN, MK_LBUTTON, MakeLParam(Edit.Width - 16, Edit.Height div 2));
     Check(not Edit.PasswordVisible, 'Eye waits for matching release');
     Edit.Perform(WM_LBUTTONUP, 0, MakeLParam(Edit.Width - 16, Edit.Height div 2));
-    Check(Edit.PasswordVisible and (Native.PasswordChar = #0), 'Native mouse release reveals password');
+    Check(Edit.PasswordVisible and Native.PasswordVisible, 'Native mouse release reveals password');
     Edit.Perform(WM_LBUTTONDOWN, MK_LBUTTON, MakeLParam(Edit.Width - 16, Edit.Height div 2));
     Edit.Perform(WM_LBUTTONUP, 0, MakeLParam(4, Edit.Height div 2));
     Check(Edit.PasswordVisible, 'Release away cancels eye toggle');
@@ -2021,6 +2030,11 @@ begin
 end;
 
 
+procedure TEditKeyFilter.Filter(Sender: TObject; var Key: Char);
+begin
+  if Key = #8 then begin Inc(Calls); Key := #0; end;
+end;
+
 function TTextInputProbe.EditMenu: TERDPopupMenu;
 begin Result := DefaultEditMenu; end;
 procedure TestTextInputEditMenu;
@@ -2081,6 +2095,138 @@ begin
     Check(M.Text = 'A' + #$FFFD + 'B', 'Invalid surrogate replaced without corrupting UTF-16');
   finally M.Free; end;
 end;
+procedure TestWindowsEditInteractionParity;
+var Form: TForm; Edit: TERDEdit; Reference: TEdit; P: TPoint; Filter: TEditKeyFilter;
+    X, Y, ReferenceStart, ReferenceLength: Integer;
+  procedure CheckState(const Action: string);
+  begin
+    Check((Edit.Text = Reference.Text) and (Edit.SelStart = Reference.SelStart) and
+      (Edit.SelLength = Reference.SelLength), 'Windows edit parity: ' + Action);
+  end;
+  procedure Reset;
+  begin
+    Edit.Text := 'one two three'; Reference.Text := Edit.Text;
+    Edit.SelStart := 6; Reference.SelStart := 6;
+    Edit.SelLength := 0; Reference.SelLength := 0;
+  end;
+  procedure Key(KeyCode: Word);
+  begin Edit.Editor.Perform(WM_KEYDOWN, KeyCode, 0); Reference.Perform(WM_KEYDOWN, KeyCode, 0); end;
+  procedure DoubleClick(Control: TWinControl; AtX, AtY: Integer);
+  begin
+    Control.Perform(WM_LBUTTONDOWN, MK_LBUTTON, MakeLParam(AtX, AtY));
+    Control.Perform(WM_LBUTTONUP, 0, MakeLParam(AtX, AtY));
+    Control.Perform(WM_LBUTTONDBLCLK, MK_LBUTTON, MakeLParam(AtX, AtY));
+    Control.Perform(WM_LBUTTONUP, 0, MakeLParam(AtX, AtY));
+  end;
+begin
+  Form := TForm.Create(nil); Filter := TEditKeyFilter.Create;
+  try
+    Edit := TERDEdit.Create(Form); Edit.Parent := Form; Edit.Width := 300;
+    // Native edit exists only as the Windows behavioral reference in this test.
+    Reference := TEdit.Create(Form); Reference.Parent := Form;
+    Reference.SetBounds(0, 50, 300, 28); Reference.BorderStyle := bsNone;
+    Reference.AutoSize := False; Reference.Font.Assign(Edit.Editor.Font);
+    Form.Show; Reset;
+    Key(VK_LEFT); CheckState('Left'); Key(VK_RIGHT); CheckState('Right');
+    Key(VK_HOME); CheckState('Home'); Key(VK_END); CheckState('End');
+    Reset; Edit.Editor.Perform(EM_SETSEL, 1, 4); Reference.Perform(EM_SETSEL, 1, 4);
+    Edit.Editor.Perform(WM_CHAR, Ord('Z'), 0); Reference.Perform(WM_CHAR, Ord('Z'), 0);
+    CheckState('typing replaces selection');
+    Check(Edit.Editor.Modified = Reference.Modified, 'Modified flag matches native typing');
+    Check(Edit.Editor.CanUndo, 'Edit exposes CanUndo after replacement');
+    Key(VK_BACK); Edit.Editor.Perform(WM_CHAR, 8, 0); Reference.Perform(WM_CHAR, 8, 0);
+    CheckState('Backspace'); Key(VK_DELETE); CheckState('Delete');
+    Reset; Reference.SetFocus; Reference.SelStart := 6; Reference.SelLength := 0;
+    Check(GetCaretPos(P), 'Native reference caret available');
+    DoubleClick(Reference, P.X + 1, P.Y + 4);
+    ReferenceStart := Reference.SelStart; ReferenceLength := Reference.SelLength;
+    Edit.SetFocus; Edit.SelStart := 6; Edit.SelLength := 0;
+    Check(GetCaretPos(P), 'ERD caret available for double-click test');
+    X := P.X + 1; Y := P.Y + 4;
+    DoubleClick(Edit.Editor, X, Y);
+    Check((Edit.SelStart = ReferenceStart) and (Edit.SelLength = ReferenceLength),
+      'Double-click selects same word range as native Windows edit');
+    Check(Edit.SelLength > 0, 'Second mouse-down does not collapse double-click selection');
+    Edit.ReadOnly := True;
+    Edit.Editor.Perform(WM_CHAR, Ord('X'), 0);
+    Check(Edit.Text = 'one two three', 'ReadOnly edit remains selectable but blocks typing');
+    Edit.ReadOnly := False; Edit.Editor.ClearUndo;
+    Check(not Edit.Editor.CanUndo and not Edit.Editor.CanRedo, 'ClearUndo clears both histories');
+    Edit.Text := 'reset'; Reference.Text := 'reset';
+    Check(not Edit.Editor.Modified and not Reference.Modified, 'Programmatic Text resets Modified');
+    Reset; Edit.OnKeyPress := Filter.Filter; Reference.OnKeyPress := Filter.Filter;
+    Key(VK_BACK); Edit.Editor.Perform(WM_CHAR, 8, 0); Reference.Perform(WM_CHAR, 8, 0);
+    CheckState('OnKeyPress can reject Backspace');
+    Check((Filter.Calls = 2) and (Edit.Text = 'one two three'), 'Both controls dispatch cancellable Backspace KeyPress');
+    Edit.OnKeyPress := nil; Reference.OnKeyPress := nil;
+    Edit.NumbersOnly := True; Edit.Text := '123'; Edit.SelectAll;
+    Edit.Editor.Perform(WM_CHAR, Ord('A'), 0);
+    Check(Edit.Text = '123', 'Rejected numeric input does not delete selection');
+  finally Form.Free; Filter.Free; end;
+end;
+
+procedure TestMultilineTextEngine;
+var Form: TForm; Memo, Restored: TERDMemo; Area: TERDTextArea; P, Q: TPoint; Count: Integer;
+    Stream: TMemoryStream;
+begin
+  RegisterClass(TERDMemo);
+  Form := TForm.Create(nil); Stream := TMemoryStream.Create;
+  try
+    Memo := TERDMemo.Create(Form); Memo.Parent := Form;
+    Memo.SetBounds(8, 8, 180, 100); Area := Memo.Editor;
+    Memo.Text := 'first' + #13#10 + 'second ' + #$D83D#$DC69#$200D#$D83D#$DCBB;
+    Form.Show; Memo.SetFocus; Application.ProcessMessages;
+    Check(GetWindow(Area.Handle, GW_CHILD) = 0, 'Memo text engine has no Windows EDIT child');
+    Check(Memo.Lines.Count = 2, 'Memo Lines reflects multiline model');
+    Check(Memo.Lines.Text = Memo.Text, 'Lines.Text does not add an extra newline');
+    Area.SelStart := 0; Area.Perform(WM_KEYDOWN, VK_DOWN, 0);
+    Check(Area.SelStart = 7, 'Down moves to same column on next row');
+    Check(GetCaretPos(P), 'Memo has a native blinking caret');
+    Area.Perform(WM_KEYDOWN, VK_UP, 0); Check(GetCaretPos(Q) and (Q.Y < P.Y), 'Up changes visual row');
+    Area.SelStart := Length(Memo.Text); Area.Perform(WM_KEYDOWN, VK_BACK, 0); Area.Perform(WM_CHAR, 8, 0);
+    Check(Memo.Text = 'first' + #13#10 + 'second ', 'Memo Backspace removes whole ZWJ emoji');
+    Area.Undo; Check(Pos(#$200D, Memo.Text) > 0, 'Memo Undo restores emoji');
+    Area.Perform(WM_CHAR, 13, 0); Area.Perform(WM_CHAR, Ord('X'), 0);
+    Check(Copy(Memo.Text, Length(Memo.Text) - 2, 3) = #13#10 + 'X', 'Memo Enter inserts a real newline');
+    Memo.Lines.Add('added'); Check(Pos('added', Memo.Text) > 0, 'Lines.Add updates document');
+    Memo.Text := StringOfChar('W', 100);
+    Memo.WordWrap := True; Count := Area.Perform(EM_GETLINECOUNT, 0, 0);
+    Check(Count > 1, 'Long memo line wraps to multiple visual rows');
+    Memo.WordWrap := False;
+    Check(Area.Perform(EM_GETLINECOUNT, 0, 0) = 1, 'Disabling wrapping restores one visual row');
+    Memo.Text := StringOfChar('A', 20) + #13#10 + StringOfChar('B', 20);
+    Memo.WordWrap := True;
+    Area.Perform(EM_LINESCROLL, 0, 1);
+    Check(Area.FirstVisibleRow >= 0, 'Memo scrolling clamps within visual row range');
+    Memo.Text := 'A' + #13#10 + 'B'; Area.SelectAll;
+    Area.CopyToClipboard; Check(Clipboard.AsText = Memo.Text, 'Memo clipboard preserves multiline Unicode text');
+    Memo.ReadOnly := True; Area.ReplaceSelection('blocked');
+    Check(Memo.Text = 'A' + #13#10 + 'B', 'ReadOnly Memo prevents replacement');
+    Memo.Text := 'A' + #13#10 + 'B' + #13#10;
+    Check((Memo.Lines.Count = 3) and (Memo.Lines[2] = '') and (Memo.Lines.Text = Memo.Text),
+      'Memo Lines preserves the final empty logical line');
+    Stream.WriteComponent(Memo); Stream.Position := 0;
+    Restored := TERDMemo(Stream.ReadComponent(nil));
+    try Check(Restored.Text = Memo.Text, 'Memo DFM roundtrip preserves final newline without streaming private editor');
+    finally Restored.Free; end;
+  finally Stream.Free; Form.Free; end;
+end;
+procedure TestMigratedShowcaseTextWindows;
+var Form: TShowcaseForm;
+  procedure Inspect(Control: TWinControl);
+  var I: Integer; ClassName: array[0..63] of Char;
+  begin
+    GetClassName(Control.Handle, ClassName, Length(ClassName));
+    Check(not SameText(ClassName, 'EDIT'), 'Showcase contains no native Windows EDIT window');
+    for I := 0 to Control.ControlCount - 1 do
+      if Control.Controls[I] is TWinControl then Inspect(TWinControl(Control.Controls[I]));
+  end;
+begin
+  Form := TShowcaseForm.Create(nil);
+  try Form.Show; Application.ProcessMessages; Inspect(Form);
+  finally Form.Free; end;
+end;
+
 procedure TestShowcaseUnicodePreviewWindows;
 var Form: TShowcaseForm; DC: HDC; R: TRect;
   procedure CheckPreview(Input: TERDTextInput);
@@ -2122,7 +2268,7 @@ begin
     GetClassName(Input.Handle, ClassName, Length(ClassName));
     Check(not SameText(ClassName, 'EDIT'), 'Custom input is not a Windows EDIT');
     Check(GetWindow(Input.Handle, GW_CHILD) = 0, 'Custom input has no native edit child');
-    Input.Perform(WM_KEYDOWN, VK_BACK, 0);
+    Input.Perform(WM_KEYDOWN, VK_BACK, 0); Input.Perform(WM_CHAR, 8, 0);
     Check(Input.Text = 'Unicode ', 'Custom input backspace removes emoji cluster');
     Input.Perform(WM_CHAR, Ord('A'), 0);
     Check(Input.Text = 'Unicode A', 'Self-painted input accepts typing');
@@ -2194,9 +2340,12 @@ begin
     TestEditableCombo;
     TestEditPasswordAndValidation;
     TestDocumentTabs;
-    TestNativeTextPainting;
+    TestTextPainting;
     TestUnicodeTextModel;
     TestSelfPaintedTextInput;
+    TestMultilineTextEngine;
+    TestWindowsEditInteractionParity;
+    TestMigratedShowcaseTextWindows;
     TestTextInputEditMenu;
     TestShowcaseUnicodePreviewWindows;
     Writeln(Checks, ' VCL runtime checks passed.');

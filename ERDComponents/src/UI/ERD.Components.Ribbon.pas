@@ -48,6 +48,7 @@ uses
   Vcl.AppEvnts,
   Winapi.GDIPAPI,
   System.Generics.Collections,
+  ERD.Components.TextInput,
   ERD.Components.Control,
   ERD.Components.Paint,
   ERD.Components.Menus;
@@ -479,7 +480,7 @@ type
     FSearchRect: TRect;
     FMoreRect: TRect;
     FCollapseRect: TRect;
-    FSearchEdit: TEdit;
+    FSearchEdit: TERDTextInput;
     FSearchMenu: TERDPopupMenu;
     FOverflowMenu: TERDPopupMenu;
     FApplicationEvents: TApplicationEvents;
@@ -670,7 +671,6 @@ type
 implementation
 
 uses
-  ERD.Components.NativeSelection,
   ERD.Components.Backstage;
 
 const
@@ -1620,8 +1620,10 @@ begin
   FShowSearch := True;
   FSearchHint := 'Search commands  Alt+Q';
   FRibbonStyle := rsClassic;
-  FSearchEdit := TERDSelectionEdit.Create(Self);
+  FSearchEdit := TERDTextInput.Create(Self);
   FSearchEdit.Parent := Self;
+  FSearchEdit.BorderStyle := bsNone;
+  FSearchEdit.AutoSelect := True;
   FSearchEdit.BorderStyle := bsNone;
   FSearchEdit.AutoSize := False;
   FSearchEdit.Visible := False;

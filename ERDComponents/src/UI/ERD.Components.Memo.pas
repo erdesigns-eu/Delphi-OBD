@@ -35,6 +35,7 @@ uses
   Vcl.Forms,
   Vcl.StdCtrls,
   ERD.Components.Types,
+  ERD.Components.TextInput,
   ERD.Components.Control,
   ERD.Components.Paint;
 
@@ -42,7 +43,7 @@ type
   /// <summary>Themed multi-line edit with the themed scroll bar.</summary>
   TERDMemo = class(TERDCustomControl)
   strict private
-    FMemo: TMemo;
+    FMemo: TERDTextArea;
     FMono: Boolean;
     FFirstLine: Integer;
     FLineCount: Integer;
@@ -77,6 +78,9 @@ type
     procedure SyncInnerLook;
     procedure InnerChange(Sender: TObject);
     procedure InnerFocusChange(Sender: TObject);
+    procedure InnerKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure InnerKeyPress(Sender: TObject; var Key: Char);
+    procedure InnerKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure CMEnabledChanged(var Message: TMessage);
       message CM_ENABLEDCHANGED;
     procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
@@ -132,8 +136,10 @@ type
     procedure Clear;
     /// <summary>Re-reads the scroll position of the text; called by the
     /// inner memo after anything that can scroll it.</summary>
+    procedure GetChildren(Proc: TGetChildProc; Root: TComponent); override;
     procedure SyncScroll;
     /// <summary>All text as one string.</summary>
+    property Editor: TERDTextArea read FMemo;
     property Text: string read GetText write SetText;
   published
     /// <summary>The lines of text.</summary>
@@ -170,13 +176,12 @@ type
 
 implementation
 
-uses ERD.Components.NativeSelection,
-  ERD.Components.ScrollBar;
+uses ERD.Components.ScrollBar;
 
 type
   // Memo that tells its owner after anything that can scroll it, and
   // takes the wheel itself (it has no Windows scroll bar).
-  TERDInnerMemo = class(TERDSelectionMemo)
+  TERDInnerMemo = class(TERDTextArea)
   protected
     procedure WndProc(var Message: TMessage); override;
   end;
@@ -216,7 +221,6 @@ begin
   FMemo := TERDInnerMemo.Create(Self);
   FMemo.Parent := Self;
   FMemo.BorderStyle := bsNone;
-  FMemo.ScrollBars := ssNone;
   FMemo.WordWrap := True;
   FMemo.ParentFont := False;
   FMemo.ParentColor := False;
@@ -224,7 +228,15 @@ begin
   FMemo.OnChange := InnerChange;
   FMemo.OnEnter := InnerFocusChange;
   FMemo.OnExit := InnerFocusChange;
+  FMemo.OnKeyDown := InnerKeyDown;
+  FMemo.OnKeyPress := InnerKeyPress;
+  FMemo.OnKeyUp := InnerKeyUp;
   LayoutInner;
+end;
+
+procedure TERDMemo.GetChildren(Proc: TGetChildProc; Root: TComponent);
+begin
+  // Persist public properties, not the private text view or its handlers.
 end;
 
 function TERDMemo.GetLines: TStrings;
@@ -352,9 +364,16 @@ end;
 
 procedure TERDMemo.InnerFocusChange(Sender: TObject);
 begin
+  if FMemo.Focused then DoEnter else DoExit;
   Invalidate;
 end;
 
+procedure TERDMemo.InnerKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin KeyDown(Key, Shift); end;
+procedure TERDMemo.InnerKeyPress(Sender: TObject; var Key: Char);
+begin KeyPress(Key); end;
+procedure TERDMemo.InnerKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin KeyUp(Key, Shift); end;
 procedure TERDMemo.CMEnabledChanged(var Message: TMessage);
 begin
   inherited;
@@ -444,7 +463,7 @@ end;
 
 function TERDMemo.VisibleLines: Integer;
 begin
-  Result := Max(1, FMemo.Height div Max(1, ERDFontLineHeight(FMemo.Font)));
+  Result := FMemo.VisibleRowCount;
 end;
 
 function TERDMemo.NeedsBar: Boolean;

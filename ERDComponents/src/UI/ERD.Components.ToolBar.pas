@@ -37,6 +37,7 @@ uses
   Vcl.Menus,
   Vcl.ImgList,
   Vcl.ActnList,
+  ERD.Components.TextInput,
   ERD.Components.Control,
   ERD.Components.Paint,
   ERD.Components.Menus;
@@ -233,7 +234,7 @@ type
     FImages: TCustomImageList;
     FShowSearch: Boolean;
     FSearchHint: string;
-    FSearchEdit: TEdit;
+    FSearchEdit: TERDTextInput;
     FSearchTimer: TTimer;
     FOverflowMenu: TERDPopupMenu;
     FItemRects: array of TRect;
@@ -336,7 +337,6 @@ type
 
 implementation
 
-uses ERD.Components.NativeSelection;
 
 { TERDToolItemActionLink ----------------------------------------------------- }
 
@@ -654,9 +654,10 @@ begin
   Height := ToolHeight;
   Width := ScaleValue(640);
 
-  FSearchEdit := TERDSelectionEdit.Create(Self);
+  FSearchEdit := TERDTextInput.Create(Self);
   FSearchEdit.Parent := Self;
   FSearchEdit.BorderStyle := bsNone;
+  FSearchEdit.AutoSelect := True;
   FSearchEdit.AutoSize := False;
   FSearchEdit.Visible := False;
   FSearchEdit.OnChange := SearchChanged;

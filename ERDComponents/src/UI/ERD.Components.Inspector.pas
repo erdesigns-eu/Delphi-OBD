@@ -31,6 +31,7 @@ uses
   Vcl.StdCtrls,
   ERD.Components.Types,
   ERD.Components.Paint,
+  ERD.Components.TextInput,
   ERD.Components.Control,
   ERD.Components.PopupList,
   ERD.Components.ScrollBar,
@@ -281,7 +282,7 @@ type
     FScrollPos: Integer;
     FContentHeight: Integer;
     FUpdateCount: Integer;
-    FEditor: TEdit;
+    FEditor: TERDTextInput;
     FEditProperty: TERDInspectorProperty;
     FEditOriginalValue: string;
     FInternalEditorUpdate: Boolean;
@@ -310,7 +311,7 @@ type
     procedure EditorKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure PopupCloseUp(Sender: TObject; AAccepted: Boolean; AIndex: Integer);
     procedure CMHintShow(var Message: TCMHintShow); message CM_HINTSHOW;
-    procedure WMGetDlgCode(var Message: TWMGetDlgCode); message WM_GETDLGCODE;
+    procedure WMGetDlgCode(var Message: TMessage); message WM_GETDLGCODE;
     function RowHeight: Integer;
     function GutterWidth: Integer;
     function SplitterX: Integer;
@@ -472,12 +473,11 @@ type
 
 implementation
 
-uses ERD.Components.NativeSelection;
 
 type
-  TERDInspectorEdit = class(TERDSelectionEdit)
+  TERDInspectorEdit = class(TERDTextInput)
   protected
-    procedure WMGetDlgCode(var Message: TWMGetDlgCode); message WM_GETDLGCODE;
+    procedure WMGetDlgCode(var Message: TMessage); message WM_GETDLGCODE;
   public
     constructor Create(AOwner: TComponent); override;
   end;
@@ -490,7 +490,7 @@ begin
   TabStop := False;
 end;
 
-procedure TERDInspectorEdit.WMGetDlgCode(var Message: TWMGetDlgCode);
+procedure TERDInspectorEdit.WMGetDlgCode(var Message: TMessage);
 begin
   inherited;
   Message.Result := Message.Result or DLGC_WANTARROWS or DLGC_WANTCHARS;
@@ -2370,7 +2370,7 @@ begin
   end;
 end;
 
-procedure TERDInspector.WMGetDlgCode(var Message: TWMGetDlgCode);
+procedure TERDInspector.WMGetDlgCode(var Message: TMessage);
 begin
   inherited;
   Message.Result := Message.Result or DLGC_WANTARROWS or DLGC_WANTCHARS;

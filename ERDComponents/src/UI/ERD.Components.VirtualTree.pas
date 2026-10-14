@@ -288,16 +288,11 @@ begin
 end;
 
 procedure TERDTreeCellEditLink.ProcessMessage(var Message: TMessage);
-var I: Integer;
 begin
   if FInput is TERDComboBox then
     TERDComboBox(FInput).Editor.WindowProc(Message)
   else if FInput is TERDEdit then
-  begin
-    for I := 0 to FInput.ControlCount - 1 do
-      if FInput.Controls[I] is TCustomEdit then
-      begin FInput.Controls[I].WindowProc(Message); Exit end;
-  end
+    TERDEdit(FInput).Editor.WindowProc(Message)
   else FInput.WindowProc(Message);
 end;
 
