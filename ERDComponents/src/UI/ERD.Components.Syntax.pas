@@ -84,7 +84,7 @@ begin
       if (FLanguage in [clPascal, clTypeScript]) and (C = '/') and (I + 1 < N) and (Text[I + 2] = '/') then
       begin
         Kind := skComment; Inc(I, 2);
-        while (I < N) and not (Text[I + 1] in [#13,#10]) do Inc(I);
+        while (I < N) and not CharInSet(Text[I + 1], [#13,#10]) do Inc(I);
       end
       else if (FLanguage = clTypeScript) and (C = '/') and
         (I + 1 < N) and (Text[I + 2] = '*') then
@@ -96,7 +96,7 @@ begin
       else if (FLanguage = clTypeScript) and (C = '/') and ExpectExpression then
       begin
         Kind := skString; RegexClass := False; Inc(I);
-        while (I < N) and not (Text[I + 1] in [#13,#10]) do
+        while (I < N) and not CharInSet(Text[I + 1], [#13,#10]) do
         begin
           C := Text[I + 1]; Inc(I);
           if C = #92 then begin if I < N then Inc(I); Continue; end;
@@ -104,7 +104,7 @@ begin
           else if C = ']' then RegexClass := False
           else if (C = '/') and not RegexClass then Break;
         end;
-        while (I < N) and (Text[I + 1] in ['a'..'z','A'..'Z']) do Inc(I);
+        while (I < N) and CharInSet(Text[I + 1], ['a'..'z','A'..'Z']) do Inc(I);
       end
       else if (FLanguage = clPascal) and (C = '{') then
       begin
@@ -119,7 +119,7 @@ begin
         if I + 1 < N then Inc(I, 2) else I := N; AddFold(Start, I);
       end
       else if ((FLanguage = clPascal) and (C = #39)) or ((FLanguage = clJSON) and (C = '"')) or
-        ((FLanguage = clTypeScript) and (C in [#39, '"', '`'])) then
+        ((FLanguage = clTypeScript) and CharInSet(C, [#39, '"', '`'])) then
       begin
         Kind := skString; Inc(I);
         while I < N do
@@ -134,32 +134,32 @@ begin
             Break;
           end;
           if (FLanguage <> clPascal) and (C <> '`') and
-            (Text[I + 1] in [#13,#10]) then Break;
+            CharInSet(Text[I + 1], [#13,#10]) then Break;
           Inc(I);
         end;
         if C = '`' then AddFold(Start, I);
       end
-      else if Digit(C) or ((FLanguage = clPascal) and (C in ['$', '#'])) or
+      else if Digit(C) or ((FLanguage = clPascal) and CharInSet(C, ['$', '#'])) or
         ((FLanguage = clJSON) and (C = '-') and (I + 1 < N) and Digit(Text[I + 2])) then
       begin
         Kind := skNumber; Inc(I);
         if (C = '$') or ((C = '0') and (FLanguage = clTypeScript) and
-          (I < N) and (Text[I + 1] in ['x','X'])) then
+          (I < N) and CharInSet(Text[I + 1], ['x','X'])) then
         begin
           if C = '0' then Inc(I);
-          while (I < N) and (Text[I + 1] in ['0'..'9','a'..'f','A'..'F','_']) do Inc(I);
+          while (I < N) and CharInSet(Text[I + 1], ['0'..'9','a'..'f','A'..'F','_']) do Inc(I);
         end
         else
         begin
           if (C = '0') and (FLanguage = clTypeScript) and (I < N) and
-            (Text[I + 1] in ['b','B','o','O']) then Inc(I);
+            CharInSet(Text[I + 1], ['b','B','o','O']) then Inc(I);
           while (I < N) and (Digit(Text[I + 1]) or
             ((FLanguage = clTypeScript) and (Text[I + 1] = '_'))) do Inc(I);
           if (I + 1 < N) and (Text[I + 1] = '.') and Digit(Text[I + 2]) then
           begin Inc(I); while (I < N) and Digit(Text[I + 1]) do Inc(I); end;
-          if (I < N) and (Text[I + 1] in ['e','E']) then
+          if (I < N) and CharInSet(Text[I + 1], ['e','E']) then
           begin
-            Inc(I); if (I < N) and (Text[I + 1] in ['+','-']) then Inc(I);
+            Inc(I); if (I < N) and CharInSet(Text[I + 1], ['+','-']) then Inc(I);
             while (I < N) and Digit(Text[I + 1]) do Inc(I);
           end;
           if (FLanguage = clTypeScript) and (I < N) and (Text[I + 1] = 'n') then Inc(I);
@@ -199,7 +199,7 @@ begin
           skKeyword: ExpectExpression := (Word = 'return') or (Word = 'throw') or
             (Word = 'case') or (Word = 'yield') or (Word = 'await') or
             (Word = 'typeof') or (Word = 'void') or (Word = 'delete') or (Word = 'new');
-          skSymbol: ExpectExpression := not (Text[Start + 1] in [')',']','}']);
+          skSymbol: ExpectExpression := not CharInSet(Text[Start + 1], [')',']','}']);
         end;
       Span.Start := Start; Span.Count := I - Start; Span.Kind := Kind; Spans.Add(Span);
     end;

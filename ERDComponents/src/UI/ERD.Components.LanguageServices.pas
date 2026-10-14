@@ -30,4 +30,5 @@ type
     procedure Request(const Snapshot: TERDLanguageRequest; const Responses: IERDLanguageResponses);
     procedure Cancel(RequestID: Int64);
   end;
+implementation
 end.
