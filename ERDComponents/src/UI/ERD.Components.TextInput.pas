@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, Winapi.Imm,
   System.Classes, System.SysUtils, System.Types, System.Math,
-  Vcl.Controls, Vcl.Graphics, Vcl.Clipbrd, Vcl.ExtCtrls, Vcl.StdCtrls, System.UITypes,
+  Vcl.Controls, Vcl.Forms, Vcl.Graphics, Vcl.Clipbrd, Vcl.ExtCtrls, Vcl.StdCtrls, System.UITypes,
   ERD.Components.TextLayout, ERD.Components.Control, ERD.Components.TextModel, ERD.Components.Menus;
 type
   // Shared colour-capable layout for every single-line and multiline consumer.
