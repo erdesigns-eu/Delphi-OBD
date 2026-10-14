@@ -5,7 +5,7 @@
 {$B-}
 {$ALIGN 8}
 interface
-uses Winapi.Windows, System.SysUtils, System.Types, System.Math, Vcl.Graphics;
+uses Winapi.Windows, System.SysUtils, System.Types, System.Math, Vcl.Controls, Vcl.Graphics;
 type
   TERDDirectWriteLine = class
   private
