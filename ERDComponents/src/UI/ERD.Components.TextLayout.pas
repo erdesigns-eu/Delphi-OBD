@@ -321,7 +321,20 @@ type
     procedure ReservedIERD2DFactory_CreateDxgiSurfaceRenderTarget; stdcall;
     function CreateDCRenderTarget(const Props: TERD2DTargetProps; out Target: IERD2DDCTarget): HRESULT; stdcall;
   end;
-var Shared2DFactory: IERD2DFactory;
+type
+  TERDLayoutCacheEntry = record
+    Text, FontName: UnicodeString;
+    FontHeight, MetricHeight, MetricAscent: Integer;
+    Style: TFontStyles;
+    Layout, Factory, Interop, RenderingParams: IInterface;
+  end;
+var
+  Shared2DFactory: IERD2DFactory;
+  // UI-thread cache. Native layouts are immutable after construction; never retain
+  // a canvas/control here. Bound both entry count and retained text per entry.
+  LayoutCache: array[0..63] of TERDLayoutCacheEntry;
+  NextLayoutCache: Integer;
+
 function DWriteCreateFactory(Kind: Integer; const IID: TGUID; out Factory: IInterface): HRESULT;
   stdcall; external 'dwrite.dll';
 function D2D1CreateFactory(Kind: Integer; const IID: TGUID; Options: Pointer; out Factory: IInterface): HRESULT;
@@ -403,11 +416,26 @@ end;
 constructor TERDDirectWriteLine.Create(ACanvas: TCanvas; const Text: UnicodeString);
 var Factory: IERDWriteFactory; Format: IERDWriteFormat; Layout: IERDWriteLayout;
     Interop: IERDWriteInterop; Weight, Style: Integer; Metrics: TTextMetric;
-    AllText: TERDWriteRange;
+    AllText: TERDWriteRange; I: Integer; Entry: TERDLayoutCacheEntry;
 begin
   inherited Create;
   if not ERDTextLayoutABIValid then raise System.SysUtils.Exception.Create('Invalid DirectWrite record layout');
   FCanvas := ACanvas; FText := Text;
+  if not GetTextMetrics(ACanvas.Handle, Metrics) then RaiseLastOSError;
+  FLineHeight := Metrics.tmHeight;
+  if Length(Text) <= 8192 then
+    for I := Low(LayoutCache) to High(LayoutCache) do
+      if (LayoutCache[I].Layout <> nil) and (LayoutCache[I].Text = Text) and
+        (LayoutCache[I].FontName = ACanvas.Font.Name) and
+        (LayoutCache[I].FontHeight = ACanvas.Font.Height) and
+        (LayoutCache[I].Style = ACanvas.Font.Style) and
+        (LayoutCache[I].MetricHeight = Metrics.tmHeight) and
+        (LayoutCache[I].MetricAscent = Metrics.tmAscent) then
+      begin
+        FLayout := LayoutCache[I].Layout; FFactory := LayoutCache[I].Factory;
+        FInterop := LayoutCache[I].Interop; FRenderingParams := LayoutCache[I].RenderingParams;
+        Exit;
+      end;
   Checked(DWriteCreateFactory(0, IERDWriteFactory, FFactory));
   Factory := FFactory as IERDWriteFactory;
   Weight := 400; if fsBold in ACanvas.Font.Style then Weight := 700;
@@ -415,8 +443,6 @@ begin
   Checked(Factory.CreateTextFormat(PWideChar(ACanvas.Font.Name), nil, Weight,
     Style, 5, Max(1, Abs(ACanvas.Font.Height)), 'en-us', Format));
   Checked(Format.SetWordWrapping(1));
-  if not GetTextMetrics(ACanvas.Handle, Metrics) then RaiseLastOSError;
-  FLineHeight := Metrics.tmHeight;
   Checked(Format.SetLineSpacing(1, Metrics.tmHeight, Metrics.tmAscent));
   Checked(Factory.CreateTextLayout(PWideChar(FText), Length(FText), Format, 1000000, 1000000, Layout));
   AllText.Start := 0; AllText.Count := Length(FText);
@@ -425,6 +451,16 @@ begin
   FLayout := Layout;
   Checked(Factory.GetGdiInterop(Interop)); FInterop := Interop;
   Checked(Factory.CreateRenderingParams(FRenderingParams));
+  if Length(Text) <= 8192 then
+  begin
+    Entry.Text := Text; Entry.FontName := ACanvas.Font.Name;
+    Entry.FontHeight := ACanvas.Font.Height; Entry.Style := ACanvas.Font.Style;
+    Entry.MetricHeight := Metrics.tmHeight; Entry.MetricAscent := Metrics.tmAscent;
+    Entry.Layout := FLayout; Entry.Factory := FFactory;
+    Entry.Interop := FInterop; Entry.RenderingParams := FRenderingParams;
+    LayoutCache[NextLayoutCache] := Entry;
+    NextLayoutCache := (NextLayoutCache + 1) mod Length(LayoutCache);
+  end;
 end;
 function TERDDirectWriteLine.X(Position: Integer): Integer;
 var PX, PY: Single; Hit: TERDWriteHit; CP: Integer; Trailing: BOOL;

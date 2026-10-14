@@ -1,7 +1,7 @@
 ﻿program ERDComponentsSmoke;
 {$APPTYPE CONSOLE}
 uses
-  ERD.Components.LanguageServices, ERD.Components.TextLayout, ERD.Components.CodeEditor, ERD.Components.Syntax,
+  ERD.Components.Control, ERD.Components.LanguageServices, ERD.Components.TextLayout, ERD.Components.CodeEditor, ERD.Components.Syntax,
   ERD.Components.TextModel, ERD.Components.TextInput,
   System.IOUtils,
   System.SysUtils, System.Classes, System.Types, System.Math, Vcl.Forms, Vcl.Controls, Vcl.ExtCtrls,
@@ -35,6 +35,7 @@ type
   TCodeEditorProbe = class(TERDCodeEditor)
   public
     function RowCount: Integer;
+    procedure FoldMouse(Action: Integer; Outside: Boolean = False);
   end;
   TEditKeyFilter = class
   public
@@ -279,6 +280,17 @@ begin Snapshot := Value; Responses := Reply; Inc(Requests); end;
 procedure TLanguageServiceProbe.Cancel(RequestID: Int64);
 begin Inc(Cancels); end;
 
+procedure TCodeEditorProbe.FoldMouse(Action: Integer; Outside: Boolean);
+var View: TRect; X, Y: Integer;
+begin
+  View := TextViewport; X := View.Left - ScaleValue(13); Y := View.Top + RowHeight div 2;
+  if Outside then X := View.Left + ScaleValue(30);
+  case Action of
+    0: MouseMove([], X, Y);
+    1: MouseDown(mbLeft, [], X, Y);
+    2: MouseUp(mbLeft, [], X, Y);
+  end;
+end;
 function TCodeEditorProbe.RowCount: Integer;
 begin Result := Length(VisualRows); end;
 
@@ -2329,7 +2341,7 @@ begin RecreateWnd; end;
 
 procedure TestSharedColorEmoji;
 var Form: TForm; Input: TTextInputProbe; Area: TERDTextArea; Theme: TERDTheme;
-    Bitmap: TBitmap; Layout: TERDTextLayoutLine; X, Y, L, R: Integer;
+    Bitmap: TBitmap; Layout: TERDTextLayoutLine; X, Y, L, R, CachedWidth: Integer;
   function ColorPixels: Integer;
   var X, Y: Integer; C: COLORREF;
   begin
@@ -2375,7 +2387,13 @@ begin
       X := Layout.X(1); Y := Layout.X(3); Layout.Range(1, 2, L, R);
       Check((Y > X) and (L <= X) and (R >= Y), 'Colour emoji caret and selection use the same layout');
       Check(Layout.Width >= Y, 'Layout width contains final emoji trailing edge');
+      CachedWidth := Layout.Width;
     finally Layout.Free; end;
+    Layout := TERDTextLayoutLine.Create(Bitmap.Canvas, 'A' + #$D83D#$DE00);
+    try Check(Layout.Width = CachedWidth, 'Cached layout preserves shaped width'); finally Layout.Free; end;
+    Bitmap.Canvas.Font.Size := Bitmap.Canvas.Font.Size * 2;
+    Layout := TERDTextLayoutLine.Create(Bitmap.Canvas, 'A' + #$D83D#$DE00);
+    try Check(Layout.Width > CachedWidth, 'Font size changes do not reuse stale cached layout'); finally Layout.Free; end;
   finally Theme.Free; Bitmap.Free; Form.Free; end;
 end;
 
@@ -2428,7 +2446,11 @@ begin
     Editor.SetBounds(8, 8, 480, 180); Form.Show; Editor.SetFocus;
     Original := 'function run() {' + #13#10 + '  return true;' + #13#10 + '}' + #13#10;
     Editor.Text := Original; Editor.SelStart := 0; Rows := Editor.RowCount;
-    Editor.ToggleFold(0);
+    Editor.FoldMouse(0); Check(Editor.Cursor = crArrow, 'Fold gutter uses the arrow cursor');
+    Editor.FoldMouse(1); Check(Editor.RowCount = Rows, 'Fold waits for mouse release');
+    Editor.FoldMouse(0, True); Editor.FoldMouse(2, True);
+    Check(Editor.RowCount = Rows, 'Releasing outside cancels fold click');
+    Editor.FoldMouse(0); Editor.FoldMouse(1); Editor.FoldMouse(2);
     Check((Editor.RowCount < Rows) and (Editor.Text = Original), 'Folding changes rows without changing document');
     Editor.SelStart := Pos('return', Original) - 1;
     Check(Editor.RowCount = Rows, 'Moving caret into hidden text expands fold');

@@ -126,3 +126,14 @@ scope when needed. Search state is transient and is not streamed.
 This implementation scans synchronously. Regex execution has no enforced timeout;
 background/cancellable search and incremental indexing belong to the performance
 stage. Keep initial use to ordinary-sized source files and trusted patterns.
+
+Fold markers use the arrow cursor, accent hover and pressed feedback, and toggle on
+release inside the button. Releasing outside cancels the click. `ShowFoldGuides`
+(default true) draws gutter connectors through expanded scopes to their closing
+line. Button geometry scales with DPI.
+
+The shared text layout renderer caches up to 64 immutable DirectWrite layouts for
+lines of at most 8192 UTF-16 code units. The key includes font and line metrics;
+theme colours are applied when drawing. The cache retains no canvas or control
+objects. This avoids reshaping unchanged text for caret measurement and repaint;
+Windows/VM timings still need measurement.

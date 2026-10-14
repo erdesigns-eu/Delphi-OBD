@@ -36,7 +36,8 @@ type
     FAnalyzedText: UnicodeString;
     FAnalysisValid: Boolean;
     FCollapsed: TList<Integer>;
-    FShowLineNumbers, FShowFolding: Boolean;
+    FShowLineNumbers, FShowFolding, FShowFoldGuides: Boolean;
+    FHotFold, FPressedFold: Integer;
     FTabWidth: Integer;
     FTabHandled: Boolean;
     FAutoCloseDelimiters, FSmartHome, FShowIndentGuides, FShowBracketMatch: Boolean;
@@ -82,6 +83,11 @@ type
     procedure SetProvider(const Value: IERDSyntaxProvider);
     procedure SetShowLineNumbers(Value: Boolean);
     procedure SetShowFolding(Value: Boolean);
+    procedure SetShowFoldGuides(Value: Boolean);
+    function FoldButtonRect(Row: Integer): TRect;
+    function FoldAtPoint(X, Y: Integer): Integer;
+    procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
+    procedure WMCaptureChanged(var Message: TMessage); message WM_CAPTURECHANGED;
     procedure SetTabWidth(Value: Integer);
     function FoldHiddenStart(const Fold: TERDSyntaxFold): Integer;
     function FoldHiddenFinish(const Fold: TERDSyntaxFold): Integer;
@@ -102,6 +108,8 @@ type
     procedure DoExit; override;
     procedure Changed(const ABefore: UnicodeString); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
+    procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
   public
     constructor Create(AOwner: TComponent); override;
@@ -149,6 +157,7 @@ type
     property Language: TERDCodeLanguage read FLanguage write SetLanguage default clTypeScript;
     property ShowLineNumbers: Boolean read FShowLineNumbers write SetShowLineNumbers default True;
     property ShowFolding: Boolean read FShowFolding write SetShowFolding default True;
+    property ShowFoldGuides: Boolean read FShowFoldGuides write SetShowFoldGuides default True;
     property AutoCloseDelimiters: Boolean read FAutoCloseDelimiters write FAutoCloseDelimiters default True;
     property SmartHome: Boolean read FSmartHome write FSmartHome default True;
     property ShowIndentGuides: Boolean read FShowIndentGuides write SetShowIndentGuides default True;
@@ -173,6 +182,8 @@ begin
   FShowBracketMatch := True;
   FShowLineNumbers := True;
   FShowFolding := True;
+  FShowFoldGuides := True;
+  FHotFold := -1; FPressedFold := -1;
   FProvider := TERDBasicSyntaxProvider.Create(FLanguage);
   WordWrap := False; WantTabs := True; AutoSelect := False;
   Font.Name := 'Consolas';
@@ -199,7 +210,11 @@ begin CancelLanguageRequests; FLanguageService := Value; FLanguageError := ''; e
 procedure TERDCodeEditor.SetDocumentUri(const Value: UnicodeString);
 begin if FDocumentUri = Value then Exit; CancelLanguageRequests; FDocumentUri := Value; Inc(FVersion); end;
 procedure TERDCodeEditor.DoExit;
-begin CancelLanguageRequests; inherited; end;
+begin
+  FHotFold := -1;
+  if FPressedFold >= 0 then begin FPressedFold := -1; MouseCapture := False; end;
+  CancelLanguageRequests; inherited;
+end;
 procedure TERDCodeEditor.CancelLanguageRequests;
 var Kind: TERDLanguageRequestKind; Pending: array[TERDLanguageRequestKind] of Int64;
 begin
@@ -375,7 +390,8 @@ end;
 procedure TERDCodeEditor.SetShowFolding(Value: Boolean);
 begin
   if FShowFolding = Value then Exit;
-  FShowFolding := Value;
+  FShowFolding := Value; FHotFold := -1;
+  if FPressedFold >= 0 then begin FPressedFold := -1; MouseCapture := False; end;
   if not Value then UnfoldAll;
   InvalidateTextLayout; UpdateCaret;
 end;
@@ -627,6 +643,32 @@ begin
   while (Result < Length(Text)) and (Text[Result + 1] <> #10) do Inc(Result);
   if Result < Length(Text) then Inc(Result);
 end;
+procedure TERDCodeEditor.SetShowFoldGuides(Value: Boolean);
+begin
+  if FShowFoldGuides = Value then Exit;
+  FShowFoldGuides := Value; Invalidate;
+end;
+function TERDCodeEditor.FoldButtonRect(Row: Integer): TRect;
+var View: TRect; CenterX, CenterY, Radius: Integer;
+begin
+  View := TextViewport;
+  CenterX := View.Left - ScaleValue(13);
+  CenterY := View.Top + (Row - FirstVisibleRow) * RowHeight + RowHeight div 2;
+  Radius := Max(4, ScaleValue(5));
+  Result := Rect(CenterX - Radius, CenterY - Radius, CenterX + Radius + 1, CenterY + Radius + 1);
+end;
+function TERDCodeEditor.FoldAtPoint(X, Y: Integer): Integer;
+var Rows: TArray<TERDTextRow>; Row, Index: Integer; View: TRect;
+begin
+  Result := -1; if not FShowFolding or not Enabled then Exit;
+  View := TextViewport;
+  if (Y < View.Top) or (Y >= View.Bottom) or (X < View.Left - ScaleValue(20)) or (X >= View.Left) then Exit;
+  Rows := VisualRows; Row := FirstVisibleRow + (Y - View.Top) div RowHeight;
+  if (Row < 0) or (Row >= Length(Rows)) then Exit;
+  Index := FoldIndex(Rows[Row].Start);
+  if (Index >= 0) and PtInRect(FoldButtonRect(Row), Point(X, Y)) then
+    Result := FAnalysis.Folds[Index].Start;
+end;
 function TERDCodeEditor.FoldIndex(Position: Integer): Integer;
 var I, Start: Integer;
 begin
@@ -683,6 +725,8 @@ procedure TERDCodeEditor.Changed(const ABefore: UnicodeString);
 begin
   if ABefore <> Text then
   begin
+    FHotFold := -1;
+    if FPressedFold >= 0 then begin FPressedFold := -1; MouseCapture := False; end;
     Inc(FVersion); CancelLanguageRequests;
     // Editing invalidates structural offsets. Keep the text, expand stale folds.
     FDiagnostics := nil;
@@ -852,7 +896,8 @@ begin
 end;
 procedure TERDCodeEditor.PaintControl(ACanvas: TCanvas);
 var Rows: TArray<TERDTextRow>; I, J, Number, Y, H, Index, X: Integer;
-    R, View: TRect; Saved: Integer; Diagnostic: TERDCodeDiagnostic;
+    R, View, ButtonRect: TRect; Saved, CenterX, CenterY, Arm: Integer; Diagnostic: TERDCodeDiagnostic;
+    Fold: TERDSyntaxFold; Painter: TERDPainter;
     DiagnosticFound: Boolean; RowFinish: Integer; Severity: TERDDiagnosticSeverity;
 begin
   inherited PaintControl(ACanvas);
@@ -895,33 +940,91 @@ begin
         ACanvas.TextOut(X - ScaleValue(6) - ACanvas.TextWidth(IntToStr(Number)), Y, IntToStr(Number));
       if FShowFolding then
       begin
+        ButtonRect := FoldButtonRect(I);
+        CenterX := (ButtonRect.Left + ButtonRect.Right) div 2;
+        CenterY := Y + H div 2; Arm := Max(2, ScaleValue(3));
+        ACanvas.Pen.Color := Palette.Subtle;
+        if FShowFoldGuides then
+          for Fold in FAnalysis.Folds do
+            if not FCollapsed.Contains(Fold.Start) and
+              (Rows[I].Start > LineStart(Fold.Start)) and (Rows[I].Start < FoldHiddenFinish(Fold)) then
+            begin
+              ACanvas.MoveTo(CenterX, Y);
+              if (I = High(Rows)) or (Rows[I + 1].Start >= FoldHiddenFinish(Fold)) then
+              begin
+                ACanvas.LineTo(CenterX, CenterY);
+                ACanvas.LineTo(ButtonRect.Right + ScaleValue(2), CenterY);
+              end
+              else ACanvas.LineTo(CenterX, Y + H);
+            end;
         Index := FoldIndex(Rows[I].Start);
         if Index >= 0 then
         begin
-          ACanvas.Brush.Style := bsSolid;
+          if FShowFoldGuides and not FCollapsed.Contains(FAnalysis.Folds[Index].Start) then
+          begin ACanvas.MoveTo(CenterX, CenterY); ACanvas.LineTo(CenterX, Y + H); end;
+          ACanvas.Brush.Style := bsSolid; ACanvas.Brush.Color := Palette.Background;
           ACanvas.Pen.Color := Palette.Subtle;
-          ACanvas.Rectangle(X + 2, Y + H div 2 - 4, X + 11, Y + H div 2 + 5);
-          ACanvas.MoveTo(X + 4, Y + H div 2); ACanvas.LineTo(X + 9, Y + H div 2);
+          if (FHotFold = FAnalysis.Folds[Index].Start) and Enabled then
+          begin
+            ACanvas.Pen.Color := Palette.Accent;
+            if FPressedFold = FHotFold then ACanvas.Brush.Color := Palette.Accent;
+          end;
+          ACanvas.Rectangle(ButtonRect);
+          if (FPressedFold = FHotFold) and (FHotFold = FAnalysis.Folds[Index].Start) then
+          begin
+            Painter := TERDPainter.Create(ACanvas, Palette, ScaleValue(96));
+            try ACanvas.Pen.Color := Painter.ContrastInk(Palette.Accent); finally Painter.Free; end;
+          end;
+          ACanvas.MoveTo(CenterX - Arm, CenterY); ACanvas.LineTo(CenterX + Arm + 1, CenterY);
           if FCollapsed.Contains(FAnalysis.Folds[Index].Start) then
-          begin ACanvas.MoveTo(X + 6, Y + H div 2 - 2); ACanvas.LineTo(X + 6, Y + H div 2 + 3); end;
+          begin ACanvas.MoveTo(CenterX, CenterY - Arm); ACanvas.LineTo(CenterX, CenterY + Arm + 1); end;
         end;
       end;
     end;
   finally RestoreDC(ACanvas.Handle, Saved); end;
 end;
 procedure TERDCodeEditor.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var Rows: TArray<TERDTextRow>; Row: Integer; View: TRect;
+var Fold: Integer; View: TRect;
 begin
-  View := TextViewport;
-  if (Button = mbLeft) and FShowFolding and (X >= View.Left - ScaleValue(20)) and
-    (X < View.Left) and (Y >= View.Top) and (Y < View.Bottom) then
+  View := TextViewport; Fold := FoldAtPoint(X, Y);
+  if (Button = mbLeft) and (Fold >= 0) then
   begin
-    Rows := VisualRows;
-    Row := FirstVisibleRow + (Y - View.Top) div RowHeight;
-    if (Row >= 0) and (Row < Length(Rows)) then ToggleFold(Rows[Row].Start);
-    SetFocus; Exit;
+    SetFocus; FPressedFold := Fold; FHotFold := Fold; MouseCapture := True;
+    Invalidate; Exit;
   end;
+  if FShowFolding and (X >= View.Left - ScaleValue(20)) and (X < View.Left) then Exit;
   inherited MouseDown(Button, Shift, X, Y);
+end;
+procedure TERDCodeEditor.MouseMove(Shift: TShiftState; X, Y: Integer);
+var Fold: Integer; View, OuterView: TRect;
+begin
+  Fold := FoldAtPoint(X, Y);
+  if FHotFold <> Fold then begin FHotFold := Fold; Invalidate; end;
+  View := TextViewport; OuterView := inherited TextViewport;
+  if (X < View.Left) and (X >= OuterView.Left) then Cursor := crArrow
+  else Cursor := crIBeam;
+  if FPressedFold >= 0 then Exit;
+  inherited MouseMove(Shift, X, Y);
+end;
+procedure TERDCodeEditor.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+var Fold: Integer;
+begin
+  if (Button = mbLeft) and (FPressedFold >= 0) then
+  begin
+    Fold := FPressedFold; FPressedFold := -1; MouseCapture := False;
+    FHotFold := FoldAtPoint(X, Y);
+    if FHotFold = Fold then ToggleFold(Fold);
+    Invalidate; Exit;
+  end;
+  inherited MouseUp(Button, Shift, X, Y);
+end;
+procedure TERDCodeEditor.CMMouseLeave(var Message: TMessage);
+begin
+  inherited; FHotFold := -1; Cursor := crIBeam; Invalidate;
+end;
+procedure TERDCodeEditor.WMCaptureChanged(var Message: TMessage);
+begin
+  inherited; FPressedFold := -1; Invalidate;
 end;
 procedure TERDCodeEditor.IndentSelection(Outdent: Boolean);
 var Start, Finish, At, RemoveCount: Integer; Before, Replacement, Prefix: UnicodeString;
