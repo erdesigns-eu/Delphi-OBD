@@ -73,6 +73,11 @@ type
   PPlaylistDemoData = ^TPlaylistDemoData;
 
   TShowcaseForm = class(TForm)
+    RibbonInputs: TERDPanel;
+    RibbonSearch: TERDSearchEdit;
+    RibbonCombo: TERDComboBox;
+    RibbonSpin: TERDSpinEdit;
+    RibbonGallery: TERDTileGrid;
     DemoLoadingIndicator: TERDLoadingIndicator;
     LoadingToggle: TERDCheckBox;
     LabelLoadingIndicator: TLabel;
@@ -576,6 +581,8 @@ type
     LabelVirtualStringTree: TLabel;
     procedure TreeGetText(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
       TextType: TVSTTextType; var CellText: string);
+    procedure RibbonInputChanged(Sender: TObject);
+    procedure RibbonGalleryChanged(Sender: TObject);
     procedure TreeNewText(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode;
       Column: TColumnIndex; const NewText: string);
     procedure TreeNodeDataSize(Sender: TERDVTBaseVirtualTree; var NodeDataSize: Integer);
@@ -707,6 +714,21 @@ var P: TPoint;
 begin
   P := TControl(Sender).ClientToScreen(Point(0, TControl(Sender).Height));
   DemoPopupMenu.Popup(P.X, P.Y);
+end;
+
+procedure TShowcaseForm.RibbonInputChanged(Sender: TObject);
+begin
+  if StatusBar = nil then Exit;
+  if Sender = RibbonSearch then StatusBar.Panels[0].Text := 'Search: ' + RibbonSearch.Text
+  else if Sender = RibbonCombo then StatusBar.Panels[0].Text := 'Style: ' + RibbonCombo.Text
+  else if Sender = RibbonSpin then StatusBar.Panels[0].Text := 'Size: ' + RibbonSpin.Text;
+end;
+
+procedure TShowcaseForm.RibbonGalleryChanged(Sender: TObject);
+begin
+  if (StatusBar = nil) or (RibbonGallery.ItemIndex < 0) then Exit;
+  RibbonCombo.Text := RibbonGallery.Items[RibbonGallery.ItemIndex].Caption;
+  StatusBar.Panels[0].Text := 'Gallery: ' + RibbonCombo.Text;
 end;
 
 procedure TShowcaseForm.TreeGetText(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode;

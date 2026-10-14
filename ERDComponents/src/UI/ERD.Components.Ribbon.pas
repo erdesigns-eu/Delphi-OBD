@@ -47,6 +47,7 @@ uses
   Vcl.ActnList,
   Vcl.AppEvnts,
   Winapi.GDIPAPI,
+  System.Generics.Collections,
   ERD.Components.Control,
   ERD.Components.Paint,
   ERD.Components.Menus;
@@ -297,6 +298,13 @@ type
   /// <summary>One captioned group in a ribbon tab.</summary>
   TERDRibbonGroup = class(TCollectionItem)
   private
+    FControl, FOriginalParent: TWinControl;
+    FControlWidth: Integer;
+    FControlRect, FOriginalBounds: TRect;
+    FOriginalAlign: TAlign;
+    FOriginalAnchors: TAnchors;
+    FOriginalVisible: Boolean;
+    FBindTheme: Boolean;
     FCaption: TCaption;
     FVisible: Boolean;
     FShowLauncher: Boolean;
@@ -310,6 +318,10 @@ type
     procedure SetShowLauncher(AValue: Boolean);
     procedure SetItems(AValue: TERDRibbonItems);
   private
+    function OwnerRibbon: TERDRibbon;
+    procedure SetControl(Value: TWinControl);
+    procedure SetControlWidth(Value: Integer);
+    procedure RestoreControl;
     procedure GroupChanged;
   protected
     /// <summary>Returns the caption in the collection editor.</summary>
@@ -327,6 +339,9 @@ type
     /// <summary>Invokes OnLauncherClick.</summary>
     procedure ClickLauncher;
   published
+    /// <summary>Optional ERD input, panel or gallery hosted beside commands.</summary>
+    property Control: TWinControl read FControl write SetControl;
+    property ControlWidth: Integer read FControlWidth write SetControlWidth default 180;
     /// <summary>Caption centered below the group.</summary>
     property Caption: TCaption read FCaption write SetCaption;
     /// <summary>Whether the group participates in layout.</summary>
@@ -550,6 +565,8 @@ type
     procedure CMERDBackstageVisible(var Message: TMessage);
       message CM_ERD_BACKSTAGEVISIBLE;
   private
+    FHostedGroups: TList<TERDRibbonGroup>;
+    procedure LayoutHostedControls(Host: TWinControl);
     procedure RibbonChanged;
     // Used by the peek panel, which shows the body of a collapsed ribbon
     // over the form.
@@ -1151,17 +1168,124 @@ begin
     FOnClick(Self);
 end;
 
+function TERDRibbonGroup.OwnerRibbon: TERDRibbon;
+var Owner: TPersistent;
+begin
+  Result := nil;
+  if Collection = nil then Exit;
+  Owner := Collection.Owner;
+  if Owner is TERDRibbonTab then Owner := TERDRibbonTab(Owner).Collection.Owner;
+  if Owner is TERDContextualTabSet then Owner := TERDContextualTabSet(Owner).Collection.Owner;
+  if Owner is TERDRibbon then Result := TERDRibbon(Owner);
+end;
+
+procedure TERDRibbonGroup.RestoreControl;
+var Ribbon: TERDRibbon;
+begin
+  Ribbon := OwnerRibbon;
+  if Ribbon <> nil then Ribbon.FHostedGroups.Remove(Self);
+  if FControl <> nil then
+  begin
+    if not (csDestroying in FControl.ComponentState) then
+    begin
+      FControl.Parent := FOriginalParent;
+      FControl.Align := FOriginalAlign;
+      FControl.Anchors := FOriginalAnchors;
+      FControl.BoundsRect := FOriginalBounds;
+      FControl.Visible := FOriginalVisible;
+      if FBindTheme and (FControl is TERDCustomControl) then TERDCustomControl(FControl).Theme := nil;
+    end;
+    if Ribbon <> nil then FControl.RemoveFreeNotification(Ribbon);
+  end;
+  FControl := nil;
+  FOriginalParent := nil;
+end;
+
+procedure TERDRibbonGroup.SetControl(Value: TWinControl);
+var Ribbon: TERDRibbon; Parent: TWinControl; Group: TERDRibbonGroup;
+begin
+  if FControl = Value then Exit;
+  Ribbon := OwnerRibbon;
+  if (Value <> nil) and (Ribbon <> nil) then
+  begin
+    Parent := Ribbon;
+    while Parent <> nil do
+    begin
+      if Parent = Value then raise EArgumentException.Create('Ribbon cannot host itself or an ancestor');
+      Parent := Parent.Parent;
+    end;
+    for Group in Ribbon.FHostedGroups do
+      if Group.Control = Value then raise EArgumentException.Create('Control is already bound to a ribbon group');
+    if (Value.Parent is TERDRibbon) and (Value.Parent <> Ribbon) then
+      raise EArgumentException.Create('Control is already hosted by another ribbon');
+  end;
+  RestoreControl;
+  FControl := Value;
+  if Value <> nil then
+  begin
+    FOriginalParent := Value.Parent;
+    FOriginalBounds := Value.BoundsRect;
+    FOriginalAlign := Value.Align;
+    FOriginalAnchors := Value.Anchors;
+    FOriginalVisible := Value.Visible;
+    FBindTheme := (Value is TERDCustomControl) and (TERDCustomControl(Value).Theme = nil);
+    if Ribbon <> nil then
+    begin
+      Value.FreeNotification(Ribbon);
+      if (FOriginalParent <> nil) and (FOriginalParent <> Ribbon) then FOriginalParent.FreeNotification(Ribbon);
+      Ribbon.FHostedGroups.Add(Self);
+    end;
+    // Ownership stays with the application form; only parenting changes.
+  end;
+  GroupChanged;
+end;
+
+procedure TERDRibbonGroup.SetControlWidth(Value: Integer);
+begin
+  Value := EnsureRange(Value, 32, 2000);
+  if FControlWidth = Value then Exit;
+  FControlWidth := Value;
+  GroupChanged;
+end;
+
+procedure TERDRibbon.LayoutHostedControls(Host: TWinControl);
+var Group: TERDRibbonGroup; R: TRect; Control: TWinControl; Visible: Boolean;
+begin
+  if Host = nil then Exit;
+  for Group in FHostedGroups do
+  begin
+    Control := Group.Control;
+    if (Control = nil) or (csDestroying in Control.ComponentState) then Continue;
+    R := Group.FControlRect;
+    Visible := not R.IsEmpty and Group.Visible and
+      ((Host <> Self) or BodyVisible) and (R.Left >= 0) and (R.Right <= Host.ClientWidth);
+    if not Visible then
+    begin
+      if Control.Visible then Control.Visible := False;
+      Continue;
+    end;
+    if Control.Parent <> Host then Control.Parent := Host;
+    if Control.Align <> alNone then Control.Align := alNone;
+    if Control.Anchors <> [akLeft, akTop] then Control.Anchors := [akLeft, akTop];
+    if Group.FBindTheme and (Control is TERDCustomControl) then TERDCustomControl(Control).Theme := Theme;
+    if not EqualRect(Control.BoundsRect, R) then Control.BoundsRect := R;
+    if not Control.Visible then Control.Visible := True;
+  end;
+end;
+
 { TERDRibbonGroup ----------------------------------------------------------- }
 
 constructor TERDRibbonGroup.Create(Collection: TCollection);
 begin
   inherited Create(Collection);
   FVisible := True;
+  FControlWidth := 180;
   FItems := TERDRibbonItems.Create(Self);
 end;
 
 destructor TERDRibbonGroup.Destroy;
 begin
+  RestoreControl;
   FItems.Free;
   inherited Destroy;
 end;
@@ -1173,6 +1297,7 @@ begin
   if Source is TERDRibbonGroup then
   begin
     S := TERDRibbonGroup(Source);
+    ControlWidth := S.ControlWidth;
     Caption := S.Caption;
     Visible := S.Visible;
     ShowLauncher := S.ShowLauncher;
@@ -1483,6 +1608,7 @@ begin
   Width := 640;
   Height := 132;
   TabStop := True;
+  FHostedGroups := TList<TERDRibbonGroup>.Create;
   FTabs := TERDRibbonTabs.Create(Self);
   FContextualTabs := TERDContextualTabSets.Create(Self);
   FPreviewTabs := TERDRibbonTabs.Create(nil);
@@ -1519,6 +1645,7 @@ begin
   FPreviewTabs.Free;
   FContextualTabs.Free;
   FTabs.Free;
+  FreeAndNil(FHostedGroups);
   inherited Destroy;
 end;
 
@@ -1666,10 +1793,19 @@ end;
 
 procedure TERDRibbon.Notification(AComponent: TComponent;
   Operation: TOperation);
+var I: Integer; G: TERDRibbonGroup;
 begin
   inherited Notification(AComponent, Operation);
   if Operation = opRemove then
   begin
+    if FHostedGroups <> nil then
+      for I := FHostedGroups.Count - 1 downto 0 do
+      begin
+        G := FHostedGroups[I];
+        if G.FOriginalParent = AComponent then G.FOriginalParent := nil;
+        if G.FControl = AComponent then
+        begin G.FControl := nil; FHostedGroups.Delete(I) end;
+      end;
     if AComponent = FImages then
       FImages := nil;
     if AComponent = FPeek then
@@ -2000,6 +2136,7 @@ end;
 
 procedure TERDRibbon.RibbonChanged;
 begin
+  if FTemporaryExpanded and (FPeek <> nil) then FPeek.Invalidate;
   NormalizeActiveTab;
   UpdateHeight;
   Invalidate;
@@ -2033,6 +2170,8 @@ var
   Ctx: TERDContextualTabSets;
   T: TERDRibbonTab;
 begin
+  for I := 0 to FHostedGroups.Count - 1 do
+    FHostedGroups[I].FControlRect := Rect(0, 0, 0, 0);
   Tabs := ActiveTabs;
   for I := 0 to Tabs.Count - 1 do
   begin
@@ -2079,6 +2218,7 @@ begin
     P.Free;
   end;
   LayoutSearchEdit;
+  if not FTemporaryExpanded then LayoutHostedControls(Self);
 end;
 
 procedure TERDRibbon.DrawTabRow(APainter: TERDPainter);
@@ -2290,6 +2430,12 @@ begin
       if ColW > 0 then
         Inc(BX, ColW + ScaleValue(6));
     end;
+    if G.Control <> nil then
+    begin
+      G.FControlRect := Rect(BX + ScaleValue(2), ATop + ScaleValue(6),
+        BX + ScaleValue(G.ControlWidth), ATop + ScaleValue(4) + BodyH);
+      Inc(BX, ScaleValue(G.ControlWidth + 4));
+    end;
     GW := System.Math.Max(BX - StartX,
       APainter.TextWidth(G.Caption, 11.5, twRegular) + ScaleValue(36));
     G.FRect := Rect(StartX, ATop, StartX + GW, ATop + ClassicBodyHeight);
@@ -2355,6 +2501,16 @@ begin
       end;
       DrawSmallItem(APainter, ACanvas, It, BX, ATop + ScaleValue(6), RH);
       Inc(BX, W + ScaleValue(2));
+    end;
+    if G.Control <> nil then
+    begin
+      W := ScaleValue(G.ControlWidth);
+      if BX + W <= LimitX then
+      begin
+        G.FControlRect := Rect(BX, ATop + ScaleValue(6), BX + W,
+          ATop + ScaleValue(6) + RH);
+        Inc(BX, W + ScaleValue(4));
+      end;
     end;
     if BX + ScaleValue(8) < LimitX then
     begin
@@ -2567,6 +2723,7 @@ begin
     else P.FillRect(Rect(0,0,Width,AHeight), Palette.Background);
     DrawTabRow(P);
     DrawBody(P, ACanvas);
+    LayoutHostedControls(FPeek);
   finally
     P.Free;
   end;

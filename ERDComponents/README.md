@@ -248,6 +248,26 @@ verwijdert niets; het kruisje of Delete/Backspace op een gefocuste chip verwijde
 de tag. Expander gebruikt een themed, links uitgelijnde header in plaats van een
 gewone knop. SplitButton heeft een verticale scheidingslijn tussen beide acties.
 
+## Ribbon-invoer en galleries
+
+Koppel `TERDRibbonGroup.Control` aan een bestaande ERD-input, een panel met
+meerdere inputs of `TERDTileGrid` als gallery. `ControlWidth` is de breedte in
+96-DPI pixels (standaard 180). De control staat naast de gewone commands; de
+Ribbon verwerkt tabwissels, classic/simplified, collapsen en het tijdelijk
+uitgeklapte ribbonpaneel. Controls die niet passen worden verborgen, zodat ze
+niet over andere commands vallen. In classic layout kunnen galleries hun volle
+hoogte gebruiken; simplified gebruikt één compacte rij.
+
+De control blijft eigendom van de applicatie. Verwijderen van de koppeling of
+groep herstelt parent, bounds, align, anchors en oorspronkelijke zichtbaarheid.
+Eenzelfde control kan niet aan meerdere groepen worden gekoppeld. Een groepskopie
+kopieert metadata en commands, maar neemt de controlbinding niet over. Controls
+zonder expliciete theme volgen de Ribbon-theme tijdens de koppeling.
+
+De DFM-demo bevat een groep met SearchEdit, een zoekbare ComboBox en SpinEdit,
+plus een gallery met Normal/Heading/Subtitle. De gallery synchroniseert de
+stijlkeuze; wijzigingen worden in de statusbar getoond.
+
 ## Ribbon-states en IDE-keuzelijsten
 
 Ribbon-items met `Kind=rikToggle` werken als losse checkbox-toggles. Met dezelfde

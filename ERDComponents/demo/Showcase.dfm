@@ -98,6 +98,16 @@
                 end
               >
             end
+            item
+              Caption = 'Inputs'
+              Control = RibbonInputs
+              ControlWidth = 220
+            end
+            item
+              Caption = 'Style gallery'
+              Control = RibbonGallery
+              ControlWidth = 280
+            end
           >
         end
         item
@@ -138,6 +148,68 @@
           >
         end
       >
+      object RibbonInputs: TERDPanel
+        Width = 220
+        Height = 82
+        Visible = False
+        BorderWidth = 0
+        Theme = Theme
+        object RibbonSearch: TERDSearchEdit
+          Left = 2
+          Top = 2
+          Width = 214
+          TextHint = 'Search content'
+          SearchDelay = 0
+          OnSearch = RibbonInputChanged
+        end
+        object RibbonCombo: TERDComboBox
+          Left = 2
+          Top = 29
+          Width = 140
+          Style = ecsDropDown
+          FilterMode = cfsContains
+          Text = 'Normal'
+          Items.Strings = (
+            'Normal'
+            'Heading'
+            'Subtitle')
+          OnChange = RibbonInputChanged
+        end
+        object RibbonSpin: TERDSpinEdit
+          Left = 148
+          Top = 29
+          Width = 68
+          Value = 12
+          MinValue = 6
+          MaxValue = 72
+          OnChange = RibbonInputChanged
+        end
+      end
+      object RibbonGallery: TERDTileGrid
+        Width = 280
+        Height = 82
+        Visible = False
+        Theme = Theme
+        TileWidth = 80
+        TileHeight = 52
+        Spacing = 4
+        ShowGroups = False
+        Items = <
+          item
+            Caption = 'Normal'
+            Subtitle = 'Body text'
+          end
+          item
+            Caption = 'Heading'
+            Subtitle = 'Title'
+          end
+          item
+            Caption = 'Subtitle'
+            Subtitle = 'Secondary'
+          end>
+        ItemIndex = 0
+        OnChange = RibbonGalleryChanged
+      end
     end
     object Choices: TERDPanel
       Left = 0

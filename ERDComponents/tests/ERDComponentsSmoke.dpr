@@ -302,6 +302,53 @@ begin
     finally Stream.Free end;
   finally Button.Free end;
 end;
+procedure TestRibbonHostedControls;
+var Form: TForm; Ribbon: TERDRibbon; Host: TERDPanel; Edit: TERDEdit;
+  Group, Other: TERDRibbonGroup; Bitmap: TBitmap; Original: TRect; Rejected: Boolean;
+begin
+  Form := TForm.CreateNew(nil);
+  Bitmap := TBitmap.Create;
+  try
+    Form.ClientWidth := 900; Form.ClientHeight := 500;
+    Host := TERDPanel.Create(Form); Host.Parent := Form; Host.Top := 180;
+    Edit := TERDEdit.Create(Form); Edit.Parent := Host;
+    Edit.SetBounds(10, 10, 180, 26); Edit.Text := 'Retained input';
+    Original := Edit.BoundsRect;
+    Ribbon := TERDRibbon.Create(Form); Ribbon.Parent := Form;
+    Group := Ribbon.Tabs.Add.Groups.Add; Group.Caption := 'Input';
+    Group.ControlWidth := 220; Group.Control := Edit;
+    Other := Ribbon.Tabs[0].Groups.Add;
+    Ribbon.ActiveTab := 0;
+    Form.Show; Application.ProcessMessages;
+    Bitmap.SetSize(Ribbon.Width, Ribbon.Height);
+    Ribbon.PaintTo(Bitmap.Canvas.Handle, 0, 0);
+    Check((Edit.Parent = Ribbon) and Edit.Visible and (Edit.Text = 'Retained input'),
+      'Classic ribbon hosts the original input instance');
+    Rejected := False;
+    try Other.Control := Edit except on E: EArgumentException do Rejected := True end;
+    Check(Rejected and (Other.Control = nil) and (Group.Control = Edit),
+      'A control cannot bind to two ribbon groups');
+    Group.Visible := False;
+    Ribbon.PaintTo(Bitmap.Canvas.Handle, 0, 0);
+    Check(not Edit.Visible, 'Hidden ribbon group hides its hosted input');
+    Group.Visible := True;
+    Ribbon.RibbonStyle := rsSimplified;
+    Bitmap.SetSize(Ribbon.Width, Ribbon.Height);
+    Ribbon.PaintTo(Bitmap.Canvas.Handle, 0, 0);
+    Check(Edit.Visible and (Edit.Parent = Ribbon), 'Simplified ribbon hosts fitting controls');
+    Ribbon.Collapsed := True;
+    Ribbon.PaintTo(Bitmap.Canvas.Handle, 0, 0);
+    Check(not Edit.Visible, 'Collapsed ribbon hides inline controls');
+    Ribbon.Collapsed := False;
+    Group.Control := nil;
+    Check((Edit.Parent = Host) and Edit.Visible and EqualRect(Edit.BoundsRect, Original) and
+      (Edit.Owner = Form) and (Edit.Text = 'Retained input'), 'Unbinding restores layout without destroying input');
+    Group.Control := Edit;
+    Edit.Free;
+    Check(Group.Control = nil, 'FreeNotification clears freed hosted input');
+  finally Bitmap.Free; Form.Free end;
+end;
+
 procedure TestHostedStatusPanels;
 var
   Form: TForm; Status: TERDStatusBar; Host, OriginalParent: TERDPanel;
@@ -1869,6 +1916,7 @@ begin
     Application.Initialize;
     TestIconLifetimeAndStreaming;
     TestHostedStatusPanels;
+    TestRibbonHostedControls;
     TestThemesAndRibbon;
     TestPopupRowsAndCommandSwitch;
     TestComboMouseChange;
