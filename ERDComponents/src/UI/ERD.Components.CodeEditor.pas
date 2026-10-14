@@ -6,6 +6,10 @@ uses Winapi.Windows, Winapi.Messages, System.Classes, System.SysUtils,
   System.Types, System.Math, System.Generics.Collections, Vcl.Controls,
   Vcl.Graphics, ERD.Components.Control, ERD.Components.TextInput, ERD.Components.Syntax;
 type
+  TERDCodeSearchRequestEvent = procedure(Sender: TObject; Replacing: Boolean) of object;
+  TERDCodeSearchOption = (soMatchCase, soWholeWord, soRegex);
+  TERDCodeSearchOptions = set of TERDCodeSearchOption;
+  TERDCodeSearchMatch = record Start, Count: Integer; end;
   TERDDiagnosticSeverity = (dsError, dsWarning, dsInformation, dsHint);
   TERDCodeDiagnostic = record
     Start, Count: Integer; // Zero-based UTF-16 offsets into the submitted document.
@@ -28,6 +32,12 @@ type
     FBracketText: UnicodeString;
     FBracketCaret, FBracketOpening, FBracketClosing: Integer;
     FBracketValid: Boolean;
+    FOnSearchRequested: TERDCodeSearchRequestEvent;
+    FSearchPattern, FSearchError: UnicodeString;
+    FSearchOptions: TERDCodeSearchOptions;
+    FSearchMatches: TArray<TERDCodeSearchMatch>;
+    FSearchScopeStart, FSearchScopeCount, FSearchIndex: Integer;
+    procedure RefreshSearch;
     procedure SetShowIndentGuides(Value: Boolean);
     procedure SetShowBracketMatch(Value: Boolean);
     function LiteralAt(Position: Integer): Boolean;
@@ -49,6 +59,8 @@ type
     procedure FilterRows(var Rows: TArray<TERDTextRow>); override;
     procedure PaintTextLine(ACanvas: TCanvas; Start, Count, X, Y: Integer;
       Line: TERDTextLayoutLine); override;
+    procedure PaintTextBackground(ACanvas: TCanvas; Start, Count, X, Y: Integer;
+      Line: TERDTextLayoutLine); override;
     procedure PaintTextOverlay(ACanvas: TCanvas; Start, Count, X, Y: Integer;
       Line: TERDTextLayoutLine); override;
     procedure PaintControl(ACanvas: TCanvas); override;
@@ -59,6 +71,14 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    function SetSearch(const Pattern: UnicodeString; Options: TERDCodeSearchOptions = [];
+      ScopeStart: Integer = 0; ScopeCount: Integer = -1): Boolean;
+    procedure ClearSearch;
+    function SearchMatches: TArray<TERDCodeSearchMatch>;
+    function FindNext(Backwards: Boolean = False): Boolean;
+    function ReplaceCurrent(const Replacement: UnicodeString): Boolean;
+    function ReplaceAll(const Replacement: UnicodeString): Integer;
+    property SearchError: UnicodeString read FSearchError;
     procedure ToggleFold(Position: Integer);
     procedure FoldAll;
     procedure UnfoldAll;
@@ -72,6 +92,7 @@ type
     function SyntaxAnalysis: TERDSyntaxAnalysis;
     property SyntaxProvider: IERDSyntaxProvider read FProvider write SetProvider;
   published
+    property OnSearchRequested: TERDCodeSearchRequestEvent read FOnSearchRequested write FOnSearchRequested;
     property Language: TERDCodeLanguage read FLanguage write SetLanguage default clTypeScript;
     property ShowLineNumbers: Boolean read FShowLineNumbers write SetShowLineNumbers default True;
     property ShowFolding: Boolean read FShowFolding write SetShowFolding default True;
@@ -82,10 +103,13 @@ type
     property TabWidth: Integer read FTabWidth write SetTabWidth default 2;
   end;
 implementation
+uses System.RegularExpressions, ERD.Components.Paint;
 constructor TERDCodeEditor.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FCollapsed := TList<Integer>.Create;
+  FSearchScopeCount := -1;
+  FSearchIndex := -1;
   FLanguage := clTypeScript;
   FTabWidth := 2;
   FAutoCloseDelimiters := True;
@@ -148,6 +172,140 @@ begin
   FShowFolding := Value;
   if not Value then UnfoldAll;
   InvalidateTextLayout; UpdateCaret;
+end;
+function TERDCodeEditor.SetSearch(const Pattern: UnicodeString; Options: TERDCodeSearchOptions;
+  ScopeStart, ScopeCount: Integer): Boolean;
+begin
+  FSearchPattern := Pattern; FSearchOptions := Options;
+  FSearchScopeStart := EnsureRange(ScopeStart, 0, Length(Text));
+  FSearchScopeCount := Max(-1, ScopeCount); RefreshSearch;
+  Result := FSearchError = ''; Invalidate;
+end;
+procedure TERDCodeEditor.ClearSearch;
+begin FSearchPattern := ''; FSearchMatches := nil; FSearchError := ''; FSearchIndex := -1; Invalidate; end;
+function TERDCodeEditor.SearchMatches: TArray<TERDCodeSearchMatch>;
+begin Result := Copy(FSearchMatches); end;
+procedure TERDCodeEditor.RefreshSearch;
+var Pattern: UnicodeString; Regex: TRegEx; Matches: TMatchCollection; Match: TMatch;
+    Options: TRegExOptions; Item: TERDCodeSearchMatch; Found: TList<TERDCodeSearchMatch>;
+    ScopeFinish: Integer;
+begin
+  FSearchMatches := nil; FSearchError := ''; FSearchIndex := -1;
+  if FSearchPattern = '' then Exit;
+  ScopeFinish := Length(Text);
+  if FSearchScopeCount >= 0 then
+    ScopeFinish := FSearchScopeStart + Min(FSearchScopeCount, Max(0, Length(Text) - FSearchScopeStart));
+  Found := TList<TERDCodeSearchMatch>.Create;
+  try
+    try
+      Pattern := FSearchPattern;
+      if not (soRegex in FSearchOptions) then Pattern := TRegEx.Escape(Pattern);
+      if soWholeWord in FSearchOptions then
+        Pattern := '(?<![\p{L}\p{M}\p{N}_$])(?:' + Pattern + ')(?![\p{L}\p{M}\p{N}_$])';
+      Options := [roMultiLine];
+      if not (soMatchCase in FSearchOptions) then Include(Options, roIgnoreCase);
+      Regex := TRegEx.Create(Pattern, Options); Matches := Regex.Matches(Text);
+      for Match in Matches do
+      begin
+        // Delphi TMatch.Index is one-based. Public editor ranges are zero-based.
+        Item.Start := Match.Index - 1; Item.Count := Match.Length;
+        if (Item.Start < FSearchScopeStart) or (Item.Start + Item.Count > ScopeFinish) then Continue;
+        if (TextModel.Snap(Item.Start) <> Item.Start) or
+          (TextModel.Snap(Item.Start + Item.Count) <> Item.Start + Item.Count) then Continue;
+        Found.Add(Item);
+      end;
+      FSearchMatches := Found.ToArray;
+    except on E: Exception do FSearchError := E.Message; end;
+  finally Found.Free; end;
+end;
+function TERDCodeEditor.FindNext(Backwards: Boolean): Boolean;
+var I, Candidate: Integer; Item: TERDCodeSearchMatch;
+begin
+  Result := Length(FSearchMatches) > 0; if not Result then Exit;
+  Candidate := -1;
+  if (FSearchIndex >= 0) and (FSearchIndex < Length(FSearchMatches)) and
+    (SelStart = FSearchMatches[FSearchIndex].Start) and (SelLength = FSearchMatches[FSearchIndex].Count) then
+  begin
+    if Backwards then Candidate := FSearchIndex - 1 else Candidate := FSearchIndex + 1;
+    if Candidate < 0 then Candidate := High(FSearchMatches)
+    else if Candidate > High(FSearchMatches) then Candidate := 0;
+  end
+  else if Backwards then
+  begin
+    for I := High(FSearchMatches) downto 0 do
+      if FSearchMatches[I].Start < SelStart then begin Candidate := I; Break; end;
+    if Candidate < 0 then Candidate := High(FSearchMatches);
+  end
+  else
+  begin
+    for I := 0 to High(FSearchMatches) do
+      if FSearchMatches[I].Start >= SelStart + SelLength then begin Candidate := I; Break; end;
+    if Candidate < 0 then Candidate := 0;
+  end;
+  Item := FSearchMatches[Candidate]; FSearchIndex := Candidate;
+  TextModel.Select(Item.Start, Item.Start + Item.Count); Changed(Text); Invalidate;
+end;
+function TERDCodeEditor.ReplaceCurrent(const Replacement: UnicodeString): Boolean;
+var Item: TERDCodeSearchMatch; Before, Value: UnicodeString; Start: Integer;
+begin
+  Result := False; if ReadOnly or (FSearchError <> '') then Exit;
+  for Item in FSearchMatches do
+    if (Item.Start = SelStart) and (Item.Count = SelLength) then
+    begin
+      Before := Text; Value := NormalizeInput(Replacement); Start := Item.Start;
+      if (MaxLength > 0) and (Length(Text) - Item.Count + Length(Value) > MaxLength) then Exit;
+      if FSearchScopeCount >= 0 then Inc(FSearchScopeCount, Length(Value) - Item.Count);
+      TextModel.ReplaceRange(Start, Item.Count, Value); Changed(Before);
+      Result := True; Exit;
+    end;
+end;
+function TERDCodeEditor.ReplaceAll(const Replacement: UnicodeString): Integer;
+var Item: TERDCodeSearchMatch; Before, Value: UnicodeString; Builder: TStringBuilder;
+    At, Count: Integer;
+begin
+  Result := 0; if ReadOnly or (FSearchError <> '') or (Length(FSearchMatches) = 0) then Exit;
+  Before := Text; Value := NormalizeInput(Replacement); Builder := TStringBuilder.Create;
+  try
+    At := 0; Count := Length(FSearchMatches);
+    for Item in FSearchMatches do
+    begin
+      Builder.Append(Copy(Before, At + 1, Item.Start - At)); Builder.Append(Value);
+      At := Item.Start + Item.Count;
+    end;
+    Builder.Append(Copy(Before, At + 1, Length(Before) - At)); Value := Builder.ToString;
+    if (MaxLength > 0) and (Length(Value) > MaxLength) then Exit;
+    if FSearchScopeCount >= 0 then Inc(FSearchScopeCount, Length(Value) - Length(Before));
+    TextModel.ReplaceRange(0, Length(Before), Value); Changed(Before); Result := Count;
+  finally Builder.Free; end;
+end;
+procedure TERDCodeEditor.PaintTextBackground(ACanvas: TCanvas; Start, Count, X, Y: Integer;
+  Line: TERDTextLayoutLine);
+var Item: TERDCodeSearchMatch; A, B, L, R, Index: Integer;
+    Boundaries: TArray<Integer>;
+begin
+  inherited; Boundaries := TextModel.Boundaries;
+  ACanvas.Brush.Color := ERDMixColor(Palette.Warning, Palette.Background, 0.22);
+  for Item in FSearchMatches do
+  begin
+    if Item.Count = 0 then
+    begin
+      if (Item.Start >= Start) and (Item.Start <= Start + Count) then
+      begin
+        L := Line.X(Item.Start - Start);
+        ACanvas.FillRect(Rect(X + L, Y, X + L + Max(1, ScaleValue(2)), Y + RowHeight));
+      end;
+      Continue;
+    end;
+    A := Max(Start, Item.Start); B := Min(Start + Count, Item.Start + Item.Count);
+    if A >= B then Continue;
+    // Individual grapheme rectangles preserve disjoint bidi visual ranges.
+    for Index := 0 to High(Boundaries) - 1 do
+      if (Boundaries[Index] >= A) and (Boundaries[Index + 1] <= B) then
+      begin
+        Line.Range(Boundaries[Index] - Start, Boundaries[Index + 1] - Boundaries[Index], L, R);
+        ACanvas.FillRect(Rect(X + L, Y, X + R, Y + RowHeight));
+      end;
+  end;
 end;
 procedure TERDCodeEditor.SetShowIndentGuides(Value: Boolean);
 begin FShowIndentGuides := Value; Invalidate; end;
@@ -310,6 +468,7 @@ begin
   begin
     // Editing invalidates structural offsets. Keep the text, expand stale folds.
     FDiagnostics := nil;
+    RefreshSearch;
     FAnalysisValid := False;
     if FCollapsed <> nil then FCollapsed.Clear;
     InvalidateTextLayout;
@@ -575,6 +734,16 @@ end;
 procedure TERDCodeEditor.KeyDown(var Key: Word; Shift: TShiftState);
 var Before: UnicodeString; Position, Spaces, Start: Integer;
 begin
+  if ((Key = VK_F3) and not (ssCtrl in Shift) and not (ssAlt in Shift)) or
+    ((ssCtrl in Shift) and not (ssAlt in Shift) and Assigned(FOnSearchRequested) and
+      (Key in [Ord('F'), Ord('H')])) then
+  begin
+    if Assigned(OnKeyDown) then OnKeyDown(Self, Key, Shift);
+    if Key = 0 then Exit;
+    if Key = VK_F3 then FindNext(ssShift in Shift)
+    else if Assigned(FOnSearchRequested) and (Key in [Ord('F'), Ord('H')]) then FOnSearchRequested(Self, Key = Ord('H'));
+    Key := 0; Exit;
+  end;
   if FSmartHome and (Key = VK_HOME) and not (ssCtrl in Shift) and not (ssAlt in Shift) then
   begin
     if Assigned(OnKeyDown) then OnKeyDown(Self, Key, Shift);

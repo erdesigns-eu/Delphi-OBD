@@ -2173,6 +2173,64 @@ begin
   finally Form.Free; Filter.Free; end;
 end;
 
+procedure TestCodeEditorSearch;
+var Form: TForm; Editor: TCodeEditorProbe; Matches: TArray<TERDCodeSearchMatch>;
+    Before: UnicodeString; Rows: Integer;
+begin
+  Form := TForm.Create(nil);
+  try
+    Editor := TCodeEditorProbe.Create(Form); Editor.Parent := Form; Editor.SetBounds(0, 0, 460, 180);
+    Form.Show; Editor.SetFocus;
+    Editor.Text := 'count Count counter $count';
+    Check(Editor.SetSearch('count'), 'Literal search compiles'); Matches := Editor.SearchMatches;
+    Check((Length(Matches) = 4) and (Matches[0].Start = 0) and (Matches[1].Start = 6),
+      'Literal search reports zero-based UTF-16 positions');
+    Check(Editor.SetSearch('count', [soWholeWord]) and (Length(Editor.SearchMatches) = 2),
+      'Whole-word search excludes identifier suffix and dollar prefix');
+    Editor.SetSearch('count', [soWholeWord, soMatchCase]);
+    Check(Length(Editor.SearchMatches) = 1, 'Case-sensitive search filters uppercase variant');
+    Editor.SetSearch('count'); Editor.SelStart := 0;
+    Check(Editor.FindNext and (Editor.SelStart = 0) and (Editor.SelLength = 5), 'Find selects first match');
+    Check(Editor.FindNext and (Editor.SelStart = 6), 'Find advances after selected match');
+    Check(Editor.FindNext(True) and (Editor.SelStart = 0), 'Previous moves backwards');
+    Check(Editor.FindNext(True) and (Editor.SelStart = 21), 'Previous wraps at document beginning');
+    Matches := Editor.SearchMatches; Matches[0].Start := 999;
+    Check(Editor.SearchMatches[0].Start = 0, 'Search results are copied');
+    Editor.SetSearch('count', [], 6, 5);
+    Check((Length(Editor.SearchMatches) = 1) and (Editor.SearchMatches[0].Start = 6), 'Selection-scoped search limits full matches');
+    Editor.Text := 'a.b aXb'; Editor.SetSearch('a.b');
+    Check(Length(Editor.SearchMatches) = 1, 'Literal search escapes regex metacharacters');
+    Editor.SetSearch('a.b', [soRegex]);
+    Check(Length(Editor.SearchMatches) = 2, 'Regex search recognises metacharacters');
+    Before := Editor.Text;
+    Check(not Editor.SetSearch('(', [soRegex]) and (Editor.SearchError <> '') and
+      (Length(Editor.SearchMatches) = 0) and (Editor.Text = Before), 'Invalid regex reports error without editing document');
+    Editor.Text := 'foo foo'; Editor.SelectAll; Editor.SetSearch('foo');
+    Check(Editor.ReplaceAll('bar') = 2, 'Replace All reports replacement count');
+    Check(Editor.Text = 'bar bar', 'Replace All changes all occurrences'); Editor.Undo;
+    Check((Editor.Text = 'foo foo') and (Editor.SelLength = 7) and
+      (Length(Editor.SearchMatches) = 2), 'Replace All undo restores text, selection and search results');
+    Editor.SelLength := 0; Editor.SelStart := 0; Editor.FindNext;
+    Check(Editor.ReplaceCurrent('longer') and (Editor.Text = 'longer foo'), 'Replace selected match');
+    Editor.Undo; Editor.ReadOnly := True;
+    Check((Editor.ReplaceAll('x') = 0) and not Editor.ReplaceCurrent('x') and (Editor.Text = 'foo foo'),
+      'ReadOnly blocks search replacements'); Editor.ReadOnly := False;
+    Editor.MaxLength := 7;
+    Check((Editor.ReplaceAll('longer') = 0) and (Editor.Text = 'foo foo'), 'MaxLength rejects oversized replacement atomically');
+    Editor.MaxLength := 0; Editor.Text := 'ab'; Editor.SetSearch('(?=.)', [soRegex]);
+    Check((Editor.ReplaceAll('_') = 2) and (Editor.Text = '_a_b'), 'Zero-length regex matches replace without infinite loop');
+    Editor.Text := #$D83D#$DC4D#$D83C#$DFFD; Editor.SetSearch(#$D83D#$DC4D);
+    Check(Length(Editor.SearchMatches) = 0, 'Search cannot select part of an emoji grapheme');
+    Editor.SetSearch(Editor.Text);
+    Check((Length(Editor.SearchMatches) = 1) and (Editor.SearchMatches[0].Count = 4), 'Search matches complete emoji grapheme');
+    Editor.Text := 'function run() {' + #13#10 + '  return true;' + #13#10 + '}';
+    Editor.SelStart := 0; Rows := Editor.RowCount; Editor.ToggleFold(0);
+    Editor.SetSearch('return'); Editor.FindNext;
+    Check(Editor.RowCount = Rows, 'Finding hidden text expands its fold');
+    Editor.ClearSearch; Check(Length(Editor.SearchMatches) = 0, 'Clear Search removes highlights');
+  finally Form.Free; end;
+end;
+
 procedure TestSharedColorEmoji;
 var Form: TForm; Input: TERDTextInput; Area: TERDTextArea; Theme: TERDTheme;
     Bitmap: TBitmap; Layout: TERDTextLayoutLine; X, Y, L, R: Integer;
@@ -2520,6 +2578,7 @@ begin
     TestMultilineTextEngine;
     TestSyntaxAndCodeEditor;
     TestSharedColorEmoji;
+    TestCodeEditorSearch;
     TestWindowsEditInteractionParity;
     TestMigratedShowcaseTextWindows;
     TestTextInputEditMenu;

@@ -170,6 +170,8 @@ type
     function VisualRows: TArray<TERDTextRow>;
     procedure FilterRows(var Rows: TArray<TERDTextRow>); virtual;
     procedure PaintRowBackground(ACanvas: TCanvas; Row: Integer; const R: TRect); virtual;
+    procedure PaintTextBackground(ACanvas: TCanvas; Start, Count, X, Y: Integer;
+      Line: TERDTextLayoutLine); virtual;
     procedure PaintTextOverlay(ACanvas: TCanvas; Start, Count, X, Y: Integer;
       Line: TERDTextLayoutLine); virtual;
     procedure PaintTextLine(ACanvas: TCanvas; Start, Count, X, Y: Integer;
@@ -993,6 +995,9 @@ procedure TERDTextArea.FilterRows(var Rows: TArray<TERDTextRow>);
 begin end;
 procedure TERDTextArea.PaintRowBackground(ACanvas: TCanvas; Row: Integer; const R: TRect);
 begin end;
+procedure TERDTextArea.PaintTextBackground(ACanvas: TCanvas; Start, Count, X, Y: Integer;
+  Line: TERDTextLayoutLine);
+begin end;
 procedure TERDTextArea.PaintTextOverlay(ACanvas: TCanvas; Start, Count, X, Y: Integer;
   Line: TERDTextLayoutLine);
 begin end;
@@ -1139,6 +1144,8 @@ begin
       Line := TERDTextLayoutLine.Create(ACanvas, RowText(Row));
       try
         PaintRowBackground(ACanvas, Row, Rect(Bounds.Left, Y, Bounds.Right, Y + H));
+        PaintTextBackground(ACanvas, FRows[Row].Start, FRows[Row].Count,
+          LineOrigin(Line.Width) - FScroll, Y, Line);
         PaintTextLine(ACanvas, FRows[Row].Start, FRows[Row].Count,
           LineOrigin(Line.Width) - FScroll, Y, Line);
         if (Focused or not FHideSelection) and (SelLength > 0) then

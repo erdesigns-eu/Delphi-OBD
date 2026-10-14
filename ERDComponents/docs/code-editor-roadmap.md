@@ -4,7 +4,8 @@ The Unicode engine now removes the native EDIT dependency from the control
 set. Building an IDE-grade editor on it is feasible, but the current plain
 Memo is not that code editor. The first `TERDCodeEditor` preview now adds
 TypeScript/Pascal/JSON token colours, line numbers, folding, indentation and
-host-supplied diagnostic highlights; see [its API and limits](code-editor-preview.md). Implement the editor in coherent stages with
+host-supplied diagnostic highlights, paired editing, smart Home, indent guides
+and search/replace; see [its API and limits](code-editor-preview.md). Implement the editor in coherent stages with
 Windows interaction tests at each stage.
 
 | Stage | Features | Architectural requirement |

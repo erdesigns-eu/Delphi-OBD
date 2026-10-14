@@ -649,8 +649,15 @@ type
     // Runtime-only previews: do not let the form designer manage these fields.
     CodePage: TERDPanel;
     CodeEditor: TERDCodeEditor;
+    CodeSearchQuery, CodeSearchReplacement: TERDEdit;
+    CodeSearchRegex, CodeSearchCase, CodeSearchWord: TERDCheckBox;
+    CodeSearchStatus: TLabel;
     UnicodeTextPreview: TERDTextInput;
     UnicodePasswordPreview: TERDTextInput;
+    procedure CodeSearchChanged(Sender: TObject);
+    procedure CodeSearchClicked(Sender: TObject);
+    procedure CodeDocumentChanged(Sender: TObject);
+    procedure CodeSearchRequested(Sender: TObject; Replacing: Boolean);
     procedure CreateCodePreview;
     procedure CodeFoldClicked(Sender: TObject);
     procedure CodeDiagnosticsClicked(Sender: TObject);
@@ -662,12 +669,27 @@ implementation
 
 procedure TShowcaseForm.CreateCodePreview;
 var Header: TERDPanel; Button: TERDButton; Instructions: TLabel;
+  procedure AddSearchButton(const Caption: string; Left, Width, Action: Integer);
+  var B: TERDButton;
+  begin
+    B := TERDButton.Create(Self); B.Parent := Header; B.Caption := Caption;
+    B.Tag := Action; B.OnClick := CodeSearchClicked;
+    B.SetBounds(MulDiv(Left, CurrentPPI, 96), MulDiv(48, CurrentPPI, 96),
+      MulDiv(Width, CurrentPPI, 96), MulDiv(28, CurrentPPI, 96));
+  end;
+  procedure AddSearchChoice(var Choice: TERDCheckBox; const Caption: string; Left, Width: Integer);
+  begin
+    Choice := TERDCheckBox.Create(Self); Choice.Parent := Header; Choice.Caption := Caption;
+    Choice.SetBounds(MulDiv(Left, CurrentPPI, 96), MulDiv(48, CurrentPPI, 96),
+      MulDiv(Width, CurrentPPI, 96), MulDiv(28, CurrentPPI, 96));
+    Choice.OnChange := CodeSearchChanged;
+  end;
 begin
   CodePage := TERDPanel.Create(Self);
   CodePage.Name := 'CodePreviewPage'; CodePage.Parent := DemoPages;
   CodePage.Align := alClient; CodePage.Visible := False;
   Header := TERDPanel.Create(Self); Header.Parent := CodePage;
-  Header.Align := alTop; Header.Height := MulDiv(48, CurrentPPI, 96);
+  Header.Align := alTop; Header.Height := MulDiv(106, CurrentPPI, 96);
   Button := TERDButton.Create(Self); Button.Parent := Header;
   Button.Caption := 'Fold all'; Button.Tag := 1; Button.OnClick := CodeFoldClicked;
   Button.SetBounds(MulDiv(8, CurrentPPI, 96), MulDiv(8, CurrentPPI, 96),
@@ -683,6 +705,26 @@ begin
   Instructions := TLabel.Create(Self); Instructions.Parent := Header;
   Instructions.Caption := 'TypeScript - pairs, smart Home, Tab / Shift+Tab, gutter folds';
   Instructions.Left := MulDiv(320, CurrentPPI, 96); Instructions.Top := MulDiv(15, CurrentPPI, 96);
+  CodeSearchQuery := TERDEdit.Create(Self); CodeSearchQuery.Parent := Header;
+  CodeSearchQuery.TextHint := 'Find'; CodeSearchQuery.Text := 'command';
+  CodeSearchQuery.SetBounds(MulDiv(8, CurrentPPI, 96), MulDiv(48, CurrentPPI, 96),
+    MulDiv(160, CurrentPPI, 96), MulDiv(28, CurrentPPI, 96));
+  CodeSearchQuery.OnChange := CodeSearchChanged;
+  CodeSearchReplacement := TERDEdit.Create(Self); CodeSearchReplacement.Parent := Header;
+  CodeSearchReplacement.TextHint := 'Replace with'; CodeSearchReplacement.Text := 'action';
+  CodeSearchReplacement.SetBounds(MulDiv(176, CurrentPPI, 96), MulDiv(48, CurrentPPI, 96),
+    MulDiv(150, CurrentPPI, 96), MulDiv(28, CurrentPPI, 96));
+  AddSearchButton('Next', 334, 56, 0);
+  AddSearchButton('Previous', 398, 76, 1);
+  AddSearchButton('Replace', 482, 72, 2);
+  AddSearchButton('All', 562, 48, 3);
+  AddSearchChoice(CodeSearchRegex, 'Regex', 618, 76);
+  AddSearchChoice(CodeSearchCase, 'Case', 702, 70);
+  AddSearchChoice(CodeSearchWord, 'Word', 780, 74);
+  CodeSearchStatus := TLabel.Create(Self); CodeSearchStatus.Parent := Header;
+  CodeSearchStatus.SetBounds(MulDiv(8, CurrentPPI, 96), MulDiv(82, CurrentPPI, 96),
+    MulDiv(820, CurrentPPI, 96), MulDiv(20, CurrentPPI, 96));
+  CodeSearchStatus.AutoSize := False;
   CodeEditor := TERDCodeEditor.Create(Self); CodeEditor.Name := 'TypeScriptPreview';
   CodeEditor.Parent := CodePage; CodeEditor.Align := alClient;
   CodeEditor.AlignWithMargins := True;
@@ -709,8 +751,48 @@ begin
     '    return true;' + #13#10 +
     '  }' + #13#10 +
     '}' + #13#10;
+  CodeEditor.OnSearchRequested := CodeSearchRequested;
+  CodeEditor.OnChange := CodeDocumentChanged;
+  CodeSearchChanged(Self);
   PageTabs.Tabs.Add.Caption := 'Code';
   PageTabs.BringToFront;
+end;
+
+procedure TShowcaseForm.CodeSearchChanged(Sender: TObject);
+var Options: TERDCodeSearchOptions;
+begin
+  if CodeEditor = nil then Exit;
+  Options := [];
+  if CodeSearchRegex.Checked then Include(Options, soRegex);
+  if CodeSearchCase.Checked then Include(Options, soMatchCase);
+  if CodeSearchWord.Checked then Include(Options, soWholeWord);
+  CodeEditor.SetSearch(CodeSearchQuery.Text, Options); CodeDocumentChanged(Self);
+end;
+procedure TShowcaseForm.CodeDocumentChanged(Sender: TObject);
+begin
+  if CodeSearchStatus = nil then Exit;
+  if CodeEditor.SearchError <> '' then CodeSearchStatus.Caption := CodeEditor.SearchError
+  else CodeSearchStatus.Caption := IntToStr(Length(CodeEditor.SearchMatches)) + ' matches - F3 / Shift+F3; Ctrl+F / Ctrl+H';
+end;
+procedure TShowcaseForm.CodeSearchClicked(Sender: TObject);
+begin
+  case TERDButton(Sender).Tag of
+    0: CodeEditor.FindNext;
+    1: CodeEditor.FindNext(True);
+    2: begin CodeEditor.ReplaceCurrent(CodeSearchReplacement.Text); CodeEditor.FindNext; end;
+    3: CodeEditor.ReplaceAll(CodeSearchReplacement.Text);
+  end;
+  CodeDocumentChanged(Self); CodeEditor.SetFocus;
+end;
+procedure TShowcaseForm.CodeSearchRequested(Sender: TObject; Replacing: Boolean);
+begin
+  if Replacing then begin CodeSearchReplacement.SetFocus; CodeSearchReplacement.SelectAll; end
+  else
+  begin
+    if (CodeEditor.SelLength > 0) and (Pos(#10, CodeEditor.SelText) = 0) then
+      CodeSearchQuery.Text := CodeEditor.SelText;
+    CodeSearchQuery.SetFocus; CodeSearchQuery.SelectAll;
+  end;
 end;
 
 procedure TShowcaseForm.CodeDiagnosticsClicked(Sender: TObject);

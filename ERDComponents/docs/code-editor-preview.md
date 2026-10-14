@@ -17,6 +17,8 @@ This stage provides:
   an indented body. Smart Home toggles indentation/start (`SmartHome`).
 - Syntax-aware bracket outlines (`ShowBracketMatch`) and dotted indent guides
   (`ShowIndentGuides`). Each feature can be disabled independently.
+- Search/replace with literal or regex queries, case/whole-word options, scoped
+  searches, wrapping navigation and match highlighting.
 - Unicode editing, emoji, selection, clipboard, undo/redo and the themed edit menu
   inherited from the text engine.
 - Error, warning, information and hint diagnostics, with underlines and gutter
@@ -87,3 +89,36 @@ Colour emoji now comes from the shared DirectWrite layout base. All derived inpu
 use the same layout for drawing, caret positioning and selection. Direct2D enables
 Windows colour-font drawing; intrinsic emoji colours remain visible inside themed
 selections. Password masking still shapes bullets, never the hidden emoji.
+
+## Search and replace
+
+`SetSearch(Pattern, Options, ScopeStart, ScopeCount)` updates the active query and
+returns False for an invalid regex. Options are `soMatchCase`, `soWholeWord` and
+`soRegex`. Defaults are a case-insensitive literal query over the whole document.
+An empty query clears matches. `SearchError` reports pattern errors without dialogs.
+
+`SearchMatches` returns copies of zero-based UTF-16 ranges. Only complete grapheme
+ranges are included. Whole-word matching treats Unicode letters/marks/numbers,
+underscore and dollar as identifier characters. Regex syntax follows Delphi's
+`System.RegularExpressions`, with multiline mode enabled.
+
+`FindNext` selects the next match and wraps; `FindNext(True)` searches backwards.
+Finding hidden text expands its fold. F3 / Shift+F3 invoke these commands.
+`OnSearchRequested(Sender, Replacing)` lets a host implement Ctrl+F / Ctrl+H without
+coupling the editor to a particular search-bar UI. The demo provides that UI.
+
+`ReplaceCurrent` replaces an exact selected match; `ReplaceAll` returns the number
+of occurrences processed. Replacement text is **literal**, including `$1`; capture
+expansion is not yet implemented. Newlines are normalised through the text engine.
+ReadOnly blocks replacements and MaxLength rejects oversized changes atomically.
+Replace All is one undo transaction, restoring the original selection on Undo.
+
+ScopeStart/ScopeCount restrict full matches to a captured selection (`-1` means
+through the end of the document). Searches still inspect the full source, preserving
+word-boundary context at scope edges. Own replacements resize the scope; arbitrary
+edits and Undo do not track its endpoints, so hosts should recapture a selection
+scope when needed. Search state is transient and is not streamed.
+
+This implementation scans synchronously. Regex execution has no enforced timeout;
+background/cancellable search and incremental indexing belong to the performance
+stage. Keep initial use to ordinary-sized source files and trusted patterns.
