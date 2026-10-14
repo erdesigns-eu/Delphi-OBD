@@ -918,11 +918,11 @@ end;
 procedure TestNativeTextPainting;
 var Form: TForm; Theme: TERDTheme; Edit: TERDEdit; Memo: TERDMemo;
   Other: TButton; Native: TWinControl; I, J, BeforeInk, AfterInk: Integer;
-  function PixelCount(Window: TWinControl; Color: TColor; Match: Boolean): Integer;
+  function PixelCount(Window: TWinControl; Color: TColor; Match, Repaint: Boolean): Integer;
   var DC: HDC; X, Y: Integer; RGB: COLORREF;
   begin
     Result := 0;
-    RedrawWindow(Window.Handle, nil, 0, RDW_INVALIDATE or RDW_UPDATENOW);
+    if Repaint then RedrawWindow(Window.Handle, nil, 0, RDW_INVALIDATE or RDW_UPDATENOW);
     DC := GetDC(Window.Handle);
     try
       RGB := ColorToRGB(Color);
@@ -955,14 +955,14 @@ begin
           if Memo.Controls[I] is TCustomEdit then Native := TWinControl(Memo.Controls[I]);
       Check(Native <> nil, 'Edit/Memo have a native text window');
       Native.Perform(WM_SETTEXT, 0, LPARAM(PChar('')));
-      BeforeInk := PixelCount(Native, TEdit(Native).Color, False);
+      BeforeInk := PixelCount(Native, TEdit(Native).Color, False, True);
       Native.Perform(WM_SETTEXT, 0, LPARAM(PChar('Visible before focus')));
-      AfterInk := PixelCount(Native, TEdit(Native).Color, False);
+      AfterInk := PixelCount(Native, TEdit(Native).Color, False, True);
       Check(AfterInk > BeforeInk + 10, 'Unfocused native text is painted after invalidation');
       Native.SetFocus;
       Native.Perform(EM_SETSEL, 0, 7);
-      Check(PixelCount(Native, Theme.Palette.Accent, True) > 10,
-        'Selected native text uses the ERD accent fill');
+      Check(PixelCount(Native, Theme.Palette.Accent, True, False) > 10,
+        'Selection already uses ERD accent before another paint/message cycle');
       Other.SetFocus;
     end;
   finally Form.Free end;

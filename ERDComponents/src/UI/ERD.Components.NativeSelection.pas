@@ -187,15 +187,18 @@ begin
   end;
 end;
 
-procedure RefreshSelection(Editor: TCustomEdit; MessageID: Cardinal);
+procedure RefreshSelection(Editor: TCustomEdit; const Message: TMessage);
 begin
-  // Native edits can draw selection immediately during input handling.
-  // Queue native painting plus the ERD overlay for the final selection.
-  case MessageID of
+  // Native selection painting happens during input handling. Finish the
+  // native repaint and ERD overlay before returning to the message loop,
+  // rather than leaving the system highlight visible until a queued paint.
+  if not (Editor.Parent is TERDCustomControl) or not Editor.HandleAllocated then Exit;
+  if (Message.Msg = WM_MOUSEMOVE) and ((Message.WParam and MK_LBUTTON) = 0) then Exit;
+  case Message.Msg of
     WM_SETFOCUS, WM_KILLFOCUS, WM_SETTEXT, WM_KEYDOWN, WM_KEYUP, WM_CHAR,
     WM_LBUTTONDOWN, WM_LBUTTONUP, WM_MOUSEMOVE, WM_HSCROLL, WM_VSCROLL,
     WM_MOUSEWHEEL, EM_SETSEL, WM_CUT, WM_PASTE, WM_CLEAR, WM_UNDO, EM_UNDO:
-      Editor.Invalidate;
+      RedrawWindow(Editor.Handle, nil, 0, RDW_INVALIDATE or RDW_UPDATENOW);
   end;
 end;
 
@@ -203,12 +206,12 @@ procedure TERDSelectionEdit.WndProc(var Message: TMessage);
 begin
   inherited;
   PaintSelectionOverlay(Self, Message);
-  RefreshSelection(Self, Message.Msg);
+  RefreshSelection(Self, Message);
 end;
 procedure TERDSelectionMemo.WndProc(var Message: TMessage);
 begin
   inherited;
   PaintSelectionOverlay(Self, Message);
-  RefreshSelection(Self, Message.Msg);
+  RefreshSelection(Self, Message);
 end;
 end.
