@@ -179,6 +179,15 @@ Gebruik in migratiecode `ERD.Components.VirtualTree` en, waar nodig, de
 namespaced `ERD.Components.VT.Types`, `.BaseTree` en `.Header` units. Native
 nodepointers van de twee verschillende engines moeten niet worden uitgewisseld.
 
+Celbewerking gebruikt standaard `TERDEdit` zodra `toEditable` aanstaat. Met
+`OnGetCellEditor` kies je per node/kolom `tekText`, `tekInteger`, `tekDecimal`,
+`tekCombo`, `tekDate`, `tekTime`, `tekDateTime` of `tekNone`. Vul `Choices` voor de
+zoekbare combo. `OnValidateCellEdit` kan tekst normaliseren of `Accept := False`
+zetten; `OnNewText` bewaart geaccepteerde wijzigingen in je eigen model. Enter
+accepteert, Escape annuleert. Eigen `OnCreateEditor`-links blijven voorrang krijgen.
+De demo toont tekst- en combo-editors; de Windows-smoketest controleert opslaan,
+annuleren en kolomgebonden keuzes.
+
 Herkomst, pin, hashes, licentie en de beperkte engine-aanpassingen staan in
 [vendor/VirtualTreeView](vendor/VirtualTreeView/README.md). Die bronbestanden
 vallen onder MPL 1.1 en behouden de oorspronkelijke credits; ze vallen niet

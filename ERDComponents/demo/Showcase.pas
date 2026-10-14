@@ -67,6 +67,8 @@ uses
 type
   TPlaylistDemoData = record
     Id, GroupId: Cardinal;
+    Edited: array[0..2] of Boolean;
+    Values: array[0..2] of string;
   end;
   PPlaylistDemoData = ^TPlaylistDemoData;
 
@@ -574,6 +576,12 @@ type
     LabelVirtualStringTree: TLabel;
     procedure TreeGetText(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode; Column: TColumnIndex;
       TextType: TVSTTextType; var CellText: string);
+    procedure TreeNewText(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode;
+      Column: TColumnIndex; const NewText: string);
+    procedure TreeNodeDataSize(Sender: TERDVTBaseVirtualTree; var NodeDataSize: Integer);
+    procedure TreeFreeNode(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode);
+    procedure TreeCellEditor(Sender: TObject; Node: PVirtualNode; Column: TColumnIndex;
+      var Kind: TERDTreeEditorKind; Choices: TStrings);
     procedure TreeInitNode(Sender: TERDVTBaseVirtualTree; ParentNode, Node: PVirtualNode;
       var InitialStates: TVirtualNodeInitStates);
     procedure TreeInitChildren(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode; var ChildCount: Cardinal);
@@ -707,6 +715,8 @@ var Data: PPlaylistDemoData;
 begin
   if not (vsInitialized in Node.States) then Sender.ValidateNode(Node, False);
   Data := Sender.GetNodeData(Node);
+  if (Column >= 0) and (Column <= 2) and Data.Edited[Column] then
+  begin CellText := Data.Values[Column]; Exit end;
   if Data.GroupId = 0 then
   begin
     if Column = 0 then CellText := Format('Playlist %d', [Data.Id])
@@ -718,6 +728,36 @@ begin
       1: CellText := 'Live TV';
       2: if Odd(Data.Id) then CellText := 'HD' else CellText := '4K';
     end;
+end;
+
+procedure TShowcaseForm.TreeNewText(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode;
+  Column: TColumnIndex; const NewText: string);
+var Data: PPlaylistDemoData;
+begin
+  if (Column < 0) or (Column > 2) then Exit;
+  Data := Sender.GetNodeData(Node);
+  Data.Values[Column] := NewText;
+  Data.Edited[Column] := True;
+end;
+
+procedure TShowcaseForm.TreeNodeDataSize(Sender: TERDVTBaseVirtualTree; var NodeDataSize: Integer);
+begin NodeDataSize := SizeOf(TPlaylistDemoData) end;
+
+procedure TShowcaseForm.TreeFreeNode(Sender: TERDVTBaseVirtualTree; Node: PVirtualNode);
+var Data: PPlaylistDemoData;
+begin
+  Data := Sender.GetNodeData(Node);
+  if Data <> nil then Finalize(Data^);
+end;
+
+procedure TShowcaseForm.TreeCellEditor(Sender: TObject; Node: PVirtualNode;
+  Column: TColumnIndex; var Kind: TERDTreeEditorKind; Choices: TStrings);
+begin
+  Kind := tekText;
+  if Column = 1 then
+  begin Kind := tekCombo; Choices.Add('Group'); Choices.Add('Live TV'); Choices.Add('VOD') end;
+  if Column = 2 then
+  begin Kind := tekCombo; Choices.Add('SD'); Choices.Add('HD'); Choices.Add('4K') end;
 end;
 
 procedure TShowcaseForm.TreeInitNode(Sender: TERDVTBaseVirtualTree; ParentNode, Node: PVirtualNode;

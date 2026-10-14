@@ -7,13 +7,22 @@ uses
   System.Math, System.UITypes, Vcl.Controls, Vcl.Graphics, Vcl.StdCtrls, Vcl.Forms, Vcl.ImgList,
   ERD.Components.ScrollBar,
   ERD.Components.Types, ERD.Components.Theme, ERD.Components.Paint,
-  ERD.Components.VT, ERD.Components.VT.Types, ERD.Components.VT.Header;
+  ERD.Components.VT, ERD.Components.VT.Types, ERD.Components.VT.Header, ERD.Components.VT.BaseTree;
 
 type
+  TERDTreeEditorKind = (tekNone, tekText, tekInteger, tekDecimal, tekCombo,
+    tekDate, tekTime, tekDateTime);
+  TERDTreeGetEditorEvent = procedure(Sender: TObject; Node: PVirtualNode;
+    Column: TColumnIndex; var Kind: TERDTreeEditorKind; Choices: TStrings) of object;
+  TERDTreeValidateEditEvent = procedure(Sender: TObject; Node: PVirtualNode;
+    Column: TColumnIndex; var Text: string; var Accept: Boolean) of object;
+
   /// <summary>Virtual Treeview V8.5 with ERD palettes and drawing; node/event API is retained.</summary>
   TERDVirtualStringTree = class(TERDVTVirtualStringTree, IERDThemeAware)
   private
     FTheme: TERDTheme;
+    FOnGetCellEditor: TERDTreeGetEditorEvent;
+    FOnValidateCellEdit: TERDTreeValidateEditEvent;
     FVerticalBar: TERDScrollBar;
     FHorizontalBar: TERDScrollBar;
     FThemedChecks: TImageList;
@@ -38,6 +47,7 @@ type
     procedure CreateWnd; override;
     procedure WndProc(var Message: TMessage); override;
     procedure Paint; override;
+    function DoCreateEditor(Node: PVirtualNode; Column: TColumnIndex): IVTEditLink; override;
     function DoSetOffsetXY(Value: TPoint; Options: TScrollUpdateOptions; ClipRect: PRect = nil): Boolean; override;
     function GetClientRect: TRect; override;
     procedure DoBeforeCellPaint(Canvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
@@ -69,10 +79,254 @@ type
     /// <summary>Default row height in 96-DPI logical pixels; individual node heights remain available.</summary>
     property RowHeight: Integer read FRowHeight write SetRowHeight default 32;
     property HeaderHeight: Integer read FHeaderHeight write SetHeaderHeight default 30;
+    /// <summary>Select an ERD editor and populate combo choices per cell.</summary>
+    property OnNewText;
+    property OnGetNodeDataSize;
+    property OnGetCellEditor: TERDTreeGetEditorEvent read FOnGetCellEditor write FOnGetCellEditor;
+    /// <summary>Reject or normalize an edit before OnNewText updates application data.</summary>
+    property OnValidateCellEdit: TERDTreeValidateEditEvent read FOnValidateCellEdit write FOnValidateCellEdit;
     property AlternateRows: Boolean read FAlternateRows write SetAlternateRows default True;
   end;
 
 implementation
+
+uses
+  ERD.Components.Control, ERD.Components.Panel, ERD.Components.Edits,
+  ERD.Components.SpinEdit, ERD.Components.Calendar, ERD.Components.TimePicker,
+  ERD.Components.DateTimePicker, ERD.Components.VT.EditLink;
+
+type
+  TERDTreeInputAccess = class(TERDCustomControl)
+  public
+    property AutoSize;
+  end;
+  TERDTreeCellEditLink = class;
+  TERDTreeEditorHost = class(TERDPanel)
+  private
+    FLink: TERDTreeCellEditLink;
+    procedure ReleaseEditor(var Message: TMessage); message CM_RELEASE;
+  public
+    procedure EditorKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure EditorExit(Sender: TObject);
+  end;
+
+  TERDTreeCellEditLink = class(TERDVTWinControlEditLink)
+  private
+    FKind: TERDTreeEditorKind;
+    FChoices: TStringList;
+    FInput: TERDCustomControl;
+    FStartValue: string;
+    function ReadValue(out Value: string): Boolean;
+  public
+    constructor Create(Kind: TERDTreeEditorKind; Choices: TStrings);
+    destructor Destroy; override;
+    function BeginEdit: Boolean; override; stdcall;
+    function PrepareEdit(Tree: TERDVTBaseVirtualTree; Node: PVirtualNode;
+      Column: TColumnIndex): Boolean; override; stdcall;
+    procedure SetBounds(R: TRect); override; stdcall;
+    procedure ProcessMessage(var Message: TMessage); override; stdcall;
+    procedure DoEndEdit(var Result: Boolean); override;
+  end;
+
+procedure TERDTreeEditorHost.ReleaseEditor(var Message: TMessage);
+begin Free end;
+
+procedure TERDTreeEditorHost.EditorKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+var Hold: IVTEditLink; Tree: TERDVTCustomVirtualStringTree;
+begin
+  if (FLink = nil) or FLink.Stopping then Exit;
+  if (Sender is TERDComboBox) and TERDComboBox(Sender).DroppedDown then Exit;
+  if (Sender is TERDDatePicker) and TERDDatePicker(Sender).IsOpen then Exit;
+  if not ((Key = VK_RETURN) or (Key = VK_ESCAPE)) then Exit;
+  Hold := FLink;
+  if Hold = nil then Exit;
+  Tree := FLink.Tree;
+  if Key = VK_ESCAPE then Tree.CancelEditNode
+  else if not Tree.EndEditNode then begin Key := 0; Exit end;
+  Key := 0;
+  if Tree.CanFocus then Tree.SetFocus;
+end;
+
+procedure TERDTreeEditorHost.EditorExit(Sender: TObject);
+var Hold: IVTEditLink; FocusWindow: HWND;
+begin
+  if (FLink = nil) or FLink.Stopping then Exit;
+  FocusWindow := GetFocus;
+  if (FocusWindow = Handle) or IsChild(Handle, FocusWindow) then Exit;
+  Hold := FLink;
+  if Hold = nil then Exit;
+  if toAutoAcceptEditChange in TERDVirtualStringTree(FLink.Tree).TreeOptions.StringOptions then
+    FLink.Tree.EndEditNode
+  else FLink.Tree.CancelEditNode;
+end;
+
+constructor TERDTreeCellEditLink.Create(Kind: TERDTreeEditorKind; Choices: TStrings);
+begin
+  inherited Create;
+  FKind := Kind;
+  FChoices := TStringList.Create;
+  FChoices.Assign(Choices);
+end;
+
+destructor TERDTreeCellEditLink.Destroy;
+begin
+  if Edit <> nil then TERDTreeEditorHost(Edit).FLink := nil;
+  FChoices.Free;
+  inherited;
+end;
+
+function TERDTreeCellEditLink.PrepareEdit(Tree: TERDVTBaseVirtualTree;
+  Node: PVirtualNode; Column: TColumnIndex): Boolean;
+var Host: TERDTreeEditorHost; Text: string; Number: Double; Stamp: TDateTime;
+  Spin: TERDSpinEdit; Combo: TERDComboBox; Combined: TERDDateTimePicker;
+begin
+  Result := inherited;
+  if not Result then Exit;
+  Host := TERDTreeEditorHost.Create(Tree);
+  Edit := Host;
+  Host.Visible := False;
+  Host.Parent := Tree;
+  Host.Theme := TERDVirtualStringTree(Tree).Theme;
+  Host.BorderWidth := 0;
+  Host.FLink := Self;
+  Text := Self.Tree.Text[Node, Column];
+  case FKind of
+    tekInteger, tekDecimal:
+      begin
+        Spin := TERDSpinEdit.Create(Host);
+        FInput := Spin;
+        if FKind = tekDecimal then begin Spin.Decimals := 2; Spin.Increment := 0.1 end;
+        if TryStrToFloat(Text, Number) then Spin.Value := Number;
+      end;
+    tekCombo:
+      begin
+        Combo := TERDComboBox.Create(Host);
+        FInput := Combo;
+        Combo.Style := ecsDropDown;
+        Combo.FilterMode := cfsContains;
+        Combo.Items.Assign(FChoices);
+        Combo.Text := Text;
+      end;
+    tekDate:
+      begin
+        FInput := TERDDatePicker.Create(Host);
+        if TryStrToDate(Text, Stamp) then TERDDatePicker(FInput).Date := Stamp;
+      end;
+    tekTime:
+      begin
+        FInput := TERDTimePicker.Create(Host);
+        if TryStrToTime(Text, Stamp) then TERDTimePicker(FInput).Time := Stamp;
+      end;
+    tekDateTime:
+      begin
+        Combined := TERDDateTimePicker.Create(Host);
+        FInput := Combined;
+        if TryStrToDateTime(Text, Stamp) then Combined.DateTime := Stamp;
+        Combined.DateEditor.OnKeyDown := Host.EditorKeyDown;
+        Combined.TimeEditor.OnKeyDown := Host.EditorKeyDown;
+        Combined.DateEditor.OnExit := Host.EditorExit;
+        Combined.TimeEditor.OnExit := Host.EditorExit;
+      end;
+  else
+    FInput := TERDEdit.Create(Host);
+    TERDEdit(FInput).Text := Text;
+  end;
+  FInput.Parent := Host;
+  FInput.Theme := Host.Theme;
+  TERDTreeInputAccess(FInput).AutoSize := False;
+  FInput.Align := alClient;
+  FInput.OnKeyDown := Host.EditorKeyDown;
+  FInput.OnExit := Host.EditorExit;
+  Result := ReadValue(FStartValue);
+end;
+
+function TERDTreeCellEditLink.BeginEdit: Boolean;
+begin
+  Result := inherited;
+  if Result then
+  begin
+    FInput.SetFocus;
+    if FInput is TERDEdit then TERDEdit(FInput).SelectAll;
+  end;
+end;
+
+function TERDTreeCellEditLink.ReadValue(out Value: string): Boolean;
+var Number: Double;
+begin
+  Result := True;
+  case FKind of
+    tekInteger, tekDecimal:
+      begin
+        Result := TryStrToFloat(TERDSpinEdit(FInput).Text, Number) and
+          not IsNan(Number) and not IsInfinite(Number);
+        if not Result then Exit;
+        if (FKind = tekInteger) and (Abs(Number) > 9E15) then
+        begin Result := False; Exit end;
+        if FKind = tekInteger then Number := Round(Number);
+        TERDSpinEdit(FInput).Value := Number;
+        Value := FloatToStr(TERDSpinEdit(FInput).Value);
+      end;
+    tekCombo: Value := TERDComboBox(FInput).Text;
+    tekDate: Value := DateToStr(TERDDatePicker(FInput).Date);
+    tekTime: Value := TimeToStr(TERDTimePicker(FInput).Time);
+    tekDateTime: Value := DateTimeToStr(TERDDateTimePicker(FInput).DateTime);
+  else Value := TERDEdit(FInput).Text;
+  end;
+end;
+
+procedure TERDTreeCellEditLink.DoEndEdit(var Result: Boolean);
+var Value: string; OwnerTree: TERDVirtualStringTree;
+begin
+  Result := ReadValue(Value);
+  if not Result then Exit;
+  OwnerTree := TERDVirtualStringTree(Tree);
+  if Assigned(OwnerTree.FOnValidateCellEdit) then
+    OwnerTree.FOnValidateCellEdit(OwnerTree, Node, Column, Value, Result);
+  if not Result then Exit;
+  inherited;
+  if Result and (Value <> FStartValue) then Tree.Text[Node, Column] := Value;
+end;
+
+procedure TERDTreeCellEditLink.ProcessMessage(var Message: TMessage);
+var I: Integer;
+begin
+  if FInput is TERDComboBox then
+    TERDComboBox(FInput).Editor.WindowProc(Message)
+  else if FInput is TERDEdit then
+  begin
+    for I := 0 to FInput.ControlCount - 1 do
+      if FInput.Controls[I] is TCustomEdit then
+      begin FInput.Controls[I].WindowProc(Message); Exit end;
+  end
+  else FInput.WindowProc(Message);
+end;
+
+procedure TERDTreeCellEditLink.SetBounds(R: TRect);
+var Area: TRect; MinimumHeight: Integer;
+begin
+  Area := Tree.ClientRect;
+  if hoVisible in Tree.Header.Options then Area.Top := Tree.Header.Height;
+  if not IntersectRect(R, R, Area) then begin Edit.Hide; Exit end;
+  MinimumHeight := MulDiv(24, Tree.CurrentPPI, 96);
+  if R.Height < MinimumHeight then R.Bottom := Min(Area.Bottom, R.Top + MinimumHeight);
+  Edit.SetBounds(R.Left, R.Top, R.Width, R.Height);
+end;
+
+function TERDVirtualStringTree.DoCreateEditor(Node: PVirtualNode; Column: TColumnIndex): IVTEditLink;
+var Kind: TERDTreeEditorKind; Choices: TStringList;
+begin
+  Result := nil;
+  // Preserve application-provided Virtual Treeview edit links.
+  if Assigned(OnCreateEditor) then OnCreateEditor(Self, Node, Column, Result);
+  if Result <> nil then Exit;
+  Choices := TStringList.Create;
+  try
+    Kind := tekText;
+    if Assigned(FOnGetCellEditor) then FOnGetCellEditor(Self, Node, Column, Kind, Choices);
+    if Kind <> tekNone then Result := TERDTreeCellEditLink.Create(Kind, Choices);
+  finally Choices.Free end;
+end;
+
 
 constructor TERDVirtualStringTree.Create(AOwner: TComponent);
 var Bitmap: TBitmap; I: Integer;
@@ -522,7 +776,7 @@ begin
         R := Rect(Max(0, ItemRect.Left) + P.S(5), ItemRect.Top + P.S(4),
           Min(ItemRect.Right, ClientWidth) - P.S(4), ItemRect.Bottom - P.S(4));
         if (R.Width > P.S(8)) and (R.Height > P.S(8)) and
-          (R.Top >= Header.Height) and (R.Bottom <= ClientHeight) then
+          ((not (hoVisible in Header.Options)) or (R.Top >= Header.Height)) and (R.Bottom <= ClientHeight) then
           P.FocusRing(R.Left, R.Top, R.Width, R.Height, P.S(4));
       end;
       if vsSelected in Node.States then

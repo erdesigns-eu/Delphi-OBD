@@ -639,6 +639,18 @@ var
   TextBefore, TextAfter: string;
   Rect: TRect;
   Snapshot: TBitmap;
+  Input: TControl;
+  function CellInput: TControl;
+  var I: Integer; Host: TWinControl;
+  begin
+    Result := nil;
+    for I := 0 to Tree.ControlCount - 1 do
+      if Tree.Controls[I] is TERDPanel then
+      begin
+        Host := TWinControl(Tree.Controls[I]);
+        if Host.Visible and (Host.ControlCount > 0) then Exit(Host.Controls[0]);
+      end;
+  end;
 begin
   Form := TShowcaseForm.Create(nil);
   Snapshot := TBitmap.Create;
@@ -681,6 +693,27 @@ begin
     Check(Tree.Selected[Child], 'Native selection API remains available');
     Rect := Tree.GetDisplayRect(Child, 0, False);
     Check(Rect.Bottom > Rect.Top, 'Expanded child has layout geometry');
+    Form.PageTabs.TabIndex := 3;
+    Form.Show;
+    Application.ProcessMessages;
+    Tree.FocusedNode := Child;
+    Check(Tree.EditNode(Child, 0), 'Tree starts its ERD text editor');
+    Input := CellInput;
+    Check(Input is TERDEdit, 'Name cell uses ERD Edit');
+    TERDEdit(Input).Text := 'Renamed channel';
+    Check(Tree.EndEditNode and (Tree.Text[Child, 0] = 'Renamed channel'),
+      'Accepting editor persists text through OnNewText');
+    Check(Tree.EditNode(Child, 0), 'Renamed cell can be edited again');
+    TERDEdit(CellInput).Text := 'Discard this';
+    Tree.CancelEditNode;
+    Check(Tree.Text[Child, 0] = 'Renamed channel', 'Escape/cancel preserves model text');
+    Check(Tree.EditNode(Child, 2), 'Quality cell starts a combo editor');
+    Input := CellInput;
+    Check(Input is TERDComboBox, 'Quality uses ERD searchable combo');
+    Check(TERDComboBox(Input).Items.Count = 3, 'Column supplies independent combo choices');
+    TERDComboBox(Input).Text := '4K';
+    Check(Tree.EndEditNode and (Tree.Text[Child, 2] = '4K'), 'Combo writes accepted value');
+    Application.ProcessMessages;
     Tree.Clear;
     Check(Tree.RootNodeCount = 0, 'Clear releases virtual nodes');
   finally

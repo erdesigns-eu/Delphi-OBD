@@ -4307,7 +4307,7 @@
         object LabelVirtualStringTree: TLabel
           Left = 16
           Top = 826
-          Caption = 'TERDVirtualStringTree - lazy playlist groups'
+          Caption = 'TERDVirtualStringTree - F2 edits names / type / quality'
         end
         object DemoVirtualStringTree: TERDVirtualStringTree
           Left = 16
@@ -4329,11 +4329,14 @@
               Text = 'Quality'
               Width = 100
             end>
-          TreeOptions.MiscOptions = [toCheckSupport, toFullRepaintOnResize, toInitOnSave, toWheelPanning]
+          TreeOptions.MiscOptions = [toCheckSupport, toEditable, toFullRepaintOnResize, toInitOnSave, toWheelPanning]
           TreeOptions.SelectionOptions = [toFullRowSelect, toMultiSelect]
-          NodeDataSize = 8
           RootNodeCount = 20
           OnGetText = TreeGetText
+          OnNewText = TreeNewText
+          OnGetNodeDataSize = TreeNodeDataSize
+          OnFreeNode = TreeFreeNode
+          OnGetCellEditor = TreeCellEditor
           OnInitNode = TreeInitNode
           OnInitChildren = TreeInitChildren
           OnCompareNodes = TreeCompareNodes
