@@ -2175,7 +2175,7 @@ end;
 
 procedure TestSyntaxAndCodeEditor;
 var Provider: IERDSyntaxProvider; Analysis: TERDSyntaxAnalysis; Span: TERDSyntaxSpan;
-    Source, Original: UnicodeString; I, KeywordCount, Rows: Integer;
+    Source, Original: UnicodeString; I, KeywordCount, Rows, Opening, Closing: Integer;
     Form: TForm; Editor: TCodeEditorProbe; Items: TArray<TERDCodeDiagnostic>;
     Diagnostic: TERDCodeDiagnostic; Stream: TMemoryStream; Restored: TERDCodeEditor;
   function TokenKind(const Token: string): TERDSyntaxKind;
@@ -2253,6 +2253,36 @@ begin
       'Stale diagnostic response rejected without replacing current ranges');
     Editor.SelStart := Length(Editor.Text); Editor.ReplaceSelection(' ');
     Check(Length(Editor.Diagnostics) = 0, 'Document edits clear outdated diagnostic offsets');
+    Editor.Text := ''; Editor.Perform(WM_CHAR, Ord('('), 0);
+    Check((Editor.Text = '()') and (Editor.SelStart = 1), 'Opening delimiter inserts pair and keeps caret inside');
+    Editor.Perform(WM_CHAR, Ord(')'), 0);
+    Check((Editor.Text = '()') and (Editor.SelStart = 2), 'Typing existing closing delimiter advances caret');
+    Editor.Undo; Check(Editor.Text = '', 'Pair insertion is one undo transaction');
+    Editor.Text := '()'; Editor.SelStart := 1;
+    Editor.Perform(WM_KEYDOWN, VK_BACK, 0); Editor.Perform(WM_CHAR, 8, 0);
+    Check(Editor.Text = '', 'Backspace between empty delimiters removes pair');
+    Editor.Undo; Check((Editor.Text = '()') and (Editor.SelStart = 1), 'Paired deletion undo restores caret');
+    Editor.Text := #$D83D#$DC69#$200D#$D83D#$DCBB; Editor.SelectAll;
+    Editor.Perform(WM_CHAR, Ord('['), 0);
+    Check((Editor.Text = '[' + #$D83D#$DC69#$200D#$D83D#$DCBB + ']') and (Editor.SelLength = 5),
+      'Surround selection preserves Unicode grapheme');
+    Editor.Undo; Check(Editor.SelLength = 5, 'Surround undo restores original selection');
+    Editor.Text := '  const value = 1;'; Editor.SelStart := Length(Editor.Text);
+    Editor.Perform(WM_KEYDOWN, VK_HOME, 0);
+    Check(Editor.SelStart = 2, 'Smart Home moves to first non-whitespace character');
+    Editor.Perform(WM_KEYDOWN, VK_HOME, 0);
+    Check(Editor.SelStart = 0, 'Second Home moves to logical line start');
+    Editor.Text := '{}'; Editor.SelStart := 1; Editor.Perform(WM_CHAR, 13, 0);
+    Check((Editor.Text = '{' + #13#10 + '  ' + #13#10 + '}') and (Editor.SelStart = 5),
+      'Enter between delimiters creates indented body and closing line');
+    Editor.Text := '{ "}"; // }' + #13#10 + '}'; Editor.SelStart := 0;
+    Check(Editor.MatchingBrackets(Opening, Closing) and (Opening = 0) and
+      (Closing = Length(Editor.Text) - 1), 'Bracket matching ignores comment and string brackets');
+    Editor.Text := '([)]'; Editor.SelStart := 0;
+    Check(not Editor.MatchingBrackets(Opening, Closing), 'Mismatched nesting is not highlighted as a valid pair');
+    Editor.Text := '// comment'; Editor.SelStart := Length(Editor.Text);
+    Editor.Perform(WM_CHAR, Ord('('), 0);
+    Check(Editor.Text = '// comment(', 'Delimiters inside line comments are ordinary input');
     Editor.Language := clJSON; Editor.TabWidth := 4;
     Stream.WriteComponent(Editor); Stream.Position := 0;
     Restored := TERDCodeEditor(Stream.ReadComponent(nil));

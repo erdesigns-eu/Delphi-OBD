@@ -681,7 +681,7 @@ begin
   Button.SetBounds(MulDiv(208, CurrentPPI, 96), MulDiv(8, CurrentPPI, 96),
     MulDiv(100, CurrentPPI, 96), MulDiv(28, CurrentPPI, 96));
   Instructions := TLabel.Create(Self); Instructions.Parent := Header;
-  Instructions.Caption := 'TypeScript - gutter folds, Tab / Shift+Tab, auto-indent';
+  Instructions.Caption := 'TypeScript - pairs, smart Home, Tab / Shift+Tab, gutter folds';
   Instructions.Left := MulDiv(320, CurrentPPI, 96); Instructions.Top := MulDiv(15, CurrentPPI, 96);
   CodeEditor := TERDCodeEditor.Create(Self); CodeEditor.Name := 'TypeScriptPreview';
   CodeEditor.Parent := CodePage; CodeEditor.Align := alClient;

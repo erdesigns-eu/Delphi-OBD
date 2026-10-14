@@ -68,7 +68,6 @@ type
     procedure SetSelLength(AValue: Integer);
     function DisplayText: UnicodeString;
     function DisplayPosition(APosition: Integer): Integer;
-    procedure MoveTo(APosition: Integer; AExtend: Boolean);
     function HitPosition(X: Integer): Integer;
     procedure InsertText(const AValue: UnicodeString);
     procedure WMChar(var Message: TWMChar); message WM_CHAR;
@@ -78,6 +77,7 @@ type
     procedure WMUniChar(var Message: TMessage); message WM_UNICHAR;
     procedure WMGetDlgCode(var Message: TMessage); message WM_GETDLGCODE;
   protected
+    procedure MoveTo(APosition: Integer; AExtend: Boolean);
     function LineOrigin(AWidth: Integer): Integer; virtual;
     property TextModel: TERDTextModel read FModel;
     procedure SetInputText(const AValue: UnicodeString); virtual;

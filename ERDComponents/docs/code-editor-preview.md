@@ -12,6 +12,11 @@ This stage provides:
 - Logical line numbers and clickable fold markers; `FoldAll` / `UnfoldAll`.
 - Tab / Shift+Tab indentation, one undo transaction for selected lines, and
   preservation of leading whitespace on Enter (`TabWidth`, default 2).
+- Paired delimiters, selected-text surrounding, closing-character skipping and
+  paired Backspace (`AutoCloseDelimiters`); Enter between paired brackets creates
+  an indented body. Smart Home toggles indentation/start (`SmartHome`).
+- Syntax-aware bracket outlines (`ShowBracketMatch`) and dotted indent guides
+  (`ShowIndentGuides`). Each feature can be disabled independently.
 - Unicode editing, emoji, selection, clipboard, undo/redo and the themed edit menu
   inherited from the text engine.
 - Error, warning, information and hint diagnostics, with underlines and gutter
@@ -77,3 +82,7 @@ for the remaining IDE features and the scalable document/provider architecture.
 The Windows smoke suite covers tokenisation, fold integrity, caret expansion,
 indentation undo, streaming, and diagnostic copying/stale-result rejection. It must
 be compiled and run with Delphi on Windows; Linux source checks do not execute VCL.
+
+Colour emoji is the next shared-renderer stage. The current engine preserves emoji
+graphemes and editing, but still draws monochrome Uniscribe glyphs. Colour rendering
+must be implemented in the base layout shared by all derived text controls.

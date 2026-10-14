@@ -23,7 +23,15 @@ type
     FShowLineNumbers, FShowFolding: Boolean;
     FTabWidth: Integer;
     FTabHandled: Boolean;
+    FAutoCloseDelimiters, FSmartHome, FShowIndentGuides, FShowBracketMatch: Boolean;
     FDiagnostics: TArray<TERDCodeDiagnostic>;
+    FBracketText: UnicodeString;
+    FBracketCaret, FBracketOpening, FBracketClosing: Integer;
+    FBracketValid: Boolean;
+    procedure SetShowIndentGuides(Value: Boolean);
+    procedure SetShowBracketMatch(Value: Boolean);
+    function LiteralAt(Position: Integer): Boolean;
+    function HandleDelimiter(C: Char): Boolean;
     function DiagnosticColor(Severity: TERDDiagnosticSeverity): TColor;
     procedure Analyze;
     procedure SetLanguage(Value: TERDCodeLanguage);
@@ -60,12 +68,17 @@ type
     procedure ClearDiagnostics;
     function Diagnostics: TArray<TERDCodeDiagnostic>;
     function DiagnosticAt(Position: Integer; out Item: TERDCodeDiagnostic): Boolean;
+    function MatchingBrackets(out Opening, Closing: Integer): Boolean;
     function SyntaxAnalysis: TERDSyntaxAnalysis;
     property SyntaxProvider: IERDSyntaxProvider read FProvider write SetProvider;
   published
     property Language: TERDCodeLanguage read FLanguage write SetLanguage default clTypeScript;
     property ShowLineNumbers: Boolean read FShowLineNumbers write SetShowLineNumbers default True;
     property ShowFolding: Boolean read FShowFolding write SetShowFolding default True;
+    property AutoCloseDelimiters: Boolean read FAutoCloseDelimiters write FAutoCloseDelimiters default True;
+    property SmartHome: Boolean read FSmartHome write FSmartHome default True;
+    property ShowIndentGuides: Boolean read FShowIndentGuides write SetShowIndentGuides default True;
+    property ShowBracketMatch: Boolean read FShowBracketMatch write SetShowBracketMatch default True;
     property TabWidth: Integer read FTabWidth write SetTabWidth default 2;
   end;
 implementation
@@ -75,6 +88,10 @@ begin
   FCollapsed := TList<Integer>.Create;
   FLanguage := clTypeScript;
   FTabWidth := 2;
+  FAutoCloseDelimiters := True;
+  FSmartHome := True;
+  FShowIndentGuides := True;
+  FShowBracketMatch := True;
   FShowLineNumbers := True;
   FShowFolding := True;
   FProvider := TERDBasicSyntaxProvider.Create(FLanguage);
@@ -111,7 +128,7 @@ begin
 end;
 procedure TERDCodeEditor.SetProvider(const Value: IERDSyntaxProvider);
 begin
-  FProvider := Value; FAnalysisValid := False;
+  FProvider := Value; FAnalysisValid := False; FBracketValid := False;
   if FCollapsed <> nil then FCollapsed.Clear;
   InvalidateTextLayout; UpdateCaret;
 end;
@@ -132,8 +149,96 @@ begin
   if not Value then UnfoldAll;
   InvalidateTextLayout; UpdateCaret;
 end;
+procedure TERDCodeEditor.SetShowIndentGuides(Value: Boolean);
+begin FShowIndentGuides := Value; Invalidate; end;
+procedure TERDCodeEditor.SetShowBracketMatch(Value: Boolean);
+begin FShowBracketMatch := Value; Invalidate; end;
+function TERDCodeEditor.LiteralAt(Position: Integer): Boolean;
+var Span: TERDSyntaxSpan;
+begin
+  Analyze; Result := False;
+  for Span in FAnalysis.Spans do
+    if (Span.Kind in [skString, skComment, skDirective]) and
+      (Position > Span.Start) and (Position < Span.Start + Span.Count) then Exit(True);
+end;
+function TERDCodeEditor.MatchingBrackets(out Opening, Closing: Integer): Boolean;
+var Stack: TList<Integer>; I, Candidate, Top: Integer; C, First: Char;
+    Span: TERDSyntaxSpan; Excluded: Boolean;
+begin
+  if FBracketValid and (FBracketText = Text) and (FBracketCaret = TextModel.Caret) then
+  begin Opening := FBracketOpening; Closing := FBracketClosing; Exit(Opening >= 0); end;
+  Opening := -1; Closing := -1; Result := False;
+  FBracketText := Text; FBracketCaret := TextModel.Caret;
+  FBracketOpening := -1; FBracketClosing := -1; FBracketValid := True;
+  Candidate := TextModel.Caret;
+  if (Candidate >= Length(Text)) or not (Text[Candidate + 1] in ['(',')','[',']','{','}']) then
+    Dec(Candidate);
+  if (Candidate < 0) or (Candidate >= Length(Text)) or
+    not (Text[Candidate + 1] in ['(',')','[',']','{','}']) then Exit;
+  Analyze; Stack := TList<Integer>.Create;
+  try
+    for I := 0 to Length(Text) - 1 do
+    begin
+      C := Text[I + 1]; if not (C in ['(',')','[',']','{','}']) then Continue;
+      // Token interiors and their opening character both belong to literals.
+      Excluded := False;
+      for Span in FAnalysis.Spans do
+        if (Span.Kind in [skString, skComment, skDirective]) and
+          (I >= Span.Start) and (I < Span.Start + Span.Count) then
+        begin Excluded := True; Break; end;
+      if Excluded then Continue;
+      if C in ['(','[','{'] then Stack.Add(I)
+      else if Stack.Count > 0 then
+      begin
+        Top := Stack.Last; First := Text[Top + 1];
+        if ((First = '(') and (C = ')')) or ((First = '[') and (C = ']')) or
+          ((First = '{') and (C = '}')) then
+        begin
+          Stack.Delete(Stack.Count - 1);
+          if (Candidate = Top) or (Candidate = I) then
+          begin
+            Opening := Top; Closing := I; FBracketOpening := Top; FBracketClosing := I; Exit(True);
+          end;
+        end
+        else Stack.Clear;
+      end;
+    end;
+  finally Stack.Free; end;
+end;
+function TERDCodeEditor.HandleDelimiter(C: Char): Boolean;
+var Closing: Char; Position, Selected: Integer; Before, Value: UnicodeString;
+    Span: TERDSyntaxSpan;
+begin
+  Result := False; if not FAutoCloseDelimiters or ReadOnly then Exit;
+  Position := SelStart; Selected := SelLength;
+  if (Selected = 0) and (Position < Length(Text)) and
+    (C in [')',']','}',#39,'"','`']) and (Text[Position + 1] = C) and
+    ((C in [#39,'"','`']) or not LiteralAt(Position)) then
+  begin MoveTo(Position + 1, False); Exit(True); end;
+  if LiteralAt(Position) then Exit;
+  Analyze;
+  // End-of-line comments extend to the caret at their final character.
+  if (Selected = 0) and (Position > 0) then
+    for Span in FAnalysis.Spans do
+      if (Span.Kind = skComment) and (Span.Start + Span.Count = Position) and
+        (Copy(Text, Span.Start + 1, 2) = '//') then Exit;
+  Closing := #0;
+  case C of
+    '(': Closing := ')'; '[': Closing := ']'; '{': Closing := '}';
+    #39, '"', '`': Closing := C;
+  end;
+  if Closing = #0 then Exit;
+  // Apostrophes/quotes inside an identifier are ordinary input.
+  if (C in [#39,'"','`']) and (Selected = 0) and (Position > 0) and
+    ((Text[Position] in ['a'..'z','A'..'Z','0'..'9','_','$']) or (Ord(Text[Position]) >= $80)) then Exit;
+  Value := C + SelText + Closing;
+  Result := True;
+  if (MaxLength > 0) and (Length(Text) - Selected + Length(Value) > MaxLength) then Exit;
+  Before := Text; TextModel.ReplaceSelection(Value); Changed(Before);
+  SelStart := Position + 1; SelLength := Selected;
+end;
 procedure TERDCodeEditor.SetTabWidth(Value: Integer);
-begin FTabWidth := EnsureRange(Value, 1, 16); end;
+begin FTabWidth := EnsureRange(Value, 1, 16); Invalidate; end;
 function TERDCodeEditor.TextViewport: TRect;
 begin
   Result := inherited TextViewport;
@@ -308,10 +413,39 @@ end;
 procedure TERDCodeEditor.PaintTextOverlay(ACanvas: TCanvas; Start, Count, X, Y: Integer;
   Line: TERDTextLayoutLine);
 var Item: TERDCodeDiagnostic; A, B, L, R, At, Bottom, Step, Saved: Integer;
+    Opening, Closing, Column, Position, Index: Integer;
 begin
   inherited;
   Saved := SaveDC(ACanvas.Handle);
   try
+    if FShowIndentGuides and (FTabWidth > 0) then
+    begin
+      Position := Start; Column := 0; ACanvas.Pen.Color := Palette.Subtle;
+      while (Position < Start + Count) and (Text[Position + 1] in [' ', #9]) do
+      begin
+        if Text[Position + 1] = #9 then Inc(Column, FTabWidth - Column mod FTabWidth)
+        else Inc(Column);
+        Inc(Position);
+        if (Column mod FTabWidth = 0) and (Position < Start + Count) then
+        begin
+          L := X + Line.X(Position - Start);
+          for Index := 0 to (RowHeight - 1) div Max(2, ScaleValue(3)) do
+          begin
+            ACanvas.MoveTo(L, Y + Index * Max(2, ScaleValue(3)));
+            ACanvas.LineTo(L, Y + Index * Max(2, ScaleValue(3)) + 1);
+          end;
+        end;
+      end;
+    end;
+    if FShowBracketMatch and MatchingBrackets(Opening, Closing) then
+      for Index := 0 to 1 do
+      begin
+        if Index = 0 then Position := Opening else Position := Closing;
+        if (Position < Start) or (Position >= Start + Count) then Continue;
+        Line.Range(Position - Start, 1, L, R);
+        ACanvas.Brush.Style := bsClear; ACanvas.Pen.Color := Palette.Accent;
+        ACanvas.Rectangle(X + L, Y, X + R, Y + RowHeight);
+      end;
     Step := Max(2, ScaleValue(2)); Bottom := Y + RowHeight - 2 * Step;
     for Item in FDiagnostics do
     begin
@@ -439,8 +573,21 @@ begin
   SelStart := Start; SelLength := Length(Replacement);
 end;
 procedure TERDCodeEditor.KeyDown(var Key: Word; Shift: TShiftState);
-var Before: UnicodeString; Position, Spaces: Integer;
+var Before: UnicodeString; Position, Spaces, Start: Integer;
 begin
+  if FSmartHome and (Key = VK_HOME) and not (ssCtrl in Shift) and not (ssAlt in Shift) then
+  begin
+    if Assigned(OnKeyDown) then OnKeyDown(Self, Key, Shift);
+    if Key = 0 then Exit;
+    if Key = VK_HOME then
+    begin
+      Start := LineStart(TextModel.Caret); Position := Start;
+      while (Position < Length(Text)) and (Text[Position + 1] in [' ', #9]) do Inc(Position);
+      if TextModel.Caret = Position then Position := Start;
+      MoveTo(Position, ssShift in Shift); Key := 0; Exit;
+    end;
+    Exit;
+  end;
   FTabHandled := False;
   if (Key = VK_TAB) and not (ssCtrl in Shift) and not (ssAlt in Shift) then
   begin
@@ -458,12 +605,40 @@ begin
   inherited KeyDown(Key, Shift);
 end;
 procedure TERDCodeEditor.WMChar(var Message: TWMChar);
-var C: Char; Position, Start: Integer; Prefix: UnicodeString;
+var C: Char; Position, Start: Integer; Prefix, Before, Value: UnicodeString;
+    Closing: Char;
 begin
   if Message.CharCode = 9 then
   begin
     if FTabHandled then begin FTabHandled := False; Exit; end;
     IndentSelection(False); Exit;
+  end;
+  if not ReadOnly and FAutoCloseDelimiters and
+    (((Message.CharCode = 8) and (GetKeyState(VK_CONTROL) >= 0)) or (Char(Message.CharCode) in ['(',')','[',']','{','}',#39,'"','`'])) then
+  begin
+    C := Char(Message.CharCode); KeyPress(C); if C = #0 then Exit;
+    if (C = #8) and (GetKeyState(VK_CONTROL) >= 0) and (SelLength = 0) and
+      (SelStart > 0) and (SelStart < Length(Text)) then
+    begin
+      Position := SelStart; Closing := #0;
+      case Text[Position] of
+        '(': Closing := ')'; '[': Closing := ']'; '{': Closing := '}';
+        #39, '"', '`': Closing := Text[Position];
+      end;
+      if (Closing <> #0) and (Text[Position + 1] = Closing) then
+      begin
+        Before := Text; TextModel.ReplaceRange(Position - 1, 2, ''); Changed(Before); Exit;
+      end;
+    end;
+    if HandleDelimiter(C) then Exit;
+    // KeyPress was already dispatched above; do not dispatch it twice.
+    if C = #8 then
+    begin
+      if GetKeyState(VK_CONTROL) >= 0 then
+      begin Before := Text; TextModel.DeleteBackward; Changed(Before); end;
+    end
+    else ReplaceSelection(C);
+    Exit;
   end;
   if (Message.CharCode = 13) and not ReadOnly and WantReturns then
   begin
@@ -472,7 +647,23 @@ begin
     Position := SelStart; Start := LineStart(Position); Prefix := '';
     while (Start < Position) and (Text[Start + 1] in [' ', #9]) do
     begin Prefix := Prefix + Text[Start + 1]; Inc(Start); end;
-    ReplaceSelection(#13#10 + Prefix); Exit;
+    Value := #13#10 + Prefix;
+    if (SelLength = 0) and (Position > 0) and not LiteralAt(Position) and
+      (Text[Position] in ['{','[','(']) then
+    begin
+      Value := Value + StringOfChar(' ', FTabWidth);
+      if (Position < Length(Text)) and
+        (((Text[Position] = '{') and (Text[Position + 1] = '}')) or
+         ((Text[Position] = '[') and (Text[Position + 1] = ']')) or
+         ((Text[Position] = '(') and (Text[Position + 1] = ')'))) then
+      begin
+        Start := Position + Length(Value);
+        Value := Value + #13#10 + Prefix;
+        if (MaxLength > 0) and (Length(Text) + Length(Value) > MaxLength) then Exit;
+        ReplaceSelection(Value); MoveTo(Start, False); Exit;
+      end;
+    end;
+    ReplaceSelection(Value); Exit;
   end;
   inherited;
 end;
