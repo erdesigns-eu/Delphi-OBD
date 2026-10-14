@@ -180,7 +180,10 @@ begin
     Bitmap.SetSize(Max(1, Editor.ClientWidth), Max(1, Editor.ClientHeight));
     Bitmap.Canvas.Brush.Color := TERDNativeEditAccess(Editor).Color;
     Bitmap.Canvas.FillRect(Rect(0, 0, Bitmap.Width, Bitmap.Height));
-    SendMessage(Editor.Handle, WM_PRINTCLIENT, WPARAM(Bitmap.Canvas.Handle), PRF_CLIENT);
+    // Native EDIT controls paint to the supplied DC through WM_PAINT.
+    // WM_PRINTCLIENT is not a reliable text-rendering route for this class.
+    SendMessage(Editor.Handle, WM_PAINT, WPARAM(Bitmap.Canvas.Handle), 0);
+    DrawSelection(Editor, Bitmap.Canvas.Handle);
     BitBlt(DC, 0, 0, Bitmap.Width, Bitmap.Height, Bitmap.Canvas.Handle, 0, 0, SRCCOPY);
     Message.Result := 0;
   finally
@@ -188,16 +191,30 @@ begin
     EndPaint(Editor.Handle, PaintInfo);
   end;
 end;
+procedure RefreshSelection(Editor: TCustomEdit; MessageID: Cardinal);
+begin
+  // Native edits can draw selection immediately during input handling.
+  // Queue our buffered repaint so the final selection uses the ERD palette.
+  case MessageID of
+    WM_SETFOCUS, WM_KILLFOCUS, WM_SETTEXT, WM_KEYDOWN, WM_KEYUP, WM_CHAR,
+    WM_LBUTTONDOWN, WM_LBUTTONUP, WM_MOUSEMOVE, WM_HSCROLL, WM_VSCROLL,
+    WM_MOUSEWHEEL, EM_SETSEL, WM_CUT, WM_PASTE, WM_CLEAR, WM_UNDO, EM_UNDO:
+      Editor.Invalidate;
+  end;
+end;
+
 procedure TERDSelectionEdit.WndProc(var Message: TMessage);
 begin
   if BufferedPaint(Self, Message) then Exit;
   inherited;
   if Message.Msg = WM_PRINTCLIENT then DrawSelection(Self, HDC(Message.WParam));
+  RefreshSelection(Self, Message.Msg);
 end;
 procedure TERDSelectionMemo.WndProc(var Message: TMessage);
 begin
   if BufferedPaint(Self, Message) then Exit;
   inherited;
   if Message.Msg = WM_PRINTCLIENT then DrawSelection(Self, HDC(Message.WParam));
+  RefreshSelection(Self, Message.Msg);
 end;
 end.
