@@ -63,7 +63,8 @@ uses
   ERD.Components.ScrollBox,
   ERD.Components.Ribbon,
   ERD.Components.Sidebar,
-  ERD.Components.TitleBar;
+  ERD.Components.TitleBar, System.ImageList, ERD.Components.VT.BaseAncestorVCL,
+  ERD.Components.VT.AncestorVCL, ERD.Components.VT, ERD.Components.Control;
 type
   TPlaylistDemoData = record
     Id, GroupId: Cardinal;
@@ -477,8 +478,6 @@ type
     DocumentHost: TERDPanel;
     DocumentOne: TERDPanel;
     DocumentTwo: TERDPanel;
-    DocumentOneText: TERDDialogText;
-    DocumentTwoText: TERDDialogText;
     DocumentOneEdit: TERDEdit;
     DocumentTwoEdit: TERDEdit;
     DemoToolBar: TERDToolBar;

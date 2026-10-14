@@ -62,10 +62,10 @@
         <VerInfo_Locale>1043</VerInfo_Locale>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
-        <DCC_UsePackage>vcl;rtl;vclimg;bindengine;bindcomp;$(DCC_UsePackage)</DCC_UsePackage>
+        <DCC_UsePackage>vcl;rtl;vclimg;bindengine;bindcomp;vclx;$(DCC_UsePackage)</DCC_UsePackage>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
-        <DCC_UsePackage>vcl;rtl;vclimg;bindengine;bindcomp;$(DCC_UsePackage)</DCC_UsePackage>
+        <DCC_UsePackage>vcl;rtl;vclimg;bindengine;bindcomp;vclx;$(DCC_UsePackage)</DCC_UsePackage>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64x)'!=''">
         <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
@@ -74,7 +74,7 @@
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <BCC_EnableBatchCompilation>true</BCC_EnableBatchCompilation>
-        <DCC_UsePackage>vcl;rtl;vclimg;bindengine;bindcomp;$(DCC_UsePackage)</DCC_UsePackage>
+        <DCC_UsePackage>vcl;rtl;vclimg;bindengine;bindcomp;vclx;$(DCC_UsePackage)</DCC_UsePackage>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <DCC_DebugInformation>2</DCC_DebugInformation>
@@ -92,95 +92,100 @@
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
-            <MainSource>ERDComponents_DT.dpk</MainSource>
+            <MainSource>MainSource</MainSource>
         </DelphiCompile>
+        <DCCReference Include="rtl.dcp"/>
+        <DCCReference Include="vcl.dcp"/>
+        <DCCReference Include="vclimg.dcp"/>
+        <DCCReference Include="vclx.dcp"/>
+        <DCCReference Include="designide.dcp"/>
+        <DCCReference Include="..\src\UI\ERD.Components.Rating.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.CommandPalette.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.DropZone.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.LoadingIndicator.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.LinkLabel.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.DateTimePicker.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.TimePicker.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.CheckListBox.pas"/>
         <DCCReference Include="..\src\DesignTime\ERD.Components.PropertyEditors.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.NativeSelection.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.MediaControls.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.CommonControls.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.Anim.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.Backstage.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.Buttons.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.TimePicker.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.DateTimePicker.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.LinkLabel.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.LoadingIndicator.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.DropZone.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.CommandPalette.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.Rating.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.Calendar.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.Card.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.Chips.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.ColorDialog.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.Control.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.DataGrid.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.Dialogs.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.Edits.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.FileDialogs.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.FindDialogs.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.FontDialog.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.GDIP.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.Hint.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.Histogram.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.I18n.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.IconCatalog.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.IconData.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.Icons.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.Inspector.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.CheckListBox.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.ItemList.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.KeyValueList.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.Memo.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.Menus.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.Paint.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.Panel.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.PopupList.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.PrintDialogs.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.Progress.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.RangeBar.pas"/>
-    <DCCReference Include="..\src\DesignTime\ERD.Components.Registration.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.Ribbon.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.ScrollBar.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.ScrollBox.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.Segmented.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.ShellControls.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.Sidebar.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.SpinEdit.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.Splitter.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.StatusBar.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.Tabs.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.TaskDialog.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.Theme.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.TileGrid.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.TitleBar.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.Toast.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.ToolBar.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.TrackBar.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.Types.pas"/>
-    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.pas"/>
-    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.Accessibility.pas"/>
-    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.AccessibilityFactory.pas"/>
-    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.Actions.pas"/>
-    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.AncestorVCL.pas"/>
-    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.BaseAncestorVCL.pas"/>
-    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.BaseTree.pas"/>
-    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.Classes.pas"/>
-    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.ClipBoard.pas"/>
-    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.Colors.pas"/>
-    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.DataObject.pas"/>
-    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.DragImage.pas"/>
-    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.DragnDrop.pas"/>
-    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.DrawTree.pas"/>
-    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.EditLink.pas"/>
-    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.Export.pas"/>
-    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.Header.pas"/>
-    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.HeaderPopup.pas"/>
-    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.StyleHooks.pas"/>
-    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.Types.pas"/>
-    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.Utils.pas"/>
-    <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.WorkerThread.pas"/>
-    <DCCReference Include="..\src\UI\ERD.Components.VirtualTree.pas"/>
-    <BuildConfiguration Include="Base">
+        <DCCReference Include="..\src\UI\ERD.Components.NativeSelection.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.MediaControls.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.CommonControls.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.Anim.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.Backstage.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.Buttons.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.Calendar.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.Card.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.Chips.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.ColorDialog.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.Control.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.DataGrid.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.Dialogs.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.Edits.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.FileDialogs.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.FindDialogs.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.FontDialog.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.GDIP.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.Hint.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.Histogram.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.I18n.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.IconCatalog.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.IconData.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.Icons.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.Inspector.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.ItemList.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.KeyValueList.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.Memo.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.Menus.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.Paint.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.Panel.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.PopupList.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.PrintDialogs.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.Progress.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.RangeBar.pas"/>
+        <DCCReference Include="..\src\DesignTime\ERD.Components.Registration.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.Ribbon.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.ScrollBar.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.ScrollBox.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.Segmented.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.ShellControls.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.Sidebar.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.SpinEdit.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.Splitter.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.StatusBar.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.Tabs.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.TaskDialog.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.Theme.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.TileGrid.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.TitleBar.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.Toast.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.ToolBar.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.TrackBar.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.Types.pas"/>
+        <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.pas"/>
+        <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.Accessibility.pas"/>
+        <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.AccessibilityFactory.pas"/>
+        <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.Actions.pas"/>
+        <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.AncestorVCL.pas"/>
+        <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.BaseAncestorVCL.pas"/>
+        <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.BaseTree.pas"/>
+        <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.Classes.pas"/>
+        <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.ClipBoard.pas"/>
+        <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.Colors.pas"/>
+        <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.DataObject.pas"/>
+        <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.DragImage.pas"/>
+        <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.DragnDrop.pas"/>
+        <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.DrawTree.pas"/>
+        <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.EditLink.pas"/>
+        <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.Export.pas"/>
+        <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.Header.pas"/>
+        <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.HeaderPopup.pas"/>
+        <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.StyleHooks.pas"/>
+        <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.Types.pas"/>
+        <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.Utils.pas"/>
+        <DCCReference Include="..\vendor\VirtualTreeView\Source\ERD.Components.VT.WorkerThread.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.VirtualTree.pas"/>
+        <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
         <BuildConfiguration Include="Debug">
