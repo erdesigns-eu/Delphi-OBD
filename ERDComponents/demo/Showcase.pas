@@ -753,7 +753,7 @@ begin
       Preview := TERDTextInput.Create(Self);
       Configure(Preview, 'UnicodeTextPreview', 42, 0);
       Preview.Text := 'Caf' + #$00E9 + ' ' + #$D83D#$DC4D#$D83C#$DFFD +
-        ' ' + #$D83C#$DDE7#$D83C#$DDEA + ' ' + #$D83D#$DC69#$200D#$D83D#$DCBB;
+        ' ' + #$D83C#$DDE7#$D83C#$DDEA + ' ' + #$D83D#$DC69#$200D#$D83D#$DCBB + ' ' + #$D83D#$DE00 + ' ' + #$D83D#$DE80;
     end;
     UnicodeTextPreview := Preview;
   end;

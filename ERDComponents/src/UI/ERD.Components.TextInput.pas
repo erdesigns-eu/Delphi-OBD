@@ -6,13 +6,12 @@ uses
   Winapi.Windows, Winapi.Messages, Winapi.Imm,
   System.Classes, System.SysUtils, System.Types, System.Math,
   Vcl.Controls, Vcl.Graphics, Vcl.Clipbrd, Vcl.ExtCtrls, Vcl.StdCtrls, System.UITypes,
-  ERD.Components.Control, ERD.Components.TextModel, ERD.Components.Menus;
+  ERD.Components.TextLayout, ERD.Components.Control, ERD.Components.TextModel, ERD.Components.Menus;
 type
-  // Opaque Uniscribe handle; declarations avoid dependency on SDK unit variants.
+  // Shared colour-capable layout for every single-line and multiline consumer.
   TERDTextLayoutLine = class
   private
-    FAnalysis: Pointer;
-    FText: UnicodeString;
+    FDirectWrite: TERDDirectWriteLine;
   public
     constructor Create(ACanvas: TCanvas; const AText: UnicodeString);
     destructor Destroy; override;
@@ -216,54 +215,28 @@ type
   end;
 function ScriptBreak(Text: PWideChar; Count: Integer; Analysis, Attributes: Pointer): HRESULT;
   stdcall; external 'usp10.dll';
-function ScriptStringAnalyse(DC: HDC; Text: Pointer; Count, Glyphs, Charset: Integer;
-  Flags: DWORD; RequiredWidth: Integer; Control, State, DX, TabDef, InClass: Pointer;
-  var Analysis: Pointer): HRESULT; stdcall; external 'usp10.dll';
-function ScriptStringFree(var Analysis: Pointer): HRESULT; stdcall; external 'usp10.dll';
-function ScriptStringCPtoX(Analysis: Pointer; Position: Integer; Trailing: BOOL;
-  var X: Integer): HRESULT; stdcall; external 'usp10.dll';
-function ScriptString_pSize(Analysis: Pointer): PSize; stdcall; external 'usp10.dll';
-function ScriptStringOut(Analysis: Pointer; X, Y: Integer; Options: UINT;
-  Rect: PRect; MinSel, MaxSel: Integer; Disabled: BOOL): HRESULT;
-  stdcall; external 'usp10.dll';
 constructor TERDTextLayoutLine.Create(ACanvas: TCanvas; const AText: UnicodeString);
 begin
-  inherited Create; FText := AText;
+  inherited Create;
   SelectObject(ACanvas.Handle, ACanvas.Font.Handle);
-  if FText <> '' then
-    if ScriptStringAnalyse(ACanvas.Handle, PWideChar(FText), Length(FText),
-      Length(FText) * 3 div 2 + 16, -1, $80 or $20 or $1000 or $4, 0,
-      nil, nil, nil, nil, nil, FAnalysis) < 0 then
-      raise EInvalidOperation.Create('Unable to shape text');
+  FDirectWrite := TERDDirectWriteLine.Create(ACanvas, AText);
 end;
 destructor TERDTextLayoutLine.Destroy;
-begin if FAnalysis <> nil then ScriptStringFree(FAnalysis); inherited; end;
+begin FDirectWrite.Free; inherited; end;
 function TERDTextLayoutLine.X(APosition: Integer): Integer;
-var CP: Integer; Trailing: BOOL; Status: HRESULT;
-begin
-  Result := 0;
-  if FAnalysis = nil then Exit;
-  CP := EnsureRange(APosition, 0, Length(FText));
-  // CPtoX takes a character index. The end is the last character's
-  // trailing edge, not the leading edge of a nonexistent extra character.
-  Trailing := CP = Length(FText);
-  if Trailing then Dec(CP);
-  Status := ScriptStringCPtoX(FAnalysis, CP, Trailing, Result);
-  if Status < 0 then
-    raise EInvalidOperation.Create('Unable to map text caret position');
-end;
+begin Result := FDirectWrite.X(APosition); end;
 function TERDTextLayoutLine.Width: Integer;
-begin Result := 0; if FAnalysis <> nil then Result := ScriptString_pSize(FAnalysis)^.cx; end;
+begin Result := FDirectWrite.Width; end;
 procedure TERDTextLayoutLine.Range(APosition, ALength: Integer; out ALeft, ARight: Integer);
-var LastX: Integer;
-begin
-  ALeft := X(APosition); LastX := ALeft;
-  if (FAnalysis <> nil) and (ALength > 0) then
-    ScriptStringCPtoX(FAnalysis, APosition + ALength - 1, True, LastX);
-  ARight := Max(ALeft, LastX); ALeft := Min(ALeft, LastX);
-end;
+begin FDirectWrite.Range(APosition, ALength, ALeft, ARight); end;
 procedure TERDTextLayoutLine.Draw(AX, AY: Integer);
-begin if FAnalysis <> nil then ScriptStringOut(FAnalysis, AX, AY, 0, nil, -1, -1, False); end;
+begin FDirectWrite.Draw(AX, AY); end;
+function ERDDrawLayoutText(ACanvas: TCanvas; const Text: UnicodeString; X, Y: Integer): Integer;
+var Line: TERDTextLayoutLine;
+begin
+  Line := TERDTextLayoutLine.Create(ACanvas, Text);
+  try Line.Draw(X, Y); Result := Line.Width; finally Line.Free; end;
+end;
 function SingleLine(const S: UnicodeString): UnicodeString;
 begin
   Result := StringReplace(S, #13#10, ' ', [rfReplaceAll]);
@@ -572,7 +545,7 @@ begin
     if (S = '') and (FComposition = '') then
     begin
       SetTextColor(ACanvas.Handle, ColorToRGB(Palette.Subtle));
-      TextOutW(ACanvas.Handle, TextInset, Y, PWideChar(FHint), Length(FHint));
+      ERDDrawLayoutText(ACanvas, FHint, TextInset, Y);
     end
     else
     begin
@@ -604,10 +577,10 @@ begin
           S := FComposition;
           if (FPasswordChar <> #0) and not FPasswordVisible then
             S := StringOfChar(FPasswordChar, Length(ERDGraphemeBoundaries(S)) - 1);
-          TextOutW(ACanvas.Handle, L, Y, PWideChar(S), Length(S));
+          H := ERDDrawLayoutText(ACanvas, S, L, Y);
           ACanvas.Pen.Color := Palette.Accent;
           ACanvas.MoveTo(L, Y + TextHeight);
-          ACanvas.LineTo(L + ACanvas.TextWidth(S), Y + TextHeight);
+          ACanvas.LineTo(L + H, Y + TextHeight);
         end;
       finally Line.Free; end;
     end;
@@ -1157,7 +1130,7 @@ begin
     if Text = '' then
     begin
       SetTextColor(ACanvas.Handle, ColorToRGB(Palette.Subtle));
-      TextOutW(ACanvas.Handle, Bounds.Left, Bounds.Top, PWideChar(FHint), Length(FHint));
+      ERDDrawLayoutText(ACanvas, FHint, Bounds.Left, Bounds.Top);
     end;
     for Row := FFirstRow to High(FRows) do
     begin
@@ -1196,9 +1169,9 @@ begin
         if (FComposition <> '') and (Row = RowForPosition(FModel.Caret)) then
         begin
           L := LineOrigin(Line.Width) + Line.X(Min(FRows[Row].Count, FModel.Caret - FRows[Row].Start)) - FScroll;
-          TextOutW(ACanvas.Handle, L, Y, PWideChar(FComposition), Length(FComposition));
+          R := ERDDrawLayoutText(ACanvas, FComposition, L, Y);
           ACanvas.Pen.Color := Palette.Accent; ACanvas.MoveTo(L, Y + H - 1);
-          ACanvas.LineTo(L + ACanvas.TextWidth(FComposition), Y + H - 1);
+          ACanvas.LineTo(L + R, Y + H - 1);
         end;
         PaintTextOverlay(ACanvas, FRows[Row].Start, FRows[Row].Count,
           LineOrigin(Line.Width) - FScroll, Y, Line);

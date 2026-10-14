@@ -10,6 +10,7 @@ requires
   vclx;
 contains
   ERD.Components.TextModel in '..\src\UI\ERD.Components.TextModel.pas',
+  ERD.Components.TextLayout in '..\src\UI\ERD.Components.TextLayout.pas',
   ERD.Components.TextInput in '..\src\UI\ERD.Components.TextInput.pas',
   ERD.Components.Syntax in '..\src\UI\ERD.Components.Syntax.pas',
   ERD.Components.CodeEditor in '..\src\UI\ERD.Components.CodeEditor.pas',

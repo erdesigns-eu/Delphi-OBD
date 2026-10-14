@@ -14,6 +14,19 @@ import validate
 ROOT=Path(__file__).resolve().parents[1]
 
 class LibraryTests(unittest.TestCase):
+    def test_text_layout_com_vtables(self):
+        manifest = json.loads((ROOT/'tools/text_layout_abi.json').read_text())
+        source = (ROOT/'src/UI/ERD.Components.TextLayout.pas').read_text(encoding='utf-8-sig')
+        for name, expected in manifest['interfaces'].items():
+            declaration = re.search(name + r' = interface\((\w+)\)(.*?)\n  end;', source, re.S)
+            self.assertIsNotNone(declaration, name)
+            self.assertEqual(declaration[1], expected['base'], name)
+            self.assertIn(expected['guid'], declaration[2], name)
+            names = re.findall(r'(?:procedure|function) (\w+)', declaration[2])
+            names = [n.split('_', 1)[1] if n.startswith('Reserved') else n for n in names]
+            self.assertEqual(names, expected['methods'], name)
+            self.assertEqual(declaration[2].count('stdcall;'), len(names), name)
+
     def test_showcase_contains_every_registered_component(self):
         registered = set(json.loads((ROOT/'assets/components.json').read_text()))
         dfm = (ROOT/'demo/Showcase.dfm').read_text(encoding='utf-8-sig')

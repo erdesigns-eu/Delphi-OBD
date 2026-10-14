@@ -1,7 +1,7 @@
 ﻿program ERDComponentsSmoke;
 {$APPTYPE CONSOLE}
 uses
-  ERD.Components.CodeEditor, ERD.Components.Syntax,
+  ERD.Components.TextLayout, ERD.Components.CodeEditor, ERD.Components.Syntax,
   ERD.Components.TextModel, ERD.Components.TextInput,
   System.IOUtils,
   System.SysUtils, System.Classes, System.Types, System.Math, Vcl.Forms, Vcl.Controls, Vcl.ExtCtrls,
@@ -2173,6 +2173,54 @@ begin
   finally Form.Free; Filter.Free; end;
 end;
 
+procedure TestSharedColorEmoji;
+var Form: TForm; Input: TERDTextInput; Area: TERDTextArea; Theme: TERDTheme;
+    Bitmap: TBitmap; Layout: TERDTextLayoutLine; X, Y, L, R: Integer;
+  function ColorPixels: Integer;
+  var X, Y: Integer; C: COLORREF;
+  begin
+    Result := 0;
+    for Y := 4 to Bitmap.Height - 5 do
+      for X := 7 to Bitmap.Width - 8 do
+      begin
+        C := ColorToRGB(Bitmap.Canvas.Pixels[X,Y]);
+        if (GetRValue(C) > 150) and (GetGValue(C) > 160) and
+          (GetBValue(C) < 100) then Inc(Result);
+      end;
+  end;
+begin
+  Check(ERDTextLayoutABIValid, 'DirectWrite and Direct2D ABI record sizes');
+  Form := TForm.Create(nil); Bitmap := TBitmap.Create; Theme := TERDTheme.Create(nil);
+  try
+    Input := TERDTextInput.Create(Form); Input.Parent := Form; Input.Theme := Theme;
+    Input.SetBounds(8, 8, 220, 56); Input.Font.Size := 24;
+    Input.Text := #$D83D#$DE00;
+    Area := TERDTextArea.Create(Form); Area.Parent := Form; Area.Theme := Theme;
+    Area.SetBounds(8, 72, 220, 80); Area.Font.Size := 24; Area.Text := Input.Text;
+    Form.Show; Application.ProcessMessages;
+    Theme.Mode := tmERDesignsLight; Input.RenderTo(Bitmap);
+    Check(ColorPixels > 20, 'Shared Edit base paints coloured emoji, not monochrome glyphs');
+    Theme.Mode := tmERDesignsDark; Input.RenderTo(Bitmap);
+    Check(ColorPixels > 20, 'Emoji intrinsic colours survive dark theme');
+    Area.RenderTo(Bitmap);
+    Check(ColorPixels > 20, 'Multiline base inherits colour emoji');
+    Input.SetFocus; Input.SelectAll; Input.RenderTo(Bitmap);
+    Check(ColorPixels > 20, 'Themed selection preserves emoji colours');
+    Input.PasswordChar := #$2022; Input.RenderTo(Bitmap);
+    // Exclude the selection's theme accent by clearing the selection first.
+    Input.SelLength := 0; Input.RenderTo(Bitmap);
+    Check(ColorPixels = 0, 'Password masking does not reveal coloured emoji');
+    Input.PasswordChar := #0; Input.SelLength := 0;
+    Bitmap.Canvas.Font.Assign(Input.Font);
+    Layout := TERDTextLayoutLine.Create(Bitmap.Canvas, 'A' + #$D83D#$DE00);
+    try
+      X := Layout.X(1); Y := Layout.X(3); Layout.Range(1, 2, L, R);
+      Check((Y > X) and (L <= X) and (R >= Y), 'Colour emoji caret and selection use the same layout');
+      Check(Layout.Width >= Y, 'Layout width contains final emoji trailing edge');
+    finally Layout.Free; end;
+  finally Theme.Free; Bitmap.Free; Form.Free; end;
+end;
+
 procedure TestSyntaxAndCodeEditor;
 var Provider: IERDSyntaxProvider; Analysis: TERDSyntaxAnalysis; Span: TERDSyntaxSpan;
     Source, Original: UnicodeString; I, KeywordCount, Rows, Opening, Closing: Integer;
@@ -2471,6 +2519,7 @@ begin
     TestSelfPaintedTextInput;
     TestMultilineTextEngine;
     TestSyntaxAndCodeEditor;
+    TestSharedColorEmoji;
     TestWindowsEditInteractionParity;
     TestMigratedShowcaseTextWindows;
     TestTextInputEditMenu;

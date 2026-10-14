@@ -36,9 +36,11 @@ supports WantTabs, WantReturns, selection across rows, IME composition,
 vertical scrolling and horizontal caret scrolling without wrapping. Memo
 retains its existing ERD scrollbar.
 
-Uniscribe supplies shaping, font fallback and caret geometry. Font/Windows
-support determines emoji glyph appearance; this GDI backend does not promise
-colour emoji. Word movement and double-click selection use Windows Uniscribe word-break
+DirectWrite supplies shaping, font fallback and caret/range geometry. Direct2D
+draws its layouts with colour fonts enabled; text, hints and IME preview all use
+this shared renderer. Emoji colours depend on the installed font and Windows
+colour-font support. A DirectWrite bitmap renderer provides a fallback when
+Direct2D drawing fails; it supports layered COLR colour glyphs. Word movement and double-click selection use Windows Uniscribe word-break
 attributes, with endpoints normalized to Unicode graphemes. Double-click
 dragging extends by whole words. Ctrl+Insert, Shift+Insert and Shift+Delete
 are supported alongside the usual Ctrl+C/V/X shortcuts.

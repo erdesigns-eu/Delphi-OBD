@@ -83,6 +83,7 @@ The Windows smoke suite covers tokenisation, fold integrity, caret expansion,
 indentation undo, streaming, and diagnostic copying/stale-result rejection. It must
 be compiled and run with Delphi on Windows; Linux source checks do not execute VCL.
 
-Colour emoji is the next shared-renderer stage. The current engine preserves emoji
-graphemes and editing, but still draws monochrome Uniscribe glyphs. Colour rendering
-must be implemented in the base layout shared by all derived text controls.
+Colour emoji now comes from the shared DirectWrite layout base. All derived inputs
+use the same layout for drawing, caret positioning and selection. Direct2D enables
+Windows colour-font drawing; intrinsic emoji colours remain visible inside themed
+selections. Password masking still shapes bullets, never the hidden emoji.

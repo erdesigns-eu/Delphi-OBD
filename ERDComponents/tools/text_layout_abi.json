@@ -1,0 +1,286 @@
+{
+  "reference": "Windows SDK DirectWrite/Direct2D COM ABI; method order checked against mingw-w64 headers.",
+  "interfaces": {
+    "IERDWriteFormat": {
+      "native": "IDWriteTextFormat",
+      "base": "IInterface",
+      "guid": "9C906818-31D7-4FD3-A151-7C5E225DB55A",
+      "methods": [
+        "SetTextAlignment",
+        "SetParagraphAlignment",
+        "SetWordWrapping",
+        "SetReadingDirection",
+        "SetFlowDirection",
+        "SetIncrementalTabStop",
+        "SetTrimming",
+        "SetLineSpacing",
+        "GetTextAlignment",
+        "GetParagraphAlignment",
+        "GetWordWrapping",
+        "GetReadingDirection",
+        "GetFlowDirection",
+        "GetIncrementalTabStop",
+        "GetTrimming",
+        "GetLineSpacing",
+        "GetFontCollection",
+        "GetFontFamilyNameLength",
+        "GetFontFamilyName",
+        "GetFontWeight",
+        "GetFontStyle",
+        "GetFontStretch",
+        "GetFontSize",
+        "GetLocaleNameLength",
+        "GetLocaleName"
+      ]
+    },
+    "IERDWriteLayout": {
+      "native": "IDWriteTextLayout",
+      "base": "IERDWriteFormat",
+      "guid": "53737037-6D14-410B-9BFE-0B18B7B70961",
+      "methods": [
+        "SetMaxWidth",
+        "SetMaxHeight",
+        "SetFontCollection",
+        "SetFontFamilyName",
+        "SetFontWeight",
+        "SetFontStyle",
+        "SetFontStretch",
+        "SetFontSize",
+        "SetUnderline",
+        "SetStrikethrough",
+        "SetDrawingEffect",
+        "SetInlineObject",
+        "SetTypography",
+        "SetLocaleName",
+        "GetMaxWidth",
+        "GetMaxHeight",
+        "GetFontCollection",
+        "GetFontFamilyNameLength",
+        "GetFontFamilyName",
+        "GetFontWeight",
+        "GetFontStyle",
+        "GetFontStretch",
+        "GetFontSize",
+        "GetUnderline",
+        "GetStrikethrough",
+        "GetDrawingEffect",
+        "GetInlineObject",
+        "GetTypography",
+        "GetLocaleNameLength",
+        "GetLocaleName",
+        "Draw",
+        "GetLineMetrics",
+        "GetMetrics",
+        "GetOverhangMetrics",
+        "GetClusterMetrics",
+        "DetermineMinWidth",
+        "HitTestPoint",
+        "HitTestTextPosition",
+        "HitTestTextRange"
+      ]
+    },
+    "IERDWriteFactory": {
+      "native": "IDWriteFactory",
+      "base": "IInterface",
+      "guid": "B859EE5A-D838-4B5B-A2E8-1ADC7D93DB48",
+      "methods": [
+        "GetSystemFontCollection",
+        "CreateCustomFontCollection",
+        "RegisterFontCollectionLoader",
+        "UnregisterFontCollectionLoader",
+        "CreateFontFileReference",
+        "CreateCustomFontFileReference",
+        "CreateFontFace",
+        "CreateRenderingParams",
+        "CreateMonitorRenderingParams",
+        "CreateCustomRenderingParams",
+        "RegisterFontFileLoader",
+        "UnregisterFontFileLoader",
+        "CreateTextFormat",
+        "CreateTypography",
+        "GetGdiInterop",
+        "CreateTextLayout",
+        "CreateGdiCompatibleTextLayout",
+        "CreateEllipsisTrimmingSign",
+        "CreateTextAnalyzer",
+        "CreateNumberSubstitution",
+        "CreateGlyphRunAnalysis"
+      ]
+    },
+    "IERDWriteInterop": {
+      "native": "IDWriteGdiInterop",
+      "base": "IInterface",
+      "guid": "1EDD9491-9853-4299-898F-6432983B6F3A",
+      "methods": [
+        "CreateFontFromLOGFONT",
+        "ConvertFontToLOGFONT",
+        "ConvertFontFaceToLOGFONT",
+        "CreateFontFaceFromHdc",
+        "CreateBitmapRenderTarget"
+      ]
+    },
+    "IERDWriteTarget": {
+      "native": "IDWriteBitmapRenderTarget",
+      "base": "IInterface",
+      "guid": "5E5A32A3-8DFF-4773-9FF6-0696EAB77267",
+      "methods": [
+        "DrawGlyphRun",
+        "GetMemoryDC",
+        "GetPixelsPerDip",
+        "SetPixelsPerDip",
+        "GetCurrentTransform",
+        "SetCurrentTransform",
+        "GetSize",
+        "Resize"
+      ]
+    },
+    "IERDWriteSnapping": {
+      "native": "IDWritePixelSnapping",
+      "base": "IInterface",
+      "guid": "EAF3A2DA-ECF4-4D24-B644-B34F6842024B",
+      "methods": [
+        "IsPixelSnappingDisabled",
+        "GetCurrentTransform",
+        "GetPixelsPerDip"
+      ]
+    },
+    "IERDWriteRenderer": {
+      "native": "IDWriteTextRenderer",
+      "base": "IERDWriteSnapping",
+      "guid": "EF8A8135-5CC6-45FE-8825-C5A0724EB819",
+      "methods": [
+        "DrawGlyphRun",
+        "DrawUnderline",
+        "DrawStrikethrough",
+        "DrawInlineObject"
+      ]
+    },
+    "IERDWriteFactory1": {
+      "native": "IDWriteFactory1",
+      "base": "IERDWriteFactory",
+      "guid": "30572F99-DAC6-41DB-A16E-0486307E606A",
+      "methods": [
+        "GetEudcFontCollection",
+        "CreateCustomRenderingParams"
+      ]
+    },
+    "IERDWriteFactory2": {
+      "native": "IDWriteFactory2",
+      "base": "IERDWriteFactory1",
+      "guid": "0439FC60-CA44-4994-8DEE-3A9AF7B732EC",
+      "methods": [
+        "GetSystemFontFallback",
+        "CreateFontFallbackBuilder",
+        "TranslateColorGlyphRun",
+        "CreateCustomRenderingParams",
+        "CreateGlyphRunAnalysis"
+      ]
+    },
+    "IERDWriteColors": {
+      "native": "IDWriteColorGlyphRunEnumerator",
+      "base": "IInterface",
+      "guid": "D31FBE17-F157-41A2-8D24-CB779E0560E8",
+      "methods": [
+        "MoveNext",
+        "GetCurrentRun"
+      ]
+    },
+    "IERD2DFactory": {
+      "native": "ID2D1Factory",
+      "base": "IInterface",
+      "guid": "06152247-6F50-465A-9245-118BFD3B6007",
+      "methods": [
+        "ReloadSystemMetrics",
+        "GetDesktopDpi",
+        "CreateRectangleGeometry",
+        "CreateRoundedRectangleGeometry",
+        "CreateEllipseGeometry",
+        "CreateGeometryGroup",
+        "CreateTransformedGeometry",
+        "CreatePathGeometry",
+        "CreateStrokeStyle",
+        "CreateDrawingStateBlock",
+        "CreateWicBitmapRenderTarget",
+        "CreateHwndRenderTarget",
+        "CreateDxgiSurfaceRenderTarget",
+        "CreateDCRenderTarget"
+      ]
+    },
+    "IERD2DTarget": {
+      "native": "ID2D1RenderTarget",
+      "base": "IERD2DResource",
+      "guid": "2CD90694-12E2-11DC-9FED-001143A055F9",
+      "methods": [
+        "CreateBitmap",
+        "CreateBitmapFromWicBitmap",
+        "CreateSharedBitmap",
+        "CreateBitmapBrush",
+        "CreateSolidColorBrush",
+        "CreateGradientStopCollection",
+        "CreateLinearGradientBrush",
+        "CreateRadialGradientBrush",
+        "CreateCompatibleRenderTarget",
+        "CreateLayer",
+        "CreateMesh",
+        "DrawLine",
+        "DrawRectangle",
+        "FillRectangle",
+        "DrawRoundedRectangle",
+        "FillRoundedRectangle",
+        "DrawEllipse",
+        "FillEllipse",
+        "DrawGeometry",
+        "FillGeometry",
+        "FillMesh",
+        "FillOpacityMask",
+        "DrawBitmap",
+        "DrawText",
+        "DrawTextLayout",
+        "DrawGlyphRun",
+        "SetTransform",
+        "GetTransform",
+        "SetAntialiasMode",
+        "GetAntialiasMode",
+        "SetTextAntialiasMode",
+        "GetTextAntialiasMode",
+        "SetTextRenderingParams",
+        "GetTextRenderingParams",
+        "SetTags",
+        "GetTags",
+        "PushLayer",
+        "PopLayer",
+        "Flush",
+        "SaveDrawingState",
+        "RestoreDrawingState",
+        "PushAxisAlignedClip",
+        "PopAxisAlignedClip",
+        "Clear",
+        "BeginDraw",
+        "EndDraw",
+        "GetPixelFormat",
+        "SetDpi",
+        "GetDpi",
+        "GetSize",
+        "GetPixelSize",
+        "GetMaximumBitmapSize",
+        "IsSupported"
+      ]
+    },
+    "IERD2DDCTarget": {
+      "native": "ID2D1DCRenderTarget",
+      "base": "IERD2DTarget",
+      "guid": "1C51BC64-DE61-46FD-9899-63A5D8F03950",
+      "methods": [
+        "BindDC"
+      ]
+    },
+    "IERD2DResource": {
+      "native": "ID2D1Resource",
+      "base": "IInterface",
+      "guid": "2CD90691-12E2-11DC-9FED-001143A055F9",
+      "methods": [
+        "GetFactory"
+      ]
+    }
+  }
+}
