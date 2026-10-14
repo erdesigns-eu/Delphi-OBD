@@ -157,3 +157,13 @@ control flow, declarations, modifiers, literals and operators. The broad
 `InterfaceKeywordColor`, `ClassKeywordColor` and `ModuleKeywordColor` properties
 remain available; individual overrides take precedence. Keyword matching is case
 sensitive and does not colour occurrences inside comments or strings.
+
+The shared renderer also has a bounded transparent glyph-surface cache. Direct2D
+rasterizes cache misses, including colour emoji; GDI `AlphaBlend` composites hits
+over the current background and selection clip. Text shaping and hit-testing stay
+in DirectWrite. Surfaces retain no canvas/control and are keyed by layout and
+foreground colour. The cache holds at most 256 surfaces and 2,097,152 pixels
+(8 MiB of pixel data), with a per-surface cap of 524,288 pixels. Long lines and
+unsupported alpha targets fall back to the original drawing path.
+`ERDTextRasterCacheStats` exposes hit/miss counters for profiling on Windows; VM
+speed has not been measured in the Linux cloud environment.

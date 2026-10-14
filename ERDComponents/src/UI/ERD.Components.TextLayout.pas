@@ -23,6 +23,7 @@ type
     procedure Draw(X, Y: Integer);
   end;
 function ERDTextLayoutABIValid: Boolean;
+procedure ERDTextRasterCacheStats(out Hits, Misses: UInt64);
 implementation
 type
   TERDWriteMatrix = record M11, M12, M21, M22, DX, DY: Single; end;
@@ -30,6 +31,7 @@ type
     Left, Top, Width, WidthTrailing, Height, LayoutWidth, LayoutHeight: Single;
     MaxBidiDepth, LineCount: Cardinal;
   end;
+  TERDWriteOverhang = record Left, Top, Right, Bottom: Single; end;
   TERDWriteHit = record
     Position, Count: Cardinal;
     Left, Top, Width, Height: Single;
@@ -123,7 +125,7 @@ type
     function Draw(Context: Pointer; const Renderer: IERDWriteRenderer; X, Y: Single): HRESULT; stdcall;
     procedure ReservedIERDWriteLayout_GetLineMetrics; stdcall;
     function GetMetrics(out Metrics: TERDWriteMetrics): HRESULT; stdcall;
-    procedure ReservedIERDWriteLayout_GetOverhangMetrics; stdcall;
+    function GetOverhangMetrics(out Metrics: TERDWriteOverhang): HRESULT; stdcall;
     procedure ReservedIERDWriteLayout_GetClusterMetrics; stdcall;
     procedure ReservedIERDWriteLayout_DetermineMinWidth; stdcall;
     function HitTestPoint(X, Y: Single; out Trailing, Inside: BOOL; out Hit: TERDWriteHit): HRESULT; stdcall;
@@ -291,7 +293,7 @@ type
     procedure ReservedIERD2DTarget_RestoreDrawingState; stdcall;
     procedure ReservedIERD2DTarget_PushAxisAlignedClip; stdcall;
     procedure ReservedIERD2DTarget_PopAxisAlignedClip; stdcall;
-    procedure ReservedIERD2DTarget_Clear; stdcall;
+    procedure Clear(Color: Pointer); stdcall;
     procedure BeginDraw; stdcall;
     function EndDraw(Tag1, Tag2: Pointer): HRESULT; stdcall;
     procedure ReservedIERD2DTarget_GetPixelFormat; stdcall;
@@ -330,7 +332,21 @@ type
     Style: TFontStyles;
     Layout, Factory, Interop, RenderingParams: IInterface;
   end;
+  TERDGlyphSurface = record
+    Layout: IInterface;
+    Ink: COLORREF;
+    Memory: HDC;
+    Image: HBITMAP;
+    Previous: HGDIOBJ;
+    Width, Height, Left, Top: Integer;
+  end;
+  TERDCachePixels = array[0..(MaxInt div SizeOf(Cardinal)) - 1] of Cardinal;
+  PERDCachePixels = ^TERDCachePixels;
+const MAX_GLYPH_CACHE_PIXELS = 2 * 1024 * 1024;
 var
+  GlyphCache: array[0..255] of TERDGlyphSurface;
+  NextGlyphCache, GlyphCachePixels: Integer;
+  RasterHits, RasterMisses: UInt64;
   Shared2DFactory: IERD2DFactory;
   // UI-thread cache. Native layouts are immutable after construction; never retain
   // a canvas/control here. Bound both entry count and retained text per entry.
@@ -344,6 +360,103 @@ function D2D1CreateFactory(Kind: Integer; const IID: TGUID; Options: Pointer; ou
 procedure Checked(Status: HRESULT);
 begin
   if Status < 0 then raise System.SysUtils.Exception.CreateFmt('DirectWrite failed ($%.8x)', [Cardinal(Status)]);
+end;
+procedure ERDTextRasterCacheStats(out Hits, Misses: UInt64);
+begin Hits := RasterHits; Misses := RasterMisses; end;
+procedure FreeGlyphSurface(var Surface: TERDGlyphSurface);
+begin
+  if (Surface.Memory <> 0) and (Surface.Previous <> 0) and (Surface.Previous <> HGDI_ERROR) then
+    SelectObject(Surface.Memory, Surface.Previous);
+  if Surface.Memory <> 0 then DeleteDC(Surface.Memory);
+  if Surface.Image <> 0 then DeleteObject(Surface.Image);
+  Surface := Default(TERDGlyphSurface);
+end;
+procedure ClearGlyphCache;
+var I: Integer;
+begin
+  for I := Low(GlyphCache) to High(GlyphCache) do FreeGlyphSurface(GlyphCache[I]);
+  GlyphCachePixels := 0;
+end;
+function BlitGlyph(const Surface: TERDGlyphSurface; DC: HDC; X, Y: Integer): Boolean;
+var Blend: TBlendFunction;
+begin
+  Blend := Default(TBlendFunction); Blend.BlendOp := AC_SRC_OVER;
+  Blend.SourceConstantAlpha := 255; Blend.AlphaFormat := AC_SRC_ALPHA;
+  Result := Winapi.Windows.AlphaBlend(DC, X + Surface.Left, Y + Surface.Top,
+    Surface.Width, Surface.Height, Surface.Memory, 0, 0, Surface.Width, Surface.Height, Blend);
+end;
+function TryCachedGlyphDraw(const Layout: IInterface; DC: HDC; X, Y, LineHeight: Integer): Boolean;
+var Surface: TERDGlyphSurface; NativeLayout: IERDWriteLayout;
+    Metrics: TERDWriteMetrics; Overhang: TERDWriteOverhang; Info: TBitmapInfo;
+    Pixels: Pointer; I, Count, Slot: Integer; RightEdge: Single; HasInk: Boolean; FactoryObject, Brush: IInterface;
+    Target: IERD2DDCTarget; Props: TERD2DTargetProps; Color: TERD2DColor; Origin: TERD2DPoint; Ink: COLORREF;
+begin
+  Result := False; Ink := GetTextColor(DC);
+  for I := Low(GlyphCache) to High(GlyphCache) do
+    if (GlyphCache[I].Memory <> 0) and (GlyphCache[I].Layout = Layout) and (GlyphCache[I].Ink = Ink) then
+    begin
+      Result := BlitGlyph(GlyphCache[I], DC, X, Y); if Result then Inc(RasterHits); Exit;
+    end;
+  Inc(RasterMisses); Surface := Default(TERDGlyphSurface);
+  try
+    try
+      NativeLayout := Layout as IERDWriteLayout;
+      Checked(NativeLayout.GetMetrics(Metrics)); Checked(NativeLayout.GetOverhangMetrics(Overhang));
+      Surface.Left := -Ceil(Max(0.0, Overhang.Left)) - 1; Surface.Top := -1;
+      RightEdge := Metrics.WidthTrailing;
+      if Overhang.Right < 0 then RightEdge := Max(RightEdge, Metrics.LayoutWidth + Overhang.Right)
+      else RightEdge := RightEdge + Overhang.Right;
+      Surface.Width := Ceil(RightEdge) - Surface.Left + 2;
+      Surface.Height := LineHeight + 2;
+      // Bound allocations before creating a DC or DIB, including unusually long lines.
+      if (Surface.Width <= 0) or (Surface.Width > 32768) or (Surface.Height <= 0) or (Surface.Height > 512) then Exit;
+      if Surface.Width > (MAX_GLYPH_CACHE_PIXELS div 4) div Surface.Height then Exit;
+      Count := Surface.Width * Surface.Height;
+      Surface.Memory := CreateCompatibleDC(DC); if Surface.Memory = 0 then Exit;
+      Info := Default(TBitmapInfo); Info.bmiHeader.biSize := SizeOf(TBitmapInfoHeader);
+      Info.bmiHeader.biWidth := Surface.Width; Info.bmiHeader.biHeight := -Surface.Height;
+      Info.bmiHeader.biPlanes := 1; Info.bmiHeader.biBitCount := 32; Info.bmiHeader.biCompression := BI_RGB;
+      Surface.Image := CreateDIBSection(DC, Info, DIB_RGB_COLORS, Pixels, 0, 0); if Surface.Image = 0 then Exit;
+      Surface.Previous := SelectObject(Surface.Memory, Surface.Image);
+      if (Surface.Previous = 0) or (Surface.Previous = HGDI_ERROR) then Exit;
+      FillChar(Pixels^, Count * SizeOf(Cardinal), 0);
+      if Shared2DFactory = nil then
+      begin
+        Checked(D2D1CreateFactory(0, IERD2DFactory, nil, FactoryObject));
+        Shared2DFactory := FactoryObject as IERD2DFactory;
+      end;
+      Props := Default(TERD2DTargetProps); Props.Kind := 1; Props.Format := 87;
+      Props.AlphaMode := 1; Props.DpiX := 96; Props.DpiY := 96;
+      Checked(Shared2DFactory.CreateDCRenderTarget(Props, Target));
+      Checked(Target.BindDC(Surface.Memory, Rect(0, 0, Surface.Width, Surface.Height)));
+      Color.Red := GetRValue(Ink) / 255; Color.Green := GetGValue(Ink) / 255;
+      Color.Blue := GetBValue(Ink) / 255; Color.Alpha := 1;
+      Checked(Target.CreateSolidColorBrush(Color, nil, Brush));
+      Origin.X := -Surface.Left; Origin.Y := -Surface.Top;
+      Target.SetTextAntialiasMode(2); Target.BeginDraw; Target.Clear(nil);
+      Target.DrawTextLayout(Origin, Layout, Brush, 2 or 4); Checked(Target.EndDraw(nil, nil));
+      Brush := nil; Target := nil; GdiFlush;
+      // An unsupported alpha target must fall back, not hide text or cover its background.
+      if (PERDCachePixels(Pixels)^[0] shr 24 <> 0) or (PERDCachePixels(Pixels)^[Count - 1] shr 24 <> 0) then Exit;
+      HasInk := False;
+      for I := 0 to Count - 1 do if PERDCachePixels(Pixels)^[I] shr 24 <> 0 then begin HasInk := True; Break; end;
+      if not HasInk then Exit;
+      Surface.Layout := Layout; Surface.Ink := Ink;
+      Slot := NextGlyphCache;
+      while (GlyphCachePixels + Count > MAX_GLYPH_CACHE_PIXELS) or (GlyphCache[Slot].Memory <> 0) do
+      begin
+        Dec(GlyphCachePixels, GlyphCache[Slot].Width * GlyphCache[Slot].Height);
+        FreeGlyphSurface(GlyphCache[Slot]);
+        if GlyphCachePixels + Count <= MAX_GLYPH_CACHE_PIXELS then Break;
+        Slot := (Slot + 1) mod Length(GlyphCache);
+      end;
+      GlyphCache[Slot] := Surface; Surface := Default(TERDGlyphSurface);
+      Inc(GlyphCachePixels, Count); NextGlyphCache := (Slot + 1) mod Length(GlyphCache);
+      Result := BlitGlyph(GlyphCache[Slot], DC, X, Y);
+    except Result := False; end;
+  finally
+    Brush := nil; Target := nil; FactoryObject := nil; FreeGlyphSurface(Surface);
+  end;
 end;
 function TryNativeColorDraw(const Layout: IInterface; DC: HDC; const Clip: TRect;
   X, Y: Integer): Boolean;
@@ -404,7 +517,7 @@ begin
 end;
 function ERDTextLayoutABIValid: Boolean;
 begin
-  Result := (SizeOf(TERDWriteMetrics) = 36) and (SizeOf(TERDWriteHit) = 36) and
+  Result := (SizeOf(TERDWriteMetrics) = 36) and (SizeOf(TERDWriteOverhang) = 16) and (SizeOf(TERDWriteHit) = 36) and
     (SizeOf(TERDWriteRange) = 8) and (SizeOf(TERDWriteMatrix) = 24) and
     (SizeOf(TERD2DPoint) = 8) and (SizeOf(TERD2DSize) = 8) and
     (SizeOf(TERD2DBitmapProps) = 16) and (SizeOf(TERD2DTargetProps) = 28) and
@@ -516,12 +629,17 @@ begin
     Result[I] := Rect(Floor(Hits[I].Left), 0, Ceil(Hits[I].Left + Hits[I].Width), FLineHeight);
 end;
 procedure TERDDirectWriteLine.Draw(X, Y: Integer);
-var Clip: TRect; Target: IERDWriteTarget; Renderer: IERDWriteRenderer; DC: HDC;
+var Clip: TRect; Saved: Integer; Target: IERDWriteTarget; Renderer: IERDWriteRenderer; DC: HDC;
 begin
   if FText = '' then Exit;
   if GetClipBox(FCanvas.Handle, Clip) <= NULLREGION then Exit;
   Clip.Top := Max(Clip.Top, Y); Clip.Bottom := Min(Clip.Bottom, Y + FLineHeight);
   if (Clip.Width <= 0) or (Clip.Height <= 0) then Exit;
+  Saved := SaveDC(FCanvas.Handle);
+  try
+    IntersectClipRect(FCanvas.Handle, Clip.Left, Clip.Top, Clip.Right, Clip.Bottom);
+    if TryCachedGlyphDraw(FLayout, FCanvas.Handle, X, Y, FLineHeight) then Exit;
+  finally RestoreDC(FCanvas.Handle, Saved); end;
   if TryNativeColorDraw(FLayout, FCanvas.Handle, Clip, X, Y) then Exit;
   Checked((FInterop as IERDWriteInterop).CreateBitmapRenderTarget(FCanvas.Handle, Clip.Width, Clip.Height, Target));
   Checked(Target.SetPixelsPerDip(1)); DC := Target.GetMemoryDC;
@@ -589,4 +707,8 @@ begin Result := Decoration(X, Y, Strike); end;
 function TERDWriteRenderer.DrawInlineObject(Context: Pointer; X, Y: Single; const Obj: IInterface;
   Sideways, RTL: BOOL; const Effect: IInterface): HRESULT;
 begin Result := E_NOTIMPL; end;
+initialization
+  NextGlyphCache := 0;
+finalization
+  ClearGlyphCache;
 end.

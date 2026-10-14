@@ -2370,6 +2370,7 @@ begin RecreateWnd; end;
 procedure TestSharedColorEmoji;
 var Form: TForm; Input: TTextInputProbe; Area: TERDTextArea; Theme: TERDTheme;
     Bitmap: TBitmap; Layout: TERDTextLayoutLine; X, Y, L, R, CachedWidth: Integer;
+    HitsBefore, HitsAfter, Misses: UInt64;
   function ColorPixels: Integer;
   var X, Y: Integer; C: COLORREF;
   begin
@@ -2398,6 +2399,9 @@ begin
     Check(Input.Text = Area.Text, 'Window recreation preserves emoji text');
     Theme.Mode := tmERDesignsLight; Input.RenderTo(Bitmap);
     Check(ColorPixels > 20, 'Shared Edit base paints coloured emoji, not monochrome glyphs');
+    ERDTextRasterCacheStats(HitsBefore, Misses); Input.RenderTo(Bitmap);
+    ERDTextRasterCacheStats(HitsAfter, Misses);
+    Check(HitsAfter > HitsBefore, 'Unchanged emoji repaint uses the transparent glyph cache');
     Theme.Mode := tmERDesignsDark; Input.RenderTo(Bitmap);
     Check(ColorPixels > 20, 'Emoji intrinsic colours survive dark theme');
     Area.RenderTo(Bitmap);
