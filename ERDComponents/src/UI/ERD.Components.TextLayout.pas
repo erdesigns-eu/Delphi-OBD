@@ -5,7 +5,7 @@
 {$B-}
 {$ALIGN 8}
 interface
-uses Winapi.Windows, System.SysUtils, System.Types, System.Math, Vcl.Controls, Vcl.Graphics;
+uses Winapi.Windows, System.SysUtils, System.Types, System.Math, Vcl.Graphics;
 type
   TERDDirectWriteLine = class
   private
@@ -328,7 +328,7 @@ function D2D1CreateFactory(Kind: Integer; const IID: TGUID; Options: Pointer; ou
   stdcall; external 'd2d1.dll';
 procedure Checked(Status: HRESULT);
 begin
-  if Status < 0 then raise EInvalidOperation.CreateFmt('DirectWrite failed ($%.8x)', [Cardinal(Status)]);
+  if Status < 0 then raise System.SysUtils.Exception.CreateFmt('DirectWrite failed ($%.8x)', [Cardinal(Status)]);
 end;
 function TryNativeColorDraw(const Layout: IInterface; DC: HDC; const Clip: TRect;
   X, Y: Integer): Boolean;
@@ -406,7 +406,7 @@ var Factory: IERDWriteFactory; Format: IERDWriteFormat; Layout: IERDWriteLayout;
     AllText: TERDWriteRange;
 begin
   inherited Create;
-  if not ERDTextLayoutABIValid then raise EInvalidOperation.Create('Invalid DirectWrite record layout');
+  if not ERDTextLayoutABIValid then raise System.SysUtils.Exception.Create('Invalid DirectWrite record layout');
   FCanvas := ACanvas; FText := Text;
   Checked(DWriteCreateFactory(0, IERDWriteFactory, FFactory));
   Factory := FFactory as IERDWriteFactory;
