@@ -1521,10 +1521,8 @@ begin
   Hit := ItemAt(X, Y);
   if Hit >= 0 then
   begin
-    R := TabBounds(Hit);
     FDragTarget := Hit;
-    if (X < (R.Left + R.Right) div 2) and (Hit > Item.Index) then Dec(FDragTarget)
-    else if (X >= (R.Left + R.Right) div 2) and (Hit < Item.Index) then Inc(FDragTarget);
+
   end
   else if not PtInRect(NewTabRect, Point(X, Y)) then
     for I := 0 to FItems.Count - 1 do if EffectiveVisible(I) then
@@ -1714,6 +1712,14 @@ end;
 
 procedure TERDTabs.WndProc(var Message: TMessage);
 begin
+  if (Message.Msg = WM_MOUSEMOVE) and (FDragID >= 0) and
+    ((Message.WParam and MK_LBUTTON) <> 0) then
+  begin
+    // Process a pending tab drag before VCL's generic drag machinery.
+    MouseMove([ssLeft], SmallInt(LoWord(Message.LParam)), SmallInt(HiWord(Message.LParam)));
+    Message.Result := 0;
+    Exit;
+  end;
   if Message.Msg = WM_LBUTTONUP then
   begin
     // VCL releases capture before dispatching MouseUp. Keep the pending
@@ -1830,7 +1836,9 @@ var I: Integer; P: TERDPainter; Overflow: Boolean;
 begin
   inherited;
   if (Button <> mbLeft) or not Enabled then Exit;
-  ResetInteraction;
+  FDragID := -1; FDragTarget := -1; FClosePressedID := -1;
+  FDragging := False; FPressedIndex := -1;
+  FDragTimer.Enabled := False;
   if CanFocus then SetFocus;
   P := TERDPainter.Create(Canvas, Palette, ScaleValue(96));
   try Overflow := TotalTabWidth(P) > Width finally P.Free end;

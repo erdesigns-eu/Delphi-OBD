@@ -952,6 +952,16 @@ begin
     Check(not Tabs.MoveTab(0, 1) and (Counter.Reorders = 1), 'Reorder can be vetoed');
     Counter.VetoMove := False;
     R := Tabs.TabBounds(0); Target := Tabs.TabBounds(1);
+    Tabs.Perform(WM_LBUTTONDOWN, MK_LBUTTON,
+      MakeLParam((R.Left + R.Right) div 2, Tabs.Height div 2));
+    Tabs.Perform(WM_MOUSEMOVE, MK_LBUTTON,
+      MakeLParam((Target.Left + Target.Right) div 2, Tabs.Height div 2));
+    Check(Tabs.DragInProgress, 'Native mouse movement starts tab drag');
+    Tabs.Perform(WM_LBUTTONUP, 0,
+      MakeLParam((Target.Left + Target.Right) div 2, Tabs.Height div 2));
+    Check(Tabs.Tabs[1].ID = SelectedID, 'Native release over next tab reorders it');
+    Check(Tabs.MoveTab(1, 0), 'Restore order after native drag regression');
+    R := Tabs.TabBounds(0); Target := Tabs.TabBounds(1);
     Tabs.PressAt((R.Left + R.Right) div 2, Tabs.Height div 2);
     Tabs.DragTo(Target.Right - 24, Tabs.Height div 2);
     Check(Tabs.DragInProgress and (Tabs.Tabs[0].ID = SelectedID), 'Drag shows marker without moving data immediately');
