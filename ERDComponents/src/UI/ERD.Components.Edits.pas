@@ -918,6 +918,7 @@ begin
   if FPopup = nil then
   begin
     FPopup := TERDPopupList.Create(Self);
+    FPopup.EmptyText := 'No matching items';
     FPopup.OnCloseUp := PopupCloseUp;
   end;
   if Assigned(FOnDropDown) then

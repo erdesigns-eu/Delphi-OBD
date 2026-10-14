@@ -43,6 +43,7 @@ type
   TERDPopupList = class(TCustomListBox)
   strict private
     FIsOpen: Boolean;
+    FEmptyText: string;
     FOnCloseUp: TERDPopupCloseEvent;
     FPalette: TERDThemePalette;
     FPPI: Integer;
@@ -57,6 +58,7 @@ type
     FLastTop: Integer;
     FCheckingTop: Boolean;
     FHotIndex: Integer;
+    procedure SetEmptyText(const Value: string);
     function VisibleRows: Integer;
     procedure SetHotIndex(AValue: Integer);
     procedure InvalidateItem(AIndex: Integer);
@@ -133,6 +135,8 @@ type
     function HandleKey(var Key: Word; Shift: TShiftState): Boolean;
     /// <summary>True while the popup window is visible.</summary>
     property IsOpen: Boolean read FIsOpen;
+    /// <summary>Message shown when the list contains no items.</summary>
+    property EmptyText: string read FEmptyText write SetEmptyText;
     /// <summary>Item under the mouse, or -1.</summary>
     property HotIndex: Integer read FHotIndex;
     /// <summary>Fires after <see cref="CloseUp"/> hides the popup.</summary>
@@ -321,6 +325,13 @@ begin
   end;
 end;
 
+procedure TERDPopupList.SetEmptyText(const Value: string);
+begin
+  if FEmptyText = Value then Exit;
+  FEmptyText := Value;
+  Invalidate;
+end;
+
 procedure TERDPopupList.PaintRows(ADC: HDC);
 var
   I: Integer;
@@ -343,6 +354,17 @@ begin
       State := [];
       if I = ItemIndex then Include(State, odSelected);
       DrawRow(Buffer.Canvas, I, R, State);
+    end;
+    if (Items.Count = 0) and (FEmptyText <> '') then
+    begin
+      Painter := TERDPainter.Create(Buffer.Canvas, FPalette, FPPI);
+      try
+        Painter.Text(ScalePixel(8), FRowHeight div 2, FEmptyText,
+          12.5, FPalette.ForegroundText, twRegular, taLeftJustify,
+          System.Math.Max(0, ClientWidth - ScalePixel(16)));
+      finally
+        Painter.Free;
+      end;
     end;
     if NeedsBar then
     begin
