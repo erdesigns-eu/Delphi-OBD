@@ -4,6 +4,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.Classes, System.Types, System.SysUtils, System.Math,
   System.Generics.Collections, Vcl.Controls, Vcl.Graphics, Vcl.ExtCtrls, Vcl.Menus,
   ERD.Components.Types, ERD.Components.Control, ERD.Components.Paint,
+  ERD.Components.Menus,
   ERD.Components.Edits, ERD.Components.Buttons, ERD.Components.Panel;
 const
   CM_ERD_REBUILDTAGS = WM_APP + $4A2;
@@ -54,16 +55,31 @@ type
   TERDTagToken = class(TERDInteractiveControl)
   private
     FCanClose: Boolean;
+    FCloseHot, FHandlingMouseUp: Boolean;
+    FCloseIconSize, FCloseSpacing, FTagColorStrength: Integer;
+    FTagColor: TColor;
     FClosePressed: Boolean;
     FOnClose: TNotifyEvent;
     function CloseBounds: TRect;
+    procedure SetCloseIconSize(Value: Integer);
+    procedure SetCloseSpacing(Value: Integer);
+    procedure SetTagColor(Value: TColor);
+    procedure SetTagColorStrength(Value: Integer);
+    procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
+    procedure WMCaptureChanged(var Message: TMessage); message WM_CAPTURECHANGED;
   protected
+    procedure WndProc(var Message: TMessage); override;
+    procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
     procedure PaintControl(ACanvas: TCanvas); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
   public
     constructor Create(AOwner: TComponent); override;
+    property CloseIconSize: Integer read FCloseIconSize write SetCloseIconSize;
+    property CloseSpacing: Integer read FCloseSpacing write SetCloseSpacing;
+    property TagColor: TColor read FTagColor write SetTagColor;
+    property TagColorStrength: Integer read FTagColorStrength write SetTagColorStrength;
     property CanClose: Boolean read FCanClose write FCanClose;
     property OnClose: TNotifyEvent read FOnClose write FOnClose;
   end;
@@ -74,6 +90,8 @@ type
 
   TERDTagEdit = class(TERDPanel)
   private
+    FCloseIconSize, FCloseSpacing, FTagColorStrength: Integer;
+    FTagColor: TColor;
     FTags: TStringList;
     FEditor: TERDEdit;
     FButtons: TObjectList<TERDTagToken>;
@@ -82,6 +100,11 @@ type
     FLayouting: Boolean;
     FRemovingClick: Boolean;
     FOnChange: TNotifyEvent;
+    procedure UpdateTagAppearance;
+    procedure SetCloseIconSize(Value: Integer);
+    procedure SetCloseSpacing(Value: Integer);
+    procedure SetTagColor(Value: TColor);
+    procedure SetTagColorStrength(Value: Integer);
     procedure SetTags(Value: TStrings);
     function GetTags: TStrings;
     procedure SetReadOnly(Value: Boolean);
@@ -103,8 +126,17 @@ type
     procedure ThemeChanged; override;
     procedure DensityChanged; override;
     procedure SetFocus; override;
+    procedure GetChildren(Proc: TGetChildProc; Root: TComponent); override;
     property Editor: TERDEdit read FEditor;
   published
+    /// <summary>Close cross size in 96-DPI pixels.</summary>
+    property CloseIconSize: Integer read FCloseIconSize write SetCloseIconSize default 8;
+    /// <summary>Space between text and close icon in 96-DPI pixels.</summary>
+    property CloseSpacing: Integer read FCloseSpacing write SetCloseSpacing default 4;
+    /// <summary>clDefault uses the current theme accent.</summary>
+    property TagColor: TColor read FTagColor write SetTagColor default clDefault;
+    /// <summary>Tag fill accent strength, from 0 to 100 percent.</summary>
+    property TagColorStrength: Integer read FTagColorStrength write SetTagColorStrength default 28;
     property Tags: TStrings read GetTags write SetTags;
     property ReadOnly: Boolean read FReadOnly write SetReadOnly default False;
     property AllowDuplicates: Boolean read FAllowDuplicates write FAllowDuplicates default False;
@@ -141,39 +173,163 @@ type
     property OnExpandedChange: TNotifyEvent read FOnExpandedChange write FOnExpandedChange;
   end;
 implementation
+procedure TERDTagToken.SetCloseIconSize(Value: Integer);
+begin
+  Value := EnsureRange(Value, 4, 24);
+  if FCloseIconSize = Value then Exit;
+  FCloseIconSize := Value;
+  Invalidate;
+end;
+procedure TERDTagToken.SetCloseSpacing(Value: Integer);
+begin
+  Value := EnsureRange(Value, 0, 64);
+  if FCloseSpacing = Value then Exit;
+  FCloseSpacing := Value;
+  Invalidate;
+end;
+procedure TERDTagToken.SetTagColor(Value: TColor);
+begin
+  if FTagColor = Value then Exit;
+  FTagColor := Value;
+  Invalidate;
+end;
+procedure TERDTagToken.SetTagColorStrength(Value: Integer);
+begin
+  Value := EnsureRange(Value, 0, 100);
+  if FTagColorStrength = Value then Exit;
+  FTagColorStrength := Value;
+  Invalidate;
+end;
+procedure TERDTagEdit.SetCloseIconSize(Value: Integer);
+begin
+  Value := EnsureRange(Value, 4, 24);
+  if FCloseIconSize = Value then Exit;
+  FCloseIconSize := Value;
+  UpdateTagAppearance;
+end;
+procedure TERDTagEdit.SetCloseSpacing(Value: Integer);
+begin
+  Value := EnsureRange(Value, 0, 64);
+  if FCloseSpacing = Value then Exit;
+  FCloseSpacing := Value;
+  UpdateTagAppearance;
+end;
+procedure TERDTagEdit.SetTagColor(Value: TColor);
+begin
+  if FTagColor = Value then Exit;
+  FTagColor := Value;
+  UpdateTagAppearance;
+end;
+procedure TERDTagEdit.SetTagColorStrength(Value: Integer);
+begin
+  Value := EnsureRange(Value, 0, 100);
+  if FTagColorStrength = Value then Exit;
+  FTagColorStrength := Value;
+  UpdateTagAppearance;
+end;
+procedure TERDTagEdit.UpdateTagAppearance;
+var Button: TERDTagToken;
+begin
+  if FButtons = nil then Exit;
+  for Button in FButtons do
+  begin
+    Button.CloseIconSize := FCloseIconSize;
+    Button.CloseSpacing := FCloseSpacing;
+    Button.TagColor := FTagColor;
+    Button.TagColorStrength := FTagColorStrength;
+  end;
+  LayoutTags;
+end;
 constructor TERDTagToken.Create(AOwner: TComponent);
 begin
   inherited;
   AutoSize := False;
   FCanClose := True;
+  FCloseIconSize := 8;
+  FCloseSpacing := 4;
+  FTagColor := clDefault;
+  FTagColorStrength := 28;
   Height := 26;
 end;
 function TERDTagToken.CloseBounds: TRect;
+var HitHeight: Integer;
 begin
-  Result := Rect(Width - ScaleValue(26), 0, Width, Height);
+  HitHeight := Min(Height - ScaleValue(4), ScaleValue(Max(16, FCloseIconSize + 6)));
+  Result := Rect(Max(ScaleValue(8), Width - ScaleValue(8 + FCloseIconSize + Min(FCloseSpacing, 3))),
+    (Height - HitHeight) div 2, Width - ScaleValue(4), (Height + HitHeight) div 2);
 end;
 procedure TERDTagToken.PaintControl(ACanvas: TCanvas);
-var P: TERDPainter; Fill: TColor; AvailableTextWidth: Integer;
+var P: TERDPainter; Fill, Base, Border, Ink: TColor; AvailableTextWidth: Integer;
+  R: TRect; CX, CY, Half: Single; Strength: Single;
 begin
   P := TERDPainter.Create(ACanvas, Palette, ScaleValue(96));
   try
-    Fill := P.Tint(Palette.Accent, 0.12);
-    if Hover then Fill := P.Tint(Palette.Accent, 0.2);
+    Base := FTagColor;
+    if Base = clDefault then Base := Palette.Accent;
+    Strength := FTagColorStrength / 100;
+    if Enabled and Hover then Strength := Min(1, Strength + 0.08);
+    if not Enabled then Strength := Strength * 0.5;
+    Fill := P.Tint(Base, Strength);
+    Border := ERDMixColor(Base, Fill, 0.55);
+    Ink := P.ContrastInk(Fill);
+    if not Enabled then begin Ink := P.DisabledText; Border := Palette.NeutralLight end;
     P.RoundRect(P.S(2), P.S(2), Max(0, Width - P.S(4)), Max(0, Height - P.S(4)),
-      (Height - P.S(4)) / 2, Fill, Palette.NeutralLight);
+      (Height - P.S(4)) / 2, Fill, Border);
     AvailableTextWidth := Width - P.S(16);
-    if FCanClose then Dec(AvailableTextWidth, P.S(24));
-    P.Text(P.S(8), Height div 2, Caption, ERD_TEXT_BODY, Palette.ForegroundText,
+    if FCanClose then Dec(AvailableTextWidth, P.S(FCloseIconSize + FCloseSpacing));
+    if AvailableTextWidth > 0 then P.Text(P.S(8), Height div 2, Caption, ERD_TEXT_BODY, Ink,
       twRegular, taLeftJustify, Max(0, AvailableTextWidth));
-    if FCanClose then P.Glyph(glClose, Width - P.S(14), Height div 2, Palette.Subtle, 0.65);
+    if FCanClose then
+    begin
+      R := CloseBounds;
+      CX := Width - P.SF(8) - P.SF(FCloseIconSize) / 2;
+      CY := Height / 2;
+      if Enabled and FCloseHot then
+      begin
+        if FClosePressed then Fill := ERDMixColor(Base, Fill, 0.6)
+        else Fill := ERDMixColor(Base, Fill, 0.35);
+        P.RoundRect(R.Left, R.Top, R.Width, R.Height, P.SF(4), Fill, clNone);
+        Ink := P.ContrastInk(Fill);
+      end;
+      Half := P.SF(FCloseIconSize) / 2;
+      P.Lines([ERDPointF(CX - Half, CY - Half), ERDPointF(CX + Half, CY + Half)], Ink, P.SF(1));
+      P.Lines([ERDPointF(CX + Half, CY - Half), ERDPointF(CX - Half, CY + Half)], Ink, P.SF(1));
+    end;
     if HasFocus then P.FocusRing(P.S(3), P.S(3), Max(0, Width - P.S(6)),
       Max(0, Height - P.S(6)), (Height - P.S(6)) / 2);
   finally P.Free end;
 end;
+procedure TERDTagToken.MouseMove(Shift: TShiftState; X, Y: Integer);
+var Hot: Boolean;
+begin
+  inherited;
+  Hot := Enabled and FCanClose and PtInRect(CloseBounds, Point(X, Y));
+  if Hot <> FCloseHot then begin FCloseHot := Hot; Invalidate end;
+end;
+procedure TERDTagToken.CMMouseLeave(var Message: TMessage);
+begin inherited; FCloseHot := False; Invalidate end;
+procedure TERDTagToken.WMCaptureChanged(var Message: TMessage);
+begin
+  inherited;
+  if not FHandlingMouseUp then FClosePressed := False;
+  Invalidate;
+end;
+procedure TERDTagToken.WndProc(var Message: TMessage);
+begin
+  if Message.Msg = WM_LBUTTONUP then
+  begin
+    FHandlingMouseUp := True;
+    try inherited finally FHandlingMouseUp := False end;
+  end
+  else inherited;
+end;
 procedure TERDTagToken.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-  FClosePressed := FCanClose and (Button = mbLeft) and PtInRect(CloseBounds, Point(X, Y));
+  FCloseHot := Enabled and FCanClose and PtInRect(CloseBounds, Point(X, Y));
+  FClosePressed := FCloseHot and (Button = mbLeft);
   inherited;
+  if FClosePressed then MouseCapture := True;
+  Invalidate;
 end;
 procedure TERDTagToken.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var Remove: Boolean;
@@ -182,6 +338,7 @@ begin
     PtInRect(CloseBounds, Point(X, Y));
   FClosePressed := False;
   inherited;
+  Invalidate;
   if Remove and Assigned(FOnClose) then FOnClose(Self);
 end;
 procedure TERDTagToken.KeyDown(var Key: Word; Shift: TShiftState);
@@ -355,21 +512,30 @@ begin
   inherited;
 end;
 procedure TERDSplitButton.DropDown;
-var Pt: TPoint;
+var Pt: TPoint; R: TRect; M: Integer;
 begin
   if not Enabled then Exit;
   if Assigned(FOnDropDown) then FOnDropDown(Self);
   if FDropDownMenu <> nil then
   begin
-    Pt := ClientToScreen(Point(0, Height));
+    M := RingMargin;
+    R := Rect(M, M, Width - M, Height - M);
+    R.TopLeft := ClientToScreen(R.TopLeft);
+    R.BottomRight := ClientToScreen(R.BottomRight);
+    Pt := Point(R.Left, R.Bottom);
     FDropDownMenu.PopupComponent := Self;
-    FDropDownMenu.Popup(Pt.X, Pt.Y);
+    if FDropDownMenu is TERDPopupMenu then TERDPopupMenu(FDropDownMenu).PopupAt(R)
+    else FDropDownMenu.Popup(Pt.X, Pt.Y);
   end;
 end;
 
 constructor TERDTagEdit.Create(AOwner: TComponent);
 begin
   inherited;
+  FCloseIconSize := 8;
+  FCloseSpacing := 4;
+  FTagColor := clDefault;
+  FTagColorStrength := 28;
   FTags := TStringList.Create;
   FTags.OnChange := TagsChanged;
   FButtons := TObjectList<TERDTagToken>.Create(True);
@@ -469,6 +635,10 @@ begin
     Button.Tag := I;
     Button.Caption := FTags[I];
     Button.CanClose := not FReadOnly;
+    Button.CloseIconSize := FCloseIconSize;
+    Button.CloseSpacing := FCloseSpacing;
+    Button.TagColor := FTagColor;
+    Button.TagColorStrength := FTagColorStrength;
     Button.AutoSize := False;
     Button.TabStop := not FReadOnly;
     Button.OnClose := RemoveTagClick;
@@ -486,10 +656,11 @@ begin
   Gap := ScaleValue(6);
   X := Gap;
   Y := Gap;
-  H := ScaleValue(Metrics.Edit);
+  H := ScaleValue(Max(Metrics.Edit, FCloseIconSize + 8));
   for Button in FButtons do
   begin
-    W := ERDMeasureText(Button.Caption, ERD_TEXT_BODY, twSemibold, ScaleValue(96)) + ScaleValue(48);
+    W := ERDMeasureText(Button.Caption, ERD_TEXT_BODY, twRegular, ScaleValue(96)) + ScaleValue(16);
+    if Button.CanClose then Inc(W, ScaleValue(FCloseIconSize + FCloseSpacing));
     W := Min(W, Max(H, ClientWidth - 2 * Gap));
     if (X > Gap) and (X + W > ClientWidth - Gap) then
     begin
@@ -535,6 +706,14 @@ procedure TERDTagEdit.DensityChanged;
 begin
   inherited;
   LayoutTags;
+end;
+procedure TERDTagEdit.GetChildren(Proc: TGetChildProc; Root: TComponent);
+var I: Integer;
+begin
+  // Tags and their editor are recreated from properties, not streamed twice.
+  for I := 0 to ControlCount - 1 do
+    if (Controls[I] <> FEditor) and not (Controls[I] is TERDTagToken) and
+      (Controls[I].Owner = Root) then Proc(Controls[I]);
 end;
 procedure TERDTagEdit.SetFocus;
 begin

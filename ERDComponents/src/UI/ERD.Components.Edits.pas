@@ -54,6 +54,7 @@ type
   strict private
     FPasswordChar: Char;
     FPasswordVisible, FShowPasswordButton, FRevealDown, FRevealHot: Boolean;
+    FHandlingMouseUp: Boolean;
     FValidationState: TERDEditValidationState;
     FValidationText: string;
     FValidateOnChange, FValidateOnExit, FValidating: Boolean;
@@ -101,6 +102,7 @@ type
     procedure CMEnabledChanged(var Message: TMessage);
       message CM_ENABLEDCHANGED;
   protected
+    procedure WndProc(var Message: TMessage); override;
     /// <summary>Places the inner edit: one text line high, centred
     /// vertically, inset by the padding and <see cref="TrailingSpace"/>.</summary>
     function EditFieldHeight: Integer;
@@ -790,8 +792,17 @@ begin
 end;
 procedure TERDEdit.CMMouseLeave(var Message: TMessage);
 begin inherited; FRevealHot := False; Invalidate end;
+procedure TERDEdit.WndProc(var Message: TMessage);
+begin
+  if Message.Msg = WM_LBUTTONUP then
+  begin
+    FHandlingMouseUp := True;
+    try inherited finally FHandlingMouseUp := False end;
+  end
+  else inherited;
+end;
 procedure TERDEdit.WMCaptureChanged(var Message: TMessage);
-begin inherited; FRevealDown := False; Invalidate end;
+begin inherited; if not FHandlingMouseUp then FRevealDown := False; Invalidate end;
 
 { TERDComboBox }
 

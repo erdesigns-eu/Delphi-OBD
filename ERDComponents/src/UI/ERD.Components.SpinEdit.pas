@@ -501,6 +501,16 @@ begin
         P.Lines([ERDPointF(CX - D, CY - D / 2), ERDPointF(CX, CY + D / 2),
           ERDPointF(CX + D, CY - D / 2)], Ink, P.SF(1.5));
     end;
+    // Draw the inherited edit/validation outline after the button fills.
+    Ink := Palette.NeutralLight;
+    if Enabled and Focused then Ink := P.AccentText;
+    case ValidationState of
+      evsSuccess: Ink := Palette.Success;
+      evsWarning: Ink := Palette.Warning;
+      evsError: Ink := Palette.Danger;
+    end;
+    if Enabled and Focused then P.FrameRect(Rect(0, 0, Width, EditFieldHeight), Ink, P.S(2))
+    else P.FrameRect(Rect(0, 0, Width, EditFieldHeight), Ink);
   finally
     P.Free;
   end;

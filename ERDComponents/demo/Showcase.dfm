@@ -3982,6 +3982,32 @@
           Top = 2836
           Caption = 'Loading playlists...'
         end
+        object LoadingStyleChoice: TERDComboBox
+          Left = 500
+          Top = 2836
+          Width = 200
+          Items.Strings = (
+            'Spinner'
+            'Ring'
+            'Dots'
+            'Bars'
+            'Pulse')
+          ItemIndex = 0
+          OnChange = LoadingStyleChanged
+        end
+        object LoadingSizeChoice: TERDComboBox
+          Left = 720
+          Top = 2836
+          Width = 160
+          Items.Strings = (
+            '16 px'
+            '24 px'
+            '32 px'
+            '48 px'
+            '64 px')
+          ItemIndex = 2
+          OnChange = LoadingSizeChanged
+        end
         object LoadingToggle: TERDCheckBox
           Left = 256
           Top = 2836

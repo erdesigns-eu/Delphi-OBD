@@ -471,8 +471,8 @@ begin
       for Button := -1 to 1 do
       begin
         if Button = 0 then Continue;
-        if Button = 1 then ButtonRect := Rect(X + 1, 1, Width - 1, Height div 2)
-        else ButtonRect := Rect(X + 1, Height div 2, Width - 1, Height - 1);
+        if Button = 1 then ButtonRect := Rect(X + P.S(1), P.S(2), Width - P.S(2), Height div 2)
+        else ButtonRect := Rect(X + P.S(1), Height div 2, Width - P.S(2), Height - P.S(2));
         CY := (ButtonRect.Top + ButtonRect.Bottom) div 2;
         Ink := Palette.Subtle;
         if not Enabled or FReadOnly then Ink := P.DisabledText
@@ -490,6 +490,9 @@ begin
         else P.GlyphChevron(Width - P.S(11), CY, Ink, True);
       end;
     end;
+    // Keep the outer frame above spin hover/pressed fills at every DPI.
+    if Enabled and Focused then P.FrameRect(ClientRect, P.AccentText, P.S(2))
+    else P.FrameRect(ClientRect, Palette.NeutralLight);
   finally P.Free end;
 end;
 end.

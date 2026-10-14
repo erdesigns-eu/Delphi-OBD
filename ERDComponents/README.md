@@ -362,6 +362,15 @@ Windows-focuscues, Enter/Space en een optioneel `Icon` (built-in, imagelist of g
 Met `AutoOpen=True` of `OpenLink` opent Windows de `URL` met de bijbehorende app.
 `Visited` en `AlwaysUnderline` zijn instelbaar. De demo meldt klikken in de statusbar.
 
+## Tag appearance
+
+`TERDTagEdit` uses stronger theme-accent fills and borders. `TagColor=clDefault`
+follows the theme; `TagColorStrength` sets the fill strength in percent (default
+28). `CloseIconSize` sets the cross size in logical pixels (default 8), and
+`CloseSpacing` sets the exact text-to-icon gap (default 4). Changes update existing
+tokens and their layout. The close button has independent hover/pressed states;
+releasing away cancels deletion. These settings are available in the IDE and DFM.
+
 ## LoadingIndicator
 
 `TERDLoadingIndicator` is een themed spinner voor onbekende voortgang, met optionele
@@ -369,7 +378,11 @@ Met `AutoOpen=True` of `OpenLink` opent Windows de `URL` met de bijbehorende app
 zichtbaar en enabled is, en nooit in de designer. `RespectAnimations=True` volgt
 Windows' instelling voor client-area-animaties; bij uitgeschakelde animaties blijft
 een statische indicator zichtbaar. `IsAnimating` laat zien of de timer actief is.
-De Inputs-demo bevat een switch om `Active` te wijzigen.
+`Style` kiest `lisSpinner`, `lisRing`, `lisDots`, `lisBars` of `lisPulse`.
+`IndicatorSize` is de indicatorbox in 96-DPI pixels (8–256, standaard 32);
+`AnimationInterval` bepaalt de framesnelheid (16–2000 ms, standaard 80).
+AutoSize houdt ook bij kleine indicators voldoende hoogte voor de caption.
+De Inputs-demo bevat style- en size-keuzes naast de switch voor `Active`.
 
 Windows-smoketests voor LinkLabel en LoadingIndicator zijn toegevoegd: activeren,
 disabled state, renderen zonder window, DFM en het stoppen/hervatten van de timer

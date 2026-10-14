@@ -1069,7 +1069,7 @@ begin
   MaxText := 0;
   MaxShort := 0;
   HasSub := False;
-  H := ScalePixel(ERD_MENU_PAD_TOP * 2);
+  H := ScalePixel(ERD_MENU_PAD_TOP);
   Size := TextSize;
   for I := 0 to Length(FRows) - 1 do
   begin
@@ -1105,6 +1105,7 @@ begin
   if HasSub then
     Inc(W, ScalePixel(ERD_MENU_SUB_WIDTH));
   W := System.Math.Max(ScalePixel(ERD_MENU_MIN_WIDTH), W);
+  Inc(H, ScalePixel(ERD_MENU_PAD_TOP));
   SetBounds(Left, Top, W, H);
 end;
 

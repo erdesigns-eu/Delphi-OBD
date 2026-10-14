@@ -79,6 +79,8 @@ type
     RibbonSpin: TERDSpinEdit;
     RibbonGallery: TERDTileGrid;
     DemoLoadingIndicator: TERDLoadingIndicator;
+    LoadingStyleChoice: TERDComboBox;
+    LoadingSizeChoice: TERDComboBox;
     LoadingToggle: TERDCheckBox;
     LabelLoadingIndicator: TLabel;
     DemoLinkLabel: TERDLinkLabel;
@@ -619,6 +621,8 @@ type
     procedure TimeChanged(Sender: TObject);
     procedure DateTimeChanged(Sender: TObject);
     procedure LinkClicked(Sender: TObject);
+    procedure LoadingStyleChanged(Sender: TObject);
+    procedure LoadingSizeChanged(Sender: TObject);
     procedure LoadingChanged(Sender: TObject);
     procedure RatingChanged(Sender: TObject);
     procedure SearchComboChanged(Sender: TObject);
@@ -1098,6 +1102,17 @@ begin
   StatusBar.Panels[0].Text := Format('Rating: %.1f / %d', [DemoRating.Value, DemoRating.MaxStars]);
 end;
 
+procedure TShowcaseForm.LoadingStyleChanged(Sender: TObject);
+begin
+  if LoadingStyleChoice.ItemIndex >= 0 then
+    DemoLoadingIndicator.Style := TERDLoadingIndicatorStyle(LoadingStyleChoice.ItemIndex);
+end;
+procedure TShowcaseForm.LoadingSizeChanged(Sender: TObject);
+const Sizes: array[0..4] of Integer = (16, 24, 32, 48, 64);
+begin
+  if (LoadingSizeChoice.ItemIndex >= 0) and (LoadingSizeChoice.ItemIndex <= High(Sizes)) then
+    DemoLoadingIndicator.IndicatorSize := Sizes[LoadingSizeChoice.ItemIndex];
+end;
 procedure TShowcaseForm.LoadingChanged(Sender: TObject);
 begin
   DemoLoadingIndicator.Active := LoadingToggle.Checked;

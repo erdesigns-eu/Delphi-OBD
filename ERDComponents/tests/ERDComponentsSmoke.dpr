@@ -4,7 +4,7 @@ uses
   System.IOUtils,
   System.SysUtils, System.Classes, System.Types, System.Math, Vcl.Forms, Vcl.Controls, Vcl.ExtCtrls,
   Winapi.Windows, Vcl.ActnList, Vcl.StdCtrls, Vcl.Graphics, Vcl.ImgList,
-  ERD.Components.Tabs, ERD.Components.Memo,
+  ERD.Components.Tabs, ERD.Components.Memo, ERD.Components.Menus,
   ERD.Components.Rating,
   ERD.Components.CommandPalette,
   ERD.Components.DropZone,
@@ -827,10 +827,17 @@ begin
     Tags.RemoveTag(0);
     Check((Tags.Tags.Count = 2) and not Tags.AddTag('Blocked'), 'ReadOnly blocks user/API mutations');
     Tags.ReadOnly := False;
+    Tags.CloseIconSize := 10;
+    Tags.CloseSpacing := 6;
+    Tags.TagColor := clRed;
+    Tags.TagColorStrength := 40;
     Stream.WriteComponent(Tags);
     Stream.Position := 0;
     TagsCopy := TERDTagEdit(Stream.ReadComponent(nil));
-    try Check(TagsCopy.Tags.Text = Tags.Tags.Text, 'Tags survive component streaming')
+    try
+      Check(TagsCopy.Tags.Text = Tags.Tags.Text, 'Tags survive component streaming');
+      Check((TagsCopy.CloseIconSize = 10) and (TagsCopy.CloseSpacing = 6) and
+        (TagsCopy.TagColor = clRed) and (TagsCopy.TagColorStrength = 40), 'Tag appearance properties survive streaming')
     finally TagsCopy.Free end;
     Stream.Clear;
 
@@ -1105,6 +1112,17 @@ begin
       (Counter.Changes = 0), 'Password reveal preserves text and selection without OnChange');
     Edit.RevealByKeyboard;
     Check(not Edit.PasswordVisible and (Native.PasswordChar = #8226), 'Keyboard hides password again');
+    Edit.Perform(WM_LBUTTONDOWN, MK_LBUTTON, MakeLParam(Edit.Width - 16, Edit.Height div 2));
+    Check(not Edit.PasswordVisible, 'Eye waits for matching release');
+    Edit.Perform(WM_LBUTTONUP, 0, MakeLParam(Edit.Width - 16, Edit.Height div 2));
+    Check(Edit.PasswordVisible and (Native.PasswordChar = #0), 'Native mouse release reveals password');
+    Edit.Perform(WM_LBUTTONDOWN, MK_LBUTTON, MakeLParam(Edit.Width - 16, Edit.Height div 2));
+    Edit.Perform(WM_LBUTTONUP, 0, MakeLParam(4, Edit.Height div 2));
+    Check(Edit.PasswordVisible, 'Release away cancels eye toggle');
+    Edit.Perform(WM_LBUTTONDOWN, MK_LBUTTON, MakeLParam(Edit.Width - 16, Edit.Height div 2));
+    Edit.Perform(WM_LBUTTONUP, 0, MakeLParam(Edit.Width - 16, Edit.Height div 2));
+    Check(not Edit.PasswordVisible and (Native.PasswordChar = #8226), 'Eye hides password on next click');
+
     Check(Native.Left + Native.Width <= Edit.Width - 32, 'Native edit reserves room for reveal button');
     Edit.PasswordChar := #0;
     Edit.OnValidate := Validator.ValidateText;
@@ -1439,7 +1457,7 @@ end;
 
 procedure TestLoadingIndicator;
 var Form: TForm; Loading: TLoadingProbe; Stored, Copy: TERDLoadingIndicator;
-  Bitmap: TBitmap; Stream: TMemoryStream; I, Frame: Integer;
+  Bitmap: TBitmap; Stream: TMemoryStream; I, Frame: Integer; Style: TERDLoadingIndicatorStyle;
 begin
   RegisterClass(TERDLoadingIndicator);
   Form := TForm.CreateNew(nil);
@@ -1451,6 +1469,9 @@ begin
       Check(Stored.Active and Stored.RespectAnimations and not Stored.IsAnimating,
         'Loading defaults: active, respects OS animation, no timer before showing');
       Stored.Caption := 'Loading';
+      Stored.Style := lisBars;
+      Stored.IndicatorSize := 48;
+      Stored.AnimationInterval := 120;
       Stored.Active := False;
       Stored.RespectAnimations := False;
       Stored.RenderTo(Bitmap);
@@ -1460,12 +1481,27 @@ begin
     Stream.Position := 0;
     Copy := TERDLoadingIndicator(Stream.ReadComponent(nil));
     try
-      Check(not Copy.Active and not Copy.RespectAnimations and (Copy.Caption = 'Loading'),
+      Check(not Copy.Active and not Copy.RespectAnimations and (Copy.Caption = 'Loading') and
+        (Copy.Style = lisBars) and (Copy.IndicatorSize = 48) and (Copy.AnimationInterval = 120),
         'Loading indicator DFM stores active, animation option and caption');
     finally Copy.Free end;
     Loading := TLoadingProbe.Create(Form);
     Loading.Parent := Form;
     Loading.RespectAnimations := False;
+    Loading.Caption := '';
+    for Style := Low(TERDLoadingIndicatorStyle) to High(TERDLoadingIndicatorStyle) do
+    begin
+      Loading.Style := Style;
+      for I := 1 to 4 do
+      begin
+        Loading.IndicatorSize := I * 16;
+        Loading.RenderTo(Bitmap);
+        Check((Loading.Width = Loading.Height) and (Bitmap.Width = Loading.Width),
+          'Every loader style supports autosized 16/32/48/64 pixel boxes');
+      end;
+    end;
+    Loading.Style := lisSpinner;
+    Loading.IndicatorSize := 32;
     for I := 1 to 12 do Loading.NextFrame;
     Check(Loading.FrameIndex = 0, 'Spinner wraps after twelve frames');
     Loading.Active := False;
@@ -1852,13 +1888,55 @@ begin
   finally Bitmap.Free; Stream.Free; Form.Free; Counter.Free end;
 end;
 
+procedure TestSplitMenuGeometry;
+var Form: TForm; Theme: TERDTheme; Split: TERDSplitButton; Menu: TERDPopupMenu;
+  Popup: TWinControl; Item: TERDMenuItem; Bounds: TRect; Anchor: TPoint;
+  Bitmap: TBitmap; M, Y, FirstHot, LastHot: Integer; Fill: TColor;
+begin
+  Form := TForm.CreateNew(nil);
+  Bitmap := TBitmap.Create;
+  try
+    Form.SetBounds(100, 100, 500, 300);
+    Theme := TERDTheme.Create(Form);
+    Split := TERDSplitButton.Create(Form); Split.Parent := Form; Split.Theme := Theme;
+    Split.AutoSize := False; Split.SetBounds(40, 40, 120, 40);
+    Menu := TERDPopupMenu.Create(Form); Menu.Theme := Theme;
+    Item := TERDMenuItem.Create(Menu); Item.Caption := 'Show dialog'; Menu.Items.Add(Item);
+    Split.DropDownMenu := Menu;
+    Form.Show; Application.ProcessMessages;
+    Split.DropDown;
+    Check(Split.ControlCount = 1, 'Split button owns one visible themed popup window');
+    Popup := TWinControl(Split.Controls[0]);
+    M := MulDiv(4, Split.CurrentPPI, 96);
+    Anchor := Split.ClientToScreen(Point(M, Split.Height - M));
+    GetWindowRect(Popup.Handle, Bounds);
+    Check((Bounds.Left = Anchor.X) and (Bounds.Top = Anchor.Y),
+      'Popup aligns with painted button left and bottom edges');
+    Popup.Perform(WM_MOUSEMOVE, 0, MakeLParam(M + 2, M + 6));
+    Bitmap.SetSize(Popup.Width, Popup.Height);
+    Popup.PaintTo(Bitmap.Canvas.Handle, 0, 0);
+    Fill := Bitmap.Canvas.Pixels[M + 2, Popup.Height div 2];
+    FirstHot := -1; LastHot := -1;
+    for Y := 1 to Popup.Height - 2 do
+      if Bitmap.Canvas.Pixels[M + 2, Y] = Fill then
+      begin
+        if FirstHot < 0 then FirstHot := Y;
+        LastHot := Y;
+      end;
+    Check((FirstHot > 0) and (FirstHot = Popup.Height - 1 - LastHot),
+      'Single-item popup has balanced top and bottom row padding');
+  finally ERDCloseThemedMenu; Bitmap.Free; Form.Free end;
+end;
+
 procedure TestFeedbackRegressions;
 var Form: TForm; Values: TERDKeyValueList; Tags: TERDTagEdit;
   Token: TERDTagToken; Ribbon: TERDRibbon; Group: TERDRibbonGroup;
   First, Second, Independent: TERDRibbonItem; Y, I: Integer;
   FoundFirst, FoundSecond: Boolean;
+  Bitmap: TBitmap; Normal, Hot, Down: TColor; TokenWidth: Integer;
 begin
   Form := TForm.CreateNew(nil);
+  Bitmap := TBitmap.Create;
   try
     Values := TERDKeyValueList.Create(Form);
     Values.Parent := Form;
@@ -1882,6 +1960,25 @@ begin
     for I := 0 to Tags.ControlCount - 1 do
       if Tags.Controls[I] is TERDTagToken then Token := TERDTagToken(Tags.Controls[I]);
     Check(Token <> nil, 'Tag creates a themed token');
+    TokenWidth := Token.Width;
+    Tags.CloseSpacing := 10;
+    Check((Token.Width = TokenWidth + 6) and (Token.CloseSpacing = 10),
+      'Close spacing relayouts existing tokens without recreating them');
+    Tags.CloseSpacing := 4;
+    Tags.TagColorStrength := 40;
+    Check(Token.TagColorStrength = 40, 'Appearance changes propagate to existing tags');
+    Token.RenderTo(Bitmap);
+    Normal := Bitmap.Canvas.Pixels[Token.Width - 8, Token.Height div 2 + 5];
+    Token.Perform(WM_MOUSEMOVE, 0, MakeLParam(Token.Width - 12, Token.Height div 2));
+    Token.RenderTo(Bitmap);
+    Hot := Bitmap.Canvas.Pixels[Token.Width - 8, Token.Height div 2 + 5];
+    Token.Perform(WM_LBUTTONDOWN, MK_LBUTTON, MakeLParam(Token.Width - 12, Token.Height div 2));
+    Token.RenderTo(Bitmap);
+    Down := Bitmap.Canvas.Pixels[Token.Width - 8, Token.Height div 2 + 5];
+    Check((Normal <> Hot) and (Hot <> Down), 'Tag close button paints distinct hover and pressed states');
+    Token.Perform(WM_LBUTTONUP, 0, MakeLParam(4, Token.Height div 2));
+    Check(Tags.Tags.Count = 1, 'Releasing away from close icon does not delete tag');
+
     Token.Perform(WM_LBUTTONDOWN, MK_LBUTTON, MakeLParam(8, Token.Height div 2));
     Token.Perform(WM_LBUTTONUP, 0, MakeLParam(8, Token.Height div 2));
     Check(Tags.Tags.Count = 1, 'Clicking tag caption does not remove tag');
@@ -1908,7 +2005,7 @@ begin
     Check(Independent.Down and Second.Down, 'Independent toggle preserves radio choice');
     Independent.Execute;
     Check(not Independent.Down, 'Independent ribbon toggle can be unchecked');
-  finally Form.Free end;
+  finally Bitmap.Free; Form.Free end;
 end;
 
 begin
@@ -1925,6 +2022,7 @@ begin
     TestVirtualTreeThemeAndLazyNodes;
     TestCommonControls;
     TestFeedbackRegressions;
+    TestSplitMenuGeometry;
     TestCheckListBox;
     TestTimePicker;
     TestDateSegmentsAndDateTime;

@@ -1267,6 +1267,9 @@ begin
       Round(GX + P.SF(4.25)), Round(GY + P.SF(1.5))), Glyph);
     P.FillRect(Rect(Round(GX + GW - P.SF(4.25)), Round(GY - P.SF(1.5)),
       Round(GX + GW - P.SF(3)), Round(GY + P.SF(1.5))), Glyph);
+    if Enabled and (Focused or IsOpen) and not IsPreview then
+      P.FrameRect(ClientRect, P.AccentText, P.S(2))
+    else P.FrameRect(ClientRect, Palette.NeutralLight);
   finally
     P.Free;
   end;
