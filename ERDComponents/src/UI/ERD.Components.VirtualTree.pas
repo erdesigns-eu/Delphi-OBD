@@ -508,7 +508,7 @@ begin
   inherited;
 end;
 procedure TERDVirtualStringTree.DoAfterItemPaint(Canvas: TCanvas; Node: PVirtualNode; ItemRect: TRect);
-var P: TERDPainter; AlwaysShow: LongBool; ShowCues: Boolean;
+var P: TERDPainter; AlwaysShow: LongBool; ShowCues: Boolean; R: TRect;
 begin
   if (Node <> nil) and Focused then
   begin
@@ -518,9 +518,13 @@ begin
       SystemParametersInfo(SPI_GETKEYBOARDCUES, 0, @AlwaysShow, 0);
       ShowCues := AlwaysShow or ((SendMessage(Handle, WM_QUERYUISTATE, 0, 0) and UISF_HIDEFOCUS) = 0);
       if (Node = FocusedNode) and ShowCues then
-        P.FrameRect(Rect(Max(0, ItemRect.Left) + P.S(4), ItemRect.Top + P.S(4),
-          Min(ItemRect.Right, ClientWidth) - P.S(4), ItemRect.Bottom - P.S(4)),
-          Palette.Accent, 1);
+      begin
+        R := Rect(Max(0, ItemRect.Left) + P.S(5), ItemRect.Top + P.S(4),
+          Min(ItemRect.Right, ClientWidth) - P.S(4), ItemRect.Bottom - P.S(4));
+        if (R.Width > P.S(8)) and (R.Height > P.S(8)) and
+          (R.Top >= Header.Height) and (R.Bottom <= ClientHeight) then
+          P.FocusRing(R.Left, R.Top, R.Width, R.Height, P.S(4));
+      end;
       if vsSelected in Node.States then
         P.FillRect(Rect(ItemRect.Left, ItemRect.Top + P.S(4), ItemRect.Left + P.S(3),
         ItemRect.Bottom - P.S(4)), Palette.Accent);
