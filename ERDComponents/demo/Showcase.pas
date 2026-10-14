@@ -1,6 +1,7 @@
 ﻿unit Showcase;
 interface
 uses
+  ERD.Components.TextInput,
   ERD.Components.Rating,
   ERD.Components.CommandPalette,
   ERD.Components.DropZone,
@@ -74,6 +75,9 @@ type
   PPlaylistDemoData = ^TPlaylistDemoData;
 
   TShowcaseForm = class(TForm)
+    UnicodeTextPreview: TERDTextInput;
+    UnicodePasswordPreview: TERDTextInput;
+    LabelUnicodePreview: TLabel;
     RibbonInputs: TERDPanel;
     RibbonSearch: TERDSearchEdit;
     RibbonCombo: TERDComboBox;

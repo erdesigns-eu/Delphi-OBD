@@ -57,7 +57,11 @@ def validate():
         require((path.parent/main).is_file(),'Missing project MainSource')
         refs=[]
         for node in tree.findall('m:ItemGroup/m:DCCReference',NS):
-            ref=node.attrib['Include'];require((path.parent/ref.replace('\\','/')).is_file(),'Missing '+ref);refs.append(ref.lower())
+            ref=node.attrib['Include']
+            sdk_packages={'rtl.dcp','vcl.dcp','vclimg.dcp','vclx.dcp','designide.dcp'}
+            if ref.lower() not in sdk_packages:
+                require((path.parent/ref.replace('\\','/')).is_file(),'Missing '+ref)
+            refs.append(ref.lower())
         for node in tree.findall('m:PropertyGroup/m:DCC_UnitSearchPath',NS):
             require('..\\..\\' not in (node.text or ''),'Search path escapes library')
         package=path.with_suffix('.dpk')

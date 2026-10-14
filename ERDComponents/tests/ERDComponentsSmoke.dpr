@@ -1,9 +1,10 @@
 ﻿program ERDComponentsSmoke;
 {$APPTYPE CONSOLE}
 uses
+  ERD.Components.TextModel, ERD.Components.TextInput,
   System.IOUtils,
   System.SysUtils, System.Classes, System.Types, System.Math, Vcl.Forms, Vcl.Controls, Vcl.ExtCtrls,
-  Winapi.Windows, Vcl.ActnList, Vcl.StdCtrls, Vcl.Graphics, Vcl.ImgList,
+  Winapi.Windows, Vcl.Clipbrd, Vcl.ActnList, Vcl.StdCtrls, Vcl.Graphics, Vcl.ImgList,
   ERD.Components.Tabs, ERD.Components.Memo, ERD.Components.Menus,
   ERD.Components.Rating,
   ERD.Components.CommandPalette,
@@ -2015,6 +2016,76 @@ begin
   finally Bitmap.Free; Form.Free end;
 end;
 
+
+procedure CheckGraphemes(const S: UnicodeString; const Expected: array of Integer);
+var Actual: TArray<Integer>; I: Integer;
+begin
+  Actual := ERDGraphemeBoundaries(S);
+  Check(Length(Actual) = Length(Expected), 'Unicode grapheme boundary count');
+  for I := 0 to High(Expected) do
+    Check(Actual[I] = Expected[I], 'Unicode grapheme UTF-16 boundary');
+end;
+procedure TestUnicodeTextModel;
+var M: TERDTextModel; Family, Flag, Tone, Accent: UnicodeString;
+begin
+  {$I GraphemeConformance.inc}
+  Family := #$D83D#$DC69#$200D#$D83D#$DC69#$200D#$D83D#$DC67;
+  Flag := #$D83C#$DDE7#$D83C#$DDEA;
+  Tone := #$D83D#$DC4D#$D83C#$DFFD;
+  Accent := 'e' + #$0301;
+  M := TERDTextModel.Create;
+  try
+    M.SetText('A' + Accent + Flag + Tone + Family);
+    Check(M.Previous(Length(M.Text)) = 1 + Length(Accent + Flag + Tone), 'Family moves as one grapheme');
+    M.DeleteBackward;
+    Check(M.Text = 'A' + Accent + Flag + Tone, 'Backspace removes whole family');
+    M.Undo; Check(M.Text = 'A' + Accent + Flag + Tone + Family, 'Unicode undo restores family');
+    M.Redo; M.DeleteBackward;
+    Check(M.Text = 'A' + Accent + Flag, 'Backspace removes skin tone with emoji');
+    M.Select(1 + Length(Accent), 1 + Length(Accent)); M.DeleteForward;
+    Check(M.Text = 'A' + Accent, 'Delete removes entire flag');
+    M.Select(2, 2); Check(M.Caret = 1, 'Selection cannot split combining sequence');
+    M.Select(Length(M.Text), Length(M.Text)); M.ReplaceSelection(Family, Length(M.Text) + 2);
+    Check(M.Text = 'A' + Accent, 'MaxLength cannot insert partial emoji family');
+    M.SetText('A' + #$D800 + 'B');
+    Check(M.Text = 'A' + #$FFFD + 'B', 'Invalid surrogate replaced without corrupting UTF-16');
+  finally M.Free; end;
+end;
+procedure TestSelfPaintedTextInput;
+var Form: TForm; Input: TERDTextInput; Bitmap: TBitmap; ClassName: array[0..63] of Char;
+    X, Y, DarkPixels: Integer; C: TColor;
+begin
+  Form := TForm.Create(nil); Bitmap := TBitmap.Create;
+  try
+    Input := TERDTextInput.Create(Form); Input.Parent := Form;
+    Input.SetBounds(8, 8, 300, 28); Input.Text := 'Unicode ' + #$D83D#$DC4D#$D83C#$DFFD;
+    Form.Show; Input.SetFocus; Application.ProcessMessages;
+    GetClassName(Input.Handle, ClassName, Length(ClassName));
+    Check(not SameText(ClassName, 'EDIT'), 'Custom input is not a Windows EDIT');
+    Check(GetWindow(Input.Handle, GW_CHILD) = 0, 'Custom input has no native edit child');
+    Input.Perform(WM_KEYDOWN, VK_BACK, 0);
+    Check(Input.Text = 'Unicode ', 'Custom input backspace removes emoji cluster');
+    Input.Perform(WM_CHAR, Ord('A'), 0);
+    Check(Input.Text = 'Unicode A', 'Self-painted input accepts typing');
+    Input.Undo; Check(Input.Text = 'Unicode ', 'Self-painted input undo works');
+    Input.SelectAll; Input.ReplaceSelection('Visible text'); Input.RenderTo(Bitmap);
+    DarkPixels := 0;
+    for Y := 5 to Bitmap.Height - 6 do for X := 8 to 100 do
+    begin C := ColorToRGB(Bitmap.Canvas.Pixels[X,Y]);
+      if (GetRValue(C) < 120) and (GetGValue(C) < 120) and (GetBValue(C) < 120) then Inc(DarkPixels);
+    end;
+    Check(DarkPixels > 15, 'Self-painted input renders visible glyphs');
+    Input.PasswordChar := #$2022; Input.Text := 'secret'; Input.SelectAll;
+    Clipboard.AsText := 'clipboard sentinel';
+    Input.CopyToClipboard;
+    Check(Clipboard.AsText = 'clipboard sentinel', 'Password contents cannot be copied');
+    Input.PasswordVisible := True;
+    Check(Input.Text = 'secret', 'Reveal preserves underlying password text');
+    Input.ReadOnly := True; Input.ReplaceSelection('changed');
+    Check(Input.Text = 'secret', 'ReadOnly blocks replacement');
+  finally Bitmap.Free; Form.Free; end;
+end;
+
 begin
   try
     Application.Initialize;
@@ -2043,6 +2114,8 @@ begin
     TestEditPasswordAndValidation;
     TestDocumentTabs;
     TestNativeTextPainting;
+    TestUnicodeTextModel;
+    TestSelfPaintedTextInput;
     Writeln(Checks, ' VCL runtime checks passed.');
   except on E: Exception do begin Writeln(E.ClassName, ': ', E.Message); Halt(1) end end;
 end.

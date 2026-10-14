@@ -4582,6 +4582,30 @@ object ShowcaseForm: TShowcaseForm
           Text = ''
           TextHint = 'Enter a name'
         end
+        object LabelUnicodePreview: TLabel
+          Left = 16
+          Top = 3640
+          Width = 460
+          Height = 15
+          Caption = 'Self-painted Unicode preview - accents, emoji and password'
+        end
+        object UnicodeTextPreview: TERDTextInput
+          Left = 16
+          Top = 3668
+          Width = 460
+          Height = 28
+          TabOrder = 34
+          Text = 'Caf'#233' '#55357#56397#55356#57341' '#55356#56807#55356#56810' '#55357#56425#8205#55357#564187
+        end
+        object UnicodePasswordPreview: TERDTextInput
+          Left = 16
+          Top = 3710
+          Width = 460
+          Height = 28
+          TabOrder = 35
+          PasswordChar = #8226
+          Text = 'Unicode '#55357#56595
+        end
       end
     end
     object LayoutPage: TERDPanel

@@ -2,7 +2,7 @@
 interface
 procedure Register;
 implementation
-uses ERD.Components.Rating, ERD.Components.CommandPalette, ERD.Components.DropZone, ERD.Components.LoadingIndicator, ERD.Components.LinkLabel, ERD.Components.DateTimePicker, ERD.Components.TimePicker, ERD.Components.CheckListBox, ERD.Components.PropertyEditors, ERD.Components.PopupList, ERD.Components.NativeSelection, ERD.Components.Icons, ERD.Components.Control, ERD.Components.MediaControls, ERD.Components.CommonControls, System.Classes, DesignIntf, ERD.Components.VirtualTree, ERD.Components.Backstage,
+uses ERD.Components.TextInput, ERD.Components.Rating, ERD.Components.CommandPalette, ERD.Components.DropZone, ERD.Components.LoadingIndicator, ERD.Components.LinkLabel, ERD.Components.DateTimePicker, ERD.Components.TimePicker, ERD.Components.CheckListBox, ERD.Components.PropertyEditors, ERD.Components.PopupList, ERD.Components.NativeSelection, ERD.Components.Icons, ERD.Components.Control, ERD.Components.MediaControls, ERD.Components.CommonControls, System.Classes, DesignIntf, ERD.Components.VirtualTree, ERD.Components.Backstage,
   ERD.Components.Buttons,
   ERD.Components.Calendar,
   ERD.Components.Card,
@@ -46,8 +46,9 @@ uses ERD.Components.Rating, ERD.Components.CommandPalette, ERD.Components.DropZo
 procedure Register;
 begin
   // Internal text controls can also be streamed from application forms.
-  RegisterNoIcon([TERDDialogText]);
+  RegisterNoIcon([TERDDialogText, TERDTextInput]);
   RegisterERDPropertyEditors([
+    TERDTextInput,
     TERDRating,
     TERDCommandPalette, TERDCommandItem, TERDCommands,
     TERDDropZone,

@@ -9,6 +9,8 @@ requires
   vclimg,
   vclx;
 contains
+  ERD.Components.TextModel in '..\src\UI\ERD.Components.TextModel.pas',
+  ERD.Components.TextInput in '..\src\UI\ERD.Components.TextInput.pas',
   ERD.Components.Rating in '..\src\UI\ERD.Components.Rating.pas',
   ERD.Components.CommandPalette in '..\src\UI\ERD.Components.CommandPalette.pas',
   ERD.Components.DropZone in '..\src\UI\ERD.Components.DropZone.pas',

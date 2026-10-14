@@ -25,6 +25,8 @@ for path in sorted(dfm_files()):
     problem = None
     for n, line in enumerate(src.replace('\r\n', '\n').split('\n'), 1):
         st = line.strip()
+        if st.endswith('= <>'):
+            continue  # Empty nested collection does not close its parent.
         if st.endswith('= <'):
             # Collections nest: an image collection holds items that hold
             # collections of their own.

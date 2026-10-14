@@ -117,6 +117,10 @@ class LibraryTests(unittest.TestCase):
         valid = "interface\nfunction Parse: Integer;\nimplementation\nfunction Parse: Integer;\nbegin\n  Result := 1;\nend;\nend."
         self.assertEqual(scan(valid, "sample.pas"), [])
 
+    def test_pinned_unicode_tables_and_conformance_cases(self):
+        import subprocess
+        subprocess.run([sys.executable, str(ROOT/'tools/build_unicode_tables.py'), '--check'], check=True)
+
     def test_independent_library_projects_and_resource_coverage(self):
         validate.validate()
 

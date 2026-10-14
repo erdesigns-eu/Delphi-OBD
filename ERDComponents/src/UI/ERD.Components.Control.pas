@@ -346,6 +346,7 @@ type
     property Anchors;
     property BiDiMode;
     property Constraints;
+    property Cursor;
     property DragCursor;
     property DragKind;
     property DragMode;
