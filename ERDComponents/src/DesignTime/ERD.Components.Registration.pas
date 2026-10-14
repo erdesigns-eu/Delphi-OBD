@@ -45,6 +45,8 @@ uses ERD.Components.Rating, ERD.Components.CommandPalette, ERD.Components.DropZo
 {$R ERD.Components.Palette.res}
 procedure Register;
 begin
+  // Internal text controls can also be streamed from application forms.
+  RegisterNoIcon([TERDDialogText]);
   RegisterERDPropertyEditors([
     TERDRating,
     TERDCommandPalette, TERDCommandItem, TERDCommands,

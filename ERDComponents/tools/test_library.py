@@ -26,6 +26,15 @@ class LibraryTests(unittest.TestCase):
         self.assertIn('Backstage = DemoBackstage', dfm)
         self.assertIn('OnFileClick = ShowBackstage', dfm)
 
+    def test_showcase_erd_classes_are_registered_for_designer_streaming(self):
+        source = (ROOT/'src/DesignTime/ERD.Components.Registration.pas').read_text(encoding='utf-8-sig')
+        registered = set()
+        for match in re.finditer(r"Register(?:Components|NoIcon)\s*\((.*?)\);", source, re.S):
+            registered.update(re.findall(r'\bTERD\w+\b', match.group(1)))
+        dfm = (ROOT/'demo/Showcase.dfm').read_text(encoding='utf-8-sig')
+        streamed = set(re.findall(r'object \w+: (TERD\w+)', dfm))
+        self.assertEqual(streamed - registered, set())
+
     def test_showcase_fields_do_not_collide_with_event_methods(self):
         source = (ROOT/'demo/Showcase.pas').read_text(encoding='utf-8-sig')
         declaration = source.split('TShowcaseForm = class(TForm)', 1)[1].split('  end;', 1)[0]
