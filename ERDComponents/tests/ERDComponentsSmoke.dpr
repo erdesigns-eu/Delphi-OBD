@@ -925,6 +925,7 @@ end;
 procedure TestNativeTextPainting;
 var Form: TForm; Theme: TERDTheme; Edit: TERDEdit; Memo: TERDMemo;
   Other: TButton; Native: TWinControl; I, J, BeforeInk, AfterInk: Integer;
+  Ch: Char;
   function PixelCount(Window: TWinControl; Color: TColor; Match, Repaint: Boolean): Integer;
   var DC: HDC; X, Y: Integer; RGB: COLORREF;
   begin
@@ -967,6 +968,12 @@ begin
       AfterInk := PixelCount(Native, TEdit(Native).Color, False, True);
       Check(AfterInk > BeforeInk + 10, 'Unfocused native text is painted after invalidation');
       Native.SetFocus;
+      Native.Perform(WM_SETTEXT, 0, LPARAM(PChar('')));
+      BeforeInk := PixelCount(Native, TEdit(Native).Color, False, True);
+      for Ch in 'Typed text' do Native.Perform(WM_CHAR, Ord(Ch), 0);
+      AfterInk := PixelCount(Native, TEdit(Native).Color, False, True);
+      Check((TEdit(Native).Text = 'Typed text') and (AfterInk > BeforeInk + 10),
+        'Typing updates both native text and visible glyphs for Edit and Memo');
       Native.Perform(EM_SETSEL, 0, 7);
       Check(PixelCount(Native, Theme.Palette.Accent, True, False) > 10,
         'Selection already uses ERD accent before another paint/message cycle');
