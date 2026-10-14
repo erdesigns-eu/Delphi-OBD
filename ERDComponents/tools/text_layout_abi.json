@@ -36,7 +36,7 @@
     "IERDWriteLayout": {
       "native": "IDWriteTextLayout",
       "base": "IERDWriteFormat",
-      "guid": "53737037-6D14-410B-9BFE-0B18B7B70961",
+      "guid": "53737037-6D14-410B-9BFE-0B182BB70961",
       "methods": [
         "SetMaxWidth",
         "SetMaxHeight",

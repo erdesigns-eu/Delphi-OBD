@@ -87,7 +87,7 @@ type
     procedure ReservedIERDWriteFormat_GetLocaleName; stdcall;
   end;
   IERDWriteLayout = interface(IERDWriteFormat)
-    ['{53737037-6D14-410B-9BFE-0B18B7B70961}']
+    ['{53737037-6D14-410B-9BFE-0B182BB70961}']
     procedure ReservedIERDWriteLayout_SetMaxWidth; stdcall;
     procedure ReservedIERDWriteLayout_SetMaxHeight; stdcall;
     procedure ReservedIERDWriteLayout_SetFontCollection; stdcall;

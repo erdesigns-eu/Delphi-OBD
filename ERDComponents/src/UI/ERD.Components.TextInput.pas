@@ -316,6 +316,7 @@ procedure TERDTextInput.CreateWnd;
 begin
   FCreatingWindow := True;
   try inherited; finally FCreatingWindow := False; end;
+  UpdateCaret;
 end;
 procedure TERDTextInput.BeforeEditCommand(MessageID: Cardinal);
 begin end;
@@ -428,7 +429,7 @@ end;
 procedure TERDTextInput.UpdateCaret;
 var Line: TERDTextLayoutLine; X, H: Integer; C: HIMC; Form: TCompositionForm;
 begin
-  if not HandleAllocated or (FModel = nil) then Exit;
+  if FCreatingWindow or not HandleAllocated or (FModel = nil) then Exit;
   Canvas.Font.Assign(Font); H := Canvas.TextHeight('Mg');
   Line := TERDTextLayoutLine.Create(Canvas, DisplayText);
   try
@@ -1069,7 +1070,7 @@ begin Result := Copy(Text, FRows[Index].Start + 1, FRows[Index].Count); end;
 procedure TERDTextArea.UpdateCaret;
 var Row, H, X, Y, Page: Integer; Line: TERDTextLayoutLine; C: HIMC; Form: TCompositionForm;
 begin
-  if not HandleAllocated or (FModel = nil) then Exit;
+  if FCreatingWindow or not HandleAllocated or (FModel = nil) then Exit;
   BuildRows; Row := RowForPosition(FModel.Caret); H := RowHeight;
   Page := VisibleRowCount;
   if Row < FFirstRow then FFirstRow := Row;

@@ -44,6 +44,7 @@ type
   TTextInputProbe = class(TERDTextInput)
   public
     function EditMenu: TERDPopupMenu;
+    procedure RebuildWindow;
   end;
   TPalettePopupProbe = class
     OwnerForm: TForm;
@@ -2323,8 +2324,11 @@ begin
   finally Form.Free; end;
 end;
 
+procedure TTextInputProbe.RebuildWindow;
+begin RecreateWnd; end;
+
 procedure TestSharedColorEmoji;
-var Form: TForm; Input: TERDTextInput; Area: TERDTextArea; Theme: TERDTheme;
+var Form: TForm; Input: TTextInputProbe; Area: TERDTextArea; Theme: TERDTheme;
     Bitmap: TBitmap; Layout: TERDTextLayoutLine; X, Y, L, R: Integer;
   function ColorPixels: Integer;
   var X, Y: Integer; C: COLORREF;
@@ -2342,12 +2346,16 @@ begin
   Check(ERDTextLayoutABIValid, 'DirectWrite and Direct2D ABI record sizes');
   Form := TForm.Create(nil); Bitmap := TBitmap.Create; Theme := TERDTheme.Create(nil);
   try
-    Input := TERDTextInput.Create(Form); Input.Parent := Form; Input.Theme := Theme;
+    Input := TTextInputProbe.Create(Form); Input.Parent := Form; Input.Theme := Theme;
     Input.SetBounds(8, 8, 220, 56); Input.Font.Size := 24;
     Input.Text := #$D83D#$DE00;
     Area := TERDTextArea.Create(Form); Area.Parent := Form; Area.Theme := Theme;
     Area.SetBounds(8, 72, 220, 80); Area.Font.Size := 24; Area.Text := Input.Text;
     Form.Show; Application.ProcessMessages;
+    Check(IsWindow(Input.Handle), 'Shared Edit creates its window with emoji text');
+    Input.RebuildWindow;
+    Check(IsWindow(Input.Handle), 'Shared Edit recreates its window without a layout exception');
+    Check(Input.Text = Area.Text, 'Window recreation preserves emoji text');
     Theme.Mode := tmERDesignsLight; Input.RenderTo(Bitmap);
     Check(ColorPixels > 20, 'Shared Edit base paints coloured emoji, not monochrome glyphs');
     Theme.Mode := tmERDesignsDark; Input.RenderTo(Bitmap);
