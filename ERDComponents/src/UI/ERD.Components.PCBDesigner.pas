@@ -130,7 +130,7 @@ begin
       Components[I].Device := Obj.GetValue<string>('device');
       Components[I].Position := PointValue(Obj.GetValue('position'));
     end;
-    Paths := PathsValue(Root.GetValue('silkscreen')); Outline := PathsValue(Root.GetValue('outline'));
+    Paths := PathsValue(Root.GetValue<TJSONArray>('silkscreen')); Outline := PathsValue(Root.GetValue<TJSONArray>('outline'));
     MaxX := 0; MaxY := 0;
     for I := 0 to High(Outline) do for J := 0 to High(Outline[I]) do
     begin MaxX := Max(MaxX, Outline[I][J].X); MaxY := Max(MaxY, Outline[I][J].Y); end;
@@ -285,7 +285,7 @@ begin
   begin FPanX := FPanX + X - FLast.X; FPanY := FPanY + Y - FLast.Y; FLast := Point(X, Y); Invalidate; Exit; end;
   Hot := PadAt(X, Y);
   if Hot <> FHot then begin FHot := Hot; Invalidate; end;
-  if Hot <> '' then Cursor := crHand else Cursor := crDefault;
+  if Hot <> '' then Cursor := crHandPoint else Cursor := crDefault;
 end;
 procedure TERDPCBDesigner.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin inherited; if Button = mbMiddle then begin FDragging := False; MouseCapture := False; end; end;
