@@ -64,12 +64,13 @@ type
     FLineAnchorStart, FLineAnchorFinish: Integer;
     FScrollBars: System.UITypes.TScrollStyle;
     FShowMinimap: Boolean;
-    FMinimapDirty, FNavigationWidthDirty: Boolean;
+    FMinimapDirty, FNavigationWidthDirty, FMinimapWindowHot: Boolean;
     FMinimapWidth: Integer;
     FNavigationWidth: Integer;
     FWidthCache: TDictionary<UnicodeString, Integer>;
     FWidthCacheFont: HFONT;
     FNavigationHot, FNavigationDrag, FNavigationDragOffset: Integer;
+    FMinimapDragRow: Integer;
     FMinimapBitmap: TBitmap;
     FMinimapFill, FMinimapColorKey: TColor;
     FHandlingFoldRelease: Boolean;
@@ -107,6 +108,7 @@ type
     procedure SetShowMinimap(Value: Boolean);
     procedure SetMinimapWidth(Value: Integer);
     function NavigationAt(X, Y: Integer): Integer;
+    function MinimapViewportRect: TRect;
     function NavigationWidth: Integer;
     procedure NavigatePointer(X, Y: Integer);
     function NavigationMouseDown(X, Y: Integer): Boolean;
@@ -235,7 +237,8 @@ type
     property TabWidth: Integer read FTabWidth write SetTabWidth default 2;
   end;
 implementation
-uses System.RegularExpressions, ERD.Components.Paint;
+uses System.RegularExpressions, Winapi.GDIPAPI, Winapi.GDIPOBJ,
+  ERD.Components.Paint, ERD.Components.GDIP;
 constructor TERDKeywordColor.Create(Collection: TCollection);
 begin
   inherited;
@@ -372,7 +375,7 @@ procedure TERDCodeEditor.SetDocumentUri(const Value: UnicodeString);
 begin if FDocumentUri = Value then Exit; CancelLanguageRequests; FDocumentUri := Value; Inc(FVersion); SyncLanguageDocument; end;
 procedure TERDCodeEditor.DoExit;
 begin
-  FSelectingLines := False; FLastGutterDown := False; FNavigationDrag := 0;
+  FSelectingLines := False; FLastGutterDown := False; FNavigationDrag := 0; FMinimapWindowHot := False;
   FHotFold := -1;
   if FPressedFold >= 0 then begin FPressedFold := -1; MouseCapture := False; end;
   CancelLanguageRequests; inherited;
@@ -613,6 +616,17 @@ begin
       Map := Rect(Inner.Right - Width, Inner.Top, Inner.Right, Inner.Bottom);
   end;
 end;
+function TERDCodeEditor.MinimapViewportRect: TRect;
+var Vertical, Horizontal, Map: TRect; Rows: TArray<TERDTextRow>; MapHeight, Top, Bottom: Integer;
+begin
+  Result := Rect(0, 0, 0, 0); NavigationRects(Vertical, Horizontal, Map);
+  if IsRectEmpty(Map) then Exit;
+  Rows := VisualRows; if Length(Rows) = 0 then Exit;
+  MapHeight := Min(Map.Height, Length(Rows) * ScaleValue(3));
+  Top := Map.Top + MulDiv(FirstVisibleRow, MapHeight, Length(Rows));
+  Bottom := Map.Top + MulDiv(Min(Length(Rows), FirstVisibleRow + VisibleRowCount), MapHeight, Length(Rows));
+  Result := Rect(Map.Left, Top, Map.Right, Min(Map.Bottom, Max(Top + ScaleValue(4), Bottom)));
+end;
 function TERDCodeEditor.NavigationAt(X, Y: Integer): Integer;
 var Vertical, Horizontal, Map: TRect; P: TPoint;
 begin
@@ -677,20 +691,29 @@ begin
       begin
         if Map.Height <= 0 then Exit;
         MapHeight := Max(1, Min(Map.Height, Length(Rows) * ScaleValue(3)));
-        Value := Round(EnsureRange((Y - Map.Top) / MapHeight, 0.0, 1.0) * Length(Rows)) - Page div 2;
+        Value := FMinimapDragRow + Round((Y - FNavigationDragOffset) / MapHeight * Length(Rows));
         ScrollRows(Value);
       end;
   end;
 end;
 function TERDCodeEditor.NavigationMouseDown(X, Y: Integer): Boolean;
 var Vertical, Horizontal, Map, Thumb: TRect; Rows: TArray<TERDTextRow>;
-    Hit, Page, Value: Integer;
+    Hit, Page, Value, MapHeight: Integer;
 begin
   Hit := NavigationAt(X, Y); Result := Hit <> 0; if not Result then Exit;
   FLastGutterDown := True; // Prevent VCL's double-click word selection on navigation surfaces.
   FNavigationHot := Hit; NavigationRects(Vertical, Horizontal, Map);
   Rows := VisualRows; Page := VisibleRowCount;
-  if Hit = 3 then FNavigationDrag := Hit
+  if Hit = 3 then
+  begin
+    FNavigationDrag := Hit; Thumb := MinimapViewportRect;
+    FNavigationDragOffset := Y; FMinimapDragRow := FirstVisibleRow;
+    if not PtInRect(Thumb, Point(X, Y)) then
+    begin
+      MapHeight := Max(1, Min(Map.Height, Length(Rows) * ScaleValue(3)));
+      FMinimapDragRow := Round((Y - Map.Top - Thumb.Height * 0.5) / MapHeight * Length(Rows));
+    end;
+  end
   else
   begin
     if Hit = 1 then
@@ -715,12 +738,16 @@ begin
     end;
   end;
   if FNavigationDrag <> 0 then
-  begin MouseCapture := True; if Hit = 3 then NavigatePointer(X, Y); end;
+  begin
+    MouseCapture := True;
+    if Hit = 3 then begin NavigatePointer(X, Y); FMinimapDragRow := FirstVisibleRow; end;
+  end;
   Invalidate;
 end;
 procedure TERDCodeEditor.PaintNavigation(ACanvas: TCanvas);
 var Vertical, Horizontal, Map, Viewport: TRect; Painter: TERDPainter;
-    Rows: TArray<TERDTextRow>; Page, Top, Bottom, MapHeight: Integer; Fill: TColor;
+    Rows: TArray<TERDTextRow>; Page: Integer; Fill: TColor; Opacity: Byte;
+    Graphics: TGPGraphics; Brush: TGPSolidBrush;
 begin
   NavigationRects(Vertical, Horizontal, Map); Rows := VisualRows; Page := VisibleRowCount;
   Painter := TERDPainter.Create(ACanvas, Palette, ScaleValue(96));
@@ -736,13 +763,19 @@ begin
       Fill := ERDMixColor(Palette.Background, Palette.ForegroundText, 0.96);
       RenderMinimap(Map.Width, Map.Height, Rows, Fill);
       ACanvas.Draw(Map.Left, Map.Top, FMinimapBitmap);
-      if Length(Rows) > 0 then
+      Viewport := MinimapViewportRect;
+      if not IsRectEmpty(Viewport) then
       begin
-        MapHeight := Min(Map.Height, Length(Rows) * ScaleValue(3));
-        Top := Map.Top + MulDiv(FirstVisibleRow, MapHeight, Length(Rows));
-        Bottom := Map.Top + MulDiv(Min(Length(Rows), FirstVisibleRow + Page), MapHeight, Length(Rows));
-        Viewport := Rect(Map.Left, Top, Map.Right, Min(Map.Bottom, Max(Top + ScaleValue(4), Bottom)));
-        Painter.FrameRect(Viewport, ERDMixColor(Fill, Palette.Accent, 0.35));
+        Opacity := 28;
+        if FMinimapWindowHot then Opacity := 48;
+        if FNavigationDrag = 3 then Opacity := 72;
+        // Composite over the cached code strokes; the viewport has no outline.
+        Graphics := TGPGraphics.Create(ACanvas.Handle);
+        try
+          Brush := TGPSolidBrush.Create(ColorToARGB(Palette.ForegroundText, Opacity));
+          try Graphics.FillRectangle(Brush, Viewport.Left, Viewport.Top, Viewport.Width, Viewport.Height);
+          finally Brush.Free; end;
+        finally Graphics.Free; end;
       end;
       Painter.VLine(Map.Left, Map.Top, Map.Height, Palette.NeutralLight);
     end;
@@ -1515,9 +1548,11 @@ begin
   inherited MouseDown(Button, Shift, X, Y);
 end;
 procedure TERDCodeEditor.MouseMove(Shift: TShiftState; X, Y: Integer);
-var Fold, Hit: Integer; View, OuterView: TRect;
+var Fold, Hit: Integer; View, OuterView: TRect; WindowHot: Boolean;
 begin
   Hit := NavigationAt(X, Y);
+  WindowHot := (Hit = 3) and PtInRect(MinimapViewportRect, Point(X, Y));
+  if FMinimapWindowHot <> WindowHot then begin FMinimapWindowHot := WindowHot; Invalidate; end;
   if FNavigationHot <> Hit then begin FNavigationHot := Hit; Invalidate; end;
   if FNavigationDrag <> 0 then begin NavigatePointer(X, Y); Exit; end;
   if Hit <> 0 then begin Cursor := crArrow; Exit; end;
@@ -1535,7 +1570,10 @@ procedure TERDCodeEditor.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y:
 var Fold: Integer;
 begin
   if (Button = mbLeft) and (FNavigationDrag <> 0) then
-  begin FNavigationDrag := 0; MouseCapture := False; Invalidate; Exit; end;
+  begin
+    FNavigationDrag := 0; MouseCapture := False;
+    FMinimapWindowHot := PtInRect(MinimapViewportRect, Point(X, Y)); Invalidate; Exit;
+  end;
   if (Button = mbLeft) and FSelectingLines then
   begin FSelectingLines := False; MouseCapture := False; Exit; end;
   if (Button = mbLeft) and (FPressedFold >= 0) then
@@ -1563,7 +1601,7 @@ begin
 end;
 procedure TERDCodeEditor.CMMouseLeave(var Message: TMessage);
 begin
-  inherited; FHotFold := -1; FNavigationHot := 0; Cursor := crIBeam; Invalidate;
+  inherited; FHotFold := -1; FNavigationHot := 0; FMinimapWindowHot := False; Cursor := crIBeam; Invalidate;
 end;
 procedure TERDCodeEditor.WMLButtonUp(var Message: TWMLButtonUp);
 begin

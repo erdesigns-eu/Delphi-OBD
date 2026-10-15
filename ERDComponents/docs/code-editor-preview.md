@@ -210,8 +210,9 @@ navigation surfaces belong to `TERDCodeEditor`.
 
 `ShowMinimap` defaults to `True`; `MinimapWidth` defaults to 96 logical pixels
 and accepts 32–320. A narrow editor reduces the minimap width to leave room for
-text. The minimap shows compact syntax-coloured strokes and outlines the visible
-rows. Click or drag it to navigate. Folded rows are omitted consistently with the
+text. The minimap shows compact syntax-coloured strokes with a translucent, borderless
+window over the visible rows. Its opacity increases on window hover and again
+while pressed or dragged. Click or drag it to navigate. Folded rows are omitted consistently with the
 main view. Its bitmap is cached between selection/scroll updates and refreshed
 when document layout or styling changes. This is a schematic code overview, not
 another full-size Unicode text rendering pass. Very large documents still use
@@ -230,3 +231,8 @@ The Windows smoke suite covers scrollbar dragging/paging, minimap navigation,
 viewport resizing when hidden, unchanged text/selection, setting persistence and
 Ctrl+Space through both dialog-key and key-down messages. These interaction tests
 have not been executed in the Linux cloud environment.
+
+The minimap viewport composites a neutral theme colour at 28/255 opacity when
+idle, 48/255 on hover and 72/255 while active. Code strokes remain visible beneath
+it. Grabbing the viewport preserves the pointer's offset so it does not recenter
+on mouse-down; clicking elsewhere in the minimap centres that location.
