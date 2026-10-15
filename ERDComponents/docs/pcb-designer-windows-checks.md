@@ -3,6 +3,11 @@
 The Linux environment has no Delphi compiler or VCL runtime. The following
 checks must run in RAD Studio on Windows; they are not replaced by static checks.
 
+Recorded feedback (2026-10-15): the user tested commit `f3b37297`, reported
+“Getest en looks good”, and authorized finalization. This records the manual
+result without treating every checklist case or build target as separately
+verified. No automated Windows smoke-run log was supplied.
+
 1. Build the runtime package, design-time package, demo and
    `tests/ERDComponentsSmoke.dproj` in Release/Win32. Run the smoke executable.
 2. Select Timer, Counter and OutputGroup in the toolbox, then click the canvas.
@@ -116,3 +121,12 @@ checks must run in RAD Studio on Windows; they are not replaced by static checks
 - Delete a captured target before applying a pending edit; no remaining target
   may change. Check selection changes, undo/redo and closing with a mixed editor
   active, including after rejected input.
+
+
+### Finalization: history validation
+
+- Run `TestPCBHistoryValidation`. Reject an old snapshot through host validation,
+  then invoke Undo or Redo. Content, selection and both history stacks must stay
+  unchanged, with no content-change notification.
+- Relax the validator and retry: the pending undo/redo action must still work.
+  Change listeners must see the final CanUndo/CanRedo state.

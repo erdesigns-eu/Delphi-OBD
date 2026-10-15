@@ -47,6 +47,7 @@ type
     FOnValidateItem: TERDPCBValidateItemEvent;
     function CandidateItems(const Values: TArray<TERDPCBDesignItem>): TERDPCBScene;
     function Serialize(SelectedOnly, IncludeSelection: Boolean): string;
+    procedure RestoreHistory(Source, Target: TList<string>);
     procedure Remember;
     procedure Changed(Selection: Boolean);
     procedure ReadData(Stream: TStream);
@@ -321,16 +322,22 @@ function TERDPCBScene.CanUndo: Boolean;
 begin Result := (FUndo.Count > 0) and (FDepth = 0); end;
 function TERDPCBScene.CanRedo: Boolean;
 begin Result := (FRedo.Count > 0) and (FDepth = 0); end;
+procedure TERDPCBScene.RestoreHistory(Source, Target: TList<string>);
+var Candidate: TERDPCBScene; Restored: TArray<TERDPCBDesignItem>; Current: string;
+begin
+  Candidate := TERDPCBScene.Create(nil);
+  try
+    Candidate.FOnValidateItem := FOnValidateItem;
+    Candidate.LoadJSON(Source.Last);
+    Restored := Copy(Candidate.FItems); Current := ToJSON;
+    Target.Add(Current); Source.Delete(Source.Count-1); FItems := Restored;
+    Changed(True);
+  finally Candidate.Free; end;
+end;
 procedure TERDPCBScene.Undo;
-var Text: string;
-begin
-  if not CanUndo then Exit; Text := FUndo.Last; FRedo.Add(ToJSON); FUndo.Delete(FUndo.Count - 1); LoadJSON(Text);
-end;
+begin if CanUndo then RestoreHistory(FUndo, FRedo); end;
 procedure TERDPCBScene.Redo;
-var Text: string;
-begin
-  if not CanRedo then Exit; Text := FRedo.Last; FUndo.Add(ToJSON); FRedo.Delete(FRedo.Count - 1); LoadJSON(Text);
-end;
+begin if CanRedo then RestoreHistory(FRedo, FUndo); end;
 function TERDPCBScene.Count: Integer;
 begin Result := Length(FItems); end;
 function TERDPCBScene.Item(Index: Integer): TERDPCBDesignItem;

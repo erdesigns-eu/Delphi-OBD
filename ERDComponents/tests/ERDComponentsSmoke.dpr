@@ -33,6 +33,14 @@ type
     procedure Request(const Value: TERDLanguageRequest; const Reply: IERDLanguageResponses);
     procedure Cancel(RequestID: Int64);
   end;
+  TPCBHistoryProbe = class
+    Scene: TERDPCBScene;
+    RejectCaption: string;
+    Changes: Integer;
+    SawUndo, SawRedo: Boolean;
+    procedure Validate(Sender: TObject; const Item: TERDPCBDesignItem);
+    procedure Changed(Sender: TObject);
+  end;
   TPCBGroupProbe = class
     Changes: Integer;
     Binding: TERDPCBInspectorBinding;
@@ -2467,6 +2475,38 @@ begin
   finally Form.Free; end;
 end;
 
+procedure TPCBHistoryProbe.Validate(Sender: TObject; const Item: TERDPCBDesignItem);
+begin
+  if (RejectCaption <> '') and (Item.Caption = RejectCaption) then raise EArgumentException.Create('History snapshot rejected by the host');
+end;
+procedure TPCBHistoryProbe.Changed(Sender: TObject);
+begin Inc(Changes); SawUndo := Scene.CanUndo; SawRedo := Scene.CanRedo; end;
+procedure TestPCBHistoryValidation;
+var Scene: TERDPCBScene; Probe: TPCBHistoryProbe; Index: Integer; Item: TERDPCBDesignItem; Before: string; Failed: Boolean;
+begin
+  Scene := TERDPCBScene.Create(nil); Probe := TPCBHistoryProbe.Create;
+  try
+    Probe.Scene := Scene; Index := Scene.Add(piNote, PointF(0,0)); Item := Scene.Item(Index);
+    Item.Caption := 'Old'; Scene.UpdateItem(Index, Item); Scene.ResetHistory;
+    Item.Caption := 'New'; Scene.UpdateItem(Index, Item);
+    Scene.OnValidateItem := Probe.Validate; Scene.OnChange := Probe.Changed;
+    Before := Scene.ToJSON; Probe.RejectCaption := 'Old'; Failed := False;
+    try Scene.Undo; except on E: EArgumentException do Failed := True; end;
+    Check(Failed and (Scene.ToJSON = Before) and Scene.CanUndo and not Scene.CanRedo and (Probe.Changes = 0),
+      'Rejected undo retains content, selection, history and change-event state');
+    Probe.RejectCaption := ''; Scene.Undo;
+    Check((Scene.Item(Index).Caption = 'Old') and not Scene.CanUndo and Scene.CanRedo and
+      (Probe.Changes = 1) and not Probe.SawUndo and Probe.SawRedo, 'Retried undo succeeds and listeners see completed history');
+    Before := Scene.ToJSON; Probe.RejectCaption := 'New'; Failed := False;
+    try Scene.Redo; except on E: EArgumentException do Failed := True; end;
+    Check(Failed and (Scene.ToJSON = Before) and not Scene.CanUndo and Scene.CanRedo and (Probe.Changes = 1),
+      'Rejected redo preserves both history stacks and emits no content change');
+    Probe.RejectCaption := ''; Scene.Redo;
+    Check((Scene.Item(Index).Caption = 'New') and Scene.CanUndo and not Scene.CanRedo and
+      (Probe.Changes = 2) and Probe.SawUndo and not Probe.SawRedo, 'Retried redo restores the original pending state');
+  finally Scene.Free; Probe.Free; end;
+end;
+
 procedure TestPCBScene;
 var Scene: TERDPCBScene; A, B, C: Integer; Value: TERDPCBDesignItem; Before: string; Failed: Boolean;
 begin
@@ -4043,6 +4083,7 @@ begin
     TestCodeEditorSearch;
     TestCodeLanguageServices;
     TestPCBScene;
+    TestPCBHistoryValidation;
     TestPCBDesigner;
     TestPCBDesignerTools;
     TestPCBPlacement;

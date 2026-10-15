@@ -494,3 +494,13 @@ The binding prepares every candidate before calling this API. Failed validation
 or a stale/deleted/type-changed target prevents the entire group edit. Numeric
 and checkbox/list edits keep their JSON types. Refresh re-evaluates mixed state
 after undo/redo. Editor callbacks are detached during inspector destruction.
+
+
+### Validation while restoring history
+
+Undo/redo validates a historical snapshot in a temporary scene before moving
+entries between history stacks or publishing the restored scene. If a current
+schema or host validator rejects the snapshot, content, selection and history
+remain unchanged and no change event is emitted. After the validator allows the
+snapshot, the same action can be retried. Successful listeners observe the final
+CanUndo/CanRedo state. Validators must remain free of scene mutations.

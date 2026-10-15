@@ -1,7 +1,11 @@
 # Pick-to-light PCB designer plan
 
-This is the proposed work after the code-editor signature-help work and the
-Windows TSVM compiler package. The roadmap remains staged; the first imported-board selection and inspector preview is now implemented.
+This document retains the original IDE roadmap and records the reusable designer
+baseline below. The canvas, editable scene, templates, component registry,
+standalone inspector adapter and grouped property editing are implemented.
+Pick flows, TypeScript bindings, simulation and device execution remain deferred
+by the user's scope decision. They are not acceptance criteria for this component
+baseline.
 
 ## What the supplied board files contain
 
@@ -41,7 +45,7 @@ not arbitrary bidirectional GPIO terminals. In particular, SW1 and SW2 must not
 silently become generic application buttons. Resolve MCU pad numbers, GPIO
 identities, buffer paths and reserved functions from symbols and connectivity.
 
-## First usable designer
+## Later IDE workflow (deferred)
 
 Start with a faithful top-down board view, with top/bottom switching, zoom,
 pan, fit-to-board, component labels and selectable pin/pad overlays. This keeps
@@ -175,44 +179,59 @@ Load preconverted STEP geometry, preserve reference/pin metadata, and synchroniz
 monitoring after the first board-to-code workflow is reliable. Keep the board and
 binding model independent of either renderer.
 
-## Next implementation slice after the current editor/compiler work
+## Implemented reusable component baseline (2026-10-15)
 
-Build stage 1 and the U7.2 selection/inspector slice first. The supplied EasyEDA
-project now provides the electrical source, so no manually drawn pin map is
-needed as the primary model. Any unresolved symbol mapping is surfaced for review.
-Then extend the same pipeline to all 28 channels before adding simulation or 3D.
+The demo's PCB designer uses the actual imported top-side geometry: 135 component
+references, 496 pads/vias and 28 verified buffered WLED outputs. Assembled bodies,
+terminals and their contacts are rendered. A three-contact output terminal is one
+logical selection; fixed MCU, power and reserved pins are not programmable.
 
+The component baseline now includes:
 
-## Implemented first slice (2026-10-15)
+- Cached antialiased board artwork, theme colors, zoom, fit, grab/hand panning and
+  scrollbars that appear only when content extends beyond the viewport.
+- Template storage and a separate browser/importer. Templates identify selectable
+  outputs, terminal groups and protocol capabilities, including UART/CAN/I2C/SPI.
+- Fixed-size nonvisual glyphs with names underneath; resizable multiline notes
+  with None, Info, Warning, Error and Question styles.
+- Toolbox drag/drop and click-to-place, previews, repeated placement, selection,
+  rubberband selection, locks, alignment, distribution and snapping guides.
+- Antialiased curved connections, obstacle detours, line/endpoint selection,
+  disconnect/reconnect and transfer, pin ownership validation, hints and focus.
+- A process-wide component registry with stable type IDs, icons, default values,
+  described custom properties and host validation/custom icon callbacks.
+- A standalone inspector adapter: typed editors, categories, validation feedback,
+  individual/per-type reset and common-property multi-selection editing. Mixed
+  values are display state; group edits validate the complete candidate scene
+  and apply with one change notification and one undo step.
+- Versioned project JSON, embedded DFM geometry/scene data, clipboard operations,
+  dirty snapshots without transient selection, and shared undo/redo history.
 
-The demo has a **PCB designer** tab backed by `TERDPCBDesigner`. It renders the
-actual top-side footprint outlines, rounded board outline, 496 pads/vias and
-through-hole drills. Imported geometry preserves 135 reference designators and
-all 28 verified buffered output routes. The offline importer verifies every
-component origin and first-pin transform against the independent placements.
+The user reported Windows testing of commit `f3b37297` as successful and authorized
+continued finalization. This is the recorded manual feedback; individual matrix
+entries and an automated Windows smoke-run log were not supplied. The cloud can
+run importer/library tests and static Pascal checks, but has no Delphi/VCL runtime.
+See [Windows checks](pcb-designer-windows-checks.md) for repeatable verification.
 
-Click a pad or use **Select U7.2**. The inspector displays immutable pin/net/GPIO
-and routing facts. Verified output pins expose a channel name, LED count and
-`showPick` action assignment. Power, ground, boot/reset and unverified pins have
-no output editor. Wheel zoom anchors at the pointer; middle drag pans; **Fit
-board** resets the view. Save/open stores all assignments and selection in a
-separate versioned project with the source-board fingerprint. Failed loads roll
-back assignments rather than partially replacing the project.
+The finalization review additionally hardens undo/redo: rejected historical
+snapshots preserve both the current scene and its history, and successful change
+listeners observe the completed history state.
 
-This is a top-side configuration preview. Copper layers, a Gerber raster cache,
-bottom-side import, undo/redo, a shared nonvisual component tray, simulation,
-TypeScript handler generation and hardware execution remain subsequent stages.
-The `showPick` choice records intent; it does not invoke a device or invent a
-TSVM hardware API. The component is now registered on the Delphi palette and can embed board data
-in a DFM; see `pcb-designer-component.md`. Delphi compilation/runtime checks require Windows.
+## Component scope and later work
 
-See `demo/pcb/README.md` for the importer and demo test instructions.
+Keep this baseline stable while addressing concrete regressions. The designer
+owns its scene and interaction; the toolbox and inspector remain host controls.
+See the [component guide](pcb-designer-component.md) and
+[host API guide](pcb-designer-api.md) for the implemented contracts, and
+`demo/pcb/README.md` for import instructions.
 
+The original staged architecture above remains a future roadmap. Bottom-side
+view/import, a copper/Gerber display, spatial search/project-tree navigation,
+3D, multi-board documents, executable component behavior, pick-flow simulation,
+TypeScript declarations/handlers and device deployment are not implemented by
+this baseline. Additional base pin protocols need implementation; registered
+subtypes currently reuse an existing base kind's editing and pin rules.
 
-## Current priority
-
-Finish the reusable visual designer component first. Pick flows and TypeScript
-binding/handler integration are explicitly deferred until the IDE work later.
-The next component slice adds palette/property editors, embedded board streaming,
-view options and complete pin interaction. It does not implement the simulation
-or language-binding roadmap stages.
+The next IDE phase should be scoped separately. It must not be inferred from the
+presence of metadata fields such as timer settings or a recorded action name;
+these do not execute hardware or TypeScript.
