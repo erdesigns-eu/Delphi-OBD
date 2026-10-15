@@ -196,3 +196,18 @@ herstelt alle bewerkbare typeproperties in één undo-stap. Naam, positie,
 verbindingen en andere metadata blijven behouden. Vergrendelde objecten kunnen
 niet via deze acties worden gewijzigd. De properties worden met het project
 en bij kopiëren/plakken opgeslagen; ze voeren zelf geen acties uit.
+
+### Meerdere componenten tegelijk bewerken
+
+Bij een meervoudige selectie toont de losse inspector de gedeelde properties.
+Verschillende waarden verschijnen als **Meerdere waarden**; checkboxes krijgen
+een tussenstand. Keuzelijsten bieden alleen keuzes die voor alle geselecteerde
+types geldig zijn. Een veld wordt alleen-lezen als een geselecteerd component
+vergrendeld is of de property niet bewerkbaar maakt.
+
+Een wijziging geldt voor de hele selectie en wordt één undo-stap. Eerst wordt
+alles gecontroleerd: bij een fout of verdwenen component verandert geen enkel
+object. Je kunt ook samen notitietypes, Enabled of een gedeeld interval wijzigen.
+Namen, posities en pinaansluitingen worden niet gezamenlijk overschreven.
+Herstellen gebruikt de eigen standaardwaarde van elk type. Alleen een gemengd
+tekstveld aanklikken of verlaten wijzigt niets.

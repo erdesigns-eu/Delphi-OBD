@@ -94,3 +94,25 @@ checks must run in RAD Studio on Windows; they are not replaced by static checks
   inspecting an object. Edits must never move to an unrelated object.
 - Close the demo with an inspector editor active, after invalid input and after
   undo/redo. There must be no late callback into a destroyed binding or scene.
+
+### Multi-selection properties
+
+- Run `TestPCBGroupInspector` after the schema tests. It covers common-field
+  filtering, intersected choices, mixed values/defaults, one-step undo, per-type
+  reset, no-op resets, representative-value edits, locks and deleted targets.
+- Select several Retry timers. Change a shared field, checkbox, choice and
+  interval. Check all targets and one-step undo/redo in light/dark themes.
+- Select notes with different styles; apply one style and reset to their own
+  defaults. Select a note and timer: only applicable shared fields should remain.
+- Focus and leave a mixed text field without typing: no value or history change.
+  Enter the first object's existing value: all other objects must still update.
+  Explicitly clear note captions: all should become empty. Escape must cancel.
+- A mixed checkbox must show a grayed state and “Meerdere waarden”; the first
+  click sets all targets True. The mixed marker must never appear in saved JSON.
+- Select a locked object with an unlocked one: editing/reset must not partially
+  modify the unlocked target. Repeat with stricter validation on the last target.
+- The smoke test checks late failure on target two: no content, history or change
+  event is emitted. A valid batch emits one content-change notification.
+- Delete a captured target before applying a pending edit; no remaining target
+  may change. Check selection changes, undo/redo and closing with a mixed editor
+  active, including after rejected input.

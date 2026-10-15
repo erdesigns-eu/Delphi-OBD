@@ -33,6 +33,15 @@ type
     procedure Request(const Value: TERDLanguageRequest; const Reply: IERDLanguageResponses);
     procedure Cancel(RequestID: Int64);
   end;
+  TPCBGroupProbe = class
+    Changes: Integer;
+    Binding: TERDPCBInspectorBinding;
+    RejectID: string;
+    procedure ChangingProperty(Sender: TObject; Row: TERDInspectorProperty; var NewValue: string; var Accept: Boolean);
+    procedure ChangedProperty(Sender: TObject; Row: TERDInspectorProperty);
+    procedure Changed(Sender: TObject);
+    procedure Validate(Sender: TObject; const Item: TERDPCBDesignItem);
+  end;
   TPCBHostProbe = class
     Validations: Integer;
     procedure ValidateItem(Sender: TObject; const Item: TERDPCBDesignItem);
@@ -2599,6 +2608,102 @@ begin
   finally Binding.Free; Form.Free; Host.Free; CopyScene.Free; Scene.Free; end;
 end;
 
+procedure TPCBGroupProbe.ChangingProperty(Sender: TObject; Row: TERDInspectorProperty; var NewValue: string; var Accept: Boolean);
+begin
+  try Binding.Validate(Row, NewValue); except on E: EArgumentException do Accept := False; end;
+end;
+procedure TPCBGroupProbe.ChangedProperty(Sender: TObject; Row: TERDInspectorProperty);
+begin Binding.Apply(Row); end;
+procedure TPCBGroupProbe.Changed(Sender: TObject);
+begin Inc(Changes); end;
+procedure TPCBGroupProbe.Validate(Sender: TObject; const Item: TERDPCBDesignItem);
+begin
+  if (Item.ID = RejectID) and (Item.Caption = 'reject') then raise EArgumentException.Create('Second component rejected the batch');
+end;
+procedure TestPCBGroupInspector;
+var Scene: TERDPCBScene; Form: TForm; Inspector: TERDInspector; Binding: TERDPCBInspectorBinding; Probe: TPCBGroupProbe;
+    A, B: Integer; Definition: TERDPCBComponentType; Item: TERDPCBDesignItem; Row, Flag: TERDInspectorProperty;
+    Before: string; Failed: Boolean; Updates: TArray<TERDPCBDesignItem>; Editor: TERDTextInput; I: Integer;
+  procedure Rebind;
+  begin Binding.Clear; Inspector.Clear; Binding.BindSelection(Scene, Inspector); end;
+  procedure Reject(Row: TERDInspectorProperty; const Text: string);
+  var Snapshot: string; Rejected: Boolean;
+  begin
+    Snapshot := Scene.ContentJSON; Rejected := False;
+    try Binding.Validate(Row, Text); except on E: EArgumentException do Rejected := True; end;
+    Check(Rejected and (Scene.ContentJSON = Snapshot), 'Group validation rejects all targets atomically');
+  end;
+begin
+  ERDPCBFindComponentType('smoke.schema', Definition); Definition.TypeID := 'smoke.group'; Definition.NamePrefix := 'GroupTimer';
+  Definition.Properties[1].Maximum := 5; Definition.Properties[1].DefaultValue := '4';
+  Definition.Properties[4].Choices[0] := 'On'; Definition.Properties[4].Choices[1] := 'Other'; Definition.Properties[4].DefaultValue := 'On';
+  Definition.Properties[0].Name := 'other_description';
+  ERDPCBRegisterComponentType(Definition);
+  Scene := TERDPCBScene.Create(nil); Form := TForm.Create(nil); Binding := TERDPCBInspectorBinding.Create; Probe := TPCBGroupProbe.Create;
+  try
+    Inspector := TERDInspector.Create(Form); Inspector.Parent := Form; Inspector.SetBounds(0,0,350,500);
+    A := Scene.AddType('smoke.schema', PointF(0,0)); B := Scene.AddType('smoke.group', PointF(5,5));
+    Scene.Select(A); Scene.Select(B, True); Rebind;
+    Row := Inspector.FindProperty('Count'); Flag := Inspector.FindProperty('Active');
+    Check((Row <> nil) and Row.Mixed and not Row.HasDefault, 'Different values/defaults are shown as mixed');
+    Check(Inspector.FindProperty('Description') = nil, 'Properties missing from one selected type are omitted');
+    Check((Inspector.FindProperty('Mode').PickList.Count = 1) and
+      (Inspector.FindProperty('Mode').PickList[0] = 'On'), 'Choice editors intersect options from all selected types');
+    Reject(Row, '8'); Before := Scene.ContentJSON; Scene.ResetHistory;
+    Binding.Validate(Row, '5'); Row.Value := '5'; Binding.Apply(Row);
+    Check((ERDPCBPropertyValue(Scene.Item(A), 'count') = '5') and (ERDPCBPropertyValue(Scene.Item(B), 'count') = '5') and not Row.Mixed,
+      'Applying one property updates all selected objects');
+    Scene.Undo; Binding.Refresh; Check((Scene.ContentJSON = Before) and Row.Mixed and not Scene.CanUndo, 'A group property edit has exactly one undo step');
+    Scene.Redo; Binding.Refresh; Binding.ResetProperty(Row);
+    Check((ERDPCBPropertyValue(Scene.Item(A), 'count') = '3') and (ERDPCBPropertyValue(Scene.Item(B), 'count') = '4') and Row.Mixed,
+      'Reset uses each selected type own default');
+    Binding.Validate(Row, '3'); Row.Value := '3'; Binding.Apply(Row);
+    Check(not Row.Mixed and (ERDPCBPropertyValue(Scene.Item(B), 'count') = '3'), 'Entering the representative value still updates the other targets');
+    Binding.ResetProperty(Row);
+    Scene.ResetHistory; Binding.ResetAll; Check(not Scene.CanUndo, 'Resetting unchanged group defaults adds no undo step');
+    Scene.SetProperty(A, 'active', 'False'); Binding.Refresh;
+    Check(Flag.Mixed, 'Mixed booleans retain their indeterminate state');
+    Binding.Validate(Flag, 'True'); Flag.Value := 'True'; Binding.Apply(Flag);
+    Check(not Flag.Mixed and Flag.Checked and (ERDPCBPropertyValue(Scene.Item(A), 'active') = 'True'), 'One boolean edit resolves the whole group');
+    Item := Scene.Item(B); Item.Locked := True; Scene.UpdateItem(B, Item); Binding.Refresh;
+    Check(Row.ReadOnly, 'Any locked target makes a group row read-only'); Reject(Row, '2');
+    Item.Locked := False; Scene.UpdateItem(B, Item); Binding.Refresh;
+    Before := Scene.ContentJSON; Scene.ResetHistory; Probe.Changes := 0; Probe.RejectID := Scene.Item(B).ID;
+    Scene.OnChange := Probe.Changed; Scene.OnValidateItem := Probe.Validate;
+    SetLength(Updates, 2); Updates[0] := Scene.Item(A); Updates[1] := Scene.Item(B);
+    Updates[0].Caption := 'accepted'; Updates[1].Caption := 'reject'; Failed := False;
+    try Scene.UpdateItems(Updates); except on E: EArgumentException do Failed := True; end;
+    Check(Failed and (Scene.ContentJSON = Before) and (Probe.Changes = 0) and not Scene.CanUndo,
+      'Failure on the second target changes neither content, history nor events');
+    Updates[1].Caption := 'accepted'; Scene.UpdateItems(Updates);
+    Check(Probe.Changes = 1, 'A valid batch emits one content change'); Scene.Undo;
+    Check(Scene.ContentJSON = Before, 'Batch undo restores all targets'); Scene.OnChange := nil; Scene.OnValidateItem := nil;
+    Scene.Select(B); Scene.DeleteSelected; Before := Scene.ContentJSON; Failed := False; Row.Value := '1';
+    try Binding.Apply(Row); except on E: EArgumentException do Failed := True; end;
+    Check(Failed and (Scene.ContentJSON = Before), 'A stale group target cannot partially edit remaining objects');
+    Binding.Clear; Inspector.Clear; Scene.ClearSelection;
+    A := Scene.AddType('erd.note.info', PointF(0,0)); B := Scene.AddType('erd.note.warning', PointF(5,5));
+    Scene.Select(A); Scene.Select(B, True); Rebind; Row := Inspector.FindProperty('Type');
+    Check((Row <> nil) and Row.Mixed and (Inspector.FindProperty('Enabled') = nil), 'Notes share style but have no Enabled editor');
+    Binding.Validate(Row, 'Error'); Row.Value := 'Error'; Binding.Apply(Row);
+    Check((Scene.Item(A).NoteType = ntError) and (Scene.Item(B).NoteType = ntError), 'Note style can be changed for a group');
+    // Focusing an untouched mixed text editor must never write the placeholder.
+    Item := Scene.Item(B); Item.Caption := 'Different'; Scene.UpdateItem(B, Item); Binding.Refresh;
+    Row := Inspector.FindProperty('Caption'); Check(Row.Mixed, 'Different note text is mixed');
+    Probe.Binding := Binding; Inspector.OnPropertyChanging := Probe.ChangingProperty; Inspector.OnPropertyChanged := Probe.ChangedProperty;
+    Form.Show; Inspector.SetFocus; Inspector.Perform(WM_KEYDOWN, VK_HOME, 0); Inspector.Perform(WM_KEYDOWN, VK_DOWN, 0);
+    Before := Scene.ContentJSON; Editor := nil;
+    for I := 0 to Inspector.ControlCount-1 do if Inspector.Controls[I] is TERDTextInput then Editor := TERDTextInput(Inspector.Controls[I]);
+    Check((Editor <> nil) and (Editor.Text = '') and (Editor.TextHint = 'Meerdere waarden'), 'Mixed editor displays a hint rather than representative text');
+    Inspector.Perform(WM_KEYDOWN, VK_DOWN, 0);
+    Check((Scene.ContentJSON = Before) and Row.Mixed, 'Leaving an untouched mixed editor preserves every value');
+    Inspector.Perform(WM_KEYDOWN, VK_HOME, 0); Inspector.Perform(WM_KEYDOWN, VK_DOWN, 0);
+    Editor.Text := 'temporary'; Editor.Text := ''; Inspector.Perform(WM_KEYDOWN, VK_DOWN, 0);
+    Check((Scene.Item(A).Caption = '') and (Scene.Item(B).Caption = '') and not Row.Mixed, 'Explicitly entered empty text applies to the whole group');
+    Inspector.OnPropertyChanging := nil; Inspector.OnPropertyChanged := nil;
+  finally Form.Free; Binding.Free; Probe.Free; Scene.Free; end;
+end;
+
 procedure TestPCBComponentTypes;
 var Scene, CopyScene: TERDPCBScene; Definition, CopyDefinition: TERDPCBComponentType;
     Value: TERDPCBDesignItem; Index, BeforeCount: Integer; Failed: Boolean; NoteType: TERDPCBNoteType;
@@ -2682,7 +2787,7 @@ end;
 procedure TestPCBConnections;
 var Form: TForm; Designer: TERDPCBDesigner; BoardFile, Text, Before: string;
     A, B, I: Integer; Geometry: TERDPCBConnectionGeometry; Boxes: TArray<TRect>; Failed: Boolean;
-    P, Q, Hit: TPoint; ID: string; Role: TERDPCBPinRole;
+    P, Q, Hit: TPoint; ID: string; Role: TERDPCBPinRole; Updates: TArray<TERDPCBDesignItem>;
 begin
   SetLength(Boxes, 1); Boxes[0] := Rect(40,20,60,80);
   Geometry := ERDBuildPCBConnection(Point(0,0), Point(100,100), Boxes, 1);
@@ -2730,6 +2835,14 @@ begin
     Designer.DeleteSelectedConnection;
     Check((Designer.Scene.Count = 2) and (Designer.Scene.Item(A).Pin = ''), 'Disconnect retains the component');
     Designer.Undo; Check(Designer.Scene.Item(A).Pin = 'J1.1', 'Disconnect can be undone');
+    SetLength(Updates, 2); Updates[0] := Designer.Scene.Item(A); Updates[1] := Designer.Scene.Item(B);
+    Updates[0].Pin := 'J2.1'; Updates[1].Pin := 'J1.1'; Before := Designer.Scene.ContentJSON;
+    Designer.Scene.UpdateItems(Updates);
+    Check((Designer.Scene.Item(A).Pin = 'J2.1') and (Designer.Scene.Item(B).Pin = 'J1.1'), 'Batch pin validation uses the complete final scene');
+    Designer.Undo; Check(Designer.Scene.ContentJSON = Before, 'Batch pin swap is one undo operation');
+    Updates[0].Pin := 'J1.1'; Failed := False;
+    try Designer.Scene.UpdateItems(Updates); except on E: EArgumentException do Failed := True; end;
+    Check(Failed and (Designer.Scene.ContentJSON = Before), 'A conflicting batch pin assignment leaves both owners unchanged');
   finally Form.Free; System.SysUtils.DeleteFile(BoardFile); end;
 end;
 
@@ -3936,6 +4049,7 @@ begin
     TestPCBConnections;
     TestPCBComponentTypes;
     TestPCBPropertySchema;
+    TestPCBGroupInspector;
     TestSignatureHelp;
     TestEditorWindowShutdown;
     TestStdioLanguageAdapter;

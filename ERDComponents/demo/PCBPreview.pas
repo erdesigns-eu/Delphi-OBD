@@ -234,6 +234,14 @@ var Category: TERDInspectorCategory; P: TERDPCBPad; Value: TERDPCBDesignItem; In
   end;
 begin
   FBinding.Clear; FInspector.Clear; Index := FDesigner.Scene.PrimaryIndex;
+  if FDesigner.Scene.SelectionCount > 1 then
+  begin
+    Category := FInspector.AddCategory('Selection');
+    Category.AddProperty('Components', IntToStr(FDesigner.Scene.SelectionCount), ivReadOnly);
+    FBinding.BindSelection(FDesigner.Scene, FInspector);
+    FStatus.Caption := 'Shared properties - edits apply to all selected components as one undo step.';
+    Exit;
+  end;
   if Index >= 0 then
   begin
     Value := FDesigner.Scene.Item(Index); Category := FInspector.AddCategory('Designer component');

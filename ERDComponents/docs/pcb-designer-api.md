@@ -447,3 +447,50 @@ modified-value styling; validation errors use its themed alarm color. Checkbox
 changes now pass `OnPropertyChanging` before the displayed check state changes.
 The demo's Retry timer illustrates all five editors and category grouping; its
 properties are design metadata and execute no timer or hardware logic.
+
+### Editing a selection together
+
+Call `Binding.BindSelection(Designer.Scene, Inspector)` after clearing the old
+binding and rebuilding the host's selection header. It captures the selected
+item IDs; use the same Validate, Apply, Refresh and reset event wiring as for a
+single object. Rebind on selection changes. `BoundItemID` is the first captured
+ID for a group. Changes to indices never redirect the captured targets.
+
+Group rows contain shared registered property names with the same editor kind.
+Each target retains its own required/range/custom validation. Choice lists are
+the intersection of allowed values; a choice with no shared option is omitted.
+A property is read-only if any target locks it or describes it as read-only.
+Properties absent from a selected type are omitted.
+
+The adapter also exposes common built-in fields for a group: Caption; Enabled
+for non-notes; the base Value for components of the same non-note kind; and
+Type for an all-note selection. It does not batch names, IDs, positions or pin
+assignments. The demo uses this group view instead of editing only the primary
+object when multiple components are selected.
+
+`TERDInspectorProperty.Mixed` is a display flag independent of Value. Mixed rows
+show “Meerdere waarden”; boolean rows use a grayed checkbox. Text editors start
+empty with that hint. Merely focusing/leaving them does not apply an edit.
+Explicit input, including an empty string for a field that allows it, replaces
+all target values. The hint is never stored in scene JSON. Clicking a mixed
+checkbox first sets the whole selection to True.
+
+Resetting one group row restores each type's own default, which may leave the
+row mixed. ResetAll restores all shared editable rows, including common built-in
+fields. Unshared metadata, positions, names and pins remain unchanged. A uniform
+default is shown by HasDefault; differing defaults have no single default value.
+Resetting unchanged values adds no history entry.
+
+`Scene.ValidateItems(Values)` checks a complete candidate scene without mutation.
+`Scene.UpdateItems(Values)` validates first, then applies all records by stable
+ID with one undo entry and one OnChange notification. Unknown/repeated target
+IDs and invalid candidate scenes are rejected without changing content, history
+or selection. Selection flags come from the live scene. The designer's internal
+pin validator receives the candidate scene, so conflicts introduced by jointly
+enabling objects are checked against the final state. Host validators must not
+mutate the scene. Existing explicit BeginEdit transactions can encompass a batch.
+
+The binding prepares every candidate before calling this API. Failed validation
+or a stale/deleted/type-changed target prevents the entire group edit. Numeric
+and checkbox/list edits keep their JSON types. Refresh re-evaluates mixed state
+after undo/redo. Editor callbacks are detached during inspector destruction.

@@ -45,6 +45,7 @@ type
     FStart: string;
     FOnChange, FOnSelectionChange: TNotifyEvent;
     FOnValidateItem: TERDPCBValidateItemEvent;
+    function CandidateItems(const Values: TArray<TERDPCBDesignItem>): TERDPCBScene;
     function Serialize(SelectedOnly, IncludeSelection: Boolean): string;
     procedure Remember;
     procedure Changed(Selection: Boolean);
@@ -71,6 +72,8 @@ type
     procedure ResetProperty(Index: Integer; const Name: string);
     procedure ResetProperties(Index: Integer);
     procedure ValidateItem(Index: Integer; const Value: TERDPCBDesignItem);
+    procedure ValidateItems(const Values: TArray<TERDPCBDesignItem>);
+    procedure UpdateItems(const Values: TArray<TERDPCBDesignItem>);
     procedure UpdateItem(Index: Integer; const Value: TERDPCBDesignItem);
     procedure Select(Index: Integer; Additive: Boolean = False; Toggle: Boolean = False);
     procedure SelectAll;
@@ -425,6 +428,35 @@ procedure TERDPCBScene.ValidateItem(Index: Integer; const Value: TERDPCBDesignIt
 begin
   Item(Index); CheckItem(Value, Index);
   if Value.ID <> FItems[Index].ID then raise EArgumentException.Create('Component identity is immutable');
+end;
+function TERDPCBScene.CandidateItems(const Values: TArray<TERDPCBDesignItem>): TERDPCBScene;
+var I, J, Index: Integer; Value: TERDPCBDesignItem;
+begin
+  Result := TERDPCBScene.Create(nil);
+  try
+    Result.FItems := Copy(FItems);
+    for I := 0 to High(Values) do
+    begin
+      Value := Values[I]; Index := IndexOf(Value.ID);
+      if Index < 0 then raise EArgumentException.Create('A selected component no longer exists');
+      for J := 0 to I-1 do if Values[J].ID = Value.ID then raise EArgumentException.Create('Repeated component in batch edit');
+      Value.Selected := FItems[Index].Selected; Result.FItems[Index] := Value;
+    end;
+    Result.FOnValidateItem := FOnValidateItem;
+    for I := 0 to Result.Count-1 do Result.CheckItem(Result.FItems[I], I);
+  except Result.Free; raise; end;
+end;
+procedure TERDPCBScene.ValidateItems(const Values: TArray<TERDPCBDesignItem>);
+var Candidate: TERDPCBScene;
+begin Candidate := CandidateItems(Values); Candidate.Free; end;
+procedure TERDPCBScene.UpdateItems(const Values: TArray<TERDPCBDesignItem>);
+var Candidate: TERDPCBScene;
+begin
+  Candidate := CandidateItems(Values);
+  try
+    if Candidate.ContentJSON = ContentJSON then Exit;
+    Remember; FItems := Copy(Candidate.FItems); Changed(False);
+  finally Candidate.Free; end;
 end;
 procedure TERDPCBScene.UpdateItem(Index: Integer; const Value: TERDPCBDesignItem);
 begin

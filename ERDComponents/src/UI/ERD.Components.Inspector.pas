@@ -82,6 +82,7 @@ type
   strict private
     FName: string;
     FValue: string;
+    FMixed: Boolean;
     FDefaultValue: string;
     FHasDefault: Boolean;
     FKind: TERDInspectorValueKind;
@@ -97,6 +98,7 @@ type
     FRect: TRect;
     procedure SetName(const AValue: string);
     procedure SetValue(const AValue: string);
+    procedure SetMixed(AValue: Boolean);
     procedure SetDefaultValue(const AValue: string);
     procedure SetHasDefault(AValue: Boolean);
     procedure SetKind(AValue: TERDInspectorValueKind);
@@ -141,6 +143,8 @@ type
     property Name: string read FName write SetName;
     /// <summary>String value shown in the value column.</summary>
     property Value: string read FValue write SetValue;
+    /// <summary>Shows a multiple-values placeholder without storing it as Value.</summary>
+    property Mixed: Boolean read FMixed write SetMixed default False;
     /// <summary>Default value used by <see cref="Modified"/> and reset.</summary>
     property DefaultValue: string read FDefaultValue write SetDefaultValue;
     /// <summary>True when DefaultValue is meaningful.</summary>
@@ -285,6 +289,7 @@ type
     FEditor: TERDTextInput;
     FEditProperty: TERDInspectorProperty;
     FEditOriginalValue: string;
+    FEditMixed, FEditTouched: Boolean;
     FInternalEditorUpdate: Boolean;
     FCommitting: Boolean;
     FPopup: TERDPopupList;
@@ -308,6 +313,7 @@ type
     procedure SetReadOnly(AValue: Boolean);
     procedure SetSplitterPosition(AValue: Integer);
     procedure CategoriesChanged(Sender: TObject);
+    procedure EditorChanged(Sender: TObject);
     procedure EditorExit(Sender: TObject);
     procedure EditorKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure ApplyPickValue(AProperty: TERDInspectorProperty; const Value: string);
@@ -529,7 +535,7 @@ begin
   begin
     P := TERDInspectorProperty(Source);
     FName := P.Name;
-    FValue := P.Value;
+    FValue := P.Value; FMixed := P.Mixed;
     FDefaultValue := P.DefaultValue;
     FHasDefault := P.HasDefault;
     FKind := P.Kind;
@@ -565,7 +571,7 @@ end;
 
 function TERDInspectorProperty.GetModified: Boolean;
 begin
-  Result := FHasDefault and (FValue <> FDefaultValue);
+  Result := FMixed or (FHasDefault and (FValue <> FDefaultValue));
 end;
 
 procedure TERDInspectorProperty.PickListChanged(Sender: TObject);
@@ -587,6 +593,8 @@ begin
   Changed(False);
 end;
 
+procedure TERDInspectorProperty.SetMixed(AValue: Boolean);
+begin if FMixed <> AValue then begin FMixed := AValue; Changed(False); end; end;
 procedure TERDInspectorProperty.SetValue(const AValue: string);
 begin
   if FKind = ivCheck then
@@ -941,7 +949,7 @@ begin
   FEditor := TERDInspectorEdit.Create(Self);
   FEditor.Parent := Self;
   FEditor.Visible := False;
-  FEditor.OnExit := EditorExit;
+  FEditor.OnExit := EditorExit; FEditor.OnChange := EditorChanged;
   FEditor.OnKeyDown := EditorKeyDown;
 
   FPopup := TERDPopupList.Create(Self);
@@ -953,6 +961,8 @@ end;
 destructor TERDInspector.Destroy;
 begin
   ERDI18n.RemoveChangeListener(LanguageChanged);
+  FEditProperty := nil;
+  if FEditor <> nil then begin FEditor.OnChange := nil; FEditor.OnExit := nil; FEditor.OnKeyDown := nil; end;
   FPopup.Free;
   FEditor.Free;
   FCategories.Free;
@@ -1006,7 +1016,11 @@ begin
   if (FEditProperty = nil) or not FEditor.Visible then Exit;
   if FEditor.Focused and not FCommitting then Exit;
   FInternalEditorUpdate := True;
-  try FEditor.Text := FEditProperty.Value; FEditOriginalValue := FEditProperty.Value;
+  try
+    FEditOriginalValue := FEditProperty.Value; FEditMixed := FEditProperty.Mixed; FEditTouched := False;
+    FEditor.TextHint := '';
+    if FEditMixed then begin FEditor.Text := ''; FEditor.TextHint := 'Meerdere waarden'; end
+    else FEditor.Text := FEditProperty.Value;
   finally FInternalEditorUpdate := False; end;
 end;
 
@@ -1325,10 +1339,12 @@ begin
   end;
   Prop := TERDInspectorProperty(FSelected);
   FEditProperty := Prop;
-  FEditOriginalValue := Prop.Value;
+  FEditOriginalValue := Prop.Value; FEditMixed := Prop.Mixed; FEditTouched := False;
   FInternalEditorUpdate := True;
   try
-    FEditor.Text := Prop.Value;
+    FEditor.TextHint := '';
+    if Prop.Mixed then begin FEditor.Text := ''; FEditor.TextHint := 'Meerdere waarden'; end
+    else FEditor.Text := Prop.Value;
     FEditor.ReadOnly := IsReadOnlyText(Prop) or not CanEditText(Prop);
     if Prop.Kind = ivEllipsis then
       FEditor.Font.Name := 'Consolas'
@@ -1357,8 +1373,8 @@ begin
   Prop := FEditProperty;
   if not CanEditText(Prop) then
     Exit;
-  if FEditor.Text = Prop.Value then
-    Exit;
+  if Prop.Mixed and not FEditTouched then Exit;
+  if not Prop.Mixed and (FEditor.Text = Prop.Value) then Exit;
 
   FCommitting := True;
   try
@@ -1381,7 +1397,7 @@ begin
         FEditor.SetFocus;
       Exit;
     end;
-    Prop.Value := NewValue;
+    Prop.Value := NewValue; Prop.Mixed := False;
     FirePropertyChanged(Prop);
   finally
     FCommitting := False;
@@ -1394,8 +1410,8 @@ begin
     Exit;
   FInternalEditorUpdate := True;
   try
-    FEditor.Text := FEditOriginalValue;
-    FEditProperty.Value := FEditOriginalValue;
+    if FEditMixed then FEditor.Text := '' else FEditor.Text := FEditOriginalValue;
+    FEditProperty.Value := FEditOriginalValue; FEditProperty.Mixed := FEditMixed; FEditTouched := False;
     FEditor.SelectAll;
   finally
     FInternalEditorUpdate := False;
@@ -1403,6 +1419,8 @@ begin
   Invalidate;
 end;
 
+procedure TERDInspector.EditorChanged(Sender: TObject);
+begin if not FInternalEditorUpdate then FEditTouched := True; end;
 procedure TERDInspector.EditorExit(Sender: TObject);
 begin
   if FPopup.IsOpen or FInternalEditorUpdate then
@@ -1654,7 +1672,8 @@ begin
   if (AProperty = nil) or (AProperty.Kind <> ivCheck) or FReadOnly or not Enabled then
     Exit;
   if AProperty.ReadOnly then Exit;
-  if AProperty.Checked then ApplyPickValue(AProperty, 'False') else ApplyPickValue(AProperty, 'True');
+  if AProperty.Mixed then ApplyPickValue(AProperty, 'True')
+  else if AProperty.Checked then ApplyPickValue(AProperty, 'False') else ApplyPickValue(AProperty, 'True');
 end;
 
 procedure TERDInspector.ApplyPickValue(AProperty: TERDInspectorProperty; const Value: string);
@@ -1663,7 +1682,7 @@ begin
   NewValue := Value; Accept := True;
   if Assigned(FOnPropertyChanging) then FOnPropertyChanging(Self, AProperty, NewValue, Accept);
   if not Accept then Exit;
-  AProperty.Value := NewValue; FirePropertyChanged(AProperty);
+  AProperty.Value := NewValue; AProperty.Mixed := False; FirePropertyChanged(AProperty);
 end;
 
 procedure TERDInspector.CyclePickList(AProperty: TERDInspectorProperty);
@@ -1836,7 +1855,7 @@ var
   NameWeight, ValueWeight, MonoWeight: TERDTextWeight;
   VX, VW, ButtonSize: Integer;
   Btn, Box: TRect;
-  Caption: string;
+  Caption, DisplayValue: string;
   State: TCheckBoxState;
 begin
   SelectedRow := FSelected = AProperty;
@@ -1898,10 +1917,12 @@ begin
     Exit;
   end;
 
+  DisplayValue := AProperty.Value;
+  if AProperty.Mixed then DisplayValue := 'Meerdere waarden';
   case AProperty.Kind of
     ivPickList:
       begin
-        APainter.Text(VX, R.Top + R.Height div 2, AProperty.Value, 12.5,
+        APainter.Text(VX, R.Top + R.Height div 2, DisplayValue, 12.5,
           ValueInk, ValueWeight, taLeftJustify, System.Math.Max(0,
           VW - ScaleValue(24)));
         APainter.GlyphChevron(EffectiveRight - ScaleValue(14),
@@ -1919,6 +1940,7 @@ begin
           State := cbUnchecked;
           Caption := AProperty.UncheckedCaption;
         end;
+        if AProperty.Mixed then begin State := cbGrayed; Caption := 'Meerdere waarden'; end;
         APainter.CheckBox(VX, R.Top + R.Height div 2, Metrics.Check, State,
           Enabled and not FReadOnly, False, SelectedRow);
         Box := CheckBoxRect(AProperty);
@@ -1934,7 +1956,7 @@ begin
           MonoWeight := twMonoBold
         else
           MonoWeight := twMono;
-        APainter.Text(VX, R.Top + R.Height div 2, AProperty.Value, 12.5,
+        APainter.Text(VX, R.Top + R.Height div 2, DisplayValue, 12.5,
           ValueInk, MonoWeight, taLeftJustify, System.Math.Max(0,
           VW - ButtonSize - ScaleValue(8)));
         APainter.FillRect(Btn, Palette.GaugeFace);
@@ -1943,7 +1965,7 @@ begin
           ScaleValue(2), '…', 12.5, ValueInk, twBold, taCenter);
       end;
   else
-    APainter.Text(VX, R.Top + R.Height div 2, AProperty.Value, 12.5,
+    APainter.Text(VX, R.Top + R.Height div 2, DisplayValue, 12.5,
       ValueInk, ValueWeight, taLeftJustify, VW);
   end;
   APainter.HLine(1, R.Bottom - 1, ClientWidth - 2, Palette.NeutralLight);
