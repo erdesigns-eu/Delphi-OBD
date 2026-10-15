@@ -33,7 +33,10 @@ type
     procedure Cancel(RequestID: Int64);
   end;
   TCodeEditorProbe = class(TERDCodeEditor)
+  protected
+    procedure DestroyWnd; override;
   public
+    ShutdownModelAlive: PBoolean;
     function RowCount: Integer;
     procedure FoldMouse(Action: Integer; Outside: Boolean = False);
     procedure GutterMouse(Action, Row: Integer; Shift: Boolean = False);
@@ -312,6 +315,15 @@ begin
     3: Perform(WM_LBUTTONDBLCLK, Flags or MK_LBUTTON, MakeLParam(X, Y));
   end;
 end;
+procedure TCodeEditorProbe.DestroyWnd;
+begin
+  if HandleAllocated and (ShutdownModelAlive <> nil) then
+  begin
+    ShutdownModelAlive^ := TextModel <> nil;
+    if ShutdownModelAlive^ then ShutdownModelAlive^ := Text = 'shutdown';
+  end;
+  inherited;
+end;
 procedure TCodeEditorProbe.GetNavigationRects(out Vertical, Horizontal, Map: TRect);
 begin NavigationRects(Vertical, Horizontal, Map); end;
 function TCodeEditorProbe.HorizontalOffset: Integer;
@@ -528,7 +540,8 @@ var
   Items: TStringList;
   Bitmap: TBitmap;
   R: TRect;
-  X, Y, InkPixels: Integer;
+  X, Y, InkPixels, I, Mismatches: Integer;
+  LiveDC: HDC;
 begin
   Form := TForm.CreateNew(nil);
   Items := TStringList.Create;
@@ -565,6 +578,22 @@ begin
       LPARAM(MakeLParam(R.Left + 20, R.Top + 12)));
     Check(not Popup.IsOpen, 'Mouse selection closes the popup');
     Check(Popup.ItemIndex = 1, 'Mouse selection accepts the clicked row');
+    Items.Clear;
+    for I := 0 to 79 do Items.Add('Completion item ' + IntToStr(I));
+    Popup.Popup(Form, Rect(100, 100, 420, 130), Items, 0, BRAND_PALETTE_LIGHT, 96, 24, 8);
+    RedrawWindow(Popup.Handle, nil, 0, RDW_INVALIDATE or RDW_UPDATENOW);
+    Popup.TopIndex := 12;
+    Bitmap.SetSize(Popup.ClientWidth, Popup.ClientHeight);
+    SendMessage(Popup.Handle, WM_PRINTCLIENT, Bitmap.Canvas.Handle, PRF_CLIENT);
+    LiveDC := GetDC(Popup.Handle);
+    try
+      Mismatches := 0;
+      for Y := 0 to Popup.ClientHeight - 1 do
+        for X := Popup.ClientWidth - 10 to Popup.ClientWidth - 1 do
+          if GetPixel(LiveDC, X, Y) <> ColorToRGB(Bitmap.Canvas.Pixels[X, Y]) then Inc(Mismatches);
+      Check(Mismatches = 0, 'Scrolling presents final scrollbar without an intermediate shifted thumb');
+    finally ReleaseDC(Popup.Handle, LiveDC); end;
+
   finally
     Bitmap.Free;
     Items.Free;
@@ -2398,6 +2427,47 @@ begin
   finally Form.Free; end;
 end;
 
+procedure TestEditorWindowShutdown;
+var Form: TForm; Editor: TCodeEditorProbe; Service: TLanguageServiceProbe;
+    ServiceReference: IERDCodeLanguageService; Sink: IERDLanguageResponses;
+    Snapshot: TERDLanguageRequest; Items: TArray<TERDCompletionItem>;
+    Popup: TERDPopupList; Mode, I: Integer; ModelAlive: Boolean;
+begin
+  for Mode := 0 to 2 do
+  begin
+    Form := TForm.Create(nil); ModelAlive := False;
+    Service := TLanguageServiceProbe.Create; ServiceReference := Service;
+    try
+      Editor := TCodeEditorProbe.Create(Form); Editor.Parent := Form;
+      Editor.ShutdownModelAlive := @ModelAlive; Editor.Text := 'shutdown';
+      Editor.LanguageService := ServiceReference; Form.Show; Editor.SetFocus;
+      Editor.RequestCompletion; Sink := Service.Responses; Snapshot := Service.Snapshot;
+      if Mode > 0 then
+      begin
+        SetLength(Items, 40);
+        for I := 0 to High(Items) do
+        begin
+          Items[I] := Default(TERDCompletionItem); Items[I].LabelText := 'item' + IntToStr(I);
+          Items[I].InsertText := Items[I].LabelText;
+        end;
+        Check(Sink.Completion(Snapshot, Items), 'Shutdown fixture opens completion popup');
+        if Mode = 2 then
+          for I := 0 to Editor.ComponentCount - 1 do
+            if Editor.Components[I] is TERDPopupList then
+            begin
+              Popup := TERDPopupList(Editor.Components[I]);
+              Popup.Perform(WM_LBUTTONDOWN, MK_LBUTTON, MakeLParam(20, 12));
+              Check(GetCapture = Popup.Handle, 'Shutdown fixture holds popup mouse capture');
+            end;
+      end;
+      FreeAndNil(Form);
+      Check(ModelAlive, 'Editor HWND is destroyed before its text model');
+      Check(not Sink.Hover(Snapshot, 'late shutdown reply'), 'Response sink is detached after owner form closes');
+      Application.ProcessMessages;
+    finally Form.Free; Sink := nil; ServiceReference := nil; end;
+  end;
+end;
+
 procedure TestCodeEditorSearch;
 var Form: TForm; Editor: TCodeEditorProbe; Matches: TArray<TERDCodeSearchMatch>;
     Before: UnicodeString; Rows: Integer;
@@ -3157,6 +3227,7 @@ begin
     TestSharedColorEmoji;
     TestCodeEditorSearch;
     TestCodeLanguageServices;
+    TestEditorWindowShutdown;
     TestStdioLanguageAdapter;
     TestWindowsEditInteractionParity;
     TestMigratedShowcaseTextWindows;

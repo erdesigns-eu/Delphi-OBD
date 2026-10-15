@@ -295,3 +295,13 @@ The viewport is clamped if the folded document becomes shorter than a page.
 
 When the minimap is visible, the vertical scrollbar track uses the same background
 as the minimap. Hiding the minimap restores the editor track background.
+
+On shutdown, the editor disconnects popup and language callbacks, frees the popup,
+and destroys its HWND before releasing its model, line storage and paint caches.
+The same ordering applies to the shared text input and memo bases. Windows smoke
+coverage includes owner-form closure with a focused editor, an open completion
+popup and a popup holding mouse capture.
+
+Popup scrolling suppresses native listbox redraw while changing its top index or
+selection, then presents the buffered rows and overlay scrollbar together. This
+prevents the native scroll blit from moving the previous thumb image vertically.

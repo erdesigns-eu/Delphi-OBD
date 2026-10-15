@@ -358,11 +358,17 @@ end;
 destructor TERDCodeEditor.Destroy;
 begin
   FDestroyingEditor := True;
+  FOnLanguageResults := nil; FOnNavigate := nil; FOnSearchRequested := nil;
   FreeAndNil(FKeyboardEvents);
   if FResponseObject <> nil then FResponseObject.Detach;
-  CancelLanguageRequests; FResponses := nil; FResponseObject := nil;
+  // Close callbacks must be disconnected before cancellation hides the popup.
   if FCompletionPopup <> nil then FCompletionPopup.OnCloseUp := nil;
-  FWidthCache.Free; FMinimapBitmap.Free; FKeywordColors.Free; FCollapsed.Free; inherited Destroy;
+  CancelLanguageRequests;
+  FreeAndNil(FCompletionPopup);
+  FResponses := nil; FResponseObject := nil; FLanguageService := nil;
+  PrepareForDestruction;
+  FreeAndNil(FWidthCache); FreeAndNil(FMinimapBitmap);
+  FreeAndNil(FKeywordColors); FreeAndNil(FCollapsed); inherited Destroy;
 end;
 constructor TERDLanguageResponseSink.Create(Editor: TERDCodeEditor);
 begin inherited Create; FEditor := Editor; end;

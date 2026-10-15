@@ -60,6 +60,7 @@ type
     FBarDragOffset: Integer;
     FLastTop: Integer;
     FCheckingTop: Boolean;
+    FScrollUpdateDepth: Integer;
     FHotIndex: Integer;
     procedure SetEmptyText(const Value: string);
     function VisibleRows: Integer;
@@ -118,6 +119,7 @@ type
     /// <summary>Creates the popup list.</summary>
     /// <param name="AOwner">Component owner.</param>
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     /// <summary>Enables structured completion rows and the selected-item information footer.</summary>
     procedure SetCompletionItems(const Values: TArray<TERDCompletionItem>);
     /// <summary>Shows the list under, or above, a field rectangle in screen coordinates.</summary>
@@ -169,6 +171,21 @@ begin
   FRowHeight := 24;
   FHotIndex := -1;
   ItemHeight := FRowHeight;
+end;
+
+destructor TERDPopupList.Destroy;
+begin
+  FIsOpen := False; FOnCloseUp := nil;
+  if FAppEvents <> nil then
+  begin
+    FAppEvents.OnMessage := nil; FAppEvents.OnDeactivate := nil;
+    FreeAndNil(FAppEvents);
+  end;
+  FBarDragging := False; FRowPressed := False;
+  // Native listbox destruction still needs its item storage to be alive.
+  if HandleAllocated then DestroyWnd;
+  FOwnerControl := nil;
+  inherited;
 end;
 
 procedure TERDPopupList.SetCompletionItems(const Values: TArray<TERDCompletionItem>);
@@ -377,7 +394,7 @@ begin
     if Top <> FLastTop then
     begin
       FLastTop := Top;
-      InvalidateRect(Handle, nil, True);
+      InvalidateRect(Handle, nil, False);
     end;
   finally
     FCheckingTop := False;
@@ -450,6 +467,7 @@ var
   DC: HDC;
   PaintInfo: TPaintStruct;
   Index: Integer;
+  FreezeScroll: Boolean;
 begin
   case Message.Msg of
     WM_PAINT:
@@ -585,7 +603,29 @@ begin
         end;
       end;
   end;
-  inherited WndProc(Message);
+  // A native listbox scrolls by copying its client pixels, including our
+  // overlay thumb. Suppress that intermediate blit, then paint rows and thumb
+  // together once at the final top index. Nesting covers wheel -> LB_SETTOPINDEX.
+  FreezeScroll := FIsOpen and ((Message.Msg = WM_KEYDOWN) or (Message.Msg = WM_MOUSEWHEEL) or
+    (Message.Msg = WM_VSCROLL) or (Message.Msg = LB_SETCURSEL) or (Message.Msg = LB_SETTOPINDEX));
+  if FreezeScroll then
+  begin
+    Inc(FScrollUpdateDepth);
+    if FScrollUpdateDepth = 1 then SendMessage(Handle, WM_SETREDRAW, 0, 0);
+  end;
+  try
+    inherited WndProc(Message);
+  finally
+    if FreezeScroll then
+    begin
+      Dec(FScrollUpdateDepth);
+      if (FScrollUpdateDepth = 0) and HandleAllocated then
+      begin
+        SendMessage(Handle, WM_SETREDRAW, 1, 0);
+        InvalidateRect(Handle, nil, False); UpdateWindow(Handle);
+      end;
+    end;
+  end;
   case Message.Msg of
     WM_KEYDOWN, WM_MOUSEWHEEL, WM_TIMER, WM_LBUTTONDOWN,
     WM_VSCROLL, LB_SETCURSEL, LB_SETTOPINDEX, LB_RESETCONTENT:

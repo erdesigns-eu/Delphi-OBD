@@ -30,7 +30,7 @@ type
     FAlignment: TAlignment;
     FCharCase: TEditCharCase;
     FNumbersOnly, FAutoSelect: Boolean;
-    FCreatingWindow, FBackspaceHandled: Boolean;
+    FCreatingWindow, FBackspaceHandled, FDestroyingInput: Boolean;
     FHideSelection, FModified, FSettingText: Boolean;
     FWordSelecting: Boolean;
     FWordStart, FWordEnd: Integer;
@@ -84,6 +84,7 @@ type
     procedure WMUniChar(var Message: TMessage); message WM_UNICHAR;
     procedure WMGetDlgCode(var Message: TMessage); message WM_GETDLGCODE;
   protected
+    procedure PrepareForDestruction;
     procedure MoveTo(APosition: Integer; AExtend: Boolean);
     function LineOrigin(AWidth: Integer): Integer; virtual;
     property TextModel: TERDTextModel read FModel;
@@ -294,11 +295,20 @@ begin
   FDragTimer.Interval := 50; FDragTimer.OnTimer := DragTick;
   ControlStyle := ControlStyle + [csOpaque, csDoubleClicks];
 end;
-destructor TERDTextInput.Destroy;
+procedure TERDTextInput.PrepareForDestruction;
 begin
+  if FDestroyingInput then Exit;
+  FDestroyingInput := True;
   if FDragTimer <> nil then FDragTimer.Enabled := False;
   OnEnter := nil; OnExit := nil; OnKeyDown := nil; OnKeyPress := nil; OnKeyUp := nil;
   FOnChange := nil; FOnSelectionChange := nil;
+  // VCL window destruction can request text and deliver focus/capture messages.
+  // Keep the model, line storage and descendant state alive until it completes.
+  if HandleAllocated then DestroyWnd;
+end;
+destructor TERDTextInput.Destroy;
+begin
+  PrepareForDestruction;
   FreeAndNil(FModel); inherited;
 end;
 function TERDTextInput.GetCanUndo: Boolean;
@@ -474,7 +484,7 @@ end;
 procedure TERDTextInput.UpdateCaret;
 var Line: TERDTextLayoutLine; X, H: Integer; C: HIMC; Form: TCompositionForm;
 begin
-  if FCreatingWindow or (csDestroying in ComponentState) or (Parent = nil) or
+  if FDestroyingInput or FCreatingWindow or (csDestroying in ComponentState) or (Parent = nil) or
     not HandleAllocated or (FModel = nil) then Exit;
   Canvas.Font.Assign(Font); H := Canvas.TextHeight('Mg');
   Line := CreateDisplayLine(Canvas, DisplayText);
@@ -899,6 +909,7 @@ begin
 end;
 procedure TERDTextInput.DoEnter;
 begin
+  if FDestroyingInput then Exit;
   if FAutoSelect and (GetKeyState(VK_LBUTTON) >= 0) then FModel.Select(0, Length(Text));
   inherited;
   Canvas.Font.Assign(Font);
@@ -1048,6 +1059,7 @@ begin
 end;
 destructor TERDTextArea.Destroy;
 begin
+  PrepareForDestruction;
   if FLines <> nil then FLines.OnChange := nil;
   FreeAndNil(FLines); inherited;
 end;
@@ -1198,7 +1210,7 @@ begin Result := Copy(Text, FRows[Index].Start + 1, FRows[Index].Count); end;
 procedure TERDTextArea.UpdateCaret;
 var Row, H, X, Y, Page: Integer; Line: TERDTextLayoutLine; C: HIMC; Form: TCompositionForm;
 begin
-  if FCreatingWindow or (csDestroying in ComponentState) or (Parent = nil) or
+  if FDestroyingInput or FCreatingWindow or (csDestroying in ComponentState) or (Parent = nil) or
     not HandleAllocated or (FModel = nil) then Exit;
   BuildRows; Row := RowForPosition(FModel.Caret); H := RowHeight;
   Page := VisibleRowCount;
