@@ -69,6 +69,7 @@ type
     FNavigationWidth: Integer;
     FWidthCache: TDictionary<UnicodeString, Integer>;
     FWidthCacheFont: HFONT;
+    FNavigationMeasuredText: UnicodeString;
     FNavigationHot, FNavigationDrag, FNavigationDragOffset: Integer;
     FMinimapDragRow: Integer;
     FMinimapBitmap: TBitmap;
@@ -144,6 +145,7 @@ type
     procedure WMLButtonUp(var Message: TWMLButtonUp); message WM_LBUTTONUP;
     procedure WMGetDlgCode(var Message: TMessage); message WM_GETDLGCODE;
     procedure CMDialogKey(var Message: TCMDialogKey); message CM_DIALOGKEY;
+    procedure CNKeyDown(var Message: TWMKeyDown); message CN_KEYDOWN;
     procedure SetTabWidth(Value: Integer);
     procedure SetInterfaceKeywordColor(Value: TColor);
     procedure SetClassKeywordColor(Value: TColor);
@@ -582,7 +584,7 @@ begin
   InvalidateTextLayout; UpdateCaret; Invalidate;
 end;
 procedure TERDCodeEditor.NavigationRects(out Vertical, Horizontal, Map: TRect);
-var Inner, Base: TRect; BorderWidth, Size, Width, LocalGutterWidth: Integer;
+var Inner, Base: TRect; BorderWidth, Size, Width, LocalGutterWidth, TextRight, Available: Integer;
 begin
   Inner := ClientRect; BorderWidth := 0;
   if BorderStyle = bsSingle then
@@ -602,19 +604,23 @@ begin
     Vertical := Rect(Max(Inner.Left, Inner.Right - Size), Inner.Top, Inner.Right, Inner.Bottom);
     Inner.Right := Vertical.Left;
   end;
-  if (FScrollBars in [ssHorizontal, ssBoth]) and not WordWrap then
+  Width := 0;
+  if FShowMinimap then
+  begin
+    Width := Min(ScaleValue(FMinimapWidth), Max(0, (Inner.Width - LocalGutterWidth - ScaleValue(32)) div 2));
+    if Width < ScaleValue(16) then Width := 0;
+  end;
+  TextRight := Min(Base.Right, Inner.Right);
+  if Width > 0 then TextRight := Min(TextRight, Inner.Right - Width - ScaleValue(3));
+  Available := Max(1, TextRight - Base.Left - LocalGutterWidth);
+  if (FScrollBars in [ssHorizontal, ssBoth]) and not WordWrap and (NavigationWidth > Available) then
   begin
     Horizontal := Rect(Min(Inner.Right, Base.Left + LocalGutterWidth),
       Max(Inner.Top, Inner.Bottom - Size), Inner.Right, Inner.Bottom);
     Inner.Bottom := Horizontal.Top;
     if not IsRectEmpty(Vertical) then Vertical.Bottom := Inner.Bottom;
   end;
-  if FShowMinimap then
-  begin
-    Width := Min(ScaleValue(FMinimapWidth), Max(0, (Inner.Width - LocalGutterWidth - ScaleValue(32)) div 2));
-    if Width >= ScaleValue(16) then
-      Map := Rect(Inner.Right - Width, Inner.Top, Inner.Right, Inner.Bottom);
-  end;
+  if Width > 0 then Map := Rect(Inner.Right - Width, Inner.Top, Inner.Right, Inner.Bottom);
 end;
 function TERDCodeEditor.MinimapViewportRect: TRect;
 var Vertical, Horizontal, Map: TRect; Rows: TArray<TERDTextRow>; MapHeight, Top, Bottom: Integer;
@@ -637,31 +643,45 @@ begin
   else if PtInRect(Map, P) then Result := 3;
 end;
 function TERDCodeEditor.NavigationWidth: Integer;
-var Rows: TArray<TERDTextRow>; Row: TERDTextRow; Line: TERDTextLayoutLine;
-    LineText: UnicodeString; LineWidth: Integer;
+var Line: TERDTextLayoutLine; LineText: UnicodeString;
+    Start, Finish, LineWidth: Integer; Fold: TERDSyntaxFold; Hidden: Boolean;
 begin
-  Rows := VisualRows;
-  if not FNavigationWidthDirty then Exit(FNavigationWidth);
+  // Width measurement must not call VisualRows/TextViewport: layout itself asks
+  // for this width to decide whether to reserve a horizontal scrollbar.
+  if not FNavigationWidthDirty and (FNavigationMeasuredText = Text) and
+    (FWidthCacheFont = Font.Handle) then Exit(FNavigationWidth);
   FNavigationWidth := 0; Canvas.Font.Assign(Font);
   if FWidthCacheFont <> Font.Handle then
   begin FWidthCache.Clear; FWidthCacheFont := Font.Handle; end;
-  for Row in Rows do
+  if (FCollapsed <> nil) and (FCollapsed.Count > 0) then Analyze;
+  Start := 0;
+  while Start < Length(Text) do
   begin
-    LineText := Copy(Text, Row.Start + 1, Row.Count);
-    if not FWidthCache.TryGetValue(LineText, LineWidth) then
+    Finish := Start;
+    while (Finish < Length(Text)) and (Text[Finish + 1] <> #13) do Inc(Finish);
+    Hidden := False;
+    if (FCollapsed <> nil) and (FCollapsed.Count > 0) then
+      for Fold in FAnalysis.Folds do
+        if FCollapsed.Contains(Fold.Start) and (Start >= FoldHiddenStart(Fold)) and
+          (Start < FoldHiddenFinish(Fold)) then begin Hidden := True; Break; end;
+    if not Hidden then
     begin
-      Line := TERDTextLayoutLine.Create(Canvas, LineText);
-      try LineWidth := Line.Width; finally Line.Free; end;
-      // Bound retained keys; unchanged lines need no new shaping after an edit.
-      if Length(LineText) <= 4096 then
+      LineText := Copy(Text, Start + 1, Finish - Start);
+      if not FWidthCache.TryGetValue(LineText, LineWidth) then
       begin
-        if FWidthCache.Count >= 1024 then FWidthCache.Clear;
-        FWidthCache.Add(LineText, LineWidth);
+        Line := TERDTextLayoutLine.Create(Canvas, LineText);
+        try LineWidth := Line.Width; finally Line.Free; end;
+        if Length(LineText) <= 4096 then
+        begin
+          if FWidthCache.Count >= 1024 then FWidthCache.Clear;
+          FWidthCache.Add(LineText, LineWidth);
+        end;
       end;
+      FNavigationWidth := Max(FNavigationWidth, LineWidth);
     end;
-    FNavigationWidth := Max(FNavigationWidth, LineWidth);
+    Start := Finish + 2;
   end;
-  FNavigationWidthDirty := False;
+  FNavigationWidthDirty := False; FNavigationMeasuredText := Text;
   Result := FNavigationWidth;
 end;
 procedure TERDCodeEditor.NavigatePointer(X, Y: Integer);
@@ -747,7 +767,7 @@ end;
 procedure TERDCodeEditor.PaintNavigation(ACanvas: TCanvas);
 var Vertical, Horizontal, Map, Viewport: TRect; Painter: TERDPainter;
     Rows: TArray<TERDTextRow>; Page: Integer; Fill: TColor; Opacity: Byte;
-    Graphics: TGPGraphics; Brush: TGPSolidBrush;
+    Graphics: TGPGraphics; Brush: TGPSolidBrush; Blend: TBlendFunction;
 begin
   NavigationRects(Vertical, Horizontal, Map); Rows := VisualRows; Page := VisibleRowCount;
   Painter := TERDPainter.Create(ACanvas, Palette, ScaleValue(96));
@@ -762,10 +782,18 @@ begin
     begin
       Fill := ERDMixColor(Palette.Background, Palette.ForegroundText, 0.96);
       RenderMinimap(Map.Width, Map.Height, Rows, Fill);
-      ACanvas.Draw(Map.Left, Map.Top, FMinimapBitmap);
+      Painter.FillRect(Map, Fill);
+      Blend.BlendOp := AC_SRC_OVER; Blend.BlendFlags := 0;
+      Blend.SourceConstantAlpha := 179; Blend.AlphaFormat := 0;
+      if not Winapi.Windows.AlphaBlend(ACanvas.Handle, Map.Left, Map.Top, Map.Width, Map.Height,
+        FMinimapBitmap.Canvas.Handle, 0, 0, Map.Width, Map.Height, Blend) then
+        ACanvas.Draw(Map.Left, Map.Top, FMinimapBitmap);
       Viewport := MinimapViewportRect;
       if not IsRectEmpty(Viewport) then
       begin
+        // Keep the viewed code at full strength; dim only the surrounding code.
+        BitBlt(ACanvas.Handle, Viewport.Left, Viewport.Top, Viewport.Width, Viewport.Height,
+          FMinimapBitmap.Canvas.Handle, 0, Viewport.Top - Map.Top, SRCCOPY);
         Opacity := 28;
         if FMinimapWindowHot then Opacity := 48;
         if FNavigationDrag = 3 then Opacity := 72;
@@ -819,7 +847,6 @@ begin
           skComment: Ink := Palette.Subtle;
           skDirective: Ink := Palette.Accent;
         end;
-      Ink := ERDMixColor(Ink, Fill, 0.60);
       if (RunX >= 0) and ((Ink <> RunInk) or (PixelX <> RunEnd)) then
       begin
         FMinimapBitmap.Canvas.Brush.Color := RunInk;
@@ -1651,6 +1678,17 @@ begin
   if (FCompletionPopup <> nil) and FCompletionPopup.IsOpen and
     (Message.WParam in [VK_RETURN, VK_TAB, VK_ESCAPE]) then
     Message.Result := Message.Result or DLGC_WANTMESSAGE;
+end;
+procedure TERDCodeEditor.CNKeyDown(var Message: TWMKeyDown);
+var Key: Word;
+begin
+  // VCL asks CN_KEYDOWN before offering the key to form shortcuts/dialogs.
+  if (Message.CharCode = VK_SPACE) and (GetKeyState(VK_CONTROL) < 0) and
+    (GetKeyState(VK_MENU) >= 0) then
+  begin
+    Key := VK_SPACE; KeyDown(Key, [ssCtrl]); Message.Result := 1; Exit;
+  end;
+  inherited;
 end;
 procedure TERDCodeEditor.CMDialogKey(var Message: TCMDialogKey);
 var Key: Word;

@@ -1171,6 +1171,7 @@ begin
     begin
       if X - FScroll > TextViewport.Width then FScroll := X - TextViewport.Width;
       if X < FScroll then FScroll := X;
+      FScroll := EnsureRange(FScroll, 0, Max(0, Line.Width - TextViewport.Width));
     end;
     X := LineOrigin(Line.Width) + X - FScroll;
     Y := TextViewport.Top + (Row - FFirstRow) * H + ScaleValue(FSelectionPadding);

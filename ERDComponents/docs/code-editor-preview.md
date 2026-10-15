@@ -201,7 +201,7 @@ visible at its normal focused/unfocused thickness.
 ## Scrollbars and minimap
 
 `ScrollBars` defaults to `ssBoth`: a themed vertical scrollbar at the right and a
-horizontal scrollbar below unwrapped text. Use `ssVertical`, `ssHorizontal` or
+horizontal scrollbar below unwrapped text when its width exceeds the text viewport. Use `ssVertical`, `ssHorizontal` or
 `ssNone` to choose the visible bars. Word wrapping suppresses the horizontal bar.
 The tracks support paging and the thumbs support dragging; wheel, keyboard and
 caret scrolling share the same document viewport. Scrolling does not move the
@@ -225,7 +225,8 @@ provider now includes TypeScript keywords as well as its example identifiers;
 it remains a sample rather than a semantic service. Connect TSVM for compiler
 results. Manual completion displays **No suggestions** for an empty result;
 without a provider it reports the missing connection through `LanguageError` and
-`OnLanguageResults`. The editor claims the completion key from form dialog routing.
+`OnLanguageResults`. The editor claims Ctrl+Space at `CN_KEYDOWN`, before VCL form shortcut routing,
+and also handles the dialog-key and ordinary key-down paths.
 
 The Windows smoke suite covers scrollbar dragging/paging, minimap navigation,
 viewport resizing when hidden, unchanged text/selection, setting persistence and
@@ -236,3 +237,8 @@ The minimap viewport composites a neutral theme colour at 28/255 opacity when
 idle, 48/255 on hover and 72/255 while active. Code strokes remain visible beneath
 it. Grabbing the viewport preserves the pointer's offset so it does not recenter
 on mouse-down; clicking elsewhere in the minimap centres that location.
+
+The horizontal bar returns its height to the viewport when the text fits; editing,
+resizing and minimap visibility update that decision. The minimap code outside the
+sliding window composites at 70% opacity; the window restores the underlying code
+to full opacity before applying its subtle hover/pressed tint.

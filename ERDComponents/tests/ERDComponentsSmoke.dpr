@@ -2295,6 +2295,9 @@ begin
     GetKeyboardState(SavedKeyboard); Keyboard := SavedKeyboard; Keyboard[VK_CONTROL] := $80;
     try
       SetKeyboardState(Keyboard); Version := Service.Requests;
+      Check(Editor.Perform(CN_KEYDOWN, VK_SPACE, 0) = 1, 'Editor claims Ctrl+Space before form shortcut processing');
+      Check(Service.Requests = Version + 1, 'Ctrl+Space early key route requests completion');
+      Version := Service.Requests;
       Editor.Perform(CM_DIALOGKEY, VK_SPACE, 0);
       Check((Service.Requests = Version + 1) and (Service.Snapshot.Kind = lrCompletion),
         'Ctrl+Space dialog route requests completion');
@@ -2812,6 +2815,11 @@ begin
     Mouse(WM_LBUTTONDOWN, Horizontal.Right - 2, (Horizontal.Top + Horizontal.Bottom) div 2);
     Mouse(WM_LBUTTONUP, Horizontal.Right - 2, (Horizontal.Top + Horizontal.Bottom) div 2);
     Check(Editor.HorizontalOffset > 0, 'Horizontal scrollbar pages across long lines');
+    Editor.Text := 'short'; Editor.GetNavigationRects(Vertical, Horizontal, Map);
+    Check(IsRectEmpty(Horizontal), 'Horizontal scrollbar hides when the text fits');
+    Check(Editor.HorizontalOffset = 0, 'Fitting text has no leftover horizontal offset');
+    Editor.Text := Source;
+
     Editor.WordWrap := True; Editor.GetNavigationRects(Vertical, Horizontal, Map);
     Check(IsRectEmpty(Horizontal), 'Word wrapping removes horizontal scrollbar');
     Editor.WordWrap := False; Editor.FoldAll; Editor.UnfoldAll; Editor.RenderTo(Bitmap);
@@ -2822,6 +2830,48 @@ begin
     try Check(Restored.ShowMinimap and (Restored.MinimapWidth = 128) and (Restored.ScrollBars = ssVertical),
       'Editor navigation settings stream correctly'); finally Restored.Free; end;
   finally Stream.Free; Bitmap.Free; Form.Free; end;
+end;
+
+procedure TestTitleBarMaximizeRouting;
+var Form: TForm; Title: TERDTitleBar; Local, ScreenPoint: TPoint; Found: Boolean;
+  procedure FindMaximize;
+  var X: Integer;
+  begin
+    Found := False; Local.Y := MulDiv(16, Title.CurrentPPI, 96);
+    for X := Title.Width - 1 downto 0 do
+    begin
+      ScreenPoint := Title.ClientToScreen(Point(X, Local.Y));
+      if Title.Perform(WM_NCHITTEST, 0, MakeLParam(ScreenPoint.X, ScreenPoint.Y)) = HTMAXBUTTON then
+      begin Local.X := X; Found := True; Break; end;
+    end;
+    Check(Found, 'Custom titlebar exposes its maximize hit target');
+  end;
+  procedure PressMaximize;
+  begin
+    FindMaximize;
+    Title.Perform(WM_NCLBUTTONDOWN, HTMAXBUTTON, MakeLParam(ScreenPoint.X, ScreenPoint.Y));
+  end;
+begin
+  Form := TForm.CreateNew(nil);
+  try
+    Form.SetBounds(100, 100, 700, 400); Form.BorderIcons := [biSystemMenu, biMinimize, biMaximize];
+    Title := TERDTitleBar.Create(Form); Title.Parent := Form; Form.Show; Application.ProcessMessages;
+    PressMaximize;
+    Check(not IsZoomed(Form.Handle), 'Custom maximize waits for release without native tracking');
+    Title.Perform(WM_LBUTTONUP, 0, MakeLParam(Local.X, Local.Y));
+    Check(IsZoomed(Form.Handle), 'Custom maximize executes on client release');
+    PressMaximize; Title.Perform(WM_LBUTTONUP, 0, MakeLParam(Local.X, Local.Y));
+    Check(not IsZoomed(Form.Handle), 'Custom restore executes on client release');
+    PressMaximize; Title.Perform(WM_LBUTTONUP, 0, MakeLParam(Title.Width div 2, Local.Y));
+    Check(not IsZoomed(Form.Handle), 'Releasing outside the maximize button cancels');
+    PressMaximize; SetCapture(Form.Handle); ReleaseCapture;
+    Title.Perform(WM_LBUTTONUP, 0, MakeLParam(Local.X, Local.Y));
+    Check(not IsZoomed(Form.Handle), 'Capture loss cancels pending maximize');
+    PressMaximize;
+    Form.Perform(WM_NCLBUTTONUP, HTMAXBUTTON, MakeLParam(ScreenPoint.X, ScreenPoint.Y));
+    Check(IsZoomed(Form.Handle), 'Non-client release executes maximize once');
+    Form.WindowState := wsNormal;
+  finally Form.Free; end;
 end;
 
 procedure TestCodeGutterThemeContrast;
@@ -2967,6 +3017,7 @@ begin
     TestMultilineTextEngine;
     TestSyntaxAndCodeEditor;
     TestCodeEditorNavigation;
+    TestTitleBarMaximizeRouting;
     TestCodeGutterThemeContrast;
     TestSharedColorEmoji;
     TestCodeEditorSearch;

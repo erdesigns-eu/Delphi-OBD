@@ -212,7 +212,7 @@ type
     FOldFormWindowProc: TWndMethod;
     FHoverSystem: TERDSystemButton;
     FPressedSystem: TERDSystemButton;
-    FNativeMaxTracking: Boolean;
+    FHandlingSystemRelease: Boolean;
     FHoverButton: TERDCaptionButton;
     FPressedButton: TERDCaptionButton;
     FHoverQuick: TERDCaptionButton;
@@ -250,6 +250,8 @@ type
     procedure CMHintShow(var Message: TCMHintShow); message CM_HINTSHOW;
     procedure CMDialogKey(var Message: TCMDialogKey); message CM_DIALOGKEY;
     procedure WMNCHitTest(var Message: TWMNCHitTest); message WM_NCHITTEST;
+    procedure WMLButtonUp(var Message: TWMLButtonUp); message WM_LBUTTONUP;
+    procedure WMCaptureChanged(var Message: TMessage); message WM_CAPTURECHANGED;
     function CaptionHitTest(const AScreenPoint: TPoint): Integer;
     function CaptionHeight: Integer;
     function MenuHeight: Integer;
@@ -1276,6 +1278,21 @@ begin
   inherited;
 end;
 
+procedure TERDTitleBar.WMLButtonUp(var Message: TWMLButtonUp);
+begin
+  FHandlingSystemRelease := True;
+  try inherited; finally FHandlingSystemRelease := False; end;
+end;
+procedure TERDTitleBar.WMCaptureChanged(var Message: TMessage);
+begin
+  inherited;
+  if not FHandlingSystemRelease then
+  begin
+    FPressedSystem := sbNone; FPressedButton := nil; FPressedQuick := nil;
+    FAutoSavePressed := False; Invalidate;
+  end;
+end;
+
 procedure TERDTitleBar.WMNCHitTest(var Message: TWMNCHitTest);
 var Hit: Integer;
 begin
@@ -1793,7 +1810,7 @@ begin
         HandleNCMouseMove(Message);
         Exit;
       end;
-    WM_NCLBUTTONDOWN:
+    WM_NCLBUTTONDOWN, WM_NCLBUTTONDBLCLK:
       begin
         HandleNCLButtonDown(Message);
         Exit;
@@ -1807,7 +1824,7 @@ begin
       if (FHoverSystem <> sbNone) or (FPressedSystem <> sbNone) then
       begin
         FHoverSystem := sbNone;
-        FPressedSystem := sbNone;
+        if not MouseCapture then FPressedSystem := sbNone;
         Invalidate;
       end;
     WM_NCRBUTTONUP:
@@ -1918,29 +1935,15 @@ begin
 end;
 
 procedure TERDTitleBar.HandleNCHitTest(var Message: TMessage);
-var
-  P, C: TPoint;
-  Hit: Integer;
-  OldResult: LRESULT;
+var P, C: TPoint; Hit: Integer;
 begin
-  if Assigned(FOldFormWindowProc) then
-    FOldFormWindowProc(Message);
-  OldResult := Message.Result;
-  if (OldResult <> HTCLIENT) and (OldResult <> HTCAPTION) and
-    (OldResult <> HTNOWHERE) then
-    Exit;
-  if (FHookedForm = nil) or not FHookedForm.HandleAllocated then
-    Exit;
-  P := PointFromMessage(Message);
-  Hit := CaptionHitTest(P);
-  if Hit <> HTCLIENT then
-    Message.Result := Hit
-  else
+  if (FHookedForm <> nil) and FHookedForm.HandleAllocated then
   begin
-    C := ScreenToClient(P);
-    if (C.X >= 0) and (C.X < Width) and (C.Y >= 0) and (C.Y < Height) then
-      Message.Result := HTCLIENT;
+    P := PointFromMessage(Message); C := ScreenToClient(P); Hit := CaptionHitTest(P);
+    if (Hit <> HTCLIENT) or ((C.X >= 0) and (C.X < Width) and (C.Y >= 0) and (C.Y < Height)) then
+    begin Message.Result := Hit; Exit; end;
   end;
+  if Assigned(FOldFormWindowProc) then FOldFormWindowProc(Message);
 end;
 
 procedure TERDTitleBar.HandleNCMouseMove(var Message: TMessage);
@@ -1972,6 +1975,8 @@ begin
     Track.dwHoverTime := 0;
     TrackMouseEvent(Track);
   end;
+  if (FPressedSystem = sbMaximize) and MouseCapture then
+  begin Message.Result := 0; Exit; end;
   EnsureDwmApi;
   DwmHandled := False;
   if (FHookedForm <> nil) and Assigned(GDwmDefWindowProc) then
@@ -1981,23 +1986,19 @@ begin
 end;
 
 procedure TERDTitleBar.HandleNCLButtonDown(var Message: TMessage);
+var C: TPoint;
 begin
   if (Message.WParam = HTMAXBUTTON) and (FHookedForm <> nil) then
   begin
-    FPressedSystem := sbMaximize;
-    FHoverSystem := sbMaximize;
-    FNativeMaxTracking := True;
-    Invalidate;
-    try
-      // Windows owns tracking, maximize/restore and the Snap interaction.
-      Message.Result := DefWindowProc(FHookedForm.Handle, Message.Msg,
-        Message.WParam, Message.LParam);
-    finally
-      FNativeMaxTracking := False;
-      FPressedSystem := sbNone;
-      Invalidate;
+    C := ScreenToClient(PointFromMessage(Message));
+    if Enabled and (SystemButtonAt(C.X, C.Y) = sbMaximize) then
+    begin
+      FPressedSystem := sbMaximize; FHoverSystem := sbMaximize;
+      // Track the painted button ourselves. DefWindowProc tracks the native
+      // caption geometry and can reveal a second, differently placed button.
+      MouseCapture := True; Invalidate;
     end;
-    Exit;
+    Message.Result := 0; Exit;
   end;
   if Assigned(FOldFormWindowProc) then FOldFormWindowProc(Message);
 end;
@@ -2007,19 +2008,14 @@ var
   C: TPoint;
   Hit: TERDSystemButton;
 begin
-  if FNativeMaxTracking and (FHookedForm <> nil) then
-  begin
-    Message.Result := DefWindowProc(FHookedForm.Handle, Message.Msg, Message.WParam, Message.LParam);
-    Exit;
-  end;
   if FPressedSystem = sbMaximize then
   begin
     Hit := sbNone;
     C := ScreenToClient(PointFromMessage(Message));
     if (C.X >= 0) and (C.X < Width) and (C.Y >= 0) and (C.Y < CaptionHeight) then
       Hit := SystemButtonAt(C.X, C.Y);
-    FPressedSystem := sbNone;
-    if Hit = sbMaximize then
+    FPressedSystem := sbNone; MouseCapture := False;
+    if Enabled and (Hit = sbMaximize) then
       ToggleMaximizeRestore;
     Invalidate;
     Message.Result := 0;
@@ -2522,7 +2518,8 @@ begin
   inherited;
   AutoHot := PtInRect(AutoSaveRect, Point(X, Y));
   NewSystem := SystemButtonAt(X, Y);
-  if (NewSystem = sbMaximize) and (FHookedForm <> nil) and FHookedForm.HandleAllocated then
+  if (NewSystem = sbMaximize) and (FPressedSystem <> sbMaximize) and
+    (FHookedForm <> nil) and FHookedForm.HandleAllocated then
   begin
     ScreenPoint := ClientToScreen(Point(X, Y));
     SendMessage(FHookedForm.Handle, WM_NCMOUSEMOVE, HTMAXBUTTON,
