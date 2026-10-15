@@ -2,7 +2,7 @@
 {$APPTYPE CONSOLE}
 uses
   ERD.Components.LSP, ERD.Components.Paint, ERD.Components.Control, ERD.Components.LanguageServices, ERD.Components.TextLayout, ERD.Components.CodeEditor, ERD.Components.Syntax,
-  ERD.Components.PCBDesigner, ERD.Components.PCBScene,
+  ERD.Components.PCBDesigner, ERD.Components.PCBScene, ERD.Components.PCBRoute, ERD.Components.PCBLibrary,
   ERD.Components.TextModel, ERD.Components.TextInput,
   System.IOUtils, System.JSON,
   System.SysUtils, System.Classes, System.Types, System.Math, Vcl.Forms, Vcl.Controls, Vcl.ExtCtrls,
@@ -2489,10 +2489,63 @@ begin
   finally Scene.Free; end;
 end;
 
+procedure TestPCBDesignerTools;
+var Form: TForm; Designer: TERDPCBDesigner; Editor: TERDMemo; I, A, B, C: Integer;
+    Value: TERDPCBDesignItem; Before: string; Route: TArray<TPoint>; Boxes: TArray<TRect>;
+    P, Q: TPoint;
+begin
+  SetLength(Boxes, 1); Boxes[0] := Rect(40, 20, 60, 80);
+  Route := ERDPCBRoute(Point(0, 50), Point(100, 50), Boxes, 8);
+  Check((Length(Route) >= 4) and (Route[0] = Point(0,50)) and
+    (Route[High(Route)] = Point(100,50)), 'PCB route finds a detour around an obstacle');
+  for I := 1 to High(Route) do
+  begin
+    P := Route[I-1]; Q := Route[I];
+    Check((P.X = Q.X) or (P.Y = Q.Y), 'PCB detour is orthogonal before corner rounding');
+    if P.X = Q.X then
+      Check(not ((P.X > 40) and (P.X < 60) and (Max(P.Y,Q.Y) > 20) and (Min(P.Y,Q.Y) < 80)), 'Vertical route avoids the note interior')
+    else Check(not ((P.Y > 20) and (P.Y < 80) and (Max(P.X,Q.X) > 40) and (Min(P.X,Q.X) < 60)), 'Horizontal route avoids the note interior');
+  end;
+  Form := TForm.Create(nil);
+  try
+    Designer := TERDPCBDesigner.Create(Form); Designer.Parent := Form; Designer.SetBounds(0,0,600,400);
+    A := Designer.AddDesignItem(piNote, PointF(0,0)); Designer.FitBoard; Form.Show;
+    Designer.BeginNoteEdit; Editor := nil;
+    for I := 0 to Designer.ControlCount - 1 do
+      if Designer.Controls[I] is TERDMemo then Editor := TERDMemo(Designer.Controls[I]);
+    Check((Editor <> nil) and Editor.Visible, 'Double-click note API opens an editor on the canvas');
+    Value := Designer.Scene.Item(A); Editor.Text := 'Cancelled'; Designer.FinishNoteEdit(False);
+    Check(Designer.Scene.Item(A).Caption = Value.Caption, 'Escape-style note cancellation preserves the original text');
+    Designer.BeginNoteEdit; Editor.Text := 'Edited' + sLineBreak + 'On canvas'; Designer.FinishNoteEdit(True);
+    Check(Designer.Scene.Item(A).Caption = 'Edited' + sLineBreak + 'On canvas', 'Canvas note edit commits multiline text');
+    Designer.Undo; Check(Designer.Scene.Item(A).Caption = Value.Caption, 'A note edit is one undo operation');
+    Designer.Scene.LoadJSON('{"format":"erd-pcb-scene","version":1,"items":[]}');
+    A := Designer.AddDesignItem(piTimer, PointF(0,0)); B := Designer.AddDesignItem(piCounter, PointF(2,2));
+    C := Designer.AddDesignItem(piOutputGroup, PointF(9,4)); Designer.FitBoard; Designer.Scene.SelectAll;
+    Before := Designer.Scene.ToJSON; Designer.AlignSelected(paLeft);
+    P := Designer.BoardToClient(PointF(Designer.Scene.Item(A).X, Designer.Scene.Item(A).Y));
+    Q := Designer.BoardToClient(PointF(Designer.Scene.Item(B).X, Designer.Scene.Item(B).Y));
+    Check(Abs(P.X - Q.X) <= 1, 'Align left respects fixed screen-size nonvisual glyphs');
+    Designer.Undo; Check(Designer.Scene.ToJSON = Before, 'Aligning a selection is one undo operation');
+    Designer.DistributeSelected(True);
+    Check(Abs((Designer.Scene.Item(B).X - Designer.Scene.Item(A).X) -
+      (Designer.Scene.Item(C).X - Designer.Scene.Item(B).X)) < 0.1, 'Distribution gives fixed glyphs equal gaps');
+    Designer.Undo; Check(Designer.Scene.ToJSON = Before, 'Distribution is one undo operation');
+    Value := Designer.Scene.Item(B); Value.Locked := True; Designer.Scene.UpdateItem(B, Value);
+    Designer.AlignSelected(paLeft);
+    Check(Designer.Scene.Item(B).X = Value.X, 'Alignment cannot move a locked object');
+    Designer.Scene.Select(A); Designer.Scene.DeleteSelected; Designer.Scene.Undo;
+    Check(Designer.Scene.Count = 3, 'Tool operations preserve subsequent delete and undo behavior');
+    Designer.AddDesignItem(piNote, PointF(0,0)); Designer.FitBoard; Designer.BeginNoteEdit;
+    // The finally block also exercises destruction while the canvas editor owns focus.
+  finally Form.Free; end;
+end;
+
 procedure TestPCBDesigner;
 var Form: TForm; Designer: TERDPCBDesigner; BoardFile, ProjectFile, Text: string;
     Index, SceneIndex, BusIndex: Integer; Item: TERDPCBDesignItem; TemplateFile: string; Failed: Boolean; Client: TPoint; Before, After: TPointF;
     Stream: TMemoryStream; CopyDesigner: TERDPCBDesigner; Pad: TERDPCBPad;
+    Library: TERDPCBTemplateLibrary; LibraryDir, Imported, Duplicate, Invalid: string; Group: TERDPCBTerminal;
 begin
   Form := TForm.Create(nil); BoardFile := TPath.GetTempFileName; ProjectFile := TPath.GetTempFileName;
   try
@@ -2594,7 +2647,23 @@ begin
     Check(Failed, 'Template capabilities cannot invalidate existing component connections');
     TemplateFile := TPath.GetTempFileName;
     try
-      Designer.SaveTemplate(TemplateFile); CopyDesigner := TERDPCBDesigner.Create(nil);
+      Group := Designer.Terminal(0); Designer.RemoveTerminal(Group.ID);
+      Check((Designer.TerminalCount = 0) and (Designer.ChannelCount = 2), 'Removing a terminal group preserves programmable pins');
+      Designer.DefineTerminal(Group.ID, Group.LabelText, Group.SignalPin, Group.Members);
+      Check(Designer.TerminalCount = 1, 'Terminal group contacts can be restored through the authoring API');
+      Designer.SaveTemplate(TemplateFile);
+      LibraryDir := TPath.GetTempFileName; System.SysUtils.DeleteFile(LibraryDir);
+      Library := TERDPCBTemplateLibrary.Create(LibraryDir);
+      try
+        Imported := Library.ImportTemplate(TemplateFile);
+        Check((Library.Count = 1) and (Library.Item(0).PinCount = 2), 'Template library imports a validated reusable board');
+        Duplicate := Library.ImportTemplate(TemplateFile);
+        Check((Imported <> Duplicate) and (Library.Count = 2), 'Template import never overwrites an existing file');
+        Invalid := TPath.Combine(LibraryDir, 'invalid.json'); TFile.WriteAllText(Invalid, '{broken', TEncoding.UTF8);
+        Library.Refresh;
+        Check((Library.Count = 2) and (Library.Issues.Count = 1), 'Library reports malformed templates while retaining usable entries');
+      finally Library.Free; if TDirectory.Exists(LibraryDir) then TDirectory.Delete(LibraryDir, True); end;
+      CopyDesigner := TERDPCBDesigner.Create(nil);
       try
         CopyDesigner.LoadBoard(TemplateFile);
         Check((CopyDesigner.TemplateID = Designer.TemplateID) and (pcCANTx in CopyDesigner.Channel(CopyDesigner.ChannelIndex('U7.1')).Capabilities),
@@ -3552,6 +3621,7 @@ begin
     TestCodeLanguageServices;
     TestPCBScene;
     TestPCBDesigner;
+    TestPCBDesignerTools;
     TestSignatureHelp;
     TestEditorWindowShutdown;
     TestStdioLanguageAdapter;

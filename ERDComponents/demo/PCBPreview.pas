@@ -2,7 +2,7 @@
 interface
 uses System.Classes, System.SysUtils, System.Types, Vcl.Controls, Vcl.StdCtrls, Winapi.Windows,
   ERD.Components.Control, ERD.Components.Panel, ERD.Components.PCBDesigner, ERD.Components.PCBScene,
-  ERD.Components.Inspector, ERD.Components.Memo, ERD.Components.ItemList, ERD.Components.Buttons, ERD.Components.FileDialogs;
+  ERD.Components.Inspector, ERD.Components.ItemList, ERD.Components.Buttons, ERD.Components.FileDialogs;
 type
   /// Demo host only: toolbox and inspector are separate from TERDPCBDesigner.
   TPCBPreview = class(TERDPanel)
@@ -12,7 +12,7 @@ type
     FToolbox: TERDListBox;
     FStatus: TLabel;
     FAuthoring: TERDCheckBox;
-    FFileName: string;
+    FFileName, FTemplateDirectory: string;
     procedure ViewOptionChanged(Sender: TObject);
     procedure SelectionChanged(Sender: TObject);
     procedure ConnectionError(Sender: TObject; const MessageText: string);
@@ -33,7 +33,7 @@ type
     procedure ThemeChanged; override;
   end;
 implementation
-uses System.Math, System.UITypes, Vcl.Dialogs, Vcl.Forms;
+uses System.Math, System.IOUtils, Vcl.Dialogs, PCBTemplateDialog;
 constructor TPCBPreview.Create(AOwner: TComponent);
 var Header, Tools: TERDPanel; B: TERDButton; I: Integer; Base, BoardFile: string; Choice: TERDCheckBox;
   procedure Button(const Caption: string; Left, Width, Tag: Integer);
@@ -44,10 +44,19 @@ var Header, Tools: TERDPanel; B: TERDButton; I: Integer; Base, BoardFile: string
   end;
 begin
   inherited;
-  Header := TERDPanel.Create(Self); Header.Parent := Self; Header.Align := alTop; Header.Height := ScaleValue(78);
+  Header := TERDPanel.Create(Self); Header.Parent := Self; Header.Align := alTop; Header.Height := ScaleValue(112);
   Button('Fit', 8, 54, 0); Button('Undo', 68, 62, 4); Button('Redo', 136, 62, 5);
   Button('Save project', 204, 104, 2); Button('Open project', 314, 104, 3);
-  Button('Load template', 424, 112, 6); Button('Save template', 542, 112, 7);
+  Button('Templates...', 424, 112, 6); Button('Save template', 542, 112, 7);
+  for I := 0 to 7 do
+  begin
+    B := TERDButton.Create(Self); B.Parent := Header;
+    case I of 0: B.Caption := 'Left'; 1: B.Caption := 'Center X'; 2: B.Caption := 'Right';
+      3: B.Caption := 'Top'; 4: B.Caption := 'Center Y'; 5: B.Caption := 'Bottom';
+      6: B.Caption := 'Space X'; 7: B.Caption := 'Space Y'; end;
+    B.SetBounds(ScaleValue(8 + I * 82), ScaleValue(78), ScaleValue(76), ScaleValue(26));
+    B.Tag := 20 + I; B.OnClick := ToolbarClicked;
+  end;
   FStatus := TLabel.Create(Self); FStatus.Parent := Self; FStatus.Align := alBottom;
   FStatus.AutoSize := False; FStatus.Height := ScaleValue(25);
   Tools := TERDPanel.Create(Self); Tools.Parent := Self; Tools.Align := alLeft; Tools.Width := ScaleValue(145);
@@ -59,7 +68,6 @@ begin
   FInspector.OnPropertyChanging := PropertyChanging; FInspector.OnPropertyChanged := PropertyChanged;
   FDesigner := TERDPCBDesigner.Create(Self); FDesigner.Parent := Self; FDesigner.Align := alClient;
   FDesigner.OnSelectionChange := SelectionChanged; FDesigner.OnChange := DesignChanged; FDesigner.OnConnectionError := ConnectionError;
-  FDesigner.OnDblClick := EditNote;
   FDesigner.OnDragOver := SurfaceDragOver; FDesigner.OnDragDrop := SurfaceDragDrop;
   for I := 0 to 4 do
   begin
@@ -81,6 +89,8 @@ begin
     begin BoardFile := IncludeTrailingPathDelimiter(Base) + 'pcb\board.json'; Break; end;
     Base := ExtractFileDir(ExcludeTrailingPathDelimiter(Base));
   end;
+  if BoardFile <> '' then FTemplateDirectory := ExtractFileDir(BoardFile)
+  else FTemplateDirectory := TPath.Combine(ExtractFilePath(ParamStr(0)), 'pcb');
   if BoardFile <> '' then
     try FDesigner.LoadBoard(BoardFile); FDesigner.SelectedPin := 'U7.2';
     except on E: Exception do FStatus.Caption := E.Message; end
@@ -105,29 +115,12 @@ procedure TPCBPreview.ConnectionError(Sender: TObject; const MessageText: string
 begin FStatus.Caption := MessageText; end;
 procedure TPCBPreview.PropertyButtonClicked(Sender: TObject; AProperty: TERDInspectorProperty);
 begin
-  if AProperty.Tag = 2 then EditNote(Self);
+  if AProperty.Tag = 2 then EditNote(Self)
+  else if AProperty.Tag = 200 then
+    if EditPCBTerminal(Self, FDesigner, Palette) then SelectionChanged(Self);
 end;
 procedure TPCBPreview.EditNote(Sender: TObject);
-var Index: Integer; Item: TERDPCBDesignItem; Dialog: TForm; Memo: TERDMemo;
-    Footer: TERDPanel; Button: TERDButton;
-begin
-  Index := FDesigner.Scene.PrimaryIndex; if Index < 0 then Exit;
-  Item := FDesigner.Scene.Item(Index); if (Item.Kind <> piNote) or Item.Locked then Exit;
-  Dialog := TForm.CreateNew(Self);
-  try
-    Dialog.Caption := 'Edit note'; Dialog.Position := poOwnerFormCenter;
-    Dialog.ClientWidth := ScaleValue(480); Dialog.ClientHeight := ScaleValue(300);
-    Dialog.Color := Palette.Background;
-    Footer := TERDPanel.Create(Dialog); Footer.Parent := Dialog; Footer.Align := alBottom; Footer.Height := ScaleValue(44);
-    Button := TERDButton.Create(Dialog); Button.Parent := Footer; Button.Caption := 'Save';
-    Button.SetBounds(ScaleValue(280), ScaleValue(7), ScaleValue(88), ScaleValue(30)); Button.ModalResult := mrOk;
-    Button := TERDButton.Create(Dialog); Button.Parent := Footer; Button.Caption := 'Cancel';
-    Button.SetBounds(ScaleValue(378), ScaleValue(7), ScaleValue(88), ScaleValue(30)); Button.ModalResult := mrCancel; Button.Cancel := True;
-    Memo := TERDMemo.Create(Dialog); Memo.Parent := Dialog; Memo.Align := alClient; Memo.Lines.Text := Item.Caption;
-    if Dialog.ShowModal = mrOk then
-    begin Item.Caption := Memo.Lines.Text; FDesigner.Scene.UpdateItem(Index, Item); SelectionChanged(Self); end;
-  finally Dialog.Free; end;
-end;
+begin FDesigner.BeginNoteEdit; end;
 procedure TPCBPreview.UpdatePinChoices;
 var C, P, J, K, Index: Integer; Row: TERDInspectorProperty;
     Candidate, Other: TERDPCBDesignItem; Pin: string; Available: Boolean;
@@ -159,7 +152,29 @@ begin
   finally FInspector.EndUpdate; end;
 end;
 procedure TPCBPreview.DesignChanged(Sender: TObject);
-begin FStatus.Caption := 'Designer modified - Ctrl+Z/Y undo/redo; Ctrl+C/V copy/paste; Delete removes unlocked objects.'; end;
+var C, P, Index: Integer; Value: TERDPCBDesignItem; Row: TERDInspectorProperty;
+begin
+  Index := FDesigner.Scene.PrimaryIndex;
+  if Index >= 0 then
+  begin
+    Value := FDesigner.Scene.Item(Index); FInspector.BeginUpdate;
+    try
+      for C := 0 to FInspector.Categories.Count - 1 do
+        for P := 0 to FInspector.Categories[C].Properties.Count - 1 do
+        begin
+          Row := FInspector.Categories[C].Properties[P];
+          case Row.Tag of
+            1: Row.Value := Value.Name; 2: Row.Value := Value.Caption;
+            3: Row.Value := IntToStr(Value.Value);
+            4: Row.Value := FloatToStr(Value.X, TFormatSettings.Invariant);
+            5: Row.Value := FloatToStr(Value.Y, TFormatSettings.Invariant);
+            6: Row.Value := FloatToStr(Value.Width, TFormatSettings.Invariant);
+            7: Row.Value := FloatToStr(Value.Height, TFormatSettings.Invariant);
+          end;
+        end;
+    finally FInspector.EndUpdate; end;
+  end;
+  FStatus.Caption := 'Designer modified - Ctrl+Z/Y undo/redo; Ctrl+C/V copy/paste; Delete removes unlocked objects.'; end;
 procedure TPCBPreview.SelectionChanged(Sender: TObject);
 var Category: TERDInspectorCategory; P: TERDPCBPad; Value: TERDPCBDesignItem; Index, I, T: Integer;
     Channel: TERDPCBChannel; Group: TERDPCBTerminal; Text: string; Row: TERDInspectorProperty;
@@ -179,7 +194,7 @@ begin
     Field('Name', Value.Name, 1);
     if Value.Kind = piNote then
     begin
-      Field('Text', Value.Caption, 2, ivEllipsis);
+      Field('Text', Value.Caption, 2, ivEllipsis); Row.ReadOnly := True;
       Field('Locked', '', 13, ivCheck); Row.Checked := Value.Locked;
       Category := FInspector.AddCategory('Position and size (mm)');
       Field('X', FloatToStr(Value.X, TFormatSettings.Invariant), 4); Field('Y', FloatToStr(Value.Y, TFormatSettings.Invariant), 5);
@@ -232,6 +247,7 @@ begin
     Category := FInspector.AddCategory('Template pin capabilities');
     Field('Capabilities', ERDPCBPinCapabilitiesText(Channel.Capabilities), 101);
     Field('GPIO', Channel.GPIO, 102); Field('Label', Channel.LabelText, 103);
+    Field('Terminal group', 'Edit contacts...', 200, ivEllipsis); Row.ReadOnly := True;
     FStatus.Caption := 'Template authoring: comma-separated capabilities, e.g. digital-output,uart-tx,can-tx';
   end
   else
@@ -265,6 +281,7 @@ end;
 procedure TPCBPreview.PropertyChanged(Sender: TObject; AProperty: TERDInspectorProperty);
 var Channel: TERDPCBChannel; Index: Integer;
 begin
+  if AProperty.Tag = 200 then Exit;
   try
     if AProperty.Tag < 100 then FDesigner.Scene.UpdateItem(FDesigner.Scene.PrimaryIndex, EditedItem(AProperty, AProperty.Value))
     else
@@ -292,23 +309,28 @@ begin Accept := (Source = FToolbox) and (FToolbox.ItemIndex >= 0) and not FDesig
 procedure TPCBPreview.SurfaceDragDrop(Sender, Source: TObject; X, Y: Integer);
 begin if Source = FToolbox then FDesigner.AddDesignItem(TERDPCBItemKind(FToolbox.ItemIndex), FDesigner.ClientToBoard(Point(X,Y))); end;
 procedure TPCBPreview.ToolbarClicked(Sender: TObject);
-var Save: TERDSaveDialog; Open: TERDOpenDialog;
+var Save: TERDSaveDialog; Open: TERDOpenDialog; TemplateFile: string;
 begin
   try
     case TComponent(Sender).Tag of
+      20..25: FDesigner.AlignSelected(TERDPCBAlignment(TComponent(Sender).Tag - 20));
+      26, 27: FDesigner.DistributeSelected(TComponent(Sender).Tag = 26);
       0: FDesigner.FitBoard; 4: FDesigner.Undo; 5: FDesigner.Redo;
       2, 7:
         begin
           Save := TERDSaveDialog.Create(Self);
           try
             if TComponent(Sender).Tag = 2 then begin Save.Filter := 'Designer project|*.pcbproject.json'; Save.DefaultExt := 'pcbproject.json'; Save.FileName := FFileName; end
-            else begin Save.Filter := 'Board template|*.pcbtemplate.json'; Save.DefaultExt := 'pcbtemplate.json'; end;
+            else begin Save.Filter := 'Board template|*.pcbtemplate.json'; Save.DefaultExt := 'pcbtemplate.json'; Save.InitialDir := FTemplateDirectory; end;
             if Save.Execute then
               if TComponent(Sender).Tag = 2 then begin FDesigner.SaveProject(Save.FileName); FFileName := Save.FileName; end
               else FDesigner.SaveTemplate(Save.FileName);
           finally Save.Free; end;
         end;
-      3, 6:
+      6:
+        if BrowsePCBTemplates(Self, FTemplateDirectory, Palette, TemplateFile) then
+        begin FDesigner.LoadBoard(TemplateFile); FDesigner.FitBoard; SelectionChanged(Self); end;
+      3:
         begin
           Open := TERDOpenDialog.Create(Self);
           try

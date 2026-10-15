@@ -69,6 +69,7 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
+        <DCCReference Include="PCBTemplateDialog.pas"/>
         <DCCReference Include="PCBPreview.pas"/>
         <DCCReference Include="Showcase.pas">
             <Form>MainForm</Form>

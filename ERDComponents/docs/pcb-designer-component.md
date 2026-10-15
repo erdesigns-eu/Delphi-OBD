@@ -57,14 +57,21 @@ painted control handles the whole board; there is no window per pad.
 notes and UART/CAN/I²C/SPI connections. These definitions do not execute hardware
 or TypeScript. Names appear below the DPI-scaled nonvisual glyphs, which keep the same size while zooming.
 Notes instead appear as resizable themed text panels with wrapped multiline text.
-Double-click a note or use its inspector Text button to edit it in the demo.
+Double-click a note or use its inspector Text button to edit directly on the canvas.
+Click outside or press Ctrl+Enter to commit; Escape cancels. A text edit is one
+undo operation. Hosts can call `BeginNoteEdit` and `FinishNoteEdit` explicitly.
 Notes have position, size and lock properties, and no pin assignments.
 The scene supports selection, group movement, fixed-size nonvisual glyphs,
 locking, snapping, clipboard operations and undo/redo. Drag a programmable terminal
 onto an item to connect it. Connections use GDI+ antialiased Bézier curves, with
 short vertical sections at the pin and component. Bus roles have separate
-connection points; the drag preview uses the same routing. Conflicting enabled drivers and incompatible pin
-capabilities are rejected through `OnConnectionError`.
+connection points; the drag preview uses the same routing. The direction follows
+the component position, using its upper or lower edge. When the direct curve
+meets another scene item, an orthogonal route with rounded Bézier corners is
+computed around its expanded bounds. Routes are cached until geometry changes.
+This avoids scene items, not physical PCB parts or other wires. Overlapping
+endpoints may leave no clear route; that case retains the direct curve.
+Conflicting enabled drivers and incompatible pin capabilities are rejected through `OnConnectionError`.
 
 The demo hosts a separate toolbox and inspector. The designer itself has no
 inspector dependency: hosts use `OnSelectionChange`, `OnChange` and the scene API.
@@ -87,14 +94,47 @@ physical view changes, increasing redraw cost and temporary memory use. Set
 This remains a top-side 2D designer. Copper/Gerber layers, bottom-side import,
 3D viewing, pick workflows and TypeScript/IDE integration are future work.
 
+## Layout tools
+
+The demo toolbar provides Left, Center X, Right, Top, Center Y, Bottom, Space X
+and Space Y. `AlignSelected` and `DistributeSelected` expose the same operations
+to a host. They use actual screen bounds, so fixed nonvisual glyphs and resizable
+notes can be arranged together. Locked items are excluded. Distribution keeps
+the first and last item in place and equalizes the gaps. Each operation is one
+undo transaction.
+
+`AlignmentGuides` enables magnetic edge/center alignment during dragging and
+draws guide lines against other scene items and the board. Hold Alt to bypass
+both grid and object snapping for a drag.
+
+## Template library and authoring
+
+**Templates...** opens the demo library with an interactive board preview. The
+library scans normalized JSON files in the demo `pcb` directory. **Import
+template** validates a board and copies it into that directory, adding a numeric
+suffix instead of overwriting existing files. The reusable
+`TERDPCBTemplateLibrary` API exposes template ID, name, file, pin count and
+terminal count; `Issues` reports invalid files while valid templates remain
+available. **Save template** initially points to the same directory.
+
+Enable **Edit template pins** and select a physical contact to edit its GPIO,
+label and capability list in the separate inspector. Its **Terminal group**
+button opens an editor for the group's label, programmable signal and comma
+separated member pins. Existing group IDs are stable; new groups can be named.
+**Remove group** removes grouping only, preserving the physical board and pin
+capabilities. `DefineTerminal` and `RemoveTerminal` provide these operations to
+other hosts. Save the template to retain authoring changes on disk.
+
 ## Validation
 
 The Windows smoke suite covers pointer-anchored zoom, hit testing after pan,
 hover clearing, programmable-terminal selection, geometry-copy isolation and DFM
-round-trip without the original source file. Those tests require Delphi on
+round-trip without the original source file. It also covers canvas note commit,
+cancel and destruction, alignment/distribution undo, locked objects, obstacle
+routing, terminal-group removal/restoration and template import collisions. Those tests require Delphi on
 Windows. Linux checks validate source/project/resource integrity and the real
 board import; they do not compile VCL.
 
 When updating the demo, update `demo/pcb/board.json` together with the Pascal
 units. Older normalized boards lack assembled body geometry. Load the updated
-file using **Load template** if an older copy is next to the demo executable.
+file using **Templates...** if an older copy is next to the demo executable.

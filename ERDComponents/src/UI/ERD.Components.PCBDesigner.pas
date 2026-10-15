@@ -3,11 +3,12 @@
 interface
 
 uses
-  System.Classes, System.SysUtils, System.Types, System.Math, System.JSON, System.UITypes,
+  System.Classes, System.SysUtils, System.Types, System.Math, System.JSON, System.UITypes, System.Generics.Collections,
   Winapi.Windows, Winapi.Messages, Vcl.Controls, Vcl.Graphics,
-  ERD.Components.Control, ERD.Components.Types, ERD.Components.PCBScene, ERD.Components.ScrollBar;
+  ERD.Components.Control, ERD.Components.Types, ERD.Components.PCBScene, ERD.Components.Memo, ERD.Components.ScrollBar;
 
 type
+  TERDPCBAlignment = (paLeft, paHorizontalCenter, paRight, paTop, paVerticalCenter, paBottom);
   TERDPCBPad = record
     ID, Net, Reference, Number: string;
     Position: TPointF;
@@ -35,6 +36,12 @@ type
   /// Imported geometry is read-only; project assignments have a separate file.
   TERDPCBDesigner = class(TERDCustomControl)
   private
+    FRouteCache: TDictionary<string, TArray<TPoint>>;
+    FNoteEditor: TERDMemo;
+    FEditingNote: string;
+    FFinishingNote: Boolean;
+    FAlignmentGuides: Boolean;
+    FGuideX, FGuideY: Integer;
     FStaticLayer: TBitmap;
     FStaticDirty: Boolean;
     FAntiAlias: Boolean;
@@ -70,6 +77,9 @@ type
     FDragging, FPanMode, FCompletingGesture: Boolean;
     FLast: TPoint;
     FOnSelectionChange, FOnHotPinChange, FOnViewChange: TNotifyEvent;
+    procedure SnapGuides(var DX, DY: Double);
+    procedure NoteEditorExit(Sender: TObject);
+    procedure NoteEditorKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure SetPanMode(Value: Boolean);
     procedure SetAntiAlias(Value: Boolean);
     function BuildTemplateJSON: string;
@@ -131,6 +141,7 @@ type
     procedure Resize; override;
     procedure Loaded; override;
     procedure PaintControl(ACanvas: TCanvas); override;
+    procedure DblClick; override;
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
     procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
@@ -141,6 +152,10 @@ type
     destructor Destroy; override;
     procedure ThemeChanged; override;
     function AddDesignItem(Kind: TERDPCBItemKind; const Position: TPointF): Integer;
+    procedure AlignSelected(Alignment: TERDPCBAlignment);
+    procedure DistributeSelected(Horizontal: Boolean);
+    procedure BeginNoteEdit;
+    procedure FinishNoteEdit(Accept: Boolean);
     procedure AssignSelectedItemsToPin(const Pin: string);
     procedure SaveTemplate(const FileName: string);
     procedure ValidatePinCapabilities(const Pin: string; Capabilities: TERDPCBPinCapabilities);
@@ -166,6 +181,7 @@ type
     function TerminalCount: Integer;
     function Terminal(Index: Integer): TERDPCBTerminal;
     function TerminalIndex(const Selection: string): Integer;
+    procedure RemoveTerminal(const ID: string);
     procedure DefineTerminal(const ID, LabelText, SignalPin: string; const Members: TArray<string>);
     function ChannelCount: Integer;
     function ChannelIndex(const Pin: string): Integer;
@@ -176,6 +192,7 @@ type
     property LastError: string read FLastError;
     property HotPin: string read FHot;
   published
+    property AlignmentGuides: Boolean read FAlignmentGuides write FAlignmentGuides default True;
     property PanMode: Boolean read FPanMode write SetPanMode default False;
     property AntiAlias: Boolean read FAntiAlias write SetAntiAlias default True;
     property TemplateEditMode: Boolean read FTemplateEditMode write SetTemplateEditMode default False;
@@ -209,8 +226,8 @@ function ERDPCBPinCapabilitiesText(Values: TERDPCBPinCapabilities): string;
 function ERDPCBParsePinCapabilities(const Text: string): TERDPCBPinCapabilities;
 implementation
 
-uses System.IOUtils, System.Generics.Collections, Winapi.GDIPAPI, Winapi.GDIPOBJ,
-  Vcl.Forms, Vcl.Clipbrd, Vcl.StdCtrls, ERD.Components.Paint, ERD.Components.GDIP;
+uses System.IOUtils, Winapi.GDIPAPI, Winapi.GDIPOBJ,
+  Vcl.Forms, Vcl.Clipbrd, Vcl.StdCtrls, ERD.Components.Paint, ERD.Components.GDIP, ERD.Components.PCBRoute;
 
 function ERDPCBPinCapabilityName(Value: TERDPCBPinCapability): string;
 begin
@@ -273,6 +290,7 @@ end;
 constructor TERDPCBDesigner.Create(AOwner: TComponent);
 begin
   inherited; FZoom := 1; Width := 700; Height := 400; TabStop := True;
+  FAlignmentGuides := True; FGuideX := MaxInt; FGuideY := MaxInt;
   FShowBodies := True;
   FShowPads := True;
   FShowLabels := True;
@@ -289,21 +307,171 @@ begin
   FShowGrid := True;
   FGridSize := 1;
   FScrollBars := System.UITypes.TScrollStyle.ssBoth;
+  FRouteCache := TDictionary<string, TArray<TPoint>>.Create;
   FScene := TERDPCBScene.Create(Self); FScene.OnValidateItem := ValidateSceneItem; FScene.OnChange := SceneChanged; FScene.OnSelectionChange := SceneSelectionChanged;
   FScrollH := TERDScrollBar.Create(Self); FScrollH.Parent := Self; FScrollH.Kind := sbHorizontal; FScrollH.Visible := False;
   FScrollH.OnChange := ScrollChanged; FScrollH.TabStop := False;
   FScrollV := TERDScrollBar.Create(Self); FScrollV.Parent := Self; FScrollV.Kind := sbVertical; FScrollV.Visible := False;
   FScrollV.OnChange := ScrollChanged; FScrollV.TabStop := False;
+  FNoteEditor := TERDMemo.Create(Self); FNoteEditor.Parent := Self; FNoteEditor.Visible := False;
+  FNoteEditor.Editor.OnExit := NoteEditorExit; FNoteEditor.OnKeyDown := NoteEditorKeyDown;
   ShowHint := True; Hint := 'Select a PCB pin or designer component';
 end;
 destructor TERDPCBDesigner.Destroy;
 begin
+  FEditingNote := '';
+  if FNoteEditor <> nil then begin FNoteEditor.Editor.OnExit := nil; FNoteEditor.OnKeyDown := nil; end;
   if FScrollH <> nil then FScrollH.OnChange := nil;
   if FScrollV <> nil then FScrollV.OnChange := nil;
   if FScene <> nil then begin FScene.OnChange := nil; FScene.OnSelectionChange := nil; end;
   CancelGesture;
   if HandleAllocated then DestroyWnd;
-  FreeAndNil(FScene); FreeAndNil(FStaticLayer);
+  FreeAndNil(FRouteCache); FreeAndNil(FScene); FreeAndNil(FStaticLayer);
+  inherited;
+end;
+procedure TERDPCBDesigner.AlignSelected(Alignment: TERDPCBAlignment);
+var I: Integer; Bounds, R: TRect; Value: TERDPCBDesignItem; DX, DY: Integer; Found: Boolean;
+begin
+  FinishNoteEdit(True); CancelGesture; UpdateTransform; Found := False;
+  for I := 0 to FScene.Count - 1 do
+    if FScene.Item(I).Selected and not FScene.Item(I).Locked then
+    begin
+      R := ItemRect(I);
+      if not Found then begin Bounds := R; Found := True; end
+      else begin Bounds.Left := Min(Bounds.Left, R.Left); Bounds.Right := Max(Bounds.Right, R.Right);
+        Bounds.Top := Min(Bounds.Top, R.Top); Bounds.Bottom := Max(Bounds.Bottom, R.Bottom); end;
+    end;
+  if not Found then Exit;
+  FScene.BeginEdit;
+  try
+    for I := 0 to FScene.Count - 1 do
+      if FScene.Item(I).Selected and not FScene.Item(I).Locked then
+      begin
+        R := ItemRect(I); DX := 0; DY := 0;
+        case Alignment of
+          paLeft: DX := Bounds.Left - R.Left;
+          paHorizontalCenter: DX := (Bounds.Left + Bounds.Right - R.Left - R.Right) div 2;
+          paRight: DX := Bounds.Right - R.Right;
+          paTop: DY := Bounds.Top - R.Top;
+          paVerticalCenter: DY := (Bounds.Top + Bounds.Bottom - R.Top - R.Bottom) div 2;
+          paBottom: DY := Bounds.Bottom - R.Bottom;
+        end;
+        Value := FScene.Item(I); Value.X := Value.X + DX / FScreenScale; Value.Y := Value.Y - DY / FScreenScale;
+        FScene.UpdateItem(I, Value);
+      end;
+    FScene.EndEdit;
+  except FScene.CancelEdit; raise; end;
+end;
+procedure TERDPCBDesigner.DistributeSelected(Horizontal: Boolean);
+var Items: TArray<Integer>; I, J, Swap, N: Integer; R, First, Last: TRect;
+    Total, Gap, Next, Delta: Double; Value: TERDPCBDesignItem;
+  function Position(Index: Integer): Integer;
+  var Bounds: TRect;
+  begin Bounds := ItemRect(Index); if Horizontal then Result := Bounds.Left else Result := Bounds.Top; end;
+begin
+  FinishNoteEdit(True); CancelGesture; UpdateTransform; N := 0;
+  for I := 0 to FScene.Count - 1 do if FScene.Item(I).Selected and not FScene.Item(I).Locked then
+  begin SetLength(Items, N + 1); Items[N] := I; Inc(N); end;
+  if N < 3 then Exit;
+  for I := 1 to N - 1 do
+  begin
+    J := I;
+    while J > 0 do
+    begin
+      if Position(Items[J]) >= Position(Items[J - 1]) then Break;
+      Swap := Items[J]; Items[J] := Items[J - 1]; Items[J - 1] := Swap; Dec(J);
+    end;
+  end;
+  Total := 0;
+  for I := 0 to N - 1 do begin R := ItemRect(Items[I]); if Horizontal then Total := Total + R.Width else Total := Total + R.Height; end;
+  First := ItemRect(Items[0]); Last := ItemRect(Items[N - 1]);
+  if Horizontal then begin Gap := (Last.Right - First.Left - Total) / (N - 1); Next := First.Left + First.Width + Gap; end
+  else begin Gap := (Last.Bottom - First.Top - Total) / (N - 1); Next := First.Top + First.Height + Gap; end;
+  FScene.BeginEdit;
+  try
+    for I := 1 to N - 2 do
+    begin
+      R := ItemRect(Items[I]); Value := FScene.Item(Items[I]);
+      if Horizontal then begin Delta := Next - R.Left; Value.X := Value.X + Delta / FScreenScale; Next := Next + R.Width + Gap; end
+      else begin Delta := Next - R.Top; Value.Y := Value.Y - Delta / FScreenScale; Next := Next + R.Height + Gap; end;
+      FScene.UpdateItem(Items[I], Value);
+    end;
+    FScene.EndEdit;
+  except FScene.CancelEdit; raise; end;
+end;
+procedure TERDPCBDesigner.SnapGuides(var DX, DY: Double);
+var Index, I, A, B, BestX, BestY, OffsetX, OffsetY, Delta: Integer; R, Other: TRect;
+    Xs, Ys, OtherXs, OtherYs: array[0..2] of Integer;
+begin
+  FGuideX := MaxInt; FGuideY := MaxInt;
+  if not FAlignmentGuides then Exit;
+  Index := FScene.PrimaryIndex; if Index < 0 then Exit;
+  R := ItemRect(Index); OffsetRect(R, Round((DX - FAppliedX) * FScreenScale), -Round((DY - FAppliedY) * FScreenScale));
+  Xs[0] := R.Left; Xs[1] := (R.Left + R.Right) div 2; Xs[2] := R.Right;
+  Ys[0] := R.Top; Ys[1] := (R.Top + R.Bottom) div 2; Ys[2] := R.Bottom;
+  BestX := ScaleValue(6) + 1; BestY := BestX; OffsetX := 0; OffsetY := 0;
+  for I := -1 to FScene.Count - 1 do
+  begin
+    if I < 0 then
+    begin
+      Other.TopLeft := ScreenPoint(PointF(0, FMaxY)); Other.BottomRight := ScreenPoint(PointF(FMaxX, 0));
+    end
+    else begin if FScene.Item(I).Selected then Continue; Other := ItemRect(I); end;
+    OtherXs[0] := Other.Left; OtherXs[1] := (Other.Left + Other.Right) div 2; OtherXs[2] := Other.Right;
+    OtherYs[0] := Other.Top; OtherYs[1] := (Other.Top + Other.Bottom) div 2; OtherYs[2] := Other.Bottom;
+    for A := 0 to 2 do for B := 0 to 2 do
+    begin
+      Delta := OtherXs[B] - Xs[A];
+      if Abs(Delta) < BestX then begin BestX := Abs(Delta); OffsetX := Delta; FGuideX := OtherXs[B]; end;
+      Delta := OtherYs[B] - Ys[A];
+      if Abs(Delta) < BestY then begin BestY := Abs(Delta); OffsetY := Delta; FGuideY := OtherYs[B]; end;
+    end;
+  end;
+  DX := DX + OffsetX / FScreenScale; DY := DY - OffsetY / FScreenScale;
+end;
+procedure TERDPCBDesigner.BeginNoteEdit;
+var Index: Integer; Value: TERDPCBDesignItem; R: TRect;
+begin
+  FinishNoteEdit(True); CancelGesture;
+  Index := FScene.PrimaryIndex; if Index < 0 then Exit;
+  Value := FScene.Item(Index); if (Value.Kind <> piNote) or Value.Locked then Exit;
+  UpdateTransform;
+  if not IntersectRect(R, ItemRect(Index), ClientRect) then
+  begin FitBoard; UpdateTransform; if not IntersectRect(R, ItemRect(Index), ClientRect) then Exit; end;
+  InflateRect(R, -1, -1);
+  FNoteEditor.SetBounds(R.Left, R.Top, Max(24, R.Width), Max(24, R.Height));
+  FNoteEditor.Text := Value.Caption; FEditingNote := Value.ID;
+  FNoteEditor.Visible := True; FNoteEditor.BringToFront; FNoteEditor.SetFocus;
+end;
+procedure TERDPCBDesigner.FinishNoteEdit(Accept: Boolean);
+var Index: Integer; Value: TERDPCBDesignItem; Text, ID: string;
+begin
+  if FFinishingNote or (FEditingNote = '') then Exit;
+  FFinishingNote := True;
+  try
+    ID := FEditingNote; FEditingNote := ''; Text := FNoteEditor.Text;
+    FNoteEditor.Visible := False;
+    Index := FScene.IndexOf(ID);
+    if Accept and (Index >= 0) then
+    begin
+      Value := FScene.Item(Index);
+      if not Value.Locked and (Value.Kind = piNote) and (Value.Caption <> Text) then
+      begin Value.Caption := Text; FScene.UpdateItem(Index, Value); end;
+    end;
+  finally FFinishingNote := False; end;
+  Invalidate;
+end;
+procedure TERDPCBDesigner.NoteEditorExit(Sender: TObject);
+begin FinishNoteEdit(True); end;
+procedure TERDPCBDesigner.NoteEditorKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if (Key = VK_ESCAPE) or ((Key = VK_RETURN) and (ssCtrl in Shift)) then
+  begin FinishNoteEdit(Key <> VK_ESCAPE); Key := 0; SetFocus; end;
+end;
+procedure TERDPCBDesigner.DblClick;
+begin
+  if FScene.PrimaryIndex >= 0 then
+    if FScene.Item(FScene.PrimaryIndex).Kind = piNote then BeginNoteEdit;
   inherited;
 end;
 function TERDPCBDesigner.TerminalCount: Integer;
@@ -349,6 +517,19 @@ begin
       Result.Right := Max(Result.Right, P.X); Result.Bottom := Max(Result.Bottom, P.Y); Found := True;
     end;
   if Found then InflateRect(Result, ScaleValue(3), ScaleValue(3)) else Result := Rect(0,0,0,0);
+end;
+procedure TERDPCBDesigner.RemoveTerminal(const ID: string);
+var I, J: Integer;
+begin
+  if not FTemplateEditMode then raise EArgumentException.Create('Enable template authoring first');
+  for I := 0 to High(FTerminals) do if FTerminals[I].ID = ID then
+  begin
+    for J := I to High(FTerminals) - 1 do FTerminals[J] := FTerminals[J + 1];
+    SetLength(FTerminals, Length(FTerminals) - 1);
+    FBoardJSON := BuildTemplateJSON; FStaticDirty := True; Invalidate;
+    if Assigned(FOnChange) then FOnChange(Self); Exit;
+  end;
+  raise EArgumentException.Create('Unknown terminal group');
 end;
 procedure TERDPCBDesigner.DefineTerminal(const ID, LabelText, SignalPin: string; const Members: TArray<string>);
 var Index, I, J: Integer; Found, HasSignal: Boolean; Member, Other: string; Pad: TERDPCBPad;
@@ -518,6 +699,7 @@ procedure TERDPCBDesigner.SetScene(Value: TERDPCBScene);
 begin FScene.Assign(Value); end;
 procedure TERDPCBDesigner.SceneChanged(Sender: TObject);
 begin
+  if FRouteCache <> nil then FRouteCache.Clear;
   Invalidate; SyncScrollBars;
   if not (csLoading in ComponentState) and Assigned(FOnChange) then FOnChange(Self);
 end;
@@ -530,7 +712,10 @@ end;
 procedure TERDPCBDesigner.ThemeChanged;
 begin FStaticDirty := True; inherited; end;
 procedure TERDPCBDesigner.Resize;
-begin FStaticDirty := True; inherited; SyncScrollBars; end;
+begin
+  FinishNoteEdit(True); if FRouteCache <> nil then FRouteCache.Clear;
+  FStaticDirty := True; inherited; SyncScrollBars;
+end;
 procedure TERDPCBDesigner.SetScrollBars(Value: System.UITypes.TScrollStyle);
 begin if FScrollBars <> Value then begin FScrollBars := Value; SyncScrollBars; Invalidate; end; end;
 procedure TERDPCBDesigner.SyncScrollBars;
@@ -617,9 +802,9 @@ begin
   FScene.PasteJSON(Text, FGridSize);
 end;
 procedure TERDPCBDesigner.Undo;
-begin CancelGesture; FScene.Undo; end;
+begin FinishNoteEdit(True); CancelGesture; FScene.Undo; end;
 procedure TERDPCBDesigner.Redo;
-begin CancelGesture; FScene.Redo; end;
+begin FinishNoteEdit(True); CancelGesture; FScene.Redo; end;
 procedure TERDPCBDesigner.LoadBoard(const FileName: string);
 begin
   LoadBoardJSON(TFile.ReadAllText(FileName, TEncoding.UTF8));
@@ -771,6 +956,7 @@ begin
 end;
 procedure TERDPCBDesigner.ClearBoard;
 begin
+  FinishNoteEdit(False);
   FPads := nil; FChannels := nil; FComponents := nil; FTerminals := nil; FPaths := nil; FOutline := nil;
   FScene.LoadJSON('{"format":"erd-pcb-scene","version":1,"items":[]}'); FScene.ResetHistory;
   FTemplateID := ''; FTemplateName := '';
@@ -783,6 +969,7 @@ function TERDPCBDesigner.IsZoomStored: Boolean;
 begin Result := Abs(FZoom - 1) > 0.000001; end;
 procedure TERDPCBDesigner.ViewChanged;
 begin
+  FinishNoteEdit(True); if FRouteCache <> nil then FRouteCache.Clear;
   FStaticDirty := True; SyncScrollBars; Invalidate;
   if not (csLoading in ComponentState) and Assigned(FOnViewChange) then FOnViewChange(Self);
 end;
@@ -1242,9 +1429,23 @@ procedure TERDPCBDesigner.PaintScene(ACanvas: TCanvas);
 var I, J, ClipState: Integer; R, LinkRect: TRect; Value: TERDPCBDesignItem;
     P, Q: TPoint; Pad: TERDPCBPad; Text, Link: string; Role: Integer;
     Tint: TBitmap; Blend: TBlendFunction; Ink: TColor; RoleCount: Integer;
-  procedure DrawConnection(const FromPoint, ToPoint: TPoint; Color: TColor; Width: Single);
+  procedure DrawConnection(const FromPoint, ToPoint: TPoint; Color: TColor; Width: Single; TargetIndex: Integer);
   var Graphics: TGPGraphics; Path: TGPGraphicsPath; Pen: TGPPen;
-      Stub, Bend, StartY, EndY, Direction, Gap: Single;
+      Stub, Bend, StartY, EndY, Direction, Gap, T, U, Radius, LengthIn, LengthOut: Single;
+      Obstacles: TArray<TRect>; Route, Points: TArray<TPoint>; Segment, Intersection: TRect;
+      K, N: Integer; Previous, Sample: TPoint; A, B, C, BeforeCorner, AfterCorner: TGPPointF;
+      Blocked: Boolean; CacheKey: string;
+    function SegmentBlocked(const A, B: TPoint): Boolean;
+    var Obstacle, Expanded: TRect;
+    begin
+      Result := False;
+      Segment := Rect(Min(A.X, B.X), Min(A.Y, B.Y), Max(A.X, B.X) + 1, Max(A.Y, B.Y) + 1);
+      for Obstacle in Obstacles do
+      begin
+        Expanded := Obstacle; InflateRect(Expanded, ScaleValue(4), ScaleValue(4));
+        if IntersectRect(Intersection, Segment, Expanded) then Exit(True);
+      end;
+    end;
   begin
     Direction := 1; if ToPoint.Y < FromPoint.Y then Direction := -1;
     Gap := Abs(ToPoint.Y - FromPoint.Y);
@@ -1252,15 +1453,67 @@ var I, J, ClipState: Integer; R, LinkRect: TRect; Value: TERDPCBDesignItem;
     Bend := Min(Gap / 3, Max(ScaleValue(24), Min(ScaleValue(160),
       (Gap + Abs(ToPoint.X - FromPoint.X)) * 0.35)));
     StartY := FromPoint.Y + Direction * Stub; EndY := ToPoint.Y - Direction * Stub;
+    CacheKey := IntToStr(FromPoint.X) + ',' + IntToStr(FromPoint.Y) + ':' +
+      IntToStr(ToPoint.X) + ',' + IntToStr(ToPoint.Y) + ':' + IntToStr(TargetIndex);
+    if not FRouteCache.TryGetValue(CacheKey, Route) then
+    begin
+      SetLength(Obstacles, Max(0, FScene.Count - Ord(TargetIndex >= 0))); N := 0;
+      for K := 0 to FScene.Count - 1 do if K <> TargetIndex then
+      begin Obstacles[N] := ItemRect(K); Inc(N); end;
+      SetLength(Obstacles, N);
+      Previous := Point(FromPoint.X, Round(StartY));
+      Blocked := SegmentBlocked(FromPoint, Previous);
+      for K := 1 to 48 do
+      begin
+        T := K / 48; U := 1 - T;
+        Sample.X := Round(U*U*U*FromPoint.X + 3*U*U*T*FromPoint.X + 3*U*T*T*ToPoint.X + T*T*T*ToPoint.X);
+        Sample.Y := Round(U*U*U*StartY + 3*U*U*T*(StartY + Direction*Bend) +
+          3*U*T*T*(EndY - Direction*Bend) + T*T*T*EndY);
+        Blocked := SegmentBlocked(Previous, Sample) or Blocked; Previous := Sample;
+      end;
+      Blocked := SegmentBlocked(Previous, ToPoint) or Blocked;
+      Route := nil;
+      if Blocked then Route := ERDPCBRoute(Point(FromPoint.X, Round(StartY)),
+        Point(ToPoint.X, Round(EndY)), Obstacles, ScaleValue(8));
+      if FRouteCache.Count >= 256 then FRouteCache.Clear;
+      FRouteCache.AddOrSetValue(CacheKey, Route);
+    end;
     Graphics := TGPGraphics.Create(ACanvas.Handle);
     try
       Graphics.SetSmoothingMode(SmoothingModeAntiAlias);
       Path := TGPGraphicsPath.Create;
       try
-        Path.AddLine(Single(FromPoint.X), Single(FromPoint.Y), Single(FromPoint.X), StartY);
-        Path.AddBezier(Single(FromPoint.X), StartY, Single(FromPoint.X), StartY + Direction * Bend,
-          Single(ToPoint.X), EndY - Direction * Bend, Single(ToPoint.X), EndY);
-        Path.AddLine(Single(ToPoint.X), EndY, Single(ToPoint.X), Single(ToPoint.Y));
+        if Length(Route) = 0 then
+        begin
+          Path.AddLine(Single(FromPoint.X), Single(FromPoint.Y), Single(FromPoint.X), StartY);
+          Path.AddBezier(Single(FromPoint.X), StartY, Single(FromPoint.X), StartY + Direction * Bend,
+            Single(ToPoint.X), EndY - Direction * Bend, Single(ToPoint.X), EndY);
+          Path.AddLine(Single(ToPoint.X), EndY, Single(ToPoint.X), Single(ToPoint.Y));
+        end
+        else
+        begin
+          SetLength(Points, Length(Route) + 2); Points[0] := FromPoint;
+          for K := 0 to High(Route) do Points[K + 1] := Route[K];
+          Points[High(Points)] := ToPoint;
+          Previous := Points[0];
+          for K := 1 to High(Points) - 1 do
+          begin
+            A.X := Points[K-1].X; A.Y := Points[K-1].Y;
+            B.X := Points[K].X; B.Y := Points[K].Y;
+            C.X := Points[K+1].X; C.Y := Points[K+1].Y;
+            LengthIn := Hypot(B.X - A.X, B.Y - A.Y); LengthOut := Hypot(C.X - B.X, C.Y - B.Y);
+            if (LengthIn = 0) or (LengthOut = 0) then Continue;
+            Radius := Min(ScaleValue(4), Min(LengthIn, LengthOut) / 2);
+            BeforeCorner.X := B.X + (A.X - B.X) * Radius / LengthIn;
+            BeforeCorner.Y := B.Y + (A.Y - B.Y) * Radius / LengthIn;
+            AfterCorner.X := B.X + (C.X - B.X) * Radius / LengthOut;
+            AfterCorner.Y := B.Y + (C.Y - B.Y) * Radius / LengthOut;
+            Path.AddLine(Single(Previous.X), Single(Previous.Y), BeforeCorner.X, BeforeCorner.Y);
+            Path.AddBezier(BeforeCorner.X, BeforeCorner.Y, B.X, B.Y, B.X, B.Y, AfterCorner.X, AfterCorner.Y);
+            Previous := Point(Round(AfterCorner.X), Round(AfterCorner.Y));
+          end;
+          Path.AddLine(Single(Previous.X), Single(Previous.Y), Single(ToPoint.X), Single(ToPoint.Y));
+        end;
         Pen := TGPPen.Create(ColorToARGB(Color), Width);
         try
           Pen.SetStartCap(LineCapRound); Pen.SetEndCap(LineCapRound); Pen.SetLineJoin(LineJoinRound);
@@ -1288,7 +1541,7 @@ begin
         Q := Point(R.Left + R.Width * (Role + 1) div (RoleCount + 1), R.Top);
         if (R.Top + R.Bottom) div 2 < P.Y then Q.Y := R.Bottom;
         Ink := Palette.Subtle; if Value.Selected then Ink := Palette.Accent;
-        DrawConnection(P, Q, Ink, ScaleValue(1)); Break;
+        DrawConnection(P, Q, Ink, ScaleValue(1), I); Break;
       end;
     end;
   end;
@@ -1344,6 +1597,13 @@ begin
     DrawTextW(ACanvas.Handle, PWideChar(Text), Length(Text), LinkRect,
       DT_SINGLELINE or DT_CENTER or DT_END_ELLIPSIS or DT_NOPREFIX);
   end;
+  if (FEditMode = 1) and FAlignmentGuides then
+  begin
+    ACanvas.Pen.Color := Palette.Accent; ACanvas.Pen.Width := 1; ACanvas.Pen.Style := psDot;
+    if FGuideX <> MaxInt then begin ACanvas.MoveTo(FGuideX, 0); ACanvas.LineTo(FGuideX, ClientHeight); end;
+    if FGuideY <> MaxInt then begin ACanvas.MoveTo(0, FGuideY); ACanvas.LineTo(ClientWidth, FGuideY); end;
+    ACanvas.Pen.Style := psSolid;
+  end;
   if FEditMode = 4 then
   begin
     P := FStartPoint;
@@ -1354,7 +1614,7 @@ begin
       R := ItemRect(I); Q := Point((R.Left + R.Right) div 2, R.Top);
       if (R.Top + R.Bottom) div 2 < P.Y then Q.Y := R.Bottom;
     end;
-    DrawConnection(P, Q, Palette.Accent, ScaleValue(2));
+    DrawConnection(P, Q, Palette.Accent, ScaleValue(2), I);
   end;
   if FEditMode = 3 then
   begin
@@ -1404,7 +1664,7 @@ end;
 procedure TERDPCBDesigner.CancelGesture;
 var Mode: Integer;
 begin
-  Mode := FEditMode; FEditMode := 0;
+  Mode := FEditMode; FEditMode := 0; FGuideX := MaxInt; FGuideY := MaxInt;
   if (Mode in [1, 2]) and (FScene <> nil) then FScene.CancelEdit;
   if Mode <> 0 then begin MouseCapture := False; Invalidate; end;
 end;
@@ -1502,7 +1762,10 @@ begin
     P := ClientToBoard(Point(X, Y)); DX := P.X - FStartWorld.X; DY := P.Y - FStartWorld.Y;
     if not (ssAlt in Shift) then begin DX := Snap(DX); DY := Snap(DY); end;
     if FEditMode = 1 then
-    begin FScene.MoveSelected(DX - FAppliedX, DY - FAppliedY); FAppliedX := DX; FAppliedY := DY; end
+    begin
+      FGuideX := MaxInt; FGuideY := MaxInt;
+      if not (ssAlt in Shift) then SnapGuides(DX, DY);
+      FScene.MoveSelected(DX - FAppliedX, DY - FAppliedY); FAppliedX := DX; FAppliedY := DY; end
     else
     begin
       Value := FOriginalItem;
@@ -1535,7 +1798,7 @@ var Mode, I: Integer; R, Intersection: TRect;
 begin
   // VCL releases capture in inherited MouseUp. Mark the gesture complete first
   // so WM_CAPTURECHANGED cannot roll back a successful drop.
-  Mode := FEditMode; FEditMode := 0;
+  Mode := FEditMode; FEditMode := 0; FGuideX := MaxInt; FGuideY := MaxInt;
   if Mode in [1, 2] then FScene.EndEdit;
   inherited;
   if FDragging then
@@ -1569,6 +1832,7 @@ end;
 procedure TERDPCBDesigner.SaveProject(const FileName: string);
 var Root, Item: TJSONObject; Items: TJSONArray; C: TERDPCBChannel;
 begin
+  FinishNoteEdit(True);
   if FBoardHash = '' then raise EConvertError.Create('Load a board before saving a project');
   Root := TJSONObject.Create;
   try
@@ -1587,6 +1851,7 @@ procedure TERDPCBDesigner.LoadProject(const FileName: string);
 var Root: TJSONValue; Items: TJSONArray; Item: TJSONObject; Backup: TArray<TERDPCBChannel>;
     I, Index, Schema: Integer; Selection, OldScene: string; Seen: TStringList; TempScene: TERDPCBScene;
 begin
+  FinishNoteEdit(True);
   Root := TJSONObject.ParseJSONValue(TFile.ReadAllText(FileName, TEncoding.UTF8));
   Backup := Copy(FChannels); OldScene := FScene.ToJSON; Seen := TStringList.Create; TempScene := TERDPCBScene.Create(nil);
   try

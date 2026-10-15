@@ -10,6 +10,8 @@ requires
   vclx,
   designide;
 contains
+  ERD.Components.PCBLibrary in '..\src\UI\ERD.Components.PCBLibrary.pas',
+  ERD.Components.PCBRoute in '..\src\UI\ERD.Components.PCBRoute.pas',
   ERD.Components.PCBScene in '..\src\UI\ERD.Components.PCBScene.pas',
   ERD.Components.PCBDesigner in '..\src\UI\ERD.Components.PCBDesigner.pas',
   ERD.Components.TextModel in '..\src\UI\ERD.Components.TextModel.pas',
