@@ -2109,7 +2109,7 @@ begin
   if (Message.CharCode = Ord('.')) and FAutoMemberCompletion and
     (FLanguage = clTypeScript) and not ReadOnly and (FLanguageService <> nil) then
   begin
-    Before := Text; Start := SelStart; Value := SelText; inherited;
+    Before := Text; Start := SelStart; Value := SelText; inherited WMChar(Message);
     Position := TextModel.Caret;
     if (Before = Text) or (Position <> Start + 1) or
       (Length(Text) <> Length(Before) - Length(Value) + 1) or (Text[Position] <> '.') then Exit;
@@ -2122,7 +2122,7 @@ begin
     if not Suppress then IssueRequest(lrCompletion, Position, '.');
     Exit;
   end;
-  inherited;
+  inherited WMChar(Message);
   Position := TextModel.Caret;
   if ContinueCompletion and (Before <> Text) and (Position >= WordStart) and (Position > 0) and
     (Text[Position].IsLetterOrDigit or CharInSet(Text[Position], ['_', '$'])) then RequestCompletion;

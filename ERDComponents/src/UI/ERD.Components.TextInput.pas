@@ -172,9 +172,9 @@ type
     procedure LinesChanged(Sender: TObject);
     procedure SetLines(Value: TStrings);
     procedure SetWordWrap(Value: Boolean);
-    procedure WMChar(var Message: TWMChar); message WM_CHAR;
     procedure WMGetDlgCode(var Message: TMessage); message WM_GETDLGCODE;
   protected
+    procedure WMChar(var Message: TWMChar); message WM_CHAR;
     function TextViewport: TRect; virtual;
     function LineOrigin(AWidth: Integer): Integer; override;
     procedure BuildRows;

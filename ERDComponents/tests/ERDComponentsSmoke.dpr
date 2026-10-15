@@ -2461,6 +2461,13 @@ begin
   Form := TForm.Create(nil); Service := TLanguageServiceProbe.Create; ServiceReference := Service;
   try
     Editor := TERDCodeEditor.Create(Form); Editor.Parent := Form; Editor.SetBounds(0, 0, 500, 200);
+    Editor.Perform(WM_CHAR, Ord('a'), 0);
+    Check(Editor.Text = 'a', 'Unconnected code editor forwards ordinary typing to the text area');
+    Editor.LanguageService := ServiceReference;
+    Editor.Perform(WM_CHAR, Ord('b'), 0);
+    Check(Editor.Text = 'ab', 'Connected code editor forwards ordinary typing to the text area');
+    Editor.Perform(WM_CHAR, Ord('.'), 0);
+    Check(Editor.Text = 'ab.', 'Member completion inserts the dot before requesting suggestions');
     Editor.LanguageService := ServiceReference; Editor.Text := 'fn('; Editor.SelStart := 3; Form.Show; Editor.SetFocus;
     Check(Editor.RequestSignatureHelp and (Service.Snapshot.Kind = lrSignatureHelp), 'Signature help issues a versioned language request');
     Check(Supports(Service.Responses, IERDSignatureHelpResponses, Responses), 'Optional signature response extension is available');
