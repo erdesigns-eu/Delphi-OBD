@@ -188,7 +188,7 @@ begin FIsOpen := False; inherited; end;
 procedure TERDSignaturePopup.Popup(const ScreenPoint: TPoint; const Help: TERDSignatureHelp;
   const APalette: TERDThemePalette; APPI: Integer);
 var Signature: TERDSignature; Parameter: TERDSignatureParameter;
-    Active, W, H, X, Y: Integer; Work: TRect;
+    Active, W, H, X, Y: Integer; Work, Docs: TRect;
 begin
   if Length(Help.Signatures) = 0 then begin CloseUp; Exit; end;
   FPalette := APalette; FPPI := Max(96, APPI);
@@ -201,17 +201,26 @@ begin
     Parameter := Signature.Parameters[Active]; FActiveStart := Parameter.Start; FActiveCount := Parameter.Count;
     if Parameter.Documentation <> '' then
     begin
-      if FDocumentation <> '' then FDocumentation := FDocumentation + #13#10;
-      FDocumentation := FDocumentation + Parameter.Documentation;
+      if FDocumentation <> '' then FDocumentation := Parameter.Documentation + #13#10#13#10 + FDocumentation
+      else FDocumentation := Parameter.Documentation;
     end;
   end;
-  FHeader := Format('Signature %d / %d', [EnsureRange(Help.ActiveSignature, 0, High(Help.Signatures)) + 1, Length(Help.Signatures)]);
-  if Length(Help.Signatures) > 1 then FHeader := FHeader + '  - Alt+Up/Down: overload';
-  FHeader := FHeader + '  - Esc: close';
+  FHeader := '';
+  if Length(Help.Signatures) > 1 then
+    FHeader := Format('%d / %d', [EnsureRange(Help.ActiveSignature, 0, High(Help.Signatures)) + 1, Length(Help.Signatures)]);
   Canvas.Font.Name := 'Consolas'; Canvas.Font.Height := -MulDiv(12, FPPI, 96);
   Work := Screen.MonitorFromPoint(ScreenPoint).WorkareaRect;
-  W := Min(Work.Width, Min(MulDiv(760, FPPI, 96), Max(MulDiv(420, FPPI, 96), Canvas.TextWidth(FLabelText) + MulDiv(24, FPPI, 96))));
-  H := Min(Work.Height, MulDiv(112, FPPI, 96));
+  W := Min(Work.Width, Min(MulDiv(640, FPPI, 96), Max(MulDiv(420, FPPI, 96), Canvas.TextWidth(FLabelText) + MulDiv(24, FPPI, 96))));
+  H := MulDiv(30, FPPI, 96);
+  if FDocumentation <> '' then
+  begin
+    Canvas.Font.Name := 'Segoe UI'; Canvas.Font.Height := -MulDiv(13, FPPI, 96);
+    Docs := Rect(0, 0, Max(1, W - MulDiv(20, FPPI, 96)), 0);
+    DrawTextW(Canvas.Handle, PWideChar(FDocumentation), Length(FDocumentation), Docs,
+      DT_CALCRECT or DT_WORDBREAK or DT_NOPREFIX);
+    Inc(H, Min(MulDiv(220, FPPI, 96), Docs.Height) + MulDiv(18, FPPI, 96));
+  end;
+  H := Min(Work.Height, H);
   X := EnsureRange(ScreenPoint.X, Work.Left, Max(Work.Left, Work.Right - W));
   Y := ScreenPoint.Y;
   if Y + H > Work.Bottom then Y := ScreenPoint.Y - H - MulDiv(22, FPPI, 96);
@@ -226,7 +235,7 @@ begin
   Update;
 end;
 procedure TERDSignaturePopup.Paint;
-var Painter: TERDPainter; Saved, Offset, Left, Right, Origin, LabelY: Integer; R: TRect;
+var Painter: TERDPainter; Saved, Offset, Left, Right, Origin, Available: Integer; R: TRect;
   function S(Value: Integer): Integer;
   begin Result := MulDiv(Value, FPPI, 96); end;
 begin
@@ -235,28 +244,48 @@ begin
   try
     Painter.FillRect(ClientRect, FPalette.GaugeFace);
     Painter.FrameRect(ClientRect, FPalette.NeutralLight);
-    Painter.Text(S(10), S(13), FHeader, 11, FPalette.Subtle, twRegular, taLeftJustify, Max(0, ClientWidth - S(20)));
+    Available := ClientWidth - S(20);
+    if FHeader <> '' then
+    begin
+      Dec(Available, S(54));
+      Painter.Text(ClientWidth - S(48), S(15), FHeader, 11, FPalette.Subtle, twRegular);
+    end;
     Canvas.Font.Name := 'Consolas'; Canvas.Font.Height := -S(12); Canvas.Font.Style := [];
     Left := 0; Right := 0;
-    if (FActiveStart >= 0) and (FActiveCount >= 0) and (FActiveStart + FActiveCount <= Length(FLabelText)) then
+    if (FActiveStart >= 0) and (FActiveCount > 0) and (FActiveStart + FActiveCount <= Length(FLabelText)) then
     begin
       Left := Canvas.TextWidth(Copy(FLabelText, 1, FActiveStart));
       Right := Left + Canvas.TextWidth(Copy(FLabelText, FActiveStart + 1, FActiveCount));
     end;
-    Offset := Max(0, Right - Max(1, ClientWidth - S(24)));
-    Origin := S(10) - Offset; LabelY := S(36);
+    Offset := Max(0, Right - Max(1, Available));
+    Origin := S(10) - Offset;
     Saved := SaveDC(Canvas.Handle);
     try
-      IntersectClipRect(Canvas.Handle, S(8), S(23), ClientWidth - S(8), S(50));
-      if Right > Left then Painter.FillRect(Rect(Origin + Left - S(2), S(26), Origin + Right + S(2), S(46)),
-        ERDMixColor(FPalette.GaugeFace, FPalette.Accent, 0.82));
-      Painter.Text(Origin, LabelY, FLabelText, 12, FPalette.ForegroundText, twMono, taLeftJustify);
+      IntersectClipRect(Canvas.Handle, S(8), S(2), S(10) + Available, S(29));
+      Canvas.Brush.Style := bsClear;
+      Canvas.Font.Color := FPalette.ForegroundText;
+      Canvas.TextOut(Origin, S(8), FLabelText);
       if Right > Left then
-        Painter.Text(Origin + Left, LabelY, Copy(FLabelText, FActiveStart + 1, FActiveCount),
-          12, Painter.AccentText, twMonoBold, taLeftJustify);
+      begin
+        // Replace the active parameter's ink, without a selection rectangle.
+        IntersectClipRect(Canvas.Handle, Origin + Left, 0, Origin + Right, S(29));
+        Painter.FillRect(Rect(Origin + Left, S(2), Origin + Right, S(29)), FPalette.GaugeFace);
+        Canvas.Brush.Style := bsClear;
+        Canvas.Font.Color := Painter.AccentText;
+        Canvas.Font.Style := [fsBold];
+        Canvas.TextOut(Origin + Left, S(8), Copy(FLabelText, FActiveStart + 1, FActiveCount));
+      end;
     finally RestoreDC(Canvas.Handle, Saved); end;
-    R := Rect(S(10), S(54), ClientWidth - S(10), ClientHeight - S(8));
-    if FDocumentation <> '' then Painter.WrapText(R, FDocumentation, 11.5, FPalette.ForegroundText);
+    if FDocumentation <> '' then
+    begin
+      Canvas.Pen.Color := FPalette.NeutralLight;
+      Canvas.MoveTo(1, S(30)); Canvas.LineTo(ClientWidth - 1, S(30));
+      Canvas.Font.Name := 'Segoe UI'; Canvas.Font.Height := -S(13); Canvas.Font.Style := [];
+      Canvas.Font.Color := FPalette.ForegroundText; Canvas.Brush.Style := bsClear;
+      R := Rect(S(10), S(39), ClientWidth - S(10), ClientHeight - S(9));
+      DrawTextW(Canvas.Handle, PWideChar(FDocumentation), Length(FDocumentation), R,
+        DT_WORDBREAK or DT_NOPREFIX or DT_END_ELLIPSIS);
+    end;
   finally Painter.Free; end;
 end;
 
