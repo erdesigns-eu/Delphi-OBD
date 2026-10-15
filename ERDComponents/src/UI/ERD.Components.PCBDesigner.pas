@@ -1029,7 +1029,7 @@ begin
 end;
 procedure TERDPCBDesigner.PaintBodies(ACanvas: TCanvas);
 var I, J, K: Integer; Value: TERDPCBComponent; Poly: TArray<TPoint>; R, Inner: TRect; P: TPoint;
-    Saved, Radius, TerminalID: Integer; Pad: TERDPCBPad; InsetX, InsetY: Double;
+    Saved, Radius, TerminalID: Integer; Pad: TERDPCBPad;
   procedure TintSelectedTerminal;
   var Tint: TBitmap; Blend: TBlendFunction; ClipState, N: Integer; Bounds: TRect;
   begin
@@ -1118,7 +1118,7 @@ begin
     finally RestoreDC(ACanvas.Handle, Saved); end;
   end;
   // Draw selection outlines after every body, so adjacent terminals cannot cover an edge.
-  ACanvas.Brush.Style := bsSolid; ACanvas.Brush.Style := bsClear; ACanvas.Pen.Width := ScaleValue(2);
+  ACanvas.Brush.Style := bsSolid; ACanvas.Brush.Style := bsClear; ACanvas.Pen.Width := ScaleValue(1);
   ACanvas.Pen.Color := FSelectionColor;
   if FSelectionColor = clDefault then ACanvas.Pen.Color := Palette.Accent;
   for I := 0 to High(FComponents) do
@@ -1130,20 +1130,7 @@ begin
     SetLength(Poly, Length(Value.Body));
     for J := 0 to High(Poly) do Poly[J] := ScreenPoint(Value.Body[J]);
     if FTerminals[TerminalID].SignalPin = FSelected then TintSelectedTerminal;
-    R := Rect(Poly[0].X, Poly[0].Y, Poly[0].X, Poly[0].Y);
-    for J := 1 to High(Poly) do
-    begin
-      R.Left := Min(R.Left, Poly[J].X); R.Top := Min(R.Top, Poly[J].Y);
-      R.Right := Max(R.Right, Poly[J].X); R.Bottom := Max(R.Bottom, Poly[J].Y);
-    end;
-    // Keep the physical terminal outline visible outside the selection stroke.
-    InsetX := Min(ScaleValue(3), R.Width / 4); InsetY := Min(ScaleValue(3), R.Height / 4);
-    if (R.Width > 0) and (R.Height > 0) then
-      for J := 0 to High(Poly) do
-      begin
-        Poly[J].X := Round(R.Left + InsetX + (Poly[J].X - R.Left) * (R.Width - 2 * InsetX) / R.Width);
-        Poly[J].Y := Round(R.Top + InsetY + (Poly[J].Y - R.Top) * (R.Height - 2 * InsetY) / R.Height);
-      end;
+    // Use the exact imported terminal contour, with no inset or second frame.
     ACanvas.Polygon(Poly);
   end;
   // Programmable pads remain clear hit targets on the assembled component layer.
