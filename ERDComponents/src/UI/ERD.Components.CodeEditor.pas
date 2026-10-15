@@ -972,27 +972,29 @@ end;
 procedure TERDCodeEditor.PaintTextOverlay(ACanvas: TCanvas; Start, Count, X, Y: Integer;
   Line: TERDTextLayoutLine);
 var Item: TERDCodeDiagnostic; A, B, L, R, At, Bottom, Step, Saved: Integer;
-    Opening, Closing, Column, Position, Index: Integer;
+    Opening, Closing, Column, Position, Index, Padding: Integer;
+    Metrics: TTextMetric; Glyph: TGlyphMetrics; Matrix: TMat2; BracketRect: TRect;
 begin
   inherited;
   Saved := SaveDC(ACanvas.Handle);
   try
     if FShowIndentGuides and (FTabWidth > 0) then
     begin
-      Position := Start; Column := 0; ACanvas.Pen.Color := Palette.Subtle;
-      while (Position < Start + Count) and CharInSet(Text[Position + 1], [' ', #9]) do
+      // Keep guides inside leading whitespace, away from the first text glyph.
+      B := Start;
+      while (B < Start + Count) and CharInSet(Text[B + 1], [' ', #9]) do Inc(B);
+      Position := Start; Column := 0;
+      ACanvas.Pen.Style := psSolid; ACanvas.Pen.Width := 1;
+      ACanvas.Pen.Color := ERDMixColor(Palette.Background, Palette.ForegroundText, 0.88);
+      while Position < B do
       begin
         if Text[Position + 1] = #9 then Inc(Column, FTabWidth - Column mod FTabWidth)
         else Inc(Column);
         Inc(Position);
-        if (Column mod FTabWidth = 0) and (Position < Start + Count) then
+        if (Column mod FTabWidth = 0) and (Position < B) then
         begin
           L := X + Line.X(Position - Start);
-          for Index := 0 to (RowHeight - 1) div Max(2, ScaleValue(3)) do
-          begin
-            ACanvas.MoveTo(L, Y + Index * Max(2, ScaleValue(3)));
-            ACanvas.LineTo(L, Y + Index * Max(2, ScaleValue(3)) + 1);
-          end;
+          ACanvas.MoveTo(L, Y); ACanvas.LineTo(L, Y + RowHeight);
         end;
       end;
     end;
@@ -1002,8 +1004,26 @@ begin
         if Index = 0 then Position := Opening else Position := Closing;
         if (Position < Start) or (Position >= Start + Count) then Continue;
         Line.Range(Position - Start, 1, L, R);
-        ACanvas.Brush.Style := bsClear; ACanvas.Pen.Color := Palette.Accent;
-        ACanvas.Rectangle(X + L, Y, X + R, Y + RowHeight);
+        // DirectWrite uses this GDI font's ascent as its baseline. Frame the ink,
+        // excluding font descent and selection padding below the visible bracket.
+        FillChar(Metrics, SizeOf(Metrics), 0); GetTextMetrics(ACanvas.Handle, Metrics);
+        FillChar(Glyph, SizeOf(Glyph), 0);
+        FillChar(Matrix, SizeOf(Matrix), 0); Matrix.eM11.value := 1; Matrix.eM22.value := 1;
+        if (GetGlyphOutlineW(ACanvas.Handle, Ord(Text[Position + 1]), GGO_METRICS,
+          Glyph, 0, nil, Matrix) <> DWORD(GDI_ERROR)) and (Glyph.gmBlackBoxY > 0) then
+        begin
+          BracketRect.Left := X + L + Glyph.gmptGlyphOrigin.X;
+          BracketRect.Top := Y + ScaleValue(SelectionPadding) + Metrics.tmAscent - Glyph.gmptGlyphOrigin.Y;
+          BracketRect.Right := BracketRect.Left + Integer(Glyph.gmBlackBoxX);
+          BracketRect.Bottom := BracketRect.Top + Integer(Glyph.gmBlackBoxY);
+        end
+        else BracketRect := Rect(X + L, Y + ScaleValue(SelectionPadding) + Metrics.tmInternalLeading,
+          X + Max(L + 1, R), Y + ScaleValue(SelectionPadding) + Metrics.tmAscent);
+        Padding := Max(1, ScaleValue(2)); InflateRect(BracketRect, Padding, Padding);
+        ACanvas.Brush.Style := bsClear;
+        ACanvas.Pen.Style := psSolid; ACanvas.Pen.Width := 1;
+        ACanvas.Pen.Color := Palette.Accent;
+        ACanvas.Rectangle(BracketRect);
       end;
     Step := Max(2, ScaleValue(2)); Bottom := Y + RowHeight - 2 * Step;
     for Item in FDiagnostics do
@@ -1034,7 +1054,7 @@ end;
 procedure TERDCodeEditor.PaintControl(ACanvas: TCanvas);
 var Rows: TArray<TERDTextRow>; I, J, Number, Y, H, Index, X: Integer;
     R, View, ButtonRect: TRect; Saved, CenterX, CenterY, Arm: Integer; Diagnostic: TERDCodeDiagnostic;
-    Fold: TERDSyntaxFold; Painter: TERDPainter; GutterFill, GuideInk, ButtonInk, ButtonFill: TColor;
+    Fold: TERDSyntaxFold; Painter: TERDPainter; GutterFill, GuideInk, ButtonInk, ButtonFill, ButtonBorder: TColor;
     DiagnosticFound: Boolean; RowFinish: Integer; Severity: TERDDiagnosticSeverity;
 begin
   inherited PaintControl(ACanvas);
@@ -1078,7 +1098,8 @@ begin
       end;
       ACanvas.Brush.Style := bsClear;
       if FShowLineNumbers then
-        ACanvas.TextOut(X - ScaleValue(6) - ACanvas.TextWidth(IntToStr(Number)), Y, IntToStr(Number));
+        ACanvas.TextOut(X - ScaleValue(6) - ACanvas.TextWidth(IntToStr(Number)),
+          Y + ScaleValue(SelectionPadding), IntToStr(Number));
       if FShowFolding then
       begin
         ButtonRect := FoldButtonRect(I);
@@ -1102,16 +1123,18 @@ begin
         begin
           if FShowFoldGuides and not FCollapsed.Contains(FAnalysis.Folds[Index].Start) then
             Painter.VLine(CenterX, CenterY, H - H div 2, GuideInk);
-          ButtonFill := GutterFill; ButtonInk := ERDMixColor(GutterFill, Palette.ForegroundText, 0.35);
+          ButtonFill := GutterFill;
+          ButtonInk := ERDMixColor(GutterFill, Palette.ForegroundText, 0.20);
+          ButtonBorder := ERDMixColor(GutterFill, Palette.ForegroundText, 0.65);
           if (FHotFold = FAnalysis.Folds[Index].Start) and Enabled then
           begin
-            ButtonInk := Palette.Accent;
-            ButtonFill := ERDMixColor(GutterFill, Palette.Accent, 0.78);
+            ButtonBorder := ERDMixColor(GutterFill, Palette.Accent, 0.35);
+            ButtonFill := ERDMixColor(GutterFill, Palette.Accent, 0.88);
             if FPressedFold = FHotFold then
-            begin ButtonFill := Palette.Accent; ButtonInk := clWhite; end;
+              ButtonFill := ERDMixColor(GutterFill, Palette.Accent, 0.70);
           end;
           Painter.RoundRect(ButtonRect.Left, ButtonRect.Top, ButtonRect.Width, ButtonRect.Height,
-            ScaleValue(3), ButtonFill, ButtonInk);
+            ScaleValue(3), ButtonFill, ButtonBorder);
           Painter.HLine(CenterX - Arm, CenterY, Arm * 2 + 1, ButtonInk);
           if FCollapsed.Contains(FAnalysis.Folds[Index].Start) then
             Painter.VLine(CenterX, CenterY - Arm, Arm * 2 + 1, ButtonInk);

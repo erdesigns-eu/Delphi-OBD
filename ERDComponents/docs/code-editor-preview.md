@@ -15,7 +15,7 @@ This stage provides:
 - Paired delimiters, selected-text surrounding, closing-character skipping and
   paired Backspace (`AutoCloseDelimiters`); Enter between paired brackets creates
   an indented body. Smart Home toggles indentation/start (`SmartHome`).
-- Syntax-aware bracket outlines (`ShowBracketMatch`) and dotted indent guides
+- Syntax-aware bracket outlines (`ShowBracketMatch`) and subtle solid indent guides
   (`ShowIndentGuides`). Each feature can be disabled independently.
 - Search/replace with literal or regex queries, case/whole-word options, scoped
   searches, wrapping navigation and match highlighting.
@@ -167,3 +167,19 @@ foreground colour. The cache holds at most 256 surfaces and 2,097,152 pixels
 unsupported alpha targets fall back to the original drawing path.
 `ERDTextRasterCacheStats` exposes hit/miss counters for profiling on Windows; VM
 speed has not been measured in the Linux cloud environment.
+
+Fold buttons keep a neutral plus/minus glyph and a separate accent-tinted border
+on hover and press. Pressing deepens the background tint without a white outline
+or solid accent block. Indentation guides are faint solid lines within leading
+whitespace; the final indentation boundary beside the first character is omitted.
+`ShowIndentGuides := False` hides them; `ShowFoldGuides` independently controls the
+connectors in the gutter.
+
+Matching brackets retain accent boxes, measured from the bracket glyph ink with
+equal two-logical-pixel padding on each side. Font descent and row selection
+padding no longer add extra space below the bracket. `ShowBracketMatch` controls
+the indicator.
+
+Multiline text and selected-text repainting share a vertically centred origin
+within each row. `SelectionPadding` is applied above and below the font box;
+caret, line numbers and IME composition text follow that origin.

@@ -563,12 +563,13 @@ function TERDTextLayoutLine.VisualRanges(Position, Count: Integer): TArray<TRect
 begin Result := FDirectWrite.VisualRanges(Position, Count); end;
 procedure TERDTextInput.PaintSelection(ACanvas: TCanvas; Line: TERDTextLayoutLine;
   Position, Count, X, Y, H: Integer; Fill, Ink: TColor);
-var R, Bounds: TRect; Ranges: TArray<TRect>; Clip, Part: HRGN; Saved, Padding: Integer;
+var R, Bounds: TRect; Ranges: TArray<TRect>; Clip, Part: HRGN; Saved, Padding, TextY: Integer;
 begin
   if Count <= 0 then Exit;
   Ranges := Line.VisualRanges(Position, Count); if Length(Ranges) = 0 then Exit;
   Padding := ScaleValue(FSelectionPadding);
-  if Self is TERDTextArea then Padding := 0;
+  TextY := Y;
+  if Self is TERDTextArea then begin Inc(TextY, Padding); Padding := 0; end;
   Clip := CreateRectRgn(0, 0, 0, 0);
   try
     for R in Ranges do
@@ -582,7 +583,7 @@ begin
     Saved := SaveDC(ACanvas.Handle);
     try
       ExtSelectClipRgn(ACanvas.Handle, Clip, RGN_AND);
-      SetTextColor(ACanvas.Handle, ColorToRGB(Ink)); Line.Draw(X, Y);
+      SetTextColor(ACanvas.Handle, ColorToRGB(Ink)); Line.Draw(X, TextY);
     finally RestoreDC(ACanvas.Handle, Saved); end;
   finally DeleteObject(Clip); end;
 end;
@@ -1138,7 +1139,8 @@ begin
       if X - FScroll > TextViewport.Width then FScroll := X - TextViewport.Width;
       if X < FScroll then FScroll := X;
     end;
-    X := LineOrigin(Line.Width) + X - FScroll; Y := TextViewport.Top + (Row - FFirstRow) * H;
+    X := LineOrigin(Line.Width) + X - FScroll;
+    Y := TextViewport.Top + (Row - FFirstRow) * H + ScaleValue(FSelectionPadding);
     if FCaretCreated then SetCaretPos(X, Y);
     if Focused then
     begin
@@ -1167,7 +1169,7 @@ begin
   finally Line.Free; end;
 end;
 procedure TERDTextArea.PaintControl(ACanvas: TCanvas);
-var P: TERDPainter; Saved, Row, H, Y, I, L, R: Integer;
+var P: TERDPainter; Saved, Row, H, Y, TextY, I, L, R: Integer;
     Bounds, Selection: TRect; Line: TERDTextLayoutLine; Ink, Fill: TColor;
 begin
   BuildRows; H := RowHeight; P := TERDPainter.Create(ACanvas, Palette, ScaleValue(96));
@@ -1189,19 +1191,20 @@ begin
     if Text = '' then
     begin
       SetTextColor(ACanvas.Handle, ColorToRGB(Palette.Subtle));
-      ERDDrawLayoutText(ACanvas, FHint, Bounds.Left, Bounds.Top);
+      ERDDrawLayoutText(ACanvas, FHint, Bounds.Left, Bounds.Top + ScaleValue(FSelectionPadding));
     end;
     for Row := FFirstRow to High(FRows) do
     begin
       Y := TextViewport.Top + (Row - FFirstRow) * H;
       if Y >= Bounds.Bottom then Break;
+      TextY := Y + ScaleValue(FSelectionPadding);
       Line := TERDTextLayoutLine.Create(ACanvas, RowText(Row));
       try
         PaintRowBackground(ACanvas, Row, Rect(Bounds.Left, Y, Bounds.Right, Y + H));
         PaintTextBackground(ACanvas, FRows[Row].Start, FRows[Row].Count,
           LineOrigin(Line.Width) - FScroll, Y, Line);
         PaintTextLine(ACanvas, FRows[Row].Start, FRows[Row].Count,
-          LineOrigin(Line.Width) - FScroll, Y, Line);
+          LineOrigin(Line.Width) - FScroll, TextY, Line);
         if (Focused or not FHideSelection) and (SelLength > 0) then
           PaintSelection(ACanvas, Line, Max(SelStart, FRows[Row].Start) - FRows[Row].Start,
             Min(SelStart + SelLength, FRows[Row].Start + FRows[Row].Count) - Max(SelStart, FRows[Row].Start),
@@ -1218,7 +1221,7 @@ begin
         if (FComposition <> '') and (Row = RowForPosition(FModel.Caret)) then
         begin
           L := LineOrigin(Line.Width) + Line.X(Min(FRows[Row].Count, FModel.Caret - FRows[Row].Start)) - FScroll;
-          R := ERDDrawLayoutText(ACanvas, FComposition, L, Y);
+          R := ERDDrawLayoutText(ACanvas, FComposition, L, TextY);
           ACanvas.Pen.Color := Palette.Accent; ACanvas.MoveTo(L, Y + H - 1);
           ACanvas.LineTo(L + R, Y + H - 1);
         end;
@@ -1319,7 +1322,7 @@ begin
     Row := RowForPosition(FModel.Caret); Line := TERDTextLayoutLine.Create(Canvas, RowText(Row));
     try
       SetCaretPos(LineOrigin(Line.Width) + Line.X(Min(FRows[Row].Count,
-        FModel.Caret - FRows[Row].Start)) - FScroll, TextViewport.Top + (Row - FFirstRow) * RowHeight);
+        FModel.Caret - FRows[Row].Start)) - FScroll, TextViewport.Top + (Row - FFirstRow) * RowHeight + ScaleValue(FSelectionPadding));
     finally Line.Free; end;
   end;
 end;
