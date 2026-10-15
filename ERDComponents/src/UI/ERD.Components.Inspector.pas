@@ -425,6 +425,10 @@ type
     procedure EndUpdate;
     /// <summary>Removes all categories and properties.</summary>
     procedure Clear;
+    /// <summary>Discards pending editor text without changing the property value.</summary>
+    procedure CancelEdit;
+    /// <summary>Synchronizes an inactive or committing editor after model updates.</summary>
+    procedure RefreshEditor;
     /// <summary>Finds the first visible or hidden property with a matching name.</summary>
     /// <param name="AName">Name to search for.</param>
     /// <returns>The property row, or nil.</returns>
@@ -993,6 +997,17 @@ begin
     UpdateEditorBounds;
     Invalidate;
   end;
+end;
+
+procedure TERDInspector.CancelEdit;
+begin HideEditor; Invalidate; end;
+procedure TERDInspector.RefreshEditor;
+begin
+  if (FEditProperty = nil) or not FEditor.Visible then Exit;
+  if FEditor.Focused and not FCommitting then Exit;
+  FInternalEditorUpdate := True;
+  try FEditor.Text := FEditProperty.Value; FEditOriginalValue := FEditProperty.Value;
+  finally FInternalEditorUpdate := False; end;
 end;
 
 procedure TERDInspector.Clear;
@@ -1638,8 +1653,8 @@ procedure TERDInspector.ToggleCheck(AProperty: TERDInspectorProperty);
 begin
   if (AProperty = nil) or (AProperty.Kind <> ivCheck) or FReadOnly or not Enabled then
     Exit;
-  AProperty.Checked := not AProperty.Checked;
-  FirePropertyChanged(AProperty);
+  if AProperty.ReadOnly then Exit;
+  if AProperty.Checked then ApplyPickValue(AProperty, 'False') else ApplyPickValue(AProperty, 'True');
 end;
 
 procedure TERDInspector.ApplyPickValue(AProperty: TERDInspectorProperty; const Value: string);

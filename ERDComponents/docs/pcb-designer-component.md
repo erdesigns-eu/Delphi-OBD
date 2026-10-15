@@ -181,3 +181,18 @@ symbool en statuslabel boven de tekst. Je kunt het type in de inspector
 wijzigen of direct een getypeerde note uit de toolbox plaatsen. Tekst bewerken,
 verplaatsen, formaat wijzigen, kopiëren en undo/redo blijven beschikbaar.
 Notes hebben ook met een type geen pin assignments.
+
+### Automatische property-inspector
+
+Geregistreerde componenttypes kunnen properties beschrijven met een naam,
+categorie, uitleg en standaardwaarde. De losse inspectorkoppeling maakt daarvan
+tekstvelden, gevalideerde getalvelden, checkboxes en keuzelijsten. Verplichte
+velden, getalgrenzen, vaste keuzes en eigen validatie worden gecontroleerd.
+Fouten krijgen een themakleur en uitleg; gewijzigde waarden zijn herkenbaar.
+
+De demo heeft een **Retry timer** die alle editors demonstreert. **Reset
+property** herstelt de geselecteerde typeproperty; **Reset type properties**
+herstelt alle bewerkbare typeproperties in één undo-stap. Naam, positie,
+verbindingen en andere metadata blijven behouden. Vergrendelde objecten kunnen
+niet via deze acties worden gewijzigd. De properties worden met het project
+en bij kopiëren/plakken opgeslagen; ze voeren zelf geen acties uit.

@@ -2,13 +2,14 @@
 interface
 uses System.Classes, System.SysUtils, System.Types, Vcl.Controls, Vcl.StdCtrls, Winapi.Windows,
   ERD.Components.Control, ERD.Components.Panel, ERD.Components.PCBDesigner, ERD.Components.PCBScene,
-  ERD.Components.Inspector, ERD.Components.ItemList, ERD.Components.Buttons, ERD.Components.FileDialogs;
+  ERD.Components.PCBInspector, ERD.Components.Inspector, ERD.Components.ItemList, ERD.Components.Buttons, ERD.Components.FileDialogs;
 type
   /// Demo host only: toolbox and inspector are separate from TERDPCBDesigner.
   TPCBPreview = class(TERDPanel)
   private
     FDesigner: TERDPCBDesigner;
     FInspector: TERDInspector;
+    FBinding: TERDPCBInspectorBinding;
     FToolbox: TERDListBox;
     FStatus: TLabel;
     FAuthoring, FHand: TERDCheckBox;
@@ -38,10 +39,33 @@ type
     procedure SurfaceDragDrop(Sender, Source: TObject; X, Y: Integer);
   public
     constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     procedure ThemeChanged; override;
   end;
 implementation
 uses System.Math, System.IOUtils, Vcl.Dialogs, PCBTemplateDialog;
+procedure RegisterDemoComponentTypes;
+var Definition: TERDPCBComponentType; Props: TArray<TERDPCBPropertyDefinition>;
+begin
+  if ERDPCBFindComponentType('demo.retry-timer', Definition) then Exit;
+  ERDPCBFindComponentType('erd.timer', Definition);
+  Definition.TypeID := 'demo.retry-timer'; Definition.DisplayName := 'Retry timer'; Definition.NamePrefix := 'RetryTimer';
+  SetLength(Props, 5);
+  Props[0].Name := 'description'; Props[0].Caption := 'Description'; Props[0].Category := 'Documentation';
+  Props[0].DefaultValue := ''; Props[0].Hint := 'A description for this timer.';
+  Props[1].Name := 'retries'; Props[1].Caption := 'Retries'; Props[1].Category := 'Retry settings';
+  Props[1].Kind := pkInteger; Props[1].DefaultValue := '3'; Props[1].HasMinimum := True; Props[1].Minimum := 0;
+  Props[1].HasMaximum := True; Props[1].Maximum := 100;
+  Props[2].Name := 'factor'; Props[2].Caption := 'Backoff factor'; Props[2].Category := 'Retry settings';
+  Props[2].Kind := pkFloat; Props[2].DefaultValue := '2'; Props[2].HasMinimum := True; Props[2].Minimum := 1;
+  Props[2].HasMaximum := True; Props[2].Maximum := 10;
+  Props[3].Name := 'auto_start'; Props[3].Caption := 'Auto start'; Props[3].Category := 'Retry settings';
+  Props[3].Kind := pkBoolean; Props[3].DefaultValue := 'True';
+  Props[4].Name := 'mode'; Props[4].Caption := 'Backoff mode'; Props[4].Category := 'Retry settings';
+  Props[4].Kind := pkChoice; Props[4].DefaultValue := 'Fixed'; SetLength(Props[4].Choices, 2);
+  Props[4].Choices[0] := 'Fixed'; Props[4].Choices[1] := 'Exponential';
+  Definition.Properties := Props; ERDPCBRegisterComponentType(Definition);
+end;
 constructor TPCBPreview.Create(AOwner: TComponent);
 var Header, Tools: TERDPanel; B: TERDButton; I: Integer; Base, BoardFile: string; Choice: TERDCheckBox;
   procedure Button(const Caption: string; Left, Width, Tag: Integer);
@@ -52,6 +76,7 @@ var Header, Tools: TERDPanel; B: TERDButton; I: Integer; Base, BoardFile: string
   end;
 begin
   inherited;
+  FBinding := TERDPCBInspectorBinding.Create; RegisterDemoComponentTypes;
   Header := TERDPanel.Create(Self); Header.Parent := Self; Header.Align := alTop; Header.Height := ScaleValue(112);
   Button('Fit', 8, 54, 0); Button('Undo', 68, 62, 4); Button('Redo', 136, 62, 5);
   Button('Save project', 204, 104, 2); Button('Open project', 314, 104, 3);
@@ -71,6 +96,10 @@ begin
   Tools := TERDPanel.Create(Self); Tools.Parent := Self; Tools.Align := alLeft; Tools.Width := ScaleValue(145);
   B := TERDButton.Create(Self); B.Parent := Tools; B.Align := alTop; B.Height := ScaleValue(30);
   B.Caption := 'Select / move'; B.OnClick := SelectToolClicked;
+  B := TERDButton.Create(Self); B.Parent := Tools; B.Align := alTop; B.Height := ScaleValue(30);
+  B.Caption := 'Reset property'; B.Tag := 9; B.OnClick := ToolbarClicked;
+  B := TERDButton.Create(Self); B.Parent := Tools; B.Align := alTop; B.Height := ScaleValue(30);
+  B.Caption := 'Reset type properties'; B.Tag := 10; B.OnClick := ToolbarClicked;
   FToolbox := TERDListBox.Create(Self); FToolbox.Parent := Tools; FToolbox.Align := alClient;
   FTypes := ERDPCBComponentTypes;
   for I := 0 to High(FTypes) do FToolbox.Items.Add(FTypes[I].DisplayName);
@@ -111,6 +140,16 @@ begin
     except on E: Exception do FStatus.Caption := E.Message; end
   else FStatus.Caption := 'Keep the pcb folder beside the demo or its build folders.';
   ThemeChanged;
+end;
+destructor TPCBPreview.Destroy;
+begin
+  if FInspector <> nil then begin FInspector.OnPropertyChanging := nil; FInspector.OnPropertyChanged := nil; FInspector.OnPropertyButtonClick := nil; end;
+  if FDesigner <> nil then
+  begin
+    FDesigner.OnChange := nil; FDesigner.OnSelectionChange := nil; FDesigner.OnPlacementChange := nil;
+    FDesigner.OnConnectionSelectionChange := nil; FDesigner.OnConnectionError := nil;
+  end;
+  FreeAndNil(FBinding); inherited;
 end;
 procedure TPCBPreview.ThemeChanged;
 begin inherited; if FStatus <> nil then FStatus.Font.Color := Palette.ForegroundText; end;
@@ -182,6 +221,7 @@ begin
         end;
     finally FInspector.EndUpdate; end;
   end;
+  if FBinding <> nil then FBinding.Refresh;
   FStatus.Caption := 'Designer modified - Ctrl+Z/Y undo/redo; Ctrl+C/V copy/paste; Delete removes unlocked objects.'; end;
 procedure TPCBPreview.SelectionChanged(Sender: TObject);
 var Category: TERDInspectorCategory; P: TERDPCBPad; Value: TERDPCBDesignItem; Index, I, T: Integer; NoteType: TERDPCBNoteType;
@@ -193,7 +233,7 @@ var Category: TERDInspectorCategory; P: TERDPCBPad; Value: TERDPCBDesignItem; In
     Field(Name, Text, Tag, ivPickList);
   end;
 begin
-  FInspector.Clear; Index := FDesigner.Scene.PrimaryIndex;
+  FBinding.Clear; FInspector.Clear; Index := FDesigner.Scene.PrimaryIndex;
   if Index >= 0 then
   begin
     Value := FDesigner.Scene.Item(Index); Category := FInspector.AddCategory('Designer component');
@@ -211,6 +251,7 @@ begin
       Category := FInspector.AddCategory('Position and size (mm)');
       Field('X', FloatToStr(Value.X, TFormatSettings.Invariant), 4); Field('Y', FloatToStr(Value.Y, TFormatSettings.Invariant), 5);
       Field('Width', FloatToStr(Value.Width, TFormatSettings.Invariant), 6); Field('Height', FloatToStr(Value.Height, TFormatSettings.Invariant), 7);
+      FBinding.Bind(FDesigner.Scene, Value.ID, FInspector);
       FStatus.Caption := 'Note - double-click to edit text; drag the handles to resize.';
       Exit;
     end;
@@ -233,6 +274,7 @@ begin
     end;
     if FDesigner.SupportsPinRole(Index, prClock) then PinField('Clock pin', Value.ClockPin, 10);
     if FDesigner.SupportsPinRole(Index, prSelect) then PinField('Select pin', Value.SelectPin, 11);
+    FBinding.Bind(FDesigner.Scene, Value.ID, FInspector);
     UpdatePinChoices;
     FStatus.Caption := IntToStr(FDesigner.Scene.SelectionCount) + ' object(s) selected - inspector edits the primary object.'; Exit;
   end;
@@ -284,7 +326,8 @@ end;
 procedure TPCBPreview.PropertyChanging(Sender: TObject; AProperty: TERDInspectorProperty; var NewValue: string; var Accept: Boolean);
 begin
   try
-    if (AProperty.Tag >= 8) and (AProperty.Tag <= 11) then
+    if FBinding.Handles(AProperty) then FBinding.Validate(AProperty, NewValue)
+    else if (AProperty.Tag >= 8) and (AProperty.Tag <= 11) then
       FDesigner.ValidatePinAssignment(FDesigner.Scene.PrimaryIndex, TERDPCBPinRole(AProperty.Tag - 8), NewValue)
     else if AProperty.Tag < 100 then FDesigner.Scene.ValidateItem(FDesigner.Scene.PrimaryIndex, EditedItem(AProperty, NewValue))
     else
@@ -298,7 +341,8 @@ var Channel: TERDPCBChannel; Index: Integer;
 begin
   if AProperty.Tag = 200 then Exit;
   try
-    if (AProperty.Tag >= 8) and (AProperty.Tag <= 11) then
+    if FBinding.Handles(AProperty) then FBinding.Apply(AProperty)
+    else if (AProperty.Tag >= 8) and (AProperty.Tag <= 11) then
       FDesigner.AssignPin(FDesigner.Scene.PrimaryIndex, TERDPCBPinRole(AProperty.Tag - 8), AProperty.Value)
     else if AProperty.Tag < 100 then FDesigner.Scene.UpdateItem(FDesigner.Scene.PrimaryIndex, EditedItem(AProperty, AProperty.Value))
     else
@@ -378,6 +422,8 @@ begin
       20..25: FDesigner.AlignSelected(TERDPCBAlignment(TComponent(Sender).Tag - 20));
       26, 27: FDesigner.DistributeSelected(TComponent(Sender).Tag = 26);
       8: FDesigner.FitSelection;
+      9: if FInspector.Selected is TERDInspectorProperty then FBinding.ResetProperty(TERDInspectorProperty(FInspector.Selected));
+      10: FBinding.ResetAll;
       0: FDesigner.FitBoard; 4: FDesigner.Undo; 5: FDesigner.Redo;
       2, 7:
         begin

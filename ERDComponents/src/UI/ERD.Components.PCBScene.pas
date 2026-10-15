@@ -6,6 +6,16 @@ type
   TERDPCBPinRole = (prPrimary, prSecondary, prClock, prSelect);
   TERDPCBItemKind = (piTimer, piCounter, piOutputGroup, piNote, piUART, piCANBus, piI2C, piSPI);
   TERDPCBNoteType = (ntNone, ntInfo, ntWarning, ntError, ntQuestion);
+  TERDPCBPropertyKind = (pkText, pkInteger, pkFloat, pkBoolean, pkChoice);
+  TERDPCBPropertyValidator = procedure(const Value: string);
+  TERDPCBPropertyDefinition = record
+    Name, Caption, Category, Hint, DefaultValue: string;
+    Kind: TERDPCBPropertyKind;
+    Choices: TArray<string>;
+    Required, ReadOnly, HasMinimum, HasMaximum: Boolean;
+    Minimum, Maximum: Double;
+    Validate: TERDPCBPropertyValidator;
+  end;
   /// Registered types reuse a base kind's pin rules and editing behavior.
   TERDPCBComponentType = record
     TypeID, DisplayName, NamePrefix, Caption, GlyphText, PropertiesJSON: string;
@@ -14,6 +24,7 @@ type
     Width, Height: Double;
     Value: Integer;
     NoteType: TERDPCBNoteType;
+    Properties: TArray<TERDPCBPropertyDefinition>;
   end;
   TERDPCBDesignItem = record
     ID, Name, Caption, Pin, SecondaryPin, ClockPin, SelectPin, TypeID, PropertiesJSON: string;
@@ -56,6 +67,9 @@ type
     function PrimaryIndex: Integer;
     function Add(Kind: TERDPCBItemKind; const Position: TPointF): Integer;
     function AddType(const TypeID: string; const Position: TPointF): Integer;
+    procedure SetProperty(Index: Integer; const Name, Value: string);
+    procedure ResetProperty(Index: Integer; const Name: string);
+    procedure ResetProperties(Index: Integer);
     procedure ValidateItem(Index: Integer; const Value: TERDPCBDesignItem);
     procedure UpdateItem(Index: Integer; const Value: TERDPCBDesignItem);
     procedure Select(Index: Integer; Additive: Boolean = False; Toggle: Boolean = False);
@@ -86,6 +100,8 @@ function ERDPCBBuiltInTypeID(Kind: TERDPCBItemKind): string;
 function ERDPCBComponentTypes: TArray<TERDPCBComponentType>;
 function ERDPCBFindComponentType(const TypeID: string; out Definition: TERDPCBComponentType): Boolean;
 procedure ERDPCBRegisterComponentType(const Definition: TERDPCBComponentType);
+function ERDPCBPropertyValue(const Item: TERDPCBDesignItem; const Name: string): string;
+function ERDPCBWithProperty(const Item: TERDPCBDesignItem; const Name, Value: string): TERDPCBDesignItem;
 function ERDPCBItemKindName(Kind: TERDPCBItemKind): string;
 implementation
 var ComponentTypes: TList<TERDPCBComponentType>;
@@ -104,13 +120,23 @@ begin
 end;
 function ERDPCBBuiltInTypeID(Kind: TERDPCBItemKind): string;
 begin Result := 'erd.' + LowerCase(ERDPCBItemKindName(Kind)); end;
+function CopyDefinition(const Value: TERDPCBComponentType): TERDPCBComponentType;
+var I: Integer;
+begin
+  Result := Value; Result.Properties := Copy(Value.Properties);
+  for I := 0 to High(Result.Properties) do Result.Properties[I].Choices := Copy(Value.Properties[I].Choices);
+end;
 function ERDPCBComponentTypes: TArray<TERDPCBComponentType>;
-begin Result := ComponentTypes.ToArray; end;
+var I: Integer;
+begin
+  Result := ComponentTypes.ToArray;
+  for I := 0 to High(Result) do Result[I] := CopyDefinition(Result[I]);
+end;
 function ERDPCBFindComponentType(const TypeID: string; out Definition: TERDPCBComponentType): Boolean;
 var Value: TERDPCBComponentType;
 begin
   Definition := Default(TERDPCBComponentType);
-  for Value in ComponentTypes do if SameText(Value.TypeID, TypeID) then begin Definition := Value; Exit(True); end;
+  for Value in ComponentTypes do if SameText(Value.TypeID, TypeID) then begin Definition := CopyDefinition(Value); Exit(True); end;
   Result := False;
 end;
 procedure ValidateProperties(const Text: string);
@@ -121,8 +147,98 @@ begin
   try if not (Root is TJSONObject) then raise EArgumentException.Create('Component properties must be a JSON object');
   finally Root.Free; end;
 end;
+function PropertyJSON(const Definition: TERDPCBPropertyDefinition; const Text: string): TJSONValue;
+var Number: Double; IntegerValue: Int64; Choice: string; Found: Boolean;
+begin
+  if Definition.Required and (Trim(Text) = '') then raise EArgumentException.Create(Definition.Caption + ' is required');
+  Number := 0; IntegerValue := 0;
+  case Definition.Kind of
+    pkInteger:
+      begin
+        if not TryStrToInt64(Text, IntegerValue) then raise EArgumentException.Create(Definition.Caption + ' must be a whole number');
+        Number := IntegerValue;
+      end;
+    pkFloat:
+      if not TryStrToFloat(Text, Number, TFormatSettings.Invariant) or IsNan(Number) or IsInfinite(Number) then
+        raise EArgumentException.Create(Definition.Caption + ' must be a finite number');
+    pkBoolean:
+      if not SameText(Text, 'True') and not SameText(Text, 'False') then raise EArgumentException.Create(Definition.Caption + ' must be True or False');
+    pkChoice:
+      begin
+        Found := False;
+        for Choice in Definition.Choices do if Choice = Text then begin Found := True; Break; end;
+        if not Found then raise EArgumentException.Create('Choose a valid value for ' + Definition.Caption);
+      end;
+  end;
+  if Definition.Kind in [pkInteger, pkFloat] then
+  begin
+    if Definition.HasMinimum and (Number < Definition.Minimum) then raise EArgumentException.Create(Definition.Caption + ' is below its minimum');
+    if Definition.HasMaximum and (Number > Definition.Maximum) then raise EArgumentException.Create(Definition.Caption + ' is above its maximum');
+  end;
+  if Assigned(Definition.Validate) then Definition.Validate(Text);
+  case Definition.Kind of
+    pkInteger: Result := TJSONNumber.Create(IntegerValue);
+    pkFloat: Result := TJSONNumber.Create(Number);
+    pkBoolean: Result := TJSONBool.Create(SameText(Text, 'True'));
+  else Result := TJSONString.Create(Text); end;
+end;
+function PropertyText(const Definition: TERDPCBPropertyDefinition; Value: TJSONValue): string;
+begin
+  if Value = nil then Exit(Definition.DefaultValue);
+  case Definition.Kind of
+    pkText, pkChoice: if not (Value is TJSONString) then raise EArgumentException.Create(Definition.Caption + ' must be text');
+    pkInteger, pkFloat: if not (Value is TJSONNumber) then raise EArgumentException.Create(Definition.Caption + ' must be numeric');
+    pkBoolean: if not (Value is TJSONBool) then raise EArgumentException.Create(Definition.Caption + ' must be boolean');
+  end;
+  Result := Value.Value;
+  if Definition.Kind = pkBoolean then Result := BoolToStr(SameText(Result, 'true'), True);
+end;
+function PropertiesObject(const Text: string): TJSONObject;
+var Root: TJSONValue;
+begin
+  if Text = '' then Exit(TJSONObject.Create);
+  Root := TJSONObject.ParseJSONValue(Text);
+  if not (Root is TJSONObject) then begin Root.Free; raise EArgumentException.Create('Component properties must be a JSON object'); end;
+  Result := TJSONObject(Root);
+end;
+function FindProperty(const TypeID, Name: string): TERDPCBPropertyDefinition;
+var Definition: TERDPCBComponentType; Prop: TERDPCBPropertyDefinition;
+begin
+  if ERDPCBFindComponentType(TypeID, Definition) then
+    for Prop in Definition.Properties do if Prop.Name = Name then Exit(Prop);
+  raise EArgumentException.Create('Unknown registered property: ' + Name);
+end;
+function ERDPCBPropertyValue(const Item: TERDPCBDesignItem; const Name: string): string;
+var Root: TJSONObject; Definition: TERDPCBPropertyDefinition;
+begin
+  Definition := FindProperty(Item.TypeID, Name); Root := PropertiesObject(Item.PropertiesJSON);
+  try Result := PropertyText(Definition, Root.GetValue(Name)); finally Root.Free; end;
+end;
+function ERDPCBWithProperty(const Item: TERDPCBDesignItem; const Name, Value: string): TERDPCBDesignItem;
+var Definition: TERDPCBPropertyDefinition; Root: TJSONObject; Pair: TJSONPair; JSONValue: TJSONValue;
+begin
+  Definition := FindProperty(Item.TypeID, Name);
+  if Item.Locked or Definition.ReadOnly then raise EArgumentException.Create('This property is read-only');
+  JSONValue := PropertyJSON(Definition, Value);
+  Root := nil;
+  try
+    Root := PropertiesObject(Item.PropertiesJSON); Pair := Root.RemovePair(Name); Pair.Free;
+    Root.AddPair(Name, JSONValue); JSONValue := nil;
+    Result := Item; Result.PropertiesJSON := Root.ToJSON;
+  finally JSONValue.Free; Root.Free; end;
+end;
+procedure ValidateRegisteredProperties(const Item: TERDPCBDesignItem);
+var Definition: TERDPCBComponentType; Prop: TERDPCBPropertyDefinition; Root: TJSONObject; Value: TJSONValue;
+begin
+  if not ERDPCBFindComponentType(Item.TypeID, Definition) then Exit;
+  Root := PropertiesObject(Item.PropertiesJSON);
+  try
+    for Prop in Definition.Properties do
+    begin Value := PropertyJSON(Prop, PropertyText(Prop, Root.GetValue(Prop.Name))); Value.Free; end;
+  finally Root.Free; end;
+end;
 procedure ERDPCBRegisterComponentType(const Definition: TERDPCBComponentType);
-var Existing: TERDPCBComponentType;
+var Existing, Stored: TERDPCBComponentType; I, J: Integer; Prop: TERDPCBPropertyDefinition; Root: TJSONObject; Value: TJSONValue; Pair: TJSONPair;
 begin
   ValidateProperties(Definition.PropertiesJSON);
   if (Ord(Definition.Kind) > Ord(High(TERDPCBItemKind))) or
@@ -137,7 +253,24 @@ begin
     ((Definition.Kind = piOutputGroup) and ((Definition.Value < 1) or (Definition.Value > 65535))) then
     raise EArgumentException.Create('Invalid component value default');
   if (Definition.Kind <> piNote) and (Definition.NoteType <> ntNone) then raise EArgumentException.Create('Only notes have a note type');
-  ComponentTypes.Add(Definition);
+  Stored := CopyDefinition(Definition); Root := PropertiesObject(Definition.PropertiesJSON);
+  try
+    for I := 0 to High(Stored.Properties) do
+    begin
+      Prop := Stored.Properties[I];
+      if (Trim(Prop.Name) = '') or (Trim(Prop.Caption) = '') or (Ord(Prop.Kind) > Ord(High(TERDPCBPropertyKind))) then
+        raise EArgumentException.Create('Properties require a name, caption and valid editor kind');
+      for J := 0 to I-1 do if SameText(Stored.Properties[J].Name, Prop.Name) then raise EArgumentException.Create('Duplicate property name');
+      if (Prop.HasMinimum and (IsNan(Prop.Minimum) or IsInfinite(Prop.Minimum))) or
+        (Prop.HasMaximum and (IsNan(Prop.Maximum) or IsInfinite(Prop.Maximum))) or
+        (Prop.HasMinimum and Prop.HasMaximum and (Prop.Minimum > Prop.Maximum)) then raise EArgumentException.Create('Invalid property range');
+      Value := PropertyJSON(Prop, Prop.DefaultValue);
+      Prop.DefaultValue := PropertyText(Prop, Value); Stored.Properties[I] := Prop;
+      Pair := Root.RemovePair(Prop.Name); Pair.Free; Root.AddPair(Prop.Name, Value);
+    end;
+    Stored.PropertiesJSON := Root.ToJSON;
+  finally Root.Free; end;
+  ComponentTypes.Add(Stored);
 end;
 function ERDPCBItemKindName(Kind: TERDPCBItemKind): string;
 begin
@@ -229,7 +362,7 @@ end;
 procedure TERDPCBScene.CheckItem(const Item: TERDPCBDesignItem; Ignore: Integer);
 var I: Integer; Definition: TERDPCBComponentType;
 begin
-  ValidateProperties(Item.PropertiesJSON);
+  ValidateProperties(Item.PropertiesJSON); ValidateRegisteredProperties(Item);
   if Ord(Item.NoteType) > Ord(High(TERDPCBNoteType)) then raise EArgumentException.Create('Invalid note type');
   if (Item.TypeID <> '') and ERDPCBFindComponentType(Item.TypeID, Definition) and (Definition.Kind <> Item.Kind) then
     raise EArgumentException.Create('Component type does not match its base kind');
@@ -265,6 +398,28 @@ begin
   CheckItem(Value, -1); Remember;
   for I := 0 to High(FItems) do FItems[I].Selected := False;
   Result := Count; SetLength(FItems, Result + 1); FItems[Result] := Value; Changed(True);
+end;
+procedure TERDPCBScene.SetProperty(Index: Integer; const Name, Value: string);
+var Updated: TERDPCBDesignItem;
+begin
+  Updated := ERDPCBWithProperty(Item(Index), Name, Value);
+  if ERDPCBPropertyValue(Updated, Name) <> ERDPCBPropertyValue(Item(Index), Name) then UpdateItem(Index, Updated);
+end;
+procedure TERDPCBScene.ResetProperty(Index: Integer; const Name: string);
+var Definition: TERDPCBPropertyDefinition;
+begin Definition := FindProperty(Item(Index).TypeID, Name); SetProperty(Index, Name, Definition.DefaultValue); end;
+procedure TERDPCBScene.ResetProperties(Index: Integer);
+var Definition: TERDPCBComponentType; Prop: TERDPCBPropertyDefinition; Value: TERDPCBDesignItem; ChangedValue: Boolean;
+begin
+  Value := Item(Index); ChangedValue := False;
+  if Value.Locked then raise EArgumentException.Create('Unlock the component before resetting properties');
+  if not ERDPCBFindComponentType(Value.TypeID, Definition) then raise EArgumentException.Create('Component type is not registered');
+  for Prop in Definition.Properties do if not Prop.ReadOnly then
+  begin
+    if ERDPCBPropertyValue(Value, Prop.Name) <> Prop.DefaultValue then ChangedValue := True;
+    Value := ERDPCBWithProperty(Value, Prop.Name, Prop.DefaultValue);
+  end;
+  if ChangedValue then UpdateItem(Index, Value);
 end;
 procedure TERDPCBScene.ValidateItem(Index: Integer; const Value: TERDPCBDesignItem);
 begin

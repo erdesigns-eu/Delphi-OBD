@@ -2,7 +2,7 @@
 {$APPTYPE CONSOLE}
 uses
   ERD.Components.LSP, ERD.Components.Paint, ERD.Components.Control, ERD.Components.LanguageServices, ERD.Components.TextLayout, ERD.Components.CodeEditor, ERD.Components.Syntax,
-  ERD.Components.PCBDesigner, ERD.Components.PCBScene, ERD.Components.PCBRoute, ERD.Components.PCBLibrary,
+  ERD.Components.PCBDesigner, ERD.Components.PCBInspector, ERD.Components.Inspector, ERD.Components.PCBScene, ERD.Components.PCBRoute, ERD.Components.PCBLibrary,
   ERD.Components.TextModel, ERD.Components.TextInput,
   System.IOUtils, System.JSON,
   System.SysUtils, System.Classes, System.Types, System.Math, Vcl.Forms, Vcl.Controls, Vcl.ExtCtrls,
@@ -36,6 +36,7 @@ type
   TPCBHostProbe = class
     Validations: Integer;
     procedure ValidateItem(Sender: TObject; const Item: TERDPCBDesignItem);
+    procedure RejectCheck(Sender: TObject; Row: TERDInspectorProperty; var NewValue: string; var Accept: Boolean);
   end;
   TCodeEditorProbe = class(TERDCodeEditor)
   protected
@@ -2503,6 +2504,101 @@ begin
   if Item.Caption = 'Reject' then raise EArgumentException.Create('Host rejected this caption');
 end;
 
+procedure TPCBHostProbe.RejectCheck(Sender: TObject; Row: TERDInspectorProperty; var NewValue: string; var Accept: Boolean);
+begin Inc(Validations); Accept := False; end;
+procedure ValidatePCBTestText(const Value: string);
+begin if Value = 'blocked' then raise EArgumentException.Create('This description is reserved'); end;
+procedure TestPCBPropertySchema;
+var Definition, CopyDefinition: TERDPCBComponentType; Props: TArray<TERDPCBPropertyDefinition>;
+    Scene, CopyScene: TERDPCBScene; Binding: TERDPCBInspectorBinding; Form: TForm; Inspector: TERDInspector;
+    Index: Integer; Item: TERDPCBDesignItem; Before, ID: string; Failed: Boolean; Root: TJSONObject;
+    TextRow, CountRow, FlagRow, ChoiceRow: TERDInspectorProperty; Host: TPCBHostProbe;
+  procedure Reject(const Name, Value: string);
+  var Snapshot: string; Rejected: Boolean;
+  begin
+    Snapshot := Scene.ContentJSON; Rejected := False;
+    try Scene.SetProperty(Index, Name, Value); except on E: EArgumentException do Rejected := True; end;
+    Check(Rejected and (Scene.ContentJSON = Snapshot), 'Invalid property edit is atomic: ' + Name);
+  end;
+begin
+  ERDPCBFindComponentType('erd.timer', Definition); Definition.TypeID := 'smoke.schema';
+  Definition.DisplayName := 'Schema timer'; Definition.NamePrefix := 'SchemaTimer'; Definition.PropertiesJSON := '{"opaque":{"key":1}}';
+  SetLength(Props, 6);
+  Props[0].Name := 'description'; Props[0].Caption := 'Description'; Props[0].Category := 'General';
+  Props[0].DefaultValue := 'Ready'; Props[0].Required := True; Props[0].Validate := ValidatePCBTestText;
+  Props[1].Name := 'count'; Props[1].Caption := 'Count'; Props[1].Category := 'Settings'; Props[1].Kind := pkInteger;
+  Props[1].DefaultValue := '3'; Props[1].HasMinimum := True; Props[1].Minimum := 0; Props[1].HasMaximum := True; Props[1].Maximum := 10;
+  Props[2].Name := 'gain'; Props[2].Caption := 'Gain'; Props[2].Category := 'Settings'; Props[2].Kind := pkFloat;
+  Props[2].DefaultValue := '1.5'; Props[2].HasMinimum := True; Props[2].Minimum := 0; Props[2].HasMaximum := True; Props[2].Maximum := 5;
+  Props[3].Name := 'active'; Props[3].Caption := 'Active'; Props[3].Category := 'Settings'; Props[3].Kind := pkBoolean; Props[3].DefaultValue := 'True';
+  Props[4].Name := 'mode'; Props[4].Caption := 'Mode'; Props[4].Category := 'Settings'; Props[4].Kind := pkChoice; Props[4].DefaultValue := 'Off';
+  SetLength(Props[4].Choices, 2); Props[4].Choices[0] := 'Off'; Props[4].Choices[1] := 'On';
+  Props[5].Name := 'token'; Props[5].Caption := 'Token'; Props[5].Category := 'Settings'; Props[5].DefaultValue := 'Fixed'; Props[5].ReadOnly := True;
+  Definition.Properties := Props; ERDPCBRegisterComponentType(Definition);
+  Props[4].Choices[0] := 'Changed'; ERDPCBFindComponentType(Definition.TypeID, CopyDefinition);
+  Check(CopyDefinition.Properties[4].Choices[0] = 'Off', 'Registry owns independent copies of schema choices');
+  CopyDefinition.Properties[4].Choices[0] := 'Changed again'; ERDPCBFindComponentType(Definition.TypeID, CopyDefinition);
+  Check(CopyDefinition.Properties[4].Choices[0] = 'Off', 'Returned schemas cannot mutate registered definitions');
+  Scene := TERDPCBScene.Create(nil); CopyScene := TERDPCBScene.Create(nil); Binding := TERDPCBInspectorBinding.Create; Form := TForm.Create(nil); Host := TPCBHostProbe.Create;
+  try
+    Scene.Add(piCounter, PointF(0,0)); Index := Scene.AddType(Definition.TypeID, PointF(1,2)); ID := Scene.Item(Index).ID;
+    Check(ERDPCBPropertyValue(Scene.Item(Index), 'active') = 'True', 'Boolean defaults are canonical inspector values');
+    Scene.ResetHistory; Scene.SetProperty(Index, 'active', 'true'); Check(not Scene.CanUndo, 'Equivalent values do not create empty undo operations');
+    Reject('count', '1.5'); Reject('count', '11'); Reject('gain', 'NaN'); Reject('gain', '6');
+    Reject('active', 'yes'); Reject('mode', 'Unknown'); Reject('description', ''); Reject('description', 'blocked'); Reject('token', 'Changed');
+    Scene.SetProperty(Index, 'count', '7'); Scene.SetProperty(Index, 'gain', '2.25'); Scene.SetProperty(Index, 'active', 'False'); Scene.SetProperty(Index, 'mode', 'On');
+    Root := TJSONObject.ParseJSONValue(Scene.Item(Index).PropertiesJSON) as TJSONObject;
+    try
+      Check((Root.GetValue('count') is TJSONNumber) and (Root.GetValue('active') is TJSONBool) and
+        (Root.GetValue('opaque') is TJSONObject), 'Edits keep numeric/boolean JSON types and unknown metadata');
+    finally Root.Free; end;
+    Before := Scene.ContentJSON; Scene.ResetProperties(Index);
+    Check((ERDPCBPropertyValue(Scene.Item(Index), 'count') = '3') and (ERDPCBPropertyValue(Scene.Item(Index), 'mode') = 'Off'), 'Reset restores all editable schema defaults');
+    Scene.Undo; Check(Scene.ContentJSON = Before, 'Reset all is one undo operation'); Scene.Redo;
+    Scene.ResetHistory; Scene.ResetProperties(Index); Check(not Scene.CanUndo, 'Resetting unchanged defaults is a no-op');
+    CopyScene.LoadJSON(Scene.ToJSON); Check(CopyScene.ContentJSON = Scene.ContentJSON, 'Typed properties survive save and load');
+    Before := Scene.ContentJSON; Failed := False;
+    try Scene.LoadJSON(StringReplace(Scene.ToJSON, '"count":3', '"count":"wrong"', [])); except on E: EArgumentException do Failed := True; end;
+    Check(Failed and (Scene.ContentJSON = Before), 'Invalid persisted property types are rejected atomically');
+    Item := Scene.Item(Index); Item.PropertiesJSON := '{}'; Check(ERDPCBPropertyValue(Item, 'count') = '3', 'Missing properties use registered defaults');
+    Inspector := TERDInspector.Create(Form); Inspector.Parent := Form;
+    Binding.Bind(Scene, ID, Inspector);
+    Check((Inspector.Categories.Count = 2) and (Inspector.Categories[1].Caption = 'Settings'), 'Binding creates property categories from metadata');
+    TextRow := Inspector.Categories[0].Properties[0]; CountRow := Inspector.Categories[1].Properties[0];
+    FlagRow := Inspector.Categories[1].Properties[2]; ChoiceRow := Inspector.Categories[1].Properties[3];
+    Check((FlagRow.Kind = ivCheck) and FlagRow.Checked and (ChoiceRow.Kind = ivPickList) and
+      (ChoiceRow.PickList.Count = 2) and not FlagRow.Modified, 'Binding chooses checkbox/list editors and tracks defaults');
+    Failed := False; try Binding.Validate(TextRow, 'blocked'); except on E: EArgumentException do Failed := True; end;
+    Check(Failed and (TextRow.Level = alvAlarm) and (TextRow.Hint <> ''), 'Binding exposes validation failures on the row');
+    Binding.Validate(TextRow, 'Accepted'); Check(TextRow.Level = alvNormal, 'Valid input clears a previous validation error');
+    Binding.Validate(CountRow, '8'); CountRow.Value := '8'; Binding.Apply(CountRow);
+    Check(CountRow.Modified and (ERDPCBPropertyValue(Scene.Item(Index), 'count') = '8'), 'Inspector edits update the scene');
+    Scene.Undo; Binding.Refresh; Check(CountRow.Value = '3', 'Undo refresh restores displayed values');
+    Scene.Redo; Binding.Refresh; Binding.ResetProperty(CountRow); Check(CountRow.Value = '3', 'Selected property reset updates the inspector');
+    Scene.Select(0); Scene.DeleteSelected; Index := Scene.IndexOf(ID);
+    CountRow.Value := '9'; Binding.Apply(CountRow);
+    Check((Index = 0) and (ERDPCBPropertyValue(Scene.Item(Index), 'count') = '9'), 'Binding resolves stable IDs after indices shift');
+    Item := Scene.Item(Index); Item.Locked := True; Scene.UpdateItem(Index, Item); Binding.Refresh;
+    Check(CountRow.ReadOnly, 'Locked component properties become read-only'); Reject('count', '2');
+    Item.Locked := False; Scene.UpdateItem(Index, Item); Binding.Refresh;
+    Scene.Select(Index); Scene.DeleteSelected; Failed := False;
+    try Binding.Apply(CountRow); except on E: EArgumentException do Failed := True; end;
+    Check(Failed, 'A deleted inspected object cannot edit a different object'); Binding.Clear;
+    CopyDefinition := Definition; CopyDefinition.TypeID := 'smoke.invalid-schema';
+    SetLength(CopyDefinition.Properties, 2); CopyDefinition.Properties[1] := CopyDefinition.Properties[0]; Failed := False;
+    try ERDPCBRegisterComponentType(CopyDefinition); except on E: EArgumentException do Failed := True; end;
+    Check(Failed, 'Duplicate property names are rejected during registration');
+    Inspector.Clear; Inspector.SetBounds(0,0,300,200);
+    FlagRow := Inspector.AddCategory('Checks').AddProperty('Flag', 'True', ivCheck);
+    Inspector.OnPropertyChanging := Host.RejectCheck; Form.Show; Inspector.SetFocus;
+    Inspector.Perform(WM_KEYDOWN, VK_HOME, 0); Inspector.Perform(WM_KEYDOWN, VK_DOWN, 0);
+    Check(Inspector.Selected = FlagRow, 'Keyboard selects the checkbox row');
+    Inspector.Perform(WM_KEYDOWN, VK_SPACE, 0);
+    Check((Host.Validations = 1) and FlagRow.Checked, 'Checkbox validation runs before the displayed value changes');
+    Inspector.OnPropertyChanging := nil;
+  finally Binding.Free; Form.Free; Host.Free; CopyScene.Free; Scene.Free; end;
+end;
+
 procedure TestPCBComponentTypes;
 var Scene, CopyScene: TERDPCBScene; Definition, CopyDefinition: TERDPCBComponentType;
     Value: TERDPCBDesignItem; Index, BeforeCount: Integer; Failed: Boolean; NoteType: TERDPCBNoteType;
@@ -3839,6 +3935,7 @@ begin
     TestPCBPlacement;
     TestPCBConnections;
     TestPCBComponentTypes;
+    TestPCBPropertySchema;
     TestSignatureHelp;
     TestEditorWindowShutdown;
     TestStdioLanguageAdapter;

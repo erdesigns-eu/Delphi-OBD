@@ -371,3 +371,79 @@ the body with a lightly tinted background. Info and Question use the theme
 accent, Warning the warning color, and Error the danger color. Text uses the
 foreground color for readability in either theme. Note type does not introduce
 pin assignments or hardware behavior. Legacy notes default to None.
+
+### Described properties and the optional inspector adapter
+
+`TERDPCBComponentType.Properties` describes editable host metadata. Each
+`TERDPCBPropertyDefinition` supplies a stable JSON `Name`, display `Caption`,
+`Category`, `Hint`, `Kind`, and string `DefaultValue`. Kinds are `pkText`,
+`pkInteger`, `pkFloat`, `pkBoolean` and `pkChoice`. Add `Choices` for a choice
+editor, `Required`, `ReadOnly`, and optional numeric bounds via `HasMinimum`,
+`Minimum`, `HasMaximum`, `Maximum`. An optional `Validate` procedure can reject
+a value by raising a descriptive exception. Register callbacks on the VCL thread
+and keep their implementation available for the registry's lifetime.
+
+```pascal
+ERDPCBFindComponentType('erd.timer', Definition);
+Definition.TypeID := 'myapp.retry-timer';
+Definition.DisplayName := 'Retry timer';
+Definition.NamePrefix := 'RetryTimer';
+SetLength(Definition.Properties, 1);
+Definition.Properties[0].Name := 'retries';
+Definition.Properties[0].Caption := 'Retries';
+Definition.Properties[0].Category := 'Retry settings';
+Definition.Properties[0].Kind := pkInteger;
+Definition.Properties[0].DefaultValue := '3';
+Definition.Properties[0].HasMinimum := True;
+Definition.Properties[0].Minimum := 0;
+Definition.Properties[0].HasMaximum := True;
+Definition.Properties[0].Maximum := 100;
+ERDPCBRegisterComponentType(Definition);
+```
+
+Registration validates schema names, defaults, choices and bounds before adding
+the type. Schema defaults override matching keys in `PropertiesJSON`; unrelated
+JSON metadata is preserved. Definitions and choice arrays are copied so later
+changes to the caller's records cannot modify the registry.
+
+`ERDPCBPropertyValue(Item, Name)` returns the registered value, falling back to
+its default when an older instance lacks the key. `ERDPCBWithProperty` creates a
+validated item copy. `Scene.SetProperty(Index, Name, Text)` applies an edit;
+`Scene.ResetProperty` restores one field, and `Scene.ResetProperties` restores
+all editable schema fields in one undo operation. Unchanged values add no undo
+entry. These APIs reject read-only fields and locked objects. Explicit raw item
+updates remain available to the host for setting read-only metadata.
+
+Numbers use invariant formatting (a decimal point); integers must fit Int64 and
+floats must be finite. Boolean input is True/False, and choice input must match a
+listed value exactly. Values persist as JSON numbers, booleans or strings,
+rather than converting everything to text. Loading and direct item updates also
+validate registered schemas, so invalid saved values cannot bypass validation.
+Unknown type IDs and unknown JSON keys remain preserved as before.
+
+`ERD.Components.PCBInspector` provides `TERDPCBInspectorBinding` as a separate,
+optional helper. The designer has no dependency on the inspector. The helper
+owns neither control nor scene and does not replace any event handlers.
+
+- On selection: call `Binding.Clear`, rebuild the host's inspector rows, then
+  `Binding.Bind(Designer.Scene, ItemID, Inspector)`. Bind appends schema rows,
+  reusing category captions. Reserve row tags 1000 and above for these rows.
+  Clear/rebuild before binding again to avoid duplicate rows.
+- In `OnPropertyChanging`, if `Binding.Handles(Row)`, call
+  `Binding.Validate(Row, NewValue)`. Catch exceptions, set `Accept := False` and
+  display the message. The row also receives an alarm style and error hint.
+- In `OnPropertyChanged`, call `Binding.Apply(Row)` for handled rows. It updates
+  the model and refreshes the display, restoring the model value on failure.
+- In the designer's `OnChange`, call `Binding.Refresh`; on selection changes,
+  rebuild and bind again. The helper resolves the saved item ID each time, so
+  shifted indices cannot redirect edits. Deleted objects reject edits, and a
+  changed component type requires rebinding.
+- Use `Binding.ResetProperty(Row)` or `Binding.ResetAll` for reset actions.
+  Clear/free the binding before destroying its borrowed scene or inspector.
+
+Boolean and choice fields use checkbox and pick-list editors. Numeric fields
+use text editors with numeric validation. Default values feed the inspector's
+modified-value styling; validation errors use its themed alarm color. Checkbox
+changes now pass `OnPropertyChanging` before the displayed check state changes.
+The demo's Retry timer illustrates all five editors and category grouping; its
+properties are design metadata and execute no timer or hardware logic.

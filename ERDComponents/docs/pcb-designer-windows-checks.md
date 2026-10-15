@@ -73,3 +73,24 @@ checks must run in RAD Studio on Windows; they are not replaced by static checks
   caption, icon, defaults and host properties. Check Shift-repeat and Escape.
 - Implement OnDrawItemGlyph for that subtype and verify custom icon painting
   leaves the component name, selection and connections intact.
+
+### Described properties and inspector binding
+
+- Run `TestPCBPropertySchema`: it covers all five property kinds, required/range/
+  choice/custom validation, immutable schema copies, typed JSON, missing defaults,
+  atomic load rejection, reset undo, no-op resets, binding and index changes,
+  locks, deletion and validation before checkbox toggles.
+- Place a Retry timer. Check Documentation and Retry settings categories, field
+  hints, checkbox, choices and number validation in both themes and at higher DPI.
+- Enter invalid text, fractional retries, an out-of-range number and a non-finite
+  factor. The scene must retain its prior value; the property shows an error
+  hint/style. A valid edit must clear the error.
+- Change multiple fields, reset one, then reset all type properties. Undo/redo
+  must restore the whole reset together. Resetting unchanged defaults must not
+  add an undo step. Object position, name and assigned pins must be retained.
+- Save/reopen and copy/paste a configured Retry timer. Verify values and editor
+  kinds, then lock it: custom rows become read-only and resets are rejected.
+- Change selection, delete an earlier item, undo/redo and reload a project while
+  inspecting an object. Edits must never move to an unrelated object.
+- Close the demo with an inspector editor active, after invalid input and after
+  undo/redo. There must be no late callback into a destroyed binding or scene.
