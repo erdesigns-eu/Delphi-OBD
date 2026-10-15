@@ -2,7 +2,7 @@
 interface
 uses System.Classes, System.SysUtils, System.Types, Vcl.Controls, Vcl.StdCtrls, Winapi.Windows,
   ERD.Components.Control, ERD.Components.Panel, ERD.Components.PCBDesigner, ERD.Components.PCBScene,
-  ERD.Components.Inspector, ERD.Components.ItemList, ERD.Components.Buttons, ERD.Components.FileDialogs;
+  ERD.Components.Inspector, ERD.Components.Memo, ERD.Components.ItemList, ERD.Components.Buttons, ERD.Components.FileDialogs;
 type
   /// Demo host only: toolbox and inspector are separate from TERDPCBDesigner.
   TPCBPreview = class(TERDPanel)
@@ -18,6 +18,8 @@ type
     procedure ConnectionError(Sender: TObject; const MessageText: string);
     procedure DesignChanged(Sender: TObject);
     procedure UpdatePinChoices;
+    procedure EditNote(Sender: TObject);
+    procedure PropertyButtonClicked(Sender: TObject; AProperty: TERDInspectorProperty);
     procedure PropertyChanging(Sender: TObject; AProperty: TERDInspectorProperty; var NewValue: string; var Accept: Boolean);
     procedure PropertyChanged(Sender: TObject; AProperty: TERDInspectorProperty);
     function EditedItem(AProperty: TERDInspectorProperty; const Text: string): TERDPCBDesignItem;
@@ -31,7 +33,7 @@ type
     procedure ThemeChanged; override;
   end;
 implementation
-uses System.Math, Vcl.Dialogs;
+uses System.Math, System.UITypes, Vcl.Dialogs, Vcl.Forms;
 constructor TPCBPreview.Create(AOwner: TComponent);
 var Header, Tools: TERDPanel; B: TERDButton; I: Integer; Base, BoardFile: string; Choice: TERDCheckBox;
   procedure Button(const Caption: string; Left, Width, Tag: Integer);
@@ -53,9 +55,11 @@ begin
   for I := Ord(Low(TERDPCBItemKind)) to Ord(High(TERDPCBItemKind)) do FToolbox.Items.Add(ERDPCBItemKindName(TERDPCBItemKind(I)));
   FToolbox.ItemIndex := 0; FToolbox.OnMouseDown := ToolboxMouseDown; FToolbox.OnDblClick := ToolboxDoubleClick;
   FInspector := TERDInspector.Create(Self); FInspector.Parent := Self; FInspector.Align := alRight; FInspector.Width := ScaleValue(310);
+  FInspector.OnPropertyButtonClick := PropertyButtonClicked;
   FInspector.OnPropertyChanging := PropertyChanging; FInspector.OnPropertyChanged := PropertyChanged;
   FDesigner := TERDPCBDesigner.Create(Self); FDesigner.Parent := Self; FDesigner.Align := alClient;
   FDesigner.OnSelectionChange := SelectionChanged; FDesigner.OnChange := DesignChanged; FDesigner.OnConnectionError := ConnectionError;
+  FDesigner.OnDblClick := EditNote;
   FDesigner.OnDragOver := SurfaceDragOver; FDesigner.OnDragDrop := SurfaceDragDrop;
   for I := 0 to 4 do
   begin
@@ -99,6 +103,31 @@ begin
 end;
 procedure TPCBPreview.ConnectionError(Sender: TObject; const MessageText: string);
 begin FStatus.Caption := MessageText; end;
+procedure TPCBPreview.PropertyButtonClicked(Sender: TObject; AProperty: TERDInspectorProperty);
+begin
+  if AProperty.Tag = 2 then EditNote(Self);
+end;
+procedure TPCBPreview.EditNote(Sender: TObject);
+var Index: Integer; Item: TERDPCBDesignItem; Dialog: TForm; Memo: TERDMemo;
+    Footer: TERDPanel; Button: TERDButton;
+begin
+  Index := FDesigner.Scene.PrimaryIndex; if Index < 0 then Exit;
+  Item := FDesigner.Scene.Item(Index); if (Item.Kind <> piNote) or Item.Locked then Exit;
+  Dialog := TForm.CreateNew(Self);
+  try
+    Dialog.Caption := 'Edit note'; Dialog.Position := poOwnerFormCenter;
+    Dialog.ClientWidth := ScaleValue(480); Dialog.ClientHeight := ScaleValue(300);
+    Dialog.Color := Palette.Background;
+    Footer := TERDPanel.Create(Dialog); Footer.Parent := Dialog; Footer.Align := alBottom; Footer.Height := ScaleValue(44);
+    Button := TERDButton.Create(Dialog); Button.Parent := Footer; Button.Caption := 'Save';
+    Button.SetBounds(ScaleValue(280), ScaleValue(7), ScaleValue(88), ScaleValue(30)); Button.ModalResult := mrOk;
+    Button := TERDButton.Create(Dialog); Button.Parent := Footer; Button.Caption := 'Cancel';
+    Button.SetBounds(ScaleValue(378), ScaleValue(7), ScaleValue(88), ScaleValue(30)); Button.ModalResult := mrCancel; Button.Cancel := True;
+    Memo := TERDMemo.Create(Dialog); Memo.Parent := Dialog; Memo.Align := alClient; Memo.Lines.Text := Item.Caption;
+    if Dialog.ShowModal = mrOk then
+    begin Item.Caption := Memo.Lines.Text; FDesigner.Scene.UpdateItem(Index, Item); SelectionChanged(Self); end;
+  finally Dialog.Free; end;
+end;
 procedure TPCBPreview.UpdatePinChoices;
 var C, P, J, K, Index: Integer; Row: TERDInspectorProperty;
     Candidate, Other: TERDPCBDesignItem; Pin: string; Available: Boolean;
@@ -147,7 +176,18 @@ begin
     Value := FDesigner.Scene.Item(Index); Category := FInspector.AddCategory('Designer component');
     Category.AddProperty('Kind', ERDPCBItemKindName(Value.Kind), ivReadOnly);
     Category.AddProperty('ID', Value.ID, ivReadOnly);
-    Field('Name', Value.Name, 1); Field('Caption', Value.Caption, 2);
+    Field('Name', Value.Name, 1);
+    if Value.Kind = piNote then
+    begin
+      Field('Text', Value.Caption, 2, ivEllipsis);
+      Field('Locked', '', 13, ivCheck); Row.Checked := Value.Locked;
+      Category := FInspector.AddCategory('Position and size (mm)');
+      Field('X', FloatToStr(Value.X, TFormatSettings.Invariant), 4); Field('Y', FloatToStr(Value.Y, TFormatSettings.Invariant), 5);
+      Field('Width', FloatToStr(Value.Width, TFormatSettings.Invariant), 6); Field('Height', FloatToStr(Value.Height, TFormatSettings.Invariant), 7);
+      FStatus.Caption := 'Note - double-click to edit text; drag the handles to resize.';
+      Exit;
+    end;
+    Field('Caption', Value.Caption, 2);
     Text := 'Value';
     case Value.Kind of piTimer: Text := 'Interval (ms)'; piOutputGroup: Text := 'LED count';
       piUART, piCANBus: Text := 'Bit rate'; piI2C, piSPI: Text := 'Clock (Hz)'; end;

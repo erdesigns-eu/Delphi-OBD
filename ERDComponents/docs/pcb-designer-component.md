@@ -55,7 +55,10 @@ painted control handles the whole board; there is no window per pad.
 
 `Scene` owns persistent designer definitions for timers, counters, output groups,
 notes and UART/CAN/I²C/SPI connections. These definitions do not execute hardware
-or TypeScript. Names appear below the DPI-scaled glyphs, which keep the same size while zooming.
+or TypeScript. Names appear below the DPI-scaled nonvisual glyphs, which keep the same size while zooming.
+Notes instead appear as resizable themed text panels with wrapped multiline text.
+Double-click a note or use its inspector Text button to edit it in the demo.
+Notes have position, size and lock properties, and no pin assignments.
 The scene supports selection, group movement, fixed-size nonvisual glyphs,
 locking, snapping, clipboard operations and undo/redo. Drag a programmable terminal
 onto an item to connect it. Connections use GDI+ antialiased Bézier curves, with

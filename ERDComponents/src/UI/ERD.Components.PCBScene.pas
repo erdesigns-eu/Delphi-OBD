@@ -67,6 +67,7 @@ function ERDPCBItemKindName(Kind: TERDPCBItemKind): string;
 implementation
 function ERDPCBItemKindName(Kind: TERDPCBItemKind): string;
 begin
+  if Kind = piNote then begin Value.Width := 30; Value.Height := 18; Value.Caption := 'Note'; end;
   case Kind of piTimer: Result := 'Timer'; piCounter: Result := 'Counter';
     piOutputGroup: Result := 'OutputGroup'; piUART: Result := 'UART'; piCANBus: Result := 'CANBus';
     piI2C: Result := 'I2C'; piSPI: Result := 'SPI'; else Result := 'Note'; end;
@@ -158,6 +159,8 @@ begin
     IsNan(Item.Width) or IsInfinite(Item.Width) or IsNan(Item.Height) or IsInfinite(Item.Height) or
     (Abs(Item.X) > 10000) or (Abs(Item.Y) > 10000) or (Item.Width < 2) or (Item.Height < 2) or
     (Item.Width > 1000) or (Item.Height > 1000) then raise EArgumentException.Create('Invalid component bounds');
+  if (Item.Kind = piNote) and ((Item.Pin <> '') or (Item.SecondaryPin <> '') or
+    (Item.ClockPin <> '') or (Item.SelectPin <> '')) then raise EArgumentException.Create('Notes cannot have pin assignments');
   if Item.Value < 0 then raise EArgumentException.Create('Value cannot be negative');
   if (Item.Kind in [piTimer, piUART, piCANBus, piI2C, piSPI]) and (Item.Value < 1) then raise EArgumentException.Create('Timer interval must be positive');
   if (Item.Kind = piOutputGroup) and ((Item.Value < 1) or (Item.Value > 65535)) then

@@ -91,6 +91,7 @@ type
     function ItemRect(Index: Integer): TRect;
     function ItemAt(const P: TPoint): Integer;
     function GripAt(const P: TPoint): Integer;
+    function GripRect(const R: TRect; Index: Integer): TRect;
     function Snap(Value: Double): Double;
     procedure PaintBoardLayer(ACanvas: TCanvas);
     procedure PaintGrid(ACanvas: TCanvas);
@@ -1010,9 +1011,16 @@ begin
   Invalidate;
 end;
 function TERDPCBDesigner.ItemRect(Index: Integer): TRect;
-var Value: TERDPCBDesignItem; P: TPoint;
+var Value: TERDPCBDesignItem; P, Q: TPoint;
 begin
-  Value := FScene.Item(Index); P := ScreenPoint(PointF(Value.X, Value.Y));
+  Value := FScene.Item(Index);
+  if Value.Kind = piNote then
+  begin
+    P := ScreenPoint(PointF(Value.X, Value.Y + Value.Height));
+    Q := ScreenPoint(PointF(Value.X + Value.Width, Value.Y));
+    Exit(Rect(P.X, P.Y, Q.X, Q.Y));
+  end;
+  P := ScreenPoint(PointF(Value.X, Value.Y));
   // Nonvisual design glyphs have a fixed DPI-scaled size, independent of PCB zoom.
   Result := Rect(P.X, P.Y - ScaleValue(32), P.X + ScaleValue(32), P.Y);
 end;
@@ -1022,10 +1030,21 @@ begin
   UpdateTransform; Result := -1;
   for I := FScene.Count - 1 downto 0 do if PtInRect(ItemRect(I), P) then Exit(I);
 end;
-function TERDPCBDesigner.GripAt(const P: TPoint): Integer;
+function TERDPCBDesigner.GripRect(const R: TRect; Index: Integer): TRect;
+var X, Y, Size: Integer;
 begin
-  // Nonvisual components can be moved but cannot be resized.
-  Result := -1;
+  case Index of 0, 6, 7: X := R.Left; 1, 5: X := (R.Left + R.Right) div 2; else X := R.Right; end;
+  case Index of 0, 1, 2: Y := R.Top; 3, 7: Y := (R.Top + R.Bottom) div 2; else Y := R.Bottom; end;
+  Size := ScaleValue(3); Result := Rect(X - Size, Y - Size, X + Size + 1, Y + Size + 1);
+end;
+function TERDPCBDesigner.GripAt(const P: TPoint): Integer;
+var Index, I: Integer; R: TRect; Value: TERDPCBDesignItem;
+begin
+  Result := -1; if FScene.SelectionCount <> 1 then Exit;
+  Index := FScene.PrimaryIndex; if Index < 0 then Exit;
+  Value := FScene.Item(Index); if (Value.Kind <> piNote) or Value.Locked then Exit;
+  UpdateTransform; R := ItemRect(Index);
+  for I := 0 to 7 do if PtInRect(GripRect(R, I), P) then Exit(I);
 end;
 procedure TERDPCBDesigner.PaintBodies(ACanvas: TCanvas);
 var I, J, K: Integer; Value: TERDPCBComponent; Poly: TArray<TPoint>; R, Inner: TRect; P: TPoint;
@@ -1220,7 +1239,7 @@ begin
   end;
 end;
 procedure TERDPCBDesigner.PaintScene(ACanvas: TCanvas);
-var I: Integer; R, LinkRect: TRect; Value: TERDPCBDesignItem;
+var I, J, ClipState: Integer; R, LinkRect: TRect; Value: TERDPCBDesignItem;
     P, Q: TPoint; Pad: TERDPCBPad; Text, Link: string; Role: Integer;
     Tint: TBitmap; Blend: TBlendFunction; Ink: TColor; RoleCount: Integer;
   procedure DrawConnection(const FromPoint, ToPoint: TPoint; Color: TColor; Width: Single);
@@ -1255,6 +1274,7 @@ begin
   for I := 0 to FScene.Count - 1 do
   begin
     Value := FScene.Item(I); R := ItemRect(I);
+    if Value.Kind = piNote then Continue;
     RoleCount := 1;
     if Value.Kind in [piUART, piCANBus, piI2C] then RoleCount := 2
     else if Value.Kind = piSPI then RoleCount := 4;
@@ -1276,6 +1296,31 @@ begin
   for I := 0 to FScene.Count - 1 do
   begin
     Value := FScene.Item(I); R := ItemRect(I);
+    if Value.Kind = piNote then
+    begin
+      ACanvas.Brush.Style := bsSolid;
+      ACanvas.Brush.Color := ERDMixColor(Palette.Background, Palette.Warning, 0.12);
+      ACanvas.Pen.Color := Palette.NeutralDark; ACanvas.Pen.Width := 1;
+      if Value.Selected then ACanvas.Pen.Color := Palette.Accent;
+      ACanvas.Rectangle(R);
+      ACanvas.Font.Assign(Font); ACanvas.Font.Color := Palette.ForegroundText;
+      ACanvas.Brush.Style := bsClear;
+      LinkRect := R; InflateRect(LinkRect, -ScaleValue(8), -ScaleValue(8));
+      Text := Value.Caption;
+      ClipState := SaveDC(ACanvas.Handle);
+      try
+        IntersectClipRect(ACanvas.Handle, R.Left + 1, R.Top + 1, R.Right - 1, R.Bottom - 1);
+        DrawTextW(ACanvas.Handle, PWideChar(Text), Length(Text), LinkRect,
+          DT_WORDBREAK or DT_NOPREFIX or DT_EDITCONTROL);
+      finally RestoreDC(ACanvas.Handle, ClipState); end;
+      if Value.Selected and not Value.Locked and (FScene.SelectionCount = 1) then
+      begin
+        ACanvas.Brush.Style := bsSolid; ACanvas.Brush.Color := Palette.Background;
+        ACanvas.Pen.Color := Palette.Accent;
+        for J := 0 to 7 do ACanvas.Rectangle(GripRect(R, J));
+      end;
+      Continue;
+    end;
     ACanvas.Brush.Style := bsSolid; ACanvas.Brush.Color := Palette.Background;
     ACanvas.Pen.Color := Palette.NeutralDark; ACanvas.Pen.Width := 1;
     if Value.Selected then begin ACanvas.Pen.Color := Palette.Accent; ACanvas.Pen.Width := ScaleValue(2); end;
@@ -1341,7 +1386,9 @@ var Value: TERDPCBDesignItem; Caps: TERDPCBPinCapabilities; C: Integer;
     if Result then Role := Pin;
   end;
 begin
-  Value := FScene.Item(Index); if Value.Locked then raise EArgumentException.Create('Unlock the component before connecting it');
+  Value := FScene.Item(Index);
+  if Value.Kind = piNote then raise EArgumentException.Create('Notes do not have pin connections');
+  if Value.Locked then raise EArgumentException.Create('Unlock the component before connecting it');
   C := ChannelIndex(Pin); if C < 0 then raise EArgumentException.Create('Pin is not programmable');
   Caps := FChannels[C].Capabilities;
   case Value.Kind of

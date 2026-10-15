@@ -2478,6 +2478,14 @@ begin
     Before := Scene.ToJSON; Failed := False;
     try Scene.LoadJSON(StringReplace(Before, '"width":20', '"width":-20', [])); except on E: EArgumentException do Failed := True; end;
     Check(Failed and (Scene.ToJSON = Before), 'Invalid scene loads are atomic');
+    C := Scene.Add(piNote, PointF(10,10)); Value := Scene.Item(C);
+    Value.Caption := 'First line' + sLineBreak + 'Second line'; Value.Width := 40; Value.Height := 25;
+    Scene.UpdateItem(C, Value); Before := Scene.ToJSON; Scene.LoadJSON(Before);
+    Check((Scene.Item(C).Caption = Value.Caption) and (Scene.Item(C).Width = 40),
+      'Notes preserve multiline text and resizable bounds');
+    Value.Pin := 'U7.2'; Failed := False;
+    try Scene.UpdateItem(C, Value); except on E: EArgumentException do Failed := True; end;
+    Check(Failed and (Scene.ToJSON = Before), 'Notes reject pin assignments without mutation');
   finally Scene.Free; end;
 end;
 
@@ -2521,8 +2529,7 @@ begin
     SceneIndex := Designer.AddDesignItem(piNote, PointF(12,2));
     Item := Designer.Scene.Item(SceneIndex); Item.Width := 3; Item.Height := 3; Designer.Scene.UpdateItem(SceneIndex, Item);
     Form.Show; Designer.SetFocus; Designer.SnapToGrid := False;
-    Client := Designer.BoardToClient(PointF(Item.X, Item.Y));
-    Inc(Client.X, 16); Dec(Client.Y, 16);
+    Client := Designer.BoardToClient(PointF(Item.X + Item.Width / 2, Item.Y + Item.Height / 2));
     Designer.Perform(WM_LBUTTONDOWN, MK_LBUTTON, MakeLParam(Client.X, Client.Y));
     Designer.Perform(WM_MOUSEMOVE, MK_LBUTTON, MakeLParam(Client.X + 20, Client.Y + 10));
     Before := PointF(Designer.Scene.Item(SceneIndex).X, Designer.Scene.Item(SceneIndex).Y);
