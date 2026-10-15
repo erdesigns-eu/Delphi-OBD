@@ -2520,6 +2520,21 @@ begin
     Designer.SelectedPin := 'U7.2';
     SceneIndex := Designer.AddDesignItem(piNote, PointF(12,2));
     Item := Designer.Scene.Item(SceneIndex); Item.Width := 3; Item.Height := 3; Designer.Scene.UpdateItem(SceneIndex, Item);
+    Form.Show; Designer.SetFocus; Designer.SnapToGrid := False;
+    Client := Designer.BoardToClient(PointF(Item.X, Item.Y));
+    Inc(Client.X, 16); Dec(Client.Y, 16);
+    Designer.Perform(WM_LBUTTONDOWN, MK_LBUTTON, MakeLParam(Client.X, Client.Y));
+    Designer.Perform(WM_MOUSEMOVE, MK_LBUTTON, MakeLParam(Client.X + 20, Client.Y + 10));
+    Before := PointF(Designer.Scene.Item(SceneIndex).X, Designer.Scene.Item(SceneIndex).Y);
+    Check(Abs(Before.X - Item.X) > 0.001, 'Nonvisual component follows mouse drag');
+    Designer.Perform(WM_LBUTTONUP, 0, MakeLParam(Client.X + 20, Client.Y + 10));
+    After := PointF(Designer.Scene.Item(SceneIndex).X, Designer.Scene.Item(SceneIndex).Y);
+    Check((Abs(Before.X - After.X) < 0.001) and (Abs(Before.Y - After.Y) < 0.001),
+      'Releasing capture after a drop preserves the new component position');
+    Designer.Undo;
+    Check(Abs(Designer.Scene.Item(SceneIndex).X - Item.X) < 0.001,
+      'Mouse drag is committed as one undoable edit');
+    Designer.SnapToGrid := True;
     Stream := TMemoryStream.Create;
     try
       RegisterClass(TERDPCBDesigner);

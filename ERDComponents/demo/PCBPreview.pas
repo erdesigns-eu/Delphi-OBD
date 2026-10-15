@@ -125,9 +125,8 @@ begin
     Field(Text, IntToStr(Value.Value), 3);
     Field('Enabled', '', 12, ivCheck); Row.Checked := Value.Enabled;
     Field('Locked', '', 13, ivCheck); Row.Checked := Value.Locked;
-    Category := FInspector.AddCategory('Position and size (mm)');
+    Category := FInspector.AddCategory('Position (mm)');
     Field('X', FloatToStr(Value.X, TFormatSettings.Invariant), 4); Field('Y', FloatToStr(Value.Y, TFormatSettings.Invariant), 5);
-    Field('Width', FloatToStr(Value.Width, TFormatSettings.Invariant), 6); Field('Height', FloatToStr(Value.Height, TFormatSettings.Invariant), 7);
     Category := FInspector.AddCategory('Programmable connections');
     Text := 'Terminal / pin'; if Value.Kind in [piUART, piCANBus] then Text := 'TX pin' else if Value.Kind = piI2C then Text := 'SDA pin' else if Value.Kind = piSPI then Text := 'MOSI pin';
     PinField(Text, Value.Pin, 8);

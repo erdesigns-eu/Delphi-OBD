@@ -67,7 +67,7 @@ type
     FViewBounds: TRectF;
     FZoom, FPanX, FPanY, FMaxX, FMaxY: Double;
     FScreenScale, FScreenX, FScreenY: Double;
-    FDragging, FPanMode: Boolean;
+    FDragging, FPanMode, FCompletingGesture: Boolean;
     FLast: TPoint;
     FOnSelectionChange, FOnHotPinChange, FOnViewChange: TNotifyEvent;
     procedure SetPanMode(Value: Boolean);
@@ -91,7 +91,6 @@ type
     function ItemRect(Index: Integer): TRect;
     function ItemAt(const P: TPoint): Integer;
     function GripAt(const P: TPoint): Integer;
-    function GripRect(const R: TRect; Index: Integer): TRect;
     function Snap(Value: Double): Double;
     procedure PaintBoardLayer(ACanvas: TCanvas);
     procedure PaintGrid(ACanvas: TCanvas);
@@ -118,6 +117,7 @@ type
     procedure ViewChanged;
     procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
     procedure CMHintShow(var Message: TCMHintShow); message CM_HINTSHOW;
+    procedure WMLButtonUp(var Message: TWMLButtonUp); message WM_LBUTTONUP;
     procedure WMCaptureChanged(var Message: TMessage); message WM_CAPTURECHANGED;
     procedure WMGetDlgCode(var Message: TWMGetDlgCode); message WM_GETDLGCODE;
     function ViewScale: Double;
@@ -825,8 +825,22 @@ begin
 end;
 procedure TERDPCBDesigner.CMMouseLeave(var Message: TMessage);
 begin SetHot(''); if not FDragging then Cursor := crDefault; inherited; end;
+procedure TERDPCBDesigner.WMLButtonUp(var Message: TWMLButtonUp);
+begin
+  // VCL may release capture before dispatching the virtual MouseUp method.
+  FCompletingGesture := True;
+  try
+    inherited;
+  finally
+    FCompletingGesture := False;
+  end;
+end;
 procedure TERDPCBDesigner.WMCaptureChanged(var Message: TMessage);
-begin FDragging := False; CancelGesture; Cursor := crDefault; inherited; end;
+begin
+  if not FCompletingGesture then
+  begin FDragging := False; CancelGesture; Cursor := crDefault; end;
+  inherited;
+end;
 procedure TERDPCBDesigner.WMGetDlgCode(var Message: TWMGetDlgCode);
 begin Message.Result := DLGC_WANTARROWS; end;
 procedure TERDPCBDesigner.CMHintShow(var Message: TCMHintShow);
@@ -986,10 +1000,11 @@ begin
   Invalidate;
 end;
 function TERDPCBDesigner.ItemRect(Index: Integer): TRect;
-var Value: TERDPCBDesignItem; P, Q: TPoint;
+var Value: TERDPCBDesignItem; P: TPoint;
 begin
-  Value := FScene.Item(Index); P := ScreenPoint(PointF(Value.X, Value.Y + Value.Height));
-  Q := ScreenPoint(PointF(Value.X + Value.Width, Value.Y)); Result := Rect(P.X, P.Y, Q.X, Q.Y);
+  Value := FScene.Item(Index); P := ScreenPoint(PointF(Value.X, Value.Y));
+  // Nonvisual design glyphs have a fixed DPI-scaled size, independent of PCB zoom.
+  Result := Rect(P.X, P.Y - ScaleValue(32), P.X + ScaleValue(32), P.Y);
 end;
 function TERDPCBDesigner.ItemAt(const P: TPoint): Integer;
 var I: Integer;
@@ -997,26 +1012,10 @@ begin
   UpdateTransform; Result := -1;
   for I := FScene.Count - 1 downto 0 do if PtInRect(ItemRect(I), P) then Exit(I);
 end;
-function TERDPCBDesigner.GripRect(const R: TRect; Index: Integer): TRect;
-var X, Y, Size: Integer;
-begin
-  case Index of
-    0, 6, 7: X := R.Left; 1, 5: X := (R.Left + R.Right) div 2;
-  else X := R.Right;
-  end;
-  case Index of
-    0, 1, 2: Y := R.Top; 3, 7: Y := (R.Top + R.Bottom) div 2;
-  else Y := R.Bottom;
-  end;
-  Size := ScaleValue(4); Result := Rect(X - Size, Y - Size, X + Size + 1, Y + Size + 1);
-end;
 function TERDPCBDesigner.GripAt(const P: TPoint): Integer;
-var I, Index: Integer; R: TRect;
 begin
-  Result := -1; if FScene.SelectionCount <> 1 then Exit;
-  Index := FScene.PrimaryIndex; if FScene.Item(Index).Locked then Exit;
-  UpdateTransform; R := ItemRect(Index);
-  for I := 0 to 7 do if PtInRect(GripRect(R, I), P) then Exit(I);
+  // Nonvisual components can be moved but cannot be resized.
+  Result := -1;
 end;
 procedure TERDPCBDesigner.PaintBodies(ACanvas: TCanvas);
 var I, J, K: Integer; Value: TERDPCBComponent; Poly: TArray<TPoint>; R, Inner: TRect; P: TPoint;
@@ -1084,6 +1083,20 @@ begin
         ACanvas.MoveTo((R.Left + R.Right) div 2, R.Top); ACanvas.LineTo((R.Left + R.Right) div 2, R.Bottom);
       end;
     finally RestoreDC(ACanvas.Handle, Saved); end;
+  end;
+  // Draw selection outlines after every body, so adjacent terminals cannot cover an edge.
+  ACanvas.Brush.Style := bsClear; ACanvas.Pen.Width := ScaleValue(2);
+  ACanvas.Pen.Color := FSelectionColor;
+  if FSelectionColor = clDefault then ACanvas.Pen.Color := Palette.Accent;
+  for I := 0 to High(FComponents) do
+  begin
+    Value := FComponents[I]; TerminalID := TerminalIndex(Value.Reference);
+    if (TerminalID < 0) or (Length(Value.Body) < 3) then Continue;
+    if (FTerminals[TerminalID].SignalPin <> FSelected) and
+       (FTerminals[TerminalID].SignalPin <> FHot) then Continue;
+    SetLength(Poly, Length(Value.Body));
+    for J := 0 to High(Poly) do Poly[J] := ScreenPoint(Value.Body[J]);
+    ACanvas.Polygon(Poly);
   end;
   // Programmable pads remain clear hit targets on the assembled component layer.
   if FShowPads then for I := 0 to High(FPads) do if IsSelectablePin(FPads[I].ID) then
@@ -1172,7 +1185,7 @@ begin
   end;
 end;
 procedure TERDPCBDesigner.PaintScene(ACanvas: TCanvas);
-var I, J, Index, Saved: Integer; R, LinkRect: TRect; Value: TERDPCBDesignItem;
+var I: Integer; R, LinkRect: TRect; Value: TERDPCBDesignItem;
     P, Q: TPoint; Pad: TERDPCBPad; Text, Link: string; Role: Integer;
 begin
   UpdateTransform;
@@ -1193,26 +1206,24 @@ begin
     ACanvas.Pen.Color := Palette.NeutralDark; ACanvas.Pen.Width := 1;
     if Value.Selected then begin ACanvas.Pen.Color := Palette.Accent; ACanvas.Pen.Width := ScaleValue(2); end;
     ACanvas.Rectangle(R);
-    Saved := SaveDC(ACanvas.Handle);
-    try
-      IntersectClipRect(ACanvas.Handle, R.Left + 1, R.Top + 1, R.Right - 1, R.Bottom - 1);
-      ACanvas.Brush.Style := bsClear; ACanvas.Font.Name := 'Segoe UI'; ACanvas.Font.Height := -ScaleValue(11);
-      ACanvas.Font.Style := [fsBold]; ACanvas.Font.Color := Palette.ForegroundText;
-      if not Value.Enabled then ACanvas.Font.Color := Palette.Subtle;
-      Text := Value.Name; if Value.Locked then Text := Text + ' [locked]';
-      LinkRect := Rect(R.Left + ScaleValue(6), R.Top + ScaleValue(4), R.Right - ScaleValue(5), R.Bottom);
-      DrawTextW(ACanvas.Handle, PWideChar(Text), Length(Text), LinkRect, DT_SINGLELINE or DT_END_ELLIPSIS or DT_NOPREFIX);
-      ACanvas.Font.Style := []; ACanvas.Font.Color := Palette.Subtle;
-      Text := ERDPCBItemKindName(Value.Kind); if Value.Pin <> '' then Text := Text + ' - ' + Value.Pin;
-      LinkRect.Top := LinkRect.Top + ScaleValue(17);
-      DrawTextW(ACanvas.Handle, PWideChar(Text), Length(Text), LinkRect, DT_SINGLELINE or DT_END_ELLIPSIS or DT_NOPREFIX);
-    finally RestoreDC(ACanvas.Handle, Saved); end;
-  end;
-  Index := FScene.PrimaryIndex;
-  if (FScene.SelectionCount = 1) and (Index >= 0) and not FScene.Item(Index).Locked then
-  begin
-    R := ItemRect(Index); ACanvas.Pen.Width := 1; ACanvas.Pen.Color := Palette.Accent; ACanvas.Brush.Color := Palette.Background;
-    for J := 0 to 7 do ACanvas.Rectangle(GripRect(R, J));
+    ACanvas.Brush.Style := bsClear; ACanvas.Font.Name := 'Segoe UI';
+    ACanvas.Font.Height := -ScaleValue(11); ACanvas.Font.Style := [fsBold];
+    ACanvas.Font.Color := Palette.ForegroundText;
+    if not Value.Enabled then ACanvas.Font.Color := Palette.Subtle;
+    case Value.Kind of
+      piTimer: Text := 'T'; piCounter: Text := '#'; piOutputGroup: Text := 'LED';
+      piNote: Text := 'N'; piUART: Text := 'UART'; piCANBus: Text := 'CAN';
+      piI2C: Text := 'I2C'; piSPI: Text := 'SPI';
+    end;
+    LinkRect := R; InflateRect(LinkRect, -ScaleValue(3), -ScaleValue(3));
+    DrawTextW(ACanvas.Handle, PWideChar(Text), Length(Text), LinkRect,
+      DT_SINGLELINE or DT_CENTER or DT_VCENTER or DT_NOPREFIX);
+    ACanvas.Font.Style := []; Text := Value.Name;
+    if Value.Locked then Text := Text + ' [locked]';
+    LinkRect := Rect(R.Left - ScaleValue(64), R.Bottom + ScaleValue(3),
+      R.Right + ScaleValue(64), R.Bottom + ScaleValue(22));
+    DrawTextW(ACanvas.Handle, PWideChar(Text), Length(Text), LinkRect,
+      DT_SINGLELINE or DT_CENTER or DT_END_ELLIPSIS or DT_NOPREFIX);
   end;
   if FEditMode = 4 then
   begin
@@ -1379,6 +1390,10 @@ end;
 procedure TERDPCBDesigner.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var Mode, I: Integer; R, Intersection: TRect;
 begin
+  // VCL releases capture in inherited MouseUp. Mark the gesture complete first
+  // so WM_CAPTURECHANGED cannot roll back a successful drop.
+  Mode := FEditMode; FEditMode := 0;
+  if Mode in [1, 2] then FScene.EndEdit;
   inherited;
   if FDragging then
   begin
@@ -1387,8 +1402,6 @@ begin
     Exit;
   end;
   if Button <> mbLeft then Exit;
-  Mode := FEditMode; FEditMode := 0;
-  if Mode in [1, 2] then FScene.EndEdit;
   if Mode = 4 then
   begin
     I := ItemAt(Point(X,Y));

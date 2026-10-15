@@ -55,7 +55,8 @@ painted control handles the whole board; there is no window per pad.
 
 `Scene` owns persistent designer definitions for timers, counters, output groups,
 notes and UART/CAN/I²C/SPI connections. These definitions do not execute hardware
-or TypeScript. The scene supports selection, group movement, resize handles,
+or TypeScript. Names appear below the DPI-scaled glyphs, which keep the same size while zooming.
+The scene supports selection, group movement, fixed-size nonvisual glyphs,
 locking, snapping, clipboard operations and undo/redo. Drag a programmable terminal
 onto an item to connect it. Conflicting enabled drivers and incompatible pin
 capabilities are rejected through `OnConnectionError`.
