@@ -11,6 +11,7 @@ type
     FInspector: TERDInspector;
     FName, FCount, FAction: TERDInspectorProperty;
     FFileName: string;
+    procedure ViewOptionChanged(Sender: TObject);
     procedure SelectionChanged(Sender: TObject);
     procedure BindingChanging(Sender: TObject; AProperty: TERDInspectorProperty;
       var NewValue: string; var Accept: Boolean);
@@ -23,7 +24,7 @@ implementation
 uses
   System.IOUtils, Vcl.StdCtrls, Vcl.Dialogs;
 constructor TPCBPreview.Create(AOwner: TComponent);
-var Header: TERDPanel; B: TERDButton; L: TLabel; I: Integer; Base, BoardFile: string;
+var Header: TERDPanel; B: TERDButton; L: TLabel; I: Integer; Base, BoardFile: string; Choice: TERDCheckBox;
   procedure Button(const Caption: string; Left, Width, Tag: Integer);
   begin
     B := TERDButton.Create(Self); B.Parent := Header; B.Caption := Caption;
@@ -32,16 +33,24 @@ var Header: TERDPanel; B: TERDButton; L: TLabel; I: Integer; Base, BoardFile: st
   end;
 begin
   inherited;
-  Header := TERDPanel.Create(Self); Header.Parent := Self; Header.Align := alTop; Header.Height := ScaleValue(70);
+  Header := TERDPanel.Create(Self); Header.Parent := Self; Header.Align := alTop; Header.Height := ScaleValue(104);
   Button('Fit board', 8, 90, 0); Button('Select U7.2', 104, 100, 1);
   Button('Save project', 210, 105, 2); Button('Open project', 321, 105, 3);
   L := TLabel.Create(Self); L.Parent := Header;
-  L.SetBounds(ScaleValue(10), ScaleValue(43), ScaleValue(800), ScaleValue(20));
-  L.Caption := 'Click a pad to inspect it. Wheel: zoom; middle drag: pan. Assignments are configuration only.';
+  L.SetBounds(ScaleValue(10), ScaleValue(78), ScaleValue(800), ScaleValue(20));
+  L.Caption := 'Click or arrow keys: select a pin. Wheel: zoom; middle/space drag: pan; Home: fit; Esc: clear selection.';
   FInspector := TERDInspector.Create(Self); FInspector.Parent := Self; FInspector.Align := alRight; FInspector.Width := ScaleValue(320);
   FInspector.OnPropertyChanging := BindingChanging; FInspector.OnPropertyChanged := BindingChanged;
   FDesigner := TERDPCBDesigner.Create(Self); FDesigner.Parent := Self; FDesigner.Align := alClient;
   FDesigner.OnSelectionChange := SelectionChanged;
+  for I := 0 to 3 do
+  begin
+    Choice := TERDCheckBox.Create(Self); Choice.Parent := Header;
+    case I of 0: Choice.Caption := 'Pads'; 1: Choice.Caption := 'Labels';
+      2: Choice.Caption := 'Outlines'; 3: Choice.Caption := 'Drills'; end;
+    Choice.SetBounds(ScaleValue(10 + I * 108), ScaleValue(43), ScaleValue(102), ScaleValue(26));
+    Choice.Checked := True; Choice.Tag := I; Choice.OnChange := ViewOptionChanged;
+  end;
   BoardFile := ''; Base := ExtractFilePath(ParamStr(0));
   for I := 0 to 3 do
   begin
@@ -55,6 +64,17 @@ begin
     except on E: Exception do L.Caption := 'Board import: ' + E.Message; end;
   end
   else L.Caption := 'Board package not found: keep the demo pcb folder beside the executable or its build folders.';
+end;
+procedure TPCBPreview.ViewOptionChanged(Sender: TObject);
+var Choice: TERDCheckBox;
+begin
+  Choice := Sender as TERDCheckBox;
+  case Choice.Tag of
+    0: FDesigner.ShowPads := Choice.Checked;
+    1: FDesigner.ShowLabels := Choice.Checked;
+    2: FDesigner.ShowComponentOutlines := Choice.Checked;
+    3: FDesigner.ShowDrills := Choice.Checked;
+  end;
 end;
 procedure TPCBPreview.SelectionChanged(Sender: TObject);
 var Category: TERDInspectorCategory; P: TERDPCBPad; C: TERDPCBChannel; Index: Integer;

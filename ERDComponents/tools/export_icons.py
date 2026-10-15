@@ -58,6 +58,7 @@ def resource(name,payload):
 
 # Per-class icons, not one placeholder shared by every component.
 COMPONENT_ICONS={
+    'TERDPCBDesigner': -1,  # Dedicated board glyph, not a catalog placeholder.
     'TERDRating': 224,
     'TERDCommandPalette': 14,
     'TERDDropZone': 18,
@@ -86,6 +87,18 @@ COMPONENT_ICONS={
  'TERDPrintDialog':21,'TERDPageSetupDialog':77,'TERDBreadcrumb':33,
  'TERDPlacesPane':6,'TERDFolderTree':69,'TERDFileList':60}
 
+def component_vectors(name):
+    if name == 'TERDPCBDesigner':
+        return [
+            ('loop', [(-6,-5),(6,-5),(6,5),(-6,5)]),
+            ('loop', [(-2,-2),(2,-2),(2,2),(-2,2)]),
+            ('line', [(-5,-3),(-4,-3),(-4,0),(-2,0)]),
+            ('line', [(2,0),(4,0),(4,3),(5,3)]),
+            ('disc', -5,3,0.6), ('disc', 5,-3,0.6),
+        ]
+    return catalog_vectors.vectors(COMPONENT_ICONS[name])
+
+
 def build():
     catalog=json.loads((ROOT/'docs/iconset-catalog.json').read_text())
     folder=ROOT/'assets/svg';folder.mkdir(exist_ok=True)
@@ -98,7 +111,7 @@ def build():
     missing=set(components)-COMPONENT_ICONS.keys()
     if missing:raise ValueError('Assign class icons: '+', '.join(sorted(missing)))
     result=struct.pack('<IIHHHHIHHII',0,32,0xffff,0,0xffff,0,0,0,0,0,0)
-    for name in components:result+=resource(name,bitmap(catalog_vectors.vectors(COMPONENT_ICONS[name])))
+    for name in components:result+=resource(name,bitmap(component_vectors(name)))
     (ROOT/'src/DesignTime/ERD.Components.Palette.res').write_bytes(result)
     print(len(catalog['icons']),'SVG icons and',len(components),'class palette resources exported.')
 if __name__=='__main__':build()

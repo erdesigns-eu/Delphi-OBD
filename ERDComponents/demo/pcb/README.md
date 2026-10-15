@@ -4,7 +4,8 @@ Open the demo's **PCB designer** tab. Its board package is found in this folder,
 including when the executable is under `demo/Win32/Release`. For a portable demo,
 copy the `pcb` folder beside the executable.
 
-- Click a gold pad to inspect its physical pin and net.
+- Click a gold pad to inspect its physical pin and net; hover shows pin/net hints.
+- Toggle Pads, Labels, Outlines and Drills to adjust the view.
 - **Select U7.2** selects the GPIO4 buffered output and shows its actual route.
 - Edit its unique channel name, LED count (1–65535), and optional `showPick` action.
 - Wheel zooms at the pointer; middle drag pans; **Fit board** resets the view.
@@ -37,3 +38,9 @@ separate shapes while sharing the same electrical pin identity.
 The Windows smoke suite includes hit testing, selection, project round-trip,
 invalid-assignment rollback and board-fingerprint rejection. These tests must
 be compiled/run with Delphi on Windows; Linux checks do not replace that run.
+
+
+The standalone component is now on the ERDesigns Components palette, with a
+`BoardFileName` browse editor and embedded DFM board data. See
+`../../docs/pcb-designer-component.md` for properties, events and interaction APIs.
+Pick flows and TypeScript wiring are deferred; the current work is the designer.

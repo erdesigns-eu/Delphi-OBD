@@ -6,10 +6,21 @@ implementation
 uses
   System.SysUtils, System.Types, System.TypInfo, System.Generics.Collections,
   Winapi.Windows, DesignIntf, DesignEditors,
-  Vcl.Forms, Vcl.Controls, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.Graphics,
+  Vcl.Forms, Vcl.Controls, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.Graphics, Vcl.Dialogs,
   ERD.Components.Icons, ERD.Components.IconCatalog, ERD.Components.Types,
-  ERD.Components.Paint, ERD.Components.Theme;
+  ERD.Components.Paint, ERD.Components.Theme, ERD.Components.PCBDesigner;
 type
+  TERDPCBBoardFileProperty = class(TStringProperty)
+  public
+    function GetAttributes: TPropertyAttributes; override;
+    procedure Edit; override;
+  end;
+  TERDPCBComponentEditor = class(TComponentEditor)
+  public
+    function GetVerbCount: Integer; override;
+    function GetVerb(Index: Integer): string; override;
+    procedure ExecuteVerb(Index: Integer); override;
+  end;
   TERDEnumProperty = class(TEnumProperty)
   public
     function GetAttributes: TPropertyAttributes; override;
@@ -191,6 +202,34 @@ begin
     end;
   finally Dialog.Free end;
 end;
+function TERDPCBBoardFileProperty.GetAttributes: TPropertyAttributes;
+begin Result := inherited GetAttributes + [paDialog]; end;
+procedure TERDPCBBoardFileProperty.Edit;
+var Dialog: TOpenDialog;
+begin
+  Dialog := TOpenDialog.Create(nil);
+  try
+    Dialog.Filter := 'Normalized PCB board|*.json'; Dialog.FileName := GetStrValue;
+    Dialog.Options := [ofFileMustExist, ofPathMustExist, ofEnableSizing];
+    if Dialog.Execute then begin SetStrValue(Dialog.FileName); Designer.Modified; end;
+  finally Dialog.Free; end;
+end;
+function TERDPCBComponentEditor.GetVerbCount: Integer;
+begin Result := 2; end;
+function TERDPCBComponentEditor.GetVerb(Index: Integer): string;
+begin
+  case Index of 0: Result := 'Fit board'; 1: Result := 'Clear board'; else Result := ''; end;
+end;
+procedure TERDPCBComponentEditor.ExecuteVerb(Index: Integer);
+begin
+  if not (Component is TERDPCBDesigner) then Exit;
+  case Index of
+    0: TERDPCBDesigner(Component).FitBoard;
+    1: TERDPCBDesigner(Component).ClearBoard;
+  else Exit;
+  end;
+  Designer.Modified;
+end;
 procedure RegisterERDPropertyEditors(const Classes: array of TPersistentClass);
 var Seen: TList<TPersistentClass>; C: TPersistentClass;
   procedure Visit(AClass: TPersistentClass);
@@ -224,6 +263,8 @@ begin
   try
     for C in Classes do Visit(C);
     RegisterPropertyEditor(TypeInfo(TERDIconId), TERDIcon, 'BuiltIn', TERDBuiltInIconProperty);
+    RegisterPropertyEditor(TypeInfo(TFileName), TERDPCBDesigner, 'BoardFileName', TERDPCBBoardFileProperty);
+    RegisterComponentEditor(TERDPCBDesigner, TERDPCBComponentEditor);
   finally Seen.Free end;
 end;
 end.

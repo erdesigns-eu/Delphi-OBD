@@ -203,7 +203,16 @@ This is a top-side configuration preview. Copper layers, a Gerber raster cache,
 bottom-side import, undo/redo, a shared nonvisual component tray, simulation,
 TypeScript handler generation and hardware execution remain subsequent stages.
 The `showPick` choice records intent; it does not invoke a device or invent a
-TSVM hardware API. The component is created at runtime and is not yet registered
-on the Delphi palette. Delphi compilation/runtime checks require Windows.
+TSVM hardware API. The component is now registered on the Delphi palette and can embed board data
+in a DFM; see `pcb-designer-component.md`. Delphi compilation/runtime checks require Windows.
 
 See `demo/pcb/README.md` for the importer and demo test instructions.
+
+
+## Current priority
+
+Finish the reusable visual designer component first. Pick flows and TypeScript
+binding/handler integration are explicitly deferred until the IDE work later.
+The next component slice adds palette/property editors, embedded board streaming,
+view options and complete pin interaction. It does not implement the simulation
+or language-binding roadmap stages.

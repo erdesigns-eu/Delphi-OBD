@@ -2455,14 +2455,17 @@ end;
 
 procedure TestPCBDesigner;
 var Form: TForm; Designer: TERDPCBDesigner; BoardFile, ProjectFile, Text: string;
-    Index: Integer; Failed: Boolean;
+    Index: Integer; Failed: Boolean; Client: TPoint; Before, After: TPointF;
+    Stream: TMemoryStream; CopyDesigner: TERDPCBDesigner; Pad: TERDPCBPad;
 begin
   Form := TForm.Create(nil); BoardFile := TPath.GetTempFileName; ProjectFile := TPath.GetTempFileName;
   try
     Designer := TERDPCBDesigner.Create(Form); Designer.Parent := Form; Designer.SetBounds(0, 0, 500, 300);
     Text := '{"schema":1,"units":"mm","y_axis":"up","source_sha256":"test-board",' +
       '"pads":[{"id":"U7.2","net":"OUT_GPIO4","reference":"U7","number":"2","position":[5,5],' +
-      '"polygon":[[4,4],[6,4],[6,6],[4,6]],"drill":[]}],' +
+      '"polygon":[[4,4],[6,4],[6,6],[4,6]],"drill":[]},' +
+      '{"id":"U7.1","net":"12V","reference":"U7","number":"1","position":[2,5],' +
+      '"polygon":[[1,4],[3,4],[3,6],[1,6]],"drill":[]}],' +
       '"channels":[{"pin":"U7.2","gpio":"GPIO4","route":"U6.4 to U7.2"}],' +
       '"components":[{"reference":"U7","device":"terminal","position":[5,5]}],' +
       '"silkscreen":[],"outline":[[[0,0],[10,0],[10,10],[0,10],[0,0]]]}';
@@ -2470,6 +2473,39 @@ begin
     Form.Show; Designer.Perform(WM_LBUTTONDOWN, MK_LBUTTON, MakeLParam(250, 150));
     Check(Designer.SelectedPin = 'U7.2', 'PCB hit testing selects a pad in board coordinates');
     Check(Designer.SelectedPad.Net = 'OUT_GPIO4', 'PCB selection retains electrical identity');
+    Pad := Designer.SelectedPad; Pad.Polygon[0] := PointF(-100, -100);
+    Check(Designer.SelectedPad.Polygon[0].X = 4, 'Selected pad geometry cannot mutate the imported board');
+    Client := Point(325, 120); Before := Designer.ClientToBoard(Client);
+    Designer.ZoomAt(2, Client); After := Designer.ClientToBoard(Client);
+    Check((Abs(Before.X - After.X) < 0.001) and (Abs(Before.Y - After.Y) < 0.001), 'PCB zoom keeps the pointer on the same board position');
+    Designer.PanBy(13, -8); Client := Designer.BoardToClient(PointF(5, 5));
+    Check(Designer.HitTestPin(Client) = 'U7.2', 'PCB hit testing follows zoom and pan');
+    Designer.Perform(WM_MOUSEMOVE, 0, MakeLParam(Client.X, Client.Y));
+    Check(Designer.HotPin = 'U7.2', 'PCB hover resolves electrical pin identity');
+    Designer.Perform(CM_MOUSELEAVE, 0, 0); Check(Designer.HotPin = '', 'PCB hover clears when leaving the control');
+    Designer.ShowPads := False; Check(Designer.HitTestPin(Client) = '', 'Hidden pads cannot intercept selection');
+    Designer.ShowPads := True;
+    Designer.Perform(WM_KEYDOWN, VK_LEFT, 0);
+    Check(Designer.SelectedPin = 'U7.1', 'Spatial arrow navigation can select power pins, not only output channels');
+    Designer.SelectedPin := 'U7.2';
+    Stream := TMemoryStream.Create;
+    try
+      RegisterClass(TERDPCBDesigner);
+      Designer.ShowLabels := False; Designer.ShowDrills := False; Designer.PadColor := clRed;
+      Stream.WriteComponent(Designer); Stream.Position := 0;
+      DeleteFile(BoardFile); // An embedded board must not need the original file.
+      CopyDesigner := TERDPCBDesigner(Stream.ReadComponent(nil));
+      try
+        Check(not CopyDesigner.ShowLabels and not CopyDesigner.ShowDrills and (CopyDesigner.PadColor = clRed),
+          'PCB view properties round-trip through DFM streaming');
+        Check(SameValue(CopyDesigner.Zoom, Designer.Zoom), 'Embedded board loading preserves the streamed zoom');
+        CopyDesigner.SelectedPin := 'U7.2';
+        Check(CopyDesigner.SelectedPad.Net = 'OUT_GPIO4', 'DFM embeds physical board data independently of the source path');
+        Check(CopyDesigner.BoardFileName = '', 'DFM does not store an absolute source-machine path');
+        CopyDesigner.ClearBoard; Check(CopyDesigner.HitTestPin(Point(0, 0)) = '', 'Clearing a board removes selectable geometry');
+      finally CopyDesigner.Free; end;
+    finally Stream.Free; end;
+    Designer.FitBoard;
     Index := Designer.ChannelIndex('U7.2'); Check(Index = 0, 'PCB output resolves independently of geometry');
     Designer.SetBinding(Index, 'PickA', 'showPick', 24); Designer.SaveProject(ProjectFile);
     Designer.SetBinding(Index, 'Changed', '', 1); Designer.SelectedPin := '';

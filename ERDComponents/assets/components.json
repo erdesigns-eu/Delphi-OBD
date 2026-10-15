@@ -72,5 +72,6 @@
   "TERDLoadingIndicator",
   "TERDDropZone",
   "TERDCommandPalette",
-  "TERDRating"
+  "TERDRating",
+  "TERDPCBDesigner"
 ]

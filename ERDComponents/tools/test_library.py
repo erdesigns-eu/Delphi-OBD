@@ -31,6 +31,9 @@ class LibraryTests(unittest.TestCase):
         registered = set(json.loads((ROOT/'assets/components.json').read_text()))
         dfm = (ROOT/'demo/Showcase.dfm').read_text(encoding='utf-8-sig')
         shown = set(re.findall(r'object \w+: (TERD\w+)', dfm))
+        # Runtime preview pages instantiate their controls in helper units.
+        for path in (ROOT/'demo').glob('*.pas'):
+            shown.update(re.findall(r'\b(TERD\w+)\.Create\s*\(', path.read_text(encoding='utf-8-sig')))
         self.assertEqual(registered - shown, set())
         self.assertIn('OnClick = ExecuteDemoDialog', dfm)
         self.assertNotIn('TPageControl', dfm)
