@@ -2,7 +2,7 @@
 {$APPTYPE CONSOLE}
 uses
   ERD.Components.LSP, ERD.Components.Paint, ERD.Components.Control, ERD.Components.LanguageServices, ERD.Components.TextLayout, ERD.Components.CodeEditor, ERD.Components.Syntax,
-  ERD.Components.PCBDesigner,
+  ERD.Components.PCBDesigner, ERD.Components.PCBScene,
   ERD.Components.TextModel, ERD.Components.TextInput,
   System.IOUtils, System.JSON,
   System.SysUtils, System.Classes, System.Types, System.Math, Vcl.Forms, Vcl.Controls, Vcl.ExtCtrls,
@@ -2453,9 +2453,37 @@ begin
   finally Form.Free; end;
 end;
 
+procedure TestPCBScene;
+var Scene: TERDPCBScene; A, B, C: Integer; Value: TERDPCBDesignItem; Before: string; Failed: Boolean;
+begin
+  Scene := TERDPCBScene.Create(nil);
+  try
+    A := Scene.Add(piTimer, PointF(1,2)); B := Scene.Add(piCounter, PointF(4,5));
+    Check((Scene.Item(A).Name = 'Timer1') and (Scene.Item(A).Value = 1000), 'Designer item defaults are typed');
+    Scene.Select(A); Scene.Select(B, True); Scene.ResetHistory; Before := Scene.ToJSON;
+    Scene.BeginEdit; Scene.MoveSelected(2,3); Value := Scene.Item(A); Value.Width := 20; Scene.UpdateItem(A, Value); Scene.EndEdit;
+    Check(Scene.CanUndo and (Scene.Item(A).X = 3) and (Scene.Item(B).Y = 8), 'Grouped edit moves all selected objects');
+    Scene.Undo; Check(Scene.ToJSON = Before, 'Undo restores a complete designer transaction');
+    Scene.Redo; Check((Scene.Item(A).Width = 20) and not Scene.CanRedo, 'Redo restores resize and position');
+    Before := Scene.ToJSON; Scene.BeginEdit; Scene.MoveSelected(5,5); Scene.CancelEdit;
+    Check(Scene.ToJSON = Before, 'Cancelling a drag restores the entire scene');
+    Value := Scene.Item(A); Value.Locked := True; Scene.UpdateItem(A, Value); Scene.MoveSelected(1,1);
+    Check((Scene.Item(A).X = 3) and (Scene.Item(B).X = 7), 'Locked objects do not move with a selection');
+    Value := Scene.Item(B); Value.Name := Scene.Item(A).Name; Before := Scene.ToJSON; Failed := False;
+    try Scene.UpdateItem(B, Value); except on E: EArgumentException do Failed := True; end;
+    Check(Failed and (Scene.ToJSON = Before), 'Duplicate component names are rejected without mutation');
+    Scene.Select(B); Scene.PasteJSON(Scene.ToJSON(True)); C := Scene.Count - 1;
+    Check((Scene.Item(C).ID <> Scene.Item(B).ID) and (Scene.Item(C).Name <> Scene.Item(B).Name), 'Paste creates fresh stable identities and names');
+    Scene.DeleteSelected; Scene.Undo; Check(Scene.Count = 3, 'Deleted designer objects can be restored');
+    Before := Scene.ToJSON; Failed := False;
+    try Scene.LoadJSON(StringReplace(Before, '"width":20', '"width":-20', [])); except on E: EArgumentException do Failed := True; end;
+    Check(Failed and (Scene.ToJSON = Before), 'Invalid scene loads are atomic');
+  finally Scene.Free; end;
+end;
+
 procedure TestPCBDesigner;
 var Form: TForm; Designer: TERDPCBDesigner; BoardFile, ProjectFile, Text: string;
-    Index: Integer; Failed: Boolean; Client: TPoint; Before, After: TPointF;
+    Index, SceneIndex, BusIndex: Integer; Item: TERDPCBDesignItem; TemplateFile: string; Failed: Boolean; Client: TPoint; Before, After: TPointF;
     Stream: TMemoryStream; CopyDesigner: TERDPCBDesigner; Pad: TERDPCBPad;
 begin
   Form := TForm.Create(nil); BoardFile := TPath.GetTempFileName; ProjectFile := TPath.GetTempFileName;
@@ -2466,6 +2494,7 @@ begin
       '"polygon":[[4,4],[6,4],[6,6],[4,6]],"drill":[]},' +
       '{"id":"U7.1","net":"12V","reference":"U7","number":"1","position":[2,5],' +
       '"polygon":[[1,4],[3,4],[3,6],[1,6]],"drill":[]}],' +
+      '"terminals":[{"id":"U7","label":"WLED U7","signal_pin":"U7.2","members":["U7.1","U7.2"]}],' +
       '"channels":[{"pin":"U7.2","gpio":"GPIO4","route":"U6.4 to U7.2"}],' +
       '"components":[{"reference":"U7","device":"terminal","position":[5,5]}],' +
       '"silkscreen":[],"outline":[[[0,0],[10,0],[10,10],[0,10],[0,0]]]}';
@@ -2486,8 +2515,11 @@ begin
     Designer.ShowPads := False; Check(Designer.HitTestPin(Client) = '', 'Hidden pads cannot intercept selection');
     Designer.ShowPads := True;
     Designer.Perform(WM_KEYDOWN, VK_LEFT, 0);
-    Check(Designer.SelectedPin = 'U7.1', 'Spatial arrow navigation can select power pins, not only output channels');
+    Check(Designer.SelectedPin = 'U7.2', 'Arrow navigation does not select raw power or MCU pins');
+    Client := Designer.BoardToClient(PointF(2,5)); Check(Designer.HitTestPin(Client) = 'U7.2', 'A terminal power contact selects its programmable signal as one terminal');
     Designer.SelectedPin := 'U7.2';
+    SceneIndex := Designer.AddDesignItem(piNote, PointF(12,2));
+    Item := Designer.Scene.Item(SceneIndex); Item.Width := 3; Item.Height := 3; Designer.Scene.UpdateItem(SceneIndex, Item);
     Stream := TMemoryStream.Create;
     try
       RegisterClass(TERDPCBDesigner);
@@ -2501,11 +2533,12 @@ begin
         Check(SameValue(CopyDesigner.Zoom, Designer.Zoom), 'Embedded board loading preserves the streamed zoom');
         CopyDesigner.SelectedPin := 'U7.2';
         Check(CopyDesigner.SelectedPad.Net = 'OUT_GPIO4', 'DFM embeds physical board data independently of the source path');
+        Check(CopyDesigner.Scene.Count = 1, 'DFM preserves the nonvisual designer scene');
         Check(CopyDesigner.BoardFileName = '', 'DFM does not store an absolute source-machine path');
         CopyDesigner.ClearBoard; Check(CopyDesigner.HitTestPin(Point(0, 0)) = '', 'Clearing a board removes selectable geometry');
       finally CopyDesigner.Free; end;
     finally Stream.Free; end;
-    Designer.FitBoard;
+    Designer.FitBoard; Designer.SelectedPin := 'U7.2';
     Index := Designer.ChannelIndex('U7.2'); Check(Index = 0, 'PCB output resolves independently of geometry');
     Designer.SetBinding(Index, 'PickA', 'showPick', 24); Designer.SaveProject(ProjectFile);
     Designer.SetBinding(Index, 'Changed', '', 1); Designer.SelectedPin := '';
@@ -2522,6 +2555,30 @@ begin
     Failed := False;
     try Designer.LoadProject(ProjectFile); except on E: EConvertError do Failed := True; end;
     Check(Failed, 'PCB project cannot silently bind to a different physical board');
+    Check(Designer.Scene.Count = 1, 'Failed project load preserves designer objects');
+    Designer.TemplateEditMode := True;
+    Designer.SetPinCapabilities('U7.1', [pcUARTTx, pcCANTx], 'GPIO1', 'TX');
+    Designer.SetPinCapabilities('U7.2', [pcUARTRx, pcCANRx], 'GPIO2', 'RX');
+    BusIndex := Designer.AddDesignItem(piUART, PointF(1,1)); Item := Designer.Scene.Item(BusIndex);
+    Item.Pin := 'U7.1'; Item.SecondaryPin := 'U7.2'; Designer.Scene.UpdateItem(BusIndex, Item);
+    SceneIndex := Designer.AddDesignItem(piCANBus, PointF(2,2)); Item := Designer.Scene.Item(SceneIndex);
+    Item.Pin := 'U7.1'; Item.SecondaryPin := 'U7.2'; Failed := False;
+    try Designer.Scene.UpdateItem(SceneIndex, Item); except on E: EArgumentException do Failed := True; end;
+    Check(Failed, 'Two enabled bus components cannot claim the same physical pins');
+    Item := Designer.Scene.Item(BusIndex); Item.Enabled := False; Designer.Scene.UpdateItem(BusIndex, Item);
+    Item := Designer.Scene.Item(SceneIndex); Item.Pin := 'U7.1'; Item.SecondaryPin := 'U7.2'; Designer.Scene.UpdateItem(SceneIndex, Item);
+    Failed := False;
+    try Designer.SetPinCapabilities('U7.1', [pcDigitalOutput], '', ''); except on E: EArgumentException do Failed := True; end;
+    Check(Failed, 'Template capabilities cannot invalidate existing component connections');
+    TemplateFile := TPath.GetTempFileName;
+    try
+      Designer.SaveTemplate(TemplateFile); CopyDesigner := TERDPCBDesigner.Create(nil);
+      try
+        CopyDesigner.LoadBoard(TemplateFile);
+        Check((CopyDesigner.TemplateID = Designer.TemplateID) and (pcCANTx in CopyDesigner.Channel(CopyDesigner.ChannelIndex('U7.1')).Capabilities),
+          'Templates preserve multifunction UART/CAN pin capabilities');
+      finally CopyDesigner.Free; end;
+    finally System.SysUtils.DeleteFile(TemplateFile); end;
   finally
     Form.Free; DeleteFile(BoardFile); DeleteFile(ProjectFile);
   end;
@@ -3471,6 +3528,7 @@ begin
     TestSharedColorEmoji;
     TestCodeEditorSearch;
     TestCodeLanguageServices;
+    TestPCBScene;
     TestPCBDesigner;
     TestSignatureHelp;
     TestEditorWindowShutdown;

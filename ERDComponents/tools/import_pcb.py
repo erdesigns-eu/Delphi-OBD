@@ -22,8 +22,8 @@ def records(archive, name):
 def path_points(path):
     if path[0] == 'CIRCLE':
         _, x, y, radius = path
-        return [[x + radius * math.cos(i * math.tau / 32),
-                 y + radius * math.sin(i * math.tau / 32)] for i in range(33)]
+        return [[x + radius * math.cos(i * math.tau / 96),
+                 y + radius * math.sin(i * math.tau / 96)] for i in range(97)]
     points = [path[:2]]
     i = 2
     while i < len(path):
@@ -70,8 +70,8 @@ def pad_polygon(pad):
     elif shape in ('ELLIPSE', 'OVAL'):
         # Ovals are capsules; ellipses have continuously varying curvature.
         points = []
-        for i in range(32):
-            t = i * math.tau / 32
+        for i in range(96):
+            t = i * math.tau / 96
             if shape == 'ELLIPSE':
                 x, y = width / 2 * math.cos(t), height / 2 * math.sin(t)
             else:
@@ -110,9 +110,22 @@ def import_board(source, placements):
             attr = attrs[r[1]]
             ref = attr['Designator']
             title = project['devices'][attr['Device']]['title']
-            components.append({'id': r[1], 'reference': ref, 'device': title,
-                               'position': transform([0, 0], r), 'rotation': r[6]})
             footprint = records(archive, f"FOOTPRINT/{attr['Footprint']}.efoo")
+            bodies = [path_points(p[6]) for p in footprint if p[0] == 'POLY' and p[4] == 48]
+            bodies = [p for p in bodies if len(p) > 3 and math.dist(p[0], p[-1]) < .1]
+            body = max(bodies, key=lambda p: (max(v[0] for v in p)-min(v[0] for v in p)) *
+                       (max(v[1] for v in p)-min(v[1] for v in p)), default=[])
+            role = 'ic'
+            if 'DB301V' in title or 'DG500' in title: role = 'terminal'
+            elif 'TYPE-C' in title: role = 'usb'
+            elif 'ESP32' in title: role = 'module'
+            elif ref.startswith('C'): role = 'capacitor'
+            elif ref.startswith('R'): role = 'resistor'
+            elif ref.startswith('SW'): role = 'button'
+            elif ref.startswith('LED'): role = 'led'
+            components.append({'id': r[1], 'reference': ref, 'device': title,
+                               'position': transform([0, 0], r), 'rotation': r[6],
+                               'body': [transform(p, r) for p in body], 'role': role})
             for p in footprint:
                 kind = 'pad'
                 if p[0] == 'VIA':
@@ -178,10 +191,14 @@ def import_board(source, placements):
         channels.append({'pin': ref + '.2', 'gpio': gpio, 'route': routes[0]})
     if len(channels) != 28:
         raise ValueError(f'Expected 28 verified outputs, found {len(channels)}')
-    return {'schema': 1, 'name': 'ESP32 WS2812B driver',
+    return {'schema': 1, 'template_id': 'erd-pick-to-light-esp32-s3-v1', 'name': 'ESP32 WS2812B driver',
             'source_sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
             'units': 'mm', 'y_axis': 'up', 'components': components, 'pads': pads,
-            'silkscreen': silk, 'outline': outline, 'channels': channels}
+            'silkscreen': silk, 'outline': outline, 'channels': channels,
+            'programmable_pins': [dict(c, label=c['pin'].split('.')[0], capabilities='addressable-led-output') for c in channels],
+            'terminals': [{'id': c['pin'].split('.')[0], 'label': c['pin'].split('.')[0],
+                           'signal_pin': c['pin'], 'members': [c['pin'].split('.')[0]+'.'+str(i) for i in (1,2,3)]}
+                          for c in channels]}
 
 
 if __name__ == '__main__':

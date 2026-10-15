@@ -23,6 +23,16 @@ class PCBImportTests(unittest.TestCase):
         self.assertEqual(len(self.board['components']), 135)
         self.assertEqual(len(self.board['pads']), 496)
 
+    def test_assembled_bodies_and_terminal_groups(self):
+        components = {c['reference']: c for c in self.board['components']}
+        self.assertTrue(all(len(c['body']) >= 4 for c in components.values()))
+        self.assertEqual(sum(c['role'] == 'terminal' for c in components.values()), 29)
+        self.assertEqual(len(self.board['terminals']), 28)
+        for terminal in self.board['terminals']:
+            self.assertEqual(components[terminal['id']]['role'], 'terminal')
+            self.assertEqual(len(terminal['members']), 3)
+            self.assertIn(terminal['signal_pin'], terminal['members'])
+
     def test_all_output_routes_are_verified(self):
         channels = {c['pin']: c for c in self.board['channels']}
         self.assertEqual(len(channels), 28)

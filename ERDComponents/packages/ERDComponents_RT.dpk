@@ -9,6 +9,7 @@ requires
   vclimg,
   vclx;
 contains
+  ERD.Components.PCBScene in '..\src\UI\ERD.Components.PCBScene.pas',
   ERD.Components.PCBDesigner in '..\src\UI\ERD.Components.PCBDesigner.pas',
   ERD.Components.TextModel in '..\src\UI\ERD.Components.TextModel.pas',
   ERD.Components.TextLayout in '..\src\UI\ERD.Components.TextLayout.pas',
