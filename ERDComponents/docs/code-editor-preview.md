@@ -197,3 +197,36 @@ use the same circles; custom password characters retain their configured glyph.
 The gutter background fills up to the inside edge of the editor border on its
 left, top and bottom. Its fill is independent of text padding; the border remains
 visible at its normal focused/unfocused thickness.
+
+## Scrollbars and minimap
+
+`ScrollBars` defaults to `ssBoth`: a themed vertical scrollbar at the right and a
+horizontal scrollbar below unwrapped text. Use `ssVertical`, `ssHorizontal` or
+`ssNone` to choose the visible bars. Word wrapping suppresses the horizontal bar.
+The tracks support paging and the thumbs support dragging; wheel, keyboard and
+caret scrolling share the same document viewport. Scrolling does not move the
+selection. The shared memo base retains its existing wheel behaviour; these
+navigation surfaces belong to `TERDCodeEditor`.
+
+`ShowMinimap` defaults to `True`; `MinimapWidth` defaults to 96 logical pixels
+and accepts 32–320. A narrow editor reduces the minimap width to leave room for
+text. The minimap shows compact syntax-coloured strokes and outlines the visible
+rows. Click or drag it to navigate. Folded rows are omitted consistently with the
+main view. Its bitmap is cached between selection/scroll updates and refreshed
+when document layout or styling changes. This is a schematic code overview, not
+another full-size Unicode text rendering pass. Very large documents still use
+the current nonincremental document/analysis implementation; performance needs
+measurement on Windows.
+
+The Code demo enables both bars and the minimap, with a **Hide/Show minimap**
+button. **Complete** invokes the same request as Ctrl+Space. The sample completion
+provider now includes TypeScript keywords as well as its example identifiers;
+it remains a sample rather than a semantic service. Connect TSVM for compiler
+results. Manual completion displays **No suggestions** for an empty result;
+without a provider it reports the missing connection through `LanguageError` and
+`OnLanguageResults`. The editor claims the completion key from form dialog routing.
+
+The Windows smoke suite covers scrollbar dragging/paging, minimap navigation,
+viewport resizing when hidden, unchanged text/selection, setting persistence and
+Ctrl+Space through both dialog-key and key-down messages. These interaction tests
+have not been executed in the Linux cloud environment.

@@ -39,6 +39,9 @@ type
     procedure GutterMouse(Action, Row: Integer; Shift: Boolean = False);
     function FoldPixel(Guide: Boolean): TColor;
     function GutterBackground: TColor;
+    procedure GetNavigationRects(out Vertical, Horizontal, Map: TRect);
+    function HorizontalOffset: Integer;
+    function ViewWidth: Integer;
   end;
   TEditKeyFilter = class
   public
@@ -307,6 +310,12 @@ begin
     3: Perform(WM_LBUTTONDBLCLK, Flags or MK_LBUTTON, MakeLParam(X, Y));
   end;
 end;
+procedure TCodeEditorProbe.GetNavigationRects(out Vertical, Horizontal, Map: TRect);
+begin NavigationRects(Vertical, Horizontal, Map); end;
+function TCodeEditorProbe.HorizontalOffset: Integer;
+begin Result := HorizontalScrollPosition; end;
+function TCodeEditorProbe.ViewWidth: Integer;
+begin Result := TextViewport.Width; end;
 function TCodeEditorProbe.GutterBackground: TColor;
 begin Result := ColorToRGB(ERDMixColor(Palette.Background, Palette.ForegroundText, 0.92)); end;
 
@@ -2236,6 +2245,7 @@ var Form: TForm; Editor, Temporary: TERDCodeEditor; Service: TLanguageServicePro
     ServiceReference: IERDCodeLanguageService; Sink: IERDLanguageResponses;
     Old, Current: TERDLanguageRequest; Items: TArray<TERDCompletionItem>;
     Target: TERDDefinitionTarget; Version: Int64; Worker: TThread; OffThreadAccepted: Boolean;
+    Keyboard, SavedKeyboard: TKeyboardState;
 begin
   Form := TForm.Create(nil); Service := TLanguageServiceProbe.Create; ServiceReference := Service;
   try
@@ -2280,11 +2290,26 @@ begin
     Editor.RequestDefinition; Current := Service.Snapshot; Target := Default(TERDDefinitionTarget);
     Check(Sink.Definition(Current, Target), 'No-definition result completes request without navigation');
     Editor.Text := 'con'; Editor.SelStart := 3; Form.Show; Editor.SetFocus;
+    Check((Editor.Perform(WM_GETDLGCODE, VK_SPACE, 0) and DLGC_WANTMESSAGE) <> 0,
+      'Editor claims completion space from form dialog routing');
+    GetKeyboardState(SavedKeyboard); Keyboard := SavedKeyboard; Keyboard[VK_CONTROL] := $80;
+    try
+      SetKeyboardState(Keyboard); Version := Service.Requests;
+      Editor.Perform(CM_DIALOGKEY, VK_SPACE, 0);
+      Check((Service.Requests = Version + 1) and (Service.Snapshot.Kind = lrCompletion),
+        'Ctrl+Space dialog route requests completion');
+      Version := Service.Requests; Editor.Perform(WM_KEYDOWN, VK_SPACE, 0);
+      Check(Service.Requests = Version + 1, 'Ctrl+Space key route requests completion');
+    finally SetKeyboardState(SavedKeyboard); end;
     Editor.RequestCompletion; Current := Service.Snapshot; Items[0].InsertText := 'console';
     Check(Sink.Completion(Current, Items), 'Focused completion result opens popup');
     Editor.Perform(WM_KEYDOWN, VK_RETURN, 0); Editor.Perform(WM_CHAR, 13, 0);
     Check(Editor.Text = 'console', 'Enter accepts completion without inserting newline');
     Editor.Undo; Check(Editor.Text = 'con', 'Keyboard completion remains one undo transaction');
+    Editor.RequestCompletion; Current := Service.Snapshot;
+    Check(Sink.Completion(Current, nil), 'Manual empty completion result is accepted');
+    Editor.Perform(WM_KEYDOWN, VK_RETURN, 0); Editor.Perform(WM_CHAR, 13, 0);
+    Check(Editor.Text = 'con', 'No-suggestions popup cannot insert a completion or newline');
     Editor.Text := 'console'; Editor.SelStart := 7; Version := Service.Requests;
     Editor.Perform(WM_CHAR, Ord('.'), 0);
     Check((Service.Requests = Version + 1) and (Service.Snapshot.TriggerCharacter = '.') and
@@ -2317,6 +2342,9 @@ begin
     try Temporary.LanguageService := ServiceReference; Temporary.RequestHover; Old := Service.Snapshot; Sink := Service.Responses;
     finally Temporary.Free; end;
     Check(not Sink.Hover(Old, 'late'), 'Retained response sink is safe after editor destruction');
+    Editor.LanguageService := nil;
+    Check(not Editor.RequestCompletion and (Editor.LanguageError <> ''),
+      'Manual completion explains a missing provider');
   finally Form.Free; end;
 end;
 
@@ -2747,6 +2775,55 @@ begin
   finally Bitmap.Free; Form.Free; end;
 end;
 
+procedure TestCodeEditorNavigation;
+var Form: TForm; Editor: TCodeEditorProbe; Bitmap: TBitmap; Vertical, Horizontal, Map, Thumb: TRect;
+    I, Page, RowBefore, WidthWithMap: Integer; Source: UnicodeString; Stream: TMemoryStream;
+    Restored: TCodeEditorProbe;
+  procedure Mouse(MessageID: Cardinal; X, Y: Integer);
+  begin Editor.Perform(MessageID, MK_LBUTTON, MakeLParam(X, Y)); end;
+begin
+  Form := TForm.Create(nil); Bitmap := TBitmap.Create; Stream := TMemoryStream.Create;
+  try
+    Editor := TCodeEditorProbe.Create(Form); Editor.Parent := Form; Editor.SetBounds(0, 0, 500, 220);
+    Source := '';
+    for I := 0 to 119 do Source := Source + 'const item' + IntToStr(I) + ' = "' + StringOfChar('x', 180) + '";' + #13#10;
+    Editor.Text := Source; Editor.SelStart := 0; Form.Show; Editor.SetFocus; Editor.RenderTo(Bitmap);
+    Editor.GetNavigationRects(Vertical, Horizontal, Map);
+    Check(not IsRectEmpty(Vertical) and not IsRectEmpty(Horizontal) and not IsRectEmpty(Map),
+      'Editor exposes vertical and horizontal bars and a minimap by default');
+    Thumb := ERDScrollThumbRect(Rect(0, 0, 12, 200), True, 0, 99, 50, 0, False, False);
+    Check(Thumb.Height = 100, 'Scrollbar thumb represents the visible fraction of the content');
+    Thumb := ERDScrollThumbRect(Rect(0, 0, 12, 200), True, 0, 9, 20, 0, False, False);
+    Check(Thumb.Height = 200, 'Scrollbar thumb fills the track when content fits');
+    WidthWithMap := Editor.ViewWidth; Editor.ShowMinimap := False;
+    Check(Editor.ViewWidth > WidthWithMap, 'Hiding minimap restores editable viewport width');
+    Editor.ShowMinimap := True; Page := Editor.VisibleRowCount;
+    Thumb := ERDScrollThumbRect(Vertical, True, 0, Editor.RowCount - 1, Page, 0, True, True);
+    Mouse(WM_LBUTTONDOWN, (Thumb.Left + Thumb.Right) div 2, (Thumb.Top + Thumb.Bottom) div 2);
+    Mouse(WM_MOUSEMOVE, (Thumb.Left + Thumb.Right) div 2, Vertical.Bottom - 2);
+    Mouse(WM_LBUTTONUP, (Thumb.Left + Thumb.Right) div 2, Vertical.Bottom - 2);
+    Check((Editor.FirstVisibleRow > 80) and (Editor.SelStart = 0), 'Vertical thumb drags viewport without moving selection');
+    Mouse(WM_LBUTTONDOWN, (Map.Left + Map.Right) div 2, Map.Top + Map.Height div 2);
+    Mouse(WM_LBUTTONUP, (Map.Left + Map.Right) div 2, Map.Top + Map.Height div 2);
+    Check((Editor.FirstVisibleRow > 30) and (Editor.FirstVisibleRow < 80), 'Minimap click navigates to document middle');
+    RowBefore := Editor.FirstVisibleRow;
+    Editor.Perform(WM_MOUSEWHEEL, MakeWParam(0, WHEEL_DELTA), 0);
+    Check(Editor.FirstVisibleRow < RowBefore, 'Wheel and minimap use the same scroll position');
+    Mouse(WM_LBUTTONDOWN, Horizontal.Right - 2, (Horizontal.Top + Horizontal.Bottom) div 2);
+    Mouse(WM_LBUTTONUP, Horizontal.Right - 2, (Horizontal.Top + Horizontal.Bottom) div 2);
+    Check(Editor.HorizontalOffset > 0, 'Horizontal scrollbar pages across long lines');
+    Editor.WordWrap := True; Editor.GetNavigationRects(Vertical, Horizontal, Map);
+    Check(IsRectEmpty(Horizontal), 'Word wrapping removes horizontal scrollbar');
+    Editor.WordWrap := False; Editor.FoldAll; Editor.UnfoldAll; Editor.RenderTo(Bitmap);
+    Check(Editor.Text = Source, 'Scrolling and minimap leave document text intact');
+    Editor.MinimapWidth := 128; Editor.ScrollBars := ssVertical;
+    Stream.WriteComponent(Editor); Stream.Position := 0;
+    Restored := Stream.ReadComponent(nil) as TCodeEditorProbe;
+    try Check(Restored.ShowMinimap and (Restored.MinimapWidth = 128) and (Restored.ScrollBars = ssVertical),
+      'Editor navigation settings stream correctly'); finally Restored.Free; end;
+  finally Stream.Free; Bitmap.Free; Form.Free; end;
+end;
+
 procedure TestCodeGutterThemeContrast;
 var Form: TForm; Theme: TERDTheme; Editor: TCodeEditorProbe; C: COLORREF;
   function Brightness(Color: COLORREF): Integer;
@@ -2889,6 +2966,7 @@ begin
     TestSelfPaintedTextInput;
     TestMultilineTextEngine;
     TestSyntaxAndCodeEditor;
+    TestCodeEditorNavigation;
     TestCodeGutterThemeContrast;
     TestSharedColorEmoji;
     TestCodeEditorSearch;

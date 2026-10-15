@@ -198,7 +198,7 @@ begin
   MaxPos := ScrollMaxPosition(AMin, AMax, APage);
   Range := MaxPos - AMin;
   if APage > 0 then
-    ThumbLen := Round(TrackLen * (APage / System.Math.Max(1, AMax - AMin + APage)))
+    ThumbLen := Round(TrackLen * System.Math.Min(1.0, APage / System.Math.Max(1, AMax - AMin + 1)))
   else
     ThumbLen := TrackLen div 3;
   ThumbLen := EnsureRange(ThumbLen, System.Math.Min(TrackLen, 20), TrackLen);

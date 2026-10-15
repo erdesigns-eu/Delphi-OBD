@@ -26,7 +26,8 @@ must share the same shaped layout. Do not bake a particular language, parser
 or language server into the visual control. Completion and diagnostics should
 be asynchronous and reject stale responses after document edits.
 
-The preview establishes gutter, highlighting-provider and host-diagnostic contracts
+The preview includes themed scrollbars and a cached, clickable syntax minimap.
+It establishes gutter, highlighting-provider and host-diagnostic contracts
 on the current Unicode model. Versioned language-service requests, stale-response rejection and an asynchronous
 stdio adapter are available; see [the TSVM connection](tsvm-language-server.md).
 The scalable document and incremental/background semantic analysis remain future

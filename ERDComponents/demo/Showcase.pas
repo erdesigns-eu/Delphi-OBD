@@ -656,6 +656,8 @@ type
     UnicodeTextPreview: TERDTextInput;
     UnicodePasswordPreview: TERDTextInput;
     procedure CodeConnectCompiler(Sender: TObject);
+    procedure CodeMinimapClicked(Sender: TObject);
+    procedure CodeCompleteClicked(Sender: TObject);
     procedure CodeCompilerError(Sender: TObject);
     procedure CodeCompilerDiagnostics(Sender: TObject; const DocumentUri, SourceText: UnicodeString;
       const Diagnostics: TArray<TERDCodeDiagnostic>);
@@ -682,7 +684,7 @@ type
 procedure TShowcaseLanguageService.Cancel(RequestID: Int64);
 begin end;
 procedure TShowcaseLanguageService.Request(const Snapshot: TERDLanguageRequest; const Responses: IERDLanguageResponses);
-const Names: array[0..6] of string = ('console', 'const', 'Command', 'CommandRegistry', 'commands', 'Promise', 'register');
+const Names: array[0..5] of string = ('console', 'Command', 'CommandRegistry', 'commands', 'Promise', 'register');
 var Start, Finish, I, At, ReceiverStart, ReceiverEnd: Integer; Prefix, Word, Marker, Receiver: UnicodeString;
     Candidates: TArray<string>;
     Items: TArray<TERDCompletionItem>; Target: TERDDefinitionTarget;
@@ -712,7 +714,11 @@ begin
           else Candidates := nil;
         end
         else
-        begin SetLength(Candidates, Length(Names)); for I := Low(Names) to High(Names) do Candidates[I] := Names[I]; end;
+        begin
+          Candidates := ERDTypeScriptKeywords; At := Length(Candidates);
+          SetLength(Candidates, At + Length(Names));
+          for I := Low(Names) to High(Names) do Candidates[At + I] := Names[I];
+        end;
         for I := 0 to High(Candidates) do
           if SameText(Copy(Candidates[I], 1, Length(Prefix)), Prefix) then
           begin
@@ -778,6 +784,14 @@ begin
   Button.OnClick := CodeConnectCompiler;
   Button.SetBounds(MulDiv(320, CurrentPPI, 96), MulDiv(8, CurrentPPI, 96),
     MulDiv(120, CurrentPPI, 96), MulDiv(28, CurrentPPI, 96));
+  Button := TERDButton.Create(Self); Button.Parent := Header; Button.Caption := 'Hide minimap';
+  Button.OnClick := CodeMinimapClicked;
+  Button.SetBounds(MulDiv(448, CurrentPPI, 96), MulDiv(8, CurrentPPI, 96),
+    MulDiv(104, CurrentPPI, 96), MulDiv(28, CurrentPPI, 96));
+  Button := TERDButton.Create(Self); Button.Parent := Header; Button.Caption := 'Complete';
+  Button.OnClick := CodeCompleteClicked;
+  Button.SetBounds(MulDiv(560, CurrentPPI, 96), MulDiv(8, CurrentPPI, 96),
+    MulDiv(88, CurrentPPI, 96), MulDiv(28, CurrentPPI, 96));
   Instructions := TLabel.Create(Self); Instructions.Parent := Header;
   Instructions.Caption := 'Fold UI v' + IntToStr(TERDCodeEditor.FoldInteractionRevision) +
     ' - hover / press +/-; console. / Ctrl+Space; F1 info; F12 definition';
@@ -808,6 +822,7 @@ begin
   CodeEditor.Margins.SetBounds(8, 0, 8, 8);
   CodeEditor.Language := clTypeScript;
   CodeEditor.ShowFolding := True; CodeEditor.ShowFoldGuides := True;
+  CodeEditor.ScrollBars := ssBoth; CodeEditor.ShowMinimap := True;
   CodeEditor.Text :=
     '// TypeScript preview - Unicode: Caf' + #$00E9 + ' ' + #$D83D#$DCBB + #13#10 +
     'export interface Command {' + #13#10 +
@@ -838,6 +853,14 @@ begin
   PageTabs.BringToFront;
 end;
 
+procedure TShowcaseForm.CodeMinimapClicked(Sender: TObject);
+begin
+  CodeEditor.ShowMinimap := not CodeEditor.ShowMinimap;
+  if CodeEditor.ShowMinimap then TERDButton(Sender).Caption := 'Hide minimap'
+  else TERDButton(Sender).Caption := 'Show minimap';
+end;
+procedure TShowcaseForm.CodeCompleteClicked(Sender: TObject);
+begin CodeEditor.SetFocus; CodeEditor.RequestCompletion; end;
 procedure TShowcaseForm.CodeConnectCompiler(Sender: TObject);
 var Dialog: TERDOpenDialog; Service: TERDStdioLanguageService;
 begin

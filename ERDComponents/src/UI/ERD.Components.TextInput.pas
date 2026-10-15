@@ -175,6 +175,8 @@ type
     procedure BuildRows;
     function RowHeight: Integer;
     procedure ScrollRows(Value: Integer);
+    procedure ScrollHorizontal(Value: Integer);
+    property HorizontalScrollPosition: Integer read FScroll;
     procedure InvalidateTextLayout;
     function VisualRows: TArray<TERDTextRow>;
     procedure FilterRows(var Rows: TArray<TERDTextRow>); virtual;
@@ -1096,7 +1098,10 @@ var Rows: TList<TERDTextRow>; Row: TERDTextRow; Start, Finish, NextStart,
 begin
   Available := Max(1, TextViewport.Width);
   if (Length(FRows) > 0) and (FLayoutText = Text) and
-    (FLayoutWidth = Available) and (FLayoutFont = Font.Handle) then Exit;
+    (FLayoutWidth = Available) and (FLayoutFont = Font.Handle) then
+  begin
+    FFirstRow := EnsureRange(FFirstRow, 0, Max(0, Length(FRows) - VisibleRowCount)); Exit;
+  end;
   Canvas.Font.Assign(Font); Rows := TList<TERDTextRow>.Create;
   try
     Start := 0;
@@ -1338,8 +1343,13 @@ begin
   if FWantTabs then Message.Result := Message.Result or DLGC_WANTTAB;
   if FWantReturns and (Message.WParam = VK_RETURN) then Message.Result := Message.Result or DLGC_WANTMESSAGE;
 end;
+procedure TERDTextArea.ScrollHorizontal(Value: Integer);
+begin
+  if WordWrap then Value := 0;
+  FScroll := Max(0, Value); ScrollRows(FFirstRow);
+end;
 procedure TERDTextArea.ScrollRows(Value: Integer);
-var Row: Integer; Line: TERDTextLayoutLine;
+var Row, X, Y: Integer; Line: TERDTextLayoutLine;
 begin
   BuildRows;
   FFirstRow := EnsureRange(Value, 0, Max(0, Length(FRows) - VisibleRowCount));
@@ -1348,8 +1358,10 @@ begin
   begin
     Row := RowForPosition(FModel.Caret); Line := TERDTextLayoutLine.Create(Canvas, RowText(Row));
     try
-      SetCaretPos(LineOrigin(Line.Width) + Line.X(Min(FRows[Row].Count,
-        FModel.Caret - FRows[Row].Start)) - FScroll, TextViewport.Top + (Row - FFirstRow) * RowHeight + ScaleValue(FSelectionPadding));
+      X := LineOrigin(Line.Width) + Line.X(Min(FRows[Row].Count, FModel.Caret - FRows[Row].Start)) - FScroll;
+      Y := TextViewport.Top + (Row - FFirstRow) * RowHeight + ScaleValue(FSelectionPadding);
+      if PtInRect(TextViewport, Point(X, Y)) then SetCaretPos(X, Y)
+      else SetCaretPos(-ScaleValue(4), -RowHeight);
     finally Line.Free; end;
   end;
 end;
