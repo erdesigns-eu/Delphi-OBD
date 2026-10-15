@@ -1460,6 +1460,7 @@ procedure TERDCodeEditor.PaintTextOverlay(ACanvas: TCanvas; Start, Count, X, Y: 
 var Item: TERDCodeDiagnostic; A, B, L, R, At, Bottom, Step, Saved: Integer;
     Opening, Closing, Column, Position, Index, Padding: Integer;
     Metrics: TTextMetric; Glyph: TGlyphMetrics; Matrix: TMat2; BracketRect: TRect;
+    GuideBrush: HBRUSH;
 begin
   inherited;
   Saved := SaveDC(ACanvas.Handle);
@@ -1470,8 +1471,8 @@ begin
       B := Start;
       while (B < Start + Count) and CharInSet(Text[B + 1], [' ', #9]) do Inc(B);
       Position := Start; Column := 0;
-      ACanvas.Pen.Style := psSolid; ACanvas.Pen.Width := 1;
-      ACanvas.Pen.Color := ERDMixColor(Palette.Background, Palette.ForegroundText, 0.88);
+      GuideBrush := HBRUSH(GetStockObject(DC_BRUSH));
+      SetDCBrushColor(ACanvas.Handle, ColorToRGB(ERDMixColor(Palette.Background, Palette.ForegroundText, 0.88)));
       while Position < B do
       begin
         if Text[Position + 1] = #9 then Inc(Column, FTabWidth - Column mod FTabWidth)
@@ -1480,7 +1481,9 @@ begin
         if (Column mod FTabWidth = 0) and (Position < B) then
         begin
           L := X + Line.X(Position - Start);
-          ACanvas.MoveTo(L, Y); ACanvas.LineTo(L, Y + RowHeight);
+          // Explicit pixel fills do not depend on the cached TCanvas pen
+          // selection surviving the text renderer's SaveDC/RestoreDC pairs.
+          Winapi.Windows.FillRect(ACanvas.Handle, Rect(L, Y, L + 1, Y + RowHeight), GuideBrush);
         end;
       end;
     end;
@@ -1539,7 +1542,7 @@ begin
 end;
 procedure TERDCodeEditor.PaintControl(ACanvas: TCanvas);
 var Rows: TArray<TERDTextRow>; I, J, Number, Y, H, Index, X: Integer;
-    R, View, ButtonRect: TRect; Saved, CenterX, CenterY, Arm: Integer; Diagnostic: TERDCodeDiagnostic;
+    R, View, ButtonRect: TRect; Saved, CenterX, CenterY, Arm, GuideTop: Integer; Diagnostic: TERDCodeDiagnostic;
     Fold: TERDSyntaxFold; Painter: TERDPainter; GutterFill, GuideInk, ButtonInk, ButtonFill, ButtonBorder: TColor;
     DiagnosticFound: Boolean; RowFinish: Integer; Severity: TERDDiagnosticSeverity;
 begin
@@ -1599,12 +1602,16 @@ begin
             if not FCollapsed.Contains(Fold.Start) and
               (Rows[I].Start > LineStart(Fold.Start)) and (Rows[I].Start < FoldHiddenFinish(Fold)) then
             begin
+              GuideTop := Y;
+              // A fold which began above the viewport continues to its clipped
+              // top edge, including the inset above the first visible row.
+              if I = FirstVisibleRow then GuideTop := R.Top;
               if (I = High(Rows)) or (Rows[I + 1].Start >= FoldHiddenFinish(Fold)) then
               begin
-                Painter.VLine(CenterX, Y, H div 2 + 1, GuideInk);
+                Painter.VLine(CenterX, GuideTop, CenterY - GuideTop + 1, GuideInk);
                 Painter.HLine(CenterX, CenterY, ButtonRect.Right + ScaleValue(2) - CenterX, GuideInk);
               end
-              else Painter.VLine(CenterX, Y, H, GuideInk);
+              else Painter.VLine(CenterX, GuideTop, Y + H - GuideTop, GuideInk);
             end;
         Index := FoldIndex(Rows[I].Start);
         if Index >= 0 then

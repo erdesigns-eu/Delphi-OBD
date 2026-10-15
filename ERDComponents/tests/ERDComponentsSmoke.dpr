@@ -41,6 +41,8 @@ type
     procedure FoldMouse(Action: Integer; Outside: Boolean = False);
     procedure GutterMouse(Action, Row: Integer; Shift: Boolean = False);
     function FoldPixel(Guide: Boolean): TColor;
+    function TopFoldGuidePixel: TColor;
+    function IndentGuidePixel(Row: Integer): TColor;
     function GutterBackground: TColor;
     function EditorBackground: TColor;
     function MinimapBackground: TColor;
@@ -346,6 +348,30 @@ begin
     X := View.Left - ScaleValue(13); Y := View.Top + RowHeight + 1;
     if not Guide then
     begin Dec(X, ScaleValue(3)); Y := View.Top + RowHeight div 2 - ScaleValue(3); end;
+    Result := ColorToRGB(Bitmap.Canvas.Pixels[X, Y]);
+  finally Bitmap.Free; end;
+end;
+function TCodeEditorProbe.TopFoldGuidePixel: TColor;
+var Bitmap: TBitmap;
+begin
+  Bitmap := TBitmap.Create;
+  try
+    RenderTo(Bitmap);
+    Result := ColorToRGB(Bitmap.Canvas.Pixels[TextViewport.Left - ScaleValue(13), GutterBounds.Top + 1]);
+  finally Bitmap.Free; end;
+end;
+function TCodeEditorProbe.IndentGuidePixel(Row: Integer): TColor;
+var Bitmap: TBitmap; Rows: TArray<TERDTextRow>; Line: TERDTextLayoutLine; X, Y: Integer;
+begin
+  Bitmap := TBitmap.Create;
+  try
+    RenderTo(Bitmap); Rows := VisualRows;
+    Bitmap.Canvas.Font.Assign(Font);
+    Line := TERDTextLayoutLine.Create(Bitmap.Canvas,
+      Copy(Text, Rows[FirstVisibleRow + Row].Start + 1, Rows[FirstVisibleRow + Row].Count));
+    try X := TextViewport.Left + Line.X(TabWidth) - HorizontalScrollPosition;
+    finally Line.Free; end;
+    Y := TextViewport.Top + Row * RowHeight + 1;
     Result := ColorToRGB(Bitmap.Canvas.Pixels[X, Y]);
   finally Bitmap.Free; end;
 end;
@@ -3078,6 +3104,7 @@ end;
 
 procedure TestCodeGutterThemeContrast;
 var Form: TForm; Theme: TERDTheme; Editor: TCodeEditorProbe; C: COLORREF;
+    Source: UnicodeString; I: Integer;
   function Brightness(Color: COLORREF): Integer;
   begin Result := (GetRValue(Color) + GetGValue(Color) + GetBValue(Color)) div 3; end;
 begin
@@ -3101,6 +3128,23 @@ begin
       (Editor.MinimapBackground <> Editor.GutterBackground),
       'Dark minimap has its own visible surface tone');
     Check(Brightness(Editor.FoldPixel(False)) < 100, 'Idle dark fold button is neutral');
+    Source := 'function continued() {' + #13#10;
+    for I := 0 to 39 do Source := Source + '    // continuation' + #13#10;
+    Editor.Text := Source + '}'; Editor.ShowFoldGuides := True;
+    Editor.SelStart := 0; Editor.Perform(EM_LINESCROLL, 0, 1);
+    Check(Editor.FirstVisibleRow = 1, 'Guide fixture scrolls within an expanded fold');
+    Check(Editor.TopFoldGuidePixel <> Editor.GutterBackground,
+      'Continuing dark fold reaches the inner top edge above the first row');
+    Check((Editor.IndentGuidePixel(0) = Editor.IndentGuidePixel(1)) and
+      (Editor.IndentGuidePixel(0) <> Editor.EditorBackground),
+      'First visible indentation segment matches the next row in dark mode');
+    Theme.Mode := tmERDesignsLight;
+    Check(Editor.TopFoldGuidePixel <> Editor.GutterBackground,
+      'Continuing light fold reaches the inner top edge above the first row');
+    Check((Editor.IndentGuidePixel(0) = Editor.IndentGuidePixel(1)) and
+      (Editor.IndentGuidePixel(0) <> Editor.EditorBackground),
+      'First visible indentation segment matches the next row in light mode');
+
   finally Form.Free; end;
 end;
 

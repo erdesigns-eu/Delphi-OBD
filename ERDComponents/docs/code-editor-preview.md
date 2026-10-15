@@ -311,3 +311,9 @@ releasing capture, and queries its selected index only while an HWND exists. Thi
 avoids recreating a popup HWND after the editor has lost its parent during form
 shutdown. The shutdown regression suite also cancels completion twice after
 explicitly detaching the editor from its parent.
+
+An expanded fold which starts above the viewport keeps its gutter connector
+continuous through the top inset to the inner border. Indentation guides use
+explicit one-pixel fills so the first visible segment does not depend on canvas
+pen state left by text rendering. Fold start buttons and closing elbows keep
+their existing geometry.
