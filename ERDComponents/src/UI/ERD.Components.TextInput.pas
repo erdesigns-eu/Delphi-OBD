@@ -164,6 +164,7 @@ type
     function RowText(Index: Integer): UnicodeString;
     function HitRow(X, Y: Integer): Integer;
     function GetLines: TStrings;
+    function GetHorizontalScrollPosition: Integer;
     procedure LinesChanged(Sender: TObject);
     procedure SetLines(Value: TStrings);
     procedure SetWordWrap(Value: Boolean);
@@ -176,7 +177,7 @@ type
     function RowHeight: Integer;
     procedure ScrollRows(Value: Integer);
     procedure ScrollHorizontal(Value: Integer);
-    property HorizontalScrollPosition: Integer read FScroll;
+    property HorizontalScrollPosition: Integer read GetHorizontalScrollPosition;
     procedure InvalidateTextLayout;
     function VisualRows: TArray<TERDTextRow>;
     procedure FilterRows(var Rows: TArray<TERDTextRow>); virtual;
@@ -1343,6 +1344,8 @@ begin
   if FWantTabs then Message.Result := Message.Result or DLGC_WANTTAB;
   if FWantReturns and (Message.WParam = VK_RETURN) then Message.Result := Message.Result or DLGC_WANTMESSAGE;
 end;
+function TERDTextArea.GetHorizontalScrollPosition: Integer;
+begin Result := FScroll; end;
 procedure TERDTextArea.ScrollHorizontal(Value: Integer);
 begin
   if WordWrap then Value := 0;

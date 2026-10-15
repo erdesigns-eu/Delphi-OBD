@@ -3,7 +3,7 @@
 {$B-}
 interface
 uses Winapi.Windows, Winapi.Messages, System.Classes, System.SysUtils,
-  System.Types, System.Math, System.Character, System.Generics.Collections, Vcl.Controls,
+  System.Types, System.UITypes, System.Math, System.Character, System.Generics.Collections, Vcl.Controls,
   Vcl.Graphics, Vcl.Forms, Vcl.StdCtrls, ERD.Components.Control, ERD.Components.TextInput, ERD.Components.Syntax, ERD.Components.LanguageServices, ERD.Components.PopupList, ERD.Components.ScrollBar;
 type
   TERDCodeEditor = class;
@@ -62,7 +62,7 @@ type
     FHotFold, FPressedFold: Integer;
     FSelectingLines, FLastGutterDown: Boolean;
     FLineAnchorStart, FLineAnchorFinish: Integer;
-    FScrollBars: TScrollStyle;
+    FScrollBars: System.UITypes.TScrollStyle;
     FShowMinimap: Boolean;
     FMinimapDirty, FNavigationWidthDirty: Boolean;
     FMinimapWidth: Integer;
@@ -103,7 +103,7 @@ type
     FLastLanguageResult: TERDLanguageRequestKind;
     FOnLanguageResults: TNotifyEvent;
     FOnNavigate: TERDCodeNavigateEvent;
-    procedure SetScrollBars(Value: TScrollStyle);
+    procedure SetScrollBars(Value: System.UITypes.TScrollStyle);
     procedure SetShowMinimap(Value: Boolean);
     procedure SetMinimapWidth(Value: Integer);
     function NavigationAt(X, Y: Integer): Integer;
@@ -213,7 +213,7 @@ type
     function SyntaxAnalysis: TERDSyntaxAnalysis;
     property SyntaxProvider: IERDSyntaxProvider read FProvider write SetProvider;
   published
-    property ScrollBars: TScrollStyle read FScrollBars write SetScrollBars default ssBoth;
+    property ScrollBars: System.UITypes.TScrollStyle read FScrollBars write SetScrollBars default ssBoth;
     property ShowMinimap: Boolean read FShowMinimap write SetShowMinimap default True;
     property MinimapWidth: Integer read FMinimapWidth write SetMinimapWidth default 96;
     property AutoMemberCompletion: Boolean read FAutoMemberCompletion write FAutoMemberCompletion default True;
@@ -560,7 +560,7 @@ begin
   if FLanguage = Value then Exit;
   CancelLanguageRequests; FLanguage := Value; SetProvider(TERDBasicSyntaxProvider.Create(Value));
 end;
-procedure TERDCodeEditor.SetScrollBars(Value: TScrollStyle);
+procedure TERDCodeEditor.SetScrollBars(Value: System.UITypes.TScrollStyle);
 begin
   if FScrollBars = Value then Exit;
   FScrollBars := Value; FNavigationDrag := 0;
