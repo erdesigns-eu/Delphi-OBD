@@ -27,7 +27,9 @@ or language server into the visual control. Completion and diagnostics should
 be asynchronous and reject stale responses after document edits.
 
 The preview establishes gutter, highlighting-provider and host-diagnostic contracts
-on the current Unicode model. The scalable document, incremental/background analysis
-and versioned language services remain future work; diff uses separate comparison models.
+on the current Unicode model. Versioned language-service requests, stale-response rejection and an asynchronous
+stdio adapter are available; see [the TSVM connection](tsvm-language-server.md).
+The scalable document and incremental/background semantic analysis remain future
+work; diff requires a separate comparison model.
 A language's semantic features depend on its provider/server capabilities,
 not just on the editor drawing a completion list.

@@ -49,3 +49,24 @@ That fixture provides canned responses, not compiler analysis. The TSVM reposito
 has a separate executable-level integration client for semantic behaviour through
 the real native process. Neither Windows VCL runtime nor Delphi compilation can
 be validated in the Linux cloud environment.
+
+## Current integration checkpoint
+
+The TSVM endpoint is on `feat/native-compiler-lsp`, commit `33506f5`. A freshly
+built Linux executable passed completion, diagnostics, Unicode positions, hover,
+definition, signature help and lifecycle integration tests. The Delphi adapter
+currently exposes completion, diagnostics, hover and same-document definition;
+its signature-help UI is a separate next stage.
+
+For the Windows check, build the TSVM compiler with embedded bytecode regenerated,
+build the updated component packages and demo, then use **Connect TSVM...** on the
+Code page. Check dot completion and prefix filtering, a semantic type error,
+F1 hover and F12 definition. Change the document while a request is pending to
+check stale-result rejection, and close the form while the compiler is running
+to check teardown. Run the Windows smoke suite as well. The Linux native test
+does not establish those VCL behaviours.
+
+The editor roadmap still includes cross-file language operations, signature-help
+presentation, scalable document storage, multiple cursors, diff/merge views and
+Windows accessibility/IME/performance validation. The current checkpoint does not
+claim a complete IDE feature set.
