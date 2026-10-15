@@ -300,3 +300,74 @@ connection and its owner. The default shortcut is F. `DefaultContextMenu`
 (default True) enables the themed context menu. A host-provided `PopupMenu`, or
 an `OnContextPopup` handler setting `Handled`, takes precedence. Set
 `DefaultContextMenu := False` to provide all actions externally.
+
+### Registered component types
+
+Register types on the VCL thread before building a toolbox. The process-wide
+registry owns copies of descriptor records; IDs are case-insensitive and cannot
+be replaced. `ERDPCBComponentTypes` returns a snapshot, and
+`ERDPCBFindComponentType(TypeID, Definition)` retrieves one descriptor.
+
+```pascal
+var Definition: TERDPCBComponentType;
+begin
+  ERDPCBFindComponentType('erd.timer', Definition);
+  Definition.TypeID := 'myapp.pulse-timer';
+  Definition.DisplayName := 'Pulse timer';
+  Definition.NamePrefix := 'PulseTimer';
+  Definition.Caption := 'Pulse';
+  Definition.Value := 250;
+  Definition.Icon := glClock;
+  Definition.PropertiesJSON := '{"repeat":3}';
+  ERDPCBRegisterComponentType(Definition);
+  Designer.BeginTypePlacement(Definition.TypeID);
+end;
+```
+
+A descriptor supplies `Kind` (base behavior and pin rules), `DisplayName`,
+`NamePrefix`, `Caption`, `Value`, `Width`, `Height`, `NoteType`, `Icon` and
+`GlyphText`. `Icon` uses a themed vector glyph from `ERD.Components.Types` and
+has priority over text. For application images or custom painting, handle
+`OnDrawItemGlyph(Sender, ACanvas, Bounds, Item, Handled)` and set `Handled` after
+drawing the icon. The designer still paints the frame, name and selection.
+Paint callbacks must not mutate the scene. Nonvisual glyphs remain 32 logical
+pixels regardless of descriptor bounds; notes use their stored millimetre size.
+
+`PropertiesJSON` is a JSON object for host-defined metadata. It is copied from
+the descriptor at insertion, validated and persisted with the instance. Edit a
+copy of `Scene.Item(Index)` and call `Scene.UpdateItem` to include custom-property
+changes in undo/redo. The host supplies its own property editors and validation
+through `Designer.OnValidateDesignItem`; the designer executes no metadata.
+Registry changes do not overwrite existing instance properties. Raise an exception
+in `OnValidateDesignItem` to reject an edit or load before it is committed.
+Keep the internal `Scene.OnValidateItem` handler intact.
+
+Use `AddRegisteredItem(TypeID, WorldPosition)` for millimetre coordinates,
+`InsertTypeAt(TypeID, ClientPoint)` for a top-left pixel drop, or
+`BeginTypePlacement(TypeID)` for click-to-place with previews and Shift-repeat.
+`PlacementTypeID` identifies the active tool. The older kind-based APIs remain
+available. The demo toolbox enumerates registered descriptors when constructed.
+
+Built-in IDs are `erd.timer`, `erd.counter`, `erd.outputgroup`, `erd.note`,
+`erd.uart`, `erd.canbus`, `erd.i2c` and `erd.spi`. Note presets add
+`erd.note.info`, `.warning`, `.error` and `.question`. A registered type reuses
+its base kind's editing and connection behavior. Types with entirely new pin
+protocols or execution behavior still need separate implementation.
+
+Scenes retain `type_id`, `properties` and the base `kind`. A saved type that is
+not registered can still load with its base appearance and metadata intact;
+new insertion requires registration. Missing fields in older files default to
+the built-in type and empty properties.
+
+### Note types
+
+`TERDPCBNoteType = (ntNone, ntInfo, ntWarning, ntError, ntQuestion)` is stored as
+`TERDPCBDesignItem.NoteType`. Use `ERDPCBNoteTypeName` and
+`ERDPCBParseNoteType` for inspector values. The demo exposes a Type pick list on
+notes; changes are regular scene updates and participate in undo/redo.
+
+None draws a neutral text card. Other types draw a status icon and label above
+the body with a lightly tinted background. Info and Question use the theme
+accent, Warning the warning color, and Error the danger color. Text uses the
+foreground color for readability in either theme. Note type does not introduce
+pin assignments or hardware behavior. Legacy notes default to None.

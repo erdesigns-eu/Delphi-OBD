@@ -1,13 +1,24 @@
 ﻿unit ERD.Components.PCBScene;
 interface
 uses System.Classes, System.SysUtils, System.Types, System.Math, System.JSON,
-  System.Generics.Collections;
+  System.Generics.Collections, ERD.Components.Types;
 type
   TERDPCBPinRole = (prPrimary, prSecondary, prClock, prSelect);
   TERDPCBItemKind = (piTimer, piCounter, piOutputGroup, piNote, piUART, piCANBus, piI2C, piSPI);
-  TERDPCBDesignItem = record
-    ID, Name, Caption, Pin, SecondaryPin, ClockPin, SelectPin: string;
+  TERDPCBNoteType = (ntNone, ntInfo, ntWarning, ntError, ntQuestion);
+  /// Registered types reuse a base kind's pin rules and editing behavior.
+  TERDPCBComponentType = record
+    TypeID, DisplayName, NamePrefix, Caption, GlyphText, PropertiesJSON: string;
     Kind: TERDPCBItemKind;
+    Icon: TERDGlyph;
+    Width, Height: Double;
+    Value: Integer;
+    NoteType: TERDPCBNoteType;
+  end;
+  TERDPCBDesignItem = record
+    ID, Name, Caption, Pin, SecondaryPin, ClockPin, SelectPin, TypeID, PropertiesJSON: string;
+    Kind: TERDPCBItemKind;
+    NoteType: TERDPCBNoteType;
     X, Y, Width, Height: Double;
     Value: Integer;
     Enabled, Locked, Selected: Boolean;
@@ -29,6 +40,7 @@ type
     procedure ReadData(Stream: TStream);
     procedure WriteData(Stream: TStream);
     function UniqueName(const Prefix: string): string;
+    function ItemNamePrefix(const Value: TERDPCBDesignItem): string;
     procedure CheckItem(const Item: TERDPCBDesignItem; Ignore: Integer);
   protected
     function GetOwner: TPersistent; override;
@@ -43,6 +55,7 @@ type
     function SelectionCount: Integer;
     function PrimaryIndex: Integer;
     function Add(Kind: TERDPCBItemKind; const Position: TPointF): Integer;
+    function AddType(const TypeID: string; const Position: TPointF): Integer;
     procedure ValidateItem(Index: Integer; const Value: TERDPCBDesignItem);
     procedure UpdateItem(Index: Integer; const Value: TERDPCBDesignItem);
     procedure Select(Index: Integer; Additive: Boolean = False; Toggle: Boolean = False);
@@ -67,8 +80,65 @@ type
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
     property OnSelectionChange: TNotifyEvent read FOnSelectionChange write FOnSelectionChange;
   end;
+function ERDPCBNoteTypeName(NoteType: TERDPCBNoteType): string;
+function ERDPCBParseNoteType(const Text: string): TERDPCBNoteType;
+function ERDPCBBuiltInTypeID(Kind: TERDPCBItemKind): string;
+function ERDPCBComponentTypes: TArray<TERDPCBComponentType>;
+function ERDPCBFindComponentType(const TypeID: string; out Definition: TERDPCBComponentType): Boolean;
+procedure ERDPCBRegisterComponentType(const Definition: TERDPCBComponentType);
 function ERDPCBItemKindName(Kind: TERDPCBItemKind): string;
 implementation
+var ComponentTypes: TList<TERDPCBComponentType>;
+function ERDPCBNoteTypeName(NoteType: TERDPCBNoteType): string;
+begin
+  case NoteType of ntNone: Result := 'None'; ntInfo: Result := 'Info';
+    ntWarning: Result := 'Warning'; ntError: Result := 'Error'; ntQuestion: Result := 'Question';
+  else raise EArgumentException.Create('Unknown note type'); end;
+end;
+function ERDPCBParseNoteType(const Text: string): TERDPCBNoteType;
+var Value: TERDPCBNoteType;
+begin
+  for Value := Low(TERDPCBNoteType) to High(TERDPCBNoteType) do
+    if SameText(Text, ERDPCBNoteTypeName(Value)) then Exit(Value);
+  raise EArgumentException.Create('Unknown note type');
+end;
+function ERDPCBBuiltInTypeID(Kind: TERDPCBItemKind): string;
+begin Result := 'erd.' + LowerCase(ERDPCBItemKindName(Kind)); end;
+function ERDPCBComponentTypes: TArray<TERDPCBComponentType>;
+begin Result := ComponentTypes.ToArray; end;
+function ERDPCBFindComponentType(const TypeID: string; out Definition: TERDPCBComponentType): Boolean;
+var Value: TERDPCBComponentType;
+begin
+  Definition := Default(TERDPCBComponentType);
+  for Value in ComponentTypes do if SameText(Value.TypeID, TypeID) then begin Definition := Value; Exit(True); end;
+  Result := False;
+end;
+procedure ValidateProperties(const Text: string);
+var Root: TJSONValue;
+begin
+  if Text = '' then Exit;
+  Root := TJSONObject.ParseJSONValue(Text);
+  try if not (Root is TJSONObject) then raise EArgumentException.Create('Component properties must be a JSON object');
+  finally Root.Free; end;
+end;
+procedure ERDPCBRegisterComponentType(const Definition: TERDPCBComponentType);
+var Existing: TERDPCBComponentType;
+begin
+  ValidateProperties(Definition.PropertiesJSON);
+  if (Ord(Definition.Kind) > Ord(High(TERDPCBItemKind))) or
+    (Ord(Definition.NoteType) > Ord(High(TERDPCBNoteType))) then raise EArgumentException.Create('Invalid component kind or note type');
+  if (Trim(Definition.TypeID) = '') or (Trim(Definition.DisplayName) = '') or (Trim(Definition.NamePrefix) = '') then
+    raise EArgumentException.Create('Type ID, display name and name prefix are required');
+  if ERDPCBFindComponentType(Definition.TypeID, Existing) then raise EArgumentException.Create('Component type is already registered');
+  if IsNan(Definition.Width) or IsInfinite(Definition.Width) or IsNan(Definition.Height) or IsInfinite(Definition.Height) or
+    (Definition.Width < 2) or (Definition.Width > 1000) or (Definition.Height < 2) or (Definition.Height > 1000) or
+    (Definition.Value < 0) then raise EArgumentException.Create('Invalid component defaults');
+  if ((Definition.Kind in [piTimer, piUART, piCANBus, piI2C, piSPI]) and (Definition.Value < 1)) or
+    ((Definition.Kind = piOutputGroup) and ((Definition.Value < 1) or (Definition.Value > 65535))) then
+    raise EArgumentException.Create('Invalid component value default');
+  if (Definition.Kind <> piNote) and (Definition.NoteType <> ntNone) then raise EArgumentException.Create('Only notes have a note type');
+  ComponentTypes.Add(Definition);
+end;
 function ERDPCBItemKindName(Kind: TERDPCBItemKind): string;
 begin
   case Kind of piTimer: Result := 'Timer'; piCounter: Result := 'Counter';
@@ -141,6 +211,12 @@ begin Result := 0; for I := 0 to High(FItems) do if FItems[I].Selected then Inc(
 function TERDPCBScene.PrimaryIndex: Integer;
 var I: Integer;
 begin Result := -1; for I := High(FItems) downto 0 do if FItems[I].Selected then Exit(I); end;
+function TERDPCBScene.ItemNamePrefix(const Value: TERDPCBDesignItem): string;
+var Definition: TERDPCBComponentType;
+begin
+  if ERDPCBFindComponentType(Value.TypeID, Definition) then Result := Definition.NamePrefix
+  else Result := ERDPCBItemKindName(Value.Kind);
+end;
 function TERDPCBScene.UniqueName(const Prefix: string): string;
 var N, I: Integer; Found: Boolean;
 begin
@@ -151,8 +227,13 @@ begin
   until not Found;
 end;
 procedure TERDPCBScene.CheckItem(const Item: TERDPCBDesignItem; Ignore: Integer);
-var I: Integer;
+var I: Integer; Definition: TERDPCBComponentType;
 begin
+  ValidateProperties(Item.PropertiesJSON);
+  if Ord(Item.NoteType) > Ord(High(TERDPCBNoteType)) then raise EArgumentException.Create('Invalid note type');
+  if (Item.TypeID <> '') and ERDPCBFindComponentType(Item.TypeID, Definition) and (Definition.Kind <> Item.Kind) then
+    raise EArgumentException.Create('Component type does not match its base kind');
+  if (Item.Kind <> piNote) and (Item.NoteType <> ntNone) then raise EArgumentException.Create('Only notes have a note type');
   if Assigned(FOnValidateItem) then FOnValidateItem(Self, Item);
   if Trim(Item.Name) = '' then raise EArgumentException.Create('Component name is required');
   for I := 0 to High(FItems) do if I <> Ignore then
@@ -170,14 +251,17 @@ begin
     raise EArgumentException.Create('LED count must be 1..65535');
 end;
 function TERDPCBScene.Add(Kind: TERDPCBItemKind; const Position: TPointF): Integer;
-var Value: TERDPCBDesignItem; I: Integer;
+begin Result := AddType(ERDPCBBuiltInTypeID(Kind), Position); end;
+function TERDPCBScene.AddType(const TypeID: string; const Position: TPointF): Integer;
+var Value: TERDPCBDesignItem; Definition: TERDPCBComponentType; I: Integer;
 begin
-  Value := Default(TERDPCBDesignItem); Value.ID := NewID; Value.Name := UniqueName(ERDPCBItemKindName(Kind));
-  Value.Kind := Kind; Value.Caption := ERDPCBItemKindName(Kind); Value.Enabled := True; Value.Selected := True;
-  Value.X := Position.X; Value.Y := Position.Y; Value.Width := 16; Value.Height := 8;
-  if Kind = piNote then begin Value.Width := 30; Value.Height := 18; Value.Caption := 'Note'; end;
-  case Kind of piTimer: Value.Value := 1000; piOutputGroup: Value.Value := 1;
-    piUART: Value.Value := 115200; piCANBus: Value.Value := 500000; piI2C: Value.Value := 100000; piSPI: Value.Value := 1000000; end;
+  if not ERDPCBFindComponentType(TypeID, Definition) then raise EArgumentException.Create('Component type is not registered: ' + TypeID);
+  Value := Default(TERDPCBDesignItem); Value.ID := NewID; Value.TypeID := Definition.TypeID;
+  Value.Name := UniqueName(Definition.NamePrefix); Value.Kind := Definition.Kind;
+  Value.PropertiesJSON := Definition.PropertiesJSON; if Value.PropertiesJSON = '' then Value.PropertiesJSON := '{}';
+  Value.Caption := Definition.Caption; Value.Value := Definition.Value; Value.NoteType := Definition.NoteType;
+  Value.Enabled := True; Value.Selected := True; Value.X := Position.X; Value.Y := Position.Y;
+  Value.Width := Definition.Width; Value.Height := Definition.Height;
   CheckItem(Value, -1); Remember;
   for I := 0 to High(FItems) do FItems[I].Selected := False;
   Result := Count; SetLength(FItems, Result + 1); FItems[Result] := Value; Changed(True);
@@ -233,7 +317,7 @@ begin
   EndEdit;
 end;
 function TERDPCBScene.Serialize(SelectedOnly, IncludeSelection: Boolean): string;
-var Root, Obj: TJSONObject; Items: TJSONArray; Value: TERDPCBDesignItem;
+var Root, Obj: TJSONObject; Items: TJSONArray; Value: TERDPCBDesignItem; Properties: TJSONValue;
 begin
   Root := TJSONObject.Create;
   try
@@ -244,6 +328,10 @@ begin
       Obj := TJSONObject.Create; Items.AddElement(Obj);
       Obj.AddPair('id', Value.ID); Obj.AddPair('name', Value.Name); Obj.AddPair('caption', Value.Caption); Obj.AddPair('pin', Value.Pin);
       Obj.AddPair('secondary_pin', Value.SecondaryPin); Obj.AddPair('clock_pin', Value.ClockPin); Obj.AddPair('select_pin', Value.SelectPin);
+      if Value.PropertiesJSON = '' then Properties := TJSONObject.Create
+      else Properties := TJSONObject.ParseJSONValue(Value.PropertiesJSON);
+      Obj.AddPair('properties', Properties);
+      Obj.AddPair('type_id', Value.TypeID); Obj.AddPair('note_type', ERDPCBNoteTypeName(Value.NoteType));
       Obj.AddPair('kind', TJSONNumber.Create(Ord(Value.Kind))); Obj.AddPair('value', TJSONNumber.Create(Value.Value));
       Obj.AddPair('x', TJSONNumber.Create(Value.X)); Obj.AddPair('y', TJSONNumber.Create(Value.Y));
       Obj.AddPair('width', TJSONNumber.Create(Value.Width)); Obj.AddPair('height', TJSONNumber.Create(Value.Height));
@@ -259,7 +347,7 @@ function TERDPCBScene.ContentJSON: string;
 begin Result := Serialize(False, False); end;
 procedure TERDPCBScene.LoadJSON(const Text: string);
 var Root: TJSONValue; Items: TJSONArray; Obj: TJSONObject; Temp: TERDPCBScene;
-    Value: TERDPCBDesignItem; I, Kind: Integer;
+    Value: TERDPCBDesignItem; I, Kind: Integer; Properties: TJSONValue;
 begin
   Root := TJSONObject.ParseJSONValue(Text); Temp := TERDPCBScene.Create(nil);
   try
@@ -278,7 +366,16 @@ begin
       Kind := Obj.GetValue<Integer>('kind');
       if (Kind < Ord(Low(TERDPCBItemKind))) or (Kind > Ord(High(TERDPCBItemKind))) or (Value.ID = '') then
         raise EConvertError.Create('Invalid component kind or identity');
-      Value.Kind := TERDPCBItemKind(Kind); Value.Value := Obj.GetValue<Integer>('value');
+      Value.Kind := TERDPCBItemKind(Kind);
+      Value.TypeID := Obj.GetValue<string>('type_id', ERDPCBBuiltInTypeID(Value.Kind));
+      Properties := Obj.GetValue('properties'); Value.PropertiesJSON := '{}';
+      if Properties <> nil then
+      begin
+        if not (Properties is TJSONObject) then raise EConvertError.Create('Invalid component properties');
+        Value.PropertiesJSON := Properties.ToJSON;
+      end;
+      Value.NoteType := ERDPCBParseNoteType(Obj.GetValue<string>('note_type', 'None'));
+      Value.Value := Obj.GetValue<Integer>('value');
       Value.X := Obj.GetValue<Double>('x'); Value.Y := Obj.GetValue<Double>('y');
       Value.Width := Obj.GetValue<Double>('width'); Value.Height := Obj.GetValue<Double>('height');
       Value.Enabled := Obj.GetValue<Boolean>('enabled'); Value.Locked := Obj.GetValue<Boolean>('locked');
@@ -300,7 +397,7 @@ begin
       for I := 0 to High(FItems) do FItems[I].Selected := False;
       for I := 0 to Temp.Count - 1 do
       begin
-        Value := Temp.Item(I); Value.ID := NewID; Value.Name := UniqueName(ERDPCBItemKindName(Value.Kind));
+        Value := Temp.Item(I); Value.ID := NewID; Value.Name := UniqueName(Temp.ItemNamePrefix(Value));
         Value.X := Value.X + Offset; Value.Y := Value.Y + Offset; Value.Selected := True;
         if Value.Kind in [piOutputGroup, piUART, piCANBus, piI2C, piSPI] then
         begin Value.Pin := ''; Value.SecondaryPin := ''; Value.ClockPin := ''; Value.SelectPin := ''; end;
@@ -330,4 +427,39 @@ end;
 procedure TERDPCBScene.WriteData(Stream: TStream);
 var Bytes: TBytes;
 begin Bytes := TEncoding.UTF8.GetBytes(ToJSON); if Length(Bytes) > 0 then Stream.WriteBuffer(Bytes[0], Length(Bytes)); end;
+procedure RegisterBuiltInTypes;
+var Kind: TERDPCBItemKind; NoteType: TERDPCBNoteType; Definition: TERDPCBComponentType;
+begin
+  for Kind := Low(TERDPCBItemKind) to High(TERDPCBItemKind) do
+  begin
+    Definition := Default(TERDPCBComponentType); Definition.Kind := Kind;
+    Definition.TypeID := ERDPCBBuiltInTypeID(Kind); Definition.DisplayName := ERDPCBItemKindName(Kind);
+    Definition.NamePrefix := Definition.DisplayName; Definition.Caption := Definition.DisplayName;
+    Definition.Width := 16; Definition.Height := 8;
+    case Kind of
+      piTimer: begin Definition.Value := 1000; Definition.Icon := glClock; end;
+      piCounter: Definition.GlyphText := '#';
+      piOutputGroup: begin Definition.Value := 1; Definition.GlyphText := 'LED'; end;
+      piNote: begin Definition.Width := 30; Definition.Height := 18; Definition.Icon := glFile; end;
+      piUART: begin Definition.Value := 115200; Definition.GlyphText := 'UART'; end;
+      piCANBus: begin Definition.Value := 500000; Definition.GlyphText := 'CAN'; end;
+      piI2C: begin Definition.Value := 100000; Definition.GlyphText := 'I2C'; end;
+      piSPI: begin Definition.Value := 1000000; Definition.GlyphText := 'SPI'; end;
+    end;
+    ERDPCBRegisterComponentType(Definition);
+  end;
+  for NoteType := ntInfo to ntQuestion do
+  begin
+    ERDPCBFindComponentType(ERDPCBBuiltInTypeID(piNote), Definition);
+    Definition.TypeID := 'erd.note.' + LowerCase(ERDPCBNoteTypeName(NoteType));
+    Definition.DisplayName := ERDPCBNoteTypeName(NoteType) + ' note';
+    Definition.NamePrefix := ERDPCBNoteTypeName(NoteType) + 'Note'; Definition.NoteType := NoteType;
+    ERDPCBRegisterComponentType(Definition);
+  end;
+end;
+initialization
+  ComponentTypes := TList<TERDPCBComponentType>.Create;
+  RegisterBuiltInTypes;
+finalization
+  ComponentTypes.Free;
 end.

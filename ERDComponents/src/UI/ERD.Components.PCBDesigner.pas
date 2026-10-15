@@ -8,6 +8,8 @@ uses
   ERD.Components.Control, ERD.Components.Types, ERD.Components.PCBScene, ERD.Components.PCBRoute, ERD.Components.Memo, ERD.Components.Menus, ERD.Components.ScrollBar;
 
 type
+  TERDPCBItemGlyphEvent = procedure(Sender: TObject; ACanvas: TCanvas; const Bounds: TRect;
+    const Item: TERDPCBDesignItem; var Handled: Boolean) of object;
   TERDPCBAlignment = (paLeft, paHorizontalCenter, paRight, paTop, paVerticalCenter, paBottom);
   TERDPCBPad = record
     ID, Net, Reference, Number: string;
@@ -36,6 +38,8 @@ type
   /// Imported geometry is read-only; project assignments have a separate file.
   TERDPCBDesigner = class(TERDCustomControl)
   private
+    FOnDrawItemGlyph: TERDPCBItemGlyphEvent;
+    FOnValidateDesignItem: TERDPCBValidateItemEvent;
     FConnectionID, FHotConnectionID: string;
     FConnectionRole, FHotConnectionRole: TERDPCBPinRole;
     FSelectingConnection, FRewiring: Boolean;
@@ -44,6 +48,7 @@ type
     FDefaultContextMenu, FSuppressContextMenu: Boolean;
     FPlacing, FPlacementPreview: Boolean;
     FPlacementKind: TERDPCBItemKind;
+    FPlacementTypeID: string;
     FPlacementPoint: TPoint;
     FOnPlacementChange: TNotifyEvent;
     FRouteCache: TDictionary<string, TERDPCBConnectionGeometry>;
@@ -97,6 +102,7 @@ type
     procedure ReportConnectionError(const Text: string);
     procedure ContextAction(Sender: TObject);
     function SelectionBounds(out Bounds: TRect): Boolean;
+    function TypeInsertionPoint(const TypeID: string; const ClientPoint: TPoint): TPointF;
     function InsertionPoint(Kind: TERDPCBItemKind; const ClientPoint: TPoint): TPointF;
     procedure PaintPlacementPreview(ACanvas: TCanvas);
     procedure SnapGuides(var DX, DY: Double);
@@ -177,6 +183,10 @@ type
     procedure ThemeChanged; override;
     /// ClientPoint is the visual top-left; the resulting model position is in millimetres.
     function InsertAt(Kind: TERDPCBItemKind; const ClientPoint: TPoint): Integer;
+    function InsertTypeAt(const TypeID: string; const ClientPoint: TPoint): Integer;
+    function AddRegisteredItem(const TypeID: string; const Position: TPointF): Integer;
+    procedure BeginTypePlacement(const TypeID: string);
+    property PlacementTypeID: string read FPlacementTypeID;
     procedure BeginPlacement(Kind: TERDPCBItemKind);
     procedure PreviewPlacementAt(const ClientPoint: TPoint);
     procedure CancelPlacement;
@@ -240,6 +250,8 @@ type
     property LastError: string read FLastError;
     property HotPin: string read FHot;
   published
+    property OnValidateDesignItem: TERDPCBValidateItemEvent read FOnValidateDesignItem write FOnValidateDesignItem;
+    property OnDrawItemGlyph: TERDPCBItemGlyphEvent read FOnDrawItemGlyph write FOnDrawItemGlyph;
     property DefaultContextMenu: Boolean read FDefaultContextMenu write FDefaultContextMenu default True;
     property OnConnectionSelectionChange: TNotifyEvent read FOnConnectionSelectionChange write FOnConnectionSelectionChange;
     property OnPlacementChange: TNotifyEvent read FOnPlacementChange write FOnPlacementChange;
@@ -372,7 +384,7 @@ begin
 end;
 destructor TERDPCBDesigner.Destroy;
 begin
-  FEditingNote := ''; FOnPlacementChange := nil; FOnConnectionSelectionChange := nil;
+  FEditingNote := ''; FOnPlacementChange := nil; FOnConnectionSelectionChange := nil; FOnValidateDesignItem := nil; FOnDrawItemGlyph := nil;
   if FNoteEditor <> nil then begin FNoteEditor.Editor.OnExit := nil; FNoteEditor.OnKeyDown := nil; end;
   if FScrollH <> nil then FScrollH.OnChange := nil;
   if FScrollV <> nil then FScrollV.OnChange := nil;
@@ -640,6 +652,21 @@ begin
   else Result.Y := Result.Y - ScaleValue(32) / FScreenScale;
   Result.X := Snap(Result.X); Result.Y := Snap(Result.Y);
 end;
+function TERDPCBDesigner.TypeInsertionPoint(const TypeID: string; const ClientPoint: TPoint): TPointF;
+var Definition: TERDPCBComponentType;
+begin
+  if not ERDPCBFindComponentType(TypeID, Definition) then raise EArgumentException.Create('Unknown component type: ' + TypeID);
+  Result := InsertionPoint(Definition.Kind, ClientPoint);
+  if Definition.Kind = piNote then Result.Y := Snap(ClientToBoard(ClientPoint).Y - Definition.Height);
+end;
+function TERDPCBDesigner.AddRegisteredItem(const TypeID: string; const Position: TPointF): Integer;
+begin Result := FScene.AddType(TypeID, PointF(Snap(Position.X), Snap(Position.Y))); end;
+function TERDPCBDesigner.InsertTypeAt(const TypeID: string; const ClientPoint: TPoint): Integer;
+begin
+  if FTemplateEditMode then raise EArgumentException.Create('End template authoring before inserting scene items');
+  FinishNoteEdit(True); CancelGesture;
+  Result := AddRegisteredItem(TypeID, TypeInsertionPoint(TypeID, ClientPoint));
+end;
 function TERDPCBDesigner.InsertAt(Kind: TERDPCBItemKind; const ClientPoint: TPoint): Integer;
 begin
   if FTemplateEditMode then raise EArgumentException.Create('End template authoring before inserting scene items');
@@ -647,10 +674,14 @@ begin
   Result := AddDesignItem(Kind, InsertionPoint(Kind, ClientPoint));
 end;
 procedure TERDPCBDesigner.BeginPlacement(Kind: TERDPCBItemKind);
+begin BeginTypePlacement(ERDPCBBuiltInTypeID(Kind)); end;
+procedure TERDPCBDesigner.BeginTypePlacement(const TypeID: string);
+var Definition: TERDPCBComponentType;
 begin
+  if not ERDPCBFindComponentType(TypeID, Definition) then raise EArgumentException.Create('Unknown component type: ' + TypeID);
   if FTemplateEditMode then raise EArgumentException.Create('End template authoring before placing scene items');
   FinishNoteEdit(True); CancelGesture; PanMode := False;
-  ClearConnectionSelection; FPlacementKind := Kind; FPlacing := True; FPlacementPreview := False;
+  ClearConnectionSelection; FPlacementKind := Definition.Kind; FPlacementTypeID := Definition.TypeID; FPlacing := True; FPlacementPreview := False;
   Cursor := crCross; SetHot(''); Invalidate;
   if Assigned(FOnPlacementChange) then FOnPlacementChange(Self);
 end;
@@ -668,19 +699,20 @@ begin
   if Assigned(FOnPlacementChange) then FOnPlacementChange(Self);
 end;
 procedure TERDPCBDesigner.PaintPlacementPreview(ACanvas: TCanvas);
-var World: TPointF; P, Q: TPoint; R: TRect; Text: string;
+var World: TPointF; P, Q: TPoint; R: TRect; Text: string; Definition: TERDPCBComponentType;
 begin
   if not FPlacing or not FPlacementPreview or FDragging then Exit;
-  World := InsertionPoint(FPlacementKind, FPlacementPoint);
+  if not ERDPCBFindComponentType(FPlacementTypeID, Definition) then Exit;
+  World := TypeInsertionPoint(FPlacementTypeID, FPlacementPoint);
   P := ScreenPoint(World);
   if FPlacementKind = piNote then
-  begin Q := ScreenPoint(PointF(World.X + 30, World.Y + 18)); R := Rect(P.X, Q.Y, Q.X, P.Y); end
+  begin Q := ScreenPoint(PointF(World.X + Definition.Width, World.Y + Definition.Height)); R := Rect(P.X, Q.Y, Q.X, P.Y); end
   else R := Rect(P.X, P.Y - ScaleValue(32), P.X + ScaleValue(32), P.Y);
   ACanvas.Brush.Style := bsSolid; ACanvas.Brush.Style := bsClear;
   ACanvas.Pen.Color := Palette.Accent; ACanvas.Pen.Width := 1; ACanvas.Pen.Style := psDash;
   ACanvas.Rectangle(R); ACanvas.Pen.Style := psSolid;
   ACanvas.Font.Assign(Font); ACanvas.Font.Color := Palette.Accent;
-  Text := ERDPCBItemKindName(FPlacementKind);
+  Text := Definition.DisplayName;
   ACanvas.TextOut(R.Left, R.Bottom + ScaleValue(4), Text);
 end;
 procedure TERDPCBDesigner.AlignSelected(Alignment: TERDPCBAlignment);
@@ -952,6 +984,7 @@ begin
     else CheckPin(Item.Pin, pcNone);
     end;
   finally Used.Free; end;
+  if Assigned(FOnValidateDesignItem) then FOnValidateDesignItem(Self, Item);
 end;
 procedure TERDPCBDesigner.SetTemplateEditMode(Value: Boolean);
 begin
@@ -1864,7 +1897,8 @@ end;
 procedure TERDPCBDesigner.PaintScene(ACanvas: TCanvas);
 var I, J, ClipState: Integer; R, LinkRect: TRect; Value: TERDPCBDesignItem;
     P, Q: TPoint; Pad: TERDPCBPad; Text: string; Role, ConnectionIndex: Integer;
-    Tint: TBitmap; Blend: TBlendFunction; Ink: TColor;
+    Tint: TBitmap; Blend: TBlendFunction; Ink, NoteColor: TColor;
+    Definition: TERDPCBComponentType; Painter: TERDPainter; NoteIcon: TERDGlyph; Header: TRect; GlyphHandled: Boolean;
   procedure DrawConnection(const FromPoint, ToPoint: TPoint; Color: TColor; Width: Single; TargetIndex: Integer);
   var Graphics: TGPGraphics; Path: TGPGraphicsPath; Pen: TGPPen; Geometry: TERDPCBConnectionGeometry;
       Segment: TERDPCBPathSegment;
@@ -1909,8 +1943,15 @@ begin
     if Value.Kind = piNote then
     begin
       ACanvas.Brush.Style := bsSolid;
-      ACanvas.Brush.Color := ERDMixColor(Palette.Background, Palette.Warning, 0.12);
-      ACanvas.Pen.Color := Palette.NeutralDark; ACanvas.Pen.Width := 1;
+      NoteColor := Palette.Subtle; NoteIcon := glNone;
+      case Value.NoteType of
+        ntInfo: begin NoteColor := Palette.Accent; NoteIcon := glInfo; end;
+        ntWarning: begin NoteColor := Palette.Warning; NoteIcon := glAlert; end;
+        ntError: begin NoteColor := Palette.Danger; NoteIcon := glClose; end;
+        ntQuestion: begin NoteColor := Palette.Accent; NoteIcon := glHelp; end;
+      end;
+      ACanvas.Brush.Color := ERDMixColor(Palette.Background, NoteColor, 0.12);
+      ACanvas.Pen.Color := NoteColor; ACanvas.Pen.Width := 1;
       if Value.Selected then ACanvas.Pen.Color := Palette.Accent;
       ACanvas.Rectangle(R);
       ACanvas.Font.Assign(Font); ACanvas.Font.Color := Palette.ForegroundText;
@@ -1920,6 +1961,17 @@ begin
       ClipState := SaveDC(ACanvas.Handle);
       try
         IntersectClipRect(ACanvas.Handle, R.Left + 1, R.Top + 1, R.Right - 1, R.Bottom - 1);
+        if Value.NoteType <> ntNone then
+        begin
+          Header := LinkRect; Header.Bottom := Header.Top + ScaleValue(20);
+          Painter := TERDPainter.Create(ACanvas, Palette, ScaleValue(96));
+          try Painter.Glyph(NoteIcon, Header.Left + ScaleValue(8), Header.Top + ScaleValue(8), NoteColor, ScaleValue(96)/96);
+          finally Painter.Free; end;
+          Inc(Header.Left, ScaleValue(24)); ACanvas.Font.Style := [fsBold];
+          DrawTextW(ACanvas.Handle, PWideChar(ERDPCBNoteTypeName(Value.NoteType)), -1, Header,
+            DT_SINGLELINE or DT_VCENTER or DT_END_ELLIPSIS or DT_NOPREFIX);
+          ACanvas.Font.Style := []; Inc(LinkRect.Top, ScaleValue(26));
+        end;
         DrawTextW(ACanvas.Handle, PWideChar(Text), Length(Text), LinkRect,
           DT_WORDBREAK or DT_NOPREFIX or DT_EDITCONTROL);
       finally RestoreDC(ACanvas.Handle, ClipState); end;
@@ -1939,15 +1991,33 @@ begin
     ACanvas.Font.Height := -ScaleValue(11); ACanvas.Font.Style := [fsBold];
     ACanvas.Font.Color := Palette.ForegroundText;
     if not Value.Enabled then ACanvas.Font.Color := Palette.Subtle;
-    case Value.Kind of
-      piTimer: Text := 'T'; piCounter: Text := '#'; piOutputGroup: Text := 'LED';
-      piNote: Text := 'N'; piUART: Text := 'UART'; piCANBus: Text := 'CAN';
-      piI2C: Text := 'I2C'; piSPI: Text := 'SPI';
+    GlyphHandled := False;
+    if Assigned(FOnDrawItemGlyph) then FOnDrawItemGlyph(Self, ACanvas, R, Value, GlyphHandled);
+    if not GlyphHandled then
+    begin
+      case Value.Kind of
+        piTimer: Text := 'T'; piCounter: Text := '#'; piOutputGroup: Text := 'LED';
+        piNote: Text := 'N'; piUART: Text := 'UART'; piCANBus: Text := 'CAN';
+        piI2C: Text := 'I2C'; piSPI: Text := 'SPI';
+      end;
+      Definition := Default(TERDPCBComponentType);
+      if ERDPCBFindComponentType(Value.TypeID, Definition) and (Definition.GlyphText <> '') then Text := Definition.GlyphText;
+      if Definition.Icon <> glNone then
+      begin
+        Painter := TERDPainter.Create(ACanvas, Palette, ScaleValue(96));
+        try Painter.Glyph(Definition.Icon, (R.Left+R.Right)/2, (R.Top+R.Bottom)/2, ACanvas.Font.Color, ScaleValue(96)/96);
+        finally Painter.Free; end;
+      end
+      else
+      begin
+        LinkRect := R; InflateRect(LinkRect, -ScaleValue(3), -ScaleValue(3));
+        DrawTextW(ACanvas.Handle, PWideChar(Text), Length(Text), LinkRect,
+          DT_SINGLELINE or DT_CENTER or DT_VCENTER or DT_NOPREFIX);
+      end;
     end;
-    LinkRect := R; InflateRect(LinkRect, -ScaleValue(3), -ScaleValue(3));
-    DrawTextW(ACanvas.Handle, PWideChar(Text), Length(Text), LinkRect,
-      DT_SINGLELINE or DT_CENTER or DT_VCENTER or DT_NOPREFIX);
-    ACanvas.Font.Style := []; Text := Value.Name;
+    ACanvas.Font.Name := 'Segoe UI'; ACanvas.Font.Height := -ScaleValue(11); ACanvas.Font.Style := [];
+    ACanvas.Font.Color := Palette.ForegroundText; if not Value.Enabled then ACanvas.Font.Color := Palette.Subtle;
+    ACanvas.Brush.Style := bsClear; Text := Value.Name;
     if Value.Locked then Text := Text + ' [locked]';
     LinkRect := Rect(R.Left - ScaleValue(64), R.Bottom + ScaleValue(3),
       R.Right + ScaleValue(64), R.Bottom + ScaleValue(22));
@@ -2107,7 +2177,7 @@ begin
   if Button <> mbLeft then Exit;
   if FPlacing then
   begin
-    InsertAt(FPlacementKind, P);
+    InsertTypeAt(FPlacementTypeID, P);
     if not (ssShift in Shift) then CancelPlacement else PreviewPlacementAt(P);
     Exit;
   end;

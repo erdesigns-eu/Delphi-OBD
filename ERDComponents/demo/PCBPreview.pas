@@ -14,6 +14,7 @@ type
     FAuthoring, FHand: TERDCheckBox;
     FFileName, FTemplateDirectory: string;
     FToolDragging: Boolean;
+    FTypes: TArray<TERDPCBComponentType>;
     procedure ViewOptionChanged(Sender: TObject);
     procedure SelectionChanged(Sender: TObject);
     procedure ConnectionSelectionChanged(Sender: TObject);
@@ -71,7 +72,8 @@ begin
   B := TERDButton.Create(Self); B.Parent := Tools; B.Align := alTop; B.Height := ScaleValue(30);
   B.Caption := 'Select / move'; B.OnClick := SelectToolClicked;
   FToolbox := TERDListBox.Create(Self); FToolbox.Parent := Tools; FToolbox.Align := alClient;
-  for I := Ord(Low(TERDPCBItemKind)) to Ord(High(TERDPCBItemKind)) do FToolbox.Items.Add(ERDPCBItemKindName(TERDPCBItemKind(I)));
+  FTypes := ERDPCBComponentTypes;
+  for I := 0 to High(FTypes) do FToolbox.Items.Add(FTypes[I].DisplayName);
   FToolbox.ItemIndex := 0; FToolbox.OnMouseDown := ToolboxMouseDown; FToolbox.OnDblClick := ToolboxDoubleClick; FToolbox.OnClick := ToolboxClick;
   FToolbox.OnStartDrag := ToolboxStartDrag; FToolbox.OnEndDrag := ToolboxEndDrag;
   FInspector := TERDInspector.Create(Self); FInspector.Parent := Self; FInspector.Align := alRight; FInspector.Width := ScaleValue(310);
@@ -175,14 +177,15 @@ begin
             5: Row.Value := FloatToStr(Value.Y, TFormatSettings.Invariant);
             6: Row.Value := FloatToStr(Value.Width, TFormatSettings.Invariant);
             7: Row.Value := FloatToStr(Value.Height, TFormatSettings.Invariant);
+            14: Row.Value := ERDPCBNoteTypeName(Value.NoteType);
           end;
         end;
     finally FInspector.EndUpdate; end;
   end;
   FStatus.Caption := 'Designer modified - Ctrl+Z/Y undo/redo; Ctrl+C/V copy/paste; Delete removes unlocked objects.'; end;
 procedure TPCBPreview.SelectionChanged(Sender: TObject);
-var Category: TERDInspectorCategory; P: TERDPCBPad; Value: TERDPCBDesignItem; Index, I, T: Integer;
-    Channel: TERDPCBChannel; Group: TERDPCBTerminal; Text: string; Row: TERDInspectorProperty;
+var Category: TERDInspectorCategory; P: TERDPCBPad; Value: TERDPCBDesignItem; Index, I, T: Integer; NoteType: TERDPCBNoteType;
+    Channel: TERDPCBChannel; Group: TERDPCBTerminal; Text: string; Row: TERDInspectorProperty; Definition: TERDPCBComponentType;
   procedure Field(const Name, Text: string; Tag: Integer; Kind: TERDInspectorValueKind = ivText);
   begin Row := Category.AddProperty(Name, Text, Kind); Row.Tag := Tag; end;
   procedure PinField(const Name, Text: string; Tag: Integer);
@@ -194,12 +197,16 @@ begin
   if Index >= 0 then
   begin
     Value := FDesigner.Scene.Item(Index); Category := FInspector.AddCategory('Designer component');
-    Category.AddProperty('Kind', ERDPCBItemKindName(Value.Kind), ivReadOnly);
+    Text := ERDPCBItemKindName(Value.Kind);
+    if ERDPCBFindComponentType(Value.TypeID, Definition) then Text := Definition.DisplayName;
+    Category.AddProperty('Component type', Text, ivReadOnly);
     Category.AddProperty('ID', Value.ID, ivReadOnly);
     Field('Name', Value.Name, 1);
     if Value.Kind = piNote then
     begin
       Field('Text', Value.Caption, 2, ivEllipsis); Row.ReadOnly := True;
+      Field('Type', ERDPCBNoteTypeName(Value.NoteType), 14, ivPickList);
+      for NoteType := Low(TERDPCBNoteType) to High(TERDPCBNoteType) do Row.PickList.Add(ERDPCBNoteTypeName(NoteType));
       Field('Locked', '', 13, ivCheck); Row.Checked := Value.Locked;
       Category := FInspector.AddCategory('Position and size (mm)');
       Field('X', FloatToStr(Value.X, TFormatSettings.Invariant), 4); Field('Y', FloatToStr(Value.Y, TFormatSettings.Invariant), 5);
@@ -271,6 +278,7 @@ begin
     4: Result.X := StrToFloat(Text, TFormatSettings.Invariant); 5: Result.Y := StrToFloat(Text, TFormatSettings.Invariant);
     6: Result.Width := StrToFloat(Text, TFormatSettings.Invariant); 7: Result.Height := StrToFloat(Text, TFormatSettings.Invariant);
     12: Result.Enabled := AProperty.Checked; 13: Result.Locked := AProperty.Checked;
+    14: Result.NoteType := ERDPCBParseNoteType(Text);
   end;
 end;
 procedure TPCBPreview.PropertyChanging(Sender: TObject; AProperty: TERDInspectorProperty; var NewValue: string; var Accept: Boolean);
@@ -317,7 +325,7 @@ procedure TPCBPreview.ToolboxClick(Sender: TObject);
 begin
   FToolDragging := False;
   if (FToolbox.ItemIndex >= 0) and not FDesigner.TemplateEditMode then
-  begin FDesigner.BeginPlacement(TERDPCBItemKind(FToolbox.ItemIndex)); FDesigner.SetFocus; end;
+  begin FDesigner.BeginTypePlacement(FTypes[FToolbox.ItemIndex].TypeID); FDesigner.SetFocus; end;
 end;
 procedure TPCBPreview.ToolboxStartDrag(Sender: TObject; var DragObject: TDragObject);
 begin FToolDragging := True; end;
@@ -330,11 +338,14 @@ begin ToolboxClick(Sender); end;
 procedure TPCBPreview.SelectToolClicked(Sender: TObject);
 begin FDesigner.CancelPlacement; FToolbox.ItemIndex := -1; end;
 procedure TPCBPreview.PlacementChanged(Sender: TObject);
+var Definition: TERDPCBComponentType; Name: string;
 begin
   if FDesigner.Placing then
   begin
     if (FHand <> nil) and FHand.Checked then FHand.Checked := False;
-    FStatus.Caption := 'Place ' + ERDPCBItemKindName(FDesigner.PlacementKind) +
+    Name := ERDPCBItemKindName(FDesigner.PlacementKind);
+    if ERDPCBFindComponentType(FDesigner.PlacementTypeID, Definition) then Name := Definition.DisplayName;
+    FStatus.Caption := 'Place ' + Name +
       ' - click canvas; Shift+click repeats; Escape or right-click cancels.';
   end
   else
@@ -348,15 +359,15 @@ begin
   Accept := (Source = FToolbox) and (FToolbox.ItemIndex >= 0) and not FDesigner.TemplateEditMode;
   if not Accept then Exit;
   if State = dsDragLeave then begin FDesigner.CancelPlacement; Exit; end;
-  if not FDesigner.Placing or (FDesigner.PlacementKind <> TERDPCBItemKind(FToolbox.ItemIndex)) then
-    FDesigner.BeginPlacement(TERDPCBItemKind(FToolbox.ItemIndex));
+  if not FDesigner.Placing or (FDesigner.PlacementTypeID <> FTypes[FToolbox.ItemIndex].TypeID) then
+    FDesigner.BeginTypePlacement(FTypes[FToolbox.ItemIndex].TypeID);
   FDesigner.PreviewPlacementAt(Point(X,Y));
 end;
 procedure TPCBPreview.SurfaceDragDrop(Sender, Source: TObject; X, Y: Integer);
 begin
   if (Source = FToolbox) and (FToolbox.ItemIndex >= 0) then
   begin
-    FDesigner.InsertAt(TERDPCBItemKind(FToolbox.ItemIndex), Point(X,Y)); FDesigner.CancelPlacement;
+    FDesigner.InsertTypeAt(FTypes[FToolbox.ItemIndex].TypeID, Point(X,Y)); FDesigner.CancelPlacement;
   end;
 end;
 procedure TPCBPreview.ToolbarClicked(Sender: TObject);

@@ -33,6 +33,10 @@ type
     procedure Request(const Value: TERDLanguageRequest; const Reply: IERDLanguageResponses);
     procedure Cancel(RequestID: Int64);
   end;
+  TPCBHostProbe = class
+    Validations: Integer;
+    procedure ValidateItem(Sender: TObject; const Item: TERDPCBDesignItem);
+  end;
   TCodeEditorProbe = class(TERDCodeEditor)
   protected
     procedure DestroyWnd; override;
@@ -2493,6 +2497,92 @@ begin
   finally Scene.Free; end;
 end;
 
+procedure TPCBHostProbe.ValidateItem(Sender: TObject; const Item: TERDPCBDesignItem);
+begin
+  Inc(Validations);
+  if Item.Caption = 'Reject' then raise EArgumentException.Create('Host rejected this caption');
+end;
+
+procedure TestPCBComponentTypes;
+var Scene, CopyScene: TERDPCBScene; Definition, CopyDefinition: TERDPCBComponentType;
+    Value: TERDPCBDesignItem; Index, BeforeCount: Integer; Failed: Boolean; NoteType: TERDPCBNoteType;
+    Before, Legacy: string; Root, Obj: TJSONObject; Items: TJSONArray; Removed: TJSONPair;
+    Form: TForm; Designer: TERDPCBDesigner; P: TPoint; Host: TPCBHostProbe;
+begin
+  Check(ERDPCBFindComponentType('erd.timer', Definition), 'Built-in types have stable registry IDs');
+  Definition.TypeID := 'smoke.customtimer'; Definition.DisplayName := 'Custom timer'; Definition.NamePrefix := 'CustomTimer';
+  Definition.Value := 250; Definition.Caption := 'Pulse'; Definition.PropertiesJSON := '{"repeat":3,"label":"test"}';
+  ERDPCBRegisterComponentType(Definition); BeforeCount := Length(ERDPCBComponentTypes); Failed := False;
+  try ERDPCBRegisterComponentType(Definition); except on E: EArgumentException do Failed := True; end;
+  Check(Failed and (Length(ERDPCBComponentTypes) = BeforeCount), 'Duplicate type IDs are rejected without replacing definitions');
+  Check(ERDPCBFindComponentType(Definition.TypeID, CopyDefinition), 'Registered definitions can be queried');
+  CopyDefinition.Caption := 'Changed';
+  ERDPCBFindComponentType(Definition.TypeID, CopyDefinition);
+  Check(CopyDefinition.Caption = 'Pulse', 'Registry returns independent descriptor records');
+  CopyDefinition.TypeID := 'smoke.invalid'; CopyDefinition.PropertiesJSON := '[]'; Failed := False;
+  try ERDPCBRegisterComponentType(CopyDefinition); except on E: EArgumentException do Failed := True; end;
+  Check(Failed and (Length(ERDPCBComponentTypes) = BeforeCount), 'Invalid default properties cannot enter the registry');
+  Scene := TERDPCBScene.Create(nil); CopyScene := TERDPCBScene.Create(nil);
+  try
+    Index := Scene.AddType(Definition.TypeID, PointF(1,2)); Value := Scene.Item(Index);
+    Check((Value.TypeID = Definition.TypeID) and (Value.Name = 'CustomTimer1') and (Value.Value = 250) and
+      (Value.PropertiesJSON = Definition.PropertiesJSON), 'Registered types supply names, values and custom property defaults');
+    CopyScene.LoadJSON(Scene.ToJSON);
+    Check(CopyScene.ContentJSON = Scene.ContentJSON, 'Registered identity and properties round-trip');
+    Scene.Select(Index); Scene.PasteJSON(Scene.ToJSON(True));
+    Check((Scene.Item(1).TypeID = Definition.TypeID) and (Scene.Item(1).Name = 'CustomTimer2') and
+      (Scene.Item(1).PropertiesJSON = Value.PropertiesJSON), 'Paste retains type and properties with a fresh unique name');
+    Index := Scene.Add(piNote, PointF(3,4));
+    for NoteType := Low(TERDPCBNoteType) to High(TERDPCBNoteType) do
+    begin
+      Value := Scene.Item(Index); Value.NoteType := NoteType; Scene.UpdateItem(Index, Value);
+      CopyScene.LoadJSON(Scene.ToJSON);
+      Check(CopyScene.Item(Index).NoteType = NoteType, 'Every note type survives serialization');
+    end;
+    Scene.Undo; Check(Scene.Item(Index).NoteType = ntError, 'Undo restores the previous note type');
+    Scene.Redo; Check(Scene.Item(Index).NoteType = ntQuestion, 'Redo restores the new note type');
+    Scene.Select(Index); Scene.PasteJSON(Scene.ToJSON(True));
+    Check(Scene.Item(Scene.Count-1).NoteType = ntQuestion, 'Copied notes retain their type');
+    Before := Scene.ContentJSON; Failed := False;
+    try Scene.LoadJSON(StringReplace(Before, '"note_type":"Question"', '"note_type":"invalid"', []));
+    except on E: EArgumentException do Failed := True; end;
+    Check(Failed and (Scene.ContentJSON = Before), 'Invalid note types fail atomically');
+    Root := TJSONObject.ParseJSONValue(Scene.ToJSON) as TJSONObject;
+    try
+      Items := Root.GetValue<TJSONArray>('items');
+      for Index := 0 to Items.Count-1 do
+      begin
+        Obj := TJSONObject(Items.Items[Index]); Removed := Obj.RemovePair('type_id'); Removed.Free;
+        Removed := Obj.RemovePair('note_type'); Removed.Free; Removed := Obj.RemovePair('properties'); Removed.Free;
+      end;
+      Legacy := Root.ToJSON;
+    finally Root.Free; end;
+    CopyScene.LoadJSON(Legacy);
+    Check((CopyScene.Item(0).TypeID = 'erd.timer') and (CopyScene.Item(2).NoteType = ntNone), 'Legacy scenes load with built-in identities and neutral notes');
+    Before := Scene.ContentJSON; Failed := False;
+    try Scene.AddType('missing.component', PointF(0,0)); except on E: EArgumentException do Failed := True; end;
+    Check(Failed and (Scene.ContentJSON = Before), 'Unknown types cannot be inserted');
+    CopyScene.LoadJSON(StringReplace(Scene.ToJSON, 'smoke.customtimer', 'missing.component', [rfReplaceAll]));
+    Check(CopyScene.Item(0).TypeID = 'missing.component', 'Unregistered saved types retain metadata and base behavior');
+  finally CopyScene.Free; Scene.Free; end;
+  Form := TForm.Create(nil); Host := TPCBHostProbe.Create;
+  try
+    Designer := TERDPCBDesigner.Create(Form); Designer.Parent := Form; Designer.SetBounds(0,0,600,400);
+    Designer.OnValidateDesignItem := Host.ValidateItem;
+    Designer.SnapToGrid := False; Designer.FitBoard;
+    Designer.BeginTypePlacement('erd.note.warning');
+    Designer.Perform(WM_LBUTTONDOWN, MK_LBUTTON, MakeLParam(120,120));
+    Designer.Perform(WM_LBUTTONUP, 0, MakeLParam(120,120));
+    Value := Designer.Scene.Item(Designer.Scene.PrimaryIndex);
+    P := Designer.BoardToClient(PointF(Value.X, Value.Y + Value.Height));
+    Check((Value.NoteType = ntWarning) and (Abs(P.X-120) <= 1) and (Abs(P.Y-120) <= 1), 'Registered note placement preserves type and top-left anchoring');
+    Before := Designer.Scene.ContentJSON; Value.Caption := 'Reject'; Failed := False;
+    try Designer.Scene.UpdateItem(Designer.Scene.PrimaryIndex, Value); except on E: EArgumentException do Failed := True; end;
+    Check(Failed and (Host.Validations > 0) and (Designer.Scene.ContentJSON = Before), 'Host validation rejects edits without replacing internal validation');
+    Designer.Undo; Check(Designer.Scene.Count = 0, 'Registered placement is a single undo step');
+  finally Form.Free; Host.Free; end;
+end;
+
 procedure TestPCBConnections;
 var Form: TForm; Designer: TERDPCBDesigner; BoardFile, Text, Before: string;
     A, B, I: Integer; Geometry: TERDPCBConnectionGeometry; Boxes: TArray<TRect>; Failed: Boolean;
@@ -3748,6 +3838,7 @@ begin
     TestPCBDesignerTools;
     TestPCBPlacement;
     TestPCBConnections;
+    TestPCBComponentTypes;
     TestSignatureHelp;
     TestEditorWindowShutdown;
     TestStdioLanguageAdapter;

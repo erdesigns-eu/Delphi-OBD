@@ -57,3 +57,19 @@ checks must run in RAD Studio on Windows; they are not replaced by static checks
   PopupMenu / OnContextPopup overrides and placement cancellation by right-click.
 - `TestPCBConnections` in the Windows smoke executable covers curve geometry,
   assignment transfer, atomic rejection and disconnect undo.
+
+### Registry and note types
+
+- Run `TestPCBComponentTypes` in the smoke executable. It checks registration,
+  duplicate/invalid defaults, saved and unknown type IDs, custom properties,
+  clipboard naming, note-type undo/redo, legacy loading and typed placement.
+- Place each note preset. Change Type through the separate inspector, then undo
+  and redo. Check status icons/labels, tinted fills and readable text in light
+  and dark themes, with a custom accent and at 100%, 150% and 200% DPI.
+- Verify None has no status header. Edit multiline text, resize, select, lock,
+  copy/paste, save and reopen each type. Notes must never show pin editors.
+- Register a timer subtype before opening the preview: its display name should
+  appear in the toolbox, and clicking/dragging it should keep its type ID,
+  caption, icon, defaults and host properties. Check Shift-repeat and Escape.
+- Implement OnDrawItemGlyph for that subtype and verify custom icon painting
+  leaves the component name, selection and connections intact.

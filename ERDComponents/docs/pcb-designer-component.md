@@ -167,3 +167,17 @@ Hints vermelden de componentnaam, aansluitrol, pin en eventuele GPIO.
 Met **F** zoom je naar de selectie; **Home** of **Ctrl+0** toont de hele PCB.
 Het themamenu via rechtsklik of de contextmenutoets bevat acties voor de huidige
 selectie, undo/redo en zoom. De demo heeft ook een knop **Focus selection**.
+
+### Componenttypes en notities
+
+De toolbox wordt opgebouwd uit geregistreerde componenttypes, met een vaste
+ID, een naam, icoon en standaardwaarden. Een host kan eigen types registreren
+op basis van bestaand gedrag en eigen metadata opslaan. De inspector blijft een
+losse hostcomponent; de designer bevat geen property-editor.
+
+Notes hebben een **Type**: None, Info, Warning, Error of Question. None is een
+neutrale tekstkaart. De andere types krijgen een themakleur, lichte tint,
+symbool en statuslabel boven de tekst. Je kunt het type in de inspector
+wijzigen of direct een getypeerde note uit de toolbox plaatsen. Tekst bewerken,
+verplaatsen, formaat wijzigen, kopiëren en undo/redo blijven beschikbaar.
+Notes hebben ook met een type geen pin assignments.
