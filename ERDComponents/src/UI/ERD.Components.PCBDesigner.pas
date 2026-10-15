@@ -1020,6 +1020,32 @@ end;
 procedure TERDPCBDesigner.PaintBodies(ACanvas: TCanvas);
 var I, J, K: Integer; Value: TERDPCBComponent; Poly: TArray<TPoint>; R, Inner: TRect; P: TPoint;
     Saved, Radius, TerminalID: Integer; Pad: TERDPCBPad;
+  procedure TintSelectedTerminal;
+  var Tint: TBitmap; Blend: TBlendFunction; ClipState, N: Integer; Bounds: TRect;
+  begin
+    Bounds := Rect(Poly[0].X, Poly[0].Y, Poly[0].X, Poly[0].Y);
+    for N := 1 to High(Poly) do
+    begin
+      Bounds.Left := Min(Bounds.Left, Poly[N].X); Bounds.Top := Min(Bounds.Top, Poly[N].Y);
+      Bounds.Right := Max(Bounds.Right, Poly[N].X); Bounds.Bottom := Max(Bounds.Bottom, Poly[N].Y);
+    end;
+    if (Bounds.Width <= 0) or (Bounds.Height <= 0) then Exit;
+    Tint := TBitmap.Create;
+    try
+      Tint.PixelFormat := pf32bit; Tint.SetSize(1, 1);
+      Tint.Canvas.Brush.Color := ACanvas.Pen.Color; Tint.Canvas.FillRect(Rect(0, 0, 1, 1));
+      Blend.BlendOp := AC_SRC_OVER; Blend.BlendFlags := 0;
+      Blend.SourceConstantAlpha := 56; Blend.AlphaFormat := 0;
+      ClipState := SaveDC(ACanvas.Handle);
+      try
+        // A GDI path preserves the supersampling world transform when clipping.
+        BeginPath(ACanvas.Handle); ACanvas.Polygon(Poly); EndPath(ACanvas.Handle);
+        SelectClipPath(ACanvas.Handle, RGN_AND);
+        Winapi.Windows.AlphaBlend(ACanvas.Handle, Bounds.Left, Bounds.Top, Bounds.Width, Bounds.Height,
+          Tint.Canvas.Handle, 0, 0, 1, 1, Blend);
+      finally RestoreDC(ACanvas.Handle, ClipState); end;
+    finally Tint.Free; end;
+  end;
 begin
   UpdateTransform;
   for I := 0 to High(FComponents) do
@@ -1096,6 +1122,7 @@ begin
        (FTerminals[TerminalID].SignalPin <> FHot) then Continue;
     SetLength(Poly, Length(Value.Body));
     for J := 0 to High(Poly) do Poly[J] := ScreenPoint(Value.Body[J]);
+    if FTerminals[TerminalID].SignalPin = FSelected then TintSelectedTerminal;
     ACanvas.Polygon(Poly);
   end;
   // Programmable pads remain clear hit targets on the assembled component layer.
