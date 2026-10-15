@@ -208,7 +208,7 @@ function ERDPCBPinCapabilitiesText(Values: TERDPCBPinCapabilities): string;
 function ERDPCBParsePinCapabilities(const Text: string): TERDPCBPinCapabilities;
 implementation
 
-uses System.IOUtils, Vcl.Forms, Vcl.Clipbrd, Vcl.StdCtrls, ERD.Components.Paint;
+uses System.IOUtils, System.Generics.Collections, Vcl.Forms, Vcl.Clipbrd, Vcl.StdCtrls, ERD.Components.Paint;
 
 function ERDPCBPinCapabilityName(Value: TERDPCBPinCapability): string;
 begin
