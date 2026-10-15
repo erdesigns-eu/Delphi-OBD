@@ -538,25 +538,34 @@ begin
   FUpdatingBars := True;
   try
     UpdateTransform; P := ScreenPoint(PointF(0, FMaxY)); Q := ScreenPoint(PointF(FMaxX, 0));
-    Bounds := Rect(Min(0, P.X), Min(0, P.Y), Max(ClientWidth, Q.X), Max(ClientHeight, Q.Y));
+    Bounds := Rect(P.X, P.Y, Q.X, Q.Y);
     for I := 0 to FScene.Count - 1 do
     begin
       R := ItemRect(I); Bounds.Left := Min(Bounds.Left, R.Left); Bounds.Top := Min(Bounds.Top, R.Top);
       Bounds.Right := Max(Bounds.Right, R.Right); Bounds.Bottom := Max(Bounds.Bottom, R.Bottom);
     end;
-    FScrollH.Visible := FScrollBars in [System.UITypes.TScrollStyle.ssHorizontal, System.UITypes.TScrollStyle.ssBoth];
-    FScrollV.Visible := FScrollBars in [System.UITypes.TScrollStyle.ssVertical, System.UITypes.TScrollStyle.ssBoth];
     W := ClientWidth; H := ClientHeight; T := ScaleValue(12);
-    if FScrollV.Visible then Dec(W, T); if FScrollH.Visible then Dec(H, T);
+    // Resolve the two axes together: one bar reduces the other axis's viewport.
+    for I := 0 to 1 do
+    begin
+      FScrollH.Visible := (FScrollBars in [System.UITypes.TScrollStyle.ssHorizontal, System.UITypes.TScrollStyle.ssBoth]) and
+        ((Bounds.Left < 0) or (Bounds.Right > W));
+      if FScrollH.Visible then H := Max(0, ClientHeight - T);
+      FScrollV.Visible := (FScrollBars in [System.UITypes.TScrollStyle.ssVertical, System.UITypes.TScrollStyle.ssBoth]) and
+        ((Bounds.Top < 0) or (Bounds.Bottom > H));
+      if FScrollV.Visible then W := Max(0, ClientWidth - T);
+    end;
+    Bounds.Left := Min(0, Bounds.Left); Bounds.Top := Min(0, Bounds.Top);
+    Bounds.Right := Max(W, Bounds.Right); Bounds.Bottom := Max(H, Bounds.Bottom);
     FScrollH.SetBounds(0, ClientHeight - T, Max(0, W), T);
     FScrollV.SetBounds(ClientWidth - T, 0, T, Max(0, H));
     FBarX := -Bounds.Left; FBarY := -Bounds.Top;
-    FScrollH.Min := 0; FScrollH.Max := Max(0, Bounds.Width - 1); FScrollH.PageSize := ClientWidth;
+    FScrollH.Min := 0; FScrollH.Max := Max(0, Bounds.Width - 1); FScrollH.PageSize := W;
     FScrollH.Position := FBarX; FScrollH.SmallChange := ScaleValue(16);
-    FScrollH.Enabled := Bounds.Width > ClientWidth;
-    FScrollV.Min := 0; FScrollV.Max := Max(0, Bounds.Height - 1); FScrollV.PageSize := ClientHeight;
+    FScrollH.Enabled := Bounds.Width > W;
+    FScrollV.Min := 0; FScrollV.Max := Max(0, Bounds.Height - 1); FScrollV.PageSize := H;
     FScrollV.Position := FBarY; FScrollV.SmallChange := ScaleValue(16);
-    FScrollV.Enabled := Bounds.Height > ClientHeight;
+    FScrollV.Enabled := Bounds.Height > H;
     FScrollH.BringToFront; FScrollV.BringToFront;
   finally FUpdatingBars := False; end;
 end;
@@ -1019,7 +1028,7 @@ begin
 end;
 procedure TERDPCBDesigner.PaintBodies(ACanvas: TCanvas);
 var I, J, K: Integer; Value: TERDPCBComponent; Poly: TArray<TPoint>; R, Inner: TRect; P: TPoint;
-    Saved, Radius, TerminalID: Integer; Pad: TERDPCBPad;
+    Saved, Radius, TerminalID: Integer; Pad: TERDPCBPad; InsetX, InsetY: Double;
   procedure TintSelectedTerminal;
   var Tint: TBitmap; Blend: TBlendFunction; ClipState, N: Integer; Bounds: TRect;
   begin
@@ -1061,9 +1070,6 @@ begin
     ACanvas.Brush.Color := Palette.NeutralLight;
     if Value.Role = 'terminal' then ACanvas.Brush.Color := ERDMixColor(Palette.GaugeFace, Palette.Success, 0.8)
     else if (Value.Role = 'ic') or (Value.Role = 'resistor') then ACanvas.Brush.Color := Palette.Subtle;
-    TerminalID := TerminalIndex(Value.Reference);
-    if (TerminalID >= 0) and ((FTerminals[TerminalID].SignalPin = FSelected) or (FTerminals[TerminalID].SignalPin = FHot)) then
-    begin ACanvas.Pen.Color := Palette.Accent; ACanvas.Pen.Width := ScaleValue(2); end;
     ACanvas.Polygon(Poly);
     Saved := SaveDC(ACanvas.Handle);
     try
@@ -1123,6 +1129,20 @@ begin
     SetLength(Poly, Length(Value.Body));
     for J := 0 to High(Poly) do Poly[J] := ScreenPoint(Value.Body[J]);
     if FTerminals[TerminalID].SignalPin = FSelected then TintSelectedTerminal;
+    R := Rect(Poly[0].X, Poly[0].Y, Poly[0].X, Poly[0].Y);
+    for J := 1 to High(Poly) do
+    begin
+      R.Left := Min(R.Left, Poly[J].X); R.Top := Min(R.Top, Poly[J].Y);
+      R.Right := Max(R.Right, Poly[J].X); R.Bottom := Max(R.Bottom, Poly[J].Y);
+    end;
+    // Keep the physical terminal outline visible outside the selection stroke.
+    InsetX := Min(ScaleValue(3), R.Width / 4); InsetY := Min(ScaleValue(3), R.Height / 4);
+    if (R.Width > 0) and (R.Height > 0) then
+      for J := 0 to High(Poly) do
+      begin
+        Poly[J].X := Round(R.Left + InsetX + (Poly[J].X - R.Left) * (R.Width - 2 * InsetX) / R.Width);
+        Poly[J].Y := Round(R.Top + InsetY + (Poly[J].Y - R.Top) * (R.Height - 2 * InsetY) / R.Height);
+      end;
     ACanvas.Polygon(Poly);
   end;
   // Programmable pads remain clear hit targets on the assembled component layer.

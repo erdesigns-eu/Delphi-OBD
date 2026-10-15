@@ -24,7 +24,7 @@ PCBDesigner.SelectedPin := 'U7.2';
 | --- | --- |
 | `AntiAlias` | Cached 3× supersampling for board artwork; enabled by default |
 | `ShowBodies` | Draw assembled terminals, USB, module and other component bodies |
-| `ScrollBars` | Visible themed scrollbars; enabled when the scene exceeds the viewport |
+| `ScrollBars` | Themed scrollbars shown only when the PCB or scene exceeds the viewport |
 | `Zoom` | Relative to fit-to-board size; clamped to 0.3–20 |
 | `ShowPads` | Draw pads and allow pointer/keyboard pad selection |
 | `ShowLabels` | Draw component references; small views prioritize connectors/MCU |
