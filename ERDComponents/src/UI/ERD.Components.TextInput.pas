@@ -71,6 +71,8 @@ type
     procedure SetSelLength(AValue: Integer);
     function DisplayText: UnicodeString;
     function DisplayPosition(APosition: Integer): Integer;
+    procedure PaintDisplayLine(ACanvas: TCanvas; Line: TERDTextLayoutLine;
+      X, Y, MaskCount: Integer);
     function HitPosition(X: Integer): Integer;
     procedure InsertText(const AValue: UnicodeString);
     procedure WMChar(var Message: TWMChar); message WM_CHAR;
@@ -561,6 +563,26 @@ function TERDTextLayoutLine.Hit(X: Integer): Integer;
 begin Result := FDirectWrite.Hit(X); end;
 function TERDTextLayoutLine.VisualRanges(Position, Count: Integer): TArray<TRect>;
 begin Result := FDirectWrite.VisualRanges(Position, Count); end;
+procedure TERDTextInput.PaintDisplayLine(ACanvas: TCanvas; Line: TERDTextLayoutLine;
+  X, Y, MaskCount: Integer);
+var Painter: TERDPainter; I, L, R, H: Integer; Diameter: Single; Ink: TColor;
+begin
+  if FPasswordVisible or not ((FPasswordChar = #$2022) or (FPasswordChar = #$25CF)) then
+  begin Line.Draw(X, Y); Exit; end;
+  // Keep shaped advances for caret/hit testing, but paint font-independent circles.
+  Ink := TColor(GetTextColor(ACanvas.Handle)); H := ACanvas.TextHeight('Mg');
+  Painter := TERDPainter.Create(ACanvas, Palette, ScaleValue(96));
+  try
+    for I := 0 to MaskCount - 1 do
+    begin
+      L := Line.X(I); R := Line.X(I + 1);
+      Diameter := Min(H * 0.30, Abs(R - L) * 0.75);
+      if Diameter <= 0 then Continue;
+      Painter.Ellipse(X + (L + R) * 0.5 - Diameter * 0.5,
+        Y + H * 0.5 - Diameter * 0.5, Diameter, Diameter, Ink, clNone);
+    end;
+  finally Painter.Free; end;
+end;
 procedure TERDTextInput.PaintSelection(ACanvas: TCanvas; Line: TERDTextLayoutLine;
   Position, Count, X, Y, H: Integer; Fill, Ink: TColor);
 var R, Bounds: TRect; Ranges: TArray<TRect>; Clip, Part: HRGN; Saved, Padding, TextY: Integer;
@@ -583,12 +605,13 @@ begin
     Saved := SaveDC(ACanvas.Handle);
     try
       ExtSelectClipRgn(ACanvas.Handle, Clip, RGN_AND);
-      SetTextColor(ACanvas.Handle, ColorToRGB(Ink)); Line.Draw(X, TextY);
+      SetTextColor(ACanvas.Handle, ColorToRGB(Ink));
+      PaintDisplayLine(ACanvas, Line, X, TextY, Length(FModel.Boundaries) - 1);
     finally RestoreDC(ACanvas.Handle, Saved); end;
   finally DeleteObject(Clip); end;
 end;
 procedure TERDTextInput.PaintControl(ACanvas: TCanvas);
-var P: TERDPainter; Line: TERDTextLayoutLine; R: TRect; Saved, L, H, Y, TextHeight: Integer;
+var P: TERDPainter; Line, CompositionLine: TERDTextLayoutLine; R: TRect; Saved, L, H, Y, TextHeight: Integer;
     S: UnicodeString; Ink, Fill: TColor;
 begin
   P := TERDPainter.Create(ACanvas, Palette, ScaleValue(96));
@@ -619,7 +642,7 @@ begin
     begin
       Line := TERDTextLayoutLine.Create(ACanvas, S);
       try
-        Line.Draw(LineOrigin(Line.Width) - FScroll, Y);
+        PaintDisplayLine(ACanvas, Line, LineOrigin(Line.Width) - FScroll, Y, Length(S));
         if (Focused or not FHideSelection) and (SelLength > 0) then
           PaintSelection(ACanvas, Line, DisplayPosition(SelStart),
             DisplayPosition(SelStart + SelLength) - DisplayPosition(SelStart),
@@ -630,7 +653,11 @@ begin
           S := FComposition;
           if (FPasswordChar <> #0) and not FPasswordVisible then
             S := StringOfChar(FPasswordChar, Length(ERDGraphemeBoundaries(S)) - 1);
-          H := ERDDrawLayoutText(ACanvas, S, L, Y);
+          CompositionLine := TERDTextLayoutLine.Create(ACanvas, S);
+          try
+            H := CompositionLine.Width;
+            PaintDisplayLine(ACanvas, CompositionLine, L, Y, Length(S));
+          finally CompositionLine.Free; end;
           ACanvas.Pen.Color := Palette.Accent;
           ACanvas.MoveTo(L, Y + TextHeight);
           ACanvas.LineTo(L + H, Y + TextHeight);

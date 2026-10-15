@@ -188,3 +188,8 @@ Clicking the line-number gutter selects the logical line including its newline;
 double-clicking keeps line selection instead of selecting a word. Dragging extends
 by whole lines, and Shift-click extends from the anchor line. Fold buttons keep
 their toggle behaviour.
+
+The shared input paints bullet password masks (`#$2022` / `#$25CF`) as
+antialiased circles, independent of the font's bullet shape. Layout advances
+remain shared with caret positioning and hit testing. Selection and IME masking
+use the same circles; custom password characters retain their configured glyph.
