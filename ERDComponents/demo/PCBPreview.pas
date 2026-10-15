@@ -17,6 +17,7 @@ type
     procedure SelectionChanged(Sender: TObject);
     procedure ConnectionError(Sender: TObject; const MessageText: string);
     procedure DesignChanged(Sender: TObject);
+    procedure UpdatePinChoices;
     procedure PropertyChanging(Sender: TObject; AProperty: TERDInspectorProperty; var NewValue: string; var Accept: Boolean);
     procedure PropertyChanged(Sender: TObject; AProperty: TERDInspectorProperty);
     function EditedItem(AProperty: TERDInspectorProperty; const Text: string): TERDPCBDesignItem;
@@ -98,6 +99,36 @@ begin
 end;
 procedure TPCBPreview.ConnectionError(Sender: TObject; const MessageText: string);
 begin FStatus.Caption := MessageText; end;
+procedure TPCBPreview.UpdatePinChoices;
+var C, P, J, K, Index: Integer; Row: TERDInspectorProperty;
+    Candidate, Other: TERDPCBDesignItem; Pin: string; Available: Boolean;
+begin
+  Index := FDesigner.Scene.PrimaryIndex; if Index < 0 then Exit;
+  FInspector.BeginUpdate;
+  try
+    for C := 0 to FInspector.Categories.Count - 1 do
+      for P := 0 to FInspector.Categories[C].Properties.Count - 1 do
+      begin
+        Row := FInspector.Categories[C].Properties[P];
+        if (Row.Kind <> ivPickList) or (Row.Tag < 8) or (Row.Tag > 11) then Continue;
+        Row.PickList.Clear; Row.PickList.Add('');
+        for J := 0 to FDesigner.ChannelCount - 1 do
+        begin
+          Pin := FDesigner.Channel(J).Pin; Candidate := EditedItem(Row, Pin); Available := True;
+          for K := 0 to FDesigner.Scene.Count - 1 do
+          begin
+            Other := FDesigner.Scene.Item(K);
+            if (K <> Index) and ((Other.Pin = Pin) or (Other.SecondaryPin = Pin) or
+              (Other.ClockPin = Pin) or (Other.SelectPin = Pin)) then Available := False;
+          end;
+          if Available then
+            try FDesigner.Scene.ValidateItem(Index, Candidate);
+            except on E: EArgumentException do Available := False; end;
+          if Available or (Pin = Row.Value) then Row.PickList.Add(Pin);
+        end;
+      end;
+  finally FInspector.EndUpdate; end;
+end;
 procedure TPCBPreview.DesignChanged(Sender: TObject);
 begin FStatus.Caption := 'Designer modified - Ctrl+Z/Y undo/redo; Ctrl+C/V copy/paste; Delete removes unlocked objects.'; end;
 procedure TPCBPreview.SelectionChanged(Sender: TObject);
@@ -106,10 +137,8 @@ var Category: TERDInspectorCategory; P: TERDPCBPad; Value: TERDPCBDesignItem; In
   procedure Field(const Name, Text: string; Tag: Integer; Kind: TERDInspectorValueKind = ivText);
   begin Row := Category.AddProperty(Name, Text, Kind); Row.Tag := Tag; end;
   procedure PinField(const Name, Text: string; Tag: Integer);
-  var J: Integer;
   begin
-    Field(Name, Text, Tag, ivPickList); Row.PickList.Add('');
-    for J := 0 to FDesigner.ChannelCount - 1 do Row.PickList.Add(FDesigner.Channel(J).Pin);
+    Field(Name, Text, Tag, ivPickList);
   end;
 begin
   FInspector.Clear; Index := FDesigner.Scene.PrimaryIndex;
@@ -136,6 +165,7 @@ begin
       PinField(Text, Value.SecondaryPin, 9);
     end;
     if Value.Kind = piSPI then begin PinField('Clock pin', Value.ClockPin, 10); PinField('Select pin', Value.SelectPin, 11); end;
+    UpdatePinChoices;
     FStatus.Caption := IntToStr(FDesigner.Scene.SelectionCount) + ' object(s) selected - inspector edits the primary object.'; Exit;
   end;
   P := FDesigner.SelectedPad; Category := FInspector.AddCategory('Board template');
@@ -208,6 +238,7 @@ begin
       FDesigner.SetPinCapabilities(FDesigner.SelectedPin, Channel.Capabilities, Channel.GPIO, Channel.LabelText);
     end;
   except on E: Exception do FStatus.Caption := E.Message; end;
+  UpdatePinChoices;
 end;
 procedure TPCBPreview.ToolboxMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin if (Button = mbLeft) and (FToolbox.ItemIndex >= 0) then FToolbox.BeginDrag(False); end;

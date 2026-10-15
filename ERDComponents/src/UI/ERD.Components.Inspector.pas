@@ -288,6 +288,7 @@ type
     FInternalEditorUpdate: Boolean;
     FCommitting: Boolean;
     FPopup: TERDPopupList;
+    FPopupProperty: TERDInspectorProperty;
     FDraggingSplitter: Boolean;
     FDraggingScroll: Boolean;
     FDraggingSelect: Boolean;
@@ -309,6 +310,7 @@ type
     procedure CategoriesChanged(Sender: TObject);
     procedure EditorExit(Sender: TObject);
     procedure EditorKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure ApplyPickValue(AProperty: TERDInspectorProperty; const Value: string);
     procedure PopupCloseUp(Sender: TObject; AAccepted: Boolean; AIndex: Integer);
     procedure CMHintShow(var Message: TCMHintShow); message CM_HINTSHOW;
     procedure WMGetDlgCode(var Message: TMessage); message WM_GETDLGCODE;
@@ -1640,6 +1642,15 @@ begin
   FirePropertyChanged(AProperty);
 end;
 
+procedure TERDInspector.ApplyPickValue(AProperty: TERDInspectorProperty; const Value: string);
+var NewValue: string; Accept: Boolean;
+begin
+  NewValue := Value; Accept := True;
+  if Assigned(FOnPropertyChanging) then FOnPropertyChanging(Self, AProperty, NewValue, Accept);
+  if not Accept then Exit;
+  AProperty.Value := NewValue; FirePropertyChanged(AProperty);
+end;
+
 procedure TERDInspector.CyclePickList(AProperty: TERDInspectorProperty);
 var
   I: Integer;
@@ -1649,8 +1660,7 @@ begin
     Exit;
   I := AProperty.PickList.IndexOf(AProperty.Value);
   I := (I + 1) mod AProperty.PickList.Count;
-  AProperty.Value := AProperty.PickList[I];
-  FirePropertyChanged(AProperty);
+  ApplyPickValue(AProperty, AProperty.PickList[I]);
 end;
 
 procedure TERDInspector.OpenPickList(AProperty: TERDInspectorProperty);
@@ -1668,6 +1678,7 @@ begin
     EffectiveRight, R.Bottom - ScaleValue(2));
   Field.TopLeft := ClientToScreen(Field.TopLeft);
   Field.BottomRight := ClientToScreen(Field.BottomRight);
+  FPopupProperty := AProperty;
   FPopup.Popup(Self, Field, AProperty.PickList,
     AProperty.PickList.IndexOf(AProperty.Value), Palette, ScaleValue(96),
     RowHeight);
@@ -1678,14 +1689,12 @@ procedure TERDInspector.PopupCloseUp(Sender: TObject; AAccepted: Boolean;
 var
   Prop: TERDInspectorProperty;
 begin
-  if not (FSelected is TERDInspectorProperty) then
-    Exit;
-  Prop := TERDInspectorProperty(FSelected);
+  Prop := FPopupProperty; FPopupProperty := nil;
+  if Prop = nil then Exit;
   if AAccepted and (Prop.Kind = ivPickList) and (AIndex >= 0) and
     (AIndex < Prop.PickList.Count) and not FReadOnly then
   begin
-    Prop.Value := Prop.PickList[AIndex];
-    FirePropertyChanged(Prop);
+    ApplyPickValue(Prop, Prop.PickList[AIndex]);
   end;
   if CanFocus then
     SetFocus;
@@ -1709,8 +1718,7 @@ begin
   for I := 0 to AProperty.PickList.Count - 1 do
     if Pos(Prefix, AnsiLowerCase(AProperty.PickList[I])) = 1 then
     begin
-      AProperty.Value := AProperty.PickList[I];
-      FirePropertyChanged(AProperty);
+      ApplyPickValue(AProperty, AProperty.PickList[I]);
       Break;
     end;
 end;
@@ -1963,8 +1971,9 @@ begin
   if FPopup.IsOpen then
   begin
     // Pressing the open pick-list field again closes it, like a combo box.
+    Prop := FPopupProperty;
     FPopup.CloseUp(False);
-    Exit;
+    if Prop = PropertyAt(Point(X, Y)) then Exit;
   end;
   if not Enabled or (Button <> mbLeft) then
     Exit;
