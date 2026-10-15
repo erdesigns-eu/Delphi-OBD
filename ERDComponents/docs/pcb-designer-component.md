@@ -1,5 +1,8 @@
 # PCB designer component
 
+For host integration, ownership, events and storage contracts, see the
+[designer API guide](pcb-designer-api.md).
+
 `TERDPCBDesigner` is on the **ERDesigns Components** palette. Rebuild/reinstall the
 design-time package to expose it. Drop it on a form and use the `BoardFileName`
 property's browse button to select `demo/pcb/board.json` (or a normalized board
@@ -32,6 +35,11 @@ PCBDesigner.SelectedPin := 'U7.2';
 | `ShowDrills` | Draw drill holes within pads |
 | `BoardColor`, `PadColor`, `OutlineColor` | Physical board artwork colors |
 | `SelectionColor` | Selected/hover pad fill; `clDefault` follows the theme accent |
+
+Select a toolbox item, then click the canvas to insert it at that location.
+A preview shows the snapped position. Shift+click places repeated copies;
+Escape, right-click or **Select / move** cancels. Drag-and-drop from the toolbox
+uses the same top-left positioning. Placement mode is transient and not saved.
 
 The wheel zooms around the pointer. Middle drag or Space+left drag pans.
 Enable `PanMode` (the demo’s **Hand / pan** switch) to pan with ordinary left
@@ -72,6 +80,10 @@ computed around its expanded bounds. Routes are cached until geometry changes.
 This avoids scene items, not physical PCB parts or other wires. Overlapping
 endpoints may leave no clear route; that case retains the direct curve.
 Conflicting enabled drivers and incompatible pin capabilities are rejected through `OnConnectionError`.
+
+Hosts can use `SupportsPinRole`, `GetAssignablePins`, `ValidatePinAssignment`
+and `AssignPin` to share the designer’s connection rules. `Scene.ContentJSON`
+provides scene content without selection flags for dirty tracking.
 
 The demo hosts a separate toolbox and inspector. The designer itself has no
 inspector dependency: hosts use `OnSelectionChange`, `OnChange` and the scene API.

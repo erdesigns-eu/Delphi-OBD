@@ -36,6 +36,10 @@ type
   /// Imported geometry is read-only; project assignments have a separate file.
   TERDPCBDesigner = class(TERDCustomControl)
   private
+    FPlacing, FPlacementPreview: Boolean;
+    FPlacementKind: TERDPCBItemKind;
+    FPlacementPoint: TPoint;
+    FOnPlacementChange: TNotifyEvent;
     FRouteCache: TDictionary<string, TArray<TPoint>>;
     FNoteEditor: TERDMemo;
     FEditingNote: string;
@@ -77,6 +81,8 @@ type
     FDragging, FPanMode, FCompletingGesture: Boolean;
     FLast: TPoint;
     FOnSelectionChange, FOnHotPinChange, FOnViewChange: TNotifyEvent;
+    function InsertionPoint(Kind: TERDPCBItemKind; const ClientPoint: TPoint): TPointF;
+    procedure PaintPlacementPreview(ACanvas: TCanvas);
     procedure SnapGuides(var DX, DY: Double);
     procedure NoteEditorExit(Sender: TObject);
     procedure NoteEditorKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -88,6 +94,7 @@ type
     function TerminalRect(Index: Integer): TRect;
     function IsSelectablePin(const Pin: string): Boolean;
     procedure SetTemplateEditMode(Value: Boolean);
+    function ItemWithPin(Index: Integer; Role: TERDPCBPinRole; const Pin: string): TERDPCBDesignItem;
     procedure ValidateSceneItem(Sender: TObject; const Item: TERDPCBDesignItem);
     procedure SetScene(Value: TERDPCBScene);
     procedure SceneChanged(Sender: TObject);
@@ -151,11 +158,25 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure ThemeChanged; override;
+    /// ClientPoint is the visual top-left; the resulting model position is in millimetres.
+    function InsertAt(Kind: TERDPCBItemKind; const ClientPoint: TPoint): Integer;
+    procedure BeginPlacement(Kind: TERDPCBItemKind);
+    procedure PreviewPlacementAt(const ClientPoint: TPoint);
+    procedure CancelPlacement;
+    property Placing: Boolean read FPlacing;
+    property PlacementKind: TERDPCBItemKind read FPlacementKind;
     function AddDesignItem(Kind: TERDPCBItemKind; const Position: TPointF): Integer;
     procedure AlignSelected(Alignment: TERDPCBAlignment);
     procedure DistributeSelected(Horizontal: Boolean);
     procedure BeginNoteEdit;
     procedure FinishNoteEdit(Accept: Boolean);
+    function SupportsPinRole(ItemIndex: Integer; Role: TERDPCBPinRole): Boolean;
+    /// Nonempty, compatible, unclaimed pin IDs for a specific item role.
+    function GetAssignablePins(ItemIndex: Integer; Role: TERDPCBPinRole): TArray<string>;
+    /// Validates without mutating the scene. Empty Pin clears a supported role.
+    procedure ValidatePinAssignment(ItemIndex: Integer; Role: TERDPCBPinRole; const Pin: string);
+    /// Applies a validated connection as one scene undo operation.
+    procedure AssignPin(ItemIndex: Integer; Role: TERDPCBPinRole; const Pin: string);
     procedure AssignSelectedItemsToPin(const Pin: string);
     procedure SaveTemplate(const FileName: string);
     procedure ValidatePinCapabilities(const Pin: string; Capabilities: TERDPCBPinCapabilities);
@@ -192,6 +213,7 @@ type
     property LastError: string read FLastError;
     property HotPin: string read FHot;
   published
+    property OnPlacementChange: TNotifyEvent read FOnPlacementChange write FOnPlacementChange;
     property AlignmentGuides: Boolean read FAlignmentGuides write FAlignmentGuides default True;
     property PanMode: Boolean read FPanMode write SetPanMode default False;
     property AntiAlias: Boolean read FAntiAlias write SetAntiAlias default True;
@@ -319,7 +341,7 @@ begin
 end;
 destructor TERDPCBDesigner.Destroy;
 begin
-  FEditingNote := '';
+  FEditingNote := ''; FOnPlacementChange := nil;
   if FNoteEditor <> nil then begin FNoteEditor.Editor.OnExit := nil; FNoteEditor.OnKeyDown := nil; end;
   if FScrollH <> nil then FScrollH.OnChange := nil;
   if FScrollV <> nil then FScrollV.OnChange := nil;
@@ -328,6 +350,56 @@ begin
   if HandleAllocated then DestroyWnd;
   FreeAndNil(FRouteCache); FreeAndNil(FScene); FreeAndNil(FStaticLayer);
   inherited;
+end;
+function TERDPCBDesigner.InsertionPoint(Kind: TERDPCBItemKind; const ClientPoint: TPoint): TPointF;
+begin
+  Result := ClientToBoard(ClientPoint);
+  if Kind = piNote then Result.Y := Result.Y - 18
+  else Result.Y := Result.Y - ScaleValue(32) / FScreenScale;
+  Result.X := Snap(Result.X); Result.Y := Snap(Result.Y);
+end;
+function TERDPCBDesigner.InsertAt(Kind: TERDPCBItemKind; const ClientPoint: TPoint): Integer;
+begin
+  if FTemplateEditMode then raise EArgumentException.Create('End template authoring before inserting scene items');
+  FinishNoteEdit(True); CancelGesture;
+  Result := AddDesignItem(Kind, InsertionPoint(Kind, ClientPoint));
+end;
+procedure TERDPCBDesigner.BeginPlacement(Kind: TERDPCBItemKind);
+begin
+  if FTemplateEditMode then raise EArgumentException.Create('End template authoring before placing scene items');
+  FinishNoteEdit(True); CancelGesture; PanMode := False;
+  FPlacementKind := Kind; FPlacing := True; FPlacementPreview := False;
+  Cursor := crCross; SetHot(''); Invalidate;
+  if Assigned(FOnPlacementChange) then FOnPlacementChange(Self);
+end;
+procedure TERDPCBDesigner.PreviewPlacementAt(const ClientPoint: TPoint);
+begin
+  if not FPlacing then Exit;
+  FPlacementPoint := ClientPoint; FPlacementPreview := PtInRect(ClientRect, ClientPoint); Invalidate;
+end;
+procedure TERDPCBDesigner.CancelPlacement;
+begin
+  if not FPlacing then Exit;
+  FPlacing := False; FPlacementPreview := False;
+  if FPanMode then Cursor := crHandPoint else Cursor := crDefault;
+  Invalidate;
+  if Assigned(FOnPlacementChange) then FOnPlacementChange(Self);
+end;
+procedure TERDPCBDesigner.PaintPlacementPreview(ACanvas: TCanvas);
+var World: TPointF; P, Q: TPoint; R: TRect; Text: string;
+begin
+  if not FPlacing or not FPlacementPreview or FDragging then Exit;
+  World := InsertionPoint(FPlacementKind, FPlacementPoint);
+  P := ScreenPoint(World);
+  if FPlacementKind = piNote then
+  begin Q := ScreenPoint(PointF(World.X + 30, World.Y + 18)); R := Rect(P.X, Q.Y, Q.X, P.Y); end
+  else R := Rect(P.X, P.Y - ScaleValue(32), P.X + ScaleValue(32), P.Y);
+  ACanvas.Brush.Style := bsSolid; ACanvas.Brush.Style := bsClear;
+  ACanvas.Pen.Color := Palette.Accent; ACanvas.Pen.Width := 1; ACanvas.Pen.Style := psDash;
+  ACanvas.Rectangle(R); ACanvas.Pen.Style := psSolid;
+  ACanvas.Font.Assign(Font); ACanvas.Font.Color := Palette.Accent;
+  Text := ERDPCBItemKindName(FPlacementKind);
+  ACanvas.TextOut(R.Left, R.Bottom + ScaleValue(4), Text);
 end;
 procedure TERDPCBDesigner.AlignSelected(Alignment: TERDPCBAlignment);
 var I: Integer; Bounds, R: TRect; Value: TERDPCBDesignItem; DX, DY: Integer; Found: Boolean;
@@ -432,7 +504,7 @@ end;
 procedure TERDPCBDesigner.BeginNoteEdit;
 var Index: Integer; Value: TERDPCBDesignItem; R: TRect;
 begin
-  FinishNoteEdit(True); CancelGesture;
+  CancelPlacement; FinishNoteEdit(True); CancelGesture;
   Index := FScene.PrimaryIndex; if Index < 0 then Exit;
   Value := FScene.Item(Index); if (Value.Kind <> piNote) or Value.Locked then Exit;
   UpdateTransform;
@@ -470,6 +542,7 @@ begin
 end;
 procedure TERDPCBDesigner.DblClick;
 begin
+  if FPlacing then Exit;
   if FScene.PrimaryIndex >= 0 then
     if FScene.Item(FScene.PrimaryIndex).Kind = piNote then BeginNoteEdit;
   inherited;
@@ -601,7 +674,7 @@ end;
 procedure TERDPCBDesigner.SetTemplateEditMode(Value: Boolean);
 begin
   if FTemplateEditMode = Value then Exit;
-  CancelGesture; FTemplateEditMode := Value;
+  CancelPlacement; CancelGesture; FTemplateEditMode := Value;
   if not Value and (FSelected <> '') and (ChannelIndex(FSelected) < 0) then SelectedPin := '';
   SetHot(''); FStaticDirty := True; Invalidate;
 end;
@@ -776,6 +849,64 @@ function TERDPCBDesigner.Snap(Value: Double): Double;
 begin if FSnapToGrid then Result := Round(Value / FGridSize) * FGridSize else Result := Value; end;
 function TERDPCBDesigner.AddDesignItem(Kind: TERDPCBItemKind; const Position: TPointF): Integer;
 begin Result := FScene.Add(Kind, PointF(Snap(Position.X), Snap(Position.Y))); end;
+function TERDPCBDesigner.SupportsPinRole(ItemIndex: Integer; Role: TERDPCBPinRole): Boolean;
+var Kind: TERDPCBItemKind;
+begin
+  Kind := FScene.Item(ItemIndex).Kind;
+  case Role of
+    prPrimary: Result := Kind <> piNote;
+    prSecondary: Result := Kind in [piUART, piCANBus, piI2C, piSPI];
+    prClock, prSelect: Result := Kind = piSPI;
+  else Result := False;
+  end;
+end;
+function TERDPCBDesigner.ItemWithPin(Index: Integer; Role: TERDPCBPinRole; const Pin: string): TERDPCBDesignItem;
+begin
+  Result := FScene.Item(Index);
+  if not SupportsPinRole(Index, Role) then
+    raise EArgumentException.Create('This component does not support that pin role');
+  case Role of
+    prPrimary: Result.Pin := Pin; prSecondary: Result.SecondaryPin := Pin;
+    prClock: Result.ClockPin := Pin; prSelect: Result.SelectPin := Pin;
+  end;
+end;
+procedure TERDPCBDesigner.ValidatePinAssignment(ItemIndex: Integer; Role: TERDPCBPinRole; const Pin: string);
+var Candidate, Other: TERDPCBDesignItem; I: Integer;
+begin
+  Candidate := ItemWithPin(ItemIndex, Role, Pin);
+  FScene.ValidateItem(ItemIndex, Candidate);
+  if Pin = '' then Exit;
+  for I := 0 to FScene.Count - 1 do if I <> ItemIndex then
+  begin
+    Other := FScene.Item(I);
+    if (Other.Pin = Pin) or (Other.SecondaryPin = Pin) or (Other.ClockPin = Pin) or (Other.SelectPin = Pin) then
+      raise EArgumentException.Create(Pin + ' is already assigned to ' + Other.Name);
+  end;
+end;
+function TERDPCBDesigner.GetAssignablePins(ItemIndex: Integer; Role: TERDPCBPinRole): TArray<string>;
+var I, N: Integer;
+begin
+  Result := nil;
+  // Unsupported roles have no choices, including notes, rather than a clear-only entry.
+  if not SupportsPinRole(ItemIndex, Role) then Exit;
+  for I := 0 to High(FChannels) do
+    try
+      ValidatePinAssignment(ItemIndex, Role, FChannels[I].Pin);
+      N := Length(Result); SetLength(Result, N + 1); Result[N] := FChannels[I].Pin;
+    except on E: EArgumentException do Continue; end;
+end;
+procedure TERDPCBDesigner.AssignPin(ItemIndex: Integer; Role: TERDPCBPinRole; const Pin: string);
+var Candidate: TERDPCBDesignItem;
+begin
+  ValidatePinAssignment(ItemIndex, Role, Pin); Candidate := ItemWithPin(ItemIndex, Role, Pin);
+  case Role of
+    prPrimary: if FScene.Item(ItemIndex).Pin = Pin then Exit;
+    prSecondary: if FScene.Item(ItemIndex).SecondaryPin = Pin then Exit;
+    prClock: if FScene.Item(ItemIndex).ClockPin = Pin then Exit;
+    prSelect: if FScene.Item(ItemIndex).SelectPin = Pin then Exit;
+  end;
+  FScene.UpdateItem(ItemIndex, Candidate);
+end;
 procedure TERDPCBDesigner.AssignSelectedItemsToPin(const Pin: string);
 var I: Integer; Found: Boolean; Value: TERDPCBDesignItem;
 begin
@@ -816,6 +947,7 @@ var Root: TJSONValue; Obj: TJSONObject; A: TJSONArray; I, J: Integer;
     Components: TArray<TERDPCBComponent>; Terminals: TArray<TERDPCBTerminal>; MemberArray: TJSONArray; Paths, Outline: TArray<TArray<TPointF>>;
     Hash, TemplateID, TemplateName, Member: string; MaxX, MaxY: Double; PinData: TJSONValue; ExplicitPins, Found, HasSignal: Boolean; K, L, M: Integer; Capability: TERDPCBPinCapability;
 begin
+  CancelPlacement;
   Root := TJSONObject.ParseJSONValue(Data);
   try
     if not (Root is TJSONObject) then raise EConvertError.Create('Invalid board package');
@@ -956,7 +1088,7 @@ begin
 end;
 procedure TERDPCBDesigner.ClearBoard;
 begin
-  FinishNoteEdit(False);
+  CancelPlacement; FinishNoteEdit(False);
   FPads := nil; FChannels := nil; FComponents := nil; FTerminals := nil; FPaths := nil; FOutline := nil;
   FScene.LoadJSON('{"format":"erd-pcb-scene","version":1,"items":[]}'); FScene.ResetHistory;
   FTemplateID := ''; FTemplateName := '';
@@ -1022,7 +1154,10 @@ begin
   if Assigned(FOnHotPinChange) then FOnHotPinChange(Self);
 end;
 procedure TERDPCBDesigner.CMMouseLeave(var Message: TMessage);
-begin SetHot(''); if not FDragging then Cursor := crDefault; inherited; end;
+begin
+  FPlacementPreview := False; Invalidate; SetHot('');
+  if not FDragging then Cursor := crDefault; inherited;
+end;
 procedure TERDPCBDesigner.WMLButtonUp(var Message: TWMLButtonUp);
 begin
   // VCL may release capture before dispatching the virtual MouseUp method.
@@ -1352,6 +1487,7 @@ end;
 procedure TERDPCBDesigner.SetPanMode(Value: Boolean);
 begin
   if FPanMode = Value then Exit;
+  if Value then CancelPlacement;
   CancelGesture;
   FPanMode := Value; SetHot('');
   if FPanMode then Cursor := crHandPoint else Cursor := crDefault;
@@ -1403,7 +1539,7 @@ begin
     else PaintBoardLayer(FStaticLayer.Canvas);
     FStaticDirty := False;
   end;
-  ACanvas.Draw(0, 0, FStaticLayer); PaintScene(ACanvas);
+  ACanvas.Draw(0, 0, FStaticLayer); PaintScene(ACanvas); PaintPlacementPreview(ACanvas);
 end;
 procedure TERDPCBDesigner.PaintGrid(ACanvas: TCanvas);
 var X, Y, Step: Integer; GridMM: Double;
@@ -1639,27 +1775,23 @@ begin
   end;
 end;
 procedure TERDPCBDesigner.ConnectPin(Index: Integer; const Pin: string);
-var Value: TERDPCBDesignItem; Caps: TERDPCBPinCapabilities; C: Integer;
-  function Choose(var Role: string; Capability: TERDPCBPinCapability): Boolean;
-  begin
-    Result := (Role = '') and ((Capability = pcNone) or (Capability in Caps));
-    if Result then Role := Pin;
-  end;
+var Value: TERDPCBDesignItem; Role: TERDPCBPinRole; Current, Error: string;
 begin
   Value := FScene.Item(Index);
   if Value.Kind = piNote then raise EArgumentException.Create('Notes do not have pin connections');
   if Value.Locked then raise EArgumentException.Create('Unlock the component before connecting it');
-  C := ChannelIndex(Pin); if C < 0 then raise EArgumentException.Create('Pin is not programmable');
-  Caps := FChannels[C].Capabilities;
-  case Value.Kind of
-    piUART: if not Choose(Value.Pin, pcUARTTx) then if not Choose(Value.SecondaryPin, pcUARTRx) then raise EArgumentException.Create('No compatible unassigned UART role');
-    piCANBus: if not Choose(Value.Pin, pcCANTx) then if not Choose(Value.SecondaryPin, pcCANRx) then raise EArgumentException.Create('No compatible unassigned CAN role');
-    piI2C: if not Choose(Value.Pin, pcI2CSDA) then if not Choose(Value.SecondaryPin, pcI2CSCL) then raise EArgumentException.Create('No compatible unassigned I2C role');
-    piSPI: if not Choose(Value.Pin, pcSPIMOSI) then if not Choose(Value.SecondaryPin, pcSPIMISO) then
-      if not Choose(Value.ClockPin, pcSPIClock) then if not Choose(Value.SelectPin, pcSPISelect) then raise EArgumentException.Create('No compatible unassigned SPI role');
-  else Value.Pin := Pin;
+  Error := 'No compatible unassigned pin role';
+  for Role := Low(TERDPCBPinRole) to High(TERDPCBPinRole) do
+  begin
+    if not SupportsPinRole(Index, Role) then Continue;
+    case Role of prPrimary: Current := Value.Pin; prSecondary: Current := Value.SecondaryPin;
+      prClock: Current := Value.ClockPin; else Current := Value.SelectPin; end;
+    if Current <> '' then Continue;
+    try ValidatePinAssignment(Index, Role, Pin);
+    except on E: EArgumentException do begin Error := E.Message; Continue; end; end;
+    AssignPin(Index, Role, Pin); FScene.Select(Index); Exit;
   end;
-  FScene.UpdateItem(Index, Value); FScene.Select(Index);
+  raise EArgumentException.Create(Error);
 end;
 procedure TERDPCBDesigner.CancelGesture;
 var Mode: Integer;
@@ -1672,6 +1804,7 @@ procedure TERDPCBDesigner.KeyDown(var Key: Word; Shift: TShiftState);
 var I, Current, Candidate, DX, DY, Forward, Across: Integer; P, Q: TPoint; Score, Best: Double;
 begin
   inherited;
+  if FPlacing and (Key = VK_ESCAPE) then begin CancelPlacement; Key := 0; Exit; end;
   if FEditMode <> 0 then begin if Key = VK_ESCAPE then CancelGesture; Key := 0; Exit; end;
   if ssCtrl in Shift then
   begin
@@ -1721,7 +1854,14 @@ begin
   inherited; SetFocus; P := Point(X, Y);
   if (Button = mbMiddle) or ((Button = mbLeft) and (FPanMode or (GetKeyState(VK_SPACE) < 0))) then
   begin FDragging := True; FLast := P; MouseCapture := True; Cursor := crSizeAll; Exit; end;
+  if FPlacing and (Button = mbRight) then begin CancelPlacement; Exit; end;
   if Button <> mbLeft then Exit;
+  if FPlacing then
+  begin
+    InsertAt(FPlacementKind, P);
+    if not (ssShift in Shift) then CancelPlacement else PreviewPlacementAt(P);
+    Exit;
+  end;
   FGrip := GripAt(P); Index := ItemAt(P);
   if FTemplateEditMode then begin FGrip := -1; Index := -1; end;
   if FGrip >= 0 then
@@ -1756,6 +1896,7 @@ begin
   inherited;
   if FDragging and ((ssMiddle in Shift) or (ssLeft in Shift)) then
   begin PanBy(X - FLast.X, Y - FLast.Y); FLast := Point(X, Y); Exit; end;
+  if FPlacing then begin Cursor := crCross; PreviewPlacementAt(Point(X,Y)); Exit; end;
   if FEditMode in [3, 4] then begin FBoxPoint := Point(X, Y); Invalidate; Exit; end;
   if FEditMode in [1, 2] then
   begin
@@ -1851,6 +1992,7 @@ procedure TERDPCBDesigner.LoadProject(const FileName: string);
 var Root: TJSONValue; Items: TJSONArray; Item: TJSONObject; Backup: TArray<TERDPCBChannel>;
     I, Index, Schema: Integer; Selection, OldScene: string; Seen: TStringList; TempScene: TERDPCBScene;
 begin
+  CancelPlacement;
   FinishNoteEdit(True);
   Root := TJSONObject.ParseJSONValue(TFile.ReadAllText(FileName, TEncoding.UTF8));
   Backup := Copy(FChannels); OldScene := FScene.ToJSON; Seen := TStringList.Create; TempScene := TERDPCBScene.Create(nil);

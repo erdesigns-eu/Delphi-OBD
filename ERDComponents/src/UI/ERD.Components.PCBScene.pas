@@ -3,6 +3,7 @@ interface
 uses System.Classes, System.SysUtils, System.Types, System.Math, System.JSON,
   System.Generics.Collections;
 type
+  TERDPCBPinRole = (prPrimary, prSecondary, prClock, prSelect);
   TERDPCBItemKind = (piTimer, piCounter, piOutputGroup, piNote, piUART, piCANBus, piI2C, piSPI);
   TERDPCBDesignItem = record
     ID, Name, Caption, Pin, SecondaryPin, ClockPin, SelectPin: string;
@@ -22,6 +23,7 @@ type
     FStart: string;
     FOnChange, FOnSelectionChange: TNotifyEvent;
     FOnValidateItem: TERDPCBValidateItemEvent;
+    function Serialize(SelectedOnly, IncludeSelection: Boolean): string;
     procedure Remember;
     procedure Changed(Selection: Boolean);
     procedure ReadData(Stream: TStream);
@@ -56,6 +58,8 @@ type
     function CanRedo: Boolean;
     procedure Undo;
     procedure Redo;
+    /// Scene content without transient selection flags, for host dirty tracking.
+    function ContentJSON: string;
     function ToJSON(SelectedOnly: Boolean = False): string;
     procedure LoadJSON(const Text: string);
     procedure PasteJSON(const Text: string; Offset: Double = 1);
@@ -228,7 +232,7 @@ begin
   except CancelEdit; raise; end;
   EndEdit;
 end;
-function TERDPCBScene.ToJSON(SelectedOnly: Boolean): string;
+function TERDPCBScene.Serialize(SelectedOnly, IncludeSelection: Boolean): string;
 var Root, Obj: TJSONObject; Items: TJSONArray; Value: TERDPCBDesignItem;
 begin
   Root := TJSONObject.Create;
@@ -244,11 +248,15 @@ begin
       Obj.AddPair('x', TJSONNumber.Create(Value.X)); Obj.AddPair('y', TJSONNumber.Create(Value.Y));
       Obj.AddPair('width', TJSONNumber.Create(Value.Width)); Obj.AddPair('height', TJSONNumber.Create(Value.Height));
       Obj.AddPair('enabled', TJSONBool.Create(Value.Enabled)); Obj.AddPair('locked', TJSONBool.Create(Value.Locked));
-      Obj.AddPair('selected', TJSONBool.Create(Value.Selected));
+      if IncludeSelection then Obj.AddPair('selected', TJSONBool.Create(Value.Selected));
     end;
     Result := Root.ToJSON;
   finally Root.Free; end;
 end;
+function TERDPCBScene.ToJSON(SelectedOnly: Boolean): string;
+begin Result := Serialize(SelectedOnly, True); end;
+function TERDPCBScene.ContentJSON: string;
+begin Result := Serialize(False, False); end;
 procedure TERDPCBScene.LoadJSON(const Text: string);
 var Root: TJSONValue; Items: TJSONArray; Obj: TJSONObject; Temp: TERDPCBScene;
     Value: TERDPCBDesignItem; I, Kind: Integer;
@@ -274,7 +282,7 @@ begin
       Value.X := Obj.GetValue<Double>('x'); Value.Y := Obj.GetValue<Double>('y');
       Value.Width := Obj.GetValue<Double>('width'); Value.Height := Obj.GetValue<Double>('height');
       Value.Enabled := Obj.GetValue<Boolean>('enabled'); Value.Locked := Obj.GetValue<Boolean>('locked');
-      Value.Selected := Obj.GetValue<Boolean>('selected'); Temp.CheckItem(Value, -1);
+      Value.Selected := Obj.GetValue<Boolean>('selected', False); Temp.CheckItem(Value, -1);
       SetLength(Temp.FItems, I + 1); Temp.FItems[I] := Value;
     end;
     if Assigned(FOnValidateItem) then

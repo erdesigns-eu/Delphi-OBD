@@ -11,8 +11,9 @@ type
     FInspector: TERDInspector;
     FToolbox: TERDListBox;
     FStatus: TLabel;
-    FAuthoring: TERDCheckBox;
+    FAuthoring, FHand: TERDCheckBox;
     FFileName, FTemplateDirectory: string;
+    FToolDragging: Boolean;
     procedure ViewOptionChanged(Sender: TObject);
     procedure SelectionChanged(Sender: TObject);
     procedure ConnectionError(Sender: TObject; const MessageText: string);
@@ -26,6 +27,11 @@ type
     procedure ToolbarClicked(Sender: TObject);
     procedure ToolboxMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
     procedure ToolboxDoubleClick(Sender: TObject);
+    procedure ToolboxClick(Sender: TObject);
+    procedure ToolboxStartDrag(Sender: TObject; var DragObject: TDragObject);
+    procedure ToolboxEndDrag(Sender, Target: TObject; X, Y: Integer);
+    procedure PlacementChanged(Sender: TObject);
+    procedure SelectToolClicked(Sender: TObject);
     procedure SurfaceDragOver(Sender, Source: TObject; X, Y: Integer; State: TDragState; var Accept: Boolean);
     procedure SurfaceDragDrop(Sender, Source: TObject; X, Y: Integer);
   public
@@ -60,13 +66,17 @@ begin
   FStatus := TLabel.Create(Self); FStatus.Parent := Self; FStatus.Align := alBottom;
   FStatus.AutoSize := False; FStatus.Height := ScaleValue(25);
   Tools := TERDPanel.Create(Self); Tools.Parent := Self; Tools.Align := alLeft; Tools.Width := ScaleValue(145);
+  B := TERDButton.Create(Self); B.Parent := Tools; B.Align := alTop; B.Height := ScaleValue(30);
+  B.Caption := 'Select / move'; B.OnClick := SelectToolClicked;
   FToolbox := TERDListBox.Create(Self); FToolbox.Parent := Tools; FToolbox.Align := alClient;
   for I := Ord(Low(TERDPCBItemKind)) to Ord(High(TERDPCBItemKind)) do FToolbox.Items.Add(ERDPCBItemKindName(TERDPCBItemKind(I)));
-  FToolbox.ItemIndex := 0; FToolbox.OnMouseDown := ToolboxMouseDown; FToolbox.OnDblClick := ToolboxDoubleClick;
+  FToolbox.ItemIndex := 0; FToolbox.OnMouseDown := ToolboxMouseDown; FToolbox.OnDblClick := ToolboxDoubleClick; FToolbox.OnClick := ToolboxClick;
+  FToolbox.OnStartDrag := ToolboxStartDrag; FToolbox.OnEndDrag := ToolboxEndDrag;
   FInspector := TERDInspector.Create(Self); FInspector.Parent := Self; FInspector.Align := alRight; FInspector.Width := ScaleValue(310);
   FInspector.OnPropertyButtonClick := PropertyButtonClicked;
   FInspector.OnPropertyChanging := PropertyChanging; FInspector.OnPropertyChanged := PropertyChanged;
   FDesigner := TERDPCBDesigner.Create(Self); FDesigner.Parent := Self; FDesigner.Align := alClient;
+  FDesigner.OnPlacementChange := PlacementChanged;
   FDesigner.OnSelectionChange := SelectionChanged; FDesigner.OnChange := DesignChanged; FDesigner.OnConnectionError := ConnectionError;
   FDesigner.OnDragOver := SurfaceDragOver; FDesigner.OnDragDrop := SurfaceDragDrop;
   for I := 0 to 4 do
@@ -81,7 +91,7 @@ begin
   FAuthoring.SetBounds(ScaleValue(470), ScaleValue(43), ScaleValue(170), ScaleValue(26)); FAuthoring.Tag := 5; FAuthoring.OnChange := ViewOptionChanged;
   Choice := TERDCheckBox.Create(Self); Choice.Parent := Header; Choice.Caption := 'Hand / pan';
   Choice.SetBounds(ScaleValue(650), ScaleValue(43), ScaleValue(110), ScaleValue(26));
-  Choice.Tag := 6; Choice.OnChange := ViewOptionChanged;
+  Choice.Tag := 6; Choice.OnChange := ViewOptionChanged; FHand := Choice;
   BoardFile := ''; Base := ExtractFilePath(ParamStr(0));
   for I := 0 to 3 do
   begin
@@ -122,8 +132,7 @@ end;
 procedure TPCBPreview.EditNote(Sender: TObject);
 begin FDesigner.BeginNoteEdit; end;
 procedure TPCBPreview.UpdatePinChoices;
-var C, P, J, K, Index: Integer; Row: TERDInspectorProperty;
-    Candidate, Other: TERDPCBDesignItem; Pin: string; Available: Boolean;
+var C, P, Index: Integer; Row: TERDInspectorProperty; Pin: string;
 begin
   Index := FDesigner.Scene.PrimaryIndex; if Index < 0 then Exit;
   FInspector.BeginUpdate;
@@ -134,20 +143,7 @@ begin
         Row := FInspector.Categories[C].Properties[P];
         if (Row.Kind <> ivPickList) or (Row.Tag < 8) or (Row.Tag > 11) then Continue;
         Row.PickList.Clear; Row.PickList.Add('');
-        for J := 0 to FDesigner.ChannelCount - 1 do
-        begin
-          Pin := FDesigner.Channel(J).Pin; Candidate := EditedItem(Row, Pin); Available := True;
-          for K := 0 to FDesigner.Scene.Count - 1 do
-          begin
-            Other := FDesigner.Scene.Item(K);
-            if (K <> Index) and ((Other.Pin = Pin) or (Other.SecondaryPin = Pin) or
-              (Other.ClockPin = Pin) or (Other.SelectPin = Pin)) then Available := False;
-          end;
-          if Available then
-            try FDesigner.Scene.ValidateItem(Index, Candidate);
-            except on E: EArgumentException do Available := False; end;
-          if Available or (Pin = Row.Value) then Row.PickList.Add(Pin);
-        end;
+        for Pin in FDesigner.GetAssignablePins(Index, TERDPCBPinRole(Row.Tag - 8)) do Row.PickList.Add(Pin);
       end;
   finally FInspector.EndUpdate; end;
 end;
@@ -214,12 +210,13 @@ begin
     Category := FInspector.AddCategory('Programmable connections');
     Text := 'Terminal / pin'; if Value.Kind in [piUART, piCANBus] then Text := 'TX pin' else if Value.Kind = piI2C then Text := 'SDA pin' else if Value.Kind = piSPI then Text := 'MOSI pin';
     PinField(Text, Value.Pin, 8);
-    if Value.Kind in [piUART, piCANBus, piI2C, piSPI] then
+    if FDesigner.SupportsPinRole(Index, prSecondary) then
     begin
       Text := 'RX pin'; if Value.Kind = piI2C then Text := 'SCL pin' else if Value.Kind = piSPI then Text := 'MISO pin';
       PinField(Text, Value.SecondaryPin, 9);
     end;
-    if Value.Kind = piSPI then begin PinField('Clock pin', Value.ClockPin, 10); PinField('Select pin', Value.SelectPin, 11); end;
+    if FDesigner.SupportsPinRole(Index, prClock) then PinField('Clock pin', Value.ClockPin, 10);
+    if FDesigner.SupportsPinRole(Index, prSelect) then PinField('Select pin', Value.SelectPin, 11);
     UpdatePinChoices;
     FStatus.Caption := IntToStr(FDesigner.Scene.SelectionCount) + ' object(s) selected - inspector edits the primary object.'; Exit;
   end;
@@ -264,14 +261,15 @@ begin
     1: Result.Name := Trim(Text); 2: Result.Caption := Text; 3: Result.Value := StrToInt(Text);
     4: Result.X := StrToFloat(Text, TFormatSettings.Invariant); 5: Result.Y := StrToFloat(Text, TFormatSettings.Invariant);
     6: Result.Width := StrToFloat(Text, TFormatSettings.Invariant); 7: Result.Height := StrToFloat(Text, TFormatSettings.Invariant);
-    8: Result.Pin := Text; 9: Result.SecondaryPin := Text; 10: Result.ClockPin := Text; 11: Result.SelectPin := Text;
     12: Result.Enabled := AProperty.Checked; 13: Result.Locked := AProperty.Checked;
   end;
 end;
 procedure TPCBPreview.PropertyChanging(Sender: TObject; AProperty: TERDInspectorProperty; var NewValue: string; var Accept: Boolean);
 begin
   try
-    if AProperty.Tag < 100 then FDesigner.Scene.ValidateItem(FDesigner.Scene.PrimaryIndex, EditedItem(AProperty, NewValue))
+    if (AProperty.Tag >= 8) and (AProperty.Tag <= 11) then
+      FDesigner.ValidatePinAssignment(FDesigner.Scene.PrimaryIndex, TERDPCBPinRole(AProperty.Tag - 8), NewValue)
+    else if AProperty.Tag < 100 then FDesigner.Scene.ValidateItem(FDesigner.Scene.PrimaryIndex, EditedItem(AProperty, NewValue))
     else
     begin
       if AProperty.Tag = 101 then FDesigner.ValidatePinCapabilities(FDesigner.SelectedPin, ERDPCBParsePinCapabilities(NewValue));
@@ -283,7 +281,9 @@ var Channel: TERDPCBChannel; Index: Integer;
 begin
   if AProperty.Tag = 200 then Exit;
   try
-    if AProperty.Tag < 100 then FDesigner.Scene.UpdateItem(FDesigner.Scene.PrimaryIndex, EditedItem(AProperty, AProperty.Value))
+    if (AProperty.Tag >= 8) and (AProperty.Tag <= 11) then
+      FDesigner.AssignPin(FDesigner.Scene.PrimaryIndex, TERDPCBPinRole(AProperty.Tag - 8), AProperty.Value)
+    else if AProperty.Tag < 100 then FDesigner.Scene.UpdateItem(FDesigner.Scene.PrimaryIndex, EditedItem(AProperty, AProperty.Value))
     else
     begin
       Index := FDesigner.ChannelIndex(FDesigner.SelectedPin); Channel := Default(TERDPCBChannel);
@@ -298,16 +298,58 @@ begin
   UpdatePinChoices;
 end;
 procedure TPCBPreview.ToolboxMouseDown(Sender: TObject; Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-begin if (Button = mbLeft) and (FToolbox.ItemIndex >= 0) then FToolbox.BeginDrag(False); end;
-procedure TPCBPreview.ToolboxDoubleClick(Sender: TObject);
+var Index: Integer;
 begin
-  if FToolbox.ItemIndex >= 0 then
-    FDesigner.AddDesignItem(TERDPCBItemKind(FToolbox.ItemIndex), FDesigner.ClientToBoard(Point(FDesigner.ClientWidth div 2, FDesigner.ClientHeight div 2)));
+  if (Button <> mbLeft) or FDesigner.TemplateEditMode then Exit;
+  Index := FToolbox.ItemAt(X,Y);
+  if Index >= 0 then begin FToolbox.ItemIndex := Index; FToolbox.BeginDrag(False); end;
+end;
+procedure TPCBPreview.ToolboxClick(Sender: TObject);
+begin
+  FToolDragging := False;
+  if (FToolbox.ItemIndex >= 0) and not FDesigner.TemplateEditMode then
+  begin FDesigner.BeginPlacement(TERDPCBItemKind(FToolbox.ItemIndex)); FDesigner.SetFocus; end;
+end;
+procedure TPCBPreview.ToolboxStartDrag(Sender: TObject; var DragObject: TDragObject);
+begin FToolDragging := True; end;
+procedure TPCBPreview.ToolboxEndDrag(Sender, Target: TObject; X, Y: Integer);
+begin
+  FToolDragging := False; FDesigner.CancelPlacement; FToolbox.ItemIndex := -1;
+end;
+procedure TPCBPreview.ToolboxDoubleClick(Sender: TObject);
+begin ToolboxClick(Sender); end;
+procedure TPCBPreview.SelectToolClicked(Sender: TObject);
+begin FDesigner.CancelPlacement; FToolbox.ItemIndex := -1; end;
+procedure TPCBPreview.PlacementChanged(Sender: TObject);
+begin
+  if FDesigner.Placing then
+  begin
+    if (FHand <> nil) and FHand.Checked then FHand.Checked := False;
+    FStatus.Caption := 'Place ' + ERDPCBItemKindName(FDesigner.PlacementKind) +
+      ' - click canvas; Shift+click repeats; Escape or right-click cancels.';
+  end
+  else
+  begin
+    if not FToolDragging then FToolbox.ItemIndex := -1;
+    FStatus.Caption := 'Select and move objects, or choose another toolbox item.';
+  end;
 end;
 procedure TPCBPreview.SurfaceDragOver(Sender, Source: TObject; X, Y: Integer; State: TDragState; var Accept: Boolean);
-begin Accept := (Source = FToolbox) and (FToolbox.ItemIndex >= 0) and not FDesigner.TemplateEditMode; end;
+begin
+  Accept := (Source = FToolbox) and (FToolbox.ItemIndex >= 0) and not FDesigner.TemplateEditMode;
+  if not Accept then Exit;
+  if State = dsDragLeave then begin FDesigner.CancelPlacement; Exit; end;
+  if not FDesigner.Placing or (FDesigner.PlacementKind <> TERDPCBItemKind(FToolbox.ItemIndex)) then
+    FDesigner.BeginPlacement(TERDPCBItemKind(FToolbox.ItemIndex));
+  FDesigner.PreviewPlacementAt(Point(X,Y));
+end;
 procedure TPCBPreview.SurfaceDragDrop(Sender, Source: TObject; X, Y: Integer);
-begin if Source = FToolbox then FDesigner.AddDesignItem(TERDPCBItemKind(FToolbox.ItemIndex), FDesigner.ClientToBoard(Point(X,Y))); end;
+begin
+  if (Source = FToolbox) and (FToolbox.ItemIndex >= 0) then
+  begin
+    FDesigner.InsertAt(TERDPCBItemKind(FToolbox.ItemIndex), Point(X,Y)); FDesigner.CancelPlacement;
+  end;
+end;
 procedure TPCBPreview.ToolbarClicked(Sender: TObject);
 var Save: TERDSaveDialog; Open: TERDOpenDialog; TemplateFile: string;
 begin

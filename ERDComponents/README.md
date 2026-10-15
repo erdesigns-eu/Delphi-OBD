@@ -33,6 +33,16 @@ BPL-uitvoer: `$(BDSCOMMONDIR)/Bpl` voor Win32, en
 `$(BDSCOMMONDIR)/Bpl/<platform>` voor de 64-bit targets. Win32 gebruikt de
 standaard Delphi-locatie zodat de 32-bit IDE de package op naam kan laden.
 
+## PCB-designer
+
+De demo bevat een zelfstandige PCB-designer met terminals, componenten,
+notities, verbindingen, selectie en een losse toolbox/inspector. Kies een
+toolbox-item en klik op het canvas, of sleep het naar de gewenste plek.
+
+- [Componenthandleiding](docs/pcb-designer-component.md)
+- [API en integratie met een eigen host](docs/pcb-designer-api.md)
+- [Windows-testlijst](docs/pcb-designer-windows-checks.md)
+
 ## Themes en ribbonvorm
 
 Standaard is **ERDesigns Light**, ook als er geen theme-controller is. Een
