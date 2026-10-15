@@ -67,7 +67,6 @@ function ERDPCBItemKindName(Kind: TERDPCBItemKind): string;
 implementation
 function ERDPCBItemKindName(Kind: TERDPCBItemKind): string;
 begin
-  if Kind = piNote then begin Value.Width := 30; Value.Height := 18; Value.Caption := 'Note'; end;
   case Kind of piTimer: Result := 'Timer'; piCounter: Result := 'Counter';
     piOutputGroup: Result := 'OutputGroup'; piUART: Result := 'UART'; piCANBus: Result := 'CANBus';
     piI2C: Result := 'I2C'; piSPI: Result := 'SPI'; else Result := 'Note'; end;
@@ -172,6 +171,7 @@ begin
   Value := Default(TERDPCBDesignItem); Value.ID := NewID; Value.Name := UniqueName(ERDPCBItemKindName(Kind));
   Value.Kind := Kind; Value.Caption := ERDPCBItemKindName(Kind); Value.Enabled := True; Value.Selected := True;
   Value.X := Position.X; Value.Y := Position.Y; Value.Width := 16; Value.Height := 8;
+  if Kind = piNote then begin Value.Width := 30; Value.Height := 18; Value.Caption := 'Note'; end;
   case Kind of piTimer: Value.Value := 1000; piOutputGroup: Value.Value := 1;
     piUART: Value.Value := 115200; piCANBus: Value.Value := 500000; piI2C: Value.Value := 100000; piSPI: Value.Value := 1000000; end;
   CheckItem(Value, -1); Remember;
