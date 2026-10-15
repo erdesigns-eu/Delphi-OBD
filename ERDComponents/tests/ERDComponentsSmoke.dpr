@@ -361,14 +361,13 @@ begin
   finally Bitmap.Free; end;
 end;
 function TCodeEditorProbe.IndentGuidePixel(Row: Integer): TColor;
-var Bitmap: TBitmap; Rows: TArray<TERDTextRow>; Line: TERDTextLayoutLine; X, Y: Integer;
+var Bitmap: TBitmap; Line: TERDTextLayoutLine; X, Y: Integer;
 begin
   Bitmap := TBitmap.Create;
   try
-    RenderTo(Bitmap); Rows := VisualRows;
+    RenderTo(Bitmap);
     Bitmap.Canvas.Font.Assign(Font);
-    Line := TERDTextLayoutLine.Create(Bitmap.Canvas,
-      Copy(Text, Rows[FirstVisibleRow + Row].Start + 1, Rows[FirstVisibleRow + Row].Count));
+    Line := TERDTextLayoutLine.Create(Bitmap.Canvas, StringOfChar(' ', TabWidth + 1));
     try X := TextViewport.Left + Line.X(TabWidth) - HorizontalScrollPosition;
     finally Line.Free; end;
     Y := TextViewport.Top + Row * RowHeight + 1;
@@ -2941,6 +2940,40 @@ begin
   finally Bitmap.Free; Form.Free; end;
 end;
 
+procedure TestVerticalCaretNavigation;
+var Form: TForm; Area: TERDTextArea; Source: UnicodeString; Mode, I, Before: Integer;
+    Keyboard, SavedKeyboard: TKeyboardState;
+begin
+  for Mode := 0 to 1 do
+  begin
+    Form := TForm.Create(nil);
+    try
+      if Mode = 0 then Area := TERDTextArea.Create(Form) else Area := TERDCodeEditor.Create(Form);
+      Area.Parent := Form; Area.SetBounds(0, 0, 500, 220); Source := '';
+      for I := 0 to 99 do Source := Source + 'abcd' + #13#10;
+      Area.Text := Source; Form.Show; Area.SetFocus; Area.SelStart := 20 * 6 + 2;
+      Area.Perform(EM_LINESCROLL, 0, 20 - Area.FirstVisibleRow);
+      Area.Perform(WM_KEYDOWN, VK_UP, 0);
+      Check((Area.SelStart = 19 * 6 + 2) and (Area.FirstVisibleRow = 19),
+        'Up moves to the offscreen previous row and reveals it');
+      GetKeyboardState(SavedKeyboard); Keyboard := SavedKeyboard; Keyboard[VK_SHIFT] := $80;
+      try
+        SetKeyboardState(Keyboard); Area.Perform(WM_KEYDOWN, VK_UP, 0);
+        Check((Area.SelStart = 18 * 6 + 2) and (Area.SelLength = 6) and (Area.FirstVisibleRow = 18),
+          'Shift+Up extends selection and scrolls through the upper edge');
+      finally SetKeyboardState(SavedKeyboard); end;
+      Before := Area.SelStart; Area.Perform(WM_KEYDOWN, VK_PRIOR, 0);
+      Check((Area.SelStart < Before) and (Area.FirstVisibleRow < 18),
+        'Page Up reaches rows above the viewport');
+      Area.SelStart := 20 * 6 + 2;
+      Area.Perform(EM_LINESCROLL, 0, 20 - Area.VisibleRowCount + 1 - Area.FirstVisibleRow);
+      Before := Area.FirstVisibleRow; Area.Perform(WM_KEYDOWN, VK_DOWN, 0);
+      Check((Area.SelStart = 21 * 6 + 2) and (Area.FirstVisibleRow = Before + 1),
+        'Down still reveals the next row through the lower edge');
+    finally Form.Free; end;
+  end;
+end;
+
 procedure TestCodeEditorNavigation;
 var Form: TForm; Editor: TCodeEditorProbe; Bitmap: TBitmap; Vertical, Horizontal, Map, Thumb: TRect;
     I, Page, RowBefore, WidthWithMap: Integer; Source: UnicodeString; Stream: TMemoryStream;
@@ -3144,6 +3177,24 @@ begin
     Check((Editor.IndentGuidePixel(0) = Editor.IndentGuidePixel(1)) and
       (Editor.IndentGuidePixel(0) <> Editor.EditorBackground),
       'First visible indentation segment matches the next row in light mode');
+    Source := '  function block() {' + #13#10 + '    first();' + #13#10 +
+      #13#10 + '  ' + #13#10 + #9 + #13#10 + '    last();' + #13#10 + #13#10 + '  }' + #13#10 +
+      #13#10 + 'topLevel();';
+    for I := 0 to 19 do Source := Source + #13#10 + 'topLevel();';
+    Editor.Text := Source;
+    Editor.Perform(EM_LINESCROLL, 0, 2 - Editor.FirstVisibleRow);
+    C := Editor.IndentGuidePixel(3);
+    Check((Editor.IndentGuidePixel(0) = C) and (Editor.IndentGuidePixel(1) = C) and
+      (Editor.IndentGuidePixel(2) = C) and (C <> Editor.EditorBackground),
+      'Empty, spaces-only and tabs-only rows continue surrounding indentation');
+    Check(Editor.IndentGuidePixel(4) = C, 'Blank row before a closing brace keeps its block guide');
+    Check(Editor.IndentGuidePixel(6) = Editor.EditorBackground,
+      'Blank row before top-level code does not extend a finished block');
+    Theme.Mode := tmERDesignsDark;
+    Check(Editor.IndentGuidePixel(0) = Editor.IndentGuidePixel(3), 'Dark theme also continues blank-row guides');
+    Editor.ShowIndentGuides := False;
+    Check(Editor.IndentGuidePixel(0) = Editor.EditorBackground, 'Disabling guides also hides blank-row segments');
+
 
   finally Form.Free; end;
 end;
@@ -3273,6 +3324,7 @@ begin
     TestMultilineTextEngine;
     TestSyntaxAndCodeEditor;
     TestCodeEditorNavigation;
+    TestVerticalCaretNavigation;
     TestTitleBarMaximizeRouting;
     TestFixedPasswordMaskGeometry;
     TestCodeEditorDetachAndDestroy;

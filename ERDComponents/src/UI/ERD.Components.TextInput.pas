@@ -166,6 +166,7 @@ type
     function RowForPosition(Position: Integer): Integer;
     function RowText(Index: Integer): UnicodeString;
     function HitRow(X, Y: Integer): Integer;
+    function HitVisualRow(X, Row: Integer): Integer;
     function GetLines: TStrings;
     function GetHorizontalScrollPosition: Integer;
     procedure LinesChanged(Sender: TObject);
@@ -1241,10 +1242,15 @@ begin
   finally Line.Free; end;
 end;
 function TERDTextArea.HitRow(X, Y: Integer): Integer;
-var Row, Candidate, Before, After, TextX: Integer; Line: TERDTextLayoutLine;
 begin
   BuildRows;
-  Row := EnsureRange(FFirstRow + (Y - TextViewport.Top) div RowHeight, 0, High(FRows));
+  Result := HitVisualRow(X, FFirstRow + Integer(Floor((Y - TextViewport.Top) / RowHeight)));
+end;
+function TERDTextArea.HitVisualRow(X, Row: Integer): Integer;
+var Candidate, Before, After, TextX: Integer; Line: TERDTextLayoutLine;
+begin
+  BuildRows;
+  Row := EnsureRange(Row, 0, High(FRows));
   Line := TERDTextLayoutLine.Create(Canvas, RowText(Row));
   try
     TextX := X - LineOrigin(Line.Width) + FScroll;
@@ -1351,7 +1357,9 @@ begin
       VK_NEXT: Inc(Target, Max(1, ClientHeight div RowHeight));
     end;
     Target := EnsureRange(Target, 0, High(FRows));
-    X := HitRow(Preferred, TextViewport.Top + (Target - FFirstRow) * RowHeight + RowHeight div 2);
+    // Keyboard targets are document rows, including rows above the viewport.
+    // Do not round-trip through a negative mouse Y (integer division truncates).
+    X := HitVisualRow(Preferred, Target);
     MoveTo(X, ssShift in Shift); FPreferredX := Preferred;
   end;
   Key := 0;

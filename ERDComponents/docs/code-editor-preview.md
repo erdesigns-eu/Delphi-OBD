@@ -317,3 +317,12 @@ continuous through the top inset to the inner border. Indentation guides use
 explicit one-pixel fills so the first visible segment does not depend on canvas
 pen state left by text rendering. Fold start buttons and closing elbows keep
 their existing geometry.
+
+Indentation guides continue through empty, spaces-only and tabs-only rows using
+the surrounding block indentation, including blank rows immediately before a
+closing delimiter. Blank runs cache their context and stop at a genuine dedent.
+This rendering does not insert whitespace into the document.
+
+Up/Down and Page Up/Page Down hit-test the target visual row directly, so moving
+above the viewport is not rounded back onto its first row. The shared memo base
+uses the same fix; Shift+Up continues selection while revealing the previous row.

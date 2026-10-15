@@ -58,6 +58,8 @@ type
     FAnalysis: TERDSyntaxAnalysis;
     FAnalyzedText: UnicodeString;
     FAnalysisValid: Boolean;
+    FBlankGuideVersion: Int64;
+    FBlankGuideTabWidth, FBlankGuideStart, FBlankGuideFinish, FBlankGuideColumns: Integer;
     FCollapsed: TList<Integer>;
     FShowLineNumbers, FShowFolding, FShowFoldGuides: Boolean;
     FHotFold, FPressedFold: Integer;
@@ -131,6 +133,7 @@ type
     procedure SetShowIndentGuides(Value: Boolean);
     procedure SetShowBracketMatch(Value: Boolean);
     function LiteralAt(Position: Integer): Boolean;
+    function BlankGuideColumns(Start: Integer): Integer;
     function HandleDelimiter(C: Char): Boolean;
     function DiagnosticColor(Severity: TERDDiagnosticSeverity): TColor;
     procedure Analyze;
@@ -1455,12 +1458,58 @@ begin
   else Result := Palette.Subtle;
   end;
 end;
+function TERDCodeEditor.BlankGuideColumns(Start: Integer): Integer;
+var Value: UnicodeString; At, Previous, Finish, BeforeDepth, AfterDepth, Last: Integer;
+  function LeadingColumns(Position: Integer; out Content: Integer): Integer;
+  begin
+    Result := 0; Content := Position;
+    while (Content < Length(Value)) and CharInSet(Value[Content + 1], [' ', #9]) do
+    begin
+      if Value[Content + 1] = #9 then Inc(Result, FTabWidth - Result mod FTabWidth)
+      else Inc(Result);
+      Inc(Content);
+    end;
+  end;
+begin
+  if (FBlankGuideVersion = FVersion) and (FBlankGuideTabWidth = FTabWidth) and
+    (Start >= FBlankGuideStart) and (Start < FBlankGuideFinish) then Exit(FBlankGuideColumns);
+  Value := Text; BeforeDepth := 0; AfterDepth := 0;
+  FBlankGuideStart := Start; At := Start;
+  while At > 0 do
+  begin
+    Previous := LineStart(At - 2); BeforeDepth := LeadingColumns(Previous, Finish);
+    if (Finish < Length(Value)) and (Value[Finish + 1] <> #13) then
+    begin
+      Last := LineFinish(Previous);
+      while (Last > Previous) and CharInSet(Value[Last], [' ', #9, #13, #10]) do Dec(Last);
+      if (Last > Previous) and CharInSet(Value[Last], ['{', '[', '(']) then Inc(BeforeDepth, FTabWidth);
+      Break;
+    end;
+    BeforeDepth := 0; At := Previous; FBlankGuideStart := At;
+  end;
+  At := Start;
+  repeat
+    AfterDepth := LeadingColumns(At, Finish);
+    if (Finish < Length(Value)) and (Value[Finish + 1] <> #13) then
+    begin
+      // A closing delimiter ends the block after the blank rows, not before them.
+      if CharInSet(Value[Finish + 1], ['}', ']', ')']) then Inc(AfterDepth, FTabWidth);
+      Break;
+    end;
+    AfterDepth := 0;
+    if Finish >= Length(Value) then begin At := Length(Value) + 1; Break; end;
+    At := Finish + 2;
+  until At > Length(Value);
+  FBlankGuideFinish := At; FBlankGuideVersion := FVersion; FBlankGuideTabWidth := FTabWidth;
+  FBlankGuideColumns := Min(BeforeDepth, AfterDepth);
+  Result := FBlankGuideColumns;
+end;
 procedure TERDCodeEditor.PaintTextOverlay(ACanvas: TCanvas; Start, Count, X, Y: Integer;
   Line: TERDTextLayoutLine);
 var Item: TERDCodeDiagnostic; A, B, L, R, At, Bottom, Step, Saved: Integer;
     Opening, Closing, Column, Position, Index, Padding: Integer;
     Metrics: TTextMetric; Glyph: TGlyphMetrics; Matrix: TMat2; BracketRect: TRect;
-    GuideBrush: HBRUSH;
+    GuideBrush: HBRUSH; GuideLine: TERDTextLayoutLine; GuideColumn, Depth: Integer;
 begin
   inherited;
   Saved := SaveDC(ACanvas.Handle);
@@ -1473,7 +1522,26 @@ begin
       Position := Start; Column := 0;
       GuideBrush := HBRUSH(GetStockObject(DC_BRUSH));
       SetDCBrushColor(ACanvas.Handle, ColorToRGB(ERDMixColor(Palette.Background, Palette.ForegroundText, 0.88)));
-      while Position < B do
+      if (B = Start + Count) and ((B >= Length(Text)) or (Text[B + 1] = #13)) then
+      begin
+        // Empty/whitespace-only rows inherit the surrounding block depth.
+        // Cache the whole blank run so consecutive empty rows do not rescan it.
+        Depth := BlankGuideColumns(Start);
+        if Depth > FTabWidth then
+        begin
+          GuideLine := TERDTextLayoutLine.Create(ACanvas, StringOfChar(' ', Depth));
+          try
+            GuideColumn := FTabWidth;
+            while GuideColumn < Depth do
+            begin
+              L := X + GuideLine.X(GuideColumn);
+              Winapi.Windows.FillRect(ACanvas.Handle, Rect(L, Y, L + 1, Y + RowHeight), GuideBrush);
+              Inc(GuideColumn, FTabWidth);
+            end;
+          finally GuideLine.Free; end;
+        end;
+      end
+      else while Position < B do
       begin
         if Text[Position + 1] = #9 then Inc(Column, FTabWidth - Column mod FTabWidth)
         else Inc(Column);
