@@ -217,7 +217,13 @@ begin
   if Y + H > Work.Bottom then Y := ScreenPoint.Y - H - MulDiv(22, FPPI, 96);
   Y := EnsureRange(Y, Work.Top, Max(Work.Top, Work.Bottom - H));
   DoubleBuffered := True;
-  FIsOpen := True; ActivateHint(Rect(X, Y, X + W, Y + H), ''); Invalidate;
+  Color := FPalette.GaugeFace;
+  // ActivateHint can recreate the native hint window (and call DestroyWnd).
+  // Publish open state after activation so Paint is not suppressed by that reset.
+  ActivateHint(Rect(X, Y, X + W, Y + H), '');
+  FIsOpen := True;
+  Invalidate;
+  Update;
 end;
 procedure TERDSignaturePopup.Paint;
 var Painter: TERDPainter; Saved, Offset, Left, Right, Origin, LabelY: Integer; R: TRect;
