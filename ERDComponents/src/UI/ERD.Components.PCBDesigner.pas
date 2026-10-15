@@ -208,7 +208,8 @@ function ERDPCBPinCapabilitiesText(Values: TERDPCBPinCapabilities): string;
 function ERDPCBParsePinCapabilities(const Text: string): TERDPCBPinCapabilities;
 implementation
 
-uses System.IOUtils, System.Generics.Collections, Vcl.Forms, Vcl.Clipbrd, Vcl.StdCtrls, ERD.Components.Paint;
+uses System.IOUtils, System.Generics.Collections, Winapi.GDIPAPI, Winapi.GDIPOBJ,
+  Vcl.Forms, Vcl.Clipbrd, Vcl.StdCtrls, ERD.Components.Paint, ERD.Components.GDIP;
 
 function ERDPCBPinCapabilityName(Value: TERDPCBPinCapability): string;
 begin
@@ -1234,22 +1235,57 @@ end;
 procedure TERDPCBDesigner.PaintScene(ACanvas: TCanvas);
 var I: Integer; R, LinkRect: TRect; Value: TERDPCBDesignItem;
     P, Q: TPoint; Pad: TERDPCBPad; Text, Link: string; Role: Integer;
-    Tint: TBitmap; Blend: TBlendFunction;
+    Tint: TBitmap; Blend: TBlendFunction; Ink: TColor; RoleCount: Integer;
+  procedure DrawConnection(const FromPoint, ToPoint: TPoint; Color: TColor; Width: Single);
+  var Graphics: TGPGraphics; Path: TGPGraphicsPath; Pen: TGPPen;
+      Stub, Bend, StartY, EndY: Single;
+  begin
+    Stub := ScaleValue(8);
+    Bend := Max(ScaleValue(24), Min(ScaleValue(160),
+      (Abs(ToPoint.Y - FromPoint.Y) + Abs(ToPoint.X - FromPoint.X)) * 0.35));
+    StartY := FromPoint.Y + Stub; EndY := ToPoint.Y - Stub;
+    Graphics := TGPGraphics.Create(ACanvas.Handle);
+    try
+      Graphics.SetSmoothingMode(SmoothingModeAntiAlias);
+      Path := TGPGraphicsPath.Create;
+      try
+        Path.AddLine(Single(FromPoint.X), Single(FromPoint.Y), Single(FromPoint.X), StartY);
+        Path.AddBezier(Single(FromPoint.X), StartY, Single(FromPoint.X), StartY + Bend,
+          Single(ToPoint.X), EndY - Bend, Single(ToPoint.X), EndY);
+        Path.AddLine(Single(ToPoint.X), EndY, Single(ToPoint.X), Single(ToPoint.Y));
+        Pen := TGPPen.Create(ColorToARGB(Color), Width);
+        try
+          Pen.SetStartCap(LineCapRound); Pen.SetEndCap(LineCapRound); Pen.SetLineJoin(LineJoinRound);
+          Graphics.DrawPath(Pen, Path);
+        finally Pen.Free; end;
+      finally Path.Free; end;
+    finally Graphics.Free; end;
+  end;
 begin
   UpdateTransform;
   for I := 0 to FScene.Count - 1 do
   begin
     Value := FScene.Item(I); R := ItemRect(I);
-    for Role := 0 to 3 do
+    RoleCount := 1;
+    if Value.Kind in [piUART, piCANBus, piI2C] then RoleCount := 2
+    else if Value.Kind = piSPI then RoleCount := 4;
+    for Role := 0 to RoleCount - 1 do
     begin
-    case Role of 0: Link := Value.Pin; 1: Link := Value.SecondaryPin; 2: Link := Value.ClockPin; else Link := Value.SelectPin; end;
-    if Link <> '' then for Pad in FPads do if Pad.ID = Link then
-    begin
-      P := ScreenPoint(Pad.Position); Q := Point((R.Left + R.Right) div 2, (R.Top + R.Bottom) div 2);
-      ACanvas.Pen.Color := Palette.Subtle; if Value.Selected then ACanvas.Pen.Color := Palette.Accent;
-      ACanvas.Pen.Width := 1; ACanvas.MoveTo(P.X, P.Y); ACanvas.LineTo(Q.X, Q.Y); Break;
+      case Role of 0: Link := Value.Pin; 1: Link := Value.SecondaryPin;
+        2: Link := Value.ClockPin; else Link := Value.SelectPin; end;
+      if Link <> '' then for Pad in FPads do if Pad.ID = Link then
+      begin
+        P := ScreenPoint(Pad.Position);
+        Q := Point(R.Left + R.Width * (Role + 1) div (RoleCount + 1), R.Top);
+        Ink := Palette.Subtle; if Value.Selected then Ink := Palette.Accent;
+        DrawConnection(P, Q, Ink, ScaleValue(1)); Break;
+      end;
     end;
-    end;
+  end;
+  // Keep every connection behind the component glyphs, regardless of item order.
+  for I := 0 to FScene.Count - 1 do
+  begin
+    Value := FScene.Item(I); R := ItemRect(I);
     ACanvas.Brush.Style := bsSolid; ACanvas.Brush.Color := Palette.Background;
     ACanvas.Pen.Color := Palette.NeutralDark; ACanvas.Pen.Width := 1;
     if Value.Selected then begin ACanvas.Pen.Color := Palette.Accent; ACanvas.Pen.Width := ScaleValue(2); end;
@@ -1275,8 +1311,11 @@ begin
   end;
   if FEditMode = 4 then
   begin
-    ACanvas.Pen.Color := Palette.Accent; ACanvas.Pen.Width := ScaleValue(2);
-    ACanvas.MoveTo(FStartPoint.X, FStartPoint.Y); ACanvas.LineTo(FBoxPoint.X, FBoxPoint.Y);
+    P := FStartPoint;
+    Pad := PadInfo(FLinkPin); if Pad.ID <> '' then P := ScreenPoint(Pad.Position);
+    Q := FBoxPoint; I := ItemAt(Q);
+    if I >= 0 then begin R := ItemRect(I); Q := Point((R.Left + R.Right) div 2, R.Top); end;
+    DrawConnection(P, Q, Palette.Accent, ScaleValue(2));
   end;
   if FEditMode = 3 then
   begin

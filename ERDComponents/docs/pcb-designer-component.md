@@ -58,7 +58,9 @@ notes and UART/CAN/I²C/SPI connections. These definitions do not execute hardwa
 or TypeScript. Names appear below the DPI-scaled glyphs, which keep the same size while zooming.
 The scene supports selection, group movement, fixed-size nonvisual glyphs,
 locking, snapping, clipboard operations and undo/redo. Drag a programmable terminal
-onto an item to connect it. Conflicting enabled drivers and incompatible pin
+onto an item to connect it. Connections use GDI+ antialiased Bézier curves, with
+short vertical sections at the pin and component. Bus roles have separate
+connection points; the drag preview uses the same routing. Conflicting enabled drivers and incompatible pin
 capabilities are rejected through `OnConnectionError`.
 
 The demo hosts a separate toolbox and inspector. The designer itself has no
