@@ -179,7 +179,7 @@ type
     property AntiAlias: Boolean read FAntiAlias write SetAntiAlias default True;
     property TemplateEditMode: Boolean read FTemplateEditMode write SetTemplateEditMode default False;
     property Scene: TERDPCBScene read FScene write SetScene;
-    property ScrollBars: System.UITypes.TScrollStyle read FScrollBars write SetScrollBars default ssBoth;
+    property ScrollBars: System.UITypes.TScrollStyle read FScrollBars write SetScrollBars default System.UITypes.TScrollStyle.ssBoth;
     property SnapToGrid: Boolean read FSnapToGrid write SetSnapToGrid default True;
     property ShowGrid: Boolean read FShowGrid write SetShowGrid default True;
     property GridSize: Double read FGridSize write SetGridSize;
@@ -286,7 +286,7 @@ begin
   FSnapToGrid := True;
   FShowGrid := True;
   FGridSize := 1;
-  FScrollBars := ssBoth;
+  FScrollBars := System.UITypes.TScrollStyle.ssBoth;
   FScene := TERDPCBScene.Create(Self); FScene.OnValidateItem := ValidateSceneItem; FScene.OnChange := SceneChanged; FScene.OnSelectionChange := SceneSelectionChanged;
   FScrollH := TERDScrollBar.Create(Self); FScrollH.Parent := Self; FScrollH.Kind := sbHorizontal; FScrollH.Visible := False;
   FScrollH.OnChange := ScrollChanged; FScrollH.TabStop := False;
@@ -544,8 +544,8 @@ begin
       R := ItemRect(I); Bounds.Left := Min(Bounds.Left, R.Left); Bounds.Top := Min(Bounds.Top, R.Top);
       Bounds.Right := Max(Bounds.Right, R.Right); Bounds.Bottom := Max(Bounds.Bottom, R.Bottom);
     end;
-    FScrollH.Visible := FScrollBars in [ssHorizontal, ssBoth];
-    FScrollV.Visible := FScrollBars in [ssVertical, ssBoth];
+    FScrollH.Visible := FScrollBars in [System.UITypes.TScrollStyle.ssHorizontal, System.UITypes.TScrollStyle.ssBoth];
+    FScrollV.Visible := FScrollBars in [System.UITypes.TScrollStyle.ssVertical, System.UITypes.TScrollStyle.ssBoth];
     W := ClientWidth; H := ClientHeight; T := ScaleValue(12);
     if FScrollV.Visible then Dec(W, T); if FScrollH.Visible then Dec(H, T);
     FScrollH.SetBounds(0, ClientHeight - T, Max(0, W), T);
