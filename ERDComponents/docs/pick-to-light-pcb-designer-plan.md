@@ -1,7 +1,7 @@
 # Pick-to-light PCB designer plan
 
 This is the proposed work after the code-editor signature-help work and the
-Windows TSVM compiler package. It is a plan, not an implemented designer.
+Windows TSVM compiler package. The roadmap remains staged; the first imported-board selection and inspector preview is now implemented.
 
 ## What the supplied board files contain
 
@@ -181,3 +181,29 @@ Build stage 1 and the U7.2 selection/inspector slice first. The supplied EasyEDA
 project now provides the electrical source, so no manually drawn pin map is
 needed as the primary model. Any unresolved symbol mapping is surfaced for review.
 Then extend the same pipeline to all 28 channels before adding simulation or 3D.
+
+
+## Implemented first slice (2026-10-15)
+
+The demo has a **PCB designer** tab backed by `TERDPCBDesigner`. It renders the
+actual top-side footprint outlines, rounded board outline, 496 pads/vias and
+through-hole drills. Imported geometry preserves 135 reference designators and
+all 28 verified buffered output routes. The offline importer verifies every
+component origin and first-pin transform against the independent placements.
+
+Click a pad or use **Select U7.2**. The inspector displays immutable pin/net/GPIO
+and routing facts. Verified output pins expose a channel name, LED count and
+`showPick` action assignment. Power, ground, boot/reset and unverified pins have
+no output editor. Wheel zoom anchors at the pointer; middle drag pans; **Fit
+board** resets the view. Save/open stores all assignments and selection in a
+separate versioned project with the source-board fingerprint. Failed loads roll
+back assignments rather than partially replacing the project.
+
+This is a top-side configuration preview. Copper layers, a Gerber raster cache,
+bottom-side import, undo/redo, a shared nonvisual component tray, simulation,
+TypeScript handler generation and hardware execution remain subsequent stages.
+The `showPick` choice records intent; it does not invoke a device or invent a
+TSVM hardware API. The component is created at runtime and is not yet registered
+on the Delphi palette. Delphi compilation/runtime checks require Windows.
+
+See `demo/pcb/README.md` for the importer and demo test instructions.

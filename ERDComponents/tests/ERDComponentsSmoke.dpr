@@ -2,6 +2,7 @@
 {$APPTYPE CONSOLE}
 uses
   ERD.Components.LSP, ERD.Components.Paint, ERD.Components.Control, ERD.Components.LanguageServices, ERD.Components.TextLayout, ERD.Components.CodeEditor, ERD.Components.Syntax,
+  ERD.Components.PCBDesigner,
   ERD.Components.TextModel, ERD.Components.TextInput,
   System.IOUtils, System.JSON,
   System.SysUtils, System.Classes, System.Types, System.Math, Vcl.Forms, Vcl.Controls, Vcl.ExtCtrls,
@@ -2452,6 +2453,44 @@ begin
   finally Form.Free; end;
 end;
 
+procedure TestPCBDesigner;
+var Form: TForm; Designer: TERDPCBDesigner; BoardFile, ProjectFile, Text: string;
+    Index: Integer; Failed: Boolean;
+begin
+  Form := TForm.Create(nil); BoardFile := TPath.GetTempFileName; ProjectFile := TPath.GetTempFileName;
+  try
+    Designer := TERDPCBDesigner.Create(Form); Designer.Parent := Form; Designer.SetBounds(0, 0, 500, 300);
+    Text := '{"schema":1,"units":"mm","y_axis":"up","source_sha256":"test-board",' +
+      '"pads":[{"id":"U7.2","net":"OUT_GPIO4","reference":"U7","number":"2","position":[5,5],' +
+      '"polygon":[[4,4],[6,4],[6,6],[4,6]],"drill":[]}],' +
+      '"channels":[{"pin":"U7.2","gpio":"GPIO4","route":"U6.4 to U7.2"}],' +
+      '"components":[{"reference":"U7","device":"terminal","position":[5,5]}],' +
+      '"silkscreen":[],"outline":[[[0,0],[10,0],[10,10],[0,10],[0,0]]]}';
+    TFile.WriteAllText(BoardFile, Text, TEncoding.UTF8); Designer.LoadBoard(BoardFile);
+    Form.Show; Designer.Perform(WM_LBUTTONDOWN, MK_LBUTTON, MakeLParam(250, 150));
+    Check(Designer.SelectedPin = 'U7.2', 'PCB hit testing selects a pad in board coordinates');
+    Check(Designer.SelectedPad.Net = 'OUT_GPIO4', 'PCB selection retains electrical identity');
+    Index := Designer.ChannelIndex('U7.2'); Check(Index = 0, 'PCB output resolves independently of geometry');
+    Designer.SetBinding(Index, 'PickA', 'showPick', 24); Designer.SaveProject(ProjectFile);
+    Designer.SetBinding(Index, 'Changed', '', 1); Designer.SelectedPin := '';
+    Designer.LoadProject(ProjectFile);
+    Check((Designer.SelectedPin = 'U7.2') and (Designer.Channel(Index).Name = 'PickA') and
+      (Designer.Channel(Index).LEDCount = 24), 'PCB project restores selection and assignments');
+    Text := TFile.ReadAllText(ProjectFile, TEncoding.UTF8);
+    TFile.WriteAllText(ProjectFile, StringReplace(Text, 'showPick', 'invalidAction', []), TEncoding.UTF8);
+    Failed := False;
+    try Designer.LoadProject(ProjectFile); except on E: EArgumentException do Failed := True; end;
+    Check(Failed and (Designer.Channel(Index).Name = 'PickA') and (Designer.Channel(Index).Action = 'showPick'),
+      'Invalid project load rolls back every assignment');
+    TFile.WriteAllText(ProjectFile, StringReplace(Text, 'test-board', 'other-board', []), TEncoding.UTF8);
+    Failed := False;
+    try Designer.LoadProject(ProjectFile); except on E: EConvertError do Failed := True; end;
+    Check(Failed, 'PCB project cannot silently bind to a different physical board');
+  finally
+    Form.Free; DeleteFile(BoardFile); DeleteFile(ProjectFile);
+  end;
+end;
+
 procedure TestSignatureHelp;
 var Form: TForm; Editor: TERDCodeEditor; Service: TLanguageServiceProbe;
     ServiceReference: IERDCodeLanguageService; Responses: IERDSignatureHelpResponses;
@@ -3396,6 +3435,7 @@ begin
     TestSharedColorEmoji;
     TestCodeEditorSearch;
     TestCodeLanguageServices;
+    TestPCBDesigner;
     TestSignatureHelp;
     TestEditorWindowShutdown;
     TestStdioLanguageAdapter;

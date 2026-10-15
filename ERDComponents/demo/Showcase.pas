@@ -2,6 +2,7 @@
 interface
 uses
   ERD.Components.LSP, ERD.Components.LanguageServices, ERD.Components.CodeEditor, ERD.Components.Syntax,
+  PCBPreview,
   ERD.Components.TextInput,
   ERD.Components.Rating,
   ERD.Components.CommandPalette,
@@ -648,6 +649,7 @@ type
     procedure IconClicked(Sender: TObject);
   public
     // Runtime-only previews: do not let the form designer manage these fields.
+    PCBPage: TPCBPreview;
     CodePage: TERDPanel;
     CodeEditor: TERDCodeEditor;
     CodeUsingNativeService: Boolean;
@@ -1092,6 +1094,9 @@ var Bitmap: TBitmap;
 begin
   CreateUnicodePreviews;
   CreateCodePreview;
+  PCBPage := TPCBPreview.Create(Self); PCBPage.Parent := DemoPages;
+  PCBPage.Align := alClient; PCBPage.Visible := False;
+  PageTabs.Tabs.Add.Caption := 'PCB designer';
   Menu := nil;
   TitleBar.Menu := MainMenu;
   TitleBar.Ribbon := Ribbon;
@@ -1332,6 +1337,7 @@ begin
   FilesColorsPage.Visible := PageTabs.TabIndex = 4;
   DialogsPage.Visible := PageTabs.TabIndex = 5;
   if CodePage <> nil then CodePage.Visible := PageTabs.TabIndex = 6;
+  if PCBPage <> nil then PCBPage.Visible := PageTabs.TabIndex = 7;
 end;
 
 procedure TShowcaseForm.CommandSelected(Sender: TObject);
