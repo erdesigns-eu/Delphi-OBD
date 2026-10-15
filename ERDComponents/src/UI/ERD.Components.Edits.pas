@@ -886,6 +886,9 @@ begin
   OldText := GetText;
   OldIndex := FItemIndex;
   SetItemIndex(AIndex);
+  // Completion may already have set this index while preserving typed casing.
+  // An explicit selection still commits the item's canonical text.
+  if (FItemIndex = OldIndex) and (FItemIndex >= 0) and (FItemIndex < FItems.Count) then SyncInput;
   FFilterText := '';
   if (OldIndex <> FItemIndex) or (OldText <> GetText) then Change;
 end;

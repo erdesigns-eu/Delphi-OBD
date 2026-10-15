@@ -688,6 +688,7 @@ const Names: array[0..5] of string = ('console', 'Command', 'CommandRegistry', '
 var Start, Finish, I, At, ReceiverStart, ReceiverEnd: Integer; Prefix, Word, Marker, Receiver: UnicodeString;
     Candidates: TArray<string>;
     Items: TArray<TERDCompletionItem>; Target: TERDDefinitionTarget;
+    Completion: TERDCompletionItem;
   function Identifier(C: Char): Boolean;
   begin Result := C in ['a'..'z','A'..'Z','0'..'9','_','$']; end;
 begin
@@ -700,7 +701,7 @@ begin
   case Snapshot.Kind of
     lrCompletion:
       begin
-        Items := nil;
+        Items := nil; At := 0;
         if (Start > 0) and (Snapshot.Text[Start] = '.') then
         begin
           ReceiverEnd := Start - 1;
@@ -723,9 +724,33 @@ begin
           if SameText(Copy(Candidates[I], 1, Length(Prefix)), Prefix) then
           begin
             SetLength(Items, Length(Items) + 1);
-            Items[High(Items)].LabelText := Candidates[I]; Items[High(Items)].InsertText := Candidates[I];
-            Items[High(Items)].Detail := 'Example provider'; Items[High(Items)].Start := Start;
-            Items[High(Items)].Count := Finish - Start;
+            Completion := Default(TERDCompletionItem);
+            Completion.LabelText := Candidates[I]; Completion.InsertText := Candidates[I];
+            Completion.Kind := 6; Completion.Detail := ': unknown';
+            Completion.Documentation := 'Example identifier. Connect TSVM for compiler-inferred types and documentation.';
+            if (Start > 0) and (Snapshot.Text[Start] = '.') then
+            begin
+              Completion.Kind := 2; Completion.Detail := '(...args): void';
+              if Candidates[I] = 'id' then begin Completion.Kind := 10; Completion.Detail := ': string'; end
+              else if Candidates[I] = 'title' then begin Completion.Kind := 10; Completion.Detail := ': string'; end
+              else if Candidates[I] = 'run' then Completion.Detail := '(): Promise<void>'
+              else if Candidates[I] = 'get' then Completion.Detail := '(key: string): Command | undefined'
+              else if Candidates[I] = 'set' then Completion.Detail := '(key: string, value: Command): Map<string, Command>'
+              else if Candidates[I] = 'has' then Completion.Detail := '(key: string): boolean'
+              else if Candidates[I] = 'clear' then Completion.Detail := '(): void'
+              else Completion.Detail := '(...data: unknown[]): void';
+              Completion.Documentation := 'Example member of ' + Receiver + '. Connect TSVM for semantic results.';
+            end
+            else if I < At then
+            begin Completion.Kind := 14; Completion.Detail := 'TypeScript keyword';
+              Completion.Documentation := 'TypeScript language keyword.'; end
+            else if Candidates[I] = 'Command' then begin Completion.Kind := 8; Completion.Detail := 'interface Command'; end
+            else if Candidates[I] = 'CommandRegistry' then begin Completion.Kind := 7; Completion.Detail := 'class CommandRegistry'; end
+            else if Candidates[I] = 'Promise' then begin Completion.Kind := 7; Completion.Detail := 'class Promise<T>'; end
+            else if Candidates[I] = 'console' then begin Completion.Kind := 9; Completion.Detail := 'namespace console'; end
+            else if Candidates[I] = 'commands' then begin Completion.Kind := 5; Completion.Detail := ': Map<string, Command>'; end
+            else if Candidates[I] = 'register' then begin Completion.Kind := 2; Completion.Detail := '(command: Command): void'; end;
+            Completion.Start := Start; Completion.Count := Finish - Start; Items[High(Items)] := Completion;
           end;
         Responses.Completion(Snapshot, Items);
       end;

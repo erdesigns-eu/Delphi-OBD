@@ -63,6 +63,7 @@ type
     FSelectingLines, FLastGutterDown: Boolean;
     FLineAnchorStart, FLineAnchorFinish: Integer;
     FScrollBars: System.UITypes.TScrollStyle;
+    FDestroyingEditor: Boolean;
     FShowMinimap: Boolean;
     FMinimapDirty, FNavigationWidthDirty, FMinimapWindowHot: Boolean;
     FMinimapWidth: Integer;
@@ -349,6 +350,7 @@ begin
 end;
 destructor TERDCodeEditor.Destroy;
 begin
+  FDestroyingEditor := True;
   if FResponseObject <> nil then FResponseObject.Detach;
   CancelLanguageRequests; FResponses := nil; FResponseObject := nil;
   if FCompletionPopup <> nil then FCompletionPopup.OnCloseUp := nil;
@@ -466,7 +468,7 @@ begin
         (TextModel.Snap(Item.Start + Item.Count) = Item.Start + Item.Count) then
       begin
         Valid.Add(Item);
-        if Item.Detail = '' then Labels.Add(Item.LabelText) else Labels.Add(Item.LabelText + '  -  ' + Item.Detail);
+        Labels.Add(Item.LabelText);
       end;
     FPending[lrCompletion] := 0; FCompletionItems := Valid.ToArray; FCompletionStamp := Request;
     if (Labels.Count = 0) and (Request.TriggerCharacter = #0) then Labels.Add('No suggestions');
@@ -476,8 +478,9 @@ begin
       begin FCompletionPopup := TERDPopupList.Create(Self); FCompletionPopup.OnCloseUp := CompletionClosed; end;
       if not GetCaretPos(P) then P := Point(TextViewport.Left, TextViewport.Top);
       P := ClientToScreen(P);
-      FCompletionPopup.Popup(Self, Rect(P.X, P.Y, P.X + ScaleValue(320), P.Y + RowHeight),
-        Labels, 0, Palette, ScaleValue(96), ScaleValue(28), 8);
+      FCompletionPopup.SetCompletionItems(FCompletionItems);
+      FCompletionPopup.Popup(Self, Rect(P.X, P.Y, P.X + ScaleValue(640), P.Y + RowHeight),
+        Labels, 0, Palette, ScaleValue(96), ScaleValue(24), 10);
     end;
   finally Labels.Free; Valid.Free; end;
   FLastLanguageResult := lrCompletion;
@@ -586,6 +589,8 @@ end;
 procedure TERDCodeEditor.NavigationRects(out Vertical, Horizontal, Map: TRect);
 var Inner, Base: TRect; BorderWidth, Size, Width, LocalGutterWidth, TextRight, Available: Integer;
 begin
+  Vertical := Rect(0, 0, 0, 0); Horizontal := Vertical; Map := Vertical;
+  if FDestroyingEditor or (csDestroying in ComponentState) or (Parent = nil) then Exit;
   Inner := ClientRect; BorderWidth := 0;
   if BorderStyle = bsSingle then
   begin
@@ -620,7 +625,8 @@ begin
     Inner.Bottom := Horizontal.Top;
     if not IsRectEmpty(Vertical) then Vertical.Bottom := Inner.Bottom;
   end;
-  if Width > 0 then Map := Rect(Inner.Right - Width, Inner.Top, Inner.Right, Inner.Bottom);
+  if Width > 0 then Map := Rect(Inner.Right - Width,
+    Min(Inner.Bottom, Max(Inner.Top, Base.Top + ScaleValue(SelectionPadding))), Inner.Right, Inner.Bottom);
 end;
 function TERDCodeEditor.MinimapViewportRect: TRect;
 var Vertical, Horizontal, Map: TRect; Rows: TArray<TERDTextRow>; MapHeight, Top, Bottom: Integer;
@@ -646,6 +652,7 @@ function TERDCodeEditor.NavigationWidth: Integer;
 var Line: TERDTextLayoutLine; LineText: UnicodeString;
     Start, Finish, LineWidth: Integer; Fold: TERDSyntaxFold; Hidden: Boolean;
 begin
+  if FDestroyingEditor or (csDestroying in ComponentState) or (Parent = nil) or (FWidthCache = nil) then Exit(0);
   // Width measurement must not call VisualRows/TextViewport: layout itself asks
   // for this width to decide whether to reserve a horizontal scrollbar.
   if not FNavigationWidthDirty and (FNavigationMeasuredText = Text) and
@@ -1235,6 +1242,7 @@ end;
 procedure TERDCodeEditor.UpdateCaret;
 var Fold: TERDSyntaxFold; Expanded, CaretMoved: Boolean;
 begin
+  if FDestroyingEditor or (csDestroying in ComponentState) or (Parent = nil) then Exit;
   if TextModel <> nil then
   begin
     CaretMoved := FTrackCaret and ((FLastCaret <> TextModel.Caret) or (FLastAnchor <> TextModel.Anchor));
@@ -1461,6 +1469,7 @@ var Rows: TArray<TERDTextRow>; I, J, Number, Y, H, Index, X: Integer;
     Fold: TERDSyntaxFold; Painter: TERDPainter; GutterFill, GuideInk, ButtonInk, ButtonFill, ButtonBorder: TColor;
     DiagnosticFound: Boolean; RowFinish: Integer; Severity: TERDDiagnosticSeverity;
 begin
+  if FDestroyingEditor or (csDestroying in ComponentState) then Exit;
   inherited PaintControl(ACanvas);
   PaintNavigation(ACanvas);
   if not (FShowLineNumbers or FShowFolding) then Exit;

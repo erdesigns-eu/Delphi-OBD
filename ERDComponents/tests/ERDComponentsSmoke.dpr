@@ -1305,6 +1305,17 @@ begin
     Combo.AutoComplete := False;
     Combo.Text := 'custom text';
     Check(Combo.ItemIndex = -1, 'Editable combo permits free text outside Items');
+    Combo.AutoComplete := True; Combo.Text := ''; Combo.SetFocus;
+    Combo.Editor.Perform(WM_CHAR, Ord('f'), 0);
+    Combo.Editor.Perform(WM_CHAR, Ord('R'), 0);
+    Check((Combo.Text = 'fRance') and (Combo.ItemIndex = 3), 'Autocomplete preserves casing until explicit selection');
+    Combo.DropDown;
+    Popup.ItemIndex := 3; Counter.Changes := 0; Popup.CloseUp(True);
+    Check((Combo.Text = 'France') and (Combo.ItemIndex = 3) and (Counter.Changes = 1),
+      'Selecting an autocompleted item commits exact casing even when index is unchanged');
+    Combo.Text := 'france'; Combo.DropDown; Popup.ItemIndex := 3; Popup.CloseUp(True);
+    Check(Combo.Text = 'France', 'Selecting an exact case-insensitive match restores item casing');
+    Combo.AutoComplete := False; Combo.Text := 'custom text';
     Combo.OnChange := nil;
     Stream.WriteComponent(Combo);
     Stream.Position := 0;
@@ -2245,7 +2256,7 @@ var Form: TForm; Editor, Temporary: TERDCodeEditor; Service: TLanguageServicePro
     ServiceReference: IERDCodeLanguageService; Sink: IERDLanguageResponses;
     Old, Current: TERDLanguageRequest; Items: TArray<TERDCompletionItem>;
     Target: TERDDefinitionTarget; Version: Int64; Worker: TThread; OffThreadAccepted: Boolean;
-    Keyboard, SavedKeyboard: TKeyboardState;
+    Keyboard, SavedKeyboard: TKeyboardState; Popup: TERDPopupList; I: Integer;
 begin
   Form := TForm.Create(nil); Service := TLanguageServiceProbe.Create; ServiceReference := Service;
   try
@@ -2280,6 +2291,8 @@ begin
     Editor.RequestHover; Old := Service.Snapshot; Editor.CancelLanguageRequests;
     Check(not Sink.Hover(Old, 'cancelled'), 'Explicit cancellation rejects delayed result');
     Editor.RequestCompletion; Current := Service.Snapshot; Items[0].InsertText := 'console';
+    Items[0].Kind := 3; Items[0].Detail := '(value: string): void';
+    Items[0].Documentation := 'Writes a value to the example console.';
     Sink.Completion(Current, Items); Editor.ReadOnly := True;
     Check(not Editor.ApplyCompletion(0) and (Editor.Text = 'con'), 'ReadOnly blocks completion application');
     Editor.ReadOnly := False; Editor.MaxLength := 3;
@@ -2305,7 +2318,17 @@ begin
       Check(Service.Requests = Version + 1, 'Ctrl+Space key route requests completion');
     finally SetKeyboardState(SavedKeyboard); end;
     Editor.RequestCompletion; Current := Service.Snapshot; Items[0].InsertText := 'console';
+    Items[0].Kind := 3; Items[0].Detail := '(value: string): void';
+    Items[0].Documentation := 'Writes a value to the example console.';
     Check(Sink.Completion(Current, Items), 'Focused completion result opens popup');
+    Popup := nil;
+    for I := 0 to Editor.ComponentCount - 1 do
+      if Editor.Components[I] is TERDPopupList then Popup := TERDPopupList(Editor.Components[I]);
+    Check((Popup <> nil) and Popup.IsOpen and (Popup.Items[0] = 'console'),
+      'Completion keeps label separate from kind and signature');
+    Check(Popup.Height - Popup.ClientHeight > 60, 'Completion reserves a documentation and keyboard footer');
+    Check((Editor.Completions[0].Kind = 3) and (Editor.Completions[0].Documentation = Items[0].Documentation),
+      'Completion retains symbol kind and documentation');
     Editor.Perform(WM_KEYDOWN, VK_RETURN, 0); Editor.Perform(WM_CHAR, 13, 0);
     Check(Editor.Text = 'console', 'Enter accepts completion without inserting newline');
     Editor.Undo; Check(Editor.Text = 'con', 'Keyboard completion remains one undo transaction');
@@ -2874,6 +2897,41 @@ begin
   finally Form.Free; end;
 end;
 
+procedure TestFixedPasswordMaskGeometry;
+var Form: TForm; Input: TERDTextInput; First, Last: TPoint; Small, Large, Revealed: Integer;
+  function CaretWidth: Integer;
+  begin
+    Input.SelStart := 0; GetCaretPos(First);
+    Input.SelStart := Length(Input.Text); GetCaretPos(Last); Result := Last.X - First.X;
+  end;
+begin
+  Form := TForm.Create(nil);
+  try
+    Input := TERDTextInput.Create(Form); Input.Parent := Form; Input.SetBounds(0, 0, 440, 80);
+    Input.Text := 'WWWW'; Input.PasswordChar := #$2022; Form.Show; Input.SetFocus;
+    Input.Font.Height := -12; Small := CaretWidth;
+    Input.Font.Height := -24; Large := CaretWidth;
+    Check((Small = Large) and (Small = 4 * MulDiv(8, Input.CurrentPPI, 96)),
+      'Masked password cells keep fixed width across font sizes');
+    Input.PasswordVisible := True; Revealed := CaretWidth;
+    Check(Revealed > Large, 'Revealed password uses the actual font character widths');
+  finally Form.Free; end;
+end;
+
+procedure TestCodeEditorDetachAndDestroy;
+var Form: TForm; Editor: TERDCodeEditor; Bitmap: TBitmap;
+begin
+  Form := TForm.Create(nil); Bitmap := TBitmap.Create;
+  try
+    Editor := TERDCodeEditor.Create(Form); Editor.Parent := Form; Editor.SetBounds(0, 0, 400, 180);
+    Editor.Text := StringOfChar('x', 200); Form.Show; Editor.SetFocus; Editor.RenderTo(Bitmap);
+    Editor.Parent := nil;
+    Editor.Perform(CM_FONTCHANGED, 0, 0);
+    Editor.Free;
+    Check(True, 'Detached editor tears down without recreating an orphan window');
+  finally Bitmap.Free; Form.Free; end;
+end;
+
 procedure TestCodeGutterThemeContrast;
 var Form: TForm; Theme: TERDTheme; Editor: TCodeEditorProbe; C: COLORREF;
   function Brightness(Color: COLORREF): Integer;
@@ -2951,6 +3009,8 @@ begin
         ResultValue.Free; Position := Params.GetValue('position') as TJSONObject;
         Range := TJSONObject.Create.AddPair('start', Position.Clone as TJSONValue).AddPair('end', Position.Clone as TJSONValue);
         Document := TJSONObject.Create.AddPair('label', 'fixtureMember').AddPair('detail', 'transport fixture');
+        Document.AddPair('kind', TJSONNumber.Create(2));
+        Document.AddPair('documentation', TJSONObject.Create.AddPair('kind', 'markdown').AddPair('value', 'Fixture method documentation'));
         Document.AddPair('textEdit', TJSONObject.Create.AddPair('range', Range).AddPair('newText', 'fixtureMember'));
         Items := TJSONArray.Create; Items.AddElement(Document); ResultValue := Items;
       end;
@@ -2976,6 +3036,9 @@ begin
     begin Application.ProcessMessages; CheckSynchronize(0); Sleep(1); end;
     Check((Length(Editor.Completions) = 1) and (Editor.Completions[0].LabelText = 'fixtureMember'),
       'Stdio adapter delivers parsed completion on the UI thread');
+    Check((Editor.Completions[0].Kind = 2) and
+      (Editor.Completions[0].Documentation = 'Fixture method documentation'),
+      'Stdio adapter preserves completion kind and markup documentation text');
     Check(Editor.ApplyCompletion(0), 'Stdio completion replacement range is accepted');
     Check(Pos('fixtureMember', Editor.Text) > 0, 'UTF-8 frames preserve UTF-16 emoji replacement positions');
     Editor.LanguageService := nil; CheckSynchronize(0);
@@ -3018,6 +3081,8 @@ begin
     TestSyntaxAndCodeEditor;
     TestCodeEditorNavigation;
     TestTitleBarMaximizeRouting;
+    TestFixedPasswordMaskGeometry;
+    TestCodeEditorDetachAndDestroy;
     TestCodeGutterThemeContrast;
     TestSharedColorEmoji;
     TestCodeEditorSearch;

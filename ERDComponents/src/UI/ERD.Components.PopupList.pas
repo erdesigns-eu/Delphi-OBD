@@ -29,7 +29,8 @@ uses
   Vcl.Forms,
   Vcl.AppEvnts,
   ERD.Components.Types,
-  ERD.Components.Paint;
+  ERD.Components.Paint,
+  ERD.Components.LanguageServices;
 
 type
   /// <summary>Fires when the popup list closes.</summary>
@@ -43,6 +44,8 @@ type
   TERDPopupList = class(TCustomListBox)
   strict private
     FIsOpen: Boolean;
+    FCompletionMode: Boolean;
+    FCompletionItems: TArray<TERDCompletionItem>;
     FEmptyText: string;
     FOnCloseUp: TERDPopupCloseEvent;
     FPalette: TERDThemePalette;
@@ -63,6 +66,8 @@ type
     procedure SetHotIndex(AValue: Integer);
     procedure InvalidateItem(AIndex: Integer);
     procedure PaintFrame;
+    procedure PaintCompletionFooter(DC: HDC; const Bounds: TRect);
+    function CompletionFooterHeight: Integer;
     procedure PaintRows(ADC: HDC);
     procedure DrawRow(ACanvas: TCanvas; Index: Integer; Rect: TRect; State: TOwnerDrawState);
     function NeedsBar: Boolean;
@@ -113,6 +118,8 @@ type
     /// <summary>Creates the popup list.</summary>
     /// <param name="AOwner">Component owner.</param>
     constructor Create(AOwner: TComponent); override;
+    /// <summary>Enables structured completion rows and the selected-item information footer.</summary>
+    procedure SetCompletionItems(const Values: TArray<TERDCompletionItem>);
     /// <summary>Shows the list under, or above, a field rectangle in screen coordinates.</summary>
     /// <param name="AOwnerControl">Control that owns the popup.</param>
     /// <param name="AFieldRect">Field bounds in screen coordinates.</param>
@@ -162,6 +169,45 @@ begin
   FRowHeight := 24;
   FHotIndex := -1;
   ItemHeight := FRowHeight;
+end;
+
+procedure TERDPopupList.SetCompletionItems(const Values: TArray<TERDCompletionItem>);
+begin
+  FCompletionMode := True; FCompletionItems := Copy(Values); Invalidate;
+end;
+function TERDPopupList.CompletionFooterHeight: Integer;
+begin
+  if FCompletionMode then Result := ScalePixel(88) else Result := 0;
+end;
+procedure TERDPopupList.PaintCompletionFooter(DC: HDC; const Bounds: TRect);
+var Target: TCanvas; Painter: TERDPainter; R, DocRect: TRect;
+    Item: TERDCompletionItem; Signature, Documentation: string;
+begin
+  if not FCompletionMode then Exit;
+  Target := TCanvas.Create;
+  try
+    Target.Handle := DC; Painter := TERDPainter.Create(Target, FPalette, FPPI);
+    try
+      R := Rect(1, Bounds.Bottom - CompletionFooterHeight - 1, Bounds.Right - 1, Bounds.Bottom - 1);
+      Painter.FillRect(R, FPalette.GaugeFace);
+      Painter.HLine(R.Left, R.Top, R.Width, FPalette.NeutralLight);
+      Item := Default(TERDCompletionItem);
+      if (ItemIndex >= 0) and (ItemIndex < Length(FCompletionItems)) then Item := FCompletionItems[ItemIndex];
+      Signature := Item.LabelText;
+      if Item.Detail <> '' then Signature := Signature + '  ' + Item.Detail;
+      if Signature = '' then Signature := 'No suggestions';
+      Painter.Text(R.Left + ScalePixel(10), R.Top + ScalePixel(15), Signature, 12,
+        FPalette.ForegroundText, twMono, taLeftJustify, Max(0, R.Width - ScalePixel(20)));
+      Documentation := Item.Documentation;
+      if Documentation = '' then Documentation := 'No additional documentation.';
+      DocRect := Rect(R.Left + ScalePixel(10), R.Top + ScalePixel(29), R.Right - ScalePixel(10), R.Bottom - ScalePixel(26));
+      Painter.WrapText(DocRect, Documentation, 11.5, FPalette.Subtle);
+      Painter.HLine(R.Left, R.Bottom - ScalePixel(23), R.Width, FPalette.NeutralLight);
+      Painter.Text(R.Left + ScalePixel(10), R.Bottom - ScalePixel(11),
+        'Enter / Tab  accept     ' + #$2191 + ' / ' + #$2193 + '  navigate     Esc  dismiss',
+        11, FPalette.Subtle, twRegular, taLeftJustify, Max(0, R.Width - ScalePixel(20)));
+    finally Painter.Free; end;
+  finally Target.Handle := 0; Target.Free; end;
 end;
 
 function TERDPopupList.ScalePixel(AValue: Integer): Integer;
@@ -293,6 +339,7 @@ begin
   try
     GetWindowRect(Handle, R);
     OffsetRect(R, -R.Left, -R.Top);
+    PaintCompletionFooter(DC, R);
     Brush := CreateSolidBrush(ColorToRGB(FPalette.NeutralLight));
     try
       Winapi.Windows.FrameRect(DC, R, Brush);
@@ -417,9 +464,15 @@ begin
         // Reserve a 1 px non-client frame for the themed border.
         inherited WndProc(Message);
         if TWMNCCalcSize(Message).CalcValidRects then
-          InflateRect(TWMNCCalcSize(Message).CalcSize_Params^.rgrc[0], -1, -1)
+        begin
+          InflateRect(TWMNCCalcSize(Message).CalcSize_Params^.rgrc[0], -1, -1);
+          Dec(TWMNCCalcSize(Message).CalcSize_Params^.rgrc[0].Bottom, CompletionFooterHeight);
+        end
         else
+        begin
           InflateRect(PRect(Message.LParam)^, -1, -1);
+          Dec(PRect(Message.LParam)^.Bottom, CompletionFooterHeight);
+        end;
         Exit;
       end;
     WM_NCPAINT:
@@ -524,7 +577,10 @@ begin
   case Message.Msg of
     WM_KEYDOWN, WM_MOUSEWHEEL, WM_TIMER, WM_LBUTTONDOWN, WM_MOUSEMOVE,
     WM_VSCROLL, LB_SETCURSEL, LB_SETTOPINDEX, LB_RESETCONTENT:
-      CheckTopChanged;
+      begin
+        CheckTopChanged;
+        if FCompletionMode and FIsOpen then PaintFrame;
+      end;
   end;
 end;
 
@@ -602,7 +658,7 @@ begin
   Rows := System.Math.Max(1, System.Math.Min(System.Math.Max(1, AMaxRows),
     System.Math.Max(AItems.Count, 1)));
   W := System.Math.Max(AFieldRect.Width, ScalePixel(40));
-  H := Rows * FRowHeight + 2;
+  H := Rows * FRowHeight + 2 + CompletionFooterHeight;
   X := AFieldRect.Left;
   Y := AFieldRect.Bottom;
 
@@ -618,6 +674,13 @@ begin
     X := Work.Right - W;
   if X < Work.Left then
     X := Work.Left;
+
+  if FCompletionMode then
+  begin
+    W := Min(W, Work.Width); H := Min(H, Work.Height);
+    X := EnsureRange(X, Work.Left, Max(Work.Left, Work.Right - W));
+    Y := EnsureRange(Y, Work.Top, Max(Work.Top, Work.Bottom - H));
+  end;
 
   // Position the list before it gets a parent: assigning the parent
   // creates and shows the window at its current Left/Top, which for a new
@@ -759,6 +822,7 @@ var
   Fill, Ink: TColor;
   Weight: TERDTextWeight;
   Selected, Hot: Boolean;
+  KindWidth, NameWidth, Available, NameX, DetailX: Integer; Item: TERDCompletionItem;
 begin
   P := TERDPainter.Create(ACanvas, FPalette, FPPI);
   try
@@ -793,10 +857,23 @@ begin
       P.FillRect(System.Types.Rect(Rect.Left, Rect.Top + ScalePixel(4),
         Rect.Left + ScalePixel(3), Rect.Bottom - ScalePixel(4)),
         FPalette.Accent);
-    P.Text(Rect.Left + ScalePixel(8), Rect.Top + Rect.Height div 2,
+    if FCompletionMode and (Index >= 0) and (Index < Length(FCompletionItems)) then
+    begin
+      Item := FCompletionItems[Index];
+      KindWidth := ScalePixel(90); Available := Max(0, Rect.Width - KindWidth - ScalePixel(24));
+      NameWidth := Min(ScalePixel(210), Available div 2);
+      NameX := Rect.Left + ScalePixel(10) + KindWidth; DetailX := NameX + NameWidth + ScalePixel(8);
+      P.Text(Rect.Left + ScalePixel(10), Rect.Top + Rect.Height div 2,
+        ERDCompletionKindText(Item.Kind), 11.5, P.AccentText, twRegular, taLeftJustify, KindWidth - ScalePixel(8));
+      P.Text(NameX, Rect.Top + Rect.Height div 2, Item.LabelText, 12,
+        Ink, twMonoBold, taLeftJustify, NameWidth);
+      P.Text(DetailX, Rect.Top + Rect.Height div 2, Item.Detail, 11.5,
+        FPalette.Subtle, twMono, taLeftJustify, Max(0, Rect.Right - DetailX - ScalePixel(8)));
+    end
+    else P.Text(Rect.Left + ScalePixel(8), Rect.Top + Rect.Height div 2,
       Items[Index], 12.5, Ink, Weight, taLeftJustify,
       System.Math.Max(0, Rect.Width - ScalePixel(16)));
-    P.HLine(Rect.Left, Rect.Bottom - 1, Rect.Width, FPalette.NeutralLight);
+    if not FCompletionMode then P.HLine(Rect.Left, Rect.Bottom - 1, Rect.Width, FPalette.NeutralLight);
   finally
     P.Free;
   end;

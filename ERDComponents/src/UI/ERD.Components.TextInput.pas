@@ -12,8 +12,9 @@ type
   TERDTextLayoutLine = class
   private
     FDirectWrite: TERDDirectWriteLine;
+    FMaskAdvance, FMaskCount, FMaskHeight: Integer;
   public
-    constructor Create(ACanvas: TCanvas; const AText: UnicodeString);
+    constructor Create(ACanvas: TCanvas; const AText: UnicodeString; AMaskAdvance: Integer = 0);
     destructor Destroy; override;
     function X(APosition: Integer): Integer;
     function Width: Integer;
@@ -70,6 +71,7 @@ type
     procedure SetSelStart(AValue: Integer);
     procedure SetSelLength(AValue: Integer);
     function DisplayText: UnicodeString;
+    function CreateDisplayLine(ACanvas: TCanvas; const Value: UnicodeString): TERDTextLayoutLine;
     function DisplayPosition(APosition: Integer): Integer;
     procedure PaintDisplayLine(ACanvas: TCanvas; Line: TERDTextLayoutLine;
       X, Y, MaskCount: Integer);
@@ -229,22 +231,39 @@ type
   end;
 function ScriptBreak(Text: PWideChar; Count: Integer; Analysis, Attributes: Pointer): HRESULT;
   stdcall; external 'usp10.dll';
-constructor TERDTextLayoutLine.Create(ACanvas: TCanvas; const AText: UnicodeString);
+constructor TERDTextLayoutLine.Create(ACanvas: TCanvas; const AText: UnicodeString; AMaskAdvance: Integer);
 begin
   inherited Create;
+  FMaskAdvance := Max(0, AMaskAdvance); FMaskCount := Length(AText);
+  if FMaskAdvance > 0 then
+  begin FMaskHeight := ACanvas.TextHeight('Mg'); Exit; end;
   SelectObject(ACanvas.Handle, ACanvas.Font.Handle);
   FDirectWrite := TERDDirectWriteLine.Create(ACanvas, AText);
 end;
 destructor TERDTextLayoutLine.Destroy;
 begin FDirectWrite.Free; inherited; end;
 function TERDTextLayoutLine.X(APosition: Integer): Integer;
-begin Result := FDirectWrite.X(APosition); end;
+begin
+  if FMaskAdvance > 0 then Result := EnsureRange(APosition, 0, FMaskCount) * FMaskAdvance
+  else Result := FDirectWrite.X(APosition);
+end;
 function TERDTextLayoutLine.Width: Integer;
-begin Result := FDirectWrite.Width; end;
+begin
+  if FMaskAdvance > 0 then Result := FMaskCount * FMaskAdvance
+  else Result := FDirectWrite.Width;
+end;
 procedure TERDTextLayoutLine.Range(APosition, ALength: Integer; out ALeft, ARight: Integer);
-begin FDirectWrite.Range(APosition, ALength, ALeft, ARight); end;
+begin
+  if FMaskAdvance > 0 then
+  begin
+    APosition := EnsureRange(APosition, 0, FMaskCount);
+    ALength := EnsureRange(ALength, 0, FMaskCount - APosition);
+    ALeft := APosition * FMaskAdvance; ARight := (APosition + ALength) * FMaskAdvance;
+  end
+  else FDirectWrite.Range(APosition, ALength, ALeft, ARight);
+end;
 procedure TERDTextLayoutLine.Draw(AX, AY: Integer);
-begin FDirectWrite.Draw(AX, AY); end;
+begin if FDirectWrite <> nil then FDirectWrite.Draw(AX, AY); end;
 function ERDDrawLayoutText(ACanvas: TCanvas; const Text: UnicodeString; X, Y: Integer): Integer;
 var Line: TERDTextLayoutLine;
 begin
@@ -319,7 +338,7 @@ begin Result := Copy(Text, SelStart + 1, SelLength); end;
 procedure TERDTextInput.CMFontChanged(var Message: TMessage);
 begin
   inherited;
-  if FModel = nil then Exit;
+  if (FModel = nil) or (csDestroying in ComponentState) or (Parent = nil) then Exit;
   if FCaretCreated then
   begin
     DestroyCaret; Canvas.Font.Assign(Font);
@@ -429,6 +448,14 @@ procedure TERDTextInput.SetSelStart(AValue: Integer);
 begin FModel.Select(AValue, AValue); UpdateCaret; Invalidate; end;
 procedure TERDTextInput.SetSelLength(AValue: Integer);
 begin FModel.Select(SelStart, SelStart + Max(0, AValue)); UpdateCaret; Invalidate; end;
+function TERDTextInput.CreateDisplayLine(ACanvas: TCanvas; const Value: UnicodeString): TERDTextLayoutLine;
+var Advance: Integer;
+begin
+  Advance := 0;
+  if not FPasswordVisible and ((FPasswordChar = #$2022) or (FPasswordChar = #$25CF)) then
+    Advance := Max(1, ScaleValue(8));
+  Result := TERDTextLayoutLine.Create(ACanvas, Value, Advance);
+end;
 function TERDTextInput.DisplayText: UnicodeString;
 begin
   if (FPasswordChar <> #0) and not FPasswordVisible then
@@ -447,9 +474,10 @@ end;
 procedure TERDTextInput.UpdateCaret;
 var Line: TERDTextLayoutLine; X, H: Integer; C: HIMC; Form: TCompositionForm;
 begin
-  if FCreatingWindow or not HandleAllocated or (FModel = nil) then Exit;
+  if FCreatingWindow or (csDestroying in ComponentState) or (Parent = nil) or
+    not HandleAllocated or (FModel = nil) then Exit;
   Canvas.Font.Assign(Font); H := Canvas.TextHeight('Mg');
-  Line := TERDTextLayoutLine.Create(Canvas, DisplayText);
+  Line := CreateDisplayLine(Canvas, DisplayText);
   try
     X := Line.X(DisplayPosition(FModel.Caret));
     if X - FScroll > ClientWidth - 2 * TextInset then FScroll := X - ClientWidth + 2 * TextInset;
@@ -551,7 +579,7 @@ end;
 function TERDTextInput.HitPosition(X: Integer): Integer;
 var Line: TERDTextLayoutLine; Candidate, Before, After, TextX: Integer;
 begin
-  Canvas.Font.Assign(Font); Line := TERDTextLayoutLine.Create(Canvas, DisplayText);
+  Canvas.Font.Assign(Font); Line := CreateDisplayLine(Canvas, DisplayText);
   try
     TextX := X - LineOrigin(Line.Width) + FScroll; Candidate := Line.Hit(TextX);
     if (FPasswordChar <> #0) and not FPasswordVisible then
@@ -563,26 +591,38 @@ begin
   finally Line.Free; end;
 end;
 function TERDTextLayoutLine.Hit(X: Integer): Integer;
-begin Result := FDirectWrite.Hit(X); end;
+begin
+  if FMaskAdvance > 0 then Result := EnsureRange((Max(0, X) + FMaskAdvance div 2) div FMaskAdvance, 0, FMaskCount)
+  else Result := FDirectWrite.Hit(X);
+end;
 function TERDTextLayoutLine.VisualRanges(Position, Count: Integer): TArray<TRect>;
-begin Result := FDirectWrite.VisualRanges(Position, Count); end;
+begin
+  if FMaskAdvance > 0 then
+  begin
+    Result := nil; if Count <= 0 then Exit;
+    SetLength(Result, 1); Range(Position, Count, Result[0].Left, Result[0].Right);
+    Result[0].Top := 0; Result[0].Bottom := FMaskHeight;
+  end
+  else Result := FDirectWrite.VisualRanges(Position, Count);
+end;
 procedure TERDTextInput.PaintDisplayLine(ACanvas: TCanvas; Line: TERDTextLayoutLine;
   X, Y, MaskCount: Integer);
-var Painter: TERDPainter; I, L, R, H: Integer; Diameter: Single; Ink: TColor;
+var Painter: TERDPainter; I, L, R, H, Diameter, DotLeft, DotTop: Integer; Ink: TColor;
 begin
   if FPasswordVisible or not ((FPasswordChar = #$2022) or (FPasswordChar = #$25CF)) then
   begin Line.Draw(X, Y); Exit; end;
-  // Keep shaped advances for caret/hit testing, but paint font-independent circles.
+  // The mask uses fixed logical-pixel cells, shared by drawing and hit testing.
   Ink := TColor(GetTextColor(ACanvas.Handle)); H := ACanvas.TextHeight('Mg');
+  Diameter := Max(1, ScaleValue(4));
+  DotTop := Y + (H - Diameter) div 2;
   Painter := TERDPainter.Create(ACanvas, Palette, ScaleValue(96));
   try
     for I := 0 to MaskCount - 1 do
     begin
       L := Line.X(I); R := Line.X(I + 1);
-      Diameter := Min(H * 0.30, Abs(R - L) * 0.75);
-      if Diameter <= 0 then Continue;
-      Painter.Ellipse(X + (L + R) * 0.5 - Diameter * 0.5,
-        Y + H * 0.5 - Diameter * 0.5, Diameter, Diameter, Ink, clNone);
+      // Identical dimensions and pixel phase keep antialiasing consistent.
+      DotLeft := Round(X + (L + R) * 0.5 - Diameter * 0.5);
+      Painter.Ellipse(DotLeft, DotTop, Diameter, Diameter, Ink, clNone);
     end;
   finally Painter.Free; end;
 end;
@@ -643,7 +683,7 @@ begin
     end
     else
     begin
-      Line := TERDTextLayoutLine.Create(ACanvas, S);
+      Line := CreateDisplayLine(ACanvas, S);
       try
         PaintDisplayLine(ACanvas, Line, LineOrigin(Line.Width) - FScroll, Y, Length(S));
         if (Focused or not FHideSelection) and (SelLength > 0) then
@@ -656,7 +696,7 @@ begin
           S := FComposition;
           if (FPasswordChar <> #0) and not FPasswordVisible then
             S := StringOfChar(FPasswordChar, Length(ERDGraphemeBoundaries(S)) - 1);
-          CompositionLine := TERDTextLayoutLine.Create(ACanvas, S);
+          CompositionLine := CreateDisplayLine(ACanvas, S);
           try
             H := CompositionLine.Width;
             PaintDisplayLine(ACanvas, CompositionLine, L, Y, Length(S));
@@ -1158,7 +1198,8 @@ begin Result := Copy(Text, FRows[Index].Start + 1, FRows[Index].Count); end;
 procedure TERDTextArea.UpdateCaret;
 var Row, H, X, Y, Page: Integer; Line: TERDTextLayoutLine; C: HIMC; Form: TCompositionForm;
 begin
-  if FCreatingWindow or not HandleAllocated or (FModel = nil) then Exit;
+  if FCreatingWindow or (csDestroying in ComponentState) or (Parent = nil) or
+    not HandleAllocated or (FModel = nil) then Exit;
   BuildRows; Row := RowForPosition(FModel.Caret); H := RowHeight;
   Page := VisibleRowCount;
   if Row < FFirstRow then FFirstRow := Row;

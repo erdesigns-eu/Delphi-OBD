@@ -190,7 +190,7 @@ by whole lines, and Shift-click extends from the anchor line. Fold buttons keep
 their toggle behaviour.
 
 The shared input paints bullet password masks (`#$2022` / `#$25CF`) as
-antialiased circles, independent of the font's bullet shape. Layout advances
+antialiased circles, independent of the font's bullet shape. Fixed mask advances
 remain shared with caret positioning and hit testing. Selection and IME masking
 use the same circles; custom password characters retain their configured glyph.
 
@@ -242,3 +242,32 @@ The horizontal bar returns its height to the viewport when the text fits; editin
 resizing and minimap visibility update that decision. The minimap code outside the
 sliding window composites at 70% opacity; the window restores the underlying code
 to full opacity before applying its subtle hover/pressed tint.
+
+## Structured completion window
+
+Completion now separates the symbol kind, bold name and signature/type into
+columns. The selected item's signature and documentation appear below the list,
+followed by Enter/Tab, arrow-key and Escape hints. Long text is clipped to the
+popup width, which is limited to the monitor work area. The list keeps focus in
+the editor and retains its existing keyboard/mouse acceptance behaviour.
+
+`TERDCompletionItem.Kind` uses LSP CompletionItemKind values (zero is unspecified).
+The stdio adapter preserves that value and accepts both documentation strings
+and MarkupContent values; markup is displayed as text. The demo supplies sample
+kinds/signatures, while compiler results use the metadata actually provided by
+the server. Other controls keep the plain popup-list presentation.
+
+Minimap strokes start below the top border, aligned with the text inset. Editor
+navigation/layout and caret refresh stop when the editor is detached or being
+destroyed, preventing a late attempt to recreate a parentless window on close.
+Windows smoke checks cover structured completion metadata/footer space and
+parent detachment before destruction; they remain unrun in the Linux environment.
+
+Password bullet circles use one fixed pixel diameter and the same pixel alignment
+throughout a line, preventing rounded character advances from changing dot sizes.
+Explicit editable-ComboBox selection commits the item's original casing even
+when autocomplete has already assigned that item index.
+
+Masked bullet passwords use a fixed 4-logical-pixel dot in an 8-logical-pixel
+character cell (scaled for DPI), independent of the text font size. Revealing the
+password switches back to normal font shaping and natural character widths.

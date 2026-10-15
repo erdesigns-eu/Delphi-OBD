@@ -12,6 +12,7 @@ type
   end;
   TERDCompletionItem = record
     LabelText, InsertText, Detail, Documentation: UnicodeString;
+    Kind: Integer; // LSP CompletionItemKind; zero means unspecified.
     Start, Count: Integer; // Zero-based UTF-16 replacement range; plain text insertion.
   end;
   TERDDefinitionTarget = record
@@ -35,5 +36,20 @@ type
     ['{A2F64377-887F-45B5-8189-C9406A9E8570}']
     procedure DocumentChanged(const Uri, Text: UnicodeString; Version: Int64);
   end;
+function ERDCompletionKindText(Kind: Integer): string;
 implementation
+function ERDCompletionKindText(Kind: Integer): string;
+begin
+  case Kind of
+    1: Result := 'text'; 2: Result := 'method'; 3: Result := 'function';
+    4: Result := 'constructor'; 5: Result := 'field'; 6: Result := 'variable';
+    7: Result := 'class'; 8: Result := 'interface'; 9: Result := 'module';
+    10: Result := 'property'; 11: Result := 'unit'; 12: Result := 'value';
+    13: Result := 'enum'; 14: Result := 'keyword'; 15: Result := 'snippet';
+    16: Result := 'colour'; 17: Result := 'file'; 18: Result := 'reference';
+    19: Result := 'folder'; 20: Result := 'enum member'; 21: Result := 'constant';
+    22: Result := 'struct'; 23: Result := 'event'; 24: Result := 'operator';
+    25: Result := 'type parameter';
+  else Result := 'symbol'; end;
+end;
 end.

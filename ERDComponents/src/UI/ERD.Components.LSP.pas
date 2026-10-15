@@ -468,7 +468,12 @@ begin
             begin
               if JsonInt(Item, 'insertTextFormat', 1) <> 1 then Continue;
               Completion := Default(TERDCompletionItem); Completion.LabelText := JsonText(Item, 'label');
-              Completion.Detail := JsonText(Item, 'detail'); Completion.Documentation := JsonText(Item, 'documentation');
+              Completion.Kind := Integer(EnsureRange(JsonInt(Item, 'kind'), Int64(0), Int64(25)));
+              Completion.Detail := JsonText(Item, 'detail');
+              if Completion.Detail = '' then Completion.Detail := JsonText(JsonValue(Item, 'labelDetails'), 'detail');
+              Completion.Documentation := JsonText(Item, 'documentation');
+              if Completion.Documentation = '' then
+                Completion.Documentation := JsonText(JsonValue(Item, 'documentation'), 'value');
               Edit := JsonValue(Item, 'textEdit'); Range := JsonValue(Edit, 'range');
               if Range <> nil then
               begin
