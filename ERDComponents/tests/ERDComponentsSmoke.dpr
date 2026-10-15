@@ -36,6 +36,7 @@ type
   public
     function RowCount: Integer;
     procedure FoldMouse(Action: Integer; Outside: Boolean = False);
+    procedure GutterMouse(Action, Row: Integer; Shift: Boolean = False);
     function FoldPixel(Guide: Boolean): TColor;
     function GutterBackground: TColor;
   end;
@@ -291,6 +292,19 @@ begin
     0: Perform(WM_MOUSEMOVE, 0, MakeLParam(X, Y));
     1: Perform(WM_LBUTTONDOWN, MK_LBUTTON, MakeLParam(X, Y));
     2: Perform(WM_LBUTTONUP, 0, MakeLParam(X, Y));
+  end;
+end;
+procedure TCodeEditorProbe.GutterMouse(Action, Row: Integer; Shift: Boolean);
+var View: TRect; X, Y: Integer; Flags: WPARAM;
+begin
+  View := TextViewport; X := View.Left - ScaleValue(30);
+  Y := View.Top + Row * RowHeight + RowHeight div 2;
+  Flags := 0; if Shift then Flags := MK_SHIFT;
+  case Action of
+    0: Perform(WM_LBUTTONDOWN, Flags or MK_LBUTTON, MakeLParam(X, Y));
+    1: Perform(WM_MOUSEMOVE, Flags or MK_LBUTTON, MakeLParam(X, Y));
+    2: Perform(WM_LBUTTONUP, Flags, MakeLParam(X, Y));
+    3: Perform(WM_LBUTTONDBLCLK, Flags or MK_LBUTTON, MakeLParam(X, Y));
   end;
 end;
 function TCodeEditorProbe.GutterBackground: TColor;
@@ -2482,6 +2496,23 @@ begin
     Editor.SetBounds(8, 8, 480, 180); Form.Show; Editor.SetFocus;
     Original := 'function run() {' + #13#10 + '  return true;' + #13#10 + '}' + #13#10;
     Editor.Text := Original; Editor.SelStart := 0; Rows := Editor.RowCount;
+    Editor.GutterMouse(0, 1); Editor.GutterMouse(2, 1);
+    Check(Editor.SelText = '  return true;' + #13#10, 'Gutter click selects a logical line including its newline');
+    Editor.GutterMouse(3, 1); Editor.GutterMouse(2, 1);
+    Check(Editor.SelText = '  return true;' + #13#10, 'Gutter double click keeps the whole line selected');
+    Editor.GutterMouse(0, 0); Editor.GutterMouse(1, 1); Editor.GutterMouse(2, 1);
+    Check(Editor.SelText = 'function run() {' + #13#10 + '  return true;' + #13#10,
+      'Dragging in gutter selects whole logical lines');
+    Editor.GutterMouse(0, 2); Editor.GutterMouse(1, 1); Editor.GutterMouse(2, 1);
+    Check(Editor.SelText = '  return true;' + #13#10 + '}' + #13#10,
+      'Upward gutter drag includes both anchor and target lines');
+    Editor.GutterMouse(0, 0, True); Editor.GutterMouse(2, 0, True);
+    Check(Editor.SelText = Original, 'Shift gutter click keeps the original anchor line when extending upward');
+    Editor.Text := 'first' + #13#10 + 'last';
+    Editor.GutterMouse(0, 1); Editor.GutterMouse(2, 1);
+    Check(Editor.SelText = 'last', 'Final line without a newline selects to document end');
+    Editor.Text := Original; Editor.SelStart := 0;
+
     Editor.ShowFoldGuides := True;
     Check(Editor.FoldPixel(True) <> Editor.GutterBackground, 'Expanded fold has a visible connector');
     Editor.ShowFoldGuides := False;

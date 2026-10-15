@@ -183,3 +183,8 @@ the indicator.
 Multiline text and selected-text repainting share a vertically centred origin
 within each row. `SelectionPadding` is applied above and below the font box;
 caret, line numbers and IME composition text follow that origin.
+
+Clicking the line-number gutter selects the logical line including its newline;
+double-clicking keeps line selection instead of selecting a word. Dragging extends
+by whole lines, and Shift-click extends from the anchor line. Fold buttons keep
+their toggle behaviour.

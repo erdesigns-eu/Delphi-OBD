@@ -60,6 +60,8 @@ type
     FCollapsed: TList<Integer>;
     FShowLineNumbers, FShowFolding, FShowFoldGuides: Boolean;
     FHotFold, FPressedFold: Integer;
+    FSelectingLines, FLastGutterDown: Boolean;
+    FLineAnchorStart, FLineAnchorFinish: Integer;
     FHandlingFoldRelease: Boolean;
     FTabWidth: Integer;
     FInterfaceKeywordColor, FClassKeywordColor, FModuleKeywordColor: TColor;
@@ -126,6 +128,8 @@ type
     function FoldHiddenFinish(const Fold: TERDSyntaxFold): Integer;
     function FoldIndex(Position: Integer): Integer;
     function LineStart(Position: Integer): Integer;
+    function LineFinish(Position: Integer): Integer;
+    procedure SelectGutterLine(Y: Integer; Extend: Boolean);
     procedure WMChar(var Message: TWMChar); message WM_CHAR;
   protected
     function TextViewport: TRect; override;
@@ -139,6 +143,7 @@ type
     procedure PaintControl(ACanvas: TCanvas); override;
     procedure UpdateCaret; override;
     procedure DoExit; override;
+    procedure DblClick; override;
     procedure Changed(const ABefore: UnicodeString); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
     procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
@@ -333,6 +338,7 @@ procedure TERDCodeEditor.SetDocumentUri(const Value: UnicodeString);
 begin if FDocumentUri = Value then Exit; CancelLanguageRequests; FDocumentUri := Value; Inc(FVersion); SyncLanguageDocument; end;
 procedure TERDCodeEditor.DoExit;
 begin
+  FSelectingLines := False; FLastGutterDown := False;
   FHotFold := -1;
   if FPressedFold >= 0 then begin FPressedFold := -1; MouseCapture := False; end;
   CancelLanguageRequests; inherited;
@@ -765,6 +771,34 @@ begin
   Result := EnsureRange(Position, 0, Length(Text));
   while (Result > 0) and (Text[Result] <> #10) do Dec(Result);
 end;
+function TERDCodeEditor.LineFinish(Position: Integer): Integer;
+begin
+  Result := EnsureRange(Position, 0, Length(Text));
+  while (Result < Length(Text)) and (Text[Result + 1] <> #10) do Inc(Result);
+  if Result < Length(Text) then Inc(Result);
+end;
+procedure TERDCodeEditor.SelectGutterLine(Y: Integer; Extend: Boolean);
+var Rows: TArray<TERDTextRow>; Row, Start, Finish: Integer;
+begin
+  Rows := VisualRows; if Length(Rows) = 0 then Exit;
+  if Y < TextViewport.Top then Row := FirstVisibleRow - 1
+  else Row := FirstVisibleRow + (Y - TextViewport.Top) div RowHeight;
+  Row := EnsureRange(Row, 0, High(Rows));
+  Start := LineStart(Rows[Row].Start); Finish := LineFinish(Start);
+  if not Extend then
+  begin FLineAnchorStart := Start; FLineAnchorFinish := Finish; end;
+  if Start < FLineAnchorStart then TextModel.Select(FLineAnchorFinish, Start)
+  else TextModel.Select(FLineAnchorStart, Finish);
+  UpdateCaret; Invalidate;
+  if Assigned(OnSelectionChange) then OnSelectionChange(Self);
+end;
+procedure TERDCodeEditor.DblClick;
+begin
+  // VCL also dispatches DblClick for gutter clicks; avoid base word selection.
+  if FLastGutterDown then
+  begin if Assigned(OnDblClick) then OnDblClick(Self); Exit; end;
+  inherited;
+end;
 function TERDCodeEditor.FoldHiddenStart(const Fold: TERDSyntaxFold): Integer;
 begin
   Result := Fold.Start;
@@ -859,6 +893,7 @@ procedure TERDCodeEditor.Changed(const ABefore: UnicodeString);
 begin
   if ABefore <> Text then
   begin
+    FLineAnchorFinish := 0;
     FHotFold := -1;
     if FPressedFold >= 0 then begin FPressedFold := -1; MouseCapture := False; end;
     Inc(FVersion); CancelLanguageRequests;
@@ -1144,15 +1179,28 @@ begin
   finally Painter.Free; RestoreDC(ACanvas.Handle, Saved); end;
 end;
 procedure TERDCodeEditor.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var Fold: Integer; View: TRect;
+var Fold: Integer; View, OuterView: TRect;
 begin
-  View := TextViewport; Fold := FoldAtPoint(X, Y);
+  View := TextViewport; OuterView := inherited TextViewport; Fold := FoldAtPoint(X, Y);
+  FLastGutterDown := (Button = mbLeft) and (X >= OuterView.Left) and (X < View.Left) and
+    (Y >= View.Top) and (Y < View.Bottom);
   if (Button = mbLeft) and (Fold >= 0) then
   begin
     SetFocus; FPressedFold := Fold; FHotFold := Fold; MouseCapture := True;
     Invalidate; Exit;
   end;
-  if FShowFolding and (X >= View.Left - ScaleValue(20)) and (X < View.Left) then Exit;
+  if FLastGutterDown then
+  begin
+    SetFocus;
+    if (ssShift in Shift) and not ((FLineAnchorFinish > FLineAnchorStart) and
+      ((TextModel.Anchor = FLineAnchorStart) or (TextModel.Anchor = FLineAnchorFinish))) then
+    begin
+      FLineAnchorStart := LineStart(TextModel.Anchor);
+      FLineAnchorFinish := LineFinish(FLineAnchorStart);
+    end;
+    SelectGutterLine(Y, ssShift in Shift);
+    FSelectingLines := True; MouseCapture := True; Exit;
+  end;
   inherited MouseDown(Button, Shift, X, Y);
 end;
 procedure TERDCodeEditor.MouseMove(Shift: TShiftState; X, Y: Integer);
@@ -1164,11 +1212,15 @@ begin
   if (X < View.Left) and (X >= OuterView.Left) then Cursor := crArrow
   else Cursor := crIBeam;
   if FPressedFold >= 0 then Exit;
+  if FSelectingLines then
+  begin if MouseCapture then SelectGutterLine(Y, True); Exit; end;
   inherited MouseMove(Shift, X, Y);
 end;
 procedure TERDCodeEditor.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var Fold: Integer;
 begin
+  if (Button = mbLeft) and FSelectingLines then
+  begin FSelectingLines := False; MouseCapture := False; Exit; end;
   if (Button = mbLeft) and (FPressedFold >= 0) then
   begin
     Fold := FPressedFold; FPressedFold := -1; MouseCapture := False;
@@ -1204,7 +1256,8 @@ end;
 procedure TERDCodeEditor.WMCaptureChanged(var Message: TMessage);
 begin
   inherited;
-  if not FHandlingFoldRelease then FPressedFold := -1;
+  if not FHandlingFoldRelease then
+  begin FPressedFold := -1; FSelectingLines := False; end;
   Invalidate;
 end;
 procedure TERDCodeEditor.IndentSelection(Outdent: Boolean);
