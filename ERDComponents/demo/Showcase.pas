@@ -49,6 +49,7 @@ uses
   Winapi.Windows,
   System.Classes,
   System.SysUtils,
+  System.Math,
   System.Types,
   Vcl.Forms,
   Vcl.Controls,
