@@ -4,7 +4,7 @@
 interface
 uses Winapi.Windows, Winapi.Messages, System.Classes, System.SysUtils,
   System.Types, System.UITypes, System.Math, System.Character, System.Generics.Collections, Vcl.Controls,
-  Vcl.Graphics, Vcl.Forms, Vcl.StdCtrls, ERD.Components.Control, ERD.Components.TextInput, ERD.Components.Syntax, ERD.Components.LanguageServices, ERD.Components.PopupList, ERD.Components.ScrollBar;
+  Vcl.Graphics, Vcl.Forms, Vcl.AppEvnts, Vcl.StdCtrls, ERD.Components.Control, ERD.Components.TextInput, ERD.Components.Syntax, ERD.Components.LanguageServices, ERD.Components.PopupList, ERD.Components.ScrollBar;
 type
   TERDCodeEditor = class;
   TERDKeywordColor = class(TCollectionItem)
@@ -51,6 +51,7 @@ type
   end;
   TERDCodeEditor = class(TERDTextArea)
   private
+    FKeyboardEvents: TApplicationEvents;
     FLanguage: TERDCodeLanguage;
     FProvider: IERDSyntaxProvider;
     FKeywordColors: TERDKeywordColors;
@@ -111,6 +112,7 @@ type
     procedure SetMinimapWidth(Value: Integer);
     function NavigationAt(X, Y: Integer): Integer;
     function MinimapViewportRect: TRect;
+    function MinimapTopPadding(Height: Integer): Integer;
     function NavigationWidth: Integer;
     procedure NavigatePointer(X, Y: Integer);
     function NavigationMouseDown(X, Y: Integer): Boolean;
@@ -146,6 +148,7 @@ type
     procedure WMLButtonUp(var Message: TWMLButtonUp); message WM_LBUTTONUP;
     procedure WMGetDlgCode(var Message: TMessage); message WM_GETDLGCODE;
     procedure CMDialogKey(var Message: TCMDialogKey); message CM_DIALOGKEY;
+    procedure KeyboardMessage(var Msg: TMsg; var Handled: Boolean);
     procedure CNKeyDown(var Message: TWMKeyDown); message CN_KEYDOWN;
     procedure SetTabWidth(Value: Integer);
     procedure SetInterfaceKeywordColor(Value: TColor);
@@ -161,6 +164,8 @@ type
   protected
     procedure NavigationRects(out Vertical, Horizontal, Map: TRect);
     function TextViewport: TRect; override;
+    function GutterBackgroundColor: TColor;
+    function MinimapBackgroundColor: TColor;
     procedure FilterRows(var Rows: TArray<TERDTextRow>); override;
     procedure PaintTextLine(ACanvas: TCanvas; Start, Count, X, Y: Integer;
       Line: TERDTextLayoutLine); override;
@@ -282,31 +287,31 @@ begin
     skInterfaceKeyword:
       begin
         Result := FInterfaceKeywordColor;
-        if Result = clDefault then if Dark then Result := $00FFD080 else Result := $00AA5500;
+        if Result = clDefault then if Dark then Result := $00FFAE55 else Result := $00B34B00;
       end;
     skClassKeyword:
       begin
         Result := FClassKeywordColor;
-        if Result = clDefault then if Dark then Result := $00B0DF70 else Result := $006E7800;
+        if Result = clDefault then if Dark then Result := $009EDB4E else Result := $00606D00;
       end;
     skModuleKeyword:
       begin
         Result := FModuleKeywordColor;
-        if Result = clDefault then if Dark then Result := $00E8A8C8 else Result := $00802080;
+        if Result = clDefault then if Dark then Result := $00E078D4 else Result := $00900080;
       end;
   else
     if Pos('|' + Word + '|', '|any|bigint|boolean|intrinsic|never|number|object|string|symbol|unique|unknown|void|') > 0 then
-    begin if Dark then Result := $00FFD080 else Result := $00AA5500; end
+    begin if Dark then Result := $00FFAE55 else Result := $00B34B00; end
     else if Pos('|' + Word + '|', '|break|case|catch|continue|debugger|default|do|else|finally|for|if|return|switch|throw|try|while|yield|await|') > 0 then
-    begin if Dark then Result := $00E8A8C8 else Result := $00802080; end
+    begin if Dark then Result := $00E078D4 else Result := $00900080; end
     else if Pos('|' + Word + '|', '|abstract|accessor|async|declare|out|override|private|protected|public|readonly|static|') > 0 then
-    begin if Dark then Result := $00D8BEA0 else Result := $00906040; end
+    begin if Dark then Result := $006CC9F0 else Result := $00006CA0; end
     else if Pos('|' + Word + '|', '|const|constructor|enum|function|get|global|let|namespace|package|set|type|using|var|module|') > 0 then
-    begin if Dark then Result := $00B0DF70 else Result := $006E7800; end
+    begin if Dark then Result := $009EDB4E else Result := $00606D00; end
     else if Pos('|' + Word + '|', '|true|false|null|undefined|this|super|') > 0 then
-      Result := Palette.Warning
+      begin if Dark then Result := $0050CFFF else Result := $000066A0; end
     else if Pos('|' + Word + '|', '|as|asserts|delete|extends|implements|in|infer|instanceof|is|keyof|new|of|satisfies|typeof|') > 0 then
-    begin if Dark then Result := $00E0A0F0 else Result := $00903090; end;
+    begin if Dark then Result := $00758FFF else Result := $003322B0; end;
   end;
 end;
 class function TERDCodeEditor.FoldInteractionRevision: Integer;
@@ -347,10 +352,13 @@ begin
   FProvider := TERDBasicSyntaxProvider.Create(FLanguage);
   WordWrap := False; WantTabs := True; AutoSelect := False;
   Font.Name := 'Consolas';
+  FKeyboardEvents := TApplicationEvents.Create(Self);
+  FKeyboardEvents.OnMessage := KeyboardMessage;
 end;
 destructor TERDCodeEditor.Destroy;
 begin
   FDestroyingEditor := True;
+  FreeAndNil(FKeyboardEvents);
   if FResponseObject <> nil then FResponseObject.Detach;
   CancelLanguageRequests; FResponses := nil; FResponseObject := nil;
   if FCompletionPopup <> nil then FCompletionPopup.OnCloseUp := nil;
@@ -625,18 +633,21 @@ begin
     Inner.Bottom := Horizontal.Top;
     if not IsRectEmpty(Vertical) then Vertical.Bottom := Inner.Bottom;
   end;
-  if Width > 0 then Map := Rect(Inner.Right - Width,
-    Min(Inner.Bottom, Max(Inner.Top, Base.Top + ScaleValue(SelectionPadding))), Inner.Right, Inner.Bottom);
+  if Width > 0 then Map := Rect(Inner.Right - Width, Inner.Top, Inner.Right, Inner.Bottom);
 end;
+function TERDCodeEditor.MinimapTopPadding(Height: Integer): Integer;
+begin Result := Min(Max(0, Height), ScaleValue(6)); end;
 function TERDCodeEditor.MinimapViewportRect: TRect;
-var Vertical, Horizontal, Map: TRect; Rows: TArray<TERDTextRow>; MapHeight, Top, Bottom: Integer;
+var Vertical, Horizontal, Map: TRect; Rows: TArray<TERDTextRow>; MapHeight, Top, Bottom, Padding: Integer;
 begin
   Result := Rect(0, 0, 0, 0); NavigationRects(Vertical, Horizontal, Map);
   if IsRectEmpty(Map) then Exit;
   Rows := VisualRows; if Length(Rows) = 0 then Exit;
-  MapHeight := Min(Map.Height, Length(Rows) * ScaleValue(3));
-  Top := Map.Top + MulDiv(FirstVisibleRow, MapHeight, Length(Rows));
-  Bottom := Map.Top + MulDiv(Min(Length(Rows), FirstVisibleRow + VisibleRowCount), MapHeight, Length(Rows));
+  Padding := MinimapTopPadding(Map.Height);
+  MapHeight := Min(Map.Height - Padding, Length(Rows) * ScaleValue(3));
+  Top := Map.Top + Padding + MulDiv(FirstVisibleRow, MapHeight, Length(Rows));
+  if FirstVisibleRow = 0 then Top := Map.Top;
+  Bottom := Map.Top + Padding + MulDiv(Min(Length(Rows), FirstVisibleRow + VisibleRowCount), MapHeight, Length(Rows));
   Result := Rect(Map.Left, Top, Map.Right, Min(Map.Bottom, Max(Top + ScaleValue(4), Bottom)));
 end;
 function TERDCodeEditor.NavigationAt(X, Y: Integer): Integer;
@@ -717,7 +728,7 @@ begin
     3:
       begin
         if Map.Height <= 0 then Exit;
-        MapHeight := Max(1, Min(Map.Height, Length(Rows) * ScaleValue(3)));
+        MapHeight := Max(1, Min(Map.Height - MinimapTopPadding(Map.Height), Length(Rows) * ScaleValue(3)));
         Value := FMinimapDragRow + Round((Y - FNavigationDragOffset) / MapHeight * Length(Rows));
         ScrollRows(Value);
       end;
@@ -737,8 +748,8 @@ begin
     FNavigationDragOffset := Y; FMinimapDragRow := FirstVisibleRow;
     if not PtInRect(Thumb, Point(X, Y)) then
     begin
-      MapHeight := Max(1, Min(Map.Height, Length(Rows) * ScaleValue(3)));
-      FMinimapDragRow := Round((Y - Map.Top - Thumb.Height * 0.5) / MapHeight * Length(Rows));
+      MapHeight := Max(1, Min(Map.Height - MinimapTopPadding(Map.Height), Length(Rows) * ScaleValue(3)));
+      FMinimapDragRow := Round((Y - Map.Top - MinimapTopPadding(Map.Height)) / MapHeight * Length(Rows)) - Page div 2;
     end;
   end
   else
@@ -787,20 +798,17 @@ begin
         HorizontalScrollPosition, FNavigationHot = 2, FNavigationDrag = 2);
     if not IsRectEmpty(Map) then
     begin
-      Fill := ERDMixColor(Palette.Background, Palette.ForegroundText, 0.96);
+      Fill := MinimapBackgroundColor;
       RenderMinimap(Map.Width, Map.Height, Rows, Fill);
       Painter.FillRect(Map, Fill);
       Blend.BlendOp := AC_SRC_OVER; Blend.BlendFlags := 0;
-      Blend.SourceConstantAlpha := 179; Blend.AlphaFormat := 0;
+      Blend.SourceConstantAlpha := 128; Blend.AlphaFormat := 0;
       if not Winapi.Windows.AlphaBlend(ACanvas.Handle, Map.Left, Map.Top, Map.Width, Map.Height,
         FMinimapBitmap.Canvas.Handle, 0, 0, Map.Width, Map.Height, Blend) then
         ACanvas.Draw(Map.Left, Map.Top, FMinimapBitmap);
       Viewport := MinimapViewportRect;
       if not IsRectEmpty(Viewport) then
       begin
-        // Keep the viewed code at full strength; dim only the surrounding code.
-        BitBlt(ACanvas.Handle, Viewport.Left, Viewport.Top, Viewport.Width, Viewport.Height,
-          FMinimapBitmap.Canvas.Handle, 0, Viewport.Top - Map.Top, SRCCOPY);
         Opacity := 28;
         if FMinimapWindowHot then Opacity := 48;
         if FNavigationDrag = 3 then Opacity := 72;
@@ -811,6 +819,12 @@ begin
           try Graphics.FillRectangle(Brush, Viewport.Left, Viewport.Top, Viewport.Width, Viewport.Height);
           finally Brush.Free; end;
         finally Graphics.Free; end;
+        // Restore code at full strength over the slider tint, leaving its
+        // background transparent to the cached minimap background colour.
+        if not Winapi.Windows.TransparentBlt(ACanvas.Handle, Viewport.Left, Viewport.Top, Viewport.Width, Viewport.Height,
+          FMinimapBitmap.Canvas.Handle, 0, Viewport.Top - Map.Top, Viewport.Width, Viewport.Height, ColorToRGB(Fill)) then
+          BitBlt(ACanvas.Handle, Viewport.Left, Viewport.Top, Viewport.Width, Viewport.Height,
+            FMinimapBitmap.Canvas.Handle, 0, Viewport.Top - Map.Top, SRCCOPY);
       end;
       Painter.VLine(Map.Left, Map.Top, Map.Height, Palette.NeutralLight);
     end;
@@ -826,11 +840,11 @@ begin
     (FMinimapFill = Fill) and (FMinimapColorKey = ColorKey) then Exit;
   FMinimapBitmap.SetSize(Width, Height); FMinimapBitmap.Canvas.Brush.Color := Fill;
   FMinimapBitmap.Canvas.FillRect(Rect(0, 0, Width, Height)); Analyze;
-  SpanIndex := 0; LastY := -1; MapHeight := Min(Height, Length(Rows) * ScaleValue(3));
+  SpanIndex := 0; LastY := -1; MapHeight := Min(Height - MinimapTopPadding(Height), Length(Rows) * ScaleValue(3));
   LineHeight := Max(1, Min(ScaleValue(2), Height div Max(1, Length(Rows))));
   for I := 0 to High(Rows) do
   begin
-    Y := MulDiv(I, MapHeight, Max(1, Length(Rows))); if Y = LastY then Continue; LastY := Y;
+    Y := MinimapTopPadding(Height) + MulDiv(I, MapHeight, Max(1, Length(Rows))); if Y = LastY then Continue; LastY := Y;
     Row := Rows[I]; Column := 0; RunX := -1; RunEnd := 0; RunInk := clNone;
     while (SpanIndex < Length(FAnalysis.Spans)) and
       (FAnalysis.Spans[SpanIndex].Start + FAnalysis.Spans[SpanIndex].Count <= Row.Start) do Inc(SpanIndex);
@@ -1032,7 +1046,7 @@ begin
       (Position > Span.Start) and (Position < Span.Start + Span.Count) then Exit(True);
 end;
 function TERDCodeEditor.MatchingBrackets(out Opening, Closing: Integer): Boolean;
-var Stack: TList<Integer>; I, Candidate, Top: Integer; C, First: Char;
+var Stack, Angles: TList<Integer>; I, Candidate, Top: Integer; C, First: Char;
     Span: TERDSyntaxSpan; Excluded: Boolean;
 begin
   if FBracketValid and (FBracketText = Text) and (FBracketCaret = TextModel.Caret) then
@@ -1041,15 +1055,17 @@ begin
   FBracketText := Text; FBracketCaret := TextModel.Caret;
   FBracketOpening := -1; FBracketClosing := -1; FBracketValid := True;
   Candidate := TextModel.Caret;
-  if (Candidate >= Length(Text)) or not CharInSet(Text[Candidate + 1], ['(',')','[',']','{','}']) then
+  if (Candidate >= Length(Text)) or not CharInSet(Text[Candidate + 1], ['(',')','[',']','{','}','<','>']) then
     Dec(Candidate);
   if (Candidate < 0) or (Candidate >= Length(Text)) or
-    not CharInSet(Text[Candidate + 1], ['(',')','[',']','{','}']) then Exit;
-  Analyze; Stack := TList<Integer>.Create;
+    not CharInSet(Text[Candidate + 1], ['(',')','[',']','{','}','<','>']) then Exit;
+  Analyze; Stack := TList<Integer>.Create; Angles := TList<Integer>.Create;
   try
     for I := 0 to Length(Text) - 1 do
     begin
-      C := Text[I + 1]; if not CharInSet(C, ['(',')','[',']','{','}']) then Continue;
+      C := Text[I + 1];
+      if C = ';' then Angles.Clear;
+      if not CharInSet(C, ['(',')','[',']','{','}','<','>']) then Continue;
       // Token interiors and their opening character both belong to literals.
       Excluded := False;
       for Span in FAnalysis.Spans do
@@ -1057,6 +1073,28 @@ begin
           (I >= Span.Start) and (I < Span.Start + Span.Count) then
         begin Excluded := True; Break; end;
       if Excluded then Continue;
+      if C = '<' then
+      begin
+        // Generic arguments follow a name without a gap. Exclude <= and <<.
+        if (I > 0) and (I + 1 < Length(Text)) and
+          (Text[I].IsLetterOrDigit or CharInSet(Text[I], ['_', '$', '>'])) and
+          not CharInSet(Text[I + 2], ['=', '<']) then Angles.Add(I);
+        Continue;
+      end;
+      if C = '>' then
+      begin
+        // An arrow's > is not a generic closing delimiter.
+        if (I > 0) and (Text[I] <> '=') and
+          ((I + 1 >= Length(Text)) or (Text[I + 2] <> '=')) and (Angles.Count > 0) then
+        begin
+          Top := Angles.Last; Angles.Delete(Angles.Count - 1);
+          if (Candidate = Top) or (Candidate = I) then
+          begin
+            Opening := Top; Closing := I; FBracketOpening := Top; FBracketClosing := I; Exit(True);
+          end;
+        end;
+        Continue;
+      end;
       if CharInSet(C, ['(','[','{']) then Stack.Add(I)
       else if Stack.Count > 0 then
       begin
@@ -1073,7 +1111,7 @@ begin
         else Stack.Clear;
       end;
     end;
-  finally Stack.Free; end;
+  finally Angles.Free; Stack.Free; end;
 end;
 function TERDCodeEditor.HandleDelimiter(C: Char): Boolean;
 var Closing: Char; Position, Selected: Integer; Before, Value: UnicodeString;
@@ -1177,6 +1215,16 @@ procedure TERDCodeEditor.SetShowFoldGuides(Value: Boolean);
 begin
   if FShowFoldGuides = Value then Exit;
   FShowFoldGuides := Value; Invalidate;
+end;
+function TERDCodeEditor.GutterBackgroundColor: TColor;
+begin
+  if ERDIsDarkPalette(Palette) then Result := ERDMixColor(Palette.GaugeFace, Palette.ForegroundText, 0.88)
+  else Result := ERDMixColor(Palette.Background, Palette.ForegroundText, 0.92);
+end;
+function TERDCodeEditor.MinimapBackgroundColor: TColor;
+begin
+  if ERDIsDarkPalette(Palette) then Result := ERDMixColor(Palette.GaugeFace, Palette.ForegroundText, 0.94)
+  else Result := ERDMixColor(Palette.Background, Palette.ForegroundText, 0.96);
 end;
 function TERDCodeEditor.GutterBounds: TRect;
 var BorderWidth: Integer;
@@ -1478,7 +1526,7 @@ begin
   Saved := SaveDC(ACanvas.Handle);
   Painter := TERDPainter.Create(ACanvas, Palette, ScaleValue(96));
   try
-    GutterFill := ERDMixColor(Palette.Background, Palette.ForegroundText, 0.92);
+    GutterFill := GutterBackgroundColor;
     GuideInk := ERDMixColor(GutterFill, Palette.ForegroundText, 0.60);
     IntersectClipRect(ACanvas.Handle, R.Left, R.Top, R.Right, R.Bottom);
     Painter.FillRect(R, GutterFill);
@@ -1678,6 +1726,19 @@ begin
   if (MaxLength > 0) and (Length(Before) - (Finish - Start) + Length(Replacement) > MaxLength) then Exit;
   TextModel.ReplaceRange(Start, Finish - Start, Replacement); Changed(Before);
   SelStart := Start; SelLength := Length(Replacement);
+end;
+procedure TERDCodeEditor.KeyboardMessage(var Msg: TMsg; var Handled: Boolean);
+var Key: Word;
+begin
+  // Intercept before TranslateMessage/IME and VCL shortcut preprocessing.
+  // Only the focused editor owns this shortcut; other controls keep their keys.
+  if Handled or FDestroyingEditor or not HandleAllocated then Exit;
+  if (Msg.hwnd = Handle) and Focused and (Msg.message = WM_KEYDOWN) and
+    (Msg.wParam = VK_SPACE) and (GetKeyState(VK_CONTROL) < 0) and
+    (GetKeyState(VK_MENU) >= 0) then
+  begin
+    Key := VK_SPACE; KeyDown(Key, [ssCtrl]); Handled := True;
+  end;
 end;
 procedure TERDCodeEditor.WMGetDlgCode(var Message: TMessage);
 begin

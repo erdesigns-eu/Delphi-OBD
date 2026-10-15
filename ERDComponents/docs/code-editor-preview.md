@@ -240,8 +240,8 @@ on mouse-down; clicking elsewhere in the minimap centres that location.
 
 The horizontal bar returns its height to the viewport when the text fits; editing,
 resizing and minimap visibility update that decision. The minimap code outside the
-sliding window composites at 70% opacity; the window restores the underlying code
-to full opacity before applying its subtle hover/pressed tint.
+sliding window composites at 50% opacity; the window restores the underlying code
+to full opacity over its subtle hover/pressed background tint.
 
 ## Structured completion window
 
@@ -257,7 +257,8 @@ and MarkupContent values; markup is displayed as text. The demo supplies sample
 kinds/signatures, while compiler results use the metadata actually provided by
 the server. Other controls keep the plain popup-list presentation.
 
-Minimap strokes start below the top border, aligned with the text inset. Editor
+The minimap background reaches the border; its code strokes have six logical
+pixels of internal top padding. Editor
 navigation/layout and caret refresh stop when the editor is detached or being
 destroyed, preventing a late attempt to recreate a parentless window on close.
 Windows smoke checks cover structured completion metadata/footer space and
@@ -271,3 +272,16 @@ when autocomplete has already assigned that item index.
 Masked bullet passwords use a fixed 4-logical-pixel dot in an 8-logical-pixel
 character cell (scaled for DPI), independent of the text font size. Revealing the
 password switches back to normal font shaping and natural character widths.
+
+In dark themes the gutter and minimap derive separate surface tones from the
+actual text-area fill (`GaugeFace`), using 12% and 6% foreground tint respectively.
+This keeps both visible without accidentally matching the text background. Light
+themes retain their existing surface colours.
+
+Generic angle brackets are matched in adjacent type argument lists such as
+`Map<string, Array<number>>`; spaced comparisons and arrow tokens are excluded.
+This is a lexical heuristic rather than semantic TypeScript parsing. Keyword
+defaults use stronger, separate hues; per-keyword colour overrides remain available.
+Ctrl+Space is also intercepted for the focused editor at the application message
+stage, before translation and dialog/shortcut processing. Completion footer updates
+are buffered and ordinary row hover no longer repaints the footer.

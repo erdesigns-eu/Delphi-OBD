@@ -10,3 +10,8 @@ precedence over the hidden native caption geometry.
 The Windows smoke suite exercises client and non-client release, restore,
 release outside and capture loss. Native Windows 11 Snap-hover behaviour still
 requires interactive verification; the Linux checks do not establish it.
+
+Maximize/restore hover is tracked on the window under the pointer, including the
+titlebar child. Client/non-client leave transitions refresh against the pointer
+position instead of clearing the painted button's hover while it is still under
+the pointer. Hover and press tint the actual caption surface at distinct strengths.

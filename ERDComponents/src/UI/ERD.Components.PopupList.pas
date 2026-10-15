@@ -330,6 +330,8 @@ var
   DC: HDC;
   R: TRect;
   Brush: HBRUSH;
+  Buffer: TBitmap;
+  Footer: TRect;
 begin
   if not HandleAllocated then
     Exit;
@@ -339,7 +341,17 @@ begin
   try
     GetWindowRect(Handle, R);
     OffsetRect(R, -R.Left, -R.Top);
-    PaintCompletionFooter(DC, R);
+    if FCompletionMode then
+    begin
+      Buffer := TBitmap.Create;
+      try
+        Buffer.SetSize(R.Width, R.Height);
+        PaintCompletionFooter(Buffer.Canvas.Handle, R);
+        Footer := Rect(1, R.Bottom - 1 - CompletionFooterHeight, R.Right - 1, R.Bottom - 1);
+        BitBlt(DC, Footer.Left, Footer.Top, Footer.Width, Footer.Height,
+          Buffer.Canvas.Handle, Footer.Left, Footer.Top, SRCCOPY);
+      finally Buffer.Free; end;
+    end;
     Brush := CreateSolidBrush(ColorToRGB(FPalette.NeutralLight));
     try
       Winapi.Windows.FrameRect(DC, R, Brush);
@@ -575,7 +587,7 @@ begin
   end;
   inherited WndProc(Message);
   case Message.Msg of
-    WM_KEYDOWN, WM_MOUSEWHEEL, WM_TIMER, WM_LBUTTONDOWN, WM_MOUSEMOVE,
+    WM_KEYDOWN, WM_MOUSEWHEEL, WM_TIMER, WM_LBUTTONDOWN,
     WM_VSCROLL, LB_SETCURSEL, LB_SETTOPINDEX, LB_RESETCONTENT:
       begin
         CheckTopChanged;

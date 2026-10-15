@@ -39,6 +39,8 @@ type
     procedure GutterMouse(Action, Row: Integer; Shift: Boolean = False);
     function FoldPixel(Guide: Boolean): TColor;
     function GutterBackground: TColor;
+    function EditorBackground: TColor;
+    function MinimapBackground: TColor;
     procedure GetNavigationRects(out Vertical, Horizontal, Map: TRect);
     function HorizontalOffset: Integer;
     function ViewWidth: Integer;
@@ -317,7 +319,11 @@ begin Result := HorizontalScrollPosition; end;
 function TCodeEditorProbe.ViewWidth: Integer;
 begin Result := TextViewport.Width; end;
 function TCodeEditorProbe.GutterBackground: TColor;
-begin Result := ColorToRGB(ERDMixColor(Palette.Background, Palette.ForegroundText, 0.92)); end;
+begin Result := ColorToRGB(GutterBackgroundColor); end;
+function TCodeEditorProbe.EditorBackground: TColor;
+begin Result := ColorToRGB(Palette.GaugeFace); end;
+function TCodeEditorProbe.MinimapBackground: TColor;
+begin Result := ColorToRGB(MinimapBackgroundColor); end;
 
 function TCodeEditorProbe.FoldPixel(Guide: Boolean): TColor;
 var Bitmap: TBitmap; View: TRect; X, Y: Integer;
@@ -2633,6 +2639,17 @@ begin
     Editor.Text := '{ "}"; // }' + #13#10 + '}'; Editor.SelStart := 0;
     Check(Editor.MatchingBrackets(Opening, Closing) and (Opening = 0) and
       (Closing = Length(Editor.Text) - 1), 'Bracket matching ignores comment and string brackets');
+    Editor.Text := 'Map<string, Array<number>>'; Editor.SelStart := 3;
+    Check(Editor.MatchingBrackets(Opening, Closing) and (Opening = 3) and
+      (Closing = Length(Editor.Text) - 1), 'Nested generic outer angle brackets match');
+    Editor.SelStart := 17;
+    Check(Editor.MatchingBrackets(Opening, Closing) and (Opening = 17) and
+      (Closing = Length(Editor.Text) - 2), 'Nested generic inner angle brackets match');
+    Editor.Text := 'a < b && c > d'; Editor.SelStart := 2;
+    Check(not Editor.MatchingBrackets(Opening, Closing), 'Spaced comparisons are not generic brackets');
+    Editor.Text := 'Promise<() => void>'; Editor.SelStart := 7;
+    Check(Editor.MatchingBrackets(Opening, Closing) and (Closing = Length(Editor.Text) - 1),
+      'Function type arrow does not close generic arguments');
     Editor.Text := '([)]'; Editor.SelStart := 0;
     Check(not Editor.MatchingBrackets(Opening, Closing), 'Mismatched nesting is not highlighted as a valid pair');
     Editor.Text := '// comment'; Editor.SelStart := Length(Editor.Text);
@@ -2817,6 +2834,7 @@ begin
     Editor.GetNavigationRects(Vertical, Horizontal, Map);
     Check(not IsRectEmpty(Vertical) and not IsRectEmpty(Horizontal) and not IsRectEmpty(Map),
       'Editor exposes vertical and horizontal bars and a minimap by default');
+    Check(Map.Top = Vertical.Top, 'Minimap background reaches the inner border alongside its scrollbar');
     Thumb := ERDScrollThumbRect(Rect(0, 0, 12, 200), True, 0, 99, 50, 0, False, False);
     Check(Thumb.Height = 100, 'Scrollbar thumb represents the visible fraction of the content');
     Thumb := ERDScrollThumbRect(Rect(0, 0, 12, 200), True, 0, 9, 20, 0, False, False);
@@ -2856,7 +2874,8 @@ begin
 end;
 
 procedure TestTitleBarMaximizeRouting;
-var Form: TForm; Title: TERDTitleBar; Local, ScreenPoint: TPoint; Found: Boolean;
+var Form: TForm; Title: TERDTitleBar; Local, ScreenPoint, SavedCursor, Outside: TPoint; Found: Boolean;
+    Bitmap: TBitmap; IdleInk, HoverInk: TColor; PixelX: Integer;
   procedure FindMaximize;
   var X: Integer;
   begin
@@ -2875,10 +2894,24 @@ var Form: TForm; Title: TERDTitleBar; Local, ScreenPoint: TPoint; Found: Boolean
     Title.Perform(WM_NCLBUTTONDOWN, HTMAXBUTTON, MakeLParam(ScreenPoint.X, ScreenPoint.Y));
   end;
 begin
-  Form := TForm.CreateNew(nil);
+  Form := TForm.CreateNew(nil); Bitmap := TBitmap.Create; GetCursorPos(SavedCursor);
   try
     Form.SetBounds(100, 100, 700, 400); Form.BorderIcons := [biSystemMenu, biMinimize, biMaximize];
     Title := TERDTitleBar.Create(Form); Title.Parent := Form; Form.Show; Application.ProcessMessages;
+    FindMaximize; PixelX := Local.X - MulDiv(3, Title.CurrentPPI, 96);
+    Outside := Form.ClientToScreen(Point(Form.ClientWidth div 2, Form.ClientHeight div 2));
+    SetCursorPos(Outside.X, Outside.Y); Title.Perform(CM_MOUSELEAVE, 0, 0);
+    Title.RenderTo(Bitmap); IdleInk := Bitmap.Canvas.Pixels[PixelX, Local.Y];
+    SetCursorPos(ScreenPoint.X, ScreenPoint.Y);
+    Title.Perform(WM_NCMOUSEMOVE, HTMAXBUTTON, MakeLParam(ScreenPoint.X, ScreenPoint.Y));
+    Title.RenderTo(Bitmap); HoverInk := Bitmap.Canvas.Pixels[PixelX, Local.Y];
+    Check(HoverInk <> IdleInk, 'Maximize button has a visible non-client hover fill');
+    Title.Perform(CM_MOUSELEAVE, 0, 0); Form.Perform(WM_NCMOUSELEAVE, 0, 0);
+    Title.RenderTo(Bitmap);
+    Check(Bitmap.Canvas.Pixels[PixelX, Local.Y] = HoverInk, 'Hover survives client/non-client transitions while pointer stays on maximize');
+    SetCursorPos(Outside.X, Outside.Y); Title.Perform(CM_MOUSELEAVE, 0, 0);
+    Title.RenderTo(Bitmap);
+    Check(Bitmap.Canvas.Pixels[PixelX, Local.Y] = IdleInk, 'Maximize hover clears when pointer leaves the button');
     PressMaximize;
     Check(not IsZoomed(Form.Handle), 'Custom maximize waits for release without native tracking');
     Title.Perform(WM_LBUTTONUP, 0, MakeLParam(Local.X, Local.Y));
@@ -2894,7 +2927,7 @@ begin
     Form.Perform(WM_NCLBUTTONUP, HTMAXBUTTON, MakeLParam(ScreenPoint.X, ScreenPoint.Y));
     Check(IsZoomed(Form.Handle), 'Non-client release executes maximize once');
     Form.WindowState := wsNormal;
-  finally Form.Free; end;
+  finally Bitmap.Free; Form.Free; SetCursorPos(SavedCursor.X, SavedCursor.Y); end;
 end;
 
 procedure TestFixedPasswordMaskGeometry;
@@ -2951,6 +2984,11 @@ begin
     Theme.Mode := tmERDesignsDark;
     C := Editor.FoldPixel(True);
     Check(Brightness(C) < 100, 'Dark-theme gutter stays dark');
+    Check(Brightness(C) > Brightness(Editor.EditorBackground) + 12,
+      'Dark gutter remains distinct from the actual editor text surface');
+    Check((Editor.MinimapBackground <> Editor.EditorBackground) and
+      (Editor.MinimapBackground <> Editor.GutterBackground),
+      'Dark minimap has its own visible surface tone');
     Check(Brightness(Editor.FoldPixel(False)) < 100, 'Idle dark fold button is neutral');
   finally Form.Free; end;
 end;

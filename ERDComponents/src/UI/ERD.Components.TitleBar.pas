@@ -289,6 +289,7 @@ type
     procedure HandleNCCalcSize(var Message: TMessage);
     procedure HandleNCHitTest(var Message: TMessage);
     procedure HandleNCMouseMove(var Message: TMessage);
+    procedure RefreshSystemHover;
     procedure HandleNCLButtonDown(var Message: TMessage);
     procedure HandleNCLButtonUp(var Message: TMessage);
     procedure ShowSystemMenuAt(X, Y: Integer);
@@ -1229,8 +1230,7 @@ begin
     FHoverButton := nil;
   if FPressedQuick = nil then
     FHoverQuick := nil;
-  if FPressedSystem = sbNone then
-    FHoverSystem := sbNone;
+  RefreshSystemHover;
   Invalidate;
 end;
 
@@ -1823,8 +1823,8 @@ begin
     WM_NCMOUSELEAVE:
       if (FHoverSystem <> sbNone) or (FPressedSystem <> sbNone) then
       begin
-        FHoverSystem := sbNone;
-        if not MouseCapture then FPressedSystem := sbNone;
+        RefreshSystemHover;
+        if not MouseCapture and not FHandlingSystemRelease then FPressedSystem := sbNone;
         Invalidate;
       end;
     WM_NCRBUTTONUP:
@@ -1946,6 +1946,24 @@ begin
   if Assigned(FOldFormWindowProc) then FOldFormWindowProc(Message);
 end;
 
+procedure TERDTitleBar.RefreshSystemHover;
+var P, C: TPoint; Hit: TERDSystemButton; UnderPointer: HWND;
+begin
+  Hit := sbNone;
+  if HandleAllocated and GetCursorPos(P) then
+  begin
+    UnderPointer := WindowFromPoint(P);
+    if (UnderPointer = Handle) or ((FHookedForm <> nil) and FHookedForm.HandleAllocated and
+      (UnderPointer = FHookedForm.Handle)) then
+    begin
+      C := ScreenToClient(P);
+      if (C.X >= 0) and (C.X < Width) and (C.Y >= 0) and (C.Y < CaptionHeight) then
+        Hit := SystemButtonAt(C.X, C.Y);
+    end;
+  end;
+  if FHoverSystem <> Hit then begin FHoverSystem := Hit; Invalidate; end;
+end;
+
 procedure TERDTitleBar.HandleNCMouseMove(var Message: TMessage);
 var
   C: TPoint;
@@ -1971,7 +1989,10 @@ begin
     // Ask for WM_NCMOUSELEAVE so the maximize hover clears on exit.
     Track.cbSize := SizeOf(Track);
     Track.dwFlags := TME_LEAVE or TME_NONCLIENT;
-    Track.hwndTrack := FHookedForm.Handle;
+    // The maximize hit can originate on the titlebar child. Tracking the form
+    // in that case generates a leave while the pointer is still on the button.
+    Track.hwndTrack := WindowFromPoint(PointFromMessage(Message));
+    if Track.hwndTrack <> Handle then Track.hwndTrack := FHookedForm.Handle;
     Track.dwHoverTime := 0;
     TrackMouseEvent(Track);
   end;
@@ -2323,8 +2344,8 @@ begin
         Ink := clWhite;
       end
       else
-        Fill := ERDMixColor(Palette.ForegroundText, Palette.GaugeFace,
-          IfThen(FPressedSystem = Btn, 0.13, 0.08));
+        Fill := ERDMixColor(Palette.ForegroundText, SurfaceColor,
+          IfThen(FPressedSystem = Btn, 0.20, 0.12));
     end;
     if Fill <> clNone then
       APainter.FillRect(R, Fill);
