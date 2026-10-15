@@ -305,3 +305,9 @@ popup and a popup holding mouse capture.
 Popup scrolling suppresses native listbox redraw while changing its top index or
 selection, then presents the buffered rows and overlay scrollbar together. This
 prevents the native scroll blit from moving the previous thumb image vertically.
+
+Closing a completion popup is idempotent. It marks itself closed before hiding or
+releasing capture, and queries its selected index only while an HWND exists. This
+avoids recreating a popup HWND after the editor has lost its parent during form
+shutdown. The shutdown regression suite also cancels completion twice after
+explicitly detaching the editor from its parent.

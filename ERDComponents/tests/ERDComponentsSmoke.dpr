@@ -2433,7 +2433,7 @@ var Form: TForm; Editor: TCodeEditorProbe; Service: TLanguageServiceProbe;
     Snapshot: TERDLanguageRequest; Items: TArray<TERDCompletionItem>;
     Popup: TERDPopupList; Mode, I: Integer; ModelAlive: Boolean;
 begin
-  for Mode := 0 to 2 do
+  for Mode := 0 to 3 do
   begin
     Form := TForm.Create(nil); ModelAlive := False;
     Service := TLanguageServiceProbe.Create; ServiceReference := Service;
@@ -2459,6 +2459,15 @@ begin
               Popup.Perform(WM_LBUTTONDOWN, MK_LBUTTON, MakeLParam(20, 12));
               Check(GetCapture = Popup.Handle, 'Shutdown fixture holds popup mouse capture');
             end;
+      end;
+      Editor.RequestHover; Sink := Service.Responses; Snapshot := Service.Snapshot;
+      if Mode = 3 then
+      begin
+        // Detaching destroys the parent/child HWNDs before cancellation.
+        // Closing the popup must not recreate them through ItemIndex.
+        Editor.Parent := nil;
+        Editor.CancelLanguageRequests; Editor.CancelLanguageRequests;
+        Check(not Editor.HandleAllocated, 'Closing detached completion never recreates its editor HWND');
       end;
       FreeAndNil(Form);
       Check(ModelAlive, 'Editor HWND is destroyed before its text model');

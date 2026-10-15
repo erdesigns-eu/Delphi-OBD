@@ -766,7 +766,12 @@ procedure TERDPopupList.CloseUp(AAccepted: Boolean);
 var
   LIndex: Integer;
 begin
-  LIndex := ItemIndex;
+  if not FIsOpen then Exit;
+  // Hiding or releasing capture can re-enter application/focus callbacks.
+  // Mark closed first, and never let ItemIndex recreate a detached HWND.
+  FIsOpen := False;
+  LIndex := -1;
+  if HandleAllocated then LIndex := ItemIndex else AAccepted := False;
   if FBarDragging or FRowPressed then
   begin
     FBarDragging := False;
@@ -776,7 +781,6 @@ begin
   if HandleAllocated then
     ShowWindow(Handle, SW_HIDE);
   FHotIndex := -1;
-  FIsOpen := False;
   if Assigned(FOnCloseUp) then
     FOnCloseUp(Self, AAccepted, LIndex);
 end;
