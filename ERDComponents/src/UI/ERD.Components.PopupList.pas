@@ -66,7 +66,7 @@ type
     procedure SetHotIndex(AValue: Integer);
     procedure InvalidateItem(AIndex: Integer);
     procedure PaintFrame;
-    procedure PaintCompletionFooter(DC: HDC; const Bounds: TRect);
+    procedure PaintCompletionFooter(Target: TCanvas; const Bounds: TRect);
     function CompletionFooterHeight: Integer;
     procedure PaintRows(ADC: HDC);
     procedure DrawRow(ACanvas: TCanvas; Index: Integer; Rect: TRect; State: TOwnerDrawState);
@@ -179,16 +179,14 @@ function TERDPopupList.CompletionFooterHeight: Integer;
 begin
   if FCompletionMode then Result := ScalePixel(88) else Result := 0;
 end;
-procedure TERDPopupList.PaintCompletionFooter(DC: HDC; const Bounds: TRect);
-var Target: TCanvas; Painter: TERDPainter; R, DocRect: TRect;
+procedure TERDPopupList.PaintCompletionFooter(Target: TCanvas; const Bounds: TRect);
+var Painter: TERDPainter; R, DocRect: TRect;
     Item: TERDCompletionItem; Signature, Documentation: string;
 begin
   if not FCompletionMode then Exit;
-  Target := TCanvas.Create;
+  Painter := TERDPainter.Create(Target, FPalette, FPPI);
   try
-    Target.Handle := DC; Painter := TERDPainter.Create(Target, FPalette, FPPI);
-    try
-      R := Rect(1, Bounds.Bottom - CompletionFooterHeight - 1, Bounds.Right - 1, Bounds.Bottom - 1);
+      R := Bounds;
       Painter.FillRect(R, FPalette.GaugeFace);
       Painter.HLine(R.Left, R.Top, R.Width, FPalette.NeutralLight);
       Item := Default(TERDCompletionItem);
@@ -206,8 +204,7 @@ begin
       Painter.Text(R.Left + ScalePixel(10), R.Bottom - ScalePixel(11),
         'Enter / Tab  accept     ' + #$2191 + ' / ' + #$2193 + '  navigate     Esc  dismiss',
         11, FPalette.Subtle, twRegular, taLeftJustify, Max(0, R.Width - ScalePixel(20)));
-    finally Painter.Free; end;
-  finally Target.Handle := 0; Target.Free; end;
+  finally Painter.Free; end;
 end;
 
 function TERDPopupList.ScalePixel(AValue: Integer): Integer;
@@ -345,11 +342,14 @@ begin
     begin
       Buffer := TBitmap.Create;
       try
-        Buffer.SetSize(R.Width, R.Height);
-        PaintCompletionFooter(Buffer.Canvas.Handle, R);
         Footer := Rect(1, R.Bottom - 1 - CompletionFooterHeight, R.Right - 1, R.Bottom - 1);
+        Buffer.PixelFormat := pf32bit;
+        Buffer.SetSize(Footer.Width, Footer.Height);
+        // Use the bitmap's owning canvas: a second TCanvas on the same HDC
+        // invalidates its selected GDI objects/state while drawing the text.
+        PaintCompletionFooter(Buffer.Canvas, Rect(0, 0, Buffer.Width, Buffer.Height));
         BitBlt(DC, Footer.Left, Footer.Top, Footer.Width, Footer.Height,
-          Buffer.Canvas.Handle, Footer.Left, Footer.Top, SRCCOPY);
+          Buffer.Canvas.Handle, 0, 0, SRCCOPY);
       finally Buffer.Free; end;
     end;
     Brush := CreateSolidBrush(ColorToRGB(FPalette.NeutralLight));

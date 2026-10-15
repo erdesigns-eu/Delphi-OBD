@@ -246,7 +246,7 @@ type
   end;
 implementation
 uses System.RegularExpressions, Winapi.GDIPAPI, Winapi.GDIPOBJ,
-  ERD.Components.Paint, ERD.Components.GDIP;
+  ERD.Components.Paint, ERD.Components.GDIP, ERD.Components.Types;
 constructor TERDKeywordColor.Create(Collection: TCollection);
 begin
   inherited;
@@ -783,7 +783,8 @@ begin
   Invalidate;
 end;
 procedure TERDCodeEditor.PaintNavigation(ACanvas: TCanvas);
-var Vertical, Horizontal, Map, Viewport: TRect; Painter: TERDPainter;
+var Vertical, Horizontal, Map, Viewport: TRect; Painter, TrackPainter: TERDPainter;
+    TrackPalette: TERDThemePalette;
     Rows: TArray<TERDTextRow>; Page: Integer; Fill: TColor; Opacity: Byte;
     Graphics: TGPGraphics; Brush: TGPSolidBrush; Blend: TBlendFunction;
 begin
@@ -791,8 +792,18 @@ begin
   Painter := TERDPainter.Create(ACanvas, Palette, ScaleValue(96));
   try
     if not IsRectEmpty(Vertical) then
-      ERDPaintScrollBar(Painter, Vertical, True, 0, Max(0, Length(Rows) - 1), Page,
-        FirstVisibleRow, FNavigationHot = 1, FNavigationDrag = 1);
+    begin
+      TrackPainter := Painter;
+      if not IsRectEmpty(Map) then
+      begin
+        TrackPalette := Palette; TrackPalette.GaugeFace := MinimapBackgroundColor;
+        TrackPainter := TERDPainter.Create(ACanvas, TrackPalette, ScaleValue(96));
+      end;
+      try
+        ERDPaintScrollBar(TrackPainter, Vertical, True, 0, Max(0, Length(Rows) - 1), Page,
+          FirstVisibleRow, FNavigationHot = 1, FNavigationDrag = 1);
+      finally if TrackPainter <> Painter then TrackPainter.Free; end;
+    end;
     if not IsRectEmpty(Horizontal) then
       ERDPaintScrollBar(Painter, Horizontal, False, 0, Max(0, NavigationWidth - 1), TextViewport.Width,
         HorizontalScrollPosition, FNavigationHot = 2, FNavigationDrag = 2);
@@ -1333,19 +1344,28 @@ begin
   if ABefore <> Text then SyncLanguageDocument;
 end;
 procedure TERDCodeEditor.ToggleFold(Position: Integer);
-var I: Integer; Fold: TERDSyntaxFold;
+var I, TopPosition, TopRow, SavedHorizontal: Integer; Fold: TERDSyntaxFold;
+    Rows: TArray<TERDTextRow>;
 begin
   if not FShowFolding then Exit;
   I := FoldIndex(Position); if I < 0 then Exit;
   Fold := FAnalysis.Folds[I];
+  Rows := VisualRows; TopPosition := Rows[Min(FirstVisibleRow, High(Rows))].Start;
+  SavedHorizontal := HorizontalScrollPosition;
   if FCollapsed.Contains(Fold.Start) then FCollapsed.Remove(Fold.Start)
   else
   begin
     if (TextModel.Caret >= FoldHiddenStart(Fold)) and (TextModel.Caret < FoldHiddenFinish(Fold)) then
-    begin SelLength := 0; SelStart := Fold.Start; end;
+      TextModel.Select(Fold.Start, Fold.Start);
     FCollapsed.Add(Fold.Start);
   end;
   InvalidateTextLayout; UpdateCaret;
+  // Updating the caret normally reveals it. A fold click is a viewport action:
+  // restore the original top document row, even when the caret is elsewhere.
+  Rows := VisualRows; TopRow := 0;
+  for I := 0 to High(Rows) do
+    if Rows[I].Start <= TopPosition then TopRow := I else Break;
+  ScrollHorizontal(SavedHorizontal); ScrollRows(TopRow);
 end;
 procedure TERDCodeEditor.FoldAll;
 var Fold: TERDSyntaxFold;
@@ -1606,7 +1626,7 @@ begin
   finally Painter.Free; RestoreDC(ACanvas.Handle, Saved); end;
 end;
 procedure TERDCodeEditor.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var Fold: Integer; View, OuterView: TRect;
+var Fold, SavedRow, SavedHorizontal: Integer; View, OuterView: TRect;
 begin
   if (Button = mbLeft) and NavigationMouseDown(X, Y) then Exit;
   View := TextViewport; OuterView := GutterBounds; Fold := FoldAtPoint(X, Y);
@@ -1614,7 +1634,9 @@ begin
     (Y >= OuterView.Top) and (Y < OuterView.Bottom);
   if (Button = mbLeft) and (Fold >= 0) then
   begin
-    SetFocus; FPressedFold := Fold; FHotFold := Fold; MouseCapture := True;
+    SavedRow := FirstVisibleRow; SavedHorizontal := HorizontalScrollPosition;
+    SetFocus; ScrollHorizontal(SavedHorizontal); ScrollRows(SavedRow);
+    FPressedFold := Fold; FHotFold := Fold; MouseCapture := True;
     Invalidate; Exit;
   end;
   if FLastGutterDown then
@@ -1727,6 +1749,12 @@ begin
   TextModel.ReplaceRange(Start, Finish - Start, Replacement); Changed(Before);
   SelStart := Start; SelLength := Length(Replacement);
 end;
+function IsCompletionKey(Key: Word; Shift: TShiftState): Boolean;
+begin
+  // Ctrl+J is an alternative for VMs/hosts which reserve Ctrl+Space.
+  Result := ((Key = VK_SPACE) or (Key = Ord('J'))) and
+    (ssCtrl in Shift) and not (ssAlt in Shift);
+end;
 procedure TERDCodeEditor.KeyboardMessage(var Msg: TMsg; var Handled: Boolean);
 var Key: Word;
 begin
@@ -1734,17 +1762,17 @@ begin
   // Only the focused editor owns this shortcut; other controls keep their keys.
   if Handled or FDestroyingEditor or not HandleAllocated then Exit;
   if (Msg.hwnd = Handle) and Focused and (Msg.message = WM_KEYDOWN) and
-    (Msg.wParam = VK_SPACE) and (GetKeyState(VK_CONTROL) < 0) and
+    ((Msg.wParam = VK_SPACE) or (Msg.wParam = Ord('J'))) and (GetKeyState(VK_CONTROL) < 0) and
     (GetKeyState(VK_MENU) >= 0) then
   begin
-    Key := VK_SPACE; KeyDown(Key, [ssCtrl]); Handled := True;
+    Key := Word(Msg.wParam); KeyDown(Key, [ssCtrl]); Handled := True;
   end;
 end;
 procedure TERDCodeEditor.WMGetDlgCode(var Message: TMessage);
 begin
   inherited;
   // Keep completion's space and popup navigation out of form dialog-key routing.
-  if Message.WParam = VK_SPACE then Message.Result := Message.Result or DLGC_WANTMESSAGE;
+  if (Message.WParam = VK_SPACE) or (Message.WParam = Ord('J')) then Message.Result := Message.Result or DLGC_WANTMESSAGE;
   if (FCompletionPopup <> nil) and FCompletionPopup.IsOpen and
     (Message.WParam in [VK_RETURN, VK_TAB, VK_ESCAPE]) then
     Message.Result := Message.Result or DLGC_WANTMESSAGE;
@@ -1753,20 +1781,20 @@ procedure TERDCodeEditor.CNKeyDown(var Message: TWMKeyDown);
 var Key: Word;
 begin
   // VCL asks CN_KEYDOWN before offering the key to form shortcuts/dialogs.
-  if (Message.CharCode = VK_SPACE) and (GetKeyState(VK_CONTROL) < 0) and
+  if ((Message.CharCode = VK_SPACE) or (Message.CharCode = Ord('J'))) and (GetKeyState(VK_CONTROL) < 0) and
     (GetKeyState(VK_MENU) >= 0) then
   begin
-    Key := VK_SPACE; KeyDown(Key, [ssCtrl]); Message.Result := 1; Exit;
+    Key := Message.CharCode; KeyDown(Key, [ssCtrl]); Message.Result := 1; Exit;
   end;
   inherited;
 end;
 procedure TERDCodeEditor.CMDialogKey(var Message: TCMDialogKey);
 var Key: Word;
 begin
-  if Focused and (Message.CharCode = VK_SPACE) and (GetKeyState(VK_CONTROL) < 0) and
+  if Focused and ((Message.CharCode = VK_SPACE) or (Message.CharCode = Ord('J'))) and (GetKeyState(VK_CONTROL) < 0) and
     (GetKeyState(VK_MENU) >= 0) then
   begin
-    Key := VK_SPACE; KeyDown(Key, [ssCtrl]); Message.Result := 1; Exit;
+    Key := Message.CharCode; KeyDown(Key, [ssCtrl]); Message.Result := 1; Exit;
   end;
   inherited;
 end;
@@ -1784,12 +1812,13 @@ begin
       case Key of VK_RETURN: FSuppressLanguageChar := 13; VK_TAB: FSuppressLanguageChar := 9; VK_ESCAPE: FSuppressLanguageChar := 27; end;
     if FCompletionPopup.HandleKey(Key, Shift) then Exit;
   end;
-  if ((Key = VK_SPACE) and (ssCtrl in Shift) and not (ssAlt in Shift)) or
+  if IsCompletionKey(Key, Shift) or
     ((FLanguageService <> nil) and (Key in [VK_F1, VK_F12]) and (Shift = [])) then
   begin
     if Assigned(OnKeyDown) then OnKeyDown(Self, Key, Shift); if Key = 0 then Exit;
     case Key of
       VK_SPACE: begin FSuppressLanguageChar := 32; RequestCompletion; end;
+      Ord('J'): begin FSuppressLanguageChar := 10; RequestCompletion; end;
       VK_F1: RequestHover;
       VK_F12: RequestDefinition;
     end;

@@ -282,6 +282,16 @@ Generic angle brackets are matched in adjacent type argument lists such as
 `Map<string, Array<number>>`; spaced comparisons and arrow tokens are excluded.
 This is a lexical heuristic rather than semantic TypeScript parsing. Keyword
 defaults use stronger, separate hues; per-keyword colour overrides remain available.
-Ctrl+Space is also intercepted for the focused editor at the application message
-stage, before translation and dialog/shortcut processing. Completion footer updates
+Ctrl+Space and the alternative Ctrl+J are intercepted for the focused editor at
+the application message stage, before VCL dialog/shortcut processing. If Ctrl+Space
+also fails in Delphi itself in a VM, check the VM/host shortcut configuration;
+the guest editor cannot handle keystrokes intercepted before they reach Windows. Completion footer updates
 are buffered and ordinary row hover no longer repaints the footer.
+
+Completion footers render into a footer-sized bitmap using its owning canvas,
+then copy to the non-client footer in one blit. Folding preserves the top visible
+document row and horizontal offset; it does not scroll to an unrelated caret.
+The viewport is clamped if the folded document becomes shorter than a page.
+
+When the minimap is visible, the vertical scrollbar track uses the same background
+as the minimap. Hiding the minimap restores the editor track background.

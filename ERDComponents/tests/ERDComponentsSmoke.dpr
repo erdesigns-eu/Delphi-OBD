@@ -2262,7 +2262,8 @@ var Form: TForm; Editor, Temporary: TERDCodeEditor; Service: TLanguageServicePro
     ServiceReference: IERDCodeLanguageService; Sink: IERDLanguageResponses;
     Old, Current: TERDLanguageRequest; Items: TArray<TERDCompletionItem>;
     Target: TERDDefinitionTarget; Version: Int64; Worker: TThread; OffThreadAccepted: Boolean;
-    Keyboard, SavedKeyboard: TKeyboardState; Popup: TERDPopupList; I: Integer;
+    Keyboard, SavedKeyboard: TKeyboardState; Popup: TERDPopupList; I, X, Y, InkCount, FooterTop: Integer;
+    FooterDC: HDC; FooterFill: COLORREF; Corner: TPoint; WindowRect: TRect;
 begin
   Form := TForm.Create(nil); Service := TLanguageServiceProbe.Create; ServiceReference := Service;
   try
@@ -2322,6 +2323,10 @@ begin
         'Ctrl+Space dialog route requests completion');
       Version := Service.Requests; Editor.Perform(WM_KEYDOWN, VK_SPACE, 0);
       Check(Service.Requests = Version + 1, 'Ctrl+Space key route requests completion');
+      Version := Service.Requests; Editor.Perform(WM_KEYDOWN, Ord('J'), 0);
+      Editor.Perform(WM_CHAR, 10, 0);
+      Check((Service.Requests = Version + 1) and (Editor.Text = 'con'),
+        'Ctrl+J requests completion without inserting a newline');
     finally SetKeyboardState(SavedKeyboard); end;
     Editor.RequestCompletion; Current := Service.Snapshot; Items[0].InsertText := 'console';
     Items[0].Kind := 3; Items[0].Detail := '(value: string): void';
@@ -2333,6 +2338,19 @@ begin
     Check((Popup <> nil) and Popup.IsOpen and (Popup.Items[0] = 'console'),
       'Completion keeps label separate from kind and signature');
     Check(Popup.Height - Popup.ClientHeight > 60, 'Completion reserves a documentation and keyboard footer');
+    RedrawWindow(Popup.Handle, nil, 0, RDW_INVALIDATE or RDW_FRAME or RDW_UPDATENOW);
+    GetWindowRect(Popup.Handle, WindowRect);
+    Corner := Popup.ClientToScreen(Point(0, Popup.ClientHeight));
+    FooterTop := Corner.Y - WindowRect.Top;
+    FooterDC := GetWindowDC(Popup.Handle);
+    try
+      FooterFill := GetPixel(FooterDC, 2, FooterTop + 8); InkCount := 0;
+      for Y := FooterTop + 5 to FooterTop + 23 do
+        for X := 10 to Min(Popup.Width - 12, 280) do
+          if GetPixel(FooterDC, X, Y) <> FooterFill then Inc(InkCount);
+      Check(InkCount > 15, 'Buffered non-client footer contains visible signature text');
+    finally ReleaseDC(Popup.Handle, FooterDC); end;
+
     Check((Editor.Completions[0].Kind = 3) and (Editor.Completions[0].Documentation = Items[0].Documentation),
       'Completion retains symbol kind and documentation');
     Editor.Perform(WM_KEYDOWN, VK_RETURN, 0); Editor.Perform(WM_CHAR, 13, 0);
@@ -2829,12 +2847,26 @@ begin
   try
     Editor := TCodeEditorProbe.Create(Form); Editor.Parent := Form; Editor.SetBounds(0, 0, 500, 220);
     Source := '';
+    for I := 0 to 39 do Source := Source + '// before' + #13#10;
+    RowBefore := Length(Source);
+    Source := Source + 'function foldMe() {' + #13#10 + '  return 1;' + #13#10 + '}' + #13#10;
+    for I := 0 to 79 do Source := Source + '// after' + #13#10;
+    Editor.Text := Source; Editor.SelStart := 0; Form.Show; Editor.SetFocus;
+    Editor.Perform(EM_LINESCROLL, 0, 35);
+    Check(Editor.FirstVisibleRow = 35, 'Fold fixture scrolls away from caret');
+    Editor.ToggleFold(RowBefore);
+    Check(Editor.FirstVisibleRow = 35, 'Collapsing keeps viewport when caret is above it');
+    Editor.ToggleFold(RowBefore);
+    Check(Editor.FirstVisibleRow = 35, 'Expanding keeps viewport when caret is above it');
+    Source := '';
     for I := 0 to 119 do Source := Source + 'const item' + IntToStr(I) + ' = "' + StringOfChar('x', 180) + '";' + #13#10;
     Editor.Text := Source; Editor.SelStart := 0; Form.Show; Editor.SetFocus; Editor.RenderTo(Bitmap);
     Editor.GetNavigationRects(Vertical, Horizontal, Map);
     Check(not IsRectEmpty(Vertical) and not IsRectEmpty(Horizontal) and not IsRectEmpty(Map),
       'Editor exposes vertical and horizontal bars and a minimap by default');
     Check(Map.Top = Vertical.Top, 'Minimap background reaches the inner border alongside its scrollbar');
+    Check(ColorToRGB(Bitmap.Canvas.Pixels[Vertical.Left + 2, Vertical.Bottom - 3]) =
+      Editor.MinimapBackground, 'Vertical scrollbar track matches the visible minimap background');
     Thumb := ERDScrollThumbRect(Rect(0, 0, 12, 200), True, 0, 99, 50, 0, False, False);
     Check(Thumb.Height = 100, 'Scrollbar thumb represents the visible fraction of the content');
     Thumb := ERDScrollThumbRect(Rect(0, 0, 12, 200), True, 0, 9, 20, 0, False, False);
