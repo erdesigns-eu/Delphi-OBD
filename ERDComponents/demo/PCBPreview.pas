@@ -16,6 +16,7 @@ type
     FToolDragging: Boolean;
     procedure ViewOptionChanged(Sender: TObject);
     procedure SelectionChanged(Sender: TObject);
+    procedure ConnectionSelectionChanged(Sender: TObject);
     procedure ConnectionError(Sender: TObject; const MessageText: string);
     procedure DesignChanged(Sender: TObject);
     procedure UpdatePinChoices;
@@ -54,6 +55,7 @@ begin
   Button('Fit', 8, 54, 0); Button('Undo', 68, 62, 4); Button('Redo', 136, 62, 5);
   Button('Save project', 204, 104, 2); Button('Open project', 314, 104, 3);
   Button('Templates...', 424, 112, 6); Button('Save template', 542, 112, 7);
+  Button('Focus selection', 660, 116, 8);
   for I := 0 to 7 do
   begin
     B := TERDButton.Create(Self); B.Parent := Header;
@@ -76,6 +78,7 @@ begin
   FInspector.OnPropertyButtonClick := PropertyButtonClicked;
   FInspector.OnPropertyChanging := PropertyChanging; FInspector.OnPropertyChanged := PropertyChanged;
   FDesigner := TERDPCBDesigner.Create(Self); FDesigner.Parent := Self; FDesigner.Align := alClient;
+  FDesigner.OnConnectionSelectionChange := ConnectionSelectionChanged;
   FDesigner.OnPlacementChange := PlacementChanged;
   FDesigner.OnSelectionChange := SelectionChanged; FDesigner.OnChange := DesignChanged; FDesigner.OnConnectionError := ConnectionError;
   FDesigner.OnDragOver := SurfaceDragOver; FDesigner.OnDragDrop := SurfaceDragDrop;
@@ -120,6 +123,12 @@ begin
     6: FDesigner.PanMode := Choice.Checked;
     5: begin FDesigner.TemplateEditMode := Choice.Checked; FDesigner.Scene.ClearSelection; SelectionChanged(Self); end;
   end;
+end;
+procedure TPCBPreview.ConnectionSelectionChanged(Sender: TObject);
+begin
+  if FDesigner.SelectedConnectionItemID <> '' then
+    FStatus.Caption := 'Connection ' + FDesigner.SelectedConnectionPin +
+      ' - drag an endpoint to reconnect; Delete disconnects; F focuses the selection.';
 end;
 procedure TPCBPreview.ConnectionError(Sender: TObject; const MessageText: string);
 begin FStatus.Caption := MessageText; end;
@@ -357,6 +366,7 @@ begin
     case TComponent(Sender).Tag of
       20..25: FDesigner.AlignSelected(TERDPCBAlignment(TComponent(Sender).Tag - 20));
       26, 27: FDesigner.DistributeSelected(TComponent(Sender).Tag = 26);
+      8: FDesigner.FitSelection;
       0: FDesigner.FitBoard; 4: FDesigner.Undo; 5: FDesigner.Redo;
       2, 7:
         begin

@@ -38,3 +38,22 @@ checks must run in RAD Studio on Windows; they are not replaced by static checks
    disabled object should keep its reservation in the inspector. Notes expose
    no pin fields. Host dirty tracking with `ContentJSON` must ignore selection
    alone and react to real property edits.
+
+### Connection editing and selection focus
+
+- Click a curve, including a detour around a note: the visible curve, component
+  and physical terminal should highlight. Hover shows pin, GPIO and role.
+- Drag the PCB endpoint to a free compatible pin; undo/redo should restore the
+  complete assignment in one step. Occupied/incompatible pins must reject the
+  drop and retain the original connection.
+- Drag the component endpoint onto another compatible component with a free
+  matching role. Undo must restore both owners together. Locked components and
+  notes must reject the transfer.
+- Cancel either endpoint drag with Escape or lost capture. Delete a selected
+  connection: its component remains; undo restores the connection.
+- Press F for component, note, terminal and connection selections. Check framing
+  at different DPI scales and zoom levels; Home should still fit the whole PCB.
+- Check right-click and keyboard context menus in both themes, including custom
+  PopupMenu / OnContextPopup overrides and placement cancellation by right-click.
+- `TestPCBConnections` in the Windows smoke executable covers curve geometry,
+  assignment transfer, atomic rejection and disconnect undo.

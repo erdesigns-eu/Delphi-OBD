@@ -2493,6 +2493,60 @@ begin
   finally Scene.Free; end;
 end;
 
+procedure TestPCBConnections;
+var Form: TForm; Designer: TERDPCBDesigner; BoardFile, Text, Before: string;
+    A, B, I: Integer; Geometry: TERDPCBConnectionGeometry; Boxes: TArray<TRect>; Failed: Boolean;
+    P, Q, Hit: TPoint; ID: string; Role: TERDPCBPinRole;
+begin
+  SetLength(Boxes, 1); Boxes[0] := Rect(40,20,60,80);
+  Geometry := ERDBuildPCBConnection(Point(0,0), Point(100,100), Boxes, 1);
+  Check(Length(Geometry.Samples) > 2, 'Connection geometry contains sampled curves');
+  for I := 0 to High(Geometry.Samples) do
+  begin
+    Check(ERDPCBConnectionDistance(Geometry, Geometry.Samples[I]) < 0.01, 'Visible curve samples are selectable');
+    Check(not ((Geometry.Samples[I].X > 40) and (Geometry.Samples[I].X < 60) and
+      (Geometry.Samples[I].Y > 20) and (Geometry.Samples[I].Y < 80)), 'Rounded connection avoids obstacle interiors');
+  end;
+  Check(ERDPCBConnectionDistance(Geometry, PointF(-100,-100)) > 50, 'Distant points do not hit a connection');
+  Form := TForm.Create(nil); BoardFile := TPath.GetTempFileName;
+  try
+    Designer := TERDPCBDesigner.Create(Form); Designer.Parent := Form; Designer.SetBounds(0,0,600,400);
+    Text := '{"schema":1,"units":"mm","y_axis":"up","source_sha256":"connection-test",' +
+      '"pads":[{"id":"J1.1","net":"OUT_GPIO4","reference":"J1","number":"1","position":[2,8],"polygon":[[1,7],[3,7],[3,9],[1,9]],"drill":[]},' +
+      '{"id":"J2.1","net":"OUT_GPIO5","reference":"J2","number":"1","position":[8,8],"polygon":[[7,7],[9,7],[9,9],[7,9]],"drill":[]}],' +
+      '"channels":[{"pin":"J1.1","gpio":"GPIO4","route":"test"},{"pin":"J2.1","gpio":"GPIO5","route":"test"}],' +
+      '"components":[],"silkscreen":[],"outline":[[[0,0],[10,0],[10,10],[0,10],[0,0]]]}';
+    TFile.WriteAllText(BoardFile, Text, TEncoding.UTF8); Designer.LoadBoard(BoardFile);
+    A := Designer.AddDesignItem(piOutputGroup, PointF(2,2));
+    B := Designer.AddDesignItem(piOutputGroup, PointF(7,2));
+    Designer.AssignPin(A, prPrimary, 'J1.1'); Designer.FitBoard;
+    P := Designer.BoardToClient(PointF(2,8));
+    Q := Designer.BoardToClient(PointF(Designer.Scene.Item(A).X, Designer.Scene.Item(A).Y));
+    Q.X := Q.X + MulDiv(16, Designer.CurrentPPI, 96); Q.Y := Q.Y - MulDiv(32, Designer.CurrentPPI, 96);
+    Geometry := ERDBuildPCBConnection(P, Q, nil, Designer.CurrentPPI / 96);
+    Hit := Point(Round(Geometry.Samples[Length(Geometry.Samples) div 2].X),
+      Round(Geometry.Samples[Length(Geometry.Samples) div 2].Y));
+    Check(Designer.HitTestConnection(Hit, ID, Role) and (ID = Designer.Scene.Item(A).ID) and
+      (Role = prPrimary), 'Designer hit test identifies the painted connection and role');
+    Designer.SelectConnection(Designer.Scene.Item(A).ID, prPrimary);
+    Designer.ReconnectSelectedPin('J2.1');
+    Check(Designer.Scene.Item(A).Pin = 'J2.1', 'Reconnect changes the selected pin');
+    Designer.Undo; Check(Designer.Scene.Item(A).Pin = 'J1.1', 'Reconnect is one undo operation');
+    Designer.SelectConnection(Designer.Scene.Item(A).ID, prPrimary);
+    Designer.MoveSelectedConnection(Designer.Scene.Item(B).ID, prPrimary);
+    Check((Designer.Scene.Item(A).Pin = '') and (Designer.Scene.Item(B).Pin = 'J1.1'), 'Transfer moves a connection without duplicating it');
+    Designer.Undo;
+    Check((Designer.Scene.Item(A).Pin = 'J1.1') and (Designer.Scene.Item(B).Pin = ''), 'Transfer undo restores both endpoints together');
+    Designer.AssignPin(B, prPrimary, 'J2.1'); Designer.SelectConnection(Designer.Scene.Item(A).ID, prPrimary);
+    Before := Designer.Scene.ContentJSON; Failed := False;
+    try Designer.ReconnectSelectedPin('J2.1'); except on E: EArgumentException do Failed := True; end;
+    Check(Failed and (Designer.Scene.ContentJSON = Before), 'Occupied pin rejection preserves the original connection');
+    Designer.DeleteSelectedConnection;
+    Check((Designer.Scene.Count = 2) and (Designer.Scene.Item(A).Pin = ''), 'Disconnect retains the component');
+    Designer.Undo; Check(Designer.Scene.Item(A).Pin = 'J1.1', 'Disconnect can be undone');
+  finally Form.Free; System.SysUtils.DeleteFile(BoardFile); end;
+end;
+
 procedure TestPCBPlacement;
 var Form: TForm; Designer, CopyDesigner: TERDPCBDesigner; Before, Index: Integer; Item: TERDPCBDesignItem;
     Client: TPoint; Failed: Boolean; Stream: TMemoryStream;
@@ -3693,6 +3747,7 @@ begin
     TestPCBDesigner;
     TestPCBDesignerTools;
     TestPCBPlacement;
+    TestPCBConnections;
     TestSignatureHelp;
     TestEditorWindowShutdown;
     TestStdioLanguageAdapter;

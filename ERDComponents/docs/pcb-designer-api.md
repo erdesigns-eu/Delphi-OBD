@@ -275,3 +275,28 @@ not part of scene undo history.
 
 For interaction details see [the component guide](pcb-designer-component.md).
 For deferred Windows checks see [the Windows checklist](pcb-designer-windows-checks.md).
+
+### Connection selection and editing
+
+`HitTestConnection(ClientPoint, ItemID, Role)` uses samples of the same Bézier
+geometry that is painted, including obstacle detours. Coordinates are client
+pixels. `SelectConnection(ItemID, Role)` selects an existing assignment and its
+owner; `ClearConnectionSelection` clears the transient connection selection.
+Read `SelectedConnectionItemID`, `SelectedConnectionRole` and
+`SelectedConnectionPin` for its identity. The physical `SelectedPin` remains a
+separate selection. Use `OnConnectionSelectionChange` to refresh host actions.
+
+`DeleteSelectedConnection` disconnects the selected role without deleting its
+owner. `ReconnectSelectedPin(Pin)` replaces its PCB endpoint.
+`MoveSelectedConnection(TargetItemID, TargetRole)` transfers the assignment to a
+free compatible role, clearing the original role in the same undo transaction.
+These methods enforce pin ownership and component locks and raise
+`EArgumentException` for invalid assignments. Interactive drops report failures
+through `LastError` / `OnConnectionError`. Escape or an invalid drop preserves
+the original assignment. Undo/redo clears transient connection selection.
+
+`FitSelection` frames selected objects, the physical terminal, or the selected
+connection and its owner. The default shortcut is F. `DefaultContextMenu`
+(default True) enables the themed context menu. A host-provided `PopupMenu`, or
+an `OnContextPopup` handler setting `Handled`, takes precedence. Set
+`DefaultContextMenu := False` to provide all actions externally.

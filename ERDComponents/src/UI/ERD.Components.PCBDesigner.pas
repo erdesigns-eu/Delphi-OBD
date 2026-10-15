@@ -5,7 +5,7 @@ interface
 uses
   System.Classes, System.SysUtils, System.Types, System.Math, System.JSON, System.UITypes, System.Generics.Collections,
   Winapi.Windows, Winapi.Messages, Vcl.Controls, Vcl.Graphics,
-  ERD.Components.Control, ERD.Components.Types, ERD.Components.PCBScene, ERD.Components.Memo, ERD.Components.ScrollBar;
+  ERD.Components.Control, ERD.Components.Types, ERD.Components.PCBScene, ERD.Components.PCBRoute, ERD.Components.Memo, ERD.Components.Menus, ERD.Components.ScrollBar;
 
 type
   TERDPCBAlignment = (paLeft, paHorizontalCenter, paRight, paTop, paVerticalCenter, paBottom);
@@ -36,11 +36,17 @@ type
   /// Imported geometry is read-only; project assignments have a separate file.
   TERDPCBDesigner = class(TERDCustomControl)
   private
+    FConnectionID, FHotConnectionID: string;
+    FConnectionRole, FHotConnectionRole: TERDPCBPinRole;
+    FSelectingConnection, FRewiring: Boolean;
+    FOnConnectionSelectionChange: TNotifyEvent;
+    FContextMenu: TERDPopupMenu;
+    FDefaultContextMenu, FSuppressContextMenu: Boolean;
     FPlacing, FPlacementPreview: Boolean;
     FPlacementKind: TERDPCBItemKind;
     FPlacementPoint: TPoint;
     FOnPlacementChange: TNotifyEvent;
-    FRouteCache: TDictionary<string, TArray<TPoint>>;
+    FRouteCache: TDictionary<string, TERDPCBConnectionGeometry>;
     FNoteEditor: TERDMemo;
     FEditingNote: string;
     FFinishingNote: Boolean;
@@ -81,6 +87,16 @@ type
     FDragging, FPanMode, FCompletingGesture: Boolean;
     FLast: TPoint;
     FOnSelectionChange, FOnHotPinChange, FOnViewChange: TNotifyEvent;
+    function RolePin(const Item: TERDPCBDesignItem; Role: TERDPCBPinRole): string;
+    function ConnectionPin: string;
+    function ConnectionAnchors(ItemIndex: Integer; Role: TERDPCBPinRole; out FromPoint, ToPoint: TPoint): Boolean;
+    function BuildConnectionGeometry(const FromPoint, ToPoint: TPoint; TargetIndex: Integer): TERDPCBConnectionGeometry;
+    function ConnectionGeometry(ItemIndex: Integer; Role: TERDPCBPinRole): TERDPCBConnectionGeometry;
+    procedure SetHotConnection(const ID: string; Role: TERDPCBPinRole);
+    function ConnectionHint(const ID: string; Role: TERDPCBPinRole): string;
+    procedure ReportConnectionError(const Text: string);
+    procedure ContextAction(Sender: TObject);
+    function SelectionBounds(out Bounds: TRect): Boolean;
     function InsertionPoint(Kind: TERDPCBItemKind; const ClientPoint: TPoint): TPointF;
     procedure PaintPlacementPreview(ACanvas: TCanvas);
     procedure SnapGuides(var DX, DY: Double);
@@ -148,6 +164,7 @@ type
     procedure Resize; override;
     procedure Loaded; override;
     procedure PaintControl(ACanvas: TCanvas); override;
+    procedure DoContextPopup(MousePos: TPoint; var Handled: Boolean); override;
     procedure DblClick; override;
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
@@ -168,6 +185,16 @@ type
     function AddDesignItem(Kind: TERDPCBItemKind; const Position: TPointF): Integer;
     procedure AlignSelected(Alignment: TERDPCBAlignment);
     procedure DistributeSelected(Horizontal: Boolean);
+    function HitTestConnection(const ClientPoint: TPoint; out ItemID: string; out Role: TERDPCBPinRole): Boolean;
+    procedure SelectConnection(const ItemID: string; Role: TERDPCBPinRole);
+    procedure ClearConnectionSelection;
+    procedure DeleteSelectedConnection;
+    procedure ReconnectSelectedPin(const Pin: string);
+    procedure MoveSelectedConnection(const TargetItemID: string; TargetRole: TERDPCBPinRole);
+    procedure FitSelection;
+    property SelectedConnectionItemID: string read FConnectionID;
+    property SelectedConnectionRole: TERDPCBPinRole read FConnectionRole;
+    property SelectedConnectionPin: string read ConnectionPin;
     procedure BeginNoteEdit;
     procedure FinishNoteEdit(Accept: Boolean);
     function SupportsPinRole(ItemIndex: Integer; Role: TERDPCBPinRole): Boolean;
@@ -213,6 +240,8 @@ type
     property LastError: string read FLastError;
     property HotPin: string read FHot;
   published
+    property DefaultContextMenu: Boolean read FDefaultContextMenu write FDefaultContextMenu default True;
+    property OnConnectionSelectionChange: TNotifyEvent read FOnConnectionSelectionChange write FOnConnectionSelectionChange;
     property OnPlacementChange: TNotifyEvent read FOnPlacementChange write FOnPlacementChange;
     property AlignmentGuides: Boolean read FAlignmentGuides write FAlignmentGuides default True;
     property PanMode: Boolean read FPanMode write SetPanMode default False;
@@ -249,7 +278,7 @@ function ERDPCBParsePinCapabilities(const Text: string): TERDPCBPinCapabilities;
 implementation
 
 uses System.IOUtils, Winapi.GDIPAPI, Winapi.GDIPOBJ,
-  Vcl.Forms, Vcl.Clipbrd, Vcl.StdCtrls, ERD.Components.Paint, ERD.Components.GDIP, ERD.Components.PCBRoute;
+  Vcl.Forms, Vcl.Clipbrd, Vcl.StdCtrls, ERD.Components.Paint, ERD.Components.GDIP, Vcl.Menus;
 
 function ERDPCBPinCapabilityName(Value: TERDPCBPinCapability): string;
 begin
@@ -283,7 +312,7 @@ begin
   try
     Parts.StrictDelimiter := True; Parts.Delimiter := ','; Parts.DelimitedText := Text;
     for I := 0 to Parts.Count - 1 do
-    begin C := ParseCapability(Trim(Parts[I])); if C <> pcNone then Include(Result, C); end;
+    begin C := ParseCapability(Trim(Parts[I])); if C <> pcNone then System.Include(Result, C); end;
   finally Parts.Free; end;
 end;
 function PointValue(Value: TJSONValue): TPointF;
@@ -312,6 +341,8 @@ end;
 constructor TERDPCBDesigner.Create(AOwner: TComponent);
 begin
   inherited; FZoom := 1; Width := 700; Height := 400; TabStop := True;
+  FDefaultContextMenu := True;
+  FContextMenu := TERDPopupMenu.Create(Self); FContextMenu.AutoPopup := False;
   FAlignmentGuides := True; FGuideX := MaxInt; FGuideY := MaxInt;
   FShowBodies := True;
   FShowPads := True;
@@ -329,7 +360,7 @@ begin
   FShowGrid := True;
   FGridSize := 1;
   FScrollBars := System.UITypes.TScrollStyle.ssBoth;
-  FRouteCache := TDictionary<string, TArray<TPoint>>.Create;
+  FRouteCache := TDictionary<string, TERDPCBConnectionGeometry>.Create;
   FScene := TERDPCBScene.Create(Self); FScene.OnValidateItem := ValidateSceneItem; FScene.OnChange := SceneChanged; FScene.OnSelectionChange := SceneSelectionChanged;
   FScrollH := TERDScrollBar.Create(Self); FScrollH.Parent := Self; FScrollH.Kind := sbHorizontal; FScrollH.Visible := False;
   FScrollH.OnChange := ScrollChanged; FScrollH.TabStop := False;
@@ -341,15 +372,266 @@ begin
 end;
 destructor TERDPCBDesigner.Destroy;
 begin
-  FEditingNote := ''; FOnPlacementChange := nil;
+  FEditingNote := ''; FOnPlacementChange := nil; FOnConnectionSelectionChange := nil;
   if FNoteEditor <> nil then begin FNoteEditor.Editor.OnExit := nil; FNoteEditor.OnKeyDown := nil; end;
   if FScrollH <> nil then FScrollH.OnChange := nil;
   if FScrollV <> nil then FScrollV.OnChange := nil;
   if FScene <> nil then begin FScene.OnChange := nil; FScene.OnSelectionChange := nil; end;
   CancelGesture;
   if HandleAllocated then DestroyWnd;
-  FreeAndNil(FRouteCache); FreeAndNil(FScene); FreeAndNil(FStaticLayer);
+  FreeAndNil(FContextMenu); FreeAndNil(FRouteCache); FreeAndNil(FScene); FreeAndNil(FStaticLayer);
   inherited;
+end;
+function TERDPCBDesigner.RolePin(const Item: TERDPCBDesignItem; Role: TERDPCBPinRole): string;
+begin
+  case Role of prPrimary: Result := Item.Pin; prSecondary: Result := Item.SecondaryPin;
+    prClock: Result := Item.ClockPin; prSelect: Result := Item.SelectPin; else Result := ''; end;
+end;
+function TERDPCBDesigner.ConnectionPin: string;
+var Index: Integer;
+begin
+  Result := ''; if FScene = nil then Exit;
+  Index := FScene.IndexOf(FConnectionID);
+  if Index >= 0 then Result := RolePin(FScene.Item(Index), FConnectionRole);
+end;
+function TERDPCBDesigner.ConnectionAnchors(ItemIndex: Integer; Role: TERDPCBPinRole; out FromPoint, ToPoint: TPoint): Boolean;
+var R: TRect; Pad: TERDPCBPad; Count: Integer; Pin: string;
+begin
+  Result := False; if not SupportsPinRole(ItemIndex, Role) then Exit;
+  Pin := RolePin(FScene.Item(ItemIndex), Role); if Pin = '' then Exit;
+  UpdateTransform;
+  for Pad in FPads do if Pad.ID = Pin then begin FromPoint := ScreenPoint(Pad.Position); Result := True; Break; end;
+  if not Result then Exit;
+  R := ItemRect(ItemIndex); Count := 1;
+  if SupportsPinRole(ItemIndex, prSecondary) then Count := 2;
+  if SupportsPinRole(ItemIndex, prSelect) then Count := 4;
+  ToPoint := Point(R.Left + R.Width * (Ord(Role) + 1) div (Count + 1), R.Top);
+  if (R.Top + R.Bottom) div 2 < FromPoint.Y then ToPoint.Y := R.Bottom;
+  Result := True;
+end;
+function TERDPCBDesigner.BuildConnectionGeometry(const FromPoint, ToPoint: TPoint; TargetIndex: Integer): TERDPCBConnectionGeometry;
+var Key: string; Boxes: TArray<TRect>; I, N: Integer;
+begin
+  Key := IntToStr(FromPoint.X) + ',' + IntToStr(FromPoint.Y) + ':' +
+    IntToStr(ToPoint.X) + ',' + IntToStr(ToPoint.Y) + ':' + IntToStr(TargetIndex);
+  if FRouteCache.TryGetValue(Key, Result) then Exit;
+  SetLength(Boxes, FScene.Count); N := 0;
+  for I := 0 to FScene.Count - 1 do if I <> TargetIndex then begin Boxes[N] := ItemRect(I); Inc(N); end;
+  SetLength(Boxes, N); Result := ERDBuildPCBConnection(FromPoint, ToPoint, Boxes, ScaleValue(96) / 96);
+  if FRouteCache.Count >= 256 then FRouteCache.Clear;
+  FRouteCache.AddOrSetValue(Key, Result);
+end;
+function TERDPCBDesigner.ConnectionGeometry(ItemIndex: Integer; Role: TERDPCBPinRole): TERDPCBConnectionGeometry;
+var P, Q: TPoint;
+begin
+  Result := Default(TERDPCBConnectionGeometry);
+  if ConnectionAnchors(ItemIndex, Role, P, Q) then Result := BuildConnectionGeometry(P, Q, ItemIndex);
+end;
+function TERDPCBDesigner.HitTestConnection(const ClientPoint: TPoint; out ItemID: string; out Role: TERDPCBPinRole): Boolean;
+var I: Integer; Candidate: TERDPCBPinRole; Distance, Best: Double; Geometry: TERDPCBConnectionGeometry;
+begin
+  ItemID := ''; Role := prPrimary; Best := ScaleValue(6) + 0.01; UpdateTransform;
+  for I := FScene.Count - 1 downto 0 do for Candidate := Low(TERDPCBPinRole) to High(TERDPCBPinRole) do
+  begin
+    Geometry := ConnectionGeometry(I, Candidate);
+    Distance := ERDPCBConnectionDistance(Geometry, PointF(ClientPoint.X, ClientPoint.Y));
+    if Distance < Best then begin Best := Distance; ItemID := FScene.Item(I).ID; Role := Candidate; end;
+  end;
+  Result := ItemID <> '';
+end;
+procedure TERDPCBDesigner.SetHotConnection(const ID: string; Role: TERDPCBPinRole);
+begin
+  if (FHotConnectionID = ID) and ((ID = '') or (FHotConnectionRole = Role)) then Exit;
+  FHotConnectionID := ID; FHotConnectionRole := Role; Invalidate; Application.CancelHint;
+end;
+procedure TERDPCBDesigner.SelectConnection(const ItemID: string; Role: TERDPCBPinRole);
+var Index: Integer;
+begin
+  Index := FScene.IndexOf(ItemID);
+  if Index < 0 then raise EArgumentException.Create('Connection component no longer exists');
+  if not SupportsPinRole(Index, Role) or (RolePin(FScene.Item(Index), Role) = '') then
+    raise EArgumentException.Create('No connection for this role');
+  FSelectingConnection := True;
+  try
+    FConnectionID := ItemID; FConnectionRole := Role; FSelected := ''; SetHot(''); FScene.Select(Index);
+  finally FSelectingConnection := False; end;
+  FStaticDirty := True; Invalidate;
+  if Assigned(FOnConnectionSelectionChange) then FOnConnectionSelectionChange(Self);
+end;
+procedure TERDPCBDesigner.ClearConnectionSelection;
+begin
+  if FConnectionID = '' then Exit;
+  FConnectionID := ''; FStaticDirty := True; Invalidate;
+  if Assigned(FOnConnectionSelectionChange) then FOnConnectionSelectionChange(Self);
+end;
+procedure TERDPCBDesigner.DeleteSelectedConnection;
+var Index: Integer;
+begin
+  Index := FScene.IndexOf(FConnectionID); if Index < 0 then Exit;
+  if FScene.Item(Index).Locked then raise EArgumentException.Create('Unlock the component before disconnecting it');
+  AssignPin(Index, FConnectionRole, ''); ClearConnectionSelection;
+end;
+procedure TERDPCBDesigner.ReconnectSelectedPin(const Pin: string);
+var Index: Integer;
+begin
+  Index := FScene.IndexOf(FConnectionID); if Index < 0 then raise EArgumentException.Create('Select a connection first');
+  if FScene.Item(Index).Locked then raise EArgumentException.Create('Unlock the component before reconnecting it');
+  if Pin = '' then raise EArgumentException.Create('Drop on a programmable pin');
+  AssignPin(Index, FConnectionRole, Pin); FStaticDirty := True; Invalidate;
+  if Assigned(FOnConnectionSelectionChange) then FOnConnectionSelectionChange(Self);
+end;
+procedure TERDPCBDesigner.MoveSelectedConnection(const TargetItemID: string; TargetRole: TERDPCBPinRole);
+var SourceIndex, TargetIndex: Integer; SourceID, Pin: string; SourceRole: TERDPCBPinRole;
+begin
+  SourceID := FConnectionID; SourceRole := FConnectionRole; Pin := ConnectionPin;
+  SourceIndex := FScene.IndexOf(SourceID); TargetIndex := FScene.IndexOf(TargetItemID);
+  if (SourceIndex < 0) or (TargetIndex < 0) or (Pin = '') then raise EArgumentException.Create('Select a connection and a destination component');
+  if (SourceID = TargetItemID) and (SourceRole = TargetRole) then Exit;
+  if FScene.Item(SourceIndex).Locked or FScene.Item(TargetIndex).Locked then raise EArgumentException.Create('Unlock both components before reconnecting');
+  if not SupportsPinRole(TargetIndex, TargetRole) then raise EArgumentException.Create('Destination does not support this connection role');
+  if RolePin(FScene.Item(TargetIndex), TargetRole) <> '' then raise EArgumentException.Create('Destination role is already connected');
+  FRewiring := True; FScene.BeginEdit;
+  try
+    try
+      AssignPin(SourceIndex, SourceRole, ''); AssignPin(TargetIndex, TargetRole, Pin); FScene.EndEdit;
+    except FScene.CancelEdit; raise; end;
+  finally FRewiring := False; end;
+  SelectConnection(TargetItemID, TargetRole);
+end;
+function TERDPCBDesigner.ConnectionHint(const ID: string; Role: TERDPCBPinRole): string;
+var Index, ChannelID: Integer; Value: TERDPCBDesignItem; Pin, RoleName: string;
+begin
+  Result := ''; Index := FScene.IndexOf(ID); if Index < 0 then Exit;
+  Value := FScene.Item(Index); Pin := RolePin(Value, Role); if Pin = '' then Exit;
+  case Role of prPrimary: RoleName := 'Pin'; prSecondary: RoleName := 'Secondary'; prClock: RoleName := 'Clock'; else RoleName := 'Select'; end;
+  case Value.Kind of
+    piUART, piCANBus: if Role = prPrimary then RoleName := 'TX' else RoleName := 'RX';
+    piI2C: if Role = prPrimary then RoleName := 'SDA' else RoleName := 'SCL';
+    piSPI: case Role of prPrimary: RoleName := 'MOSI'; prSecondary: RoleName := 'MISO'; prClock: RoleName := 'Clock'; prSelect: RoleName := 'Chip select'; end;
+    piOutputGroup: RoleName := 'LED data';
+  end;
+  Result := Value.Name + ' / ' + RoleName + ' - ' + Pin;
+  ChannelID := ChannelIndex(Pin); if (ChannelID >= 0) and (FChannels[ChannelID].GPIO <> '') then Result := Result + ' / ' + FChannels[ChannelID].GPIO;
+end;
+procedure TERDPCBDesigner.ReportConnectionError(const Text: string);
+begin FLastError := Text; if Assigned(FOnConnectionError) then FOnConnectionError(Self, Text); end;
+function TERDPCBDesigner.SelectionBounds(out Bounds: TRect): Boolean;
+var I, Index: Integer; R: TRect; P: TPoint; Point: TPointF; Geometry: TERDPCBConnectionGeometry;
+  procedure Include(const Rect: TRect);
+  begin
+    if not Result then begin Bounds := Rect; Result := True; end
+    else begin Bounds.Left := Min(Bounds.Left, Rect.Left); Bounds.Top := Min(Bounds.Top, Rect.Top);
+      Bounds.Right := Max(Bounds.Right, Rect.Right); Bounds.Bottom := Max(Bounds.Bottom, Rect.Bottom); end;
+  end;
+begin
+  Result := False; Bounds := Rect(0,0,0,0); UpdateTransform;
+  Index := FScene.IndexOf(FConnectionID);
+  if Index >= 0 then
+  begin
+    Geometry := ConnectionGeometry(Index, FConnectionRole);
+    for Point in Geometry.Samples do Include(Rect(Floor(Point.X), Floor(Point.Y), Ceil(Point.X)+1, Ceil(Point.Y)+1));
+    Include(ItemRect(Index)); Exit;
+  end;
+  for I := 0 to FScene.Count - 1 do if FScene.Item(I).Selected then
+  begin
+    R := ItemRect(I);
+    if FScene.Item(I).Kind <> piNote then begin Dec(R.Left, ScaleValue(20)); Inc(R.Right, ScaleValue(20)); Inc(R.Bottom, ScaleValue(22)); end;
+    Include(R);
+  end;
+  if Result or (FSelected = '') then Exit;
+  Index := TerminalIndex(FSelected);
+  if (Index >= 0) and not FTemplateEditMode then begin Include(TerminalRect(Index)); Exit; end;
+  for I := 0 to High(FPads) do if FPads[I].ID = FSelected then
+    for Point in FPads[I].Polygon do begin P := ScreenPoint(Point); Include(Rect(P.X,P.Y,P.X+1,P.Y+1)); end;
+end;
+procedure TERDPCBDesigner.FitSelection;
+var Bounds: TRect; Center: TPoint; Ratio, PreviousZoom: Double; I: Integer;
+begin
+  FinishNoteEdit(True); CancelGesture;
+  // Re-evaluate after zooming because nonvisual glyphs keep a fixed pixel size.
+  for I := 0 to 2 do
+  begin
+    if not SelectionBounds(Bounds) then Exit;
+    Center := Point((Bounds.Left+Bounds.Right) div 2, (Bounds.Top+Bounds.Bottom) div 2);
+    Ratio := Min(Max(1, ClientWidth - ScaleValue(64)) / Max(1, Bounds.Width),
+      Max(1, ClientHeight - ScaleValue(64)) / Max(1, Bounds.Height));
+    PreviousZoom := FZoom; ZoomAt(FZoom * Ratio, Center);
+    PanBy(ClientWidth div 2 - Center.X, ClientHeight div 2 - Center.Y);
+    if SameValue(PreviousZoom, FZoom) then Break;
+  end;
+end;
+procedure TERDPCBDesigner.ContextAction(Sender: TObject);
+var I: Integer; Value: TERDPCBDesignItem; Lock: Boolean;
+begin
+  if not (Sender is TMenuItem) then Exit;
+  try
+    case TMenuItem(Sender).Tag of
+      1: Undo; 2: Redo; 3: FitSelection; 4: FitBoard; 5: DeleteSelectedConnection;
+      6: CopySelected; 7: Paste; 8: FScene.DeleteSelected; 9: FScene.SelectAll;
+      10: BeginNoteEdit;
+      11:
+        begin
+          Lock := False;
+          for I := 0 to FScene.Count - 1 do if FScene.Item(I).Selected and not FScene.Item(I).Locked then Lock := True;
+          FScene.BeginEdit;
+          try
+            for I := 0 to FScene.Count - 1 do if FScene.Item(I).Selected then
+            begin Value := FScene.Item(I); Value.Locked := Lock; FScene.UpdateItem(I, Value); end;
+            FScene.EndEdit;
+          except FScene.CancelEdit; raise; end;
+        end;
+      12: begin CancelPlacement; PanMode := False; end;
+    end;
+  except on E: Exception do ReportConnectionError(E.Message); end;
+end;
+procedure TERDPCBDesigner.DoContextPopup(MousePos: TPoint; var Handled: Boolean);
+var I: Integer; ID, Pin: string; Role: TERDPCBPinRole; Bounds: TRect; ScreenPoint: TPoint;
+    Keyboard, CanRemove, CanEditNote: Boolean;
+  procedure Entry(const Caption: string; Tag: Integer; Enabled: Boolean = True);
+  var Item: TMenuItem;
+  begin
+    Item := TMenuItem.Create(FContextMenu); Item.Caption := Caption; Item.Tag := Tag;
+    Item.Enabled := Enabled; Item.OnClick := ContextAction; FContextMenu.Items.Add(Item);
+  end;
+begin
+  inherited;
+  if FSuppressContextMenu then begin FSuppressContextMenu := False; Handled := True; Exit; end;
+  if Handled or not FDefaultContextMenu or (PopupMenu <> nil) or not Enabled then Exit;
+  FinishNoteEdit(True); CancelGesture; Keyboard := (MousePos.X = -1) and (MousePos.Y = -1);
+  if Keyboard then
+  begin
+    if SelectionBounds(Bounds) then MousePos := Point((Bounds.Left+Bounds.Right) div 2, (Bounds.Top+Bounds.Bottom) div 2)
+    else MousePos := Point(ClientWidth div 2, ClientHeight div 2);
+  end
+  else
+  begin
+    I := ItemAt(MousePos); Pin := PadAt(MousePos.X, MousePos.Y);
+    if (I < 0) and HitTestConnection(MousePos, ID, Role) and ((Pin = '') or (ID = FConnectionID)) then SelectConnection(ID, Role)
+    else if I >= 0 then begin ClearConnectionSelection; if not FScene.Item(I).Selected then FScene.Select(I); end
+    else if Pin <> '' then begin ClearConnectionSelection; SelectedPin := Pin; end;
+  end;
+  SetFocus; FContextMenu.Items.Clear; FContextMenu.PopupComponent := Self;
+  FContextMenu.Theme := Theme; FContextMenu.Density := Density;
+  Entry('Undo', 1, FScene.CanUndo); Entry('Redo', 2, FScene.CanRedo); Entry('-', 0);
+  if FConnectionID <> '' then
+  begin
+    I := FScene.IndexOf(FConnectionID); CanRemove := (I >= 0) and not FScene.Item(I).Locked;
+    Entry('Disconnect', 5, CanRemove);
+  end
+  else
+  begin
+    CanRemove := False;
+    for I := 0 to FScene.Count - 1 do if FScene.Item(I).Selected and not FScene.Item(I).Locked then CanRemove := True;
+    Entry('Copy', 6, FScene.SelectionCount > 0); Entry('Paste', 7, Clipboard.HasFormat(CF_UNICODETEXT) and not FTemplateEditMode);
+    Entry('Delete objects', 8, CanRemove); Entry('Select all objects', 9, FScene.Count > 0);
+    I := FScene.PrimaryIndex; CanEditNote := False;
+    if I >= 0 then CanEditNote := (FScene.Item(I).Kind = piNote) and not FScene.Item(I).Locked;
+    if CanEditNote then Entry('Edit note', 10);
+    if FScene.SelectionCount > 0 then Entry('Lock / unlock selection', 11);
+  end;
+  Entry('-',0); Entry('Zoom to selection (F)', 3, SelectionBounds(Bounds)); Entry('Fit board (Home)', 4);
+  if FPlacing or FPanMode then Entry('Select / move', 12);
+  Handled := True; ScreenPoint := ClientToScreen(MousePos); FContextMenu.Popup(ScreenPoint.X, ScreenPoint.Y);
 end;
 function TERDPCBDesigner.InsertionPoint(Kind: TERDPCBItemKind; const ClientPoint: TPoint): TPointF;
 begin
@@ -368,7 +650,7 @@ procedure TERDPCBDesigner.BeginPlacement(Kind: TERDPCBItemKind);
 begin
   if FTemplateEditMode then raise EArgumentException.Create('End template authoring before placing scene items');
   FinishNoteEdit(True); CancelGesture; PanMode := False;
-  FPlacementKind := Kind; FPlacing := True; FPlacementPreview := False;
+  ClearConnectionSelection; FPlacementKind := Kind; FPlacing := True; FPlacementPreview := False;
   Cursor := crCross; SetHot(''); Invalidate;
   if Assigned(FOnPlacementChange) then FOnPlacementChange(Self);
 end;
@@ -674,7 +956,7 @@ end;
 procedure TERDPCBDesigner.SetTemplateEditMode(Value: Boolean);
 begin
   if FTemplateEditMode = Value then Exit;
-  CancelPlacement; CancelGesture; FTemplateEditMode := Value;
+  CancelPlacement; CancelGesture; ClearConnectionSelection; SetHotConnection('', prPrimary); FTemplateEditMode := Value;
   if not Value and (FSelected <> '') and (ChannelIndex(FSelected) < 0) then SelectedPin := '';
   SetHot(''); FStaticDirty := True; Invalidate;
 end;
@@ -773,11 +1055,18 @@ begin FScene.Assign(Value); end;
 procedure TERDPCBDesigner.SceneChanged(Sender: TObject);
 begin
   if FRouteCache <> nil then FRouteCache.Clear;
+  if FConnectionID <> '' then
+  begin
+    FStaticDirty := True;
+    if not FRewiring and (ConnectionPin = '') then ClearConnectionSelection;
+  end;
+  SetHotConnection('', prPrimary);
   Invalidate; SyncScrollBars;
   if not (csLoading in ComponentState) and Assigned(FOnChange) then FOnChange(Self);
 end;
 procedure TERDPCBDesigner.SceneSelectionChanged(Sender: TObject);
 begin
+  if not FSelectingConnection and not FRewiring then ClearConnectionSelection;
   if (FScene.SelectionCount > 0) and (FSelected <> '') then begin FSelected := ''; FStaticDirty := True; end;
   Invalidate;
   if not (csLoading in ComponentState) and Assigned(FOnSelectionChange) then FOnSelectionChange(Self);
@@ -933,9 +1222,9 @@ begin
   FScene.PasteJSON(Text, FGridSize);
 end;
 procedure TERDPCBDesigner.Undo;
-begin FinishNoteEdit(True); CancelGesture; FScene.Undo; end;
+begin FinishNoteEdit(True); CancelGesture; ClearConnectionSelection; FScene.Undo; end;
 procedure TERDPCBDesigner.Redo;
-begin FinishNoteEdit(True); CancelGesture; FScene.Redo; end;
+begin FinishNoteEdit(True); CancelGesture; ClearConnectionSelection; FScene.Redo; end;
 procedure TERDPCBDesigner.LoadBoard(const FileName: string);
 begin
   LoadBoardJSON(TFile.ReadAllText(FileName, TEncoding.UTF8));
@@ -1155,7 +1444,7 @@ begin
 end;
 procedure TERDPCBDesigner.CMMouseLeave(var Message: TMessage);
 begin
-  FPlacementPreview := False; Invalidate; SetHot('');
+  FPlacementPreview := False; Invalidate; SetHot(''); SetHotConnection('', prPrimary);
   if not FDragging then Cursor := crDefault; inherited;
 end;
 procedure TERDPCBDesigner.WMLButtonUp(var Message: TWMLButtonUp);
@@ -1180,7 +1469,15 @@ procedure TERDPCBDesigner.CMHintShow(var Message: TCMHintShow);
 var Pad: TERDPCBPad; P: TPoint;
 begin
   inherited;
-  if (Message.HintInfo = nil) or not ShowHint or (FHot = '') then Exit;
+  if (Message.HintInfo = nil) or not ShowHint then Exit;
+  if FHotConnectionID <> '' then
+  begin
+    Message.HintInfo^.HintStr := ConnectionHint(FHotConnectionID, FHotConnectionRole);
+    P := Message.HintInfo^.CursorPos;
+    Message.HintInfo^.CursorRect := Rect(P.X-ScaleValue(4),P.Y-ScaleValue(4),P.X+ScaleValue(4),P.Y+ScaleValue(4));
+    Exit;
+  end;
+  if FHot = '' then Exit;
   for Pad in FPads do if Pad.ID = FHot then
   begin
     Message.HintInfo^.HintStr := Pad.ID + ' - ' + Pad.Net;
@@ -1243,7 +1540,7 @@ begin
     ACanvas.Pen.Width := 1; ACanvas.Pen.Color := Palette.NeutralDark;
     ACanvas.Brush.Color := PadInk;
     if FPads[I].ID = FHot then ACanvas.Brush.Color := Accent;
-    if FPads[I].ID = FSelected then
+    if (FPads[I].ID = FSelected) or ((FConnectionID <> '') and (FPads[I].ID = ConnectionPin)) then
     begin ACanvas.Brush.Color := Accent; ACanvas.Pen.Color := Palette.ForegroundText; ACanvas.Pen.Width := ScaleValue(2); end;
     if Length(Poly) > 2 then ACanvas.Polygon(Poly);
     if not FShowDrills then Continue;
@@ -1296,6 +1593,7 @@ var Found: Boolean; P: TERDPCBPad; Canonical: string;
 begin
   Canonical := SelectionPinFor(Value);
   if (Value <> '') and (Canonical = '') then raise EArgumentException.Create('Pin is not programmable');
+  if Canonical <> '' then ClearConnectionSelection;
   if FSelected = Canonical then Exit;
   Found := (Value = '');
   if Value <> '' then for P in FPads do if (P.ID = Canonical) and IsSelectablePin(Canonical) then begin Found := True; Break; end;
@@ -1467,10 +1765,11 @@ begin
     Value := FComponents[I]; TerminalID := TerminalIndex(Value.Reference);
     if (TerminalID < 0) or (Length(Value.Body) < 3) then Continue;
     if (FTerminals[TerminalID].SignalPin <> FSelected) and
-       (FTerminals[TerminalID].SignalPin <> FHot) then Continue;
+       (FTerminals[TerminalID].SignalPin <> FHot) and (FTerminals[TerminalID].SignalPin <> ConnectionPin) then Continue;
     SetLength(Poly, Length(Value.Body));
     for J := 0 to High(Poly) do Poly[J] := ScreenPoint(Value.Body[J]);
-    if FTerminals[TerminalID].SignalPin = FSelected then TintSelectedTerminal;
+    if (FTerminals[TerminalID].SignalPin = FSelected) or
+       ((FConnectionID <> '') and (FTerminals[TerminalID].SignalPin = ConnectionPin)) then TintSelectedTerminal;
     // Use the exact imported terminal contour, with no inset or second frame.
     ACanvas.Polygon(Poly);
   end;
@@ -1479,7 +1778,8 @@ begin
   begin
     P := ScreenPoint(FPads[I].Position); Radius := Max(ScaleValue(3), Round(0.45 * FScreenScale));
     ACanvas.Brush.Style := bsSolid; ACanvas.Brush.Color := Palette.Background; ACanvas.Pen.Color := Palette.NeutralDark;
-    if (SelectionPinFor(FPads[I].ID) = FSelected) or (SelectionPinFor(FPads[I].ID) = FHot) then
+    if (SelectionPinFor(FPads[I].ID) = FSelected) or (SelectionPinFor(FPads[I].ID) = FHot) or
+       ((FConnectionID <> '') and (SelectionPinFor(FPads[I].ID) = ConnectionPin)) then
     begin ACanvas.Brush.Color := Palette.Accent; ACanvas.Pen.Color := Palette.ForegroundText; end;
     ACanvas.Ellipse(P.X - Radius, P.Y - Radius, P.X + Radius, P.Y + Radius);
   end;
@@ -1563,97 +1863,24 @@ begin
 end;
 procedure TERDPCBDesigner.PaintScene(ACanvas: TCanvas);
 var I, J, ClipState: Integer; R, LinkRect: TRect; Value: TERDPCBDesignItem;
-    P, Q: TPoint; Pad: TERDPCBPad; Text, Link: string; Role: Integer;
-    Tint: TBitmap; Blend: TBlendFunction; Ink: TColor; RoleCount: Integer;
+    P, Q: TPoint; Pad: TERDPCBPad; Text: string; Role, ConnectionIndex: Integer;
+    Tint: TBitmap; Blend: TBlendFunction; Ink: TColor;
   procedure DrawConnection(const FromPoint, ToPoint: TPoint; Color: TColor; Width: Single; TargetIndex: Integer);
-  var Graphics: TGPGraphics; Path: TGPGraphicsPath; Pen: TGPPen;
-      Stub, Bend, StartY, EndY, Direction, Gap, T, U, Radius, LengthIn, LengthOut: Single;
-      Obstacles: TArray<TRect>; Route, Points: TArray<TPoint>; Segment, Intersection: TRect;
-      K, N: Integer; Previous, Sample: TPoint; A, B, C, BeforeCorner, AfterCorner: TGPPointF;
-      Blocked: Boolean; CacheKey: string;
-    function SegmentBlocked(const A, B: TPoint): Boolean;
-    var Obstacle, Expanded: TRect;
-    begin
-      Result := False;
-      Segment := Rect(Min(A.X, B.X), Min(A.Y, B.Y), Max(A.X, B.X) + 1, Max(A.Y, B.Y) + 1);
-      for Obstacle in Obstacles do
-      begin
-        Expanded := Obstacle; InflateRect(Expanded, ScaleValue(4), ScaleValue(4));
-        if IntersectRect(Intersection, Segment, Expanded) then Exit(True);
-      end;
-    end;
+  var Graphics: TGPGraphics; Path: TGPGraphicsPath; Pen: TGPPen; Geometry: TERDPCBConnectionGeometry;
+      Segment: TERDPCBPathSegment;
   begin
-    Direction := 1; if ToPoint.Y < FromPoint.Y then Direction := -1;
-    Gap := Abs(ToPoint.Y - FromPoint.Y);
-    Stub := Min(ScaleValue(8), Gap / 4);
-    Bend := Min(Gap / 3, Max(ScaleValue(24), Min(ScaleValue(160),
-      (Gap + Abs(ToPoint.X - FromPoint.X)) * 0.35)));
-    StartY := FromPoint.Y + Direction * Stub; EndY := ToPoint.Y - Direction * Stub;
-    CacheKey := IntToStr(FromPoint.X) + ',' + IntToStr(FromPoint.Y) + ':' +
-      IntToStr(ToPoint.X) + ',' + IntToStr(ToPoint.Y) + ':' + IntToStr(TargetIndex);
-    if not FRouteCache.TryGetValue(CacheKey, Route) then
-    begin
-      SetLength(Obstacles, Max(0, FScene.Count - Ord(TargetIndex >= 0))); N := 0;
-      for K := 0 to FScene.Count - 1 do if K <> TargetIndex then
-      begin Obstacles[N] := ItemRect(K); Inc(N); end;
-      SetLength(Obstacles, N);
-      Previous := Point(FromPoint.X, Round(StartY));
-      Blocked := SegmentBlocked(FromPoint, Previous);
-      for K := 1 to 48 do
-      begin
-        T := K / 48; U := 1 - T;
-        Sample.X := Round(U*U*U*FromPoint.X + 3*U*U*T*FromPoint.X + 3*U*T*T*ToPoint.X + T*T*T*ToPoint.X);
-        Sample.Y := Round(U*U*U*StartY + 3*U*U*T*(StartY + Direction*Bend) +
-          3*U*T*T*(EndY - Direction*Bend) + T*T*T*EndY);
-        Blocked := SegmentBlocked(Previous, Sample) or Blocked; Previous := Sample;
-      end;
-      Blocked := SegmentBlocked(Previous, ToPoint) or Blocked;
-      Route := nil;
-      if Blocked then Route := ERDPCBRoute(Point(FromPoint.X, Round(StartY)),
-        Point(ToPoint.X, Round(EndY)), Obstacles, ScaleValue(8));
-      if FRouteCache.Count >= 256 then FRouteCache.Clear;
-      FRouteCache.AddOrSetValue(CacheKey, Route);
-    end;
+    Geometry := BuildConnectionGeometry(FromPoint, ToPoint, TargetIndex);
     Graphics := TGPGraphics.Create(ACanvas.Handle);
     try
-      Graphics.SetSmoothingMode(SmoothingModeAntiAlias);
-      Path := TGPGraphicsPath.Create;
+      Graphics.SetSmoothingMode(SmoothingModeAntiAlias); Path := TGPGraphicsPath.Create;
       try
-        if Length(Route) = 0 then
-        begin
-          Path.AddLine(Single(FromPoint.X), Single(FromPoint.Y), Single(FromPoint.X), StartY);
-          Path.AddBezier(Single(FromPoint.X), StartY, Single(FromPoint.X), StartY + Direction * Bend,
-            Single(ToPoint.X), EndY - Direction * Bend, Single(ToPoint.X), EndY);
-          Path.AddLine(Single(ToPoint.X), EndY, Single(ToPoint.X), Single(ToPoint.Y));
-        end
-        else
-        begin
-          SetLength(Points, Length(Route) + 2); Points[0] := FromPoint;
-          for K := 0 to High(Route) do Points[K + 1] := Route[K];
-          Points[High(Points)] := ToPoint;
-          Previous := Points[0];
-          for K := 1 to High(Points) - 1 do
-          begin
-            A.X := Points[K-1].X; A.Y := Points[K-1].Y;
-            B.X := Points[K].X; B.Y := Points[K].Y;
-            C.X := Points[K+1].X; C.Y := Points[K+1].Y;
-            LengthIn := Hypot(B.X - A.X, B.Y - A.Y); LengthOut := Hypot(C.X - B.X, C.Y - B.Y);
-            if (LengthIn = 0) or (LengthOut = 0) then Continue;
-            Radius := Min(ScaleValue(4), Min(LengthIn, LengthOut) / 2);
-            BeforeCorner.X := B.X + (A.X - B.X) * Radius / LengthIn;
-            BeforeCorner.Y := B.Y + (A.Y - B.Y) * Radius / LengthIn;
-            AfterCorner.X := B.X + (C.X - B.X) * Radius / LengthOut;
-            AfterCorner.Y := B.Y + (C.Y - B.Y) * Radius / LengthOut;
-            Path.AddLine(Single(Previous.X), Single(Previous.Y), BeforeCorner.X, BeforeCorner.Y);
-            Path.AddBezier(BeforeCorner.X, BeforeCorner.Y, B.X, B.Y, B.X, B.Y, AfterCorner.X, AfterCorner.Y);
-            Previous := Point(Round(AfterCorner.X), Round(AfterCorner.Y));
-          end;
-          Path.AddLine(Single(Previous.X), Single(Previous.Y), Single(ToPoint.X), Single(ToPoint.Y));
-        end;
+        for Segment in Geometry.Segments do
+          if Segment.Cubic then Path.AddBezier(Segment.Points[0].X, Segment.Points[0].Y, Segment.Points[1].X,
+            Segment.Points[1].Y, Segment.Points[2].X, Segment.Points[2].Y, Segment.Points[3].X, Segment.Points[3].Y)
+          else Path.AddLine(Segment.Points[0].X, Segment.Points[0].Y, Segment.Points[3].X, Segment.Points[3].Y);
         Pen := TGPPen.Create(ColorToARGB(Color), Width);
         try
-          Pen.SetStartCap(LineCapRound); Pen.SetEndCap(LineCapRound); Pen.SetLineJoin(LineJoinRound);
-          Graphics.DrawPath(Pen, Path);
+          Pen.SetStartCap(LineCapRound); Pen.SetEndCap(LineCapRound); Pen.SetLineJoin(LineJoinRound); Graphics.DrawPath(Pen, Path);
         finally Pen.Free; end;
       finally Path.Free; end;
     finally Graphics.Free; end;
@@ -1662,23 +1889,17 @@ begin
   UpdateTransform;
   for I := 0 to FScene.Count - 1 do
   begin
-    Value := FScene.Item(I); R := ItemRect(I);
+    Value := FScene.Item(I);
     if Value.Kind = piNote then Continue;
-    RoleCount := 1;
-    if Value.Kind in [piUART, piCANBus, piI2C] then RoleCount := 2
-    else if Value.Kind = piSPI then RoleCount := 4;
-    for Role := 0 to RoleCount - 1 do
+    for Role := Ord(Low(TERDPCBPinRole)) to Ord(High(TERDPCBPinRole)) do
     begin
-      case Role of 0: Link := Value.Pin; 1: Link := Value.SecondaryPin;
-        2: Link := Value.ClockPin; else Link := Value.SelectPin; end;
-      if Link <> '' then for Pad in FPads do if Pad.ID = Link then
-      begin
-        P := ScreenPoint(Pad.Position);
-        Q := Point(R.Left + R.Width * (Role + 1) div (RoleCount + 1), R.Top);
-        if (R.Top + R.Bottom) div 2 < P.Y then Q.Y := R.Bottom;
-        Ink := Palette.Subtle; if Value.Selected then Ink := Palette.Accent;
-        DrawConnection(P, Q, Ink, ScaleValue(1), I); Break;
-      end;
+      if not ConnectionAnchors(I, TERDPCBPinRole(Role), P, Q) then Continue;
+      if (FEditMode in [5,6]) and (Value.ID = FConnectionID) and (TERDPCBPinRole(Role) = FConnectionRole) then Continue;
+      Ink := Palette.Subtle; if Value.Selected then Ink := Palette.Accent;
+      if ((Value.ID = FConnectionID) and (TERDPCBPinRole(Role) = FConnectionRole)) or
+         ((Value.ID = FHotConnectionID) and (TERDPCBPinRole(Role) = FHotConnectionRole)) then
+        DrawConnection(P, Q, Palette.Accent, ScaleValue(2), I)
+      else DrawConnection(P, Q, Ink, ScaleValue(1), I);
     end;
   end;
   // Keep every connection behind the component glyphs, regardless of item order.
@@ -1732,6 +1953,26 @@ begin
       R.Right + ScaleValue(64), R.Bottom + ScaleValue(22));
     DrawTextW(ACanvas.Handle, PWideChar(Text), Length(Text), LinkRect,
       DT_SINGLELINE or DT_CENTER or DT_END_ELLIPSIS or DT_NOPREFIX);
+  end;
+  ConnectionIndex := FScene.IndexOf(FConnectionID);
+  if (ConnectionIndex >= 0) and ConnectionAnchors(ConnectionIndex, FConnectionRole, P, Q) then
+  begin
+    ACanvas.Brush.Style := bsSolid; ACanvas.Brush.Color := Palette.Background;
+    ACanvas.Pen.Color := Palette.Accent; ACanvas.Pen.Width := ScaleValue(2);
+    J := ScaleValue(4); ACanvas.Ellipse(P.X-J, P.Y-J, P.X+J+1, P.Y+J+1);
+    ACanvas.Ellipse(Q.X-J, Q.Y-J, Q.X+J+1, Q.Y+J+1);
+  end;
+  if FEditMode in [5,6] then
+  begin
+    if (ConnectionIndex >= 0) and ConnectionAnchors(ConnectionIndex, FConnectionRole, P, Q) then
+    begin
+      I := ConnectionIndex;
+      if FEditMode = 5 then P := FBoxPoint
+      else begin Q := FBoxPoint; I := ItemAt(Q);
+        if I >= 0 then begin R := ItemRect(I); Q := Point((R.Left+R.Right) div 2, R.Top);
+          if (R.Top+R.Bottom) div 2 < P.Y then Q.Y := R.Bottom; end; end;
+      DrawConnection(P, Q, Palette.Accent, ScaleValue(2), I);
+    end;
   end;
   if (FEditMode = 1) and FAlignmentGuides then
   begin
@@ -1806,6 +2047,14 @@ begin
   inherited;
   if FPlacing and (Key = VK_ESCAPE) then begin CancelPlacement; Key := 0; Exit; end;
   if FEditMode <> 0 then begin if Key = VK_ESCAPE then CancelGesture; Key := 0; Exit; end;
+  if (Key = VK_DELETE) and (FConnectionID <> '') then
+  begin
+    try DeleteSelectedConnection; except on E: Exception do ReportConnectionError(E.Message); end;
+    Key := 0; Exit;
+  end;
+  if (Key = VK_ESCAPE) and (FConnectionID <> '') then begin ClearConnectionSelection; Key := 0; Exit; end;
+  if (Key = VK_HOME) or ((Key = Ord('0')) and (ssCtrl in Shift)) then begin FitBoard; Key := 0; Exit; end;
+  if (Key = Ord('F')) and (Shift = []) then begin FitSelection; Key := 0; Exit; end;
   if ssCtrl in Shift then
   begin
     case Key of
@@ -1849,12 +2098,12 @@ begin
   Key := 0;
 end;
 procedure TERDPCBDesigner.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var Index: Integer; P: TPoint;
+var Index: Integer; P, FromPoint, ToPoint: TPoint; ID: string; Role: TERDPCBPinRole;
 begin
   inherited; SetFocus; P := Point(X, Y);
   if (Button = mbMiddle) or ((Button = mbLeft) and (FPanMode or (GetKeyState(VK_SPACE) < 0))) then
   begin FDragging := True; FLast := P; MouseCapture := True; Cursor := crSizeAll; Exit; end;
-  if FPlacing and (Button = mbRight) then begin CancelPlacement; Exit; end;
+  if FPlacing and (Button = mbRight) then begin FSuppressContextMenu := True; CancelPlacement; Exit; end;
   if Button <> mbLeft then Exit;
   if FPlacing then
   begin
@@ -1862,6 +2111,22 @@ begin
     if not (ssShift in Shift) then CancelPlacement else PreviewPlacementAt(P);
     Exit;
   end;
+  Index := FScene.IndexOf(FConnectionID);
+  if (Index >= 0) and ConnectionAnchors(Index, FConnectionRole, FromPoint, ToPoint) then
+  begin
+    FEditMode := 0;
+    if Hypot(P.X-FromPoint.X, P.Y-FromPoint.Y) <= ScaleValue(8) then FEditMode := 5
+    else if Hypot(P.X-ToPoint.X, P.Y-ToPoint.Y) <= ScaleValue(8) then FEditMode := 6;
+    if FEditMode <> 0 then
+    begin
+      if FScene.Item(Index).Locked then begin FEditMode := 0; Exit; end;
+      FBoxPoint := P; MouseCapture := True; Exit;
+    end;
+  end;
+  Index := ItemAt(P);
+  if not FTemplateEditMode and (Index < 0) and (PadAt(X,Y) = '') and HitTestConnection(P, ID, Role) then
+  begin SelectConnection(ID, Role); Exit; end;
+  ClearConnectionSelection;
   FGrip := GripAt(P); Index := ItemAt(P);
   if FTemplateEditMode then begin FGrip := -1; Index := -1; end;
   if FGrip >= 0 then
@@ -1891,13 +2156,14 @@ begin
   FStartPoint := P; FStartWorld := ClientToBoard(P); FAppliedX := 0; FAppliedY := 0; MouseCapture := True;
 end;
 procedure TERDPCBDesigner.MouseMove(Shift: TShiftState; X, Y: Integer);
-var Hot: string; P: TPointF; DX, DY: Double; Value: TERDPCBDesignItem; Grip: Integer;
+var Hot, ID: string; Role: TERDPCBPinRole; P: TPointF; FromPoint, ToPoint: TPoint;
+    DX, DY: Double; Value: TERDPCBDesignItem; Grip, ConnectionIndex: Integer;
 begin
   inherited;
   if FDragging and ((ssMiddle in Shift) or (ssLeft in Shift)) then
   begin PanBy(X - FLast.X, Y - FLast.Y); FLast := Point(X, Y); Exit; end;
   if FPlacing then begin Cursor := crCross; PreviewPlacementAt(Point(X,Y)); Exit; end;
-  if FEditMode in [3, 4] then begin FBoxPoint := Point(X, Y); Invalidate; Exit; end;
+  if FEditMode in [3, 4, 5, 6] then begin FBoxPoint := Point(X, Y); Invalidate; Exit; end;
   if FEditMode in [1, 2] then
   begin
     P := ClientToBoard(Point(X, Y)); DX := P.X - FStartWorld.X; DY := P.Y - FStartWorld.Y;
@@ -1925,6 +2191,18 @@ begin
   end;
   if FPanMode or (GetKeyState(VK_SPACE) < 0) then
   begin SetHot(''); Cursor := crHandPoint; Exit; end;
+  ConnectionIndex := FScene.IndexOf(FConnectionID);
+  if (ConnectionIndex >= 0) and ConnectionAnchors(ConnectionIndex, FConnectionRole, FromPoint, ToPoint) then
+    if (Hypot(X-FromPoint.X, Y-FromPoint.Y) <= ScaleValue(8)) or (Hypot(X-ToPoint.X, Y-ToPoint.Y) <= ScaleValue(8)) then
+    begin
+      SetHot(''); SetHotConnection(FConnectionID, FConnectionRole);
+      if FScene.Item(ConnectionIndex).Locked then Cursor := crDefault else Cursor := crCross;
+      Exit;
+    end;
+  if not FTemplateEditMode and (ItemAt(Point(X,Y)) < 0) and (PadAt(X,Y) = '') and
+    HitTestConnection(Point(X,Y), ID, Role) then
+  begin SetHot(''); SetHotConnection(ID, Role); Cursor := crHandPoint; Exit; end;
+  SetHotConnection('', prPrimary);
   Grip := GripAt(Point(X, Y));
   case Grip of
     0, 4: Cursor := crSizeNWSE; 2, 6: Cursor := crSizeNESW;
@@ -1955,8 +2233,19 @@ begin
     if I >= 0 then
       try ConnectPin(I, FLinkPin); FLastError := '';
       except on E: Exception do
-      begin FLastError := E.Message; if Assigned(FOnConnectionError) then FOnConnectionError(Self, FLastError); end; end;
+      begin ReportConnectionError(E.Message); end; end;
     FLinkPin := '';
+  end;
+  if Mode in [5,6] then
+  begin
+    try
+      if Mode = 5 then ReconnectSelectedPin(PadAt(X,Y))
+      else begin I := ItemAt(Point(X,Y));
+        if I < 0 then raise EArgumentException.Create('Drop on a component with a free compatible role');
+        MoveSelectedConnection(FScene.Item(I).ID, FConnectionRole); end;
+      FLastError := '';
+    except on E: Exception do ReportConnectionError(E.Message); end;
+    Invalidate;
   end;
   if Mode = 3 then
   begin

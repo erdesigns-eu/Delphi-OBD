@@ -150,3 +150,20 @@ board import; they do not compile VCL.
 When updating the demo, update `demo/pcb/board.json` together with the Pascal
 units. Older normalized boards lack assembled body geometry. Load the updated
 file using **Templates...** if an older copy is next to the demo executable.
+
+### Verbindingen bewerken
+
+Klik op een verbindingslijn om deze te selecteren. Het gekoppelde component en de
+uitgang krijgen een accent; de twee ronde eindpunten zijn sleepbaar. Sleep het
+PCB-eindpunt naar een vrije compatibele uitgang, of het component-eindpunt naar
+een ander component met dezelfde vrije aansluitrol. Een ongeldige drop behoudt
+de oorspronkelijke verbinding. Escape annuleert de sleepactie.
+
+Delete verwijdert bij een geselecteerde verbinding alleen de koppeling. Het
+component blijft bestaan. Opnieuw aansluiten, overdragen en loskoppelen zijn elk
+één undo-stap. Vergrendelde componenten kunnen niet opnieuw worden aangesloten.
+Hints vermelden de componentnaam, aansluitrol, pin en eventuele GPIO.
+
+Met **F** zoom je naar de selectie; **Home** of **Ctrl+0** toont de hele PCB.
+Het themamenu via rechtsklik of de contextmenutoets bevat acties voor de huidige
+selectie, undo/redo en zoom. De demo heeft ook een knop **Focus selection**.

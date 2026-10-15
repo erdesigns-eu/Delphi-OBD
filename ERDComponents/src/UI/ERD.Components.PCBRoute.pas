@@ -1,6 +1,18 @@
 ﻿unit ERD.Components.PCBRoute;
 interface
 uses System.Types, System.Math, System.Generics.Collections;
+type
+  TERDPCBPathSegment = record
+    Cubic: Boolean;
+    Points: array[0..3] of TPointF;
+  end;
+  TERDPCBConnectionGeometry = record
+    Segments: TArray<TERDPCBPathSegment>;
+    Samples: TArray<TPointF>;
+  end;
+function ERDBuildPCBConnection(const FromPoint, ToPoint: TPoint; const Obstacles: TArray<TRect>;
+  Scale: Single): TERDPCBConnectionGeometry;
+function ERDPCBConnectionDistance(const Geometry: TERDPCBConnectionGeometry; const P: TPointF): Double;
 // Screen-coordinate orthogonal routing around expanded scene rectangles.
 function ERDPCBRoute(const StartPoint, EndPoint: TPoint;
   const Obstacles: TArray<TRect>; Clearance: Integer): TArray<TPoint>;
@@ -93,5 +105,93 @@ begin
     end;
     SetLength(Result, N);
   finally Reverse.Free; Open.Free; Ys.Free; Xs.Free; end;
+end;
+function ERDBuildPCBConnection(const FromPoint, ToPoint: TPoint; const Obstacles: TArray<TRect>;
+  Scale: Single): TERDPCBConnectionGeometry;
+var Direction, Gap, Stub, Bend, StartY, EndY, Radius, LengthIn, LengthOut: Single;
+    Route, Points: TArray<TPoint>; I, N: Integer; Blocked: Boolean;
+    A, B, C, Previous, BeforeCorner, AfterCorner: TPointF; Segment, Expanded: TRect; Box: TRect;
+  procedure AddSegment(const P0, P1, P2, P3: TPointF; Cubic: Boolean);
+  var S, Steps, K, Count: Integer; T, U, LengthEstimate: Double; Sample: TPointF;
+  begin
+    S := Length(Result.Segments); SetLength(Result.Segments, S + 1);
+    Result.Segments[S].Cubic := Cubic; Result.Segments[S].Points[0] := P0;
+    Result.Segments[S].Points[1] := P1; Result.Segments[S].Points[2] := P2; Result.Segments[S].Points[3] := P3;
+    Count := Length(Result.Samples);
+    if Count = 0 then begin SetLength(Result.Samples, 1); Result.Samples[0] := P0; Count := 1; end;
+    Steps := 1;
+    if Cubic then
+    begin
+      LengthEstimate := Hypot(P1.X-P0.X, P1.Y-P0.Y) + Hypot(P2.X-P1.X, P2.Y-P1.Y) + Hypot(P3.X-P2.X, P3.Y-P2.Y);
+      Steps := Max(16, Min(256, Ceil(LengthEstimate / (4 * Max(0.1, Scale)))));
+    end;
+    SetLength(Result.Samples, Count + Steps);
+    for K := 1 to Steps do
+    begin
+      T := K / Steps; U := 1 - T;
+      if Cubic then
+      begin
+        Sample.X := U*U*U*P0.X + 3*U*U*T*P1.X + 3*U*T*T*P2.X + T*T*T*P3.X;
+        Sample.Y := U*U*U*P0.Y + 3*U*U*T*P1.Y + 3*U*T*T*P2.Y + T*T*T*P3.Y;
+      end
+      else Sample := P3;
+      Result.Samples[Count + K - 1] := Sample;
+    end;
+  end;
+  procedure Line(const P0, P1: TPointF);
+  begin AddSegment(P0, P0, P1, P1, False); end;
+begin
+  Result := Default(TERDPCBConnectionGeometry); Scale := Max(0.1, Scale);
+  Direction := 1; if ToPoint.Y < FromPoint.Y then Direction := -1;
+  Gap := Abs(ToPoint.Y - FromPoint.Y); Stub := Min(8 * Scale, Gap / 4);
+  Bend := Min(Gap / 3, Max(24 * Scale, Min(160 * Scale, (Gap + Abs(ToPoint.X - FromPoint.X)) * 0.35)));
+  StartY := FromPoint.Y + Direction * Stub; EndY := ToPoint.Y - Direction * Stub;
+  Line(PointF(FromPoint.X, FromPoint.Y), PointF(FromPoint.X, StartY));
+  AddSegment(PointF(FromPoint.X, StartY), PointF(FromPoint.X, StartY + Direction * Bend),
+    PointF(ToPoint.X, EndY - Direction * Bend), PointF(ToPoint.X, EndY), True);
+  Line(PointF(ToPoint.X, EndY), PointF(ToPoint.X, ToPoint.Y));
+  Blocked := False;
+  for I := 1 to High(Result.Samples) do
+  begin
+    A := Result.Samples[I-1]; B := Result.Samples[I];
+    Segment := Rect(Floor(Min(A.X,B.X)), Floor(Min(A.Y,B.Y)), Ceil(Max(A.X,B.X)) + 1, Ceil(Max(A.Y,B.Y)) + 1);
+    for Box in Obstacles do
+    begin
+      Expanded := Box; Expanded.Inflate(Round(4 * Scale), Round(4 * Scale));
+      if (Segment.Left < Expanded.Right) and (Segment.Right > Expanded.Left) and
+         (Segment.Top < Expanded.Bottom) and (Segment.Bottom > Expanded.Top) then begin Blocked := True; Break; end;
+    end;
+    if Blocked then Break;
+  end;
+  if not Blocked then Exit;
+  Route := ERDPCBRoute(Point(FromPoint.X, Round(StartY)), Point(ToPoint.X, Round(EndY)), Obstacles, Round(8 * Scale));
+  if Length(Route) = 0 then Exit;
+  Result := Default(TERDPCBConnectionGeometry);
+  N := Length(Route); SetLength(Points, N + 2); Points[0] := FromPoint;
+  for I := 0 to N - 1 do Points[I+1] := Route[I]; Points[N+1] := ToPoint;
+  Previous := PointF(FromPoint.X, FromPoint.Y);
+  for I := 1 to High(Points) - 1 do
+  begin
+    A := PointF(Points[I-1].X, Points[I-1].Y); B := PointF(Points[I].X, Points[I].Y); C := PointF(Points[I+1].X, Points[I+1].Y);
+    LengthIn := Hypot(B.X-A.X, B.Y-A.Y); LengthOut := Hypot(C.X-B.X, C.Y-B.Y);
+    if (LengthIn = 0) or (LengthOut = 0) then Continue;
+    Radius := Min(4 * Scale, Min(LengthIn, LengthOut) / 2);
+    BeforeCorner := PointF(B.X + (A.X-B.X)*Radius/LengthIn, B.Y + (A.Y-B.Y)*Radius/LengthIn);
+    AfterCorner := PointF(B.X + (C.X-B.X)*Radius/LengthOut, B.Y + (C.Y-B.Y)*Radius/LengthOut);
+    Line(Previous, BeforeCorner); AddSegment(BeforeCorner, B, B, AfterCorner, True); Previous := AfterCorner;
+  end;
+  Line(Previous, PointF(ToPoint.X, ToPoint.Y));
+end;
+function ERDPCBConnectionDistance(const Geometry: TERDPCBConnectionGeometry; const P: TPointF): Double;
+var I: Integer; A, B: TPointF; DX, DY, T, Denominator: Double;
+begin
+  Result := MaxDouble;
+  for I := 1 to High(Geometry.Samples) do
+  begin
+    A := Geometry.Samples[I-1]; B := Geometry.Samples[I]; DX := B.X - A.X; DY := B.Y - A.Y;
+    Denominator := DX*DX + DY*DY;
+    if Denominator = 0 then T := 0 else T := EnsureRange(((P.X-A.X)*DX + (P.Y-A.Y)*DY) / Denominator, 0.0, 1.0);
+    Result := Min(Result, Hypot(P.X - A.X - T*DX, P.Y - A.Y - T*DY));
+  end;
 end;
 end.
