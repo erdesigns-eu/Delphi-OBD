@@ -1225,20 +1225,22 @@ var I: Integer; R, LinkRect: TRect; Value: TERDPCBDesignItem;
     Tint: TBitmap; Blend: TBlendFunction; Ink: TColor; RoleCount: Integer;
   procedure DrawConnection(const FromPoint, ToPoint: TPoint; Color: TColor; Width: Single);
   var Graphics: TGPGraphics; Path: TGPGraphicsPath; Pen: TGPPen;
-      Stub, Bend, StartY, EndY: Single;
+      Stub, Bend, StartY, EndY, Direction, Gap: Single;
   begin
-    Stub := ScaleValue(8);
-    Bend := Max(ScaleValue(24), Min(ScaleValue(160),
-      (Abs(ToPoint.Y - FromPoint.Y) + Abs(ToPoint.X - FromPoint.X)) * 0.35));
-    StartY := FromPoint.Y + Stub; EndY := ToPoint.Y - Stub;
+    Direction := 1; if ToPoint.Y < FromPoint.Y then Direction := -1;
+    Gap := Abs(ToPoint.Y - FromPoint.Y);
+    Stub := Min(ScaleValue(8), Gap / 4);
+    Bend := Min(Gap / 3, Max(ScaleValue(24), Min(ScaleValue(160),
+      (Gap + Abs(ToPoint.X - FromPoint.X)) * 0.35)));
+    StartY := FromPoint.Y + Direction * Stub; EndY := ToPoint.Y - Direction * Stub;
     Graphics := TGPGraphics.Create(ACanvas.Handle);
     try
       Graphics.SetSmoothingMode(SmoothingModeAntiAlias);
       Path := TGPGraphicsPath.Create;
       try
         Path.AddLine(Single(FromPoint.X), Single(FromPoint.Y), Single(FromPoint.X), StartY);
-        Path.AddBezier(Single(FromPoint.X), StartY, Single(FromPoint.X), StartY + Bend,
-          Single(ToPoint.X), EndY - Bend, Single(ToPoint.X), EndY);
+        Path.AddBezier(Single(FromPoint.X), StartY, Single(FromPoint.X), StartY + Direction * Bend,
+          Single(ToPoint.X), EndY - Direction * Bend, Single(ToPoint.X), EndY);
         Path.AddLine(Single(ToPoint.X), EndY, Single(ToPoint.X), Single(ToPoint.Y));
         Pen := TGPPen.Create(ColorToARGB(Color), Width);
         try
@@ -1264,6 +1266,7 @@ begin
       begin
         P := ScreenPoint(Pad.Position);
         Q := Point(R.Left + R.Width * (Role + 1) div (RoleCount + 1), R.Top);
+        if (R.Top + R.Bottom) div 2 < P.Y then Q.Y := R.Bottom;
         Ink := Palette.Subtle; if Value.Selected then Ink := Palette.Accent;
         DrawConnection(P, Q, Ink, ScaleValue(1)); Break;
       end;
@@ -1301,7 +1304,11 @@ begin
     P := FStartPoint;
     Pad := PadInfo(FLinkPin); if Pad.ID <> '' then P := ScreenPoint(Pad.Position);
     Q := FBoxPoint; I := ItemAt(Q);
-    if I >= 0 then begin R := ItemRect(I); Q := Point((R.Left + R.Right) div 2, R.Top); end;
+    if I >= 0 then
+    begin
+      R := ItemRect(I); Q := Point((R.Left + R.Right) div 2, R.Top);
+      if (R.Top + R.Bottom) div 2 < P.Y then Q.Y := R.Bottom;
+    end;
     DrawConnection(P, Q, Palette.Accent, ScaleValue(2));
   end;
   if FEditMode = 3 then
