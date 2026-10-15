@@ -71,6 +71,7 @@ type
     property OnError: TNotifyEvent read FOnError write FOnError;
     property OnDiagnostics: TERDLSPDiagnosticsEvent read FOnDiagnostics write FOnDiagnostics;
   end;
+function ERDParseSignatureHelp(Value: TJSONValue): TERDSignatureHelp;
 implementation
 type
   TERDLSPDelivery = class(TInterfacedObject, IERDLSPDelivery)
@@ -98,6 +99,61 @@ end;
 function JsonValue(Obj: TJSONValue; const Name: string): TJSONValue;
 begin
   Result := nil; if Obj is TJSONObject then Result := TJSONObject(Obj).GetValue(Name);
+end;
+function ERDParseSignatureHelp(Value: TJSONValue): TERDSignatureHelp;
+var Signatures, Parameters: TJSONArray; S, P, LabelValue, Bound: TJSONValue;
+    I, J, At, Start, Finish: Integer; Number: Int64;
+  function Documentation(Item: TJSONValue): string;
+  begin
+    Result := JsonText(Item, 'documentation');
+    if Result = '' then Result := JsonText(JsonValue(Item, 'documentation'), 'value');
+  end;
+  function Index(Item: TJSONValue; const Name: string; Fallback: Integer): Integer;
+  begin Result := Integer(EnsureRange(JsonInt(Item, Name, Fallback), Int64(-1), Int64(MaxInt))); end;
+  function Offset(Item: TJSONValue): Integer;
+  begin
+    Result := -1;
+    if (Item is TJSONNumber) and TryStrToInt64(Item.Value, Number) and (Number >= 0) and (Number <= MaxInt) then Result := Integer(Number);
+  end;
+begin
+  Result := Default(TERDSignatureHelp); Result.ActiveParameter := -1;
+  Result.ActiveSignature := Index(Value, 'activeSignature', 0);
+  Result.ActiveParameter := Index(Value, 'activeParameter', -1);
+  Bound := JsonValue(Value, 'signatures'); if not (Bound is TJSONArray) then Exit;
+  Signatures := TJSONArray(Bound); SetLength(Result.Signatures, Signatures.Count);
+  for I := 0 to Signatures.Count - 1 do
+  begin
+    S := Signatures.Items[I]; Result.Signatures[I].LabelText := JsonText(S, 'label');
+    Result.Signatures[I].Documentation := Documentation(S);
+    Result.Signatures[I].ActiveParameter := Index(S, 'activeParameter', -1);
+    Bound := JsonValue(S, 'parameters'); if not (Bound is TJSONArray) then Continue;
+    Parameters := TJSONArray(Bound); SetLength(Result.Signatures[I].Parameters, Parameters.Count); At := 1;
+    for J := 0 to Parameters.Count - 1 do
+    begin
+      P := Parameters.Items[J]; LabelValue := JsonValue(P, 'label'); Start := -1; Finish := -1;
+      if (LabelValue is TJSONArray) and (TJSONArray(LabelValue).Count = 2) then
+      begin Start := Offset(TJSONArray(LabelValue).Items[0]); Finish := Offset(TJSONArray(LabelValue).Items[1]); end
+      else if LabelValue is TJSONString then
+      begin
+        Result.Signatures[I].Parameters[J].LabelText := LabelValue.Value;
+        if LabelValue.Value <> '' then
+        begin
+          Start := Pos(LabelValue.Value, Copy(Result.Signatures[I].LabelText, At, MaxInt));
+          if Start > 0 then begin Inc(Start, At - 2); Finish := Start + Length(LabelValue.Value); end else Start := -1;
+        end;
+      end;
+      if (Start < 0) or (Finish < Start) or (Finish > Length(Result.Signatures[I].LabelText)) then
+      begin Start := -1; Finish := -1; end;
+      Result.Signatures[I].Parameters[J].Start := Start;
+      Result.Signatures[I].Parameters[J].Count := Max(0, Finish - Start);
+      Result.Signatures[I].Parameters[J].Documentation := Documentation(P);
+      if Start >= 0 then
+      begin
+        Result.Signatures[I].Parameters[J].LabelText := Copy(Result.Signatures[I].LabelText, Start + 1, Finish - Start);
+        At := Finish + 1;
+      end;
+    end;
+  end;
 end;
 function DocumentUri(const Request: TERDLanguageRequest): string;
 begin Result := Request.DocumentUri; if Result = '' then Result := 'file:///erd-editor.ts'; end;
@@ -407,6 +463,7 @@ begin
   case Job.Request.Kind of
     lrCompletion: Method := 'textDocument/completion';
     lrHover: Method := 'textDocument/hover';
+    lrSignatureHelp: Method := 'textDocument/signatureHelp';
   else Method := 'textDocument/definition';
   end;
   Position := Job.Request.Position; if Position < 0 then Position := Job.Request.Caret;
@@ -446,7 +503,7 @@ procedure TERDStdioLanguageService.Deliver(const Request: TERDLanguageRequest; c
 var JSON, ResultValue, Item, Edit, Range, Params: TJSONValue; Items: TJSONArray;
     Completion: TERDCompletionItem; Completions: TList<TERDCompletionItem>;
     Target: TERDDefinitionTarget; Values: TList<TERDCodeDiagnostic>; Diagnostic: TERDCodeDiagnostic;
-    ErrorMessage: UnicodeString; KeepAlive: IERDCodeLanguageService;
+    ErrorMessage: UnicodeString; KeepAlive: IERDCodeLanguageService; SignatureResponses: IERDSignatureHelpResponses;
 begin
   KeepAlive := Self;
   ErrorMessage := ErrorText; JSON := nil;
@@ -457,6 +514,9 @@ begin
     if (ErrorMessage <> '') and Assigned(FOnError) then FOnError(Self);
     ResultValue := JsonValue(JSON, 'result');
     if Responses <> nil then case Request.Kind of
+      lrSignatureHelp:
+        if Supports(Responses, IERDSignatureHelpResponses, SignatureResponses) then
+          SignatureResponses.SignatureHelp(Request, ERDParseSignatureHelp(ResultValue));
       lrCompletion:
         begin
           Completions := TList<TERDCompletionItem>.Create;

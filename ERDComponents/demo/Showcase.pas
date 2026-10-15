@@ -688,7 +688,8 @@ const Names: array[0..5] of string = ('console', 'Command', 'CommandRegistry', '
 var Start, Finish, I, At, ReceiverStart, ReceiverEnd: Integer; Prefix, Word, Marker, Receiver: UnicodeString;
     Candidates: TArray<string>;
     Items: TArray<TERDCompletionItem>; Target: TERDDefinitionTarget;
-    Completion: TERDCompletionItem;
+    Completion: TERDCompletionItem; Help: TERDSignatureHelp; SignatureResponses: IERDSignatureHelpResponses;
+    Depth, Argument, OpenCall, LabelStart: Integer; Signature, ParameterLabel: string;
   function Identifier(C: Char): Boolean;
   begin Result := CharInSet(C, ['a'..'z','A'..'Z','0'..'9','_','$']); end;
 begin
@@ -754,6 +755,54 @@ begin
           end;
         Responses.Completion(Snapshot, Items);
       end;
+    lrSignatureHelp:
+      if Supports(Responses, IERDSignatureHelpResponses, SignatureResponses) then
+      begin
+        Help := Default(TERDSignatureHelp); Help.ActiveParameter := 0;
+        Depth := 0; Argument := 0; OpenCall := 0;
+        for I := Snapshot.Position downto 1 do
+        begin
+          if CharInSet(Snapshot.Text[I], [')', ']', '}']) then Inc(Depth)
+          else if CharInSet(Snapshot.Text[I], ['(', '[', '{']) then
+          begin
+            if (Depth = 0) and (Snapshot.Text[I] = '(') then begin OpenCall := I; Break; end;
+            Dec(Depth);
+          end
+          else if (Depth = 0) and (Snapshot.Text[I] = ',') then Inc(Argument);
+        end;
+        if OpenCall > 0 then
+        begin
+          At := OpenCall - 1;
+          while (At > 0) and (Snapshot.Text[At] = ' ') do Dec(At);
+          Start := At; while (Start > 0) and Identifier(Snapshot.Text[Start]) do Dec(Start);
+          Word := Copy(Snapshot.Text, Start + 1, At - Start); Signature := '';
+          if Word = 'set' then Signature := 'set(key: string, value: Command): Map<string, Command>'
+          else if Word = 'execute' then Signature := 'execute(id: string): Promise<boolean>'
+          else if Word = 'register' then Signature := 'register(command: Command): void'
+          else if (Word = 'log') or (Word = 'warn') or (Word = 'error') or (Word = 'info') then
+            Signature := Word + '(...data: unknown[]): void';
+          if Signature <> '' then
+          begin
+            SetLength(Help.Signatures, 1); Help.Signatures[0].LabelText := Signature;
+            Help.Signatures[0].Documentation := 'Example provider signature. Connect TSVM for inferred function types and overloads.';
+            Help.Signatures[0].ActiveParameter := -1;
+            if Word = 'set' then Candidates := TArray<string>.Create('key: string', 'value: Command')
+            else if Word = 'execute' then Candidates := TArray<string>.Create('id: string')
+            else if Word = 'register' then Candidates := TArray<string>.Create('command: Command')
+            else Candidates := TArray<string>.Create('...data: unknown[]');
+            SetLength(Help.Signatures[0].Parameters, Length(Candidates));
+            for I := 0 to High(Candidates) do
+            begin
+              ParameterLabel := Candidates[I]; LabelStart := Pos(ParameterLabel, Signature) - 1;
+              Help.Signatures[0].Parameters[I].Start := LabelStart;
+              Help.Signatures[0].Parameters[I].Count := Length(ParameterLabel);
+              Help.Signatures[0].Parameters[I].LabelText := ParameterLabel;
+            end;
+            Help.ActiveParameter := Min(Argument, High(Candidates));
+          end;
+        end;
+        SignatureResponses.SignatureHelp(Snapshot, Help);
+      end;
     lrHover: Responses.Hover(Snapshot, 'Example provider info: ' + Word + ' - replace this adapter with TSVM.');
     lrDefinition:
       begin
@@ -815,6 +864,7 @@ begin
     MulDiv(104, CurrentPPI, 96), MulDiv(28, CurrentPPI, 96));
   Button := TERDButton.Create(Self); Button.Parent := Header; Button.Caption := 'Complete';
   Button.OnClick := CodeCompleteClicked;
+  Button.ShowHint := True; Button.Hint := 'Completion: Ctrl+J / Ctrl+Space. Parameters: Ctrl+Shift+Space.';
   Button.SetBounds(MulDiv(560, CurrentPPI, 96), MulDiv(8, CurrentPPI, 96),
     MulDiv(88, CurrentPPI, 96), MulDiv(28, CurrentPPI, 96));
   Instructions := TLabel.Create(Self); Instructions.Parent := Header;
@@ -888,18 +938,32 @@ procedure TShowcaseForm.CodeCompleteClicked(Sender: TObject);
 begin CodeEditor.SetFocus; CodeEditor.RequestCompletion; end;
 procedure TShowcaseForm.CodeConnectCompiler(Sender: TObject);
 var Dialog: TERDOpenDialog; Service: TERDStdioLanguageService;
+    CompilerFile, Base, Candidate: string; I: Integer;
 begin
-  Dialog := TERDOpenDialog.Create(Self);
-  try
-    Dialog.Filter := 'ERD compiler|erd-compiler.exe|Programs|*.exe';
-    if not Dialog.Execute then Exit;
-    Service := TERDStdioLanguageService.Create(Dialog.FileName);
-    Service.OnDiagnostics := CodeCompilerDiagnostics; Service.OnError := CodeCompilerError;
-    CodeUsingNativeService := True;
-    CodeEditor.DocumentUri := 'file:///showcase.ts'; CodeEditor.LanguageService := Service;
-    CodeSearchStatus.Caption := 'TSVM connected - compiler diagnostics and language queries';
-    CodeEditor.SetFocus;
-  finally Dialog.Free; end;
+  CompilerFile := ''; Base := ExtractFilePath(ParamStr(0));
+  // Default IDE output is demo/Win32/Release (or Win64/Debug).
+  // Also support a portable demo with compiler/ beside its executable.
+  for I := 0 to 3 do
+  begin
+    Candidate := IncludeTrailingPathDelimiter(Base) + 'compiler\windows-x64\erd-compiler.exe';
+    if FileExists(Candidate) then begin CompilerFile := Candidate; Break; end;
+    Base := ExtractFileDir(ExcludeTrailingPathDelimiter(Base));
+  end;
+  if CompilerFile = '' then
+  begin
+    Dialog := TERDOpenDialog.Create(Self);
+    try
+      Dialog.Filter := 'ERD compiler|erd-compiler.exe|Programs|*.exe';
+      if not Dialog.Execute then Exit;
+      CompilerFile := Dialog.FileName;
+    finally Dialog.Free; end;
+  end;
+  Service := TERDStdioLanguageService.Create(CompilerFile);
+  Service.OnDiagnostics := CodeCompilerDiagnostics; Service.OnError := CodeCompilerError;
+  CodeUsingNativeService := True;
+  CodeEditor.DocumentUri := 'file:///showcase.ts'; CodeEditor.LanguageService := Service;
+  CodeSearchStatus.Caption := 'TSVM connected - diagnostics, completion and parameter hints';
+  CodeEditor.SetFocus;
 end;
 procedure TShowcaseForm.CodeCompilerError(Sender: TObject);
 begin CodeSearchStatus.Caption := TERDStdioLanguageService(Sender).LastError; end;
@@ -917,6 +981,7 @@ begin
     lrCompletion:
       if CodeUsingNativeService then CodeSearchStatus.Caption := IntToStr(Length(CodeEditor.Completions)) + ' compiler suggestions'
       else CodeSearchStatus.Caption := IntToStr(Length(CodeEditor.Completions)) + ' suggestions from example provider';
+    lrSignatureHelp: CodeSearchStatus.Caption := 'Parameter hints - Ctrl+Shift+Space; Alt+Up/Down overload; Esc closes';
     lrHover: CodeSearchStatus.Caption := CodeEditor.HoverText;
     lrDefinition:
       if CodeUsingNativeService then CodeSearchStatus.Caption := 'Compiler definition request completed'

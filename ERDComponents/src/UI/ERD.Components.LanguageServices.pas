@@ -2,7 +2,7 @@
 interface
 uses System.SysUtils;
 type
-  TERDLanguageRequestKind = (lrCompletion, lrHover, lrDefinition);
+  TERDLanguageRequestKind = (lrCompletion, lrHover, lrDefinition, lrSignatureHelp);
   TERDLanguageRequest = record
     Kind: TERDLanguageRequestKind;
     ID, Version: Int64;
@@ -19,6 +19,24 @@ type
     Found: Boolean;
     DocumentUri: UnicodeString; // Empty URI means the current document.
     Start, Count: Integer;
+  end;
+  TERDSignatureParameter = record
+    LabelText, Documentation: UnicodeString;
+    Start, Count: Integer; // UTF-16 range within the signature label; -1 if absent.
+  end;
+  TERDSignature = record
+    LabelText, Documentation: UnicodeString;
+    Parameters: TArray<TERDSignatureParameter>;
+    ActiveParameter: Integer; // -1 uses the help-level active parameter.
+  end;
+  TERDSignatureHelp = record
+    Signatures: TArray<TERDSignature>;
+    ActiveSignature, ActiveParameter: Integer;
+  end;
+  // Optional response extension preserves existing provider/response interface GUIDs.
+  IERDSignatureHelpResponses = interface
+    ['{71A04CC3-A05E-44DA-9225-8F78D233A26E}']
+    function SignatureHelp(const Request: TERDLanguageRequest; const Help: TERDSignatureHelp): Boolean;
   end;
   IERDLanguageResponses = interface
     ['{E9C2C509-2931-498B-AD69-A058386B41C2}']
@@ -37,7 +55,14 @@ type
     procedure DocumentChanged(const Uri, Text: UnicodeString; Version: Int64);
   end;
 function ERDCompletionKindText(Kind: Integer): string;
+function ERDCopySignatureHelp(const Value: TERDSignatureHelp): TERDSignatureHelp;
 implementation
+function ERDCopySignatureHelp(const Value: TERDSignatureHelp): TERDSignatureHelp;
+var I: Integer;
+begin
+  Result := Value; Result.Signatures := Copy(Value.Signatures);
+  for I := 0 to High(Result.Signatures) do Result.Signatures[I].Parameters := Copy(Value.Signatures[I].Parameters);
+end;
 function ERDCompletionKindText(Kind: Integer): string;
 begin
   case Kind of

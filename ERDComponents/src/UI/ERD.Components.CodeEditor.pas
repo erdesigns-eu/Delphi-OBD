@@ -28,12 +28,13 @@ type
   public
     constructor Create(Owner: TPersistent);
   end;
-  TERDLanguageResponseSink = class(TInterfacedObject, IERDLanguageResponses)
+  TERDLanguageResponseSink = class(TInterfacedObject, IERDLanguageResponses, IERDSignatureHelpResponses)
   private
     FEditor: TERDCodeEditor;
   public
     constructor Create(Editor: TERDCodeEditor);
     procedure Detach;
+    function SignatureHelp(const Request: TERDLanguageRequest; const Help: TERDSignatureHelp): Boolean;
     function Completion(const Request: TERDLanguageRequest; const Items: TArray<TERDCompletionItem>): Boolean;
     function Hover(const Request: TERDLanguageRequest; const Text: UnicodeString): Boolean;
     function Definition(const Request: TERDLanguageRequest; const Target: TERDDefinitionTarget): Boolean;
@@ -105,6 +106,9 @@ type
     FCompletionStamp: TERDLanguageRequest;
     FCompletionWordStart: Integer;
     FCompletionPopup: TERDPopupList;
+    FSignaturePopup: TERDSignaturePopup;
+    FSignatureHelp: TERDSignatureHelp;
+    FSignatureSession: Boolean;
     FSuppressLanguageChar: Word;
     FLastLanguageResult: TERDLanguageRequestKind;
     FOnLanguageResults: TNotifyEvent;
@@ -128,6 +132,9 @@ type
     function SnapshotCurrent(const Snapshot: TERDLanguageRequest): Boolean;
     function AcceptResponse(const Snapshot: TERDLanguageRequest; Kind: TERDLanguageRequestKind): Boolean;
     function IssueRequest(Kind: TERDLanguageRequestKind; Position: Integer; Trigger: WideChar = #0): Boolean;
+    procedure ProcessEditorChar(var Message: TWMChar);
+    procedure ShowSignatureHelp;
+    function GetSignatureHelp: TERDSignatureHelp;
     procedure CompletionClosed(Sender: TObject; Accepted: Boolean; Index: Integer);
     procedure RefreshSearch;
     procedure SetShowIndentGuides(Value: Boolean);
@@ -191,6 +198,10 @@ type
     destructor Destroy; override;
     class function FoldInteractionRevision: Integer; static;
     function RequestCompletion: Boolean;
+    function RequestSignatureHelp: Boolean;
+    function PublishSignatureHelp(const Request: TERDLanguageRequest; const Help: TERDSignatureHelp): Boolean;
+    procedure SelectSignature(Index: Integer);
+    property SignatureHelp: TERDSignatureHelp read GetSignatureHelp;
     function RequestHover(Position: Integer = -1): Boolean;
     function RequestDefinition(Position: Integer = -1): Boolean;
     procedure CancelLanguageRequests;
@@ -367,7 +378,7 @@ begin
   // Close callbacks must be disconnected before cancellation hides the popup.
   if FCompletionPopup <> nil then FCompletionPopup.OnCloseUp := nil;
   CancelLanguageRequests;
-  FreeAndNil(FCompletionPopup);
+  FreeAndNil(FCompletionPopup); FreeAndNil(FSignaturePopup);
   FResponses := nil; FResponseObject := nil; FLanguageService := nil;
   PrepareForDestruction;
   FreeAndNil(FWidthCache); FreeAndNil(FMinimapBitmap);
@@ -377,6 +388,11 @@ constructor TERDLanguageResponseSink.Create(Editor: TERDCodeEditor);
 begin inherited Create; FEditor := Editor; end;
 procedure TERDLanguageResponseSink.Detach;
 begin FEditor := nil; end;
+function TERDLanguageResponseSink.SignatureHelp(const Request: TERDLanguageRequest; const Help: TERDSignatureHelp): Boolean;
+begin
+  Result := (GetCurrentThreadId = MainThreadID) and (FEditor <> nil);
+  if Result then Result := FEditor.PublishSignatureHelp(Request, Help);
+end;
 function TERDLanguageResponseSink.Completion(const Request: TERDLanguageRequest; const Items: TArray<TERDCompletionItem>): Boolean;
 begin Result := (GetCurrentThreadId = MainThreadID) and (FEditor <> nil); if Result then Result := FEditor.PublishCompletions(Request, Items); end;
 function TERDLanguageResponseSink.Hover(const Request: TERDLanguageRequest; const Text: UnicodeString): Boolean;
@@ -391,11 +407,12 @@ begin
     except on E: Exception do FLanguageError := E.Message; end;
 end;
 procedure TERDCodeEditor.SetLanguageService(const Value: IERDCodeLanguageService);
-begin CancelLanguageRequests; FLanguageService := Value; FLanguageError := ''; SyncLanguageDocument; end;
+begin FSignatureSession := False; CancelLanguageRequests; FLanguageService := Value; FLanguageError := ''; SyncLanguageDocument; end;
 procedure TERDCodeEditor.SetDocumentUri(const Value: UnicodeString);
 begin if FDocumentUri = Value then Exit; CancelLanguageRequests; FDocumentUri := Value; Inc(FVersion); SyncLanguageDocument; end;
 procedure TERDCodeEditor.DoExit;
 begin
+  FSignatureSession := False;
   FSelectingLines := False; FLastGutterDown := False; FNavigationDrag := 0; FMinimapWindowHot := False;
   FHotFold := -1;
   if FPressedFold >= 0 then begin FPressedFold := -1; MouseCapture := False; end;
@@ -408,6 +425,8 @@ begin
   for Kind := Low(TERDLanguageRequestKind) to High(TERDLanguageRequestKind) do
   begin Pending[Kind] := FPending[Kind]; FPending[Kind] := 0; end;
   FCompletionItems := nil; FCompletionStamp.ID := 0; FHoverText := '';
+  FSignatureHelp := Default(TERDSignatureHelp);
+  if FSignaturePopup <> nil then FSignaturePopup.CloseUp;
   if FCompletionPopup <> nil then FCompletionPopup.CloseUp(False);
   for Kind := Low(TERDLanguageRequestKind) to High(TERDLanguageRequestKind) do
     if (Pending[Kind] <> 0) and (FLanguageService <> nil) then
@@ -466,6 +485,50 @@ begin
     Exit(False);
   end;
   Result := IssueRequest(lrCompletion, -1);
+end;
+function TERDCodeEditor.RequestSignatureHelp: Boolean;
+begin
+  Result := (FLanguageService <> nil) and (Language = clTypeScript) and not FDestroyingEditor;
+  if Result then begin FSignatureSession := True; Result := IssueRequest(lrSignatureHelp, -1); end;
+end;
+function TERDCodeEditor.GetSignatureHelp: TERDSignatureHelp;
+begin Result := ERDCopySignatureHelp(FSignatureHelp); end;
+procedure TERDCodeEditor.ShowSignatureHelp;
+var P: TPoint;
+begin
+  if FDestroyingEditor or not Focused or not HandleAllocated or (Parent = nil) or
+    (Length(FSignatureHelp.Signatures) = 0) then Exit;
+  if FSignaturePopup = nil then FSignaturePopup := TERDSignaturePopup.Create(Self);
+  if not GetCaretPos(P) then P := Point(TextViewport.Left, TextViewport.Top);
+  Inc(P.Y, RowHeight); P := ClientToScreen(P);
+  FSignaturePopup.Popup(P, FSignatureHelp, Palette, ScaleValue(96));
+end;
+function TERDCodeEditor.PublishSignatureHelp(const Request: TERDLanguageRequest; const Help: TERDSignatureHelp): Boolean;
+var I, J: Integer;
+begin
+  Result := AcceptResponse(Request, lrSignatureHelp); if not Result then Exit;
+  FPending[lrSignatureHelp] := 0; FSignatureHelp := ERDCopySignatureHelp(Help);
+  FSignatureSession := Length(FSignatureHelp.Signatures) > 0;
+  if FSignatureSession then
+  begin
+    FSignatureHelp.ActiveSignature := EnsureRange(FSignatureHelp.ActiveSignature, 0, High(FSignatureHelp.Signatures));
+    // A provider may omit label offsets; invalid ranges never reach painting.
+    for I := 0 to High(FSignatureHelp.Signatures) do
+      for J := 0 to High(FSignatureHelp.Signatures[I].Parameters) do
+        with FSignatureHelp.Signatures[I].Parameters[J] do
+          if (Start < 0) or (Start > Length(FSignatureHelp.Signatures[I].LabelText)) or
+            (Count < 0) or (Count > Length(FSignatureHelp.Signatures[I].LabelText) - Start) then
+          begin Start := -1; Count := 0; end;
+    ShowSignatureHelp;
+  end
+  else if FSignaturePopup <> nil then FSignaturePopup.CloseUp;
+  FLastLanguageResult := lrSignatureHelp;
+  if Assigned(FOnLanguageResults) then FOnLanguageResults(Self);
+end;
+procedure TERDCodeEditor.SelectSignature(Index: Integer);
+begin
+  if (Index < 0) or (Index >= Length(FSignatureHelp.Signatures)) then Exit;
+  FSignatureHelp.ActiveSignature := Index; ShowSignatureHelp;
 end;
 function TERDCodeEditor.RequestHover(Position: Integer): Boolean;
 begin Result := IssueRequest(lrHover, Position); end;
@@ -905,7 +968,10 @@ begin
   FMinimapDirty := False; FMinimapFill := Fill; FMinimapColorKey := ColorKey;
 end;
 procedure TERDCodeEditor.ThemeChanged;
-begin FMinimapDirty := True; inherited; end;
+begin
+  FMinimapDirty := True; inherited;
+  if (FSignaturePopup <> nil) and FSignaturePopup.IsOpen then ShowSignatureHelp;
+end;
 procedure TERDCodeEditor.SetShowLineNumbers(Value: Boolean);
 begin
   if FShowLineNumbers = Value then Exit;
@@ -1836,6 +1902,10 @@ begin
   Result := ((Key = VK_SPACE) or (Key = Ord('J'))) and
     (ssCtrl in Shift) and not (ssAlt in Shift);
 end;
+function CompletionShiftState: TShiftState;
+begin
+  Result := [ssCtrl]; if GetKeyState(VK_SHIFT) < 0 then Include(Result, ssShift);
+end;
 procedure TERDCodeEditor.KeyboardMessage(var Msg: TMsg; var Handled: Boolean);
 var Key: Word;
 begin
@@ -1846,7 +1916,7 @@ begin
     ((Msg.wParam = VK_SPACE) or (Msg.wParam = Ord('J'))) and (GetKeyState(VK_CONTROL) < 0) and
     (GetKeyState(VK_MENU) >= 0) then
   begin
-    Key := Word(Msg.wParam); KeyDown(Key, [ssCtrl]); Handled := True;
+    Key := Word(Msg.wParam); KeyDown(Key, CompletionShiftState); Handled := True;
   end;
 end;
 procedure TERDCodeEditor.WMGetDlgCode(var Message: TMessage);
@@ -1865,7 +1935,7 @@ begin
   if ((Message.CharCode = VK_SPACE) or (Message.CharCode = Ord('J'))) and (GetKeyState(VK_CONTROL) < 0) and
     (GetKeyState(VK_MENU) >= 0) then
   begin
-    Key := Message.CharCode; KeyDown(Key, [ssCtrl]); Message.Result := 1; Exit;
+    Key := Message.CharCode; KeyDown(Key, CompletionShiftState); Message.Result := 1; Exit;
   end;
   inherited;
 end;
@@ -1875,14 +1945,29 @@ begin
   if Focused and ((Message.CharCode = VK_SPACE) or (Message.CharCode = Ord('J'))) and (GetKeyState(VK_CONTROL) < 0) and
     (GetKeyState(VK_MENU) >= 0) then
   begin
-    Key := Message.CharCode; KeyDown(Key, [ssCtrl]); Message.Result := 1; Exit;
+    Key := Message.CharCode; KeyDown(Key, CompletionShiftState); Message.Result := 1; Exit;
   end;
   inherited;
 end;
 procedure TERDCodeEditor.KeyDown(var Key: Word; Shift: TShiftState);
-var Before: UnicodeString; Position, Spaces, Start: Integer;
+var Before: UnicodeString; Position, Spaces, Start, SignatureIndex: Integer;
+    RefreshSignature: Boolean; OldCaret: Integer;
 begin
+  RefreshSignature := FSignatureSession; OldCaret := TextModel.Caret;
   FSuppressLanguageChar := 0;
+  if (Key = VK_SPACE) and (ssCtrl in Shift) and (ssShift in Shift) and not (ssAlt in Shift) then
+  begin FSuppressLanguageChar := 32; RequestSignatureHelp; Key := 0; Exit; end;
+  if (Key = VK_ESCAPE) and (FSignatureSession or (FPending[lrSignatureHelp] <> 0)) then
+  begin FSignatureSession := False; CancelLanguageRequests; FSuppressLanguageChar := 27; Key := 0; Exit; end;
+  if (FSignaturePopup <> nil) and FSignaturePopup.IsOpen and (Shift = [ssAlt]) and
+    (Key in [VK_UP, VK_DOWN]) then
+  begin
+    SignatureIndex := FSignatureHelp.ActiveSignature;
+    if Key = VK_UP then Dec(SignatureIndex) else Inc(SignatureIndex);
+    if Length(FSignatureHelp.Signatures) > 0 then
+      SelectSignature((SignatureIndex + Length(FSignatureHelp.Signatures)) mod Length(FSignatureHelp.Signatures));
+    Key := 0; Exit;
+  end;
   if (Key = VK_ESCAPE) and (FPending[lrCompletion] <> 0) then
   begin CancelLanguageRequests; FSuppressLanguageChar := 27; Key := 0; Exit; end;
   if (FCompletionPopup <> nil) and FCompletionPopup.IsOpen then
@@ -1943,8 +2028,18 @@ begin
     FTabHandled := True; Key := 0; Exit;
   end;
   inherited KeyDown(Key, Shift);
+  if RefreshSignature and (TextModel.Caret <> OldCaret) then RequestSignatureHelp;
 end;
 procedure TERDCodeEditor.WMChar(var Message: TWMChar);
+var Before: UnicodeString; OldCaret: Integer; Trigger: Char; Refresh: Boolean;
+begin
+  Before := Text; OldCaret := TextModel.Caret; Trigger := Char(Message.CharCode);
+  Refresh := FSignatureSession;
+  ProcessEditorChar(Message);
+  if not ReadOnly and ((Text <> Before) or (TextModel.Caret <> OldCaret)) and
+    (Refresh or (CharInSet(Trigger, ['(', ',', ')']) and not LiteralAt(Max(0, TextModel.Caret - 1)))) then RequestSignatureHelp;
+end;
+procedure TERDCodeEditor.ProcessEditorChar(var Message: TWMChar);
 var C: Char; Position, Start: Integer; Prefix, Before, Value: UnicodeString;
     Closing: Char; Span: TERDSyntaxSpan; Suppress, ContinueCompletion: Boolean; WordStart: Integer;
 begin

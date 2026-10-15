@@ -32,16 +32,16 @@ matches. `OnError` reports transport or protocol failures through `LastError`.
 Event handlers follow the usual Delphi lifetime rule: detach handlers if their
 receiver is destroyed while another owner retains the service.
 
-The adapter supports the endpoint's plain-text completion edits, hover and
+The adapter supports the endpoint's plain-text completion edits, hover, signature help and
 same-document definitions. It skips snippet completion items. Framing has an
 8192-byte header limit, a 16 MiB frame limit and a 60-second response timeout.
 Documents above the compiler's 1,048,576 UTF-16-unit limit are rejected locally.
 
-In the demo's Code page, **Connect TSVM...** selects a Windows `erd-compiler.exe`.
-The sample provider stays active until a compiler is explicitly selected. Once
-connected, compiler diagnostics and query results replace the sample results.
-The native compiler must include the new LSP entry point; an older binary does
-not provide that command.
+In the demo's Code page, **Connect TSVM...** first finds the bundled Windows x64
+compiler in `demo/compiler/windows-x64`; otherwise it opens a file picker.
+The sample provider stays active until connected. Compiler diagnostics and query
+results then replace the sample results. See the compiler folder's README for
+build provenance and Windows testing instructions.
 
 The Windows smoke suite launches a child copy of itself as a protocol fixture to
 exercise process I/O, queued UI delivery, emoji-containing frames and teardown.
@@ -52,21 +52,14 @@ be validated in the Linux cloud environment.
 
 ## Current integration checkpoint
 
-The TSVM endpoint is on `feat/native-compiler-lsp`, commit `33506f5`. A freshly
-built Linux executable passed completion, diagnostics, Unicode positions, hover,
-definition, signature help and lifecycle integration tests. The Delphi adapter
-currently exposes completion, diagnostics, hover and same-document definition;
-its signature-help UI is a separate next stage.
+The bundled Windows compiler and rebuilt Linux compiler passed native LSP
+integration tests, including signature help. Windows execution was tested under
+Wine; Delphi/VCL and real Windows testing remain outstanding.
 
-For the Windows check, build the TSVM compiler with embedded bytecode regenerated,
-build the updated component packages and demo, then use **Connect TSVM...** on the
-Code page. Check dot completion and prefix filtering, a semantic type error,
-F1 hover and F12 definition. Change the document while a request is pending to
-check stale-result rejection, and close the form while the compiler is running
-to check teardown. Run the Windows smoke suite as well. The Linux native test
-does not establish those VCL behaviours.
-
-The editor roadmap still includes cross-file language operations, signature-help
-presentation, scalable document storage, multiple cursors, diff/merge views and
-Windows accessibility/IME/performance validation. The current checkpoint does not
-claim a complete IDE feature set.
+Parameter hints appear on `(` and `,`, and refresh while editing the call.
+**Ctrl+Shift+Space** requests a hint manually; **Alt+Up/Down** cycles overloads;
+**Esc** closes it. Active parameters are highlighted. Providers opt into responses
+through `IERDSignatureHelpResponses`, preserving the existing provider interfaces.
+Version and caret snapshots reject stale hints, and nested parameter arrays are
+copied before publication. Completion remains available through **Ctrl+J**, useful
+where the VM or host intercepts Ctrl+Space.

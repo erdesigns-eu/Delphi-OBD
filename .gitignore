@@ -79,3 +79,6 @@ __pycache__/
 # FPC runtime smoke build output
 .tmp-fpc-runtime/
 .fpc-runtime-work/
+
+# Bundled TSVM compiler explicitly distributed with the demo
+!ERDComponents/demo/compiler/windows-x64/erd-compiler.exe

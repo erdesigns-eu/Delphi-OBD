@@ -33,6 +33,25 @@ uses
   ERD.Components.LanguageServices;
 
 type
+  // Hint windows already own a no-activate popup HWND independently of Parent.
+  // This avoids recreating a child HWND when the editor is detached on shutdown.
+  TERDSignaturePopup = class(THintWindow)
+  private
+    FPalette: TERDThemePalette;
+    FPPI, FActiveStart, FActiveCount: Integer;
+    FLabelText, FDocumentation, FHeader: UnicodeString;
+    FIsOpen: Boolean;
+    procedure WMMouseActivate(var Message: TWMMouseActivate); message WM_MOUSEACTIVATE;
+  protected
+    procedure Paint; override;
+    procedure DestroyWnd; override;
+  public
+    procedure Popup(const ScreenPoint: TPoint; const Help: TERDSignatureHelp;
+      const APalette: TERDThemePalette; APPI: Integer);
+    procedure CloseUp;
+    property IsOpen: Boolean read FIsOpen;
+  end;
+
   /// <summary>Fires when the popup list closes.</summary>
   /// <param name="Sender">Popup list.</param>
   /// <param name="AAccepted">True when the highlighted item was accepted.</param>
@@ -156,6 +175,84 @@ implementation
 
 uses
   ERD.Components.ScrollBar;
+
+procedure TERDSignaturePopup.WMMouseActivate(var Message: TWMMouseActivate);
+begin Message.Result := MA_NOACTIVATE; end;
+procedure TERDSignaturePopup.CloseUp;
+begin
+  FIsOpen := False;
+  if HandleAllocated then ShowWindow(Handle, SW_HIDE);
+end;
+procedure TERDSignaturePopup.DestroyWnd;
+begin FIsOpen := False; inherited; end;
+procedure TERDSignaturePopup.Popup(const ScreenPoint: TPoint; const Help: TERDSignatureHelp;
+  const APalette: TERDThemePalette; APPI: Integer);
+var Signature: TERDSignature; Parameter: TERDSignatureParameter;
+    Active, W, H, X, Y: Integer; Work: TRect;
+begin
+  if Length(Help.Signatures) = 0 then begin CloseUp; Exit; end;
+  FPalette := APalette; FPPI := Max(96, APPI);
+  Signature := Help.Signatures[EnsureRange(Help.ActiveSignature, 0, High(Help.Signatures))];
+  FLabelText := Signature.LabelText; FDocumentation := Signature.Documentation;
+  FActiveStart := -1; FActiveCount := 0;
+  Active := Signature.ActiveParameter; if Active < 0 then Active := Help.ActiveParameter;
+  if (Active >= 0) and (Active < Length(Signature.Parameters)) then
+  begin
+    Parameter := Signature.Parameters[Active]; FActiveStart := Parameter.Start; FActiveCount := Parameter.Count;
+    if Parameter.Documentation <> '' then
+    begin
+      if FDocumentation <> '' then FDocumentation := FDocumentation + #13#10;
+      FDocumentation := FDocumentation + Parameter.Documentation;
+    end;
+  end;
+  FHeader := Format('Signature %d / %d', [EnsureRange(Help.ActiveSignature, 0, High(Help.Signatures)) + 1, Length(Help.Signatures)]);
+  if Length(Help.Signatures) > 1 then FHeader := FHeader + '  - Alt+Up/Down: overload';
+  FHeader := FHeader + '  - Esc: close';
+  Canvas.Font.Name := 'Consolas'; Canvas.Font.Height := -MulDiv(12, FPPI, 96);
+  Work := Screen.MonitorFromPoint(ScreenPoint).WorkareaRect;
+  W := Min(Work.Width, Min(MulDiv(760, FPPI, 96), Max(MulDiv(420, FPPI, 96), Canvas.TextWidth(FLabelText) + MulDiv(24, FPPI, 96))));
+  H := Min(Work.Height, MulDiv(112, FPPI, 96));
+  X := EnsureRange(ScreenPoint.X, Work.Left, Max(Work.Left, Work.Right - W));
+  Y := ScreenPoint.Y;
+  if Y + H > Work.Bottom then Y := ScreenPoint.Y - H - MulDiv(22, FPPI, 96);
+  Y := EnsureRange(Y, Work.Top, Max(Work.Top, Work.Bottom - H));
+  DoubleBuffered := True;
+  FIsOpen := True; ActivateHint(Rect(X, Y, X + W, Y + H), ''); Invalidate;
+end;
+procedure TERDSignaturePopup.Paint;
+var Painter: TERDPainter; Saved, Offset, Left, Right, Origin, LabelY: Integer; R: TRect;
+  function S(Value: Integer): Integer;
+  begin Result := MulDiv(Value, FPPI, 96); end;
+begin
+  if not FIsOpen then Exit;
+  Painter := TERDPainter.Create(Canvas, FPalette, FPPI);
+  try
+    Painter.FillRect(ClientRect, FPalette.GaugeFace);
+    Painter.FrameRect(ClientRect, FPalette.NeutralLight);
+    Painter.Text(S(10), S(13), FHeader, 11, FPalette.Subtle, twRegular, taLeftJustify, Max(0, ClientWidth - S(20)));
+    Canvas.Font.Name := 'Consolas'; Canvas.Font.Height := -S(12); Canvas.Font.Style := [];
+    Left := 0; Right := 0;
+    if (FActiveStart >= 0) and (FActiveCount >= 0) and (FActiveStart + FActiveCount <= Length(FLabelText)) then
+    begin
+      Left := Canvas.TextWidth(Copy(FLabelText, 1, FActiveStart));
+      Right := Left + Canvas.TextWidth(Copy(FLabelText, FActiveStart + 1, FActiveCount));
+    end;
+    Offset := Max(0, Right - Max(1, ClientWidth - S(24)));
+    Origin := S(10) - Offset; LabelY := S(36);
+    Saved := SaveDC(Canvas.Handle);
+    try
+      IntersectClipRect(Canvas.Handle, S(8), S(23), ClientWidth - S(8), S(50));
+      if Right > Left then Painter.FillRect(Rect(Origin + Left - S(2), S(26), Origin + Right + S(2), S(46)),
+        ERDMixColor(FPalette.GaugeFace, FPalette.Accent, 0.82));
+      Painter.Text(Origin, LabelY, FLabelText, 12, FPalette.ForegroundText, twMono, taLeftJustify);
+      if Right > Left then
+        Painter.Text(Origin + Left, LabelY, Copy(FLabelText, FActiveStart + 1, FActiveCount),
+          12, Painter.AccentText, twMonoBold, taLeftJustify);
+    finally RestoreDC(Canvas.Handle, Saved); end;
+    R := Rect(S(10), S(54), ClientWidth - S(10), ClientHeight - S(8));
+    if FDocumentation <> '' then Painter.WrapText(R, FDocumentation, 11.5, FPalette.ForegroundText);
+  finally Painter.Free; end;
+end;
 
 constructor TERDPopupList.Create(AOwner: TComponent);
 begin

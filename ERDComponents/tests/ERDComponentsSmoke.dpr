@@ -2452,6 +2452,51 @@ begin
   finally Form.Free; end;
 end;
 
+procedure TestSignatureHelp;
+var Form: TForm; Editor: TERDCodeEditor; Service: TLanguageServiceProbe;
+    ServiceReference: IERDCodeLanguageService; Responses: IERDSignatureHelpResponses;
+    Current, Old: TERDLanguageRequest; Help, Returned: TERDSignatureHelp;
+    Value: TJSONValue; I: Integer; Popup: TERDSignaturePopup;
+begin
+  Form := TForm.Create(nil); Service := TLanguageServiceProbe.Create; ServiceReference := Service;
+  try
+    Editor := TERDCodeEditor.Create(Form); Editor.Parent := Form; Editor.SetBounds(0, 0, 500, 200);
+    Editor.LanguageService := ServiceReference; Editor.Text := 'fn('; Editor.SelStart := 3; Form.Show; Editor.SetFocus;
+    Check(Editor.RequestSignatureHelp and (Service.Snapshot.Kind = lrSignatureHelp), 'Signature help issues a versioned language request');
+    Check(Supports(Service.Responses, IERDSignatureHelpResponses, Responses), 'Optional signature response extension is available');
+    Current := Service.Snapshot;
+    Value := TJSONObject.ParseJSONValue('{"activeSignature":0,"activeParameter":1,"signatures":[{"label":"fn(first: string, second: number): void","documentation":{"kind":"markdown","value":"Call documentation"},"parameters":[{"label":[3,16]},{"label":"second: number","documentation":"Second argument"}]},{"label":"fn(value: number): void","activeParameter":0,"parameters":[{"label":[3,16]}]}]}');
+    try Help := ERDParseSignatureHelp(Value); finally Value.Free; end;
+    Check((Help.Signatures[0].Parameters[0].Start = 3) and (Help.Signatures[0].Parameters[1].Start = 18),
+      'LSP signature labels support both UTF-16 ranges and string labels');
+    Check((Help.Signatures[0].Documentation = 'Call documentation') and
+      (Help.Signatures[0].Parameters[1].Documentation = 'Second argument'), 'Signature and parameter documentation are preserved');
+    Check(Responses.SignatureHelp(Current, Help), 'Current signature reply is accepted');
+    Returned := Editor.SignatureHelp; Returned.Signatures[0].Parameters[0].Start := 99;
+    Check(Editor.SignatureHelp.Signatures[0].Parameters[0].Start = 3, 'Signature getter does not expose mutable parameter arrays');
+    Popup := nil;
+    for I := 0 to Editor.ComponentCount - 1 do
+      if Editor.Components[I] is TERDSignaturePopup then Popup := TERDSignaturePopup(Editor.Components[I]);
+    Check((Popup <> nil) and Popup.IsOpen and (GetFocus = Editor.Handle), 'Parameter hint opens without taking editor focus');
+    Editor.SelectSignature(1); Check(Editor.SignatureHelp.ActiveSignature = 1, 'Host can choose a signature overload');
+    Editor.Perform(WM_KEYDOWN, VK_ESCAPE, 0);
+    Check(not Popup.IsOpen, 'Escape closes parameter hint');
+    Editor.RequestSignatureHelp; Old := Service.Snapshot; Editor.Text := 'fn(x';
+    Check(not Responses.SignatureHelp(Old, Help), 'Edited document rejects stale signature replies');
+    Editor.Text := 'fn'; Editor.SelStart := 2; Editor.Perform(WM_CHAR, Ord('('), 0);
+    Check((Service.Snapshot.Kind = lrSignatureHelp) and (Service.Snapshot.Text = 'fn()') and
+      (Service.Snapshot.Caret = 3), 'Auto-paired opening parenthesis requests final caret signature context');
+    Current := Service.Snapshot; Check(Responses.SignatureHelp(Current, Default(TERDSignatureHelp)), 'Empty signature reply clears the session');
+    Editor.Text := '"text'; Editor.SelStart := Length(Editor.Text); I := Service.Requests;
+    Editor.Perform(WM_CHAR, Ord('('), 0);
+    Check(Service.Requests = I, 'Parenthesis inside an unterminated string does not trigger parameter help');
+    Editor.Text := 'fn('; Editor.SelStart := 3; Editor.RequestSignatureHelp; Current := Service.Snapshot;
+    Check(Responses.SignatureHelp(Current, Help), 'Signature popup reopens before detach');
+    Editor.Parent := nil; Editor.CancelLanguageRequests; Editor.Free;
+    Check(not Responses.SignatureHelp(Current, Help), 'Detached signature sink rejects replies after editor destruction');
+  finally Form.Free; ServiceReference := nil; end;
+end;
+
 procedure TestEditorWindowShutdown;
 var Form: TForm; Editor: TCodeEditorProbe; Service: TLanguageServiceProbe;
     ServiceReference: IERDCodeLanguageService; Sink: IERDLanguageResponses;
@@ -3258,6 +3303,11 @@ begin
         Document.AddPair('textEdit', TJSONObject.Create.AddPair('range', Range).AddPair('newText', 'fixtureMember'));
         Items := TJSONArray.Create; Items.AddElement(Document); ResultValue := Items;
       end;
+      if Method = 'textDocument/signatureHelp' then
+      begin
+        ResultValue.Free;
+        ResultValue := TJSONObject.ParseJSONValue('{"activeSignature":0,"activeParameter":0,"signatures":[{"label":"fixture(value: string): void","parameters":[{"label":[8,21]}]}]}');
+      end;
       MessageValue := TJSONObject.Create.AddPair('jsonrpc', '2.0').AddPair('id', JSON.GetValue('id').Clone as TJSONValue);
       MessageValue.AddPair('result', ResultValue); Send(MessageValue);
     finally JSON.Free; end;
@@ -3285,6 +3335,13 @@ begin
       'Stdio adapter preserves completion kind and markup documentation text');
     Check(Editor.ApplyCompletion(0), 'Stdio completion replacement range is accepted');
     Check(Pos('fixtureMember', Editor.Text) > 0, 'UTF-8 frames preserve UTF-16 emoji replacement positions');
+    Check(Editor.RequestSignatureHelp, 'Stdio adapter queues signature help');
+    Deadline := GetTickCount64 + 10000;
+    while (Length(Editor.SignatureHelp.Signatures) = 0) and (GetTickCount64 < Deadline) do
+    begin Application.ProcessMessages; CheckSynchronize(0); Sleep(1); end;
+    Check((Length(Editor.SignatureHelp.Signatures) = 1) and
+      (Editor.SignatureHelp.Signatures[0].LabelText = 'fixture(value: string): void'),
+      'Stdio adapter dispatches and decodes the signatureHelp method');
     Editor.LanguageService := nil; CheckSynchronize(0);
     Check(Editor.Text <> '', 'Stopping stdio adapter preserves the editor document');
   finally Form.Free; end;
@@ -3332,6 +3389,7 @@ begin
     TestSharedColorEmoji;
     TestCodeEditorSearch;
     TestCodeLanguageServices;
+    TestSignatureHelp;
     TestEditorWindowShutdown;
     TestStdioLanguageAdapter;
     TestWindowsEditInteractionParity;
