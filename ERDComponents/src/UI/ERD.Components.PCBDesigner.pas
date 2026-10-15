@@ -1111,7 +1111,7 @@ begin
     finally RestoreDC(ACanvas.Handle, Saved); end;
   end;
   // Draw selection outlines after every body, so adjacent terminals cannot cover an edge.
-  ACanvas.Brush.Style := bsClear; ACanvas.Pen.Width := ScaleValue(2);
+  ACanvas.Brush.Style := bsSolid; ACanvas.Brush.Style := bsClear; ACanvas.Pen.Width := ScaleValue(2);
   ACanvas.Pen.Color := FSelectionColor;
   if FSelectionColor = clDefault then ACanvas.Pen.Color := Palette.Accent;
   for I := 0 to High(FComponents) do
@@ -1214,6 +1214,7 @@ end;
 procedure TERDPCBDesigner.PaintScene(ACanvas: TCanvas);
 var I: Integer; R, LinkRect: TRect; Value: TERDPCBDesignItem;
     P, Q: TPoint; Pad: TERDPCBPad; Text, Link: string; Role: Integer;
+    Tint: TBitmap; Blend: TBlendFunction;
 begin
   UpdateTransform;
   for I := 0 to FScene.Count - 1 do
@@ -1259,9 +1260,24 @@ begin
   end;
   if FEditMode = 3 then
   begin
-    ACanvas.Brush.Style := bsClear; ACanvas.Pen.Width := 1; ACanvas.Pen.Color := Palette.Accent;
-    ACanvas.Rectangle(Min(FStartPoint.X, FBoxPoint.X), Min(FStartPoint.Y, FBoxPoint.Y),
+    R := Rect(Min(FStartPoint.X, FBoxPoint.X), Min(FStartPoint.Y, FBoxPoint.Y),
       Max(FStartPoint.X, FBoxPoint.X), Max(FStartPoint.Y, FBoxPoint.Y));
+    if (R.Width > 0) and (R.Height > 0) then
+    begin
+      Tint := TBitmap.Create;
+      try
+        Tint.PixelFormat := pf32bit; Tint.SetSize(1, 1);
+        Tint.Canvas.Brush.Color := Palette.Accent; Tint.Canvas.FillRect(Rect(0, 0, 1, 1));
+        Blend.BlendOp := AC_SRC_OVER; Blend.BlendFlags := 0;
+        Blend.SourceConstantAlpha := 32; Blend.AlphaFormat := 0;
+        Winapi.Windows.AlphaBlend(ACanvas.Handle, R.Left, R.Top, R.Width, R.Height,
+          Tint.Canvas.Handle, 0, 0, 1, 1, Blend);
+      finally Tint.Free; end;
+    end;
+    // Force the hollow brush into the DC even after SaveDC/RestoreDC painting.
+    ACanvas.Brush.Style := bsSolid; ACanvas.Brush.Style := bsClear;
+    ACanvas.Pen.Width := 1; ACanvas.Pen.Color := Palette.Accent;
+    ACanvas.Rectangle(R);
   end;
 end;
 procedure TERDPCBDesigner.ConnectPin(Index: Integer; const Pin: string);
