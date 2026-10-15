@@ -690,7 +690,7 @@ var Start, Finish, I, At, ReceiverStart, ReceiverEnd: Integer; Prefix, Word, Mar
     Items: TArray<TERDCompletionItem>; Target: TERDDefinitionTarget;
     Completion: TERDCompletionItem;
   function Identifier(C: Char): Boolean;
-  begin Result := C in ['a'..'z','A'..'Z','0'..'9','_','$']; end;
+  begin Result := CharInSet(C, ['a'..'z','A'..'Z','0'..'9','_','$']); end;
 begin
   // A small synchronous sample adapter, not a TypeScript analyser or TSVM.
   Start := Snapshot.Position; Finish := Start;

@@ -1473,7 +1473,7 @@ var Value: UnicodeString; At, Previous, Finish, BeforeDepth, AfterDepth, Last: I
 begin
   if (FBlankGuideVersion = FVersion) and (FBlankGuideTabWidth = FTabWidth) and
     (Start >= FBlankGuideStart) and (Start < FBlankGuideFinish) then Exit(FBlankGuideColumns);
-  Value := Text; BeforeDepth := 0; AfterDepth := 0;
+  Value := Text; BeforeDepth := 0;
   FBlankGuideStart := Start; At := Start;
   while At > 0 do
   begin
