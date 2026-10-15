@@ -4,7 +4,7 @@
 interface
 uses Winapi.Windows, Winapi.Messages, System.Classes, System.SysUtils,
   System.Types, System.Math, System.Character, System.Generics.Collections, Vcl.Controls,
-  Vcl.Graphics, ERD.Components.Control, ERD.Components.TextInput, ERD.Components.Syntax, ERD.Components.LanguageServices, ERD.Components.PopupList;
+  Vcl.Graphics, Vcl.Forms, ERD.Components.Control, ERD.Components.TextInput, ERD.Components.Syntax, ERD.Components.LanguageServices, ERD.Components.PopupList;
 type
   TERDCodeEditor = class;
   TERDKeywordColor = class(TCollectionItem)
@@ -115,6 +115,7 @@ type
     procedure SetShowFolding(Value: Boolean);
     procedure SetShowFoldGuides(Value: Boolean);
     function FoldButtonRect(Row: Integer): TRect;
+    function GutterBounds: TRect;
     function FoldAtPoint(X, Y: Integer): Integer;
     procedure CMMouseLeave(var Message: TMessage); message CM_MOUSELEAVE;
     procedure WMCaptureChanged(var Message: TMessage); message WM_CAPTURECHANGED;
@@ -816,6 +817,19 @@ begin
   if FShowFoldGuides = Value then Exit;
   FShowFoldGuides := Value; Invalidate;
 end;
+function TERDCodeEditor.GutterBounds: TRect;
+var BorderWidth: Integer;
+begin
+  Result := ClientRect;
+  if BorderStyle = bsSingle then
+  begin
+    BorderWidth := ScaleValue(1);
+    if Focused and Enabled then BorderWidth := ScaleValue(2);
+    InflateRect(Result, -BorderWidth, -BorderWidth);
+  end;
+  Result.Right := Max(Result.Left, Min(Result.Right, TextViewport.Left - ScaleValue(3)));
+  if not (FShowLineNumbers or FShowFolding) then Result.Right := Result.Left;
+end;
 function TERDCodeEditor.FoldButtonRect(Row: Integer): TRect;
 var View: TRect; CenterX, CenterY, Radius: Integer;
 begin
@@ -1095,7 +1109,7 @@ begin
   inherited PaintControl(ACanvas);
   if not (FShowLineNumbers or FShowFolding) then Exit;
   Rows := VisualRows; View := TextViewport; H := RowHeight;
-  R := inherited TextViewport; R.Right := View.Left - ScaleValue(3);
+  R := GutterBounds;
   Saved := SaveDC(ACanvas.Handle);
   Painter := TERDPainter.Create(ACanvas, Palette, ScaleValue(96));
   try
@@ -1181,9 +1195,9 @@ end;
 procedure TERDCodeEditor.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 var Fold: Integer; View, OuterView: TRect;
 begin
-  View := TextViewport; OuterView := inherited TextViewport; Fold := FoldAtPoint(X, Y);
-  FLastGutterDown := (Button = mbLeft) and (X >= OuterView.Left) and (X < View.Left) and
-    (Y >= View.Top) and (Y < View.Bottom);
+  View := TextViewport; OuterView := GutterBounds; Fold := FoldAtPoint(X, Y);
+  FLastGutterDown := (Button = mbLeft) and not IsRectEmpty(OuterView) and (X >= OuterView.Left) and (X < View.Left) and
+    (Y >= OuterView.Top) and (Y < OuterView.Bottom);
   if (Button = mbLeft) and (Fold >= 0) then
   begin
     SetFocus; FPressedFold := Fold; FHotFold := Fold; MouseCapture := True;
@@ -1208,8 +1222,8 @@ var Fold: Integer; View, OuterView: TRect;
 begin
   Fold := FoldAtPoint(X, Y);
   if FHotFold <> Fold then begin FHotFold := Fold; Invalidate; end;
-  View := TextViewport; OuterView := inherited TextViewport;
-  if (X < View.Left) and (X >= OuterView.Left) then Cursor := crArrow
+  View := TextViewport; OuterView := GutterBounds;
+  if not IsRectEmpty(OuterView) and (X < View.Left) and (X >= OuterView.Left) then Cursor := crArrow
   else Cursor := crIBeam;
   if FPressedFold >= 0 then Exit;
   if FSelectingLines then
@@ -1235,8 +1249,8 @@ var P: TPoint; View, OuterView: TRect;
 begin
   if (Message.HitTest = HTCLIENT) and GetCursorPos(P) then
   begin
-    P := ScreenToClient(P); View := TextViewport; OuterView := inherited TextViewport;
-    if (P.X >= OuterView.Left) and (P.X < View.Left) then
+    P := ScreenToClient(P); View := TextViewport; OuterView := GutterBounds;
+    if not IsRectEmpty(OuterView) and (P.X >= OuterView.Left) and (P.X < View.Left) then
       Winapi.Windows.SetCursor(LoadCursor(0, IDC_ARROW))
     else Winapi.Windows.SetCursor(LoadCursor(0, IDC_IBEAM));
     Message.Result := 1; Exit;

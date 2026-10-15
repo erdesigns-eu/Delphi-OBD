@@ -193,3 +193,7 @@ The shared input paints bullet password masks (`#$2022` / `#$25CF`) as
 antialiased circles, independent of the font's bullet shape. Layout advances
 remain shared with caret positioning and hit testing. Selection and IME masking
 use the same circles; custom password characters retain their configured glyph.
+
+The gutter background fills up to the inside edge of the editor border on its
+left, top and bottom. Its fill is independent of text padding; the border remains
+visible at its normal focused/unfocused thickness.
