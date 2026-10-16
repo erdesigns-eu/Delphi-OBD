@@ -22,8 +22,8 @@ Document URI comparison is exact: the host owns URI/path normalization.
   Condition, HitCondition, LogMessage, verification status and backend message.
   `ConfigureBreakpoint` is the host API for conditions/hit counts/logpoints; an
   editor-side properties dialog and standalone breakpoint list are later controls.
-- Pending breakpoints use a hollow danger-colored circle; verified enabled ones
-  are solid. Disabled markers are subdued; rejected markers use warning/slash.
+- Pending and verified enabled breakpoints use a solid danger-colored circle.
+  The execution marker replaces the breakpoint marker on the active source line. Disabled markers are subdued; rejected markers use warning/slash.
   A verified resolved line controls display position. Conditions do not execute
   in the editor; the backend must implement the requested behavior.
 - `SetExecution(dsPaused, URI, Line)` shows a themed arrow and line tint. Running

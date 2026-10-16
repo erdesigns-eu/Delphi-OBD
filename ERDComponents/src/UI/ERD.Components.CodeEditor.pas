@@ -1800,15 +1800,16 @@ begin
       if FShowDebugGutter and (FDebugModel <> nil) and (Rows[I].Start = LineStart(Rows[I].Start)) then
       begin
         DebugX := R.Left+ScaleValue(10); Radius := ScaleValue(5);
-        if FDebugModel.DisplayBreakpointAt(FDocumentUri,Number,Breakpoint) then
+        if not ((FDebugModel.State = dsPaused) and (FDebugModel.ExecutionUri = FDocumentUri) and
+          (FDebugModel.ExecutionLine = Number)) and FDebugModel.DisplayBreakpointAt(FDocumentUri,Number,Breakpoint) then
         begin
-          DebugInk := Palette.Danger; DebugFill := clNone;
+          DebugInk := Palette.Danger;
           if not Breakpoint.Enabled then DebugInk := Palette.Subtle
-          else if Breakpoint.Status = bpsRejected then DebugInk := Palette.Warning
-          else if Breakpoint.Status = bpsVerified then DebugFill := DebugInk;
+          else if Breakpoint.Status = bpsRejected then DebugInk := Palette.Warning;
+          DebugFill := DebugInk;
           Painter.Ellipse(DebugX-Radius,Y+H/2-Radius,2*Radius,2*Radius,DebugFill,DebugInk,ScaleValue(2));
           if Breakpoint.Status = bpsRejected then
-            Painter.LineF(DebugX-Radius,Y+H/2+Radius,DebugX+Radius,Y+H/2-Radius,DebugInk,ScaleValue(1));
+            Painter.LineF(DebugX-Radius,Y+H/2+Radius,DebugX+Radius,Y+H/2-Radius,ERDContrastInk(DebugFill,Palette.ForegroundText,Palette.Background),ScaleValue(1));
           if Breakpoint.LogMessage <> '' then Painter.GlyphLine(glDash,DebugX,Y+H/2,Palette.ForegroundText,0.55);
         end;
         if (FDebugModel.State = dsPaused) and (FDebugModel.ExecutionUri = FDocumentUri) and (FDebugModel.ExecutionLine = Number) then

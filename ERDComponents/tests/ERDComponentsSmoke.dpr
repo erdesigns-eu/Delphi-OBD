@@ -3504,8 +3504,11 @@ begin
     ID := Item.ID; Revision := Item.Revision; Session := Model.Session;
     Baseline := Editor.DebugPixel(1,True);
     Check(Model.PublishBreakpoint(Session,ID,Revision,bpsVerified,2,''), 'Matching debugger acknowledgement is accepted');
-    Check((Editor.DebugPixel(1,True) <> Baseline) and (Other.DebugPixel(1,True) = Editor.DebugPixel(1,True)), 'Verified markers update both editors sharing a model');
+    Check((Editor.DebugPixel(1,True) = Baseline) and (Other.DebugPixel(1,True) = Baseline), 'Pending and verified breakpoints are solid in both editors');
+    Model.SetExecution(dsPaused,Editor.DocumentUri,2); Baseline := Editor.DebugPixel(1,True);
     Other.DebugClick(1,True); Check(Model.BreakpointAt(Editor.DocumentUri,2,Item) and not Item.Enabled, 'Shift-click disables shared breakpoint');
+    Check(Editor.DebugPixel(1,True) = Baseline, 'Execution marker takes precedence over breakpoint appearance');
+    Model.SetExecution(dsRunning);
     Check(not Model.PublishBreakpoint(Session,ID,Revision,bpsVerified,2,''), 'Old configuration acknowledgement cannot overwrite a disabled breakpoint');
     Editor.SelStart := Length(Editor.Text); Editor.DebugKey(VK_F9,[]);
     Check(Model.BreakpointAt(Editor.DocumentUri,3,Item), 'F9 toggles breakpoint on caret line');
