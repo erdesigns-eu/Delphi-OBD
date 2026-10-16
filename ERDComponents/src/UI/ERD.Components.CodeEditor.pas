@@ -4,7 +4,7 @@
 interface
 uses Winapi.Windows, Winapi.Messages, System.Classes, System.SysUtils,
   System.Types, System.UITypes, System.Math, System.Character, System.Generics.Collections, Vcl.Controls,
-  Vcl.Graphics, Vcl.Forms, Vcl.AppEvnts, Vcl.StdCtrls, ERD.Components.Control, ERD.Components.TextInput, ERD.Components.Syntax, ERD.Components.LanguageServices, ERD.Components.PopupList, ERD.Components.ScrollBar;
+  Vcl.Graphics, Vcl.Forms, Vcl.AppEvnts, Vcl.StdCtrls, ERD.Components.Control, ERD.Components.TextInput, ERD.Components.Syntax, ERD.Components.LanguageServices, ERD.Components.DebugModel, ERD.Components.PopupList, ERD.Components.ScrollBar;
 type
   TERDCodeEditor = class;
   TERDKeywordColor = class(TCollectionItem)
@@ -53,6 +53,10 @@ type
   TERDCodeEditor = class(TERDTextArea)
   private
     FKeyboardEvents: TApplicationEvents;
+    FDebugModel: TERDDebugModel;
+    FShowDebugGutter: Boolean;
+    FDebugLineVersion: Int64;
+    FDebugLineStarts: TArray<Integer>;
     FLanguage: TERDCodeLanguage;
     FProvider: IERDSyntaxProvider;
     FKeywordColors: TERDKeywordColors;
@@ -113,6 +117,13 @@ type
     FLastLanguageResult: TERDLanguageRequestKind;
     FOnLanguageResults: TNotifyEvent;
     FOnNavigate: TERDCodeNavigateEvent;
+    procedure SetDebugModel(Value: TERDDebugModel);
+    procedure SetShowDebugGutter(Value: Boolean);
+    procedure DebugChanged(Sender: TObject);
+    procedure BuildDebugLines;
+    function DebugLineAt(Position: Integer): Integer;
+    function DebugLineAtY(Y: Integer): Integer;
+    function DebugShortcut(Key: Word; Shift: TShiftState): Boolean;
     procedure SetScrollBars(Value: System.UITypes.TScrollStyle);
     procedure SetShowMinimap(Value: Boolean);
     procedure SetMinimapWidth(Value: Integer);
@@ -172,6 +183,7 @@ type
     procedure SelectGutterLine(Y: Integer; Extend: Boolean);
     procedure WMChar(var Message: TWMChar); message WM_CHAR;
   protected
+    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     procedure NavigationRects(out Vertical, Horizontal, Map: TRect);
     function TextViewport: TRect; override;
     function GutterBackgroundColor: TColor;
@@ -196,6 +208,8 @@ type
     procedure ThemeChanged; override;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure ToggleBreakpointAtCaret(ToggleEnabled: Boolean = False);
+    function RevealDebugLine(Line: Integer): Boolean;
     class function FoldInteractionRevision: Integer; static;
     function RequestCompletion: Boolean;
     function RequestSignatureHelp: Boolean;
@@ -237,6 +251,8 @@ type
     function SyntaxAnalysis: TERDSyntaxAnalysis;
     property SyntaxProvider: IERDSyntaxProvider read FProvider write SetProvider;
   published
+    property DebugModel: TERDDebugModel read FDebugModel write SetDebugModel;
+    property ShowDebugGutter: Boolean read FShowDebugGutter write SetShowDebugGutter default False;
     property ScrollBars: System.UITypes.TScrollStyle read FScrollBars write SetScrollBars default ssBoth;
     property ShowMinimap: Boolean read FShowMinimap write SetShowMinimap default True;
     property MinimapWidth: Integer read FMinimapWidth write SetMinimapWidth default 96;
@@ -285,6 +301,72 @@ begin
   inherited;
   if GetOwner is TERDCodeEditor then
   begin TERDCodeEditor(GetOwner).FMinimapDirty := True; TERDCodeEditor(GetOwner).Invalidate; end;
+end;
+procedure TERDCodeEditor.Notification(AComponent: TComponent; Operation: TOperation);
+begin
+  inherited;
+  if (Operation = opRemove) and (AComponent = FDebugModel) then begin FDebugModel := nil; Invalidate; end;
+end;
+procedure TERDCodeEditor.SetDebugModel(Value: TERDDebugModel);
+begin
+  if FDebugModel = Value then Exit;
+  if FDebugModel <> nil then begin FDebugModel.RemoveListener(DebugChanged); FDebugModel.RemoveFreeNotification(Self); end;
+  FDebugModel := Value;
+  if Value <> nil then begin Value.FreeNotification(Self); Value.AddListener(DebugChanged); end;
+  if not FDestroyingEditor then Invalidate;
+end;
+procedure TERDCodeEditor.SetShowDebugGutter(Value: Boolean);
+begin
+  if FShowDebugGutter = Value then Exit;
+  FShowDebugGutter := Value; InvalidateTextLayout; UpdateCaret; Invalidate;
+end;
+function TERDCodeEditor.DebugShortcut(Key: Word; Shift: TShiftState): Boolean;
+begin
+  Result := False; if FDebugModel = nil then Exit;
+  case Key of
+    VK_F9: Result := ((Shift = []) or (Shift = [ssCtrl])) and (FDocumentUri <> '');
+    VK_F5, VK_F11: Result := (Shift = []) or (Shift = [ssShift]);
+    VK_F6, VK_F10: Result := Shift = [];
+  end;
+end;
+procedure TERDCodeEditor.DebugChanged(Sender: TObject);
+begin if not FDestroyingEditor then Invalidate; end;
+procedure TERDCodeEditor.BuildDebugLines;
+var I, N: Integer;
+begin
+  if FDebugLineVersion = FVersion then Exit;
+  SetLength(FDebugLineStarts,Length(Text)+1); N := 1; FDebugLineStarts[0] := 0;
+  for I := 1 to Length(Text) do if Text[I] = #10 then begin FDebugLineStarts[N] := I; Inc(N); end;
+  SetLength(FDebugLineStarts,N); FDebugLineVersion := FVersion;
+end;
+function TERDCodeEditor.DebugLineAt(Position: Integer): Integer;
+var L, R, M: Integer;
+begin
+  BuildDebugLines; L := 0; R := High(FDebugLineStarts);
+  while L < R do begin M := (L+R+1) div 2; if FDebugLineStarts[M] <= Position then L := M else R := M-1; end;
+  Result := L+1;
+end;
+function TERDCodeEditor.DebugLineAtY(Y: Integer): Integer;
+var Rows: TArray<TERDTextRow>; Index: Integer; View: TRect;
+begin
+  Result := 0; View := TextViewport; if (Y < View.Top) or (Y >= View.Bottom) then Exit;
+  Rows := VisualRows; Index := FirstVisibleRow+(Y-View.Top) div RowHeight;
+  if (Index >= 0) and (Index < Length(Rows)) then Result := DebugLineAt(Rows[Index].Start);
+end;
+procedure TERDCodeEditor.ToggleBreakpointAtCaret(ToggleEnabled: Boolean);
+begin
+  if (FDebugModel <> nil) and (FDocumentUri <> '') then FDebugModel.ToggleBreakpoint(FDocumentUri,DebugLineAt(TextModel.Caret),ToggleEnabled);
+end;
+function TERDCodeEditor.RevealDebugLine(Line: Integer): Boolean;
+var Position, I, J: Integer;
+begin
+  BuildDebugLines; Result := (Line > 0) and (Line <= Length(FDebugLineStarts)); if not Result then Exit;
+  Position := FDebugLineStarts[Line-1]; Analyze;
+  for I := FCollapsed.Count-1 downto 0 do
+    for J := 0 to High(FAnalysis.Folds) do
+      if (FAnalysis.Folds[J].Start = FCollapsed[I]) and (Position >= FoldHiddenStart(FAnalysis.Folds[J])) and
+        (Position < FoldHiddenFinish(FAnalysis.Folds[J])) then begin FCollapsed.Delete(I); Break; end;
+  InvalidateTextLayout; SelLength := 0; SelStart := Position; UpdateCaret; Invalidate;
 end;
 procedure TERDCodeEditor.SetKeywordColors(Value: TERDKeywordColors);
 begin FKeywordColors.Assign(Value); end;
@@ -340,6 +422,7 @@ begin
   FShowMinimap := True;
   FMinimapWidth := 96;
   FMinimapDirty := True; FNavigationWidthDirty := True;
+  FDebugLineVersion := -1;
   FCollapsed := TList<Integer>.Create;
   FResponseObject := TERDLanguageResponseSink.Create(Self); FResponses := FResponseObject;
   FSearchScopeCount := -1;
@@ -371,7 +454,7 @@ begin
 end;
 destructor TERDCodeEditor.Destroy;
 begin
-  FDestroyingEditor := True;
+  FDestroyingEditor := True; SetDebugModel(nil);
   FOnLanguageResults := nil; FOnNavigate := nil; FOnSearchRequested := nil;
   FreeAndNil(FKeyboardEvents);
   if FResponseObject <> nil then FResponseObject.Detach;
@@ -409,7 +492,7 @@ end;
 procedure TERDCodeEditor.SetLanguageService(const Value: IERDCodeLanguageService);
 begin FSignatureSession := False; CancelLanguageRequests; FLanguageService := Value; FLanguageError := ''; SyncLanguageDocument; end;
 procedure TERDCodeEditor.SetDocumentUri(const Value: UnicodeString);
-begin if FDocumentUri = Value then Exit; CancelLanguageRequests; FDocumentUri := Value; Inc(FVersion); SyncLanguageDocument; end;
+begin if FDocumentUri = Value then Exit; CancelLanguageRequests; FDocumentUri := Value; Inc(FVersion); SyncLanguageDocument; Invalidate; end;
 procedure TERDCodeEditor.DoExit;
 begin
   FSignatureSession := False;
@@ -682,6 +765,7 @@ begin
   if (Inner.Width <= 0) or (Inner.Height <= 0) then Exit;
   Size := Max(1, ScaleValue(12)); Base := inherited TextViewport;
   LocalGutterWidth := 0;
+  if FShowDebugGutter then Inc(LocalGutterWidth,ScaleValue(20));
   if FShowLineNumbers then Inc(LocalGutterWidth, ScaleValue(48));
   if FShowFolding then Inc(LocalGutterWidth, ScaleValue(18));
   if FScrollBars in [ssVertical, ssBoth] then
@@ -1093,9 +1177,16 @@ end;
 procedure TERDCodeEditor.PaintTextBackground(ACanvas: TCanvas; Start, Count, X, Y: Integer;
   Line: TERDTextLayoutLine);
 var Item: TERDCodeSearchMatch; A, B, L, R, Index: Integer;
-    Boundaries: TArray<Integer>;
+    Boundaries: TArray<Integer>; DebugPainter: TERDPainter; DebugView: TRect;
 begin
   inherited; Boundaries := TextModel.Boundaries;
+  if (FDebugModel <> nil) and (FDebugModel.State = dsPaused) and
+    (FDebugModel.ExecutionUri = FDocumentUri) and (FDebugModel.ExecutionLine = DebugLineAt(Start)) then
+  begin
+    DebugView := TextViewport; DebugPainter := TERDPainter.Create(ACanvas,Palette,ScaleValue(96));
+    try DebugPainter.FillRect(Rect(DebugView.Left,Y,DebugView.Right,Y+RowHeight),ERDMixColor(Palette.Warning,Palette.Background,0.16));
+    finally DebugPainter.Free; end;
+  end;
   ACanvas.Brush.Color := ERDMixColor(Palette.Warning, Palette.Background, 0.22);
   for Item in FSearchMatches do
   begin
@@ -1243,7 +1334,7 @@ function TERDCodeEditor.TextViewport: TRect;
 var Vertical, Horizontal, Map: TRect;
 begin
   Result := inherited TextViewport;
-  if FShowLineNumbers then Inc(Result.Left, ScaleValue(48));
+  if FShowDebugGutter then Inc(Result.Left,ScaleValue(20));  if FShowLineNumbers then Inc(Result.Left, ScaleValue(48));
   if FShowFolding then Inc(Result.Left, ScaleValue(18));
   NavigationRects(Vertical, Horizontal, Map);
   if not IsRectEmpty(Vertical) then Result.Right := Min(Result.Right, Vertical.Left);
@@ -1323,7 +1414,7 @@ begin
     InflateRect(Result, -BorderWidth, -BorderWidth);
   end;
   Result.Right := Max(Result.Left, Min(Result.Right, TextViewport.Left - ScaleValue(3)));
-  if not (FShowLineNumbers or FShowFolding) then Result.Right := Result.Left;
+  if not (FShowLineNumbers or FShowFolding or FShowDebugGutter) then Result.Right := Result.Left;
 end;
 function TERDCodeEditor.FoldButtonRect(Row: Integer): TRect;
 var View: TRect; CenterX, CenterY, Radius: Integer;
@@ -1407,7 +1498,9 @@ begin
     FLineAnchorFinish := 0;
     FHotFold := -1;
     if FPressedFold >= 0 then begin FPressedFold := -1; MouseCapture := False; end;
-    Inc(FVersion); CancelLanguageRequests;
+    Inc(FVersion);
+    if FDebugModel <> nil then FDebugModel.DocumentEdited(FDocumentUri,ABefore,Text);
+    CancelLanguageRequests;
     // Editing invalidates structural offsets. Keep the text, expand stale folds.
     FDiagnostics := nil;
     RefreshSearch;
@@ -1679,11 +1772,13 @@ var Rows: TArray<TERDTextRow>; I, J, Number, Y, H, Index, X: Integer;
     R, View, ButtonRect: TRect; Saved, CenterX, CenterY, Arm, GuideTop: Integer; Diagnostic: TERDCodeDiagnostic;
     Fold: TERDSyntaxFold; Painter: TERDPainter; GutterFill, GuideInk, ButtonInk, ButtonFill, ButtonBorder: TColor;
     DiagnosticFound: Boolean; RowFinish: Integer; Severity: TERDDiagnosticSeverity;
+    Breakpoint: TERDDebugBreakpoint; DebugInk, DebugFill: TColor; DebugX, Radius: Integer;
+    Arrow: TArray<TGPPointF>;
 begin
   if FDestroyingEditor or (csDestroying in ComponentState) then Exit;
   inherited PaintControl(ACanvas);
   PaintNavigation(ACanvas);
-  if not (FShowLineNumbers or FShowFolding) then Exit;
+  if not (FShowLineNumbers or FShowFolding or FShowDebugGutter) then Exit;
   Rows := VisualRows; View := TextViewport; H := RowHeight;
   R := GutterBounds;
   Saved := SaveDC(ACanvas.Handle);
@@ -1702,6 +1797,28 @@ begin
       while J < Rows[I].Start do
       begin Inc(J); if Text[J] = #10 then Inc(Number); end;
       Y := View.Top + (I - FirstVisibleRow) * H;
+      if FShowDebugGutter and (FDebugModel <> nil) and (Rows[I].Start = LineStart(Rows[I].Start)) then
+      begin
+        DebugX := R.Left+ScaleValue(10); Radius := ScaleValue(5);
+        if FDebugModel.DisplayBreakpointAt(FDocumentUri,Number,Breakpoint) then
+        begin
+          DebugInk := Palette.Danger; DebugFill := clNone;
+          if not Breakpoint.Enabled then DebugInk := Palette.Subtle
+          else if Breakpoint.Status = bpsRejected then DebugInk := Palette.Warning
+          else if Breakpoint.Status = bpsVerified then DebugFill := DebugInk;
+          Painter.Ellipse(DebugX-Radius,Y+H/2-Radius,2*Radius,2*Radius,DebugFill,DebugInk,ScaleValue(2));
+          if Breakpoint.Status = bpsRejected then
+            Painter.LineF(DebugX-Radius,Y+H/2+Radius,DebugX+Radius,Y+H/2-Radius,DebugInk,ScaleValue(1));
+          if Breakpoint.LogMessage <> '' then Painter.GlyphLine(glDash,DebugX,Y+H/2,Palette.ForegroundText,0.55);
+        end;
+        if (FDebugModel.State = dsPaused) and (FDebugModel.ExecutionUri = FDocumentUri) and (FDebugModel.ExecutionLine = Number) then
+        begin
+          SetLength(Arrow,3); Arrow[0].X := DebugX-ScaleValue(4); Arrow[0].Y := Y+H/2-ScaleValue(4);
+          Arrow[1].X := DebugX+ScaleValue(4); Arrow[1].Y := Y+H/2;
+          Arrow[2].X := DebugX-ScaleValue(4); Arrow[2].Y := Y+H/2+ScaleValue(4);
+          Painter.Shape(Arrow,True,Palette.Warning,ERDContrastInk(Palette.Warning,Palette.ForegroundText,Palette.Background));
+        end;
+      end;
       X := View.Left - ScaleValue(20);
       DiagnosticFound := False; Severity := dsHint;
       RowFinish := Rows[I].Start + Rows[I].Count;
@@ -1717,8 +1834,8 @@ begin
       begin
         ACanvas.Brush.Color := DiagnosticColor(Severity);
         ACanvas.Pen.Color := DiagnosticColor(Severity);
-        ACanvas.Ellipse(R.Left, Y + H div 2 - ScaleValue(3),
-          R.Left + ScaleValue(6), Y + H div 2 + ScaleValue(3));
+        ACanvas.Ellipse(R.Left+Ord(FShowDebugGutter)*ScaleValue(20), Y + H div 2 - ScaleValue(3),
+          R.Left+Ord(FShowDebugGutter)*ScaleValue(20) + ScaleValue(6), Y + H div 2 + ScaleValue(3));
         ACanvas.Brush.Color := Palette.Background;
       end;
       ACanvas.Brush.Style := bsClear;
@@ -1777,6 +1894,14 @@ var Fold, SavedRow, SavedHorizontal: Integer; View, OuterView: TRect;
 begin
   if (Button = mbLeft) and NavigationMouseDown(X, Y) then Exit;
   View := TextViewport; OuterView := GutterBounds; Fold := FoldAtPoint(X, Y);
+  if (Button = mbLeft) and FShowDebugGutter and (FDebugModel <> nil) and (FDocumentUri <> '') and
+    (X >= OuterView.Left) and (X < OuterView.Left+ScaleValue(20)) and (DebugLineAtY(Y) > 0) then
+  begin
+    FLastGutterDown := True;
+    SavedRow := FirstVisibleRow; SavedHorizontal := HorizontalScrollPosition;
+    SetFocus; ScrollHorizontal(SavedHorizontal); ScrollRows(SavedRow);
+    FDebugModel.ToggleBreakpoint(FDocumentUri,DebugLineAtY(Y),ssShift in Shift); Exit;
+  end;
   FLastGutterDown := (Button = mbLeft) and not IsRectEmpty(OuterView) and (X >= OuterView.Left) and (X < View.Left) and
     (Y >= OuterView.Top) and (Y < OuterView.Bottom);
   if (Button = mbLeft) and (Fold >= 0) then
@@ -1907,11 +2032,19 @@ begin
   Result := [ssCtrl]; if GetKeyState(VK_SHIFT) < 0 then Include(Result, ssShift);
 end;
 procedure TERDCodeEditor.KeyboardMessage(var Msg: TMsg; var Handled: Boolean);
-var Key: Word;
+var Key: Word; Shift: TShiftState;
 begin
   // Intercept before TranslateMessage/IME and VCL shortcut preprocessing.
   // Only the focused editor owns this shortcut; other controls keep their keys.
   if Handled or FDestroyingEditor or not HandleAllocated then Exit;
+  if (Msg.hwnd = Handle) and Focused and (Msg.message = WM_KEYDOWN) then
+  begin
+    Shift := []; if GetKeyState(VK_CONTROL) < 0 then Include(Shift,ssCtrl);
+    if GetKeyState(VK_SHIFT) < 0 then Include(Shift,ssShift);
+    if GetKeyState(VK_MENU) < 0 then Include(Shift,ssAlt);
+    if DebugShortcut(Word(Msg.wParam),Shift) then
+    begin Key := Word(Msg.wParam); KeyDown(Key,Shift); Handled := True; Exit; end;
+  end;
   if (Msg.hwnd = Handle) and Focused and (Msg.message = WM_KEYDOWN) and
     ((Msg.wParam = VK_SPACE) or (Msg.wParam = Ord('J'))) and (GetKeyState(VK_CONTROL) < 0) and
     (GetKeyState(VK_MENU) >= 0) then
@@ -1953,6 +2086,17 @@ procedure TERDCodeEditor.KeyDown(var Key: Word; Shift: TShiftState);
 var Before: UnicodeString; Position, Spaces, Start, SignatureIndex: Integer;
     RefreshSignature: Boolean; OldCaret: Integer;
 begin
+  if DebugShortcut(Key,Shift) then
+  begin
+    case Key of
+      VK_F9: ToggleBreakpointAtCaret(ssCtrl in Shift);
+      VK_F5: if ssShift in Shift then FDebugModel.RequestCommand(dcStop) else FDebugModel.RequestCommand(dcContinue);
+      VK_F6: FDebugModel.RequestCommand(dcPause);
+      VK_F10: FDebugModel.RequestCommand(dcStepOver);
+      VK_F11: if ssShift in Shift then FDebugModel.RequestCommand(dcStepOut) else FDebugModel.RequestCommand(dcStepInto);
+    end;
+    Key := 0; Exit;
+  end;
   RefreshSignature := FSignatureSession; OldCaret := TextModel.Caret;
   FSuppressLanguageChar := 0;
   if (Key = VK_SPACE) and (ssCtrl in Shift) and (ssShift in Shift) and not (ssAlt in Shift) then

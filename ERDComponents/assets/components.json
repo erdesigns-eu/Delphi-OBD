@@ -76,5 +76,8 @@
   "TERDPCBDesigner",
   "TERDPCBComponentPalette",
   "TERDPCBObjectTree",
-  "TERDPCBValidationPanel"
+  "TERDPCBValidationPanel",
+  "TERDDebugModel",
+  "TERDValueTree",
+  "TERDTimeSeriesChart"
 ]

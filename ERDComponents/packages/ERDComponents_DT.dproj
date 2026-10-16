@@ -94,6 +94,9 @@
         <DelphiCompile Include="$(MainSource)">
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
+        <DCCReference Include="..\src\UI\ERD.Components.DebugModel.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.ValueTree.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.TimeSeries.pas"/>
         <DCCReference Include="rtl.dcp"/>
         <DCCReference Include="vcl.dcp"/>
         <DCCReference Include="vclimg.dcp"/>

@@ -71,6 +71,7 @@
         </DelphiCompile>
         <DCCReference Include="PCBTemplateDialog.pas"/>
         <DCCReference Include="PCBPreview.pas"/>
+        <DCCReference Include="DebugPreview.pas"/>
         <DCCReference Include="Showcase.pas">
             <Form>MainForm</Form>
             <FormType>dfm</FormType>

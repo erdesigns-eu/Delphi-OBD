@@ -58,6 +58,9 @@ def resource(name,payload):
 
 # Per-class icons, not one placeholder shared by every component.
 COMPONENT_ICONS={
+    'TERDDebugModel': 151,
+    'TERDValueTree': 69,
+    'TERDTimeSeriesChart': 111,
     'TERDPCBComponentPalette': 87,
     'TERDPCBObjectTree': 69,
     'TERDPCBValidationPanel': 151,

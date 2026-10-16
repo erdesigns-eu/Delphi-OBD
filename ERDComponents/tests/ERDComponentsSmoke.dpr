@@ -1,6 +1,7 @@
 ﻿program ERDComponentsSmoke;
 {$APPTYPE CONSOLE}
 uses
+  ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries,
   ERD.Components.LSP, ERD.Components.Paint, ERD.Components.Control, ERD.Components.LanguageServices, ERD.Components.TextLayout, ERD.Components.CodeEditor, ERD.Components.Syntax,
   ERD.Components.PCBValidation, ERD.Components.PCBValidationPanel, ERD.Components.PCBLayout, ERD.Components.PCBObjectTree, ERD.Components.PCBDesigner, ERD.Components.PCBComponentPalette, ERD.Components.PCBInspector, ERD.Components.Inspector, ERD.Components.PCBScene, ERD.Components.PCBRoute, ERD.Components.PCBLibrary,
   ERD.Components.TextModel, ERD.Components.TextInput,
@@ -90,6 +91,9 @@ type
   public
     ShutdownModelAlive: PBoolean;
     function RowCount: Integer;
+    procedure DebugClick(Row: Integer; ToggleEnabled: Boolean = False);
+    procedure DebugKey(Key: Word; Shift: TShiftState);
+    function DebugPixel(Row: Integer; Marker: Boolean): TColor;
     procedure FoldMouse(Action: Integer; Outside: Boolean = False);
     procedure GutterMouse(Action, Row: Integer; Shift: Boolean = False);
     function FoldPixel(Guide: Boolean): TColor;
@@ -101,6 +105,19 @@ type
     procedure GetNavigationRects(out Vertical, Horizontal, Map: TRect);
     function HorizontalOffset: Integer;
     function ViewWidth: Integer;
+  end;
+  TDebugCommandProbe = class
+  public
+    Calls: Integer;
+    Command: TERDDebugCommand;
+    procedure Execute(Sender: TObject; Value: TERDDebugCommand);
+  end;
+  TValueChildrenProbe = class
+  public
+    Calls: Integer;
+    Last: TERDValueRequest;
+    Synchronous: Boolean;
+    procedure Request(Sender: TObject; const Value: TERDValueRequest);
   end;
   TEditKeyFilter = class
   public
@@ -345,6 +362,38 @@ begin Snapshot := Value; Responses := Reply; Inc(Requests); end;
 procedure TLanguageServiceProbe.Cancel(RequestID: Int64);
 begin Inc(Cancels); end;
 
+procedure TCodeEditorProbe.DebugClick(Row: Integer; ToggleEnabled: Boolean);
+var Shift: TShiftState; X,Y: Integer;
+begin
+  Shift := []; if ToggleEnabled then Include(Shift,ssShift);
+  X := GutterBounds.Left+ScaleValue(10); Y := TextViewport.Top+Row*RowHeight+RowHeight div 2;
+  MouseDown(mbLeft,Shift,X,Y); MouseUp(mbLeft,Shift,X,Y);
+end;
+procedure TCodeEditorProbe.DebugKey(Key: Word; Shift: TShiftState);
+begin KeyDown(Key,Shift); end;
+function TCodeEditorProbe.DebugPixel(Row: Integer; Marker: Boolean): TColor;
+var Bitmap: TBitmap; X,Y: Integer;
+begin
+  Bitmap := TBitmap.Create;
+  try
+    RenderTo(Bitmap); X := TextViewport.Right-ScaleValue(5);
+    if Marker then X := GutterBounds.Left+ScaleValue(10);
+    Y := TextViewport.Top+Row*RowHeight+RowHeight div 2;
+    Result := ColorToRGB(Bitmap.Canvas.Pixels[X,Y]);
+  finally Bitmap.Free; end;
+end;
+procedure TDebugCommandProbe.Execute(Sender: TObject; Value: TERDDebugCommand);
+begin Inc(Calls); Command := Value; end;
+procedure TValueChildrenProbe.Request(Sender: TObject; const Value: TERDValueRequest);
+var Children: TArray<TERDInspectValue>;
+begin
+  Inc(Calls); Last := Value;
+  if Synchronous then
+  begin
+    SetLength(Children,1); Children[0].ID := Value.ParentID+'.sync'; Children[0].Name := 'sync';
+    TERDValueTree(Sender).PublishChildren(Value,Children,False);
+  end;
+end;
 procedure TCodeEditorProbe.FoldMouse(Action: Integer; Outside: Boolean);
 var View: TRect; X, Y: Integer;
 begin
@@ -3436,6 +3485,104 @@ begin
   finally Form.Free; Host.Free; end;
 end;
 
+procedure TestDebugEditor;
+var Form: TForm; Editor, Other: TCodeEditorProbe; Model: TERDDebugModel;
+    Item: TERDDebugBreakpoint; ID, Revision, Session: Int64; Before: string; Baseline: TColor; Probe: TDebugCommandProbe;
+begin
+  Form := TForm.Create(nil); Probe := TDebugCommandProbe.Create;
+  try
+    Model := TERDDebugModel.Create(Form); Model.OnCommand := Probe.Execute;
+    Editor := TCodeEditorProbe.Create(Form); Editor.Parent := Form; Editor.SetBounds(0,0,500,250);
+    Editor.DocumentUri := 'file:///test.ts'; Editor.Text := 'const a = 1;'+sLineBreak+'const b = 2;'+sLineBreak+'console.log(b);';
+    Editor.DebugModel := Model; Editor.ShowDebugGutter := True; Editor.ShowMinimap := False;
+    Other := TCodeEditorProbe.Create(Form); Other.Parent := Form; Other.SetBounds(0,260,500,200);
+    Other.Text := Editor.Text; Other.DocumentUri := Editor.DocumentUri; Other.DebugModel := Model; Other.ShowDebugGutter := True;
+    Form.Show; Editor.SetFocus;
+    Before := Editor.Text; Editor.DebugClick(1);
+    Check(Model.BreakpointAt(Editor.DocumentUri,2,Item) and Item.Enabled and (Item.Status = bpsPending), 'Gutter click creates a pending enabled breakpoint');
+    Check(Editor.Text = Before, 'Breakpoint gutter does not edit or select document text');
+    ID := Item.ID; Revision := Item.Revision; Session := Model.Session;
+    Baseline := Editor.DebugPixel(1,True);
+    Check(Model.PublishBreakpoint(Session,ID,Revision,bpsVerified,2,''), 'Matching debugger acknowledgement is accepted');
+    Check((Editor.DebugPixel(1,True) <> Baseline) and (Other.DebugPixel(1,True) = Editor.DebugPixel(1,True)), 'Verified markers update both editors sharing a model');
+    Other.DebugClick(1,True); Check(Model.BreakpointAt(Editor.DocumentUri,2,Item) and not Item.Enabled, 'Shift-click disables shared breakpoint');
+    Check(not Model.PublishBreakpoint(Session,ID,Revision,bpsVerified,2,''), 'Old configuration acknowledgement cannot overwrite a disabled breakpoint');
+    Editor.SelStart := Length(Editor.Text); Editor.DebugKey(VK_F9,[]);
+    Check(Model.BreakpointAt(Editor.DocumentUri,3,Item), 'F9 toggles breakpoint on caret line');
+    Editor.DebugKey(VK_F9,[ssCtrl]); Check(Model.BreakpointAt(Editor.DocumentUri,3,Item) and not Item.Enabled, 'Ctrl+F9 toggles enabled state');
+    Editor.DebugKey(VK_F10,[]); Check((Probe.Calls = 1) and (Probe.Command = dcStepOver), 'Editor step shortcut emits a host command');
+    Baseline := Editor.DebugPixel(0,False); Model.SetExecution(dsPaused,Editor.DocumentUri,1);
+    Check(Editor.DebugPixel(0,False) <> Baseline, 'Paused source line has a visible execution highlight');
+    Model.SetExecution(dsRunning); Check(Editor.DebugPixel(0,False) = Baseline, 'Continue clears execution highlight');
+    Model.BeginSession; Check(not Model.PublishBreakpoint(Session,ID,Item.Revision,bpsVerified,2,''), 'Previous session replies are rejected');
+    Editor.Text := 'inserted'+sLineBreak+Before;
+    Check(Model.BreakpointAt(Editor.DocumentUri,3,Item) and (Item.ID = ID), 'Text insertion moves breakpoint anchors by source line');
+    Other.Text := Editor.Text;
+    Check(Model.BreakpointAt(Editor.DocumentUri,3,Item) and (Item.ID = ID), 'Mirrored editor text synchronization does not shift breakpoint anchors twice');
+    Model.ConfigureBreakpoint(ID,True,'a > 0','3','value={a}'); Model.BreakpointAt(Editor.DocumentUri,3,Item);
+    Check(Model.PublishBreakpoint(Model.Session,ID,Item.Revision,bpsVerified,4,'Moved by runtime') and
+      Model.DisplayBreakpointAt(Editor.DocumentUri,4,Item), 'Runtime-resolved breakpoint line is available for painting and toggling');
+    Model.Free; Check((Editor.DebugModel = nil) and (Other.DebugModel = nil), 'Destroying shared model safely detaches every editor');
+    Editor.DebugKey(VK_F9,[]);
+  finally Probe.Free; Form.Free; end;
+end;
+procedure TestValueTreeSnapshots;
+var Form: TForm; Tree, CopyTree: TERDValueTree; Probe: TValueChildrenProbe;
+    Roots, Children: TArray<TERDInspectValue>; Request, Old: TERDValueRequest; Value: TERDInspectValue; Stream: TMemoryStream;
+begin
+  Form := TForm.Create(nil); Probe := TValueChildrenProbe.Create; Stream := TMemoryStream.Create;
+  try
+    Tree := TERDValueTree.Create(Form); Tree.Parent := Form; Tree.PageSize := 2; Tree.OnRequestChildren := Probe.Request;
+    SetLength(Roots,1); Roots[0].ID := 'object'; Roots[0].Name := 'object'; Roots[0].HasChildren := True;
+    Check(Tree.LoadSnapshot('session-a',1,Roots), 'First value snapshot is accepted');
+    Tree.Expanded[Tree.GetFirst] := True; Request := Probe.Last;
+    Check((Probe.Calls = 1) and (Request.StartIndex = 0) and (Request.Count = 2), 'Expanding requests only the first child page');
+    SetLength(Children,2); Children[0].ID := 'a'; Children[0].Name := 'a'; Children[0].ValueText := '1';
+    Children[1].ID := 'b'; Children[1].Name := 'b'; Children[1].ValueText := '2';
+    Check(Tree.PublishChildren(Request,Children,True) and (Tree.ChildCount[Tree.GetFirst] = 3), 'Child page adds a load-more row without eager enumeration');
+    Check(not Tree.PublishChildren(Request,Children,True), 'Duplicate page reply cannot add duplicate rows');
+    Tree.RequestChildren('object'); Request := Probe.Last;
+    Check(Request.StartIndex = 2, 'Next request starts after the loaded page');
+    SetLength(Children,1); Children[0].ID := 'c'; Children[0].Name := 'c';
+    Check(Tree.PublishChildren(Request,Children,False) and (Tree.ChildCount[Tree.GetFirst] = 3), 'Final page replaces the load-more row');
+    Check(Tree.RequestChildren('object') = 0, 'A fully loaded node does not request redundant pages');
+    Old := Request; Check(Tree.LoadSnapshot('session-a',2,Roots), 'New generation refreshes values'); Request := Probe.Last;
+    Check(not Tree.PublishChildren(Old,Children,False), 'Old snapshot pages are rejected');
+    Tree.MarkStale;
+    Check(not Tree.PublishChildren(Request,Children,False) and Tree.ValueByID('object',Value) and (Value.Availability = vaStale), 'Resume makes retained values stale and rejects outstanding requests');
+    Probe.Synchronous := True; Probe.Calls := 0; Tree.LoadSnapshot('session-b',0,Roots);
+    Tree.Expanded[Tree.GetFirst] := True;
+    Check((Probe.Calls = 1) and Tree.Expanded[Tree.GetFirst] and (Tree.ChildCount[Tree.GetFirst] = 1), 'Synchronous demo provider can publish while expanding without reentering expansion');
+    Tree.OnRequestChildren := nil; RegisterClass(TERDValueTree); CopyTree := TERDValueTree.Create(Form);
+    try
+      Stream.WriteComponent(Tree); Stream.Position := 0; Stream.ReadComponent(CopyTree);
+      Check((CopyTree.RootNodeCount = 0) and (CopyTree.PageSize = 2), 'DFM keeps value-tree settings without persisting runtime nodes');
+    finally CopyTree.Free; end;
+  finally Stream.Free; Probe.Free; Form.Free; end;
+end;
+procedure TestTimeSeriesHistory;
+var Form: TForm; Chart, CopyChart: TERDTimeSeriesChart; Series: TERDTimeSeries;
+    I, SeriesIndex, SampleIndex: Integer; Value: TERDTimeSample; Rejected: Boolean; Stream: TMemoryStream;
+begin
+  Form := TForm.Create(nil); Stream := TMemoryStream.Create;
+  try
+    Chart := TERDTimeSeriesChart.Create(Form); Chart.Parent := Form; Chart.MaxSamples := 16;
+    Series := Chart.Series.Add; Series.Caption := 'Heap'; Chart.UnitText := 'KiB';
+    for I := 0 to 31 do Series.AddSample(I,I*2);
+    Check((Series.Count = 16) and (Series.Sample(0).TimeSeconds = 16) and (Series.Sample(15).Value = 62), 'History ring retains only the newest samples in chronological order');
+    Chart.MaxSamples := 32; for I := 32 to 47 do Series.AddSample(I,I*2); Chart.MaxSamples := 16;
+    Check((Series.Count = 16) and (Series.Sample(0).TimeSeconds = 32), 'Resizing history preserves the newest observations');
+    Rejected := False; try Series.AddSample(47,1); except on E: EArgumentException do Rejected := True; end;
+    Check(Rejected and (Series.Count = 16), 'Out-of-order timestamps do not change history');
+    Series.AddSample(48,NaN,False);
+    Check(Chart.SampleNear(Chart.Width-MulDiv(12,Chart.CurrentPPI,96),SeriesIndex,SampleIndex,Value) and not Value.Available, 'Unavailable measurement remains an explicit gap rather than a measured zero');
+    RegisterClass(TERDTimeSeriesChart); CopyChart := TERDTimeSeriesChart.Create(Form);
+    try
+      Stream.WriteComponent(Chart); Stream.Position := 0; Stream.ReadComponent(CopyChart);
+      Check((CopyChart.Series.Count = 1) and (CopyChart.Series[0].Count = 0) and (CopyChart.UnitText = 'KiB'), 'DFM keeps chart series configuration without runtime history');
+    finally CopyChart.Free; end;
+  finally Stream.Free; Form.Free; end;
+end;
 procedure TestPCBCardinalAnchors;
 var Bounds, Board: TRect; Source, Target: TPoint; Geometry: TERDPCBConnectionGeometry;
     I, J: Integer; Last, Previous: TPointF;
@@ -4808,6 +4955,7 @@ begin
     TestPCBDesigner;
     TestPCBDesignerTools;
     TestPCBPlacement;
+    TestDebugEditor; TestValueTreeSnapshots; TestTimeSeriesHistory;
     TestPCBCardinalAnchors; TestPCBZOrderAndGrid; TestSelectedTabVisibility;
     TestPCBConnections;
     TestPCBComponentTypes;

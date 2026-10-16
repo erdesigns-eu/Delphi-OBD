@@ -10,6 +10,9 @@ requires
   vclx,
   designide;
 contains
+  ERD.Components.DebugModel in '..\src\UI\ERD.Components.DebugModel.pas',
+  ERD.Components.ValueTree in '..\src\UI\ERD.Components.ValueTree.pas',
+  ERD.Components.TimeSeries in '..\src\UI\ERD.Components.TimeSeries.pas',
   ERD.Components.PCBLibrary in '..\src\UI\ERD.Components.PCBLibrary.pas',
   ERD.Components.PCBRoute in '..\src\UI\ERD.Components.PCBRoute.pas',
   ERD.Components.PCBLayout in '..\src\UI\ERD.Components.PCBLayout.pas',
