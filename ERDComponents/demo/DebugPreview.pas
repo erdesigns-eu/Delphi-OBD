@@ -2,13 +2,14 @@
 interface
 uses Winapi.Windows, ERD.Components.Control, System.Classes, System.SysUtils, System.Types, System.Math, Vcl.Controls, Vcl.StdCtrls, Vcl.ExtCtrls,
   ERD.Components.Panel, ERD.Components.Types, ERD.Components.CodeEditor,
-  ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries, ERD.Components.Ribbon;
+  ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries, ERD.Components.Ribbon;
 type
   TDebugPreview = class(TERDPanel)
   private
     FModel: TERDDebugModel;
     FEditor: TERDCodeEditor;
     FValues: TERDValueTree;
+    FBreakpoints: TERDBreakpointPanel;
     FChart: TERDTimeSeriesChart;
     FStatus: TLabel;
     FTimer: TTimer;
@@ -22,6 +23,7 @@ type
     procedure Children(Sender: TObject; const Request: TERDValueRequest);
     procedure Tick(Sender: TObject);
     procedure RefreshValues;
+    procedure NavigateBreakpoint(Sender: TObject; const DocumentUri: string; Line: Integer);
   protected
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
@@ -48,6 +50,9 @@ begin
     FChart.Series[1].AddSample(I,192);
   end;
   FTick := 60;
+  FBreakpoints := TERDBreakpointPanel.Create(Self); FBreakpoints.Parent := Self;
+  FBreakpoints.Align := alBottom; FBreakpoints.Height := ScaleValue(190);
+  FBreakpoints.DebugModel := FModel; FBreakpoints.OnNavigate := NavigateBreakpoint;
   FValues := TERDValueTree.Create(Self); FValues.Parent := Self; FValues.Align := alRight;
   FValues.Width := ScaleValue(390); FValues.OnRequestChildren := Children;
   FEditor := TERDCodeEditor.Create(Self); FEditor.Parent := Self; FEditor.Align := alClient;
@@ -58,7 +63,7 @@ begin
     '  status.count += 1;'+sLineBreak+
     '  console.log(status);'+sLineBreak+
     '}'+sLineBreak+'updateStatus();'+sLineBreak;
-  FModel.AddBreakpoint(FEditor.DocumentUri,4); FModel.BeginSession;
+  FModel.AddBreakpoint(FEditor.DocumentUri,4); FModel.AddBreakpoint(FEditor.DocumentUri,5); FModel.BeginSession;
   FModel.SetExecution(dsPaused,FEditor.DocumentUri,4); RefreshValues;
   FTimer := TTimer.Create(Self); FTimer.Interval := 1000; FTimer.OnTimer := Tick;
   ModelChanged(Self);
@@ -70,6 +75,10 @@ begin
   if FModel <> nil then begin FModel.OnChange := nil; FModel.OnCommand := nil; end;
   if FValues <> nil then FValues.OnRequestChildren := nil;
   inherited;
+end;
+procedure TDebugPreview.NavigateBreakpoint(Sender: TObject; const DocumentUri: string; Line: Integer);
+begin
+  if DocumentUri = FEditor.DocumentUri then begin FEditor.RevealDebugLine(Line); FEditor.SetFocus; end;
 end;
 procedure TDebugPreview.ThemeChanged;
 begin inherited; if FStatus <> nil then FStatus.Font.Color := Palette.ForegroundText; end;

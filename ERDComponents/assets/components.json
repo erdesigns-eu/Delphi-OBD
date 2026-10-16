@@ -79,5 +79,6 @@
   "TERDPCBValidationPanel",
   "TERDDebugModel",
   "TERDValueTree",
-  "TERDTimeSeriesChart"
+  "TERDTimeSeriesChart",
+  "TERDBreakpointPanel"
 ]

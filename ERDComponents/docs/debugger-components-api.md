@@ -1,7 +1,7 @@
 # Debug component foundation
 
 This first implementation provides `TERDDebugModel`, `TERDValueTree` and
-`TERDTimeSeriesChart`, plus debug gutter/execution rendering in `TERDCodeEditor`.
+`TERDTimeSeriesChart` and `TERDBreakpointPanel`, plus debug gutter/execution rendering in `TERDCodeEditor`.
 The separate Debugger components demo page exercises them through a synthetic
 host. It does not start or attach to TSVM, acknowledge actual device breakpoints,
 evaluate real expressions or execute TypeScript. DAP/NDB transport adapters and
@@ -20,8 +20,8 @@ Document URI comparison is exact: the host owns URI/path normalization.
   Shift+F11 step out. These emit `OnCommand`, not execution inside the editor.
 - Breakpoints carry stable ID, revision, requested/resolved lines, Enabled,
   Condition, HitCondition, LogMessage, verification status and backend message.
-  `ConfigureBreakpoint` is the host API for conditions/hit counts/logpoints; an
-  editor-side properties dialog and standalone breakpoint list are later controls.
+  `ConfigureBreakpoint` is the host API for conditions/hit counts/logpoints;
+  the standalone breakpoint panel edits these properties in place.
 - Pending and verified enabled breakpoints use a solid danger-colored circle.
   The execution marker replaces the breakpoint marker on the active source line. Disabled markers are subdued; rejected markers use warning/slash.
   A verified resolved line controls display position. Conditions do not execute
@@ -122,3 +122,42 @@ Also verify manually in the demo under both themes and at 100/150/200% DPI:
 
 These VCL smoke/manual checks require Delphi/Windows; Linux source validation
 alone does not establish their runtime results.
+
+## Standalone breakpoint panel
+
+Assign `TERDBreakpointPanel.DebugModel` to the same model as the source editor.
+The panel uses the ERD virtual tree, cell editors, checkboxes, popup menu and
+scrollbars. It subscribes independently of `DebugModel.OnChange` and safely
+releases its model reference when either component is destroyed.
+
+Columns show enabled state, full canonical document URI, requested/resolved line,
+condition, hit count, log message, verification status and backend message.
+Conditions, hit counts and log messages are passed through to the host unchanged;
+they are not parsed or executed by the panel. Disabled breakpoints keep their
+configuration. Model verification replies still require the current session and
+configuration revision.
+
+- Checkbox toggles one breakpoint. Space toggles all selected rows to the inverse
+  of the focused row's enabled state. The context menu also offers explicit
+  Enable selected / Disable selected commands.
+- Double-click Condition / Hit count / Log message to edit the cell; F2 edits the
+  focused editable column (or Condition). Enter commits and Escape cancels the
+  existing ERD cell editor. Other columns are read-only.
+- Delete or the context menu removes all selected breakpoints by stable ID.
+- Double-click a source/status cell or press Enter outside a cell editor to raise
+  `OnNavigate(Sender, DocumentUri, Line)`. Verified breakpoints navigate to their
+  resolved line, otherwise to the requested line. The host opens/selects the
+  document and calls `CodeEditor.RevealDebugLine`; the panel owns no editor.
+- `SelectedID`, `SelectedBreakpoint`, `ConfigureSelected`, `SetSelectedEnabled`,
+  `DeleteSelectedBreakpoints` and `NavigateSelected` expose the same actions for a
+  host ribbon. Selection survives model refreshes by ID; removed IDs are dropped.
+
+Runtime rows are not DFM configuration. The model reference and normal tree
+appearance settings are streamed. The demo connects the panel to its synthetic
+model and navigates to the demo editor through `OnNavigate`.
+
+Windows validation added (not executed in the Linux cloud): shared model updates,
+inline editing and revision invalidation, resolved-line navigation, selection
+identity across additions/deletions, multi-enable/disable/delete, streaming and
+model destruction. Also check light/dark themes, horizontal scrolling, checkbox
+clicks, F2/Enter/Escape editing and double-click navigation in Delphi.

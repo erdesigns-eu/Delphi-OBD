@@ -1,7 +1,7 @@
 ﻿program ERDComponentsSmoke;
 {$APPTYPE CONSOLE}
 uses
-  ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries,
+  ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries,
   ERD.Components.LSP, ERD.Components.Paint, ERD.Components.Control, ERD.Components.LanguageServices, ERD.Components.TextLayout, ERD.Components.CodeEditor, ERD.Components.Syntax,
   ERD.Components.PCBValidation, ERD.Components.PCBValidationPanel, ERD.Components.PCBLayout, ERD.Components.PCBObjectTree, ERD.Components.PCBDesigner, ERD.Components.PCBComponentPalette, ERD.Components.PCBInspector, ERD.Components.Inspector, ERD.Components.PCBScene, ERD.Components.PCBRoute, ERD.Components.PCBLibrary,
   ERD.Components.TextModel, ERD.Components.TextInput,
@@ -105,6 +105,13 @@ type
     procedure GetNavigationRects(out Vertical, Horizontal, Map: TRect);
     function HorizontalOffset: Integer;
     function ViewWidth: Integer;
+  end;
+  TBreakpointPanelProbe = class(TERDBreakpointPanel)
+  public
+    NavigatedUri: string;
+    NavigatedLine: Integer;
+    procedure Navigate(Sender: TObject; const DocumentUri: string; Line: Integer);
+    procedure CommitCell(Column: TColumnIndex; const Value: string);
   end;
   TDebugCommandProbe = class
   public
@@ -382,6 +389,10 @@ begin
     Result := ColorToRGB(Bitmap.Canvas.Pixels[X,Y]);
   finally Bitmap.Free; end;
 end;
+procedure TBreakpointPanelProbe.Navigate(Sender: TObject; const DocumentUri: string; Line: Integer);
+begin NavigatedUri := DocumentUri; NavigatedLine := Line; end;
+procedure TBreakpointPanelProbe.CommitCell(Column: TColumnIndex; const Value: string);
+begin DoNewText(FocusedNode,Column,Value); end;
 procedure TDebugCommandProbe.Execute(Sender: TObject; Value: TERDDebugCommand);
 begin Inc(Calls); Command := Value; end;
 procedure TValueChildrenProbe.Request(Sender: TObject; const Value: TERDValueRequest);
@@ -3529,6 +3540,42 @@ begin
     Editor.DebugKey(VK_F9,[]);
   finally Probe.Free; Form.Free; end;
 end;
+procedure TestBreakpointPanel;
+var Model: TERDDebugModel; Panel, Other: TBreakpointPanelProbe; Item: TERDDebugBreakpoint;
+    FirstID, SecondID, Revision: Int64; Node: PVirtualNode; Stream: TMemoryStream;
+begin
+  Model := TERDDebugModel.Create(nil); Panel := TBreakpointPanelProbe.Create(nil); Other := TBreakpointPanelProbe.Create(nil);
+  try
+    Panel.DebugModel := Model; Other.DebugModel := Model; Panel.OnNavigate := Panel.Navigate;
+    FirstID := Model.AddBreakpoint('file:///one.ts',4); SecondID := Model.AddBreakpoint('file:///two.ts',9);
+    Check((Panel.RootNodeCount = 2) and (Other.RootNodeCount = 2), 'Breakpoint panels share model additions');
+    Panel.SelectedID := FirstID; Panel.ConfigureSelected(True,'count > 3','5','count={count}');
+    Check(Model.BreakpointAt('file:///one.ts',4,Item) and (Item.Condition = 'count > 3') and
+      (Item.HitCondition = '5') and (Item.LogMessage = 'count={count}'), 'Panel configures breakpoint conditions and logpoints');
+    Revision := Item.Revision; Panel.CommitCell(3,'count > 8');
+    Check(Model.BreakpointAt('file:///one.ts',4,Item) and (Item.Condition = 'count > 8') and (Item.Revision > Revision), 'Inline edit updates model revision');
+    Check(not Model.PublishBreakpoint(Model.Session,FirstID,Revision,bpsVerified,4,''), 'Panel edits invalidate earlier verification replies');
+    Check(Model.PublishBreakpoint(Model.Session,FirstID,Item.Revision,bpsVerified,6,'Moved to executable line'), 'Breakpoint verification accepted');
+    Check((Panel.SelectedID = FirstID) and (Panel.Text[Panel.FocusedNode,2] = '4 -> 6') and
+      (Panel.Text[Panel.FocusedNode,7] = 'Moved to executable line'), 'Panel preserves identity and shows resolved line and backend message');
+    Panel.NavigateSelected;
+    Check((Panel.NavigatedUri = 'file:///one.ts') and (Panel.NavigatedLine = 6), 'Panel navigates to verified source location');
+    Other.SelectedID := FirstID; Other.DeleteSelectedBreakpoints;
+    Check((Panel.RootNodeCount = 1) and (Panel.SelectedID = 0), 'External deletion clears selection rather than retargeting actions');
+    Panel.SelectedID := SecondID; Model.AddBreakpoint('file:///three.ts',2);
+    Check(Panel.SelectedID = SecondID, 'Structural refresh preserves selected breakpoint identity');
+    Node := Panel.GetFirst; while Node <> nil do begin Panel.Selected[Node] := True; Node := Panel.GetNext(Node); end;
+    Panel.SetSelectedEnabled(False);
+    for Item in Model.Breakpoints do Check(not Item.Enabled, 'Multi-selection disables every selected breakpoint');
+    Panel.SetSelectedEnabled(True);
+    for Item in Model.Breakpoints do Check(Item.Enabled, 'Multi-selection enables every selected breakpoint');
+    Stream := TMemoryStream.Create;
+    try Stream.WriteComponent(Panel); Check(Stream.Size > 0, 'Breakpoint panel streams configuration'); finally Stream.Free; end;
+    Panel.DeleteSelectedBreakpoints; Check((Panel.RootNodeCount = 0) and (Length(Model.Breakpoints) = 0), 'Multi-delete uses stable identities during model refresh');
+    FreeAndNil(Model); Check((Panel.DebugModel = nil) and (Other.DebugModel = nil), 'Model destruction detaches every breakpoint panel');
+  finally Other.Free; Panel.Free; Model.Free; end;
+end;
+
 procedure TestValueTreeSnapshots;
 var Form: TForm; Tree, CopyTree: TERDValueTree; Probe: TValueChildrenProbe;
     Roots, Children: TArray<TERDInspectValue>; Request, Old: TERDValueRequest; Value: TERDInspectValue; Stream: TMemoryStream;
@@ -4958,7 +5005,7 @@ begin
     TestPCBDesigner;
     TestPCBDesignerTools;
     TestPCBPlacement;
-    TestDebugEditor; TestValueTreeSnapshots; TestTimeSeriesHistory;
+    TestDebugEditor; TestBreakpointPanel; TestValueTreeSnapshots; TestTimeSeriesHistory;
     TestPCBCardinalAnchors; TestPCBZOrderAndGrid; TestSelectedTabVisibility;
     TestPCBConnections;
     TestPCBComponentTypes;
