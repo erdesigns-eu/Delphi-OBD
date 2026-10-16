@@ -140,7 +140,7 @@ begin
     Item := Scene.Item(ItemIndex(I)); AllNotes := AllNotes and (Item.Kind = piNote);
     AllNonNotes := AllNonNotes and (Item.Kind <> piNote); SameKind := SameKind and (Item.Kind = First.Kind);
   end;
-  BuiltIn('Caption', pkText, bfCaption);
+  if AllNotes then BuiltIn('Text', pkText, bfCaption);
   if AllNonNotes then BuiltIn('Enabled', pkBoolean, bfEnabled);
   if SameKind and AllNonNotes then
   begin

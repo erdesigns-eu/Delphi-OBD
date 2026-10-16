@@ -3277,6 +3277,7 @@ begin
     Inspector := TERDInspector.Create(Form); Inspector.Parent := Form; Inspector.SetBounds(0,0,350,500);
     A := Scene.AddType('smoke.schema', PointF(0,0)); B := Scene.AddType('smoke.group', PointF(5,5));
     Scene.Select(A); Scene.Select(B, True); Rebind;
+    Check(Inspector.FindProperty('Caption') = nil, 'Nonvisual group has no unused Caption editor');
     Row := Inspector.FindProperty('Count'); Flag := Inspector.FindProperty('Active');
     Check((Row <> nil) and Row.Mixed and not Row.HasDefault, 'Different values/defaults are shown as mixed');
     Check(Inspector.FindProperty('Description') = nil, 'Properties missing from one selected type are omitted');
@@ -3322,7 +3323,7 @@ begin
     Check((Scene.Item(A).NoteType = ntError) and (Scene.Item(B).NoteType = ntError), 'Note style can be changed for a group');
     // Focusing an untouched mixed text editor must never write the placeholder.
     Item := Scene.Item(B); Item.Caption := 'Different'; Scene.UpdateItem(B, Item); Binding.Refresh;
-    Row := Inspector.FindProperty('Caption'); Check(Row.Mixed, 'Different note text is mixed');
+    Row := Inspector.FindProperty('Text'); Check((Row <> nil) and Row.Mixed, 'Different note text is mixed');
     Probe.Binding := Binding; Inspector.OnPropertyChanging := Probe.ChangingProperty; Inspector.OnPropertyChanged := Probe.ChangedProperty;
     Form.Show; Inspector.SetFocus; Inspector.Perform(WM_KEYDOWN, VK_HOME, 0); Inspector.Perform(WM_KEYDOWN, VK_DOWN, 0);
     Before := Scene.ContentJSON; Editor := nil;

@@ -300,7 +300,6 @@ begin
       FStatus.Caption := 'Note - double-click to edit text; drag the handles to resize.';
       Exit;
     end;
-    Field('Caption', Value.Caption, 2);
     Text := 'Value';
     case Value.Kind of piTimer: Text := 'Interval (ms)'; piOutputGroup: Text := 'LED count';
       piUART, piCANBus: Text := 'Bit rate'; piI2C, piSPI: Text := 'Clock (Hz)'; end;
