@@ -16,7 +16,7 @@ type
     FTemplateColorItem: TERDRibbonItem;
     FLayoutItems: array[0..7] of TERDRibbonItem;
     FViewItems: array[0..6] of TERDRibbonItem;
-    FCommandItems: array[0..11] of TERDRibbonItem;
+    FCommandItems: array[0..43] of TERDRibbonItem;
     FValidation: TERDPCBValidationPanel;
     FValidationTimer: TTimer;
     FValidationKey: string;
@@ -58,7 +58,7 @@ type
     procedure ThemeChanged; override;
   end;
 implementation
-uses System.Math, System.IOUtils, Vcl.Dialogs, PCBTemplateDialog;
+uses System.Math, System.IOUtils, Vcl.Dialogs, ERD.Components.Dialogs, PCBTemplateDialog;
 procedure RegisterDemoComponentTypes;
 var Definition: TERDPCBComponentType; Props: TArray<TERDPCBPropertyDefinition>;
 begin
@@ -455,14 +455,14 @@ begin
   end;
 end;
 procedure TPCBPreview.AttachRibbon(Value: TERDRibbon);
-var ProjectGroup, EditGroup, ViewGroup, Layers, AlignGroup, Distribution, TemplateGroup: TERDRibbonGroup;
+var ProjectGroup, EditGroup, ViewGroup, Layers, AlignGroup, Distribution, TemplateGroup, OrderGroup: TERDRibbonGroup;
     I: Integer; Item: TERDRibbonItem;
   procedure Command(Group: TERDRibbonGroup; const Caption: string; Tag: Integer; Glyph: TERDGlyph);
   var Button: TERDRibbonItem;
   begin
     Button := Group.Items.Add; Button.Caption := Caption; Button.Tag := Tag;
     Button.Glyph := Glyph; Button.Size := risSmall; Button.OnClick := ToolbarClicked;
-    if (Tag >= 0) and (Tag <= 11) then FCommandItems[Tag] := Button;
+    if (Tag >= 0) and (Tag <= 43) then FCommandItems[Tag] := Button;
     if Tag = 11 then Button.Kind := rikToggle;
   end;
 begin
@@ -470,7 +470,7 @@ begin
   FTemplateColorItem := nil;
   for I := 0 to 7 do FLayoutItems[I] := nil;
   for I := 0 to 6 do FViewItems[I] := nil;
-  for I := 0 to 11 do FCommandItems[I] := nil;
+  for I := 0 to 43 do FCommandItems[I] := nil;
   if FRibbon <> nil then begin FRibbon.RemoveFreeNotification(Self); FreeAndNil(FLayoutTab); end;
   FRibbon := Value; if FRibbon = nil then Exit;
   FRibbon.FreeNotification(Self); FLayoutTab := FRibbon.Tabs.Add;
@@ -479,8 +479,13 @@ begin
   Command(ProjectGroup,'Open project',3,glOpen); Command(ProjectGroup,'Save project',2,glSave);
   EditGroup := FLayoutTab.Groups.Add; EditGroup.Caption := 'Bewerken';
   Command(EditGroup,'Undo',4,glUndo); Command(EditGroup,'Redo',5,glRedo);
+  Command(EditGroup,'Lock selection',30,glLock); Command(EditGroup,'Unlock selection',31,glUnlock);
   ViewGroup := FLayoutTab.Groups.Add; ViewGroup.Caption := 'Weergave';
   Command(ViewGroup,'Fit',0,glSearch); Command(ViewGroup,'Focus selection',8,glPin); Command(ViewGroup,'Validation',11,glAlert);
+  Command(ViewGroup,'Grid spacing...',32,glSettings);
+  OrderGroup := FLayoutTab.Groups.Add; OrderGroup.Caption := 'Volgorde';
+  Command(OrderGroup,'Bring to front',40,glUp); Command(OrderGroup,'Send to back',41,glChevronDown);
+  Command(OrderGroup,'Bring forward',42,glForward); Command(OrderGroup,'Send backward',43,glBack);
   Layers := FLayoutTab.Groups.Add; Layers.Caption := 'Lagen';
   AlignGroup := FLayoutTab.Groups.Add; AlignGroup.Caption := 'Uitlijnen';
   Distribution := FLayoutTab.Groups.Add; Distribution.Caption := 'Verdelen';
@@ -530,7 +535,7 @@ begin
     FRibbon := nil; FLayoutTab := nil; FTemplateColorItem := nil;
     for I := 0 to 7 do FLayoutItems[I] := nil;
     for I := 0 to 6 do FViewItems[I] := nil;
-    for I := 0 to 11 do FCommandItems[I] := nil;
+    for I := 0 to 43 do FCommandItems[I] := nil;
   end;
 end;
 procedure TPCBPreview.UpdateLayoutButtons;
@@ -550,11 +555,14 @@ begin
   if FTemplateColorItem <> nil then FTemplateColorItem.Enabled := FDesigner.TemplateEditMode and (FDesigner.TemplateID <> '');
   for I := 0 to FDesigner.Scene.Count-1 do
     if FDesigner.Scene.Item(I).Selected and not FDesigner.Scene.Item(I).Locked then Inc(Count);
+  if FCommandItems[30] <> nil then FCommandItems[30].Enabled := not FDesigner.TemplateEditMode and (Count > 0);
+  if FCommandItems[31] <> nil then FCommandItems[31].Enabled := not FDesigner.TemplateEditMode and (FDesigner.Scene.SelectionCount > Count);
+  for I := 40 to 43 do if FCommandItems[I] <> nil then FCommandItems[I].Enabled := not FDesigner.TemplateEditMode and (Count > 0);
   for I := 0 to 7 do if FLayoutItems[I] <> nil then
     FLayoutItems[I].Enabled := not FDesigner.TemplateEditMode and (((I < 6) and (Count >= 2)) or ((I >= 6) and (Count >= 3)));
 end;
 procedure TPCBPreview.ToolbarClicked(Sender: TObject);
-var Save: TERDSaveDialog; Open: TERDOpenDialog; TemplateFile, Before: string; ActionTag: NativeInt; ColorDialog: TERDColorDialog;
+var Save: TERDSaveDialog; Open: TERDOpenDialog; TemplateFile, Before: string; ActionTag: NativeInt; ColorDialog: TERDColorDialog; GridValues: array[0..1] of string; GridX, GridY: Double;
 begin
   if Sender is TERDRibbonItem then ActionTag := TERDRibbonItem(Sender).Tag
   else ActionTag := TComponent(Sender).Tag;
@@ -569,6 +577,22 @@ begin
       UpdateLayoutButtons; Exit;
     end;
     case ActionTag of
+      30: FDesigner.SetSelectionLocked(True); 31: FDesigner.SetSelectionLocked(False);
+      40..43: FDesigner.ReorderSelection(TERDPCBZOrder(ActionTag-40));
+      32:
+        begin
+          GridValues[0] := FloatToStr(FDesigner.GridSizeX,TFormatSettings.Invariant);
+          GridValues[1] := FloatToStr(FDesigner.GridSizeY,TFormatSettings.Invariant);
+          if ERDInputQuery('Grid spacing','Spacing in millimeters (0.1..100)',
+            ['X (mm)','Y (mm)'],GridValues,nil,Theme) then
+          begin
+            GridX := StrToFloat(GridValues[0],TFormatSettings.Invariant); GridY := StrToFloat(GridValues[1],TFormatSettings.Invariant);
+            if IsNan(GridX) or IsInfinite(GridX) or IsNan(GridY) or IsInfinite(GridY) or
+              (GridX < 0.1) or (GridX > 100) or (GridY < 0.1) or (GridY > 100) then
+              raise EArgumentException.Create('Grid spacing must be 0.1..100 mm');
+            FDesigner.GridSizeX := GridX; FDesigner.GridSizeY := GridY;
+          end;
+        end;
       8: FDesigner.FitSelection;
       9: if FInspector.Selected is TERDInspectorProperty then FBinding.ResetProperty(TERDInspectorProperty(FInspector.Selected));
       10: FBinding.ResetAll;

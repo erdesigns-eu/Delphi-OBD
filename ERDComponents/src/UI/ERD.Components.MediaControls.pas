@@ -244,26 +244,17 @@ begin
   MoveActive(Integer(EnsureRange(Value, Int64(Min), Int64(Max))));
 end;
 procedure TERDRangeSlider.PaintControl(ACanvas: TCanvas);
-var P: TERDPainter; CY, A, B, T, StartPos, EndPos: Integer; C: TColor;
+var P: TERDPainter; CY, A, B, StartPos, EndPos: Integer; C: TColor;
   procedure DrawThumb(Pos: Integer; Active: Boolean);
   begin
-    if Orientation = toVertical then
-    begin
-      if Active and Focused and FocusCuesVisible and not IsPreview then P.FocusRing(CY - T / 2 - P.S(3), Pos - T / 2 - P.S(3), T + P.S(6), T + P.S(6), T / 2 + P.S(3));
-      P.Ellipse(CY - T / 2, Pos - T / 2, T, T, Palette.GaugeFace, C, P.SF(2));
-    end
-    else
-    begin
-      if Active and Focused and FocusCuesVisible and not IsPreview then P.FocusRing(Pos - T / 2 - P.S(3), CY - T / 2 - P.S(3), T + P.S(6), T + P.S(6), T / 2 + P.S(3));
-      P.Ellipse(Pos - T / 2, CY - T / 2, T, T, Palette.GaugeFace, C, P.SF(2));
-    end;
+    if Orientation = toVertical then PaintThumb(P,CY,Pos,Active)
+    else PaintThumb(P,Pos,CY,Active);
   end;
 begin
   P := TERDPainter.Create(ACanvas, Palette, ScaleValue(96));
   try
     A := AxisPosition(Position);
     B := AxisPosition(EnsureRange(FUpperValue, Min, Max));
-    T := ThumbSize;
     StartPos := TrackLeft;
     EndPos := TrackRight;
     C := Palette.Accent;

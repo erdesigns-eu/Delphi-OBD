@@ -274,3 +274,24 @@ or require a ribbon.
 - Drag an object, then check Undo/Redo availability after the validation debounce; undo and redo the move.
 - Select and hover neighboring terminals in both themes and at several zoom levels: the selected contour must remain clearly visible, with pad details visible above the tint.
 - Check narrow-window ribbon overflow and close the demo after using ribbon commands.
+
+## Routing, scene commands and shared inputs
+
+- Move an assigned component above, below, left and right of its source. Its line
+  must end at the facing side center, with a perpendicular final segment, without
+  passing through the component or losing connection hit testing.
+- Put overlapping notes/components on the canvas. Exercise all four order commands
+  from the ribbon/context menu; click the topmost object, save/reload, undo/redo.
+- Select mixed locked/unlocked objects and use the inspector Locked checkbox and
+  separate ribbon Lock/Unlock commands. Check one undo restores the whole group.
+- Set grid X=2, Y=5. Check insertion, dragging, arrow keys, notes resizing, DFM and
+  saved project reload. Invalid, NaN and infinite grid sizes must not be accepted.
+- Check idle open-hand and active closed-hand cursors using middle mouse, Space and
+  ribbon Hand/pan; release outside the control and cancel capture.
+- Select the fixed LED2 body or any of its four contacts. The inspector identifies
+  Onboard RGB LED; a status output can use LED2.4. LED1/MCU contacts stay unavailable.
+- Overflow document tabs with the plus button enabled. Select/reselect partly
+  clipped tabs and the last tab; its bounds should clear both chevrons and plus.
+- Compare range-slider and ordinary trackbar handles, focused/unfocused and
+  disabled, in both orientations/themes: no separate white gap around the focus
+  outline, and only the active range thumb receives keyboard focus styling.

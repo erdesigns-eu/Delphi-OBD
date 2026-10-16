@@ -3310,6 +3310,15 @@ begin
     Check(not Flag.Mixed and Flag.Checked and (ERDPCBPropertyValue(Scene.Item(A), 'active') = 'True'), 'One boolean edit resolves the whole group');
     Item := Scene.Item(B); Item.Locked := True; Scene.UpdateItem(B, Item); Binding.Refresh;
     Check(Row.ReadOnly, 'Any locked target makes a group row read-only'); Reject(Row, '2');
+    Flag := Inspector.FindProperty('Locked');
+    Check((Flag <> nil) and Flag.Mixed and not Flag.ReadOnly, 'Mixed lock state remains editable');
+    Before := Scene.ContentJSON; Scene.ResetHistory;
+    Binding.Validate(Flag,'False'); Flag.Value := 'False'; Binding.Apply(Flag);
+    Check(not Scene.Item(A).Locked and not Scene.Item(B).Locked, 'One group checkbox unlocks every selected component');
+    Scene.Undo; Check((Scene.ContentJSON = Before) and not Scene.CanUndo, 'Group unlock is one undo step');
+    Binding.Refresh; Flag.Value := 'True'; Binding.Apply(Flag);
+    Check(Scene.Item(A).Locked and Scene.Item(B).Locked, 'One group checkbox locks every selected component');
+    Flag.Value := 'False'; Binding.Apply(Flag);
     Item.Locked := False; Scene.UpdateItem(B, Item); Binding.Refresh;
     Before := Scene.ContentJSON; Scene.ResetHistory; Probe.Changes := 0; Probe.RejectID := Scene.Item(B).ID;
     Scene.OnChange := Probe.Changed; Scene.OnValidateItem := Probe.Validate;
@@ -3427,10 +3436,90 @@ begin
   finally Form.Free; Host.Free; end;
 end;
 
+procedure TestPCBCardinalAnchors;
+var Bounds, Board: TRect; Source, Target: TPoint; Geometry: TERDPCBConnectionGeometry;
+    I, J: Integer; Last, Previous: TPointF;
+begin
+  Bounds := Rect(100,100,132,132); Board := Rect(0,0,0,0);
+  for I := 0 to 3 do
+  begin
+    case I of
+      0: Source := Point(0,116); 1: Source := Point(232,116);
+      2: Source := Point(116,0); else Source := Point(116,232);
+    end;
+    Target := ERDPCBComponentAnchor(Source,Bounds);
+    case I of
+      0: Check(Target = Point(100,116), 'Left connection uses side center');
+      1: Check(Target = Point(132,116), 'Right connection uses side center');
+      2: Check(Target = Point(116,100), 'Top connection uses side center');
+      3: Check(Target = Point(116,132), 'Bottom connection uses side center');
+    end;
+    Geometry := ERDBuildPCBBoardConnection(Source,Target,nil,Board,Bounds,1);
+    Check(Length(Geometry.Samples) >= 2, 'Every component side has a routable connection');
+    Last := Geometry.Samples[High(Geometry.Samples)]; Previous := Geometry.Samples[High(Geometry.Samples)-1];
+    Check((Last.X = Target.X) and (Last.Y = Target.Y), 'Curve ends exactly on the chosen side center');
+    if I < 2 then Check((Previous.Y = Last.Y) and ((Previous.X-Last.X)*(Source.X-Target.X) > 0), 'Horizontal side is approached normally from outside')
+    else Check((Previous.X = Last.X) and ((Previous.Y-Last.Y)*(Source.Y-Target.Y) > 0), 'Vertical side is approached normally from outside');
+    for J := 0 to High(Geometry.Samples) do
+      Check(not ((Geometry.Samples[J].X > Bounds.Left) and (Geometry.Samples[J].X < Bounds.Right) and
+        (Geometry.Samples[J].Y > Bounds.Top) and (Geometry.Samples[J].Y < Bounds.Bottom)), 'Curve never passes through the target component');
+  end;
+  Board := Rect(0,100,80,132); Source := Point(78,116); Target := ERDPCBComponentAnchor(Source,Bounds);
+  Geometry := ERDBuildPCBBoardConnection(Source,Target,nil,Board,Bounds,1);
+  Check(Length(Geometry.Samples) >= 2, 'A component close to the PCB keeps a normal side connection');
+end;
+procedure TestPCBZOrderAndGrid;
+var Form: TForm; Designer: TERDPCBDesigner; A, B, C, Index: Integer; Scene: TERDPCBScene;
+    AID, BID, CID, Before: string; Item: TERDPCBDesignItem; Stream: TMemoryStream; CopyDesigner: TERDPCBDesigner;
+begin
+  Form := TForm.Create(nil); Stream := TMemoryStream.Create;
+  try
+    Designer := TERDPCBDesigner.Create(Form); Designer.Parent := Form; Scene := Designer.Scene;
+    A := Designer.AddDesignItem(piNote,PointF(0,0)); B := Designer.AddDesignItem(piTimer,PointF(0,0));
+    C := Designer.AddDesignItem(piNote,PointF(0,0));
+    AID := Scene.Item(A).ID; BID := Scene.Item(B).ID; CID := Scene.Item(C).ID;
+    Scene.SelectIDs([AID,BID]); Scene.ResetHistory; Before := Scene.ContentJSON;
+    Designer.ReorderSelection(zoBringToFront);
+    Check((Scene.Item(0).ID = CID) and (Scene.Item(1).ID = AID) and (Scene.Item(2).ID = BID) and
+      (Scene.SelectionCount = 2), 'Bring to front preserves relative order, identities and multiselection');
+    Designer.Undo; Check((Scene.ContentJSON = Before) and not Scene.CanUndo, 'Z-order change has one undo step');
+    Scene.SelectIDs([BID]); Designer.ReorderSelection(zoSendToBack); Check(Scene.Item(0).ID = BID, 'Send to back places component behind notes');
+    Designer.ReorderSelection(zoBringForward); Check(Scene.Item(1).ID = BID, 'Bring forward moves one layer');
+    Designer.ReorderSelection(zoSendBackward); Check(Scene.Item(0).ID = BID, 'Send backward moves one layer');
+    Designer.SetSelectionLocked(True); Before := Scene.ContentJSON; Designer.ReorderSelection(zoBringToFront);
+    Check(Scene.ContentJSON = Before, 'Locked objects cannot be reordered'); Designer.SetSelectionLocked(False);
+    Designer.GridSizeX := 2; Designer.GridSizeY := 5;
+    Index := Designer.AddDesignItem(piTimer,PointF(3.2,7.8)); Item := Scene.Item(Index);
+    Check((Item.X = 4) and (Item.Y = 10), 'Placement snaps independently on X and Y grid');
+    CopyDesigner := TERDPCBDesigner.Create(Form);
+    try
+      Stream.WriteComponent(Designer); Stream.Position := 0; Stream.ReadComponent(CopyDesigner);
+      Check((CopyDesigner.GridSizeX = 2) and (CopyDesigner.GridSizeY = 5), 'Independent grid axes survive DFM streaming');
+      CopyDesigner.GridSize := 3;
+      Check((CopyDesigner.GridSizeX = 3) and (CopyDesigner.GridSizeY = 3), 'Legacy GridSize sets both axes');
+    finally CopyDesigner.Free; end;
+  finally Stream.Free; Form.Free; end;
+end;
+procedure TestSelectedTabVisibility;
+var Form: TForm; Tabs: TTabProbe; I, Selected: Integer; R: TRect;
+begin
+  Form := TForm.Create(nil);
+  try
+    Tabs := TTabProbe.Create(Form); Tabs.Parent := Form; Tabs.SetBounds(0,0,340,36);
+    Tabs.TabStyle := tsDocument; Tabs.ShowNewTab := True;
+    for I := 0 to 5 do Tabs.Tabs.Add.Caption := 'Long document '+IntToStr(I);
+    Form.Show; Tabs.TabIndex := 5; R := Tabs.TabBounds(5);
+    Check((R.Left >= MulDiv(28,Tabs.CurrentPPI,96)) and
+      (R.Right <= Tabs.Width-MulDiv(70,Tabs.CurrentPPI,96)), 'Selected tab clears chevron and new-tab button');
+    Selected := Tabs.TabIndex; Tabs.PressAt(10,18); Tabs.ReleaseAt(10,18);
+    Tabs.TabIndex := Selected; R := Tabs.TabBounds(Selected);
+    Check(R.Right <= Tabs.Width-MulDiv(70,Tabs.CurrentPPI,96), 'Reselecting the current tab restores full visibility');
+  finally Form.Free; end;
+end;
 procedure TestPCBConnections;
 var Form: TForm; Designer: TERDPCBDesigner; BoardFile, Text, Before: string;
     A, B, I: Integer; Geometry: TERDPCBConnectionGeometry; Boxes: TArray<TRect>; Failed: Boolean;
-    P, Q, Hit, BoardTop, BoardBottom: TPoint; ID: string; Role: TERDPCBPinRole; Updates: TArray<TERDPCBDesignItem>;
+    P, Q, Hit, BoardTop, BoardBottom: TPoint; TargetRect: TRect; ID: string; Role: TERDPCBPinRole; Updates: TArray<TERDPCBDesignItem>;
 begin
   SetLength(Boxes, 1); Boxes[0] := Rect(40,20,60,80);
   Geometry := ERDBuildPCBConnection(Point(0,0), Point(100,100), Boxes, 1);
@@ -3456,11 +3545,12 @@ begin
     Designer.AssignPin(A, prPrimary, 'J1.1'); Designer.FitBoard;
     P := Designer.BoardToClient(PointF(2,8));
     Q := Designer.BoardToClient(PointF(Designer.Scene.Item(A).X, Designer.Scene.Item(A).Y));
-    Q.X := Q.X + MulDiv(16, Designer.CurrentPPI, 96); Q.Y := Q.Y - MulDiv(32, Designer.CurrentPPI, 96);
+    TargetRect := Rect(Q.X,Q.Y-MulDiv(32,Designer.CurrentPPI,96),Q.X+MulDiv(32,Designer.CurrentPPI,96),Q.Y);
+    Q := ERDPCBComponentAnchor(P,TargetRect);
     BoardTop := Designer.BoardToClient(PointF(0,10)); BoardBottom := Designer.BoardToClient(PointF(10,0));
     Hit := Designer.BoardToClient(PointF(Designer.Scene.Item(B).X,Designer.Scene.Item(B).Y));
     SetLength(Boxes,1); Boxes[0] := Rect(Hit.X,Hit.Y-MulDiv(32,Designer.CurrentPPI,96),Hit.X+MulDiv(32,Designer.CurrentPPI,96),Hit.Y);
-    Geometry := ERDBuildPCBBoardConnection(P,Q,Boxes,Rect(BoardTop.X,BoardTop.Y,BoardBottom.X,BoardBottom.Y),Designer.CurrentPPI/96);
+    Geometry := ERDBuildPCBBoardConnection(P,Q,Boxes,Rect(BoardTop.X,BoardTop.Y,BoardBottom.X,BoardBottom.Y),TargetRect,Designer.CurrentPPI/96);
     Check(Length(Geometry.Samples) > 0, 'Board-aware painted connection has hit-test samples');
     Hit := Point(Round(Geometry.Samples[Length(Geometry.Samples) div 2].X),
       Round(Geometry.Samples[Length(Geometry.Samples) div 2].Y));
@@ -4718,6 +4808,7 @@ begin
     TestPCBDesigner;
     TestPCBDesignerTools;
     TestPCBPlacement;
+    TestPCBCardinalAnchors; TestPCBZOrderAndGrid; TestSelectedTabVisibility;
     TestPCBConnections;
     TestPCBComponentTypes;
     TestPCBPropertySchema;

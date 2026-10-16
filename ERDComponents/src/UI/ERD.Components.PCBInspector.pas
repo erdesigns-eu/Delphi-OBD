@@ -2,7 +2,7 @@
 interface
 uses System.SysUtils, ERD.Components.Types, ERD.Components.PCBScene, ERD.Components.Inspector;
 type
-  TERDPCBBoundField = (bfCustom, bfCaption, bfEnabled, bfValue, bfNoteType);
+  TERDPCBBoundField = (bfCustom, bfCaption, bfEnabled, bfValue, bfNoteType, bfLocked);
   /// Optional host adapter. Owns no scene or inspector and installs no events.
   TERDPCBInspectorBinding = class
   private
@@ -46,6 +46,7 @@ begin
   case FFields[PropIndex] of
     bfCaption: Result := Item.Caption;
     bfEnabled: Result := BoolToStr(Item.Enabled, True);
+    bfLocked: Result := BoolToStr(Item.Locked, True);
     bfValue: Result := IntToStr(Item.Value);
     bfNoteType: Result := ERDPCBNoteTypeName(Item.NoteType);
   else Result := ERDPCBPropertyValue(Item, FProperties[PropIndex].Name); end;
@@ -53,10 +54,15 @@ end;
 function TERDPCBInspectorBinding.WriteValue(const Item: TERDPCBDesignItem; PropIndex: Integer; const Text: string): TERDPCBDesignItem;
 begin
   if FProperties[PropIndex].ReadOnly then raise EArgumentException.Create('This property is read-only for a selected component');
-  if Item.Locked then raise EArgumentException.Create('Unlock every selected component before editing this property');
+  if Item.Locked and (FFields[PropIndex] <> bfLocked) then raise EArgumentException.Create('Unlock every selected component before editing this property');
   Result := Item;
   case FFields[PropIndex] of
     bfCaption: Result.Caption := Text;
+    bfLocked:
+      begin
+        if not SameText(Text, 'True') and not SameText(Text, 'False') then raise EArgumentException.Create('Locked must be True or False');
+        Result.Locked := SameText(Text, 'True');
+      end;
     bfEnabled:
       begin
         if not SameText(Text, 'True') and not SameText(Text, 'False') then raise EArgumentException.Create('Enabled must be True or False');
@@ -78,6 +84,7 @@ begin
   case FFields[PropIndex] of
     bfCaption: Exit(Definition.Caption);
     bfEnabled: Exit('True');
+    bfLocked: Exit('False');
     bfValue: Exit(IntToStr(Definition.Value));
     bfNoteType: Exit(ERDPCBNoteTypeName(Definition.NoteType));
   end;
@@ -96,7 +103,7 @@ begin
       Value := Text; if Reset then Value := DefaultText(Result[I], PropIndex);
       Result[I] := WriteValue(Result[I], PropIndex, Value);
     end
-    else for J := 0 to High(FProperties) do if not FProperties[J].ReadOnly then
+    else for J := 0 to High(FProperties) do if not FProperties[J].ReadOnly and (FFields[J] <> bfLocked) then
       Result[I] := WriteValue(Result[I], J, DefaultText(Result[I], J));
   end;
 end;
@@ -141,6 +148,7 @@ begin
     AllNonNotes := AllNonNotes and (Item.Kind <> piNote); SameKind := SameKind and (Item.Kind = First.Kind);
   end;
   if AllNotes then BuiltIn('Text', pkText, bfCaption);
+  BuiltIn('Locked', pkBoolean, bfLocked);
   if AllNonNotes then BuiltIn('Enabled', pkBoolean, bfEnabled);
   if SameKind and AllNonNotes then
   begin
@@ -224,13 +232,13 @@ begin
     begin
       Row := FInspector.Categories[C].Properties[P]; Index := PropertyIndex(Row); if Index < 0 then Continue;
       Item := FScene.Item(ItemIndex(0)); Text := ReadValue(Item, Index); DefaultValue := DefaultText(Item, Index);
-      Mixed := False; SameDefault := ERDPCBFindComponentType(Item.TypeID, Definition); ReadOnly := FProperties[Index].ReadOnly or Item.Locked;
+      Mixed := False; SameDefault := ERDPCBFindComponentType(Item.TypeID, Definition); ReadOnly := FProperties[Index].ReadOnly or (Item.Locked and (FFields[Index] <> bfLocked));
       for I := 1 to High(FIDs) do
       begin
         Item := FScene.Item(ItemIndex(I)); Mixed := Mixed or (ReadValue(Item, Index) <> Text);
-        SameDefault := SameDefault and ERDPCBFindComponentType(Item.TypeID, Definition) and (DefaultText(Item, Index) = DefaultValue); ReadOnly := ReadOnly or Item.Locked;
+        SameDefault := SameDefault and ERDPCBFindComponentType(Item.TypeID, Definition) and (DefaultText(Item, Index) = DefaultValue); ReadOnly := ReadOnly or (Item.Locked and (FFields[Index] <> bfLocked));
       end;
-      Row.Value := Text; Row.Mixed := Mixed; Row.DefaultValue := DefaultValue; Row.HasDefault := SameDefault;
+      Row.Value := Text; Row.Mixed := Mixed; Row.DefaultValue := DefaultValue; Row.HasDefault := SameDefault and (FFields[Index] <> bfLocked);
       Row.ReadOnly := ReadOnly; Row.Level := alvNormal; Row.Hint := FProperties[Index].Hint;
     end;
   finally FInspector.EndUpdate; end;

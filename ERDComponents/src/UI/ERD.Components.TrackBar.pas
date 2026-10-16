@@ -66,6 +66,7 @@ type
     procedure SetPosition(AValue: Integer); virtual;
     procedure DragTo(Value: Integer); virtual;
     procedure PaintTrackExtras(P: TERDPainter; Center, StartPos, EndPos, ThumbPos: Integer); virtual;
+    procedure PaintThumb(P: TERDPainter; CX, CY: Single; Active: Boolean = True);
     function ThumbSize: Integer;
     function ValueWidth: Integer; virtual;
     function TrackLeft: Integer;
@@ -447,11 +448,24 @@ procedure TERDTrackBar.PaintTrackExtras(P: TERDPainter; Center, StartPos, EndPos
 begin
   // Descendants add buffered regions before the thumb is painted.
 end;
+procedure TERDTrackBar.PaintThumb(P: TERDPainter; CX, CY: Single; Active: Boolean);
+var T: Integer; Face, Ring: TColor;
+begin
+  T := ThumbSize; Face := Palette.GaugeFace; Ring := Palette.Accent;
+  if not Enabled then begin Face := EffectiveBackground; Ring := ERDMixColor(Palette.Subtle,EffectiveBackground,0.5); end;
+  if Active and (FHot or FDragging) and Enabled then
+    P.Ellipse(CX-T/2-P.S(3),CY-T/2-P.S(3),T+P.S(6),T+P.S(6),
+      ERDMixColor(Palette.Accent,EffectiveBackground,0.18),clNone);
+  // Adjacent focus outline: no separate white gap/halo around range thumbs.
+  if Active and Focused and FocusCuesVisible and not IsPreview then
+    P.FocusRing(CX-T/2-P.S(2),CY-T/2-P.S(2),T+P.S(4),T+P.S(4),T/2+P.S(2));
+  P.Ellipse(CX-T/2,CY-T/2,T,T,Face,Ring,P.SF(2));
+end;
 procedure TERDTrackBar.PaintControl(ACanvas: TCanvas);
 var
   P: TERDPainter;
   CY, X0, X1, TX, T, TrackH, I: Integer;
-  Track, Fill, Thumb, Ring: TColor;
+  Track, Fill: TColor;
   Tick: Integer;
 begin
   P := TERDPainter.Create(ACanvas, Palette, ScaleValue(96));
@@ -465,11 +479,9 @@ begin
       T := ThumbSize;
       Track := Palette.NeutralLight;
       Fill := Palette.Accent;
-      Thumb := Palette.GaugeFace;
       if not Enabled then
       begin
         Fill := Palette.Subtle;
-        Thumb := EffectiveBackground;
       end;
       if X1 > X0 then
       begin
@@ -489,9 +501,7 @@ begin
           Inc(I);
         end;
       end;
-      if Focused and FocusCuesVisible and not IsPreview then
-        P.FocusRing(CY - T / 2 - P.S(3), TX - T / 2 - P.S(3), T + P.S(6), T + P.S(6), T / 2 + P.S(3));
-      P.Ellipse(CY - T / 2, TX - T / 2, T, T, Thumb, Fill, P.SF(2));
+      PaintThumb(P,CY,TX);
       if FShowValue then P.Text(CY, Height - ScaleValue(Metrics.Edit) div 2,
         IntToStr(FPosition) + FSuffix, ERD_TEXT_BODY, Palette.ForegroundText, twSemibold, taCenter);
       Exit;
@@ -506,15 +516,11 @@ begin
     begin
       Track := Palette.NeutralLight;
       Fill := Palette.Accent;
-      Thumb := Palette.GaugeFace;
-      Ring := Palette.Accent;
     end
     else
     begin
       Track := ERDMixColor(Palette.NeutralLight, EffectiveBackground, 0.6);
       Fill := ERDMixColor(Palette.Subtle, EffectiveBackground, 0.5);
-      Thumb := EffectiveBackground;
-      Ring := Fill;
     end;
     // Ticks below the track.
     if (FFrequency > 0) and (FMax > FMin) and
@@ -540,14 +546,7 @@ begin
           clNone);
     end;
     PaintTrackExtras(P, CY, X0, X1, TX);
-    if Focused and FocusCuesVisible and not IsPreview then
-      P.FocusRing(TX - T / 2 - P.S(3), CY - T / 2 - P.S(3), T + P.S(6),
-        T + P.S(6), T / 2 + P.S(3));
-    if (FHot or FDragging) and Enabled then
-      P.Ellipse(TX - T / 2 - P.S(3), CY - T / 2 - P.S(3), T + P.S(6),
-        T + P.S(6), ERDMixColor(Palette.Accent, EffectiveBackground, 0.18),
-        clNone);
-    P.Ellipse(TX - T / 2, CY - T / 2, T, T, Thumb, Ring, P.SF(2));
+    PaintThumb(P,TX,CY);
     if FShowValue then
       P.Text(Width, CY, IntToStr(FPosition) + FSuffix, ERD_TEXT_BODY,
         Palette.ForegroundText, twSemibold, taRightJustify);

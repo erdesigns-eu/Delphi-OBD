@@ -78,7 +78,7 @@ type
     FOriginalItem: TERDPCBDesignItem;
     FAppliedX, FAppliedY: Double;
     FSnapToGrid, FShowGrid: Boolean;
-    FGridSize: Double;
+    FGridSize, FGridSizeY: Double;
     FOnChange: TNotifyEvent;
     FPads: TArray<TERDPCBPad>;
     FChannels: TArray<TERDPCBChannel>;
@@ -135,6 +135,8 @@ type
     procedure ScrollChanged(Sender: TObject);
     procedure SyncScrollBars;
     procedure SetGridSize(Value: Double);
+    procedure SetGridSizeX(Value: Double);
+    procedure SetGridSizeY(Value: Double);
     procedure SetSnapToGrid(Value: Boolean);
     procedure SetShowGrid(Value: Boolean);
     function ItemRect(Index: Integer): TRect;
@@ -143,7 +145,7 @@ type
     function SelectionHandleBounds(out Bounds: TRect): Integer;
     function SelectionHandleAt(const P: TPoint): Integer;
     function GripRect(const R: TRect; Index: Integer): TRect;
-    function Snap(Value: Double): Double;
+    function Snap(Value: Double; Vertical: Boolean = False): Double;
     procedure PaintBoardLayer(ACanvas: TCanvas);
     procedure PaintGrid(ACanvas: TCanvas);
     procedure PaintBodies(ACanvas: TCanvas);
@@ -238,6 +240,8 @@ type
     property TemplateBoardColor: TColor read FTemplateBoardColor write SetTemplateBoardColor;
     procedure CopySelected;
     procedure Paste;
+    procedure SetSelectionLocked(Value: Boolean);
+    procedure ReorderSelection(Order: TERDPCBZOrder);
     procedure Undo;
     procedure Redo;
     procedure LoadBoard(const FileName: string);
@@ -280,7 +284,9 @@ type
     property ScrollBars: System.UITypes.TScrollStyle read FScrollBars write SetScrollBars default System.UITypes.TScrollStyle.ssBoth;
     property SnapToGrid: Boolean read FSnapToGrid write SetSnapToGrid default True;
     property ShowGrid: Boolean read FShowGrid write SetShowGrid default True;
-    property GridSize: Double read FGridSize write SetGridSize;
+    property GridSize: Double read FGridSize write SetGridSize stored False;
+    property GridSizeX: Double read FGridSize write SetGridSizeX;
+    property GridSizeY: Double read FGridSizeY write SetGridSizeY;
     property OnConnectionError: TERDPCBDesignerErrorEvent read FOnConnectionError write FOnConnectionError;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
     /// Source path loads a board; its data is embedded in the DFM, not the path.
@@ -308,6 +314,53 @@ implementation
 
 uses System.IOUtils, Winapi.GDIPAPI, Winapi.GDIPOBJ,
   Vcl.Forms, Vcl.Clipbrd, Vcl.StdCtrls, ERD.Components.Paint, ERD.Components.GDIP, Vcl.Menus;
+
+const
+  crPCBGrab = 31001;
+  crPCBGrabbing = 31002;
+var PCBCursorsReady: Boolean;
+function PCBPanCursor(Dragging: Boolean): TCursor;
+const
+  OpenHand: array[0..19] of string = (
+    '       ##  ##', '      #..##..# ##', '   ## #..##..##..#', '  #..##..##..##..#',
+    '  #..##..##..##..#', '  #..##..##..##..#', '  #..##..##..##..#', '  #..#...........#',
+    '  #.............#', '  #.............#', ' ##.............#', '#..#............#',
+    '#...#...........#', ' #..............#', '  #.............#', '   #............#',
+    '    #..........#', '     #.........#', '     #.........#', '     ###########');
+  ClosedHand: array[0..19] of string = (
+    '', '', '', '', '    ############', '   #..#..#..#...#', '   #..#..#..#...#',
+    '   #..#..#..#...#', '   #...........#', '  ##...........#', ' #..#..........#',
+    ' #...#.........#', ' #....#........#', '  #............#', '  #............#',
+    '   #..........#', '    #.........#', '     #........#', '     #........#', '     ##########');
+  function MakeCursor(const Rows: array of string): HCURSOR;
+  var AndMask, XorMask: array[0..127] of Byte; X, Y, Offset: Integer; Bit: Byte;
+  begin
+    FillChar(AndMask,SizeOf(AndMask),$FF); FillChar(XorMask,SizeOf(XorMask),0);
+    for Y := 0 to High(Rows) do for X := 1 to Length(Rows[Y]) do
+      if Rows[Y][X] <> ' ' then
+      begin
+        Offset := (Y+6)*4+(X+5) div 8; Bit := Byte($80 shr ((X+5) mod 8));
+        AndMask[Offset] := AndMask[Offset] and not Bit;
+        if Rows[Y][X] = '.' then XorMask[Offset] := XorMask[Offset] or Bit;
+      end;
+    Result := Winapi.Windows.CreateCursor(HInstance,15,15,32,32,@AndMask[0],@XorMask[0]);
+  end;
+var OpenCursor, ClosedCursor: HCURSOR;
+begin
+  if not PCBCursorsReady then
+  begin
+    OpenCursor := MakeCursor(OpenHand); ClosedCursor := MakeCursor(ClosedHand);
+    if (OpenCursor <> 0) and (ClosedCursor <> 0) then
+    begin
+      // Screen owns registered cursor handles for the application lifetime.
+      Screen.Cursors[crPCBGrab] := OpenCursor; Screen.Cursors[crPCBGrabbing] := ClosedCursor;
+      PCBCursorsReady := True;
+    end
+    else begin if OpenCursor <> 0 then DestroyCursor(OpenCursor); if ClosedCursor <> 0 then DestroyCursor(ClosedCursor); end;
+  end;
+  if PCBCursorsReady then begin if Dragging then Result := crPCBGrabbing else Result := crPCBGrab; end
+  else if Dragging then Result := crSizeAll else Result := crHandPoint;
+end;
 
 function ERDPCBPinCapabilityName(Value: TERDPCBPinCapability): string;
 begin
@@ -393,7 +446,7 @@ begin
   FStaticLayer := TBitmap.Create; FStaticLayer.PixelFormat := pf32bit;
   FSnapToGrid := True;
   FShowGrid := True;
-  FGridSize := 1;
+  FGridSize := 1; FGridSizeY := 1;
   FScrollBars := System.UITypes.TScrollStyle.ssBoth;
   FRouteCache := TDictionary<string, TERDPCBConnectionGeometry>.Create;
   FScene := TERDPCBScene.Create(Self); FScene.OnValidateItem := ValidateSceneItem; FScene.OnChange := SceneChanged; FScene.OnSelectionChange := SceneSelectionChanged;
@@ -430,31 +483,36 @@ begin
   if Index >= 0 then Result := RolePin(FScene.Item(Index), FConnectionRole);
 end;
 function TERDPCBDesigner.ConnectionAnchors(ItemIndex: Integer; Role: TERDPCBPinRole; out FromPoint, ToPoint: TPoint): Boolean;
-var R: TRect; Pad: TERDPCBPad; Count: Integer; Pin: string;
+var Pad: TERDPCBPad; Pin: string;
 begin
   Result := False; if not SupportsPinRole(ItemIndex, Role) then Exit;
   Pin := RolePin(FScene.Item(ItemIndex), Role); if Pin = '' then Exit;
   UpdateTransform;
   for Pad in FPads do if Pad.ID = Pin then begin FromPoint := ScreenPoint(Pad.Position); Result := True; Break; end;
   if not Result then Exit;
-  R := ItemRect(ItemIndex); Count := 1;
-  if SupportsPinRole(ItemIndex, prSecondary) then Count := 2;
-  if SupportsPinRole(ItemIndex, prSelect) then Count := 4;
-  ToPoint := Point(R.Left + R.Width * (Ord(Role) + 1) div (Count + 1), R.Top);
-  if (R.Top + R.Bottom) div 2 < FromPoint.Y then ToPoint.Y := R.Bottom;
+  ToPoint := ERDPCBComponentAnchor(FromPoint,ItemRect(ItemIndex));
   Result := True;
 end;
 function TERDPCBDesigner.BuildConnectionGeometry(const FromPoint, ToPoint: TPoint; TargetIndex: Integer): TERDPCBConnectionGeometry;
-var Key: string; Boxes: TArray<TRect>; I, N: Integer; Board: TRect; P, Q: TPoint;
+var Key: string; Boxes: TArray<TRect>; I, N: Integer; Board, Target, Box: TRect; P, Q: TPoint;
 begin
   Key := IntToStr(FromPoint.X) + ',' + IntToStr(FromPoint.Y) + ':' +
     IntToStr(ToPoint.X) + ',' + IntToStr(ToPoint.Y) + ':' + IntToStr(TargetIndex);
   if FRouteCache.TryGetValue(Key, Result) then Exit;
+  Target := Rect(0,0,0,0); if TargetIndex >= 0 then Target := ItemRect(TargetIndex);
   SetLength(Boxes, FScene.Count); N := 0;
-  for I := 0 to FScene.Count - 1 do if I <> TargetIndex then begin Boxes[N] := ItemRect(I); Inc(N); end;
+  for I := 0 to FScene.Count-1 do if I <> TargetIndex then
+  begin
+    Box := ItemRect(I);
+    // A background note containing the target is a backdrop, not a routing wall.
+    if (I < TargetIndex) and (FScene.Item(I).Kind = piNote) and
+      (Box.Left <= Target.Left) and (Box.Top <= Target.Top) and
+      (Box.Right >= Target.Right) and (Box.Bottom >= Target.Bottom) then Continue;
+    Boxes[N] := Box; Inc(N);
+  end;
   SetLength(Boxes,N);
   P := ScreenPoint(PointF(0,FMaxY)); Q := ScreenPoint(PointF(FMaxX,0)); Board := Rect(P.X,P.Y,Q.X,Q.Y);
-  Result := ERDBuildPCBBoardConnection(FromPoint,ToPoint,Boxes,Board,ScaleValue(96)/96);
+  Result := ERDBuildPCBBoardConnection(FromPoint,ToPoint,Boxes,Board,Target,ScaleValue(96)/96);
   if FRouteCache.Count >= 256 then FRouteCache.Clear;
   FRouteCache.AddOrSetValue(Key, Result);
 end;
@@ -598,7 +656,7 @@ begin
   end;
 end;
 procedure TERDPCBDesigner.ContextAction(Sender: TObject);
-var I: Integer; Value: TERDPCBDesignItem; Lock: Boolean;
+var I: Integer; Lock: Boolean;
 begin
   if not (Sender is TMenuItem) then Exit;
   try
@@ -609,14 +667,11 @@ begin
       11:
         begin
           Lock := False;
-          for I := 0 to FScene.Count - 1 do if FScene.Item(I).Selected and not FScene.Item(I).Locked then Lock := True;
-          FScene.BeginEdit;
-          try
-            for I := 0 to FScene.Count - 1 do if FScene.Item(I).Selected then
-            begin Value := FScene.Item(I); Value.Locked := Lock; FScene.UpdateItem(I, Value); end;
-            FScene.EndEdit;
-          except FScene.CancelEdit; raise; end;
+          for I := 0 to FScene.Count-1 do if FScene.Item(I).Selected and not FScene.Item(I).Locked then Lock := True;
+          SetSelectionLocked(Lock);
         end;
+      17: ReorderSelection(zoBringToFront); 18: ReorderSelection(zoSendToBack);
+      19: ReorderSelection(zoBringForward); 20: ReorderSelection(zoSendBackward);
       12: begin CancelPlacement; PanMode := False; end;
       13: SnapToGrid := not SnapToGrid;
       14: SnapToObjects := not SnapToObjects;
@@ -669,6 +724,8 @@ begin
     if I >= 0 then CanEditNote := (FScene.Item(I).Kind = piNote) and not FScene.Item(I).Locked;
     if CanEditNote then Entry('Edit note', 10);
     if FScene.SelectionCount > 0 then Entry('Lock / unlock selection', 11);
+    Entry('Bring to front',17,CanRemove); Entry('Send to back',18,CanRemove);
+    Entry('Bring forward',19,CanRemove); Entry('Send backward',20,CanRemove);
   end;
   Entry('-',0); Entry('Zoom to selection (F)', 3, SelectionBounds(Bounds)); Entry('Fit board (Home)', 4);
   if FPlacing or FPanMode then Entry('Select / move', 12);
@@ -684,17 +741,17 @@ begin
   Result := ClientToBoard(ClientPoint);
   if Kind = piNote then Result.Y := Result.Y - 18
   else Result.Y := Result.Y - ScaleValue(32) / FScreenScale;
-  Result.X := Snap(Result.X); Result.Y := Snap(Result.Y);
+  Result.X := Snap(Result.X); Result.Y := Snap(Result.Y,True);
 end;
 function TERDPCBDesigner.TypeInsertionPoint(const TypeID: string; const ClientPoint: TPoint): TPointF;
 var Definition: TERDPCBComponentType;
 begin
   if not ERDPCBFindComponentType(TypeID, Definition) then raise EArgumentException.Create('Unknown component type: ' + TypeID);
   Result := InsertionPoint(Definition.Kind, ClientPoint);
-  if Definition.Kind = piNote then Result.Y := Snap(ClientToBoard(ClientPoint).Y - Definition.Height);
+  if Definition.Kind = piNote then Result.Y := Snap(ClientToBoard(ClientPoint).Y - Definition.Height,True);
 end;
 function TERDPCBDesigner.AddRegisteredItem(const TypeID: string; const Position: TPointF): Integer;
-begin Result := FScene.AddType(TypeID, PointF(Snap(Position.X), Snap(Position.Y))); end;
+begin Result := FScene.AddType(TypeID, PointF(Snap(Position.X), Snap(Position.Y,True))); end;
 function TERDPCBDesigner.InsertTypeAt(const TypeID: string; const ClientPoint: TPoint): Integer;
 begin
   if FTemplateEditMode then raise EArgumentException.Create('End template authoring before inserting scene items');
@@ -728,7 +785,7 @@ procedure TERDPCBDesigner.CancelPlacement;
 begin
   if not FPlacing then Exit;
   FPlacing := False; FPlacementPreview := False;
-  if FPanMode then Cursor := crHandPoint else Cursor := crDefault;
+  if FPanMode then Cursor := PCBPanCursor(False) else Cursor := crDefault;
   Invalidate;
   if Assigned(FOnPlacementChange) then FOnPlacementChange(Self);
 end;
@@ -842,7 +899,7 @@ end;
 procedure TERDPCBDesigner.SnapGuides(var DX, DY: Double);
 var Moving, Board: TRectF; P, Q: TPoint; Correction: TPointF; GridDX, GridDY: Double;
 begin
-  GridDX := Snap(FMoveAnchor.X+DX)-FMoveAnchor.X; GridDY := Snap(FMoveAnchor.Y+DY)-FMoveAnchor.Y;
+  GridDX := Snap(FMoveAnchor.X+DX)-FMoveAnchor.X; GridDY := Snap(FMoveAnchor.Y+DY,True)-FMoveAnchor.Y;
   Moving := System.Types.RectF(FMoveBounds.Left+DX*FScreenScale,FMoveBounds.Top-DY*FScreenScale,
     FMoveBounds.Right+DX*FScreenScale,FMoveBounds.Bottom-DY*FScreenScale);
   P := ScreenPoint(PointF(0,FMaxY)); Q := ScreenPoint(PointF(FMaxX,0)); Board := System.Types.RectF(P.X,P.Y,Q.X,Q.Y);
@@ -1240,20 +1297,27 @@ begin
   if Sender = FScrollH then PanBy(FBarX - FScrollH.Position, 0)
   else PanBy(0, FBarY - FScrollV.Position);
 end;
-procedure TERDPCBDesigner.SetGridSize(Value: Double);
+procedure CheckPCBGridSize(Value: Double);
 begin
   if IsNan(Value) or IsInfinite(Value) or (Value < 0.1) or (Value > 100) then
     raise EArgumentException.Create('Grid size must be 0.1..100 mm');
-  FGridSize := Value; FStaticDirty := True; Invalidate;
 end;
+procedure TERDPCBDesigner.SetGridSize(Value: Double);
+begin CheckPCBGridSize(Value); SetGridSizeX(Value); SetGridSizeY(Value); end;
+procedure TERDPCBDesigner.SetGridSizeX(Value: Double);
+begin CheckPCBGridSize(Value); FGridSize := Value; FStaticDirty := True; Invalidate; end;
+procedure TERDPCBDesigner.SetGridSizeY(Value: Double);
+begin CheckPCBGridSize(Value); FGridSizeY := Value; FStaticDirty := True; Invalidate; end;
 procedure TERDPCBDesigner.SetSnapToGrid(Value: Boolean);
 begin FSnapToGrid := Value; end;
 procedure TERDPCBDesigner.SetShowGrid(Value: Boolean);
 begin FShowGrid := Value; FStaticDirty := True; Invalidate; end;
-function TERDPCBDesigner.Snap(Value: Double): Double;
-begin if FSnapToGrid then Result := Round(Value / FGridSize) * FGridSize else Result := Value; end;
+function TERDPCBDesigner.Snap(Value: Double; Vertical: Boolean): Double;
+var Size: Double;
+begin Size := FGridSize; if Vertical then Size := FGridSizeY;
+  if FSnapToGrid then Result := Round(Value / Size) * Size else Result := Value; end;
 function TERDPCBDesigner.AddDesignItem(Kind: TERDPCBItemKind; const Position: TPointF): Integer;
-begin Result := FScene.Add(Kind, PointF(Snap(Position.X), Snap(Position.Y))); end;
+begin Result := FScene.Add(Kind, PointF(Snap(Position.X), Snap(Position.Y,True))); end;
 function TERDPCBDesigner.SupportsPinRole(ItemIndex: Integer; Role: TERDPCBPinRole): Boolean;
 var Kind: TERDPCBItemKind;
 begin
@@ -1337,6 +1401,10 @@ begin
   finally Root.Free; end;
   FScene.PasteJSON(Text, FGridSize);
 end;
+procedure TERDPCBDesigner.SetSelectionLocked(Value: Boolean);
+begin FinishNoteEdit(True); CancelGesture; FScene.SetSelectedLocked(Value); end;
+procedure TERDPCBDesigner.ReorderSelection(Order: TERDPCBZOrder);
+begin FinishNoteEdit(True); CancelGesture; FScene.ReorderSelected(Order); end;
 procedure TERDPCBDesigner.Undo;
 begin FinishNoteEdit(True); CancelGesture; ClearConnectionSelection; FScene.Undo; end;
 procedure TERDPCBDesigner.Redo;
@@ -1606,7 +1674,7 @@ end;
 procedure TERDPCBDesigner.WMCaptureChanged(var Message: TMessage);
 begin
   if not FCompletingGesture then
-  begin FDragging := False; CancelGesture; Cursor := crDefault; end;
+  begin FDragging := False; CancelGesture; if FPanMode then Cursor := PCBPanCursor(False) else Cursor := crDefault; end;
   inherited;
 end;
 procedure TERDPCBDesigner.WMGetDlgCode(var Message: TWMGetDlgCode);
@@ -1951,7 +2019,7 @@ begin
   if Value then CancelPlacement;
   CancelGesture;
   FPanMode := Value; SetHot('');
-  if FPanMode then Cursor := crHandPoint else Cursor := crDefault;
+  if FPanMode then Cursor := PCBPanCursor(False) else Cursor := crDefault;
 end;
 procedure TERDPCBDesigner.SetAntiAlias(Value: Boolean);
 begin
@@ -1967,21 +2035,22 @@ begin
   ACanvas.Draw(0,0,FStaticLayer); PaintScene(ACanvas); PaintPlacementPreview(ACanvas);
 end;
 procedure TERDPCBDesigner.PaintGrid(ACanvas: TCanvas);
-var X, Y, Step, Dot: Integer; GridMM: Double; Ink: TColor; Painter: TERDPainter;
+var X, Y, StepX, StepY, Dot: Integer; GridMM, GridY: Double; Ink: TColor; Painter: TERDPainter;
 begin
-  if not FShowGrid then Exit; UpdateTransform; GridMM := FGridSize;
+  if not FShowGrid then Exit; UpdateTransform; GridMM := FGridSize; GridY := FGridSizeY;
   while GridMM*FScreenScale < ScaleValue(12) do GridMM := GridMM*2;
-  Step := Max(1,Round(GridMM*FScreenScale)); Dot := Max(1,ScaleValue(1));
+  while GridY*FScreenScale < ScaleValue(12) do GridY := GridY*2;
+  StepX := Max(1,Round(GridMM*FScreenScale)); StepY := Max(1,Round(GridY*FScreenScale)); Dot := Max(1,ScaleValue(1));
   if ERDIsDarkPalette(Palette) then Ink := ERDMixColor(Palette.ForegroundText,Palette.Background,0.24)
   else Ink := ERDMixColor(Palette.ForegroundText,Palette.Background,0.34);
   Painter := TERDPainter.Create(ACanvas,Palette,ScaleValue(96));
   try
-    Y := Round(FScreenY) mod Step; if Y < 0 then Inc(Y,Step);
+    Y := Round(FScreenY) mod StepY; if Y < 0 then Inc(Y,StepY);
     while Y < ClientHeight do
     begin
-      X := Round(FScreenX) mod Step; if X < 0 then Inc(X,Step);
-      while X < ClientWidth do begin Painter.FillRect(Rect(X,Y,X+Dot,Y+Dot),Ink); Inc(X,Step); end;
-      Inc(Y,Step);
+      X := Round(FScreenX) mod StepX; if X < 0 then Inc(X,StepX);
+      while X < ClientWidth do begin Painter.FillRect(Rect(X,Y,X+Dot,Y+Dot),Ink); Inc(X,StepX); end;
+      Inc(Y,StepY);
     end;
   finally Painter.Free; end;
 end;
@@ -2106,8 +2175,7 @@ begin
       begin
         I := ConnectionIndex;
         if FEditMode = 5 then P := FBoxPoint
-        else begin Q := FBoxPoint; I := ItemAt(Q); if I >= 0 then begin R := ItemRect(I); Q := Point((R.Left+R.Right) div 2,R.Top);
-          if (R.Top+R.Bottom) div 2 < P.Y then Q.Y := R.Bottom; end; end;
+        else begin Q := FBoxPoint; I := ItemAt(Q); if I >= 0 then Q := ERDPCBComponentAnchor(P,ItemRect(I)); end;
         DrawConnection(P,Q,Palette.Accent,ScaleValue(2),I);
       end;
     PaintAlignmentGuides(ACanvas);
@@ -2115,7 +2183,7 @@ begin
     begin
       P := FStartPoint; Pad := PadInfo(FLinkPin); if Pad.ID <> '' then P := ScreenPoint(Pad.Position);
       Q := FBoxPoint; I := ItemAt(Q);
-      if I >= 0 then begin R := ItemRect(I); Q := Point((R.Left+R.Right) div 2,R.Top); if (R.Top+R.Bottom) div 2 < P.Y then Q.Y := R.Bottom; end;
+      if I >= 0 then Q := ERDPCBComponentAnchor(P,ItemRect(I));
       DrawConnection(P,Q,Palette.Accent,ScaleValue(2),I);
     end;
     if FEditMode = 3 then
@@ -2145,16 +2213,19 @@ begin
   raise EArgumentException.Create(Error);
 end;
 procedure TERDPCBDesigner.CancelGesture;
-var Mode: Integer;
+var Mode: Integer; WasPanning: Boolean;
 begin
+  WasPanning := FDragging; FDragging := False;
   Mode := FEditMode; FEditMode := 0; ClearGuides; FMoveTargets := nil;
   if (Mode in [1, 2]) and (FScene <> nil) then FScene.CancelEdit;
-  if Mode <> 0 then begin MouseCapture := False; Invalidate; end;
+  if (Mode <> 0) or WasPanning then
+  begin MouseCapture := False; if FPanMode then Cursor := PCBPanCursor(False) else Cursor := crDefault; Invalidate; end;
 end;
 procedure TERDPCBDesigner.KeyDown(var Key: Word; Shift: TShiftState);
 var I, Current, Candidate, DX, DY, Forward, Across: Integer; P, Q: TPoint; Score, Best: Double;
 begin
   inherited;
+  if FDragging and (Key = VK_ESCAPE) then begin CancelGesture; Key := 0; Exit; end;
   if FPlacing and (Key = VK_ESCAPE) then begin CancelPlacement; Key := 0; Exit; end;
   if FEditMode <> 0 then begin if Key = VK_ESCAPE then CancelGesture; Key := 0; Exit; end;
   if (Key = VK_DELETE) and (FConnectionID <> '') then
@@ -2181,7 +2252,7 @@ begin
       VK_DELETE: FScene.DeleteSelected;
       VK_ESCAPE: FScene.ClearSelection;
       VK_LEFT: FScene.MoveSelected(-FGridSize, 0); VK_RIGHT: FScene.MoveSelected(FGridSize, 0);
-      VK_UP: FScene.MoveSelected(0, FGridSize); VK_DOWN: FScene.MoveSelected(0, -FGridSize);
+      VK_UP: FScene.MoveSelected(0, FGridSizeY); VK_DOWN: FScene.MoveSelected(0, -FGridSizeY);
     else Exit;
     end;
     Key := 0; Exit;
@@ -2212,7 +2283,7 @@ var Index: Integer; P, FromPoint, ToPoint: TPoint; ID: string; Role: TERDPCBPinR
 begin
   inherited; SetFocus; P := Point(X, Y);
   if (Button = mbMiddle) or ((Button = mbLeft) and (FPanMode or (GetKeyState(VK_SPACE) < 0))) then
-  begin FDragging := True; FLast := P; MouseCapture := True; Cursor := crSizeAll; Exit; end;
+  begin FDragging := True; FLast := P; MouseCapture := True; Cursor := PCBPanCursor(True); Exit; end;
   if FPlacing and (Button = mbRight) then begin FSuppressContextMenu := True; CancelPlacement; Exit; end;
   if Button <> mbLeft then Exit;
   if FPlacing then
@@ -2285,7 +2356,7 @@ begin
       FScene.MoveSelected(DX - FAppliedX, DY - FAppliedY); FAppliedX := DX; FAppliedY := DY; Invalidate; end
     else
     begin
-      if not (ssAlt in Shift) then begin DX := Snap(DX); DY := Snap(DY); end;
+      if not (ssAlt in Shift) then begin DX := Snap(DX); DY := Snap(DY,True); end;
       Value := FOriginalItem;
       if FGrip in [0, 6, 7] then begin Value.X := Value.X + DX; Value.Width := Value.Width - DX; end;
       if FGrip in [2, 3, 4] then Value.Width := Value.Width + DX;
@@ -2301,7 +2372,7 @@ begin
     Exit;
   end;
   if FPanMode or (GetKeyState(VK_SPACE) < 0) then
-  begin SetHot(''); Cursor := crHandPoint; Exit; end;
+  begin SetHot(''); Cursor := PCBPanCursor(False); Exit; end;
   ConnectionIndex := FScene.IndexOf(FConnectionID);
   if (ConnectionIndex >= 0) and ConnectionAnchors(ConnectionIndex, FConnectionRole, FromPoint, ToPoint) then
     if (Hypot(X-FromPoint.X, Y-FromPoint.Y) <= ScaleValue(8)) or (Hypot(X-ToPoint.X, Y-ToPoint.Y) <= ScaleValue(8)) then
@@ -2336,7 +2407,7 @@ begin
   if FDragging then
   begin
     FDragging := False; MouseCapture := False;
-    if FPanMode then Cursor := crHandPoint else Cursor := crDefault;
+    if FPanMode then Cursor := PCBPanCursor(False) else Cursor := crDefault;
     Exit;
   end;
   if Button <> mbLeft then Exit;
@@ -2380,6 +2451,7 @@ begin
   Root := TJSONObject.Create;
   try
     Root.AddPair('schema', TJSONNumber.Create(2)); Root.AddPair('scene', TJSONObject.ParseJSONValue(FScene.ToJSON)); Root.AddPair('board', FBoardHash);
+    Root.AddPair('grid_x',TJSONNumber.Create(FGridSize)); Root.AddPair('grid_y',TJSONNumber.Create(FGridSizeY));
     Root.AddPair('template_policy', PinPolicy); Root.AddPair('selected', FSelected); Items := TJSONArray.Create; Root.AddPair('bindings', Items);
     for C in FChannels do
     begin
@@ -2392,7 +2464,7 @@ begin
 end;
 procedure TERDPCBDesigner.LoadProject(const FileName: string);
 var Root: TJSONValue; Items: TJSONArray; Item: TJSONObject; Backup: TArray<TERDPCBChannel>;
-    I, Index, Schema: Integer; Selection, OldScene: string; Seen: TStringList; TempScene: TERDPCBScene;
+    I, Index, Schema: Integer; Selection, OldScene: string; GridX, GridY: Double; Seen: TStringList; TempScene: TERDPCBScene;
 begin
   CancelPlacement;
   FinishNoteEdit(True);
@@ -2410,6 +2482,8 @@ begin
         if not (TJSONObject(Root).GetValue('scene') is TJSONObject) then raise EConvertError.Create('Invalid project scene');
         TempScene.LoadJSON(Root.GetValue<TJSONObject>('scene').ToJSON);
       end;
+      GridX := Root.GetValue<Double>('grid_x',1); GridY := Root.GetValue<Double>('grid_y',1);
+      CheckPCBGridSize(GridX); CheckPCBGridSize(GridY);
       Selection := Root.GetValue<string>('selected');
       Items := Root.GetValue<TJSONArray>('bindings');
       if Items.Count <> Length(FChannels) then raise EConvertError.Create('Incomplete channel assignments');
@@ -2433,6 +2507,7 @@ begin
   finally
     TempScene.Free; Seen.Free; Root.Free;
   end;
+  GridSizeX := GridX; GridSizeY := GridY;
   FScene.ResetHistory;
 end;
 end.

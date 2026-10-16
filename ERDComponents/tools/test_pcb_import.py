@@ -29,10 +29,10 @@ class PCBImportTests(unittest.TestCase):
         components = {c['reference']: c for c in self.board['components']}
         self.assertTrue(all(len(c['body']) >= 4 for c in components.values()))
         self.assertEqual(sum(c['role'] == 'terminal' for c in components.values()), 29)
-        self.assertEqual(len(self.board['terminals']), 28)
+        self.assertEqual(len(self.board['terminals']), 29)
         for terminal in self.board['terminals']:
-            self.assertEqual(components[terminal['id']]['role'], 'terminal')
-            self.assertEqual(len(terminal['members']), 3)
+            self.assertIn(components[terminal['id']]['role'], ('terminal', 'led'))
+            self.assertEqual(len(terminal['members']), 4 if terminal['id'] == 'LED2' else 3)
             self.assertIn(terminal['signal_pin'], terminal['members'])
 
     def test_output_terminal_housings_do_not_overlap(self):
@@ -41,6 +41,8 @@ class PCBImportTests(unittest.TestCase):
         bounds = []
         for terminal in self.board['terminals']:
             component = components[terminal['id']]
+            if component['role'] != 'terminal':
+                continue
             xs, ys = zip(*component['body'])
             box = (min(xs), min(ys), max(xs), max(ys))
             dimensions = sorted((box[2] - box[0], box[3] - box[1]))
@@ -66,6 +68,15 @@ class PCBImportTests(unittest.TestCase):
         self.assertEqual(import_pcb.terminal_body(outline + tabs),
                          [[0, 0], [10, 0], [10, 6], [0, 6], [0, 0]])
         self.assertIsNone(import_pcb.terminal_body([]))
+
+    def test_onboard_rgb_is_programmable_as_a_fixed_physical_group(self):
+        pins = {p['pin']: p for p in self.board['programmable_pins']}
+        self.assertEqual(len(pins), 29)
+        self.assertEqual(pins['LED2.4']['route'], 'U6.39 → R45 → LED2.4')
+        self.assertEqual(pins['LED2.4']['capabilities'], 'addressable-led-output')
+        group = next(g for g in self.board['terminals'] if g['id'] == 'LED2')
+        self.assertEqual(group['members'], ['LED2.1', 'LED2.2', 'LED2.3', 'LED2.4'])
+        self.assertNotIn('LED1.2', pins)
 
     def test_all_output_routes_are_verified(self):
         channels = {c['pin']: c for c in self.board['channels']}

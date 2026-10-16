@@ -326,3 +326,34 @@ lighter fill and thin outline. Pad details are redrawn above the highlight.
 Locked scene objects retain their selection outline but have no drag/resize handles,
 including in mixed selections. A themed lock glyph beside the object replaces the
 locked suffix on component names and is also shown for locked notes.
+
+## Scene ordering, group locking and grid axes
+
+Scene array order is paint order (last is frontmost), shared by hit testing,
+project serialization and undo. `ReorderSelection` supports `zoBringToFront`,
+`zoSendToBack`, `zoBringForward` and `zoSendBackward`; relative order within a
+selected group is preserved. Notes and nonvisual components share this ordering,
+so a note can act as a background behind components. Locked items are not targets
+of these commands. Ribbon and default context menu expose all four commands.
+
+`SetSelectionLocked` applies to the whole selection as one atomic undo step.
+The multi-inspector has an editable `Locked` boolean with mixed-state display;
+other properties stay read-only while any target is locked. Resetting component
+properties does not reset locking.
+
+`GridSizeX` and `GridSizeY` independently configure the grid in millimeters
+(0.1–100, finite), placement snapping, drag snapping and arrow-key steps. Legacy
+`GridSize := n` sets both axes and remains readable for older DFMs. New DFMs store
+both axes; project files store optional `grid_x` and `grid_y`, defaulting to 1 for
+older files. The demo exposes a themed two-field Grid spacing dialog on the ribbon.
+Pan mode uses an open hand; active middle-button/Space/hand-mode dragging uses a
+closed hand and restores the idle cursor on release or capture cancellation.
+
+Connections select the center of the facing component side (left/right/top/bottom)
+from the source direction and component aspect ratio. The target is a routing
+obstacle with a short normal entry corridor, so a line cannot run through it to
+reach a point on its opposite edge. Drawing, hit testing and connection previews
+share these endpoints and geometry.
+
+See [the IDE roadmap](pcb-designer-ide-roadmap.md) for proposed fixed LED devices,
+ring/matrix previews, simulation state and later USB integration.

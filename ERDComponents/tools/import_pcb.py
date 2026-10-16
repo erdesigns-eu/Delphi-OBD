@@ -231,14 +231,22 @@ def import_board(source, placements):
         channels.append({'pin': ref + '.2', 'gpio': gpio, 'route': routes[0]})
     if len(channels) != 28:
         raise ValueError(f'Expected 28 verified outputs, found {len(channels)}')
+    rgb = [c for c in components if 'WS2812' in c['device']]
+    if len(rgb) != 1 or rgb[0]['reference'] != 'LED2':
+        raise ValueError('Expected the assembled LED2 addressable RGB device')
+    if by_ref['LED2'] != {'1': '+5V', '2': '', '3': 'GND', '4': by_ref['R45']['2']} or by_ref['R45']['1'] != 'RGB' or by_ref['U6']['39'] != 'RGB':
+        raise ValueError('Unexpected onboard RGB wiring')
+    rgb_pin = {'pin': 'LED2.4', 'gpio': 'RGB', 'label': 'Onboard RGB LED',
+               'route': 'U6.39 → R45 → LED2.4', 'capabilities': 'addressable-led-output'}
     return {'schema': 1, 'appearance': {'board_color': '#17624A', 'pad_color': '#D8BA62', 'silkscreen_color': '#F1F5EB'}, 'template_id': 'erd-pick-to-light-esp32-s3-v1', 'name': 'ESP32 WS2812B driver',
             'source_sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
             'units': 'mm', 'y_axis': 'up', 'components': components, 'pads': pads,
             'silkscreen': silk, 'outline': outline, 'channels': channels,
-            'programmable_pins': [dict(c, label=c['pin'].split('.')[0], capabilities='addressable-led-output') for c in channels],
+            'programmable_pins': [dict(c, label=c['pin'].split('.')[0], capabilities='addressable-led-output') for c in channels] + [rgb_pin],
             'terminals': [{'id': c['pin'].split('.')[0], 'label': c['pin'].split('.')[0],
                            'signal_pin': c['pin'], 'members': [c['pin'].split('.')[0]+'.'+str(i) for i in (1,2,3)]}
-                          for c in channels]}
+                          for c in channels] + [{'id': 'LED2', 'label': 'Onboard RGB LED',
+                            'signal_pin': 'LED2.4', 'members': ['LED2.1', 'LED2.2', 'LED2.3', 'LED2.4']}]}
 
 
 if __name__ == '__main__':

@@ -792,7 +792,8 @@ begin
     if (AValue >= FItems.Count) or not EffectiveVisible(AValue) or not EffectiveEnabled(AValue) then Exit;
     RequestedID := FItems[AValue].ID;
   end else AValue := -1;
-  if FSelectedID = RequestedID then Exit;
+  if FSelectedID = RequestedID then
+  begin if HandleAllocated then EnsureTabVisible(FTabIndex); Invalidate; Exit; end;
   Allow := True;
   OldIndex := FTabIndex;
   if Assigned(FOnChanging) then FOnChanging(Self, OldIndex, AValue, Allow);
@@ -1078,6 +1079,7 @@ begin
   A := TabArea;
   Result := TotalTabWidth(APainter) - A.Width;
   if (FTabStyle = tsDocument) and FShowNewTab then Dec(Result, ScaleValue(42));
+  if FTabStyle = tsDocument then Inc(Result,ScaleValue(1));
   if Result < 0 then
     Result := 0;
 end;
@@ -1265,10 +1267,10 @@ begin
       FScrollOffset := 0;
       Exit;
     end;
-    A := Rect(ScaleValue(28), 0, Width - ScaleValue(28), Height);
+    A := TabArea;
     R := TabRect(P, AIndex);
-    if R.Left < A.Left then
-      Dec(FScrollOffset, A.Left - R.Left)
+    if (R.Width > A.Width) or (R.Left < A.Left) then
+      Inc(FScrollOffset, R.Left - A.Left)
     else if R.Right > A.Right then
       Inc(FScrollOffset, R.Right - A.Right);
     FScrollOffset := EnsureRange(FScrollOffset, 0, MaxScrollOffset(P));

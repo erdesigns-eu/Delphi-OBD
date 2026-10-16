@@ -6,6 +6,7 @@ type
   TERDPCBPinRole = (prPrimary, prSecondary, prClock, prSelect);
   TERDPCBItemKind = (piTimer, piCounter, piOutputGroup, piNote, piUART, piCANBus, piI2C, piSPI);
   TERDPCBNoteType = (ntNone, ntInfo, ntWarning, ntError, ntQuestion);
+  TERDPCBZOrder = (zoBringToFront, zoSendToBack, zoBringForward, zoSendBackward);
   TERDPCBPropertyKind = (pkText, pkInteger, pkFloat, pkBoolean, pkChoice);
   TERDPCBPropertyValidator = procedure(const Value: string);
   TERDPCBPropertyDefinition = record
@@ -83,6 +84,8 @@ type
     procedure ClearSelection;
     procedure DeleteSelected;
     procedure MoveSelected(DX, DY: Double);
+    procedure SetSelectedLocked(Value: Boolean);
+    procedure ReorderSelected(Order: TERDPCBZOrder);
     procedure BeginEdit;
     procedure EndEdit;
     procedure CancelEdit;
@@ -531,6 +534,44 @@ begin
     begin Value := FItems[I]; Value.X := Value.X + DX; Value.Y := Value.Y + DY; UpdateItem(I, Value); end;
   except CancelEdit; raise; end;
   EndEdit;
+end;
+procedure TERDPCBScene.SetSelectedLocked(Value: Boolean);
+var Items: TArray<TERDPCBDesignItem>; I, N: Integer;
+begin
+  SetLength(Items,SelectionCount); N := 0;
+  for I := 0 to Count-1 do if FItems[I].Selected then
+  begin Items[N] := FItems[I]; Items[N].Locked := Value; Inc(N); end;
+  UpdateItems(Items);
+end;
+procedure TERDPCBScene.ReorderSelected(Order: TERDPCBZOrder);
+var Items: TArray<TERDPCBDesignItem>; I, N, Pass: Integer; Value: TERDPCBDesignItem; Different, Moving: Boolean;
+  function Movable(const Item: TERDPCBDesignItem): Boolean;
+  begin Result := Item.Selected and not Item.Locked; end;
+begin
+  Items := Copy(FItems);
+  case Order of
+    zoBringToFront, zoSendToBack:
+      begin
+        N := 0;
+        for Pass := 0 to 1 do for I := 0 to Count-1 do
+        begin
+          Moving := Movable(FItems[I]);
+          if ((Order = zoBringToFront) and (Moving = (Pass = 1))) or
+             ((Order = zoSendToBack) and (Moving = (Pass = 0))) then
+          begin Items[N] := FItems[I]; Inc(N); end;
+        end;
+      end;
+    zoBringForward:
+      for I := Count-2 downto 0 do if Movable(Items[I]) and not Movable(Items[I+1]) then
+      begin Value := Items[I]; Items[I] := Items[I+1]; Items[I+1] := Value; end;
+    zoSendBackward:
+      for I := 1 to Count-1 do if Movable(Items[I]) and not Movable(Items[I-1]) then
+      begin Value := Items[I]; Items[I] := Items[I-1]; Items[I-1] := Value; end;
+  end;
+  Different := False;
+  for I := 0 to Count-1 do if Items[I].ID <> FItems[I].ID then begin Different := True; Break; end;
+  if not Different then Exit;
+  Remember; FItems := Items; Changed(True);
 end;
 function TERDPCBScene.Serialize(SelectedOnly, IncludeSelection: Boolean): string;
 var Root, Obj: TJSONObject; Items: TJSONArray; Value: TERDPCBDesignItem; Properties: TJSONValue;

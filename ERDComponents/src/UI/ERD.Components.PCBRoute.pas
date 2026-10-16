@@ -14,7 +14,10 @@ function ERDBuildPCBConnection(const FromPoint, ToPoint: TPoint; const Obstacles
   Scale: Single): TERDPCBConnectionGeometry;
 /// Route outside the physical board, with short normal entry/exit corridors.
 function ERDBuildPCBBoardConnection(const FromPoint, ToPoint: TPoint; const Obstacles: TArray<TRect>;
-  const Board: TRect; Scale: Single): TERDPCBConnectionGeometry;
+  const Board: TRect; Scale: Single): TERDPCBConnectionGeometry; overload;
+function ERDBuildPCBBoardConnection(const FromPoint, ToPoint: TPoint; const Obstacles: TArray<TRect>;
+  const Board, TargetBounds: TRect; Scale: Single): TERDPCBConnectionGeometry; overload;
+function ERDPCBComponentAnchor(const Source: TPoint; const Bounds: TRect): TPoint;
 function ERDPCBConnectionDistance(const Geometry: TERDPCBConnectionGeometry; const P: TPointF): Double;
 // Screen-coordinate orthogonal routing around expanded scene rectangles.
 function ERDPCBRoute(const StartPoint, EndPoint: TPoint;
@@ -188,8 +191,20 @@ begin
   end;
   Line(Previous, PointF(ToPoint.X, ToPoint.Y));
 end;
+function ERDPCBComponentAnchor(const Source: TPoint; const Bounds: TRect): TPoint;
+var DX, DY: Double;
+begin
+  Result := Point((Bounds.Left+Bounds.Right) div 2,(Bounds.Top+Bounds.Bottom) div 2);
+  DX := Source.X-Result.X; DY := Source.Y-Result.Y;
+  if Abs(DX)*Bounds.Height > Abs(DY)*Bounds.Width then
+  begin if DX < 0 then Result.X := Bounds.Left else Result.X := Bounds.Right; end
+  else begin if DY < 0 then Result.Y := Bounds.Top else Result.Y := Bounds.Bottom; end;
+end;
 function ERDBuildPCBBoardConnection(const FromPoint, ToPoint: TPoint; const Obstacles: TArray<TRect>;
   const Board: TRect; Scale: Single): TERDPCBConnectionGeometry;
+begin Result := ERDBuildPCBBoardConnection(FromPoint,ToPoint,Obstacles,Board,Rect(0,0,0,0),Scale); end;
+function ERDBuildPCBBoardConnection(const FromPoint, ToPoint: TPoint; const Obstacles: TArray<TRect>;
+  const Board, TargetBounds: TRect; Scale: Single): TERDPCBConnectionGeometry;
 var StartGate, EndGate: TPoint; Boxes: TArray<TRect>; Route, Points: TArray<TPoint>;
     Margin, I, N: Integer; Distances: array[0..3] of Integer;
     A, B, C, Previous, BeforeCorner, AfterCorner: TPointF; Radius, LengthIn, LengthOut: Single;
@@ -197,7 +212,7 @@ var StartGate, EndGate: TPoint; Boxes: TArray<TRect>; Route, Points: TArray<TPoi
   var Expanded: TRect; Edge, J: Integer;
   begin
     Result := P; Expanded := Board; Expanded.Inflate(Margin,Margin);
-    if not Expanded.Contains(P) then Exit;
+    if Board.IsEmpty or not Expanded.Contains(P) then Exit;
     if P.X < Board.Left then Edge := 0
     else if P.X > Board.Right then Edge := 1
     else if P.Y < Board.Top then Edge := 2
@@ -210,6 +225,13 @@ var StartGate, EndGate: TPoint; Boxes: TArray<TRect>; Route, Points: TArray<TPoi
     end;
     case Edge of 0: Result.X := Board.Left-Margin; 1: Result.X := Board.Right+Margin;
       2: Result.Y := Board.Top-Margin; 3: Result.Y := Board.Bottom+Margin; end;
+    if not TargetBounds.IsEmpty then
+      case Edge of
+        0: if TargetBounds.Right < Board.Left then Result.X := Max(Result.X,(Board.Left+TargetBounds.Right) div 2);
+        1: if TargetBounds.Left > Board.Right then Result.X := Min(Result.X,(Board.Right+TargetBounds.Left) div 2);
+        2: if TargetBounds.Bottom < Board.Top then Result.Y := Max(Result.Y,(Board.Top+TargetBounds.Bottom) div 2);
+        3: if TargetBounds.Top > Board.Bottom then Result.Y := Min(Result.Y,(Board.Bottom+TargetBounds.Top) div 2);
+      end;
   end;
   procedure Append(const P: TPoint);
   var Count: Integer;
@@ -224,10 +246,35 @@ var StartGate, EndGate: TPoint; Boxes: TArray<TRect>; Route, Points: TArray<TPoi
   procedure Line(const P0, P1: TPointF);
   begin if P0 <> P1 then AddPCBPathSegment(Result,P0,P0,P1,P1,False,Scale); end;
 begin
-  if Board.IsEmpty then Exit(ERDBuildPCBConnection(FromPoint,ToPoint,Obstacles,Scale));
+  if Board.IsEmpty and TargetBounds.IsEmpty then Exit(ERDBuildPCBConnection(FromPoint,ToPoint,Obstacles,Scale));
   Result := Default(TERDPCBConnectionGeometry); Scale := Max(0.1,Scale);
   Margin := Max(1,Ceil(24*Scale)); StartGate := Gate(FromPoint); EndGate := Gate(ToPoint);
-  Boxes := Copy(Obstacles); N := Length(Boxes); SetLength(Boxes,N+1); Boxes[N] := Board;
+  Boxes := Copy(Obstacles);
+  if not Board.IsEmpty then begin N := Length(Boxes); SetLength(Boxes,N+1); Boxes[N] := Board; end;
+  if not TargetBounds.IsEmpty then
+  begin
+    // Keep the target itself out of the route; enter its chosen side normally.
+    EndGate := ToPoint;
+    if ToPoint.X = TargetBounds.Left then Dec(EndGate.X,Margin)
+    else if ToPoint.X = TargetBounds.Right then Inc(EndGate.X,Margin)
+    else if ToPoint.Y = TargetBounds.Top then Dec(EndGate.Y,Margin)
+    else Inc(EndGate.Y,Margin);
+    if not Board.IsEmpty then
+    begin
+      if (ToPoint.X = TargetBounds.Left) and (TargetBounds.Left > Board.Right) then EndGate.X := Max(EndGate.X,(Board.Right+TargetBounds.Left) div 2)
+      else if (ToPoint.X = TargetBounds.Right) and (TargetBounds.Right < Board.Left) then EndGate.X := Min(EndGate.X,(Board.Left+TargetBounds.Right) div 2)
+      else if (ToPoint.Y = TargetBounds.Top) and (TargetBounds.Top > Board.Bottom) then EndGate.Y := Max(EndGate.Y,(Board.Bottom+TargetBounds.Top) div 2)
+      else if (ToPoint.Y = TargetBounds.Bottom) and (TargetBounds.Bottom < Board.Top) then EndGate.Y := Min(EndGate.Y,(Board.Top+TargetBounds.Bottom) div 2);
+    end;
+    if not Board.IsEmpty and Board.Contains(EndGate) and Board.Contains(ToPoint) then
+    begin
+      if ToPoint.X = TargetBounds.Left then EndGate.X := Board.Left-Margin
+      else if ToPoint.X = TargetBounds.Right then EndGate.X := Board.Right+Margin
+      else if ToPoint.Y = TargetBounds.Top then EndGate.Y := Board.Top-Margin
+      else EndGate.Y := Board.Bottom+Margin;
+    end;
+    N := Length(Boxes); SetLength(Boxes,N+1); Boxes[N] := TargetBounds;
+  end;
   Route := ERDPCBRoute(StartGate,EndGate,Boxes,Max(1,Round(8*Scale)));
   // A failed route must never fall back to a diagonal curve through the physical PCB.
   if Length(Route) = 0 then Exit;
