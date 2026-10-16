@@ -261,7 +261,7 @@ or require a ribbon.
 
 ### Physical PCB appearance
 
-- Load the bundled PCB in light/dark UI themes: solder mask remains green, terminals turquoise, pads gold and silkscreen light.
+- Load the bundled PCB in light/dark UI themes: solder mask remains green, terminals green, pads gold and silkscreen light.
 - Inspect USB, ESP32 shield, dark ICs, resistor end caps and large versus small capacitors at several zoom levels.
 - Enable template editing, choose PCB color through the ribbon, save as a separate revision and reload it.
 - Verify the chosen color survives template/project save and embedded DFM BoardData; malformed RGB must not replace the loaded template.

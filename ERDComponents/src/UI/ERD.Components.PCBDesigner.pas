@@ -1845,7 +1845,7 @@ begin
       begin R.Left := Min(R.Left,Floor(Poly[J].X)); R.Right := Max(R.Right,Ceil(Poly[J].X));
         R.Top := Min(R.Top,Floor(Poly[J].Y)); R.Bottom := Max(R.Bottom,Ceil(Poly[J].Y)); end;
       Fill := $00B8BDC2;
-      if Value.Role = 'terminal' then Fill := $00B6B82B
+      if Value.Role = 'terminal' then Fill := $00499836
       else if (Value.Role = 'ic') or (Value.Role = 'resistor') then Fill := $002B2927
       else if Value.Role = 'module' then Fill := $00408726
       else if Value.Role = 'capacitor' then Fill := $007E909D

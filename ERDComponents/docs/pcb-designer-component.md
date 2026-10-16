@@ -307,7 +307,7 @@ separate mask color without altering the UI theme. Hosts can set
 embedded BoardData and project/template saves. Pin geometry, identity and scene
 undo history are unaffected by this template-authoring change.
 
-Assembled drawing uses turquoise terminal housings and metal screw heads, a silver
+Assembled drawing uses green terminal housings and metal screw heads, a silver
 USB shell with dark opening, dark IC packages with exposed gold contacts, a metal
 ESP32 shield, resistor end caps, and distinct large electrolytic versus small SMD
 capacitors. These are schematic top views based on the imported body/pad geometry;
