@@ -5,7 +5,7 @@ interface
 uses
   System.Classes, System.SysUtils, System.Types, System.Math, System.JSON, System.UITypes, System.Generics.Collections,
   Winapi.Windows, Winapi.Messages, Vcl.Controls, Vcl.Graphics,
-  ERD.Components.Control, ERD.Components.Types, ERD.Components.PCBScene, ERD.Components.PCBRoute, ERD.Components.Memo, ERD.Components.Menus, ERD.Components.ScrollBar;
+  ERD.Components.Control, ERD.Components.Types, ERD.Components.PCBScene, ERD.Components.PCBLayout, ERD.Components.PCBRoute, ERD.Components.Memo, ERD.Components.Menus, ERD.Components.ScrollBar;
 
 type
   TERDPCBItemGlyphEvent = procedure(Sender: TObject; ACanvas: TCanvas; const Bounds: TRect;
@@ -56,7 +56,12 @@ type
     FEditingNote: string;
     FFinishingNote: Boolean;
     FAlignmentGuides: Boolean;
-    FGuideX, FGuideY: Integer;
+    FGuideX, FGuideY: TERDPCBLayoutGuide;
+    FSnapToObjects, FSnapToSpacing: Boolean;
+    FSnapTolerance: Integer;
+    FMoveBounds: TRect;
+    FMoveAnchor: TPointF;
+    FMoveTargets: TArray<TRectF>;
     FStaticLayer: TBitmap;
     FStaticDirty: Boolean;
     FAntiAlias: Boolean;
@@ -105,6 +110,10 @@ type
     function TypeInsertionPoint(const TypeID: string; const ClientPoint: TPoint): TPointF;
     function InsertionPoint(Kind: TERDPCBItemKind; const ClientPoint: TPoint): TPointF;
     procedure PaintPlacementPreview(ACanvas: TCanvas);
+    procedure BeginMoveGuides(AnchorIndex: Integer);
+    procedure ClearGuides;
+    procedure PaintAlignmentGuides(ACanvas: TCanvas);
+    procedure SetSnapTolerance(Value: Integer);
     procedure SnapGuides(var DX, DY: Double);
     procedure NoteEditorExit(Sender: TObject);
     procedure NoteEditorKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
@@ -256,6 +265,9 @@ type
     property OnConnectionSelectionChange: TNotifyEvent read FOnConnectionSelectionChange write FOnConnectionSelectionChange;
     property OnPlacementChange: TNotifyEvent read FOnPlacementChange write FOnPlacementChange;
     property AlignmentGuides: Boolean read FAlignmentGuides write FAlignmentGuides default True;
+    property SnapToObjects: Boolean read FSnapToObjects write FSnapToObjects default True;
+    property SnapToSpacing: Boolean read FSnapToSpacing write FSnapToSpacing default True;
+    property SnapTolerance: Integer read FSnapTolerance write SetSnapTolerance default 6;
     property PanMode: Boolean read FPanMode write SetPanMode default False;
     property AntiAlias: Boolean read FAntiAlias write SetAntiAlias default True;
     property TemplateEditMode: Boolean read FTemplateEditMode write SetTemplateEditMode default False;
@@ -355,7 +367,10 @@ begin
   inherited; FZoom := 1; Width := 700; Height := 400; TabStop := True;
   FDefaultContextMenu := True;
   FContextMenu := TERDPopupMenu.Create(Self); FContextMenu.AutoPopup := False;
-  FAlignmentGuides := True; FGuideX := MaxInt; FGuideY := MaxInt;
+  FAlignmentGuides := True;
+  FSnapToObjects := True;
+  FSnapToSpacing := True;
+  FSnapTolerance := 6;
   FShowBodies := True;
   FShowPads := True;
   FShowLabels := True;
@@ -593,6 +608,10 @@ begin
           except FScene.CancelEdit; raise; end;
         end;
       12: begin CancelPlacement; PanMode := False; end;
+      13: SnapToGrid := not SnapToGrid;
+      14: SnapToObjects := not SnapToObjects;
+      15: SnapToSpacing := not SnapToSpacing;
+      16: begin AlignmentGuides := not AlignmentGuides; Invalidate; end;
     end;
   except on E: Exception do ReportConnectionError(E.Message); end;
 end;
@@ -643,6 +662,11 @@ begin
   end;
   Entry('-',0); Entry('Zoom to selection (F)', 3, SelectionBounds(Bounds)); Entry('Fit board (Home)', 4);
   if FPlacing or FPanMode then Entry('Select / move', 12);
+  Entry('-',0);
+  Entry('Snap to grid',13); FContextMenu.Items[FContextMenu.Items.Count-1].Checked := SnapToGrid;
+  Entry('Snap to objects',14); FContextMenu.Items[FContextMenu.Items.Count-1].Checked := SnapToObjects;
+  Entry('Snap to equal spacing',15); FContextMenu.Items[FContextMenu.Items.Count-1].Checked := SnapToSpacing;
+  Entry('Show alignment guides',16); FContextMenu.Items[FContextMenu.Items.Count-1].Checked := AlignmentGuides;
   Handled := True; ScreenPoint := ClientToScreen(MousePos); FContextMenu.Popup(ScreenPoint.X, ScreenPoint.Y);
 end;
 function TERDPCBDesigner.InsertionPoint(Kind: TERDPCBItemKind; const ClientPoint: TPoint): TPointF;
@@ -785,35 +809,86 @@ begin
     FScene.EndEdit;
   except FScene.CancelEdit; raise; end;
 end;
-procedure TERDPCBDesigner.SnapGuides(var DX, DY: Double);
-var Index, I, A, B, BestX, BestY, OffsetX, OffsetY, Delta: Integer; R, Other: TRect;
-    Xs, Ys, OtherXs, OtherYs: array[0..2] of Integer;
+procedure TERDPCBDesigner.ClearGuides;
+begin FGuideX := Default(TERDPCBLayoutGuide); FGuideY := Default(TERDPCBLayoutGuide); end;
+procedure TERDPCBDesigner.SetSnapTolerance(Value: Integer);
 begin
-  FGuideX := MaxInt; FGuideY := MaxInt;
-  if not FAlignmentGuides then Exit;
-  Index := FScene.PrimaryIndex; if Index < 0 then Exit;
-  R := ItemRect(Index); OffsetRect(R, Round((DX - FAppliedX) * FScreenScale), -Round((DY - FAppliedY) * FScreenScale));
-  Xs[0] := R.Left; Xs[1] := (R.Left + R.Right) div 2; Xs[2] := R.Right;
-  Ys[0] := R.Top; Ys[1] := (R.Top + R.Bottom) div 2; Ys[2] := R.Bottom;
-  BestX := ScaleValue(6) + 1; BestY := BestX; OffsetX := 0; OffsetY := 0;
-  for I := -1 to FScene.Count - 1 do
+  if (Value < 1) or (Value > 32) then raise EArgumentException.Create('Snap tolerance must be 1..32 pixels');
+  FSnapTolerance := Value;
+end;
+procedure TERDPCBDesigner.BeginMoveGuides(AnchorIndex: Integer);
+var I, N: Integer; R: TRect; Value: TERDPCBDesignItem; Found: Boolean;
+begin
+  UpdateTransform; ClearGuides; FMoveTargets := nil; Found := False;
+  Value := FScene.Item(AnchorIndex); FMoveAnchor := PointF(Value.X,Value.Y);
+  for I := 0 to FScene.Count-1 do
   begin
-    if I < 0 then
+    Value := FScene.Item(I); R := ItemRect(I);
+    if Value.Selected and not Value.Locked then
     begin
-      Other.TopLeft := ScreenPoint(PointF(0, FMaxY)); Other.BottomRight := ScreenPoint(PointF(FMaxX, 0));
+      if not Found then begin FMoveBounds := R; Found := True; end
+      else begin FMoveBounds.Left := Min(FMoveBounds.Left,R.Left); FMoveBounds.Top := Min(FMoveBounds.Top,R.Top);
+        FMoveBounds.Right := Max(FMoveBounds.Right,R.Right); FMoveBounds.Bottom := Max(FMoveBounds.Bottom,R.Bottom); end;
     end
-    else begin if FScene.Item(I).Selected then Continue; Other := ItemRect(I); end;
-    OtherXs[0] := Other.Left; OtherXs[1] := (Other.Left + Other.Right) div 2; OtherXs[2] := Other.Right;
-    OtherYs[0] := Other.Top; OtherYs[1] := (Other.Top + Other.Bottom) div 2; OtherYs[2] := Other.Bottom;
-    for A := 0 to 2 do for B := 0 to 2 do
+    else begin N := Length(FMoveTargets); SetLength(FMoveTargets,N+1); FMoveTargets[N] := RectF(R.Left,R.Top,R.Right,R.Bottom); end;
+  end;
+end;
+procedure TERDPCBDesigner.SnapGuides(var DX, DY: Double);
+var Moving, Board: TRectF; P, Q: TPoint; Correction: TPointF; GridDX, GridDY: Double;
+begin
+  GridDX := Snap(FMoveAnchor.X+DX)-FMoveAnchor.X; GridDY := Snap(FMoveAnchor.Y+DY)-FMoveAnchor.Y;
+  Moving := RectF(FMoveBounds.Left+DX*FScreenScale,FMoveBounds.Top-DY*FScreenScale,
+    FMoveBounds.Right+DX*FScreenScale,FMoveBounds.Bottom-DY*FScreenScale);
+  P := ScreenPoint(PointF(0,FMaxY)); Q := ScreenPoint(PointF(FMaxX,0)); Board := RectF(P.X,P.Y,Q.X,Q.Y);
+  ERDPCBSnapLayout(Moving,FMoveTargets,Board,(FMaxX > 0) and (FMaxY > 0),
+    FSnapToObjects,FSnapToSpacing,ScaleValue(FSnapTolerance),Correction,FGuideX,FGuideY);
+  if FGuideX.Kind <> lgNone then DX := DX+Correction.X/FScreenScale else DX := GridDX;
+  if FGuideY.Kind <> lgNone then DY := DY-Correction.Y/FScreenScale else DY := GridDY;
+end;
+procedure TERDPCBDesigner.PaintAlignmentGuides(ACanvas: TCanvas);
+var Saved: Integer;
+  procedure DrawGuide(const Guide: TERDPCBLayoutGuide; Horizontal: Boolean);
+  var I, Position, Start, Finish, Tick: Integer;
+  begin
+    if Guide.Kind = lgNone then Exit;
+    Position := Round(Guide.Coordinate); Tick := ScaleValue(3);
+    if Guide.Kind = lgAlignment then
     begin
-      Delta := OtherXs[B] - Xs[A];
-      if Abs(Delta) < BestX then begin BestX := Abs(Delta); OffsetX := Delta; FGuideX := OtherXs[B]; end;
-      Delta := OtherYs[B] - Ys[A];
-      if Abs(Delta) < BestY then begin BestY := Abs(Delta); OffsetY := Delta; FGuideY := OtherYs[B]; end;
+      ACanvas.Pen.Style := psDot;
+      if Horizontal then begin ACanvas.MoveTo(Position,Round(Guide.SpanStart)-Tick); ACanvas.LineTo(Position,Round(Guide.SpanEnd)+Tick); end
+      else begin ACanvas.MoveTo(Round(Guide.SpanStart)-Tick,Position); ACanvas.LineTo(Round(Guide.SpanEnd)+Tick,Position); end;
+    end
+    else
+    begin
+      ACanvas.Pen.Style := psSolid; Inc(Position,ScaleValue(8));
+      for I := 0 to 1 do
+      begin
+        Start := Round(Guide.Gaps[I].X); Finish := Round(Guide.Gaps[I].Y);
+        if Horizontal then
+        begin
+          ACanvas.MoveTo(Start,Position); ACanvas.LineTo(Finish,Position);
+          ACanvas.MoveTo(Start,Position-Tick); ACanvas.LineTo(Start,Position+Tick+1);
+          ACanvas.MoveTo(Finish,Position-Tick); ACanvas.LineTo(Finish,Position+Tick+1);
+        end
+        else
+        begin
+          ACanvas.MoveTo(Position,Start); ACanvas.LineTo(Position,Finish);
+          ACanvas.MoveTo(Position-Tick,Start); ACanvas.LineTo(Position+Tick+1,Start);
+          ACanvas.MoveTo(Position-Tick,Finish); ACanvas.LineTo(Position+Tick+1,Finish);
+        end;
+      end;
     end;
   end;
-  DX := DX + OffsetX / FScreenScale; DY := DY - OffsetY / FScreenScale;
+begin
+  if (FEditMode <> 1) or not FAlignmentGuides then Exit;
+  Saved := SaveDC(ACanvas.Handle);
+  try
+    IntersectClipRect(ACanvas.Handle,0,0,ClientWidth,ClientHeight);
+    ACanvas.Pen.Color := Palette.Accent; ACanvas.Pen.Width := 1;
+    DrawGuide(FGuideX,True); DrawGuide(FGuideY,False);
+  finally RestoreDC(ACanvas.Handle,Saved); end;
+  // Keep TCanvas's cached pen state in sync with the restored DC.
+  ACanvas.Pen.Style := psSolid;
 end;
 procedure TERDPCBDesigner.BeginNoteEdit;
 var Index: Integer; Value: TERDPCBDesignItem; R: TRect;
@@ -2052,13 +2127,7 @@ begin
       DrawConnection(P, Q, Palette.Accent, ScaleValue(2), I);
     end;
   end;
-  if (FEditMode = 1) and FAlignmentGuides then
-  begin
-    ACanvas.Pen.Color := Palette.Accent; ACanvas.Pen.Width := 1; ACanvas.Pen.Style := psDot;
-    if FGuideX <> MaxInt then begin ACanvas.MoveTo(FGuideX, 0); ACanvas.LineTo(FGuideX, ClientHeight); end;
-    if FGuideY <> MaxInt then begin ACanvas.MoveTo(0, FGuideY); ACanvas.LineTo(ClientWidth, FGuideY); end;
-    ACanvas.Pen.Style := psSolid;
-  end;
+  PaintAlignmentGuides(ACanvas);
   if FEditMode = 4 then
   begin
     P := FStartPoint;
@@ -2115,7 +2184,7 @@ end;
 procedure TERDPCBDesigner.CancelGesture;
 var Mode: Integer;
 begin
-  Mode := FEditMode; FEditMode := 0; FGuideX := MaxInt; FGuideY := MaxInt;
+  Mode := FEditMode; FEditMode := 0; ClearGuides; FMoveTargets := nil;
   if (Mode in [1, 2]) and (FScene <> nil) then FScene.CancelEdit;
   if Mode <> 0 then begin MouseCapture := False; Invalidate; end;
 end;
@@ -2217,7 +2286,7 @@ begin
     begin FScene.Select(Index, True, True); Exit; end;
     if not FScene.Item(Index).Selected then FScene.Select(Index);
     if FScene.Item(Index).Locked then Exit;
-    FEditMode := 1; FScene.BeginEdit;
+    BeginMoveGuides(Index); FEditMode := 1; FScene.BeginEdit;
   end
   else
   begin
@@ -2244,15 +2313,16 @@ begin
   if FEditMode in [3, 4, 5, 6] then begin FBoxPoint := Point(X, Y); Invalidate; Exit; end;
   if FEditMode in [1, 2] then
   begin
+    if (X = FStartPoint.X) and (Y = FStartPoint.Y) and (FAppliedX = 0) and (FAppliedY = 0) then Exit;
     P := ClientToBoard(Point(X, Y)); DX := P.X - FStartWorld.X; DY := P.Y - FStartWorld.Y;
-    if not (ssAlt in Shift) then begin DX := Snap(DX); DY := Snap(DY); end;
     if FEditMode = 1 then
     begin
-      FGuideX := MaxInt; FGuideY := MaxInt;
+      ClearGuides;
       if not (ssAlt in Shift) then SnapGuides(DX, DY);
-      FScene.MoveSelected(DX - FAppliedX, DY - FAppliedY); FAppliedX := DX; FAppliedY := DY; end
+      FScene.MoveSelected(DX - FAppliedX, DY - FAppliedY); FAppliedX := DX; FAppliedY := DY; Invalidate; end
     else
     begin
+      if not (ssAlt in Shift) then begin DX := Snap(DX); DY := Snap(DY); end;
       Value := FOriginalItem;
       if FGrip in [0, 6, 7] then begin Value.X := Value.X + DX; Value.Width := Value.Width - DX; end;
       if FGrip in [2, 3, 4] then Value.Width := Value.Width + DX;
@@ -2295,7 +2365,7 @@ var Mode, I: Integer; R, Intersection: TRect;
 begin
   // VCL releases capture in inherited MouseUp. Mark the gesture complete first
   // so WM_CAPTURECHANGED cannot roll back a successful drop.
-  Mode := FEditMode; FEditMode := 0; FGuideX := MaxInt; FGuideY := MaxInt;
+  Mode := FEditMode; FEditMode := 0; ClearGuides; FMoveTargets := nil;
   if Mode in [1, 2] then FScene.EndEdit;
   inherited;
   if FDragging then

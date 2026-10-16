@@ -2,9 +2,9 @@
 {$APPTYPE CONSOLE}
 uses
   ERD.Components.LSP, ERD.Components.Paint, ERD.Components.Control, ERD.Components.LanguageServices, ERD.Components.TextLayout, ERD.Components.CodeEditor, ERD.Components.Syntax,
-  ERD.Components.PCBObjectTree, ERD.Components.PCBDesigner, ERD.Components.PCBComponentPalette, ERD.Components.PCBInspector, ERD.Components.Inspector, ERD.Components.PCBScene, ERD.Components.PCBRoute, ERD.Components.PCBLibrary,
+  ERD.Components.PCBLayout, ERD.Components.PCBObjectTree, ERD.Components.PCBDesigner, ERD.Components.PCBComponentPalette, ERD.Components.PCBInspector, ERD.Components.Inspector, ERD.Components.PCBScene, ERD.Components.PCBRoute, ERD.Components.PCBLibrary,
   ERD.Components.TextModel, ERD.Components.TextInput,
-  System.IOUtils, System.JSON,
+  System.IOUtils, System.JSON, System.UITypes,
   System.SysUtils, System.Classes, System.Types, System.Math, Vcl.Forms, Vcl.Controls, Vcl.ExtCtrls,
   Winapi.Windows, Vcl.Clipbrd, Vcl.ActnList, Vcl.StdCtrls, Vcl.Graphics, Vcl.ImgList,
   ERD.Components.Tabs, ERD.Components.Memo, ERD.Components.Menus,
@@ -42,6 +42,12 @@ type
     procedure Cancelled(Sender: TObject);
     procedure Started(Sender: TObject; var DragObject: TDragObject);
     procedure Ended(Sender, Target: TObject; X, Y: Integer);
+  end;
+  TPCBDragProbe = class(TERDPCBDesigner)
+    procedure StartAt(const P: TPoint);
+    procedure MoveTo(const P: TPoint; Alt: Boolean = False);
+    procedure StopAt(const P: TPoint);
+    procedure Escape;
   end;
   TPCBContrastProbe = class(TERDPCBDesigner)
     procedure Render(Bitmap: TBitmap);
@@ -2589,6 +2595,99 @@ procedure TPCBPaletteSink.Started(Sender: TObject; var DragObject: TDragObject);
 begin Inc(Starts); LastID := TERDPCBComponentPalette(Sender).SelectedTypeID; end;
 procedure TPCBPaletteSink.Ended(Sender, Target: TObject; X, Y: Integer);
 begin Inc(Ends); LastID := TERDPCBComponentPalette(Sender).SelectedTypeID; end;
+procedure TPCBDragProbe.StartAt(const P: TPoint);
+begin MouseDown(mbLeft,[],P.X,P.Y); end;
+procedure TPCBDragProbe.MoveTo(const P: TPoint; Alt: Boolean);
+var Shift: TShiftState;
+begin Shift := [ssLeft]; if Alt then Include(Shift,ssAlt); MouseMove(Shift,P.X,P.Y); end;
+procedure TPCBDragProbe.StopAt(const P: TPoint);
+begin MouseUp(mbLeft,[],P.X,P.Y); end;
+procedure TPCBDragProbe.Escape;
+var Key: Word;
+begin Key := VK_ESCAPE; KeyDown(Key,[]); end;
+procedure TestPCBLayout;
+var Correction: TPointF; XGuide, YGuide: TERDPCBLayoutGuide; Targets: TArray<TRectF>;
+    Moving, Board: TRectF;
+  procedure Solve(Align, Spacing: Boolean; HasBoard: Boolean = False);
+  begin ERDPCBSnapLayout(Moving,Targets,Board,HasBoard,Align,Spacing,6,Correction,XGuide,YGuide); end;
+begin
+  Board := RectF(-100,-100,100,100); Moving := RectF(24,52,44,72);
+  Targets := [RectF(40,0,60,20)]; Solve(True,False);
+  Check((Abs(Correction.X+4) < 0.001) and (XGuide.Kind = lgAlignment) and (YGuide.Kind = lgNone), 'Layout aligns moving right edge to target left within tolerance');
+  Moving := RectF(45,52,65,72); Solve(True,False);
+  Check(Abs(Correction.X+5) < 0.001, 'Layout matches centers and edges deterministically');
+  Moving := RectF(70,52,90,72); Solve(True,False);
+  Check((XGuide.Kind = lgNone) and (Correction.X = 0), 'Objects outside magnetic tolerance do not snap');
+  Moving := RectF(106,22,126,42); Targets := nil; Solve(True,False,True);
+  Check((Abs(Correction.X+6) < 0.001) and (XGuide.Kind = lgAlignment), 'Board edge participates at inclusive tolerance boundary');
+  Solve(False,False,True); Check((XGuide.Kind = lgNone) and (YGuide.Kind = lgNone), 'Both magnetic modes can be disabled independently of the board');
+  Targets := [RectF(0,0,20,20),RectF(80,0,100,20)]; Moving := RectF(47,0,67,20); Solve(False,True);
+  Check((Abs(Correction.X-3) < 0.001) and (XGuide.Kind = lgSpacing) and
+    (Abs((XGuide.Gaps[0].Y-XGuide.Gaps[0].X)-(XGuide.Gaps[1].Y-XGuide.Gaps[1].X)) < 0.001), 'Layout centers an object between neighbors with equal gap indicators');
+  Targets := [RectF(0,0,20,20),RectF(40,0,60,20)]; Moving := RectF(83,0,103,20); Solve(False,True);
+  Check((Abs(Correction.X+3) < 0.001) and (XGuide.Kind = lgSpacing), 'Equal spacing extends a row after the last object');
+  Moving := RectF(-43,0,-23,20); Solve(False,True);
+  Check(Abs(Correction.X-3) < 0.001, 'Equal spacing extends a row before its first object');
+  Targets := [RectF(0,0,20,20),RectF(0,40,20,60)]; Moving := RectF(0,84,20,104); Solve(False,True);
+  Check((Abs(Correction.Y+4) < 0.001) and (YGuide.Kind = lgSpacing), 'Equal spacing works vertically');
+  Moving := RectF(70,84,90,104); Solve(False,True);
+  Check(YGuide.Kind = lgNone, 'Unrelated rows or columns cannot create spacing snaps');
+  Targets := [RectF(0,0,40,20),RectF(20,0,60,20)]; Moving := RectF(83,0,103,20); Solve(False,True);
+  Check(XGuide.Kind = lgNone, 'Overlapping objects do not create negative gap candidates');
+  // Alignment wins an exact tie with spacing; candidates never depend on the previous snap.
+  Targets := [RectF(0,0,20,20),RectF(40,0,60,20),RectF(80,100,100,120)]; Moving := RectF(83,0,103,20); Solve(True,True);
+  Check((XGuide.Kind = lgAlignment) and (Abs(Correction.X+3) < 0.001), 'Alignment wins equal-distance spacing ties');
+end;
+procedure TestPCBMagneticDrag;
+var Form: TForm; Designer: TPCBDragProbe; Index, Second, Locked: Integer; Value, Other, FixedItem: TERDPCBDesignItem;
+    P, Q: TPoint; Start, Finish: TPointF; Before: string; Stream: TMemoryStream; CopyDesigner: TERDPCBDesigner;
+begin
+  Form := TForm.Create(nil);
+  try
+    Designer := TPCBDragProbe.Create(Form); Designer.Parent := Form; Designer.SetBounds(0,0,600,400);
+    Designer.ScrollBars := System.UITypes.TScrollStyle.ssNone;
+    Designer.SnapToGrid := False; Index := Designer.AddDesignItem(piNote,PointF(0.3,0.3));
+    Designer.FitBoard; Form.Show; Designer.SetFocus;
+    Designer.SnapToObjects := False; Designer.SnapToSpacing := False; Designer.SnapToGrid := True;
+    Designer.Scene.ResetHistory; Before := Designer.Scene.ContentJSON; Value := Designer.Scene.Item(Index);
+    P := Designer.BoardToClient(PointF(Value.X+Value.Width/2,Value.Y+Value.Height/2)); Q := Point(P.X+17,P.Y+11);
+    Designer.StartAt(P); Designer.MoveTo(Q); Designer.MoveTo(Point(Q.X+9,Q.Y+5)); Designer.StopAt(Point(Q.X+9,Q.Y+5));
+    Value := Designer.Scene.Item(Index);
+    Check((Abs(Value.X-Round(Value.X)) < 0.001) and (Abs(Value.Y-Round(Value.Y)) < 0.001), 'Dragging an off-grid object snaps its absolute anchor onto grid');
+    Designer.Undo; Check((Designer.Scene.ContentJSON = Before) and not Designer.Scene.CanUndo, 'A multi-move drag remains a single undo step');
+    Value := Designer.Scene.Item(Index); P := Designer.BoardToClient(PointF(Value.X+Value.Width/2,Value.Y+Value.Height/2)); Q := Point(P.X+13,P.Y+7);
+    Start := Designer.ClientToBoard(P); Finish := Designer.ClientToBoard(Q);
+    Designer.StartAt(P); Designer.MoveTo(Q,True); Designer.StopAt(Q);
+    Check((Abs(Designer.Scene.Item(Index).X-Value.X-(Finish.X-Start.X)) < 0.001) and
+      (Abs(Designer.Scene.Item(Index).Y-Value.Y-(Finish.Y-Start.Y)) < 0.001), 'Alt bypasses grid and object snapping');
+    Designer.Undo; Before := Designer.Scene.ContentJSON;
+    Designer.StartAt(P); Designer.MoveTo(Q); Designer.Escape;
+    Check((Designer.Scene.ContentJSON = Before) and not Designer.Scene.CanUndo, 'Escape cancels snapped dragging without adding history');
+    Designer.Scene.LoadJSON('{"format":"erd-pcb-scene","version":1,"items":[]}'); Designer.SnapToGrid := False;
+    Index := Designer.AddDesignItem(piNote,PointF(0,0)); Second := Designer.AddDesignItem(piNote,PointF(60,0));
+    Locked := Designer.AddDesignItem(piNote,PointF(120,0)); FixedItem := Designer.Scene.Item(Locked); FixedItem.Locked := True;
+    Designer.Scene.UpdateItem(Locked,FixedItem); Designer.FitBoard; Designer.Scene.SelectAll; Designer.Scene.ResetHistory;
+    Value := Designer.Scene.Item(Index); Other := Designer.Scene.Item(Second); Before := Designer.Scene.ContentJSON;
+    P := Designer.BoardToClient(PointF(Value.X+Value.Width/2,Value.Y+Value.Height/2)); Q := Point(P.X+19,P.Y-11);
+    Designer.StartAt(P); Designer.MoveTo(Q); Designer.StopAt(Q);
+    Check((Abs((Designer.Scene.Item(Index).X-Value.X)-(Designer.Scene.Item(Second).X-Other.X)) < 0.001) and
+      (Abs((Designer.Scene.Item(Index).Y-Value.Y)-(Designer.Scene.Item(Second).Y-Other.Y)) < 0.001) and
+      (Designer.Scene.Item(Locked).X = FixedItem.X) and (Designer.Scene.Item(Locked).Y = FixedItem.Y), 'Group dragging preserves relative positions and leaves locked selected objects fixed');
+    Designer.Undo; Check((Designer.Scene.ContentJSON = Before) and not Designer.Scene.CanUndo, 'Group drag is one undo step');
+    Designer.SnapToObjects := False; Designer.SnapToSpacing := False; Designer.AlignmentGuides := False; Designer.SnapTolerance := 9;
+    Stream := TMemoryStream.Create; CopyDesigner := TERDPCBDesigner.Create(Form);
+    try
+      CopyDesigner.SnapToObjects := Designer.SnapToObjects; CopyDesigner.SnapToSpacing := Designer.SnapToSpacing;
+      CopyDesigner.AlignmentGuides := Designer.AlignmentGuides; CopyDesigner.SnapTolerance := Designer.SnapTolerance;
+      Stream.WriteComponent(CopyDesigner); Stream.Position := 0;
+      CopyDesigner.SnapToObjects := True; CopyDesigner.SnapToSpacing := True;
+      CopyDesigner.AlignmentGuides := True; CopyDesigner.SnapTolerance := 6;
+      Stream.ReadComponent(CopyDesigner);
+      Check(not CopyDesigner.SnapToObjects and not CopyDesigner.SnapToSpacing and not CopyDesigner.AlignmentGuides and
+        (CopyDesigner.SnapTolerance = 9), 'Magnetic layout settings survive DFM streaming');
+    finally CopyDesigner.Free; Stream.Free; end;
+  finally Form.Free; end;
+end;
 procedure TestPCBObjectTree;
 var Form: TForm; Designer: TERDPCBDesigner; Tree, CopyTree: TERDPCBObjectTree; Stream: TMemoryStream;
     A, B, Note: TERDPCBDesignItem; Before: string; Failed: Boolean; I, Row: Integer;
@@ -4290,6 +4389,8 @@ begin
     TestPCBScene;
     TestPCBComponentPalette;
     TestPCBObjectTree;
+    TestPCBLayout;
+    TestPCBMagneticDrag;
     TestPCBThemeContrast;
     TestPCBHistoryValidation;
     TestPCBDesigner;

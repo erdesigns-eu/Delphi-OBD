@@ -515,3 +515,5 @@ wiring and DFM behavior. `TERDPCBComponentType.Category` and `.Description` supp
 presentation metadata and do not change serialized scene instances.
 
 See [PCB object tree](pcb-object-tree.md) for separate scene navigation and selection commands.
+
+See [magnetic layout](pcb-magnetic-layout.md) for grid, object and equal-gap snapping and guide settings.

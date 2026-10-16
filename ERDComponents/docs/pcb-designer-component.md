@@ -222,3 +222,5 @@ search, a category filter, icons and descriptions from the type registry. It
 supports click-to-place and drag/drop and can be hosted independently in an IDE.
 
 The standalone [object tree](pcb-object-tree.md) lists components and notes without embedding an inspector.
+
+See [magnetic layout](pcb-magnetic-layout.md) for grid, object and equal-gap snapping and guide settings.

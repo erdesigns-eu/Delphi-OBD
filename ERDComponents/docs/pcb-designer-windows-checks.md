@@ -188,3 +188,16 @@ verified. No automated Windows smoke-run log was supplied.
 - Verify keyboard navigation after repeated refresh, searching, renaming and undo/redo.
 - Check light/dark theme, high DPI, density, scrolling and DFM round-trip.
 - Close the demo after tree/inspector edits; destroy a bound designer before its tree.
+
+### Magnetic layout
+
+- Drag a note/component near object edges, centers and board edges; verify bounded accent guides.
+- Select several objects and drag them as one group; include a locked selected object and ensure it stays fixed.
+- Place three objects in a row/column; drag between two or extend their equal spacing before/after them.
+- Check that unrelated rows and overlapping pairs do not attract spacing snaps.
+- Toggle grid/object/spacing/guide options in the context menu independently; guide visibility must not change snapping.
+- Drag an initially off-grid item onto the grid; click without moving and confirm its position remains unchanged.
+- Hold/release Alt repeatedly during dragging; verify free movement, resumed snapping, no drift and disappearing guides.
+- Complete a drag with several mouse moves and undo/redo once; Escape and capture loss restore the starting scene.
+- Test light/dark, different zoom levels and DPI; the magnetic distance should remain consistent on screen.
+- Save/reload settings through DFM; guides must not persist after drop or cancellation.
