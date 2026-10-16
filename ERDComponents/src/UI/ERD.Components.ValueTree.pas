@@ -3,7 +3,7 @@
 interface
 uses System.Classes, System.SysUtils, System.Generics.Collections, Winapi.Windows,
   Vcl.Controls, Vcl.Graphics, ERD.Components.VirtualTree, ERD.Components.VT,
-  ERD.Components.VT.Types, ERD.Components.VT.Header;
+  ERD.Components.VT.Types, ERD.Components.VT.Header, ERD.Components.VT.BaseTree;
 type
   TERDValueAvailability = (vaAvailable, vaUnavailable, vaStale, vaError);
   TERDInspectValue = record

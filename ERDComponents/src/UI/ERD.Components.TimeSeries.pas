@@ -198,25 +198,25 @@ begin
 end;
 procedure TERDTimeSeriesChart.PaintControl(ACanvas: TCanvas);
 type TBucket = record Used, Gap: Boolean; LowY, HighY, FirstY, LastY: Single; end;
-var P: TERDPainter; R: TRect; I, J, X, LastX, LegendX: Integer; Low, High, Finish, BeginTime, Margin: Double;
+var P: TERDPainter; R: TRect; I, J, X, LastX, LegendX: Integer; MinValue, MaxValue, Finish, BeginTime, Margin: Double;
     Value: TERDTimeSample; Ink: TColor; Y, LastY: Single; Buckets: TArray<TBucket>; Previous, Any: Boolean;
 begin
   P := TERDPainter.Create(ACanvas,Palette,ScaleValue(96));
   try
-    R := PlotBounds; Finish := VisibleEnd; BeginTime := Finish-FWindowSeconds; Low := MaxDouble; High := -MaxDouble; Any := False;
+    R := PlotBounds; Finish := VisibleEnd; BeginTime := Finish-FWindowSeconds; MinValue := MaxDouble; MaxValue := -MaxDouble; Any := False;
     for I := 0 to FSeries.Count-1 do for J := 0 to FSeries[I].Count-1 do
     begin
       Value := FSeries[I].Sample(J);
       if Value.Available and (Value.TimeSeconds >= BeginTime) and (Value.TimeSeconds <= Finish) then
-      begin Low := Min(Low,Value.Value); High := Max(High,Value.Value); Any := True; end;
+      begin MinValue := Min(MinValue,Value.Value); MaxValue := Max(MaxValue,Value.Value); Any := True; end;
     end;
-    if not Any then begin Low := 0; High := 1; end;
-    Margin := Max(0.001,Abs(High-Low)*0.08); if High = Low then Margin := Max(1,Abs(High)*0.1);
-    Low := Low-Margin; High := High+Margin;
+    if not Any then begin MinValue := 0; MaxValue := 1; end;
+    Margin := Max(0.001,Abs(MaxValue-MinValue)*0.08); if MaxValue = MinValue then Margin := Max(1,Abs(MaxValue)*0.1);
+    MinValue := MinValue-Margin; MaxValue := MaxValue+Margin;
     for I := 0 to 4 do
     begin
       Y := R.Top+R.Height*I/4; P.LineF(R.Left,Y,R.Right,Y,ERDMixColor(Palette.ForegroundText,Palette.Background,0.12));
-      P.TextF(R.Left-ScaleValue(7),Y,FloatToStrF(High-(High-Low)*I/4,ffGeneral,5,2),10,Palette.Subtle,twRegular,taRightJustify);
+      P.TextF(R.Left-ScaleValue(7),Y,FloatToStrF(MaxValue-(MaxValue-MinValue)*I/4,ffGeneral,5,2),10,Palette.Subtle,twRegular,taRightJustify);
     end;
     P.TextF(R.Left,R.Bottom+ScaleValue(14),'-'+FloatToStrF(FWindowSeconds,ffGeneral,5,2)+' s',10,Palette.Subtle);
     P.TextF(R.Right,R.Bottom+ScaleValue(14),'0 s',10,Palette.Subtle,twRegular,taRightJustify);
@@ -232,7 +232,7 @@ begin
         Value := FSeries[I].Sample(J); if (Value.TimeSeconds < BeginTime) or (Value.TimeSeconds > Finish) then Continue;
         X := EnsureRange(Round((Value.TimeSeconds-BeginTime)/FWindowSeconds*R.Width),0,R.Width);
         if not Value.Available then begin Buckets[X].Gap := True; Continue; end;
-        Y := R.Bottom-(Value.Value-Low)/(High-Low)*R.Height;
+        Y := R.Bottom-(Value.Value-MinValue)/(MaxValue-MinValue)*R.Height;
         if not Buckets[X].Used then begin Buckets[X].LowY := Y; Buckets[X].HighY := Y; Buckets[X].FirstY := Y; end;
         Buckets[X].Used := True; Buckets[X].LowY := Min(Buckets[X].LowY,Y); Buckets[X].HighY := Max(Buckets[X].HighY,Y); Buckets[X].LastY := Y;
       end;
