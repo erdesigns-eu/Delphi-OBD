@@ -33,6 +33,38 @@ class PCBImportTests(unittest.TestCase):
             self.assertEqual(len(terminal['members']), 3)
             self.assertIn(terminal['signal_pin'], terminal['members'])
 
+    def test_output_terminal_housings_do_not_overlap(self):
+        components = {c['reference']: c for c in self.board['components']}
+        pads = {p['id']: p for p in self.board['pads']}
+        bounds = []
+        for terminal in self.board['terminals']:
+            component = components[terminal['id']]
+            xs, ys = zip(*component['body'])
+            box = (min(xs), min(ys), max(xs), max(ys))
+            dimensions = sorted((box[2] - box[0], box[3] - box[1]))
+            self.assertAlmostEqual(dimensions[0], 6.5, places=3)
+            self.assertAlmostEqual(dimensions[1], 10.5, places=3)
+            for member in terminal['members']:
+                x, y = pads[member]['position']
+                self.assertTrue(box[0] < x < box[2] and box[1] < y < box[3])
+            for reference, other in bounds:
+                overlap_x = min(box[2], other[2]) - max(box[0], other[0])
+                overlap_y = min(box[3], other[3]) - max(box[1], other[1])
+                self.assertFalse(overlap_x > 1e-5 and overlap_y > 1e-5,
+                                 f"Overlapping terminal housings: {terminal['id']} / {reference}")
+            bounds.append((terminal['id'], box))
+
+    def test_terminal_body_requires_four_explicit_sides(self):
+        def line(a, b):
+            return ['POLY', 'test', 0, '', 3, 0, [*a, 'L', *b]]
+        outline = [line((0, 0), (10, 0)), line((10, 0), (10, 6)),
+                   line((10, 6), (0, 6)), line((0, 6), (0, 0))]
+        self.assertIsNone(import_pcb.terminal_body(outline[:-1]))
+        tabs = [line((0, 2), (-1, 2)), line((-1, 2), (-1, 3)), line((-1, 3), (0, 3))]
+        self.assertEqual(import_pcb.terminal_body(outline + tabs),
+                         [[0, 0], [10, 0], [10, 6], [0, 6], [0, 0]])
+        self.assertIsNone(import_pcb.terminal_body([]))
+
     def test_all_output_routes_are_verified(self):
         channels = {c['pin']: c for c in self.board['channels']}
         self.assertEqual(len(channels), 28)

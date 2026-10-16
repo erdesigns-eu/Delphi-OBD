@@ -44,3 +44,16 @@ The standalone component is now on the ERDesigns Components palette, with a
 `BoardFileName` browse editor and embedded DFM board data. See
 `../../docs/pcb-designer-component.md` for properties, events and interaction APIs.
 Pick flows and TypeScript wiring are deferred; the current work is the designer.
+
+
+Terminal housing geometry uses the largest rectangle whose four sides are
+explicitly drawn on the footprint silkscreen layer. The DB301V component-shape
+envelope includes side tabs and a margin; using it as the housing made adjacent
+outputs overlap by about 0.451 mm. Their main housings are 10.5 × 6.5 mm and have
+about 0.803 mm between neighboring terminals in a row. If a footprint has no
+complete silkscreen rectangle, the importer keeps its component-shape contour.
+Rendering, selection and hit testing use the same normalized body geometry.
+
+Regenerate/reload the normalized board after this correction. Already exported
+templates or embedded DFM board snapshots keep their own geometry until replaced
+with the corrected board; project assignments remain separate from that geometry.

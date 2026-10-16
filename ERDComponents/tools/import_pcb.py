@@ -88,6 +88,42 @@ def pad_polygon(pad):
              pad[7] + x * math.sin(angle) + y * math.cos(angle)] for x, y in points]
 
 
+def terminal_body(footprint):
+    """Use an explicitly drawn housing rectangle, not the clearance/tab envelope.
+
+    Terminal silkscreen outlines can be split into separate line records, with
+    interlocking tabs extending outside the main housing. Require all four
+    sides; taking the bounds of every silk line would include those tabs again.
+    Coordinates here are footprint-local EasyEDA units, before rotation.
+    """
+    horizontal, vertical = [], []
+    tolerance = 0.1
+    for record in footprint:
+        if record[0] != 'POLY' or record[4] != 3:
+            continue
+        points = path_points(record[6])
+        for a, b in zip(points, points[1:]):
+            if abs(a[1] - b[1]) <= tolerance and abs(a[0] - b[0]) > tolerance:
+                horizontal.append((min(a[0], b[0]), max(a[0], b[0]), (a[1] + b[1]) / 2))
+            elif abs(a[0] - b[0]) <= tolerance and abs(a[1] - b[1]) > tolerance:
+                vertical.append(((a[0] + b[0]) / 2, min(a[1], b[1]), max(a[1], b[1])))
+    rectangles = []
+    for i, (left, right, y) in enumerate(horizontal):
+        for other_left, other_right, other_y in horizontal[i + 1:]:
+            if abs(left - other_left) > tolerance or abs(right - other_right) > tolerance:
+                continue
+            bottom, top = sorted((y, other_y))
+            if top - bottom <= tolerance:
+                continue
+            if all(any(abs(x - side) <= tolerance and low <= bottom + tolerance and high >= top - tolerance
+                       for x, low, high in vertical) for side in (left, right)):
+                rectangles.append((left, bottom, right, top))
+    if not rectangles:
+        return None
+    left, bottom, right, top = max(rectangles, key=lambda r: (r[2] - r[0]) * (r[3] - r[1]))
+    return [[left, bottom], [right, bottom], [right, top], [left, top], [left, bottom]]
+
+
 def import_board(source, placements):
     with zipfile.ZipFile(source) as archive:
         names = [n for n in archive.namelist() if n.endswith('.epcb')]
@@ -116,7 +152,11 @@ def import_board(source, placements):
             body = max(bodies, key=lambda p: (max(v[0] for v in p)-min(v[0] for v in p)) *
                        (max(v[1] for v in p)-min(v[1] for v in p)), default=[])
             role = 'ic'
-            if 'DB301V' in title or 'DG500' in title: role = 'terminal'
+            if 'DB301V' in title or 'DG500' in title:
+                role = 'terminal'
+                housing = terminal_body(footprint)
+                if housing is not None:
+                    body = housing
             elif 'TYPE-C' in title: role = 'usb'
             elif 'ESP32' in title: role = 'module'
             elif ref.startswith('C'): role = 'capacitor'

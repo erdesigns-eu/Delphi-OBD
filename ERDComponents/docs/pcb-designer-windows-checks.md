@@ -130,3 +130,16 @@ verified. No automated Windows smoke-run log was supplied.
   unchanged, with no content-change notification.
 - Relax the validator and retry: the pending undo/redo action must still work.
   Change listeners must see the final CanUndo/CanRedo state.
+
+
+### Adjacent terminal selection
+
+- Use the regenerated `demo/pcb/board.json`. Zoom into adjacent outputs such as
+  U16/U18/U20 and select each terminal. Its fill and outline must match its main
+  housing without reaching the neighboring terminal border, horizontally and
+  vertically. Check hovered and connection-selected terminal highlights as well.
+- Repeat with antialiasing on/off, both themes and higher DPI. Click the gap:
+  it must not count as either terminal housing.
+- Existing exported templates/embedded DFM board snapshots need corrected board
+  geometry; the importer tests verify all 28 output housings do not overlap and
+  still contain their three contact centers.
