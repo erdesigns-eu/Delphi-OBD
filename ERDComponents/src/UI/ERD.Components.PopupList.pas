@@ -30,12 +30,13 @@ uses
   Vcl.AppEvnts,
   ERD.Components.Types,
   ERD.Components.Paint,
-  ERD.Components.LanguageServices;
+  ERD.Components.LanguageServices,
+  ERD.Components.Hint;
 
 type
   // Hint windows already own a no-activate popup HWND independently of Parent.
   // This avoids recreating a child HWND when the editor is detached on shutdown.
-  TERDSignaturePopup = class(THintWindow)
+  TERDSignaturePopup = class(TERDHintWindow)
   private
     FPalette: TERDThemePalette;
     FPPI, FActiveStart, FActiveCount: Integer;

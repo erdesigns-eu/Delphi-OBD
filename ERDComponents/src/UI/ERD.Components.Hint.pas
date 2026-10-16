@@ -50,6 +50,8 @@ type
     function TextWidth(const AText: string; ASize: Single;
       AWeight: TERDTextWeight): Integer;
   protected
+    procedure CreateParams(var Params: TCreateParams); override;
+    procedure WMNCCalcSize(var Message: TWMNCCalcSize); message WM_NCCALCSIZE;
     /// <summary>Draws the themed card.</summary>
     procedure Paint; override;
     /// <summary>Draws no native border.</summary>
@@ -130,6 +132,22 @@ constructor TERDHintWindow.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   Color := clNone;
+  StyleElements := [];
+end;
+
+procedure TERDHintWindow.CreateParams(var Params: TCreateParams);
+begin
+  inherited CreateParams(Params);
+  // Keep the inherited popup shadow; replace only the native raised frame.
+  Params.Style := Params.Style and not (WS_BORDER or WS_DLGFRAME or WS_THICKFRAME);
+  Params.ExStyle := Params.ExStyle and not (WS_EX_CLIENTEDGE or
+    WS_EX_STATICEDGE or WS_EX_WINDOWEDGE or WS_EX_DLGMODALFRAME);
+end;
+
+procedure TERDHintWindow.WMNCCalcSize(var Message: TWMNCCalcSize);
+begin
+  // Paint the single flat border in the client area, without a native inset.
+  Message.Result := 0;
 end;
 
 function TERDHintWindow.ActivePalette: TERDThemePalette;
