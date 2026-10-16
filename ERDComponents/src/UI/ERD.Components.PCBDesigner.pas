@@ -1816,7 +1816,7 @@ begin
 end;
 procedure TERDPCBDesigner.PaintBodies(ACanvas: TCanvas);
 var I, J, K, Radius, TerminalID: Integer; Value: TERDPCBComponent; Poly: TArray<TGPPointF>;
-    R, Inner: TRect; P: TPoint; Pad: TERDPCBPad; Fill, Stroke, Accent: TColor; Painter: TERDPainter;
+    R, Inner: TRect; P: TPoint; Pad: TERDPCBPad; Fill, Stroke, Accent: TColor; Painter: TERDPainter; Selected: Boolean;
   procedure Contacts(const Bounds: TRect);
   var Size: Single;
   begin
@@ -1912,10 +1912,16 @@ begin
       if (TerminalID < 0) or (Length(Value.Body) < 3) then Continue;
       if (FTerminals[TerminalID].SignalPin <> FSelected) and (FTerminals[TerminalID].SignalPin <> FHot) and
         (FTerminals[TerminalID].SignalPin <> ConnectionPin) then Continue;
-      Poly := PCBScreenPolygon(Value.Body,FScreenScale,FScreenX,FScreenY); Fill := clNone;
-      if (FTerminals[TerminalID].SignalPin = FSelected) or
-        ((FConnectionID <> '') and (FTerminals[TerminalID].SignalPin = ConnectionPin)) then Fill := Accent;
-      Painter.Shape(Poly,True,Fill,Accent,ScaleValue(1),56);
+      Poly := PCBScreenPolygon(Value.Body,FScreenScale,FScreenX,FScreenY);
+      Selected := (FTerminals[TerminalID].SignalPin = FSelected) or
+        ((FConnectionID <> '') and (FTerminals[TerminalID].SignalPin = ConnectionPin));
+      if Selected then
+      begin
+        // Two opaque strokes on the same contour: contrast keyline plus themed accent.
+        Painter.Shape(Poly,True,Accent,ERDContrastInk(Accent,clWhite,clBlack),ScaleValue(4),80);
+        Painter.Shape(Poly,True,clNone,Accent,ScaleValue(2));
+      end
+      else Painter.Shape(Poly,True,Accent,Accent,ScaleValue(1),32);
     end;
     if FShowPads then for I := 0 to High(FPads) do if IsSelectablePin(FPads[I].ID) then
     begin

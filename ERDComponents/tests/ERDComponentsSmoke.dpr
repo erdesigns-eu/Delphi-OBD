@@ -2834,6 +2834,24 @@ begin
     Designer := nil;
     for I := 0 to Preview.ComponentCount-1 do if Preview.Components[I] is TERDPCBDesigner then Designer := TERDPCBDesigner(Preview.Components[I]);
     Check(Designer <> nil, 'PCB demo exposes an independently hosted designer');
+    for Tag := 100 to 106 do
+    begin
+      ItemButton := nil;
+      for I := 0 to Tab.Groups.Count-1 do for J := 0 to Tab.Groups[I].Items.Count-1 do
+        if Tab.Groups[I].Items[J].Tag = Tag then ItemButton := Tab.Groups[I].Items[J];
+      Check(ItemButton <> nil, 'Every PCB view option is available on the application ribbon');
+      ItemButton.Execute;
+      case Tag of
+        100: Check(Designer.ShowBodies = ItemButton.Down, 'Ribbon synchronizes bodies visibility');
+        101: Check(Designer.ShowPads = ItemButton.Down, 'Ribbon synchronizes pads visibility');
+        102: Check(Designer.ShowLabels = ItemButton.Down, 'Ribbon synchronizes labels visibility');
+        103: Check(Designer.ShowComponentOutlines = ItemButton.Down, 'Ribbon synchronizes outlines visibility');
+        104: Check(Designer.ShowGrid = ItemButton.Down, 'Ribbon synchronizes grid visibility');
+        105: Check(Designer.TemplateEditMode = ItemButton.Down, 'Ribbon synchronizes template editing');
+        106: Check(Designer.PanMode = ItemButton.Down, 'Ribbon synchronizes hand mode');
+      end;
+      ItemButton.Execute;
+    end;
     Designer.ClearBoard; A := Designer.AddDesignItem(piNote,PointF(0,0));
     B := Designer.AddDesignItem(piNote,PointF(60,30)); C := Designer.AddDesignItem(piNote,PointF(150,80)); Designer.FitBoard;
     for Tag := 20 to 27 do

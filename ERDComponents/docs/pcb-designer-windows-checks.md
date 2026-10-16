@@ -266,3 +266,11 @@ or require a ribbon.
 - Enable template editing, choose PCB color through the ribbon, save as a separate revision and reload it.
 - Verify the chosen color survives template/project save and embedded DFM BoardData; malformed RGB must not replace the loaded template.
 - Confirm physical material colors do not obscure themed terminal selection, handles or wire endpoints.
+
+## Complete PCB ribbon and terminal selection
+
+- Confirm the local toolbar is gone and all project, view, layer and template commands are on the PCB tab.
+- Toggle every layer, template editing and hand/pan; verify toggle state survives leaving and returning to the PCB page.
+- Drag an object, then check Undo/Redo availability after the validation debounce; undo and redo the move.
+- Select and hover neighboring terminals in both themes and at several zoom levels: the selected contour must remain clearly visible, with pad details visible above the tint.
+- Check narrow-window ribbon overflow and close the demo after using ribbon commands.

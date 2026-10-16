@@ -15,12 +15,13 @@ type
     FLayoutTab: TERDRibbonTab;
     FTemplateColorItem: TERDRibbonItem;
     FLayoutItems: array[0..7] of TERDRibbonItem;
+    FViewItems: array[0..6] of TERDRibbonItem;
+    FCommandItems: array[0..11] of TERDRibbonItem;
     FValidation: TERDPCBValidationPanel;
     FValidationTimer: TTimer;
     FValidationKey: string;
     FToolbox: TERDPCBComponentPalette;
     FStatus: TLabel;
-    FAuthoring, FHand: TERDCheckBox;
     FFileName, FTemplateDirectory: string;
     FToolDragging: Boolean;
     procedure ViewOptionChanged(Sender: TObject);
@@ -82,21 +83,10 @@ begin
   Definition.Properties := Props; ERDPCBRegisterComponentType(Definition);
 end;
 constructor TPCBPreview.Create(AOwner: TComponent);
-var Header, Tools, Center: TERDPanel; B: TERDButton; I: Integer; Base, BoardFile: string; Choice: TERDCheckBox;
-  procedure Button(const Caption: string; Left, Width, Tag: Integer);
-  begin
-    B := TERDButton.Create(Self); B.Parent := Header; B.Caption := Caption;
-    B.SetBounds(ScaleValue(Left), ScaleValue(8), ScaleValue(Width), ScaleValue(28));
-    B.Tag := Tag; B.OnClick := ToolbarClicked;
-  end;
+var Tools, Center: TERDPanel; B: TERDButton; I: Integer; Base, BoardFile: string;
 begin
   inherited;
   FBinding := TERDPCBInspectorBinding.Create; RegisterDemoComponentTypes;
-  Header := TERDPanel.Create(Self); Header.Parent := Self; Header.Align := alTop; Header.Height := ScaleValue(76);
-  Button('Fit', 8, 54, 0); Button('Undo', 68, 62, 4); Button('Redo', 136, 62, 5);
-  Button('Save project', 204, 104, 2); Button('Open project', 314, 104, 3);
-  Button('Templates...', 424, 112, 6); Button('Save template', 542, 112, 7);
-  Button('Focus selection', 660, 116, 8); Button('Validation',782,96,11);
   FStatus := TLabel.Create(Self); FStatus.Parent := Self; FStatus.Align := alBottom;
   FStatus.AutoSize := False; FStatus.Height := ScaleValue(25);
   Tools := TERDPanel.Create(Self); Tools.Parent := Self; Tools.Align := alLeft; Tools.Width := ScaleValue(260);
@@ -125,19 +115,6 @@ begin
   FDesigner.OnPlacementChange := PlacementChanged;
   FDesigner.OnSelectionChange := SelectionChanged; FDesigner.OnChange := DesignChanged; FDesigner.OnConnectionError := ConnectionError;
   FDesigner.OnDragOver := SurfaceDragOver; FDesigner.OnDragDrop := SurfaceDragDrop;
-  for I := 0 to 4 do
-  begin
-    Choice := TERDCheckBox.Create(Self); Choice.Parent := Header;
-    case I of 0: Choice.Caption := 'Bodies'; 1: Choice.Caption := 'Pads'; 2: Choice.Caption := 'Labels';
-      3: Choice.Caption := 'Outlines'; 4: Choice.Caption := 'Grid'; end;
-    Choice.SetBounds(ScaleValue(10 + I * 91), ScaleValue(43), ScaleValue(86), ScaleValue(26));
-    Choice.Checked := True; Choice.Tag := I; Choice.OnChange := ViewOptionChanged;
-  end;
-  FAuthoring := TERDCheckBox.Create(Self); FAuthoring.Parent := Header; FAuthoring.Caption := 'Edit template pins';
-  FAuthoring.SetBounds(ScaleValue(470), ScaleValue(43), ScaleValue(170), ScaleValue(26)); FAuthoring.Tag := 5; FAuthoring.OnChange := ViewOptionChanged;
-  Choice := TERDCheckBox.Create(Self); Choice.Parent := Header; Choice.Caption := 'Hand / pan';
-  Choice.SetBounds(ScaleValue(650), ScaleValue(43), ScaleValue(110), ScaleValue(26));
-  Choice.Tag := 6; Choice.OnChange := ViewOptionChanged; FHand := Choice;
   BoardFile := ''; Base := ExtractFilePath(ParamStr(0));
   for I := 0 to 3 do
   begin
@@ -172,15 +149,21 @@ end;
 procedure TPCBPreview.ThemeChanged;
 begin inherited; if FStatus <> nil then FStatus.Font.Color := Palette.ForegroundText; end;
 procedure TPCBPreview.ViewOptionChanged(Sender: TObject);
-var Choice: TERDCheckBox;
+var Item: TERDRibbonItem;
 begin
-  Choice := Sender as TERDCheckBox;
-  case Choice.Tag of
-    0: FDesigner.ShowBodies := Choice.Checked; 1: FDesigner.ShowPads := Choice.Checked;
-    2: FDesigner.ShowLabels := Choice.Checked; 3: FDesigner.ShowComponentOutlines := Choice.Checked;
-    4: FDesigner.ShowGrid := Choice.Checked;
-    6: FDesigner.PanMode := Choice.Checked;
-    5: begin FObjects.Enabled := not Choice.Checked; FToolbox.Enabled := not Choice.Checked; FDesigner.TemplateEditMode := Choice.Checked; FDesigner.Scene.ClearSelection; SelectionChanged(Self); end;
+  Item := Sender as TERDRibbonItem;
+  case Item.Tag of
+    100: FDesigner.ShowBodies := Item.Down;
+    101: FDesigner.ShowPads := Item.Down;
+    102: FDesigner.ShowLabels := Item.Down;
+    103: FDesigner.ShowComponentOutlines := Item.Down;
+    104: FDesigner.ShowGrid := Item.Down;
+    105:
+      begin
+        FObjects.Enabled := not Item.Down; FToolbox.Enabled := not Item.Down;
+        FDesigner.TemplateEditMode := Item.Down; FDesigner.Scene.ClearSelection; SelectionChanged(Self);
+      end;
+    106: FDesigner.PanMode := Item.Down;
   end;
   UpdateLayoutButtons;
 end;
@@ -225,6 +208,9 @@ var Pins: TArray<TERDPCBValidationPin>; Context: TERDPCBValidationContext; Chann
     Capability: TERDPCBPinCapability; I, N: Integer; Key: string; HasTemplate: Boolean;
 begin
   FValidationTimer.Enabled := False;
+  // Scene notifications can precede EndEdit; wait until the drag completes.
+  if FDesigner.MouseCapture then begin FValidationTimer.Enabled := True; Exit; end;
+  UpdateLayoutButtons;
   HasTemplate := (FDesigner.ChannelCount > 0) or (FDesigner.TemplateID <> '') or (FDesigner.BoardFileName <> '');
   Key := FDesigner.Scene.ContentJSON+#0+BoolToStr(HasTemplate,True); SetLength(Pins,FDesigner.ChannelCount);
   for I := 0 to High(Pins) do
@@ -440,7 +426,8 @@ var Definition: TERDPCBComponentType; Name: string;
 begin
   if FDesigner.Placing then
   begin
-    if (FHand <> nil) and FHand.Checked then FHand.Checked := False;
+    if FDesigner.PanMode then FDesigner.PanMode := False;
+    UpdateLayoutButtons;
     Name := ERDPCBItemKindName(FDesigner.PlacementKind);
     if ERDPCBFindComponentType(FDesigner.PlacementTypeID, Definition) then Name := Definition.DisplayName;
     FStatus.Caption := 'Place ' + Name +
@@ -469,20 +456,49 @@ begin
   end;
 end;
 procedure TPCBPreview.AttachRibbon(Value: TERDRibbon);
-var Group, Distribution, TemplateGroup: TERDRibbonGroup; I: Integer; Item: TERDRibbonItem;
+var ProjectGroup, EditGroup, ViewGroup, Layers, AlignGroup, Distribution, TemplateGroup: TERDRibbonGroup;
+    I: Integer; Item: TERDRibbonItem;
+  procedure Command(Group: TERDRibbonGroup; const Caption: string; Tag: Integer; Glyph: TERDGlyph);
+  var Button: TERDRibbonItem;
+  begin
+    Button := Group.Items.Add; Button.Caption := Caption; Button.Tag := Tag;
+    Button.Glyph := Glyph; Button.Size := risSmall; Button.OnClick := ToolbarClicked;
+    if (Tag >= 0) and (Tag <= 11) then FCommandItems[Tag] := Button;
+    if Tag = 11 then Button.Kind := rikToggle;
+  end;
 begin
   if FRibbon = Value then Exit;
   FTemplateColorItem := nil;
   for I := 0 to 7 do FLayoutItems[I] := nil;
+  for I := 0 to 6 do FViewItems[I] := nil;
+  for I := 0 to 11 do FCommandItems[I] := nil;
   if FRibbon <> nil then begin FRibbon.RemoveFreeNotification(Self); FreeAndNil(FLayoutTab); end;
   FRibbon := Value; if FRibbon = nil then Exit;
   FRibbon.FreeNotification(Self); FLayoutTab := FRibbon.Tabs.Add;
   FLayoutTab.Caption := 'PCB'; FLayoutTab.Visible := False;
-  Group := FLayoutTab.Groups.Add; Group.Caption := 'Uitlijnen';
+  ProjectGroup := FLayoutTab.Groups.Add; ProjectGroup.Caption := 'Project';
+  Command(ProjectGroup,'Open project',3,glOpen); Command(ProjectGroup,'Save project',2,glSave);
+  EditGroup := FLayoutTab.Groups.Add; EditGroup.Caption := 'Bewerken';
+  Command(EditGroup,'Undo',4,glUndo); Command(EditGroup,'Redo',5,glRedo);
+  ViewGroup := FLayoutTab.Groups.Add; ViewGroup.Caption := 'Weergave';
+  Command(ViewGroup,'Fit',0,glSearch); Command(ViewGroup,'Focus selection',8,glPin); Command(ViewGroup,'Validation',11,glAlert);
+  Layers := FLayoutTab.Groups.Add; Layers.Caption := 'Lagen';
+  AlignGroup := FLayoutTab.Groups.Add; AlignGroup.Caption := 'Uitlijnen';
   Distribution := FLayoutTab.Groups.Add; Distribution.Caption := 'Verdelen';
+  TemplateGroup := FLayoutTab.Groups.Add; TemplateGroup.Caption := 'Template';
+  Command(TemplateGroup,'Templates...',6,glFolder); Command(TemplateGroup,'Save template',7,glSave);
+  for I := 0 to 6 do
+  begin
+    if I <= 4 then Item := Layers.Items.Add
+    else if I = 5 then Item := TemplateGroup.Items.Add else Item := ViewGroup.Items.Add;
+    Item.Size := risSmall; Item.Kind := rikToggle; Item.Tag := 100+I; Item.OnClick := ViewOptionChanged;
+    case I of 0: Item.Caption := 'Bodies'; 1: Item.Caption := 'Pads'; 2: Item.Caption := 'Labels';
+      3: Item.Caption := 'Outlines'; 4: Item.Caption := 'Grid'; 5: Item.Caption := 'Edit template pins'; 6: Item.Caption := 'Hand / pan'; end;
+    FViewItems[I] := Item;
+  end;
   for I := 0 to 7 do
   begin
-    if I < 6 then Item := Group.Items.Add else Item := Distribution.Items.Add;
+    if I < 6 then Item := AlignGroup.Items.Add else Item := Distribution.Items.Add;
     Item.Size := risSmall; Item.Tag := 20+I; Item.OnClick := ToolbarClicked;
     case I of 0: Item.Caption := 'Left'; 1: Item.Caption := 'Center X'; 2: Item.Caption := 'Right';
       3: Item.Caption := 'Top'; 4: Item.Caption := 'Center Y'; 5: Item.Caption := 'Bottom';
@@ -491,7 +507,6 @@ begin
     else Item.Hint := 'Select at least three unlocked objects for equal spacing';
     FLayoutItems[I] := Item;
   end;
-  TemplateGroup := FLayoutTab.Groups.Add; TemplateGroup.Caption := 'Template';
   FTemplateColorItem := TemplateGroup.Items.Add; FTemplateColorItem.Caption := 'PCB color';
   FTemplateColorItem.Tag := 12; FTemplateColorItem.OnClick := ToolbarClicked; FTemplateColorItem.Glyph := glPipette;
   FTemplateColorItem.Hint := 'Enable Edit template pins, choose the solder-mask color, then Save template';
@@ -505,19 +520,34 @@ begin
   for I := 0 to FLayoutTab.Index-1 do if FRibbon.Tabs[I].Visible then Inc(FlatIndex);
   if not Value and FLayoutTab.Visible and (FRibbon.ActiveTab = FlatIndex) then FRibbon.ActiveTab := 0;
   FLayoutTab.Visible := Value;
-  if Value then FRibbon.ActiveTab := FlatIndex;
+  if Value then begin UpdateLayoutButtons; FRibbon.ActiveTab := FlatIndex; end;
 end;
 procedure TPCBPreview.Notification(AComponent: TComponent; Operation: TOperation);
 var I: Integer;
 begin
   inherited;
   if (Operation = opRemove) and (AComponent = FRibbon) then
-  begin FRibbon := nil; FLayoutTab := nil; FTemplateColorItem := nil; for I := 0 to 7 do FLayoutItems[I] := nil; end;
+  begin
+    FRibbon := nil; FLayoutTab := nil; FTemplateColorItem := nil;
+    for I := 0 to 7 do FLayoutItems[I] := nil;
+    for I := 0 to 6 do FViewItems[I] := nil;
+    for I := 0 to 11 do FCommandItems[I] := nil;
+  end;
 end;
 procedure TPCBPreview.UpdateLayoutButtons;
 var I, Count: Integer;
 begin
   if FDesigner = nil then Exit; Count := 0;
+  if FViewItems[0] <> nil then FViewItems[0].Down := FDesigner.ShowBodies;
+  if FViewItems[1] <> nil then FViewItems[1].Down := FDesigner.ShowPads;
+  if FViewItems[2] <> nil then FViewItems[2].Down := FDesigner.ShowLabels;
+  if FViewItems[3] <> nil then FViewItems[3].Down := FDesigner.ShowComponentOutlines;
+  if FViewItems[4] <> nil then FViewItems[4].Down := FDesigner.ShowGrid;
+  if FViewItems[5] <> nil then FViewItems[5].Down := FDesigner.TemplateEditMode;
+  if FViewItems[6] <> nil then FViewItems[6].Down := FDesigner.PanMode;
+  if FCommandItems[4] <> nil then FCommandItems[4].Enabled := FDesigner.Scene.CanUndo;
+  if FCommandItems[5] <> nil then FCommandItems[5].Enabled := FDesigner.Scene.CanRedo;
+  if FCommandItems[11] <> nil then FCommandItems[11].Down := FValidation.Visible;
   if FTemplateColorItem <> nil then FTemplateColorItem.Enabled := FDesigner.TemplateEditMode and (FDesigner.TemplateID <> '');
   for I := 0 to FDesigner.Scene.Count-1 do
     if FDesigner.Scene.Item(I).Selected and not FDesigner.Scene.Item(I).Locked then Inc(Count);
@@ -537,7 +567,7 @@ begin
       else FDesigner.DistributeSelected(ActionTag = 26);
       if Before = FDesigner.Scene.ContentJSON then FStatus.Caption := 'Selection already matches this layout; locked objects stay fixed.'
       else FStatus.Caption := 'Layout applied to unlocked selected objects; Ctrl+Z to undo.';
-      Exit;
+      UpdateLayoutButtons; Exit;
     end;
     case ActionTag of
       8: FDesigner.FitSelection;
@@ -579,5 +609,6 @@ begin
         end;
     end;
   except on E: Exception do FStatus.Caption := E.Message; end;
+  UpdateLayoutButtons;
 end;
 end.

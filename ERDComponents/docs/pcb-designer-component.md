@@ -269,13 +269,16 @@ A target on or near the board receives its own normal entry corridor. Painting,
 selection hit testing and previews use the same geometry and route cache. The board-aware
 router never falls back to a curve through the print when no safe route is found.
 
-### PCB ribbon layout commands
+### PCB ribbon commands
 
 The demo attaches the PCB preview to the existing application ribbon. The PCB tab
-contains **Uitlijnen** (Left, Center X, Right, Top, Center Y, Bottom) and **Verdelen**
-(Space X, Space Y). The separate eight-button row is removed and the local header
-is shorter. The tab appears when the PCB page is active. Commands preserve the
-same selection requirements, hints, atomic updates and undo behavior.
+contains Project (open/save), Bewerken (undo/redo), Weergave (fit, focus, validation,
+hand/pan), Lagen (bodies, pads, labels, outlines, grid), Uitlijnen, Verdelen and
+Template (browse/save, edit pins, PCB color). The local header is removed entirely.
+View options use toggle items synchronized with the designer. The tab appears
+when the PCB page is active. Layout commands preserve their selection requirements,
+hints, atomic updates and undo behavior. History availability refreshes after a
+completed gesture as well as when executing commands or returning to the PCB tab.
 
 Check page switching, light/dark theme, ribbon overflow, classic/simplified ribbon
 modes and closing the demo after a command. The preview detaches its tab/callbacks
@@ -313,3 +316,7 @@ ESP32 shield, resistor end caps, and distinct large electrolytic versus small SM
 capacitors. These are schematic top views based on the imported body/pad geometry;
 they do not invent copper tracks or change terminal hit areas. UI selection,
 handles, notes and connection lines keep the ERD theme colors.
+
+Selected terminals retain their imported body contour and use a translucent accent
+fill, a thick contrasting keyline and a narrower solid accent stroke. Hover uses a
+lighter fill and thin outline. Pad details are redrawn above the highlight.
