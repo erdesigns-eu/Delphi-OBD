@@ -34,6 +34,17 @@ class LibraryTests(unittest.TestCase):
         # Runtime preview pages instantiate their controls in helper units.
         for path in (ROOT/'demo').glob('*.pas'):
             shown.update(re.findall(r'\b(TERD\w+)\.Create\s*\(', path.read_text(encoding='utf-8-sig')))
+        # Composite preview controls instantiate private visual children themselves.
+        constructors = {}
+        for path in (ROOT/'src/UI').glob('*.pas'):
+            source = path.read_text(encoding='utf-8-sig')
+            for match in re.finditer(r'constructor (TERD\w+)\.Create\b(.*?)(?=\n(?:constructor|destructor|procedure|function) |\Z)', source, re.S):
+                constructors[match[1]] = set(re.findall(r'\b(TERD\w+)\.Create\s*\(', match[2]))
+        pending = list(shown)
+        while pending:
+            for child in constructors.get(pending.pop(), set()) - shown:
+                shown.add(child)
+                pending.append(child)
         self.assertEqual(registered - shown, set())
         self.assertIn('OnClick = ExecuteDemoDialog', dfm)
         self.assertNotIn('TPageControl', dfm)

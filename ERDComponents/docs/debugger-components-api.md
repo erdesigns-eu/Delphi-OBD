@@ -1,7 +1,8 @@
 # Debug component foundation
 
-This first implementation provides `TERDDebugModel`, `TERDValueTree` and
-`TERDTimeSeriesChart`, `TERDBreakpointPanel` and `TERDCallStack`, plus debug gutter/execution rendering in `TERDCodeEditor`.
+The component set provides `TERDDebugModel`, `TERDValueTree`,
+`TERDTimeSeriesChart`, `TERDBreakpointPanel`, `TERDCallStack` and
+`TERDLocalsPanel`, plus debug gutter/execution rendering in `TERDCodeEditor`.
 The separate Debugger components demo page exercises them through a synthetic
 host. It does not start or attach to TSVM, acknowledge actual device breakpoints,
 evaluate real expressions or execute TypeScript. DAP/NDB transport adapters and
@@ -209,9 +210,73 @@ the stack. Runtime frames, pending contexts and active selection are not streame
 to DFM; the model reference and normal visual settings are configuration.
 
 The synthetic demo includes main/worker threads, a caller and a native frame.
-The locals preview labels its selected demo frame; it does not retrieve real
-TSVM scopes. Windows smoke cases were added for frame zero, grouping, selection
+The locals panel receives synthetic frame-scoped Local/Global data; it does not
+retrieve real TSVM scopes. Windows smoke cases were added for frame zero, grouping, selection
 and execution separation, navigation without source, copied snapshot arrays,
 request/generation/session rejection, invalid atomic updates, resume and failure,
 DFM streaming and model lifetime. These tests and visual light/dark, scrolling,
 keyboard and DPI checks still require Delphi on Windows.
+
+## Locals and scopes
+
+`TERDLocalsPanel` is a standalone themed composite: a frame/status header and an
+internal `TERDValueTree`. Assign its `DebugModel` to the same model as the call
+stack/editor. No source editor or inspector is embedded. The host connects the
+call stack's `OnFrameSelected` to `Locals.BeginFrame(Context, Frame)`; the component
+does not replace any call-stack callbacks. It does not query TSVM itself.
+
+- `BeginFrame` returns a `TERDLocalsRequest` containing the stack session,
+  generation/request ID, thread/frame ID and a fresh locals request ID. Frame zero
+  is valid. Invalid contexts, older generations and a running/disconnected model
+  are refused with a zero request ID. It marks previous data stale and raises
+  `OnRequestScopes`. Re-selecting the same frame still creates a fresh request.
+- The host returns `PublishScopes(Context, Scopes)`. `TERDDebugScope` has a unique
+  nonempty presentation ID, name, nonnegative variables reference and Expensive
+  flag. A positive reference makes it expandable; zero means an empty scope.
+  Expensive scopes are labelled and remain lazy. Duplicate IDs or invalid
+  references are refused atomically, and old/duplicate replies are ignored.
+- Expanding a scope/object raises `OnRequestVariables(Sender, Context, Request,
+  Parent)`. `Parent.Reference` is the backend variables reference; Request supplies
+  the parent presentation ID, start/count and ValueTree token. Capture **both**
+  Context and Request with asynchronous work. Return `PublishVariables(Context,
+  Request, Values, HasMore)` or `FailVariables(Context, Request, Message)`.
+  PageSize defaults to 100; paging, Load more, unavailable values, nested objects,
+  lazy restoration and changed-value rendering use the existing ValueTree.
+- Every variable needs a presentation ID unique across all scopes in that tree.
+  Use scope-qualified paths or opaque unique IDs, rather than only variable names
+  or variablesReference (multiple nodes may reference the same backend object).
+  The parent value supplies its own reference for nested requests. Reference zero
+  is a scalar/empty value and should not be marked HasChildren by the host.
+- `FailScopes(Context, Message)` retains stale display data and shows an error in
+  the header. The context menu offers Retry scopes and Retry variables. Scope
+  retry creates a fresh token and is available after a scope failure, not after
+  execution has resumed. An absent variables provider produces an explicit row
+  error. Empty scope lists show No scopes available.
+- Resume, disconnect, session changes and changed paused execution location mark
+  the view stale and reject pending scope/variable replies. A frame change also
+  invalidates all earlier replies, including when IDs are reused. Without a model,
+  the host calls `MarkStale` on resume/disconnect and starts each frame only from
+  a current call-stack snapshot. The host marshals every publication to the VCL
+  UI thread. Backends are not queried while painting.
+- `OnInspectValue` carries the locals context and selected value for a future
+  full-value viewer; it is suppressed while stale/loading. Values are read-only.
+  Ctrl+C uses ValueTree's copy action, including retained stale display values.
+
+The public `ValueTree` reference allows visual configuration, selection, lookup
+and explicit `RequestChildren`, but its internal request/inspect event handlers
+and snapshot lifecycle belong to LocalsPanel; use the panel's events and publish
+methods. The panel preserves same-snapshot/frame tree state when refreshed.
+Different stack snapshots/frames use different tree sessions so recycled IDs
+cannot restore unrelated values or expansions. Cross-stop value comparison is
+therefore not inferred from backend frame IDs.
+
+The frame, scopes, variables, error/pending state, internal controls and callbacks
+are not DFM data. PageSize, model reference and visual settings are configuration.
+The demo uses synthetic Local/Global/Module scopes, a native frame with no scopes,
+nested status values and two-row pages. No real TSVM scopes are loaded.
+
+Windows smoke cases were added for lazy/expensive scopes, frame zero, page bounds,
+nested references, unavailable values, frame/session/location invalidation,
+malformed scope snapshots, scope and variable retry, synchronous providers, empty
+scopes, DFM and model lifetime. These tests and light/dark, DPI, scrolling, context
+menu and keyboard checks still require Delphi on Windows.

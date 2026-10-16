@@ -2,13 +2,13 @@
 interface
 uses Winapi.Windows, ERD.Components.Control, System.Classes, System.SysUtils, System.Types, System.Math, Vcl.Controls, Vcl.StdCtrls, Vcl.ExtCtrls,
   ERD.Components.Panel, ERD.Components.Types, ERD.Components.CodeEditor,
-  ERD.Components.CallStack, ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries, ERD.Components.Ribbon;
+  ERD.Components.LocalsPanel, ERD.Components.CallStack, ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries, ERD.Components.Ribbon;
 type
   TDebugPreview = class(TERDPanel)
   private
     FModel: TERDDebugModel;
     FEditor: TERDCodeEditor;
-    FValues: TERDValueTree;
+    FValues: TERDLocalsPanel;
     FStack: TERDCallStack;
     FDebugSide: TERDPanel;
     FBreakpoints: TERDBreakpointPanel;
@@ -18,14 +18,13 @@ type
     FRibbon: TERDRibbon;
     FTab: TERDRibbonTab;
     FTick: Integer;
-    FGeneration, FStackGeneration: Int64;
-    FSelectedFrame: string;
+    FStackGeneration: Int64;
     procedure RibbonClick(Sender: TObject);
     procedure DebugCommand(Sender: TObject; Command: TERDDebugCommand);
     procedure ModelChanged(Sender: TObject);
-    procedure Children(Sender: TObject; const Request: TERDValueRequest);
+    procedure VariablesRequested(Sender: TObject; const Context: TERDLocalsRequest; const Request: TERDValueRequest; const Parent: TERDInspectValue);
     procedure Tick(Sender: TObject);
-    procedure RefreshValues;
+    procedure ScopesRequested(Sender: TObject; const Context: TERDLocalsRequest);
     procedure RefreshStack;
     procedure FrameSelected(Sender: TObject; const Context: TERDStackRequest; const Frame: TERDStackFrame);
     procedure NavigateFrame(Sender: TObject; const DocumentUri: string; Line, Column: Integer);
@@ -62,8 +61,9 @@ begin
   FDebugSide := TERDPanel.Create(Self); FDebugSide.Parent := Self; FDebugSide.Align := alRight; FDebugSide.Width := ScaleValue(390);
   FStack := TERDCallStack.Create(Self); FStack.Parent := FDebugSide; FStack.Align := alTop; FStack.Height := ScaleValue(180);
   FStack.DebugModel := FModel; FStack.OnFrameSelected := FrameSelected; FStack.OnNavigate := NavigateFrame;
-  FValues := TERDValueTree.Create(Self); FValues.Parent := FDebugSide; FValues.Align := alClient;
-  FValues.OnRequestChildren := Children;
+  FValues := TERDLocalsPanel.Create(Self); FValues.Parent := FDebugSide; FValues.Align := alClient;
+  FValues.DebugModel := FModel; FValues.PageSize := 2;
+  FValues.OnRequestScopes := ScopesRequested; FValues.OnRequestVariables := VariablesRequested;
   FEditor := TERDCodeEditor.Create(Self); FEditor.Parent := Self; FEditor.Align := alClient;
   FEditor.DocumentUri := 'demo:///debug-example.ts'; FEditor.DebugModel := FModel; FEditor.ShowDebugGutter := True;
   FEditor.Text := '// Synthetic debugger demo - no VM connected'+sLineBreak+
@@ -82,7 +82,7 @@ begin
   if FTimer <> nil then begin FTimer.Enabled := False; FTimer.OnTimer := nil; end;
   AttachRibbon(nil);
   if FModel <> nil then begin FModel.OnChange := nil; FModel.OnCommand := nil; end;
-  if FValues <> nil then FValues.OnRequestChildren := nil;
+  if FValues <> nil then begin FValues.OnRequestScopes := nil; FValues.OnRequestVariables := nil; end;
   inherited;
 end;
 procedure TDebugPreview.NavigateBreakpoint(Sender: TObject; const DocumentUri: string; Line: Integer);
@@ -111,30 +111,46 @@ begin
 end;
 procedure TDebugPreview.FrameSelected(Sender: TObject; const Context: TERDStackRequest; const Frame: TERDStackFrame);
 begin
-  FSelectedFrame := Frame.Name; RefreshValues;
+  FValues.BeginFrame(Context,Frame);
 end;
 procedure TDebugPreview.NavigateFrame(Sender: TObject; const DocumentUri: string; Line, Column: Integer);
 begin NavigateBreakpoint(Sender,DocumentUri,Line); end;
-procedure TDebugPreview.RefreshValues;
-var Roots: TArray<TERDInspectValue>;
+procedure TDebugPreview.ScopesRequested(Sender: TObject; const Context: TERDLocalsRequest);
+var Scopes: TArray<TERDDebugScope>;
 begin
-  SetLength(Roots,4);
-  Roots[3].ID := 'frame'; Roots[3].Name := 'Selected frame (demo)'; Roots[3].ValueText := FSelectedFrame; Roots[3].TypeName := 'string';
-  Roots[0].ID := 'status'; Roots[0].Name := 'status'; Roots[0].Path := 'status';
-  Roots[0].ValueText := '{ color, count }'; Roots[0].TypeName := 'object'; Roots[0].HasChildren := True;
-  Roots[1].ID := 'counter'; Roots[1].Name := 'counter'; Roots[1].Path := 'counter';
-  Roots[1].ValueText := IntToStr(FTick); Roots[1].TypeName := 'number';
-  Roots[2].ID := 'peak'; Roots[2].Name := 'Peak heap (not supplied)'; Roots[2].TypeName := 'bytes'; Roots[2].Availability := vaUnavailable;
-  Inc(FGeneration); FValues.LoadSnapshot('synthetic-'+IntToStr(FModel.Session),FGeneration,Roots);
+  if Context.FrameID = 0 then
+  begin
+    SetLength(Scopes,2); Scopes[0].ID := 'scope.local'; Scopes[0].Name := 'Local (demo)'; Scopes[0].Reference := 100;
+    Scopes[1].ID := 'scope.global'; Scopes[1].Name := 'Global (demo)'; Scopes[1].Reference := 200; Scopes[1].Expensive := True;
+  end
+  else if Context.FrameID = 1 then
+  begin SetLength(Scopes,1); Scopes[0].ID := 'scope.global'; Scopes[0].Name := 'Module (demo)'; Scopes[0].Reference := 200; end;
+  FValues.PublishScopes(Context,Scopes);
 end;
-procedure TDebugPreview.Children(Sender: TObject; const Request: TERDValueRequest);
-var Items: TArray<TERDInspectValue>;
+procedure TDebugPreview.VariablesRequested(Sender: TObject; const Context: TERDLocalsRequest; const Request: TERDValueRequest; const Parent: TERDInspectValue);
+var Items, Page: TArray<TERDInspectValue>; Count: Integer;
 begin
-  if Request.ParentID <> 'status' then Exit;
-  SetLength(Items,2);
-  Items[0].ID := 'status.color'; Items[0].Name := 'color'; Items[0].Path := 'status.color'; Items[0].ValueText := 'green'; Items[0].TypeName := 'string';
-  Items[1].ID := 'status.count'; Items[1].Name := 'count'; Items[1].Path := 'status.count'; Items[1].ValueText := IntToStr(FTick); Items[1].TypeName := 'number';
-  FValues.PublishChildren(Request,Items,False);
+  case Parent.Reference of
+    100: begin
+      SetLength(Items,3);
+      Items[0].Name := 'status'; Items[0].TypeName := 'object'; Items[0].ValueText := '{ color, count }'; Items[0].HasChildren := True; Items[0].Reference := 300;
+      Items[1].Name := 'counter'; Items[1].TypeName := 'number'; Items[1].ValueText := IntToStr(FTick);
+      Items[2].Name := 'enabled'; Items[2].TypeName := 'boolean'; Items[2].ValueText := 'true';
+    end;
+    200: begin
+      SetLength(Items,2);
+      Items[0].Name := 'status'; Items[0].TypeName := 'object'; Items[0].ValueText := '{ color, count }'; Items[0].HasChildren := True; Items[0].Reference := 300;
+      Items[1].Name := 'Peak heap (not supplied)'; Items[1].TypeName := 'bytes'; Items[1].Availability := vaUnavailable;
+    end;
+    300: begin
+      SetLength(Items,2);
+      Items[0].Name := 'color'; Items[0].TypeName := 'string'; Items[0].ValueText := 'green';
+      Items[1].Name := 'count'; Items[1].TypeName := 'number'; Items[1].ValueText := IntToStr(FTick);
+    end;
+  end;
+  for Count := 0 to High(Items) do begin Items[Count].ID := Parent.ID+'.'+IntToStr(Count); if Parent.TypeName = 'scope' then Items[Count].Path := Items[Count].Name else Items[Count].Path := Parent.Path+'.'+Items[Count].Name; end;
+  Count := Max(0,Min(Request.Count,Length(Items)-Request.StartIndex)); Page := Copy(Items,Request.StartIndex,Count);
+  FValues.PublishVariables(Context,Request,Page,Request.StartIndex+Count < Length(Items));
 end;
 procedure TDebugPreview.Tick(Sender: TObject);
 begin

@@ -1,7 +1,7 @@
 ﻿program ERDComponentsSmoke;
 {$APPTYPE CONSOLE}
 uses
-  ERD.Components.CallStack, ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries,
+  ERD.Components.LocalsPanel, ERD.Components.CallStack, ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries,
   ERD.Components.LSP, ERD.Components.Paint, ERD.Components.Control, ERD.Components.LanguageServices, ERD.Components.TextLayout, ERD.Components.CodeEditor, ERD.Components.Syntax,
   ERD.Components.PCBValidation, ERD.Components.PCBValidationPanel, ERD.Components.PCBLayout, ERD.Components.PCBObjectTree, ERD.Components.PCBDesigner, ERD.Components.PCBComponentPalette, ERD.Components.PCBInspector, ERD.Components.Inspector, ERD.Components.PCBScene, ERD.Components.PCBRoute, ERD.Components.PCBLibrary,
   ERD.Components.TextModel, ERD.Components.TextInput,
@@ -120,6 +120,17 @@ type
     LastContext: TERDStackRequest;
     procedure Selected(Sender: TObject; const Context: TERDStackRequest; const Frame: TERDStackFrame);
     procedure Navigate(Sender: TObject; const DocumentUri: string; SourceLine, Column: Integer);
+  end;
+  TLocalsProbe = class
+  public
+    Panel: TERDLocalsPanel;
+    ScopeCalls, VariableCalls: Integer;
+    LastContext: TERDLocalsRequest;
+    LastRequest: TERDValueRequest;
+    LastParent: TERDInspectValue;
+    Synchronous: Boolean;
+    procedure Scopes(Sender: TObject; const Context: TERDLocalsRequest);
+    procedure Variables(Sender: TObject; const Context: TERDLocalsRequest; const Request: TERDValueRequest; const Parent: TERDInspectValue);
   end;
   TDebugCommandProbe = class
   public
@@ -405,6 +416,20 @@ procedure TStackProbe.Selected(Sender: TObject; const Context: TERDStackRequest;
 begin Inc(Calls); LastFrame := Frame; LastContext := Context; end;
 procedure TStackProbe.Navigate(Sender: TObject; const DocumentUri: string; SourceLine, Column: Integer);
 begin Inc(Navigations); Line := SourceLine; end;
+procedure TLocalsProbe.Scopes(Sender: TObject; const Context: TERDLocalsRequest);
+var Scopes: TArray<TERDDebugScope>;
+begin
+  Inc(ScopeCalls); LastContext := Context;
+  if Synchronous then
+  begin SetLength(Scopes,1); Scopes[0].ID := 'scope.local'; Scopes[0].Name := 'Local'; Scopes[0].Reference := 100; Panel.PublishScopes(Context,Scopes); end;
+end;
+procedure TLocalsProbe.Variables(Sender: TObject; const Context: TERDLocalsRequest; const Request: TERDValueRequest; const Parent: TERDInspectValue);
+var Values: TArray<TERDInspectValue>;
+begin
+  Inc(VariableCalls); LastContext := Context; LastRequest := Request; LastParent := Parent;
+  if Synchronous then
+  begin SetLength(Values,1); Values[0].ID := Parent.ID+'.value'; Values[0].Name := 'value'; Values[0].ValueText := '42'; Panel.PublishVariables(Context,Request,Values,False); end;
+end;
 procedure TDebugCommandProbe.Execute(Sender: TObject; Value: TERDDebugCommand);
 begin Inc(Calls); Command := Value; end;
 procedure TValueChildrenProbe.Request(Sender: TObject; const Value: TERDValueRequest);
@@ -3636,6 +3661,71 @@ begin
   finally Stack.Free; Probe.Free; Model.Free; Form.Free; end;
 end;
 
+procedure TestLocalsPanel;
+var Form: TForm; Model: TERDDebugModel; Panel, CopyPanel: TERDLocalsPanel; Probe: TLocalsProbe;
+    Stack: TERDStackRequest; Frame: TERDStackFrame; Context, Old: TERDLocalsRequest;
+    Scopes: TArray<TERDDebugScope>; Values: TArray<TERDInspectValue>; Value: TERDInspectValue;
+    Request: TERDValueRequest; Stream: TMemoryStream; ScopeCalls: Integer;
+begin
+  Form := TForm.Create(nil); Model := TERDDebugModel.Create(nil); Panel := TERDLocalsPanel.Create(Form); Panel.Parent := Form; Probe := TLocalsProbe.Create;
+  try
+    Panel.DebugModel := Model; Panel.PageSize := 1; Probe.Panel := Panel;
+    Panel.OnRequestScopes := Probe.Scopes; Panel.OnRequestVariables := Probe.Variables;
+    Stack := Default(TERDStackRequest); Stack.Session := Model.Session; Stack.RequestID := 1;
+    Frame := Default(TERDStackFrame); Frame.ThreadID := 1; Frame.Name := 'callee';
+    Context := Panel.BeginFrame(Stack,Frame); Check(Context.RequestID = 0, 'Locals rejects a frame while disconnected');
+    Model.SetExecution(dsPaused,'file:///locals.ts',4); Context := Panel.BeginFrame(Stack,Frame);
+    Check(Panel.Pending and (Probe.ScopeCalls = 1) and (Probe.LastContext.FrameID = 0), 'Selecting frame zero requests scopes with context');
+    SetLength(Scopes,2); Scopes[0].ID := 'scope.local'; Scopes[0].Name := 'Local'; Scopes[0].Reference := 100; Scopes[0].Expensive := True;
+    Scopes[1].ID := 'scope.empty'; Scopes[1].Name := 'Empty';
+    Check(Panel.PublishScopes(Context,Scopes) and not Panel.Pending and not Panel.Stale and (Panel.ValueTree.RootNodeCount = 2), 'Scopes publish as roots');
+    Check((Probe.VariableCalls = 0) and Panel.ValueTree.ValueByID('scope.local',Value) and (Value.Reference = 100) and Value.HasChildren, 'Expensive scope is lazy and preserves variables reference');
+    Check(Panel.ValueTree.RequestChildren('scope.empty') = 0, 'Reference zero is an empty non-expandable scope');
+    Panel.ValueTree.RequestChildren('scope.local'); Request := Probe.LastRequest;
+    Check((Probe.VariableCalls = 1) and (Probe.LastParent.Reference = 100) and (Request.Count = 1) and (Request.StartIndex = 0), 'Variables request carries parent reference and page bounds');
+    SetLength(Values,1); Values[0].ID := 'scope.local.object'; Values[0].Name := 'object'; Values[0].Reference := 200; Values[0].HasChildren := True;
+    Check(Panel.PublishVariables(Context,Request,Values,True), 'First variable page is accepted');
+    Panel.ValueTree.RequestChildren('scope.local'); Request := Probe.LastRequest;
+    Check(Request.StartIndex = 1, 'Load more starts after published variables');
+    Values[0] := Default(TERDInspectValue); Values[0].ID := 'scope.local.peak'; Values[0].Name := 'Peak'; Values[0].Availability := vaUnavailable;
+    Check(Panel.PublishVariables(Context,Request,Values,False) and Panel.ValueTree.ValueByID(Values[0].ID,Value) and (Value.Availability = vaUnavailable), 'Unavailable value stays distinct from measured zero');
+    Panel.ValueTree.RequestChildren('scope.local.object'); Request := Probe.LastRequest;
+    Check(Probe.LastParent.Reference = 200, 'Nested object uses its own variables reference');
+    Old := Context; Frame.ID := 1; Frame.Name := 'caller'; Context := Panel.BeginFrame(Stack,Frame);
+    Check(not Panel.PublishVariables(Old,Request,Values,False) and not Panel.PublishScopes(Old,Scopes), 'Frame switch rejects earlier scopes and child replies');
+    Check(Panel.ValueTree.ValueByID('scope.local.object',Value) and (Value.Availability = vaStale), 'Old display stays visibly stale while scopes load');
+    Scopes[1].ID := Scopes[0].ID; Check(not Panel.PublishScopes(Context,Scopes) and Panel.Pending, 'Invalid scope IDs are rejected atomically'); Scopes[1].ID := 'scope.empty';
+    Check(Panel.FailScopes(Context,'Scope provider failed') and Panel.Stale and (Panel.ErrorText = 'Scope provider failed'), 'Scope failure exposes an error and invalidates pending request');
+    Old := Context; Panel.RetryScopes; Context := Probe.LastContext;
+    Check((Context.RequestID <> Old.RequestID) and Panel.Pending and not Panel.PublishScopes(Old,Scopes), 'Retry uses a fresh context token');
+    Check(Panel.PublishScopes(Context,Scopes), 'Retried scope response is accepted');
+    Panel.ValueTree.RequestChildren('scope.local'); Request := Probe.LastRequest;
+    Check(Panel.FailVariables(Context,Request,'Variables unavailable'), 'Variable request failure is scoped');
+    Panel.ValueTree.RequestChildren('scope.local'); Request := Probe.LastRequest;
+    Values[0] := Default(TERDInspectValue); Values[0].ID := 'scope.local.value'; Values[0].ValueText := '7';
+    Check(Panel.PublishVariables(Context,Request,Values,False), 'Failed variable request can be retried');
+    Model.SetExecution(dsRunning);
+    Check(Panel.Stale and not Panel.PublishVariables(Context,Request,Values,False), 'Continue invalidates variable replies');
+    ScopeCalls := Probe.ScopeCalls; Panel.RetryScopes; Check(Probe.ScopeCalls = ScopeCalls, 'Retry does not reactivate a resumed frame');
+    Model.SetExecution(dsPaused,'file:///locals.ts',4); Probe.Synchronous := True;
+    Context := Panel.BeginFrame(Stack,Frame); Panel.ValueTree.RequestChildren('scope.local');
+    Check(not Panel.Pending and Panel.ValueTree.ValueByID('scope.local.value',Value) and (Value.ValueText = '42'), 'Synchronous scope and variable providers are supported');
+    Probe.Synchronous := False; Context := Panel.BeginFrame(Stack,Frame); Model.SetExecution(dsPaused,'file:///locals.ts',5);
+    Check(not Panel.PublishScopes(Context,Scopes), 'Changed execution location rejects old scopes');
+    Context := Panel.BeginFrame(Stack,Frame); Model.BeginSession;
+    Check(not Panel.PublishScopes(Context,Scopes), 'Session change rejects old scopes');
+    Stack.Session := Model.Session; Model.SetExecution(dsPaused,'file:///locals.ts',4); Context := Panel.BeginFrame(Stack,Frame);
+    Check(Panel.PublishScopes(Context,nil) and not Panel.Stale and (Panel.ValueTree.RootNodeCount = 0), 'Frame without scopes shows an empty current view');
+    Panel.OnRequestScopes := nil; Panel.OnRequestVariables := nil; Panel.DebugModel := nil;
+    RegisterClass(TERDLocalsPanel); CopyPanel := TERDLocalsPanel.Create(Form); Stream := TMemoryStream.Create;
+    try
+      Stream.WriteComponent(Panel); Stream.Position := 0; Stream.ReadComponent(CopyPanel);
+      Check((CopyPanel.PageSize = 1) and CopyPanel.Stale and (CopyPanel.ValueTree.RootNodeCount = 0) and (CopyPanel.ComponentCount = 2), 'DFM keeps settings without serializing internal tree or runtime context');
+    finally Stream.Free; CopyPanel.Free; end;
+    Panel.DebugModel := Model; FreeAndNil(Model); Check((Panel.DebugModel = nil) and Panel.Stale, 'Model destruction safely detaches locals panel');
+  finally Panel.Free; Probe.Free; Model.Free; Form.Free; end;
+end;
+
 procedure TestValueTreeSnapshots;
 var Form: TForm; Tree, CopyTree: TERDValueTree; Probe: TValueChildrenProbe;
     Roots, Children: TArray<TERDInspectValue>; Request, Old: TERDValueRequest; Value: TERDInspectValue; Stream: TMemoryStream;
@@ -5065,7 +5155,7 @@ begin
     TestPCBDesigner;
     TestPCBDesignerTools;
     TestPCBPlacement;
-    TestDebugEditor; TestBreakpointPanel; TestCallStack; TestValueTreeSnapshots; TestTimeSeriesHistory;
+    TestDebugEditor; TestBreakpointPanel; TestCallStack; TestLocalsPanel; TestValueTreeSnapshots; TestTimeSeriesHistory;
     TestPCBCardinalAnchors; TestPCBZOrderAndGrid; TestSelectedTabVisibility;
     TestPCBConnections;
     TestPCBComponentTypes;

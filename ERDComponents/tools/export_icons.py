@@ -60,6 +60,7 @@ def resource(name,payload):
 COMPONENT_ICONS={
     'TERDDebugModel': 151,
     'TERDValueTree': 69,
+    'TERDLocalsPanel': 69,
     'TERDCallStack': 69,
     'TERDBreakpointPanel': 151,
     'TERDTimeSeriesChart': 111,
