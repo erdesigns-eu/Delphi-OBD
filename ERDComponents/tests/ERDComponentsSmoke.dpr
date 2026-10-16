@@ -1,7 +1,7 @@
 ﻿program ERDComponentsSmoke;
 {$APPTYPE CONSOLE}
 uses
-  ERD.Components.RuntimeMonitor, ERD.Components.FiberList, ERD.Components.DisassemblyView, ERD.Components.WatchPanel, ERD.Components.LocalsPanel, ERD.Components.CallStack, ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries,
+  ERD.Components.DebugConsole, ERD.Components.RuntimeMonitor, ERD.Components.FiberList, ERD.Components.DisassemblyView, ERD.Components.WatchPanel, ERD.Components.LocalsPanel, ERD.Components.CallStack, ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries,
   ERD.Components.LSP, ERD.Components.Paint, ERD.Components.Control, ERD.Components.LanguageServices, ERD.Components.TextLayout, ERD.Components.CodeEditor, ERD.Components.Syntax,
   ERD.Components.PCBValidation, ERD.Components.PCBValidationPanel, ERD.Components.PCBLayout, ERD.Components.PCBObjectTree, ERD.Components.PCBDesigner, ERD.Components.PCBComponentPalette, ERD.Components.PCBInspector, ERD.Components.Inspector, ERD.Components.PCBScene, ERD.Components.PCBRoute, ERD.Components.PCBLibrary,
   ERD.Components.TextModel, ERD.Components.TextInput,
@@ -161,6 +161,14 @@ type
     procedure Cleared(Sender: TObject);
     procedure Inspect(Sender: TObject; const Context: TERDFiberRequest; const Value: TERDFiberInfo);
     procedure Navigate(Sender: TObject; const Context: TERDFiberRequest; const Value: TERDFiberInfo);
+  end;
+  TConsoleProbe = class
+  public
+    Calls, Inspections: Integer;
+    Session: Int64;
+    Text: string;
+    procedure Command(Sender: TObject; Value: Int64; const CommandText: string);
+    procedure Inspect(Sender: TObject; const Entry: TERDConsoleEntry);
   end;
   TRuntimeProbe = class
   public
@@ -493,6 +501,11 @@ procedure TFiberProbe.Inspect(Sender: TObject; const Context: TERDFiberRequest; 
 begin Inc(Inspections); end;
 procedure TFiberProbe.Navigate(Sender: TObject; const Context: TERDFiberRequest; const Value: TERDFiberInfo);
 begin Inc(Navigations); end;
+procedure TConsoleProbe.Command(Sender: TObject; Value: Int64; const CommandText: string);
+begin Inc(Calls); Session := Value; Text := CommandText; end;
+procedure TConsoleProbe.Inspect(Sender: TObject; const Entry: TERDConsoleEntry);
+begin Inc(Inspections); Text := Entry.Text; end;
+
 procedure TRuntimeProbe.Request(Sender: TObject; const Context: TERDRuntimeRequest);
 begin Inc(Calls); Last := Context; end;
 procedure TDebugCommandProbe.Execute(Sender: TObject; Value: TERDDebugCommand);
@@ -3994,6 +4007,79 @@ begin
   finally Monitor.Free; Probe.Free; Model.Free; Form.Free; end;
 end;
 
+procedure TestDebugConsole;
+var Form: TForm; Console, CopyConsole: TERDDebugConsole; Model: TERDDebugModel; Probe: TConsoleProbe;
+    Entry: TERDConsoleEntry; Entries: TArray<TERDConsoleEntry>; History: TArray<string>;
+    Node: PVirtualNode; ID: Int64; Key: Word; Stream: TMemoryStream; Raised: Boolean;
+begin
+  Form := TForm.Create(nil); Console := TERDDebugConsole.Create(Form); Console.Parent := Form;
+  Model := TERDDebugModel.Create(nil); Probe := TConsoleProbe.Create;
+  try
+    Console.BeginSession(7); Console.MaxEntries := 2;
+    ID := Console.AddEntry(7,Now,dlsInfo,'stdout','first');
+    Console.AddEntry(7,Now,dlsWarning,'host','second'); Console.AddEntry(7,Now,dlsError,'stderr','third');
+    Check((Console.Count = 2) and (Console.EntryAt(0).Text = 'second') and (Console.EntryAt(1).ID > ID), 'Console evicts oldest entries while preserving arrival IDs');
+    Check(Console.AddEntry(6,Now,dlsInfo,'stdout','late') = 0, 'Console rejects prior-session messages');
+    Console.Paused := True; Console.AddEntry(7,Now,dlsDebug,'host','fourth'); Console.AddEntry(7,Now,dlsTrace,'host','fifth');
+    Check((Console.PendingCount = 2) and Console.VisibleEntry(0,Entry) and (Entry.Text = 'second'), 'Paused console retains readable snapshot despite live ring eviction');
+    Console.Levels := [dlsError]; Check((Console.VisibleCount = 1) and Console.VisibleEntry(0,Entry) and (Entry.Text = 'third'), 'Paused filters operate on frozen entries');
+    Console.Paused := False; Check((Console.VisibleCount = 0) and (Console.PendingCount = 0), 'Resume publishes newest retained buffer using current filters');
+    Console.Levels := [dlsTrace,dlsDebug,dlsInfo,dlsWarning,dlsError]; Console.SearchText := 'FIFTH'; Console.ChannelFilter := 'HOST';
+    Check(Console.VisibleCount = 1, 'Console combines case-insensitive search and channel filters');
+    Console.SearchText := ''; Console.ChannelFilter := ''; Console.Clear; Console.MaxEntries := 10; Console.MaxTextChars := 256;
+    Console.AddEntry(7,Now,dlsInfo,'x',StringOfChar('a',150)); Console.AddEntry(7,Now,dlsInfo,'x',StringOfChar('b',150));
+    Check((Console.Count = 1) and (Console.TextChars = 151) and (Console.EntryAt(0).Text[1] = 'b'), 'Text budget evicts oldest even below entry-count limit');
+    Console.Clear; Console.MaxEntryChars := 16;
+    Console.AddEntry(7,Now,dlsInfo,'x',StringOfChar('a',15)+Char($D83D)+Char($DE00)+'tail');
+    Entry := Console.EntryAt(0); Check(Entry.Truncated and (Length(Entry.Text) = 15), 'Truncation never retains half a UTF-16 surrogate pair');
+    Console.Clear; Console.MaxEntryChars := 65536; Console.MaxTextChars := 4096;
+    Console.AddEntry(7,Now,dlsInfo,'stdout','one'+#13#10+'two'+#13+'three');
+    Entry := Console.EntryAt(0); Check(Entry.Text = 'one'+#10+'two'+#10+'three', 'Console normalizes multiline messages without losing content');
+    Node := Console.EntryTree.GetFirst; Console.EntryTree.Selected[Node] := True; Console.EntryTree.FocusedNode := Node;
+    Console.OnInspectEntry := Probe.Inspect; Console.InspectSelected;
+    Check((Probe.Inspections = 1) and (Probe.Text = Entry.Text) and (Pos('one'+sLineBreak+'two',Console.SelectedText) > 0), 'Copy and inspect expose full retained multiline content');
+    ID := Entry.ID; Console.AddEntry(7,Now,dlsInfo,'host','next');
+    Check(Console.SelectedEntry(Entry) and (Entry.ID = ID) and (Console.EntryTree.SelectedCount = 1), 'Appending preserves focused and selected entries by stable ID');
+    SetLength(Entries,2); Entries[0].Session := 7; Entries[0].Timestamp := Now; Entries[0].Text := 'valid';
+    Entries[1] := Entries[0]; Entries[1].Timestamp := NaN; Raised := False;
+    try Console.AddEntries(Entries); except on E: EArgumentException do Raised := True; end;
+    Check(Raised and (Console.Count = 2), 'Invalid batch is rejected before any entry is appended');
+    Entries[1].Timestamp := Now; Console.AddEntries(Entries); Check(Console.VisibleCount = 4, 'Batch publishes all valid entries');
+    Console.BeginUpdate; Console.AddEntry(7,Now,dlsInfo,'host','batched');
+    Check(Console.VisibleCount = 4, 'Explicit append batch defers view rebuild'); Console.EndUpdate;
+    Check(Console.VisibleCount = 5, 'EndUpdate publishes deferred entries');
+    Raised := False; try Console.EndUpdate; except on E: EInvalidOperation do Raised := True; end;
+    Check(Raised, 'Unbalanced update nesting is rejected');
+    Console.ShowInput := True; Console.CommandEditor.Text := 'draft';
+    Check(not Console.SubmitCommand('help') and (Console.CommandEditor.Text = 'draft'), 'Missing command handler retains draft and executes nothing');
+    Console.OnCommand := Probe.Command; Console.HistoryLimit := 2;
+    Check(Console.SubmitCommand(' help ') and (Probe.Calls = 1) and (Probe.Session = 7) and (Probe.Text = 'help'), 'Commands are trimmed and dispatched only to the host event');
+    Console.SubmitCommand('help'); Check(Length(Console.CommandHistory) = 1, 'Consecutive duplicate commands do not duplicate history');
+    Console.SubmitCommand('second'); Console.SubmitCommand('third'); History := Console.CommandHistory;
+    Check((Length(History) = 2) and (History[0] = 'second') and (History[1] = 'third'), 'Command history retains only configured newest commands');
+    Console.CommandEditor.Text := 'unfinished'; Key := VK_UP; Console.CommandEditor.OnKeyDown(Console.CommandEditor,Key,[]);
+    Check((Key = 0) and (Console.CommandEditor.Text = 'third'), 'Up recalls latest command');
+    Key := VK_UP; Console.CommandEditor.OnKeyDown(Console.CommandEditor,Key,[]); Check(Console.CommandEditor.Text = 'second', 'Up navigates older command');
+    Key := VK_DOWN; Console.CommandEditor.OnKeyDown(Console.CommandEditor,Key,[]); Key := VK_DOWN; Console.CommandEditor.OnKeyDown(Console.CommandEditor,Key,[]);
+    Check(Console.CommandEditor.Text = 'unfinished', 'Down restores unsent draft after browsing history');
+    Check(not Console.SubmitCommand('a'+#10+'b'), 'Command entry refuses multiline execution');
+    Console.DebugModel := Model; Check(not Console.SubmitCommand('help'), 'Disconnected model blocks command dispatch');
+    Model.SetExecution(dsRunning); Check(Console.SubmitCommand('help') and (Probe.Session = Model.Session), 'Connected model session is included in host command');
+    Model.BeginSession; Check(Console.ActiveSession = Model.Session, 'Console follows model session changes');
+    Model.SetExecution(dsDisconnected); Check(Console.AddEntry(Model.Session,Now,dlsInfo,'host','shutdown') > 0, 'Disconnected session still accepts final shutdown logs');
+    Console.OnCommand := nil; Console.OnInspectEntry := nil; Console.DebugModel := nil;
+    Console.SearchText := 'shutdown'; Console.Paused := True; Console.ShowInput := True;
+    RegisterClass(TERDDebugConsole); CopyConsole := TERDDebugConsole.Create(Form); Stream := TMemoryStream.Create;
+    try
+      Stream.WriteComponent(Console); Stream.Position := 0; Stream.ReadComponent(CopyConsole);
+      Check((CopyConsole.MaxEntries = 10) and (CopyConsole.MaxTextChars = 4096) and (CopyConsole.HistoryLimit = 2) and CopyConsole.ShowInput and
+        (CopyConsole.Count = 0) and not CopyConsole.Paused and (CopyConsole.SearchText = '') and (Length(CopyConsole.CommandHistory) = 0) and (CopyConsole.ComponentCount = 6), 'DFM retains configuration without logs, history, filters or duplicate internals');
+    finally Stream.Free; CopyConsole.Free; end;
+    Console.DebugModel := Model; FreeAndNil(Model); Check((Console.DebugModel = nil) and not Console.CommandEditor.Enabled, 'Model destruction detaches console and disables commands');
+    Check(Console.BeginSession(9) and Console.CommandEditor.Enabled, 'Explicit host session restores input after model destruction');
+  finally Console.Free; Probe.Free; Model.Free; Form.Free; end;
+end;
+
 procedure TestValueTreeSnapshots;
 var Form: TForm; Tree, CopyTree: TERDValueTree; Probe: TValueChildrenProbe;
     Roots, Children: TArray<TERDInspectValue>; Request, Old: TERDValueRequest; Value: TERDInspectValue; Stream: TMemoryStream;
@@ -5423,7 +5509,7 @@ begin
     TestPCBDesigner;
     TestPCBDesignerTools;
     TestPCBPlacement;
-    TestDebugEditor; TestBreakpointPanel; TestCallStack; TestLocalsPanel; TestWatchPanel; TestDisassemblyView; TestFiberList; TestRuntimeMonitor; TestValueTreeSnapshots; TestTimeSeriesHistory;
+    TestDebugEditor; TestBreakpointPanel; TestCallStack; TestLocalsPanel; TestWatchPanel; TestDisassemblyView; TestFiberList; TestRuntimeMonitor; TestDebugConsole; TestValueTreeSnapshots; TestTimeSeriesHistory;
     TestPCBCardinalAnchors; TestPCBZOrderAndGrid; TestSelectedTabVisibility;
     TestPCBConnections;
     TestPCBComponentTypes;

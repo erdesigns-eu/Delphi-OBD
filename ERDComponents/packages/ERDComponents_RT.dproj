@@ -88,6 +88,7 @@
         <DCCReference Include="..\src\UI\ERD.Components.DisassemblyView.pas"/>
         <DCCReference Include="..\src\UI\ERD.Components.FiberList.pas"/>
         <DCCReference Include="..\src\UI\ERD.Components.RuntimeMonitor.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.DebugConsole.pas"/>
         <DCCReference Include="..\src\UI\ERD.Components.TimeSeries.pas"/>
         <DCCReference Include="..\src\UI\ERD.Components.TextModel.pas"/>
         <DCCReference Include="..\src\UI\ERD.Components.TextLayout.pas"/>

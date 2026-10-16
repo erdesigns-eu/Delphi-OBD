@@ -558,3 +558,83 @@ values, copied snapshots, unavailable/reset gaps, failed observations, bounded
 history while paused, session/clock resets, stale intervals, DFM and model lifetime.
 These tests and visual checks for the new page/ribbon, theme, DPI, small layouts,
 zoom, pause and errors still require Delphi on Windows; they were not run in Linux.
+
+## Debug console
+
+`TERDDebugConsole` is a reusable themed log viewer with optional command input.
+It has no transport, evaluator or shell. `ConsolePreview.pas` supplies synthetic
+logs and a small demo-only command handler on the separate **Debug console** page.
+
+Feed entries on the VCL thread using `AddEntry(Session, Timestamp, Level, Channel,
+Text)`. The timestamp is supplied by the host and displayed in that host's time
+zone; no UTC conversion is performed. Entries stay in arrival order, even when
+timestamps are equal or out of order. The returned positive ID is stable for the
+component lifetime; zero means a previous-session entry was ignored. Invalid
+current-session dates or levels raise `EArgumentException`. `AddEntries` validates
+a batch before appending it and assigns fresh IDs. Use `BeginUpdate`/`EndUpdate`
+with `try/finally` for bursts to rebuild the view once. Configuration changes and
+Clear apply immediately; update nesting only batches incoming entries. The host
+assembles partial stream fragments before feeding logical messages.
+
+Retention is bounded by three independent settings:
+
+- `MaxEntries`: 5000 by default, range 1..100000.
+- `MaxTextChars`: 1048576 UTF-16 code units across text and channel strings,
+  range 256..16777216. Oldest entries are evicted first.
+- `MaxEntryChars`: 65536 text code units, range 16..1048576, further limited by
+  the total budget. Channels are normalized to a single line and capped at 128.
+
+Truncation avoids splitting UTF-16 surrogate pairs and sets `Entry.Truncated`.
+Lowering limits immediately trims existing data. `Count`, `TextChars` and
+`EntryAt` describe the live retained buffer. A row previews at most 16 lines;
+copy/inspect still returns the entire retained message, with an explicit marker
+if retention truncated it. CRLF and bare CR are normalized to LF internally.
+`VisibleEntry`, `VisibleCount`, `SelectedText` and `VisibleText` describe the
+filtered view. Copy includes time, session, severity, channel and message.
+Double-click/Enter fires `OnInspectEntry` for a separate host detail view.
+
+Search is case-insensitive across channel and message. Channel and severity
+filters combine with search; `Levels` can select several severity levels through
+the API. The level combo selects one or all. Ctrl+C copies selected rows and the
+context menu also offers copy-visible, inspect, pause and follow-latest.
+`AutoScroll` follows new entries while at the tail. Scrolling back suspends tail
+following; Ctrl+End or `JumpToTail` resumes it. Focus, selection and viewport are
+restored by entry ID across appends while retained.
+
+`Paused` freezes a bounded source snapshot, including messages subsequently
+evicted from the live buffer. Filters continue to operate on that frozen source.
+New entries continue into the bounded live ring and increment `PendingCount`.
+Resuming shows the latest retained buffer; older arrivals may have been evicted.
+This may retain up to two bounded sets of strings while paused (plus shared view
+references); it does not create an unbounded deferred queue. Clear clears both.
+
+`BeginSession(Session, ClearHistory)` sets a nonnegative host session. Here
+ClearHistory refers to log history, not command history. A borrowed `DebugModel`
+reference automatically supplies its session; session changes retain tagged logs,
+while initial binding clears logs. The host may call Clear explicitly. Previous
+session messages are rejected. Disconnect blocks commands but accepts shutdown
+logs from the same session. Model destruction disables command input safely;
+a new binding or explicit host BeginSession restores source availability.
+
+Set `ShowInput=True` and implement `OnCommand(Sender, Session, Command)` to opt
+into command dispatch. The console trims commands and rejects empty, multiline
+or over-4096-character submissions. Without a handler or connected source,
+submission fails and retains the draft. The host decides what commands mean,
+executes them and supplies any resulting logs. Nothing is implicitly evaluated,
+echoed or sent to TSVM. `SubmitCommand` reports successful dispatch, not successful
+execution. History has 100 entries by default (`HistoryLimit` 1..1000), skips
+consecutive duplicates and supports Up/Down with restoration of the unsent draft.
+`ClearCommandHistory` clears it independently of log retention.
+
+DFM streaming saves limits, input visibility, auto-scroll, model reference,
+events and normal appearance settings. Logs, IDs, sessions, paused snapshots,
+filters and command history are runtime state; owned internal controls are not
+streamed a second time. Use `EntryTree` and `CommandEditor` for appearance/access,
+not replacing the console's callbacks or internal data.
+
+Windows smoke cases cover eviction, UTF-16 truncation, frozen pause/filtering,
+multiline copy/inspection, stable selection, atomic batch validation, update
+nesting, host-only command dispatch, draft/history navigation, disconnected and
+new sessions, model destruction and DFM configuration. They are added but have
+not been executed in this Linux environment. Delphi Windows still needs to run
+the smoke program and check scrolling, input, themes, DPI and the demo ribbon.
