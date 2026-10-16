@@ -2,7 +2,8 @@
 
 The component set provides `TERDDebugModel`, `TERDValueTree`,
 `TERDTimeSeriesChart`, `TERDBreakpointPanel`, `TERDCallStack` and
-`TERDLocalsPanel`, `TERDWatchPanel`, `TERDDisassemblyView` and `TERDFiberList`, plus
+`TERDLocalsPanel`, `TERDWatchPanel`, `TERDDisassemblyView`, `TERDFiberList` and
+`TERDRuntimeMonitor`, plus
 debug gutter/execution rendering in
 `TERDCodeEditor`.
 The separate Debugger components demo page exercises them through a synthetic
@@ -473,3 +474,87 @@ refresh, filters, disappeared fibers, unknown states, unavailable data, error/re
 empty snapshots, session changes, DFM and model lifetime. These tests and visual
 light/dark, DPI, chip clipping, keyboard and scrollbar checks require Delphi on
 Windows and are not executed in the Linux cloud.
+
+## Runtime monitor
+
+`TERDRuntimeMonitor` is a standalone composite with Heap, GC and Scheduler tabs.
+Each tab has a read-only ValueTree summary and a bounded two-series TimeSeries
+chart. The component owns no timer or transport and does not issue GC commands.
+A host supplies aggregated observations; three NDB replies are not treated as an
+atomic VM event trace. The separate Runtime monitor demo page supplies clearly
+labelled synthetic data and a host timer/ribbon.
+
+`TERDRuntimeMetric` has an ID, group, caption, unit and explicit availability.
+Kinds are rmNumber (finite Double), rmUnsigned (exact UInt64), rmBoolean and
+rmText. Cumulative marks resettable counters. Available zero, unavailable and
+per-metric error (TextValue) remain different states. Captions fall back to IDs.
+Generic extra metrics may be displayed in the appropriate group; IDs are unique
+across the complete snapshot.
+
+The fixed charts deliberately have separate units:
+
+| Group | IDs | Unit |
+|---|---|---|
+| Heap | heap.usedBytes, heap.totalBytes | bytes |
+| GC | gc.minorGCTimeMicros, gc.majorGCTimeMicros | us, cumulative totals |
+| Scheduler | scheduler.currentFiberCount, scheduler.runnableFiberCount | fibers |
+
+These six IDs require their matching group, rmUnsigned and the exact listed unit;
+GC time metrics must also be marked Cumulative. Incorrect chart metadata rejects
+the whole snapshot. Other metric IDs can use other units/types without being
+plotted on these axes. Unsigned table values preserve all 64 bits; plot coordinates
+use Double and may approximate extremely large counters. No rates or per-event
+latencies are inferred from cumulative totals.
+
+1. Assign the shared DebugModel if desired. RequestSnapshot(Session, Generation)
+   is allowed while running or paused. Generations strictly increase within one
+   session, including retries. A refused request has RequestID zero. OnRequestSnapshot
+   emits the token; the host manages polling, backpressure and UI-thread delivery.
+2. Return PublishSnapshot(Request, TimeSeconds, Metrics). TimeSeconds is a finite,
+   nonnegative host observation time, strictly increasing within that session.
+   A new session clears history and permits a restarted clock. The complete token,
+   unique IDs, finite available numbers and chart metadata are validated before
+   replacing summaries or appending samples. Arrays are copied. Late, duplicate,
+   invalid and previous-session responses do not mutate the view/history.
+3. Missing/unavailable/error chart metrics append explicit gaps, not measured zeros.
+   Cumulative counter decreases also break the graph while the table shows the
+   actual new value (including zero). The next observation can continue the new
+   counter segment. An empty snapshot clears summaries and appends chart gaps.
+4. FailSnapshot(Request, TimeSeconds, Message) adds a missing observation, retains
+   stale summaries and shows an error. It needs a valid, increasing timestamp too.
+   SampleTime remains the last **successful** observation time; the failed point
+   only advances history's monotonic clock. Retry with a fresh generation.
+5. Disconnect/session changes or MarkStale invalidate pending replies and inspection.
+   A same-session return after an unknown interval breaks connecting lines. Without
+   a model the host manages MarkStale explicitly. Pause/resume of VM execution does
+   not invalidate telemetry. A different model binding resets comparison identity.
+
+MaxSamples defaults to 2048, bounded to 16..100000 per series. WindowSeconds
+configures all charts (0.01..86400 seconds); Ctrl+wheel can zoom one chart's view.
+Paused freezes graph viewports while summaries and bounded histories continue to
+update. Old observations can be evicted during a long pause. A new session resets
+paused viewports to its first observation. ShowCharts hides plots without stopping
+sampling; at small component heights graphs hide automatically to leave readable
+summaries. ChartFor/TableFor expose owned views for appearance/lookup, not replacing
+their series, callbacks, snapshots or history. OnInspectMetric carries the published
+request and exact metric to a separate host details view. Stale data can still be
+looked up/copied, but it is labelled stale and inspection events are suppressed.
+
+The host must map known TSVM placeholder fields to unavailable data: ndb_server.cpp
+currently writes zero for heap peakLiveBytes/peakLiveObjects. Its objectCount is
+only young+old objects (large-object count is separate). The demo labels this
+explicitly. Missing fields or domain failures are not automatically converted to
+zero measurements. No NDB adapter or runtime defect fix is included here.
+
+MaxSamples, WindowSeconds, Paused, ShowCharts, model reference and normal monitor
+appearance settings are DFM configuration. Internal controls, metric data,
+comparison/session state and history are not streamed. The demo ribbon can start
+new sessions, pause chart views, hide GC observations, simulate a provider error,
+stop/resume sampling and reset synthetic GC counters. It never runs TSVM or forces
+a real GC.
+
+Added Windows smoke cases cover atomic unit/ID/time validation, exact UInt64
+values, copied snapshots, unavailable/reset gaps, failed observations, bounded
+history while paused, session/clock resets, stale intervals, DFM and model lifetime.
+These tests and visual checks for the new page/ribbon, theme, DPI, small layouts,
+zoom, pause and errors still require Delphi on Windows; they were not run in Linux.

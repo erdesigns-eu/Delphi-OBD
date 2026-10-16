@@ -1,7 +1,7 @@
 ﻿program ERDComponentsSmoke;
 {$APPTYPE CONSOLE}
 uses
-  ERD.Components.FiberList, ERD.Components.DisassemblyView, ERD.Components.WatchPanel, ERD.Components.LocalsPanel, ERD.Components.CallStack, ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries,
+  ERD.Components.RuntimeMonitor, ERD.Components.FiberList, ERD.Components.DisassemblyView, ERD.Components.WatchPanel, ERD.Components.LocalsPanel, ERD.Components.CallStack, ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries,
   ERD.Components.LSP, ERD.Components.Paint, ERD.Components.Control, ERD.Components.LanguageServices, ERD.Components.TextLayout, ERD.Components.CodeEditor, ERD.Components.Syntax,
   ERD.Components.PCBValidation, ERD.Components.PCBValidationPanel, ERD.Components.PCBLayout, ERD.Components.PCBObjectTree, ERD.Components.PCBDesigner, ERD.Components.PCBComponentPalette, ERD.Components.PCBInspector, ERD.Components.Inspector, ERD.Components.PCBScene, ERD.Components.PCBRoute, ERD.Components.PCBLibrary,
   ERD.Components.TextModel, ERD.Components.TextInput,
@@ -161,6 +161,12 @@ type
     procedure Cleared(Sender: TObject);
     procedure Inspect(Sender: TObject; const Context: TERDFiberRequest; const Value: TERDFiberInfo);
     procedure Navigate(Sender: TObject; const Context: TERDFiberRequest; const Value: TERDFiberInfo);
+  end;
+  TRuntimeProbe = class
+  public
+    Calls: Integer;
+    Last: TERDRuntimeRequest;
+    procedure Request(Sender: TObject; const Context: TERDRuntimeRequest);
   end;
   TDebugCommandProbe = class
   public
@@ -487,6 +493,8 @@ procedure TFiberProbe.Inspect(Sender: TObject; const Context: TERDFiberRequest; 
 begin Inc(Inspections); end;
 procedure TFiberProbe.Navigate(Sender: TObject; const Context: TERDFiberRequest; const Value: TERDFiberInfo);
 begin Inc(Navigations); end;
+procedure TRuntimeProbe.Request(Sender: TObject; const Context: TERDRuntimeRequest);
+begin Inc(Calls); Last := Context; end;
 procedure TDebugCommandProbe.Execute(Sender: TObject; Value: TERDDebugCommand);
 begin Inc(Calls); Command := Value; end;
 procedure TValueChildrenProbe.Request(Sender: TObject; const Value: TERDValueRequest);
@@ -3931,6 +3939,61 @@ begin
   finally List.Free; Probe.Free; Model.Free; Form.Free; end;
 end;
 
+procedure TestRuntimeMonitor;
+var Form: TForm; Model: TERDDebugModel; Monitor, CopyMonitor: TERDRuntimeMonitor; Probe: TRuntimeProbe;
+    Request, Old: TERDRuntimeRequest; Metrics: TArray<TERDRuntimeMetric>; Metric: TERDRuntimeMetric;
+    Value: TERDInspectValue; Sample: TERDTimeSample; Stream: TMemoryStream; I: Integer;
+  procedure Configure(Index: Integer; const ID, UnitText: string; Group: TERDRuntimeGroup; Number: UInt64; Cumulative: Boolean = False);
+  begin Metrics[Index].ID := ID; Metrics[Index].Group := Group; Metrics[Index].UnitText := UnitText; Metrics[Index].Kind := rmUnsigned; Metrics[Index].UnsignedValue := Number; Metrics[Index].Cumulative := Cumulative; end;
+begin
+  Form := TForm.Create(nil); Model := TERDDebugModel.Create(nil); Monitor := TERDRuntimeMonitor.Create(Form); Monitor.Parent := Form; Probe := TRuntimeProbe.Create;
+  try
+    Monitor.DebugModel := Model; Monitor.OnRequestSnapshot := Probe.Request; Monitor.MaxSamples := 16;
+    Request := Monitor.RequestSnapshot(Model.Session,0); Check(Request.RequestID = 0, 'Disconnected runtime monitor refuses live request');
+    Model.SetExecution(dsRunning); Request := Monitor.RequestSnapshot(Model.Session,0);
+    Check(Monitor.Pending and (Probe.Calls = 1), 'Runtime monitor samples while running');
+    SetLength(Metrics,7);
+    Configure(0,'heap.usedBytes','bytes',rgHeap,100); Configure(1,'heap.totalBytes','bytes',rgHeap,200);
+    Configure(2,'gc.minorGCTimeMicros','us',rgGC,100,True); Configure(3,'gc.majorGCTimeMicros','us',rgGC,50,True);
+    Configure(4,'scheduler.currentFiberCount','fibers',rgScheduler,3); Configure(5,'scheduler.runnableFiberCount','fibers',rgScheduler,1);
+    Configure(6,'heap.objectCount','objects',rgHeap,High(UInt64));
+    Metrics[0].UnitText := 'ms'; Check(not Monitor.PublishSnapshot(Request,0,Metrics) and (Monitor.ChartFor(rgHeap).Series[0].Count = 0), 'Mixed chart units reject snapshot without partial history'); Metrics[0].UnitText := 'bytes';
+    Metrics[1].ID := Metrics[0].ID; Check(not Monitor.PublishSnapshot(Request,0,Metrics), 'Duplicate metric IDs reject snapshot atomically'); Metrics[1].ID := 'heap.totalBytes';
+    Check(not Monitor.PublishSnapshot(Request,NaN,Metrics), 'NaN timestamp cannot enter chart history');
+    Check(Monitor.PublishSnapshot(Request,0,Metrics) and not Monitor.Stale and (Monitor.SampleTime = 0), 'Complete observed snapshot is published');
+    Check(Monitor.TableFor(rgHeap).ValueByID('heap.objectCount',Value) and (Value.ValueText = '18446744073709551615'), 'Unsigned counters retain exact display precision beyond Double');
+    Sample := Monitor.ChartFor(rgHeap).Series[0].Sample(0); Check(Sample.Available and (Sample.Value = 100), 'Heap history contains observed byte value');
+    Metrics[0].UnsignedValue := 999; Check(Monitor.MetricByID('heap.usedBytes',Metric) and (Metric.UnsignedValue = 100), 'Monitor owns copied snapshot values');
+    Old := Request; Request := Monitor.RequestSnapshot(Model.Session,1); Check(not Monitor.PublishSnapshot(Old,1,Metrics), 'Late runtime snapshot is rejected');
+    Check(not Monitor.PublishSnapshot(Request,0,Metrics), 'Duplicate or backwards timestamp does not append samples');
+    Metrics[0].Availability := rmaUnavailable; Metrics[2].UnsignedValue := 0;
+    Check(Monitor.PublishSnapshot(Request,1,Metrics), 'Unavailable metric and reset cumulative counter are valid data');
+    Sample := Monitor.ChartFor(rgHeap).Series[0].Sample(1); Check(not Sample.Available, 'Unavailable metric creates a chart gap, not a measured zero');
+    Sample := Monitor.ChartFor(rgGC).Series[0].Sample(1); Check(not Sample.Available, 'Cumulative counter reset creates a chart discontinuity');
+    Check(Monitor.TableFor(rgGC).ValueByID('gc.minorGCTimeMicros',Value) and (Value.ValueText = '0'), 'Counter reset zero remains an exact available table value');
+    Monitor.Paused := True; Request := Monitor.RequestSnapshot(Model.Session,2);
+    Check(Monitor.FailSnapshot(Request,2,'Provider failed') and Monitor.Stale and (Monitor.ErrorText = 'Provider failed'), 'Provider failure marks tables stale and appends missing observation');
+    Check((Monitor.ChartFor(rgHeap).Series[0].Count = 3) and not Monitor.ChartFor(rgHeap).Series[0].Sample(2).Available and (Monitor.SampleTime = 1), 'Failure preserves last successful sample time and explicit history gap');
+    Metrics[0].Availability := rmaAvailable;
+    for I := 3 to 22 do begin Request := Monitor.RequestSnapshot(Model.Session,I); Check(Monitor.PublishSnapshot(Request,I,Metrics), 'Bounded runtime history accepts next observation'); end;
+    Check(Monitor.Paused and (Monitor.ChartFor(rgHeap).Series[0].Count = 16), 'Paused chart view continues bounded sampling');
+    Monitor.MarkStale; Request := Monitor.RequestSnapshot(Model.Session,23); Monitor.PublishSnapshot(Request,23,Metrics);
+    Sample := Monitor.ChartFor(rgHeap).Series[0].Sample(15); Check(not Sample.Available, 'Resume after stale interval breaks connecting line');
+    Request := Monitor.RequestSnapshot(Model.Session,24); Model.BeginSession;
+    Check(not Monitor.PublishSnapshot(Request,24,Metrics), 'Session change rejects old monitor response');
+    Model.SetExecution(dsRunning); Request := Monitor.RequestSnapshot(Model.Session,0);
+    Check(Monitor.PublishSnapshot(Request,0,Metrics) and (Monitor.ChartFor(rgHeap).Series[0].Count = 1), 'New session clears history and permits a restarted sample clock');
+    Monitor.OnRequestSnapshot := nil; Monitor.DebugModel := nil; Monitor.ShowCharts := False; Monitor.WindowSeconds := 15;
+    RegisterClass(TERDRuntimeMonitor); CopyMonitor := TERDRuntimeMonitor.Create(Form); Stream := TMemoryStream.Create;
+    try
+      Stream.WriteComponent(Monitor); Stream.Position := 0; Stream.ReadComponent(CopyMonitor);
+      Check((CopyMonitor.MaxSamples = 16) and (CopyMonitor.WindowSeconds = 15) and not CopyMonitor.ShowCharts and CopyMonitor.Stale and
+        (CopyMonitor.ChartFor(rgHeap).Series[0].Count = 0) and (CopyMonitor.TableFor(rgHeap).RootNodeCount = 0) and (CopyMonitor.ComponentCount = 10), 'DFM persists monitor settings without runtime data or duplicated internals');
+    finally Stream.Free; CopyMonitor.Free; end;
+    Monitor.DebugModel := Model; FreeAndNil(Model); Check((Monitor.DebugModel = nil) and Monitor.Stale, 'Model destruction safely detaches runtime monitor');
+  finally Monitor.Free; Probe.Free; Model.Free; Form.Free; end;
+end;
+
 procedure TestValueTreeSnapshots;
 var Form: TForm; Tree, CopyTree: TERDValueTree; Probe: TValueChildrenProbe;
     Roots, Children: TArray<TERDInspectValue>; Request, Old: TERDValueRequest; Value: TERDInspectValue; Stream: TMemoryStream;
@@ -5360,7 +5423,7 @@ begin
     TestPCBDesigner;
     TestPCBDesignerTools;
     TestPCBPlacement;
-    TestDebugEditor; TestBreakpointPanel; TestCallStack; TestLocalsPanel; TestWatchPanel; TestDisassemblyView; TestFiberList; TestValueTreeSnapshots; TestTimeSeriesHistory;
+    TestDebugEditor; TestBreakpointPanel; TestCallStack; TestLocalsPanel; TestWatchPanel; TestDisassemblyView; TestFiberList; TestRuntimeMonitor; TestValueTreeSnapshots; TestTimeSeriesHistory;
     TestPCBCardinalAnchors; TestPCBZOrderAndGrid; TestSelectedTabVisibility;
     TestPCBConnections;
     TestPCBComponentTypes;

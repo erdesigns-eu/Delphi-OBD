@@ -85,5 +85,6 @@
   "TERDLocalsPanel",
   "TERDWatchPanel",
   "TERDDisassemblyView",
-  "TERDFiberList"
+  "TERDFiberList",
+  "TERDRuntimeMonitor"
 ]

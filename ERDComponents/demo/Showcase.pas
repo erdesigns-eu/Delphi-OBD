@@ -1,7 +1,7 @@
 ﻿unit Showcase;
 interface
 uses
-  DebugPreview,
+  RuntimePreview, DebugPreview,
   ERD.Components.LSP, ERD.Components.LanguageServices, ERD.Components.CodeEditor, ERD.Components.Syntax,
   PCBPreview,
   ERD.Components.TextInput,
@@ -652,6 +652,7 @@ type
     // Runtime-only previews: do not let the form designer manage these fields.
     PCBPage: TPCBPreview;
     DebugPage: TDebugPreview;
+    RuntimePage: TRuntimePreview;
     CodePage: TERDPanel;
     CodeEditor: TERDCodeEditor;
     CodeUsingNativeService: Boolean;
@@ -1102,6 +1103,9 @@ begin
   DebugPage := TDebugPreview.Create(Self); DebugPage.Parent := DemoPages;
   DebugPage.Align := alClient; DebugPage.Visible := False; DebugPage.AttachRibbon(Ribbon);
   PageTabs.Tabs.Add.Caption := 'Debugger components';
+  RuntimePage := TRuntimePreview.Create(Self); RuntimePage.Parent := DemoPages;
+  RuntimePage.Align := alClient; RuntimePage.Visible := False; RuntimePage.AttachRibbon(Ribbon);
+  PageTabs.Tabs.Add.Caption := 'Runtime monitor';
   Menu := nil;
   TitleBar.Menu := MainMenu;
   TitleBar.Ribbon := Ribbon;
@@ -1345,6 +1349,7 @@ begin
   if PCBPage <> nil then
   begin PCBPage.Visible := PageTabs.TabIndex = 7; PCBPage.SetRibbonActive(PCBPage.Visible); end;
   if DebugPage <> nil then begin DebugPage.Visible := PageTabs.TabIndex = 8; DebugPage.SetRibbonActive(DebugPage.Visible); end;
+  if RuntimePage <> nil then begin RuntimePage.Visible := PageTabs.TabIndex = 9; RuntimePage.SetRibbonActive(RuntimePage.Visible); end;
 end;
 
 procedure TShowcaseForm.CommandSelected(Sender: TObject);
