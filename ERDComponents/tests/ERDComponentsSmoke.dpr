@@ -4199,6 +4199,88 @@ begin
     finally CopyTree.Free; end;
   finally Stream.Free; Probe.Free; Form.Free; end;
 end;
+procedure TestTimeSeriesBars;
+var Form: TForm; Chart, CopyChart: TERDTimeSeriesChart; Bars: TArray<TERDTimeBar>; Bar: TERDTimeBar;
+    Stream: TMemoryStream; I: Integer;
+begin
+  Form := TForm.Create(nil); Chart := TERDTimeSeriesChart.Create(Form); Chart.Parent := Form;
+  try
+    Chart.Series.Add; Chart.Series.Add; Chart.WindowSeconds := 10; Chart.ChartStyle := tcsStackedBars;
+    Chart.Series[0].AddSample(0,4); Chart.Series[1].AddSample(0,6);
+    Chart.Series[0].AddSample(1,5); Chart.Series[1].AddSample(1,0,False);
+    Chart.Series[0].AddSample(2,3); Chart.Series[1].AddSample(2,7);
+    Bars := Chart.BarGeometry; Check(Length(Bars) = 4, 'Stacked chart omits the complete column when one segment is unavailable');
+    Check((Bars[1].BaseValue = 4) and (Bars[1].Sample.Value = 6) and (Bars[1].SeriesIndex = 1), 'Stack geometry preserves individual value and cumulative segment baseline');
+    Check(Chart.BarAt(Floor((Bars[1].Bounds.Left+Bars[1].Bounds.Right)/2),Floor((Bars[1].Bounds.Top+Bars[1].Bounds.Bottom)/2),Bar) and
+      (Bar.SeriesIndex = 1) and (Bar.SampleIndex = 0) and (Bar.Sample.Value = 6), 'Hover picks the actual stacked free-memory segment');
+    for I := 0 to High(Bars) do Check((Bars[I].Bounds.Width > 0) and (Bars[I].Bounds.Height > 0), 'Rendered bar rectangles have usable hit-test geometry');
+    Chart.ChartStyle := tcsBars; Check(Length(Chart.BarGeometry) = 5, 'Grouped bars retain known series observations independently of a missing neighbour');
+    Chart.Clear; Chart.ChartStyle := tcsStackedBars;
+    Chart.Series[0].AddSample(0,1); Chart.Series[0].AddSample(2,2); Chart.Series[1].AddSample(1,3); Chart.Series[1].AddSample(2,4);
+    Bars := Chart.BarGeometry; Check((Length(Bars) = 2) and (Bars[0].Sample.TimeSeconds = 2), 'Stacks align by timestamp rather than array position');
+    Chart.Clear; Chart.Series[0].AddSample(0,-3); Chart.Series[1].AddSample(0,-2);
+    Bars := Chart.BarGeometry; Check((Length(Bars) = 2) and (Bars[1].BaseValue = -3), 'Negative stacks accumulate below a shared zero baseline');
+    Chart.Clear; Chart.Series[0].AddSample(0,0); Chart.Series[1].AddSample(0,0);
+    Bars := Chart.BarGeometry; Check((Length(Bars) = 2) and (Bars[0].Bounds.Height >= 1), 'Measured zero has a baseline mark rather than a missing-data gap');
+    Chart.Clear; Chart.Series[0].AddSample(0,MaxDouble); Chart.Series[1].AddSample(0,MaxDouble);
+    Check(Length(Chart.BarGeometry) = 0, 'Overflowing stack totals do not create invalid geometry');
+    Chart.ChartStyle := tcsBars; Bars := Chart.BarGeometry;
+    Check((Length(Bars) = 2) and not IsNan(Bars[0].Bounds.Top) and not IsInfinite(Bars[0].Bounds.Top), 'Finite extreme grouped bars retain finite axis geometry');
+    RegisterClass(TERDTimeSeriesChart); CopyChart := TERDTimeSeriesChart.Create(Form); Stream := TMemoryStream.Create;
+    try
+      Stream.WriteComponent(Chart); Stream.Position := 0; Stream.ReadComponent(CopyChart);
+      Check((CopyChart.ChartStyle = tcsBars) and (CopyChart.Series.Count = 2) and (CopyChart.Series[0].Count = 0), 'DFM persists bar style without runtime samples');
+    finally Stream.Free; CopyChart.Free; end;
+  finally Chart.Free; Form.Free; end;
+end;
+
+procedure TestRuntimeBarTimelines;
+var Form: TForm; Monitor, CopyMonitor: TERDRuntimeMonitor; Request: TERDRuntimeRequest;
+    Metrics: TArray<TERDRuntimeMetric>; Sample: TERDTimeSample; Metric: TERDRuntimeMetric;
+    Stream: TMemoryStream;
+  procedure Publish(Generation: Integer);
+  begin
+    Request := Monitor.RequestSnapshot(1,Generation);
+    Check(Monitor.PublishSnapshot(Request,Generation,Metrics), 'Runtime bar timeline accepts next valid observation');
+  end;
+begin
+  Form := TForm.Create(nil); Monitor := TERDRuntimeMonitor.Create(Form); Monitor.Parent := Form;
+  try
+    Monitor.BarTimelines := True; SetLength(Metrics,4);
+    Metrics[0].ID := 'heap.usedBytes'; Metrics[0].Group := rgHeap; Metrics[0].UnitText := 'bytes'; Metrics[0].Kind := rmUnsigned; Metrics[0].UnsignedValue := 100;
+    Metrics[1] := Metrics[0]; Metrics[1].ID := 'heap.totalBytes'; Metrics[1].UnsignedValue := 200;
+    Metrics[2].ID := 'gc.minorGCTimeMicros'; Metrics[2].Group := rgGC; Metrics[2].UnitText := 'us'; Metrics[2].Kind := rmUnsigned; Metrics[2].Cumulative := True; Metrics[2].UnsignedValue := High(UInt64)-100;
+    Metrics[3] := Metrics[2]; Metrics[3].ID := 'gc.majorGCTimeMicros'; Metrics[3].UnsignedValue := 20;
+    Publish(0);
+    Check((Monitor.ChartFor(rgHeap).ChartStyle = tcsStackedBars) and (Monitor.ChartFor(rgHeap).Series[1].Sample(0).Value = 100), 'Heap bar stack uses derived free bytes, avoiding used-plus-capacity double counting');
+    Check(not Monitor.ChartFor(rgGC).Series[0].Sample(0).Available, 'First cumulative GC observation establishes a baseline, not an invented duration');
+    Inc(Metrics[2].UnsignedValue,7); Inc(Metrics[3].UnsignedValue,2); Publish(1);
+    Sample := Monitor.ChartFor(rgGC).Series[0].Sample(1);
+    Check(Sample.Available and (Sample.Value = 7), 'GC counter subtraction happens before Double conversion, retaining small increments beyond 2^53');
+    Check(Monitor.MetricByID('gc.minorGCTimeMicros',Metric) and (Metric.UnsignedValue = High(UInt64)-93), 'Summary retains original exact cumulative counter');
+    Request := Monitor.RequestSnapshot(1,2); Check(Monitor.FailSnapshot(Request,2,'missing sample'), 'Timeline failure records an unavailable interval');
+    Inc(Metrics[2].UnsignedValue,10); Publish(3); Check(not Monitor.ChartFor(rgGC).Series[0].Sample(3).Available, 'GC duration never spans a failed observation interval');
+    Inc(Metrics[2].UnsignedValue,5); Publish(4); Check(Monitor.ChartFor(rgGC).Series[0].Sample(4).Value = 5, 'Successful baseline after a gap restores interval deltas');
+    Metrics[2].UnsignedValue := 0; Publish(5); Check(not Monitor.ChartFor(rgGC).Series[0].Sample(5).Available, 'Counter reset creates a gap rather than a negative GC duration');
+    Metrics[2].UnsignedValue := 11; Publish(6); Check(Monitor.ChartFor(rgGC).Series[0].Sample(6).Value = 11, 'Counter reset establishes a fresh baseline');
+    Metrics[2].Availability := rmaUnavailable; Publish(7); Metrics[2].Availability := rmaAvailable; Metrics[2].UnsignedValue := 20; Publish(8);
+    Check(not Monitor.ChartFor(rgGC).Series[0].Sample(8).Available, 'Missing counter requires a new baseline before calculating duration');
+    Metrics[2].UnsignedValue := 23; Publish(9); Check(Monitor.ChartFor(rgGC).Series[0].Sample(9).Value = 3, 'A later complete interval is available');
+    Metrics[0].UnsignedValue := 250; Publish(10);
+    Check(not Monitor.ChartFor(rgHeap).Series[0].Sample(10).Available and not Monitor.ChartFor(rgHeap).Series[1].Sample(10).Available, 'Inconsistent used and capacity observations do not invent a free-memory stack');
+    Metrics[0].UnsignedValue := 100; Metrics[1].Availability := rmaUnavailable; Publish(11);
+    Check(not Monitor.ChartFor(rgHeap).Series[0].Sample(11).Available, 'Unknown capacity creates a full heap stack gap');
+    Monitor.BarTimelines := False; Check((Monitor.ChartFor(rgGC).Series[0].Count = 0) and (Monitor.ChartFor(rgHeap).ChartStyle = tcsLines), 'Changing data interpretation clears old history before switching styles');
+    Metrics[1].Availability := rmaAvailable; Publish(12);
+    Check(Monitor.ChartFor(rgHeap).Series[1].Sample(0).Value = 200, 'Legacy line mode continues to plot capacity and cumulative GC totals');
+    Monitor.BarTimelines := True; RegisterClass(TERDRuntimeMonitor); CopyMonitor := TERDRuntimeMonitor.Create(Form); Stream := TMemoryStream.Create;
+    try
+      Stream.WriteComponent(Monitor); Stream.Position := 0; Stream.ReadComponent(CopyMonitor);
+      Check(CopyMonitor.BarTimelines and (CopyMonitor.ChartFor(rgHeap).ChartStyle = tcsStackedBars) and (CopyMonitor.ChartFor(rgGC).Series[0].Count = 0), 'DFM preserves runtime bar configuration without history');
+    finally Stream.Free; CopyMonitor.Free; end;
+  finally Monitor.Free; Form.Free; end;
+end;
+
 procedure TestTimeSeriesHistory;
 var Form: TForm; Chart, CopyChart: TERDTimeSeriesChart; Series: TERDTimeSeries;
     I, SeriesIndex, SampleIndex: Integer; Value: TERDTimeSample; Rejected: Boolean; Stream: TMemoryStream;
@@ -5594,7 +5676,7 @@ begin
     TestPCBDesigner;
     TestPCBDesignerTools;
     TestPCBPlacement;
-    TestDebugEditor; TestBreakpointPanel; TestCallStack; TestLocalsPanel; TestWatchPanel; TestDisassemblyView; TestFiberList; TestRuntimeMonitor; TestShapeInspector; TestDebugConsole; TestValueTreeSnapshots; TestTimeSeriesHistory;
+    TestDebugEditor; TestBreakpointPanel; TestCallStack; TestLocalsPanel; TestWatchPanel; TestDisassemblyView; TestFiberList; TestRuntimeMonitor; TestShapeInspector; TestDebugConsole; TestValueTreeSnapshots; TestTimeSeriesHistory; TestTimeSeriesBars; TestRuntimeBarTimelines;
     TestPCBCardinalAnchors; TestPCBZOrderAndGrid; TestSelectedTabVisibility;
     TestPCBConnections;
     TestPCBComponentTypes;

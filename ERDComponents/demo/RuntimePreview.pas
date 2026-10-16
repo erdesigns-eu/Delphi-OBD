@@ -34,9 +34,9 @@ begin
   FModel := TERDDebugModel.Create(Self);
   FStatus := TLabel.Create(Self); FStatus.Parent := Self; FStatus.Align := alTop;
   FStatus.AutoSize := False; FStatus.Height := ScaleValue(28);
-  FStatus.Caption := 'DEMO DATA - no TSVM connected. Host observations, not VM event traces.';
+  FStatus.Caption := 'DEMO DATA - no TSVM connected. Used/free heap bars and GC interval time; host observations, not exact GC events.';
   FMonitor := TERDRuntimeMonitor.Create(Self); FMonitor.Parent := Self; FMonitor.Align := alClient;
-  FMonitor.DebugModel := FModel; FMonitor.OnRequestSnapshot := RequestData;
+  FMonitor.BarTimelines := True; FMonitor.DebugModel := FModel; FMonitor.OnRequestSnapshot := RequestData;
   FTimer := TTimer.Create(Self); FTimer.Interval := 1000; FTimer.OnTimer := Tick;
   NewSession; ThemeChanged;
 end;
@@ -104,11 +104,12 @@ begin
     5: FModel.SetExecution(dsDisconnected);
     6: FTimer.Enabled := not FTimer.Enabled;
     7: begin FGCOffset := FTick; FetchSample; end;
+    8: begin FMonitor.BarTimelines := not FMonitor.BarTimelines; FetchSample; end;
   end;
 end;
 procedure TRuntimePreview.AttachRibbon(Value: TERDRibbon);
 var Group: TERDRibbonGroup; Item: TERDRibbonItem; I: Integer;
-const Captions: array[0..7] of string = ('New session','Sample now','Pause charts','GC unavailable','Sample error','Disconnect','Sampling on/off','Reset GC (demo)');
+const Captions: array[0..8] of string = ('New session','Sample now','Pause charts','GC unavailable','Sample error','Disconnect','Sampling on/off','Reset GC (demo)','Bars / lines');
 begin
   if FRibbon = Value then Exit;
   if FRibbon <> nil then begin FRibbon.RemoveFreeNotification(Self); FreeAndNil(FTab); end;

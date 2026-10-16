@@ -36,7 +36,7 @@ type
     FNextRequest, FHistorySession, FBindingEpoch: Int64;
     FLastTime, FPublishedTime, FWindowSeconds: Double;
     FMaxSamples: Integer;
-    FPending, FStale, FPaused, FShowCharts, FNeedGap, FResetViewport: Boolean;
+    FPending, FStale, FPaused, FShowCharts, FNeedGap, FResetViewport, FBarTimelines: Boolean;
     FErrorText: string;
     FOnRequest: TERDRequestRuntimeEvent;
     FOnInspect: TERDInspectRuntimeEvent;
@@ -47,6 +47,8 @@ type
     procedure SetWindowSeconds(Value: Double);
     procedure SetPaused(Value: Boolean);
     procedure SetShowCharts(Value: Boolean);
+    procedure SetBarTimelines(Value: Boolean);
+    procedure ConfigureCharts;
     procedure TabChanged(Sender: TObject);
     function RequestMatches(const Request: TERDRuntimeRequest): Boolean;
     function ValidTime(Session: Int64; TimeSeconds: Double): Boolean;
@@ -80,6 +82,7 @@ type
     property MaxSamples: Integer read FMaxSamples write SetMaxSamples default 2048;
     property WindowSeconds: Double read FWindowSeconds write SetWindowSeconds;
     property Paused: Boolean read FPaused write SetPaused default False;
+    property BarTimelines: Boolean read FBarTimelines write SetBarTimelines default False;
     property ShowCharts: Boolean read FShowCharts write SetShowCharts default True;
     property OnRequestSnapshot: TERDRequestRuntimeEvent read FOnRequest write FOnRequest;
     property OnInspectMetric: TERDInspectRuntimeEvent read FOnInspect write FOnInspect;
@@ -105,8 +108,7 @@ begin
     FCharts[Group].Series.Add; FCharts[Group].Series.Add;
     with FTabs.Tabs.Add do begin Caption := Titles[Group]; Page := FPages[Group]; end;
   end;
-  FCharts[rgHeap].UnitText := 'bytes'; FCharts[rgHeap].Series[0].Caption := 'Used'; FCharts[rgHeap].Series[1].Caption := 'Capacity';
-  FCharts[rgGC].UnitText := 'us (cumulative)'; FCharts[rgGC].Series[0].Caption := 'Minor GC total'; FCharts[rgGC].Series[1].Caption := 'Major GC total';
+  ConfigureCharts;
   FCharts[rgScheduler].UnitText := 'fibers'; FCharts[rgScheduler].Series[0].Caption := 'Live'; FCharts[rgScheduler].Series[1].Caption := 'Runnable';
   FTabs.TabIndex := 0; ThemeChanged; Resize;
 end;
@@ -180,6 +182,30 @@ begin
     FTables[Group].SetBounds(0,0,ClientWidth,H-GraphHeight);
   end;
 end;
+procedure TERDRuntimeMonitor.ConfigureCharts;
+begin
+  FCharts[rgHeap].UnitText := 'bytes'; FCharts[rgHeap].Series[0].Caption := 'Used';
+  if FBarTimelines then
+  begin
+    FCharts[rgHeap].ChartStyle := tcsStackedBars; FCharts[rgHeap].Series[1].Caption := 'Free';
+    FCharts[rgGC].ChartStyle := tcsBars; FCharts[rgGC].UnitText := 'us / interval';
+    FCharts[rgGC].Series[0].Caption := 'Minor GC'; FCharts[rgGC].Series[1].Caption := 'Major GC';
+  end
+  else
+  begin
+    FCharts[rgHeap].ChartStyle := tcsLines; FCharts[rgHeap].Series[1].Caption := 'Capacity';
+    FCharts[rgGC].ChartStyle := tcsLines; FCharts[rgGC].UnitText := 'us (cumulative)';
+    FCharts[rgGC].Series[0].Caption := 'Minor GC total'; FCharts[rgGC].Series[1].Caption := 'Major GC total';
+  end;
+end;
+procedure TERDRuntimeMonitor.SetBarTimelines(Value: Boolean);
+var Group: TERDRuntimeGroup;
+begin
+  if FBarTimelines = Value then Exit; FBarTimelines := Value; ConfigureCharts;
+  // The sample values change meaning between modes: do not relabel old history.
+  for Group := Low(TERDRuntimeGroup) to High(TERDRuntimeGroup) do FCharts[Group].Clear;
+  FHistorySession := -1; FLastTime := -1; FResetViewport := True; FNeedGap := False; Invalidate;
+end;
 procedure TERDRuntimeMonitor.TabChanged(Sender: TObject);
 begin Resize; end;
 procedure TERDRuntimeMonitor.PaintControl(ACanvas: TCanvas);
@@ -246,18 +272,37 @@ begin
   end;
 end;
 procedure TERDRuntimeMonitor.AppendCharts(TimeSeconds: Double; const Metrics: TArray<TERDRuntimeMetric>; GapOnly: Boolean);
-var Group: TERDRuntimeGroup; I: Integer; Metric, Previous: TERDRuntimeMetric; Available: Boolean; Number: Double; ID: string;
+var Group: TERDRuntimeGroup; I: Integer; Metric, Previous, Used, Capacity: TERDRuntimeMetric;
+    Available, HeapAvailable, HaveUsed, HaveCapacity, Baseline: Boolean; Number: Double; ID: string;
+  function CurrentMetric(const MetricID: string; out Value: TERDRuntimeMetric): Boolean;
+  var Candidate: TERDRuntimeMetric;
+  begin
+    Value := Default(TERDRuntimeMetric);
+    for Candidate in Metrics do if Candidate.ID = MetricID then begin Value := Candidate; Exit(Candidate.Availability = rmaAvailable); end;
+    Result := False;
+  end;
 begin
+  HaveUsed := CurrentMetric('heap.usedBytes',Used); HaveCapacity := CurrentMetric('heap.totalBytes',Capacity);
+  HeapAvailable := HaveUsed and HaveCapacity and (Capacity.UnsignedValue >= Used.UnsignedValue);
+  Baseline := (FPublished.Session = FHistorySession) and (FLastTime >= 0) and (FLastTime = FPublishedTime) and not FNeedGap and not GapOnly;
   for Group := Low(TERDRuntimeGroup) to High(TERDRuntimeGroup) do for I := 0 to 1 do
   begin
-    ID := ChartMetricID(Group,I); Number := 0; Available := False;
-    for Metric in Metrics do if (Metric.ID = ID) and (Metric.Availability = rmaAvailable) then
+    ID := ChartMetricID(Group,I); Number := 0; Available := CurrentMetric(ID,Metric) and not GapOnly and not FNeedGap;
+    if Available then Number := Metric.UnsignedValue;
+    if FBarTimelines and (Group = rgHeap) then
     begin
-      Number := Metric.UnsignedValue; Available := not GapOnly and not FNeedGap;
-      if Metric.Cumulative and (FPublished.Session = FHistorySession) and MetricByID(ID,Previous) and
-        (Previous.Availability = rmaAvailable) and (Previous.Kind = rmUnsigned) and (Metric.UnsignedValue < Previous.UnsignedValue) then Available := False;
-      Break;
-    end;
+      Available := HeapAvailable and not GapOnly and not FNeedGap;
+      if Available then if I = 0 then Number := Used.UnsignedValue else Number := Capacity.UnsignedValue-Used.UnsignedValue;
+    end
+    else if FBarTimelines and (Group = rgGC) then
+    begin
+      // Subtract exact uint64 counters before conversion to chart Double values.
+      Available := Available and Baseline and MetricByID(ID,Previous) and (Previous.Availability = rmaAvailable) and
+        (Previous.Kind = rmUnsigned) and (Metric.UnsignedValue >= Previous.UnsignedValue);
+      if Available then Number := Metric.UnsignedValue-Previous.UnsignedValue;
+    end
+    else if Available and Metric.Cumulative and (FPublished.Session = FHistorySession) and MetricByID(ID,Previous) and
+      (Previous.Availability = rmaAvailable) and (Previous.Kind = rmUnsigned) and (Metric.UnsignedValue < Previous.UnsignedValue) then Available := False;
     FCharts[Group].Series[I].AddSample(TimeSeconds,Number,Available);
   end;
   if FResetViewport then

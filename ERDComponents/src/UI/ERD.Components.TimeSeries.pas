@@ -1,11 +1,19 @@
 ﻿unit ERD.Components.TimeSeries;
+{$B-}
 interface
-uses Winapi.Windows, System.Classes, System.SysUtils, System.Types, System.Math, Vcl.Controls, Vcl.Graphics,
+uses Winapi.Windows, System.Classes, System.SysUtils, System.Types, System.Math, System.Generics.Collections, Vcl.Controls, Vcl.Graphics,
   ERD.Components.Control, ERD.Components.Types;
 type
   TERDTimeSample = record
     TimeSeconds, Value: Double;
     Available: Boolean;
+  end;
+  TERDTimeChartStyle = (tcsLines, tcsBars, tcsStackedBars);
+  TERDTimeBar = record
+    SeriesIndex, SampleIndex: Integer;
+    Sample: TERDTimeSample;
+    BaseValue: Double;
+    Bounds: TRectF;
   end;
   TERDTimeSeriesChart = class;
   TERDTimeSeries = class(TCollectionItem)
@@ -49,7 +57,12 @@ type
     FWindowSeconds, FPausedEnd: Double;
     FPaused: Boolean;
     FUnitText: string;
+    FChartStyle: TERDTimeChartStyle;
     FOnSampleHover: TERDTimeSampleEvent;
+    procedure SetChartStyle(Value: TERDTimeChartStyle);
+    procedure PaintBars(ACanvas: TCanvas);
+    function BuildBars(out MinValue, MaxValue: Double): TArray<TERDTimeBar>;
+    function SeriesColor(Index: Integer): TColor;
     procedure SetSeries(Value: TERDTimeSeriesCollection);
     procedure SetMaxSamples(Value: Integer);
     procedure SetWindowSeconds(Value: Double);
@@ -66,8 +79,11 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Clear;
+    function BarGeometry: TArray<TERDTimeBar>;
+    function BarAt(X, Y: Integer; out Bar: TERDTimeBar): Boolean;
     function SampleNear(X: Integer; out SeriesIndex, SampleIndex: Integer; out Sample: TERDTimeSample): Boolean;
   published
+    property ChartStyle: TERDTimeChartStyle read FChartStyle write SetChartStyle default tcsLines;
     property Series: TERDTimeSeriesCollection read FSeries write SetSeries;
     property MaxSamples: Integer read FMaxSamples write SetMaxSamples default 2048;
     property WindowSeconds: Double read FWindowSeconds write SetWindowSeconds;
@@ -135,6 +151,142 @@ begin
 end;
 destructor TERDTimeSeriesChart.Destroy;
 begin FSeries.Free; inherited; end;
+procedure TERDTimeSeriesChart.SetChartStyle(Value: TERDTimeChartStyle);
+begin
+  if (Ord(Value) < 0) or (Ord(Value) > Ord(High(TERDTimeChartStyle))) then raise EArgumentException.Create('Invalid chart style');
+  if FChartStyle = Value then Exit; FChartStyle := Value; Invalidate;
+end;
+function TERDTimeSeriesChart.SeriesColor(Index: Integer): TColor;
+begin
+  Result := FSeries[Index].Color;
+  if Result = clDefault then case Index mod 4 of 0: Result := Palette.Accent; 1: Result := Palette.Success; 2: Result := Palette.Warning; else Result := Palette.Danger; end;
+end;
+function TERDTimeSeriesChart.BuildBars(out MinValue, MaxValue: Double): TArray<TERDTimeBar>;
+var Bars: TList<TERDTimeBar>; R: TRect; I, J, K, Start: Integer; Bar: TERDTimeBar;
+    Value, Other: TERDTimeSample; Finish, BeginTime, Gap, Width, X, Positive, Negative, TopValue, Scale: Double;
+    Valid: Boolean;
+  function FindAt(SeriesIndex: Integer; Time: Double; out Index: Integer; out Sample: TERDTimeSample): Boolean;
+  var L, H, M: Integer;
+  begin
+    L := 0; H := FSeries[SeriesIndex].Count-1; Index := -1; Sample := Default(TERDTimeSample);
+    while L <= H do
+    begin
+      M := L+(H-L) div 2; Sample := FSeries[SeriesIndex].Sample(M);
+      if Sample.TimeSeconds = Time then begin Index := M; Exit(Sample.Available); end;
+      if Sample.TimeSeconds < Time then L := M+1 else H := M-1;
+    end;
+    Result := False;
+  end;
+  function BarWidth(SeriesIndex, SampleIndex: Integer): Double;
+  begin
+    Gap := FWindowSeconds/10;
+    if (SampleIndex > 0) and (FSeries[SeriesIndex].Sample(SampleIndex-1).TimeSeconds > Value.TimeSeconds-Gap) then Gap := Value.TimeSeconds-FSeries[SeriesIndex].Sample(SampleIndex-1).TimeSeconds;
+    if (SampleIndex+1 < FSeries[SeriesIndex].Count) and (FSeries[SeriesIndex].Sample(SampleIndex+1).TimeSeconds < Value.TimeSeconds+Gap) then Gap := FSeries[SeriesIndex].Sample(SampleIndex+1).TimeSeconds-Value.TimeSeconds;
+    Result := Max(1,Min(ScaleValue(32),Gap/FWindowSeconds*R.Width*0.75));
+  end;
+  function PixelY(Number: Double): Single;
+  begin Result := R.Bottom-((Number/Scale-MinValue/Scale)/(MaxValue/Scale-MinValue/Scale))*R.Height; end;
+begin
+  Result := nil; MinValue := 0; MaxValue := 0;
+  if (FChartStyle = tcsLines) or (FSeries.Count = 0) then Exit;
+  R := PlotBounds; Finish := VisibleEnd; BeginTime := Finish-FWindowSeconds; Bars := TList<TERDTimeBar>.Create;
+  try
+    for I := 0 to FSeries.Count-1 do
+    begin
+      if (FChartStyle = tcsStackedBars) and (I > 0) then Break;
+      for J := 0 to FSeries[I].Count-1 do
+      begin
+        Value := FSeries[I].Sample(J);
+        if not Value.Available or (Value.TimeSeconds < BeginTime) or (Value.TimeSeconds > Finish) then Continue;
+        X := R.Left+(Value.TimeSeconds-BeginTime)/FWindowSeconds*R.Width; Width := Min(R.Width,BarWidth(I,J));
+        X := EnsureRange(X,R.Left+Width/2,R.Right-Width/2);
+        if FChartStyle = tcsStackedBars then
+        begin
+          Start := Bars.Count; Positive := 0; Negative := 0; Valid := True;
+          for K := 0 to FSeries.Count-1 do
+          begin
+            if not FindAt(K,Value.TimeSeconds,Bar.SampleIndex,Other) then begin Valid := False; Break; end;
+            Bar.Sample := Other; Bar.SeriesIndex := K;
+            if Other.Value >= 0 then
+            begin
+              if Positive > MaxDouble-Other.Value then begin Valid := False; Break; end;
+              Bar.BaseValue := Positive; Positive := Positive+Other.Value;
+            end
+            else
+            begin
+              if Negative < -MaxDouble-Other.Value then begin Valid := False; Break; end;
+              Bar.BaseValue := Negative; Negative := Negative+Other.Value;
+            end;
+            if IsInfinite(Positive) or IsInfinite(Negative) then begin Valid := False; Break; end;
+            Bar.Bounds := System.Types.RectF(X-Width/2,0,X+Width/2,0); Bars.Add(Bar);
+          end;
+          // A partial stack must not imply a known total. A missing segment leaves a gap.
+          if not Valid then while Bars.Count > Start do Bars.Delete(Bars.Count-1);
+        end
+        else
+        begin
+          Bar.SeriesIndex := I; Bar.SampleIndex := J; Bar.Sample := Value; Bar.BaseValue := 0;
+          Bar.Bounds := System.Types.RectF(X-Width/2+Width*I/FSeries.Count,0,X-Width/2+Width*(I+1)/FSeries.Count,0); Bars.Add(Bar);
+        end;
+      end;
+    end;
+    Result := Bars.ToArray;
+  finally Bars.Free; end;
+  for I := 0 to High(Result) do
+  begin
+    TopValue := Result[I].BaseValue+Result[I].Sample.Value;
+    MinValue := Min(MinValue,Min(Result[I].BaseValue,TopValue)); MaxValue := Max(MaxValue,Max(Result[I].BaseValue,TopValue));
+  end;
+  if MinValue = MaxValue then MaxValue := MinValue+1;
+  // Normalize before subtraction so finite extremes cannot overflow the axis range.
+  Scale := Max(1,Max(Abs(MinValue),Abs(MaxValue)));
+  for I := 0 to High(Result) do
+  begin
+    TopValue := Result[I].BaseValue+Result[I].Sample.Value;
+    Result[I].Bounds.Top := PixelY(Max(Result[I].BaseValue,TopValue)); Result[I].Bounds.Bottom := PixelY(Min(Result[I].BaseValue,TopValue));
+    if Result[I].Bounds.Height < 1 then
+    begin
+      Result[I].Bounds.Top := EnsureRange(Result[I].Bounds.Bottom-1,Single(R.Top),Single(R.Bottom-1));
+      Result[I].Bounds.Bottom := Result[I].Bounds.Top+1;
+    end;
+    Result[I].Bounds.Left := Max(R.Left,Result[I].Bounds.Left); Result[I].Bounds.Right := Min(R.Right,Result[I].Bounds.Right);
+    Result[I].Bounds.Top := Max(R.Top,Result[I].Bounds.Top); Result[I].Bounds.Bottom := Min(R.Bottom,Result[I].Bounds.Bottom);
+  end;
+end;
+function TERDTimeSeriesChart.BarGeometry: TArray<TERDTimeBar>;
+var AxisMin, AxisMax: Double;
+begin Result := BuildBars(AxisMin,AxisMax); end;
+function TERDTimeSeriesChart.BarAt(X, Y: Integer; out Bar: TERDTimeBar): Boolean;
+var Bars: TArray<TERDTimeBar>; I: Integer;
+begin
+  Bar := Default(TERDTimeBar); Result := False; if not PtInRect(PlotBounds,Point(X,Y)) then Exit;
+  Bars := BarGeometry;
+  for I := High(Bars) downto 0 do if (X >= Bars[I].Bounds.Left) and (X <= Bars[I].Bounds.Right) and
+    (Y >= Bars[I].Bounds.Top) and (Y <= Bars[I].Bounds.Bottom) then begin Bar := Bars[I]; Exit(True); end;
+end;
+procedure TERDTimeSeriesChart.PaintBars(ACanvas: TCanvas);
+var Painter: TERDPainter; Bars: TArray<TERDTimeBar>; Bar: TERDTimeBar; R: TRect;
+    AxisMin, AxisMax, Ratio: Double; I, LegendX: Integer; Y: Single;
+begin
+  Bars := BuildBars(AxisMin,AxisMax); R := PlotBounds; Painter := TERDPainter.Create(ACanvas,Palette,ScaleValue(96));
+  try
+    for I := 0 to 4 do
+    begin
+      Ratio := I/4; Y := R.Top+R.Height*Ratio;
+      Painter.LineF(R.Left,Y,R.Right,Y,ERDMixColor(Palette.ForegroundText,Palette.Background,0.12));
+      Painter.TextF(R.Left-ScaleValue(7),Y,FloatToStrF(AxisMax*(1-Ratio)+AxisMin*Ratio,ffGeneral,5,2),10,Palette.Subtle,twRegular,taRightJustify);
+    end;
+    Painter.TextF(R.Left,R.Bottom+ScaleValue(14),'-'+FloatToStrF(FWindowSeconds,ffGeneral,5,2)+' s',10,Palette.Subtle);
+    Painter.TextF(R.Right,R.Bottom+ScaleValue(14),'0 s',10,Palette.Subtle,twRegular,taRightJustify);
+    LegendX := R.Left;
+    for I := 0 to FSeries.Count-1 do begin Painter.TextF(LegendX,ScaleValue(14),FSeries[I].Caption,11,SeriesColor(I)); Inc(LegendX,ScaleValue(130)); end;
+    Painter.ClipRectF(R.Left,R.Top,R.Width,R.Height);
+    try for Bar in Bars do if (Bar.Bounds.Width > 0) and (Bar.Bounds.Height > 0) then Painter.RectangleF(Bar.Bounds.Left,Bar.Bounds.Top,Bar.Bounds.Width,Bar.Bounds.Height,SeriesColor(Bar.SeriesIndex),clNone);
+    finally Painter.ResetClip; end;
+    if Length(Bars) = 0 then Painter.TextF((R.Left+R.Right)/2,(R.Top+R.Bottom)/2,'No measurements',12,Palette.Subtle,twRegular,taCenter);
+    Painter.TextF(Width-ScaleValue(12),ScaleValue(14),FUnitText,10,Palette.Subtle,twRegular,taRightJustify);
+  finally Painter.Free; end;
+end;
 procedure TERDTimeSeriesChart.SetSeries(Value: TERDTimeSeriesCollection);
 begin FSeries.Assign(Value); end;
 procedure TERDTimeSeriesChart.SetMaxSamples(Value: Integer);
@@ -181,12 +333,14 @@ begin
   end;
 end;
 procedure TERDTimeSeriesChart.MouseMove(Shift: TShiftState; X, Y: Integer);
-var I, J: Integer; Value: TERDTimeSample;
+var I, J: Integer; Value: TERDTimeSample; Bar: TERDTimeBar; Found: Boolean;
 begin
   inherited;
-  if PtInRect(PlotBounds,Point(X,Y)) and SampleNear(X,I,J,Value) then
+  if FChartStyle = tcsLines then Found := PtInRect(PlotBounds,Point(X,Y)) and SampleNear(X,I,J,Value)
+  else begin Found := BarAt(X,Y,Bar); if Found then begin I := Bar.SeriesIndex; J := Bar.SampleIndex; Value := Bar.Sample; end; end;
+  if Found then
   begin
-    if Value.Available then Hint := FSeries[I].Caption+': '+FloatToStrF(Value.Value,ffGeneral,8,2)+' '+FUnitText
+    if Value.Available then Hint := FSeries[I].Caption+': '+FloatToStrF(Value.Value,ffGeneral,15,2)+' '+FUnitText+' | t='+FloatToStrF(Value.TimeSeconds,ffGeneral,15,3)+' s'
     else Hint := FSeries[I].Caption+': unavailable';
     if Assigned(FOnSampleHover) then FOnSampleHover(Self,I,J,Value);
   end else Hint := '';
@@ -201,6 +355,7 @@ type TBucket = record Used, Gap: Boolean; LowY, HighY, FirstY, LastY: Single; en
 var P: TERDPainter; R: TRect; I, J, X, LastX, LegendX: Integer; MinValue, MaxValue, Finish, BeginTime, Margin: Double;
     Value: TERDTimeSample; Ink: TColor; Y, LastY: Single; Buckets: TArray<TBucket>; Previous, Any: Boolean;
 begin
+  if FChartStyle <> tcsLines then begin PaintBars(ACanvas); Exit; end;
   P := TERDPainter.Create(ACanvas,Palette,ScaleValue(96));
   try
     R := PlotBounds; Finish := VisibleEnd; BeginTime := Finish-FWindowSeconds; MinValue := MaxDouble; MaxValue := -MaxDouble; Any := False;

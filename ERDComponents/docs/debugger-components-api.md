@@ -714,3 +714,57 @@ filtered property inspection, unavailable data, stale/late/session replies, DFM
 and model lifetime. They still need Delphi Windows execution and visual checks
 for theme, DPI, small sizes and keyboard/mouse navigation; Linux checks do not
 execute VCL rendering.
+
+## Heap and GC bar timelines
+
+`TERDTimeSeriesChart.ChartStyle` supports `tcsLines` (the default), `tcsBars`
+(grouped bars) and `tcsStackedBars`. These remain generic scalar charts with one
+shared unit and axis. Bar widths follow neighbouring observation spacing and are
+capped in screen pixels; timestamps are observations, not implied event durations.
+Grouped bars can display each available series independently. Stacks require an
+available observation at the **same timestamp in every series**; a missing segment
+leaves the whole column empty so its height cannot imply a known total. Positive
+and negative values stack separately around zero. Measured zero is a baseline
+mark; unavailable data produces no bar. Nonfinite/overflowing stack totals produce
+no geometry. Ctrl+wheel zoom, bounded retention and paused viewports also apply.
+
+`BarGeometry` exposes the actual clipped segment rectangles, original series/sample
+indices and values, and segment baselines. `BarAt(X,Y,Bar)` and the hover event
+identify the actual segment under the pointer, including the free portion of a
+memory stack. They do not snap across gaps to another timestamp. Tooltips include
+value, unit and host timestamp. Chart values are Double; the runtime summary is
+still the source of exact uint64 counter text. DFM saves chart style but no samples.
+
+Set `TERDRuntimeMonitor.BarTimelines=True` for:
+
+- Heap: used bytes plus **derived free bytes** (`capacity - used`) in a stacked
+  timeline. The stack height is capacity, not used plus capacity. Unknown capacity,
+  unavailable used bytes or used greater than capacity create a complete gap;
+  summaries keep the actual supplied observations.
+- GC: minor and major time as separate coloured bars for the **increase in
+  cumulative microseconds since the preceding successful observation**. Unsigned
+  subtraction occurs before conversion to Double, preserving small deltas even
+  when cumulative counters exceed 2^53. The first observation, counter reset,
+  missing counter, failed sample, stale interval or new session requires a fresh
+  baseline. These appear as gaps; known zero increases remain measured zeros.
+- Scheduler: the existing line presentation.
+
+GC bars indicate observed activity in a sampling interval. Their timestamp is the
+interval end and their height is accumulated GC time, not an exact pause event or
+individual collection count. NDB currently does not expose the event stream needed
+for precise per-collection markers; no event positions are invented here. This is
+also not a rate: intervals of different lengths retain their measured total time.
+The tables continue showing exact cumulative counters.
+
+BarTimelines defaults to False for existing component/DFM behaviour. The Runtime
+monitor demo enables it and adds a **Bars / lines** ribbon action. Changing mode
+clears chart history because the values change interpretation; tables and original
+metrics remain. New sampling then establishes fresh baselines. Legacy line mode
+continues showing used/capacity and cumulative GC counters. The bar mode is saved
+as configuration without runtime history or additional internal controls.
+
+Added Windows smoke cases verify complete/aligned stacks, grouped gaps, actual
+segment hit testing, zero and negative values, finite extreme geometry, DFM style,
+used/free arithmetic, exact counter differences, failures, resets, missing metrics
+and mode changes. These tests are not executable in Linux; Delphi Windows still
+needs to verify the new rendering, tooltips, zoom, pause and theme colours.

@@ -531,6 +531,8 @@ via `TERDValueTree`, een `TERDDisassemblyView` voor instructies, een
 zijn expliciet een synthetische demo; er wordt geen TSVM-proces gestart.
 De aparte pagina **Runtime monitor** demonstreert `TERDRuntimeMonitor` met heap-,
 GC- en schedulermetingen, ontbrekende data, fouten en sessiewissels.
+De heap-tijdlijn toont gebruikt/vrij als gestapelde balken; GC-balken tonen de
+gemeten tijd per interval. Via **Bars / lines** wissel je de weergave.
 De pagina **Debug console** toont `TERDDebugConsole` met begrensde loghistorie,
 filters, pauzeren en optionele commando-invoer via een synthetische host.
 De pagina **Shape inspector** toont `TERDShapeInspector` met een visuele boom van
