@@ -211,3 +211,8 @@ object. Je kunt ook samen notitietypes, Enabled of een gedeeld interval wijzigen
 Namen, posities en pinaansluitingen worden niet gezamenlijk overschreven.
 Herstellen gebruikt de eigen standaardwaarde van elk type. Alleen een gemengd
 tekstveld aanklikken of verlaten wijzigt niets.
+
+
+Grid dots derive their contrast from the theme foreground/background instead of
+using the light divider color. Typed notes use a 12% status tint and contrasting
+line icons on status badges, preserving readability in light and dark themes.

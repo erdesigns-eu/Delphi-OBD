@@ -1883,7 +1883,11 @@ begin
     GridMM := FGridSize;
     while GridMM * FScreenScale < ScaleValue(12) do GridMM := GridMM * 2;
     Step := Max(1, Round(GridMM * FScreenScale));
-    ACanvas.Pen.Color := Palette.NeutralLight;
+    // Dots need contrast with the surface in both themes, not a divider color
+    // that can be almost identical to a light canvas.
+    if ERDIsDarkPalette(Palette) then ACanvas.Pen.Color := ERDMixColor(Palette.ForegroundText, Palette.Background, 0.24)
+    else ACanvas.Pen.Color := ERDMixColor(Palette.ForegroundText, Palette.Background, 0.34);
+    ACanvas.Pen.Style := psSolid; ACanvas.Pen.Width := Max(1, ScaleValue(1));
     Y := Round(FScreenY) mod Step; if Y < 0 then Inc(Y, Step);
     while Y < ClientHeight do
     begin
@@ -1898,7 +1902,7 @@ procedure TERDPCBDesigner.PaintScene(ACanvas: TCanvas);
 var I, J, ClipState: Integer; R, LinkRect: TRect; Value: TERDPCBDesignItem;
     P, Q: TPoint; Pad: TERDPCBPad; Text: string; Role, ConnectionIndex: Integer;
     Tint: TBitmap; Blend: TBlendFunction; Ink, NoteColor: TColor;
-    Definition: TERDPCBComponentType; Painter: TERDPainter; NoteIcon: TERDGlyph; Header: TRect; GlyphHandled: Boolean;
+    Definition: TERDPCBComponentType; Painter: TERDPainter; NoteIcon: TERDGlyph; Header, Badge: TRect; GlyphHandled: Boolean;
   procedure DrawConnection(const FromPoint, ToPoint: TPoint; Color: TColor; Width: Single; TargetIndex: Integer);
   var Graphics: TGPGraphics; Path: TGPGraphicsPath; Pen: TGPPen; Geometry: TERDPCBConnectionGeometry;
       Segment: TERDPCBPathSegment;
@@ -1950,7 +1954,7 @@ begin
         ntError: begin NoteColor := Palette.Danger; NoteIcon := glClose; end;
         ntQuestion: begin NoteColor := Palette.Accent; NoteIcon := glHelp; end;
       end;
-      ACanvas.Brush.Color := ERDMixColor(Palette.Background, NoteColor, 0.12);
+      ACanvas.Brush.Color := ERDMixColor(NoteColor, Palette.Background, 0.12);
       ACanvas.Pen.Color := NoteColor; ACanvas.Pen.Width := 1;
       if Value.Selected then ACanvas.Pen.Color := Palette.Accent;
       ACanvas.Rectangle(R);
@@ -1964,8 +1968,12 @@ begin
         if Value.NoteType <> ntNone then
         begin
           Header := LinkRect; Header.Bottom := Header.Top + ScaleValue(20);
+          Badge := Rect(Header.Left, Header.Top, Header.Left + ScaleValue(20), Header.Top + ScaleValue(20));
           Painter := TERDPainter.Create(ACanvas, Palette, ScaleValue(96));
-          try Painter.Glyph(NoteIcon, Header.Left + ScaleValue(8), Header.Top + ScaleValue(8), NoteColor, ScaleValue(96)/96);
+          try
+            Painter.RoundRect(Badge.Left, Badge.Top, Badge.Width, Badge.Height, ScaleValue(4), NoteColor, clNone);
+            Painter.GlyphLine(NoteIcon, Badge.Left + Badge.Width/2, Badge.Top + Badge.Height/2,
+              ERDContrastInk(NoteColor, Palette.ForegroundText, Palette.Background), ScaleValue(96)/96);
           finally Painter.Free; end;
           Inc(Header.Left, ScaleValue(24)); ACanvas.Font.Style := [fsBold];
           DrawTextW(ACanvas.Handle, PWideChar(ERDPCBNoteTypeName(Value.NoteType)), -1, Header,

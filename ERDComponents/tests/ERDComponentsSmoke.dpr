@@ -33,6 +33,9 @@ type
     procedure Request(const Value: TERDLanguageRequest; const Reply: IERDLanguageResponses);
     procedure Cancel(RequestID: Int64);
   end;
+  TPCBContrastProbe = class(TERDPCBDesigner)
+    procedure Render(Bitmap: TBitmap);
+  end;
   TPCBHistoryProbe = class
     Scene: TERDPCBScene;
     RejectCaption: string;
@@ -2507,6 +2510,62 @@ begin
   finally Scene.Free; Probe.Free; end;
 end;
 
+procedure TPCBContrastProbe.Render(Bitmap: TBitmap);
+begin Bitmap.SetSize(ClientWidth, ClientHeight); PaintControl(Bitmap.Canvas); end;
+procedure TestPCBThemeContrast;
+var Form: TForm; Designer: TPCBContrastProbe; Theme: TERDTheme; Mode: TERDThemeMode;
+    OffGrid, OnGrid: TBitmap; X, Y, MaxDifference, Count, Index, Selected: Integer;
+    NoteType: TERDPCBNoteType; Item: TERDPCBDesignItem; P, Q: TPoint; Palette: TERDThemePalette; StatusColor: TColor;
+  function Difference(A, B: TColor): Integer;
+  var CA, CB: Cardinal;
+  begin
+    CA := ColorToRGB(A); CB := ColorToRGB(B);
+    Result := Max(Abs(Integer(GetRValue(CA))-Integer(GetRValue(CB))),
+      Max(Abs(Integer(GetGValue(CA))-Integer(GetGValue(CB))), Abs(Integer(GetBValue(CA))-Integer(GetBValue(CB)))));
+  end;
+begin
+  Form := TForm.Create(nil); OffGrid := TBitmap.Create; OnGrid := TBitmap.Create;
+  try
+    Theme := TERDTheme.Create(Form); Designer := TPCBContrastProbe.Create(Form); Designer.Parent := Form;
+    Designer.Theme := Theme; Designer.SetBounds(0,0,500,400); Designer.AntiAlias := False;
+    for Mode := tmERDesignsLight to tmERDesignsDark do
+    begin
+      Theme.Mode := Mode; Designer.ShowGrid := False; Designer.Render(OffGrid);
+      Designer.ShowGrid := True; Designer.Render(OnGrid); Count := 0; MaxDifference := 0;
+      for Y := MulDiv(64,Designer.CurrentPPI,96) to OnGrid.Height-1 do for X := 0 to OnGrid.Width-1 do
+        if OnGrid.Canvas.Pixels[X,Y] <> OffGrid.Canvas.Pixels[X,Y] then
+        begin Inc(Count); MaxDifference := Max(MaxDifference, Difference(OnGrid.Canvas.Pixels[X,Y], OffGrid.Canvas.Pixels[X,Y])); end;
+      Check((Count > 20) and (MaxDifference >= 38), 'Grid dots visibly contrast with light and dark canvases');
+    end;
+    Index := Designer.AddDesignItem(piNote, PointF(0,0)); Item := Designer.Scene.Item(Index);
+    Item.Caption := ''; Item.Width := 80; Item.Height := 50; Designer.Scene.UpdateItem(Index, Item); Designer.FitBoard;
+    for Mode := tmERDesignsLight to tmERDesignsDark do
+    begin
+      Theme.Mode := Mode; Palette := Theme.Palette;
+      for NoteType := ntNone to ntQuestion do
+      begin
+        Item := Designer.Scene.Item(Index); Item.NoteType := NoteType; Designer.Scene.UpdateItem(Index, Item);
+        StatusColor := Palette.Subtle;
+        case NoteType of ntInfo, ntQuestion: StatusColor := Palette.Accent; ntWarning: StatusColor := Palette.Warning; ntError: StatusColor := Palette.Danger; end;
+        for Selected := 0 to 1 do
+        begin
+          if Selected = 0 then Designer.Scene.ClearSelection else Designer.Scene.Select(Index);
+          Designer.Render(OnGrid); P := Designer.BoardToClient(PointF(Item.X, Item.Y+Item.Height));
+          Q := Designer.BoardToClient(PointF(Item.X+Item.Width, Item.Y));
+          Check(Difference(OnGrid.Canvas.Pixels[(P.X+Q.X) div 2,(P.Y+Q.Y) div 2], Palette.Background) <= 34,
+            'Notes retain a subtle tint when selected and unselected in both themes');
+          if NoteType = ntNone then Continue;
+          Count := 0;
+          for Y := P.Y+MulDiv(11,Designer.CurrentPPI,96) to P.Y+MulDiv(25,Designer.CurrentPPI,96) do
+            for X := P.X+MulDiv(11,Designer.CurrentPPI,96) to P.X+MulDiv(25,Designer.CurrentPPI,96) do
+              if Difference(OnGrid.Canvas.Pixels[X,Y], StatusColor) >= 80 then Inc(Count);
+          Check(Count >= 4, 'Every note status icon has visible contrasting ink on its badge');
+        end;
+      end;
+    end;
+  finally OnGrid.Free; OffGrid.Free; Form.Free; end;
+end;
+
 procedure TestPCBScene;
 var Scene: TERDPCBScene; A, B, C: Integer; Value: TERDPCBDesignItem; Before: string; Failed: Boolean;
 begin
@@ -4083,6 +4142,7 @@ begin
     TestCodeEditorSearch;
     TestCodeLanguageServices;
     TestPCBScene;
+    TestPCBThemeContrast;
     TestPCBHistoryValidation;
     TestPCBDesigner;
     TestPCBDesignerTools;

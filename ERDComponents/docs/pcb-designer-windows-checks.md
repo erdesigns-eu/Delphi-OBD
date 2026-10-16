@@ -143,3 +143,16 @@ verified. No automated Windows smoke-run log was supplied.
 - Existing exported templates/embedded DFM board snapshots need corrected board
   geometry; the importer tests verify all 28 output housings do not overlap and
   still contain their three contact centers.
+
+
+### Grid and note contrast
+
+- Run `TestPCBThemeContrast`. It renders actual light/dark designer canvases,
+  compares visible grid pixels away from text, checks subtle note fills and
+  checks contrasting ink inside every status badge, selected and unselected.
+- Verify grid dots remain visible in the light theme, in empty canvas regions
+  and around the board, at 100%, 150% and 200% DPI with antialiasing on/off.
+- Place Info, Warning, Error and Question notes. Each should have a lightly
+  tinted background and a readable icon on a solid status badge. Selection
+  changes the outline/handles, without turning the note into a solid accent
+  block. None has no badge. Repeat with a custom blue or yellow theme accent.
