@@ -830,16 +830,16 @@ begin
       else begin FMoveBounds.Left := Min(FMoveBounds.Left,R.Left); FMoveBounds.Top := Min(FMoveBounds.Top,R.Top);
         FMoveBounds.Right := Max(FMoveBounds.Right,R.Right); FMoveBounds.Bottom := Max(FMoveBounds.Bottom,R.Bottom); end;
     end
-    else begin N := Length(FMoveTargets); SetLength(FMoveTargets,N+1); FMoveTargets[N] := RectF(R.Left,R.Top,R.Right,R.Bottom); end;
+    else begin N := Length(FMoveTargets); SetLength(FMoveTargets,N+1); FMoveTargets[N] := System.Types.RectF(R.Left,R.Top,R.Right,R.Bottom); end;
   end;
 end;
 procedure TERDPCBDesigner.SnapGuides(var DX, DY: Double);
 var Moving, Board: TRectF; P, Q: TPoint; Correction: TPointF; GridDX, GridDY: Double;
 begin
   GridDX := Snap(FMoveAnchor.X+DX)-FMoveAnchor.X; GridDY := Snap(FMoveAnchor.Y+DY)-FMoveAnchor.Y;
-  Moving := RectF(FMoveBounds.Left+DX*FScreenScale,FMoveBounds.Top-DY*FScreenScale,
+  Moving := System.Types.RectF(FMoveBounds.Left+DX*FScreenScale,FMoveBounds.Top-DY*FScreenScale,
     FMoveBounds.Right+DX*FScreenScale,FMoveBounds.Bottom-DY*FScreenScale);
-  P := ScreenPoint(PointF(0,FMaxY)); Q := ScreenPoint(PointF(FMaxX,0)); Board := RectF(P.X,P.Y,Q.X,Q.Y);
+  P := ScreenPoint(PointF(0,FMaxY)); Q := ScreenPoint(PointF(FMaxX,0)); Board := System.Types.RectF(P.X,P.Y,Q.X,Q.Y);
   ERDPCBSnapLayout(Moving,FMoveTargets,Board,(FMaxX > 0) and (FMaxY > 0),
     FSnapToObjects,FSnapToSpacing,ScaleValue(FSnapTolerance),Correction,FGuideX,FGuideY);
   if FGuideX.Kind <> lgNone then DX := DX+Correction.X/FScreenScale else DX := GridDX;
