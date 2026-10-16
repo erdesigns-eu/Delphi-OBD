@@ -1,7 +1,7 @@
 ﻿program ERDComponentsSmoke;
 {$APPTYPE CONSOLE}
 uses
-  ERD.Components.WatchPanel, ERD.Components.LocalsPanel, ERD.Components.CallStack, ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries,
+  ERD.Components.DisassemblyView, ERD.Components.WatchPanel, ERD.Components.LocalsPanel, ERD.Components.CallStack, ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries,
   ERD.Components.LSP, ERD.Components.Paint, ERD.Components.Control, ERD.Components.LanguageServices, ERD.Components.TextLayout, ERD.Components.CodeEditor, ERD.Components.Syntax,
   ERD.Components.PCBValidation, ERD.Components.PCBValidationPanel, ERD.Components.PCBLayout, ERD.Components.PCBObjectTree, ERD.Components.PCBDesigner, ERD.Components.PCBComponentPalette, ERD.Components.PCBInspector, ERD.Components.Inspector, ERD.Components.PCBScene, ERD.Components.PCBRoute, ERD.Components.PCBLibrary,
   ERD.Components.TextModel, ERD.Components.TextInput,
@@ -142,6 +142,14 @@ type
     Synchronous: Boolean;
     procedure Evaluate(Sender: TObject; const Context: TERDWatchContext; const Expressions: TArray<TERDWatchExpression>);
     procedure Variables(Sender: TObject; const Context: TERDWatchContext; const Request: TERDValueRequest; const Parent: TERDInspectValue);
+  end;
+  TDisassemblyProbe = class
+  public
+    View: TERDDisassemblyView;
+    Last: TERDDisassemblyRequest;
+    Calls, Navigations, Line: Integer;
+    procedure Request(Sender: TObject; const Value: TERDDisassemblyRequest);
+    procedure Navigate(Sender: TObject; const DocumentUri: string; SourceLine, Column: Integer);
   end;
   TDebugCommandProbe = class
   public
@@ -454,6 +462,10 @@ begin
 end;
 procedure TWatchProbe.Variables(Sender: TObject; const Context: TERDWatchContext; const Request: TERDValueRequest; const Parent: TERDInspectValue);
 begin Inc(VariableCalls); LastContext := Context; LastRequest := Request; end;
+procedure TDisassemblyProbe.Request(Sender: TObject; const Value: TERDDisassemblyRequest);
+begin Inc(Calls); Last := Value; end;
+procedure TDisassemblyProbe.Navigate(Sender: TObject; const DocumentUri: string; SourceLine, Column: Integer);
+begin Inc(Navigations); Line := SourceLine; end;
 procedure TDebugCommandProbe.Execute(Sender: TObject; Value: TERDDebugCommand);
 begin Inc(Calls); Command := Value; end;
 procedure TValueChildrenProbe.Request(Sender: TObject; const Value: TERDValueRequest);
@@ -3802,6 +3814,48 @@ begin
   finally Panel.Free; Probe.Free; Model.Free; Form.Free; end;
 end;
 
+procedure TestDisassemblyView;
+var Form: TForm; Model: TERDDebugModel; View, CopyView: TERDDisassemblyView; Probe: TDisassemblyProbe;
+    Request, Old, Forged: TERDDisassemblyRequest; Items: TArray<TERDDisassembledInstruction>;
+    Item: TERDDisassembledInstruction; Stream: TMemoryStream;
+begin
+  Form := TForm.Create(nil); Model := TERDDebugModel.Create(nil); View := TERDDisassemblyView.Create(Form); View.Parent := Form; Probe := TDisassemblyProbe.Create;
+  try
+    View.DebugModel := Model; View.PageSize := 2; View.OnRequestInstructions := Probe.Request; View.OnNavigate := Probe.Navigate;
+    Request := View.RequestInstructions(Model.Session,0,'opaque:function'); Check(Request.RequestID = 0, 'Disassembly refuses disconnected requests');
+    Model.SetExecution(dsPaused,'file:///bytecode.ts',4); Request := View.RequestInstructions(Model.Session,0,'opaque:function');
+    Check(View.Pending and (Probe.Calls = 1) and (Probe.Last.Count = 2), 'Disassembly provider receives bounded instruction request');
+    SetLength(Items,2); Items[0].Address := 'opaque:entry'; Items[0].Instruction := 'LOAD value'; Items[0].DocumentUri := 'file:///bytecode.ts'; Items[0].Line := 4;
+    Items[1].Address := 'opaque:next'; Items[1].Instruction := 'RETURN';
+    Forged := Request; Inc(Forged.InstructionOffset); Check(not View.PublishInstructions(Forged,Items,Items[0].Address), 'Forged window token is rejected');
+    Items[1].Address := Items[0].Address; Check(not View.PublishInstructions(Request,Items,Items[0].Address) and View.Pending, 'Duplicate instruction address rejects window atomically'); Items[1].Address := 'opaque:next';
+    Check(View.PublishInstructions(Request,Items,Items[0].Address) and View.SelectedInstruction(Item) and (Item.Address = Items[0].Address), 'Opaque current address selects instruction without parsing');
+    Check(View.Text[View.FocusedNode,0] <> '', 'Current instruction has a marker'); View.NavigateSelected;
+    Check((Probe.Navigations = 1) and (Probe.Line = 4), 'Instruction source mapping raises navigation');
+    Items[0].Instruction := 'mutated'; Check(View.SelectedInstruction(Item) and (Item.Instruction = 'LOAD value'), 'Instruction window owns a copy of provider array');
+    View.SelectAddress('opaque:next'); View.NavigateSelected; Check(Probe.Navigations = 1, 'Instruction without source does not navigate');
+    View.SetInstructionPointer('opaque:next'); Check(View.CurrentAddress = 'opaque:next', 'Host can update execution marker without changing source execution');
+    Check(Model.ExecutionLine = 4, 'Instruction selection does not change source execution');
+    Old := Request; Request := View.MovePage(1); Check((Request.InstructionOffset = 2) and not View.PublishInstructions(Old,Items,''), 'Next page supersedes old request and uses instruction offsets');
+    Request := View.MovePage(-1); Check(Request.InstructionOffset = 0, 'Previous page reverses instruction offset');
+    Items[0].Address := ''; Items[0].Availability := iaUnavailable;
+    Check(View.PublishInstructions(Request,Items,'') and View.SelectAddress('opaque:next'), 'Unavailable placeholder is accepted without an invented address');
+    Request := View.RequestInstructions(Model.Session,1,'opaque:function'); Model.SetExecution(dsRunning);
+    Check(View.Stale and (View.CurrentAddress = '') and not View.PublishInstructions(Request,Items,'opaque:next'), 'Continue clears execution marker and rejects pending window');
+    Model.SetExecution(dsPaused,'file:///bytecode.ts',4); Request := View.RequestInstructions(Model.Session,2,'opaque:function');
+    Check(View.FailInstructions(Request,'No disassembler') and (View.ErrorText = 'No disassembler'), 'Disassembly failure is visible');
+    Request := View.RequestInstructions(Model.Session,3,'opaque:function'); Model.BeginSession;
+    Check(not View.PublishInstructions(Request,Items,''), 'Session change rejects previous disassembly');
+    View.OnRequestInstructions := nil; View.OnNavigate := nil; View.DebugModel := nil;
+    RegisterClass(TERDDisassemblyView); CopyView := TERDDisassemblyView.Create(Form); Stream := TMemoryStream.Create;
+    try
+      Stream.WriteComponent(View); Stream.Position := 0; Stream.ReadComponent(CopyView);
+      Check((CopyView.PageSize = 2) and CopyView.Stale and (CopyView.RootNodeCount = 0) and (CopyView.ErrorText = ''), 'DFM retains configuration without runtime disassembly or status');
+    finally Stream.Free; CopyView.Free; end;
+    View.DebugModel := Model; FreeAndNil(Model); Check((View.DebugModel = nil) and View.Stale, 'Model destruction safely detaches disassembly');
+  finally View.Free; Probe.Free; Model.Free; Form.Free; end;
+end;
+
 procedure TestValueTreeSnapshots;
 var Form: TForm; Tree, CopyTree: TERDValueTree; Probe: TValueChildrenProbe;
     Roots, Children: TArray<TERDInspectValue>; Request, Old: TERDValueRequest; Value: TERDInspectValue; Stream: TMemoryStream;
@@ -5231,7 +5285,7 @@ begin
     TestPCBDesigner;
     TestPCBDesignerTools;
     TestPCBPlacement;
-    TestDebugEditor; TestBreakpointPanel; TestCallStack; TestLocalsPanel; TestWatchPanel; TestValueTreeSnapshots; TestTimeSeriesHistory;
+    TestDebugEditor; TestBreakpointPanel; TestCallStack; TestLocalsPanel; TestWatchPanel; TestDisassemblyView; TestValueTreeSnapshots; TestTimeSeriesHistory;
     TestPCBCardinalAnchors; TestPCBZOrderAndGrid; TestSelectedTabVisibility;
     TestPCBConnections;
     TestPCBComponentTypes;

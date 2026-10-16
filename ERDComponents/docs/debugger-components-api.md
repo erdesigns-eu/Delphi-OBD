@@ -2,7 +2,8 @@
 
 The component set provides `TERDDebugModel`, `TERDValueTree`,
 `TERDTimeSeriesChart`, `TERDBreakpointPanel`, `TERDCallStack` and
-`TERDLocalsPanel` and `TERDWatchPanel`, plus debug gutter/execution rendering in
+`TERDLocalsPanel`, `TERDWatchPanel` and `TERDDisassemblyView`, plus
+debug gutter/execution rendering in
 `TERDCodeEditor`.
 The separate Debugger components demo page exercises them through a synthetic
 host. It does not start or attach to TSVM, acknowledge actual device breakpoints,
@@ -348,3 +349,59 @@ frame zero, duplicate/atomic result validation, object variables, expression edi
 late replies after edits/deletion/frame/resume/session changes, retry, Enter-to-add,
 synchronous evaluation, DFM and model lifetime. Delphi execution and visual tests
 of light/dark themes, tab layout, F2/Enter/Escape/Delete and paging remain pending.
+
+## Disassembly / bytecode
+
+`TERDDisassemblyView` is a standalone read-only ERD virtual tree with fixed
+marker/address/bytes/instruction/symbol/source columns. Body text is monospace;
+ERD palettes supply selection, current-instruction and unavailable/stale colors.
+It never decodes bytes itself. DAP disassemble or another host provider supplies
+`TERDDisassembledInstruction` records; addresses and memory references remain
+opaque strings and are compared exactly, without numeric parsing.
+
+- Optionally assign the shared DebugModel. When assigned, requests require its
+  current session and paused state; otherwise the host manages lifecycle itself.
+- `RequestInstructions(Session, Generation, MemoryReference, InstructionOffset)`
+  raises OnRequestInstructions with a complete `TERDDisassemblyRequest`. Count is
+  PageSize (default 128, bounded to 1..4096). Invalid/older contexts return a zero
+  request ID. A new request supersedes all earlier requests, even in one generation.
+- Offset is an instruction displacement from the backend memory reference, not a
+  byte address. MovePage(-1/1), also Alt+Left/Right, requests the adjacent window
+  and guards Int64 offset overflow. The host maps these fields to its protocol.
+- Return PublishInstructions(Request, Instructions, CurrentAddress) for the
+  complete window. Replies must match session, generation, request ID, memory
+  reference, offset and count. Overfull windows, negative source positions and
+  duplicate nonempty addresses are refused atomically. Available instructions
+  need addresses; unavailable placeholders may omit them. Short/empty windows
+  are valid and clear obsolete rows. Arrays are copied.
+- Publication selects the current instruction when it is in the window. The host
+  can update SetInstructionPointer(Address) later. Exactly one matching available
+  row receives the marker; unavailable rows never show one. An instruction
+  pointer outside the window is valid and produces no visible marker.
+- SelectAddress, SelectedInstruction and NavigateSelected support host commands.
+  Double-click/Enter raises OnNavigate only for an available instruction with a
+  source URI and positive one-based line. Column zero means unknown. Selection
+  and source navigation never modify the editor debug model's execution position.
+  Ctrl+C copies the selected instruction address, bytes and text.
+- FailInstructions invalidates the pending request and shows the provider error
+  in the instruction header/tooltip. A fresh request retries. Loading/stale status
+  is shown in the header; old rows remain subdued and cannot navigate or copy.
+  Continue, disconnect, new sessions and changed paused source locations clear
+  the instruction marker and invalidate outstanding replies automatically.
+
+Runtime rows, context, marker and status are not DFM data. The fixed Header schema
+is not streamed (including runtime column widths); PageSize, model reference and
+normal tree appearance settings are configuration. A host can persist desired
+column widths separately. All publications belong on the VCL UI thread.
+
+The debugger demo has a Bytecode tab and a bounded synthetic instruction provider.
+Its DEMO_* operations and zero bytes are illustrative data, not actual TSVM
+opcodes or executable output. The marker follows the demo execution location,
+independently of the selected caller frame. TSVM disassembly transport, bytecode
+breakpoints and code execution are outside this component.
+
+Added Windows smoke cases cover bounded requests, opaque addresses, current-row
+markers, source/no-source navigation, copied arrays, malformed/old window replies,
+previous/next offsets, unavailable placeholders, resume/session invalidation,
+provider errors, DFM and model destruction. Delphi build and visual tests remain
+unrun in the Linux cloud.

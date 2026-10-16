@@ -83,5 +83,6 @@
   "TERDBreakpointPanel",
   "TERDCallStack",
   "TERDLocalsPanel",
-  "TERDWatchPanel"
+  "TERDWatchPanel",
+  "TERDDisassemblyView"
 ]

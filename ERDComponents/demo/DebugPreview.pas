@@ -2,7 +2,7 @@
 interface
 uses Winapi.Windows, ERD.Components.Control, System.Classes, System.SysUtils, System.Types, System.Math, Vcl.Controls, Vcl.StdCtrls, Vcl.ExtCtrls,
   ERD.Components.Panel, ERD.Components.Types, ERD.Components.CodeEditor,
-  ERD.Components.WatchPanel, ERD.Components.Tabs, ERD.Components.LocalsPanel, ERD.Components.CallStack, ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries, ERD.Components.Ribbon;
+  ERD.Components.DisassemblyView, ERD.Components.WatchPanel, ERD.Components.Tabs, ERD.Components.LocalsPanel, ERD.Components.CallStack, ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries, ERD.Components.Ribbon;
 type
   TDebugPreview = class(TERDPanel)
   private
@@ -11,6 +11,7 @@ type
     FValues: TERDLocalsPanel;
     FWatches: TERDWatchPanel;
     FSideTabs: TERDTabs;
+    FDisassembly: TERDDisassemblyView;
     FStack: TERDCallStack;
     FDebugSide: TERDPanel;
     FBreakpoints: TERDBreakpointPanel;
@@ -28,6 +29,7 @@ type
     procedure Tick(Sender: TObject);
     procedure EvaluateWatches(Sender: TObject; const Context: TERDWatchContext; const Expressions: TArray<TERDWatchExpression>);
     procedure WatchVariables(Sender: TObject; const Context: TERDWatchContext; const Request: TERDValueRequest; const Parent: TERDInspectValue);
+    procedure DisassemblyRequested(Sender: TObject; const Request: TERDDisassemblyRequest);
     procedure ScopesRequested(Sender: TObject; const Context: TERDLocalsRequest);
     procedure RefreshStack;
     procedure FrameSelected(Sender: TObject; const Context: TERDStackRequest; const Frame: TERDStackFrame);
@@ -71,9 +73,12 @@ begin
   FWatches := TERDWatchPanel.Create(Self); FWatches.Parent := FDebugSide; FWatches.Align := alClient; FWatches.Visible := False;
   FWatches.DebugModel := FModel; FWatches.OnEvaluate := EvaluateWatches; FWatches.OnRequestVariables := WatchVariables;
   FWatches.AddWatch('status.count'); FWatches.AddWatch('status'); FWatches.AddWatch('missing');
+  FDisassembly := TERDDisassemblyView.Create(Self); FDisassembly.Parent := FDebugSide; FDisassembly.Align := alClient; FDisassembly.Visible := False;
+  FDisassembly.DebugModel := FModel; FDisassembly.PageSize := 16; FDisassembly.OnRequestInstructions := DisassemblyRequested; FDisassembly.OnNavigate := NavigateFrame;
   FSideTabs := TERDTabs.Create(Self); FSideTabs.Parent := FDebugSide; FSideTabs.Top := FStack.Height; FSideTabs.Align := alTop;
   with FSideTabs.Tabs.Add do begin Caption := 'Locals'; Page := FValues; end;
   with FSideTabs.Tabs.Add do begin Caption := 'Watches'; Page := FWatches; end;
+  with FSideTabs.Tabs.Add do begin Caption := 'Bytecode'; Page := FDisassembly; end;
   FSideTabs.TabIndex := 0;
   FEditor := TERDCodeEditor.Create(Self); FEditor.Parent := Self; FEditor.Align := alClient;
   FEditor.DocumentUri := 'demo:///debug-example.ts'; FEditor.DebugModel := FModel; FEditor.ShowDebugGutter := True;
@@ -93,6 +98,7 @@ begin
   if FTimer <> nil then begin FTimer.Enabled := False; FTimer.OnTimer := nil; end;
   AttachRibbon(nil);
   if FModel <> nil then begin FModel.OnChange := nil; FModel.OnCommand := nil; end;
+  if FDisassembly <> nil then FDisassembly.OnRequestInstructions := nil;
   if FWatches <> nil then begin FWatches.OnEvaluate := nil; FWatches.OnRequestVariables := nil; end;
   if FValues <> nil then begin FValues.OnRequestScopes := nil; FValues.OnRequestVariables := nil; end;
   inherited;
@@ -120,6 +126,7 @@ begin
   Frames[1].ID := 1; Frames[1].ThreadID := 1; Frames[1].Name := '<module>'; Frames[1].DocumentUri := FEditor.DocumentUri; Frames[1].Line := 7; Frames[1].Column := 1;
   Frames[2].ID := 2; Frames[2].ThreadID := 2; Frames[2].Name := '[native wait]';
   FStack.PublishSnapshot(Request,Threads,Frames);
+  FDisassembly.RequestInstructions(FModel.Session,FStackGeneration,'demo-bytecode');
 end;
 procedure TDebugPreview.FrameSelected(Sender: TObject; const Context: TERDStackRequest; const Frame: TERDStackFrame);
 begin
@@ -152,6 +159,21 @@ begin
   for I := 0 to High(Items) do begin Items[I].ID := Parent.ID+'.'+IntToStr(I); Items[I].Path := Parent.Path+'.'+Items[I].Name; end;
   Count := Max(0,Min(Request.Count,Length(Items)-Request.StartIndex));
   FWatches.PublishVariables(Context,Request,Copy(Items,Request.StartIndex,Count),Request.StartIndex+Count < Length(Items));
+end;
+procedure TDebugPreview.DisassemblyRequested(Sender: TObject; const Request: TERDDisassemblyRequest);
+var Items: TArray<TERDDisassembledInstruction>; I: Integer; Index: Int64;
+const Operations: array[0..4] of string = ('DEMO_LOAD status','DEMO_ADD 1','DEMO_STORE count','DEMO_CALL console.log','DEMO_RETURN');
+begin
+  SetLength(Items,Request.Count);
+  for I := 0 to High(Items) do
+  begin
+    Index := Request.InstructionOffset+I;
+    if (Index < 0) or (Index > 31) then begin Items[I].Availability := iaUnavailable; Continue; end;
+    Items[I].Address := 'demo:'+IntToHex(Index*4,4); Items[I].Bytes := '00 00 00 00';
+    Items[I].Instruction := Operations[Index mod 5]; Items[I].Symbol := 'Synthetic bytecode';
+    Items[I].DocumentUri := FEditor.DocumentUri; Items[I].Line := Index mod 7+1; Items[I].Column := 1;
+  end;
+  FDisassembly.PublishInstructions(Request,Items,'demo:'+IntToHex((FModel.ExecutionLine-1)*4,4));
 end;
 procedure TDebugPreview.ScopesRequested(Sender: TObject; const Context: TERDLocalsRequest);
 var Scopes: TArray<TERDDebugScope>;
