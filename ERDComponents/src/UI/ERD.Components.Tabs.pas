@@ -21,6 +21,7 @@ interface
 
 uses
   ERD.Components.Icons,
+  ERD.Components.Hint,
   ERD.Components.Types,
   Winapi.Windows,
   Winapi.Messages,
@@ -165,7 +166,7 @@ type
   end;
 
   /// <summary>Themed underline or document tab strip.</summary>
-  TERDTabs = class(TERDCustomControl)
+  TERDTabs = class(TERDCustomControl, IERDHintProvider)
   strict private
     FSelectedID: Integer;
     FAllowReorder, FAllowDetach, FDragging, FShuttingDown, FSyncingPages: Boolean;
@@ -293,6 +294,7 @@ type
     /// tabs are loaded.</summary>
     procedure Loaded; override;
   public
+    function HintContentAt(const ScreenPoint: TPoint; out Content: TERDHintContent): Boolean;
     /// <summary>Creates an underline tab strip.</summary>
     /// <param name="AOwner">Component owner.</param>
     constructor Create(AOwner: TComponent); override;
@@ -700,6 +702,16 @@ begin
 end;
 
 { TERDTabs ------------------------------------------------------------------ }
+
+function TERDTabs.HintContentAt(const ScreenPoint: TPoint; out Content: TERDHintContent): Boolean;
+var I: Integer; P: TPoint;
+begin
+  Content := Default(TERDHintContent); Content.ImageIndex := -1; P := ScreenToClient(ScreenPoint); I := ItemAt(P.X,P.Y);
+  Result := (I >= 0) and (I < FItems.Count); if not Result then Exit;
+  Content.Title := EffectiveCaption(I); Content.Description := EffectiveHint(I); Content.Glyph := FItems[I].Glyph;
+  Content.Icon := FItems[I].Icon; Content.Images := Images; Content.ImageIndex := FItems[I].ImageIndex;
+  Content.Palette := Palette; Content.HasPalette := True; Content.Density := Density; Content.HasDensity := True;
+end;
 
 constructor TERDTabs.Create(AOwner: TComponent);
 begin

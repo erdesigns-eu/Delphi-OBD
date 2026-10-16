@@ -42,6 +42,7 @@ type
     procedure ApplyTheme;
 
   protected
+    procedure CMHintShow(var Message: TCMHintShow); message CM_HINTSHOW;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     procedure Loaded; override;
     procedure CreateWnd; override;
@@ -93,7 +94,7 @@ implementation
 uses
   ERD.Components.Control, ERD.Components.Panel, ERD.Components.Edits,
   ERD.Components.SpinEdit, ERD.Components.Calendar, ERD.Components.TimePicker,
-  ERD.Components.DateTimePicker, ERD.Components.VT.EditLink;
+  ERD.Components.DateTimePicker, ERD.Components.VT.EditLink, ERD.Components.Hint;
 
 type
   TERDTreeInputAccess = class(TERDCustomControl)
@@ -322,6 +323,9 @@ begin
   finally Choices.Free end;
 end;
 
+
+procedure TERDVirtualStringTree.CMHintShow(var Message: TCMHintShow);
+begin inherited; if Message.HintInfo <> nil then Message.HintInfo.HintWindowClass := TERDHintWindow; end;
 
 constructor TERDVirtualStringTree.Create(AOwner: TComponent);
 var Bitmap: TBitmap; I: Integer;

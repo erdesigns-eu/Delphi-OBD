@@ -24,6 +24,7 @@ interface
 
 uses
   ERD.Components.Icons,
+  ERD.Components.Hint,
   ERD.Components.Types,
   Winapi.Windows,
   Winapi.Messages,
@@ -173,7 +174,7 @@ type
   end;
 
   /// <summary>Themed application title bar that replaces the native form caption.</summary>
-  TERDTitleBar = class(TERDCustomControl, IERDSurface)
+  TERDTitleBar = class(TERDCustomControl, IERDSurface, IERDHintProvider)
   strict private
     FAutoSaveVisible: Boolean;
     FAutoSave: Boolean;
@@ -356,6 +357,7 @@ type
     /// <summary>Updates child bounds after a resize.</summary>
     procedure Resize; override;
   public
+    function HintContentAt(const ScreenPoint: TPoint; out Content: TERDHintContent): Boolean;
     /// <summary>Creates a top-aligned themed title bar.</summary>
     /// <param name="AOwner">Component owner.</param>
     constructor Create(AOwner: TComponent); override;
@@ -810,6 +812,17 @@ begin
 end;
 
 { TERDTitleBar --------------------------------------------------------------- }
+
+function TERDTitleBar.HintContentAt(const ScreenPoint: TPoint; out Content: TERDHintContent): Boolean;
+var P: TPoint; Item: TERDCaptionButton;
+begin
+  Content := Default(TERDHintContent); Content.ImageIndex := -1; P := ScreenToClient(ScreenPoint);
+  Item := ButtonAt(FButtons,P.X,P.Y); if Item = nil then Item := QuickAt(P.X,P.Y);
+  Result := Item <> nil; if not Result then Exit;
+  Content.Title := GetShortHint(Item.Hint); Content.Description := Item.Hint; Content.Glyph := Item.Glyph;
+  Content.Icon := Item.Icon; Content.Images := FImages; Content.ImageIndex := Item.ImageIndex;
+  Content.Palette := Palette; Content.HasPalette := True; Content.Density := Density; Content.HasDensity := True;
+end;
 
 constructor TERDTitleBar.Create(AOwner: TComponent);
 begin

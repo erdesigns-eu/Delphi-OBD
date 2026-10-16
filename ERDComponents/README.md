@@ -4,7 +4,7 @@ Zelfstandige algemene **Delphi VCL**-componentlibrary. Dit zijn onafhankelijke
 kopieën: Delphi-OBD wordt niet aangepast en heeft geen afhankelijkheid van deze
 library. De hele map kan naar een eigen repository worden verplaatst.
 
-- **90 paletcomponenten**: algemene invoer, navigatie, containers, grids, dialogen,
+- **91 paletcomponenten**: algemene invoer, navigatie, containers, grids, dialogen,
   applicatiechrome, theming en feedback. Zie `assets/components.json`.
 - **320 ingebouwde vectoriconen**, met stabiele identifiers en schaalbare SVGs.
 - Eigen namespace `ERD.Components.*`, classes `TERD*`, interfaces `IERD*`.
@@ -22,7 +22,7 @@ library. De hele map kan naar een eigen repository worden verplaatst.
    De demo gebruikt `TERDTitleBar`; met de keuze Ribbon/Menu wissel je van commandosurface.
    De File-knop opent een echte backstage met eigen Information- en Settings-pagina’s.
    De voorbeeldpagina’s gebruiken `TERDTabs` en `TERDPanel`, zonder standaard PageControl.
-   De 90 geregistreerde componenten staan in de DFM of runtime-voorbeeldpagina's: de sidebar navigeert naar
+   De 91 geregistreerde componenten staan in de DFM of runtime-voorbeeldpagina's: de sidebar navigeert naar
    iconen, invoer, layout, data, bestanden/kleuren en dialogs/notificaties.
    Dialogknoppen openen de bijbehorende component; toast, hints en popupmenu hebben eigen voorbeelden.
 
@@ -538,6 +538,11 @@ filters, pauzeren en optionele commando-invoer via een synthetische host.
 De pagina **Shape inspector** toont `TERDShapeInspector` met een visuele boom van
 shape-relaties, klikbare kaarten, property-layouts en expliciet ontbrekende NDB-data.
 De voorbeelddata en navigatie zijn synthetisch; er is geen TSVM-transport ingebouwd.
+De pagina **Dock host** toont `TERDDockHost` met tabgroepen, splitsers, zwevende
+panelen, auto-hide en layoutopslag. De Office-hintstijl heeft een vetgedrukte
+titel, beschrijving en automatisch overgenomen component-/itemicoon. ERD-controls
+kiezen deze hintstijl zelf; een aparte handler is niet nodig.
+Zie [Docking en Office hints](docs/docking-and-hints-api.md).
 
 - [Component-API, sneltoetsen en Windows-controles](docs/debugger-components-api.md)
 - [NDB/DAP-inventaris en verdere componenten](docs/debugger-components-plan.md)

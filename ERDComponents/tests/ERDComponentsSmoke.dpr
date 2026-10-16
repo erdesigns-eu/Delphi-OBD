@@ -1,7 +1,7 @@
 ﻿program ERDComponentsSmoke;
 {$APPTYPE CONSOLE}
 uses
-  ERD.Components.ShapeInspector, ERD.Components.DebugConsole, ERD.Components.RuntimeMonitor, ERD.Components.FiberList, ERD.Components.DisassemblyView, ERD.Components.WatchPanel, ERD.Components.LocalsPanel, ERD.Components.CallStack, ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries,
+  ERD.Components.DockHost, ERD.Components.Hint, ERD.Components.ShapeInspector, ERD.Components.DebugConsole, ERD.Components.RuntimeMonitor, ERD.Components.FiberList, ERD.Components.DisassemblyView, ERD.Components.WatchPanel, ERD.Components.LocalsPanel, ERD.Components.CallStack, ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries,
   ERD.Components.LSP, ERD.Components.Paint, ERD.Components.Control, ERD.Components.LanguageServices, ERD.Components.TextLayout, ERD.Components.CodeEditor, ERD.Components.Syntax,
   ERD.Components.PCBValidation, ERD.Components.PCBValidationPanel, ERD.Components.PCBLayout, ERD.Components.PCBObjectTree, ERD.Components.PCBDesigner, ERD.Components.PCBComponentPalette, ERD.Components.PCBInspector, ERD.Components.Inspector, ERD.Components.PCBScene, ERD.Components.PCBRoute, ERD.Components.PCBLibrary,
   ERD.Components.TextModel, ERD.Components.TextInput,
@@ -161,6 +161,18 @@ type
     procedure Cleared(Sender: TObject);
     procedure Inspect(Sender: TObject; const Context: TERDFiberRequest; const Value: TERDFiberInfo);
     procedure Navigate(Sender: TObject; const Context: TERDFiberRequest; const Value: TERDFiberInfo);
+  end;
+  TDockProbe = class
+  public
+    Layouts, Activations: Integer;
+    ID: string;
+    procedure Layout(Sender: TObject);
+    procedure Activate(Sender: TObject; const PanelID: string);
+    procedure Resolve(Sender: TObject; HintControl: TControl; var Title, Description, Shortcut: string; var Glyph: TERDGlyph);
+  end;
+  TOfficeHintProbe = class(TERDHintWindow)
+  public
+    procedure Params(out Value: TCreateParams);
   end;
   TShapeProbe = class
   public
@@ -511,6 +523,15 @@ procedure TFiberProbe.Inspect(Sender: TObject; const Context: TERDFiberRequest; 
 begin Inc(Inspections); end;
 procedure TFiberProbe.Navigate(Sender: TObject; const Context: TERDFiberRequest; const Value: TERDFiberInfo);
 begin Inc(Navigations); end;
+procedure TDockProbe.Layout(Sender: TObject);
+begin Inc(Layouts); end;
+procedure TDockProbe.Activate(Sender: TObject; const PanelID: string);
+begin Inc(Activations); ID := PanelID; end;
+procedure TDockProbe.Resolve(Sender: TObject; HintControl: TControl; var Title, Description, Shortcut: string; var Glyph: TERDGlyph);
+begin Title := 'Save layout'; Description := 'Saves the current panel arrangement.'; Shortcut := 'Ctrl+S'; Glyph := glSave; end;
+procedure TOfficeHintProbe.Params(out Value: TCreateParams);
+begin Value := Default(TCreateParams); CreateParams(Value); end;
+
 procedure TShapeProbe.Request(Sender: TObject; const Context: TERDShapeRequest);
 begin Inc(Requests); Last := Context; end;
 procedure TShapeProbe.Navigate(Sender: TObject; const Context: TERDShapeRequest; TargetShapeID: Cardinal);
@@ -4199,6 +4220,129 @@ begin
     finally CopyTree.Free; end;
   finally Stream.Free; Probe.Free; Form.Free; end;
 end;
+procedure TestDockHost;
+var Form: TForm; Host, CopyHost: TERDDockHost; Origin, B, C, D, LostParent: TERDPanel;
+    A, Lost: TERDEdit; Probe: TDockProbe; Original: TRect; R, Center: TRect;
+    Layout, Before, Error: string; Bad: TJSONObject; Rows: TJSONArray; Window: TCustomForm;
+    Stream: TMemoryStream; Raised: Boolean;
+begin
+  Form := TForm.Create(nil); Form.SetBounds(30,30,1000,720); Probe := TDockProbe.Create;
+  Origin := TERDPanel.Create(Form); Origin.Parent := Form;
+  A := TERDEdit.Create(Form); A.Parent := Origin; A.SetBounds(4,8,150,28); A.Text := 'Retained content'; Original := A.BoundsRect;
+  B := TERDPanel.Create(Form); B.Parent := Origin; C := TERDPanel.Create(Form); C.Parent := Origin; D := TERDPanel.Create(Form); D.Parent := Origin;
+  Host := TERDDockHost.Create(Form); Host.Parent := Form; Host.SetBounds(0,0,900,640);
+  try
+    Host.OnLayoutChanged := Probe.Layout; Host.OnPanelActivated := Probe.Activate;
+    Host.BeginUpdate;
+    try
+      Host.AddPanel('editor','Editor',A,dzCenter).Closable := False;
+      Host.AddPanel('locals','Locals',B,dzLeft); Host.AddPanel('watch','Watch',C,dzLeft); Host.AddPanel('console','Console',D,dzBottom);
+      Check(Probe.Layouts = 0, 'Dock batch defers layout notifications');
+    finally Host.EndUpdate; end;
+    Check((Probe.Layouts = 1) and (Host.PanelCount = 4) and (Host.ActivePanel(dzLeft) = 'watch'), 'Dock groups expose stable IDs and coalesce initial registration');
+    Check((A.Owner = Form) and (B.Owner = Form) and (A.Text = 'Retained content'), 'Docking borrows content without changing ownership or document state');
+    Host.ActivatePanel('locals'); Check(B.Visible and not C.Visible and (Probe.ID = 'locals'), 'Only selected tab content is visible in a dock group');
+    Center := Host.GroupBounds(dzCenter); Check((Center.Width > 0) and (Center.Height > 0) and not IntersectRect(R,Center,Host.GroupBounds(dzLeft)), 'Dock groups reserve non-overlapping center space');
+    Check(not Host.HidePanel('editor') and not Host.AutoHidePanel('editor',dzCenter), 'Non-closable panel and center auto-hide restrictions are enforced');
+    Raised := False; try Host.AddPanel('locals','Duplicate',D); except on E: EArgumentException do Raised := True; end;
+    Check(Raised and (Host.PanelCount = 4), 'Duplicate dock IDs reject registration without changing content');
+    Check(Host.DockPanel('watch',dzRight) and (Host.FindPanel('watch').Zone = dzRight), 'Panel can move from one tab group to another');
+    Check(Host.AutoHidePanel('locals',dzLeft) and not B.Visible and Host.PeekPanel('locals') and B.Visible, 'Auto-hide rail reveals retained panel content');
+    Host.ClosePeek; Check((Host.PeekPanelID = '') and not B.Visible, 'Closing flyout returns content to hidden parking without destroying it');
+    Check(Host.HidePanel('console') and (Host.FindPanel('console').Mode = dpmHidden) and Host.ShowPanel('console') and (Host.FindPanel('console').Mode = dpmDocked), 'Show restores a hidden panel to its previous dock state');
+    Host.LeftSize := 180; Layout := Host.SaveLayout;
+    Host.DockPanel('locals',dzRight,0); Host.LeftSize := 300;
+    Check(Host.LoadLayout(Layout,Error) and (Host.LeftSize = 180) and (Host.FindPanel('locals').Mode = dpmAutoHide), 'Validated layout restores sizes, tab placement and auto-hide mode');
+    Before := Host.SaveLayout; Bad := TJSONObject.ParseJSONValue(Before) as TJSONObject;
+    try Bad.RemovePair('version').Free; Bad.AddPair('version',TJSONNumber.Create(2)); Check(not Host.LoadLayout(Bad.ToJSON,Error) and (Error <> '') and (Host.SaveLayout = Before), 'Unsupported layout version leaves all live state unchanged'); finally Bad.Free; end;
+    Bad := TJSONObject.ParseJSONValue(Before) as TJSONObject;
+    try Rows := Bad.Values['panels'] as TJSONArray; Rows.AddElement(TJSONObject.ParseJSONValue(Rows.Items[0].ToJSON)); Check(not Host.LoadLayout(Bad.ToJSON,Error) and (Host.SaveLayout = Before), 'Duplicate layout IDs reject the full plan before applying any changes'); finally Bad.Free; end;
+    Bad := TJSONObject.ParseJSONValue(Before) as TJSONObject;
+    try
+      Rows := Bad.Values['panels'] as TJSONArray; TJSONObject(Rows.Items[0]).RemovePair('id').Free; TJSONObject(Rows.Items[0]).AddPair('id','future-panel');
+      Check(not Host.LoadLayout(Bad.ToJSON,Error,False) and (Host.SaveLayout = Before), 'Strict layout restore refuses unknown panel IDs atomically');
+      Check(Host.LoadLayout(Bad.ToJSON,Error,True) and (Host.FindPanel('future-panel') = nil), 'Compatible restore skips unknown IDs without creating controls');
+    finally Bad.Free; end;
+    Host.LoadLayout(Layout,Error); Form.Show;
+    Host.FloatPanel('locals',Rect(100,100,600,450)); Window := Host.FloatingWindow('locals');
+    Check((Window <> nil) and (Window.Owner = Host) and (B.Owner = Form), 'Floating window is owned by host while borrowed content ownership stays unchanged');
+    Window.Close; Application.ProcessMessages;
+    Check((Host.FindPanel('locals').Mode = dpmHidden) and (B.Owner = Form) and (Host.FloatingWindow('locals') = nil), 'Native floating close is queued and hides content safely without destroying it');
+    Host.ShowPanel('locals'); Check(Host.FindPanel('locals').Mode = dpmFloating, 'Reopening a hidden floating panel restores floating mode');
+    Window := Host.FloatingWindow('locals'); Window.Free; Application.ProcessMessages;
+    Check((B.Owner = Form) and (Host.FindPanel('locals').Mode = dpmDocked) and (Host.FloatingWindow('locals') = nil), 'Unexpected floating-window destruction preserves borrowed content and redocks it');
+    Host.FloatPanel('editor',Rect(100,100,600,450)); Host.FloatingWindow('editor').Close; Application.ProcessMessages;
+    Check((Host.FindPanel('editor').Mode = dpmDocked) and (A.Text = 'Retained content'), 'Closing non-closable floating content returns it to a dock group');
+    Check(Host.DropPanel('console',Host.ClientToScreen(Point(Host.Width div 2,Host.Height div 2))) and (Host.FindPanel('console').Zone = dzCenter), 'Drop targeting joins the center tab group');
+    LostParent := TERDPanel.Create(Form); LostParent.Parent := Form; Lost := TERDEdit.Create(Form); Lost.Parent := LostParent;
+    Host.AddPanel('lost','Lost',Lost,dzRight); LostParent.Free;
+    Host.RemovePanel('lost'); Check((Lost.Parent = nil) and (Lost.Owner = Form), 'Removed content survives when its original parent no longer exists');
+    Lost.Free; Host.AddPanel('temporary','Temporary',TERDPanel.Create(Form),dzTop); Host.FindPanel('temporary').Control.Free; Application.ProcessMessages;
+    Check((Host.FindPanel('temporary').Control = nil) and (Host.FindPanel('temporary').Mode = dpmHidden), 'Externally destroyed content detaches safely'); Host.RemovePanel('temporary');
+    Host.OnLayoutChanged := nil; Host.OnPanelActivated := nil; RegisterClass(TERDDockHost); CopyHost := TERDDockHost.Create(Form); Stream := TMemoryStream.Create;
+    try
+      Stream.WriteComponent(Host); Stream.Position := 0; Stream.ReadComponent(CopyHost);
+      Check((CopyHost.LeftSize = 180) and (CopyHost.PanelCount = 0) and (CopyHost.ComponentCount = 18), 'DFM stores dock configuration without borrowed runtime panels or duplicate internals');
+    finally Stream.Free; CopyHost.Free; end;
+    Host.RemovePanel('editor'); Check((A.Parent = Origin) and (A.Align = alNone) and (A.BoundsRect = Original) and (A.Text = 'Retained content'), 'Removing a panel restores its original control placement and content');
+    FreeAndNil(Host); Check((B.Parent = Origin) and (C.Parent = Origin) and (D.Parent = Origin), 'Host destruction restores all remaining borrowed controls');
+  finally Host.Free; Probe.Free; Form.Free; end;
+end;
+
+procedure TestAutomaticOfficeHints;
+var Form: TForm; Button: TERDButton; Tabs: TERDTabs; Ribbon: TERDRibbon; Title: TERDTitleBar;
+    Action: TAction; Theme: TERDTheme; Content: TERDHintContent; Info: THintInfo;
+    Provider: IERDHintProvider; R: TRect; Point: TPoint;
+begin
+  Form := TForm.Create(nil);
+  try
+    Theme := TERDTheme.Create(Form); Theme.Mode := tmDark;
+    Button := TERDButton.Create(Form); Button.Parent := Form; Button.Theme := Theme;
+    Action := TAction.Create(Form); Action.Caption := '&Save'; Action.Hint := 'Stores the document'; Action.ShortCut := ShortCut(VK_F2,[]); Button.Action := Action; Button.Glyph := glSave;
+    Content := ERDResolveHint(Button,Button.Hint,Button.ClientToScreen(System.Types.Point(5,5)));
+    Check((Content.Title = 'Save') and (Content.Description = 'Stores the document') and (Content.Shortcut = 'F2') and (Content.Glyph = glSave), 'Automatic hints combine component/action caption, description, glyph and shortcut');
+    Check(Content.HasPalette and (Content.Palette.Background = Theme.Palette.Background), 'Automatic hint inherits explicit component theme without an installer');
+    Button.Icon.BuiltIn := ei003Opslaan; Content := ERDResolveHint(Button,Button.Hint,Button.ClientToScreen(System.Types.Point(5,5)));
+    Check((Content.Icon = Button.Icon) and Content.Icon.Available, 'Automatic hint uses the component selected icon source');
+    Button.Hint := 'Explicit title|Explicit description'; Content := ERDResolveHint(Button,'Explicit description',System.Types.Point(0,0));
+    Check((Content.Title = 'Explicit title') and (Content.Description = 'Explicit description'), 'VCL long-hint path recovers explicit title and description');
+    Info := Default(THintInfo); Info.HintControl := Button; Info.HintStr := Button.Hint; Info.HintWindowClass := THintWindow;
+    Button.Perform(CM_HINTSHOW,0,LPARAM(@Info));
+    Check(Button.ShowHint and not Button.ParentShowHint and (Info.HintWindowClass = TERDHintWindow), 'ERD controls select Office hints automatically without TERDHintStyle or event wiring');
+    Tabs := TERDTabs.Create(Form); Tabs.Parent := Form; Tabs.SetBounds(0,100,400,36);
+    with Tabs.Tabs.Add do begin Caption := 'Document'; Hint := 'Shows this document'; Glyph := glFile; end;
+    R := Tabs.TabBounds(0); Point := Tabs.ClientToScreen(System.Types.Point((R.Left+R.Right) div 2,(R.Top+R.Bottom) div 2));
+    Content := ERDResolveHint(Tabs,'Shows this document',Point);
+    Check((Content.Title = 'Document') and (Content.Description = 'Shows this document') and (Content.Glyph = glFile), 'Tab-item metadata supplies its own caption, description and glyph automatically');
+    Ribbon := TERDRibbon.Create(Form); Ribbon.Parent := Form; Title := TERDTitleBar.Create(Form); Title.Parent := Form;
+    Check(Supports(Ribbon,IERDHintProvider,Provider), 'Ribbon exposes automatic item-hint metadata'); Provider := nil;
+    Check(Supports(Title,IERDHintProvider,Provider), 'Title-bar buttons expose automatic item-hint metadata'); Provider := nil;
+  finally Form.Free; end;
+end;
+
+procedure TestOfficeHints;
+var Style, CopyStyle: TERDHintStyle; Hint: TOfficeHintProbe; Probe: TDockProbe;
+    Office, Compact, Resolved: TRect; Params: TCreateParams; Stream: TMemoryStream;
+begin
+  Style := TERDHintStyle.Create(nil); Hint := TOfficeHintProbe.Create(nil); Probe := TDockProbe.Create;
+  try
+    Check((Style.Layout = hlOffice) and (Style.Glyph = glInfo), 'Office hint layout and themed info glyph are defaults');
+    Office := Hint.CalcHintRect(240,'Save layout|Saves the arrangement of all panels, their tab groups and floating windows. The layout can be restored later.',nil);
+    Check((Office.Width <= 240) and (Office.Height > 52), 'Office description wraps into a measured multiline hint');
+    Style.Layout := hlCompact; Compact := Hint.CalcHintRect(240,'Save layout|Saves the arrangement of all panels, their tab groups and floating windows. The layout can be restored later.',nil);
+    Check(Compact.Height < Office.Height, 'Compact hint layout remains selectable');
+    Style.Layout := hlOffice; Style.OnResolveHint := Probe.Resolve;
+    Resolved := Hint.CalcHintRect(280,'Original',Pointer(1)); Check((Resolved.Width <= 280) and (Resolved.Height > 40), 'Hint resolver supplies title, description, shortcut and glyph without reading HintData');
+    Hint.Params(Params); Check((Params.Style and (WS_BORDER or WS_DLGFRAME or WS_THICKFRAME) = 0) and (Params.ExStyle and (WS_EX_CLIENTEDGE or WS_EX_WINDOWEDGE) = 0), 'Office hints keep their single flat client border');
+    Style.OnResolveHint := nil; Style.Active := False; Style.Glyph := glHelp;
+    RegisterClass(TERDHintStyle); CopyStyle := TERDHintStyle.Create(nil); Stream := TMemoryStream.Create;
+    try
+      Stream.WriteComponent(Style); Stream.Position := 0; Stream.ReadComponent(CopyStyle);
+      Check((CopyStyle.Layout = hlOffice) and (CopyStyle.Glyph = glHelp) and not CopyStyle.Active, 'Hint DFM preserves office layout, icon and activation configuration');
+    finally Stream.Free; CopyStyle.Free; end;
+  finally Hint.Free; Style.Free; Probe.Free; end;
+end;
+
 procedure TestTimeSeriesBars;
 var Form: TForm; Chart, CopyChart: TERDTimeSeriesChart; Bars: TArray<TERDTimeBar>; Bar: TERDTimeBar;
     Stream: TMemoryStream; I: Integer;
@@ -5676,7 +5820,7 @@ begin
     TestPCBDesigner;
     TestPCBDesignerTools;
     TestPCBPlacement;
-    TestDebugEditor; TestBreakpointPanel; TestCallStack; TestLocalsPanel; TestWatchPanel; TestDisassemblyView; TestFiberList; TestRuntimeMonitor; TestShapeInspector; TestDebugConsole; TestValueTreeSnapshots; TestTimeSeriesHistory; TestTimeSeriesBars; TestRuntimeBarTimelines;
+    TestDebugEditor; TestBreakpointPanel; TestCallStack; TestLocalsPanel; TestWatchPanel; TestDisassemblyView; TestFiberList; TestRuntimeMonitor; TestShapeInspector; TestDebugConsole; TestValueTreeSnapshots; TestTimeSeriesHistory; TestTimeSeriesBars; TestRuntimeBarTimelines; TestDockHost; TestAutomaticOfficeHints; TestOfficeHints;
     TestPCBCardinalAnchors; TestPCBZOrderAndGrid; TestSelectedTabVisibility;
     TestPCBConnections;
     TestPCBComponentTypes;

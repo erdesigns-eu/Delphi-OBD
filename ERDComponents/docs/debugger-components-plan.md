@@ -96,7 +96,7 @@ still needs end-to-end verification for the selected runtime/transport.
 | `TERDDebugConsole` | Virtualized bounded log, severity/channel filters, timestamps, copy/search; optional input/history | Shared item-list infrastructure; input emits host events |
 | `TERDDisassemblyView` | Bytecode address, instruction, operands, symbol/source link and current instruction marker | Monospace virtual grid; host supplies disassembly and metadata |
 | `TERDShapeInspector` | Shape metadata, property-layout table, known parent/prototype links | Implemented: antialiased relationship cards + details, paged outgoing edges; full registry graph requires missing NDB data |
-| `TERDDockHost` | Dockable tool panels, auto-hide/floating state and layout persistence | Generic library component; useful before the IDE shell is built |
+| `TERDDockHost` | Dockable tool panels, auto-hide/floating state and layout persistence | Implemented: five tabbed regions, floating/auto-hide panels, borrowed content and versioned JSON layouts |
 
 A generic node graph, flame graph and raw-memory viewer are possible later visual
 components, but they are not prerequisites for this first component set. Their

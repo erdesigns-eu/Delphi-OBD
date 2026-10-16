@@ -75,6 +75,7 @@
         <DCCReference Include="RuntimePreview.pas"/>
         <DCCReference Include="ConsolePreview.pas"/>
         <DCCReference Include="ShapePreview.pas"/>
+        <DCCReference Include="DockPreview.pas"/>
         <DCCReference Include="Showcase.pas">
             <Form>MainForm</Form>
             <FormType>dfm</FormType>

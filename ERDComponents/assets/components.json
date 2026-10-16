@@ -88,5 +88,6 @@
   "TERDFiberList",
   "TERDRuntimeMonitor",
   "TERDDebugConsole",
-  "TERDShapeInspector"
+  "TERDShapeInspector",
+  "TERDDockHost"
 ]

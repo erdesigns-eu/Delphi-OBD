@@ -191,6 +191,7 @@ type
     /// flash.</summary>
     /// <param name="Params">Window creation parameters.</param>
     procedure CreateParams(var Params: TCreateParams); override;
+    procedure CMHintShow(var Message: TCMHintShow); message CM_HINTSHOW;
     procedure Paint; override;
     procedure Resize; override;
     /// <summary>Returns the bounds rectangle while no window handle
@@ -356,9 +357,9 @@ type
     property Margins;
     property ParentBiDiMode;
     property ParentFont;
-    property ParentShowHint;
+    property ParentShowHint default False;
     property PopupMenu;
-    property ShowHint;
+    property ShowHint default True;
     property TabOrder;
     property TabStop;
     property Touch;
@@ -415,6 +416,7 @@ type
     function EffectiveAccent: TColor;
     function EffectiveBorder: TColor;
 
+    procedure CMHintShow(var Message: TCMHintShow); message CM_HINTSHOW;
     procedure Paint; override;
     procedure SetParent(AParent: TWinControl); override;
     procedure ChangeScale(M, D: Integer; isDpiChange: Boolean); override;
@@ -442,8 +444,8 @@ type
     property Enabled;
     property Hint;
     property Margins;
-    property ParentShowHint;
-    property ShowHint;
+    property ParentShowHint default False;
+    property ShowHint default True;
     property Visible;
     property OnClick;
     property OnDblClick;
@@ -498,7 +500,8 @@ implementation
 
 uses
   System.Types,
-  ERD.Components.Paint;
+  ERD.Components.Paint,
+  ERD.Components.Hint;
 
 const
   DESIGN_PPI = 96;
@@ -605,9 +608,16 @@ end;
 
 { ---- TERDCustomControl ----------------------------------------------------- }
 
+procedure TERDCustomControl.CMHintShow(var Message: TCMHintShow);
+begin
+  inherited;
+  if Message.HintInfo <> nil then Message.HintInfo.HintWindowClass := TERDHintWindow;
+end;
+
 constructor TERDCustomControl.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  ShowHint := True;
   ControlStyle := ControlStyle + [csOpaque, csReplicatable, csParentBackground];
   DoubleBuffered := True;
   FStyle.Reset;
@@ -1215,9 +1225,16 @@ end;
 
 { ---- TERDGraphicControl ---------------------------------------------------- }
 
+procedure TERDGraphicControl.CMHintShow(var Message: TCMHintShow);
+begin
+  inherited;
+  if Message.HintInfo <> nil then Message.HintInfo.HintWindowClass := TERDHintWindow;
+end;
+
 constructor TERDGraphicControl.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  ShowHint := True;
   FStyle.Reset;
   FDesignPPI := DESIGN_PPI;
 end;

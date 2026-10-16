@@ -28,6 +28,7 @@ interface
 
 uses
   ERD.Components.Icons,
+  ERD.Components.Hint,
   ERD.Components.Types,
   Winapi.Windows,
   Winapi.Messages,
@@ -448,7 +449,7 @@ type
   end;
 
   /// <summary>Themed application ribbon.</summary>
-  TERDRibbon = class(TERDCustomControl)
+  TERDRibbon = class(TERDCustomControl, IERDHintProvider)
   strict private
     FTabs: TERDRibbonTabs;
     FContextualTabs: TERDContextualTabSets;
@@ -610,6 +611,7 @@ type
     /// <param name="Shift">Modifier keys.</param>
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
   public
+    function HintContentAt(const ScreenPoint: TPoint; out Content: TERDHintContent): Boolean;
     /// <summary>Re-sizes for a density change.</summary>
     procedure DensityChanged; override;
     /// <summary>Repaints the ribbon and, while it is open, the body that a
@@ -686,7 +688,7 @@ type
   // ribbon it lies over the form below the tab row and takes no layout
   // space; the ribbon still paints it and handles its mouse input, in
   // ribbon coordinates (peek Y + PeekOffset).
-  TERDRibbonPeek = class(TCustomControl)
+  TERDRibbonPeek = class(TCustomControl, IERDHintProvider)
   strict private
     FRibbon: TERDRibbon;
     procedure WMEraseBkgnd(var Message: TWMEraseBkgnd);
@@ -701,6 +703,7 @@ type
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState;
       X, Y: Integer); override;
   public
+    function HintContentAt(const ScreenPoint: TPoint; out Content: TERDHintContent): Boolean;
     constructor CreatePeek(ARibbon: TERDRibbon);
   end;
 
@@ -1529,6 +1532,8 @@ end;
 
 { TERDRibbonPeek }
 
+function TERDRibbonPeek.HintContentAt(const ScreenPoint: TPoint; out Content: TERDHintContent): Boolean;
+begin Result := (FRibbon <> nil) and FRibbon.HintContentAt(ScreenPoint,Content); end;
 constructor TERDRibbonPeek.CreatePeek(ARibbon: TERDRibbon);
 begin
   inherited Create(ARibbon);
@@ -1600,6 +1605,18 @@ begin
 end;
 
 { TERDRibbon }
+
+function TERDRibbon.HintContentAt(const ScreenPoint: TPoint; out Content: TERDHintContent): Boolean;
+var Item: TERDRibbonItem; P: TPoint;
+begin
+  Content := Default(TERDHintContent); Content.ImageIndex := -1; P := ScreenToClient(ScreenPoint);
+  if FTemporaryExpanded and (FPeek <> nil) and FPeek.Visible then begin P := FPeek.ScreenToClient(ScreenPoint); Inc(P.Y,PeekOffset); end;
+  Item := HitItem(P.X,P.Y); Result := Item <> nil; if not Result then Exit;
+  Content.Title := ItemCaption(Item); Content.Description := ItemHint(Item); Content.Glyph := Item.Glyph; Content.Icon := Item.Icon;
+  Content.Images := Images; Content.ImageIndex := ItemImageIndex(Item);
+  Content.Palette := Palette; Content.HasPalette := True; Content.Density := Density; Content.HasDensity := True;
+  if Item.Action is TCustomAction then Content.Shortcut := ShortCutToText(TCustomAction(Item.Action).ShortCut);
+end;
 
 constructor TERDRibbon.Create(AOwner: TComponent);
 begin
