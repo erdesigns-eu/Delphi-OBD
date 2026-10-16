@@ -75,5 +75,6 @@
   "TERDRating",
   "TERDPCBDesigner",
   "TERDPCBComponentPalette",
-  "TERDPCBObjectTree"
+  "TERDPCBObjectTree",
+  "TERDPCBValidationPanel"
 ]

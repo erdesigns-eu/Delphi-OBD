@@ -106,6 +106,7 @@ function ERDPCBBuiltInTypeID(Kind: TERDPCBItemKind): string;
 function ERDPCBComponentTypes: TArray<TERDPCBComponentType>;
 function ERDPCBFindComponentType(const TypeID: string; out Definition: TERDPCBComponentType): Boolean;
 procedure ERDPCBRegisterComponentType(const Definition: TERDPCBComponentType);
+procedure ERDPCBValidateProperty(const Definition: TERDPCBPropertyDefinition; const Text: string);
 function ERDPCBPropertyValue(const Item: TERDPCBDesignItem; const Name: string): string;
 function ERDPCBWithProperty(const Item: TERDPCBDesignItem; const Name, Value: string): TERDPCBDesignItem;
 function ERDPCBItemKindName(Kind: TERDPCBItemKind): string;
@@ -188,6 +189,9 @@ begin
     pkBoolean: Result := TJSONBool.Create(SameText(Text, 'True'));
   else Result := TJSONString.Create(Text); end;
 end;
+procedure ERDPCBValidateProperty(const Definition: TERDPCBPropertyDefinition; const Text: string);
+var Value: TJSONValue;
+begin Value := PropertyJSON(Definition,Text); Value.Free; end;
 function PropertyText(const Definition: TERDPCBPropertyDefinition; Value: TJSONValue): string;
 begin
   if Value = nil then Exit(Definition.DefaultValue);

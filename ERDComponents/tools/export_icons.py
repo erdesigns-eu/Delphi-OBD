@@ -60,6 +60,7 @@ def resource(name,payload):
 COMPONENT_ICONS={
     'TERDPCBComponentPalette': 87,
     'TERDPCBObjectTree': 69,
+    'TERDPCBValidationPanel': 151,
     'TERDPCBDesigner': -1,  # Dedicated board glyph, not a catalog placeholder.
     'TERDRating': 224,
     'TERDCommandPalette': 14,

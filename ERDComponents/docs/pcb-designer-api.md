@@ -517,3 +517,5 @@ presentation metadata and do not change serialized scene instances.
 See [PCB object tree](pcb-object-tree.md) for separate scene navigation and selection commands.
 
 See [magnetic layout](pcb-magnetic-layout.md) for grid, object and equal-gap snapping and guide settings.
+
+The optional [validation engine and panel](pcb-validation.md) inspect snapshots and emit host navigation events.

@@ -1,6 +1,6 @@
 ﻿unit PCBPreview;
 interface
-uses System.Classes, System.SysUtils, System.Types, Vcl.Controls, Vcl.StdCtrls, Winapi.Windows,
+uses Vcl.ExtCtrls, ERD.Components.PCBValidation, ERD.Components.PCBValidationPanel, System.Classes, System.SysUtils, System.Types, Vcl.Controls, Vcl.StdCtrls, Winapi.Windows,
   ERD.Components.Control, ERD.Components.Panel, ERD.Components.PCBDesigner, ERD.Components.PCBScene,
   ERD.Components.PCBObjectTree, ERD.Components.PCBInspector, ERD.Components.Inspector, ERD.Components.PCBComponentPalette, ERD.Components.Buttons, ERD.Components.FileDialogs;
 type
@@ -11,6 +11,9 @@ type
     FInspector: TERDInspector;
     FBinding: TERDPCBInspectorBinding;
     FObjects: TERDPCBObjectTree;
+    FValidation: TERDPCBValidationPanel;
+    FValidationTimer: TTimer;
+    FValidationKey: string;
     FToolbox: TERDPCBComponentPalette;
     FStatus: TLabel;
     FAuthoring, FHand: TERDCheckBox;
@@ -21,6 +24,9 @@ type
     procedure ConnectionSelectionChanged(Sender: TObject);
     procedure ConnectionError(Sender: TObject; const MessageText: string);
     procedure DesignChanged(Sender: TObject);
+    procedure ScheduleValidation;
+    procedure RunValidation(Sender: TObject);
+    procedure NavigateValidation(Sender: TObject; const Issue: TERDPCBValidationIssue);
     procedure UpdatePinChoices;
     procedure EditNote(Sender: TObject);
     procedure PropertyButtonClicked(Sender: TObject; AProperty: TERDInspectorProperty);
@@ -67,7 +73,7 @@ begin
   Definition.Properties := Props; ERDPCBRegisterComponentType(Definition);
 end;
 constructor TPCBPreview.Create(AOwner: TComponent);
-var Header, Tools: TERDPanel; B: TERDButton; I: Integer; Base, BoardFile: string; Choice: TERDCheckBox;
+var Header, Tools, Center: TERDPanel; B: TERDButton; I: Integer; Base, BoardFile: string; Choice: TERDCheckBox;
   procedure Button(const Caption: string; Left, Width, Tag: Integer);
   begin
     B := TERDButton.Create(Self); B.Parent := Header; B.Caption := Caption;
@@ -81,7 +87,7 @@ begin
   Button('Fit', 8, 54, 0); Button('Undo', 68, 62, 4); Button('Redo', 136, 62, 5);
   Button('Save project', 204, 104, 2); Button('Open project', 314, 104, 3);
   Button('Templates...', 424, 112, 6); Button('Save template', 542, 112, 7);
-  Button('Focus selection', 660, 116, 8);
+  Button('Focus selection', 660, 116, 8); Button('Validation',782,96,11);
   for I := 0 to 7 do
   begin
     B := TERDButton.Create(Self); B.Parent := Header;
@@ -107,7 +113,12 @@ begin
   FInspector := TERDInspector.Create(Self); FInspector.Parent := Self; FInspector.Align := alRight; FInspector.Width := ScaleValue(310);
   FInspector.OnPropertyButtonClick := PropertyButtonClicked;
   FInspector.OnPropertyChanging := PropertyChanging; FInspector.OnPropertyChanged := PropertyChanged;
-  FDesigner := TERDPCBDesigner.Create(Self); FDesigner.Parent := Self; FDesigner.Align := alClient;
+  Center := TERDPanel.Create(Self); Center.Parent := Self; Center.BorderWidth := 0; Center.Align := alClient;
+  FValidation := TERDPCBValidationPanel.Create(Self); FValidation.Parent := Center;
+  FValidation.Align := alBottom; FValidation.Height := ScaleValue(230); FValidation.OnNavigate := NavigateValidation;
+  FValidationTimer := TTimer.Create(Self); FValidationTimer.Enabled := False;
+  FValidationTimer.Interval := 200; FValidationTimer.OnTimer := RunValidation;
+  FDesigner := TERDPCBDesigner.Create(Self); FDesigner.Parent := Center; FDesigner.Align := alClient;
   FObjects := TERDPCBObjectTree.Create(Self); FObjects.Parent := Tools;
   FObjects.Align := alBottom; FObjects.Height := ScaleValue(240); FObjects.Designer := FDesigner;
   FDesigner.OnConnectionSelectionChange := ConnectionSelectionChanged;
@@ -140,10 +151,12 @@ begin
     try FDesigner.LoadBoard(BoardFile); FDesigner.SelectedPin := 'U7.2';
     except on E: Exception do FStatus.Caption := E.Message; end
   else FStatus.Caption := 'Keep the pcb folder beside the demo or its build folders.';
-  ThemeChanged;
+  RunValidation(Self); ThemeChanged;
 end;
 destructor TPCBPreview.Destroy;
 begin
+  if FValidationTimer <> nil then begin FValidationTimer.Enabled := False; FValidationTimer.OnTimer := nil; end;
+  if FValidation <> nil then begin FValidation.OnNavigate := nil; FValidation.OnValidate := nil; end;
   if FInspector <> nil then begin FInspector.OnPropertyChanging := nil; FInspector.OnPropertyChanged := nil; FInspector.OnPropertyButtonClick := nil; end;
   if FDesigner <> nil then
   begin
@@ -201,9 +214,38 @@ begin
       end;
   finally FInspector.EndUpdate; end;
 end;
+procedure TPCBPreview.ScheduleValidation;
+begin
+  if FValidationTimer <> nil then begin FValidationTimer.Enabled := False; FValidationTimer.Enabled := True; end;
+end;
+procedure TPCBPreview.RunValidation(Sender: TObject);
+var Pins: TArray<TERDPCBValidationPin>; Context: TERDPCBValidationContext; Channel: TERDPCBChannel;
+    Capability: TERDPCBPinCapability; I, N: Integer; Key: string; HasTemplate: Boolean;
+begin
+  FValidationTimer.Enabled := False;
+  HasTemplate := (FDesigner.ChannelCount > 0) or (FDesigner.TemplateID <> '') or (FDesigner.BoardFileName <> '');
+  Key := FDesigner.Scene.ContentJSON+#0+BoolToStr(HasTemplate,True); SetLength(Pins,FDesigner.ChannelCount);
+  for I := 0 to High(Pins) do
+  begin
+    Channel := FDesigner.Channel(I); Pins[I].ID := Channel.Pin;
+    Key := Key+#0+Channel.Pin+'='+ERDPCBPinCapabilitiesText(Channel.Capabilities);
+    for Capability := Low(TERDPCBPinCapability) to High(TERDPCBPinCapability) do if Capability in Channel.Capabilities then
+    begin N := Length(Pins[I].Capabilities); SetLength(Pins[I].Capabilities,N+1); Pins[I].Capabilities[N] := ERDPCBPinCapabilityName(Capability); end;
+  end;
+  if Key = FValidationKey then Exit;
+  Context := ERDPCBCaptureValidation(FDesigner.Scene,Pins,HasTemplate);
+  FValidation.Validate(Context); FValidationKey := Key;
+end;
+procedure TPCBPreview.NavigateValidation(Sender: TObject; const Issue: TERDPCBValidationIssue);
+begin
+  // The host owns navigation; stale/global messages never select a different object.
+  if (Issue.ItemID = '') or (FDesigner.Scene.IndexOf(Issue.ItemID) < 0) then Exit;
+  FDesigner.CancelPlacement; FDesigner.SelectedPin := ''; FDesigner.Scene.SelectIDs([Issue.ItemID]); FDesigner.FitSelection;
+end;
 procedure TPCBPreview.DesignChanged(Sender: TObject);
 var C, P, Index: Integer; Value: TERDPCBDesignItem; Row: TERDInspectorProperty;
 begin
+  ScheduleValidation;
   if FObjects <> nil then FObjects.Refresh;
   Index := FDesigner.Scene.PrimaryIndex;
   if Index >= 0 then
@@ -433,6 +475,7 @@ begin
       8: FDesigner.FitSelection;
       9: if FInspector.Selected is TERDInspectorProperty then FBinding.ResetProperty(TERDInspectorProperty(FInspector.Selected));
       10: FBinding.ResetAll;
+      11: FValidation.Visible := not FValidation.Visible;
       0: FDesigner.FitBoard; 4: FDesigner.Undo; 5: FDesigner.Redo;
       2, 7:
         begin

@@ -14,6 +14,8 @@ contains
   ERD.Components.PCBLayout in '..\src\UI\ERD.Components.PCBLayout.pas',
   ERD.Components.PCBComponentPalette in '..\src\UI\ERD.Components.PCBComponentPalette.pas',
   ERD.Components.PCBObjectTree in '..\src\UI\ERD.Components.PCBObjectTree.pas',
+  ERD.Components.PCBValidation in '..\src\UI\ERD.Components.PCBValidation.pas',
+  ERD.Components.PCBValidationPanel in '..\src\UI\ERD.Components.PCBValidationPanel.pas',
   ERD.Components.PCBInspector in '..\src\UI\ERD.Components.PCBInspector.pas',
   ERD.Components.PCBScene in '..\src\UI\ERD.Components.PCBScene.pas',
   ERD.Components.PCBDesigner in '..\src\UI\ERD.Components.PCBDesigner.pas',

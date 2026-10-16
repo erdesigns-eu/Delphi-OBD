@@ -201,3 +201,17 @@ verified. No automated Windows smoke-run log was supplied.
 - Complete a drag with several mouse moves and undo/redo once; Escape and capture loss restore the starting scene.
 - Test light/dark, different zoom levels and DPI; the magnetic distance should remain consistent on screen.
 - Save/reload settings through DFM; guides must not persist after drop or cancellation.
+
+### Separate validation panel
+
+- Add an output or bus: missing roles appear as warnings; notes/timers do not require an output.
+- Assign compatible pins: warnings clear after the short debounce; selections alone do not rebuild the report.
+- Check errors for imported/external incompatible/unknown pins and conflicting active drivers.
+- Search/filter errors, warnings and information; group headings and empty results must not navigate.
+- Click or press Enter on an issue: the demo selects/focuses its object and updates the separate inspector.
+- Delete an object then activate its stale message before refresh; it must not select a different object.
+- Add custom rules; verify invalid properties, global messages and rule failures (previous report remains).
+- Toggle the Validation toolbar button; ensure the canvas and other panels resize correctly.
+- Check semantic icons, tooltips, scrollbars, light/dark, density and DPI.
+- Round-trip the panel through DFM: keep severity filter, omit issues/search and duplicate internal controls.
+- Close while a validation timer is pending and after navigating a message; no lifetime exceptions.

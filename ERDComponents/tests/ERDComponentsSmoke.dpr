@@ -2,7 +2,7 @@
 {$APPTYPE CONSOLE}
 uses
   ERD.Components.LSP, ERD.Components.Paint, ERD.Components.Control, ERD.Components.LanguageServices, ERD.Components.TextLayout, ERD.Components.CodeEditor, ERD.Components.Syntax,
-  ERD.Components.PCBLayout, ERD.Components.PCBObjectTree, ERD.Components.PCBDesigner, ERD.Components.PCBComponentPalette, ERD.Components.PCBInspector, ERD.Components.Inspector, ERD.Components.PCBScene, ERD.Components.PCBRoute, ERD.Components.PCBLibrary,
+  ERD.Components.PCBValidation, ERD.Components.PCBValidationPanel, ERD.Components.PCBLayout, ERD.Components.PCBObjectTree, ERD.Components.PCBDesigner, ERD.Components.PCBComponentPalette, ERD.Components.PCBInspector, ERD.Components.Inspector, ERD.Components.PCBScene, ERD.Components.PCBRoute, ERD.Components.PCBLibrary,
   ERD.Components.TextModel, ERD.Components.TextInput,
   System.IOUtils, System.JSON, System.UITypes,
   System.SysUtils, System.Classes, System.Types, System.Math, Vcl.Forms, Vcl.Controls, Vcl.ExtCtrls,
@@ -42,6 +42,14 @@ type
     procedure Cancelled(Sender: TObject);
     procedure Started(Sender: TObject; var DragObject: TDragObject);
     procedure Ended(Sender, Target: TObject; X, Y: Integer);
+  end;
+  TPCBValidationProbe = class
+    Reject, Mutate: Boolean;
+    Rules, Navigations: Integer;
+    LastSender: TObject;
+    LastID: string;
+    procedure Validate(Sender: TObject; const Context: TERDPCBValidationContext; Report: TERDPCBValidationReport);
+    procedure Navigate(Sender: TObject; const Issue: TERDPCBValidationIssue);
   end;
   TPCBDragProbe = class(TERDPCBDesigner)
     procedure StartAt(const P: TPoint);
@@ -2595,6 +2603,109 @@ procedure TPCBPaletteSink.Started(Sender: TObject; var DragObject: TDragObject);
 begin Inc(Starts); LastID := TERDPCBComponentPalette(Sender).SelectedTypeID; end;
 procedure TPCBPaletteSink.Ended(Sender, Target: TObject; X, Y: Integer);
 begin Inc(Ends); LastID := TERDPCBComponentPalette(Sender).SelectedTypeID; end;
+procedure TPCBValidationProbe.Validate(Sender: TObject; const Context: TERDPCBValidationContext; Report: TERDPCBValidationReport);
+var Items: TArray<TERDPCBDesignItem>; Pins: TArray<TERDPCBValidationPin>;
+begin
+  Inc(Rules); LastSender := Sender;
+  if Reject then raise EArgumentException.Create('Custom rule failure');
+  if Mutate then
+  begin
+    Items := Context.Items; if Length(Items) > 0 then Items[0].Name := 'Changed snapshot';
+    Pins := Context.Pins; if (Length(Pins) > 0) and (Length(Pins[0].Capabilities) > 0) then Pins[0].Capabilities[0] := 'changed';
+  end;
+  Report.Add(vsInfo,'custom.check','Custom validation executed');
+end;
+procedure TPCBValidationProbe.Navigate(Sender: TObject; const Issue: TERDPCBValidationIssue);
+begin Inc(Navigations); LastSender := Sender; LastID := Issue.ItemID; end;
+procedure TestPCBValidation;
+var Scene: TERDPCBScene; Validator: TERDPCBValidator; Context: TERDPCBValidationContext;
+    Pins: TArray<TERDPCBValidationPin>; Issues: TArray<TERDPCBValidationIssue>; Probe: TPCBValidationProbe;
+    Index, Other, I: Integer; Item: TERDPCBDesignItem; Before: string; Definition: TERDPCBComponentType;
+  function Has(const Code: string; const Field: string = ''): Boolean;
+  var Issue: TERDPCBValidationIssue;
+  begin Result := False; for Issue in Issues do if (Issue.Code = Code) and ((Field = '') or (Issue.PropertyName = Field)) then Exit(True); end;
+begin
+  Scene := TERDPCBScene.Create(nil); Validator := TERDPCBValidator.Create; Probe := TPCBValidationProbe.Create;
+  try
+    Index := Scene.Add(piUART,PointF(0,0)); Other := Scene.Add(piNote,PointF(20,20));
+    Before := Scene.ToJSON; Scene.ResetHistory;
+    Context := ERDPCBCaptureValidation(Scene,nil,False); Issues := Validator.Validate(Context);
+    Check(Has('pin.missing','pin') and Has('pin.missing','secondary_pin') and Has('template.unavailable'), 'Validation explains missing bus roles and unavailable template');
+    Check((Scene.ToJSON = Before) and not Scene.CanUndo, 'Validation leaves content, selection and history untouched');
+    for I := 0 to High(Issues) do Check(Issues[I].ItemID <> Scene.Item(Other).ID, 'Notes do not require pin assignments');
+    SetLength(Pins,2); Pins[0].ID := 'TX'; Pins[0].Capabilities := ['uart-tx']; Pins[1].ID := 'RX'; Pins[1].Capabilities := ['uart-rx'];
+    Item := Scene.Item(Index); Item.Pin := 'TX'; Item.SecondaryPin := 'RX'; Scene.UpdateItem(Index,Item);
+    Context := ERDPCBCaptureValidation(Scene,Pins,True); Issues := Validator.Validate(Context);
+    Check(Length(Issues) = 0, 'Complete compatible bus has no validation messages');
+    Pins[0].Capabilities[0] := 'digital-output';
+    Issues := Validator.Validate(Context); Check(Length(Issues) = 0, 'Captured pin capabilities are independent of caller arrays');
+    Context.Pins[0].Capabilities[0] := 'digital-output'; Issues := Validator.Validate(Context);
+    Check(Has('pin.capability','pin'), 'Validation reports incompatible assigned pin capability');
+    Context.Items[Index].Pin := 'missing'; Issues := Validator.Validate(Context);
+    Check(Has('pin.unavailable','pin'), 'Validation identifies pins absent from the template');
+    Context := ERDPCBCaptureValidation(Scene,nil,False); Context.Items[Index].SecondaryPin := 'TX'; Issues := Validator.Validate(Context);
+    Check(Has('pin.role-conflict'), 'Bus roles cannot share one pin');
+    Other := Scene.Add(piUART,PointF(40,0)); Item := Scene.Item(Other); Item.Pin := 'TX'; Item.SecondaryPin := 'RX'; Scene.UpdateItem(Other,Item);
+    Context := ERDPCBCaptureValidation(Scene,nil,False); Issues := Validator.Validate(Context);
+    Check(Has('pin.conflict'), 'Validation detects active drivers sharing a pin');
+    Context.Items[Other].Enabled := False; Context.Items[Other].Pin := ''; Context.Items[Other].SecondaryPin := ''; Issues := Validator.Validate(Context);
+    Check(not Has('pin.conflict') and not Has('pin.missing'), 'Disabled drivers do not claim pins or require missing assignments');
+    Context.Items[Index].TypeID := 'unknown.saved.type'; Issues := Validator.Validate(Context);
+    Check(Has('type.unknown'), 'Unregistered saved component types are reported');
+    ERDPCBFindComponentType('erd.timer',Definition); Definition.TypeID := 'smoke.validation.required'; Definition.NamePrefix := 'RequiredTimer';
+    SetLength(Definition.Properties,1); Definition.Properties[0].Name := 'label'; Definition.Properties[0].Caption := 'Label';
+    Definition.Properties[0].Required := True; Definition.Properties[0].DefaultValue := 'Default'; ERDPCBRegisterComponentType(Definition);
+    Other := Scene.AddType(Definition.TypeID,PointF(0,20)); Context := ERDPCBCaptureValidation(Scene,nil,False);
+    Context.Items[Other].PropertiesJSON := '{"label":""}'; Issues := Validator.Validate(Context);
+    Check(Has('property.invalid','label'), 'Required custom schema properties participate in validation');
+    Context := ERDPCBCaptureValidation(Scene,Pins,True); Before := Scene.ToJSON;
+    Validator.OnValidate := Probe.Validate; Probe.Mutate := True; Issues := Validator.Validate(Context);
+    Check(Has('custom.check') and (Probe.Rules = 1), 'Host rules append to built-in messages');
+    Check((Scene.ToJSON = Before) and (Context.Items[0].Name <> 'Changed snapshot') and (Context.Pins[0].Capabilities[0] <> 'changed'), 'Custom rules only receive isolated snapshots');
+  finally Probe.Free; Validator.Free; Scene.Free; end;
+end;
+procedure TestPCBValidationPanel;
+var Form: TForm; Panel, CopyPanel: TERDPCBValidationPanel; Probe: TPCBValidationProbe;
+    Report: TERDPCBValidationReport; Stream: TMemoryStream; Issues: TArray<TERDPCBValidationIssue>;
+    Context: TERDPCBValidationContext; Value: TERDPCBValidationIssue; I, Row: Integer; Failed: Boolean; SavedKey: string;
+begin
+  Form := TForm.Create(nil); Probe := TPCBValidationProbe.Create; Report := TERDPCBValidationReport.Create;
+  try
+    Panel := TERDPCBValidationPanel.Create(Form); Panel.Parent := Form; Panel.SetBounds(0,0,600,300);
+    Panel.OnNavigate := Probe.Navigate;
+    Report.Add(vsWarning,'pin.missing','Assign TX pin','id-uart','UART1','pin');
+    Report.Add(vsError,'pin.conflict','Pin already assigned','id-led','LED1','pin','U7.2');
+    Report.Add(vsInfo,'design.info','Design information'); Issues := Report.Issues; Panel.SetIssues(Issues);
+    Check((Panel.IssueCount = 3) and (Panel.SeverityCount(vsError) = 1) and (Panel.ItemList.ItemCount = 6) and (Probe.Navigations = 0), 'Validation panel groups messages without automatic navigation');
+    Issues[0].Code := ''; Failed := False;
+    try Panel.SetIssues(Issues); except on E: EArgumentException do Failed := True; end;
+    Check(Failed and (Panel.IssueCount = 3) and (Panel.Issue(0).Code = 'pin.missing'), 'Invalid replacement report preserves independent issue copies');
+    Issues := Report.Issues;
+    Row := -1; for I := 0 to Panel.ItemList.ItemCount-1 do if Panel.VisibleIssue(I,Value) and (Value.ItemID = 'id-led') then Row := I;
+    Check(Row >= 0, 'Validation rows keep immutable scene identities');
+    Panel.ItemList.ItemIndex := Row; SavedKey := Panel.Issue(1).Key; Panel.NavigateSelected;
+    Check((Probe.Navigations = 1) and (Probe.LastID = 'id-led') and (Probe.LastSender = Panel), 'Validation navigation emits host event with the object identity');
+    Panel.SetIssues(Issues); Check(Panel.VisibleIssue(Panel.ItemList.ItemIndex,Value) and (Value.Key = SavedKey), 'Refresh preserves selected issue by stable key');
+    Panel.SeverityFilter := vfWarnings; Check(Panel.ItemList.ItemCount = 2, 'Severity filter includes its heading and matching issue');
+    Panel.SearchText := 'uart tx'; Check(Panel.ItemList.ItemCount = 2, 'Validation search matches multiple words across object and message');
+    Panel.SearchText := 'no match'; Check(Panel.ItemList.ItemCount = 0, 'Empty validation filter hides obsolete rows');
+    Panel.NavigateSelected; Check(Probe.Navigations = 1, 'Empty results cannot navigate a stale row');
+    Panel.SearchText := ''; Panel.SeverityFilter := vfAll;
+    Panel.OnValidate := Probe.Validate; Probe.Reject := True; Context := Default(TERDPCBValidationContext); Failed := False;
+    try Panel.Validate(Context); except on E: EArgumentException do Failed := True; end;
+    Check(Failed and (Panel.IssueCount = 3), 'Failed custom validation preserves the previous report');
+    Probe.Reject := False; Panel.Validate(Context);
+    Check((Panel.IssueCount = 1) and (Probe.LastSender = Panel), 'Panel forwards custom rules with its own sender');
+    Panel.OnValidate := nil; Panel.OnNavigate := nil; Panel.SeverityFilter := vfWarnings; Panel.SearchText := 'transient';
+    CopyPanel := TERDPCBValidationPanel.Create(Form); Stream := TMemoryStream.Create;
+    try
+      Stream.WriteComponent(Panel); Stream.Position := 0; Stream.ReadComponent(CopyPanel);
+      Check((CopyPanel.SearchText = '') and (CopyPanel.IssueCount = 0) and (CopyPanel.ControlCount = 3) and
+        (CopyPanel.SeverityFilter = vfWarnings), 'Validation DFM keeps display settings without messages, references or duplicate children');
+    finally Stream.Free; CopyPanel.Free; end;
+    Panel.Clear; Check(Panel.IssueCount = 0, 'Validation report can be cleared independently of any designer');
+  finally Report.Free; Probe.Free; Form.Free; end;
+end;
 procedure TPCBDragProbe.StartAt(const P: TPoint);
 begin MouseDown(mbLeft,[],P.X,P.Y); end;
 procedure TPCBDragProbe.MoveTo(const P: TPoint; Alt: Boolean);
@@ -4391,6 +4502,8 @@ begin
     TestPCBObjectTree;
     TestPCBLayout;
     TestPCBMagneticDrag;
+    TestPCBValidation;
+    TestPCBValidationPanel;
     TestPCBThemeContrast;
     TestPCBHistoryValidation;
     TestPCBDesigner;
