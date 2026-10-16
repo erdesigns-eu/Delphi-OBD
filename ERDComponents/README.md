@@ -4,7 +4,7 @@ Zelfstandige algemene **Delphi VCL**-componentlibrary. Dit zijn onafhankelijke
 kopieën: Delphi-OBD wordt niet aangepast en heeft geen afhankelijkheid van deze
 library. De hele map kan naar een eigen repository worden verplaatst.
 
-- **84 paletcomponenten**: algemene invoer, navigatie, containers, grids, dialogen,
+- **85 paletcomponenten**: algemene invoer, navigatie, containers, grids, dialogen,
   applicatiechrome, theming en feedback. Zie `assets/components.json`.
 - **320 ingebouwde vectoriconen**, met stabiele identifiers en schaalbare SVGs.
 - Eigen namespace `ERD.Components.*`, classes `TERD*`, interfaces `IERD*`.
@@ -22,7 +22,7 @@ library. De hele map kan naar een eigen repository worden verplaatst.
    De demo gebruikt `TERDTitleBar`; met de keuze Ribbon/Menu wissel je van commandosurface.
    De File-knop opent een echte backstage met eigen Information- en Settings-pagina’s.
    De voorbeeldpagina’s gebruiken `TERDTabs` en `TERDPanel`, zonder standaard PageControl.
-   De 84 geregistreerde componenten staan in de DFM of runtime-voorbeeldpagina's: de sidebar navigeert naar
+   De 85 geregistreerde componenten staan in de DFM of runtime-voorbeeldpagina's: de sidebar navigeert naar
    iconen, invoer, layout, data, bestanden/kleuren en dialogs/notificaties.
    Dialogknoppen openen de bijbehorende component; toast, hints en popupmenu hebben eigen voorbeelden.
 
@@ -524,7 +524,8 @@ in de cloudomgeving; hiervoor is Delphi op Windows nodig.
 
 De pagina **Debugger components** toont een gedeeld `TERDDebugModel`, editorbreakpoints
 en een uitvoeringsmarkering, een los `TERDBreakpointPanel`, een `TERDCallStack`, een
-`TERDLocalsPanel` met scopes en lazy loading via `TERDValueTree` en een
+`TERDLocalsPanel` met scopes, een `TERDWatchPanel` met expressies en lazy loading
+via `TERDValueTree`, en een
 `TERDTimeSeriesChart` met begrensde historie. De debug-ribbon en voorbeeldwaarden
 zijn expliciet een synthetische demo; er wordt geen TSVM-proces gestart.
 

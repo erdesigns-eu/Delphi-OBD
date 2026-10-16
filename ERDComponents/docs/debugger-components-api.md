@@ -2,7 +2,8 @@
 
 The component set provides `TERDDebugModel`, `TERDValueTree`,
 `TERDTimeSeriesChart`, `TERDBreakpointPanel`, `TERDCallStack` and
-`TERDLocalsPanel`, plus debug gutter/execution rendering in `TERDCodeEditor`.
+`TERDLocalsPanel` and `TERDWatchPanel`, plus debug gutter/execution rendering in
+`TERDCodeEditor`.
 The separate Debugger components demo page exercises them through a synthetic
 host. It does not start or attach to TSVM, acknowledge actual device breakpoints,
 evaluate real expressions or execute TypeScript. DAP/NDB transport adapters and
@@ -280,3 +281,70 @@ nested references, unavailable values, frame/session/location invalidation,
 malformed scope snapshots, scope and variable retry, synchronous providers, empty
 scopes, DFM and model lifetime. These tests and light/dark, DPI, scrolling, context
 menu and keyboard checks still require Delphi on Windows.
+
+## Watches
+
+`TERDWatchPanel` is a standalone themed composite with an expression editor and
+an internal ValueTree. It owns expression configuration only; the host evaluates
+expressions. The debugger demo separates Locals and Watches into ERD tabs.
+
+- Type an expression and press Enter to add it. F2 or Edit expression in the
+  tree context menu loads a root expression into the input; Enter saves, Escape
+  cancels. Delete/context menu removes the selected root watch. Nested variables
+  cannot accidentally edit/delete their owning expression. The input and menu
+  remain usable while disconnected or running.
+- `Watches` is an owned `TERDWatchCollection` of `TERDWatchItem.Expression`.
+  Item IDs are stable during that item's lifetime. `AddWatch`, `SetExpression`
+  and `DeleteWatch` expose the same operations to a host ribbon. Empty/multiline
+  expressions are rejected; duplicate expressions are independent watches.
+  Collection BeginUpdate/EndUpdate batches configuration changes.
+- Assign the shared DebugModel and connect the call stack's OnFrameSelected to
+  `BeginFrame(StackContext, Frame)`. Frame zero is valid. A refused context has
+  RequestID zero. BeginFrame/RefreshValues raises `OnEvaluate` with a fresh
+  `TERDWatchContext` and an immutable copy of the current ID/expression list.
+  Editing, adding, deleting or reordering watches automatically starts a new
+  evaluation while a frame is active. No evaluation runs while painting.
+- The host aggregates backend evaluate replies for that batch and publishes
+  `PublishResults(Context, Results)` once every requested watch has a result.
+  Each `TERDWatchResult` carries the watch item ID and a `TERDInspectValue`.
+  Results must contain each current ID exactly once; order is irrelevant.
+  Invalid batches are refused atomically, and superseded/duplicate replies are
+  ignored. Incremental per-expression publication is not part of this API.
+- Use vaError with ValueText for an individual expression error and vaUnavailable
+  for unavailable data. Successful values and errors can coexist in one batch.
+  `FailEvaluation(Context, Message)` is for a batch/provider failure; Refresh
+  watches retries with a new token. An absent evaluation provider shows an
+  explicit error. An empty collection completes without contacting the host.
+- Root presentation IDs are owned by the panel (`watch:<item ID>`), and root
+  names always show their expressions. Supply TypeName, ValueText, Path,
+  Availability and an optional positive Reference/HasChildren for object values.
+  Expanding an object raises `OnRequestVariables(Context, Request, Parent)`.
+  Return PublishVariables/FailVariables with **both** captured tokens, as with
+  LocalsPanel. Child presentation IDs must be unique and should be prefixed by
+  their parent ID. PageSize, Load more and nested values use ValueTree.
+- `OnInspectValue` carries the watch context for a future full-value viewer.
+  It is suppressed for stale/pending results. ValueTree's Ctrl+C can copy retained
+  display values. Refreshing within one frame restores expansion and value-change
+  highlighting; different stack snapshots/frames do not reuse backend identities.
+
+Continue, disconnect, a changed paused execution location, a new session, a frame
+switch or changed expression configuration invalidates outstanding evaluation
+and variable replies. Expressions remain configured. With no model assigned the
+host calls MarkStale on resume/disconnect and passes only current stack contexts.
+Every publication belongs on the VCL UI thread. The host decides how expressions
+are evaluated; the component neither parses nor executes TypeScript or DAP.
+
+Expressions and standard visual/model/PageSize settings are DFM configuration.
+Item runtime IDs, evaluation contexts/results/errors, selection and the three
+internal controls are not streamed. Use panel events/publication methods rather
+than replacing ValueTree's internal callbacks or snapshot lifecycle.
+
+The synthetic demo evaluator accepts only status, status.count and status.color;
+other expressions show an explicit demo error and the native frame shows
+unavailable values. No real TSVM evaluation occurs.
+
+Added Windows smoke cases cover disconnected configuration, invalid expressions,
+frame zero, duplicate/atomic result validation, object variables, expression edits,
+late replies after edits/deletion/frame/resume/session changes, retry, Enter-to-add,
+synchronous evaluation, DFM and model lifetime. Delphi execution and visual tests
+of light/dark themes, tab layout, F2/Enter/Escape/Delete and paging remain pending.

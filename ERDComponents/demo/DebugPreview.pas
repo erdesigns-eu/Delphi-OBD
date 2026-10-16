@@ -2,13 +2,15 @@
 interface
 uses Winapi.Windows, ERD.Components.Control, System.Classes, System.SysUtils, System.Types, System.Math, Vcl.Controls, Vcl.StdCtrls, Vcl.ExtCtrls,
   ERD.Components.Panel, ERD.Components.Types, ERD.Components.CodeEditor,
-  ERD.Components.LocalsPanel, ERD.Components.CallStack, ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries, ERD.Components.Ribbon;
+  ERD.Components.WatchPanel, ERD.Components.Tabs, ERD.Components.LocalsPanel, ERD.Components.CallStack, ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries, ERD.Components.Ribbon;
 type
   TDebugPreview = class(TERDPanel)
   private
     FModel: TERDDebugModel;
     FEditor: TERDCodeEditor;
     FValues: TERDLocalsPanel;
+    FWatches: TERDWatchPanel;
+    FSideTabs: TERDTabs;
     FStack: TERDCallStack;
     FDebugSide: TERDPanel;
     FBreakpoints: TERDBreakpointPanel;
@@ -24,6 +26,8 @@ type
     procedure ModelChanged(Sender: TObject);
     procedure VariablesRequested(Sender: TObject; const Context: TERDLocalsRequest; const Request: TERDValueRequest; const Parent: TERDInspectValue);
     procedure Tick(Sender: TObject);
+    procedure EvaluateWatches(Sender: TObject; const Context: TERDWatchContext; const Expressions: TArray<TERDWatchExpression>);
+    procedure WatchVariables(Sender: TObject; const Context: TERDWatchContext; const Request: TERDValueRequest; const Parent: TERDInspectValue);
     procedure ScopesRequested(Sender: TObject; const Context: TERDLocalsRequest);
     procedure RefreshStack;
     procedure FrameSelected(Sender: TObject; const Context: TERDStackRequest; const Frame: TERDStackFrame);
@@ -64,6 +68,13 @@ begin
   FValues := TERDLocalsPanel.Create(Self); FValues.Parent := FDebugSide; FValues.Align := alClient;
   FValues.DebugModel := FModel; FValues.PageSize := 2;
   FValues.OnRequestScopes := ScopesRequested; FValues.OnRequestVariables := VariablesRequested;
+  FWatches := TERDWatchPanel.Create(Self); FWatches.Parent := FDebugSide; FWatches.Align := alClient; FWatches.Visible := False;
+  FWatches.DebugModel := FModel; FWatches.OnEvaluate := EvaluateWatches; FWatches.OnRequestVariables := WatchVariables;
+  FWatches.AddWatch('status.count'); FWatches.AddWatch('status'); FWatches.AddWatch('missing');
+  FSideTabs := TERDTabs.Create(Self); FSideTabs.Parent := FDebugSide; FSideTabs.Top := FStack.Height; FSideTabs.Align := alTop;
+  with FSideTabs.Tabs.Add do begin Caption := 'Locals'; Page := FValues; end;
+  with FSideTabs.Tabs.Add do begin Caption := 'Watches'; Page := FWatches; end;
+  FSideTabs.TabIndex := 0;
   FEditor := TERDCodeEditor.Create(Self); FEditor.Parent := Self; FEditor.Align := alClient;
   FEditor.DocumentUri := 'demo:///debug-example.ts'; FEditor.DebugModel := FModel; FEditor.ShowDebugGutter := True;
   FEditor.Text := '// Synthetic debugger demo - no VM connected'+sLineBreak+
@@ -82,6 +93,7 @@ begin
   if FTimer <> nil then begin FTimer.Enabled := False; FTimer.OnTimer := nil; end;
   AttachRibbon(nil);
   if FModel <> nil then begin FModel.OnChange := nil; FModel.OnCommand := nil; end;
+  if FWatches <> nil then begin FWatches.OnEvaluate := nil; FWatches.OnRequestVariables := nil; end;
   if FValues <> nil then begin FValues.OnRequestScopes := nil; FValues.OnRequestVariables := nil; end;
   inherited;
 end;
@@ -111,10 +123,36 @@ begin
 end;
 procedure TDebugPreview.FrameSelected(Sender: TObject; const Context: TERDStackRequest; const Frame: TERDStackFrame);
 begin
-  FValues.BeginFrame(Context,Frame);
+  FValues.BeginFrame(Context,Frame); FWatches.BeginFrame(Context,Frame);
 end;
 procedure TDebugPreview.NavigateFrame(Sender: TObject; const DocumentUri: string; Line, Column: Integer);
 begin NavigateBreakpoint(Sender,DocumentUri,Line); end;
+procedure TDebugPreview.EvaluateWatches(Sender: TObject; const Context: TERDWatchContext; const Expressions: TArray<TERDWatchExpression>);
+var Results: TArray<TERDWatchResult>; I: Integer; Expression: string;
+begin
+  SetLength(Results,Length(Expressions));
+  for I := 0 to High(Expressions) do
+  begin
+    Results[I].ID := Expressions[I].ID; Expression := Expressions[I].Expression; Results[I].Value.Path := Expression;
+    if Context.FrameID = 2 then Results[I].Value.Availability := vaUnavailable
+    else if Expression = 'status.count' then begin Results[I].Value.TypeName := 'number'; Results[I].Value.ValueText := IntToStr(FTick); end
+    else if Expression = 'status.color' then begin Results[I].Value.TypeName := 'string'; Results[I].Value.ValueText := 'green'; end
+    else if Expression = 'status' then begin Results[I].Value.TypeName := 'object'; Results[I].Value.ValueText := '{ color, count }'; Results[I].Value.HasChildren := True; Results[I].Value.Reference := 300; end
+    else begin Results[I].Value.Availability := vaError; Results[I].Value.ValueText := 'Demo supports status, status.count and status.color'; end;
+  end;
+  FWatches.PublishResults(Context,Results);
+end;
+procedure TDebugPreview.WatchVariables(Sender: TObject; const Context: TERDWatchContext; const Request: TERDValueRequest; const Parent: TERDInspectValue);
+var Items: TArray<TERDInspectValue>; I, Count: Integer;
+begin
+  if Parent.Reference <> 300 then begin FWatches.FailVariables(Context,Request,'Unknown demo object'); Exit; end;
+  SetLength(Items,2);
+  Items[0].Name := 'color'; Items[0].TypeName := 'string'; Items[0].ValueText := 'green';
+  Items[1].Name := 'count'; Items[1].TypeName := 'number'; Items[1].ValueText := IntToStr(FTick);
+  for I := 0 to High(Items) do begin Items[I].ID := Parent.ID+'.'+IntToStr(I); Items[I].Path := Parent.Path+'.'+Items[I].Name; end;
+  Count := Max(0,Min(Request.Count,Length(Items)-Request.StartIndex));
+  FWatches.PublishVariables(Context,Request,Copy(Items,Request.StartIndex,Count),Request.StartIndex+Count < Length(Items));
+end;
 procedure TDebugPreview.ScopesRequested(Sender: TObject; const Context: TERDLocalsRequest);
 var Scopes: TArray<TERDDebugScope>;
 begin

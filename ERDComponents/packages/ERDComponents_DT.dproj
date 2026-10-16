@@ -1,4 +1,4 @@
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
         <ProjectGuid>{32C83F81-1C22-51E2-9624-56CF4EB3A12A}</ProjectGuid>
         <ProjectVersion>20.2</ProjectVersion>
@@ -104,6 +104,7 @@
         <DCCReference Include="..\src\UI\ERD.Components.BreakpointPanel.pas"/>
         <DCCReference Include="..\src\UI\ERD.Components.CallStack.pas"/>
         <DCCReference Include="..\src\UI\ERD.Components.LocalsPanel.pas"/>
+        <DCCReference Include="..\src\UI\ERD.Components.WatchPanel.pas"/>
         <DCCReference Include="..\src\UI\ERD.Components.TimeSeries.pas"/>
         <DCCReference Include="..\src\UI\ERD.Components.PCBLibrary.pas"/>
         <DCCReference Include="..\src\UI\ERD.Components.PCBRoute.pas"/>

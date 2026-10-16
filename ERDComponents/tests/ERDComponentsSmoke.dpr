@@ -1,7 +1,7 @@
 ﻿program ERDComponentsSmoke;
 {$APPTYPE CONSOLE}
 uses
-  ERD.Components.LocalsPanel, ERD.Components.CallStack, ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries,
+  ERD.Components.WatchPanel, ERD.Components.LocalsPanel, ERD.Components.CallStack, ERD.Components.BreakpointPanel, ERD.Components.DebugModel, ERD.Components.ValueTree, ERD.Components.TimeSeries,
   ERD.Components.LSP, ERD.Components.Paint, ERD.Components.Control, ERD.Components.LanguageServices, ERD.Components.TextLayout, ERD.Components.CodeEditor, ERD.Components.Syntax,
   ERD.Components.PCBValidation, ERD.Components.PCBValidationPanel, ERD.Components.PCBLayout, ERD.Components.PCBObjectTree, ERD.Components.PCBDesigner, ERD.Components.PCBComponentPalette, ERD.Components.PCBInspector, ERD.Components.Inspector, ERD.Components.PCBScene, ERD.Components.PCBRoute, ERD.Components.PCBLibrary,
   ERD.Components.TextModel, ERD.Components.TextInput,
@@ -131,6 +131,17 @@ type
     Synchronous: Boolean;
     procedure Scopes(Sender: TObject; const Context: TERDLocalsRequest);
     procedure Variables(Sender: TObject; const Context: TERDLocalsRequest; const Request: TERDValueRequest; const Parent: TERDInspectValue);
+  end;
+  TWatchProbe = class
+  public
+    Panel: TERDWatchPanel;
+    Calls, VariableCalls: Integer;
+    LastContext: TERDWatchContext;
+    LastRequest: TERDValueRequest;
+    LastExpressions: TArray<TERDWatchExpression>;
+    Synchronous: Boolean;
+    procedure Evaluate(Sender: TObject; const Context: TERDWatchContext; const Expressions: TArray<TERDWatchExpression>);
+    procedure Variables(Sender: TObject; const Context: TERDWatchContext; const Request: TERDValueRequest; const Parent: TERDInspectValue);
   end;
   TDebugCommandProbe = class
   public
@@ -430,6 +441,19 @@ begin
   if Synchronous then
   begin SetLength(Values,1); Values[0].ID := Parent.ID+'.value'; Values[0].Name := 'value'; Values[0].ValueText := '42'; Panel.PublishVariables(Context,Request,Values,False); end;
 end;
+procedure TWatchProbe.Evaluate(Sender: TObject; const Context: TERDWatchContext; const Expressions: TArray<TERDWatchExpression>);
+var Results: TArray<TERDWatchResult>; I: Integer;
+begin
+  Inc(Calls); LastContext := Context; LastExpressions := Copy(Expressions);
+  if Synchronous then
+  begin
+    SetLength(Results,Length(Expressions));
+    for I := 0 to High(Expressions) do begin Results[I].ID := Expressions[I].ID; Results[I].Value.ValueText := '42'; end;
+    Panel.PublishResults(Context,Results);
+  end;
+end;
+procedure TWatchProbe.Variables(Sender: TObject; const Context: TERDWatchContext; const Request: TERDValueRequest; const Parent: TERDInspectValue);
+begin Inc(VariableCalls); LastContext := Context; LastRequest := Request; end;
 procedure TDebugCommandProbe.Execute(Sender: TObject; Value: TERDDebugCommand);
 begin Inc(Calls); Command := Value; end;
 procedure TValueChildrenProbe.Request(Sender: TObject; const Value: TERDValueRequest);
@@ -3726,6 +3750,58 @@ begin
   finally Panel.Free; Probe.Free; Model.Free; Form.Free; end;
 end;
 
+procedure TestWatchPanel;
+var Form: TForm; Panel, CopyPanel: TERDWatchPanel; Model: TERDDebugModel; Probe: TWatchProbe;
+    Stack: TERDStackRequest; Frame: TERDStackFrame; Context, Old: TERDWatchContext;
+    Results: TArray<TERDWatchResult>; Values: TArray<TERDInspectValue>; Value: TERDInspectValue;
+    Request: TERDValueRequest; FirstID, SecondID, Calls: Integer; Key: Word; Rejected: Boolean; Stream: TMemoryStream;
+begin
+  Form := TForm.Create(nil); Model := TERDDebugModel.Create(nil); Panel := TERDWatchPanel.Create(Form); Panel.Parent := Form; Probe := TWatchProbe.Create;
+  try
+    Probe.Panel := Panel; Panel.DebugModel := Model; Panel.OnEvaluate := Probe.Evaluate; Panel.OnRequestVariables := Probe.Variables;
+    FirstID := Panel.AddWatch('status'); SecondID := Panel.AddWatch('missing');
+    Check((Panel.Watches.Count = 2) and (Probe.Calls = 0), 'Watches are configurable without evaluating while disconnected');
+    Rejected := False; try Panel.AddWatch(' '); except on E: EArgumentException do Rejected := True; end;
+    Check(Rejected and (Panel.Watches.Count = 2), 'Invalid expression does not insert a partial watch');
+    Stack := Default(TERDStackRequest); Stack.Session := Model.Session; Stack.RequestID := 1;
+    Frame := Default(TERDStackFrame); Frame.ThreadID := 1; Frame.Name := 'callee';
+    Model.SetExecution(dsPaused,'file:///watches.ts',4); Context := Panel.BeginFrame(Stack,Frame);
+    Check(Panel.Pending and (Probe.Calls = 1) and (Probe.LastExpressions[0].ID = FirstID) and (Probe.LastContext.FrameID = 0), 'Watch batch carries stable IDs and frame zero context');
+    SetLength(Results,2); Results[0].ID := FirstID; Results[0].Value.ValueText := '{ value }'; Results[0].Value.Reference := 300; Results[0].Value.HasChildren := True;
+    Results[1].ID := SecondID; Results[1].Value.Availability := vaError; Results[1].Value.ValueText := 'Unknown identifier';
+    Results[1].ID := FirstID; Check(not Panel.PublishResults(Context,Results) and Panel.Pending, 'Duplicate result identities reject batch atomically'); Results[1].ID := SecondID;
+    Check(Panel.PublishResults(Context,Results) and not Panel.Pending and Panel.ValueTree.ValueByID('watch:'+IntToStr(SecondID),Value) and (Value.Availability = vaError), 'Per-expression errors remain visible beside successful results');
+    Panel.ValueTree.RequestChildren('watch:'+IntToStr(FirstID)); Request := Probe.LastRequest;
+    Check((Probe.VariableCalls = 1) and (Request.ParentID = 'watch:'+IntToStr(FirstID)), 'Object watches request children lazily');
+    SetLength(Values,1); Values[0].ID := Request.ParentID+'.value'; Values[0].Name := 'value'; Values[0].ValueText := '3';
+    Check(Panel.PublishVariables(Context,Request,Values,False), 'Nested watch value is published with both tokens');
+    Old := Context; Panel.SetExpression(FirstID,'status.count'); Context := Probe.LastContext;
+    Check((Probe.Calls = 2) and (Context.RequestID <> Old.RequestID) and not Panel.PublishResults(Old,Results), 'Editing expression automatically reevaluates and rejects previous result');
+    Results[0].Value := Default(TERDInspectValue); Results[0].Value.ValueText := '3';
+    Check(Panel.PublishResults(Context,Results) and Panel.ValueTree.ValueByID('watch:'+IntToStr(FirstID),Value) and (Value.Name = 'status.count'), 'Edited expression keeps watch identity and receives new value');
+    Old := Context; Frame.ID := 1; Context := Panel.BeginFrame(Stack,Frame);
+    Check(not Panel.PublishVariables(Old,Request,Values,False), 'Frame switch rejects earlier watch child reply');
+    Check(Panel.FailEvaluation(Context,'Provider failed') and (Panel.ErrorText = 'Provider failed'), 'Batch failure shows an error');
+    Old := Context; Context := Panel.RefreshValues; Check((Context.RequestID <> Old.RequestID) and not Panel.PublishResults(Old,Results), 'Explicit refresh retries with a new token');
+    Model.SetExecution(dsRunning); Calls := Probe.Calls; Panel.RefreshValues;
+    Check(not Panel.Active and (Probe.Calls = Calls) and not Panel.PublishResults(Context,Results), 'Continue prevents evaluation and rejects outstanding batch');
+    Panel.ExpressionEditor.Text := 'status.color'; Key := VK_RETURN; Panel.ExpressionEditor.OnKeyDown(Panel.ExpressionEditor,Key,[]);
+    Check((Key = 0) and (Panel.Watches.Count = 3) and (Probe.Calls = Calls), 'Enter adds a watch without evaluating a resumed frame');
+    Probe.Synchronous := True; Model.SetExecution(dsPaused,'file:///watches.ts',4); Context := Panel.BeginFrame(Stack,Frame);
+    Check(not Panel.Pending and Panel.ValueTree.ValueByID('watch:'+IntToStr(FirstID),Value) and (Value.ValueText = '42'), 'Synchronous watch evaluator is supported');
+    Probe.Synchronous := False; Old := Panel.RefreshValues; Panel.DeleteWatch(SecondID);
+    Check((Panel.Watches.Count = 2) and not Panel.PublishResults(Old,Results), 'Deleting watch invalidates outstanding result batch');
+    Context := Probe.LastContext; Model.BeginSession; Check(not Panel.PublishResults(Context,Results), 'New debug session rejects prior watch batch');
+    Panel.OnEvaluate := nil; Panel.OnRequestVariables := nil; Panel.DebugModel := nil;
+    RegisterClasses([TERDWatchPanel,TERDWatchItem,TERDWatchCollection]); CopyPanel := TERDWatchPanel.Create(Form); Stream := TMemoryStream.Create;
+    try
+      Stream.WriteComponent(Panel); Stream.Position := 0; Stream.ReadComponent(CopyPanel);
+      Check((CopyPanel.Watches.Count = 2) and (CopyPanel.Watches[0].Expression = 'status.count') and not CopyPanel.Active and (CopyPanel.ComponentCount = 3), 'DFM persists expressions without runtime results or duplicate internal controls');
+    finally Stream.Free; CopyPanel.Free; end;
+    Panel.DebugModel := Model; FreeAndNil(Model); Check((Panel.DebugModel = nil) and not Panel.Active, 'Model destruction safely detaches watches');
+  finally Panel.Free; Probe.Free; Model.Free; Form.Free; end;
+end;
+
 procedure TestValueTreeSnapshots;
 var Form: TForm; Tree, CopyTree: TERDValueTree; Probe: TValueChildrenProbe;
     Roots, Children: TArray<TERDInspectValue>; Request, Old: TERDValueRequest; Value: TERDInspectValue; Stream: TMemoryStream;
@@ -5155,7 +5231,7 @@ begin
     TestPCBDesigner;
     TestPCBDesignerTools;
     TestPCBPlacement;
-    TestDebugEditor; TestBreakpointPanel; TestCallStack; TestLocalsPanel; TestValueTreeSnapshots; TestTimeSeriesHistory;
+    TestDebugEditor; TestBreakpointPanel; TestCallStack; TestLocalsPanel; TestWatchPanel; TestValueTreeSnapshots; TestTimeSeriesHistory;
     TestPCBCardinalAnchors; TestPCBZOrderAndGrid; TestSelectedTabVisibility;
     TestPCBConnections;
     TestPCBComponentTypes;

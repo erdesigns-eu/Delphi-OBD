@@ -82,5 +82,6 @@
   "TERDTimeSeriesChart",
   "TERDBreakpointPanel",
   "TERDCallStack",
-  "TERDLocalsPanel"
+  "TERDLocalsPanel",
+  "TERDWatchPanel"
 ]
